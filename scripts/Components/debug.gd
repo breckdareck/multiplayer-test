@@ -1,0 +1,32 @@
+extends Node
+class_name MyDebugComponent 
+
+@onready var debug_panel: Panel = $"."
+@onready var debug_heal: Button = $VBoxContainer/DebugHeal
+@onready var debug_damage: Button = $VBoxContainer/DebugDamage
+@onready var debug_revive: Button = $VBoxContainer/DebugRevive
+
+var health_component: HealthComponent
+var player: MultiplayerPlayer
+
+func _ready() -> void:
+	debug_heal.pressed.connect(_on_debug_heal_pressed)
+	debug_damage.pressed.connect(_on_debug_damage_pressed)
+	debug_revive.pressed.connect(_on_debug_revive_pressed)
+
+func set_health_component(component: HealthComponent) -> void:
+	health_component = component
+
+func set_player(player_node: MultiplayerPlayer) -> void:
+	player = player_node
+
+func _on_debug_heal_pressed() -> void:
+	if health_component:
+		health_component.heal_damage.rpc(5)
+
+func _on_debug_damage_pressed() -> void:
+	if health_component:
+		health_component.take_damage.rpc(10, null, true)
+		
+func _on_debug_revive_pressed() -> void:
+	player._respawn.rpc()

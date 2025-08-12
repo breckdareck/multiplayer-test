@@ -1,0 +1,215 @@
+[gd_scene load_steps=23 format=3 uid="uid://q6iqwsi8meq4"]
+
+[ext_resource type="Texture2D" uid="uid://dgjvvxhehw5y3" path="res://assets/sprites/slime_green.png" id="1_7p1mj"]
+[ext_resource type="Script" uid="uid://cj6lu2r6oxt6o" path="res://scripts/Enemy/enemy_base.gd" id="1_fd6lc"]
+[ext_resource type="Script" uid="uid://dhhn4ks2uixk8" path="res://scripts/Components/health.gd" id="2_0l8pv"]
+[ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="2_fd6lc"]
+[ext_resource type="Script" uid="uid://dwv2k28spwfby" path="res://scripts/StateMachine/state_machine.gd" id="4_2npkn"]
+[ext_resource type="Script" uid="uid://dk2rcptcq3hb8" path="res://scripts/Enemy/StateMachine/enemy_patrol.gd" id="6_fd6lc"]
+[ext_resource type="Script" uid="uid://u6b813y5rtm4" path="res://scripts/Enemy/StateMachine/enemy_idle.gd" id="6_v5wyi"]
+[ext_resource type="Script" uid="uid://bfh8yeyv2wu0g" path="res://scripts/Player/StateMachine/death.gd" id="8_0l8pv"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_n6pvg"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath("AnimatedSprite2D:flip_h")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath("Health:current_health")
+properties/2/spawn = true
+properties/2/replication_mode = 1
+properties/3/path = NodePath("Health:is_dead")
+properties/3/spawn = true
+properties/3/replication_mode = 1
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_n6pvg"]
+radius = 6.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0l8pv"]
+bg_color = Color(0.0866292, 0.0866293, 0.0866292, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vnioy"]
+bg_color = Color(1, 0.0784314, 0.12549, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_n6pvg"]
+atlas = ExtResource("1_7p1mj")
+region = Rect2(72, 0, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pjw23"]
+atlas = ExtResource("1_7p1mj")
+region = Rect2(48, 0, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2npkn"]
+atlas = ExtResource("1_7p1mj")
+region = Rect2(24, 0, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fd6lc"]
+atlas = ExtResource("1_7p1mj")
+region = Rect2(0, 0, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_md0e3"]
+atlas = ExtResource("1_7p1mj")
+region = Rect2(0, 24, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4ra3w"]
+atlas = ExtResource("1_7p1mj")
+region = Rect2(24, 24, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5uy6h"]
+atlas = ExtResource("1_7p1mj")
+region = Rect2(48, 24, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c4w8v"]
+atlas = ExtResource("1_7p1mj")
+region = Rect2(72, 24, 24, 24)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_xwavj"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_n6pvg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pjw23")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2npkn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fd6lc")
+}],
+"loop": false,
+"name": &"death",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_md0e3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4ra3w")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5uy6h")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_c4w8v")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_md0e3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4ra3w")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5uy6h")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_c4w8v")
+}],
+"loop": true,
+"name": &"patrol",
+"speed": 10.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_v5wyi"]
+size = Vector2(64, 37)
+
+[node name="Slime" type="CharacterBody2D" node_paths=PackedStringArray("health_component") groups=["networked_entities"]]
+collision_layer = 8
+collision_mask = 5
+script = ExtResource("1_fd6lc")
+movement_speed = 80.0
+health_component = NodePath("Health")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_n6pvg")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -6)
+shape = SubResource("CircleShape2D_n6pvg")
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("2_0l8pv")
+max_health = 10
+health_bar_path = NodePath("../HealthBar")
+
+[node name="Label" type="Label" parent="."]
+offset_left = -20.0
+offset_top = -48.0
+offset_right = 20.0
+offset_bottom = -39.0
+theme_override_fonts/font = ExtResource("2_fd6lc")
+theme_override_font_sizes/font_size = 8
+text = "State"
+horizontal_alignment = 1
+
+[node name="HealthBar" type="ProgressBar" parent="."]
+offset_left = -11.0
+offset_top = -37.0
+offset_right = 89.0
+offset_bottom = -27.0
+scale = Vector2(0.225, 0.225)
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_0l8pv")
+theme_override_styles/fill = SubResource("StyleBoxFlat_vnioy")
+step = 1.0
+value = 73.0
+show_percentage = false
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(0, -12)
+sprite_frames = SubResource("SpriteFrames_xwavj")
+animation = &"patrol"
+autoplay = "idle"
+
+[node name="Hitbox" type="Area2D" parent="."]
+collision_layer = 8
+collision_mask = 2
+
+[node name="SlashCollisionShape" type="CollisionShape2D" parent="Hitbox"]
+position = Vector2(20, -19.5)
+shape = SubResource("RectangleShape2D_v5wyi")
+disabled = true
+
+[node name="BodyHitbox" type="Area2D" parent="."]
+collision_layer = 8
+collision_mask = 2
+
+[node name="EnemyBody" type="CollisionShape2D" parent="BodyHitbox"]
+position = Vector2(0, -6)
+shape = SubResource("CircleShape2D_n6pvg")
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("starting_state", "state_label")]
+script = ExtResource("4_2npkn")
+starting_state = NodePath("patrol")
+state_label = NodePath("../Label")
+
+[node name="idle" type="Node" parent="StateMachine" node_paths=PackedStringArray("patrol_state")]
+script = ExtResource("6_v5wyi")
+patrol_state = NodePath("../patrol")
+animation_name = "idle"
+
+[node name="patrol" type="Node" parent="StateMachine" node_paths=PackedStringArray("idle_state")]
+script = ExtResource("6_fd6lc")
+idle_state = NodePath("../idle")
+animation_name = "patrol"
+
+[node name="death" type="Node" parent="StateMachine" node_paths=PackedStringArray("respawn_state")]
+script = ExtResource("8_0l8pv")
+respawn_state = NodePath("../patrol")
+animation_name = "death"
