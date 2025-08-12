@@ -15,10 +15,10 @@ Welcome to the **Multiplayer Godot Project**! This project is a demonstration of
 ## Screenshots
 
 ### Main Menu
-![Main Menu](main_menu_view.png)
+![Main Menu](README/main_menu_view.png)
 
 ### In-Game View
-![In-Game](In_game_view.png)
+![In-Game](README/In_game_view.png)
 
 ## Getting Started
 
