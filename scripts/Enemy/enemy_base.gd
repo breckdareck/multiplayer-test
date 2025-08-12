@@ -37,12 +37,12 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	if multiplayer.is_server():
+	if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
 		state_machine.process_frame(delta)
 
 
 func _physics_process(delta: float) -> void:
-	if multiplayer.is_server():
+	if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
 		state_machine.process_physics(delta)
 
 

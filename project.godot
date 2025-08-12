@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Multiplayer Test"
-run/main_scene="uid://d1hwvomjwdrjv"
+run/main_scene="uid://b8gpxmwm0fasc"
 config/features=PackedStringArray("4.4", "Forward Plus")
 
 [autoload]

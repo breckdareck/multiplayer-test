@@ -12,12 +12,8 @@ var multiplayer_scene: PackedScene = preload("res://scenes/multiplayer_player.ts
 var host_mode_enabled: bool = false
 var respawn_point: Vector2 = Vector2(0, 0)
 
-@onready var _players_spawn_node: Node = get_tree().get_current_scene().get_node("Players")
-@onready var label: Label = get_tree().get_current_scene().get_node("CanvasLayer/MultiplayerHUD/Panel2/PlayerIDLabel")
-@onready var ip_address_input: LineEdit = get_tree().get_current_scene().get_node("CanvasLayer/MultiplayerHUD/Panel/VBoxContainer/IPAddress")
-@onready var _host_button: Button = get_tree().get_current_scene().get_node("CanvasLayer/MultiplayerHUD/Panel/VBoxContainer/Host")
-@onready var _join_button: Button = get_tree().get_current_scene().get_node("CanvasLayer/MultiplayerHUD/Panel/VBoxContainer/Join")
-@onready var _connection_status_label: Label = get_tree().get_current_scene().get_node("CanvasLayer/MultiplayerHUD/Panel/VBoxContainer/ConnectionStatus")
+var menu_container: Control
+
 
 # --- Entry Point ---
 func _ready():
@@ -51,20 +47,14 @@ func _start_dedicated_server(port: int = SERVER_PORT) -> void:
 	multiplayer.peer_connected.connect(_add_player_to_game)
 	multiplayer.peer_disconnected.connect(_del_player)
 
+	change_level.call_deferred(load("res://scenes/game.tscn"))
 
 # --- UI-Driven Functions (for Clients and Listen Servers) ---
-
-func reset_data():
-	host_mode_enabled = false
-	for connection in multiplayer.peer_connected.get_connections():
-		multiplayer.peer_connected.disconnect(connection.callable)
-	for connection in multiplayer.peer_disconnected.get_connections():
-		multiplayer.peer_disconnected.disconnect(connection.callable)
-	#multiplayer.multiplayer_peer = null
 
 # Call this from a "Host" button in UI.
 func host_game():
 	print("--- Starting Listen Server (Host) ---")
+	menu_container = get_tree().get_current_scene().get_node("%MenuContainer")
 	host_mode_enabled = true
 
 	var server_peer = ENetMultiplayerPeer.new()
@@ -75,72 +65,66 @@ func host_game():
 	multiplayer.peer_connected.connect(_add_player_to_game)
 	multiplayer.peer_disconnected.connect(_del_player)
 
+	change_level.call_deferred(load("res://scenes/game.tscn"))
+
 	# In listen server mode, the host is also a player.
 	# We spawn a character for the host (ID 1).
-	_add_player_to_game(1)
-	_remove_single_player_if_exists()
+	_add_player_to_game.call_deferred(1)
+	
+	menu_container.hide()
+	menu_container.setup_PID_label(true, multiplayer.multiplayer_peer.get_unique_id())
+	menu_container.connection_panel.show()
 
 	# var IP_ADDRESS: String = get_public_IP_address()
-	
-	label.get_parent().show()
-	# Hide the connection panel since we are now hosting.
-	_join_button.get_parent().get_parent().hide()
-	label.text = "HOST
-	PID: 1"
-	# IP: %s" % IP_ADDRESS
 
 
 # Call this from a "Join" button in UI.
 func join_game() -> void:
 	print("--- Joining Game (Client) ---")
-	_connection_status_label.text = "" # Clear previous status/errors
+	menu_container = get_tree().get_current_scene().get_node("%MenuContainer")
+	
+	menu_container._connection_status_label.text = "" # Clear previous status/errors
 
-	var ip_to_join: String = ip_address_input.text
+	var ip_to_join: String = menu_container.ip_address_input.text
 	if ip_to_join.is_empty():
 		ip_to_join = SERVER_IP # Use default if empty
 
 	if not is_valid_ip(ip_to_join):
 		print("%s isn't a valid IP" % ip_to_join)
-		_connection_status_label.text = "Error: Invalid IP Address."
+		menu_container._connection_status_label.text = "Error: Invalid IP Address."
 		return
 
-	_connection_status_label.text = "Connecting to %s..." % ip_to_join
-	_host_button.disabled = true
-	_join_button.disabled = true
+	menu_container._connection_status_label.text = "Connecting to %s..." % ip_to_join
+	menu_container._host_button.disabled = true
+	menu_container._join_button.disabled = true
 
 	var client_peer = ENetMultiplayerPeer.new()
 	var error = client_peer.create_client(ip_to_join, SERVER_PORT)
 
 	if error != OK:
-		_connection_status_label.text = "Error: Could not create client."
-		_join_button.disabled = false
+		menu_container._connection_status_label.text = "Error: Could not create client."
+		menu_container._join_button.disabled = false
+		menu_container._host_button.disabled = false
 		return
 
 	multiplayer.multiplayer_peer = client_peer
-
 
 # --- Client-Side Connection Handlers ---
 
 func _on_connection_succeeded() -> void:
 	print("Successfully connected to the server!")
-	# Connection is successful, now we can change the UI and game state.
-	_remove_single_player_if_exists()
-
-	# Hide the connection UI (the Panel with the IP input and buttons)
-	# and show the in-game HUD (Panel2).
-	_join_button.get_parent().get_parent().hide()
-
-	label.get_parent().show()
-	label.text = "CLIENT
-	PID: %s" % multiplayer.get_unique_id()
-
+	menu_container.hide()
+	menu_container.setup_PID_label(false, multiplayer.multiplayer_peer.get_unique_id())
+	menu_container.connection_panel.show()
+	
 
 func _on_connection_failed() -> void:
 	print("ERROR: Could not connect to the server.")
 	multiplayer.multiplayer_peer = null
 
-	_connection_status_label.text = "Error: Connection Failed."
-	_join_button.disabled = false
+	menu_container._connection_status_label.text = "Error: Connection Failed."
+	menu_container._join_button.disabled = false
+	menu_container._host_button.disabled = false
 
 
 func _on_server_disconnected() -> void:
@@ -148,12 +132,8 @@ func _on_server_disconnected() -> void:
 	multiplayer.multiplayer_peer = null
 
 	# Reset UI to the pre-connection state.
-	_connection_status_label.text = "Disconnected from server."
-	_join_button.disabled = false
-	_join_button.get_parent().get_parent().show()
-	label.get_parent().hide()
-	# For a robust reset, you might want to reload the entire scene.
-	get_tree().reload_current_scene()
+	menu_container._connection_status_label.text = "Disconnected from server."
+	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
 
 # --- Player Management (Server-Side) ---
 
@@ -173,25 +153,21 @@ func _add_player_to_game(id: int):
 	var player_to_add: Node = multiplayer_scene.instantiate()
 	player_to_add.player_id = id
 	player_to_add.name = str(id)
-	_players_spawn_node.add_child(player_to_add, true)
+	var players_spawn_node = _get_players_spawn_node()
+	if players_spawn_node:
+		players_spawn_node.add_child(player_to_add, true)
+	else:
+		push_error("Could not find 'Players' node in the current scene when adding player.")
 
 
 func _del_player(id: int) -> void:
 	print("Player %s left the game! Removing character." % id)
-	if _players_spawn_node.has_node(str(id)):
-		_players_spawn_node.get_node(str(id)).queue_free()
+	var players_spawn_node = _get_players_spawn_node()
+	if players_spawn_node and players_spawn_node.has_node(str(id)):
+		players_spawn_node.get_node(str(id)).queue_free()
 
 
 # --- Utility ---
-
-# Helper to remove the default single-player character when entering multiplayer.
-func _remove_single_player_if_exists():
-	var scene_root: Node = get_tree().get_current_scene()
-	if scene_root.has_node("Player"):
-		print("Removing single player character.")
-		scene_root.get_node("Player").queue_free()
-
-
 func get_public_IP_address() -> String:
 	var upnp = UPNP.new()
 	upnp.discover(2000, 2, 'InternetGatewayDevice')
@@ -221,3 +197,43 @@ func is_valid_ip(text: String) -> bool:
 			return false
 
 	return true
+
+
+func _get_players_spawn_node() -> Node:
+	var scene = get_tree().current_scene.get_node("Level")
+	if scene:
+		# Recursively search for the "Players" node, instead of only checking immediate children.
+		return scene.find_child("Players", true, false)
+	return null
+
+
+func reset_data():
+	host_mode_enabled = false
+	# Disconnect multiplayer signals
+	if multiplayer.peer_connected.is_connected(_add_player_to_game):
+		multiplayer.peer_connected.disconnect(_add_player_to_game)
+	if multiplayer.peer_disconnected.is_connected(_del_player):
+		multiplayer.peer_disconnected.disconnect(_del_player)
+	# Close and null the peer if it exists
+	if multiplayer.multiplayer_peer:
+		multiplayer.multiplayer_peer.close()
+		multiplayer.multiplayer_peer = null
+	# Clean up all multiplayer player nodes
+	var players_spawn_node = _get_players_spawn_node()
+	if players_spawn_node:
+		for child in players_spawn_node.get_children():
+			child.queue_free()
+	# Optionally, clean up other dynamically spawned networked entities
+	var scene_root = get_tree().get_current_scene()
+	for entity in scene_root.get_tree().get_nodes_in_group("networked_entities"):
+		entity.queue_free()
+
+
+func change_level(scene: PackedScene):
+	# Remove old level if any.
+	var level = get_tree().current_scene.get_node("Level")
+	for c in level.get_children():
+		level.remove_child(c)
+		c.queue_free()
+	# Add new level.
+	level.add_child(scene.instantiate())

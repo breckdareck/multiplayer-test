@@ -1,10 +1,9 @@
-[gd_scene load_steps=18 format=3 uid="uid://d1hwvomjwdrjv"]
+[gd_scene load_steps=16 format=3 uid="uid://d1hwvomjwdrjv"]
 
 [ext_resource type="Script" uid="uid://b7t1yw1uohpqm" path="res://scripts/Managers/game_manager.gd" id="1_gee14"]
 [ext_resource type="Texture2D" uid="uid://jorjvuc5wn72" path="res://assets/sprites/world_tileset.png" id="2_yqjtg"]
 [ext_resource type="PackedScene" uid="uid://dprr4d0kjfbgn" path="res://scenes/platform.tscn" id="3_lnu2h"]
 [ext_resource type="PackedScene" uid="uid://7sq2fu3r3dty" path="res://scenes/coin.tscn" id="4_lbhrr"]
-[ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="4_vtaks"]
 [ext_resource type="PackedScene" uid="uid://bx2n3vrfxk75m" path="res://scenes/killzone.tscn" id="5_iywne"]
 [ext_resource type="PackedScene" uid="uid://q6iqwsi8meq4" path="res://scenes/slime.tscn" id="6_p57ef"]
 [ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="7_u5sy4"]
@@ -178,13 +177,6 @@ physics_layer_0/collision_layer = 1
 physics_layer_0/collision_mask = 2
 sources/0 = SubResource("TileSetAtlasSource_lnu2h")
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0tnpc"]
-bg_color = Color(0.316167, 0.316167, 0.316167, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
-
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_p57ef"]
 
 [sub_resource type="Animation" id="Animation_lbhrr"]
@@ -261,105 +253,6 @@ theme_override_font_sizes/font_size = 8
 text = "Space to Jump.
 Arrow Keys or A/D to Move."
 horizontal_alignment = 1
-
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
-
-[node name="MultiplayerHUD" type="Control" parent="CanvasLayer"]
-unique_name_in_owner = true
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="Panel" type="Panel" parent="CanvasLayer/MultiplayerHUD"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -350.0
-offset_top = -250.0
-offset_right = 350.0
-offset_bottom = 250.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_0tnpc")
-
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/MultiplayerHUD/Panel"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -340.0
-offset_top = -240.0
-offset_right = 340.0
-offset_bottom = 240.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_constants/separation = 10
-alignment = 1
-
-[node name="Host" type="Button" parent="CanvasLayer/MultiplayerHUD/Panel/VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-mouse_default_cursor_shape = 2
-theme_override_fonts/font = ExtResource("7_u5sy4")
-theme_override_font_sizes/font_size = 64
-text = "Host"
-
-[node name="Join" type="Button" parent="CanvasLayer/MultiplayerHUD/Panel/VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-mouse_default_cursor_shape = 2
-theme_override_fonts/font = ExtResource("7_u5sy4")
-theme_override_font_sizes/font_size = 64
-text = "Join"
-
-[node name="IPAddress" type="LineEdit" parent="CanvasLayer/MultiplayerHUD/Panel/VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_fonts/font = ExtResource("7_u5sy4")
-theme_override_font_sizes/font_size = 48
-placeholder_text = "127.0.0.1"
-alignment = 1
-max_length = 15
-
-[node name="ConnectionStatus" type="Label" parent="CanvasLayer/MultiplayerHUD/Panel/VBoxContainer"]
-layout_mode = 2
-
-[node name="Panel2" type="Panel" parent="CanvasLayer/MultiplayerHUD"]
-visible = false
-layout_mode = 0
-offset_left = 20.0
-offset_top = 20.0
-offset_right = 320.0
-offset_bottom = 120.0
-
-[node name="PlayerIDLabel" type="Label" parent="CanvasLayer/MultiplayerHUD/Panel2"]
-layout_mode = 0
-offset_right = 300.0
-offset_bottom = 100.0
-theme_override_fonts/font = ExtResource("4_vtaks")
-theme_override_font_sizes/font_size = 16
-text = "HOST
-PID: 123456789
-IP: 111.111.111.111"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Disconnect" type="Button" parent="CanvasLayer/MultiplayerHUD/Panel2"]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-text = "X"
 
 [node name="Killzone" parent="." instance=ExtResource("5_iywne")]
 position = Vector2(-1, 92)
@@ -451,7 +344,3 @@ position = Vector2(341, 0)
 
 [node name="EnemySpawnLocation3" type="Marker2D" parent="EnemySpawner"]
 position = Vector2(382, 0)
-
-[connection signal="pressed" from="CanvasLayer/MultiplayerHUD/Panel/VBoxContainer/Host" to="GameManager" method="host_game"]
-[connection signal="pressed" from="CanvasLayer/MultiplayerHUD/Panel/VBoxContainer/Join" to="GameManager" method="join_game"]
-[connection signal="pressed" from="CanvasLayer/MultiplayerHUD/Panel2/Disconnect" to="GameManager" method="disconnect_from_server"]
