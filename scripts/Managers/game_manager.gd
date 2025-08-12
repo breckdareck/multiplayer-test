@@ -16,4 +16,5 @@ func join_game():
 	
 		
 func disconnect_from_server():
-	multiplayer.multiplayer_peer.close()
+	MultiplayerManager.reset_data()
+	get_tree().reload_current_scene()

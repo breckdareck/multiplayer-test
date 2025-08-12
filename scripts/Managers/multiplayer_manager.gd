@@ -15,6 +15,7 @@ var respawn_point: Vector2 = Vector2(0, 0)
 @onready var _players_spawn_node: Node = get_tree().get_current_scene().get_node("Players")
 @onready var label: Label = get_tree().get_current_scene().get_node("CanvasLayer/MultiplayerHUD/Panel2/PlayerIDLabel")
 @onready var ip_address_input: LineEdit = get_tree().get_current_scene().get_node("CanvasLayer/MultiplayerHUD/Panel/VBoxContainer/IPAddress")
+@onready var _host_button: Button = get_tree().get_current_scene().get_node("CanvasLayer/MultiplayerHUD/Panel/VBoxContainer/Host")
 @onready var _join_button: Button = get_tree().get_current_scene().get_node("CanvasLayer/MultiplayerHUD/Panel/VBoxContainer/Join")
 @onready var _connection_status_label: Label = get_tree().get_current_scene().get_node("CanvasLayer/MultiplayerHUD/Panel/VBoxContainer/ConnectionStatus")
 
@@ -52,6 +53,14 @@ func _start_dedicated_server(port: int = SERVER_PORT) -> void:
 
 
 # --- UI-Driven Functions (for Clients and Listen Servers) ---
+
+func reset_data():
+	host_mode_enabled = false
+	for connection in multiplayer.peer_connected.get_connections():
+		multiplayer.peer_connected.disconnect(connection.callable)
+	for connection in multiplayer.peer_disconnected.get_connections():
+		multiplayer.peer_disconnected.disconnect(connection.callable)
+	#multiplayer.multiplayer_peer = null
 
 # Call this from a "Host" button in UI.
 func host_game():
@@ -96,6 +105,7 @@ func join_game() -> void:
 		return
 
 	_connection_status_label.text = "Connecting to %s..." % ip_to_join
+	_host_button.disabled = true
 	_join_button.disabled = true
 
 	var client_peer = ENetMultiplayerPeer.new()
@@ -181,10 +191,12 @@ func _remove_single_player_if_exists():
 		print("Removing single player character.")
 		scene_root.get_node("Player").queue_free()
 
+
 func get_public_IP_address() -> String:
 	var upnp = UPNP.new()
 	upnp.discover(2000, 2, 'InternetGatewayDevice')
 	return upnp.query_external_address()
+
 
 func is_valid_ip(text: String) -> bool:
 	var parts = text.split('.')
