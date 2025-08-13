@@ -70,6 +70,7 @@ alignment = 1
 [node name="Host" type="Button" parent="CanvasLayer/MenuContainer/MenuPanel/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+focus_mode = 0
 mouse_default_cursor_shape = 2
 theme_override_fonts/font = ExtResource("1_ekxnf")
 theme_override_font_sizes/font_size = 64
@@ -78,6 +79,7 @@ text = "Host"
 [node name="Join" type="Button" parent="CanvasLayer/MenuContainer/MenuPanel/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+focus_mode = 0
 mouse_default_cursor_shape = 2
 theme_override_fonts/font = ExtResource("1_ekxnf")
 theme_override_font_sizes/font_size = 64
@@ -86,6 +88,7 @@ text = "Join"
 [node name="IPAddress" type="LineEdit" parent="CanvasLayer/MenuContainer/MenuPanel/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+focus_mode = 1
 theme_override_fonts/font = ExtResource("1_ekxnf")
 theme_override_font_sizes/font_size = 48
 placeholder_text = "127.0.0.1"
@@ -107,18 +110,20 @@ offset_bottom = 120.0
 layout_mode = 0
 offset_right = 300.0
 offset_bottom = 100.0
+theme_override_constants/outline_size = 4
 theme_override_fonts/font = ExtResource("3_bqqt6")
 theme_override_font_sizes/font_size = 16
 text = "HOST
-PID: 123456789
-IP: 111.111.111.111"
+PID: 123456789"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Disconnect" type="Button" parent="CanvasLayer/ConnectionPanel"]
 layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+offset_right = 50.0
+offset_bottom = 48.0
+focus_mode = 0
+theme_override_font_sizes/font_size = 23
 text = "X"
 
 [connection signal="pressed" from="CanvasLayer/MenuContainer/MenuPanel/VBoxContainer/Host" to="CanvasLayer/MenuContainer" method="host_game"]

@@ -1,4 +1,4 @@
-[gd_scene load_steps=99 format=3 uid="uid://dbdd8ksqc555h"]
+[gd_scene load_steps=101 format=3 uid="uid://dbdd8ksqc555h"]
 
 [ext_resource type="Script" uid="uid://blpqa7v4vj8ql" path="res://scripts/Player/multiplayer_controller.gd" id="1_80evv"]
 [ext_resource type="Script" uid="uid://cy1j38lpy671e" path="res://scripts/Player/multiplayer_input.gd" id="2_k8tkd"]
@@ -107,6 +107,20 @@ corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7vu7v"]
+bg_color = Color(0.113049, 0.113049, 0.113049, 0.666667)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0r45a"]
+bg_color = Color(0, 0, 0, 0.666667)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v00ed"]
 bg_color = Color(0.168627, 0.168627, 0.168627, 0.882353)
@@ -869,13 +883,166 @@ text = "38%"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="MobileButtons" type="Control" parent="CanvasLayer/PlayerHUD"]
+visible = false
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="LeftButton" type="Button" parent="CanvasLayer/PlayerHUD/MobileButtons"]
+layout_mode = 0
+offset_left = 89.0
+offset_top = -165.0
+offset_right = 233.0
+offset_bottom = -21.0
+focus_mode = 0
+theme_override_styles/hover = SubResource("StyleBoxFlat_7vu7v")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_0r45a")
+theme_override_styles/normal = SubResource("StyleBoxFlat_7vu7v")
+
+[node name="Label" type="Label" parent="CanvasLayer/PlayerHUD/MobileButtons/LeftButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 100
+text = "<"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="RightButton" type="Button" parent="CanvasLayer/PlayerHUD/MobileButtons"]
+layout_mode = 0
+offset_left = 324.0
+offset_top = -165.0
+offset_right = 468.0
+offset_bottom = -21.0
+focus_mode = 0
+theme_override_styles/hover = SubResource("StyleBoxFlat_7vu7v")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_0r45a")
+theme_override_styles/normal = SubResource("StyleBoxFlat_7vu7v")
+
+[node name="Label" type="Label" parent="CanvasLayer/PlayerHUD/MobileButtons/RightButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 100
+text = ">"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AttackButton" type="Button" parent="CanvasLayer/PlayerHUD/MobileButtons"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -340.0
+offset_top = -165.0
+offset_right = -196.0
+offset_bottom = -21.0
+grow_horizontal = 0
+grow_vertical = 0
+focus_mode = 0
+theme_override_styles/hover = SubResource("StyleBoxFlat_7vu7v")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_0r45a")
+theme_override_styles/normal = SubResource("StyleBoxFlat_7vu7v")
+
+[node name="Label" type="Label" parent="CanvasLayer/PlayerHUD/MobileButtons/AttackButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 40
+text = "Attack"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="JumpButton" type="Button" parent="CanvasLayer/PlayerHUD/MobileButtons"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -180.0
+offset_top = -165.0
+offset_right = -36.0
+offset_bottom = -21.0
+grow_horizontal = 0
+grow_vertical = 0
+focus_mode = 0
+theme_override_styles/hover = SubResource("StyleBoxFlat_7vu7v")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_0r45a")
+theme_override_styles/normal = SubResource("StyleBoxFlat_7vu7v")
+
+[node name="Label" type="Label" parent="CanvasLayer/PlayerHUD/MobileButtons/JumpButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 40
+text = "Jump"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SlideButton" type="Button" parent="CanvasLayer/PlayerHUD/MobileButtons"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -500.0
+offset_top = -165.0
+offset_right = -356.0
+offset_bottom = -21.0
+grow_horizontal = 0
+grow_vertical = 0
+focus_mode = 0
+theme_override_styles/hover = SubResource("StyleBoxFlat_7vu7v")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_0r45a")
+theme_override_styles/normal = SubResource("StyleBoxFlat_7vu7v")
+
+[node name="Label" type="Label" parent="CanvasLayer/PlayerHUD/MobileButtons/SlideButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 40
+text = "Slide"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="Debug" type="Panel" parent="CanvasLayer"]
 visible = false
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -320.0
-offset_bottom = 160.0
+offset_left = -400.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 240.0
 grow_horizontal = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_v00ed")
 script = ExtResource("3_vt463")
@@ -887,13 +1054,13 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -155.0
-offset_top = -80.0
-offset_right = 155.0
-offset_bottom = 80.0
+offset_left = -180.0
+offset_top = -100.0
+offset_right = 180.0
+offset_bottom = 100.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 15
+theme_override_constants/separation = 25
 alignment = 1
 
 [node name="Label" type="Label" parent="CanvasLayer/Debug/VBoxContainer"]
@@ -906,6 +1073,7 @@ vertical_alignment = 1
 
 [node name="DebugHeal" type="Button" parent="CanvasLayer/Debug/VBoxContainer"]
 layout_mode = 2
+size_flags_vertical = 3
 focus_mode = 0
 theme_override_fonts/font = ExtResource("2_x5v6d")
 theme_override_font_sizes/font_size = 16
@@ -913,6 +1081,7 @@ text = "Heal 5"
 
 [node name="DebugDamage" type="Button" parent="CanvasLayer/Debug/VBoxContainer"]
 layout_mode = 2
+size_flags_vertical = 3
 focus_mode = 0
 theme_override_fonts/font = ExtResource("2_x5v6d")
 theme_override_font_sizes/font_size = 16
@@ -920,6 +1089,7 @@ text = "Damage 10"
 
 [node name="DebugRevive" type="Button" parent="CanvasLayer/Debug/VBoxContainer"]
 layout_mode = 2
+size_flags_vertical = 3
 focus_mode = 0
 theme_override_fonts/font = ExtResource("2_x5v6d")
 theme_override_font_sizes/font_size = 16
@@ -1090,4 +1260,11 @@ script = ExtResource("13_sps0x")
 respawn_state = NodePath("../idle")
 animation_name = "death"
 
+[connection signal="button_down" from="CanvasLayer/PlayerHUD/MobileButtons/LeftButton" to="InputSynchronizer" method="_on_left_button_button_down"]
+[connection signal="button_up" from="CanvasLayer/PlayerHUD/MobileButtons/LeftButton" to="InputSynchronizer" method="_on_left_button_button_up"]
+[connection signal="button_down" from="CanvasLayer/PlayerHUD/MobileButtons/RightButton" to="InputSynchronizer" method="_on_right_button_button_down"]
+[connection signal="button_up" from="CanvasLayer/PlayerHUD/MobileButtons/RightButton" to="InputSynchronizer" method="_on_right_button_button_up"]
+[connection signal="pressed" from="CanvasLayer/PlayerHUD/MobileButtons/AttackButton" to="InputSynchronizer" method="_on_attack_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/PlayerHUD/MobileButtons/JumpButton" to="InputSynchronizer" method="_on_jump_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/PlayerHUD/MobileButtons/SlideButton" to="InputSynchronizer" method="_on_slide_button_pressed"]
 [connection signal="body_entered" from="Hitbox" to="Components/Combat" method="_on_hitbox_body_entered"]

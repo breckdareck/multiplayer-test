@@ -60,6 +60,8 @@ func _ready() -> void:
 			$Camera2D.make_current()
 			debug_component.debug_panel.show()
 			player_HUD.show()
+			if OS.get_name() == "Android":
+				player_HUD.get_child(1).show()
 		else:
 			$Camera2D.enabled = false
 

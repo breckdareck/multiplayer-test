@@ -6,9 +6,13 @@ extends MultiplayerSynchronizer
 		if player:
 			player.facing_direction = value
 
-@onready var player = $".."
+
 var input_direction
 var input_down: bool
+var is_left_pressed := false
+var is_right_pressed := false
+
+@onready var player = $".."
 
 
 func _ready():
@@ -21,8 +25,16 @@ func _ready():
 
 
 func _physics_process(_delta: float) -> void:
-	# Get horizontal input direction
-	input_direction = Input.get_axis("Move Left", "Move Right")
+	# Get horizontal input from keyboard.
+	var keyboard_input = Input.get_axis("Move Left", "Move Right")
+	
+	if keyboard_input != 0:
+		# Prioritize keyboard input.
+		input_direction = keyboard_input
+	else:
+		# If no keyboard input, use on-screen button state.
+		input_direction = int(is_right_pressed) - int(is_left_pressed)
+
 	# Update facing direction immediately when input changes
 	if input_direction != 0:
 		sync_facing_direction = input_direction
@@ -66,3 +78,31 @@ func slide():
 func attack():
 	if multiplayer.is_server():
 		player.do_attack = true
+
+
+func _on_left_button_button_down() -> void:
+	is_left_pressed = true
+
+
+func _on_left_button_button_up() -> void:
+	is_left_pressed = false
+
+
+func _on_right_button_button_down() -> void:
+	is_right_pressed = true
+
+
+func _on_right_button_button_up() -> void:
+	is_right_pressed = false
+
+
+func _on_attack_button_pressed() -> void:
+	attack.rpc()
+
+
+func _on_jump_button_pressed() -> void:
+	jump.rpc()
+
+
+func _on_slide_button_pressed() -> void:
+	slide.rpc()
