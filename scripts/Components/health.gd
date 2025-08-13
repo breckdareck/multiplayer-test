@@ -8,7 +8,10 @@ signal died(killer)
 # Emitted when this entity takes damage. Includes the source node if provided.
 signal damaged(amount, source)
 
-@export var max_health: int = 100
+@export var max_health: int = 100:
+	set(value):
+		max_health = value
+		health_changed.emit(current_health, max_health)
 @export_category("UI")
 @export var health_bar_path: NodePath
 
@@ -29,8 +32,9 @@ var _last_damage_source: Node = null
 			health_changed.emit(current_health, max_health)
 
 @onready var health_bar: ProgressBar = get_node_or_null(health_bar_path)
-
 @onready var invulnerability_timer: Timer = Timer.new()
+@onready var regen_timer: Timer = Timer.new()
+
 
 func _ready() -> void:
 	if not health_bar:
@@ -44,19 +48,45 @@ func _ready() -> void:
 	invulnerability_timer.timeout.connect(_on_invulnerability_timer_timeout)
 	add_child(invulnerability_timer)
 
+	# Regeneration timer setup
+	regen_timer.name = "RegenTimer"
+	regen_timer.one_shot = false
+	regen_timer.autostart = true
+	regen_timer.wait_time = 5
+	regen_timer.timeout.connect(_on_regen_timer_timeout)
+	add_child(regen_timer)
+
 	# The component now directly controls its own UI.
 	health_bar.max_value = max_health
 	health_bar.value = current_health
 	health_changed.connect(_on_health_changed)
+	
+	var owner = get_owner()
+	if owner is MultiplayerPlayer:
+		owner = owner as MultiplayerPlayer
+		owner.level_component.leveled_up.connect(_on_player_leveled)
+
+
+func _on_player_leveled(new_level: int):
+	max_health = int(max_health * pow(1.12, new_level - 1))
+	current_health = max_health
+
 
 func _on_health_changed(new_health: int, _max_health: int) -> void:
 	"""Updates the ProgressBar value when health changes."""
-	health_bar.value = new_health
 	health_bar.max_value = _max_health
+	health_bar.value = new_health
+
 
 func _on_invulnerability_timer_timeout() -> void:
 	is_invulnerable = false
 
+	
+func _on_regen_timer_timeout() -> void:
+	if current_health < max_health:
+		heal_damage(round(float(max_health)/10.0))
+
+	
 @rpc("any_peer", "call_local", "reliable")
 func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false) -> void:
 	# This function can be called from anywhere, but only the server will process it.
@@ -77,6 +107,7 @@ func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false) 
 		is_invulnerable = true
 		invulnerability_timer.start()
 
+
 @rpc("any_peer", "call_local", "reliable")
 func heal_damage(amount: int, source: Node = null) -> void:
 	# This function can be called from anywhere, but only the server will process it.
@@ -89,6 +120,7 @@ func heal_damage(amount: int, source: Node = null) -> void:
 	print("Owner '%s' healed %s damage from '%s'." % [get_owner().name, amount, source_str])
 	self.current_health += amount
 
+
 @rpc("authority", "call_local", "reliable")
 func die() -> void:
 	# Guard clauses to ensure this only runs once on the server.
@@ -99,8 +131,7 @@ func die() -> void:
 	died.emit(_last_damage_source) # Pass the killer/source to the signal
 	print("HealthComponent: Owner '%s' has died." % get_owner().name)
 
-# This function is now a regular function, intended to be called only on the server
-# by an authoritative source, like the MultiplayerPlayer script.
+
 func respawn() -> void:
 	assert(multiplayer.is_server(), "HealthComponent.respawn() should only be called on the server.")
 	is_dead = false

@@ -24,11 +24,6 @@ MultiplayerManager="*res://scripts/Managers/multiplayer_manager.gd"
 window/size/viewport_width=1920
 window/size/viewport_height=1080
 
-[editor]
-
-version_control/plugin_name="GitPlugin"
-version_control/autoload_on_startup=true
-
 [global_group]
 
 networked_entities=""

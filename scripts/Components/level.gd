@@ -4,7 +4,7 @@ extends Node
 signal experience_changed(current_exp, exp_to_level)
 signal leveled_up(new_level)
 
-@export var max_level = 99
+@export var max_level = 100
 @export var base_exp = 100
 @export var exp_growth = 1.2
 
@@ -12,6 +12,7 @@ var level = 1:
 	set(value):
 		level = value
 		leveled_up.emit(value)
+
 var experience = 0:
 	set(value):
 		experience = value

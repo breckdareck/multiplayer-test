@@ -707,7 +707,6 @@ attack_hitbox = NodePath("../../Hitbox/BasicAttackHitbox")
 
 [node name="Leveling" type="Node" parent="Components"]
 script = ExtResource("10_x5q00")
-max_level = 100
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
