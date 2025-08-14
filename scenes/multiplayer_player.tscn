@@ -57,16 +57,16 @@ properties/2/spawn = true
 properties/2/replication_mode = 1
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_x5q00"]
-properties/0/path = NodePath("Health:current_health")
+properties/0/path = NodePath("Leveling:level")
 properties/0/spawn = true
 properties/0/replication_mode = 1
-properties/1/path = NodePath("Leveling:level")
+properties/1/path = NodePath("Leveling:experience")
 properties/1/spawn = true
 properties/1/replication_mode = 1
-properties/2/path = NodePath("Leveling:experience")
+properties/2/path = NodePath("Health:max_health")
 properties/2/spawn = true
 properties/2/replication_mode = 1
-properties/3/path = NodePath("Health:max_health")
+properties/3/path = NodePath("Health:current_health")
 properties/3/spawn = true
 properties/3/replication_mode = 1
 

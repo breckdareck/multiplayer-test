@@ -27,7 +27,8 @@ var menu_container: Control
 # --- Entry Point ---
 func _ready():
 	if OS.has_feature("dedicated_server"):
-		_start_dedicated_server()
+		var port: int = _get_port_from_args()
+		_start_dedicated_server(port)
 	
 	# Connect signals for handling client connection status.
 	multiplayer.connected_to_server.connect(_on_connection_succeeded)
@@ -38,6 +39,8 @@ func _ready():
 # --- Server Functions ---
 func _start_dedicated_server(port: int = SERVER_PORT) -> void:
 	print("--- Starting Dedicated Server ---")
+	print("Process ID: %d" % OS.get_process_id())
+	
 	const MAX_PORT_ATTEMPTS: int = 10
 	var server_peer = ENetMultiplayerPeer.new()
 	
@@ -58,6 +61,10 @@ func _start_dedicated_server(port: int = SERVER_PORT) -> void:
 			multiplayer.peer_disconnected.connect(_del_player)
 
 			change_level.call_deferred(load("res://scenes/game.tscn"))
+
+			# Write server info to a file for monitoring
+			_write_server_info(IP_ADDRESS, current_port)	
+		
 			return
 
 		print("ERROR: Could not start dedicated server on port %d. Trying next port..." % current_port)
@@ -65,6 +72,42 @@ func _start_dedicated_server(port: int = SERVER_PORT) -> void:
 	# If the loop completes, all attempts have failed.
 	print("ERROR: Could not start dedicated server after %d attempts. Quitting." % MAX_PORT_ATTEMPTS)
 	get_tree().quit(1)
+
+	
+# Parse command line arguments to get the port
+func _get_port_from_args() -> int:
+	var args = OS.get_cmdline_args()
+	var default_port = SERVER_PORT
+
+	for i in range(args.size()):
+		if args[i] == "--port" and i + 1 < args.size():
+			var port_str = args[i + 1]
+			if port_str.is_valid_int():
+				var port = int(port_str)
+				print("Using port from command line: %d" % port)
+				return port
+			else:
+				print("ERROR: Invalid port specified: %s" % port_str)
+				break
+
+	print("Using default port: %d" % default_port)
+	return default_port
+
+
+# Write server information to a file for external monitoring
+func _write_server_info(ip: String, port: int) -> void:
+	var file = FileAccess.open("server_info_%d.json" % OS.get_process_id(), FileAccess.WRITE)
+	if file:
+		var server_info = {
+							  "pid": OS.get_process_id(),
+							  "ip": ip,
+							  "port": port,
+							  "started_at": Time.get_datetime_string_from_system(),
+							  "status": "running"
+						  }
+		file.store_string(JSON.stringify(server_info))
+		file.close()
+		print("Server info written to file: server_info_%d.json" % OS.get_process_id())
 
 # --- UI-Driven Functions (for Clients and Listen Servers) ---
 

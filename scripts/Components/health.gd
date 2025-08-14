@@ -83,6 +83,8 @@ func _on_invulnerability_timer_timeout() -> void:
 
 	
 func _on_regen_timer_timeout() -> void:
+	if not multiplayer.is_server():
+		return
 	if current_health < max_health:
 		heal_damage(round(float(max_health)/10.0))
 
