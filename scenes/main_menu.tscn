@@ -67,6 +67,16 @@ mouse_filter = 2
 theme_override_constants/separation = 10
 alignment = 1
 
+[node name="Username" type="LineEdit" parent="CanvasLayer/MenuContainer/MenuPanel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+focus_mode = 1
+theme_override_fonts/font = ExtResource("1_ekxnf")
+theme_override_font_sizes/font_size = 48
+placeholder_text = "Username"
+alignment = 1
+max_length = 15
+
 [node name="Host" type="Button" parent="CanvasLayer/MenuContainer/MenuPanel/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3

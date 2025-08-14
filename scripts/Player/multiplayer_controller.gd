@@ -24,6 +24,7 @@ const JUMP_VELOCITY: float = -300.0
 @export_category("UI")
 @export var player_HUD: Control
 
+var username: String = ""
 
 var direction: int = 0  # The current input direction from the synchronizer
 var facing_direction: int = 1  # The last non-zero direction, for facing
@@ -48,9 +49,19 @@ var _sprite_base_offset_x: float
 @onready var standing_collision_shape: CollisionShape2D = $StandingCollisionShape
 @onready var crouch_collision_shape: CollisionShape2D = $CrouchCollisionShape
 @onready var basic_attack_hitbox: CollisionShape2D = $Hitbox/BasicAttackHitbox
+@onready var menu_container: MainMenu = get_tree().current_scene.get_node("%MenuContainer")
 
 
 func _ready() -> void:
+	if multiplayer.get_unique_id() == player_id:
+		var menu_container_node = get_tree().current_scene.get_node("%MenuContainer")
+		if menu_container_node and menu_container_node.has_method("get_username"):
+			var user_name = (menu_container_node as MainMenu).get_username()
+			set_username.rpc(user_name)
+			request_load_data.rpc_id(1, username)
+		else:
+			print("Warning: Could not find MenuContainer or get_username method")
+
 	if OS.has_feature("dedicated_server"):
 		$Camera2D.queue_free()
 		animated_sprite.visible = false
@@ -78,6 +89,13 @@ func _ready() -> void:
 		# Connect to the health component's signals to react to death and respawn.
 		health_component.died.connect(_on_player_died)
 		$RespawnTimer.timeout.connect(_respawn)
+
+		# Connect signals to save data when it changes
+		if health_component:
+			health_component.health_changed.connect(func(_c, _m): data_changed())
+		if level_component:
+			level_component.experience_changed.connect(func(_c, _e): data_changed())
+			level_component.leveled_up.connect(func(_l): data_changed())
 
 		await get_tree().process_frame
 
@@ -114,6 +132,11 @@ func _physics_process(delta: float) -> void:
 		animated_sprite.offset.x = (
 			-_sprite_base_offset_x if facing_direction < 0 else _sprite_base_offset_x
 		)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if multiplayer.is_server():
+		state_machine.process_input(event)
 
 
 func apply_knockback(knockback: Vector2) -> void:
@@ -199,7 +222,71 @@ func drop_through_platform() -> void:
 func _on_drop_timer_timeout() -> void:
 	set_collision_mask_value(platform_layer, true)
 
+@rpc("any_peer", "call_local", "reliable")
+func set_username(name: String) -> void:
+	print("Setting username to: ", name, " for player_id: ", player_id)
+	username = name
 
-func _unhandled_input(event: InputEvent) -> void:
-	if multiplayer.is_server():
-		state_machine.process_input(event)
+
+func data_changed() -> void:
+	# This function is called when any of the main variables change
+	var data: Dictionary = save()
+	save_on_server.rpc_id(1, JSON.stringify(data))
+
+
+@rpc("any_peer", "call_local", "reliable")
+func save_on_server(data: String) -> void:
+	if not multiplayer.is_server():
+		return
+		
+	print("Saving on Server")
+	var parsed_data: Dictionary = JSON.parse_string(data)
+	var file_path: String = "player_" + parsed_data["username"] + ".json"
+	var file = FileAccess.open(file_path, FileAccess.WRITE)
+	if file:
+		file.store_string(data)
+		file.close()
+
+		
+func save() -> Dictionary:
+	var data: Dictionary = {
+		'username' = username,
+		'max_health' = health_component.max_health,
+		'current_health' = health_component.current_health,
+		'level' = level_component.level,
+		'experience' = level_component.experience
+	}
+	return data
+
+@rpc("any_peer", "call_local", "reliable")
+func request_load_data(user_name: String) -> void:
+	if not multiplayer.is_server():
+		return
+
+	var file_path: String = "player_" + user_name + ".json"
+	if FileAccess.file_exists(file_path):
+		var file = FileAccess.open(file_path, FileAccess.READ)
+		if file:
+			var content = file.get_as_text()
+			file.close()
+			var parsed_json = JSON.parse_string(content)
+			if typeof(parsed_json) == TYPE_DICTIONARY:
+				load_data(parsed_json)
+
+func load_data(data: Dictionary) -> void:
+	print("Loading data")
+	username = data.get("username", "Player")
+
+	if health_component:
+		health_component.set_block_signals(true)
+		health_component.max_health = data.get("max_health", health_component.max_health)
+		health_component.current_health = data.get("current_health", health_component.max_health)
+		health_component.set_block_signals(false)
+		health_component.health_changed.emit(health_component.current_health, health_component.max_health)
+
+	if level_component:
+		level_component.set_block_signals(true)
+		level_component.level = data.get("level", 1)
+		level_component.experience = data.get("experience", 0)
+		level_component.set_block_signals(false)
+		level_component.experience_changed.emit(level_component.experience, level_component.get_exp_to_next_level())

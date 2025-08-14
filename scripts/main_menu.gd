@@ -1,6 +1,8 @@
+class_name MainMenu
 extends Node
 
 @onready var main_menu: Control = $"."
+@onready var username_input: LineEdit = $MenuPanel/VBoxContainer/Username
 @onready var _host_button: Button = $MenuPanel/VBoxContainer/Host
 @onready var _join_button: Button = $MenuPanel/VBoxContainer/Join
 @onready var ip_address_input: LineEdit = $MenuPanel/VBoxContainer/IPAddress
@@ -34,3 +36,8 @@ func setup_PID_label(is_host: bool, pid: int):
 	else:
 		player_id_label.text = "CLIENT
 		%s" % str(pid)
+
+
+func get_username() -> String:
+	print("MainMenu returning username: ", username_input.text)
+	return username_input.text

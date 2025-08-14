@@ -61,9 +61,6 @@ func _start_dedicated_server(port: int = SERVER_PORT) -> void:
 			multiplayer.peer_disconnected.connect(_del_player)
 
 			change_level.call_deferred(load("res://scenes/game.tscn"))
-
-			# Write server info to a file for monitoring
-			_write_server_info(IP_ADDRESS, current_port)	
 		
 			return
 
@@ -92,22 +89,6 @@ func _get_port_from_args() -> int:
 
 	print("Using default port: %d" % default_port)
 	return default_port
-
-
-# Write server information to a file for external monitoring
-func _write_server_info(ip: String, port: int) -> void:
-	var file = FileAccess.open("server_info_%d.json" % OS.get_process_id(), FileAccess.WRITE)
-	if file:
-		var server_info = {
-							  "pid": OS.get_process_id(),
-							  "ip": ip,
-							  "port": port,
-							  "started_at": Time.get_datetime_string_from_system(),
-							  "status": "running"
-						  }
-		file.store_string(JSON.stringify(server_info))
-		file.close()
-		print("Server info written to file: server_info_%d.json" % OS.get_process_id())
 
 # --- UI-Driven Functions (for Clients and Listen Servers) ---
 
@@ -280,6 +261,7 @@ func _add_player_to_game(id: int):
 	var player_to_add: Node = multiplayer_scene.instantiate()
 	player_to_add.player_id = id
 	player_to_add.name = str(id)
+
 	var players_spawn_node = _get_players_spawn_node()
 	if players_spawn_node:
 		players_spawn_node.add_child(player_to_add, true)
