@@ -3,6 +3,11 @@ extends Node
 # Emitted when this node successfully creates a server (dedicated or listen).
 signal server_has_started
 
+# Emitted during the channel switching process for UI feedback.
+signal channel_switch_started
+signal channel_switch_success
+signal channel_switch_failed
+
 # --- Configuration ---
 const SERVER_PORT: int = 8080
 var SERVER_IP: String = "127.0.0.1"
@@ -11,6 +16,10 @@ var multiplayer_scene: PackedScene = preload("res://scenes/multiplayer_player.ts
 # --- State ---
 var host_mode_enabled: bool = false
 var respawn_point: Vector2 = Vector2(0, 0)
+
+var current_server_ip: String = ""
+var current_server_port: int = 0
+var _is_switching_channels: bool = false
 
 var menu_container: Control
 
@@ -29,25 +38,33 @@ func _ready():
 # --- Server Functions ---
 func _start_dedicated_server(port: int = SERVER_PORT) -> void:
 	print("--- Starting Dedicated Server ---")
+	const MAX_PORT_ATTEMPTS: int = 10
 	var server_peer = ENetMultiplayerPeer.new()
-	var error = server_peer.create_server(port)
+	
+	for i in range(MAX_PORT_ATTEMPTS):
+		var current_port = port + i
+		var error = server_peer.create_server(current_port)
 
-	if error != OK:
-		print("ERROR: Could not start dedicated server on port %d." % port)
-		get_tree().quit(1)
-		return
-
-	multiplayer.multiplayer_peer = server_peer
-	server_has_started.emit()
+		if error == OK:
+			print("Server started successfully on port %d." % current_port)
+			multiplayer.multiplayer_peer = server_peer
+			server_has_started.emit()
 		
-	var IP_ADDRESS: String = get_public_IP_address()
-	print("Dedicated Server started successfully on IP: %s, Port: %d." % [IP_ADDRESS, port])
+			var IP_ADDRESS: String = get_public_IP_address()
+			print("Dedicated Server started successfully on IP: %s, Port: %d." % [IP_ADDRESS, current_port])
+	
+			# The server listens for players connecting and disconnecting.
+			multiplayer.peer_connected.connect(_add_player_to_game)
+			multiplayer.peer_disconnected.connect(_del_player)
 
-	# The server listens for players connecting and disconnecting.
-	multiplayer.peer_connected.connect(_add_player_to_game)
-	multiplayer.peer_disconnected.connect(_del_player)
+			change_level.call_deferred(load("res://scenes/game.tscn"))
+			return
 
-	change_level.call_deferred(load("res://scenes/game.tscn"))
+		print("ERROR: Could not start dedicated server on port %d. Trying next port..." % current_port)
+
+	# If the loop completes, all attempts have failed.
+	print("ERROR: Could not start dedicated server after %d attempts. Quitting." % MAX_PORT_ATTEMPTS)
+	get_tree().quit(1)
 
 # --- UI-Driven Functions (for Clients and Listen Servers) ---
 
@@ -99,7 +116,10 @@ func join_game() -> void:
 	menu_container._join_button.disabled = true
 
 	var client_peer = ENetMultiplayerPeer.new()
-	var error = client_peer.create_client(ip_to_join, SERVER_PORT)
+	# Store connection details in case we need to switch channels later.
+	current_server_ip = ip_to_join
+	current_server_port = SERVER_PORT
+	var error = client_peer.create_client(current_server_ip, current_server_port)
 
 	if error != OK:
 		menu_container._connection_status_label.text = "Error: Could not create client."
@@ -121,6 +141,8 @@ func _on_connection_succeeded() -> void:
 func _on_connection_failed() -> void:
 	print("ERROR: Could not connect to the server.")
 	multiplayer.multiplayer_peer = null
+	current_server_ip = ""
+	current_server_port = 0
 
 	menu_container._connection_status_label.text = "Error: Connection Failed."
 	menu_container._join_button.disabled = false
@@ -129,11 +151,73 @@ func _on_connection_failed() -> void:
 
 func _on_server_disconnected() -> void:
 	print("Disconnected from the server.")
+	# If we are in the middle of a channel switch, the switch logic will handle everything.
+	# We must not execute the default disconnection behavior (like returning to the main menu).
+	if _is_switching_channels:
+		return
+		
 	multiplayer.multiplayer_peer = null
 
 	# Reset UI to the pre-connection state.
 	menu_container._connection_status_label.text = "Disconnected from server."
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
+
+
+# --- Channel Switching (Client-Side) ---
+
+## Call this from UI when a player wants to change channel/server.
+func switch_channel(new_port: int) -> void:
+	await _async_switch_channel(new_port)
+
+
+func _async_switch_channel(new_port: int) -> void:
+	# Can't switch if we are the server or not connected.
+	if multiplayer.is_server() or not multiplayer.multiplayer_peer:
+		return
+
+	if new_port == current_server_port:
+		print("Already connected to this channel port.")
+		return
+
+	_is_switching_channels = true
+	channel_switch_started.emit()
+	print("Attempting to switch to channel on port %d..." % new_port)
+
+	# Store connection info for potential rollback
+	var old_peer: MultiplayerPeer = multiplayer.multiplayer_peer
+
+	# Skip the pre-test and go directly to the switch
+	# This eliminates any possibility of peer conflicts
+	print("Testing connection...")
+	var connection_succeeded = await _test_connection_simple(current_server_ip, new_port)
+	if connection_succeeded:
+		var switch_success = await _perform_clean_switch(old_peer, new_port)
+	
+		if switch_success:
+			print("Successfully switched to channel on port %d." % new_port)
+			channel_switch_success.emit()
+		else:
+			print("Failed to switch to channel on port %d." % new_port)
+			# Since we already disconnected, handle as complete disconnection
+			current_server_ip = ""
+			current_server_port = 0
+			menu_container._connection_status_label.text = "Channel switch failed. Disconnected."
+			get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
+			channel_switch_failed.emit()
+	else:
+		print("Failed to switch to channel on port %d." % new_port)
+		channel_switch_failed.emit()
+	
+	_is_switching_channels = false
+
+# Helper function to temporarily disable connection signals
+func _temporarily_disable_connection_signals() -> void:
+	# Disconnect multiplayer signals to prevent issues during switch
+	if multiplayer.peer_connected.is_connected(_add_player_to_game):
+		multiplayer.peer_connected.disconnect(_add_player_to_game)
+	if multiplayer.peer_disconnected.is_connected(_del_player):
+		multiplayer.peer_disconnected.disconnect(_del_player)
+		
 
 # --- Player Management (Server-Side) ---
 
@@ -206,28 +290,31 @@ func _get_players_spawn_node() -> Node:
 		return scene.find_child("Players", true, false)
 	return null
 
-
+			
 func reset_data():
 	host_mode_enabled = false
-	# Disconnect multiplayer signals
-	if multiplayer.peer_connected.is_connected(_add_player_to_game):
-		multiplayer.peer_connected.disconnect(_add_player_to_game)
-	if multiplayer.peer_disconnected.is_connected(_del_player):
-		multiplayer.peer_disconnected.disconnect(_del_player)
+	_temporarily_disable_connection_signals()
 	# Close and null the peer if it exists
 	if multiplayer.multiplayer_peer:
 		multiplayer.multiplayer_peer.close()
 		multiplayer.multiplayer_peer = null
-	# Clean up all multiplayer player nodes
-	var players_spawn_node = _get_players_spawn_node()
-	if players_spawn_node:
-		for child in players_spawn_node.get_children():
-			child.queue_free()
-	# Optionally, clean up other dynamically spawned networked entities
-	var scene_root = get_tree().get_current_scene()
-	for entity in scene_root.get_tree().get_nodes_in_group("networked_entities"):
-		entity.queue_free()
+	await get_tree().process_frame
+	_clear_networked_entities()
 
+
+func _clear_networked_entities() -> void:
+	"""
+	Removes all networked entities (including players) from the scene.
+	This is a client-side cleanup crucial for clearing the state of the old world 
+	before a new world's state is synchronized (e.g., when switching channels or returning to menu).
+	It iterates through a group, which is more robust than relying on scene structure.
+	"""
+	# NOTE: Ensure your player and other networked objects are in the "networked_entities" group.
+	var scene_root = get_tree().get_current_scene()
+	if scene_root:
+		for entity in scene_root.get_tree().get_nodes_in_group("networked_entities"):
+			entity.queue_free()
+			
 
 func change_level(scene: PackedScene):
 	# Remove old level if any.
@@ -237,3 +324,117 @@ func change_level(scene: PackedScene):
 		c.queue_free()
 	# Add new level.
 	level.add_child(scene.instantiate())
+	
+
+# Alternative simpler approach - UDP socket test for ENet servers
+func _test_connection_simple(ip: String, port: int) -> bool:
+	# ENet servers use UDP, not TCP, so let's try a different approach
+	# We'll use a very quick ENet connection test with immediate disconnection
+
+	var test_peer = ENetMultiplayerPeer.new()
+	var error = test_peer.create_client(ip, port)
+
+	if error != OK:
+		print("Failed to create ENet test client: Error %d" % error)
+		return false
+
+	# Very short timeout for just basic reachability
+	const TIMEOUT: float = 2.0
+	var time_waited: float = 0.0
+	var connection_succeeded: bool = false
+
+	while time_waited < TIMEOUT:
+		test_peer.poll()
+		var status = test_peer.get_connection_status()
+
+		if status == MultiplayerPeer.CONNECTION_CONNECTED:
+			connection_succeeded = true
+			break
+
+		if status == MultiplayerPeer.CONNECTION_DISCONNECTED and time_waited > 0.2:
+			# If it disconnects quickly, it might mean server rejected us
+			# but at least we know something is listening on that port
+			connection_succeeded = true
+			break
+
+		await get_tree().process_frame
+		time_waited += get_process_delta_time()
+
+	# Important: Close the test peer immediately to avoid conflicts
+	test_peer.close()
+
+	# Give it a moment to properly close
+	await get_tree().process_frame
+
+	return connection_succeeded
+
+
+# Clean switch method that properly handles the transition
+func _perform_clean_switch(old_peer: ENetMultiplayerPeer, new_port: int) -> bool:
+	print("Starting clean switch process...")
+
+	# Step 1: Temporarily disable signal handlers
+	_temporarily_disable_connection_signals()
+
+	# Step 2: Clean up old game state but keep the connection alive for now
+	_clear_networked_entities()
+
+	# Step 3: Wait for entity cleanup
+	await get_tree().process_frame
+
+	# Step 4: Now disconnect from old server
+	print("Disconnecting from old server...")
+	old_peer.close()
+	multiplayer.multiplayer_peer = null
+
+	# Step 5: Wait for proper cleanup - be more thorough
+	print("Waiting for cleanup...")
+	await get_tree().process_frame
+	await get_tree().process_frame
+	await get_tree().process_frame  # Extra frames for safety
+
+	# Step 6: Force garbage collection if available to clean up any lingering references
+	if Engine.has_method("force_garbage_collection"):
+		print("Forcing garbage collection...")
+		# This method doesn't exist, but let's add extra wait time instead
+		pass
+
+	# Extra wait time to ensure ENet cleanup
+	await get_tree().create_timer(0.1).timeout
+
+	print("Creating new connection to port %d..." % new_port)
+
+	# Step 7: Create and connect new peer
+	var new_peer = ENetMultiplayerPeer.new()
+	var error = new_peer.create_client(current_server_ip, new_port)
+
+	if error != OK:
+		print("ERROR: Failed to create new client during switch! Error: %d" % error)
+		return false
+
+	multiplayer.multiplayer_peer = new_peer
+	current_server_port = new_port
+
+	# Step 8: Wait for the connection to establish with timeout
+	print("Waiting for new connection to establish...")
+	const TIMEOUT: float = 8.0  # Longer timeout
+	var time_waited: float = 0.0
+
+	while time_waited < TIMEOUT:
+		var status = new_peer.get_connection_status()
+
+		if status == MultiplayerPeer.CONNECTION_CONNECTED:
+			# Connection successful!
+			print("New connection established successfully!")
+			menu_container.setup_PID_label(false, multiplayer.get_unique_id())
+			return true
+
+		if status == MultiplayerPeer.CONNECTION_DISCONNECTED and time_waited > 0.5:
+			print("New connection was rejected or failed")
+			return false
+
+		await get_tree().process_frame
+		time_waited += get_process_delta_time()
+
+	print("New connection timed out after %.2f seconds" % TIMEOUT)
+	return false

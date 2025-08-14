@@ -21,6 +21,10 @@ func join_game():
 func disconnect_from_server():
 	MultiplayerManager.reset_data()
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
+	
+
+func change_channel(value: int):
+	MultiplayerManager.switch_channel(MultiplayerManager.current_server_port+value)
 
 
 func setup_PID_label(is_host: bool, pid: int):
