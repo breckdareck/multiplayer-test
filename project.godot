@@ -18,6 +18,11 @@ config/features=PackedStringArray("4.4", "Forward Plus")
 
 Music="*res://scenes/Gameplay/music.tscn"
 MultiplayerManager="*res://scripts/Managers/multiplayer_manager.gd"
+NetworkUtils="*res://scripts/Networking/network_utils.gd"
+ChannelManager="*res://scripts/Networking/channel_manager.gd"
+ClientManager="*res://scripts/Networking/client_manager.gd"
+PlayerManager="*res://scripts/Networking/player_manager.gd"
+ServerManager="*res://scripts/Networking/server_manager.gd"
 
 [display]
 
