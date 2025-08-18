@@ -43,7 +43,7 @@ func disconnect_from_server():
 	
 
 func change_channel(value: int):
-	MultiplayerManager.switch_channel(MultiplayerManager.current_server_port+value)
+	MultiplayerManager.switch_channel(ClientManager.current_server_port+value)
 
 
 func setup_PID_label(is_host: bool, pid: int):

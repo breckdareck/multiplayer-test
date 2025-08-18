@@ -126,9 +126,6 @@ func _execute_channel_switch(new_port: int) -> bool:
 	var old_peer = multiplayer.multiplayer_peer
 	var old_ip = ClientManager.current_server_ip
 	
-	# Step 1: Temporarily disable multiplayer signals
-	_disable_multiplayer_signals()
-	
 	# Step 2: Clean up game state
 	print("Cleaning up game state...")
 	PlayerManager.cleanup()
@@ -173,21 +170,9 @@ func _execute_channel_switch(new_port: int) -> bool:
 	
 	if connected:
 		_update_ui_after_switch()
-		_re_enable_multiplayer_signals()
 	
 	return connected
-
-func _disable_multiplayer_signals():
-	"""Temporarily disable multiplayer signals during switch"""
-	NetworkUtils.safe_disconnect_signal(multiplayer.peer_connected, PlayerManager.add_player)
-	NetworkUtils.safe_disconnect_signal(multiplayer.peer_disconnected, PlayerManager.remove_player)
-
-func _re_enable_multiplayer_signals():
-	"""Re-enable multiplayer signals after successful switch"""
-	if not multiplayer.peer_connected.is_connected(PlayerManager.add_player):
-		multiplayer.peer_connected.connect(PlayerManager.add_player)
-	if not multiplayer.peer_disconnected.is_connected(PlayerManager.remove_player):
-		multiplayer.peer_disconnected.connect(PlayerManager.remove_player)
+	
 
 func _update_ui_after_switch():
 	"""Update UI elements after successful switch"""

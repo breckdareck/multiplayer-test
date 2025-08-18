@@ -74,7 +74,7 @@ func _finalize_server_setup(port: int):
 	_current_port = port
 	multiplayer.multiplayer_peer = _server_peer
 	
-	var ip_address = NetworkUtils.get_public_ip_address()
+	var ip_address = NetworkUtils.get_public_ip_address() if _is_dedicated else "localhost"
 	var server_type = "Dedicated" if _is_dedicated else "Listen"
 	print("%s Server started successfully!" % server_type)
 	print("IP: %s, Port: %d" % [ip_address, port])
