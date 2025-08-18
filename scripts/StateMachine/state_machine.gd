@@ -5,6 +5,8 @@ class_name StateMachine
 @export var state_label: Label
 var current_state: State
 
+var _is_being_cleaned_up: bool = false
+
 func init(parent: CharacterBody2D, animations: AnimatedSprite2D) -> void:
 	# Add validation
 	if !parent:
@@ -57,6 +59,8 @@ func _set_state_rpc(state_name: String) -> void:
 		current_state.enter()
 	
 func process_input(event: InputEvent) -> void:
+	if _is_being_cleaned_up:
+		return
 	if !current_state:
 		return
 	var new_state: State = current_state.process_input(event)
@@ -64,6 +68,8 @@ func process_input(event: InputEvent) -> void:
 		change_state(new_state)
 
 func process_physics(delta: float) -> void:
+	if _is_being_cleaned_up:
+		return
 	if !current_state:
 		return
 	var new_state: State = current_state.process_physics(delta)
@@ -71,8 +77,16 @@ func process_physics(delta: float) -> void:
 		change_state(new_state)
 		
 func process_frame(delta: float) -> void:
+	if _is_being_cleaned_up:
+		return
 	if !current_state:
 		return
 	var new_state: State = current_state.process_frame(delta)
 	if new_state:
 		change_state(new_state)
+
+
+func cleanup():
+	_is_being_cleaned_up = true
+	set_process(false)
+	set_physics_process(false)

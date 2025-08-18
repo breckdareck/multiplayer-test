@@ -17,8 +17,12 @@ signal ready_for_pooling
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 
 var facing_direction: int = 1
+var _is_being_cleaned_up: bool = false
 
 func _ready() -> void:
+	# Add to networked entities group for proper cleanup during channel switching
+	add_to_group("networked_entities")
+	
 	if not health_component:
 		push_error("Enemy '%s' requires a HealthComponent to be assigned." % name)
 		return
@@ -37,16 +41,25 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	if _is_being_cleaned_up:
+		return
+		
 	if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
 		state_machine.process_frame(delta)
 
 
 func _physics_process(delta: float) -> void:
+	if _is_being_cleaned_up:
+		return
+		
 	if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
 		state_machine.process_physics(delta)
 
 
 func _on_enemy_died(killer: Node) -> void:
+	if _is_being_cleaned_up:
+		return
+		
 	# Grant experience to the player if possible
 	print("Enemy: On Died Called")
 	var exp_receiver = killer.get_owner() as MultiplayerPlayer
@@ -64,6 +77,9 @@ func _on_enemy_died(killer: Node) -> void:
 ## Deactivates the enemy, making it invisible and non-interactive.
 ## Called by the spawner when the enemy is returned to the pool.
 func pool_deactivate() -> void:
+	if _is_being_cleaned_up:
+		return
+		
 	visible = false
 	set_process(false)
 	set_physics_process(false)
@@ -75,6 +91,9 @@ func pool_deactivate() -> void:
 
 
 func pool_reset() -> void:
+	if _is_being_cleaned_up:
+		return
+		
 	# Reset health and death state using the component.
 	if health_component:
 		health_component.respawn()
@@ -89,12 +108,19 @@ func pool_reset() -> void:
 
 
 func _update_facing() -> void:
+	if _is_being_cleaned_up:
+		return
+		
 	if velocity.x != 0:
 		facing_direction = 1 if velocity.x > 0 else -1
-		animated_sprite.flip_h = facing_direction < 0
+		if animated_sprite and is_instance_valid(animated_sprite):
+			animated_sprite.flip_h = facing_direction < 0
 
 
 func _on_body_hitbox_body_entered(body: Node) -> void:
+	if _is_being_cleaned_up:
+		return
+		
 	if not multiplayer.is_server():
 		return
 
@@ -120,11 +146,17 @@ func _on_body_hitbox_body_entered(body: Node) -> void:
 
 
 func apply_knockback(knockback: Vector2) -> void:
+	if _is_being_cleaned_up:
+		return
+		
 	velocity.x = knockback.x
 	velocity.y = knockback.y
 
 
 func _on_animation_finished() -> void:
+	if _is_being_cleaned_up:
+		return
+		
 	# If the death animation has just finished, signal to the spawner that this
 	# enemy instance is ready to be deactivated and returned to the pool, after a short delay.
 	if animated_sprite.animation == "death": # Assumes death animation is named "death"
@@ -134,4 +166,44 @@ func _on_animation_finished() -> void:
 
 func emit_ready_for_pooling() -> void:
 	"""Emits the signal that the spawner is waiting for."""
+	if _is_being_cleaned_up:
+		return
 	ready_for_pooling.emit()
+
+
+func cleanup_before_removal():
+	print("Cleaning up enemy: ", name)
+	_is_being_cleaned_up = true
+	
+	# Stop all processing
+	set_process(false)
+	set_physics_process(false)
+	
+	# Disconnect signals to prevent callbacks during cleanup
+	if health_component and health_component.died.is_connected(_on_enemy_died):
+		health_component.died.disconnect(_on_enemy_died)
+	
+	if body_hitbox and body_hitbox.body_entered.is_connected(_on_body_hitbox_body_entered):
+		body_hitbox.body_entered.disconnect(_on_body_hitbox_body_entered)
+	
+	if animated_sprite and animated_sprite.animation_finished.is_connected(_on_animation_finished):
+		animated_sprite.animation_finished.disconnect(_on_animation_finished)
+	
+	# Stop state machine processing
+	if is_instance_valid(state_machine):
+		if state_machine.has_method("cleanup"):
+			state_machine.cleanup()
+		state_machine.set_process(false)
+	
+	# Disable collision and monitoring
+	if collision_shape:
+		collision_shape.set_deferred("disabled", true)
+	if hitbox:
+		hitbox.monitoring = false
+	if body_hitbox:
+		body_hitbox.monitoring = false
+
+
+# Override _exit_tree to handle cleanup
+func _exit_tree():
+	cleanup_before_removal()

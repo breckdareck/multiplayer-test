@@ -7,7 +7,10 @@ const JUMP_VELOCITY: float = -300.0
 @export var player_id := 1:
 	set(id):
 		player_id = id
-		%InputSynchronizer.set_multiplayer_authority(id)
+		# Safe access to InputSynchronizer
+		var input_sync = get_node_or_null("%InputSynchronizer")
+		if input_sync:
+			input_sync.set_multiplayer_authority(id)
 
 @export_category("Collision")
 @export var platform_layer: int = 3
@@ -40,6 +43,7 @@ var coming_from_slide: bool = false
 var _original_shape: Shape2D
 var _original_shape_position: Vector2
 var _sprite_base_offset_x: float
+var _is_being_cleaned_up: bool = false
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var state_machine = $StateMachine
@@ -106,18 +110,30 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	if _is_being_cleaned_up:
+		return
+
 	if multiplayer.is_server():
 		state_machine.process_frame(delta)
 
 
 func _physics_process(delta: float) -> void:
+	if _is_being_cleaned_up:
+		return
+
 	# Server-side authoritative logic
 	if multiplayer.is_server():
 		# Prevent player input from being processed while dead.
 		if not health_component.is_dead:
-			# Update direction from input synchronizer
-			direction = %InputSynchronizer.input_direction
-			input_down = %InputSynchronizer.input_down
+			# Safe access to InputSynchronizer with validation
+			var input_sync = get_node_or_null("%InputSynchronizer")
+			if input_sync and is_instance_valid(input_sync):
+				direction = input_sync.input_direction
+				input_down = input_sync.input_down
+			else:
+				# Fallback if InputSynchronizer is not available
+				direction = 0
+				input_down = false
 		else:
 			# Clear input flags when dead to prevent movement.
 			direction = 0
@@ -130,16 +146,22 @@ func _physics_process(delta: float) -> void:
 	if state_machine.current_state and state_machine.current_state.allow_flip:
 		animated_sprite.flip_h = facing_direction < 0
 		animated_sprite.offset.x = (
-			-_sprite_base_offset_x if facing_direction < 0 else _sprite_base_offset_x
+		-_sprite_base_offset_x if facing_direction < 0 else _sprite_base_offset_x
 		)
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _is_being_cleaned_up:
+		return
+
 	if multiplayer.is_server():
 		state_machine.process_input(event)
 
 
 func apply_knockback(knockback: Vector2) -> void:
+	if _is_being_cleaned_up:
+		return
+
 	# Simple knockback: directly set velocity. You may want to blend or add for smoother effect.
 	velocity.x = knockback.x
 	velocity.y = knockback.y
@@ -147,18 +169,27 @@ func apply_knockback(knockback: Vector2) -> void:
 
 # Experience/Leveling
 func gain_experience(amount: int) -> void:
+	if _is_being_cleaned_up:
+		return
+
 	print("[DEBUG] Player %s gained %d EXP" % [str(self), amount])
 	if level_component and level_component.has_method("add_exp"):
 		level_component.add_exp(amount)
 
 
 func _on_player_died(_killer: Node) -> void:
+	if _is_being_cleaned_up:
+		return
+
 	# This is called by the HealthComponent's 'died' signal on the server.
 	$RespawnTimer.start()
 
 
 @rpc("any_peer", "call_local", "reliable")
 func _respawn() -> void:
+	if _is_being_cleaned_up:
+		return
+
 	# This function must only run on the server.
 	if not multiplayer.is_server():
 		return
@@ -175,6 +206,9 @@ func _respawn() -> void:
 
 func _change_collision_shape(new_shape_node: CollisionShape2D) -> void:
 	"""A helper to safely disable one collision shape and enable another."""
+	if _is_being_cleaned_up:
+		return
+
 	# Simply toggle collision shapes directly - no deferred calls
 	if new_shape_node == standing_collision_shape:
 		standing_collision_shape.set_deferred("disabled", false)
@@ -185,23 +219,38 @@ func _change_collision_shape(new_shape_node: CollisionShape2D) -> void:
 
 
 func start_slide_effects() -> void:
+	if _is_being_cleaned_up:
+		return
+
 	slide_timer.start()
 	_change_collision_shape(crouch_collision_shape)
 
 
 func end_slide_effects() -> void:
+	if _is_being_cleaned_up:
+		return
+
 	_change_collision_shape(standing_collision_shape)
 
 
 func start_crouch_effects() -> void:
+	if _is_being_cleaned_up:
+		return
+
 	_change_collision_shape(crouch_collision_shape)
 
 
 func end_crouch_effects() -> void:
+	if _is_being_cleaned_up:
+		return
+
 	_change_collision_shape(standing_collision_shape)
 
 
 func can_drop_through_platform() -> bool:
+	if _is_being_cleaned_up:
+		return false
+
 	# Check if the floor is a droppable platform.
 	for i in range(get_slide_collision_count()):
 		var collision: KinematicCollision2D = get_slide_collision(i)
@@ -215,20 +264,29 @@ func can_drop_through_platform() -> bool:
 
 
 func drop_through_platform() -> void:
+	if _is_being_cleaned_up:
+		return
+
 	set_collision_mask_value(platform_layer, false)
 	drop_timer.start()
 
 
 func _on_drop_timer_timeout() -> void:
+	if _is_being_cleaned_up:
+		return
+
 	set_collision_mask_value(platform_layer, true)
 
 @rpc("any_peer", "call_local", "reliable")
-func set_username(name: String) -> void:
-	print("Setting username to: ", name, " for player_id: ", player_id)
-	username = name
+func set_username(uname: String) -> void:
+	print("Setting username to: ", uname, " for player_id: ", player_id)
+	username = uname
 
 
 func data_changed() -> void:
+	if _is_being_cleaned_up:
+		return
+
 	# This function is called when any of the main variables change
 	var data: Dictionary = save()
 	save_on_server.rpc_id(1, JSON.stringify(data))
@@ -238,7 +296,7 @@ func data_changed() -> void:
 func save_on_server(data: String) -> void:
 	if not multiplayer.is_server():
 		return
-		
+
 	print("Saving on Server")
 	var parsed_data: Dictionary = JSON.parse_string(data)
 	var file_path: String = "player_" + parsed_data["username"] + ".json"
@@ -247,15 +305,15 @@ func save_on_server(data: String) -> void:
 		file.store_string(data)
 		file.close()
 
-		
+
 func save() -> Dictionary:
 	var data: Dictionary = {
-		'username' = username,
-		'max_health' = health_component.max_health,
-		'current_health' = health_component.current_health,
-		'level' = level_component.level,
-		'experience' = level_component.experience
-	}
+							'username' = username, 
+							'max_health' = health_component.max_health if health_component else 100,
+							'current_health' = health_component.current_health if health_component else 100,
+							'level' = level_component.level if level_component else 1,
+							'experience' = level_component.experience if level_component else 0
+						}
 	return data
 
 @rpc("any_peer", "call_local", "reliable")
@@ -274,6 +332,9 @@ func request_load_data(user_name: String) -> void:
 				load_data(parsed_json)
 
 func load_data(data: Dictionary) -> void:
+	if _is_being_cleaned_up:
+		return
+
 	print("Loading data")
 	username = data.get("username", "Player")
 
@@ -290,3 +351,33 @@ func load_data(data: Dictionary) -> void:
 		level_component.experience = data.get("experience", 0)
 		level_component.set_block_signals(false)
 		level_component.experience_changed.emit(level_component.experience, level_component.get_exp_to_next_level())
+
+# Cleanup method called before removal during channel switching
+func cleanup_before_removal():
+	print("Cleaning up MultiplayerPlayer: ", player_id)
+	_is_being_cleaned_up = true
+
+	# Stop all processing
+	set_process(false)
+	set_physics_process(false)
+
+	# Disconnect all signals to prevent callbacks during cleanup
+	if health_component and health_component.died.is_connected(_on_player_died):
+		health_component.died.disconnect(_on_player_died)
+
+	# Stop timers
+	if is_instance_valid(drop_timer):
+		drop_timer.stop()
+	if is_instance_valid(slide_timer):
+		slide_timer.stop()
+	if is_instance_valid(coyote_timer):
+		coyote_timer.stop()
+	if has_node("RespawnTimer"):
+		$RespawnTimer.stop()
+
+	# Clear references that might cause issues
+	menu_container = null
+
+# Override _exit_tree to handle cleanup
+func _exit_tree():
+	cleanup_before_removal()

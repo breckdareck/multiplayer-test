@@ -1,0 +1,250 @@
+[gd_scene load_steps=28 format=3 uid="uid://c06qbiant345e"]
+
+[ext_resource type="Script" uid="uid://cj6lu2r6oxt6o" path="res://scripts/Enemy/enemy_base.gd" id="1_wu46e"]
+[ext_resource type="Script" uid="uid://dhhn4ks2uixk8" path="res://scripts/Components/health.gd" id="2_6msmc"]
+[ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="3_3stk6"]
+[ext_resource type="Texture2D" uid="uid://ihlgbn78fwcl" path="res://assets/sprites/MinifolksForestAnimals/Outline/MiniBunny.png" id="5_6msmc"]
+[ext_resource type="Script" uid="uid://dwv2k28spwfby" path="res://scripts/StateMachine/state_machine.gd" id="5_q3lct"]
+[ext_resource type="Script" uid="uid://u6b813y5rtm4" path="res://scripts/Enemy/StateMachine/enemy_idle.gd" id="6_66d7p"]
+[ext_resource type="Script" uid="uid://dk2rcptcq3hb8" path="res://scripts/Enemy/StateMachine/enemy_patrol.gd" id="7_hgyh7"]
+[ext_resource type="Script" uid="uid://bfh8yeyv2wu0g" path="res://scripts/Player/StateMachine/death.gd" id="8_720f0"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_n6pvg"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+properties/1/path = NodePath("AnimatedSprite2D:flip_h")
+properties/1/spawn = true
+properties/1/replication_mode = 2
+properties/2/path = NodePath("Health:is_dead")
+properties/2/spawn = true
+properties/2/replication_mode = 2
+properties/3/path = NodePath("Health:current_health")
+properties/3/spawn = true
+properties/3/replication_mode = 2
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_n6pvg"]
+radius = 5.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0x8hd"]
+bg_color = Color(0.0866292, 0.0866293, 0.0866292, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3wbsg"]
+bg_color = Color(1, 0.0784314, 0.12549, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wu46e"]
+atlas = ExtResource("5_6msmc")
+region = Rect2(0, 96, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6msmc"]
+atlas = ExtResource("5_6msmc")
+region = Rect2(32, 96, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hgyh7"]
+atlas = ExtResource("5_6msmc")
+region = Rect2(64, 96, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_720f0"]
+atlas = ExtResource("5_6msmc")
+region = Rect2(0, 64, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0velj"]
+atlas = ExtResource("5_6msmc")
+region = Rect2(32, 64, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3stk6"]
+atlas = ExtResource("5_6msmc")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bdiqf"]
+atlas = ExtResource("5_6msmc")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_q3lct"]
+atlas = ExtResource("5_6msmc")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_66d7p"]
+atlas = ExtResource("5_6msmc")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lu5t8"]
+atlas = ExtResource("5_6msmc")
+region = Rect2(0, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g14xx"]
+atlas = ExtResource("5_6msmc")
+region = Rect2(32, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3um5m"]
+atlas = ExtResource("5_6msmc")
+region = Rect2(64, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1vkku"]
+atlas = ExtResource("5_6msmc")
+region = Rect2(96, 32, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_xwavj"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wu46e")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6msmc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hgyh7")
+}],
+"loop": false,
+"name": &"death",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_720f0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0velj")
+}],
+"loop": false,
+"name": &"hit",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3stk6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bdiqf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_q3lct")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_66d7p")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lu5t8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_g14xx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3um5m")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1vkku")
+}],
+"loop": true,
+"name": &"patrol",
+"speed": 10.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_17tps"]
+size = Vector2(64, 37)
+
+[node name="Bunny" type="CharacterBody2D" node_paths=PackedStringArray("health_component") groups=["networked_entities"]]
+collision_layer = 8
+collision_mask = 5
+script = ExtResource("1_wu46e")
+movement_speed = 40.0
+damage = 0
+health_component = NodePath("Health")
+experience_reward = 1
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+delta_interval = 0.015
+replication_config = SubResource("SceneReplicationConfig_n6pvg")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -5)
+shape = SubResource("CircleShape2D_n6pvg")
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("2_6msmc")
+max_health = 10
+health_bar_path = NodePath("../HealthBar")
+
+[node name="Label" type="Label" parent="."]
+visible = false
+offset_left = -20.0
+offset_top = -50.0
+offset_right = 20.0
+offset_bottom = -41.0
+theme_override_fonts/font = ExtResource("3_3stk6")
+theme_override_font_sizes/font_size = 8
+text = "State"
+horizontal_alignment = 1
+
+[node name="HealthBar" type="ProgressBar" parent="."]
+visible = false
+offset_left = -11.0
+offset_top = -40.0
+offset_right = 89.0
+offset_bottom = -30.0
+scale = Vector2(0.225, 0.225)
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_0x8hd")
+theme_override_styles/fill = SubResource("StyleBoxFlat_3wbsg")
+step = 1.0
+value = 73.0
+show_percentage = false
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(0, -19)
+scale = Vector2(1.3, 1.3)
+sprite_frames = SubResource("SpriteFrames_xwavj")
+animation = &"idle"
+autoplay = "idle"
+
+[node name="Hitbox" type="Area2D" parent="."]
+collision_layer = 8
+collision_mask = 2
+
+[node name="SlashCollisionShape" type="CollisionShape2D" parent="Hitbox"]
+visible = false
+position = Vector2(20, -19.5)
+shape = SubResource("RectangleShape2D_17tps")
+disabled = true
+
+[node name="BodyHitbox" type="Area2D" parent="."]
+collision_layer = 8
+collision_mask = 0
+
+[node name="EnemyBody" type="CollisionShape2D" parent="BodyHitbox"]
+position = Vector2(0, -5)
+shape = SubResource("CircleShape2D_n6pvg")
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("starting_state", "state_label")]
+script = ExtResource("5_q3lct")
+starting_state = NodePath("idle")
+state_label = NodePath("../Label")
+
+[node name="idle" type="Node" parent="StateMachine" node_paths=PackedStringArray("patrol_state")]
+script = ExtResource("6_66d7p")
+patrol_state = NodePath("../patrol")
+animation_name = "idle"
+
+[node name="patrol" type="Node" parent="StateMachine" node_paths=PackedStringArray("idle_state")]
+script = ExtResource("7_hgyh7")
+idle_state = NodePath("../idle")
+animation_name = "patrol"
+
+[node name="death" type="Node" parent="StateMachine" node_paths=PackedStringArray("respawn_state")]
+script = ExtResource("8_720f0")
+respawn_state = NodePath("../idle")
+animation_name = "death"

@@ -61,10 +61,10 @@ func _ready() -> void:
 	health_bar.value = current_health
 	health_changed.connect(_on_health_changed)
 	
-	var owner = get_owner()
-	if owner is MultiplayerPlayer:
-		owner = owner as MultiplayerPlayer
-		owner.level_component.leveled_up.connect(_on_player_leveled)
+	var _owner = get_owner()
+	if _owner is MultiplayerPlayer:
+		_owner = _owner as MultiplayerPlayer
+		_owner.level_component.leveled_up.connect(_on_player_leveled)
 
 
 func _on_player_leveled(new_level: int):
@@ -84,6 +84,8 @@ func _on_invulnerability_timer_timeout() -> void:
 	
 func _on_regen_timer_timeout() -> void:
 	if not multiplayer.is_server():
+		return
+	if is_dead:
 		return
 	if current_health < max_health:
 		heal_damage(round(float(max_health)/10.0))

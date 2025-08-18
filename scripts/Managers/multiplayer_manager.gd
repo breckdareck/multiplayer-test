@@ -29,7 +29,7 @@ func _ready():
 	if OS.has_feature("dedicated_server"):
 		var port: int = _get_port_from_args()
 		_start_dedicated_server(port)
-	
+
 	# Connect signals for handling client connection status.
 	multiplayer.connected_to_server.connect(_on_connection_succeeded)
 	multiplayer.connection_failed.connect(_on_connection_failed)
@@ -40,10 +40,10 @@ func _ready():
 func _start_dedicated_server(port: int = SERVER_PORT) -> void:
 	print("--- Starting Dedicated Server ---")
 	print("Process ID: %d" % OS.get_process_id())
-	
+
 	const MAX_PORT_ATTEMPTS: int = 10
 	var server_peer = ENetMultiplayerPeer.new()
-	
+
 	for i in range(MAX_PORT_ATTEMPTS):
 		var current_port = port + i
 		var error = server_peer.create_server(current_port)
@@ -52,16 +52,16 @@ func _start_dedicated_server(port: int = SERVER_PORT) -> void:
 			print("Server started successfully on port %d." % current_port)
 			multiplayer.multiplayer_peer = server_peer
 			server_has_started.emit()
-		
+
 			var IP_ADDRESS: String = get_public_IP_address()
 			print("Dedicated Server started successfully on IP: %s, Port: %d." % [IP_ADDRESS, current_port])
-	
+
 			# The server listens for players connecting and disconnecting.
 			multiplayer.peer_connected.connect(_add_player_to_game)
 			multiplayer.peer_disconnected.connect(_del_player)
 
-			change_level.call_deferred(load("res://scenes/game.tscn"))
-		
+			change_level.call_deferred(load("res://scenes/Levels/game.tscn"))
+
 			return
 
 		print("ERROR: Could not start dedicated server on port %d. Trying next port..." % current_port)
@@ -70,7 +70,7 @@ func _start_dedicated_server(port: int = SERVER_PORT) -> void:
 	print("ERROR: Could not start dedicated server after %d attempts. Quitting." % MAX_PORT_ATTEMPTS)
 	get_tree().quit(1)
 
-	
+
 # Parse command line arguments to get the port
 func _get_port_from_args() -> int:
 	var args = OS.get_cmdline_args()
@@ -106,24 +106,24 @@ func host_game():
 	multiplayer.peer_connected.connect(_add_player_to_game)
 	multiplayer.peer_disconnected.connect(_del_player)
 
-	change_level.call_deferred(load("res://scenes/game.tscn"))
+	change_level.call_deferred(load("res://scenes/Levels/game.tscn"))
 
 	# In listen server mode, the host is also a player.
 	# We spawn a character for the host (ID 1).
 	_add_player_to_game.call_deferred(1)
-	
+
 	menu_container.hide()
 	menu_container.setup_PID_label(true, multiplayer.multiplayer_peer.get_unique_id())
 	menu_container.connection_panel.show()
 
-	# var IP_ADDRESS: String = get_public_IP_address()
+# var IP_ADDRESS: String = get_public_IP_address()
 
 
 # Call this from a "Join" button in UI.
 func join_game() -> void:
 	print("--- Joining Game (Client) ---")
 	menu_container = get_tree().get_current_scene().get_node("%MenuContainer")
-	
+
 	menu_container._connection_status_label.text = "" # Clear previous status/errors
 
 	var ip_to_join: String = menu_container.ip_address_input.text
@@ -160,7 +160,7 @@ func _on_connection_succeeded() -> void:
 	menu_container.hide()
 	menu_container.setup_PID_label(false, multiplayer.multiplayer_peer.get_unique_id())
 	menu_container.connection_panel.show()
-	
+
 
 func _on_connection_failed() -> void:
 	print("ERROR: Could not connect to the server.")
@@ -179,12 +179,12 @@ func _on_server_disconnected() -> void:
 	# We must not execute the default disconnection behavior (like returning to the main menu).
 	if _is_switching_channels:
 		return
-		
+
 	multiplayer.multiplayer_peer = null
 
 	# Reset UI to the pre-connection state.
 	menu_container._connection_status_label.text = "Disconnected from server."
-	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
+	get_tree().change_scene_to_file("res://scenes/Levels/main_menu.tscn")
 
 
 # --- Channel Switching (Client-Side) ---
@@ -216,7 +216,7 @@ func _async_switch_channel(new_port: int) -> void:
 	var connection_succeeded = await _test_connection_simple(current_server_ip, new_port)
 	if connection_succeeded:
 		var switch_success = await _perform_clean_switch(old_peer, new_port)
-	
+
 		if switch_success:
 			print("Successfully switched to channel on port %d." % new_port)
 			channel_switch_success.emit()
@@ -226,12 +226,12 @@ func _async_switch_channel(new_port: int) -> void:
 			current_server_ip = ""
 			current_server_port = 0
 			menu_container._connection_status_label.text = "Channel switch failed. Disconnected."
-			get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
+			get_tree().change_scene_to_file("res://scenes/Levels/main_menu.tscn")
 			channel_switch_failed.emit()
 	else:
 		print("Failed to switch to channel on port %d." % new_port)
 		channel_switch_failed.emit()
-	
+
 	_is_switching_channels = false
 
 # Helper function to temporarily disable connection signals
@@ -241,14 +241,14 @@ func _temporarily_disable_connection_signals() -> void:
 		multiplayer.peer_connected.disconnect(_add_player_to_game)
 	if multiplayer.peer_disconnected.is_connected(_del_player):
 		multiplayer.peer_disconnected.disconnect(_del_player)
-		
+
 
 # --- Player Management (Server-Side) ---
 
 # This function is now called for ANY connecting player, including the host in listen mode.
 func _add_player_to_game(id: int):
 	print("Player %s joined the game! Spawning character." % id)
-	
+
 	# When a new client joins, we must sync the state of all existing entities
 	# to them. This loop will be empty for the very first player (the host).
 	for entity in get_tree().get_nodes_in_group("networked_entities"):
@@ -294,7 +294,7 @@ func is_valid_ip(text: String) -> bool:
 		# Check if the part is a number.
 		if not part.is_valid_int():
 			return false
-			
+
 		# Prevent invalid numbers like "01" or "00".
 		if part.length() > 1 and part.begins_with("0"):
 			return false
@@ -315,7 +315,7 @@ func _get_players_spawn_node() -> Node:
 		return scene.find_child("Players", true, false)
 	return null
 
-			
+
 func reset_data():
 	host_mode_enabled = false
 	_temporarily_disable_connection_signals()
@@ -339,7 +339,7 @@ func _clear_networked_entities() -> void:
 	if scene_root:
 		for entity in scene_root.get_tree().get_nodes_in_group("networked_entities"):
 			entity.queue_free()
-			
+
 
 func change_level(scene: PackedScene):
 	# Remove old level if any.
@@ -349,7 +349,7 @@ func change_level(scene: PackedScene):
 		c.queue_free()
 	# Add new level.
 	level.add_child(scene.instantiate())
-	
+
 
 # Alternative simpler approach - UDP socket test for ENet servers
 func _test_connection_simple(ip: String, port: int) -> bool:

@@ -22,7 +22,7 @@ func join_game():
 		
 func disconnect_from_server():
 	MultiplayerManager.reset_data()
-	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
+	get_tree().change_scene_to_file("res://scenes/Levels/main_menu.tscn")
 	
 
 func change_channel(value: int):
