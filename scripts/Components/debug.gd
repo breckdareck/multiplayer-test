@@ -7,7 +7,7 @@ class_name MyDebugComponent
 @onready var debug_revive: Button = $VBoxContainer/DebugRevive
 
 var health_component: HealthComponent
-var player: MultiplayerPlayer
+var player
 
 func _ready() -> void:
 	debug_heal.pressed.connect(_on_debug_heal_pressed)
@@ -17,8 +17,11 @@ func _ready() -> void:
 func set_health_component(component: HealthComponent) -> void:
 	health_component = component
 
-func set_player(player_node: MultiplayerPlayer) -> void:
-	player = player_node
+func set_player(player_node) -> void:
+	if player_node is MultiplayerPlayer:
+		player = player_node as MultiplayerPlayer
+	elif player_node is MultiplayerPlayerV2:
+		player = player_node as MultiplayerPlayerV2
 
 func _on_debug_heal_pressed() -> void:
 	if health_component:

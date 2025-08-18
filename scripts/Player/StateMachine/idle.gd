@@ -9,16 +9,25 @@ extends State
 
 func enter() -> void:
 	super()
-	var player: MultiplayerPlayer = parent as MultiplayerPlayer
+	var player
+	if parent is MultiplayerPlayer:
+		player = parent
+	elif parent is MultiplayerPlayerV2:
+		player = parent
 
 	# If we're coming from a roll, preserve the velocity that was set in roll.exit()
-	if player.coming_from_slide:
-		# We've handled the flag, now reset it
-		player.coming_from_slide = false
+	if player is MultiplayerPlayer:
+		if player.coming_from_slide:
+			# We've handled the flag, now reset it
+			player.coming_from_slide = false
 	parent.velocity.x = 0
 
 func physics_update(delta: float) -> State:
-	var player: MultiplayerPlayer = parent as MultiplayerPlayer
+	var player
+	if parent is MultiplayerPlayer:
+		player = parent
+	elif parent is MultiplayerPlayerV2:
+		player = parent
 
 	# Store the initial velocity magnitude and direction
 	var initial_velocity_x: float = parent.velocity.x
@@ -30,16 +39,21 @@ func physics_update(delta: float) -> State:
 	parent.move_and_slide()
 
 	# Check for crouch input - only allow when not moving
-	if player.input_down and parent.is_on_floor() and player.direction == 0:
-		return crouch_state
+	if player is MultiplayerPlayer:
+		if crouch_state:
+			if player.input_down and parent.is_on_floor() and player.direction == 0:
+				return crouch_state
 
 	# Check for roll input first, as it's a key defensive/movement option.
-	if player.do_slide and parent.is_on_floor():
-		return slide_state
+	if player is MultiplayerPlayer:
+		if slide_state:
+			if player.do_slide and parent.is_on_floor():
+				return slide_state
 
 	# Check for attack input.
-	if player.do_attack:
-		return attack_state
+	if attack_state:
+		if player.do_attack:
+			return attack_state
 
 	# Check for the specific "drop" command from the client.
 	if player.do_drop and parent.is_on_floor():

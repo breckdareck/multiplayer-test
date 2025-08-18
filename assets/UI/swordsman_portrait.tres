@@ -1,0 +1,7 @@
+[gd_resource type="AtlasTexture" load_steps=2 format=3 uid="uid://dvufw62efsvt5"]
+
+[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="1_2ac6c"]
+
+[resource]
+atlas = ExtResource("1_2ac6c")
+region = Rect2(7, 14, 19, 19)

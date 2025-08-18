@@ -1,6 +1,7 @@
-[gd_scene load_steps=5 format=3 uid="uid://b8gpxmwm0fasc"]
+[gd_scene load_steps=6 format=3 uid="uid://b8gpxmwm0fasc"]
 
 [ext_resource type="Script" uid="uid://bkbvur85785bq" path="res://scripts/main_menu.gd" id="1_13qgu"]
+[ext_resource type="Texture2D" uid="uid://dvufw62efsvt5" path="res://assets/UI/swordsman_portrait.tres" id="2_lars7"]
 [ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="2_towmw"]
 [ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="3_lars7"]
 
@@ -33,13 +34,74 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_13qgu")
 
-[node name="MenuPanel" type="Panel" parent="CanvasLayer/MenuContainer"]
+[node name="CharacterSelectPanel" type="Panel" parent="CanvasLayer/MenuContainer"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
+offset_left = -349.5
+offset_top = -424.0
+offset_right = 349.5
+offset_bottom = -101.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LeftButton" type="Button" parent="CanvasLayer/MenuContainer/CharacterSelectPanel"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 30.0
+offset_top = -45.0
+offset_right = 120.0
+offset_bottom = 45.0
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("3_lars7")
+theme_override_font_sizes/font_size = 51
+text = "<"
+
+[node name="CharacterPortrait" type="TextureRect" parent="CanvasLayer/MenuContainer/CharacterSelectPanel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = -100.0
+offset_right = 100.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_lars7")
+expand_mode = 1
+
+[node name="RightButton" type="Button" parent="CanvasLayer/MenuContainer/CharacterSelectPanel"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -120.0
+offset_top = -45.0
+offset_right = -30.0
+offset_bottom = 45.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("3_lars7")
+theme_override_font_sizes/font_size = 51
+text = ">"
+
+[node name="MenuPanel" type="Panel" parent="CanvasLayer/MenuContainer"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.678704
+anchor_right = 0.5
+anchor_bottom = 0.678704
 offset_left = -350.0
 offset_top = -250.0
 offset_right = 350.0
@@ -154,6 +216,8 @@ focus_mode = 0
 theme_override_font_sizes/font_size = 23
 text = "U"
 
+[connection signal="pressed" from="CanvasLayer/MenuContainer/CharacterSelectPanel/LeftButton" to="CanvasLayer/MenuContainer" method="change_character" binds= [-1]]
+[connection signal="pressed" from="CanvasLayer/MenuContainer/CharacterSelectPanel/RightButton" to="CanvasLayer/MenuContainer" method="change_character" binds= [1]]
 [connection signal="pressed" from="CanvasLayer/MenuContainer/MenuPanel/VBoxContainer/Host" to="CanvasLayer/MenuContainer" method="host_game"]
 [connection signal="pressed" from="CanvasLayer/MenuContainer/MenuPanel/VBoxContainer/Join" to="CanvasLayer/MenuContainer" method="join_game"]
 [connection signal="pressed" from="CanvasLayer/ConnectionPanel/Disconnect" to="CanvasLayer/MenuContainer" method="disconnect_from_server"]

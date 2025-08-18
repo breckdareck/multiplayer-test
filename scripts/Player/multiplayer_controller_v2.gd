@@ -1,4 +1,4 @@
-class_name MultiplayerPlayer
+class_name MultiplayerPlayerV2
 extends CharacterBody2D
 
 const SPEED: float = 130.0
@@ -21,8 +21,8 @@ const JUMP_VELOCITY: float = -300.0
 @export_category("Components")
 @export var health_component: HealthComponent
 @export var combat_component: CombatComponent
-@export var debug_component: MyDebugComponent
 @export var level_component: LevelingComponent
+@export var debug_component: MyDebugComponent
 
 @export_category("UI")
 @export var player_HUD: Control
@@ -35,13 +35,8 @@ var input_down: bool = false  # The current down input from the synchronizer
 
 var do_attack: bool = false
 var do_jump: bool = false
-var do_slide: bool = false
 var do_drop: bool = false
-var coming_from_slide: bool = false
 
-# Variables to store original shape properties
-var _original_shape: Shape2D
-var _original_shape_position: Vector2
 var _sprite_base_offset_x: float
 var _is_being_cleaned_up: bool = false
 
@@ -49,9 +44,6 @@ var _is_being_cleaned_up: bool = false
 @onready var state_machine = $StateMachine
 @onready var coyote_timer: Timer = $CoyoteTimer
 @onready var drop_timer: Timer = $DropTimer
-@onready var slide_timer: Timer = $SlideTimer
-@onready var standing_collision_shape: CollisionShape2D = $StandingCollisionShape
-@onready var crouch_collision_shape: CollisionShape2D = $CrouchCollisionShape
 @onready var basic_attack_hitbox: CollisionShape2D = $Hitbox/BasicAttackHitbox
 @onready var menu_container: MainMenu = get_tree().current_scene.get_node("%MenuContainer")
 
@@ -82,10 +74,6 @@ func _ready() -> void:
 
 		# Store the base horizontal offset for correct positioning when flipping.
 		_sprite_base_offset_x = abs(animated_sprite.offset.x)
-
-	# Store original shape data to restore it after roll/crouch
-	_original_shape = standing_collision_shape.shape.duplicate()
-	_original_shape_position = standing_collision_shape.position
 
 	drop_timer.timeout.connect(_on_drop_timer_timeout)
 
@@ -198,54 +186,9 @@ func _respawn() -> void:
 	position = MultiplayerManager.respawn_point
 	do_attack = false
 	do_jump = false
-	do_slide = false
 	do_drop = false
-	coming_from_slide = false
 	health_component.respawn()
-
-
-func _change_collision_shape(new_shape_node: CollisionShape2D) -> void:
-	"""A helper to safely disable one collision shape and enable another."""
-	if _is_being_cleaned_up:
-		return
-
-	# Simply toggle collision shapes directly - no deferred calls
-	if new_shape_node == standing_collision_shape:
-		standing_collision_shape.set_deferred("disabled", false)
-		crouch_collision_shape.set_deferred("disabled", true)
-	else:
-		standing_collision_shape.set_deferred("disabled", true)
-		crouch_collision_shape.set_deferred("disabled", false)
-
-
-func start_slide_effects() -> void:
-	if _is_being_cleaned_up:
-		return
-
-	slide_timer.start()
-	_change_collision_shape(crouch_collision_shape)
-
-
-func end_slide_effects() -> void:
-	if _is_being_cleaned_up:
-		return
-
-	_change_collision_shape(standing_collision_shape)
-
-
-func start_crouch_effects() -> void:
-	if _is_being_cleaned_up:
-		return
-
-	_change_collision_shape(crouch_collision_shape)
-
-
-func end_crouch_effects() -> void:
-	if _is_being_cleaned_up:
-		return
-
-	_change_collision_shape(standing_collision_shape)
-
+	
 
 func can_drop_through_platform() -> bool:
 	if _is_being_cleaned_up:
@@ -308,12 +251,12 @@ func save_on_server(data: String) -> void:
 
 func save() -> Dictionary:
 	var data: Dictionary = {
-							'username' = username, 
-							'max_health' = health_component.max_health if health_component else 100,
-							'current_health' = health_component.current_health if health_component else 100,
-							'level' = level_component.level if level_component else 1,
-							'experience' = level_component.experience if level_component else 0
-						}
+							   'username' = username,
+							   'max_health' = health_component.max_health if health_component else 100,
+							   'current_health' = health_component.current_health if health_component else 100,
+							   'level' = level_component.level if level_component else 1,
+							   'experience' = level_component.experience if level_component else 0
+						   }
 	return data
 
 @rpc("any_peer", "call_local", "reliable")
@@ -369,8 +312,6 @@ func cleanup_before_removal():
 	# Stop timers
 	if is_instance_valid(drop_timer):
 		drop_timer.stop()
-	if is_instance_valid(slide_timer):
-		slide_timer.stop()
 	if is_instance_valid(coyote_timer):
 		coyote_timer.stop()
 	if has_node("RespawnTimer"):

@@ -62,7 +62,7 @@ func _on_enemy_died(killer: Node) -> void:
 		
 	# Grant experience to the player if possible
 	print("Enemy: On Died Called")
-	var exp_receiver = killer.get_owner() as MultiplayerPlayer
+	var exp_receiver = killer.get_owner()
 	if exp_receiver and exp_receiver.has_method("gain_experience"):
 		exp_receiver.gain_experience(experience_reward)
 	hitbox.monitoring = false

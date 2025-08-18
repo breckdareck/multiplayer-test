@@ -1,6 +1,19 @@
 class_name MainMenu
 extends Node
 
+const SWORDSMAN_PORTRAIT = preload("res://assets/UI/swordsman_portrait.tres")
+const ARCHER_PORTRAIT = preload("res://assets/UI/archer_portrait.tres")
+const MAGE_PORTRAIT = preload("res://assets/UI/mage_portrait.tres")
+
+enum Character
+{
+	SWORDSMAN,
+	ARCHER,
+	MAGE,
+}
+
+var selected_character: Character = 0
+
 @onready var main_menu: Control = $"."
 @onready var username_input: LineEdit = $MenuPanel/VBoxContainer/Username
 @onready var _host_button: Button = $MenuPanel/VBoxContainer/Host
@@ -10,6 +23,10 @@ extends Node
 
 @onready var connection_panel: Panel = $"../ConnectionPanel"
 @onready var player_id_label: Label = $"../ConnectionPanel/PlayerIDLabel"
+
+@onready var left_button: Button = $CharacterSelectPanel/LeftButton
+@onready var character_portrait: TextureRect = $CharacterSelectPanel/CharacterPortrait
+@onready var right_button: Button = $CharacterSelectPanel/RightButton
 
 
 func host_game():
@@ -41,3 +58,18 @@ func setup_PID_label(is_host: bool, pid: int):
 func get_username() -> String:
 	print("MainMenu returning username: ", username_input.text)
 	return username_input.text
+
+
+func change_character(value: int):
+	selected_character += value
+	if selected_character > len(Character)-1:
+		selected_character = 0
+	elif selected_character < 0:
+		selected_character = len(Character)-1
+	match selected_character:
+		Character.SWORDSMAN:
+			character_portrait.texture = SWORDSMAN_PORTRAIT
+		Character.ARCHER:
+			character_portrait.texture = ARCHER_PORTRAIT
+		Character.MAGE:
+			character_portrait.texture = MAGE_PORTRAIT

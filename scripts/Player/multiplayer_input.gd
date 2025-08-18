@@ -84,7 +84,8 @@ func drop():
 @rpc("call_local")
 func slide():
 	if multiplayer.is_server() and is_instance_valid(player):
-		player.do_slide = true
+		if player is MultiplayerPlayer:
+			player.do_slide = true
 
 @rpc("call_local")
 func attack():

@@ -1,6 +1,6 @@
 extends Node
 
-var player: MultiplayerPlayer
+var player
 
 @onready var health_bar: TextureProgressBar = $BottomStatsContainer/HealthBar
 @onready var hp_value_label: Label = $BottomStatsContainer/HealthBar/HPValueLabel
@@ -15,7 +15,10 @@ var player: MultiplayerPlayer
 
 
 func _ready() -> void:
-	player = self.owner as MultiplayerPlayer
+	if owner is MultiplayerPlayer:
+		player = owner
+	elif owner is MultiplayerPlayerV2:
+		player = owner
 	health_bar.max_value = player.health_component.max_health
 	health_bar.value = player.health_component.current_health
 	hp_value_label.text = str(player.health_component.current_health) + "/" + str(player.health_component.max_health)
@@ -23,6 +26,8 @@ func _ready() -> void:
 	experience_bar.value = player.level_component.experience
 	experience_bar.max_value = player.level_component.get_exp_to_next_level()
 	exp_percent_label.text = "%0.2f" % (float(player.level_component.experience)/player.level_component.get_exp_to_next_level()*100) + "%"
+	
+	level_label.text = "LV.[color=yellow]%s[/color]" % str(player.level_component.level)
 	
 	player.health_component.health_changed.connect(_on_health_changed)
 	player.level_component.experience_changed.connect(_on_experience_changed)

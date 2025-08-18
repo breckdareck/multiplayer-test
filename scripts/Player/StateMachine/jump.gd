@@ -9,7 +9,11 @@ extends State
 func enter() -> void:
 	super()
 	parent.velocity.y = jump_velocity
-	var player: MultiplayerPlayer = parent as MultiplayerPlayer
+	var player
+	if parent is MultiplayerPlayer:
+		player = parent
+	elif parent is MultiplayerPlayerV2:
+		player = parent
 	player.do_jump = false
 
 	# A regular jump should immediately stop any active coyote timer
@@ -17,7 +21,11 @@ func enter() -> void:
 	player.coyote_timer.stop()
 
 func physics_update(delta: float) -> State:
-	var player: MultiplayerPlayer = parent as MultiplayerPlayer
+	var player
+	if parent is MultiplayerPlayer:
+		player = parent
+	elif parent is MultiplayerPlayerV2:
+		player = parent
 	var movement: float           = player.direction * move_speed
 
 	# Allow attacking while jumping.
@@ -32,8 +40,9 @@ func physics_update(delta: float) -> State:
 		parent.velocity.y += gravity * delta
 
 	# Consume other inputs mid-air to prevent buffering.
-	if player.do_slide:
-		player.do_slide = false
+	if player is MultiplayerPlayer:
+		if player.do_slide:
+			player.do_slide = false
 	if player.do_jump:
 		player.do_jump = false
 

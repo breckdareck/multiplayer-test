@@ -11,7 +11,10 @@ signal channel_switch_failed
 # --- Configuration ---
 const SERVER_PORT: int = 8080
 var SERVER_IP: String = "127.0.0.1"
-var multiplayer_scene: PackedScene = preload("res://scenes/multiplayer_player.tscn")
+var multiplayer_player_warrior: PackedScene = preload("res://scenes/multiplayer_player.tscn")
+var multiplayer_player_swordsman: PackedScene = preload("res://scenes/Player/swordsman_player.tscn")
+var multiplayer_player_archer: PackedScene = preload("res://scenes/Player/archer_player.tscn")
+var multiplayer_player_mage: PackedScene = preload("res://scenes/Player/mage_player.tscn")
 
 # --- State ---
 var host_mode_enabled: bool = false
@@ -189,7 +192,7 @@ func _on_server_disconnected() -> void:
 
 # --- Channel Switching (Client-Side) ---
 
-## Call this from UI when a player wants to change channel/server.
+
 func switch_channel(new_port: int) -> void:
 	await _async_switch_channel(new_port)
 
@@ -234,7 +237,7 @@ func _async_switch_channel(new_port: int) -> void:
 
 	_is_switching_channels = false
 
-# Helper function to temporarily disable connection signals
+
 func _temporarily_disable_connection_signals() -> void:
 	# Disconnect multiplayer signals to prevent issues during switch
 	if multiplayer.peer_connected.is_connected(_add_player_to_game):
@@ -245,7 +248,39 @@ func _temporarily_disable_connection_signals() -> void:
 
 # --- Player Management (Server-Side) ---
 
-# This function is now called for ANY connecting player, including the host in listen mode.
+@rpc("call_local","any_peer") 
+func request_selected_character_from_client(id: int):
+	#print("Client: Selected %s " % str(menu_container.selected_character))
+	rpc_id(1, "receive_selected_character_from_client", id, menu_container.selected_character)
+
+@rpc("call_local","any_peer")
+func receive_selected_character_from_client(id: int, value: int):
+	#print("Server: Received Value %s from Client %s" % [str(value),str(id)])
+	_create_character_for_client(id, value)
+	
+
+func _create_character_for_client(id: int, value: int):
+	var player_to_add: Node
+	match value:
+		0:
+			player_to_add = multiplayer_player_swordsman.instantiate()
+		1:
+			player_to_add = multiplayer_player_archer.instantiate()
+		2:
+			player_to_add = multiplayer_player_mage.instantiate()
+		_:
+			player_to_add = multiplayer_player_warrior.instantiate()
+
+	player_to_add.player_id = id
+	player_to_add.name = str(id)
+
+	var players_spawn_node = _get_players_spawn_node()
+	if players_spawn_node:
+		players_spawn_node.add_child(player_to_add, true)
+	else:
+		push_error("Could not find 'Players' node in the current scene when adding player.")
+	
+
 func _add_player_to_game(id: int):
 	print("Player %s joined the game! Spawning character." % id)
 
@@ -257,16 +292,9 @@ func _add_player_to_game(id: int):
 		if state_machine:
 			state_machine.sync_state_to_peer(id)
 
-	# Now, spawn the character for the newly connected player.
-	var player_to_add: Node = multiplayer_scene.instantiate()
-	player_to_add.player_id = id
-	player_to_add.name = str(id)
+	rpc_id(id, "request_selected_character_from_client", id)
 
-	var players_spawn_node = _get_players_spawn_node()
-	if players_spawn_node:
-		players_spawn_node.add_child(player_to_add, true)
-	else:
-		push_error("Could not find 'Players' node in the current scene when adding player.")
+
 
 
 func _del_player(id: int) -> void:

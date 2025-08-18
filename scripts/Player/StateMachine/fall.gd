@@ -11,18 +11,27 @@ extends State
 
 func enter() -> void:
 	super()
-	var player: MultiplayerPlayer = parent as MultiplayerPlayer
+	var player
+	if parent is MultiplayerPlayer:
+		player = parent
+	elif parent is MultiplayerPlayerV2:
+		player = parent
 
 	# If we're coming from a roll, preserve the velocity that was set in roll.exit()
-	if player.coming_from_slide:
-		# We've handled the flag, now reset it
-		player.coming_from_slide = false
+	if player is MultiplayerPlayer:
+		if player.coming_from_slide:
+			# We've handled the flag, now reset it
+			player.coming_from_slide = false
 
 
 func physics_update(delta: float) -> State:
 	# Apply gravity
 	parent.velocity.y += gravity * delta
-	var player = parent as MultiplayerPlayer
+	var player
+	if parent is MultiplayerPlayer:
+		player = parent
+	elif parent is MultiplayerPlayerV2:
+		player = parent
 	# Always allow air control now that knockback is handled by velocity directly
 	var target_velocity_x: float = player.direction * move_speed
 	parent.velocity.x = move_toward(parent.velocity.x, target_velocity_x, air_acceleration * delta)
@@ -43,8 +52,9 @@ func physics_update(delta: float) -> State:
 	# This prevents actions from being unintentionally queued until the player lands.
 	if player.do_jump:
 		player.do_jump = false
-	if player.do_slide:
-		player.do_slide = false
+	if player is MultiplayerPlayer:
+		if player.do_slide:
+			player.do_slide = false
 
 	# Transition to ground states upon landing
 	if parent.is_on_floor():

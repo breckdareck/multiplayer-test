@@ -18,11 +18,10 @@ var experience = 0:
 		experience = value
 		experience_changed.emit(value, get_exp_to_next_level())
 
-func _ready():
-	pass
 
 func get_exp_to_next_level() -> int:
 	return int(base_exp * pow(exp_growth, level - 1))
+
 
 @rpc("any_peer", "call_local", "reliable")
 func add_exp(amount: int) -> void:
@@ -35,9 +34,3 @@ func add_exp(amount: int) -> void:
 	while experience >= get_exp_to_next_level() and level < max_level:
 		experience -= get_exp_to_next_level()
 		level += 1
-
-func get_level() -> int:
-	return level
-
-func get_exp() -> int:
-	return experience

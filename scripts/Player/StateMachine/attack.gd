@@ -1,6 +1,6 @@
 extends State
 
-var player: MultiplayerPlayer
+var player
 
 @export var idle_state: State
 @export var fall_state: State
@@ -13,13 +13,16 @@ var _was_on_floor: bool = false
 var _combo_input_buffered: bool = false
 var _current_combo_step: int = 0
 
-@onready var animation_player: AnimationPlayer = $"../../AnimationPlayer"
+@onready var animation_player: AnimationPlayer = owner.get_node_or_null("../../AnimationPlayer")
 @onready var attack_state_timer: Timer = $"../../AttackStateTimer"
 
 func enter() -> void:
 	super()
 	allow_flip = false
-	player = parent as MultiplayerPlayer
+	if parent is MultiplayerPlayer:
+		player = parent
+	elif parent is MultiplayerPlayerV2:
+		player = parent
 	player.do_attack = false
 
 	_was_on_floor = parent.is_on_floor()
@@ -33,7 +36,10 @@ func enter() -> void:
 
 func _play_animation(anim_name: String) -> void:
 	if (not multiplayer.is_server() || MultiplayerManager.host_mode_enabled) and not anim_name.is_empty():
-		animation_player.play(anim_name)
+		if animation_player:
+			animation_player.play(anim_name)
+		else:
+			animations.play(anim_name)
 
 @rpc("authority", "call_local", "reliable")
 func _execute_combo_step_rpc(step: int):
@@ -94,8 +100,9 @@ func physics_update(delta: float) -> State:
 		# Consume other inputs to prevent buffering other actions during the attack.
 		if player.do_jump:
 			player.do_jump = false
-		if player.do_slide:
-			player.do_slide = false
+		if player is MultiplayerPlayer:
+			if player.do_slide:
+				player.do_slide = false
 
 		# Once the attack timer is finished, the server decides what to do next.
 		if attack_state_timer.is_stopped():

@@ -1,0 +1,25 @@
+[gd_scene load_steps=3 format=3 uid="uid://cb2n6a11mwnb2"]
+
+[ext_resource type="Script" uid="uid://bwpy3okndk0cu" path="res://scripts/Enemy/enemy_spawner.gd" id="1_6hb53"]
+[ext_resource type="PackedScene" uid="uid://c0fdrl7mq5ou7" path="res://scenes/NPC/goblin.tscn" id="2_ky0a5"]
+
+[node name="EnemySpawner" type="Node" node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("1_6hb53")
+enemy_scene = ExtResource("2_ky0a5")
+spawn_locations = [NodePath("EnemySpawnLocation"), NodePath("EnemySpawnLocation2"), NodePath("EnemySpawnLocation3")]
+spawn_container = NodePath("")
+pool_size = 39
+respawn_delay = 5.0
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("uid://c0fdrl7mq5ou7")
+spawn_path = NodePath("../../Enemies")
+
+[node name="EnemySpawnLocation" type="Marker2D" parent="."]
+position = Vector2(423, 0)
+
+[node name="EnemySpawnLocation2" type="Marker2D" parent="."]
+position = Vector2(341, 0)
+
+[node name="EnemySpawnLocation3" type="Marker2D" parent="."]
+position = Vector2(382, 0)
