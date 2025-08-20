@@ -1,45 +1,52 @@
-[gd_scene load_steps=40 format=3 uid="uid://dhd00xvrwdhxl"]
+[gd_scene load_steps=45 format=3 uid="uid://bdtdpx0d05sy3"]
 
-[ext_resource type="Script" uid="uid://yibpus3whwuj" path="res://scripts/Player/multiplayer_controller_v2.gd" id="1_52oen"]
-[ext_resource type="Script" uid="uid://cy1j38lpy671e" path="res://scripts/Player/multiplayer_input.gd" id="2_btt8s"]
-[ext_resource type="Script" uid="uid://dhhn4ks2uixk8" path="res://scripts/Components/health.gd" id="3_3wqxg"]
-[ext_resource type="Script" uid="uid://4rpdmxp15xwq" path="res://scripts/Components/combat.gd" id="4_4onof"]
-[ext_resource type="Script" uid="uid://bbh4tuowqkimv" path="res://scripts/Resources/AttackData.gd" id="5_14biu"]
-[ext_resource type="Resource" uid="uid://bu4qjy4hchjtl" path="res://resources/Player/Attacks/attack_1.tres" id="6_0i8dp"]
-[ext_resource type="Resource" uid="uid://c1rvm2iod7263" path="res://resources/Player/Attacks/attack_2.tres" id="7_4rxt7"]
-[ext_resource type="Script" uid="uid://ys6acovxq2iq" path="res://scripts/Components/level.gd" id="8_tm7cl"]
-[ext_resource type="Script" uid="uid://boxv5npw3xeg3" path="res://scripts/Player/player_hud.gd" id="9_apbp4"]
-[ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="10_0dd43"]
-[ext_resource type="Script" uid="uid://chuj37r7r0ydq" path="res://scripts/Components/debug.gd" id="11_ap451"]
-[ext_resource type="SpriteFrames" uid="uid://cirrugdertxot" path="res://resources/Player/SpriteFrames/Mage.tres" id="12_52oen"]
-[ext_resource type="Script" uid="uid://dwv2k28spwfby" path="res://scripts/StateMachine/state_machine.gd" id="13_ca3y7"]
-[ext_resource type="Script" uid="uid://d162wvxl3tos0" path="res://scripts/Player/StateMachine/attack.gd" id="14_dqki0"]
-[ext_resource type="Script" uid="uid://cqx4rs6bafi4b" path="res://scripts/Player/StateMachine/idle.gd" id="15_buq3j"]
-[ext_resource type="Script" uid="uid://vfoesgffonwy" path="res://scripts/Player/StateMachine/fall.gd" id="16_2hl8i"]
-[ext_resource type="Script" uid="uid://c6oi0ebtiwt7l" path="res://scripts/Player/StateMachine/move.gd" id="17_a5qm6"]
-[ext_resource type="Script" uid="uid://vfu8l4cq1qt1" path="res://scripts/Player/StateMachine/jump.gd" id="18_tbxle"]
-[ext_resource type="Script" uid="uid://bfh8yeyv2wu0g" path="res://scripts/Player/StateMachine/death.gd" id="19_jtikg"]
-[ext_resource type="Script" uid="uid://bvunkdne8wduc" path="res://scripts/Player/StateMachine/hit.gd" id="20_r7kdl"]
+[ext_resource type="Script" uid="uid://yibpus3whwuj" path="res://scripts/Player/multiplayer_controller_v2.gd" id="1_an8q1"]
+[ext_resource type="Script" uid="uid://cy1j38lpy671e" path="res://scripts/Player/multiplayer_input.gd" id="2_hxkm2"]
+[ext_resource type="Script" uid="uid://ys6acovxq2iq" path="res://scripts/Components/level.gd" id="3_18ciy"]
+[ext_resource type="Script" uid="uid://71v08yv5tjrt" path="res://scripts/Components/stats.gd" id="4_cg2hl"]
+[ext_resource type="Script" uid="uid://dhhn4ks2uixk8" path="res://scripts/Components/health.gd" id="5_o05ft"]
+[ext_resource type="Script" uid="uid://dulwlk4wjgot3" path="res://scripts/Components/class.gd" id="6_nbg44"]
+[ext_resource type="Script" uid="uid://4rpdmxp15xwq" path="res://scripts/Components/combat.gd" id="7_jn0uf"]
+[ext_resource type="Script" uid="uid://bbh4tuowqkimv" path="res://scripts/Resources/AttackData.gd" id="8_4ni0x"]
+[ext_resource type="Resource" uid="uid://bu4qjy4hchjtl" path="res://resources/Player/Attacks/attack_1.tres" id="9_kp55c"]
+[ext_resource type="Resource" uid="uid://c1rvm2iod7263" path="res://resources/Player/Attacks/attack_2.tres" id="10_32uah"]
+[ext_resource type="Script" uid="uid://boxv5npw3xeg3" path="res://scripts/Player/player_hud.gd" id="11_ihqbe"]
+[ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="12_cgmen"]
+[ext_resource type="Script" uid="uid://chuj37r7r0ydq" path="res://scripts/Components/debug.gd" id="13_fqhit"]
+[ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="14_e8txv"]
+[ext_resource type="Script" uid="uid://cim4ffnwf0bi8" path="res://scripts/UI/moveable_windows.gd" id="14_hxkm2"]
+[ext_resource type="SpriteFrames" uid="uid://c05dyrlp5i5bj" path="res://resources/Player/SpriteFrames/Swordsman.tres" id="15_7iww4"]
+[ext_resource type="Script" uid="uid://dwv2k28spwfby" path="res://scripts/StateMachine/state_machine.gd" id="16_ploos"]
+[ext_resource type="Script" uid="uid://d162wvxl3tos0" path="res://scripts/Player/StateMachine/attack.gd" id="17_e6s7e"]
+[ext_resource type="Script" uid="uid://cqx4rs6bafi4b" path="res://scripts/Player/StateMachine/idle.gd" id="18_gb22u"]
+[ext_resource type="Script" uid="uid://vfoesgffonwy" path="res://scripts/Player/StateMachine/fall.gd" id="19_pnj8v"]
+[ext_resource type="Script" uid="uid://c6oi0ebtiwt7l" path="res://scripts/Player/StateMachine/move.gd" id="20_4xm4e"]
+[ext_resource type="Script" uid="uid://vfu8l4cq1qt1" path="res://scripts/Player/StateMachine/jump.gd" id="21_v6vns"]
+[ext_resource type="Script" uid="uid://bfh8yeyv2wu0g" path="res://scripts/Player/StateMachine/death.gd" id="22_eiysd"]
+[ext_resource type="Script" uid="uid://bvunkdne8wduc" path="res://scripts/Player/StateMachine/hit.gd" id="23_03slv"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_2d20i"]
 properties/0/path = NodePath(".:player_id")
 properties/0/spawn = true
-properties/0/replication_mode = 1
+properties/0/replication_mode = 2
 properties/1/path = NodePath(".:position")
 properties/1/spawn = true
 properties/1/replication_mode = 1
 properties/2/path = NodePath(".:do_jump")
 properties/2/spawn = true
-properties/2/replication_mode = 1
+properties/2/replication_mode = 2
 properties/3/path = NodePath(".:direction")
 properties/3/spawn = true
-properties/3/replication_mode = 1
+properties/3/replication_mode = 2
 properties/4/path = NodePath(".:do_drop")
 properties/4/spawn = true
-properties/4/replication_mode = 1
+properties/4/replication_mode = 2
 properties/5/path = NodePath(".:username")
 properties/5/spawn = true
-properties/5/replication_mode = 1
+properties/5/replication_mode = 2
+properties/6/path = NodePath("PlayerWorldHUD/PlayerNameLabel:text")
+properties/6/spawn = true
+properties/6/replication_mode = 2
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_80evv"]
 properties/0/path = NodePath("InputSynchronizer:input_direction")
@@ -61,10 +68,25 @@ properties/1/spawn = true
 properties/1/replication_mode = 2
 properties/2/path = NodePath("Leveling:experience")
 properties/2/spawn = true
-properties/2/replication_mode = 1
+properties/2/replication_mode = 2
 properties/3/path = NodePath("Leveling:level")
 properties/3/spawn = true
-properties/3/replication_mode = 1
+properties/3/replication_mode = 2
+properties/4/path = NodePath("Stats:current_strength")
+properties/4/spawn = true
+properties/4/replication_mode = 2
+properties/5/path = NodePath("Stats:current_dexterity")
+properties/5/spawn = true
+properties/5/replication_mode = 2
+properties/6/path = NodePath("Stats:current_intelligence")
+properties/6/spawn = true
+properties/6/replication_mode = 2
+properties/7/path = NodePath("Stats:current_vitality")
+properties/7/spawn = true
+properties/7/replication_mode = 2
+properties/8/path = NodePath("Class:current_class")
+properties/8/spawn = true
+properties/8/replication_mode = 2
 
 [sub_resource type="Gradient" id="Gradient_2qjlr"]
 colors = PackedColorArray(0.15, 0.15, 0.15, 1, 0.14902, 0.14902, 0.14902, 1)
@@ -121,6 +143,19 @@ corner_radius_bottom_left = 15
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v00ed"]
 bg_color = Color(0.168627, 0.168627, 0.168627, 0.882353)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wikug"]
+bg_color = Color(0, 0, 0, 0.74902)
+border_width_left = 2
+border_width_top = 1
+border_width_right = 2
+border_width_bottom = 1
+border_color = Color(0, 0, 0, 1)
+border_blend = true
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sps0x"]
 bg_color = Color(0.0866292, 0.0866293, 0.0866292, 1)
 border_width_left = 2
@@ -141,15 +176,18 @@ size = Vector2(100, 16)
 [sub_resource type="CircleShape2D" id="CircleShape2D_h0wtf"]
 radius = 5.0
 
-[node name="MagePlayer" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "combat_component", "level_component", "debug_component", "player_HUD") groups=["networked_entities"]]
+[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "combat_component", "level_component", "stats_component", "class_component", "debug_component", "player_HUD", "player_name_label") groups=["networked_entities"]]
 collision_layer = 2
 collision_mask = 5
-script = ExtResource("1_52oen")
+script = ExtResource("1_an8q1")
 health_component = NodePath("Components/Health")
 combat_component = NodePath("Components/Combat")
 level_component = NodePath("Components/Leveling")
+stats_component = NodePath("Components/Stats")
+class_component = NodePath("Components/Class")
 debug_component = NodePath("CanvasLayer/Debug")
 player_HUD = NodePath("CanvasLayer/PlayerHUD")
+player_name_label = NodePath("PlayerWorldHUD/PlayerNameLabel")
 
 [node name="PlayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 delta_interval = 0.05
@@ -160,27 +198,33 @@ visibility_update_mode = 1
 unique_name_in_owner = true
 delta_interval = 0.05
 replication_config = SubResource("SceneReplicationConfig_80evv")
-script = ExtResource("2_btt8s")
+script = ExtResource("2_hxkm2")
 
 [node name="Components" type="Node" parent="."]
 
 [node name="ComponentSynchronizer" type="MultiplayerSynchronizer" parent="Components"]
 replication_config = SubResource("SceneReplicationConfig_x5q00")
 
+[node name="Leveling" type="Node" parent="Components"]
+script = ExtResource("3_18ciy")
+
+[node name="Stats" type="Node" parent="Components"]
+script = ExtResource("4_cg2hl")
+
 [node name="Health" type="Node" parent="Components"]
-script = ExtResource("3_3wqxg")
+script = ExtResource("5_o05ft")
 health_bar_path = NodePath("../../PlayerWorldHUD/HealthBar")
 
+[node name="Class" type="Node" parent="Components"]
+script = ExtResource("6_nbg44")
+
 [node name="Combat" type="Node" parent="Components" node_paths=PackedStringArray("attack_hitbox")]
-script = ExtResource("4_4onof")
-attack_map = Dictionary[String, ExtResource("5_14biu")]({
-"attack_1": ExtResource("6_0i8dp"),
-"attack_2": ExtResource("7_4rxt7")
+script = ExtResource("7_jn0uf")
+attack_map = Dictionary[String, ExtResource("8_4ni0x")]({
+"attack_1": ExtResource("9_kp55c"),
+"attack_2": ExtResource("10_32uah")
 })
 attack_hitbox = NodePath("../../Hitbox/BasicAttackHitbox")
-
-[node name="Leveling" type="Node" parent="Components"]
-script = ExtResource("8_tm7cl")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
@@ -193,7 +237,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-script = ExtResource("9_apbp4")
+script = ExtResource("11_ihqbe")
 
 [node name="BottomStatsContainer" type="Control" parent="CanvasLayer/PlayerHUD"]
 layout_mode = 1
@@ -228,8 +272,8 @@ offset_left = 9.0
 offset_top = -14.0
 offset_right = 73.0
 offset_bottom = 18.0
-theme_override_constants/outline_size = 8
-theme_override_fonts/font = ExtResource("10_0dd43")
+theme_override_constants/outline_size = 16
+theme_override_fonts/font = ExtResource("12_cgmen")
 theme_override_font_sizes/font_size = 32
 text = "HP"
 
@@ -239,8 +283,8 @@ offset_left = 136.0
 offset_top = -13.0
 offset_right = 386.0
 offset_bottom = 19.0
-theme_override_constants/outline_size = 8
-theme_override_fonts/font = ExtResource("10_0dd43")
+theme_override_constants/outline_size = 16
+theme_override_fonts/font = ExtResource("12_cgmen")
 theme_override_font_sizes/font_size = 24
 text = "100/100"
 horizontal_alignment = 2
@@ -269,8 +313,8 @@ offset_left = 9.0
 offset_top = -14.0
 offset_right = 73.0
 offset_bottom = 18.0
-theme_override_constants/outline_size = 8
-theme_override_fonts/font = ExtResource("10_0dd43")
+theme_override_constants/outline_size = 16
+theme_override_fonts/font = ExtResource("12_cgmen")
 theme_override_font_sizes/font_size = 32
 text = "MP"
 
@@ -280,8 +324,8 @@ offset_left = 136.0
 offset_top = -13.0
 offset_right = 386.0
 offset_bottom = 19.0
-theme_override_constants/outline_size = 8
-theme_override_fonts/font = ExtResource("10_0dd43")
+theme_override_constants/outline_size = 16
+theme_override_fonts/font = ExtResource("12_cgmen")
 theme_override_font_sizes/font_size = 24
 text = "100/100"
 horizontal_alignment = 2
@@ -322,12 +366,12 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_fonts/normal_font = ExtResource("10_0dd43")
+pivot_offset = Vector2(50, 25)
+theme_override_fonts/normal_font = ExtResource("12_cgmen")
 theme_override_font_sizes/normal_font_size = 16
 bbcode_enabled = true
-text = "LV.[color=yellow]1[/color]"
-fit_content = true
-autowrap_mode = 0
+text = "LV. [color=yellow]1[/color]"
+scroll_active = false
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -337,8 +381,8 @@ offset_left = 9.0
 offset_top = -13.0
 offset_right = 81.0
 offset_bottom = 19.0
-theme_override_constants/outline_size = 8
-theme_override_fonts/font = ExtResource("10_0dd43")
+theme_override_constants/outline_size = 16
+theme_override_fonts/font = ExtResource("12_cgmen")
 theme_override_font_sizes/font_size = 24
 text = "EXP"
 
@@ -350,7 +394,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/outline_size = 8
-theme_override_fonts/normal_font = ExtResource("10_0dd43")
+theme_override_fonts/normal_font = ExtResource("12_cgmen")
 theme_override_font_sizes/normal_font_size = 16
 text = "38%"
 horizontal_alignment = 1
@@ -518,7 +562,7 @@ offset_right = -20.0
 offset_bottom = 240.0
 grow_horizontal = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_v00ed")
-script = ExtResource("11_ap451")
+script = ExtResource("13_fqhit")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/Debug"]
 layout_mode = 1
@@ -533,12 +577,12 @@ offset_right = 180.0
 offset_bottom = 100.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 25
+theme_override_constants/separation = 10
 alignment = 1
 
 [node name="Label" type="Label" parent="CanvasLayer/Debug/VBoxContainer"]
 layout_mode = 2
-theme_override_fonts/font = ExtResource("10_0dd43")
+theme_override_fonts/font = ExtResource("12_cgmen")
 theme_override_font_sizes/font_size = 24
 text = "DEBUG BUTTONS"
 horizontal_alignment = 1
@@ -548,7 +592,7 @@ vertical_alignment = 1
 layout_mode = 2
 size_flags_vertical = 3
 focus_mode = 0
-theme_override_fonts/font = ExtResource("10_0dd43")
+theme_override_fonts/font = ExtResource("12_cgmen")
 theme_override_font_sizes/font_size = 16
 text = "Heal 5"
 
@@ -556,7 +600,7 @@ text = "Heal 5"
 layout_mode = 2
 size_flags_vertical = 3
 focus_mode = 0
-theme_override_fonts/font = ExtResource("10_0dd43")
+theme_override_fonts/font = ExtResource("12_cgmen")
 theme_override_font_sizes/font_size = 16
 text = "Damage 10"
 
@@ -564,9 +608,114 @@ text = "Damage 10"
 layout_mode = 2
 size_flags_vertical = 3
 focus_mode = 0
-theme_override_fonts/font = ExtResource("10_0dd43")
+theme_override_fonts/font = ExtResource("12_cgmen")
 theme_override_font_sizes/font_size = 16
 text = "Revive"
+
+[node name="DebugLevel" type="Button" parent="CanvasLayer/Debug/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+focus_mode = 0
+theme_override_fonts/font = ExtResource("12_cgmen")
+theme_override_font_sizes/font_size = 16
+text = "Level Up"
+
+[node name="MoveableWindows" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("14_hxkm2")
+
+[node name="StatsWindow" type="Window" parent="CanvasLayer/MoveableWindows"]
+title = "Stats"
+position = Vector2i(260, 165)
+size = Vector2i(400, 500)
+unresizable = true
+always_on_top = true
+theme_override_font_sizes/title_font_size = 20
+
+[node name="StatsPanel" type="Panel" parent="CanvasLayer/MoveableWindows/StatsWindow"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -200.0
+offset_top = -500.0
+offset_right = 200.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -190.0
+offset_top = -480.0
+offset_right = 190.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="STRContainer" type="HBoxContainer" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 225
+
+[node name="STRLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/STRContainer"]
+layout_mode = 2
+text = "Strength"
+
+[node name="STRAmountLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/STRContainer"]
+layout_mode = 2
+text = "0"
+
+[node name="DEXContainer" type="HBoxContainer" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 220
+
+[node name="DEXLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/DEXContainer"]
+layout_mode = 2
+text = "Dexterity"
+
+[node name="DEXAmountLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/DEXContainer"]
+layout_mode = 2
+text = "0"
+
+[node name="INTContainer" type="HBoxContainer" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 200
+
+[node name="INTLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/INTContainer"]
+layout_mode = 2
+text = "Intelligence"
+
+[node name="INTAmountLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/INTContainer"]
+layout_mode = 2
+text = "0"
+
+[node name="VITContainer" type="HBoxContainer" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 240
+
+[node name="VITLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/VITContainer"]
+layout_mode = 2
+text = "Vitality"
+
+[node name="VITAmountLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/VITContainer"]
+layout_mode = 2
+text = "0"
 
 [node name="PlayerWorldHUD" type="Control" parent="."]
 layout_mode = 3
@@ -576,7 +725,27 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="PlayerNameLabel" type="RichTextLabel" parent="PlayerWorldHUD"]
+layout_mode = 0
+offset_left = -38.0
+offset_top = -4.0
+offset_right = 38.0
+offset_bottom = 16.0
+scale = Vector2(0.3, 0.3)
+pivot_offset = Vector2(38, 10)
+theme_override_constants/outline_size = 4
+theme_override_fonts/normal_font = ExtResource("14_e8txv")
+theme_override_font_sizes/normal_font_size = 8
+theme_override_styles/normal = SubResource("StyleBoxFlat_wikug")
+text = "PLAYERNAME"
+scroll_active = false
+autowrap_mode = 0
+horizontal_alignment = 1
+vertical_alignment = 1
+drag_and_drop_selection_enabled = false
+
 [node name="HealthBar" type="ProgressBar" parent="PlayerWorldHUD"]
+visible = false
 layout_mode = 0
 offset_left = -11.0
 offset_top = -37.0
@@ -591,12 +760,13 @@ value = 73.0
 show_percentage = false
 
 [node name="DebugStateLabel" type="Label" parent="PlayerWorldHUD"]
+visible = false
 layout_mode = 0
 offset_left = -20.0
 offset_top = -46.0
 offset_right = 20.0
 offset_bottom = -37.0
-theme_override_fonts/font = ExtResource("10_0dd43")
+theme_override_fonts/font = ExtResource("12_cgmen")
 theme_override_font_sizes/font_size = 8
 text = "State"
 horizontal_alignment = 1
@@ -604,7 +774,7 @@ horizontal_alignment = 1
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -20)
 scale = Vector2(1.3, 1.3)
-sprite_frames = ExtResource("12_52oen")
+sprite_frames = ExtResource("15_7iww4")
 animation = &"idle"
 autoplay = "idle"
 
@@ -649,19 +819,19 @@ wait_time = 0.8
 one_shot = true
 
 [node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("starting_state", "state_label")]
-script = ExtResource("13_ca3y7")
+script = ExtResource("16_ploos")
 starting_state = NodePath("idle")
 state_label = NodePath("../PlayerWorldHUD/DebugStateLabel")
 
 [node name="attack" type="Node" parent="StateMachine" node_paths=PackedStringArray("idle_state", "fall_state")]
-script = ExtResource("14_dqki0")
+script = ExtResource("17_e6s7e")
 idle_state = NodePath("../idle")
 fall_state = NodePath("../fall")
 max_combo_steps = 1
 animation_name = "attack_1"
 
 [node name="idle" type="Node" parent="StateMachine" node_paths=PackedStringArray("jump_state", "fall_state", "move_state", "attack_state")]
-script = ExtResource("15_buq3j")
+script = ExtResource("18_gb22u")
 jump_state = NodePath("../jump")
 fall_state = NodePath("../fall")
 move_state = NodePath("../move")
@@ -669,7 +839,7 @@ attack_state = NodePath("../attack")
 animation_name = "idle"
 
 [node name="fall" type="Node" parent="StateMachine" node_paths=PackedStringArray("idle_state", "move_state", "jump_state", "attack_state")]
-script = ExtResource("16_2hl8i")
+script = ExtResource("19_pnj8v")
 idle_state = NodePath("../idle")
 move_state = NodePath("../move")
 jump_state = NodePath("../jump")
@@ -677,7 +847,7 @@ attack_state = NodePath("../attack")
 animation_name = "fall"
 
 [node name="move" type="Node" parent="StateMachine" node_paths=PackedStringArray("idle_state", "fall_state", "jump_state", "attack_state")]
-script = ExtResource("17_a5qm6")
+script = ExtResource("20_4xm4e")
 idle_state = NodePath("../idle")
 fall_state = NodePath("../fall")
 jump_state = NodePath("../jump")
@@ -685,18 +855,18 @@ attack_state = NodePath("../attack")
 animation_name = "move"
 
 [node name="jump" type="Node" parent="StateMachine" node_paths=PackedStringArray("fall_state", "attack_state")]
-script = ExtResource("18_tbxle")
+script = ExtResource("21_v6vns")
 fall_state = NodePath("../fall")
 attack_state = NodePath("../attack")
 animation_name = "jump"
 
 [node name="death" type="Node" parent="StateMachine" node_paths=PackedStringArray("respawn_state")]
-script = ExtResource("19_jtikg")
+script = ExtResource("22_eiysd")
 respawn_state = NodePath("../idle")
 animation_name = "death"
 
 [node name="hit" type="Node" parent="StateMachine"]
-script = ExtResource("20_r7kdl")
+script = ExtResource("23_03slv")
 animation_name = "hit"
 
 [connection signal="button_down" from="CanvasLayer/PlayerHUD/MobileButtons/LeftButton" to="InputSynchronizer" method="_on_left_button_button_down"]
@@ -706,4 +876,5 @@ animation_name = "hit"
 [connection signal="pressed" from="CanvasLayer/PlayerHUD/MobileButtons/AttackButton" to="InputSynchronizer" method="_on_attack_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/PlayerHUD/MobileButtons/JumpButton" to="InputSynchronizer" method="_on_jump_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/PlayerHUD/MobileButtons/SlideButton" to="InputSynchronizer" method="_on_slide_button_pressed"]
+[connection signal="close_requested" from="CanvasLayer/MoveableWindows/StatsWindow" to="CanvasLayer/MoveableWindows/StatsWindow" method="hide"]
 [connection signal="body_entered" from="Hitbox" to="Components/Combat" method="_on_hitbox_body_entered"]

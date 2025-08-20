@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="ClassData" load_steps=5 format=3 uid="uid://cx1em7dag4rai"]
+
+[ext_resource type="Script" uid="uid://buwbui1bka8vl" path="res://scripts/Resources/ClassData.gd" id="1_eu6w6"]
+[ext_resource type="Texture2D" uid="uid://cdrrd25polg8u" path="res://assets/UI/archer_portrait.tres" id="1_v52w3"]
+[ext_resource type="SpriteFrames" uid="uid://b2tuepydvrkmh" path="res://resources/Player/SpriteFrames/Archer.tres" id="2_aqbok"]
+[ext_resource type="SpriteFrames" uid="uid://pqxtacaxyo41" path="res://resources/Player/SpriteFrames/Crossbow.tres" id="3_v52w3"]
+
+[resource]
+script = ExtResource("1_eu6w6")
+_class_name = "Archer"
+class_type = 1
+sprite_frames = Dictionary[int, SpriteFrames]({
+1: ExtResource("2_aqbok"),
+15: ExtResource("3_v52w3")
+})
+stat_bonuses = Dictionary[String, int]({
+"dexterity_bonus": 8,
+"strength_bonus": 2
+})
+skills = Array[String](["quick_shot", "multi_shot", "evasion"])
+description = "A ranged fighter with exceptional dexterity and precision."
+icon = ExtResource("1_v52w3")
+base_stats = {
+"dexterity": 15,
+"intelligence": 10,
+"strength": 10,
+"vitality": 10
+}
+growth_rates = {
+"dexterity": 1.3,
+"intelligence": 1.0,
+"strength": 1.0,
+"vitality": 1.0
+}
+metadata/_custom_type_script = "uid://buwbui1bka8vl"

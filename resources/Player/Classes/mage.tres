@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="ClassData" load_steps=5 format=3 uid="uid://cvxw64kd5bfn7"]
+
+[ext_resource type="Texture2D" uid="uid://y524adlth2o4" path="res://assets/UI/mage_portrait.tres" id="1_li4sd"]
+[ext_resource type="Script" uid="uid://buwbui1bka8vl" path="res://scripts/Resources/ClassData.gd" id="1_uo3r6"]
+[ext_resource type="SpriteFrames" uid="uid://cirrugdertxot" path="res://resources/Player/SpriteFrames/Mage.tres" id="3_uwn8l"]
+[ext_resource type="SpriteFrames" uid="uid://b24ebeumvft8j" path="res://resources/Player/SpriteFrames/ArchMage.tres" id="4_csbtv"]
+
+[resource]
+script = ExtResource("1_uo3r6")
+_class_name = "Mage"
+class_type = 2
+sprite_frames = Dictionary[int, SpriteFrames]({
+1: ExtResource("3_uwn8l"),
+15: ExtResource("4_csbtv")
+})
+stat_bonuses = Dictionary[String, int]({
+"intelligence_bonus": 10,
+"vitality_bonus": 1
+})
+skills = Array[String](["fireball", "ice_shield", "teleport"])
+description = "A spellcaster with powerful magic abilities."
+icon = ExtResource("1_li4sd")
+base_stats = {
+"dexterity": 9,
+"intelligence": 16,
+"strength": 8,
+"vitality": 9
+}
+growth_rates = {
+"dexterity": 1.0,
+"intelligence": 1.4,
+"strength": 1.0,
+"vitality": 1.0
+}
+metadata/_custom_type_script = "uid://buwbui1bka8vl"

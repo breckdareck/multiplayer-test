@@ -44,6 +44,18 @@ func _ready() -> void:
 func _recalculate_stats() -> void:
 	var level = _level_component.level if _level_component else 1
 	
+	var base_stats = _class_component.get_base_stats()
+	base_strength = base_stats.get("strength")
+	base_dexterity = base_stats.get("dexterity")
+	base_intelligence = base_stats.get("intelligence")
+	base_vitality = base_stats.get("vitality")
+	
+	var growth_rates = _class_component.get_growth_rates()
+	strength_growth = growth_rates.get("strength")
+	dexterity_growth = growth_rates.get("dexterity")
+	intelligence_growth = growth_rates.get("intelligence")
+	vitality_growth = growth_rates.get("vitality")
+	
 	# Calculate base stats from level
 	current_strength = int(base_strength * pow(strength_growth, level - 1))
 	current_dexterity = int(base_dexterity * pow(dexterity_growth, level - 1))

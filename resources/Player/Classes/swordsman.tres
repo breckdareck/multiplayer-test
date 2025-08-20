@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="ClassData" load_steps=5 format=3 uid="uid://djj2x2casotg8"]
+
+[ext_resource type="Texture2D" uid="uid://dvufw62efsvt5" path="res://assets/UI/swordsman_portrait.tres" id="1_6g1x3"]
+[ext_resource type="Script" uid="uid://buwbui1bka8vl" path="res://scripts/Resources/ClassData.gd" id="1_ya5xj"]
+[ext_resource type="SpriteFrames" uid="uid://c05dyrlp5i5bj" path="res://resources/Player/SpriteFrames/Swordsman.tres" id="2_moyle"]
+[ext_resource type="SpriteFrames" uid="uid://rf6et7ge33gc" path="res://resources/Player/SpriteFrames/Halberd.tres" id="3_6g1x3"]
+
+[resource]
+script = ExtResource("1_ya5xj")
+_class_name = "Swordsman"
+class_type = 0
+sprite_frames = {
+1: ExtResource("2_moyle"),
+15: ExtResource("3_6g1x3")
+}
+stat_bonuses = {
+"strength_bonus": 5,
+"vitality_bonus": 3
+}
+skills = Array[String](["slash", "charge", "shield_bash"])
+description = "A melee warrior with high strength and vitality."
+icon = ExtResource("1_6g1x3")
+base_stats = {
+"dexterity": 10,
+"intelligence": 8,
+"strength": 15,
+"vitality": 12
+}
+growth_rates = {
+"dexterity": 1.0,
+"intelligence": 1.0,
+"strength": 1.2,
+"vitality": 1.1
+}
+metadata/_custom_type_script = "uid://buwbui1bka8vl"

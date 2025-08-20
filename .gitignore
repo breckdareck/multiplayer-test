@@ -28,3 +28,4 @@ export_credentials.cfg
 data_*/
 mono_crash.*.json
 README - COPY.md
+*.json

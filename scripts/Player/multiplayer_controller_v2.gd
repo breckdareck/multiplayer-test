@@ -30,22 +30,6 @@ const JUMP_VELOCITY: float = -300.0
 @export var player_HUD: Control
 @export var player_name_label: RichTextLabel
 
-@export_category("Debug")
-@export var character_sprites: Dictionary = {
-	"archer": {
-		1: preload("res://resources/Player/SpriteFrames/Archer.tres"),
-		15: preload("res://resources/Player/SpriteFrames/Crossbow.tres"),
-	},
-	"mage": {
-		1: preload("res://resources/Player/SpriteFrames/Mage.tres"),
-		15: preload("res://resources/Player/SpriteFrames/ArchMage.tres"),
-	},
-	"swordsman": {
-		1: preload("res://resources/Player/SpriteFrames/Swordsman.tres"),
-		15: preload("res://resources/Player/SpriteFrames/Halberd.tres"),
-	},
-}
-
 var username: String = ""
 
 var direction: int = 0  # The current input direction from the synchronizer
@@ -124,9 +108,6 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if _is_being_cleaned_up:
 		return
-	
-	if Input.is_key_pressed(KEY_U):
-		_change_sprite()
 
 	if multiplayer.is_server():
 		state_machine.process_frame(delta)
@@ -179,16 +160,12 @@ func _on_peer_connected(peer_id: int) -> void:
 	
 	# Send current sprite state to the new client
 	if class_component and level_component:
-		var class_type = class_component.get_class_name()
+		var class_type = class_component.current_class
 		var current_level = level_component.level
 		
-		var highest_available = 1
-		for sprite_level in character_sprites[class_type].keys():
-			if current_level >= sprite_level:
-				highest_available = sprite_level
-		
-		# Send sprite state specifically to the new client
-		change_sprite_rpc.rpc_id(peer_id, class_type, highest_available)
+		var sprite_frames = ResourceManager.get_sprite_for_level(class_type, current_level)
+		if sprite_frames:
+			change_sprite_rpc.rpc_id(peer_id, class_component.get_class_name(), current_level)
 
 
 func _change_sprite():
@@ -207,17 +184,12 @@ func _handle_sprite_change_on_server() -> void:
 	if not class_component:
 		return
 		
-	var class_type = class_component.get_class_name()
+	var class_type = class_component.current_class
 	var current_level = level_component.level if level_component else 1
 	
-	# Find the highest sprite level the player qualifies for
-	var highest_available = 1
-	for sprite_level in character_sprites[class_type].keys():
-		if current_level >= sprite_level:
-			highest_available = sprite_level
-	
-	# Change to the appropriate sprite level
-	change_sprite_rpc.rpc(class_type, highest_available)
+	var sprite_frames = ResourceManager.get_sprite_for_level(class_type, current_level)
+	if sprite_frames:
+		change_sprite_rpc.rpc(class_component.get_class_name(), current_level)
 
 
 @rpc("any_peer", "call_local", "reliable")
@@ -229,13 +201,16 @@ func request_sprite_change() -> void:
 
 
 @rpc("authority", "call_local", "reliable")
-func change_sprite_rpc(class_type: String, sprite_level: int) -> void:
-	if character_sprites.has(class_type) and character_sprites[class_type].has(sprite_level):
-		animated_sprite.sprite_frames = character_sprites[class_type][sprite_level]
+func change_sprite_rpc(_class_name: String, level: int) -> void:
+	var class_type = ResourceManager.get_class_type_from_string(_class_name)
+	var sprite_frames = ResourceManager.get_sprite_for_level(class_type, level)
+	
+	if sprite_frames:
+		animated_sprite.sprite_frames = sprite_frames
 		animated_sprite.play("idle")
-		print("Server changed sprite to %s level %d for player %d" % [class_type, sprite_level, player_id])
+		print("Server changed sprite to %s level %d for player %d" % [_class_name, level, player_id])
 	else:
-		print("Error: Invalid sprite combination - %s level %d" % [class_type, sprite_level])
+		print("Error: Could not find sprite for %s level %d" % [_class_name, level])
 
 
 @rpc("any_peer", "call_local", "reliable")
@@ -366,11 +341,11 @@ func save_on_server(data: String) -> void:
 
 func save() -> Dictionary:
 	var data: Dictionary = {
-							   'username' = username,
-							   'max_health' = health_component.max_health if health_component else 100,
-							   'current_health' = health_component.current_health if health_component else 100,
-							   'level' = level_component.level if level_component else 1,
-							   'experience' = level_component.experience if level_component else 0
+	   'username' = username,
+	   'max_health' = health_component.max_health if health_component else 100,
+	   'current_health' = health_component.current_health if health_component else 100,
+	   'level' = level_component.level if level_component else 1,
+	   'experience' = level_component.experience if level_component else 0
 						   }
 	return data
 
@@ -389,6 +364,8 @@ func request_load_data(user_name: String) -> void:
 			var parsed_json = JSON.parse_string(content)
 			if typeof(parsed_json) == TYPE_DICTIONARY:
 				load_data(parsed_json)
+	else:
+		save_on_server(JSON.stringify(save()))
 
 
 func load_data(data: Dictionary) -> void:

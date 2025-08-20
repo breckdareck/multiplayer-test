@@ -1,7 +1,7 @@
 # player_manager.gd - AutoLoad singleton
 extends Node
 
-var character_scene = preload("res://scenes/Player/swordsman_player.tscn")
+var character_scene = preload("res://scenes/Player/player.tscn")
 var active_players: Dictionary = {}
 
 func add_host_player():

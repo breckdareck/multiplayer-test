@@ -83,18 +83,17 @@ func _on_hitbox_body_entered(body: Node2D) -> void:
 			
 			# Use stats component for damage calculations
 			if _stats_component and _class_component:
-				var _class_name = _class_component.get_class_name()
-				if _class_name == "swordsman":
+				if _class_component.current_class == Constants.ClassType.SWORDSMAN:
 					# Swordsman gets bonus from strength
 					final_damage += _stats_component.get_strength() * 0.2
-				elif _class_name == "archer":
+				elif _class_component.current_class == Constants.ClassType.ARCHER:
 					# Archer gets bonus from dexterity
 					final_damage += _stats_component.get_dexterity() * 0.15
-				elif _class_name == "mage":
+				elif _class_component.current_class == Constants.ClassType.MAGE:
 					# Mage gets bonus from intelligence
 					final_damage += _stats_component.get_intelligence() * 0.25
 				
-				print("CombatComponent: %s attack - Base: %d, Class bonus: %d, Final: %d" % [_class_name, damage_to_deal, final_damage - damage_to_deal, final_damage])
+				print("CombatComponent: %s attack - Base: %d, Class bonus: %d, Final: %d" % [_class_component.get_class_name(), damage_to_deal, final_damage - damage_to_deal, final_damage])
 			
 			health_comp.take_damage(final_damage, self)
 			hit_list.append(body)
