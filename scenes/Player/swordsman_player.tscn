@@ -1,4 +1,4 @@
-[gd_scene load_steps=66 format=3 uid="uid://bdtdpx0d05sy3"]
+[gd_scene load_steps=43 format=3 uid="uid://bdtdpx0d05sy3"]
 
 [ext_resource type="Script" uid="uid://yibpus3whwuj" path="res://scripts/Player/multiplayer_controller_v2.gd" id="1_2bmmx"]
 [ext_resource type="Script" uid="uid://cy1j38lpy671e" path="res://scripts/Player/multiplayer_input.gd" id="2_yq38j"]
@@ -9,10 +9,13 @@
 [ext_resource type="Resource" uid="uid://c1rvm2iod7263" path="res://resources/Player/Attacks/attack_2.tres" id="7_phe8a"]
 [ext_resource type="Script" uid="uid://ys6acovxq2iq" path="res://scripts/Components/level.gd" id="8_7tsb7"]
 [ext_resource type="Script" uid="uid://boxv5npw3xeg3" path="res://scripts/Player/player_hud.gd" id="9_rcfar"]
+[ext_resource type="Script" uid="uid://71v08yv5tjrt" path="res://scripts/Components/stats.gd" id="9_yq38j"]
+[ext_resource type="Script" uid="uid://dulwlk4wjgot3" path="res://scripts/Components/class.gd" id="10_8r42r"]
 [ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="10_eqe6f"]
 [ext_resource type="Script" uid="uid://chuj37r7r0ydq" path="res://scripts/Components/debug.gd" id="11_fw2my"]
-[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="12_2bmmx"]
+[ext_resource type="SpriteFrames" uid="uid://c05dyrlp5i5bj" path="res://resources/Player/SpriteFrames/Swordsman.tres" id="12_2bmmx"]
 [ext_resource type="Script" uid="uid://dwv2k28spwfby" path="res://scripts/StateMachine/state_machine.gd" id="13_p3fel"]
+[ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="14_wikug"]
 [ext_resource type="Script" uid="uid://d162wvxl3tos0" path="res://scripts/Player/StateMachine/attack.gd" id="14_x3jrl"]
 [ext_resource type="Script" uid="uid://cqx4rs6bafi4b" path="res://scripts/Player/StateMachine/idle.gd" id="15_43wx8"]
 [ext_resource type="Script" uid="uid://vfoesgffonwy" path="res://scripts/Player/StateMachine/fall.gd" id="16_7jf03"]
@@ -24,22 +27,25 @@
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_2d20i"]
 properties/0/path = NodePath(".:player_id")
 properties/0/spawn = true
-properties/0/replication_mode = 1
+properties/0/replication_mode = 2
 properties/1/path = NodePath(".:position")
 properties/1/spawn = true
 properties/1/replication_mode = 1
 properties/2/path = NodePath(".:do_jump")
 properties/2/spawn = true
-properties/2/replication_mode = 1
+properties/2/replication_mode = 2
 properties/3/path = NodePath(".:direction")
 properties/3/spawn = true
-properties/3/replication_mode = 1
+properties/3/replication_mode = 2
 properties/4/path = NodePath(".:do_drop")
 properties/4/spawn = true
-properties/4/replication_mode = 1
+properties/4/replication_mode = 2
 properties/5/path = NodePath(".:username")
 properties/5/spawn = true
-properties/5/replication_mode = 1
+properties/5/replication_mode = 2
+properties/6/path = NodePath("PlayerWorldHUD/PlayerNameLabel:text")
+properties/6/spawn = true
+properties/6/replication_mode = 2
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_80evv"]
 properties/0/path = NodePath("InputSynchronizer:input_direction")
@@ -61,10 +67,25 @@ properties/1/spawn = true
 properties/1/replication_mode = 2
 properties/2/path = NodePath("Leveling:experience")
 properties/2/spawn = true
-properties/2/replication_mode = 1
+properties/2/replication_mode = 2
 properties/3/path = NodePath("Leveling:level")
 properties/3/spawn = true
-properties/3/replication_mode = 1
+properties/3/replication_mode = 2
+properties/4/path = NodePath("Stats:current_strength")
+properties/4/spawn = true
+properties/4/replication_mode = 2
+properties/5/path = NodePath("Stats:current_dexterity")
+properties/5/spawn = true
+properties/5/replication_mode = 2
+properties/6/path = NodePath("Stats:current_intelligence")
+properties/6/spawn = true
+properties/6/replication_mode = 2
+properties/7/path = NodePath("Stats:current_vitality")
+properties/7/spawn = true
+properties/7/replication_mode = 2
+properties/8/path = NodePath("Class:current_class")
+properties/8/spawn = true
+properties/8/replication_mode = 2
 
 [sub_resource type="Gradient" id="Gradient_2qjlr"]
 colors = PackedColorArray(0.15, 0.15, 0.15, 1, 0.14902, 0.14902, 0.14902, 1)
@@ -135,234 +156,24 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_yq38j"]
-atlas = ExtResource("12_2bmmx")
-region = Rect2(0, 96, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_8r42r"]
-atlas = ExtResource("12_2bmmx")
-region = Rect2(32, 96, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_wikug"]
-atlas = ExtResource("12_2bmmx")
-region = Rect2(64, 96, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_p0pim"]
-atlas = ExtResource("12_2bmmx")
-region = Rect2(96, 96, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_6k5jj"]
-atlas = ExtResource("12_2bmmx")
-region = Rect2(128, 96, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_phe8a"]
-atlas = ExtResource("12_2bmmx")
-region = Rect2(160, 96, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_7tsb7"]
-atlas = ExtResource("12_2bmmx")
-region = Rect2(0, 160, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_rcfar"]
-atlas = ExtResource("12_2bmmx")
-region = Rect2(32, 160, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_eqe6f"]
-atlas = ExtResource("12_2bmmx")
-region = Rect2(64, 160, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_fw2my"]
-atlas = ExtResource("12_2bmmx")
-region = Rect2(96, 160, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_4xjp5"]
-atlas = ExtResource("12_2bmmx")
-region = Rect2(32, 64, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_p3fel"]
-atlas = ExtResource("12_2bmmx")
-region = Rect2(0, 128, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_x3jrl"]
-atlas = ExtResource("12_2bmmx")
-region = Rect2(32, 128, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_43wx8"]
-atlas = ExtResource("12_2bmmx")
-region = Rect2(64, 128, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_7jf03"]
-atlas = ExtResource("12_2bmmx")
-region = Rect2(0, 0, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_yox3s"]
-atlas = ExtResource("12_2bmmx")
-region = Rect2(32, 0, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_25y7y"]
-atlas = ExtResource("12_2bmmx")
-region = Rect2(64, 0, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_26mlj"]
-atlas = ExtResource("12_2bmmx")
-region = Rect2(96, 0, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_6itok"]
-atlas = ExtResource("12_2bmmx")
-region = Rect2(0, 64, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_nll73"]
-atlas = ExtResource("12_2bmmx")
-region = Rect2(0, 32, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_wkfea"]
-atlas = ExtResource("12_2bmmx")
-region = Rect2(32, 32, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_hx54k"]
-atlas = ExtResource("12_2bmmx")
-region = Rect2(64, 32, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_2o0v8"]
-atlas = ExtResource("12_2bmmx")
-region = Rect2(96, 32, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_odpbr"]
-atlas = ExtResource("12_2bmmx")
-region = Rect2(128, 32, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_av0x8"]
-atlas = ExtResource("12_2bmmx")
-region = Rect2(160, 32, 32, 32)
-
-[sub_resource type="SpriteFrames" id="SpriteFrames_k8tkd"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_yq38j")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_8r42r")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_wikug")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_p0pim")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_6k5jj")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_phe8a")
-}],
-"loop": false,
-"name": &"attack_1",
-"speed": 10.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_7tsb7")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_rcfar")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_eqe6f")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_fw2my")
-}],
-"loop": false,
-"name": &"death",
-"speed": 10.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_4xjp5")
-}],
-"loop": true,
-"name": &"fall",
-"speed": 10.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_p3fel")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_x3jrl")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_43wx8")
-}],
-"loop": false,
-"name": &"hit",
-"speed": 10.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_7jf03")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_yox3s")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_25y7y")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_26mlj")
-}],
-"loop": true,
-"name": &"idle",
-"speed": 10.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_6itok")
-}],
-"loop": true,
-"name": &"jump",
-"speed": 10.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_nll73")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_wkfea")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_hx54k")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_2o0v8")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_odpbr")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_av0x8")
-}],
-"loop": true,
-"name": &"move",
-"speed": 10.0
-}]
-
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_sps0x"]
 size = Vector2(100, 16)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_h0wtf"]
 radius = 5.0
 
-[node name="SwordsmanPlayer" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "combat_component", "level_component", "debug_component", "player_HUD") groups=["networked_entities"]]
+[node name="SwordsmanPlayer" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "combat_component", "level_component", "stats_component", "class_component", "debug_component", "player_HUD", "player_name_label") groups=["networked_entities"]]
 collision_layer = 2
 collision_mask = 5
 script = ExtResource("1_2bmmx")
 health_component = NodePath("Components/Health")
 combat_component = NodePath("Components/Combat")
 level_component = NodePath("Components/Leveling")
+stats_component = NodePath("Components/Stats")
+class_component = NodePath("Components/Class")
 debug_component = NodePath("CanvasLayer/Debug")
 player_HUD = NodePath("CanvasLayer/PlayerHUD")
+player_name_label = NodePath("PlayerWorldHUD/PlayerNameLabel")
 
 [node name="PlayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 delta_interval = 0.05
@@ -380,9 +191,18 @@ script = ExtResource("2_yq38j")
 [node name="ComponentSynchronizer" type="MultiplayerSynchronizer" parent="Components"]
 replication_config = SubResource("SceneReplicationConfig_x5q00")
 
+[node name="Leveling" type="Node" parent="Components"]
+script = ExtResource("8_7tsb7")
+
+[node name="Stats" type="Node" parent="Components"]
+script = ExtResource("9_yq38j")
+
 [node name="Health" type="Node" parent="Components"]
 script = ExtResource("3_8r42r")
 health_bar_path = NodePath("../../PlayerWorldHUD/HealthBar")
+
+[node name="Class" type="Node" parent="Components"]
+script = ExtResource("10_8r42r")
 
 [node name="Combat" type="Node" parent="Components" node_paths=PackedStringArray("attack_hitbox")]
 script = ExtResource("4_wikug")
@@ -391,9 +211,6 @@ attack_map = Dictionary[String, ExtResource("5_p0pim")]({
 "attack_2": ExtResource("7_phe8a")
 })
 attack_hitbox = NodePath("../../Hitbox/BasicAttackHitbox")
-
-[node name="Leveling" type="Node" parent="Components"]
-script = ExtResource("8_7tsb7")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
@@ -789,7 +606,27 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="PlayerNameLabel" type="RichTextLabel" parent="PlayerWorldHUD"]
+layout_mode = 0
+offset_left = -50.0
+offset_top = -38.0
+offset_right = 50.0
+offset_bottom = -13.0
+scale = Vector2(0.7, 0.7)
+pivot_offset = Vector2(50, 12.5)
+theme_override_constants/outline_size = 4
+theme_override_fonts/normal_font = ExtResource("14_wikug")
+theme_override_font_sizes/normal_font_size = 8
+text = "PLAYERNAME"
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+horizontal_alignment = 1
+vertical_alignment = 1
+drag_and_drop_selection_enabled = false
+
 [node name="HealthBar" type="ProgressBar" parent="PlayerWorldHUD"]
+visible = false
 layout_mode = 0
 offset_left = -11.0
 offset_top = -37.0
@@ -804,6 +641,7 @@ value = 73.0
 show_percentage = false
 
 [node name="DebugStateLabel" type="Label" parent="PlayerWorldHUD"]
+visible = false
 layout_mode = 0
 offset_left = -20.0
 offset_top = -46.0
@@ -817,11 +655,9 @@ horizontal_alignment = 1
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -20)
 scale = Vector2(1.3, 1.3)
-sprite_frames = SubResource("SpriteFrames_k8tkd")
-animation = &"attack_1"
+sprite_frames = ExtResource("12_2bmmx")
+animation = &"idle"
 autoplay = "idle"
-frame = 5
-frame_progress = 1.0
 
 [node name="Hitbox" type="Area2D" parent="."]
 collision_layer = 2

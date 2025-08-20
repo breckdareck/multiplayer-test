@@ -7,6 +7,9 @@ extends Node
 var hit_list: Array = []
 var current_attack_data: AttackData
 
+var _stats_component: StatsComponent
+var _class_component: ClassComponent
+
 @onready var owner_node: CharacterBody2D = get_owner()
 @onready var attack_hitbox_timer: Timer = $"../../AttackHitboxTimer" # Adjust path if needed.
 @onready var hitbox_area: Area2D = attack_hitbox.get_parent()
@@ -15,6 +18,9 @@ func _ready() -> void:
 	if not attack_hitbox:
 		push_error("CombatComponent: Attack Hitbox not assigned!")
 		return
+		
+	_stats_component = get_parent().get_node_or_null("Stats")
+	_class_component = get_parent().get_node_or_null("Class")
 
 	hitbox_area.monitoring = false
 	if not hitbox_area.body_entered.is_connected(_on_hitbox_body_entered):
@@ -32,7 +38,6 @@ func perform_attack(attack_name: String) -> void:
 		push_error("Invalid attack name: " + attack_name)
 		return
 	
-	# print("Setting current_attack to %s" % attack_name)
 	current_attack_data = attack_map[attack_name]
 	attack_hitbox_timer.wait_time = current_attack_data.damage_delay
 	attack_hitbox_timer.start()
@@ -50,6 +55,7 @@ func _on_attack_hitbox_timer_timeout() -> void:
 	var overlapping_bodies = hitbox_area.get_overlapping_bodies()
 	for body in overlapping_bodies:
 		_on_hitbox_body_entered(body)
+
 
 func end_attack() -> void:
 	if not multiplayer.is_server():
@@ -73,6 +79,22 @@ func _on_hitbox_body_entered(body: Node2D) -> void:
 		var health_comp = body.get("health_component")
 		if health_comp and not health_comp.is_dead:
 			var damage_to_deal = current_attack_data.damage
-			health_comp.take_damage(damage_to_deal, self)
-			# print("%s has taken %s damage from Player" % [body.name, damage_to_deal])
+			var final_damage = damage_to_deal
+			
+			# Use stats component for damage calculations
+			if _stats_component and _class_component:
+				var _class_name = _class_component.get_class_name()
+				if _class_name == "swordsman":
+					# Swordsman gets bonus from strength
+					final_damage += _stats_component.get_strength() * 0.2
+				elif _class_name == "archer":
+					# Archer gets bonus from dexterity
+					final_damage += _stats_component.get_dexterity() * 0.15
+				elif _class_name == "mage":
+					# Mage gets bonus from intelligence
+					final_damage += _stats_component.get_intelligence() * 0.25
+				
+				print("CombatComponent: %s attack - Base: %d, Class bonus: %d, Final: %d" % [_class_name, damage_to_deal, final_damage - damage_to_deal, final_damage])
+			
+			health_comp.take_damage(final_damage, self)
 			hit_list.append(body)

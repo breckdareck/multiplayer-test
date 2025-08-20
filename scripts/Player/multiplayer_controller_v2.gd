@@ -22,10 +22,29 @@ const JUMP_VELOCITY: float = -300.0
 @export var health_component: HealthComponent
 @export var combat_component: CombatComponent
 @export var level_component: LevelingComponent
+@export var stats_component: StatsComponent
+@export var class_component: ClassComponent
 @export var debug_component: MyDebugComponent
 
 @export_category("UI")
 @export var player_HUD: Control
+@export var player_name_label: RichTextLabel
+
+@export_category("Debug")
+@export var character_sprites: Dictionary = {
+	"archer": {
+		1: preload("res://resources/Player/SpriteFrames/Archer.tres"),
+		2: preload("res://resources/Player/SpriteFrames/Crossbow.tres"),
+	},
+	"mage": {
+		1: preload("res://resources/Player/SpriteFrames/Mage.tres"),
+		2: preload("res://resources/Player/SpriteFrames/ArchMage.tres"),
+	},
+	"swordsman": {
+		1: preload("res://resources/Player/SpriteFrames/Swordsman.tres"),
+		2: preload("res://resources/Player/SpriteFrames/Halberd.tres"),
+	},
+}
 
 var username: String = ""
 
@@ -75,10 +94,10 @@ func _ready() -> void:
 		# Store the base horizontal offset for correct positioning when flipping.
 		_sprite_base_offset_x = abs(animated_sprite.offset.x)
 
-	drop_timer.timeout.connect(_on_drop_timer_timeout)
 
 	if multiplayer.is_server():
 		# Connect to the health component's signals to react to death and respawn.
+		drop_timer.timeout.connect(_on_drop_timer_timeout)
 		health_component.died.connect(_on_player_died)
 		$RespawnTimer.timeout.connect(_respawn)
 
@@ -88,6 +107,8 @@ func _ready() -> void:
 		if level_component:
 			level_component.experience_changed.connect(func(_c, _e): data_changed())
 			level_component.leveled_up.connect(func(_l): data_changed())
+			level_component.leveled_up.connect(_handle_sprite_change_on_server)
+			_handle_sprite_change_on_server()
 
 		await get_tree().process_frame
 
@@ -100,9 +121,70 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if _is_being_cleaned_up:
 		return
+	
+	if Input.is_key_pressed(KEY_U):
+		_change_sprite()
 
 	if multiplayer.is_server():
 		state_machine.process_frame(delta)
+
+
+func _change_sprite():
+	if player_id != multiplayer.get_unique_id():
+		return
+		
+	if multiplayer.is_server():
+		# If we're on the server, handle it directly
+		_handle_sprite_change_on_server()
+	else:
+		# If we're a client, request from server
+		request_sprite_change.rpc_id(1)
+
+
+func _handle_sprite_change_on_server() -> void:
+	if not class_component:
+		return
+		
+	var class_type = class_component.get_class_name()
+	var current_level = level_component.level if level_component else 1
+	
+	# Find the highest sprite level the player qualifies for
+	var highest_available = 1
+	for sprite_level in character_sprites[class_type].keys():
+		if current_level >= sprite_level:
+			highest_available = sprite_level
+	
+	# Change to the appropriate sprite level
+	change_sprite_rpc.rpc(class_type, highest_available)
+
+
+@rpc("any_peer", "call_local", "reliable")
+func request_sprite_change() -> void:
+	if not multiplayer.is_server():
+		return
+		
+	_handle_sprite_change_on_server()
+
+
+@rpc("authority", "call_local", "reliable")
+func change_sprite_rpc(class_type: String, sprite_level: int) -> void:
+	if character_sprites.has(class_type) and character_sprites[class_type].has(sprite_level):
+		animated_sprite.sprite_frames = character_sprites[class_type][sprite_level]
+		animated_sprite.play("idle")
+		print("Server changed sprite to %s level %d for player %d" % [class_type, sprite_level, player_id])
+	else:
+		print("Error: Invalid sprite combination - %s level %d" % [class_type, sprite_level])
+
+
+@rpc("any_peer", "call_local", "reliable")
+func change_class_request(new_class: int) -> void:
+	if not multiplayer.is_server():
+		return
+		
+	if class_component:
+		class_component.change_class_rpc.rpc(new_class)
+		# Update sprite to match new class
+		_handle_sprite_change_on_server()
 
 
 func _physics_process(delta: float) -> void:
@@ -222,8 +304,9 @@ func _on_drop_timer_timeout() -> void:
 
 @rpc("any_peer", "call_local", "reliable")
 func set_username(uname: String) -> void:
-	print("Setting username to: ", uname, " for player_id: ", player_id)
+	print("MPController: Setting username to: ", uname, " for player_id: ", player_id)
 	username = uname
+	player_name_label.text = username
 
 
 func data_changed() -> void:
@@ -240,7 +323,7 @@ func save_on_server(data: String) -> void:
 	if not multiplayer.is_server():
 		return
 
-	print("%s: Saving on Server" % username)
+	print("MPController: %s: Saving on Server" % username)
 	var parsed_data: Dictionary = JSON.parse_string(data)
 	var file_path: String = "player_" + parsed_data["username"] + ".json"
 	var file = FileAccess.open(file_path, FileAccess.WRITE)
@@ -274,11 +357,12 @@ func request_load_data(user_name: String) -> void:
 			if typeof(parsed_json) == TYPE_DICTIONARY:
 				load_data(parsed_json)
 
+				
 func load_data(data: Dictionary) -> void:
 	if _is_being_cleaned_up:
 		return
 
-	print("Loading data")
+	print("MPController: Loading data")
 	username = data.get("username", "Player")
 
 	if health_component:
@@ -298,7 +382,7 @@ func load_data(data: Dictionary) -> void:
 
 # Cleanup method called before removal during channel switching
 func cleanup_before_removal():
-	print("Cleaning up MultiplayerPlayer: ", player_id)
+	print("MPController: Cleaning up MultiplayerPlayer: ", player_id)
 	_is_being_cleaned_up = true
 
 	# Stop all processing
@@ -319,6 +403,7 @@ func cleanup_before_removal():
 
 	# Clear references that might cause issues
 	menu_container = null
+	
 
 # Override _exit_tree to handle cleanup
 func _exit_tree():

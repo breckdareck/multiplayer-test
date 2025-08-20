@@ -15,6 +15,8 @@ signal damaged(amount, source)
 @export_category("UI")
 @export var health_bar_path: NodePath
 
+var _stats_component: StatsComponent
+
 var is_dead: bool = false
 var is_invulnerable: bool = false
 var _last_damage_source: Node = null
@@ -40,12 +42,13 @@ func _ready() -> void:
 	if not health_bar:
 		push_warning("HealthComponent has no HealthBar assigned.")
 		return
+		
+	_stats_component = get_parent().get_node_or_null("Stats")
 
 	# Invulnerability timer setup
 	invulnerability_timer.name = "InvulnTimer"
 	invulnerability_timer.one_shot = true
 	invulnerability_timer.wait_time = .5
-	invulnerability_timer.timeout.connect(_on_invulnerability_timer_timeout)
 	add_child(invulnerability_timer)
 
 	# Regeneration timer setup
@@ -53,7 +56,6 @@ func _ready() -> void:
 	regen_timer.one_shot = false
 	regen_timer.autostart = true
 	regen_timer.wait_time = 5
-	regen_timer.timeout.connect(_on_regen_timer_timeout)
 	add_child(regen_timer)
 
 	# The component now directly controls its own UI.
@@ -61,14 +63,30 @@ func _ready() -> void:
 	health_bar.value = current_health
 	health_changed.connect(_on_health_changed)
 	
+	if not multiplayer.is_server():
+		return
+
+	invulnerability_timer.timeout.connect(_on_invulnerability_timer_timeout)
+	
 	var _owner = get_owner()
-	if _owner is MultiplayerPlayer:
-		_owner = _owner as MultiplayerPlayer
+	if _owner is MultiplayerPlayerV2:
+		_owner = _owner as MultiplayerPlayerV2
 		_owner.level_component.leveled_up.connect(_on_player_leveled)
+		regen_timer.timeout.connect(_on_regen_timer_timeout)
+		
 
 
 func _on_player_leveled(new_level: int):
-	max_health = int(max_health * pow(1.12, new_level - 1))
+	if _stats_component:
+		# Use vitality from stats component for health calculation
+		var vitality = _stats_component.get_vitality()
+		max_health = 100 + (vitality * 10)
+		print("HealthComponent: Level up to %d, new max health: %d (vitality: %d)" % [new_level, max_health, vitality])
+	else:
+		# Fallback calculation if no stats component
+		max_health = int(max_health * pow(1.12, new_level - 1))
+		print("HealthComponent: Level up to %d, new max health: %d (fallback calculation)" % [new_level, max_health])
+		
 	current_health = max_health
 
 
@@ -104,7 +122,7 @@ func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false) 
 
 	_last_damage_source = source
 
-	print("Owner '%s' took %s damage from '%s'." % [get_owner().name, amount, source_str])
+	print("HealthComponent: Owner '%s' took %s damage from '%s'." % [get_owner().name, amount, source_str])
 	self.current_health -= amount
 	damaged.emit(amount, source)
 	if not ignore_invuln:
@@ -121,7 +139,7 @@ func heal_damage(amount: int, source: Node = null) -> void:
 	if source:
 		source_str = str(source)
 
-	print("Owner '%s' healed %s damage from '%s'." % [get_owner().name, amount, source_str])
+	print("HealthComponent: Owner '%s' healed %s damage from '%s'." % [get_owner().name, amount, source_str])
 	self.current_health += amount
 
 
@@ -140,4 +158,4 @@ func respawn() -> void:
 	assert(multiplayer.is_server(), "HealthComponent.respawn() should only be called on the server.")
 	is_dead = false
 	self.current_health = max_health
-	print("HealthComponent: Owner '%s' has respawned." % get_owner().name)
+	# print("HealthComponent: Owner '%s' has respawned." % get_owner().name)
