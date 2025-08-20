@@ -1,14 +1,7 @@
 # player_manager.gd - AutoLoad singleton
 extends Node
 
-# Character scenes configuration
-var character_scenes = {
-	0: preload("res://scenes/Player/swordsman_player.tscn"),
-	1: preload("res://scenes/Player/archer_player.tscn"),
-	2: preload("res://scenes/Player/mage_player.tscn"),
-	"default": preload("res://scenes/multiplayer_player.tscn")
-}
-
+var character_scene = preload("res://scenes/Player/swordsman_player.tscn")
 var active_players: Dictionary = {}
 
 func add_host_player():
@@ -92,12 +85,14 @@ func _receive_character_selection(id: int, character_type: int):
 
 func _spawn_character_for_player(id: int, character_type: int):
 	"""Spawn a character instance for the given player"""
-	var player_scene = character_scenes.get(character_type, character_scenes.default)
-	var player_instance = player_scene.instantiate()
+	var player_instance = character_scene.instantiate()
 	
 	player_instance.player_id = id
 	player_instance.name = str(id)
-	
+	var controller = player_instance as MultiplayerPlayerV2
+	if controller.class_component:
+		controller.class_component.change_class(character_type)
+		
 	# Add to networked entities group for proper cleanup
 	player_instance.add_to_group("networked_entities")
 	

@@ -122,3 +122,4 @@ func test_level_up() -> void:
 			print("Updated stats: %s" % stats_comp.get_total_stats())
 	else:
 		print("No Level Component found for testing!")
+

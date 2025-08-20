@@ -34,15 +34,15 @@ const JUMP_VELOCITY: float = -300.0
 @export var character_sprites: Dictionary = {
 	"archer": {
 		1: preload("res://resources/Player/SpriteFrames/Archer.tres"),
-		2: preload("res://resources/Player/SpriteFrames/Crossbow.tres"),
+		15: preload("res://resources/Player/SpriteFrames/Crossbow.tres"),
 	},
 	"mage": {
 		1: preload("res://resources/Player/SpriteFrames/Mage.tres"),
-		2: preload("res://resources/Player/SpriteFrames/ArchMage.tres"),
+		15: preload("res://resources/Player/SpriteFrames/ArchMage.tres"),
 	},
 	"swordsman": {
 		1: preload("res://resources/Player/SpriteFrames/Swordsman.tres"),
-		2: preload("res://resources/Player/SpriteFrames/Halberd.tres"),
+		15: preload("res://resources/Player/SpriteFrames/Halberd.tres"),
 	},
 }
 
@@ -97,6 +97,7 @@ func _ready() -> void:
 
 	if multiplayer.is_server():
 		# Connect to the health component's signals to react to death and respawn.
+		multiplayer.peer_connected.connect(_on_peer_connected)
 		drop_timer.timeout.connect(_on_drop_timer_timeout)
 		health_component.died.connect(_on_player_died)
 		$RespawnTimer.timeout.connect(_respawn)
@@ -107,10 +108,12 @@ func _ready() -> void:
 		if level_component:
 			level_component.experience_changed.connect(func(_c, _e): data_changed())
 			level_component.leveled_up.connect(func(_l): data_changed())
-			level_component.leveled_up.connect(_handle_sprite_change_on_server)
+			level_component.leveled_up.connect(_handle_sprite_change_on_server.unbind(1))
 			_handle_sprite_change_on_server()
 
 		await get_tree().process_frame
+	else:
+		request_all_sprite_states.rpc_id(1)
 
 	debug_component.set_health_component(health_component)
 	debug_component.set_player(self)
@@ -127,6 +130,65 @@ func _process(delta: float) -> void:
 
 	if multiplayer.is_server():
 		state_machine.process_frame(delta)
+
+
+func _physics_process(delta: float) -> void:
+	if _is_being_cleaned_up:
+		return
+
+	# Server-side authoritative logic
+	if multiplayer.is_server():
+		# Prevent player input from being processed while dead.
+		if not health_component.is_dead:
+			# Safe access to InputSynchronizer with validation
+			var input_sync = get_node_or_null("%InputSynchronizer")
+			if input_sync and is_instance_valid(input_sync):
+				direction = input_sync.input_direction
+				input_down = input_sync.input_down
+			else:
+				# Fallback if InputSynchronizer is not available
+				direction = 0
+				input_down = false
+		else:
+			# Clear input flags when dead to prevent movement.
+			direction = 0
+			input_down = false
+
+		# Process physics in the current state
+		state_machine.process_physics(delta)
+
+	# Visual updates (runs on all instances)
+	if state_machine.current_state and state_machine.current_state.allow_flip:
+		animated_sprite.flip_h = facing_direction < 0
+		animated_sprite.offset.x = (
+		-_sprite_base_offset_x if facing_direction < 0 else _sprite_base_offset_x
+		)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if _is_being_cleaned_up:
+		return
+
+	if multiplayer.is_server():
+		state_machine.process_input(event)
+
+
+func _on_peer_connected(peer_id: int) -> void:
+	if not multiplayer.is_server():
+		return
+	
+	# Send current sprite state to the new client
+	if class_component and level_component:
+		var class_type = class_component.get_class_name()
+		var current_level = level_component.level
+		
+		var highest_available = 1
+		for sprite_level in character_sprites[class_type].keys():
+			if current_level >= sprite_level:
+				highest_available = sprite_level
+		
+		# Send sprite state specifically to the new client
+		change_sprite_rpc.rpc_id(peer_id, class_type, highest_available)
 
 
 func _change_sprite():
@@ -187,45 +249,14 @@ func change_class_request(new_class: int) -> void:
 		_handle_sprite_change_on_server()
 
 
-func _physics_process(delta: float) -> void:
-	if _is_being_cleaned_up:
+@rpc("any_peer", "call_local", "reliable")
+func request_all_sprite_states() -> void:
+	if not multiplayer.is_server():
 		return
-
-	# Server-side authoritative logic
-	if multiplayer.is_server():
-		# Prevent player input from being processed while dead.
-		if not health_component.is_dead:
-			# Safe access to InputSynchronizer with validation
-			var input_sync = get_node_or_null("%InputSynchronizer")
-			if input_sync and is_instance_valid(input_sync):
-				direction = input_sync.input_direction
-				input_down = input_sync.input_down
-			else:
-				# Fallback if InputSynchronizer is not available
-				direction = 0
-				input_down = false
-		else:
-			# Clear input flags when dead to prevent movement.
-			direction = 0
-			input_down = false
-
-		# Process physics in the current state
-		state_machine.process_physics(delta)
-
-	# Visual updates (runs on all instances)
-	if state_machine.current_state and state_machine.current_state.allow_flip:
-		animated_sprite.flip_h = facing_direction < 0
-		animated_sprite.offset.x = (
-		-_sprite_base_offset_x if facing_direction < 0 else _sprite_base_offset_x
-		)
-
-
-func _unhandled_input(event: InputEvent) -> void:
-	if _is_being_cleaned_up:
-		return
-
-	if multiplayer.is_server():
-		state_machine.process_input(event)
+	
+	# Server responds by updating this specific client
+	var requester_id = multiplayer.get_remote_sender_id()
+	_on_peer_connected(requester_id)
 
 
 func apply_knockback(knockback: Vector2) -> void:
@@ -302,6 +333,7 @@ func _on_drop_timer_timeout() -> void:
 
 	set_collision_mask_value(platform_layer, true)
 
+
 @rpc("any_peer", "call_local", "reliable")
 func set_username(uname: String) -> void:
 	print("MPController: Setting username to: ", uname, " for player_id: ", player_id)
@@ -342,6 +374,7 @@ func save() -> Dictionary:
 						   }
 	return data
 
+
 @rpc("any_peer", "call_local", "reliable")
 func request_load_data(user_name: String) -> void:
 	if not multiplayer.is_server():
@@ -357,7 +390,7 @@ func request_load_data(user_name: String) -> void:
 			if typeof(parsed_json) == TYPE_DICTIONARY:
 				load_data(parsed_json)
 
-				
+
 func load_data(data: Dictionary) -> void:
 	if _is_being_cleaned_up:
 		return
