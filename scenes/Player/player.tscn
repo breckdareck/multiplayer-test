@@ -87,6 +87,30 @@ properties/7/replication_mode = 2
 properties/8/path = NodePath("Class:current_class")
 properties/8/spawn = true
 properties/8/replication_mode = 2
+properties/9/path = NodePath("Stats:base_strength")
+properties/9/spawn = true
+properties/9/replication_mode = 1
+properties/10/path = NodePath("Stats:base_dexterity")
+properties/10/spawn = true
+properties/10/replication_mode = 2
+properties/11/path = NodePath("Stats:base_intelligence")
+properties/11/spawn = true
+properties/11/replication_mode = 2
+properties/12/path = NodePath("Stats:base_vitality")
+properties/12/spawn = true
+properties/12/replication_mode = 2
+properties/13/path = NodePath("Stats:strength_growth")
+properties/13/spawn = true
+properties/13/replication_mode = 2
+properties/14/path = NodePath("Stats:dexterity_growth")
+properties/14/spawn = true
+properties/14/replication_mode = 2
+properties/15/path = NodePath("Stats:intelligence_growth")
+properties/15/spawn = true
+properties/15/replication_mode = 2
+properties/16/path = NodePath("Stats:vitality_growth")
+properties/16/spawn = true
+properties/16/replication_mode = 2
 
 [sub_resource type="Gradient" id="Gradient_2qjlr"]
 colors = PackedColorArray(0.15, 0.15, 0.15, 1, 0.14902, 0.14902, 0.14902, 1)
@@ -203,10 +227,14 @@ script = ExtResource("2_hxkm2")
 [node name="Components" type="Node" parent="."]
 
 [node name="ComponentSynchronizer" type="MultiplayerSynchronizer" parent="Components"]
+delta_interval = 0.05
 replication_config = SubResource("SceneReplicationConfig_x5q00")
 
 [node name="Leveling" type="Node" parent="Components"]
 script = ExtResource("3_18ciy")
+
+[node name="Class" type="Node" parent="Components"]
+script = ExtResource("6_nbg44")
 
 [node name="Stats" type="Node" parent="Components"]
 script = ExtResource("4_cg2hl")
@@ -214,9 +242,6 @@ script = ExtResource("4_cg2hl")
 [node name="Health" type="Node" parent="Components"]
 script = ExtResource("5_o05ft")
 health_bar_path = NodePath("../../PlayerWorldHUD/HealthBar")
-
-[node name="Class" type="Node" parent="Components"]
-script = ExtResource("6_nbg44")
 
 [node name="Combat" type="Node" parent="Components" node_paths=PackedStringArray("attack_hitbox")]
 script = ExtResource("7_jn0uf")
@@ -520,37 +545,6 @@ text = "Jump"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="SlideButton" type="Button" parent="CanvasLayer/PlayerHUD/MobileButtons"]
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -500.0
-offset_top = -165.0
-offset_right = -356.0
-offset_bottom = -21.0
-grow_horizontal = 0
-grow_vertical = 0
-focus_mode = 0
-theme_override_styles/hover = SubResource("StyleBoxFlat_7vu7v")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_0r45a")
-theme_override_styles/normal = SubResource("StyleBoxFlat_7vu7v")
-
-[node name="Label" type="Label" parent="CanvasLayer/PlayerHUD/MobileButtons/SlideButton"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/outline_size = 10
-theme_override_font_sizes/font_size = 40
-text = "Slide"
-horizontal_alignment = 1
-vertical_alignment = 1
-
 [node name="Debug" type="Panel" parent="CanvasLayer"]
 visible = false
 anchors_preset = 1
@@ -634,6 +628,7 @@ script = ExtResource("14_hxkm2")
 title = "Stats"
 position = Vector2i(260, 165)
 size = Vector2i(400, 500)
+visible = false
 unresizable = true
 always_on_top = true
 theme_override_font_sizes/title_font_size = 20
@@ -875,6 +870,5 @@ animation_name = "hit"
 [connection signal="button_up" from="CanvasLayer/PlayerHUD/MobileButtons/RightButton" to="InputSynchronizer" method="_on_right_button_button_up"]
 [connection signal="pressed" from="CanvasLayer/PlayerHUD/MobileButtons/AttackButton" to="InputSynchronizer" method="_on_attack_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/PlayerHUD/MobileButtons/JumpButton" to="InputSynchronizer" method="_on_jump_button_pressed"]
-[connection signal="pressed" from="CanvasLayer/PlayerHUD/MobileButtons/SlideButton" to="InputSynchronizer" method="_on_slide_button_pressed"]
 [connection signal="close_requested" from="CanvasLayer/MoveableWindows/StatsWindow" to="CanvasLayer/MoveableWindows/StatsWindow" method="hide"]
 [connection signal="body_entered" from="Hitbox" to="Components/Combat" method="_on_hitbox_body_entered"]

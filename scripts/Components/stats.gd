@@ -26,10 +26,10 @@ var _class_component: ClassComponent
 func _ready() -> void:
 	_level_component = get_parent().get_node_or_null("Leveling")
 	_class_component = get_parent().get_node_or_null("Class")
-	
-	if not multiplayer.is_server():
-		return 
-		
+
+	# if not multiplayer.is_server():
+	#	return
+
 	# Find the level component on the same node
 	if _level_component:
 		_level_component.leveled_up.connect(_on_leveled_up)
@@ -39,7 +39,9 @@ func _ready() -> void:
 		_class_component.class_changed.connect(_on_class_changed)
 		
 	# Initialize stats
-	_recalculate_stats()
+	# Don't need to do this because this will happen on the ClassComponent
+	# anyways because we chose the class on login
+	# _recalculate_stats()
 
 func _recalculate_stats() -> void:
 	var level = _level_component.level if _level_component else 1
@@ -80,10 +82,13 @@ func _recalculate_stats() -> void:
 	
 	stats_changed.emit()
 
+
 func _on_leveled_up(new_level: int) -> void:
+	print("STATS: OnLevelUp - PID: %s" % str(owner.player_id))
 	_recalculate_stats()
 
 func _on_class_changed(new_class: String) -> void:
+	print("STATS: OnClassChange - PID: %s" % str(owner.player_id))
 	_recalculate_stats()
 
 # Getter methods for other components

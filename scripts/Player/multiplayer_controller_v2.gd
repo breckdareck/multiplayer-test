@@ -3,6 +3,7 @@ extends CharacterBody2D
 
 const SPEED: float = 130.0
 const JUMP_VELOCITY: float = -300.0
+const SERVER_ID: int = 1
 
 @export var player_id := 1:
 	set(id):
@@ -47,60 +48,43 @@ var _is_being_cleaned_up: bool = false
 @onready var state_machine = $StateMachine
 @onready var coyote_timer: Timer = $CoyoteTimer
 @onready var drop_timer: Timer = $DropTimer
+@onready var respawn_timer: Timer = $RespawnTimer
 @onready var basic_attack_hitbox: CollisionShape2D = $Hitbox/BasicAttackHitbox
 @onready var menu_container: MainMenu = get_tree().current_scene.get_node("%MenuContainer")
 
 
+#=============================================================================
+# GODOT LIFECYCLE METHODS
+#=============================================================================
+
 func _ready() -> void:
 	if multiplayer.get_unique_id() == player_id:
-		var menu_container_node = get_tree().current_scene.get_node("%MenuContainer")
-		if menu_container_node and menu_container_node.has_method("get_username"):
-			var user_name = (menu_container_node as MainMenu).get_username()
+		var menu_container: MainMenu = get_tree().current_scene.get_node_or_null("%MenuContainer") as MainMenu
+		if is_instance_valid(menu_container) and menu_container.has_method("get_username"):
+			var user_name: String = menu_container.get_username()
 			set_username.rpc(user_name)
-			request_load_data.rpc_id(1, username)
+			request_load_data.rpc_id(SERVER_ID, user_name)
 		else:
-			print("Warning: Could not find MenuContainer or get_username method")
+			push_warning("Could not find MenuContainer or get_username method.")
 
-	if OS.has_feature("dedicated_server"):
-		$Camera2D.queue_free()
-		animated_sprite.visible = false
-		animated_sprite.process_mode = Node.PROCESS_MODE_DISABLED
-	else:
-		if multiplayer.get_unique_id() == player_id:
-			$Camera2D.make_current()
-			debug_component.debug_panel.show()
-			player_HUD.show()
-			if OS.get_name() == "Android":
-				player_HUD.get_child(1).show()
-		else:
-			$Camera2D.enabled = false
+		# Request the sprite states of all other players from the server.
+		request_all_sprite_states.rpc_id(SERVER_ID)
 
-		# Store the base horizontal offset for correct positioning when flipping.
-		_sprite_base_offset_x = abs(animated_sprite.offset.x)
-
-
+	# Server-specific setup
 	if multiplayer.is_server():
-		# Connect to the health component's signals to react to death and respawn.
-		multiplayer.peer_connected.connect(_on_peer_connected)
-		drop_timer.timeout.connect(_on_drop_timer_timeout)
-		health_component.died.connect(_on_player_died)
-		$RespawnTimer.timeout.connect(_respawn)
-
-		# Connect signals to save data when it changes
-		if health_component:
-			health_component.health_changed.connect(func(_c, _m): data_changed())
-		if level_component:
-			level_component.experience_changed.connect(func(_c, _e): data_changed())
-			level_component.leveled_up.connect(func(_l): data_changed())
-			level_component.leveled_up.connect(_handle_sprite_change_on_server.unbind(1))
-			_handle_sprite_change_on_server()
-
+		_setup_server_signals()
+		# Handle sprite change on initial spawn
 		await get_tree().process_frame
-	else:
-		request_all_sprite_states.rpc_id(1)
+		_handle_sprite_change_on_server()
 
-	debug_component.set_health_component(health_component)
-	debug_component.set_player(self)
+	# Client-specific setup
+	if not OS.has_feature("dedicated_server"):
+		_setup_client_visuals()
+
+	# Initialize components
+	if is_instance_valid(debug_component):
+		debug_component.set_health_component(health_component)
+		debug_component.set_player(self)
 
 	state_machine.init(self, animated_sprite)
 
@@ -117,33 +101,13 @@ func _physics_process(delta: float) -> void:
 	if _is_being_cleaned_up:
 		return
 
-	# Server-side authoritative logic
+	# Server-authoritative physics processing
 	if multiplayer.is_server():
-		# Prevent player input from being processed while dead.
-		if not health_component.is_dead:
-			# Safe access to InputSynchronizer with validation
-			var input_sync = get_node_or_null("%InputSynchronizer")
-			if input_sync and is_instance_valid(input_sync):
-				direction = input_sync.input_direction
-				input_down = input_sync.input_down
-			else:
-				# Fallback if InputSynchronizer is not available
-				direction = 0
-				input_down = false
-		else:
-			# Clear input flags when dead to prevent movement.
-			direction = 0
-			input_down = false
-
-		# Process physics in the current state
+		_update_input_from_synchronizer()
 		state_machine.process_physics(delta)
 
-	# Visual updates (runs on all instances)
-	if state_machine.current_state and state_machine.current_state.allow_flip:
-		animated_sprite.flip_h = facing_direction < 0
-		animated_sprite.offset.x = (
-		-_sprite_base_offset_x if facing_direction < 0 else _sprite_base_offset_x
-		)
+	# Visual updates run on all peers (clients and server)
+	_update_sprite_facing_direction()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -154,85 +118,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		state_machine.process_input(event)
 
 
-func _on_peer_connected(peer_id: int) -> void:
-	if not multiplayer.is_server():
-		return
-	
-	# Send current sprite state to the new client
-	if class_component and level_component:
-		var class_type = class_component.current_class
-		var current_level = level_component.level
-		
-		var sprite_frames = ResourceManager.get_sprite_for_level(class_type, current_level)
-		if sprite_frames:
-			change_sprite_rpc.rpc_id(peer_id, class_component.get_class_name(), current_level)
+func _exit_tree():
+	cleanup_before_removal()
 
-
-func _change_sprite():
-	if player_id != multiplayer.get_unique_id():
-		return
-		
-	if multiplayer.is_server():
-		# If we're on the server, handle it directly
-		_handle_sprite_change_on_server()
-	else:
-		# If we're a client, request from server
-		request_sprite_change.rpc_id(1)
-
-
-func _handle_sprite_change_on_server() -> void:
-	if not class_component:
-		return
-		
-	var class_type = class_component.current_class
-	var current_level = level_component.level if level_component else 1
-	
-	var sprite_frames = ResourceManager.get_sprite_for_level(class_type, current_level)
-	if sprite_frames:
-		change_sprite_rpc.rpc(class_component.get_class_name(), current_level)
-
-
-@rpc("any_peer", "call_local", "reliable")
-func request_sprite_change() -> void:
-	if not multiplayer.is_server():
-		return
-		
-	_handle_sprite_change_on_server()
-
-
-@rpc("authority", "call_local", "reliable")
-func change_sprite_rpc(_class_name: String, level: int) -> void:
-	var class_type = ResourceManager.get_class_type_from_string(_class_name)
-	var sprite_frames = ResourceManager.get_sprite_for_level(class_type, level)
-	
-	if sprite_frames:
-		animated_sprite.sprite_frames = sprite_frames
-		animated_sprite.play("idle")
-		print("Server changed sprite to %s level %d for player %d" % [_class_name, level, player_id])
-	else:
-		print("Error: Could not find sprite for %s level %d" % [_class_name, level])
-
-
-@rpc("any_peer", "call_local", "reliable")
-func change_class_request(new_class: int) -> void:
-	if not multiplayer.is_server():
-		return
-		
-	if class_component:
-		class_component.change_class_rpc.rpc(new_class)
-		# Update sprite to match new class
-		_handle_sprite_change_on_server()
-
-
-@rpc("any_peer", "call_local", "reliable")
-func request_all_sprite_states() -> void:
-	if not multiplayer.is_server():
-		return
-	
-	# Server responds by updating this specific client
-	var requester_id = multiplayer.get_remote_sender_id()
-	_on_peer_connected(requester_id)
-
+#=============================================================================
+# PUBLIC METHODS
+#=============================================================================
 
 func apply_knockback(knockback: Vector2) -> void:
 	if _is_being_cleaned_up:
@@ -252,31 +143,6 @@ func gain_experience(amount: int) -> void:
 	if level_component and level_component.has_method("add_exp"):
 		level_component.add_exp(amount)
 
-
-func _on_player_died(_killer: Node) -> void:
-	if _is_being_cleaned_up:
-		return
-
-	# This is called by the HealthComponent's 'died' signal on the server.
-	$RespawnTimer.start()
-
-
-@rpc("any_peer", "call_local", "reliable")
-func _respawn() -> void:
-	if _is_being_cleaned_up:
-		return
-
-	# This function must only run on the server.
-	if not multiplayer.is_server():
-		return
-
-	# The server decides the respawn position and tells the component to respawn.
-	position = MultiplayerManager.respawn_point
-	do_attack = false
-	do_jump = false
-	do_drop = false
-	health_component.respawn()
-	
 
 func can_drop_through_platform() -> bool:
 	if _is_being_cleaned_up:
@@ -302,95 +168,6 @@ func drop_through_platform() -> void:
 	drop_timer.start()
 
 
-func _on_drop_timer_timeout() -> void:
-	if _is_being_cleaned_up:
-		return
-
-	set_collision_mask_value(platform_layer, true)
-
-
-@rpc("any_peer", "call_local", "reliable")
-func set_username(uname: String) -> void:
-	print("MPController: Setting username to: ", uname, " for player_id: ", player_id)
-	username = uname
-	player_name_label.text = username
-
-
-func data_changed() -> void:
-	if _is_being_cleaned_up:
-		return
-
-	# This function is called when any of the main variables change
-	var data: Dictionary = save()
-	save_on_server.rpc_id(1, JSON.stringify(data))
-
-
-@rpc("any_peer", "call_local", "reliable")
-func save_on_server(data: String) -> void:
-	if not multiplayer.is_server():
-		return
-
-	print("MPController: %s: Saving on Server" % username)
-	var parsed_data: Dictionary = JSON.parse_string(data)
-	var file_path: String = "player_" + parsed_data["username"] + ".json"
-	var file = FileAccess.open(file_path, FileAccess.WRITE)
-	if file:
-		file.store_string(data)
-		file.close()
-
-
-func save() -> Dictionary:
-	var data: Dictionary = {
-	   'username' = username,
-	   'max_health' = health_component.max_health if health_component else 100,
-	   'current_health' = health_component.current_health if health_component else 100,
-	   'level' = level_component.level if level_component else 1,
-	   'experience' = level_component.experience if level_component else 0
-						   }
-	return data
-
-
-@rpc("any_peer", "call_local", "reliable")
-func request_load_data(user_name: String) -> void:
-	if not multiplayer.is_server():
-		return
-
-	var file_path: String = "player_" + user_name + ".json"
-	if FileAccess.file_exists(file_path):
-		var file = FileAccess.open(file_path, FileAccess.READ)
-		if file:
-			var content = file.get_as_text()
-			file.close()
-			var parsed_json = JSON.parse_string(content)
-			if typeof(parsed_json) == TYPE_DICTIONARY:
-				load_data(parsed_json)
-	else:
-		save_on_server(JSON.stringify(save()))
-
-
-func load_data(data: Dictionary) -> void:
-	if _is_being_cleaned_up:
-		return
-
-	print("MPController: Loading data")
-	username = data.get("username", "Player")
-
-	if health_component:
-		health_component.set_block_signals(true)
-		health_component.max_health = data.get("max_health", health_component.max_health)
-		health_component.current_health = data.get("current_health", health_component.max_health)
-		health_component.set_block_signals(false)
-		health_component.health_changed.emit(health_component.current_health, health_component.max_health)
-
-	if level_component:
-		level_component.set_block_signals(true)
-		level_component.level = data.get("level", 1)
-		level_component.experience = data.get("experience", 0)
-		level_component.set_block_signals(false)
-		level_component.experience_changed.emit(level_component.experience, level_component.get_exp_to_next_level())
-		level_component.leveled_up.emit(level_component.level)
-
-# Cleanup method called before removal during channel switching
 func cleanup_before_removal():
 	print("MPController: Cleaning up MultiplayerPlayer: ", player_id)
 	_is_being_cleaned_up = true
@@ -413,8 +190,281 @@ func cleanup_before_removal():
 
 	# Clear references that might cause issues
 	menu_container = null
-	
 
-# Override _exit_tree to handle cleanup
-func _exit_tree():
-	cleanup_before_removal()
+	
+#=============================================================================
+# PRIVATE HELPER METHODS
+#=============================================================================
+
+func _setup_server_signals() -> void:
+	if not multiplayer.is_server():
+		return
+
+	# Connect component signals to handle game logic and data saving.
+	if level_component:
+		level_component.experience_changed.connect(func(_c, _e): data_changed())
+		level_component.leveled_up.connect(func(_l): data_changed())
+		level_component.leveled_up.connect(_handle_sprite_change_on_server.unbind(1))
+	
+	if health_component:
+		health_component.health_changed.connect(func(_c, _m): data_changed())
+
+	if is_instance_valid(drop_timer):
+		drop_timer.timeout.connect(_on_drop_timer_timeout)
+
+	if is_instance_valid(respawn_timer):
+		respawn_timer.timeout.connect(_respawn)
+
+
+func _setup_client_visuals() -> void:
+	var camera: Camera2D = $Camera2D
+
+	if multiplayer.get_unique_id() == player_id:
+		camera.make_current()
+		if is_instance_valid(debug_component):
+			debug_component.debug_panel.show()
+		if is_instance_valid(player_HUD):
+			player_HUD.show()
+			# Show mobile controls on Android
+			if OS.get_name() == "Android":
+				var mobile_controls = player_HUD.get_child(1)
+				if is_instance_valid(mobile_controls):
+					mobile_controls.show()
+	else:
+		camera.enabled = false
+
+	# Store sprite offset for correct flipping.
+	_sprite_base_offset_x = abs(animated_sprite.offset.x)
+
+
+func _update_input_from_synchronizer() -> void:
+	# Do not process input if the player is dead.
+	if is_instance_valid(health_component) and health_component.is_dead:
+		direction = 0
+		input_down = false
+		return
+
+	var input_sync: Node = get_node_or_null("%InputSynchronizer")
+	if is_instance_valid(input_sync):
+		direction = input_sync.input_direction
+		input_down = input_sync.input_down
+	else:
+		# Fallback if the synchronizer is not found.
+		direction = 0
+		input_down = false
+
+
+func _update_sprite_facing_direction() -> void:
+	if state_machine.current_state and state_machine.current_state.allow_flip:
+		animated_sprite.flip_h = facing_direction < 0
+
+		var offset_sign: float = -1.0 if facing_direction < 0 else 1.0
+		animated_sprite.offset.x = _sprite_base_offset_x * offset_sign
+
+
+func _change_sprite() -> void:
+	if player_id != multiplayer.get_unique_id():
+		return
+
+	if multiplayer.is_server():
+		_handle_sprite_change_on_server() # Host client can call directly.
+	else:
+		request_sprite_change.rpc_id(SERVER_ID) # Remote clients must ask server.
+
+		
+func _handle_sprite_change_on_server() -> void:
+	if not is_instance_valid(class_component) or not is_instance_valid(level_component):
+		return
+
+	var class_type: int = class_component.current_class
+	var current_level: int = level_component.level
+
+	var sprite_frames: SpriteFrames = ResourceManager.get_sprite_for_level(class_type, current_level)
+	if sprite_frames:
+		change_sprite_rpc.rpc(class_component.get_class_name(), current_level)
+
+
+func save() -> Dictionary:
+	var data: Dictionary = {
+	   'username': username,
+	   'max_health': health_component.max_health if is_instance_valid(health_component) else 100,
+	   'current_health': health_component.current_health if is_instance_valid(health_component) else 100,
+	   'level': level_component.level if is_instance_valid(level_component) else 1,
+	   'experience': level_component.experience if is_instance_valid(level_component) else 0
+						   }
+	return data
+
+
+func load_data(data: Dictionary) -> void:
+	if _is_being_cleaned_up:
+		return
+
+	print("Loading data for ", data.get("username", "Unknown"))
+	username = data.get("username", "Player")
+
+	print(data)
+	if is_instance_valid(level_component):
+		print("Level Component found")
+		level_component.set_block_signals(true)
+		level_component.level = data.get("level", 1)
+		level_component.experience = data.get("experience", 0)
+		level_component.set_block_signals(false)
+		level_component.experience_changed.emit(level_component.experience, level_component.get_exp_to_next_level())
+		level_component.leveled_up.emit(level_component.level)
+		
+	if is_instance_valid(health_component):
+		print("Health Component found")
+		health_component.set_block_signals(true)
+		health_component.max_health = data.get("max_health", health_component.max_health)
+		health_component.current_health = data.get("current_health", health_component.max_health)
+		health_component.set_block_signals(false)
+		health_component.health_changed.emit(health_component.current_health, health_component.max_health)
+
+
+#=============================================================================
+# SIGNAL HANDLERS
+#=============================================================================
+
+func _on_player_died(_killer: Node) -> void:
+	if _is_being_cleaned_up:
+		return
+	respawn_timer.start()
+
+
+func _on_drop_timer_timeout() -> void:
+	if _is_being_cleaned_up:
+		return
+	set_collision_mask_value(platform_layer, true)
+
+
+func data_changed() -> void:
+	if _is_being_cleaned_up:
+		return
+	var data_string: String = JSON.stringify(save())
+	save_on_server.rpc_id(SERVER_ID, data_string)
+
+
+func _on_peer_connected(peer_id: int) -> void:
+	if not multiplayer.is_server() or peer_id == player_id:
+		return
+
+	# Wait a frame to ensure the new peer is ready.
+	await get_tree().process_frame
+
+	print("Sending sprite data for player %d to new peer %d" % [player_id, peer_id])
+	if is_instance_valid(class_component) and is_instance_valid(level_component):
+		var _class_name: String = class_component.get_class_name()
+		var current_level: int = level_component.level
+		change_sprite_rpc.rpc_id(peer_id, _class_name, current_level)
+
+
+#=============================================================================
+# RPC (REMOTE PROCEDURE CALL) METHODS
+#=============================================================================
+
+# [SERVER-ONLY] Respawns the player at a designated point.
+@rpc("any_peer", "call_local", "reliable")
+func _respawn() -> void:
+	if not multiplayer.is_server() or _is_being_cleaned_up:
+		return
+
+	# The server authoritatively sets the respawn position and resets state.
+	position = MultiplayerManager.respawn_point
+	do_attack = false
+	do_jump = false
+	do_drop = false
+	if is_instance_valid(health_component):
+		health_component.respawn()
+
+
+# [CLIENT -> SERVER] Requests that the server save the provided player data.
+@rpc("any_peer", "call_local", "reliable")
+func save_on_server(data_string: String) -> void:
+	if not multiplayer.is_server():
+		return
+
+	var parsed_data: Dictionary = JSON.parse_string(data_string)
+	if parsed_data.is_empty():
+		push_error("Failed to parse JSON for saving.")
+		return
+
+	var user_name: String = parsed_data.get("username", "")
+	if user_name.is_empty(): return
+
+	print("Server: Saving data for %s" % user_name)
+	var file_path: String = "player_%s.json" % user_name
+	var file := FileAccess.open(file_path, FileAccess.WRITE)
+	if file:
+		file.store_string(data_string)
+		file.close()
+
+
+# [CLIENT -> SERVER] Requests to load this player's data from a file.
+@rpc("any_peer", "call_local", "reliable")
+func request_load_data(user_name: String) -> void:
+	if not multiplayer.is_server():
+		return
+
+	var file_path: String = "player_%s.json" % user_name
+	if FileAccess.file_exists(file_path):
+		var file := FileAccess.open(file_path, FileAccess.READ)
+		if file:
+			var content: String = file.get_as_text()
+			file.close()
+			var parsed_json = JSON.parse_string(content)
+			if typeof(parsed_json) == TYPE_DICTIONARY:
+				load_data(parsed_json)
+	else:
+		# If no save file exists, create one with default data.
+		save_on_server(JSON.stringify(save()))
+
+
+# [CLIENT -> SERVER] Asks the server to initiate a sprite change for this player.
+@rpc("any_peer", "call_local", "reliable")
+func request_sprite_change() -> void:
+	if not multiplayer.is_server():
+		return
+	_handle_sprite_change_on_server()
+
+
+# [SERVER -> CLIENTS] Broadcasts the sprite change to all clients.
+@rpc("authority", "call_local", "reliable")
+func change_sprite_rpc(_class_name: String, level: int) -> void:
+	var class_type: int = ResourceManager.get_class_type_from_string(_class_name)
+	var sprite_frames: SpriteFrames = ResourceManager.get_sprite_for_level(class_type, level)
+	if sprite_frames:
+		animated_sprite.sprite_frames = sprite_frames
+		animated_sprite.play("idle")
+	else:
+		push_warning("Could not find sprite for %s level %d" % [_class_name, level])
+
+
+# [CLIENT -> SERVER] Client requests to change their class.
+@rpc("any_peer", "call_local", "reliable")
+func change_class_request(new_class: int) -> void:
+	if not multiplayer.is_server():
+		return
+
+	if is_instance_valid(class_component):
+		class_component.change_class_rpc.rpc(new_class)
+		_handle_sprite_change_on_server()
+
+
+# [CLIENT -> SERVER] A new client requests the sprite states of all existing players.
+@rpc("any_peer", "call_local", "reliable")
+func request_all_sprite_states() -> void:
+	if not multiplayer.is_server():
+		return
+		
+	var requester_id: int = multiplayer.get_remote_sender_id()
+	for node in get_tree().get_nodes_in_group("players"):
+		if node is MultiplayerPlayerV2 and node != self:
+			node._on_peer_connected(requester_id)
+
+
+# [ALL PEERS] Sets the username for this player instance across all clients.
+@rpc("any_peer", "call_local", "reliable")
+func set_username(uname: String) -> void:
+	username = uname
+	if is_instance_valid(player_name_label):
+		player_name_label.text = username

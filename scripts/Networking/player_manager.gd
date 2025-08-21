@@ -86,21 +86,22 @@ func _receive_character_selection(id: int, character_type: int):
 func _spawn_character_for_player(id: int, character_type: int):
 	"""Spawn a character instance for the given player"""
 	var player_instance = character_scene.instantiate()
-	
+
 	player_instance.player_id = id
 	player_instance.name = str(id)
-	var controller = player_instance as MultiplayerPlayerV2
-	if controller.class_component:
-		controller.class_component.change_class(character_type)
-		
+	if player_instance.class_component:
+		player_instance.class_component.current_class = character_type
+	
 	# Add to networked entities group for proper cleanup
 	player_instance.add_to_group("networked_entities")
-	
+
 	var spawn_node = NetworkUtils.get_players_spawn_node(get_tree())
 	if spawn_node:
+		# This adds the character to ALL clients, including the owner
 		spawn_node.add_child(player_instance, true)
+		print("Added player %d to scene. Node path: %s" % [id, player_instance.get_path()])
 		print("Successfully spawned character %d for player %d" % [character_type, id])
-		
+	
 		# Update player tracking
 		if id in active_players:
 			active_players[id]["synced"] = true

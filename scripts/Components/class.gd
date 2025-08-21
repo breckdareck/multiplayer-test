@@ -12,10 +12,7 @@ func _ready() -> void:
 	if not multiplayer.is_server():
 		return
 		
-	if _stats_component:
-		class_changed.connect(_on_class_changed)
-		# Initial stats calculation with current class
-		_on_class_changed(get_class_name())
+	# class_changed.emit(get_class_name())
 
 func get_class_name() -> String:
 	return ResourceManager.get_class_name(current_class)
@@ -67,16 +64,8 @@ func change_class_by_name(_class_name: String) -> void:
 @rpc("authority", "call_local", "reliable")
 func change_class_rpc(new_class: int) -> void:
 	change_class(new_class)
-
-func _on_class_changed(new_class: String) -> void:
-	# Update stats with class bonuses
-	if _stats_component:
-		print("ClassComponent: Class changed to %s, recalculating stats..." % new_class)
-		_stats_component._recalculate_stats()
-	else:
-		push_warning("ClassComponent: No Stats component found for stats recalculation")
-		
-		
+	
+	
 # Convenience methods for checking class
 func is_swordsman() -> bool:
 	return current_class == Constants.ClassType.SWORDSMAN

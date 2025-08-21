@@ -559,7 +559,7 @@ unique_name_in_owner = true
 script = ExtResource("1_snocx")
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("res://scenes/multiplayer_player.tscn", "res://scenes/Player/archer_player.tscn", "res://scenes/Player/mage_player.tscn", "res://scenes/Player/swordsman_player.tscn")
+_spawnable_scenes = PackedStringArray("uid://bdtdpx0d05sy3")
 spawn_path = NodePath("../Players")
 
 [node name="Camera2D" type="Camera2D" parent="."]
