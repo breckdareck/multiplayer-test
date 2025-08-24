@@ -202,7 +202,7 @@ size = Vector2(100, 16)
 [sub_resource type="CircleShape2D" id="CircleShape2D_h0wtf"]
 radius = 5.0
 
-[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "combat_component", "level_component", "stats_component", "class_component", "debug_component", "player_HUD", "player_name_label") groups=["networked_entities"]]
+[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "combat_component", "level_component", "stats_component", "class_component", "inventory_component", "debug_component", "player_HUD", "player_name_label") groups=["networked_entities"]]
 collision_layer = 2
 collision_mask = 5
 script = ExtResource("1_an8q1")
@@ -211,6 +211,7 @@ combat_component = NodePath("Components/Combat")
 level_component = NodePath("Components/Leveling")
 stats_component = NodePath("Components/Stats")
 class_component = NodePath("Components/Class")
+inventory_component = NodePath("Components/Inventory")
 debug_component = NodePath("CanvasLayer/Debug")
 player_HUD = NodePath("CanvasLayer/PlayerHUD")
 player_name_label = NodePath("PlayerWorldHUD/PlayerNameLabel")
@@ -253,8 +254,9 @@ attack_map = Dictionary[String, ExtResource("8_4ni0x")]({
 })
 attack_hitbox = NodePath("../../Hitbox/BasicAttackHitbox")
 
-[node name="Inventory" type="Node" parent="Components"]
+[node name="Inventory" type="Node" parent="Components" node_paths=PackedStringArray("inventory_grid")]
 script = ExtResource("15_cg2hl")
+inventory_grid = NodePath("../../CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 

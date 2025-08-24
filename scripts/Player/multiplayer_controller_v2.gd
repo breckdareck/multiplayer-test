@@ -25,6 +25,7 @@ const SERVER_ID: int = 1
 @export var level_component: LevelingComponent
 @export var stats_component: StatsComponent
 @export var class_component: ClassComponent
+@export var inventory_component: InventoryComponent
 @export var debug_component: MyDebugComponent
 
 @export_category("UI")

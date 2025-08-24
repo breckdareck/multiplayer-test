@@ -1,4 +1,4 @@
-extends Node
+extends Window
 
 @onready var stats_window: Window = $"."
 @onready var stats_panel: Panel = $StatsPanel
