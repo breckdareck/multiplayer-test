@@ -1,11 +1,11 @@
-extends Control
+extends Node
 
-@onready var stats_window: Window = $StatsWindow
-@onready var stats_panel: Panel = $StatsWindow/StatsPanel
-@onready var str_amount_label: Label = $StatsWindow/StatsPanel/VBoxContainer/STRContainer/STRAmountLabel
-@onready var dex_amount_label: Label = $StatsWindow/StatsPanel/VBoxContainer/DEXContainer/DEXAmountLabel
-@onready var int_amount_label: Label = $StatsWindow/StatsPanel/VBoxContainer/INTContainer/INTAmountLabel
-@onready var vit_amount_label: Label = $StatsWindow/StatsPanel/VBoxContainer/VITContainer/VITAmountLabel
+@onready var stats_window: Window = $"."
+@onready var stats_panel: Panel = $StatsPanel
+@onready var str_amount_label: Label = $StatsPanel/VBoxContainer/STRContainer/STRAmountLabel
+@onready var dex_amount_label: Label = $StatsPanel/VBoxContainer/DEXContainer/DEXAmountLabel
+@onready var int_amount_label: Label = $StatsPanel/VBoxContainer/INTContainer/INTAmountLabel
+@onready var vit_amount_label: Label = $StatsPanel/VBoxContainer/VITContainer/VITAmountLabel
 
 var player: MultiplayerPlayerV2
 

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Item" load_steps=4 format=3 uid="uid://b76itvpjfqang"]
+
+[ext_resource type="Texture2D" uid="uid://yhl18c6ei5o6" path="res://assets/sprites/fruit.png" id="1_emmax"]
+[ext_resource type="Script" uid="uid://ob3kriis8m08" path="res://scripts/Resources/Item.gd" id="1_xbkpy"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_emmax"]
+atlas = ExtResource("1_emmax")
+region = Rect2(0, 0, 18, 18)
+
+[resource]
+script = ExtResource("1_xbkpy")
+name = "Potion"
+icon = SubResource("AtlasTexture_emmax")
+description = &""
+can_stack = false
+max_stack_amount = 0
+metadata/_custom_type_script = "uid://ob3kriis8m08"

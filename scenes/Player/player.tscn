@@ -1,4 +1,4 @@
-[gd_scene load_steps=45 format=3 uid="uid://bdtdpx0d05sy3"]
+[gd_scene load_steps=47 format=3 uid="uid://bdtdpx0d05sy3"]
 
 [ext_resource type="Script" uid="uid://yibpus3whwuj" path="res://scripts/Player/multiplayer_controller_v2.gd" id="1_an8q1"]
 [ext_resource type="Script" uid="uid://cy1j38lpy671e" path="res://scripts/Player/multiplayer_input.gd" id="2_hxkm2"]
@@ -14,8 +14,10 @@
 [ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="12_cgmen"]
 [ext_resource type="Script" uid="uid://chuj37r7r0ydq" path="res://scripts/Components/debug.gd" id="13_fqhit"]
 [ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="14_e8txv"]
-[ext_resource type="Script" uid="uid://cim4ffnwf0bi8" path="res://scripts/UI/moveable_windows.gd" id="14_hxkm2"]
+[ext_resource type="Script" uid="uid://cim4ffnwf0bi8" path="res://scripts/UI/stats_window.gd" id="14_hxkm2"]
 [ext_resource type="SpriteFrames" uid="uid://c05dyrlp5i5bj" path="res://resources/Player/SpriteFrames/Swordsman.tres" id="15_7iww4"]
+[ext_resource type="PackedScene" uid="uid://brcg2yc1x5qen" path="res://scenes/UI/slot.tscn" id="15_18ciy"]
+[ext_resource type="Script" uid="uid://c8fllkah6qfdg" path="res://scripts/Components/inventory.gd" id="15_cg2hl"]
 [ext_resource type="Script" uid="uid://dwv2k28spwfby" path="res://scripts/StateMachine/state_machine.gd" id="16_ploos"]
 [ext_resource type="Script" uid="uid://d162wvxl3tos0" path="res://scripts/Player/StateMachine/attack.gd" id="17_e6s7e"]
 [ext_resource type="Script" uid="uid://cqx4rs6bafi4b" path="res://scripts/Player/StateMachine/idle.gd" id="18_gb22u"]
@@ -250,6 +252,9 @@ attack_map = Dictionary[String, ExtResource("8_4ni0x")]({
 "attack_2": ExtResource("10_32uah")
 })
 attack_hitbox = NodePath("../../Hitbox/BasicAttackHitbox")
+
+[node name="Inventory" type="Node" parent="Components"]
+script = ExtResource("15_cg2hl")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
@@ -622,7 +627,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-script = ExtResource("14_hxkm2")
 
 [node name="StatsWindow" type="Window" parent="CanvasLayer/MoveableWindows"]
 title = "Stats"
@@ -632,6 +636,7 @@ visible = false
 unresizable = true
 always_on_top = true
 theme_override_font_sizes/title_font_size = 20
+script = ExtResource("14_hxkm2")
 
 [node name="StatsPanel" type="Panel" parent="CanvasLayer/MoveableWindows/StatsWindow"]
 anchors_preset = 7
@@ -711,6 +716,205 @@ text = "Vitality"
 [node name="VITAmountLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/VITContainer"]
 layout_mode = 2
 text = "0"
+
+[node name="InventoryWindow" type="Window" parent="CanvasLayer/MoveableWindows"]
+auto_translate_mode = 1
+title = "Inventory"
+position = Vector2i(1240, 165)
+size = Vector2i(400, 500)
+unresizable = true
+always_on_top = true
+theme_override_font_sizes/title_font_size = 20
+
+[node name="InventoryPanel" type="Panel" parent="CanvasLayer/MoveableWindows/InventoryWindow"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -200.0
+offset_top = -500.0
+offset_right = 200.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="ScrollContainer" type="ScrollContainer" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 2
+
+[node name="InventoryGrid" type="GridContainer" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 6
+columns = 6
+
+[node name="Slot" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot2" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot3" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot4" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot5" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot6" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot7" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot8" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot9" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot10" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot11" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot12" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot13" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot14" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot15" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot16" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot17" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot18" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot19" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot20" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot21" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot22" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot23" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot24" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot25" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot26" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot27" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot28" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot29" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot30" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot31" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot32" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot33" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot34" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot35" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot36" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot37" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot38" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot39" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot40" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot41" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot42" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot43" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot44" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot45" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot46" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot47" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot48" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot49" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot50" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot51" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot52" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot53" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
+
+[node name="Slot54" parent="CanvasLayer/MoveableWindows/InventoryWindow/InventoryPanel/ScrollContainer/InventoryGrid" instance=ExtResource("15_18ciy")]
+layout_mode = 2
 
 [node name="PlayerWorldHUD" type="Control" parent="."]
 layout_mode = 3
@@ -871,4 +1075,5 @@ animation_name = "hit"
 [connection signal="pressed" from="CanvasLayer/PlayerHUD/MobileButtons/AttackButton" to="InputSynchronizer" method="_on_attack_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/PlayerHUD/MobileButtons/JumpButton" to="InputSynchronizer" method="_on_jump_button_pressed"]
 [connection signal="close_requested" from="CanvasLayer/MoveableWindows/StatsWindow" to="CanvasLayer/MoveableWindows/StatsWindow" method="hide"]
+[connection signal="close_requested" from="CanvasLayer/MoveableWindows/InventoryWindow" to="CanvasLayer/MoveableWindows/InventoryWindow" method="hide"]
 [connection signal="body_entered" from="Hitbox" to="Components/Combat" method="_on_hitbox_body_entered"]
