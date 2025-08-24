@@ -139,7 +139,7 @@ func gain_experience(amount: int) -> void:
 	if _is_being_cleaned_up:
 		return
 
-	print("[DEBUG] Player %s gained %d EXP" % [str(self), amount])
+	# print("[DEBUG] Player %s gained %d EXP" % [str(self), amount])
 	if level_component and level_component.has_method("add_exp"):
 		level_component.add_exp(amount)
 
@@ -302,18 +302,18 @@ func load_data(data: Dictionary) -> void:
 	print("Loading data for ", data.get("username", "Unknown"))
 	username = data.get("username", "Player")
 
-	print(data)
+	# print(data)
 	if is_instance_valid(level_component):
-		print("Level Component found")
+		# print("Level Component found")
 		level_component.set_block_signals(true)
 		level_component.level = data.get("level", 1)
 		level_component.experience = data.get("experience", 0)
 		level_component.set_block_signals(false)
-		level_component.experience_changed.emit(level_component.experience, level_component.get_exp_to_next_level())
 		level_component.leveled_up.emit(level_component.level)
+		level_component.experience_changed.emit(level_component.experience, level_component.get_exp_to_next_level())
 		
 	if is_instance_valid(health_component):
-		print("Health Component found")
+		# print("Health Component found")
 		health_component.set_block_signals(true)
 		health_component.max_health = data.get("max_health", health_component.max_health)
 		health_component.current_health = data.get("current_health", health_component.max_health)

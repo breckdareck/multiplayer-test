@@ -5,14 +5,7 @@ const SWORDSMAN_PORTRAIT = preload("res://assets/UI/swordsman_portrait.tres")
 const ARCHER_PORTRAIT = preload("res://assets/UI/archer_portrait.tres")
 const MAGE_PORTRAIT = preload("res://assets/UI/mage_portrait.tres")
 
-enum Character
-{
-	SWORDSMAN,
-	ARCHER,
-	MAGE,
-}
-
-var selected_character: Character = 0
+var selected_character: Constants.ClassType = 0
 
 @onready var main_menu: Control = $"."
 @onready var username_input: LineEdit = $MenuPanel/VBoxContainer/Username
@@ -56,20 +49,20 @@ func setup_PID_label(is_host: bool, pid: int):
 
 
 func get_username() -> String:
-	print("MainMenu returning username: ", username_input.text)
+	print("MainMenu: Returning username: ", username_input.text)
 	return username_input.text
 
 
 func change_character(value: int):
 	selected_character += value
-	if selected_character > len(Character)-1:
+	if selected_character > len(Constants.ClassType)-1:
 		selected_character = 0
 	elif selected_character < 0:
-		selected_character = len(Character)-1
+		selected_character = len(Constants.ClassType)-1
 	match selected_character:
-		Character.SWORDSMAN:
+		Constants.ClassType.SWORDSMAN:
 			character_portrait.texture = SWORDSMAN_PORTRAIT
-		Character.ARCHER:
+		Constants.ClassType.ARCHER:
 			character_portrait.texture = ARCHER_PORTRAIT
-		Character.MAGE:
+		Constants.ClassType.MAGE:
 			character_portrait.texture = MAGE_PORTRAIT

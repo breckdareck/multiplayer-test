@@ -65,7 +65,7 @@ func _request_character_selection(id: int):
 	if menu_container and "selected_character" in menu_container:
 		selected_char = menu_container.selected_character
 	
-	print("Client sending character selection: %d" % selected_char)
+	print("Client sending character selection: %s" % Constants.ClassType.find_key(selected_char))
 	rpc_id(1, "_receive_character_selection", id, selected_char)
 
 @rpc("call_local", "any_peer")
@@ -74,7 +74,7 @@ func _receive_character_selection(id: int, character_type: int):
 	if not multiplayer.is_server():
 		return
 	
-	print("Server received character selection %d from player %d" % [character_type, id])
+	print("Server received character selection %s from player %d" % [Constants.ClassType.find_key(character_type), id])
 	
 	# Update player info
 	if id in active_players:
@@ -100,7 +100,7 @@ func _spawn_character_for_player(id: int, character_type: int):
 		# This adds the character to ALL clients, including the owner
 		spawn_node.add_child(player_instance, true)
 		print("Added player %d to scene. Node path: %s" % [id, player_instance.get_path()])
-		print("Successfully spawned character %d for player %d" % [character_type, id])
+		print("Successfully spawned character %s for PID: %d" % [Constants.ClassType.find_key(character_type), id])
 	
 		# Update player tracking
 		if id in active_players:

@@ -620,7 +620,7 @@ texture = ExtResource("22_lqda6")
 
 [node name="Background8" type="Sprite2D" parent="TileMap"]
 z_index = -7
-position = Vector2(878, -340)
+position = Vector2(879, -357)
 scale = Vector2(2, 2)
 texture = ExtResource("23_rm7na")
 

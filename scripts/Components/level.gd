@@ -1,8 +1,8 @@
 class_name LevelingComponent
 extends Node
 
-signal experience_changed(current_exp, exp_to_level)
 signal leveled_up(new_level)
+signal experience_changed(current_exp, exp_to_level)
 
 @export var max_level = 100
 @export var base_exp = 100

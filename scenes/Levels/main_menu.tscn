@@ -1,9 +1,30 @@
-[gd_scene load_steps=6 format=3 uid="uid://b8gpxmwm0fasc"]
+[gd_scene load_steps=13 format=3 uid="uid://b8gpxmwm0fasc"]
 
 [ext_resource type="Script" uid="uid://bkbvur85785bq" path="res://scripts/main_menu.gd" id="1_13qgu"]
+[ext_resource type="Texture2D" uid="uid://bcoeao6eds8lo" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/background.png" id="1_gken0"]
 [ext_resource type="Texture2D" uid="uid://dvufw62efsvt5" path="res://assets/UI/swordsman_portrait.tres" id="2_lars7"]
 [ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="2_towmw"]
+[ext_resource type="Shader" uid="uid://csrw4n2gvogld" path="res://assets/Shader/scroll.gd.gdshader" id="2_vlakc"]
 [ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="3_lars7"]
+[ext_resource type="Texture2D" uid="uid://dn66ntccqo3io" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/props_clouds.png" id="3_qrs31"]
+[ext_resource type="Texture2D" uid="uid://b0idp2sbo05qp" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Country.png" id="4_vlakc"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_qrs31"]
+shader = ExtResource("2_vlakc")
+shader_parameter/SPEED = 0.07
+
+[sub_resource type="Shader" id="Shader_ag6ye"]
+code = "shader_type canvas_item;
+
+uniform float SPEED = 0.1;
+
+void vertex() {
+	UV.x += TIME * SPEED;
+}"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_sp6lx"]
+shader = SubResource("Shader_ag6ye")
+shader_parameter/SPEED = -0.05
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wu84c"]
 bg_color = Color(0.316167, 0.316167, 0.316167, 1)
@@ -33,6 +54,44 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_13qgu")
+
+[node name="Background" type="TextureRect" parent="CanvasLayer/MenuContainer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_gken0")
+
+[node name="Clouds" type="TextureRect" parent="CanvasLayer/MenuContainer"]
+texture_repeat = 2
+material = SubResource("ShaderMaterial_qrs31")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -67.0
+offset_top = 55.0
+offset_right = 57.0
+offset_bottom = -732.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("3_qrs31")
+
+[node name="Village" type="TextureRect" parent="CanvasLayer/MenuContainer"]
+texture_repeat = 2
+material = SubResource("ShaderMaterial_sp6lx")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -66.0
+offset_right = 57.0
+offset_bottom = 148.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_vlakc")
 
 [node name="CharacterSelectPanel" type="Panel" parent="CanvasLayer/MenuContainer"]
 layout_mode = 1

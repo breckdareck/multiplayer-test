@@ -19,6 +19,9 @@ func _ready() -> void:
 		player = owner
 	elif owner is MultiplayerPlayerV2:
 		player = owner
+		
+	if player.player_id != multiplayer.get_unique_id():
+		return
 	health_bar.max_value = player.health_component.max_health
 	health_bar.value = player.health_component.current_health
 	hp_value_label.text = str(player.health_component.current_health) + "/" + str(player.health_component.max_health)
