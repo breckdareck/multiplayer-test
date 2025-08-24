@@ -1,11 +1,9 @@
 class_name InventoryComponent
 extends Node
 
-# Reference to the grid container that holds the slots
 @export var inventory_grid: GridContainer
 @export var slots: Array[Slot] = []
 
-# Fix 4: Performance optimization - O(1) item lookups
 var item_counts: Dictionary = {} # item_name -> total_count
 var item_locations: Dictionary = {} # item_name -> Array[Slot]
 
@@ -19,20 +17,17 @@ func _ready() -> void:
 			if child is Slot:
 				slots.append(child)
 
-	# Set up each slot with this inventory reference
 	for slot in slots:
 		if slot.has_method("set_inventory"):
 			slot.set_inventory(self)
 		slot.add_to_group("inventory_slots")
 
-	# Add some test items
 	for x in range(20):
 		add_item(load("res://resources/Items/Potion.tres"))
 
-	# Build initial item tracking
 	_rebuild_item_tracking()
 
-# Alternative setup method for when you need to set slots manually
+
 func setup_slots(slot_array: Array[Slot]):
 	slots = slot_array
 	for slot in slots:
@@ -41,7 +36,7 @@ func setup_slots(slot_array: Array[Slot]):
 		slot.add_to_group("inventory_slots")
 	_rebuild_item_tracking()
 
-# Fix 4: Rebuild item tracking dictionaries
+
 func _rebuild_item_tracking():
 	item_counts.clear()
 	item_locations.clear()
@@ -63,7 +58,7 @@ func _rebuild_item_tracking():
 			else:
 				item_locations[item_name] = [slot]
 
-# Fix 4: Update tracking when items change
+
 func _update_item_tracking(slot: Slot, old_item: Item, new_item: Item):
 	# Remove old item from tracking
 	if old_item != null:
@@ -94,10 +89,10 @@ func _update_item_tracking(slot: Slot, old_item: Item, new_item: Item):
 		else:
 			item_locations[new_name] = [slot]
 
+
 func add_item(item: Item):
 	var original_item = item.duplicate()
 
-	# First try to add to existing stacks using optimized lookup
 	var item_name = item.name
 	if item_name in item_locations and item.can_stack:
 		var existing_slots = item_locations[item_name]
@@ -116,18 +111,17 @@ func add_item(item: Item):
 					if item.current_stack_amount <= 0:
 						return
 
-	# If we still have items, find empty slots
 	for slot in slots:
 		if slot.item == null:
 			slot.item = original_item.duplicate()
 			slot.item.current_stack_amount = item.current_stack_amount
 			slot._update_display()
 
-			# Update tracking
 			_update_item_tracking(slot, null, slot.item)
 			return
 
 	print("Can't add any more items")
+
 
 func remove_item(item: Item):
 	for slot in slots:
@@ -139,13 +133,13 @@ func remove_item(item: Item):
 			return
 	print("Item not found")
 
+
 func remove_item_from_stack(item: Item, amount: int = 1):
 	for slot in slots:
 		if slot.item == item:
 			var old_amount = slot.item.current_stack_amount
 			var removed = slot.remove_from_stack(amount)
 
-			# Update tracking
 			if item.name in item_counts:
 				item_counts[item.name] -= removed
 				if item_counts[item.name] <= 0:
@@ -164,20 +158,22 @@ func remove_item_from_stack(item: Item, amount: int = 1):
 	print("Item not found")
 	return 0
 
-# Fix 4: O(1) item count lookup
+
 func get_item_count(item_name: String) -> int:
 	return item_counts.get(item_name, 0)
+
 
 func has_item(item_name: String, amount: int = 1) -> bool:
 	return get_item_count(item_name) >= amount
 
-# Fix 4: O(1) item lookup
+
 func get_item_by_name(item_name: String) -> Item:
 	if item_name in item_locations:
 		var slots_with_item = item_locations[item_name]
 		if not slots_with_item.is_empty():
 			return slots_with_item[0].item
 	return null
+
 
 func get_empty_slots() -> Array[Slot]:
 	var empty_slots: Array[Slot] = []
@@ -186,6 +182,7 @@ func get_empty_slots() -> Array[Slot]:
 			empty_slots.append(slot)
 	return empty_slots
 
+
 func split_stack(slot: Slot, amount: int) -> bool:
 	if not slot.item or not slot.item.can_stack or slot.item.current_stack_amount <= 1:
 		return false
@@ -193,52 +190,48 @@ func split_stack(slot: Slot, amount: int) -> bool:
 	if amount >= slot.item.current_stack_amount:
 		return false
 
-	# Find an empty slot for the split
 	var empty_slots = get_empty_slots()
 	if empty_slots.is_empty():
 		return false
 
 	var target_slot = empty_slots[0]
 
-	# Create a copy of the item with the split amount
 	var split_item = slot.item.duplicate()
 	split_item.current_stack_amount = amount
 	target_slot.item = split_item
 	target_slot._update_display()
 
-	# Reduce the original stack
 	var old_amount = slot.item.current_stack_amount
 	slot.remove_from_stack(amount)
 
-	# Update tracking for both slots
 	_update_item_tracking(target_slot, null, split_item)
 
 	return true
 
-# Get all slots in this inventory
+
 func get_slots() -> Array[Slot]:
 	return slots
 
-# Check if this inventory is full
+
 func is_full() -> bool:
 	return get_empty_slots().is_empty()
 
-# Get the total number of items in this inventory
+
 func get_total_items() -> int:
 	var total = 0
 	for count in item_counts.values():
 		total += count
 	return total
 
-# Fix 4: Get all items of a specific type (optimized)
+
 func get_all_items_of_type(item_name: String) -> Array[Slot]:
 	return item_locations.get(item_name, [])
 
-# Utility method to refresh tracking if needed
+
 func refresh_item_tracking():
 	_rebuild_item_tracking()
 
-# Debug method to print current tracking state
+
 func debug_print_tracking():
 	print("Item counts: ", item_counts)
 	print("Item locations: ", item_locations.keys())
