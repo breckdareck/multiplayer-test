@@ -1,6 +1,7 @@
 extends Resource
-class_name Item
+class_name ItemData
 
+@export var item_type: Constants.ItemType
 @export var name: String
 @export var icon: Texture2D
 @export var description: StringName

@@ -6,14 +6,15 @@ class_name Slot
 
 var inventory: InventoryComponent = null
 
-@export var item: Item = null:
+@export var allowed_item_type: Constants.ItemType = Constants.ItemType.ANY
+@export var item: ItemData = null:
 	set(value):
 		item = value
 		_update_display()
 
 # Drag state variables
 var is_dragging: bool = false
-var drag_item: Item = null
+var drag_item: ItemData = null
 var drag_amount: int = 0
 var original_amount: int = 0
 var is_split_drag: bool = false
@@ -35,7 +36,7 @@ func set_inventory(inv: InventoryComponent):
 	inventory = inv
 	
 
-func can_add_to_stack(item_to_add: Item) -> bool:
+func can_add_to_stack(item_to_add: ItemData) -> bool:
 	if item == null or item_to_add == null:
 		return false
 	return item.name == item_to_add.name and item.can_stack and item.current_stack_amount < item.max_stack_amount
@@ -72,11 +73,17 @@ func get_remaining_space() -> int:
 	return item.max_stack_amount - item.current_stack_amount
 
 
-func _can_drop_data(at_position: Vector2, data: Variant) -> bool:
-	var can_drop = data is Slot and data != self
-	if can_drop:
-		modulate = Color(0.8, 1.0, 0.8, 2)
-	return can_drop
+func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
+	if data is Slot and data != self:
+		# NEW: Check if this slot can accept the item being dragged
+		if can_accept_item(data.drag_item):
+			modulate = Color(0.8, 1.0, 0.8, 2) # Green tint for valid drop
+			return true
+		else:
+			modulate = Color(1.0, 0.8, 0.8, 2) # Red tint for invalid drop
+			return false # Prevent the drop
+			
+	return false
 
 	
 func _notification(what):
@@ -130,11 +137,16 @@ func _get_drag_data(_at_position):
 	
 func _drop_data(at_position: Vector2, data: Variant) -> void:
 	var source_slot: Slot = data
-	if source_slot == self:
-		return
-		
 	modulate = Color.WHITE
-	
+		
+	if not self.can_accept_item(source_slot.drag_item):
+		source_slot.restore_drag_to_source()
+		return
+
+	if self.item != null and not source_slot.can_accept_item(self.item):
+		source_slot.restore_drag_to_source()
+		return
+
 	if item != null and source_slot.drag_item != null and item.name == source_slot.drag_item.name and item.can_stack:
 		var space_left = get_remaining_space()
 		if space_left > 0:
@@ -315,16 +327,30 @@ func split_stack_manual():
 	if item != null and item.can_stack and item.current_stack_amount > 1:
 		split_stack_half()
 
-		
+
+func can_accept_item(item_to_check: ItemData) -> bool:
+	if not item_to_check:
+		return true # Can always accept nothing (clearing a slot)
+	
+	if allowed_item_type == Constants.ItemType.ANY:
+		return true
+
+	return item_to_check.item_type == allowed_item_type
+
+
 func _on_mouse_entered():
 	if item != null:
-		var tooltip_text = item.name
+		print("Mouse Entered: %s" % item.name)
+		tooltip_text = item.name
 		if item.can_stack:
 			tooltip_text += "\nStack: " + str(item.current_stack_amount) + "/" + str(item.max_stack_amount)
 		if item.description != "":
 			tooltip_text += "\n" + item.description
+	else:
+		tooltip_text = ""
 
-			
+
 func _on_mouse_exited():
+	tooltip_text = ""
 	if not is_dragging:
 		modulate = Color.WHITE

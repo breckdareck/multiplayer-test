@@ -4,3 +4,10 @@ enum ClassType {
 	ARCHER,
 	MAGE,
 }
+
+enum ItemType {
+	ANY,
+	EQUIPMENT,
+	CONSUMABLE,
+	MATERIAL,
+}

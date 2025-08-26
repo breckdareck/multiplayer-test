@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=4 format=3 uid="uid://byntxvelo4s87"]
+
+[ext_resource type="Script" uid="uid://ob3kriis8m08" path="res://scripts/Resources/ItemData.gd" id="1_4e0ul"]
+[ext_resource type="Texture2D" uid="uid://debb0fq76a02e" path="res://assets/sprites/Warrior/SpriteSheet/Warrior_SheetnoEffect.png" id="1_nexst"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0opnw"]
+atlas = ExtResource("1_nexst")
+region = Rect2(8, 590, 18, 18)
+
+[resource]
+script = ExtResource("1_4e0ul")
+item_type = 1
+name = "Sword"
+icon = SubResource("AtlasTexture_0opnw")
+description = &"Very Nice Sword"
+can_stack = false
+max_stack_amount = 0
+current_stack_amount = 1
+metadata/_custom_type_script = "uid://ob3kriis8m08"

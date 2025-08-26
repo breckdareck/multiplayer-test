@@ -1,7 +1,7 @@
 class_name InventoryComponent
 extends Node
 
-@export var inventory_grid: GridContainer
+@export var inventory_grids: Array[GridContainer]
 @export var slots: Array[Slot] = []
 
 var item_counts: Dictionary = {} # item_name -> total_count
@@ -11,11 +11,11 @@ func _ready() -> void:
 	await get_tree().process_frame
 
 	# If slots array is empty, try to get them from the grid
-	if slots.is_empty() and inventory_grid:
-		var grid_children = inventory_grid.get_children()
-		for child in grid_children:
-			if child is Slot:
-				slots.append(child)
+	if slots.is_empty() and not inventory_grids.is_empty():
+		for grid in inventory_grids:
+			for child in grid.get_children():
+				if child is Slot:
+					slots.append(child)
 
 	for slot in slots:
 		if slot.has_method("set_inventory"):
@@ -24,6 +24,8 @@ func _ready() -> void:
 
 	for x in range(20):
 		add_item(load("res://resources/Items/Potion.tres"))
+		add_item(load("res://resources/Items/Sword.tres"))
+		add_item(load("res://resources/Items/Coin.tres"))
 
 	_rebuild_item_tracking()
 
@@ -59,7 +61,7 @@ func _rebuild_item_tracking():
 				item_locations[item_name] = [slot]
 
 
-func _update_item_tracking(slot: Slot, old_item: Item, new_item: Item):
+func _update_item_tracking(slot: Slot, old_item: ItemData, new_item: ItemData):
 	# Remove old item from tracking
 	if old_item != null:
 		var old_name = old_item.name
@@ -90,40 +92,43 @@ func _update_item_tracking(slot: Slot, old_item: Item, new_item: Item):
 			item_locations[new_name] = [slot]
 
 
-func add_item(item: Item):
+func add_item(item: ItemData):
 	var original_item = item.duplicate()
-
 	var item_name = item.name
+
+	# --- MODIFIED LOGIC: First, try to stack with existing items in valid slots ---
 	if item_name in item_locations and item.can_stack:
 		var existing_slots = item_locations[item_name]
 		for slot in existing_slots:
+			# NEW CHECK: Ensure the slot can accept this item type before trying to stack.
+			if slot.has_method("can_accept_item") and not slot.can_accept_item(item):
+				continue # Skip to the next slot if the type is wrong.
+
 			if slot.can_add_to_stack(item):
 				var space_left = slot.get_remaining_space()
 				if space_left > 0:
 					var amount_to_add = min(item.current_stack_amount, space_left)
-					var old_amount = slot.item.current_stack_amount
+					# The rest of this stacking logic is the same...
 					slot.add_to_stack(amount_to_add)
 					item.current_stack_amount -= amount_to_add
-
-					# Update tracking
 					item_counts[item_name] += amount_to_add
-
 					if item.current_stack_amount <= 0:
 						return
-
+						
+	# --- MODIFIED LOGIC: Second, find a valid empty slot ---
 	for slot in slots:
-		if slot.item == null:
+		# NEW CHECK: Find an empty slot that can also accept the item's type.
+		if slot.item == null and (not slot.has_method("can_accept_item") or slot.can_accept_item(original_item)):
 			slot.item = original_item.duplicate()
 			slot.item.current_stack_amount = item.current_stack_amount
 			slot._update_display()
-
 			_update_item_tracking(slot, null, slot.item)
 			return
+			
+	print("Inventory is full or no suitable slot found for this item type.")
 
-	print("Can't add any more items")
 
-
-func remove_item(item: Item):
+func remove_item(item: ItemData):
 	for slot in slots:
 		if slot.item == item:
 			var old_item = slot.item
@@ -134,7 +139,7 @@ func remove_item(item: Item):
 	print("Item not found")
 
 
-func remove_item_from_stack(item: Item, amount: int = 1):
+func remove_item_from_stack(item: ItemData, amount: int = 1):
 	for slot in slots:
 		if slot.item == item:
 			var old_amount = slot.item.current_stack_amount
@@ -167,7 +172,7 @@ func has_item(item_name: String, amount: int = 1) -> bool:
 	return get_item_count(item_name) >= amount
 
 
-func get_item_by_name(item_name: String) -> Item:
+func get_item_by_name(item_name: String) -> ItemData:
 	if item_name in item_locations:
 		var slots_with_item = item_locations[item_name]
 		if not slots_with_item.is_empty():
