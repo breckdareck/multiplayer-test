@@ -3,6 +3,14 @@ extends Control
 @onready var stats_window: Control = $"."
 @onready var stats_panel: Panel = $StatsPanel
 @onready var window_title_label: Label = $Label
+
+@onready var name_string_label: Label = $StatsPanel/VBoxContainer/NameContainer/NameStringLabel
+@onready var class_string_label: Label = $StatsPanel/VBoxContainer/ClassContainer/ClassStringLabel
+@onready var level_string_label: Label = $StatsPanel/VBoxContainer/LevelContainer/LevelStringLabel
+@onready var experience_string_label: Label = $StatsPanel/VBoxContainer/ExperienceContainer/ExperienceStringLabel
+@onready var health_amount_label: Label = $StatsPanel/VBoxContainer/HealthContainer/HealthAmountLabel
+@onready var mana_amount_label: Label = $StatsPanel/VBoxContainer/ManaContainer/ManaAmountLabel
+
 @onready var str_amount_label: Label = $StatsPanel/VBoxContainer/STRContainer/STRAmountLabel
 @onready var dex_amount_label: Label = $StatsPanel/VBoxContainer/DEXContainer/DEXAmountLabel
 @onready var int_amount_label: Label = $StatsPanel/VBoxContainer/INTContainer/INTAmountLabel
@@ -19,6 +27,10 @@ func _ready() -> void:
 		
 	if multiplayer.get_unique_id() == player.player_id:
 		player.stats_component.stats_changed.connect(update_stats_window)
+		player.level_component.leveled_up.connect(update_stats_window.unbind(1))
+		player.level_component.experience_changed.connect(update_stats_window.unbind(2))
+		player.health_component.health_changed.connect(update_stats_window.unbind(2))
+		player.class_component.class_changed.connect(update_stats_window)
 		
 		update_stats_window()
 
@@ -32,6 +44,13 @@ func _process(delta: float) -> void:
 
 
 func update_stats_window():
+	name_string_label.text = player.username
+	class_string_label.text = str(Constants.ClassType.find_key(player.class_component.current_class))
+	level_string_label.text = str(int(player.level_component.level))
+	experience_string_label.text = str(int(player.level_component.experience)) + "/" + str(int(player.level_component.get_exp_to_next_level()))
+	health_amount_label.text = str(player.health_component.current_health) + "/" + str(player.health_component.max_health)
+	mana_amount_label.text = "100/100"
+	
 	str_amount_label.text = str(player.stats_component.current_strength)
 	dex_amount_label.text = str(player.stats_component.current_dexterity)
 	int_amount_label.text = str(player.stats_component.current_intelligence)

@@ -340,7 +340,7 @@ func can_accept_item(item_to_check: ItemData) -> bool:
 
 func _on_mouse_entered():
 	if item != null:
-		print("Mouse Entered: %s" % item.name)
+		# print("Mouse Entered: %s" % item.name)
 		tooltip_text = item.name
 		if item.can_stack:
 			tooltip_text += "\nStack: " + str(item.current_stack_amount) + "/" + str(item.max_stack_amount)

@@ -18,13 +18,13 @@ corner_radius_bottom_left = 1
 [sub_resource type="Gradient" id="Gradient_tuhj4"]
 colors = PackedColorArray(0.798366, 0.798366, 0.798366, 1, 1, 1, 1, 0)
 
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_hoqrc"]
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_tuhj4"]
 gradient = SubResource("Gradient_tuhj4")
 fill_from = Vector2(0.5, 0)
 fill_to = Vector2(0.5, 1)
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_3xeyi"]
-texture = SubResource("GradientTexture2D_hoqrc")
+texture = SubResource("GradientTexture2D_tuhj4")
 
 [sub_resource type="LabelSettings" id="LabelSettings_tuhj4"]
 font = ExtResource("2_tuhj4")

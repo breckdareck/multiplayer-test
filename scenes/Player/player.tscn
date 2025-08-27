@@ -1,4 +1,4 @@
-[gd_scene load_steps=55 format=3 uid="uid://bdtdpx0d05sy3"]
+[gd_scene load_steps=64 format=3 uid="uid://bdtdpx0d05sy3"]
 
 [ext_resource type="Script" uid="uid://yibpus3whwuj" path="res://scripts/Player/multiplayer_controller_v2.gd" id="1_an8q1"]
 [ext_resource type="Script" uid="uid://cy1j38lpy671e" path="res://scripts/Player/multiplayer_input.gd" id="2_hxkm2"]
@@ -23,6 +23,7 @@
 [ext_resource type="Script" uid="uid://d162wvxl3tos0" path="res://scripts/Player/StateMachine/attack.gd" id="17_e6s7e"]
 [ext_resource type="FontFile" uid="uid://bxv5w2dv4xg3m" path="res://assets/fonts/Inter.ttc" id="17_nbg44"]
 [ext_resource type="Script" uid="uid://cqx4rs6bafi4b" path="res://scripts/Player/StateMachine/idle.gd" id="18_gb22u"]
+[ext_resource type="Theme" uid="uid://bg5sc8rk63fi6" path="res://assets/UI/Themes/ScrollContainerTheme.tres" id="18_nbg44"]
 [ext_resource type="Script" uid="uid://vfoesgffonwy" path="res://scripts/Player/StateMachine/fall.gd" id="19_pnj8v"]
 [ext_resource type="Script" uid="uid://c6oi0ebtiwt7l" path="res://scripts/Player/StateMachine/move.gd" id="20_4xm4e"]
 [ext_resource type="Script" uid="uid://vfu8l4cq1qt1" path="res://scripts/Player/StateMachine/jump.gd" id="21_v6vns"]
@@ -171,9 +172,6 @@ corner_radius_bottom_left = 15
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v00ed"]
 bg_color = Color(0.168627, 0.168627, 0.168627, 0.882353)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_o05ft"]
-bg_color = Color(0.113049, 0.113049, 0.113049, 1)
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nbg44"]
 bg_color = Color(0.0470588, 0.0470588, 0.0470588, 0.937255)
 border_width_left = 3
@@ -185,6 +183,88 @@ corner_radius_top_left = 6
 corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
+
+[sub_resource type="Theme" id="Theme_nbg44"]
+default_font = ExtResource("17_nbg44")
+Label/colors/font_outline_color = Color(0.521569, 0.607843, 0.105882, 1)
+Label/constants/outline_size = 6
+Label/fonts/font = ExtResource("14_e8txv")
+Label/styles/normal = null
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ihqbe"]
+content_margin_top = 5.0
+bg_color = Color(0.996078, 0.992157, 0.988235, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cgmen"]
+bg_color = Color(0.796078, 0.964706, 0.0196078, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 2
+corner_radius_top_left = 4
+corner_radius_bottom_left = 4
+expand_margin_left = 2.0
+expand_margin_top = 4.0
+expand_margin_right = 2.0
+expand_margin_bottom = 4.0
+
+[sub_resource type="Gradient" id="Gradient_jn0uf"]
+colors = PackedColorArray(0, 0, 0, 0.588235, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_4ni0x"]
+gradient = SubResource("Gradient_jn0uf")
+fill_from = Vector2(0.5, 1)
+fill_to = Vector2(0.5, 0)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_kp55c"]
+texture = SubResource("GradientTexture2D_4ni0x")
+expand_margin_left = 2.0
+expand_margin_top = 4.0
+expand_margin_right = 2.0
+expand_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7iww4"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+expand_margin_left = 4.0
+expand_margin_top = 2.0
+expand_margin_right = 4.0
+expand_margin_bottom = 2.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fqhit"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+expand_margin_left = 4.0
+expand_margin_top = 2.0
+expand_margin_right = 4.0
+expand_margin_bottom = 2.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_e8txv"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+expand_margin_left = 4.0
+expand_margin_top = 2.0
+expand_margin_right = 4.0
+expand_margin_bottom = 2.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jn0uf"]
 bg_color = Color(0.996078, 0.992157, 0.988235, 1)
@@ -300,7 +380,7 @@ attack_hitbox = NodePath("../../Hitbox/BasicAttackHitbox")
 
 [node name="Inventory" type="Node" parent="Components" node_paths=PackedStringArray("inventory_grids")]
 script = ExtResource("15_cg2hl")
-inventory_grids = [NodePath("../../CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/EQUIP/ScrollContainer/EquipmentGrid"), NodePath("../../CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/USE/ScrollContainer/ConsumableGrid"), NodePath("../../CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid")]
+inventory_grids = [NodePath("../../CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/EQUIP/ScrollContainer/EquipmentGrid"), NodePath("../../CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/USE/ScrollContainer/ConsumableGrid"), NodePath("../../CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid")]
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
@@ -677,10 +757,11 @@ mouse_filter = 2
 [node name="StatsWindow" type="Panel" parent="CanvasLayer/MoveableWindows"]
 visible = false
 layout_mode = 0
-offset_left = 252.0
-offset_top = 135.0
-offset_right = 667.0
-offset_bottom = 670.0
+offset_left = 314.0
+offset_top = 291.0
+offset_right = 729.0
+offset_bottom = 826.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_nbg44")
 script = ExtResource("14_hxkm2")
 
 [node name="Label" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow"]
@@ -689,11 +770,15 @@ anchors_preset = 10
 anchor_right = 1.0
 offset_left = 5.0
 offset_right = -4.0
-offset_bottom = 33.0
+offset_bottom = 38.0
 grow_horizontal = 2
+theme_override_colors/font_color = Color(0.905882, 0.890196, 0.34902, 1)
+theme_override_fonts/font = ExtResource("14_e8txv")
+theme_override_font_sizes/font_size = 16
 text = "Stats"
 horizontal_alignment = 1
 vertical_alignment = 1
+uppercase = true
 
 [node name="StatsPanel" type="Panel" parent="CanvasLayer/MoveableWindows/StatsWindow"]
 layout_mode = 1
@@ -702,12 +787,14 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -200.0
+offset_left = -199.5
 offset_top = -500.0
-offset_right = 200.0
+offset_right = 199.5
+offset_bottom = -9.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_styles/panel = SubResource("StyleBoxFlat_o05ft")
+theme = SubResource("Theme_nbg44")
+theme_override_styles/panel = SubResource("StyleBoxFlat_ihqbe")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel"]
 layout_mode = 1
@@ -716,65 +803,393 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -190.0
+offset_left = -185.5
 offset_top = -480.0
-offset_right = 190.0
+offset_right = 184.5
+offset_bottom = -8.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_constants/separation = 10
+theme_override_constants/separation = 13
+
+[node name="NameContainer" type="HBoxContainer" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer"]
+layout_mode = 2
 alignment = 1
+
+[node name="NameLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/NameContainer"]
+clip_children = 2
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_outline_size = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
+text = "Name"
+uppercase = true
+
+[node name="GradientMask" type="Panel" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/NameContainer/NameLabel"]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = -4.0
+offset_right = 2.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
+
+[node name="NameStringLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/NameContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 0
+theme_override_fonts/font = ExtResource("17_nbg44")
+theme_override_styles/normal = SubResource("StyleBoxFlat_7iww4")
+text = "Player"
+horizontal_alignment = 2
+
+[node name="ClassContainer" type="HBoxContainer" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="ClassLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/ClassContainer"]
+clip_children = 2
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_outline_size = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
+text = "Class"
+uppercase = true
+
+[node name="GradientMask" type="Panel" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/ClassContainer/ClassLabel"]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = -4.0
+offset_right = 2.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
+
+[node name="ClassStringLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/ClassContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 0
+theme_override_fonts/font = ExtResource("17_nbg44")
+theme_override_styles/normal = SubResource("StyleBoxFlat_fqhit")
+text = "Warrior"
+horizontal_alignment = 2
+
+[node name="LevelContainer" type="HBoxContainer" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="LevelLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/LevelContainer"]
+clip_children = 2
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_outline_size = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
+text = "Level"
+uppercase = true
+
+[node name="GradientMask" type="Panel" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/LevelContainer/LevelLabel"]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = -4.0
+offset_right = 2.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
+
+[node name="LevelStringLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/LevelContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 0
+theme_override_fonts/font = ExtResource("17_nbg44")
+theme_override_styles/normal = SubResource("StyleBoxFlat_fqhit")
+text = "1"
+horizontal_alignment = 2
+
+[node name="ExperienceContainer" type="HBoxContainer" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="ExperienceLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/ExperienceContainer"]
+clip_children = 2
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_outline_size = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
+text = "Experience"
+uppercase = true
+
+[node name="GradientMask" type="Panel" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/ExperienceContainer/ExperienceLabel"]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = -4.0
+offset_right = 2.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
+
+[node name="ExperienceStringLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/ExperienceContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 0
+theme_override_fonts/font = ExtResource("17_nbg44")
+theme_override_styles/normal = SubResource("StyleBoxFlat_fqhit")
+text = "0"
+horizontal_alignment = 2
+
+[node name="HealthContainer" type="HBoxContainer" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="HealthLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/HealthContainer"]
+clip_children = 2
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_outline_size = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
+text = "Health"
+uppercase = true
+
+[node name="GradientMask" type="Panel" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/HealthContainer/HealthLabel"]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = -4.0
+offset_right = 2.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
+
+[node name="HealthAmountLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/HealthContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 0
+theme_override_fonts/font = ExtResource("17_nbg44")
+theme_override_styles/normal = SubResource("StyleBoxFlat_fqhit")
+text = "100/100"
+horizontal_alignment = 2
+
+[node name="ManaContainer" type="HBoxContainer" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="ManaLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/ManaContainer"]
+clip_children = 2
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_outline_size = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
+text = "Mana"
+uppercase = true
+
+[node name="GradientMask" type="Panel" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/ManaContainer/ManaLabel"]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = -4.0
+offset_right = 2.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
+
+[node name="ManaAmountLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/ManaContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 0
+theme_override_fonts/font = ExtResource("17_nbg44")
+theme_override_styles/normal = SubResource("StyleBoxFlat_fqhit")
+text = "100/100"
+horizontal_alignment = 2
 
 [node name="STRContainer" type="HBoxContainer" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer"]
 layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 225
+alignment = 1
 
 [node name="STRLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/STRContainer"]
+clip_children = 2
 layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_outline_size = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
 text = "Strength"
+uppercase = true
+
+[node name="GradientMask" type="Panel" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/STRContainer/STRLabel"]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = -4.0
+offset_right = 2.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
 
 [node name="STRAmountLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/STRContainer"]
 layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 0
+theme_override_fonts/font = ExtResource("17_nbg44")
+theme_override_styles/normal = SubResource("StyleBoxFlat_fqhit")
 text = "0"
+horizontal_alignment = 2
 
 [node name="DEXContainer" type="HBoxContainer" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer"]
 layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 220
+alignment = 1
 
 [node name="DEXLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/DEXContainer"]
+clip_children = 2
 layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_outline_size = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
 text = "Dexterity"
+uppercase = true
+
+[node name="GradientMask" type="Panel" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/DEXContainer/DEXLabel"]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = -4.0
+offset_right = 2.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
 
 [node name="DEXAmountLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/DEXContainer"]
 layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 0
+theme_override_fonts/font = ExtResource("17_nbg44")
+theme_override_styles/normal = SubResource("StyleBoxFlat_e8txv")
 text = "0"
+horizontal_alignment = 2
 
 [node name="INTContainer" type="HBoxContainer" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer"]
 layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 200
+alignment = 1
 
 [node name="INTLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/INTContainer"]
+clip_children = 2
 layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_outline_size = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
 text = "Intelligence"
+uppercase = true
+
+[node name="GradientMask" type="Panel" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/INTContainer/INTLabel"]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = -4.0
+offset_right = 2.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
 
 [node name="INTAmountLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/INTContainer"]
 layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 0
+theme_override_fonts/font = ExtResource("17_nbg44")
+theme_override_styles/normal = SubResource("StyleBoxFlat_e8txv")
 text = "0"
+horizontal_alignment = 2
 
 [node name="VITContainer" type="HBoxContainer" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer"]
 layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 240
+alignment = 1
 
 [node name="VITLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/VITContainer"]
+clip_children = 2
 layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_outline_size = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
 text = "Vitality"
+uppercase = true
+
+[node name="GradientMask" type="Panel" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/VITContainer/VITLabel"]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = -4.0
+offset_right = 2.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
 
 [node name="VITAmountLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/VITContainer"]
 layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 0
+theme_override_fonts/font = ExtResource("17_nbg44")
+theme_override_styles/normal = SubResource("StyleBoxFlat_e8txv")
 text = "0"
+horizontal_alignment = 2
 
 [node name="CloseButton" type="Button" parent="CanvasLayer/MoveableWindows/StatsWindow"]
 layout_mode = 1
@@ -793,10 +1208,10 @@ flat = true
 [node name="InventoryWindow" type="Panel" parent="CanvasLayer/MoveableWindows"]
 visible = false
 layout_mode = 0
-offset_left = 1283.0
-offset_top = 135.0
-offset_right = 1698.0
-offset_bottom = 670.0
+offset_left = 1274.0
+offset_top = 287.0
+offset_right = 1689.0
+offset_bottom = 822.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_nbg44")
 script = ExtResource("16_o05ft")
 
@@ -844,7 +1259,7 @@ grow_vertical = 2
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_colors/font_unselected_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 6
-theme_override_fonts/font = ExtResource("17_nbg44")
+theme_override_fonts/font = ExtResource("14_e8txv")
 theme_override_styles/tabbar_background = SubResource("StyleBoxFlat_jn0uf")
 theme_override_styles/panel = SubResource("StyleBoxFlat_4ni0x")
 theme_override_styles/tab_selected = SubResource("StyleBoxFlat_kp55c")
@@ -863,8 +1278,11 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 1.0
+offset_right = -4.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("18_nbg44")
 horizontal_scroll_mode = 0
 vertical_scroll_mode = 2
 
@@ -1102,8 +1520,11 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 1.0
+offset_right = -4.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("18_nbg44")
 horizontal_scroll_mode = 0
 vertical_scroll_mode = 2
 
@@ -1331,22 +1752,25 @@ allowed_item_type = 2
 layout_mode = 2
 allowed_item_type = 2
 
-[node name="MATERIAL" type="Control" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer"]
+[node name="ETC" type="Control" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer"]
 visible = false
 layout_mode = 2
 metadata/_tab_index = 2
 
-[node name="ScrollContainer" type="ScrollContainer" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL"]
+[node name="ScrollContainer" type="ScrollContainer" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 1.0
+offset_right = -4.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("18_nbg44")
 horizontal_scroll_mode = 0
 vertical_scroll_mode = 2
 
-[node name="MaterialGrid" type="GridContainer" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer"]
+[node name="MaterialGrid" type="GridContainer" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 6
@@ -1354,219 +1778,219 @@ theme_override_constants/h_separation = 7
 theme_override_constants/v_separation = 7
 columns = 6
 
-[node name="Slot" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot2" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot2" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot3" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot3" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot4" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot4" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot5" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot5" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot6" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot6" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot7" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot7" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot8" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot8" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot9" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot9" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot10" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot10" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot11" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot11" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot12" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot12" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot13" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot13" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot14" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot14" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot15" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot15" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot16" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot16" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot17" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot17" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot18" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot18" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot19" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot19" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot20" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot20" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot21" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot21" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot22" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot22" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot23" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot23" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot24" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot24" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot25" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot25" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot26" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot26" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot27" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot27" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot28" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot28" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot29" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot29" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot30" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot30" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot31" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot31" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot32" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot32" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot33" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot33" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot34" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot34" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot35" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot35" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot36" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot36" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot37" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot37" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot38" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot38" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot39" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot39" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot40" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot40" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot41" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot41" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot42" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot42" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot43" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot43" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot44" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot44" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot45" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot45" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot46" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot46" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot47" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot47" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot48" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot48" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot49" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot49" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot50" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot50" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot51" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot51" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot52" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot52" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot53" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot53" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
-[node name="Slot54" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
+[node name="Slot54" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
 
@@ -1728,6 +2152,6 @@ animation_name = "hit"
 [connection signal="button_up" from="CanvasLayer/PlayerHUD/MobileButtons/RightButton" to="InputSynchronizer" method="_on_right_button_button_up"]
 [connection signal="pressed" from="CanvasLayer/PlayerHUD/MobileButtons/AttackButton" to="InputSynchronizer" method="_on_attack_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/PlayerHUD/MobileButtons/JumpButton" to="InputSynchronizer" method="_on_jump_button_pressed"]
-[connection signal="pressed" from="CanvasLayer/MoveableWindows/StatsWindow/CloseButton" to="CanvasLayer/MoveableWindows/StatsWindow" method="hide"]
+[connection signal="pressed" from="CanvasLayer/MoveableWindows/StatsWindow/CloseButton" to="CanvasLayer/MoveableWindows/InventoryWindow" method="hide"]
 [connection signal="pressed" from="CanvasLayer/MoveableWindows/InventoryWindow/CloseButton" to="CanvasLayer/MoveableWindows/InventoryWindow" method="hide"]
 [connection signal="body_entered" from="Hitbox" to="Components/Combat" method="_on_hitbox_body_entered"]
