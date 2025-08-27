@@ -1,4 +1,4 @@
-[gd_scene load_steps=49 format=3 uid="uid://bdtdpx0d05sy3"]
+[gd_scene load_steps=55 format=3 uid="uid://bdtdpx0d05sy3"]
 
 [ext_resource type="Script" uid="uid://yibpus3whwuj" path="res://scripts/Player/multiplayer_controller_v2.gd" id="1_an8q1"]
 [ext_resource type="Script" uid="uid://cy1j38lpy671e" path="res://scripts/Player/multiplayer_input.gd" id="2_hxkm2"]
@@ -21,6 +21,7 @@
 [ext_resource type="Script" uid="uid://cfkiv5444dl3p" path="res://scripts/UI/inventory_window.gd" id="16_o05ft"]
 [ext_resource type="Script" uid="uid://dwv2k28spwfby" path="res://scripts/StateMachine/state_machine.gd" id="16_ploos"]
 [ext_resource type="Script" uid="uid://d162wvxl3tos0" path="res://scripts/Player/StateMachine/attack.gd" id="17_e6s7e"]
+[ext_resource type="FontFile" uid="uid://bxv5w2dv4xg3m" path="res://assets/fonts/Inter.ttc" id="17_nbg44"]
 [ext_resource type="Script" uid="uid://cqx4rs6bafi4b" path="res://scripts/Player/StateMachine/idle.gd" id="18_gb22u"]
 [ext_resource type="Script" uid="uid://vfoesgffonwy" path="res://scripts/Player/StateMachine/fall.gd" id="19_pnj8v"]
 [ext_resource type="Script" uid="uid://c6oi0ebtiwt7l" path="res://scripts/Player/StateMachine/move.gd" id="20_4xm4e"]
@@ -172,6 +173,45 @@ bg_color = Color(0.168627, 0.168627, 0.168627, 0.882353)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_o05ft"]
 bg_color = Color(0.113049, 0.113049, 0.113049, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nbg44"]
+bg_color = Color(0.0470588, 0.0470588, 0.0470588, 0.937255)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.871141, 0.871141, 0.871141, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jn0uf"]
+bg_color = Color(0.996078, 0.992157, 0.988235, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+expand_margin_top = 5.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4ni0x"]
+content_margin_top = 5.0
+bg_color = Color(0.996078, 0.992157, 0.988235, 1)
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_kp55c"]
+content_margin_left = 10.0
+content_margin_right = 10.0
+bg_color = Color(0.952941, 0.666667, 0, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+expand_margin_top = 3.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_32uah"]
+content_margin_left = 10.0
+content_margin_right = 10.0
+bg_color = Color(0.372549, 0.372549, 0.372549, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wikug"]
 bg_color = Color(0, 0, 0, 0.74902)
@@ -635,6 +675,7 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="StatsWindow" type="Panel" parent="CanvasLayer/MoveableWindows"]
+visible = false
 layout_mode = 0
 offset_left = 252.0
 offset_top = 135.0
@@ -750,11 +791,13 @@ text = "X"
 flat = true
 
 [node name="InventoryWindow" type="Panel" parent="CanvasLayer/MoveableWindows"]
+visible = false
 layout_mode = 0
 offset_left = 1283.0
 offset_top = 135.0
 offset_right = 1698.0
 offset_bottom = 670.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_nbg44")
 script = ExtResource("16_o05ft")
 
 [node name="Label" type="Label" parent="CanvasLayer/MoveableWindows/InventoryWindow"]
@@ -763,26 +806,55 @@ anchors_preset = 10
 anchor_right = 1.0
 offset_left = 5.0
 offset_right = -4.0
-offset_bottom = 33.0
+offset_bottom = 38.0
 grow_horizontal = 2
+theme_override_colors/font_color = Color(0.905882, 0.890196, 0.34902, 1)
+theme_override_fonts/font = ExtResource("14_e8txv")
+theme_override_font_sizes/font_size = 16
 text = "Item Inventory"
 horizontal_alignment = 1
 vertical_alignment = 1
+uppercase = true
+
+[node name="CloseButton" type="Button" parent="CanvasLayer/MoveableWindows/InventoryWindow"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -35.0
+offset_top = 3.0
+offset_right = -4.0
+offset_bottom = 34.0
+grow_horizontal = 0
+focus_mode = 0
+text = "X"
+flat = true
 
 [node name="TabContainer" type="TabContainer" parent="CanvasLayer/MoveableWindows/InventoryWindow"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 7.0
-offset_top = 35.0
-offset_right = -17.0
+offset_left = 9.0
+offset_top = 42.0
+offset_right = -8.0
+offset_bottom = -77.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_colors/font_unselected_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/font = ExtResource("17_nbg44")
+theme_override_styles/tabbar_background = SubResource("StyleBoxFlat_jn0uf")
+theme_override_styles/panel = SubResource("StyleBoxFlat_4ni0x")
+theme_override_styles/tab_selected = SubResource("StyleBoxFlat_kp55c")
+theme_override_styles/tab_hovered = SubResource("StyleBoxFlat_32uah")
+theme_override_styles/tab_unselected = SubResource("StyleBoxFlat_32uah")
 current_tab = 0
 clip_tabs = false
+tab_focus_mode = 0
 
-[node name="EQUIP" type="Button" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer"]
+[node name="EQUIP" type="Control" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer"]
 layout_mode = 2
 metadata/_tab_index = 0
 
@@ -800,6 +872,8 @@ vertical_scroll_mode = 2
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 6
+theme_override_constants/h_separation = 7
+theme_override_constants/v_separation = 7
 columns = 6
 
 [node name="Slot" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("15_18ciy")]
@@ -1018,7 +1092,7 @@ allowed_item_type = 1
 layout_mode = 2
 allowed_item_type = 1
 
-[node name="USE" type="Button" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer"]
+[node name="USE" type="Control" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer"]
 visible = false
 layout_mode = 2
 metadata/_tab_index = 1
@@ -1037,6 +1111,8 @@ vertical_scroll_mode = 2
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 6
+theme_override_constants/h_separation = 7
+theme_override_constants/v_separation = 7
 columns = 6
 
 [node name="Slot" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("15_18ciy")]
@@ -1255,7 +1331,7 @@ allowed_item_type = 2
 layout_mode = 2
 allowed_item_type = 2
 
-[node name="MATERIAL" type="Button" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer"]
+[node name="MATERIAL" type="Control" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer"]
 visible = false
 layout_mode = 2
 metadata/_tab_index = 2
@@ -1274,6 +1350,8 @@ vertical_scroll_mode = 2
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 6
+theme_override_constants/h_separation = 7
+theme_override_constants/v_separation = 7
 columns = 6
 
 [node name="Slot" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
@@ -1491,20 +1569,6 @@ allowed_item_type = 3
 [node name="Slot54" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/MATERIAL/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
-
-[node name="CloseButton" type="Button" parent="CanvasLayer/MoveableWindows/InventoryWindow"]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -35.0
-offset_top = 3.0
-offset_right = -4.0
-offset_bottom = 34.0
-grow_horizontal = 0
-focus_mode = 0
-text = "X"
-flat = true
 
 [node name="PlayerWorldHUD" type="Control" parent="."]
 layout_mode = 3

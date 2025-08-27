@@ -1,10 +1,39 @@
-[gd_scene load_steps=3 format=3 uid="uid://brcg2yc1x5qen"]
+[gd_scene load_steps=8 format=3 uid="uid://brcg2yc1x5qen"]
 
 [ext_resource type="Script" uid="uid://ceep3w6fkglha" path="res://scripts/UI/slot.gd" id="1_516po"]
 [ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="2_tuhj4"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tuhj4"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.374139, 0.374139, 0.374139, 1)
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
+
+[sub_resource type="Gradient" id="Gradient_tuhj4"]
+colors = PackedColorArray(0.798366, 0.798366, 0.798366, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_hoqrc"]
+gradient = SubResource("Gradient_tuhj4")
+fill_from = Vector2(0.5, 0)
+fill_to = Vector2(0.5, 1)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_3xeyi"]
+texture = SubResource("GradientTexture2D_hoqrc")
+
+[sub_resource type="LabelSettings" id="LabelSettings_tuhj4"]
+font = ExtResource("2_tuhj4")
+font_size = 18
+outline_size = 8
+outline_color = Color(0, 0, 0, 1)
+
 [node name="Slot" type="PanelContainer"]
-custom_minimum_size = Vector2(60, 60)
+custom_minimum_size = Vector2(55, 55)
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -13,7 +42,12 @@ offset_bottom = -980.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxFlat_tuhj4")
 script = ExtResource("1_516po")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_3xeyi")
 
 [node name="TextureRect" type="TextureRect" parent="."]
 layout_mode = 2
@@ -23,7 +57,8 @@ stretch_mode = 5
 [node name="Label" type="Label" parent="."]
 layout_mode = 2
 size_flags_vertical = 1
+theme_override_constants/outline_size = 8
 theme_override_fonts/font = ExtResource("2_tuhj4")
-theme_override_font_sizes/font_size = 26
-horizontal_alignment = 2
+theme_override_font_sizes/font_size = 24
+label_settings = SubResource("LabelSettings_tuhj4")
 vertical_alignment = 2
