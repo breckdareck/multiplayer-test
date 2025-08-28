@@ -1,0 +1,205 @@
+[gd_scene load_steps=4 format=3 uid="uid://gxge345551ln"]
+
+[ext_resource type="Script" uid="uid://bgld4rb524ykf" path="res://scripts/UI/cheat_ui.gd" id="1_0"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_1"]
+font_size = 24
+font_color = Color(1, 0.5, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_2"]
+font_size = 18
+font_color = Color(0.8, 0.8, 0.8, 1)
+
+[node name="CheatUI" type="CanvasLayer"]
+visible = false
+script = ExtResource("1_0")
+
+[node name="MainContainer" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -400.0
+offset_top = -300.0
+offset_right = 400.0
+offset_bottom = 300.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="Panel" parent="MainContainer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MainContainer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Header" type="HBoxContainer" parent="MainContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="CheatToggle" type="CheckBox" parent="MainContainer/VBoxContainer/Header"]
+layout_mode = 2
+text = "Enable Cheats"
+
+[node name="Spacer" type="Control" parent="MainContainer/VBoxContainer/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Title" type="Label" parent="MainContainer/VBoxContainer/Header"]
+layout_mode = 2
+text = "Cheat Manager"
+label_settings = SubResource("LabelSettings_1")
+
+[node name="CloseButton" type="Button" parent="MainContainer/VBoxContainer/Header"]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+text = "X"
+
+[node name="HSeparator" type="HSeparator" parent="MainContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ItemSection" type="VBoxContainer" parent="MainContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="SectionTitle" type="Label" parent="MainContainer/VBoxContainer/ItemSection"]
+layout_mode = 2
+text = "Item Management"
+label_settings = SubResource("LabelSettings_2")
+
+[node name="ItemContainer" type="GridContainer" parent="MainContainer/VBoxContainer/ItemSection"]
+layout_mode = 2
+columns = 3
+
+[node name="ItemNameInput" type="LineEdit" parent="MainContainer/VBoxContainer/ItemSection/ItemContainer"]
+layout_mode = 2
+placeholder_text = "Item Name (e.g., Coin, Sword, Potion)"
+
+[node name="ItemAmountInput" type="SpinBox" parent="MainContainer/VBoxContainer/ItemSection/ItemContainer"]
+layout_mode = 2
+min_value = 1.0
+max_value = 999.0
+value = 1.0
+
+[node name="AddItemButton" type="Button" parent="MainContainer/VBoxContainer/ItemSection/ItemContainer"]
+layout_mode = 2
+text = "Add Item"
+
+[node name="ItemTypeDropdown" type="OptionButton" parent="MainContainer/VBoxContainer/ItemSection/ItemContainer"]
+layout_mode = 2
+
+[node name="AddTypeButton" type="Button" parent="MainContainer/VBoxContainer/ItemSection/ItemContainer"]
+layout_mode = 2
+text = "Add by Type"
+
+[node name="HSeparator2" type="HSeparator" parent="MainContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="PlayerSection" type="VBoxContainer" parent="MainContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="SectionTitle2" type="Label" parent="MainContainer/VBoxContainer/PlayerSection"]
+layout_mode = 2
+text = "Player Modification"
+label_settings = SubResource("LabelSettings_2")
+
+[node name="PlayerInfo" type="RichTextLabel" parent="MainContainer/VBoxContainer/PlayerSection"]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+bbcode_enabled = true
+text = "Player Info will appear here"
+
+[node name="PlayerContainer" type="GridContainer" parent="MainContainer/VBoxContainer/PlayerSection"]
+layout_mode = 2
+columns = 3
+
+[node name="HealthInput" type="SpinBox" parent="MainContainer/VBoxContainer/PlayerSection/PlayerContainer"]
+layout_mode = 2
+min_value = 1.0
+max_value = 999.0
+value = 100.0
+
+[node name="SetHealthButton" type="Button" parent="MainContainer/VBoxContainer/PlayerSection/PlayerContainer"]
+layout_mode = 2
+text = "Set Health"
+
+[node name="LevelInput" type="SpinBox" parent="MainContainer/VBoxContainer/PlayerSection/PlayerContainer"]
+layout_mode = 2
+min_value = 1.0
+value = 1.0
+
+[node name="SetLevelButton" type="Button" parent="MainContainer/VBoxContainer/PlayerSection/PlayerContainer"]
+layout_mode = 2
+text = "Set Level"
+
+[node name="ExpInput" type="SpinBox" parent="MainContainer/VBoxContainer/PlayerSection/PlayerContainer"]
+layout_mode = 2
+min_value = 1.0
+max_value = 9999.0
+value = 100.0
+
+[node name="AddExpButton" type="Button" parent="MainContainer/VBoxContainer/PlayerSection/PlayerContainer"]
+layout_mode = 2
+text = "Add Experience"
+
+[node name="HSeparator3" type="HSeparator" parent="MainContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="QuickActions" type="HBoxContainer" parent="MainContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="FillInvButton" type="Button" parent="MainContainer/VBoxContainer/QuickActions"]
+layout_mode = 2
+text = "Fill Inventory"
+
+[node name="ClearInvButton" type="Button" parent="MainContainer/VBoxContainer/QuickActions"]
+layout_mode = 2
+text = "Clear Inventory"
+
+[node name="GodModeButton" type="Button" parent="MainContainer/VBoxContainer/QuickActions"]
+layout_mode = 2
+text = "Enable God Mode"
+
+[node name="TeleportButton" type="Button" parent="MainContainer/VBoxContainer/QuickActions"]
+layout_mode = 2
+text = "Teleport to Spawn"
+
+[node name="HSeparator4" type="HSeparator" parent="MainContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ConsoleSection" type="VBoxContainer" parent="MainContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="SectionTitle3" type="Label" parent="MainContainer/VBoxContainer/ConsoleSection"]
+layout_mode = 2
+text = "Console Commands"
+label_settings = SubResource("LabelSettings_2")
+
+[node name="ConsoleContainer" type="VBoxContainer" parent="MainContainer/VBoxContainer/ConsoleSection"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ConsoleOutput" type="RichTextLabel" parent="MainContainer/VBoxContainer/ConsoleSection/ConsoleContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "Console output will appear here"
+scroll_following = true
+
+[node name="ConsoleInput" type="LineEdit" parent="MainContainer/VBoxContainer/ConsoleSection/ConsoleContainer"]
+layout_mode = 2
+placeholder_text = "Type commands here (e.g., 'help', 'add_item Coin 5', 'set_health 100')"
