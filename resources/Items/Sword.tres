@@ -9,10 +9,11 @@ region = Rect2(8, 590, 18, 18)
 
 [resource]
 script = ExtResource("1_4e0ul")
-item_type = 1
+item_id = "1565745110-56139-1591314-131459-14101110156280297"
 name = "Sword"
 icon = SubResource("AtlasTexture_0opnw")
-description = &"Very Nice Sword"
+description = "Very Nice Sword"
+item_type = 1
 can_stack = false
 max_stack_amount = 0
 current_stack_amount = 1

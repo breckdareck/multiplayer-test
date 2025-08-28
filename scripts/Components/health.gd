@@ -27,10 +27,8 @@ var _last_damage_source: Node = null
 		var previous_health: int = current_health
 		current_health = clamp(value, 0, max_health)
 		if current_health != previous_health:
-			# If health reached zero, the server initiates the death sequence.
 			if current_health == 0 and not is_dead and multiplayer.is_server():
 				die.rpc()
-			# Let everyone know the health changed. This is now primarily for the UI.
 			health_changed.emit(current_health, max_health)
 
 @onready var health_bar: ProgressBar = get_node_or_null(health_bar_path)
@@ -111,7 +109,6 @@ func _on_regen_timer_timeout() -> void:
 	
 @rpc("any_peer", "call_local", "reliable")
 func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false) -> void:
-	# This function can be called from anywhere, but only the server will process it.
 	if not multiplayer.is_server():
 		return
 	var source_str = "unknown"

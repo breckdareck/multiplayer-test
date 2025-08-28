@@ -5,14 +5,14 @@ const SWORDSMAN_PORTRAIT = preload("res://assets/UI/swordsman_portrait.tres")
 const ARCHER_PORTRAIT = preload("res://assets/UI/archer_portrait.tres")
 const MAGE_PORTRAIT = preload("res://assets/UI/mage_portrait.tres")
 
-var selected_character: Constants.ClassType = 0
+var selected_character: Constants.ClassType = Constants.ClassType.SWORDSMAN
 
 @onready var main_menu: Control = $"."
 @onready var username_input: LineEdit = $MenuPanel/VBoxContainer/Username
-@onready var _host_button: Button = $MenuPanel/VBoxContainer/Host
-@onready var _join_button: Button = $MenuPanel/VBoxContainer/Join
+@onready var host_button: Button = $MenuPanel/VBoxContainer/Host
+@onready var join_button: Button = $MenuPanel/VBoxContainer/Join
 @onready var ip_address_input: LineEdit = $MenuPanel/VBoxContainer/IPAddress
-@onready var _connection_status_label: Label = $MenuPanel/VBoxContainer/ConnectionStatus
+@onready var connection_status_label: Label = $MenuPanel/VBoxContainer/ConnectionStatus
 
 @onready var connection_panel: Panel = $"../ConnectionPanel"
 @onready var player_id_label: Label = $"../ConnectionPanel/PlayerIDLabel"
@@ -51,7 +51,6 @@ func setup_PID_label(is_host: bool, pid: int):
 func get_username() -> String:
 	print("MainMenu: Returning username: ", username_input.text)
 	return username_input.text
-
 
 func change_character(value: int):
 	selected_character += value

@@ -9,10 +9,11 @@ region = Rect2(32, 32, 16, 16)
 
 [resource]
 script = ExtResource("1_xbkpy")
-item_type = 2
+item_id = "147214141116-261514-13219-129159-1111410121514157131214"
 name = "Grape"
 icon = SubResource("AtlasTexture_emmax")
-description = &""
+description = ""
+item_type = 2
 can_stack = true
 max_stack_amount = 10
 current_stack_amount = 1

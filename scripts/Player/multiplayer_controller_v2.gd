@@ -60,7 +60,7 @@ var _is_being_cleaned_up: bool = false
 
 func _ready() -> void:
 	if multiplayer.get_unique_id() == player_id:
-		var menu_container: MainMenu = get_tree().current_scene.get_node_or_null("%MenuContainer") as MainMenu
+		#var menu_container: MainMenu = get_tree().current_scene.get_node_or_null("%MenuContainer") as MainMenu
 		if is_instance_valid(menu_container) and menu_container.has_method("get_username"):
 			var user_name: String = menu_container.get_username()
 			set_username.rpc(user_name)
@@ -203,18 +203,18 @@ func _setup_server_signals() -> void:
 
 	# Connect component signals to handle game logic and data saving.
 	if level_component:
-		level_component.experience_changed.connect(func(_c, _e): data_changed())
-		level_component.leveled_up.connect(func(_l): data_changed())
+		level_component.experience_changed.connect(func(_c, _e): _data_changed())
+		level_component.leveled_up.connect(func(_l): _data_changed())
 		level_component.leveled_up.connect(_handle_sprite_change_on_server.unbind(1))
 	
 	if health_component:
-		health_component.health_changed.connect(func(_c, _m): data_changed())
+		health_component.health_changed.connect(func(_c, _m): _data_changed())
 
 	if is_instance_valid(drop_timer):
 		drop_timer.timeout.connect(_on_drop_timer_timeout)
 
 	if is_instance_valid(respawn_timer):
-		respawn_timer.timeout.connect(_respawn)
+		respawn_timer.timeout.connect(respawn)
 
 
 func _setup_client_visuals() -> void:
@@ -285,7 +285,7 @@ func _handle_sprite_change_on_server() -> void:
 		change_sprite_rpc.rpc(class_component.get_class_name(), current_level)
 
 
-func save() -> Dictionary:
+func _get_save_data() -> Dictionary:
 	var data: Dictionary = {
 	   'username': username,
 	   'max_health': health_component.max_health if is_instance_valid(health_component) else 100,
@@ -293,33 +293,52 @@ func save() -> Dictionary:
 	   'level': level_component.level if is_instance_valid(level_component) else 1,
 	   'experience': level_component.experience if is_instance_valid(level_component) else 0
 						   }
+
+	if is_instance_valid(inventory_component):
+		data['inventory'] = inventory_component.save_inventory()
+		
 	return data
 
 
-func load_data(data: Dictionary) -> void:
+func _load_data(data: Dictionary) -> void:
 	if _is_being_cleaned_up:
 		return
 
 	print("Loading data for ", data.get("username", "Unknown"))
 	username = data.get("username", "Player")
 
-	# print(data)
+	if is_instance_valid(stats_component):
+		stats_component.set_block_signals(true)
+
 	if is_instance_valid(level_component):
 		# print("Level Component found")
 		level_component.set_block_signals(true)
 		level_component.level = data.get("level", 1)
 		level_component.experience = data.get("experience", 0)
-		level_component.set_block_signals(false)
-		level_component.leveled_up.emit(level_component.level)
-		level_component.experience_changed.emit(level_component.experience, level_component.get_exp_to_next_level())
 		
 	if is_instance_valid(health_component):
 		# print("Health Component found")
 		health_component.set_block_signals(true)
 		health_component.max_health = data.get("max_health", health_component.max_health)
 		health_component.current_health = data.get("current_health", health_component.max_health)
+		
+	if is_instance_valid(inventory_component):
+		var inventory_data = data.get("inventory", {})
+		if not inventory_data.is_empty():
+			inventory_component.load_inventory(inventory_data)
+
+	if is_instance_valid(health_component):
 		health_component.set_block_signals(false)
 		health_component.health_changed.emit(health_component.current_health, health_component.max_health)
+	
+	if is_instance_valid(level_component):
+		level_component.set_block_signals(false)
+		level_component.leveled_up.emit(level_component.level)
+		level_component.experience_changed.emit(level_component.experience, level_component.get_exp_to_next_level())
+
+	if is_instance_valid(stats_component):
+		stats_component.set_block_signals(false)
+		stats_component.stats_changed.emit()
 
 
 #=============================================================================
@@ -338,10 +357,10 @@ func _on_drop_timer_timeout() -> void:
 	set_collision_mask_value(platform_layer, true)
 
 
-func data_changed() -> void:
+func _data_changed() -> void:
 	if _is_being_cleaned_up:
 		return
-	var data_string: String = JSON.stringify(save())
+	var data_string: String = JSON.stringify(_get_save_data())
 	save_on_server.rpc_id(SERVER_ID, data_string)
 
 
@@ -365,7 +384,7 @@ func _on_peer_connected(peer_id: int) -> void:
 
 # [SERVER-ONLY] Respawns the player at a designated point.
 @rpc("any_peer", "call_local", "reliable")
-func _respawn() -> void:
+func respawn() -> void:
 	if not multiplayer.is_server() or _is_being_cleaned_up:
 		return
 
@@ -414,10 +433,10 @@ func request_load_data(user_name: String) -> void:
 			file.close()
 			var parsed_json = JSON.parse_string(content)
 			if typeof(parsed_json) == TYPE_DICTIONARY:
-				load_data(parsed_json)
+				_load_data(parsed_json)
 	else:
-		# If no save file exists, create one with default data.
-		save_on_server(JSON.stringify(save()))
+		# If no _get_save_data file exists, create one with default data.
+		save_on_server(JSON.stringify(_get_save_data()))
 
 
 # [CLIENT -> SERVER] Asks the server to initiate a sprite change for this player.

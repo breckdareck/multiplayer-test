@@ -9,10 +9,11 @@ region = Rect2(0, 0, 16, 16)
 
 [resource]
 script = ExtResource("1_kolov")
-item_type = 3
+item_id = "38013117210-15679-12767-011150-15914981301483914"
 name = "Coin"
 icon = SubResource("AtlasTexture_4kiah")
-description = &"Monies"
+description = "Monies"
+item_type = 3
 can_stack = true
 max_stack_amount = 999
 current_stack_amount = 1

@@ -9,8 +9,9 @@ var inventory: InventoryComponent = null
 @export var allowed_item_type: Constants.ItemType = Constants.ItemType.ANY
 @export var item: ItemData = null:
 	set(value):
+		var old_item = item
 		item = value
-		_update_display()
+		update_display(old_item, value)
 
 # Drag state variables
 var is_dragging: bool = false
@@ -19,7 +20,7 @@ var drag_amount: int = 0
 var original_amount: int = 0
 var is_split_drag: bool = false
 
-func _update_display():
+func update_display(old_item: ItemData = null, new_item: ItemData = null):
 	if item != null:
 		texture_rect.texture = item.icon
 		if item.can_stack and item.current_stack_amount > 1:
@@ -30,6 +31,8 @@ func _update_display():
 	else:
 		texture_rect.texture = null
 		label.visible = false
+	
+	inventory._update_item_tracking(self, old_item, new_item)
 
 		
 func set_inventory(inv: InventoryComponent):
@@ -49,7 +52,7 @@ func add_to_stack(amount: int = 1) -> int:
 	var space_left = item.max_stack_amount - item.current_stack_amount
 	var amount_to_add = min(amount, space_left)
 	item.current_stack_amount += amount_to_add
-	_update_display()
+	update_display()
 	return amount_to_add
 
 	
@@ -59,7 +62,7 @@ func remove_from_stack(amount: int = 1) -> int:
 
 	var amount_to_remove = min(amount, item.current_stack_amount)
 	item.current_stack_amount -= amount_to_remove
-	_update_display()
+	update_display()
 	return amount_to_remove
 
 	
@@ -104,12 +107,21 @@ func get_preview():
 	preview.add_child(preview_texture)
 	preview_texture.position = -.5 * Vector2(55,55)
 	
+	# Show the amount being dragged (for both splits and full drags)
 	if is_dragging and drag_amount > 1:
 		var preview_label = Label.new()
 		preview_label.text = str(drag_amount)
-		preview_label.add_theme_color_override("font_color", Color.WHITE)
 		preview_label.add_theme_constant_override("outline_size", 2)
 		preview_label.add_theme_color_override("font_outline_color", Color.BLACK)
+		
+		# Different color for split drags vs full drags
+		if is_split_drag:
+			preview_label.add_theme_color_override("font_color", Color.YELLOW)  # Yellow for splits
+			# Optional: Add a split indicator
+			preview_label.text = str(drag_amount) + "✂"  # Scissors emoji to indicate split
+		else:
+			preview_label.add_theme_color_override("font_color", Color.WHITE)   # White for full drags
+		
 		preview.add_child(preview_label)
 		preview_label.position = -.5 * Vector2(55, 55)
 
@@ -117,85 +129,75 @@ func get_preview():
 
 	
 func _get_drag_data(_at_position):
-	if drag_item != null and drag_amount > 0:
+	# If we already have a drag in progress (from force_drag), just return self
+	if is_dragging and drag_item != null and drag_amount > 0:
+		return self
+	
+	# If we have a prepared split drag, use that
+	if drag_item != null and drag_amount > 0 and not is_dragging:
 		is_dragging = true
 		set_drag_preview(get_preview())
 		return self
-		
+	
+	# Regular drag of entire item
 	if item == null:
-		return
+		return null
 		
 	is_dragging = true
 	is_split_drag = false
-	drag_item = item.duplicate()
+	drag_item = item.duplicate_with_path()
 	drag_amount = item.current_stack_amount
 	original_amount = item.current_stack_amount
 
 	set_drag_preview(get_preview())
 	return self
-
 	
-func _drop_data(at_position: Vector2, data: Variant) -> void:
+
+func _drop_data(_at_position: Vector2, data: Variant) -> void:
 	var source_slot: Slot = data
 	modulate = Color.WHITE
 		
 	if not self.can_accept_item(source_slot.drag_item):
 		source_slot.restore_drag_to_source()
+		source_slot.cancel_drag()
 		return
 
 	if self.item != null and not source_slot.can_accept_item(self.item):
 		source_slot.restore_drag_to_source()
+		source_slot.cancel_drag()
 		return
 
-	if item != null and source_slot.drag_item != null and item.name == source_slot.drag_item.name and item.can_stack:
-		var space_left = get_remaining_space()
-		if space_left > 0:
-			var amount_to_move = min(source_slot.drag_amount, space_left)
-			add_to_stack(amount_to_move)
-		
-			source_slot.drag_amount -= amount_to_move
-		
-			if source_slot.drag_amount <= 0:
-				if source_slot.is_split_drag and source_slot.item.current_stack_amount > 0:
-					source_slot.cancel_drag()
-				else:
-					source_slot.cancel_drag()
-					source_slot.item = null
-			else:
-				source_slot.item = source_slot.drag_item.duplicate()
-				source_slot.item.current_stack_amount = source_slot.drag_amount
-				source_slot._update_display()
-				source_slot.cancel_drag()
-			return
-		
-	if source_slot.drag_item != null:
-		if item == null:
-			item = source_slot.drag_item.duplicate()
-			item.current_stack_amount = source_slot.drag_amount
-			_update_display()
-			
-			if not source_slot.is_split_drag:
-				source_slot.item = null
-		else:
-			var current_slot_item = item
-			
-			item = source_slot.drag_item.duplicate()
-			item.current_stack_amount = source_slot.drag_amount
-			_update_display()
-			
-			if source_slot.is_split_drag:
-				print("Cannot swap items during split operation")
-				item = current_slot_item
-				_update_display()
-				source_slot.item.current_stack_amount += source_slot.drag_amount
-				source_slot._update_display()
-			else:
-				source_slot.item = current_slot_item.duplicate() if current_slot_item else null
-				source_slot._update_display()
-		
+	var from_index = inventory.slots.find(source_slot)
+	var to_index = inventory.slots.find(self)
+	
+	if from_index == -1 or to_index == -1:
+		print("Error: Could not find slot indices for movement")
+		source_slot.restore_drag_to_source()
 		source_slot.cancel_drag()
-		
-	if source_slot.is_dragging:
+		return
+
+	# For split drags, we need to handle this differently
+	if source_slot.is_split_drag:
+		# Use the split system instead of the move system
+		var split_successful = inventory.split_stack_clientside(from_index, source_slot.drag_amount, to_index)
+		if split_successful:
+			source_slot.cancel_drag()
+		else:
+			print("Split was rejected by clientside validation")
+			source_slot.restore_drag_to_source()
+			source_slot.cancel_drag()
+		return
+
+	# Use the clientside movement system for regular drags
+	var move_successful = inventory.move_item_clientside(from_index, to_index)
+	
+	if move_successful:
+		# Only cancel drag if move was successful
+		source_slot.cancel_drag()
+	else:
+		print("Move was rejected by clientside validation")
+		# Restore the drag state since we didn't cancel it yet
+		source_slot.restore_drag_to_source()
 		source_slot.cancel_drag()
 
 		
@@ -203,14 +205,14 @@ func restore_drag_to_source():
 	"""Restore dragged items back to this slot"""
 	if drag_item != null and drag_amount > 0:
 		if is_split_drag:
-			item.current_stack_amount += drag_amount
-			_update_display()
-			print("Restored ", drag_amount, " items back to source slot (split operation)")
+			# For split drags, the original stack wasn't modified yet, so no need to restore
+			print("Restored split drag - no changes to original stack needed")
 		else:
-			item = drag_item.duplicate()
+			# Restore full drag: restore the entire item
+			item = drag_item.duplicate_with_path()
 			item.current_stack_amount = drag_amount
-			_update_display()
-			print("Restored ", drag_amount, " items back to source slot (normal drag)")
+			update_display()
+			print("Restored full drag - ", drag_amount, " items back to source slot")
 
 			
 func cancel_drag():
@@ -230,102 +232,109 @@ func _gui_input(event: InputEvent):
 				cancel_drag()
 				return
 
+			# Right-click to create draggable split
 			if item != null and item.can_stack and item.current_stack_amount > 1:
 				if drag_item != null and not is_dragging:
+					# Cancel existing split if there is one
 					cancel_split()
 				else:
-					show_split_dialog()
+					# Create new split for dragging
+					if Input.is_key_pressed(KEY_SHIFT):
+						# Shift+Right-click: Split into singles (create 1-item drag)
+						create_drag_split(1)
+					else:
+						# Regular right-click: Split in half
+						var split_amount = ceili(item.current_stack_amount / 2.0)
+						create_drag_split(split_amount)
 
-					
+				
 func cancel_split():
-	if drag_item != null and not is_dragging:
-		item.current_stack_amount += drag_amount
-		_update_display()
+	"""Cancel a split operation and restore the stack"""
+	if drag_item != null and not is_dragging and is_split_drag:
+		# For split drags, the original stack wasn't modified yet, so no need to restore
+		print("Cancelled split - no changes to original stack needed")
+	
+	# Clear the split state
+	drag_item = null
+	drag_amount = 0
+	original_amount = 0
+	is_split_drag = false
 
-		drag_item = null
-		drag_amount = 0
-		original_amount = 0
-
-		print("Cancelled split - restored stack to ", item.current_stack_amount)
-		
 		
 func split_stack_half():
+	"""Create a draggable half-split (don't auto-place)"""
 	if not item or not item.can_stack or item.current_stack_amount <= 1:
 		return
 		
 	var split_amount = ceili(item.current_stack_amount / 2.0)
-	var remaining_amount = item.current_stack_amount - split_amount
+	create_drag_split(split_amount)
 
-	print("Splitting stack in half: ", item.name, " from ", item.current_stack_amount, " - dragging ", split_amount, ", keeping ", remaining_amount)
-	
-	if not inventory or not inventory.has_method("get_empty_slots"):
-		print("No inventory reference or get_empty_slots method not found!")
-		return
 
-	var empty_slots = inventory.get_empty_slots()
-	if empty_slots.size() == 0:
-		print("No empty slots available for splitting")
+func split_stack_half_validated():
+	if not item or not item.can_stack or item.current_stack_amount <= 1:
 		return
 		
-	item.current_stack_amount = remaining_amount
-	_update_display()
+	var split_amount = ceili(item.current_stack_amount / 2.0)
+	print("Splitting stack with validation: ", item.name, " from ", item.current_stack_amount)
 	
-	drag_item = item.duplicate()
-	drag_amount = split_amount
-	original_amount = split_amount
-	is_dragging = true
-	is_split_drag = true
-	
-	force_drag(self, get_preview())
+	if not inventory:
+		print("No inventory reference!")
+		return
 
-	print("Split ", split_amount, " items - now force dragging them")
+	var current_slot_index = inventory.slots.find(self)
+	if current_slot_index == -1:
+		print("Could not find current slot in inventory")
+		return
 	
+	# FIXED: Use the clientside split system instead of trying to call RPC directly
+	var split_successful = inventory.split_stack_clientside(current_slot_index, split_amount)
+	
+	if split_successful:
+		print("Split initiated with server validation - ", split_amount, " items being moved to new slot")
+	else:
+		print("Split failed - no empty slots available or invalid split")
+
 	
 func show_split_dialog():
 	if not item or not item.can_stack or item.current_stack_amount <= 1:
 		return
-		
 	split_stack_half()
 
 	
 func split_into_singles():
+	"""Create a draggable single-item split"""
 	if not item or not item.can_stack or item.current_stack_amount <= 1:
 		return
 
-	print("Splitting into singles: ", item.name, " from ", item.current_stack_amount)
-	
-	if not inventory or not inventory.has_method("get_empty_slots"):
-		print("No inventory reference or get_empty_slots method not found!")
+	create_drag_split(1)
+
+
+func create_drag_split(split_amount: int):
+	if not item or not item.can_stack or item.current_stack_amount <= split_amount:
 		return
-		
-	var empty_slots = inventory.get_empty_slots()
-	var items_to_split = min(item.current_stack_amount - 1, empty_slots.size())
+	
+	print("Creating drag split: ", split_amount, " items from stack of ", item.current_stack_amount)
+	
+	# Set up the drag state for splitting
+	is_split_drag = true
+	drag_item = item.duplicate_with_path()
+	drag_item.current_stack_amount = split_amount
+	drag_amount = split_amount
+	original_amount = item.current_stack_amount
+	
+	# Don't modify the original stack yet - wait for server validation
+	# The visual feedback will come from the drag preview
+	
+	print("Split created - original stack still has ", item.current_stack_amount, ", drag has ", drag_amount)
+	
+	# FORCE the drag to start immediately
+	is_dragging = true
+	force_drag(self, get_preview())
 
-	if items_to_split > 0:
-		item.current_stack_amount = 1
-		_update_display()
-		
-		drag_item = item.duplicate()
-		drag_amount = items_to_split
-		original_amount = items_to_split
-		is_dragging = true
-		is_split_drag = true
-		
-		force_drag(self, get_preview())
 
-		print("Split ", items_to_split, " items - now dragging them")
-	else:
-		print("No empty slots available for splitting")
-
-		
 func _ready():
 	mouse_entered.connect(_on_mouse_entered)
 	mouse_exited.connect(_on_mouse_exited)
-
-
-func split_stack_manual():
-	if item != null and item.can_stack and item.current_stack_amount > 1:
-		split_stack_half()
 
 
 func can_accept_item(item_to_check: ItemData) -> bool:

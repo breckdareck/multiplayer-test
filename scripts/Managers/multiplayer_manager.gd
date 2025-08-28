@@ -114,7 +114,7 @@ func _on_server_disconnected():
 func _setup_menu_container():
 	menu_container = get_tree().get_current_scene().get_node("%MenuContainer")
 	if menu_container:
-		menu_container._connection_status_label.text = ""
+		menu_container.connection_status_label.text = ""
 
 func _get_target_ip() -> String:
 	if not menu_container:
