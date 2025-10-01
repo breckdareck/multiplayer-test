@@ -10,11 +10,10 @@ region = Rect2(32, 32, 16, 16)
 [resource]
 script = ExtResource("1_xbkpy")
 item_id = "147214141116-261514-13219-129159-1111410121514157131214"
-name = "Grape"
+name = "Potion"
 icon = SubResource("AtlasTexture_emmax")
-description = ""
+description = "Wait, isn't this just a grape?"
 item_type = 2
 can_stack = true
 max_stack_amount = 10
-current_stack_amount = 1
 metadata/_custom_type_script = "uid://ob3kriis8m08"

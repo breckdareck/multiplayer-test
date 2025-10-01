@@ -16,6 +16,7 @@ signal ready_for_pooling
 @onready var body_hitbox: Area2D = $BodyHitbox
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 
+var damage_by_player: Dictionary = {}  # player_id : damage_amount
 var facing_direction: int = 1
 var _is_being_cleaned_up: bool = false
 
@@ -30,6 +31,7 @@ func _ready() -> void:
 	if multiplayer.is_server():
 		# The server listens for the death signal from the component.
 		health_component.died.connect(_on_enemy_died)
+		health_component.damaged.connect(on_enemy_damaged)
 		body_hitbox.body_entered.connect(_on_body_hitbox_body_entered)
 		# Only connect animation_finished if AnimatedSprite2D exists (not on dedicated server)
 		if animated_sprite:
@@ -56,17 +58,31 @@ func _physics_process(delta: float) -> void:
 		state_machine.process_physics(delta)
 
 
-func _on_enemy_died(killer: Node) -> void:
+func on_enemy_damaged(amount: int, source: Node) -> void:
+	var player_id = source.owner.player_id
+	if player_id != null:
+		damage_by_player[player_id] = damage_by_player.get(player_id, 0) + amount
+
+func _on_enemy_died(_killer: Node) -> void:
 	if _is_being_cleaned_up:
 		return
 		
-	# Grant experience to the player if possible
-	print("Enemy: On Died Called")
-	var exp_receiver = killer.get_owner()
-	if exp_receiver and exp_receiver.has_method("gain_experience"):
-		exp_receiver.gain_experience(experience_reward)
+	var total_damage = 0
+	for dmg in damage_by_player.values():
+		total_damage += dmg
+		
+	var players = get_tree().get_nodes_in_group("Players")
+	for player_id in damage_by_player.keys():
+		var share = float(damage_by_player[player_id]) / total_damage
+		var exp_amount = int(experience_reward * share)
+		var player = players[players.find_custom(func(p): return p.player_id == player_id)]
+		if player and player.has_method("gain_experience"):
+			print("PID: %s did %s%% damage to %s gaining %s exp" % [str(player_id), share*100, name, str(exp_amount)])
+			player.gain_experience(exp_amount)
+		
 	hitbox.monitoring = false
 	body_hitbox.monitoring = false
+	
 
 	# On dedicated server, AnimatedSprite2D is stripped, so trigger pooling after delay
 	if OS.has_feature("dedicated_server"):
@@ -80,6 +96,7 @@ func pool_deactivate() -> void:
 	if _is_being_cleaned_up:
 		return
 		
+	damage_by_player.clear()
 	visible = false
 	set_process(false)
 	set_physics_process(false)

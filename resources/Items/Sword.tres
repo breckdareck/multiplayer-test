@@ -14,7 +14,4 @@ name = "Sword"
 icon = SubResource("AtlasTexture_0opnw")
 description = "Very Nice Sword"
 item_type = 1
-can_stack = false
-max_stack_amount = 0
-current_stack_amount = 1
 metadata/_custom_type_script = "uid://ob3kriis8m08"

@@ -12,11 +12,26 @@ var pending_splits: Dictionary = {}
 
 func _ready() -> void:
 	await _ensure_slots_initialized()
-
-	#for x in range(20):
-		#add_item(load("res://resources/Items/Potion.tres"))
-		#add_item(load("res://resources/Items/Sword.tres"))
-		#add_item(load("res://resources/Items/Coin.tres"))
+	
+	# Test code for adding items
+	for x in range(10):
+		# Get items by name from ResourceManager
+		var potion = ResourceManager.get_item_by_name("Potion")
+		var sword = ResourceManager.get_item_by_name("Sword")
+		var coin = ResourceManager.get_item_by_name("Coin")
+		
+		# Make sure to duplicate before adding
+		if potion:
+			var potion_copy = potion.duplicate_with_path()
+			add_item(potion_copy)
+			
+		if sword:
+			var sword_copy = sword.duplicate_with_path()
+			add_item(sword_copy)
+			
+		if coin:
+			var coin_copy = coin.duplicate_with_path()
+			add_item(coin_copy)
 
 	_rebuild_item_tracking()
 
@@ -270,8 +285,7 @@ func save_inventory() -> Dictionary:
 		if slot.item != null:
 			slot_data.append({
 				"slot_index": i,
-				"item_id": slot.item.item_id,
-				"item_resource_path": slot.item.get_resource_path(),
+				"item_id": slot.item.item_id,  # This is a string
 				"stack_amount": slot.item.current_stack_amount
 			})
 	
@@ -291,24 +305,26 @@ func load_inventory(inventory_data: Dictionary) -> void:
 	while slots.size() == 0:
 		await get_tree().process_frame
 	
-	#print(slots.size())
 	# Load saved items
 	var slot_data = inventory_data.get("slots", [])
 	for item_data in slot_data:
 		var slot_index = item_data.get("slot_index", -1)
 		var saved_item_id = item_data.get("item_id", "")
-		var item_path = item_data.get("item_resource_path", "")
 		var stack_amount = item_data.get("stack_amount", 1)
 		
-		if slot_index >= 0 and slot_index < slots.size() and not item_path.is_empty():
-			var item_resource = load(item_path) as ItemData
+		if slot_index >= 0 and slot_index < slots.size() and not saved_item_id.is_empty():
+			# Use the ResourceManager to get the item data by ID
+			var item_resource = ResourceManager.get_item_data(saved_item_id)
+			
 			if item_resource:
 				var item_copy = item_resource.duplicate_with_path()
-				# Preserve the saved item_id to maintain uniqueness
+				# Preserve the saved item_id
 				item_copy.item_id = saved_item_id
 				item_copy.current_stack_amount = stack_amount
 				slots[slot_index].item = item_copy
 				slots[slot_index].update_display()
+			else:
+				print("Failed to load item with ID: " + saved_item_id)
 	
 	# Rebuild tracking after loading
 	_rebuild_item_tracking()
@@ -318,6 +334,7 @@ func load_inventory(inventory_data: Dictionary) -> void:
 	print(client_id)
 	if client_id != 1 and multiplayer.is_server(): # Don't send to server
 		load_inventory_rpc.rpc_id(client_id, inventory_data)
+
 
 func load_inventory_from_data(inventory_data: Dictionary):
 	# Clear existing inventory
@@ -332,20 +349,24 @@ func load_inventory_from_data(inventory_data: Dictionary):
 	for item_data in slot_data:
 		var slot_index = item_data.get("slot_index", -1)
 		var saved_item_id = item_data.get("item_id", "")
-		var item_path = item_data.get("item_resource_path", "")
 		var stack_amount = item_data.get("stack_amount", 1)
 		
-		if slot_index >= 0 and slot_index < slots.size() and not item_path.is_empty():
-			var item_resource = load(item_path) as ItemData
+		if slot_index >= 0 and slot_index < slots.size() and not saved_item_id.is_empty():
+			# Use the ResourceManager to get the item data by ID
+			var item_resource = ResourceManager.get_item_data(saved_item_id)
+			
 			if item_resource:
 				var item_copy = item_resource.duplicate_with_path()
 				item_copy.item_id = saved_item_id
 				item_copy.current_stack_amount = stack_amount
 				slots[slot_index].item = item_copy
 				slots[slot_index].update_display()
+			else:
+				print("Failed to load item with ID: " + saved_item_id)
 	
 	# Rebuild tracking after loading
 	_rebuild_item_tracking()
+
 
 @rpc("authority", "call_local", "reliable")
 func load_inventory_rpc(inventory_data: Dictionary):
@@ -361,17 +382,20 @@ func load_inventory_rpc(inventory_data: Dictionary):
 	for item_data in slot_data:
 		var slot_index = item_data.get("slot_index", -1)
 		var saved_item_id = item_data.get("item_id", "")
-		var item_path = item_data.get("item_resource_path", "")
 		var stack_amount = item_data.get("stack_amount", 1)
 		
-		if slot_index >= 0 and slot_index < slots.size() and not item_path.is_empty():
-			var item_resource = load(item_path) as ItemData
+		if slot_index >= 0 and slot_index < slots.size() and not saved_item_id.is_empty():
+			# Use the ResourceManager to get the item data by ID
+			var item_resource = ResourceManager.get_item_data(saved_item_id)
+			
 			if item_resource:
 				var item_copy = item_resource.duplicate_with_path()
 				item_copy.item_id = saved_item_id
 				item_copy.current_stack_amount = stack_amount
 				slots[slot_index].item = item_copy
 				slots[slot_index].update_display()
+			else:
+				print("Failed to load item with ID: " + saved_item_id)
 	
 	_rebuild_item_tracking()
 
@@ -383,15 +407,15 @@ func move_item_clientside(from_slot_index: int, to_slot_index: int) -> bool:
 	if to_slot_index < 0 or to_slot_index >= slots.size():
 		return false
 	
-	var from_slot = slots[from_slot_index]
-	var to_slot = slots[to_slot_index]
+	var from_slot: Slot = slots[from_slot_index]
+	var to_slot: Slot = slots[to_slot_index]
 	
 	# Check if move is valid locally first
 	if not _is_move_valid(from_slot, to_slot):
 		return false
 	
 	# Store complete state for potential rollback (including visual state)
-	var backup_state = {
+	var backup_state: Dictionary[Variant, Variant] = {
 		"from_item": from_slot.item.duplicate_with_path() if from_slot.item else null,
 		"to_item": to_slot.item.duplicate_with_path() if to_slot.item else null,
 		"from_slot_index": from_slot_index,
@@ -413,6 +437,7 @@ func move_item_clientside(from_slot_index: int, to_slot_index: int) -> bool:
 		pending_moves.erase(from_slot_index)
 	
 	return true
+
 
 # Client-side split with server validation
 func split_stack_clientside(from_slot_index: int, amount: int, to_slot_index: int = -1) -> bool:
@@ -469,6 +494,7 @@ func split_stack_clientside(from_slot_index: int, amount: int, to_slot_index: in
 	
 	return true
 
+
 # Local execution of the move (used by both client and server)
 func _execute_move_local(from_slot: Slot, to_slot: Slot):
 	var from_item = from_slot.item
@@ -506,6 +532,7 @@ func _execute_move_local(from_slot: Slot, to_slot: Slot):
 	# Update tracking
 	_rebuild_item_tracking()
 
+
 # Local execution of split (used by both client and server)
 func _execute_split_local(from_slot_index: int, to_slot_index: int, amount: int):
 	var from_slot = slots[from_slot_index]
@@ -532,6 +559,7 @@ func _execute_split_local(from_slot_index: int, to_slot_index: int, amount: int)
 	# Update tracking by rebuilding from scratch
 	_rebuild_item_tracking()
 
+
 # Check if a move is valid
 func _is_move_valid(from_slot: Slot, to_slot: Slot) -> bool:
 	if from_slot.item == null:
@@ -542,6 +570,7 @@ func _is_move_valid(from_slot: Slot, to_slot: Slot) -> bool:
 		return false
 	
 	return true
+
 
 # Check if a split is valid
 func _is_split_valid(from_index: int, to_index: int, amount: int) -> bool:
@@ -574,6 +603,7 @@ func _is_split_valid(from_index: int, to_index: int, amount: int) -> bool:
 		return false
 	
 	return true
+
 
 # SERVER RPC: Validate and broadcast move
 @rpc("any_peer", "call_local", "reliable")
@@ -611,6 +641,7 @@ func request_move_item(from_index: int, to_index: int, requesting_player_id: int
 		if peer_id != requesting_player_id:
 			confirm_move_item.rpc_id(peer_id, from_index, to_index, false)
 
+
 # SERVER RPC: Validate and broadcast split
 @rpc("any_peer", "call_local", "reliable")
 func request_split_stack(from_index: int, to_index: int, amount: int, requesting_player_id: int):
@@ -644,6 +675,7 @@ func request_split_stack(from_index: int, to_index: int, amount: int, requesting
 	
 	print("Split validated and applied on server")
 
+
 # CLIENT RPC: Receive confirmed move from server
 @rpc("authority", "call_local", "reliable")
 func confirm_move_item(from_index: int, to_index: int, was_requesting_client: bool = false):
@@ -661,6 +693,7 @@ func confirm_move_item(from_index: int, to_index: int, was_requesting_client: bo
 			var to_slot = slots[to_index]
 			_execute_move_local(from_slot, to_slot)
 			print("Applied move from another client")
+
 
 # CLIENT RPC: Receive confirmed split from server
 @rpc("authority", "call_local", "reliable")
@@ -681,6 +714,7 @@ func confirm_split_stack(from_index: int, to_index: int, amount: int, was_reques
 		else:
 			print("Received invalid split confirmation from server")
 
+
 # CLIENT RPC: Server sends correction when move was invalid
 @rpc("authority", "call_local", "reliable")
 func send_inventory_correction():
@@ -690,6 +724,7 @@ func send_inventory_correction():
 	print("Sending inventory correction to client")
 	var current_inventory = save_inventory()
 	receive_inventory_correction.rpc_id(multiplayer.get_remote_sender_id(), current_inventory)
+
 
 # Function to restore a rejected split
 func restore_rejected_split(from_slot_index: int):
@@ -714,6 +749,7 @@ func restore_rejected_split(from_slot_index: int):
 		pending_splits.erase(from_slot_index)
 		
 		print("Restored rejected split for slot ", from_slot_index)
+
 
 @rpc("authority", "call_local", "reliable") 
 func receive_inventory_correction(authoritative_inventory: Dictionary):

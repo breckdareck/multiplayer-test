@@ -1,3 +1,4 @@
+class_name StatsWindow
 extends Control
 
 @onready var stats_window: Control = $"."
@@ -14,7 +15,7 @@ extends Control
 @onready var str_amount_label: Label = $StatsPanel/VBoxContainer/STRContainer/STRAmountLabel
 @onready var dex_amount_label: Label = $StatsPanel/VBoxContainer/DEXContainer/DEXAmountLabel
 @onready var int_amount_label: Label = $StatsPanel/VBoxContainer/INTContainer/INTAmountLabel
-@onready var vit_amount_label: Label = $StatsPanel/VBoxContainer/VITContainer/VITAmountLabel
+@onready var luk_amount_label: Label = $StatsPanel/VBoxContainer/LUKContainer/LUKAmountLabel
 
 var player: MultiplayerPlayerV2
 
@@ -34,7 +35,7 @@ func _ready() -> void:
 		
 		update_stats_window()
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if multiplayer.get_unique_id() == player.player_id:
 		if Input.is_action_just_pressed("OpenStatsWindow"):
 			stats_window.visible = !stats_window.visible
@@ -51,10 +52,10 @@ func update_stats_window():
 	health_amount_label.text = str(player.health_component.current_health) + "/" + str(player.health_component.max_health)
 	mana_amount_label.text = "100/100"
 	
-	str_amount_label.text = str(player.stats_component.current_strength)
-	dex_amount_label.text = str(player.stats_component.current_dexterity)
-	int_amount_label.text = str(player.stats_component.current_intelligence)
-	vit_amount_label.text = str(player.stats_component.current_vitality)
+	str_amount_label.text = str(player.stats_component.stats.get(Constants.StatType.STRENGTH).total_value)
+	dex_amount_label.text = str(player.stats_component.stats.get(Constants.StatType.DEXTERITY).total_value)
+	int_amount_label.text = str(player.stats_component.stats.get(Constants.StatType.INTELLIGENCE).total_value)
+	luk_amount_label.text = str(player.stats_component.stats.get(Constants.StatType.LUCK).total_value)
 	
 
 func _gui_input(event: InputEvent) -> void:

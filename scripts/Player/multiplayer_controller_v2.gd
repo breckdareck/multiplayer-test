@@ -31,6 +31,9 @@ const SERVER_ID: int = 1
 @export_category("UI")
 @export var player_HUD: Control
 @export var player_name_label: RichTextLabel
+@export var stats_window: StatsWindow
+@export var inventory_window: InventoryWindow
+
 
 var username: String = ""
 
@@ -65,6 +68,7 @@ func _ready() -> void:
 			var user_name: String = menu_container.get_username()
 			set_username.rpc(user_name)
 			request_load_data.rpc_id(SERVER_ID, user_name)
+			stats_window.update_stats_window()
 		else:
 			push_warning("Could not find MenuContainer or get_username method.")
 
@@ -140,7 +144,6 @@ func gain_experience(amount: int) -> void:
 	if _is_being_cleaned_up:
 		return
 
-	# print("[DEBUG] Player %s gained %d EXP" % [str(self), amount])
 	if level_component and level_component.has_method("add_exp"):
 		level_component.add_exp(amount)
 
@@ -305,7 +308,7 @@ func _load_data(data: Dictionary) -> void:
 		return
 
 	print("Loading data for ", data.get("username", "Unknown"))
-	username = data.get("username", "Player")
+	#username = data.get("username", "Player")
 
 	if is_instance_valid(stats_component):
 		stats_component.set_block_signals(true)
@@ -477,7 +480,7 @@ func request_all_sprite_states() -> void:
 		return
 		
 	var requester_id: int = multiplayer.get_remote_sender_id()
-	for node in get_tree().get_nodes_in_group("players"):
+	for node in get_tree().root.get_node("/root/MainMenu/Level/Game/Players").get_children():
 		if node is MultiplayerPlayerV2 and node != self:
 			node._on_peer_connected(requester_id)
 

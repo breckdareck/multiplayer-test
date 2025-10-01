@@ -29,7 +29,7 @@ func add_exp(amount: int) -> void:
 		return
 	if level >= max_level:
 		return
-	print("[DEBUG] Adding EXP to %s" % self.get_owner())
+		
 	experience += amount
 	while experience >= get_exp_to_next_level() and level < max_level:
 		experience -= get_exp_to_next_level()

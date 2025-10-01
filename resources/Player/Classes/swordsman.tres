@@ -8,28 +8,21 @@
 [resource]
 script = ExtResource("1_ya5xj")
 _class_name = "Swordsman"
-class_type = 0
-sprite_frames = {
+sprite_frames = Dictionary[int, SpriteFrames]({
 1: ExtResource("2_moyle"),
 15: ExtResource("3_6g1x3")
-}
-stat_bonuses = {
-"strength_bonus": 5,
-"vitality_bonus": 3
-}
+})
 skills = Array[String](["slash", "charge", "shield_bash"])
 description = "A melee warrior with high strength and vitality."
 icon = ExtResource("1_6g1x3")
-base_stats = {
-"dexterity": 10,
-"intelligence": 8,
-"strength": 15,
-"vitality": 12
-}
-growth_rates = {
-"dexterity": 1.0,
-"intelligence": 1.0,
-"strength": 1.2,
-"vitality": 1.1
-}
+base_stats = Dictionary[int, int]({
+0: 4,
+1: 4,
+2: 4,
+3: 4
+})
+stat_bonuses = Dictionary[int, int]({
+0: 4,
+2: 2
+})
 metadata/_custom_type_script = "uid://buwbui1bka8vl"

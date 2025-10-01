@@ -1,4 +1,5 @@
 class_name Constants
+
 enum ClassType {
 	SWORDSMAN,
 	ARCHER,
@@ -10,4 +11,11 @@ enum ItemType {
 	EQUIPMENT,
 	CONSUMABLE,
 	MATERIAL,
+}
+
+enum StatType {
+	STRENGTH,
+	INTELLIGENCE,
+	DEXTERITY,
+	LUCK,
 }

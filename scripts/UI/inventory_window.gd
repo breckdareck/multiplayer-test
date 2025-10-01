@@ -1,3 +1,4 @@
+class_name InventoryWindow
 extends Control
 
 @onready var inventory_window: Control = $"."
@@ -13,7 +14,7 @@ func _ready() -> void:
 	if owner is MultiplayerPlayerV2:
 		player = owner as MultiplayerPlayerV2
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if multiplayer.get_unique_id() == player.player_id:
 		if Input.is_action_just_pressed("OpenInventoryWindow"):
 			inventory_window.visible = !inventory_window.visible

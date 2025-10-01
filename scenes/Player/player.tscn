@@ -200,7 +200,7 @@ corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cgmen"]
-bg_color = Color(0.796078, 0.964706, 0.0196078, 1)
+bg_color = Color(0.8310881, 0.9995641, 0.18639073, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
@@ -266,17 +266,24 @@ expand_margin_top = 2.0
 expand_margin_right = 4.0
 expand_margin_bottom = 2.0
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4ni0x"]
+content_margin_top = 5.0
+bg_color = Color(0.996078, 0.992157, 0.988235, 1)
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jn0uf"]
 bg_color = Color(0.996078, 0.992157, 0.988235, 1)
 corner_radius_top_left = 5
 corner_radius_top_right = 5
 expand_margin_top = 5.0
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4ni0x"]
-content_margin_top = 5.0
-bg_color = Color(0.996078, 0.992157, 0.988235, 1)
-corner_radius_bottom_right = 5
-corner_radius_bottom_left = 5
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_32uah"]
+content_margin_left = 10.0
+content_margin_right = 10.0
+bg_color = Color(0.372549, 0.372549, 0.372549, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_kp55c"]
 content_margin_left = 10.0
@@ -285,13 +292,6 @@ bg_color = Color(0.952941, 0.666667, 0, 1)
 corner_radius_top_left = 5
 corner_radius_top_right = 5
 expand_margin_top = 3.0
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_32uah"]
-content_margin_left = 10.0
-content_margin_right = 10.0
-bg_color = Color(0.372549, 0.372549, 0.372549, 1)
-corner_radius_top_left = 5
-corner_radius_top_right = 5
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wikug"]
 bg_color = Color(0, 0, 0, 0.74902)
@@ -326,7 +326,7 @@ size = Vector2(100, 16)
 [sub_resource type="CircleShape2D" id="CircleShape2D_h0wtf"]
 radius = 5.0
 
-[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "combat_component", "level_component", "stats_component", "class_component", "inventory_component", "debug_component", "player_HUD", "player_name_label") groups=["networked_entities"]]
+[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "combat_component", "level_component", "stats_component", "class_component", "inventory_component", "debug_component", "player_HUD", "player_name_label", "stats_window", "inventory_window") groups=["Players", "networked_entities"]]
 collision_layer = 2
 collision_mask = 5
 script = ExtResource("1_an8q1")
@@ -339,6 +339,8 @@ inventory_component = NodePath("Components/Inventory")
 debug_component = NodePath("CanvasLayer/Debug")
 player_HUD = NodePath("CanvasLayer/PlayerHUD")
 player_name_label = NodePath("PlayerWorldHUD/PlayerNameLabel")
+stats_window = NodePath("CanvasLayer/MoveableWindows/StatsWindow")
+inventory_window = NodePath("CanvasLayer/MoveableWindows/InventoryWindow")
 
 [node name="PlayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 delta_interval = 0.05
@@ -573,9 +575,9 @@ offset_top = -165.0
 offset_right = 233.0
 offset_bottom = -21.0
 focus_mode = 0
-theme_override_styles/hover = SubResource("StyleBoxFlat_7vu7v")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_0r45a")
 theme_override_styles/normal = SubResource("StyleBoxFlat_7vu7v")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_0r45a")
+theme_override_styles/hover = SubResource("StyleBoxFlat_7vu7v")
 
 [node name="Label" type="Label" parent="CanvasLayer/PlayerHUD/MobileButtons/LeftButton"]
 layout_mode = 1
@@ -597,9 +599,9 @@ offset_top = -165.0
 offset_right = 468.0
 offset_bottom = -21.0
 focus_mode = 0
-theme_override_styles/hover = SubResource("StyleBoxFlat_7vu7v")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_0r45a")
 theme_override_styles/normal = SubResource("StyleBoxFlat_7vu7v")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_0r45a")
+theme_override_styles/hover = SubResource("StyleBoxFlat_7vu7v")
 
 [node name="Label" type="Label" parent="CanvasLayer/PlayerHUD/MobileButtons/RightButton"]
 layout_mode = 1
@@ -628,9 +630,9 @@ offset_bottom = -21.0
 grow_horizontal = 0
 grow_vertical = 0
 focus_mode = 0
-theme_override_styles/hover = SubResource("StyleBoxFlat_7vu7v")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_0r45a")
 theme_override_styles/normal = SubResource("StyleBoxFlat_7vu7v")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_0r45a")
+theme_override_styles/hover = SubResource("StyleBoxFlat_7vu7v")
 
 [node name="Label" type="Label" parent="CanvasLayer/PlayerHUD/MobileButtons/AttackButton"]
 layout_mode = 1
@@ -659,9 +661,9 @@ offset_bottom = -21.0
 grow_horizontal = 0
 grow_vertical = 0
 focus_mode = 0
-theme_override_styles/hover = SubResource("StyleBoxFlat_7vu7v")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_0r45a")
 theme_override_styles/normal = SubResource("StyleBoxFlat_7vu7v")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_0r45a")
+theme_override_styles/hover = SubResource("StyleBoxFlat_7vu7v")
 
 [node name="Label" type="Label" parent="CanvasLayer/PlayerHUD/MobileButtons/JumpButton"]
 layout_mode = 1
@@ -1039,6 +1041,10 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_fqhit")
 text = "100/100"
 horizontal_alignment = 2
 
+[node name="HSeparator" type="HSeparator" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 36
+
 [node name="STRContainer" type="HBoxContainer" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer"]
 layout_mode = 2
 alignment = 1
@@ -1050,7 +1056,7 @@ size_flags_horizontal = 3
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_constants/shadow_outline_size = 4
 theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
-text = "Strength"
+text = "Str"
 uppercase = true
 
 [node name="GradientMask" type="Panel" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/STRContainer/STRLabel"]
@@ -1077,44 +1083,6 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_fqhit")
 text = "0"
 horizontal_alignment = 2
 
-[node name="DEXContainer" type="HBoxContainer" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer"]
-layout_mode = 2
-alignment = 1
-
-[node name="DEXLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/DEXContainer"]
-clip_children = 2
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
-theme_override_constants/shadow_outline_size = 4
-theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
-text = "Dexterity"
-uppercase = true
-
-[node name="GradientMask" type="Panel" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/DEXContainer/DEXLabel"]
-clip_contents = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -2.0
-offset_top = -4.0
-offset_right = 2.0
-offset_bottom = 5.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
-
-[node name="DEXAmountLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/DEXContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 0
-theme_override_fonts/font = ExtResource("17_nbg44")
-theme_override_styles/normal = SubResource("StyleBoxFlat_e8txv")
-text = "0"
-horizontal_alignment = 2
-
 [node name="INTContainer" type="HBoxContainer" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer"]
 layout_mode = 2
 alignment = 1
@@ -1126,7 +1094,7 @@ size_flags_horizontal = 3
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_constants/shadow_outline_size = 4
 theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
-text = "Intelligence"
+text = "Int"
 uppercase = true
 
 [node name="GradientMask" type="Panel" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/INTContainer/INTLabel"]
@@ -1153,21 +1121,21 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_e8txv")
 text = "0"
 horizontal_alignment = 2
 
-[node name="VITContainer" type="HBoxContainer" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer"]
+[node name="DEXContainer" type="HBoxContainer" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer"]
 layout_mode = 2
 alignment = 1
 
-[node name="VITLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/VITContainer"]
+[node name="DEXLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/DEXContainer"]
 clip_children = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_constants/shadow_outline_size = 4
 theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
-text = "Vitality"
+text = "Dex"
 uppercase = true
 
-[node name="GradientMask" type="Panel" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/VITContainer/VITLabel"]
+[node name="GradientMask" type="Panel" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/DEXContainer/DEXLabel"]
 clip_contents = true
 layout_mode = 1
 anchors_preset = 15
@@ -1181,7 +1149,45 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
 
-[node name="VITAmountLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/VITContainer"]
+[node name="DEXAmountLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/DEXContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 0
+theme_override_fonts/font = ExtResource("17_nbg44")
+theme_override_styles/normal = SubResource("StyleBoxFlat_e8txv")
+text = "0"
+horizontal_alignment = 2
+
+[node name="LUKContainer" type="HBoxContainer" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="LUKLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/LUKContainer"]
+clip_children = 2
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_outline_size = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
+text = "Luk"
+uppercase = true
+
+[node name="GradientMask" type="Panel" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/LUKContainer/LUKLabel"]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = -4.0
+offset_right = 2.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
+
+[node name="LUKAmountLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/LUKContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0, 0, 0, 1)
@@ -1256,15 +1262,15 @@ offset_right = -8.0
 offset_bottom = -77.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_colors/font_unselected_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 6
 theme_override_fonts/font = ExtResource("14_e8txv")
-theme_override_styles/tabbar_background = SubResource("StyleBoxFlat_jn0uf")
 theme_override_styles/panel = SubResource("StyleBoxFlat_4ni0x")
-theme_override_styles/tab_selected = SubResource("StyleBoxFlat_kp55c")
-theme_override_styles/tab_hovered = SubResource("StyleBoxFlat_32uah")
+theme_override_styles/tabbar_background = SubResource("StyleBoxFlat_jn0uf")
 theme_override_styles/tab_unselected = SubResource("StyleBoxFlat_32uah")
+theme_override_styles/tab_hovered = SubResource("StyleBoxFlat_32uah")
+theme_override_styles/tab_selected = SubResource("StyleBoxFlat_kp55c")
 current_tab = 0
 clip_tabs = false
 tab_focus_mode = 0

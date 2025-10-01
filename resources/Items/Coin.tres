@@ -16,5 +16,4 @@ description = "Monies"
 item_type = 3
 can_stack = true
 max_stack_amount = 999
-current_stack_amount = 1
 metadata/_custom_type_script = "uid://ob3kriis8m08"

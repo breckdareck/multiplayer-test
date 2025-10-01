@@ -71,20 +71,12 @@ func _ready() -> void:
 		_owner = _owner as MultiplayerPlayerV2
 		_owner.level_component.leveled_up.connect(_on_player_leveled)
 		regen_timer.timeout.connect(_on_regen_timer_timeout)
-		
 
 
 func _on_player_leveled(new_level: int):
-	if _stats_component:
-		# Use vitality from stats component for health calculation
-		var vitality = _stats_component.get_vitality()
-		max_health = 100 + (vitality * 10)
-		print("HealthComponent: Level up to %d, new max health: %d (vitality: %d)" % [new_level, max_health, vitality])
-	else:
-		# Fallback calculation if no stats component
-		max_health = int(max_health * pow(1.12, new_level - 1))
-		print("HealthComponent: Level up to %d, new max health: %d (fallback calculation)" % [new_level, max_health])
-		
+	max_health = int(max_health * pow(1.12, new_level - 1))
+	print("HealthComponent: Level up to %d, new max health: %d" % [new_level, max_health])
+	
 	current_health = max_health
 
 
@@ -120,8 +112,8 @@ func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false) 
 	_last_damage_source = source
 
 	print("HealthComponent: Owner '%s' took %s damage from '%s'." % [get_owner().name, amount, source_str])
-	self.current_health -= amount
 	damaged.emit(amount, source)
+	self.current_health -= amount
 	if not ignore_invuln:
 		is_invulnerable = true
 		invulnerability_timer.start()

@@ -34,7 +34,7 @@ func _on_debug_damage_pressed() -> void:
 		health_component.take_damage.rpc(10, null, true)
 		
 func _on_debug_revive_pressed() -> void:
-	player._respawn.rpc()
+	player.respawn.rpc()
 
 func _on_debug_level_pressed() -> void:
 	if player.level_component:

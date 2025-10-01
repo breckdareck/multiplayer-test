@@ -12,7 +12,7 @@ config_version=5
 
 config/name="Multiplayer Test"
 run/main_scene="uid://b8gpxmwm0fasc"
-config/features=PackedStringArray("4.4", "Forward Plus")
+config/features=PackedStringArray("4.5", "Forward Plus")
 
 [autoload]
 
@@ -33,6 +33,7 @@ window/size/viewport_height=1080
 [global_group]
 
 networked_entities=""
+Players=""
 
 [input]
 
