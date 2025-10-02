@@ -8,6 +8,10 @@ signal died(killer)
 # Emitted when this entity takes damage. Includes the source node if provided.
 signal damaged(amount, source)
 
+const BASE_MAX_HEALTH: int = 100
+const SCALING_MULTIPLIER: float = 3.65
+const SCALING_EXPONENT: float = 1.5
+
 @export var max_health: int = 100:
 	set(value):
 		max_health = value
@@ -74,7 +78,7 @@ func _ready() -> void:
 
 
 func _on_player_leveled(new_level: int):
-	max_health = int(max_health * pow(1.12, new_level - 1))
+	max_health = int(BASE_MAX_HEALTH + (SCALING_MULTIPLIER * pow(new_level - 1, SCALING_EXPONENT)))
 	print("HealthComponent: Level up to %d, new max health: %d" % [new_level, max_health])
 	
 	current_health = max_health

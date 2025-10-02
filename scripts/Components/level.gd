@@ -5,8 +5,7 @@ signal leveled_up(new_level)
 signal experience_changed(current_exp, exp_to_level)
 
 @export var max_level = 100
-@export var base_exp = 100
-@export var exp_growth = 1.2
+@export var level_curve: Curve
 
 var level = 1:
 	set(value):
@@ -20,7 +19,7 @@ var experience = 0:
 
 
 func get_exp_to_next_level() -> int:
-	return int(base_exp * pow(exp_growth, level - 1))
+	return int(level_curve.get_point_position(level-1).y)
 
 
 @rpc("any_peer", "call_local", "reliable")

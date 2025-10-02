@@ -16,6 +16,7 @@ extends Control
 @onready var dex_amount_label: Label = $StatsPanel/VBoxContainer/DEXContainer/DEXAmountLabel
 @onready var int_amount_label: Label = $StatsPanel/VBoxContainer/INTContainer/INTAmountLabel
 @onready var luk_amount_label: Label = $StatsPanel/VBoxContainer/LUKContainer/LUKAmountLabel
+@onready var dmg_range_label: Label = $StatsPanel/VBoxContainer/DMGRangeContainer/DMGRangeAmountLabel
 
 var player: MultiplayerPlayerV2
 
@@ -52,11 +53,12 @@ func update_stats_window():
 	health_amount_label.text = str(player.health_component.current_health) + "/" + str(player.health_component.max_health)
 	mana_amount_label.text = "100/100"
 	
-	str_amount_label.text = str(player.stats_component.stats.get(Constants.StatType.STRENGTH).total_value)
-	dex_amount_label.text = str(player.stats_component.stats.get(Constants.StatType.DEXTERITY).total_value)
-	int_amount_label.text = str(player.stats_component.stats.get(Constants.StatType.INTELLIGENCE).total_value)
-	luk_amount_label.text = str(player.stats_component.stats.get(Constants.StatType.LUCK).total_value)
+	str_amount_label.text = "%d (%d+%d)" % [player.stats_component.stats.get(Constants.StatType.STRENGTH).total_value, player.stats_component.stats.get(Constants.StatType.STRENGTH).base_value, player.stats_component.stats.get(Constants.StatType.STRENGTH).combined_bonus_value]	
+	dex_amount_label.text = "%d (%d+%d)" % [player.stats_component.stats.get(Constants.StatType.DEXTERITY).total_value, player.stats_component.stats.get(Constants.StatType.DEXTERITY).base_value, player.stats_component.stats.get(Constants.StatType.DEXTERITY).combined_bonus_value]	
+	int_amount_label.text = "%d (%d+%d)" % [player.stats_component.stats.get(Constants.StatType.INTELLIGENCE).total_value, player.stats_component.stats.get(Constants.StatType.INTELLIGENCE).base_value, player.stats_component.stats.get(Constants.StatType.INTELLIGENCE).combined_bonus_value]	
+	luk_amount_label.text = "%d (%d+%d)" % [player.stats_component.stats.get(Constants.StatType.LUCK).total_value, player.stats_component.stats.get(Constants.StatType.LUCK).base_value, player.stats_component.stats.get(Constants.StatType.LUCK).combined_bonus_value]	
 	
+	dmg_range_label.text = "%d ~ %d" % [player.combat_component.min_damage, player.combat_component.max_damage]
 
 func _gui_input(event: InputEvent) -> void:
 	# Check for a mouse button press (typically the left mouse button).

@@ -1,9 +1,11 @@
-[gd_scene load_steps=23 format=3 uid="uid://q6iqwsi8meq4"]
+[gd_scene load_steps=25 format=3 uid="uid://q6iqwsi8meq4"]
 
 [ext_resource type="Texture2D" uid="uid://dgjvvxhehw5y3" path="res://assets/sprites/slime_green.png" id="1_7p1mj"]
 [ext_resource type="Script" uid="uid://cj6lu2r6oxt6o" path="res://scripts/Enemy/enemy_base.gd" id="1_fd6lc"]
 [ext_resource type="Script" uid="uid://dhhn4ks2uixk8" path="res://scripts/Components/health.gd" id="2_0l8pv"]
 [ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="2_fd6lc"]
+[ext_resource type="Curve" uid="uid://q6qc5kgdbmyv" path="res://monster_hp_curve.tres" id="2_ykovo"]
+[ext_resource type="Curve" uid="uid://la82to0yhbrk" path="res://monster_exp_curve.tres" id="3_k8y7s"]
 [ext_resource type="Script" uid="uid://dwv2k28spwfby" path="res://scripts/StateMachine/state_machine.gd" id="4_2npkn"]
 [ext_resource type="Script" uid="uid://dk2rcptcq3hb8" path="res://scripts/Enemy/StateMachine/enemy_patrol.gd" id="6_fd6lc"]
 [ext_resource type="Script" uid="uid://u6b813y5rtm4" path="res://scripts/Enemy/StateMachine/enemy_idle.gd" id="6_v5wyi"]
@@ -133,8 +135,10 @@ size = Vector2(64, 37)
 collision_layer = 8
 collision_mask = 5
 script = ExtResource("1_fd6lc")
-movement_speed = 80.0
 health_component = NodePath("Health")
+movement_speed = 80.0
+health_curve = ExtResource("2_ykovo")
+experience_curve = ExtResource("3_k8y7s")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 delta_interval = 0.015

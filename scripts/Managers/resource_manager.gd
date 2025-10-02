@@ -88,10 +88,14 @@ func get_base_stats(class_type: Constants.ClassType) -> Dictionary:
 	return data.base_stats if data else {}
 
 
-func get_growth_rates(class_type: Constants.ClassType) -> Dictionary:
+func get_primary_stat(class_type: Constants.ClassType) -> Constants.StatType:
 	var data: ClassData = get_class_data(class_type)
-	return data.growth_rates if data else {}
+	return data.primary_stat
+	
 
+func get_secondary_stat(class_type: Constants.ClassType) -> Constants.StatType:
+	var data: ClassData = get_class_data(class_type)
+	return data.secondary_stat
 
 # Utility function to get ClassType enum from string
 func get_class_type_from_string(_class_name: String) -> Constants.ClassType:

@@ -7,18 +7,15 @@ extends Resource
 @export var skills: Array[String] = []
 @export var description: String = ""
 @export var icon: Texture2D
+@export var primary_stat: Constants.StatType
+@export var secondary_stat: Constants.StatType
 @export var base_stats: Dictionary[Constants.StatType, int] = {
-	Constants.StatType.STRENGTH: 10,
-	Constants.StatType.DEXTERITY: 10,
-	Constants.StatType.INTELLIGENCE: 10,
-	Constants.StatType.LUCK: 10
+	Constants.StatType.STRENGTH: 4,
+	Constants.StatType.DEXTERITY: 4,
+	Constants.StatType.INTELLIGENCE: 4,
+	Constants.StatType.LUCK: 4
 }
-@export var stat_bonuses: Dictionary[Constants.StatType, int] = {
-	Constants.StatType.STRENGTH: 10,
-	Constants.StatType.DEXTERITY: 10,
-	Constants.StatType.INTELLIGENCE: 10,
-	Constants.StatType.LUCK: 10
-}
+@export var stat_bonuses: Dictionary[Constants.StatType, int] = { }
 
 
 func get_sprite_for_level(level: int) -> SpriteFrames:
@@ -35,9 +32,3 @@ func get_sprite_for_level(level: int) -> SpriteFrames:
 			return sprite_path
 	
 	return null
-
-func get_stat_bonus(stat_type: Constants.StatType) -> int:
-	return stat_bonuses.get(stat_type, 0)
-
-func has_skill(skill_name: String) -> bool:
-	return skill_name in skills

@@ -3,7 +3,6 @@ extends Node
 
 signal stats_changed
 
-@export_category("Base Stats")
 @export var stats: Dictionary = {
 	Constants.StatType.STRENGTH: StatData.new(Constants.StatType.STRENGTH, 4),
 	Constants.StatType.DEXTERITY: StatData.new(Constants.StatType.DEXTERITY, 4),
@@ -34,7 +33,7 @@ func _recalculate_stats() -> void:
 	
 	var class_bonuses:Dictionary[Constants.StatType, int] = _class_component.get_class_bonuses()
 	for stat in class_bonuses:
-		stats.get(stat).base_value += class_bonuses[stat]
+		stats.get(stat).flat_bonus_value = class_bonuses[stat] * _level_component.level
 		
 	print("StatsComponent: Applied class bonuses for %s: %s" % [_class_component.get_class_name(), class_bonuses])
 	print("StatsComponent: Final stats - STR: %d, DEX: %d, INT: %d, LUK: %d" % [stats[Constants.StatType.STRENGTH].total_value, stats[Constants.StatType.DEXTERITY].total_value, stats[Constants.StatType.INTELLIGENCE].total_value, stats[Constants.StatType.LUCK].total_value])
@@ -49,9 +48,3 @@ func _on_leveled_up(_new_level: int) -> void:
 func _on_class_changed(_new_class: String) -> void:
 	print("STATS: OnClassChange - PID: %s" % str(owner.player_id))
 	_recalculate_stats()
-
-# Get class bonuses currently applied
-func get_applied_class_bonuses() -> Dictionary:
-	if _class_component:
-		return _class_component.get_class_bonuses()
-	return {}

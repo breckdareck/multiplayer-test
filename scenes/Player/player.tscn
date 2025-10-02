@@ -1,8 +1,9 @@
-[gd_scene load_steps=64 format=3 uid="uid://bdtdpx0d05sy3"]
+[gd_scene load_steps=65 format=3 uid="uid://bdtdpx0d05sy3"]
 
 [ext_resource type="Script" uid="uid://yibpus3whwuj" path="res://scripts/Player/multiplayer_controller_v2.gd" id="1_an8q1"]
 [ext_resource type="Script" uid="uid://cy1j38lpy671e" path="res://scripts/Player/multiplayer_input.gd" id="2_hxkm2"]
 [ext_resource type="Script" uid="uid://ys6acovxq2iq" path="res://scripts/Components/level.gd" id="3_18ciy"]
+[ext_resource type="Curve" uid="uid://ck1du2i5bxyya" path="res://leveling_curve.tres" id="4_4ni0x"]
 [ext_resource type="Script" uid="uid://71v08yv5tjrt" path="res://scripts/Components/stats.gd" id="4_cg2hl"]
 [ext_resource type="Script" uid="uid://dhhn4ks2uixk8" path="res://scripts/Components/health.gd" id="5_o05ft"]
 [ext_resource type="Script" uid="uid://dulwlk4wjgot3" path="res://scripts/Components/class.gd" id="6_nbg44"]
@@ -361,6 +362,7 @@ replication_config = SubResource("SceneReplicationConfig_x5q00")
 
 [node name="Leveling" type="Node" parent="Components"]
 script = ExtResource("3_18ciy")
+level_curve = ExtResource("4_4ni0x")
 
 [node name="Class" type="Node" parent="Components"]
 script = ExtResource("6_nbg44")
@@ -757,7 +759,6 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="StatsWindow" type="Panel" parent="CanvasLayer/MoveableWindows"]
-visible = false
 layout_mode = 0
 offset_left = 314.0
 offset_top = 291.0
@@ -1043,7 +1044,7 @@ horizontal_alignment = 2
 
 [node name="HSeparator" type="HSeparator" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer"]
 layout_mode = 2
-theme_override_constants/separation = 36
+theme_override_constants/separation = 10
 
 [node name="STRContainer" type="HBoxContainer" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer"]
 layout_mode = 2
@@ -1195,6 +1196,48 @@ theme_override_constants/outline_size = 0
 theme_override_fonts/font = ExtResource("17_nbg44")
 theme_override_styles/normal = SubResource("StyleBoxFlat_e8txv")
 text = "0"
+horizontal_alignment = 2
+
+[node name="HSeparator2" type="HSeparator" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="DMGRangeContainer" type="HBoxContainer" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="DMGRangeLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/DMGRangeContainer"]
+clip_children = 2
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_outline_size = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
+text = "Damage Range"
+uppercase = true
+
+[node name="GradientMask" type="Panel" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/DMGRangeContainer/DMGRangeLabel"]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = -4.0
+offset_right = 2.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
+
+[node name="DMGRangeAmountLabel" type="Label" parent="CanvasLayer/MoveableWindows/StatsWindow/StatsPanel/VBoxContainer/DMGRangeContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 0
+theme_override_fonts/font = ExtResource("17_nbg44")
+theme_override_styles/normal = SubResource("StyleBoxFlat_e8txv")
+text = "0 ~ 1"
 horizontal_alignment = 2
 
 [node name="CloseButton" type="Button" parent="CanvasLayer/MoveableWindows/StatsWindow"]

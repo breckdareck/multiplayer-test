@@ -16,14 +16,9 @@ sprite_frames = Dictionary[int, SpriteFrames]({
 skills = Array[String](["quick_shot", "multi_shot", "evasion"])
 description = "A ranged fighter with exceptional dexterity and precision."
 icon = ExtResource("1_v52w3")
-base_stats = Dictionary[int, int]({
-0: 4,
-1: 4,
-2: 4,
-3: 4
-})
+primary_stat = 2
 stat_bonuses = Dictionary[int, int]({
-2: 4,
-3: 2
+0: 2,
+2: 3
 })
 metadata/_custom_type_script = "uid://buwbui1bka8vl"

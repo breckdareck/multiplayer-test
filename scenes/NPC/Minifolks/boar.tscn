@@ -1,8 +1,10 @@
-[gd_scene load_steps=29 format=3 uid="uid://betkg72vd7iav"]
+[gd_scene load_steps=31 format=3 uid="uid://betkg72vd7iav"]
 
 [ext_resource type="Script" uid="uid://cj6lu2r6oxt6o" path="res://scripts/Enemy/enemy_base.gd" id="1_nrg6h"]
+[ext_resource type="Curve" uid="uid://q6qc5kgdbmyv" path="res://monster_hp_curve.tres" id="2_71sob"]
 [ext_resource type="Script" uid="uid://dhhn4ks2uixk8" path="res://scripts/Components/health.gd" id="2_82tmb"]
 [ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="3_2dhth"]
+[ext_resource type="Curve" uid="uid://la82to0yhbrk" path="res://monster_exp_curve.tres" id="3_7bg18"]
 [ext_resource type="Texture2D" uid="uid://cgk01jgw2vtk" path="res://assets/sprites/MinifolksForestAnimals/Outline/MiniBoar.png" id="4_ehibi"]
 [ext_resource type="Script" uid="uid://dwv2k28spwfby" path="res://scripts/StateMachine/state_machine.gd" id="11_85v0n"]
 [ext_resource type="Script" uid="uid://u6b813y5rtm4" path="res://scripts/Enemy/StateMachine/enemy_idle.gd" id="12_c7p7b"]
@@ -168,9 +170,11 @@ size = Vector2(64, 37)
 collision_layer = 8
 collision_mask = 5
 script = ExtResource("1_nrg6h")
-movement_speed = 45.0
 health_component = NodePath("Health")
-experience_reward = 5
+monster_level = 3
+movement_speed = 45.0
+health_curve = ExtResource("2_71sob")
+experience_curve = ExtResource("3_7bg18")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 delta_interval = 0.015

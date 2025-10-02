@@ -4,11 +4,12 @@ extends CharacterBody2D
 # Emitted after the death animation finishes, signaling it can be returned to the pool.
 signal ready_for_pooling
 
+@export var health_component: HealthComponent
+@export var monster_level: int = 1
 @export var movement_speed: float = 60.0
 @export var damage: int = 10
-@export var health_component: HealthComponent
-@export var post_death_delay: float = 1.5 # Time to wait after death animation before disappearing.
-@export var experience_reward: int = 10 # Experience granted to the player who kills this enemy
+@export var health_curve: Curve
+@export var experience_curve: Curve
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var state_machine: StateMachine = $StateMachine
@@ -16,6 +17,10 @@ signal ready_for_pooling
 @onready var body_hitbox: Area2D = $BodyHitbox
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 
+var experience_reward: int = 0:
+	get():
+		return int(experience_curve.get_point_position(monster_level).y)
+var post_death_delay: float = 1.5 # Time to wait after death animation before disappearing.
 var damage_by_player: Dictionary = {}  # player_id : damage_amount
 var facing_direction: int = 1
 var _is_being_cleaned_up: bool = false
@@ -30,6 +35,7 @@ func _ready() -> void:
 
 	if multiplayer.is_server():
 		# The server listens for the death signal from the component.
+		health_component.max_health = int(health_curve.get_point_position(monster_level).y)
 		health_component.died.connect(_on_enemy_died)
 		health_component.damaged.connect(on_enemy_damaged)
 		body_hitbox.body_entered.connect(_on_body_hitbox_body_entered)

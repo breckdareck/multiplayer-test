@@ -6,7 +6,16 @@ extends Node
 
 var hit_list: Array = []
 var current_attack_data: AttackData
-
+var attack_damage: int:
+	get():
+		return calculate_attack_damage()
+var min_damage: int:
+	get():
+		return roundi(attack_damage * 0.8)
+var max_damage: int:
+	get():
+		return roundi(attack_damage * 1.2)
+		
 var _stats_component: StatsComponent
 var _class_component: ClassComponent
 
@@ -78,22 +87,22 @@ func _on_hitbox_body_entered(body: Node2D) -> void:
 	if "health_component" in body:
 		var health_comp = body.get("health_component")
 		if health_comp and not health_comp.is_dead:
-			var damage_to_deal = current_attack_data.damage
-			var final_damage = damage_to_deal
+			var damage_to_deal = randi_range(min_damage, max_damage)
 			
-			# Use stats component for damage calculations
-			if _stats_component and _class_component:
-				if _class_component.current_class == Constants.ClassType.SWORDSMAN:
-					# Swordsman gets bonus from strength
-					final_damage += _stats_component.stats.get(Constants.StatType.STRENGTH).total_value * 0.2
-				elif _class_component.current_class == Constants.ClassType.ARCHER:
-					# Archer gets bonus from dexterity
-					final_damage += _stats_component.stats.get(Constants.StatType.DEXTERITY).total_value * 0.15
-				elif _class_component.current_class == Constants.ClassType.MAGE:
-					# Mage gets bonus from intelligence
-					final_damage += _stats_component.stats.get(Constants.StatType.INTELLIGENCE).total_value * 0.25
-				
-				print("CombatComponent: %s attack - Base: %d, Class bonus: %d, Final: %d" % [_class_component.get_class_name(), damage_to_deal, final_damage - damage_to_deal, final_damage])
+			print("CombatComponent: %s attack - Min: %d, Max: %d, Final: %d" % [_class_component.get_class_name(), min_damage, max_damage, damage_to_deal])
 			
-			health_comp.take_damage(final_damage, self)
+			health_comp.take_damage(damage_to_deal, self)
 			hit_list.append(body)
+
+
+func calculate_attack_damage() -> int:
+	if _stats_component and _class_component:
+		var primary_stat = ResourceManager.get_primary_stat(_class_component.current_class)
+		var secondary_stat = ResourceManager.get_secondary_stat(_class_component.current_class)
+		# Weapon Multipliers = 1.2 ~ 1.75
+		var weapon_multiplier: float = 1.75
+		# Level 1 Weapon 15ATK - Level 100 ~95ATK
+		var weapon_attack: int = 15 
+		var stats_value = _stats_component.stats.get(primary_stat).total_value * 4 + _stats_component.stats.get(secondary_stat).total_value
+		return roundi(weapon_multiplier * stats_value * weapon_attack / 100)
+	return 0

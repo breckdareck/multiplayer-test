@@ -16,13 +16,10 @@ sprite_frames = Dictionary[int, SpriteFrames]({
 skills = Array[String](["fireball", "ice_shield", "teleport"])
 description = "A spellcaster with powerful magic abilities."
 icon = ExtResource("1_li4sd")
-base_stats = Dictionary[int, int]({
-0: 4,
-1: 4,
-2: 4,
-3: 4
-})
+primary_stat = 1
+secondary_stat = 3
 stat_bonuses = Dictionary[int, int]({
-1: 6
+1: 3,
+3: 2
 })
 metadata/_custom_type_script = "uid://buwbui1bka8vl"
