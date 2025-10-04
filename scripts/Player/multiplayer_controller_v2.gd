@@ -64,15 +64,18 @@ var _is_being_cleaned_up: bool = false
 func _ready() -> void:
 	if multiplayer.get_unique_id() == player_id:
 		#var menu_container: MainMenu = get_tree().current_scene.get_node_or_null("%MenuContainer") as MainMenu
-		if is_instance_valid(menu_container) and menu_container.has_method("get_username"):
-			var user_name: String = menu_container.get_username()
-			set_username.rpc(user_name)
-			request_load_data.rpc_id(SERVER_ID, user_name)
-			stats_window.update_stats_window()
-		else:
-			push_warning("Could not find MenuContainer or get_username method.")
+		#if is_instance_valid(menu_container) and menu_container.has_method("get_username"):
+			#var user_name: String = menu_container.get_username()
+			#set_username.rpc(user_name)
+			#request_load_data.rpc_id(SERVER_ID, user_name)
+			#await get_tree().process_frame
+			#change_class_request.rpc_id(SERVER_ID, menu_container.selected_character)
+			#class_component.change_class(menu_container.selected_character)
+		#else:
+			#push_warning("Could not find MenuContainer or get_username method.")
 
 		# Request the sprite states of all other players from the server.
+		stats_window.update_stats_window()	
 		request_all_sprite_states.rpc_id(SERVER_ID)
 
 	# Server-specific setup
@@ -422,24 +425,24 @@ func save_on_server(data_string: String) -> void:
 		file.close()
 
 
-# [CLIENT -> SERVER] Requests to load this player's data from a file.
-@rpc("any_peer", "call_local", "reliable")
-func request_load_data(user_name: String) -> void:
-	if not multiplayer.is_server():
-		return
-
-	var file_path: String = "player_%s.json" % user_name
-	if FileAccess.file_exists(file_path):
-		var file := FileAccess.open(file_path, FileAccess.READ)
-		if file:
-			var content: String = file.get_as_text()
-			file.close()
-			var parsed_json = JSON.parse_string(content)
-			if typeof(parsed_json) == TYPE_DICTIONARY:
-				_load_data(parsed_json)
-	else:
-		# If no _get_save_data file exists, create one with default data.
-		save_on_server(JSON.stringify(_get_save_data()))
+## [CLIENT -> SERVER] Requests to load this player's data from a file.
+#@rpc("any_peer", "call_local", "reliable")
+#func request_load_data(user_name: String) -> void:
+#	if not multiplayer.is_server():
+#		return
+#
+#	var file_path: String = "player_%s.json" % user_name
+#	if FileAccess.file_exists(file_path):
+#		var file := FileAccess.open(file_path, FileAccess.READ)
+#		if file:
+#			var content: String = file.get_as_text()
+#			file.close()
+#			var parsed_json = JSON.parse_string(content)
+#			if typeof(parsed_json) == TYPE_DICTIONARY:
+#				_load_data(parsed_json)
+#	else:
+#		# If no _get_save_data file exists, create one with default data.
+#		save_on_server(JSON.stringify(_get_save_data()))
 
 
 # [CLIENT -> SERVER] Asks the server to initiate a sprite change for this player.
@@ -467,7 +470,7 @@ func change_sprite_rpc(_class_name: String, level: int) -> void:
 func change_class_request(new_class: int) -> void:
 	if not multiplayer.is_server():
 		return
-
+	print("Change Class Request")
 	if is_instance_valid(class_component):
 		class_component.change_class_rpc.rpc(new_class)
 		_handle_sprite_change_on_server()

@@ -3,6 +3,12 @@ extends Node
 
 @export var attack_map: Dictionary[String, AttackData]
 @export var attack_hitbox: CollisionShape2D
+@export_category("Debug - Weapon Stats")
+## Weapon Multipliers = 1.2 ~ 1.75
+@export var weapon_multiplier: float = 1.2
+## Level 1 Weapon 15ATK - Level 100 ~95ATK
+@export var weapon_attack: int = 15
+
 
 var hit_list: Array = []
 var current_attack_data: AttackData
@@ -35,30 +41,21 @@ func _ready() -> void:
 	if not hitbox_area.body_entered.is_connected(_on_hitbox_body_entered):
 		hitbox_area.body_entered.connect(_on_hitbox_body_entered)
 
-	if not attack_hitbox_timer.timeout.is_connected(_on_attack_hitbox_timer_timeout):
-		attack_hitbox_timer.timeout.connect(_on_attack_hitbox_timer_timeout)
 
-
-func perform_attack(attack_name: String) -> void:
+func perform_attack(attack_name: String, duration: float) -> void:
 	if not multiplayer.is_server():
 		return
-
-	if not attack_map.has(attack_name):
-		push_error("Invalid attack name: " + attack_name)
-		return
 	
-	current_attack_data = attack_map[attack_name]
-	attack_hitbox_timer.wait_time = current_attack_data.damage_delay
-	attack_hitbox_timer.start()
-
-	attack_hitbox.position.x = abs(attack_hitbox.position.x) * owner_node.facing_direction
+	turn_on_hitbox()
 	
 	# Optional: Use another timer to call end_attack() after attack_duration.
-	get_tree().create_timer(current_attack_data.attack_duration).timeout.connect(end_attack)
+	get_tree().create_timer(duration).timeout.connect(end_attack)
 
 
-func _on_attack_hitbox_timer_timeout() -> void:
-	hit_list.clear()
+func turn_on_hitbox() -> void:
+	attack_hitbox.position.x = abs(attack_hitbox.position.x) * owner_node.facing_direction
+	
+	#hit_list.clear()
 	hitbox_area.monitoring = true
 
 	var overlapping_bodies = hitbox_area.get_overlapping_bodies()
@@ -77,12 +74,8 @@ func _on_hitbox_body_entered(body: Node2D) -> void:
 	if not multiplayer.is_server():
 		return
 
-	if body in hit_list:
-		return
-
-	if current_attack_data == null:
-		push_error("CombatComponent: current_attack_data is null in _on_hitbox_body_entered!")
-		return
+	#if body in hit_list:
+		#return
 
 	if "health_component" in body:
 		var health_comp = body.get("health_component")
@@ -99,10 +92,6 @@ func calculate_attack_damage() -> int:
 	if _stats_component and _class_component:
 		var primary_stat = ResourceManager.get_primary_stat(_class_component.current_class)
 		var secondary_stat = ResourceManager.get_secondary_stat(_class_component.current_class)
-		# Weapon Multipliers = 1.2 ~ 1.75
-		var weapon_multiplier: float = 1.75
-		# Level 1 Weapon 15ATK - Level 100 ~95ATK
-		var weapon_attack: int = 15 
 		var stats_value = _stats_component.stats.get(primary_stat).total_value * 4 + _stats_component.stats.get(secondary_stat).total_value
 		return roundi(weapon_multiplier * stats_value * weapon_attack / 100)
 	return 0

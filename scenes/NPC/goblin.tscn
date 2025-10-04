@@ -28,9 +28,12 @@ properties/1/replication_mode = 2
 properties/2/path = NodePath("Health:is_dead")
 properties/2/spawn = true
 properties/2/replication_mode = 2
-properties/3/path = NodePath("Health:current_health")
+properties/3/path = NodePath("Health:max_health")
 properties/3/spawn = true
 properties/3/replication_mode = 2
+properties/4/path = NodePath("Health:current_health")
+properties/4/spawn = true
+properties/4/replication_mode = 2
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_n6pvg"]
 radius = 5.09902
@@ -436,12 +439,16 @@ experience_curve = ExtResource("2_a5hmx")
 delta_interval = 0.015
 replication_config = SubResource("SceneReplicationConfig_n6pvg")
 
+[node name="DmgNumOrigin" type="Node2D" parent="."]
+position = Vector2(0, -47)
+
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -5)
 shape = SubResource("CircleShape2D_n6pvg")
 
-[node name="Health" type="Node" parent="."]
+[node name="Health" type="Node" parent="." node_paths=PackedStringArray("damage_number_origin")]
 script = ExtResource("2_0x8hd")
+damage_number_origin = NodePath("../DmgNumOrigin")
 health_bar_path = NodePath("../HealthBar")
 
 [node name="Label" type="Label" parent="."]

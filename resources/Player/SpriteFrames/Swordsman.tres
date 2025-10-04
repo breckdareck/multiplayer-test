@@ -1,6 +1,7 @@
-[gd_resource type="SpriteFrames" load_steps=27 format=3 uid="uid://c05dyrlp5i5bj"]
+[gd_resource type="SpriteFrames" load_steps=32 format=3 uid="uid://c05dyrlp5i5bj"]
 
 [ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="1_ljim5"]
+[ext_resource type="Texture2D" uid="uid://rmxapeohsar7" path="res://assets/sprites/MinifolksHumans/Outline/MiniTemplate.png" id="2_jcstk"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_yq38j"]
 atlas = ExtResource("1_ljim5")
@@ -101,6 +102,22 @@ region = Rect2(128, 32, 32, 32)
 [sub_resource type="AtlasTexture" id="AtlasTexture_av0x8"]
 atlas = ExtResource("1_ljim5")
 region = Rect2(160, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pgco6"]
+atlas = ExtResource("2_jcstk")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_objpo"]
+atlas = ExtResource("2_jcstk")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fhrtj"]
+atlas = ExtResource("2_jcstk")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tpnkc"]
+atlas = ExtResource("2_jcstk")
+region = Rect2(96, 0, 32, 32)
 
 [resource]
 animations = [{
@@ -212,5 +229,22 @@ animations = [{
 }],
 "loop": true,
 "name": &"move",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pgco6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_objpo")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fhrtj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tpnkc")
+}],
+"loop": true,
+"name": &"test",
 "speed": 10.0
 }]

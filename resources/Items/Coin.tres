@@ -3,17 +3,18 @@
 [ext_resource type="Texture2D" uid="uid://u3tpikp1eegv" path="res://assets/sprites/coin.png" id="1_fcv6u"]
 [ext_resource type="Script" uid="uid://ob3kriis8m08" path="res://scripts/Resources/ItemData.gd" id="1_kolov"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_4kiah"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_fcv6u"]
 atlas = ExtResource("1_fcv6u")
 region = Rect2(0, 0, 16, 16)
 
 [resource]
 script = ExtResource("1_kolov")
-item_id = "38013117210-15679-12767-011150-15914981301483914"
+item_id = "1311311521-115105-52149-107154-11261210425103010"
 name = "Coin"
-icon = SubResource("AtlasTexture_4kiah")
+icon = SubResource("AtlasTexture_fcv6u")
 description = "Monies"
 item_type = 3
 can_stack = true
-max_stack_amount = 999
+max_stack_amount = 99
+current_stack_amount = 1
 metadata/_custom_type_script = "uid://ob3kriis8m08"

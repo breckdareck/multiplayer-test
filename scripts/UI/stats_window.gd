@@ -32,7 +32,7 @@ func _ready() -> void:
 		player.level_component.leveled_up.connect(update_stats_window.unbind(1))
 		player.level_component.experience_changed.connect(update_stats_window.unbind(2))
 		player.health_component.health_changed.connect(update_stats_window.unbind(2))
-		player.class_component.class_changed.connect(update_stats_window)
+		player.class_component.class_changed.connect(update_stats_window.unbind(1))
 		
 		update_stats_window()
 

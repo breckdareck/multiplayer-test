@@ -10,6 +10,8 @@ signal ready_for_pooling
 @export var damage: int = 10
 @export var health_curve: Curve
 @export var experience_curve: Curve
+@export var respawnable: bool
+@export var respawn_delay: int = 10
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var state_machine: StateMachine = $StateMachine
@@ -24,6 +26,7 @@ var post_death_delay: float = 1.5 # Time to wait after death animation before di
 var damage_by_player: Dictionary = {}  # player_id : damage_amount
 var facing_direction: int = 1
 var _is_being_cleaned_up: bool = false
+var initial_position: Vector2
 
 func _ready() -> void:
 	# Add to networked entities group for proper cleanup during channel switching
@@ -35,6 +38,7 @@ func _ready() -> void:
 
 	if multiplayer.is_server():
 		# The server listens for the death signal from the component.
+		initial_position = global_position
 		health_component.max_health = int(health_curve.get_point_position(monster_level).y)
 		health_component.died.connect(_on_enemy_died)
 		health_component.damaged.connect(on_enemy_damaged)
@@ -89,7 +93,10 @@ func _on_enemy_died(_killer: Node) -> void:
 	hitbox.monitoring = false
 	body_hitbox.monitoring = false
 	
-
+	if respawnable:
+		get_tree().create_timer(post_death_delay).timeout.connect(pool_deactivate)
+		get_tree().create_timer(respawn_delay).timeout.connect(pool_reset)
+		
 	# On dedicated server, AnimatedSprite2D is stripped, so trigger pooling after delay
 	if OS.has_feature("dedicated_server"):
 		get_tree().create_timer(post_death_delay).timeout.connect(emit_ready_for_pooling)
@@ -116,7 +123,10 @@ func pool_deactivate() -> void:
 func pool_reset() -> void:
 	if _is_being_cleaned_up:
 		return
-		
+	
+	if respawnable:
+		global_position = 	initial_position
+	
 	# Reset health and death state using the component.
 	if health_component:
 		health_component.respawn()

@@ -19,3 +19,21 @@ enum StatType {
 	DEXTERITY,
 	LUCK,
 }
+
+enum EquipmentType {
+	ARMOR,
+	WEAPON,
+}
+
+enum ArmorType {
+	HEAD,
+	CHEST,
+	LEGS,
+	FEET,
+}
+
+enum WeaponType {
+	SWORD,
+	BOW,
+	STAFF,
+}

@@ -7,7 +7,7 @@ signal experience_changed(current_exp, exp_to_level)
 @export var max_level = 100
 @export var level_curve: Curve
 
-var level = 1:
+var level:int = 1:
 	set(value):
 		level = value
 		leveled_up.emit(value)

@@ -12,6 +12,7 @@ const BASE_MAX_HEALTH: int = 100
 const SCALING_MULTIPLIER: float = 3.65
 const SCALING_EXPONENT: float = 1.5
 
+@export var damage_number_origin: Node2D
 @export var max_health: int = 100:
 	set(value):
 		max_health = value
@@ -115,6 +116,7 @@ func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false) 
 
 	_last_damage_source = source
 
+	get_node("/root/MainMenu/Level/Game").get_node("%DmgNumberSpawner").display_number(amount, damage_number_origin.global_position)
 	print("HealthComponent: Owner '%s' took %s damage from '%s'." % [get_owner().name, amount, source_str])
 	damaged.emit(amount, source)
 	self.current_health -= amount

@@ -1,4 +1,4 @@
-[gd_scene load_steps=65 format=3 uid="uid://bdtdpx0d05sy3"]
+[gd_scene load_steps=68 format=3 uid="uid://bdtdpx0d05sy3"]
 
 [ext_resource type="Script" uid="uid://yibpus3whwuj" path="res://scripts/Player/multiplayer_controller_v2.gd" id="1_an8q1"]
 [ext_resource type="Script" uid="uid://cy1j38lpy671e" path="res://scripts/Player/multiplayer_input.gd" id="2_hxkm2"]
@@ -18,7 +18,9 @@
 [ext_resource type="Script" uid="uid://cim4ffnwf0bi8" path="res://scripts/UI/stats_window.gd" id="14_hxkm2"]
 [ext_resource type="SpriteFrames" uid="uid://c05dyrlp5i5bj" path="res://resources/Player/SpriteFrames/Swordsman.tres" id="15_7iww4"]
 [ext_resource type="PackedScene" uid="uid://brcg2yc1x5qen" path="res://scenes/UI/slot.tscn" id="15_18ciy"]
+[ext_resource type="Texture2D" uid="uid://b41h3nwnk7ghm" path="res://assets/UI/Left_button.png" id="15_32uah"]
 [ext_resource type="Script" uid="uid://c8fllkah6qfdg" path="res://scripts/Components/inventory.gd" id="15_cg2hl"]
+[ext_resource type="Texture2D" uid="uid://7wc85wst4rwd" path="res://assets/UI/Right_button.png" id="16_ihqbe"]
 [ext_resource type="Script" uid="uid://cfkiv5444dl3p" path="res://scripts/UI/inventory_window.gd" id="16_o05ft"]
 [ext_resource type="Script" uid="uid://dwv2k28spwfby" path="res://scripts/StateMachine/state_machine.gd" id="16_ploos"]
 [ext_resource type="Script" uid="uid://d162wvxl3tos0" path="res://scripts/Player/StateMachine/attack.gd" id="17_e6s7e"]
@@ -72,51 +74,15 @@ properties/0/replication_mode = 2
 properties/1/path = NodePath("Health:current_health")
 properties/1/spawn = true
 properties/1/replication_mode = 2
-properties/2/path = NodePath("Leveling:level")
+properties/2/path = NodePath("Class:current_class")
 properties/2/spawn = true
 properties/2/replication_mode = 2
-properties/3/path = NodePath("Stats:current_strength")
+properties/3/path = NodePath("Leveling:level")
 properties/3/spawn = true
 properties/3/replication_mode = 2
-properties/4/path = NodePath("Stats:current_dexterity")
+properties/4/path = NodePath("Leveling:experience")
 properties/4/spawn = true
 properties/4/replication_mode = 2
-properties/5/path = NodePath("Stats:current_intelligence")
-properties/5/spawn = true
-properties/5/replication_mode = 2
-properties/6/path = NodePath("Stats:current_vitality")
-properties/6/spawn = true
-properties/6/replication_mode = 2
-properties/7/path = NodePath("Class:current_class")
-properties/7/spawn = true
-properties/7/replication_mode = 2
-properties/8/path = NodePath("Stats:base_strength")
-properties/8/spawn = true
-properties/8/replication_mode = 2
-properties/9/path = NodePath("Stats:base_dexterity")
-properties/9/spawn = true
-properties/9/replication_mode = 2
-properties/10/path = NodePath("Stats:base_intelligence")
-properties/10/spawn = true
-properties/10/replication_mode = 2
-properties/11/path = NodePath("Stats:base_vitality")
-properties/11/spawn = true
-properties/11/replication_mode = 2
-properties/12/path = NodePath("Stats:strength_growth")
-properties/12/spawn = true
-properties/12/replication_mode = 2
-properties/13/path = NodePath("Stats:dexterity_growth")
-properties/13/spawn = true
-properties/13/replication_mode = 2
-properties/14/path = NodePath("Stats:intelligence_growth")
-properties/14/spawn = true
-properties/14/replication_mode = 2
-properties/15/path = NodePath("Stats:vitality_growth")
-properties/15/spawn = true
-properties/15/replication_mode = 2
-properties/16/path = NodePath("Leveling:experience")
-properties/16/spawn = true
-properties/16/replication_mode = 2
 
 [sub_resource type="Gradient" id="Gradient_2qjlr"]
 colors = PackedColorArray(0.15, 0.15, 0.15, 1, 0.14902, 0.14902, 0.14902, 1)
@@ -169,6 +135,9 @@ corner_radius_top_left = 15
 corner_radius_top_right = 15
 corner_radius_bottom_right = 15
 corner_radius_bottom_left = 15
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_cgmen"]
+size = Vector2(275, 275)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v00ed"]
 bg_color = Color(0.168627, 0.168627, 0.168627, 0.882353)
@@ -354,6 +323,9 @@ delta_interval = 0.05
 replication_config = SubResource("SceneReplicationConfig_80evv")
 script = ExtResource("2_hxkm2")
 
+[node name="DmgNumOrigin" type="Node2D" parent="."]
+position = Vector2(0, -30)
+
 [node name="Components" type="Node" parent="."]
 
 [node name="ComponentSynchronizer" type="MultiplayerSynchronizer" parent="Components"]
@@ -370,8 +342,9 @@ script = ExtResource("6_nbg44")
 [node name="Stats" type="Node" parent="Components"]
 script = ExtResource("4_cg2hl")
 
-[node name="Health" type="Node" parent="Components"]
+[node name="Health" type="Node" parent="Components" node_paths=PackedStringArray("damage_number_origin")]
 script = ExtResource("5_o05ft")
+damage_number_origin = NodePath("../../DmgNumOrigin")
 health_bar_path = NodePath("../../PlayerWorldHUD/HealthBar")
 
 [node name="Combat" type="Node" parent="Components" node_paths=PackedStringArray("attack_hitbox")]
@@ -594,6 +567,14 @@ text = "<"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="LeftTouchButton" type="TouchScreenButton" parent="CanvasLayer/PlayerHUD/MobileButtons/LeftButton"]
+position = Vector2(-1, -4)
+scale = Vector2(0.5154639, 0.51546395)
+texture_normal = ExtResource("15_32uah")
+texture_pressed = ExtResource("15_32uah")
+passby_press = true
+action = "Move Left"
+
 [node name="RightButton" type="Button" parent="CanvasLayer/PlayerHUD/MobileButtons"]
 layout_mode = 0
 offset_left = 324.0
@@ -618,6 +599,14 @@ text = ">"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="RightTouchButton" type="TouchScreenButton" parent="CanvasLayer/PlayerHUD/MobileButtons/RightButton"]
+position = Vector2(-4, -4)
+scale = Vector2(0.5154639, 0.51546395)
+texture_normal = ExtResource("16_ihqbe")
+texture_pressed = ExtResource("16_ihqbe")
+passby_press = true
+action = "Move Right"
+
 [node name="AttackButton" type="Button" parent="CanvasLayer/PlayerHUD/MobileButtons"]
 layout_mode = 1
 anchors_preset = 3
@@ -635,6 +624,7 @@ focus_mode = 0
 theme_override_styles/normal = SubResource("StyleBoxFlat_7vu7v")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_0r45a")
 theme_override_styles/hover = SubResource("StyleBoxFlat_7vu7v")
+disabled = true
 
 [node name="Label" type="Label" parent="CanvasLayer/PlayerHUD/MobileButtons/AttackButton"]
 layout_mode = 1
@@ -648,6 +638,12 @@ theme_override_font_sizes/font_size = 40
 text = "Attack"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="AttackTouchButton" type="TouchScreenButton" parent="CanvasLayer/PlayerHUD/MobileButtons/AttackButton"]
+position = Vector2(72, 72)
+scale = Vector2(0.5154639, 0.51546395)
+shape = SubResource("RectangleShape2D_cgmen")
+action = "Attack"
 
 [node name="JumpButton" type="Button" parent="CanvasLayer/PlayerHUD/MobileButtons"]
 layout_mode = 1
@@ -666,6 +662,7 @@ focus_mode = 0
 theme_override_styles/normal = SubResource("StyleBoxFlat_7vu7v")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_0r45a")
 theme_override_styles/hover = SubResource("StyleBoxFlat_7vu7v")
+disabled = true
 
 [node name="Label" type="Label" parent="CanvasLayer/PlayerHUD/MobileButtons/JumpButton"]
 layout_mode = 1
@@ -679,6 +676,12 @@ theme_override_font_sizes/font_size = 40
 text = "Jump"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="JumpTouchButton" type="TouchScreenButton" parent="CanvasLayer/PlayerHUD/MobileButtons/JumpButton"]
+position = Vector2(72, 72)
+scale = Vector2(0.5154639, 0.51546395)
+shape = SubResource("RectangleShape2D_cgmen")
+action = "Jump"
 
 [node name="Debug" type="Panel" parent="CanvasLayer"]
 visible = false
@@ -759,6 +762,7 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="StatsWindow" type="Panel" parent="CanvasLayer/MoveableWindows"]
+visible = false
 layout_mode = 0
 offset_left = 314.0
 offset_top = 291.0
@@ -2098,6 +2102,7 @@ text = "State"
 horizontal_alignment = 1
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+z_index = 1
 position = Vector2(0, -20)
 scale = Vector2(1.3, 1.3)
 sprite_frames = ExtResource("15_7iww4")
@@ -2105,6 +2110,7 @@ animation = &"idle"
 autoplay = "idle"
 
 [node name="Hitbox" type="Area2D" parent="."]
+visible = false
 collision_layer = 2
 collision_mask = 8
 monitoring = false
@@ -2114,6 +2120,7 @@ position = Vector2(46, -8)
 shape = SubResource("RectangleShape2D_sps0x")
 
 [node name="StandingCollisionShape" type="CollisionShape2D" parent="."]
+visible = false
 position = Vector2(0, -5)
 shape = SubResource("CircleShape2D_h0wtf")
 
@@ -2201,6 +2208,6 @@ animation_name = "hit"
 [connection signal="button_up" from="CanvasLayer/PlayerHUD/MobileButtons/RightButton" to="InputSynchronizer" method="_on_right_button_button_up"]
 [connection signal="pressed" from="CanvasLayer/PlayerHUD/MobileButtons/AttackButton" to="InputSynchronizer" method="_on_attack_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/PlayerHUD/MobileButtons/JumpButton" to="InputSynchronizer" method="_on_jump_button_pressed"]
-[connection signal="pressed" from="CanvasLayer/MoveableWindows/StatsWindow/CloseButton" to="CanvasLayer/MoveableWindows/InventoryWindow" method="hide"]
+[connection signal="pressed" from="CanvasLayer/MoveableWindows/StatsWindow/CloseButton" to="CanvasLayer/MoveableWindows/StatsWindow" method="hide"]
 [connection signal="pressed" from="CanvasLayer/MoveableWindows/InventoryWindow/CloseButton" to="CanvasLayer/MoveableWindows/InventoryWindow" method="hide"]
 [connection signal="body_entered" from="Hitbox" to="Components/Combat" method="_on_hitbox_body_entered"]

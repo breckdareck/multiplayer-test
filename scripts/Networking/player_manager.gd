@@ -60,37 +60,55 @@ func get_player_info(id: int) -> Dictionary:
 func _request_character_selection(id: int):
 	"""Called on client to request their character selection"""
 	var menu_container = get_tree().get_current_scene().get_node_or_null("%MenuContainer")
-	var selected_char = 0
+	var selected_char: int = 0
+	var username: String = "Player"
 	
 	if menu_container and "selected_character" in menu_container:
 		selected_char = menu_container.selected_character
+		username = menu_container.get_username()
 	
-	print("Client sending character selection: %s" % Constants.ClassType.find_key(selected_char))
-	rpc_id(1, "_receive_character_selection", id, selected_char)
-
+	print("PlayerManager: Client sending character: %s & username: %s from PID: %d" % [Constants.ClassType.find_key(selected_char), username, id])
+	rpc_id(1, "_receive_initial_info", id, selected_char, username)
+	
+	
 @rpc("call_local", "any_peer")
-func _receive_character_selection(id: int, character_type: int):
-	"""Called on server when client sends their character selection"""
+func _receive_initial_info(id: int, character_type: int, username: String):
+	"""Called on server with all info needed to spawn a player."""
 	if not multiplayer.is_server():
 		return
 	
-	print("Server received character selection %s from player %d" % [Constants.ClassType.find_key(character_type), id])
-	
-	# Update player info
+	print("PlayerManager: Server received character: %s & username: %s from PID: %d" % [Constants.ClassType.find_key(character_type), username, id])
 	if id in active_players:
 		active_players[id]["character_type"] = character_type
-	
-	# Spawn the character
-	_spawn_character_for_player(id, character_type)
+		active_players[id]["username"] = username
 
-func _spawn_character_for_player(id: int, character_type: int):
+	var player_data: Dictionary = _load_player_data_from_file(username)
+	
+	_spawn_character_for_player(id, character_type, username, player_data)
+	
+	
+func _load_player_data_from_file(username: String) -> Dictionary:
+	var file_path = "player_%s.json" % username
+	if FileAccess.file_exists(file_path):
+		var file = FileAccess.open(file_path, FileAccess.READ)
+		var data = JSON.parse_string(file.get_as_text())
+		file.close()
+		return data
+	return {} # Return empty dictionary if no save file exists
+	
+
+func _spawn_character_for_player(id: int, character_type: int, username: String, player_data: Dictionary):
 	"""Spawn a character instance for the given player"""
 	var player_instance = character_scene.instantiate()
 
 	player_instance.player_id = id
 	player_instance.name = str(id)
+	
+	if not player_data.is_empty():
+		player_instance._load_data(player_data)
+	
 	if player_instance.class_component:
-		player_instance.class_component.current_class = character_type
+		player_instance.class_component.change_class(character_type)
 	
 	# Add to networked entities group for proper cleanup
 	player_instance.add_to_group("networked_entities")
@@ -101,7 +119,12 @@ func _spawn_character_for_player(id: int, character_type: int):
 		spawn_node.add_child(player_instance, true)
 		print("Added player %d to scene. Node path: %s" % [id, player_instance.get_path()])
 		print("Successfully spawned character %s for PID: %d" % [Constants.ClassType.find_key(character_type), id])
-	
+		
+		player_instance.set_username.rpc(username)
+		player_instance.class_component.change_class_rpc(character_type)
+		player_instance.stats_component._recalculate_stats()
+
+		
 		# Update player tracking
 		if id in active_players:
 			active_players[id]["synced"] = true

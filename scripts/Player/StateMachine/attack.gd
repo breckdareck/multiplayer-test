@@ -5,6 +5,13 @@ var player
 @export var idle_state: State
 @export var fall_state: State
 
+@export_category("Debug - Attack Speed")
+@export var debug_attack_speed: int = 4
+var debug_attack_speed_percent: float:
+	get():
+		return float(100.0 / ((20.0 - debug_attack_speed) / 16.0)) / 100
+		
+
 var _was_on_floor: bool = false
 
 # --- Combo System ---
@@ -39,7 +46,7 @@ func _play_animation(anim_name: String) -> void:
 		if animation_player:
 			animation_player.play(anim_name)
 		else:
-			animations.play(anim_name)
+			animations.play(anim_name, debug_attack_speed_percent) # TODO: Set the Custom Speed to the Players Attack Speed
 
 @rpc("authority", "call_local", "reliable")
 func _execute_combo_step_rpc(step: int):
@@ -53,12 +60,12 @@ func _start_attack_for_step(step: int):
 	var anim_name: String = "attack_" + str(step)
 	_play_animation(anim_name)
 	var duration: float = _get_animation_duration(anim_name)
-	#print("Attack anim: ", anim_name, " duration: ", duration)
+	print("Attack anim: ", anim_name, " duration: ", duration)
 	var buffer: float = 0.02
 	attack_state_timer.start(max(duration - buffer, 0.01))
 	if multiplayer.is_server():
 		if player.combat_component:
-			player.combat_component.perform_attack(anim_name)
+			player.combat_component.perform_attack(anim_name, duration)
 
 func _get_animation_duration(anim_name: String) -> float:
 	var sprite_frames: SpriteFrames = player.animated_sprite.sprite_frames
@@ -66,7 +73,8 @@ func _get_animation_duration(anim_name: String) -> float:
 		return 0.0
 
 	var frame_count: int = sprite_frames.get_frame_count(anim_name)
-	var anim_fps: float = sprite_frames.get_animation_speed(anim_name)
+	var anim_fps: float = sprite_frames.get_animation_speed(anim_name) * debug_attack_speed_percent # TODO: Set the Custom Speed to the Players Attack Speed
+	# print("Anim: %s - FC: %d - FPS: %d" % [anim_name, frame_count, anim_fps])
 	if frame_count == 0 or anim_fps <= 0.0:
 		return 0.0
 

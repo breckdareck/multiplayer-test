@@ -16,8 +16,8 @@ func _ready() -> void:
 	# Test code for adding items
 	for x in range(10):
 		# Get items by name from ResourceManager
-		var potion = ResourceManager.get_item_by_name("Potion")
-		var sword = ResourceManager.get_item_by_name("Sword")
+		var potion = ResourceManager.get_item_by_name("Grape Potion")
+		var sword = ResourceManager.get_item_by_name("Iron Sword")
 		var coin = ResourceManager.get_item_by_name("Coin")
 		
 		# Make sure to duplicate before adding
@@ -302,8 +302,8 @@ func load_inventory(inventory_data: Dictionary) -> void:
 	# Rebuild tracking
 	_rebuild_item_tracking()
 
-	while slots.size() == 0:
-		await get_tree().process_frame
+	#while slots.size() == 0:
+		#await get_tree().process_frame
 	
 	# Load saved items
 	var slot_data = inventory_data.get("slots", [])
@@ -332,7 +332,7 @@ func load_inventory(inventory_data: Dictionary) -> void:
 	var player = owner as MultiplayerPlayerV2
 	var client_id = player.player_id
 	print(client_id)
-	if client_id != 1 and multiplayer.is_server(): # Don't send to server
+	if client_id != 1: # Don't send to server
 		load_inventory_rpc.rpc_id(client_id, inventory_data)
 
 

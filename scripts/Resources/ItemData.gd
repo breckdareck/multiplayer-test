@@ -11,12 +11,46 @@ class_name ItemData
 @export var name: String
 @export var icon: Texture2D
 @export var description: String
-@export var item_type: Constants.ItemType
-@export var can_stack: bool
-@export var max_stack_amount: int
-@export var current_stack_amount: int = 1
+@export var item_type: Constants.ItemType:
+	set(it):
+		item_type = it
+		if it == Constants.ItemType.EQUIPMENT:
+			can_stack = false
+			max_stack_amount = 0
+		else:
+			can_stack = true
+			max_stack_amount = 99
+		notify_property_list_changed()
+			
+			
+var can_stack: bool
+var max_stack_amount: int
+var current_stack_amount: int = 1
 
 var original_resource_path: String
+
+
+func _get_property_list():
+	if OS.has_feature("editor"):
+		var ret =[]
+		if item_type != Constants.ItemType.EQUIPMENT:
+			ret.append({
+				"name": &"can_stack",
+				"type": TYPE_BOOL,
+				"usage": PROPERTY_USAGE_DEFAULT,
+				})
+			ret.append({
+				"name": &"max_stack_amount",
+				"type": TYPE_INT,
+				"usage": PROPERTY_USAGE_DEFAULT,
+				})
+			ret.append({
+				"name": &"current_stack_amount",
+				"type": TYPE_INT,
+				"usage": PROPERTY_USAGE_DEFAULT,
+				})
+		return ret
+	return []
 
 
 func generate_uuid() -> String:
