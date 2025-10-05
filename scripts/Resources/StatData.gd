@@ -1,4 +1,5 @@
 class_name StatData
+extends Resource
 
 @export var stat_type:Constants.StatType
 @export var base_value: int = 4

@@ -41,7 +41,7 @@ func _ready() -> void:
 	# Test code for adding items
 	# Get items by name from ResourceManager
 	# var potion = ResourceManager.get_item_by_name("Grape Potion")
-	# var sword = ResourceManager.get_item_by_name("Iron Sword")
+	var sword = ResourceManager.get_item_by_name("Iron Sword")
 	# var coin = ResourceManager.get_item_by_name("Coin")
 
 	# for x in range(10):
@@ -50,9 +50,9 @@ func _ready() -> void:
 	# 		var potion_copy = potion.duplicate_with_path()
 	# 		add_item(potion_copy)
 
-	# 	if sword:
-	# 		var sword_copy = sword.duplicate_with_path()
-	# 		add_item(sword_copy)
+	if sword:
+		var sword_copy = sword.duplicate_with_path()
+		add_item(sword_copy)
 
 	# 	if coin:
 	# 		var coin_copy = coin.duplicate_with_path()

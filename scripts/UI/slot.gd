@@ -273,6 +273,18 @@ func _on_mouse_entered():
 			tooltip_text += "\nStack: " + str(item.current_stack_amount) + "/" + str(item.max_stack_amount)
 		if item.description != "":
 			tooltip_text += "\n" + item.description
+		if item.item_type == Constants.ItemType.EQUIPMENT:
+			if item.equipment_type == Constants.EquipmentType.WEAPON:
+				tooltip_text += "\n" + "Type: " + str(Constants.WeaponType.keys()[item.weapon_type]).capitalize()
+				tooltip_text += "\n" + "Attack Speed: " + str(item.attack_speed).to_upper()
+				if item.bonus_stats:
+					for stat_type in item.bonus_stats:
+						if item.bonus_stats[stat_type].flat_bonus_value > 0:
+							tooltip_text += "\n" + str(Constants.StatType.keys()[stat_type]).to_upper() + " : +" + str(item.bonus_stats[stat_type].flat_bonus_value)
+				if item.weapon_attack > 0:
+					tooltip_text += "\n" + "Weapon Attack: +" + str(item.weapon_attack)
+				if item.magic_attack > 0:
+					tooltip_text += "\n" + "Magic Attack: +" + str(item.magic_attack)
 	else:
 		tooltip_text = ""
 

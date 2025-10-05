@@ -1,4 +1,4 @@
-[gd_scene load_steps=75 format=3 uid="uid://bdtdpx0d05sy3"]
+[gd_scene load_steps=76 format=3 uid="uid://bdtdpx0d05sy3"]
 
 [ext_resource type="Script" uid="uid://yibpus3whwuj" path="res://scripts/Player/multiplayer_controller_v2.gd" id="1_an8q1"]
 [ext_resource type="Script" uid="uid://cy1j38lpy671e" path="res://scripts/Player/multiplayer_input.gd" id="2_hxkm2"]
@@ -34,6 +34,7 @@
 [ext_resource type="Script" uid="uid://bfh8yeyv2wu0g" path="res://scripts/Player/StateMachine/death.gd" id="22_eiysd"]
 [ext_resource type="Script" uid="uid://bvunkdne8wduc" path="res://scripts/Player/StateMachine/hit.gd" id="23_03slv"]
 [ext_resource type="Script" uid="uid://djwyi64hs6ufi" path="res://scripts/UI/equipment_slot.gd" id="25_cgmen"]
+[ext_resource type="Script" uid="uid://d0ixu8eft25uo" path="res://scripts/UI/equipment_window.gd" id="25_fqhit"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_2d20i"]
 properties/0/path = NodePath(".:player_id")
@@ -2088,12 +2089,14 @@ layout_mode = 2
 allowed_item_type = 3
 
 [node name="EquipmentWindow" type="Panel" parent="CanvasLayer/MoveableWindows"]
+visible = false
 layout_mode = 0
 offset_left = 794.0
 offset_top = 290.0
 offset_right = 1209.0
 offset_bottom = 825.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_nbg44")
+script = ExtResource("25_fqhit")
 
 [node name="Label" type="Label" parent="CanvasLayer/MoveableWindows/EquipmentWindow"]
 layout_mode = 1
@@ -2138,7 +2141,6 @@ offset_right = 199.5
 offset_bottom = -9.0
 grow_horizontal = 2
 grow_vertical = 0
-theme = SubResource("Theme_nbg44")
 theme_override_styles/panel = SubResource("StyleBoxFlat_ihqbe")
 
 [node name="GridContainer" type="GridContainer" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel"]

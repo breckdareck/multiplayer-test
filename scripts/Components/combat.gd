@@ -6,24 +6,22 @@ extends Node
 @export_category("Debug - Weapon Stats")
 ## Weapon Multipliers = 1.2 ~ 1.75
 @export var weapon_multiplier: float = 1.2
-## Level 1 Weapon 15ATK - Level 100 ~95ATK
-@export var weapon_attack: int = 15
-
 
 var hit_list: Array = []
 var current_attack_data: AttackData
 var attack_damage: int:
-	get():
+	get:
 		return calculate_attack_damage()
 var min_damage: int:
-	get():
+	get:
 		return roundi(attack_damage * 0.8)
 var max_damage: int:
-	get():
+	get:
 		return roundi(attack_damage * 1.2)
 		
 var _stats_component: StatsComponent
 var _class_component: ClassComponent
+var _equipment_component: EquipmentComponent
 
 @onready var owner_node: CharacterBody2D = get_owner()
 @onready var attack_hitbox_timer: Timer = $"../../AttackHitboxTimer" # Adjust path if needed.
@@ -36,6 +34,7 @@ func _ready() -> void:
 		
 	_stats_component = get_parent().get_node_or_null("Stats")
 	_class_component = get_parent().get_node_or_null("Class")
+	_equipment_component = get_parent().get_node_or_null("Equipment")
 
 	hitbox_area.monitoring = false
 	if not hitbox_area.body_entered.is_connected(_on_hitbox_body_entered):
@@ -89,6 +88,12 @@ func _on_hitbox_body_entered(body: Node2D) -> void:
 
 
 func calculate_attack_damage() -> int:
+	var weapon_attack = 0 # Default attack if no weapon
+	if _equipment_component and _equipment_component.weapon_slot and _equipment_component.weapon_slot.item:
+		var weapon_data = _equipment_component.weapon_slot.item as WeaponData
+		if weapon_data:
+			weapon_attack = weapon_data.weapon_attack
+
 	if _stats_component and _class_component:
 		var primary_stat = ResourceManager.get_primary_stat(_class_component.current_class)
 		var secondary_stat = ResourceManager.get_secondary_stat(_class_component.current_class)

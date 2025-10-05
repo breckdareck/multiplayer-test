@@ -12,3 +12,27 @@ extends EquipmentData
 @export var weapon_attack: int = 15
 ## Base Attack Level 1 Starts at 15
 @export var magic_attack: int = 15
+
+@export var bonus_stats: Dictionary = {
+	Constants.StatType.STRENGTH: StatData.new(Constants.StatType.STRENGTH, 0),
+	Constants.StatType.DEXTERITY: StatData.new(Constants.StatType.DEXTERITY, 0),
+	Constants.StatType.INTELLIGENCE: StatData.new(Constants.StatType.INTELLIGENCE, 0),
+	Constants.StatType.LUCK: StatData.new(Constants.StatType.LUCK, 0)
+}
+
+
+var attack_speed: String:
+	get:
+		match weapon_attack_speed:
+			1:
+				return "Slower"
+			2, 3:
+				return "Slow"
+			4:
+				return "Normal"
+			5, 6:
+				return "Fast"
+			7, 8, 9, 10:
+				return "Faster"
+			_: # Fallback for any unexpected value outside the range
+				return "Error: Unknown Speed"

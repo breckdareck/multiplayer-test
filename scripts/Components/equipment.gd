@@ -10,6 +10,7 @@ signal on_equipment_changed
 @export var weapon_slot: EquipmentSlot
 
 var equipment: Dictionary = {}
+var _changed_in_frame: bool = false
 
 func _ready():
 	# Configure the slots with their specific types and set their container to this component.
@@ -58,10 +59,14 @@ func _ready():
 
 # This function is called by the Slot's item setter whenever an item is changed.
 func _update_item_tracking(_slot: Slot, _old_item: ItemData, _new_item: ItemData):
-	# When equipment changes, we just emit a signal.
-	# Other systems (like a character stats manager) can connect to this signal.
-	#print("Equipment changed: %s" % _new_item.name)
+	if _changed_in_frame:
+		return
+	_changed_in_frame = true
+	call_deferred("_emit_equipment_changed_deferred")
+
+func _emit_equipment_changed_deferred():
 	on_equipment_changed.emit()
+	_changed_in_frame = false
 
 
 func get_slots() -> Array[EquipmentSlot]:
@@ -72,33 +77,3 @@ func get_slots() -> Array[EquipmentSlot]:
 	if feet_slot: slots_array.append(feet_slot)
 	if weapon_slot: slots_array.append(weapon_slot)
 	return slots_array
-
-
-# These functions can still be useful for programmatic equipping (e.g., from a script).
-func equip_item(item: ItemData) -> bool:
-	if not item or item.item_type != Constants.ItemType.EQUIPMENT:
-		return false
-
-	var target_slot: EquipmentSlot = null
-	if item.equipment_type == Constants.EquipmentType.ARMOR:
-		if equipment.has(item.armor_type):
-			target_slot = equipment[item.armor_type]
-	elif item.equipment_type == Constants.EquipmentType.WEAPON:
-		target_slot = equipment.get("WEAPON")
-
-	if target_slot and not target_slot.item:
-		# The slot's item setter will trigger the _update_item_tracking function.
-		target_slot.item = item
-		return true
-	
-	return false
-
-
-func unequip_item(slot: EquipmentSlot) -> ItemData:
-	if not slot or not slot.item:
-		return null
-	
-	var item_to_return = slot.item
-	# The slot's item setter will trigger the _update_item_tracking function.
-	slot.item = null
-	return item_to_return
