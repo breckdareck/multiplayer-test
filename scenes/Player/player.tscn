@@ -1,4 +1,4 @@
-[gd_scene load_steps=68 format=3 uid="uid://bdtdpx0d05sy3"]
+[gd_scene load_steps=75 format=3 uid="uid://bdtdpx0d05sy3"]
 
 [ext_resource type="Script" uid="uid://yibpus3whwuj" path="res://scripts/Player/multiplayer_controller_v2.gd" id="1_an8q1"]
 [ext_resource type="Script" uid="uid://cy1j38lpy671e" path="res://scripts/Player/multiplayer_input.gd" id="2_hxkm2"]
@@ -14,6 +14,7 @@
 [ext_resource type="Script" uid="uid://boxv5npw3xeg3" path="res://scripts/Player/player_hud.gd" id="11_ihqbe"]
 [ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="12_cgmen"]
 [ext_resource type="Script" uid="uid://chuj37r7r0ydq" path="res://scripts/Components/debug.gd" id="13_fqhit"]
+[ext_resource type="Script" uid="uid://cix831bp8wxft" path="res://scripts/Components/equipment.gd" id="13_ihqbe"]
 [ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="14_e8txv"]
 [ext_resource type="Script" uid="uid://cim4ffnwf0bi8" path="res://scripts/UI/stats_window.gd" id="14_hxkm2"]
 [ext_resource type="SpriteFrames" uid="uid://c05dyrlp5i5bj" path="res://resources/Player/SpriteFrames/Swordsman.tres" id="15_7iww4"]
@@ -32,6 +33,7 @@
 [ext_resource type="Script" uid="uid://vfu8l4cq1qt1" path="res://scripts/Player/StateMachine/jump.gd" id="21_v6vns"]
 [ext_resource type="Script" uid="uid://bfh8yeyv2wu0g" path="res://scripts/Player/StateMachine/death.gd" id="22_eiysd"]
 [ext_resource type="Script" uid="uid://bvunkdne8wduc" path="res://scripts/Player/StateMachine/hit.gd" id="23_03slv"]
+[ext_resource type="Script" uid="uid://djwyi64hs6ufi" path="res://scripts/UI/equipment_slot.gd" id="25_cgmen"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_2d20i"]
 properties/0/path = NodePath(".:player_id")
@@ -263,6 +265,35 @@ corner_radius_top_left = 5
 corner_radius_top_right = 5
 expand_margin_top = 3.0
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tuhj4"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.374139, 0.374139, 0.374139, 1)
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
+
+[sub_resource type="Gradient" id="Gradient_tuhj4"]
+colors = PackedColorArray(0.798366, 0.798366, 0.798366, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_tuhj4"]
+gradient = SubResource("Gradient_tuhj4")
+fill_from = Vector2(0.5, 0)
+fill_to = Vector2(0.5, 1)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_3xeyi"]
+texture = SubResource("GradientTexture2D_tuhj4")
+
+[sub_resource type="LabelSettings" id="LabelSettings_tuhj4"]
+font = ExtResource("14_e8txv")
+font_size = 18
+outline_size = 8
+outline_color = Color(0, 0, 0, 1)
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wikug"]
 bg_color = Color(0, 0, 0, 0.74902)
 border_width_left = 2
@@ -355,9 +386,18 @@ attack_map = Dictionary[String, ExtResource("8_4ni0x")]({
 })
 attack_hitbox = NodePath("../../Hitbox/BasicAttackHitbox")
 
-[node name="Inventory" type="Node" parent="Components" node_paths=PackedStringArray("inventory_grids")]
+[node name="Inventory" type="Node" parent="Components" node_paths=PackedStringArray("inventory_grids", "equipment_component")]
 script = ExtResource("15_cg2hl")
 inventory_grids = [NodePath("../../CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/EQUIP/ScrollContainer/EquipmentGrid"), NodePath("../../CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/USE/ScrollContainer/ConsumableGrid"), NodePath("../../CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid")]
+equipment_component = NodePath("../Equipment")
+
+[node name="Equipment" type="Node" parent="Components" node_paths=PackedStringArray("head_slot", "chest_slot", "legs_slot", "feet_slot", "weapon_slot")]
+script = ExtResource("13_ihqbe")
+head_slot = NodePath("../../CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer/HeadSlot")
+chest_slot = NodePath("../../CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer/ChestSlot")
+legs_slot = NodePath("../../CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer/LegsSlot")
+feet_slot = NodePath("../../CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer/FeetSlot")
+weapon_slot = NodePath("../../CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer/WeaponSlot")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
@@ -2047,6 +2087,294 @@ allowed_item_type = 3
 layout_mode = 2
 allowed_item_type = 3
 
+[node name="EquipmentWindow" type="Panel" parent="CanvasLayer/MoveableWindows"]
+layout_mode = 0
+offset_left = 794.0
+offset_top = 290.0
+offset_right = 1209.0
+offset_bottom = 825.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_nbg44")
+
+[node name="Label" type="Label" parent="CanvasLayer/MoveableWindows/EquipmentWindow"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 5.0
+offset_right = -4.0
+offset_bottom = 38.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.905882, 0.890196, 0.34902, 1)
+theme_override_fonts/font = ExtResource("14_e8txv")
+theme_override_font_sizes/font_size = 16
+text = "Equipment"
+horizontal_alignment = 1
+vertical_alignment = 1
+uppercase = true
+
+[node name="CloseButton" type="Button" parent="CanvasLayer/MoveableWindows/EquipmentWindow"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -35.0
+offset_top = 3.0
+offset_right = -4.0
+offset_bottom = 34.0
+grow_horizontal = 0
+focus_mode = 0
+text = "X"
+flat = true
+
+[node name="EquipmentPanel" type="Panel" parent="CanvasLayer/MoveableWindows/EquipmentWindow"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -199.5
+offset_top = -500.0
+offset_right = 199.5
+offset_bottom = -9.0
+grow_horizontal = 2
+grow_vertical = 0
+theme = SubResource("Theme_nbg44")
+theme_override_styles/panel = SubResource("StyleBoxFlat_ihqbe")
+
+[node name="GridContainer" type="GridContainer" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -27.5
+offset_top = -205.5
+offset_right = 27.5
+offset_bottom = 205.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/v_separation = 34
+
+[node name="HeadSlot" type="PanelContainer" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer"]
+custom_minimum_size = Vector2(55, 55)
+layout_mode = 2
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxFlat_tuhj4")
+script = ExtResource("25_cgmen")
+allowed_equipment_type = 0
+allowed_armor_type = 0
+allowed_item_type = 1
+
+[node name="Panel" type="Panel" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer/HeadSlot"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_3xeyi")
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer/HeadSlot"]
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer/HeadSlot"]
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_constants/outline_size = 8
+theme_override_fonts/font = ExtResource("14_e8txv")
+theme_override_font_sizes/font_size = 24
+label_settings = SubResource("LabelSettings_tuhj4")
+vertical_alignment = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer/HeadSlot"]
+layout_mode = 2
+theme_override_constants/margin_left = 2
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 2
+theme_override_constants/margin_bottom = 2
+
+[node name="SlotTextLabel" type="RichTextLabel" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer/HeadSlot/MarginContainer"]
+layout_mode = 2
+mouse_filter = 1
+theme_override_colors/default_color = Color(0.97227865, 0.9722778, 0.97227794, 1)
+theme_override_font_sizes/normal_font_size = 10
+text = "HEAD"
+scroll_active = false
+autowrap_mode = 2
+
+[node name="ChestSlot" type="PanelContainer" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer"]
+custom_minimum_size = Vector2(55, 55)
+layout_mode = 2
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxFlat_tuhj4")
+script = ExtResource("25_cgmen")
+allowed_equipment_type = 0
+allowed_armor_type = 1
+allowed_item_type = 1
+
+[node name="Panel" type="Panel" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer/ChestSlot"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_3xeyi")
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer/ChestSlot"]
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer/ChestSlot"]
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_constants/outline_size = 8
+theme_override_fonts/font = ExtResource("14_e8txv")
+theme_override_font_sizes/font_size = 24
+label_settings = SubResource("LabelSettings_tuhj4")
+vertical_alignment = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer/ChestSlot"]
+layout_mode = 2
+theme_override_constants/margin_left = 2
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 2
+theme_override_constants/margin_bottom = 2
+
+[node name="SlotTextLabel" type="RichTextLabel" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer/ChestSlot/MarginContainer"]
+layout_mode = 2
+mouse_filter = 1
+theme_override_colors/default_color = Color(0.97227865, 0.9722778, 0.97227794, 1)
+theme_override_font_sizes/normal_font_size = 10
+text = "CHEST"
+scroll_active = false
+autowrap_mode = 2
+
+[node name="LegsSlot" type="PanelContainer" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer"]
+custom_minimum_size = Vector2(55, 55)
+layout_mode = 2
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxFlat_tuhj4")
+script = ExtResource("25_cgmen")
+allowed_equipment_type = 0
+allowed_armor_type = 2
+allowed_item_type = 1
+
+[node name="Panel" type="Panel" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer/LegsSlot"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_3xeyi")
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer/LegsSlot"]
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer/LegsSlot"]
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_constants/outline_size = 8
+theme_override_fonts/font = ExtResource("14_e8txv")
+theme_override_font_sizes/font_size = 24
+label_settings = SubResource("LabelSettings_tuhj4")
+vertical_alignment = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer/LegsSlot"]
+layout_mode = 2
+theme_override_constants/margin_left = 2
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 2
+theme_override_constants/margin_bottom = 2
+
+[node name="SlotTextLabel" type="RichTextLabel" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer/LegsSlot/MarginContainer"]
+layout_mode = 2
+mouse_filter = 1
+theme_override_colors/default_color = Color(0.97227865, 0.9722778, 0.97227794, 1)
+theme_override_font_sizes/normal_font_size = 10
+text = "LEGS"
+scroll_active = false
+autowrap_mode = 2
+
+[node name="FeetSlot" type="PanelContainer" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer"]
+custom_minimum_size = Vector2(55, 55)
+layout_mode = 2
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxFlat_tuhj4")
+script = ExtResource("25_cgmen")
+allowed_equipment_type = 0
+allowed_armor_type = 3
+allowed_item_type = 1
+
+[node name="Panel" type="Panel" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer/FeetSlot"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_3xeyi")
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer/FeetSlot"]
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer/FeetSlot"]
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_constants/outline_size = 8
+theme_override_fonts/font = ExtResource("14_e8txv")
+theme_override_font_sizes/font_size = 24
+label_settings = SubResource("LabelSettings_tuhj4")
+vertical_alignment = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer/FeetSlot"]
+layout_mode = 2
+theme_override_constants/margin_left = 2
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 2
+theme_override_constants/margin_bottom = 2
+
+[node name="SlotTextLabel" type="RichTextLabel" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer/FeetSlot/MarginContainer"]
+layout_mode = 2
+mouse_filter = 1
+theme_override_colors/default_color = Color(0.97227865, 0.9722778, 0.97227794, 1)
+theme_override_font_sizes/normal_font_size = 10
+text = "FEET"
+scroll_active = false
+autowrap_mode = 2
+
+[node name="WeaponSlot" type="PanelContainer" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer"]
+custom_minimum_size = Vector2(55, 55)
+layout_mode = 2
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxFlat_tuhj4")
+script = ExtResource("25_cgmen")
+allowed_equipment_type = 1
+allowed_item_type = 1
+
+[node name="Panel" type="Panel" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer/WeaponSlot"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_3xeyi")
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer/WeaponSlot"]
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer/WeaponSlot"]
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_constants/outline_size = 8
+theme_override_fonts/font = ExtResource("14_e8txv")
+theme_override_font_sizes/font_size = 24
+label_settings = SubResource("LabelSettings_tuhj4")
+vertical_alignment = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer/WeaponSlot"]
+layout_mode = 2
+theme_override_constants/margin_left = 2
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 2
+theme_override_constants/margin_bottom = 2
+
+[node name="SlotTextLabel" type="RichTextLabel" parent="CanvasLayer/MoveableWindows/EquipmentWindow/EquipmentPanel/GridContainer/WeaponSlot/MarginContainer"]
+layout_mode = 2
+mouse_filter = 1
+theme_override_colors/default_color = Color(0.97227865, 0.9722778, 0.97227794, 1)
+theme_override_font_sizes/normal_font_size = 10
+text = "WEAPON"
+scroll_active = false
+autowrap_mode = 2
+
 [node name="PlayerWorldHUD" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 15
@@ -2210,4 +2538,5 @@ animation_name = "hit"
 [connection signal="pressed" from="CanvasLayer/PlayerHUD/MobileButtons/JumpButton" to="InputSynchronizer" method="_on_jump_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/MoveableWindows/StatsWindow/CloseButton" to="CanvasLayer/MoveableWindows/StatsWindow" method="hide"]
 [connection signal="pressed" from="CanvasLayer/MoveableWindows/InventoryWindow/CloseButton" to="CanvasLayer/MoveableWindows/InventoryWindow" method="hide"]
+[connection signal="pressed" from="CanvasLayer/MoveableWindows/EquipmentWindow/CloseButton" to="CanvasLayer/MoveableWindows/EquipmentWindow" method="hide"]
 [connection signal="body_entered" from="Hitbox" to="Components/Combat" method="_on_hitbox_body_entered"]

@@ -123,6 +123,10 @@ func _spawn_character_for_player(id: int, character_type: int, username: String,
 		player_instance.set_username.rpc(username)
 		player_instance.class_component.change_class_rpc(character_type)
 		player_instance.stats_component._recalculate_stats()
+		var inventory_data = player_data.get("inventory", {})
+		# Apply inventory on the server for authoritative validation and also send to the owning client
+		player_instance.inventory_component.load_inventory(inventory_data)
+		#player_instance.inventory_component.load_inventory_rpc.rpc_id(id, inventory_data)
 
 		
 		# Update player tracking
