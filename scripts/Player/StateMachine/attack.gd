@@ -5,11 +5,12 @@ var player
 @export var idle_state: State
 @export var fall_state: State
 
-@export_category("Debug - Attack Speed")
-@export var debug_attack_speed: int = 4
-var debug_attack_speed_percent: float:
+var attack_speed_percent: float:
 	get():
-		return float(100.0 / ((20.0 - debug_attack_speed) / 16.0)) / 100
+		if parent.equipment_component.weapon_slot.item != null:
+			return float(100.0 / ((20.0 - parent.equipment_component.weapon_slot.item.weapon_attack_speed) / 16.0)) / 100
+		else:
+			return 1
 		
 
 var _was_on_floor: bool = false
@@ -46,7 +47,7 @@ func _play_animation(anim_name: String) -> void:
 		if animation_player:
 			animation_player.play(anim_name)
 		else:
-			animations.play(anim_name, debug_attack_speed_percent) # TODO: Set the Custom Speed to the Players Attack Speed
+			animations.play(anim_name, attack_speed_percent) # TODO: Set the Custom Speed to the Players Attack Speed
 
 @rpc("authority", "call_local", "reliable")
 func _execute_combo_step_rpc(step: int):
@@ -73,7 +74,7 @@ func _get_animation_duration(anim_name: String) -> float:
 		return 0.0
 
 	var frame_count: int = sprite_frames.get_frame_count(anim_name)
-	var anim_fps: float = sprite_frames.get_animation_speed(anim_name) * debug_attack_speed_percent # TODO: Set the Custom Speed to the Players Attack Speed
+	var anim_fps: float = sprite_frames.get_animation_speed(anim_name) * attack_speed_percent # TODO: Set the Custom Speed to the Players Attack Speed
 	# print("Anim: %s - FC: %d - FPS: %d" % [anim_name, frame_count, anim_fps])
 	if frame_count == 0 or anim_fps <= 0.0:
 		return 0.0

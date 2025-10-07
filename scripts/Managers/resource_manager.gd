@@ -6,9 +6,13 @@ var class_data: Dictionary[Constants.ClassType, ClassData] = {}
 var item_data: Dictionary[String, ItemData] = {}
 var item_by_name: Dictionary[String, ItemData] = {} # New lookup dictionary
 
+var ability_data: Dictionary[String, AbilityData] = {}
+var ability_by_name: Dictionary[String, AbilityData] = {}
+
 func _ready() -> void:
 	_load_class_data()
 	_load_item_data()
+	_load_ability_data()
 	
 
 #region Item Data Functions
@@ -68,7 +72,7 @@ func get_class_bonuses(class_type: Constants.ClassType) -> Dictionary:
 	return data.stat_bonuses if data else {}
 
 
-func get_class_skills(class_type: Constants.ClassType) -> Array[String]:
+func get_class_skills(class_type: Constants.ClassType) -> Array[AbilityData]:
 	var data: ClassData = get_class_data(class_type)
 	return data.skills if data else []
 
@@ -108,4 +112,56 @@ func get_class_type_from_string(_class_name: String) -> Constants.ClassType:
 			return Constants.ClassType.MAGE
 		_:
 			return Constants.ClassType.SWORDSMAN  # Default fallback
+#endregion
+
+
+#region Ability Data Functions
+
+func _load_ability_data() -> void:
+	var ability_folder: String = "res://resources/Abilities/"
+	_load_abilities_recursive(ability_folder)
+	print("Loaded %d abilities in total" % ability_data.size())
+
+
+func _load_abilities_recursive(path: String) -> void:
+	var dir = DirAccess.open(path)
+	if dir:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		
+		while file_name != "":
+			var full_path = path + file_name
+			
+			if dir.current_is_dir() and file_name != "." and file_name != "..":
+				# It's a subdirectory, recursively load from it
+				_load_abilities_recursive(full_path + "/")
+			elif file_name.ends_with(".tres") or file_name.ends_with(".res"):
+				# It's a resource file, try to load it
+				var data = ResourceLoader.load(full_path)
+				if data is AbilityData:
+					ability_data[data.ability_id] = data
+					ability_by_name[data.ability_name] = data
+					print("Loaded ability: %s with ID: %s" % [data.ability_name, data.ability_id])
+			
+			file_name = dir.get_next()
+			
+		dir.list_dir_end()
+
+
+func get_ability_data(ability_identifier: String) -> AbilityData:
+	# First check by ID
+	if ability_data.has(ability_identifier):
+		return ability_data[ability_identifier]
+	
+	# Then check by name
+	if ability_by_name.has(ability_identifier):
+		return ability_by_name[ability_identifier]
+	
+	# Nothing found
+	print("Ability not found: %s" % ability_identifier)
+	return null
+
+func get_ability_by_name(ability_name: String) -> AbilityData:
+	return ability_by_name.get(ability_name)
+
 #endregion

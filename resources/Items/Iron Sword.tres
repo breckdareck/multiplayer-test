@@ -1,46 +1,56 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://byntxvelo4s87"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=10 format=3 uid="uid://byntxvelo4s87"]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatData.gd" id="1_o2582"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_o2582"]
 [ext_resource type="Texture2D" uid="uid://cj4kv8pk70aal" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_pof86"]
-[ext_resource type="Script" uid="uid://mysmonmct4jm" path="res://scripts/Resources/WeaponData.gd" id="3_uuoav"]
+[ext_resource type="Script" uid="uid://mysmonmct4jm" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_uuoav"]
 
 [sub_resource type="Resource" id="Resource_efqec"]
 script = ExtResource("1_o2582")
 base_value = 0
-flat_bonus_value = 4
-
-[sub_resource type="Resource" id="Resource_tt8sq"]
-script = ExtResource("1_o2582")
-stat_type = 2
-base_value = 0
+flat_bonus_value = 10
 
 [sub_resource type="Resource" id="Resource_fxvel"]
 script = ExtResource("1_o2582")
 stat_type = 1
 base_value = 0
+flat_bonus_value = 10
+
+[sub_resource type="Resource" id="Resource_tt8sq"]
+script = ExtResource("1_o2582")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 10
 
 [sub_resource type="Resource" id="Resource_jxw2t"]
 script = ExtResource("1_o2582")
 stat_type = 3
 base_value = 0
+flat_bonus_value = 10
+
+[sub_resource type="Resource" id="Resource_o2582"]
+script = ExtResource("1_o2582")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 15
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0opnw"]
 atlas = ExtResource("2_pof86")
 region = Rect2(10, 17, 4, 11)
+margin = Rect2(3.5, 0, 7, 0)
 
 [resource]
 script = ExtResource("3_uuoav")
-magic_attack = 0
+equipment_type = 1
 bonus_stats = {
 0: SubResource("Resource_efqec"),
 1: SubResource("Resource_fxvel"),
 2: SubResource("Resource_tt8sq"),
-3: SubResource("Resource_jxw2t")
+3: SubResource("Resource_jxw2t"),
+9: SubResource("Resource_o2582")
 }
-equipment_type = 1
 item_id = "9104459132-151212-90127-1001510-4140101261597276"
 name = "Iron Sword"
 icon = SubResource("AtlasTexture_0opnw")
-description = "Basic Iron Sword."
 item_type = 1
 metadata/_custom_type_script = "uid://ob3kriis8m08"

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ActiveBehaviorData" load_steps=3 format=3 uid="uid://xxbg3t20g1n8"]
+
+[ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_wbciy"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wbciy"]
+
+[resource]
+script = ExtResource("1_wbciy")
+cooldown_time = 3.0
+hit_box_data = SubResource("RectangleShape2D_wbciy")
+animation_name = "attack_1"
+metadata/_custom_type_script = "uid://1raaatfhww5y"

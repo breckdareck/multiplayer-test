@@ -48,15 +48,17 @@ func spawn_damage_number(args: Array) -> Label:
 	number.label_settings = LabelSettings.new()
 	
 	var color = Color.DARK_GREEN
+	var outline_color = Color.WHITE
 	if args[2]:
 		color = Color.RED
 	if args[0] == 0:
 		color = "#FFF8"
+		outline_color = Color.BLACK
 		
 	number.label_settings.font_color = color
 	number.label_settings.font_size = 8
 	number.label_settings.font = load("res://assets/fonts/PixelOperator8-Bold.ttf")
-	number.label_settings.outline_color = Color.WHITE
+	number.label_settings.outline_color = outline_color
 	number.label_settings.outline_size = 4
 	
 	#call_deferred("add_child", number)

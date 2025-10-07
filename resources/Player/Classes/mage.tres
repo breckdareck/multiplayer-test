@@ -1,7 +1,8 @@
-[gd_resource type="Resource" script_class="ClassData" load_steps=5 format=3 uid="uid://cvxw64kd5bfn7"]
+[gd_resource type="Resource" script_class="ClassData" load_steps=6 format=3 uid="uid://cvxw64kd5bfn7"]
 
 [ext_resource type="Texture2D" uid="uid://y524adlth2o4" path="res://assets/UI/mage_portrait.tres" id="1_li4sd"]
-[ext_resource type="Script" uid="uid://buwbui1bka8vl" path="res://scripts/Resources/ClassData.gd" id="1_uo3r6"]
+[ext_resource type="Script" uid="uid://buwbui1bka8vl" path="res://scripts/Resources/ClassSystem/ClassData.gd" id="1_uo3r6"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="3_csbtv"]
 [ext_resource type="SpriteFrames" uid="uid://cirrugdertxot" path="res://resources/Player/SpriteFrames/Mage.tres" id="3_uwn8l"]
 [ext_resource type="SpriteFrames" uid="uid://b24ebeumvft8j" path="res://resources/Player/SpriteFrames/ArchMage.tres" id="4_csbtv"]
 
@@ -13,7 +14,6 @@ sprite_frames = Dictionary[int, SpriteFrames]({
 1: ExtResource("3_uwn8l"),
 15: ExtResource("4_csbtv")
 })
-skills = Array[String](["fireball", "ice_shield", "teleport"])
 description = "A spellcaster with powerful magic abilities."
 icon = ExtResource("1_li4sd")
 primary_stat = 1

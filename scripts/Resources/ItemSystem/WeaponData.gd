@@ -8,18 +8,6 @@ extends EquipmentData
 ## [b]Forumla: 100 * (20-AttackSpeed) / 16 [br]
 ## Example: 100 * (20-4) / 16 = 100[/b]
 @export_range(1,10) var weapon_attack_speed: int = 4
-## Base Attack Level 1 Starts at 15
-@export var weapon_attack: int = 15
-## Base Attack Level 1 Starts at 15
-@export var magic_attack: int = 15
-
-@export var bonus_stats: Dictionary = {
-	Constants.StatType.STRENGTH: StatData.new(Constants.StatType.STRENGTH, 0),
-	Constants.StatType.DEXTERITY: StatData.new(Constants.StatType.DEXTERITY, 0),
-	Constants.StatType.INTELLIGENCE: StatData.new(Constants.StatType.INTELLIGENCE, 0),
-	Constants.StatType.LUCK: StatData.new(Constants.StatType.LUCK, 0)
-}
-
 
 var attack_speed: String:
 	get:

@@ -21,7 +21,7 @@ signal ready_for_pooling
 
 var experience_reward: int = 0:
 	get():
-		return int(experience_curve.get_point_position(monster_level).y)
+		return int(experience_curve.sample(monster_level))
 var post_death_delay: float = 1.5 # Time to wait after death animation before disappearing.
 var damage_by_player: Dictionary = {}  # player_id : damage_amount
 var facing_direction: int = 1
@@ -39,7 +39,7 @@ func _ready() -> void:
 	if multiplayer.is_server():
 		# The server listens for the death signal from the component.
 		initial_position = global_position
-		health_component.max_health = int(health_curve.get_point_position(monster_level).y)
+		health_component.max_health = int(health_curve.sample(monster_level))
 		health_component.died.connect(_on_enemy_died)
 		health_component.damaged.connect(on_enemy_damaged)
 		body_hitbox.body_entered.connect(_on_body_hitbox_body_entered)

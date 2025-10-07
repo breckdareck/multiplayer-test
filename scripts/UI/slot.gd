@@ -1,6 +1,8 @@
 extends PanelContainer
 class_name Slot
 
+const PANEL_STYLEBOX_THEME: StyleBoxFlat = preload("uid://dm8jxifs8rqrm")
+
 @onready var texture_rect: TextureRect = $TextureRect
 @onready var label: Label = $Label
 
@@ -252,6 +254,10 @@ func create_drag_split(split_amount: int):
 func _ready():
 	mouse_entered.connect(_on_mouse_entered)
 	mouse_exited.connect(_on_mouse_exited)
+	var custom_theme = Theme.new()
+	custom_theme.set_stylebox("panel", "TooltipPanel", PANEL_STYLEBOX_THEME)
+	self.theme = custom_theme
+
 
 func can_accept_item(item_to_check: ItemData) -> bool:
 	if not item_to_check:
@@ -266,6 +272,18 @@ func can_accept_item(item_to_check: ItemData) -> bool:
 
 	return true
 
+
+#func _make_custom_tooltip(_for_text: String) -> Object:
+	#var tooltip_scene: Panel = Panel.new()
+	#var tooltip_label: Label = Label.new()
+	#tooltip_scene.size = Vector2(100,50)
+	#tooltip_label.add_theme_font_size_override("font_size", 16)
+	#tooltip_scene.add_theme_stylebox_override("panel", PANEL_STYLEBOX_THEME)
+	#tooltip_scene.add_child(tooltip_label)
+	#tooltip_label.text = "test"
+	#return tooltip_scene
+
+
 func _on_mouse_entered():
 	if item != null:
 		tooltip_text = item.name
@@ -277,14 +295,12 @@ func _on_mouse_entered():
 			if item.equipment_type == Constants.EquipmentType.WEAPON:
 				tooltip_text += "\n" + "Type: " + str(Constants.WeaponType.keys()[item.weapon_type]).capitalize()
 				tooltip_text += "\n" + "Attack Speed: " + str(item.attack_speed).to_upper()
-				if item.bonus_stats:
-					for stat_type in item.bonus_stats:
-						if item.bonus_stats[stat_type].flat_bonus_value > 0:
-							tooltip_text += "\n" + str(Constants.StatType.keys()[stat_type]).to_upper() + " : +" + str(item.bonus_stats[stat_type].flat_bonus_value)
-				if item.weapon_attack > 0:
-					tooltip_text += "\n" + "Weapon Attack: +" + str(item.weapon_attack)
-				if item.magic_attack > 0:
-					tooltip_text += "\n" + "Magic Attack: +" + str(item.magic_attack)
+			if item.equipment_type == Constants.EquipmentType.ARMOR:
+				tooltip_text += "\n" + "Type: " + str(Constants.ArmorType.keys()[item.armor_type]).capitalize()
+			if item.bonus_stats:
+				for stat_type in item.bonus_stats:
+					if item.bonus_stats[stat_type].flat_bonus_value > 0:
+						tooltip_text += "\n" + str(Constants.StatType.keys()[stat_type]).to_upper() + " : +" + str(item.bonus_stats[stat_type].flat_bonus_value)
 	else:
 		tooltip_text = ""
 

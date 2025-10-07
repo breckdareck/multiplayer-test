@@ -431,7 +431,7 @@ collision_layer = 8
 collision_mask = 5
 script = ExtResource("1_nadka")
 health_component = NodePath("Health")
-monster_level = 30
+monster_level = 50
 health_curve = ExtResource("2_a0il2")
 experience_curve = ExtResource("2_a5hmx")
 

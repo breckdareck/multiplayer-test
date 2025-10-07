@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="PassiveEffectData" load_steps=4 format=3 uid="uid://ces6xungpapk"]
+
+[ext_resource type="Script" uid="uid://bavbijmvbigeq" path="res://scripts/Resources/AbilitySystem/PassiveEffectData.gd" id="1_xdtds"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="2_v60qx"]
+
+[sub_resource type="Resource" id="Resource_v60qx"]
+script = ExtResource("2_v60qx")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 300
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[resource]
+script = ExtResource("1_xdtds")
+stat_modifiers = Dictionary[int, ExtResource("2_v60qx")]({
+1: SubResource("Resource_v60qx")
+})
+metadata/_custom_type_script = "uid://bavbijmvbigeq"

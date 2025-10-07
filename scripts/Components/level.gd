@@ -19,7 +19,7 @@ var experience = 0:
 
 
 func get_exp_to_next_level() -> int:
-	return int(level_curve.get_point_position(level-1).y)
+	return int(level_curve.sample(level-1))
 
 
 @rpc("any_peer", "call_local", "reliable")

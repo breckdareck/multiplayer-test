@@ -40,9 +40,13 @@ func _ready() -> void:
 	
 	# Test code for adding items
 	# Get items by name from ResourceManager
-	# var potion = ResourceManager.get_item_by_name("Grape Potion")
+	var potion = ResourceManager.get_item_by_name("Grape Potion")
+	var coin = ResourceManager.get_item_by_name("Coin")
 	var sword = ResourceManager.get_item_by_name("Iron Sword")
-	# var coin = ResourceManager.get_item_by_name("Coin")
+	var test_sword_2 = ResourceManager.get_item_by_name("Test Sword 2")
+	var test_sword_3 = ResourceManager.get_item_by_name("Test Sword 3")
+	var hat = ResourceManager.get_item_by_name("Test Hat")
+	var chest = ResourceManager.get_item_by_name("Test Chest")
 
 	# for x in range(10):
 	# 	# Make sure to duplicate before adding
@@ -50,20 +54,44 @@ func _ready() -> void:
 	# 		var potion_copy = potion.duplicate_with_path()
 	# 		add_item(potion_copy)
 
-	if sword:
-		var sword_copy = sword.duplicate_with_path()
-		add_item(sword_copy)
-
-	# 	if coin:
-	# 		var coin_copy = coin.duplicate_with_path()
-	# 		add_item(coin_copy)
-
 	_rebuild_item_tracking()
 	
 	# If any inventory data was buffered before initialization, apply it now
 	if not pending_inventory_data.is_empty():
+		print("Pending Inv Data")
 		_apply_inventory_data(pending_inventory_data)
 		pending_inventory_data.clear()
+		
+	# Put Add Item here for always gaining Item or 
+	# put it before pending so save data is master
+	#if sword:
+		#var sword_copy = sword.duplicate_with_path()
+		#add_item(sword_copy)
+		#
+	#if test_sword_2:
+		#var test_sword_2_copy = test_sword_2.duplicate_with_path()
+		#add_item(test_sword_2_copy)
+		#
+	#if test_sword_3:
+		#var test_sword_3_copy = test_sword_3.duplicate_with_path()
+		#add_item(test_sword_3_copy)
+		#
+	#if hat:
+		#var hat_copy = hat.duplicate_with_path()
+		#add_item(hat_copy)
+		#
+	#if chest:
+		#var chest_copy = chest.duplicate_with_path()
+		#add_item(chest_copy)
+	
+	#for x in range(150):
+		#if potion:
+			#var potion_copy = potion.duplicate_with_path()
+			#add_item(potion_copy)
+			#
+		#if coin:
+			#var coin_copy = coin.duplicate_with_path()
+			#add_item(coin_copy)
 
 	# After populating on the server, push the authoritative inventory to the owning client
 	# so the client mirrors the server's inventory state immediately.

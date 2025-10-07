@@ -3,22 +3,38 @@ extends Node
 
 signal stats_changed
 
-@export var stats: Dictionary = {
+const BASE_MAX_HEALTH: int = 100
+const SCALING_MULTIPLIER: float = 3.65
+const SCALING_EXPONENT: float = 1.5
+
+@export var stats: Dictionary[Constants.StatType, StatData] = {
 	Constants.StatType.STRENGTH: StatData.new(Constants.StatType.STRENGTH, 4),
 	Constants.StatType.DEXTERITY: StatData.new(Constants.StatType.DEXTERITY, 4),
 	Constants.StatType.INTELLIGENCE: StatData.new(Constants.StatType.INTELLIGENCE, 4),
-	Constants.StatType.LUCK: StatData.new(Constants.StatType.LUCK, 4)
+	Constants.StatType.LUCK: StatData.new(Constants.StatType.LUCK, 4),
+	Constants.StatType.HEALTH: StatData.new(Constants.StatType.HEALTH, 100),
+	Constants.StatType.MANA: StatData.new(Constants.StatType.MANA, 100),
+	Constants.StatType.DEFENSE: StatData.new(Constants.StatType.DEFENSE, 100),
+	Constants.StatType.CRITCHANCE: StatData.new(Constants.StatType.CRITCHANCE, 5),
+	Constants.StatType.CRITDAMAGE: StatData.new(Constants.StatType.CRITDAMAGE, 0),
+	Constants.StatType.WEAPONATTACK: StatData.new(Constants.StatType.WEAPONATTACK, 0),
+	Constants.StatType.MAGICATTACK: StatData.new(Constants.StatType.MAGICATTACK, 0),
+	
 }
 
 var _level_component: LevelingComponent
 var _class_component: ClassComponent
 var _equipment_component: EquipmentComponent
+var _health_component: HealthComponent
+
 var _recalc_scheduled: bool = false
 
 func _ready() -> void:
 	_level_component = get_parent().get_node_or_null("Leveling")
 	_class_component = get_parent().get_node_or_null("Class")
 	_equipment_component = get_parent().get_node_or_null("Equipment")
+	_health_component = get_parent().get_node_or_null("Health")
+	
 	
 	#TODO: Fix Syncing of Stats for Clients - SLIGHTY FIXED - LOOK AT LATER
 	if !multiplayer.is_server():
@@ -37,19 +53,25 @@ func _ready() -> void:
 		
 
 func _recalculate_stats() -> void:
+	# Get's base stats from class
 	var base_stats:Dictionary[Constants.StatType, int] = _class_component.get_base_stats()
 	for stat in base_stats:
 		stats.get(stat).base_value = base_stats[stat]
+		
+	# Setup Health from Forumla
+	stats.get(Constants.StatType.HEALTH).base_value = int(BASE_MAX_HEALTH + (SCALING_MULTIPLIER * pow(_level_component.level - 1, SCALING_EXPONENT)))
 	
 	# Reset flat bonuses before recalculating
 	for stat_type in stats:
 		stats[stat_type].flat_bonus_value = 0
 
+	# Get Class Bonus's
 	var class_bonuses:Dictionary[Constants.StatType, int] = _class_component.get_class_bonuses()
 	for stat in class_bonuses:
 		stats.get(stat).flat_bonus_value += class_bonuses[stat] * _level_component.level
 		
 	# Add equipment bonuses
+	# TODO: Add the Percent Bonus's as well
 	if _equipment_component:
 		var equipment_bonuses: Dictionary = {}
 		for slot in _equipment_component.get_slots():
@@ -64,8 +86,16 @@ func _recalculate_stats() -> void:
 		for stat_type in equipment_bonuses:
 			if stats.has(stat_type):
 				stats[stat_type].flat_bonus_value += equipment_bonuses[stat_type]
-		
 		print("StatsComponent: Applied equipment bonuses: %s" % equipment_bonuses)
+
+	# Add passive ability bonuses
+	var ability_component = get_parent().get_node_or_null("Ability")
+	if ability_component and ability_component.has_method("get_passive_effect_modifiers"):
+		var ability_bonuses = ability_component.get_passive_effect_modifiers()
+		for stat_type in ability_bonuses:
+			if stats.has(stat_type):
+				stats[stat_type].flat_bonus_value += ability_bonuses[stat_type]
+		print("StatsComponent: Applied ability passive bonuses: %s" % ability_bonuses)
 
 	print("StatsComponent: Applied class bonuses for %s: %s" % [_class_component.get_class_name(), class_bonuses])
 	print("StatsComponent: Final stats - STR: %d, DEX: %d, INT: %d, LUK: %d" % [stats[Constants.StatType.STRENGTH].total_value, stats[Constants.StatType.DEXTERITY].total_value, stats[Constants.StatType.INTELLIGENCE].total_value, stats[Constants.StatType.LUCK].total_value])

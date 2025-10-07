@@ -7,8 +7,23 @@ signal class_changed(new_class: String)
 
 var _stats_component: StatsComponent
 
+var class_abilities: Array[AbilityData] = []
+
 func _ready() -> void:
 	_stats_component = get_parent().get_node_or_null("Stats")
+	_load_class_abilities()
+
+
+func _load_class_abilities() -> void:
+	var abilities: Array[AbilityData] = get_available_abilities()
+	class_abilities.clear()
+	for ability in abilities:
+		class_abilities.append(ability)
+	print("ClassComponent: Loaded %d abilities for %s." % [class_abilities.size(), get_class_name()])
+
+
+func get_class_abilities() -> Array[AbilityData]:
+	return class_abilities
 
 func get_class_name() -> String:
 	return ResourceManager.get_class_name(current_class)
@@ -19,7 +34,7 @@ func get_base_stats() -> Dictionary:
 func get_class_bonuses() -> Dictionary:
 	return ResourceManager.get_class_bonuses(current_class)
 
-func get_available_skills() -> Array[String]:
+func get_available_abilities() -> Array[AbilityData]:
 	return ResourceManager.get_class_skills(current_class)
 
 func change_class(new_class: Constants.ClassType) -> void:
@@ -27,6 +42,7 @@ func change_class(new_class: Constants.ClassType) -> void:
 		var old_class_name: String = get_class_name()
 		print("ClassComponent: Changing class from %s to %s" % [old_class_name, ResourceManager.get_class_name(new_class)])
 		current_class = new_class
+		_load_class_abilities()
 		class_changed.emit(get_class_name())
 
 @rpc("authority", "call_local", "reliable")

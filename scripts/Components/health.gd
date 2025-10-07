@@ -8,9 +8,6 @@ signal died(killer)
 # Emitted when this entity takes damage. Includes the source node if provided.
 signal damaged(amount, source)
 
-const BASE_MAX_HEALTH: int = 100
-const SCALING_MULTIPLIER: float = 3.65
-const SCALING_EXPONENT: float = 1.5
 
 @export var damage_number_origin: Node2D
 @export var max_health: int = 100:
@@ -74,14 +71,21 @@ func _ready() -> void:
 	var _owner = get_owner()
 	if _owner is MultiplayerPlayerV2:
 		_owner = _owner as MultiplayerPlayerV2
-		_owner.level_component.leveled_up.connect(_on_player_leveled)
+		_owner.stats_component.stats_changed.connect(_on_stats_changed)
+		_owner.level_component.leveled_up.connect(_on_leveled_up)
 		regen_timer.timeout.connect(_on_regen_timer_timeout)
 
 
-func _on_player_leveled(new_level: int):
-	max_health = int(BASE_MAX_HEALTH + (SCALING_MULTIPLIER * pow(new_level - 1, SCALING_EXPONENT)))
-	print("HealthComponent: Level up to %d, new max health: %d" % [new_level, max_health])
-	
+func _on_stats_changed():
+	max_health = _stats_component.stats.get(Constants.StatType.HEALTH).total_value
+	print("HealthComponent: StatsChanged, new max health: %d" % max_health)
+	if current_health > max_health:
+		current_health = max_health
+
+
+func _on_leveled_up(_new_level: int):
+	max_health = _stats_component.stats.get(Constants.StatType.HEALTH).total_value
+	print("HealthComponent: StatsChanged, new max health: %d" % max_health)
 	current_health = max_health
 
 
@@ -115,8 +119,12 @@ func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false) 
 		return
 
 	_last_damage_source = source
+	
+	var horizontal_offset = randf_range(-8, 8) # Move left/right by a few pixels
+	var vertical_offset = randf_range(-5, 5) # Move up/down by a few pixels
+	var spawn_position = damage_number_origin.global_position + Vector2(horizontal_offset, vertical_offset)
 
-	get_node("/root/MainMenu/Level/Game").get_node("%DmgNumberSpawner").display_number(amount, damage_number_origin.global_position)
+	get_node("/root/MainMenu/Level/Game").get_node("%DmgNumberSpawner").display_number(amount, spawn_position)
 	print("HealthComponent: Owner '%s' took %s damage from '%s'." % [get_owner().name, amount, source_str])
 	damaged.emit(amount, source)
 	self.current_health -= amount

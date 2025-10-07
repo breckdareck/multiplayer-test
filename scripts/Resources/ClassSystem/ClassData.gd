@@ -4,7 +4,7 @@ extends Resource
 @export var _class_name: String
 @export var class_type: Constants.ClassType
 @export var sprite_frames: Dictionary[int, SpriteFrames] = {} # level -> SpriteFrames resource path
-@export var skills: Array[String] = []
+@export var skills: Array[AbilityData] = []
 @export var description: String = ""
 @export var icon: Texture2D
 @export var primary_stat: Constants.StatType

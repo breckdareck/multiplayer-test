@@ -1,3 +1,4 @@
+@tool
 class_name StatData
 extends Resource
 
@@ -9,13 +10,14 @@ extends Resource
 # Combined Value = Flat + (Percent * Base)
 var combined_bonus_value: int:
 	get:
-		var percent_increase = base_value * percent_bonus_value
+		var percent_increase = base_value * (percent_bonus_value/100)
 		return int(flat_bonus_value + percent_increase)
 
 # Total Value = (Base Value×(1+Percent Bonus))+Flat Bonus
 var total_value: int:
 	get:
-		return base_value + combined_bonus_value
+		var percent_increase = base_value * (percent_bonus_value/100)
+		return (base_value * (1 + percent_increase/100)) + flat_bonus_value
 
 
 func _init(type_id: Constants.StatType = 0 as Constants.StatType, base: int = 4):
