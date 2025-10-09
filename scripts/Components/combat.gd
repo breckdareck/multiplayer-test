@@ -6,15 +6,13 @@ extends Node
 ## Weapon Multipliers = 1.2 ~ 1.75
 @export var weapon_multiplier: float = 1.2
 
-
 var current_ability_data: AbilityData = null 
 var current_active_data: ActiveBehaviorData = null
 var current_damage_data: DamageData = null
 
-
 var hit_list: Array = []
 var _unique_targets_for_attack: Dictionary = {}
-
+var _pending_bodies: Array = []
 
 var current_attack_data: AttackData
 var attack_damage: int:
@@ -26,7 +24,7 @@ var min_damage: int:
 var max_damage: int:
 	get:
 		return roundi(attack_damage * 1.2)
-		
+
 var _stats_component: StatsComponent
 var _class_component: ClassComponent
 var _equipment_component: EquipmentComponent
@@ -45,8 +43,6 @@ func _ready() -> void:
 	_equipment_component = get_parent().get_node_or_null("Equipment")
 
 	hitbox_area.monitoring = false
-	if not hitbox_area.body_entered.is_connected(_on_hitbox_body_entered):
-		hitbox_area.body_entered.connect(_on_hitbox_body_entered)
 
 
 func perform_attack(_attack_name: String, _duration: float) -> void:
@@ -67,9 +63,10 @@ func turn_on_hitbox() -> void:
 	
 	hit_list.clear()
 	_unique_targets_for_attack.clear()
+	_pending_bodies.clear()
 	
-	if not hitbox_area.body_entered.is_connected(_on_hitbox_body_entered):
-		hitbox_area.body_entered.connect(_on_hitbox_body_entered)
+	#if not hitbox_area.body_entered.is_connected(_on_hitbox_body_entered):
+		#hitbox_area.body_entered.connect(_on_hitbox_body_entered)
 		
 	hitbox_area.monitoring = true
 
@@ -77,81 +74,82 @@ func turn_on_hitbox() -> void:
 func end_attack() -> void:
 	if not multiplayer.is_server():
 		return
+		
+	_process_collected_bodies()
+	
 	hitbox_area.monitoring = false
 	current_attack_data = null
 
 
-func _on_hitbox_body_entered(body: Node2D) -> void:
+func _on_hitbox_area_entered(area: Area2D) -> void:
 	if not multiplayer.is_server():
 		return
-
-	if not "health_component" in body:
+	# print("Hit: %s" % area.owner.name)
+	if not "health_component" in (area.owner as EnemyBase):
 		return
 		
-	var health_comp = body.get("health_component")
+	var health_comp = area.owner.get("health_component")
 	if not health_comp or health_comp.is_dead:
 		return
-		
-	var max_targets = 2
-	var max_hits = 2
+	
+	# NEW: Just collect the body, don't process yet
+	if not _pending_bodies.has(area):
+		_pending_bodies.append(area)
+
+
+func _process_collected_bodies() -> void:
+	if _pending_bodies.is_empty():
+		return
+	
+	var max_targets = 1
+	var max_hits = 1
 	if current_damage_data:
 		max_targets = current_damage_data.max_targets
 		max_hits = current_damage_data.max_hits
-
-	var is_new_target = not _unique_targets_for_attack.has(body)
 	
-	if is_new_target:
-		if _unique_targets_for_attack.size() >= max_targets:
-			return
-		_unique_targets_for_attack[body] = true 
+	# Sort bodies by distance to owner
+	_pending_bodies.sort_custom(func(a, b): 
+		return owner_node.global_position.distance_to(a.global_position) < owner_node.global_position.distance_to(b.global_position)
+	)
+	
+	# Process only max_targets closest bodies
+	var targets_processed = 0
+	for body in _pending_bodies:
+		if targets_processed >= max_targets:
+			break
 		
-	var hits_on_body = hit_list.count(body)
-	
-	if is_new_target:
-		var hits_to_apply = max_hits 
-		for i in range(hits_to_apply): 
-			var is_first_hit = (i == 0)
-			var ignore_invuln_flag = not is_first_hit
+		var health_comp = body.owner.get("health_component")
+		if not health_comp or health_comp.is_dead:
+			continue
+		
+		# Mark this target as hit
+		_unique_targets_for_attack[body] = true
+		
+		# Apply max_hits to this target
+		for i in range(max_hits):
 			var damage_to_deal = randi_range(min_damage, max_damage)
-
-			health_comp.take_damage(damage_to_deal, self, ignore_invuln_flag)
-
+			health_comp.take_damage(damage_to_deal, self, true)
 			hit_list.append(body)
-
+			
 			print("CombatComponent: HIT! Ability Attack - Target: %s, Hit #%d/%d, IgnoreInvuln: %s, Damage: %d" %
-				[body.name, hits_on_body + i + 1, max_hits, str(ignore_invuln_flag), damage_to_deal])
+				[body.name, i + 1, max_hits, "Always True", damage_to_deal])
+		
+		targets_processed += 1
+	
+	_pending_bodies.clear()
 
 
 func calculate_attack_damage() -> int:
 	# TODO: FIX THIS TO USE BASED ON THE CLASS AKA WEAPON ATTACK VS MAGIC ATTACK
-	
-	if current_ability_data and current_damage_data:
-		var damage_data = current_damage_data
-		var ability_percent = damage_data.damage_percent
-		var fixed_damage = damage_data.fixed_damage
-		var scaling_stat_name = damage_data.scaling_stat
-		
-		var primary_stat_value = _stats_component.stats.get(scaling_stat_name).total_value
-		var weapon_attack = _stats_component.stats.get(Constants.StatType.WEAPONATTACK).total_value # Or MAGICATTACK
-		
-		# Maplestory-like Ability Damage Formula:
-		# FinalDamage = [PrimaryStat * Multiplier * WeaponAttack / 100] * (AbilityPercent / 100) + FixedDamage
-		
-		# Simplified Example (you'll refine this formula):
-		var base_damage = roundi(weapon_multiplier * primary_stat_value * weapon_attack / 100)
-		var final_damage = roundi(base_damage * (float(ability_percent) / 100.0)) + fixed_damage
-		
-		return final_damage
-	else:
-		var weapon_attack = 0 # Default attack if no weapon
-		if _equipment_component and _equipment_component.weapon_slot and _equipment_component.weapon_slot.item and _stats_component:
-			weapon_attack = _stats_component.stats.get(Constants.StatType.WEAPONATTACK).total_value
-			if _class_component:
-				var primary_stat = ResourceManager.get_primary_stat(_class_component.current_class)
-				var secondary_stat = ResourceManager.get_secondary_stat(_class_component.current_class)
-				var stats_value = _stats_component.stats.get(primary_stat).total_value * 4 + _stats_component.stats.get(secondary_stat).total_value
-				return roundi(weapon_multiplier * stats_value * weapon_attack / 100)
-		return 0
+	var weapon_attack = 0 # Default attack if no weapon
+	if _equipment_component and _equipment_component.weapon_slot and _equipment_component.weapon_slot.item and _stats_component:
+		weapon_attack = _stats_component.stats.get(Constants.StatType.WEAPONATTACK).total_value
+		if _class_component:
+			var primary_stat = ResourceManager.get_primary_stat(_class_component.current_class)
+			var secondary_stat = ResourceManager.get_secondary_stat(_class_component.current_class)
+			var stats_value = _stats_component.stats.get(primary_stat).total_value * 4 + _stats_component.stats.get(secondary_stat).total_value
+			return roundi(weapon_multiplier * stats_value * weapon_attack / 100)
+	return 0
 
 
 func process_ability_hit(ability: AbilityData) -> void:
@@ -171,6 +169,8 @@ func process_ability_hit(ability: AbilityData) -> void:
 func end_ability_attack() -> void:
 	if not multiplayer.is_server():
 		return
+		
+	_process_collected_bodies()
 		
 	hitbox_area.monitoring = false
 	current_ability_data = null

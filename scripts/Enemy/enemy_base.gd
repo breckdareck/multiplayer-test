@@ -15,7 +15,7 @@ signal ready_for_pooling
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var state_machine: StateMachine = $StateMachine
-@onready var hitbox: Area2D = $Hitbox
+@onready var attack_hitbox: Area2D = $AttackHitbox
 @onready var body_hitbox: Area2D = $BodyHitbox
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 
@@ -58,7 +58,11 @@ func _process(delta: float) -> void:
 		
 	if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
 		state_machine.process_frame(delta)
-
+		if body_hitbox.monitoring:
+			var overlapping_bodies = body_hitbox.get_overlapping_bodies()
+			for body in overlapping_bodies:
+				if body is MultiplayerPlayerV2:
+					damage_on_overlap(body)
 
 func _physics_process(delta: float) -> void:
 	if _is_being_cleaned_up:
@@ -72,6 +76,7 @@ func on_enemy_damaged(amount: int, source: Node) -> void:
 	var player_id = source.owner.player_id
 	if player_id != null:
 		damage_by_player[player_id] = damage_by_player.get(player_id, 0) + amount
+
 
 func _on_enemy_died(_killer: Node) -> void:
 	if _is_being_cleaned_up:
@@ -90,7 +95,7 @@ func _on_enemy_died(_killer: Node) -> void:
 			print("PID: %s did %s%% damage to %s gaining %s exp" % [str(player_id), share*100, name, str(exp_amount)])
 			player.gain_experience(exp_amount)
 		
-	hitbox.monitoring = false
+	attack_hitbox.monitoring = false
 	body_hitbox.monitoring = false
 	
 	if respawnable:
@@ -114,7 +119,7 @@ func pool_deactivate() -> void:
 	set_process(false)
 	set_physics_process(false)
 	collision_shape.set_deferred("disabled", true)
-	hitbox.monitoring = false
+	attack_hitbox.monitoring = false
 	body_hitbox.monitoring = false
 	# Move far away to prevent any lingering interactions.
 	global_position = Vector2(INF, INF)
@@ -136,7 +141,7 @@ func pool_reset() -> void:
 	set_process(true)
 	set_physics_process(true)
 	collision_shape.set_deferred("disabled", false)
-	hitbox.monitoring = true
+	attack_hitbox.monitoring = true
 	body_hitbox.monitoring = true
 
 
@@ -156,8 +161,11 @@ func _on_body_hitbox_body_entered(body: Node) -> void:
 		
 	if not multiplayer.is_server():
 		return
+		
+	damage_on_overlap(body)
 
-	# Only damage the player
+
+func damage_on_overlap(body: Node):
 	if body.has_node("Components/Health"):
 		var health = body.get_node("Components/Health") as HealthComponent
 		if health.is_dead or health.is_invulnerable:
@@ -231,8 +239,8 @@ func cleanup_before_removal():
 	# Disable collision and monitoring
 	if collision_shape:
 		collision_shape.set_deferred("disabled", true)
-	if hitbox:
-		hitbox.monitoring = false
+	if attack_hitbox:
+		attack_hitbox.monitoring = false
 	if body_hitbox:
 		body_hitbox.monitoring = false
 

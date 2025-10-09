@@ -2,11 +2,13 @@
 
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_wbciy"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_wbciy"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_e8txv"]
+size = Vector2(90, 20)
 
 [resource]
 script = ExtResource("1_wbciy")
 cooldown_time = 3.0
-hit_box_data = SubResource("RectangleShape2D_wbciy")
+hit_box_shape_data = SubResource("RectangleShape2D_e8txv")
+hit_box_position_data = Vector2(45, -11)
 animation_name = "attack_1"
 metadata/_custom_type_script = "uid://1raaatfhww5y"

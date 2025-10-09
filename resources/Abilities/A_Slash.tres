@@ -1,21 +1,29 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=7 format=3 uid="uid://ccxoh5fmx317x"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=9 format=3 uid="uid://ccxoh5fmx317x"]
 
 [ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="1_5ui4y"]
 [ext_resource type="Resource" uid="uid://xxbg3t20g1n8" path="res://resources/Abilities/ActiveEffect/AE_Slash.tres" id="1_7svtf"]
 [ext_resource type="Resource" uid="uid://c6qx5atq2mpih" path="res://resources/Abilities/DamageData/DD_Slash.tres" id="2_5ui4y"]
 [ext_resource type="Resource" uid="uid://ces6xungpapk" path="res://resources/Abilities/PassiveEffect/PE_Slash.tres" id="3_ajojy"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_7e1xr"]
+[ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="4_ajojy"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ajojy"]
 atlas = ExtResource("1_5ui4y")
 region = Rect2(75, 109, 19, 19)
+
+[sub_resource type="Resource" id="Resource_ajojy"]
+script = ExtResource("4_ajojy")
 
 [resource]
 script = ExtResource("4_7e1xr")
 ability_id = "04236384-15455-0589-12403-458981588111015"
 ability_name = "Slash"
 ability_icon = SubResource("AtlasTexture_ajojy")
+max_level = 20
+required_class = Array[int]([0])
+required_weapon_types = Array[int]([0])
 damage_data = ExtResource("2_5ui4y")
 active_behavior = ExtResource("1_7svtf")
 passive_effect = ExtResource("3_ajojy")
+level_data = Array[ExtResource("4_ajojy")]([SubResource("Resource_ajojy")])
 metadata/_custom_type_script = "uid://b8y62rc8nb40j"

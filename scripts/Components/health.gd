@@ -55,7 +55,7 @@ func _ready() -> void:
 	regen_timer.name = "RegenTimer"
 	regen_timer.one_shot = false
 	regen_timer.autostart = true
-	regen_timer.wait_time = 5
+	regen_timer.wait_time = 10
 	add_child(regen_timer)
 
 	# The component now directly controls its own UI.
@@ -105,7 +105,7 @@ func _on_regen_timer_timeout() -> void:
 	if is_dead:
 		return
 	if current_health < max_health:
-		heal_damage(round(float(max_health)/10.0))
+		heal_damage(10, self.owner)
 
 	
 @rpc("any_peer", "call_local", "reliable")
@@ -140,7 +140,7 @@ func heal_damage(amount: int, source: Node = null) -> void:
 		return
 	var source_str = "unknown"
 	if source:
-		source_str = str(source)
+		source_str = str(source.name)
 
 	print("HealthComponent: Owner '%s' healed %s damage from '%s'." % [get_owner().name, amount, source_str])
 	self.current_health += amount

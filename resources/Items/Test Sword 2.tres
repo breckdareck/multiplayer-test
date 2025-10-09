@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=16 format=3 uid="uid://nbfh0u6nd1vy"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=18 format=3 uid="uid://nbfh0u6nd1vy"]
 
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_omroi"]
 [ext_resource type="Texture2D" uid="uid://cj4kv8pk70aal" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_56abt"]
@@ -6,32 +6,32 @@
 
 [sub_resource type="Resource" id="Resource_56abt"]
 script = ExtResource("1_omroi")
-base_value = 0
+base_value = 10
 
 [sub_resource type="Resource" id="Resource_37cjd"]
 script = ExtResource("1_omroi")
 stat_type = 1
-base_value = 0
+base_value = 10
 
 [sub_resource type="Resource" id="Resource_tofol"]
 script = ExtResource("1_omroi")
 stat_type = 2
-base_value = 0
+base_value = 10
 
 [sub_resource type="Resource" id="Resource_mftay"]
 script = ExtResource("1_omroi")
 stat_type = 3
-base_value = 0
+base_value = 10
 
 [sub_resource type="Resource" id="Resource_vt43v"]
 script = ExtResource("1_omroi")
 stat_type = 4
-base_value = 0
+base_value = 10
 
 [sub_resource type="Resource" id="Resource_py8x4"]
 script = ExtResource("1_omroi")
 stat_type = 5
-base_value = 0
+base_value = 10
 
 [sub_resource type="Resource" id="Resource_rtqi4"]
 script = ExtResource("1_omroi")
@@ -59,6 +59,20 @@ script = ExtResource("1_omroi")
 stat_type = 10
 base_value = 0
 
+[sub_resource type="Resource" id="Resource_ganye"]
+script = ExtResource("1_omroi")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 15
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_2m5o5"]
+script = ExtResource("1_omroi")
+stat_type = 12
+base_value = 15
+flat_bonus_value = 15
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_0opnw"]
 atlas = ExtResource("2_56abt")
 region = Rect2(10, 17, 4, 11)
@@ -68,7 +82,7 @@ margin = Rect2(3.5, 0, 7, 0)
 script = ExtResource("2_ganye")
 weapon_attack_speed = 10
 equipment_type = 1
-bonus_stats = {
+bonus_stats = Dictionary[int, ExtResource("1_omroi")]({
 0: SubResource("Resource_56abt"),
 1: SubResource("Resource_37cjd"),
 2: SubResource("Resource_tofol"),
@@ -79,8 +93,10 @@ bonus_stats = {
 7: SubResource("Resource_rabvq"),
 8: SubResource("Resource_douct"),
 9: SubResource("Resource_myfij"),
-10: SubResource("Resource_gyrbr")
-}
+10: SubResource("Resource_gyrbr"),
+11: SubResource("Resource_ganye"),
+12: SubResource("Resource_2m5o5")
+})
 item_id = "10137827114-100146-151353-11579-110141530152108125"
 name = "Test Sword 2"
 icon = SubResource("AtlasTexture_0opnw")

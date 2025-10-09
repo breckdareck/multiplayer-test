@@ -120,7 +120,6 @@ func get_class_type_from_string(_class_name: String) -> Constants.ClassType:
 func _load_ability_data() -> void:
 	var ability_folder: String = "res://resources/Abilities/"
 	_load_abilities_recursive(ability_folder)
-	print("Loaded %d abilities in total" % ability_data.size())
 
 
 func _load_abilities_recursive(path: String) -> void:

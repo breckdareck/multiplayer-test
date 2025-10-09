@@ -2,8 +2,12 @@ class_name InventoryComponent
 extends Node
 
 @export var inventory_grids: Array[GridContainer]
-@export var slots: Array[Slot] = []
 @export var equipment_component: EquipmentComponent
+
+@export_category("Debug")
+@export var debug_item: ItemData
+
+var slots: Array[Slot] = []
 
 var item_counts: Dictionary = {} # item_name -> total_count
 var item_locations: Dictionary = {} # item_name -> Array[Slot]
@@ -14,7 +18,6 @@ var pending_transfers: Dictionary = {}
 
 # Buffer for inventory data received before this node enters the scene tree/has slots
 var pending_inventory_data: Dictionary = {}
-
 
 
 # Notify the owning player on the server that inventory data changed
@@ -32,6 +35,7 @@ func _get_player() -> MultiplayerPlayerV2:
 			return node
 		node = node.get_parent()
 	return null
+
 
 func _ready() -> void:
 	if not multiplayer.is_server():
@@ -182,39 +186,61 @@ func _update_item_tracking(slot: Slot, old_item: ItemData, new_item: ItemData):
 			item_locations[new_name] = [slot]
 
 
-func add_item(item: ItemData):
-	var original_item = item.duplicate_with_path()
-	var item_name = item.name
+@rpc("any_peer", "call_local", "reliable")
+func server_add_item(item_id: String):
+	if not multiplayer.is_server():
+		return
+	var original_item: ItemData = ResourceManager.get_item_data(item_id).duplicate_with_path()
+	var item_name = original_item.name
+	
+	var player = _get_player()
+	if not player:
+		print("Cannot add item: no player found")
+		return
 
-	# --- MODIFIED LOGIC: First, try to stack with existing items in valid slots ---
-	if item_name in item_locations and item.can_stack:
+	# --- Try to stack with existing items in valid slots ---
+	if item_name in item_locations and original_item.can_stack:
 		var existing_slots = item_locations[item_name]
 		for slot in existing_slots:
-			# NEW CHECK: Ensure the slot can accept this item type before trying to stack.
-			if slot.has_method("can_accept_item") and not slot.can_accept_item(item):
-				continue # Skip to the next slot if the type is wrong.
+			if slot.has_method("can_accept_item") and not slot.can_accept_item(original_item):
+				continue
 
-			if slot.can_add_to_stack(item):
+			if slot.can_add_to_stack(original_item):
 				var space_left = slot.get_remaining_space()
 				if space_left > 0:
-					var amount_to_add = min(item.current_stack_amount, space_left)
+					var amount_to_add = min(original_item.current_stack_amount, space_left)
 					slot.add_to_stack(amount_to_add)
-					item.current_stack_amount -= amount_to_add
+					original_item.current_stack_amount -= amount_to_add
 					item_counts[item_name] += amount_to_add
-					if item.current_stack_amount <= 0:
+					if original_item.current_stack_amount <= 0:
+						# Send update to client
+						var inv_data = save_inventory()
+						load_inventory_rpc.rpc_id(player.player_id, inv_data)
+						_notify_changed()
 						return
 						
-	# --- MODIFIED LOGIC: Second, find a valid empty slot ---
+	# --- Find a valid empty slot ---
 	for slot in slots:
-		# NEW CHECK: Find an empty slot that can also accept the item's type.
 		if slot.item == null and (not slot.has_method("can_accept_item") or slot.can_accept_item(original_item)):
 			slot.item = original_item.duplicate_with_path()
-			slot.item.current_stack_amount = item.current_stack_amount
+			slot.item.current_stack_amount = original_item.current_stack_amount
 			slot.update_display()
 			_update_item_tracking(slot, null, slot.item)
+			
+			# Send update to client
+			var inv_data = save_inventory()
+			load_inventory_rpc.rpc_id(player.player_id, inv_data)
+			_notify_changed()
 			return
 			
 	print("Inventory is full or no suitable slot found for this item type.")
+
+
+func add_item(item_id: String):
+	if multiplayer.is_server():
+		server_add_item(item_id)
+	else:
+		server_add_item.rpc_id(1, item_id)
 
 
 func remove_item(item: ItemData):
@@ -276,57 +302,9 @@ func get_empty_slots() -> Array[Slot]:
 	return empty_slots
 
 
-func split_stack(slot: Slot, amount: int) -> bool:
-	var slot_index = slots.find(slot)
-	if slot_index == -1:
-		return false
-	
-	# Use the new clientside split system
-	return split_stack_clientside(slot_index, amount)
-
-
-func split_stack_by_index(from_slot_index: int, split_amount: int = -1) -> bool:
-	if from_slot_index < 0 or from_slot_index >= slots.size():
-		return false
-	
-	var from_slot = slots[from_slot_index]
-	if not from_slot.item or not from_slot.item.can_stack or from_slot.item.current_stack_amount <= 1:
-		return false
-	
-	# If no amount specified, split in half
-	if split_amount == -1:
-		split_amount = ceili(from_slot.item.current_stack_amount / 2.0)
-	
-	return split_stack_clientside(from_slot_index, split_amount)
-
-
-func split_to_singles(slot_index: int) -> bool:
-	if slot_index < 0 or slot_index >= slots.size():
-		return false
-	
-	var slot = slots[slot_index]
-	if not slot.item or not slot.item.can_stack or slot.item.current_stack_amount <= 1:
-		return false
-	
-	var empty_slots = get_empty_slots()
-	var max_splits = min(slot.item.current_stack_amount - 1, empty_slots.size())
-	
-	if max_splits <= 0:
-		return false
-	
-	# Perform multiple splits to create singles
-	var successful_splits = 0
-	for i in range(max_splits):
-		if split_stack_clientside(slot_index, 1):
-			successful_splits += 1
-		else:
-			break
-	
-	return successful_splits > 0
-
-
 func get_slots() -> Array[Slot]:
 	return slots
+
 
 func get_all_slots() -> Array[Slot]:
 	var all_slots = slots.duplicate()
@@ -438,7 +416,6 @@ func _apply_inventory_data(inventory_data: Dictionary) -> void:
 	
 	# Rebuild tracking after loading
 	_rebuild_item_tracking()
-	
 
 
 func load_inventory(inventory_data: Dictionary) -> void:
@@ -447,7 +424,6 @@ func load_inventory(inventory_data: Dictionary) -> void:
 		pending_inventory_data = inventory_data
 		return
 	_apply_inventory_data(inventory_data)
-	
 
 
 @rpc("authority", "call_local", "reliable")
@@ -459,7 +435,6 @@ func load_inventory_rpc(inventory_data: Dictionary):
 		return
 	await _ensure_slots_initialized()
 	_apply_inventory_data(inventory_data)
-	
 
 
 # Client-side: Immediately move item and request server validation
@@ -473,71 +448,10 @@ func move_item_clientside(from_slot_index: int, to_slot_index: int) -> bool:
 	return transfer_item_clientside(slots[from_slot_index], slots[to_slot_index])
 
 
-# Client-side split with server validation
-func split_stack_clientside(from_slot_index: int, amount: int, to_slot_index: int = -1) -> bool:
-	if from_slot_index < 0 or from_slot_index >= slots.size():
-		return false
-	
-	var from_slot = slots[from_slot_index]
-	if not from_slot.item or not from_slot.item.can_stack or from_slot.item.current_stack_amount <= 1:
-		return false
-	
-	if amount >= from_slot.item.current_stack_amount or amount <= 0:
-		return false
-	
-	# If no target slot specified, find the first empty slot
-	if to_slot_index == -1:
-		var empty_slots = get_empty_slots()
-		if empty_slots.is_empty():
-			return false
-		to_slot_index = slots.find(empty_slots[0])
-		if to_slot_index == -1:
-			return false
-	else:
-		# Validate the target slot
-		if to_slot_index < 0 or to_slot_index >= slots.size():
-			return false
-		var to_slot = slots[to_slot_index]
-		if to_slot.item != null:
-			return false
-		if to_slot.has_method("can_accept_item") and not to_slot.can_accept_item(from_slot.item):
-			return false
-	
-	# Store complete state for potential rollback (including visual state)
-	var backup_state = {
-		"from_item": from_slot.item.duplicate_with_path() if from_slot.item else null,
-		"to_item": null, # Target slot is empty for splits
-		"from_slot_index": from_slot_index,
-		"to_slot_index": to_slot_index,
-		"amount": amount
-	}
-	
-	# Store this backup in case server rejects the split
-	pending_splits[from_slot_index] = backup_state
-	
-	# Perform the split immediately on client (optimistic update)
-	_execute_split_local(from_slot_index, to_slot_index, amount)
-	
-	# Send request to server for validation
-	if multiplayer.has_multiplayer_peer():
-		var player = owner as MultiplayerPlayerV2
-		request_split_stack.rpc_id(1, from_slot_index, to_slot_index, amount, player.player_id)
-	else:
-		# Single player - no validation needed
-		pending_splits.erase(from_slot_index)
-	
-	return true
-
-
 func transfer_item_clientside(from_slot: Slot, to_slot: Slot) -> bool:
 	# Get slot paths relative to this InventoryComponent BEFORE any local swap
 	var from_path: NodePath = get_path_to(from_slot)
 	var to_path: NodePath = get_path_to(to_slot)
-
-	# Debug what we're sending (pre-swap state)
-	var from_id := from_slot.item.item_id if from_slot.item else "<nil>"
-	var to_id := to_slot.item.item_id if to_slot.item else "<nil>"
-	
 
 	# Store backup for potential rollback (pre-swap)
 	var backup_state = {
@@ -585,38 +499,6 @@ func _execute_swap_local(from_slot: Slot, to_slot: Slot):
 	to_slot.update_display()
 
 
-# Local execution of split (used by both client and server)
-func _execute_split_local(from_slot_index: int, to_slot_index: int, amount: int):
-	var from_slot = slots[from_slot_index]
-	var to_slot = slots[to_slot_index]
-	
-	if not from_slot.item or to_slot.item != null:
-		print("Invalid split state - from slot empty or to slot occupied")
-		return
-
-	# Keep a reference to the item data before modification for tracking
-	var old_from_item = from_slot.item.duplicate_with_path()
-
-	# Create the new item for the split stack
-	var split_item = from_slot.item.duplicate_with_path()
-	split_item.current_stack_amount = amount
-	
-	# Reduce original stack amount
-	from_slot.item.current_stack_amount -= amount
-	
-	# Place the new split item in the target slot
-	var old_to_item = to_slot.item # Should be null here
-	to_slot.item = split_item
-	
-	# Update displays
-	from_slot.update_display()
-	to_slot.update_display()
-	
-	# Manually and explicitly update the item tracking for both slots
-	_update_item_tracking(from_slot, old_from_item, from_slot.item)
-	_update_item_tracking(to_slot, old_to_item, to_slot.item)
-
-
 # Check if a move is valid
 func _is_move_valid(from_slot: Slot, to_slot: Slot) -> bool:
 	if from_slot.item == null:
@@ -626,37 +508,6 @@ func _is_move_valid(from_slot: Slot, to_slot: Slot) -> bool:
 	# Check if target slot can accept the item type
 	if to_slot.has_method("can_accept_item") and not to_slot.can_accept_item(from_slot.item):
 		print("[INV][VALIDATE] to_slot cannot accept item '%s' (allowed=%s, item_type=%s)" % [from_slot.item.name, str(to_slot.allowed_item_type) if "allowed_item_type" in to_slot else "-", str(from_slot.item.item_type)])
-		return false
-	
-	return true
-
-
-# Check if a split is valid
-func _is_split_valid(from_index: int, to_index: int, amount: int) -> bool:
-	if from_index < 0 or from_index >= slots.size():
-		return false
-	if to_index < 0 or to_index >= slots.size():
-		return false
-	if amount <= 0:
-		return false
-	
-	var from_slot = slots[from_index]
-	var to_slot = slots[to_index]
-	
-	# Check if from slot has a valid stackable item
-	if not from_slot.item or not from_slot.item.can_stack:
-		return false
-	
-	# Check if we have enough items to split
-	if amount <= 0 or amount >= from_slot.item.max_stack_amount:
-		return false
-	
-	# Check if target slot is empty
-	if to_slot.item != null:
-		return false
-	
-	# Check if target slot can accept the item type
-	if to_slot.has_method("can_accept_item") and not to_slot.can_accept_item(from_slot.item):
 		return false
 	
 	return true
@@ -705,44 +556,6 @@ func request_move_item(from_index: int, to_index: int, requesting_player_id: int
 			confirm_move_item.rpc_id(peer_id, from_index, to_index, false)
 
 
-# SERVER RPC: Validate and broadcast split
-@rpc("any_peer", "call_local", "reliable")
-func request_split_stack(from_index: int, to_index: int, amount: int, requesting_player_id: int):
-	# Only server processes these requests
-	if not multiplayer.is_server():
-		return
-	
-	# Verify the request is from the correct player
-	var player = _get_player()
-	if not player or player.player_id != requesting_player_id:
-		print("Split request from wrong player!")
-		send_inventory_correction.rpc_id(requesting_player_id)
-		return
-
-	if slots.is_empty():
-		await _ensure_slots_initialized()
-	
-	# Validate split on server
-	if not _is_split_valid(from_index, to_index, amount):
-		print("Invalid split rejected by server")
-		send_inventory_correction.rpc_id(requesting_player_id)
-		return
-	
-	# Server approves and executes the split
-	_execute_split_local(from_index, to_index, amount)
-	_notify_changed()
-	
-	# Send confirmation to the requesting client (clears pending moves)
-	confirm_split_stack.rpc_id(requesting_player_id, from_index, to_index, amount, true)
-	
-	# Broadcast the confirmed split to all other clients (except the one who requested it)
-	for peer_id in multiplayer.get_peers():
-		if peer_id != requesting_player_id:
-			confirm_split_stack.rpc_id(peer_id, from_index, to_index, amount, false)
-	
-	print("Split validated and applied on server")
-
-
 @rpc("any_peer", "call_local", "reliable")
 func request_transfer_item(from_slot_path: NodePath, to_slot_path: NodePath, requesting_player_id: int):
 	if not multiplayer.is_server():
@@ -788,38 +601,12 @@ func confirm_move_item(from_index: int, to_index: int, was_requesting_client: bo
 		return
 	
 	if was_requesting_client:
-		# Clear the pending move since it was accepted
 		pending_moves.erase(from_index)
-		# Persist from client so server saves authoritative state
-		var player = owner as MultiplayerPlayerV2
-		if player:
-			player._data_changed()
 	else:
-		# Apply the server-confirmed move from another client
 		if from_index >= 0 and from_index < slots.size() and to_index >= 0 and to_index < slots.size():
 			var from_slot = slots[from_index]
 			var to_slot = slots[to_index]
 			_execute_swap_local(from_slot, to_slot)
-
-
-# CLIENT RPC: Receive confirmed split from server
-@rpc("authority", "call_local", "reliable")
-func confirm_split_stack(from_index: int, to_index: int, amount: int, was_requesting_client: bool = false):
-	# Only clients process these confirmations
-	if multiplayer.is_server():
-		return
-	
-	if was_requesting_client:
-		# Clear any pending splits since it was accepted
-		pending_splits.erase(from_index)
-		# Persist from client so server saves authoritative state
-		var player = owner as MultiplayerPlayerV2
-		if player:
-			player._data_changed()
-	else:
-		# Apply the server-confirmed split from another client
-		if _is_split_valid(from_index, to_index, amount):
-			_execute_split_local(from_index, to_index, amount)
 
 
 @rpc("authority", "call_local", "reliable")
@@ -827,21 +614,17 @@ func confirm_transfer_item(from_slot_path: NodePath, to_slot_path: NodePath, was
 	if multiplayer.is_server():
 		return
 
+	var from_slot = get_node_or_null(from_slot_path)
+	var to_slot = get_node_or_null(to_slot_path)
+	
+	if not from_slot or not to_slot:
+		return
+
 	if was_requesting_client:
 		pending_transfers.erase(from_slot_path)
-		var from_slot = get_node_or_null(from_slot_path)
-		var to_slot = get_node_or_null(to_slot_path)
-		if from_slot and to_slot:
-			_execute_swap_local(from_slot, to_slot)
-		# Persist from client so server saves authoritative state
-		var player = owner as MultiplayerPlayerV2
-		if player:
-			player._data_changed()
+		_execute_swap_local(from_slot, to_slot)
 	else:
-		var from_slot = get_node_or_null(from_slot_path)
-		var to_slot = get_node_or_null(to_slot_path)
-		if from_slot and to_slot:
-			_execute_swap_local(from_slot, to_slot)
+		_execute_swap_local(from_slot, to_slot)
 
 
 # CLIENT RPC: Server sends correction when move was invalid
@@ -853,31 +636,6 @@ func send_inventory_correction():
 	print("Sending inventory correction to client")
 	var current_inventory = save_inventory()
 	receive_inventory_correction.rpc_id(multiplayer.get_remote_sender_id(), current_inventory)
-
-
-# Function to restore a rejected split
-func restore_rejected_split(from_slot_index: int):
-	if from_slot_index in pending_splits:
-		var backup_state = pending_splits[from_slot_index]
-		var from_slot = slots[from_slot_index]
-		var to_slot = slots[backup_state.to_slot_index]
-		
-		# Restore the original state
-		if backup_state.from_item:
-			from_slot.item = backup_state.from_item.duplicate_with_path()
-		to_slot.item = null
-		
-		# Update displays
-		from_slot.update_display()
-		to_slot.update_display()
-		
-		# Rebuild tracking
-		_rebuild_item_tracking()
-		
-		# Clear the pending split
-		pending_splits.erase(from_slot_index)
-		
-		print("Restored rejected split for slot ", from_slot_index)
 
 
 @rpc("authority", "call_local", "reliable") 

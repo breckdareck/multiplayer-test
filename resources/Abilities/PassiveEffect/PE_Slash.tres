@@ -5,14 +5,12 @@
 
 [sub_resource type="Resource" id="Resource_v60qx"]
 script = ExtResource("2_v60qx")
-stat_type = 1
 base_value = 0
-flat_bonus_value = 300
 metadata/_custom_type_script = "uid://cptesvvlfbytw"
 
 [resource]
 script = ExtResource("1_xdtds")
 stat_modifiers = Dictionary[int, ExtResource("2_v60qx")]({
-1: SubResource("Resource_v60qx")
+0: SubResource("Resource_v60qx")
 })
 metadata/_custom_type_script = "uid://bavbijmvbigeq"

@@ -35,8 +35,8 @@ properties/4/path = NodePath("Health:current_health")
 properties/4/spawn = true
 properties/4/replication_mode = 2
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_n6pvg"]
-radius = 5.09902
+[sub_resource type="CircleShape2D" id="CircleShape2D_a0il2"]
+radius = 6.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0x8hd"]
 bg_color = Color(0.0866292, 0.0866293, 0.0866292, 1)
@@ -423,7 +423,7 @@ animations = [{
 size = Vector2(64, 37)
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_y64qe"]
-radius = 6.0
+radius = 13.0
 height = 34.0
 
 [node name="Goblin" type="CharacterBody2D" node_paths=PackedStringArray("health_component") groups=["networked_entities"]]
@@ -443,8 +443,8 @@ replication_config = SubResource("SceneReplicationConfig_n6pvg")
 position = Vector2(0, -47)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, -5)
-shape = SubResource("CircleShape2D_n6pvg")
+position = Vector2(1, -6)
+shape = SubResource("CircleShape2D_a0il2")
 
 [node name="Health" type="Node" parent="." node_paths=PackedStringArray("damage_number_origin")]
 script = ExtResource("2_0x8hd")
@@ -452,6 +452,7 @@ damage_number_origin = NodePath("../DmgNumOrigin")
 health_bar_path = NodePath("../HealthBar")
 
 [node name="Label" type="Label" parent="."]
+visible = false
 offset_left = -20.0
 offset_top = -50.0
 offset_right = 20.0
@@ -480,11 +481,14 @@ sprite_frames = SubResource("SpriteFrames_xwavj")
 animation = &"idle"
 autoplay = "idle"
 
-[node name="Hitbox" type="Area2D" parent="."]
-collision_layer = 8
+[node name="AttackHitbox" type="Area2D" parent="."]
+collision_layer = 0
 collision_mask = 2
+monitoring = false
+monitorable = false
 
-[node name="SlashCollisionShape" type="CollisionShape2D" parent="Hitbox"]
+[node name="SlashCollisionShape" type="CollisionShape2D" parent="AttackHitbox"]
+visible = false
 position = Vector2(20, -19.5)
 shape = SubResource("RectangleShape2D_17tps")
 disabled = true
@@ -516,7 +520,7 @@ animation_name = "patrol"
 
 [node name="slash_attack" type="Node" parent="StateMachine" node_paths=PackedStringArray("slash_hitbox_shape", "return_state")]
 script = ExtResource("14_17tps")
-slash_hitbox_shape = NodePath("../../Hitbox/SlashCollisionShape")
+slash_hitbox_shape = NodePath("../../AttackHitbox/SlashCollisionShape")
 return_state = NodePath("../idle")
 animation_name = "slash_attack"
 

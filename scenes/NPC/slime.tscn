@@ -29,7 +29,7 @@ properties/4/spawn = true
 properties/4/replication_mode = 2
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_n6pvg"]
-radius = 6.0
+radius = 8.062258
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0l8pv"]
 bg_color = Color(0.0866292, 0.0866293, 0.0866292, 1)
@@ -148,7 +148,7 @@ delta_interval = 0.015
 replication_config = SubResource("SceneReplicationConfig_n6pvg")
 
 [node name="DmgNumOrigin" type="Node2D" parent="."]
-position = Vector2(0, -22)
+position = Vector2(0, -47)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -6)
@@ -160,6 +160,7 @@ damage_number_origin = NodePath("../DmgNumOrigin")
 health_bar_path = NodePath("../HealthBar")
 
 [node name="Label" type="Label" parent="."]
+visible = false
 offset_left = -20.0
 offset_top = -48.0
 offset_right = 20.0
@@ -188,11 +189,11 @@ sprite_frames = SubResource("SpriteFrames_xwavj")
 animation = &"patrol"
 autoplay = "idle"
 
-[node name="Hitbox" type="Area2D" parent="."]
+[node name="AttackHitbox" type="Area2D" parent="."]
 collision_layer = 8
 collision_mask = 2
 
-[node name="SlashCollisionShape" type="CollisionShape2D" parent="Hitbox"]
+[node name="SlashCollisionShape" type="CollisionShape2D" parent="AttackHitbox"]
 position = Vector2(20, -19.5)
 shape = SubResource("RectangleShape2D_v5wyi")
 disabled = true

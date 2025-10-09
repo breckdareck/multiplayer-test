@@ -1,0 +1,278 @@
+[gd_scene load_steps=9 format=3 uid="uid://c2sweq4gkie70"]
+
+[ext_resource type="StyleBox" uid="uid://dm8jxifs8rqrm" path="res://assets/UI/Themes/PanelStyleboxTheme.tres" id="1_45i2r"]
+[ext_resource type="Script" uid="uid://x1pyuk0xt8k8" path="res://scripts/UI/ability_window.gd" id="2_e7278"]
+[ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="3_702f5"]
+[ext_resource type="Theme" uid="uid://bg5sc8rk63fi6" path="res://assets/UI/Themes/ScrollContainerTheme.tres" id="4_v72j5"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_w72g6"]
+content_margin_left = 10.0
+content_margin_top = 5.0
+content_margin_right = 10.0
+content_margin_bottom = 5.0
+bg_color = Color(0.2, 0.2, 0.3, 1)
+border_width_bottom = 1
+border_color = Color(0.35, 0.35, 0.45, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0k78i"]
+content_margin_left = 8.0
+content_margin_top = 8.0
+content_margin_right = 8.0
+content_margin_bottom = 8.0
+bg_color = Color(0.12, 0.12, 0.18, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3, 0.3, 0.4, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_o6x5f"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0.1, 0.1, 0.15, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.2, 0.25, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="Theme" id="Theme_i6h8y"]
+Button/colors/font_color = Color(1, 1, 1, 1)
+Button/colors/font_disabled_color = Color(0.6, 0.6, 0.6, 1)
+Button/colors/font_hover_color = Color(1, 1, 1, 1)
+Button/colors/font_pressed_color = Color(0.8, 0.8, 0.8, 1)
+Button/constants/h_separation = 2
+Button/font_sizes/font_size = 12
+Button/fonts/font = ExtResource("3_702f5")
+Button/styles/disabled = SubResource("StyleBoxFlat_o6x5f")
+Button/styles/focus = SubResource("StyleBoxFlat_o6x5f")
+Button/styles/hover = SubResource("StyleBoxFlat_o6x5f")
+Button/styles/normal = SubResource("StyleBoxFlat_o6x5f")
+Button/styles/pressed = SubResource("StyleBoxFlat_o6x5f")
+
+[node name="AbilityWindow" type="PanelContainer"]
+custom_minimum_size = Vector2(700, 550)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -353.125
+offset_top = -282.5
+offset_right = 353.125
+offset_bottom = 282.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = ExtResource("1_45i2r")
+script = ExtResource("2_e7278")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="HeaderPanel" type="PanelContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_w72g6")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/HeaderPanel"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="MarginContainer/VBoxContainer/HeaderPanel/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("3_702f5")
+theme_override_font_sizes/font_size = 24
+text = "ABILITIES"
+
+[node name="SkillPointsLabel" type="Label" parent="MarginContainer/VBoxContainer/HeaderPanel/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.298039, 0.941176, 0.247059, 1)
+theme_override_fonts/font = ExtResource("3_702f5")
+theme_override_font_sizes/font_size = 16
+text = "SP: 5"
+horizontal_alignment = 2
+vertical_alignment = 1
+metadata/_edit_use_anchors = true
+
+[node name="CloseButton" type="Button" parent="MarginContainer/VBoxContainer/HeaderPanel/HBoxContainer"]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+focus_mode = 0
+text = "X"
+flat = true
+
+[node name="HSplitContainer" type="HSplitContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+dragging_enabled = false
+
+[node name="AbilityListPanel" type="PanelContainer" parent="MarginContainer/VBoxContainer/HSplitContainer"]
+custom_minimum_size = Vector2(270, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.4
+theme_override_styles/panel = SubResource("StyleBoxFlat_0k78i")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer/HSplitContainer/AbilityListPanel"]
+layout_mode = 2
+theme = ExtResource("4_v72j5")
+
+[node name="AbilityListContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HSplitContainer/AbilityListPanel/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="AbilityDetailsPanel" type="PanelContainer" parent="MarginContainer/VBoxContainer/HSplitContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.6
+theme_override_styles/panel = SubResource("StyleBoxFlat_0k78i")
+
+[node name="DetailsVBox" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HSplitContainer/AbilityDetailsPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="AbilityHeader" type="HBoxContainer" parent="MarginContainer/VBoxContainer/HSplitContainer/AbilityDetailsPanel/DetailsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="AbilityIcon" type="TextureRect" parent="MarginContainer/VBoxContainer/HSplitContainer/AbilityDetailsPanel/DetailsVBox/AbilityHeader"]
+unique_name_in_owner = true
+texture_filter = 1
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+size_flags_horizontal = 0
+expand_mode = 1
+
+[node name="NameVBox" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HSplitContainer/AbilityDetailsPanel/DetailsVBox/AbilityHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AbilityName" type="Label" parent="MarginContainer/VBoxContainer/HSplitContainer/AbilityDetailsPanel/DetailsVBox/AbilityHeader/NameVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("3_702f5")
+theme_override_font_sizes/font_size = 24
+text = "Name of Ability"
+
+[node name="AbilityLevel" type="Label" parent="MarginContainer/VBoxContainer/HSplitContainer/AbilityDetailsPanel/DetailsVBox/AbilityHeader/NameVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.2, 1)
+theme_override_fonts/font = ExtResource("3_702f5")
+theme_override_font_sizes/font_size = 16
+text = "LEVEL: 1 / 5"
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer/HSplitContainer/AbilityDetailsPanel/DetailsVBox"]
+layout_mode = 2
+
+[node name="DescriptionText" type="RichTextLabel" parent="MarginContainer/VBoxContainer/HSplitContainer/AbilityDetailsPanel/DetailsVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_fonts/normal_font = ExtResource("3_702f5")
+theme_override_font_sizes/normal_font_size = 16
+bbcode_enabled = true
+text = "Description and effect details will be displayed here."
+fit_content = true
+scroll_active = false
+
+[node name="StatsGrid" type="GridContainer" parent="MarginContainer/VBoxContainer/HSplitContainer/AbilityDetailsPanel/DetailsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/HSplitContainer/AbilityDetailsPanel/DetailsVBox/StatsGrid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_fonts/font = ExtResource("3_702f5")
+theme_override_font_sizes/font_size = 16
+text = "Mana Cost:"
+
+[node name="ManaCost" type="RichTextLabel" parent="MarginContainer/VBoxContainer/HSplitContainer/AbilityDetailsPanel/DetailsVBox/StatsGrid"]
+unique_name_in_owner = true
+clip_contents = false
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+theme_override_fonts/normal_font = ExtResource("3_702f5")
+bbcode_enabled = true
+text = "0"
+autowrap_mode = 0
+
+[node name="Label2" type="Label" parent="MarginContainer/VBoxContainer/HSplitContainer/AbilityDetailsPanel/DetailsVBox/StatsGrid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_fonts/font = ExtResource("3_702f5")
+theme_override_font_sizes/font_size = 16
+text = "Cooldown:"
+
+[node name="Cooldown" type="RichTextLabel" parent="MarginContainer/VBoxContainer/HSplitContainer/AbilityDetailsPanel/DetailsVBox/StatsGrid"]
+unique_name_in_owner = true
+clip_contents = false
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+theme_override_fonts/normal_font = ExtResource("3_702f5")
+bbcode_enabled = true
+text = "0.0s"
+autowrap_mode = 0
+
+[node name="LevelUpContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HSplitContainer/AbilityDetailsPanel/DetailsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="HSeparator2" type="HSeparator" parent="MarginContainer/VBoxContainer/HSplitContainer/AbilityDetailsPanel/DetailsVBox/LevelUpContainer"]
+layout_mode = 2
+
+[node name="CostHBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer/HSplitContainer/AbilityDetailsPanel/DetailsVBox/LevelUpContainer"]
+layout_mode = 2
+
+[node name="CostLabel" type="Label" parent="MarginContainer/VBoxContainer/HSplitContainer/AbilityDetailsPanel/DetailsVBox/LevelUpContainer/CostHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_fonts/font = ExtResource("3_702f5")
+theme_override_font_sizes/font_size = 16
+text = "Cost to Upgrade: 1 SP"
+
+[node name="LevelUpButton" type="Button" parent="MarginContainer/VBoxContainer/HSplitContainer/AbilityDetailsPanel/DetailsVBox/LevelUpContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+theme = SubResource("Theme_i6h8y")
+theme_override_font_sizes/font_size = 16
+text = "LEVEL UP (MAX)"
+
+[node name="FooterHBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+alignment = 2
+
+[node name="CloseButton" type="Button" parent="MarginContainer/VBoxContainer/FooterHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 25)
+layout_mode = 2
+theme = SubResource("Theme_i6h8y")
+theme_override_font_sizes/font_size = 16
+text = "CLOSE"
+
+[connection signal="pressed" from="MarginContainer/VBoxContainer/HeaderPanel/HBoxContainer/CloseButton" to="." method="hide"]

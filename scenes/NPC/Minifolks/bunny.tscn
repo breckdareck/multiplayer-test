@@ -1,4 +1,4 @@
-[gd_scene load_steps=30 format=3 uid="uid://c06qbiant345e"]
+[gd_scene load_steps=31 format=3 uid="uid://c06qbiant345e"]
 
 [ext_resource type="Script" uid="uid://cj6lu2r6oxt6o" path="res://scripts/Enemy/enemy_base.gd" id="1_wu46e"]
 [ext_resource type="Script" uid="uid://dhhn4ks2uixk8" path="res://scripts/Components/health.gd" id="2_6msmc"]
@@ -162,6 +162,10 @@ animations = [{
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_17tps"]
 size = Vector2(64, 37)
 
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_h5euh"]
+radius = 6.0
+height = 18.0
+
 [node name="Bunny" type="CharacterBody2D" node_paths=PackedStringArray("health_component") groups=["networked_entities"]]
 collision_layer = 8
 collision_mask = 5
@@ -177,7 +181,7 @@ delta_interval = 0.015
 replication_config = SubResource("SceneReplicationConfig_n6pvg")
 
 [node name="DmgNumOrigin" type="Node2D" parent="."]
-position = Vector2(0, -22)
+position = Vector2(0, -47)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -5)
@@ -221,11 +225,11 @@ sprite_frames = SubResource("SpriteFrames_xwavj")
 animation = &"idle"
 autoplay = "idle"
 
-[node name="Hitbox" type="Area2D" parent="."]
+[node name="AttackHitbox" type="Area2D" parent="."]
 collision_layer = 8
 collision_mask = 2
 
-[node name="SlashCollisionShape" type="CollisionShape2D" parent="Hitbox"]
+[node name="SlashCollisionShape" type="CollisionShape2D" parent="AttackHitbox"]
 visible = false
 position = Vector2(20, -19.5)
 shape = SubResource("RectangleShape2D_17tps")
@@ -237,7 +241,8 @@ collision_mask = 0
 
 [node name="EnemyBody" type="CollisionShape2D" parent="BodyHitbox"]
 position = Vector2(0, -5)
-shape = SubResource("CircleShape2D_n6pvg")
+rotation = 1.5707964
+shape = SubResource("CapsuleShape2D_h5euh")
 
 [node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("starting_state", "state_label")]
 script = ExtResource("5_q3lct")

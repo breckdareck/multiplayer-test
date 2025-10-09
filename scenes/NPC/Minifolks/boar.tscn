@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=3 uid="uid://betkg72vd7iav"]
+[gd_scene load_steps=32 format=3 uid="uid://betkg72vd7iav"]
 
 [ext_resource type="Script" uid="uid://cj6lu2r6oxt6o" path="res://scripts/Enemy/enemy_base.gd" id="1_nrg6h"]
 [ext_resource type="Curve" uid="uid://q6qc5kgdbmyv" path="res://monster_hp_curve.tres" id="2_71sob"]
@@ -169,6 +169,10 @@ animations = [{
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_17tps"]
 size = Vector2(64, 37)
 
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_71sob"]
+radius = 8.0
+height = 26.0
+
 [node name="Boar" type="CharacterBody2D" node_paths=PackedStringArray("health_component") groups=["networked_entities"]]
 collision_layer = 8
 collision_mask = 5
@@ -184,7 +188,7 @@ delta_interval = 0.015
 replication_config = SubResource("SceneReplicationConfig_n6pvg")
 
 [node name="DmgNumOrigin" type="Node2D" parent="."]
-position = Vector2(0, -22)
+position = Vector2(0, -47)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -5)
@@ -197,6 +201,7 @@ max_health = 50
 health_bar_path = NodePath("../HealthBar")
 
 [node name="Label" type="Label" parent="."]
+visible = false
 offset_left = -12.0
 offset_top = -25.0
 offset_right = 28.0
@@ -227,11 +232,11 @@ sprite_frames = SubResource("SpriteFrames_xwavj")
 animation = &"idle"
 autoplay = "idle"
 
-[node name="Hitbox" type="Area2D" parent="."]
-collision_layer = 8
+[node name="AttackHitbox" type="Area2D" parent="."]
+collision_layer = 0
 collision_mask = 2
 
-[node name="SlashCollisionShape" type="CollisionShape2D" parent="Hitbox"]
+[node name="SlashCollisionShape" type="CollisionShape2D" parent="AttackHitbox"]
 position = Vector2(20, -19.5)
 shape = SubResource("RectangleShape2D_17tps")
 disabled = true
@@ -241,8 +246,9 @@ collision_layer = 8
 collision_mask = 2
 
 [node name="EnemyBody" type="CollisionShape2D" parent="BodyHitbox"]
-position = Vector2(0, -5)
-shape = SubResource("CircleShape2D_n6pvg")
+position = Vector2(0, -7)
+rotation = 1.5707964
+shape = SubResource("CapsuleShape2D_71sob")
 
 [node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("starting_state", "state_label")]
 script = ExtResource("11_85v0n")

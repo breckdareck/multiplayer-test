@@ -26,8 +26,8 @@ func _ready() -> void:
 	health_bar.value = player.health_component.current_health
 	hp_value_label.text = str(player.health_component.current_health) + "/" + str(player.health_component.max_health)
 	
-	experience_bar.value = player.level_component.experience
 	experience_bar.max_value = player.level_component.get_exp_to_next_level()
+	experience_bar.value = player.level_component.experience
 	exp_percent_label.text = "%0.2f" % (float(player.level_component.experience)/player.level_component.get_exp_to_next_level()*100) + "%"
 	
 	level_label.text = "LV.[color=yellow]%s[/color]" % str(player.level_component.level)

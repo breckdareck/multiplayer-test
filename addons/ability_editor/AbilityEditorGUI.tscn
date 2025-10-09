@@ -1,0 +1,339 @@
+[gd_scene load_steps=2 format=3 uid="uid://df0th7wol3d0u"]
+
+[ext_resource type="Script" uid="uid://bc0llhlflc36h" path="res://addons/ability_editor/AbilityEditorGUI.gd" id="1_0xt2s"]
+
+[node name="AbilityEditor" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_0xt2s")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MainHSplit" type="HSplitContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+split_offset = 250
+
+[node name="AbilityBrowser" type="VBoxContainer" parent="Panel/MainHSplit"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Panel/MainHSplit/AbilityBrowser"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Project Abilities"
+
+[node name="RefreshButton" type="Button" parent="Panel/MainHSplit/AbilityBrowser"]
+layout_mode = 2
+text = "Refresh List"
+
+[node name="AbilityTree" type="Tree" parent="Panel/MainHSplit/AbilityBrowser"]
+layout_mode = 2
+size_flags_vertical = 3
+hide_root = true
+
+[node name="EditorPanel" type="VBoxContainer" parent="Panel/MainHSplit"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Header" type="HBoxContainer" parent="Panel/MainHSplit/EditorPanel"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Panel/MainHSplit/EditorPanel/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 32
+text = "Ability Editor"
+vertical_alignment = 1
+
+[node name="FileButtons" type="HBoxContainer" parent="Panel/MainHSplit/EditorPanel/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 2
+
+[node name="NewButton" type="Button" parent="Panel/MainHSplit/EditorPanel/Header/FileButtons"]
+layout_mode = 2
+text = " New "
+
+[node name="LoadButton" type="Button" parent="Panel/MainHSplit/EditorPanel/Header/FileButtons"]
+layout_mode = 2
+text = " Load "
+
+[node name="SaveButton" type="Button" parent="Panel/MainHSplit/EditorPanel/Header/FileButtons"]
+layout_mode = 2
+text = " Save "
+
+[node name="SaveAsButton" type="Button" parent="Panel/MainHSplit/EditorPanel/Header/FileButtons"]
+layout_mode = 2
+text = " Save As... "
+
+[node name="HSplitContainer" type="HSplitContainer" parent="Panel/MainHSplit/EditorPanel"]
+layout_mode = 2
+size_flags_vertical = 3
+split_offset = 400
+
+[node name="GeneralSettings" type="ScrollContainer" parent="Panel/MainHSplit/EditorPanel/HSplitContainer"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/GeneralSettings"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Form" type="VBoxContainer" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/GeneralSettings/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="HBox_Name" type="HBoxContainer" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/GeneralSettings/MarginContainer/Form"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/GeneralSettings/MarginContainer/Form/HBox_Name"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "Ability Name:"
+
+[node name="AbilityNameEdit" type="LineEdit" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/GeneralSettings/MarginContainer/Form/HBox_Name"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "e.g., Power Strike"
+
+[node name="HBox_Desc" type="VBoxContainer" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/GeneralSettings/MarginContainer/Form"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/GeneralSettings/MarginContainer/Form/HBox_Desc"]
+layout_mode = 2
+text = "Description:"
+
+[node name="DescriptionEdit" type="TextEdit" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/GeneralSettings/MarginContainer/Form/HBox_Desc"]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+wrap_mode = 1
+
+[node name="HBox_MaxLevel" type="HBoxContainer" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/GeneralSettings/MarginContainer/Form"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/GeneralSettings/MarginContainer/Form/HBox_MaxLevel"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "Max Level:"
+
+[node name="MaxLevelSpinBox" type="SpinBox" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/GeneralSettings/MarginContainer/Form/HBox_MaxLevel"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 1.0
+value = 1.0
+allow_greater = true
+
+[node name="HBox_Type" type="HBoxContainer" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/GeneralSettings/MarginContainer/Form"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/GeneralSettings/MarginContainer/Form/HBox_Type"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "Ability Type:"
+
+[node name="AbilityTypeOption" type="OptionButton" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/GeneralSettings/MarginContainer/Form/HBox_Type"]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 2
+popup/item_0/text = "ACTIVE"
+popup/item_0/id = 0
+popup/item_1/text = "PASSIVE"
+popup/item_1/id = 1
+
+[node name="HBox_Class" type="HBoxContainer" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/GeneralSettings/MarginContainer/Form"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/GeneralSettings/MarginContainer/Form/HBox_Class"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "Required Class:"
+
+[node name="RequiredClassOption" type="OptionButton" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/GeneralSettings/MarginContainer/Form/HBox_Class"]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 3
+popup/item_0/text = "SWORDSMAN"
+popup/item_0/id = 0
+popup/item_1/text = "ARCHER"
+popup/item_1/id = 1
+popup/item_2/text = "MAGE"
+popup/item_2/id = 2
+
+[node name="HBox_Weapon" type="HBoxContainer" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/GeneralSettings/MarginContainer/Form"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/GeneralSettings/MarginContainer/Form/HBox_Weapon"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "Required Weapon:"
+
+[node name="RequiredWeaponOption" type="OptionButton" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/GeneralSettings/MarginContainer/Form/HBox_Weapon"]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 3
+popup/item_0/text = "SWORD"
+popup/item_0/id = 0
+popup/item_1/text = "BOW"
+popup/item_1/id = 1
+popup/item_2/text = "STAFF"
+popup/item_2/id = 2
+
+[node name="LevelSettings" type="VBoxContainer" parent="Panel/MainHSplit/EditorPanel/HSplitContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Level Configuration"
+horizontal_alignment = 1
+
+[node name="HSplitContainer" type="HSplitContainer" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings"]
+layout_mode = 2
+size_flags_vertical = 3
+split_offset = 150
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer"]
+layout_mode = 2
+
+[node name="LevelList" type="ItemList" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="AddLevelButton" type="Button" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = " + "
+
+[node name="RemoveLevelButton" type="Button" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = " - "
+
+[node name="LevelDetails" type="ScrollContainer" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer"]
+visible = false
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer/LevelDetails"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_right = 10
+
+[node name="Form" type="VBoxContainer" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer/LevelDetails/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="LevelLabel" type="Label" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer/LevelDetails/MarginContainer/Form"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Editing Level: -"
+horizontal_alignment = 1
+
+[node name="ManaCost" type="HBoxContainer" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer/LevelDetails/MarginContainer/Form"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer/LevelDetails/MarginContainer/Form/ManaCost"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "Mana Cost:"
+
+[node name="ManaCostSpinBox" type="SpinBox" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer/LevelDetails/MarginContainer/Form/ManaCost"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1000.0
+allow_greater = true
+
+[node name="Cooldown" type="HBoxContainer" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer/LevelDetails/MarginContainer/Form"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer/LevelDetails/MarginContainer/Form/Cooldown"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "Cooldown Time:"
+
+[node name="CooldownSpinBox" type="SpinBox" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer/LevelDetails/MarginContainer/Form/Cooldown"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 60.0
+step = 0.1
+allow_greater = true
+
+[node name="DamagePercent" type="HBoxContainer" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer/LevelDetails/MarginContainer/Form"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer/LevelDetails/MarginContainer/Form/DamagePercent"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "Damage Percent:"
+
+[node name="DamagePercentSpinBox" type="SpinBox" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer/LevelDetails/MarginContainer/Form/DamagePercent"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 1.0
+max_value = 10000.0
+value = 1.0
+allow_greater = true
+
+[node name="FixedDamage" type="HBoxContainer" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer/LevelDetails/MarginContainer/Form"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer/LevelDetails/MarginContainer/Form/FixedDamage"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "Fixed Damage:"
+
+[node name="FixedDamageSpinBox" type="SpinBox" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer/LevelDetails/MarginContainer/Form/FixedDamage"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 10000.0
+allow_greater = true
+
+[node name="MaxTargets" type="HBoxContainer" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer/LevelDetails/MarginContainer/Form"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer/LevelDetails/MarginContainer/Form/MaxTargets"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "Max Targets:"
+
+[node name="MaxTargetsSpinBox" type="SpinBox" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer/LevelDetails/MarginContainer/Form/MaxTargets"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 1.0
+value = 1.0
+allow_greater = true
+
+[node name="FileDialog" type="EditorFileDialog" parent="."]
+oversampling_override = 1.0
+size = Vector2i(1575, 992)
+access = 2

@@ -20,6 +20,8 @@ enum StatType {
 	LUCK,
 	HEALTH,
 	MANA,
+	HPREGEN,
+	MPREGEN,
 	DEFENSE,
 	CRITCHANCE,
 	CRITDAMAGE,
@@ -43,4 +45,21 @@ enum WeaponType {
 	SWORD,
 	BOW,
 	STAFF,
+}
+
+enum AttackType {
+	Melee,
+	Ranged,
+	Magic,
+}
+
+enum Target {
+	Self,
+	Enemy,
+	Friendly,
+}
+
+enum AbilityType {
+	ACTIVE,
+	PASSIVE,
 }
