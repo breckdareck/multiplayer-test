@@ -1,4 +1,4 @@
-[gd_scene load_steps=97 format=3 uid="uid://bdtdpx0d05sy3"]
+[gd_scene load_steps=98 format=3 uid="uid://bdtdpx0d05sy3"]
 
 [ext_resource type="Script" uid="uid://yibpus3whwuj" path="res://scripts/Player/multiplayer_controller_v2.gd" id="1_an8q1"]
 [ext_resource type="Script" uid="uid://cy1j38lpy671e" path="res://scripts/Player/multiplayer_input.gd" id="2_hxkm2"]
@@ -25,6 +25,7 @@
 [ext_resource type="Script" uid="uid://dwv2k28spwfby" path="res://scripts/StateMachine/state_machine.gd" id="16_ploos"]
 [ext_resource type="Script" uid="uid://d162wvxl3tos0" path="res://scripts/Player/StateMachine/attack.gd" id="17_e6s7e"]
 [ext_resource type="FontFile" uid="uid://bxv5w2dv4xg3m" path="res://assets/fonts/Inter.ttc" id="17_nbg44"]
+[ext_resource type="PackedScene" uid="uid://op5a1mqidavt" path="res://scenes/UI/hotbar.tscn" id="17_ploos"]
 [ext_resource type="PackedScene" uid="uid://c2sweq4gkie70" path="res://scenes/UI/abilities_window.tscn" id="18_7iww4"]
 [ext_resource type="Script" uid="uid://cqx4rs6bafi4b" path="res://scripts/Player/StateMachine/idle.gd" id="18_gb22u"]
 [ext_resource type="Theme" uid="uid://bg5sc8rk63fi6" path="res://assets/UI/Themes/ScrollContainerTheme.tres" id="18_nbg44"]
@@ -482,7 +483,7 @@ size = Vector2(21, 21)
 [sub_resource type="CircleShape2D" id="CircleShape2D_h0wtf"]
 radius = 5.0
 
-[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "combat_component", "level_component", "stats_component", "class_component", "inventory_component", "equipment_component", "debug_component", "player_HUD", "player_name_label", "stats_window") groups=["Players", "networked_entities"]]
+[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "combat_component", "level_component", "stats_component", "class_component", "inventory_component", "equipment_component", "ability_component", "debug_component", "player_HUD", "player_name_label", "stats_window") groups=["Players", "networked_entities"]]
 collision_layer = 2
 collision_mask = 5
 script = ExtResource("1_an8q1")
@@ -493,6 +494,7 @@ stats_component = NodePath("Components/Stats")
 class_component = NodePath("Components/Class")
 inventory_component = NodePath("Components/Inventory")
 equipment_component = NodePath("Components/Equipment")
+ability_component = NodePath("Components/Ability")
 debug_component = NodePath("CanvasLayer/Debug")
 player_HUD = NodePath("CanvasLayer/PlayerHUD")
 player_name_label = NodePath("PlayerWorldHUD/PlayerNameLabel")
@@ -878,6 +880,13 @@ position = Vector2(72, 72)
 scale = Vector2(0.5154639, 0.51546395)
 shape = SubResource("RectangleShape2D_cgmen")
 action = "Jump"
+
+[node name="Hotbar" parent="CanvasLayer/PlayerHUD" instance=ExtResource("17_ploos")]
+layout_mode = 1
+offset_left = 420.0
+offset_top = -91.0
+offset_right = 940.0
+offset_bottom = -21.0
 
 [node name="Debug" type="Panel" parent="CanvasLayer"]
 visible = false

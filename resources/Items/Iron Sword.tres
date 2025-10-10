@@ -35,12 +35,12 @@ margin = Rect2(3.5, 0, 7, 0)
 [resource]
 script = ExtResource("3_uuoav")
 equipment_type = 1
-bonus_stats = {
+bonus_stats = Dictionary[int, ExtResource("1_o2582")]({
 0: SubResource("Resource_efqec"),
 1: SubResource("Resource_fxvel"),
 2: SubResource("Resource_tt8sq"),
 3: SubResource("Resource_jxw2t")
-}
+})
 item_id = "9104459132-151212-90127-1001510-4140101261597276"
 name = "Iron Sword"
 icon = SubResource("AtlasTexture_0opnw")

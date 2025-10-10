@@ -1,7 +1,0 @@
-[gd_resource type="Resource" script_class="AbilityLevelData" load_steps=2 format=3 uid="uid://iu0f2uceu6di"]
-
-[ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="1_oi6im"]
-
-[resource]
-script = ExtResource("1_oi6im")
-metadata/_custom_type_script = "uid://iols3c70aq2j"

@@ -30,6 +30,7 @@ const SERVER_ID: int = 1
 @export var class_component: ClassComponent
 @export var inventory_component: InventoryComponent
 @export var equipment_component: EquipmentComponent
+@export var ability_component: AbilityComponent
 @export var debug_component: MyDebugComponent
 
 @export_category("UI")

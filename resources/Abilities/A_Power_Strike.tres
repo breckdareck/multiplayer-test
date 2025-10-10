@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=30 format=3 uid="uid://dq088g6civvd8"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=28 format=3 uid="uid://dq088g6civvd8"]
 
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_vuhxl"]
 [ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="1_xyi2w"]
-[ext_resource type="Script" uid="uid://bsqitd88ib7vb" path="res://scripts/Resources/AbilitySystem/DamageData.gd" id="2_xyi2w"]
 [ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="3_v0yfe"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_hhglo"]
 
@@ -17,11 +16,8 @@ size = Vector2(40, 40)
 script = ExtResource("1_vuhxl")
 hit_box_shape_data = SubResource("RectangleShape2D_i4okq")
 hit_box_position_data = Vector2(20, 0)
-animation_name = "attack"
+animation_name = "attack_1"
 sfx_path = "res://sounds/sword_strike.wav"
-
-[sub_resource type="Resource" id="Resource_tn7bo"]
-script = ExtResource("2_xyi2w")
 
 [sub_resource type="Resource" id="Resource_t6bdd"]
 script = ExtResource("3_v0yfe")
@@ -171,6 +167,5 @@ ability_icon = SubResource("AtlasTexture_ajojy")
 max_level = 20
 required_class = Array[int]([0])
 required_weapon_types = Array[int]([0])
-damage_data = SubResource("Resource_tn7bo")
 active_behavior = SubResource("Resource_pdrvi")
 level_data = Array[ExtResource("3_v0yfe")]([SubResource("Resource_t6bdd"), SubResource("Resource_xenhc"), SubResource("Resource_sxbta"), SubResource("Resource_kq87s"), SubResource("Resource_tysym"), SubResource("Resource_xdbo8"), SubResource("Resource_sddue"), SubResource("Resource_bkhln"), SubResource("Resource_l7cm7"), SubResource("Resource_et1ip"), SubResource("Resource_6rosx"), SubResource("Resource_1x2bc"), SubResource("Resource_hidl6"), SubResource("Resource_x8mhh"), SubResource("Resource_gabhx"), SubResource("Resource_hvhmm"), SubResource("Resource_j286c"), SubResource("Resource_5hkh5"), SubResource("Resource_bh1lf"), SubResource("Resource_57lwd")])

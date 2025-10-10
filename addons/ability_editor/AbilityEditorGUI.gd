@@ -1,4 +1,3 @@
-# AbilityEditorGUI.gd
 @tool
 class_name AbilityEditorGUI
 extends Control
@@ -99,7 +98,8 @@ func _scan_for_abilities() -> void:
 		return
 
 	var filesystem = EditorInterface.get_resource_filesystem()
-	_recursive_scan(filesystem.get_filesystem_path("res://resources/Abilities").get_path(), root, ability_script)
+	var path = "res://resources/Abilities"
+	_recursive_scan(path, root, ability_script)
 
 
 func _recursive_scan(path: String, parent_item: TreeItem, script_to_match: Script) -> void:

@@ -1,5 +1,3 @@
-# AbilityEditor.gd
-
 @tool
 class_name AbilityEditor
 extends EditorPlugin

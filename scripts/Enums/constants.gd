@@ -48,15 +48,17 @@ enum WeaponType {
 }
 
 enum AttackType {
-	Melee,
-	Ranged,
-	Magic,
+	MELEE,
+	RANGED,
+	MAGIC,
 }
 
-enum Target {
-	Self,
-	Enemy,
-	Friendly,
+enum TargetType {
+	SELF,
+	ENEMY,
+	ALLY,
+	GROUND,
+	NONE,
 }
 
 enum AbilityType {

@@ -9,7 +9,7 @@ extends Resource
 		else:
 			ability_id = value
 @export var ability_name: String = ""
-@export var description: String = ""
+@export_multiline var description: String = ""
 @export var ability_icon: Texture2D
 ## Max Level the ability can level up to
 @export var max_level: int
@@ -22,10 +22,9 @@ extends Resource
 ## AbilityData to Level Required
 @export var prerequisite_abilities: Dictionary[AbilityData, int] = {}
 
-@export var damage_data: DamageData
 @export var active_behavior: ActiveBehaviorData
-@export var passive_effect: PassiveEffectData
 @export var level_data: Array[AbilityLevelData]
+
 
 func _init():
 	# Only generate a UUID if one doesn't already exist.

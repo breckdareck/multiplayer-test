@@ -41,6 +41,9 @@ func _ready():
 	# Connect signals
 	level_up_button.pressed.connect(on_level_up_button_pressed)
 	
+	for abil in player.ability_component._ability_levels.keys():
+		var data = ResourceManager.get_ability_data(abil)
+		player_abilities[data] = player.ability_component._ability_levels.get(abil)
 	# Mock data setup
 	setup_mock_abilities()
 	update_skill_points_display()
@@ -81,6 +84,7 @@ func setup_mock_abilities():
 	var fireball_data = AbilityData.new()
 	fireball_data.ability_id = "FIREBALL_1"
 	fireball_data.ability_name = "Fireball"
+	fireball_data.ability_icon = preload("uid://c6mv4q0v88j0l")
 	fireball_data.max_level = 3
 	fireball_data.ability_type = ABILITY_TYPE_ACTIVE
 	fireball_data.description = "Launches a fiery projectile dealing $[damage_percent] damage."
@@ -114,23 +118,23 @@ func setup_mock_abilities():
 
 	# Mock Level Data
 	var end_level_1 = AbilityLevelData.new(1)
-	end_level_1.stat_bonuses = {"HP": 10}
+	end_level_1.stat_bonuses.assign({Constants.StatType.HEALTH: StatData.new(Constants.StatType.HEALTH, 10)})
 	endurance_data.level_data.append(end_level_1)
 	
 	var end_level_2 = AbilityLevelData.new(2)
-	end_level_2.stat_bonuses = {"HP": 20}
+	end_level_2.stat_bonuses.assign({Constants.StatType.HEALTH: StatData.new(Constants.StatType.HEALTH, 20)})
 	endurance_data.level_data.append(end_level_2)
 	
 	var end_level_3 = AbilityLevelData.new(3)
-	end_level_3.stat_bonuses = {"HP": 30}
+	end_level_3.stat_bonuses.assign({Constants.StatType.HEALTH: StatData.new(Constants.StatType.HEALTH, 30)})
 	endurance_data.level_data.append(end_level_3)
 	
 	var end_level_4 = AbilityLevelData.new(4)
-	end_level_4.stat_bonuses = {"HP": 40}
+	end_level_4.stat_bonuses.assign({Constants.StatType.HEALTH: StatData.new(Constants.StatType.HEALTH, 40)})
 	endurance_data.level_data.append(end_level_4)
 	
 	var end_level_5 = AbilityLevelData.new(5)
-	end_level_5.stat_bonuses = {"HP": 50}
+	end_level_5.stat_bonuses.assign({Constants.StatType.HEALTH: StatData.new(Constants.StatType.HEALTH, 50)})
 	endurance_data.level_data.append(end_level_5)
 	
 	# --- MOCK ABILITY 2: Love (Passive) ---
@@ -144,7 +148,7 @@ func setup_mock_abilities():
 	# Mock Level Data
 	for i in range(1, 11):
 		var love_level = AbilityLevelData.new(i)
-		love_level.stat_bonuses = {"Love": i}
+		love_level.stat_bonuses.assign({Constants.StatType.WEAPONATTACK: StatData.new(Constants.StatType.WEAPONATTACK, i)})
 		love_data.level_data.append(love_level)
 	
 	# --- MOCK ABILITY 3+ ---
@@ -238,7 +242,7 @@ func update_details(data: AbilityData, current_level: int):
 		cooldown_text = "%.1fs" % current_stats.cooldown_time if current_stats and data.ability_type == ABILITY_TYPE_ACTIVE else "N/A"
 		
 		cost_label.text = "Max Level Reached!"
-		level_up_button.text = "LEVEL UP (MAX)"
+		level_up_button.text = "MAXED"
 		level_up_button.disabled = true
 		cost_label.add_theme_color_override("font_color", Color(COLOR_NORMAL))
 
@@ -257,9 +261,9 @@ func update_details(data: AbilityData, current_level: int):
 			cooldown_text = "N/A"
 
 		# Level Up Cost/Button Logic
-		var cost = next_level # Simple cost: level_to_reach
+		var cost = 1 # Simple cost: level_to_reach
 		cost_label.text = "Cost to Upgrade: %d SP" % cost
-		level_up_button.text = "LEVEL UP (Cost: %d SP)" % cost
+		level_up_button.text = "LEVEL UP"
 		
 		var can_level_up = current_skill_points >= cost
 		level_up_button.disabled = not can_level_up
@@ -294,7 +298,7 @@ func create_description_comparison_text(data: AbilityData, current: AbilityLevel
 			output += damage_text
 		elif data.ability_type == ABILITY_TYPE_PASSIVE:
 			var stat_key = next.stat_bonuses.keys()[0] if not next.stat_bonuses.is_empty() else "N/A"
-			var stat_value = next.stat_bonuses.get(stat_key, 0)
+			var stat_value = next.stat_bonuses.get(stat_key, 0).total_value if not next.stat_bonuses.is_empty() else 0
 			var stat_text = desc_template.replace("$[stat_bonus]", "[color=%s]%d[/color]" % [COLOR_UPGRADE, stat_value])
 			output += stat_text
 			
@@ -312,14 +316,14 @@ func create_description_comparison_text(data: AbilityData, current: AbilityLevel
 			output += "Damage: [color=%s]%d%%[/color] [color=%s](+ %d%%)[/color]\n" % [COLOR_BASE, current_damage, color, next_damage - current_damage]
 
 		elif data.ability_type == ABILITY_TYPE_PASSIVE:
-			var current_hp = current.stat_bonuses.get("HP", 0)
-			var next_hp = next.stat_bonuses.get("HP", 0)
+			var current_stat_bonus = current.stat_bonuses.get(current.stat_bonuses.keys()[0]).total_value
+			var next_stat_bonus = next.stat_bonuses.get(next.stat_bonuses.keys()[0]).total_value
 			var color = COLOR_UPGRADE
 			
-			var stat_text = desc_template.replace("$[stat_bonus]", "[color=%s]%d[/color]" % [COLOR_NORMAL, current_hp])
+			var stat_text = desc_template.replace("$[stat_bonus]", "[color=%s]%d[/color]" % [COLOR_NORMAL, current_stat_bonus])
 			output += stat_text
 			output += "\n\n[color=%s]NEXT LEVEL (%d) UPGRADE:[/color]\n" % [COLOR_UPGRADE, next.level]
-			output += "HP Bonus: [color=%s]%d[/color] [color=%s](+ %d)[/color]\n" % [COLOR_BASE, current_hp, color, next_hp - current_hp]
+			output += "%s Bonus: [color=%s]%d[/color] [color=%s](+ %d)[/color]\n" % [str(Constants.StatType.keys()[current.stat_bonuses.get(current.stat_bonuses.keys()[0]).stat_type]), COLOR_BASE, current_stat_bonus, color, next_stat_bonus - current_stat_bonus]
 			
 	return output
 
@@ -333,7 +337,7 @@ func create_description_text(data: AbilityData, current: AbilityLevelData) -> St
 		output += damage_text
 	elif data.ability_type == ABILITY_TYPE_PASSIVE:
 		var stat_key = current.stat_bonuses.keys()[0] if not current.stat_bonuses.is_empty() else "N/A"
-		var stat_value = current.stat_bonuses.get(stat_key, 0)
+		var stat_value = current.stat_bonuses.get(stat_key, 0).total_value if not current.stat_bonuses.is_empty() else 0
 		var stat_text = desc_template.replace("$[stat_bonus]", "[color=%s]%d[/color]" % [COLOR_NORMAL, stat_value])
 		output += stat_text
 		
@@ -391,7 +395,7 @@ func on_level_up_button_pressed():
 
 	var current_level = player_abilities[selected_data]
 	var next_level = current_level + 1
-	var cost = next_level # Cost calculation
+	var cost = 1
 	
 	if current_skill_points >= cost and next_level <= selected_data.max_level:
 		# 1. Deduct cost

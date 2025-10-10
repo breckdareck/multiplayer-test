@@ -1,9 +1,0 @@
-[gd_resource type="Resource" script_class="DamageData" load_steps=2 format=3 uid="uid://c6qx5atq2mpih"]
-
-[ext_resource type="Script" uid="uid://bsqitd88ib7vb" path="res://scripts/Resources/AbilitySystem/DamageData.gd" id="1_6x1f4"]
-
-[resource]
-script = ExtResource("1_6x1f4")
-max_targets = 5
-max_hits = 5
-metadata/_custom_type_script = "uid://bsqitd88ib7vb"

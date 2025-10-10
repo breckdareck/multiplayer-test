@@ -263,16 +263,4 @@ theme = SubResource("Theme_i6h8y")
 theme_override_font_sizes/font_size = 16
 text = "LEVEL UP (MAX)"
 
-[node name="FooterHBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
-layout_mode = 2
-alignment = 2
-
-[node name="CloseButton" type="Button" parent="MarginContainer/VBoxContainer/FooterHBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(100, 25)
-layout_mode = 2
-theme = SubResource("Theme_i6h8y")
-theme_override_font_sizes/font_size = 16
-text = "CLOSE"
-
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HeaderPanel/HBoxContainer/CloseButton" to="." method="hide"]

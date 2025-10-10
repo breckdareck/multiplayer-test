@@ -40,6 +40,7 @@ func _ready() -> void:
 		# The server listens for the death signal from the component.
 		initial_position = global_position
 		health_component.max_health = int(health_curve.sample(monster_level))
+		health_component.current_health = health_component.max_health
 		health_component.died.connect(_on_enemy_died)
 		health_component.damaged.connect(on_enemy_damaged)
 		body_hitbox.body_entered.connect(_on_body_hitbox_body_entered)
