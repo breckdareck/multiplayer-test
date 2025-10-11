@@ -77,7 +77,7 @@ margin = Rect2(0, 2, 0, 4)
 [resource]
 script = ExtResource("1_nqh3m")
 armor_type = 1
-bonus_stats = {
+bonus_stats = Dictionary[int, ExtResource("1_si42d")]({
 0: SubResource("Resource_7nj80"),
 1: SubResource("Resource_0g3xa"),
 2: SubResource("Resource_nbd55"),
@@ -89,7 +89,7 @@ bonus_stats = {
 8: SubResource("Resource_i8y8o"),
 9: SubResource("Resource_1a4xb"),
 10: SubResource("Resource_bat4g")
-}
+})
 item_id = "1011156217-11826-06141-19119-0121210141071058121"
 name = "Test Chest"
 icon = SubResource("AtlasTexture_rdvjl")

@@ -7,6 +7,7 @@ signal ability_used(ability_id: String)
 signal cooldown_started(ability_id: String, duration: float)
 signal ability_leveled_up(ability_id: String, new_level: int)
 signal ability_learned(ability_id: String)
+signal ability_points_changed(new_total: int)
 
 @export_category("Debug")
 @export var hitbox: CollisionShape2D
@@ -30,6 +31,7 @@ signal ability_learned(ability_id: String)
 
 var _class_component: ClassComponent
 var _stats_component: StatsComponent
+var _level_component: LevelingComponent
 
 var hotbar_abilities: Dictionary = {} # Key: slot_index (int), Value: ability_id (String)
 
@@ -44,19 +46,27 @@ var _available_ability_points: int = 0
 func _ready() -> void:
 	_class_component = get_parent().get_node_or_null("Class")
 	_stats_component = get_parent().get_node_or_null("Stats")
+	_level_component = get_parent().get_node_or_null("Leveling")
 	
 	if not _class_component or not _stats_component:
 		push_error("AbilityComponent requires ClassComponent and StatsComponent siblings.")
 		set_process(false)
 		return
+	
+	# Connect to leveling component if it exists
+	if _level_component:
+		_level_component.leveled_up.connect(_on_leveled_up)
+		print("AbilityComponent: Connected to LevelingComponent")
+	else:
+		push_warning("AbilityComponent: No LevelingComponent found - ability points won't be granted on level up")
 		
 	set_process(true)
 	
-	# Initialize class abilities at level 1
+	# Initialize class abilities at level 0 (unlearned but visible)
 	for ability_data in _class_component.get_class_abilities():
 		if ability_data != null and not _ability_levels.has(ability_data.ability_id):
 			# Use learn_ability to handle initial setup and passive application
-			learn_ability(ability_data.ability_id, 1)
+			learn_ability(ability_data.ability_id, 0)
 	
 	print("Loaded abilities: ", _ability_levels)
 
@@ -97,9 +107,7 @@ func level_up_ability(ability_id: String) -> bool:
 		return false
 	
 	# Check prerequisites
-	# NOTE: Prerequisite check now only needs the ID, as the level is contained within AbilityData.
 	if ability.prerequisite_abilities:
-		# Assuming prerequisite_abilities is now a Dictionary<AbilityData, int>
 		for prereq_ability in ability.prerequisite_abilities:
 			var prereq_level = _ability_levels.get(prereq_ability.ability_id, 0)
 			if prereq_level < ability.prerequisite_abilities[prereq_ability]:
@@ -145,6 +153,7 @@ func learn_ability(ability_id: String, initial_level: int = 1) -> bool:
 func add_ability_points(amount: int) -> void:
 	_available_ability_points += amount
 	print("Added %d ability points. Total: %d" % [amount, _available_ability_points])
+	ability_points_changed.emit(_available_ability_points)
 
 
 ## NEW: Get current level of a ability
@@ -167,7 +176,7 @@ func can_level_up_ability(ability_id: String) -> bool:
 		return false
 	
 	var current_level = get_ability_level(ability_id)
-	if current_level <= 0 or current_level >= ability.max_level:
+	if current_level < 0 or current_level >= ability.max_level:
 		return false
 	
 	# Check prerequisites
@@ -198,7 +207,7 @@ func use_ability(ability_id: String) -> bool:
 		print("AbilityComponent: Invalid level data for '%s' at level %d" % [ability.ability_name, ability_level])
 		return false
 	
-	# Check if it's an active ability (assuming you define ACTIVE_ATTACK/ACTIVE_BUFF in Constants)
+	# Check if it's an active ability
 	if ability.ability_type != Constants.AbilityType.ACTIVE:
 		print("AbilityComponent: Ability '%s' is not an active ability." % ability.ability_name)
 		return false
@@ -210,7 +219,6 @@ func use_ability(ability_id: String) -> bool:
 		
 	# NEW: Check Mana Cost from level stats
 	var mana_cost = level_stats.mana_cost
-	# NOTE: You'd implement other costs (HP, custom resource) in the custom logic script
 	if "current_mana" in _stats_component:
 		if _stats_component.current_mana < mana_cost:
 			print("AbilityComponent: Not enough mana to use '%s' (need %d)." % [ability.ability_name, mana_cost])
@@ -221,7 +229,6 @@ func use_ability(ability_id: String) -> bool:
 		print("Mana isn't implemented yet. ---- ADD LATER ----")
 		
 	# Success! Deduct generic cost and start cooldown
-	# The custom script will handle additional costs (like HP cost for Slash Blast)
 	_cooldowns[ability_id] = level_stats.cooldown_time
 	cooldown_started.emit(ability_id, level_stats.cooldown_time)
 
@@ -270,7 +277,7 @@ func get_passive_effect_modifiers() -> Dictionary:
 		# Only process learned abilities with valid level stats that are Passive
 		if ability and ability.ability_type == Constants.AbilityType.PASSIVE and level_stats:
 			
-			# Use stat bonuses from the level data (stat_bonuses is now mandatory for passives)
+			# Use stat bonuses from the level data
 			for stat_name in level_stats.stat_bonuses:
 				if not modifiers.has(stat_name):
 					modifiers[stat_name] = 0
@@ -325,7 +332,7 @@ func use_ability_server(ability_id: String) -> void:
 		print("Server: Invalid level stats for %s" % ability_id)
 		return
 	
-	# Authoritative Checks (Only for generic costs/CDs)
+	# Authoritative Checks
 	if _cooldowns.has(ability_id):
 		print("Server: Cooldown check failed for %s." % ability.ability_name)
 		return
@@ -334,7 +341,7 @@ func use_ability_server(ability_id: String) -> void:
 		print("Server: Mana check failed for %s." % ability.ability_name)
 		return
 		
-	# Apply Generic Changes (The custom script will handle unique costs/logic)
+	# Apply Generic Changes
 	_stats_component.current_mana -= level_stats.mana_cost
 	_cooldowns[ability_id] = level_stats.cooldown_time
 	
@@ -365,8 +372,9 @@ func _play_vfx_sfx(ability_id: String):
 
 
 ## This gets called when character levels up
-func _on_leveled_up() -> void:
+func _on_leveled_up(new_level: int) -> void:
 	add_ability_points(3) # MapleStory gives 3 ability points per level
+	print("AbilityComponent: Level up! Now level %d. Added 3 ability points." % new_level)
 
 
 ## Assign an ability to a hotbar slot
@@ -386,7 +394,6 @@ func set_hotbar_ability(slot_index: int, ability_data: AbilityData) -> void:
 ## Clear an ability from a hotbar slot
 func clear_hotbar_ability(slot_index: int) -> void:
 	if hotbar_abilities.has(slot_index):
-		# var ability_id = hotbar_abilities[slot_index]
 		hotbar_abilities.erase(slot_index)
 		print("Cleared ability from hotbar slot %d" % slot_index)
 

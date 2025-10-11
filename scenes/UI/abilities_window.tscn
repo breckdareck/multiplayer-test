@@ -133,6 +133,8 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_0k78i")
 [node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer/HSplitContainer/AbilityListPanel"]
 layout_mode = 2
 theme = ExtResource("4_v72j5")
+horizontal_scroll_mode = 3
+vertical_scroll_mode = 3
 
 [node name="AbilityListContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HSplitContainer/AbilityListPanel/ScrollContainer"]
 unique_name_in_owner = true

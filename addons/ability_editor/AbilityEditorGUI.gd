@@ -22,7 +22,6 @@ extends Control
 @onready var mana_cost_spinbox = $Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer/LevelDetails/MarginContainer/Form/ManaCost/ManaCostSpinBox
 @onready var cooldown_spinbox = $Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer/LevelDetails/MarginContainer/Form/Cooldown/CooldownSpinBox
 @onready var damage_percent_spinbox = $Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer/LevelDetails/MarginContainer/Form/DamagePercent/DamagePercentSpinBox
-@onready var fixed_damage_spinbox = $Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer/LevelDetails/MarginContainer/Form/FixedDamage/FixedDamageSpinBox
 @onready var max_targets_spinbox = $Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer/LevelDetails/MarginContainer/Form/MaxTargets/MaxTargetsSpinBox
 
 # Buttons & Dialogs
@@ -85,7 +84,6 @@ func _connect_signals() -> void:
 	mana_cost_spinbox.value_changed.connect(_on_level_detail_changed)
 	cooldown_spinbox.value_changed.connect(_on_level_detail_changed)
 	damage_percent_spinbox.value_changed.connect(_on_level_detail_changed)
-	fixed_damage_spinbox.value_changed.connect(_on_level_detail_changed)
 	max_targets_spinbox.value_changed.connect(_on_level_detail_changed)
 
 # --- CUSTOM METHODS ---
@@ -184,7 +182,6 @@ func _update_level_details() -> void:
 	mana_cost_spinbox.value = level_data.mana_cost
 	cooldown_spinbox.value = level_data.cooldown_time
 	damage_percent_spinbox.value = level_data.damage_percent
-	fixed_damage_spinbox.value = level_data.fixed_damage
 	max_targets_spinbox.value = level_data.max_targets
 	is_updating_ui = false
 
@@ -250,7 +247,6 @@ func _on_level_detail_changed(value = null) -> void:
 	level_data.mana_cost = int(mana_cost_spinbox.value)
 	level_data.cooldown_time = float(cooldown_spinbox.value)
 	level_data.damage_percent = int(damage_percent_spinbox.value)
-	level_data.fixed_damage = int(fixed_damage_spinbox.value)
 	level_data.max_targets = int(max_targets_spinbox.value)
 
 func _on_add_level_pressed() -> void:

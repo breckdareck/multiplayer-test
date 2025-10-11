@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ClassData" load_steps=7 format=3 uid="uid://djj2x2casotg8"]
+[gd_resource type="Resource" script_class="ClassData" load_steps=8 format=3 uid="uid://djj2x2casotg8"]
 
 [ext_resource type="Texture2D" uid="uid://dvufw62efsvt5" path="res://assets/UI/swordsman_portrait.tres" id="1_6g1x3"]
 [ext_resource type="Script" uid="uid://buwbui1bka8vl" path="res://scripts/Resources/ClassSystem/ClassData.gd" id="1_ya5xj"]
@@ -6,6 +6,7 @@
 [ext_resource type="SpriteFrames" uid="uid://rf6et7ge33gc" path="res://resources/Player/SpriteFrames/Halberd.tres" id="3_6g1x3"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="3_lkye1"]
 [ext_resource type="Resource" uid="uid://ccxoh5fmx317x" path="res://resources/Abilities/A_Slash.tres" id="4_qbbda"]
+[ext_resource type="Resource" uid="uid://dq088g6civvd8" path="res://resources/Abilities/A_Power_Strike.tres" id="5_03no5"]
 
 [resource]
 script = ExtResource("1_ya5xj")
@@ -14,7 +15,7 @@ sprite_frames = Dictionary[int, SpriteFrames]({
 1: ExtResource("2_moyle"),
 15: ExtResource("3_6g1x3")
 })
-skills = Array[ExtResource("3_lkye1")]([ExtResource("4_qbbda")])
+skills = Array[ExtResource("3_lkye1")]([ExtResource("4_qbbda"), ExtResource("5_03no5")])
 description = "A melee warrior with high strength and vitality."
 icon = ExtResource("1_6g1x3")
 secondary_stat = 2

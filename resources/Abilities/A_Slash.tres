@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=11 format=3 uid="uid://ccxoh5fmx317x"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=30 format=3 uid="uid://ccxoh5fmx317x"]
 
 [ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="1_5ui4y"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_7svtf"]
@@ -14,7 +14,7 @@ region = Rect2(75, 109, 19, 19)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_i4okq"]
 size = Vector2(40, 40)
 
-[sub_resource type="Resource" id="Resource_pdrvi"]
+[sub_resource type="Resource" id="Resource_7e1xr"]
 script = ExtResource("2_7svtf")
 target_type = 1
 hit_box_shape_data = SubResource("RectangleShape2D_i4okq")
@@ -25,18 +25,135 @@ logic_script = ExtResource("2_ajojy")
 
 [sub_resource type="Resource" id="Resource_ajojy"]
 script = ExtResource("4_ajojy")
-damage_percent = 120
+damage_percent = 85
+max_targets = 6
 metadata/_custom_type_script = "uid://iols3c70aq2j"
+
+[sub_resource type="Resource" id="Resource_gmqqq"]
+script = ExtResource("4_ajojy")
+level = 2
+damage_percent = 90
+max_targets = 6
+metadata/_custom_type_script = "uid://iols3c70aq2j"
+
+[sub_resource type="Resource" id="Resource_yntj7"]
+script = ExtResource("4_ajojy")
+level = 3
+damage_percent = 95
+max_targets = 6
+metadata/_custom_type_script = "uid://iols3c70aq2j"
+
+[sub_resource type="Resource" id="Resource_n4786"]
+script = ExtResource("4_ajojy")
+level = 4
+max_targets = 6
+metadata/_custom_type_script = "uid://iols3c70aq2j"
+
+[sub_resource type="Resource" id="Resource_hscra"]
+script = ExtResource("4_ajojy")
+level = 5
+damage_percent = 105
+max_targets = 6
+
+[sub_resource type="Resource" id="Resource_r0u5b"]
+script = ExtResource("4_ajojy")
+level = 6
+damage_percent = 110
+max_targets = 6
+
+[sub_resource type="Resource" id="Resource_4wh34"]
+script = ExtResource("4_ajojy")
+level = 7
+damage_percent = 115
+max_targets = 6
+
+[sub_resource type="Resource" id="Resource_c0sum"]
+script = ExtResource("4_ajojy")
+level = 8
+damage_percent = 120
+max_targets = 6
+
+[sub_resource type="Resource" id="Resource_bdcag"]
+script = ExtResource("4_ajojy")
+level = 9
+damage_percent = 125
+max_targets = 6
+
+[sub_resource type="Resource" id="Resource_ja4au"]
+script = ExtResource("4_ajojy")
+level = 10
+damage_percent = 130
+max_targets = 6
+
+[sub_resource type="Resource" id="Resource_1rm05"]
+script = ExtResource("4_ajojy")
+level = 11
+damage_percent = 135
+max_targets = 6
+
+[sub_resource type="Resource" id="Resource_2b5dv"]
+script = ExtResource("4_ajojy")
+level = 12
+damage_percent = 140
+max_targets = 6
+
+[sub_resource type="Resource" id="Resource_1pjde"]
+script = ExtResource("4_ajojy")
+level = 13
+damage_percent = 145
+max_targets = 6
+
+[sub_resource type="Resource" id="Resource_un368"]
+script = ExtResource("4_ajojy")
+level = 14
+damage_percent = 150
+max_targets = 6
+
+[sub_resource type="Resource" id="Resource_wxnfw"]
+script = ExtResource("4_ajojy")
+level = 15
+damage_percent = 155
+max_targets = 6
+
+[sub_resource type="Resource" id="Resource_mfojr"]
+script = ExtResource("4_ajojy")
+level = 16
+damage_percent = 160
+max_targets = 6
+
+[sub_resource type="Resource" id="Resource_nryi0"]
+script = ExtResource("4_ajojy")
+level = 17
+damage_percent = 165
+max_targets = 6
+
+[sub_resource type="Resource" id="Resource_gxvmq"]
+script = ExtResource("4_ajojy")
+level = 18
+damage_percent = 170
+max_targets = 6
+
+[sub_resource type="Resource" id="Resource_x3d43"]
+script = ExtResource("4_ajojy")
+level = 19
+damage_percent = 180
+max_targets = 6
+
+[sub_resource type="Resource" id="Resource_pppag"]
+script = ExtResource("4_ajojy")
+level = 20
+damage_percent = 190
+max_targets = 6
 
 [resource]
 script = ExtResource("4_7e1xr")
 ability_id = "04236384-15455-0589-12403-458981588111015"
 ability_name = "Slash"
-description = "Slashes 1 enemy dealing $[damage_percent] damage."
+description = "Slashes 6 enemies dealing $[damage_percent] damage."
 ability_icon = SubResource("AtlasTexture_ajojy")
-max_level = 1
+max_level = 20
 required_class = Array[int]([0])
 required_weapon_types = Array[int]([0])
-active_behavior = SubResource("Resource_pdrvi")
-level_data = Array[ExtResource("4_ajojy")]([SubResource("Resource_ajojy")])
+active_behavior = SubResource("Resource_7e1xr")
+level_data = Array[ExtResource("4_ajojy")]([SubResource("Resource_ajojy"), SubResource("Resource_gmqqq"), SubResource("Resource_yntj7"), SubResource("Resource_n4786"), SubResource("Resource_hscra"), SubResource("Resource_r0u5b"), SubResource("Resource_4wh34"), SubResource("Resource_c0sum"), SubResource("Resource_bdcag"), SubResource("Resource_ja4au"), SubResource("Resource_1rm05"), SubResource("Resource_2b5dv"), SubResource("Resource_1pjde"), SubResource("Resource_un368"), SubResource("Resource_wxnfw"), SubResource("Resource_mfojr"), SubResource("Resource_nryi0"), SubResource("Resource_gxvmq"), SubResource("Resource_x3d43"), SubResource("Resource_pppag")])
 metadata/_custom_type_script = "uid://b8y62rc8nb40j"

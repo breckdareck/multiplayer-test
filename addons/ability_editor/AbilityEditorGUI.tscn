@@ -304,20 +304,6 @@ max_value = 10000.0
 value = 1.0
 allow_greater = true
 
-[node name="FixedDamage" type="HBoxContainer" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer/LevelDetails/MarginContainer/Form"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer/LevelDetails/MarginContainer/Form/FixedDamage"]
-custom_minimum_size = Vector2(150, 0)
-layout_mode = 2
-text = "Fixed Damage:"
-
-[node name="FixedDamageSpinBox" type="SpinBox" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer/LevelDetails/MarginContainer/Form/FixedDamage"]
-layout_mode = 2
-size_flags_horizontal = 3
-max_value = 10000.0
-allow_greater = true
-
 [node name="MaxTargets" type="HBoxContainer" parent="Panel/MainHSplit/EditorPanel/HSplitContainer/LevelSettings/HSplitContainer/LevelDetails/MarginContainer/Form"]
 layout_mode = 2
 
