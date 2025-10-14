@@ -31,20 +31,9 @@ func create_hotbar_slots():
 	for i in range(slot_count):
 		var slot = HotbarSlot.instantiate()
 		slot.slot_index = i
-		slot.ability_dropped.connect(_on_ability_dropped)
-		slot.ability_removed.connect(_on_ability_removed)
 		slots_container.add_child(slot)
 		hotbar_slots.append(slot)
 
-func _on_ability_dropped(slot_index: int, ability_data: AbilityData):
-	print("Ability '%s' dropped into hotbar slot %d" % [ability_data.ability_name, slot_index])
-	if player.ability_component and player.ability_component.has_method("set_hotbar_ability"):
-		player.ability_component.set_hotbar_ability(slot_index, ability_data)
-
-func _on_ability_removed(slot_index: int):
-	print("Ability removed from hotbar slot %d" % slot_index)
-	if player.ability_component and player.ability_component.has_method("clear_hotbar_ability"):
-		player.ability_component.clear_hotbar_ability(slot_index)
 
 func get_slot_at_index(index: int) -> Node:
 	if index >= 0 and index < hotbar_slots.size():

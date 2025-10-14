@@ -46,12 +46,34 @@ func _notification(what: int) -> void:
 		is_drag_hovering = false
 		update_visual()
 
+@rpc("any_peer", "call_remote", "reliable")
+func request_assign_ability(ability_id: String):
+	var ability_data = ResourceManager.get_ability_data(ability_id)
+	assigned_ability = ability_data
+	if ability_icon and ability_data:
+		ability_icon.texture = ability_data.ability_icon
+		ability_icon.visible = true
+	update_visual()
+	
+@rpc("authority", "call_local", "reliable")
+func recieve_assign_ability(ability_id: String):
+	var ability_data = ResourceManager.get_ability_data(ability_id)
+	assigned_ability = ability_data
+	if ability_icon and ability_data:
+		ability_icon.texture = ability_data.ability_icon
+		ability_icon.visible = true
+	update_visual()
+		
 func assign_ability(ability_data: AbilityData):
 	assigned_ability = ability_data
 	if ability_icon and ability_data:
 		ability_icon.texture = ability_data.ability_icon
 		ability_icon.visible = true
 	update_visual()
+	if not multiplayer.is_server():
+		rpc_id(1, "request_assign_ability", ability_data.ability_id)
+	else:
+		rpc_id(multiplayer.get_remote_sender_id(), "recieve_assign_ability", ability_data.ability_id)
 
 func clear_ability():
 	assigned_ability = null
