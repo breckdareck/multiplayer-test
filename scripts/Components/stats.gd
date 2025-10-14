@@ -25,7 +25,6 @@ const SCALING_EXPONENT: float = 1.5
 var _level_component: LevelingComponent
 var _class_component: ClassComponent
 var _equipment_component: EquipmentComponent
-var _health_component: HealthComponent
 
 var _recalc_scheduled: bool = false
 
@@ -33,8 +32,6 @@ func _ready() -> void:
 	_level_component = get_parent().get_node_or_null("Leveling")
 	_class_component = get_parent().get_node_or_null("Class")
 	_equipment_component = get_parent().get_node_or_null("Equipment")
-	_health_component = get_parent().get_node_or_null("Health")
-	
 	
 	#TODO: Fix Syncing of Stats for Clients - SLIGHTY FIXED - LOOK AT LATER
 	if !multiplayer.is_server():

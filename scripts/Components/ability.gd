@@ -33,14 +33,13 @@ var _class_component: ClassComponent
 var _stats_component: StatsComponent
 var _level_component: LevelingComponent
 
-var hotbar_abilities: Dictionary = {} # Key: slot_index (int), Value: ability_id (String)
 
 var _cooldowns: Dictionary = {}
-
 ## {"ability_id": current_level}
 var _ability_levels: Dictionary = {}
-
 var _available_ability_points: int = 0
+
+@onready var hotbar: Hotbar = $"../../CanvasLayer/PlayerHUD/Hotbar"
 
 
 func _ready() -> void:
@@ -62,13 +61,34 @@ func _ready() -> void:
 		
 	set_process(true)
 	
-	# Initialize class abilities at level 0 (unlearned but visible)
-	for ability_data in _class_component.get_class_abilities():
-		if ability_data != null and not _ability_levels.has(ability_data.ability_id):
-			# Use learn_ability to handle initial setup and passive application
-			learn_ability(ability_data.ability_id, 0)
+	# Only initialize abilities on the server or in single player
+	# Clients will receive the data via RPC sync
+	if not multiplayer.has_multiplayer_peer() or multiplayer.is_server():
+		# Initialize class abilities at level 0 (unlearned but visible)
+		for ability_data in _class_component.get_class_abilities():
+			if ability_data != null and not _ability_levels.has(ability_data.ability_id):
+				# Don't send RPCs during initialization
+				_learn_ability_local(ability_data.ability_id, 0, false)
 	
 	print("Loaded abilities: ", _ability_levels)
+
+
+## Called by the server to sync all ability data to a newly connected client
+func sync_all_abilities_to_client(peer_id: int) -> void:
+	if not multiplayer.is_server():
+		return
+	
+	print("DEBUG: Syncing abilities to peer %d - Current points: %d, Levels: %s" % [peer_id, _available_ability_points, _ability_levels])
+	
+	# Sync ability points
+	sync_ability_points.rpc_id(peer_id, _available_ability_points)
+	
+	# Sync all learned abilities
+	for ability_id in _ability_levels:
+		var level = _ability_levels[ability_id]
+		sync_ability_learned.rpc_id(peer_id, ability_id, level)
+	
+	print("Synced all abilities to peer %d" % peer_id)
 
 
 func _process(delta: float) -> void:
@@ -83,8 +103,19 @@ func _process(delta: float) -> void:
 		_cooldowns.erase(ability_id)
 
 
-## NEW: Level up a ability using ability points
+## Level up a ability using ability points
 func level_up_ability(ability_id: String) -> bool:
+	# If multiplayer and we're a client, send request to server
+	if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
+		level_up_ability_request.rpc_id(1, ability_id)
+		return true
+	
+	# Server or singleplayer: execute locally
+	return _level_up_ability_local(ability_id)
+
+
+func _level_up_ability_local(ability_id: String) -> bool:
+	"""Server-side ability level up logic"""
 	if _available_ability_points <= 0:
 		print("No ability points available")
 		return false
@@ -125,11 +156,45 @@ func level_up_ability(ability_id: String) -> bool:
 	ability_leveled_up.emit(ability_id, current_level + 1)
 	print("Leveled up %s to level %d" % [ability.ability_name, current_level + 1])
 	
+	# Sync to all clients if on server
+	if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
+		# Sync both the level and the new ability points total
+		sync_ability_level.rpc(ability_id, current_level + 1)
+		sync_ability_points.rpc(_available_ability_points)
+	
 	return true
 
 
-## NEW: Learn a new ability (set it to level 1)
+@rpc("any_peer", "call_local", "reliable")
+func level_up_ability_request(ability_id: String) -> void:
+	"""Client requests to level up an ability"""
+	if not multiplayer.is_server():
+		return
+	
+	_level_up_ability_local(ability_id)
+
+
+@rpc("authority", "call_local", "reliable")
+func sync_ability_level(ability_id: String, new_level: int) -> void:
+	"""Server syncs ability level to all clients"""
+	_ability_levels[ability_id] = new_level
+	ability_leveled_up.emit(ability_id, new_level)
+	print("Synced ability level: %s to %d" % [ability_id, new_level])
+
+
+## Learn a new ability (set it to level 1)
 func learn_ability(ability_id: String, initial_level: int = 1) -> bool:
+	# If multiplayer and we're a client, send request to server
+	if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
+		learn_ability_request.rpc_id(1, ability_id, initial_level)
+		return true
+	
+	# Server or singleplayer: execute locally
+	return _learn_ability_local(ability_id, initial_level)
+
+
+func _learn_ability_local(ability_id: String, initial_level: int = 1, send_rpc: bool = true) -> bool:
+	"""Server-side ability learning logic"""
 	if _ability_levels.has(ability_id):
 		print("ability already learned: %s" % ability_id)
 		return false
@@ -146,27 +211,63 @@ func learn_ability(ability_id: String, initial_level: int = 1) -> bool:
 	ability_learned.emit(ability_id)
 	
 	print("Learned ability: %s at level %d" % [ability.ability_name, initial_level])
+	
+	# Sync to all clients if on server and send_rpc is true
+	if send_rpc and multiplayer.has_multiplayer_peer() and multiplayer.is_server():
+		sync_ability_learned.rpc(ability_id, initial_level)
+	
 	return true
 
 
-## NEW: Add ability points (called when character levels up)
+@rpc("any_peer", "call_local", "reliable")
+func learn_ability_request(ability_id: String, initial_level: int) -> void:
+	"""Client requests to learn an ability"""
+	if not multiplayer.is_server():
+		return
+	
+	_learn_ability_local(ability_id, initial_level)
+
+
+@rpc("authority", "call_local", "reliable")
+func sync_ability_learned(ability_id: String, initial_level: int) -> void:
+	"""Server syncs newly learned ability to all clients"""
+	_ability_levels[ability_id] = initial_level
+	ability_learned.emit(ability_id)
+	print("Synced learned ability: %s at level %d" % [ability_id, initial_level])
+
+
+## Add ability points (called when character levels up)
 func add_ability_points(amount: int) -> void:
 	_available_ability_points += amount
 	print("Added %d ability points. Total: %d" % [amount, _available_ability_points])
 	ability_points_changed.emit(_available_ability_points)
+	
+	# Sync to all clients if on server
+	# This ensures clients always have the correct point total
+	if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
+		sync_ability_points.rpc(_available_ability_points)
 
 
-## NEW: Get current level of a ability
+@rpc("authority", "reliable")
+func sync_ability_points(new_total: int) -> void:
+	"""Server syncs ability points to clients (not call_local - don't overwrite server!)"""
+	print("DEBUG: sync_ability_points called - Old: %d, New: %d, IsServer: %s" % [_available_ability_points, new_total, multiplayer.is_server()])
+	_available_ability_points = new_total
+	ability_points_changed.emit(_available_ability_points)
+	print("Synced ability points: %d" % new_total)
+
+
+## Get current level of a ability
 func get_ability_level(ability_id: String) -> int:
 	return _ability_levels.get(ability_id, 0)
 
 
-## NEW: Get available ability points
+## Get available ability points
 func get_available_ability_points() -> int:
 	return _available_ability_points
 
 
-## NEW: Check if a ability can be leveled up
+## Check if a ability can be leveled up
 func can_level_up_ability(ability_id: String) -> bool:
 	if _available_ability_points <= 0:
 		return false
@@ -195,13 +296,13 @@ func use_ability(ability_id: String) -> bool:
 		print("AbilityComponent: Ability ID '%s' not found." % ability_id)
 		return false
 
-	# NEW: Get current ability level
+	# Get current ability level
 	var ability_level = get_ability_level(ability_id)
 	if ability_level <= 0:
 		print("AbilityComponent: ability '%s' not learned." % ability.ability_name)
 		return false
 
-	# NEW: Get level-specific stats
+	# Get level-specific stats
 	var level_stats = ability.get_level_stats(ability_level)
 	if not level_stats:
 		print("AbilityComponent: Invalid level data for '%s' at level %d" % [ability.ability_name, ability_level])
@@ -212,60 +313,96 @@ func use_ability(ability_id: String) -> bool:
 		print("AbilityComponent: Ability '%s' is not an active ability." % ability.ability_name)
 		return false
 	
-	# Check Cooldown
+	# CLIENT-SIDE CHECKS (prevent unnecessary RPC calls)
 	if _cooldowns.has(ability_id):
 		print("AbilityComponent: Ability '%s' is on cooldown." % ability.ability_name)
 		return false
 		
-	# NEW: Check Mana Cost from level stats
+	# Check if this is multiplayer and if we're the client
+	if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
+		# Client: Send RPC request to server
+		use_ability_request(ability_id)
+		return true
+	else:
+		# Server or Singleplayer: Execute directly
+		return _execute_ability_locally(ability_id, ability, level_stats)
+
+
+func _execute_ability_locally(ability_id: String, ability: AbilityData, level_stats: AbilityLevelData) -> bool:
+	"""Execute ability locally (server-side only)"""
+	# Server-side authoritative checks
+	if _cooldowns.has(ability_id):
+		print("Server: Cooldown check failed for %s." % ability.ability_name)
+		return false
+	
 	var mana_cost = level_stats.mana_cost
 	if "current_mana" in _stats_component:
 		if _stats_component.current_mana < mana_cost:
-			print("AbilityComponent: Not enough mana to use '%s' (need %d)." % [ability.ability_name, mana_cost])
+			print("Server: Not enough mana to use '%s' (need %d)." % [ability.ability_name, mana_cost])
 			return false
 		else:
 			_stats_component.current_mana -= mana_cost
-	else:
-		print("Mana isn't implemented yet. ---- ADD LATER ----")
-		
+	
 	# Success! Deduct generic cost and start cooldown
 	_cooldowns[ability_id] = level_stats.cooldown_time
 	cooldown_started.emit(ability_id, level_stats.cooldown_time)
 
-	# NEW: Execute with custom logic script
+	# Execute the ability (transition to attack state)
 	_execute_active_ability(ability, level_stats)
 	ability_used.emit(ability_id)
 	
 	return true
 
 
-## UPDATED: Executes custom logic script
 func _execute_active_ability(ability: AbilityData, level_stats: AbilityLevelData) -> void:
 	print("AbilityComponent: Executing %s (Level %d, %d%% damage)" % [ability.ability_name, level_stats.level, level_stats.damage_percent])
 	
 	var active_behavior = ability.active_behavior
 	
-	if active_behavior and active_behavior.logic_script:
-		# Create an instance of the specific logic script
+	if not active_behavior:
+		push_error("Ability %s is missing active behavior data." % ability.ability_name)
+		return
+	
+	# Get the player's state machine and attack state
+	var player = owner as Node
+	var state_machine = player.get_node_or_null("StateMachine")
+	
+	if not state_machine:
+		push_error("Could not find StateMachine on player")
+		return
+	
+	var attack_state = state_machine.get_node_or_null("attack")
+	
+	if not attack_state:
+		push_error("Could not find Attack state in StateMachine")
+		return
+	
+	# Set the ability data on the attack state
+	if attack_state.has_method("set_ability_data"):
+		attack_state.set_ability_data(ability, level_stats)
+	else:
+		push_error("Attack state missing set_ability_data method")
+		return
+	
+	# Transition to attack state
+	# The state will be synced by MultiplayerSynchronizer
+	if "current_state" in state_machine:
+		state_machine.current_state = attack_state
+		attack_state.enter()
+	else:
+		push_error("Could not change state - state_machine missing current_state property")
+	
+	# Optional: Execute custom logic script if provided
+	if active_behavior.logic_script:
 		var custom_logic = active_behavior.logic_script.new()
 		
 		if custom_logic and custom_logic.has_method("execute"):
-			# Pass the caster (parent), the ability data, and the level data
 			custom_logic.execute(owner, ability, level_stats)
 		else:
-			push_error("Custom logic script for %s is missing 'execute' method." % ability.ability_name)
-	else:
-		push_error("Ability %s is missing a custom logic script." % ability.ability_name)
-		
-	# Still call the combat component for generic cleanup/processing if needed
-	var combat_component = get_parent().get_node_or_null("Combat")
-	if combat_component and combat_component.has_method("process_ability_hit"):
-		combat_component.process_ability_hit(ability, level_stats)
-	else:
-		print("AbilityComponent: No combat component found to process ability hit")
+			push_warning("Custom logic script for %s is missing 'execute' method." % ability.ability_name)
 
 
-## REVISED: Simplified passive effect getter
+## Simplified passive effect getter
 func get_passive_effect_modifiers() -> Dictionary:
 	var modifiers = {}
 	
@@ -286,7 +423,7 @@ func get_passive_effect_modifiers() -> Dictionary:
 	return modifiers
 
 
-## REVISED: Now called generically to force stat recalculation
+## Now called generically to force stat recalculation
 func _apply_passive_effect() -> void:
 	print("AbilityComponent: Forcing global stat recalculation for passive effects.")
 	
@@ -296,23 +433,23 @@ func _apply_passive_effect() -> void:
 
 
 func use_ability_request(ability_id: String) -> void:
+	"""Client-side function to request ability use from server"""
 	if _cooldowns.has(ability_id):
 		print("Client: Ability is on cooldown (UX check).")
 		return
-		
-	rpc_id(multiplayer.get_server_id(), "use_ability_server", ability_id)
-	print("Client: Sent RPC request to use ability %s" % ability_id)
+	
+	print("Client: Sending RPC request to use ability %s" % ability_id)
+	use_ability_server.rpc_id(1, ability_id)  # Always send to server (peer ID 1)
 	
 	
 func get_cooldown_remaining(ability_id: String) -> float:
 	return _cooldowns.get(ability_id, 0.0)
 
 
-@rpc("authority", "reliable")
+@rpc("any_peer", "call_local", "reliable")
 func use_ability_server(ability_id: String) -> void:
-	var sender_id = multiplayer.get_rpc_sender_id()
-	if sender_id != get_parent().multiplayer.get_authority():
-		print("Server: WARNING! Unauthorized ability use attempt by ID %d" % sender_id)
+	# Only process on server
+	if not multiplayer.is_server():
 		return
 
 	var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
@@ -320,55 +457,48 @@ func use_ability_server(ability_id: String) -> void:
 		print("Server: Invalid ability: %s" % ability_id)
 		return
 
-	# NEW: Check ability level
+	# Check ability level
 	var ability_level = get_ability_level(ability_id)
 	if ability_level <= 0:
 		print("Server: ability not learned: %s" % ability_id)
 		return
 
-	# NEW: Get level stats
+	# Get level stats
 	var level_stats = ability.get_level_stats(ability_level)
 	if not level_stats:
 		print("Server: Invalid level stats for %s" % ability_id)
 		return
 	
-	# Authoritative Checks
-	if _cooldowns.has(ability_id):
-		print("Server: Cooldown check failed for %s." % ability.ability_name)
-		return
-	
-	if _stats_component.current_mana < level_stats.mana_cost:
-		print("Server: Mana check failed for %s." % ability.ability_name)
+	# Execute ability locally on server
+	if _execute_ability_locally(ability_id, ability, level_stats):
+		# Notify all clients about the ability use
+		ability_used_client.rpc(ability_id, level_stats.cooldown_time)
+
+
+@rpc("authority", "call_local", "reliable")
+func ability_used_client(ability_id: String, cooldown_time: float) -> void:
+	# This runs on all clients (and server due to call_local)
+	var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
+	if not ability:
 		return
 		
-	# Apply Generic Changes
-	_stats_component.current_mana -= level_stats.mana_cost
-	_cooldowns[ability_id] = level_stats.cooldown_time
+	var ability_level = get_ability_level(ability_id)
+	var level_stats = ability.get_level_stats(ability_level)
+	if not level_stats:
+		return
 	
-	# Execute with custom logic script
-	_execute_active_ability(ability, level_stats)
-	
-	# Notify clients
-	rpc("ability_used_client", ability_id, level_stats.cooldown_time)
-
-
-@rpc("any_peer", "reliable")
-func ability_used_client(ability_id: String, cooldown_time: float) -> void:
+	# Sync cooldown
 	_cooldowns[ability_id] = cooldown_time
 	
+	# Emit signals
 	ability_used.emit(ability_id)
 	cooldown_started.emit(ability_id, cooldown_time)
 	
-	_play_vfx_sfx(ability_id)
+	# On clients, we need to execute the visual part (state change + animation)
+	if not multiplayer.is_server():
+		_execute_active_ability(ability, level_stats)
 	
-	print("Client: Synchronized ability use and started cooldown for %s." % ability_id)
-
-
-func _play_vfx_sfx(ability_id: String):
-	var ability = ResourceManager.get_ability_data(ability_id)
-	if ability and ability.active_behavior:
-		# Use ability.active_behavior.animation_name and .sfx_path here
-		pass
+	print("Client: Synchronized ability use for %s." % ability_id)
 
 
 ## This gets called when character levels up
@@ -377,56 +507,61 @@ func _on_leveled_up(new_level: int) -> void:
 	print("AbilityComponent: Level up! Now level %d. Added 3 ability points." % new_level)
 
 
-## Assign an ability to a hotbar slot
-func set_hotbar_ability(slot_index: int, ability_data: AbilityData) -> void:
-	if not ability_data:
-		print("Cannot assign null ability to hotbar")
+## Save ability data to dictionary
+func save_abilities() -> Dictionary:
+	var save_data = {
+		"ability_levels": _ability_levels.duplicate(),
+		"available_points": _available_ability_points,
+		"hotbar_config": hotbar.save_hotbar_config()
+	}
+	return save_data
+
+
+## Load ability data from dictionary
+func load_abilities(data: Dictionary) -> void:
+	if data.is_empty():
+		print("AbilityComponent: No ability data to load")
 		return
 	
-	# Check if ability is learned
-	if get_ability_level(ability_data.ability_id) <= 0:
-		print("Cannot assign unlearned ability '%s' to hotbar" % ability_data.ability_name)
-		return
+	# Clear existing data
+	_ability_levels.clear()
 	
-	hotbar_abilities[slot_index] = ability_data.ability_id
-	print("Assigned ability '%s' to hotbar slot %d" % [ability_data.ability_name, slot_index])
-
-## Clear an ability from a hotbar slot
-func clear_hotbar_ability(slot_index: int) -> void:
-	if hotbar_abilities.has(slot_index):
-		hotbar_abilities.erase(slot_index)
-		print("Cleared ability from hotbar slot %d" % slot_index)
-
-## Use ability from hotbar slot
-func use_hotbar_ability(slot_index: int) -> bool:
-	if not hotbar_abilities.has(slot_index):
-		print("No ability assigned to hotbar slot %d" % slot_index)
-		return false
+	# Load ability levels
+	var loaded_levels = data.get("ability_levels", {})
+	for ability_id in loaded_levels:
+		var level = loaded_levels[ability_id]
+		_ability_levels[ability_id] = level
+		print("Loaded ability: %s at level %d" % [ability_id, level])
 	
-	var ability_id = hotbar_abilities[slot_index]
+	# Load ability points
+	_available_ability_points = data.get("available_points", 0)
+	print("Loaded ability points: %d" % _available_ability_points)
 	
-	# Check if this is multiplayer and if we're the client
-	if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
-		use_ability_request(ability_id)
-		return true
-	else:
-		return use_ability(ability_id)
+	# Load hotbar configuration
+	var loaded_hotbar = data.get("hotbar_config", {})
+	hotbar.load_hotbar_config(loaded_hotbar)
+	
+	# Re-apply passive effects after loading
+	_apply_passive_effect()
+	
+	# Emit signals to update UI
+	ability_points_changed.emit(_available_ability_points)
+	for ability_id in _ability_levels:
+		var level = _ability_levels[ability_id]
+		if level > 0:
+			ability_learned.emit(ability_id)
+			ability_leveled_up.emit(ability_id, level)
 
-## Get ability ID from hotbar slot
-func get_hotbar_ability(slot_index: int) -> String:
-	return hotbar_abilities.get(slot_index, "")
 
-## Get all hotbar assignments
-func get_hotbar_config() -> Dictionary:
-	return hotbar_abilities.duplicate()
+## Disconnect from leveling component signals (for loading)
+func disconnect_level_signals() -> void:
+	if _level_component and _level_component.leveled_up.is_connected(_on_leveled_up):
+		_level_component.leveled_up.disconnect(_on_leveled_up)
+		print("AbilityComponent: Disconnected from leveling signals")
 
-## Load hotbar configuration (for save/load system)
-func load_hotbar_config(config: Dictionary) -> void:
-	hotbar_abilities.clear()
-	for slot_index in config:
-		var ability_id = config[slot_index]
-		# Verify the ability exists and is learned
-		if ResourceManager.get_ability_data(ability_id) and get_ability_level(ability_id) > 0:
-			hotbar_abilities[slot_index] = ability_id
-		else:
-			print("Warning: Could not load ability '%s' to slot %d (not learned or invalid)" % [ability_id, slot_index])
+
+## Reconnect to leveling component signals (after loading)
+func reconnect_level_signals() -> void:
+	if _level_component and not _level_component.leveled_up.is_connected(_on_leveled_up):
+		_level_component.leveled_up.connect(_on_leveled_up)
+		print("AbilityComponent: Reconnected to leveling signals")

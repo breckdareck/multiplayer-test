@@ -5,12 +5,9 @@ signal class_changed(new_class: String)
 
 @export var current_class: Constants.ClassType
 
-var _stats_component: StatsComponent
-
 var class_abilities: Array[AbilityData] = []
 
 func _ready() -> void:
-	_stats_component = get_parent().get_node_or_null("Stats")
 	_load_class_abilities()
 
 

@@ -220,6 +220,9 @@ func _setup_server_signals() -> void:
 	
 	if health_component:
 		health_component.health_changed.connect(func(_c, _m): _data_changed())
+		
+	if ability_component:
+		ability_component.ability_leveled_up.connect(func(_a, _l): _data_changed())
 
 	if is_instance_valid(drop_timer):
 		drop_timer.timeout.connect(_on_drop_timer_timeout)
@@ -303,10 +306,14 @@ func _get_save_data() -> Dictionary:
 	   'current_health': health_component.current_health if is_instance_valid(health_component) else 100,
 	   'level': level_component.level if is_instance_valid(level_component) else 1,
 	   'experience': level_component.experience if is_instance_valid(level_component) else 0
-						   }
+	}
 
 	if is_instance_valid(inventory_component):
 		data['inventory'] = inventory_component.save_inventory()
+	
+	# Save ability data
+	if is_instance_valid(ability_component):
+		data['abilities'] = ability_component.save_abilities()
 		
 	return data
 
@@ -316,19 +323,19 @@ func _load_data(data: Dictionary) -> void:
 		return
 
 	print("Loading data for ", data.get("username", "Unknown"))
-	#username = data.get("username", "Player")
+	
+	if is_instance_valid(ability_component):
+		ability_component.disconnect_level_signals()
 
 	if is_instance_valid(stats_component):
 		stats_component.set_block_signals(true)
 
 	if is_instance_valid(level_component):
-		# print("Level Component found")
 		level_component.set_block_signals(true)
 		level_component.level = data.get("level", 1)
 		level_component.experience = data.get("experience", 0)
 		
 	if is_instance_valid(health_component):
-		# print("Health Component found")
 		health_component.set_block_signals(true)
 		health_component.max_health = data.get("max_health", health_component.max_health)
 		health_component.current_health = data.get("current_health", health_component.max_health)
@@ -337,6 +344,12 @@ func _load_data(data: Dictionary) -> void:
 		var inventory_data = data.get("inventory", {})
 		if not inventory_data.is_empty():
 			inventory_component.load_inventory(inventory_data)
+
+	if is_instance_valid(ability_component):
+		var ability_data = data.get("abilities", {})
+		if not ability_data.is_empty():
+			ability_component.load_abilities(ability_data)
+			
 
 	if is_instance_valid(health_component):
 		health_component.set_block_signals(false)
@@ -350,6 +363,9 @@ func _load_data(data: Dictionary) -> void:
 	if is_instance_valid(stats_component):
 		stats_component.set_block_signals(false)
 		stats_component.stats_changed.emit()
+	
+	if is_instance_valid(ability_component):
+		ability_component.reconnect_level_signals()
 
 
 #=============================================================================
@@ -428,26 +444,6 @@ func save_on_server(data_string: String) -> void:
 	if file:
 		file.store_string(data_string)
 		file.close()
-
-
-## [CLIENT -> SERVER] Requests to load this player's data from a file.
-#@rpc("any_peer", "call_local", "reliable")
-#func request_load_data(user_name: String) -> void:
-#	if not multiplayer.is_server():
-#		return
-#
-#	var file_path: String = "player_%s.json" % user_name
-#	if FileAccess.file_exists(file_path):
-#		var file := FileAccess.open(file_path, FileAccess.READ)
-#		if file:
-#			var content: String = file.get_as_text()
-#			file.close()
-#			var parsed_json = JSON.parse_string(content)
-#			if typeof(parsed_json) == TYPE_DICTIONARY:
-#				_load_data(parsed_json)
-#	else:
-#		# If no _get_save_data file exists, create one with default data.
-#		save_on_server(JSON.stringify(_get_save_data()))
 
 
 # [CLIENT -> SERVER] Asks the server to initiate a sprite change for this player.

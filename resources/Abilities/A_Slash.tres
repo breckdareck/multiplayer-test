@@ -11,20 +11,21 @@
 atlas = ExtResource("1_5ui4y")
 region = Rect2(75, 109, 19, 19)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_i4okq"]
-size = Vector2(40, 40)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ajojy"]
+size = Vector2(66, 20)
 
 [sub_resource type="Resource" id="Resource_7e1xr"]
 script = ExtResource("2_7svtf")
 target_type = 1
-hit_box_shape_data = SubResource("RectangleShape2D_i4okq")
-hit_box_position_data = Vector2(20, 0)
+hit_box_shape_data = SubResource("RectangleShape2D_ajojy")
+hit_box_position_data = Vector2(33, -10)
 animation_name = "attack_1"
 sfx_path = "res://sounds/tap.wav"
 logic_script = ExtResource("2_ajojy")
 
 [sub_resource type="Resource" id="Resource_ajojy"]
 script = ExtResource("4_ajojy")
+cooldown_time = 1.0
 damage_percent = 85
 max_targets = 6
 metadata/_custom_type_script = "uid://iols3c70aq2j"

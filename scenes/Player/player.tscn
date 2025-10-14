@@ -477,13 +477,13 @@ animations = [{
 "speed": 10.0
 }]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_e8txv"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ploos"]
 size = Vector2(21, 21)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_h0wtf"]
 radius = 5.0
 
-[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "combat_component", "level_component", "stats_component", "class_component", "inventory_component", "equipment_component", "ability_component", "debug_component", "player_HUD", "player_name_label", "stats_window") groups=["Players", "networked_entities"]]
+[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "combat_component", "level_component", "stats_component", "class_component", "inventory_component", "equipment_component", "ability_component", "debug_component", "player_HUD", "player_name_label", "stats_window", "inventory_window") groups=["Players", "networked_entities"]]
 collision_layer = 2
 collision_mask = 5
 script = ExtResource("1_an8q1")
@@ -499,6 +499,7 @@ debug_component = NodePath("CanvasLayer/Debug")
 player_HUD = NodePath("CanvasLayer/PlayerHUD")
 player_name_label = NodePath("PlayerWorldHUD/PlayerNameLabel")
 stats_window = NodePath("CanvasLayer/MoveableWindows/StatsWindow")
+inventory_window = NodePath("CanvasLayer/MoveableWindows/InventoryWindow")
 
 [node name="PlayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 delta_interval = 0.05
@@ -520,25 +521,6 @@ position = Vector2(0, -30)
 delta_interval = 0.05
 replication_config = SubResource("SceneReplicationConfig_x5q00")
 
-[node name="Leveling" type="Node" parent="Components"]
-script = ExtResource("3_18ciy")
-level_curve = ExtResource("4_4ni0x")
-
-[node name="Class" type="Node" parent="Components"]
-script = ExtResource("6_nbg44")
-
-[node name="Stats" type="Node" parent="Components"]
-script = ExtResource("4_cg2hl")
-
-[node name="Health" type="Node" parent="Components" node_paths=PackedStringArray("damage_number_origin")]
-script = ExtResource("5_o05ft")
-damage_number_origin = NodePath("../../DmgNumOrigin")
-health_bar_path = NodePath("../../PlayerWorldHUD/HealthBar")
-
-[node name="Combat" type="Node" parent="Components" node_paths=PackedStringArray("attack_hitbox")]
-script = ExtResource("7_jn0uf")
-attack_hitbox = NodePath("../../Hitbox/BasicAttackHitbox")
-
 [node name="Inventory" type="Node" parent="Components" node_paths=PackedStringArray("inventory_grids", "equipment_component")]
 script = ExtResource("15_cg2hl")
 inventory_grids = [NodePath("../../CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/EQUIP/ScrollContainer/EquipmentGrid"), NodePath("../../CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/USE/ScrollContainer/ConsumableGrid"), NodePath("../../CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid")]
@@ -553,9 +535,28 @@ legs_slot = NodePath("../../CanvasLayer/MoveableWindows/EquipmentWindow/PanelCon
 feet_slot = NodePath("../../CanvasLayer/MoveableWindows/EquipmentWindow/PanelContainer/GridContainer/FeetSlot")
 weapon_slot = NodePath("../../CanvasLayer/MoveableWindows/EquipmentWindow/PanelContainer/GridContainer/WeaponSlot")
 
+[node name="Leveling" type="Node" parent="Components"]
+script = ExtResource("3_18ciy")
+level_curve = ExtResource("4_4ni0x")
+
+[node name="Class" type="Node" parent="Components"]
+script = ExtResource("6_nbg44")
+
+[node name="Stats" type="Node" parent="Components"]
+script = ExtResource("4_cg2hl")
+
 [node name="Ability" type="Node" parent="Components" node_paths=PackedStringArray("hitbox")]
 script = ExtResource("14_ploos")
 hitbox = NodePath("../../Hitbox/BasicAttackHitbox")
+
+[node name="Health" type="Node" parent="Components" node_paths=PackedStringArray("damage_number_origin")]
+script = ExtResource("5_o05ft")
+damage_number_origin = NodePath("../../DmgNumOrigin")
+health_bar_path = NodePath("../../PlayerWorldHUD/HealthBar")
+
+[node name="Combat" type="Node" parent="Components" node_paths=PackedStringArray("attack_hitbox")]
+script = ExtResource("7_jn0uf")
+attack_hitbox = NodePath("../../Hitbox/BasicAttackHitbox")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
@@ -992,9 +993,9 @@ anchor_left = 0.0
 anchor_top = 0.0
 anchor_right = 0.0
 anchor_bottom = 0.0
-offset_left = 583.0
+offset_left = 570.0
 offset_top = 288.0
-offset_right = 1283.0
+offset_right = 1270.0
 offset_bottom = 838.0
 grow_horizontal = 1
 grow_vertical = 1
@@ -2690,7 +2691,7 @@ monitoring = false
 
 [node name="BasicAttackHitbox" type="CollisionShape2D" parent="Hitbox"]
 position = Vector2(9.5, -10.5)
-shape = SubResource("RectangleShape2D_e8txv")
+shape = SubResource("RectangleShape2D_ploos")
 
 [node name="StandingCollisionShape" type="CollisionShape2D" parent="."]
 visible = false
@@ -2733,7 +2734,6 @@ state_label = NodePath("../PlayerWorldHUD/DebugStateLabel")
 script = ExtResource("17_e6s7e")
 idle_state = NodePath("../idle")
 fall_state = NodePath("../fall")
-max_combo_steps = 1
 animation_name = "attack_1"
 
 [node name="idle" type="Node" parent="StateMachine" node_paths=PackedStringArray("jump_state", "fall_state", "move_state", "attack_state")]

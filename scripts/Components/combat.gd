@@ -6,11 +6,17 @@ extends Node
 ## Weapon Multipliers = 1.2 ~ 1.75
 @export var weapon_multiplier: float = 1.2
 
+# Attack type tracking
+enum AttackMode { NONE, BASIC, ABILITY }
+var _current_attack_mode: AttackMode = AttackMode.NONE
+
+# Basic attack data
+var current_attack_data: String = "" # Using string ID as a flag for basic attack
+
+# Ability attack data
 var current_ability_data: AbilityData = null 
 var current_active_data: ActiveBehaviorData = null
 var current_level_stats: AbilityLevelData = null
-
-var current_attack_data: String = "" # Using string ID as a flag for basic attack
 
 var hit_list: Array = []
 var _unique_targets_for_attack: Dictionary = {}
@@ -26,27 +32,38 @@ var max_damage: int:
 	get:
 		return roundi(attack_damage * 1.2)
 
+var original_attack_shape: Shape2D
+var original_attack_transform: Vector2
+
 var _stats_component: StatsComponent
 var _class_component: ClassComponent
 var _equipment_component: EquipmentComponent
 
 @onready var owner_node: CharacterBody2D = get_owner()
-@onready var attack_hitbox_timer: Timer = $"../../AttackHitboxTimer" # Adjust path if needed.
+@onready var attack_hitbox_timer: Timer = $"../../AttackHitboxTimer"
 @onready var hitbox_area: Area2D = attack_hitbox.get_parent()
 
 func _ready() -> void:
 	if not attack_hitbox:
 		push_error("CombatComponent: Attack Hitbox not assigned!")
 		return
+	
+	original_attack_shape = attack_hitbox.shape
+	original_attack_transform = attack_hitbox.position
 		
 	_stats_component = get_parent().get_node_or_null("Stats")
 	_class_component = get_parent().get_node_or_null("Class")
 	_equipment_component = get_parent().get_node_or_null("Equipment")
 
 	hitbox_area.monitoring = false
+	
+	# Connect to hitbox area
+	if not hitbox_area.area_entered.is_connected(_on_hitbox_area_entered):
+		hitbox_area.area_entered.connect(_on_hitbox_area_entered)
 
 
 func perform_attack(_attack_name: String, _duration: float) -> void:
+	"""Called by the attack state when a basic attack is triggered"""
 	if not multiplayer.is_server():
 		return
 		
@@ -55,12 +72,43 @@ func perform_attack(_attack_name: String, _duration: float) -> void:
 		return
 		
 	# Set basic attack flag and data
+	_current_attack_mode = AttackMode.BASIC
 	current_attack_data = _attack_name 
+	
+	attack_hitbox.shape = original_attack_shape
+	attack_hitbox.position = original_attack_transform
 	
 	turn_on_hitbox()
 	
 	# Optional: Use another timer to call end_attack() after attack_duration.
 	get_tree().create_timer(0.1).timeout.connect(end_attack)
+
+
+func process_ability_hit(ability: AbilityData, level_stats: AbilityLevelData) -> void:
+	"""Called by the attack state when an ability attack is triggered"""
+	if not multiplayer.is_server():
+		return
+
+	if current_attack_data != "" or current_ability_data != null:
+		print("CombatComponent: Attack already in progress.")
+		return
+
+	_current_attack_mode = AttackMode.ABILITY
+	current_ability_data = ability
+	current_active_data = ability.active_behavior
+	current_level_stats = level_stats
+	
+	attack_hitbox.shape = ability.active_behavior.hit_box_shape_data
+	attack_hitbox.position = ability.active_behavior.hit_box_position_data
+
+	turn_on_hitbox()
+	
+	var attack_duration = level_stats.cast_time
+	if attack_duration <= 0.0:
+		# Ensure a minimum duration for the hitbox to register hits in a single frame
+		attack_duration = 0.05
+
+	get_tree().create_timer(attack_duration).timeout.connect(end_ability_attack)
 
 
 func turn_on_hitbox() -> void:
@@ -72,9 +120,6 @@ func turn_on_hitbox() -> void:
 	hit_list.clear()
 	_unique_targets_for_attack.clear()
 	_pending_bodies.clear()
-	
-	#if not hitbox_area.body_entered.is_connected(_on_hitbox_body_entered):
-		#hitbox_area.body_entered.connect(_on_hitbox_body_entered)
 		
 	hitbox_area.monitoring = true
 
@@ -86,7 +131,24 @@ func end_attack() -> void:
 	_process_collected_bodies()
 	
 	hitbox_area.monitoring = false
+	_current_attack_mode = AttackMode.NONE
 	current_attack_data = ""
+
+
+func end_ability_attack() -> void:
+	if not multiplayer.is_server():
+		return
+		
+	_process_collected_bodies()
+		
+	hitbox_area.monitoring = false
+	_current_attack_mode = AttackMode.NONE
+	current_ability_data = null
+	current_active_data = null
+	current_level_stats = null
+	
+	hit_list.clear()
+	_unique_targets_for_attack.clear()
 
 
 func _on_hitbox_area_entered(area: Area2D) -> void:
@@ -156,16 +218,17 @@ func _process_collected_bodies() -> void:
 				var min_dmg = roundi(calculated_attack_damage * 0.8)
 				var max_dmg = roundi(calculated_attack_damage * 1.2)
 				damage_to_deal = randi_range(min_dmg, max_dmg)
+				print("CombatComponent: HIT! Basic Attack - Target: %s, Damage: %d" %
+					[body.name, damage_to_deal])
 				
 			elif current_ability_data and current_level_stats:
 				# ABILITY ATTACK DAMAGE CALCULATION
 				damage_to_deal = calculate_ability_damage(current_ability_data, current_level_stats)
+				print("CombatComponent: HIT! Ability Attack: %s - Target: %s, Hit #%d/%d, Damage: %d" %
+					[current_ability_data.ability_name, body.name, i + 1, max_hits, damage_to_deal])
 			
 			health_comp.take_damage(damage_to_deal, self, true)
 			hit_list.append(body)
-			
-			print("CombatComponent: HIT! Ability Attack - Target: %s, Hit #%d/%d, IgnoreInvuln: %s, Damage: %d" %
-				[body.name, i + 1, max_hits, "Always True", damage_to_deal])
 		
 		targets_processed += 1
 	
@@ -218,36 +281,3 @@ func calculate_attack_damage() -> int:
 			var stats_value = _stats_component.stats.get(primary_stat).total_value * 4 + _stats_component.stats.get(secondary_stat).total_value
 			return roundi(weapon_multiplier * stats_value * weapon_attack / 100)
 	return 0
-
-
-func process_ability_hit(ability: AbilityData, level_stats: AbilityLevelData) -> void:
-	if not multiplayer.is_server():
-		return
-
-	current_ability_data = ability
-	current_active_data = ability.active_behavior
-	current_level_stats = level_stats
-
-	turn_on_hitbox()
-	
-	var attack_duration = level_stats.cast_time
-	if attack_duration <= 0.0:
-		# Ensure a minimum duration for the hitbox to register hits in a single frame
-		attack_duration = 0.05
-
-	get_tree().create_timer(attack_duration).timeout.connect(end_ability_attack)
-
-
-func end_ability_attack() -> void:
-	if not multiplayer.is_server():
-		return
-		
-	_process_collected_bodies()
-		
-	hitbox_area.monitoring = false
-	current_ability_data = null
-	current_active_data = null
-	current_level_stats = null
-	
-	hit_list.clear()
-	_unique_targets_for_attack.clear()

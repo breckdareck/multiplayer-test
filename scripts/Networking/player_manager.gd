@@ -104,32 +104,52 @@ func _spawn_character_for_player(id: int, character_type: int, username: String,
 	player_instance.player_id = id
 	player_instance.name = str(id)
 	
-	if not player_data.is_empty():
-		player_instance._load_data(player_data)
-	
 	if player_instance.class_component:
 		player_instance.class_component.change_class(character_type)
 	
-	# Add to networked entities group for proper cleanup
 	player_instance.add_to_group("networked_entities")
 
 	var spawn_node = NetworkUtils.get_players_spawn_node(get_tree())
 	if spawn_node:
-		# This adds the character to ALL clients, including the owner
 		spawn_node.add_child(player_instance, true)
 		print("Added player %d to scene. Node path: %s" % [id, player_instance.get_path()])
 		print("Successfully spawned character %s for PID: %d" % [Constants.ClassType.find_key(character_type), id])
 		
 		player_instance.set_username.rpc(username)
 		player_instance.class_component.change_class_rpc(character_type)
-		player_instance.stats_component._recalculate_stats()
-		var inventory_data = player_data.get("inventory", {})
-		# Apply inventory on the server for authoritative validation and also send to the owning client
-		player_instance.inventory_component.load_inventory(inventory_data)
-		#player_instance.inventory_component.load_inventory_rpc.rpc_id(id, inventory_data)
-
 		
-		# Update player tracking
+		# Disconnect ability component from level signals BEFORE any data loading
+		# This prevents ability points from being granted during initial setup
+		if player_instance.ability_component:
+			player_instance.ability_component.disconnect_level_signals()
+		
+		# Load player data AFTER adding to scene
+		var has_save_data = not player_data.is_empty()
+		if has_save_data:
+			player_instance._load_data(player_data)
+			
+			# Wait for level component to finish loading and granting ability points
+			if player_instance.level_component:
+				for i in range(5):
+					await get_tree().process_frame
+		
+		player_instance.stats_component._recalculate_stats()
+		
+		# Load inventory
+		var inventory_data = player_data.get("inventory", {})
+		player_instance.inventory_component.load_inventory(inventory_data)
+
+		# Reconnect ability component signals after all setup is complete
+		if player_instance.ability_component:
+			player_instance.ability_component.reconnect_level_signals()
+
+		# IMPORTANT: Sync abilities AFTER data is fully loaded
+		if id != 1 and player_instance.ability_component:
+			await get_tree().process_frame
+			print("DEBUG: About to sync - Server has %d ability points for player %d" % [player_instance.ability_component.get_available_ability_points(), id])
+			player_instance.ability_component.sync_all_abilities_to_client(id)
+			print("Synced abilities to player %d (Points: %d)" % [id, player_instance.ability_component.get_available_ability_points()])
+		
 		if id in active_players:
 			active_players[id]["synced"] = true
 	else:

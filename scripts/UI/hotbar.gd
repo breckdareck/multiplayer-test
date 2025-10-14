@@ -38,24 +38,13 @@ func create_hotbar_slots():
 
 func _on_ability_dropped(slot_index: int, ability_data: AbilityData):
 	print("Ability '%s' dropped into hotbar slot %d" % [ability_data.ability_name, slot_index])
-	
-	# Store the ability assignment on the player
-	if player and player.has_method("set_hotbar_ability"):
-		player.set_hotbar_ability(slot_index, ability_data)
-	
-	# Optional: Add visual/audio feedback
-	# play_drop_sound()
-	# show_feedback_animation(slot_index)
+	if player.ability_component and player.ability_component.has_method("set_hotbar_ability"):
+		player.ability_component.set_hotbar_ability(slot_index, ability_data)
 
 func _on_ability_removed(slot_index: int):
 	print("Ability removed from hotbar slot %d" % slot_index)
-	
-	# Clear the ability from the player's hotbar
-	if player and player.has_method("clear_hotbar_ability"):
-		player.clear_hotbar_ability(slot_index)
-	
-	# Optional: Add visual/audio feedback
-	# play_remove_sound()
+	if player.ability_component and player.ability_component.has_method("clear_hotbar_ability"):
+		player.ability_component.clear_hotbar_ability(slot_index)
 
 func get_slot_at_index(index: int) -> Node:
 	if index >= 0 and index < hotbar_slots.size():
@@ -81,26 +70,27 @@ func _input(event: InputEvent):
 				break
 
 ## Save hotbar configuration (useful for persistence)
-func save_hotbar_config() -> Array:
-	var config = []
+func save_hotbar_config() -> Dictionary:
+	var config = {}
 	for slot in hotbar_slots:
 		if slot.assigned_ability:
-			config.append(slot.assigned_ability.ability_id)
+			config[slot.get_index()] = slot.assigned_ability.ability_id
 		else:
-			config.append("")
+			config[slot.get_index()] = ""
 	return config
 
 ## Load hotbar configuration (from save data)
-func load_hotbar_config(config: Array, ability_window: AbilityWindow):
+func load_hotbar_config(config: Dictionary):
 	if config.size() != hotbar_slots.size():
 		print("Warning: Hotbar config size mismatch")
 		return
 	
 	for i in range(config.size()):
-		if config[i] != "":
-			var ability_id = config[i]
+		if config.get(str(i)) != "":
+			var ability_id = config.get(str(i))
 			# Find the ability data from the ability window
-			for ability_data in ability_window.player_abilities.keys():
-				if ability_data.ability_id == ability_id:
+			for ability in ability_component._ability_levels.keys():
+				if ability == ability_id:
+					var ability_data = ResourceManager.get_ability_data(ability)
 					hotbar_slots[i].assign_ability(ability_data)
 					break
