@@ -53,7 +53,7 @@ func _ready() -> void:
 		return
 	
 	# Connect to leveling component if it exists
-	if _level_component:
+	if _level_component and multiplayer.is_server():
 		_level_component.leveled_up.connect(_on_leveled_up)
 		print("AbilityComponent: Connected to LevelingComponent")
 	else:

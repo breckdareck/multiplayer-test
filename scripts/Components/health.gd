@@ -48,7 +48,7 @@ func _ready() -> void:
 	# Invulnerability timer setup
 	invulnerability_timer.name = "InvulnTimer"
 	invulnerability_timer.one_shot = true
-	invulnerability_timer.wait_time = .5
+	invulnerability_timer.wait_time = 1
 	add_child(invulnerability_timer)
 
 	# Regeneration timer setup

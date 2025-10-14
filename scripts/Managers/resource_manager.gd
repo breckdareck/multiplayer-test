@@ -119,7 +119,12 @@ func get_class_type_from_string(_class_name: String) -> Constants.ClassType:
 
 func _load_ability_data() -> void:
 	var ability_folder: String = "res://resources/Abilities/"
-	_load_abilities_recursive(ability_folder)
+	
+	for resource in ResourceLoader.list_directory(ability_folder):
+		var data: AbilityData = ResourceLoader.load(ability_folder+resource)
+		ability_data[data.ability_id] = data
+		ability_by_name[data.ability_name] = data
+		print("Loaded ability: %s with ID: %s" % [data.ability_name, data.ability_id])
 
 
 func _load_abilities_recursive(path: String) -> void:
