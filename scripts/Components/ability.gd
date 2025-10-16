@@ -116,35 +116,14 @@ func level_up_ability(ability_id: String) -> bool:
 
 func _level_up_ability_local(ability_id: String) -> bool:
 	"""Server-side ability level up logic"""
-	if _available_ability_points <= 0:
-		print("No ability points available")
+	# Centralize validation by calling the check function first
+	if not can_level_up_ability(ability_id):
+		print("Cannot level up ability: %s. Validation failed." % ability_id)
 		return false
-	
+
 	var ability = ResourceManager.get_ability_data(ability_id)
-	if not ability:
-		print("Ability not found: %s" % ability_id)
-		return false
-	
-	# Check if ability is learned
-	if not _ability_levels.has(ability_id):
-		print("ability not learned yet: %s" % ability.ability_name)
-		return false
-	
 	var current_level = _ability_levels[ability_id]
-	
-	# Check max level
-	if current_level >= ability.max_level:
-		print("ability already at max level: %s" % ability.ability_name)
-		return false
-	
-	# Check prerequisites
-	if ability.prerequisite_abilities:
-		for prereq_ability in ability.prerequisite_abilities:
-			var prereq_level = _ability_levels.get(prereq_ability.ability_id, 0)
-			if prereq_level < ability.prerequisite_abilities[prereq_ability]:
-				print("Prerequisite not met for %s" % ability.ability_name)
-				return false
-	
+
 	# Level up!
 	_available_ability_points -= 1
 	_ability_levels[ability_id] = current_level + 1
@@ -182,8 +161,8 @@ func sync_ability_level(ability_id: String, new_level: int) -> void:
 	print("Synced ability level: %s to %d" % [ability_id, new_level])
 
 
-## Learn a new ability (set it to level 1)
-func learn_ability(ability_id: String, initial_level: int = 1) -> bool:
+## Learn a new ability (set it to level 0)
+func learn_ability(ability_id: String, initial_level: int = 0) -> bool:
 	# If multiplayer and we're a client, send request to server
 	if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
 		learn_ability_request.rpc_id(1, ability_id, initial_level)
@@ -193,7 +172,7 @@ func learn_ability(ability_id: String, initial_level: int = 1) -> bool:
 	return _learn_ability_local(ability_id, initial_level)
 
 
-func _learn_ability_local(ability_id: String, initial_level: int = 1, send_rpc: bool = true) -> bool:
+func _learn_ability_local(ability_id: String, initial_level: int = 0, send_rpc: bool = true) -> bool:
 	"""Server-side ability learning logic"""
 	if _ability_levels.has(ability_id):
 		print("ability already learned: %s" % ability_id)
@@ -501,9 +480,8 @@ func ability_used_client(ability_id: String, cooldown_time: float) -> void:
 	print("Client: Synchronized ability use for %s." % ability_id)
 
 
-## This gets called when character levels up
 func _on_leveled_up(new_level: int) -> void:
-	add_ability_points(3) # MapleStory gives 3 ability points per level
+	add_ability_points(3)
 	print("AbilityComponent: Level up! Now level %d. Added 3 ability points." % new_level)
 
 
@@ -523,10 +501,13 @@ func load_abilities(data: Dictionary) -> void:
 		print("AbilityComponent: No ability data to load")
 		return
 	
-	# Clear existing data
-	_ability_levels.clear()
+	# First, ensure all current class abilities are initialized at level 0
+	for ability_data in _class_component.get_class_abilities():
+		if ability_data != null and not _ability_levels.has(ability_data.ability_id):
+			_ability_levels[ability_data.ability_id] = 0
+			print("Added new ability from class: %s at level 0" % ability_data.ability_id)
 	
-	# Load ability levels
+	# Then load saved levels (overwriting the defaults)
 	var loaded_levels = data.get("ability_levels", {})
 	for ability_id in loaded_levels:
 		var level = loaded_levels[ability_id]

@@ -6,32 +6,32 @@
 
 [sub_resource type="Resource" id="Resource_56abt"]
 script = ExtResource("1_omroi")
-base_value = 10
+base_value = 0
 
 [sub_resource type="Resource" id="Resource_37cjd"]
 script = ExtResource("1_omroi")
 stat_type = 1
-base_value = 10
+base_value = 0
 
 [sub_resource type="Resource" id="Resource_tofol"]
 script = ExtResource("1_omroi")
 stat_type = 2
-base_value = 10
+base_value = 0
 
 [sub_resource type="Resource" id="Resource_mftay"]
 script = ExtResource("1_omroi")
 stat_type = 3
-base_value = 10
+base_value = 0
 
 [sub_resource type="Resource" id="Resource_vt43v"]
 script = ExtResource("1_omroi")
 stat_type = 4
-base_value = 10
+base_value = 0
 
 [sub_resource type="Resource" id="Resource_py8x4"]
 script = ExtResource("1_omroi")
 stat_type = 5
-base_value = 10
+base_value = 0
 
 [sub_resource type="Resource" id="Resource_rtqi4"]
 script = ExtResource("1_omroi")
@@ -69,7 +69,7 @@ metadata/_custom_type_script = "uid://cptesvvlfbytw"
 [sub_resource type="Resource" id="Resource_2m5o5"]
 script = ExtResource("1_omroi")
 stat_type = 12
-base_value = 15
+base_value = 0
 flat_bonus_value = 15
 metadata/_custom_type_script = "uid://cptesvvlfbytw"
 

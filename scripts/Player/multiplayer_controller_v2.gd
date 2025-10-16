@@ -19,9 +19,6 @@ const SERVER_ID: int = 1
 @export_category("Collision")
 @export var platform_layer: int = 3
 
-@export_category("Actions")
-@export var slide_speed_boost: float = 250.0
-
 @export_category("Components")
 @export var health_component: HealthComponent
 @export var combat_component: CombatComponent
@@ -52,6 +49,7 @@ var do_drop: bool = false
 
 var _sprite_base_offset_x: float
 var _is_being_cleaned_up: bool = false
+var _is_loading_data: bool = false
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var state_machine = $StateMachine
@@ -68,17 +66,6 @@ var _is_being_cleaned_up: bool = false
 
 func _ready() -> void:
 	if multiplayer.get_unique_id() == player_id:
-		#var menu_container: MainMenu = get_tree().current_scene.get_node_or_null("%MenuContainer") as MainMenu
-		#if is_instance_valid(menu_container) and menu_container.has_method("get_username"):
-			#var user_name: String = menu_container.get_username()
-			#set_username.rpc(user_name)
-			#request_load_data.rpc_id(SERVER_ID, user_name)
-			#await get_tree().process_frame
-			#change_class_request.rpc_id(SERVER_ID, menu_container.selected_character)
-			#class_component.change_class(menu_container.selected_character)
-		#else:
-			#push_warning("Could not find MenuContainer or get_username method.")
-
 		# Request the sprite states of all other players from the server.
 		stats_window.update_stats_window()	
 		request_all_sprite_states.rpc_id(SERVER_ID)
@@ -321,40 +308,38 @@ func _get_save_data() -> Dictionary:
 func _load_data(data: Dictionary) -> void:
 	if _is_being_cleaned_up:
 		return
-
+	
+	_is_loading_data = true
+	
 	print("Loading data for ", data.get("username", "Unknown"))
 	
+	if is_instance_valid(stats_component):
+		stats_component.set_loading_mode(true)
+		stats_component.set_block_signals(true)
+		
 	if is_instance_valid(ability_component):
 		ability_component.disconnect_level_signals()
-
-	if is_instance_valid(stats_component):
-		stats_component.set_block_signals(true)
 
 	if is_instance_valid(level_component):
 		level_component.set_block_signals(true)
 		level_component.level = data.get("level", 1)
 		level_component.experience = data.get("experience", 0)
 		
-	if is_instance_valid(health_component):
-		health_component.set_block_signals(true)
-		health_component.max_health = data.get("max_health", health_component.max_health)
-		health_component.current_health = data.get("current_health", health_component.max_health)
-		
 	if is_instance_valid(inventory_component):
 		var inventory_data = data.get("inventory", {})
 		if not inventory_data.is_empty():
 			inventory_component.load_inventory(inventory_data)
+			
+	if is_instance_valid(health_component):
+		health_component.set_block_signals(true)
+		health_component.max_health = data.get("max_health", health_component.max_health)
+		health_component.current_health = data.get("current_health", health_component.max_health)
 
 	if is_instance_valid(ability_component):
 		var ability_data = data.get("abilities", {})
 		if not ability_data.is_empty():
 			ability_component.load_abilities(ability_data)
 			
-
-	if is_instance_valid(health_component):
-		health_component.set_block_signals(false)
-		health_component.health_changed.emit(health_component.current_health, health_component.max_health)
-	
 	if is_instance_valid(level_component):
 		level_component.set_block_signals(false)
 		level_component.leveled_up.emit(level_component.level)
@@ -366,6 +351,12 @@ func _load_data(data: Dictionary) -> void:
 	
 	if is_instance_valid(ability_component):
 		ability_component.reconnect_level_signals()
+		
+	if is_instance_valid(health_component):
+		health_component.set_block_signals(false)
+		health_component.health_changed.emit(health_component.current_health, health_component.max_health)
+		
+	_is_loading_data = false
 
 
 #=============================================================================
@@ -385,7 +376,7 @@ func _on_drop_timer_timeout() -> void:
 
 
 func _data_changed() -> void:
-	if _is_being_cleaned_up:
+	if _is_being_cleaned_up or _is_loading_data:
 		return
 	var data_string: String = JSON.stringify(_get_save_data())
 	save_on_server.rpc_id(SERVER_ID, data_string)

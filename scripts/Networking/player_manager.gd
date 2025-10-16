@@ -118,7 +118,9 @@ func _spawn_character_for_player(id: int, character_type: int, username: String,
 		player_instance.set_username.rpc(username)
 		player_instance.class_component.change_class_rpc(character_type)
 		
-		# Disconnect ability component from level signals BEFORE any data loading
+		if player_instance.stats_component:
+			player_instance.stats_component.set_loading_mode(true)
+		
 		# This prevents ability points from being granted during initial setup
 		if player_instance.ability_component:
 			player_instance.ability_component.disconnect_level_signals()
@@ -133,11 +135,16 @@ func _spawn_character_for_player(id: int, character_type: int, username: String,
 				for i in range(5):
 					await get_tree().process_frame
 		
-		player_instance.stats_component._recalculate_stats()
-		
 		# Load inventory
 		var inventory_data = player_data.get("inventory", {})
-		player_instance.inventory_component.load_inventory(inventory_data)
+		player_instance.inventory_component.load_inventory_silent(inventory_data)
+		
+		if player_instance.stats_component:
+			player_instance.stats_component.set_loading_mode(false)
+			player_instance.stats_component._recalculate_stats()
+			
+		if id != 1:
+			player_instance.inventory_component.sync_inventory_to_client()
 
 		# Reconnect ability component signals after all setup is complete
 		if player_instance.ability_component:

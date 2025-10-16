@@ -27,6 +27,7 @@ var _class_component: ClassComponent
 var _equipment_component: EquipmentComponent
 
 var _recalc_scheduled: bool = false
+var _loading_mode: bool = false
 
 func _ready() -> void:
 	_level_component = get_parent().get_node_or_null("Leveling")
@@ -64,8 +65,13 @@ func _recalculate_stats() -> void:
 
 	# Get Class Bonus's
 	var class_bonuses:Dictionary[Constants.StatType, int] = _class_component.get_class_bonuses()
+	var print_string: String = ""
 	for stat in class_bonuses:
 		stats.get(stat).flat_bonus_value += class_bonuses[stat] * _level_component.level
+		print_string += (Constants.StatType.find_key(stat) + ":" + str(class_bonuses[stat] * _level_component.level) + ", ")
+		
+	print("StatsComponent: Applied class bonuses for %s: %s" % [_class_component.get_class_name(), print_string])
+	
 		
 	# Add equipment bonuses
 	# TODO: Add the Percent Bonus's as well
@@ -83,18 +89,27 @@ func _recalculate_stats() -> void:
 		for stat_type in equipment_bonuses:
 			if stats.has(stat_type):
 				stats[stat_type].flat_bonus_value += equipment_bonuses[stat_type]
-		print("StatsComponent: Applied equipment bonuses: %s" % equipment_bonuses)
+				
+		print_string = ""
+		for stat in equipment_bonuses:
+			var value = equipment_bonuses[stat]
+			if typeof(value) == TYPE_INT and Constants.StatType.find_key(stat): # Check if it's an enum value
+				print_string += (Constants.StatType.find_key(stat) + ":" + str(value) + ", ")
+			else:
+				print_string += (str(stat) + ":" + str(value) + ", ")
+		print("StatsComponent: Applied equipment bonuses: %s" % print_string)
 
 	# Add passive ability bonuses
 	var ability_component = get_parent().get_node_or_null("Ability")
 	if ability_component and ability_component.has_method("get_passive_effect_modifiers"):
 		var ability_bonuses = ability_component.get_passive_effect_modifiers()
+		print_string = ""
 		for stat_type in ability_bonuses:
 			if stats.has(stat_type):
 				stats[stat_type].flat_bonus_value += ability_bonuses[stat_type]
-		print("StatsComponent: Applied ability passive bonuses: %s" % ability_bonuses)
+				print_string += (Constants.StatType.find_key(stat_type) + ":" + str(ability_bonuses[stat_type]) + ", ")
+		print("StatsComponent: Applied ability passive bonuses: %s" % print_string)
 
-	print("StatsComponent: Applied class bonuses for %s: %s" % [_class_component.get_class_name(), class_bonuses])
 	print("StatsComponent: Final stats - STR: %d, DEX: %d, INT: %d, LUK: %d" % [stats[Constants.StatType.STRENGTH].total_value, stats[Constants.StatType.DEXTERITY].total_value, stats[Constants.StatType.INTELLIGENCE].total_value, stats[Constants.StatType.LUCK].total_value])
 	
 	stats_changed.emit()
@@ -102,6 +117,9 @@ func _recalculate_stats() -> void:
 
 @rpc("any_peer","call_local","reliable")
 func _recalculate_stats_server(from: String) -> void:
+	if _loading_mode:
+		return
+		
 	print("Recalc called from %s" % from)
 	_recalculate_stats()
 	await get_tree().process_frame
@@ -115,20 +133,34 @@ func _recalculate_stats_client(from: String) -> void:
 
 
 func _on_leveled_up(_new_level: int) -> void:
+	if _loading_mode or _recalc_scheduled:
+		return
 	print("STATS: OnLevelUp - PID: %s - NewLevel: %d" % [str(owner.player_id), _new_level])
 	_recalculate_stats_server("OnLeveledUp")
 
+
 func _on_class_changed(_new_class: String) -> void:
+	if _loading_mode or _recalc_scheduled:
+		return
 	print("STATS: OnClassChange - PID: %s - NewClass: %s" % [str(owner.player_id), _new_class])
 	_recalculate_stats_server("OnClassChange")
 
+
 func _on_equipment_changed() -> void:
-	if _recalc_scheduled:
+	if _loading_mode or _recalc_scheduled:
 		return
 	_recalc_scheduled = true
 	call_deferred("_deferred_recalculate_stats")
+
 
 func _deferred_recalculate_stats() -> void:
 	print("STATS: OnEquipmentChanged - PID: %s" % str(owner.player_id))
 	_recalculate_stats_server("OnEquipmentChanged")
 	_recalc_scheduled = false
+
+
+func set_loading_mode(enabled: bool) -> void:
+	_loading_mode = enabled
+
+func is_loading() -> bool:
+	return _loading_mode

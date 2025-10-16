@@ -68,7 +68,7 @@ func _process(_delta: float) -> void:
 	if Input.is_action_just_pressed("Slide"):
 		slide.rpc()
 
-	if Input.is_action_just_pressed("Attack"):
+	if Input.is_action_just_pressed("Attack") or Input.is_action_pressed("Attack"):
 		attack.rpc()
 
 @rpc("call_local")

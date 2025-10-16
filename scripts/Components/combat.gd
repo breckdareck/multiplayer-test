@@ -236,48 +236,40 @@ func _process_collected_bodies() -> void:
 
 
 func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelData) -> int:
-	var primary_stat_value = 0
-	var secondary_stat_value = 0
-	var weapon_attack = 0
+	var base_damage = _calculate_base_damage()
 	
-	if not _stats_component:
-		return 0
-
-	# 1. Get Weapon Attack
-	if _equipment_component and _equipment_component.weapon_slot and _equipment_component.weapon_slot.item:
-		weapon_attack = _stats_component.stats.get(Constants.StatType.WEAPONATTACK).total_value
-
-	# 2. Get Primary/Secondary Stats
-	if _class_component:
-		var primary_stat = ResourceManager.get_primary_stat(_class_component.current_class)
-		var secondary_stat = ResourceManager.get_secondary_stat(_class_component.current_class)
-		primary_stat_value = _stats_component.stats.get(primary_stat).total_value
-		secondary_stat_value = _stats_component.stats.get(secondary_stat).total_value
-
-	# 3. Calculate Base Attack Range (Using MapleStory formula approximation)
-	var stat_contribution: float = (primary_stat_value * 4 + secondary_stat_value)
-	var base_attack_range: float = weapon_multiplier * stat_contribution * weapon_attack / 100.0
-
-	# 4. Apply Ability Modifiers
-	var total_damage_pre_crit: float = base_attack_range * (level_stats.damage_percent / 100.0) 
-
-	# 5. Apply Variance (Min/Max Damage Range)
-	var damage_variance: float = total_damage_pre_crit * 0.2 # 20% variance (0.8 to 1.2)
-	var min_dmg = roundi(total_damage_pre_crit - damage_variance)
-	var max_dmg = roundi(total_damage_pre_crit + damage_variance)
+	# Apply ability-specific modifier
+	var total_damage_pre_crit: float = base_damage * (level_stats.damage_percent / 100.0)
 	
-	# Return a randomized damage value within the calculated range
+	# Apply variance
+	var min_dmg = roundi(total_damage_pre_crit * 0.8)
+	var max_dmg = roundi(total_damage_pre_crit * 1.2)
+	
 	return randi_range(min_dmg, max_dmg)
 
 
 func calculate_attack_damage() -> int:
 	# TODO: FIX THIS TO USE BASED ON THE CLASS AKA WEAPON ATTACK VS MAGIC ATTACK
-	var weapon_attack = 0 # Default attack if no weapon
-	if _equipment_component and _equipment_component.weapon_slot and _equipment_component.weapon_slot.item and _stats_component:
-		weapon_attack = _stats_component.stats.get(Constants.StatType.WEAPONATTACK).total_value
-		if _class_component:
-			var primary_stat = ResourceManager.get_primary_stat(_class_component.current_class)
-			var secondary_stat = ResourceManager.get_secondary_stat(_class_component.current_class)
-			var stats_value = _stats_component.stats.get(primary_stat).total_value * 4 + _stats_component.stats.get(secondary_stat).total_value
-			return roundi(weapon_multiplier * stats_value * weapon_attack / 100)
-	return 0
+	if not (_equipment_component and _equipment_component.weapon_slot and _equipment_component.weapon_slot.item):
+		return 0
+	
+	var base_damage = _calculate_base_damage()
+	return roundi(base_damage)
+
+
+func _calculate_base_damage() -> int:
+	if not _stats_component or not _class_component:
+		return 0
+
+	var weapon_attack = _stats_component.stats.get(Constants.StatType.WEAPONATTACK).total_value
+	
+	var primary_stat_type = ResourceManager.get_primary_stat(_class_component.current_class)
+	var secondary_stat_type = ResourceManager.get_secondary_stat(_class_component.current_class)
+	
+	var primary_stat_value = _stats_component.stats.get(primary_stat_type).total_value
+	var secondary_stat_value = _stats_component.stats.get(secondary_stat_type).total_value
+	
+	var stat_contribution: float = (primary_stat_value * 4 + secondary_stat_value)
+	
+	# This is the core shared formula
+	return roundi(weapon_multiplier * stat_contribution * weapon_attack / 100.0)

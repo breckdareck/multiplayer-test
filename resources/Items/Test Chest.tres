@@ -93,6 +93,6 @@ bonus_stats = Dictionary[int, ExtResource("1_si42d")]({
 item_id = "1011156217-11826-06141-19119-0121210141071058121"
 name = "Test Chest"
 icon = SubResource("AtlasTexture_rdvjl")
-description = "Dev Chest for Breck"
+description = "Test Chest"
 item_type = 1
 metadata/_custom_type_script = "uid://c2fkjsnluarqk"

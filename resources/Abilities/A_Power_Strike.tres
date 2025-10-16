@@ -1,15 +1,11 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=30 format=3 uid="uid://dq088g6civvd8"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=29 format=3 uid="uid://dq088g6civvd8"]
 
+[ext_resource type="Texture2D" uid="uid://bstguvwrql18p" path="res://assets/sprites/Abilities/power_strike.png" id="1_v0yfe"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_vuhxl"]
-[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="1_xyi2w"]
 [ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="3_v0yfe"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_hhglo"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="4_xyi2w"]
 [ext_resource type="Resource" uid="uid://ccxoh5fmx317x" path="res://resources/Abilities/A_Slash.tres" id="6_v0yfe"]
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_ajojy"]
-atlas = ExtResource("1_xyi2w")
-region = Rect2(75, 109, 19, 19)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_i4okq"]
 size = Vector2(40, 40)
@@ -165,7 +161,7 @@ script = ExtResource("4_hhglo")
 ability_id = "1115614771-143510-91359-21514-0138181401501008"
 ability_name = "Power Strike"
 description = "Use MP to deliver a killer blow to a single monster with any warrior weapon."
-ability_icon = SubResource("AtlasTexture_ajojy")
+ability_icon = ExtResource("1_v0yfe")
 max_level = 20
 required_class = Array[int]([0])
 required_weapon_types = Array[int]([0])

@@ -99,10 +99,10 @@ func _ready() -> void:
 
 	# After populating on the server, push the authoritative inventory to the owning client
 	# so the client mirrors the server's inventory state immediately.
-	var player = _get_player()
-	if multiplayer.has_multiplayer_peer() and multiplayer.is_server() and player:
-		var inv_data = save_inventory()
-		load_inventory_rpc.rpc_id(player.player_id, inv_data)
+	#var player = _get_player()
+	#if multiplayer.has_multiplayer_peer() and multiplayer.is_server() and player:
+		#var inv_data = save_inventory()
+		#load_inventory_rpc.rpc_id(player.player_id, inv_data)
 
 
 func _ensure_slots_initialized() -> void:
@@ -429,12 +429,26 @@ func load_inventory(inventory_data: Dictionary) -> void:
 @rpc("authority", "call_local", "reliable")
 func load_inventory_rpc(inventory_data: Dictionary):
 	print("Client %s received inventory data" % str(multiplayer.get_unique_id()))
-	# If we're not yet inside the tree (node not replicated/added), buffer and exit
+	
 	if not is_inside_tree():
 		pending_inventory_data = inventory_data
 		return
+	
 	await _ensure_slots_initialized()
+	
+	# Load silently to prevent equipment change signals on client
+	if equipment_component:
+		equipment_component.set_silent_mode(true)
+	
 	_apply_inventory_data(inventory_data)
+	
+	if equipment_component:
+		equipment_component.set_silent_mode(false)
+	
+	# After loading inventory on client, manually trigger ONE stat recalc
+	var player = _get_player()
+	if player and player.stats_component:
+		player.stats_component._recalculate_stats()
 
 
 # Client-side: Immediately move item and request server validation
@@ -652,3 +666,25 @@ func receive_inventory_correction(authoritative_inventory: Dictionary):
 	
 	# Load the authoritative inventory state
 	_apply_inventory_data(authoritative_inventory)
+
+
+func sync_inventory_to_client() -> void:
+	if not multiplayer.is_server():
+		return
+		
+	var player = _get_player()
+	if player:
+		var inv_data = save_inventory()
+		load_inventory_rpc.rpc_id(player.player_id, inv_data)
+
+
+func load_inventory_silent(inventory_data: Dictionary) -> void:
+	# Temporarily disable equipment change signals
+	if equipment_component:
+		equipment_component.set_silent_mode(true)
+	
+	_apply_inventory_data(inventory_data)
+	
+	# Re-enable signals
+	if equipment_component:
+		equipment_component.set_silent_mode(false)
