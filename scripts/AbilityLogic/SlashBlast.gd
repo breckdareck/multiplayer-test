@@ -7,7 +7,7 @@ func execute(caster: Node, ability: AbilityData, stats: AbilityLevelData):
 	var health = player.health_component
 	
 	# Custom Logic: Deduct HP
-	var hp_cost = stats.mana_cost * 0.5 
+	var hp_cost = stats.mana_cost
 	health.current_health -= hp_cost 
 	
 	# Attack logic (using max_targets and max_hits from stats)

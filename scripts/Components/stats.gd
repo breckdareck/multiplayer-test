@@ -62,6 +62,7 @@ func _recalculate_stats() -> void:
 	# Reset flat bonuses before recalculating
 	for stat_type in stats:
 		stats[stat_type].flat_bonus_value = 0
+		stats[stat_type].percent_bonus_value = 0
 
 	# Get Class Bonus's
 	var class_bonuses:Dictionary[Constants.StatType, int] = _class_component.get_class_bonuses()
@@ -106,11 +107,21 @@ func _recalculate_stats() -> void:
 		print_string = ""
 		for stat_type in ability_bonuses:
 			if stats.has(stat_type):
-				stats[stat_type].flat_bonus_value += ability_bonuses[stat_type]
-				print_string += (Constants.StatType.find_key(stat_type) + ":" + str(ability_bonuses[stat_type]) + ", ")
+				stats[stat_type].flat_bonus_value += ability_bonuses[stat_type].flat_bonus_value
+				print_string += "{ FLAT- " + (Constants.StatType.find_key(stat_type) + ":" + str(ability_bonuses[stat_type].flat_bonus_value) + ", ")
+				stats[stat_type].percent_bonus_value += ability_bonuses[stat_type].percent_bonus_value
+				print_string += "PERCENT- " + (Constants.StatType.find_key(stat_type) + ":" + str(ability_bonuses[stat_type].percent_bonus_value) + "}, ")
 		print("StatsComponent: Applied ability passive bonuses: %s" % print_string)
 
-	print("StatsComponent: Final stats - STR: %d, DEX: %d, INT: %d, LUK: %d" % [stats[Constants.StatType.STRENGTH].total_value, stats[Constants.StatType.DEXTERITY].total_value, stats[Constants.StatType.INTELLIGENCE].total_value, stats[Constants.StatType.LUCK].total_value])
+	var stat_string = ""
+	for stat in stats:
+		stat_string += (Constants.StatType.find_key(stat)) + " - "
+		stat_string += "{" + "BASE" + ": " + str(stats[stat].base_value) + ", "
+		stat_string += "FLAT" + ": " + str(stats[stat].flat_bonus_value) + ", "
+		stat_string += "PERCENT" + ": " + str(stats[stat].percent_bonus_value) + ", "
+		stat_string += "COMBINED" + ": " + str(stats[stat].combined_bonus_value) + ", "
+		stat_string += "TOTAL" + ": " + str(stats[stat].total_value) + "} \n"
+	print("StatsComponent: \n%s" % stat_string)
 	
 	stats_changed.emit()
 	

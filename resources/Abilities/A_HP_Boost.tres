@@ -1,37 +1,157 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=10 format=3 uid="uid://c6er05pqmi5sn"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=25 format=3 uid="uid://c6er05pqmi5sn"]
 
 [ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_f3xb2"]
 [ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="1_nlknu"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="2_27gap"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="3_04s2n"]
 
+[sub_resource type="Resource" id="Resource_f3xb2"]
+script = ExtResource("2_27gap")
+stat_type = 4
+base_value = 0
+percent_bonus_value = 2.0
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
 [sub_resource type="Resource" id="Resource_5gm2d"]
 script = ExtResource("1_nlknu")
+stat_bonuses = Dictionary[int, ExtResource("2_27gap")]({
+4: SubResource("Resource_f3xb2")
+})
+
+[sub_resource type="Resource" id="Resource_murif"]
+script = ExtResource("2_27gap")
+stat_type = 4
+base_value = 0
+percent_bonus_value = 4.0
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
 
 [sub_resource type="Resource" id="Resource_uoy0r"]
 script = ExtResource("1_nlknu")
 level = 2
+stat_bonuses = Dictionary[int, ExtResource("2_27gap")]({
+4: SubResource("Resource_murif")
+})
+
+[sub_resource type="Resource" id="Resource_ww5po"]
+script = ExtResource("2_27gap")
+stat_type = 4
+base_value = 0
+percent_bonus_value = 6.0
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
 
 [sub_resource type="Resource" id="Resource_s26ke"]
 script = ExtResource("1_nlknu")
 level = 3
+stat_bonuses = Dictionary[int, ExtResource("2_27gap")]({
+4: SubResource("Resource_ww5po")
+})
+
+[sub_resource type="Resource" id="Resource_u4dvk"]
+script = ExtResource("2_27gap")
+stat_type = 4
+base_value = 0
+percent_bonus_value = 8.0
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
 
 [sub_resource type="Resource" id="Resource_qou1y"]
 script = ExtResource("1_nlknu")
 level = 4
+stat_bonuses = Dictionary[int, ExtResource("2_27gap")]({
+4: SubResource("Resource_u4dvk")
+})
+
+[sub_resource type="Resource" id="Resource_nmfqo"]
+script = ExtResource("2_27gap")
+stat_type = 4
+base_value = 0
+percent_bonus_value = 10.0
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
 
 [sub_resource type="Resource" id="Resource_k77oc"]
 script = ExtResource("1_nlknu")
 level = 5
+stat_bonuses = Dictionary[int, ExtResource("2_27gap")]({
+4: SubResource("Resource_nmfqo")
+})
+
+[sub_resource type="Resource" id="Resource_lr7yk"]
+script = ExtResource("2_27gap")
+stat_type = 4
+base_value = 0
+percent_bonus_value = 12.0
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_kfp1v"]
+script = ExtResource("1_nlknu")
+level = 6
+stat_bonuses = Dictionary[int, ExtResource("2_27gap")]({
+4: SubResource("Resource_lr7yk")
+})
+
+[sub_resource type="Resource" id="Resource_i5p8b"]
+script = ExtResource("2_27gap")
+stat_type = 4
+base_value = 0
+percent_bonus_value = 14.0
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_8npgu"]
+script = ExtResource("1_nlknu")
+level = 7
+stat_bonuses = Dictionary[int, ExtResource("2_27gap")]({
+4: SubResource("Resource_i5p8b")
+})
+
+[sub_resource type="Resource" id="Resource_oe2uw"]
+script = ExtResource("2_27gap")
+stat_type = 4
+base_value = 0
+percent_bonus_value = 16.0
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_l3t1j"]
+script = ExtResource("1_nlknu")
+level = 8
+stat_bonuses = Dictionary[int, ExtResource("2_27gap")]({
+4: SubResource("Resource_oe2uw")
+})
+
+[sub_resource type="Resource" id="Resource_7vv5u"]
+script = ExtResource("2_27gap")
+stat_type = 4
+base_value = 0
+percent_bonus_value = 18.0
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_pwqei"]
+script = ExtResource("1_nlknu")
+level = 9
+stat_bonuses = Dictionary[int, ExtResource("2_27gap")]({
+4: SubResource("Resource_7vv5u")
+})
+
+[sub_resource type="Resource" id="Resource_3tmvc"]
+script = ExtResource("2_27gap")
+stat_type = 4
+base_value = 0
+percent_bonus_value = 20.0
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_ejioi"]
+script = ExtResource("1_nlknu")
+level = 10
+stat_bonuses = Dictionary[int, ExtResource("2_27gap")]({
+4: SubResource("Resource_3tmvc")
+})
 
 [resource]
 script = ExtResource("3_04s2n")
 ability_id = "77300497-12731-60120-111544-957133612951038"
 ability_name = "HP Boost"
-description = "Permanently increases Max HP."
+description = "Permanently increases Max HP by $[stat_bonus]%."
 ability_icon = ExtResource("1_f3xb2")
 max_level = 10
 ability_type = 1
 required_class = Array[int]([0])
 required_weapon_types = Array[int]([0])
-level_data = Array[ExtResource("1_nlknu")]([SubResource("Resource_5gm2d"), SubResource("Resource_uoy0r"), SubResource("Resource_s26ke"), SubResource("Resource_qou1y"), SubResource("Resource_k77oc")])
+level_data = Array[ExtResource("1_nlknu")]([SubResource("Resource_5gm2d"), SubResource("Resource_uoy0r"), SubResource("Resource_s26ke"), SubResource("Resource_qou1y"), SubResource("Resource_k77oc"), SubResource("Resource_kfp1v"), SubResource("Resource_8npgu"), SubResource("Resource_l3t1j"), SubResource("Resource_pwqei"), SubResource("Resource_ejioi")])

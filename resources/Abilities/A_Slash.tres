@@ -21,6 +21,7 @@ logic_script = ExtResource("2_ajojy")
 
 [sub_resource type="Resource" id="Resource_ajojy"]
 script = ExtResource("4_ajojy")
+mana_cost = 1
 cooldown_time = 1.0
 damage_percent = 85
 max_targets = 6
