@@ -28,6 +28,7 @@ const SERVER_ID: int = 1
 @export var inventory_component: InventoryComponent
 @export var equipment_component: EquipmentComponent
 @export var ability_component: AbilityComponent
+@export var buff_component: BuffComponent
 @export var debug_component: MyDebugComponent
 
 @export_category("UI")
@@ -302,6 +303,9 @@ func _get_save_data() -> Dictionary:
 	if is_instance_valid(ability_component):
 		data['abilities'] = ability_component.save_abilities()
 		
+	if is_instance_valid(buff_component):
+		data['buffs'] = buff_component.save_buffs()
+		
 	return data
 
 
@@ -355,6 +359,11 @@ func _load_data(data: Dictionary) -> void:
 	if is_instance_valid(health_component):
 		health_component.set_block_signals(false)
 		health_component.health_changed.emit(health_component.current_health, health_component.max_health)
+		
+	if is_instance_valid(buff_component):
+		var buff_data = data.get("buffs", {})
+		if not buff_data.is_empty():
+			buff_component.load_buffs(buff_data)
 		
 	_is_loading_data = false
 

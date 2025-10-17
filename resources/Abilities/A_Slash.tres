@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://cg8rq8kjvxwi7" path="res://assets/sprites/Abilities/slash_blast.png" id="1_ajojy"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_7svtf"]
-[ext_resource type="Script" uid="uid://bdjkulhrpqni2" path="res://scripts/AbilityLogic/SlashBlast.gd" id="2_ajojy"]
+[ext_resource type="Script" uid="uid://bdjkulhrpqni2" path="res://scripts/AbilityLogic/AL_SlashBlast.gd" id="2_ajojy"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="4_5ui4y"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_7e1xr"]
 [ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="4_ajojy"]

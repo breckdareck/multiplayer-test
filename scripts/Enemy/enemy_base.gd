@@ -74,7 +74,11 @@ func _physics_process(delta: float) -> void:
 
 
 func on_enemy_damaged(amount: int, source: Node) -> void:
-	var player_id = source.owner.player_id
+	var player_id = null
+	if source is MultiplayerPlayerV2:
+		player_id = source.player_id
+	else:
+		player_id = source.owner.player_id
 	if player_id != null:
 		damage_by_player[player_id] = damage_by_player.get(player_id, 0) + amount
 

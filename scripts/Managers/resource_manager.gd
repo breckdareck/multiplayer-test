@@ -3,16 +3,21 @@ extends Node
 
 # Dictionary to store class data by class type enum value
 var class_data: Dictionary[Constants.ClassType, ClassData] = {}
+
 var item_data: Dictionary[String, ItemData] = {}
 var item_by_name: Dictionary[String, ItemData] = {} # New lookup dictionary
 
 var ability_data: Dictionary[String, AbilityData] = {}
 var ability_by_name: Dictionary[String, AbilityData] = {}
 
+var buff_data: Dictionary[String, BuffData] = {}
+var buffs_by_name: Dictionary[String, BuffData] = {}
+
 func _ready() -> void:
 	_load_class_data()
 	_load_item_data()
 	_load_ability_data()
+	_load_buff_data()
 	
 
 #region Item Data Functions
@@ -127,31 +132,6 @@ func _load_ability_data() -> void:
 		print("Loaded ability: %s with ID: %s" % [data.ability_name, data.ability_id])
 
 
-func _load_abilities_recursive(path: String) -> void:
-	var dir = DirAccess.open(path)
-	if dir:
-		dir.list_dir_begin()
-		var file_name = dir.get_next()
-		
-		while file_name != "":
-			var full_path = path + file_name
-			
-			if dir.current_is_dir() and file_name != "." and file_name != "..":
-				# It's a subdirectory, recursively load from it
-				_load_abilities_recursive(full_path + "/")
-			elif file_name.ends_with(".tres") or file_name.ends_with(".res"):
-				# It's a resource file, try to load it
-				var data = ResourceLoader.load(full_path)
-				if data is AbilityData:
-					ability_data[data.ability_id] = data
-					ability_by_name[data.ability_name] = data
-					print("Loaded ability: %s with ID: %s" % [data.ability_name, data.ability_id])
-			
-			file_name = dir.get_next()
-			
-		dir.list_dir_end()
-
-
 func get_ability_data(ability_identifier: String) -> AbilityData:
 	# First check by ID
 	if ability_data.has(ability_identifier):
@@ -168,4 +148,31 @@ func get_ability_data(ability_identifier: String) -> AbilityData:
 func get_ability_by_name(ability_name: String) -> AbilityData:
 	return ability_by_name.get(ability_name)
 
+#endregion
+
+#region Buff Data Functions
+
+func _load_buff_data() -> void:
+	var buff_folder: String = "res://resources/Buffs/"
+	
+	for resource in ResourceLoader.list_directory(buff_folder):
+		var data: BuffData = ResourceLoader.load(buff_folder+resource)
+		buff_data[data.buff_id] = data
+		buffs_by_name[data.buff_name] = data
+		print("Loaded buff: %s with ID: %s" % [data.buff_name, data.buff_id])
+		
+func get_buff_data(buff_identifier: String) -> BuffData:
+	if buff_data.has(buff_identifier):
+		return buff_data[buff_identifier]
+		
+	if buffs_by_name.has(buff_identifier):
+		return buffs_by_name[buff_identifier]
+		
+	print("Buff not found: %s" % buff_identifier)
+	return null
+	
+func get_buff_by_name(buff_name: String) -> BuffData:
+	return buffs_by_name.get(buff_name)
+
+		
 #endregion

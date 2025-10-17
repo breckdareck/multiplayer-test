@@ -2,6 +2,30 @@
 
 [ext_resource type="Texture2D" uid="uid://xf1h1h7trpm6" path="res://assets/sprites/MinifolksHumans/Outline/MiniArcherMan.png" id="1_ye4ko"]
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_xoej4"]
+atlas = ExtResource("1_ye4ko")
+region = Rect2(0, 128, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dndh2"]
+atlas = ExtResource("1_ye4ko")
+region = Rect2(32, 128, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ioikr"]
+atlas = ExtResource("1_ye4ko")
+region = Rect2(64, 128, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_un0us"]
+atlas = ExtResource("1_ye4ko")
+region = Rect2(96, 128, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jlsoc"]
+atlas = ExtResource("1_ye4ko")
+region = Rect2(128, 128, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2e820"]
+atlas = ExtResource("1_ye4ko")
+region = Rect2(160, 128, 32, 32)
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_ye4ko"]
 atlas = ExtResource("1_ye4ko")
 region = Rect2(0, 96, 32, 32)
@@ -45,30 +69,6 @@ region = Rect2(288, 96, 32, 32)
 [sub_resource type="AtlasTexture" id="AtlasTexture_55mte"]
 atlas = ExtResource("1_ye4ko")
 region = Rect2(320, 96, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_xoej4"]
-atlas = ExtResource("1_ye4ko")
-region = Rect2(0, 128, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_dndh2"]
-atlas = ExtResource("1_ye4ko")
-region = Rect2(32, 128, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_ioikr"]
-atlas = ExtResource("1_ye4ko")
-region = Rect2(64, 128, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_un0us"]
-atlas = ExtResource("1_ye4ko")
-region = Rect2(96, 128, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_jlsoc"]
-atlas = ExtResource("1_ye4ko")
-region = Rect2(128, 128, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_2e820"]
-atlas = ExtResource("1_ye4ko")
-region = Rect2(160, 128, 32, 32)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_jtvwe"]
 atlas = ExtResource("1_ye4ko")
@@ -150,6 +150,29 @@ region = Rect2(160, 32, 32, 32)
 animations = [{
 "frames": [{
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_xoej4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dndh2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ioikr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_un0us")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jlsoc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2e820")
+}],
+"loop": false,
+"name": &"attack_1",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_ye4ko")
 }, {
 "duration": 1.0,
@@ -181,29 +204,6 @@ animations = [{
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_55mte")
-}],
-"loop": false,
-"name": &"attack_1",
-"speed": 10.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_xoej4")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_dndh2")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_ioikr")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_un0us")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_jlsoc")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_2e820")
 }],
 "loop": false,
 "name": &"attack_2",

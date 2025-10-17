@@ -1,4 +1,4 @@
-[gd_scene load_steps=98 format=3 uid="uid://bdtdpx0d05sy3"]
+[gd_scene load_steps=102 format=3 uid="uid://bdtdpx0d05sy3"]
 
 [ext_resource type="Script" uid="uid://yibpus3whwuj" path="res://scripts/Player/multiplayer_controller_v2.gd" id="1_an8q1"]
 [ext_resource type="Script" uid="uid://cy1j38lpy671e" path="res://scripts/Player/multiplayer_input.gd" id="2_hxkm2"]
@@ -11,6 +11,7 @@
 [ext_resource type="Resource" uid="uid://byntxvelo4s87" path="res://resources/Items/Iron Sword.tres" id="10_e8txv"]
 [ext_resource type="Script" uid="uid://boxv5npw3xeg3" path="res://scripts/Player/player_hud.gd" id="11_ihqbe"]
 [ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="12_cgmen"]
+[ext_resource type="Script" uid="uid://dbmsw7l1mf6nj" path="res://scripts/Components/buff.gd" id="13_e6s7e"]
 [ext_resource type="Script" uid="uid://chuj37r7r0ydq" path="res://scripts/Components/debug.gd" id="13_fqhit"]
 [ext_resource type="Script" uid="uid://cix831bp8wxft" path="res://scripts/Components/equipment.gd" id="13_ihqbe"]
 [ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="14_e8txv"]
@@ -147,6 +148,42 @@ size = Vector2(275, 275)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v00ed"]
 bg_color = Color(0.168627, 0.168627, 0.168627, 0.882353)
+
+[sub_resource type="Animation" id="Animation_e6s7e"]
+resource_name = "slide"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(1520, 20), Vector2(1888, 20)]
+}
+
+[sub_resource type="Animation" id="Animation_gb22u"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1888, 20)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_pnj8v"]
+_data = {
+&"RESET": SubResource("Animation_gb22u"),
+&"slide": SubResource("Animation_e6s7e")
+}
 
 [sub_resource type="Theme" id="Theme_nbg44"]
 default_font = ExtResource("17_nbg44")
@@ -483,7 +520,7 @@ size = Vector2(21, 21)
 [sub_resource type="CircleShape2D" id="CircleShape2D_h0wtf"]
 radius = 5.0
 
-[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "combat_component", "level_component", "stats_component", "class_component", "inventory_component", "equipment_component", "ability_component", "debug_component", "player_HUD", "player_name_label", "stats_window", "inventory_window") groups=["Players", "networked_entities"]]
+[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "combat_component", "level_component", "stats_component", "class_component", "inventory_component", "equipment_component", "ability_component", "buff_component", "debug_component", "player_HUD", "player_name_label", "stats_window", "inventory_window") groups=["Players", "networked_entities"]]
 collision_layer = 2
 collision_mask = 5
 script = ExtResource("1_an8q1")
@@ -495,6 +532,7 @@ class_component = NodePath("Components/Class")
 inventory_component = NodePath("Components/Inventory")
 equipment_component = NodePath("Components/Equipment")
 ability_component = NodePath("Components/Ability")
+buff_component = NodePath("Components/Buff")
 debug_component = NodePath("CanvasLayer/Debug")
 player_HUD = NodePath("CanvasLayer/PlayerHUD")
 player_name_label = NodePath("PlayerWorldHUD/PlayerNameLabel")
@@ -557,6 +595,9 @@ health_bar_path = NodePath("../../PlayerWorldHUD/HealthBar")
 [node name="Combat" type="Node" parent="Components" node_paths=PackedStringArray("attack_hitbox")]
 script = ExtResource("7_jn0uf")
 attack_hitbox = NodePath("../../Hitbox/BasicAttackHitbox")
+
+[node name="Buff" type="Node" parent="Components"]
+script = ExtResource("13_e6s7e")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
@@ -894,32 +935,60 @@ visible = false
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -400.0
+offset_left = -32.0
 offset_top = 20.0
-offset_right = -20.0
+offset_right = 348.0017
 offset_bottom = 240.0
 grow_horizontal = 0
 focus_mode = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_v00ed")
 script = ExtResource("13_fqhit")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/Debug"]
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/Debug"]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -180.0
-offset_top = -100.0
-offset_right = 180.0
-offset_bottom = 100.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="Panel" type="Panel" parent="CanvasLayer/Debug/HBoxContainer"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+
+[node name="ShowHideButton" type="Button" parent="CanvasLayer/Debug/HBoxContainer/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_mode = 0
+
+[node name="Label" type="Label" parent="CanvasLayer/Debug/HBoxContainer/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("14_e8txv")
+theme_override_font_sizes/font_size = 24
+text = "<"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/Debug/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = 10
 alignment = 1
 
-[node name="Label" type="Label" parent="CanvasLayer/Debug/VBoxContainer"]
+[node name="Label" type="Label" parent="CanvasLayer/Debug/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("12_cgmen")
 theme_override_font_sizes/font_size = 24
@@ -927,7 +996,7 @@ text = "DEBUG BUTTONS"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="DebugHeal" type="Button" parent="CanvasLayer/Debug/VBoxContainer"]
+[node name="DebugHeal" type="Button" parent="CanvasLayer/Debug/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 focus_mode = 0
@@ -935,7 +1004,7 @@ theme_override_fonts/font = ExtResource("12_cgmen")
 theme_override_font_sizes/font_size = 16
 text = "Heal 5"
 
-[node name="DebugDamage" type="Button" parent="CanvasLayer/Debug/VBoxContainer"]
+[node name="DebugDamage" type="Button" parent="CanvasLayer/Debug/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 focus_mode = 0
@@ -943,7 +1012,7 @@ theme_override_fonts/font = ExtResource("12_cgmen")
 theme_override_font_sizes/font_size = 16
 text = "Damage 10"
 
-[node name="DebugRevive" type="Button" parent="CanvasLayer/Debug/VBoxContainer"]
+[node name="DebugRevive" type="Button" parent="CanvasLayer/Debug/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 focus_mode = 0
@@ -951,7 +1020,7 @@ theme_override_fonts/font = ExtResource("12_cgmen")
 theme_override_font_sizes/font_size = 16
 text = "Revive"
 
-[node name="DebugLevel" type="Button" parent="CanvasLayer/Debug/VBoxContainer"]
+[node name="DebugLevel" type="Button" parent="CanvasLayer/Debug/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 focus_mode = 0
@@ -959,22 +1028,29 @@ theme_override_fonts/font = ExtResource("12_cgmen")
 theme_override_font_sizes/font_size = 16
 text = "Level Up"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/Debug/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/Debug/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="ItemDropdown" type="OptionButton" parent="CanvasLayer/Debug/VBoxContainer/HBoxContainer"]
+[node name="ItemDropdown" type="OptionButton" parent="CanvasLayer/Debug/HBoxContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+focus_mode = 0
 item_count = 1
 popup/item_0/id = 0
 
-[node name="DebugItem" type="Button" parent="CanvasLayer/Debug/VBoxContainer/HBoxContainer"]
+[node name="DebugItem" type="Button" parent="CanvasLayer/Debug/HBoxContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 focus_mode = 0
 theme_override_fonts/font = ExtResource("12_cgmen")
 theme_override_font_sizes/font_size = 16
 text = "Give Item"
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="CanvasLayer/Debug"]
+libraries = {
+&"": SubResource("AnimationLibrary_pnj8v")
+}
+speed_scale = 2.0
 
 [node name="MoveableWindows" type="Control" parent="CanvasLayer"]
 layout_mode = 3
@@ -2654,7 +2730,6 @@ scale = Vector2(1.3, 1.3)
 sprite_frames = ExtResource("15_7iww4")
 animation = &"attack_1"
 autoplay = "idle"
-frame = 2
 
 [node name="AnimatedSprite2D_Helm" type="AnimatedSprite2D" parent="."]
 visible = false

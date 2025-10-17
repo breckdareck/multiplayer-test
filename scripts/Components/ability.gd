@@ -154,6 +154,27 @@ func learn_ability(ability_id: String, initial_level: int = 0) -> bool:
 		return true
 
 	return _learn_ability_local(ability_id, initial_level)
+
+
+func get_passive_effect_modifiers() -> Dictionary:
+	var modifiers = {}
+	
+	for ability_id in _ability_levels:
+		var ability = ResourceManager.get_ability_data(ability_id)
+		var ability_level = _ability_levels[ability_id]
+		var level_stats = ability.get_level_stats(ability_level)
+		
+		# Only process learned abilities with valid level stats that are Passive
+		if ability and ability.ability_type == Constants.AbilityType.PASSIVE and level_stats:
+			
+			# Use stat bonuses from the level data
+			for stat_name in level_stats.stat_bonuses:
+				if not modifiers.has(stat_name):
+					modifiers[stat_name] = AbilityLevelData.new()
+				modifiers[stat_name] = level_stats.stat_bonuses[stat_name]
+	
+	return modifiers
+
 #endregion
 
 
@@ -422,8 +443,9 @@ func load_abilities(data: Dictionary) -> void:
 	
 	# Ensure all current class abilities are in the dictionary before loading
 	for ability_data in _class_component.get_class_abilities():
-		if ability_data and not _ability_levels.has(ability_data.ability_id):
+		if ability_data != null and not _ability_levels.has(ability_data.ability_id):
 			_ability_levels[ability_data.ability_id] = 0
+			print("Added new ability from class: %s at level 0" % ability_data.ability_id)
 			
 	# Load saved data
 	_ability_levels = data.get("ability_levels", {})
@@ -438,6 +460,7 @@ func load_abilities(data: Dictionary) -> void:
 		if level > 0:
 			ability_learned.emit(ability_id)
 			ability_leveled_up.emit(ability_id, level)
+		print("Loaded ability: %s at level %d" % [ability_id, level])
 			
 ## Disconnects from leveling component signals to prevent side effects during loading.
 func disconnect_level_signals() -> void:
@@ -481,7 +504,7 @@ func can_level_up_ability(ability_id: String) -> bool:
 	if ability.prerequisite_abilities:
 		for prereq_id in ability.prerequisite_abilities:
 			var required_level = ability.prerequisite_abilities[prereq_id]
-			if get_ability_level(prereq_id) < required_level:
+			if get_ability_level(prereq_id.ability_id) < required_level:
 				return false
 	
 	return true

@@ -1,17 +1,22 @@
-extends Node
+extends Control
 class_name MyDebugComponent 
 
-@onready var debug_panel: Panel = $"."
-@onready var debug_heal: Button = $VBoxContainer/DebugHeal
-@onready var debug_damage: Button = $VBoxContainer/DebugDamage
-@onready var debug_revive: Button = $VBoxContainer/DebugRevive
-@onready var debug_level: Button = $VBoxContainer/DebugLevel
+@onready var show_hide_button: Button = $HBoxContainer/Panel/ShowHideButton
 
-@onready var debug_item_dropdown: OptionButton = $VBoxContainer/HBoxContainer/ItemDropdown
-@onready var debug_item: Button = $VBoxContainer/HBoxContainer/DebugItem
+@onready var debug_panel: Panel = $"."
+@onready var debug_heal: Button = $HBoxContainer/VBoxContainer/DebugHeal
+@onready var debug_damage: Button = $HBoxContainer/VBoxContainer/DebugDamage
+@onready var debug_revive: Button = $HBoxContainer/VBoxContainer/DebugRevive
+@onready var debug_level: Button = $HBoxContainer/VBoxContainer/DebugLevel
+
+@onready var debug_item_dropdown: OptionButton = $HBoxContainer/VBoxContainer/HBoxContainer/ItemDropdown
+@onready var debug_item: Button = $HBoxContainer/VBoxContainer/HBoxContainer/DebugItem
+
+@onready var animation_player: AnimationPlayer = $AnimationPlayer
 
 var health_component: HealthComponent
 var player
+var window_open: bool = false
 
 func _ready() -> void:
 	debug_heal.pressed.connect(_on_debug_heal_pressed)
@@ -19,6 +24,7 @@ func _ready() -> void:
 	debug_revive.pressed.connect(_on_debug_revive_pressed)
 	debug_level.pressed.connect(_on_debug_level_pressed)
 	debug_item.pressed.connect(_on_debug_item_pressed)
+	show_hide_button.pressed.connect(_on_show_hide_pressed)
 	
 	for item in ResourceManager.item_by_name:
 		debug_item_dropdown.add_item(item)
@@ -59,3 +65,12 @@ func _on_debug_item_pressed() -> void:
 		if item == null:
 			return
 		player.inventory_component.add_item(item.item_id)
+
+func _on_show_hide_pressed() -> void:
+	if window_open:
+		animation_player.play("slide")
+		window_open = false
+	else:
+		animation_player.play_backwards("slide")
+		window_open = true
+		

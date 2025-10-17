@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="BuffData" load_steps=6 format=3 uid="uid://exhase0djcpt"]
+
+[ext_resource type="Script" uid="uid://bcuvemv85jprb" path="res://scripts/Resources/BuffSystem/BuffData.gd" id="1_iukpn"]
+[ext_resource type="Texture2D" uid="uid://ky00whwbxbmx" path="res://assets/sprites/Abilities/power_guard.png" id="1_qydwl"]
+[ext_resource type="Script" uid="uid://6v8gj2y3vh7y" path="res://scripts/BuffLogic/BL_PowerGuard.gd" id="2_bofv7"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="2_seic4"]
+
+[sub_resource type="Resource" id="Resource_iukpn"]
+script = ExtResource("2_seic4")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 10
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[resource]
+script = ExtResource("1_iukpn")
+buff_id = "913814310411-31913-0237-13003-64191083105989"
+buff_name = "Power Guard"
+description = "Reflects 30% of damage taken back to attackers (max 50% of attacker's HP per hit)"
+buff_icon = ExtResource("1_qydwl")
+duration = 20.0
+stat_modifiers = Dictionary[int, ExtResource("2_seic4")]({
+8: SubResource("Resource_iukpn")
+})
+logic_script = ExtResource("2_bofv7")
+metadata/_custom_type_script = "uid://bcuvemv85jprb"

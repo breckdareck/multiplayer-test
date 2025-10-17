@@ -2,6 +2,22 @@
 
 [ext_resource type="Texture2D" uid="uid://cig1ahxxfil30" path="res://assets/sprites/MinifolksHumans/Outline/MiniCrossBowMan.png" id="1_jdgax"]
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_lk07c"]
+atlas = ExtResource("1_jdgax")
+region = Rect2(0, 128, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c3gg4"]
+atlas = ExtResource("1_jdgax")
+region = Rect2(32, 128, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uov7e"]
+atlas = ExtResource("1_jdgax")
+region = Rect2(64, 128, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gc6lj"]
+atlas = ExtResource("1_jdgax")
+region = Rect2(96, 128, 32, 32)
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_x2y7v"]
 atlas = ExtResource("1_jdgax")
 region = Rect2(0, 96, 32, 32)
@@ -41,22 +57,6 @@ region = Rect2(256, 96, 32, 32)
 [sub_resource type="AtlasTexture" id="AtlasTexture_hmp8w"]
 atlas = ExtResource("1_jdgax")
 region = Rect2(288, 96, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_lk07c"]
-atlas = ExtResource("1_jdgax")
-region = Rect2(0, 128, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_c3gg4"]
-atlas = ExtResource("1_jdgax")
-region = Rect2(32, 128, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_uov7e"]
-atlas = ExtResource("1_jdgax")
-region = Rect2(64, 128, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_gc6lj"]
-atlas = ExtResource("1_jdgax")
-region = Rect2(96, 128, 32, 32)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_61ime"]
 atlas = ExtResource("1_jdgax")
@@ -138,6 +138,23 @@ region = Rect2(160, 32, 32, 32)
 animations = [{
 "frames": [{
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_lk07c")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_c3gg4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uov7e")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gc6lj")
+}],
+"loop": false,
+"name": &"attack_1",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_x2y7v")
 }, {
 "duration": 1.0,
@@ -166,23 +183,6 @@ animations = [{
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_hmp8w")
-}],
-"loop": false,
-"name": &"attack_1",
-"speed": 10.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_lk07c")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_c3gg4")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_uov7e")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_gc6lj")
 }],
 "loop": false,
 "name": &"attack_2",

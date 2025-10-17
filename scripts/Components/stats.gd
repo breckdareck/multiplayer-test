@@ -14,6 +14,7 @@ const SCALING_EXPONENT: float = 1.5
 	Constants.StatType.LUCK: StatData.new(Constants.StatType.LUCK, 4),
 	Constants.StatType.HEALTH: StatData.new(Constants.StatType.HEALTH, 100),
 	Constants.StatType.MANA: StatData.new(Constants.StatType.MANA, 100),
+	Constants.StatType.HPREGEN: StatData.new(Constants.StatType.HPREGEN, 10),
 	Constants.StatType.DEFENSE: StatData.new(Constants.StatType.DEFENSE, 100),
 	Constants.StatType.CRITCHANCE: StatData.new(Constants.StatType.CRITCHANCE, 5),
 	Constants.StatType.CRITDAMAGE: StatData.new(Constants.StatType.CRITDAMAGE, 0),
@@ -112,6 +113,15 @@ func _recalculate_stats() -> void:
 				stats[stat_type].percent_bonus_value += ability_bonuses[stat_type].percent_bonus_value
 				print_string += "PERCENT- " + (Constants.StatType.find_key(stat_type) + ":" + str(ability_bonuses[stat_type].percent_bonus_value) + "}, ")
 		print("StatsComponent: Applied ability passive bonuses: %s" % print_string)
+		
+	# Add buff bonuses (near the end, after equipment and abilities)
+	var buff_component = get_parent().get_node_or_null("Buff")
+	if buff_component and buff_component.has_method("get_buff_stat_modifiers"):
+		var buff_bonuses = buff_component.get_buff_stat_modifiers()
+		for stat_type in buff_bonuses:
+			if stats.has(stat_type):
+				stats[stat_type].flat_bonus_value += buff_bonuses[stat_type].flat_bonus_value
+				stats[stat_type].percent_bonus_value += buff_bonuses[stat_type].percent_bonus_value
 
 	var stat_string = ""
 	for stat in stats:

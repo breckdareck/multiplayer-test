@@ -105,18 +105,24 @@ func _on_regen_timer_timeout() -> void:
 	if is_dead:
 		return
 	if current_health < max_health:
-		heal_damage(10, self.owner)
+		var regen: int = 10
+		if _stats_component:
+			regen = _stats_component.stats[Constants.StatType.HPREGEN].total_value
+		heal_damage(regen, self.owner)
 
 	
 @rpc("any_peer", "call_local", "reliable")
 func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false) -> void:
 	if not multiplayer.is_server():
 		return
+		
+	if is_invulnerable and not ignore_invuln or is_dead:
+		return
+		
 	var source_str = "unknown"
 	if source:
 		source_str = str(source)
-	if is_invulnerable and not ignore_invuln:
-		return
+	
 
 	_last_damage_source = source
 	
@@ -161,4 +167,7 @@ func respawn() -> void:
 	assert(multiplayer.is_server(), "HealthComponent.respawn() should only be called on the server.")
 	is_dead = false
 	self.current_health = max_health
+	
+	is_invulnerable = true
+	invulnerability_timer.start()
 	# print("HealthComponent: Owner '%s' has respawned." % get_owner().name)
