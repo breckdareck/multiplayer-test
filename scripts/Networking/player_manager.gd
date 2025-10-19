@@ -159,8 +159,6 @@ func _spawn_character_for_player(id: int, character_type: int, username: String,
 		
 		if id in active_players:
 			active_players[id]["synced"] = true
-			
-		Music.play_song("res://assets/music/gameplay.mp3")
 	else:
 		push_error("Could not find Players spawn node - cannot spawn character")
 		player_instance.queue_free()

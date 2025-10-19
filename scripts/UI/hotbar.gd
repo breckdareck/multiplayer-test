@@ -30,6 +30,7 @@ func _ready():
 func create_hotbar_slots():
 	for i in range(slot_count):
 		var slot = HotbarSlot.instantiate()
+		slot.name = "HotbarSlot" + str(i)
 		slot.slot_index = i
 		slots_container.add_child(slot)
 		hotbar_slots.append(slot)

@@ -68,6 +68,7 @@ var _is_loading_data: bool = false
 func _ready() -> void:
 	if multiplayer.get_unique_id() == player_id:
 		# Request the sprite states of all other players from the server.
+		Music.play_song("res://assets/music/gameplay.mp3")
 		stats_window.update_stats_window()	
 		request_all_sprite_states.rpc_id(SERVER_ID)
 
