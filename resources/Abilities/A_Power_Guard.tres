@@ -120,7 +120,6 @@ description = "Reflects $[damage_percent] of damage taken back to attackers. Can
 ability_icon = ExtResource("1_26017")
 max_level = 20
 required_class = Array[int]([0])
-required_weapon_types = Array[int]([0])
 active_behavior = SubResource("Resource_1gbs7")
 level_data = Array[ExtResource("1_mshui")]([SubResource("Resource_rxk8e"), SubResource("Resource_a02wj"), SubResource("Resource_atp6n"), SubResource("Resource_jrmpn"), SubResource("Resource_b8raq"), SubResource("Resource_cm1ky"), SubResource("Resource_a403f"), SubResource("Resource_t8g0x"), SubResource("Resource_sgo30"), SubResource("Resource_0qx7u"), SubResource("Resource_t8u55"), SubResource("Resource_y4s2m"), SubResource("Resource_ntug8"), SubResource("Resource_p4y07"), SubResource("Resource_156be"), SubResource("Resource_rx031"), SubResource("Resource_ghqrc"), SubResource("Resource_pxkol"), SubResource("Resource_wyhxt"), SubResource("Resource_jbdbt")])
 metadata/_custom_type_script = "uid://b8y62rc8nb40j"

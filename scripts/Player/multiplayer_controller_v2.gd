@@ -191,6 +191,8 @@ func cleanup_before_removal():
 
 	# Clear references that might cause issues
 	menu_container = null
+	
+	
 
 	
 #=============================================================================

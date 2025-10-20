@@ -36,6 +36,7 @@ func remove_player(id: int):
 	# Remove player node from scene
 	var spawn_node = NetworkUtils.get_players_spawn_node(get_tree())
 	if spawn_node and spawn_node.has_node(str(id)):
+		(spawn_node.get_node(str(id)) as MultiplayerPlayerV2)._data_changed()
 		spawn_node.get_node(str(id)).queue_free()
 
 func cleanup():
@@ -99,7 +100,7 @@ func _load_player_data_from_file(username: String) -> Dictionary:
 
 func _spawn_character_for_player(id: int, character_type: int, username: String, player_data: Dictionary):
 	"""Spawn a character instance for the given player"""
-	var player_instance = character_scene.instantiate()
+	var player_instance = character_scene.instantiate() as MultiplayerPlayerV2
 
 	player_instance.player_id = id
 	player_instance.name = str(id)
@@ -112,8 +113,8 @@ func _spawn_character_for_player(id: int, character_type: int, username: String,
 	var spawn_node = NetworkUtils.get_players_spawn_node(get_tree())
 	if spawn_node:
 		spawn_node.add_child(player_instance, true)
-		print("Added player %d to scene. Node path: %s" % [id, player_instance.get_path()])
-		print("Successfully spawned character %s for PID: %d" % [Constants.ClassType.find_key(character_type), id])
+		#print("Added player %d to scene. Node path: %s" % [id, player_instance.get_path()])
+		#print("Successfully spawned character %s for PID: %d" % [Constants.ClassType.find_key(character_type), id])
 		
 		player_instance.set_username.rpc(username)
 		player_instance.class_component.change_class_rpc(character_type)
@@ -153,15 +154,26 @@ func _spawn_character_for_player(id: int, character_type: int, username: String,
 		# IMPORTANT: Sync abilities AFTER data is fully loaded
 		if id != 1 and player_instance.ability_component:
 			await get_tree().process_frame
-			print("DEBUG: About to sync - Server has %d ability points for player %d" % [player_instance.ability_component.get_available_ability_points(), id])
+			#print("DEBUG: About to sync - Server has %d ability points for player %d" % [player_instance.ability_component.get_available_ability_points(), id])
 			player_instance.ability_component.sync_all_abilities_to_client(id)
-			print("Synced abilities to player %d (Points: %d)" % [id, player_instance.ability_component.get_available_ability_points()])
+			#print("Synced abilities to player %d (Points: %d)" % [id, player_instance.ability_component.get_available_ability_points()])
+		
+		# Make sure health is set correctly from the save data
+		if player_instance.health_component:
+			player_instance.health_component.current_health = player_data.get("current_health", 100)
+			
+		if id != 1 and player_instance.buff_component:
+			await get_tree().process_frame
+			var buff_component = player_instance.buff_component
+			buff_component.sync_all_buffs_to_client(id)
+			#print("Synced buffs to player %d" % id)
 		
 		if id in active_players:
 			active_players[id]["synced"] = true
 	else:
 		push_error("Could not find Players spawn node - cannot spawn character")
 		player_instance.queue_free()
+
 
 func _sync_entities_to_player(id: int):
 	"""Sync state of all existing networked entities to new player"""

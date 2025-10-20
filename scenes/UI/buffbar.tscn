@@ -1,0 +1,21 @@
+[gd_scene load_steps=2 format=3 uid="uid://e3niuw0f1y4f"]
+
+[ext_resource type="Script" uid="uid://bptj7lmn1fudr" path="res://scripts/UI/buffbar.gd" id="1_swx2p"]
+
+[node name="BuffBar" type="Control"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -580.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = 78.0
+grow_horizontal = 0
+script = ExtResource("1_swx2p")
+icon_size = Vector2(48, 48)
+spacing = 8.0
+max_visible_buffs = 10
+progress_color = Color(0.2, 0.8, 0.2, 0.8)
+background_color = Color(0.2, 0.2, 0.2, 0.5)
+progress_thickness = 4.0
