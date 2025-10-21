@@ -27,11 +27,11 @@ func on_damaged(owner_node: Node, active_buff, damage_amount: int, source: Node)
 	
 	
 	print("Recieved Dmg Amount: %d" % damage_amount)
-	print("Power Guard: On Damaged %d%% " % reflect_percentage)
+	print("Power Guard: On Damaged %d%% " % round(reflect_percentage))
 	
 	
 	# Calculate reflected damage
-	var reflected_damage: int = roundi(damage_amount * (reflect_percentage / 100.0) * active_buff.stacks)
+	var reflected_damage: int = roundi(damage_amount * (round(reflect_percentage) / 100.0) * active_buff.stacks)
 	
 	print("Reflected Dmg: %d" % reflected_damage)
 	

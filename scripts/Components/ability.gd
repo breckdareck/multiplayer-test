@@ -54,6 +54,12 @@ var _cooldowns: Dictionary = {}  # { ability_id: time_remaining }
 var _ability_levels: Dictionary = {} # { ability_id: current_level }
 var _available_ability_points: int = 0
 
+# NEW: Track proc cooldowns per passive ability
+var _passive_proc_cooldowns: Dictionary = {}  # { "ability_id_event_type": last_proc_time }
+
+# NEW: Track active passive abilities for easy access
+var _active_passive_abilities: Array[AbilityData] = []
+
 # UI references
 @onready var hotbar: Hotbar = $"../../CanvasLayer/PlayerHUD/Hotbar"
 #endregion
@@ -162,6 +168,11 @@ func get_passive_effect_modifiers() -> Dictionary:
 	for ability_id in _ability_levels:
 		var ability = ResourceManager.get_ability_data(ability_id)
 		var ability_level = _ability_levels[ability_id]
+		
+		# Skip unlearned abilities
+		if ability_level <= 0:
+			continue
+			
 		var level_stats = ability.get_level_stats(ability_level)
 		
 		# Only process learned abilities with valid level stats that are Passive
@@ -170,10 +181,67 @@ func get_passive_effect_modifiers() -> Dictionary:
 			# Use stat bonuses from the level data
 			for stat_name in level_stats.stat_bonuses:
 				if not modifiers.has(stat_name):
-					modifiers[stat_name] = AbilityLevelData.new()
-				modifiers[stat_name] = level_stats.stat_bonuses[stat_name]
+					modifiers[stat_name] = StatData.new(stat_name, 0)
+				# Accumulate bonuses from multiple passives
+				modifiers[stat_name].flat_bonus_value += level_stats.stat_bonuses[stat_name].flat_bonus_value
+				modifiers[stat_name].percent_bonus_value += level_stats.stat_bonuses[stat_name].percent_bonus_value
 	
 	return modifiers
+
+
+func get_ability_damage_modifier(ability_id: String) -> float:
+	var total_modifier: float = 1.0
+	
+	for passive_ability_id in _ability_levels:
+		var passive_ability = ResourceManager.get_ability_data(passive_ability_id)
+		var passive_level = _ability_levels[passive_ability_id]
+		
+		# Skip unlearned passives
+		if passive_level <= 0:
+			continue
+			
+		if passive_ability and passive_ability.ability_type == Constants.AbilityType.PASSIVE:
+			var level_stats = passive_ability.get_level_stats(passive_level)
+			if level_stats:
+				total_modifier *= level_stats.get_ability_damage_modifier(ability_id)
+	
+	return total_modifier
+
+
+func get_ability_cooldown_modifier(ability_id: String) -> float:
+	var total_modifier: float = 1.0
+	
+	for passive_ability_id in _ability_levels:
+		var passive_ability = ResourceManager.get_ability_data(passive_ability_id)
+		var passive_level = _ability_levels[passive_ability_id]
+		
+		if passive_level <= 0:
+			continue
+			
+		if passive_ability and passive_ability.ability_type == Constants.AbilityType.PASSIVE:
+			var level_stats = passive_ability.get_level_stats(passive_level)
+			if level_stats:
+				total_modifier *= level_stats.get_ability_cooldown_modifier(ability_id)
+	
+	return total_modifier
+
+
+func get_ability_mana_modifier(ability_id: String) -> float:
+	var total_modifier: float = 1.0
+	
+	for passive_ability_id in _ability_levels:
+		var passive_ability = ResourceManager.get_ability_data(passive_ability_id)
+		var passive_level = _ability_levels[passive_ability_id]
+		
+		if passive_level <= 0:
+			continue
+			
+		if passive_ability and passive_ability.ability_type == Constants.AbilityType.PASSIVE:
+			var level_stats = passive_ability.get_level_stats(passive_level)
+			if level_stats:
+				total_modifier *= level_stats.get_ability_mana_modifier(ability_id)
+	
+	return total_modifier
 
 #endregion
 
@@ -185,7 +253,10 @@ func _handle_authoritative_use(ability_id: String, ability: AbilityData, level_s
 	if _cooldowns.has(ability_id):
 		return false
 	
-	if "current_mana" in _stats_component and _stats_component.current_mana < level_stats.mana_cost:
+	# Apply passive mana cost modifier
+	var modified_mana_cost = level_stats.mana_cost * get_ability_mana_modifier(ability_id)
+	
+	if "current_mana" in _stats_component and _stats_component.current_mana < modified_mana_cost:
 		print("Server: Not enough mana for '%s'." % ability.ability_name)
 		return false
 		
@@ -199,19 +270,24 @@ func _handle_authoritative_use(ability_id: String, ability: AbilityData, level_s
 	
 	# All checks passed, consume resources and start cooldown
 	if "current_mana" in _stats_component:
-		_stats_component.current_mana -= level_stats.mana_cost
+		_stats_component.current_mana -= modified_mana_cost
 	
-	_cooldowns[ability_id] = level_stats.cooldown_time
+	# Apply passive cooldown modifier
+	var modified_cooldown = level_stats.cooldown_time * get_ability_cooldown_modifier(ability_id)
+	_cooldowns[ability_id] = modified_cooldown
 	
 	# Trigger the visual/gameplay effect
 	_trigger_ability_state_change(ability, level_stats)
 	
+	# NEW: Trigger on_ability_cast procs
+	try_trigger_procs("on_ability_cast", null, {"ability": ability, "level_stats": level_stats})
+	
 	# Emit signals and notify clients
 	ability_used.emit(ability_id)
-	cooldown_started.emit(ability_id, level_stats.cooldown_time)
+	cooldown_started.emit(ability_id, modified_cooldown)
 	
 	if multiplayer.is_server():
-		ability_used_client.rpc(ability_id, level_stats.cooldown_time)
+		ability_used_client.rpc(ability_id, modified_cooldown)
 		
 	return true
 
@@ -242,6 +318,12 @@ func _trigger_ability_state_change(ability: AbilityData, level_stats: AbilityLev
 	if "current_state" in state_machine and state_machine.current_state != attack_state:
 		state_machine.current_state = attack_state
 		attack_state.enter()
+		var audio_player = AudioStreamPlayer.new()
+		add_child(audio_player)
+		audio_player.stream = load(active_behavior.sfx_path)
+		audio_player.play()
+		await audio_player.finished
+		audio_player.queue_free()
 
 	# Execute optional custom logic from the ability's script resource
 	if active_behavior.logic_script:
@@ -317,6 +399,65 @@ func _add_ability_points(amount: int) -> void:
 	
 	if multiplayer.is_server():
 		sync_ability_points.rpc(_available_ability_points)
+		
+
+func try_trigger_procs(event_type: String, target: Node = null, context: Dictionary = {}) -> void:
+	if not multiplayer.is_server():
+		return
+	
+	for passive_ability_id in _ability_levels:
+		var passive_ability = ResourceManager.get_ability_data(passive_ability_id)
+		var passive_level = _ability_levels[passive_ability_id]
+		
+		if passive_level <= 0:
+			continue
+			
+		if passive_ability and passive_ability.ability_type == Constants.AbilityType.PASSIVE:
+			var level_stats = passive_ability.get_level_stats(passive_level)
+			if level_stats:
+				var proc_key = passive_ability_id + "_" + event_type
+				var last_proc_time = _passive_proc_cooldowns.get(proc_key, 0.0)
+				
+				var proc_effect = level_stats.try_proc_event(event_type, {event_type: last_proc_time})
+				if proc_effect:
+					_execute_proc(proc_effect, target, context)
+					_passive_proc_cooldowns[proc_key] = Time.get_ticks_msec() / 1000.0
+
+
+func _execute_proc(proc: ProcEffectData, target: Node, context: Dictionary) -> void:
+	print("Proc triggered! Chance was: %.1f%%" % (proc.proc_chance * 100))
+	
+	# Deal damage if specified
+	if proc.damage_percent > 0 and target and "health_component" in target:
+		var base_damage = context.get("base_damage", 0)
+		var proc_damage = base_damage * (proc.damage_percent / 100.0)
+		target.health_component.take_damage(proc_damage, owner, true)
+		print("Proc dealt %d damage" % proc_damage)
+	
+	# Execute ability if specified
+	if proc.execute_ability:
+		use_ability(proc.execute_ability.ability_id)
+	
+	# Apply buff if specified
+	if proc.apply_buff:
+		var buff_component = target.get_node_or_null("Buff")
+		if buff_component:
+			buff_component.apply_buff(proc.apply_buff.buff_id, owner)
+	
+	# Play animation
+	if proc.animation_name and owner.has_method("play_animation"):
+		owner.play_animation(proc.animation_name)
+	
+	# Play sound
+	if proc.sfx_path:
+		pass
+	
+	# Custom logic
+	if proc.logic_script:
+		var script_instance = proc.logic_script.new()
+		if script_instance.has_method("on_proc"):
+			script_instance.on_proc(owner, target, context)
+
 #endregion
 
 

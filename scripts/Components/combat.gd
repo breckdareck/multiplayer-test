@@ -38,6 +38,7 @@ var original_attack_transform: Vector2
 var _stats_component: StatsComponent
 var _class_component: ClassComponent
 var _equipment_component: EquipmentComponent
+var _ability_component: AbilityComponent
 
 @onready var owner_node: CharacterBody2D = get_owner()
 @onready var attack_hitbox_timer: Timer = $"../../AttackHitboxTimer"
@@ -54,6 +55,7 @@ func _ready() -> void:
 	_stats_component = get_parent().get_node_or_null("Stats")
 	_class_component = get_parent().get_node_or_null("Class")
 	_equipment_component = get_parent().get_node_or_null("Equipment")
+	_ability_component = get_parent().get_node_or_null("Ability")
 
 	hitbox_area.monitoring = false
 	
@@ -174,6 +176,7 @@ func _process_collected_bodies() -> void:
 	var max_targets = 0
 	var max_hits = 0
 	var damage_to_deal = 0
+	var is_crit = false
 	
 	# 1. Determine Attack Type and Get Stats
 	if current_ability_data and current_level_stats:
@@ -229,6 +232,15 @@ func _process_collected_bodies() -> void:
 			
 			health_comp.take_damage(damage_to_deal, self, true)
 			hit_list.append(body)
+			
+			if _ability_component:
+				var event_type = "on_crit" if is_crit else "on_hit"
+				var context = {
+					"base_damage": damage_to_deal,
+					"target": body.owner,
+					"is_crit": is_crit
+				}
+				_ability_component.try_trigger_procs(event_type, body.owner, context)
 		
 		targets_processed += 1
 	
@@ -238,12 +250,18 @@ func _process_collected_bodies() -> void:
 func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelData) -> int:
 	var base_damage = _calculate_base_damage()
 	
-	# Apply ability-specific modifier
-	var total_damage_pre_crit: float = base_damage * (level_stats.damage_percent / 100.0)
+	# Apply ability-specific damage modifier from level stats
+	var ability_damage = base_damage * (level_stats.damage_percent / 100.0)
+	
+	# NEW: Apply passive ability damage modifiers (Enhanced Basics)
+	if _ability_component:
+		var passive_modifier = _ability_component.get_ability_damage_modifier(_ability.ability_id)
+		ability_damage *= passive_modifier
+		print("Applied passive damage modifier: %.2fx" % passive_modifier)
 	
 	# Apply variance
-	var min_dmg = roundi(total_damage_pre_crit * 0.8)
-	var max_dmg = roundi(total_damage_pre_crit * 1.2)
+	var min_dmg = roundi(ability_damage * 0.8)
+	var max_dmg = roundi(ability_damage * 1.2)
 	
 	return randi_range(min_dmg, max_dmg)
 

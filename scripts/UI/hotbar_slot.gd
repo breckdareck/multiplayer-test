@@ -75,6 +75,15 @@ func assign_ability(ability_data: AbilityData):
 	else:
 		rpc_id(multiplayer.get_remote_sender_id(), "recieve_assign_ability", ability_data.ability_id)
 
+@rpc("any_peer", "call_remote", "reliable")
+func request_clear_ability():
+	assigned_ability = null
+	if ability_icon:
+		ability_icon.texture = null
+		ability_icon.visible = false
+	update_visual()
+	ability_removed.emit(slot_index)
+
 func clear_ability():
 	assigned_ability = null
 	if ability_icon:
@@ -82,6 +91,8 @@ func clear_ability():
 		ability_icon.visible = false
 	update_visual()
 	ability_removed.emit(slot_index)
+	if not multiplayer.is_server():
+		rpc_id(1, "request_clear_ability")
 
 func update_visual():
 	var panel_style = get_theme_stylebox("panel").duplicate()

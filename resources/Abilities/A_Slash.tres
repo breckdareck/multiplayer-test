@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=29 format=3 uid="uid://ccxoh5fmx317x"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=40 format=3 uid="uid://ccxoh5fmx317x"]
 
 [ext_resource type="Texture2D" uid="uid://cg8rq8kjvxwi7" path="res://assets/sprites/Abilities/slash_blast.png" id="1_ajojy"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_7svtf"]
@@ -6,6 +6,9 @@
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="4_5ui4y"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_7e1xr"]
 [ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="4_ajojy"]
+[ext_resource type="Script" uid="uid://cau788b3d2nqu" path="res://scripts/Resources/AbilitySystem/ProcEffectData.gd" id="5_7e1xr"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="8_yntj7"]
+[ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="9_n4786"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ajojy"]
 size = Vector2(66, 20)
@@ -16,8 +19,13 @@ target_type = 1
 hit_box_shape_data = SubResource("RectangleShape2D_ajojy")
 hit_box_position_data = Vector2(33, -10)
 animation_name = "attack_1"
-sfx_path = "res://sounds/tap.wav"
+sfx_path = "res://assets/sounds/tap.wav"
 logic_script = ExtResource("2_ajojy")
+
+[sub_resource type="Resource" id="Resource_u5quj"]
+script = ExtResource("5_7e1xr")
+proc_chance = 1.0
+metadata/_custom_type_script = "uid://cau788b3d2nqu"
 
 [sub_resource type="Resource" id="Resource_ajojy"]
 script = ExtResource("4_ajojy")
@@ -25,6 +33,7 @@ mana_cost = 1
 cooldown_time = 1.0
 damage_percent = 85
 max_targets = 6
+on_hit_proc = SubResource("Resource_u5quj")
 metadata/_custom_type_script = "uid://iols3c70aq2j"
 
 [sub_resource type="Resource" id="Resource_gmqqq"]
@@ -143,6 +152,49 @@ level = 20
 damage_percent = 190
 max_targets = 6
 
+[sub_resource type="Resource" id="Resource_qud4a"]
+script = ExtResource("8_yntj7")
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_rfl85"]
+script = ExtResource("8_yntj7")
+base_value = 1.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_hlbev"]
+script = ExtResource("8_yntj7")
+base_value = 85.0
+per_level = 5.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_g21j2"]
+script = ExtResource("8_yntj7")
+base_value = 1.0
+per_level = 1.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_6s8at"]
+script = ExtResource("8_yntj7")
+base_value = 1.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_xma2e"]
+script = ExtResource("8_yntj7")
+base_value = 6.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_x5s8u"]
+script = ExtResource("9_n4786")
+mana_cost_formula = SubResource("Resource_g21j2")
+cooldown_formula = SubResource("Resource_rfl85")
+damage_percent_formula = SubResource("Resource_hlbev")
+max_targets_formula = SubResource("Resource_xma2e")
+max_hits_formula = SubResource("Resource_6s8at")
+cast_time_formula = SubResource("Resource_qud4a")
+stat_bonus_formulas = {}
+aura_affects_allies = false
+metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
+
 [resource]
 script = ExtResource("4_7e1xr")
 ability_id = "04236384-15455-0589-12403-458981588111015"
@@ -153,5 +205,6 @@ max_level = 20
 required_class = Array[int]([0])
 required_weapon_types = Array[int]([0])
 active_behavior = SubResource("Resource_7e1xr")
+scaling_data = SubResource("Resource_x5s8u")
 level_data = Array[ExtResource("4_ajojy")]([SubResource("Resource_ajojy"), SubResource("Resource_gmqqq"), SubResource("Resource_yntj7"), SubResource("Resource_n4786"), SubResource("Resource_hscra"), SubResource("Resource_r0u5b"), SubResource("Resource_4wh34"), SubResource("Resource_c0sum"), SubResource("Resource_bdcag"), SubResource("Resource_ja4au"), SubResource("Resource_1rm05"), SubResource("Resource_2b5dv"), SubResource("Resource_1pjde"), SubResource("Resource_un368"), SubResource("Resource_wxnfw"), SubResource("Resource_mfojr"), SubResource("Resource_nryi0"), SubResource("Resource_gxvmq"), SubResource("Resource_x3d43"), SubResource("Resource_pppag")])
 metadata/_custom_type_script = "uid://b8y62rc8nb40j"

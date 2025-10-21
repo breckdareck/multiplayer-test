@@ -8,26 +8,31 @@ extends Resource
 			ability_id = generate_uuid()
 		else:
 			ability_id = value
+
 @export var ability_name: String = ""
 @export_multiline var description: String = ""
 @export var ability_icon: Texture2D
-## Max Level the ability can level up to
 @export var max_level: int
-## Is this a Passive or Active Ability
 @export var ability_type: Constants.AbilityType
-## Only allow these classes to use ability
 @export var required_class: Array[Constants.ClassType]
-## Only allow these weapons to use ability
 @export var required_weapon_types: Array[Constants.WeaponType]
-## AbilityData to Level Required
-@export var prerequisite_abilities: Dictionary[AbilityData, int] = {}
+@export var prerequisite_abilities: Dictionary = {}
 
 @export var active_behavior: ActiveBehaviorData
+
+## NEW: Use either scaling data OR manual level data
+@export_group("Scaling Configuration")
+@export var use_scaling_formulas: bool = true
+@export var scaling_data: AbilityScalingData
+
+## OLD: Manual level data (only used if use_scaling_formulas = false)
 @export var level_data: Array[AbilityLevelData]
+
+## Cache for generated level data to avoid recalculating
+var _level_data_cache: Dictionary = {}
 
 
 func _init():
-	# Only generate a UUID if one doesn't already exist.
 	if ability_id.is_empty():
 		ability_id = generate_uuid()
 
@@ -44,14 +49,30 @@ func generate_uuid() -> String:
 		"".join(id.slice(20, 32)),
 	]
 
+
 ## Retrieves the AbilityLevelData resource for the specified level.
-## Returns null if the level is out of bounds.
+## If using scaling formulas, generates it on-the-fly and caches it.
 func get_level_stats(level: int) -> AbilityLevelData:
-	# Levels are 1-based, array indices are 0-based.
-	var index = level - 1
+	if level < 1 or level > max_level:
+		return null
 	
-	if index >= 0 and index < level_data.size():
-		return level_data[index]
+	# Use manual level data if not using formulas
+	if not use_scaling_formulas:
+		var index = level - 1
+		if index >= 0 and index < level_data.size():
+			return level_data[index]
+		return null
 	
-	# Fallback for invalid levels
-	return null
+	# Use scaling formulas
+	if not scaling_data:
+		push_error("Ability '%s' is set to use scaling formulas but has no scaling_data!" % ability_name)
+		return null
+	
+	# Check cache first
+	if _level_data_cache.has(level):
+		return _level_data_cache[level]
+	
+	# Generate and cache
+	var generated_data = scaling_data.generate_level_data(level)
+	_level_data_cache[level] = generated_data
+	return generated_data
