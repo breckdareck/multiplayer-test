@@ -271,7 +271,9 @@ func create_description_comparison_text(data: AbilityData, current: AbilityLevel
 		
 		if data.ability_type == Constants.AbilityType.ACTIVE:
 			var damage_text = desc_template.replace("$[damage_percent]", "[color=%s]%d%%[/color]" % [COLOR_UPGRADE, next.damage_percent])
-			output += damage_text
+			var target_text = damage_text.replace("$[target_count]", "[color=%s]%d[/color]" % [COLOR_UPGRADE, data.scaling_data.max_targets_formula.calculate(next.level)])
+			var hit_text = target_text.replace("$[hit_count]", "[color=%s]%d[/color]" % [COLOR_UPGRADE, data.scaling_data.max_hits_formula.calculate(next.level)])
+			output += hit_text
 		elif data.ability_type == Constants.AbilityType.PASSIVE:
 			var stat_key = next.stat_bonuses.keys()[0] if not next.stat_bonuses.is_empty() else null
 			if stat_key or stat_key == 0:
@@ -282,15 +284,33 @@ func create_description_comparison_text(data: AbilityData, current: AbilityLevel
 	else: # Level 1 to Max-1
 		var current_damage = current.damage_percent
 		var next_damage = next.damage_percent
+		var current_target_count
+		var next_target_count
+		var current_hit_count
+		var next_hit_count
+		
+		if data.scaling_data.max_targets_formula:
+			current_target_count = data.scaling_data.max_targets_formula.calculate(current.level)
+			next_target_count = data.scaling_data.max_targets_formula.calculate(next.level)
+		if data.scaling_data.max_hits_formula:
+			current_hit_count = data.scaling_data.max_hits_formula.calculate(current.level)
+			next_hit_count = data.scaling_data.max_hits_formula.calculate(next.level)
 		
 		output += "[color=%s]Current Level (%d) Stats:[/color]\n" % [COLOR_BASE, current.level]
 		
 		if data.ability_type == Constants.AbilityType.ACTIVE:
 			var color = COLOR_UPGRADE if next_damage > current_damage else COLOR_NORMAL
-			var damage_text = desc_template.replace("$[damage_percent]", "[color=%s]%d%%[/color]" % [COLOR_NORMAL, current_damage])
-			output += damage_text
+			var damage_text = desc_template.replace("$[damage_percent]", "[color=%s]%d%%[/color]" % [COLOR_UPGRADE, current_damage])
+			var target_text = damage_text.replace("$[target_count]", "[color=%s]%d[/color]" % [COLOR_UPGRADE, data.scaling_data.max_targets_formula.calculate(current.level)])
+			var hit_text = target_text.replace("$[hit_count]", "[color=%s]%d[/color]" % [COLOR_UPGRADE, data.scaling_data.max_hits_formula.calculate(current.level)])
+			output += hit_text
 			output += "\n\n[color=%s]NEXT LEVEL (%d) UPGRADE:[/color]\n" % [COLOR_UPGRADE, next.level]
 			output += "Damage: [color=%s]%d%%[/color] [color=%s](+ %d%%)[/color]\n" % [COLOR_BASE, current_damage, color, next_damage - current_damage]
+			if (next_target_count - current_target_count) > 0:
+				output += "Target Count: [color=%s]%d[/color] [color=%s](+ %d)[/color]\n" % [COLOR_BASE, current_target_count, color, next_target_count - current_target_count]
+			if (next_hit_count - current_hit_count) > 0:
+				output += "Hit Count: [color=%s]%d[/color] [color=%s](+ %d)[/color]\n" % [COLOR_BASE, current_hit_count, color, next_hit_count - current_hit_count]
+
 
 		elif data.ability_type == Constants.AbilityType.PASSIVE:
 			var stat_key = current.stat_bonuses.keys()[0] if not current.stat_bonuses.is_empty() else null
@@ -314,7 +334,9 @@ func create_description_text(data: AbilityData, current: AbilityLevelData) -> St
 	
 	if data.ability_type == Constants.AbilityType.ACTIVE:
 		var damage_text = desc_template.replace("$[damage_percent]", "[color=%s]%d%%[/color]" % [COLOR_NORMAL, current.damage_percent])
-		output += damage_text
+		var target_text = damage_text.replace("$[target_count]", "[color=%s]%d[/color]" % [COLOR_NORMAL, data.scaling_data.max_targets_formula.calculate(current.level)])
+		var hit_text = target_text.replace("$[hit_count]", "[color=%s]%d[/color]" % [COLOR_NORMAL, data.scaling_data.max_hits_formula.calculate(current.level)])
+		output += hit_text
 	elif data.ability_type == Constants.AbilityType.PASSIVE:
 		var stat_key = current.stat_bonuses.keys()[0] if not current.stat_bonuses.is_empty() else null
 		if stat_key or stat_key == 0:
