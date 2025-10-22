@@ -2,13 +2,16 @@ class_name DamageNumbers
 extends MultiplayerSpawner
 
 var spawner: MultiplayerSpawner = self
+const NORMAL_HIT_GRADIENT_TEXTURE_2D = preload("uid://c5usnjygvaqot")
+const CRIT_HIT_GRADIENT_TEXTURE_2D = preload("uid://dby4n0336k1cf")
+const PLAYER_HIT_GRADIENT_TEXTURE_2D = preload("uid://battj1yw1t37b")
 
 func _ready() -> void:
 	spawner.spawn_function = spawn_damage_number
 
 
-func display_number(value: int, position: Vector2, is_critical: bool = false):
-	var number: Label = spawner.spawn([value, position, is_critical])
+func display_number(value: int, position: Vector2, is_critical: bool = false, is_player: bool = false):
+	var number: Label = spawner.spawn([value, position, is_critical, is_player])
 	
 	number.pivot_offset = Vector2(number.size /2)
 	
@@ -29,9 +32,14 @@ func display_number(value: int, position: Vector2, is_critical: bool = false):
 
 
 func spawn_damage_number(args: Array) -> Label:
+	var number_outline = Label.new()
 	var number = Label.new()
+	var gradient_texture = TextureRect.new()
 	var sync = MultiplayerSynchronizer.new()
-	number.add_child(sync)
+	number_outline.add_child(number)
+	number_outline.add_child(sync)
+	number.add_child(gradient_texture)
+	
 	var config = sync.replication_config
 	if config == null:
 		config = SceneReplicationConfig.new()
@@ -41,25 +49,53 @@ func spawn_damage_number(args: Array) -> Label:
 	sync.replication_config.add_property(".:scale")
 	sync.replication_config.add_property(".:pivot_offset")
 	
-	number.global_position = args[1]
+	number_outline.global_position = args[1]
+	number_outline.text = str(args[0])
+	number_outline.z_index = 5
+	number_outline.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	number_outline.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	number_outline.label_settings = LabelSettings.new()
+	number_outline.label_settings.font = load("res://assets/fonts/PixelOperator8-Bold.ttf")
+	number_outline.label_settings.outline_color = Color.WHITE
+	number_outline.label_settings.outline_size = 4
+	number_outline.label_settings.font_size = 8
+	
+	
 	number.text = str(args[0])
-	#number.scale = Vector2(0.5,0.5)
 	number.z_index = 5
+	number.clip_children = CanvasItem.CLIP_CHILDREN_AND_DRAW
+	number.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	number.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	number.label_settings = LabelSettings.new()
 	
-	var color = Color.DARK_GREEN
-	var outline_color = Color.WHITE
+	
+	var font = load("res://assets/fonts/PixelOperator8-Bold.ttf")
+	var font_size = 8
+	
+	gradient_texture.texture = NORMAL_HIT_GRADIENT_TEXTURE_2D
+	gradient_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	gradient_texture.offset_bottom += 1
+	gradient_texture.offset_right += 1
+	gradient_texture.offset_left += -1
+	gradient_texture.offset_top += -1
+	
+	if args[3]:
+		gradient_texture.texture = PLAYER_HIT_GRADIENT_TEXTURE_2D
 	if args[2]:
-		color = Color.RED
+		number_outline.scale = Vector2(1.4,1.4)
+		gradient_texture.texture = CRIT_HIT_GRADIENT_TEXTURE_2D
 	if args[0] == 0:
-		color = "#FFF8"
-		outline_color = Color.BLACK
+		number.label_settings.font_color = "#FFF8"
+		number.label_settings.outline_color = Color.BLACK
+		number.label_settings.outline_size = 4
+		gradient_texture.texture = null
 		
-	number.label_settings.font_color = color
-	number.label_settings.font_size = 8
-	number.label_settings.font = load("res://assets/fonts/PixelOperator8-Bold.ttf")
-	number.label_settings.outline_color = outline_color
-	number.label_settings.outline_size = 4
+	number.label_settings.font_size = font_size
+	number.label_settings.font = font
+	
+	number.set_anchors_preset(Control.PRESET_FULL_RECT)
+	gradient_texture.set_anchors_preset(Control.PRESET_FULL_RECT)
+	
 	
 	#call_deferred("add_child", number)
-	return number
+	return number_outline

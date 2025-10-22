@@ -274,7 +274,7 @@ func create_description_comparison_text(data: AbilityData, current: AbilityLevel
 			output += damage_text
 		elif data.ability_type == Constants.AbilityType.PASSIVE:
 			var stat_key = next.stat_bonuses.keys()[0] if not next.stat_bonuses.is_empty() else null
-			if stat_key:
+			if stat_key or stat_key == 0:
 				var stat_value = next.stat_bonuses.get(stat_key).total_value if next.stat_bonuses.get(stat_key).total_value > 0 else next.stat_bonuses.get(stat_key).percent_bonus_value
 				var stat_text = desc_template.replace("$[stat_bonus]", "[color=%s]%d[/color]" % [COLOR_UPGRADE, stat_value])
 				output += stat_text
@@ -294,7 +294,7 @@ func create_description_comparison_text(data: AbilityData, current: AbilityLevel
 
 		elif data.ability_type == Constants.AbilityType.PASSIVE:
 			var stat_key = current.stat_bonuses.keys()[0] if not current.stat_bonuses.is_empty() else null
-			if stat_key:
+			if stat_key or stat_key == 0:
 				var current_stat_bonus = current.stat_bonuses.get(stat_key).total_value if current.stat_bonuses.get(stat_key).total_value > 0 else current.stat_bonuses.get(stat_key).percent_bonus_value
 				var next_stat_bonus = next.stat_bonuses.get(stat_key).total_value if next.stat_bonuses.get(stat_key).total_value > 0 else next.stat_bonuses.get(stat_key).percent_bonus_value
 				var color = COLOR_UPGRADE
@@ -317,7 +317,7 @@ func create_description_text(data: AbilityData, current: AbilityLevelData) -> St
 		output += damage_text
 	elif data.ability_type == Constants.AbilityType.PASSIVE:
 		var stat_key = current.stat_bonuses.keys()[0] if not current.stat_bonuses.is_empty() else null
-		if stat_key:
+		if stat_key or stat_key == 0:
 			var stat_value = current.stat_bonuses.get(stat_key).total_value if current.stat_bonuses.get(stat_key).total_value > 0 else current.stat_bonuses.get(stat_key).percent_bonus_value
 			var stat_text = desc_template.replace("$[stat_bonus]", "[color=%s]%d[/color]" % [COLOR_NORMAL, stat_value])
 			output += stat_text

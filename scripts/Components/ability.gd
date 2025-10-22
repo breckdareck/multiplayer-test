@@ -318,12 +318,13 @@ func _trigger_ability_state_change(ability: AbilityData, level_stats: AbilityLev
 	if "current_state" in state_machine and state_machine.current_state != attack_state:
 		state_machine.current_state = attack_state
 		attack_state.enter()
-		var audio_player = AudioStreamPlayer.new()
-		add_child(audio_player)
-		audio_player.stream = load(active_behavior.sfx_path)
-		audio_player.play()
-		await audio_player.finished
-		audio_player.queue_free()
+		if active_behavior.sfx_path:
+			var audio_player = AudioStreamPlayer.new()
+			add_child(audio_player)
+			audio_player.stream = load(active_behavior.sfx_path)
+			audio_player.play()
+			await audio_player.finished
+			audio_player.queue_free()
 
 	# Execute optional custom logic from the ability's script resource
 	if active_behavior.logic_script:

@@ -69,7 +69,7 @@ func _recalculate_stats() -> void:
 	var class_bonuses:Dictionary[Constants.StatType, int] = _class_component.get_class_bonuses()
 	var print_string: String = ""
 	for stat in class_bonuses:
-		stats.get(stat).flat_bonus_value += class_bonuses[stat] * _level_component.level
+		stats.get(stat).base_value += class_bonuses[stat] * _level_component.level
 		print_string += (Constants.StatType.find_key(stat) + ":" + str(class_bonuses[stat] * _level_component.level) + ", ")
 		
 	print("StatsComponent: Applied class bonuses for %s: %s" % [_class_component.get_class_name(), print_string])

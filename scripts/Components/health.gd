@@ -112,27 +112,29 @@ func _on_regen_timer_timeout() -> void:
 
 	
 @rpc("any_peer", "call_local", "reliable")
-func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false) -> void:
+func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, is_crit: bool = false) -> void:
 	if not multiplayer.is_server():
-		return
-		
-	if is_invulnerable and not ignore_invuln or is_dead:
 		return
 		
 	var source_str = "unknown"
 	if source:
 		source_str = str(source)
 	
-
 	_last_damage_source = source
+	
+	var is_player = (owner is MultiplayerPlayerV2)
 	
 	var horizontal_offset = randf_range(-8, 8) # Move left/right by a few pixels
 	var vertical_offset = randf_range(-5, 5) # Move up/down by a few pixels
 	var spawn_position = damage_number_origin.global_position + Vector2(horizontal_offset, vertical_offset)
-
-	get_node("/root/MainMenu/Level/Game").get_node("%DmgNumberSpawner").display_number(amount, spawn_position)
+	get_node("/root/MainMenu/Level/Game").get_node("%DmgNumberSpawner").display_number(amount, spawn_position, is_crit, is_player)
+		
 	print("HealthComponent: Owner '%s' took %s damage from '%s'." % [get_owner().name, amount, source_str])
 	damaged.emit(amount, source)
+	
+	if is_invulnerable and not ignore_invuln or is_dead:
+		return
+	
 	self.current_health -= amount
 	if not ignore_invuln:
 		is_invulnerable = true

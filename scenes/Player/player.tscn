@@ -925,10 +925,8 @@ shape = SubResource("RectangleShape2D_cgmen")
 action = "Jump"
 
 [node name="Buffbar" parent="CanvasLayer/PlayerHUD" instance=ExtResource("19_gb22u")]
+layout_mode = 1
 offset_left = -520.0
-offset_top = 20.0
-offset_right = -20.0
-offset_bottom = 88.0
 mouse_filter = 2
 
 [node name="Hotbar" parent="CanvasLayer/PlayerHUD" instance=ExtResource("17_ploos")]

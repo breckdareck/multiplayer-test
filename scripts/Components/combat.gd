@@ -230,7 +230,12 @@ func _process_collected_bodies() -> void:
 				print("CombatComponent: HIT! Ability Attack: %s - Target: %s, Hit #%d/%d, Damage: %d" %
 					[current_ability_data.ability_name, body.name, i + 1, max_hits, damage_to_deal])
 			
-			health_comp.take_damage(damage_to_deal, self, true)
+			#var horizontal_offset = randf_range(-8, 8) # Move left/right by a few pixels
+			#var vertical_offset = randf_range(-5, 5) # Move up/down by a few pixels
+			#var spawn_position = health_comp.damage_number_origin.global_position + Vector2(horizontal_offset, vertical_offset)
+			#get_node("/root/MainMenu/Level/Game").get_node("%DmgNumberSpawner").display_number(damage_to_deal, spawn_position, randi_range(0,1))
+			
+			health_comp.take_damage(damage_to_deal, self, true, randi_range(0,1))
 			hit_list.append(body)
 			
 			if _ability_component:

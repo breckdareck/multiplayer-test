@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=40 format=3 uid="uid://ccxoh5fmx317x"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=41 format=3 uid="uid://ccxoh5fmx317x"]
 
 [ext_resource type="Texture2D" uid="uid://cg8rq8kjvxwi7" path="res://assets/sprites/Abilities/slash_blast.png" id="1_ajojy"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_7svtf"]
@@ -8,6 +8,7 @@
 [ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="4_ajojy"]
 [ext_resource type="Script" uid="uid://cau788b3d2nqu" path="res://scripts/Resources/AbilitySystem/ProcEffectData.gd" id="5_7e1xr"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="8_yntj7"]
+[ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="9_hscra"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="9_n4786"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ajojy"]
@@ -191,8 +192,6 @@ damage_percent_formula = SubResource("Resource_hlbev")
 max_targets_formula = SubResource("Resource_xma2e")
 max_hits_formula = SubResource("Resource_6s8at")
 cast_time_formula = SubResource("Resource_qud4a")
-stat_bonus_formulas = {}
-aura_affects_allies = false
 metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
 
 [resource]

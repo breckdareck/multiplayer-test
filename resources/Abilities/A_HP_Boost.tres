@@ -1,12 +1,17 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=31 format=3 uid="uid://c6er05pqmi5sn"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=33 format=3 uid="uid://c6er05pqmi5sn"]
 
 [ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_f3xb2"]
 [ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="1_nlknu"]
+[ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_3tmvc"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="2_27gap"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="3_04s2n"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="4_murif"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="5_u4dvk"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="6_3tmvc"]
+
+[sub_resource type="Resource" id="Resource_bwflg"]
+resource_local_to_scene = true
+script = ExtResource("2_3tmvc")
 
 [sub_resource type="Resource" id="Resource_f3xb2"]
 script = ExtResource("2_27gap")
@@ -20,9 +25,6 @@ script = ExtResource("1_nlknu")
 stat_bonuses = Dictionary[int, ExtResource("2_27gap")]({
 4: SubResource("Resource_f3xb2")
 })
-ability_damage_modifiers = {
-"04236384-15455-0589-12403-458981588111015": 1.07
-}
 
 [sub_resource type="Resource" id="Resource_murif"]
 script = ExtResource("2_27gap")
@@ -177,5 +179,6 @@ max_level = 10
 ability_type = 1
 required_class = Array[int]([0])
 required_weapon_types = Array[int]([0])
+active_behavior = SubResource("Resource_bwflg")
 scaling_data = SubResource("Resource_k06um")
 level_data = Array[ExtResource("1_nlknu")]([SubResource("Resource_5gm2d"), SubResource("Resource_uoy0r"), SubResource("Resource_s26ke"), SubResource("Resource_qou1y"), SubResource("Resource_k77oc"), SubResource("Resource_kfp1v"), SubResource("Resource_8npgu"), SubResource("Resource_l3t1j"), SubResource("Resource_pwqei"), SubResource("Resource_ejioi")])

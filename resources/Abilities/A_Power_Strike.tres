@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=38 format=3 uid="uid://dq088g6civvd8"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=39 format=3 uid="uid://dq088g6civvd8"]
 
 [ext_resource type="Texture2D" uid="uid://bstguvwrql18p" path="res://assets/sprites/Abilities/power_strike.png" id="1_v0yfe"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_vuhxl"]
@@ -19,7 +19,7 @@ target_type = 1
 hit_box_shape_data = SubResource("RectangleShape2D_i4okq")
 hit_box_position_data = Vector2(20, 0)
 animation_name = "attack_1"
-sfx_path = "res://sounds/sword_strike.wav"
+sfx_path = "res://assets/sounds/tap.wav"
 
 [sub_resource type="Resource" id="Resource_t6bdd"]
 script = ExtResource("3_v0yfe")
@@ -160,6 +160,9 @@ mana_cost = 12
 cooldown_time = 0.5
 damage_percent = 260
 
+[sub_resource type="Resource" id="Resource_lc80b"]
+script = ExtResource("6_pdrvi")
+
 [sub_resource type="Resource" id="Resource_j1pqa"]
 script = ExtResource("6_pdrvi")
 base_value = 1.0
@@ -193,6 +196,7 @@ cooldown_formula = SubResource("Resource_j1pqa")
 damage_percent_formula = SubResource("Resource_rfic8")
 max_targets_formula = SubResource("Resource_eni3s")
 max_hits_formula = SubResource("Resource_28uba")
+cast_time_formula = SubResource("Resource_lc80b")
 metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
 
 [resource]

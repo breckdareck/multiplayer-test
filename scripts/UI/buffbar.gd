@@ -4,12 +4,9 @@ extends Control
 ## Displays active buffs with icons and countdown timers in a horizontal layout
 
 #region #################### Configuration ####################
-@export var icon_size: Vector2 = Vector2(48, 48)
-@export var spacing: float = 8.0
+@export var icon_size: Vector2 = Vector2(68, 68)
+@export var spacing: int = 8
 @export var max_visible_buffs: int = 10
-@export var progress_color: Color = Color(0.2, 0.8, 0.2, 0.8)  # Green progress ring
-@export var background_color: Color = Color(0.2, 0.2, 0.2, 0.5)  # Dark background
-@export var progress_thickness: float = 4.0
 #endregion
 
 #region #################### Member Variables ####################
@@ -26,30 +23,12 @@ class BuffIcon extends Control:
 	var total_duration: float = 0.0
 	var stacks: int = 1
 	
-	var progress_color: Color
-	var background_color: Color
-	var progress_thickness: float
+	var gradient_color: Color = Color(0.3, 0.3, 0.3, 0.8)
 	
 	var _texture_rect: TextureRect
 	var _time_label: Label
 	var _stack_label: Label
-	var _progress_overlay: Control
-	
-	func _draw_progress() -> void:
-		if total_duration <= 0:
-			return  # Don't draw progress for permanent buffs
-		
-		var center := _progress_overlay.size / 2.0
-		var radius = min(_progress_overlay.size.x, _progress_overlay.size.y) / 2.0 - progress_thickness
-		
-		# Draw background circle
-		_progress_overlay.draw_arc(center, radius, 0, TAU, 32, background_color, progress_thickness, true)
-		
-		# Draw progress arc
-		if remaining_time > 0:
-			var progress := remaining_time / total_duration
-			var angle := -TAU * progress + (PI / 2)  # Start from top, go clockwise
-			_progress_overlay.draw_arc(center, radius, PI / 2, angle, 32, progress_color, progress_thickness, true)
+	var _gradient_overlay: ColorRect
 	
 	func _init(id: String, texture: Texture2D, duration: float, size: Vector2):
 		buff_id = id
@@ -58,13 +37,6 @@ class BuffIcon extends Control:
 		total_duration = duration
 		custom_minimum_size = size
 		name = "BuffIcon_" + id
-		
-		# Background panel
-		var panel := Panel.new()
-		panel.name = "BackgroundPanel"
-		panel.set_anchors_preset(Control.PRESET_FULL_RECT)
-		panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		add_child(panel)
 		
 		# Icon texture
 		_texture_rect = TextureRect.new()
@@ -76,24 +48,34 @@ class BuffIcon extends Control:
 		_texture_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(_texture_rect)
 		
-		# Progress overlay (drawn on top of icon)
-		_progress_overlay = Control.new()
-		_progress_overlay.name = "ProgressOverlay"
-		_progress_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
-		_progress_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_progress_overlay.draw.connect(_draw_progress)
-		add_child(_progress_overlay)
+		# Gradient overlay (moves from top to bottom as time decreases)
+		_gradient_overlay = ColorRect.new()
+		_gradient_overlay.name = "GradientOverlay"
+		_gradient_overlay.color = gradient_color
+		_gradient_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		# Start at the top, will expand downward
+		_gradient_overlay.anchor_left = 0
+		_gradient_overlay.anchor_right = 1
+		_gradient_overlay.anchor_top = 0
+		_gradient_overlay.anchor_bottom = 0
+		_gradient_overlay.offset_left = 0
+		_gradient_overlay.offset_right = 0
+		_gradient_overlay.offset_top = 0
+		_gradient_overlay.offset_bottom = 0
+		add_child(_gradient_overlay)
 		
-		# Time label
+		# Time label (centered, yellow text with black outline)
 		_time_label = Label.new()
 		_time_label.name = "TimeLabel"
 		_time_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		_time_label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
-		_time_label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-		_time_label.offset_top = -18
-		_time_label.add_theme_font_size_override("font_size", 12)
+		_time_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		_time_label.set_anchors_preset(Control.PRESET_FULL_RECT)
+		_time_label.add_theme_font_size_override("font_size", 16)
+		_time_label.add_theme_color_override("font_color", Color.YELLOW)
 		_time_label.add_theme_color_override("font_outline_color", Color.BLACK)
-		_time_label.add_theme_constant_override("outline_size", 2)
+		_time_label.add_theme_constant_override("outline_size", 16)
+		_time_label.add_theme_font_override("font", load("res://assets/fonts/PixelOperator8-Bold.ttf"))
+		_time_label.add_theme_font_size_override("font_size", 24)
 		_time_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(_time_label)
 		
@@ -117,13 +99,34 @@ class BuffIcon extends Control:
 	
 	func update_time(time: float) -> void:
 		remaining_time = time
+		
+		# Update text to show only the number
 		if total_duration > 0 and remaining_time > 0:
-			_time_label.text = _format_time(remaining_time)
+			_time_label.text = _format_time_number(remaining_time)
 		elif total_duration <= 0:
 			_time_label.text = "∞"  # Permanent buff
 		else:
-			_time_label.text = "0s"
-		_progress_overlay.queue_redraw()
+			_time_label.text = "0"
+		
+		# Update gradient overlay height based on remaining time
+		_update_gradient_overlay()
+	
+	func _update_gradient_overlay() -> void:
+		if total_duration <= 0:
+			# Permanent buff - no overlay
+			_gradient_overlay.visible = false
+			return
+		
+		_gradient_overlay.visible = true
+		
+		# Calculate how much of the icon should be covered
+		# As time decreases, gradient covers more (moves from top to bottom)
+		var progress := 0.0
+		if total_duration > 0:
+			progress = 1.0 - (remaining_time / total_duration)  # 0 = full time, 1 = no time
+		
+		# Set the gradient to cover from top to the progress point
+		_gradient_overlay.anchor_bottom = progress
 	
 	func update_stacks(stack_count: int) -> void:
 		stacks = stack_count
@@ -133,28 +136,13 @@ class BuffIcon extends Control:
 		else:
 			_stack_label.visible = false
 	
-	func _format_time(time: float) -> String:
+	func _format_time_number(time: float) -> String:
+		# Only return the number, no unit suffix
 		if time >= 60:
 			var minutes := int(time / 60)
-			return "%dm" % minutes
+			return "%d" % minutes
 		else:
-			return "%.0fs" % time
-	
-	func _draw() -> void:
-		if total_duration <= 0:
-			return  # Don't draw progress for permanent buffs
-		
-		var center := size / 2.0
-		var radius = min(size.x, size.y) / 2.0 - progress_thickness
-		
-		# Draw background circle
-		draw_arc(center, radius, 0, TAU, 32, background_color, progress_thickness, true)
-		
-		# Draw progress arc
-		if remaining_time > 0:
-			var progress := remaining_time / total_duration
-			var angle := -TAU * progress + (PI / 2)  # Start from top, go clockwise
-			draw_arc(center, radius, PI / 2, angle, 32, progress_color, progress_thickness, true)
+			return "%.0f" % time
 #endregion
 
 #region #################### Godot Engine Callbacks ####################
@@ -264,9 +252,6 @@ func _on_buff_applied(buff_id: String, duration: float) -> void:
 	
 	# Create buff icon
 	var icon := BuffIcon.new(buff_id, buff_data.buff_icon, duration, icon_size)
-	icon.progress_color = progress_color
-	icon.background_color = background_color
-	icon.progress_thickness = progress_thickness
 	
 	# Update stacks if applicable
 	var stacks := _buff_component.get_buff_stacks(buff_id)

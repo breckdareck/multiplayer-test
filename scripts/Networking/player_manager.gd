@@ -144,6 +144,9 @@ func _spawn_character_for_player(id: int, character_type: int, username: String,
 			player_instance.stats_component.set_loading_mode(false)
 			player_instance.stats_component._recalculate_stats()
 			
+		if not player_data:
+			player_instance.equipment_component.weapon_slot.item = ResourceManager.get_item_by_name("Iron Sword")
+		
 		if id != 1:
 			player_instance.inventory_component.sync_inventory_to_client()
 
