@@ -1,0 +1,73 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=18 format=3 uid="uid://fei5h0kw8ykp"]
+
+[ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_h56gw"]
+[ext_resource type="Texture2D" uid="uid://labtoxvnp0j3" path="res://assets/sprites/Goblin/Bomb_sprite.png" id="1_hs673"]
+[ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="2_ojw4x"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="3_bx44w"]
+[ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_io58w"]
+[ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_2her1"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="5_q8rmi"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0dvw3"]
+atlas = ExtResource("1_hs673")
+region = Rect2(1236, 34, 32, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0dvw3"]
+size = Vector2(999999, 999999)
+
+[sub_resource type="Resource" id="Resource_yl5mh"]
+resource_local_to_scene = true
+script = ExtResource("1_h56gw")
+target_type = 1
+hit_box_shape_data = SubResource("RectangleShape2D_0dvw3")
+animation_name = "attack_1"
+
+[sub_resource type="Resource" id="Resource_hs673"]
+resource_local_to_scene = true
+script = ExtResource("3_bx44w")
+
+[sub_resource type="Resource" id="Resource_y2hsg"]
+resource_local_to_scene = true
+script = ExtResource("3_bx44w")
+base_value = 5.0
+
+[sub_resource type="Resource" id="Resource_kyvw4"]
+resource_local_to_scene = true
+script = ExtResource("3_bx44w")
+base_value = 9999.0
+
+[sub_resource type="Resource" id="Resource_f77g7"]
+resource_local_to_scene = true
+script = ExtResource("3_bx44w")
+
+[sub_resource type="Resource" id="Resource_jl11m"]
+resource_local_to_scene = true
+script = ExtResource("3_bx44w")
+base_value = 10.0
+
+[sub_resource type="Resource" id="Resource_sdtbl"]
+resource_local_to_scene = true
+script = ExtResource("3_bx44w")
+base_value = 99.0
+
+[sub_resource type="Resource" id="Resource_ut2o4"]
+resource_local_to_scene = true
+script = ExtResource("3_io58w")
+mana_cost_formula = SubResource("Resource_f77g7")
+cooldown_formula = SubResource("Resource_y2hsg")
+damage_percent_formula = SubResource("Resource_kyvw4")
+max_targets_formula = SubResource("Resource_sdtbl")
+max_hits_formula = SubResource("Resource_jl11m")
+cast_time_formula = SubResource("Resource_hs673")
+
+[resource]
+script = ExtResource("5_q8rmi")
+ability_id = "1116110711-9512-1413913-1115515-145129116968813"
+ability_name = "FMA"
+description = "Debug Attack - Hits $[target_count] targets $[hit_count] times for $[damage_percent]"
+ability_icon = SubResource("AtlasTexture_0dvw3")
+max_level = 1
+required_class = Array[int]([0])
+required_weapon_types = Array[int]([0])
+active_behavior = SubResource("Resource_yl5mh")
+scaling_data = SubResource("Resource_ut2o4")

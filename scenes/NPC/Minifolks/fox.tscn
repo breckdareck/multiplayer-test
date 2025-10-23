@@ -1,15 +1,30 @@
-[gd_scene load_steps=32 format=3 uid="uid://sxpgdsdpf5ma"]
+[gd_scene load_steps=35 format=3 uid="uid://sxpgdsdpf5ma"]
 
 [ext_resource type="Script" uid="uid://cj6lu2r6oxt6o" path="res://scripts/Enemy/enemy_base.gd" id="1_52mqf"]
-[ext_resource type="Curve" uid="uid://q6qc5kgdbmyv" path="res://monster_hp_curve.tres" id="2_6wkew"]
+[ext_resource type="Curve" uid="uid://q6qc5kgdbmyv" path="res://assets/curves/monster_hp_curve.tres" id="2_6wkew"]
 [ext_resource type="Script" uid="uid://dhhn4ks2uixk8" path="res://scripts/Components/health.gd" id="2_ctmy0"]
 [ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="3_jlvhy"]
-[ext_resource type="Curve" uid="uid://la82to0yhbrk" path="res://monster_exp_curve.tres" id="3_tvc6h"]
+[ext_resource type="Curve" uid="uid://la82to0yhbrk" path="res://assets/curves/monster_exp_curve.tres" id="3_tvc6h"]
 [ext_resource type="Texture2D" uid="uid://duxln2q5od5p7" path="res://assets/sprites/MinifolksForestAnimals/Outline/MiniFox.png" id="4_52mqf"]
+[ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="4_tvc6h"]
 [ext_resource type="Script" uid="uid://dwv2k28spwfby" path="res://scripts/StateMachine/state_machine.gd" id="5_as4mp"]
 [ext_resource type="Script" uid="uid://u6b813y5rtm4" path="res://scripts/Enemy/StateMachine/enemy_idle.gd" id="6_tdvmf"]
 [ext_resource type="Script" uid="uid://dk2rcptcq3hb8" path="res://scripts/Enemy/StateMachine/enemy_patrol.gd" id="7_eiy2a"]
 [ext_resource type="Script" uid="uid://bfh8yeyv2wu0g" path="res://scripts/Player/StateMachine/death.gd" id="8_y20q3"]
+
+[sub_resource type="Resource" id="Resource_5ja2b"]
+script = ExtResource("4_tvc6h")
+item_name = "Coin"
+drop_chance = 1.0
+min_amount = 99999
+max_amount = 999999
+metadata/_custom_type_script = "uid://cucvsoha2s1kj"
+
+[sub_resource type="Resource" id="Resource_qhvxh"]
+script = ExtResource("4_tvc6h")
+item_name = "Iron Sword"
+drop_chance = 0.1
+metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_n6pvg"]
 properties/0/path = NodePath(".:position")
@@ -181,6 +196,7 @@ health_component = NodePath("Health")
 movement_speed = 45.0
 health_curve = ExtResource("2_6wkew")
 experience_curve = ExtResource("3_tvc6h")
+item_drops = Array[ExtResource("4_tvc6h")]([SubResource("Resource_5ja2b"), SubResource("Resource_qhvxh")])
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 delta_interval = 0.015

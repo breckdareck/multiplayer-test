@@ -5,7 +5,7 @@ extends Node
 var class_data: Dictionary[Constants.ClassType, ClassData] = {}
 
 var item_data: Dictionary[String, ItemData] = {}
-var item_by_name: Dictionary[String, ItemData] = {} # New lookup dictionary
+var item_by_name: Dictionary[String, ItemData] = {}
 
 var ability_data: Dictionary[String, AbilityData] = {}
 var ability_by_name: Dictionary[String, AbilityData] = {}

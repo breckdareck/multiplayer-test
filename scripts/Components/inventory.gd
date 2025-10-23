@@ -5,11 +5,15 @@ extends Node
 @export var equipment_component: EquipmentComponent
 @export var monies_label: Label
 
+const MAX_MONIES_AMOUNT: int = 999999999
 var monies_amount: int = 0:
 	set(value):
+		if value > MAX_MONIES_AMOUNT:
+			monies_amount = MAX_MONIES_AMOUNT
+		else:
+			monies_amount = value
 		monies_label.text = format_number_with_commas(value)
-		monies_amount = value
-		
+		_notify_changed()
 
 var slots: Array[Slot] = []
 
@@ -380,6 +384,7 @@ func save_inventory() -> Dictionary:
 
 	inventory_data["slots"] = slot_data
 	inventory_data["equipment"] = equipment_data
+	inventory_data["monies"] = monies_amount
 	return inventory_data
 
 
@@ -441,6 +446,8 @@ func _apply_inventory_data(inventory_data: Dictionary) -> void:
 					target_slot.update_display()
 				else:
 					print("Failed to load equipment item with ID: " + eq_item_id)
+					
+	monies_amount = inventory_data.get("monies", 0)
 	
 	# Rebuild tracking after loading
 	_rebuild_item_tracking()

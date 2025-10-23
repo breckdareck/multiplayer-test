@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://yibpus3whwuj" path="res://scripts/Player/multiplayer_controller_v2.gd" id="1_an8q1"]
 [ext_resource type="Script" uid="uid://cy1j38lpy671e" path="res://scripts/Player/multiplayer_input.gd" id="2_hxkm2"]
 [ext_resource type="Script" uid="uid://ys6acovxq2iq" path="res://scripts/Components/level.gd" id="3_18ciy"]
-[ext_resource type="Curve" uid="uid://ck1du2i5bxyya" path="res://leveling_curve.tres" id="4_4ni0x"]
+[ext_resource type="Curve" uid="uid://ck1du2i5bxyya" path="res://assets/curves/leveling_curve.tres" id="4_4ni0x"]
 [ext_resource type="Script" uid="uid://71v08yv5tjrt" path="res://scripts/Components/stats.gd" id="4_cg2hl"]
 [ext_resource type="Script" uid="uid://dhhn4ks2uixk8" path="res://scripts/Components/health.gd" id="5_o05ft"]
 [ext_resource type="Script" uid="uid://dulwlk4wjgot3" path="res://scripts/Components/class.gd" id="6_nbg44"]
@@ -91,6 +91,9 @@ properties/3/replication_mode = 2
 properties/4/path = NodePath("Leveling:experience")
 properties/4/spawn = true
 properties/4/replication_mode = 2
+properties/5/path = NodePath("Inventory:monies_amount")
+properties/5/spawn = true
+properties/5/replication_mode = 2
 
 [sub_resource type="Gradient" id="Gradient_2qjlr"]
 colors = PackedColorArray(0.15, 0.15, 0.15, 1, 0.14902, 0.14902, 0.14902, 1)

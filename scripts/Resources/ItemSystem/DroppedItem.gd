@@ -114,8 +114,10 @@ func _pickup_item() -> void:
 	# Add item to player's inventory
 	if target_player and target_player.inventory_component:
 		print("DroppedItem: Adding %dx %s to player inventory" % [stack_amount, item_data.name])
+		if item_data.name == "Coin":
+			target_player.inventory_component.monies_amount += stack_amount
 		# For stackable items, add with the stack amount
-		if item_data.can_stack and stack_amount > 1:
+		elif item_data.can_stack and stack_amount > 1:
 			for i in range(stack_amount):
 				target_player.inventory_component.add_item(item_data.item_id)
 		else:
