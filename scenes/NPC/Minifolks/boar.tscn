@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=3 uid="uid://betkg72vd7iav"]
+[gd_scene load_steps=36 format=3 uid="uid://betkg72vd7iav"]
 
 [ext_resource type="Script" uid="uid://cj6lu2r6oxt6o" path="res://scripts/Enemy/enemy_base.gd" id="1_nrg6h"]
 [ext_resource type="Curve" uid="uid://q6qc5kgdbmyv" path="res://monster_hp_curve.tres" id="2_71sob"]
@@ -6,10 +6,24 @@
 [ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="3_2dhth"]
 [ext_resource type="Curve" uid="uid://la82to0yhbrk" path="res://monster_exp_curve.tres" id="3_7bg18"]
 [ext_resource type="Texture2D" uid="uid://cgk01jgw2vtk" path="res://assets/sprites/MinifolksForestAnimals/Outline/MiniBoar.png" id="4_ehibi"]
+[ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="4_q006m"]
+[ext_resource type="Resource" uid="uid://b87geqay7jh11" path="res://resources/DropTables/CoinDrop.tres" id="5_q34qd"]
 [ext_resource type="Script" uid="uid://dwv2k28spwfby" path="res://scripts/StateMachine/state_machine.gd" id="11_85v0n"]
 [ext_resource type="Script" uid="uid://u6b813y5rtm4" path="res://scripts/Enemy/StateMachine/enemy_idle.gd" id="12_c7p7b"]
 [ext_resource type="Script" uid="uid://dk2rcptcq3hb8" path="res://scripts/Enemy/StateMachine/enemy_patrol.gd" id="13_fpvu7"]
 [ext_resource type="Script" uid="uid://bfh8yeyv2wu0g" path="res://scripts/Player/StateMachine/death.gd" id="15_mlgs2"]
+
+[sub_resource type="Resource" id="Resource_q006m"]
+script = ExtResource("4_q006m")
+item_name = "Test Chest"
+drop_chance = 0.1
+metadata/_custom_type_script = "uid://cucvsoha2s1kj"
+
+[sub_resource type="Resource" id="Resource_q34qd"]
+script = ExtResource("4_q006m")
+item_name = "Test Hat"
+drop_chance = 0.1
+metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_n6pvg"]
 properties/0/path = NodePath(".:position")
@@ -182,6 +196,7 @@ monster_level = 3
 movement_speed = 45.0
 health_curve = ExtResource("2_71sob")
 experience_curve = ExtResource("3_7bg18")
+item_drops = Array[ExtResource("4_q006m")]([ExtResource("5_q34qd"), SubResource("Resource_q006m"), SubResource("Resource_q34qd")])
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 delta_interval = 0.015

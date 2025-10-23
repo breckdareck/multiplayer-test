@@ -1,0 +1,25 @@
+[gd_scene load_steps=4 format=3 uid="uid://b43dktokqxhjo"]
+
+[ext_resource type="Script" uid="uid://ci5jyu7qqdk76" path="res://scripts/Resources/ItemSystem/DroppedItem.gd" id="1_8xljp"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_y52g2"]
+radius = 8.0
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_8xljp"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+
+[node name="DroppedItem" type="CharacterBody2D" node_paths=PackedStringArray("sprite", "collision_shape")]
+script = ExtResource("1_8xljp")
+sprite = NodePath("Sprite2D")
+collision_shape = NodePath("CollisionShape2D")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+z_index = 5
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_y52g2")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_8xljp")

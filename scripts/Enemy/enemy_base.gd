@@ -13,11 +13,16 @@ signal ready_for_pooling
 @export var respawnable: bool
 @export var respawn_delay: int = 10
 
+@export_category("Drops")
+@export var item_drops: Array[ItemDropResource] = []
+const DROPPED_ITEM = preload("uid://b43dktokqxhjo")
+
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var state_machine: StateMachine = $StateMachine
 @onready var attack_hitbox: Area2D = $AttackHitbox
 @onready var body_hitbox: Area2D = $BodyHitbox
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
+
 
 var experience_reward: int = 0:
 	get():
@@ -65,6 +70,7 @@ func _process(delta: float) -> void:
 				if body is MultiplayerPlayerV2:
 					damage_on_overlap(body)
 
+
 func _physics_process(delta: float) -> void:
 	if _is_being_cleaned_up:
 		return
@@ -99,6 +105,7 @@ func _on_enemy_died(_killer: Node) -> void:
 		if player and player.has_method("gain_experience"):
 			print("PID: %s did %s%% damage to %s gaining %s exp" % [str(player_id), share*100, name, str(exp_amount)])
 			player.gain_experience(exp_amount)
+		_spawn_drops(player)
 		
 	attack_hitbox.monitoring = false
 	body_hitbox.monitoring = false
@@ -110,6 +117,49 @@ func _on_enemy_died(_killer: Node) -> void:
 	# On dedicated server, AnimatedSprite2D is stripped, so trigger pooling after delay
 	if OS.has_feature("dedicated_server"):
 		get_tree().create_timer(post_death_delay).timeout.connect(emit_ready_for_pooling)
+
+
+func _spawn_drops(player: MultiplayerPlayerV2) -> void:
+	if not multiplayer.is_server():
+		return
+	
+	for drop_resource in item_drops:
+		if drop_resource == null:
+			continue
+		
+		# Check if this drop should occur
+		if not drop_resource.should_drop():
+			continue
+		
+		# Get the item data
+		var item = drop_resource.get_item_data()
+		if item == null:
+			push_warning("Item '%s' not found in ResourceManager" % drop_resource.item_name)
+			continue
+		
+		# Determine stack amount
+		var amount = drop_resource.get_drop_amount()
+		
+		# Create dropped item instance
+		var dropped_item = DROPPED_ITEM.instantiate() as DroppedItem
+		
+		# Position it at enemy's location with slight offset to prevent stacking
+		var offset = Vector2(randf_range(-10, 10), randf_range(-10, 0))
+		dropped_item.global_position = global_position + offset
+		
+		# Setup the dropped item
+		dropped_item.setup(item, amount, player)
+		
+		# Add to scene
+		get_tree().current_scene.get_node("Level/Game").add_child(dropped_item, true)
+		
+		rpc("client_setup_item", dropped_item.get_path(), item.item_id)
+		
+		print("Enemy '%s' dropped %dx %s for player %s" % [name, amount, item.name, player.username])
+
+@rpc
+func client_setup_item(dropped_item: NodePath, item_id: String):
+	(get_node(dropped_item) as DroppedItem).sprite.texture = ResourceManager.get_item_data(item_id).icon
 
 # --- Object Pooling Methods ---
 

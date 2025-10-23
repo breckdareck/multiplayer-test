@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=16 format=3 uid="uid://m3qm2vpq8c53"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=18 format=3 uid="uid://m3qm2vpq8c53"]
 
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_mwur8"]
 [ext_resource type="Texture2D" uid="uid://cj4kv8pk70aal" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_wrtgt"]
@@ -59,6 +59,20 @@ script = ExtResource("1_mwur8")
 stat_type = 10
 base_value = 0
 
+[sub_resource type="Resource" id="Resource_xmdq5"]
+script = ExtResource("1_mwur8")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 50
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_wrtgt"]
+script = ExtResource("1_mwur8")
+stat_type = 12
+base_value = 0
+flat_bonus_value = 50
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_0opnw"]
 atlas = ExtResource("2_wrtgt")
 region = Rect2(10, 17, 4, 11)
@@ -79,7 +93,9 @@ bonus_stats = Dictionary[int, ExtResource("1_mwur8")]({
 7: SubResource("Resource_rabvq"),
 8: SubResource("Resource_douct"),
 9: SubResource("Resource_myfij"),
-10: SubResource("Resource_gyrbr")
+10: SubResource("Resource_gyrbr"),
+11: SubResource("Resource_xmdq5"),
+12: SubResource("Resource_wrtgt")
 })
 item_id = "014194109-128510-1191114-912111-14125857119013"
 name = "Test Sword 3"

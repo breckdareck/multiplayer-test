@@ -613,6 +613,10 @@ unique_name_in_owner = true
 spawn_path = NodePath("..")
 script = ExtResource("1_ryi0r")
 
+[node name="ItemSpawner" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("uid://b43dktokqxhjo")
+spawn_path = NodePath("..")
+
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(0, -16)
 zoom = Vector2(4, 4)

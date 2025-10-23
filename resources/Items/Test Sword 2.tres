@@ -63,14 +63,14 @@ base_value = 0
 script = ExtResource("1_omroi")
 stat_type = 11
 base_value = 0
-flat_bonus_value = 15
+flat_bonus_value = 30
 metadata/_custom_type_script = "uid://cptesvvlfbytw"
 
 [sub_resource type="Resource" id="Resource_2m5o5"]
 script = ExtResource("1_omroi")
 stat_type = 12
 base_value = 0
-flat_bonus_value = 15
+flat_bonus_value = 30
 metadata/_custom_type_script = "uid://cptesvvlfbytw"
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0opnw"]

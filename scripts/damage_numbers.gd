@@ -74,9 +74,7 @@ func spawn_damage_number(args: Array) -> Label:
 	
 	gradient_texture.texture = NORMAL_HIT_GRADIENT_TEXTURE_2D
 	gradient_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	gradient_texture.offset_bottom += 1
 	gradient_texture.offset_right += 1
-	gradient_texture.offset_left += -1
 	gradient_texture.offset_top += -1
 	
 	if args[3]:

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ItemDropResource" load_steps=2 format=3 uid="uid://b87geqay7jh11"]
+
+[ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_npx5a"]
+
+[resource]
+script = ExtResource("1_npx5a")
+item_name = "Coin"
+drop_chance = 0.9
+max_amount = 10
+metadata/_custom_type_script = "uid://cucvsoha2s1kj"
