@@ -19,7 +19,7 @@ sprite_frames = Dictionary[int, SpriteFrames]({
 1: ExtResource("2_moyle"),
 15: ExtResource("3_6g1x3")
 })
-skills = Array[ExtResource("3_lkye1")]([ExtResource("4_qbbda"), ExtResource("5_03no5"), ExtResource("6_kdifu"), ExtResource("7_ncog3"), ExtResource("8_a26lb"), ExtResource("9_6veq4")])
+skills = Array[ExtResource("3_lkye1")]([ExtResource("6_kdifu"), ExtResource("8_a26lb"), ExtResource("4_qbbda"), ExtResource("5_03no5"), ExtResource("7_ncog3"), ExtResource("9_6veq4")])
 description = "A melee warrior with high strength and vitality."
 icon = ExtResource("1_6g1x3")
 secondary_stat = 2

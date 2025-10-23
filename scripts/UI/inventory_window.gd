@@ -3,6 +3,7 @@ extends Control
 
 @onready var inventory_window: Control = $"."
 @onready var window_title_label: Label = $Label
+@onready var monies_count_label: Label = $HBoxContainer/Panel/MoniesCountLabel
 
 var player: MultiplayerPlayerV2
 

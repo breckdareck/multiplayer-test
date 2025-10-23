@@ -3,9 +3,13 @@ extends Node
 
 @export var inventory_grids: Array[GridContainer]
 @export var equipment_component: EquipmentComponent
+@export var monies_label: Label
 
-@export_category("Debug")
-@export var debug_item: ItemData
+var monies_amount: int = 0:
+	set(value):
+		monies_label.text = format_number_with_commas(value)
+		monies_amount = value
+		
 
 var slots: Array[Slot] = []
 
@@ -18,6 +22,26 @@ var pending_transfers: Dictionary = {}
 
 # Buffer for inventory data received before this node enters the scene tree/has slots
 var pending_inventory_data: Dictionary = {}
+
+
+func format_number_with_commas(number: int) -> String:
+	var num_str: String = str(abs(number))  # Convert to string and handle absolute value
+	var result: String = ""
+	var count: int = 0
+
+	# Iterate from right to left to insert commas
+	for i in range(num_str.length() - 1, -1, -1):
+		result = num_str[i] + result
+		count += 1
+		# Insert a comma every three digits, but not at the very beginning
+		if count % 3 == 0 and i != 0:
+			result = "," + result
+	
+	# Add negative sign if original number was negative
+	if number < 0:
+		result = "-" + result
+		
+	return result
 
 
 # Notify the owning player on the server that inventory data changed
@@ -196,6 +220,10 @@ func server_add_item(item_id: String):
 	var player = _get_player()
 	if not player:
 		print("Cannot add item: no player found")
+		return
+		
+	if item_name == "Coin":
+		monies_amount += original_item.current_stack_amount
 		return
 
 	# --- Try to stack with existing items in valid slots ---

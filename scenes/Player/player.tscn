@@ -1,4 +1,4 @@
-[gd_scene load_steps=103 format=3 uid="uid://bdtdpx0d05sy3"]
+[gd_scene load_steps=105 format=3 uid="uid://bdtdpx0d05sy3"]
 
 [ext_resource type="Script" uid="uid://yibpus3whwuj" path="res://scripts/Player/multiplayer_controller_v2.gd" id="1_an8q1"]
 [ext_resource type="Script" uid="uid://cy1j38lpy671e" path="res://scripts/Player/multiplayer_input.gd" id="2_hxkm2"]
@@ -8,7 +8,6 @@
 [ext_resource type="Script" uid="uid://dhhn4ks2uixk8" path="res://scripts/Components/health.gd" id="5_o05ft"]
 [ext_resource type="Script" uid="uid://dulwlk4wjgot3" path="res://scripts/Components/class.gd" id="6_nbg44"]
 [ext_resource type="Script" uid="uid://4rpdmxp15xwq" path="res://scripts/Components/combat.gd" id="7_jn0uf"]
-[ext_resource type="Resource" uid="uid://byntxvelo4s87" path="res://resources/Items/Iron Sword.tres" id="10_e8txv"]
 [ext_resource type="Script" uid="uid://boxv5npw3xeg3" path="res://scripts/Player/player_hud.gd" id="11_ihqbe"]
 [ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="12_cgmen"]
 [ext_resource type="Script" uid="uid://dbmsw7l1mf6nj" path="res://scripts/Components/buff.gd" id="13_e6s7e"]
@@ -40,6 +39,7 @@
 [ext_resource type="Script" uid="uid://djwyi64hs6ufi" path="res://scripts/UI/equipment_slot.gd" id="25_cgmen"]
 [ext_resource type="Script" uid="uid://d0ixu8eft25uo" path="res://scripts/UI/equipment_window.gd" id="25_fqhit"]
 [ext_resource type="Texture2D" uid="uid://rmxapeohsar7" path="res://assets/sprites/MinifolksHumans/Outline/MiniTemplate.png" id="29_7iww4"]
+[ext_resource type="Texture2D" uid="uid://u3tpikp1eegv" path="res://assets/sprites/coin.png" id="29_pnj8v"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_2d20i"]
 properties/0/path = NodePath(".:player_id")
@@ -294,6 +294,23 @@ bg_color = Color(0.952941, 0.666667, 0, 1)
 corner_radius_top_left = 5
 corner_radius_top_right = 5
 expand_margin_top = 3.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4xm4e"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3547774, 0.35477757, 0.35477746, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+anti_aliasing = false
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fcv6u"]
+atlas = ExtResource("29_pnj8v")
+region = Rect2(0, 0, 16, 16)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tuhj4"]
 bg_color = Color(1, 1, 1, 1)
@@ -560,11 +577,11 @@ position = Vector2(0, -30)
 delta_interval = 0.05
 replication_config = SubResource("SceneReplicationConfig_x5q00")
 
-[node name="Inventory" type="Node" parent="Components" node_paths=PackedStringArray("inventory_grids", "equipment_component")]
+[node name="Inventory" type="Node" parent="Components" node_paths=PackedStringArray("inventory_grids", "equipment_component", "monies_label")]
 script = ExtResource("15_cg2hl")
 inventory_grids = [NodePath("../../CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/EQUIP/ScrollContainer/EquipmentGrid"), NodePath("../../CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/USE/ScrollContainer/ConsumableGrid"), NodePath("../../CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid")]
 equipment_component = NodePath("../Equipment")
-debug_item = ExtResource("10_e8txv")
+monies_label = NodePath("../../CanvasLayer/MoveableWindows/InventoryWindow/HBoxContainer/Panel/MoniesCountLabel")
 
 [node name="Equipment" type="Node" parent="Components" node_paths=PackedStringArray("head_slot", "chest_slot", "legs_slot", "feet_slot", "weapon_slot")]
 script = ExtResource("13_ihqbe")
@@ -1627,7 +1644,7 @@ anchor_bottom = 1.0
 offset_left = 9.0
 offset_top = 42.0
 offset_right = -8.0
-offset_bottom = -70.0
+offset_bottom = -56.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_unselected_color = Color(1, 1, 1, 1)
@@ -2391,6 +2408,73 @@ allowed_item_type = 3
 [node name="Slot56" parent="CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("15_18ciy")]
 layout_mode = 2
 allowed_item_type = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/MoveableWindows/InventoryWindow"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 6.0
+offset_top = -53.0
+offset_right = -6.0
+offset_bottom = -5.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 1
+
+[node name="Panel2" type="Panel" parent="CanvasLayer/MoveableWindows/InventoryWindow/HBoxContainer"]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_4xm4e")
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer/MoveableWindows/InventoryWindow/HBoxContainer/Panel2"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("AtlasTexture_fcv6u")
+expand_mode = 2
+stretch_mode = 4
+
+[node name="Panel" type="Panel" parent="CanvasLayer/MoveableWindows/InventoryWindow/HBoxContainer"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_4xm4e")
+
+[node name="MoniesCountLabel" type="Label" parent="CanvasLayer/MoveableWindows/InventoryWindow/HBoxContainer/Panel"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -170.0
+offset_top = -13.0
+offset_right = -2.0
+offset_bottom = 13.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("12_cgmen")
+text = "0"
+horizontal_alignment = 2
+vertical_alignment = 1
+clip_text = true
+
+[node name="Label" type="Label" parent="CanvasLayer/MoveableWindows/InventoryWindow/HBoxContainer"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("14_e8txv")
+theme_override_font_sizes/font_size = 16
+text = "Monies"
+horizontal_alignment = 2
+vertical_alignment = 1
 
 [node name="EquipmentWindow" type="Panel" parent="CanvasLayer/MoveableWindows"]
 visible = false
