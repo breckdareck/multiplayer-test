@@ -13,6 +13,12 @@ Welcome to the **Multiplayer Godot Project**! This project is a demonstration of
 - Killzones that trigger server-authoritative death
 - Droppable one-way platforms and mobile HUD support
 - Enemy AI and spawners
+- **Ability System**: Learn and level up abilities with skill points, active/passive abilities with cooldowns
+- **Buff/Debuff System**: Temporary stat modifications with stacking, refresh, and custom logic
+- **Equipment System**: Equip armor and weapons with stat bonuses and visual changes
+- **Inventory System**: Item management with stacking, drag-and-drop, and server validation
+- **Resource Management**: Centralized loading and caching of game data
+- **Advanced UI**: Draggable windows for abilities, equipment, stats, and inventory
 
 ## Screenshots
 
@@ -21,6 +27,12 @@ Welcome to the **Multiplayer Godot Project**! This project is a demonstration of
 
 ### In-Game View
 ![In-Game](README/In_game_view.png)
+
+### UI Systems
+![Stats and Inventory Windows](README/stats_inventory_windows.png)
+
+### Ability System
+![Ability Window](README/ability_window.png)
 
 ## Getting Started
 
@@ -76,6 +88,15 @@ Notes:
     - State: `active_players: { id -> {character_type, spawn_time, synced} }`.
     - Public API: `add_host_player()`, `add_player(id)`, `remove_player(id)`, `cleanup()`, `force_respawn_player(id)`, info getters.
     - Behavior: on join, requests client character selection via RPC, spawns the chosen character under `Level/Players`, syncs existing networked entities to the new peer, and updates tracking; removes entities on disconnect.
+  - `resource_manager.gd`
+    - Centralized resource loading and caching system.
+    - Manages: `class_data`, `item_data`, `ability_data`, `buff_data` dictionaries.
+    - Public API: `get_item_data()`, `get_ability_data()`, `get_buff_data()`, `get_class_data()`.
+    - Behavior: loads all game resources on startup; provides ID and name-based lookups; supports both UUID and string identifiers.
+  - `music_manager.gd`
+    - Audio management for background music and sound effects.
+    - Public API: `play_song(path)`.
+    - Behavior: handles audio stream loading and playback.
 
 - `Networking/`
   - `channel_manager.gd`
@@ -144,6 +165,30 @@ The player and enemies are composed from small, focused components that live as 
   - Damage formula: starts from `AttackData.damage`, then applies class-appropriate scaling from Stats (e.g., STR/DEX/INT bonuses).
   - Debounce: `hit_list` ensures a body is only hit once per attack window.
 
+- Ability (`scripts/Components/ability.gd`)
+  - Manages character abilities including learning, leveling, usage, cooldowns, and passive effects.
+  - Signals: `ability_used`, `cooldown_started`, `ability_leveled_up`, `ability_learned`, `ability_points_changed`.
+  - Features: skill point system, ability prerequisites, passive stat bonuses, proc effects, multiplayer synchronization.
+  - Integration: works with ClassComponent, StatsComponent, and LevelingComponent.
+
+- Buff (`scripts/Components/buff.gd`)
+  - Manages temporary and permanent buffs/debuffs with stat modifications and custom logic.
+  - Signals: `buff_applied`, `buff_removed`, `buff_refreshed`.
+  - Features: stacking behavior (refresh/stack/ignore), duration tracking, custom script execution.
+  - Integration: provides stat modifiers to StatsComponent, supports reactive buffs on damage events.
+
+- Equipment (`scripts/Components/equipment.gd`)
+  - Manages character equipment slots (head, chest, legs, feet, weapon) with type restrictions.
+  - Signals: `on_equipment_changed`.
+  - Features: equipment type validation, stat bonus application, visual changes.
+  - Integration: works with InventoryComponent for item management and StatsComponent for stat bonuses.
+
+- Inventory (`scripts/Components/inventory.gd`)
+  - Comprehensive item management system with stacking, drag-and-drop, and server validation.
+  - Features: item tracking, stack management, equipment integration, multiplayer synchronization.
+  - UI: supports multiple inventory grids, equipment slots, currency display.
+  - Networking: client-side optimistic updates with server validation and rollback on conflicts.
+
 - Debug (`scripts/Components/debug.gd`)
   - Dev-only panel with buttons to heal, damage (ignoring invuln), force revive, and grant EXP to next level.
   - Hooks into the player via `set_player()` and health via `set_health_component()`.
@@ -152,10 +197,14 @@ The player and enemies are composed from small, focused components that live as 
   - Utility for verifying wiring in scenes; prints summaries for Class, Stats, Leveling, Health, and Combat and supports quick class/level tests.
 
 Component wiring guidelines
-- Put these as children on the character root (e.g., `Player/Health`, `Player/Stats`, `Player/Leveling`, `Player/Class`, `Player/Combat`).
-- In `MultiplayerPlayerV2`, set the exported references (`health_component`, `combat_component`, `level_component`, `stats_component`, `class_component`, `debug_component`).
+- Put these as children on the character root (e.g., `Player/Health`, `Player/Stats`, `Player/Leveling`, `Player/Class`, `Player/Combat`, `Player/Ability`, `Player/Buff`, `Player/Equipment`, `Player/Inventory`).
+- In `MultiplayerPlayerV2`, set the exported references (`health_component`, `combat_component`, `level_component`, `stats_component`, `class_component`, `debug_component`, `ability_component`, `buff_component`, `equipment_component`, `inventory_component`).
 - Health: set `health_bar_path` to your HUD ProgressBar.
 - Combat: assign `attack_hitbox` and populate `attack_map` with `AttackData` resources.
+- Ability: requires ClassComponent and StatsComponent siblings; connects to LevelingComponent for skill points.
+- Buff: requires StatsComponent sibling; connects to HealthComponent for reactive buffs.
+- Equipment: configure slot references (head_slot, chest_slot, legs_slot, feet_slot, weapon_slot).
+- Inventory: configure inventory_grids array and equipment_component reference.
 
 Example wiring
 ```gdscript
@@ -167,6 +216,82 @@ attack_map = {
 attack_hitbox = $"../../Hitbox/BasicAttackHitbox"
 ```
 
+## UI Systems
+
+The project includes comprehensive UI systems for managing character progression and equipment:
+
+- **Ability Window** (`scripts/UI/ability_window.gd`)
+  - Draggable window for managing character abilities and skill points.
+  - Features: ability list, detailed stats comparison, level-up interface, prerequisite checking.
+  - Controls: `OpenAbilityWindow` input action toggles visibility.
+  - Integration: connects to AbilityComponent for real-time updates.
+
+- **Equipment Window** (`scripts/UI/equipment_window.gd`)
+  - Draggable window for character equipment management.
+  - Features: equipment slots visualization, drag-and-drop support.
+  - Controls: `OpenEquipmentWindow` input action toggles visibility.
+  - Integration: works with EquipmentComponent and InventoryComponent.
+
+- **Stats Window** (`scripts/UI/stats_window.gd`)
+  - Draggable window displaying comprehensive character statistics.
+  - Features: real-time stat updates, base/bonus breakdown, damage range display.
+  - Controls: `OpenStatsWindow` input action toggles visibility.
+  - Integration: connects to multiple components (Stats, Level, Health, Class) for live updates.
+
+- **Inventory Window** (`scripts/UI/inventory_window.gd`)
+  - Comprehensive item management interface.
+  - Features: grid-based inventory, equipment slots, drag-and-drop, stack management.
+  - Integration: works with InventoryComponent and EquipmentComponent.
+
+- **Hotbar System** (`scripts/UI/hotbar.gd`, `scripts/UI/hotbar_slot.gd`)
+  - Quick-access ability bar for active abilities.
+  - Features: cooldown visualization, ability assignment, key binding support.
+  - Integration: connects to AbilityComponent for ability usage.
+
+- **Buff Bar** (`scripts/UI/buffbar.gd`)
+  - Visual display of active buffs and debuffs.
+  - Features: buff icons, duration timers, stack indicators.
+  - Integration: connects to BuffComponent for real-time updates.
+
+## Resource Systems
+
+The project includes comprehensive resource management for game data:
+
+- **Resource Manager** (`scripts/Managers/resource_manager.gd`)
+  - Centralized loading and caching of all game resources.
+  - Manages: class data, item data, ability data, buff data.
+  - Features: ID and name-based lookups, automatic resource loading on startup.
+  - Public API: `get_item_data()`, `get_ability_data()`, `get_buff_data()`, `get_class_data()`.
+
+- **Ability System Resources** (`scripts/Resources/AbilitySystem/`)
+  - `AbilityData.gd`: Core ability resource with scaling formulas and level data.
+  - `AbilityLevelData.gd`: Per-level ability statistics and scaling.
+  - `AbilityScalingData.gd`: Mathematical formulas for ability progression.
+  - `ActiveBehaviorData.gd`: Active ability behavior configuration.
+  - `ProcEffectData.gd`: Passive ability proc effect definitions.
+
+- **Buff System Resources** (`scripts/Resources/BuffSystem/`)
+  - `BuffData.gd`: Buff/debuff resource with stat modifiers and custom logic.
+  - Features: stacking behavior, duration, custom script execution.
+
+- **Item System Resources** (`scripts/Resources/ItemSystem/`)
+  - Comprehensive item management with equipment, consumables, and currency.
+  - Features: item types, stacking, equipment slots, stat bonuses.
+
+- **Class System Resources** (`scripts/Resources/ClassSystem/`)
+  - `ClassData.gd`: Character class definitions with stat bonuses and abilities.
+  - Features: class-specific skills, sprite frames, stat growth.
+
+- **Ability Logic Scripts** (`scripts/AbilityLogic/`)
+  - Custom ability execution scripts for active abilities.
+  - Examples: `AL_EnhancedBasics.gd`, `AL_PowerGuard.gd`, `AL_SlashBlast.gd`.
+  - Integration: executed by AbilityComponent during ability usage.
+
+- **Buff Logic Scripts** (`scripts/BuffLogic/`)
+  - Custom buff behavior scripts for reactive effects.
+  - Examples: `BL_PowerGuard.gd` for damage reflection.
+  - Integration: executed by BuffComponent for custom buff logic.
+
 ### Character selection and sprites
 - Characters available: Swordsman, Archer, Mage (select in main menu).
 - The server applies class changes and picks the best sprite set based on the player level.
@@ -174,11 +299,18 @@ attack_hitbox = $"../../Hitbox/BasicAttackHitbox"
   - New clients receive the current sprite state on connect to ensure visual consistency.
 
 ### Networking notes
-- Server is authoritative for movement, combat, health, and respawn logic.
-- Clients send intent (jump/attack/down) via RPCs; the server simulates and replicates.
+- Server is authoritative for movement, combat, health, abilities, buffs, equipment, and respawn logic.
+- Clients send intent (jump/attack/down/ability_use) via RPCs; the server simulates and replicates.
 - Networked entities are tagged with the `networked_entities` group for consistent cleanup.
 - When a new player joins, existing entities can sync their state just to that peer (e.g., current animation/state).
 - Main menu UI is updated on host/join to show connection status and the player's unique ID.
+
+### New System Networking
+- **Ability System**: Server-authoritative ability usage with client-side cooldown display. Ability points and levels are synchronized via RPCs.
+- **Buff System**: Server manages buff application/removal with client-side visual updates. Buff stacks and durations are synchronized.
+- **Equipment System**: Server validates equipment changes with client-side optimistic updates and rollback on conflicts.
+- **Inventory System**: Client-side optimistic item movement with server validation. Inventory state is synchronized on connect and changes.
+- **Resource Management**: All resource data is loaded server-side and synchronized to clients on connection.
 
 ### Scene requirements
 - The gameplay scene should have a `Level` node with a `Players` child; spawns are added under `Level/Players`.
@@ -187,11 +319,16 @@ attack_hitbox = $"../../Hitbox/BasicAttackHitbox"
 
 ### Persistence
 - On the server, player data is saved to `player_<username>.json` via RPCs from `multiplayer_controller_v2.gd`.
-- When a player joins, the server will load their file if present and update components (health, level, exp).
+- When a player joins, the server will load their file if present and update components (health, level, exp, abilities, buffs, equipment, inventory).
 - Delete the corresponding `player_<username>.json` file to reset progress.
+
 Details:
-- Save triggers on server when health changes or experience/level changes.
-- Persisted fields include: `username`, `max_health`, `current_health`, `level`, and `experience`.
+- Save triggers on server when health changes, experience/level changes, ability changes, equipment changes, or inventory changes.
+- Persisted fields include: `username`, `max_health`, `current_health`, `level`, `experience`, `ability_levels`, `ability_points`, `active_buffs`, `equipment`, `inventory_slots`, `monies`.
+- **Ability System**: Saves ability levels, available skill points, and hotbar configuration.
+- **Buff System**: Saves active buffs with stacks and remaining duration.
+- **Equipment System**: Saves equipped items in each slot.
+- **Inventory System**: Saves all inventory slots with items and stack amounts, plus currency.
 
 ### Dedicated Server
 - `multiplayer_manager.gd` will start a dedicated server if the build has the `dedicated_server` feature.
@@ -220,7 +357,7 @@ godot --headless --feature dedicated_server --path . -- --port 8080
 - Drop-through: hold `Move Down` and press `Jump` to pass through drop-through platforms. The player temporarily disables collision with the platform's layer.
 
 ### Autoload singletons (expected)
-- `MultiplayerManager`, `ServerManager`, `ClientManager`, `PlayerManager`, `ChannelManager`, `NetworkUtils` should be configured as AutoLoads and accessible globally.
+- `MultiplayerManager`, `ServerManager`, `ClientManager`, `PlayerManager`, `ChannelManager`, `NetworkUtils`, `ResourceManager`, `MusicManager` should be configured as AutoLoads and accessible globally.
 
 ## Credits
 

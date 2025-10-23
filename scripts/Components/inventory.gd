@@ -1,11 +1,12 @@
 class_name InventoryComponent
 extends Node
 
+const MAX_MONIES_AMOUNT: int = 999999999
+
 @export var inventory_grids: Array[GridContainer]
 @export var equipment_component: EquipmentComponent
 @export var monies_label: Label
 
-const MAX_MONIES_AMOUNT: int = 999999999
 var monies_amount: int = 0:
 	set(value):
 		if value > MAX_MONIES_AMOUNT:
