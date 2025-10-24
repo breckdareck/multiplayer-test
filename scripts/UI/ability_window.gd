@@ -31,6 +31,9 @@ const COLOR_DOWNGRADE = "#FF0000" # Red for stat decreases (e.g., cooldown time)
 const COLOR_BASE = "#B0B0B0" # Gray for base stats
 
 func _ready():
+	# Add to ui_window group for drop detection
+	add_to_group("ui_window")
+	
 	if owner is MultiplayerPlayerV2:
 		player = owner as MultiplayerPlayerV2
 		ability_component = player.ability_component

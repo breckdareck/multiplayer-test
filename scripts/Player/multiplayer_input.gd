@@ -65,11 +65,13 @@ func _process(_delta: float) -> void:
 		else:
 			jump.rpc()
 
-	if Input.is_action_just_pressed("Slide"):
-		slide.rpc()
-
 	if Input.is_action_just_pressed("Attack") or Input.is_action_pressed("Attack"):
 		attack.rpc()
+	
+	if Input.is_action_just_pressed("Pickup") or Input.is_action_pressed("Pickup"):
+		pickup.rpc(true)
+	else:
+		pickup.rpc(false)
 
 @rpc("call_local")
 func jump():
@@ -82,15 +84,14 @@ func drop():
 		player.do_drop = true
 
 @rpc("call_local")
-func slide():
-	if multiplayer.is_server() and is_instance_valid(player):
-		if player is MultiplayerPlayer:
-			player.do_slide = true
-
-@rpc("call_local")
 func attack():
 	if multiplayer.is_server() and is_instance_valid(player):
 		player.do_attack = true
+
+@rpc("call_local")
+func pickup(value: bool):
+	if multiplayer.is_server() and is_instance_valid(player):
+		player.do_pickup = value
 
 func _on_left_button_button_down() -> void:
 	if _is_being_cleaned_up:
@@ -122,10 +123,6 @@ func _on_jump_button_pressed() -> void:
 		return
 	jump.rpc()
 
-func _on_slide_button_pressed() -> void:
-	if _is_being_cleaned_up:
-		return
-	slide.rpc()
 
 # Cleanup method called before removal during channel switching
 func cleanup_before_removal():

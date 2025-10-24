@@ -11,6 +11,9 @@ var drag_offset = Vector2()
 
 
 func _ready() -> void:
+	# Add to ui_window group for drop detection
+	add_to_group("ui_window")
+	
 	if owner is MultiplayerPlayerV2:
 		player = owner as MultiplayerPlayerV2
 

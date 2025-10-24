@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=4 uid="uid://d1hwvomjwdrjv"]
+[gd_scene load_steps=36 format=4 uid="uid://d1hwvomjwdrjv"]
 
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/damage_numbers.gd" id="1_ryi0r"]
 [ext_resource type="Texture2D" uid="uid://jorjvuc5wn72" path="res://assets/sprites/world_tileset.png" id="2_l25cu"]
@@ -21,6 +21,7 @@
 [ext_resource type="Texture2D" uid="uid://de0rqgxih2rii" path="res://assets/sprites/MinifolksVillagers2/Original/Outline/MiniSuspiciousMerchant.png" id="21_ukxhe"]
 [ext_resource type="Texture2D" uid="uid://bltuclvu72dcb" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Back_tree_2.png" id="22_lqda6"]
 [ext_resource type="Texture2D" uid="uid://dn66ntccqo3io" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/props_clouds.png" id="23_rm7na"]
+[ext_resource type="Script" uid="uid://igk1rxt26f2i" path="res://scripts/UI/global_drop_handler.gd" id="24_drop_handler"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lnu2h"]
 texture = ExtResource("2_l25cu")
@@ -855,3 +856,15 @@ sprite_frames = SubResource("SpriteFrames_jq5g6")
 animation = &"idle"
 autoplay = "idle"
 frame_progress = 0.99525684
+
+[node name="GlobalDropHandler" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 1152.0
+offset_bottom = 648.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("24_drop_handler")

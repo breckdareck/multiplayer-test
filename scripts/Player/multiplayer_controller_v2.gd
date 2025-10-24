@@ -47,6 +47,7 @@ var input_down: bool = false  # The current down input from the synchronizer
 var do_attack: bool = false
 var do_jump: bool = false
 var do_drop: bool = false
+var do_pickup: bool = false
 
 var _sprite_base_offset_x: float
 var _is_being_cleaned_up: bool = false
@@ -97,7 +98,7 @@ func _process(delta: float) -> void:
 
 	if multiplayer.is_server():
 		state_machine.process_frame(delta)
-
+	
 
 func _physics_process(delta: float) -> void:
 	if _is_being_cleaned_up:
@@ -192,9 +193,7 @@ func cleanup_before_removal():
 	# Clear references that might cause issues
 	menu_container = null
 	
-	
 
-	
 #=============================================================================
 # PRIVATE HELPER METHODS
 #=============================================================================
@@ -259,6 +258,9 @@ func _update_input_from_synchronizer() -> void:
 		direction = 0
 		input_down = false
 
+
+func is_pressing_pickup() -> bool:
+	return do_pickup
 
 func _update_sprite_facing_direction() -> void:
 	if state_machine.current_state and state_machine.current_state.allow_flip:

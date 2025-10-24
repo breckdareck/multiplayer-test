@@ -63,6 +63,9 @@ properties/5/replication_mode = 2
 properties/6/path = NodePath("PlayerWorldHUD/PlayerNameLabel:text")
 properties/6/spawn = true
 properties/6/replication_mode = 2
+properties/7/path = NodePath(".:do_pickup")
+properties/7/spawn = true
+properties/7/replication_mode = 2
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_80evv"]
 properties/0/path = NodePath("InputSynchronizer:input_direction")

@@ -130,7 +130,11 @@ func _notification(what):
 	if what == NOTIFICATION_DRAG_END:
 		modulate = Color.WHITE
 		if is_dragging:
-			restore_drag_to_source()
+			# Check if we should create a dropped item instead of restoring
+			if _should_create_dropped_item():
+				_create_dropped_item()
+			else:
+				restore_drag_to_source()
 			cancel_drag()
 
 func get_preview():
@@ -207,10 +211,6 @@ func can_accept_item(item_to_check: ItemData) -> bool:
 	if not item_to_check:
 		return true # Can always accept nothing (clearing a slot)
 
-	# Optional: uncomment for debugging
-	# print("Slot: %s" % item_to_check.name)
-
-	# General item type check
 	if allowed_item_type != Constants.ItemType.ANY and item_to_check.item_type != allowed_item_type:
 		return false
 
@@ -251,3 +251,73 @@ func _on_mouse_exited():
 	tooltip_text = ""
 	if not is_dragging:
 		modulate = Color.WHITE
+
+func _should_create_dropped_item() -> bool:
+	# Check if we're dragging and the mouse is outside of any UI windows
+	if not is_dragging or not drag_item:
+		return false
+	
+	# Get the current mouse position
+	var mouse_pos = get_global_mouse_position()
+	
+	# Check if mouse is outside of all UI windows
+	var ui_windows = get_tree().get_nodes_in_group("ui_window")
+	for window in ui_windows:
+		if window.visible and window.get_global_rect().has_point(mouse_pos):
+			return false
+	
+	# If we're here, the mouse is outside all UI windows
+	return true
+
+func _create_dropped_item():
+	if not drag_item:
+		return
+	
+	# Find the global drop handler
+	var drop_handler = get_tree().get_first_node_in_group("global_drop_handler")
+	if not drop_handler:
+		# Try to find it by name
+		drop_handler = get_tree().get_first_node_in_group("drop_handler")
+	
+	if drop_handler and drop_handler.has_method("create_dropped_item"):
+		# Find the player to target the dropped item
+		var player = _get_local_player()
+		if player:
+			# Use player's position instead of mouse position
+			var world_pos = player.global_position
+			drop_handler.create_dropped_item(drag_item, drag_amount, world_pos)
+			
+			# Remove the item from the inventory
+			_remove_item_from_inventory()
+		else:
+			print("Slot: Could not find local player for dropped item")
+	else:
+		print("Slot: Could not find global drop handler")
+
+func _screen_to_world_position(screen_position: Vector2) -> Vector2:
+	# Convert screen coordinates to world coordinates
+	var camera = get_viewport().get_camera_2d()
+	if camera:
+		return camera.to_global(screen_position)
+	else:
+		# Fallback: use the screen position directly
+		return screen_position
+
+func _get_local_player() -> Node:
+	# Find the local player
+	var players = get_tree().get_nodes_in_group("Players")
+	for player in players:
+		if player.player_id == owner.player_id:
+			return player
+	return null
+
+func _remove_item_from_inventory():
+	# Remove the item from the inventory
+	if item_container and item_container.has_method("clear_slot"):
+		item_container.clear_slot(self)
+	elif item_container and item_container.has_method("remove_item"):
+		item_container.remove_item(item)
+	else:
+		# Fallback: clear the slot directly
+		item = null
+		update_display()

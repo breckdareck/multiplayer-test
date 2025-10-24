@@ -8,9 +8,17 @@ radius = 8.0
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_8xljp"]
 properties/0/path = NodePath(".:position")
 properties/0/spawn = true
-properties/0/replication_mode = 1
+properties/0/replication_mode = 2
+properties/1/path = NodePath("Sprite2D:scale")
+properties/1/spawn = true
+properties/1/replication_mode = 2
+properties/2/path = NodePath("Sprite2D:frame")
+properties/2/spawn = true
+properties/2/replication_mode = 2
 
-[node name="DroppedItem" type="CharacterBody2D" node_paths=PackedStringArray("sprite", "collision_shape")]
+[node name="DroppedItem" type="CharacterBody2D" node_paths=PackedStringArray("sprite", "collision_shape") groups=["networked_entities"]]
+collision_layer = 0
+collision_mask = 5
 script = ExtResource("1_8xljp")
 sprite = NodePath("Sprite2D")
 collision_shape = NodePath("CollisionShape2D")

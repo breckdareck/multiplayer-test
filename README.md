@@ -137,33 +137,39 @@ High-level host/join flow
 The player and enemies are composed from small, focused components that live as child Nodes on the character scene. All state-changing logic executes on the server; clients submit intent only.
 
 - Health (`scripts/Components/health.gd`)
-  - Exports: `max_health`, `health_bar_path` to a `ProgressBar` UI.
+  - Exports: `max_health`, `health_bar_path` to a `ProgressBar` UI, `damage_number_origin` for damage display.
   - Signals: `health_changed(current, max)`, `damaged(amount, source)`, `died(killer)`.
-  - RPCs: `take_damage(amount, source, ignore_invuln)`, `heal_damage(amount, source)`, `die()`. Guarded so only the server mutates.
-  - Behavior: 0.5s invulnerability after damage; passive regen every ~5s (~10% of max); integrates with `LevelingComponent` to update `max_health` on level up; updates bound UI automatically.
+  - RPCs: `take_damage(amount, source, ignore_invuln, is_crit)`, `heal_damage(amount, source)`, `die()`. Guarded so only the server mutates.
+  - Features: 1s invulnerability after damage; passive regen every 10s based on HPREGEN stat; damage number display; integrates with StatsComponent for max_health calculation.
   - Death/Respawn: sets `is_dead`, emits `died`, and expects the controller to call `respawn()` which restores health to max.
 
 - Stats (`scripts/Components/stats.gd`)
-  - Base stats with per-level growth: strength, dexterity, intelligence, vitality.
-  - Reacts to `LevelingComponent.leveled_up` and `ClassComponent.class_changed` to recalculate.
-  - Provides getters and derived stats: `get_attack_power()`, `get_magic_power()`, `get_defense()`, `get_critical_chance()`.
+  - Comprehensive stat system with base stats, equipment bonuses, ability bonuses, and buff bonuses.
+  - Stats: STRENGTH, DEXTERITY, INTELLIGENCE, LUCK, HEALTH, MANA, HPREGEN, DEFENSE, CRITCHANCE, CRITDAMAGE, WEAPONATTACK, MAGICATTACK.
+  - Integration: reacts to LevelingComponent, ClassComponent, EquipmentComponent, AbilityComponent, and BuffComponent changes.
+  - Features: automatic stat recalculation, loading mode support, server-client synchronization.
+  - Signals: `stats_changed` emitted when stats are recalculated.
 
 - Leveling (`scripts/Components/level.gd`)
   - Signals: `experience_changed(current, exp_to_level)`, `leveled_up(new_level)`.
-  - Exports: `max_level`, `base_exp`, `exp_growth` (exponential curve).
+  - Exports: `max_level`, `level_curve` for EXP requirements.
   - RPC: `add_exp(amount)`; increments EXP, loops level-ups while enough EXP remains.
+  - Features: curve-based EXP system, automatic level progression.
 
 - Class (`scripts/Components/class.gd`)
   - Enum-backed class selection: Swordsman, Archer, Mage.
-  - Exports class bonuses and skills per class; `change_class_rpc(new_class)` for server-authoritative swaps.
-  - On change, emits `class_changed` and triggers Stats recalculation.
+  - Features: class-specific abilities, base stats, stat bonuses, sprite frames.
+  - Integration: loads abilities from ResourceManager, provides class data to other components.
+  - RPC: `change_class_rpc(new_class)` for server-authoritative class changes.
+  - Signals: `class_changed(new_class)` triggers stat recalculation.
 
 - Combat (`scripts/Components/combat.gd`)
-  - Exports: `attack_map: Dictionary[String, AttackData]`, and an `attack_hitbox: CollisionShape2D`.
-  - Usage: server calls `perform_attack(name)`. After a configurable `damage_delay`, enables the hitbox `Area2D`, iterates overlaps once, applies damage, then disables after `attack_duration`.
-  - Orientation: aligns hitbox to owner `facing_direction` each attack.
-  - Damage formula: starts from `AttackData.damage`, then applies class-appropriate scaling from Stats (e.g., STR/DEX/INT bonuses).
-  - Debounce: `hit_list` ensures a body is only hit once per attack window.
+  - Dual attack system: basic attacks and ability attacks with different damage calculations.
+  - Features: hitbox management, target limiting, hit counting, damage variance, critical hits.
+  - Integration: works with StatsComponent, ClassComponent, EquipmentComponent, AbilityComponent.
+  - Basic attacks: weapon-based damage with stat scaling and equipment bonuses.
+  - Ability attacks: ability-specific damage with passive modifiers and target/hit limits.
+  - Damage display: integrates with damage number system for visual feedback.
 
 - Ability (`scripts/Components/ability.gd`)
   - Manages character abilities including learning, leveling, usage, cooldowns, and passive effects.
@@ -199,8 +205,9 @@ The player and enemies are composed from small, focused components that live as 
 Component wiring guidelines
 - Put these as children on the character root (e.g., `Player/Health`, `Player/Stats`, `Player/Leveling`, `Player/Class`, `Player/Combat`, `Player/Ability`, `Player/Buff`, `Player/Equipment`, `Player/Inventory`).
 - In `MultiplayerPlayerV2`, set the exported references (`health_component`, `combat_component`, `level_component`, `stats_component`, `class_component`, `debug_component`, `ability_component`, `buff_component`, `equipment_component`, `inventory_component`).
-- Health: set `health_bar_path` to your HUD ProgressBar.
-- Combat: assign `attack_hitbox` and populate `attack_map` with `AttackData` resources.
+- Health: set `health_bar_path` to your HUD ProgressBar and `damage_number_origin` for damage display.
+- Stats: requires LevelingComponent, ClassComponent, EquipmentComponent, AbilityComponent, and BuffComponent for full functionality.
+- Combat: assign `attack_hitbox` and configure weapon_multiplier; integrates with multiple components for damage calculation.
 - Ability: requires ClassComponent and StatsComponent siblings; connects to LevelingComponent for skill points.
 - Buff: requires StatsComponent sibling; connects to HealthComponent for reactive buffs.
 - Equipment: configure slot references (head_slot, chest_slot, legs_slot, feet_slot, weapon_slot).
@@ -209,11 +216,15 @@ Component wiring guidelines
 Example wiring
 ```gdscript
 # In the Inspector for CombatComponent
-attack_map = {
-    "basic": preload("res://resources/Player/Attacks/attack_1.tres"),
-    "heavy": preload("res://resources/Player/Attacks/attack_2.tres")
-}
 attack_hitbox = $"../../Hitbox/BasicAttackHitbox"
+weapon_multiplier = 1.2  # Adjust based on weapon type
+
+# In the Inspector for HealthComponent
+health_bar_path = NodePath("../../CanvasLayer/PlayerHUD/HealthBar")
+damage_number_origin = $"../../DamageNumberOrigin"
+
+# In the Inspector for StatsComponent
+# Stats are automatically configured, but ensure proper component references
 ```
 
 ## UI Systems

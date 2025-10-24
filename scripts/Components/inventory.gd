@@ -310,6 +310,17 @@ func remove_item_from_stack(item: ItemData, amount: int = 1):
 	print("Item not found")
 	return 0
 
+func clear_slot(slot: Slot):
+	"""Clear a specific slot and update tracking"""
+	if slot in slots:
+		var old_item = slot.item
+		slot.item = null
+		slot.update_display()
+		_update_item_tracking(slot, old_item, null)
+		_notify_changed()
+	else:
+		print("Slot not found in inventory")
+
 
 func get_item_count(item_name: String) -> int:
 	return item_counts.get(item_name, 0)

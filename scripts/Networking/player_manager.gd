@@ -186,6 +186,9 @@ func _sync_entities_to_player(id: int):
 		if state_machine and state_machine.has_method("sync_state_to_peer"):
 			state_machine.sync_state_to_peer(id)
 			entity_count += 1
+		if (entity is DroppedItem):
+			entity.sync_state_to_peer(id)
+			entity_count += 1
 	
 	if entity_count > 0:
 		print("Synced %d entities to player %d" % [entity_count, id])
