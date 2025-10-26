@@ -570,7 +570,6 @@ visibility_update_mode = 1
 
 [node name="InputSynchronizer" type="MultiplayerSynchronizer" parent="."]
 unique_name_in_owner = true
-delta_interval = 0.05
 replication_config = SubResource("SceneReplicationConfig_80evv")
 script = ExtResource("2_hxkm2")
 

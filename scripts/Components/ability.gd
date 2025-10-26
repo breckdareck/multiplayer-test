@@ -54,10 +54,10 @@ var _cooldowns: Dictionary = {}  # { ability_id: time_remaining }
 var _ability_levels: Dictionary = {} # { ability_id: current_level }
 var _available_ability_points: int = 0
 
-# NEW: Track proc cooldowns per passive ability
+# Track proc cooldowns per passive ability
 var _passive_proc_cooldowns: Dictionary = {}  # { "ability_id_event_type": last_proc_time }
 
-# NEW: Track active passive abilities for easy access
+# Track active passive abilities for easy access
 var _active_passive_abilities: Array[AbilityData] = []
 
 # UI references
@@ -111,42 +111,27 @@ func _process(delta: float) -> void:
 #region #################### Public API ####################
 ## Attempts to use an ability.
 func use_ability(ability_id: String) -> bool:
-	var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
-	if not ability:
-		printerr("Ability ID '%s' not found." % ability_id)
-		return false
-
-	var ability_level := get_ability_level(ability_id)
-	if ability_level <= 0:
-		print("Ability '%s' has not been learned." % ability.ability_name)
-		return false
-
-	if ability.ability_type != Constants.AbilityType.ACTIVE:
-		print("Ability '%s' is not an active ability." % ability.ability_name)
+	var validation = _validate_ability_use(ability_id)
+	if not validation.valid:
 		return false
 	
 	# Client-side check to prevent sending pointless requests
 	if _cooldowns.has(ability_id):
-		print("Ability '%s' is on cooldown." % ability.ability_name)
+		print("Ability '%s' is on cooldown." % validation.ability.ability_name)
 		return false
 		
 	# In multiplayer, clients request the server to use the ability.
-	if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
+	if _is_multiplayer_client():
 		_request_ability_use(ability_id)
 		return true
 	
 	# In single-player or on the server, execute directly.
-	var level_stats = ability.get_level_stats(ability_level)
-	if not level_stats:
-		printerr("Invalid level data for '%s' at level %d" % [ability.ability_name, ability_level])
-		return false
-	
-	return _handle_authoritative_use(ability_id, ability, level_stats)
+	return _handle_authoritative_use(ability_id, validation.ability, validation.level_stats)
 
 
 ## Attempts to level up an ability.
 func level_up_ability(ability_id: String) -> bool:
-	if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
+	if _is_multiplayer_client():
 		level_up_ability_request.rpc_id(1, ability_id)
 		return true
 	
@@ -155,7 +140,7 @@ func level_up_ability(ability_id: String) -> bool:
 
 ## Learns a new ability.
 func learn_ability(ability_id: String, initial_level: int = 0) -> bool:
-	if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
+	if _is_multiplayer_client():
 		learn_ability_request.rpc_id(1, ability_id, initial_level)
 		return true
 
@@ -165,83 +150,153 @@ func learn_ability(ability_id: String, initial_level: int = 0) -> bool:
 func get_passive_effect_modifiers() -> Dictionary:
 	var modifiers = {}
 	
+	_foreach_learned_passive(func(ability: AbilityData, level_stats: AbilityLevelData, _ability_id: String):
+		# Use stat bonuses from the level data
+		for stat_name in level_stats.stat_bonuses:
+			if not modifiers.has(stat_name):
+				modifiers[stat_name] = StatData.new(stat_name, 0)
+			# Accumulate bonuses from multiple passives
+			modifiers[stat_name].flat_bonus_value += level_stats.stat_bonuses[stat_name].flat_bonus_value
+			modifiers[stat_name].percent_bonus_value += level_stats.stat_bonuses[stat_name].percent_bonus_value
+	)
+	
+	return modifiers
+
+
+func get_ability_damage_modifier(ability_id: String) -> float:
+	return _get_ability_modifier(ability_id, func(level_stats, id): return level_stats.get_ability_damage_modifier(id))
+
+
+func get_ability_cooldown_modifier(ability_id: String) -> float:
+	return _get_ability_modifier(ability_id, func(level_stats, id): return level_stats.get_ability_cooldown_modifier(id))
+
+
+func get_ability_mana_modifier(ability_id: String) -> float:
+	return _get_ability_modifier(ability_id, func(level_stats, id): return level_stats.get_ability_mana_modifier(id))
+
+
+func try_trigger_procs(event_type: String, target: Node = null, context: Dictionary = {}) -> void:
+	if not multiplayer.is_server():
+		return
+	
+	_foreach_learned_passive(func(ability: AbilityData, level_stats: AbilityLevelData, ability_id: String):
+		var proc_key = ability_id + "_" + event_type
+		var last_proc_time = _passive_proc_cooldowns.get(proc_key, 0.0)
+		
+		var proc_effect = level_stats.try_proc_event(event_type, {event_type: last_proc_time})
+		if proc_effect:
+			_execute_proc(proc_effect, target, context)
+			_passive_proc_cooldowns[proc_key] = Time.get_ticks_msec() / 1000.0
+	)
+
+#endregion
+
+
+#region #################### Helper Functions ####################
+## Helper to check if we're a client in a multiplayer session
+func _is_multiplayer_client() -> bool:
+	return multiplayer.has_multiplayer_peer() and not multiplayer.is_server()
+
+
+## Helper function to iterate through all learned passive abilities
+## Calls the provided callable for each passive ability with its data
+func _foreach_learned_passive(callback: Callable) -> void:
 	for ability_id in _ability_levels:
-		var ability = ResourceManager.get_ability_data(ability_id)
 		var ability_level = _ability_levels[ability_id]
 		
 		# Skip unlearned abilities
 		if ability_level <= 0:
 			continue
 			
+		var ability = ResourceManager.get_ability_data(ability_id)
+		if not ability or ability.ability_type != Constants.AbilityType.PASSIVE:
+			continue
+			
 		var level_stats = ability.get_level_stats(ability_level)
-		
-		# Only process learned abilities with valid level stats that are Passive
-		if ability and ability.ability_type == Constants.AbilityType.PASSIVE and level_stats:
-			
-			# Use stat bonuses from the level data
-			for stat_name in level_stats.stat_bonuses:
-				if not modifiers.has(stat_name):
-					modifiers[stat_name] = StatData.new(stat_name, 0)
-				# Accumulate bonuses from multiple passives
-				modifiers[stat_name].flat_bonus_value += level_stats.stat_bonuses[stat_name].flat_bonus_value
-				modifiers[stat_name].percent_bonus_value += level_stats.stat_bonuses[stat_name].percent_bonus_value
-	
-	return modifiers
-
-
-func get_ability_damage_modifier(ability_id: String) -> float:
-	var total_modifier: float = 1.0
-	
-	for passive_ability_id in _ability_levels:
-		var passive_ability = ResourceManager.get_ability_data(passive_ability_id)
-		var passive_level = _ability_levels[passive_ability_id]
-		
-		# Skip unlearned passives
-		if passive_level <= 0:
+		if not level_stats:
 			continue
 			
-		if passive_ability and passive_ability.ability_type == Constants.AbilityType.PASSIVE:
-			var level_stats = passive_ability.get_level_stats(passive_level)
-			if level_stats:
-				total_modifier *= level_stats.get_ability_damage_modifier(ability_id)
+		# Call the callback with the ability data
+		callback.call(ability, level_stats, ability_id)
+
+
+## Generic modifier calculator - reduces code duplication
+func _get_ability_modifier(ability_id: String, modifier_getter: Callable) -> float:
+	var total_modifier: float = 1.0
+	
+	_foreach_learned_passive(func(_ability: AbilityData, level_stats: AbilityLevelData, _ability_id: String):
+		total_modifier *= modifier_getter.call(level_stats, ability_id)
+	)
 	
 	return total_modifier
 
 
-func get_ability_cooldown_modifier(ability_id: String) -> float:
-	var total_modifier: float = 1.0
+## Validates if an ability can be used - reduces duplication
+func _validate_ability_use(ability_id: String) -> Dictionary:
+	var result = {
+		"valid": false,
+		"ability": null,
+		"level": 0,
+		"level_stats": null
+	}
 	
-	for passive_ability_id in _ability_levels:
-		var passive_ability = ResourceManager.get_ability_data(passive_ability_id)
-		var passive_level = _ability_levels[passive_ability_id]
-		
-		if passive_level <= 0:
-			continue
-			
-		if passive_ability and passive_ability.ability_type == Constants.AbilityType.PASSIVE:
-			var level_stats = passive_ability.get_level_stats(passive_level)
-			if level_stats:
-				total_modifier *= level_stats.get_ability_cooldown_modifier(ability_id)
+	var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
+	if not ability:
+		printerr("Ability ID '%s' not found." % ability_id)
+		return result
 	
-	return total_modifier
+	var ability_level := get_ability_level(ability_id)
+	if ability_level <= 0:
+		print("Ability '%s' has not been learned." % ability.ability_name)
+		return result
+	
+	if ability.ability_type != Constants.AbilityType.ACTIVE:
+		print("Ability '%s' is not an active ability." % ability.ability_name)
+		return result
+	
+	var level_stats = ability.get_level_stats(ability_level)
+	if not level_stats:
+		printerr("Invalid level data for '%s' at level %d" % [ability.ability_name, ability_level])
+		return result
+	
+	result.valid = true
+	result.ability = ability
+	result.level = ability_level
+	result.level_stats = level_stats
+	return result
 
 
-func get_ability_mana_modifier(ability_id: String) -> float:
-	var total_modifier: float = 1.0
+## Checks if resources and state allow ability use
+func _can_afford_ability(ability_id: String, level_stats: AbilityLevelData) -> bool:
+	# Check mana
+	var modified_mana_cost = level_stats.mana_cost * get_ability_mana_modifier(ability_id)
+	if "current_mana" in _stats_component and _stats_component.current_mana < modified_mana_cost:
+		print("Server: Not enough mana.")
+		return false
 	
-	for passive_ability_id in _ability_levels:
-		var passive_ability = ResourceManager.get_ability_data(passive_ability_id)
-		var passive_level = _ability_levels[passive_ability_id]
-		
-		if passive_level <= 0:
-			continue
-			
-		if passive_ability and passive_ability.ability_type == Constants.AbilityType.PASSIVE:
-			var level_stats = passive_ability.get_level_stats(passive_level)
-			if level_stats:
-				total_modifier *= level_stats.get_ability_mana_modifier(ability_id)
+	# Check if already attacking
+	var state_machine = owner.get_node_or_null("StateMachine")
+	if state_machine:
+		var attack_state = state_machine.get_node_or_null("attack")
+		if "current_state" in state_machine and state_machine.current_state == attack_state:
+			print("Server: Cannot use ability, an attack is already in progress.")
+			return false
 	
-	return total_modifier
+	return true
+
+
+## Consumes resources and starts cooldown for an ability
+func _consume_ability_resources(ability_id: String, level_stats: AbilityLevelData) -> float:
+	# Consume mana
+	if "current_mana" in _stats_component:
+		var modified_mana_cost = level_stats.mana_cost * get_ability_mana_modifier(ability_id)
+		_stats_component.current_mana -= modified_mana_cost
+	
+	# Start cooldown
+	var modified_cooldown = level_stats.cooldown_time * get_ability_cooldown_modifier(ability_id)
+	_cooldowns[ability_id] = modified_cooldown
+	
+	return modified_cooldown
 
 #endregion
 
@@ -253,41 +308,25 @@ func _handle_authoritative_use(ability_id: String, ability: AbilityData, level_s
 	if _cooldowns.has(ability_id):
 		return false
 	
-	# Apply passive mana cost modifier
-	var modified_mana_cost = level_stats.mana_cost * get_ability_mana_modifier(ability_id)
-	
-	if "current_mana" in _stats_component and _stats_component.current_mana < modified_mana_cost:
-		print("Server: Not enough mana for '%s'." % ability.ability_name)
+	# Check resources and state
+	if not _can_afford_ability(ability_id, level_stats):
 		return false
-		
-	# Check if an attack is already in progress before consuming resources.
-	var state_machine = owner.get_node_or_null("StateMachine")
-	if state_machine:
-		var attack_state = state_machine.get_node_or_null("attack")
-		if "current_state" in state_machine and state_machine.current_state == attack_state:
-			print("Server: Cannot use ability, an attack is already in progress.")
-			return false
 	
-	# All checks passed, consume resources and start cooldown
-	if "current_mana" in _stats_component:
-		_stats_component.current_mana -= modified_mana_cost
-	
-	# Apply passive cooldown modifier
-	var modified_cooldown = level_stats.cooldown_time * get_ability_cooldown_modifier(ability_id)
-	_cooldowns[ability_id] = modified_cooldown
+	# Consume resources and start cooldown
+	var cooldown_duration = _consume_ability_resources(ability_id, level_stats)
 	
 	# Trigger the visual/gameplay effect
 	_trigger_ability_state_change(ability, level_stats)
 	
-	# NEW: Trigger on_ability_cast procs
+	# Trigger on_ability_cast procs
 	try_trigger_procs("on_ability_cast", null, {"ability": ability, "level_stats": level_stats})
 	
 	# Emit signals and notify clients
 	ability_used.emit(ability_id)
-	cooldown_started.emit(ability_id, modified_cooldown)
+	cooldown_started.emit(ability_id, cooldown_duration)
 	
 	if multiplayer.is_server():
-		ability_used_client.rpc(ability_id, modified_cooldown)
+		ability_used_client.rpc(ability_id, cooldown_duration)
 		
 	return true
 
@@ -400,29 +439,6 @@ func _add_ability_points(amount: int) -> void:
 	
 	if multiplayer.is_server():
 		sync_ability_points.rpc(_available_ability_points)
-		
-
-func try_trigger_procs(event_type: String, target: Node = null, context: Dictionary = {}) -> void:
-	if not multiplayer.is_server():
-		return
-	
-	for passive_ability_id in _ability_levels:
-		var passive_ability = ResourceManager.get_ability_data(passive_ability_id)
-		var passive_level = _ability_levels[passive_ability_id]
-		
-		if passive_level <= 0:
-			continue
-			
-		if passive_ability and passive_ability.ability_type == Constants.AbilityType.PASSIVE:
-			var level_stats = passive_ability.get_level_stats(passive_level)
-			if level_stats:
-				var proc_key = passive_ability_id + "_" + event_type
-				var last_proc_time = _passive_proc_cooldowns.get(proc_key, 0.0)
-				
-				var proc_effect = level_stats.try_proc_event(event_type, {event_type: last_proc_time})
-				if proc_effect:
-					_execute_proc(proc_effect, target, context)
-					_passive_proc_cooldowns[proc_key] = Time.get_ticks_msec() / 1000.0
 
 
 func _execute_proc(proc: ProcEffectData, target: Node, context: Dictionary) -> void:
@@ -483,18 +499,13 @@ func _request_ability_use(ability_id: String) -> void:
 ## [Client->Server] RPC for a client to request using an ability.
 func use_ability_server(ability_id: String) -> void:
 	if not multiplayer.is_server(): return
-
-	var ability = ResourceManager.get_ability_data(ability_id)
-	if not ability: return
-
-	var ability_level = get_ability_level(ability_id) 
-	if ability_level <= 0: return
-
-	var level_stats = ability.get_level_stats(ability_level)
-	if not level_stats: return
+	
+	var validation = _validate_ability_use(ability_id)
+	if not validation.valid:
+		return
 	
 	# Let the authoritative function handle the final execution
-	_handle_authoritative_use(ability_id, ability, level_stats)
+	_handle_authoritative_use(ability_id, validation.ability, validation.level_stats)
 
 
 @rpc("authority", "call_local", "reliable")
@@ -596,6 +607,16 @@ func load_abilities(data: Dictionary) -> void:
 	
 	_available_ability_points = data.get("available_points", 0) 
 	hotbar.load_hotbar_config(data.get("hotbar_config", {}))
+	
+	# Re-apply passives and update UI with loaded data
+	_apply_passive_effects()
+	ability_points_changed.emit(_available_ability_points)
+	for ability_id in _ability_levels:
+		var level = _ability_levels[ability_id]
+		if level > 0:
+			ability_learned.emit(ability_id)
+			ability_leveled_up.emit(ability_id, level)
+		print("Loaded ability: %s at level %d" % [ability_id, level])
 			
 ## Disconnects from leveling component signals to prevent side effects during loading.
 func disconnect_level_signals() -> void:

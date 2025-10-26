@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=4 uid="uid://d1hwvomjwdrjv"]
+[gd_scene load_steps=35 format=4 uid="uid://d1hwvomjwdrjv"]
 
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/damage_numbers.gd" id="1_ryi0r"]
 [ext_resource type="Texture2D" uid="uid://jorjvuc5wn72" path="res://assets/sprites/world_tileset.png" id="2_l25cu"]
@@ -6,7 +6,6 @@
 [ext_resource type="Texture2D" uid="uid://cd28i3fo3v1m0" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/country village tileset.png" id="3_l25cu"]
 [ext_resource type="Texture2D" uid="uid://b8r3ov605pnuj" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/Country_village_props.png" id="4_j167y"]
 [ext_resource type="PackedScene" uid="uid://bx2n3vrfxk75m" path="res://scenes/Gameplay/killzone.tscn" id="4_kgokg"]
-[ext_resource type="PackedScene" uid="uid://7sq2fu3r3dty" path="res://scenes/Collectables/coin.tscn" id="5_gma0m"]
 [ext_resource type="PackedScene" uid="uid://dprr4d0kjfbgn" path="res://scenes/Gameplay/platform.tscn" id="6_ryi0r"]
 [ext_resource type="PackedScene" uid="uid://q6iqwsi8meq4" path="res://scenes/NPC/slime.tscn" id="7_ukxhe"]
 [ext_resource type="PackedScene" uid="uid://betkg72vd7iav" path="res://scenes/NPC/Minifolks/boar.tscn" id="8_pd7st"]
@@ -700,44 +699,6 @@ position = Vector2(-1, 92)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Killzone"]
 shape = SubResource("WorldBoundaryShape2D_p57ef")
-
-[node name="Coins" type="Node" parent="."]
-
-[node name="Coin" parent="Coins" instance=ExtResource("5_gma0m")]
-position = Vector2(144, 7)
-
-[node name="Coin2" parent="Coins" instance=ExtResource("5_gma0m")]
-position = Vector2(184, 7)
-
-[node name="Coin3" parent="Coins" instance=ExtResource("5_gma0m")]
-position = Vector2(203, 7)
-
-[node name="Coin4" parent="Coins" instance=ExtResource("5_gma0m")]
-position = Vector2(-439, 25)
-
-[node name="Coin5" parent="Coins" instance=ExtResource("5_gma0m")]
-position = Vector2(-418, 25)
-
-[node name="Coin6" parent="Coins" instance=ExtResource("5_gma0m")]
-position = Vector2(-398, 25)
-
-[node name="Coin7" parent="Coins" instance=ExtResource("5_gma0m")]
-position = Vector2(-363, 25)
-
-[node name="Coin8" parent="Coins" instance=ExtResource("5_gma0m")]
-position = Vector2(-342, 25)
-
-[node name="Coin9" parent="Coins" instance=ExtResource("5_gma0m")]
-position = Vector2(-322, 25)
-
-[node name="Coin10" parent="Coins" instance=ExtResource("5_gma0m")]
-position = Vector2(-287, 25)
-
-[node name="Coin11" parent="Coins" instance=ExtResource("5_gma0m")]
-position = Vector2(-266, 25)
-
-[node name="Coin12" parent="Coins" instance=ExtResource("5_gma0m")]
-position = Vector2(-246, 25)
 
 [node name="Platforms" type="Node" parent="."]
 
