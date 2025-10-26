@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=39 format=3 uid="uid://bj44mdaqov8t"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=38 format=3 uid="uid://bj44mdaqov8t"]
 
 [ext_resource type="Texture2D" uid="uid://ky00whwbxbmx" path="res://assets/sprites/Abilities/power_guard.png" id="1_26017"]
 [ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="1_mshui"]
@@ -148,10 +148,6 @@ script = ExtResource("6_jrmpn")
 base_value = 1.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
-[sub_resource type="Resource" id="Resource_ddpfy"]
-resource_local_to_scene = true
-script = ExtResource("8_cm1ky")
-
 [sub_resource type="Resource" id="Resource_qc0ct"]
 script = ExtResource("7_b8raq")
 mana_cost_formula = SubResource("Resource_jojv8")
@@ -160,7 +156,6 @@ damage_percent_formula = SubResource("Resource_dgn0w")
 max_targets_formula = SubResource("Resource_exyov")
 max_hits_formula = SubResource("Resource_rt43a")
 cast_time_formula = SubResource("Resource_b2sp4")
-stat_bonus_formulas = Array[ExtResource("8_cm1ky")]([SubResource("Resource_ddpfy")])
 metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
 
 [resource]

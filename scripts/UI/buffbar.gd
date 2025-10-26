@@ -17,26 +17,35 @@ var _container: HBoxContainer
 
 #region #################### Inner Class: BuffIcon ####################
 class BuffIcon extends Control:
+	signal buff_remove_requested(buff_id: String)
+	
 	var buff_id: String
 	var icon_texture: Texture2D
 	var remaining_time: float = 0.0
 	var total_duration: float = 0.0
 	var stacks: int = 1
+	var is_removable: bool = true  # NEW: Can this buff be manually removed?
 	
 	var gradient_color: Color = Color(0.3, 0.3, 0.3, 0.8)
+	var hover_color: Color = Color(1.0, 1.0, 1.0, 0.3)
 	
 	var _texture_rect: TextureRect
 	var _time_label: Label
 	var _stack_label: Label
 	var _gradient_overlay: ColorRect
+	var _hover_overlay: ColorRect  # NEW: Shows when hovering
 	
-	func _init(id: String, texture: Texture2D, duration: float, size: Vector2):
+	func _init(id: String, texture: Texture2D, duration: float, size: Vector2, removable: bool = true):
 		buff_id = id
 		icon_texture = texture
 		remaining_time = duration
 		total_duration = duration
+		is_removable = removable
 		custom_minimum_size = size
 		name = "BuffIcon_" + id
+		
+		# NEW: Enable mouse input
+		mouse_filter = Control.MOUSE_FILTER_STOP
 		
 		# Icon texture
 		_texture_rect = TextureRect.new()
@@ -53,7 +62,6 @@ class BuffIcon extends Control:
 		_gradient_overlay.name = "GradientOverlay"
 		_gradient_overlay.color = gradient_color
 		_gradient_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		# Start at the top, will expand downward
 		_gradient_overlay.anchor_left = 0
 		_gradient_overlay.anchor_right = 1
 		_gradient_overlay.anchor_top = 0
@@ -63,6 +71,15 @@ class BuffIcon extends Control:
 		_gradient_overlay.offset_top = 0
 		_gradient_overlay.offset_bottom = 0
 		add_child(_gradient_overlay)
+		
+		# NEW: Hover overlay (shows on mouse hover)
+		_hover_overlay = ColorRect.new()
+		_hover_overlay.name = "HoverOverlay"
+		_hover_overlay.color = hover_color
+		_hover_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_hover_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+		_hover_overlay.visible = false
+		add_child(_hover_overlay)
 		
 		# Time label (centered, yellow text with black outline)
 		_time_label = Label.new()
@@ -96,6 +113,25 @@ class BuffIcon extends Control:
 		_stack_label.visible = false
 		_stack_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(_stack_label)
+	
+	# NEW: Handle mouse enter
+	func _mouse_enter() -> void:
+		if is_removable:
+			_hover_overlay.visible = true
+			# Optional: Show tooltip
+			tooltip_text = "Right-click to remove"
+	
+	# NEW: Handle mouse exit
+	func _mouse_exit() -> void:
+		_hover_overlay.visible = false
+	
+	# NEW: Handle mouse input
+	func _gui_input(event: InputEvent) -> void:
+		if event is InputEventMouseButton:
+			if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+				if is_removable:
+					buff_remove_requested.emit(buff_id)
+					accept_event()  # Prevent event from propagating
 	
 	func update_time(time: float) -> void:
 		remaining_time = time
@@ -140,8 +176,10 @@ class BuffIcon extends Control:
 		# Only return the number, no unit suffix
 		if time >= 60:
 			var minutes := int(time / 60)
-			return "%d" % minutes
+			_time_label.add_theme_font_size_override("font_size", 16)
+			return "%dm" % minutes
 		else:
+			_time_label.add_theme_font_size_override("font_size", 24)
 			return "%.0f" % time
 #endregion
 
@@ -250,8 +288,14 @@ func _on_buff_applied(buff_id: String, duration: float) -> void:
 		push_warning("BuffBar: Could not find BuffData for '%s'" % buff_id)
 		return
 	
+	# Determine if buff can be manually removed (beneficial buffs can be removed, debuffs cannot)
+	var is_removable = not buff_data.is_debuff
+	
 	# Create buff icon
-	var icon := BuffIcon.new(buff_id, buff_data.buff_icon, duration, icon_size)
+	var icon := BuffIcon.new(buff_id, buff_data.buff_icon, duration, icon_size, is_removable)
+	
+	# NEW: Connect the remove signal
+	icon.buff_remove_requested.connect(_on_buff_remove_requested)
 	
 	# Update stacks if applicable
 	var stacks := _buff_component.get_buff_stacks(buff_id)
@@ -297,4 +341,13 @@ func _on_buff_refreshed(buff_id: String, new_duration: float) -> void:
 	var tween := create_tween()
 	tween.tween_property(icon, "modulate", Color.WHITE * 1.5, 0.1)
 	tween.tween_property(icon, "modulate", Color.WHITE, 0.1)
+
+
+func _on_buff_remove_requested(buff_id: String) -> void:
+	if not _buff_component:
+		return
+	
+	# Request buff removal from the buff component
+	print("BuffBar: Requesting removal of buff '%s'" % buff_id)
+	_buff_component.remove_buff(buff_id)
 #endregion

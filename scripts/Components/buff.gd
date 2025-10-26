@@ -82,12 +82,12 @@ func _process(delta: float) -> void:
 
 #region #################### Public API ####################
 ## Applies a buff to this character
-func apply_buff(buff_id: String, source: Node = null) -> bool:
+func apply_buff(buff_id: String, source: Node = null, custom_duration: float = -1.0) -> bool:
 	if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
-		apply_buff_request.rpc_id(1, buff_id, source.get_path() if source else NodePath())
+		apply_buff_request.rpc_id(1, buff_id, source.get_path() if source else NodePath(), custom_duration)
 		return true
 	
-	return _apply_buff_local(buff_id, source)
+	return _apply_buff_local(buff_id, source, custom_duration)
 
 
 ## Removes a buff from this character
@@ -127,18 +127,22 @@ func get_active_buff_ids() -> Array[String]:
 #endregion
 
 #region #################### Internal Logic ####################
-func _apply_buff_local(buff_id: String, source: Node = null) -> bool:
+func _apply_buff_local(buff_id: String, source: Node = null, custom_duration: float = -1.0) -> bool:
 	var buff_data: BuffData = ResourceManager.get_buff_data(buff_id)
 	if not buff_data:
 		printerr("Buff ID '%s' not found." % buff_id)
 		return false
 	
+	# Use custom duration if provided, otherwise use buff_data duration
+	var duration = custom_duration if custom_duration >= 0.0 else buff_data.duration
+	
 	# Check if buff already exists
 	if _active_buffs.has(buff_id):
-		return _handle_existing_buff(buff_id, buff_data, source)
+		return _handle_existing_buff(buff_id, buff_data, source, duration)
 	
 	# Create new active buff
 	var active_buff := ActiveBuff.new(buff_data, source)
+	active_buff.remaining_duration = duration
 	_active_buffs[buff_id] = active_buff
 	
 	# Call custom logic on_apply if available
@@ -150,43 +154,48 @@ func _apply_buff_local(buff_id: String, source: Node = null) -> bool:
 		_force_stat_recalc()
 	
 	# Emit signal and sync to clients
-	buff_applied.emit(buff_id, buff_data.duration)
-	print("Applied buff: %s (duration: %.1fs)" % [buff_data.buff_name, buff_data.duration])
+	buff_applied.emit(buff_id, duration)
+	print("Applied buff: %s (duration: %.1fs)" % [buff_data.buff_name, duration])
 	
 	if multiplayer.is_server():
-		sync_buff_applied.rpc(buff_id, buff_data.duration)
+		sync_buff_applied.rpc(buff_id, duration)
 	
 	return true
 
 
-func _handle_existing_buff(buff_id: String, buff_data: BuffData, source: Node) -> bool:
+func _handle_existing_buff(buff_id: String, buff_data: BuffData, source: Node, duration: float = -1.0) -> bool:
 	var active_buff: ActiveBuff = _active_buffs[buff_id]
+	
+	# Use custom duration if provided, otherwise use buff_data duration
+	var new_duration = duration if duration >= 0.0 else buff_data.duration
 	
 	match buff_data.stack_behavior:
 		BuffData.StackBehavior.REFRESH:
-			# Reset duration to max
-			active_buff.remaining_duration = buff_data.duration
-			buff_refreshed.emit(buff_id, buff_data.duration)
+			# Reset duration to new duration
+			active_buff.remaining_duration = new_duration
+			
+			_force_stat_recalc()
+					
+			buff_refreshed.emit(buff_id, new_duration)
 			
 			if multiplayer.is_server():
-				sync_buff_refreshed.rpc(buff_id, buff_data.duration)
+				sync_buff_refreshed.rpc(buff_id, new_duration)
 			
 		BuffData.StackBehavior.STACK:
 			# Increase stack count up to max
 			if active_buff.stacks < buff_data.max_stacks:
 				active_buff.stacks += 1
-				active_buff.remaining_duration = buff_data.duration  # Also refresh duration
+				active_buff.remaining_duration = new_duration
 				
-				if not _loading_mode:
-					_force_stat_recalc()
+				_force_stat_recalc()
 				
-				buff_refreshed.emit(buff_id, buff_data.duration)
+				buff_refreshed.emit(buff_id, new_duration)
 				
 				if multiplayer.is_server():
-					sync_buff_stacks.rpc(buff_id, active_buff.stacks, buff_data.duration)
+					sync_buff_stacks.rpc(buff_id, active_buff.stacks, new_duration)
 			else:
 				# At max stacks, just refresh
-				active_buff.remaining_duration = buff_data.duration
+				active_buff.remaining_duration = new_duration
 				
 		BuffData.StackBehavior.IGNORE:
 			# Do nothing, keep existing buff running
@@ -262,12 +271,12 @@ func _on_damaged(amount: int, source: Node) -> void:
 
 #region #################### Multiplayer & RPCs ####################
 @rpc("any_peer", "call_local", "reliable")
-func apply_buff_request(buff_id: String, source_path: NodePath) -> void:
+func apply_buff_request(buff_id: String, source_path: NodePath, custom_duration: float = -1.0) -> void:
 	if not multiplayer.is_server():
 		return
 		
 	var source_node = get_node_or_null(source_path) if source_path else null
-	_apply_buff_local(buff_id, source_node)
+	_apply_buff_local(buff_id, source_node, custom_duration)
 
 
 @rpc("any_peer", "call_local", "reliable")

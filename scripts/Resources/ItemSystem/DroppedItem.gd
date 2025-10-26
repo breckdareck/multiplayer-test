@@ -173,8 +173,21 @@ func _pickup_item(picking_player: MultiplayerPlayerV2 = null) -> void:
 		else:
 			player_to_give_item.inventory_component.add_item(item_data.item_id)
 	
-	# Clean up
-	queue_free()
+	# Animate pickup: popup -> magnetize to player -> fade out
+	var pickup_tween = create_tween()
+	
+	# Phase 1: Quick popup (0.1s)
+	pickup_tween.tween_property(self, "global_position", global_position + Vector2(0, -20), 0.1).set_ease(Tween.EASE_OUT)
+	
+	# Phase 2: Magnetize quickly to player (0.2s)
+	if player_to_give_item:
+		var target_pos = player_to_give_item.global_position + Vector2(0, -20)  # Aim slightly above player
+		pickup_tween.tween_property(self, "global_position", target_pos, 0.2).set_ease(Tween.EASE_IN)
+	
+	# Phase 3: Fade out slowly (0.3s) - runs in parallel with end of magnetize
+	pickup_tween.parallel().tween_property(sprite, "modulate:a", 0.0, 0.3).set_ease(Tween.EASE_IN).set_delay(0.1)
+	
+	pickup_tween.finished.connect(queue_free)
 
 
 func setup(item: ItemData, amount: int, player: MultiplayerPlayerV2) -> void:

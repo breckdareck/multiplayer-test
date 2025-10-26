@@ -271,83 +271,170 @@ func create_description_comparison_text(data: AbilityData, current: AbilityLevel
 	if current == null: # Level 0 / Unlearned
 		output += "[color=%s]Unlearned[/color]\n\n" % COLOR_DOWNGRADE
 		output += "[color=%s]NEXT LEVEL (%d) STATS:[/color]\n" % [COLOR_UPGRADE, next.level]
+		output += format_ability_description(data, next, COLOR_UPGRADE)
 		
-		if data.ability_type == Constants.AbilityType.ACTIVE:
-			var damage_text = desc_template.replace("$[damage_percent]", "[color=%s]%d%%[/color]" % [COLOR_UPGRADE, next.damage_percent])
-			var target_text = damage_text.replace("$[target_count]", "[color=%s]%d[/color]" % [COLOR_UPGRADE, data.scaling_data.max_targets_formula.calculate(next.level)])
-			var hit_text = target_text.replace("$[hit_count]", "[color=%s]%d[/color]" % [COLOR_UPGRADE, data.scaling_data.max_hits_formula.calculate(next.level)])
-			output += hit_text
-		elif data.ability_type == Constants.AbilityType.PASSIVE:
-			var stat_key = next.stat_bonuses.keys()[0] if not next.stat_bonuses.is_empty() else null
-			if stat_key or stat_key == 0:
-				var stat_value = next.stat_bonuses.get(stat_key).total_value if next.stat_bonuses.get(stat_key).total_value > 0 else next.stat_bonuses.get(stat_key).percent_bonus_value
-				var stat_text = desc_template.replace("$[stat_bonus]", "[color=%s]%d[/color]" % [COLOR_UPGRADE, stat_value])
-				output += stat_text
+		# Show stat bonuses if any exist
+		if not next.stat_bonuses.is_empty():
+			output += "\n[color=%s]Stat Bonuses:[/color]\n" % COLOR_UPGRADE
+			output += format_stat_bonuses(next, COLOR_UPGRADE)
 			
 	else: # Level 1 to Max-1
-		var current_damage = current.damage_percent
-		var next_damage = next.damage_percent
-		var current_target_count
-		var next_target_count
-		var current_hit_count
-		var next_hit_count
-		
-		if data.scaling_data.max_targets_formula:
-			current_target_count = data.scaling_data.max_targets_formula.calculate(current.level)
-			next_target_count = data.scaling_data.max_targets_formula.calculate(next.level)
-		if data.scaling_data.max_hits_formula:
-			current_hit_count = data.scaling_data.max_hits_formula.calculate(current.level)
-			next_hit_count = data.scaling_data.max_hits_formula.calculate(next.level)
-		
 		output += "[color=%s]Current Level (%d) Stats:[/color]\n" % [COLOR_BASE, current.level]
+		output += format_ability_description(data, current, COLOR_NORMAL)
 		
+		# Show current stat bonuses if any exist
+		if not current.stat_bonuses.is_empty():
+			output += "\n[color=%s]Stat Bonuses:[/color]\n" % COLOR_BASE
+			output += format_stat_bonuses(current, COLOR_NORMAL)
+		
+		output += "\n\n[color=%s]NEXT LEVEL (%d) UPGRADE:[/color]\n" % [COLOR_UPGRADE, next.level]
+		
+		# Show damage/target/hit upgrades for active abilities
 		if data.ability_type == Constants.AbilityType.ACTIVE:
-			var color = COLOR_UPGRADE if next_damage > current_damage else COLOR_NORMAL
-			var damage_text = desc_template.replace("$[damage_percent]", "[color=%s]%d%%[/color]" % [COLOR_UPGRADE, current_damage])
-			var target_text = damage_text.replace("$[target_count]", "[color=%s]%d[/color]" % [COLOR_UPGRADE, data.scaling_data.max_targets_formula.calculate(current.level)])
-			var hit_text = target_text.replace("$[hit_count]", "[color=%s]%d[/color]" % [COLOR_UPGRADE, data.scaling_data.max_hits_formula.calculate(current.level)])
-			output += hit_text
-			output += "\n\n[color=%s]NEXT LEVEL (%d) UPGRADE:[/color]\n" % [COLOR_UPGRADE, next.level]
-			output += "Damage: [color=%s]%d%%[/color] [color=%s](+ %d%%)[/color]\n" % [COLOR_BASE, current_damage, color, next_damage - current_damage]
-			if (next_target_count - current_target_count) > 0:
-				output += "Target Count: [color=%s]%d[/color] [color=%s](+ %d)[/color]\n" % [COLOR_BASE, current_target_count, color, next_target_count - current_target_count]
-			if (next_hit_count - current_hit_count) > 0:
-				output += "Hit Count: [color=%s]%d[/color] [color=%s](+ %d)[/color]\n" % [COLOR_BASE, current_hit_count, color, next_hit_count - current_hit_count]
-
-
-		elif data.ability_type == Constants.AbilityType.PASSIVE:
-			var stat_key = current.stat_bonuses.keys()[0] if not current.stat_bonuses.is_empty() else null
-			if stat_key or stat_key == 0:
-				var current_stat_bonus = current.stat_bonuses.get(stat_key).total_value if current.stat_bonuses.get(stat_key).total_value > 0 else current.stat_bonuses.get(stat_key).percent_bonus_value
-				var next_stat_bonus = next.stat_bonuses.get(stat_key).total_value if next.stat_bonuses.get(stat_key).total_value > 0 else next.stat_bonuses.get(stat_key).percent_bonus_value
-				var color = COLOR_UPGRADE
-				
-				var stat_text = desc_template.replace("$[stat_bonus]", "[color=%s]%d[/color]" % [COLOR_NORMAL, current_stat_bonus])
-				output += stat_text
-				output += "\n\n[color=%s]NEXT LEVEL (%d) UPGRADE:[/color]\n" % [COLOR_UPGRADE, next.level]
-				output += "%s Bonus: [color=%s]%d[/color] [color=%s](+ %d)[/color]\n" % [str(Constants.StatType.keys()[current.stat_bonuses.get(stat_key).stat_type]), COLOR_BASE, current_stat_bonus, color, next_stat_bonus - current_stat_bonus]
+			var current_damage = current.damage_percent
+			var next_damage = next.damage_percent
+			
+			if next_damage != current_damage:
+				var color = COLOR_UPGRADE if next_damage > current_damage else COLOR_DOWNGRADE
+				output += "Damage: [color=%s]%d%%[/color] [color=%s](%+d%%)[/color]\n" % [COLOR_BASE, current_damage, color, next_damage - current_damage]
+			
+			if data.scaling_data.max_targets_formula:
+				var current_target_count = data.scaling_data.max_targets_formula.calculate(current.level)
+				var next_target_count = data.scaling_data.max_targets_formula.calculate(next.level)
+				if next_target_count != current_target_count:
+					var color = COLOR_UPGRADE
+					output += "Target Count: [color=%s]%d[/color] [color=%s](%+d)[/color]\n" % [COLOR_BASE, current_target_count, color, next_target_count - current_target_count]
+			
+			if data.scaling_data.max_hits_formula:
+				var current_hit_count = data.scaling_data.max_hits_formula.calculate(current.level)
+				var next_hit_count = data.scaling_data.max_hits_formula.calculate(next.level)
+				if next_hit_count != current_hit_count:
+					var color = COLOR_UPGRADE
+					output += "Hit Count: [color=%s]%d[/color] [color=%s](%+d)[/color]\n" % [COLOR_BASE, current_hit_count, color, next_hit_count - current_hit_count]
+		
+		# NEW: Show buff duration upgrade
+		var buff_duration_diff = format_buff_duration_comparison(data, current, next)
+		if not buff_duration_diff.is_empty():
+			output += buff_duration_diff
+		
+		# Show stat bonus upgrades
+		if not next.stat_bonuses.is_empty():
+			output += format_stat_bonus_comparison(current, next)
 			
 	return output
 
 
 ## Helper function to create the final description text for MAX level
 func create_description_text(data: AbilityData, current: AbilityLevelData) -> String:
-	var desc_template = data.description
 	var output = "[color=%s]MAX LEVEL STATS:[/color]\n" % COLOR_UPGRADE
+	output += format_ability_description(data, current, COLOR_NORMAL)
 	
-	if data.ability_type == Constants.AbilityType.ACTIVE:
-		var damage_text = desc_template.replace("$[damage_percent]", "[color=%s]%d%%[/color]" % [COLOR_NORMAL, current.damage_percent])
-		var target_text = damage_text.replace("$[target_count]", "[color=%s]%d[/color]" % [COLOR_NORMAL, data.scaling_data.max_targets_formula.calculate(current.level)])
-		var hit_text = target_text.replace("$[hit_count]", "[color=%s]%d[/color]" % [COLOR_NORMAL, data.scaling_data.max_hits_formula.calculate(current.level)])
-		output += hit_text
-	elif data.ability_type == Constants.AbilityType.PASSIVE:
-		var stat_key = current.stat_bonuses.keys()[0] if not current.stat_bonuses.is_empty() else null
-		if stat_key or stat_key == 0:
-			var stat_value = current.stat_bonuses.get(stat_key).total_value if current.stat_bonuses.get(stat_key).total_value > 0 else current.stat_bonuses.get(stat_key).percent_bonus_value
-			var stat_text = desc_template.replace("$[stat_bonus]", "[color=%s]%d[/color]" % [COLOR_NORMAL, stat_value])
-			output += stat_text
+	# Show stat bonuses if any exist
+	if not current.stat_bonuses.is_empty():
+		output += "\n[color=%s]Stat Bonuses:[/color]\n" % COLOR_NORMAL
+		output += format_stat_bonuses(current, COLOR_NORMAL)
 		
 	return output
+
+
+## Formats the ability description with damage/target/hit counts
+func format_ability_description(data: AbilityData, level_data: AbilityLevelData, color: String) -> String:
+	var desc_template = data.description
+	var output = ""
+	
+	if data.ability_type == Constants.AbilityType.ACTIVE:
+		var damage_text = desc_template.replace("$[damage_percent]", "[color=%s]%d%%[/color]" % [color, level_data.damage_percent])
+		var target_text = damage_text.replace("$[target_count]", "[color=%s]%d[/color]" % [color, data.scaling_data.max_targets_formula.calculate(level_data.level)])
+		var hit_text = target_text.replace("$[hit_count]", "[color=%s]%d[/color]" % [color, data.scaling_data.max_hits_formula.calculate(level_data.level)])
+		
+		# NEW: Handle buff duration placeholder
+		if data.applies_buff and data.buff_duration_formula:
+			var duration = data.buff_duration_formula.calculate(level_data.level)
+			hit_text = hit_text.replace("$[buff_duration]", "[color=%s]%.0fs[/color]" % [color, duration])
+			
+			var stat_key = level_data.stat_bonuses.keys()[0] if not level_data.stat_bonuses.is_empty() else null
+			if stat_key != null:
+				var stat_value = level_data.stat_bonuses.get(stat_key).total_value if level_data.stat_bonuses.get(stat_key).total_value > 0 else level_data.stat_bonuses.get(stat_key).percent_bonus_value
+				hit_text = hit_text.replace("$[stat_bonus]", "[color=%s]%d[/color]" % [color, stat_value])
+		
+		output += hit_text
+	elif data.ability_type == Constants.AbilityType.PASSIVE:
+		# For passive abilities, use the first stat bonus in the description
+		var stat_key = level_data.stat_bonuses.keys()[0] if not level_data.stat_bonuses.is_empty() else null
+		if stat_key != null:
+			var stat_value = level_data.stat_bonuses.get(stat_key).total_value if level_data.stat_bonuses.get(stat_key).total_value > 0 else level_data.stat_bonuses.get(stat_key).percent_bonus_value
+			var stat_text = desc_template.replace("$[stat_bonus]", "[color=%s]%d[/color]" % [color, stat_value])
+			output += stat_text
+		else:
+			output += desc_template
+	else:
+		output += desc_template
+		
+	return output
+
+
+## Formats all stat bonuses for display
+func format_stat_bonuses(level_data: AbilityLevelData, color: String) -> String:
+	var output = ""
+	
+	for stat_type in level_data.stat_bonuses:
+		var stat_data: StatData = level_data.stat_bonuses[stat_type]
+		var stat_name = Constants.StatType.keys()[stat_type]
+		
+		# Show flat bonus if it exists
+		if stat_data.flat_bonus_value > 0:
+			output += "  %s: [color=%s]+%d[/color]\n" % [stat_name, color, stat_data.flat_bonus_value]
+		
+		# Show percent bonus if it exists
+		if stat_data.percent_bonus_value > 0:
+			output += "  %s: [color=%s]+%d%%[/color]\n" % [stat_name, color, stat_data.percent_bonus_value]
+	
+	return output
+
+
+## Formats stat bonus comparison between current and next level
+func format_stat_bonus_comparison(current: AbilityLevelData, next: AbilityLevelData) -> String:
+	var output = ""
+	var has_changes = false
+	
+	# Get all stat types from both levels
+	var all_stat_types = {}
+	if current and not current.stat_bonuses.is_empty():
+		for stat_type in current.stat_bonuses:
+			all_stat_types[stat_type] = true
+	
+	for stat_type in next.stat_bonuses:
+		all_stat_types[stat_type] = true
+	
+	# Compare each stat type
+	for stat_type in all_stat_types:
+		var current_stat: StatData = current.stat_bonuses.get(stat_type) if current else null
+		var next_stat: StatData = next.stat_bonuses.get(stat_type)
+		
+		if not next_stat:
+			continue
+			
+		var stat_name = Constants.StatType.keys()[stat_type]
+		var current_flat = current_stat.flat_bonus_value if current_stat else 0
+		var next_flat = next_stat.flat_bonus_value
+		var current_percent = current_stat.percent_bonus_value if current_stat else 0.0
+		var next_percent = next_stat.percent_bonus_value
+		
+		# Show flat bonus changes
+		if next_flat != current_flat:
+			has_changes = true
+			var diff = next_flat - current_flat
+			var color = COLOR_UPGRADE if diff > 0 else COLOR_DOWNGRADE
+			output += "%s: [color=%s]+%d[/color] [color=%s](%+d)[/color]\n" % [stat_name, COLOR_BASE, current_flat, color, diff]
+		
+		# Show percent bonus changes
+		if next_percent != current_percent:
+			has_changes = true
+			var diff = next_percent - current_percent
+			var color = COLOR_UPGRADE if diff > 0 else COLOR_DOWNGRADE
+			output += "%s: [color=%s]+%d%%[/color] [color=%s](%+d%%)[/color]\n" % [stat_name, COLOR_BASE, current_percent, color, diff]
+	
+	return output if has_changes else ""
 
 
 ## Helper function for formatting a stat comparison string
@@ -372,6 +459,41 @@ func format_comparison_text(current_value, next_value, is_cooldown: bool) -> Str
 	var current_string = "%.1fs" if is_cooldown else "%s"
 	
 	return "[color=%s]%s[/color] [color=%s]%s[/color]" % [COLOR_BASE, current_string % current_value, color, diff_string]
+
+
+func format_buff_info(data: AbilityData, level_data: AbilityLevelData, color: String) -> String:
+	if not data.applies_buff:
+		return ""
+	
+	var output = "\n\n[color=%s]Buff Details:[/color]\n" % COLOR_BASE
+	var buff: BuffData = data.applies_buff
+	
+	# Show buff duration
+	if data.buff_duration_formula:
+		var duration = data.buff_duration_formula.calculate(level_data.level)
+		output += "  Duration: [color=%s]%.0fs[/color]\n" % [color, duration]
+	elif buff.duration > 0:
+		output += "  Duration: [color=%s]%.0fs[/color]\n" % [color, buff.duration]
+	else:
+		output += "  Duration: [color=%s]Permanent[/color]\n" % color
+
+	return output
+
+
+func format_buff_duration_comparison(data: AbilityData, current: AbilityLevelData, next: AbilityLevelData) -> String:
+	if not data.applies_buff or not data.buff_duration_formula:
+		return ""
+	
+	var current_duration = data.buff_duration_formula.calculate(current.level)
+	var next_duration = data.buff_duration_formula.calculate(next.level)
+	
+	if next_duration == current_duration:
+		return ""
+	
+	var diff = next_duration - current_duration
+	var color = COLOR_UPGRADE if diff > 0 else COLOR_DOWNGRADE
+	
+	return "Buff Duration: [color=%s]%.0fs[/color] [color=%s](%+.0fs)[/color]\n" % [COLOR_BASE, current_duration, color, diff]
 
 
 ## Clears the details panel when no ability is selected

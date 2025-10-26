@@ -13,6 +13,7 @@ flat_bonus_value = 10
 metadata/_custom_type_script = "uid://cptesvvlfbytw"
 
 [resource]
+resource_local_to_scene = true
 script = ExtResource("1_iukpn")
 buff_id = "913814310411-31913-0237-13003-64191083105989"
 buff_name = "Power Guard"

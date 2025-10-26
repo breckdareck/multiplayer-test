@@ -25,11 +25,16 @@ func _ready() -> void:
 func _load_item_data() -> void:
 	var item_folder: String = "res://resources/Items/"
 
-	for resource in ResourceLoader.list_directory(item_folder):
-		var data: ItemData = ResourceLoader.load(item_folder+resource)
-		item_data[data.item_id] = data
-		item_by_name[data.name] = data # Add name-based lookup
-		print("Loaded item: %s with ID: %s" % [data.name, data.item_id])
+	var process_item = func(resource, path):
+		if resource is ItemData:
+			item_data[resource.item_id] = resource
+			item_by_name[resource.name] = resource
+			print("Loaded item: %s from path: %s" % [resource.name, path])
+		else:
+			print("Skipped (not ItemData): %s" % path)
+			
+	# Call the generic loader
+	_load_resources_recursively(item_folder, process_item)
 		
 
 func get_item_data(item_id: String) -> ItemData:
@@ -57,10 +62,14 @@ func get_item_by_name(item_name: String) -> ItemData:
 func _load_class_data() -> void:
 	var class_folder: String = "res://resources/Player/Classes/"
 	
-	for resource in ResourceLoader.list_directory(class_folder):
-		var data: ClassData = ResourceLoader.load(class_folder+resource)
-		class_data[data.class_type] = data
-		print("Loaded class: %s " % data._class_name)
+	var process_class = func(resource, path):
+		if resource is ClassData:
+			class_data[resource.class_type] = resource
+			print("Loaded class: %s from path: %s" % [resource._class_name, path])
+		else:
+			print("Skipped (not ClassData): %s" % path)
+
+	_load_resources_recursively(class_folder, process_class)
 
 
 func get_class_data(class_type: Constants.ClassType) -> ClassData:
@@ -125,11 +134,15 @@ func get_class_type_from_string(_class_name: String) -> Constants.ClassType:
 func _load_ability_data() -> void:
 	var ability_folder: String = "res://resources/Abilities/"
 	
-	for resource in ResourceLoader.list_directory(ability_folder):
-		var data: AbilityData = ResourceLoader.load(ability_folder+resource)
-		ability_data[data.ability_id] = data
-		ability_by_name[data.ability_name] = data
-		print("Loaded ability: %s with ID: %s" % [data.ability_name, data.ability_id])
+	var process_ability = func(resource, path):
+		if resource is AbilityData:
+			ability_data[resource.ability_id] = resource 
+			ability_by_name[resource.ability_name] = resource 
+			print("Loaded ability: %s from path: %s" % [resource.ability_name, path])
+		else:
+			print("Skipped (not AbilityData): %s" % path)
+
+	_load_resources_recursively(ability_folder, process_ability)
 
 
 func get_ability_data(ability_identifier: String) -> AbilityData:
@@ -150,16 +163,21 @@ func get_ability_by_name(ability_name: String) -> AbilityData:
 
 #endregion
 
+
 #region Buff Data Functions
 
 func _load_buff_data() -> void:
 	var buff_folder: String = "res://resources/Buffs/"
 	
-	for resource in ResourceLoader.list_directory(buff_folder):
-		var data: BuffData = ResourceLoader.load(buff_folder+resource)
-		buff_data[data.buff_id] = data
-		buffs_by_name[data.buff_name] = data
-		print("Loaded buff: %s with ID: %s" % [data.buff_name, data.buff_id])
+	var process_buff = func(resource, path):
+		if resource is BuffData:
+			buff_data[resource.buff_id] = resource 
+			buffs_by_name[resource.buff_name] = resource 
+			print("Loaded buff: %s from path: %s" % [resource.buff_name, path])
+		else:
+			print("Skipped (not BuffData): %s" % path)
+			
+	_load_resources_recursively(buff_folder, process_buff)
 		
 func get_buff_data(buff_identifier: String) -> BuffData:
 	if buff_data.has(buff_identifier):
@@ -176,3 +194,29 @@ func get_buff_by_name(buff_name: String) -> BuffData:
 
 		
 #endregion
+
+
+func _load_resources_recursively(path: String, process_callable: Callable) -> void:
+	# Get all items (files and directories) in the current path
+	var items = ResourceLoader.list_directory(path)
+	
+	for item_name in items:
+		var full_path = path + item_name
+		
+		# Check if the item is a directory (it will end with "/")
+		if item_name.ends_with("/"):
+			# It's a directory! Call this function again for the subdirectory.
+			# This is the "recursive" step.
+			_load_resources_recursively(full_path, process_callable)
+			
+		# Check if it's a resource file we want to load
+		# This avoids trying to load ".import" files
+		elif full_path.ends_with(".tres") or full_path.ends_with(".res"):
+			# It's a file! Load it.
+			var resource = ResourceLoader.load(full_path)
+			
+			if resource:
+				# Call the provided 'Callable' and pass it the loaded resource
+				process_callable.call(resource, full_path)
+			else:
+				print("Failed to load resource at: %s" % full_path)

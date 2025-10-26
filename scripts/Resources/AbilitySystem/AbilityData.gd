@@ -16,9 +16,13 @@ extends Resource
 @export var ability_type: Constants.AbilityType
 @export var required_class: Array[Constants.ClassType]
 @export var required_weapon_types: Array[Constants.WeaponType]
-@export var prerequisite_abilities: Dictionary = {}
+@export var prerequisite_abilities: Dictionary[AbilityData, int] = {}
 
 @export var active_behavior: ActiveBehaviorData
+
+@export_group("Buff Configuration")
+@export var applies_buff: BuffData = null
+@export var buff_duration_formula: AbilityScalingFormula = null
 
 ## NEW: Use either scaling data OR manual level data
 @export_group("Scaling Configuration")

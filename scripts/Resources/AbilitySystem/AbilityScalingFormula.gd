@@ -25,7 +25,7 @@ enum ScalingType {
 
 ## For STEPPED: Define breakpoints { level: value }
 ## Example: {1: 100, 5: 150, 10: 200} means damage is 100 until level 5, then 150, etc.
-@export var step_values: Dictionary = {}
+@export var step_values: Dictionary[int, int] = {}
 
 ## For CUSTOM: GDScript expression (e.g., "base_value + (level * 5) + (level * level * 0.5)")
 ## Available variables: level, base_value
