@@ -2,9 +2,9 @@ extends PanelContainer
 class_name AbilityWindow
 
 ## References to ability data classes
-const AbilityData = preload("res://scripts/Resources/AbilitySystem/AbilityData.gd")
-const AbilityLevelData = preload("res://scripts/Resources/AbilitySystem/AbilityLevelData.gd")
-const AbilitySlot = preload("res://scenes/UI/ability_slot.tscn")
+const ABILITYDATA = preload("res://scripts/Resources/AbilitySystem/AbilityData.gd")
+const ABILITYLEVELDATA = preload("res://scripts/Resources/AbilitySystem/AbilityLevelData.gd")
+const ABILITYSLOT = preload("res://scenes/UI/ability_slot.tscn")
 
 ## Unique Names from ability_window.tscn
 @onready var ability_list_container: VBoxContainer = %AbilityListContainer
@@ -107,7 +107,7 @@ func load_ability_list():
 			continue
 			
 		var current_level = ability_component._ability_levels[ability_id]
-		var slot = AbilitySlot.instantiate()
+		var slot = ABILITYSLOT.instantiate()
 		slot.setup(ability_data, current_level)
 		slot.ability_selected.connect(select_ability)
 		ability_list_container.add_child(slot)
@@ -275,7 +275,7 @@ func create_description_comparison_text(data: AbilityData, current: AbilityLevel
 		
 		# Show stat bonuses if any exist
 		if not next.stat_bonuses.is_empty():
-			output += "\n[color=%s]Stat Bonuses:[/color]\n" % COLOR_UPGRADE
+			output += "\n\n[color=%s]Stat Bonuses:[/color]\n" % COLOR_UPGRADE
 			output += format_stat_bonuses(next, COLOR_UPGRADE)
 			
 	else: # Level 1 to Max-1
@@ -284,7 +284,7 @@ func create_description_comparison_text(data: AbilityData, current: AbilityLevel
 		
 		# Show current stat bonuses if any exist
 		if not current.stat_bonuses.is_empty():
-			output += "\n[color=%s]Stat Bonuses:[/color]\n" % COLOR_BASE
+			output += "\n\n[color=%s]Stat Bonuses:[/color]\n" % COLOR_BASE
 			output += format_stat_bonuses(current, COLOR_NORMAL)
 		
 		output += "\n\n[color=%s]NEXT LEVEL (%d) UPGRADE:[/color]\n" % [COLOR_UPGRADE, next.level]
@@ -331,7 +331,7 @@ func create_description_text(data: AbilityData, current: AbilityLevelData) -> St
 	
 	# Show stat bonuses if any exist
 	if not current.stat_bonuses.is_empty():
-		output += "\n[color=%s]Stat Bonuses:[/color]\n" % COLOR_NORMAL
+		output += "\n\n[color=%s]Stat Bonuses:[/color]\n" % COLOR_NORMAL
 		output += format_stat_bonuses(current, COLOR_NORMAL)
 		
 	return output

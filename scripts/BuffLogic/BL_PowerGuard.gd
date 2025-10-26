@@ -7,16 +7,16 @@ extends Node
 var reflect_percentage: float = 12.0  # Can be set dynamically
 var source_ability_level: int = 1     # Track what level cast it
 
-func on_apply(owner_node: Node, active_buff) -> void:
+func on_apply(_owner_node: Node, _active_buff) -> void:
 	print("Power Guard (Level %d) activated on %s! Reflects %.0f%% damage" % 
-		[source_ability_level, owner_node.name, reflect_percentage])
+		[source_ability_level, _owner_node.name, reflect_percentage])
 		
 
-func on_remove(owner_node: Node, active_buff) -> void:
-	print("Power Guard expired on %s" % owner_node.name)
+func on_remove(_owner_node: Node, _active_buff) -> void:
+	print("Power Guard expired on %s" % _owner_node.name)
 
 
-func on_tick(owner_node: Node, active_buff, delta: float) -> void:
+func on_tick(_owner_node: Node, _active_buff, _delta: float) -> void:
 	# Optional: Could add a visual effect that pulses each second
 	pass
 

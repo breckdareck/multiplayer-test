@@ -1,8 +1,8 @@
 extends Control
 class_name Hotbar
 
-const HotbarSlot = preload("res://scenes/UI/hotbar_slot.tscn")
-const AbilityData = preload("res://scripts/Resources/AbilitySystem/AbilityData.gd")
+const HOTBARSLOT = preload("res://scenes/UI/hotbar_slot.tscn")
+const ABILITYDATA = preload("res://scripts/Resources/AbilitySystem/AbilityData.gd")
 
 @onready var slots_container: HBoxContainer = %SlotsContainer
 
@@ -29,7 +29,7 @@ func _ready():
 
 func create_hotbar_slots():
 	for i in range(slot_count):
-		var slot = HotbarSlot.instantiate()
+		var slot = HOTBARSLOT.instantiate()
 		slot.name = "HotbarSlot" + str(i)
 		slot.slot_index = i
 		slots_container.add_child(slot)

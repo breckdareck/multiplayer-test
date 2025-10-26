@@ -583,26 +583,19 @@ func save_abilities() -> Dictionary:
 func load_abilities(data: Dictionary) -> void:
 	if data.is_empty(): return
 	
-	# Ensure all current class abilities are in the dictionary before loading
+	# First, ensure all current class abilities are initialized
 	for ability_data in _class_component.get_class_abilities():
 		if ability_data != null and not _ability_levels.has(ability_data.ability_id):
 			_ability_levels[ability_data.ability_id] = 0
 			print("Added new ability from class: %s at level 0" % ability_data.ability_id)
 			
-	# Load saved data
-	_ability_levels = data.get("ability_levels", {})
+	# Load saved data by merging (not replacing) to preserve new abilities
+	var saved_levels = data.get("ability_levels", {})
+	for ability_id in saved_levels:
+		_ability_levels[ability_id] = saved_levels[ability_id]
+	
 	_available_ability_points = data.get("available_points", 0) 
 	hotbar.load_hotbar_config(data.get("hotbar_config", {}))
-	
-	# Re-apply passives and update UI with loaded data
-	_apply_passive_effects()
-	ability_points_changed.emit(_available_ability_points)
-	for ability_id in _ability_levels:
-		var level = _ability_levels[ability_id]
-		if level > 0:
-			ability_learned.emit(ability_id)
-			ability_leveled_up.emit(ability_id, level)
-		print("Loaded ability: %s at level %d" % [ability_id, level])
 			
 ## Disconnects from leveling component signals to prevent side effects during loading.
 func disconnect_level_signals() -> void:
