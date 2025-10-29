@@ -1,10 +1,12 @@
-[gd_scene load_steps=10 format=3 uid="uid://dh7yjshjnm377"]
+[gd_scene load_steps=14 format=3 uid="uid://dh7yjshjnm377"]
 
 [ext_resource type="StyleBox" uid="uid://dm8jxifs8rqrm" path="res://assets/UI/Themes/PanelStyleboxTheme.tres" id="1_qmw2t"]
 [ext_resource type="Script" uid="uid://cfkiv5444dl3p" path="res://scripts/UI/inventory_window.gd" id="2_w040a"]
 [ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="3_wr21r"]
 [ext_resource type="Theme" uid="uid://bg5sc8rk63fi6" path="res://assets/UI/Themes/ScrollContainerTheme.tres" id="4_5kvlq"]
 [ext_resource type="PackedScene" uid="uid://brcg2yc1x5qen" path="res://scenes/UI/slot.tscn" id="5_edmrt"]
+[ext_resource type="Texture2D" uid="uid://u3tpikp1eegv" path="res://assets/sprites/coin.png" id="6_wr21r"]
+[ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="7_5kvlq"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4ni0x"]
 content_margin_top = 5.0
@@ -32,6 +34,23 @@ bg_color = Color(0.952941, 0.666667, 0, 1)
 corner_radius_top_left = 5
 corner_radius_top_right = 5
 expand_margin_top = 3.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4xm4e"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3547774, 0.35477757, 0.35477746, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+anti_aliasing = false
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fcv6u"]
+atlas = ExtResource("6_wr21r")
+region = Rect2(0, 0, 16, 16)
 
 [node name="InventoryWindow" type="Panel"]
 visible = false
@@ -80,7 +99,7 @@ anchor_bottom = 1.0
 offset_left = 9.0
 offset_top = 42.0
 offset_right = -8.0
-offset_bottom = -70.0
+offset_bottom = -56.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_unselected_color = Color(1, 1, 1, 1)
@@ -844,5 +863,72 @@ allowed_item_type = 3
 [node name="Slot56" parent="TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("5_edmrt")]
 layout_mode = 2
 allowed_item_type = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 6.0
+offset_top = -53.0
+offset_right = -6.0
+offset_bottom = -5.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 1
+
+[node name="Panel2" type="Panel" parent="HBoxContainer"]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_4xm4e")
+
+[node name="TextureRect" type="TextureRect" parent="HBoxContainer/Panel2"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("AtlasTexture_fcv6u")
+expand_mode = 2
+stretch_mode = 4
+
+[node name="Panel" type="Panel" parent="HBoxContainer"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_4xm4e")
+
+[node name="MoniesCountLabel" type="Label" parent="HBoxContainer/Panel"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -170.0
+offset_top = -13.0
+offset_right = -2.0
+offset_bottom = 13.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("7_5kvlq")
+text = "0"
+horizontal_alignment = 2
+vertical_alignment = 1
+clip_text = true
+
+[node name="Label" type="Label" parent="HBoxContainer"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_wr21r")
+theme_override_font_sizes/font_size = 16
+text = "Monies"
+horizontal_alignment = 2
+vertical_alignment = 1
 
 [connection signal="pressed" from="CloseButton" to="." method="hide"]

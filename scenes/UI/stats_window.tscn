@@ -1,0 +1,586 @@
+[gd_scene load_steps=14 format=3 uid="uid://chfqd31o6lr2s"]
+
+[ext_resource type="StyleBox" uid="uid://dm8jxifs8rqrm" path="res://assets/UI/Themes/PanelStyleboxTheme.tres" id="1_8ot1e"]
+[ext_resource type="Script" uid="uid://cim4ffnwf0bi8" path="res://scripts/UI/stats_window.gd" id="2_2xr41"]
+[ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="3_3grst"]
+[ext_resource type="FontFile" uid="uid://bxv5w2dv4xg3m" path="res://assets/fonts/Inter.ttc" id="4_hyo3f"]
+
+[sub_resource type="Theme" id="Theme_nbg44"]
+default_font = ExtResource("4_hyo3f")
+Label/colors/font_outline_color = Color(0.521569, 0.607843, 0.105882, 1)
+Label/constants/outline_size = 6
+Label/fonts/font = ExtResource("3_3grst")
+Label/styles/normal = null
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ihqbe"]
+content_margin_top = 5.0
+bg_color = Color(0.996078, 0.992157, 0.988235, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cgmen"]
+bg_color = Color(0.8310881, 0.9995641, 0.18639073, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 2
+corner_radius_top_left = 4
+corner_radius_bottom_left = 4
+expand_margin_left = 2.0
+expand_margin_top = 4.0
+expand_margin_right = 2.0
+expand_margin_bottom = 4.0
+
+[sub_resource type="Gradient" id="Gradient_jn0uf"]
+colors = PackedColorArray(0, 0, 0, 0.588235, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_4ni0x"]
+gradient = SubResource("Gradient_jn0uf")
+fill_from = Vector2(0.5, 1)
+fill_to = Vector2(0.5, 0)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_kp55c"]
+texture = SubResource("GradientTexture2D_4ni0x")
+expand_margin_left = 2.0
+expand_margin_top = 4.0
+expand_margin_right = 2.0
+expand_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7iww4"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+expand_margin_left = 4.0
+expand_margin_top = 2.0
+expand_margin_right = 4.0
+expand_margin_bottom = 2.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fqhit"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+expand_margin_left = 4.0
+expand_margin_top = 2.0
+expand_margin_right = 4.0
+expand_margin_bottom = 2.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_e8txv"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+expand_margin_left = 4.0
+expand_margin_top = 2.0
+expand_margin_right = 4.0
+expand_margin_bottom = 2.0
+
+[node name="StatsWindow" type="Panel"]
+visible = false
+offset_left = 115.0
+offset_top = 291.0
+offset_right = 530.0
+offset_bottom = 826.0
+theme_override_styles/panel = ExtResource("1_8ot1e")
+script = ExtResource("2_2xr41")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 5.0
+offset_right = -4.0
+offset_bottom = 38.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.905882, 0.890196, 0.34902, 1)
+theme_override_fonts/font = ExtResource("3_3grst")
+theme_override_font_sizes/font_size = 16
+text = "Stats"
+horizontal_alignment = 1
+vertical_alignment = 1
+uppercase = true
+
+[node name="StatsPanel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -199.5
+offset_top = -500.0
+offset_right = 199.5
+offset_bottom = -9.0
+grow_horizontal = 2
+grow_vertical = 0
+theme = SubResource("Theme_nbg44")
+theme_override_styles/panel = SubResource("StyleBoxFlat_ihqbe")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="StatsPanel"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -185.5
+offset_top = -480.0
+offset_right = 184.5
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 13
+
+[node name="NameContainer" type="HBoxContainer" parent="StatsPanel/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="NameLabel" type="Label" parent="StatsPanel/VBoxContainer/NameContainer"]
+clip_children = 2
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_outline_size = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
+text = "Name"
+uppercase = true
+
+[node name="GradientMask" type="Panel" parent="StatsPanel/VBoxContainer/NameContainer/NameLabel"]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = -4.0
+offset_right = 2.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
+
+[node name="NameStringLabel" type="Label" parent="StatsPanel/VBoxContainer/NameContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 0
+theme_override_fonts/font = ExtResource("4_hyo3f")
+theme_override_styles/normal = SubResource("StyleBoxFlat_7iww4")
+text = "Player"
+horizontal_alignment = 2
+
+[node name="ClassContainer" type="HBoxContainer" parent="StatsPanel/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="ClassLabel" type="Label" parent="StatsPanel/VBoxContainer/ClassContainer"]
+clip_children = 2
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_outline_size = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
+text = "Class"
+uppercase = true
+
+[node name="GradientMask" type="Panel" parent="StatsPanel/VBoxContainer/ClassContainer/ClassLabel"]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = -4.0
+offset_right = 2.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
+
+[node name="ClassStringLabel" type="Label" parent="StatsPanel/VBoxContainer/ClassContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 0
+theme_override_fonts/font = ExtResource("4_hyo3f")
+theme_override_styles/normal = SubResource("StyleBoxFlat_fqhit")
+text = "Warrior"
+horizontal_alignment = 2
+
+[node name="LevelContainer" type="HBoxContainer" parent="StatsPanel/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="LevelLabel" type="Label" parent="StatsPanel/VBoxContainer/LevelContainer"]
+clip_children = 2
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_outline_size = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
+text = "Level"
+uppercase = true
+
+[node name="GradientMask" type="Panel" parent="StatsPanel/VBoxContainer/LevelContainer/LevelLabel"]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = -4.0
+offset_right = 2.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
+
+[node name="LevelStringLabel" type="Label" parent="StatsPanel/VBoxContainer/LevelContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 0
+theme_override_fonts/font = ExtResource("4_hyo3f")
+theme_override_styles/normal = SubResource("StyleBoxFlat_fqhit")
+text = "1"
+horizontal_alignment = 2
+
+[node name="ExperienceContainer" type="HBoxContainer" parent="StatsPanel/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="ExperienceLabel" type="Label" parent="StatsPanel/VBoxContainer/ExperienceContainer"]
+clip_children = 2
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_outline_size = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
+text = "Experience"
+uppercase = true
+
+[node name="GradientMask" type="Panel" parent="StatsPanel/VBoxContainer/ExperienceContainer/ExperienceLabel"]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = -4.0
+offset_right = 2.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
+
+[node name="ExperienceStringLabel" type="Label" parent="StatsPanel/VBoxContainer/ExperienceContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 0
+theme_override_fonts/font = ExtResource("4_hyo3f")
+theme_override_styles/normal = SubResource("StyleBoxFlat_fqhit")
+text = "0"
+horizontal_alignment = 2
+
+[node name="HealthContainer" type="HBoxContainer" parent="StatsPanel/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="HealthLabel" type="Label" parent="StatsPanel/VBoxContainer/HealthContainer"]
+clip_children = 2
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_outline_size = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
+text = "Health"
+uppercase = true
+
+[node name="GradientMask" type="Panel" parent="StatsPanel/VBoxContainer/HealthContainer/HealthLabel"]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = -4.0
+offset_right = 2.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
+
+[node name="HealthAmountLabel" type="Label" parent="StatsPanel/VBoxContainer/HealthContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 0
+theme_override_fonts/font = ExtResource("4_hyo3f")
+theme_override_styles/normal = SubResource("StyleBoxFlat_fqhit")
+text = "100/100"
+horizontal_alignment = 2
+
+[node name="ManaContainer" type="HBoxContainer" parent="StatsPanel/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="ManaLabel" type="Label" parent="StatsPanel/VBoxContainer/ManaContainer"]
+clip_children = 2
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_outline_size = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
+text = "Mana"
+uppercase = true
+
+[node name="GradientMask" type="Panel" parent="StatsPanel/VBoxContainer/ManaContainer/ManaLabel"]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = -4.0
+offset_right = 2.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
+
+[node name="ManaAmountLabel" type="Label" parent="StatsPanel/VBoxContainer/ManaContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 0
+theme_override_fonts/font = ExtResource("4_hyo3f")
+theme_override_styles/normal = SubResource("StyleBoxFlat_fqhit")
+text = "100/100"
+horizontal_alignment = 2
+
+[node name="HSeparator" type="HSeparator" parent="StatsPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="STRContainer" type="HBoxContainer" parent="StatsPanel/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="STRLabel" type="Label" parent="StatsPanel/VBoxContainer/STRContainer"]
+clip_children = 2
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_outline_size = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
+text = "Str"
+uppercase = true
+
+[node name="GradientMask" type="Panel" parent="StatsPanel/VBoxContainer/STRContainer/STRLabel"]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = -4.0
+offset_right = 2.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
+
+[node name="STRAmountLabel" type="Label" parent="StatsPanel/VBoxContainer/STRContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 0
+theme_override_fonts/font = ExtResource("4_hyo3f")
+theme_override_styles/normal = SubResource("StyleBoxFlat_fqhit")
+text = "0"
+horizontal_alignment = 2
+
+[node name="INTContainer" type="HBoxContainer" parent="StatsPanel/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="INTLabel" type="Label" parent="StatsPanel/VBoxContainer/INTContainer"]
+clip_children = 2
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_outline_size = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
+text = "Int"
+uppercase = true
+
+[node name="GradientMask" type="Panel" parent="StatsPanel/VBoxContainer/INTContainer/INTLabel"]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = -4.0
+offset_right = 2.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
+
+[node name="INTAmountLabel" type="Label" parent="StatsPanel/VBoxContainer/INTContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 0
+theme_override_fonts/font = ExtResource("4_hyo3f")
+theme_override_styles/normal = SubResource("StyleBoxFlat_e8txv")
+text = "0"
+horizontal_alignment = 2
+
+[node name="DEXContainer" type="HBoxContainer" parent="StatsPanel/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="DEXLabel" type="Label" parent="StatsPanel/VBoxContainer/DEXContainer"]
+clip_children = 2
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_outline_size = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
+text = "Dex"
+uppercase = true
+
+[node name="GradientMask" type="Panel" parent="StatsPanel/VBoxContainer/DEXContainer/DEXLabel"]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = -4.0
+offset_right = 2.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
+
+[node name="DEXAmountLabel" type="Label" parent="StatsPanel/VBoxContainer/DEXContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 0
+theme_override_fonts/font = ExtResource("4_hyo3f")
+theme_override_styles/normal = SubResource("StyleBoxFlat_e8txv")
+text = "0"
+horizontal_alignment = 2
+
+[node name="LUKContainer" type="HBoxContainer" parent="StatsPanel/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="LUKLabel" type="Label" parent="StatsPanel/VBoxContainer/LUKContainer"]
+clip_children = 2
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_outline_size = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
+text = "Luk"
+uppercase = true
+
+[node name="GradientMask" type="Panel" parent="StatsPanel/VBoxContainer/LUKContainer/LUKLabel"]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = -4.0
+offset_right = 2.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
+
+[node name="LUKAmountLabel" type="Label" parent="StatsPanel/VBoxContainer/LUKContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 0
+theme_override_fonts/font = ExtResource("4_hyo3f")
+theme_override_styles/normal = SubResource("StyleBoxFlat_e8txv")
+text = "0"
+horizontal_alignment = 2
+
+[node name="HSeparator2" type="HSeparator" parent="StatsPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="DMGRangeContainer" type="HBoxContainer" parent="StatsPanel/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="DMGRangeLabel" type="Label" parent="StatsPanel/VBoxContainer/DMGRangeContainer"]
+clip_children = 2
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_outline_size = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
+text = "Damage Range"
+uppercase = true
+
+[node name="GradientMask" type="Panel" parent="StatsPanel/VBoxContainer/DMGRangeContainer/DMGRangeLabel"]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = -4.0
+offset_right = 2.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
+
+[node name="DMGRangeAmountLabel" type="Label" parent="StatsPanel/VBoxContainer/DMGRangeContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 0
+theme_override_fonts/font = ExtResource("4_hyo3f")
+theme_override_styles/normal = SubResource("StyleBoxFlat_e8txv")
+text = "0 ~ 1"
+horizontal_alignment = 2
+
+[node name="CloseButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -35.0
+offset_top = 3.0
+offset_right = -4.0
+offset_bottom = 34.0
+grow_horizontal = 0
+focus_mode = 0
+text = "X"
+flat = true
+
+[connection signal="pressed" from="CloseButton" to="." method="hide"]
