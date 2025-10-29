@@ -1,8 +1,9 @@
-[gd_scene load_steps=105 format=3 uid="uid://bdtdpx0d05sy3"]
+[gd_scene load_steps=106 format=3 uid="uid://bdtdpx0d05sy3"]
 
 [ext_resource type="Script" uid="uid://yibpus3whwuj" path="res://scripts/Player/multiplayer_controller_v2.gd" id="1_an8q1"]
 [ext_resource type="Script" uid="uid://cy1j38lpy671e" path="res://scripts/Player/multiplayer_input.gd" id="2_hxkm2"]
 [ext_resource type="Script" uid="uid://ys6acovxq2iq" path="res://scripts/Components/level.gd" id="3_18ciy"]
+[ext_resource type="Script" uid="uid://dvo2fsw8a8ooj" path="res://scripts/Components/player_inventory.gd" id="3_pnj8v"]
 [ext_resource type="Curve" uid="uid://ck1du2i5bxyya" path="res://assets/curves/leveling_curve.tres" id="4_4ni0x"]
 [ext_resource type="Script" uid="uid://71v08yv5tjrt" path="res://scripts/Components/stats.gd" id="4_cg2hl"]
 [ext_resource type="Script" uid="uid://dhhn4ks2uixk8" path="res://scripts/Components/health.gd" id="5_o05ft"]
@@ -544,7 +545,7 @@ size = Vector2(21, 21)
 [sub_resource type="CircleShape2D" id="CircleShape2D_h0wtf"]
 radius = 5.0
 
-[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "combat_component", "level_component", "stats_component", "class_component", "inventory_component", "equipment_component", "ability_component", "buff_component", "debug_component", "player_HUD", "player_name_label", "stats_window", "inventory_window") groups=["Players", "networked_entities"]]
+[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "combat_component", "level_component", "stats_component", "class_component", "player_inventory", "inventory_component", "equipment_component", "ability_component", "buff_component", "debug_component", "player_HUD", "player_name_label", "stats_window", "inventory_window") groups=["Players", "networked_entities"]]
 collision_layer = 2
 collision_mask = 5
 script = ExtResource("1_an8q1")
@@ -553,7 +554,8 @@ combat_component = NodePath("Components/Combat")
 level_component = NodePath("Components/Leveling")
 stats_component = NodePath("Components/Stats")
 class_component = NodePath("Components/Class")
-inventory_component = NodePath("Components/Inventory")
+player_inventory = NodePath("Components/PlayerInventory")
+inventory_component = NodePath("Components/PlayerInventory/InventoryComponent")
 equipment_component = NodePath("Components/Equipment")
 ability_component = NodePath("Components/Ability")
 buff_component = NodePath("Components/Buff")
@@ -582,11 +584,16 @@ position = Vector2(0, -30)
 delta_interval = 0.05
 replication_config = SubResource("SceneReplicationConfig_x5q00")
 
-[node name="Inventory" type="Node" parent="Components" node_paths=PackedStringArray("inventory_grids", "equipment_component", "monies_label")]
-script = ExtResource("15_cg2hl")
-inventory_grids = [NodePath("../../CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/EQUIP/ScrollContainer/EquipmentGrid"), NodePath("../../CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/USE/ScrollContainer/ConsumableGrid"), NodePath("../../CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid")]
-equipment_component = NodePath("../Equipment")
+[node name="PlayerInventory" type="Node" parent="Components" node_paths=PackedStringArray("inventory_component", "player", "monies_label")]
+script = ExtResource("3_pnj8v")
+inventory_component = NodePath("InventoryComponent")
+player = NodePath("../..")
 monies_label = NodePath("../../CanvasLayer/MoveableWindows/InventoryWindow/HBoxContainer/Panel/MoniesCountLabel")
+
+[node name="InventoryComponent" type="Node" parent="Components/PlayerInventory" node_paths=PackedStringArray("inventory_grids", "equipment_component")]
+script = ExtResource("15_cg2hl")
+inventory_grids = [NodePath("../../../CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/EQUIP/ScrollContainer/EquipmentGrid"), NodePath("../../../CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/USE/ScrollContainer/ConsumableGrid"), NodePath("../../../CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid")]
+equipment_component = NodePath("../../Equipment")
 
 [node name="Equipment" type="Node" parent="Components" node_paths=PackedStringArray("head_slot", "chest_slot", "legs_slot", "feet_slot", "weapon_slot")]
 script = ExtResource("13_ihqbe")

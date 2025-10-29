@@ -19,6 +19,10 @@ var is_public_pickup: bool = false
 
 @export var sprite: Sprite2D
 @export var collision_shape: CollisionShape2D
+@export var pickup_sfx: AudioStream
+
+@onready var pickup_sound: AudioStreamPlayer2D = $PickupSound
+
 
 ## State
 enum ItemState { POPPING, FALLING, SETTLED, COLLECTED }
@@ -162,16 +166,20 @@ func _pickup_item(picking_player: MultiplayerPlayerV2 = null) -> void:
 	var player_to_give_item = picking_player if picking_player else target_player
 	
 	# Add item to player's inventory
-	if player_to_give_item and player_to_give_item.inventory_component:
+	if player_to_give_item and player_to_give_item.player_inventory:
 		print("DroppedItem: Adding %dx %s to player %s inventory" % [stack_amount, item_data.name, player_to_give_item.username])
 		if item_data.name == "Coin":
-			player_to_give_item.inventory_component.monies_amount += stack_amount
+			player_to_give_item.player_inventory.monies_amount += stack_amount
 		# For stackable items, add with the stack amount
 		elif item_data.can_stack and stack_amount > 1:
 			for i in range(stack_amount):
-				player_to_give_item.inventory_component.add_item(item_data.item_id)
+				player_to_give_item.player_inventory.add_item(item_data.item_id)
 		else:
-			player_to_give_item.inventory_component.add_item(item_data.item_id)
+			player_to_give_item.player_inventory.add_item(item_data.item_id)
+	
+	pickup_sound.stream = pickup_sfx
+	
+	pickup_sound.play()
 	
 	# Animate pickup: popup -> magnetize to player -> fade out
 	var pickup_tween = create_tween()
@@ -187,6 +195,7 @@ func _pickup_item(picking_player: MultiplayerPlayerV2 = null) -> void:
 	# Phase 3: Fade out slowly (0.3s) - runs in parallel with end of magnetize
 	pickup_tween.parallel().tween_property(sprite, "modulate:a", 0.0, 0.3).set_ease(Tween.EASE_IN).set_delay(0.1)
 	
+	await pickup_sound.finished
 	pickup_tween.finished.connect(queue_free)
 
 

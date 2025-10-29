@@ -1,6 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://b43dktokqxhjo"]
+[gd_scene load_steps=5 format=3 uid="uid://b43dktokqxhjo"]
 
 [ext_resource type="Script" uid="uid://ci5jyu7qqdk76" path="res://scripts/Resources/ItemSystem/DroppedItem.gd" id="1_8xljp"]
+[ext_resource type="AudioStream" uid="uid://d3cv7y5won13o" path="res://assets/sounds/pickup.mp3" id="2_2vu6h"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_8xljp"]
 properties/0/path = NodePath(".:position")
@@ -19,6 +20,7 @@ collision_mask = 5
 script = ExtResource("1_8xljp")
 sprite = NodePath("Sprite2D")
 collision_shape = NodePath("CollisionShape2D")
+pickup_sfx = ExtResource("2_2vu6h")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 delta_interval = 0.015
@@ -29,3 +31,6 @@ z_index = 5
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_y52g2")
+
+[node name="PickupSound" type="AudioStreamPlayer2D" parent="."]
+bus = &"SFX"

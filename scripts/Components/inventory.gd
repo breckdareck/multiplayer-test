@@ -1,69 +1,46 @@
 class_name InventoryComponent
 extends Node
 
-const MAX_MONIES_AMOUNT: int = 999999999
+signal inventory_changed(inventory: InventoryComponent)
+signal item_added(item: ItemData)
+signal item_removed(item: ItemData)
 
 @export var inventory_grids: Array[GridContainer]
 @export var equipment_component: EquipmentComponent
-@export var monies_label: Label
-
-var monies_amount: int = 0:
-	set(value):
-		if value > MAX_MONIES_AMOUNT:
-			monies_amount = MAX_MONIES_AMOUNT
-		else:
-			monies_amount = value
-		monies_label.text = format_number_with_commas(value)
-		_notify_changed()
 
 var slots: Array[Slot] = []
-
 var item_counts: Dictionary = {} # item_name -> total_count
 var item_locations: Dictionary = {} # item_name -> Array[Slot]
 
 var pending_moves: Dictionary = {}
 var pending_splits: Dictionary = {}
 var pending_transfers: Dictionary = {}
-
-# Buffer for inventory data received before this node enters the scene tree/has slots
 var pending_inventory_data: Dictionary = {}
+
+# Optional multiplayer configuration - set by wrapper
+var enable_multiplayer_sync: bool = true
+var owner_id: int = -1
 
 
 func format_number_with_commas(number: int) -> String:
-	var num_str: String = str(abs(number))  # Convert to string and handle absolute value
+	var num_str: String = str(abs(number))
 	var result: String = ""
 	var count: int = 0
 
-	# Iterate from right to left to insert commas
 	for i in range(num_str.length() - 1, -1, -1):
 		result = num_str[i] + result
 		count += 1
-		# Insert a comma every three digits, but not at the very beginning
 		if count % 3 == 0 and i != 0:
 			result = "," + result
 	
-	# Add negative sign if original number was negative
 	if number < 0:
 		result = "-" + result
 		
 	return result
 
 
-# Notify the owning player on the server that inventory data changed
 func _notify_changed() -> void:
-	if multiplayer.is_server():
-		var player = _get_player()
-		if player and player.has_method("_data_changed"):
-			player._data_changed()
-
-# Walk up the tree to find the player node that owns this inventory
-func _get_player() -> MultiplayerPlayerV2:
-	var node: Node = self
-	while node:
-		if node is MultiplayerPlayerV2:
-			return node
-		node = node.get_parent()
-	return null
+	inventory_changed.emit(self)
 
 
 func _ready() -> void:
@@ -71,74 +48,17 @@ func _ready() -> void:
 		return
 	await _ensure_slots_initialized()
 	
-	# Test code for adding items
-	# Get items by name from ResourceManager
-	var potion = ResourceManager.get_item_by_name("Grape Potion")
-	var coin = ResourceManager.get_item_by_name("Coin")
-	var sword = ResourceManager.get_item_by_name("Iron Sword")
-	var test_sword_2 = ResourceManager.get_item_by_name("Test Sword 2")
-	var test_sword_3 = ResourceManager.get_item_by_name("Test Sword 3")
-	var hat = ResourceManager.get_item_by_name("Test Hat")
-	var chest = ResourceManager.get_item_by_name("Test Chest")
-
-	# for x in range(10):
-	# 	# Make sure to duplicate before adding
-	# 	if potion:
-	# 		var potion_copy = potion.duplicate_with_path()
-	# 		add_item(potion_copy)
-
 	_rebuild_item_tracking()
 	
-	# If any inventory data was buffered before initialization, apply it now
 	if not pending_inventory_data.is_empty():
-		print("Pending Inv Data")
+		print("Applying pending inventory data")
 		_apply_inventory_data(pending_inventory_data)
 		pending_inventory_data.clear()
-		
-	# Put Add Item here for always gaining Item or 
-	# put it before pending so save data is master
-	#if sword:
-		#var sword_copy = sword.duplicate_with_path()
-		#add_item(sword_copy)
-		#
-	#if test_sword_2:
-		#var test_sword_2_copy = test_sword_2.duplicate_with_path()
-		#add_item(test_sword_2_copy)
-		#
-	#if test_sword_3:
-		#var test_sword_3_copy = test_sword_3.duplicate_with_path()
-		#add_item(test_sword_3_copy)
-		#
-	#if hat:
-		#var hat_copy = hat.duplicate_with_path()
-		#add_item(hat_copy)
-		#
-	#if chest:
-		#var chest_copy = chest.duplicate_with_path()
-		#add_item(chest_copy)
-	
-	#for x in range(150):
-		#if potion:
-			#var potion_copy = potion.duplicate_with_path()
-			#add_item(potion_copy)
-			#
-		#if coin:
-			#var coin_copy = coin.duplicate_with_path()
-			#add_item(coin_copy)
-
-	# After populating on the server, push the authoritative inventory to the owning client
-	# so the client mirrors the server's inventory state immediately.
-	#var player = _get_player()
-	#if multiplayer.has_multiplayer_peer() and multiplayer.is_server() and player:
-		#var inv_data = save_inventory()
-		#load_inventory_rpc.rpc_id(player.player_id, inv_data)
 
 
 func _ensure_slots_initialized() -> void:
-	# Ensure we're inside the scene tree before accessing it
 	if not is_inside_tree():
 		await tree_entered
-	# If slots array is empty, try to get them from the grid (next frame to allow UI to build)
 	await get_tree().process_frame
 	if slots.is_empty() and not inventory_grids.is_empty():
 		for grid in inventory_grids:
@@ -171,13 +91,11 @@ func _rebuild_item_tracking():
 			var item_name = slot.item.name
 			var stack_amount = slot.item.current_stack_amount
 
-			# Update count
 			if item_name in item_counts:
 				item_counts[item_name] += stack_amount
 			else:
 				item_counts[item_name] = stack_amount
 
-			# Update locations
 			if item_name in item_locations:
 				item_locations[item_name].append(slot)
 			else:
@@ -185,7 +103,6 @@ func _rebuild_item_tracking():
 
 
 func _update_item_tracking(slot: Slot, old_item: ItemData, new_item: ItemData):
-	# Remove old item from tracking
 	if old_item != null:
 		var old_name = old_item.name
 		if old_name in item_counts:
@@ -198,7 +115,6 @@ func _update_item_tracking(slot: Slot, old_item: ItemData, new_item: ItemData):
 			if item_locations[old_name].is_empty():
 				item_locations.erase(old_name)
 
-	# Add new item to tracking
 	if new_item != null:
 		var new_name = new_item.name
 		var stack_amount = new_item.current_stack_amount
@@ -222,16 +138,10 @@ func server_add_item(item_id: String):
 	var original_item: ItemData = ResourceManager.get_item_data(item_id).duplicate_with_path()
 	var item_name = original_item.name
 	
-	var player = _get_player()
-	if not player:
-		print("Cannot add item: no player found")
-		return
-		
-	if item_name == "Coin":
-		monies_amount += original_item.current_stack_amount
-		return
-
-	# --- Try to stack with existing items in valid slots ---
+	# Emit signal so wrapper can handle special items
+	item_added.emit(original_item)
+	
+	# Try to stack with existing items in valid slots
 	if item_name in item_locations and original_item.can_stack:
 		var existing_slots = item_locations[item_name]
 		for slot in existing_slots:
@@ -246,13 +156,11 @@ func server_add_item(item_id: String):
 					original_item.current_stack_amount -= amount_to_add
 					item_counts[item_name] += amount_to_add
 					if original_item.current_stack_amount <= 0:
-						# Send update to client
-						var inv_data = save_inventory()
-						load_inventory_rpc.rpc_id(player.player_id, inv_data)
+						_sync_to_owner()
 						_notify_changed()
 						return
 						
-	# --- Find a valid empty slot ---
+	# Find a valid empty slot
 	for slot in slots:
 		if slot.item == null and (not slot.has_method("can_accept_item") or slot.can_accept_item(original_item)):
 			slot.item = original_item.duplicate_with_path()
@@ -260,13 +168,18 @@ func server_add_item(item_id: String):
 			slot.update_display()
 			_update_item_tracking(slot, null, slot.item)
 			
-			# Send update to client
-			var inv_data = save_inventory()
-			load_inventory_rpc.rpc_id(player.player_id, inv_data)
+			_sync_to_owner()
 			_notify_changed()
 			return
 			
 	print("Inventory is full or no suitable slot found for this item type.")
+
+
+func _sync_to_owner():
+	"""Send inventory update to owner if multiplayer sync is enabled"""
+	if enable_multiplayer_sync and owner_id > 0 and multiplayer.is_server():
+		var inv_data = save_inventory()
+		load_inventory_rpc.rpc_id(owner_id, inv_data)
 
 
 func add_item(item_id: String):
@@ -283,6 +196,8 @@ func remove_item(item: ItemData):
 			slot.item = null
 			slot.update_display()
 			_update_item_tracking(slot, old_item, null)
+			item_removed.emit(old_item)
+			_notify_changed()
 			return
 	print("Item not found")
 
@@ -305,10 +220,13 @@ func remove_item_from_stack(item: ItemData, amount: int = 1):
 				var old_item = slot.item
 				slot.item = null
 				_update_item_tracking(slot, old_item, null)
+				item_removed.emit(old_item)
 
+			_notify_changed()
 			return removed
 	print("Item not found")
 	return 0
+
 
 func clear_slot(slot: Slot):
 	"""Clear a specific slot and update tracking"""
@@ -317,6 +235,8 @@ func clear_slot(slot: Slot):
 		slot.item = null
 		slot.update_display()
 		_update_item_tracking(slot, old_item, null)
+		if old_item:
+			item_removed.emit(old_item)
 		_notify_changed()
 	else:
 		print("Slot not found in inventory")
@@ -381,11 +301,10 @@ func save_inventory() -> Dictionary:
 		if slot.item != null:
 			slot_data.append({
 				"slot_index": i,
-				"item_id": slot.item.item_id,  # This is a string
+				"item_id": slot.item.item_id,
 				"stack_amount": slot.item.current_stack_amount
 			})
 	
-	# Save equipment slots as a dictionary: key -> item_id
 	var equipment_data: Dictionary = {}
 	if equipment_component and not equipment_component.equipment.is_empty():
 		for eq_key in equipment_component.equipment.keys():
@@ -396,7 +315,6 @@ func save_inventory() -> Dictionary:
 
 	inventory_data["slots"] = slot_data
 	inventory_data["equipment"] = equipment_data
-	inventory_data["monies"] = monies_amount
 	return inventory_data
 
 
@@ -404,7 +322,7 @@ func _apply_inventory_data(inventory_data: Dictionary) -> void:
 	# Clear existing inventory
 	for slot in slots:
 		if slot.has_method("cancel_drag"):
-			slot.cancel_drag()  # Cancel any ongoing drags
+			slot.cancel_drag()
 		slot.item = null
 		slot.update_display()
 
@@ -424,10 +342,8 @@ func _apply_inventory_data(inventory_data: Dictionary) -> void:
 		var stack_amount = item_data.get("stack_amount", 1)
 		
 		if slot_index >= 0 and slot_index < slots.size() and not saved_item_id.is_empty():
-			# Use the ResourceManager to get the item data by ID
 			var item_resource = ResourceManager.get_item_data(saved_item_id)
 			if item_resource:
-				# print("Loading: %s" % item_resource.name)
 				var item_copy = item_resource.duplicate_with_path()
 				item_copy.item_id = saved_item_id
 				item_copy.current_stack_amount = stack_amount
@@ -436,7 +352,7 @@ func _apply_inventory_data(inventory_data: Dictionary) -> void:
 			else:
 				print("Failed to load item with ID: " + saved_item_id)
 
-	# Load equipment items from equipment dictionary mapping
+	# Load equipment items
 	if equipment_component:
 		var equipment_data_dict: Dictionary = inventory_data.get("equipment", {})
 		for key_str in equipment_data_dict.keys():
@@ -458,15 +374,11 @@ func _apply_inventory_data(inventory_data: Dictionary) -> void:
 					target_slot.update_display()
 				else:
 					print("Failed to load equipment item with ID: " + eq_item_id)
-					
-	monies_amount = inventory_data.get("monies", 0)
 	
-	# Rebuild tracking after loading
 	_rebuild_item_tracking()
 
 
 func load_inventory(inventory_data: Dictionary) -> void:
-	# If we're not yet inside the tree, buffer the data and apply later in _ready()
 	if not is_inside_tree():
 		pending_inventory_data = inventory_data
 		return
@@ -483,7 +395,6 @@ func load_inventory_rpc(inventory_data: Dictionary):
 	
 	await _ensure_slots_initialized()
 	
-	# Load silently to prevent equipment change signals on client
 	if equipment_component:
 		equipment_component.set_silent_mode(true)
 	
@@ -491,30 +402,12 @@ func load_inventory_rpc(inventory_data: Dictionary):
 	
 	if equipment_component:
 		equipment_component.set_silent_mode(false)
-	
-	# After loading inventory on client, manually trigger ONE stat recalc
-	var player = _get_player()
-	if player and player.stats_component:
-		player.stats_component._recalculate_stats()
-
-
-# Client-side: Immediately move item and request server validation
-func move_item_clientside(from_slot_index: int, to_slot_index: int) -> bool:
-	if from_slot_index < 0 or from_slot_index >= slots.size():
-		return false
-	if to_slot_index < 0 or to_slot_index >= slots.size():
-		return false
-	
-	# Delegate to path-based transfer to avoid index-order mismatch between peers
-	return transfer_item_clientside(slots[from_slot_index], slots[to_slot_index])
 
 
 func transfer_item_clientside(from_slot: Slot, to_slot: Slot) -> bool:
-	# Get slot paths relative to this InventoryComponent BEFORE any local swap
 	var from_path: NodePath = get_path_to(from_slot)
 	var to_path: NodePath = get_path_to(to_slot)
 
-	# Store backup for potential rollback (pre-swap)
 	var backup_state = {
 		"from_item": from_slot.item.duplicate_with_path() if from_slot.item else null,
 		"to_item": to_slot.item.duplicate_with_path() if to_slot.item else null,
@@ -523,108 +416,47 @@ func transfer_item_clientside(from_slot: Slot, to_slot: Slot) -> bool:
 	}
 	pending_transfers[from_path] = backup_state
 
-	# Send request to server for validation
-	if multiplayer.has_multiplayer_peer():
-		var player = _get_player()
-		if player:
-			request_transfer_item.rpc_id(1, from_path, to_path, player.player_id)
-		else:
-			pass
+	if multiplayer.has_multiplayer_peer() and owner_id > 0:
+		request_transfer_item.rpc_id(1, from_path, to_path, owner_id)
 	else:
-		# Single player - no validation needed
 		pending_transfers.erase(from_path)
-
-	# Do not perform optimistic swap; wait for server confirmation to avoid race with other updates
-	# Visuals will update on confirm_transfer_item
 	
 	return true
 
 
-# Local execution of a swap (used by client and server)
 func _execute_swap_local(from_slot: Slot, to_slot: Slot):
-	# Store the original items before the swap
 	var from_item = from_slot.item
 	var to_item = to_slot.item
 
-	# Perform the direct swap of item data
 	from_slot.item = to_item
 	to_slot.item = from_item
 
-	# Explicitly update the tracking for both slots.
-	# This is critical for maintaining a consistent state.
 	_update_item_tracking(from_slot, from_item, to_item)
 	_update_item_tracking(to_slot, to_item, from_item)
 
-	# Ensure the display is updated
 	from_slot.update_display()
 	to_slot.update_display()
 
 
-# Check if a move is valid
 func _is_move_valid(from_slot: Slot, to_slot: Slot) -> bool:
 	if from_slot.item == null:
 		print("[INV][VALIDATE] from_slot has no item")
 		return false
 	
-	# Check if target slot can accept the item type
 	if to_slot.has_method("can_accept_item") and not to_slot.can_accept_item(from_slot.item):
-		print("[INV][VALIDATE] to_slot cannot accept item '%s' (allowed=%s, item_type=%s)" % [from_slot.item.name, str(to_slot.allowed_item_type) if "allowed_item_type" in to_slot else "-", str(from_slot.item.item_type)])
+		print("[INV][VALIDATE] to_slot cannot accept item '%s'" % from_slot.item.name)
 		return false
 	
 	return true
 
 
-# SERVER RPC: Validate and broadcast move
 @rpc("any_peer", "call_local", "reliable")
-func request_move_item(from_index: int, to_index: int, requesting_player_id: int):
-	if not multiplayer.is_server():
-		return
-	
-	var player = _get_player()
-	if not player or player.player_id != requesting_player_id:
-		print("Move request from wrong player!")
-		send_inventory_correction.rpc_id(requesting_player_id)
-		return
-
-	# Ensure server has initialized slots before validation
-	if slots.is_empty():
-		await _ensure_slots_initialized()
-	
-	if from_index < 0 or from_index >= slots.size() or to_index < 0 or to_index >= slots.size():
-		print("Invalid slot indices in move request")
-		send_inventory_correction.rpc_id(requesting_player_id)
-		return
-	
-	var from_slot = slots[from_index]
-	var to_slot = slots[to_index]
-	
-	
-	if not _is_move_valid(from_slot, to_slot):
-		print("Invalid move rejected by server")
-		send_inventory_correction.rpc_id(requesting_player_id)
-		return
-	
-	# Server executes the move
-	_execute_swap_local(from_slot, to_slot)
-	_notify_changed()
-	
-	# Send confirmation to the requesting client (clears pending moves)
-	confirm_move_item.rpc_id(requesting_player_id, from_index, to_index, true)
-	
-	# Broadcast to other clients
-	for peer_id in multiplayer.get_peers():
-		if peer_id != requesting_player_id:
-			confirm_move_item.rpc_id(peer_id, from_index, to_index, false)
-
-
-@rpc("any_peer", "call_local", "reliable")
-func request_transfer_item(from_slot_path: NodePath, to_slot_path: NodePath, requesting_player_id: int):
+func request_transfer_item(from_slot_path: NodePath, to_slot_path: NodePath, requesting_owner_id: int):
 	if not multiplayer.is_server():
 		return
 
-	var player = _get_player()
-	if not player or player.player_id != requesting_player_id:
-		send_inventory_correction.rpc_id(requesting_player_id)
+	if owner_id > 0 and owner_id != requesting_owner_id:
+		send_inventory_correction.rpc_id(requesting_owner_id)
 		return
 
 	if slots.is_empty():
@@ -634,40 +466,21 @@ func request_transfer_item(from_slot_path: NodePath, to_slot_path: NodePath, req
 	var to_slot = get_node_or_null(to_slot_path)
 
 	if not from_slot or not to_slot:
-		send_inventory_correction.rpc_id(requesting_player_id)
+		send_inventory_correction.rpc_id(requesting_owner_id)
 		return
 
-	# Basic validation
 	if not _is_move_valid(from_slot, to_slot):
-		send_inventory_correction.rpc_id(requesting_player_id)
+		send_inventory_correction.rpc_id(requesting_owner_id)
 		return
 
-	# Server executes the swap
 	_execute_swap_local(from_slot, to_slot)
 	_notify_changed()
 
-	# Send confirmation to the requesting client
-	confirm_transfer_item.rpc_id(requesting_player_id, from_slot_path, to_slot_path, true)
+	confirm_transfer_item.rpc_id(requesting_owner_id, from_slot_path, to_slot_path, true)
 
-	# Broadcast to other clients
 	for peer_id in multiplayer.get_peers():
-		if peer_id != requesting_player_id:
+		if peer_id != requesting_owner_id:
 			confirm_transfer_item.rpc_id(peer_id, from_slot_path, to_slot_path, false)
-
-
-# CLIENT RPC: Receive confirmed move from server
-@rpc("authority", "call_local", "reliable")
-func confirm_move_item(from_index: int, to_index: int, was_requesting_client: bool = false):
-	if multiplayer.is_server():
-		return
-	
-	if was_requesting_client:
-		pending_moves.erase(from_index)
-	else:
-		if from_index >= 0 and from_index < slots.size() and to_index >= 0 and to_index < slots.size():
-			var from_slot = slots[from_index]
-			var to_slot = slots[to_index]
-			_execute_swap_local(from_slot, to_slot)
 
 
 @rpc("authority", "call_local", "reliable")
@@ -688,7 +501,6 @@ func confirm_transfer_item(from_slot_path: NodePath, to_slot_path: NodePath, was
 		_execute_swap_local(from_slot, to_slot)
 
 
-# CLIENT RPC: Server sends correction when move was invalid
 @rpc("authority", "call_local", "reliable")
 func send_inventory_correction():
 	if not multiplayer.is_server():
@@ -706,32 +518,25 @@ func receive_inventory_correction(authoritative_inventory: Dictionary):
 		
 	print("Received inventory correction from server - restoring authoritative state")
 	
-	# Clear any pending moves and splits since server has rejected them
 	pending_moves.clear()
 	pending_splits.clear()
 	pending_transfers.clear()
 	
-	# Load the authoritative inventory state
 	_apply_inventory_data(authoritative_inventory)
 
 
 func sync_inventory_to_client() -> void:
 	if not multiplayer.is_server():
 		return
-		
-	var player = _get_player()
-	if player:
-		var inv_data = save_inventory()
-		load_inventory_rpc.rpc_id(player.player_id, inv_data)
+	
+	_sync_to_owner()
 
 
 func load_inventory_silent(inventory_data: Dictionary) -> void:
-	# Temporarily disable equipment change signals
 	if equipment_component:
 		equipment_component.set_silent_mode(true)
 	
 	_apply_inventory_data(inventory_data)
 	
-	# Re-enable signals
 	if equipment_component:
 		equipment_component.set_silent_mode(false)
