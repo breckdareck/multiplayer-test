@@ -1,0 +1,142 @@
+[gd_scene load_steps=8 format=3 uid="uid://dk63ctw7epbmm"]
+
+[ext_resource type="StyleBox" uid="uid://dm8jxifs8rqrm" path="res://assets/UI/Themes/PanelStyleboxTheme.tres" id="1_qmw2t"]
+[ext_resource type="Script" uid="uid://ycltftf5rwxt" path="res://scripts/UI/shop_window.gd" id="2_shop"]
+[ext_resource type="Theme" uid="uid://bg5sc8rk63fi6" path="res://assets/UI/Themes/ScrollContainerTheme.tres" id="4_5kvlq"]
+[ext_resource type="Texture2D" uid="uid://u3tpikp1eegv" path="res://assets/sprites/coin.png" id="6_wr21r"]
+[ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="7_5kvlq"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4ni0x"]
+content_margin_top = 5.0
+bg_color = Color(0.996078, 0.992157, 0.988235, 1)
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fcv6u"]
+atlas = ExtResource("6_wr21r")
+region = Rect2(0, 0, 16, 16)
+
+[node name="ShopWindow" type="Panel"]
+visible = false
+offset_left = 632.0
+offset_top = 254.0
+offset_right = 1309.5
+offset_bottom = 796.0
+theme_override_styles/panel = ExtResource("1_qmw2t")
+script = ExtResource("2_shop")
+
+[node name="CloseButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -35.0
+offset_top = 3.0
+offset_right = -4.0
+offset_bottom = 34.0
+grow_horizontal = 0
+focus_mode = 0
+text = "X"
+flat = true
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 40.0
+offset_bottom = -60.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="SellPanel" type="Panel" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_4ni0x")
+
+[node name="SellLabel" type="Label" parent="HBoxContainer/SellPanel"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 30.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("7_5kvlq")
+text = "Sell Item"
+horizontal_alignment = 1
+vertical_alignment = 1
+uppercase = true
+
+[node name="SellScroll" type="ScrollContainer" parent="HBoxContainer/SellPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.1
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource("4_5kvlq")
+horizontal_scroll_mode = 0
+
+[node name="SellList" type="VBoxContainer" parent="HBoxContainer/SellPanel/SellScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 5
+
+[node name="BuyPanel" type="Panel" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_4ni0x")
+
+[node name="BuyLabel" type="Label" parent="HBoxContainer/BuyPanel"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 30.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("7_5kvlq")
+text = "Buy Item"
+horizontal_alignment = 1
+vertical_alignment = 1
+uppercase = true
+
+[node name="BuyScroll" type="ScrollContainer" parent="HBoxContainer/BuyPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.1
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource("4_5kvlq")
+horizontal_scroll_mode = 0
+
+[node name="BuyList" type="VBoxContainer" parent="HBoxContainer/BuyPanel/BuyScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 5
+
+[node name="MoneyContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -50.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 5
+
+[node name="CoinIcon" type="TextureRect" parent="MoneyContainer"]
+layout_mode = 2
+texture = SubResource("AtlasTexture_fcv6u")
+stretch_mode = 4
+
+[node name="MoneyLabel" type="Label" parent="MoneyContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("7_5kvlq")
+text = "0 meso"
+horizontal_alignment = 2
+
+[connection signal="pressed" from="CloseButton" to="." method="hide"]

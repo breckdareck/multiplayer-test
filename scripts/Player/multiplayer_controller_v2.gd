@@ -301,9 +301,9 @@ func _get_save_data() -> Dictionary:
 	   'level': level_component.level if is_instance_valid(level_component) else 1,
 	   'experience': level_component.experience if is_instance_valid(level_component) else 0
 	}
-
-	if is_instance_valid(inventory_component):
-		data['inventory'] = inventory_component.save_inventory()
+	
+	if is_instance_valid(player_inventory):
+		data['inventory'] = player_inventory.save_player_inventory()
 	
 	# Save ability data
 	if is_instance_valid(ability_component):

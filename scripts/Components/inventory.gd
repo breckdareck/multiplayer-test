@@ -8,6 +8,7 @@ signal item_removed(item: ItemData)
 @export var inventory_grids: Array[GridContainer]
 @export var equipment_component: EquipmentComponent
 
+
 var slots: Array[Slot] = []
 var item_counts: Dictionary = {} # item_name -> total_count
 var item_locations: Dictionary = {} # item_name -> Array[Slot]
@@ -131,6 +132,80 @@ func _update_item_tracking(slot: Slot, old_item: ItemData, new_item: ItemData):
 			item_locations[new_name] = [slot]
 
 
+func _get_slot_index(slot: Slot) -> int:
+	"""Get the index of a slot in the slots array, or -1 if not found"""
+	return slots.find(slot)
+
+
+func _sync_slot_to_client(slot: Slot, trigger_stats_recalc: bool = false):
+	"""Send a single slot update to the client"""
+	if not enable_multiplayer_sync or owner_id <= 0 or not multiplayer.is_server():
+		return
+	
+	var slot_index = _get_slot_index(slot)
+	if slot_index == -1:
+		return
+	
+	if slot.item != null:
+		sync_slot_update_rpc.rpc_id(owner_id, slot_index, slot.item.item_id, slot.item.current_stack_amount, trigger_stats_recalc)
+	else:
+		sync_slot_clear_rpc.rpc_id(owner_id, slot_index, trigger_stats_recalc)
+
+
+
+@rpc("authority", "call_local", "reliable")
+func sync_slot_update_rpc(slot_index: int, item_id: String, stack_amount: int, trigger_stats_recalc: bool):
+	"""Client receives a single slot update"""
+	if multiplayer.is_server():
+		return
+	
+	if slot_index < 0 or slot_index >= slots.size():
+		return
+	
+	var slot = slots[slot_index]
+	var old_item = slot.item
+	
+	# Get or create the item
+	var item_resource = ResourceManager.get_item_data(item_id)
+	if item_resource:
+		var item_copy = item_resource.duplicate_with_path()
+		item_copy.item_id = item_id
+		item_copy.current_stack_amount = stack_amount
+		slot.item = item_copy
+		slot.update_display()
+		_update_item_tracking(slot, old_item, item_copy)
+	
+	# Trigger stats recalc if needed (equipment change)
+	if trigger_stats_recalc:
+		_trigger_stats_recalc()
+
+
+@rpc("authority", "call_local", "reliable")
+func sync_slot_clear_rpc(slot_index: int, trigger_stats_recalc: bool):
+	"""Client receives notification that a slot was cleared"""
+	if multiplayer.is_server():
+		return
+	
+	if slot_index < 0 or slot_index >= slots.size():
+		return
+	
+	var slot = slots[slot_index]
+	var old_item = slot.item
+	slot.item = null
+	slot.update_display()
+	_update_item_tracking(slot, old_item, null)
+	
+	# Trigger stats recalc if needed (equipment change)
+	if trigger_stats_recalc:
+		_trigger_stats_recalc()
+
+
+func _trigger_stats_recalc():
+	"""Trigger stats recalculation on client - called via wrapper signal"""
+	# Emit signal that wrapper can listen to
+	inventory_changed.emit(self)
+
+
 @rpc("any_peer", "call_local", "reliable")
 func server_add_item(item_id: String):
 	if not multiplayer.is_server():
@@ -155,9 +230,12 @@ func server_add_item(item_id: String):
 					slot.add_to_stack(amount_to_add)
 					original_item.current_stack_amount -= amount_to_add
 					item_counts[item_name] += amount_to_add
+					
+					# Only sync this one slot
+					_sync_slot_to_client(slot)
+					_notify_changed()
+					
 					if original_item.current_stack_amount <= 0:
-						_sync_to_owner()
-						_notify_changed()
 						return
 						
 	# Find a valid empty slot
@@ -168,18 +246,12 @@ func server_add_item(item_id: String):
 			slot.update_display()
 			_update_item_tracking(slot, null, slot.item)
 			
-			_sync_to_owner()
+			# Only sync this one slot
+			_sync_slot_to_client(slot)
 			_notify_changed()
 			return
 			
 	print("Inventory is full or no suitable slot found for this item type.")
-
-
-func _sync_to_owner():
-	"""Send inventory update to owner if multiplayer sync is enabled"""
-	if enable_multiplayer_sync and owner_id > 0 and multiplayer.is_server():
-		var inv_data = save_inventory()
-		load_inventory_rpc.rpc_id(owner_id, inv_data)
 
 
 func add_item(item_id: String):
@@ -197,6 +269,9 @@ func remove_item(item: ItemData):
 			slot.update_display()
 			_update_item_tracking(slot, old_item, null)
 			item_removed.emit(old_item)
+			
+			# Only sync this one slot
+			_sync_slot_to_client(slot)
 			_notify_changed()
 			return
 	print("Item not found")
@@ -221,7 +296,9 @@ func remove_item_from_stack(item: ItemData, amount: int = 1):
 				slot.item = null
 				_update_item_tracking(slot, old_item, null)
 				item_removed.emit(old_item)
-
+			
+			# Only sync this one slot
+			_sync_slot_to_client(slot)
 			_notify_changed()
 			return removed
 	print("Item not found")
@@ -237,6 +314,9 @@ func clear_slot(slot: Slot):
 		_update_item_tracking(slot, old_item, null)
 		if old_item:
 			item_removed.emit(old_item)
+		
+		# Only sync this one slot
+		_sync_slot_to_client(slot)
 		_notify_changed()
 	else:
 		print("Slot not found in inventory")
@@ -387,7 +467,8 @@ func load_inventory(inventory_data: Dictionary) -> void:
 
 @rpc("authority", "call_local", "reliable")
 func load_inventory_rpc(inventory_data: Dictionary):
-	print("Client %s received inventory data" % str(multiplayer.get_unique_id()))
+	"""Full inventory sync - only used for initial load or corrections"""
+	print("Client %s received full inventory data" % str(multiplayer.get_unique_id()))
 	
 	if not is_inside_tree():
 		pending_inventory_data = inventory_data
@@ -408,6 +489,12 @@ func transfer_item_clientside(from_slot: Slot, to_slot: Slot) -> bool:
 	var from_path: NodePath = get_path_to(from_slot)
 	var to_path: NodePath = get_path_to(to_slot)
 
+	# 1. Always run client-side validation for instant feedback.
+	if not _is_move_valid(from_slot, to_slot):
+		print("[CLIENT] Move invalid.")
+		return false
+
+	# 2. Set up the backup state for rollbacks
 	var backup_state = {
 		"from_item": from_slot.item.duplicate_with_path() if from_slot.item else null,
 		"to_item": to_slot.item.duplicate_with_path() if to_slot.item else null,
@@ -416,9 +503,18 @@ func transfer_item_clientside(from_slot: Slot, to_slot: Slot) -> bool:
 	}
 	pending_transfers[from_path] = backup_state
 
-	if multiplayer.has_multiplayer_peer() and owner_id > 0:
-		request_transfer_item.rpc_id(1, from_path, to_path, owner_id)
+	if not multiplayer.is_server():
+		_execute_swap_local(from_slot, to_slot)
+
+	# 4. Handle network or local execution
+	if multiplayer.has_multiplayer_peer():
+		var my_id = multiplayer.get_unique_id()
+		request_transfer_item.rpc_id(1, from_path, to_path, my_id)
 	else:
+		if multiplayer.is_server():
+			_execute_swap_local(from_slot, to_slot)
+		
+		# No RPC was sent, so clear the pending transfer.
 		pending_transfers.erase(from_path)
 	
 	return true
@@ -436,6 +532,23 @@ func _execute_swap_local(from_slot: Slot, to_slot: Slot):
 
 	from_slot.update_display()
 	to_slot.update_display()
+	
+	# If on server, sync the changed slots to client
+	if multiplayer.is_server():
+		# Check if these are equipment slots
+		var from_is_equipment = _is_equipment_slot(from_slot)
+		var to_is_equipment = _is_equipment_slot(to_slot)
+		
+		# Only trigger stats recalc once, on the last equipment slot update
+		if from_is_equipment:
+			_sync_equipment_slot_to_client(from_slot, not to_is_equipment)
+		else:
+			_sync_slot_to_client(from_slot, false)
+		
+		if to_is_equipment:
+			_sync_equipment_slot_to_client(to_slot, true)
+		else:
+			_sync_slot_to_client(to_slot, false)
 
 
 func _is_move_valid(from_slot: Slot, to_slot: Slot) -> bool:
@@ -448,6 +561,15 @@ func _is_move_valid(from_slot: Slot, to_slot: Slot) -> bool:
 		return false
 	
 	return true
+
+
+func _is_equipment_slot(slot: Slot) -> bool:
+	"""Check if a slot is an equipment slot"""
+	if not equipment_component:
+		return false
+	
+	# Equipment slots have the equipment component as their container
+	return slot.item_container == equipment_component
 
 
 @rpc("any_peer", "call_local", "reliable")
@@ -473,18 +595,22 @@ func request_transfer_item(from_slot_path: NodePath, to_slot_path: NodePath, req
 		send_inventory_correction.rpc_id(requesting_owner_id)
 		return
 
+	# Check if this involves equipment slots (needs stats recalc)
+	var involves_equipment = _is_equipment_slot(from_slot) or _is_equipment_slot(to_slot)
+
 	_execute_swap_local(from_slot, to_slot)
 	_notify_changed()
 
-	confirm_transfer_item.rpc_id(requesting_owner_id, from_slot_path, to_slot_path, true)
+	# Send individual slot updates instead of full inventory
+	confirm_transfer_item.rpc_id(requesting_owner_id, from_slot_path, to_slot_path, true, involves_equipment)
 
 	for peer_id in multiplayer.get_peers():
 		if peer_id != requesting_owner_id:
-			confirm_transfer_item.rpc_id(peer_id, from_slot_path, to_slot_path, false)
+			confirm_transfer_item.rpc_id(peer_id, from_slot_path, to_slot_path, false, involves_equipment)
 
 
 @rpc("authority", "call_local", "reliable")
-func confirm_transfer_item(from_slot_path: NodePath, to_slot_path: NodePath, was_requesting_client: bool):
+func confirm_transfer_item(from_slot_path: NodePath, to_slot_path: NodePath, was_requesting_client: bool, trigger_stats_recalc: bool):
 	if multiplayer.is_server():
 		return
 
@@ -496,9 +622,12 @@ func confirm_transfer_item(from_slot_path: NodePath, to_slot_path: NodePath, was
 
 	if was_requesting_client:
 		pending_transfers.erase(from_slot_path)
-		_execute_swap_local(from_slot, to_slot)
 	else:
 		_execute_swap_local(from_slot, to_slot)
+	
+	# Trigger stats recalc if equipment was changed
+	if trigger_stats_recalc:
+		_trigger_stats_recalc()
 
 
 @rpc("authority", "call_local", "reliable")
@@ -525,11 +654,115 @@ func receive_inventory_correction(authoritative_inventory: Dictionary):
 	_apply_inventory_data(authoritative_inventory)
 
 
-func sync_inventory_to_client() -> void:
-	if not multiplayer.is_server():
+func sync_full_inventory_to_client() -> void:
+	"""Force a full inventory sync - use sparingly (initial load, corrections)"""
+	if not multiplayer.is_server() or owner_id <= 0:
+		return
+		
+	var inv_data = save_inventory()
+	load_inventory_rpc.rpc_id(owner_id, inv_data)
+
+
+func _sync_equipment_slot_to_client(slot: Slot, trigger_stats_recalc: bool = true):
+	"""Send an equipment slot update to the client"""
+	if not enable_multiplayer_sync or owner_id <= 0 or not multiplayer.is_server():
 		return
 	
-	_sync_to_owner()
+	if not equipment_component:
+		return
+	
+	# Find which equipment slot this is
+	var eq_key = null
+	for key in equipment_component.equipment.keys():
+		if equipment_component.equipment[key] == slot:
+			eq_key = key
+			break
+	
+	if eq_key == null:
+		return
+	
+	if slot.item != null:
+		sync_equipment_update_rpc.rpc_id(owner_id, str(eq_key), slot.item.item_id, trigger_stats_recalc)
+	else:
+		sync_equipment_clear_rpc.rpc_id(owner_id, str(eq_key), trigger_stats_recalc)
+
+
+@rpc("authority", "call_local", "reliable")
+func sync_equipment_update_rpc(eq_key_str: String, item_id: String, trigger_stats_recalc: bool):
+	"""Client receives an equipment slot update"""
+	if multiplayer.is_server():
+		return
+	
+	if not equipment_component:
+		return
+	
+	var target_slot: Slot = null
+	if eq_key_str == "WEAPON":
+		target_slot = equipment_component.equipment.get("WEAPON")
+	else:
+		var key_val := int(eq_key_str)
+		target_slot = equipment_component.equipment.get(key_val)
+	
+	if not target_slot:
+		return
+	
+	var old_item = target_slot.item
+	var item_resource = ResourceManager.get_item_data(item_id)
+	if item_resource:
+		var item_copy = item_resource.duplicate_with_path()
+		item_copy.item_id = item_id
+		
+		# Use silent mode if we're batching multiple equipment changes
+		if equipment_component and not trigger_stats_recalc:
+			equipment_component.set_silent_mode(true)
+		
+		target_slot.item = item_copy
+		target_slot.update_display()
+		_update_item_tracking(target_slot, old_item, item_copy)
+		
+		if equipment_component and not trigger_stats_recalc:
+			equipment_component.set_silent_mode(false)
+	
+	# Trigger stats recalc if needed
+	if trigger_stats_recalc:
+		_trigger_stats_recalc()
+
+
+@rpc("authority", "call_local", "reliable")
+func sync_equipment_clear_rpc(eq_key_str: String, trigger_stats_recalc: bool):
+	"""Client receives notification that an equipment slot was cleared"""
+	if multiplayer.is_server():
+		return
+	
+	if not equipment_component:
+		return
+	
+	var target_slot: Slot = null
+	if eq_key_str == "WEAPON":
+		target_slot = equipment_component.equipment.get("WEAPON")
+	else:
+		var key_val := int(eq_key_str)
+		target_slot = equipment_component.equipment.get(key_val)
+	
+	if not target_slot:
+		return
+	
+	var old_item = target_slot.item
+	
+	# Use silent mode if we're batching multiple equipment changes
+	if equipment_component and not trigger_stats_recalc:
+		equipment_component.set_silent_mode(true)
+	
+	target_slot.item = null
+	target_slot.update_display()
+	_update_item_tracking(target_slot, old_item, null)
+	
+	if equipment_component and not trigger_stats_recalc:
+		equipment_component.set_silent_mode(false)
+	
+	# Trigger stats recalc if needed
+	if trigger_stats_recalc:
+		_trigger_stats_recalc()
 
 
 func load_inventory_silent(inventory_data: Dictionary) -> void:
@@ -540,3 +773,19 @@ func load_inventory_silent(inventory_data: Dictionary) -> void:
 	
 	if equipment_component:
 		equipment_component.set_silent_mode(false)
+	
+	# After loading, if this is on the server and we have an owner_id,
+	# send the full inventory state to the client ONCE
+	if multiplayer.is_server() and enable_multiplayer_sync and owner_id > 0:
+		# Use call_deferred to ensure the inventory is fully loaded first
+		call_deferred("_initial_sync_to_client")
+		
+		
+func _initial_sync_to_client():
+	"""Send initial full inventory state to client after loading"""
+	if not multiplayer.is_server() or owner_id <= 0:
+		return
+	
+	var inv_data = save_inventory()
+	load_inventory_rpc.rpc_id(owner_id, inv_data)
+	print("Sent initial inventory sync to client %d" % owner_id)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=4 uid="uid://d1hwvomjwdrjv"]
+[gd_scene load_steps=30 format=4 uid="uid://d1hwvomjwdrjv"]
 
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/damage_numbers.gd" id="1_ryi0r"]
 [ext_resource type="Texture2D" uid="uid://jorjvuc5wn72" path="res://assets/sprites/world_tileset.png" id="2_l25cu"]
@@ -16,8 +16,8 @@
 [ext_resource type="Texture2D" uid="uid://bcoeao6eds8lo" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/background.png" id="18_qb3j5"]
 [ext_resource type="Texture2D" uid="uid://c4yftnkh1io5d" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Back_Forest_1.png" id="19_2ya06"]
 [ext_resource type="Texture2D" uid="uid://clxbanmod7qm8" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Back_Forest_2.png" id="20_e24jv"]
+[ext_resource type="PackedScene" uid="uid://f4gho8l6o1ld" path="res://scenes/NPC/merchant_npc.tscn" id="20_ukxhe"]
 [ext_resource type="Texture2D" uid="uid://wwvi0f5l6iis" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Back_tree_1.png" id="21_jq5g6"]
-[ext_resource type="Texture2D" uid="uid://de0rqgxih2rii" path="res://assets/sprites/MinifolksVillagers2/Original/Outline/MiniSuspiciousMerchant.png" id="21_ukxhe"]
 [ext_resource type="Texture2D" uid="uid://bltuclvu72dcb" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Back_tree_2.png" id="22_lqda6"]
 [ext_resource type="Texture2D" uid="uid://dn66ntccqo3io" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/props_clouds.png" id="23_rm7na"]
 [ext_resource type="Script" uid="uid://igk1rxt26f2i" path="res://scripts/UI/global_drop_handler.gd" id="24_drop_handler"]
@@ -553,54 +553,6 @@ _data = {
 &"move": SubResource("Animation_lnu2h")
 }
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_pd7st"]
-atlas = ExtResource("21_ukxhe")
-region = Rect2(0, 0, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_qb3j5"]
-atlas = ExtResource("21_ukxhe")
-region = Rect2(32, 0, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_2ya06"]
-atlas = ExtResource("21_ukxhe")
-region = Rect2(64, 0, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_e24jv"]
-atlas = ExtResource("21_ukxhe")
-region = Rect2(96, 0, 32, 32)
-
-[sub_resource type="SpriteFrames" id="SpriteFrames_jq5g6"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_pd7st")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_pd7st")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_qb3j5")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_qb3j5")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_2ya06")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_2ya06")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_e24jv")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_e24jv")
-}],
-"loop": true,
-"name": &"idle",
-"speed": 10.0
-}]
-
 [node name="Game" type="Node2D"]
 
 [node name="PlayerSpawner" type="MultiplayerSpawner" parent="."]
@@ -809,14 +761,17 @@ position = Vector2(341, 0)
 [node name="EnemySpawnLocation3" type="Marker2D" parent="GoblinSpawner"]
 position = Vector2(382, 0)
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-z_index = -1
+[node name="MerchantNPC" parent="." instance=ExtResource("20_ukxhe")]
 position = Vector2(-17, -18)
-scale = Vector2(1.2, 1.2)
-sprite_frames = SubResource("SpriteFrames_jq5g6")
-animation = &"idle"
-autoplay = "idle"
-frame_progress = 0.99525684
+
+[node name="MerchantInventory" parent="MerchantNPC" index="2" node_paths=PackedStringArray("shop_window")]
+shop_window = NodePath("../CanvasLayer/ShopWindow")
+
+[node name="ShopWindow" parent="MerchantNPC/CanvasLayer" index="0"]
+offset_left = 563.0
+offset_top = 254.0
+offset_right = 1313.0
+offset_bottom = 854.0
 
 [node name="GlobalDropHandler" type="Control" parent="."]
 layout_mode = 3
@@ -829,3 +784,6 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
 script = ExtResource("24_drop_handler")
+
+[editable path="MerchantNPC"]
+[editable path="MerchantNPC/CanvasLayer/ShopWindow"]

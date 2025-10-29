@@ -95,4 +95,5 @@ name = "Test Chest"
 icon = SubResource("AtlasTexture_rdvjl")
 description = "Test Chest"
 item_type = 1
+base_value = null
 metadata/_custom_type_script = "uid://c2fkjsnluarqk"

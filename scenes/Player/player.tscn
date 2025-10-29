@@ -89,7 +89,7 @@ properties/3/replication_mode = 2
 properties/4/path = NodePath("Leveling:experience")
 properties/4/spawn = true
 properties/4/replication_mode = 2
-properties/5/path = NodePath("Inventory:monies_amount")
+properties/5/path = NodePath("PlayerInventory:monies_amount")
 properties/5/spawn = true
 properties/5/replication_mode = 2
 
@@ -423,10 +423,11 @@ position = Vector2(0, -30)
 delta_interval = 0.05
 replication_config = SubResource("SceneReplicationConfig_x5q00")
 
-[node name="PlayerInventory" type="Node" parent="Components" node_paths=PackedStringArray("inventory_component", "player")]
+[node name="PlayerInventory" type="Node" parent="Components" node_paths=PackedStringArray("inventory_component", "player", "monies_label")]
 script = ExtResource("3_pnj8v")
 inventory_component = NodePath("InventoryComponent")
 player = NodePath("../..")
+monies_label = NodePath("../../CanvasLayer/MoveableWindows/InventoryWindow/HBoxContainer/Panel/MoniesCountLabel")
 
 [node name="InventoryComponent" type="Node" parent="Components/PlayerInventory" node_paths=PackedStringArray("inventory_grids", "equipment_component")]
 script = ExtResource("15_cg2hl")

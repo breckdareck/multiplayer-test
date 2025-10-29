@@ -13,11 +13,7 @@ var item_container: Node = null
 
 @export var item: ItemData = null:
 	set(value):
-		var old_item = item
 		item = value
-		# The container is responsible for tracking changes
-		if item_container and item_container.has_method("_update_item_tracking"):
-			item_container._update_item_tracking(self, old_item, value)
 		update_display()
 
 # Drag state variables
@@ -25,7 +21,8 @@ var is_dragging: bool = false
 var drag_item: ItemData = null
 var drag_amount: int = 0
 
-func update_display(old_item: ItemData = null, new_item: ItemData = null):
+
+func update_display():
 	if item != null:
 		texture_rect.texture = item.icon
 		if item.can_stack and item.current_stack_amount > 1:
@@ -38,13 +35,11 @@ func update_display(old_item: ItemData = null, new_item: ItemData = null):
 		label.visible = false
 	texture_rect.queue_redraw()
 	label.queue_redraw()
-	
-	if item_container and item_container.has_method("_update_item_tracking"):
-		item_container._update_item_tracking(self, old_item, new_item)
 
-# The slot's container is now a generic Node.
+
 func set_inventory(inv: Node):
 	item_container = inv
+
 
 func _drop_data(_at_position: Vector2, data: Variant) -> void:
 	var source_slot: Slot = data
@@ -65,11 +60,8 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 
 	# Case 1: Moving within the same InventoryComponent
 	if source_container == target_container and source_container is InventoryComponent:
-		var from_index = source_container.get_slots().find(source_slot)
-		var to_index = source_container.get_slots().find(self)
-
-		if from_index != -1 and to_index != -1:
-			successful_operation = source_container.move_item_clientside(from_index, to_index)
+		# Use transfer_item_clientside for all moves (it handles validation and sync)
+		successful_operation = source_container.transfer_item_clientside(source_slot, self)
 	
 	# Case 2: Moving between different containers (e.g., Inventory <-> Equipment)
 	else:
@@ -83,10 +75,12 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 	if successful_operation:
 		source_slot.cancel_drag()
 
+
 func can_add_to_stack(item_to_add: ItemData) -> bool:
 	if item == null or item_to_add == null:
 		return false
 	return item.name == item_to_add.name and item.can_stack and item.current_stack_amount < item.max_stack_amount
+
 
 func add_to_stack(amount: int = 1) -> int:
 	if not item or not item.can_stack:
@@ -98,6 +92,7 @@ func add_to_stack(amount: int = 1) -> int:
 	update_display()
 	return amount_to_add
 
+
 func remove_from_stack(amount: int = 1) -> int:
 	if not item or not item.can_stack:
 		return 0
@@ -107,13 +102,16 @@ func remove_from_stack(amount: int = 1) -> int:
 	update_display()
 	return amount_to_remove
 
+
 func is_stack_full() -> bool:
 	return item != null and item.can_stack and item.current_stack_amount >= item.max_stack_amount
+
 
 func get_remaining_space() -> int:
 	if not item or not item.can_stack:
 		return 0
 	return item.max_stack_amount - item.current_stack_amount
+
 
 func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 	if data is Slot and data != self:
@@ -126,6 +124,7 @@ func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 			
 	return false
 
+
 func _notification(what):
 	if what == NOTIFICATION_DRAG_END:
 		modulate = Color.WHITE
@@ -136,6 +135,7 @@ func _notification(what):
 			else:
 				restore_drag_to_source()
 			cancel_drag()
+
 
 func get_preview():
 	var preview_texture = TextureRect.new()
@@ -159,6 +159,7 @@ func get_preview():
 
 	return preview
 
+
 func _get_drag_data(_at_position):
 	if is_dragging and drag_item != null and drag_amount > 0:
 		return self
@@ -178,6 +179,7 @@ func _get_drag_data(_at_position):
 	set_drag_preview(get_preview())
 	return self
 
+
 func restore_drag_to_source():
 	"""Restore dragged items back to this slot"""
 	if drag_item != null and drag_amount > 0:
@@ -186,10 +188,12 @@ func restore_drag_to_source():
 		item.current_stack_amount = drag_amount
 		update_display()
 
+
 func cancel_drag():
 	is_dragging = false
 	drag_item = null
 	drag_amount = 0
+
 
 func _gui_input(event: InputEvent):
 	if event is InputEventMouseButton and event.pressed:
@@ -200,12 +204,14 @@ func _gui_input(event: InputEvent):
 				get_viewport().gui_release_focus()
 				return
 
+
 func _ready():
 	mouse_entered.connect(_on_mouse_entered)
 	mouse_exited.connect(_on_mouse_exited)
 	var custom_theme = Theme.new()
 	custom_theme.set_stylebox("panel", "TooltipPanel", PANEL_STYLEBOX_THEME)
 	self.theme = custom_theme
+
 
 func can_accept_item(item_to_check: ItemData) -> bool:
 	if not item_to_check:
@@ -216,16 +222,6 @@ func can_accept_item(item_to_check: ItemData) -> bool:
 
 	return true
 
-
-#func _make_custom_tooltip(_for_text: String) -> Object:
-	#var tooltip_scene: Panel = Panel.new()
-	#var tooltip_label: Label = Label.new()
-	#tooltip_scene.size = Vector2(100,50)
-	#tooltip_label.add_theme_font_size_override("font_size", 16)
-	#tooltip_scene.add_theme_stylebox_override("panel", PANEL_STYLEBOX_THEME)
-	#tooltip_scene.add_child(tooltip_label)
-	#tooltip_label.text = "test"
-	#return tooltip_scene
 
 func _on_mouse_entered():
 	if item != null:
@@ -247,10 +243,12 @@ func _on_mouse_entered():
 	else:
 		tooltip_text = ""
 
+
 func _on_mouse_exited():
 	tooltip_text = ""
 	if not is_dragging:
 		modulate = Color.WHITE
+
 
 func _should_create_dropped_item() -> bool:
 	# Check if we're dragging and the mouse is outside of any UI windows
@@ -268,6 +266,7 @@ func _should_create_dropped_item() -> bool:
 	
 	# If we're here, the mouse is outside all UI windows
 	return true
+
 
 func _create_dropped_item():
 	if not drag_item:
@@ -294,30 +293,32 @@ func _create_dropped_item():
 	else:
 		print("Slot: Could not find global drop handler")
 
-func _screen_to_world_position(screen_position: Vector2) -> Vector2:
-	# Convert screen coordinates to world coordinates
-	var camera = get_viewport().get_camera_2d()
-	if camera:
-		return camera.to_global(screen_position)
-	else:
-		# Fallback: use the screen position directly
-		return screen_position
 
 func _get_local_player() -> Node:
 	# Find the local player
 	var players = get_tree().get_nodes_in_group("Players")
 	for player in players:
-		if player.player_id == owner.player_id:
+		if player.has_method("is_local_player") and player.is_local_player():
+			return player
+		# Fallback: check player_id if available
+		if "player_id" in player and multiplayer.get_unique_id() == player.player_id:
 			return player
 	return null
 
+
 func _remove_item_from_inventory():
-	# Remove the item from the inventory
-	if item_container and item_container.has_method("clear_slot"):
-		item_container.clear_slot(self)
-	elif item_container and item_container.has_method("remove_item"):
-		item_container.remove_item(item)
+	# Use the proper RPC system to remove the item
+	if item_container:
+		if item_container is InventoryComponent:
+			# Call through the inventory system which will handle sync
+			item_container.clear_slot(self)
+		elif item_container.has_method("clear_slot"):
+			item_container.clear_slot(self)
+		else:
+			# Fallback
+			item = null
+			update_display()
 	else:
-		# Fallback: clear the slot directly
+		# Fallback
 		item = null
 		update_display()

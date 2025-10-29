@@ -22,7 +22,8 @@ class_name ItemData
 			max_stack_amount = 99
 		notify_property_list_changed()
 			
-			
+@export var base_value: int = 1
+
 var can_stack: bool
 var max_stack_amount: int
 var current_stack_amount: int = 1

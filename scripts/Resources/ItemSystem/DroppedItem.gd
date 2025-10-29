@@ -195,8 +195,8 @@ func _pickup_item(picking_player: MultiplayerPlayerV2 = null) -> void:
 	# Phase 3: Fade out slowly (0.3s) - runs in parallel with end of magnetize
 	pickup_tween.parallel().tween_property(sprite, "modulate:a", 0.0, 0.3).set_ease(Tween.EASE_IN).set_delay(0.1)
 	
-	await pickup_sound.finished
-	pickup_tween.finished.connect(queue_free)
+	pickup_sound.finished.connect(queue_free)
+	
 
 
 func setup(item: ItemData, amount: int, player: MultiplayerPlayerV2) -> void:

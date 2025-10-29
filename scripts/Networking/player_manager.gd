@@ -113,8 +113,6 @@ func _spawn_character_for_player(id: int, character_type: int, username: String,
 	var spawn_node = NetworkUtils.get_players_spawn_node(get_tree())
 	if spawn_node:
 		spawn_node.add_child(player_instance, true)
-		#print("Added player %d to scene. Node path: %s" % [id, player_instance.get_path()])
-		#print("Successfully spawned character %s for PID: %d" % [Constants.ClassType.find_key(character_type), id])
 		
 		player_instance.set_username.rpc(username)
 		player_instance.class_component.change_class_rpc(character_type)
@@ -136,9 +134,10 @@ func _spawn_character_for_player(id: int, character_type: int, username: String,
 				for i in range(5):
 					await get_tree().process_frame
 		
-		# Load inventory
-		var inventory_data = player_data.get("inventory", {})
-		player_instance.inventory_component.load_inventory_silent(inventory_data)
+		# Load inventory - this now handles sync internally via PlayerInventory wrapper
+		if player_instance.player_inventory:
+			var inventory_data = player_data.get("inventory", {})
+			player_instance.player_inventory.load_player_inventory_silent(inventory_data)
 		
 		if player_instance.stats_component:
 			player_instance.stats_component.set_loading_mode(false)
@@ -146,9 +145,6 @@ func _spawn_character_for_player(id: int, character_type: int, username: String,
 			
 		if not player_data:
 			player_instance.equipment_component.weapon_slot.item = ResourceManager.get_item_by_name("Iron Sword")
-		
-		if id != 1:
-			player_instance.inventory_component.sync_inventory_to_client()
 
 		# Reconnect ability component signals after all setup is complete
 		if player_instance.ability_component:
@@ -157,9 +153,7 @@ func _spawn_character_for_player(id: int, character_type: int, username: String,
 		# IMPORTANT: Sync abilities AFTER data is fully loaded
 		if id != 1 and player_instance.ability_component:
 			await get_tree().process_frame
-			#print("DEBUG: About to sync - Server has %d ability points for player %d" % [player_instance.ability_component.get_available_ability_points(), id])
 			player_instance.ability_component.sync_all_abilities_to_client(id)
-			#print("Synced abilities to player %d (Points: %d)" % [id, player_instance.ability_component.get_available_ability_points()])
 		
 		# Make sure health is set correctly from the save data
 		if player_instance.health_component:
@@ -169,7 +163,6 @@ func _spawn_character_for_player(id: int, character_type: int, username: String,
 			await get_tree().process_frame
 			var buff_component = player_instance.buff_component
 			buff_component.sync_all_buffs_to_client(id)
-			#print("Synced buffs to player %d" % id)
 		
 		if id in active_players:
 			active_players[id]["synced"] = true

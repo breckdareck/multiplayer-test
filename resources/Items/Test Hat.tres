@@ -94,4 +94,5 @@ name = "Test Hat"
 icon = SubResource("AtlasTexture_ci4cm")
 description = "Test Hat"
 item_type = 1
+base_value = null
 metadata/_custom_type_script = "uid://c2fkjsnluarqk"

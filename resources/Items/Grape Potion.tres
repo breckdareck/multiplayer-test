@@ -14,6 +14,7 @@ name = "Grape Potion"
 icon = SubResource("AtlasTexture_ce0sh")
 description = "How is this a Potion?"
 item_type = 2
+base_value = 150
 can_stack = true
 max_stack_amount = 99
 current_stack_amount = 1
