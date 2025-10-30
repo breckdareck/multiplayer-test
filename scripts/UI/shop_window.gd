@@ -5,9 +5,9 @@ var player_inv_component: InventoryComponent
 @export var merchant_id: String = ""
 @export var merchant_inventory: MerchantInventory
 
-@onready var sell_list: VBoxContainer = $HBoxContainer/SellPanel/SellScroll/SellList
-@onready var buy_list: VBoxContainer = $HBoxContainer/BuyPanel/BuyScroll/BuyList
-@onready var money_label: Label = $MoneyContainer/MoneyLabel
+@onready var sell_list: VBoxContainer = $ContentPanel/HBoxContainer/SellPanel/SellScroll/SellList
+@onready var buy_list: VBoxContainer = $ContentPanel/HBoxContainer/BuyPanel/BuyScroll/BuyList
+@onready var money_label: Label = $FooterPanel/MoneyContainer/MoneyLabel
 
 func _ready() -> void:
 	visible = false
@@ -127,38 +127,137 @@ func add_shop_item(container: VBoxContainer, data: Dictionary, is_sell: bool) ->
 		count = data["count"]
 		is_buyback = data.get("is_buyback", false)
 	
+	# Create button container
+	var button = Button.new()
+	button.flat = true
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	button.focus_mode = Control.FOCUS_NONE
+	button.custom_minimum_size.y = 42
+	
+	# Style the button with hover effect
+	var normal_style = StyleBoxFlat.new()
+	normal_style.bg_color = Color(1, 1, 1, 0)
+	normal_style.content_margin_left = 6
+	normal_style.content_margin_right = 6
+	normal_style.content_margin_top = 4
+	normal_style.content_margin_bottom = 4
+	normal_style.corner_radius_top_left = 4
+	normal_style.corner_radius_top_right = 4
+	normal_style.corner_radius_bottom_left = 4
+	normal_style.corner_radius_bottom_right = 4
+	
+	var hover_style = StyleBoxFlat.new()
+	hover_style.bg_color = Color(0.4, 0.6, 0.9, 0.2)
+	hover_style.content_margin_left = 6
+	hover_style.content_margin_right = 6
+	hover_style.content_margin_top = 4
+	hover_style.content_margin_bottom = 4
+	hover_style.corner_radius_top_left = 4
+	hover_style.corner_radius_top_right = 4
+	hover_style.corner_radius_bottom_left = 4
+	hover_style.corner_radius_bottom_right = 4
+	hover_style.border_width_left = 1
+	hover_style.border_width_right = 1
+	hover_style.border_width_top = 1
+	hover_style.border_width_bottom = 1
+	hover_style.border_color = Color(0.4, 0.6, 0.9, 0.4)
+	
+	var pressed_style = StyleBoxFlat.new()
+	pressed_style.bg_color = Color(0.4, 0.6, 0.9, 0.3)
+	pressed_style.content_margin_left = 6
+	pressed_style.content_margin_right = 6
+	pressed_style.content_margin_top = 4
+	pressed_style.content_margin_bottom = 4
+	pressed_style.corner_radius_top_left = 4
+	pressed_style.corner_radius_top_right = 4
+	pressed_style.corner_radius_bottom_left = 4
+	pressed_style.corner_radius_bottom_right = 4
+	pressed_style.border_width_left = 1
+	pressed_style.border_width_right = 1
+	pressed_style.border_width_top = 1
+	pressed_style.border_width_bottom = 1
+	pressed_style.border_color = Color(0.4, 0.6, 0.9, 0.6)
+	
+	button.add_theme_stylebox_override("normal", normal_style)
+	button.add_theme_stylebox_override("hover", hover_style)
+	button.add_theme_stylebox_override("pressed", pressed_style)
+	
+	# Create row content
 	var row = HBoxContainer.new()
 	row.add_theme_constant_override("separation", 10)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	
+	# Icon with background
+	var icon_container = PanelContainer.new()
+	icon_container.custom_minimum_size = Vector2(36, 36)
+	icon_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var icon_style = StyleBoxFlat.new()
+	icon_style.bg_color = Color(0.2, 0.2, 0.25, 0.15)
+	icon_style.corner_radius_top_left = 4
+	icon_style.corner_radius_top_right = 4
+	icon_style.corner_radius_bottom_left = 4
+	icon_style.corner_radius_bottom_right = 4
+	icon_container.add_theme_stylebox_override("panel", icon_style)
 	
 	var icon = TextureRect.new()
 	icon.texture = item.icon
 	icon.custom_minimum_size = Vector2(32, 32)
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	row.add_child(icon)
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	icon_container.add_child(icon)
+	row.add_child(icon_container)
+	
+	# Name and details
+	var info_container = VBoxContainer.new()
+	info_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	info_container.add_theme_constant_override("separation", 2)
+	info_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	
 	var name_label = Label.new()
-	name_label.add_theme_color_override("font_color", Color.BLACK)
+	name_label.add_theme_color_override("font_color", Color(0.15, 0.15, 0.2, 1))
+	name_label.add_theme_font_size_override("font_size", 11)
+	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var display_name = item.name
 	if count > 1:
-		display_name += " x" + str(count)
-	if is_buyback:
-		display_name += " (Buyback)"
+		display_name += " ×" + str(count)
 	name_label.text = display_name
-	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_child(name_label)
+	info_container.add_child(name_label)
+	
+	# Buyback tag
+	if is_buyback:
+		var buyback_label = Label.new()
+		buyback_label.add_theme_color_override("font_color", Color(0.3, 0.6, 0.9, 1))
+		buyback_label.add_theme_font_size_override("font_size", 9)
+		buyback_label.text = "Buyback"
+		buyback_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		info_container.add_child(buyback_label)
+	
+	row.add_child(info_container)
+	
+	# Price
+	var price_container = VBoxContainer.new()
+	price_container.add_theme_constant_override("separation", 0)
+	price_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	
 	var price_label = Label.new()
-	price_label.add_theme_color_override("font_color", Color.BLACK)
-	price_label.text = str(price) + " Monies"
+	price_label.add_theme_color_override("font_color", Color(0.7, 0.5, 0.2, 1))
+	price_label.add_theme_font_size_override("font_size", 12)
+	price_label.text = str(price)
 	price_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	row.add_child(price_label)
+	price_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	price_container.add_child(price_label)
 	
-	var button = Button.new()
-	button.flat = true
+	var monies_label = Label.new()
+	monies_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.55, 1))
+	monies_label.add_theme_font_size_override("font_size", 8)
+	monies_label.text = "Monies"
+	monies_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	monies_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	price_container.add_child(monies_label)
+	
+	row.add_child(price_container)
+	
 	button.add_child(row)
-	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	button.focus_mode = Control.FOCUS_NONE
-	button.custom_minimum_size.y = 32
 	button.pressed.connect(_on_item_clicked.bind(data, is_sell, is_buyback))
 	container.add_child(button)
 

@@ -32,9 +32,10 @@ func _setup_base_stock():
 	# Any positive number means that's the purchase limit per player
 	base_stock = {
 		"Grape Potion": {"stock": -1, "sold_count": 0},  # Infinite
-		"Test Chest": {"stock": 5, "sold_count": 0},     # Limited to 5 per player
+		"Test Chest": {"stock": 1, "sold_count": 0},     # Limited to 1 per player
 		"Test Hat": {"stock": 1, "sold_count": 0},       # Limited to 1 per player
-		"Test Sword 2": {"stock": -1, "sold_count": 0},  # Infinite
+		"Test Sword 2": {"stock": 1, "sold_count": 0},  # Limited to 1 per player
+		"Test Sword 3": {"stock": 1, "sold_count": 0},  # Limited to 1 per player
 	}
 	inventory_changed.emit()
 
@@ -210,9 +211,6 @@ func request_buy_item(item_id: String, is_buyback: bool):
 		if not can_buy:
 			print("Buy failed for player %d: %s - stock limit reached or unavailable" % [sender_id, item_name_key])
 			return
-		
-		# Record purchase before completing transaction
-		record_player_purchase(sender_id, item_name_key)
 	
 	# Check if player has enough money
 	if player.player_inventory.monies_amount >= price:
@@ -224,6 +222,8 @@ func request_buy_item(item_id: String, is_buyback: bool):
 			shop_window.receive_shop_data.rpc_id(sender_id, get_stock_data(sender_id))
 			# Also trigger update of the sell list (player's inventory)
 			shop_window.update_sell_display.rpc_id(sender_id)
+		
+		record_player_purchase(sender_id, item_name_key)
 		
 		var buy_type = "bought back" if is_buyback else "bought"
 		print("%s: Player %d %s %s for %d coins" % [merchant_name, sender_id, buy_type, item_name_key, price])

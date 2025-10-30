@@ -139,13 +139,13 @@ func _spawn_character_for_player(id: int, character_type: int, username: String,
 			var inventory_data = player_data.get("inventory", {})
 			player_instance.player_inventory.load_player_inventory_silent(inventory_data)
 		
+		if not player_data:
+			player_instance.equipment_component.weapon_slot.item = ResourceManager.get_item_by_name("Iron Sword")
+		
 		if player_instance.stats_component:
 			player_instance.stats_component.set_loading_mode(false)
 			player_instance.stats_component._recalculate_stats()
 			
-		if not player_data:
-			player_instance.equipment_component.weapon_slot.item = ResourceManager.get_item_by_name("Iron Sword")
-
 		# Reconnect ability component signals after all setup is complete
 		if player_instance.ability_component:
 			player_instance.ability_component.reconnect_level_signals()

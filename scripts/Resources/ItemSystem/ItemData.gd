@@ -2,6 +2,8 @@
 extends Resource
 class_name ItemData
 
+const BASE_VALUE_CURVE = preload("uid://d1qhydj4bri7d")
+
 @export var item_id: String:
 	set(value):
 		if value.is_empty():
@@ -21,8 +23,15 @@ class_name ItemData
 			can_stack = true
 			max_stack_amount = 99
 		notify_property_list_changed()
-			
-@export var base_value: int = 1
+@export var item_level: int = 0
+@export var custom_item_value: int = 0
+
+var base_value: int:
+	get:
+		if item_level >= 0:
+			return round(BASE_VALUE_CURVE.sample(item_level))
+		else:
+			return custom_item_value
 
 var can_stack: bool
 var max_stack_amount: int

@@ -483,6 +483,9 @@ func load_inventory_rpc(inventory_data: Dictionary):
 	
 	if equipment_component:
 		equipment_component.set_silent_mode(false)
+		
+	if not multiplayer.is_server():
+		_trigger_stats_recalc()
 
 
 func transfer_item_clientside(from_slot: Slot, to_slot: Slot) -> bool:
@@ -533,22 +536,27 @@ func _execute_swap_local(from_slot: Slot, to_slot: Slot):
 	from_slot.update_display()
 	to_slot.update_display()
 	
+	# Check if these are equipment slots
+	var from_is_equipment = _is_equipment_slot(from_slot)
+	var to_is_equipment = _is_equipment_slot(to_slot)
+	var involves_equipment = from_is_equipment or to_is_equipment
+	
 	# If on server, sync the changed slots to client
 	if multiplayer.is_server():
-		# Check if these are equipment slots
-		var from_is_equipment = _is_equipment_slot(from_slot)
-		var to_is_equipment = _is_equipment_slot(to_slot)
-		
-		# Only trigger stats recalc once, on the last equipment slot update
+		# Sync slots - only trigger stats recalc on the last update
 		if from_is_equipment:
-			_sync_equipment_slot_to_client(from_slot, not to_is_equipment)
+			_sync_equipment_slot_to_client(from_slot, false)
 		else:
 			_sync_slot_to_client(from_slot, false)
 		
 		if to_is_equipment:
-			_sync_equipment_slot_to_client(to_slot, true)
+			_sync_equipment_slot_to_client(to_slot, involves_equipment)
 		else:
-			_sync_slot_to_client(to_slot, false)
+			_sync_slot_to_client(to_slot, involves_equipment)
+	
+	# Trigger stats recalc locally if equipment was involved
+	if involves_equipment:
+		_trigger_stats_recalc()
 
 
 func _is_move_valid(from_slot: Slot, to_slot: Slot) -> bool:

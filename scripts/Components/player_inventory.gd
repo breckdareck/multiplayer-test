@@ -37,7 +37,7 @@ func _ready():
 func _on_inventory_changed(_inventory: InventoryComponent):
 	# Only trigger stats recalc on client when inventory_changed signal is emitted
 	# This happens when equipment changes or full inventory loads
-	if not multiplayer.is_server() and player and player.stats_component:
+	if player and player.stats_component:
 		player.stats_component._recalculate_stats()
 	
 	# Notify player data changed (for saving on server)

@@ -100,5 +100,4 @@ item_id = "9104459132-151212-90127-1001510-4140101261597276"
 name = "Iron Sword"
 icon = SubResource("AtlasTexture_0opnw")
 item_type = 1
-base_value = null
 metadata/_custom_type_script = "uid://ob3kriis8m08"

@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://dk63ctw7epbmm"]
+[gd_scene load_steps=11 format=3 uid="uid://dk63ctw7epbmm"]
 
 [ext_resource type="StyleBox" uid="uid://dm8jxifs8rqrm" path="res://assets/UI/Themes/PanelStyleboxTheme.tres" id="1_qmw2t"]
 [ext_resource type="Script" uid="uid://ycltftf5rwxt" path="res://scripts/UI/shop_window.gd" id="2_shop"]
@@ -6,18 +6,63 @@
 [ext_resource type="Texture2D" uid="uid://u3tpikp1eegv" path="res://assets/sprites/coin.png" id="6_wr21r"]
 [ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="7_5kvlq"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4ni0x"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_header"]
+bg_color = Color(0.15, 0.15, 0.2, 0.95)
+border_width_bottom = 2
+border_color = Color(0.4, 0.6, 0.8, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+content_margin_left = 8.0
+content_margin_top = 8.0
+content_margin_right = 8.0
+content_margin_bottom = 8.0
+bg_color = Color(0.92, 0.9, 0.88, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.3, 0.3, 0.35, 0.5)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0, 0, 0.3)
+shadow_size = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_section"]
+content_margin_left = 5.0
 content_margin_top = 5.0
-bg_color = Color(0.996078, 0.992157, 0.988235, 1)
-corner_radius_bottom_right = 5
-corner_radius_bottom_left = 5
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0.98, 0.97, 0.96, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.4, 0.4, 0.45, 0.3)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_footer"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+bg_color = Color(0.25, 0.25, 0.3, 0.9)
+border_width_top = 2
+border_color = Color(0.5, 0.7, 0.9, 0.8)
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_fcv6u"]
 atlas = ExtResource("6_wr21r")
 region = Rect2(0, 0, 16, 16)
 
 [node name="ShopWindow" type="Panel"]
-visible = false
 offset_left = 632.0
 offset_top = 254.0
 offset_right = 1309.5
@@ -25,118 +70,196 @@ offset_bottom = 796.0
 theme_override_styles/panel = ExtResource("1_qmw2t")
 script = ExtResource("2_shop")
 
-[node name="CloseButton" type="Button" parent="."]
+[node name="HeaderPanel" type="Panel" parent="."]
 layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
+anchors_preset = 10
 anchor_right = 1.0
-offset_left = -35.0
-offset_top = 3.0
-offset_right = -4.0
-offset_bottom = 34.0
-grow_horizontal = 0
-focus_mode = 0
-text = "X"
-flat = true
+offset_bottom = 45.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_header")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="."]
+[node name="ShopTitle" type="Label" parent="HeaderPanel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = 40.0
-offset_bottom = -60.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 10
+theme_override_colors/font_color = Color(0.9, 0.9, 0.95, 1)
+theme_override_fonts/font = ExtResource("7_5kvlq")
+theme_override_font_sizes/font_size = 18
+text = "MERCHANT SHOP"
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="SellPanel" type="Panel" parent="HBoxContainer"]
+[node name="CloseButton" type="Button" parent="HeaderPanel"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -40.0
+offset_top = 5.0
+offset_right = -5.0
+offset_bottom = 40.0
+grow_horizontal = 0
+focus_mode = 0
+theme_override_colors/font_color = Color(0.9, 0.9, 0.95, 1)
+theme_override_colors/font_hover_color = Color(1, 0.4, 0.4, 1)
+theme_override_font_sizes/font_size = 20
+text = "×"
+flat = true
+
+[node name="ContentPanel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 55.0
+offset_right = -12.0
+offset_bottom = -70.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ContentPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 15
+
+[node name="SellPanel" type="Panel" parent="ContentPanel/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_4ni0x")
+theme_override_styles/panel = SubResource("StyleBoxFlat_section")
 
-[node name="SellLabel" type="Label" parent="HBoxContainer/SellPanel"]
+[node name="SellLabel" type="Label" parent="ContentPanel/HBoxContainer/SellPanel"]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_bottom = 30.0
+offset_bottom = 35.0
 grow_horizontal = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0.2, 0.2, 0.25, 1)
+theme_override_colors/font_shadow_color = Color(1, 1, 1, 0.3)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
 theme_override_fonts/font = ExtResource("7_5kvlq")
-text = "Sell Item"
+theme_override_font_sizes/font_size = 13
+text = "YOUR ITEMS"
 horizontal_alignment = 1
 vertical_alignment = 1
-uppercase = true
 
-[node name="SellScroll" type="ScrollContainer" parent="HBoxContainer/SellPanel"]
+[node name="Divider1" type="ColorRect" parent="ContentPanel/HBoxContainer/SellPanel"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 35.0
+offset_bottom = 37.0
+grow_horizontal = 2
+color = Color(0.4, 0.4, 0.45, 0.3)
+
+[node name="SellScroll" type="ScrollContainer" parent="ContentPanel/HBoxContainer/SellPanel"]
 layout_mode = 1
 anchors_preset = -1
-anchor_top = 0.1
+anchor_top = 0.08
 anchor_right = 1.0
 anchor_bottom = 1.0
 theme = ExtResource("4_5kvlq")
 horizontal_scroll_mode = 0
 
-[node name="SellList" type="VBoxContainer" parent="HBoxContainer/SellPanel/SellScroll"]
+[node name="SellList" type="VBoxContainer" parent="ContentPanel/HBoxContainer/SellPanel/SellScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 5
+theme_override_constants/separation = 3
 
-[node name="BuyPanel" type="Panel" parent="HBoxContainer"]
+[node name="BuyPanel" type="Panel" parent="ContentPanel/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_4ni0x")
+theme_override_styles/panel = SubResource("StyleBoxFlat_section")
 
-[node name="BuyLabel" type="Label" parent="HBoxContainer/BuyPanel"]
+[node name="BuyLabel" type="Label" parent="ContentPanel/HBoxContainer/BuyPanel"]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_bottom = 30.0
+offset_bottom = 35.0
 grow_horizontal = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0.2, 0.2, 0.25, 1)
+theme_override_colors/font_shadow_color = Color(1, 1, 1, 0.3)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
 theme_override_fonts/font = ExtResource("7_5kvlq")
-text = "Buy Item"
+theme_override_font_sizes/font_size = 13
+text = "MERCHANT'S STOCK"
 horizontal_alignment = 1
 vertical_alignment = 1
-uppercase = true
 
-[node name="BuyScroll" type="ScrollContainer" parent="HBoxContainer/BuyPanel"]
+[node name="Divider2" type="ColorRect" parent="ContentPanel/HBoxContainer/BuyPanel"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 35.0
+offset_bottom = 37.0
+grow_horizontal = 2
+color = Color(0.4, 0.4, 0.45, 0.3)
+
+[node name="BuyScroll" type="ScrollContainer" parent="ContentPanel/HBoxContainer/BuyPanel"]
 layout_mode = 1
 anchors_preset = -1
-anchor_top = 0.1
+anchor_top = 0.08
 anchor_right = 1.0
 anchor_bottom = 1.0
 theme = ExtResource("4_5kvlq")
 horizontal_scroll_mode = 0
 
-[node name="BuyList" type="VBoxContainer" parent="HBoxContainer/BuyPanel/BuyScroll"]
+[node name="BuyList" type="VBoxContainer" parent="ContentPanel/HBoxContainer/BuyPanel/BuyScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 5
+theme_override_constants/separation = 3
 
-[node name="MoneyContainer" type="HBoxContainer" parent="."]
+[node name="FooterPanel" type="Panel" parent="."]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -50.0
+offset_left = 12.0
+offset_top = -58.0
+offset_right = -12.0
+offset_bottom = -12.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_constants/separation = 5
+theme_override_styles/panel = SubResource("StyleBoxFlat_footer")
 
-[node name="CoinIcon" type="TextureRect" parent="MoneyContainer"]
+[node name="MoneyContainer" type="HBoxContainer" parent="FooterPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+alignment = 2
+
+[node name="MoneyLabel" type="Label" parent="FooterPanel/MoneyContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.5, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.5)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_fonts/font = ExtResource("7_5kvlq")
+theme_override_font_sizes/font_size = 14
+text = "0 Monies"
+vertical_alignment = 1
+
+[node name="CoinIcon" type="TextureRect" parent="FooterPanel/MoneyContainer"]
 layout_mode = 2
 texture = SubResource("AtlasTexture_fcv6u")
+expand_mode = 2
 stretch_mode = 4
 
-[node name="MoneyLabel" type="Label" parent="MoneyContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_fonts/font = ExtResource("7_5kvlq")
-text = "0 meso"
-horizontal_alignment = 2
-
-[connection signal="pressed" from="CloseButton" to="." method="hide"]
+[connection signal="pressed" from="HeaderPanel/CloseButton" to="." method="hide"]

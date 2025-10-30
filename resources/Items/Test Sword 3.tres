@@ -101,4 +101,5 @@ item_id = "014194109-128510-1191114-912111-14125857119013"
 name = "Test Sword 3"
 icon = SubResource("AtlasTexture_0opnw")
 item_type = 1
+item_level = 30
 metadata/_custom_type_script = "uid://mysmonmct4jm"

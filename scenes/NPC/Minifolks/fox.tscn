@@ -16,8 +16,7 @@
 script = ExtResource("4_tvc6h")
 item_name = "Coin"
 drop_chance = 1.0
-min_amount = 99999
-max_amount = 999999
+max_amount = 3
 metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 
 [sub_resource type="Resource" id="Resource_qhvxh"]

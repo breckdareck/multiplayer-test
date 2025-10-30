@@ -768,6 +768,7 @@ position = Vector2(-17, -18)
 shop_window = NodePath("../CanvasLayer/ShopWindow")
 
 [node name="ShopWindow" parent="MerchantNPC/CanvasLayer" index="0"]
+visible = false
 offset_left = 563.0
 offset_top = 254.0
 offset_right = 1313.0
