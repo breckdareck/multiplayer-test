@@ -60,7 +60,10 @@ var _is_loading_data: bool = false
 @onready var drop_timer: Timer = $DropTimer
 @onready var respawn_timer: Timer = $RespawnTimer
 @onready var basic_attack_hitbox: CollisionShape2D = $Hitbox/BasicAttackHitbox
+const GAME_MENU_SCENE = preload("res://scenes/UI/game_menu.tscn")
+
 @onready var menu_container: MainMenu = get_tree().current_scene.get_node("%MenuContainer")
+@onready var game_menu: GameMenu
 
 
 #=============================================================================
@@ -118,6 +121,18 @@ func _unhandled_input(event: InputEvent) -> void:
 	if _is_being_cleaned_up:
 		return
 
+	# Only local player handles UI input
+	if multiplayer.get_unique_id() == player_id:
+		# Ignore echo events for menu toggle
+		if event is InputEventKey and event.is_echo():
+			return
+
+		if is_instance_valid(game_menu):
+			# Always pass input to game_menu so it can open/close itself
+			game_menu._unhandled_input(event)
+			if game_menu.visible: # If game menu is now visible (or was already visible and handled an event)
+				return # Consume input so it doesn't affect player movement
+	
 	if multiplayer.is_server():
 		state_machine.process_input(event)
 
@@ -236,6 +251,10 @@ func _setup_client_visuals() -> void:
 				var mobile_controls = player_HUD.get_child(1)
 				if is_instance_valid(mobile_controls):
 					mobile_controls.show()
+			
+			# Instantiate and add GameMenu
+			game_menu = GAME_MENU_SCENE.instantiate()
+			player_HUD.add_child(game_menu)
 	else:
 		camera.enabled = false
 

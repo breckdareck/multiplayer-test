@@ -1,0 +1,92 @@
+[gd_scene load_steps=5 format=3 uid="uid://du5g3ijqcahm5"]
+
+[ext_resource type="Script" uid="uid://bwhx5rccgsyqx" path="res://scripts/UI/game_menu.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://c4uikd6y8jl6" path="res://scenes/UI/keybinds_menu.tscn" id="2_keybinds_menu"]
+[ext_resource type="PackedScene" uid="uid://cqxmpc1h5uxw5" path="res://scenes/UI/options_menu.tscn" id="3_options_menu"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
+bg_color = Color(0.15, 0.15, 0.2, 0.8)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.3, 0.3, 0.4, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[node name="GameMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_script")
+
+[node name="BackgroundPanel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -200.0
+offset_right = 200.0
+offset_bottom = 200.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_bg")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="BackgroundPanel"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_constants/separation = 15
+alignment = 1
+
+[node name="TitleLabel" type="Label" parent="BackgroundPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Game Menu"
+horizontal_alignment = 1
+
+[node name="ResumeButton" type="Button" parent="BackgroundPanel/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Back to Game"
+
+[node name="KeybindsButton" type="Button" parent="BackgroundPanel/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Keybinds"
+
+[node name="OptionsButton" type="Button" parent="BackgroundPanel/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Options"
+
+[node name="ExitButton" type="Button" parent="BackgroundPanel/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Exit Game"
+
+[node name="SubMenuContainer" type="Control" parent="BackgroundPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+
+[node name="KeybindsMenu" parent="BackgroundPanel/SubMenuContainer" instance=ExtResource("2_keybinds_menu")]
+unique_name_in_owner = true
+layout_mode = 1
+
+[node name="OptionsMenu" parent="BackgroundPanel/SubMenuContainer" instance=ExtResource("3_options_menu")]
+unique_name_in_owner = true
+layout_mode = 1
+
+[editable path="BackgroundPanel/SubMenuContainer/KeybindsMenu"]
+[editable path="BackgroundPanel/SubMenuContainer/OptionsMenu"]

@@ -1,6 +1,8 @@
 class_name LevelingComponent
 extends Node
 
+const LEVEL_UP_SFX = preload("uid://dnabcnb0g8ovx")
+
 signal leveled_up(new_level)
 signal experience_changed(current_exp, exp_to_level)
 
@@ -9,6 +11,8 @@ signal experience_changed(current_exp, exp_to_level)
 
 var level:int = 1:
 	set(value):
+		if value > level:
+			play_level_up_sfx()
 		level = value
 		leveled_up.emit(value)
 
@@ -33,3 +37,12 @@ func add_exp(amount: int) -> void:
 	while experience >= get_exp_to_next_level() and level < max_level:
 		experience -= get_exp_to_next_level()
 		level += 1
+
+func play_level_up_sfx():
+	var audio_player = AudioStreamPlayer.new()
+	add_child(audio_player)
+	audio_player.stream = LEVEL_UP_SFX
+	audio_player.bus = "SFX"
+	audio_player.play()
+	await audio_player.finished
+	audio_player.queue_free()

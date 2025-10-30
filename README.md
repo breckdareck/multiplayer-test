@@ -62,11 +62,57 @@ Notes:
 
 ## Folder Structure
 
-- `scenes/` — Main game scenes
-- `scripts/` — GDScript files for logic and components
-- `assets/` — Sprites, sounds, music, and fonts
-- `resources/` — Data and resource files
-- `README/` — Project documentation and screenshots
+*   `addons/`: Contains Godot editor plugins (e.g., `ability_editor`, `script-ide`).
+*   `assets/`: Contains all of the game's visual and audio assets.
+    *   `assets/fonts/`: Custom fonts used in the UI.
+    *   `assets/music/`: Background music tracks.
+    *   `assets/Shader/`: Custom shaders.
+    *   `assets/sounds/`: Sound effects for various in-game events.
+    *   `assets/sprites/`: Character, enemy, item, and UI sprites, organized by category.
+    *   `assets/themes/`: UI themes.
+    *   `assets/UI/`: UI-specific textures and resources.
+*   `resources/`: Contains the game's data files, defined as custom Godot resources (`.tres`).
+    *   `resources/Abilities/`: Definitions for all in-game abilities (`AbilityData`, `AbilityLevelData`, `AbilityScalingData`, `ProcEffectData`, `StatBonusFormula`).
+    *   `resources/Buffs/`: Definitions for all in-game buffs and debuffs (`BuffData`).
+    *   `resources/DropTables/`: Configuration for item drops from enemies.
+    *   `resources/Items/`: Definitions for all in-game items (`ItemData`, `EquipmentData`, `ArmorData`, `WeaponData`, `ItemDropResource`).
+    *   `resources/Player/`: Player-specific resources.
+        *   `resources/Player/Classes/`: Definitions for different player classes (`ClassData`).
+        *   `resources/Player/SpriteFrames/`: SpriteFrames resources for player animations.
+*   `scenes/`: Contains the game's scenes, the building blocks of levels and UI.
+    *   `scenes/Collectables/`: Scenes for collectible items (e.g., `coin.tscn`).
+    *   `scenes/Gameplay/`: General gameplay elements (e.g., `dropped_item.tscn`, `enemy_spawner.tscn`).
+    *   `scenes/Levels/`: Main game levels (e.g., `main_menu.tscn`, `game.tscn`).
+    *   `scenes/NPC/`: Non-player character scenes.
+    *   `scenes/Player/`: Player character scenes and related elements.
+    *   `scenes/Tools/`: Utility scenes.
+    *   `scenes/UI/`: User interface scenes (e.g., `ability_slot.tscn`, `hotbar_slot.tscn`, `slot.tscn`).
+*   `scripts/`: Contains the game's GDScript files, defining all game logic.
+    *   `scripts/AbilityLogic/`: Custom logic scripts for complex ability behaviors (e.g., `AL_EnhancedBasics.gd`, `AL_SlashBlast.gd`).
+    *   `scripts/BuffLogic/`: Custom logic scripts for complex buff behaviors (e.g., `BL_MapleWarrior.gd`, `BL_PowerGuard.gd`).
+    *   `scripts/Components/`: Reusable components attached to game entities (e.g., `ability.gd`, `buff.gd`, `class.gd`, `combat.gd`, `debug.gd`, `equipment.gd`, `health.gd`, `inventory.gd`, `level.gd`, `merchant_inventory.gd`, `player_inventory.gd`, `stats.gd`).
+    *   `scripts/Enemy/`: Enemy-specific scripts.
+        *   `scripts/Enemy/StateMachine/`: State scripts for enemy AI (e.g., `enemy_attack.gd`, `enemy_idle.gd`, `enemy_patrol.gd`).
+        *   `scripts/Enemy/enemy_base.gd`: Base class for all enemies.
+        *   `scripts/Enemy/enemy_spawner.gd`: Manages enemy spawning and pooling.
+    *   `scripts/Enums/`: Global enumerations (`constants.gd`).
+    *   `scripts/Managers/`: Autoloaded singletons for global game systems (e.g., `game_manager.gd`, `multiplayer_manager.gd`, `resource_manager.gd`, `keybind_manager.gd`, `user_config.gd`).
+    *   `scripts/Networking/`: Scripts handling multiplayer networking logic (e.g., `channel_manager.gd`, `client_manager.gd`, `network_utils.gd`, `player_manager.gd`, `server_manager.gd`).
+    *   `scripts/NPC/`: Non-player character logic (e.g., `npc_interaction.gd`).
+    *   `scripts/Player/`: Player-specific scripts.
+        *   `scripts/Player/StateMachine/`: State scripts for player character behavior (e.g., `attack.gd`, `crouch.gd`, `death.gd`, `fall.gd`, `hit.gd`, `idle.gd`, `jump.gd`, `move.gd`, `slide.gd`).
+        *   `scripts/Player/multiplayer_controller_v2.gd`: The main player character script.
+        *   `scripts/Player/multiplayer_input.gd`: Handles player input synchronization.
+        *   `scripts/Player/player_hud.gd`: Manages player HUD elements.
+    *   `scripts/Resources/`: Base classes for custom resource types (e.g., `AbilitySystem`, `BuffSystem`, `ClassSystem`, `ItemSystem`, `StatSystem` subdirectories).
+    *   `scripts/StateMachine/`: Generic state machine implementation (`state.gd`, `state_machine.gd`).
+    `scripts/UI/`: Scripts for user interface elements (e.g., `ability_slot.gd`, `ability_window.gd`, `buffbar.gd`, `equipment_slot.gd`, `equipment_window.gd`, `global_drop_handler.gd`, `hotbar.gd`, `hotbar_slot.gd`, `inventory_window.gd`, `shop_window.gd`, `slot.gd`, `stats_window.gd`, `game_menu.gd`, `keybinds_menu.gd`, `options_menu.gd`).
+    *   `scripts/coin.gd`: Logic for collectible coins.
+    *   `scripts/damage_numbers.gd`: Manages floating damage numbers.
+    *   `scripts/killzone.gd`: Logic for kill zones.
+    *   `scripts/main_menu.gd`: Main menu logic.
+    *   `scripts/platform.gd`: Logic for platforms.
+*   `README/` — Project documentation and screenshots
 
 ## Multiplayer Architecture (from `scripts/`)
 

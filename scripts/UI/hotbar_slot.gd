@@ -11,14 +11,27 @@ signal ability_removed(slot_index: int)
 var assigned_ability: AbilityData = null
 var is_drag_hovering: bool = false
 
-const KEYBINDS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
-
 func _ready():
-	if keybind_label and slot_index < KEYBINDS.size():
-		keybind_label.text = KEYBINDS[slot_index]
+	_update_keybind_label()
 	
 	# Enable mouse filter to receive drop events
 	mouse_filter = Control.MOUSE_FILTER_STOP
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_ENTER_TREE:
+		KeybindManager.keybind_changed.connect(_on_keybind_changed)
+	elif what == NOTIFICATION_EXIT_TREE:
+		KeybindManager.keybind_changed.disconnect(_on_keybind_changed)
+		
+func _update_keybind_label():
+	var action_name = "hotbar_" + str(slot_index + 1)
+	if keybind_label:
+		keybind_label.text = KeybindManager.get_keybind_text(action_name)
+
+func _on_keybind_changed(action_name: String, _new_event: InputEventKey, _key_index: int):
+	var my_action_name = "hotbar_" + str(slot_index + 1)
+	if action_name == my_action_name:
+		_update_keybind_label()
 
 func _can_drop_data(_at_position: Vector2, data) -> bool:
 	# Check if the data is an AbilityData object
@@ -40,11 +53,6 @@ func _drop_data(_at_position: Vector2, data) -> void:
 	
 	is_drag_hovering = false
 	update_visual()
-
-func _notification(what: int) -> void:
-	if what == NOTIFICATION_DRAG_END:
-		is_drag_hovering = false
-		update_visual()
 
 @rpc("any_peer", "call_remote", "reliable")
 func request_assign_ability(ability_id: String):

@@ -3,7 +3,7 @@ class_name MerchantInventory
 extends Node
 
 @export var merchant_name: String = "Merchant"
-@export var buy_price_multiplier: float = 1.5
+@export var buy_price_multiplier: float = 1.0
 @export var sell_price_multiplier: float = 0.5
 
 @export var shop_window: Panel  # Reference to ShopWindow instance
@@ -117,7 +117,8 @@ func get_buy_price(item_id: String) -> int:
 
 func get_sell_price(item_id: String) -> int:
 	var item = ResourceManager.get_item_data(item_id)
-	return int(item.base_value * sell_price_multiplier) if item else 0
+	var new_value = item.base_value * sell_price_multiplier
+	return clampi(new_value, 1, 999999999) if item else 0
 
 func get_stock_data(player_id: int) -> Array:
 	var data: Array = []

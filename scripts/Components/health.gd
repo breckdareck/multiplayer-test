@@ -1,6 +1,8 @@
 class_name HealthComponent
 extends Node
 
+const PLAYER_HIT_SFX = preload("uid://ocgfdiulin68")
+
 # Emitted when health changes, useful for updating UI.
 signal health_changed(current_health, max_health)
 # Emitted on the server when the character dies.
@@ -124,6 +126,9 @@ func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, 
 	
 	var is_player = (owner is MultiplayerPlayerV2)
 	
+	if is_player:
+		play_player_hit_sfx()
+	
 	var horizontal_offset = randf_range(-8, 8) # Move left/right by a few pixels
 	var vertical_offset = randf_range(-5, 5) # Move up/down by a few pixels
 	var spawn_position = damage_number_origin.global_position + Vector2(horizontal_offset, vertical_offset)
@@ -173,3 +178,12 @@ func respawn() -> void:
 	is_invulnerable = true
 	invulnerability_timer.start()
 	# print("HealthComponent: Owner '%s' has respawned." % get_owner().name)
+
+func play_player_hit_sfx():
+	var audio_player = AudioStreamPlayer.new()
+	add_child(audio_player)
+	audio_player.stream = PLAYER_HIT_SFX
+	audio_player.bus = "SFX"
+	audio_player.play()
+	await audio_player.finished
+	audio_player.queue_free()

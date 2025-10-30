@@ -1,0 +1,97 @@
+[gd_scene load_steps=3 format=3 uid="uid://cqxmpc1h5uxw5"]
+
+[ext_resource type="Script" uid="uid://15ma6wfvu7x0" path="res://scripts/UI/options_menu.gd" id="1_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
+bg_color = Color(0.1, 0.1, 0.15, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.3, 0.3, 0.4, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="OptionsMenu" type="PanelContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_bg")
+script = ExtResource("1_script")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_constants/separation = 15
+alignment = 1
+
+[node name="TitleLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Options"
+horizontal_alignment = 1
+
+[node name="MasterVolumeHBox" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="MasterLabel" type="Label" parent="VBoxContainer/MasterVolumeHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Master Volume:"
+
+[node name="MasterSlider" type="HSlider" parent="VBoxContainer/MasterVolumeHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1.0
+step = 0.001
+value = 1.0
+ticks_on_borders = true
+
+[node name="MusicVolumeHBox" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="MusicLabel" type="Label" parent="VBoxContainer/MusicVolumeHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Music Volume:"
+
+[node name="MusicSlider" type="HSlider" parent="VBoxContainer/MusicVolumeHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1.0
+step = 0.001
+value = 0.9
+ticks_on_borders = true
+
+[node name="SfxVolumeHBox" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="SfxLabel" type="Label" parent="VBoxContainer/SfxVolumeHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "SFX Volume:"
+
+[node name="SfxSlider" type="HSlider" parent="VBoxContainer/SfxVolumeHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1.0
+step = 0.001
+value = 0.9
+ticks_on_borders = true
+
+[node name="BackButton" type="Button" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Back"

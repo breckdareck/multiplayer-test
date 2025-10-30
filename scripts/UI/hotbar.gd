@@ -53,12 +53,11 @@ func activate_slot(slot_index: int):
 ## Optional: Handle keybind inputs
 func _input(event: InputEvent):
 	if multiplayer.get_unique_id() == player.player_id:
-		if event is InputEventKey and event.pressed and not event.echo:
-			# Check for number keys 1-8
-			for i in range(slot_count):
-				if event.keycode == KEY_1 + i:
-					activate_slot(i)
-					break
+		for i in range(slot_count):
+			var action_name = "hotbar_" + str(i + 1)
+			if event.is_action_pressed(action_name) and not event.is_echo():
+				activate_slot(i)
+				break
 
 ## Save hotbar configuration (useful for persistence)
 func save_hotbar_config() -> Dictionary:

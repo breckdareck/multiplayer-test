@@ -786,5 +786,7 @@ grow_vertical = 2
 mouse_filter = 1
 script = ExtResource("24_drop_handler")
 
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+
 [editable path="MerchantNPC"]
 [editable path="MerchantNPC/CanvasLayer/ShopWindow"]

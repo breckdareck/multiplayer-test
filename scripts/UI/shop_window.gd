@@ -134,6 +134,26 @@ func add_shop_item(container: VBoxContainer, data: Dictionary, is_sell: bool) ->
 	button.focus_mode = Control.FOCUS_NONE
 	button.custom_minimum_size.y = 42
 	
+	# Add tooltip - same format as Slot
+	button.tooltip_text = item.name
+	if item.can_stack:
+		button.tooltip_text += "\nStack: " + str(count) + "/" + str(item.max_stack_amount)
+	if item.description != "":
+		button.tooltip_text += "\n" + item.description
+	if item.item_type == Constants.ItemType.EQUIPMENT:
+		if item.equipment_type == Constants.EquipmentType.WEAPON:
+			button.tooltip_text += "\n" + "Type: " + str(Constants.WeaponType.keys()[item.weapon_type]).capitalize()
+			button.tooltip_text += "\n" + "Attack Speed: " + str(item.attack_speed).to_upper()
+		if item.equipment_type == Constants.EquipmentType.ARMOR:
+			button.tooltip_text += "\n" + "Type: " + str(Constants.ArmorType.keys()[item.armor_type]).capitalize()
+		if item.bonus_stats:
+			for stat_type in item.bonus_stats:
+				if item.bonus_stats[stat_type].flat_bonus_value > 0:
+					button.tooltip_text += "\n" + str(Constants.StatType.keys()[stat_type]).to_upper() + " : +" + str(item.bonus_stats[stat_type].flat_bonus_value)
+	
+	# Add price info to tooltip
+	button.tooltip_text += "\n\nPrice: " + str(price) + " Monies"
+	
 	# Style the button with hover effect
 	var normal_style = StyleBoxFlat.new()
 	normal_style.bg_color = Color(1, 1, 1, 0)
