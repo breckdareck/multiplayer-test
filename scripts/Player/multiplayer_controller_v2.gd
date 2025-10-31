@@ -230,6 +230,9 @@ func _setup_server_signals() -> void:
 	if ability_component:
 		ability_component.ability_leveled_up.connect(func(_a, _l): _data_changed())
 
+	if inventory_component:
+		inventory_component.inventory_saved.connect(func(_inv): _data_changed())
+		
 	if is_instance_valid(drop_timer):
 		drop_timer.timeout.connect(_on_drop_timer_timeout)
 

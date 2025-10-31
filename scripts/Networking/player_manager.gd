@@ -150,9 +150,15 @@ func _spawn_character_for_player(id: int, character_type: int, username: String,
 		if not player_data:
 			player_instance.equipment_component.weapon_slot.item = ResourceManager.get_item_by_name("Iron Sword")
 		
+		# Make sure health is set correctly from the save data
+		if player_instance.health_component:
+			player_instance.health_component.current_health = player_data.get("current_health", 100)
+			
+		# Recalculate stats after all equipment is loaded/set
 		if player_instance.stats_component:
+			await get_tree().process_frame # Ensure equipment signals have processed
 			player_instance.stats_component.set_loading_mode(false)
-			player_instance.stats_component._recalculate_stats()
+			player_instance.stats_component._recalculate_stats_server("PlayerSpawn")
 			
 		# Reconnect ability component signals after all setup is complete
 		if player_instance.ability_component:

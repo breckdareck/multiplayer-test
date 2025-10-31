@@ -21,8 +21,12 @@ var item_container: Node = null
 
 @export var item: ItemData = null:
 	set(value):
+		var old_item = item
 		item = value
 		update_display()
+		
+		if is_instance_valid(item_container) and item_container.has_method("_update_item_tracking"):
+			item_container._update_item_tracking(self, old_item, item)
 
 # Drag state variables
 var is_dragging: bool = false
