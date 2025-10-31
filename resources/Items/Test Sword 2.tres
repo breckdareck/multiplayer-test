@@ -80,6 +80,7 @@ margin = Rect2(3.5, 0, 7, 0)
 
 [resource]
 script = ExtResource("2_ganye")
+weapon_type = 0
 weapon_attack_speed = 10
 equipment_type = 1
 bonus_stats = Dictionary[int, ExtResource("1_omroi")]({
@@ -99,7 +100,10 @@ bonus_stats = Dictionary[int, ExtResource("1_omroi")]({
 })
 item_id = "10137827114-100146-151353-11579-110141530152108125"
 name = "Test Sword 2"
+rarity = 0
 icon = SubResource("AtlasTexture_0opnw")
+description = ""
 item_type = 1
 item_level = 20
+custom_item_value = 0
 metadata/_custom_type_script = "uid://mysmonmct4jm"

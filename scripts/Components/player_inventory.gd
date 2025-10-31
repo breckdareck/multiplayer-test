@@ -68,6 +68,10 @@ func add_item(item_id: String):
 	inventory_component.add_item(item_id)
 
 
+func add_item_instance(item_data: ItemData):
+	inventory_component.add_item_instance(item_data)
+
+
 func remove_item(item: ItemData):
 	inventory_component.remove_item(item)
 

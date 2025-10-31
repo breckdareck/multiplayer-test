@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3 uid="uid://q6iqwsi8meq4"]
+[gd_scene load_steps=34 format=3 uid="uid://q6iqwsi8meq4"]
 
 [ext_resource type="Texture2D" uid="uid://dgjvvxhehw5y3" path="res://assets/sprites/slime_green.png" id="1_7p1mj"]
 [ext_resource type="Script" uid="uid://cj6lu2r6oxt6o" path="res://scripts/Enemy/enemy_base.gd" id="1_fd6lc"]
@@ -9,7 +9,9 @@
 [ext_resource type="Script" uid="uid://dwv2k28spwfby" path="res://scripts/StateMachine/state_machine.gd" id="4_2npkn"]
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="4_k8y7s"]
 [ext_resource type="Script" uid="uid://dk2rcptcq3hb8" path="res://scripts/Enemy/StateMachine/enemy_patrol.gd" id="6_fd6lc"]
+[ext_resource type="Script" uid="uid://71v08yv5tjrt" path="res://scripts/Components/stats.gd" id="6_ko2xg"]
 [ext_resource type="Script" uid="uid://u6b813y5rtm4" path="res://scripts/Enemy/StateMachine/enemy_idle.gd" id="6_v5wyi"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="7_x022k"]
 [ext_resource type="Script" uid="uid://bfh8yeyv2wu0g" path="res://scripts/Player/StateMachine/death.gd" id="8_0l8pv"]
 
 [sub_resource type="Resource" id="Resource_5ja2b"]
@@ -44,6 +46,22 @@ properties/4/replication_mode = 2
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_n6pvg"]
 radius = 8.062258
+
+[sub_resource type="Resource" id="Resource_h1jh3"]
+script = ExtResource("7_x022k")
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_st7t5"]
+script = ExtResource("7_x022k")
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_ex684"]
+script = ExtResource("7_x022k")
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_iglj4"]
+script = ExtResource("7_x022k")
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0l8pv"]
 bg_color = Color(0.0866292, 0.0866293, 0.0866292, 1)
@@ -148,11 +166,12 @@ animations = [{
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_v5wyi"]
 size = Vector2(64, 37)
 
-[node name="Slime" type="CharacterBody2D" node_paths=PackedStringArray("health_component") groups=["networked_entities"]]
+[node name="Slime" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "stats_component") groups=["networked_entities"]]
 collision_layer = 8
 collision_mask = 5
 script = ExtResource("1_fd6lc")
 health_component = NodePath("Health")
+stats_component = NodePath("Stats")
 movement_speed = 80.0
 health_curve = ExtResource("2_ykovo")
 experience_curve = ExtResource("3_k8y7s")
@@ -173,6 +192,15 @@ shape = SubResource("CircleShape2D_n6pvg")
 script = ExtResource("2_0l8pv")
 damage_number_origin = NodePath("../DmgNumOrigin")
 health_bar_path = NodePath("../HealthBar")
+
+[node name="Stats" type="Node" parent="."]
+script = ExtResource("6_ko2xg")
+stats = Dictionary[int, Object]({
+8: SubResource("Resource_ex684"),
+9: SubResource("Resource_iglj4"),
+12: SubResource("Resource_h1jh3"),
+13: SubResource("Resource_st7t5")
+})
 
 [node name="Label" type="Label" parent="."]
 visible = false

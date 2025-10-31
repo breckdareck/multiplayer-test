@@ -69,10 +69,9 @@ stat_type = 10
 base_value = 0
 flat_bonus_value = 10
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_rdvjl"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_1ltsw"]
 atlas = ExtResource("2_1ltsw")
-region = Rect2(45, 26, 6, 2)
-margin = Rect2(0, 2, 0, 4)
+region = Rect2(77, 91, 6, 3)
 
 [resource]
 script = ExtResource("1_nqh3m")
@@ -90,9 +89,9 @@ bonus_stats = Dictionary[int, ExtResource("1_si42d")]({
 9: SubResource("Resource_1a4xb"),
 10: SubResource("Resource_bat4g")
 })
-item_id = "1011156217-11826-06141-19119-0121210141071058121"
+item_id = "114404121315-6958-061515-3319-121412107760451412"
 name = "Test Chest"
-icon = SubResource("AtlasTexture_rdvjl")
+icon = SubResource("AtlasTexture_1ltsw")
 item_type = 1
-item_level = 5
+item_level = 10
 metadata/_custom_type_script = "uid://c2fkjsnluarqk"

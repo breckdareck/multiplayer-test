@@ -175,32 +175,21 @@ func _process_collected_bodies() -> void:
 	
 	var max_targets = 0
 	var max_hits = 0
-	var damage_to_deal = 0
-	var is_crit = false
 	
-	# 1. Determine Attack Type and Get Stats
 	if current_ability_data and current_level_stats:
-		# ABILITY ATTACK PATH (uses AbilityLevelData)
 		max_targets = current_level_stats.max_targets
 		max_hits = current_level_stats.max_hits
-		
 	elif current_attack_data != "": 
-		# BASIC ATTACK PATH (uses hardcoded basic attack values)
-		# Assuming basic attacks hit 1 target 1 time unless specified otherwise
 		max_targets = 1 
 		max_hits = 1
-		
 	else:
-		# No active attack or attack finished prematurely
 		_pending_bodies.clear()
 		return
 	
-	# Sort bodies by distance to owner
 	_pending_bodies.sort_custom(func(a, b): 
 		return owner_node.global_position.distance_to(a.global_position) < owner_node.global_position.distance_to(b.global_position)
 	)
 	
-	# Process only max_targets closest bodies
 	var targets_processed = 0
 	for body in _pending_bodies:
 		if targets_processed >= max_targets:
@@ -210,32 +199,56 @@ func _process_collected_bodies() -> void:
 		if not health_comp or health_comp.is_dead:
 			continue
 		
-		# Mark this target as hit
 		_unique_targets_for_attack[body] = true
 		
-		# Apply max_hits to this target
+		var target_enemy = body.owner
+		var attacker_level = owner_node.level_component.level
+		var target_level = target_enemy.monster_level
+
+		# --- Hit Chance Calculation ---
+		var level_diff = attacker_level - target_level
+		# Base 95% chance to hit. Lose 2% chance for each level the monster is above you.
+		var hit_chance = clamp(95.0 + (level_diff * 2.0), 5.0, 100.0)
+		
 		for i in range(max_hits):
+			var roll = randf() * 100
+			if roll > hit_chance:
+				var miss_spawn_pos = health_comp.damage_number_origin.global_position + Vector2(randf_range(-8, 8), randf_range(-5, 5))
+				get_node("/root/MainMenu/Level/Game").get_node("%DmgNumberSpawner").display_number(-1, miss_spawn_pos, false, false)
+				print("Attack MISSED! (Roll: %.2f > Chance: %.2f)" % [roll, hit_chance])
+				continue # Skip to the next hit
+
+			# --- Damage Calculation ---
+			var base_damage = 0
 			if current_attack_data != "":
-				# BASIC ATTACK DAMAGE CALCULATION (Explicitly calling the function)
-				var calculated_attack_damage = calculate_attack_damage()
-				var min_dmg = roundi(calculated_attack_damage * 0.8)
-				var max_dmg = roundi(calculated_attack_damage * 1.2)
-				damage_to_deal = randi_range(min_dmg, max_dmg)
-				print("CombatComponent: HIT! Basic Attack - Target: %s, Damage: %d" %
-					[body.name, damage_to_deal])
-				
+				base_damage = calculate_attack_damage()
 			elif current_ability_data and current_level_stats:
-				# ABILITY ATTACK DAMAGE CALCULATION
-				damage_to_deal = calculate_ability_damage(current_ability_data, current_level_stats)
-				print("CombatComponent: HIT! Ability Attack: %s - Target: %s, Hit #%d/%d, Damage: %d" %
-					[current_ability_data.ability_name, body.name, i + 1, max_hits, damage_to_deal])
+				base_damage = calculate_ability_damage(current_ability_data, current_level_stats)
+
+			var modified_damage = float(base_damage)
+
+			if target_enemy.has_node("Stats"):
+				var target_stats = target_enemy.get_node("Stats")
+				var target_defense = target_stats.stats.get(Constants.StatType.DEFENSE).total_value
+
+				var level_modifier = clamp(1.0 + (level_diff * 0.05), 0.5, 1.5)
+				var defense_multiplier = 1.0 - (float(target_defense) / (target_defense + 500.0))
+
+				modified_damage *= level_modifier * defense_multiplier
 			
-			#var horizontal_offset = randf_range(-8, 8) # Move left/right by a few pixels
-			#var vertical_offset = randf_range(-5, 5) # Move up/down by a few pixels
-			#var spawn_position = health_comp.damage_number_origin.global_position + Vector2(horizontal_offset, vertical_offset)
-			#get_node("/root/MainMenu/Level/Game").get_node("%DmgNumberSpawner").display_number(damage_to_deal, spawn_position, randi_range(0,1))
+			var crit_chance = _stats_component.stats.get(Constants.StatType.CRITCHANCE).total_value
+			var is_crit = (randf() * 100) < crit_chance
 			
-			health_comp.take_damage(damage_to_deal, self, true, randi_range(0,1))
+			if is_crit:
+				var crit_damage_bonus = _stats_component.stats.get(Constants.StatType.CRITDAMAGE).total_value
+				var crit_multiplier = randf_range(1.2, 1.5) + (crit_damage_bonus / 100.0)
+				modified_damage *= crit_multiplier
+			else:
+				modified_damage *= randf_range(0.8, 1.2)
+
+			var damage_to_deal = roundi(modified_damage)
+			
+			health_comp.take_damage(damage_to_deal, self, true, is_crit)
 			hit_list.append(body)
 			
 			if _ability_component:
@@ -264,11 +277,7 @@ func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelDa
 		ability_damage *= passive_modifier
 		print("Applied passive damage modifier: %.2fx" % passive_modifier)
 	
-	# Apply variance
-	var min_dmg = roundi(ability_damage * 0.8)
-	var max_dmg = roundi(ability_damage * 1.2)
-	
-	return randi_range(min_dmg, max_dmg)
+	return roundi(ability_damage)
 
 
 func calculate_attack_damage() -> int:

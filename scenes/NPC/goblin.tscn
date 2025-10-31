@@ -1,4 +1,4 @@
-[gd_scene load_steps=76 format=3 uid="uid://c0fdrl7mq5ou7"]
+[gd_scene load_steps=82 format=3 uid="uid://c0fdrl7mq5ou7"]
 
 [ext_resource type="Script" uid="uid://cj6lu2r6oxt6o" path="res://scripts/Enemy/enemy_base.gd" id="1_nadka"]
 [ext_resource type="Script" uid="uid://dhhn4ks2uixk8" path="res://scripts/Components/health.gd" id="2_0x8hd"]
@@ -11,8 +11,10 @@
 [ext_resource type="Texture2D" uid="uid://cc4r2w14hxt0a" path="res://assets/sprites/Goblin/Attack3.png" id="5_17tps"]
 [ext_resource type="Script" uid="uid://dwv2k28spwfby" path="res://scripts/StateMachine/state_machine.gd" id="5_yyaat"]
 [ext_resource type="Script" uid="uid://dk2rcptcq3hb8" path="res://scripts/Enemy/StateMachine/enemy_patrol.gd" id="6_u21pb"]
+[ext_resource type="Script" uid="uid://71v08yv5tjrt" path="res://scripts/Components/stats.gd" id="6_vbub7"]
 [ext_resource type="Texture2D" uid="uid://bu5jcuglfhkk4" path="res://assets/sprites/Goblin/Death.png" id="6_y64qe"]
 [ext_resource type="Texture2D" uid="uid://b8o4i2w7jmj5j" path="res://assets/sprites/Goblin/Take Hit.png" id="7_0x8hd"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="7_xxpon"]
 [ext_resource type="Texture2D" uid="uid://bgmwaeviu0hwp" path="res://assets/sprites/Goblin/Idle.png" id="8_3wbsg"]
 [ext_resource type="Texture2D" uid="uid://r20qrubyagnh" path="res://assets/sprites/Goblin/Run.png" id="9_2q0rr"]
 [ext_resource type="Script" uid="uid://u6b813y5rtm4" path="res://scripts/Enemy/StateMachine/enemy_idle.gd" id="12_nadka"]
@@ -58,6 +60,30 @@ properties/4/replication_mode = 2
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_a0il2"]
 radius = 6.0
+
+[sub_resource type="Resource" id="Resource_xxpon"]
+script = ExtResource("7_xxpon")
+stat_type = 11
+base_value = 247
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_7q2hv"]
+script = ExtResource("7_xxpon")
+stat_type = 12
+base_value = 260
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_numl0"]
+script = ExtResource("7_xxpon")
+stat_type = 8
+base_value = 190
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_awmsx"]
+script = ExtResource("7_xxpon")
+stat_type = 8
+base_value = 220
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0x8hd"]
 bg_color = Color(0.0866292, 0.0866293, 0.0866292, 1)
@@ -447,13 +473,13 @@ size = Vector2(64, 37)
 radius = 13.0
 height = 34.0
 
-[node name="Goblin" type="CharacterBody2D" node_paths=PackedStringArray("health_component") groups=["networked_entities"]]
+[node name="Goblin" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "stats_component") groups=["networked_entities"]]
 collision_layer = 8
 collision_mask = 5
 script = ExtResource("1_nadka")
 health_component = NodePath("Health")
-monster_level = 15
-damage = 45
+stats_component = NodePath("Stats")
+monster_level = 50
 health_curve = ExtResource("2_a0il2")
 experience_curve = ExtResource("2_a5hmx")
 item_drops = Array[ExtResource("4_2emke")]([SubResource("Resource_p6uye"), SubResource("Resource_2emke"), SubResource("Resource_vbub7")])
@@ -473,6 +499,15 @@ shape = SubResource("CircleShape2D_a0il2")
 script = ExtResource("2_0x8hd")
 damage_number_origin = NodePath("../DmgNumOrigin")
 health_bar_path = NodePath("../HealthBar")
+
+[node name="Stats" type="Node" parent="."]
+script = ExtResource("6_vbub7")
+stats = Dictionary[int, Object]({
+8: SubResource("Resource_numl0"),
+9: SubResource("Resource_awmsx"),
+12: SubResource("Resource_xxpon"),
+13: SubResource("Resource_7q2hv")
+})
 
 [node name="Label" type="Label" parent="."]
 visible = false

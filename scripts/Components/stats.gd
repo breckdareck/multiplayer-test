@@ -15,7 +15,9 @@ const SCALING_EXPONENT: float = 1.5
 	Constants.StatType.HEALTH: StatData.new(Constants.StatType.HEALTH, 100),
 	Constants.StatType.MANA: StatData.new(Constants.StatType.MANA, 100),
 	Constants.StatType.HPREGEN: StatData.new(Constants.StatType.HPREGEN, 10),
+	Constants.StatType.MPREGEN: StatData.new(Constants.StatType.MPREGEN, 5),
 	Constants.StatType.DEFENSE: StatData.new(Constants.StatType.DEFENSE, 100),
+	Constants.StatType.MAGICDEFENSE: StatData.new(Constants.StatType.MAGICDEFENSE, 100),
 	Constants.StatType.CRITCHANCE: StatData.new(Constants.StatType.CRITCHANCE, 5),
 	Constants.StatType.CRITDAMAGE: StatData.new(Constants.StatType.CRITDAMAGE, 0),
 	Constants.StatType.WEAPONATTACK: StatData.new(Constants.StatType.WEAPONATTACK, 0),
@@ -76,30 +78,25 @@ func _recalculate_stats() -> void:
 	
 		
 	# Add equipment bonuses
-	# TODO: Add the Percent Bonus's as well
 	if _equipment_component:
-		var equipment_bonuses: Dictionary = {}
 		for slot in _equipment_component.get_slots():
-			if slot.item != null:
-				if slot.item.bonus_stats != null:
-					var item_bonus_stats = slot.item.bonus_stats
-					for stat_type in item_bonus_stats:
-						if !equipment_bonuses.has(stat_type):
-							equipment_bonuses[stat_type] = 0
-						equipment_bonuses[stat_type] += item_bonus_stats[stat_type].flat_bonus_value
+			if slot.item != null and slot.item.bonus_stats != null:
+				var item_bonus_stats = slot.item.bonus_stats
+				for stat_type in item_bonus_stats:
+					if stats.has(stat_type):
+						var item_stat_data: StatData = item_bonus_stats[stat_type]
+						stats[stat_type].flat_bonus_value += item_stat_data.flat_bonus_value
+						stats[stat_type].percent_bonus_value += item_stat_data.percent_bonus_value
 
-		for stat_type in equipment_bonuses:
-			if stats.has(stat_type):
-				stats[stat_type].flat_bonus_value += equipment_bonuses[stat_type]
-				
 		print_string = ""
-		for stat in equipment_bonuses:
-			var value = equipment_bonuses[stat]
-			if typeof(value) == TYPE_INT and Constants.StatType.find_key(stat): # Check if it's an enum value
-				print_string += (Constants.StatType.find_key(stat) + ":" + str(value) + ", ")
-			else:
-				print_string += (str(stat) + ":" + str(value) + ", ")
-		print("StatsComponent: Applied equipment bonuses: %s" % print_string)
+		for slot in _equipment_component.get_slots():
+			if slot.item != null and slot.item.bonus_stats != null:
+				for stat_type in slot.item.bonus_stats:
+					var value: StatData = slot.item.bonus_stats[stat_type]
+					if value.flat_bonus_value != 0 or value.percent_bonus_value != 0:
+						print_string += "%s: (Flat: %d, Percent: %.2f), " % [Constants.StatType.find_key(stat_type), value.flat_bonus_value, value.percent_bonus_value]
+		if not print_string.is_empty():
+			print("StatsComponent: Applied equipment bonuses: " + print_string)
 
 	# Add passive ability bonuses
 	var ability_component = get_parent().get_node_or_null("Ability")
@@ -122,6 +119,14 @@ func _recalculate_stats() -> void:
 			if stats.has(stat_type):
 				stats[stat_type].flat_bonus_value += buff_bonuses[stat_type].flat_bonus_value
 				stats[stat_type].percent_bonus_value += buff_bonuses[stat_type].percent_bonus_value
+
+	# --- Special Defense Calculation ---
+	var str_val = stats.get(Constants.StatType.STRENGTH).total_value
+	var dex_val = stats.get(Constants.StatType.DEXTERITY).total_value
+	var luk_val = stats.get(Constants.StatType.LUCK).total_value
+	var new_base_defense = (1.5 * str_val) + (0.4 * (dex_val + luk_val))
+	stats.get(Constants.StatType.DEFENSE).base_value = roundi(new_base_defense)
+
 
 	var stat_string = ""
 	for stat in stats:

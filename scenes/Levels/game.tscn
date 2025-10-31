@@ -673,37 +673,30 @@ autoplay = "move"
 
 [node name="Slime" parent="Enemies" instance=ExtResource("7_ukxhe")]
 position = Vector2(-688, 16)
-damage = 3
 respawnable = true
 
 [node name="Slime2" parent="Enemies" instance=ExtResource("7_ukxhe")]
 position = Vector2(-647, 16)
-damage = 3
 respawnable = true
 
 [node name="Slime3" parent="Enemies" instance=ExtResource("7_ukxhe")]
 position = Vector2(-728, 16)
-damage = 3
 respawnable = true
 
 [node name="Boar" parent="Enemies" instance=ExtResource("8_pd7st")]
 position = Vector2(110, 15)
-damage = 7
 respawnable = true
 
 [node name="Boar2" parent="Enemies" instance=ExtResource("8_pd7st")]
 position = Vector2(155, 15)
-damage = 7
 respawnable = true
 
 [node name="Boar3" parent="Enemies" instance=ExtResource("8_pd7st")]
 position = Vector2(220, 15)
-damage = 7
 respawnable = true
 
 [node name="Boar4" parent="Enemies" instance=ExtResource("8_pd7st")]
 position = Vector2(272, 15)
-damage = 7
 respawnable = true
 
 [node name="Bunny" parent="Enemies" instance=ExtResource("9_qb3j5")]
@@ -727,17 +720,14 @@ respawnable = true
 
 [node name="Fox" parent="Enemies" instance=ExtResource("10_2ya06")]
 position = Vector2(725, 16)
-damage = 3
 respawnable = true
 
 [node name="Fox2" parent="Enemies" instance=ExtResource("10_2ya06")]
 position = Vector2(910, -17)
-damage = 3
 respawnable = true
 
 [node name="Fox3" parent="Enemies" instance=ExtResource("10_2ya06")]
 position = Vector2(1075, 31)
-damage = 3
 respawnable = true
 
 [node name="GoblinSpawner" type="Node" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]

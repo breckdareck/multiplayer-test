@@ -5,9 +5,9 @@ extends CharacterBody2D
 signal ready_for_pooling
 
 @export var health_component: HealthComponent
+@export var stats_component: StatsComponent
 @export var monster_level: int = 1
 @export var movement_speed: float = 60.0
-@export var damage: int = 10
 @export var health_curve: Curve
 @export var experience_curve: Curve
 @export var respawnable: bool
@@ -220,23 +220,88 @@ func _on_body_hitbox_body_entered(body: Node) -> void:
 	damage_on_overlap(body)
 
 
+func _get_a_coefficient(level_diff: int) -> float:
+	# New formula: Damage is modified by 5% for every level of difference.
+	# If player is 10 levels lower (diff = -10), monster deals 50% more damage (A = 1.5).
+	# If player is 10 levels higher (diff = 10), monster deals 50% less damage (A = 0.5).
+	var modifier = 1.0 - (level_diff * 0.05)
+	return clamp(modifier, 0.1, 5.0) # Clamp damage from 10% to 500%
+
+func _get_b_coefficient(level_diff: int) -> float:
+	if level_diff >= 0: return 1.00
+	if level_diff == -1: return 0.99
+	if level_diff == -2: return 0.98
+	if level_diff == -3: return 0.97
+	if level_diff == -4: return 0.96
+	if level_diff == -5: return 0.95
+	if level_diff == -6: return 0.94
+	if level_diff == -7: return 0.93
+	if level_diff == -8: return 0.92
+	if level_diff == -9: return 0.91
+	if level_diff == -10: return 0.90
+	if level_diff == -11: return 0.88
+	if level_diff == -12: return 0.86
+	if level_diff == -13: return 0.84
+	if level_diff == -14: return 0.82
+	if level_diff == -15: return 0.80
+	if level_diff == -16: return 0.78
+	if level_diff == -17: return 0.76
+	if level_diff == -18: return 0.74
+	if level_diff == -19: return 0.72
+	if level_diff == -20: return 0.70
+	if level_diff == -21: return 0.68
+	if level_diff == -22: return 0.66
+	if level_diff == -23: return 0.64
+	if level_diff == -24: return 0.62
+	if level_diff == -25: return 0.60
+	if level_diff == -26: return 0.58
+	if level_diff == -27: return 0.56
+	if level_diff == -28: return 0.54
+	if level_diff == -29: return 0.52
+	return 0.50 # -30 or lower
+
 func damage_on_overlap(body: Node):
+	if not stats_component:
+		push_warning("Enemy %s is missing a StatsComponent! Cannot calculate damage." % name)
+		return
+
 	if body.has_node("Components/Health"):
-		var health = body.get_node("Components/Health") as HealthComponent
+		var health: HealthComponent = body.get_node("Components/Health")
+		var player_stats: StatsComponent = body.get_node("Components/Stats")
+		var player_level_comp: LevelingComponent = body.get_node("Components/Leveling")
+		
 		if health.is_dead or health.is_invulnerable:
 			return
 
-		# Knockback logic handled here
-		var player_facing = 1
-		if body.has_method("get_facing_direction"):
-			player_facing = body.get_facing_direction()
-		elif "facing_direction" in body:
-			player_facing = body.facing_direction
-		var knockback_dir: int        = -player_facing
-		var knockback_strength: float = 150.0
-		var knockback_lift: float     = -100.0 # negative Y is up in Godot
+		# --- New Monster Damage Calculation ---
+		var monster_att = stats_component.stats.get(Constants.StatType.WEAPONATTACK).total_value
+		var player_def = player_stats.stats.get(Constants.StatType.DEFENSE).total_value
+		var level_diff = player_level_comp.level - monster_level
+
+		var a = _get_a_coefficient(level_diff)
+		var b = _get_b_coefficient(level_diff)
+
+		# Calculate Min Damage
+		var b_def_min = b * player_def
+		b_def_min = min(b_def_min, 0.68 * monster_att)
+		var min_damage = a * (0.85 * monster_att - b_def_min)
+		min_damage = max(1, min_damage)
+
+		# Calculate Max Damage
+		var b_def_max = b * player_def
+		b_def_max = min(b_def_max, 0.80 * monster_att)
+		var max_damage = a * (monster_att - b_def_max)
+		max_damage = max(min_damage, max_damage)
+
+		var final_damage = randi_range(roundi(min_damage), roundi(max_damage))
+
+		health.take_damage(final_damage, self)
+
+		# Knockback logic
+		var knockback_dir = -body.facing_direction
+		var knockback_strength = 150.0
+		var knockback_lift = -100.0
 		var knockback_vec = Vector2(knockback_dir * knockback_strength, knockback_lift)
-		health.take_damage(damage, self)
 		if body.has_method("apply_knockback"):
 			body.apply_knockback(knockback_vec)
 

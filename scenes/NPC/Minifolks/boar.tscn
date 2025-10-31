@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=3 uid="uid://betkg72vd7iav"]
+[gd_scene load_steps=42 format=3 uid="uid://betkg72vd7iav"]
 
 [ext_resource type="Script" uid="uid://cj6lu2r6oxt6o" path="res://scripts/Enemy/enemy_base.gd" id="1_nrg6h"]
 [ext_resource type="Curve" uid="uid://q6qc5kgdbmyv" path="res://assets/curves/monster_hp_curve.tres" id="2_71sob"]
@@ -8,6 +8,8 @@
 [ext_resource type="Texture2D" uid="uid://cgk01jgw2vtk" path="res://assets/sprites/MinifolksForestAnimals/Outline/MiniBoar.png" id="4_ehibi"]
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="4_q006m"]
 [ext_resource type="Resource" uid="uid://b87geqay7jh11" path="res://resources/DropTables/CoinDrop.tres" id="5_q34qd"]
+[ext_resource type="Script" uid="uid://71v08yv5tjrt" path="res://scripts/Components/stats.gd" id="7_4m5ue"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="8_gx1ts"]
 [ext_resource type="Script" uid="uid://dwv2k28spwfby" path="res://scripts/StateMachine/state_machine.gd" id="11_85v0n"]
 [ext_resource type="Script" uid="uid://u6b813y5rtm4" path="res://scripts/Enemy/StateMachine/enemy_idle.gd" id="12_c7p7b"]
 [ext_resource type="Script" uid="uid://dk2rcptcq3hb8" path="res://scripts/Enemy/StateMachine/enemy_patrol.gd" id="13_fpvu7"]
@@ -44,6 +46,26 @@ properties/4/replication_mode = 2
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_n6pvg"]
 radius = 5.09902
+
+[sub_resource type="Resource" id="Resource_h1jh3"]
+script = ExtResource("8_gx1ts")
+base_value = 19
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_st7t5"]
+script = ExtResource("8_gx1ts")
+base_value = 16
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_4m5ue"]
+script = ExtResource("8_gx1ts")
+base_value = 0
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_gx1ts"]
+script = ExtResource("8_gx1ts")
+base_value = 10
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0x8hd"]
 bg_color = Color(0.0866292, 0.0866293, 0.0866292, 1)
@@ -187,11 +209,12 @@ size = Vector2(64, 37)
 radius = 8.0
 height = 26.0
 
-[node name="Boar" type="CharacterBody2D" node_paths=PackedStringArray("health_component") groups=["networked_entities"]]
+[node name="Boar" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "stats_component") groups=["networked_entities"]]
 collision_layer = 8
 collision_mask = 5
 script = ExtResource("1_nrg6h")
 health_component = NodePath("Health")
+stats_component = NodePath("Stats")
 monster_level = 5
 movement_speed = 45.0
 health_curve = ExtResource("2_71sob")
@@ -214,6 +237,15 @@ script = ExtResource("2_82tmb")
 damage_number_origin = NodePath("../DmgNumOrigin")
 max_health = 50
 health_bar_path = NodePath("../HealthBar")
+
+[node name="Stats" type="Node" parent="."]
+script = ExtResource("7_4m5ue")
+stats = Dictionary[int, Object]({
+8: SubResource("Resource_4m5ue"),
+9: SubResource("Resource_gx1ts"),
+12: SubResource("Resource_h1jh3"),
+13: SubResource("Resource_st7t5")
+})
 
 [node name="Label" type="Label" parent="."]
 visible = false

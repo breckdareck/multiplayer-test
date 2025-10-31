@@ -1,4 +1,12 @@
-class_name Constants
+class_name Constants 
+
+enum ItemRarity {
+	COMMON,
+	UNCOMMON,
+	RARE,
+	EPIC,
+	LEGENDARY,
+}
 
 enum ClassType {
 	SWORDSMAN,
@@ -23,6 +31,7 @@ enum StatType {
 	HPREGEN,
 	MPREGEN,
 	DEFENSE,
+	MAGICDEFENSE,
 	CRITCHANCE,
 	CRITDAMAGE,
 	WEAPONATTACK,

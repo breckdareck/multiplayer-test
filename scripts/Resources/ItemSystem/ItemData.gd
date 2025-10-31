@@ -11,6 +11,7 @@ const BASE_VALUE_CURVE = preload("uid://d1qhydj4bri7d")
 		else:
 			item_id = value
 @export var name: String
+@export var rarity: Constants.ItemRarity = Constants.ItemRarity.COMMON
 @export var icon: Texture2D
 @export var description: String
 @export var item_type: Constants.ItemType:
@@ -96,3 +97,51 @@ func duplicate_with_path(subresources: bool = false) -> ItemData:
 	duplicated.original_resource_path = get_resource_path()
 	
 	return duplicated
+
+
+func to_dictionary() -> Dictionary:
+	var dict = {
+		"item_id": item_id,
+		"name": name,
+		"rarity": rarity,
+		"icon_path": icon.resource_path if icon else "",
+		"description": description,
+		"item_type": item_type,
+		"item_level": item_level,
+		"custom_item_value": custom_item_value,
+		"can_stack": can_stack,
+		"max_stack_amount": max_stack_amount,
+		"current_stack_amount": current_stack_amount,
+		"original_resource_path": original_resource_path,
+	}
+	return dict
+
+
+static func from_dictionary(dict: Dictionary) -> ItemData:
+	var item_type_enum = dict.get("item_type", Constants.ItemType.ANY)
+	var item_instance: ItemData
+	
+	if item_type_enum == Constants.ItemType.EQUIPMENT:
+		# Delegate to EquipmentData's from_dictionary
+		item_instance = EquipmentData.from_dictionary(dict)
+		if item_instance == null: # Handle error from EquipmentData.from_dictionary
+			return null
+	else:
+		item_instance = ItemData.new()
+		# Populate ItemData properties for non-equipment items
+		item_instance.item_id = dict.get("item_id", ItemData.new().generate_uuid())
+		item_instance.name = dict.get("name", "")
+		item_instance.rarity = dict.get("rarity", Constants.ItemRarity.COMMON)
+		var icon_path = dict.get("icon_path", "")
+		if not icon_path.is_empty():
+			item_instance.icon = load(icon_path)
+		item_instance.description = dict.get("description", "")
+		item_instance.item_type = item_type_enum
+		item_instance.item_level = dict.get("item_level", 0)
+		item_instance.custom_item_value = dict.get("custom_item_value", 0)
+		item_instance.can_stack = dict.get("can_stack", false)
+		item_instance.max_stack_amount = dict.get("max_stack_amount", 0)
+		item_instance.current_stack_amount = dict.get("current_stack_amount", 1)
+		item_instance.original_resource_path = dict.get("original_resource_path", "")
+	
+	return item_instance

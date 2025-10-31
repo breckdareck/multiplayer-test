@@ -10,8 +10,8 @@ signal item_removed(item: ItemData)
 
 
 var slots: Array[Slot] = []
-var item_counts: Dictionary = {} # item_id -> total_count
-var item_locations: Dictionary = {} # item_id -> Array[Slot]
+var item_counts: Dictionary = {} # item_name -> total_count
+var item_locations: Dictionary = {} # item_name -> Array[Slot]
 
 var pending_moves: Dictionary = {}
 var pending_splits: Dictionary = {}
@@ -89,47 +89,47 @@ func _rebuild_item_tracking():
 	var all_slots = get_all_slots()
 	for slot in all_slots:
 		if slot.item != null:
-			var item_instance_id = slot.item.item_id
+			var item_name = slot.item.name
 			var stack_amount = slot.item.current_stack_amount
 
-			if item_instance_id in item_counts:
-				item_counts[item_instance_id] += stack_amount
+			if item_name in item_counts:
+				item_counts[item_name] += stack_amount
 			else:
-				item_counts[item_instance_id] = stack_amount
+				item_counts[item_name] = stack_amount
 
-			if item_instance_id in item_locations:
-				item_locations[item_instance_id].append(slot)
+			if item_name in item_locations:
+				item_locations[item_name].append(slot)
 			else:
-				item_locations[item_instance_id] = [slot]
+				item_locations[item_name] = [slot]
 
 
 func _update_item_tracking(slot: Slot, old_item: ItemData, new_item: ItemData):
 	if old_item != null:
-		var old_instance_id = old_item.item_id
-		if old_instance_id in item_counts:
-			item_counts[old_instance_id] -= old_item.current_stack_amount
-			if item_counts[old_instance_id] <= 0:
-				item_counts.erase(old_instance_id)
+		var old_name = old_item.name
+		if old_name in item_counts:
+			item_counts[old_name] -= old_item.current_stack_amount
+			if item_counts[old_name] <= 0:
+				item_counts.erase(old_name)
 
-		if old_instance_id in item_locations:
-			item_locations[old_instance_id].erase(slot)
-			if item_locations[old_instance_id].is_empty():
-				item_locations.erase(old_instance_id)
+		if old_name in item_locations:
+			item_locations[old_name].erase(slot)
+			if item_locations[old_name].is_empty():
+				item_locations.erase(old_name)
 
 	if new_item != null:
-		var new_instance_id = new_item.item_id
+		var new_name = new_item.name
 		var stack_amount = new_item.current_stack_amount
 
-		if new_instance_id in item_counts:
-			item_counts[new_instance_id] += stack_amount
+		if new_name in item_counts:
+			item_counts[new_name] += stack_amount
 		else:
-			item_counts[new_instance_id] = stack_amount
+			item_counts[new_name] = stack_amount
 
-		if new_instance_id in item_locations:
-			if slot not in item_locations[new_instance_id]:
-				item_locations[new_instance_id].append(slot)
+		if new_name in item_locations:
+			if slot not in item_locations[new_name]:
+				item_locations[new_name].append(slot)
 		else:
-			item_locations[new_instance_id] = [slot]
+			item_locations[new_name] = [slot]
 
 
 func _get_slot_index(slot: Slot) -> int:
@@ -147,14 +147,14 @@ func _sync_slot_to_client(slot: Slot, trigger_stats_recalc: bool = false):
 		return
 	
 	if slot.item != null:
-		sync_slot_update_rpc.rpc_id(owner_id, slot_index, slot.item.to_dictionary(), trigger_stats_recalc)
+		sync_slot_update_rpc.rpc_id(owner_id, slot_index, slot.item.item_id, slot.item.current_stack_amount, trigger_stats_recalc)
 	else:
 		sync_slot_clear_rpc.rpc_id(owner_id, slot_index, trigger_stats_recalc)
 
 
 
 @rpc("authority", "call_local", "reliable")
-func sync_slot_update_rpc(slot_index: int, item_dict: Dictionary, trigger_stats_recalc: bool):
+func sync_slot_update_rpc(slot_index: int, item_id: String, stack_amount: int, trigger_stats_recalc: bool):
 	"""Client receives a single slot update"""
 	if multiplayer.is_server():
 		return
@@ -165,11 +165,15 @@ func sync_slot_update_rpc(slot_index: int, item_dict: Dictionary, trigger_stats_
 	var slot = slots[slot_index]
 	var old_item = slot.item
 	
-	var item_instance = ItemData.from_dictionary(item_dict)
-	if item_instance:
-		slot.item = item_instance
+	# Get or create the item
+	var item_resource = ResourceManager.get_item_data(item_id)
+	if item_resource:
+		var item_copy = item_resource.duplicate_with_path()
+		item_copy.item_id = item_id
+		item_copy.current_stack_amount = stack_amount
+		slot.item = item_copy
 		slot.update_display()
-		_update_item_tracking(slot, old_item, item_instance)
+		_update_item_tracking(slot, old_item, item_copy)
 	
 	# Trigger stats recalc if needed (equipment change)
 	if trigger_stats_recalc:
@@ -207,14 +211,14 @@ func server_add_item(item_id: String):
 	if not multiplayer.is_server():
 		return
 	var original_item: ItemData = ResourceManager.get_item_data(item_id).duplicate_with_path()
-	var original_item_id = original_item.item_id
+	var item_name = original_item.name
 	
 	# Emit signal so wrapper can handle special items
 	item_added.emit(original_item)
 	
 	# Try to stack with existing items in valid slots
-	if original_item_id in item_locations and original_item.can_stack:
-		var existing_slots = item_locations[original_item_id]
+	if item_name in item_locations and original_item.can_stack:
+		var existing_slots = item_locations[item_name]
 		for slot in existing_slots:
 			if slot.has_method("can_accept_item") and not slot.can_accept_item(original_item):
 				continue
@@ -225,7 +229,7 @@ func server_add_item(item_id: String):
 					var amount_to_add = min(original_item.current_stack_amount, space_left)
 					slot.add_to_stack(amount_to_add)
 					original_item.current_stack_amount -= amount_to_add
-					item_counts[original_item_id] += amount_to_add
+					item_counts[item_name] += amount_to_add
 					
 					# Only sync this one slot
 					_sync_slot_to_client(slot)
@@ -278,14 +282,14 @@ func remove_item_from_stack(item: ItemData, amount: int = 1):
 		if slot.item == item:
 			var removed = slot.remove_from_stack(amount)
 
-			if item.item_id in item_counts:
-				item_counts[item.item_id] -= removed
-				if item_counts[item.item_id] <= 0:
-					item_counts.erase(item.item_id)
-					if item.item_id in item_locations:
-						item_locations[item.item_id].erase(slot)
-						if item_locations[item.item_id].is_empty():
-							item_locations.erase(item.item_id)
+			if item.name in item_counts:
+				item_counts[item.name] -= removed
+				if item_counts[item.name] <= 0:
+					item_counts.erase(item.name)
+					if item.name in item_locations:
+						item_locations[item.name].erase(slot)
+						if item_locations[item.name].is_empty():
+							item_locations.erase(item.name)
 
 			if slot.item.current_stack_amount <= 0:
 				var old_item = slot.item
@@ -318,17 +322,17 @@ func clear_slot(slot: Slot):
 		print("Slot not found in inventory")
 
 
-func get_item_count(item_id: String) -> int:
-	return item_counts.get(item_id, 0)
+func get_item_count(item_name: String) -> int:
+	return item_counts.get(item_name, 0)
 
 
-func has_item(item_id: String, amount: int = 1) -> bool:
-	return get_item_count(item_id) >= amount
+func has_item(item_name: String, amount: int = 1) -> bool:
+	return get_item_count(item_name) >= amount
 
 
-func get_item_by_id(item_id: String) -> ItemData:
-	if item_id in item_locations:
-		var slots_with_item = item_locations[item_id]
+func get_item_by_name(item_name: String) -> ItemData:
+	if item_name in item_locations:
+		var slots_with_item = item_locations[item_name]
 		if not slots_with_item.is_empty():
 			return slots_with_item[0].item
 	return null
@@ -364,8 +368,8 @@ func get_total_items() -> int:
 	return total
 
 
-func get_all_items_of_id(item_id: String) -> Array[Slot]:
-	return item_locations.get(item_id, [])
+func get_all_items_of_type(item_name: String) -> Array[Slot]:
+	return item_locations.get(item_name, [])
 
 
 func save_inventory() -> Dictionary:
@@ -377,7 +381,8 @@ func save_inventory() -> Dictionary:
 		if slot.item != null:
 			slot_data.append({
 				"slot_index": i,
-				"item_data": slot.item.to_dictionary()
+				"item_id": slot.item.item_id,
+				"stack_amount": slot.item.current_stack_amount
 			})
 	
 	var equipment_data: Dictionary = {}
@@ -386,7 +391,7 @@ func save_inventory() -> Dictionary:
 			var eq_slot: Slot = equipment_component.equipment[eq_key]
 			if eq_slot and eq_slot.item != null:
 				var key_str := str(eq_key)
-				equipment_data[key_str] = eq_slot.item.to_dictionary()
+				equipment_data[key_str] = eq_slot.item.item_id
 
 	inventory_data["slots"] = slot_data
 	inventory_data["equipment"] = equipment_data
@@ -411,24 +416,28 @@ func _apply_inventory_data(inventory_data: Dictionary) -> void:
 	
 	# Load saved items
 	var slot_data = inventory_data.get("slots", [])
-	for item_dict_wrapper in slot_data:
-		var slot_index = item_dict_wrapper.get("slot_index", -1)
-		var item_dict = item_dict_wrapper.get("item_data", {})
+	for item_data in slot_data:
+		var slot_index = item_data.get("slot_index", -1)
+		var saved_item_id = item_data.get("item_id", "")
+		var stack_amount = item_data.get("stack_amount", 1)
 		
-		if slot_index >= 0 and slot_index < slots.size() and not item_dict.is_empty():
-			var item_instance = ItemData.from_dictionary(item_dict)
-			if item_instance:
-				slots[slot_index].item = item_instance
+		if slot_index >= 0 and slot_index < slots.size() and not saved_item_id.is_empty():
+			var item_resource = ResourceManager.get_item_data(saved_item_id)
+			if item_resource:
+				var item_copy = item_resource.duplicate_with_path()
+				item_copy.item_id = saved_item_id
+				item_copy.current_stack_amount = stack_amount
+				slots[slot_index].item = item_copy
 				slots[slot_index].update_display()
 			else:
-				print("Failed to load item from dictionary: " + str(item_dict))
+				print("Failed to load item with ID: " + saved_item_id)
 
 	# Load equipment items
 	if equipment_component:
 		var equipment_data_dict: Dictionary = inventory_data.get("equipment", {})
 		for key_str in equipment_data_dict.keys():
-			var item_dict: Dictionary = equipment_data_dict[key_str]
-			if item_dict.is_empty():
+			var eq_item_id: String = equipment_data_dict[key_str]
+			if eq_item_id.is_empty():
 				continue
 			var target_slot: Slot = null
 			if key_str == "WEAPON":
@@ -437,12 +446,14 @@ func _apply_inventory_data(inventory_data: Dictionary) -> void:
 				var key_val := int(key_str)
 				target_slot = equipment_component.equipment.get(key_val)
 			if target_slot:
-				var item_instance = ItemData.from_dictionary(item_dict)
-				if item_instance:
-					target_slot.item = item_instance
+				var eq_item_res = ResourceManager.get_item_data(eq_item_id)
+				if eq_item_res:
+					var eq_item_copy = eq_item_res.duplicate_with_path()
+					eq_item_copy.item_id = eq_item_id
+					target_slot.item = eq_item_copy
 					target_slot.update_display()
 				else:
-					print("Failed to load equipment item from dictionary: " + str(item_dict))
+					print("Failed to load equipment item with ID: " + eq_item_id)
 	
 	_rebuild_item_tracking()
 
@@ -679,13 +690,13 @@ func _sync_equipment_slot_to_client(slot: Slot, trigger_stats_recalc: bool = tru
 		return
 	
 	if slot.item != null:
-		sync_equipment_update_rpc.rpc_id(owner_id, str(eq_key), slot.item.to_dictionary(), trigger_stats_recalc)
+		sync_equipment_update_rpc.rpc_id(owner_id, str(eq_key), slot.item.item_id, trigger_stats_recalc)
 	else:
 		sync_equipment_clear_rpc.rpc_id(owner_id, str(eq_key), trigger_stats_recalc)
 
 
 @rpc("authority", "call_local", "reliable")
-func sync_equipment_update_rpc(eq_key_str: String, item_dict: Dictionary, trigger_stats_recalc: bool):
+func sync_equipment_update_rpc(eq_key_str: String, item_id: String, trigger_stats_recalc: bool):
 	"""Client receives an equipment slot update"""
 	if multiplayer.is_server():
 		return
@@ -704,15 +715,18 @@ func sync_equipment_update_rpc(eq_key_str: String, item_dict: Dictionary, trigge
 		return
 	
 	var old_item = target_slot.item
-	var item_instance = ItemData.from_dictionary(item_dict)
-	if item_instance:
+	var item_resource = ResourceManager.get_item_data(item_id)
+	if item_resource:
+		var item_copy = item_resource.duplicate_with_path()
+		item_copy.item_id = item_id
+		
 		# Use silent mode if we're batching multiple equipment changes
 		if equipment_component and not trigger_stats_recalc:
 			equipment_component.set_silent_mode(true)
 		
-		target_slot.item = item_instance
+		target_slot.item = item_copy
 		target_slot.update_display()
-		_update_item_tracking(target_slot, old_item, item_instance)
+		_update_item_tracking(target_slot, old_item, item_copy)
 		
 		if equipment_component and not trigger_stats_recalc:
 			equipment_component.set_silent_mode(false)

@@ -76,6 +76,8 @@ margin = Rect2(0, 3, 0, 6)
 
 [resource]
 script = ExtResource("1_6hwkf")
+armor_type = 0
+equipment_type = 0
 bonus_stats = Dictionary[int, ExtResource("1_1b7il")]({
 0: SubResource("Resource_7nj80"),
 1: SubResource("Resource_0g3xa"),
@@ -91,7 +93,10 @@ bonus_stats = Dictionary[int, ExtResource("1_1b7il")]({
 })
 item_id = "1011156217-11826-06141-19119-0121210141071058127"
 name = "Test Hat"
+rarity = 0
 icon = SubResource("AtlasTexture_ci4cm")
+description = ""
 item_type = 1
 item_level = 10
+custom_item_value = 0
 metadata/_custom_type_script = "uid://c2fkjsnluarqk"

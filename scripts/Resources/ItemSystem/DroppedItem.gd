@@ -2,7 +2,7 @@ class_name DroppedItem
 extends CharacterBody2D
 
 ## The item data this represents
-var item_data: ItemData
+@export var item_data: ItemData
 var stack_amount: int = 1
 var target_player: MultiplayerPlayerV2
 var target_players: Array[MultiplayerPlayerV2] = []
@@ -173,9 +173,9 @@ func _pickup_item(picking_player: MultiplayerPlayerV2 = null) -> void:
 		# For stackable items, add with the stack amount
 		elif item_data.can_stack and stack_amount > 1:
 			for i in range(stack_amount):
-				player_to_give_item.player_inventory.add_item(item_data.item_id)
+				player_to_give_item.player_inventory.add_item_instance(item_data.duplicate(true))
 		else:
-			player_to_give_item.player_inventory.add_item(item_data.item_id)
+			player_to_give_item.player_inventory.add_item_instance(item_data.duplicate(true))
 	
 	pickup_sound.stream = pickup_sfx
 	
@@ -197,7 +197,6 @@ func _pickup_item(picking_player: MultiplayerPlayerV2 = null) -> void:
 	
 	pickup_sound.finished.connect(queue_free)
 	
-
 
 func setup(item: ItemData, amount: int, player: MultiplayerPlayerV2) -> void:
 	item_data = item
@@ -280,7 +279,8 @@ func sync_state_to_peer(peer_id: int) -> void:
 	print("DroppedItem: Sync State to peer: %d" % peer_id)
 	_set_state_rpc.rpc_id(peer_id, item_data.item_id)
 	
-	
+
 @rpc("authority", "call_local", "reliable")
 func _set_state_rpc(item_id: String) -> void:
 	sprite.texture = ResourceManager.get_item_data(item_id).icon
+

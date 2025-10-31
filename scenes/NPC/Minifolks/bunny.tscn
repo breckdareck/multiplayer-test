@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=3 uid="uid://c06qbiant345e"]
+[gd_scene load_steps=40 format=3 uid="uid://c06qbiant345e"]
 
 [ext_resource type="Script" uid="uid://cj6lu2r6oxt6o" path="res://scripts/Enemy/enemy_base.gd" id="1_wu46e"]
 [ext_resource type="Script" uid="uid://dhhn4ks2uixk8" path="res://scripts/Components/health.gd" id="2_6msmc"]
@@ -9,7 +9,9 @@
 [ext_resource type="Texture2D" uid="uid://ihlgbn78fwcl" path="res://assets/sprites/MinifolksForestAnimals/Outline/MiniBunny.png" id="5_6msmc"]
 [ext_resource type="Script" uid="uid://dwv2k28spwfby" path="res://scripts/StateMachine/state_machine.gd" id="5_q3lct"]
 [ext_resource type="Script" uid="uid://u6b813y5rtm4" path="res://scripts/Enemy/StateMachine/enemy_idle.gd" id="6_66d7p"]
+[ext_resource type="Script" uid="uid://71v08yv5tjrt" path="res://scripts/Components/stats.gd" id="6_ex684"]
 [ext_resource type="Script" uid="uid://dk2rcptcq3hb8" path="res://scripts/Enemy/StateMachine/enemy_patrol.gd" id="7_hgyh7"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="7_iglj4"]
 [ext_resource type="Script" uid="uid://bfh8yeyv2wu0g" path="res://scripts/Player/StateMachine/death.gd" id="8_720f0"]
 
 [sub_resource type="Resource" id="Resource_5ja2b"]
@@ -44,6 +46,22 @@ properties/4/replication_mode = 2
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_n6pvg"]
 radius = 5.0
+
+[sub_resource type="Resource" id="Resource_h1jh3"]
+script = ExtResource("7_iglj4")
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_st7t5"]
+script = ExtResource("7_iglj4")
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_ex684"]
+script = ExtResource("7_iglj4")
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_iglj4"]
+script = ExtResource("7_iglj4")
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0x8hd"]
 bg_color = Color(0.0866292, 0.0866293, 0.0866292, 1)
@@ -180,11 +198,12 @@ size = Vector2(64, 37)
 radius = 6.0
 height = 18.0
 
-[node name="Bunny" type="CharacterBody2D" node_paths=PackedStringArray("health_component") groups=["networked_entities"]]
+[node name="Bunny" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "stats_component") groups=["networked_entities"]]
 collision_layer = 8
 collision_mask = 5
 script = ExtResource("1_wu46e")
 health_component = NodePath("Health")
+stats_component = NodePath("Stats")
 movement_speed = 40.0
 damage = 0
 health_curve = ExtResource("2_h5euh")
@@ -207,6 +226,15 @@ script = ExtResource("2_6msmc")
 damage_number_origin = NodePath("../DmgNumOrigin")
 max_health = 10
 health_bar_path = NodePath("../HealthBar")
+
+[node name="Stats" type="Node" parent="."]
+script = ExtResource("6_ex684")
+stats = Dictionary[int, Object]({
+8: SubResource("Resource_ex684"),
+9: SubResource("Resource_iglj4"),
+12: SubResource("Resource_h1jh3"),
+13: SubResource("Resource_st7t5")
+})
 
 [node name="Label" type="Label" parent="."]
 visible = false

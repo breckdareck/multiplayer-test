@@ -90,6 +90,12 @@ func spawn_damage_number(args: Array) -> Label:
 		
 	number.label_settings.font_size = font_size
 	number.label_settings.font = font
+
+	if args[0] == -1: # MISS
+		number_outline.text = "Miss"
+		number.text = "Miss"
+		number.label_settings.font_color = Color.BLACK
+		gradient_texture.texture = null
 	
 	number.set_anchors_preset(Control.PRESET_FULL_RECT)
 	gradient_texture.set_anchors_preset(Control.PRESET_FULL_RECT)
