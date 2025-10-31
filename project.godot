@@ -16,7 +16,7 @@ config/features=PackedStringArray("4.5", "Forward Plus")
 
 [autoload]
 
-Music="*res://scenes/Gameplay/music.tscn"
+AudioManager="*res://scripts/Managers/audio_manager.gd"
 MultiplayerManager="*res://scripts/Managers/multiplayer_manager.gd"
 NetworkUtils="*res://scripts/Networking/network_utils.gd"
 ChannelManager="*res://scripts/Networking/channel_manager.gd"

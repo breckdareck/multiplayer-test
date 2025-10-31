@@ -1,7 +1,7 @@
 class_name LevelingComponent
 extends Node
 
-const LEVEL_UP_SFX = preload("uid://dnabcnb0g8ovx")
+
 
 signal leveled_up(new_level)
 signal experience_changed(current_exp, exp_to_level)
@@ -17,7 +17,7 @@ var level:int = 1:
 		leveled_up.emit(value)
 		# Only play SFX if level increased, it's the server, and not during data loading
 		if level > old_level and multiplayer.is_server() and not _is_loading_data:
-			rpc_id(0, "play_level_up_sfx_rpc")
+			rpc_id(0, "play_sfx_rpc", "res://assets/sounds/level_up.wav", get_owner().global_position)
 
 var experience = 0:
 	set(value):
@@ -41,12 +41,4 @@ func add_exp(amount: int) -> void:
 		experience -= get_exp_to_next_level()
 		level += 1
 
-@rpc("any_peer", "call_local", "reliable")
-func play_level_up_sfx_rpc():
-	var audio_player = AudioStreamPlayer.new()
-	add_child(audio_player)
-	audio_player.stream = LEVEL_UP_SFX
-	audio_player.bus = "SFX"
-	audio_player.play()
-	await audio_player.finished
-	audio_player.queue_free()
+

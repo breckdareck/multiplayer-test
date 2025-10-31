@@ -1,6 +1,9 @@
 class_name MainMenu
 extends Node
 
+func _ready():
+	AudioManager.play_song("res://assets/music/main_menu.mp3")
+
 const SWORDSMAN_PORTRAIT = preload("res://assets/UI/swordsman_portrait.tres")
 const ARCHER_PORTRAIT = preload("res://assets/UI/archer_portrait.tres")
 const MAGE_PORTRAIT = preload("res://assets/UI/mage_portrait.tres")
