@@ -32,7 +32,7 @@ func to_dictionary() -> Dictionary:
 
 static func from_dictionary(dict: Dictionary) -> ItemData:
 	var item_instance: EquipmentData
-	var equipment_type_enum = dict.get("equipment_type", -1)
+	var equipment_type_enum = int(dict.get("equipment_type", -1))
 	
 	match equipment_type_enum:
 		Constants.EquipmentType.ARMOR:
@@ -73,7 +73,8 @@ static func from_dictionary(dict: Dictionary) -> ItemData:
 
 	# Deserialize bonus_stats
 	var serialized_bonus_stats = dict.get("bonus_stats", {})
-	for stat_type in serialized_bonus_stats:
-		item_instance.bonus_stats[stat_type] = StatData.from_dictionary(serialized_bonus_stats[stat_type])
+	for stat_type_str in serialized_bonus_stats:
+		var stat_type = int(stat_type_str)
+		item_instance.bonus_stats[stat_type] = StatData.from_dictionary(serialized_bonus_stats[stat_type_str])
 	
 	return item_instance

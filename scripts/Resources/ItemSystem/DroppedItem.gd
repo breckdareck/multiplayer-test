@@ -209,12 +209,14 @@ func setup(item: ItemData, amount: int, player: MultiplayerPlayerV2) -> void:
 	print("DroppedItem setup: %s x%d for player %s" % [item_data.name if item_data else "NULL", amount, player.username if player else "NULL"])
 	
 	# Set sprite to item's icon
-	if item_data and item_data.icon:
-		sprite.texture = item_data.icon
-		# Scale the sprite to a reasonable size (adjust as needed)
-		#sprite.scale = Vector2(0.5, 0.5)
+	if item_data:
+		var resource_item_data = ResourceManager.get_item_data(item_data.item_id)
+		if resource_item_data and resource_item_data.icon:
+			sprite.texture = resource_item_data.icon
+		else:
+			print("WARNING: DroppedItem has no icon for item_id: %s" % item_data.item_id)
 	else:
-		print("WARNING: DroppedItem has no icon!")
+		print("WARNING: DroppedItem has no item_data!")
 	
 	# Start in popping state - item will settle on ground
 	current_state = ItemState.POPPING

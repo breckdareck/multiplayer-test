@@ -237,6 +237,59 @@ func server_add_item(item_id: String):
 	# Find a valid empty slot
 	for slot in slots:
 		if slot.item == null and (not slot.has_method("can_accept_item") or slot.can_accept_item(original_item)):
+			slot.item = original_item
+			slot.item.current_stack_amount = original_item.current_stack_amount
+			slot.update_display()
+			_update_item_tracking(slot, null, slot.item)
+			
+			# Only sync this one slot
+			_sync_slot_to_client(slot)
+			_notify_changed()
+			return
+			
+	print("Inventory is full or no suitable slot found for this item type.")
+
+
+@rpc("any_peer", "call_local", "reliable")
+func server_add_item_instance(item_dict: Dictionary):
+	if not multiplayer.is_server():
+		return
+	
+	var original_item: ItemData = ItemData.from_dictionary(item_dict)
+	if not original_item:
+		print("Failed to create ItemData from dictionary in server_add_item_instance")
+		return
+
+	var original_item_id = original_item.item_id
+	
+	# Emit signal so wrapper can handle special items
+	item_added.emit(original_item)
+	
+	# Try to stack with existing items in valid slots
+	if original_item_id in item_locations and original_item.can_stack:
+		var existing_slots = item_locations[original_item_id]
+		for slot in existing_slots:
+			if slot.has_method("can_accept_item") and not slot.can_accept_item(original_item):
+				continue
+
+			if slot.can_add_to_stack(original_item):
+				var space_left = slot.get_remaining_space()
+				if space_left > 0:
+					var amount_to_add = min(original_item.current_stack_amount, space_left)
+					slot.add_to_stack(amount_to_add)
+					original_item.current_stack_amount -= amount_to_add
+					item_counts[original_item_id] += amount_to_add
+					
+					# Only sync this one slot
+					_sync_slot_to_client(slot)
+					_notify_changed()
+					
+					if original_item.current_stack_amount <= 0:
+						return
+						
+	# Find a valid empty slot
+	for slot in slots:
+		if slot.item == null and (not slot.has_method("can_accept_item") or slot.can_accept_item(original_item)):
 			slot.item = original_item.duplicate_with_path()
 			slot.item.current_stack_amount = original_item.current_stack_amount
 			slot.update_display()

@@ -122,10 +122,13 @@ func add_shop_item(container: VBoxContainer, data: Dictionary, is_sell: bool) ->
 		count = item.current_stack_amount
 	else:
 		# Player is buying from merchant (either base stock or buyback)
-		item = ResourceManager.get_item_data(data["item_id"])
 		price = data["price"]
 		count = data["count"]
 		is_buyback = data.get("is_buyback", false)
+		if is_buyback:
+			item = ItemData.from_dictionary(data["item_dict"])
+		else:
+			item = ResourceManager.get_item_data(data["item_id"])
 	
 	# Create button container
 	var button = Button.new()

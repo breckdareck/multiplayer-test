@@ -2,6 +2,14 @@
 class_name ItemDropResource
 extends Resource
 
+const RARITY_BUDGETS = {
+	Constants.ItemRarity.COMMON: {"min": 1, "max": 3},
+	Constants.ItemRarity.UNCOMMON: {"min": 3, "max": 6},
+	Constants.ItemRarity.RARE: {"min": 6, "max": 10},
+	Constants.ItemRarity.EPIC: {"min": 10, "max": 15},
+	Constants.ItemRarity.LEGENDARY: {"min": 15, "max": 22},
+}
+
 ## The item that can drop (reference by name for easy setup)
 @export var item_name: String = ""
 
@@ -9,8 +17,6 @@ extends Resource
 @export var randomize_stats: bool = false
 ## Chances are relative. E.g., {COMMON:100, UNCOMMON:30, RARE:10} means ~71% Common, ~21% Uncommon, ~7% Rare.
 @export var rarity_chances: Dictionary = {&"COMMON": 100, &"UNCOMMON": 30, &"RARE": 10, &"EPIC": 3, &"LEGENDARY": 1}
-@export var stat_budget_min: int = 1
-@export var stat_budget_max: int = 5
 @export var possible_stats: Array[Constants.StatType]
 
 @export_group("Drop Settings")
@@ -43,7 +49,7 @@ func get_item_data() -> ItemData:
 	if not base_item:
 		return null
 	
-	var dropped_item = base_item.duplicate_with_path() as ItemData
+	var dropped_item = base_item.duplicate_with_path(true) as ItemData
 	
 	if randomize_stats and dropped_item is EquipmentData:
 		_apply_random_stats(dropped_item as EquipmentData)
@@ -54,13 +60,15 @@ func get_item_data() -> ItemData:
 func _apply_random_stats(item: EquipmentData) -> void:
 	# 1. Determine Rarity
 	var chosen_rarity = _choose_random_rarity()
+	print(">> Rarity chosen by function: %s" % Constants.ItemRarity.find_key(chosen_rarity))
 	item.rarity = chosen_rarity
+	print(">> Rarity assigned to item: %s" % Constants.ItemRarity.find_key(item.rarity))
 	
-	# 2. Determine Stat Budget
-	var stat_budget = randi_range(stat_budget_min, stat_budget_max)
+	# 2. Determine Stat Budget based on Rarity
+	var budget_range = RARITY_BUDGETS.get(chosen_rarity, {"min": 1, "max": 1})
+	var stat_budget = randi_range(budget_range.min, budget_range.max)
 	
 	# 3. Allocate Stats
-	var allocated_stats: Dictionary = {}
 	var remaining_budget = stat_budget
 	
 	# Shuffle possible_stats to ensure random distribution order
@@ -73,29 +81,53 @@ func _apply_random_stats(item: EquipmentData) -> void:
 		# Assign a random amount for this stat, at least 1
 		var amount_to_assign = randi_range(1, remaining_budget)
 		
-		# For simplicity, let's just assign a flat value.
-		# More complex logic could involve rarity multipliers, stat curves, etc.
-		if not allocated_stats.has(stat_type):
-			allocated_stats[stat_type] = StatData.new()
-			(allocated_stats[stat_type] as StatData).stat_type = stat_type
-		
-		(allocated_stats[stat_type] as StatData).base_value += amount_to_assign
-		remaining_budget -= amount_to_assign
-	
-	item.bonus_stats = allocated_stats
+		# Ensure a StatData object exists for this type in the item's bonus_stats
+		if not item.bonus_stats.has(stat_type):
+			item.bonus_stats[stat_type] = StatData.new()
+			(item.bonus_stats[stat_type] as StatData).stat_type = stat_type
 
+		var stat_data_instance: StatData = item.bonus_stats[stat_type]
+		stat_data_instance.flat_bonus_value += amount_to_assign
+		remaining_budget -= amount_to_assign
 
 func _choose_random_rarity() -> Constants.ItemRarity:
-	var total_weight = 0
-	for rarity_str in rarity_chances.keys():
-		total_weight += rarity_chances[rarity_str]
+	print("--- Choosing Random Rarity ---")
 	
+	# Filter chances to only include valid rarity keys from the enum
+	var valid_chances: Dictionary = {}
+	for rarity_name in Constants.ItemRarity.keys():
+		# Check for key (case-insensitive) in the exported dictionary
+		for key in rarity_chances:
+			if str(key).to_upper() == rarity_name:
+				valid_chances[rarity_name] = rarity_chances[key]
+				break # Move to next enum key
+
+	print("Rarity Chances (validated): ", valid_chances)
+
+	var total_weight = 0
+	for rarity_key in valid_chances:
+		total_weight += valid_chances[rarity_key]
+
+	print("Total Weight: ", total_weight)
+
+	if total_weight <= 0:
+		push_warning("ItemDropResource has no valid rarity weights defined.")
+		return Constants.ItemRarity.COMMON
+
 	var random_weight = randi_range(1, total_weight)
+	print("Random Weight Chosen: ", random_weight)
 	var current_weight = 0
 	
-	for rarity_str in rarity_chances.keys():
-		current_weight += rarity_chances[rarity_str]
+	for rarity_key in valid_chances:
+		current_weight += valid_chances[rarity_key]
+		print("Checking rarity: %s, Current Weight: %d" % [rarity_key, current_weight])
 		if random_weight <= current_weight:
-			return Constants.ItemRarity.find_key(rarity_str)
+			# We know the key is valid now, so find_key won't fail
+			var rarity_val = Constants.ItemRarity[rarity_key]
+			print("Selected Rarity: %s (Value: %d)" % [rarity_key, rarity_val])
+			print("------------------------------")
+			return rarity_val
 			
-	return Constants.ItemRarity.COMMON # Fallback
+	print("Loop finished without selection, falling back to COMMON.")
+	print("------------------------------")
+	return Constants.ItemRarity.COMMON

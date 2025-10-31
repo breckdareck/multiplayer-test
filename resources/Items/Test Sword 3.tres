@@ -80,7 +80,6 @@ margin = Rect2(3.5, 0, 7, 0)
 
 [resource]
 script = ExtResource("2_xmdq5")
-weapon_type = 0
 weapon_attack_speed = 1
 equipment_type = 1
 bonus_stats = Dictionary[int, ExtResource("1_mwur8")]({
@@ -100,10 +99,7 @@ bonus_stats = Dictionary[int, ExtResource("1_mwur8")]({
 })
 item_id = "014194109-128510-1191114-912111-14125857119013"
 name = "Test Sword 3"
-rarity = 0
 icon = SubResource("AtlasTexture_0opnw")
-description = ""
 item_type = 1
 item_level = 30
-custom_item_value = 0
 metadata/_custom_type_script = "uid://mysmonmct4jm"

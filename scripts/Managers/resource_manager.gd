@@ -30,6 +30,7 @@ func _load_item_data() -> void:
 			item_data[resource.item_id] = resource
 			item_by_name[resource.name] = resource
 			print("Loaded item: %s from path: %s" % [resource.name, path])
+			print("DEBUG: ResourceManager loaded item icon: ", resource.icon)
 		else:
 			print("Skipped (not ItemData): %s" % path)
 			

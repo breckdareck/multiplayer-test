@@ -39,6 +39,7 @@ var max_stack_amount: int
 var current_stack_amount: int = 1
 
 var original_resource_path: String
+var instance_id: String
 
 
 func _get_property_list():
@@ -78,6 +79,7 @@ func generate_uuid() -> String:
 
 
 func _init():
+	instance_id = generate_uuid()
 	# Only generate a UUID if one doesn't already exist.
 	if item_id.is_empty():
 		item_id = generate_uuid()
@@ -92,19 +94,32 @@ func get_resource_path() -> String:
 # Custom duplicate method that preserves resource path information
 func duplicate_with_path(subresources: bool = false) -> ItemData:
 	var duplicated = super.duplicate(subresources) as ItemData
-	
 	# Store the original resource path in our custom property (not the built-in resource_path)
 	duplicated.original_resource_path = get_resource_path()
-	
 	return duplicated
 
 
 func to_dictionary() -> Dictionary:
+	var res_path = get_resource_path()
+	if res_path.is_empty() and not name.is_empty():
+		var item_from_manager = ResourceManager.get_item_by_name(name)
+		if item_from_manager:
+			res_path = item_from_manager.get_resource_path()
+
+	var icon_path := ""
+	if icon:
+		icon_path = icon.resource_path
+	
+	if icon_path.is_empty() and not res_path.is_empty():
+		var original_res = load(res_path)
+		if original_res and original_res.icon:
+			icon_path = original_res.icon.resource_path
+
 	var dict = {
 		"item_id": item_id,
 		"name": name,
 		"rarity": rarity,
-		"icon_path": icon.resource_path if icon else "",
+		"icon_path": icon_path,
 		"description": description,
 		"item_type": item_type,
 		"item_level": item_level,
@@ -112,17 +127,16 @@ func to_dictionary() -> Dictionary:
 		"can_stack": can_stack,
 		"max_stack_amount": max_stack_amount,
 		"current_stack_amount": current_stack_amount,
-		"original_resource_path": original_resource_path,
+		"original_resource_path": res_path,
 	}
+	
 	return dict
 
 
 static func from_dictionary(dict: Dictionary) -> ItemData:
 	var item_type_enum = dict.get("item_type", Constants.ItemType.ANY)
 	var item_instance: ItemData
-	
 	if item_type_enum == Constants.ItemType.EQUIPMENT:
-		# Delegate to EquipmentData's from_dictionary
 		item_instance = EquipmentData.from_dictionary(dict)
 		if item_instance == null: # Handle error from EquipmentData.from_dictionary
 			return null
@@ -135,6 +149,7 @@ static func from_dictionary(dict: Dictionary) -> ItemData:
 		var icon_path = dict.get("icon_path", "")
 		if not icon_path.is_empty():
 			item_instance.icon = load(icon_path)
+		
 		item_instance.description = dict.get("description", "")
 		item_instance.item_type = item_type_enum
 		item_instance.item_level = dict.get("item_level", 0)
@@ -143,5 +158,4 @@ static func from_dictionary(dict: Dictionary) -> ItemData:
 		item_instance.max_stack_amount = dict.get("max_stack_amount", 0)
 		item_instance.current_stack_amount = dict.get("current_stack_amount", 1)
 		item_instance.original_resource_path = dict.get("original_resource_path", "")
-	
 	return item_instance

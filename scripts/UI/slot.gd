@@ -1,6 +1,14 @@
 extends PanelContainer
 class_name Slot
 
+const RARITY_COLORS = {
+	0: Color("ffffff"), # Common (White)
+	1: Color("00ff00"), # Uncommon (Green)
+	2: Color("0000ff"), # Rare (Blue)
+	3: Color("ff00ff"), # Epic (Purple)
+	4: Color("ff8000"), # Legendary (Orange)
+}
+
 const PANEL_STYLEBOX_THEME: StyleBoxFlat = preload("uid://dm8jxifs8rqrm")
 
 @onready var texture_rect: TextureRect = $TextureRect
@@ -21,20 +29,26 @@ var is_dragging: bool = false
 var drag_item: ItemData = null
 var drag_amount: int = 0
 
+var _custom_tooltip_theme: Theme = null # Declare as instance variable
+
 
 func update_display():
-	if item != null:
-		texture_rect.texture = item.icon
-		if item.can_stack and item.current_stack_amount > 1:
-			label.text = str(item.current_stack_amount)
-			label.visible = true
+		if item != null:
+			texture_rect.texture = ResourceManager.get_item_data(item.item_id).icon		
+			if item.can_stack and item.current_stack_amount > 1:
+				label.text = str(item.current_stack_amount)
+				label.visible = true
+			else:
+				label.visible = false
+			# Ensure the panel is visible when there's an item
+			add_theme_stylebox_override("panel", get_theme_stylebox("panel")) # Reapply default panel
 		else:
+			texture_rect.texture = null
 			label.visible = false
-	else:
-		texture_rect.texture = null
-		label.visible = false
-	texture_rect.queue_redraw()
-	label.queue_redraw()
+		# Hide the panel when there's no item
+			remove_theme_stylebox_override("panel")
+		texture_rect.queue_redraw()
+		label.queue_redraw()
 
 
 func set_inventory(inv: Node):
@@ -208,9 +222,20 @@ func _gui_input(event: InputEvent):
 func _ready():
 	mouse_entered.connect(_on_mouse_entered)
 	mouse_exited.connect(_on_mouse_exited)
-	var custom_theme = Theme.new()
-	custom_theme.set_stylebox("panel", "TooltipPanel", PANEL_STYLEBOX_THEME)
-	self.theme = custom_theme
+	_custom_tooltip_theme = Theme.new()
+	
+	# Get the default PanelContainer stylebox from the editor's theme (or current scene's theme)
+	# and set it as the default "panel" style for the Slot itself within _custom_tooltip_theme.
+	var default_panel_stylebox = get_theme_stylebox("panel", "PanelContainer")
+	if default_panel_stylebox:
+		_custom_tooltip_theme.set_stylebox("panel", "PanelContainer", default_panel_stylebox)
+		# Also set it as the generic "panel" style for the control itself
+		_custom_tooltip_theme.set_stylebox("panel", "", default_panel_stylebox) # This is the key!
+	
+	_custom_tooltip_theme.set_stylebox("panel", "TooltipPanel", PANEL_STYLEBOX_THEME)
+	
+	self.theme = _custom_tooltip_theme # Apply the custom theme to the slot itself for tooltip styling
+	update_display() # Call update_display to ensure correct initial state
 
 
 func can_accept_item(item_to_check: ItemData) -> bool:
@@ -240,12 +265,43 @@ func _on_mouse_entered():
 				for stat_type in item.bonus_stats:
 					if item.bonus_stats[stat_type].flat_bonus_value > 0:
 						tooltip_text += "\n" + str(Constants.StatType.keys()[stat_type]).to_upper() + " : +" + str(item.bonus_stats[stat_type].flat_bonus_value)
+		
+		# Set tooltip border color based on rarity
+		var rarity_color: Color = Color.WHITE # Default to white
+		var found_rarity = false
+
+		if item.has_method("get_rarity"):
+			var rarity = item.get_rarity()
+			if RARITY_COLORS.has(rarity):
+				rarity_color = RARITY_COLORS[rarity]
+				found_rarity = true
+		elif typeof(item.rarity) == TYPE_INT: # Check for rarity property directly
+			var rarity = item.rarity
+			if RARITY_COLORS.has(rarity):
+				rarity_color = RARITY_COLORS[rarity]
+				found_rarity = true
+		
+		if found_rarity:
+			var new_stylebox = PANEL_STYLEBOX_THEME.duplicate()
+			new_stylebox.border_color = rarity_color
+			_custom_tooltip_theme.set_stylebox("panel", "TooltipPanel", new_stylebox)
+			self.theme = _custom_tooltip_theme # Reapply the theme to update the tooltip
+		else:
+			# Reset to default tooltip style if rarity not found
+			_custom_tooltip_theme.set_stylebox("panel", "TooltipPanel", PANEL_STYLEBOX_THEME)
+			self.theme = _custom_tooltip_theme
 	else:
 		tooltip_text = ""
+		# Reset to default tooltip style when no item
+		_custom_tooltip_theme.set_stylebox("panel", "TooltipPanel", PANEL_STYLEBOX_THEME)
+		self.theme = _custom_tooltip_theme
 
 
 func _on_mouse_exited():
 	tooltip_text = ""
+	# Reset tooltip style to default
+	_custom_tooltip_theme.set_stylebox("panel", "TooltipPanel", PANEL_STYLEBOX_THEME)
+	self.theme = _custom_tooltip_theme
 	if not is_dragging:
 		modulate = Color.WHITE
 

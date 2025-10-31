@@ -69,7 +69,10 @@ func add_item(item_id: String):
 
 
 func add_item_instance(item_data: ItemData):
-	inventory_component.add_item_instance(item_data)
+	if multiplayer.is_server():
+		inventory_component.server_add_item_instance(item_data.to_dictionary())
+	else:
+		inventory_component.server_add_item_instance.rpc_id(1, item_data.to_dictionary())
 
 
 func remove_item(item: ItemData):
