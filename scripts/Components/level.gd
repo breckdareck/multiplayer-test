@@ -12,10 +12,12 @@ signal experience_changed(current_exp, exp_to_level)
 var _is_loading_data: bool = false
 var level:int = 1:
 	set(value):
-		if value > level and not _is_loading_data:
-			play_level_up_sfx()
+		var old_level = level
 		level = value
 		leveled_up.emit(value)
+		# Only play SFX if level increased, it's the server, and not during data loading
+		if level > old_level and multiplayer.is_server() and not _is_loading_data:
+			rpc_id(0, "play_level_up_sfx_rpc")
 
 var experience = 0:
 	set(value):
@@ -39,7 +41,8 @@ func add_exp(amount: int) -> void:
 		experience -= get_exp_to_next_level()
 		level += 1
 
-func play_level_up_sfx():
+@rpc("any_peer", "call_local", "reliable")
+func play_level_up_sfx_rpc():
 	var audio_player = AudioStreamPlayer.new()
 	add_child(audio_player)
 	audio_player.stream = LEVEL_UP_SFX
