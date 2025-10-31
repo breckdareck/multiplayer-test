@@ -10,7 +10,7 @@ kanban-plugin: board
 	- [ ]  Add tutorials and help system
 	- [ ]  Implement accessibility features
 	- [ ]  Create localization system
-	- [ ]  Add customizable controls and keybindings
+	- [x]  Add customizable controls and keybindings
 - [ ] Visual & Audio
 	- [ ]  Add particle effects for combat and skills
 	- [ ]  Implement screen shake and visual feedback

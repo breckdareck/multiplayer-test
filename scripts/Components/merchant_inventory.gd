@@ -288,6 +288,7 @@ func request_buy_item(item_id: String, is_buyback: bool, is_stackable_buyback: b
 		player.inventory_component.add_item(item_id)
 		
 		if shop_window:
+			shop_window.update_money_display.rpc_id(sender_id, player.player_inventory.monies_amount)
 			shop_window.receive_shop_data.rpc_id(sender_id, get_stock_data(sender_id))
 			shop_window.update_sell_display.rpc_id(sender_id)
 		
@@ -349,6 +350,10 @@ func request_sell_item(slot_index: int):
 	# Add to this player's sold items (for buyback) and store the sell price
 	add_sold_item(sender_id, item_to_sell, price_for_transaction)
 	player.player_inventory.monies_amount += price_for_transaction
+	
+	# Update client's money display
+	if shop_window:
+		shop_window.update_money_display.rpc_id(sender_id, player.player_inventory.monies_amount)
 	
 	# Send updated shop data to the seller (includes both buy and sell lists)
 	if shop_window:
