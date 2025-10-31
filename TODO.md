@@ -21,22 +21,27 @@ kanban-plugin: board
 	- [ ]  Create auction house system
 	- [ ]  Add currency system (gold, premium currency)
 	- [ ]  Implement item pricing and market dynamics
+	- [ ]  Implement Free Market system for player trading
 - [ ] World & Exploration
 	- [ ]  Implement multiple zones and areas
 	- [ ]  Add teleportation and fast travel
 	- [ ]  Create exploration rewards and discoveries
 	- [ ]  Implement weather and time systems
+	- [ ]  Create Jump Quests/Platforming Challenges
 - [ ] Guild & Social Features
 	- [ ]  Create guild system with ranks and permissions
 	- [ ]  Implement guild chat and announcements
 	- [ ]  Add guild activities and events
 	- [ ]  Create friend system and private messaging
+	- [ ]  Implement in-game chat system
+	- [ ]  Implement Party System for cooperative play
 - [ ] Combat & Skills
 	- [ ]  Implement skill trees for each class
 	- [ ]  Add active and passive skills
 	- [ ]  Create skill cooldown system
 	- [ ]  Implement skill effects and animations
 	- [ ]  Add combo system with skill chains
+	- [ ]  Implement Job Advancement system for advanced classes
 - [ ] Enemy & Boss System
 	- [ ]  Create boss encounters with multiple phases
 	- [ ]  Implement enemy AI patterns and behaviors
@@ -49,6 +54,7 @@ kanban-plugin: board
 	- [ ]  Add daily/weekly quests
 	- [ ]  Create achievement system
 	- [ ]  Implement reputation system
+	- [ ]  Create Party Quests (PQs) with unique objectives and rewards
 - [ ] Enemy AI Enhancement
 	- [ ]  Expand enemy state machines (currently basic)
 	- [ ]  Add more enemy types beyond basic goblin/slime

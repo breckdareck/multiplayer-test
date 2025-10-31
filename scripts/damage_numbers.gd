@@ -58,7 +58,7 @@ func spawn_damage_number(args: Array) -> Label:
 	number_outline.label_settings.font = load("res://assets/fonts/PixelOperator8-Bold.ttf")
 	number_outline.label_settings.outline_color = Color.WHITE
 	number_outline.label_settings.outline_size = 4
-	number_outline.label_settings.font_size = 8
+	number_outline.label_settings.font_size = 16
 	
 	
 	number.text = str(args[0])
@@ -70,7 +70,7 @@ func spawn_damage_number(args: Array) -> Label:
 	
 	
 	var font = load("res://assets/fonts/PixelOperator8-Bold.ttf")
-	var font_size = 8
+	var font_size = 16
 	
 	gradient_texture.texture = NORMAL_HIT_GRADIENT_TEXTURE_2D
 	gradient_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE

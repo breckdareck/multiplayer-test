@@ -9,9 +9,9 @@ var default_hotbar_actions: Array[String] = []
 var _all_managed_actions: Array[String] = []
 
 # Sound settings
-var master_volume_db: float = 0.0
-var music_volume_db: float = 0.0
-var sfx_volume_db: float = 0.0
+var master_volume_db: float = 1
+var music_volume_db: float = -8
+var sfx_volume_db: float = -8
 
 func _init():
 	# Define default hotbar actions
@@ -37,7 +37,8 @@ func load_config():
 	if error != OK:
 		if error == ERR_FILE_NOT_FOUND:
 			print("User config file not found. Creating with default keybinds and sound settings.")
-			_prefill_default_keybinds() # Populate custom_keybinds with defaults
+			_prefill_default_keybinds() # Populate custom_keybinds
+			_apply_sound_settings() # Apply default sound settings immediately
 			save_config() # Save these defaults to the file
 			# Now that the file is created, attempt to load it again
 			error = config.load(SAVE_FILE_PATH)
@@ -56,11 +57,15 @@ func load_config():
 
 func save_config():
 	var config = ConfigFile.new()
-	# Load existing config to merge, otherwise new settings will overwrite old ones
-	config.load(SAVE_FILE_PATH)
+	var file_existed_before_save = FileAccess.file_exists(SAVE_FILE_PATH)
 	
-	_save_keybinds_to_config(config)
-	_save_sound_settings_to_config(config)
+	if file_existed_before_save:
+		var error = config.load(SAVE_FILE_PATH)
+		if error != OK:
+			push_error("Failed to load existing user config for merging: ", error)
+	
+	_save_keybinds_to_config(config, file_existed_before_save)
+	_save_sound_settings_to_config(config, file_existed_before_save)
 	
 	var error = config.save(SAVE_FILE_PATH)
 	if error != OK:
@@ -106,8 +111,8 @@ func _load_keybinds_from_config(config: ConfigFile):
 		save_config() # Save the newly prefilled defaults
 
 
-func _save_keybinds_to_config(config: ConfigFile):
-	config.erase_section(KEYBIND_CONFIG_SECTION)
+func _save_keybinds_to_config(config: ConfigFile, file_existed_before_save: bool):
+
 	for action_name in _all_managed_actions:
 		if custom_keybinds.has(action_name):
 			var key_events: Array[int] = custom_keybinds[action_name]
@@ -223,7 +228,7 @@ func _load_sound_settings_from_config(config: ConfigFile):
 		print("Sound settings loaded.")
 
 
-func _save_sound_settings_to_config(config: ConfigFile):
+func _save_sound_settings_to_config(config: ConfigFile, file_existed_before_save: bool):
 	config.set_value(SOUND_CONFIG_SECTION, "master_volume_db", master_volume_db)
 	config.set_value(SOUND_CONFIG_SECTION, "music_volume_db", music_volume_db)
 	config.set_value(SOUND_CONFIG_SECTION, "sfx_volume_db", sfx_volume_db)
