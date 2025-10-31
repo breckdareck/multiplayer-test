@@ -63,8 +63,8 @@ kanban-plugin: board
 	- [x]  Create ItemData resource class
 	- [x]  Implement item categories (weapon, armor, consumable, material)
 	- [x]  Create item effects and modifiers (for equipment)
-	- [ ]  Add item rarity system (common, uncommon, rare, epic, legendary)
-	- [ ]  Add random stats to equipment drops
+	- [x]  Add item rarity system (common, uncommon, rare, epic, legendary)
+	- [x]  Add random stats to equipment drops
 	- [ ]  Create item effects and modifiers (for consumables)
 	- [ ]  Implement item crafting requirements
 - [ ] Equipment System (High Priority)
@@ -109,6 +109,8 @@ kanban-plugin: board
 	- [x]  Killzones for player death
 	- [x]  Platform mechanics (drop-through, mobile HUD support)
 	- [x]  Basic UI with moveable windows
+- [x] Merchant System
+	- [x] Implemented buy/sell logic with support for unique and stackable item buyback.
 
 
 ***

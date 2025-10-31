@@ -1,4 +1,4 @@
-[gd_scene load_steps=30 format=4 uid="uid://d1hwvomjwdrjv"]
+[gd_scene load_steps=32 format=4 uid="uid://d1hwvomjwdrjv"]
 
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/damage_numbers.gd" id="1_ryi0r"]
 [ext_resource type="Texture2D" uid="uid://jorjvuc5wn72" path="res://assets/sprites/world_tileset.png" id="2_l25cu"]
@@ -18,7 +18,9 @@
 [ext_resource type="Texture2D" uid="uid://clxbanmod7qm8" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Back_Forest_2.png" id="20_e24jv"]
 [ext_resource type="PackedScene" uid="uid://f4gho8l6o1ld" path="res://scenes/NPC/merchant_npc.tscn" id="20_ukxhe"]
 [ext_resource type="Texture2D" uid="uid://wwvi0f5l6iis" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Back_tree_1.png" id="21_jq5g6"]
+[ext_resource type="Resource" uid="uid://cjl5ggbs3c237" path="res://resources/Items/Grape Potion.tres" id="21_pd7st"]
 [ext_resource type="Texture2D" uid="uid://bltuclvu72dcb" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Back_tree_2.png" id="22_lqda6"]
+[ext_resource type="Resource" uid="uid://jwwtuktlssm4" path="res://resources/Items/Exp Potion.tres" id="22_qb3j5"]
 [ext_resource type="Texture2D" uid="uid://dn66ntccqo3io" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/props_clouds.png" id="23_rm7na"]
 [ext_resource type="Script" uid="uid://igk1rxt26f2i" path="res://scripts/UI/global_drop_handler.gd" id="24_drop_handler"]
 
@@ -756,6 +758,11 @@ position = Vector2(-17, -18)
 
 [node name="MerchantInventory" parent="MerchantNPC" index="2" node_paths=PackedStringArray("shop_window")]
 shop_window = NodePath("../CanvasLayer/ShopWindow")
+base_stock_config = Array[Dictionary]([{
+ExtResource("21_pd7st"): -1
+}, {
+ExtResource("22_qb3j5"): 10
+}])
 
 [node name="ShopWindow" parent="MerchantNPC/CanvasLayer" index="0"]
 visible = false

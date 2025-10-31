@@ -217,6 +217,14 @@ func _gui_input(event: InputEvent):
 				# The NOTIFICATION_DRAG_END will handle the restoration
 				get_viewport().gui_release_focus()
 				return
+			
+			# If not dragging, try to use the item
+			if item != null and item_container is InventoryComponent:
+				if item is ConsumableData:
+					# Find the index of this slot in the inventory
+					var slot_index = item_container.slots.find(self)
+					if slot_index != -1:
+						item_container.request_use_item.rpc_id(1, slot_index)
 
 
 func _ready():

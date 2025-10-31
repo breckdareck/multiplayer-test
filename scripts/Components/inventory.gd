@@ -836,3 +836,43 @@ func _initial_sync_to_client():
 	var inv_data = save_inventory()
 	load_inventory_rpc.rpc_id(owner_id, inv_data)
 	print("Sent initial inventory sync to client %d" % owner_id)
+
+
+@rpc("any_peer", "call_local", "reliable")
+func request_use_item(slot_index: int):
+	if not multiplayer.is_server():
+		return
+
+	var sender_id = multiplayer.get_remote_sender_id()
+	var player = get_node_or_null("/root/MainMenu/Level/Game/Players/" + str(sender_id))
+	if not player:
+		print("Use Item failed: Player %d not found." % sender_id)
+		return
+
+	if slot_index < 0 or slot_index >= slots.size():
+		print("Use Item failed: Invalid slot index %d for player %d." % [slot_index, sender_id])
+		return
+
+	var slot = slots[slot_index]
+	if not slot.item:
+		print("Use Item failed: No item in slot %d for player %d." % [slot_index, sender_id])
+		return
+
+	var item = slot.item
+	if not item is ConsumableData:
+		print("Use Item failed: Item '%s' is not a consumable." % item.name)
+		return
+
+	var consumable = item as ConsumableData
+	if not consumable.effect_script:
+		print("Use Item failed: Consumable '%s' has no effect script." % consumable.name)
+		return
+
+	# Execute the effect
+	var effect_instance = consumable.effect_script.new() as BaseItemEffect
+	effect_instance.user = player
+	effect_instance.source_item = consumable
+	effect_instance.execute()
+
+	# Remove one item from the stack
+	remove_item_from_stack(item, 1)

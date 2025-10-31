@@ -140,6 +140,10 @@ static func from_dictionary(dict: Dictionary) -> ItemData:
 		item_instance = EquipmentData.from_dictionary(dict)
 		if item_instance == null: # Handle error from EquipmentData.from_dictionary
 			return null
+	elif item_type_enum == Constants.ItemType.CONSUMABLE:
+		item_instance = ConsumableData.from_dictionary(dict)
+		if item_instance == null:
+			return null
 	else:
 		item_instance = ItemData.new()
 		# Populate ItemData properties for non-equipment items

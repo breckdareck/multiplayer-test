@@ -1,22 +1,26 @@
-[gd_resource type="Resource" script_class="ItemData" load_steps=4 format=3 uid="uid://b76itvpjfqang"]
+[gd_resource type="Resource" script_class="ConsumableData" load_steps=5 format=3 uid="uid://cjl5ggbs3c237"]
 
-[ext_resource type="Texture2D" uid="uid://yhl18c6ei5o6" path="res://assets/sprites/fruit.png" id="1_14gc0"]
-[ext_resource type="Script" uid="uid://ob3kriis8m08" path="res://scripts/Resources/ItemSystem/ItemData.gd" id="1_bc1sk"]
+[ext_resource type="Script" uid="uid://ubv3mjjv4lvi" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="1_zod2q"]
+[ext_resource type="Texture2D" uid="uid://yhl18c6ei5o6" path="res://assets/sprites/fruit.png" id="2_h2tih"]
+[ext_resource type="Script" uid="uid://bwha778d03wb3" path="res://scripts/Resources/ItemSystem/Effects/Effect_RestoreHealth.gd" id="3_q2y5w"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ce0sh"]
-atlas = ExtResource("1_14gc0")
+atlas = ExtResource("2_h2tih")
 region = Rect2(31, 32, 17, 17)
 
 [resource]
-script = ExtResource("1_bc1sk")
+script = ExtResource("1_zod2q")
+effect_script = ExtResource("3_q2y5w")
+effect_properties = {
+"heal_amount": 50
+}
 item_id = "1012871389-11716-2483-4151510-4711211231210113"
 name = "Grape Potion"
 icon = SubResource("AtlasTexture_ce0sh")
-description = "How is this a Potion?"
+description = "A mystical grape that restores 50 HP."
 item_type = 2
 item_level = -1
 custom_item_value = 100
 can_stack = true
 max_stack_amount = 99
 current_stack_amount = 1
-metadata/_custom_type_script = "uid://ob3kriis8m08"

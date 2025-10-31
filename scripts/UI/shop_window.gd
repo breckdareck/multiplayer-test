@@ -19,6 +19,7 @@ func open_shop(player_inv: PlayerInventory, merchant_inv: MerchantInventory, mer
 	merchant_id = merch_id if merch_id else merchant_inv.merchant_name
 	
 	# Register this shop window with the merchant so it can send RPCs back to us
+	# This needs to be an RPC to the server's MerchantInventory instance
 	merchant_inventory.shop_window = self
 	
 	print("=== SHOP OPEN DEBUG ===")
@@ -109,6 +110,12 @@ func update_displays() -> void:
 		money_label.text = player_inv_component.format_number_with_commas(player_inventory.monies_amount) + " Monies"
 	print("=== END UPDATE DISPLAYS DEBUG ===")
 
+@rpc("authority", "call_local", "reliable")
+func update_money_display(new_monies_amount: int) -> void:
+	if player_inventory:
+		player_inventory.monies_amount = new_monies_amount # Update client's local monies amount
+		money_label.text = player_inv_component.format_number_with_commas(new_monies_amount) + " Monies"
+
 func add_shop_item(container: VBoxContainer, data: Dictionary, is_sell: bool) -> void:
 	var item: ItemData
 	var price: int
@@ -126,6 +133,7 @@ func add_shop_item(container: VBoxContainer, data: Dictionary, is_sell: bool) ->
 		count = data["count"]
 		is_buyback = data.get("is_buyback", false)
 		if is_buyback:
+			print("DEBUG: add_shop_item - item_dict for buyback: %s" % data["item_dict"])
 			item = ItemData.from_dictionary(data["item_dict"])
 		else:
 			item = ResourceManager.get_item_data(data["item_id"])
@@ -290,4 +298,5 @@ func _on_item_clicked(data: Dictionary, is_sell: bool, is_buyback: bool = false)
 		merchant_inventory.request_sell_item.rpc_id(1, slot_index)
 	else:
 		var item_id = data["item_id"]
-		merchant_inventory.request_buy_item.rpc_id(1, item_id, is_buyback)
+		var is_stackable_buyback = data.get("is_stackable_buyback", false)
+		merchant_inventory.request_buy_item.rpc_id(1, item_id, is_buyback, is_stackable_buyback)

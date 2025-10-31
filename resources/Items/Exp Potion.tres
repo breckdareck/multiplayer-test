@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="ConsumableData" load_steps=5 format=3 uid="uid://jwwtuktlssm4"]
+
+[ext_resource type="Script" uid="uid://ubv3mjjv4lvi" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="1_s8vj8"]
+[ext_resource type="Texture2D" uid="uid://yhl18c6ei5o6" path="res://assets/sprites/fruit.png" id="2_wkm2l"]
+[ext_resource type="Script" uid="uid://ced0f4dshsg8v" path="res://scripts/Resources/ItemSystem/Effects/Effect_GrantExperience.gd" id="3_y1d6w"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_exp_potion"]
+atlas = ExtResource("2_wkm2l")
+region = Rect2(0, 0, 16, 16)
+
+[resource]
+script = ExtResource("1_s8vj8")
+effect_script = ExtResource("3_y1d6w")
+effect_properties = {
+"exp_amount": 100
+}
+item_id = "3515296814-75103-61501-15754-1413415111111491131"
+name = "EXP Potion"
+rarity = 1
+icon = SubResource("AtlasTexture_exp_potion")
+description = "A strange concoction that grants 100 experience points."
+item_type = 2
+item_level = -1
+custom_item_value = 999999
+can_stack = true
+max_stack_amount = 10
+current_stack_amount = 1
