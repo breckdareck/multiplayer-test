@@ -9,9 +9,10 @@ signal experience_changed(current_exp, exp_to_level)
 @export var max_level = 100
 @export var level_curve: Curve
 
+var _is_loading_data: bool = false
 var level:int = 1:
 	set(value):
-		if value > level:
+		if value > level and not _is_loading_data:
 			play_level_up_sfx()
 		level = value
 		leveled_up.emit(value)

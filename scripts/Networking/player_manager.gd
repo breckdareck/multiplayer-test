@@ -124,6 +124,10 @@ func _spawn_character_for_player(id: int, character_type: int, username: String,
 		if player_instance.ability_component:
 			player_instance.ability_component.disconnect_level_signals()
 		
+		# Set loading flag to prevent level up SFX during data load
+		if player_instance.level_component:
+			player_instance.level_component._is_loading_data = true
+		
 		# Load player data AFTER adding to scene
 		var has_save_data = not player_data.is_empty()
 		if has_save_data:
@@ -133,6 +137,10 @@ func _spawn_character_for_player(id: int, character_type: int, username: String,
 			if player_instance.level_component:
 				for i in range(5):
 					await get_tree().process_frame
+		
+		# Reset loading flag
+		if player_instance.level_component:
+			player_instance.level_component._is_loading_data = false
 		
 		# Load inventory - this now handles sync internally via PlayerInventory wrapper
 		if player_instance.player_inventory:

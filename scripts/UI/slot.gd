@@ -2,11 +2,11 @@ extends PanelContainer
 class_name Slot
 
 const RARITY_COLORS = {
-	0: Color("ffffff"), # Common (White)
-	1: Color("00ff00"), # Uncommon (Green)
-	2: Color("0000ff"), # Rare (Blue)
-	3: Color("ff00ff"), # Epic (Purple)
-	4: Color("ff8000"), # Legendary (Orange)
+	0: Color.GRAY, # Common (Gray)
+	1: Color.WHITE, # Uncommon (White)
+	2: Color.BLUE, # Rare (Blue)
+	3: Color.PURPLE, # Epic (Purple)
+	4: Color.GOLD, # Legendary (Gold)
 }
 
 const PANEL_STYLEBOX_THEME: StyleBoxFlat = preload("uid://dm8jxifs8rqrm")
@@ -275,7 +275,7 @@ func _on_mouse_entered():
 						tooltip_text += "\n" + str(Constants.StatType.keys()[stat_type]).to_upper() + " : +" + str(item.bonus_stats[stat_type].flat_bonus_value)
 		
 		# Set tooltip border color based on rarity
-		var rarity_color: Color = Color.WHITE # Default to white
+		var rarity_color: Color = Color.GRAY # Default to Gray
 		var found_rarity = false
 
 		if item.has_method("get_rarity"):
@@ -292,6 +292,7 @@ func _on_mouse_entered():
 		if found_rarity:
 			var new_stylebox = PANEL_STYLEBOX_THEME.duplicate()
 			new_stylebox.border_color = rarity_color
+			new_stylebox.set_border_width_all(8)
 			_custom_tooltip_theme.set_stylebox("panel", "TooltipPanel", new_stylebox)
 			self.theme = _custom_tooltip_theme # Reapply the theme to update the tooltip
 		else:

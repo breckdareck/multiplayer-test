@@ -66,7 +66,6 @@ kanban-plugin: board
 	- [x]  Add item rarity system (common, uncommon, rare, epic, legendary)
 	- [x]  Add random stats to equipment drops
 	- [ ]  Create item effects and modifiers (for consumables)
-	- [ ]  Implement item crafting requirements
 - [ ] Equipment System (High Priority)
 	- [x]  Create EquipmentComponent class
 	- [x]  Define equipment slots (weapon, armor, accessories)
