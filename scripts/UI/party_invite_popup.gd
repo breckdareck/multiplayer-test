@@ -22,7 +22,7 @@ func set_invite_data(inviter_id: int, inviter_username: String, party_id: int):
 
 func _on_accept_button_pressed():
 	print("PartyInvitePopup: Attempting to accept invite for party ", _party_id, " as player ", multiplayer.get_unique_id())
-	PartyManager.rpc_id(1, "rpc_accept_invite", multiplayer.get_unique_id(), _party_id)
+	PartyManager.rpc_id(1, "rpc_accept_invite", _party_id)
 	hide()
 	queue_free()
 

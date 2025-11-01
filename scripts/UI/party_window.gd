@@ -27,7 +27,7 @@ func _ready():
 func _on_create_party_button_pressed():
 	print("My unique ID: ", multiplayer.get_unique_id())
 	print("Attempting to create party...")
-	PartyManager.rpc_create_party()
+	PartyManager.rpc_id(1, "rpc_create_party")
 
 func _on_invite_player_button_pressed():
 	var invitee_id_text = player_id_input.text
@@ -40,7 +40,7 @@ func _on_invite_player_button_pressed():
 
 func _on_leave_party_button_pressed():
 	print("Attempting to leave party...")
-	PartyManager.rpc_leave_party()
+	PartyManager.rpc_id(1, "rpc_leave_party")
 
 func _on_party_created(party_id: int):
 	print("UI: Party %d created!" % party_id)
