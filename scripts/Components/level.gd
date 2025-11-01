@@ -17,7 +17,7 @@ var level:int = 1:
 		leveled_up.emit(value)
 		# Only play SFX if level increased, it's the server, and not during data loading
 		if level > old_level and multiplayer.is_server() and not _is_loading_data:
-			rpc_id(0, "play_sfx_rpc", "res://assets/sounds/level_up.wav", get_owner().global_position)
+			AudioManager.rpc("play_sfx_rpc", "res://assets/sounds/level_up.mp3", get_owner().global_position)
 
 var experience = 0:
 	set(value):

@@ -103,12 +103,17 @@ func send_invite(inviter_id: int, invitee_id: int) -> bool:
 	return true
 
 # Client-side RPC to receive party invite
-@rpc("reliable", "call_local")
+@rpc("reliable" , "call_local")
 func _client_receive_party_invite(inviter_id: int, inviter_username: String, party_id: int):
 	if multiplayer.is_server():
-		return # Only clients should receive this
-	print("Client received party invite from %s (ID: %d) for party %d." % [inviter_username, inviter_id, party_id])
-	# Emit a signal that the UI can connect to
+		_host_receive_party_invite(inviter_id, inviter_username, party_id)
+	else:
+		print("Client received party invite from %s (ID: %d) for party %d." % [inviter_username, inviter_id, party_id])
+		# Emit a signal that the UI can connect to
+		party_invite_received.emit(inviter_id, inviter_username, party_id)
+
+func _host_receive_party_invite(inviter_id: int, inviter_username: String, party_id: int):
+	print("Host received party invite from %s (ID: %d) for party %d." % [inviter_username, inviter_id, party_id])
 	party_invite_received.emit(inviter_id, inviter_username, party_id)
 
 func leave_party(player_id: int) -> bool:
@@ -167,7 +172,7 @@ func rpc_create_party():
 	print("RPC sender ID in PartyManager.rpc_create_party: ", sender_id)
 	create_party(sender_id)
 	
-@rpc("any_peer") # Execute on the remote peer (server)
+@rpc("any_peer", "call_local") # Execute on the remote peer (server)
 func rpc_send_invite(invitee_id: int):
 	var sender_id = multiplayer.get_remote_sender_id()
 	if sender_id == 0:

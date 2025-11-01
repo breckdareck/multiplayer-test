@@ -129,7 +129,7 @@ func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, 
 	if is_player:
 		# Play player hit SFX on all clients, originating from the player's position.
 		# Assuming 'player_hit.wav' is the correct SFX.
-		AudioManager.play_sfx_rpc("res://assets/sounds/player_hit.wav", get_owner().global_position)
+		AudioManager.rpc("play_sfx_rpc", "res://assets/sounds/player_hit.wav", get_owner().global_position)
 	
 	var horizontal_offset = randf_range(-8, 8) # Move left/right by a few pixels
 	var vertical_offset = randf_range(-5, 5) # Move up/down by a few pixels

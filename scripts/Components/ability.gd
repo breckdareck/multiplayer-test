@@ -358,12 +358,7 @@ func _trigger_ability_state_change(ability: AbilityData, level_stats: AbilityLev
 		state_machine.current_state = attack_state
 		attack_state.enter()
 		if active_behavior.sfx_path:
-			var audio_player = AudioStreamPlayer.new()
-			add_child(audio_player)
-			audio_player.stream = load(active_behavior.sfx_path)
-			audio_player.play()
-			await audio_player.finished
-			audio_player.queue_free()
+			AudioManager.play_sfx(active_behavior.sfx_path, owner.global_position)
 
 	# Execute optional custom logic from the ability's script resource
 	if active_behavior.logic_script:
@@ -467,7 +462,7 @@ func _execute_proc(proc: ProcEffectData, target: Node, context: Dictionary) -> v
 	
 	# Play sound
 	if proc.sfx_path:
-		pass
+		AudioManager.rpc("play_sfx_rpc", proc.sfx_path, owner.global_position)
 	
 	# Custom logic
 	if proc.logic_script:

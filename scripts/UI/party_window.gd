@@ -36,7 +36,7 @@ func _on_invite_player_button_pressed():
 		return
 	var invitee_id = int(invitee_id_text)
 	print("Attempting to invite player %d..." % invitee_id)
-	PartyManager.rpc_send_invite(invitee_id)
+	PartyManager.rpc("rpc_send_invite", invitee_id)
 
 func _on_leave_party_button_pressed():
 	print("Attempting to leave party...")

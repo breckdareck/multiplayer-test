@@ -49,6 +49,8 @@ func _on_item_added(item: ItemData):
 	if item.name == "Coin":
 		monies_amount += item.current_stack_amount
 		print("Player gained %d coins" % item.current_stack_amount)
+		if multiplayer.is_server():
+			AudioManager.rpc("play_sfx_rpc", "res://assets/sounds/coin.wav", player.global_position)
 
 
 func _on_item_removed(item: ItemData):
