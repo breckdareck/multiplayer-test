@@ -40,5 +40,3 @@ func add_exp(amount: int) -> void:
 	while experience >= get_exp_to_next_level() and level < max_level:
 		experience -= get_exp_to_next_level()
 		level += 1
-
-

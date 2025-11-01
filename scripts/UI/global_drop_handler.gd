@@ -30,6 +30,9 @@ func _ready():
 	
 	# Connect to the global drag end signal
 	# We'll use a different approach - monitor for drag operations
+	item_dropped_in_world.connect(func(item_data, amount, world_position):
+		create_dropped_item(item_data, amount, world_position, [multiplayer.get_unique_id()])
+	)
 
 func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 	# Only accept Slot data
@@ -59,7 +62,7 @@ func _screen_to_world_position(screen_position: Vector2) -> Vector2:
 		# Fallback: use the screen position directly
 		return screen_position
 
-func create_dropped_item(item_data: ItemData, amount: int, world_position: Vector2, target_player: Node = null, party_members: Array = []) -> void:
+func create_dropped_item(item_data: ItemData, amount: int, world_position: Vector2, eligible_player_ids: Array[int] = []) -> void:
 	if not multiplayer.is_server():
 		return
 	
@@ -77,12 +80,7 @@ func create_dropped_item(item_data: ItemData, amount: int, world_position: Vecto
 	dropped_item.global_position = world_position
 	
 	# Setup the dropped item
-	dropped_item.setup(item_data, amount, target_player)
-	
-	# Add party members if provided
-	for party_member in party_members:
-		if is_instance_valid(party_member):
-			dropped_item.add_party_member(party_member)
+	dropped_item.setup(item_data, amount, eligible_player_ids)
 	
 	# Add to the game scene
 	if game_scene:
@@ -92,4 +90,4 @@ func create_dropped_item(item_data: ItemData, amount: int, world_position: Vecto
 		dropped_item.queue_free()
 		return
 	
-	print("GlobalDropHandler: Created dropped item %s x%d at %s for player %s" % [item_data.name, amount, world_position, target_player.username if target_player else "NULL"])
+	print("GlobalDropHandler: Created dropped item %s x%d at %s for eligible players: %s" % [item_data.name, amount, world_position, str(eligible_player_ids)])

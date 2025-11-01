@@ -4,8 +4,7 @@ extends CharacterBody2D
 ## The item data this represents
 @export var item_data: ItemData
 var stack_amount: int = 1
-var target_player: MultiplayerPlayerV2
-var target_players: Array[MultiplayerPlayerV2] = []
+var _eligible_player_ids: Array[int] = [] # Players who are eligible to pick up this item
 var is_public_pickup: bool = false
 
 ## Physics settings
@@ -94,7 +93,7 @@ func _handle_popping(delta: float) -> void:
 func _handle_settled() -> void:
 	# Item is settled on the ground, check for pickup from any valid player
 	# First check if we need to make the item public
-	if not is_pickup_ready:
+	if not is_public_pickup:
 		check_and_make_public_if_needed()
 	
 	if state_timer > 120 and not is_public_pickup:
@@ -112,15 +111,14 @@ func _find_nearby_player() -> MultiplayerPlayerV2:
 	"""Find a nearby player who can pick up this item"""
 	var all_players = get_tree().get_nodes_in_group("Players")
 	
-	for player in all_players:
-		if not is_instance_valid(player):
+	for player_node in all_players:
+		if not is_instance_valid(player_node):
 			continue
-		
-		var distance = global_position.distance_to(player.global_position)
-		if distance <= pickup_distance:
-			# Check if this player is allowed to pick up the item
-			if _can_player_pickup(player):
-				return player
+		# Only consider players who are eligible to pick up
+		if _can_player_pickup(player_node):
+			var distance = global_position.distance_to(player_node.global_position)
+			if distance <= pickup_distance:
+				return player_node
 	
 	return null
 
@@ -132,11 +130,7 @@ func _can_player_pickup(player: MultiplayerPlayerV2) -> bool:
 		return true
 	
 	# Check if player is in the target list
-	if player in target_players:
-		return true
-	
-	# Check if player is the original target
-	if player == target_player:
+	if _eligible_player_ids.has(player.player_id):
 		return true
 	
 	return false
@@ -162,8 +156,8 @@ func _pickup_item(picking_player: MultiplayerPlayerV2 = null) -> void:
 	
 	current_state = ItemState.COLLECTED
 	
-	# Use the picking player, or fall back to target player
-	var player_to_give_item = picking_player if picking_player else target_player
+	# Use the picking player, which will be the one that triggered the pickup
+	var player_to_give_item = picking_player
 	
 	# Add item to player's inventory
 	if player_to_give_item and player_to_give_item.player_inventory:
@@ -198,15 +192,14 @@ func _pickup_item(picking_player: MultiplayerPlayerV2 = null) -> void:
 	pickup_sound.finished.connect(queue_free)
 	
 
-func setup(item: ItemData, amount: int, player: MultiplayerPlayerV2) -> void:
+func setup(item: ItemData, amount: int, eligible_player_ids: Array[int]) -> void:
 	item_data = item
 	stack_amount = amount
-	target_player = player
-	target_players = [player]  # Start with just the original player
-	if target_player == null:
+	_eligible_player_ids = eligible_player_ids
+	if _eligible_player_ids.is_empty():
 		is_public_pickup = true
 	
-	print("DroppedItem setup: %s x%d for player %s" % [item_data.name if item_data else "NULL", amount, player.username if player else "NULL"])
+	print("DroppedItem setup: %s x%d for eligible players: %s" % [item_data.name if item_data else "NULL", amount, str(_eligible_player_ids)])
 	
 	# Set sprite to item's icon
 	if item_data:
@@ -223,13 +216,6 @@ func setup(item: ItemData, amount: int, player: MultiplayerPlayerV2) -> void:
 	is_pickup_ready = false
 
 
-func add_party_member(player: MultiplayerPlayerV2) -> void:
-	"""Add a party member to the list of players who can pick up this item"""
-	if player not in target_players:
-		target_players.append(player)
-		print("DroppedItem: Added party member %s to pickup list" % player.username)
-
-
 func make_public() -> void:
 	"""Make this item available for anyone to pick up"""
 	is_public_pickup = true
@@ -238,15 +224,10 @@ func make_public() -> void:
 
 func check_and_make_public_if_needed() -> void:
 	"""Check if original target is still valid, if not make item public"""
-	if not is_instance_valid(target_player):
-		print("DroppedItem: Original target is invalid, making item public")
-		make_public()
-		return
-	
-	# Check if any target players are still valid
 	var has_valid_targets = false
-	for player in target_players:
-		if is_instance_valid(player):
+	for player_id in _eligible_player_ids:
+		var player_node = PlayerManager.get_player_node(player_id)
+		if is_instance_valid(player_node):
 			has_valid_targets = true
 			break
 	

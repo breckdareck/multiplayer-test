@@ -40,6 +40,7 @@ const SERVER_ID: int = 1
 
 
 var username: String = ""
+var _current_party_id: int = -1
 
 var direction: int = 0  # The current input direction from the synchronizer
 var facing_direction: int = 1  # The last non-zero direction, for facing
@@ -315,13 +316,17 @@ func _handle_sprite_change_on_server() -> void:
 		change_sprite_rpc.rpc(class_component.get_class_name(), current_level)
 
 
+func set_current_party_id(id: int):
+	_current_party_id = id
+
 func _get_save_data() -> Dictionary:
 	var data: Dictionary = {
 	   'username': username,
 	   'max_health': health_component.max_health if is_instance_valid(health_component) else 100,
 	   'current_health': health_component.current_health if is_instance_valid(health_component) else 100,
 	   'level': level_component.level if is_instance_valid(level_component) else 1,
-	   'experience': level_component.experience if is_instance_valid(level_component) else 0
+	   'experience': level_component.experience if is_instance_valid(level_component) else 0,
+	   'party_id': _current_party_id # Save party_id from local variable
 	}
 	
 	if is_instance_valid(player_inventory):
@@ -411,6 +416,11 @@ func _on_drop_timer_timeout() -> void:
 		return
 	set_collision_mask_value(platform_layer, true)
 
+func get_current_health() -> int:
+	return health_component.current_health if is_instance_valid(health_component) else 0
+
+func get_max_health() -> int:
+	return health_component.max_health if is_instance_valid(health_component) else 0
 
 func _data_changed() -> void:
 	if _is_being_cleaned_up or _is_loading_data:

@@ -1,86 +1,258 @@
-class_name PartyManager
 extends Node
 
-## Manages party relationships between players
-## This is a simple implementation - you can expand it as needed
+const PartyData = preload("uid://dldk3qpiu25ua")
 
-var parties: Dictionary = {}  # party_id -> Array of player_ids
-var player_parties: Dictionary = {}  # player_id -> party_id
+signal party_created(party_id)
+signal party_joined(player_id, party_id)
+signal party_left(player_id, party_id)
+signal member_added(party_id, player_id)
+signal member_removed(party_id, player_id)
+signal leader_changed(party_id, new_leader_id)
+signal party_invite_received(inviter_id: int, inviter_username: String, party_id: int)
 
-func _ready():
-	# Add to group for easy access
-	add_to_group("party_manager")
+var _parties = {} # { party_id: PartyData }
+var _player_party_map = {} # { player_id: int (party_id) }
+var _next_party_id = 1
 
-func create_party(leader_player_id: int) -> String:
-	"""Create a new party with the given leader"""
-	var party_id = "party_" + str(leader_player_id) + "_" + str(Time.get_unix_time_from_system())
-	parties[party_id] = [leader_player_id]
-	player_parties[leader_player_id] = party_id
-	print("PartyManager: Created party %s with leader %d" % [party_id, leader_player_id])
+
+func create_party(leader_id: int) -> int:
+	if not multiplayer.is_server():
+		return -1
+
+	if _player_party_map.has(leader_id):
+		print("Player %d is already in a party." % leader_id)
+		return -1
+
+	var party_id = _next_party_id
+	_next_party_id += 1
+
+	var new_party = PartyData.new(party_id, leader_id)
+	_parties[party_id] = new_party
+	_player_party_map[leader_id] = party_id
+	print("Party %d created by leader %d" % [party_id, leader_id])
+	party_created.emit(party_id)
+	_send_party_data_to_members(party_id)
 	return party_id
 
-func join_party(player_id: int, party_id: String) -> bool:
-	"""Add a player to an existing party"""
-	if party_id not in parties:
-		print("PartyManager: Party %s does not exist" % party_id)
+func send_invite(inviter_id: int, invitee_id: int) -> bool:
+	if not multiplayer.is_server():
 		return false
+
+	var inviter_party_id = _player_party_map.get(inviter_id)
+	if not inviter_party_id:
+		print("Player %d is not in a party." % inviter_id)
+		return false
+
+	var party: PartyData = _parties[inviter_party_id]
+	if not party.is_leader(inviter_id):
+		print("Player %d is not the leader of party %d." % [inviter_id, inviter_party_id])
+		return false
+
+	if _player_party_map.has(invitee_id):
+		print("Player %d is already in a party." % invitee_id)
+		return false
+
+	party.add_invite(inviter_id, invitee_id)
 	
-	if player_id in parties[party_id]:
-		print("PartyManager: Player %d already in party %s" % [player_id, party_id])
-		return true
-	
-	parties[party_id].append(player_id)
-	player_parties[player_id] = party_id
-	print("PartyManager: Player %d joined party %s" % [player_id, party_id])
+	# Get inviter's username for the invite message
+	var inviter_info = PlayerManager.get_player_info(inviter_id)
+	var inviter_username = inviter_info.get("username", str(inviter_id))
+
+	# Send RPC to invitee_id to notify them of the invite
+	rpc_id(invitee_id, "_client_receive_party_invite", inviter_id, inviter_username, party.party_id)
+	print("Player %d invited player %d to party %d." % [inviter_id, invitee_id, inviter_party_id])
 	return true
+
+# Client-side RPC to receive party invite
+@rpc("reliable", "call_local")
+func _client_receive_party_invite(inviter_id: int, inviter_username: String, party_id: int):
+	if multiplayer.is_server():
+		return # Only clients should receive this
+	print("Client received party invite from %s (ID: %d) for party %d." % [inviter_username, inviter_id, party_id])
+	# Emit a signal that the UI can connect to
+	party_invite_received.emit(inviter_id, inviter_username, party_id)
 
 func leave_party(player_id: int) -> bool:
-	"""Remove a player from their current party"""
-	if player_id not in player_parties:
-		print("PartyManager: Player %d is not in any party" % player_id)
+	if not multiplayer.is_server():
 		return false
-	
-	var party_id = player_parties[player_id]
-	parties[party_id].erase(player_id)
-	player_parties.erase(player_id)
-	
-	# If party is empty, remove it
-	if parties[party_id].is_empty():
-		parties.erase(party_id)
-		print("PartyManager: Party %s disbanded" % party_id)
+
+	var party_id = _player_party_map.get(player_id)
+	if not party_id:
+		print("Player %d is not in a party." % player_id)
+		return false
+
+	var party: PartyData = _parties[party_id]
+	party.remove_member(player_id)
+	_player_party_map.erase(player_id)
+	print("Player %d left party %d." % [player_id, party_id])
+	party_left.emit(player_id, party_id)
+	member_removed.emit(party_id, player_id)
+
+	if party.members.is_empty():
+		_parties.erase(party_id)
+		print("Party %d disbanded as it has no members." % party_id)
+	elif party.is_leader(player_id):
+		# Leader left, promote a new leader
+		var new_leader_id = party.members[0]
+		party.leader_id = new_leader_id
+		print("Party %d leader changed to %d." % [party_id, new_leader_id])
+		leader_changed.emit(party_id, new_leader_id)
+		_send_party_data_to_members(party_id)
 	else:
-		print("PartyManager: Player %d left party %s" % [player_id, party_id])
-	
+		_send_party_data_to_members(party_id)
 	return true
 
-func get_party_members(player_id: int) -> Array:
-	"""Get all party members for a given player"""
-	if player_id not in player_parties:
-		return []
-	
-	var party_id = player_parties[player_id]
-	return parties.get(party_id, [])
+func get_party_members(player_id: int) -> Array[int]:
+	var party_id = _player_party_map.get(player_id)
+	if party_id and _parties.has(party_id):
+		return _parties[party_id].members
+	return []
 
-func get_party_member_players(player_id: int) -> Array[MultiplayerPlayerV2]:
-	"""Get all party member player objects for a given player"""
-	var member_ids = get_party_members(player_id)
-	var member_players: Array[MultiplayerPlayerV2] = []
-	
-	for member_id in member_ids:
-		var player = _get_player_by_id(member_id)
-		if player:
-			member_players.append(player)
-	
-	return member_players
+func get_party_leader(party_id: int) -> int:
+	if _parties.has(party_id):
+		return _parties[party_id].leader_id
+	return -1
 
-func is_in_party(player_id: int) -> bool:
-	"""Check if a player is in any party"""
-	return player_id in player_parties
+func get_player_party_id(player_id: int) -> int:
+	return _player_party_map.get(player_id, -1)
 
-func _get_player_by_id(player_id: int) -> MultiplayerPlayerV2:
-	"""Helper to find a player by their ID"""
-	var all_players = get_tree().get_nodes_in_group("Players")
-	for player in all_players:
-		if player.has_method("get") and player.get("player_id") == player_id:
-			return player
-	return null
+# RPCs for client-side calls to server
+@rpc("any_peer", "call_local")
+func rpc_create_party():
+	print("RPC sender ID in PartyManager.rpc_create_party: ", multiplayer.get_remote_sender_id())
+	create_party(multiplayer.get_unique_id())
+
+@rpc("any_peer", "call_local")
+func rpc_send_invite(invitee_id: int):
+	send_invite(multiplayer.get_unique_id(), invitee_id)
+
+@rpc("any_peer") # Execute on the remote peer (server)
+func rpc_accept_invite(invitee_id: int, party_id: int):
+	print("PartyManager: rpc_accept_invite called by sender ", multiplayer.get_remote_sender_id(), " for party ", party_id, ", invitee_id: ", invitee_id)
+	accept_invite(invitee_id, party_id)
+
+func _ready():
+	print("PartyManager: In _ready(), multiplayer.is_server(): ", multiplayer.is_server())
+	if not multiplayer.is_server():
+		return
+
+func accept_invite(invitee_id: int, party_id: int) -> bool:
+	print("PartyManager: In accept_invite(), multiplayer.is_server(): ", multiplayer.is_server())
+	print("PartyManager: accept_invite called. Invitee ID: ", invitee_id, ", Party ID: ", party_id)
+	if not multiplayer.is_server():
+		print("PartyManager: accept_invite: Not server.")
+		return false
+
+	if _player_party_map.has(invitee_id):
+		print("PartyManager: accept_invite: Player %d is already in a party." % invitee_id)
+		return false
+
+	if not _parties.has(party_id):
+		print("PartyManager: accept_invite: Party %d does not exist." % party_id)
+		return false
+
+	var party: PartyData = _parties[party_id]
+
+	# Find and remove invite
+	var invite_found = false
+	for inviter_id in party.invites.keys():
+		if party.has_invite(inviter_id, invitee_id):
+			party.remove_invite(inviter_id, invitee_id)
+			invite_found = true
+			break
+
+	if not invite_found:
+		print("PartyManager: accept_invite: Player %d was not invited to party %d." % [invitee_id, party_id])
+		return false
+
+	party.add_member(invitee_id)
+	_player_party_map[invitee_id] = party_id
+	print("PartyManager: Player %d joined party %d." % [invitee_id, party_id])
+	party_joined.emit(invitee_id, party_id)
+	member_added.emit(party_id, invitee_id)
+	_send_party_data_to_members(party_id)
+	return true
+
+@rpc("any_peer", "call_local")
+func rpc_leave_party():
+	print("RPC sender ID in PartyManager.rpc_leave_party: ", multiplayer.get_remote_sender_id())
+	leave_party(multiplayer.get_unique_id())
+
+# Server-to-client synchronization
+@rpc("reliable", "call_local")
+func _client_update_party_data(party_data_dict: Dictionary):
+	if multiplayer.is_server():
+		return # Only clients should receive this
+
+	# Update client's local party state using PartyData class
+	var party_id = party_data_dict.get("party_id", -1)
+	if party_id == -1:
+		push_error("Received party data without valid party_id.")
+		return
+
+	var new_party_data = PartyData.new(party_id, party_data_dict.get("leader_id"))
+	new_party_data.members = party_data_dict.get("members", [])
+	new_party_data.invites = party_data_dict.get("invites", {})
+	# Further fields from party_data_dict can be set here if needed.
+
+	_parties[party_id] = new_party_data
+	for member_id in new_party_data.members:
+		_player_party_map[member_id] = party_id
+	print("Client received party data for party %d: %s" % [party_id, party_data_dict])
+	# Emit signals for UI updates on client after local state is updated
+	party_created.emit(party_id) # Or a more specific signal like party_updated
+
+func _send_party_data_to_members(party_id: int):
+	if not multiplayer.is_server():
+		return
+
+	var party: PartyData = _parties.get(party_id)
+	if not party:
+		return
+
+	var party_data_to_send = {
+		"party_id": party.party_id,
+		"leader_id": party.leader_id,
+		"members": party.members,
+		"invites": party.invites
+		# Add quest-related data here in the future: "active_quests": party.get("active_quests", [])
+	}
+
+	for member_id in party.members:
+		rpc_id(member_id, "_client_update_party_data", party_data_to_send)
+
+# Placeholder for PlayerManager integration
+func _on_player_disconnected(player_id: int):
+	if _player_party_map.has(player_id):
+		leave_party(player_id)
+
+# Placeholder for Quest System integration
+func add_quest_to_party(party_id: int, quest_id: String):
+	if not multiplayer.is_server():
+		return
+
+	if not _parties.has(party_id):
+		print("Party %d does not exist." % party_id)
+		return
+
+	var party: PartyData = _parties[party_id]
+	if not party.has("active_quests"): # PartyData does not directly have active_quests. Need to add this to PartyData or handle differently.
+		party["active_quests"] = [] # This line will cause an error on PartyData
+	if not quest_id in party["active_quests"]:
+		party["active_quests"].append(quest_id)
+		_send_party_data_to_members(party_id)
+		print("Quest %s added to party %d." % [quest_id, party_id])
+
+func remove_quest_from_party(party_id: int, quest_id: String):
+	if not multiplayer.is_server():
+		return
+
+	if not _parties.has(party_id):
+		print("Party %d does not exist." % party_id)
+		return
+
+	var party: PartyData = _parties[party_id]
+	if party.has("active_quests") and quest_id in party["active_quests"]:
+		party["active_quests"].erase(quest_id)
+		_send_party_data_to_members(party_id)
+		print("Quest %s removed from party %d." % [quest_id, party_id])

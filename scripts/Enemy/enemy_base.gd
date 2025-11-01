@@ -92,20 +92,77 @@ func on_enemy_damaged(amount: int, source: Node) -> void:
 func _on_enemy_died(_killer: Node) -> void:
 	if _is_being_cleaned_up:
 		return
-		
+	
+	print("Enemy died. Killer: ", _killer, " Type: ", typeof(_killer))
+
 	var total_damage = 0
 	for dmg in damage_by_player.values():
 		total_damage += dmg
 		
-	var players = get_tree().get_nodes_in_group("Players")
-	for player_id in damage_by_player.keys():
-		var share = float(damage_by_player[player_id]) / total_damage
-		var exp_amount = int(experience_reward * share)
-		var player = players[players.find_custom(func(p): return p.player_id == player_id)]
-		if player and player.has_method("gain_experience"):
-			print("PID: %s did %s%% damage to %s gaining %s exp" % [str(player_id), share*100, name, str(exp_amount)])
-			player.gain_experience(exp_amount)
-		_spawn_drops(player)
+	var killer_player_id = -1
+	if _killer.owner is MultiplayerPlayerV2:
+		killer_player_id = _killer.owner.player_id
+	
+	print("Determined killer_player_id: ", killer_player_id)
+
+	var killer_party_id = PartyManager.get_player_party_id(killer_player_id)
+	print("Determined killer_party_id: ", killer_party_id)
+	
+	var players_to_reward: Array[int] = []
+	var eligible_player_ids_for_drops: Array[int] = []
+	var party_exp_bonus_multiplier = 1.0
+	var non_damage_dealer_exp_percentage = 0.25 # 25% of base EXP for non-damage dealers in party
+
+	if killer_party_id != -1:
+		# Killer is in a party, distribute EXP to all party members
+		players_to_reward.append_array(PartyManager.get_party_members(killer_player_id))
+		print("Players in party to reward: ", players_to_reward)
+		# All party members are eligible for drops
+		eligible_player_ids_for_drops = players_to_reward
+		if players_to_reward.size() > 1:
+			party_exp_bonus_multiplier = 1.1 # 10% party bonus
+		
+		var total_party_damage = 0
+		for member_id in players_to_reward:
+			if damage_by_player.has(member_id):
+				total_party_damage += damage_by_player[member_id]
+		print("Total party damage: ", total_party_damage)
+		
+		for member_id in players_to_reward:
+			var exp_amount = 0
+			var player_node = PlayerManager.get_player_node(member_id)
+			if not player_node:
+				print("Could not find player node for member ID: ", member_id)
+				continue
+
+			if damage_by_player.has(member_id) and total_party_damage > 0:
+				# Player dealt damage, calculate share based on damage
+				var share = float(damage_by_player[member_id]) / total_party_damage
+				exp_amount = int(experience_reward * share * party_exp_bonus_multiplier)
+				print("Member %d (damage dealer) share: %f, base exp: %d, bonus: %f, final exp: %d" % [member_id, share, experience_reward, party_exp_bonus_multiplier, exp_amount])
+			else:
+				# Player is in party but didn't deal damage, give a fixed percentage
+				exp_amount = ceili(experience_reward * non_damage_dealer_exp_percentage * party_exp_bonus_multiplier)
+				print("Member %d (non-damage dealer) base exp: %d, non-damage : %f, bonus: %f, final exp: %d" % [member_id, experience_reward, non_damage_dealer_exp_percentage, party_exp_bonus_multiplier, exp_amount])
+			
+			player_node.gain_experience(exp_amount)
+			print("PID: %s (Party) gained %s exp from %s" % [str(member_id), str(exp_amount), name])
+	else:
+		# No party, distribute EXP only to damage dealers
+		players_to_reward.append_array(damage_by_player.keys())
+		eligible_player_ids_for_drops = players_to_reward
+		print("No party. Players to reward: ", players_to_reward)
+		for player_id in players_to_reward:
+			var share = float(damage_by_player[player_id]) / total_damage
+			var exp_amount = int(experience_reward * share)
+			var player_node = PlayerManager.get_player_node(player_id)
+			if player_node and player_node.has_method("gain_experience"):
+				print("PID: %s did %s%% damage to %s gaining %s exp" % [str(player_id), share*100, name, str(exp_amount)])
+				player_node.gain_experience(exp_amount)
+				
+	# Spawn drops for all eligible players
+	if not eligible_player_ids_for_drops.is_empty():
+		_spawn_drops(eligible_player_ids_for_drops)
 		
 	attack_hitbox.monitoring = false
 	body_hitbox.monitoring = false
@@ -119,7 +176,7 @@ func _on_enemy_died(_killer: Node) -> void:
 		get_tree().create_timer(post_death_delay).timeout.connect(emit_ready_for_pooling)
 
 
-func _spawn_drops(player: MultiplayerPlayerV2) -> void:
+func _spawn_drops(eligible_player_ids: Array[int]) -> void:
 	if not multiplayer.is_server():
 		return
 	
@@ -147,16 +204,15 @@ func _spawn_drops(player: MultiplayerPlayerV2) -> void:
 		var offset = Vector2(randf_range(-10, 10), randf_range(-10, 0))
 		dropped_item.global_position = global_position + offset
 		
-		# Setup the dropped item
-		dropped_item.setup(item, amount, player)
+		# Setup the dropped item with eligible player IDs
+		dropped_item.setup(item, amount, eligible_player_ids)
 		
 		# Add to scene
 		get_tree().current_scene.get_node("Level/Game").add_child(dropped_item, true)
 		
 		rpc("client_setup_item", dropped_item.get_path(), item.item_id)
 		
-		print("Enemy '%s' dropped %dx %s for player %s" % [name, amount, item.name, player.username])
-
+		print("Enemy '%s' dropped %dx %s for eligible players: %s" % [name, amount, item.name, str(eligible_player_ids)])
 @rpc
 func client_setup_item(dropped_item: NodePath, item_id: String):
 	(get_node(dropped_item) as DroppedItem).sprite.texture = ResourceManager.get_item_data(item_id).icon

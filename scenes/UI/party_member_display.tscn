@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3 uid="uid://bsgbve4j6m0u1"]
+
+[ext_resource type="Script" uid="uid://b55xi40n2f23w" path="res://scripts/UI/party_member_display.gd" id="1_abcd"]
+
+[node name="PartyMemberDisplay" type="HBoxContainer"]
+script = ExtResource("1_abcd")
+
+[node name="NameLabel" type="Label" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Player Name"
+
+[node name="HealthBar" type="ProgressBar" parent="."]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+value = 50.0

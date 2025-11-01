@@ -458,8 +458,8 @@ hitbox = NodePath("../../Hitbox/BasicAttackHitbox")
 
 [node name="Health" type="Node" parent="Components" node_paths=PackedStringArray("damage_number_origin")]
 script = ExtResource("5_o05ft")
-health_bar_path = NodePath("../../PlayerWorldHUD/HealthBar")
 damage_number_origin = NodePath("../../DmgNumOrigin")
+health_bar_path = NodePath("../../PlayerWorldHUD/HealthBar")
 
 [node name="Combat" type="Node" parent="Components" node_paths=PackedStringArray("attack_hitbox")]
 script = ExtResource("7_jn0uf")

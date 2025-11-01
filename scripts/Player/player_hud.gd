@@ -2,17 +2,21 @@ extends Node
 
 var player
 
+var party_window_scene = preload("res://scenes/UI/party_window.tscn")
+var party_window_instance
+
+var party_invite_popup_scene = preload("res://scenes/UI/party_invite_popup.tscn")
+
 @onready var health_bar: TextureProgressBar = $BottomStatsContainer/HealthBar
 @onready var hp_value_label: Label = $BottomStatsContainer/HealthBar/HPValueLabel
 
-@onready var mana_bar: TextureProgressBar = $BottomStatsContainer/ManaBar
-@onready var mp_value_label: Label = $BottomStatsContainer/ManaBar/MPValueLabel
+@onready var mana_bar: TextureProgressBar = $BottomStatsContainer/ManaBar 
+@onready var mp_value_label: Label = $BottomStatsContainer/ManaBar/MPValueLabel 
 
 @onready var experience_bar: TextureProgressBar = $BottomStatsContainer/ExperienceBar
 @onready var exp_percent_label: RichTextLabel = $BottomStatsContainer/ExperienceBar/EXPPercentLabel
 
-@onready var level_label: RichTextLabel = $BottomStatsContainer/ExperienceBar/LevelPanel/LevelLabel
-
+@onready var level_label: RichTextLabel = $BottomStatsContainer/ExperienceBar/LevelPanel/LevelLabel 
 
 func _ready() -> void:
 	if owner is MultiplayerPlayer:
@@ -22,6 +26,15 @@ func _ready() -> void:
 		
 	if player.player_id != multiplayer.get_unique_id():
 		return
+	
+	# Instantiate and add PartyWindow
+	party_window_instance = party_window_scene.instantiate()
+	add_child(party_window_instance)
+	party_window_instance.hide()
+	
+	# Connect to PartyManager invite signal
+	PartyManager.party_invite_received.connect(_on_party_invite_received)
+
 	health_bar.max_value = player.health_component.max_health
 	health_bar.value = player.health_component.current_health
 	hp_value_label.text = str(player.health_component.current_health) + "/" + str(player.health_component.max_health)
@@ -36,6 +49,19 @@ func _ready() -> void:
 	player.level_component.experience_changed.connect(_on_experience_changed)
 	player.level_component.leveled_up.connect(_on_level_changed)
 
+func _on_party_invite_received(inviter_id: int, inviter_username: String, party_id: int):
+	var invite_popup = party_invite_popup_scene.instantiate()
+	add_child(invite_popup)
+	invite_popup.set_invite_data(inviter_id, inviter_username, party_id)
+	invite_popup.show()
+
+func _input(event: InputEvent) -> void:
+	if player.player_id != multiplayer.get_unique_id():
+		return
+
+	if event.is_action_pressed("OpenPartyWindow"):
+		party_window_instance.visible = not party_window_instance.visible
+		get_viewport().set_input_as_handled()
 
 func _on_health_changed(new_health: int, _max_health: int) -> void:
 	"""Updates the ProgressBar value when health changes."""

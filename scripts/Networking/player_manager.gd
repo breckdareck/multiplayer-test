@@ -4,6 +4,7 @@ extends Node
 var character_scene = preload("res://scenes/Player/player.tscn")
 var active_players: Dictionary = {}
 
+
 func add_host_player():
 	"""Add the host player (ID 1) in listen server mode"""
 	call_deferred("add_player", 1)
@@ -16,7 +17,8 @@ func add_player(id: int):
 		"id": id,
 		"character_type": -1,  # Not selected yet
 		"spawn_time": Time.get_unix_time_from_system(),
-		"synced": false
+		"synced": false,
+		"party_id": -1 # No party initially
 	}
 	
 	# Sync existing entities to new player
@@ -29,6 +31,10 @@ func remove_player(id: int):
 	print("Player %d left - removing character" % id)
 	NetworkUtils.log_network_event("PLAYER_LEAVE", "Player ID: %d" % id)
 	
+	# Notify PartyManager that player disconnected
+	if PartyManager:
+		PartyManager._on_player_disconnected(id)
+	
 	# Remove from active players
 	if id in active_players:
 		active_players.erase(id)
@@ -38,6 +44,7 @@ func remove_player(id: int):
 	if spawn_node and spawn_node.has_node(str(id)):
 		(spawn_node.get_node(str(id)) as MultiplayerPlayerV2)._data_changed()
 		spawn_node.get_node(str(id)).queue_free()
+
 
 func cleanup():
 	"""Remove all networked entities and reset player tracking"""
@@ -56,6 +63,14 @@ func has_player(id: int) -> bool:
 
 func get_player_info(id: int) -> Dictionary:
 	return active_players.get(id, {})
+
+func get_player_node(player_id: int) -> MultiplayerPlayerV2:
+	var spawn_node = NetworkUtils.get_players_spawn_node(get_tree())
+	if spawn_node:
+		for child in spawn_node.get_children():
+			if child is MultiplayerPlayerV2 and child.player_id == player_id:
+				return child
+	return null # Return null if player node not found
 
 @rpc("call_local", "any_peer")
 func _request_character_selection(id: int):
@@ -94,6 +109,7 @@ func _load_player_data_from_file(username: String) -> Dictionary:
 		var file = FileAccess.open(file_path, FileAccess.READ)
 		var data = JSON.parse_string(file.get_as_text())
 		file.close()
+		data["party_id"] = data.get("party_id", -1) # Load party_id, default to -1
 		return data
 	return {} # Return empty dictionary if no save file exists
 	
@@ -132,6 +148,8 @@ func _spawn_character_for_player(id: int, character_type: int, username: String,
 		var has_save_data = not player_data.is_empty()
 		if has_save_data:
 			player_instance._load_data(player_data)
+			active_players[id]["party_id"] = player_data.get("party_id", -1) # Set party_id from loaded data
+			player_instance.set_current_party_id(active_players[id]["party_id"]) # Pass party_id to player_instance
 			
 			# Wait for level component to finish loading and granting ability points
 			if player_instance.level_component:

@@ -1,0 +1,35 @@
+[gd_scene load_steps=2 format=3 uid="uid://drcwhmf2bmuci"]
+
+[ext_resource type="Script" uid="uid://c5v3yw2xswyos" path="res://scripts/UI/party_invite_popup.gd" id="1_abcd"]
+
+[node name="PartyInvitePopup" type="Window"]
+oversampling_override = 1.0
+initial_position = 1
+size = Vector2i(325, 70)
+script = ExtResource("1_abcd")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MessageLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Invite Message"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="AcceptButton" type="Button" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Accept"
+
+[node name="DeclineButton" type="Button" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Decline"

@@ -72,13 +72,13 @@ Notes:
     *   `assets/themes/`: UI themes.
     *   `assets/UI/`: UI-specific textures and resources.
 *   `resources/`: Contains the game's data files, defined as custom Godot resources (`.tres`).
-    *   `resources/Abilities/`: Definitions for all in-game abilities (`AbilityData`, `AbilityLevelData`, `AbilityScalingData`, `ProcEffectData`, `StatBonusFormula`).
-    *   `resources/Buffs/`: Definitions for all in-game buffs and debuffs (`BuffData`).
-    *   `resources/DropTables/`: Configuration for item drops from enemies.
-    *   `resources/Items/`: Definitions for all in-game items (`ItemData`, `EquipmentData`, `ArmorData`, `WeaponData`, `ItemDropResource`).
-    *   `resources/Player/`: Player-specific resources.
-        *   `resources/Player/Classes/`: Definitions for different player classes (`ClassData`).
-        *   `resources/Player/SpriteFrames/`: SpriteFrames resources for player animations.
+	*   `resources/Abilities/`: Definitions for all in-game abilities (`AbilityData`, `AbilityLevelData`, `AbilityScalingData`, `ProcEffectData`, `StatBonusFormula`).
+	*   `resources/Buffs/`: Definitions for all in-game buffs and debuffs (`BuffData`).
+	*   `resources/DropTables/`: Configuration for item drops from enemies.
+	*   `resources/Items/`: Definitions for all in-game items (`ItemData`, `EquipmentData`, `ArmorData`, `WeaponData`, `ItemDropResource`).
+	*   `resources/Player/`: Player-specific resources.
+		*   `resources/Player/Classes/`: Definitions for different player classes (`ClassData`).
+		*   `resources/Player/SpriteFrames/`: SpriteFrames resources for player animations.
 *   `scenes/`: Contains the game's scenes, the building blocks of levels and UI.
     *   `scenes/Collectables/`: Scenes for collectible items (e.g., `coin.tscn`).
     *   `scenes/Gameplay/`: General gameplay elements (e.g., `dropped_item.tscn`, `enemy_spawner.tscn`).
@@ -88,80 +88,80 @@ Notes:
     *   `scenes/Tools/`: Utility scenes.
     *   `scenes/UI/`: User interface scenes (e.g., `ability_slot.tscn`, `hotbar_slot.tscn`, `slot.tscn`).
 *   `scripts/`: Contains the game's GDScript files, defining all game logic.
-    *   `scripts/AbilityLogic/`: Custom logic scripts for complex ability behaviors (e.g., `AL_EnhancedBasics.gd`, `AL_SlashBlast.gd`).
-    *   `scripts/BuffLogic/`: Custom logic scripts for complex buff behaviors (e.g., `BL_MapleWarrior.gd`, `BL_PowerGuard.gd`).
-    *   `scripts/Components/`: Reusable components attached to game entities (e.g., `ability.gd`, `buff.gd`, `class.gd`, `combat.gd`, `debug.gd`, `equipment.gd`, `health.gd`, `inventory.gd`, `level.gd`, `merchant_inventory.gd`, `player_inventory.gd`, `stats.gd`).
-    *   `scripts/Enemy/`: Enemy-specific scripts.
-        *   `scripts/Enemy/StateMachine/`: State scripts for enemy AI (e.g., `enemy_attack.gd`, `enemy_idle.gd`, `enemy_patrol.gd`).
-        *   `scripts/Enemy/enemy_base.gd`: Base class for all enemies.
-        *   `scripts/Enemy/enemy_spawner.gd`: Manages enemy spawning and pooling.
-    *   `scripts/Enums/`: Global enumerations (`constants.gd`).
-    *   `scripts/Managers/`: Autoloaded singletons for global game systems (e.g., `game_manager.gd`, `multiplayer_manager.gd`, `resource_manager.gd`, `keybind_manager.gd`, `user_config.gd`).
-    *   `scripts/Networking/`: Scripts handling multiplayer networking logic (e.g., `channel_manager.gd`, `client_manager.gd`, `network_utils.gd`, `player_manager.gd`, `server_manager.gd`).
-    *   `scripts/NPC/`: Non-player character logic (e.g., `npc_interaction.gd`).
-    *   `scripts/Player/`: Player-specific scripts.
-        *   `scripts/Player/StateMachine/`: State scripts for player character behavior (e.g., `attack.gd`, `crouch.gd`, `death.gd`, `fall.gd`, `hit.gd`, `idle.gd`, `jump.gd`, `move.gd`, `slide.gd`).
-        *   `scripts/Player/multiplayer_controller_v2.gd`: The main player character script.
-        *   `scripts/Player/multiplayer_input.gd`: Handles player input synchronization.
-        *   `scripts/Player/player_hud.gd`: Manages player HUD elements.
-    *   `scripts/Resources/`: Base classes for custom resource types (e.g., `AbilitySystem`, `BuffSystem`, `ClassSystem`, `ItemSystem`, `StatSystem` subdirectories).
-    *   `scripts/StateMachine/`: Generic state machine implementation (`state.gd`, `state_machine.gd`).
-    `scripts/UI/`: Scripts for user interface elements (e.g., `ability_slot.gd`, `ability_window.gd`, `buffbar.gd`, `equipment_slot.gd`, `equipment_window.gd`, `global_drop_handler.gd`, `hotbar.gd`, `hotbar_slot.gd`, `inventory_window.gd`, `shop_window.gd`, `slot.gd`, `stats_window.gd`, `game_menu.gd`, `keybinds_menu.gd`, `options_menu.gd`).
-    *   `scripts/coin.gd`: Logic for collectible coins.
-    *   `scripts/damage_numbers.gd`: Manages floating damage numbers.
-    *   `scripts/killzone.gd`: Logic for kill zones.
-    *   `scripts/main_menu.gd`: Main menu logic.
-    *   `scripts/platform.gd`: Logic for platforms.
+	*   `scripts/AbilityLogic/`: Custom logic scripts for complex ability behaviors (e.g., `AL_EnhancedBasics.gd`, `AL_SlashBlast.gd`).
+	*   `scripts/BuffLogic/`: Custom logic scripts for complex buff behaviors (e.g., `BL_MapleWarrior.gd`, `BL_PowerGuard.gd`).
+	*   `scripts/Components/`: Reusable components attached to game entities (e.g., `ability.gd`, `buff.gd`, `class.gd`, `combat.gd`, `debug.gd`, `equipment.gd`, `health.gd`, `inventory.gd`, `level.gd`, `merchant_inventory.gd`, `player_inventory.gd`, `stats.gd`).
+	*   `scripts/Enemy/`: Enemy-specific scripts.
+		*   `scripts/Enemy/StateMachine/`: State scripts for enemy AI (e.g., `enemy_attack.gd`, `enemy_idle.gd`, `enemy_patrol.gd`).
+		*   `scripts/Enemy/enemy_base.gd`: Base class for all enemies.
+		*   `scripts/Enemy/enemy_spawner.gd`: Manages enemy spawning and pooling.
+	*   `scripts/Enums/`: Global enumerations (`constants.gd`).
+	*   `scripts/Managers/`: Autoloaded singletons for global game systems (e.g., `game_manager.gd`, `multiplayer_manager.gd`, `resource_manager.gd`, `keybind_manager.gd`, `user_config.gd`).
+	*   `scripts/Networking/`: Scripts handling multiplayer networking logic (e.g., `channel_manager.gd`, `client_manager.gd`, `network_utils.gd`, `player_manager.gd`, `server_manager.gd`).
+	*   `scripts/NPC/`: Non-player character logic (e.g., `npc_interaction.gd`).
+	*   `scripts/Player/`: Player-specific scripts.
+		*   `scripts/Player/StateMachine/`: State scripts for player character behavior (e.g., `attack.gd`, `crouch.gd`, `death.gd`, `fall.gd`, `hit.gd`, `idle.gd`, `jump.gd`, `move.gd`, `slide.gd`).
+		*   `scripts/Player/multiplayer_controller_v2.gd`: The main player character script.
+		*   `scripts/Player/multiplayer_input.gd`: Handles player input synchronization.
+		*   `scripts/Player/player_hud.gd`: Manages player HUD elements.
+	*   `scripts/Resources/`: Base classes for custom resource types (e.g., `AbilitySystem`, `BuffSystem`, `ClassSystem`, `ItemSystem`, `StatSystem` subdirectories).
+	*   `scripts/StateMachine/`: Generic state machine implementation (`state.gd`, `state_machine.gd`).
+	`scripts/UI/`: Scripts for user interface elements (e.g., `ability_slot.gd`, `ability_window.gd`, `buffbar.gd`, `equipment_slot.gd`, `equipment_window.gd`, `global_drop_handler.gd`, `hotbar.gd`, `hotbar_slot.gd`, `inventory_window.gd`, `shop_window.gd`, `slot.gd`, `stats_window.gd`, `game_menu.gd`, `keybinds_menu.gd`, `options_menu.gd`).
+	*   `scripts/coin.gd`: Logic for collectible coins.
+	*   `scripts/damage_numbers.gd`: Manages floating damage numbers.
+	*   `scripts/killzone.gd`: Logic for kill zones.
+	*   `scripts/main_menu.gd`: Main menu logic.
+	*   `scripts/platform.gd`: Logic for platforms.
 *   `README/` — Project documentation and screenshots
 
 ## Multiplayer Architecture (from `scripts/`)
 
 - `Managers/`
   - `multiplayer_manager.gd`
-    - Signals: `server_has_started`, `channel_switch_started/success/failed`.
-    - Config: `DEFAULT_PORT` (8080), `DEFAULT_IP` (127.0.0.1).
-    - Public API: `host_game()`, `join_game()`, `switch_channel(port)`, `reset_data()`, `change_level(scene)`.
-    - Behavior: initializes signal wiring to Client/Server/Channel managers; hides/shows menu UI; tracks `host_mode_enabled` and `respawn_point`; returns to main menu on disconnect; starts dedicated server when the `dedicated_server` feature is present.
+	- Signals: `server_has_started`, `channel_switch_started/success/failed`.
+	- Config: `DEFAULT_PORT` (8080), `DEFAULT_IP` (127.0.0.1).
+	- Public API: `host_game()`, `join_game()`, `switch_channel(port)`, `reset_data()`, `change_level(scene)`.
+	- Behavior: initializes signal wiring to Client/Server/Channel managers; hides/shows menu UI; tracks `host_mode_enabled` and `respawn_point`; returns to main menu on disconnect; starts dedicated server when the `dedicated_server` feature is present.
   - `server_manager.gd`
-    - Signals: `server_started`, `server_failed`.
-    - Public API: `start_listen_server(port)`, `start_dedicated_server(port)`, `stop_server()`, `get_current_port()`, `get_server_info()`.
-    - Behavior: owns the `ENetMultiplayerPeer` for the server; sets `multiplayer.multiplayer_peer`; retries ports for dedicated server up to a small cap.
+	- Signals: `server_started`, `server_failed`.
+	- Public API: `start_listen_server(port)`, `start_dedicated_server(port)`, `stop_server()`, `get_current_port()`, `get_server_info()`.
+	- Behavior: owns the `ENetMultiplayerPeer` for the server; sets `multiplayer.multiplayer_peer`; retries ports for dedicated server up to a small cap.
   - `client_manager.gd`
-    - Signals: `connection_succeeded`, `connection_failed`.
-    - Public API: `connect_to_server(ip, port)`, `cleanup()`/`_disconnect()`, `get_connection_info()`, `get_connection_status()`, `create_new_peer(ip, port)`.
-    - Behavior: owns the client `ENetMultiplayerPeer`; sets `multiplayer.multiplayer_peer`; tracks current IP/port and connection timestamps; emits results consumed by `MultiplayerManager`.
+	- Signals: `connection_succeeded`, `connection_failed`.
+	- Public API: `connect_to_server(ip, port)`, `cleanup()`/`_disconnect()`, `get_connection_info()`, `get_connection_status()`, `create_new_peer(ip, port)`.
+	- Behavior: owns the client `ENetMultiplayerPeer`; sets `multiplayer.multiplayer_peer`; tracks current IP/port and connection timestamps; emits results consumed by `MultiplayerManager`.
   - `player_manager.gd`
-    - State: `active_players: { id -> {character_type, spawn_time, synced} }`.
-    - Public API: `add_host_player()`, `add_player(id)`, `remove_player(id)`, `cleanup()`, `force_respawn_player(id)`, info getters.
-    - Behavior: on join, requests client character selection via RPC, spawns the chosen character under `Level/Players`, syncs existing networked entities to the new peer, and updates tracking; removes entities on disconnect.
+	- State: `active_players: { id -> {character_type, spawn_time, synced} }`.
+	- Public API: `add_host_player()`, `add_player(id)`, `remove_player(id)`, `cleanup()`, `force_respawn_player(id)`, info getters.
+	- Behavior: on join, requests client character selection via RPC, spawns the chosen character under `Level/Players`, syncs existing networked entities to the new peer, and updates tracking; removes entities on disconnect.
   - `resource_manager.gd`
-    - Centralized resource loading and caching system.
-    - Manages: `class_data`, `item_data`, `ability_data`, `buff_data` dictionaries.
-    - Public API: `get_item_data()`, `get_ability_data()`, `get_buff_data()`, `get_class_data()`.
-    - Behavior: loads all game resources on startup; provides ID and name-based lookups; supports both UUID and string identifiers.
+	- Centralized resource loading and caching system.
+	- Manages: `class_data`, `item_data`, `ability_data`, `buff_data` dictionaries.
+	- Public API: `get_item_data()`, `get_ability_data()`, `get_buff_data()`, `get_class_data()`.
+	- Behavior: loads all game resources on startup; provides ID and name-based lookups; supports both UUID and string identifiers.
   - `music_manager.gd`
-    - Audio management for background music and sound effects.
-    - Public API: `play_song(path)`.
-    - Behavior: handles audio stream loading and playback.
+	- Audio management for background music and sound effects.
+	- Public API: `play_song(path)`.
+	- Behavior: handles audio stream loading and playback.
 
 - `Networking/`
   - `channel_manager.gd`
-    - Signals: `switch_started`, `switch_success`, `switch_failed`.
-    - Public API: `switch_channel(new_port)`, `is_switching()`, `get_switch_progress()`.
-    - Behavior: tests reachability of the target port, cleans up entities, disconnects, creates a new client peer, waits for connection (with timeouts), updates UI PID; on failure, returns to main menu.
+	- Signals: `switch_started`, `switch_success`, `switch_failed`.
+	- Public API: `switch_channel(new_port)`, `is_switching()`, `get_switch_progress()`.
+	- Behavior: tests reachability of the target port, cleans up entities, disconnects, creates a new client peer, waits for connection (with timeouts), updates UI PID; on failure, returns to main menu.
   - `network_utils.gd`
-    - Validation: `is_valid_ip(text)`, `is_valid_port(port)`, `is_port_in_range(...)`.
-    - CLI: `get_port_from_args(default)`, `get_string_arg(name)`, `has_flag(name)`.
-    - Scene helpers: `get_players_spawn_node(tree)`, `get_node_safe(node, path)`.
-    - Cleanup/logging/testing: `clear_networked_entities(tree)`, `log_network_event(...)`, `test_tcp_connection(ip, port)`.
+	- Validation: `is_valid_ip(text)`, `is_valid_port(port)`, `is_port_in_range(...)`.
+	- CLI: `get_port_from_args(default)`, `get_string_arg(name)`, `has_flag(name)`.
+	- Scene helpers: `get_players_spawn_node(tree)`, `get_node_safe(node, path)`.
+	- Cleanup/logging/testing: `clear_networked_entities(tree)`, `log_network_event(...)`, `test_tcp_connection(ip, port)`.
 
 - `Player/`
   - `multiplayer_controller_v2.gd`
-    - Role: authoritative character controller. Exports references to Health/Combat/Leveling/Stats/Class/Debug and UI.
-    - Server duties: processes input/state via a state machine, manages facing/animations, death/respawn, persistent save/load (`player_<username>.json`), class/sprite changes, drop-through logic, and cleanup before removal (for channel switching).
-    - Client duties: shows HUD and camera for local player; requests sprite state and data from server.
+	- Role: authoritative character controller. Exports references to Health/Combat/Leveling/Stats/Class/Debug and UI.
+	- Server duties: processes input/state via a state machine, manages facing/animations, death/respawn, persistent save/load (`player_<username>.json`), class/sprite changes, drop-through logic, and cleanup before removal (for channel switching).
+	- Client duties: shows HUD and camera for local player; requests sprite state and data from server.
   - `multiplayer_input.gd`
-    - Role: local-authority `MultiplayerSynchronizer`; samples input, mirrors facing direction, RPCs `jump()`, `attack()`, and `drop()` to the server; provides cleanup to avoid stale references.
+	- Role: local-authority `MultiplayerSynchronizer`; samples input, mirrors facing direction, RPCs `jump()`, `attack()`, and `drop()` to the server; provides cleanup to avoid stale references.
 
 - `Components/`
   - `health.gd`: health/regen/invulnerability signals and RPCs; integrates with leveling and HUD.
