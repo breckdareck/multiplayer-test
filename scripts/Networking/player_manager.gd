@@ -72,6 +72,19 @@ func get_player_node(player_id: int) -> MultiplayerPlayerV2:
 				return child
 	return null # Return null if player node not found
 
+func get_player_id_from_name(player_name: String) -> int:
+	# This function should only run on the server where all player data is available.
+	if not multiplayer.is_server():
+		# Returning -1 on client because client may not have all player data.
+		return -1
+
+	for player_id in active_players.keys():
+		var player_info = active_players[player_id]
+		if player_info.get("username", "").to_lower() == player_name.to_lower():
+			return player_id
+	
+	return -1 # Player not found
+
 @rpc("call_local", "any_peer")
 func _request_character_selection(id: int):
 	"""Called on client to request their character selection"""

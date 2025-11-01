@@ -31,3 +31,4 @@ README - COPY.md
 *.json
 *.bak
 GEMINI.md
+/assets/references

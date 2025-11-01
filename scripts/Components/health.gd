@@ -180,5 +180,3 @@ func respawn() -> void:
 	is_invulnerable = true
 	invulnerability_timer.start()
 	# print("HealthComponent: Owner '%s' has respawned." % get_owner().name)
-
-

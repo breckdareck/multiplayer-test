@@ -1,0 +1,58 @@
+[gd_scene load_steps=5 format=3 uid="uid://bcf1hbjpc4tnc"]
+
+[ext_resource type="Script" uid="uid://cw5od4351tfee" path="res://scripts/UI/target_member_display.gd" id="1_script"]
+[ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="2_k6rb2"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gfe07"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0.12572235, 0.095506184, 0, 1)
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 6
+expand_margin_left = 2.0
+expand_margin_top = 2.0
+expand_margin_right = 2.0
+expand_margin_bottom = 2.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_k6rb2"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0.92156863, 0, 0, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 6
+
+[node name="TargetMemberDisplay" type="HBoxContainer"]
+script = ExtResource("1_script")
+
+[node name="NameLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_k6rb2")
+theme_override_font_sizes/font_size = 8
+text = "Member Name"
+
+[node name="HealthBar" type="ProgressBar" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+theme_override_styles/background = SubResource("StyleBoxFlat_gfe07")
+theme_override_styles/fill = SubResource("StyleBoxFlat_k6rb2")
+value = 75.0
+show_percentage = false

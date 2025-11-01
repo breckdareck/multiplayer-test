@@ -1,40 +1,173 @@
-[gd_scene load_steps=2 format=3 uid="uid://drcwhmf2bmuch"]
+[gd_scene load_steps=3 format=3 uid="uid://drcwhmf2bmuch"]
 
-[ext_resource type="Script" uid="uid://cq2wdmbq2qd8g" path="res://scripts/UI/party_window.gd" id="1_abcd"]
+[ext_resource type="Theme" uid="uid://dumv2cfji0owj" path="res://assets/themes/UI_Theme.tres" id="1_ui_theme"]
+[ext_resource type="Script" uid="uid://cq2wdmbq2qd8g" path="res://scripts/UI/party_window.gd" id="2_script"]
 
-[node name="PartyWindow" type="Window"]
-oversampling_override = 1.0
-position = Vector2i(1700, 416)
-size = Vector2i(200, 250)
-script = ExtResource("1_abcd")
+[node name="PartyWindow" type="Panel"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -190.0
+offset_top = -275.0
+offset_right = 190.0
+offset_bottom = 275.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_ui_theme")
+script = ExtResource("2_script")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
-anchors_preset = 15
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/separation = 0
 
-[node name="CreatePartyButton" type="Button" parent="VBoxContainer"]
+[node name="TitleBar" type="HBoxContainer" parent="VBox"]
 layout_mode = 2
-focus_mode = 0
-text = "Create Party"
 
-[node name="PlayerIDInput" type="LineEdit" parent="VBoxContainer"]
+[node name="TitleLabel" type="Label" parent="VBox/TitleBar"]
 layout_mode = 2
-focus_mode = 1
-placeholder_text = "Player ID to invite"
+size_flags_horizontal = 3
+text = "Party"
 
-[node name="InvitePlayerButton" type="Button" parent="VBoxContainer"]
+[node name="CloseButton" type="Button" parent="VBox/TitleBar"]
+unique_name_in_owner = true
 layout_mode = 2
-focus_mode = 0
-text = "Invite Player"
+text = "X"
 
-[node name="LeavePartyButton" type="Button" parent="VBoxContainer"]
+[node name="TabBar" type="TabBar" parent="VBox"]
 layout_mode = 2
-focus_mode = 0
-text = "Leave Party"
 
-[node name="PartyMembersContainer" type="VBoxContainer" parent="VBoxContainer"]
+[node name="PanelContainer" type="PanelContainer" parent="VBox"]
 layout_mode = 2
 size_flags_vertical = 3
+
+[node name="VBox" type="VBoxContainer" parent="VBox/PanelContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Controls" type="VBoxContainer" parent="VBox/PanelContainer/VBox"]
+layout_mode = 2
+
+[node name="GridContainer" type="GridContainer" parent="VBox/PanelContainer/VBox/Controls"]
+layout_mode = 2
+columns = 4
+
+[node name="CreateButton" type="Button" parent="VBox/PanelContainer/VBox/Controls/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 0
+text = "Create"
+
+[node name="ShowHPButton" type="Button" parent="VBox/PanelContainer/VBox/Controls/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 0
+text = "Show HP"
+
+[node name="KickButton" type="Button" parent="VBox/PanelContainer/VBox/Controls/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 0
+text = "Kick"
+
+[node name="WhisperButton" type="Button" parent="VBox/PanelContainer/VBox/Controls/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 0
+text = "Whisper"
+
+[node name="SearchButton" type="Button" parent="VBox/PanelContainer/VBox/Controls/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 0
+text = "Search"
+
+[node name="PartyLeaderButton" type="Button" parent="VBox/PanelContainer/VBox/Controls/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 0
+text = "Leader"
+
+[node name="LeaveButton" type="Button" parent="VBox/PanelContainer/VBox/Controls/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 0
+text = "Leave"
+
+[node name="ChatButton" type="Button" parent="VBox/PanelContainer/VBox/Controls/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 0
+text = "Chat"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBox/PanelContainer/VBox/Controls"]
+layout_mode = 2
+
+[node name="InviteButton" type="Button" parent="VBox/PanelContainer/VBox/Controls/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 0
+text = "Invite"
+
+[node name="InviteLineEdit" type="LineEdit" parent="VBox/PanelContainer/VBox/Controls/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Player name"
+
+[node name="Margin" type="MarginContainer" parent="VBox/PanelContainer/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="VBox/PanelContainer/VBox/Margin"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="OnlineHeader" type="HBoxContainer" parent="VBox/PanelContainer/VBox/Margin/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBox/PanelContainer/VBox/Margin/VBox/OnlineHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "ONLINE PARTY MEMBERS"
+
+[node name="OnlineCount" type="Label" parent="VBox/PanelContainer/VBox/Margin/VBox/OnlineHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0/6"
+
+[node name="OnlineTree" type="Tree" parent="VBox/PanelContainer/VBox/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+columns = 3
+hide_root = true
+
+[node name="OfflineHeader" type="HBoxContainer" parent="VBox/PanelContainer/VBox/Margin/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBox/PanelContainer/VBox/Margin/VBox/OfflineHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "OFFLINE PARTY MEMBERS"
+
+[node name="OfflineCount" type="Label" parent="VBox/PanelContainer/VBox/Margin/VBox/OfflineHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0/6"
+
+[node name="OfflineTree" type="Tree" parent="VBox/PanelContainer/VBox/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+columns = 3
+hide_root = true

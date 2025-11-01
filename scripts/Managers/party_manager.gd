@@ -1,7 +1,5 @@
 extends Node
 
-const PartyData = preload("uid://dldk3qpiu25ua")
-
 signal party_created(party_id)
 signal party_joined(player_id, party_id)
 signal party_left(player_id, party_id)
@@ -9,10 +7,12 @@ signal member_added(party_id, player_id)
 signal member_removed(party_id, player_id)
 signal leader_changed(party_id, new_leader_id)
 signal party_invite_received(inviter_id: int, inviter_username: String, party_id: int)
+signal host_party_data_updated
 
 var _parties = {} # { party_id: PartyData }
 var _player_party_map = {} # { player_id: int (party_id) }
 var _next_party_id = 1
+var _player_info_cache = {} # { player_id: {"username": "..."} }
 
 func _ready():                                                                                              
 	print("PartyManager: In _ready(), multiplayer.is_server(): ", multiplayer.is_server())                  
@@ -163,6 +163,21 @@ func get_party_leader(party_id: int) -> int:
 func get_player_party_id(player_id: int) -> int:
 	return _player_party_map.get(player_id, -1)
 
+func get_party_member_info(player_id: int) -> Dictionary:
+	return _player_info_cache.get(player_id, {})
+
+func get_player_username(player_id: int) -> String:
+	# First, try the client-side cache
+	if _player_info_cache.has(player_id):
+		return _player_info_cache[player_id].get("username", "Player " + str(player_id))
+
+	# If on server or cache miss, use PlayerManager
+	var player_info = PlayerManager.get_player_info(player_id)
+	if player_info:
+		return player_info.get("username", "Player " + str(player_id))
+		
+	return "Player " + str(player_id)
+
 # RPCs for client-side calls to server
 @rpc("any_peer", "call_local") # Execute on the remote peer (server)
 func rpc_create_party():
@@ -173,10 +188,18 @@ func rpc_create_party():
 	create_party(sender_id)
 	
 @rpc("any_peer", "call_local") # Execute on the remote peer (server)
-func rpc_send_invite(invitee_id: int):
+func rpc_send_invite(invitee_name: String):
 	var sender_id = multiplayer.get_remote_sender_id()
 	if sender_id == 0:
 		sender_id = multiplayer.get_unique_id()
+	
+	# Resolve player name to ID on the server
+	var invitee_id = PlayerManager.get_player_id_from_name(invitee_name) # Assuming this exists on server
+	if invitee_id == -1:
+		print("Server: Player not found by name: ", invitee_name)
+		# Optionally, send an RPC back to the sender to notify them
+		return
+
 	send_invite(sender_id, invitee_id)
 
 @rpc("any_peer", "call_local") # Execute on the remote peer (server)
@@ -195,29 +218,73 @@ func rpc_leave_party():
 	print("RPC sender ID in PartyManager.rpc_leave_party: ", sender_id)
 	leave_party(sender_id)
 
+@rpc("any_peer", "call_local") # Execute on the remote peer (server)
+func rpc_change_leader(new_leader_id: int):
+	var sender_id = multiplayer.get_remote_sender_id()
+	if sender_id == 0:
+		sender_id = multiplayer.get_unique_id()
+
+	if not multiplayer.is_server():
+		return
+
+	var party_id = _player_party_map.get(sender_id)
+	if not party_id:
+		print("Player %d is not in a party." % sender_id)
+		return
+
+	var party: PartyData = _parties[party_id]
+	if not party.is_leader(sender_id):
+		print("Player %d is not the leader of party %d." % [sender_id, party_id])
+		return
+
+	if not party.members.has(new_leader_id):
+		print("Player %d is not a member of party %d." % [new_leader_id, party_id])
+		return
+	
+	if party.leader_id == new_leader_id:
+		return # No change needed
+
+	party.leader_id = new_leader_id
+	print("Party %d leader changed to %d." % [party_id, new_leader_id])
+	leader_changed.emit(party_id, new_leader_id)
+	_send_party_data_to_members(party_id)
+
 # Server-to-client synchronization
 @rpc("reliable", "call_local")
 func _client_update_party_data(party_data_dict: Dictionary):
 	if multiplayer.is_server():
 		return # Only clients should receive this
 
-	# Update client's local party state using PartyData class
 	var party_id = party_data_dict.get("party_id", -1)
 	if party_id == -1:
 		push_error("Received party data without valid party_id.")
 		return
 
+	# Update player info cache
+	var members_info = party_data_dict.get("members", [])
+	for member_data in members_info:
+		_player_info_cache[member_data.id] = {
+			"username": member_data.username,
+			"level": member_data.level,
+			"class_name": member_data.class_name
+		}
+
 	var new_party_data = PartyData.new(party_id, party_data_dict.get("leader_id"))
-	new_party_data.members = party_data_dict.get("members", [])
+	
+	# Add members one-by-one instead of direct assignment
+	var member_ids = members_info.map(func(m): return m.id)
+	for member_id in member_ids:
+		if not new_party_data.members.has(member_id):
+			new_party_data.add_member(member_id)
+
 	new_party_data.invites = party_data_dict.get("invites", {})
-	# Further fields from party_data_dict can be set here if needed.
 
 	_parties[party_id] = new_party_data
-	for member_id in new_party_data.members:
+	for member_id in member_ids:
 		_player_party_map[member_id] = party_id
+		
 	print("Client received party data for party %d: %s" % [party_id, party_data_dict])
-	# Emit signals for UI updates on client after local state is updated
-	party_created.emit(party_id) # Or a more specific signal like party_updated
+	party_created.emit(party_id)
 
 func _send_party_data_to_members(party_id: int):
 	if not multiplayer.is_server():
@@ -227,12 +294,30 @@ func _send_party_data_to_members(party_id: int):
 	if not party:
 		return
 
+	var members_with_info = []
+	for member_id in party.members:
+		var player_info = PlayerManager.get_player_info(member_id)
+		var player_node = PlayerManager.get_player_node(member_id) # Get player node on server
+		
+		var player_class = "N/A"
+		if player_node and player_node.class_component:
+			player_class = player_node.class_component.get_class_name()
+		var level = 1
+		if player_node and player_node.level_component:
+			level = player_node.level_component.level
+
+		members_with_info.append({
+			"id": member_id,
+			"username": player_info.get("username", "Player " + str(member_id)),
+			"level": level,
+			"class_name": player_class
+		})
+
 	var party_data_to_send = {
 		"party_id": party.party_id,
 		"leader_id": party.leader_id,
-		"members": party.members,
+		"members": members_with_info,
 		"invites": party.invites
-		# Add quest-related data here in the future: "active_quests": party.get("active_quests", [])
 	}
 
 	for member_id in party.members:
@@ -289,3 +374,15 @@ func remove_quest_from_party(party_id: int, quest_id: String):
 		party["active_quests"].erase(quest_id)
 		_send_party_data_to_members(party_id)
 		print("Quest %s removed from party %d." % [quest_id, party_id])
+
+func notify_player_data_changed(player_id: int):
+	# This function should be called by other systems (like LevelingComponent) on the server
+	# when a player's data that is relevant to the party UI changes.
+	if not multiplayer.is_server():
+		return
+
+	var party_id = _player_party_map.get(player_id)
+	if party_id:
+		print("PartyManager: Player %d data changed, re-syncing party %d." % [player_id, party_id])
+		_send_party_data_to_members(party_id)
+		host_party_data_updated.emit()

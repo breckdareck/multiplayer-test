@@ -1,35 +1,52 @@
-[gd_scene load_steps=2 format=3 uid="uid://drcwhmf2bmuci"]
+[gd_scene load_steps=3 format=3 uid="uid://drcwhmf2bmuci"]
 
-[ext_resource type="Script" uid="uid://c5v3yw2xswyos" path="res://scripts/UI/party_invite_popup.gd" id="1_abcd"]
+[ext_resource type="Theme" path="res://assets/themes/UI_Theme.tres" id="1_theme"]
+[ext_resource type="Script" uid="uid://c5v3yw2xswyos" path="res://scripts/UI/party_invite_popup.gd" id="2_script"]
 
 [node name="PartyInvitePopup" type="Window"]
-oversampling_override = 1.0
+title = "Party Invitation"
 initial_position = 1
-size = Vector2i(325, 70)
-script = ExtResource("1_abcd")
+size = Vector2i(400, 120)
+theme = ExtResource("1_theme")
+script = ExtResource("2_script")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
 
-[node name="MessageLabel" type="Label" parent="VBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
 layout_mode = 2
-text = "Invite Message"
+theme_override_constants/separation = 10
+
+[node name="MessageLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+text = "Player [PlayerName] has invited you to their party."
 horizontal_alignment = 1
 vertical_alignment = 1
+autowrap_mode = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 20
 
-[node name="AcceptButton" type="Button" parent="VBoxContainer/HBoxContainer"]
+[node name="AcceptButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Accept"
 
-[node name="DeclineButton" type="Button" parent="VBoxContainer/HBoxContainer"]
+[node name="DeclineButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Decline"

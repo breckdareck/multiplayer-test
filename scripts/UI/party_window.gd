@@ -1,104 +1,253 @@
-extends Window
+extends Panel
 
+# --- Node References ---
+@onready var close_button: Button = %CloseButton
+@onready var online_count: Label = %OnlineCount
+@onready var online_tree: Tree = %OnlineTree
+@onready var offline_count: Label = %OfflineCount
+@onready var offline_tree: Tree = %OfflineTree
+@onready var create_button: Button = %CreateButton
+@onready var show_hp_button: Button = %ShowHPButton
+@onready var kick_button: Button = %KickButton
+@onready var whisper_button: Button = %WhisperButton
+@onready var search_button: Button = %SearchButton
+@onready var party_leader_button: Button = %PartyLeaderButton
+@onready var leave_button: Button = %LeaveButton
+@onready var chat_button: Button = %ChatButton
+@onready var invite_button: Button = %InviteButton
+@onready var invite_line_edit: LineEdit = %InviteLineEdit
 
-var party_member_display_scene = preload("res://scenes/UI/party_member_display.tscn")
+var target_frame_scene = preload("res://scenes/UI/target_frame.tscn")
+var _single_target_frame: Panel = null # Changed to single instance
+var _hp_frames_shown = false # Still useful for toggle state
+var dragging = false 
 
-@onready var create_party_button = $"VBoxContainer/CreatePartyButton"
-@onready var player_id_input = $"VBoxContainer/PlayerIDInput"
-@onready var invite_player_button = $"VBoxContainer/InvitePlayerButton"
-@onready var leave_party_button = $"VBoxContainer/LeavePartyButton"
-@onready var party_members_container = $"VBoxContainer/PartyMembersContainer"
-
+# --- Lifecycle Methods ---
 func _ready():
-	create_party_button.pressed.connect(self._on_create_party_button_pressed)
-	invite_player_button.pressed.connect(self._on_invite_player_button_pressed)
-	leave_party_button.pressed.connect(self._on_leave_party_button_pressed)
+	close_button.pressed.connect(hide)
+	# Button Connections
+	create_button.pressed.connect(_on_create_party_button_pressed)
+	invite_button.pressed.connect(_on_invite_player_button_pressed)
+	leave_button.pressed.connect(_on_leave_party_button_pressed)
+	kick_button.pressed.connect(_on_kick_button_pressed)
+	party_leader_button.pressed.connect(_on_party_leader_button_pressed)
+	show_hp_button.pressed.connect(_on_show_hp_button_pressed)
 
-	# Connect to PartyManager signals
-	PartyManager.party_created.connect(self._on_party_created)
-	PartyManager.party_joined.connect(self._on_party_joined)
-	PartyManager.party_left.connect(self._on_party_left)
-	PartyManager.member_added.connect(self._on_member_added)
-	PartyManager.member_removed.connect(self._on_member_removed)
-	PartyManager.leader_changed.connect(self._on_leader_changed)
+	# PartyManager Signal Connections
+	PartyManager.party_created.connect(_on_party_created)
+	PartyManager.party_joined.connect(_on_party_joined)
+	PartyManager.party_left.connect(_on_party_left)
+	PartyManager.member_added.connect(_on_member_added)
+	PartyManager.member_removed.connect(_on_member_removed)
+	PartyManager.leader_changed.connect(_on_leader_changed)
 
+	# Host-specific connection
+	if multiplayer.is_server():
+		PartyManager.host_party_data_updated.connect(_update_party_display)
+
+	_initialize_trees()
 	_update_party_display()
 
+# --- Initialization ---
+func _initialize_trees():
+	online_tree.set_column_titles_visible(true)
+	online_tree.set_column_title(0, "Name")
+	online_tree.set_column_title(1, "Job")
+	online_tree.set_column_title(2, "Level")
+
+	offline_tree.set_column_titles_visible(true)
+	offline_tree.set_column_title(0, "Name")
+	offline_tree.set_column_title(1, "Job")
+	offline_tree.set_column_title(2, "Level")
+
+# --- Button Callbacks ---
 func _on_create_party_button_pressed():
-	print("My unique ID: ", multiplayer.get_unique_id())
-	print("Attempting to create party...")
 	PartyManager.rpc_id(1, "rpc_create_party")
 
 func _on_invite_player_button_pressed():
-	var invitee_id_text = player_id_input.text
-	if invitee_id_text.is_empty() or not invitee_id_text.is_valid_int():
-		print("Invalid player ID for invite.")
+	var invitee_name = invite_line_edit.text
+	if invitee_name.is_empty():
+		print("Player name is empty.")
 		return
-	var invitee_id = int(invitee_id_text)
-	print("Attempting to invite player %d..." % invitee_id)
-	PartyManager.rpc("rpc_send_invite", invitee_id)
+
+	# Send the name to the server for resolution
+	PartyManager.rpc("rpc_send_invite", invitee_name)
 
 func _on_leave_party_button_pressed():
-	print("Attempting to leave party...")
 	PartyManager.rpc_id(1, "rpc_leave_party")
 
+func _on_kick_button_pressed():
+	var selected = online_tree.get_selected()
+	if not selected:
+		selected = offline_tree.get_selected()
+	
+	if not selected:
+		print("No player selected to kick.")
+		return
+	
+	var player_id_to_kick = selected.get_metadata(0)
+	if player_id_to_kick == multiplayer.get_unique_id():
+		print("You can't kick yourself.")
+		return
+
+	PartyManager.rpc("rpc_kick_player", player_id_to_kick)
+
+func _on_party_leader_button_pressed():
+	var selected = online_tree.get_selected()
+	if not selected:
+		print("No player selected to make leader.")
+		return
+	
+	var new_leader_id = selected.get_metadata(0)
+	PartyManager.rpc("rpc_change_leader", new_leader_id)
+
+
+func _on_show_hp_button_pressed():
+	if _hp_frames_shown:
+		# Hide and free the single frame
+		if is_instance_valid(_single_target_frame):
+			_single_target_frame.queue_free()
+		_single_target_frame = null
+		_hp_frames_shown = false
+		show_hp_button.text = "Show HP"
+	else:
+		# Create and show the single frame
+		var my_id = multiplayer.get_unique_id()
+		var members = PartyManager.get_party_members(my_id)
+		
+		if members.is_empty():
+			return
+
+		_single_target_frame = target_frame_scene.instantiate()
+		self.get_parent_control().add_child(_single_target_frame)
+		_single_target_frame.set_party_members(members) # NEW call
+		
+		_hp_frames_shown = true
+		show_hp_button.text = "Hide HP"
+
+
+# --- PartyManager Signal Handlers ---
 func _on_party_created(party_id: int):
-	print("UI: Party %d created!" % party_id)
 	_update_party_display()
+	# NEW: Automatically show HP frames
+	if not _hp_frames_shown:
+		_on_show_hp_button_pressed()
 
 func _on_party_joined(player_id: int, party_id: int):
-	print("UI: Player %d joined party %d!" % [player_id, party_id])
 	_update_party_display()
 
 func _on_party_left(player_id: int, party_id: int):
-	print("UI: Player %d left party %d!" % [player_id, party_id])
 	_update_party_display()
+	# Clean up HP frame if the player leaves the party
+	if _hp_frames_shown and is_instance_valid(_single_target_frame):
+		_single_target_frame.queue_free()
+		_single_target_frame = null
+		_hp_frames_shown = false
+		show_hp_button.text = "Show HP"
 
 func _on_member_added(party_id: int, player_id: int):
-	print("UI: Member %d added to party %d!" % [player_id, party_id])
 	_update_party_display()
 
 func _on_member_removed(party_id: int, player_id: int):
-	print("UI: Member %d removed from party %d!" % [player_id, party_id])
 	_update_party_display()
 
 func _on_leader_changed(party_id: int, new_leader_id: int):
-	print("UI: Party %d leader changed to %d!" % [party_id, new_leader_id])
 	_update_party_display()
 
+func _notification(what):
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		if _hp_frames_shown and is_instance_valid(_single_target_frame):
+			_single_target_frame.queue_free()
+			_single_target_frame = null
+			_hp_frames_shown = false
+			show_hp_button.text = "Show HP"
+
+func _gui_input(event: InputEvent):
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		dragging = event.is_pressed()
+	elif event is InputEventMouseMotion and dragging:
+		position += event.relative
+
+# --- UI Update Logic ---
 func _update_party_display():
 	var my_id = multiplayer.get_unique_id()
-	print("UI: _update_party_display called. My ID: ", my_id)
 	var my_party_id = PartyManager.get_player_party_id(my_id)
-	print("UI: My Party ID: ", my_party_id)
 
-	# Clear existing member displays
-	for child in party_members_container.get_children():
-		child.queue_free()
+	online_tree.clear()
+	offline_tree.clear()
+	var root_online = online_tree.create_item()
+	var root_offline = offline_tree.create_item()
 
 	if my_party_id != -1:
 		var members = PartyManager.get_party_members(my_id)
 		var leader_id = PartyManager.get_party_leader(my_party_id)
-		print("UI: Party Members: ", members, ", Leader ID: ", leader_id)
+		
+		var online_members_count = 0
 		
 		for member_id in members:
 			var player_node = PlayerManager.get_player_node(member_id)
-			if player_node:
-				var member_display = party_member_display_scene.instantiate()
-				var username = player_node.username # Assuming username is directly accessible
-				var current_health = player_node.get_current_health()
-				var max_health = player_node.get_max_health()
-				var is_leader = (member_id == leader_id)
-				member_display.set_player_data(player_node, username, is_leader)
-				party_members_container.add_child(member_display)
-			else:
-				print("UI: Could not find player node for member ID: ", member_id)
-	else:
-		var no_party_label = Label.new()
-		no_party_label.text = "Not in a party."
-		party_members_container.add_child(no_party_label)
+			var is_leader = (member_id == leader_id)
+			var username = PartyManager.get_player_username(member_id)
+			
+			var level: int
+			var player_class: String
 
-	# Enable/disable buttons based on party status
-	create_party_button.disabled = (my_party_id != -1)
-	invite_player_button.disabled = (my_party_id == -1 or PartyManager.get_party_leader(my_party_id) != my_id)
-	leave_party_button.disabled = (my_party_id == -1)
+			if multiplayer.is_server(): # HOST PATH
+				# Host gets data directly from the player node
+				level = 1
+				player_class = "N/A"
+				if player_node:
+					if player_node.level_component:
+						level = player_node.level_component.level
+					if player_node.class_component:
+						player_class = player_node.class_component.get_class_name()
+			else: # CLIENT PATH
+				# Client gets data from the cache
+				var member_info = PartyManager.get_party_member_info(member_id)
+				level = member_info.get("level", 1)
+				player_class = member_info.get("class_name", "N/A")
+
+			if player_node: # Player is online
+				var item = online_tree.create_item(root_online)
+				var display_name = username
+				if is_leader:
+					display_name += " (Leader)"
+				item.set_text(0, display_name)
+				item.set_text(1, player_class)
+				item.set_text(2, str(level))
+				item.set_metadata(0, member_id)
+				online_members_count += 1
+			else: # Player is offline or not visible
+				var item = offline_tree.create_item(root_offline)
+				# Offline players still use cached data on client, or direct data on host
+				var display_name = username
+				if is_leader:
+					display_name += " (Leader)"
+				item.set_text(0, display_name)
+				item.set_text(1, player_class)
+				item.set_text(2, str(level))
+				item.set_metadata(0, member_id)
+
+		online_count.text = "%d/%d" % [online_members_count, members.size()]
+		offline_count.text = "%d/%d" % [members.size() - online_members_count, members.size()]
+	else:
+		online_count.text = "0/0"
+		offline_count.text = "0/0"
+		var item = online_tree.create_item(root_online)
+		item.set_text(0, "Not in a party.")
+
+	# Enable/disable buttons
+	var is_in_party = my_party_id != -1
+	create_button.disabled = is_in_party
+	leave_button.disabled = not is_in_party
+	
+	var is_leader = is_in_party and (PartyManager.get_party_leader(my_party_id) == my_id)
+	invite_button.disabled = not is_leader
+	invite_line_edit.editable = is_leader
+	kick_button.disabled = not is_leader
+	party_leader_button.disabled = not is_leader
+	
+	show_hp_button.disabled = not is_in_party
+	whisper_button.disabled = not is_in_party
+	chat_button.disabled = not is_in_party
+	search_button.disabled = is_in_party
