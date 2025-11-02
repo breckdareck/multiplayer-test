@@ -170,18 +170,45 @@ func _on_hitbox_area_entered(area: Area2D) -> void:
 
 
 func _process_collected_bodies() -> void:
+	# For projectiles, we might fire even if no body was collected.
+	if current_ability_data and current_ability_data.active_behavior.is_projectile:
+		# Sort bodies by distance to prioritize closest targets
+		_pending_bodies.sort_custom(func(a, b): 
+			return owner_node.global_position.distance_squared_to(a.global_position) < owner_node.global_position.distance_squared_to(b.global_position)
+		)
+
+		var max_targets = current_level_stats.max_targets
+		var targets_processed = 0
+
+		for body_area in _pending_bodies:
+			if targets_processed >= max_targets:
+				break
+
+			var health_comp = body_area.owner.get("health_component")
+			if health_comp and not health_comp.is_dead:
+				if _ability_component:
+					# Spawn one projectile for each valid target
+					_ability_component.spawn_projectile(current_ability_data, current_level_stats, body_area.owner)
+				targets_processed += 1
+		
+		# If no targets were in the hitbox, spawn one projectile straight ahead
+		if targets_processed == 0:
+			if _ability_component:
+				_ability_component.spawn_projectile(current_ability_data, current_level_stats, null)
+
+		_pending_bodies.clear()
+		return # We are done for projectiles
+
+	# Melee / Hitbox attack processing
 	if _pending_bodies.is_empty():
 		return
-	
+
 	var max_targets = 0
-	var max_hits = 0
 	
 	if current_ability_data and current_level_stats:
 		max_targets = current_level_stats.max_targets
-		max_hits = current_level_stats.max_hits
 	elif current_attack_data != "": 
-		max_targets = 1 
-		max_hits = 1
+		max_targets = 1
 	else:
 		_pending_bodies.clear()
 		return
@@ -201,68 +228,89 @@ func _process_collected_bodies() -> void:
 		
 		_unique_targets_for_attack[body] = true
 		
-		var target_enemy = body.owner
-		var attacker_level = owner_node.level_component.level
-		var target_level = target_enemy.monster_level
-
-		# --- Hit Chance Calculation ---
-		var level_diff = attacker_level - target_level
-		# Base 95% chance to hit. Lose 2% chance for each level the monster is above you.
-		var hit_chance = clamp(95.0 + (level_diff * 2.0), 5.0, 100.0)
-		
-		for i in range(max_hits):
-			var roll = randf() * 100
-			if roll > hit_chance:
-				var miss_spawn_pos = health_comp.damage_number_origin.global_position + Vector2(randf_range(-8, 8), randf_range(-5, 5))
-				get_node("/root/MainMenu/Level/Game").get_node("%DmgNumberSpawner").display_number(-1, miss_spawn_pos, false, false)
-				print("Attack MISSED! (Roll: %.2f > Chance: %.2f)" % [roll, hit_chance])
-				continue # Skip to the next hit
-
-			# --- Damage Calculation ---
-			var base_damage = 0
-			if current_attack_data != "":
-				base_damage = calculate_attack_damage()
-			elif current_ability_data and current_level_stats:
-				base_damage = calculate_ability_damage(current_ability_data, current_level_stats)
-
-			var modified_damage = float(base_damage)
-
-			if target_enemy.has_node("Stats"):
-				var target_stats = target_enemy.get_node("Stats")
-				var target_defense = target_stats.stats.get(Constants.StatType.DEFENSE).total_value
-
-				var level_modifier = clamp(1.0 + (level_diff * 0.05), 0.5, 1.5)
-				var defense_multiplier = 1.0 - (float(target_defense) / (target_defense + 500.0))
-
-				modified_damage *= level_modifier * defense_multiplier
-			
-			var crit_chance = _stats_component.stats.get(Constants.StatType.CRITCHANCE).total_value
-			var is_crit = (randf() * 100) < crit_chance
-			
-			if is_crit:
-				var crit_damage_bonus = _stats_component.stats.get(Constants.StatType.CRITDAMAGE).total_value
-				var crit_multiplier = randf_range(1.2, 1.5) + (crit_damage_bonus / 100.0)
-				modified_damage *= crit_multiplier
-			else:
-				modified_damage *= randf_range(0.8, 1.2)
-
-			var damage_to_deal = roundi(modified_damage)
-			
-			health_comp.take_damage(damage_to_deal, self, true, is_crit)
-			hit_list.append(body)
-			
-			if _ability_component:
-				var event_type = "on_crit" if is_crit else "on_hit"
-				var context = {
-					"base_damage": damage_to_deal,
-					"target": body.owner,
-					"is_crit": is_crit
-				}
-				_ability_component.try_trigger_procs(event_type, body.owner, context)
+		# Execute the full hit logic for this target
+		_execute_hit(body.owner, current_ability_data, current_level_stats, current_attack_data)
 		
 		targets_processed += 1
 	
 	_pending_bodies.clear()
+
+
+func process_projectile_hit(target_enemy: Node, ability: AbilityData, level_stats: AbilityLevelData) -> void:
+	"""Public function for projectiles to call when they hit a target."""
+	if not multiplayer.is_server():
+		return
+	
+	print("CombatComponent: Processing projectile hit on %s" % target_enemy.name)
+	_execute_hit(target_enemy, ability, level_stats, "") # Projectiles are always abilities, so basic attack is empty
+
+
+func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: AbilityLevelData, attack_name: String) -> void:
+	"""Runs the full, authoritative damage calculation for a single hit on a single target."""
+	var health_comp = target_enemy.get("health_component")
+	if not health_comp or health_comp.is_dead:
+		return
+
+	var attacker_level = owner_node.level_component.level
+	var target_level = target_enemy.monster_level
+
+	# --- Hit Chance Calculation ---
+	var level_diff = attacker_level - target_level
+	# Base 95% chance to hit. Lose 2% chance for each level the monster is above you.
+	var hit_chance = clamp(95.0 + (level_diff * 2.0), 5.0, 100.0)
+	
+	var max_hits = 1
+	if ability and level_stats:
+		max_hits = level_stats.max_hits
+	
+	for i in range(max_hits):
+		var roll = randf() * 100
+		if roll > hit_chance:
+			var miss_spawn_pos = health_comp.damage_number_origin.global_position + Vector2(randf_range(-8, 8), randf_range(-5, 5))
+			get_node("/root/MainMenu/Level/Game").get_node("%DmgNumberSpawner").display_number(-1, miss_spawn_pos, false, false)
+			print("Attack MISSED! (Roll: %.2f > Chance: %.2f)" % [roll, hit_chance])
+			continue # Skip to the next hit
+
+		# --- Damage Calculation ---
+		var base_damage = 0
+		if attack_name != "":
+			base_damage = calculate_attack_damage()
+		elif ability and level_stats:
+			base_damage = calculate_ability_damage(ability, level_stats)
+
+		var modified_damage = float(base_damage)
+
+		if target_enemy.has_node("Stats"):
+			var target_stats = target_enemy.get_node("Stats")
+			var target_defense = target_stats.stats.get(Constants.StatType.DEFENSE).total_value
+
+			var level_modifier = clamp(1.0 + (level_diff * 0.05), 0.5, 1.5)
+			var defense_multiplier = 1.0 - (float(target_defense) / (target_defense + 500.0))
+
+			modified_damage *= level_modifier * defense_multiplier
+		
+		var crit_chance = _stats_component.stats.get(Constants.StatType.CRITCHANCE).total_value
+		var is_crit = (randf() * 100) < crit_chance
+		
+		if is_crit:
+			var crit_damage_bonus = _stats_component.stats.get(Constants.StatType.CRITDAMAGE).total_value
+			var crit_multiplier = randf_range(1.2, 1.5) + (crit_damage_bonus / 100.0)
+			modified_damage *= crit_multiplier
+		else:
+			modified_damage *= randf_range(0.8, 1.2)
+
+		var damage_to_deal = roundi(modified_damage)
+		
+		health_comp.take_damage(damage_to_deal, self, true, is_crit)
+		
+		if _ability_component:
+			var event_type = "on_crit" if is_crit else "on_hit"
+			var context = {
+				"base_damage": damage_to_deal,
+				"target": target_enemy,
+				"is_crit": is_crit
+			}
+			_ability_component.try_trigger_procs(event_type, target_enemy, context)
 
 
 func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelData) -> int:

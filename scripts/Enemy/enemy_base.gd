@@ -36,6 +36,7 @@ var initial_position: Vector2
 func _ready() -> void:
 	# Add to networked entities group for proper cleanup during channel switching
 	add_to_group("networked_entities")
+	add_to_group("Enemies")
 	
 	if not health_component:
 		push_error("Enemy '%s' requires a HealthComponent to be assigned." % name)
@@ -90,6 +91,10 @@ func on_enemy_damaged(amount: int, source: Node) -> void:
 
 
 func _on_enemy_died(_killer: Node) -> void:
+	call_deferred("_deferred_death_processing", _killer)
+
+
+func _deferred_death_processing(_killer: Node) -> void:
 	if _is_being_cleaned_up:
 		return
 	
@@ -213,6 +218,7 @@ func _spawn_drops(eligible_player_ids: Array[int]) -> void:
 		rpc("client_setup_item", dropped_item.get_path(), item.item_id)
 		
 		print("Enemy '%s' dropped %dx %s for eligible players: %s" % [name, amount, item.name, str(eligible_player_ids)])
+
 @rpc
 func client_setup_item(dropped_item: NodePath, item_id: String):
 	(get_node(dropped_item) as DroppedItem).sprite.texture = ResourceManager.get_item_data(item_id).icon

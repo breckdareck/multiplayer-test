@@ -50,6 +50,7 @@ folder_colors={
 
 networked_entities=""
 Players=""
+Enemies=""
 
 [input]
 

@@ -8,3 +8,8 @@ extends Resource
 @export var animation_name: String = ""
 @export var sfx_path: String = ""
 @export var logic_script: Script
+
+@export_group("Projectile")
+@export var is_projectile: bool = false
+@export var projectile_scene: PackedScene
+@export var projectile_speed: float = 500.0

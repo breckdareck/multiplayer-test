@@ -61,6 +61,7 @@ var _is_loading_data: bool = false
 @onready var drop_timer: Timer = $DropTimer
 @onready var respawn_timer: Timer = $RespawnTimer
 @onready var basic_attack_hitbox: CollisionShape2D = $Hitbox/BasicAttackHitbox
+@onready var projectile_spawn_location: Marker2D = $ProjectileSpawnLocation
 const GAME_MENU_SCENE = preload("res://scenes/UI/game_menu.tscn")
 
 @onready var menu_container: MainMenu = get_tree().current_scene.get_node("%MenuContainer")

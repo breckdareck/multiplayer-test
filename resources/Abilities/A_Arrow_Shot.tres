@@ -1,0 +1,78 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=19 format=3 uid="uid://hhx8fc5iylxh"]
+
+[ext_resource type="Texture2D" uid="uid://b407mfrctd50w" path="res://assets/sprites/MinifolksHumans/HumansProjectiles.png" id="1_3p7m4"]
+[ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="1_n2dua"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_3p7m4"]
+[ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_6h1s2"]
+[ext_resource type="PackedScene" uid="uid://d0ig4oiimrnei" path="res://scenes/Gameplay/projectile_base.tscn" id="2_vrq40"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="6_aa4ap"]
+[ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_kmtye"]
+[ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_uynx4"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_22vhk"]
+atlas = ExtResource("1_3p7m4")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_aa4ap"]
+size = Vector2(66, 20)
+
+[sub_resource type="Resource" id="Resource_vrq40"]
+script = ExtResource("2_6h1s2")
+target_type = 1
+hit_box_shape_data = SubResource("RectangleShape2D_aa4ap")
+hit_box_position_data = Vector2(33, -10)
+animation_name = "attack_2"
+is_projectile = true
+projectile_scene = ExtResource("2_vrq40")
+projectile_speed = 150.0
+metadata/_custom_type_script = "uid://1raaatfhww5y"
+
+[sub_resource type="Resource" id="Resource_i0kt6"]
+script = ExtResource("6_aa4ap")
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_ob6q3"]
+script = ExtResource("6_aa4ap")
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_prgh8"]
+script = ExtResource("6_aa4ap")
+base_value = 100.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_fyeph"]
+script = ExtResource("6_aa4ap")
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_t0uj7"]
+script = ExtResource("6_aa4ap")
+base_value = 2.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_v53hh"]
+script = ExtResource("6_aa4ap")
+base_value = 2.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_7cnym"]
+script = ExtResource("7_kmtye")
+mana_cost_formula = SubResource("Resource_fyeph")
+cooldown_formula = SubResource("Resource_ob6q3")
+damage_percent_formula = SubResource("Resource_prgh8")
+max_targets_formula = SubResource("Resource_v53hh")
+max_hits_formula = SubResource("Resource_t0uj7")
+cast_time_formula = SubResource("Resource_i0kt6")
+metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
+
+[resource]
+script = ExtResource("2_3p7m4")
+ability_id = "4516312154-211710-111228-8843-438125814071514"
+ability_name = "Arrow Shot"
+description = "Shoots 1 arrow hitting $[hit_count] time(s) on $[target_count] enemies dealing $[damage_percent] damage."
+ability_icon = SubResource("AtlasTexture_22vhk")
+max_level = 5
+required_class = Array[int]([1])
+required_weapon_types = Array[int]([1])
+active_behavior = SubResource("Resource_vrq40")
+scaling_data = SubResource("Resource_7cnym")
+metadata/_custom_type_script = "uid://b8y62rc8nb40j"

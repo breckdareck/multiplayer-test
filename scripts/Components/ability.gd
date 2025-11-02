@@ -1,4 +1,3 @@
-@tool
 class_name AbilityComponent
 extends Node
 
@@ -60,6 +59,9 @@ var _passive_proc_cooldowns: Dictionary = {}  # { "ability_id_event_type": last_
 # Track active passive abilities for easy access
 var _active_passive_abilities: Array[AbilityData] = []
 
+# Projectile container
+var _projectiles_container: Node
+
 # UI references
 @onready var hotbar: Hotbar = $"../../CanvasLayer/PlayerHUD/Hotbar"
 #endregion
@@ -76,6 +78,15 @@ func _ready() -> void:
 		push_error("AbilityComponent requires ClassComponent and StatsComponent siblings.")
 		set_process(false)
 		return
+
+	# Find or create the projectiles container
+	var game_node = get_node_or_null("/root/MainMenu/Level/Game")
+	if is_instance_valid(game_node):
+		_projectiles_container = game_node.get_node_or_null("Projectiles")
+		if not is_instance_valid(_projectiles_container):
+			_projectiles_container = Node.new()
+			_projectiles_container.name = "Projectiles"
+			game_node.add_child(_projectiles_container)
 
 	# Connect to the LevelingComponent to grant ability points on level up
 	if _level_component:
@@ -339,7 +350,9 @@ func _trigger_ability_state_change(ability: AbilityData, level_stats: AbilityLev
 	if not active_behavior:
 		push_error("Ability '%s' is missing ActiveBehavior data." % ability.ability_name)
 		return
-		
+
+	# All active abilities now go through the state machine.
+	# The CombatComponent will handle the difference between projectile and hitbox attacks.
 	var state_machine = owner.get_node_or_null("StateMachine")
 	if not state_machine:
 		push_error("Could not find StateMachine on owner.")
@@ -474,6 +487,39 @@ func _execute_proc(proc: ProcEffectData, target: Node, context: Dictionary) -> v
 
 
 #region #################### Multiplayer & RPCs ####################
+func spawn_projectile(ability: AbilityData, level_stats: AbilityLevelData, target: Node2D):
+	if not multiplayer.is_server():
+		return
+
+	var active_behavior = ability.active_behavior
+	if not active_behavior.projectile_scene:
+		printerr("Projectile scene not set for ability: %s" % ability.ability_name)
+		return
+
+	# Target can be null. If it is, we fire straight.
+	var initial_direction: Vector2
+	if is_instance_valid(target):
+		var target_position = target.global_position
+		if target.has_node("aim_target"):
+			target_position = target.get_node("aim_target").global_position
+		initial_direction = (target_position - owner.global_position).normalized()
+	else:
+		# No target, fire straight ahead based on player's facing direction.
+		initial_direction = Vector2(owner.facing_direction, 0).normalized()
+
+	var projectile_instance = active_behavior.projectile_scene.instantiate()
+	
+	# The projectile will now store the ability data and call back to the CombatComponent to process the hit.
+	projectile_instance.initialize(owner, target, ability, level_stats, active_behavior.projectile_speed, initial_direction)
+	
+	if is_instance_valid(owner.projectile_spawn_location):
+		projectile_instance.global_position = owner.projectile_spawn_location.global_position
+	else:
+		printerr("Projectile spawn location not set on player controller. Spawning at player position.")
+		projectile_instance.global_position = owner.global_position
+	_projectiles_container.add_child(projectile_instance)
+
+
 ## [Server->Client] Sends all ability data to a newly connected client.
 func sync_all_abilities_to_client(peer_id: int) -> void:
 	if not multiplayer.is_server(): return

@@ -61,18 +61,6 @@ properties/4/replication_mode = 2
 [sub_resource type="CircleShape2D" id="CircleShape2D_a0il2"]
 radius = 6.0
 
-[sub_resource type="Resource" id="Resource_xxpon"]
-script = ExtResource("7_xxpon")
-stat_type = 11
-base_value = 247
-metadata/_custom_type_script = "uid://cptesvvlfbytw"
-
-[sub_resource type="Resource" id="Resource_7q2hv"]
-script = ExtResource("7_xxpon")
-stat_type = 12
-base_value = 260
-metadata/_custom_type_script = "uid://cptesvvlfbytw"
-
 [sub_resource type="Resource" id="Resource_numl0"]
 script = ExtResource("7_xxpon")
 stat_type = 8
@@ -83,6 +71,18 @@ metadata/_custom_type_script = "uid://cptesvvlfbytw"
 script = ExtResource("7_xxpon")
 stat_type = 8
 base_value = 220
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_xxpon"]
+script = ExtResource("7_xxpon")
+stat_type = 11
+base_value = 247
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_7q2hv"]
+script = ExtResource("7_xxpon")
+stat_type = 12
+base_value = 260
 metadata/_custom_type_script = "uid://cptesvvlfbytw"
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0x8hd"]
@@ -473,7 +473,7 @@ size = Vector2(64, 37)
 radius = 13.0
 height = 34.0
 
-[node name="Goblin" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "stats_component") groups=["networked_entities"]]
+[node name="Goblin" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "stats_component") groups=["Enemies", "networked_entities"]]
 collision_layer = 8
 collision_mask = 5
 script = ExtResource("1_nadka")

@@ -200,7 +200,7 @@ size = Vector2(64, 37)
 radius = 6.0
 height = 18.0
 
-[node name="Bunny" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "stats_component") groups=["networked_entities"]]
+[node name="Bunny" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "stats_component") groups=["Enemies", "networked_entities"]]
 collision_layer = 8
 collision_mask = 5
 script = ExtResource("1_wu46e")
@@ -214,6 +214,9 @@ item_drops = Array[ExtResource("4_qhvxh")]([SubResource("Resource_5ja2b"), SubRe
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 delta_interval = 0.015
 replication_config = SubResource("SceneReplicationConfig_n6pvg")
+
+[node name="AimTarget" type="Marker2D" parent="."]
+position = Vector2(0, -4)
 
 [node name="DmgNumOrigin" type="Node2D" parent="."]
 position = Vector2(0, -47)

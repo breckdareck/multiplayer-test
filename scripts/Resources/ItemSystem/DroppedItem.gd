@@ -266,4 +266,3 @@ func sync_state_to_peer(peer_id: int) -> void:
 @rpc("authority", "call_local", "reliable")
 func _set_state_rpc(item_id: String) -> void:
 	sprite.texture = ResourceManager.get_item_data(item_id).icon
-

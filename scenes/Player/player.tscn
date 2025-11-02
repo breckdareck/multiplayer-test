@@ -16,7 +16,6 @@
 [ext_resource type="Script" uid="uid://cix831bp8wxft" path="res://scripts/Components/equipment.gd" id="13_ihqbe"]
 [ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="14_e8txv"]
 [ext_resource type="Script" uid="uid://d71uplx14050" path="res://scripts/Components/ability.gd" id="14_ploos"]
-[ext_resource type="SpriteFrames" uid="uid://c05dyrlp5i5bj" path="res://resources/Player/SpriteFrames/Swordsman.tres" id="15_7iww4"]
 [ext_resource type="Texture2D" uid="uid://b41h3nwnk7ghm" path="res://assets/UI/Left_button.png" id="15_32uah"]
 [ext_resource type="Script" uid="uid://c8fllkah6qfdg" path="res://scripts/Components/inventory.gd" id="15_cg2hl"]
 [ext_resource type="Texture2D" uid="uid://7wc85wst4rwd" path="res://assets/UI/Right_button.png" id="16_ihqbe"]
@@ -34,6 +33,7 @@
 [ext_resource type="PackedScene" uid="uid://chfqd31o6lr2s" path="res://scenes/UI/stats_window.tscn" id="23_fqhit"]
 [ext_resource type="PackedScene" uid="uid://dh7yjshjnm377" path="res://scenes/UI/inventory_window.tscn" id="24_e8txv"]
 [ext_resource type="PackedScene" uid="uid://cy54vn8lpmh2s" path="res://scenes/UI/equipment_window.tscn" id="25_7iww4"]
+[ext_resource type="SpriteFrames" uid="uid://b2tuepydvrkmh" path="res://resources/Player/SpriteFrames/Archer.tres" id="26_fqhit"]
 [ext_resource type="Texture2D" uid="uid://rmxapeohsar7" path="res://assets/sprites/MinifolksHumans/Outline/MiniTemplate.png" id="29_7iww4"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_2d20i"]
@@ -417,6 +417,9 @@ script = ExtResource("2_hxkm2")
 [node name="DmgNumOrigin" type="Node2D" parent="."]
 position = Vector2(0, -30)
 
+[node name="ProjectileSpawnLocation" type="Marker2D" parent="."]
+position = Vector2(8, -8)
+
 [node name="Components" type="Node" parent="."]
 
 [node name="ComponentSynchronizer" type="MultiplayerSynchronizer" parent="Components"]
@@ -429,10 +432,11 @@ inventory_component = NodePath("InventoryComponent")
 player = NodePath("../..")
 monies_label = NodePath("../../CanvasLayer/MoveableWindows/InventoryWindow/HBoxContainer/Panel/MoniesCountLabel")
 
-[node name="InventoryComponent" type="Node" parent="Components/PlayerInventory" node_paths=PackedStringArray("inventory_grids", "equipment_component")]
+[node name="InventoryComponent" type="Node" parent="Components/PlayerInventory" node_paths=PackedStringArray("inventory_grids", "equipment_component", "stats_component")]
 script = ExtResource("15_cg2hl")
 inventory_grids = [NodePath("../../../CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/EQUIP/ScrollContainer/EquipmentGrid"), NodePath("../../../CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/USE/ScrollContainer/ConsumableGrid"), NodePath("../../../CanvasLayer/MoveableWindows/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid")]
 equipment_component = NodePath("../../Equipment")
+stats_component = NodePath("../../Stats")
 
 [node name="Equipment" type="Node" parent="Components" node_paths=PackedStringArray("head_slot", "chest_slot", "legs_slot", "feet_slot", "weapon_slot")]
 script = ExtResource("13_ihqbe")
@@ -1029,7 +1033,7 @@ horizontal_alignment = 1
 z_index = 1
 position = Vector2(0, -20)
 scale = Vector2(1.3, 1.3)
-sprite_frames = ExtResource("15_7iww4")
+sprite_frames = ExtResource("26_fqhit")
 animation = &"idle"
 autoplay = "idle"
 
