@@ -1,37 +1,39 @@
 [gd_scene load_steps=3 format=3 uid="uid://yjpyv6skd0ap"]
 
-[ext_resource type="Theme" uid="uid://dumv2cfji0owj" path="res://assets/themes/UI_Theme.tres" id="1_theme"]
 [ext_resource type="Script" uid="uid://crx2rshnu20o1" path="res://scripts/UI/target_frame.gd" id="2_script"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_foogf"]
+bg_color = Color(0.5372549, 0.5372549, 0.5372549, 0.6784314)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+expand_margin_left = 5.0
+expand_margin_top = 5.0
+expand_margin_right = 5.0
+expand_margin_bottom = 5.0
+shadow_color = Color(1, 1, 1, 0.6)
+shadow_size = 2
+
 [node name="TargetFrame" type="Panel"]
-visible = false
-theme = ExtResource("1_theme")
-script = ExtResource("2_script")
-size_flags_vertical = 0
-
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
-layout_mode = 1
-anchors_preset = 15
+custom_minimum_size = Vector2(200, 0)
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
 anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
+anchor_bottom = 0.5
+offset_left = -212.0
+offset_top = -5.0
+offset_right = -12.0
+offset_bottom = -5.0
+grow_horizontal = 0
 grow_vertical = 2
-size_flags_vertical = 0
-
-[node name="TitleBar" type="HBoxContainer" parent="VBoxContainer"]
-layout_mode = 2
-
-[node name="TitleLabel" type="Label" parent="VBoxContainer/TitleBar"]
-layout_mode = 2
 size_flags_horizontal = 3
-text = "Party Healths"
+size_flags_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_foogf")
+script = ExtResource("2_script")
 
-[node name="CloseButton" type="Button" parent="VBoxContainer/TitleBar"]
+[node name="MembersVBox" type="VBoxContainer" parent="."]
 unique_name_in_owner = true
-layout_mode = 2
-text = "X"
-
-[node name="MembersVBox" type="VBoxContainer" parent="VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_vertical = 0
+layout_mode = 0
+theme_override_constants/separation = 8

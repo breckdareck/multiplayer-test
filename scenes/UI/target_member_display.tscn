@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://bcf1hbjpc4tnc"]
 
 [ext_resource type="Script" uid="uid://cw5od4351tfee" path="res://scripts/UI/target_member_display.gd" id="1_script"]
-[ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="2_k6rb2"]
+[ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="2_k6rb2"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gfe07"]
 content_margin_left = 2.0
@@ -23,6 +23,7 @@ expand_margin_left = 2.0
 expand_margin_top = 2.0
 expand_margin_right = 2.0
 expand_margin_bottom = 2.0
+shadow_size = 3
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_k6rb2"]
 content_margin_left = 2.0
@@ -37,12 +38,16 @@ corner_radius_bottom_left = 3
 corner_detail = 6
 
 [node name="TargetMemberDisplay" type="HBoxContainer"]
+custom_minimum_size = Vector2(200, 0)
+offset_right = 100.0
+offset_bottom = 8.0
 script = ExtResource("1_script")
 
 [node name="NameLabel" type="Label" parent="."]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_fonts/font = ExtResource("2_k6rb2")
 theme_override_font_sizes/font_size = 8
 text = "Member Name"
@@ -51,7 +56,7 @@ text = "Member Name"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 1
+size_flags_vertical = 4
 theme_override_styles/background = SubResource("StyleBoxFlat_gfe07")
 theme_override_styles/fill = SubResource("StyleBoxFlat_k6rb2")
 value = 75.0

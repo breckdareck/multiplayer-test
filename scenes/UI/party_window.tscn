@@ -149,8 +149,10 @@ text = "0/6"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
+focus_mode = 0
 columns = 3
 hide_root = true
+select_mode = 1
 
 [node name="OfflineHeader" type="HBoxContainer" parent="VBox/PanelContainer/VBox/Margin/VBox"]
 layout_mode = 2
@@ -169,5 +171,7 @@ text = "0/6"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
+focus_mode = 0
 columns = 3
 hide_root = true
+select_mode = 1

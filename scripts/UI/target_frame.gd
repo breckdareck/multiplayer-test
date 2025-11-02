@@ -9,6 +9,7 @@ var dragging = false
 
 
 func _gui_input(event: InputEvent):
+	# Dragging should be on the root panel
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		dragging = event.is_pressed()
 	elif event is InputEventMouseMotion and dragging:
@@ -33,3 +34,9 @@ func set_party_members(member_ids: Array[int]):
 			_active_member_displays[member_id] = member_display_instance
 	
 	show()
+	call_deferred("update_size_after_layout")
+	
+	
+func update_size_after_layout():
+	await get_tree().process_frame
+	self.size.y = members_vbox.size.y

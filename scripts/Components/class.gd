@@ -42,7 +42,7 @@ func change_class(new_class: Constants.ClassType) -> void:
 		_load_class_abilities()
 		class_changed.emit(get_class_name())
 		# NEW: Notify PartyManager of the class change
-		if multiplayer.is_server():
+		if multiplayer and multiplayer.is_server():
 			PartyManager.notify_player_data_changed(get_owner().player_id)
 
 @rpc("authority", "call_local", "reliable")

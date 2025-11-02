@@ -215,6 +215,7 @@ func _update_party_display():
 				item.set_text(0, display_name)
 				item.set_text(1, player_class)
 				item.set_text(2, str(level))
+				item.set_text_alignment(2, HORIZONTAL_ALIGNMENT_CENTER)
 				item.set_metadata(0, member_id)
 				online_members_count += 1
 			else: # Player is offline or not visible
@@ -226,6 +227,7 @@ func _update_party_display():
 				item.set_text(0, display_name)
 				item.set_text(1, player_class)
 				item.set_text(2, str(level))
+				item.set_text_alignment(2, HORIZONTAL_ALIGNMENT_CENTER)
 				item.set_metadata(0, member_id)
 
 		online_count.text = "%d/%d" % [online_members_count, members.size()]
@@ -235,6 +237,11 @@ func _update_party_display():
 		offline_count.text = "0/0"
 		var item = online_tree.create_item(root_online)
 		item.set_text(0, "Not in a party.")
+
+	# NEW: Update the single TargetFrame if it's currently shown
+	if _hp_frames_shown and is_instance_valid(_single_target_frame):
+		var members = PartyManager.get_party_members(my_id)
+		_single_target_frame.set_party_members(members)
 
 	# Enable/disable buttons
 	var is_in_party = my_party_id != -1
