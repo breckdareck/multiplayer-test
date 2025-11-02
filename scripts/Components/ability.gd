@@ -517,7 +517,7 @@ func spawn_projectile(ability: AbilityData, level_stats: AbilityLevelData, targe
 	else:
 		printerr("Projectile spawn location not set on player controller. Spawning at player position.")
 		projectile_instance.global_position = owner.global_position
-	_projectiles_container.add_child(projectile_instance)
+	_projectiles_container.add_child(projectile_instance, true)
 
 
 ## [Server->Client] Sends all ability data to a newly connected client.

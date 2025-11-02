@@ -11,6 +11,8 @@ var initial_direction: Vector2 = Vector2.RIGHT
 var ability: AbilityData
 var level_stats: AbilityLevelData
 
+@onready var sprite_2d: Sprite2D = $Sprite2D
+
 func _ready() -> void:
 	# The projectile should only detect collisions on the server
 	monitoring = multiplayer.is_server()
@@ -29,6 +31,7 @@ func initialize(p_caster: Node2D, p_target: Node2D, p_ability: AbilityData, p_le
 	level_stats = p_level_stats
 	speed = p_speed
 	initial_direction = p_initial_direction
+	#sprite_2d.texture = p_ability.ability_icon #TESTING
 
 func _physics_process(delta: float) -> void:
 	# Movement logic should only be processed on the server,

@@ -213,7 +213,7 @@ func _spawn_drops(eligible_player_ids: Array[int]) -> void:
 		dropped_item.setup(item, amount, eligible_player_ids)
 		
 		# Add to scene
-		get_tree().current_scene.get_node("Level/Game").add_child(dropped_item, true)
+		get_tree().current_scene.get_node("Level/Game/ItemDrops").add_child(dropped_item, true)
 		
 		rpc("client_setup_item", dropped_item.get_path(), item.item_id)
 		

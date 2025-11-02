@@ -568,8 +568,12 @@ spawn_path = NodePath("..")
 script = ExtResource("1_ryi0r")
 
 [node name="ItemSpawner" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("uid://b43dktokqxhjo", "uid://d0ig4oiimrnei")
-spawn_path = NodePath("..")
+_spawnable_scenes = PackedStringArray("uid://b43dktokqxhjo")
+spawn_path = NodePath("../ItemDrops")
+
+[node name="ProjectileSpawner" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("uid://d0ig4oiimrnei")
+spawn_path = NodePath("../Projectiles")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(0, -16)
@@ -731,6 +735,10 @@ respawnable = true
 [node name="Fox3" parent="Enemies" instance=ExtResource("10_2ya06")]
 position = Vector2(1075, 31)
 respawnable = true
+
+[node name="Projectiles" type="Node" parent="."]
+
+[node name="ItemDrops" type="Node" parent="."]
 
 [node name="GoblinSpawner" type="Node" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
 script = ExtResource("11_e24jv")

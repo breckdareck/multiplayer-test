@@ -340,27 +340,26 @@ func _should_create_dropped_item() -> bool:
 func _create_dropped_item():
 	if not drag_item:
 		return
-	
-	# Find the global drop handler
+
 	var drop_handler = get_tree().get_first_node_in_group("global_drop_handler")
-	if not drop_handler:
-		# Try to find it by name
-		drop_handler = get_tree().get_first_node_in_group("drop_handler")
-	
-	if drop_handler and drop_handler.has_method("create_dropped_item"):
-		# Find the player to target the dropped item
+	if drop_handler and drop_handler.has_method("server_request_item_drop"):
 		var player = _get_local_player()
 		if player:
-			# Use player's position instead of mouse position
 			var world_pos = player.global_position
-			drop_handler.create_dropped_item(drag_item, drag_amount, world_pos)
 			
-			# Remove the item from the inventory
-			_remove_item_from_inventory()
+			# Get the NodePath of the slot being dragged from.
+			var slot_path = get_path()
+
+			# Make an RPC to the server to handle the drop.
+			# Pass the item details, amount, position, player ID, and the original slot path.
+			drop_handler.server_request_item_drop.rpc_id(1, drag_item.item_id, drag_amount, world_pos, multiplayer.get_unique_id(), slot_path)
+
+			# The item is NOT removed locally. The server will process the drop,
+			# remove the item from the inventory, and the change will be synced back.
 		else:
 			print("Slot: Could not find local player for dropped item")
 	else:
-		print("Slot: Could not find global drop handler")
+		print("Slot: Could not find global drop handler or its server_request_item_drop method.")
 
 
 func _get_local_player() -> Node:

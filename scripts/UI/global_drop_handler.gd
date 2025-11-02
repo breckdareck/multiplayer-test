@@ -4,7 +4,7 @@ extends Control
 ## Global drop handler that detects when items are dragged outside UI windows
 ## and creates DroppedItem instances in the world
 
-signal item_dropped_in_world(item_data: ItemData, amount: int, world_position: Vector2)
+
 
 var dropped_item_scene: PackedScene
 var game_scene: Node2D
@@ -17,7 +17,7 @@ func _ready():
 	dropped_item_scene = preload("res://scenes/Gameplay/dropped_item.tscn")
 	
 	# Find the game scene
-	game_scene = get_tree().get_first_node_in_group("game_scene")
+	game_scene = get_tree().get_first_node_in_group("Game")
 	if not game_scene:
 		# Try to find it by path
 		game_scene = get_tree().current_scene.get_node("Level/Game")
@@ -27,30 +27,82 @@ func _ready():
 	
 	# Enable mouse input
 	mouse_filter = Control.MOUSE_FILTER_PASS
+	top_level = true
 	
-	# Connect to the global drag end signal
-	# We'll use a different approach - monitor for drag operations
-	item_dropped_in_world.connect(func(item_data, amount, world_position):
-		create_dropped_item(item_data, amount, world_position, [multiplayer.get_unique_id()])
-	)
 
 func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
+	print("DEBUG: GlobalDropHandler._can_drop_data received data: %s" % str(data))
+	var can_drop = data is Slot
+	print("DEBUG: GlobalDropHandler.can_drop returned: %s" % str(can_drop))
 	# Only accept Slot data
-	return data is Slot
+	return can_drop
 
 func _drop_data(at_position: Vector2, data: Variant) -> void:
 	var source_slot: Slot = data
+	print("We made it here!")
+	
 	if not source_slot or not source_slot.drag_item:
 		return
-	
+
 	# Convert screen position to world position
 	var world_position = _screen_to_world_position(at_position)
-	
-	# Emit signal for the game to handle
-	item_dropped_in_world.emit(source_slot.drag_item, source_slot.drag_amount, world_position)
-	
-	# Clear the source slot
+
+	# Request the server to drop the item
+	server_request_item_drop.rpc_id(1, source_slot.drag_item.item_id, source_slot.drag_amount, world_position, multiplayer.get_unique_id())
+
 	source_slot.cancel_drag()
+
+@rpc("any_peer", "call_local", "reliable")
+func server_request_item_drop(item_id: String, amount: int, world_position: Vector2, player_id: int, source_slot_path: NodePath):
+	if not multiplayer.is_server():
+		return
+
+	var item_data = ResourceManager.get_item_data(item_id)
+	if not item_data:
+		printerr("Server received drop request for invalid item '%s' from player %d" % [item_id, player_id])
+		return
+
+	# Find the player and their inventory on the server
+	var player_node = PlayerManager.get_player_node(player_id)
+	if not player_node:
+		printerr("Drop failed: Could not find player node for ID: ", player_id)
+		return
+	
+	var inventory_component = player_node.get_node("Components/PlayerInventory/InventoryComponent")
+	if not inventory_component:
+		printerr("Drop failed: Could not find inventory component for player: ", player_id)
+		return
+
+	# Get the slot that the item was dropped from
+	var slot_node = get_node_or_null(source_slot_path)
+	if not slot_node or not slot_node is Slot:
+		printerr("Drop failed: Invalid source slot path '%s' from player %d" % [str(source_slot_path), player_id])
+		return
+
+	# --- Server-side Validation ---
+	# 1. Check if the slot belongs to the correct inventory
+	if slot_node.item_container != inventory_component:
+		printerr("Drop failed: Player %d attempted to drop from a slot not in their inventory." % player_id)
+		inventory_component.send_inventory_correction.rpc_id(player_id)
+		return
+		
+	# 2. Check if the item in the slot matches what the client claims to be dropping
+	if not slot_node.item or slot_node.item.item_id != item_id or slot_node.item.current_stack_amount < amount:
+		printerr("Drop failed: Player %d item drop validation failed. Client claimed to drop %dx '%s'." % [player_id, amount, item_id])
+		inventory_component.send_inventory_correction.rpc_id(player_id)
+		return
+
+	# --- Execution ---
+	# 1. Create the dropped item in the world.
+	# The original item data from the slot is used to preserve its unique properties.
+	create_dropped_item(slot_node.item, amount, world_position, [])
+
+	# 2. Remove the item from the player's inventory.
+	# This will sync the change back to the client automatically.
+	if amount >= slot_node.item.current_stack_amount:
+		inventory_component.clear_slot(slot_node)
+	else:
+		inventory_component.remove_item_from_stack(slot_node.item, amount)
 
 func _screen_to_world_position(screen_position: Vector2) -> Vector2:
 	# Convert screen coordinates to world coordinates
@@ -84,10 +136,17 @@ func create_dropped_item(item_data: ItemData, amount: int, world_position: Vecto
 	
 	# Add to the game scene
 	if game_scene:
-		game_scene.add_child(dropped_item, true)
+		game_scene.get_node("ItemDrops").add_child(dropped_item, true)
 	else:
 		push_error("GlobalDropHandler: No game scene found to add dropped item!")
 		dropped_item.queue_free()
 		return
-	
+
+	rpc("client_setup_item", dropped_item.get_path(), item_data.item_id)
+
 	print("GlobalDropHandler: Created dropped item %s x%d at %s for eligible players: %s" % [item_data.name, amount, world_position, str(eligible_player_ids)])
+
+
+@rpc
+func client_setup_item(dropped_item: NodePath, item_id: String):
+	(get_node(dropped_item) as DroppedItem).sprite.texture = ResourceManager.get_item_data(item_id).icon
