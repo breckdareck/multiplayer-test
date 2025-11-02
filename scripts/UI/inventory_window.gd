@@ -21,11 +21,20 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	if multiplayer.get_unique_id() == player.player_id:
 		if Input.is_action_just_pressed("OpenInventoryWindow"):
-			inventory_window.visible = !inventory_window.visible
+			if inventory_window.visible:
+				inventory_window.visible = false
+			elif not InputManager.is_locked():
+				inventory_window.visible = true
 			
 	if is_dragging:
-		global_position = get_global_mouse_position() - drag_offset
-
+		var new_position = get_global_mouse_position() - drag_offset
+		var viewport_size = get_viewport_rect().size
+		var window_size = size
+		
+		new_position.x = clamp(new_position.x, 0, viewport_size.x - window_size.x)
+		new_position.y = clamp(new_position.y, 0, viewport_size.y - window_size.y)
+		
+		global_position = new_position
 
 func _gui_input(event: InputEvent) -> void:
 	# Check for a mouse button press (typically the left mouse button).
@@ -35,5 +44,6 @@ func _gui_input(event: InputEvent) -> void:
 				is_dragging = true
 				# Calculate the offset from the node's origin to the mouse position.
 				drag_offset = get_global_mouse_position() - global_position
+				self.move_to_front()
 		else:
 			is_dragging = false

@@ -21,6 +21,7 @@ var target_frame_scene = preload("res://scenes/UI/target_frame.tscn")
 var _single_target_frame: Panel = null # Changed to single instance
 var _hp_frames_shown = false # Still useful for toggle state
 var dragging = false 
+var drag_offset = Vector2()
 
 # --- Lifecycle Methods ---
 func _ready():
@@ -32,6 +33,9 @@ func _ready():
 	kick_button.pressed.connect(_on_kick_button_pressed)
 	party_leader_button.pressed.connect(_on_party_leader_button_pressed)
 	show_hp_button.pressed.connect(_on_show_hp_button_pressed)
+
+	invite_line_edit.focus_entered.connect(func(): InputManager.set_input_locked(true))
+	invite_line_edit.focus_exited.connect(func(): InputManager.set_input_locked(false))
 
 	# PartyManager Signal Connections
 	PartyManager.party_created.connect(_on_party_created)
@@ -162,11 +166,25 @@ func _notification(what):
 			_hp_frames_shown = false
 			show_hp_button.text = "Show HP"
 
+func _process(delta: float) -> void:
+	if dragging:
+		var new_position = get_global_mouse_position() - drag_offset
+		var viewport_size = get_viewport_rect().size
+		var window_size = size
+		
+		new_position.x = clamp(new_position.x, 0, viewport_size.x - window_size.x)
+		new_position.y = clamp(new_position.y, 0, viewport_size.y - window_size.y)
+		
+		global_position = new_position
+
 func _gui_input(event: InputEvent):
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-		dragging = event.is_pressed()
-	elif event is InputEventMouseMotion and dragging:
-		position += event.relative
+		if event.is_pressed():
+			dragging = true
+			drag_offset = get_global_mouse_position() - global_position
+			self.move_to_front()
+		else:
+			dragging = false
 
 # --- UI Update Logic ---
 func _update_party_display():

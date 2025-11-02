@@ -25,6 +25,8 @@ func _ready():
 	input_down = Input.is_action_pressed("Move Down")
 
 func _physics_process(_delta: float) -> void:
+	if InputManager.is_locked():
+		return
 	# Don't process if being cleaned up
 	if _is_being_cleaned_up:
 		return
@@ -51,6 +53,8 @@ func _physics_process(_delta: float) -> void:
 	input_down = Input.is_action_pressed("Move Down")
 
 func _process(_delta: float) -> void:
+	if InputManager.is_locked():
+		return
 	# Don't process if being cleaned up
 	if _is_being_cleaned_up:
 		return

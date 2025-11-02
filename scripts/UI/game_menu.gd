@@ -31,7 +31,7 @@ func _unhandled_input(event: InputEvent):
 	if event is InputEventKey and event.is_action_pressed("ui_cancel") and not event.is_echo():
 		if visible:
 			_on_resume_button_pressed() # Close menu
-		else:
+		elif not InputManager.is_locked(): # Only open if input is not locked
 			open_menu()
 		get_viewport().set_input_as_handled() # Consume the event
 

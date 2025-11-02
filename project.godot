@@ -27,6 +27,7 @@ ResourceManager="*res://scripts/Managers/resource_manager.gd"
 KeybindManager="*res://scripts/Managers/keybind_manager.gd"
 UserConfig="*res://scripts/Managers/user_config.gd"
 PartyManager="*res://scripts/Managers/party_manager.gd"
+InputManager="*res://scripts/Managers/InputManager.gd"
 
 [display]
 

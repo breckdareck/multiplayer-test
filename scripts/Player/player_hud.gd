@@ -17,6 +17,7 @@ var party_invite_popup_scene = preload("res://scenes/UI/party_invite_popup.tscn"
 @onready var exp_percent_label: RichTextLabel = $BottomStatsContainer/ExperienceBar/EXPPercentLabel
 
 @onready var level_label: RichTextLabel = $BottomStatsContainer/ExperienceBar/LevelPanel/LevelLabel 
+@onready var moveable_windows_container: Node = %MoveableWindows
 
 func _ready() -> void:
 	if owner is MultiplayerPlayer:
@@ -29,7 +30,11 @@ func _ready() -> void:
 	
 	# Instantiate and add PartyWindow
 	party_window_instance = party_window_scene.instantiate()
-	add_child(party_window_instance)
+	if moveable_windows_container:
+		moveable_windows_container.add_child(party_window_instance)
+	else:
+		add_child(party_window_instance) # Fallback
+		push_error("MoveableWindows node not found. Adding PartyWindow as child of player_HUD.")
 	party_window_instance.hide()
 	
 	# Connect to PartyManager invite signal
@@ -62,6 +67,24 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("OpenPartyWindow"):
 		party_window_instance.visible = not party_window_instance.visible
 		get_viewport().set_input_as_handled()
+
+	# NEW: Handle "Esc" key to close all UI windows
+	if event.is_action_pressed("ui_cancel"):
+		var any_window_was_open = false
+		
+		# Explicitly hide party_window_instance if it's visible
+		if party_window_instance.visible:
+			party_window_instance.visible = false
+			any_window_was_open = true
+
+		for window in get_tree().get_nodes_in_group("ui_window"):
+			# Ensure we don't try to hide party_window_instance twice
+			if window is Control and window.visible and window != party_window_instance:
+				window.visible = false
+				any_window_was_open = true
+		
+		if any_window_was_open:
+			get_viewport().set_input_as_handled()
 
 func _on_health_changed(new_health: int, _max_health: int) -> void:
 	"""Updates the ProgressBar value when health changes."""
