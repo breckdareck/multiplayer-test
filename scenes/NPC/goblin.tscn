@@ -488,6 +488,9 @@ item_drops = Array[ExtResource("4_2emke")]([SubResource("Resource_p6uye"), SubRe
 delta_interval = 0.015
 replication_config = SubResource("SceneReplicationConfig_n6pvg")
 
+[node name="AimTarget" type="Marker2D" parent="."]
+position = Vector2(0, -20)
+
 [node name="DmgNumOrigin" type="Node2D" parent="."]
 position = Vector2(0, -47)
 

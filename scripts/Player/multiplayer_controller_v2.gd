@@ -21,6 +21,7 @@ const SERVER_ID: int = 1
 
 @export_category("Components")
 @export var health_component: HealthComponent
+@export var mana_component: ManaComponent
 @export var combat_component: CombatComponent
 @export var level_component: LevelingComponent
 @export var stats_component: StatsComponent

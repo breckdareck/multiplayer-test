@@ -47,6 +47,7 @@ signal ability_points_changed(new_total: int)
 var _class_component: ClassComponent
 var _stats_component: StatsComponent
 var _level_component: LevelingComponent
+var _mana_component: ManaComponent
 
 # State variables
 var _cooldowns: Dictionary = {}  # { ability_id: time_remaining }
@@ -73,6 +74,7 @@ func _ready() -> void:
 	_class_component = get_parent().get_node_or_null("Class")
 	_stats_component = get_parent().get_node_or_null("Stats")
 	_level_component = get_parent().get_node_or_null("Leveling")
+	_mana_component = get_parent().get_node_or_null("Mana")
 	
 	if not _class_component or not _stats_component:
 		push_error("AbilityComponent requires ClassComponent and StatsComponent siblings.")
@@ -281,7 +283,7 @@ func _validate_ability_use(ability_id: String) -> Dictionary:
 func _can_afford_ability(ability_id: String, level_stats: AbilityLevelData) -> bool:
 	# Check mana
 	var modified_mana_cost = level_stats.mana_cost * get_ability_mana_modifier(ability_id)
-	if "current_mana" in _stats_component and _stats_component.current_mana < modified_mana_cost:
+	if _mana_component.current_mana < modified_mana_cost:
 		print("Server: Not enough mana.")
 		return false
 	
@@ -299,9 +301,9 @@ func _can_afford_ability(ability_id: String, level_stats: AbilityLevelData) -> b
 ## Consumes resources and starts cooldown for an ability
 func _consume_ability_resources(ability_id: String, level_stats: AbilityLevelData) -> float:
 	# Consume mana
-	if "current_mana" in _stats_component:
-		var modified_mana_cost = level_stats.mana_cost * get_ability_mana_modifier(ability_id)
-		_stats_component.current_mana -= modified_mana_cost
+	if _mana_component.current_mana:
+		var modified_mana_cost = roundi(level_stats.mana_cost * get_ability_mana_modifier(ability_id))
+		_mana_component.current_mana -= modified_mana_cost
 	
 	# Start cooldown
 	var modified_cooldown = level_stats.cooldown_time * get_ability_cooldown_modifier(ability_id)

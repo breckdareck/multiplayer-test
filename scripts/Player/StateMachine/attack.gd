@@ -56,7 +56,8 @@ func _play_animation(anim_name: String) -> void:
 		if animation_player:
 			animation_player.play(anim_name)
 		else:
-			animations.play(anim_name, attack_speed_percent)
+			if anim_name in animations.sprite_frames.get_animation_names():
+				animations.play(anim_name, attack_speed_percent)
 
 func _start_basic_attack():
 	"""Executes a basic melee attack"""

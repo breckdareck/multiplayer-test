@@ -47,16 +47,6 @@ properties/4/replication_mode = 2
 [sub_resource type="CircleShape2D" id="CircleShape2D_n6pvg"]
 radius = 5.09902
 
-[sub_resource type="Resource" id="Resource_h1jh3"]
-script = ExtResource("8_gx1ts")
-base_value = 19
-metadata/_custom_type_script = "uid://cptesvvlfbytw"
-
-[sub_resource type="Resource" id="Resource_st7t5"]
-script = ExtResource("8_gx1ts")
-base_value = 16
-metadata/_custom_type_script = "uid://cptesvvlfbytw"
-
 [sub_resource type="Resource" id="Resource_4m5ue"]
 script = ExtResource("8_gx1ts")
 base_value = 0
@@ -65,6 +55,16 @@ metadata/_custom_type_script = "uid://cptesvvlfbytw"
 [sub_resource type="Resource" id="Resource_gx1ts"]
 script = ExtResource("8_gx1ts")
 base_value = 10
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_h1jh3"]
+script = ExtResource("8_gx1ts")
+base_value = 19
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_st7t5"]
+script = ExtResource("8_gx1ts")
+base_value = 16
 metadata/_custom_type_script = "uid://cptesvvlfbytw"
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0x8hd"]
@@ -224,6 +224,9 @@ item_drops = Array[ExtResource("4_q006m")]([ExtResource("5_q34qd"), SubResource(
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 delta_interval = 0.015
 replication_config = SubResource("SceneReplicationConfig_n6pvg")
+
+[node name="AimTarget" type="Marker2D" parent="."]
+position = Vector2(0, -7)
 
 [node name="DmgNumOrigin" type="Node2D" parent="."]
 position = Vector2(0, -47)

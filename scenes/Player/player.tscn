@@ -1,4 +1,4 @@
-[gd_scene load_steps=80 format=3 uid="uid://bdtdpx0d05sy3"]
+[gd_scene load_steps=81 format=3 uid="uid://bdtdpx0d05sy3"]
 
 [ext_resource type="Script" uid="uid://yibpus3whwuj" path="res://scripts/Player/multiplayer_controller_v2.gd" id="1_an8q1"]
 [ext_resource type="Script" uid="uid://cy1j38lpy671e" path="res://scripts/Player/multiplayer_input.gd" id="2_hxkm2"]
@@ -14,6 +14,7 @@
 [ext_resource type="Script" uid="uid://dbmsw7l1mf6nj" path="res://scripts/Components/buff.gd" id="13_e6s7e"]
 [ext_resource type="Script" uid="uid://chuj37r7r0ydq" path="res://scripts/Components/debug.gd" id="13_fqhit"]
 [ext_resource type="Script" uid="uid://cix831bp8wxft" path="res://scripts/Components/equipment.gd" id="13_ihqbe"]
+[ext_resource type="Script" uid="uid://ddc622hy8m6tk" path="res://scripts/Components/mana.gd" id="14_7iww4"]
 [ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="14_e8txv"]
 [ext_resource type="Script" uid="uid://d71uplx14050" path="res://scripts/Components/ability.gd" id="14_ploos"]
 [ext_resource type="Texture2D" uid="uid://b41h3nwnk7ghm" path="res://assets/UI/Left_button.png" id="15_32uah"]
@@ -92,6 +93,12 @@ properties/4/replication_mode = 2
 properties/5/path = NodePath("PlayerInventory:monies_amount")
 properties/5/spawn = true
 properties/5/replication_mode = 2
+properties/6/path = NodePath("Mana:max_mana")
+properties/6/spawn = true
+properties/6/replication_mode = 2
+properties/7/path = NodePath("Mana:current_mana")
+properties/7/spawn = true
+properties/7/replication_mode = 2
 
 [sub_resource type="Gradient" id="Gradient_2qjlr"]
 colors = PackedColorArray(0.15, 0.15, 0.15, 1, 0.14902, 0.14902, 0.14902, 1)
@@ -384,11 +391,12 @@ size = Vector2(21, 21)
 [sub_resource type="CircleShape2D" id="CircleShape2D_h0wtf"]
 radius = 5.0
 
-[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "combat_component", "level_component", "stats_component", "class_component", "player_inventory", "inventory_component", "equipment_component", "ability_component", "buff_component", "debug_component", "player_HUD", "player_name_label", "stats_window", "inventory_window") groups=["Players", "networked_entities"]]
+[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "mana_component", "combat_component", "level_component", "stats_component", "class_component", "player_inventory", "inventory_component", "equipment_component", "ability_component", "buff_component", "debug_component", "player_HUD", "player_name_label", "stats_window", "inventory_window") groups=["Players", "networked_entities"]]
 collision_layer = 2
 collision_mask = 5
 script = ExtResource("1_an8q1")
 health_component = NodePath("Components/Health")
+mana_component = NodePath("Components/Mana")
 combat_component = NodePath("Components/Combat")
 level_component = NodePath("Components/Leveling")
 stats_component = NodePath("Components/Stats")
@@ -471,6 +479,9 @@ attack_hitbox = NodePath("../../Hitbox/BasicAttackHitbox")
 
 [node name="Buff" type="Node" parent="Components"]
 script = ExtResource("13_e6s7e")
+
+[node name="Mana" type="Node" parent="Components"]
+script = ExtResource("14_7iww4")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 

@@ -58,16 +58,17 @@ func load_config():
 func save_config():
 	var config = ConfigFile.new()
 	var file_existed_before_save = FileAccess.file_exists(SAVE_FILE_PATH)
+	var error
 	
 	if file_existed_before_save:
-		var error = config.load(SAVE_FILE_PATH)
+		error = config.load(SAVE_FILE_PATH)
 		if error != OK:
 			push_error("Failed to load existing user config for merging: ", error)
 	
 	_save_keybinds_to_config(config, file_existed_before_save)
 	_save_sound_settings_to_config(config, file_existed_before_save)
 	
-	var error = config.save(SAVE_FILE_PATH)
+	error = config.save(SAVE_FILE_PATH)
 	if error != OK:
 		push_error("Failed to save user config: ", error)
 	else:
@@ -111,7 +112,7 @@ func _load_keybinds_from_config(config: ConfigFile):
 		save_config() # Save the newly prefilled defaults
 
 
-func _save_keybinds_to_config(config: ConfigFile, file_existed_before_save: bool):
+func _save_keybinds_to_config(config: ConfigFile, _file_existed_before_save: bool):
 
 	for action_name in _all_managed_actions:
 		if custom_keybinds.has(action_name):
@@ -143,6 +144,8 @@ func _prefill_default_keybinds():
 
 
 func get_keybind_event(action_name: String, key_index: int = 0) -> InputEventKey:
+	var unset_event = InputEventKey.new()
+	
 	if custom_keybinds.has(action_name):
 		var key_codes: Array[int] = custom_keybinds[action_name]
 		if key_index >= 0 and key_index < key_codes.size():
@@ -152,7 +155,6 @@ func get_keybind_event(action_name: String, key_index: int = 0) -> InputEventKey
 			return event
 		else:
 			push_warning("Invalid key_index %d for action '%s'. Returning unset event." % [key_index, action_name])
-			var unset_event = InputEventKey.new()
 			unset_event.physical_keycode = KEY_NONE
 			unset_event.pressed = true
 			return unset_event
@@ -163,7 +165,7 @@ func get_keybind_event(action_name: String, key_index: int = 0) -> InputEventKey
 	for event in events:
 		if event is InputEventKey:
 			return event
-	var unset_event = InputEventKey.new()
+	unset_event = InputEventKey.new()
 	unset_event.physical_keycode = KEY_NONE
 	unset_event.pressed = true
 	return unset_event # Return an unset event if nothing found

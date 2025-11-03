@@ -131,16 +131,16 @@ func _on_show_hp_button_pressed():
 
 
 # --- PartyManager Signal Handlers ---
-func _on_party_created(party_id: int):
+func _on_party_created(_party_id: int):
 	_update_party_display()
 	# NEW: Automatically show HP frames
 	if not _hp_frames_shown:
 		_on_show_hp_button_pressed()
 
-func _on_party_joined(player_id: int, party_id: int):
+func _on_party_joined(_player_id: int, _party_id: int):
 	_update_party_display()
 
-func _on_party_left(player_id: int, party_id: int):
+func _on_party_left(_player_id: int, _party_id: int):
 	_update_party_display()
 	# Clean up HP frame if the player leaves the party
 	if _hp_frames_shown and is_instance_valid(_single_target_frame):
@@ -149,13 +149,13 @@ func _on_party_left(player_id: int, party_id: int):
 		_hp_frames_shown = false
 		show_hp_button.text = "Show HP"
 
-func _on_member_added(party_id: int, player_id: int):
+func _on_member_added(_party_id: int, _player_id: int):
 	_update_party_display()
 
-func _on_member_removed(party_id: int, player_id: int):
+func _on_member_removed(_party_id: int, _player_id: int):
 	_update_party_display()
 
-func _on_leader_changed(party_id: int, new_leader_id: int):
+func _on_leader_changed(_party_id: int, _new_leader_id: int):
 	_update_party_display()
 
 func _notification(what):
@@ -166,7 +166,7 @@ func _notification(what):
 			_hp_frames_shown = false
 			show_hp_button.text = "Show HP"
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if dragging:
 		var new_position = get_global_mouse_position() - drag_offset
 		var viewport_size = get_viewport_rect().size

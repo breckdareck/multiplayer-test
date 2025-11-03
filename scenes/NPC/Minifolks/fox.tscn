@@ -47,19 +47,19 @@ properties/4/replication_mode = 2
 [sub_resource type="CircleShape2D" id="CircleShape2D_n6pvg"]
 radius = 5.09902
 
-[sub_resource type="Resource" id="Resource_h1jh3"]
-script = ExtResource("7_debah")
-metadata/_custom_type_script = "uid://cptesvvlfbytw"
-
-[sub_resource type="Resource" id="Resource_st7t5"]
-script = ExtResource("7_debah")
-metadata/_custom_type_script = "uid://cptesvvlfbytw"
-
 [sub_resource type="Resource" id="Resource_ex684"]
 script = ExtResource("7_debah")
 metadata/_custom_type_script = "uid://cptesvvlfbytw"
 
 [sub_resource type="Resource" id="Resource_iglj4"]
+script = ExtResource("7_debah")
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_h1jh3"]
+script = ExtResource("7_debah")
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_st7t5"]
 script = ExtResource("7_debah")
 metadata/_custom_type_script = "uid://cptesvvlfbytw"
 
@@ -219,6 +219,9 @@ item_drops = Array[ExtResource("4_tvc6h")]([SubResource("Resource_5ja2b"), SubRe
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 delta_interval = 0.015
 replication_config = SubResource("SceneReplicationConfig_n6pvg")
+
+[node name="AimTarget" type="Marker2D" parent="."]
+position = Vector2(0, -6)
 
 [node name="DmgNumOrigin" type="Node2D" parent="."]
 position = Vector2(0, -47)

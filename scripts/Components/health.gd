@@ -1,8 +1,6 @@
 class_name HealthComponent
 extends Node
 
-
-
 # Emitted when health changes, useful for updating UI.
 signal health_changed(current_health, max_health)
 # Emitted on the server when the character dies.
@@ -34,7 +32,6 @@ var _last_damage_source: Node = null
 			if current_health == 0 and not is_dead and multiplayer.is_server():
 				die.rpc()
 			health_changed.emit(current_health, max_health)
-
 @onready var health_bar: ProgressBar = get_node_or_null(health_bar_path)
 @onready var invulnerability_timer: Timer = Timer.new()
 @onready var regen_timer: Timer = Timer.new()
