@@ -7,7 +7,7 @@ var idle_timer: float
 
 func enter() -> void:
 	super.enter()
-	parent.velocity = Vector2.ZERO
+	parent.velocity.x = 0
 	_reset_idle_timer()
 
 
@@ -22,10 +22,13 @@ func process_frame(delta: float) -> State:
 
 
 func physics_update(delta: float) -> State:
-	# Apply gravity
+	# Store the initial velocity magnitude and direction
+	var initial_velocity_x: float = parent.velocity.x
+
+	# If we have significant velocity, gradually slow down instead of immediate stop
+	if abs(initial_velocity_x) > 0:
+		parent.velocity.x = move_toward(initial_velocity_x, 0, 250 * delta)
 	parent.velocity.y += gravity * delta
-	# Ensure no horizontal movement
-	parent.velocity.x = 0
 	parent.move_and_slide()
 	return null
 

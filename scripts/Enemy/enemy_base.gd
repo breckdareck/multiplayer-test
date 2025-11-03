@@ -361,7 +361,7 @@ func damage_on_overlap(body: Node):
 
 		# Knockback logic
 		var knockback_dir = -body.facing_direction
-		var knockback_strength = 150.0
+		var knockback_strength = 120.0
 		var knockback_lift = -100.0
 		var knockback_vec = Vector2(knockback_dir * knockback_strength, knockback_lift)
 		if body.has_method("apply_knockback"):

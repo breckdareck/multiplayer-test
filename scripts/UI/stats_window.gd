@@ -5,18 +5,24 @@ extends Control
 @onready var stats_panel: Panel = $StatsPanel
 @onready var window_title_label: Label = $Label
 
-@onready var name_string_label: Label = $StatsPanel/VBoxContainer/NameContainer/NameStringLabel
-@onready var class_string_label: Label = $StatsPanel/VBoxContainer/ClassContainer/ClassStringLabel
-@onready var level_string_label: Label = $StatsPanel/VBoxContainer/LevelContainer/LevelStringLabel
-@onready var experience_string_label: Label = $StatsPanel/VBoxContainer/ExperienceContainer/ExperienceStringLabel
-@onready var health_amount_label: Label = $StatsPanel/VBoxContainer/HealthContainer/HealthAmountLabel
-@onready var mana_amount_label: Label = $StatsPanel/VBoxContainer/ManaContainer/ManaAmountLabel
+@onready var name_string_label: Label = $StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/NameContainer/NameStringLabel
+@onready var class_string_label: Label = $StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/ClassContainer/ClassStringLabel
+@onready var level_string_label: Label = $StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/LevelContainer/LevelStringLabel
+@onready var experience_string_label: Label = $StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/ExperienceContainer/ExperienceStringLabel
+@onready var health_amount_label: Label = $StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/HealthContainer/HealthAmountLabel
+@onready var mana_amount_label: Label = $StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/ManaContainer/ManaAmountLabel
 
-@onready var str_amount_label: Label = $StatsPanel/VBoxContainer/STRContainer/STRAmountLabel
-@onready var dex_amount_label: Label = $StatsPanel/VBoxContainer/DEXContainer/DEXAmountLabel
-@onready var int_amount_label: Label = $StatsPanel/VBoxContainer/INTContainer/INTAmountLabel
-@onready var luk_amount_label: Label = $StatsPanel/VBoxContainer/LUKContainer/LUKAmountLabel
-@onready var dmg_range_label: Label = $StatsPanel/VBoxContainer/DMGRangeContainer/DMGRangeAmountLabel
+@onready var str_amount_label: Label = $StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/STRContainer/STRAmountLabel
+@onready var dex_amount_label: Label = $StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/DEXContainer/DEXAmountLabel
+@onready var int_amount_label: Label = $StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/INTContainer/INTAmountLabel
+@onready var luk_amount_label: Label = $StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/LUKContainer/LUKAmountLabel
+@onready var dmg_range_label: Label = $StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/DMGRangeContainer/DMGRangeAmountLabel
+@onready var weapon_attack_amount_label: Label = $StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/WeaponAttackContainer/WeaponAttackAmountLabel
+@onready var magic_attack_amount_label: Label = $StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/MagicAttackContainer/MagicAttackAmountLabel
+@onready var crit_rate_amount_label: Label = $StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/CritRateContainer/CritRateAmountLabel
+@onready var crit_dmg_amount_label: Label = $StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/CritDmgContainer/CritDmgAmountLabel
+@onready var defense_amount_label: Label = $StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/DefenseContainer/DefenseAmountLabel
+@onready var magic_defense_amount_label: Label = $StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/MagicDefenseContainer/MagicDefenseAmountLabel
 
 var player: MultiplayerPlayerV2
 
@@ -76,7 +82,7 @@ func update_stats_window():
 	level_string_label.text = str(int(player.level_component.level))
 	experience_string_label.text = str(int(player.level_component.experience)) + "/" + str(int(player.level_component.get_exp_to_next_level()))
 	health_amount_label.text = str(player.health_component.current_health) + "/" + str(player.health_component.max_health)
-	mana_amount_label.text = "100/100"
+	mana_amount_label.text = str(player.mana_component.current_mana) + "/" + str(player.mana_component.max_mana)
 	
 	str_amount_label.text = "%d (%d+%d)" % [player.stats_component.stats.get(Constants.StatType.STRENGTH).total_value, player.stats_component.stats.get(Constants.StatType.STRENGTH).base_value, player.stats_component.stats.get(Constants.StatType.STRENGTH).combined_bonus_value]	
 	dex_amount_label.text = "%d (%d+%d)" % [player.stats_component.stats.get(Constants.StatType.DEXTERITY).total_value, player.stats_component.stats.get(Constants.StatType.DEXTERITY).base_value, player.stats_component.stats.get(Constants.StatType.DEXTERITY).combined_bonus_value]	
@@ -84,3 +90,9 @@ func update_stats_window():
 	luk_amount_label.text = "%d (%d+%d)" % [player.stats_component.stats.get(Constants.StatType.LUCK).total_value, player.stats_component.stats.get(Constants.StatType.LUCK).base_value, player.stats_component.stats.get(Constants.StatType.LUCK).combined_bonus_value]	
 	
 	dmg_range_label.text = "%d ~ %d" % [player.combat_component.min_damage, player.combat_component.max_damage]
+	weapon_attack_amount_label.text = "%d (%d+%d)" % [player.stats_component.stats.get(Constants.StatType.WEAPONATTACK).total_value, player.stats_component.stats.get(Constants.StatType.WEAPONATTACK).base_value, player.stats_component.stats.get(Constants.StatType.WEAPONATTACK).combined_bonus_value]
+	magic_attack_amount_label.text = "%d (%d+%d)" % [player.stats_component.stats.get(Constants.StatType.MAGICATTACK).total_value, player.stats_component.stats.get(Constants.StatType.MAGICATTACK).base_value, player.stats_component.stats.get(Constants.StatType.MAGICATTACK).combined_bonus_value]
+	crit_rate_amount_label.text = "%d%%" % [player.stats_component.stats.get(Constants.StatType.CRITCHANCE).total_value]
+	crit_dmg_amount_label.text = "%d%%" % [player.stats_component.stats.get(Constants.StatType.CRITDAMAGE).total_value]
+	defense_amount_label.text = "%d (%d+%d)" % [player.stats_component.stats.get(Constants.StatType.DEFENSE).total_value, player.stats_component.stats.get(Constants.StatType.DEFENSE).base_value, player.stats_component.stats.get(Constants.StatType.DEFENSE).combined_bonus_value]
+	magic_defense_amount_label.text = "%d (%d+%d)" % [player.stats_component.stats.get(Constants.StatType.MAGICDEFENSE).total_value, player.stats_component.stats.get(Constants.StatType.MAGICDEFENSE).base_value, player.stats_component.stats.get(Constants.StatType.MAGICDEFENSE).combined_bonus_value]

@@ -3,9 +3,23 @@ extends Node
 
 signal stats_changed
 
-const BASE_MAX_HEALTH: int = 100
-const SCALING_MULTIPLIER: float = 3.65
-const SCALING_EXPONENT: float = 1.5
+# Beginner Health Scaling
+# Health: int(50 + (13 * (_level_component.level - 1)))
+# Mana: int(50 + (11 * (_level_component.level - 1)))
+
+const BEGINNER_BASE_MAX_HEALTH: int = 50
+const BEGINNER_BASE_MAX_MANA: int = 50
+const BEGINNER_HEALTH_SCALING_MULTIPLIER: int = 13
+const BEGINNER_MANA_SCALING_MULTIPLIER: int = 11
+
+# Warrior Health Scaling
+# Health: int(500 + (26 * (_level_component.level - 10)))
+# Mana: int(161 + (5 * (_level_component.level - 10)))
+
+const WARRIOR_BASE_MAX_HEALTH: int = 500
+const WARRIOR_BASE_MAX_MANA: int = 160
+const WARRIOR_HEALTH_SCALING_MULTIPLIER: int = 26
+const WARRIOR_MANA_SCALING_MULTIPLIER: int = 5
 
 @export var stats: Dictionary[Constants.StatType, StatData] = {
 	Constants.StatType.STRENGTH: StatData.new(Constants.StatType.STRENGTH, 4),
@@ -59,9 +73,16 @@ func _recalculate_stats() -> void:
 	for stat in base_stats:
 		stats.get(stat).base_value = base_stats[stat]
 		
-	# Setup Health from Forumla
-	stats.get(Constants.StatType.HEALTH).base_value = int(BASE_MAX_HEALTH + (SCALING_MULTIPLIER * pow(_level_component.level - 1, SCALING_EXPONENT)))
-	
+	# Setup Health & Mana from Forumla
+	if _level_component.level <= 10:
+		stats.get(Constants.StatType.HEALTH).base_value = int(BEGINNER_BASE_MAX_HEALTH + (BEGINNER_HEALTH_SCALING_MULTIPLIER * (_level_component.level - 1)))
+		stats.get(Constants.StatType.MANA).base_value = int(BEGINNER_BASE_MAX_MANA + (BEGINNER_MANA_SCALING_MULTIPLIER * (_level_component.level - 1)))
+	else:
+		stats.get(Constants.StatType.HEALTH).base_value = int(WARRIOR_BASE_MAX_HEALTH + (WARRIOR_HEALTH_SCALING_MULTIPLIER * (_level_component.level - 10)))
+		stats.get(Constants.StatType.MANA).base_value = int(WARRIOR_BASE_MAX_MANA + (WARRIOR_MANA_SCALING_MULTIPLIER * (_level_component.level - 10)))
+		
+		
+		
 	# Reset flat bonuses before recalculating
 	for stat_type in stats:
 		stats[stat_type].flat_bonus_value = 0

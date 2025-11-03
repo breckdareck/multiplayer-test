@@ -22,12 +22,18 @@ func process_frame(delta: float) -> State:
 
 
 func physics_update(delta: float) -> State:
+	var initial_velocity = parent.velocity
+	
+	# If we have significant velocity, gradually slow down instead of immediate stop
+	if abs(initial_velocity.y) > 0:
+		parent.velocity.x = move_toward(initial_velocity.x, 0, 250 * delta)
+	else:
+		var enemy: EnemyBase = parent as EnemyBase
+		# Set horizontal velocity based on direction
+		parent.velocity.x = direction.x * enemy.movement_speed
+	
 	# Apply gravity
 	parent.velocity.y += gravity * delta
-
-	var enemy: EnemyBase = parent as EnemyBase
-	# Set horizontal velocity based on direction
-	parent.velocity.x = direction.x * enemy.movement_speed
 
 	# Use CharacterBody2D's move_and_slide
 	parent.move_and_slide()
