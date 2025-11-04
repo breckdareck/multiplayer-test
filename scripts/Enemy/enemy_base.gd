@@ -4,14 +4,22 @@ extends CharacterBody2D
 # Emitted after the death animation finishes, signaling it can be returned to the pool.
 signal ready_for_pooling
 
-@export var health_component: HealthComponent
-@export var stats_component: StatsComponent
+@export var monster_name: String
 @export var monster_level: int = 1
 @export var movement_speed: float = 60.0
-@export var health_curve: Curve
-@export var experience_curve: Curve
 @export var respawnable: bool
 @export var respawn_delay: int = 10
+
+@export_category("Components")
+@export var health_component: HealthComponent
+@export var stats_component: StatsComponent
+
+@export_category("Curves")
+@export var health_curve: Curve
+@export var experience_curve: Curve
+
+@export_category("UI")
+@export var name_label: Label
 
 @export_category("Drops")
 @export var item_drops: Array[ItemDropResource] = []
@@ -55,6 +63,7 @@ func _ready() -> void:
 			animated_sprite.animation_finished.connect(_on_animation_finished)
 		await get_tree().process_frame
 
+	name_label.text = "Lv.%d %s" % [monster_level, monster_name]
 	# Initialize state machine with the same pattern as player
 	state_machine.init(self, animated_sprite)
 
@@ -88,6 +97,7 @@ func on_enemy_damaged(amount: int, source: Node) -> void:
 		player_id = source.owner.player_id
 	if player_id != null:
 		damage_by_player[player_id] = damage_by_player.get(player_id, 0) + amount
+		rpc("client_show_name_label")
 
 
 func _on_enemy_died(_killer: Node) -> void:
@@ -223,6 +233,15 @@ func _spawn_drops(eligible_player_ids: Array[int]) -> void:
 func client_setup_item(dropped_item: NodePath, item_id: String):
 	(get_node(dropped_item) as DroppedItem).sprite.texture = ResourceManager.get_item_data(item_id).icon
 
+
+@rpc("any_peer", "call_local", "reliable")
+func client_show_name_label():
+	name_label.show()
+	
+@rpc("any_peer", "call_local", "reliable")
+func client_hide_name_label():
+	name_label.hide()
+
 # --- Object Pooling Methods ---
 
 ## Deactivates the enemy, making it invisible and non-interactive.
@@ -240,6 +259,7 @@ func pool_deactivate() -> void:
 	body_hitbox.monitoring = false
 	# Move far away to prevent any lingering interactions.
 	global_position = Vector2(INF, INF)
+	rpc("client_hide_name_label")
 
 
 func pool_reset() -> void:
@@ -289,6 +309,7 @@ func _get_a_coefficient(level_diff: int) -> float:
 	var modifier = 1.0 - (level_diff * 0.05)
 	return clamp(modifier, 0.1, 5.0) # Clamp damage from 10% to 500%
 
+
 func _get_b_coefficient(level_diff: int) -> float:
 	if level_diff >= 0: return 1.00
 	if level_diff == -1: return 0.99
@@ -321,6 +342,7 @@ func _get_b_coefficient(level_diff: int) -> float:
 	if level_diff == -28: return 0.54
 	if level_diff == -29: return 0.52
 	return 0.50 # -30 or lower
+
 
 func damage_on_overlap(body: Node):
 	if not stats_component:

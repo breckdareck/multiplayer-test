@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=3 uid="uid://q6iqwsi8meq4"]
+[gd_scene load_steps=35 format=3 uid="uid://q6iqwsi8meq4"]
 
 [ext_resource type="Texture2D" uid="uid://dgjvvxhehw5y3" path="res://assets/sprites/slime_green.png" id="1_7p1mj"]
 [ext_resource type="Script" uid="uid://cj6lu2r6oxt6o" path="res://scripts/Enemy/enemy_base.gd" id="1_fd6lc"]
@@ -62,6 +62,13 @@ metadata/_custom_type_script = "uid://cptesvvlfbytw"
 [sub_resource type="Resource" id="Resource_st7t5"]
 script = ExtResource("7_x022k")
 metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ko2xg"]
+bg_color = Color(0, 0, 0, 0.59607846)
+expand_margin_left = 2.0
+expand_margin_top = 2.0
+expand_margin_right = 2.0
+expand_margin_bottom = 2.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0l8pv"]
 bg_color = Color(0.0866292, 0.0866293, 0.0866292, 1)
@@ -166,15 +173,18 @@ animations = [{
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_v5wyi"]
 size = Vector2(64, 37)
 
-[node name="Slime" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "stats_component") groups=["Enemies", "networked_entities"]]
+[node name="Slime" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"]]
 collision_layer = 8
 collision_mask = 5
 script = ExtResource("1_fd6lc")
+monster_name = "Slime"
+monster_level = 3
+movement_speed = 80.0
 health_component = NodePath("Health")
 stats_component = NodePath("Stats")
-movement_speed = 80.0
 health_curve = ExtResource("2_ykovo")
 experience_curve = ExtResource("3_k8y7s")
+name_label = NodePath("NameLabel")
 item_drops = Array[ExtResource("4_k8y7s")]([SubResource("Resource_5ja2b"), SubResource("Resource_qhvxh")])
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
@@ -205,7 +215,7 @@ stats = Dictionary[int, Object]({
 13: SubResource("Resource_st7t5")
 })
 
-[node name="Label" type="Label" parent="."]
+[node name="StateLabel" type="Label" parent="."]
 visible = false
 offset_left = -20.0
 offset_top = -48.0
@@ -215,6 +225,29 @@ theme_override_fonts/font = ExtResource("2_fd6lc")
 theme_override_font_sizes/font_size = 8
 text = "State"
 horizontal_alignment = 1
+
+[node name="NameLabel" type="Label" parent="."]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -50.0
+offset_top = 3.9999998
+offset_right = 50.000008
+offset_bottom = 12.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.3, 0.4)
+pivot_offset = Vector2(50, 4)
+size_flags_horizontal = 6
+theme_override_fonts/font = ExtResource("2_fd6lc")
+theme_override_font_sizes/font_size = 8
+theme_override_styles/normal = SubResource("StyleBoxFlat_ko2xg")
+text = "Lv.0 Pookie"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="HealthBar" type="ProgressBar" parent="."]
 offset_left = -11.0
@@ -255,7 +288,7 @@ shape = SubResource("CircleShape2D_n6pvg")
 [node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("starting_state", "state_label")]
 script = ExtResource("4_2npkn")
 starting_state = NodePath("patrol")
-state_label = NodePath("../Label")
+state_label = NodePath("../StateLabel")
 
 [node name="idle" type="Node" parent="StateMachine" node_paths=PackedStringArray("patrol_state")]
 script = ExtResource("6_v5wyi")

@@ -1,4 +1,4 @@
-[gd_scene load_steps=82 format=3 uid="uid://c0fdrl7mq5ou7"]
+[gd_scene load_steps=83 format=3 uid="uid://c0fdrl7mq5ou7"]
 
 [ext_resource type="Script" uid="uid://cj6lu2r6oxt6o" path="res://scripts/Enemy/enemy_base.gd" id="1_nadka"]
 [ext_resource type="Script" uid="uid://dhhn4ks2uixk8" path="res://scripts/Components/health.gd" id="2_0x8hd"]
@@ -84,6 +84,13 @@ script = ExtResource("7_xxpon")
 stat_type = 12
 base_value = 260
 metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vbub7"]
+bg_color = Color(0, 0, 0, 0.59607846)
+expand_margin_left = 2.0
+expand_margin_top = 2.0
+expand_margin_right = 2.0
+expand_margin_bottom = 2.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0x8hd"]
 bg_color = Color(0.0866292, 0.0866293, 0.0866292, 1)
@@ -473,15 +480,17 @@ size = Vector2(64, 37)
 radius = 13.0
 height = 34.0
 
-[node name="Goblin" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "stats_component") groups=["Enemies", "networked_entities"]]
+[node name="Goblin" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"]]
 collision_layer = 8
 collision_mask = 5
 script = ExtResource("1_nadka")
+monster_name = "Goblin"
+monster_level = 25
 health_component = NodePath("Health")
 stats_component = NodePath("Stats")
-monster_level = 50
 health_curve = ExtResource("2_a0il2")
 experience_curve = ExtResource("2_a5hmx")
+name_label = NodePath("NameLabel")
 item_drops = Array[ExtResource("4_2emke")]([SubResource("Resource_p6uye"), SubResource("Resource_2emke"), SubResource("Resource_vbub7")])
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
@@ -512,7 +521,7 @@ stats = Dictionary[int, Object]({
 13: SubResource("Resource_7q2hv")
 })
 
-[node name="Label" type="Label" parent="."]
+[node name="StateLabel" type="Label" parent="."]
 visible = false
 offset_left = -20.0
 offset_top = -50.0
@@ -522,6 +531,29 @@ theme_override_fonts/font = ExtResource("2_lkl8q")
 theme_override_font_sizes/font_size = 8
 text = "State"
 horizontal_alignment = 1
+
+[node name="NameLabel" type="Label" parent="."]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -50.0
+offset_top = 3.9999998
+offset_right = 50.0
+offset_bottom = 12.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.3, 0.4)
+pivot_offset = Vector2(50, 4)
+size_flags_horizontal = 6
+theme_override_fonts/font = ExtResource("2_lkl8q")
+theme_override_font_sizes/font_size = 8
+theme_override_styles/normal = SubResource("StyleBoxFlat_vbub7")
+text = "Lv.0 Pookie"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="HealthBar" type="ProgressBar" parent="."]
 offset_left = -11.0
@@ -565,7 +597,7 @@ shape = SubResource("CapsuleShape2D_y64qe")
 [node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("starting_state", "state_label")]
 script = ExtResource("5_yyaat")
 starting_state = NodePath("idle")
-state_label = NodePath("../Label")
+state_label = NodePath("../StateLabel")
 
 [node name="idle" type="Node" parent="StateMachine" node_paths=PackedStringArray("patrol_state", "slash_attack_state")]
 script = ExtResource("12_nadka")

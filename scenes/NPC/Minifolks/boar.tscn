@@ -1,4 +1,4 @@
-[gd_scene load_steps=42 format=3 uid="uid://betkg72vd7iav"]
+[gd_scene load_steps=43 format=3 uid="uid://betkg72vd7iav"]
 
 [ext_resource type="Script" uid="uid://cj6lu2r6oxt6o" path="res://scripts/Enemy/enemy_base.gd" id="1_nrg6h"]
 [ext_resource type="Curve" uid="uid://q6qc5kgdbmyv" path="res://assets/curves/monster_hp_curve.tres" id="2_71sob"]
@@ -7,7 +7,6 @@
 [ext_resource type="Curve" uid="uid://la82to0yhbrk" path="res://assets/curves/monster_exp_curve.tres" id="3_7bg18"]
 [ext_resource type="Texture2D" uid="uid://cgk01jgw2vtk" path="res://assets/sprites/MinifolksForestAnimals/Outline/MiniBoar.png" id="4_ehibi"]
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="4_q006m"]
-[ext_resource type="Resource" uid="uid://b87geqay7jh11" path="res://resources/DropTables/CoinDrop.tres" id="5_q34qd"]
 [ext_resource type="Script" uid="uid://71v08yv5tjrt" path="res://scripts/Components/stats.gd" id="7_4m5ue"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="8_gx1ts"]
 [ext_resource type="Script" uid="uid://dwv2k28spwfby" path="res://scripts/StateMachine/state_machine.gd" id="11_85v0n"]
@@ -15,15 +14,27 @@
 [ext_resource type="Script" uid="uid://dk2rcptcq3hb8" path="res://scripts/Enemy/StateMachine/enemy_patrol.gd" id="13_fpvu7"]
 [ext_resource type="Script" uid="uid://bfh8yeyv2wu0g" path="res://scripts/Player/StateMachine/death.gd" id="15_mlgs2"]
 
+[sub_resource type="Resource" id="Resource_ymrsh"]
+script = ExtResource("4_q006m")
+item_name = "Coin"
+drop_chance = 0.9
+min_amount = 8
+max_amount = 12
+metadata/_custom_type_script = "uid://cucvsoha2s1kj"
+
 [sub_resource type="Resource" id="Resource_q006m"]
 script = ExtResource("4_q006m")
 item_name = "Test Chest"
+randomize_stats = true
+possible_stats = Array[int]([4, 5, 0, 2, 12, 10, 11])
 drop_chance = 0.1
 metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 
 [sub_resource type="Resource" id="Resource_q34qd"]
 script = ExtResource("4_q006m")
 item_name = "Test Hat"
+randomize_stats = true
+possible_stats = Array[int]([4, 5, 0, 2, 12, 10, 11])
 drop_chance = 0.1
 metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 
@@ -66,6 +77,13 @@ metadata/_custom_type_script = "uid://cptesvvlfbytw"
 script = ExtResource("8_gx1ts")
 base_value = 45
 metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_q34qd"]
+bg_color = Color(0, 0, 0, 0.59607846)
+expand_margin_left = 2.0
+expand_margin_top = 2.0
+expand_margin_right = 2.0
+expand_margin_bottom = 2.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0x8hd"]
 bg_color = Color(0.0866292, 0.0866293, 0.0866292, 1)
@@ -209,17 +227,19 @@ size = Vector2(64, 37)
 radius = 8.0
 height = 26.0
 
-[node name="Boar" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "stats_component") groups=["networked_entities"]]
+[node name="Boar" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["networked_entities"]]
 collision_layer = 8
 collision_mask = 5
 script = ExtResource("1_nrg6h")
+monster_name = "Boar"
+monster_level = 8
+movement_speed = 45.0
 health_component = NodePath("Health")
 stats_component = NodePath("Stats")
-monster_level = 12
-movement_speed = 45.0
 health_curve = ExtResource("2_71sob")
 experience_curve = ExtResource("3_7bg18")
-item_drops = Array[ExtResource("4_q006m")]([ExtResource("5_q34qd"), SubResource("Resource_q006m"), SubResource("Resource_q34qd")])
+name_label = NodePath("NameLabel")
+item_drops = Array[ExtResource("4_q006m")]([SubResource("Resource_ymrsh"), SubResource("Resource_q006m"), SubResource("Resource_q34qd")])
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 delta_interval = 0.015
@@ -250,7 +270,7 @@ stats = Dictionary[int, Object]({
 13: SubResource("Resource_st7t5")
 })
 
-[node name="Label" type="Label" parent="."]
+[node name="StateLabel" type="Label" parent="."]
 visible = false
 offset_left = -12.0
 offset_top = -25.0
@@ -261,6 +281,29 @@ theme_override_fonts/font = ExtResource("3_2dhth")
 theme_override_font_sizes/font_size = 8
 text = "State"
 horizontal_alignment = 1
+
+[node name="NameLabel" type="Label" parent="."]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -50.0
+offset_top = 2.0
+offset_right = 50.0
+offset_bottom = 10.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.3, 0.4)
+pivot_offset = Vector2(50, 4)
+size_flags_horizontal = 6
+theme_override_fonts/font = ExtResource("3_2dhth")
+theme_override_font_sizes/font_size = 8
+theme_override_styles/normal = SubResource("StyleBoxFlat_q34qd")
+text = "Lv.0 Pookie"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="HealthBar" type="ProgressBar" parent="."]
 offset_left = -10.0
@@ -303,7 +346,7 @@ shape = SubResource("CapsuleShape2D_71sob")
 [node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("starting_state", "state_label")]
 script = ExtResource("11_85v0n")
 starting_state = NodePath("idle")
-state_label = NodePath("../Label")
+state_label = NodePath("../StateLabel")
 
 [node name="idle" type="Node" parent="StateMachine" node_paths=PackedStringArray("patrol_state")]
 script = ExtResource("12_c7p7b")

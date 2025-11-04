@@ -174,6 +174,11 @@ func respawn() -> void:
 	is_dead = false
 	self.current_health = max_health
 	
+	var is_player = (owner is MultiplayerPlayerV2)
+	
+	if is_player:
+		owner.mana_component.current_mana = owner.mana_component.max_mana
+	
 	is_invulnerable = true
 	invulnerability_timer.start()
 	# print("HealthComponent: Owner '%s' has respawned." % get_owner().name)
