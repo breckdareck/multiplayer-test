@@ -12,6 +12,8 @@ enum ClassType {
 	SWORDSMAN,
 	ARCHER,
 	MAGE,
+	ROGUE,
+	BEGINNER,
 }
 
 enum ItemType {

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ClassData" load_steps=5 format=3 uid="uid://ofk3bawno0aq"]
+
+[ext_resource type="Script" uid="uid://buwbui1bka8vl" path="res://scripts/Resources/ClassSystem/ClassData.gd" id="1_iava6"]
+[ext_resource type="Texture2D" uid="uid://c7usopkgeat5h" path="res://assets/UI/beginner_portrait.tres" id="1_ttcqs"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_ttcqs"]
+[ext_resource type="SpriteFrames" uid="uid://dbc521x47abui" path="res://resources/Player/SpriteFrames/Beginner.tres" id="4_qdtm5"]
+
+[resource]
+script = ExtResource("1_iava6")
+_class_name = "Beginner"
+class_type = 4
+sprite_frames = Dictionary[int, SpriteFrames]({
+1: ExtResource("4_qdtm5")
+})
+icon = ExtResource("1_ttcqs")
+metadata/_custom_type_script = "uid://buwbui1bka8vl"

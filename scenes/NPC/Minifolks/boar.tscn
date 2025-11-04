@@ -49,7 +49,7 @@ radius = 5.09902
 
 [sub_resource type="Resource" id="Resource_4m5ue"]
 script = ExtResource("8_gx1ts")
-base_value = 0
+base_value = 30
 metadata/_custom_type_script = "uid://cptesvvlfbytw"
 
 [sub_resource type="Resource" id="Resource_gx1ts"]
@@ -59,12 +59,12 @@ metadata/_custom_type_script = "uid://cptesvvlfbytw"
 
 [sub_resource type="Resource" id="Resource_h1jh3"]
 script = ExtResource("8_gx1ts")
-base_value = 19
+base_value = 49
 metadata/_custom_type_script = "uid://cptesvvlfbytw"
 
 [sub_resource type="Resource" id="Resource_st7t5"]
 script = ExtResource("8_gx1ts")
-base_value = 16
+base_value = 45
 metadata/_custom_type_script = "uid://cptesvvlfbytw"
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0x8hd"]
@@ -215,7 +215,7 @@ collision_mask = 5
 script = ExtResource("1_nrg6h")
 health_component = NodePath("Health")
 stats_component = NodePath("Stats")
-monster_level = 5
+monster_level = 12
 movement_speed = 45.0
 health_curve = ExtResource("2_71sob")
 experience_curve = ExtResource("3_7bg18")

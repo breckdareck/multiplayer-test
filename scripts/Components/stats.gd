@@ -21,6 +21,34 @@ const WARRIOR_BASE_MAX_MANA: int = 160
 const WARRIOR_HEALTH_SCALING_MULTIPLIER: int = 26
 const WARRIOR_MANA_SCALING_MULTIPLIER: int = 5
 
+# Rogue Health Scaling
+# Health: int(356 + (22 * (_level_component.level - 10)))
+# Mana: int(249 + (15 * (_level_component.level - 10)))
+
+const ROGUE_BASE_MAX_HEALTH: int = 356
+const ROGUE_BASE_MAX_MANA: int = 249
+const ROGUE_HEALTH_SCALING_MULTIPLIER: int = 22
+const ROGUE_MANA_SCALING_MULTIPLIER: int = 15
+
+# Mage Health Scaling
+# Health: int(190 + (23 * (_level_component.level - 10)))
+# Mana: int(550 + (37 * (_level_component.level - 10)))
+
+const MAGE_BASE_MAX_HEALTH: int = 190
+const MAGE_BASE_MAX_MANA: int = 550
+const MAGE_HEALTH_SCALING_MULTIPLIER: int = 23
+const MAGE_MANA_SCALING_MULTIPLIER: int = 37
+
+# Archer Health Scaling
+# Health: int(352 + (22 * (_level_component.level - 10)))
+# Mana: int(250 + (16 * (_level_component.level - 10)))
+
+const ARCHER_BASE_MAX_HEALTH: int = 352
+const ARCHER_BASE_MAX_MANA: int = 250
+const ARCHER_HEALTH_SCALING_MULTIPLIER: int = 22
+const ARCHER_MANA_SCALING_MULTIPLIER: int = 16
+
+
 @export var stats: Dictionary[Constants.StatType, StatData] = {
 	Constants.StatType.STRENGTH: StatData.new(Constants.StatType.STRENGTH, 4),
 	Constants.StatType.DEXTERITY: StatData.new(Constants.StatType.DEXTERITY, 4),
@@ -30,8 +58,8 @@ const WARRIOR_MANA_SCALING_MULTIPLIER: int = 5
 	Constants.StatType.MANA: StatData.new(Constants.StatType.MANA, 100),
 	Constants.StatType.HPREGEN: StatData.new(Constants.StatType.HPREGEN, 10),
 	Constants.StatType.MPREGEN: StatData.new(Constants.StatType.MPREGEN, 5),
-	Constants.StatType.DEFENSE: StatData.new(Constants.StatType.DEFENSE, 100),
-	Constants.StatType.MAGICDEFENSE: StatData.new(Constants.StatType.MAGICDEFENSE, 100),
+	Constants.StatType.DEFENSE: StatData.new(Constants.StatType.DEFENSE, 0),
+	Constants.StatType.MAGICDEFENSE: StatData.new(Constants.StatType.MAGICDEFENSE, 0),
 	Constants.StatType.CRITCHANCE: StatData.new(Constants.StatType.CRITCHANCE, 5),
 	Constants.StatType.CRITDAMAGE: StatData.new(Constants.StatType.CRITDAMAGE, 0),
 	Constants.StatType.WEAPONATTACK: StatData.new(Constants.StatType.WEAPONATTACK, 0),
@@ -73,15 +101,26 @@ func _recalculate_stats() -> void:
 	for stat in base_stats:
 		stats.get(stat).base_value = base_stats[stat]
 		
-	# Setup Health & Mana from Forumla
-	if _level_component.level <= 10:
-		stats.get(Constants.StatType.HEALTH).base_value = int(BEGINNER_BASE_MAX_HEALTH + (BEGINNER_HEALTH_SCALING_MULTIPLIER * (_level_component.level - 1)))
-		stats.get(Constants.StatType.MANA).base_value = int(BEGINNER_BASE_MAX_MANA + (BEGINNER_MANA_SCALING_MULTIPLIER * (_level_component.level - 1)))
-	else:
-		stats.get(Constants.StatType.HEALTH).base_value = int(WARRIOR_BASE_MAX_HEALTH + (WARRIOR_HEALTH_SCALING_MULTIPLIER * (_level_component.level - 10)))
-		stats.get(Constants.StatType.MANA).base_value = int(WARRIOR_BASE_MAX_MANA + (WARRIOR_MANA_SCALING_MULTIPLIER * (_level_component.level - 10)))
 		
-		
+	match _class_component.current_class:
+		Constants.ClassType.BEGINNER:
+			stats.get(Constants.StatType.HEALTH).base_value = int(BEGINNER_BASE_MAX_HEALTH + (BEGINNER_HEALTH_SCALING_MULTIPLIER * (_level_component.level - 1)))
+			stats.get(Constants.StatType.MANA).base_value = int(BEGINNER_BASE_MAX_MANA + (BEGINNER_MANA_SCALING_MULTIPLIER * (_level_component.level - 1)))
+		Constants.ClassType.SWORDSMAN:
+			stats.get(Constants.StatType.HEALTH).base_value = int(WARRIOR_BASE_MAX_HEALTH + (WARRIOR_HEALTH_SCALING_MULTIPLIER * (_level_component.level - 10)))
+			stats.get(Constants.StatType.MANA).base_value = int(WARRIOR_BASE_MAX_MANA + (WARRIOR_MANA_SCALING_MULTIPLIER * (_level_component.level - 10)))
+		Constants.ClassType.MAGE:
+			stats.get(Constants.StatType.HEALTH).base_value = int(MAGE_BASE_MAX_HEALTH + (MAGE_HEALTH_SCALING_MULTIPLIER * (_level_component.level - 10)))
+			stats.get(Constants.StatType.MANA).base_value = int(MAGE_BASE_MAX_MANA + (MAGE_MANA_SCALING_MULTIPLIER * (_level_component.level - 10)))
+		Constants.ClassType.ARCHER:
+			stats.get(Constants.StatType.HEALTH).base_value = int(ARCHER_BASE_MAX_HEALTH + (ARCHER_HEALTH_SCALING_MULTIPLIER * (_level_component.level - 10)))
+			stats.get(Constants.StatType.MANA).base_value = int(ARCHER_BASE_MAX_MANA + (ARCHER_MANA_SCALING_MULTIPLIER * (_level_component.level - 10)))
+		Constants.ClassType.ROGUE:
+			stats.get(Constants.StatType.HEALTH).base_value = int(ROGUE_BASE_MAX_HEALTH + (ROGUE_HEALTH_SCALING_MULTIPLIER * (_level_component.level - 10)))
+			stats.get(Constants.StatType.MANA).base_value = int(ROGUE_BASE_MAX_MANA + (ROGUE_MANA_SCALING_MULTIPLIER * (_level_component.level - 10)))
+		_:
+			stats.get(Constants.StatType.HEALTH).base_value = int(BEGINNER_BASE_MAX_HEALTH + (BEGINNER_HEALTH_SCALING_MULTIPLIER * (_level_component.level - 1)))
+			stats.get(Constants.StatType.MANA).base_value = int(BEGINNER_BASE_MAX_MANA + (BEGINNER_MANA_SCALING_MULTIPLIER * (_level_component.level - 1)))
 		
 	# Reset flat bonuses before recalculating
 	for stat_type in stats:
@@ -141,12 +180,12 @@ func _recalculate_stats() -> void:
 				stats[stat_type].flat_bonus_value += buff_bonuses[stat_type].flat_bonus_value
 				stats[stat_type].percent_bonus_value += buff_bonuses[stat_type].percent_bonus_value
 
-	# --- Special Defense Calculation ---
-	var str_val = stats.get(Constants.StatType.STRENGTH).total_value
-	var dex_val = stats.get(Constants.StatType.DEXTERITY).total_value
-	var luk_val = stats.get(Constants.StatType.LUCK).total_value
-	var new_base_defense = (1.5 * str_val) + (0.4 * (dex_val + luk_val))
-	stats.get(Constants.StatType.DEFENSE).base_value = roundi(new_base_defense)
+	## --- Special Defense Calculation ---
+	#var str_val = stats.get(Constants.StatType.STRENGTH).total_value
+	#var dex_val = stats.get(Constants.StatType.DEXTERITY).total_value
+	#var luk_val = stats.get(Constants.StatType.LUCK).total_value
+	#var new_base_defense = (1.5 * str_val) + (0.4 * (dex_val + luk_val))
+	#stats.get(Constants.StatType.DEFENSE).base_value = roundi(new_base_defense)
 
 
 	var stat_string = ""

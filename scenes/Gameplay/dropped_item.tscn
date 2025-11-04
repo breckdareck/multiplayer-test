@@ -31,6 +31,8 @@ replication_config = SubResource("SceneReplicationConfig_8xljp")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 z_index = 5
+position = Vector2(0, 3)
+region_rect = Rect2(-1, -1, 27, 18)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_y52g2")

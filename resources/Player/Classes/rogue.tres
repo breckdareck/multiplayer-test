@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="ClassData" load_steps=5 format=3 uid="uid://cd72f2m3bg0sh"]
+
+[ext_resource type="Texture2D" uid="uid://cgx33w5mdt6ar" path="res://assets/UI/rogue_portrait.tres" id="1_5hc5c"]
+[ext_resource type="Script" uid="uid://buwbui1bka8vl" path="res://scripts/Resources/ClassSystem/ClassData.gd" id="2_ynuw2"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="3_76b0u"]
+[ext_resource type="SpriteFrames" uid="uid://61bhtp5n4qmo" path="res://resources/Player/SpriteFrames/Rogue.tres" id="4_ynuw2"]
+
+[resource]
+script = ExtResource("2_ynuw2")
+_class_name = "Rogue"
+class_type = 3
+sprite_frames = Dictionary[int, SpriteFrames]({
+1: ExtResource("4_ynuw2")
+})
+icon = ExtResource("1_5hc5c")
+primary_stat = 3
+secondary_stat = 2
+stat_bonuses = Dictionary[int, int]({
+2: 2,
+3: 3
+})
+metadata/_custom_type_script = "uid://buwbui1bka8vl"

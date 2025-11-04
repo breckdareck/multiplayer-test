@@ -499,6 +499,7 @@ func request_sprite_change() -> void:
 func change_sprite_rpc(_class_name: String, level: int) -> void:
 	var class_type: int = ResourceManager.get_class_type_from_string(_class_name)
 	var sprite_frames: SpriteFrames = ResourceManager.get_sprite_for_level(class_type, level)
+	print("Sprite Frames:" + sprite_frames.resource_path)
 	if sprite_frames:
 		animated_sprite.sprite_frames = sprite_frames
 		animated_sprite.play("idle")

@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=5 format=3 uid="uid://bjogtlspjidhn"]
+
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_gyl04"]
+[ext_resource type="Texture2D" uid="uid://q1gfrbgk4dio" path="res://assets/sprites/Items/Equipment/Eqp_White_Undershirt.png" id="2_6qhpw"]
+[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_r5c8t"]
+
+[sub_resource type="Resource" id="Resource_evrsg"]
+script = ExtResource("1_gyl04")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 3
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[resource]
+script = ExtResource("3_r5c8t")
+armor_type = 1
+bonus_stats = Dictionary[int, ExtResource("1_gyl04")]({
+8: SubResource("Resource_evrsg")
+})
+item_id = "41238771510-312915-15770-134910-63142116911411119"
+name = "White Shirt"
+icon = ExtResource("2_6qhpw")
+item_type = 1
+custom_item_value = -1
+metadata/_custom_type_script = "uid://c2fkjsnluarqk"

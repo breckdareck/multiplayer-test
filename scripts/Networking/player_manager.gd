@@ -180,6 +180,9 @@ func _spawn_character_for_player(id: int, character_type: int, username: String,
 		
 		if not player_data:
 			player_instance.equipment_component.weapon_slot.item = ResourceManager.get_item_by_name("Iron Sword")
+			player_instance.equipment_component.chest_slot.item = ResourceManager.get_item_by_name("White Shirt")
+			player_instance.equipment_component.legs_slot.item = ResourceManager.get_item_by_name("Blue Jean Shorts")
+			player_instance.equipment_component.feet_slot.item = ResourceManager.get_item_by_name("Leather Sandals")
 		
 		# Make sure health is set correctly from the save data
 		if player_instance.health_component:

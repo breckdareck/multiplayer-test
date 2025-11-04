@@ -7,6 +7,8 @@ func _ready():
 const SWORDSMAN_PORTRAIT = preload("res://assets/UI/swordsman_portrait.tres")
 const ARCHER_PORTRAIT = preload("res://assets/UI/archer_portrait.tres")
 const MAGE_PORTRAIT = preload("res://assets/UI/mage_portrait.tres")
+const BEGINNER_PORTRAIT = preload("uid://c7usopkgeat5h")
+const ROGUE_PORTRAIT = preload("uid://cgx33w5mdt6ar")
 
 var selected_character: Constants.ClassType = Constants.ClassType.SWORDSMAN
 
@@ -68,3 +70,7 @@ func change_character(value: int):
 			character_portrait.texture = ARCHER_PORTRAIT
 		Constants.ClassType.MAGE:
 			character_portrait.texture = MAGE_PORTRAIT
+		Constants.ClassType.BEGINNER:
+			character_portrait.texture = BEGINNER_PORTRAIT
+		Constants.ClassType.ROGUE:
+			character_portrait.texture = ROGUE_PORTRAIT

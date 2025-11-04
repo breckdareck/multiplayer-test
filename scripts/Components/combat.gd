@@ -305,8 +305,8 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 		
 		# Knockback logic
 		var knockback_dir = owner.facing_direction
-		var knockback_strength = 120.0
-		var knockback_lift = -100.0
+		var knockback_strength = 90.0
+		var knockback_lift = -90.0
 		var knockback_vec = Vector2(knockback_dir * knockback_strength, knockback_lift)
 		if target_enemy.has_method("apply_knockback"):
 			target_enemy.apply_knockback(knockback_vec)
