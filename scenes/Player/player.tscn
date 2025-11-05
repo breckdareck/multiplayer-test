@@ -34,7 +34,7 @@
 [ext_resource type="PackedScene" uid="uid://chfqd31o6lr2s" path="res://scenes/UI/stats_window.tscn" id="23_fqhit"]
 [ext_resource type="PackedScene" uid="uid://dh7yjshjnm377" path="res://scenes/UI/inventory_window.tscn" id="24_e8txv"]
 [ext_resource type="PackedScene" uid="uid://cy54vn8lpmh2s" path="res://scenes/UI/equipment_window.tscn" id="25_7iww4"]
-[ext_resource type="SpriteFrames" uid="uid://61bhtp5n4qmo" path="res://resources/Player/SpriteFrames/Rogue.tres" id="27_e8txv"]
+[ext_resource type="SpriteFrames" uid="uid://c05dyrlp5i5bj" path="res://resources/Player/SpriteFrames/Swordsman.tres" id="27_e8txv"]
 [ext_resource type="Texture2D" uid="uid://rmxapeohsar7" path="res://assets/sprites/MinifolksHumans/Outline/MiniTemplate.png" id="29_7iww4"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_2d20i"]

@@ -4,9 +4,8 @@ extends CharacterBody2D
 # Emitted after the death animation finishes, signaling it can be returned to the pool.
 signal ready_for_pooling
 
-@export var monster_name: String
-@export var monster_level: int = 1
-@export var movement_speed: float = 60.0
+@export var enemy_data: EnemyData
+
 @export var respawnable: bool
 @export var respawn_delay: int = 10
 
@@ -14,15 +13,25 @@ signal ready_for_pooling
 @export var health_component: HealthComponent
 @export var stats_component: StatsComponent
 
-@export_category("Curves")
-@export var health_curve: Curve
+@export_category("Curves")                              
+@export var health_curve: Curve                                                                                
 @export var experience_curve: Curve
+@export var wep_att_curve: Curve
+@export var magic_att_curve: Curve
+@export var wep_def_curve: Curve
+@export var magic_def_curve: Curve
+@export var monies_curve: Curve
 
 @export_category("UI")
 @export var name_label: Label
 
+# Internal properties populated from EnemyData
+var monster_name: String
+var monster_level: int
+var movement_speed: float
+
 @export_category("Drops")
-@export var item_drops: Array[ItemDropResource] = []
+var item_drops: Array[ItemDropResource] = []
 const DROPPED_ITEM = preload("uid://b43dktokqxhjo")
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
@@ -34,14 +43,47 @@ const DROPPED_ITEM = preload("uid://b43dktokqxhjo")
 
 var experience_reward: int = 0:
 	get():
-		return int(experience_curve.sample(monster_level))
+		if experience_curve:
+			return int(experience_curve.sample(monster_level))
+		return 0
 var post_death_delay: float = 1.5 # Time to wait after death animation before disappearing.
 var damage_by_player: Dictionary = {}  # player_id : damage_amount
 var facing_direction: int = 1
 var _is_being_cleaned_up: bool = false
 var initial_position: Vector2
 
+
+func _apply_enemy_data() -> void:
+	monster_name = enemy_data.monster_name
+	monster_level = enemy_data.monster_level
+	movement_speed = enemy_data.movement_speed
+	item_drops = enemy_data.item_drops
+
+	if animated_sprite:
+		animated_sprite.sprite_frames = enemy_data.sprite_frames
+	
+	if stats_component:
+		stats_component.stats = enemy_data.base_stats
+		
+	var character_collision_shape_node: CollisionShape2D = $CollisionShape2D
+	if character_collision_shape_node and enemy_data.character_collision_shape:
+		character_collision_shape_node.shape = enemy_data.character_collision_shape
+		
+	var body_hitbox_shape_node: CollisionShape2D = $BodyHitbox/EnemyBody
+	if body_hitbox_shape_node and enemy_data.body_hitbox_shape:
+		body_hitbox_shape_node.shape = enemy_data.body_hitbox_shape
+		
+	var attack_hitbox_shape_node: CollisionShape2D = $AttackHitbox/SlashCollisionShape
+	if attack_hitbox_shape_node and enemy_data.attack_hitbox_shape:
+		attack_hitbox_shape_node.shape = enemy_data.attack_hitbox_shape
+
+
 func _ready() -> void:
+	if enemy_data:
+		_apply_enemy_data()
+	else:
+		push_error("Enemy '%s' is missing EnemyData resource." % name)
+		return
 	# Add to networked entities group for proper cleanup during channel switching
 	add_to_group("networked_entities")
 	add_to_group("Enemies")

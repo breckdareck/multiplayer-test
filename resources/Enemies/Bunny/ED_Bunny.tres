@@ -1,0 +1,61 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=13 format=3 uid="uid://dhemo6klgxfve"]
+
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_yjdsg"]
+[ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="2_qhy1p"]
+[ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="3_vlron"]
+[ext_resource type="SpriteFrames" uid="uid://bujet2eddxc5l" path="res://resources/Enemies/Bunny/SF_Bunny.tres" id="4_67r2w"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_17tps"]
+size = Vector2(64, 37)
+
+[sub_resource type="Resource" id="Resource_ex684"]
+script = ExtResource("1_yjdsg")
+base_value = 10
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_iglj4"]
+script = ExtResource("1_yjdsg")
+base_value = 10
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_h1jh3"]
+script = ExtResource("1_yjdsg")
+base_value = 2
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_st7t5"]
+script = ExtResource("1_yjdsg")
+base_value = 1
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_h5euh"]
+radius = 6.0
+height = 18.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_n6pvg"]
+radius = 5.0
+
+[sub_resource type="Resource" id="Resource_cxe2s"]
+script = ExtResource("2_qhy1p")
+item_name = "Coin"
+drop_chance = 0.9
+min_amount = 8
+max_amount = 12
+metadata/_custom_type_script = "uid://cucvsoha2s1kj"
+
+[resource]
+script = ExtResource("3_vlron")
+monster_name = "Bunny"
+movement_speed = 40.0
+base_stats = Dictionary[int, ExtResource("1_yjdsg")]({
+8: SubResource("Resource_ex684"),
+9: SubResource("Resource_iglj4"),
+12: SubResource("Resource_h1jh3"),
+13: SubResource("Resource_st7t5")
+})
+sprite_frames = ExtResource("4_67r2w")
+character_collision_shape = SubResource("CircleShape2D_n6pvg")
+body_hitbox_shape = SubResource("CapsuleShape2D_h5euh")
+attack_hitbox_shape = SubResource("RectangleShape2D_17tps")
+item_drops = Array[ExtResource("2_qhy1p")]([SubResource("Resource_cxe2s")])
+metadata/_custom_type_script = "uid://dv7aj5x3e50cg"

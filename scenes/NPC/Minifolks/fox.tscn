@@ -1,31 +1,18 @@
-[gd_scene load_steps=42 format=3 uid="uid://sxpgdsdpf5ma"]
+[gd_scene load_steps=25 format=3 uid="uid://sxpgdsdpf5ma"]
 
 [ext_resource type="Script" uid="uid://cj6lu2r6oxt6o" path="res://scripts/Enemy/enemy_base.gd" id="1_52mqf"]
 [ext_resource type="Curve" uid="uid://q6qc5kgdbmyv" path="res://assets/curves/monster_hp_curve.tres" id="2_6wkew"]
 [ext_resource type="Script" uid="uid://dhhn4ks2uixk8" path="res://scripts/Components/health.gd" id="2_ctmy0"]
+[ext_resource type="Resource" uid="uid://b6cwvujcw345t" path="res://resources/Enemies/Fox/ED_Fox.tres" id="2_lj8ps"]
 [ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="3_jlvhy"]
 [ext_resource type="Curve" uid="uid://la82to0yhbrk" path="res://assets/curves/monster_exp_curve.tres" id="3_tvc6h"]
-[ext_resource type="Texture2D" uid="uid://duxln2q5od5p7" path="res://assets/sprites/MinifolksForestAnimals/Outline/MiniFox.png" id="4_52mqf"]
-[ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="4_tvc6h"]
 [ext_resource type="Script" uid="uid://dwv2k28spwfby" path="res://scripts/StateMachine/state_machine.gd" id="5_as4mp"]
 [ext_resource type="Script" uid="uid://71v08yv5tjrt" path="res://scripts/Components/stats.gd" id="6_lj8ps"]
 [ext_resource type="Script" uid="uid://u6b813y5rtm4" path="res://scripts/Enemy/StateMachine/enemy_idle.gd" id="6_tdvmf"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="7_debah"]
 [ext_resource type="Script" uid="uid://dk2rcptcq3hb8" path="res://scripts/Enemy/StateMachine/enemy_patrol.gd" id="7_eiy2a"]
 [ext_resource type="Script" uid="uid://bfh8yeyv2wu0g" path="res://scripts/Player/StateMachine/death.gd" id="8_y20q3"]
-
-[sub_resource type="Resource" id="Resource_5ja2b"]
-script = ExtResource("4_tvc6h")
-item_name = "Coin"
-drop_chance = 1.0
-max_amount = 3
-metadata/_custom_type_script = "uid://cucvsoha2s1kj"
-
-[sub_resource type="Resource" id="Resource_qhvxh"]
-script = ExtResource("4_tvc6h")
-item_name = "Iron Sword"
-drop_chance = 0.1
-metadata/_custom_type_script = "uid://cucvsoha2s1kj"
+[ext_resource type="SpriteFrames" uid="uid://baqtyjguyoxo2" path="res://resources/Enemies/Fox/SF_Fox.tres" id="9_lj8ps"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_n6pvg"]
 properties/0/path = NodePath(".:position")
@@ -84,127 +71,6 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_ctmy0"]
-atlas = ExtResource("4_52mqf")
-region = Rect2(0, 160, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_jlvhy"]
-atlas = ExtResource("4_52mqf")
-region = Rect2(32, 160, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_o2vne"]
-atlas = ExtResource("4_52mqf")
-region = Rect2(64, 160, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_as4mp"]
-atlas = ExtResource("4_52mqf")
-region = Rect2(96, 160, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_tdvmf"]
-atlas = ExtResource("4_52mqf")
-region = Rect2(0, 128, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_eiy2a"]
-atlas = ExtResource("4_52mqf")
-region = Rect2(32, 128, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_y20q3"]
-atlas = ExtResource("4_52mqf")
-region = Rect2(0, 0, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_e0iqj"]
-atlas = ExtResource("4_52mqf")
-region = Rect2(32, 0, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_t4jp3"]
-atlas = ExtResource("4_52mqf")
-region = Rect2(64, 0, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_1coin"]
-atlas = ExtResource("4_52mqf")
-region = Rect2(96, 0, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_x4xn6"]
-atlas = ExtResource("4_52mqf")
-region = Rect2(0, 32, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_716aj"]
-atlas = ExtResource("4_52mqf")
-region = Rect2(32, 32, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_uflgn"]
-atlas = ExtResource("4_52mqf")
-region = Rect2(64, 32, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_ivmka"]
-atlas = ExtResource("4_52mqf")
-region = Rect2(96, 32, 32, 32)
-
-[sub_resource type="SpriteFrames" id="SpriteFrames_xwavj"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_ctmy0")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_jlvhy")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_o2vne")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_as4mp")
-}],
-"loop": false,
-"name": &"death",
-"speed": 10.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_tdvmf")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_eiy2a")
-}],
-"loop": false,
-"name": &"hit",
-"speed": 10.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_y20q3")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_e0iqj")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_t4jp3")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_1coin")
-}],
-"loop": true,
-"name": &"idle",
-"speed": 10.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_x4xn6")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_716aj")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_uflgn")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_ivmka")
-}],
-"loop": true,
-"name": &"patrol",
-"speed": 10.0
-}]
-
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_17tps"]
 size = Vector2(64, 37)
 
@@ -216,15 +82,12 @@ height = 24.0
 collision_layer = 8
 collision_mask = 5
 script = ExtResource("1_52mqf")
-monster_name = "Fox"
-monster_level = 2
-movement_speed = 45.0
+enemy_data = ExtResource("2_lj8ps")
 health_component = NodePath("Health")
 stats_component = NodePath("Stats")
 health_curve = ExtResource("2_6wkew")
 experience_curve = ExtResource("3_tvc6h")
 name_label = NodePath("NameLabel")
-item_drops = Array[ExtResource("4_tvc6h")]([SubResource("Resource_5ja2b"), SubResource("Resource_qhvxh")])
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 delta_interval = 0.015
@@ -306,7 +169,7 @@ show_percentage = false
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -19)
 scale = Vector2(1.3, 1.3)
-sprite_frames = SubResource("SpriteFrames_xwavj")
+sprite_frames = ExtResource("9_lj8ps")
 animation = &"idle"
 autoplay = "idle"
 
