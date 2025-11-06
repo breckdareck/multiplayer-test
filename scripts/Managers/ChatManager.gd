@@ -2,24 +2,24 @@ extends Node
 
 signal message_received(message, color)
 
-# This is a placeholder for the player's name
-var player_name = "Player"
+var local_player_node: MultiplayerPlayerV2 = null
 
 func _ready():
-    # In a real game, you would get the player's name after they log in
-    pass
+	pass
 
-# Called from the ChatWindow UI
+func register_local_player(player_node: MultiplayerPlayerV2):
+	local_player_node = player_node
+
 func send_chat_message(text: String):
-    # In a multiplayer game, you would send this to the server
-    # For now, we'll just broadcast it locally
-    broadcast_message.rpc(player_name, text)
+	if local_player_node:
+		broadcast_message.rpc(local_player_node.username, text)
+	else:
+		broadcast_message.rpc("Player", text)
 
-# Called from anywhere to add a system message (e.g., item pickups)
 func add_system_message(text: String, color: Color = Color.WHITE):
-    message_received.emit(text, color)
+	message_received.emit(text, color)
 
 @rpc("any_peer", "call_local", "reliable")
 func broadcast_message(sender_name: String, text: String):
-    var message = "%s: %s" % [sender_name, text]
-    message_received.emit(message, Color.WHITE)
+	var message = "%s: %s" % [sender_name, text]
+	message_received.emit(message, Color.WHITE)
