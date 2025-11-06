@@ -263,11 +263,14 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 	if ability and level_stats:
 		max_hits = level_stats.max_hits
 	
+	var damage_values: Array = []
+	var crit_values: Array = []
+	
 	for i in range(max_hits):
 		var roll = randf() * 100
 		if roll > hit_chance:
-			var miss_spawn_pos = health_comp.damage_number_origin.global_position + Vector2(randf_range(-8, 8), randf_range(-5, 5))
-			get_node("/root/MainMenu/Level/Game").get_node("%DmgNumberSpawner").display_number(-1, miss_spawn_pos, false, false)
+			damage_values.append(-1) # -1 signifies a MISS
+			crit_values.append(false)
 			print("Attack MISSED! (Roll: %.2f > Chance: %.2f)" % [roll, hit_chance])
 			continue # Skip to the next hit
 
@@ -301,7 +304,10 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 
 		var damage_to_deal = roundi(modified_damage)
 		
-		health_comp.take_damage(damage_to_deal, self, true, is_crit)
+		damage_values.append(damage_to_deal)
+		crit_values.append(is_crit)
+		
+		health_comp.take_damage(damage_to_deal, self, true, is_crit, false)
 		
 		if damage_to_deal > 0:
 			# Knockback logic
@@ -320,6 +326,11 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 				"is_crit": is_crit
 			}
 			_ability_component.try_trigger_procs(event_type, target_enemy, context)
+
+	# After the loop, display all collected hits as a single combo
+	if not damage_values.is_empty():
+		var spawn_pos = health_comp.damage_number_origin.global_position
+		get_node("/root/MainMenu/Level/Game").get_node("%DmgNumberSpawner").display_number_combo(damage_values, crit_values, spawn_pos)
 
 
 func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelData) -> int:

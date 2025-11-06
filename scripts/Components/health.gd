@@ -111,7 +111,7 @@ func _on_regen_timer_timeout() -> void:
 
 	
 @rpc("any_peer", "call_local", "reliable")
-func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, is_crit: bool = false) -> void:
+func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, is_crit: bool = false, show_number: bool = true) -> void:
 	if not multiplayer.is_server():
 		return
 		
@@ -123,16 +123,14 @@ func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, 
 	
 	var is_player = (owner is MultiplayerPlayerV2)
 	
+	if show_number:
+		get_node("/root/MainMenu/Level/Game").get_node("%DmgNumberSpawner").display_number(amount, damage_number_origin.global_position, is_crit, is_player)
+	
 	if is_player:
-		# Play player hit SFX on all clients, originating from the player's position.
 		# Assuming 'player_hit.wav' is the correct SFX.
 		AudioManager.rpc("play_sfx_rpc", "res://assets/sounds/player_hit.wav", get_owner().global_position)
 	
-	var horizontal_offset = randf_range(-8, 8) # Move left/right by a few pixels
-	var vertical_offset = randf_range(-5, 5) # Move up/down by a few pixels
-	var spawn_position = damage_number_origin.global_position + Vector2(horizontal_offset, vertical_offset)
-	get_node("/root/MainMenu/Level/Game").get_node("%DmgNumberSpawner").display_number(amount, spawn_position, is_crit, is_player)
-		
+	
 	print("HealthComponent: Owner '%s' took %s damage from '%s'." % [get_owner().name, amount, source_str])
 	damaged.emit(amount, source)
 	

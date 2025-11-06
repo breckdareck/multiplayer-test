@@ -1,11 +1,12 @@
-[gd_resource type="Resource" script_class="ClassData" load_steps=7 format=3 uid="uid://cx1em7dag4rai"]
+[gd_resource type="Resource" script_class="ClassData" load_steps=8 format=3 uid="uid://cx1em7dag4rai"]
 
 [ext_resource type="Script" uid="uid://buwbui1bka8vl" path="res://scripts/Resources/ClassSystem/ClassData.gd" id="1_eu6w6"]
 [ext_resource type="Texture2D" uid="uid://cdrrd25polg8u" path="res://assets/UI/archer_portrait.tres" id="1_v52w3"]
 [ext_resource type="SpriteFrames" uid="uid://b2tuepydvrkmh" path="res://resources/Player/SpriteFrames/Archer.tres" id="2_aqbok"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="3_3scnm"]
 [ext_resource type="SpriteFrames" uid="uid://pqxtacaxyo41" path="res://resources/Player/SpriteFrames/Crossbow.tres" id="3_v52w3"]
-[ext_resource type="Resource" uid="uid://hhx8fc5iylxh" path="res://resources/Abilities/A_Arrow_Shot.tres" id="4_avqjs"]
+[ext_resource type="Resource" uid="uid://hhx8fc5iylxh" path="res://resources/Abilities/Archer/A_Arrow_Shot.tres" id="4_avqjs"]
+[ext_resource type="Resource" uid="uid://fei5h0kw8ykp" path="res://resources/Abilities/A_FMA.tres" id="5_5tjfj"]
 
 [resource]
 script = ExtResource("1_eu6w6")
@@ -15,7 +16,7 @@ sprite_frames = Dictionary[int, SpriteFrames]({
 1: ExtResource("2_aqbok"),
 15: ExtResource("3_v52w3")
 })
-skills = Array[ExtResource("3_3scnm")]([ExtResource("4_avqjs")])
+skills = Array[ExtResource("3_3scnm")]([ExtResource("4_avqjs"), ExtResource("5_5tjfj")])
 description = "A ranged fighter with exceptional dexterity and precision."
 icon = ExtResource("1_v52w3")
 primary_stat = 2

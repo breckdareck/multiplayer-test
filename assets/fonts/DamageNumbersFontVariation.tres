@@ -1,0 +1,7 @@
+[gd_resource type="FontVariation" load_steps=2 format=3 uid="uid://bpwl38ly8lvyj"]
+
+[ext_resource type="FontFile" uid="uid://bp2nycdqhalb7" path="res://assets/fonts/Baby Gemoy.ttf" id="1_i3420"]
+
+[resource]
+base_font = ExtResource("1_i3420")
+spacing_glyph = -6
