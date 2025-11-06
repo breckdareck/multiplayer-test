@@ -5,6 +5,10 @@ var spawner: MultiplayerSpawner = self
 const NORMAL_HIT_GRADIENT_TEXTURE_2D = preload("uid://c5usnjygvaqot")
 const CRIT_HIT_GRADIENT_TEXTURE_2D = preload("uid://dby4n0336k1cf")
 const PLAYER_HIT_GRADIENT_TEXTURE_2D = preload("uid://battj1yw1t37b")
+const DAMAGE_NUMBERS_1 = preload("res://assets/fonts/DamageNumbersFontVariation.tres")
+const DAMAGE_NUMBERS_2 = preload("res://assets/fonts/DamageNumbersFontVariation2.tres")
+const DAMAGE_NUMBERS_3 = preload("res://assets/fonts/DamageNumbersFontVariation3.tres")
+
 
 var _combo_z_index_counter: int = 5
 
@@ -129,6 +133,10 @@ func spawn_damage_number(args: Array) -> Label:
 	sync.replication_config.add_property(".:scale")
 	sync.replication_config.add_property(".:pivot_offset")
 	
+	var font = DAMAGE_NUMBERS_1
+	var font_size = 290
+	
+	
 	number_outline.scale = Vector2(.05,.05)
 	number_outline.global_position = args[1]
 	number_outline.text = str(args[0])
@@ -136,10 +144,10 @@ func spawn_damage_number(args: Array) -> Label:
 	number_outline.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	number_outline.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	number_outline.label_settings = LabelSettings.new()
-	number_outline.label_settings.font = load("res://assets/fonts/DamageNumbersFontVariation.tres")
+	number_outline.label_settings.font = font
 	number_outline.label_settings.outline_color = Color.WHITE
-	number_outline.label_settings.outline_size = 60
-	number_outline.label_settings.font_size = 290
+	number_outline.label_settings.outline_size = 80
+	number_outline.label_settings.font_size = font_size
 	number_outline.add_theme_constant_override("char_spacing", -15)
 	
 	number.text = str(args[0])
@@ -150,8 +158,6 @@ func spawn_damage_number(args: Array) -> Label:
 	number.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	number.label_settings = LabelSettings.new()
 	
-	var font = load("res://assets/fonts/DamageNumbersFontVariation.tres")
-	var font_size = 290
 	
 	gradient_texture.texture = NORMAL_HIT_GRADIENT_TEXTURE_2D
 	gradient_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE

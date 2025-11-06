@@ -1,7 +1,10 @@
 [gd_resource type="FontVariation" load_steps=2 format=3 uid="uid://bpwl38ly8lvyj"]
 
-[ext_resource type="FontFile" uid="uid://bp2nycdqhalb7" path="res://assets/fonts/Baby Gemoy.ttf" id="1_i3420"]
+[ext_resource type="FontFile" uid="uid://dxbqcm3ww0xmj" path="res://assets/fonts/Starbim.ttf" id="1_i3420"]
 
 [resource]
 base_font = ExtResource("1_i3420")
+opentype_features = {
+1801810542: 1
+}
 spacing_glyph = -6

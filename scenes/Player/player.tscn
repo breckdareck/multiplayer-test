@@ -1031,6 +1031,7 @@ value = 73.0
 show_percentage = false
 
 [node name="DebugStateLabel" type="Label" parent="PlayerWorldHUD"]
+visible = false
 layout_mode = 0
 offset_left = -20.0
 offset_top = -46.0
