@@ -60,7 +60,7 @@ script = ExtResource("3_rm1mb")
 monster_name = "Boar"
 monster_level = 5
 movement_speed = 40.0
-base_stats = Dictionary[int, Object]({
+base_stats = Dictionary[int, ExtResource("1_vbo82")]({
 8: SubResource("Resource_4m5ue"),
 9: SubResource("Resource_gx1ts"),
 12: SubResource("Resource_h1jh3"),

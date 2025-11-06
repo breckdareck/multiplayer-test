@@ -181,7 +181,7 @@ show_percentage = false
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -26)
-animation = &"idle"
+animation = &""
 autoplay = "idle"
 
 [node name="AttackHitbox" type="Area2D" parent="."]
@@ -209,16 +209,14 @@ script = ExtResource("10_g1gh5")
 starting_state = NodePath("idle")
 state_label = NodePath("../StateLabel")
 
-[node name="idle" type="Node" parent="StateMachine" node_paths=PackedStringArray("patrol_state", "slash_attack_state")]
+[node name="idle" type="Node" parent="StateMachine" node_paths=PackedStringArray("patrol_state")]
 script = ExtResource("11_b4qxa")
 patrol_state = NodePath("../patrol")
-slash_attack_state = NodePath("")
 animation_name = "idle"
 
-[node name="patrol" type="Node" parent="StateMachine" node_paths=PackedStringArray("idle_state", "slash_attack_state")]
+[node name="patrol" type="Node" parent="StateMachine" node_paths=PackedStringArray("idle_state")]
 script = ExtResource("12_dso0j")
 idle_state = NodePath("../idle")
-slash_attack_state = NodePath("")
 animation_name = "patrol"
 
 [node name="death" type="Node" parent="StateMachine" node_paths=PackedStringArray("respawn_state")]

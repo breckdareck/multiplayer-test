@@ -166,10 +166,14 @@ func _pickup_item(picking_player: MultiplayerPlayerV2 = null) -> void:
 			player_to_give_item.player_inventory.monies_amount += stack_amount
 		# For stackable items, add with the stack amount
 		elif item_data.can_stack and stack_amount > 1:
-			for i in range(stack_amount):
-				player_to_give_item.player_inventory.add_item_instance(item_data.duplicate(true))
+			var new_item_instance = item_data.duplicate(true)
+			new_item_instance.current_stack_amount = stack_amount
+			player_to_give_item.player_inventory.add_item_instance(new_item_instance)
 		else:
 			player_to_give_item.player_inventory.add_item_instance(item_data.duplicate(true))
+
+		# RPC to client to show log message
+		show_pickup_log_rpc.rpc_id(player_to_give_item.player_id, item_data.name, stack_amount)
 	
 	pickup_sound.stream = pickup_sfx
 	
@@ -253,6 +257,12 @@ func _start_pulse_tween() -> void:
 	pulse_tween.tween_property(sprite, "scale", pulse_scale, duration / 2.0)
 	# Pulse back down
 	pulse_tween.tween_property(sprite, "scale", base_scale, duration / 2.0)
+
+
+@rpc("any_peer", "call_local", "reliable")
+func show_pickup_log_rpc(item_name: String, amount: int):
+	var text = "+%d %s" % [amount, item_name]
+	LogManager.add_scrolling_log(text, Color.AQUAMARINE)
 
 
 func sync_state_to_peer(peer_id: int) -> void:

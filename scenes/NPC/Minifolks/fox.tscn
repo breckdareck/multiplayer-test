@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://sxpgdsdpf5ma"]
+[gd_scene load_steps=30 format=3 uid="uid://sxpgdsdpf5ma"]
 
 [ext_resource type="Script" uid="uid://cj6lu2r6oxt6o" path="res://scripts/Enemy/enemy_base.gd" id="1_52mqf"]
 [ext_resource type="Curve" uid="uid://q6qc5kgdbmyv" path="res://assets/curves/monster_hp_curve.tres" id="2_6wkew"]
@@ -7,11 +7,16 @@
 [ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="3_jlvhy"]
 [ext_resource type="Curve" uid="uid://la82to0yhbrk" path="res://assets/curves/monster_exp_curve.tres" id="3_tvc6h"]
 [ext_resource type="Script" uid="uid://dwv2k28spwfby" path="res://scripts/StateMachine/state_machine.gd" id="5_as4mp"]
+[ext_resource type="Curve" uid="uid://c20efdba57fc" path="res://assets/curves/monster_wep_att_curve.tres" id="5_sened"]
+[ext_resource type="Curve" uid="uid://cf67a4a36687" path="res://assets/curves/monster_magic_att_curve.tres" id="6_f78iy"]
 [ext_resource type="Script" uid="uid://71v08yv5tjrt" path="res://scripts/Components/stats.gd" id="6_lj8ps"]
 [ext_resource type="Script" uid="uid://u6b813y5rtm4" path="res://scripts/Enemy/StateMachine/enemy_idle.gd" id="6_tdvmf"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="7_debah"]
+[ext_resource type="Curve" uid="uid://e847666d08f4" path="res://assets/curves/monster_wep_def_curve.tres" id="7_e01u0"]
 [ext_resource type="Script" uid="uid://dk2rcptcq3hb8" path="res://scripts/Enemy/StateMachine/enemy_patrol.gd" id="7_eiy2a"]
+[ext_resource type="Curve" uid="uid://1b70eda8f0b1" path="res://assets/curves/monster_magic_def_curve.tres" id="8_4t3v8"]
 [ext_resource type="Script" uid="uid://bfh8yeyv2wu0g" path="res://scripts/Player/StateMachine/death.gd" id="8_y20q3"]
+[ext_resource type="Curve" uid="uid://321810bf3a5a" path="res://assets/curves/monster_monies_curve.tres" id="9_fkwoc"]
 [ext_resource type="SpriteFrames" uid="uid://baqtyjguyoxo2" path="res://resources/Enemies/Fox/SF_Fox.tres" id="9_lj8ps"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_n6pvg"]
@@ -87,6 +92,11 @@ health_component = NodePath("Health")
 stats_component = NodePath("Stats")
 health_curve = ExtResource("2_6wkew")
 experience_curve = ExtResource("3_tvc6h")
+wep_att_curve = ExtResource("5_sened")
+magic_att_curve = ExtResource("6_f78iy")
+wep_def_curve = ExtResource("7_e01u0")
+magic_def_curve = ExtResource("8_4t3v8")
+monies_curve = ExtResource("9_fkwoc")
 name_label = NodePath("NameLabel")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]

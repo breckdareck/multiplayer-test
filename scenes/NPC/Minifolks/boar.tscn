@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://betkg72vd7iav"]
+[gd_scene load_steps=30 format=3 uid="uid://betkg72vd7iav"]
 
 [ext_resource type="Script" uid="uid://cj6lu2r6oxt6o" path="res://scripts/Enemy/enemy_base.gd" id="1_nrg6h"]
 [ext_resource type="Curve" uid="uid://q6qc5kgdbmyv" path="res://assets/curves/monster_hp_curve.tres" id="2_71sob"]
@@ -6,9 +6,14 @@
 [ext_resource type="Resource" uid="uid://bliarhg40csoo" path="res://resources/Enemies/Boar/ED_Boar.tres" id="2_q006m"]
 [ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="3_2dhth"]
 [ext_resource type="Curve" uid="uid://la82to0yhbrk" path="res://assets/curves/monster_exp_curve.tres" id="3_7bg18"]
+[ext_resource type="Curve" uid="uid://c20efdba57fc" path="res://assets/curves/monster_wep_att_curve.tres" id="5_328yv"]
+[ext_resource type="Curve" uid="uid://cf67a4a36687" path="res://assets/curves/monster_magic_att_curve.tres" id="6_4q4e7"]
 [ext_resource type="Script" uid="uid://71v08yv5tjrt" path="res://scripts/Components/stats.gd" id="7_4m5ue"]
+[ext_resource type="Curve" uid="uid://e847666d08f4" path="res://assets/curves/monster_wep_def_curve.tres" id="7_dvgon"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="8_gx1ts"]
+[ext_resource type="Curve" uid="uid://1b70eda8f0b1" path="res://assets/curves/monster_magic_def_curve.tres" id="8_rtryd"]
 [ext_resource type="SpriteFrames" uid="uid://c28y4uyabwctv" path="res://resources/Enemies/Boar/SF_Boar.tres" id="9_q34qd"]
+[ext_resource type="Curve" uid="uid://321810bf3a5a" path="res://assets/curves/monster_monies_curve.tres" id="9_qibwg"]
 [ext_resource type="Script" uid="uid://dwv2k28spwfby" path="res://scripts/StateMachine/state_machine.gd" id="11_85v0n"]
 [ext_resource type="Script" uid="uid://u6b813y5rtm4" path="res://scripts/Enemy/StateMachine/enemy_idle.gd" id="12_c7p7b"]
 [ext_resource type="Script" uid="uid://dk2rcptcq3hb8" path="res://scripts/Enemy/StateMachine/enemy_patrol.gd" id="13_fpvu7"]
@@ -91,6 +96,11 @@ health_component = NodePath("Health")
 stats_component = NodePath("Stats")
 health_curve = ExtResource("2_71sob")
 experience_curve = ExtResource("3_7bg18")
+wep_att_curve = ExtResource("5_328yv")
+magic_att_curve = ExtResource("6_4q4e7")
+wep_def_curve = ExtResource("7_dvgon")
+magic_def_curve = ExtResource("8_rtryd")
+monies_curve = ExtResource("9_qibwg")
 name_label = NodePath("NameLabel")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]

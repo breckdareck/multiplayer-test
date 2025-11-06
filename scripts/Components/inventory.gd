@@ -207,8 +207,7 @@ func server_add_item(item_id: String):
 	var original_item: ItemData = ResourceManager.get_item_data(item_id).duplicate_with_path()
 	var original_item_id = original_item.item_id
 	
-	# Emit signal so wrapper can handle special items
-	item_added.emit(original_item)
+
 	
 	# Try to stack with existing items in valid slots
 	if original_item_id in item_locations and original_item.can_stack:
@@ -230,11 +229,12 @@ func server_add_item(item_id: String):
 					_notify_changed()
 					
 					if original_item.current_stack_amount <= 0:
+						item_added.emit(original_item)
 						return						
 	# Find a valid empty slot
 	for slot in slots:
 		if slot.item == null and (not slot.has_method("can_accept_item") or slot.can_accept_item(original_item)):
-			slot.item = original_item
+			slot.item = original_item.duplicate_with_path()
 			slot.item.current_stack_amount = original_item.current_stack_amount
 			slot.update_display()
 			_update_item_tracking(slot, null, slot.item)
@@ -242,6 +242,7 @@ func server_add_item(item_id: String):
 			# Only sync this one slot
 			_sync_slot_to_client(slot)
 			_notify_changed()
+			item_added.emit(original_item)
 			return
 			
 	print("Inventory is full or no suitable slot found for this item type.")
@@ -259,9 +260,6 @@ func server_add_item_instance(item_dict: Dictionary):
 
 	var original_item_id = original_item.item_id
 	
-	# Emit signal so wrapper can handle special items
-	item_added.emit(original_item)
-	
 	# Try to stack with existing items in valid slots
 	if original_item_id in item_locations and original_item.can_stack:
 		var existing_slots = item_locations[original_item_id]
@@ -276,12 +274,10 @@ func server_add_item_instance(item_dict: Dictionary):
 					slot.add_to_stack(amount_to_add)
 					original_item.current_stack_amount -= amount_to_add
 					item_counts[original_item_id] += amount_to_add
-					
-					# Only sync this one slot
-					_sync_slot_to_client(slot)
 					_notify_changed()
 					
 					if original_item.current_stack_amount <= 0:
+						item_added.emit(original_item)
 						return
 						
 	# Find a valid empty slot
@@ -295,6 +291,7 @@ func server_add_item_instance(item_dict: Dictionary):
 			# Only sync this one slot
 			_sync_slot_to_client(slot)
 			_notify_changed()
+			item_added.emit(original_item)
 			return
 			
 	print("Inventory is full or no suitable slot found for this item type.")

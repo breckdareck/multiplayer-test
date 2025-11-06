@@ -59,11 +59,29 @@ func _apply_enemy_data() -> void:
 	movement_speed = enemy_data.movement_speed
 	item_drops = enemy_data.item_drops
 
+	# Set Monies Coin Drop Min and Max Amounts based on Curve
+	var filtered_array: Array[ItemDropResource] = item_drops.filter(func(drop): return drop.item_name == "Coin")
+	if len(filtered_array) > 0:
+		filtered_array[0].min_amount = roundi(monies_curve.sample(monster_level) * 0.9)
+		filtered_array[0].max_amount = roundi(monies_curve.sample(enemy_data.monster_level)* 1.1)
+	else:
+		var monies_drop = ItemDropResource.new()
+		monies_drop.drop_chance = 0.9
+		monies_drop.min_amount = roundi(monies_curve.sample(monster_level) * 0.9)
+		monies_drop.max_amount = roundi(monies_curve.sample(monster_level) * 1.1)
+		item_drops.append(monies_drop)
+
 	if animated_sprite:
 		animated_sprite.sprite_frames = enemy_data.sprite_frames
 	
 	if stats_component:
-		stats_component.stats = enemy_data.base_stats
+		var curve_stats: Dictionary[Constants.StatType, StatData] = {}
+		curve_stats[Constants.StatType.WEAPONATTACK] = StatData.new(Constants.StatType.WEAPONATTACK, roundi(wep_att_curve.sample(monster_level)))
+		curve_stats[Constants.StatType.MAGICATTACK] = StatData.new(Constants.StatType.MAGICATTACK, roundi(magic_att_curve.sample(monster_level)))
+		curve_stats[Constants.StatType.DEFENSE] = StatData.new(Constants.StatType.DEFENSE, roundi(wep_def_curve.sample(monster_level)))
+		curve_stats[Constants.StatType.MAGICDEFENSE] = StatData.new(Constants.StatType.MAGICDEFENSE, roundi(magic_def_curve.sample(monster_level)))
+		
+		stats_component.stats = curve_stats
 		
 	var character_collision_shape_node: CollisionShape2D = $CollisionShape2D
 	if character_collision_shape_node and enemy_data.character_collision_shape:

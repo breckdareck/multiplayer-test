@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://c06qbiant345e"]
+[gd_scene load_steps=30 format=3 uid="uid://c06qbiant345e"]
 
 [ext_resource type="Script" uid="uid://cj6lu2r6oxt6o" path="res://scripts/Enemy/enemy_base.gd" id="1_wu46e"]
 [ext_resource type="Script" uid="uid://dhhn4ks2uixk8" path="res://scripts/Components/health.gd" id="2_6msmc"]
@@ -6,13 +6,18 @@
 [ext_resource type="Curve" uid="uid://q6qc5kgdbmyv" path="res://assets/curves/monster_hp_curve.tres" id="2_h5euh"]
 [ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="3_3stk6"]
 [ext_resource type="Curve" uid="uid://la82to0yhbrk" path="res://assets/curves/monster_exp_curve.tres" id="3_qhvxh"]
+[ext_resource type="Curve" uid="uid://c20efdba57fc" path="res://assets/curves/monster_wep_att_curve.tres" id="5_ciyrt"]
 [ext_resource type="SpriteFrames" uid="uid://bujet2eddxc5l" path="res://resources/Enemies/Bunny/SF_Bunny.tres" id="5_iglj4"]
 [ext_resource type="Script" uid="uid://dwv2k28spwfby" path="res://scripts/StateMachine/state_machine.gd" id="5_q3lct"]
+[ext_resource type="Curve" uid="uid://cf67a4a36687" path="res://assets/curves/monster_magic_att_curve.tres" id="6_5bjtq"]
 [ext_resource type="Script" uid="uid://u6b813y5rtm4" path="res://scripts/Enemy/StateMachine/enemy_idle.gd" id="6_66d7p"]
 [ext_resource type="Script" uid="uid://71v08yv5tjrt" path="res://scripts/Components/stats.gd" id="6_ex684"]
 [ext_resource type="Script" uid="uid://dk2rcptcq3hb8" path="res://scripts/Enemy/StateMachine/enemy_patrol.gd" id="7_hgyh7"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="7_iglj4"]
+[ext_resource type="Curve" uid="uid://e847666d08f4" path="res://assets/curves/monster_wep_def_curve.tres" id="7_oumdo"]
 [ext_resource type="Script" uid="uid://bfh8yeyv2wu0g" path="res://scripts/Player/StateMachine/death.gd" id="8_720f0"]
+[ext_resource type="Curve" uid="uid://1b70eda8f0b1" path="res://assets/curves/monster_magic_def_curve.tres" id="8_sh7cw"]
+[ext_resource type="Curve" uid="uid://321810bf3a5a" path="res://assets/curves/monster_monies_curve.tres" id="9_r3u2d"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_n6pvg"]
 properties/0/path = NodePath(".:position")
@@ -87,6 +92,11 @@ health_component = NodePath("Health")
 stats_component = NodePath("Stats")
 health_curve = ExtResource("2_h5euh")
 experience_curve = ExtResource("3_qhvxh")
+wep_att_curve = ExtResource("5_ciyrt")
+magic_att_curve = ExtResource("6_5bjtq")
+wep_def_curve = ExtResource("7_oumdo")
+magic_def_curve = ExtResource("8_sh7cw")
+monies_curve = ExtResource("9_r3u2d")
 name_label = NodePath("NameLabel")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]

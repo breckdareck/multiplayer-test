@@ -303,13 +303,14 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 		
 		health_comp.take_damage(damage_to_deal, self, true, is_crit)
 		
-		# Knockback logic
-		var knockback_dir = owner.facing_direction
-		var knockback_strength = 90.0
-		var knockback_lift = -90.0
-		var knockback_vec = Vector2(knockback_dir * knockback_strength, knockback_lift)
-		if target_enemy.has_method("apply_knockback"):
-			target_enemy.apply_knockback(knockback_vec)
+		if damage_to_deal > 0:
+			# Knockback logic
+			var knockback_dir = owner.facing_direction
+			var knockback_strength = 90.0
+			var knockback_lift = -90.0
+			var knockback_vec = Vector2(knockback_dir * knockback_strength, knockback_lift)
+			if target_enemy.has_method("apply_knockback"):
+				target_enemy.apply_knockback(knockback_vec)
 		
 		if _ability_component:
 			var event_type = "on_crit" if is_crit else "on_hit"

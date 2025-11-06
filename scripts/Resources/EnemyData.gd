@@ -4,10 +4,7 @@ extends Resource
 @export_category("General")
 @export var monster_name: String
 @export var monster_level: int = 1
-
-@export_category("Combat")
 @export var movement_speed: float = 60.0
-@export var base_stats: Dictionary[Constants.StatType, StatData] = {}
 
 @export_category("Visuals")
 @export var sprite_frames: SpriteFrames

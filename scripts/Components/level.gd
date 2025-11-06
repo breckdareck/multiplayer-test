@@ -39,6 +39,14 @@ func add_exp(amount: int) -> void:
 		return
 		
 	experience += amount
+	show_exp_gain_log_rpc.rpc_id(owner.player_id, amount)
+	
 	while experience >= get_exp_to_next_level() and level < max_level:
 		experience -= get_exp_to_next_level()
 		level += 1
+
+
+@rpc("any_peer", "call_local", "reliable")
+func show_exp_gain_log_rpc(amount: int):
+	var text = "+%d EXP" % amount
+	LogManager.add_scrolling_log(text, Color.GOLD)

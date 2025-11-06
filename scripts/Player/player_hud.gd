@@ -6,6 +6,8 @@ var party_window_scene = preload("res://scenes/UI/party_window.tscn")
 var party_window_instance
 
 var party_invite_popup_scene = preload("res://scenes/UI/party_invite_popup.tscn")
+var scrolling_log_scene = preload("res://scenes/UI/ScrollingLog.tscn")
+var chat_window_scene = preload("res://scenes/UI/ChatWindow.tscn")
 
 @onready var health_bar: TextureProgressBar = $BottomStatsContainer/HealthBar
 @onready var hp_value_label: Label = $BottomStatsContainer/HealthBar/HPValueLabel
@@ -39,6 +41,15 @@ func _ready() -> void:
 	
 	# Connect to PartyManager invite signal
 	PartyManager.party_invite_received.connect(_on_party_invite_received)
+
+	# Setup Scrolling Log
+	var scrolling_log_instance = scrolling_log_scene.instantiate()
+	add_child(scrolling_log_instance)
+	LogManager.set_scrolling_log(scrolling_log_instance)
+
+	# Setup Chat Window
+	var chat_window_instance = chat_window_scene.instantiate()
+	add_child(chat_window_instance)
 
 	health_bar.max_value = player.health_component.max_health
 	health_bar.value = player.health_component.current_health
