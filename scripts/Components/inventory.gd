@@ -844,7 +844,10 @@ func request_use_item(slot_index: int):
 		return
 
 	var sender_id = multiplayer.get_remote_sender_id()
-	var player = get_node_or_null("/root/MainMenu/Level/Game/Players/" + str(sender_id))
+	# Use PlayerManager to reliably find the player's node across maps
+	var player = null
+	if PlayerManager:
+		player = PlayerManager.get_player_node(sender_id)
 	if not player:
 		print("Use Item failed: Player %d not found." % sender_id)
 		return

@@ -282,8 +282,48 @@ func _spawn_drops(eligible_player_ids: Array[int]) -> void:
 		# Setup the dropped item with eligible player IDs
 		dropped_item.setup(item, amount, eligible_player_ids)
 		
-		# Add to scene
-		get_tree().current_scene.get_node("Level/Game/ItemDrops").add_child(dropped_item, true)
+		# Add to scene - find the ItemDrops container on the server
+		var target_container = null
+		
+		# On server, use the map instance from MapManager (which tracks server maps)
+		if multiplayer.is_server():
+			# Server needs to find the map this enemy is in
+			var map_instance = null
+			
+			# Try to find map by walking up the tree to find a parent map container
+			var parent = get_parent()
+			while parent:
+				if parent.name.begins_with("Map_"):
+					map_instance = parent
+					break
+				parent = parent.get_parent()
+			
+			# If not found by walking tree, try to get from current scene structure
+			if not map_instance:
+				var root = get_tree().current_scene
+				if root:
+					var maps_node = root.get_node_or_null("Maps")
+					if maps_node:
+						# Find any Map_* child
+						for child in maps_node.get_children():
+							if child.name.begins_with("Map_"):
+								map_instance = child
+								break
+			
+			if map_instance:
+				target_container = map_instance.get_node_or_null("ItemDrops")
+		else:
+			# Client case (fallback, should not spawn drops on client)
+			var current_map = MapManager.get_current_visible_map()
+			if current_map:
+				target_container = current_map.get_node_or_null("ItemDrops")
+
+		if target_container:
+			target_container.add_child(dropped_item, true)
+		else:
+			push_error("Enemy: Could not find ItemDrops container to add dropped item!")
+			dropped_item.queue_free()
+			continue
 		
 		rpc("client_setup_item", dropped_item.get_path(), item.item_id)
 		

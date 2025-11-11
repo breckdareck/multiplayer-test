@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=4 uid="uid://d1hwvomjwdrjv"]
+[gd_scene load_steps=33 format=4 uid="uid://d1hwvomjwdrjv"]
 
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/damage_numbers.gd" id="1_ryi0r"]
 [ext_resource type="Texture2D" uid="uid://jorjvuc5wn72" path="res://assets/sprites/world_tileset.png" id="2_l25cu"]
@@ -23,6 +23,7 @@
 [ext_resource type="Resource" uid="uid://jwwtuktlssm4" path="res://resources/Items/Exp_Potion.tres" id="22_qb3j5"]
 [ext_resource type="Texture2D" uid="uid://dn66ntccqo3io" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/props_clouds.png" id="23_rm7na"]
 [ext_resource type="Script" uid="uid://igk1rxt26f2i" path="res://scripts/UI/global_drop_handler.gd" id="24_drop_handler"]
+[ext_resource type="Script" uid="uid://b4ed7py37e6nt" path="res://scripts/Gameplay/enemy_multiplayer_spawner.gd" id="25_enemy_ms"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lnu2h"]
 texture = ExtResource("2_l25cu")
@@ -559,7 +560,6 @@ _data = {
 
 [node name="PlayerSpawner" type="MultiplayerSpawner" parent="."]
 unique_name_in_owner = true
-_spawnable_scenes = PackedStringArray("uid://bdtdpx0d05sy3")
 spawn_path = NodePath("../Players")
 
 [node name="DmgNumberSpawner" type="MultiplayerSpawner" parent="."]
@@ -581,6 +581,9 @@ zoom = Vector2(4, 4)
 process_callback = 0
 limit_bottom = 120
 position_smoothing_enabled = true
+
+[node name="PlayerSpawn" type="Marker2D" parent="."]
+position = Vector2(0, -15)
 
 [node name="TileMap" type="TileMap" parent="."]
 tile_set = SubResource("TileSet_lbhrr")
@@ -748,9 +751,11 @@ spawn_container = NodePath("../Enemies")
 pool_size = 10
 respawn_delay = 5.0
 
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="GoblinSpawner"]
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="GoblinSpawner" node_paths=PackedStringArray("enemy_spawner")]
 _spawnable_scenes = PackedStringArray("uid://c0fdrl7mq5ou7")
 spawn_path = NodePath("../../Enemies")
+script = ExtResource("25_enemy_ms")
+enemy_spawner = NodePath("..")
 
 [node name="EnemySpawnLocation" type="Marker2D" parent="GoblinSpawner"]
 position = Vector2(423, 0)

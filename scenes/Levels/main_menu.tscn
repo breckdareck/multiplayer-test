@@ -35,13 +35,6 @@ corner_radius_bottom_left = 10
 
 [node name="MainMenu" type="Node2D"]
 
-[node name="LevelSpawner" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("uid://d1hwvomjwdrjv")
-spawn_path = NodePath("../Level")
-spawn_limit = 1
-
-[node name="Level" type="Node" parent="."]
-
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="MenuContainer" type="Control" parent="CanvasLayer"]

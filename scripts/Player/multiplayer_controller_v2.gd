@@ -318,24 +318,32 @@ func _handle_sprite_change_on_server() -> void:
 	if sprite_frames:
 		change_sprite_rpc.rpc(class_component.get_class_name(), current_level)
 
+func change_to_map(new_map_id: String):
+	if not multiplayer.is_server():
+		# Client requests map change from server
+		request_map_change.rpc_id(1, new_map_id)
+	else:
+		# Server can change directly
+		MapManager.change_player_map(player_id, new_map_id)
+
 
 func set_current_party_id(id: int):
 	_current_party_id = id
 
 func _get_save_data() -> Dictionary:
 	var data: Dictionary = {
-	   'username': username,
-	   'max_health': health_component.max_health if is_instance_valid(health_component) else 100,
-	   'current_health': health_component.current_health if is_instance_valid(health_component) else 100,
-	   'level': level_component.level if is_instance_valid(level_component) else 1,
-	   'experience': level_component.experience if is_instance_valid(level_component) else 0,
-	   'party_id': _current_party_id # Save party_id from local variable
+		'username': username,
+		'max_health': health_component.max_health if is_instance_valid(health_component) else 100,
+		'current_health': health_component.current_health if is_instance_valid(health_component) else 100,
+		'level': level_component.level if is_instance_valid(level_component) else 1,
+		'experience': level_component.experience if is_instance_valid(level_component) else 0,
+		'party_id': _current_party_id,
+		'last_map': MapManager.get_player_map(player_id) if multiplayer.is_server() else MapManager.current_map_id
 	}
 	
 	if is_instance_valid(player_inventory):
 		data['inventory'] = player_inventory.save_player_inventory()
 	
-	# Save ability data
 	if is_instance_valid(ability_component):
 		data['abilities'] = ability_component.save_abilities()
 		
@@ -524,11 +532,27 @@ func change_class_request(new_class: int) -> void:
 func request_all_sprite_states() -> void:
 	if not multiplayer.is_server():
 		return
-		
+	
 	var requester_id: int = multiplayer.get_remote_sender_id()
-	for node in get_tree().root.get_node("/root/MainMenu/Level/Game/Players").get_children():
-		if node is MultiplayerPlayerV2 and node != self:
-			node._on_peer_connected(requester_id)
+	print("Player %d requesting all sprite states" % requester_id)
+	
+	# Get the map this player is on
+	var requester_map = MapManager.get_player_map(requester_id)
+	if requester_map.is_empty():
+		push_warning("Player %d not assigned to a map yet" % requester_id)
+		return
+	
+	# Only sync sprites of players on the SAME map
+	var players_on_map = MapManager.get_players_on_map(requester_map)
+	
+	for other_player_id in players_on_map:
+		if other_player_id == requester_id:
+			continue # Skip self
+		
+		var other_player = PlayerManager.get_player_node(other_player_id)
+		if other_player and other_player is MultiplayerPlayerV2:
+			print("  Syncing sprite for player %d to requester %d" % [other_player_id, requester_id])
+			other_player._on_peer_connected(requester_id)
 
 
 # [ALL PEERS] Sets the username for this player instance across all clients.
@@ -537,3 +561,20 @@ func set_username(uname: String) -> void:
 	username = uname
 	if is_instance_valid(player_name_label):
 		player_name_label.text = username
+		
+		
+@rpc("any_peer", "call_local", "reliable")
+func request_map_change(new_map_id: String):
+	"""Server receives map change request"""
+	if not multiplayer.is_server():
+		return
+	
+	var requester_id = multiplayer.get_remote_sender_id()
+	print("Player %d requesting map change to '%s'" % [requester_id, new_map_id])
+	
+	# Save player data before moving
+	_data_changed()
+	await get_tree().create_timer(0.1).timeout
+	
+	# Change map through MapManager
+	MapManager.change_player_map(requester_id, new_map_id)

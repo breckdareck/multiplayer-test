@@ -124,7 +124,17 @@ func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, 
 	var is_player = (owner is MultiplayerPlayerV2)
 	
 	if show_number:
-		get_node("/root/MainMenu/Level/Game").get_node("%DmgNumberSpawner").display_number(amount, damage_number_origin.global_position, is_crit, is_player)
+		# Use MapManager helper to find the damage number spawner in the current map
+		var dmg_spawner = MapManager.find_node_in_current_map("%DmgNumberSpawner")
+		if dmg_spawner:
+			dmg_spawner.display_number(amount, damage_number_origin.global_position, is_crit, is_player)
+		else:
+			# Fallback: try to find a global path safely
+			var possible = get_node_or_null("/root/MainMenu/Level/Game")
+			if possible:
+				var fallback = possible.get_node_or_null("%DmgNumberSpawner")
+				if fallback:
+					fallback.display_number(amount, damage_number_origin.global_position, is_crit, is_player)
 	
 	if is_player:
 		# Assuming 'player_hit.wav' is the correct SFX.

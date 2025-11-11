@@ -16,11 +16,15 @@ func _ready():
 	# Load the dropped item scene
 	dropped_item_scene = preload("res://scenes/Gameplay/dropped_item.tscn")
 	
-	# Find the game scene
-	game_scene = get_tree().get_first_node_in_group("Game")
+	# Find the game scene via MapManager if possible (works for host and clients)
+	game_scene = MapManager.get_current_visible_map()
 	if not game_scene:
-		# Try to find it by path
-		game_scene = get_tree().current_scene.get_node("Level/Game")
+		game_scene = get_tree().get_first_node_in_group("Game")
+	if not game_scene:
+		# Try a safe fallback by path
+		var root_scene = get_tree().current_scene
+		if root_scene:
+			game_scene = root_scene.get_node_or_null("Level/Game")
 	
 	# Make this control fill the entire screen
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -47,8 +51,8 @@ func _drop_data(at_position: Vector2, data: Variant) -> void:
 	# Convert screen position to world position
 	var world_position = _screen_to_world_position(at_position)
 
-	# Request the server to drop the item
-	server_request_item_drop.rpc_id(1, source_slot.drag_item.item_id, source_slot.drag_amount, world_position, multiplayer.get_unique_id())
+	# Request the server to drop the item (pass the slot's NodePath for server validation)
+	server_request_item_drop.rpc_id(1, source_slot.drag_item.item_id, source_slot.drag_amount, world_position, multiplayer.get_unique_id(), source_slot.get_path())
 
 	source_slot.cancel_drag()
 
@@ -73,20 +77,21 @@ func server_request_item_drop(item_id: String, amount: int, world_position: Vect
 		printerr("Drop failed: Could not find inventory component for player: ", player_id)
 		return
 
-	# Get the slot that the item was dropped from
+	# --- Server-side Validation ---
+	# Locate the source slot using the provided NodePath
 	var slot_node = get_node_or_null(source_slot_path)
 	if not slot_node or not slot_node is Slot:
 		printerr("Drop failed: Invalid source slot path '%s' from player %d" % [str(source_slot_path), player_id])
+		inventory_component.send_inventory_correction.rpc_id(player_id)
 		return
-
-	# --- Server-side Validation ---
-	# 1. Check if the slot belongs to the correct inventory
+	
+	# Check if the slot belongs to the correct inventory
 	if slot_node.item_container != inventory_component:
 		printerr("Drop failed: Player %d attempted to drop from a slot not in their inventory." % player_id)
 		inventory_component.send_inventory_correction.rpc_id(player_id)
 		return
 		
-	# 2. Check if the item in the slot matches what the client claims to be dropping
+	# Check if the item in the slot matches what the client claims to be dropping
 	if not slot_node.item or slot_node.item.item_id != item_id or slot_node.item.current_stack_amount < amount:
 		printerr("Drop failed: Player %d item drop validation failed. Client claimed to drop %dx '%s'." % [player_id, amount, item_id])
 		inventory_component.send_inventory_correction.rpc_id(player_id)

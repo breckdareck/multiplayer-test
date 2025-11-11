@@ -81,14 +81,23 @@ func _ready() -> void:
 		set_process(false)
 		return
 
-	# Find or create the projectiles container
-	var game_node = get_node_or_null("/root/MainMenu/Level/Game")
-	if is_instance_valid(game_node):
-		_projectiles_container = game_node.get_node_or_null("Projectiles")
+	# Find or create the projectiles container inside the current visible map.
+	var map_node = MapManager.get_current_visible_map()
+	if map_node:
+		_projectiles_container = map_node.get_node_or_null("Projectiles")
 		if not is_instance_valid(_projectiles_container):
 			_projectiles_container = Node.new()
 			_projectiles_container.name = "Projectiles"
-			game_node.add_child(_projectiles_container)
+			map_node.add_child(_projectiles_container)
+	else:
+		# Fallback to legacy path if available
+		var legacy = get_node_or_null("/root/MainMenu/Level/Game")
+		if legacy:
+			_projectiles_container = legacy.get_node_or_null("Projectiles")
+			if not is_instance_valid(_projectiles_container):
+				_projectiles_container = Node.new()
+				_projectiles_container.name = "Projectiles"
+				legacy.add_child(_projectiles_container)
 
 	# Connect to the LevelingComponent to grant ability points on level up
 	if _level_component:
@@ -163,7 +172,7 @@ func learn_ability(ability_id: String, initial_level: int = 0) -> bool:
 func get_passive_effect_modifiers() -> Dictionary:
 	var modifiers = {}
 	
-	_foreach_learned_passive(func(ability: AbilityData, level_stats: AbilityLevelData, _ability_id: String):
+	_foreach_learned_passive(func(_ability: AbilityData, level_stats: AbilityLevelData, _ability_id: String):
 		# Use stat bonuses from the level data
 		for stat_name in level_stats.stat_bonuses:
 			if not modifiers.has(stat_name):
@@ -192,7 +201,7 @@ func try_trigger_procs(event_type: String, target: Node = null, context: Diction
 	if not multiplayer.is_server():
 		return
 	
-	_foreach_learned_passive(func(ability: AbilityData, level_stats: AbilityLevelData, ability_id: String):
+	_foreach_learned_passive(func(_ability: AbilityData, level_stats: AbilityLevelData, ability_id: String):
 		var proc_key = ability_id + "_" + event_type
 		var last_proc_time = _passive_proc_cooldowns.get(proc_key, 0.0)
 		
@@ -236,11 +245,19 @@ func _foreach_learned_passive(callback: Callable) -> void:
 ## Generic modifier calculator - reduces code duplication
 func _get_ability_modifier(ability_id: String, modifier_getter: Callable) -> float:
 	var total_modifier: float = 1.0
-	
-	_foreach_learned_passive(func(_ability: AbilityData, level_stats: AbilityLevelData, _ability_id: String):
+	# Iterate synchronously - avoid capturing outer-scope reassignments inside lambdas
+	for passive_id in _ability_levels:
+		var lvl = _ability_levels[passive_id]
+		if lvl <= 0:
+			continue
+		var ability = ResourceManager.get_ability_data(passive_id)
+		if not ability or ability.ability_type != Constants.AbilityType.PASSIVE:
+			continue
+		var level_stats = ability.get_level_stats(lvl)
+		if not level_stats:
+			continue
 		total_modifier *= modifier_getter.call(level_stats, ability_id)
-	)
-	
+
 	return total_modifier
 
 

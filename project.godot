@@ -16,6 +16,7 @@ config/features=PackedStringArray("4.5", "Forward Plus")
 
 [autoload]
 
+MapManager="*res://scripts/Managers/map_manager.gd"
 AudioManager="*res://scripts/Managers/audio_manager.gd"
 MultiplayerManager="*res://scripts/Managers/multiplayer_manager.gd"
 NetworkUtils="*res://scripts/Networking/network_utils.gd"

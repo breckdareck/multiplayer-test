@@ -17,8 +17,14 @@ class_name EnemySpawner
 
 var _pool: Array[Node] = []
 var _is_initialized: bool = false
+var _multiplayer_spawner: MultiplayerSpawner = null
 
 func _ready() -> void:
+	# Get reference to MultiplayerSpawner for spawning enemies
+	_multiplayer_spawner = get_node_or_null("MultiplayerSpawner")
+	if not _multiplayer_spawner:
+		push_error("EnemySpawner: Could not find MultiplayerSpawner child node! Enemies won't replicate to clients.")
+	
 	# We wait for the MultiplayerManager to signal that the server has started.
 	# This requires MultiplayerManager to be an Autoload singleton as recommended.
 	MultiplayerManager.server_has_started.connect(_on_server_created)
@@ -48,25 +54,40 @@ func _setup_spawner() -> void:
 func _create_pool() -> void:
 	if not _validate_exports():
 		return
-
+	
+	if not _multiplayer_spawner:
+		push_error("EnemySpawner: Cannot create pool, MultiplayerSpawner not available!")
+		return
+	
+	# Ensure the spawn function is set up on the MultiplayerSpawner
+	if _multiplayer_spawner.spawn_function == null:
+		print("EnemySpawner: Setting up spawn function on MultiplayerSpawner")
+		_multiplayer_spawner.spawn_function = _create_enemy_instance
+	
+	print("EnemySpawner: Creating pool of %d enemies using MultiplayerSpawner" % pool_size)
+	
 	for i in range(pool_size):
-		var enemy: EnemyBase = enemy_scene.instantiate() as EnemyBase
+		# Spawn the enemy through the MultiplayerSpawner so it replicates to all clients
+		# The spawner will handle replication automatically based on spawn_path
+		var enemy: EnemyBase = _multiplayer_spawner.spawn() as EnemyBase
+		
 		if not enemy:
-			printerr("Failed to instantiate scene or scene is not an EnemyBase.")
+			printerr("EnemySpawner: Failed to spawn enemy %d through MultiplayerSpawner." % i)
 			continue
 		
 		if not enemy.health_component:
-			printerr("Enemy instance from '%s' is missing a HealthComponent." % enemy_scene.resource_path)
+			printerr("EnemySpawner: Enemy instance %d is missing a HealthComponent." % i)
 			enemy.queue_free()
 			continue
 		
 		# Connect to the enemy's own signal, which fires after its death animation is complete.
 		enemy.ready_for_pooling.connect(_on_enemy_ready_for_pooling.bind(enemy))
 		_pool.append(enemy)
-		spawn_container.add_child(enemy, true)
 		
-		# Deactivate the enemy until it's needed.
+		# Deactivate the enemy until it's needed (the MultiplayerSpawner already added it to spawn_container via spawn_path)
 		enemy.pool_deactivate()
+	
+	print("EnemySpawner: Pool created with %d enemies" % _pool.size())
 
 func _initial_spawn() -> void:
 	for enemy in _pool:
@@ -113,3 +134,16 @@ func _validate_exports() -> bool:
 		printerr("Enemy Spawner: 'Spawn Container' is not set.")
 		is_valid = false
 	return is_valid
+
+func _create_enemy_instance() -> Node:
+	"""Spawn function callback for MultiplayerSpawner"""
+	if not enemy_scene:
+		push_error("EnemySpawner: Cannot create enemy, enemy_scene not set!")
+		return null
+	
+	var enemy = enemy_scene.instantiate()
+	if not enemy:
+		push_error("EnemySpawner: Failed to instantiate enemy scene!")
+		return null
+	
+	return enemy

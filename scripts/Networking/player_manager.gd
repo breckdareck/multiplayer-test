@@ -1,8 +1,15 @@
-# player_manager.gd - AutoLoad singleton
+# player_manager.gd - UPDATED with Map Support
 extends Node
 
 var character_scene = preload("res://scenes/Player/player.tscn")
 var active_players: Dictionary = {}
+
+
+func _ready() -> void:
+	# Connect to MapManager's player_spawned so we can finish initialization
+	# after the server-side spawn is completed.
+	if MapManager:
+		MapManager.player_spawned.connect(_on_player_spawned)
 
 
 func has_player(id: int) -> bool:
@@ -20,14 +27,12 @@ func add_player(id: int):
 	
 	active_players[id] = {
 		"id": id,
-		"character_type": -1,  # Not selected yet
+		"character_type": -1,
 		"spawn_time": Time.get_unix_time_from_system(),
 		"synced": false,
-		"party_id": -1 # No party initially
+		"party_id": -1,
+		"last_map": "" # Track last map for respawn
 	}
-	
-	# Sync existing entities to new player
-	_sync_entities_to_player(id)
 	
 	# Request character selection from client
 	rpc_id(id, "_request_character_selection", id)
@@ -37,61 +42,32 @@ func remove_player(id: int):
 	print("Player %d left - removing character" % id)
 	NetworkUtils.log_network_event("PLAYER_LEAVE", "Player ID: %d" % id)
 	
-	# Notify PartyManager that player disconnected
+	# Save their current map before disconnect
+	if multiplayer.is_server() and id in active_players:
+		var current_map = MapManager.get_player_map(id)
+		if current_map:
+			active_players[id]["last_map"] = current_map
+			# Quick save before disconnect
+			var quick_data = _get_quick_save_data(id)
+			if not quick_data.is_empty():
+				_save_player_data_to_file(quick_data)
+	
+	# Notify map manager to clean up
+	MapManager.handle_player_disconnect(id)
+	
+	# Notify PartyManager
 	if PartyManager:
 		PartyManager._on_player_disconnected(id)
 	
 	# Remove from active players
 	if id in active_players:
 		active_players.erase(id)
-	
-	# Remove player node from scene
-	var spawn_node = NetworkUtils.get_players_spawn_node(get_tree())
-	if spawn_node and spawn_node.has_node(str(id)):
-		(spawn_node.get_node(str(id)) as MultiplayerPlayerV2)._data_changed()
-		spawn_node.get_node(str(id)).queue_free()
 
 
 func cleanup():
 	"""Remove all networked entities and reset player tracking"""
 	print("Cleaning up all players and entities")
-	NetworkUtils.clear_networked_entities(get_tree())
 	active_players.clear()
-
-
-func get_active_players() -> Dictionary:
-	return active_players.duplicate()
-
-
-func get_player_count() -> int:
-	return active_players.size()
-
-
-func get_player_info(id: int) -> Dictionary:
-	return active_players.get(id, {})
-
-
-func get_player_node(player_id: int) -> MultiplayerPlayerV2:
-	var spawn_node = NetworkUtils.get_players_spawn_node(get_tree())
-	if spawn_node:
-		for child in spawn_node.get_children():
-			if child is MultiplayerPlayerV2 and child.player_id == player_id:
-				return child
-	return null # Return null if player node not found
-
-
-func get_player_id_from_name(player_name: String) -> int:
-	# This function should only run on the server where all player data is available.
-	if not multiplayer.is_server():
-		# Returning -1 on client because client may not have all player data.
-		return -1
-
-	for player_id in active_players.keys():
-		var player_info = active_players[player_id]
-		if player_info.get("username", "").to_lower() == player_name.to_lower():
-			return player_id
-	
-	return -1 # Player not found
 
 
 @rpc("call_local", "any_peer")
@@ -116,13 +92,134 @@ func _receive_initial_info(id: int, character_type: int, username: String):
 		return
 	
 	print("PlayerManager: Server received character: %s & username: %s from PID: %d" % [Constants.ClassType.find_key(character_type), username, id])
+	
 	if id in active_players:
 		active_players[id]["character_type"] = character_type
 		active_players[id]["username"] = username
-
+	
+	# Load player data (includes last map)
 	var player_data: Dictionary = _load_player_data_from_file(username)
 	
-	_spawn_character_for_player(id, character_type, username, player_data)
+	# Determine spawn map
+	var spawn_map = player_data.get("last_map", MapManager.DEFAULT_MAP)
+	if spawn_map.is_empty():
+		spawn_map = MapManager.DEFAULT_MAP
+	
+	active_players[id]["last_map"] = spawn_map
+	
+	# Request map spawn through MapManager
+	# For the host (player 1) we await so initialization continues immediately.
+	if id == 1 and multiplayer.is_server():
+		await MapManager.request_spawn_on_map(id, spawn_map)
+		# Now initialize the player character that was spawned
+		await _initialize_spawned_player(id, character_type, username, player_data)
+		return
+
+	# For remote players we store the loaded player data and request the map.
+	# Initialization will continue when MapManager emits `player_spawned`.
+	active_players[id]["player_data"] = player_data
+	active_players[id]["character_type"] = character_type
+	active_players[id]["username"] = username
+	MapManager.request_spawn_on_map(id, spawn_map)
+	return
+
+
+func _initialize_spawned_player(id: int, character_type: int, username: String, player_data: Dictionary):
+	"""Initialize a player that has been spawned by MapManager"""
+	
+	# Wait a frame to ensure the player node is fully added to the tree
+	await get_tree().process_frame
+	
+	var player_instance = get_player_node(id)
+	if not player_instance:
+		push_error("Could not find spawned player %d to initialize! (After waiting 1 frame)" % id)
+		# Try one more time with a longer wait
+		await get_tree().process_frame
+		player_instance = get_player_node(id)
+		if not player_instance:
+			push_error("STILL could not find spawned player %d after 2 frames!" % id)
+			return
+	
+	print("PlayerManager: Found player %d instance, starting initialization" % id)
+	
+	print("PlayerManager: Found player %d instance, starting initialization" % id)
+	
+	# Set up player
+	if not player_instance.class_component:
+		push_error("Player %d missing class_component!" % id)
+	elif player_instance.class_component:
+		player_instance.class_component.change_class(character_type)
+	
+	if not player_instance.stats_component:
+		push_error("Player %d missing stats_component!" % id)
+	elif player_instance.stats_component:
+		player_instance.stats_component.set_loading_mode(true)
+	
+	if player_instance.ability_component:
+		player_instance.ability_component.disconnect_level_signals()
+	
+	if player_instance.level_component:
+		player_instance.level_component._is_loading_data = true
+	
+	# Load player data
+	var has_save_data = not player_data.is_empty()
+	if has_save_data:
+		player_instance._load_data(player_data)
+		active_players[id]["party_id"] = player_data.get("party_id", -1)
+		player_instance.set_current_party_id(active_players[id]["party_id"])
+		
+		if player_instance.level_component:
+			for i in range(5):
+				await get_tree().process_frame
+	
+	# Reset loading flags
+	if player_instance.level_component:
+		player_instance.level_component._is_loading_data = false
+	
+	# Load inventory
+	if player_instance.player_inventory:
+		var inventory_data = player_data.get("inventory", {})
+		player_instance.player_inventory.load_player_inventory_silent(inventory_data)
+	
+	# Set default equipment if no save
+	if not player_data:
+		player_instance.equipment_component.weapon_slot.item = ResourceManager.get_item_by_name("Iron Sword")
+		player_instance.equipment_component.chest_slot.item = ResourceManager.get_item_by_name("White Shirt")
+		player_instance.equipment_component.legs_slot.item = ResourceManager.get_item_by_name("Blue Jean Shorts")
+		player_instance.equipment_component.feet_slot.item = ResourceManager.get_item_by_name("Leather Sandals")
+	
+	# Set health
+	if player_instance.health_component:
+		player_instance.health_component.current_health = player_data.get("current_health", 100)
+	
+	# Recalculate stats
+	if player_instance.stats_component:
+		await get_tree().process_frame
+		player_instance.stats_component.set_loading_mode(false)
+		player_instance.stats_component._recalculate_stats_server("PlayerSpawn")
+	
+	# Reconnect signals
+	if player_instance.ability_component:
+		player_instance.ability_component.reconnect_level_signals()
+	
+	# Sync to client
+	if id != 1 and player_instance.ability_component:
+		await get_tree().process_frame
+		player_instance.ability_component.sync_all_abilities_to_client(id)
+	
+	if player_instance.health_component:
+		player_instance.health_component.current_health = player_data.get("current_health", 100)
+	
+	if id != 1 and player_instance.buff_component:
+		await get_tree().process_frame
+		player_instance.buff_component.sync_all_buffs_to_client(id)
+	
+	if id in active_players:
+		active_players[id]["synced"] = true
+	
+	# Set username and class over network
+	player_instance.set_username.rpc(username)
+	player_instance.class_component.change_class_rpc(character_type)
 
 
 func _load_player_data_from_file(username: String) -> Dictionary:
@@ -131,132 +228,100 @@ func _load_player_data_from_file(username: String) -> Dictionary:
 		var file = FileAccess.open(file_path, FileAccess.READ)
 		var data = JSON.parse_string(file.get_as_text())
 		file.close()
-		data["party_id"] = data.get("party_id", -1) # Load party_id, default to -1
+		data["party_id"] = data.get("party_id", -1)
+		data["last_map"] = data.get("last_map", "")
 		return data
-	return {} # Return empty dictionary if no save file exists
+	return {}
 
 
-func _spawn_character_for_player(id: int, character_type: int, username: String, player_data: Dictionary):
-	"""Spawn a character instance for the given player"""
-	var player_instance = character_scene.instantiate() as MultiplayerPlayerV2
-
-	player_instance.player_id = id
-	player_instance.name = str(id)
+func _save_player_data_to_file(data: Dictionary):
+	"""Save player data to file"""
+	var username = data.get("username", "")
+	if username.is_empty():
+		return
 	
-	if player_instance.class_component:
-		player_instance.class_component.change_class(character_type)
+	var file_path = "player_%s.json" % username
+	var file = FileAccess.open(file_path, FileAccess.WRITE)
+	if file:
+		file.store_string(JSON.stringify(data))
+		file.close()
+
+
+func _get_quick_save_data(player_id: int) -> Dictionary:
+	"""Get minimal save data for disconnect"""
+	if not player_id in active_players:
+		return {}
 	
-	player_instance.add_to_group("networked_entities")
-
-	var spawn_node = NetworkUtils.get_players_spawn_node(get_tree())
-	if spawn_node:
-		spawn_node.add_child(player_instance, true)
-		
-		player_instance.set_username.rpc(username)
-		player_instance.class_component.change_class_rpc(character_type)
-		
-		if player_instance.stats_component:
-			player_instance.stats_component.set_loading_mode(true)
-		
-		# This prevents ability points from being granted during initial setup
-		if player_instance.ability_component:
-			player_instance.ability_component.disconnect_level_signals()
-		
-		# Set loading flag to prevent level up SFX during data load
-		if player_instance.level_component:
-			player_instance.level_component._is_loading_data = true
-		
-		# Load player data AFTER adding to scene
-		var has_save_data = not player_data.is_empty()
-		if has_save_data:
-			player_instance._load_data(player_data)
-			active_players[id]["party_id"] = player_data.get("party_id", -1) # Set party_id from loaded data
-			player_instance.set_current_party_id(active_players[id]["party_id"]) # Pass party_id to player_instance
-			
-			# Wait for level component to finish loading and granting ability points
-			if player_instance.level_component:
-				for i in range(5):
-					await get_tree().process_frame
-		
-		# Reset loading flag
-		if player_instance.level_component:
-			player_instance.level_component._is_loading_data = false
-		
-		# Load inventory - this now handles sync internally via PlayerInventory wrapper
-		if player_instance.player_inventory:
-			var inventory_data = player_data.get("inventory", {})
-			player_instance.player_inventory.load_player_inventory_silent(inventory_data)
-		
-		if not player_data:
-			player_instance.equipment_component.weapon_slot.item = ResourceManager.get_item_by_name("Iron Sword")
-			player_instance.equipment_component.chest_slot.item = ResourceManager.get_item_by_name("White Shirt")
-			player_instance.equipment_component.legs_slot.item = ResourceManager.get_item_by_name("Blue Jean Shorts")
-			player_instance.equipment_component.feet_slot.item = ResourceManager.get_item_by_name("Leather Sandals")
-		
-		# Make sure health is set correctly from the save data
-		if player_instance.health_component:
-			player_instance.health_component.current_health = player_data.get("current_health", 100)
-			
-		# Recalculate stats after all equipment is loaded/set
-		if player_instance.stats_component:
-			await get_tree().process_frame # Ensure equipment signals have processed
-			player_instance.stats_component.set_loading_mode(false)
-			player_instance.stats_component._recalculate_stats_server("PlayerSpawn")
-			
-		# Reconnect ability component signals after all setup is complete
-		if player_instance.ability_component:
-			player_instance.ability_component.reconnect_level_signals()
-
-		# IMPORTANT: Sync abilities AFTER data is fully loaded
-		if id != 1 and player_instance.ability_component:
-			await get_tree().process_frame
-			player_instance.ability_component.sync_all_abilities_to_client(id)
-		
-		# Make sure health is set correctly from the save data
-		if player_instance.health_component:
-			player_instance.health_component.current_health = player_data.get("current_health", 100)
-			
-		if id != 1 and player_instance.buff_component:
-			await get_tree().process_frame
-			var buff_component = player_instance.buff_component
-			buff_component.sync_all_buffs_to_client(id)
-		
-		if id in active_players:
-			active_players[id]["synced"] = true
-	else:
-		push_error("Could not find Players spawn node - cannot spawn character")
-		player_instance.queue_free()
-
-
-func _sync_entities_to_player(id: int):
-	"""Sync state of all existing networked entities to new player"""
-	var entity_count = 0
-	for entity in get_tree().get_nodes_in_group("networked_entities"):
-		var state_machine = entity.get_node_or_null("StateMachine")
-		if state_machine and state_machine.has_method("sync_state_to_peer"):
-			state_machine.sync_state_to_peer(id)
-			entity_count += 1
-		if (entity is DroppedItem):
-			entity.sync_state_to_peer(id)
-			entity_count += 1
+	var player_info = active_players[player_id]
+	var player_node = get_player_node(player_id)
 	
-	if entity_count > 0:
-		print("Synced %d entities to player %d" % [entity_count, id])
+	var data = {
+		"username": player_info.get("username", ""),
+		"last_map": MapManager.get_player_map(player_id),
+		"party_id": player_info.get("party_id", -1)
+	}
+	
+	if player_node:
+		if player_node.health_component:
+			data["current_health"] = player_node.health_component.current_health
+			data["max_health"] = player_node.health_component.max_health
+		if player_node.level_component:
+			data["level"] = player_node.level_component.level
+			data["experience"] = player_node.level_component.experience
+	
+	return data
 
 
-func force_respawn_player(id: int):
-	"""Force respawn a player (useful for debugging or admin functions)"""
+func get_player_node(player_id: int) -> MultiplayerPlayerV2:
+	"""Find player node across all maps"""
 	if not multiplayer.is_server():
-		print("Cannot force respawn: not server")
+		# Client only has current map
+		var current_map = MapManager.current_map_instance
+		if current_map:
+			var players_node = current_map.get_node_or_null("Players")
+			if players_node and players_node.has_node(str(player_id)):
+				var node = players_node.get_node(str(player_id))
+				if is_instance_valid(node):
+					return node
+	else:
+		# Server checks all active maps
+		for map_id in MapManager.active_maps.keys():
+			var map_instance = MapManager.active_maps[map_id].scene_instance
+			if not is_instance_valid(map_instance):
+				continue
+			var players_node = map_instance.get_node_or_null("Players")
+			if players_node and players_node.has_node(str(player_id)):
+				var node = players_node.get_node(str(player_id))
+				if is_instance_valid(node):
+					return node
+	
+	return null
+
+
+func get_active_players() -> Dictionary:
+	return active_players.duplicate()
+
+
+func get_player_count() -> int:
+	return active_players.size()
+
+
+func get_player_info(id: int) -> Dictionary:
+	return active_players.get(id, {})
+
+
+func _on_player_spawned(player_id: int) -> void:
+	"""Called by MapManager when a server-side player spawn has completed.
+	Continue initialization for the player (clients only were deferred).
+	"""
+	if not player_id in active_players:
+		print("PlayerManager: _on_player_spawned called for unknown player %d" % player_id)
 		return
-	
-	if not id in active_players:
-		print("Cannot force respawn: player %d not found" % id)
-		return
-	
-	# Remove existing character
-	remove_player(id)
-	await get_tree().process_frame
-	
-	# Re-add player
-	add_player(id)
+
+	var info = active_players[player_id]
+	var character_type = info.get("character_type", -1)
+	var username = info.get("username", "Player")
+	var player_data = info.get("player_data", {})
+
+	# Continue initialization
+	call_deferred("_initialize_spawned_player", player_id, character_type, username, player_data)

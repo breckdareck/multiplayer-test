@@ -330,7 +330,17 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 	# After the loop, display all collected hits as a single combo
 	if not damage_values.is_empty():
 		var spawn_pos = health_comp.damage_number_origin.global_position
-		get_node("/root/MainMenu/Level/Game").get_node("%DmgNumberSpawner").display_number_combo(damage_values, crit_values, spawn_pos)
+		# Use MapManager to locate the DmgNumberSpawner for the current map (safer than absolute path)
+		var dmg_spawner = MapManager.find_node_in_current_map("%DmgNumberSpawner")
+		if dmg_spawner:
+			dmg_spawner.display_number_combo(damage_values, crit_values, spawn_pos)
+		else:
+			# Fallback: try legacy path safely
+			var legacy = get_node_or_null("/root/MainMenu/Level/Game")
+			if legacy:
+				var fb = legacy.get_node_or_null("%DmgNumberSpawner")
+				if fb:
+					fb.display_number_combo(damage_values, crit_values, spawn_pos)
 
 
 func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelData) -> int:
