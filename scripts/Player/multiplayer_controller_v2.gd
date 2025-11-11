@@ -104,7 +104,7 @@ func _process(delta: float) -> void:
 	if _is_being_cleaned_up:
 		return
 
-	if multiplayer.is_server():
+	if get_tree().get_multiplayer().has_multiplayer_peer() and multiplayer.is_server():
 		state_machine.process_frame(delta)
 	
 
@@ -113,7 +113,7 @@ func _physics_process(delta: float) -> void:
 		return
 
 	# Server-authoritative physics processing
-	if multiplayer.is_server():
+	if get_tree().get_multiplayer().has_multiplayer_peer() and multiplayer.is_server():
 		_update_input_from_synchronizer()
 		state_machine.process_physics(delta)
 

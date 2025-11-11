@@ -5,9 +5,14 @@ var character_scene = preload("res://scenes/Player/player.tscn")
 var active_players: Dictionary = {}
 
 
+func has_player(id: int) -> bool:
+	return id in active_players
+
+
 func add_host_player():
 	"""Add the host player (ID 1) in listen server mode"""
 	call_deferred("add_player", 1)
+
 
 func add_player(id: int):
 	print("Player %d joined - preparing to spawn character" % id)
@@ -26,6 +31,7 @@ func add_player(id: int):
 	
 	# Request character selection from client
 	rpc_id(id, "_request_character_selection", id)
+
 
 func remove_player(id: int):
 	print("Player %d left - removing character" % id)
@@ -52,17 +58,18 @@ func cleanup():
 	NetworkUtils.clear_networked_entities(get_tree())
 	active_players.clear()
 
+
 func get_active_players() -> Dictionary:
 	return active_players.duplicate()
+
 
 func get_player_count() -> int:
 	return active_players.size()
 
-func has_player(id: int) -> bool:
-	return id in active_players
 
 func get_player_info(id: int) -> Dictionary:
 	return active_players.get(id, {})
+
 
 func get_player_node(player_id: int) -> MultiplayerPlayerV2:
 	var spawn_node = NetworkUtils.get_players_spawn_node(get_tree())
@@ -71,6 +78,7 @@ func get_player_node(player_id: int) -> MultiplayerPlayerV2:
 			if child is MultiplayerPlayerV2 and child.player_id == player_id:
 				return child
 	return null # Return null if player node not found
+
 
 func get_player_id_from_name(player_name: String) -> int:
 	# This function should only run on the server where all player data is available.
@@ -85,6 +93,7 @@ func get_player_id_from_name(player_name: String) -> int:
 	
 	return -1 # Player not found
 
+
 @rpc("call_local", "any_peer")
 func _request_character_selection(id: int):
 	"""Called on client to request their character selection"""
@@ -98,8 +107,8 @@ func _request_character_selection(id: int):
 	
 	print("PlayerManager: Client sending character: %s & username: %s from PID: %d" % [Constants.ClassType.find_key(selected_char), username, id])
 	rpc_id(1, "_receive_initial_info", id, selected_char, username)
-	
-	
+
+
 @rpc("call_local", "any_peer")
 func _receive_initial_info(id: int, character_type: int, username: String):
 	"""Called on server with all info needed to spawn a player."""
@@ -114,8 +123,8 @@ func _receive_initial_info(id: int, character_type: int, username: String):
 	var player_data: Dictionary = _load_player_data_from_file(username)
 	
 	_spawn_character_for_player(id, character_type, username, player_data)
-	
-	
+
+
 func _load_player_data_from_file(username: String) -> Dictionary:
 	var file_path = "player_%s.json" % username
 	if FileAccess.file_exists(file_path):
@@ -125,7 +134,7 @@ func _load_player_data_from_file(username: String) -> Dictionary:
 		data["party_id"] = data.get("party_id", -1) # Load party_id, default to -1
 		return data
 	return {} # Return empty dictionary if no save file exists
-	
+
 
 func _spawn_character_for_player(id: int, character_type: int, username: String, player_data: Dictionary):
 	"""Spawn a character instance for the given player"""
@@ -233,6 +242,7 @@ func _sync_entities_to_player(id: int):
 	
 	if entity_count > 0:
 		print("Synced %d entities to player %d" % [entity_count, id])
+
 
 func force_respawn_player(id: int):
 	"""Force respawn a player (useful for debugging or admin functions)"""

@@ -132,6 +132,8 @@ func spawn_damage_number(args: Array) -> Label:
 	sync.replication_config.add_property(".:position")
 	sync.replication_config.add_property(".:scale")
 	sync.replication_config.add_property(".:pivot_offset")
+	sync.replication_config.add_property(".:modulate")
+	
 	
 	var font = DAMAGE_NUMBERS_1
 	var font_size = 290

@@ -421,6 +421,7 @@ visibility_update_mode = 1
 [node name="InputSynchronizer" type="MultiplayerSynchronizer" parent="."]
 unique_name_in_owner = true
 replication_config = SubResource("SceneReplicationConfig_80evv")
+public_visibility = false
 script = ExtResource("2_hxkm2")
 
 [node name="DmgNumOrigin" type="Node2D" parent="."]

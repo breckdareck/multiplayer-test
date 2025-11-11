@@ -1,32 +1,11 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=13 format=3 uid="uid://b6cwvujcw345t"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=8 format=3 uid="uid://b6cwvujcw345t"]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_fhlga"]
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="2_agr5k"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="3_hxkiv"]
 [ext_resource type="SpriteFrames" uid="uid://baqtyjguyoxo2" path="res://resources/Enemies/Fox/SF_Fox.tres" id="4_agr5k"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_17tps"]
 size = Vector2(64, 37)
-
-[sub_resource type="Resource" id="Resource_ex684"]
-script = ExtResource("1_fhlga")
-base_value = 0
-metadata/_custom_type_script = "uid://cptesvvlfbytw"
-
-[sub_resource type="Resource" id="Resource_iglj4"]
-script = ExtResource("1_fhlga")
-base_value = 0
-metadata/_custom_type_script = "uid://cptesvvlfbytw"
-
-[sub_resource type="Resource" id="Resource_h1jh3"]
-script = ExtResource("1_fhlga")
-base_value = 3
-metadata/_custom_type_script = "uid://cptesvvlfbytw"
-
-[sub_resource type="Resource" id="Resource_st7t5"]
-script = ExtResource("1_fhlga")
-base_value = 2
-metadata/_custom_type_script = "uid://cptesvvlfbytw"
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_6wkew"]
 radius = 8.0
@@ -48,12 +27,6 @@ script = ExtResource("3_hxkiv")
 monster_name = "Fox"
 monster_level = 2
 movement_speed = 40.0
-base_stats = Dictionary[int, ExtResource("1_fhlga")]({
-8: SubResource("Resource_ex684"),
-9: SubResource("Resource_iglj4"),
-12: SubResource("Resource_h1jh3"),
-13: SubResource("Resource_st7t5")
-})
 sprite_frames = ExtResource("4_agr5k")
 character_collision_shape = SubResource("CircleShape2D_n6pvg")
 body_hitbox_shape = SubResource("CapsuleShape2D_6wkew")

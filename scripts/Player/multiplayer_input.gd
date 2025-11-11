@@ -17,6 +17,7 @@ var _is_being_cleaned_up := false
 @onready var player = $".."
 
 func _ready():
+	self.set_visibility_for(1, true)
 	if get_multiplayer_authority() != multiplayer.get_unique_id():
 		set_process(false)
 		set_physics_process(false)

@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=6 format=3 uid="uid://bdgp1aag6ak44"]
+
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_umika"]
+[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_ca8ig"]
+[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_rwekt"]
+
+[sub_resource type="Resource" id="Resource_i8y8o"]
+script = ExtResource("1_umika")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 15
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1ltsw"]
+atlas = ExtResource("2_ca8ig")
+region = Rect2(77, 91, 6, 3)
+
+[resource]
+script = ExtResource("3_rwekt")
+armor_type = 1
+bonus_stats = Dictionary[int, ExtResource("1_umika")]({
+8: SubResource("Resource_i8y8o")
+})
+item_id = "114404121315-6958-061515-3319-121412107760451412"
+name = "Blue Lolico Armor"
+icon = SubResource("AtlasTexture_1ltsw")
+item_type = 1
+item_level = 10
+metadata/_custom_type_script = "uid://c2fkjsnluarqk"
