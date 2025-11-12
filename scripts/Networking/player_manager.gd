@@ -110,7 +110,7 @@ func _receive_initial_info(id: int, character_type: int, username: String):
 	# Request map spawn through MapManager
 	# For the host (player 1) we await so initialization continues immediately.
 	if id == 1 and multiplayer.is_server():
-		await MapManager.request_spawn_on_map(id, spawn_map)
+		await MapManager.request_map_change(id, spawn_map)
 		# Now initialize the player character that was spawned
 		await _initialize_spawned_player(id, character_type, username, player_data)
 		return
@@ -120,7 +120,7 @@ func _receive_initial_info(id: int, character_type: int, username: String):
 	active_players[id]["player_data"] = player_data
 	active_players[id]["character_type"] = character_type
 	active_players[id]["username"] = username
-	MapManager.request_spawn_on_map(id, spawn_map)
+	MapManager.request_map_change(id, spawn_map)
 	return
 
 

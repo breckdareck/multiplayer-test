@@ -10,6 +10,7 @@ extends MultiplayerSynchronizer
 
 var input_direction
 var input_down: bool
+var portal_interact: bool
 var is_left_pressed := false
 var is_right_pressed := false
 var _is_being_cleaned_up := false
@@ -24,6 +25,7 @@ func _ready():
 
 	input_direction = Input.get_axis("Move Left", "Move Right")
 	input_down = Input.is_action_pressed("Move Down")
+	portal_interact = Input.is_action_just_pressed("Portal Interact")
 
 func _physics_process(_delta: float) -> void:
 	if InputManager.is_locked():
@@ -77,6 +79,14 @@ func _process(_delta: float) -> void:
 		pickup.rpc(true)
 	else:
 		pickup.rpc(false)
+	
+	if Input.is_action_just_pressed("Portal Interact"):
+		portal.rpc()
+
+@rpc("call_local")
+func portal():
+	if multiplayer.is_server() and is_instance_valid(player):
+		player.do_portal_interact = true
 
 @rpc("call_local")
 func jump():

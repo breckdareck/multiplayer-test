@@ -1,34 +1,34 @@
-[gd_scene load_steps=35 format=4 uid="uid://d1hwvomjwdrjv"]
+[gd_scene load_steps=35 format=4 uid="uid://db1ed5aenlb8r"]
 
-[ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_e24jv"]
-[ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/damage_numbers.gd" id="1_ryi0r"]
-[ext_resource type="Texture2D" uid="uid://jorjvuc5wn72" path="res://assets/sprites/world_tileset.png" id="2_l25cu"]
-[ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="3_j167y"]
-[ext_resource type="PackedScene" uid="uid://brfb5t5im33fl" path="res://scenes/Gameplay/portal.tscn" id="3_jq5g6"]
-[ext_resource type="Texture2D" uid="uid://cd28i3fo3v1m0" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/country village tileset.png" id="3_l25cu"]
-[ext_resource type="Texture2D" uid="uid://b8r3ov605pnuj" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/Country_village_props.png" id="4_j167y"]
-[ext_resource type="PackedScene" uid="uid://bx2n3vrfxk75m" path="res://scenes/Gameplay/killzone.tscn" id="4_kgokg"]
-[ext_resource type="PackedScene" uid="uid://dprr4d0kjfbgn" path="res://scenes/Gameplay/platform.tscn" id="6_ryi0r"]
-[ext_resource type="PackedScene" uid="uid://q6iqwsi8meq4" path="res://scenes/NPC/slime.tscn" id="7_ukxhe"]
-[ext_resource type="PackedScene" uid="uid://betkg72vd7iav" path="res://scenes/NPC/Minifolks/boar.tscn" id="8_pd7st"]
-[ext_resource type="PackedScene" uid="uid://c06qbiant345e" path="res://scenes/NPC/Minifolks/bunny.tscn" id="9_qb3j5"]
-[ext_resource type="PackedScene" uid="uid://sxpgdsdpf5ma" path="res://scenes/NPC/Minifolks/fox.tscn" id="10_2ya06"]
-[ext_resource type="Script" uid="uid://bwpy3okndk0cu" path="res://scripts/Enemy/enemy_spawner.gd" id="11_e24jv"]
-[ext_resource type="PackedScene" uid="uid://c0fdrl7mq5ou7" path="res://scenes/NPC/goblin.tscn" id="12_jq5g6"]
-[ext_resource type="Texture2D" uid="uid://bcoeao6eds8lo" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/background.png" id="18_qb3j5"]
-[ext_resource type="Texture2D" uid="uid://c4yftnkh1io5d" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Back_Forest_1.png" id="19_2ya06"]
-[ext_resource type="Texture2D" uid="uid://clxbanmod7qm8" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Back_Forest_2.png" id="20_e24jv"]
-[ext_resource type="PackedScene" uid="uid://f4gho8l6o1ld" path="res://scenes/NPC/merchant_npc.tscn" id="20_ukxhe"]
-[ext_resource type="Texture2D" uid="uid://wwvi0f5l6iis" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Back_tree_1.png" id="21_jq5g6"]
-[ext_resource type="Resource" uid="uid://cjl5ggbs3c237" path="res://resources/Items/Grape_Potion.tres" id="21_pd7st"]
-[ext_resource type="Texture2D" uid="uid://bltuclvu72dcb" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Back_tree_2.png" id="22_lqda6"]
-[ext_resource type="Resource" uid="uid://jwwtuktlssm4" path="res://resources/Items/Exp_Potion.tres" id="22_qb3j5"]
-[ext_resource type="Texture2D" uid="uid://dn66ntccqo3io" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/props_clouds.png" id="23_rm7na"]
-[ext_resource type="Script" uid="uid://igk1rxt26f2i" path="res://scripts/UI/global_drop_handler.gd" id="24_drop_handler"]
-[ext_resource type="Script" uid="uid://b4ed7py37e6nt" path="res://scripts/Gameplay/enemy_multiplayer_spawner.gd" id="25_enemy_ms"]
+[ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_cjdf1"]
+[ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/damage_numbers.gd" id="2_1kuag"]
+[ext_resource type="PackedScene" uid="uid://brfb5t5im33fl" path="res://scenes/Gameplay/portal.tscn" id="3_1kuag"]
+[ext_resource type="Texture2D" uid="uid://jorjvuc5wn72" path="res://assets/sprites/world_tileset.png" id="3_kl3sv"]
+[ext_resource type="Texture2D" uid="uid://cd28i3fo3v1m0" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/country village tileset.png" id="4_crfkb"]
+[ext_resource type="Texture2D" uid="uid://b8r3ov605pnuj" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/Country_village_props.png" id="5_mbq3j"]
+[ext_resource type="Texture2D" uid="uid://bcoeao6eds8lo" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/background.png" id="6_3s16u"]
+[ext_resource type="Texture2D" uid="uid://c4yftnkh1io5d" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Back_Forest_1.png" id="7_4pvtt"]
+[ext_resource type="Texture2D" uid="uid://clxbanmod7qm8" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Back_Forest_2.png" id="8_4f6qd"]
+[ext_resource type="Texture2D" uid="uid://wwvi0f5l6iis" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Back_tree_1.png" id="9_wexs7"]
+[ext_resource type="Texture2D" uid="uid://bltuclvu72dcb" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Back_tree_2.png" id="10_xwe2w"]
+[ext_resource type="Texture2D" uid="uid://dn66ntccqo3io" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/props_clouds.png" id="11_giaq5"]
+[ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="12_qxsoa"]
+[ext_resource type="PackedScene" uid="uid://bx2n3vrfxk75m" path="res://scenes/Gameplay/killzone.tscn" id="13_fp2kg"]
+[ext_resource type="PackedScene" uid="uid://dprr4d0kjfbgn" path="res://scenes/Gameplay/platform.tscn" id="14_q0b30"]
+[ext_resource type="PackedScene" uid="uid://q6iqwsi8meq4" path="res://scenes/NPC/slime.tscn" id="15_bi2kq"]
+[ext_resource type="PackedScene" uid="uid://betkg72vd7iav" path="res://scenes/NPC/Minifolks/boar.tscn" id="16_vd41r"]
+[ext_resource type="PackedScene" uid="uid://c06qbiant345e" path="res://scenes/NPC/Minifolks/bunny.tscn" id="17_np2v1"]
+[ext_resource type="PackedScene" uid="uid://sxpgdsdpf5ma" path="res://scenes/NPC/Minifolks/fox.tscn" id="18_sne6m"]
+[ext_resource type="Script" uid="uid://bwpy3okndk0cu" path="res://scripts/Enemy/enemy_spawner.gd" id="19_l4hlk"]
+[ext_resource type="PackedScene" uid="uid://c0fdrl7mq5ou7" path="res://scenes/NPC/goblin.tscn" id="20_abesk"]
+[ext_resource type="Script" uid="uid://b4ed7py37e6nt" path="res://scripts/Gameplay/enemy_multiplayer_spawner.gd" id="21_iyjnr"]
+[ext_resource type="PackedScene" uid="uid://f4gho8l6o1ld" path="res://scenes/NPC/merchant_npc.tscn" id="22_rf8ra"]
+[ext_resource type="Resource" uid="uid://cjl5ggbs3c237" path="res://resources/Items/Grape_Potion.tres" id="23_buurd"]
+[ext_resource type="Resource" uid="uid://jwwtuktlssm4" path="res://resources/Items/Exp_Potion.tres" id="24_eypwa"]
+[ext_resource type="Script" uid="uid://igk1rxt26f2i" path="res://scripts/UI/global_drop_handler.gd" id="25_dpdbm"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lnu2h"]
-texture = ExtResource("2_l25cu")
+texture = ExtResource("3_kl3sv")
 0:0/0 = 0
 0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
 1:0/0 = 0
@@ -190,7 +190,7 @@ texture = ExtResource("2_l25cu")
 0:3/0 = 0
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_j167y"]
-texture = ExtResource("3_l25cu")
+texture = ExtResource("4_crfkb")
 10:0/0 = 0
 11:0/0 = 0
 12:0/0 = 0
@@ -359,7 +359,7 @@ texture = ExtResource("3_l25cu")
 13:2/0 = 0
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_kgokg"]
-texture = ExtResource("4_j167y")
+texture = ExtResource("5_mbq3j")
 2:0/0 = 0
 3:0/0 = 0
 4:0/0 = 0
@@ -558,8 +558,9 @@ _data = {
 &"move": SubResource("Animation_lnu2h")
 }
 
-[node name="Game" type="Node2D"]
-script = ExtResource("1_e24jv")
+[node name="Game2" type="Node2D"]
+position = Vector2(0, 1133)
+script = ExtResource("1_cjdf1")
 
 [node name="PlayerSpawner" type="MultiplayerSpawner" parent="."]
 unique_name_in_owner = true
@@ -568,7 +569,7 @@ spawn_path = NodePath("../Players")
 [node name="DmgNumberSpawner" type="MultiplayerSpawner" parent="."]
 unique_name_in_owner = true
 spawn_path = NodePath("..")
-script = ExtResource("1_ryi0r")
+script = ExtResource("2_1kuag")
 
 [node name="ItemSpawner" type="MultiplayerSpawner" parent="."]
 _spawnable_scenes = PackedStringArray("uid://b43dktokqxhjo")
@@ -578,11 +579,11 @@ spawn_path = NodePath("../ItemDrops")
 _spawnable_scenes = PackedStringArray("uid://d0ig4oiimrnei")
 spawn_path = NodePath("../Projectiles")
 
-[node name="Portal" parent="." instance=ExtResource("3_jq5g6")]
+[node name="Portal" parent="." instance=ExtResource("3_1kuag")]
 position = Vector2(-72, -64)
 collision_layer = 0
 collision_mask = 2
-target_map_id = "game2"
+target_map_id = "game"
 target_spawn_point_name = "PlayerSpawn"
 
 [node name="Camera2D" type="Camera2D" parent="."]
@@ -620,37 +621,37 @@ tile_set = SubResource("TileSet_lbhrr")
 z_index = -10
 position = Vector2(864, -193)
 scale = Vector2(2, 2)
-texture = ExtResource("18_qb3j5")
+texture = ExtResource("6_3s16u")
 
 [node name="Background4" type="Sprite2D" parent="TileMap"]
 z_index = -9
 position = Vector2(864, -193)
 scale = Vector2(2, 2)
-texture = ExtResource("19_2ya06")
+texture = ExtResource("7_4pvtt")
 
 [node name="Background5" type="Sprite2D" parent="TileMap"]
 z_index = -8
 position = Vector2(864, -193)
 scale = Vector2(2, 2)
-texture = ExtResource("20_e24jv")
+texture = ExtResource("8_4f6qd")
 
 [node name="Background6" type="Sprite2D" parent="TileMap"]
 z_index = -7
 position = Vector2(864, -193)
 scale = Vector2(2, 2)
-texture = ExtResource("21_jq5g6")
+texture = ExtResource("9_wexs7")
 
 [node name="Background7" type="Sprite2D" parent="TileMap"]
 z_index = -7
 position = Vector2(864, -193)
 scale = Vector2(2, 2)
-texture = ExtResource("22_lqda6")
+texture = ExtResource("10_xwe2w")
 
 [node name="Background8" type="Sprite2D" parent="TileMap"]
 z_index = -7
 position = Vector2(879, -357)
 scale = Vector2(2, 2)
-texture = ExtResource("23_rm7na")
+texture = ExtResource("11_giaq5")
 
 [node name="Tutorial" type="Label" parent="."]
 offset_left = -93.0
@@ -658,14 +659,14 @@ offset_top = -91.0
 offset_right = 89.0
 offset_bottom = -68.0
 theme_override_colors/font_color = Color(0.0980392, 0.313726, 0.752941, 1)
-theme_override_fonts/font = ExtResource("3_j167y")
+theme_override_fonts/font = ExtResource("12_qxsoa")
 theme_override_font_sizes/font_size = 8
 text = "Space to Jump.
 Arrow Keys or A/D to Move.
 Ctrl to Attack"
 horizontal_alignment = 1
 
-[node name="Killzone" parent="." instance=ExtResource("4_kgokg")]
+[node name="Killzone" parent="." instance=ExtResource("13_fp2kg")]
 position = Vector2(-1, 92)
 monitoring = false
 monitorable = false
@@ -675,10 +676,10 @@ shape = SubResource("WorldBoundaryShape2D_p57ef")
 
 [node name="Platforms" type="Node" parent="."]
 
-[node name="Platform" parent="Platforms" instance=ExtResource("6_ryi0r")]
-position = Vector2(89, -31)
+[node name="Platform" parent="Platforms" instance=ExtResource("14_q0b30")]
+position = Vector2(89, 1102)
 
-[node name="Platform2" parent="Platforms" node_paths=PackedStringArray("anim_player_optional") instance=ExtResource("6_ryi0r")]
+[node name="Platform2" parent="Platforms" node_paths=PackedStringArray("anim_player_optional") instance=ExtResource("14_q0b30")]
 position = Vector2(-240, 37)
 anim_player_optional = NodePath("AnimationPlayer")
 
@@ -692,63 +693,64 @@ autoplay = "move"
 
 [node name="Enemies" type="Node" parent="."]
 
-[node name="Slime" parent="Enemies" instance=ExtResource("7_ukxhe")]
-position = Vector2(-688, 16)
+[node name="Slime" parent="Enemies" instance=ExtResource("15_bi2kq")]
+position = Vector2(-688, 1149)
 respawnable = true
 
-[node name="Slime2" parent="Enemies" instance=ExtResource("7_ukxhe")]
-position = Vector2(-647, 16)
+[node name="Slime2" parent="Enemies" instance=ExtResource("15_bi2kq")]
+position = Vector2(-647, 1149)
 respawnable = true
 
-[node name="Slime3" parent="Enemies" instance=ExtResource("7_ukxhe")]
-position = Vector2(-728, 16)
+[node name="Slime3" parent="Enemies" instance=ExtResource("15_bi2kq")]
+position = Vector2(-728, 1149)
 respawnable = true
 
-[node name="Boar" parent="Enemies" instance=ExtResource("8_pd7st")]
-position = Vector2(110, 15)
+[node name="Boar" parent="Enemies" instance=ExtResource("16_vd41r")]
+position = Vector2(110, 1148)
 respawnable = true
 
-[node name="Boar2" parent="Enemies" instance=ExtResource("8_pd7st")]
-position = Vector2(155, 15)
+[node name="Boar2" parent="Enemies" instance=ExtResource("16_vd41r")]
+position = Vector2(155, 1148)
 respawnable = true
 
-[node name="Boar3" parent="Enemies" instance=ExtResource("8_pd7st")]
-position = Vector2(220, 15)
+[node name="Boar3" parent="Enemies" instance=ExtResource("16_vd41r")]
+position = Vector2(220, 1148)
 respawnable = true
 
-[node name="Boar4" parent="Enemies" instance=ExtResource("8_pd7st")]
-position = Vector2(272, 15)
+[node name="Boar4" parent="Enemies" instance=ExtResource("16_vd41r")]
+position = Vector2(272, 1148)
 respawnable = true
 
-[node name="Bunny" parent="Enemies" instance=ExtResource("9_qb3j5")]
+[node name="Bunny" parent="Enemies" instance=ExtResource("17_np2v1")]
+position = Vector2(0, 1133)
 respawnable = true
 
-[node name="Bunny2" parent="Enemies" instance=ExtResource("9_qb3j5")]
-position = Vector2(-172, 16)
+[node name="Bunny2" parent="Enemies" instance=ExtResource("17_np2v1")]
+position = Vector2(-172, 1149)
 respawnable = true
 
-[node name="Bunny3" parent="Enemies" instance=ExtResource("9_qb3j5")]
-position = Vector2(128, 16)
+[node name="Bunny3" parent="Enemies" instance=ExtResource("17_np2v1")]
+position = Vector2(128, 1149)
 respawnable = true
 
-[node name="Bunny4" parent="Enemies" instance=ExtResource("9_qb3j5")]
-position = Vector2(533, 15)
+[node name="Bunny4" parent="Enemies" instance=ExtResource("17_np2v1")]
+position = Vector2(533, 1148)
 respawnable = true
 
-[node name="Bunny5" parent="Enemies" instance=ExtResource("9_qb3j5")]
-position = Vector2(873, -17)
+[node name="Bunny5" parent="Enemies" instance=ExtResource("17_np2v1")]
+position = Vector2(873, 1116)
 respawnable = true
 
-[node name="Fox" parent="Enemies" instance=ExtResource("10_2ya06")]
-position = Vector2(725, 16)
+[node name="Fox" parent="Enemies" instance=ExtResource("18_sne6m")]
+position = Vector2(725, 1149)
 respawnable = true
 
-[node name="Fox2" parent="Enemies" instance=ExtResource("10_2ya06")]
-position = Vector2(910, -17)
+[node name="Fox2" parent="Enemies" instance=ExtResource("18_sne6m")]
+position = Vector2(910, 1116)
 respawnable = true
 
-[node name="Fox3" parent="Enemies" instance=ExtResource("10_2ya06")]
-position = Vector2(1075, 31)
+[node name="Fox3" parent="Enemies" instance=ExtResource("18_sne6m")]
+position = Vector2(1075, 1164)
 respawnable = true
 
 [node name="Projectiles" type="Node" parent="."]
@@ -756,8 +758,8 @@ respawnable = true
 [node name="ItemDrops" type="Node" parent="."]
 
 [node name="GoblinSpawner" type="Node" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
-script = ExtResource("11_e24jv")
-enemy_scene = ExtResource("12_jq5g6")
+script = ExtResource("19_l4hlk")
+enemy_scene = ExtResource("20_abesk")
 spawn_locations = [NodePath("EnemySpawnLocation"), NodePath("EnemySpawnLocation2"), NodePath("EnemySpawnLocation3")]
 spawn_container = NodePath("../Enemies")
 pool_size = 10
@@ -766,27 +768,27 @@ respawn_delay = 5.0
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="GoblinSpawner" node_paths=PackedStringArray("enemy_spawner")]
 _spawnable_scenes = PackedStringArray("uid://c0fdrl7mq5ou7")
 spawn_path = NodePath("../../Enemies")
-script = ExtResource("25_enemy_ms")
+script = ExtResource("21_iyjnr")
 enemy_spawner = NodePath("..")
 
 [node name="EnemySpawnLocation" type="Marker2D" parent="GoblinSpawner"]
-position = Vector2(423, 0)
+position = Vector2(423, 1133)
 
 [node name="EnemySpawnLocation2" type="Marker2D" parent="GoblinSpawner"]
-position = Vector2(341, 0)
+position = Vector2(341, 1133)
 
 [node name="EnemySpawnLocation3" type="Marker2D" parent="GoblinSpawner"]
-position = Vector2(382, 0)
+position = Vector2(382, 1133)
 
-[node name="MerchantNPC" parent="." instance=ExtResource("20_ukxhe")]
+[node name="MerchantNPC" parent="." instance=ExtResource("22_rf8ra")]
 position = Vector2(-17, -18)
 
 [node name="MerchantInventory" parent="MerchantNPC" index="2" node_paths=PackedStringArray("shop_window")]
 shop_window = NodePath("../CanvasLayer/ShopWindow")
 base_stock_config = Array[Dictionary]([{
-ExtResource("21_pd7st"): -1
+ExtResource("23_buurd"): -1
 }, {
-ExtResource("22_qb3j5"): 10
+ExtResource("24_eypwa"): 10
 }])
 
 [node name="ShopWindow" parent="MerchantNPC/CanvasLayer" index="0"]
@@ -806,7 +808,7 @@ offset_bottom = 648.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
-script = ExtResource("24_drop_handler")
+script = ExtResource("25_dpdbm")
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 

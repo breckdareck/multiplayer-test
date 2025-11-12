@@ -1101,6 +1101,7 @@ shape = SubResource("CircleShape2D_h0wtf")
 position = Vector2(0, -16)
 zoom = Vector2(4, 4)
 process_callback = 0
+limit_enabled = false
 limit_bottom = 120
 position_smoothing_enabled = true
 

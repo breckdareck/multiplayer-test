@@ -8,7 +8,6 @@ const SERVER_ID: int = 1
 @export var player_id := 1:
 	set(id):
 		player_id = id
-		# Safe access to InputSynchronizer
 		var input_sync = get_node_or_null("%InputSynchronizer")
 		if input_sync:
 			input_sync.set_multiplayer_authority(id)
@@ -48,6 +47,8 @@ var do_attack: bool = false
 var do_jump: bool = false
 var do_drop: bool = false
 var do_pickup: bool = false
+var do_portal_interact: bool = false
+var current_portal: Portal = null
 
 var _sprite_base_offset_x: float
 var _is_being_cleaned_up: bool = false
@@ -64,6 +65,7 @@ const GAME_MENU_SCENE = preload("res://scenes/UI/game_menu.tscn")
 
 @onready var menu_container: MainMenu = get_tree().current_scene.get_node("%MenuContainer")
 @onready var game_menu: GameMenu
+@onready var input_synchronizer: MultiplayerSynchronizer = $InputSynchronizer
 
 
 #=============================================================================
@@ -116,6 +118,19 @@ func _physics_process(delta: float) -> void:
 
 	# Visual updates run on all peers (clients and server)
 	_update_sprite_facing_direction()
+
+	# Process portal interaction
+	if do_portal_interact:
+		do_portal_interact = false # Reset the flag immediately
+		if is_instance_valid(current_portal):
+			current_portal.interact(player_id)
+
+
+func set_current_portal(portal_node: Portal):
+	current_portal = portal_node
+
+func clear_current_portal():
+	current_portal = null
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -315,13 +330,13 @@ func _handle_sprite_change_on_server() -> void:
 	if sprite_frames:
 		change_sprite_rpc.rpc(class_component.get_class_name(), current_level)
 
-func change_to_map(new_map_id: String):
+func change_to_map(new_map_id: String, spawn_point_name: String = ""):
 	if not multiplayer.is_server():
 		# Client requests map change from server
-		request_map_change.rpc_id(1, new_map_id)
+		request_map_change_rpc.rpc_id(1, new_map_id, spawn_point_name)
 	else:
 		# Server can change directly
-		MapManager.change_player_map(player_id, new_map_id)
+		MapManager.request_map_change(player_id, new_map_id, spawn_point_name)
 
 
 func set_current_party_id(id: int):
@@ -561,17 +576,17 @@ func set_username(uname: String) -> void:
 		
 		
 @rpc("any_peer", "call_local", "reliable")
-func request_map_change(new_map_id: String):
+func request_map_change_rpc(new_map_id: String, spawn_point_name: String = ""):
 	"""Server receives map change request"""
 	if not multiplayer.is_server():
 		return
 	
 	var requester_id = multiplayer.get_remote_sender_id()
-	print("Player %d requesting map change to '%s'" % [requester_id, new_map_id])
+	print("Player %d requesting map change to '%s' at spawn '%s'" % [requester_id, new_map_id, spawn_point_name])
 	
 	# Save player data before moving
 	_data_changed()
 	await get_tree().create_timer(0.1).timeout
 	
 	# Change map through MapManager
-	MapManager.change_player_map(requester_id, new_map_id)
+	MapManager.request_map_change(requester_id, new_map_id, spawn_point_name)

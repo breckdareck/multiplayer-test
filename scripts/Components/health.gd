@@ -112,45 +112,41 @@ func _on_regen_timer_timeout() -> void:
 	
 @rpc("any_peer", "call_local", "reliable")
 func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, is_crit: bool = false, show_number: bool = true) -> void:
-	if not multiplayer.is_server():
-		return
-		
+	# This function runs on both server and clients due to "call_local".
+	# Server handles game logic, clients handle visual effects.
+	
 	var source_str = "unknown"
 	if source:
 		source_str = str(source)
 	
-	_last_damage_source = source
-	
 	var is_player = (owner is MultiplayerPlayerV2)
 	
+	# --- Client-side and Server-side visual/audio effects ---
 	if show_number:
 		# Use MapManager helper to find the damage number spawner in the current map
 		var dmg_spawner = MapManager.find_node_in_current_map("%DmgNumberSpawner")
 		if dmg_spawner:
 			dmg_spawner.display_number(amount, damage_number_origin.global_position, is_crit, is_player)
-		else:
-			# Fallback: try to find a global path safely
-			var possible = get_node_or_null("/root/MainMenu/Level/Game")
-			if possible:
-				var fallback = possible.get_node_or_null("%DmgNumberSpawner")
-				if fallback:
-					fallback.display_number(amount, damage_number_origin.global_position, is_crit, is_player)
 	
 	if is_player:
 		# Assuming 'player_hit.wav' is the correct SFX.
+		# RPC to play SFX on all clients (including the one that took damage)
 		AudioManager.rpc("play_sfx_rpc", "res://assets/sounds/player_hit.wav", get_owner().global_position)
 	
-	
-	print("HealthComponent: Owner '%s' took %s damage from '%s'." % [get_owner().name, amount, source_str])
-	damaged.emit(amount, source)
-	
-	if is_invulnerable and not ignore_invuln or is_dead:
-		return
-	
-	self.current_health -= amount
-	if not ignore_invuln:
-		is_invulnerable = true
-		invulnerability_timer.start()
+	# --- Server-side game logic ---
+	if multiplayer.is_server():
+		_last_damage_source = source
+		
+		print("HealthComponent: Owner '%s' took %s damage from '%s'." % [get_owner().name, amount, source_str])
+		damaged.emit(amount, source)
+		
+		if is_invulnerable and not ignore_invuln or is_dead:
+			return
+		
+		self.current_health -= amount
+		if not ignore_invuln:
+			is_invulnerable = true
+			invulnerability_timer.start()
 
 
 @rpc("any_peer", "call_local", "reliable")

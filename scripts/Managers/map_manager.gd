@@ -9,6 +9,7 @@ signal player_spawned(player_id: int)
 # Map configuration - add your map scenes here
 const MAP_SCENES = {
 	"game": "res://scenes/Levels/game.tscn",
+	"game2": "res://scenes/Levels/game2.tscn",
 }
 
 const DEFAULT_MAP = "game"
@@ -56,65 +57,67 @@ func _spawn_map_instance(data: Dictionary) -> Node:
 
 # === SERVER LOGIC ===
 
-func request_spawn_on_map(player_id: int, map_id: String):
-	"""Ochestrates getting a player onto a specific map."""
+func request_map_change(player_id: int, target_map_id: String, target_spawn_point_name: String = ""):
+	"""Requests a player to be moved to a new map."""
 	if not multiplayer.is_server(): return
-	
-	print("MapManager: Player %d requesting spawn on map '%s'" % [player_id, map_id])
-	
-	if not map_id in MAP_SCENES:
-		map_id = DEFAULT_MAP
-	
+
+	print("MapManager: Player %d requesting map change to '%s' at spawn '%s'" % [player_id, target_map_id, target_spawn_point_name])
+
+	if not target_map_id in MAP_SCENES:
+		push_warning("MapManager: Invalid target_map_id '%s' for player %d. Using default map." % [target_map_id, player_id])
+		target_map_id = DEFAULT_MAP
+
+	# Remove player from current map
 	if player_id in player_current_maps:
 		_remove_player_from_map(player_id, player_current_maps[player_id])
-	
-	player_current_maps[player_id] = map_id
-	
-	if not map_id in active_maps:
-		_load_map_on_server(map_id)
-	
-	var map_instance = active_maps.get(map_id, {}).get("scene_instance")
+
+	player_current_maps[player_id] = target_map_id
+
+	# Load target map if not active
+	if not target_map_id in active_maps:
+		_load_map_on_server(target_map_id)
+
+	var map_instance = active_maps.get(target_map_id, {}).get("scene_instance")
 	if not is_instance_valid(map_instance):
-		push_error("Map instance for '%s' is invalid after load!" % map_id)
+		push_error("Map instance for '%s' is invalid after load for player %d!" % [target_map_id, player_id])
 		return
 
 	if player_id == 1:
 		current_map_instance = map_instance
-		current_map_id = map_id
-		_finalize_player_spawn(player_id, map_id)
+		current_map_id = target_map_id
+		_finalize_player_spawn(player_id, target_map_id, target_spawn_point_name)
 		return
 
-	client_set_current_map.rpc_id(player_id, map_instance.get_path())
-
-
-func _load_map_on_server(map_id: String):
-	"""Spawns a map scene using the MultiplayerSpawner."""
-	if map_id in active_maps: return
+	client_set_current_map.rpc_id(player_id, map_instance.get_path(), target_spawn_point_name)
 	
-	print("MapManager: Spawning map '%s' via MultiplayerSpawner" % map_id)
-	if not map_spawner:
-		push_error("MapManager: Map Spawner not found, cannot spawn map!")
-		return
-		
-	var map_instance = map_spawner.spawn({"map_id": map_id})
-	if not is_instance_valid(map_instance):
-		push_error("Failed to spawn map '%s' via MultiplayerSpawner!" % map_id)
-		return
+	
+func _load_map_on_server(map_id: String):                                                                                                           
+	if map_id in active_maps: return                                                                        
+																											
+	print("MapManager: Spawning map '%s' via MultiplayerSpawner" % map_id)                                  
+	if not map_spawner:                                                                                     
+		push_error("MapManager: Map Spawner not found, cannot spawn map!")                                  
+		return                                                                                              
+																											
+	var map_instance = map_spawner.spawn({"map_id": map_id})                                                
+	if not is_instance_valid(map_instance):                                                                 
+		push_error("Failed to spawn map '%s' via MultiplayerSpawner!" % map_id)                             
+		return                                                                                              
+																											
+	active_maps[map_id] = { "scene_instance": map_instance, "player_ids": [] }                              
+	map_loaded.emit(map_id) 
 
-	active_maps[map_id] = { "scene_instance": map_instance, "player_ids": [] }
-	map_loaded.emit(map_id)
 
-
-func _finalize_player_spawn(player_id: int, map_id: String):
+func _finalize_player_spawn(player_id: int, map_id: String, spawn_point_name: String = ""):
 	"""Creates the player character on the server via a PlayerSpawner."""
 	if not multiplayer.is_server() or not map_id in active_maps: return
 
-	print("MapManager: Finalizing spawn for player %d on map %s" % [player_id, map_id])
+	print("MapManager: Finalizing spawn for player %d on map %s at spawn '%s'" % [player_id, map_id, spawn_point_name])
 	active_maps[map_id].player_ids.append(player_id)
-	_spawn_player_on_server_map(player_id, map_id)
+	_spawn_player_on_server_map(player_id, map_id, spawn_point_name)
 
 
-func _spawn_player_on_server_map(player_id: int, map_id: String):
+func _spawn_player_on_server_map(player_id: int, map_id: String, spawn_point_name: String = ""):
 	"""Spawns a player character using the map's own PlayerSpawner."""
 	var map_instance = active_maps[map_id].scene_instance
 	var player_spawner = map_instance.get_node_or_null("PlayerSpawner")
@@ -122,16 +125,16 @@ func _spawn_player_on_server_map(player_id: int, map_id: String):
 		push_error("Map '%s' is missing a PlayerSpawner node!" % map_id)
 		return
 
-	# Pass the player's ID to the spawn function so the node is created with the correct name.
-	var player_char = player_spawner.spawn({"id": player_id})
+	# Pass the player's ID and spawn point to the spawn function so the node is created with the correct name.
+	var player_char = player_spawner.spawn({"id": player_id, "spawn_point_name": spawn_point_name})
 	if not is_instance_valid(player_char):
 		push_error("Failed to spawn player via PlayerSpawner on map '%s'" % map_id)
 		return
 
 	# Configure the authoritative instance. The name is set inside the spawn function.
-	player_char.position = get_spawn_position_for_map(map_id)
+	player_char.position = get_spawn_position_for_map(map_id, spawn_point_name)
 	
-	print("MapManager: Spawned player %d via PlayerSpawner on map '%s'" % [player_id, map_id])
+	print("MapManager: Spawned player %d via PlayerSpawner on map '%s' at spawn '%s'" % [player_id, map_id, spawn_point_name])
 	
 	# Explicitly tell the client which node is theirs.
 	client_identify_player.rpc_id(player_id, player_char.get_path())
@@ -150,9 +153,7 @@ func _remove_player_from_map(player_id: int, map_id: String):
 	
 	var player_node = map_instance.get_node_or_null("Players/" + str(player_id))
 	if is_instance_valid(player_node):
-		var player_spawner = map_instance.get_node_or_null("PlayerSpawner")
-		if player_spawner:
-			player_spawner.despawn(player_node)
+		player_node.queue_free()
 	
 	if player_id == 1 and current_map_instance == map_instance:
 		current_map_instance = null
@@ -168,7 +169,7 @@ func _unload_map_on_server(map_id: String):
 	print("MapManager: Despawning empty map '%s'" % map_id)
 	var map_instance = active_maps[map_id].scene_instance
 	if is_instance_valid(map_instance):
-		map_spawner.despawn(map_instance)
+		map_instance.queue_free()
 
 	active_maps.erase(map_id)
 	map_unloaded.emit(map_id)
@@ -185,7 +186,7 @@ func handle_player_disconnect(player_id: int):
 # === CLIENT LOGIC ===
 
 @rpc("authority", "call_local", "reliable")
-func client_set_current_map(map_path: String):
+func client_set_current_map(map_path: String, spawn_point_name: String = ""):
 	"""Called by the server to tell the client which map node to use."""
 	print("Client %d: Server designated map path: %s" % [multiplayer.get_unique_id(), map_path])
 	
@@ -207,7 +208,7 @@ func client_set_current_map(map_path: String):
 	_warned_missing_paths.clear()
 
 	# Now that we have the map, tell the server we're ready for the next step.
-	rpc_id(1, "client_map_loaded", current_map_id)
+	rpc_id(1, "client_map_loaded", current_map_id, spawn_point_name)
 
 
 @rpc("authority", "call_local", "reliable")
@@ -234,7 +235,7 @@ func client_identify_player(player_node_path: String):
 # === SERVER-SIDE ACKS FROM CLIENTS ===
 
 @rpc("any_peer", "call_local", "reliable")
-func client_map_loaded(map_id: String):
+func client_map_loaded(map_id: String, spawn_point_name: String = ""):
 	"""ACK from client that they have a reference to the spawned map node."""
 	if not multiplayer.is_server(): return
 
@@ -246,7 +247,7 @@ func client_map_loaded(map_id: String):
 		push_warning("MapManager: Peer %d reported map '%s' but server expects '%s'" % [peer_id, map_id, expected_map])
 		return
 
-	_finalize_player_spawn(peer_id, map_id)
+	_finalize_player_spawn(peer_id, map_id, spawn_point_name)
 
 
 @rpc("any_peer", "call_local", "reliable")
@@ -279,7 +280,7 @@ func find_node_in_current_map(path: String) -> Node:
 		return null
 	return node
 
-func get_spawn_position_for_map(map_id: String) -> Vector2:
+func get_spawn_position_for_map(map_id: String, spawn_point_name: String = "") -> Vector2:
 	var map_instance = null
 	if multiplayer.is_server():
 		if map_id in active_maps:
@@ -289,7 +290,12 @@ func get_spawn_position_for_map(map_id: String) -> Vector2:
 			map_instance = current_map_instance
 	
 	if map_instance:
-		var spawn = map_instance.get_node_or_null("PlayerSpawn")
+		var spawn_node_name = spawn_point_name
+		if spawn_node_name.is_empty():
+			# Fallback to default spawn points if no specific name is provided
+			spawn_node_name = "PlayerSpawn"
+		
+		var spawn = map_instance.get_node_or_null(spawn_node_name)
 		if not spawn: spawn = map_instance.get_node_or_null("SpawnPoint")
 		if not spawn: spawn = map_instance.get_node_or_null("Spawn")
 		if spawn: return spawn.global_position
