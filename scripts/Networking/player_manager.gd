@@ -142,8 +142,6 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 	
 	print("PlayerManager: Found player %d instance, starting initialization" % id)
 	
-	print("PlayerManager: Found player %d instance, starting initialization" % id)
-	
 	# Set up player
 	if not player_instance.class_component:
 		push_error("Player %d missing class_component!" % id)

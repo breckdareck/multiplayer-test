@@ -39,9 +39,6 @@ func _setup_signals():
 	multiplayer.connected_to_server.connect(ClientManager._on_connection_succeeded)
 	multiplayer.connection_failed.connect(ClientManager._on_connection_failed)
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
-	
-	if not multiplayer.peer_disconnected.is_connected(_on_peer_disconnected):
-		multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 
 # === PUBLIC API ===
 func host_game():
@@ -81,10 +78,6 @@ func reset_data():
 func _on_server_started():
 	server_has_started.emit()
 	
-	# Setup map container before players connect
-	if MapManager:
-		MapManager._setup_maps_container()
-	
 	# Connect multiplayer signals
 	if not multiplayer.peer_connected.is_connected(PlayerManager.add_player):
 		multiplayer.peer_connected.connect(PlayerManager.add_player)
@@ -107,9 +100,6 @@ func _on_server_disconnected():
 	menu_container._connection_status_label.text = "Disconnected from server."
 	get_tree().change_scene_to_file("res://scenes/Levels/main_menu.tscn")
 	
-func _on_peer_disconnected(peer_id: int):
-	"""Handle player disconnect for map cleanup"""
-	MapManager.handle_player_disconnect(peer_id)
 
 
 # === UTILITY METHODS ===

@@ -97,6 +97,9 @@ func _apply_enemy_data() -> void:
 
 
 func _ready() -> void:
+	if not is_multiplayer_authority():
+		set_process(false)
+		set_physics_process(false)
 	if enemy_data:
 		_apply_enemy_data()
 	else:

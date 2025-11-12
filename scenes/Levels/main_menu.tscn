@@ -35,6 +35,9 @@ corner_radius_bottom_left = 10
 
 [node name="MainMenu" type="Node2D"]
 
+[node name="MapSpawner" type="MultiplayerSpawner" parent="."]
+spawn_path = NodePath("../Maps")
+
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="MenuContainer" type="Control" parent="CanvasLayer"]
@@ -267,6 +270,8 @@ offset_bottom = 40.0
 focus_mode = 0
 theme_override_font_sizes/font_size = 23
 text = "U"
+
+[node name="Maps" type="Node" parent="."]
 
 [connection signal="pressed" from="CanvasLayer/MenuContainer/CharacterSelectPanel/LeftButton" to="CanvasLayer/MenuContainer" method="change_character" binds= [-1]]
 [connection signal="pressed" from="CanvasLayer/MenuContainer/CharacterSelectPanel/RightButton" to="CanvasLayer/MenuContainer" method="change_character" binds= [1]]

@@ -7,6 +7,8 @@ extends MultiplayerSpawner
 var _spawn_function_set: bool = false
 
 func _ready() -> void:
+	if not is_multiplayer_authority():
+		return
 	# Find the parent EnemySpawner if not explicitly set
 	if not enemy_spawner:
 		enemy_spawner = get_parent()
