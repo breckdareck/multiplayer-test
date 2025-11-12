@@ -12,9 +12,6 @@ const SERVER_ID: int = 1
 		var input_sync = get_node_or_null("%InputSynchronizer")
 		if input_sync:
 			input_sync.set_multiplayer_authority(id)
-		# Ensure the owning client has authority over their inventory component so it can receive authority-only RPCs
-		#if is_instance_valid(inventory_component):
-			#inventory_component.set_multiplayer_authority(id)
 
 @export_category("Collision")
 @export var platform_layer: int = 3

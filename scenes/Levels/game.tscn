@@ -1,5 +1,6 @@
-[gd_scene load_steps=33 format=4 uid="uid://d1hwvomjwdrjv"]
+[gd_scene load_steps=34 format=4 uid="uid://d1hwvomjwdrjv"]
 
+[ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_e24jv"]
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/damage_numbers.gd" id="1_ryi0r"]
 [ext_resource type="Texture2D" uid="uid://jorjvuc5wn72" path="res://assets/sprites/world_tileset.png" id="2_l25cu"]
 [ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="3_j167y"]
@@ -557,6 +558,7 @@ _data = {
 }
 
 [node name="Game" type="Node2D"]
+script = ExtResource("1_e24jv")
 
 [node name="PlayerSpawner" type="MultiplayerSpawner" parent="."]
 unique_name_in_owner = true

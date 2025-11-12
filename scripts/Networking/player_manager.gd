@@ -127,20 +127,24 @@ func _receive_initial_info(id: int, character_type: int, username: String):
 func _initialize_spawned_player(id: int, character_type: int, username: String, player_data: Dictionary):
 	"""Initialize a player that has been spawned by MapManager"""
 	
-	# Wait a frame to ensure the player node is fully added to the tree
-	await get_tree().process_frame
-	
-	var player_instance = get_player_node(id)
-	if not player_instance:
-		push_error("Could not find spawned player %d to initialize! (After waiting 1 frame)" % id)
-		# Try one more time with a longer wait
-		await get_tree().process_frame
+	var player_instance = null
+	var max_wait_frames = 30 # Wait up to 30 frames (half a second at 60fps)
+	var current_wait_frames = 0
+
+	while not is_instance_valid(player_instance) and current_wait_frames < max_wait_frames:
 		player_instance = get_player_node(id)
-		if not player_instance:
-			push_error("STILL could not find spawned player %d after 2 frames!" % id)
-			return
+		if not is_instance_valid(player_instance):
+			await get_tree().process_frame
+			current_wait_frames += 1
+	
+	if not is_instance_valid(player_instance):
+		push_error("PlayerManager: Timed out finding spawned player %d to initialize after %d frames!" % [id, max_wait_frames])
+		return
 	
 	print("PlayerManager: Found player %d instance, starting initialization" % id)
+	
+	player_instance.player_id = id
+	player_instance.name = str(id)
 	
 	# Set up player
 	if not player_instance.class_component:
