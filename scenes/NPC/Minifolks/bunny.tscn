@@ -102,6 +102,7 @@ name_label = NodePath("NameLabel")
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 delta_interval = 0.015
 replication_config = SubResource("SceneReplicationConfig_n6pvg")
+public_visibility = false
 
 [node name="AimTarget" type="Marker2D" parent="."]
 position = Vector2(0, -4)

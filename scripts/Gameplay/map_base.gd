@@ -10,6 +10,7 @@ class_name MapBase
 func _ready():
 	# This function runs on the server AND on all clients, because the map
 	# scene is replicated to everyone.
+	add_to_group("map_base")
 
 	if not player_spawner:
 		push_error("This map scene is missing a MultiplayerSpawner node named 'PlayerSpawner' as a direct child.")

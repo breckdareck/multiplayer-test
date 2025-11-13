@@ -26,6 +26,7 @@ var current_map_id: String = ""
 var current_map_instance: Node = null
 var my_player_node: Node = null
 var _warned_missing_paths: Dictionary = {}
+var _node_to_map_cache: Dictionary = {}
 
 
 func _ready():
@@ -35,7 +36,25 @@ func _ready():
 	if not map_spawner:
 		push_error("MapManager: Could not find /root/MainMenu/MapSpawner! Map replication will fail.")
 		return
-	
+	if multiplayer.is_server():
+		map_spawner.spawn_function = _spawn_map_instance
+	else:
+		# On clients, whenever a map is spawned, we need to re-evaluate visibility.
+		map_spawner.spawned.connect(_on_map_spawned_on_client)
+	# Defer server-side setup until the server is confirmed to be running.
+	MultiplayerManager.server_has_started.connect(_on_server_started)
+
+
+func _exit_tree():
+	if MultiplayerManager.server_has_started.is_connected(_on_server_started):
+		MultiplayerManager.server_has_started.disconnect(_on_server_started)
+
+	if not multiplayer.is_server() and is_instance_valid(map_spawner):
+		if map_spawner.spawned.is_connected(_on_map_spawned_on_client):
+			map_spawner.spawned.disconnect(_on_map_spawned_on_client)
+
+
+func _on_server_started():
 	if multiplayer.is_server():
 		map_spawner.spawn_function = _spawn_map_instance
 
@@ -115,6 +134,9 @@ func _finalize_player_spawn(player_id: int, map_id: String, spawn_point_name: St
 	print("MapManager: Finalizing spawn for player %d on map %s at spawn '%s'" % [player_id, map_id, spawn_point_name])
 	active_maps[map_id].player_ids.append(player_id)
 	_spawn_player_on_server_map(player_id, map_id, spawn_point_name)
+	
+	# After the player is spawned and on the map, update visibilities.
+	_update_visibility_for_player(player_id)
 
 
 func _spawn_player_on_server_map(player_id: int, map_id: String, spawn_point_name: String = ""):
@@ -130,6 +152,9 @@ func _spawn_player_on_server_map(player_id: int, map_id: String, spawn_point_nam
 	if not is_instance_valid(player_char):
 		push_error("Failed to spawn player via PlayerSpawner on map '%s'" % map_id)
 		return
+
+	# Set all synchronizers to be private by default.
+	#_set_synchronizers_public_visibility(player_char, false)
 
 	# Configure the authoritative instance. The name is set inside the spawn function.
 	player_char.position = get_spawn_position_for_map(map_id, spawn_point_name)
@@ -183,7 +208,108 @@ func handle_player_disconnect(player_id: int):
 	player_current_maps.erase(player_id)
 
 
+# === VISIBILITY LOGIC ===
+
+func _get_all_synchronizers_in_node(node: Node) -> Array[MultiplayerSynchronizer]:
+	"""Recursively finds all MultiplayerSynchronizer nodes under a given node."""
+	var syncs: Array[MultiplayerSynchronizer] = []
+	if node is MultiplayerSynchronizer:
+		syncs.append(node)
+	
+	for child in node.get_children():
+		syncs.append_array(_get_all_synchronizers_in_node(child))
+		
+	return syncs
+
+
+func _set_visibility_for_node(node: Node, peer_id: int, visible: bool):
+	"""Sets the visibility for all synchronizers within a node for a specific peer."""
+	if not is_instance_valid(node): return
+	var synchronizers = _get_all_synchronizers_in_node(node)
+	for s in synchronizers:
+		s.set_visibility_for(peer_id, visible)
+
+
+func _set_synchronizers_public_visibility(node: Node, visible: bool):
+	"""Sets the default public visibility for all synchronizers in a node."""
+	if not is_instance_valid(node): return
+	var synchronizers = _get_all_synchronizers_in_node(node)
+	for s in synchronizers:
+		s.public_visibility = visible
+
+
+func _update_visibility_for_player(player_id: int):
+	"""
+	Updates visibility for a given player against all other players and enemies.
+	This should be called when a player changes maps.
+	"""
+	if not multiplayer.is_server(): return
+
+	var player_node = PlayerManager.get_player_node(player_id)
+	if not is_instance_valid(player_node): return
+
+	var player_map = player_current_maps.get(player_id, "")
+	if player_map.is_empty(): return
+
+	# 1. Update visibility between this player and all OTHER PLAYERS
+	for other_id in player_current_maps.keys():
+		if other_id == player_id: continue
+		var other_node = PlayerManager.get_player_node(other_id)
+		if not is_instance_valid(other_node): continue
+		
+		var other_map = player_current_maps.get(other_id, "")
+		var is_visible = (player_map == other_map)
+		
+		# Update other player's view of me
+		_set_visibility_for_node(player_node, other_id, is_visible)
+		# Update my view of other player
+		_set_visibility_for_node(other_node, player_id, is_visible)
+
+	# 2. Update this player's visibility of all ENEMIES
+	for map_id in active_maps.keys():
+		var map_instance = active_maps[map_id].scene_instance
+		if not is_instance_valid(map_instance): continue
+		
+		var is_visible = (player_map == map_id)
+		
+		# Assuming enemies are in the "Enemies" group and parented to the map.
+		# A more robust way would be to have a dedicated enemy container node.
+		for enemy in get_tree().get_nodes_in_group("Enemies"):
+			if enemy.get_owner() == map_instance:
+				_set_visibility_for_node(enemy, player_id, is_visible)
+
+
 # === CLIENT LOGIC ===
+
+func _update_client_map_visibility():
+	# This should only run on clients.
+	if multiplayer.is_server(): return
+
+	var spawner = map_spawner
+	if not is_instance_valid(spawner):
+		return
+
+	var spawn_root = spawner.get_node_or_null(spawner.spawn_path)
+	if not is_instance_valid(spawn_root):
+		push_warning("MapManager: Map spawner root path not found.")
+		return
+
+	for child in spawn_root.get_children():
+		# We identify maps by checking if they are in the "map_base" group.
+		if child.is_in_group("map_base"):
+			if child == current_map_instance:
+				child.visible = true
+				child.process_mode = Node.PROCESS_MODE_INHERIT
+			else:
+				child.visible = false
+				child.process_mode = Node.PROCESS_MODE_DISABLED
+				child.queue_free()
+
+func _on_map_spawned_on_client(_node: Node):
+	# A new node was spawned by the map spawner. It might be a map.
+	# We run the visibility check to hide it if it's not our current map.
+	_update_client_map_visibility()
+
 
 @rpc("authority", "call_local", "reliable")
 func client_set_current_map(map_path: String, spawn_point_name: String = ""):
@@ -206,6 +332,9 @@ func client_set_current_map(map_path: String, spawn_point_name: String = ""):
 	current_map_instance = map_node
 	current_map_id = map_node.name.replace("Map_", "")
 	_warned_missing_paths.clear()
+
+	# Manually update which map is visible and processing.
+	_update_client_map_visibility()
 
 	# Now that we have the map, tell the server we're ready for the next step.
 	rpc_id(1, "client_map_loaded", current_map_id, spawn_point_name)
