@@ -117,7 +117,6 @@ func _receive_initial_info(id: int, character_type: int, username: String):
 
 	# For remote players we store the loaded player data and request the map.
 	# Initialization will continue when MapManager emits `player_spawned`.
-	active_players[id]["player_data"] = player_data
 	active_players[id]["character_type"] = character_type
 	active_players[id]["username"] = username
 	MapManager.request_map_change(id, spawn_map)
@@ -323,7 +322,9 @@ func _on_player_spawned(player_id: int) -> void:
 	var info = active_players[player_id]
 	var character_type = info.get("character_type", -1)
 	var username = info.get("username", "Player")
-	var player_data = info.get("player_data", {})
+	
+	# Always load fresh data from file to avoid using stale cached data on map changes.
+	var player_data = _load_player_data_from_file(username)
 
 	# Continue initialization
 	call_deferred("_initialize_spawned_player", player_id, character_type, username, player_data)

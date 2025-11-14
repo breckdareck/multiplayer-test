@@ -330,17 +330,26 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 	# After the loop, display all collected hits as a single combo
 	if not damage_values.is_empty():
 		var spawn_pos = health_comp.damage_number_origin.global_position
-		# Use MapManager to locate the DmgNumberSpawner for the current map (safer than absolute path)
-		var dmg_spawner = MapManager.find_node_in_current_map("%DmgNumberSpawner")
+		
+		# Server-side: Find the correct DmgNumberSpawner based on the attacker's map.
+		var dmg_spawner = null
+		var map_to_spawn_on: Node = null
+		var attacker = owner_node
+		
+		if attacker is MultiplayerPlayerV2:
+			map_to_spawn_on = MapManager.get_player_map_node(attacker.player_id)
+		else: # Attacker is an enemy
+			for map_id in MapManager.active_maps.keys():
+				var map_instance = MapManager.active_maps[map_id].scene_instance
+				if is_instance_valid(map_instance) and attacker.is_a_descendant_of(map_instance):
+					map_to_spawn_on = map_instance
+					break
+		
+		if is_instance_valid(map_to_spawn_on):
+			dmg_spawner = map_to_spawn_on.find_child("DmgNumberSpawner", true, false)
+
 		if dmg_spawner:
 			dmg_spawner.display_number_combo(damage_values, crit_values, spawn_pos)
-		else:
-			# Fallback: try legacy path safely
-			var legacy = get_node_or_null("/root/MainMenu/Level/Game")
-			if legacy:
-				var fb = legacy.get_node_or_null("%DmgNumberSpawner")
-				if fb:
-					fb.display_number_combo(damage_values, crit_values, spawn_pos)
 
 
 func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelData) -> int:

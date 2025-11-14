@@ -52,7 +52,7 @@ var current_portal: Portal = null
 
 var _sprite_base_offset_x: float
 var _is_being_cleaned_up: bool = false
-var _is_loading_data: bool = false
+var _is_loading_data: bool = true
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var state_machine = $StateMachine

@@ -112,25 +112,48 @@ func _on_regen_timer_timeout() -> void:
 	
 @rpc("any_peer", "call_local", "reliable")
 func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, is_crit: bool = false, show_number: bool = true) -> void:
-	# This function runs on both server and clients due to "call_local".
-	# Server handles game logic, clients handle visual effects.
-	
 	var source_str = "unknown"
 	if source:
 		source_str = str(source)
 	
 	var is_player = (owner is MultiplayerPlayerV2)
 	
-	# --- Client-side and Server-side visual/audio effects ---
+	# --- Visual/Audio Effects ---
 	if show_number:
-		# Use MapManager helper to find the damage number spawner in the current map
-		var dmg_spawner = MapManager.find_node_in_current_map("%DmgNumberSpawner")
+		var dmg_spawner = null
+		var map_to_spawn_on: Node = null
+
+		if multiplayer.is_server():
+			# --- Server-side: Find the correct map to spawn the number on ---
+			var entity = get_owner()
+			
+			if source and source.owner is MultiplayerPlayerV2:
+				# If source is a player, use their map
+				map_to_spawn_on = MapManager.get_player_map_node(source.owner.player_id)
+			elif entity is MultiplayerPlayerV2:
+				# If entity being hit is a player, use their map
+				map_to_spawn_on = MapManager.get_player_map_node(entity.player_id)
+			else:
+				# If it's an enemy being hit by a non-player, find the enemy's map
+				for map_id in MapManager.active_maps.keys():
+					var map_instance = MapManager.active_maps[map_id].scene_instance
+					if is_instance_valid(map_instance) and entity.is_a_descendant_of(map_instance):
+						map_to_spawn_on = map_instance
+						break
+		else:
+			# --- Client-side: Use the client's currently visible map ---
+			if get_owner().visible:
+				map_to_spawn_on = MapManager.get_current_visible_map()
+
+		if is_instance_valid(map_to_spawn_on):
+			dmg_spawner = map_to_spawn_on.find_child("DmgNumberSpawner", true, false)
+
 		if dmg_spawner:
 			dmg_spawner.display_number(amount, damage_number_origin.global_position, is_crit, is_player)
 	
 	if is_player:
-		# Assuming 'player_hit.wav' is the correct SFX.
-		# RPC to play SFX on all clients (including the one that took damage)
+		# This RPC will be heard by all clients. A check inside the AudioManager might be needed
+		# to only play it if the position is close to the client's camera.
 		AudioManager.rpc("play_sfx_rpc", "res://assets/sounds/player_hit.wav", get_owner().global_position)
 	
 	# --- Server-side game logic ---

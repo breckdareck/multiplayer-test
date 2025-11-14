@@ -18,8 +18,8 @@ const DEFAULT_MAP = "game"
 var map_spawner: MultiplayerSpawner
 
 # Server-side tracking
-var active_maps: Dictionary = {} # {map_id: {scene_instance, player_ids: []}}
-var player_current_maps: Dictionary = {} # {player_id: map_id}
+var active_maps: Dictionary = {} ## {map_id: {scene_instance, player_ids: []}}
+var player_current_maps: Dictionary = {} ## {player_id: map_id}
 
 # Client-side state
 var current_map_id: String = ""
@@ -180,9 +180,6 @@ func _spawn_player_on_server_map(player_id: int, map_id: String, spawn_point_nam
 	if not is_instance_valid(player_char):
 		push_error("Failed to spawn player via PlayerSpawner on map '%s'" % map_id)
 		return
-
-	# Set all synchronizers to be private by default.
-	#_set_synchronizers_public_visibility(player_char, false)
 
 	# Configure the authoritative instance. The name is set inside the spawn function.
 	player_char.position = get_spawn_position_for_map(map_id, spawn_point_name)
@@ -480,3 +477,11 @@ func get_players_on_map(map_id: String) -> Array:
 func get_player_map(player_id: int) -> String:
 	if not multiplayer.is_server(): return ""
 	return player_current_maps.get(player_id, "")
+	
+func get_player_map_node(player_id: int) -> Node:
+	if not multiplayer.is_server(): return null
+	
+	var map_id = get_player_map(player_id)
+	if map_id and active_maps.has(map_id):
+		return active_maps[map_id].scene_instance
+	return null
