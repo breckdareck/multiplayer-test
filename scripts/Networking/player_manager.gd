@@ -283,7 +283,7 @@ func get_player_node(player_id: int) -> MultiplayerPlayerV2:
 			var players_node = current_map.get_node_or_null("Players")
 			if players_node and players_node.has_node(str(player_id)):
 				var node = players_node.get_node(str(player_id))
-				if is_instance_valid(node):
+				if is_instance_valid(node) and not node.is_queued_for_deletion():
 					return node
 	else:
 		# Server checks all active maps
@@ -294,7 +294,7 @@ func get_player_node(player_id: int) -> MultiplayerPlayerV2:
 			var players_node = map_instance.get_node_or_null("Players")
 			if players_node and players_node.has_node(str(player_id)):
 				var node = players_node.get_node(str(player_id))
-				if is_instance_valid(node):
+				if is_instance_valid(node) and not node.is_queued_for_deletion():
 					return node
 	
 	return null

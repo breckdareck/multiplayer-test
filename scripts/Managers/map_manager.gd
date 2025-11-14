@@ -30,22 +30,50 @@ var _node_to_map_cache: Dictionary = {}
 
 
 func _ready():
-	# Wait a frame to ensure the main scene tree is fully established
-	await get_tree().process_frame
-	map_spawner = get_node_or_null("/root/MainMenu/MapSpawner")
-	if not map_spawner:
-		push_error("MapManager: Could not find /root/MainMenu/MapSpawner! Map replication will fail.")
-		return
-	if multiplayer.is_server():
-		map_spawner.spawn_function = _spawn_map_instance
-	else:
-		# On clients, whenever a map is spawned, we need to re-evaluate visibility.
-		map_spawner.spawned.connect(_on_map_spawned_on_client)
+	get_tree().scene_changed.connect(_on_scene_changed)
+	# The scene might already be loaded, so run this once at the start.
+	call_deferred("_on_scene_changed")
+	
 	# Defer server-side setup until the server is confirmed to be running.
 	MultiplayerManager.server_has_started.connect(_on_server_started)
 
 
+func _on_scene_changed():
+	var scene = get_tree().current_scene
+	# We only care about the main menu scene where the spawner lives.
+	if scene and scene.scene_file_path == "res://scenes/Levels/main_menu.tscn":
+		# The scene is there, but its children might not be ready yet.
+		await get_tree().process_frame
+		
+		print("MapManager: Main menu scene detected. Initializing MapSpawner.")
+		var new_spawner = get_node_or_null("/root/MainMenu/MapSpawner")
+		
+		if not is_instance_valid(new_spawner):
+			push_error("MapManager: Could not find /root/MainMenu/MapSpawner in scene!")
+			return
+
+		# If we already have a spawner, and it's different, disconnect old signal
+		if is_instance_valid(map_spawner) and map_spawner != new_spawner:
+			if not multiplayer.is_server() and map_spawner.spawned.is_connected(_on_map_spawned_on_client):
+				map_spawner.spawned.disconnect(_on_map_spawned_on_client)
+
+		map_spawner = new_spawner
+		
+		# Set spawn function for both client and server.
+		map_spawner.spawn_function = _spawn_map_instance
+		
+		if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
+			# On clients, whenever a map is spawned, we need to re-evaluate visibility.
+			if not map_spawner.spawned.is_connected(_on_map_spawned_on_client):
+				map_spawner.spawned.connect(_on_map_spawned_on_client)
+		
+		print("MapManager: MapSpawner initialized.")
+
+
 func _exit_tree():
+	if get_tree().scene_changed.is_connected(_on_scene_changed):
+		get_tree().scene_changed.disconnect(_on_scene_changed)
+
 	if MultiplayerManager.server_has_started.is_connected(_on_server_started):
 		MultiplayerManager.server_has_started.disconnect(_on_server_started)
 
@@ -206,6 +234,16 @@ func handle_player_disconnect(player_id: int):
 	var map_id = player_current_maps[player_id]
 	_remove_player_from_map(player_id, map_id)
 	player_current_maps.erase(player_id)
+
+
+func reset_client_state():
+	if multiplayer.is_server(): return
+	
+	print("MapManager: Resetting client-side map state.")
+	current_map_id = ""
+	current_map_instance = null
+	my_player_node = null
+	_warned_missing_paths.clear()
 
 
 # === VISIBILITY LOGIC ===

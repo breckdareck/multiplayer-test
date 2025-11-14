@@ -4,8 +4,6 @@ extends Control
 ## Global drop handler that detects when items are dragged outside UI windows
 ## and creates DroppedItem instances in the world
 
-
-
 var dropped_item_scene: PackedScene
 var game_scene: Node2D
 
@@ -18,13 +16,6 @@ func _ready():
 	
 	# Find the game scene via MapManager if possible (works for host and clients)
 	game_scene = MapManager.get_current_visible_map()
-	if not game_scene:
-		game_scene = get_tree().get_first_node_in_group("Game")
-	if not game_scene:
-		# Try a safe fallback by path
-		var root_scene = get_tree().current_scene
-		if root_scene:
-			game_scene = root_scene.get_node_or_null("Level/Game")
 	
 	# Make this control fill the entire screen
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
