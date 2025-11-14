@@ -311,6 +311,13 @@ func get_player_info(id: int) -> Dictionary:
 	return active_players.get(id, {})
 
 
+func get_player_id_from_name(username: String) -> int:
+	for player_id in active_players:
+		if active_players[player_id].get("username") == username:
+			return player_id
+	return -1
+
+
 func _on_player_spawned(player_id: int) -> void:
 	"""Called by MapManager when a server-side player spawn has completed.
 	Continue initialization for the player (clients only were deferred).

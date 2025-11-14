@@ -234,7 +234,7 @@ func handle_player_disconnect(player_id: int):
 
 
 func reset_client_state():
-	if multiplayer.is_server(): return
+	if multiplayer.has_multiplayer_peer() and multiplayer.is_server(): return
 	
 	print("MapManager: Resetting client-side map state.")
 	current_map_id = ""
