@@ -227,7 +227,9 @@ func _set_visibility_for_node(node: Node, peer_id: int, visible: bool):
 	if not is_instance_valid(node): return
 	var synchronizers = _get_all_synchronizers_in_node(node)
 	for s in synchronizers:
+		print("DEBUG: Setting %s on %s visiblity to %s on %s" % [s.name, node.name, visible, peer_id])
 		s.set_visibility_for(peer_id, visible)
+		s.update_visibility(peer_id)
 
 
 func _set_synchronizers_public_visibility(node: Node, visible: bool):
@@ -243,6 +245,7 @@ func _update_visibility_for_player(player_id: int):
 	Updates visibility for a given player against all other players and enemies.
 	This should be called when a player changes maps.
 	"""
+	if player_id == 1: return
 	if not multiplayer.is_server(): return
 
 	var player_node = PlayerManager.get_player_node(player_id)
@@ -303,7 +306,7 @@ func _update_client_map_visibility():
 			else:
 				child.visible = false
 				child.process_mode = Node.PROCESS_MODE_DISABLED
-				child.queue_free()
+				#child.queue_free()
 
 func _on_map_spawned_on_client(_node: Node):
 	# A new node was spawned by the map spawner. It might be a map.
@@ -380,7 +383,7 @@ func client_map_loaded(map_id: String, spawn_point_name: String = ""):
 
 
 @rpc("any_peer", "call_local", "reliable")
-func client_player_spawned(map_id: String) -> void:
+func client_player_spawned(_map_id: String) -> void:
 	"""ACK from client that they have identified their own player character node."""
 	if not multiplayer.is_server(): return
 
