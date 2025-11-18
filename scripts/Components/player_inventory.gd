@@ -104,3 +104,9 @@ func load_player_inventory(data: Dictionary):
 func load_player_inventory_silent(data: Dictionary):
 	inventory_component.load_inventory_silent(data)
 	monies_amount = data.get("monies", 0)
+
+
+@rpc("authority", "call_local", "reliable")
+func set_monies_rpc(amount: int):
+	monies_amount = amount
+

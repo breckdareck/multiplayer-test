@@ -181,6 +181,15 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 	if player_instance.player_inventory:
 		var inventory_data = player_data.get("inventory", {})
 		player_instance.player_inventory.load_player_inventory_silent(inventory_data)
+		# Sync money to client
+		if id != 1:
+			var monies = player_data.get("monies", 0)
+			# Also check if monies is inside inventory data structure depending on save format
+			if monies == 0 and inventory_data.has("monies"):
+				monies = inventory_data.get("monies", 0)
+				
+			player_instance.player_inventory.set_monies_rpc.rpc_id(id, monies)
+
 	
 	# Set default equipment if no save
 	if not player_data:
@@ -204,9 +213,14 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 		player_instance.ability_component.reconnect_level_signals()
 	
 	# Sync to client
-	if id != 1 and player_instance.ability_component:
-		await get_tree().process_frame
-		player_instance.ability_component.sync_all_abilities_to_client(id)
+	if id != 1:
+		# Tell client to start loading mode (suppress saves)
+		player_instance.set_loading_state_rpc.rpc_id(id, true)
+		
+		if player_instance.ability_component:
+			await get_tree().process_frame
+			player_instance.ability_component.sync_all_abilities_to_client(id)
+
 	
 	if player_instance.health_component:
 		player_instance.health_component.current_health = player_data.get("current_health", 100)
@@ -221,6 +235,11 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 	# Set username and class over network
 	player_instance.set_username.rpc(username)
 	player_instance.class_component.change_class_rpc(character_type)
+	
+	if id != 1:
+		# Tell client loading is done (enable saves)
+		player_instance.set_loading_state_rpc.rpc_id(id, false)
+
 
 
 func _load_player_data_from_file(username: String) -> Dictionary:

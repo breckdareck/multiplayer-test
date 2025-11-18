@@ -8,9 +8,13 @@ const SERVER_ID: int = 1
 @export var player_id := 1:
 	set(id):
 		player_id = id
+		# Safe access to InputSynchronizer
 		var input_sync = get_node_or_null("%InputSynchronizer")
 		if input_sync:
 			input_sync.set_multiplayer_authority(id)
+		# Ensure the owning client has authority over their inventory component so it can receive authority-only RPCs
+		#if is_instance_valid(inventory_component):
+			#inventory_component.set_multiplayer_authority(id)
 
 @export_category("Collision")
 @export var platform_layer: int = 3
@@ -47,8 +51,6 @@ var do_attack: bool = false
 var do_jump: bool = false
 var do_drop: bool = false
 var do_pickup: bool = false
-var do_portal_interact: bool = false
-var current_portal: Portal = null
 
 var _sprite_base_offset_x: float
 var _is_being_cleaned_up: bool = false
@@ -65,7 +67,6 @@ const GAME_MENU_SCENE = preload("res://scenes/UI/game_menu.tscn")
 
 @onready var menu_container: MainMenu = get_tree().current_scene.get_node("%MenuContainer")
 @onready var game_menu: GameMenu
-@onready var input_synchronizer: MultiplayerSynchronizer = $InputSynchronizer
 
 
 #=============================================================================
@@ -82,12 +83,10 @@ func _ready() -> void:
 
 	# Server-specific setup
 	if multiplayer.is_server():
+		_setup_server_signals()
 		# Handle sprite change on initial spawn
 		await get_tree().process_frame
 		_handle_sprite_change_on_server()
-		
-	# Setup signals for both client and server (for data saving)
-	_setup_signals()
 
 	# Client-specific setup
 	if not OS.has_feature("dedicated_server"):
@@ -120,19 +119,6 @@ func _physics_process(delta: float) -> void:
 
 	# Visual updates run on all peers (clients and server)
 	_update_sprite_facing_direction()
-
-	# Process portal interaction
-	if do_portal_interact:
-		do_portal_interact = false # Reset the flag immediately
-		if is_instance_valid(current_portal):
-			current_portal.interact(player_id)
-
-
-func set_current_portal(portal_node: Portal):
-	current_portal = portal_node
-
-func clear_current_portal():
-	current_portal = null
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -232,15 +218,15 @@ func cleanup_before_removal():
 # PRIVATE HELPER METHODS
 #=============================================================================
 
-func _setup_signals() -> void:
+func _setup_server_signals() -> void:
+	if not multiplayer.is_server():
+		return
+
 	# Connect component signals to handle game logic and data saving.
-	# These should run on both Client (to trigger RPC save) and Server (to save directly).
-	
 	if level_component:
 		level_component.experience_changed.connect(func(_c, _e): _data_changed())
 		level_component.leveled_up.connect(func(_l): _data_changed())
-		if multiplayer.is_server():
-			level_component.leveled_up.connect(_handle_sprite_change_on_server.unbind(1))
+		level_component.leveled_up.connect(_handle_sprite_change_on_server.unbind(1))
 	
 	if health_component:
 		health_component.health_changed.connect(func(_c, _m): _data_changed())
@@ -251,13 +237,11 @@ func _setup_signals() -> void:
 	if inventory_component:
 		inventory_component.inventory_saved.connect(func(_inv): _data_changed())
 		
-	# Server-only logic
-	if multiplayer.is_server():
-		if is_instance_valid(drop_timer):
-			drop_timer.timeout.connect(_on_drop_timer_timeout)
+	if is_instance_valid(drop_timer):
+		drop_timer.timeout.connect(_on_drop_timer_timeout)
 
-		if is_instance_valid(respawn_timer):
-			respawn_timer.timeout.connect(respawn)
+	if is_instance_valid(respawn_timer):
+		respawn_timer.timeout.connect(respawn)
 
 
 func _setup_client_visuals() -> void:
@@ -334,35 +318,24 @@ func _handle_sprite_change_on_server() -> void:
 	if sprite_frames:
 		change_sprite_rpc.rpc(class_component.get_class_name(), current_level)
 
-func change_to_map(new_map_id: String, spawn_point_name: String = ""):
-	if not multiplayer.is_server():
-		# Client requests map change from server
-		# Send our local data to ensure the server has the absolute latest state before the swap
-		var data_string: String = JSON.stringify(_get_save_data())
-		request_map_change_rpc.rpc_id(1, new_map_id, spawn_point_name, data_string)
-	else:
-		# Server can change directly, but MUST save first
-		_data_changed()
-		MapManager.request_map_change(player_id, new_map_id, spawn_point_name)
-
 
 func set_current_party_id(id: int):
 	_current_party_id = id
 
 func _get_save_data() -> Dictionary:
 	var data: Dictionary = {
-		'username': username,
-		'max_health': health_component.max_health if is_instance_valid(health_component) else 100,
-		'current_health': health_component.current_health if is_instance_valid(health_component) else 100,
-		'level': level_component.level if is_instance_valid(level_component) else 1,
-		'experience': level_component.experience if is_instance_valid(level_component) else 0,
-		'party_id': _current_party_id,
-		'last_map': MapManager.get_player_map(player_id) if multiplayer.is_server() else MapManager.current_map_id
+	   'username': username,
+	   'max_health': health_component.max_health if is_instance_valid(health_component) else 100,
+	   'current_health': health_component.current_health if is_instance_valid(health_component) else 100,
+	   'level': level_component.level if is_instance_valid(level_component) else 1,
+	   'experience': level_component.experience if is_instance_valid(level_component) else 0,
+	   'party_id': _current_party_id # Save party_id from local variable
 	}
 	
 	if is_instance_valid(player_inventory):
 		data['inventory'] = player_inventory.save_player_inventory()
 	
+	# Save ability data
 	if is_instance_valid(ability_component):
 		data['abilities'] = ability_component.save_abilities()
 		
@@ -456,12 +429,7 @@ func _data_changed() -> void:
 	if _is_being_cleaned_up or _is_loading_data:
 		return
 	var data_string: String = JSON.stringify(_get_save_data())
-	
-	if multiplayer.is_server():
-		# If we are the server, save directly to avoid RPC overhead/delay
-		save_on_server(data_string)
-	else:
-		save_on_server.rpc_id(SERVER_ID, data_string)
+	save_on_server.rpc_id(SERVER_ID, data_string)
 
 
 func _on_peer_connected(peer_id: int) -> void:
@@ -517,9 +485,6 @@ func save_on_server(data_string: String) -> void:
 	if file:
 		file.store_string(data_string)
 		file.close()
-		print("Server: Successfully saved data to %s" % file_path)
-	else:
-		push_error("Server: Failed to open file for writing: %s" % file_path)
 
 
 # [CLIENT -> SERVER] Asks the server to initiate a sprite change for this player.
@@ -559,27 +524,11 @@ func change_class_request(new_class: int) -> void:
 func request_all_sprite_states() -> void:
 	if not multiplayer.is_server():
 		return
-	
-	var requester_id: int = multiplayer.get_remote_sender_id()
-	print("Player %d requesting all sprite states" % requester_id)
-	
-	# Get the map this player is on
-	var requester_map = MapManager.get_player_map(requester_id)
-	if requester_map.is_empty():
-		push_warning("Player %d not assigned to a map yet" % requester_id)
-		return
-	
-	# Only sync sprites of players on the SAME map
-	var players_on_map = MapManager.get_players_on_map(requester_map)
-	
-	for other_player_id in players_on_map:
-		if other_player_id == requester_id:
-			continue # Skip self
 		
-		var other_player = PlayerManager.get_player_node(other_player_id)
-		if other_player and other_player is MultiplayerPlayerV2:
-			print("  Syncing sprite for player %d to requester %d" % [other_player_id, requester_id])
-			other_player._on_peer_connected(requester_id)
+	var requester_id: int = multiplayer.get_remote_sender_id()
+	for node in get_tree().root.get_node("/root/MainMenu/Level/Game/Players").get_children():
+		if node is MultiplayerPlayerV2 and node != self:
+			node._on_peer_connected(requester_id)
 
 
 # [ALL PEERS] Sets the username for this player instance across all clients.
@@ -588,31 +537,3 @@ func set_username(uname: String) -> void:
 	username = uname
 	if is_instance_valid(player_name_label):
 		player_name_label.text = username
-		
-		
-@rpc("any_peer", "call_local", "reliable")
-func request_map_change_rpc(new_map_id: String, spawn_point_name: String = "", client_data_string: String = ""):
-	"""Server receives map change request"""
-	if not multiplayer.is_server():
-		return
-	
-	var requester_id = multiplayer.get_remote_sender_id()
-	print("Player %d requesting map change to '%s' at spawn '%s'" % [requester_id, new_map_id, spawn_point_name])
-	
-	# Save player data before moving
-	if not client_data_string.is_empty():
-		print("Server: Saving client-provided data for player %d before map change." % requester_id)
-		save_on_server(client_data_string)
-	else:
-		print("Server: No client data provided, saving server-side state for player %d." % requester_id)
-		_data_changed()
-	
-	# Change map through MapManager
-	MapManager.request_map_change(requester_id, new_map_id, spawn_point_name)
-
-
-@rpc("authority", "call_local", "reliable")
-func set_loading_state_rpc(is_loading: bool) -> void:
-	"""Allow server to control loading state on client to prevent save spam during sync"""
-	_is_loading_data = is_loading
-	print("Client: Loading state set to ", is_loading)
