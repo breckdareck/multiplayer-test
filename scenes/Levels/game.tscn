@@ -626,7 +626,7 @@ monitorable = false
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Killzone"]
 shape = SubResource("WorldBoundaryShape2D_p57ef")
 
-[node name="Platforms" type="Node" parent="."]
+[node name="Platforms" type="Node2D" parent="."]
 
 [node name="Platform" parent="Platforms" instance=ExtResource("6_ryi0r")]
 position = Vector2(89, -31)
@@ -641,9 +641,9 @@ libraries = {
 }
 autoplay = "move"
 
-[node name="Players" type="Node" parent="."]
+[node name="Players" type="Node2D" parent="."]
 
-[node name="Enemies" type="Node" parent="."]
+[node name="Enemies" type="Node2D" parent="."]
 
 [node name="Slime" parent="Enemies" instance=ExtResource("7_ukxhe")]
 position = Vector2(-688, 16)
@@ -684,9 +684,9 @@ respawnable = true
 position = Vector2(128, 16)
 respawnable = true
 
-[node name="Projectiles" type="Node" parent="."]
+[node name="Projectiles" type="Node2D" parent="."]
 
-[node name="ItemDrops" type="Node" parent="."]
+[node name="ItemDrops" type="Node2D" parent="."]
 
 [node name="MerchantNPC" parent="." instance=ExtResource("20_ukxhe")]
 position = Vector2(-17, -18)

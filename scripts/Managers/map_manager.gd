@@ -13,6 +13,7 @@ const MAP_SCENES = {
 }
 
 const DEFAULT_MAP = "game"
+const MAP_OFFSET = Vector2(100000, 0) # Distance between maps to prevent collision overlap
 
 # Spawner for creating the map instances themselves as networked objects.
 var map_spawner: MultiplayerSpawner
@@ -98,7 +99,12 @@ func _spawn_map_instance(data: Dictionary) -> Node:
 	var map_instance = map_scene.instantiate()
 	map_instance.name = "Map_" + map_id
 	
-	print("MapSpawner: Custom spawn function created map: %s" % map_instance.name)
+	# Apply offset based on map index to physically separate them
+	var map_index = MAP_SCENES.keys().find(map_id)
+	if map_index == -1: map_index = 0
+	map_instance.position = MAP_OFFSET * map_index
+	
+	print("MapSpawner: Custom spawn function created map: %s at %s" % [map_instance.name, map_instance.position])
 	return map_instance
 
 
@@ -138,21 +144,25 @@ func request_map_change(player_id: int, target_map_id: String, target_spawn_poin
 	client_set_current_map.rpc_id(player_id, map_instance.get_path(), target_spawn_point_name)
 	
 	
-func _load_map_on_server(map_id: String):                                                                                                           
-	if map_id in active_maps: return                                                                        
+func _load_map_on_server(map_id: String):
+	if map_id in active_maps: return
 																											
-	print("MapManager: Spawning map '%s' via MultiplayerSpawner" % map_id)                                  
-	if not map_spawner:                                                                                     
-		push_error("MapManager: Map Spawner not found, cannot spawn map!")                                  
-		return                                                                                              
+	print("MapManager: Spawning map '%s' via MultiplayerSpawner" % map_id)
+	if not map_spawner:
+		push_error("MapManager: Map Spawner not found, cannot spawn map!")
+		return
 																											
-	var map_instance = map_spawner.spawn({"map_id": map_id})                                                
-	if not is_instance_valid(map_instance):                                                                 
-		push_error("Failed to spawn map '%s' via MultiplayerSpawner!" % map_id)                             
-		return                                                                                              
+	var map_instance = map_spawner.spawn({"map_id": map_id})
+	if not is_instance_valid(map_instance):
+		push_error("Failed to spawn map '%s' via MultiplayerSpawner! Spawn returned null or invalid." % map_id)
+		return
 																											
-	active_maps[map_id] = { "scene_instance": map_instance, "player_ids": [] }                              
-	map_loaded.emit(map_id) 
+	active_maps[map_id] = {"scene_instance": map_instance, "player_ids": []}
+	map_loaded.emit(map_id)
+	
+	# When a new map is loaded, we must ensure existing players on OTHER maps don't see it.
+	# By default, MultiplayerSynchronizers might be visible. We need to clamp that down.
+	_update_visibility_for_all_players()
 
 
 func _finalize_player_spawn(player_id: int, map_id: String, spawn_point_name: String = ""):
@@ -182,7 +192,7 @@ func _spawn_player_on_server_map(player_id: int, map_id: String, spawn_point_nam
 		return
 
 	# Configure the authoritative instance. The name is set inside the spawn function.
-	player_char.position = get_spawn_position_for_map(map_id, spawn_point_name)
+	player_char.global_position = get_spawn_position_for_map(map_id, spawn_point_name)
 	
 	print("MapManager: Spawned player %d via PlayerSpawner on map '%s' at spawn '%s'" % [player_id, map_id, spawn_point_name])
 	
@@ -303,18 +313,27 @@ func _update_visibility_for_player(player_id: int):
 		# Update my view of other player
 		_set_visibility_for_node(other_node, player_id, is_visible)
 
-	# 2. Update this player's visibility of all ENEMIES
+	# 2. Update this player's visibility of the ENTIRE MAP
+	# This includes Enemies, Items, Projectiles, etc.
+	# We iterate through all active maps and set visibility based on whether the player is on that map.
 	for map_id in active_maps.keys():
 		var map_instance = active_maps[map_id].scene_instance
 		if not is_instance_valid(map_instance): continue
 		
 		var is_visible = (player_map == map_id)
 		
-		# Assuming enemies are in the "Enemies" group and parented to the map.
-		# A more robust way would be to have a dedicated enemy container node.
-		for enemy in get_tree().get_nodes_in_group("Enemies"):
-			if enemy.get_owner() == map_instance:
-				_set_visibility_for_node(enemy, player_id, is_visible)
+		# This helper finds ALL MultiplayerSynchronizers in the map_instance
+		# and sets their visibility for this specific player.
+		# This effectively stops network traffic for everything on that map.
+		_set_visibility_for_node(map_instance, player_id, is_visible)
+
+
+func _update_visibility_for_all_players():
+	"""Updates visibility for ALL active players. Useful when a new map is added."""
+	if not multiplayer.is_server(): return
+	
+	for player_id in player_current_maps.keys():
+		_update_visibility_for_player(player_id)
 
 
 # === CLIENT LOGIC ===
@@ -335,13 +354,35 @@ func _update_client_map_visibility():
 	for child in spawn_root.get_children():
 		# We identify maps by checking if they are in the "map_base" group.
 		if child.is_in_group("map_base"):
-			if child == current_map_instance:
-				child.visible = true
-				child.process_mode = Node.PROCESS_MODE_INHERIT
-			else:
-				child.visible = false
-				child.process_mode = Node.PROCESS_MODE_DISABLED
-				#child.queue_free()
+			var is_active = (child == current_map_instance)
+			_set_map_active_state(child, is_active)
+
+
+func _set_map_active_state(node: Node, is_active: bool):
+	"""
+	Recursively sets state for a map hierarchy.
+	- Root: Sets visible and process_mode.
+	- CanvasLayer: Sets visible (to hide UI on other maps).
+	- Collision: Disables shapes on other maps (safety net).
+	"""
+	# 1. Handle Root Node (The Map itself)
+	if node.is_in_group("map_base"):
+		node.visible = is_active
+		node.process_mode = Node.PROCESS_MODE_INHERIT if is_active else Node.PROCESS_MODE_DISABLED
+	
+	# 2. Handle CanvasLayers (UI)
+	# CanvasLayers do not inherit visibility from Node2D parents, so we must toggle them explicitly.
+	if node is CanvasLayer:
+		node.visible = is_active
+
+	# 3. Handle Collision (Safety Net)
+	# We explicitly disable collision on the client for inactive maps to prevent any local interaction.
+	if node is CollisionShape2D or node is CollisionPolygon2D:
+		node.disabled = not is_active
+		
+	# 4. Recurse
+	for child in node.get_children():
+		_set_map_active_state(child, is_active)
 
 func _on_map_spawned_on_client(_node: Node):
 	# A new node was spawned by the map spawner. It might be a map.

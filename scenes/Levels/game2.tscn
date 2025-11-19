@@ -616,35 +616,41 @@ monitorable = false
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Killzone"]
 shape = SubResource("WorldBoundaryShape2D_p57ef")
 
-[node name="Platforms" type="Node" parent="."]
+[node name="Platforms" type="Node2D" parent="."]
 
-[node name="Players" type="Node" parent="."]
+[node name="Players" type="Node2D" parent="."]
 
-[node name="Enemies" type="Node" parent="."]
+[node name="Enemies" type="Node2D" parent="."]
 
 [node name="Fox" parent="Enemies" instance=ExtResource("18_sne6m")]
 position = Vector2(840, -17)
+respawnable = true
 
 [node name="Fox2" parent="Enemies" instance=ExtResource("18_sne6m")]
 position = Vector2(916, -17)
+respawnable = true
 
 [node name="Fox3" parent="Enemies" instance=ExtResource("18_sne6m")]
 position = Vector2(990, -17)
+respawnable = true
 
 [node name="Bunny" parent="Enemies" instance=ExtResource("17_np2v1")]
 position = Vector2(723, 16)
+respawnable = true
 
 [node name="Bunny2" parent="Enemies" instance=ExtResource("17_np2v1")]
 position = Vector2(879, -17)
+respawnable = true
 
 [node name="Bunny3" parent="Enemies" instance=ExtResource("17_np2v1")]
 position = Vector2(954, -17)
+respawnable = true
 
-[node name="Projectiles" type="Node" parent="."]
+[node name="Projectiles" type="Node2D" parent="."]
 
-[node name="ItemDrops" type="Node" parent="."]
+[node name="ItemDrops" type="Node2D" parent="."]
 
-[node name="GoblinSpawner" type="Node" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+[node name="GoblinSpawner" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
 script = ExtResource("19_l4hlk")
 enemy_scene = ExtResource("20_abesk")
 spawn_locations = [NodePath("EnemySpawnLocation"), NodePath("EnemySpawnLocation2"), NodePath("EnemySpawnLocation3")]
@@ -656,7 +662,7 @@ respawn_delay = 5.0
 _spawnable_scenes = PackedStringArray("uid://c0fdrl7mq5ou7")
 spawn_path = NodePath("../../Enemies")
 script = ExtResource("21_iyjnr")
-enemy_spawner = NodePath("..")
+enemy_spawner = NodePath("")
 
 [node name="EnemySpawnLocation" type="Marker2D" parent="GoblinSpawner"]
 position = Vector2(1209, 14)
