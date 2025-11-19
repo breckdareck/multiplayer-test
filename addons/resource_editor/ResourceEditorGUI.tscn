@@ -1,8 +1,8 @@
 [gd_scene load_steps=2 format=3 uid="uid://df0th7wol3d0u"]
 
-[ext_resource type="Script" uid="uid://bc0llhlflc36h" path="res://addons/ability_editor/AbilityEditorGUI.gd" id="1_0xt2s"]
+[ext_resource type="Script" uid="uid://bc0llhlflc36h" path="res://addons/resource_editor/ResourceEditorGUI.gd" id="1_0xt2s"]
 
-[node name="AbilityEditor" type="Control"]
+[node name="ResourceEditor" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -32,19 +32,22 @@ grow_horizontal = 2
 grow_vertical = 2
 split_offset = 250
 
-[node name="AbilityBrowser" type="VBoxContainer" parent="Panel/MainHSplit"]
+[node name="ResourceBrowser" type="VBoxContainer" parent="Panel/MainHSplit"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Panel/MainHSplit/AbilityBrowser"]
+[node name="Label" type="Label" parent="Panel/MainHSplit/ResourceBrowser"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
-text = "Project Abilities"
+text = "Project Resources"
 
-[node name="RefreshButton" type="Button" parent="Panel/MainHSplit/AbilityBrowser"]
+[node name="ResourceTypeSelector" type="OptionButton" parent="Panel/MainHSplit/ResourceBrowser"]
+layout_mode = 2
+
+[node name="RefreshButton" type="Button" parent="Panel/MainHSplit/ResourceBrowser"]
 layout_mode = 2
 text = "Refresh List"
 
-[node name="AbilityTree" type="Tree" parent="Panel/MainHSplit/AbilityBrowser"]
+[node name="ResourceTree" type="Tree" parent="Panel/MainHSplit/ResourceBrowser"]
 layout_mode = 2
 size_flags_vertical = 3
 hide_root = true
@@ -92,6 +95,7 @@ horizontal_scroll_mode = 0
 [node name="EditorContent" type="VBoxContainer" parent="Panel/MainHSplit/EditorPanel/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 theme_override_constants/separation = 20
 
 [node name="GeneralSettings" type="VBoxContainer" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent"]
@@ -370,6 +374,12 @@ layout_mode = 2
 
 [node name="LevelDetailInspector" type="EditorInspector" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/LevelSettings/HSplitContainer/LevelDetailsPanel"]
 layout_mode = 2
+
+[node name="GenericResourceInspector" type="EditorInspector" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent"]
+visible = false
+custom_minimum_size = Vector2(0, 300)
+layout_mode = 2
+size_flags_vertical = 3
 
 [node name="FileDialog" type="EditorFileDialog" parent="."]
 title = "Open a File"

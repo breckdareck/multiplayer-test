@@ -1,15 +1,21 @@
 @tool
-class_name AbilityEditorGUI
+class_name ResourceEditorGUI
 extends Control
 
+# Preload the resource type configuration
+const ResourceTypeConfig = preload("res://addons/resource_editor/resource_type_config.gd")
+
 # ========================================
-# MAIN ABILITY EDITOR - ALL IN ONE FILE
+# MAIN RESOURCE EDITOR - UNIFIED EDITOR FOR ALL RESOURCE TYPES
 # ========================================
 
 # --- ONREADY VARS ---
+# Resource Type Selector (will be added to scene)
+@onready var resource_type_selector = $Panel/MainHSplit/ResourceBrowser/ResourceTypeSelector
+
 # File Browser
-@onready var refresh_button = $Panel/MainHSplit/AbilityBrowser/RefreshButton
-@onready var ability_tree = $Panel/MainHSplit/AbilityBrowser/AbilityTree
+@onready var refresh_button = $Panel/MainHSplit/ResourceBrowser/RefreshButton
+@onready var resource_tree = $Panel/MainHSplit/ResourceBrowser/ResourceTree
 
 # General Settings
 @onready var ability_id_edit = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/GeneralSettings/MarginContainer/Form/HBox_ID/AbilityIDEdit
@@ -44,6 +50,9 @@ extends Control
 @onready var level_details_panel = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/LevelSettings/HSplitContainer/LevelDetailsPanel
 @onready var level_detail_inspector = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/LevelSettings/HSplitContainer/LevelDetailsPanel/LevelDetailInspector
 
+# Generic Resource Inspector
+@onready var generic_resource_inspector = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/GenericResourceInspector
+
 # Buttons & Dialogs
 @onready var new_button = $Panel/MainHSplit/EditorPanel/Header/FileButtons/NewButton
 @onready var save_button = $Panel/MainHSplit/EditorPanel/Header/FileButtons/SaveButton
@@ -52,7 +61,14 @@ extends Control
 @onready var file_dialog = $FileDialog
 
 # --- MEMBER VARS ---
-var current_ability: AbilityData
+# Resource type management
+var resource_types: Array[ResourceTypeConfig.ResourceType] = []
+var current_resource_type: ResourceTypeConfig.ResourceType
+
+# Current resource being edited (generic)
+var current_resource: Resource
+
+# Ability-specific data (only used when editing AbilityData)
 var current_scaling_data: AbilityScalingData
 var is_updating_ui: bool = false
 var selected_formula_key: String = ""
@@ -71,16 +87,30 @@ var formula_presets = {
 # GODOT LIFECYCLE
 # ========================================
 func _ready() -> void:
+	_load_resource_types()
 	_populate_option_buttons()
 	_populate_formula_presets()
 	_connect_signals()
-	_scan_for_abilities()
-	_on_new_button_pressed()
+	# Select first resource type by default (Abilities)
+	if resource_types.size() > 0:
+		current_resource_type = resource_types[0]
+		_scan_for_resources()
+		_on_new_button_pressed()
 
 
 # ========================================
 # INITIALIZATION
 # ========================================
+func _load_resource_types() -> void:
+	resource_types = ResourceTypeConfig.get_all_resource_types()
+	# Populate the resource type selector dropdown
+	if resource_type_selector:
+		resource_type_selector.clear()
+		for i in range(resource_types.size()):
+			var type = resource_types[i]
+			resource_type_selector.add_item(type.display_name, i)
+
+
 func _populate_option_buttons() -> void:
 	_populate_option_button(ability_type_option, Constants.AbilityType)
 	_populate_option_button(required_class_option, Constants.ClassType)
@@ -112,8 +142,9 @@ func _connect_signals() -> void:
 	file_dialog.file_selected.connect(_on_file_selected)
 	
 	# Browser
-	refresh_button.pressed.connect(_scan_for_abilities)
-	ability_tree.item_selected.connect(_on_ability_tree_item_selected)
+	resource_type_selector.item_selected.connect(_on_resource_type_changed)
+	refresh_button.pressed.connect(_scan_for_resources)
+	resource_tree.item_selected.connect(_on_resource_tree_item_selected)
 	
 	# General info
 	ability_name_edit.text_changed.connect(_on_general_info_changed)
@@ -146,17 +177,34 @@ func _connect_signals() -> void:
 # ========================================
 # FILE BROWSER
 # ========================================
-func _scan_for_abilities() -> void:
-	ability_tree.clear()
-	var root = ability_tree.create_item()
-	var ability_script = load("res://scripts/Resources/AbilitySystem/AbilityData.gd")
-	
-	if not ability_script:
-		push_error("Could not find AbilityData.gd script")
+func _on_resource_type_changed(index: int) -> void:
+	if index < 0 or index >= resource_types.size():
 		return
 	
-	var path = "res://resources/Abilities"
-	_recursive_scan(path, root, ability_script)
+	current_resource_type = resource_types[index]
+	_scan_for_resources()
+	
+	# Reset to new resource of this type
+	_on_new_button_pressed()
+
+
+func _scan_for_resources() -> void:
+	if not current_resource_type:
+		return
+	
+	resource_tree.clear()
+	var root = resource_tree.create_item()
+	var resource_script = load(current_resource_type.script_path)
+	
+	if not resource_script:
+		push_error("Could not find script: " + current_resource_type.script_path)
+		return
+	
+	var path = current_resource_type.base_folder
+	if DirAccess.dir_exists_absolute(path):
+		_recursive_scan(path, root, resource_script)
+	else:
+		print("Directory does not exist: ", path)
 
 
 func _recursive_scan(path: String, parent_item: TreeItem, script_to_match: Script) -> void:
@@ -175,8 +223,20 @@ func _recursive_scan(path: String, parent_item: TreeItem, script_to_match: Scrip
 			var res = load(file_path)
 			
 			if res and res.get_script() == script_to_match:
-				var item = ability_tree.create_item(parent_item)
-				item.set_text(0, res.ability_name if not res.ability_name.is_empty() else file_name)
+				var item = resource_tree.create_item(parent_item)
+				# Try to get a display name from the resource
+				var display_name = file_name
+				if res.has_method("get") and res.get("name") != null and not str(res.get("name")).is_empty():
+					display_name = res.get("name")
+				elif res.has_method("get") and res.get("ability_name") != null and not str(res.get("ability_name")).is_empty():
+					display_name = res.get("ability_name")
+				elif res.has_method("get") and res.get("_class_name") != null and not str(res.get("_class_name")).is_empty():
+					display_name = res.get("_class_name")
+				elif res.has_method("get") and res.get("monster_name") != null and not str(res.get("monster_name")).is_empty():
+					display_name = res.get("monster_name")
+				elif res.has_method("get") and res.get("buff_name") != null and not str(res.get("buff_name")).is_empty():
+					display_name = res.get("buff_name")
+				item.set_text(0, display_name)
 				item.set_metadata(0, file_path)
 		
 		file_name = dir.get_next()
@@ -186,113 +246,163 @@ func _recursive_scan(path: String, parent_item: TreeItem, script_to_match: Scrip
 # FILE OPERATIONS
 # ========================================
 func _on_new_button_pressed() -> void:
-	ability_tree.deselect_all()
-	current_ability = AbilityData.new()
-	current_ability.max_level = 10
-	current_ability.use_scaling_formulas = true
+	if not current_resource_type:
+		return
 	
-	# Create and embed scaling data
-	current_ability.scaling_data = AbilityScalingData.new()
-	current_ability.scaling_data.resource_local_to_scene = true # Embed resource
-	current_scaling_data = current_ability.scaling_data
+	resource_tree.deselect_all()
+	current_resource = ResourceTypeConfig.create_new_resource(current_resource_type)
 	
-	# Create and embed active behavior data
-	current_ability.active_behavior = ActiveBehaviorData.new()
-	current_ability.active_behavior.resource_local_to_scene = true # Embed resource
+	# For abilities, set up scaling data
+	if current_resource is AbilityData:
+		current_scaling_data = current_resource.scaling_data
 	
 	_update_ui()
 
 
 func _on_save_button_pressed() -> void:
-	if current_ability.resource_path.is_empty():
+	if not current_resource:
+		return
+	if current_resource.resource_path.is_empty():
 		_on_save_as_button_pressed()
 	else:
-		_save_ability(current_ability.resource_path)
+		_save_resource(current_resource.resource_path)
 
 
 func _on_save_as_button_pressed() -> void:
+	if not current_resource_type:
+		return
 	file_dialog.file_mode = FileDialog.FILE_MODE_SAVE_FILE
 	file_dialog.clear_filters()
-	file_dialog.add_filter("*.tres", "Ability Resource")
+	file_dialog.add_filter("*.tres", current_resource_type.display_name + " Resource")
 	file_dialog.popup_centered()
 
 
 func _on_file_selected(path: String) -> void:
 	if file_dialog.file_mode == FileDialog.FILE_MODE_SAVE_FILE:
-		_save_ability(path)
+		_save_resource(path)
 	elif file_dialog.file_mode == FileDialog.FILE_MODE_OPEN_FILE:
-		_load_ability(path)
+		_load_resource(path)
 
 
-func _save_ability(path: String) -> void:
-	# No longer need to save scaling data separately
-	ResourceSaver.save(current_ability, path)
-	print("✅ Ability saved to: ", path)
-	_scan_for_abilities()
+func _save_resource(path: String) -> void:
+	if not current_resource:
+		return
+	ResourceSaver.save(current_resource, path)
+	print("✅ Resource saved to: ", path)
+	_scan_for_resources()
 
 
-func _load_ability(path: String) -> void:
-	current_ability = load(path)
-	if current_ability and current_ability.scaling_data:
-		current_scaling_data = current_ability.scaling_data
+func _load_resource(path: String) -> void:
+	current_resource = load(path)
+	if not current_resource:
+		return
 	
-	# Ensure embedded resources exist if loading older files
-	if not current_ability.active_behavior:
-		current_ability.active_behavior = ActiveBehaviorData.new()
-		current_ability.active_behavior.resource_local_to_scene = true
-	if not current_ability.scaling_data:
-		current_ability.scaling_data = AbilityScalingData.new()
-		current_ability.scaling_data.resource_local_to_scene = true
-		current_scaling_data = current_ability.scaling_data
+	# For abilities, ensure embedded resources exist
+	if current_resource is AbilityData:
+		var ability = current_resource as AbilityData
+		if ability.scaling_data:
+			current_scaling_data = ability.scaling_data
+		
+		# Ensure embedded resources exist if loading older files
+		if not ability.active_behavior:
+			ability.active_behavior = ActiveBehaviorData.new()
+			ability.active_behavior.resource_local_to_scene = true
+		if not ability.scaling_data:
+			ability.scaling_data = AbilityScalingData.new()
+			ability.scaling_data.resource_local_to_scene = true
+			current_scaling_data = ability.scaling_data
 
 	_update_ui()
 
 
-func _on_ability_tree_item_selected() -> void:
-	var selected = ability_tree.get_selected()
+func _on_resource_tree_item_selected() -> void:
+	var selected = resource_tree.get_selected()
 	if selected:
 		var path = selected.get_metadata(0)
 		if path and not path.is_empty():
-			_load_ability(path)
+			_load_resource(path)
 
 
 # ========================================
 # UI UPDATE - MAIN
 # ========================================
 func _update_ui() -> void:
-	if not current_ability:
+	if not current_resource:
 		return
 	
 	is_updating_ui = true
 	
-	# General info
-	ability_id_edit.text = current_ability.ability_id
-	ability_name_edit.text = current_ability.ability_name
-	description_edit.text = current_ability.description
-	icon_path_picker.set_edited_resource(current_ability.ability_icon)
-	max_level_spinbox.value = current_ability.max_level
-	ability_type_option.selected = current_ability.ability_type
-	
-	if not current_ability.required_class.is_empty():
-		required_class_option.selected = current_ability.required_class[0]
-	if not current_ability.required_weapon_types.is_empty():
-		required_weapon_option.selected = current_ability.required_weapon_types[0]
-	
-	# Scaling mode
-	use_formulas_checkbox.button_pressed = current_ability.use_scaling_formulas
-	_on_scaling_mode_toggled(current_ability.use_scaling_formulas)
-	
-	# Active behavior
-	_update_active_behavior_ui()
+	# Check if we're editing an ability (needs special UI)
+	if current_resource is AbilityData:
+		var ability = current_resource as AbilityData
+		
+		# Show ability-specific panels
+		_show_ability_ui()
+		
+		# General info
+		ability_id_edit.text = ability.ability_id
+		ability_name_edit.text = ability.ability_name
+		description_edit.text = ability.description
+		icon_path_picker.set_edited_resource(ability.ability_icon)
+		max_level_spinbox.value = ability.max_level
+		ability_type_option.selected = ability.ability_type
+		
+		if not ability.required_class.is_empty():
+			required_class_option.selected = ability.required_class[0]
+		if not ability.required_weapon_types.is_empty():
+			required_weapon_option.selected = ability.required_weapon_types[0]
+		
+		# Scaling mode
+		use_formulas_checkbox.button_pressed = ability.use_scaling_formulas
+		_on_scaling_mode_toggled(ability.use_scaling_formulas)
+		
+		# Active behavior
+		_update_active_behavior_ui()
+	else:
+		# For other resource types, hide ability-specific UI and show generic inspector
+		_hide_ability_ui()
+		if generic_resource_inspector:
+			generic_resource_inspector.edit(current_resource)
 	
 	is_updating_ui = false
 
 
+func _show_ability_ui() -> void:
+	# Show all ability-specific panels
+	if ability_id_edit: ability_id_edit.get_parent().get_parent().get_parent().show()
+	if formula_editor_panel: formula_editor_panel.get_parent().show()
+	if manual_level_panel: manual_level_panel.show()
+	if active_behavior_panel: active_behavior_panel.get_parent().show()
+	
+	# Hide generic inspector
+	if generic_resource_inspector:
+		generic_resource_inspector.hide()
+		generic_resource_inspector.edit(null)
+
+
+func _hide_ability_ui() -> void:
+	# Hide all ability-specific panels
+	if ability_id_edit: ability_id_edit.get_parent().get_parent().get_parent().hide()
+	if formula_editor_panel: formula_editor_panel.hide()
+	if manual_level_panel: manual_level_panel.hide()
+	if active_behavior_panel: active_behavior_panel.hide()
+	
+	# Show generic inspector
+	if generic_resource_inspector:
+		generic_resource_inspector.show()
+
+
 func _update_active_behavior_ui() -> void:
-	if current_ability.ability_type == Constants.AbilityType.ACTIVE:
+	if not current_resource or not current_resource is AbilityData:
+		active_behavior_panel.hide()
+		active_behavior_inspector.edit(null)
+		return
+	
+	var ability = current_resource as AbilityData
+	if ability.ability_type == Constants.AbilityType.ACTIVE:
 		active_behavior_panel.show()
 		# The inspector now handles all field population
-		active_behavior_inspector.edit(current_ability.active_behavior)
+		active_behavior_inspector.edit(ability.active_behavior)
 	else:
 		active_behavior_panel.hide()
 		active_behavior_inspector.edit(null)
@@ -302,29 +412,32 @@ func _update_active_behavior_ui() -> void:
 # GENERAL INFO HANDLERS
 # ========================================
 func _on_general_info_changed(value = null) -> void:
-	if is_updating_ui or not current_ability:
+	if is_updating_ui or not current_resource or not current_resource is AbilityData:
 		return
 	
-	current_ability.ability_name = ability_name_edit.text
-	current_ability.description = description_edit.text
-	current_ability.max_level = int(max_level_spinbox.value)
+	var ability = current_resource as AbilityData
+	ability.ability_name = ability_name_edit.text
+	ability.description = description_edit.text
+	ability.max_level = int(max_level_spinbox.value)
 	
-	current_ability.ability_icon = icon_path_picker.get_edited_resource()
+	ability.ability_icon = icon_path_picker.get_edited_resource()
 	
-	current_ability.ability_type = ability_type_option.get_selected_id()
+	ability.ability_type = ability_type_option.get_selected_id()
 	
-	current_ability.required_class.clear()
-	current_ability.required_class.append(required_class_option.get_selected_id())
-	current_ability.required_weapon_types.clear()
-	current_ability.required_weapon_types.append(required_weapon_option.get_selected_id())
+	ability.required_class.clear()
+	ability.required_class.append(required_class_option.get_selected_id())
+	ability.required_weapon_types.clear()
+	ability.required_weapon_types.append(required_weapon_option.get_selected_id())
 
 
 func _on_ability_type_changed(index: int) -> void:
 	_on_general_info_changed()
 	_update_active_behavior_ui()
 	
-	if current_ability.use_scaling_formulas:
-		_update_formula_tree()
+	if current_resource and current_resource is AbilityData:
+		var ability = current_resource as AbilityData
+		if ability.use_scaling_formulas:
+			_update_formula_tree()
 
 
 # ========================================
@@ -340,19 +453,20 @@ func _on_ability_type_changed(index: int) -> void:
 # SCALING MODE TOGGLE
 # ========================================
 func _on_scaling_mode_toggled(use_formulas: bool) -> void:
-	if not current_ability:
+	if not current_resource or not current_resource is AbilityData:
 		return
 	
-	current_ability.use_scaling_formulas = use_formulas
+	var ability = current_resource as AbilityData
+	ability.use_scaling_formulas = use_formulas
 	
 	if use_formulas:
 		formula_editor_panel.show()
 		manual_level_panel.hide()
 		
-		if not current_ability.scaling_data:
-			current_ability.scaling_data = AbilityScalingData.new()
-			current_ability.scaling_data.resource_local_to_scene = true
-			current_scaling_data = current_ability.scaling_data
+		if not ability.scaling_data:
+			ability.scaling_data = AbilityScalingData.new()
+			ability.scaling_data.resource_local_to_scene = true
+			current_scaling_data = ability.scaling_data
 		
 		_update_formula_tree()
 	else:
@@ -371,9 +485,10 @@ func _on_scaling_mode_toggled(use_formulas: bool) -> void:
 func _update_formula_tree() -> void:
 	formula_tree.clear()
 	formula_inspector.edit(null) # Clear inspector
-	if not current_ability or not current_scaling_data:
+	if not current_resource or not current_resource is AbilityData or not current_scaling_data:
 		return
 	
+	var ability = current_resource as AbilityData
 	var root = formula_tree.create_item()
 	
 	# Basic Stats Category
@@ -389,7 +504,7 @@ func _update_formula_tree() -> void:
 	_add_formula_item(basic_stats, "Cast Time", "cast_time_formula", current_scaling_data.cast_time_formula)
 	
 	# Stat Bonuses (Passives only)
-	if current_ability.ability_type == Constants.AbilityType.PASSIVE:
+	if ability.ability_type == Constants.AbilityType.PASSIVE:
 		var stat_bonuses = formula_tree.create_item(root)
 		stat_bonuses.set_text(0, "💪 Stat Bonuses")
 		stat_bonuses.set_selectable(0, false)
@@ -406,7 +521,7 @@ func _update_formula_tree() -> void:
 		modifiers.set_selectable(0, false)
 		
 		for ability_id in current_scaling_data.ability_damage_modifier_formulas:
-			_add_formula_item(modifiers, "Dmg Mod", "damage_mod_" + ability_id, 
+			_add_formula_item(modifiers, "Dmg Mod", "damage_mod_" + ability_id,
 							current_scaling_data.ability_damage_modifier_formulas[ability_id])
 	
 	# Proc Effects
@@ -555,7 +670,7 @@ func _on_add_formula_pressed() -> void:
 func _add_stat_bonus() -> void:
 	var new_stat_formula = StatBonusFormula.new()
 	new_stat_formula.resource_local_to_scene = true
-	new_stat_formula.stat_type = Constants.StatType.STRENGTH  # Default
+	new_stat_formula.stat_type = Constants.StatType.STRENGTH # Default
 	current_scaling_data.stat_bonus_formulas.append(new_stat_formula)
 	_update_formula_tree()
 
@@ -599,40 +714,43 @@ func _on_preset_selected(index: int) -> void:
 # ========================================
 func _update_manual_level_list() -> void:
 	level_list.clear()
-	if not current_ability:
+	if not current_resource or not current_resource is AbilityData:
 		return
 	
-	for i in range(current_ability.level_data.size()):
-		var level_data: AbilityLevelData = current_ability.level_data[i]
+	var ability = current_resource as AbilityData
+	for i in range(ability.level_data.size()):
+		var level_data: AbilityLevelData = ability.level_data[i]
 		level_list.add_item("Level %d" % level_data.level)
 
 
 func _on_add_level_pressed() -> void:
-	if not current_ability:
+	if not current_resource or not current_resource is AbilityData:
 		return
 	
-	var next_level = current_ability.level_data.size() + 1
+	var ability = current_resource as AbilityData
+	var next_level = ability.level_data.size() + 1
 	var new_level_data = AbilityLevelData.new(next_level)
 	new_level_data.resource_local_to_scene = true # Embed it
-	current_ability.level_data.append(new_level_data)
+	ability.level_data.append(new_level_data)
 	_update_manual_level_list()
-	level_list.select(current_ability.level_data.size() - 1)
+	level_list.select(ability.level_data.size() - 1)
 	_update_manual_level_details()
 
 
 func _on_remove_level_pressed() -> void:
-	if not current_ability:
+	if not current_resource or not current_resource is AbilityData:
 		return
 	
+	var ability = current_resource as AbilityData
 	var selected = level_list.get_selected_items()
 	if selected.is_empty():
 		return
 	
-	current_ability.level_data.remove_at(selected[0])
+	ability.level_data.remove_at(selected[0])
 	
 	# Renumber remaining levels
-	for i in range(current_ability.level_data.size()):
-		current_ability.level_data[i].level = i + 1
+	for i in range(ability.level_data.size()):
+		ability.level_data[i].level = i + 1
 	
 	_update_manual_level_list()
 	level_list.deselect_all()
@@ -650,8 +768,12 @@ func _update_manual_level_details() -> void:
 		level_detail_inspector.edit(null)
 		return
 	
+	if not current_resource or not current_resource is AbilityData:
+		return
+	
+	var ability = current_resource as AbilityData
 	level_details_panel.show()
-	var level_data: AbilityLevelData = current_ability.level_data[selected[0]]
+	var level_data: AbilityLevelData = ability.level_data[selected[0]]
 	
 	# Tell the inspector to edit this level data
 	level_detail_inspector.edit(level_data)
@@ -668,21 +790,22 @@ func _update_manual_level_details() -> void:
 # PREVIEW WINDOW
 # ========================================
 func _on_preview_button_pressed() -> void:
-	if not current_ability:
+	if not current_resource or not current_resource is AbilityData:
 		return
 	
+	var ability = current_resource as AbilityData
 	var preview_text = "═══════════════════════════════════════\n"
 	preview_text += "    ABILITY PREVIEW\n"
 	preview_text += "═══════════════════════════════════════\n\n"
-	preview_text += "Name: %s\n" % current_ability.ability_name
-	preview_text += "Type: %s\n" % ("Active" if current_ability.ability_type == Constants.AbilityType.ACTIVE else "Passive")
-	preview_text += "Max Level: %d\n" % current_ability.max_level
-	preview_text += "Scaling: %s\n\n" % ("Formula-Based" if current_ability.use_scaling_formulas else "Manual")
+	preview_text += "Name: %s\n" % ability.ability_name
+	preview_text += "Type: %s\n" % ("Active" if ability.ability_type == Constants.AbilityType.ACTIVE else "Passive")
+	preview_text += "Max Level: %d\n" % ability.max_level
+	preview_text += "Scaling: %s\n\n" % ("Formula-Based" if ability.use_scaling_formulas else "Manual")
 	
-	var max_preview = min(current_ability.max_level, 15)
+	var max_preview = min(ability.max_level, 15)
 	
 	for level in range(1, max_preview + 1):
-		var level_data = current_ability.get_level_stats(level)
+		var level_data = ability.get_level_stats(level)
 		if level_data:
 			preview_text += "─────────────────────────────────────\n"
 			preview_text += "Level %d:\n" % level
@@ -698,7 +821,7 @@ func _on_preview_button_pressed() -> void:
 			]
 			
 			# Show stat bonuses for passives
-			if current_ability.ability_type == Constants.AbilityType.PASSIVE and level_data.stat_bonuses.size() > 0:
+			if ability.ability_type == Constants.AbilityType.PASSIVE and level_data.stat_bonuses.size() > 0:
 				preview_text += "  Stat Bonuses:\n"
 				for stat_type in level_data.stat_bonuses:
 					var stat = level_data.stat_bonuses[stat_type]
@@ -717,8 +840,8 @@ func _on_preview_button_pressed() -> void:
 					level_data.on_hit_proc.damage_percent
 				]
 	
-	if current_ability.max_level > 15:
-		preview_text += "\n... (showing first 15 of %d levels)\n" % current_ability.max_level
+	if ability.max_level > 15:
+		preview_text += "\n... (showing first 15 of %d levels)\n" % ability.max_level
 	
 	preview_text += "\n═══════════════════════════════════════\n"
 	

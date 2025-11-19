@@ -121,7 +121,7 @@ func spawn_damage_number(args: Array) -> Label:
 	var gradient_texture = TextureRect.new()
 	var sync = MultiplayerSynchronizer.new()
 	number_outline.add_child(number)
-	number_outline.add_child(sync)
+	number_outline.add_child(sync )
 	number.add_child(gradient_texture)
 	
 	var config = sync.replication_config
@@ -139,8 +139,16 @@ func spawn_damage_number(args: Array) -> Label:
 	var font_size = 290
 	
 	
-	number_outline.scale = Vector2(.05,.05)
-	number_outline.global_position = args[1]
+	number_outline.scale = Vector2(.05, .05)
+	# Convert global position to local position relative to spawn parent
+	# args[1] is the global position, but since this node will be a child of the map (spawn_path = ".."),
+	# we need to convert it to local position to account for the map's offset
+	var spawn_parent = get_node(spawner.spawn_path)
+	if spawn_parent:
+		number_outline.position = args[1] - spawn_parent.global_position
+	else:
+		# Fallback to global position if spawn parent not found
+		number_outline.global_position = args[1]
 	number_outline.text = str(args[0])
 	number_outline.z_index = args[4] if args.size() > 4 else 5
 	number_outline.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -169,7 +177,7 @@ func spawn_damage_number(args: Array) -> Label:
 	if args[3]:
 		gradient_texture.texture = PLAYER_HIT_GRADIENT_TEXTURE_2D
 	if args[2]:
-		number_outline.scale = Vector2(.056,.056)
+		number_outline.scale = Vector2(.056, .056)
 		gradient_texture.texture = CRIT_HIT_GRADIENT_TEXTURE_2D
 	if args[0] == 0:
 		number.label_settings.font_color = "#FFF8"
