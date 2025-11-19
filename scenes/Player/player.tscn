@@ -1094,6 +1094,7 @@ monitoring = false
 [node name="BasicAttackHitbox" type="CollisionShape2D" parent="Hitbox"]
 position = Vector2(9.5, -10.5)
 shape = SubResource("RectangleShape2D_ploos")
+debug_color = Color(0.565, 0.933, 0.565, 0.42)
 
 [node name="StandingCollisionShape" type="CollisionShape2D" parent="."]
 visible = false

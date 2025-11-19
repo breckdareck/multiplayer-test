@@ -33,7 +33,7 @@ const ResourceTypeConfig = preload("res://addons/resource_editor/resource_type_c
 
 # Active Behavior Panel
 @onready var active_behavior_panel = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/ActiveBehavior
-@onready var active_behavior_inspector = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/ActiveBehavior/MarginContainer/ActiveBehaviorInspector
+@onready var active_behavior_inspector = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/ActiveBehavior/MarginContainer/ContentVBox/ActiveBehaviorInspector
 
 # Formula Editor Panel
 @onready var formula_editor_panel = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/FormulaEditor
@@ -59,6 +59,12 @@ const ResourceTypeConfig = preload("res://addons/resource_editor/resource_type_c
 @onready var save_as_button = $Panel/MainHSplit/EditorPanel/Header/FileButtons/SaveAsButton
 @onready var preview_button = $Panel/MainHSplit/EditorPanel/Header/FileButtons/PreviewButton
 @onready var file_dialog = $FileDialog
+
+
+# Hitbox Visualizer
+@onready var visualizer_container = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/ActiveBehavior/MarginContainer/ContentVBox/VisualizerContainer
+@onready var visualizer_control = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/ActiveBehavior/MarginContainer/ContentVBox/VisualizerContainer/PanelContainer/VisualizerControl
+@onready var visualizer_player_sprite = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/ActiveBehavior/MarginContainer/ContentVBox/VisualizerContainer/PanelContainer/VisualizerControl/PlayerSprite
 
 # --- MEMBER VARS ---
 # Resource type management
@@ -159,7 +165,8 @@ func _connect_signals() -> void:
 	use_formulas_checkbox.toggled.connect(_on_scaling_mode_toggled)
 	formula_help_button.pressed.connect(_show_formula_help)
 	
-	# Active behavior - No longer needed, inspector handles it
+	# Active behavior
+	visualizer_control.draw.connect(_draw_hitbox_visualization)
 	
 	# Formula editor
 	add_formula_button.pressed.connect(_on_add_formula_pressed)
@@ -403,6 +410,22 @@ func _update_active_behavior_ui() -> void:
 		active_behavior_panel.show()
 		# The inspector now handles all field population
 		active_behavior_inspector.edit(ability.active_behavior)
+		
+		# Setup Visualizer
+		if ability.active_behavior:
+			# Connect to changed signal for real-time updates
+			if not ability.active_behavior.changed.is_connected(_on_active_behavior_changed):
+				ability.active_behavior.changed.connect(_on_active_behavior_changed)
+			
+			# Load player sprite if needed
+			if not visualizer_player_sprite.texture:
+				var player_texture = load("res://assets/UI/beginner_portrait.tres")
+				if player_texture:
+					visualizer_player_sprite.texture = player_texture
+			
+			# Update visualizer
+			_update_visualizer_sprite_pos()
+			visualizer_control.queue_redraw()
 	else:
 		active_behavior_panel.hide()
 		active_behavior_inspector.edit(null)
@@ -438,15 +461,6 @@ func _on_ability_type_changed(index: int) -> void:
 		var ability = current_resource as AbilityData
 		if ability.use_scaling_formulas:
 			_update_formula_tree()
-
-
-# ========================================
-# ACTIVE BEHAVIOR HANDLERS
-# ========================================
-
-# This function is no longer needed.
-# The EditorInspector automatically updates the resource properties.
-# func _on_active_behavior_changed(value = null) -> void:
 
 
 # ========================================
@@ -636,17 +650,6 @@ func _assign_formula_to_key(key: String, formula: AbilityScalingFormula) -> void
 		"cast_time_formula": current_scaling_data.cast_time_formula = formula
 		"proc_chance_formula": current_scaling_data.proc_chance_formula = formula
 		"proc_damage_formula": current_scaling_data.proc_damage_formula = formula
-
-#
-# ALL MANUAL UI BUILDING FUNCTIONS ARE NOW REMOVED
-# _build_formula_detail_ui()
-# _add_flat_fields()
-# _add_multiplicative_fields()
-# _add_stepped_fields()
-# _add_custom_fields()
-# _add_formula_preview()
-# _show_stat_bonus_editor()
-#
 
 
 # ========================================
@@ -847,7 +850,78 @@ func _on_preview_button_pressed() -> void:
 	
 	print(preview_text)
 	
-	# TODO: Show in a proper AcceptDialog window instead of console
+# Constants for visualizer scaling
+const VISUALIZER_ZOOM = 6.0
+const GAME_PLAYER_SCALE = 1.3
+const GAME_PLAYER_OFFSET_Y = -12.0
+
+func _on_active_behavior_changed() -> void:
+	visualizer_control.queue_redraw()
+
+
+func _update_visualizer_sprite_pos() -> void:
+	if not visualizer_player_sprite.texture:
+		return
+		
+	# Set the sprite scale to match Game Scale * Visualizer Zoom
+	# This ensures the sprite looks 1.3x larger relative to the grid/hitbox than a 1.0 sprite would
+	visualizer_player_sprite.scale = Vector2.ONE * GAME_PLAYER_SCALE * VISUALIZER_ZOOM
+	
+	var center = visualizer_control.size / 2
+	
+	# Apply the game offset scaled by the visualizer zoom
+	# We divide by GAME_PLAYER_SCALE because the offset of -20 in game is likely relative to the unscaled sprite dimensions
+	# or the user's setup results in the feet being closer to center than the full scaled offset implies.
+	# This adjustment brings the sprite down to align the feet with the origin.
+	visualizer_player_sprite.position = center + Vector2(0, (GAME_PLAYER_OFFSET_Y * VISUALIZER_ZOOM) / GAME_PLAYER_SCALE)
+
+
+# ========================================
+# HITBOX VISUALIZER
+# ========================================
+func _draw_hitbox_visualization() -> void:
+	if not current_resource or not current_resource is AbilityData:
+		return
+		
+	var ability = current_resource as AbilityData
+	if not ability.active_behavior:
+		return
+	
+	# Ensure sprite position is correct (in case of resize)
+	_update_visualizer_sprite_pos()
+		
+	var center = visualizer_control.size / 2
+	var behavior = ability.active_behavior
+	
+	# Draw origin point (Red cross)
+	visualizer_control.draw_line(center - Vector2(10, 0), center + Vector2(10, 0), Color.RED, 2)
+	visualizer_control.draw_line(center - Vector2(0, 10), center + Vector2(0, 10), Color.RED, 2)
+	
+	# Draw Hitbox
+	if behavior.hit_box_shape_data:
+		var shape = behavior.hit_box_shape_data
+		# Scale the position offset by the visualizer zoom (NOT the sprite scale)
+		# The hitbox is defined in world units, so we just zoom in.
+		var pos_offset = behavior.hit_box_position_data * VISUALIZER_ZOOM
+		var draw_pos = center + pos_offset
+		
+		if shape is CircleShape2D:
+			var radius = shape.radius * VISUALIZER_ZOOM
+			visualizer_control.draw_circle(draw_pos, radius, Color(0, 1, 0, 0.5))
+			visualizer_control.draw_arc(draw_pos, radius, 0, TAU, 32, Color.GREEN, 2)
+			
+		elif shape is RectangleShape2D:
+			var size = shape.size * VISUALIZER_ZOOM
+			var rect = Rect2(draw_pos - size / 2, size)
+			visualizer_control.draw_rect(rect, Color(0, 1, 0, 0.5))
+			visualizer_control.draw_rect(rect, Color.GREEN, false, 2)
+			
+		elif shape is CapsuleShape2D:
+			var height = shape.height * VISUALIZER_ZOOM
+			var radius = shape.radius * VISUALIZER_ZOOM
+			var rect = Rect2(draw_pos - Vector2(radius, height / 2), Vector2(radius * 2, height))
+			visualizer_control.draw_rect(rect, Color(0, 1, 0, 0.5)) # Simple rect for now
+			visualizer_control.draw_rect(rect, Color.GREEN, false, 2)
 
 
 # ========================================
