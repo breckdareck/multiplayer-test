@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import JSONB
+from werkzeug.security import generate_password_hash, check_password_hash
 import os
 import time
 
@@ -139,8 +140,9 @@ def register_account():
     if existing_account:
         return jsonify({"error": "Username already exists"}), 400
     
-    # Create new account (TODO: Hash the password!)
-    new_account = Account(username=username, password_hash=password)
+    # Create new account (Hash the password!)
+    hashed_password = generate_password_hash(password)
+    new_account = Account(username=username, password_hash=hashed_password)
     db.session.add(new_account)
     db.session.commit()
     
@@ -159,7 +161,7 @@ def login_account():
     # Find account
     account = Account.query.filter_by(username=username).first()
     
-    if not account or account.password_hash != password:
+    if not account or not check_password_hash(account.password_hash, password):
         return jsonify({"error": "Invalid username or password"}), 401
     
     return jsonify({"account_id": account.id, "username": account.username}), 200
