@@ -236,19 +236,27 @@ func _setup_signals() -> void:
 	# Connect component signals to handle game logic and data saving.
 	# These should run on both Client (to trigger RPC save) and Server (to save directly).
 	if level_component:
-		level_component.experience_changed.connect(func(_c, _e): _data_changed())
-		level_component.leveled_up.connect(func(_l): _data_changed())
+		level_component.experience_changed.connect(func(_c, _e): _data_changed("stats"))
+		level_component.leveled_up.connect(func(_l): _data_changed("all")) # Level up might affect everything (points, stats)
 		if multiplayer.is_server():
 			level_component.leveled_up.connect(_handle_sprite_change_on_server.unbind(1))
 	
 	if health_component:
-		health_component.health_changed.connect(func(_c, _m): _data_changed())
+		health_component.health_changed.connect(func(_c, _m): _data_changed("stats"))
 		
 	if ability_component:
-		ability_component.ability_leveled_up.connect(func(_a, _l): _data_changed())
+		ability_component.ability_leveled_up.connect(func(_a, _l): _data_changed("abilities"))
+		ability_component.ability_points_changed.connect(func(_p): _data_changed("abilities"))
+		ability_component.ability_learned.connect(func(_a): _data_changed("abilities"))
 
 	if inventory_component:
-		inventory_component.inventory_saved.connect(func(_inv): _data_changed())
+		inventory_component.inventory_saved.connect(func(_inv): _data_changed("inventory"))
+		
+	if buff_component:
+		buff_component.buff_applied.connect(func(_b, _d): _data_changed("buffs"))
+		buff_component.buff_removed.connect(func(_b): _data_changed("buffs"))
+		buff_component.buff_refreshed.connect(func(_b, _d): _data_changed("buffs"))
+
 		
 	# Server-only logic
 	if multiplayer.is_server():
@@ -348,27 +356,40 @@ func change_to_map(new_map_id: String, spawn_point_name: String = ""):
 func set_current_party_id(id: int):
 	_current_party_id = id
 
-func _get_save_data() -> Dictionary:
+func _get_save_data(update_type: String = "all") -> Dictionary:
 	var data: Dictionary = {
-		'username': username,
+		'username': username
+	}
+	
+	# Always include basic stats if "all" or "stats"
+	if update_type == "all" or update_type == "stats":
+		data.merge(_get_stats_data())
+	
+	if update_type == "all" or update_type == "inventory":
+		if is_instance_valid(player_inventory):
+			data['inventory'] = player_inventory.save_player_inventory()
+	
+	if update_type == "all" or update_type == "abilities":
+		if is_instance_valid(ability_component):
+			data['abilities'] = ability_component.save_abilities()
+		
+	if update_type == "all" or update_type == "buffs":
+		if is_instance_valid(buff_component):
+			data['buffs'] = buff_component.save_buffs()
+		
+	return data
+
+
+func _get_stats_data() -> Dictionary:
+	return {
 		'max_health': health_component.max_health if is_instance_valid(health_component) else 100,
 		'current_health': health_component.current_health if is_instance_valid(health_component) else 100,
 		'level': level_component.level if is_instance_valid(level_component) else 1,
 		'experience': level_component.experience if is_instance_valid(level_component) else 0,
 		'party_id': _current_party_id,
-		'last_map': MapManager.get_player_map(player_id) if multiplayer.is_server() else MapManager.current_map_id
+		'last_map': MapManager.get_player_map(player_id) if multiplayer.is_server() else MapManager.current_map_id,
+		'character_type': class_component.current_class if is_instance_valid(class_component) else 0
 	}
-	
-	if is_instance_valid(player_inventory):
-		data['inventory'] = player_inventory.save_player_inventory()
-	
-	if is_instance_valid(ability_component):
-		data['abilities'] = ability_component.save_abilities()
-		
-	if is_instance_valid(buff_component):
-		data['buffs'] = buff_component.save_buffs()
-		
-	return data
 
 
 func _load_data(data: Dictionary) -> void:
@@ -451,10 +472,11 @@ func get_current_health() -> int:
 func get_max_health() -> int:
 	return health_component.max_health if is_instance_valid(health_component) else 0
 
-func _data_changed() -> void:
+func _data_changed(update_type: String = "all") -> void:
 	if _is_being_cleaned_up or _is_loading_data:
 		return
-	var data_string: String = JSON.stringify(_get_save_data())
+	var data_string: String = JSON.stringify(_get_save_data(update_type))
+
 	
 	if multiplayer.is_server():
 		# If we are the server, save directly to avoid RPC overhead/delay

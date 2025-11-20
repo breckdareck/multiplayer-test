@@ -62,7 +62,7 @@ func _notify_player_data_changed():
 	"""Notify the player that data changed (for saving)"""
 	if multiplayer.is_server() and player:
 		if player.has_method("_data_changed"):
-			player._data_changed()
+			player._data_changed("inventory")
 
 
 # Public API - delegates to inventory component
@@ -109,4 +109,3 @@ func load_player_inventory_silent(data: Dictionary):
 @rpc("authority", "call_local", "reliable")
 func set_monies_rpc(amount: int):
 	monies_amount = amount
-

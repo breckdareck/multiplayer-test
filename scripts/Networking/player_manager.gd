@@ -200,8 +200,8 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 			player_instance.player_inventory.set_monies_rpc.rpc_id(id, monies)
 
 	
-	# Set default equipment if no save
-	if not player_data:
+	# Set default equipment if no save or no inventory data
+	if not player_data or not player_data.has("inventory"):
 		player_instance.equipment_component.weapon_slot.item = ResourceManager.get_item_by_name("Iron Sword")
 		player_instance.equipment_component.chest_slot.item = ResourceManager.get_item_by_name("White Shirt")
 		player_instance.equipment_component.legs_slot.item = ResourceManager.get_item_by_name("Blue Jean Shorts")
@@ -305,15 +305,28 @@ func _load_player_data_async(username: String) -> Dictionary:
 
 
 func _save_player_data_to_file(data: Dictionary):
-	"""Save player data to file"""
+	"""Save player data to file (Fallback) - Merges partial updates"""
 	var username = data.get("username", "")
 	if username.is_empty():
 		return
 	
 	var file_path = "player_%s.json" % username
+	var existing_data = {}
+	
+	# Read existing data first to merge
+	if FileAccess.file_exists(file_path):
+		var file_read = FileAccess.open(file_path, FileAccess.READ)
+		if file_read:
+			existing_data = JSON.parse_string(file_read.get_as_text())
+			file_read.close()
+			if existing_data == null: existing_data = {}
+	
+	# Merge new data into existing data
+	existing_data.merge(data, true) # true = overwrite existing keys
+	
 	var file = FileAccess.open(file_path, FileAccess.WRITE)
 	if file:
-		file.store_string(JSON.stringify(data))
+		file.store_string(JSON.stringify(existing_data))
 		file.close()
 		print("PlayerManager: Saved to local file for ", username)
 

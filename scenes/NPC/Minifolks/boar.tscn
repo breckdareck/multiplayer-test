@@ -119,9 +119,9 @@ shape = SubResource("CircleShape2D_n6pvg")
 
 [node name="Health" type="Node" parent="." node_paths=PackedStringArray("damage_number_origin")]
 script = ExtResource("2_82tmb")
-damage_number_origin = NodePath("../DmgNumOrigin")
 max_health = 50
 health_bar_path = NodePath("../HealthBar")
+damage_number_origin = NodePath("../DmgNumOrigin")
 
 [node name="Stats" type="Node" parent="."]
 script = ExtResource("7_4m5ue")

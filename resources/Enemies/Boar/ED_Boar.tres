@@ -1,6 +1,8 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=8 format=3 uid="uid://bliarhg40csoo"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=10 format=3 uid="uid://bliarhg40csoo"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="2_iwdua"]
+[ext_resource type="Resource" uid="uid://buupsdueg14yf" path="res://resources/DropTables/Machete.tres" id="2_rm1mb"]
+[ext_resource type="Resource" uid="uid://colkbp081dsma" path="res://resources/DropTables/Gladius.tres" id="3_bpode"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="3_rm1mb"]
 [ext_resource type="SpriteFrames" uid="uid://c28y4uyabwctv" path="res://resources/Enemies/Boar/SF_Boar.tres" id="4_iwdua"]
 
@@ -31,4 +33,4 @@ sprite_frames = ExtResource("4_iwdua")
 character_collision_shape = SubResource("CircleShape2D_n6pvg")
 body_hitbox_shape = SubResource("CapsuleShape2D_71sob")
 attack_hitbox_shape = SubResource("RectangleShape2D_17tps")
-item_drops = Array[ExtResource("2_iwdua")]([SubResource("Resource_iwdua")])
+item_drops = Array[ExtResource("2_iwdua")]([SubResource("Resource_iwdua"), ExtResource("2_rm1mb"), ExtResource("3_bpode")])
