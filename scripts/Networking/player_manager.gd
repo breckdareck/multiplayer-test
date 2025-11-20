@@ -3,6 +3,8 @@ extends Node
 
 var character_scene = preload("res://scenes/Player/player.tscn")
 var active_players: Dictionary = {}
+var http_request: HTTPRequest
+const API_URL = "http://localhost:5000/api/player"
 
 
 func _ready() -> void:
@@ -10,6 +12,11 @@ func _ready() -> void:
 	# after the server-side spawn is completed.
 	if MapManager:
 		MapManager.player_spawned.connect(_on_player_spawned)
+		
+	http_request = HTTPRequest.new()
+	http_request.name = "HTTPRequest"
+	add_child(http_request)
+	http_request.timeout = 2.0 # Short timeout for local dev, adjust as needed
 
 
 func has_player(id: int) -> bool:
@@ -50,7 +57,8 @@ func remove_player(id: int):
 			# Quick save before disconnect
 			var quick_data = _get_quick_save_data(id)
 			if not quick_data.is_empty():
-				_save_player_data_to_file(quick_data)
+				_save_player_data_async(quick_data)
+
 	
 	# Notify map manager to clean up
 	MapManager.handle_player_disconnect(id)
@@ -98,7 +106,8 @@ func _receive_initial_info(id: int, character_type: int, username: String):
 		active_players[id]["username"] = username
 	
 	# Load player data (includes last map)
-	var player_data: Dictionary = _load_player_data_from_file(username)
+	var player_data: Dictionary = await _load_player_data_async(username)
+
 	
 	# Determine spawn map
 	var spawn_map = player_data.get("last_map", MapManager.DEFAULT_MAP)
@@ -249,10 +258,50 @@ func _load_player_data_from_file(username: String) -> Dictionary:
 		var file = FileAccess.open(file_path, FileAccess.READ)
 		var data = JSON.parse_string(file.get_as_text())
 		file.close()
-		data["party_id"] = data.get("party_id", -1)
-		data["last_map"] = data.get("last_map", "")
-		return data
+		if data:
+			data["party_id"] = data.get("party_id", -1)
+			data["last_map"] = data.get("last_map", "")
+			return data
 	return {}
+
+
+func _load_player_data_async(username: String) -> Dictionary:
+	print("PlayerManager: Attempting to load data for %s from API..." % username)
+	
+	# Create a temporary HTTP request for this specific call to avoid conflicts
+	var request = HTTPRequest.new()
+	add_child(request)
+	request.timeout = 2.0
+	
+	var json = JSON.stringify({"username": username})
+	var headers = ["Content-Type: application/json"]
+	var error = request.request(API_URL + "/load", headers, HTTPClient.METHOD_POST, json)
+	
+	if error != OK:
+		print("PlayerManager: HTTP request failed to start. Error: ", error)
+		request.queue_free()
+		return _load_player_data_from_file(username)
+	
+	var result = await request.request_completed
+	var response_code = result[1]
+	var body = result[3]
+	request.queue_free()
+	
+	if response_code == 200:
+		var json_result = JSON.parse_string(body.get_string_from_utf8())
+		if json_result != null:
+			if json_result.is_empty():
+				return {}
+				
+			print("PlayerManager: Successfully loaded data from API for ", username)
+			# Ensure default fields exist
+			json_result["party_id"] = json_result.get("party_id", -1)
+			json_result["last_map"] = json_result.get("last_map", "")
+			return json_result
+
+	
+	print("PlayerManager: API load failed (Code: %d). Falling back to local file." % response_code)
+	return _load_player_data_from_file(username)
 
 
 func _save_player_data_to_file(data: Dictionary):
@@ -266,6 +315,44 @@ func _save_player_data_to_file(data: Dictionary):
 	if file:
 		file.store_string(JSON.stringify(data))
 		file.close()
+		print("PlayerManager: Saved to local file for ", username)
+
+
+func _save_player_data_async(data: Dictionary) -> void:
+	var username = data.get("username", "")
+	if username.is_empty():
+		return
+
+	print("PlayerManager: Attempting to save data for %s to API..." % username)
+	
+	var request = HTTPRequest.new()
+	add_child(request)
+	request.timeout = 2.0
+	
+	var payload = {
+		"username": username,
+		"data": data
+	}
+	
+	var json = JSON.stringify(payload)
+	var headers = ["Content-Type: application/json"]
+	var error = request.request(API_URL + "/save", headers, HTTPClient.METHOD_POST, json)
+	
+	if error != OK:
+		print("PlayerManager: HTTP save request failed to start. Error: ", error)
+		request.queue_free()
+		_save_player_data_to_file(data)
+		return
+	
+	var result = await request.request_completed
+	var response_code = result[1]
+	request.queue_free()
+	
+	if response_code == 200:
+		print("PlayerManager: Successfully saved data to API for ", username)
+	else:
+		print("PlayerManager: API save failed (Code: %d). Falling back to local file." % response_code)
+		_save_player_data_to_file(data)
 
 
 func _get_quick_save_data(player_id: int) -> Dictionary:
@@ -351,7 +438,9 @@ func _on_player_spawned(player_id: int) -> void:
 	var username = info.get("username", "Player")
 	
 	# Always load fresh data from file to avoid using stale cached data on map changes.
-	var player_data = _load_player_data_from_file(username)
+	# Always load fresh data from file to avoid using stale cached data on map changes.
+	var player_data = await _load_player_data_async(username)
+
 
 	# Continue initialization
 	call_deferred("_initialize_spawned_player", player_id, character_type, username, player_data)

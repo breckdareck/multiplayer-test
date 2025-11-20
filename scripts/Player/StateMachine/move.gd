@@ -10,22 +10,12 @@ extends State
 func enter() -> void:
 	super()
 	var player
-	if parent is MultiplayerPlayer:
+	if parent is MultiplayerPlayerV2:
 		player = parent
-	elif parent is MultiplayerPlayerV2:
-		player = parent
-
-	# If we're coming from a roll, preserve the velocity that was set in roll.exit()
-	if player is MultiplayerPlayer:
-		if player.coming_from_slide:
-			# We've handled the flag, now reset it
-			player.coming_from_slide = false
 
 func physics_update(delta: float) -> State:
 	var player
-	if parent is MultiplayerPlayer:
-		player = parent
-	elif parent is MultiplayerPlayerV2:
+	if parent is MultiplayerPlayerV2:
 		player = parent
 
 	# Store the initial velocity magnitude and direction
@@ -38,11 +28,6 @@ func physics_update(delta: float) -> State:
 	parent.velocity.y += gravity * delta
 	
 	var movement: float = player.direction * move_speed
-
-	# Check for roll input first, as it's a key defensive/movement option.
-	if player is MultiplayerPlayer:
-		if player.do_slide and parent.is_on_floor():
-			return slide_state
 
 	# Check for attack input.
 	if player.do_attack:

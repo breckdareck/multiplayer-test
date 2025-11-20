@@ -39,9 +39,9 @@ const SERVER_ID: int = 1
 var username: String = ""
 var _current_party_id: int = -1
 
-var direction: int = 0  # The current input direction from the synchronizer
-var facing_direction: int = 1  # The last non-zero direction, for facing
-var input_down: bool = false  # The current down input from the synchronizer
+var direction: int = 0 # The current input direction from the synchronizer
+var facing_direction: int = 1 # The last non-zero direction, for facing
+var input_down: bool = false # The current down input from the synchronizer
 
 var do_attack: bool = false
 var do_jump: bool = false
@@ -77,7 +77,7 @@ func _ready() -> void:
 		ChatManager.register_local_player(self)
 		# Request the sprite states of all other players from the server.
 		AudioManager.play_song("res://assets/music/gameplay.mp3")
-		stats_window.update_stats_window()	
+		stats_window.update_stats_window()
 		request_all_sprite_states.rpc_id(SERVER_ID)
 
 	# Server-specific setup
@@ -162,7 +162,7 @@ func _exit_tree():
 # PUBLIC METHODS
 #=============================================================================
 
-func apply_knockback(knockback: Vector2) -> void: 
+func apply_knockback(knockback: Vector2) -> void:
 	if _is_being_cleaned_up:
 		return
 
@@ -192,7 +192,7 @@ func can_drop_through_platform() -> bool:
 			var collider_layer_mask: int = PhysicsServer2D.body_get_collision_layer(collider_rid)
 			if collider_layer_mask & (1 << (platform_layer - 1)):
 				return true
-			break  # We found the floor, no need to check other collisions.
+			break # We found the floor, no need to check other collisions.
 	return false
 
 
@@ -235,7 +235,6 @@ func cleanup_before_removal():
 func _setup_signals() -> void:
 	# Connect component signals to handle game logic and data saving.
 	# These should run on both Client (to trigger RPC save) and Server (to save directly).
-	
 	if level_component:
 		level_component.experience_changed.connect(func(_c, _e): _data_changed())
 		level_component.leveled_up.connect(func(_l): _data_changed())
@@ -459,7 +458,8 @@ func _data_changed() -> void:
 	
 	if multiplayer.is_server():
 		# If we are the server, save directly to avoid RPC overhead/delay
-		save_on_server(data_string)
+		save_on_server.rpc_id(SERVER_ID, data_string)
+
 	else:
 		save_on_server.rpc_id(SERVER_ID, data_string)
 
@@ -511,15 +511,9 @@ func save_on_server(data_string: String) -> void:
 	var user_name: String = parsed_data.get("username", "")
 	if user_name.is_empty(): return
 
-	print("Server: Saving data for %s" % user_name)
-	var file_path: String = "player_%s.json" % user_name
-	var file := FileAccess.open(file_path, FileAccess.WRITE)
-	if file:
-		file.store_string(data_string)
-		file.close()
-		print("Server: Successfully saved data to %s" % file_path)
-	else:
-		push_error("Server: Failed to open file for writing: %s" % file_path)
+	# Delegate saving to PlayerManager which handles API/File fallback
+	if PlayerManager:
+		PlayerManager._save_player_data_async(parsed_data)
 
 
 # [CLIENT -> SERVER] Asks the server to initiate a sprite change for this player.
