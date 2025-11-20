@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Multiplayer Test"
-run/main_scene="uid://b8gpxmwm0fasc"
+run/main_scene="res://scenes/UI/LoginScreen.tscn"
 config/features=PackedStringArray("4.5", "Forward Plus")
 
 [autoload]
@@ -31,6 +31,7 @@ PartyManager="*res://scripts/Managers/party_manager.gd"
 InputManager="*res://scripts/Managers/InputManager.gd"
 LogManager="*res://scripts/Managers/LogManager.gd"
 ChatManager="*res://scripts/Managers/ChatManager.gd"
+NetworkManager="*res://scripts/Networking/network_manager.gd"
 
 [display]
 

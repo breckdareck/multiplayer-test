@@ -42,7 +42,7 @@ func add_player(id: int):
 	}
 	
 	# Request character selection from client
-	rpc_id(id, "_request_character_selection", id)
+	rpc_id(id, "_client_send_initial_info", id)
 
 
 func remove_player(id: int):
@@ -78,18 +78,31 @@ func cleanup():
 	active_players.clear()
 
 
-@rpc("call_local", "any_peer")
-func _request_character_selection(id: int):
-	"""Called on client to request their character selection"""
-	var menu_container = get_tree().get_current_scene().get_node_or_null("%MenuContainer")
-	var selected_char: int = 0
-	var username: String = "Player"
+# This function is called on the client to gather character selection info
+# and send it to the server.
+@rpc("call_local", "any_peer") # This RPC is called by the server on the client
+func _client_send_initial_info(id: int):
+	print("PlayerManager: Client %d preparing to send initial info." % id)
 	
-	if menu_container and "selected_character" in menu_container:
-		selected_char = menu_container.selected_character
-		username = menu_container.get_username()
+	# Try to get character data from NetworkManager metadata first (new flow)
+	var username: String = NetworkManager.get_meta("selected_character_name", "")
+	var selected_char: int = NetworkManager.get_meta("selected_character_class", 0)
+	
+	# Fall back to menu_container if metadata not found (backward compatibility)
+	if username.is_empty():
+		var menu_container = get_tree().get_current_scene().get_node_or_null("%MenuContainer")
+		if menu_container:
+			if "selected_character" in menu_container:
+				selected_char = menu_container.selected_character
+			if menu_container.has_method("get_username"):
+				username = menu_container.get_username()
+	
+	# Final fallback to default if still empty
+	if username.is_empty():
+		username = "Player" + str(id)
 	
 	print("PlayerManager: Client sending character: %s & username: %s from PID: %d" % [Constants.ClassType.find_key(selected_char), username, id])
+	# Send the gathered info to the server (ID 1)
 	rpc_id(1, "_receive_initial_info", id, selected_char, username)
 
 
@@ -200,8 +213,13 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 			player_instance.player_inventory.set_monies_rpc.rpc_id(id, monies)
 
 	
-	# Set default equipment if no save or no inventory data
-	if not player_data or not player_data.has("inventory"):
+	# Set default equipment if no save or no inventory data, or if inventory is empty (new character)
+	var inv_data_check = player_data.get("inventory", {})
+	var has_items = not inv_data_check.get("slots", []).is_empty()
+	var has_equipment = not inv_data_check.get("equipment", {}).is_empty()
+	
+	if not player_data or not player_data.has("inventory") or (not has_items and not has_equipment):
+		print("PlayerManager: Adding default items for player %d" % id)
 		player_instance.equipment_component.weapon_slot.item = ResourceManager.get_item_by_name("Iron Sword")
 		player_instance.equipment_component.chest_slot.item = ResourceManager.get_item_by_name("White Shirt")
 		player_instance.equipment_component.legs_slot.item = ResourceManager.get_item_by_name("Blue Jean Shorts")

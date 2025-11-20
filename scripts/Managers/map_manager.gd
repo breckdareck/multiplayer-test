@@ -31,50 +31,59 @@ var _node_to_map_cache: Dictionary = {}
 
 
 func _ready():
-	get_tree().scene_changed.connect(_on_scene_changed)
-	# The scene might already be loaded, so run this once at the start.
-	call_deferred("_on_scene_changed")
+	# Create persistent Maps container and MapSpawner at root level (deferred)
+	call_deferred("_create_persistent_nodes")
 	
 	# Defer server-side setup until the server is confirmed to be running.
 	MultiplayerManager.server_has_started.connect(_on_server_started)
 
 
-func _on_scene_changed():
-	var scene = get_tree().current_scene
-	# We only care about the main menu scene where the spawner lives.
-	if scene and scene.scene_file_path == "res://scenes/Levels/main_menu.tscn":
-		# The scene is there, but its children might not be ready yet.
-		await get_tree().process_frame
+func _create_persistent_nodes():
+	"""Create Maps node and MapSpawner at root level so they persist across scene changes"""
+	# Get the scene tree root
+	var root = get_tree().root
+	
+	# Create Maps container if it doesn't exist
+	var maps_node = root.get_node_or_null("Maps")
+	if not maps_node:
+		maps_node = Node.new()
+		maps_node.name = "Maps"
+		root.add_child(maps_node)
+		print("MapManager: Created persistent Maps node at root")
+	
+	# Create MapSpawner if it doesn't exist
+	var existing_spawner = root.get_node_or_null("MapSpawner")
+	if not existing_spawner:
+		map_spawner = MultiplayerSpawner.new()
+		map_spawner.name = "MapSpawner"
+		root.add_child(map_spawner)
 		
-		print("MapManager: Main menu scene detected. Initializing MapSpawner.")
-		var new_spawner = get_node_or_null("/root/MainMenu/MapSpawner")
+		# Set spawn_path to Maps node (sibling under root)
+		# Use relative path from MapSpawner to its sibling Maps
+		map_spawner.spawn_path = NodePath("../Maps")
 		
-		if not is_instance_valid(new_spawner):
-			push_error("MapManager: Could not find /root/MainMenu/MapSpawner in scene!")
-			return
-
-		# If we already have a spawner, and it's different, disconnect old signal
-		if is_instance_valid(map_spawner) and map_spawner != new_spawner:
-			if not multiplayer.is_server() and map_spawner.spawned.is_connected(_on_map_spawned_on_client):
-				map_spawner.spawned.disconnect(_on_map_spawned_on_client)
-
-		map_spawner = new_spawner
-		
-		# Set spawn function for both client and server.
+		# Set spawn function for both client and server
 		map_spawner.spawn_function = _spawn_map_instance
 		
-		if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
-			# On clients, whenever a map is spawned, we need to re-evaluate visibility.
-			if not map_spawner.spawned.is_connected(_on_map_spawned_on_client):
-				map_spawner.spawned.connect(_on_map_spawned_on_client)
-		
-		print("MapManager: MapSpawner initialized.")
+		print("MapManager: Created persistent MapSpawner at root")
+	else:
+		# Use existing spawner
+		map_spawner = existing_spawner
+		map_spawner.spawn_function = _spawn_map_instance
+		print("MapManager: Using existing MapSpawner at root")
+	
+	# If we're already in a multiplayer session and client, ensure setup
+	if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
+		if not map_spawner.spawned.is_connected(_on_map_spawned_on_client):
+			map_spawner.spawned.connect(_on_map_spawned_on_client)
+
+
+func _on_scene_changed():
+	# This function is no longer needed since MapSpawner is persistent
+	pass
 
 
 func _exit_tree():
-	if get_tree().scene_changed.is_connected(_on_scene_changed):
-		get_tree().scene_changed.disconnect(_on_scene_changed)
-
 	if MultiplayerManager.server_has_started.is_connected(_on_server_started):
 		MultiplayerManager.server_has_started.disconnect(_on_server_started)
 

@@ -38,11 +38,11 @@ func join_game():
 func disconnect_from_server():
 	MultiplayerManager.reset_data()
 	MapManager.reset_client_state()
-	get_tree().change_scene_to_file("res://scenes/Levels/main_menu.tscn")
+	get_tree().change_scene_to_file("res://scenes/UI/LoginScreen.tscn")
 	
 
 func change_channel(value: int):
-	MultiplayerManager.switch_channel(ClientManager.current_server_port+value)
+	MultiplayerManager.switch_channel(ClientManager.current_server_port + value)
 
 
 func setup_PID_label(is_host: bool, pid: int):
@@ -60,10 +60,10 @@ func get_username() -> String:
 
 func change_character(value: int):
 	selected_character += value
-	if selected_character > len(Constants.ClassType)-1:
+	if selected_character > len(Constants.ClassType) - 1:
 		selected_character = 0
 	elif selected_character < 0:
-		selected_character = len(Constants.ClassType)-1
+		selected_character = len(Constants.ClassType) - 1
 	match selected_character:
 		Constants.ClassType.SWORDSMAN:
 			character_portrait.texture = SWORDSMAN_PORTRAIT

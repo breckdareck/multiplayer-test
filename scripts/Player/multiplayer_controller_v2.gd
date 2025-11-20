@@ -63,7 +63,6 @@ var _is_loading_data: bool = false
 @onready var projectile_spawn_location: Marker2D = $ProjectileSpawnLocation
 const GAME_MENU_SCENE = preload("res://scenes/UI/game_menu.tscn")
 
-@onready var menu_container: MainMenu = get_tree().current_scene.get_node("%MenuContainer")
 @onready var game_menu: GameMenu
 @onready var input_synchronizer: MultiplayerSynchronizer = $InputSynchronizer
 
@@ -97,6 +96,19 @@ func _ready() -> void:
 	if is_instance_valid(debug_component):
 		debug_component.set_health_component(health_component)
 		debug_component.set_player(self)
+
+	# Setup Auto-Save Timer for local player
+	if multiplayer.get_unique_id() == player_id:
+		var auto_save_timer = Timer.new()
+		auto_save_timer.name = "AutoSaveTimer"
+		auto_save_timer.wait_time = 60.0 # Auto-save every 60 seconds
+		auto_save_timer.autostart = true
+		auto_save_timer.one_shot = false
+		add_child(auto_save_timer)
+		auto_save_timer.timeout.connect(func():
+			print("Auto-saving player data...")
+			_data_changed("all")
+		)
 
 	state_machine.init(self, animated_sprite)
 
@@ -224,8 +236,6 @@ func cleanup_before_removal():
 	if has_node("RespawnTimer"):
 		$RespawnTimer.stop()
 
-	# Clear references that might cause issues
-	menu_container = null
 	
 
 #=============================================================================
@@ -256,6 +266,9 @@ func _setup_signals() -> void:
 		buff_component.buff_applied.connect(func(_b, _d): _data_changed("buffs"))
 		buff_component.buff_removed.connect(func(_b): _data_changed("buffs"))
 		buff_component.buff_refreshed.connect(func(_b, _d): _data_changed("buffs"))
+
+	if equipment_component:
+		equipment_component.on_equipment_changed.connect(func(): _data_changed("equipment"))
 
 		
 	# Server-only logic
