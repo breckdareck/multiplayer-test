@@ -10,9 +10,14 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
+import uuid
+
 class Player(db.Model):
     __tablename__ = 'players'
-    username = db.Column(db.String(255), primary_key=True)
+    # Integer Primary Key (Auto-incrementing)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    # Username is unique and used for lookups/foreign keys
+    username = db.Column(db.String(255), unique=True, nullable=False)
     
     level = db.Column(db.Integer, default=1)
     character_class = db.Column(db.Integer, default=0)
@@ -21,7 +26,7 @@ class Player(db.Model):
     max_health = db.Column(db.Integer, default=100)
     last_map = db.Column(db.String(255), default="game")
     party_id = db.Column(db.Integer, default=-1)
-    monies = db.Column(db.Integer, default=0) # Moved monies to player table
+    monies = db.Column(db.Integer, default=0)
     
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
@@ -36,20 +41,52 @@ class PlayerItem(db.Model):
     __tablename__ = 'player_items'
     id = db.Column(db.Integer, primary_key=True)
     player_username = db.Column(db.String(255), db.ForeignKey('players.username'))
-    item_id = db.Column(db.String(255)) # Godot UUID for smart syncing
+    item_id = db.Column(db.String(255)) # Godot UUID
     slot_index = db.Column(db.Integer)
-    item_path = db.Column(db.String(512)) # Resource path
+    item_path = db.Column(db.String(512))
     quantity = db.Column(db.Integer, default=1)
-    dynamic_data = db.Column(JSONB, default=dict) # Level, Bonus Stats, etc.
+    
+    # Normalized Data
+    name = db.Column(db.String(255))
+    description = db.Column(db.Text)
+    icon_path = db.Column(db.String(512))
+    item_type = db.Column(db.Integer, default=0)
+    item_level = db.Column(db.Integer, default=0)
+    rarity = db.Column(db.Integer, default=0)
+    custom_value = db.Column(db.Integer, default=0)
+    
+    # Equipment Specifics (Nullable since not all items are equipment)
+    equipment_type = db.Column(db.Integer, nullable=True)
+    armor_type = db.Column(db.Integer, nullable=True)
+    weapon_type = db.Column(db.Integer, nullable=True)
+    attack_speed = db.Column(db.Float, nullable=True)
+    
+    stats = db.Column(JSONB, default=dict) # Replaces dynamic_data
 
 class PlayerEquipment(db.Model):
     __tablename__ = 'player_equipment'
     id = db.Column(db.Integer, primary_key=True)
     player_username = db.Column(db.String(255), db.ForeignKey('players.username'))
-    item_id = db.Column(db.String(255)) # Godot UUID
-    slot_type = db.Column(db.String(50)) # "HEAD", "CHEST", "WEAPON", etc.
+    item_id = db.Column(db.String(255))
+    slot_type = db.Column(db.String(50))
     item_path = db.Column(db.String(512))
-    dynamic_data = db.Column(JSONB, default=dict)
+    
+    # Normalized Data
+    name = db.Column(db.String(255))
+    description = db.Column(db.Text)
+    icon_path = db.Column(db.String(512))
+    item_type = db.Column(db.Integer, default=1) # Default to EQUIPMENT
+    item_level = db.Column(db.Integer, default=0)
+    rarity = db.Column(db.Integer, default=0)
+    custom_value = db.Column(db.Integer, default=0)
+    
+    # Equipment Specifics
+    equipment_type = db.Column(db.Integer, default=0)
+    armor_type = db.Column(db.Integer, default=0)
+    weapon_type = db.Column(db.Integer, default=0)
+    attack_speed = db.Column(db.Float, default=0.0)
+    
+    stats = db.Column(JSONB, default=dict) # Replaces dynamic_data
 
 class PlayerAbility(db.Model):
     __tablename__ = 'player_abilities'
@@ -72,13 +109,13 @@ class PlayerBuff(db.Model):
     buff_id = db.Column(db.String(255))
     duration = db.Column(db.Float)
     stacks = db.Column(db.Integer, default=1)
-
 def init_db():
     retries = 5
     while retries > 0:
         try:
             with app.app_context():
-                # db.drop_all() # REMOVED: Do not wipe DB on restart
+                # WARNING: Schema changed (full normalization), dropping all data!
+                db.drop_all() 
                 db.create_all()
             print("Database initialized successfully.")
             return
@@ -119,15 +156,20 @@ def load_player():
             item_data = {
                 "original_resource_path": item.item_path,
                 "current_stack_amount": item.quantity,
-                # We might need to store item_type in DB if we want to send it back, 
-                # OR we rely on Godot to infer it from the path.
-                # But since we added it to Godot's to_dictionary, we should probably store it.
-                # For now, let's assume Godot can handle it if missing (it defaults to ANY),
-                # BUT EquipmentData.from_dictionary might need it if path fails.
-                # Let's check if dynamic_data has it.
+                "item_id": item.item_id,
+                "name": item.name,
+                "description": item.description,
+                "icon_path": item.icon_path,
+                "item_type": item.item_type,
+                "item_level": item.item_level,
+                "rarity": item.rarity,
+                "custom_item_value": item.custom_value,
+                "equipment_type": item.equipment_type,
+                "armor_type": item.armor_type,
+                "weapon_type": item.weapon_type,
+                "weapon_attack_speed": item.attack_speed,
+                "bonus_stats": item.stats
             }
-            if item.dynamic_data:
-                item_data.update(item.dynamic_data)
             
             inventory_slots.append({
                 "slot_index": item.slot_index,
@@ -138,10 +180,20 @@ def load_player():
         for eq in player.equipment:
             item_data = {
                 "original_resource_path": eq.item_path,
-                "item_type": 1, # Constants.ItemType.EQUIPMENT
+                "item_id": eq.item_id,
+                "name": eq.name,
+                "description": eq.description,
+                "icon_path": eq.icon_path,
+                "item_type": eq.item_type,
+                "item_level": eq.item_level,
+                "rarity": eq.rarity,
+                "custom_item_value": eq.custom_value,
+                "equipment_type": eq.equipment_type,
+                "armor_type": eq.armor_type,
+                "weapon_type": eq.weapon_type,
+                "weapon_attack_speed": eq.attack_speed,
+                "bonus_stats": eq.stats
             }
-            if eq.dynamic_data:
-                item_data.update(eq.dynamic_data)
             equipment_data[eq.slot_type] = item_data
             
         response_data['inventory'] = {
@@ -217,82 +269,156 @@ def save_player():
         inv_data = data['inventory']
         player.monies = inv_data.get('monies', 0)
         
-        # --- Smart Sync for Items ---
-        existing_items = {item.item_id: item for item in player.items if item.item_id}
-        print(f"Existing items: {existing_items.keys()}") # DEBUG
-        
-        incoming_item_ids = set()
+        # --- Smart Sync for Items (By Slot Index) ---
+        # Use slot_index as the unique key for persistence
+        existing_items = {item.slot_index: item for item in player.items}
+        incoming_slots = set()
         
         for slot in inv_data.get('slots', []):
+            slot_index = slot.get('slot_index')
+            if slot_index is None: continue
+            
+            incoming_slots.add(slot_index)
             item_data = slot.get('item_data', {})
             path = item_data.get('original_resource_path') or item_data.get('resource_path') or ""
             dynamic = item_data.copy()
             if 'current_stack_amount' in dynamic: del dynamic['current_stack_amount']
             
             item_id = item_data.get('item_id')
-            print(f"Processing item: {item_id} (Path: {path})") # DEBUG
             
-            if item_id and item_id in existing_items:
-                # UPDATE existing
-                print(f"Updating item {item_id}")
-                item = existing_items[item_id]
-                item.slot_index = slot.get('slot_index')
+            # Extract normalized data
+            name = item_data.get('name', "")
+            description = item_data.get('description', "")
+            icon_path = item_data.get('icon_path', "")
+            item_type = item_data.get('item_type', 0)
+            item_level = item_data.get('item_level', 0)
+            rarity = item_data.get('rarity', 0)
+            custom_value = item_data.get('custom_item_value', 0)
+            
+            equipment_type = item_data.get('equipment_type')
+            armor_type = item_data.get('armor_type')
+            weapon_type = item_data.get('weapon_type')
+            attack_speed = item_data.get('weapon_attack_speed')
+            
+            stats = item_data.get('bonus_stats', {})
+            
+            if slot_index in existing_items:
+                # UPDATE existing slot
+                item = existing_items[slot_index]
+                item.item_id = item_id
                 item.item_path = path
                 item.quantity = item_data.get('current_stack_amount', 1)
-                item.dynamic_data = dynamic
-                incoming_item_ids.add(item_id)
+                item.name = name
+                item.description = description
+                item.icon_path = icon_path
+                item.item_type = item_type
+                item.item_level = item_level
+                item.rarity = rarity
+                item.custom_value = custom_value
+                item.equipment_type = equipment_type
+                item.armor_type = armor_type
+                item.weapon_type = weapon_type
+                item.attack_speed = attack_speed
+                item.stats = stats
             else:
-                # INSERT new
-                print(f"Inserting new item {item_id}")
+                # INSERT new slot
                 new_item = PlayerItem(
                     player_username=username,
                     item_id=item_id,
-                    slot_index=slot.get('slot_index'),
+                    slot_index=slot_index,
                     item_path=path,
                     quantity=item_data.get('current_stack_amount', 1),
-                    dynamic_data=dynamic
+                    name=name,
+                    description=description,
+                    icon_path=icon_path,
+                    item_type=item_type,
+                    item_level=item_level,
+                    rarity=rarity,
+                    custom_value=custom_value,
+                    equipment_type=equipment_type,
+                    armor_type=armor_type,
+                    weapon_type=weapon_type,
+                    attack_speed=attack_speed,
+                    stats=stats
                 )
                 db.session.add(new_item)
-                if item_id: incoming_item_ids.add(item_id)
         
-        # DELETE removed items
-        for iid, item in existing_items.items():
-            if iid not in incoming_item_ids:
-                print(f"Deleting item {iid}")
+        # DELETE items in slots that are no longer occupied
+        for idx, item in existing_items.items():
+            if idx not in incoming_slots:
                 db.session.delete(item)
-                
-        # --- Smart Sync for Equipment ---
-        existing_eq = {eq.item_id: eq for eq in player.equipment if eq.item_id}
-        incoming_eq_ids = set()
+
+        # --- Smart Sync for Equipment (By Slot Type) ---
+        # Use slot_type as the unique key
+        existing_eq = {eq.slot_type: eq for eq in player.equipment}
+        incoming_eq_slots = set()
         
         eq_data = inv_data.get('equipment', {})
         for slot_type, item_data in eq_data.items():
+            slot_type_str = str(slot_type)
+            incoming_eq_slots.add(slot_type_str)
+            
             path = item_data.get('original_resource_path') or item_data.get('resource_path') or ""
-            dynamic = item_data.copy()
             item_id = item_data.get('item_id')
             
-            if item_id and item_id in existing_eq:
-                # UPDATE
-                eq = existing_eq[item_id]
-                eq.slot_type = str(slot_type)
+            # Extract normalized data
+            name = item_data.get('name', "")
+            description = item_data.get('description', "")
+            icon_path = item_data.get('icon_path', "")
+            item_type = item_data.get('item_type', 1) # Default Equipment
+            item_level = item_data.get('item_level', 0)
+            rarity = item_data.get('rarity', 0)
+            custom_value = item_data.get('custom_item_value', 0)
+            
+            equipment_type = item_data.get('equipment_type', 0)
+            armor_type = item_data.get('armor_type', 0)
+            weapon_type = item_data.get('weapon_type', 0)
+            attack_speed = item_data.get('weapon_attack_speed', 0.0)
+            
+            stats = item_data.get('bonus_stats', {})
+            
+            if slot_type_str in existing_eq:
+                # UPDATE existing equipment slot
+                eq = existing_eq[slot_type_str]
+                eq.item_id = item_id
                 eq.item_path = path
-                eq.dynamic_data = dynamic
-                incoming_eq_ids.add(item_id)
+                eq.name = name
+                eq.description = description
+                eq.icon_path = icon_path
+                eq.item_type = item_type
+                eq.item_level = item_level
+                eq.rarity = rarity
+                eq.custom_value = custom_value
+                eq.equipment_type = equipment_type
+                eq.armor_type = armor_type
+                eq.weapon_type = weapon_type
+                eq.attack_speed = attack_speed
+                eq.stats = stats
             else:
-                # INSERT
+                # INSERT new equipment slot
                 new_eq = PlayerEquipment(
                     player_username=username,
                     item_id=item_id,
-                    slot_type=str(slot_type),
+                    slot_type=slot_type_str,
                     item_path=path,
-                    dynamic_data=dynamic
+                    name=name,
+                    description=description,
+                    icon_path=icon_path,
+                    item_type=item_type,
+                    item_level=item_level,
+                    rarity=rarity,
+                    custom_value=custom_value,
+                    equipment_type=equipment_type,
+                    armor_type=armor_type,
+                    weapon_type=weapon_type,
+                    attack_speed=attack_speed,
+                    stats=stats
                 )
                 db.session.add(new_eq)
-                if item_id: incoming_eq_ids.add(item_id)
                 
-        # DELETE removed equipment
-        for iid, eq in existing_eq.items():
-            if iid not in incoming_eq_ids:
+        # DELETE equipment in slots that are no longer occupied
+        for stype, eq in existing_eq.items():
+            if stype not in incoming_eq_slots:
                 db.session.delete(eq)
 
     # Update Abilities
