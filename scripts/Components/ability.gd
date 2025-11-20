@@ -50,12 +50,12 @@ var _level_component: LevelingComponent
 var _mana_component: ManaComponent
 
 # State variables
-var _cooldowns: Dictionary = {}  # { ability_id: time_remaining }
+var _cooldowns: Dictionary = {} # { ability_id: time_remaining }
 var _ability_levels: Dictionary = {} # { ability_id: current_level }
 var _available_ability_points: int = 0
 
 # Track proc cooldowns per passive ability
-var _passive_proc_cooldowns: Dictionary = {}  # { "ability_id_event_type": last_proc_time }
+var _passive_proc_cooldowns: Dictionary = {} # { "ability_id_event_type": last_proc_time }
 
 # Track active passive abilities for easy access
 var _active_passive_abilities: Array[AbilityData] = []
@@ -80,6 +80,10 @@ func _ready() -> void:
 		push_error("AbilityComponent requires ClassComponent and StatsComponent siblings.")
 		set_process(false)
 		return
+
+	# Connect to ClassComponent to handle class changes
+	if _class_component:
+		_class_component.class_changed.connect(_on_class_changed)
 
 	# Find or create the projectiles container inside the current visible map.
 	var map_node = MapManager.get_current_visible_map()
@@ -531,19 +535,21 @@ func spawn_projectile(ability: AbilityData, level_stats: AbilityLevelData, targe
 	# The projectile will now store the ability data and call back to the CombatComponent to process the hit.
 	projectile_instance.initialize(owner, target, ability, level_stats, active_behavior.projectile_speed, initial_direction)
 	
+	# Add projectile to scene tree first, then set global position
+	_projectiles_container.add_child(projectile_instance, true)
+	
 	if is_instance_valid(owner.projectile_spawn_location):
 		projectile_instance.global_position = owner.projectile_spawn_location.global_position
 	else:
 		printerr("Projectile spawn location not set on player controller. Spawning at player position.")
 		projectile_instance.global_position = owner.global_position
-	_projectiles_container.add_child(projectile_instance, true)
 
 
 ## [Server->Client] Sends all ability data to a newly connected client.
 func sync_all_abilities_to_client(peer_id: int) -> void:
 	if not multiplayer.is_server(): return
 	
-	print("Syncing all ability data to peer %d" % peer_id) 
+	print("Syncing all ability data to peer %d" % peer_id)
 	sync_ability_points.rpc_id(peer_id, _available_ability_points)
 	for ability_id in _ability_levels:
 		sync_ability_learned.rpc_id(peer_id, ability_id, _ability_levels[ability_id])
@@ -588,7 +594,7 @@ func ability_used_client(ability_id: String, cooldown_time: float) -> void:
 		if level_stats:
 			_trigger_ability_state_change(ability, level_stats)
 	
-	print("Synchronized ability use for %s." % ability_id) 
+	print("Synchronized ability use for %s." % ability_id)
 
 
 @rpc("any_peer", "call_local", "reliable")
@@ -610,7 +616,7 @@ func learn_ability_request(ability_id: String, initial_level: int) -> void:
 func sync_ability_level(ability_id: String, new_level: int) -> void:
 	_ability_levels[ability_id] = new_level
 	ability_leveled_up.emit(ability_id, new_level)
-	print("Synced ability level: %s to %d" % [ability_id, new_level]) 
+	print("Synced ability level: %s to %d" % [ability_id, new_level])
 
 
 @rpc("authority", "call_local", "reliable")
@@ -635,8 +641,22 @@ func sync_ability_points(new_total: int) -> void:
 ## Called when the LevelingComponent emits the `leveled_up` signal.
 func _on_leveled_up(new_level: int) -> void:
 	# Grant 3 ability points on level up
-	print("Leveled up to %d. Gaining 3 ability points." % new_level) 
+	print("Leveled up to %d. Gaining 3 ability points." % new_level)
 	_add_ability_points(3)
+
+
+func _on_class_changed(new_class_name: String) -> void:
+	print("AbilityComponent: Class changed to %s. Reloading abilities." % new_class_name)
+	_ability_levels.clear()
+	
+	# Re-initialize class abilities
+	# We don't broadcast RPCs here because the class change itself is usually synced,
+	# causing clients to run this logic locally as well.
+	if not multiplayer.has_multiplayer_peer() or multiplayer.is_server():
+		for ability_data in _class_component.get_class_abilities():
+			if ability_data and not _ability_levels.has(ability_data.ability_id):
+				_learn_ability_local(ability_data.ability_id, 0, false)
+
 #endregion
 
 
@@ -665,7 +685,7 @@ func load_abilities(data: Dictionary) -> void:
 	for ability_id in saved_levels:
 		_ability_levels[ability_id] = saved_levels[ability_id]
 	
-	_available_ability_points = data.get("available_points", 0) 
+	_available_ability_points = data.get("available_points", 0)
 	hotbar.load_hotbar_config(data.get("hotbar_config", {}))
 	
 	# Re-apply passives and update UI with loaded data

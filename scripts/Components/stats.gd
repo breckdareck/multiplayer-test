@@ -196,7 +196,7 @@ func _recalculate_stats() -> void:
 		stat_string += "PERCENT" + ": " + str(stats[stat].percent_bonus_value) + ", "
 		stat_string += "COMBINED" + ": " + str(stats[stat].combined_bonus_value) + ", "
 		stat_string += "TOTAL" + ": " + str(stats[stat].total_value) + "} \n"
-	print("StatsComponent: \n%s" % stat_string)
+	#print("StatsComponent: \n%s" % stat_string)
 	
 	stats_changed.emit()
 	

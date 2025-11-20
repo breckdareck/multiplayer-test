@@ -27,10 +27,10 @@ func add_player(id: int):
 	
 	active_players[id] = {
 		"id": id,
-		"character_type": -1,
+		"character_type": - 1,
 		"spawn_time": Time.get_unix_time_from_system(),
 		"synced": false,
-		"party_id": -1,
+		"party_id": - 1,
 		"last_map": "" # Track last map for respawn
 	}
 	
@@ -212,6 +212,10 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 	if player_instance.ability_component:
 		player_instance.ability_component.reconnect_level_signals()
 	
+	# Set username and class over network
+	player_instance.set_username.rpc(username)
+	player_instance.class_component.change_class_rpc(character_type)
+
 	# Sync to client
 	if id != 1:
 		# Tell client to start loading mode (suppress saves)
@@ -232,14 +236,11 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 	if id in active_players:
 		active_players[id]["synced"] = true
 	
-	# Set username and class over network
-	player_instance.set_username.rpc(username)
-	player_instance.class_component.change_class_rpc(character_type)
-	
+	# Loading done
+
 	if id != 1:
 		# Tell client loading is done (enable saves)
 		player_instance.set_loading_state_rpc.rpc_id(id, false)
-
 
 
 func _load_player_data_from_file(username: String) -> Dictionary:
