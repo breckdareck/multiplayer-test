@@ -5,7 +5,7 @@ extends Control
 ## and creates DroppedItem instances in the world
 
 var dropped_item_scene: PackedScene
-var game_scene: Node2D
+
 
 func _ready():
 	# Add to group so slots can find us
@@ -14,9 +14,7 @@ func _ready():
 	# Load the dropped item scene
 	dropped_item_scene = preload("res://scenes/Gameplay/dropped_item.tscn")
 	
-	# Find the game scene via MapManager if possible (works for host and clients)
-	game_scene = MapManager.get_current_visible_map()
-	
+
 	# Make this control fill the entire screen
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	
@@ -91,7 +89,15 @@ func server_request_item_drop(item_id: String, amount: int, world_position: Vect
 	# --- Execution ---
 	# 1. Create the dropped item in the world.
 	# The original item data from the slot is used to preserve its unique properties.
-	create_dropped_item(slot_node.item, amount, world_position, [])
+	# 1. Create the dropped item in the world.
+	# The original item data from the slot is used to preserve its unique properties.
+	# We need to find the correct map instance for this player to drop the item into.
+	var target_map = MapManager.get_player_map_node(player_id)
+	if not target_map:
+		printerr("Drop failed: Could not find map node for player %d" % player_id)
+		return
+
+	create_dropped_item(slot_node.item, amount, world_position, [], target_map)
 
 	# 2. Remove the item from the player's inventory.
 	# This will sync the change back to the client automatically.
@@ -110,7 +116,7 @@ func _screen_to_world_position(screen_position: Vector2) -> Vector2:
 		# Fallback: use the screen position directly
 		return screen_position
 
-func create_dropped_item(item_data: ItemData, amount: int, world_position: Vector2, eligible_player_ids: Array[int] = []) -> void:
+func create_dropped_item(item_data: ItemData, amount: int, world_position: Vector2, eligible_player_ids: Array[int] = [], target_scene: Node = null) -> void:
 	if not multiplayer.is_server():
 		return
 	
@@ -124,19 +130,28 @@ func create_dropped_item(item_data: ItemData, amount: int, world_position: Vecto
 		push_error("GlobalDropHandler: Failed to instantiate dropped item!")
 		return
 	
-	# Position it in the world
-	dropped_item.global_position = world_position
-	
-	# Setup the dropped item
-	dropped_item.setup(item_data, amount, eligible_player_ids)
-	
 	# Add to the game scene
-	if game_scene:
-		game_scene.get_node("ItemDrops").add_child(dropped_item, true)
+	var scene_to_add_to = target_scene
+	if not scene_to_add_to:
+		scene_to_add_to = MapManager.get_current_visible_map()
+	
+	if scene_to_add_to:
+		var drops_node = scene_to_add_to.get_node_or_null("ItemDrops")
+		if drops_node:
+			drops_node.add_child(dropped_item, true)
+		else:
+			scene_to_add_to.add_child(dropped_item, true)
 	else:
 		push_error("GlobalDropHandler: No game scene found to add dropped item!")
 		dropped_item.queue_free()
 		return
+
+	# Position it in the world
+	# IMPORTANT: Set position AFTER adding to tree so global_position is calculated correctly relative to parent
+	dropped_item.global_position = world_position
+	
+	# Setup the dropped item
+	dropped_item.setup(item_data, amount, eligible_player_ids)
 
 	rpc("client_setup_item", dropped_item.get_path(), item_data.item_id)
 
