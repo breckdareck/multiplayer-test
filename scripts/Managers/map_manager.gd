@@ -455,7 +455,11 @@ func client_spawn_player(new_player_id: int, spawn_pos: Vector2):
 		return
 	
 	if players_node.has_node(str(new_player_id)):
-		# Already exists, just update position?
+		# Already exists
+		if multiplayer.is_server():
+			# Server is authority, do not reset position of existing players
+			return
+			
 		var p = players_node.get_node(str(new_player_id))
 		p.global_position = spawn_pos
 		return

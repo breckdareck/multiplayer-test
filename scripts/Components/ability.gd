@@ -535,8 +535,30 @@ func spawn_projectile(ability: AbilityData, level_stats: AbilityLevelData, targe
 	# The projectile will now store the ability data and call back to the CombatComponent to process the hit.
 	projectile_instance.initialize(owner, target, ability, level_stats, active_behavior.projectile_speed, initial_direction)
 	
+	# Find the correct container based on the player's current map
+	# Player structure: Map -> Players -> Player -> AbilityComponent
+	# So owner (Player) -> parent (Players) -> parent (Map)
+	var current_map = owner.get_parent().get_parent()
+	var target_container = _projectiles_container # Default fallback
+	
+	if current_map and current_map.is_in_group("map_base"):
+		var map_container = current_map.get_node_or_null("Projectiles")
+		if map_container:
+			target_container = map_container
+		else:
+			# Create if missing on this map
+			var new_container = Node.new()
+			new_container.name = "Projectiles"
+			current_map.add_child(new_container)
+			target_container = new_container
+			print("Created missing Projectiles container on map: %s" % current_map.name)
+	
+	if not is_instance_valid(target_container):
+		printerr("Could not find valid Projectiles container for ability: %s" % ability.ability_name)
+		return
+
 	# Add projectile to scene tree first, then set global position
-	_projectiles_container.add_child(projectile_instance, true)
+	target_container.add_child(projectile_instance, true)
 	
 	if is_instance_valid(owner.projectile_spawn_location):
 		projectile_instance.global_position = owner.projectile_spawn_location.global_position
