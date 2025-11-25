@@ -551,10 +551,6 @@ _data = {
 [node name="Game" type="Node2D"]
 script = ExtResource("1_e24jv")
 
-[node name="PlayerSpawner" type="MultiplayerSpawner" parent="."]
-unique_name_in_owner = true
-spawn_path = NodePath("../Players")
-
 [node name="DmgNumberSpawner" type="MultiplayerSpawner" parent="."]
 unique_name_in_owner = true
 spawn_path = NodePath("..")

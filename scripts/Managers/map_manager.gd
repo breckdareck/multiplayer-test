@@ -13,10 +13,6 @@ const MAP_SCENES = {
 }
 
 const DEFAULT_MAP = "game"
-const MAP_OFFSET = Vector2(100000, 0) # Distance between maps to prevent collision overlap
-
-# Spawner for creating the map instances themselves as networked objects.
-var map_spawner: MultiplayerSpawner
 
 # Server-side tracking
 var active_maps: Dictionary = {} ## {map_id: {scene_instance, player_ids: []}}
@@ -27,55 +23,11 @@ var current_map_id: String = ""
 var current_map_instance: Node = null
 var my_player_node: Node = null
 var _warned_missing_paths: Dictionary = {}
-var _node_to_map_cache: Dictionary = {}
 
 
 func _ready():
-	# Create persistent Maps container and MapSpawner at root level (deferred)
-	call_deferred("_create_persistent_nodes")
-	
 	# Defer server-side setup until the server is confirmed to be running.
 	MultiplayerManager.server_has_started.connect(_on_server_started)
-
-
-func _create_persistent_nodes():
-	"""Create Maps node and MapSpawner at root level so they persist across scene changes"""
-	# Get the scene tree root
-	var root = get_tree().root
-	
-	# Create Maps container if it doesn't exist
-	var maps_node = root.get_node_or_null("Maps")
-	if not maps_node:
-		maps_node = Node.new()
-		maps_node.name = "Maps"
-		root.add_child(maps_node)
-		print("MapManager: Created persistent Maps node at root")
-	
-	# Create MapSpawner if it doesn't exist
-	var existing_spawner = root.get_node_or_null("MapSpawner")
-	if not existing_spawner:
-		map_spawner = MultiplayerSpawner.new()
-		map_spawner.name = "MapSpawner"
-		root.add_child(map_spawner)
-		
-		# Set spawn_path to Maps node (sibling under root)
-		# Use relative path from MapSpawner to its sibling Maps
-		map_spawner.spawn_path = NodePath("../Maps")
-		
-		# Set spawn function for both client and server
-		map_spawner.spawn_function = _spawn_map_instance
-		
-		print("MapManager: Created persistent MapSpawner at root")
-	else:
-		# Use existing spawner
-		map_spawner = existing_spawner
-		map_spawner.spawn_function = _spawn_map_instance
-		print("MapManager: Using existing MapSpawner at root")
-	
-	# If we're already in a multiplayer session and client, ensure setup
-	if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
-		if not map_spawner.spawned.is_connected(_on_map_spawned_on_client):
-			map_spawner.spawned.connect(_on_map_spawned_on_client)
 
 
 func _on_scene_changed():
@@ -87,34 +39,10 @@ func _exit_tree():
 	if MultiplayerManager.server_has_started.is_connected(_on_server_started):
 		MultiplayerManager.server_has_started.disconnect(_on_server_started)
 
-	if not multiplayer.is_server() and is_instance_valid(map_spawner):
-		if map_spawner.spawned.is_connected(_on_map_spawned_on_client):
-			map_spawner.spawned.disconnect(_on_map_spawned_on_client)
-
 
 func _on_server_started():
-	if multiplayer.is_server():
-		map_spawner.spawn_function = _spawn_map_instance
-
-
-func _spawn_map_instance(data: Dictionary) -> Node:
-	"""Custom spawn function for the map_spawner. Instantiates a map scene."""
-	var map_id = data.get("map_id", DEFAULT_MAP)
-	if not map_id in MAP_SCENES:
-		push_error("Invalid map_id in spawn data: %s" % map_id)
-		map_id = DEFAULT_MAP
-	
-	var map_scene = load(MAP_SCENES[map_id])
-	var map_instance = map_scene.instantiate()
-	map_instance.name = "Map_" + map_id
-	
-	# Apply offset based on map index to physically separate them
-	var map_index = MAP_SCENES.keys().find(map_id)
-	if map_index == -1: map_index = 0
-	map_instance.position = MAP_OFFSET * map_index
-	
-	print("MapSpawner: Custom spawn function created map: %s at %s" % [map_instance.name, map_instance.position])
-	return map_instance
+	# Server started - ready to spawn maps manually
+	pass
 
 
 # === SERVER LOGIC ===
@@ -132,6 +60,7 @@ func request_map_change(player_id: int, target_map_id: String, target_spawn_poin
 	# Remove player from current map
 	if player_id in player_current_maps:
 		_remove_player_from_map(player_id, player_current_maps[player_id])
+		print("MapManager: Waited for visibility updates to propagate before map change")
 
 	player_current_maps[player_id] = target_map_id
 
@@ -150,27 +79,55 @@ func request_map_change(player_id: int, target_map_id: String, target_spawn_poin
 		_finalize_player_spawn(player_id, target_map_id, target_spawn_point_name)
 		return
 
-	client_set_current_map.rpc_id(player_id, map_instance.get_path(), target_spawn_point_name)
-	
+	client_set_current_map.rpc_id(player_id, target_map_id, target_spawn_point_name)
 	
 func _load_map_on_server(map_id: String):
+	"""Server-only: Manually instantiate map scene and add to scene tree"""
+	if not multiplayer.is_server(): return
 	if map_id in active_maps: return
 																											
-	print("MapManager: Spawning map '%s' via MultiplayerSpawner" % map_id)
-	if not map_spawner:
-		push_error("MapManager: Map Spawner not found, cannot spawn map!")
+	print("MapManager: Manually spawning map '%s' on server" % map_id)
+	
+	# Load and instantiate map scene
+	var map_path = MAP_SCENES.get(map_id)
+	if not map_path:
+		push_error("MapManager: Invalid map_id '%s'" % map_id)
 		return
-																											
-	var map_instance = map_spawner.spawn({"map_id": map_id})
+	
+	var map_scene = load(map_path)
+	if not map_scene:
+		push_error("MapManager: Failed to load map scene at '%s'" % map_path)
+		return
+		
+	var map_instance = map_scene.instantiate()
 	if not is_instance_valid(map_instance):
-		push_error("Failed to spawn map '%s' via MultiplayerSpawner! Spawn returned null or invalid." % map_id)
+		push_error("MapManager: Failed to instantiate map '%s'" % map_id)
 		return
+	
+	map_instance.name = "Map_" + map_id
+	
+	# Create Maps container if needed
+	var maps_container = get_tree().root.get_node_or_null("Maps")
+	if not maps_container:
+		maps_container = Node.new()
+		maps_container.name = "Maps"
+		get_tree().root.add_child(maps_container)
+		print("MapManager: Created Maps container at /root/Maps")
+	
+	# Add to server's scene tree
+	maps_container.add_child(map_instance)
 																											
 	active_maps[map_id] = {"scene_instance": map_instance, "player_ids": []}
 	map_loaded.emit(map_id)
 	
-	# When a new map is loaded, we must ensure existing players on OTHER maps don't see it.
-	# By default, MultiplayerSynchronizers might be visible. We need to clamp that down.
+	print("MapManager: Server spawned map '%s' at path %s" % [map_id, map_instance.get_path()])
+	
+	# CRITICAL: Set public_visibility to false for all synchronizers in this map
+	# This prevents them from trying to sync to clients who haven't loaded the map yet
+	_set_synchronizers_public_visibility(map_instance, false)
+	print("MapManager: Set public_visibility=false for all synchronizers in map '%s'" % map_id)
+	
+	# Update visibility for all players when new map is added
 	_update_visibility_for_all_players()
 
 
@@ -180,6 +137,19 @@ func _finalize_player_spawn(player_id: int, map_id: String, spawn_point_name: St
 
 	print("MapManager: Finalizing spawn for player %d on map %s at spawn '%s'" % [player_id, map_id, spawn_point_name])
 	active_maps[map_id].player_ids.append(player_id)
+	
+	# Sync EXISTING players to the new joiner
+	# The new joiner needs to know about everyone else already on the map
+	for existing_id in active_maps[map_id].player_ids:
+		if existing_id == player_id: continue # Skip self (handled in _spawn_player_on_server_map)
+		
+		var existing_node = get_player_map_node(existing_id)
+		if existing_node:
+			# Tell the new player to spawn the existing player
+			client_spawn_player.rpc_id(player_id, existing_id, existing_node.global_position)
+			# Also update visibility for the existing player
+			_update_visibility_for_player(existing_id)
+			
 	_spawn_player_on_server_map(player_id, map_id, spawn_point_name)
 	
 	# After the player is spawned and on the map, update visibilities.
@@ -187,25 +157,40 @@ func _finalize_player_spawn(player_id: int, map_id: String, spawn_point_name: St
 
 
 func _spawn_player_on_server_map(player_id: int, map_id: String, spawn_point_name: String = ""):
-	"""Spawns a player character using the map's own PlayerSpawner."""
+	"""Spawns a player character manually and syncs to clients."""
 	var map_instance = active_maps[map_id].scene_instance
-	var player_spawner = map_instance.get_node_or_null("PlayerSpawner")
-	if not player_spawner:
-		push_error("Map '%s' is missing a PlayerSpawner node!" % map_id)
+	var players_node = map_instance.get_node_or_null("Players")
+	if not players_node:
+		push_error("Map '%s' is missing a Players node!" % map_id)
 		return
 
-	# Pass the player's ID and spawn point to the spawn function so the node is created with the correct name.
-	var player_char = player_spawner.spawn({"id": player_id, "spawn_point_name": spawn_point_name})
-	if not is_instance_valid(player_char):
-		push_error("Failed to spawn player via PlayerSpawner on map '%s'" % map_id)
-		return
-
-	# Configure the authoritative instance. The name is set inside the spawn function.
+	# 1. Instantiate on Server
+	var player_scene = load("res://scenes/Player/player.tscn")
+	var player_char = player_scene.instantiate()
+	player_char.name = str(player_id)
+	player_char.player_id = player_id
+	
+	# Set position
 	player_char.global_position = get_spawn_position_for_map(map_id, spawn_point_name)
 	
-	print("MapManager: Spawned player %d via PlayerSpawner on map '%s' at spawn '%s'" % [player_id, map_id, spawn_point_name])
+	# Add to tree
+	players_node.add_child(player_char)
 	
-	# Explicitly tell the client which node is theirs.
+	# CRITICAL: Set public_visibility=false for all player synchronizers
+	# Visibility will be controlled via visibility filters and _update_visibility_for_player()
+	_set_synchronizers_public_visibility(player_char, false)
+	print("MapManager: Set public_visibility=false for player %d synchronizers" % player_id)
+	
+	print("MapManager: Manually spawned player %d on map '%s' at %s" % [player_id, map_id, player_char.global_position])
+	
+	# 2. Notify ALL clients on this map to spawn this player
+	# We iterate through all players currently on this map
+	var players_on_map = active_maps[map_id].player_ids
+	for peer_id in players_on_map:
+		# RPC each peer to spawn this new player
+		client_spawn_player.rpc_id(peer_id, player_id, player_char.global_position)
+	
+	# Explicitly tell the client which node is theirs (for PlayerManager init)
 	client_identify_player.rpc_id(player_id, player_char.get_path())
 
 
@@ -217,12 +202,26 @@ func _remove_player_from_map(player_id: int, map_id: String):
 	
 	print("MapManager: Removing player %d from map '%s'" % [player_id, map_id])
 	
+	# CRITICAL: Hide this map from the player BEFORE removing them
+	# This prevents "Node not found" errors during map transitions
+	if player_id in active_maps[map_id].player_ids:
+		_set_visibility_for_node(map_instance, player_id, false)
+		print("MapManager: Hid map '%s' from player %d before removal" % [map_id, player_id])
+	
 	if player_id in active_maps[map_id].player_ids:
 		active_maps[map_id].player_ids.erase(player_id)
 	
 	var player_node = map_instance.get_node_or_null("Players/" + str(player_id))
 	if is_instance_valid(player_node):
+		# Cleanup player components before freeing to prevent lingering network messages
+		if player_node.has_method("cleanup_before_removal"):
+			player_node.cleanup_before_removal()
+			print("MapManager: Server cleaned up player %d before removal" % player_id)
 		player_node.queue_free()
+		
+	# Notify clients on this map to remove this player
+	for peer_id in active_maps[map_id].player_ids:
+		client_despawn_player.rpc_id(peer_id, player_id)
 	
 	if player_id == 1 and current_map_instance == map_instance:
 		current_map_instance = null
@@ -280,9 +279,16 @@ func _set_visibility_for_node(node: Node, peer_id: int, visible: bool):
 	"""Sets the visibility for all synchronizers within a node for a specific peer."""
 	if not is_instance_valid(node): return
 	var synchronizers = _get_all_synchronizers_in_node(node)
+	if synchronizers.is_empty():
+		# print("DEBUG: No synchronizers found in node %s" % node.name)
+		pass
+		
 	for s in synchronizers:
-		print("DEBUG: Setting %s on %s visiblity to %s on %s" % [s.name, node.name, visible, peer_id])
+		if not is_instance_valid(s): continue
+		print("DEBUG: Setting %s on %s visibility to %s for peer %s" % [s.name, node.name, visible, peer_id])
 		s.set_visibility_for(peer_id, visible)
+		
+		# Force update visibility just in case
 		s.update_visibility(peer_id)
 
 
@@ -299,7 +305,6 @@ func _update_visibility_for_player(player_id: int):
 	Updates visibility for a given player against all other players and enemies.
 	This should be called when a player changes maps.
 	"""
-	if player_id == 1: return
 	if not multiplayer.is_server(): return
 
 	var player_node = PlayerManager.get_player_node(player_id)
@@ -324,16 +329,13 @@ func _update_visibility_for_player(player_id: int):
 
 	# 2. Update this player's visibility of the ENTIRE MAP
 	# This includes Enemies, Items, Projectiles, etc.
-	# We iterate through all active maps and set visibility based on whether the player is on that map.
 	for map_id in active_maps.keys():
 		var map_instance = active_maps[map_id].scene_instance
 		if not is_instance_valid(map_instance): continue
 		
 		var is_visible = (player_map == map_id)
 		
-		# This helper finds ALL MultiplayerSynchronizers in the map_instance
-		# and sets their visibility for this specific player.
-		# This effectively stops network traffic for everything on that map.
+		# Set visibility for all synchronizers in this map for this player
 		_set_visibility_for_node(map_instance, player_id, is_visible)
 
 
@@ -347,85 +349,75 @@ func _update_visibility_for_all_players():
 
 # === CLIENT LOGIC ===
 
-func _update_client_map_visibility():
-	# This should only run on clients.
-	if multiplayer.is_server(): return
-
-	var spawner = map_spawner
-	if not is_instance_valid(spawner):
-		return
-
-	var spawn_root = spawner.get_node_or_null(spawner.spawn_path)
-	if not is_instance_valid(spawn_root):
-		push_warning("MapManager: Map spawner root path not found.")
-		return
-
-	for child in spawn_root.get_children():
-		# We identify maps by checking if they are in the "map_base" group.
-		if child.is_in_group("map_base"):
-			var is_active = (child == current_map_instance)
-			_set_map_active_state(child, is_active)
-
-
-func _set_map_active_state(node: Node, is_active: bool):
-	"""
-	Recursively sets state for a map hierarchy.
-	- Root: Sets visible and process_mode.
-	- CanvasLayer: Sets visible (to hide UI on other maps).
-	- Collision: Disables shapes on other maps (safety net).
-	"""
-	# 1. Handle Root Node (The Map itself)
-	if node.is_in_group("map_base"):
-		node.visible = is_active
-		node.process_mode = Node.PROCESS_MODE_INHERIT if is_active else Node.PROCESS_MODE_DISABLED
-	
-	# 2. Handle CanvasLayers (UI)
-	# CanvasLayers do not inherit visibility from Node2D parents, so we must toggle them explicitly.
-	if node is CanvasLayer:
-		node.visible = is_active
-
-	# 3. Handle Collision (Safety Net)
-	# We explicitly disable collision on the client for inactive maps to prevent any local interaction.
-	if node is CollisionShape2D or node is CollisionPolygon2D:
-		node.disabled = not is_active
-		
-	# 4. Recurse
-	for child in node.get_children():
-		_set_map_active_state(child, is_active)
-
-func _on_map_spawned_on_client(_node: Node):
-	# A new node was spawned by the map spawner. It might be a map.
-	# We run the visibility check to hide it if it's not our current map.
-	_update_client_map_visibility()
-
 
 @rpc("authority", "call_local", "reliable")
-func client_set_current_map(map_path: String, spawn_point_name: String = ""):
-	"""Called by the server to tell the client which map node to use."""
-	print("Client %d: Server designated map path: %s" % [multiplayer.get_unique_id(), map_path])
+func client_set_current_map(map_id: String, spawn_point_name: String = ""):
+	"""
+	Server tells client which map to load.
+	Client manually instantiates ONLY this map.
+	"""
+	print("Client %d: Server requesting map '%s'" % [multiplayer.get_unique_id(), map_id])
 	
-	var map_node = get_node_or_null(map_path)
-	var wait_count = 0
-	while not is_instance_valid(map_node) and wait_count < 10:
-		await get_tree().process_frame
-		map_node = get_node_or_null(map_path)
-		wait_count += 1
-
-	if not is_instance_valid(map_node):
-		push_error("Client %d: Timed out waiting for map node at path: %s" % [multiplayer.get_unique_id(), map_path])
+	# Unload previous map if exists
+	if is_instance_valid(current_map_instance):
+		print("Client: Unloading previous map '%s'" % current_map_id)
+		
+		# CRITICAL: Cleanup client's own player first before freeing map
+		# This prevents InputSynchronizer errors during transition
+		var my_id = multiplayer.get_unique_id()
+		var players_node = current_map_instance.get_node_or_null("Players")
+		if players_node:
+			var my_player = players_node.get_node_or_null(str(my_id))
+			if is_instance_valid(my_player) and my_player.has_method("cleanup_before_removal"):
+				my_player.cleanup_before_removal()
+				print("Client: Cleaned up own player before map transition")
+		
+		current_map_instance.queue_free()
+		current_map_instance = null
+	
+	# Load and instantiate new map
+	var map_path = MAP_SCENES.get(map_id)
+	if not map_path:
+		push_error("Client: Invalid map_id '%s'" % map_id)
 		return
-
-	print("Client %d: Found designated map instance." % multiplayer.get_unique_id())
 	
-	current_map_instance = map_node
-	current_map_id = map_node.name.replace("Map_", "")
+	var map_scene = load(map_path)
+	if not map_scene:
+		push_error("Client: Failed to load map scene at '%s'" % map_path)
+		return
+		
+	var map_instance = map_scene.instantiate()
+	if not is_instance_valid(map_instance):
+		push_error("Client: Failed to instantiate map '%s'" % map_id)
+		return
+		
+	map_instance.name = "Map_" + map_id
+	
+	# Create Maps container if needed (same structure as server)
+	var maps_container = get_tree().root.get_node_or_null("Maps")
+	if not maps_container:
+		maps_container = Node.new()
+		maps_container.name = "Maps"
+		get_tree().root.add_child(maps_container)
+		print("Client: Created Maps container at /root/Maps")
+	
+	# Add to client's scene tree under Maps (matching server structure)
+	maps_container.add_child(map_instance)
+	
+	# On client, map synchronizers should start hidden and rely on server visibility updates
+	# if not multiplayer.is_server():
+	# 	_set_synchronizers_public_visibility(map_instance, false)
+	# 	print("Client: Set public_visibility=false for map synchronizers")
+	
+	# Track locally
+	current_map_instance = map_instance
+	current_map_id = map_id
 	_warned_missing_paths.clear()
-
-	# Manually update which map is visible and processing.
-	_update_client_map_visibility()
-
-	# Now that we have the map, tell the server we're ready for the next step.
-	rpc_id(1, "client_map_loaded", current_map_id, spawn_point_name)
+	
+	print("Client %d: Loaded map '%s' at path %s" % [multiplayer.get_unique_id(), map_id, map_instance.get_path()])
+	
+	# ACK to server
+	rpc_id(1, "client_map_loaded", map_id, spawn_point_name)
 
 
 @rpc("authority", "call_local", "reliable")
@@ -446,7 +438,53 @@ func client_identify_player(player_node_path: String):
 		
 	my_player_node = node
 	print("Client: Found my player node. Notifying server.")
+	my_player_node = node
+	print("Client: Found my player node. Notifying server.")
 	rpc_id(1, "client_player_spawned", current_map_id)
+
+
+@rpc("authority", "call_local", "reliable")
+func client_spawn_player(new_player_id: int, spawn_pos: Vector2):
+	"""Client: Instantiate a player node manually."""
+	if not is_instance_valid(current_map_instance):
+		return
+	
+	var players_node = current_map_instance.get_node_or_null("Players")
+	if not players_node:
+		push_error("Client: Current map missing Players node!")
+		return
+	
+	if players_node.has_node(str(new_player_id)):
+		# Already exists, just update position?
+		var p = players_node.get_node(str(new_player_id))
+		p.global_position = spawn_pos
+		return
+		
+	var player_scene = load("res://scenes/Player/player.tscn")
+	var player_node = player_scene.instantiate()
+	player_node.name = str(new_player_id)
+	player_node.player_id = new_player_id
+	player_node.global_position = spawn_pos
+	
+	players_node.add_child(player_node)
+	
+	# Set public_visibility=false for player synchronizers (client-side)
+	# if not multiplayer.is_server():
+	# 	_set_synchronizers_public_visibility(player_node, false)
+	
+	print("Client: Manually spawned player %d at %s" % [new_player_id, spawn_pos])
+
+
+@rpc("authority", "call_local", "reliable")
+func client_despawn_player(player_id_to_remove: int):
+	"""Client: Remove a player node."""
+	if not is_instance_valid(current_map_instance): return
+	
+	var players_node = current_map_instance.get_node_or_null("Players")
+	if players_node and players_node.has_node(str(player_id_to_remove)):
+		var node = players_node.get_node(str(player_id_to_remove))
+		node.queue_free()
+		print("Client: Despawned player %d" % player_id_to_remove)
 
 
 # === SERVER-SIDE ACKS FROM CLIENTS ===

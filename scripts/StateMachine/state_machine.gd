@@ -28,8 +28,38 @@ func change_state(new_state: State) -> void:
 		return
 	if current_state == new_state:
 		return
+	
+	# 1. Always update locally on the server (since we are the authority)
+	_set_state_rpc(new_state.name)
+	
+	# 2. Only apply map-based filtering for NON-PLAYER entities
+	# Players have their own visibility filters on InputSynchronizer
+	var parent_node = get_parent()
+	if parent_node and not parent_node is MultiplayerPlayerV2:
+		# For enemies/map entities, send to players on the same map
+		var map_node = parent_node.get_parent()
+		# Find which map this entity belongs to
+		while map_node and not map_node.is_in_group("map_base"):
+			map_node = map_node.get_parent()
 		
-	_set_state_rpc.rpc(new_state.name)
+		if map_node and map_node.is_in_group("map_base"):
+			# Get map name (e.g., "Map_game")
+			var map_name = map_node.name.replace("Map_", "")
+			var players_on_this_map = MapManager.get_players_on_map(map_name)
+			
+			# Send RPC only to REMOTE players on this map
+			for peer_id in players_on_this_map:
+				if peer_id != 1: # Skip server (already updated locally)
+					_set_state_rpc.rpc_id(peer_id, new_state.name)
+			return
+	
+	# For players or fallback: broadcast to all REMOTE peers
+	# (We already updated locally, so we don't want call_local to trigger again if we used rpc())
+	# Actually, _set_state_rpc has "call_local", so rpc() would call it again.
+	# We should use rpc_id to others or just loop all peers.
+	
+	for peer_id in multiplayer.get_peers():
+		_set_state_rpc.rpc_id(peer_id, new_state.name)
 
 func sync_state_to_peer(peer_id: int) -> void:
 	"""

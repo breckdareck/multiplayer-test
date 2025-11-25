@@ -111,6 +111,10 @@ func _ready() -> void:
 		)
 
 	state_machine.init(self, animated_sprite)
+	
+	# Setup visibility filter if multiplayer
+	if multiplayer.has_multiplayer_peer():
+		call_deferred("_setup_visibility_filter")
 
 
 func _process(delta: float) -> void:
@@ -237,7 +241,6 @@ func cleanup_before_removal():
 		$RespawnTimer.stop()
 
 	
-
 #=============================================================================
 # PRIVATE HELPER METHODS
 #=============================================================================
@@ -303,6 +306,44 @@ func _setup_client_visuals() -> void:
 
 	# Store sprite offset for correct flipping.
 	_sprite_base_offset_x = abs(animated_sprite.offset.x)
+
+
+func _setup_visibility_filter():
+	"""Setup visibility filter for this player's synchronizer"""
+	if not is_instance_valid(input_synchronizer):
+		push_warning("Player %d: InputSynchronizer not found for visibility filter" % player_id)
+		return
+	
+	# Add visibility filter to control which peers can see this player
+	input_synchronizer.add_visibility_filter(_check_visibility_by_map)
+	print("Player %d: Added visibility filter to InputSynchronizer" % player_id)
+
+
+func _check_visibility_by_map(peer_id: int) -> bool:
+	"""Visibility filter callback - only visible to players on same map"""
+	if not multiplayer.is_server():
+		return true # Clients don't filter, server handles it
+	
+	# Safety check: if we're being cleaned up, allow visibility
+	if _is_being_cleaned_up:
+		return false
+	
+	# Get this player's map - handle case where player might not be tracked yet
+	var my_map = MapManager.get_player_map(player_id)
+	if my_map.is_empty():
+		return false # Not on any map yet
+	
+	# Server always sees everyone
+	if peer_id == 1:
+		return true
+	
+	# Get other player's map - handle case where they might not exist
+	var their_map = MapManager.get_player_map(peer_id)
+	if their_map.is_empty():
+		return false # They're not on any map yet or have disconnected
+	
+	# Only visible if on same map
+	return my_map == their_map
 
 
 func _update_input_from_synchronizer() -> void:

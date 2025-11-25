@@ -18,6 +18,10 @@ var _is_being_cleaned_up := false
 @onready var player = $".."
 
 func _ready():
+	# Add visibility filter to prevent cross-map sync issues
+	if multiplayer.has_multiplayer_peer():
+		add_visibility_filter(_check_visibility_by_map)
+	
 	self.set_visibility_for(1, true)
 	if get_multiplayer_authority() != multiplayer.get_unique_id():
 		set_process(false)
@@ -68,42 +72,42 @@ func _process(_delta: float) -> void:
 
 	if Input.is_action_just_pressed("Jump"):
 		if Input.is_action_pressed("Move Down"):
-			drop.rpc()
+			drop.rpc_id(1)
 		else:
-			jump.rpc()
+			jump.rpc_id(1)
 
 	if Input.is_action_just_pressed("Attack") or Input.is_action_pressed("Attack"):
-		attack.rpc()
+		attack.rpc_id(1)
 	
 	if Input.is_action_just_pressed("Pickup") or Input.is_action_pressed("Pickup"):
-		pickup.rpc(true)
+		pickup.rpc_id(1, true)
 	else:
-		pickup.rpc(false)
+		pickup.rpc_id(1, false)
 	
 	if Input.is_action_just_pressed("Portal Interact"):
-		portal.rpc()
+		portal.rpc_id(1)
 
-@rpc("call_local")
+@rpc("any_peer", "call_local", "reliable")
 func portal():
 	if multiplayer.is_server() and is_instance_valid(player):
 		player.do_portal_interact = true
 
-@rpc("call_local")
+@rpc("any_peer", "call_local", "reliable")
 func jump():
 	if multiplayer.is_server() and is_instance_valid(player):
 		player.do_jump = true
 
-@rpc("call_local")
+@rpc("any_peer", "call_local", "reliable")
 func drop():
 	if multiplayer.is_server() and is_instance_valid(player):
 		player.do_drop = true
 
-@rpc("call_local")
+@rpc("any_peer", "call_local", "reliable")
 func attack():
 	if multiplayer.is_server() and is_instance_valid(player):
 		player.do_attack = true
 
-@rpc("call_local")
+@rpc("any_peer", "call_local", "reliable")
 func pickup(value: bool):
 	if multiplayer.is_server() and is_instance_valid(player):
 		player.do_pickup = value
@@ -131,12 +135,12 @@ func _on_right_button_button_up() -> void:
 func _on_attack_button_pressed() -> void:
 	if _is_being_cleaned_up:
 		return
-	attack.rpc()
+	attack.rpc_id(1)
 
 func _on_jump_button_pressed() -> void:
 	if _is_being_cleaned_up:
 		return
-	jump.rpc()
+	jump.rpc_id(1)
 
 
 # Cleanup method called before removal during channel switching
@@ -161,3 +165,33 @@ func cleanup_before_removal():
 # Override _exit_tree to handle cleanup
 func _exit_tree():
 	cleanup_before_removal()
+
+
+func _check_visibility_by_map(peer_id: int) -> bool:
+	"""Visibility filter - only visible to players on same map"""
+	if not multiplayer.is_server():
+		return true # Clients don't filter
+	
+	if _is_being_cleaned_up:
+		return false # Being cleaned up, hide from everyone
+	
+	if not is_instance_valid(player):
+		return false # Player invalid
+	
+	# Get this player's ID
+	var my_id = get_multiplayer_authority()
+	if my_id <= 0:
+		return false # Invalid authority
+	
+	# Server always sees everyone
+	if peer_id == 1:
+		return true
+	
+	# Check if both players are on the same map
+	var my_map = MapManager.get_player_map(my_id)
+	var their_map = MapManager.get_player_map(peer_id)
+	
+	if my_map.is_empty() or their_map.is_empty():
+		return false # Not on any map or disconnected
+	
+	return my_map == their_map # Only visible if on same map

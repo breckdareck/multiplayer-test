@@ -516,10 +516,6 @@ sources/2 = SubResource("TileSetAtlasSource_kgokg")
 [node name="Game2" type="Node2D"]
 script = ExtResource("1_cjdf1")
 
-[node name="PlayerSpawner" type="MultiplayerSpawner" parent="."]
-unique_name_in_owner = true
-spawn_path = NodePath("../Players")
-
 [node name="DmgNumberSpawner" type="MultiplayerSpawner" parent="."]
 unique_name_in_owner = true
 spawn_path = NodePath("..")
@@ -658,11 +654,10 @@ spawn_container = NodePath("../Enemies")
 pool_size = 10
 respawn_delay = 5.0
 
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="GoblinSpawner" node_paths=PackedStringArray("enemy_spawner")]
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="GoblinSpawner"]
 _spawnable_scenes = PackedStringArray("uid://c0fdrl7mq5ou7")
 spawn_path = NodePath("../../Enemies")
 script = ExtResource("21_iyjnr")
-enemy_spawner = NodePath("")
 
 [node name="EnemySpawnLocation" type="Marker2D" parent="GoblinSpawner"]
 position = Vector2(1209, 14)
