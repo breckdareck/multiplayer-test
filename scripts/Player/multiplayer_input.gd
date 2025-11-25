@@ -72,45 +72,21 @@ func _process(_delta: float) -> void:
 
 	if Input.is_action_just_pressed("Jump"):
 		if Input.is_action_pressed("Move Down"):
-			drop.rpc_id(1)
+			PlayerManager.player_input.rpc_id(1, "drop")
 		else:
-			jump.rpc_id(1)
+			PlayerManager.player_input.rpc_id(1, "jump")
 
 	if Input.is_action_just_pressed("Attack") or Input.is_action_pressed("Attack"):
-		attack.rpc_id(1)
+		PlayerManager.player_input.rpc_id(1, "attack")
 	
 	if Input.is_action_just_pressed("Pickup") or Input.is_action_pressed("Pickup"):
-		pickup.rpc_id(1, true)
+		PlayerManager.player_input.rpc_id(1, "pickup", true)
 	else:
-		pickup.rpc_id(1, false)
+		PlayerManager.player_input.rpc_id(1, "pickup", false)
 	
 	if Input.is_action_just_pressed("Portal Interact"):
-		portal.rpc_id(1)
+		PlayerManager.player_input.rpc_id(1, "portal")
 
-@rpc("any_peer", "call_local", "reliable")
-func portal():
-	if multiplayer.is_server() and is_instance_valid(player):
-		player.do_portal_interact = true
-
-@rpc("any_peer", "call_local", "reliable")
-func jump():
-	if multiplayer.is_server() and is_instance_valid(player):
-		player.do_jump = true
-
-@rpc("any_peer", "call_local", "reliable")
-func drop():
-	if multiplayer.is_server() and is_instance_valid(player):
-		player.do_drop = true
-
-@rpc("any_peer", "call_local", "reliable")
-func attack():
-	if multiplayer.is_server() and is_instance_valid(player):
-		player.do_attack = true
-
-@rpc("any_peer", "call_local", "reliable")
-func pickup(value: bool):
-	if multiplayer.is_server() and is_instance_valid(player):
-		player.do_pickup = value
 
 func _on_left_button_button_down() -> void:
 	if _is_being_cleaned_up:
@@ -135,12 +111,12 @@ func _on_right_button_button_up() -> void:
 func _on_attack_button_pressed() -> void:
 	if _is_being_cleaned_up:
 		return
-	attack.rpc_id(1)
+	PlayerManager.player_input.rpc_id(1, "attack")
 
 func _on_jump_button_pressed() -> void:
 	if _is_being_cleaned_up:
 		return
-	jump.rpc_id(1)
+	PlayerManager.player_input.rpc_id(1, "jump")
 
 
 # Cleanup method called before removal during channel switching

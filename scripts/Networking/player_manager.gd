@@ -484,3 +484,23 @@ func _on_player_spawned(player_id: int) -> void:
 
 	# Continue initialization
 	call_deferred("_initialize_spawned_player", player_id, character_type, username, player_data)
+
+
+@rpc("any_peer", "call_local", "reliable")
+func player_input(input_type: String, data: Variant = null):
+	"""Handles input actions from clients safely."""
+	if not multiplayer.is_server(): return
+	
+	var peer_id = multiplayer.get_remote_sender_id()
+	var player_node = get_player_node(peer_id)
+	
+	if not is_instance_valid(player_node):
+		# Player might be dead or changing maps - ignore
+		return
+		
+	match input_type:
+		"jump": player_node.do_jump = true
+		"drop": player_node.do_drop = true
+		"attack": player_node.do_attack = true
+		"pickup": player_node.do_pickup = data
+		"portal": player_node.do_portal_interact = true

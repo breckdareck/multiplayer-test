@@ -237,6 +237,17 @@ func _unload_map_on_server(map_id: String):
 	print("MapManager: Despawning empty map '%s'" % map_id)
 	var map_instance = active_maps[map_id].scene_instance
 	if is_instance_valid(map_instance):
+		# Disable any MultiplayerSpawners to prevent "on_despawn_receive" errors on clients
+		# when the map is freed.
+		var spawners = _find_all_nodes_of_type(map_instance, "MultiplayerSpawner")
+		for spawner in spawners:
+			spawner.spawn_path = NodePath("")
+			# Immediately remove from tree to stop any replication
+			if spawner.get_parent():
+				spawner.get_parent().remove_child(spawner)
+			spawner.queue_free()
+			print("MapManager: Removed spawner %s in map %s" % [spawner.name, map_id])
+			
 		map_instance.queue_free()
 
 	active_maps.erase(map_id)
@@ -577,3 +588,13 @@ func get_player_map_node(player_id: int) -> Node:
 	if map_id and active_maps.has(map_id):
 		return active_maps[map_id].scene_instance
 	return null
+
+func _find_all_nodes_of_type(root: Node, type_name: String) -> Array:
+	var nodes = []
+	if root.is_class(type_name):
+		nodes.append(root)
+	
+	for child in root.get_children():
+		nodes.append_array(_find_all_nodes_of_type(child, type_name))
+		
+	return nodes
