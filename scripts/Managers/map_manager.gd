@@ -419,6 +419,13 @@ func client_set_current_map(map_id: String, spawn_point_name: String = ""):
 		get_tree().root.add_child(maps_container)
 		print("Client: Created Maps container at /root/Maps")
 	
+	# Disable MultiplayerSpawners on client to prevent them from trying to spawn/track entities
+	# All entity spawning is controlled by the server
+	var spawners = _find_all_nodes_of_type(map_instance, "MultiplayerSpawner")
+	for spawner in spawners:
+		spawner.spawn_path = NodePath("")
+		print("Client: Disabled spawner %s in map %s (server controls all spawning)" % [spawner.name, map_id])
+	
 	# Add to client's scene tree under Maps (matching server structure)
 	maps_container.add_child(map_instance)
 	

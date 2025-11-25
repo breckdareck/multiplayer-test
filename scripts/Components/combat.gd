@@ -307,7 +307,7 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 		damage_values.append(damage_to_deal)
 		crit_values.append(is_crit)
 		
-		health_comp.take_damage(damage_to_deal, self, true, is_crit, true)
+		health_comp.take_damage(damage_to_deal, self, true, is_crit, false)
 		
 		if damage_to_deal > 0:
 			# Knockback logic

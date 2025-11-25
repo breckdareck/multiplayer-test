@@ -64,11 +64,97 @@ func display_number(value: int, position: Vector2, is_critical: bool = false, is
 		pass
 
 # For combo hits from the player
-func display_number_combo(_values: Array, _are_crits: Array, _position: Vector2, _is_player: bool = false):
-	# ... (Keep existing logic but ensure it calls display_number or handles RPCs)
-	# Since display_number_combo uses _spawn_and_setup_combo_hit which calls _spawn_number_only
-	# We need to refactor this too.
-	pass # TODO: Refactor combo logic if needed, or just rely on display_number for now.
+func display_number_combo(values: Array, are_crits: Array, position: Vector2, is_player: bool = false):
+	if not multiplayer.is_server():
+		return
+	
+	var spawn_delay = 0.08
+	var y_offset_per_hit = -10.0
+	var combo_z_index = _get_next_combo_z_index()
+	
+	# Find which map this spawner belongs to
+	var map_node = get_parent()
+	if not (map_node and map_node.is_in_group("map_base")):
+		return
+	
+	var map_name = map_node.name.replace("Map_", "")
+	var players_on_map = MapManager.get_players_on_map(map_name)
+	
+	# Spawn each hit number with vertical offset
+	for i in range(values.size()):
+		var value = values[i]
+		if value == 0 and values.size() > 1:
+			continue # Skip zero damage in multi-hit combos
+		
+		var is_crit = are_crits[i] if i < are_crits.size() else false
+		var z_index = combo_z_index - i # Descending z-index
+		
+		# Position with Y offset and slight random X variation
+		var spawn_pos = position + Vector2(randf_range(-2, 2), i * y_offset_per_hit)
+		
+		# Generate deterministic name
+		var dmg_number_name = "DmgNum_%d_%d" % [Time.get_ticks_msec() + i, randi()]
+		
+		# Use timer for delayed spawn (matches old behavior)
+		var timer = get_tree().create_timer(i * spawn_delay, false)
+		timer.timeout.connect(
+			_spawn_combo_hit_with_rpc.bind(value, spawn_pos, is_crit, is_player, z_index, dmg_number_name, players_on_map)
+		)
+
+func _spawn_combo_hit_with_rpc(value: int, spawn_pos: Vector2, is_crit: bool, is_player: bool, z_index: int, dmg_number_name: String, players_on_map: Array):
+	# Spawn locally
+	var local_number = _create_damage_number_node(value, spawn_pos, is_crit, is_player, z_index, dmg_number_name)
+	if is_instance_valid(local_number):
+		_setup_combo_animation.call_deferred(local_number, 0) # No additional delay since timer already delayed
+		
+		# Get synchronizer and set visibility
+		var sync = local_number.get_node_or_null("MultiplayerSynchronizer")
+		
+		# Send RPC to clients and set visibility
+		var args = [value, spawn_pos, is_crit, is_player, z_index, dmg_number_name]
+		for peer_id in players_on_map:
+			if peer_id != 1: # Skip server
+				spawn_damage_number_combo_rpc.rpc_id(peer_id, args, 0)
+			
+			if sync:
+				sync.set_visibility_for(peer_id, true)
+
+@rpc("authority", "call_local", "reliable")
+func spawn_damage_number_combo_rpc(args: Array, hit_index: int):
+	var value = args[0]
+	var position = args[1]
+	var is_critical = args[2]
+	var is_player = args[3]
+	var z_index = args[4]
+	var dmg_number_name = args[5] if args.size() > 5 else ""
+	
+	var number = _create_damage_number_node(value, position, is_critical, is_player, z_index, dmg_number_name)
+	if is_instance_valid(number):
+		_setup_combo_animation.call_deferred(number, hit_index)
+
+func _setup_combo_animation(number: Node, _hit_index: int):
+	if not is_instance_valid(number):
+		return
+
+	var intended_global_position = number.global_position
+	var new_pivot = number.size / 2
+	
+	number.pivot_offset = new_pivot
+	
+	var new_pos = intended_global_position - (new_pivot * number.scale)
+	number.global_position = new_pos
+
+	number.modulate.a = 0.0
+	var fade_in_duration = 0.1
+	var life_duration = 0.6
+	var fade_out_duration = 0.3
+
+	var tween = get_tree().create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tween.set_parallel(false)
+	tween.tween_property(number, "modulate:a", 1.0, fade_in_duration)
+	tween.tween_interval(life_duration)
+	tween.tween_property(number, "modulate:a", 0.0, fade_out_duration)
+	tween.tween_callback(number.queue_free)
 
 @rpc("authority", "call_local", "reliable")
 func spawn_damage_number_rpc(args: Array):
