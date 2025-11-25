@@ -118,6 +118,8 @@ func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, 
 	
 	var is_player = (owner is MultiplayerPlayerV2)
 	
+	print("HealthComponent.take_damage: amount=%d, show_number=%s, is_player=%s, is_server=%s" % [amount, show_number, is_player, multiplayer.is_server()])
+	
 	# --- Visual/Audio Effects ---
 	if show_number:
 		var dmg_spawner = null
@@ -130,31 +132,57 @@ func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, 
 			if source and source.owner is MultiplayerPlayerV2:
 				# If source is a player, use their map
 				map_to_spawn_on = MapManager.get_player_map_node(source.owner.player_id)
+				print("HealthComponent: Using source player's map: %s" % map_to_spawn_on)
 			elif entity is MultiplayerPlayerV2:
 				# If entity being hit is a player, use their map
 				map_to_spawn_on = MapManager.get_player_map_node(entity.player_id)
+				print("HealthComponent: Using target player's map: %s" % map_to_spawn_on)
 			else:
 				# If it's an enemy being hit by a non-player, find the enemy's map
+				print("HealthComponent: Searching for enemy's map...")
 				for map_id in MapManager.active_maps.keys():
 					var map_instance = MapManager.active_maps[map_id].scene_instance
 					if is_instance_valid(map_instance) and entity.is_a_descendant_of(map_instance):
 						map_to_spawn_on = map_instance
+						print("HealthComponent: Found enemy's map: %s" % map_to_spawn_on)
 						break
 		else:
 			# --- Client-side: Use the client's currently visible map ---
 			if get_owner().visible:
 				map_to_spawn_on = MapManager.get_current_visible_map()
+				print("HealthComponent: Client using visible map: %s" % map_to_spawn_on)
 
 		if is_instance_valid(map_to_spawn_on):
 			dmg_spawner = map_to_spawn_on.find_child("DmgNumberSpawner", true, false)
+			print("HealthComponent: Found dmg_spawner: %s" % dmg_spawner)
+		else:
+			print("HealthComponent: ERROR - map_to_spawn_on is invalid!")
 
 		if dmg_spawner:
+			print("HealthComponent: Calling display_number on spawner")
 			dmg_spawner.display_number(amount, damage_number_origin.global_position, is_crit, is_player)
+		else:
+			print("HealthComponent: ERROR - dmg_spawner not found!")
 	
 	if is_player:
-		# This RPC will be heard by all clients. A check inside the AudioManager might be needed
-		# to only play it if the position is close to the client's camera.
-		AudioManager.rpc("play_sfx_rpc", "res://assets/sounds/player_hit.wav", get_owner().global_position)
+		# Filter SFX to players on the same map
+		var map_node = MapManager.get_player_map_node(get_owner().player_id)
+		if map_node:
+			var map_name = map_node.name.replace("Map_", "")
+			var players_on_map = MapManager.get_players_on_map(map_name)
+			
+			for peer_id in players_on_map:
+				# Skip server (played locally? No, AudioManager.rpc is usually for clients)
+				# Actually AudioManager.play_sfx_rpc is likely "any_peer" or "authority".
+				# If we are server, we can call rpc_id.
+				if peer_id != 1:
+					AudioManager.play_sfx_rpc.rpc_id(peer_id, "res://assets/sounds/player_hit.wav", get_owner().global_position)
+			
+			# Play on server too if needed
+			AudioManager.play_sfx("res://assets/sounds/player_hit.wav", get_owner().global_position)
+		else:
+			# Fallback
+			AudioManager.rpc("play_sfx_rpc", "res://assets/sounds/player_hit.wav", get_owner().global_position)
 	
 	# --- Server-side game logic ---
 	if multiplayer.is_server():

@@ -124,11 +124,17 @@ func create_dropped_item(item_data: ItemData, amount: int, world_position: Vecto
 		push_error("GlobalDropHandler: Dropped item scene not loaded!")
 		return
 	
+	# Generate deterministic name for this item (same on server and client)
+	var item_unique_name = "Item_%d_%d" % [Time.get_ticks_msec(), randi()]
+	
 	# Create the dropped item instance
 	var dropped_item = dropped_item_scene.instantiate() as DroppedItem
 	if not dropped_item:
 		push_error("GlobalDropHandler: Failed to instantiate dropped item!")
 		return
+	
+	# Set the deterministic name
+	dropped_item.name = item_unique_name
 	
 	# Add to the game scene
 	var scene_to_add_to = target_scene
@@ -152,12 +158,68 @@ func create_dropped_item(item_data: ItemData, amount: int, world_position: Vecto
 	
 	# Setup the dropped item
 	dropped_item.setup(item_data, amount, eligible_player_ids)
+	
+	# Set synchronizer to not be publicly visible initially
+	var synchronizer = dropped_item.get_node_or_null("MultiplayerSynchronizer")
+	if synchronizer:
+		synchronizer.public_visibility = false
 
-	rpc("client_setup_item", dropped_item.get_path(), item_data.item_id)
+	# Manual RPC for clients on the same map
+	if scene_to_add_to.is_in_group("map_base"):
+		var map_name = scene_to_add_to.name.replace("Map_", "")
+		var players_on_map = MapManager.get_players_on_map(map_name)
+		
+		print("GlobalDropHandler: Spawning item %s on map %s for players: %s" % [item_data.item_id, map_name, players_on_map])
+		for peer_id in players_on_map:
+			if peer_id != 1: # Server already has it
+				print("GlobalDropHandler: Sending spawn_item_client RPC to peer %d" % peer_id)
+				spawn_item_client.rpc_id(peer_id, item_data.item_id, amount, world_position, eligible_player_ids, item_unique_name, scene_to_add_to.name)
+				
+				# Update synchronizer visibility for this peer
+				if synchronizer:
+					synchronizer.set_visibility_for(peer_id, dropped_item.should_be_visible_to(peer_id))
+	else:
+		# Fallback if not added to a map (e.g. global drop?)
+		print("GlobalDropHandler: Fallback RPC (scene not in map_base group)")
+		rpc("spawn_item_client", item_data.item_id, amount, world_position, eligible_player_ids, item_unique_name, "")
 
 	print("GlobalDropHandler: Created dropped item %s x%d at %s for eligible players: %s" % [item_data.name, amount, world_position, str(eligible_player_ids)])
 
 
-@rpc
-func client_setup_item(dropped_item: NodePath, item_id: String):
-	(get_node(dropped_item) as DroppedItem).sprite.texture = ResourceManager.get_item_data(item_id).icon
+@rpc("authority", "call_local", "reliable")
+func spawn_item_client(item_id: String, amount: int, world_position: Vector2, eligible_player_ids: Array = [], item_name: String = "", _map_name: String = ""):
+	print("GlobalDropHandler.spawn_item_client called: item=%s, name=%s, is_server=%s" % [item_id, item_name, multiplayer.is_server()])
+	if multiplayer.is_server():
+		print("GlobalDropHandler.spawn_item_client: Exiting on server")
+		return # Server already spawned it
+	
+	if not dropped_item_scene:
+		dropped_item_scene = preload("res://scenes/Gameplay/dropped_item.tscn")
+		
+	var dropped_item = dropped_item_scene.instantiate() as DroppedItem
+	if not dropped_item: return
+	
+	var item_data = ResourceManager.get_item_data(item_id)
+	if not item_data: return
+	
+	# Set the same deterministic name as server
+	if item_name != "":
+		dropped_item.name = item_name
+	
+	# Add to current map
+	var scene_to_add_to = MapManager.get_current_visible_map()
+	if scene_to_add_to:
+		var drops_node = scene_to_add_to.get_node_or_null("ItemDrops")
+		if drops_node:
+			drops_node.add_child(dropped_item)
+		else:
+			scene_to_add_to.add_child(dropped_item)
+	else:
+		# If no map visible, maybe just don't spawn? Or spawn in root?
+		# For now, ignore if no map.
+		dropped_item.queue_free()
+		return
+		
+	dropped_item.global_position = world_position
+	dropped_item.setup(item_data, amount, eligible_player_ids)
+	dropped_item.sprite.texture = item_data.icon

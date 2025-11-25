@@ -106,6 +106,13 @@ func _load_map_on_server(map_id: String):
 	
 	map_instance.name = "Map_" + map_id
 	
+	# Disable MultiplayerSpawners to prevent global broadcasts.
+	# We will use manual RPCs for map-specific entities.
+	var spawners = _find_all_nodes_of_type(map_instance, "MultiplayerSpawner")
+	for spawner in spawners:
+		spawner.spawn_path = NodePath("")
+		print("MapManager: Disabled spawner %s in map %s (using manual RPCs)" % [spawner.name, map_id])
+	
 	# Create Maps container if needed
 	var maps_container = get_tree().root.get_node_or_null("Maps")
 	if not maps_container:

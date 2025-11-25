@@ -560,11 +560,63 @@ func spawn_projectile(ability: AbilityData, level_stats: AbilityLevelData, targe
 	# Add projectile to scene tree first, then set global position
 	target_container.add_child(projectile_instance, true)
 	
+	var spawn_pos = owner.global_position
 	if is_instance_valid(owner.projectile_spawn_location):
-		projectile_instance.global_position = owner.projectile_spawn_location.global_position
+		spawn_pos = owner.projectile_spawn_location.global_position
 	else:
 		printerr("Projectile spawn location not set on player controller. Spawning at player position.")
-		projectile_instance.global_position = owner.global_position
+	
+	projectile_instance.global_position = spawn_pos
+	
+	# Manual RPC for clients on the same map
+	var target_path = NodePath("")
+	if is_instance_valid(target):
+		target_path = target.get_path()
+		
+	if current_map and current_map.is_in_group("map_base"):
+		var map_name = current_map.name.replace("Map_", "")
+		var players_on_map = MapManager.get_players_on_map(map_name)
+		
+		for peer_id in players_on_map:
+			if peer_id != 1: # Server already has it
+				spawn_projectile_client.rpc_id(peer_id, ability.ability_id, level_stats.level, spawn_pos, initial_direction, target_path)
+	else:
+		# Fallback
+		spawn_projectile_client.rpc(ability.ability_id, level_stats.level, spawn_pos, initial_direction, target_path)
+
+
+@rpc("authority", "call_local", "reliable")
+func spawn_projectile_client(ability_id: String, level: int, start_pos: Vector2, direction: Vector2, target_path: NodePath):
+	if multiplayer.is_server(): return # Server already spawned it
+	
+	var ability = ResourceManager.get_ability_data(ability_id)
+	if not ability or not ability.active_behavior or not ability.active_behavior.projectile_scene:
+		return
+		
+	var level_stats = ability.get_level_stats(level)
+	if not level_stats: return
+	
+	var target = get_node_or_null(target_path)
+	
+	var projectile_instance = ability.active_behavior.projectile_scene.instantiate()
+	
+	# Initialize on client
+	projectile_instance.initialize(owner, target, ability, level_stats, ability.active_behavior.projectile_speed, direction)
+	
+	# Find container on client
+	var map_node = MapManager.get_current_visible_map()
+	var target_container = null
+	
+	if map_node:
+		target_container = map_node.get_node_or_null("Projectiles")
+		if not target_container:
+			target_container = Node.new()
+			target_container.name = "Projectiles"
+			map_node.add_child(target_container)
+	
+	if target_container:
+		target_container.add_child(projectile_instance)
+		projectile_instance.global_position = start_pos
 
 
 ## [Server->Client] Sends all ability data to a newly connected client.

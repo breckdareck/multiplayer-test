@@ -258,6 +258,34 @@ func _spawn_drops(eligible_player_ids: Array[int]) -> void:
 	if not multiplayer.is_server():
 		return
 	
+	var drop_handler = get_tree().get_first_node_in_group("global_drop_handler")
+	if not drop_handler:
+		push_error("EnemyBase: GlobalDropHandler not found!")
+		return
+	
+	# Server needs to find the map this enemy is in
+	var map_instance = null
+	
+	# Try to find map by walking up the tree to find a parent map container
+	var parent = get_parent()
+	while parent:
+		if parent.name.begins_with("Map_"):
+			map_instance = parent
+			break
+		parent = parent.get_parent()
+	
+	# If not found by walking tree, try to get from current scene structure
+	if not map_instance:
+		var root = get_tree().current_scene
+		if root:
+			var maps_node = root.get_node_or_null("Maps")
+			if maps_node:
+				# Find any Map_* child
+				for child in maps_node.get_children():
+					if child.name.begins_with("Map_"):
+						map_instance = child
+						break
+	
 	for drop_resource in item_drops:
 		if drop_resource == null:
 			continue
@@ -275,66 +303,14 @@ func _spawn_drops(eligible_player_ids: Array[int]) -> void:
 		# Determine stack amount
 		var amount = drop_resource.get_drop_amount()
 		
-		# Create dropped item instance
-		var dropped_item = DROPPED_ITEM.instantiate() as DroppedItem
+		# Position it at enemy's location with slight offset to prevent stacking
+		var offset = Vector2(randf_range(-10, 10), randf_range(-10, 0))
+		var spawn_pos = global_position + offset
 		
-		# Setup the dropped item with eligible player IDs
-		dropped_item.setup(item, amount, eligible_player_ids)
-		
-		# Add to scene - find the ItemDrops container on the server
-		var target_container = null
-		
-		# On server, use the map instance from MapManager (which tracks server maps)
-		if multiplayer.is_server():
-			# Server needs to find the map this enemy is in
-			var map_instance = null
-			
-			# Try to find map by walking up the tree to find a parent map container
-			var parent = get_parent()
-			while parent:
-				if parent.name.begins_with("Map_"):
-					map_instance = parent
-					break
-				parent = parent.get_parent()
-			
-			# If not found by walking tree, try to get from current scene structure
-			if not map_instance:
-				var root = get_tree().current_scene
-				if root:
-					var maps_node = root.get_node_or_null("Maps")
-					if maps_node:
-						# Find any Map_* child
-						for child in maps_node.get_children():
-							if child.name.begins_with("Map_"):
-								map_instance = child
-								break
-			
-			if map_instance:
-				target_container = map_instance.get_node_or_null("ItemDrops")
-		else:
-			# Client case (fallback, should not spawn drops on client)
-			var current_map = MapManager.get_current_visible_map()
-			if current_map:
-				target_container = current_map.get_node_or_null("ItemDrops")
-
-		if target_container:
-			target_container.add_child(dropped_item, true)
-			# Position it at enemy's location with slight offset to prevent stacking
-			# Now that it's in the tree, we can set global_position correctly
-			var offset = Vector2(randf_range(-10, 10), randf_range(-10, 0))
-			dropped_item.global_position = global_position + offset
-		else:
-			push_error("Enemy: Could not find ItemDrops container to add dropped item!")
-			dropped_item.queue_free()
-			continue
-		
-		rpc("client_setup_item", dropped_item.get_path(), item.item_id)
+		# Delegate spawning to GlobalDropHandler which handles RPCs and map filtering
+		drop_handler.create_dropped_item(item, amount, spawn_pos, eligible_player_ids, map_instance)
 		
 		print("Enemy '%s' dropped %dx %s for eligible players: %s" % [name, amount, item.name, str(eligible_player_ids)])
-
-@rpc
-func client_setup_item(dropped_item: NodePath, item_id: String):
-	(get_node(dropped_item) as DroppedItem).sprite.texture = ResourceManager.get_item_data(item_id).icon
 
 
 @rpc("any_peer", "call_local", "reliable")

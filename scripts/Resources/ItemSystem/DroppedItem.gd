@@ -8,7 +8,7 @@ var _eligible_player_ids: Array[int] = [] # Players who are eligible to pick up 
 var is_public_pickup: bool = false
 
 ## Physics settings
-@export var pop_force_y: float = -250.0  # Upward launch (negative is up)
+@export var pop_force_y: float = -250.0 # Upward launch (negative is up)
 @export var gravity: float = 900.0
 @export var magnetize_delay: float = 1.2
 @export var magnetize_speed: float = 280.0
@@ -24,7 +24,7 @@ var is_public_pickup: bool = false
 
 
 ## State
-enum ItemState { POPPING, FALLING, SETTLED, COLLECTED }
+enum ItemState {POPPING, FALLING, SETTLED, COLLECTED}
 var current_state: ItemState = ItemState.POPPING
 var state_timer: float = 0.0
 var ground_timer: float = 0.0
@@ -43,8 +43,29 @@ func _ready() -> void:
 	print("DroppedItem spawned with velocity: ", velocity)
 	
 	# Setup collision to only interact with world (not players/enemies)
-	collision_layer = 0  # Don't exist on any layer
-	collision_mask = 1   # Only collide with world (layer 1)
+	collision_layer = 0 # Don't exist on any layer
+	collision_mask = 1 # Only collide with world (layer 1)
+
+func should_be_visible_to(peer_id: int) -> bool:
+	"""Returns true if the peer should see this item (same map)"""
+	# Find which map this item is on
+	var item_map = null
+	var parent = get_parent()
+	while parent:
+		if parent.is_in_group("map_base"):
+			item_map = parent
+			break
+		parent = parent.get_parent()
+	
+	if not item_map:
+		# Fallback: visible to all if we can't determine map
+		return true
+	
+	# Find which map the peer's player is on
+	var player_map = MapManager.get_player_map_node(peer_id)
+	
+	# Only visible if on same map
+	return item_map == player_map
 
 
 func _physics_process(delta: float) -> void:
@@ -59,7 +80,7 @@ func _physics_process(delta: float) -> void:
 		ItemState.SETTLED:
 			_handle_settled()
 		ItemState.COLLECTED:
-			pass  # Do nothing, waiting for cleanup
+			pass # Do nothing, waiting for cleanup
 
 
 func _handle_popping(delta: float) -> void:
@@ -187,7 +208,7 @@ func _pickup_item(picking_player: MultiplayerPlayerV2 = null) -> void:
 	
 	# Phase 2: Magnetize quickly to player (0.2s)
 	if player_to_give_item:
-		var target_pos = player_to_give_item.global_position + Vector2(0, -20)  # Aim slightly above player
+		var target_pos = player_to_give_item.global_position + Vector2(0, -20) # Aim slightly above player
 		pickup_tween.tween_property(self, "global_position", target_pos, 0.2).set_ease(Tween.EASE_IN)
 	
 	# Phase 3: Fade out slowly (0.3s) - runs in parallel with end of magnetize
