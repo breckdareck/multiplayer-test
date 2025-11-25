@@ -284,6 +284,10 @@ func _load_player_data_from_file(username: String) -> Dictionary:
 
 
 func _load_player_data_async(username: String) -> Dictionary:
+	if NetworkManager.use_local_save:
+		print("PlayerManager: Local Save enabled. Loading from file for ", username)
+		return _load_player_data_from_file(username)
+
 	print("PlayerManager: Attempting to load data for %s from API..." % username)
 	
 	# Create a temporary HTTP request for this specific call to avoid conflicts
@@ -352,6 +356,11 @@ func _save_player_data_to_file(data: Dictionary):
 func _save_player_data_async(data: Dictionary) -> void:
 	var username = data.get("username", "")
 	if username.is_empty():
+		return
+
+	if NetworkManager.use_local_save:
+		print("PlayerManager: Local Save enabled. Saving to file for ", username)
+		_save_player_data_to_file(data)
 		return
 
 	print("PlayerManager: Attempting to save data for %s to API..." % username)

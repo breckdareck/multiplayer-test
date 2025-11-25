@@ -11,6 +11,8 @@ signal character_creation_failed(error_message)
 var account_id: int = -1
 var account_username: String = ""
 var api_url = "http://127.0.0.1:5000/api"
+var is_dev_mode: bool = false
+var use_local_save: bool = false
 
 func _ready():
 	# Check if we can override API URL from args or config
@@ -65,6 +67,12 @@ func login(username, password):
 		login_failed.emit("Connection error")
 		http.queue_free()
 
+func dev_login():
+	is_dev_mode = true
+	account_id = 9999
+	account_username = "DevUser"
+	login_success.emit(account_id, account_username)
+
 func _on_login_completed(result, response_code, headers, body, http):
 	var response_text = body.get_string_from_utf8()
 	print("Login Response Code: ", response_code)
@@ -91,6 +99,21 @@ func _on_login_completed(result, response_code, headers, body, http):
 	http.queue_free()
 
 func get_characters():
+	if is_dev_mode:
+		var dev_characters = []
+		var classes = Constants.ClassType.values()
+		for i in range(classes.size()):
+			var class_enum = classes[i]
+			var class_name_str = Constants.ClassType.keys()[class_enum].capitalize()
+			dev_characters.append({
+				"name": "Dev" + class_name_str,
+				"level": 1,
+				"character_class": class_enum,
+				"id": 9000 + i
+			})
+		characters_received.emit(dev_characters)
+		return
+
 	if account_id == -1:
 		return
 		
