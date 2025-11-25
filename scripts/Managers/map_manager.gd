@@ -423,8 +423,17 @@ func client_set_current_map(map_id: String, spawn_point_name: String = ""):
 	# All entity spawning is controlled by the server
 	var spawners = _find_all_nodes_of_type(map_instance, "MultiplayerSpawner")
 	for spawner in spawners:
-		spawner.spawn_path = NodePath("")
-		print("Client: Disabled spawner %s in map %s (server controls all spawning)" % [spawner.name, map_id])
+		# DmgNumberSpawner must stay in tree to receive RPCs, just disable it
+		if spawner.name == "DmgNumberSpawner":
+			spawner.spawn_path = NodePath("")
+			print("Client: Disabled spawner %s in map %s (needed for RPCs)" % [spawner.name, map_id])
+		else:
+			# Other spawners (ItemSpawner, ProjectileSpawner) can be removed
+			spawner.spawn_path = NodePath("")
+			if spawner.get_parent():
+				spawner.get_parent().remove_child(spawner)
+			spawner.queue_free()
+			print("Client: Removed spawner %s from map %s (server controls all spawning)" % [spawner.name, map_id])
 	
 	# Add to client's scene tree under Maps (matching server structure)
 	maps_container.add_child(map_instance)
