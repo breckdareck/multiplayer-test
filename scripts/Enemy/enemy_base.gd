@@ -208,7 +208,7 @@ func _deferred_death_processing(_killer: Node) -> void:
 		# Party XP bonus: 10% for 2 members, +5% per additional member (up to 25% at 5 members)
 		if players_to_reward.size() > 1:
 			party_exp_bonus_multiplier = 1.0 + (0.05 * players_to_reward.size())
-		
+		 
 		var total_party_damage = 0
 		for member_id in players_to_reward:
 			if damage_by_player.has(member_id):
