@@ -336,6 +336,12 @@ func pool_deactivate() -> void:
 	collision_shape.set_deferred("disabled", true)
 	attack_hitbox.monitoring = false
 	body_hitbox.monitoring = false
+	
+	# CRITICAL: Disable the synchronizer to stop sending delta updates
+	var sync = get_node_or_null("MultiplayerSynchronizer")
+	if sync:
+		sync.set_process_mode(Node.PROCESS_MODE_DISABLED)
+	
 	# Move far away to prevent any lingering interactions.
 	global_position = Vector2(INF, INF)
 	rpc("client_hide_name_label")
@@ -359,6 +365,11 @@ func pool_reset() -> void:
 	collision_shape.set_deferred("disabled", false)
 	attack_hitbox.monitoring = true
 	body_hitbox.monitoring = true
+	
+	# CRITICAL: Re-enable the synchronizer to resume sending delta updates
+	var sync = get_node_or_null("MultiplayerSynchronizer")
+	if sync:
+		sync.set_process_mode(Node.PROCESS_MODE_INHERIT)
 
 
 func _update_facing() -> void:

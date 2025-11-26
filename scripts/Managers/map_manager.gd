@@ -106,13 +106,6 @@ func _load_map_on_server(map_id: String):
 	
 	map_instance.name = "Map_" + map_id
 	
-	# Disable MultiplayerSpawners to prevent global broadcasts.
-	# We will use manual RPCs for map-specific entities.
-	var spawners = _find_all_nodes_of_type(map_instance, "MultiplayerSpawner")
-	for spawner in spawners:
-		spawner.spawn_path = NodePath("")
-		print("MapManager: Disabled spawner %s in map %s (using manual RPCs)" % [spawner.name, map_id])
-	
 	# Create Maps container if needed
 	var maps_container = get_tree().root.get_node_or_null("Maps")
 	if not maps_container:
@@ -155,12 +148,12 @@ func _finalize_player_spawn(player_id: int, map_id: String, spawn_point_name: St
 			# Tell the new player to spawn the existing player
 			client_spawn_player.rpc_id(player_id, existing_id, existing_node.global_position)
 			# Also update visibility for the existing player
-			_update_visibility_for_player(existing_id)
+			update_visibility_for_player(existing_id)
 			
 	_spawn_player_on_server_map(player_id, map_id, spawn_point_name)
 	
 	# After the player is spawned and on the map, update visibilities.
-	_update_visibility_for_player(player_id)
+	update_visibility_for_player(player_id)
 
 
 func _spawn_player_on_server_map(player_id: int, map_id: String, spawn_point_name: String = ""):
@@ -244,17 +237,6 @@ func _unload_map_on_server(map_id: String):
 	print("MapManager: Despawning empty map '%s'" % map_id)
 	var map_instance = active_maps[map_id].scene_instance
 	if is_instance_valid(map_instance):
-		# Disable any MultiplayerSpawners to prevent "on_despawn_receive" errors on clients
-		# when the map is freed.
-		var spawners = _find_all_nodes_of_type(map_instance, "MultiplayerSpawner")
-		for spawner in spawners:
-			spawner.spawn_path = NodePath("")
-			# Immediately remove from tree to stop any replication
-			if spawner.get_parent():
-				spawner.get_parent().remove_child(spawner)
-			spawner.queue_free()
-			print("MapManager: Removed spawner %s in map %s" % [spawner.name, map_id])
-			
 		map_instance.queue_free()
 
 	active_maps.erase(map_id)
@@ -318,7 +300,7 @@ func _set_synchronizers_public_visibility(node: Node, visible: bool):
 		s.public_visibility = visible
 
 
-func _update_visibility_for_player(player_id: int):
+func update_visibility_for_player(player_id: int):
 	"""
 	Updates visibility for a given player against all other players and enemies.
 	This should be called when a player changes maps.
@@ -362,7 +344,7 @@ func _update_visibility_for_all_players():
 	if not multiplayer.is_server(): return
 	
 	for player_id in player_current_maps.keys():
-		_update_visibility_for_player(player_id)
+		update_visibility_for_player(player_id)
 
 
 # === CLIENT LOGIC ===
@@ -418,22 +400,6 @@ func client_set_current_map(map_id: String, spawn_point_name: String = ""):
 		maps_container.name = "Maps"
 		get_tree().root.add_child(maps_container)
 		print("Client: Created Maps container at /root/Maps")
-	
-	# Disable MultiplayerSpawners on client to prevent them from trying to spawn/track entities
-	# All entity spawning is controlled by the server
-	var spawners = _find_all_nodes_of_type(map_instance, "MultiplayerSpawner")
-	for spawner in spawners:
-		# DmgNumberSpawner must stay in tree to receive RPCs, just disable it
-		if spawner.name == "DmgNumberSpawner":
-			spawner.spawn_path = NodePath("")
-			print("Client: Disabled spawner %s in map %s (needed for RPCs)" % [spawner.name, map_id])
-		else:
-			# Other spawners (ItemSpawner, ProjectileSpawner) can be removed
-			spawner.spawn_path = NodePath("")
-			if spawner.get_parent():
-				spawner.get_parent().remove_child(spawner)
-			spawner.queue_free()
-			print("Client: Removed spawner %s from map %s (server controls all spawning)" % [spawner.name, map_id])
 	
 	# Add to client's scene tree under Maps (matching server structure)
 	maps_container.add_child(map_instance)

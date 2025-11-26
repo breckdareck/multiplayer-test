@@ -1163,6 +1163,7 @@ fall_state = NodePath("../fall")
 jump_state = NodePath("../jump")
 attack_state = NodePath("../attack")
 animation_name = "move"
+move_speed = 100.0
 
 [node name="jump" type="Node" parent="StateMachine" node_paths=PackedStringArray("fall_state", "attack_state")]
 script = ExtResource("21_v6vns")

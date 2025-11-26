@@ -81,15 +81,27 @@ func _create_pool() -> void:
 			enemy.queue_free()
 			continue
 		
+		# CRITICAL: Set public_visibility = false on enemy synchronizers BEFORE adding to tree
+		# This ensures the MultiplayerSpawner tracks it with correct visibility from the start
+		_set_enemy_synchronizers_visibility(enemy, false)
+		
+		# Now add to tree - MultiplayerSpawner will track it with visibility already configured
 		spawn_container.add_child(enemy, true)
+		
 		# Connect to the enemy's own signal, which fires after its death animation is complete.
 		enemy.ready_for_pooling.connect(_on_enemy_ready_for_pooling.bind(enemy))
 		_pool.append(enemy)
 		
-		# Deactivate the enemy until it's needed (the MultiplayerSpawner already added it to spawn_container via spawn_path)
+		# Deactivate the enemy until it's needed
 		enemy.pool_deactivate()
 	
 	print("EnemySpawner: Pool created with %d enemies" % _pool.size())
+	
+	# Update visibility for all players on this map
+	# This ensures the enemies are visible to the right players
+	await get_tree().process_frame
+	_update_all_player_visibility()
+
 
 func _initial_spawn() -> void:
 	for enemy in _pool:
@@ -103,6 +115,7 @@ func _on_enemy_ready_for_pooling(enemy: EnemyBase) -> void:
 	
 	var timer: SceneTreeTimer = get_tree().create_timer(respawn_delay)
 	timer.timeout.connect(_spawn_enemy.bind(enemy))
+
 
 func _spawn_enemy(enemy: EnemyBase) -> void:
 	# Reset the enemy's state using its own method, then place it in the world.
@@ -123,6 +136,13 @@ func _spawn_enemy(enemy: EnemyBase) -> void:
 	var spawn_point = spawn_locations.pick_random()
 	if enemy is Node2D and is_instance_valid(spawn_point):
 		enemy.global_position = spawn_point.global_position
+	
+	# --- Update visibility for this enemy ---
+	# When the enemy is activated, its synchronizer is re-enabled
+	# We need to ensure visibility is up-to-date for all players on this map
+	if multiplayer.is_server():
+		await get_tree().process_frame
+		_update_all_player_visibility()
 
 func _validate_exports() -> bool:
 	var is_valid = true
@@ -137,6 +157,7 @@ func _validate_exports() -> bool:
 		is_valid = false
 	return is_valid
 
+
 func _create_enemy_instance() -> Node:
 	"""Spawn function callback for MultiplayerSpawner"""
 	if not enemy_scene:
@@ -149,3 +170,34 @@ func _create_enemy_instance() -> Node:
 		return null
 	
 	return enemy
+
+
+func _set_enemy_synchronizers_visibility(enemy: Node, visible: bool):
+	"""Recursively sets public_visibility on all MultiplayerSynchronizers in an enemy."""
+	if enemy is MultiplayerSynchronizer:
+		enemy.public_visibility = visible
+	
+	for child in enemy.get_children():
+		_set_enemy_synchronizers_visibility(child, visible)
+
+
+func _update_all_player_visibility():
+	"""Tell MapManager to update visibility for all players on this map."""
+	if not multiplayer.is_server():
+		return
+	
+	# Find which map this spawner belongs to
+	var map_node = get_parent()
+	while map_node and not map_node.name.begins_with("Map_"):
+		map_node = map_node.get_parent()
+	
+	if not map_node:
+		return
+	
+	var map_id = map_node.name.replace("Map_", "")
+	var players_on_map = MapManager.get_players_on_map(map_id)
+	
+	for player_id in players_on_map:
+		MapManager.update_visibility_for_player(player_id)
+	
+	print("EnemySpawner: Updated visibility for %d players on map %s" % [players_on_map.size(), map_id])
