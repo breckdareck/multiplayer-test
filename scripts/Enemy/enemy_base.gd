@@ -194,13 +194,20 @@ func _deferred_death_processing(_killer: Node) -> void:
 	var non_damage_dealer_exp_percentage = 0.25 # 25% of base EXP for non-damage dealers in party
 
 	if killer_party_id != -1:
-		# Killer is in a party, distribute EXP to all party members
-		players_to_reward.append_array(PartyManager.get_party_members(killer_player_id))
-		print("Players in party to reward: ", players_to_reward)
-		# All party members are eligible for drops
-		eligible_player_ids_for_drops = players_to_reward
+		# Killer is in a party, distribute EXP to all party members who are on the same map
+		var all_party_members = PartyManager.get_party_members(killer_player_id)
+		var players_on_map = _get_players_on_same_map()
+		
+		for member_id in all_party_members:
+			if member_id in players_on_map:
+				players_to_reward.append(member_id)
+				
+		print("Players in party on same map to reward: ", players_to_reward)
+		# All party members (regardless of map) are eligible for drops
+		eligible_player_ids_for_drops = all_party_members
+		# Party XP bonus: 10% for 2 members, +5% per additional member (up to 25% at 5 members)
 		if players_to_reward.size() > 1:
-			party_exp_bonus_multiplier = 1.1 # 10% party bonus
+			party_exp_bonus_multiplier = 1.0 + (0.05 * players_to_reward.size())
 		
 		var total_party_damage = 0
 		for member_id in players_to_reward:
