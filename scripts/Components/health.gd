@@ -30,7 +30,30 @@ var _last_damage_source: Node = null
 		current_health = clamp(value, 0, max_health)
 		if current_health != previous_health:
 			if current_health == 0 and not is_dead and multiplayer.is_server():
-				die.rpc()
+				# Call locally
+				die()
+				
+				# RPC to players on the same map
+				var entity = get_owner()
+				var map_name = ""
+				
+				if entity is MultiplayerPlayerV2:
+					var map_node = MapManager.get_player_map_node(entity.player_id)
+					if map_node: map_name = map_node.name.replace("Map_", "")
+				else:
+					# For enemies/others, find map parent
+					var parent = entity.get_parent()
+					while parent:
+						if parent.name.begins_with("Map_"):
+							map_name = parent.name.replace("Map_", "")
+							break
+						parent = parent.get_parent()
+				
+				if map_name != "":
+					var players = MapManager.get_players_on_map(map_name)
+					for pid in players:
+						if pid != 1: # Server already called locally
+							die.rpc_id(pid)
 			health_changed.emit(current_health, max_health)
 @onready var health_bar: ProgressBar = get_node_or_null(health_bar_path)
 @onready var invulnerability_timer: Timer = Timer.new()

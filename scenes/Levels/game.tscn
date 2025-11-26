@@ -556,9 +556,6 @@ unique_name_in_owner = true
 spawn_path = NodePath("..")
 script = ExtResource("1_ryi0r")
 
-[node name="ItemSpawner" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("uid://b43dktokqxhjo")
-spawn_path = NodePath("../ItemDrops")
 
 [node name="ProjectileSpawner" type="MultiplayerSpawner" parent="."]
 _spawnable_scenes = PackedStringArray("uid://d0ig4oiimrnei")

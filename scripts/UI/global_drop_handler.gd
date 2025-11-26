@@ -165,6 +165,22 @@ func create_dropped_item(item_data: ItemData, amount: int, world_position: Vecto
 		synchronizer.public_visibility = false
 
 	# Manual RPC for clients on the same map
+	# REMOVED: MultiplayerSpawner handles this now
+	# if scene_to_add_to.is_in_group("map_base"):
+	# 	var map_name = scene_to_add_to.name.replace("Map_", "")
+	# 	var players_on_map = MapManager.get_players_on_map(map_name)
+	# 	
+	# 	print("GlobalDropHandler: Spawning item %s on map %s for players: %s" % [item_data.item_id, map_name, players_on_map])
+	# 	for peer_id in players_on_map:
+	# 		if peer_id != 1: # Server already has it
+	# 			print("GlobalDropHandler: Sending spawn_item_client RPC to peer %d" % peer_id)
+	# 			spawn_item_client.rpc_id(peer_id, item_data.item_id, amount, world_position, eligible_player_ids, item_unique_name, scene_to_add_to.name)
+	# 			
+	# 			# Update synchronizer visibility for this peer
+	# 			if synchronizer:
+	# 				synchronizer.set_visibility_for(peer_id, dropped_item.should_be_visible_to(peer_id))
+	
+	# Manual RPC for clients on the same map
 	if scene_to_add_to.is_in_group("map_base"):
 		var map_name = scene_to_add_to.name.replace("Map_", "")
 		var players_on_map = MapManager.get_players_on_map(map_name)
@@ -223,3 +239,42 @@ func spawn_item_client(item_id: String, amount: int, world_position: Vector2, el
 	dropped_item.global_position = world_position
 	dropped_item.setup(item_data, amount, eligible_player_ids)
 	dropped_item.sprite.texture = item_data.icon
+
+
+func sync_items_to_player(player_id: int) -> void:
+	"""
+	Called by MapManager when a player joins this map.
+	Manually sends spawn RPCs for all existing items to the new player.
+	"""
+	if not multiplayer.is_server(): return
+	
+	# This GlobalDropHandler should be a child of the map
+	var map_instance = get_parent()
+	if not map_instance or not map_instance.name.begins_with("Map_"):
+		push_error("GlobalDropHandler: Cannot sync items, parent is not a map: %s" % get_path())
+		return
+		
+	var drops_node = map_instance.get_node_or_null("ItemDrops")
+	if not drops_node: return
+	
+	print("GlobalDropHandler: Syncing items on map %s to player %d" % [map_instance.name, player_id])
+	
+	for child in drops_node.get_children():
+		if child is DroppedItem and is_instance_valid(child):
+			var item = child as DroppedItem
+			if not item.item_data: continue
+			
+			# Send spawn RPC to the specific player
+			spawn_item_client.rpc_id(player_id,
+				item.item_data.item_id,
+				item.stack_amount,
+				item.global_position,
+				item._eligible_player_ids,
+				item.name,
+				map_instance.name
+			)
+			
+			# Update visibility for this player
+			var synchronizer = item.get_node_or_null("MultiplayerSynchronizer")
+			if synchronizer:
+				synchronizer.set_visibility_for(player_id, item.should_be_visible_to(player_id))

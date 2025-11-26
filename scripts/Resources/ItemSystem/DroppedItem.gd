@@ -193,11 +193,16 @@ func _pickup_item(picking_player: MultiplayerPlayerV2 = null) -> void:
 		else:
 			player_to_give_item.player_inventory.add_item_instance(item_data.duplicate(true))
 
-		# RPC to client to show log message
+	# RPC to client to show log message
 		show_pickup_log_rpc.rpc_id(player_to_give_item.player_id, item_data.name, stack_amount)
 	
+	# Play effects on all clients (including host)
+	pickup_item_client.rpc()
+
+@rpc("authority", "call_local", "reliable")
+func pickup_item_client() -> void:
+	# Visual effects for pickup
 	pickup_sound.stream = pickup_sfx
-	
 	pickup_sound.play()
 	
 	# Animate pickup: popup -> magnetize to player -> fade out
@@ -206,12 +211,7 @@ func _pickup_item(picking_player: MultiplayerPlayerV2 = null) -> void:
 	# Phase 1: Quick popup (0.1s)
 	pickup_tween.tween_property(self, "global_position", global_position + Vector2(0, -20), 0.1).set_ease(Tween.EASE_OUT)
 	
-	# Phase 2: Magnetize quickly to player (0.2s)
-	if player_to_give_item:
-		var target_pos = player_to_give_item.global_position + Vector2(0, -20) # Aim slightly above player
-		pickup_tween.tween_property(self, "global_position", target_pos, 0.2).set_ease(Tween.EASE_IN)
-	
-	# Phase 3: Fade out slowly (0.3s) - runs in parallel with end of magnetize
+	# Phase 3: Fade out slowly (0.3s)
 	pickup_tween.parallel().tween_property(sprite, "modulate:a", 0.0, 0.3).set_ease(Tween.EASE_IN).set_delay(0.1)
 	
 	pickup_sound.finished.connect(queue_free)
@@ -227,6 +227,14 @@ func setup(item: ItemData, amount: int, eligible_player_ids: Array[int]) -> void
 	print("DroppedItem setup: %s x%d for eligible players: %s" % [item_data.name if item_data else "NULL", amount, str(_eligible_player_ids)])
 	
 	# Set sprite to item's icon
+	_update_sprite()
+	
+	# Start in popping state - item will settle on ground
+	current_state = ItemState.POPPING
+	is_pickup_ready = false
+
+
+func _update_sprite() -> void:
 	if item_data:
 		var resource_item_data = ResourceManager.get_item_data(item_data.item_id)
 		if resource_item_data and resource_item_data.icon:
@@ -235,10 +243,6 @@ func setup(item: ItemData, amount: int, eligible_player_ids: Array[int]) -> void
 			print("WARNING: DroppedItem has no icon for item_id: %s" % item_data.item_id)
 	else:
 		print("WARNING: DroppedItem has no item_data!")
-	
-	# Start in popping state - item will settle on ground
-	current_state = ItemState.POPPING
-	is_pickup_ready = false
 
 
 func make_public() -> void:
@@ -291,9 +295,13 @@ func sync_state_to_peer(peer_id: int) -> void:
 		return
 	
 	print("DroppedItem: Sync State to peer: %d" % peer_id)
-	_set_state_rpc.rpc_id(peer_id, item_data.item_id)
+	if item_data:
+		_set_state_rpc.rpc_id(peer_id, item_data.item_id)
 	
 
 @rpc("authority", "call_local", "reliable")
 func _set_state_rpc(item_id: String) -> void:
-	sprite.texture = ResourceManager.get_item_data(item_id).icon
+	# Client side setup when receiving state
+	if not item_data:
+		item_data = ResourceManager.get_item_data(item_id)
+	_update_sprite()

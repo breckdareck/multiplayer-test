@@ -160,7 +160,9 @@ func on_enemy_damaged(amount: int, source: Node) -> void:
 		player_id = source.owner.player_id
 	if player_id != null:
 		damage_by_player[player_id] = damage_by_player.get(player_id, 0) + amount
-		rpc("client_show_name_label")
+		if multiplayer.is_server():
+			for pid in _get_players_on_same_map():
+				client_show_name_label.rpc_id(pid)
 
 
 func _on_enemy_died(_killer: Node) -> void:
@@ -258,11 +260,6 @@ func _spawn_drops(eligible_player_ids: Array[int]) -> void:
 	if not multiplayer.is_server():
 		return
 	
-	var drop_handler = get_tree().get_first_node_in_group("global_drop_handler")
-	if not drop_handler:
-		push_error("EnemyBase: GlobalDropHandler not found!")
-		return
-	
 	# Server needs to find the map this enemy is in
 	var map_instance = null
 	
@@ -285,6 +282,16 @@ func _spawn_drops(eligible_player_ids: Array[int]) -> void:
 					if child.name.begins_with("Map_"):
 						map_instance = child
 						break
+	
+	if not map_instance:
+		push_error("EnemyBase: Could not determine map instance for enemy %s" % name)
+		return
+
+	# Find the GlobalDropHandler specific to this map
+	var drop_handler = map_instance.get_node_or_null("GlobalDropHandler")
+	if not drop_handler:
+		push_error("EnemyBase: GlobalDropHandler not found in map %s" % map_instance.name)
+		return
 	
 	for drop_resource in item_drops:
 		if drop_resource == null:
@@ -344,7 +351,10 @@ func pool_deactivate() -> void:
 	
 	# Move far away to prevent any lingering interactions.
 	global_position = Vector2(INF, INF)
-	rpc("client_hide_name_label")
+	
+	if multiplayer.is_server():
+		for pid in _get_players_on_same_map():
+			client_hide_name_label.rpc_id(pid)
 
 
 func pool_reset() -> void:
@@ -542,3 +552,20 @@ func cleanup_before_removal():
 # Override _exit_tree to handle cleanup
 func _exit_tree():
 	cleanup_before_removal()
+
+
+func _get_players_on_same_map() -> Array:
+	if not multiplayer.is_server(): return []
+	
+	# Try to find map by walking up the tree to find a parent map container
+	var parent = get_parent()
+	var map_name = ""
+	while parent:
+		if parent.name.begins_with("Map_"):
+			map_name = parent.name.replace("Map_", "")
+			break
+		parent = parent.get_parent()
+	
+	if map_name != "":
+		return MapManager.get_players_on_map(map_name)
+	return []

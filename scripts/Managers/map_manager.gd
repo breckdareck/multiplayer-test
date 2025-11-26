@@ -154,6 +154,14 @@ func _finalize_player_spawn(player_id: int, map_id: String, spawn_point_name: St
 	
 	# After the player is spawned and on the map, update visibilities.
 	update_visibility_for_player(player_id)
+	
+	# Sync existing dropped items to the new player
+	var map_instance = active_maps[map_id].scene_instance
+	var drop_handler = map_instance.get_node_or_null("GlobalDropHandler")
+	if drop_handler and drop_handler.has_method("sync_items_to_player"):
+		drop_handler.sync_items_to_player(player_id)
+	else:
+		push_warning("MapManager: Could not find GlobalDropHandler to sync items for player %d on map %s" % [player_id, map_id])
 
 
 func _spawn_player_on_server_map(player_id: int, map_id: String, spawn_point_name: String = ""):
@@ -361,7 +369,6 @@ func client_set_current_map(map_id: String, spawn_point_name: String = ""):
 	# Unload previous map if exists
 	if is_instance_valid(current_map_instance):
 		#print("Client: Unloading previous map '%s'" % current_map_id)
-		
 		# CRITICAL: Cleanup client's own player first before freeing map
 		# This prevents InputSynchronizer errors during transition
 		var my_id = multiplayer.get_unique_id()
