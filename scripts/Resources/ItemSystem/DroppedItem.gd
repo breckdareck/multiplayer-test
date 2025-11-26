@@ -196,11 +196,21 @@ func _pickup_item(picking_player: MultiplayerPlayerV2 = null) -> void:
 	# RPC to client to show log message
 		show_pickup_log_rpc.rpc_id(player_to_give_item.player_id, item_data.name, stack_amount)
 	
+	# Stop syncing immediately to prevent "Node not found" errors on client
+	var synchronizer = get_node_or_null("MultiplayerSynchronizer")
+	if synchronizer:
+		synchronizer.queue_free()
+
 	# Play effects on all clients (including host)
 	pickup_item_client.rpc()
 
 @rpc("authority", "call_local", "reliable")
 func pickup_item_client() -> void:
+	# Disable sync on client too
+	var synchronizer = get_node_or_null("MultiplayerSynchronizer")
+	if synchronizer:
+		synchronizer.set_process_mode(Node.PROCESS_MODE_DISABLED)
+
 	# Visual effects for pickup
 	pickup_sound.stream = pickup_sfx
 	pickup_sound.play()
