@@ -393,7 +393,7 @@ animations = [{
 size = Vector2(21, 21)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_h0wtf"]
-radius = 5.0
+radius = 4.0
 
 [node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "mana_component", "combat_component", "level_component", "stats_component", "class_component", "player_inventory", "inventory_component", "equipment_component", "ability_component", "buff_component", "debug_component", "player_HUD", "player_name_label", "stats_window", "inventory_window") groups=["Players", "networked_entities"]]
 collision_layer = 2
@@ -1097,8 +1097,7 @@ shape = SubResource("RectangleShape2D_ploos")
 debug_color = Color(0.565, 0.933, 0.565, 0.42)
 
 [node name="StandingCollisionShape" type="CollisionShape2D" parent="."]
-visible = false
-position = Vector2(0, -5)
+position = Vector2(0, -4)
 shape = SubResource("CircleShape2D_h0wtf")
 
 [node name="Camera2D" type="Camera2D" parent="."]

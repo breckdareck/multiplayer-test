@@ -51,7 +51,7 @@ func request_map_change(player_id: int, target_map_id: String, target_spawn_poin
 	"""Requests a player to be moved to a new map."""
 	if not multiplayer.is_server(): return
 
-	print("MapManager: Player %d requesting map change to '%s' at spawn '%s'" % [player_id, target_map_id, target_spawn_point_name])
+	#print("MapManager: Player %d requesting map change to '%s' at spawn '%s'" % [player_id, target_map_id, target_spawn_point_name])
 
 	if not target_map_id in MAP_SCENES:
 		push_warning("MapManager: Invalid target_map_id '%s' for player %d. Using default map." % [target_map_id, player_id])
@@ -60,7 +60,7 @@ func request_map_change(player_id: int, target_map_id: String, target_spawn_poin
 	# Remove player from current map
 	if player_id in player_current_maps:
 		_remove_player_from_map(player_id, player_current_maps[player_id])
-		print("MapManager: Waited for visibility updates to propagate before map change")
+		#print("MapManager: Waited for visibility updates to propagate before map change")
 
 	player_current_maps[player_id] = target_map_id
 
@@ -86,7 +86,7 @@ func _load_map_on_server(map_id: String):
 	if not multiplayer.is_server(): return
 	if map_id in active_maps: return
 																											
-	print("MapManager: Manually spawning map '%s' on server" % map_id)
+	#print("MapManager: Manually spawning map '%s' on server" % map_id)
 	
 	# Load and instantiate map scene
 	var map_path = MAP_SCENES.get(map_id)
@@ -112,7 +112,7 @@ func _load_map_on_server(map_id: String):
 		maps_container = Node.new()
 		maps_container.name = "Maps"
 		get_tree().root.add_child(maps_container)
-		print("MapManager: Created Maps container at /root/Maps")
+		#print("MapManager: Created Maps container at /root/Maps")
 	
 	# Add to server's scene tree
 	maps_container.add_child(map_instance)
@@ -120,12 +120,12 @@ func _load_map_on_server(map_id: String):
 	active_maps[map_id] = {"scene_instance": map_instance, "player_ids": []}
 	map_loaded.emit(map_id)
 	
-	print("MapManager: Server spawned map '%s' at path %s" % [map_id, map_instance.get_path()])
+	#print("MapManager: Server spawned map '%s' at path %s" % [map_id, map_instance.get_path()])
 	
 	# CRITICAL: Set public_visibility to false for all synchronizers in this map
 	# This prevents them from trying to sync to clients who haven't loaded the map yet
 	_set_synchronizers_public_visibility(map_instance, false)
-	print("MapManager: Set public_visibility=false for all synchronizers in map '%s'" % map_id)
+	#print("MapManager: Set public_visibility=false for all synchronizers in map '%s'" % map_id)
 	
 	# Update visibility for all players when new map is added
 	_update_visibility_for_all_players()
@@ -135,7 +135,7 @@ func _finalize_player_spawn(player_id: int, map_id: String, spawn_point_name: St
 	"""Creates the player character on the server via a PlayerSpawner."""
 	if not multiplayer.is_server() or not map_id in active_maps: return
 
-	print("MapManager: Finalizing spawn for player %d on map %s at spawn '%s'" % [player_id, map_id, spawn_point_name])
+	#print("MapManager: Finalizing spawn for player %d on map %s at spawn '%s'" % [player_id, map_id, spawn_point_name])
 	active_maps[map_id].player_ids.append(player_id)
 	
 	# Sync EXISTING players to the new joiner
@@ -179,9 +179,9 @@ func _spawn_player_on_server_map(player_id: int, map_id: String, spawn_point_nam
 	# CRITICAL: Set public_visibility=false for all player synchronizers
 	# Visibility will be controlled via visibility filters and _update_visibility_for_player()
 	_set_synchronizers_public_visibility(player_char, false)
-	print("MapManager: Set public_visibility=false for player %d synchronizers" % player_id)
+	#print("MapManager: Set public_visibility=false for player %d synchronizers" % player_id)
 	
-	print("MapManager: Manually spawned player %d on map '%s' at %s" % [player_id, map_id, player_char.global_position])
+	#print("MapManager: Manually spawned player %d on map '%s' at %s" % [player_id, map_id, player_char.global_position])
 	
 	# 2. Notify ALL clients on this map to spawn this player
 	# We iterate through all players currently on this map
@@ -200,13 +200,13 @@ func _remove_player_from_map(player_id: int, map_id: String):
 	var map_instance = active_maps[map_id].scene_instance
 	if not is_instance_valid(map_instance): return
 	
-	print("MapManager: Removing player %d from map '%s'" % [player_id, map_id])
+	#print("MapManager: Removing player %d from map '%s'" % [player_id, map_id])
 	
 	# CRITICAL: Hide this map from the player BEFORE removing them
 	# This prevents "Node not found" errors during map transitions
 	if player_id in active_maps[map_id].player_ids:
 		_set_visibility_for_node(map_instance, player_id, false)
-		print("MapManager: Hid map '%s' from player %d before removal" % [map_id, player_id])
+		#print("MapManager: Hid map '%s' from player %d before removal" % [map_id, player_id])
 	
 	if player_id in active_maps[map_id].player_ids:
 		active_maps[map_id].player_ids.erase(player_id)
@@ -216,7 +216,7 @@ func _remove_player_from_map(player_id: int, map_id: String):
 		# Cleanup player components before freeing to prevent lingering network messages
 		if player_node.has_method("cleanup_before_removal"):
 			player_node.cleanup_before_removal()
-			print("MapManager: Server cleaned up player %d before removal" % player_id)
+			#print("MapManager: Server cleaned up player %d before removal" % player_id)
 		player_node.queue_free()
 		
 	# Notify clients on this map to remove this player
@@ -234,7 +234,7 @@ func _remove_player_from_map(player_id: int, map_id: String):
 func _unload_map_on_server(map_id: String):
 	if not map_id in active_maps: return
 	
-	print("MapManager: Despawning empty map '%s'" % map_id)
+	#print("MapManager: Despawning empty map '%s'" % map_id)
 	var map_instance = active_maps[map_id].scene_instance
 	if is_instance_valid(map_instance):
 		map_instance.queue_free()
@@ -254,7 +254,7 @@ func handle_player_disconnect(player_id: int):
 func reset_client_state():
 	if multiplayer.has_multiplayer_peer() and multiplayer.is_server(): return
 	
-	print("MapManager: Resetting client-side map state.")
+	#print("MapManager: Resetting client-side map state.")
 	current_map_id = ""
 	current_map_instance = null
 	my_player_node = null
@@ -285,7 +285,7 @@ func _set_visibility_for_node(node: Node, peer_id: int, visible: bool):
 		
 	for s in synchronizers:
 		if not is_instance_valid(s): continue
-		print("DEBUG: Setting %s on %s visibility to %s for peer %s" % [s.name, node.name, visible, peer_id])
+		#print("DEBUG: Setting %s on %s visibility to %s for peer %s" % [s.name, node.name, visible, peer_id])
 		s.set_visibility_for(peer_id, visible)
 		
 		# Force update visibility just in case
@@ -356,11 +356,11 @@ func client_set_current_map(map_id: String, spawn_point_name: String = ""):
 	Server tells client which map to load.
 	Client manually instantiates ONLY this map.
 	"""
-	print("Client %d: Server requesting map '%s'" % [multiplayer.get_unique_id(), map_id])
+	#print("Client %d: Server requesting map '%s'" % [multiplayer.get_unique_id(), map_id])
 	
 	# Unload previous map if exists
 	if is_instance_valid(current_map_instance):
-		print("Client: Unloading previous map '%s'" % current_map_id)
+		#print("Client: Unloading previous map '%s'" % current_map_id)
 		
 		# CRITICAL: Cleanup client's own player first before freeing map
 		# This prevents InputSynchronizer errors during transition
@@ -370,7 +370,7 @@ func client_set_current_map(map_id: String, spawn_point_name: String = ""):
 			var my_player = players_node.get_node_or_null(str(my_id))
 			if is_instance_valid(my_player) and my_player.has_method("cleanup_before_removal"):
 				my_player.cleanup_before_removal()
-				print("Client: Cleaned up own player before map transition")
+				#print("Client: Cleaned up own player before map transition")
 		
 		current_map_instance.queue_free()
 		current_map_instance = null
@@ -399,7 +399,7 @@ func client_set_current_map(map_id: String, spawn_point_name: String = ""):
 		maps_container = Node.new()
 		maps_container.name = "Maps"
 		get_tree().root.add_child(maps_container)
-		print("Client: Created Maps container at /root/Maps")
+		#print("Client: Created Maps container at /root/Maps")
 	
 	# Add to client's scene tree under Maps (matching server structure)
 	maps_container.add_child(map_instance)
@@ -414,7 +414,7 @@ func client_set_current_map(map_id: String, spawn_point_name: String = ""):
 	current_map_id = map_id
 	_warned_missing_paths.clear()
 	
-	print("Client %d: Loaded map '%s' at path %s" % [multiplayer.get_unique_id(), map_id, map_instance.get_path()])
+	#print("Client %d: Loaded map '%s' at path %s" % [multiplayer.get_unique_id(), map_id, map_instance.get_path()])
 	
 	# ACK to server
 	rpc_id(1, "client_map_loaded", map_id, spawn_point_name)
@@ -423,7 +423,7 @@ func client_set_current_map(map_id: String, spawn_point_name: String = ""):
 @rpc("authority", "call_local", "reliable")
 func client_identify_player(player_node_path: String):
 	"""Called by the server to tell the client which spawned player node is theirs."""
-	print("Client: Server identified my player at path: %s" % player_node_path)
+	#print("Client: Server identified my player at path: %s" % player_node_path)
 	
 	var node = get_node_or_null(player_node_path)
 	var wait_count = 0
@@ -437,9 +437,7 @@ func client_identify_player(player_node_path: String):
 		return
 		
 	my_player_node = node
-	print("Client: Found my player node. Notifying server.")
-	my_player_node = node
-	print("Client: Found my player node. Notifying server.")
+	#print("Client: Found my player node. Notifying server.")
 	rpc_id(1, "client_player_spawned", current_map_id)
 
 
@@ -476,7 +474,7 @@ func client_spawn_player(new_player_id: int, spawn_pos: Vector2):
 	# if not multiplayer.is_server():
 	# 	_set_synchronizers_public_visibility(player_node, false)
 	
-	print("Client: Manually spawned player %d at %s" % [new_player_id, spawn_pos])
+	#print("Client: Manually spawned player %d at %s" % [new_player_id, spawn_pos])
 
 
 @rpc("authority", "call_local", "reliable")
@@ -488,7 +486,7 @@ func client_despawn_player(player_id_to_remove: int):
 	if players_node and players_node.has_node(str(player_id_to_remove)):
 		var node = players_node.get_node(str(player_id_to_remove))
 		node.queue_free()
-		print("Client: Despawned player %d" % player_id_to_remove)
+		#print("Client: Despawned player %d" % player_id_to_remove)
 
 
 # === SERVER-SIDE ACKS FROM CLIENTS ===
@@ -499,7 +497,7 @@ func client_map_loaded(map_id: String, spawn_point_name: String = ""):
 	if not multiplayer.is_server(): return
 
 	var peer_id: int = multiplayer.get_remote_sender_id()
-	print("MapManager: Received map-loaded ACK from %d for map '%s'" % [peer_id, map_id])
+	#print("MapManager: Received map-loaded ACK from %d for map '%s'" % [peer_id, map_id])
 
 	var expected_map = player_current_maps.get(peer_id, "")
 	if expected_map != map_id:
@@ -515,7 +513,7 @@ func client_player_spawned(_map_id: String) -> void:
 	if not multiplayer.is_server(): return
 
 	var peer_id: int = multiplayer.get_remote_sender_id()
-	print("MapManager: Received player-spawned ACK from %d. Initializing." % peer_id)
+	#print("MapManager: Received player-spawned ACK from %d. Initializing." % peer_id)
 	player_spawned.emit(peer_id)
 
 

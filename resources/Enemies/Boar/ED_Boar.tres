@@ -9,9 +9,9 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_17tps"]
 size = Vector2(64, 37)
 
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_71sob"]
-radius = 8.0
-height = 26.0
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_328yv"]
+radius = 3.0
+height = 12.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_n6pvg"]
 radius = 5.09902
@@ -31,6 +31,6 @@ monster_level = 5
 movement_speed = 40.0
 sprite_frames = ExtResource("4_iwdua")
 character_collision_shape = SubResource("CircleShape2D_n6pvg")
-body_hitbox_shape = SubResource("CapsuleShape2D_71sob")
+body_hitbox_shape = SubResource("CapsuleShape2D_328yv")
 attack_hitbox_shape = SubResource("RectangleShape2D_17tps")
 item_drops = Array[ExtResource("2_iwdua")]([SubResource("Resource_iwdua"), ExtResource("2_rm1mb"), ExtResource("3_bpode")])
