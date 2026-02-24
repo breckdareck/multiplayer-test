@@ -10,6 +10,7 @@ signal player_spawned(player_id: int)
 const MAP_SCENES = {
 	"game": "res://scenes/Levels/game.tscn",
 	"game2": "res://scenes/Levels/game2.tscn",
+	"game3": "res://scenes/Levels/game3.tscn",
 }
 
 const DEFAULT_MAP = "game"

@@ -1,14 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://brfb5t5im33fl"]
+[gd_scene load_steps=5 format=3 uid="uid://brfb5t5im33fl"]
 
 [ext_resource type="Script" uid="uid://c61d1532ig3lo" path="res://scripts/Gameplay/portal.gd" id="1_portal_gd"]
-[ext_resource type="Texture2D" uid="uid://jorjvuc5wn72" path="res://assets/sprites/world_tileset.png" id="2_ecvi2"]
+[ext_resource type="Texture2D" uid="uid://1oyrvvlfb431" path="res://assets/sprites/Portal.editor.pg.webp" id="2_ecvi2"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_shape"]
 size = Vector2(16, 29)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_2u1db"]
-atlas = ExtResource("2_ecvi2")
-region = Rect2(64, 144, 16, 32)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ecvi2"]
 bg_color = Color(1, 1, 1, 0.7882353)
@@ -23,6 +19,8 @@ corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 
 [node name="Portal" type="Area2D"]
+collision_layer = 0
+collision_mask = 2
 script = ExtResource("1_portal_gd")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
@@ -30,8 +28,8 @@ position = Vector2(0, 1.5)
 shape = SubResource("RectangleShape2D_shape")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-modulate = Color(0.21710122, 0.21710122, 0.21710122, 1)
-texture = SubResource("AtlasTexture_2u1db")
+scale = Vector2(0.185, 0.185)
+texture = ExtResource("2_ecvi2")
 
 [node name="InteractionLabel" type="Label" parent="."]
 visible = false
