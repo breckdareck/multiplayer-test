@@ -408,10 +408,12 @@ func load_buffs(data: Dictionary) -> void:
 			active_buff.stacks = stacks
 			active_buff.remaining_duration = duration
 			_active_buffs[buff_id] = active_buff
-			
-			# Call on_apply for custom logic
-			if active_buff.custom_logic_instance and active_buff.custom_logic_instance.has_method("on_apply"):
-				active_buff.custom_logic_instance.on_apply(owner, active_buff)
+
+			# Skip on_apply during load — we are restoring persisted state,
+			# not freshly applying a buff. on_apply callbacks may trigger
+			# side effects (damage, heals, signals) that are inappropriate
+			# during the load phase. Stat modifiers are handled by the
+			# _force_stat_recalc() call after all buffs are loaded.
 	
 	_loading_mode = false
 	

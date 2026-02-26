@@ -3,20 +3,26 @@ extends Node
 
 var character_scene = preload("res://scenes/Player/player.tscn")
 var active_players: Dictionary = {}
-var http_request: HTTPRequest
-const API_URL = "http://localhost:5000/api/player"
+var _load_http_request: HTTPRequest
+var _load_in_progress: bool = false
+var _api_url: String = ""
 
 
 func _ready() -> void:
+	# Load API URL from config (supports environment variable override)
+	_api_url = UserConfig.get_backend_api_url() + "/player"
+	print("PlayerManager: Using API URL: %s" % _api_url)
+	
 	# Connect to MapManager's player_spawned so we can finish initialization
 	# after the server-side spawn is completed.
 	if MapManager:
 		MapManager.player_spawned.connect(_on_player_spawned)
-		
-	http_request = HTTPRequest.new()
-	http_request.name = "HTTPRequest"
-	add_child(http_request)
-	http_request.timeout = 2.0 # Short timeout for local dev, adjust as needed
+
+	# Persistent HTTPRequest for load operations (reused across calls)
+	_load_http_request = HTTPRequest.new()
+	_load_http_request.name = "LoadHTTPRequest"
+	add_child(_load_http_request)
+	_load_http_request.timeout = 5.0
 
 
 func has_player(id: int) -> bool:
@@ -49,17 +55,27 @@ func remove_player(id: int):
 	print("Player %d left - removing character" % id)
 	NetworkUtils.log_network_event("PLAYER_LEAVE", "Player ID: %d" % id)
 	
-	# Save their current map before disconnect
+	# Full save before disconnect — get complete data while player node is still valid
 	if multiplayer.is_server() and id in active_players:
 		var current_map = MapManager.get_player_map(id)
 		if current_map:
 			active_players[id]["last_map"] = current_map
-			# Quick save before disconnect
+
+		var player_node = get_player_node(id)
+		if is_instance_valid(player_node):
+			# Use the controller's full save to capture inventory, abilities, buffs, equipment
+			var full_data = player_node._get_save_data("all")
+			full_data["username"] = active_players[id].get("username", "")
+			full_data["last_map"] = active_players[id].get("last_map", "")
+			if not full_data.get("username", "").is_empty():
+				_save_player_data_async(full_data)
+		else:
+			# Player node already gone — fall back to quick save with what we have
+			print("PlayerManager: WARNING - Player %d node not found for full save, using quick save" % id)
 			var quick_data = _get_quick_save_data(id)
 			if not quick_data.is_empty():
 				_save_player_data_async(quick_data)
 
-	
 	# Notify map manager to clean up
 	MapManager.handle_player_disconnect(id)
 	
@@ -271,7 +287,7 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 
 
 func _load_player_data_from_file(username: String) -> Dictionary:
-	var file_path = "player_%s.json" % username
+	var file_path = "res://saves/player_%s.json" % username
 	if FileAccess.file_exists(file_path):
 		var file = FileAccess.open(file_path, FileAccess.READ)
 		var data = JSON.parse_string(file.get_as_text())
@@ -288,41 +304,69 @@ func _load_player_data_async(username: String) -> Dictionary:
 		print("PlayerManager: Local Save enabled. Loading from file for ", username)
 		return _load_player_data_from_file(username)
 
+	# Wait if another load is already in progress (reusing persistent HTTPRequest)
+	while _load_in_progress:
+		await get_tree().process_frame
+
+	_load_in_progress = true
 	print("PlayerManager: Attempting to load data for %s from API..." % username)
-	
-	# Create a temporary HTTP request for this specific call to avoid conflicts
-	var request = HTTPRequest.new()
-	add_child(request)
-	request.timeout = 2.0
-	
+
 	var json = JSON.stringify({"username": username})
 	var headers = ["Content-Type: application/json"]
-	var error = request.request(API_URL + "/load", headers, HTTPClient.METHOD_POST, json)
-	
+	var error = _load_http_request.request(_api_url + "/load", headers, HTTPClient.METHOD_POST, json)
+
 	if error != OK:
-		print("PlayerManager: HTTP request failed to start. Error: ", error)
-		request.queue_free()
+		print("PlayerManager: HTTP load request failed to start for %s. Error: %d" % [username, error])
+		_load_in_progress = false
+		print("PlayerManager: WARNING - Loading %s from LOCAL FILE (API unavailable)" % username)
 		return _load_player_data_from_file(username)
-	
-	var result = await request.request_completed
+
+	var result = await _load_http_request.request_completed
 	var response_code = result[1]
 	var body = result[3]
-	request.queue_free()
-	
+
 	if response_code == 200:
 		var json_result = JSON.parse_string(body.get_string_from_utf8())
 		if json_result != null:
+			_load_in_progress = false
 			if json_result.is_empty():
+				print("PlayerManager: Loaded %s via API (no existing save data)" % username)
 				return {}
-				
-			print("PlayerManager: Successfully loaded data from API for ", username)
+
+			print("PlayerManager: Loaded %s via API" % username)
 			# Ensure default fields exist
 			json_result["party_id"] = json_result.get("party_id", -1)
 			json_result["last_map"] = json_result.get("last_map", "")
 			return json_result
 
-	
-	print("PlayerManager: API load failed (Code: %d). Falling back to local file." % response_code)
+	print("PlayerManager: API load failed for %s (code: %d). Retrying..." % [username, response_code])
+	await get_tree().create_timer(1.0).timeout
+
+	# Retry once
+	error = _load_http_request.request(_api_url + "/load", headers, HTTPClient.METHOD_POST, json)
+	if error != OK:
+		_load_in_progress = false
+		print("PlayerManager: WARNING - Loading %s from LOCAL FILE (API unavailable)" % username)
+		return _load_player_data_from_file(username)
+
+	result = await _load_http_request.request_completed
+	response_code = result[1]
+	body = result[3]
+	_load_in_progress = false
+
+	if response_code == 200:
+		var json_result = JSON.parse_string(body.get_string_from_utf8())
+		if json_result != null:
+			if json_result.is_empty():
+				print("PlayerManager: Retry succeeded for %s (no existing save data)" % username)
+				return {}
+
+			print("PlayerManager: Retry succeeded for %s" % username)
+			json_result["party_id"] = json_result.get("party_id", -1)
+			json_result["last_map"] = json_result.get("last_map", "")
+			return json_result
+
+	print("PlayerManager: WARNING - Loading %s from LOCAL FILE (API unavailable after retry)" % username)
 	return _load_player_data_from_file(username)
 
 
@@ -364,34 +408,54 @@ func _save_player_data_async(data: Dictionary) -> void:
 		return
 
 	print("PlayerManager: Attempting to save data for %s to API..." % username)
-	
+
 	var request = HTTPRequest.new()
 	add_child(request)
-	request.timeout = 2.0
-	
+	request.timeout = 5.0
+
 	var payload = {
 		"username": username,
 		"data": data
 	}
-	
+
 	var json = JSON.stringify(payload)
 	var headers = ["Content-Type: application/json"]
-	var error = request.request(API_URL + "/save", headers, HTTPClient.METHOD_POST, json)
-	
+	var error = request.request(_api_url + "/save", headers, HTTPClient.METHOD_POST, json)
+
 	if error != OK:
-		print("PlayerManager: HTTP save request failed to start. Error: ", error)
+		print("PlayerManager: HTTP save request failed to start for %s. Error: %d" % [username, error])
 		request.queue_free()
+		print("PlayerManager: WARNING - Saved %s to LOCAL FILE (API unavailable)" % username)
 		_save_player_data_to_file(data)
 		return
-	
+
 	var result = await request.request_completed
 	var response_code = result[1]
-	request.queue_free()
-	
+
 	if response_code == 200:
-		print("PlayerManager: Successfully saved data to API for ", username)
+		print("PlayerManager: Saved %s via API" % username)
+		request.queue_free()
+		return
+
+	# First attempt failed — retry once after 1 second
+	print("PlayerManager: API save failed for %s (code: %d), retrying..." % [username, response_code])
+	await get_tree().create_timer(1.0).timeout
+
+	error = request.request(_api_url + "/save", headers, HTTPClient.METHOD_POST, json)
+	if error != OK:
+		request.queue_free()
+		print("PlayerManager: WARNING - Saved %s to LOCAL FILE (API unavailable)" % username)
+		_save_player_data_to_file(data)
+		return
+
+	result = await request.request_completed
+	response_code = result[1]
+	request.queue_free()
+
+	if response_code == 200:
+		print("PlayerManager: Retry succeeded for %s" % username)
 	else:
-		print("PlayerManager: API save failed (Code: %d). Falling back to local file." % response_code)
+		print("PlayerManager: WARNING - Saved %s to LOCAL FILE (API unavailable after retry, code: %d)" % [username, response_code])
 		_save_player_data_to_file(data)
 
 

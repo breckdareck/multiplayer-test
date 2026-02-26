@@ -19,9 +19,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -200.0
-offset_top = -150.0
+offset_top = -272.0
 offset_right = 200.0
-offset_bottom = 150.0
+offset_bottom = 272.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -68,6 +68,46 @@ text = "Dev Login"
 [node name="LocalSaveCheckbox" type="CheckBox" parent="Panel/VBoxContainer"]
 layout_mode = 2
 text = "Use Local Save"
+
+[node name="BackendSettingsButton" type="Button" parent="Panel/VBoxContainer"]
+layout_mode = 2
+text = "Backend Settings ▶"
+
+[node name="PresetLabel" type="Label" parent="Panel/VBoxContainer"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 1, 1, 1)
+text = "Quick Select:"
+
+[node name="PresetButtonBox" type="HBoxContainer" parent="Panel/VBoxContainer"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="LocalButton" type="Button" parent="Panel/VBoxContainer/PresetButtonBox"]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+text = "Local"
+
+[node name="CloudButton" type="Button" parent="Panel/VBoxContainer/PresetButtonBox"]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+text = "Cloud"
+
+[node name="APIUrlInput" type="LineEdit" parent="Panel/VBoxContainer"]
+visible = false
+layout_mode = 2
+placeholder_text = "Enter backend API URL (e.g., http://cloud.example.com:5000/api)"
+
+[node name="ApplyButton" type="Button" parent="Panel/VBoxContainer"]
+visible = false
+layout_mode = 2
+text = "Apply"
+
+[node name="APIStatusLabel" type="Label" parent="Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 1, 1, 1)
+horizontal_alignment = 1
 
 [node name="StatusLabel" type="Label" parent="Panel/VBoxContainer"]
 layout_mode = 2

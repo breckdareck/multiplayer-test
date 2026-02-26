@@ -10,13 +10,14 @@ signal character_creation_failed(error_message)
 
 var account_id: int = -1
 var account_username: String = ""
-var api_url = "http://127.0.0.1:5000/api"
+var api_url = ""  # Will be loaded from UserConfig
 var is_dev_mode: bool = false
 var use_local_save: bool = false
 
 func _ready():
-	# Check if we can override API URL from args or config
-	pass
+	# Load API URL from config (supports environment variable override)
+	api_url = UserConfig.get_backend_api_url()
+	print("NetworkManager: Using API URL: %s" % api_url)
 
 func register(username, password):
 	var http = HTTPRequest.new()
@@ -102,15 +103,36 @@ func get_characters():
 	if is_dev_mode:
 		var dev_characters = []
 		var classes = Constants.ClassType.values()
+		
+		# First, try to load any existing save files
 		for i in range(classes.size()):
 			var class_enum = classes[i]
 			var class_name_str = Constants.ClassType.keys()[class_enum].capitalize()
-			dev_characters.append({
-				"name": "Dev" + class_name_str,
+			var dev_char_name = "Dev" + class_name_str
+			var file_path = "res://saves/player_%s.json" % dev_char_name
+			
+			var char_data = {
+				"name": dev_char_name,
 				"level": 1,
 				"character_class": class_enum,
 				"id": 9000 + i
-			})
+			}
+			
+			# Try to load existing save
+			if FileAccess.file_exists(file_path):
+				var file = FileAccess.open(file_path, FileAccess.READ)
+				var loaded_data = JSON.parse_string(file.get_as_text())
+				file.close()
+				if loaded_data is Dictionary:
+					# Merge loaded data with our template to preserve level, class, etc.
+					if loaded_data.has("level"):
+						char_data["level"] = loaded_data["level"]
+					if loaded_data.has("experience"):
+						char_data["experience"] = loaded_data["experience"]
+					print("Loaded dev character %s from file: level %d" % [dev_char_name, char_data["level"]])
+			
+			dev_characters.append(char_data)
+		
 		characters_received.emit(dev_characters)
 		return
 
@@ -130,11 +152,9 @@ func get_characters():
 
 func _on_get_characters_completed(result, response_code, headers, body, http):
 	if response_code == 200:
-		var json = JSON.new()
-		var error = json.parse(body.get_string_from_utf8())
+		var response = JSON.parse_string(body.get_string_from_utf8())
 		
-		if error == OK:
-			var response = json.get_data()
+		if response != null:
 			characters_received.emit(response.get("characters", []))
 	
 	http.queue_free()
@@ -160,15 +180,13 @@ func create_character(char_name, class_id):
 		http.queue_free()
 
 func _on_create_character_completed(result, response_code, headers, body, http):
-	var json = JSON.new()
-	var error = json.parse(body.get_string_from_utf8())
+	var response_text = body.get_string_from_utf8()
+	var response = JSON.parse_string(response_text)
 	
-	if error != OK:
+	if response == null:
 		character_creation_failed.emit("Failed to parse server response")
 		http.queue_free()
 		return
-	
-	var response = json.get_data()
 	
 	if response_code == 201:
 		character_created.emit(response.get("name"))

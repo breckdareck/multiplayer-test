@@ -499,7 +499,14 @@ func load_inventory(inventory_data: Dictionary) -> void:
 	if not is_inside_tree():
 		pending_inventory_data = inventory_data
 		return
+	
+	if equipment_component:
+		equipment_component.set_silent_mode(true)
+	
 	_apply_inventory_data(inventory_data)
+	
+	if equipment_component:
+		equipment_component.set_silent_mode(false)
 
 
 @rpc("authority", "call_local", "reliable")

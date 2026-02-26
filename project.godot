@@ -32,6 +32,7 @@ InputManager="*res://scripts/Managers/InputManager.gd"
 LogManager="*res://scripts/Managers/LogManager.gd"
 ChatManager="*res://scripts/Managers/ChatManager.gd"
 NetworkManager="*res://scripts/Networking/network_manager.gd"
+SaveManager="*res://scripts/Managers/save_manager.gd"
 
 [display]
 

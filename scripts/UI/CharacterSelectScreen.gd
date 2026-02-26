@@ -10,6 +10,7 @@ extends Control
 
 var characters = []
 var selected_character_name = ""
+var _server_info_label: Label = null
 
 func _ready():
 	create_button.pressed.connect(_on_create_pressed)
@@ -24,8 +25,30 @@ func _ready():
 	ClientManager.connection_succeeded.connect(_on_connection_succeeded)
 	ClientManager.connection_failed.connect(_on_connection_failed)
 	
+	_setup_server_info_display()
+	_setup_backend_info_display()
+	
 	# Fetch characters on load
 	NetworkManager.get_characters()
+
+
+func _setup_server_info_display():
+	# Create a label to show server info (hidden until host starts)
+	_server_info_label = Label.new()
+	_server_info_label.add_theme_color_override("font_color", Color.YELLOW)
+	_server_info_label.text = "Share this IP with friends: (waiting...)"
+	_server_info_label.visible = false
+	$Panel/VBoxContainer.add_child(_server_info_label)
+
+
+func _setup_backend_info_display():
+	# Display current backend API being used
+	var backend_url = UserConfig.get_backend_api_url()
+	var backend_label = Label.new()
+	backend_label.add_theme_color_override("font_color", Color.CYAN)
+	backend_label.text = "Backend: %s" % backend_url
+	$Panel/VBoxContainer.add_child(backend_label)
+
 
 func _on_characters_received(chars):
 	characters = chars
@@ -34,6 +57,7 @@ func _on_characters_received(chars):
 		var text = "%s (Lvl %d)" % [char_data.name, char_data.level]
 		character_list.add_item(text)
 
+
 func _get_selected_character_data() -> Dictionary:
 	var selected = character_list.get_selected_items()
 	if selected.size() == 0:
@@ -41,6 +65,7 @@ func _get_selected_character_data() -> Dictionary:
 	
 	var index = selected[0]
 	return characters[index]
+
 
 func _on_host_pressed():
 	var char_data = _get_selected_character_data()
@@ -59,8 +84,48 @@ func _on_host_pressed():
 	status_label.text = "Starting server..."
 	_set_buttons_enabled(false)
 	
+	# Show server info (will display once we determine the IP)
+	_display_server_info()
+	
 	# Host the game
 	MultiplayerManager.host_game()
+
+
+func _display_server_info():
+	# Get local IP (show LAN address first)
+	var local_ip = IP.get_local_addresses()[0] if IP.get_local_addresses().size() > 0 else "127.0.0.1"
+	var game_port = UserConfig.game_server_port
+	
+	_server_info_label.visible = true
+	_server_info_label.text = "🎮 Server Info:\n  LAN: %s:%d\n  ⏳ Finding public IP..." % [local_ip, game_port]
+	
+	# Try to get external IP (non-blocking, best effort)
+	_fetch_external_ip.call_deferred()
+
+
+func _fetch_external_ip():
+	var http = HTTPRequest.new()
+	add_child(http)
+	http.request_completed.connect(_on_external_ip_received.bind(http))
+	
+	# Use a public IP detection service
+	var error = http.request("https://api.ipify.org?format=json")
+	if error != OK:
+		http.queue_free()
+
+
+func _on_external_ip_received(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray, http: HTTPRequest):
+	if response_code == 200:
+		var response = JSON.parse_string(body.get_string_from_utf8())
+		if response != null and response.has("ip"):
+			var external_ip = response["ip"]
+			var game_port = UserConfig.game_server_port
+			var local_ip = IP.get_local_addresses()[0] if IP.get_local_addresses().size() > 0 else "127.0.0.1"
+			
+			_server_info_label.text = "🎮 Server Info:\n  LAN: %s:%d\n  Internet: %s:%d\n  (Note: Port forwarding may be needed)" % [local_ip, game_port, external_ip, game_port]
+	
+	http.queue_free()
+
 	
 func _on_join_pressed():
 	var char_data = _get_selected_character_data()

@@ -97,18 +97,7 @@ func _ready() -> void:
 		debug_component.set_health_component(health_component)
 		debug_component.set_player(self)
 
-	# Setup Auto-Save Timer for local player
-	if multiplayer.get_unique_id() == player_id:
-		var auto_save_timer = Timer.new()
-		auto_save_timer.name = "AutoSaveTimer"
-		auto_save_timer.wait_time = 60.0 # Auto-save every 60 seconds
-		auto_save_timer.autostart = true
-		auto_save_timer.one_shot = false
-		add_child(auto_save_timer)
-		auto_save_timer.timeout.connect(func():
-			print("Auto-saving player data...")
-			_data_changed("all")
-		)
+	# Auto-save is now handled by SaveManager (server-side, for all players).
 
 	state_machine.init(self, animated_sprite)
 	
@@ -399,7 +388,7 @@ func change_to_map(new_map_id: String, spawn_point_name: String = ""):
 	if not multiplayer.is_server():
 		# Client requests map change from server
 		# Send our local data to ensure the server has the absolute latest state before the swap
-		var data_string: String = JSON.stringify(_get_save_data())
+		var data_string: String = JSON.stringify(get_save_data())
 		request_map_change_rpc.rpc_id(1, new_map_id, spawn_point_name, data_string)
 	else:
 		# Server can change directly, but MUST save first
@@ -410,7 +399,13 @@ func change_to_map(new_map_id: String, spawn_point_name: String = ""):
 func set_current_party_id(id: int):
 	_current_party_id = id
 
+## DEPRECATED wrapper — kept so player_manager.gd (and any other caller using
+## the old underscore-prefixed name) continues to work until it is updated.
 func _get_save_data(update_type: String = "all") -> Dictionary:
+	return get_save_data(update_type)
+
+## Public so SaveManager can call it when the debounce timer fires.
+func get_save_data(update_type: String = "all") -> Dictionary:
 	var data: Dictionary = {
 		'username': username
 	}
@@ -529,15 +524,13 @@ func get_max_health() -> int:
 func _data_changed(update_type: String = "all") -> void:
 	if _is_being_cleaned_up or _is_loading_data:
 		return
-	var data_string: String = JSON.stringify(_get_save_data(update_type))
-
-	
-	if multiplayer.is_server():
-		# If we are the server, save directly to avoid RPC overhead/delay
-		save_on_server.rpc_id(SERVER_ID, data_string)
-
-	else:
-		save_on_server.rpc_id(SERVER_ID, data_string)
+	if not multiplayer.is_server():
+		# Client: tell the server about the change via lightweight RPC
+		_notify_server_data_changed.rpc_id(SERVER_ID, update_type)
+		return
+	# Server: queue a debounced save through SaveManager
+	if username and SaveManager:
+		SaveManager.queue_save(username, update_type, self)
 
 
 func _on_peer_connected(peer_id: int) -> void:
@@ -573,12 +566,25 @@ func respawn() -> void:
 		health_component.respawn()
 
 
-# [CLIENT -> SERVER] Requests that the server save the provided player data.
+# [CLIENT -> SERVER] Lightweight RPC so clients can notify the server that
+# data changed without serialising the full payload. The server collects the
+# actual data lazily through SaveManager when the debounce window closes.
+@rpc("any_peer", "call_remote", "reliable")
+func _notify_server_data_changed(update_type: String) -> void:
+	if not multiplayer.is_server():
+		return
+	if username and SaveManager:
+		SaveManager.queue_save(username, update_type, self)
+
+
+# [CLIENT -> SERVER] DEPRECATED — kept for backwards compatibility.
+# New code should use _notify_server_data_changed instead.
 @rpc("any_peer", "call_local", "reliable")
 func save_on_server(data_string: String) -> void:
 	if not multiplayer.is_server():
 		return
 
+	# Legacy path: parse the data and forward to PlayerManager directly.
 	var parsed_data: Dictionary = JSON.parse_string(data_string)
 	if parsed_data.is_empty():
 		push_error("Failed to parse JSON for saving.")
