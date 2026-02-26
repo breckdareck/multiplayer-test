@@ -23,7 +23,7 @@ var settings_expanded: bool = false
 # Presets for quick switching
 var api_presets = {
 	"Local": "http://127.0.0.1:5000/api",
-	"Cloud": "",  # User will fill this in
+	"Cloud": "http://72.84.198.233:5000/api",
 }
 
 func _ready():
