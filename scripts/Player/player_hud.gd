@@ -22,9 +22,7 @@ var chat_window_scene = preload("res://scenes/UI/ChatWindow.tscn")
 @onready var moveable_windows_container: Node = %MoveableWindows
 
 func _ready() -> void:
-	if owner is MultiplayerPlayer:
-		player = owner
-	elif owner is MultiplayerPlayerV2:
+	if owner is MultiplayerPlayerV2:
 		player = owner
 		
 	if player.player_id != multiplayer.get_unique_id():

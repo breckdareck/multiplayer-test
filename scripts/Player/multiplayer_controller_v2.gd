@@ -8,13 +8,9 @@ const SERVER_ID: int = 1
 @export var player_id := 1:
 	set(id):
 		player_id = id
-		# Safe access to InputSynchronizer
 		var input_sync = get_node_or_null("%InputSynchronizer")
 		if input_sync:
 			input_sync.set_multiplayer_authority(id)
-		# Ensure the owning client has authority over their inventory component so it can receive authority-only RPCs
-		#if is_instance_valid(inventory_component):
-			#inventory_component.set_multiplayer_authority(id)
 
 @export_category("Collision")
 @export var platform_layer: int = 3
@@ -43,14 +39,16 @@ const SERVER_ID: int = 1
 var username: String = ""
 var _current_party_id: int = -1
 
-var direction: int = 0  # The current input direction from the synchronizer
-var facing_direction: int = 1  # The last non-zero direction, for facing
-var input_down: bool = false  # The current down input from the synchronizer
+var direction: int = 0 # The current input direction from the synchronizer
+var facing_direction: int = 1 # The last non-zero direction, for facing
+var input_down: bool = false # The current down input from the synchronizer
 
 var do_attack: bool = false
 var do_jump: bool = false
 var do_drop: bool = false
 var do_pickup: bool = false
+var do_portal_interact: bool = false
+var current_portal: Portal = null
 
 var _sprite_base_offset_x: float
 var _is_being_cleaned_up: bool = false
@@ -65,8 +63,8 @@ var _is_loading_data: bool = false
 @onready var projectile_spawn_location: Marker2D = $ProjectileSpawnLocation
 const GAME_MENU_SCENE = preload("res://scenes/UI/game_menu.tscn")
 
-@onready var menu_container: MainMenu = get_tree().current_scene.get_node("%MenuContainer")
 @onready var game_menu: GameMenu
+@onready var input_synchronizer: MultiplayerSynchronizer = $InputSynchronizer
 
 
 #=============================================================================
@@ -78,15 +76,17 @@ func _ready() -> void:
 		ChatManager.register_local_player(self)
 		# Request the sprite states of all other players from the server.
 		AudioManager.play_song("res://assets/music/gameplay.mp3")
-		stats_window.update_stats_window()	
+		stats_window.update_stats_window()
 		request_all_sprite_states.rpc_id(SERVER_ID)
 
 	# Server-specific setup
 	if multiplayer.is_server():
-		_setup_server_signals()
 		# Handle sprite change on initial spawn
 		await get_tree().process_frame
 		_handle_sprite_change_on_server()
+		
+	# Setup signals for both client and server (for data saving)
+	_setup_signals()
 
 	# Client-specific setup
 	if not OS.has_feature("dedicated_server"):
@@ -97,7 +97,13 @@ func _ready() -> void:
 		debug_component.set_health_component(health_component)
 		debug_component.set_player(self)
 
+	# Auto-save is now handled by SaveManager (server-side, for all players).
+
 	state_machine.init(self, animated_sprite)
+	
+	# Setup visibility filter if multiplayer
+	if multiplayer.has_multiplayer_peer():
+		call_deferred("_setup_visibility_filter")
 
 
 func _process(delta: float) -> void:
@@ -119,6 +125,19 @@ func _physics_process(delta: float) -> void:
 
 	# Visual updates run on all peers (clients and server)
 	_update_sprite_facing_direction()
+
+	# Process portal interaction
+	if do_portal_interact:
+		do_portal_interact = false # Reset the flag immediately
+		if is_instance_valid(current_portal):
+			current_portal.interact(player_id)
+
+
+func set_current_portal(portal_node: Portal):
+	current_portal = portal_node
+
+func clear_current_portal():
+	current_portal = null
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -148,7 +167,7 @@ func _exit_tree():
 # PUBLIC METHODS
 #=============================================================================
 
-func apply_knockback(knockback: Vector2) -> void: 
+func apply_knockback(knockback: Vector2) -> void:
 	if _is_being_cleaned_up:
 		return
 
@@ -178,7 +197,7 @@ func can_drop_through_platform() -> bool:
 			var collider_layer_mask: int = PhysicsServer2D.body_get_collision_layer(collider_rid)
 			if collider_layer_mask & (1 << (platform_layer - 1)):
 				return true
-			break  # We found the floor, no need to check other collisions.
+			break # We found the floor, no need to check other collisions.
 	return false
 
 
@@ -210,38 +229,47 @@ func cleanup_before_removal():
 	if has_node("RespawnTimer"):
 		$RespawnTimer.stop()
 
-	# Clear references that might cause issues
-	menu_container = null
 	
-
 #=============================================================================
 # PRIVATE HELPER METHODS
 #=============================================================================
 
-func _setup_server_signals() -> void:
-	if not multiplayer.is_server():
-		return
-
+func _setup_signals() -> void:
 	# Connect component signals to handle game logic and data saving.
+	# These should run on both Client (to trigger RPC save) and Server (to save directly).
 	if level_component:
-		level_component.experience_changed.connect(func(_c, _e): _data_changed())
-		level_component.leveled_up.connect(func(_l): _data_changed())
-		level_component.leveled_up.connect(_handle_sprite_change_on_server.unbind(1))
+		level_component.experience_changed.connect(func(_c, _e): _data_changed("stats"))
+		level_component.leveled_up.connect(func(_l): _data_changed("all")) # Level up might affect everything (points, stats)
+		if multiplayer.is_server():
+			level_component.leveled_up.connect(_handle_sprite_change_on_server.unbind(1))
 	
 	if health_component:
-		health_component.health_changed.connect(func(_c, _m): _data_changed())
+		health_component.health_changed.connect(func(_c, _m): _data_changed("stats"))
 		
 	if ability_component:
-		ability_component.ability_leveled_up.connect(func(_a, _l): _data_changed())
+		ability_component.ability_leveled_up.connect(func(_a, _l): _data_changed("abilities"))
+		ability_component.ability_points_changed.connect(func(_p): _data_changed("abilities"))
+		ability_component.ability_learned.connect(func(_a): _data_changed("abilities"))
 
 	if inventory_component:
-		inventory_component.inventory_saved.connect(func(_inv): _data_changed())
+		inventory_component.inventory_saved.connect(func(_inv): _data_changed("inventory"))
 		
-	if is_instance_valid(drop_timer):
-		drop_timer.timeout.connect(_on_drop_timer_timeout)
+	if buff_component:
+		buff_component.buff_applied.connect(func(_b, _d): _data_changed("buffs"))
+		buff_component.buff_removed.connect(func(_b): _data_changed("buffs"))
+		buff_component.buff_refreshed.connect(func(_b, _d): _data_changed("buffs"))
 
-	if is_instance_valid(respawn_timer):
-		respawn_timer.timeout.connect(respawn)
+	if equipment_component:
+		equipment_component.on_equipment_changed.connect(func(): _data_changed("equipment"))
+
+		
+	# Server-only logic
+	if multiplayer.is_server():
+		if is_instance_valid(drop_timer):
+			drop_timer.timeout.connect(_on_drop_timer_timeout)
+
+		if is_instance_valid(respawn_timer):
+			respawn_timer.timeout.connect(respawn)
 
 
 func _setup_client_visuals() -> void:
@@ -267,6 +295,44 @@ func _setup_client_visuals() -> void:
 
 	# Store sprite offset for correct flipping.
 	_sprite_base_offset_x = abs(animated_sprite.offset.x)
+
+
+func _setup_visibility_filter():
+	"""Setup visibility filter for this player's synchronizer"""
+	if not is_instance_valid(input_synchronizer):
+		push_warning("Player %d: InputSynchronizer not found for visibility filter" % player_id)
+		return
+	
+	# Add visibility filter to control which peers can see this player
+	input_synchronizer.add_visibility_filter(_check_visibility_by_map)
+	print("Player %d: Added visibility filter to InputSynchronizer" % player_id)
+
+
+func _check_visibility_by_map(peer_id: int) -> bool:
+	"""Visibility filter callback - only visible to players on same map"""
+	if not multiplayer.is_server():
+		return true # Clients don't filter, server handles it
+	
+	# Safety check: if we're being cleaned up, allow visibility
+	if _is_being_cleaned_up:
+		return false
+	
+	# Get this player's map - handle case where player might not be tracked yet
+	var my_map = MapManager.get_player_map(player_id)
+	if my_map.is_empty():
+		return false # Not on any map yet
+	
+	# Server always sees everyone
+	if peer_id == 1:
+		return true
+	
+	# Get other player's map - handle case where they might not exist
+	var their_map = MapManager.get_player_map(peer_id)
+	if their_map.is_empty():
+		return false # They're not on any map yet or have disconnected
+	
+	# Only visible if on same map
+	return my_map == their_map
 
 
 func _update_input_from_synchronizer() -> void:
@@ -318,31 +384,61 @@ func _handle_sprite_change_on_server() -> void:
 	if sprite_frames:
 		change_sprite_rpc.rpc(class_component.get_class_name(), current_level)
 
+func change_to_map(new_map_id: String, spawn_point_name: String = ""):
+	if not multiplayer.is_server():
+		# Client requests map change from server
+		# Send our local data to ensure the server has the absolute latest state before the swap
+		var data_string: String = JSON.stringify(get_save_data())
+		request_map_change_rpc.rpc_id(1, new_map_id, spawn_point_name, data_string)
+	else:
+		# Server can change directly, but MUST save first
+		_data_changed()
+		MapManager.request_map_change(player_id, new_map_id, spawn_point_name)
+
 
 func set_current_party_id(id: int):
 	_current_party_id = id
 
-func _get_save_data() -> Dictionary:
+## DEPRECATED wrapper — kept so player_manager.gd (and any other caller using
+## the old underscore-prefixed name) continues to work until it is updated.
+func _get_save_data(update_type: String = "all") -> Dictionary:
+	return get_save_data(update_type)
+
+## Public so SaveManager can call it when the debounce timer fires.
+func get_save_data(update_type: String = "all") -> Dictionary:
 	var data: Dictionary = {
-	   'username': username,
-	   'max_health': health_component.max_health if is_instance_valid(health_component) else 100,
-	   'current_health': health_component.current_health if is_instance_valid(health_component) else 100,
-	   'level': level_component.level if is_instance_valid(level_component) else 1,
-	   'experience': level_component.experience if is_instance_valid(level_component) else 0,
-	   'party_id': _current_party_id # Save party_id from local variable
+		'username': username
 	}
 	
-	if is_instance_valid(player_inventory):
-		data['inventory'] = player_inventory.save_player_inventory()
+	# Always include basic stats if "all" or "stats"
+	if update_type == "all" or update_type == "stats":
+		data.merge(_get_stats_data())
 	
-	# Save ability data
-	if is_instance_valid(ability_component):
-		data['abilities'] = ability_component.save_abilities()
+	if update_type == "all" or update_type == "inventory":
+		if is_instance_valid(player_inventory):
+			data['inventory'] = player_inventory.save_player_inventory()
+	
+	if update_type == "all" or update_type == "abilities":
+		if is_instance_valid(ability_component):
+			data['abilities'] = ability_component.save_abilities()
 		
-	if is_instance_valid(buff_component):
-		data['buffs'] = buff_component.save_buffs()
+	if update_type == "all" or update_type == "buffs":
+		if is_instance_valid(buff_component):
+			data['buffs'] = buff_component.save_buffs()
 		
 	return data
+
+
+func _get_stats_data() -> Dictionary:
+	return {
+		'max_health': health_component.max_health if is_instance_valid(health_component) else 100,
+		'current_health': health_component.current_health if is_instance_valid(health_component) else 100,
+		'level': level_component.level if is_instance_valid(level_component) else 1,
+		'experience': level_component.experience if is_instance_valid(level_component) else 0,
+		'party_id': _current_party_id,
+		'last_map': MapManager.get_player_map(player_id) if multiplayer.is_server() else MapManager.current_map_id,
+		'character_type': class_component.current_class if is_instance_valid(class_component) else 0
+	}
 
 
 func _load_data(data: Dictionary) -> void:
@@ -358,6 +454,7 @@ func _load_data(data: Dictionary) -> void:
 		stats_component.set_block_signals(true)
 		
 	if is_instance_valid(ability_component):
+		ability_component.set_loading_mode(true)
 		ability_component.disconnect_level_signals()
 
 	if is_instance_valid(level_component):
@@ -371,7 +468,7 @@ func _load_data(data: Dictionary) -> void:
 			inventory_component.load_inventory(inventory_data)
 			
 	if is_instance_valid(health_component):
-		health_component.set_block_signals(true)
+		health_component.set_loading_mode(true)
 		health_component.max_health = data.get("max_health", health_component.max_health)
 		health_component.current_health = data.get("current_health", health_component.max_health)
 
@@ -391,9 +488,10 @@ func _load_data(data: Dictionary) -> void:
 	
 	if is_instance_valid(ability_component):
 		ability_component.reconnect_level_signals()
-		
+		ability_component.set_loading_mode(false)
+
 	if is_instance_valid(health_component):
-		health_component.set_block_signals(false)
+		health_component.set_loading_mode(false)
 		health_component.health_changed.emit(health_component.current_health, health_component.max_health)
 		
 	if is_instance_valid(buff_component):
@@ -425,11 +523,16 @@ func get_current_health() -> int:
 func get_max_health() -> int:
 	return health_component.max_health if is_instance_valid(health_component) else 0
 
-func _data_changed() -> void:
+func _data_changed(update_type: String = "all") -> void:
 	if _is_being_cleaned_up or _is_loading_data:
 		return
-	var data_string: String = JSON.stringify(_get_save_data())
-	save_on_server.rpc_id(SERVER_ID, data_string)
+	if not multiplayer.is_server():
+		# Client: tell the server about the change via lightweight RPC
+		_notify_server_data_changed.rpc_id(SERVER_ID, update_type)
+		return
+	# Server: queue a debounced save through SaveManager
+	if username and SaveManager:
+		SaveManager.queue_save(username, update_type, self)
 
 
 func _on_peer_connected(peer_id: int) -> void:
@@ -465,12 +568,25 @@ func respawn() -> void:
 		health_component.respawn()
 
 
-# [CLIENT -> SERVER] Requests that the server save the provided player data.
+# [CLIENT -> SERVER] Lightweight RPC so clients can notify the server that
+# data changed without serialising the full payload. The server collects the
+# actual data lazily through SaveManager when the debounce window closes.
+@rpc("any_peer", "call_remote", "reliable")
+func _notify_server_data_changed(update_type: String) -> void:
+	if not multiplayer.is_server():
+		return
+	if username and SaveManager:
+		SaveManager.queue_save(username, update_type, self)
+
+
+# [CLIENT -> SERVER] DEPRECATED — kept for backwards compatibility.
+# New code should use _notify_server_data_changed instead.
 @rpc("any_peer", "call_local", "reliable")
 func save_on_server(data_string: String) -> void:
 	if not multiplayer.is_server():
 		return
 
+	# Legacy path: parse the data and forward to PlayerManager directly.
 	var parsed_data: Dictionary = JSON.parse_string(data_string)
 	if parsed_data.is_empty():
 		push_error("Failed to parse JSON for saving.")
@@ -479,12 +595,9 @@ func save_on_server(data_string: String) -> void:
 	var user_name: String = parsed_data.get("username", "")
 	if user_name.is_empty(): return
 
-	print("Server: Saving data for %s" % user_name)
-	var file_path: String = "player_%s.json" % user_name
-	var file := FileAccess.open(file_path, FileAccess.WRITE)
-	if file:
-		file.store_string(data_string)
-		file.close()
+	# Delegate saving through SaveManager (debounced, queued)
+	if SaveManager:
+		SaveManager.queue_save(user_name, "all", self)
 
 
 # [CLIENT -> SERVER] Asks the server to initiate a sprite change for this player.
@@ -524,11 +637,27 @@ func change_class_request(new_class: int) -> void:
 func request_all_sprite_states() -> void:
 	if not multiplayer.is_server():
 		return
-		
+	
 	var requester_id: int = multiplayer.get_remote_sender_id()
-	for node in get_tree().root.get_node("/root/MainMenu/Level/Game/Players").get_children():
-		if node is MultiplayerPlayerV2 and node != self:
-			node._on_peer_connected(requester_id)
+	print("Player %d requesting all sprite states" % requester_id)
+	
+	# Get the map this player is on
+	var requester_map = MapManager.get_player_map(requester_id)
+	if requester_map.is_empty():
+		push_warning("Player %d not assigned to a map yet" % requester_id)
+		return
+	
+	# Only sync sprites of players on the SAME map
+	var players_on_map = MapManager.get_players_on_map(requester_map)
+	
+	for other_player_id in players_on_map:
+		if other_player_id == requester_id:
+			continue # Skip self
+		
+		var other_player = PlayerManager.get_player_node(other_player_id)
+		if other_player and other_player is MultiplayerPlayerV2:
+			print("  Syncing sprite for player %d to requester %d" % [other_player_id, requester_id])
+			other_player._on_peer_connected(requester_id)
 
 
 # [ALL PEERS] Sets the username for this player instance across all clients.
@@ -537,3 +666,31 @@ func set_username(uname: String) -> void:
 	username = uname
 	if is_instance_valid(player_name_label):
 		player_name_label.text = username
+		
+		
+@rpc("any_peer", "call_local", "reliable")
+func request_map_change_rpc(new_map_id: String, spawn_point_name: String = "", client_data_string: String = ""):
+	"""Server receives map change request"""
+	if not multiplayer.is_server():
+		return
+	
+	var requester_id = multiplayer.get_remote_sender_id()
+	print("Player %d requesting map change to '%s' at spawn '%s'" % [requester_id, new_map_id, spawn_point_name])
+	
+	# Save player data before moving
+	if not client_data_string.is_empty():
+		print("Server: Saving client-provided data for player %d before map change." % requester_id)
+		save_on_server(client_data_string)
+	else:
+		print("Server: No client data provided, saving server-side state for player %d." % requester_id)
+		_data_changed()
+	
+	# Change map through MapManager
+	MapManager.request_map_change(requester_id, new_map_id, spawn_point_name)
+
+
+@rpc("authority", "call_local", "reliable")
+func set_loading_state_rpc(is_loading: bool) -> void:
+	"""Allow server to control loading state on client to prevent save spam during sync"""
+	_is_loading_data = is_loading
+	print("Client: Loading state set to ", is_loading)

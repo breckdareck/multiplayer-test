@@ -43,23 +43,23 @@ func _setup_signals():
 # === PUBLIC API ===
 func host_game():
 	print("Starting listen server...")
-	_setup_menu_container()
 	host_mode_enabled = true
 	
 	if ServerManager.start_listen_server(CONFIG.DEFAULT_PORT):
 		PlayerManager.add_host_player()
-		_update_ui_for_host()
+		print("Host server started successfully")
 
-func join_game():
+func join_game(ip: String = ""):
 	print("Joining game as client...")
-	_setup_menu_container()
 	
-	var ip = _get_target_ip()
-	if not NetworkUtils.is_valid_ip(ip):
-		_show_connection_error("Invalid IP Address")
+	# Use provided IP or fall back to stored IP in ClientManager
+	var target_ip = ip if not ip.is_empty() else CONFIG.DEFAULT_IP
+	
+	if not NetworkUtils.is_valid_ip(target_ip):
+		print("Invalid IP Address: " + target_ip)
 		return
 	
-	ClientManager.connect_to_server(ip, CONFIG.DEFAULT_PORT)
+	ClientManager.connect_to_server(target_ip, CONFIG.DEFAULT_PORT)
 
 func switch_channel(new_port: int):
 	await ChannelManager.switch_channel(new_port)
@@ -74,25 +74,15 @@ func reset_data():
 		multiplayer.multiplayer_peer.close()
 		multiplayer.multiplayer_peer = null
 
-func change_level(scene: PackedScene):
-	var level = get_tree().current_scene.get_node("Level")
-	for child in level.get_children():
-		level.remove_child(child)
-		child.queue_free()
-	level.add_child(scene.instantiate())
-
 # === EVENT HANDLERS ===
 func _on_server_started():
 	server_has_started.emit()
 	
-	# Connect multiplayer signals for both dedicated and listen servers
-	# Use safe connection to avoid duplicate connections
+	# Connect multiplayer signals
 	if not multiplayer.peer_connected.is_connected(PlayerManager.add_player):
 		multiplayer.peer_connected.connect(PlayerManager.add_player)
 	if not multiplayer.peer_disconnected.is_connected(PlayerManager.remove_player):
 		multiplayer.peer_disconnected.connect(PlayerManager.remove_player)
-	
-	change_level.call_deferred(load("res://scenes/Levels/game.tscn"))
 
 func _on_client_connected():
 	print("Successfully connected to server!")
@@ -100,7 +90,6 @@ func _on_client_connected():
 
 func _on_client_failed():
 	print("Failed to connect to server")
-	_show_connection_error("Connection Failed")
 
 func _on_server_disconnected():
 	if ChannelManager.is_switching():
@@ -108,40 +97,38 @@ func _on_server_disconnected():
 	
 	print("Disconnected from server")
 	menu_container._connection_status_label.text = "Disconnected from server."
-	get_tree().change_scene_to_file("res://scenes/Levels/main_menu.tscn")
+	get_tree().change_scene_to_file("res://scenes/UI/LoginScreen.tscn")
+	
 
 # === UTILITY METHODS ===
+# These methods are deprecated - kept for backward compatibility with main_menu
 func _setup_menu_container():
-	menu_container = get_tree().get_current_scene().get_node("%MenuContainer")
-	if menu_container:
-		menu_container.connection_status_label.text = ""
-
-func _get_target_ip() -> String:
-	if not menu_container:
-		return CONFIG.DEFAULT_IP
-	var input_ip = menu_container.ip_address_input.text
-	return input_ip if not input_ip.is_empty() else CONFIG.DEFAULT_IP
-
-func _show_connection_error(message: String):
-	print("Connection error: " + message)
-	if menu_container:
-		menu_container._connection_status_label.text = "Error: " + message
-		menu_container._join_button.disabled = false
-		menu_container._host_button.disabled = false
+	# Try to get menu_container if it exists (for backward compatibility)
+	var scene = get_tree().get_current_scene()
+	if scene.has_node("%MenuContainer"):
+		menu_container = scene.get_node("%MenuContainer")
+		if menu_container and menu_container.has_method("get_node") and menu_container.has_node("connection_status_label"):
+			menu_container.connection_status_label.text = ""
 
 func _update_ui_for_host():
-	if not menu_container:
+	if not menu_container or not is_instance_valid(menu_container):
+		print("MultiplayerManager: No menu container, skipping UI update")
 		return
 	menu_container.hide()
-	menu_container.setup_PID_label(true, multiplayer.get_unique_id())
-	menu_container.connection_panel.show()
+	if menu_container.has_method("setup_PID_label"):
+		menu_container.setup_PID_label(true, multiplayer.get_unique_id())
+	if menu_container.has_node("connection_panel"):
+		menu_container.connection_panel.show()
 
 func _update_ui_for_client():
-	if not menu_container:
+	if not menu_container or not is_instance_valid(menu_container):
+		print("MultiplayerManager: No menu container, skipping UI update")
 		return
 	menu_container.hide()
-	menu_container.setup_PID_label(false, multiplayer.get_unique_id())
-	menu_container.connection_panel.show()
+	if menu_container.has_method("setup_PID_label"):
+		menu_container.setup_PID_label(false, multiplayer.get_unique_id())
+	if menu_container.has_node("connection_panel"):
+		menu_container.connection_panel.show()
 
 # === LEGACY COMPATIBILITY ===
 func get_public_IP_address() -> String:

@@ -50,12 +50,13 @@ var _level_component: LevelingComponent
 var _mana_component: ManaComponent
 
 # State variables
-var _cooldowns: Dictionary = {}  # { ability_id: time_remaining }
+var _cooldowns: Dictionary = {} # { ability_id: time_remaining }
 var _ability_levels: Dictionary = {} # { ability_id: current_level }
 var _available_ability_points: int = 0
+var _loading_mode: bool = false
 
 # Track proc cooldowns per passive ability
-var _passive_proc_cooldowns: Dictionary = {}  # { "ability_id_event_type": last_proc_time }
+var _passive_proc_cooldowns: Dictionary = {} # { "ability_id_event_type": last_proc_time }
 
 # Track active passive abilities for easy access
 var _active_passive_abilities: Array[AbilityData] = []
@@ -81,14 +82,27 @@ func _ready() -> void:
 		set_process(false)
 		return
 
-	# Find or create the projectiles container
-	var game_node = get_node_or_null("/root/MainMenu/Level/Game")
-	if is_instance_valid(game_node):
-		_projectiles_container = game_node.get_node_or_null("Projectiles")
+	# Connect to ClassComponent to handle class changes
+	if _class_component:
+		_class_component.class_changed.connect(_on_class_changed)
+
+	# Find or create the projectiles container inside the current visible map.
+	var map_node = MapManager.get_current_visible_map()
+	if map_node:
+		_projectiles_container = map_node.get_node_or_null("Projectiles")
 		if not is_instance_valid(_projectiles_container):
 			_projectiles_container = Node.new()
 			_projectiles_container.name = "Projectiles"
-			game_node.add_child(_projectiles_container)
+			map_node.add_child(_projectiles_container)
+	else:
+		# Fallback to legacy path if available
+		var legacy = get_node_or_null("/root/MainMenu/Level/Game")
+		if legacy:
+			_projectiles_container = legacy.get_node_or_null("Projectiles")
+			if not is_instance_valid(_projectiles_container):
+				_projectiles_container = Node.new()
+				_projectiles_container.name = "Projectiles"
+				legacy.add_child(_projectiles_container)
 
 	# Connect to the LevelingComponent to grant ability points on level up
 	if _level_component:
@@ -163,7 +177,7 @@ func learn_ability(ability_id: String, initial_level: int = 0) -> bool:
 func get_passive_effect_modifiers() -> Dictionary:
 	var modifiers = {}
 	
-	_foreach_learned_passive(func(ability: AbilityData, level_stats: AbilityLevelData, _ability_id: String):
+	_foreach_learned_passive(func(_ability: AbilityData, level_stats: AbilityLevelData, _ability_id: String):
 		# Use stat bonuses from the level data
 		for stat_name in level_stats.stat_bonuses:
 			if not modifiers.has(stat_name):
@@ -192,7 +206,7 @@ func try_trigger_procs(event_type: String, target: Node = null, context: Diction
 	if not multiplayer.is_server():
 		return
 	
-	_foreach_learned_passive(func(ability: AbilityData, level_stats: AbilityLevelData, ability_id: String):
+	_foreach_learned_passive(func(_ability: AbilityData, level_stats: AbilityLevelData, ability_id: String):
 		var proc_key = ability_id + "_" + event_type
 		var last_proc_time = _passive_proc_cooldowns.get(proc_key, 0.0)
 		
@@ -236,11 +250,19 @@ func _foreach_learned_passive(callback: Callable) -> void:
 ## Generic modifier calculator - reduces code duplication
 func _get_ability_modifier(ability_id: String, modifier_getter: Callable) -> float:
 	var total_modifier: float = 1.0
-	
-	_foreach_learned_passive(func(_ability: AbilityData, level_stats: AbilityLevelData, _ability_id: String):
+	# Iterate synchronously - avoid capturing outer-scope reassignments inside lambdas
+	for passive_id in _ability_levels:
+		var lvl = _ability_levels[passive_id]
+		if lvl <= 0:
+			continue
+		var ability = ResourceManager.get_ability_data(passive_id)
+		if not ability or ability.ability_type != Constants.AbilityType.PASSIVE:
+			continue
+		var level_stats = ability.get_level_stats(lvl)
+		if not level_stats:
+			continue
 		total_modifier *= modifier_getter.call(level_stats, ability_id)
-	)
-	
+
 	return total_modifier
 
 
@@ -514,19 +536,95 @@ func spawn_projectile(ability: AbilityData, level_stats: AbilityLevelData, targe
 	# The projectile will now store the ability data and call back to the CombatComponent to process the hit.
 	projectile_instance.initialize(owner, target, ability, level_stats, active_behavior.projectile_speed, initial_direction)
 	
+	# Find the correct container based on the player's current map
+	# Player structure: Map -> Players -> Player -> AbilityComponent
+	# So owner (Player) -> parent (Players) -> parent (Map)
+	var current_map = owner.get_parent().get_parent()
+	var target_container = _projectiles_container # Default fallback
+	
+	if current_map and current_map.is_in_group("map_base"):
+		var map_container = current_map.get_node_or_null("Projectiles")
+		if map_container:
+			target_container = map_container
+		else:
+			# Create if missing on this map
+			var new_container = Node.new()
+			new_container.name = "Projectiles"
+			current_map.add_child(new_container)
+			target_container = new_container
+			print("Created missing Projectiles container on map: %s" % current_map.name)
+	
+	if not is_instance_valid(target_container):
+		printerr("Could not find valid Projectiles container for ability: %s" % ability.ability_name)
+		return
+
+	# Add projectile to scene tree first, then set global position
+	target_container.add_child(projectile_instance, true)
+	
+	var spawn_pos = owner.global_position
 	if is_instance_valid(owner.projectile_spawn_location):
-		projectile_instance.global_position = owner.projectile_spawn_location.global_position
+		spawn_pos = owner.projectile_spawn_location.global_position
 	else:
 		printerr("Projectile spawn location not set on player controller. Spawning at player position.")
-		projectile_instance.global_position = owner.global_position
-	_projectiles_container.add_child(projectile_instance, true)
+	
+	projectile_instance.global_position = spawn_pos
+	
+	# Manual RPC for clients on the same map
+	var target_path = NodePath("")
+	if is_instance_valid(target):
+		target_path = target.get_path()
+		
+	if current_map and current_map.is_in_group("map_base"):
+		var map_name = current_map.name.replace("Map_", "")
+		var players_on_map = MapManager.get_players_on_map(map_name)
+		
+		for peer_id in players_on_map:
+			if peer_id != 1: # Server already has it
+				spawn_projectile_client.rpc_id(peer_id, ability.ability_id, level_stats.level, spawn_pos, initial_direction, target_path)
+	else:
+		# Fallback
+		spawn_projectile_client.rpc(ability.ability_id, level_stats.level, spawn_pos, initial_direction, target_path)
+
+
+@rpc("authority", "call_local", "reliable")
+func spawn_projectile_client(ability_id: String, level: int, start_pos: Vector2, direction: Vector2, target_path: NodePath):
+	if multiplayer.is_server(): return # Server already spawned it
+	
+	var ability = ResourceManager.get_ability_data(ability_id)
+	if not ability or not ability.active_behavior or not ability.active_behavior.projectile_scene:
+		return
+		
+	var level_stats = ability.get_level_stats(level)
+	if not level_stats: return
+	
+	var target = get_node_or_null(target_path)
+	
+	var projectile_instance = ability.active_behavior.projectile_scene.instantiate()
+	
+	# Initialize on client
+	projectile_instance.initialize(owner, target, ability, level_stats, ability.active_behavior.projectile_speed, direction)
+	
+	# Find container on client
+	var map_node = MapManager.get_current_visible_map()
+	var target_container = null
+	
+	if map_node:
+		target_container = map_node.get_node_or_null("Projectiles")
+		if not target_container:
+			target_container = Node.new()
+			target_container.name = "Projectiles"
+			map_node.add_child(target_container)
+	
+	if target_container:
+		target_container.add_child(projectile_instance)
+		projectile_instance.global_position = start_pos
 
 
 ## [Server->Client] Sends all ability data to a newly connected client.
 func sync_all_abilities_to_client(peer_id: int) -> void:
 	if not multiplayer.is_server(): return
 	
-	print("Syncing all ability data to peer %d" % peer_id) 
+	print("Syncing all ability data to peer %d" % peer_id)
 	sync_ability_points.rpc_id(peer_id, _available_ability_points)
 	for ability_id in _ability_levels:
 		sync_ability_learned.rpc_id(peer_id, ability_id, _ability_levels[ability_id])
@@ -571,7 +669,7 @@ func ability_used_client(ability_id: String, cooldown_time: float) -> void:
 		if level_stats:
 			_trigger_ability_state_change(ability, level_stats)
 	
-	print("Synchronized ability use for %s." % ability_id) 
+	print("Synchronized ability use for %s." % ability_id)
 
 
 @rpc("any_peer", "call_local", "reliable")
@@ -593,7 +691,7 @@ func learn_ability_request(ability_id: String, initial_level: int) -> void:
 func sync_ability_level(ability_id: String, new_level: int) -> void:
 	_ability_levels[ability_id] = new_level
 	ability_leveled_up.emit(ability_id, new_level)
-	print("Synced ability level: %s to %d" % [ability_id, new_level]) 
+	print("Synced ability level: %s to %d" % [ability_id, new_level])
 
 
 @rpc("authority", "call_local", "reliable")
@@ -618,8 +716,22 @@ func sync_ability_points(new_total: int) -> void:
 ## Called when the LevelingComponent emits the `leveled_up` signal.
 func _on_leveled_up(new_level: int) -> void:
 	# Grant 3 ability points on level up
-	print("Leveled up to %d. Gaining 3 ability points." % new_level) 
+	print("Leveled up to %d. Gaining 3 ability points." % new_level)
 	_add_ability_points(3)
+
+
+func _on_class_changed(new_class_name: String) -> void:
+	print("AbilityComponent: Class changed to %s. Reloading abilities." % new_class_name)
+	_ability_levels.clear()
+	
+	# Re-initialize class abilities
+	# We don't broadcast RPCs here because the class change itself is usually synced,
+	# causing clients to run this logic locally as well.
+	if not multiplayer.has_multiplayer_peer() or multiplayer.is_server():
+		for ability_data in _class_component.get_class_abilities():
+			if ability_data and not _ability_levels.has(ability_data.ability_id):
+				_learn_ability_local(ability_data.ability_id, 0, false)
+
 #endregion
 
 
@@ -648,18 +760,22 @@ func load_abilities(data: Dictionary) -> void:
 	for ability_id in saved_levels:
 		_ability_levels[ability_id] = saved_levels[ability_id]
 	
-	_available_ability_points = data.get("available_points", 0) 
+	_available_ability_points = data.get("available_points", 0)
 	hotbar.load_hotbar_config(data.get("hotbar_config", {}))
 	
 	# Re-apply passives and update UI with loaded data
 	_apply_passive_effects()
-	ability_points_changed.emit(_available_ability_points)
-	for ability_id in _ability_levels:
-		var level = _ability_levels[ability_id]
-		if level > 0:
-			ability_learned.emit(ability_id)
-			ability_leveled_up.emit(ability_id, level)
-		print("Loaded ability: %s at level %d" % [ability_id, level])
+	if not _loading_mode:
+		ability_points_changed.emit(_available_ability_points)
+		for ability_id in _ability_levels:
+			var level = _ability_levels[ability_id]
+			if level > 0:
+				ability_learned.emit(ability_id)
+				ability_leveled_up.emit(ability_id, level)
+			print("Loaded ability: %s at level %d" % [ability_id, level])
+	else:
+		for ability_id in _ability_levels:
+			print("Loaded ability: %s at level %d" % [ability_id, _ability_levels[ability_id]])
 			
 ## Disconnects from leveling component signals to prevent side effects during loading.
 func disconnect_level_signals() -> void:
@@ -673,6 +789,10 @@ func reconnect_level_signals() -> void:
 	if _level_component and not _level_component.leveled_up.is_connected(_on_leveled_up):
 		_level_component.leveled_up.connect(_on_leveled_up)
 		print("AbilityComponent: Reconnected to leveling signals.")
+
+
+func set_loading_mode(enabled: bool) -> void:
+	_loading_mode = enabled
 #endregion
 
 
