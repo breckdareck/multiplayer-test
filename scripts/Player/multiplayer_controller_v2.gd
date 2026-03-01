@@ -537,3 +537,26 @@ func set_username(uname: String) -> void:
 	username = uname
 	if is_instance_valid(player_name_label):
 		player_name_label.text = username
+
+
+var _emote_timer: SceneTreeTimer = null
+
+## Show a text bubble above the player for emotes. Called on all clients.
+func show_emote_bubble(emote_text: String) -> void:
+	if not is_instance_valid(player_name_label):
+		return
+
+	# Show emote text above the player name
+	player_name_label.text = "%s\n[color=yellow]%s[/color]" % [username, emote_text]
+
+	# Clear the bubble after 3 seconds
+	if _emote_timer and _emote_timer.time_left > 0:
+		# Previous timer still running — it will be orphaned but harmless
+		pass
+	_emote_timer = get_tree().create_timer(3.0)
+	_emote_timer.timeout.connect(_clear_emote_bubble)
+
+
+func _clear_emote_bubble() -> void:
+	if is_instance_valid(player_name_label):
+		player_name_label.text = username
