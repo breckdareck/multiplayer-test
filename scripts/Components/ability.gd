@@ -53,6 +53,7 @@ var _mana_component: ManaComponent
 var _cooldowns: Dictionary = {} # { ability_id: time_remaining }
 var _ability_levels: Dictionary = {} # { ability_id: current_level }
 var _available_ability_points: int = 0
+var _loading_mode: bool = false
 
 # Track proc cooldowns per passive ability
 var _passive_proc_cooldowns: Dictionary = {} # { "ability_id_event_type": last_proc_time }
@@ -764,13 +765,17 @@ func load_abilities(data: Dictionary) -> void:
 	
 	# Re-apply passives and update UI with loaded data
 	_apply_passive_effects()
-	ability_points_changed.emit(_available_ability_points)
-	for ability_id in _ability_levels:
-		var level = _ability_levels[ability_id]
-		if level > 0:
-			ability_learned.emit(ability_id)
-			ability_leveled_up.emit(ability_id, level)
-		print("Loaded ability: %s at level %d" % [ability_id, level])
+	if not _loading_mode:
+		ability_points_changed.emit(_available_ability_points)
+		for ability_id in _ability_levels:
+			var level = _ability_levels[ability_id]
+			if level > 0:
+				ability_learned.emit(ability_id)
+				ability_leveled_up.emit(ability_id, level)
+			print("Loaded ability: %s at level %d" % [ability_id, level])
+	else:
+		for ability_id in _ability_levels:
+			print("Loaded ability: %s at level %d" % [ability_id, _ability_levels[ability_id]])
 			
 ## Disconnects from leveling component signals to prevent side effects during loading.
 func disconnect_level_signals() -> void:
@@ -784,6 +789,10 @@ func reconnect_level_signals() -> void:
 	if _level_component and not _level_component.leveled_up.is_connected(_on_leveled_up):
 		_level_component.leveled_up.connect(_on_leveled_up)
 		print("AbilityComponent: Reconnected to leveling signals.")
+
+
+func set_loading_mode(enabled: bool) -> void:
+	_loading_mode = enabled
 #endregion
 
 

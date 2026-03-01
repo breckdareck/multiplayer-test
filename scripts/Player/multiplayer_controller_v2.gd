@@ -454,6 +454,7 @@ func _load_data(data: Dictionary) -> void:
 		stats_component.set_block_signals(true)
 		
 	if is_instance_valid(ability_component):
+		ability_component.set_loading_mode(true)
 		ability_component.disconnect_level_signals()
 
 	if is_instance_valid(level_component):
@@ -467,7 +468,7 @@ func _load_data(data: Dictionary) -> void:
 			inventory_component.load_inventory(inventory_data)
 			
 	if is_instance_valid(health_component):
-		health_component.set_block_signals(true)
+		health_component.set_loading_mode(true)
 		health_component.max_health = data.get("max_health", health_component.max_health)
 		health_component.current_health = data.get("current_health", health_component.max_health)
 
@@ -487,9 +488,10 @@ func _load_data(data: Dictionary) -> void:
 	
 	if is_instance_valid(ability_component):
 		ability_component.reconnect_level_signals()
-		
+		ability_component.set_loading_mode(false)
+
 	if is_instance_valid(health_component):
-		health_component.set_block_signals(false)
+		health_component.set_loading_mode(false)
 		health_component.health_changed.emit(health_component.current_health, health_component.max_health)
 		
 	if is_instance_valid(buff_component):
@@ -593,9 +595,9 @@ func save_on_server(data_string: String) -> void:
 	var user_name: String = parsed_data.get("username", "")
 	if user_name.is_empty(): return
 
-	# Delegate saving to PlayerManager which handles API/File fallback
-	if PlayerManager:
-		PlayerManager._save_player_data_async(parsed_data)
+	# Delegate saving through SaveManager (debounced, queued)
+	if SaveManager:
+		SaveManager.queue_save(user_name, "all", self)
 
 
 # [CLIENT -> SERVER] Asks the server to initiate a sprite change for this player.

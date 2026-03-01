@@ -9,11 +9,13 @@ signal died(killer)
 signal damaged(amount, source)
 
 
+var _loading_mode: bool = false
 @export var damage_number_origin: Node2D
 @export var max_health: int = 100:
 	set(value):
 		max_health = value
-		health_changed.emit(current_health, max_health)
+		if not _loading_mode:
+			health_changed.emit(current_health, max_health)
 @export_category("UI")
 @export var health_bar_path: NodePath
 
@@ -54,7 +56,8 @@ var _last_damage_source: Node = null
 					for pid in players:
 						if pid != 1: # Server already called locally
 							die.rpc_id(pid)
-			health_changed.emit(current_health, max_health)
+			if not _loading_mode:
+				health_changed.emit(current_health, max_health)
 @onready var health_bar: ProgressBar = get_node_or_null(health_bar_path)
 @onready var invulnerability_timer: Timer = Timer.new()
 @onready var regen_timer: Timer = Timer.new()
@@ -242,6 +245,10 @@ func die() -> void:
 	is_dead = true
 	died.emit(_last_damage_source) # Pass the killer/source to the signal
 	#print("HealthComponent: Owner '%s' has died." % get_owner().name)
+
+
+func set_loading_mode(enabled: bool) -> void:
+	_loading_mode = enabled
 
 
 func respawn() -> void:

@@ -55,26 +55,29 @@ func remove_player(id: int):
 	print("Player %d left - removing character" % id)
 	NetworkUtils.log_network_event("PLAYER_LEAVE", "Player ID: %d" % id)
 	
-	# Full save before disconnect — get complete data while player node is still valid
+	# Full save before disconnect — delegate to SaveManager for consistency
 	if multiplayer.is_server() and id in active_players:
 		var current_map = MapManager.get_player_map(id)
 		if current_map:
 			active_players[id]["last_map"] = current_map
 
+		var username = active_players[id].get("username", "")
 		var player_node = get_player_node(id)
-		if is_instance_valid(player_node):
-			# Use the controller's full save to capture inventory, abilities, buffs, equipment
-			var full_data = player_node._get_save_data("all")
-			full_data["username"] = active_players[id].get("username", "")
-			full_data["last_map"] = active_players[id].get("last_map", "")
-			if not full_data.get("username", "").is_empty():
-				_save_player_data_async(full_data)
-		else:
+		if is_instance_valid(player_node) and not username.is_empty():
+			# Ensure SaveManager has this player registered with full data
+			SaveManager.register_player(username, player_node)
+			# Mark all categories dirty so flush captures everything
+			SaveManager.queue_save(username, "all", player_node)
+			# Flush immediately — blocks until save completes or falls back to file
+			await SaveManager.flush_save(username)
+			SaveManager.unregister_player(username)
+			print("PlayerManager: Saved player '%s' via SaveManager on disconnect." % username)
+		elif not username.is_empty():
 			# Player node already gone — fall back to quick save with what we have
 			print("PlayerManager: WARNING - Player %d node not found for full save, using quick save" % id)
 			var quick_data = _get_quick_save_data(id)
 			if not quick_data.is_empty():
-				_save_player_data_async(quick_data)
+				_save_player_data_to_file(quick_data)
 
 	# Notify map manager to clean up
 	MapManager.handle_player_disconnect(id)
