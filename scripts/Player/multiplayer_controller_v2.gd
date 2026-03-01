@@ -56,6 +56,7 @@ var _sprite_base_offset_x: float
 var _is_being_cleaned_up: bool = false
 var _is_loading_data: bool = false
 
+@onready var camera: Camera2D = $Camera2D
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var state_machine = $StateMachine
 @onready var coyote_timer: Timer = $CoyoteTimer
@@ -537,3 +538,18 @@ func set_username(uname: String) -> void:
 	username = uname
 	if is_instance_valid(player_name_label):
 		player_name_label.text = username
+
+
+## Apply camera shake effect. Only runs on the local player's camera.
+func screen_shake(intensity: float = 4.0, duration: float = 0.2) -> void:
+	if player_id != multiplayer.get_unique_id():
+		return  # Only shake the local player's camera
+	if not is_instance_valid(camera):
+		return
+	var tween: Tween = create_tween()
+	var shake_count: int = int(duration / 0.04)
+	for i in range(shake_count):
+		var offset := Vector2(randf_range(-intensity, intensity), randf_range(-intensity, intensity))
+		tween.tween_property(camera, "offset", Vector2(0, -16) + offset, 0.02)
+		tween.tween_property(camera, "offset", Vector2(0, -16), 0.02)
+	tween.tween_property(camera, "offset", Vector2(0, -16), 0.02)
