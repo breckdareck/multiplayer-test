@@ -1,8 +1,9 @@
-[gd_scene load_steps=2 format=3 uid="uid://df0th7wol3d0u"]
+[gd_scene load_steps=3 format=3 uid="uid://df0th7wol3d0u"]
 
-[ext_resource type="Script" uid="uid://bc0llhlflc36h" path="res://addons/ability_editor/AbilityEditorGUI.gd" id="1_0xt2s"]
+[ext_resource type="Script" uid="uid://bqhcijb1ivq8d" path="res://addons/resource_editor/ResourceEditorGUI.gd" id="1_0xt2s"]
+[ext_resource type="Texture2D" uid="uid://c7usopkgeat5h" path="res://assets/UI/beginner_portrait.tres" id="2_q4d4u"]
 
-[node name="AbilityEditor" type="Control"]
+[node name="ResourceEditor" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -32,19 +33,40 @@ grow_horizontal = 2
 grow_vertical = 2
 split_offset = 250
 
-[node name="AbilityBrowser" type="VBoxContainer" parent="Panel/MainHSplit"]
+[node name="ResourceBrowser" type="VBoxContainer" parent="Panel/MainHSplit"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Panel/MainHSplit/AbilityBrowser"]
+[node name="Label" type="Label" parent="Panel/MainHSplit/ResourceBrowser"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
-text = "Project Abilities"
+text = "Project Resources"
 
-[node name="RefreshButton" type="Button" parent="Panel/MainHSplit/AbilityBrowser"]
+[node name="ResourceTypeSelector" type="OptionButton" parent="Panel/MainHSplit/ResourceBrowser"]
+layout_mode = 2
+selected = 0
+item_count = 8
+popup/item_0/text = "Abilities"
+popup/item_0/id = 0
+popup/item_1/text = "Items"
+popup/item_1/id = 1
+popup/item_2/text = "Weapons"
+popup/item_2/id = 2
+popup/item_3/text = "Armor"
+popup/item_3/id = 3
+popup/item_4/text = "Consumables"
+popup/item_4/id = 4
+popup/item_5/text = "Buffs"
+popup/item_5/id = 5
+popup/item_6/text = "Classes"
+popup/item_6/id = 6
+popup/item_7/text = "Enemies"
+popup/item_7/id = 7
+
+[node name="RefreshButton" type="Button" parent="Panel/MainHSplit/ResourceBrowser"]
 layout_mode = 2
 text = "Refresh List"
 
-[node name="AbilityTree" type="Tree" parent="Panel/MainHSplit/AbilityBrowser"]
+[node name="ResourceTree" type="Tree" parent="Panel/MainHSplit/ResourceBrowser"]
 layout_mode = 2
 size_flags_vertical = 3
 hide_root = true
@@ -87,11 +109,13 @@ text = " Preview "
 [node name="ScrollContainer" type="ScrollContainer" parent="Panel/MainHSplit/EditorPanel"]
 layout_mode = 2
 size_flags_vertical = 3
+scroll_vertical = 445
 horizontal_scroll_mode = 0
 
 [node name="EditorContent" type="VBoxContainer" parent="Panel/MainHSplit/EditorPanel/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 theme_override_constants/separation = 20
 
 [node name="GeneralSettings" type="VBoxContainer" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent"]
@@ -122,7 +146,7 @@ text = "Ability ID:"
 [node name="AbilityIDEdit" type="LineEdit" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/GeneralSettings/MarginContainer/Form/HBox_ID"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "41214137131311-310139-5416-10716-11561530841131"
+text = "149013810136-10704-158610-108136-12614202154145611"
 placeholder_text = "Auto-generated UUID"
 editable = false
 
@@ -209,13 +233,17 @@ text = "Required Class:"
 layout_mode = 2
 size_flags_horizontal = 3
 selected = 0
-item_count = 3
+item_count = 5
 popup/item_0/text = "SWORDSMAN"
 popup/item_0/id = 0
 popup/item_1/text = "ARCHER"
 popup/item_1/id = 1
 popup/item_2/text = "MAGE"
 popup/item_2/id = 2
+popup/item_3/text = "ROGUE"
+popup/item_3/id = 3
+popup/item_4/text = "BEGINNER"
+popup/item_4/id = 4
 
 [node name="HBox_Weapon" type="HBoxContainer" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/GeneralSettings/MarginContainer/Form"]
 layout_mode = 2
@@ -276,9 +304,46 @@ layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_right = 10
 
-[node name="ActiveBehaviorInspector" type="EditorInspector" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/ActiveBehavior/MarginContainer"]
+[node name="ContentVBox" type="VBoxContainer" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/ActiveBehavior/MarginContainer"]
+layout_mode = 2
+
+[node name="ActiveBehaviorInspector" type="EditorInspector" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/ActiveBehavior/MarginContainer/ContentVBox"]
 custom_minimum_size = Vector2(0, 300)
 layout_mode = 2
+
+[node name="VisualizerContainer" type="VBoxContainer" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/ActiveBehavior/MarginContainer/ContentVBox"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="HSeparator" type="HSeparator" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/ActiveBehavior/MarginContainer/ContentVBox/VisualizerContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Label" type="Label" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/ActiveBehavior/MarginContainer/ContentVBox/VisualizerContainer"]
+layout_mode = 2
+text = "Hitbox Preview"
+horizontal_alignment = 1
+
+[node name="InfoLabel" type="Label" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/ActiveBehavior/MarginContainer/ContentVBox/VisualizerContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+text = "Green: Hitbox | Red: Origin (Feet)"
+horizontal_alignment = 1
+
+[node name="PanelContainer" type="PanelContainer" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/ActiveBehavior/MarginContainer/ContentVBox/VisualizerContainer"]
+custom_minimum_size = Vector2(0, 300)
+layout_mode = 2
+
+[node name="VisualizerControl" type="Control" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/ActiveBehavior/MarginContainer/ContentVBox/VisualizerContainer/PanelContainer"]
+clip_contents = true
+layout_mode = 2
+
+[node name="PlayerSprite" type="Sprite2D" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/ActiveBehavior/MarginContainer/ContentVBox/VisualizerContainer/PanelContainer/VisualizerControl"]
+texture_filter = 1
+position = Vector2(807, 94.61539)
+scale = Vector2(7.7999997, 7.7999997)
+texture = ExtResource("2_q4d4u")
 
 [node name="FormulaEditor" type="VBoxContainer" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent"]
 layout_mode = 2
@@ -370,6 +435,12 @@ layout_mode = 2
 
 [node name="LevelDetailInspector" type="EditorInspector" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/LevelSettings/HSplitContainer/LevelDetailsPanel"]
 layout_mode = 2
+
+[node name="GenericResourceInspector" type="EditorInspector" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent"]
+visible = false
+custom_minimum_size = Vector2(0, 300)
+layout_mode = 2
+size_flags_vertical = 3
 
 [node name="FileDialog" type="EditorFileDialog" parent="."]
 title = "Open a File"
