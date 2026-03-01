@@ -41,6 +41,7 @@ const SERVER_ID: int = 1
 
 
 var username: String = ""
+var fame: int = 0
 var _current_party_id: int = -1
 
 var direction: int = 0  # The current input direction from the synchronizer
@@ -329,7 +330,8 @@ func _get_save_data() -> Dictionary:
 	   'current_health': health_component.current_health if is_instance_valid(health_component) else 100,
 	   'level': level_component.level if is_instance_valid(level_component) else 1,
 	   'experience': level_component.experience if is_instance_valid(level_component) else 0,
-	   'party_id': _current_party_id # Save party_id from local variable
+	   'party_id': _current_party_id, # Save party_id from local variable
+	   'fame': fame
 	}
 	
 	if is_instance_valid(player_inventory):
@@ -400,7 +402,9 @@ func _load_data(data: Dictionary) -> void:
 		var buff_data = data.get("buffs", {})
 		if not buff_data.is_empty():
 			buff_component.load_buffs(buff_data)
-		
+
+	fame = data.get("fame", 0)
+
 	_is_loading_data = false
 
 

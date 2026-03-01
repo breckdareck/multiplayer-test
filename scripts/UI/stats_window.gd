@@ -12,6 +12,8 @@ extends Control
 @onready var health_amount_label: Label = $StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/HealthContainer/HealthAmountLabel
 @onready var mana_amount_label: Label = $StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/ManaContainer/ManaAmountLabel
 
+@onready var fame_amount_label: Label = $StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/FameContainer/FameAmountLabel
+
 @onready var str_amount_label: Label = $StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/STRContainer/STRAmountLabel
 @onready var dex_amount_label: Label = $StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/DEXContainer/DEXAmountLabel
 @onready var int_amount_label: Label = $StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/INTContainer/INTAmountLabel
@@ -83,7 +85,8 @@ func update_stats_window():
 	experience_string_label.text = str(int(player.level_component.experience)) + "/" + str(int(player.level_component.get_exp_to_next_level()))
 	health_amount_label.text = str(player.health_component.current_health) + "/" + str(player.health_component.max_health)
 	mana_amount_label.text = str(player.mana_component.current_mana) + "/" + str(player.mana_component.max_mana)
-	
+	fame_amount_label.text = str(player.fame)
+
 	str_amount_label.text = "%d (%d+%d)" % [player.stats_component.stats.get(Constants.StatType.STRENGTH).total_value, player.stats_component.stats.get(Constants.StatType.STRENGTH).base_value, player.stats_component.stats.get(Constants.StatType.STRENGTH).combined_bonus_value]	
 	dex_amount_label.text = "%d (%d+%d)" % [player.stats_component.stats.get(Constants.StatType.DEXTERITY).total_value, player.stats_component.stats.get(Constants.StatType.DEXTERITY).base_value, player.stats_component.stats.get(Constants.StatType.DEXTERITY).combined_bonus_value]	
 	int_amount_label.text = "%d (%d+%d)" % [player.stats_component.stats.get(Constants.StatType.INTELLIGENCE).total_value, player.stats_component.stats.get(Constants.StatType.INTELLIGENCE).base_value, player.stats_component.stats.get(Constants.StatType.INTELLIGENCE).combined_bonus_value]	

@@ -30,6 +30,7 @@ PartyManager="*res://scripts/Managers/party_manager.gd"
 InputManager="*res://scripts/Managers/InputManager.gd"
 LogManager="*res://scripts/Managers/LogManager.gd"
 ChatManager="*res://scripts/Managers/ChatManager.gd"
+FameManager="*res://scripts/Managers/fame_manager.gd"
 
 [display]
 

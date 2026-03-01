@@ -378,6 +378,44 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_fqhit")
 text = "100/100"
 horizontal_alignment = 2
 
+[node name="FameContainer" type="HBoxContainer" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="FameLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/FameContainer"]
+clip_children = 2
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_outline_size = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
+text = "Fame"
+uppercase = true
+
+[node name="GradientMask" type="Panel" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/FameContainer/FameLabel"]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = -4.0
+offset_right = 2.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
+
+[node name="FameAmountLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/FameContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 0
+theme_override_fonts/font = ExtResource("4_hyo3f")
+theme_override_styles/normal = SubResource("StyleBoxFlat_fqhit")
+text = "0"
+horizontal_alignment = 2
+
 [node name="HSeparator" type="HSeparator" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/separation = 10
