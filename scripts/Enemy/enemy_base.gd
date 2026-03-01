@@ -194,8 +194,10 @@ func _deferred_death_processing(_killer: Node) -> void:
 		print("Players in party to reward: ", players_to_reward)
 		# All party members are eligible for drops
 		eligible_player_ids_for_drops = players_to_reward
-		if players_to_reward.size() > 1:
-			party_exp_bonus_multiplier = 1.1 # 10% party bonus
+		# Scaling party EXP bonus: +10% per additional member (2p=1.1x, 3p=1.2x, 4p=1.3x, etc.)
+		var party_size: int = players_to_reward.size()
+		if party_size > 1:
+			party_exp_bonus_multiplier = 1.0 + (0.1 * (party_size - 1))
 		
 		var total_party_damage = 0
 		for member_id in players_to_reward:
