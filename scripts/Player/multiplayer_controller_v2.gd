@@ -242,6 +242,7 @@ func _setup_signals() -> void:
 		level_component.leveled_up.connect(func(_l): _data_changed("all")) # Level up might affect everything (points, stats)
 		if multiplayer.is_server():
 			level_component.leveled_up.connect(_handle_sprite_change_on_server.unbind(1))
+			level_component.leveled_up.connect(func(new_level): AchievementManager.record_stat(username, "level", new_level))
 	
 	if health_component:
 		health_component.health_changed.connect(func(_c, _m): _data_changed("stats"))
@@ -425,7 +426,10 @@ func get_save_data(update_type: String = "all") -> Dictionary:
 	if update_type == "all" or update_type == "buffs":
 		if is_instance_valid(buff_component):
 			data['buffs'] = buff_component.save_buffs()
-		
+
+	if update_type == "all" or update_type == "stats":
+		data['achievements'] = AchievementManager.get_save_data(username)
+
 	return data
 
 
@@ -498,7 +502,16 @@ func _load_data(data: Dictionary) -> void:
 		var buff_data = data.get("buffs", {})
 		if not buff_data.is_empty():
 			buff_component.load_buffs(buff_data)
-		
+
+	# Load achievement data
+	var achievement_data = data.get("achievements", {})
+	if not achievement_data.is_empty():
+		AchievementManager.load_save_data(username, achievement_data)
+	# Update level stat for level-based achievements
+	AchievementManager.record_stat(username, "level", level_component.level if is_instance_valid(level_component) else 1)
+	# Update title display
+	_update_title_display()
+
 	_is_loading_data = false
 
 
@@ -664,8 +677,26 @@ func request_all_sprite_states() -> void:
 @rpc("any_peer", "call_local", "reliable")
 func set_username(uname: String) -> void:
 	username = uname
-	if is_instance_valid(player_name_label):
+	_update_title_display()
+
+
+func _update_title_display() -> void:
+	if not is_instance_valid(player_name_label):
+		return
+	var title_id: String = AchievementManager.get_active_title(username)
+	if title_id.is_empty() or not AchievementManager.ACHIEVEMENTS.has(title_id):
 		player_name_label.text = username
+	else:
+		var title_name: String = AchievementManager.ACHIEVEMENTS[title_id].title
+		player_name_label.text = "%s\n[color=gold]<%s>[/color]" % [username, title_name]
+
+
+@rpc("authority", "call_local", "reliable")
+func _sync_title(title_id: String) -> void:
+	# Server sets the title and syncs display to all peers
+	if multiplayer.is_server():
+		AchievementManager.set_active_title(username, title_id)
+	_update_title_display()
 		
 		
 @rpc("any_peer", "call_local", "reliable")

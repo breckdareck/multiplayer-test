@@ -247,6 +247,12 @@ func _deferred_death_processing(_killer: Node) -> void:
 				print("PID: %s did %s%% damage to %s gaining %s exp" % [str(player_id), share * 100, name, str(exp_amount)])
 				player_node.gain_experience(exp_amount)
 				
+	# Record kills for achievement tracking
+	for player_id in players_to_reward:
+		var player_node = PlayerManager.get_player_node(player_id)
+		if player_node and player_node is MultiplayerPlayerV2:
+			AchievementManager.record_kill(player_node.username, monster_name)
+
 	# Spawn drops for all eligible players
 	if not eligible_player_ids_for_drops.is_empty():
 		_spawn_drops(eligible_player_ids_for_drops)
