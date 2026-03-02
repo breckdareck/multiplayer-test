@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ConsumableData" load_steps=3 format=3]
+
+[ext_resource type="Script" uid="uid://ubv3mjjv4lvi" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/Effects/Effect_MegaphoneChat.gd" id="2_effect"]
+
+[resource]
+script = ExtResource("1_script")
+effect_script = ExtResource("2_effect")
+effect_properties = {}
+item_id = "megaphone-chat-001"
+name = "Megaphone"
+description = "Use to broadcast your next chat message server-wide!"
+item_type = 2
+item_level = -1
+custom_item_value = 500
+can_stack = true
+max_stack_amount = 99
+current_stack_amount = 1
