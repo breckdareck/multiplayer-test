@@ -1,0 +1,60 @@
+[gd_scene load_steps=7 format=4]
+
+[ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_mapbase"]
+[ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/damage_numbers.gd" id="2_dmgnum"]
+[ext_resource type="PackedScene" uid="uid://bx2n3vrfxk75m" path="res://scenes/Gameplay/killzone.tscn" id="3_killzone"]
+[ext_resource type="Script" path="res://scripts/Gameplay/jump_quest_goal.gd" id="4_goal"]
+[ext_resource type="PackedScene" uid="uid://brfb5t5im33fl" path="res://scenes/Gameplay/portal.tscn" id="5_portal"]
+[ext_resource type="Script" uid="uid://igk1rxt26f2i" path="res://scripts/UI/global_drop_handler.gd" id="6_drop"]
+
+[node name="JumpQuest" type="Node2D"]
+script = ExtResource("1_mapbase")
+
+[node name="DmgNumberSpawner" type="MultiplayerSpawner" parent="."]
+spawn_path = NodePath("..")
+script = ExtResource("2_dmgnum")
+
+[node name="ProjectileSpawner" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("uid://d0ig4oiimrnei")
+spawn_path = NodePath("../Projectiles")
+
+[node name="ExitPortal" parent="." instance=ExtResource("5_portal")]
+position = Vector2(16, 176)
+target_map_id = "game"
+target_spawn_point_name = ""
+
+[node name="PlayerSpawn" type="Marker2D" parent="."]
+position = Vector2(32, 192)
+
+[node name="Killzone" parent="." instance=ExtResource("3_killzone")]
+position = Vector2(0, 400)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Killzone"]
+position = Vector2(512, 0)
+
+[node name="JumpQuestGoal" type="Area2D" parent="."]
+position = Vector2(960, -320)
+script = ExtResource("4_goal")
+reward_coins = 5000
+return_map_id = "game"
+
+[node name="GoalCollision" type="CollisionShape2D" parent="JumpQuestGoal"]
+
+[node name="GoalLabel" type="Label" parent="JumpQuestGoal"]
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 0.0
+text = "GOAL!"
+horizontal_alignment = 1
+
+[node name="Players" type="Node2D" parent="."]
+
+[node name="Projectiles" type="Node2D" parent="."]
+
+[node name="ItemDrops" type="Node2D" parent="."]
+
+[node name="GlobalDropHandler" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("6_drop")
