@@ -504,6 +504,7 @@ sources/2 = SubResource("TileSetAtlasSource_72b6d")
 
 [node name="Game3" type="Node2D"]
 script = ExtResource("1_gfksk")
+bgm_path = "res://assets/music/gameplay.mp3"
 
 [node name="DmgNumberSpawner" type="MultiplayerSpawner" parent="."]
 spawn_path = NodePath("..")

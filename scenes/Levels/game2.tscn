@@ -515,6 +515,7 @@ sources/2 = SubResource("TileSetAtlasSource_fnxnp")
 
 [node name="Game2" type="Node2D"]
 script = ExtResource("1_hd3yw")
+bgm_path = "res://assets/music/time_for_adventure.mp3"
 
 [node name="DmgNumberSpawner" type="MultiplayerSpawner" parent="."]
 unique_name_in_owner = true
