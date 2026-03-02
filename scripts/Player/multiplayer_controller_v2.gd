@@ -242,6 +242,7 @@ func _setup_signals() -> void:
 		level_component.leveled_up.connect(func(_l): _data_changed("all")) # Level up might affect everything (points, stats)
 		if multiplayer.is_server():
 			level_component.leveled_up.connect(_handle_sprite_change_on_server.unbind(1))
+			level_component.leveled_up.connect(func(new_level): ChatManager.announce_level_up(username, new_level))
 	
 	if health_component:
 		health_component.health_changed.connect(func(_c, _m): _data_changed("stats"))

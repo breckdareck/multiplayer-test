@@ -195,6 +195,11 @@ func _pickup_item(picking_player: MultiplayerPlayerV2 = null) -> void:
 
 	# RPC to client to show log message
 		show_pickup_log_rpc.rpc_id(player_to_give_item.player_id, item_data.name, stack_amount)
+
+		# Announce rare+ drops server-wide
+		if item_data.rarity >= Constants.ItemRarity.RARE and item_data.name != "Coin":
+			var rarity_name: String = Constants.ItemRarity.find_key(item_data.rarity)
+			ChatManager.announce_rare_drop(player_to_give_item.username, item_data.name, rarity_name.capitalize())
 	
 	# Stop syncing immediately to prevent "Node not found" errors on client
 	var synchronizer = get_node_or_null("MultiplayerSynchronizer")
