@@ -1,4 +1,4 @@
-class_name Effect_TownScroll
+class_name Effect_TownPotion
 extends BaseItemEffect
 
 func execute():
@@ -7,9 +7,6 @@ func execute():
 		return
 
 	var target_map: String = source_item.effect_properties.get("target_map", MapManager.DEFAULT_MAP)
-
-	if not multiplayer.is_server():
-		return
 
 	var current_map: String = MapManager.get_player_map(user.player_id)
 	if current_map == target_map:
