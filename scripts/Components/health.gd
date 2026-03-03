@@ -222,6 +222,24 @@ func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, 
 			is_invulnerable = true
 			invulnerability_timer.start()
 
+	# Screen shake for player characters on big hits
+	if is_player:
+		var player_owner: MultiplayerPlayerV2 = owner as MultiplayerPlayerV2
+		var shake_intensity: float = clampf(float(amount) / float(max_health) * 12.0, 2.0, 8.0)
+		if player_owner.has_method("screen_shake"):
+			# Shake on server (if host is the player)
+			player_owner.screen_shake(shake_intensity)
+			# Also shake on the owning client
+			if player_owner.player_id != 1:
+				_trigger_screen_shake.rpc_id(player_owner.player_id, shake_intensity)
+
+
+@rpc("authority", "call_local", "reliable")
+func _trigger_screen_shake(intensity: float) -> void:
+	var player_owner = get_owner()
+	if player_owner is MultiplayerPlayerV2 and player_owner.has_method("screen_shake"):
+		player_owner.screen_shake(intensity)
+
 
 @rpc("any_peer", "call_local", "reliable")
 func heal_damage(amount: int, source: Node = null) -> void:
