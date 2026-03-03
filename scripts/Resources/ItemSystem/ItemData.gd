@@ -44,7 +44,7 @@ var instance_id: String
 
 func _get_property_list():
 	if OS.has_feature("editor"):
-		var ret =[]
+		var ret = []
 		if item_type != Constants.ItemType.EQUIPMENT:
 			ret.append({
 				"name": &"can_stack",
@@ -131,6 +131,41 @@ func to_dictionary() -> Dictionary:
 	}
 	
 	return dict
+
+
+func get_save_data() -> Dictionary:
+	var res_path = get_resource_path()
+	if res_path.is_empty() and not name.is_empty():
+		var item_from_manager = ResourceManager.get_item_by_name(name)
+		if item_from_manager:
+			res_path = item_from_manager.get_resource_path()
+
+	var icon_path := ""
+	if icon:
+		icon_path = icon.resource_path
+	
+	if icon_path.is_empty() and not res_path.is_empty():
+		var original_res = load(res_path)
+		if original_res and original_res.icon:
+			icon_path = original_res.icon.resource_path
+
+	return {
+		"original_resource_path": res_path,
+		"current_stack_amount": current_stack_amount,
+		"can_stack": can_stack,
+		"max_stack_amount": max_stack_amount,
+		"item_id": item_id,
+		"name": name,
+		"description": description,
+		"icon_path": icon_path,
+		"item_type": item_type,
+		"item_level": item_level,
+		"rarity": rarity,
+		"custom_item_value": custom_item_value,
+		# Base items don't have equipment stats, but backend expects keys or defaults
+		# We can leave them null or omit them if backend handles missing keys (it does .get())
+		"bonus_stats": {}
+	}
 
 
 static func from_dictionary(dict: Dictionary) -> ItemData:

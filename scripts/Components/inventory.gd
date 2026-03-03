@@ -154,7 +154,6 @@ func _sync_slot_to_client(slot: Slot, trigger_stats_recalc: bool = false):
 		sync_slot_clear_rpc.rpc_id(owner_id, slot_index, trigger_stats_recalc)
 
 
-
 @rpc("authority", "call_local", "reliable")
 func sync_slot_update_rpc(slot_index: int, item_dict: Dictionary, trigger_stats_recalc: bool):
 	"""Client receives a single slot update"""
@@ -197,9 +196,6 @@ func sync_slot_clear_rpc(slot_index: int, trigger_stats_recalc: bool):
 			stats_component._recalculate_stats_client("InventoryRPC")
 
 
-
-
-
 @rpc("any_peer", "call_local", "reliable")
 func server_add_item(item_id: String):
 	if not multiplayer.is_server():
@@ -208,7 +204,6 @@ func server_add_item(item_id: String):
 	var original_item_id = original_item.item_id
 	
 
-	
 	# Try to stack with existing items in valid slots
 	if original_item_id in item_locations and original_item.can_stack:
 		var existing_slots = item_locations[original_item_id]
@@ -230,7 +225,7 @@ func server_add_item(item_id: String):
 					
 					if original_item.current_stack_amount <= 0:
 						item_added.emit(original_item)
-						return						
+						return
 	# Find a valid empty slot
 	for slot in slots:
 		if slot.item == null and (not slot.has_method("can_accept_item") or slot.can_accept_item(original_item)):
@@ -423,7 +418,7 @@ func save_inventory() -> Dictionary:
 		if slot.item != null:
 			slot_data.append({
 				"slot_index": i,
-				"item_data": slot.item.to_dictionary()
+				"item_data": slot.item.get_save_data()
 			})
 	
 	var equipment_data: Dictionary = {}
@@ -432,7 +427,7 @@ func save_inventory() -> Dictionary:
 			var eq_slot: Slot = equipment_component.equipment[eq_key]
 			if eq_slot and eq_slot.item != null:
 				var key_str := str(eq_key)
-				equipment_data[key_str] = eq_slot.item.to_dictionary()
+				equipment_data[key_str] = eq_slot.item.get_save_data()
 
 	inventory_data["slots"] = slot_data
 	inventory_data["equipment"] = equipment_data
@@ -504,7 +499,14 @@ func load_inventory(inventory_data: Dictionary) -> void:
 	if not is_inside_tree():
 		pending_inventory_data = inventory_data
 		return
+	
+	if equipment_component:
+		equipment_component.set_silent_mode(true)
+	
 	_apply_inventory_data(inventory_data)
+	
+	if equipment_component:
+		equipment_component.set_silent_mode(false)
 
 
 @rpc("authority", "call_local", "reliable")
@@ -597,7 +599,6 @@ func _execute_swap_local(from_slot: Slot, to_slot: Slot):
 			_sync_slot_to_client(to_slot, false)
 
 
-
 func _is_move_valid(from_slot: Slot, to_slot: Slot) -> bool:
 	if from_slot.item == null:
 		print("[INV][VALIDATE] from_slot has no item")
@@ -641,7 +642,6 @@ func request_transfer_item(from_slot_path: NodePath, to_slot_path: NodePath, req
 	if not _is_move_valid(from_slot, to_slot):
 		send_inventory_correction.rpc_id(requesting_owner_id)
 		return
-
 
 
 	# Check if this involves equipment slots (needs stats recalc)
@@ -691,7 +691,7 @@ func send_inventory_correction():
 	receive_inventory_correction.rpc_id(multiplayer.get_remote_sender_id(), current_inventory)
 
 
-@rpc("authority", "call_local", "reliable") 
+@rpc("authority", "call_local", "reliable")
 func receive_inventory_correction(authoritative_inventory: Dictionary):
 	if multiplayer.is_server():
 		return
@@ -844,7 +844,10 @@ func request_use_item(slot_index: int):
 		return
 
 	var sender_id = multiplayer.get_remote_sender_id()
-	var player = get_node_or_null("/root/MainMenu/Level/Game/Players/" + str(sender_id))
+	# Use PlayerManager to reliably find the player's node across maps
+	var player = null
+	if PlayerManager:
+		player = PlayerManager.get_player_node(sender_id)
 	if not player:
 		print("Use Item failed: Player %d not found." % sender_id)
 		return

@@ -5,10 +5,10 @@ extends ItemData
 
 @export var equipment_type: Constants.EquipmentType
 
-@export var bonus_stats: Dictionary[Constants.StatType, StatData] = { }
+@export var bonus_stats: Dictionary[Constants.StatType, StatData] = {}
 
 func _init():
-	super()
+	super ()
 
 func to_dictionary() -> Dictionary:
 	var dict = super.to_dictionary()
@@ -17,6 +17,26 @@ func to_dictionary() -> Dictionary:
 	for stat_type in bonus_stats:
 		var stat_data: StatData = bonus_stats[stat_type]
 		serialized_bonus_stats[stat_type] = stat_data.to_dictionary()
+	dict["bonus_stats"] = serialized_bonus_stats
+	
+	dict["equipment_type"] = equipment_type
+	
+	if self is ArmorData:
+		dict["armor_type"] = (self as ArmorData).armor_type
+	elif self is WeaponData:
+		dict["weapon_type"] = (self as WeaponData).weapon_type
+		dict["weapon_attack_speed"] = (self as WeaponData).weapon_attack_speed
+		
+	return dict
+
+
+func get_save_data() -> Dictionary:
+	var dict = super.get_save_data()
+	
+	var serialized_bonus_stats = {}
+	for stat_type in bonus_stats:
+		var stat_data: StatData = bonus_stats[stat_type]
+		serialized_bonus_stats[str(stat_type)] = stat_data.to_dictionary()
 	dict["bonus_stats"] = serialized_bonus_stats
 	
 	dict["equipment_type"] = equipment_type

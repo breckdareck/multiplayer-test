@@ -35,12 +35,6 @@ corner_radius_bottom_left = 10
 
 [node name="MainMenu" type="Node2D"]
 
-[node name="LevelSpawner" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("uid://d1hwvomjwdrjv")
-spawn_path = NodePath("../Level")
-spawn_limit = 1
-
-[node name="Level" type="Node" parent="."]
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
@@ -274,6 +268,8 @@ offset_bottom = 40.0
 focus_mode = 0
 theme_override_font_sizes/font_size = 23
 text = "U"
+
+[node name="Maps" type="Node" parent="."]
 
 [connection signal="pressed" from="CanvasLayer/MenuContainer/CharacterSelectPanel/LeftButton" to="CanvasLayer/MenuContainer" method="change_character" binds= [-1]]
 [connection signal="pressed" from="CanvasLayer/MenuContainer/CharacterSelectPanel/RightButton" to="CanvasLayer/MenuContainer" method="change_character" binds= [1]]

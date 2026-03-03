@@ -26,8 +26,8 @@ collision_shape = NodePath("CollisionShape2D")
 pickup_sfx = ExtResource("2_2vu6h")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
-delta_interval = 0.015
 replication_config = SubResource("SceneReplicationConfig_8xljp")
+visibility_update_mode = 1
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 z_index = 5

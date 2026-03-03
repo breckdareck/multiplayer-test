@@ -3,6 +3,8 @@ extends Node
 const SAVE_FILE_PATH = "user://user_config.cfg"
 const KEYBIND_CONFIG_SECTION = "Keybinds"
 const SOUND_CONFIG_SECTION = "SoundSettings"
+const SERVER_CONFIG_SECTION = "ServerSettings"
+const DEFAULT_API_URL = "http://127.0.0.1:5000/api"
 
 var custom_keybinds: Dictionary = {}
 var default_hotbar_actions: Array[String] = []
@@ -12,6 +14,10 @@ var _all_managed_actions: Array[String] = []
 var master_volume_db: float = 1
 var music_volume_db: float = -8
 var sfx_volume_db: float = -8
+
+# Server settings
+var backend_api_url: String = DEFAULT_API_URL
+var game_server_port: int = 8080
 
 func _init():
 	# Define default hotbar actions
@@ -51,6 +57,7 @@ func load_config():
 
 	_load_keybinds_from_config(config)
 	_load_sound_settings_from_config(config)
+	_load_server_settings_from_config(config)
 	
 	print("User config loaded.")
 
@@ -67,6 +74,7 @@ func save_config():
 	
 	_save_keybinds_to_config(config, file_existed_before_save)
 	_save_sound_settings_to_config(config, file_existed_before_save)
+	_save_server_settings_to_config(config, file_existed_before_save)
 	
 	error = config.save(SAVE_FILE_PATH)
 	if error != OK:
@@ -263,3 +271,39 @@ func set_sfx_volume(value_db: float):
 	sfx_volume_db = value_db
 	_apply_sound_settings()
 	save_config()
+
+
+func _load_server_settings_from_config(config: ConfigFile):
+	if config.has_section(SERVER_CONFIG_SECTION):
+		backend_api_url = config.get_value(SERVER_CONFIG_SECTION, "backend_api_url", DEFAULT_API_URL)
+		game_server_port = config.get_value(SERVER_CONFIG_SECTION, "game_server_port", 8080)
+		print("Server settings loaded. API URL: %s" % backend_api_url)
+	else:
+		# Initialize with defaults if section doesn't exist
+		backend_api_url = DEFAULT_API_URL
+		game_server_port = 8080
+
+
+func _save_server_settings_to_config(config: ConfigFile, file_existed_before_save: bool):
+	config.set_value(SERVER_CONFIG_SECTION, "backend_api_url", backend_api_url)
+	config.set_value(SERVER_CONFIG_SECTION, "game_server_port", game_server_port)
+
+
+func set_backend_api_url(url: String):
+	backend_api_url = url
+	save_config()
+	print("Backend API URL updated to: %s" % url)
+
+
+func get_backend_api_url() -> String:
+	# Check for environment variable override
+	var env_url = OS.get_environment("BACKEND_API_URL")
+	if not env_url.is_empty():
+		return env_url
+	return backend_api_url
+
+
+func set_game_server_port(port: int):
+	game_server_port = port
+	save_config()
+	print("Game server port updated to: %d" % port)
