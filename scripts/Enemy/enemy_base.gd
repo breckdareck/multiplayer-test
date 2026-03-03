@@ -203,14 +203,7 @@ func _deferred_death_processing(_killer: Node) -> void:
 		var party_size: int = players_to_reward.size()
 		if party_size > 1:
 			party_exp_bonus_multiplier = 1.0 + (0.1 * (party_size - 1))
-		
-		for member_id in all_party_members:
-			if member_id in players_on_map:
-				players_to_reward.append(member_id)
-				
 		print("Players in party on same map to reward: ", players_to_reward)
-		# All party members (regardless of map) are eligible for drops
-		eligible_player_ids_for_drops = all_party_members
 		# Party XP bonus: 10% for 2 members, +5% per additional member (up to 25% at 5 members)
 		if players_to_reward.size() > 1:
 			party_exp_bonus_multiplier = 1.0 + (0.05 * players_to_reward.size())
