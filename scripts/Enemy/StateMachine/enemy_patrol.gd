@@ -40,15 +40,24 @@ func physics_update(delta: float) -> State:
 
 	# Check for a wall collision
 	if parent.is_on_wall():
-		direction.x = -direction.x
+		direction.x = - direction.x
 	else:
-		# To check for a ledge, we can simulate a small downward movement
-		# from a position slightly in front of the enemy.
-		var ledge_test_vector: Vector2 = Vector2(direction.x * 10, 10)
-		var collision: bool            = parent.test_move(parent.transform, ledge_test_vector)
-		if not collision:
-			# There's no ground to collide with, so we're at a ledge.
-			direction.x = -direction.x
+		# Ledge detection: Check if there's ground ahead
+		# First, create a transform that's moved forward in the direction we're walking
+		var check_distance = 12.0 # Distance ahead to check
+		var check_depth = 16.0 # How far down to check for ground
+		
+		# Create a position ahead of the enemy
+		var forward_offset = Vector2(direction.x * check_distance, 0)
+		var forward_transform = parent.global_transform.translated(forward_offset)
+		
+		# Now check if there's ground below that forward position
+		var downward_vector = Vector2(0, check_depth)
+		var has_ground_ahead = parent.test_move(forward_transform, downward_vector)
+		
+		if not has_ground_ahead:
+			# No ground ahead - we're at a ledge, turn around
+			direction.x = - direction.x
 
 	# Update facing direction
 	parent._update_facing()

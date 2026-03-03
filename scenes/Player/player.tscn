@@ -1,4 +1,4 @@
-[gd_scene load_steps=82 format=3 uid="uid://bdtdpx0d05sy3"]
+[gd_scene load_steps=92 format=3 uid="uid://bdtdpx0d05sy3"]
 
 [ext_resource type="Script" uid="uid://yibpus3whwuj" path="res://scripts/Player/multiplayer_controller_v2.gd" id="1_an8q1"]
 [ext_resource type="Script" uid="uid://cy1j38lpy671e" path="res://scripts/Player/multiplayer_input.gd" id="2_hxkm2"]
@@ -37,6 +37,8 @@
 [ext_resource type="FontVariation" uid="uid://bpwl38ly8lvyj" path="res://assets/fonts/DamageNumbersFontVariation.tres" id="27_7iww4"]
 [ext_resource type="SpriteFrames" uid="uid://c05dyrlp5i5bj" path="res://resources/Player/SpriteFrames/Swordsman.tres" id="27_e8txv"]
 [ext_resource type="Texture2D" uid="uid://rmxapeohsar7" path="res://assets/sprites/MinifolksHumans/Outline/MiniTemplate.png" id="29_7iww4"]
+[ext_resource type="Texture2D" uid="uid://d03pwys7xt7nr" path="res://assets/sprites/Test/СlothesV1-Sheet.png" id="30_e6s7e"]
+[ext_resource type="Texture2D" uid="uid://cpw28wasl3ylq" path="res://assets/sprites/Test/СlothesV2-Sheet.png" id="31_gb22u"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_2d20i"]
 properties/0/path = NodePath(".:player_id")
@@ -63,6 +65,9 @@ properties/6/replication_mode = 2
 properties/7/path = NodePath(".:do_pickup")
 properties/7/spawn = true
 properties/7/replication_mode = 2
+properties/8/path = NodePath(".:facing_direction")
+properties/8/spawn = true
+properties/8/replication_mode = 2
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_80evv"]
 properties/0/path = NodePath("InputSynchronizer:input_direction")
@@ -279,6 +284,38 @@ region = Rect2(64, 384, 32, 32)
 atlas = ExtResource("29_7iww4")
 region = Rect2(96, 384, 32, 32)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_xdydj"]
+atlas = ExtResource("30_e6s7e")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_j0f1q"]
+atlas = ExtResource("30_e6s7e")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ksjgv"]
+atlas = ExtResource("30_e6s7e")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l5jmw"]
+atlas = ExtResource("30_e6s7e")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_adsis"]
+atlas = ExtResource("31_gb22u")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_soqw8"]
+atlas = ExtResource("31_gb22u")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tyf2j"]
+atlas = ExtResource("31_gb22u")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nvrcq"]
+atlas = ExtResource("31_gb22u")
+region = Rect2(96, 0, 32, 32)
+
 [sub_resource type="SpriteFrames" id="SpriteFrames_7iww4"]
 animations = [{
 "frames": [],
@@ -301,6 +338,40 @@ animations = [{
 }],
 "loop": true,
 "name": &"idle_blue_tunic",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xdydj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_j0f1q")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ksjgv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l5jmw")
+}],
+"loop": true,
+"name": &"test_idle",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_adsis")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_soqw8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tyf2j")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nvrcq")
+}],
+"loop": true,
+"name": &"test_idle_2",
 "speed": 10.0
 }]
 
@@ -390,7 +461,7 @@ animations = [{
 size = Vector2(21, 21)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_h0wtf"]
-radius = 5.0
+radius = 4.0
 
 [node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "mana_component", "combat_component", "level_component", "stats_component", "class_component", "player_inventory", "inventory_component", "equipment_component", "ability_component", "buff_component", "debug_component", "player_HUD", "player_name_label", "stats_window", "inventory_window") groups=["Players", "networked_entities"]]
 collision_layer = 2
@@ -1065,7 +1136,8 @@ z_index = 1
 position = Vector2(0, -20)
 scale = Vector2(1.3, 1.3)
 sprite_frames = SubResource("SpriteFrames_7iww4")
-animation = &"idle_blue_tunic"
+animation = &"test_idle_2"
+frame_progress = 0.52327085
 
 [node name="AnimatedSprite2D_Weapon" type="AnimatedSprite2D" parent="."]
 visible = false
@@ -1091,16 +1163,17 @@ monitoring = false
 [node name="BasicAttackHitbox" type="CollisionShape2D" parent="Hitbox"]
 position = Vector2(9.5, -10.5)
 shape = SubResource("RectangleShape2D_ploos")
+debug_color = Color(0.565, 0.933, 0.565, 0.42)
 
 [node name="StandingCollisionShape" type="CollisionShape2D" parent="."]
-visible = false
-position = Vector2(0, -5)
+position = Vector2(0, -4)
 shape = SubResource("CircleShape2D_h0wtf")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(0, -16)
 zoom = Vector2(4, 4)
 process_callback = 0
+limit_enabled = false
 limit_bottom = 120
 position_smoothing_enabled = true
 
@@ -1158,6 +1231,7 @@ fall_state = NodePath("../fall")
 jump_state = NodePath("../jump")
 attack_state = NodePath("../attack")
 animation_name = "move"
+move_speed = 100.0
 
 [node name="jump" type="Node" parent="StateMachine" node_paths=PackedStringArray("fall_state", "attack_state")]
 script = ExtResource("21_v6vns")

@@ -1,0 +1,106 @@
+[gd_scene load_steps=4 format=3 uid="uid://cfmv5mc0adbf"]
+
+[ext_resource type="Script" uid="uid://drpu8cuv3wbuy" path="res://scripts/UI/CharacterSelectScreen.gd" id="1_script"]
+[ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="2_font"]
+[ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="3_font_bold"]
+
+[node name="CharacterSelectScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -350.0
+offset_top = -250.0
+offset_right = 350.0
+offset_bottom = 350.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_font_bold")
+theme_override_font_sizes/font_size = 32
+text = "Character Selection"
+horizontal_alignment = 1
+
+[node name="CharacterList" type="ItemList" parent="Panel/VBoxContainer"]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 20
+
+[node name="Separator1" type="HSeparator" parent="Panel/VBoxContainer"]
+layout_mode = 2
+
+[node name="HostButton" type="Button" parent="Panel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 32
+text = "Host Server"
+
+[node name="IPInput" type="LineEdit" parent="Panel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 24
+placeholder_text = "127.0.0.1"
+alignment = 1
+max_length = 15
+
+[node name="JoinButton" type="Button" parent="Panel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 32
+text = "Join Server"
+
+[node name="Separator3" type="HSeparator" parent="Panel/VBoxContainer"]
+layout_mode = 2
+
+[node name="CreateButton" type="Button" parent="Panel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 32
+text = "Create New Character"
+
+[node name="LogoutButton" type="Button" parent="Panel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 32
+text = "Logout"
+
+[node name="StatusLabel" type="Label" parent="Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.2, 0.2, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+autowrap_mode = 2

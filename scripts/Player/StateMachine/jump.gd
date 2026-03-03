@@ -10,9 +10,7 @@ func enter() -> void:
 	super()
 	parent.velocity.y = jump_velocity
 	var player
-	if parent is MultiplayerPlayer:
-		player = parent
-	elif parent is MultiplayerPlayerV2:
+	if parent is MultiplayerPlayerV2:
 		player = parent
 	player.do_jump = false
 
@@ -22,9 +20,7 @@ func enter() -> void:
 
 func physics_update(delta: float) -> State:
 	var player
-	if parent is MultiplayerPlayer:
-		player = parent
-	elif parent is MultiplayerPlayerV2:
+	if parent is MultiplayerPlayerV2:
 		player = parent
 	var movement: float           = player.direction * move_speed
 
@@ -39,10 +35,6 @@ func physics_update(delta: float) -> State:
 	if not player.is_on_floor():
 		parent.velocity.y += gravity * delta
 
-	# Consume other inputs mid-air to prevent buffering.
-	if player is MultiplayerPlayer:
-		if player.do_slide:
-			player.do_slide = false
 	if player.do_jump:
 		player.do_jump = false
 

@@ -31,9 +31,7 @@ var _current_level_stats: AbilityLevelData = null
 func enter() -> void:
 	super()
 	allow_flip = false
-	if parent is MultiplayerPlayer:
-		player = parent
-	elif parent is MultiplayerPlayerV2:
+	if parent is MultiplayerPlayerV2:
 		player = parent
 	player.do_attack = false
 
@@ -130,9 +128,6 @@ func physics_update(delta: float) -> State:
 			player.do_attack = false
 		if player.do_jump:
 			player.do_jump = false
-		if player is MultiplayerPlayer:
-			if player.do_slide:
-				player.do_slide = false
 
 		# Check if attack animation is finished
 		if attack_state_timer.is_stopped():

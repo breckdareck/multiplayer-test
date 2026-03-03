@@ -38,12 +38,8 @@ func _ready():
 		weapon_slot.allowed_equipment_type = Constants.EquipmentType.WEAPON
 
 	# When equipment changes on the server, persist the player's data
-	if multiplayer.is_server():
-		on_equipment_changed.connect(func():
-			var owner_player := owner as MultiplayerPlayerV2
-			if owner_player and owner_player.has_method("_data_changed"):
-				owner_player._data_changed()
-		)
+	# Logic moved to multiplayer_controller_v2.gd to handle both client and server
+	pass
 
 
 func set_silent_mode(enabled: bool) -> void:

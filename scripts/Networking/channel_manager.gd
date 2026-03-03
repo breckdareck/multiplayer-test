@@ -114,7 +114,7 @@ func _test_channel_connection(port: int) -> bool:
 		time_waited += get_process_delta_time()
 	
 	test_peer.close()
-	await get_tree().process_frame  # Allow cleanup
+	await get_tree().process_frame # Allow cleanup
 	
 	return can_connect
 
@@ -189,8 +189,8 @@ func _handle_switch_failure():
 	if menu_container:
 		menu_container._connection_status_label.text = "Channel switch failed. Disconnected."
 	
-	# Return to main menu
-	get_tree().change_scene_to_file("res://scenes/Levels/main_menu.tscn")
+	# Return to login screen
+	get_tree().change_scene_to_file("res://scenes/UI/LoginScreen.tscn")
 
 # === UTILITY FUNCTIONS ===
 func get_available_channels() -> Array:
@@ -200,7 +200,7 @@ func get_available_channels() -> Array:
 		base_port = 8080
 	
 	var channels = []
-	for i in range(-2, 3):  # Show 5 channels around current
+	for i in range(-2, 3): # Show 5 channels around current
 		var port = base_port + i
 		if port > 0 and port <= 65535 and port != ClientManager.current_server_port:
 			channels.append({

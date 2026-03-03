@@ -5,7 +5,7 @@
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="3_csbtv"]
 [ext_resource type="SpriteFrames" uid="uid://cirrugdertxot" path="res://resources/Player/SpriteFrames/Mage.tres" id="3_uwn8l"]
 [ext_resource type="SpriteFrames" uid="uid://b24ebeumvft8j" path="res://resources/Player/SpriteFrames/ArchMage.tres" id="4_csbtv"]
-[ext_resource type="Resource" uid="uid://fei5h0kw8ykp" path="res://resources/Abilities/A_FMA.tres" id="4_h2y4b"]
+[ext_resource type="Resource" uid="uid://cgywubtniaon0" path="res://resources/Abilities/Mage/A_Fireball.tres" id="5_h2y4b"]
 
 [resource]
 script = ExtResource("1_uo3r6")
@@ -15,7 +15,7 @@ sprite_frames = Dictionary[int, SpriteFrames]({
 1: ExtResource("3_uwn8l"),
 15: ExtResource("4_csbtv")
 })
-skills = Array[ExtResource("3_csbtv")]([ExtResource("4_h2y4b")])
+skills = Array[ExtResource("3_csbtv")]([ExtResource("5_h2y4b")])
 description = "A spellcaster with powerful magic abilities."
 icon = ExtResource("1_li4sd")
 primary_stat = 1
