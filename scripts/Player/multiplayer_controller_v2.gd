@@ -239,6 +239,10 @@ func _setup_signals() -> void:
 	# Connect component signals to handle game logic and data saving.
 	# These should run on both Client (to trigger RPC save) and Server (to save directly).
 	if level_component:
+		level_component.experience_changed.connect(func(_c, _e): _data_changed())
+		level_component.leveled_up.connect(func(_l): _data_changed())
+		level_component.leveled_up.connect(_handle_sprite_change_on_server.unbind(1))
+		level_component.leveled_up.connect(_on_leveled_up_effect)
 		level_component.experience_changed.connect(func(_c, _e): _data_changed("stats"))
 		level_component.leveled_up.connect(func(_l): _data_changed("all")) # Level up might affect everything (points, stats)
 		if multiplayer.is_server():
@@ -668,6 +672,61 @@ func set_username(uname: String) -> void:
 	if is_instance_valid(player_name_label):
 		player_name_label.text = username
 
+
+func _on_leveled_up_effect(_new_level: int) -> void:
+	if _is_loading_data or _is_being_cleaned_up:
+		return
+	if not multiplayer.is_server():
+		return
+	# Broadcast to all players on the same map
+	var map_node = MapManager.get_player_map_node(player_id)
+	if map_node:
+		var map_name: String = map_node.name.replace("Map_", "")
+		var players_on_map: Array = MapManager.get_players_on_map(map_name)
+		for peer_id in players_on_map:
+			_play_levelup_effect.rpc_id(peer_id)
+		# Also play on server if host
+		if multiplayer.get_unique_id() == 1:
+			_play_levelup_effect()
+	else:
+		_play_levelup_effect.rpc()
+
+
+@rpc("authority", "call_local", "reliable")
+func _play_levelup_effect() -> void:
+	# Create a temporary GPUParticles2D for the level-up burst
+	var particles := GPUParticles2D.new()
+	particles.name = "LevelUpParticles"
+	particles.position = Vector2(0, -12)
+	particles.emitting = true
+	particles.one_shot = true
+	particles.amount = 24
+	particles.lifetime = 0.8
+	particles.explosiveness = 0.9
+
+	var mat := ParticleProcessMaterial.new()
+	mat.direction = Vector3(0, -1, 0)
+	mat.spread = 180.0
+	mat.initial_velocity_min = 40.0
+	mat.initial_velocity_max = 80.0
+	mat.gravity = Vector3(0, 60, 0)
+	mat.scale_min = 2.0
+	mat.scale_max = 4.0
+	mat.color = Color(1.0, 0.9, 0.2, 1.0)  # Golden yellow
+	var color_ramp := Gradient.new()
+	color_ramp.set_color(0, Color(1.0, 0.9, 0.2, 1.0))
+	color_ramp.set_color(1, Color(1.0, 0.5, 0.0, 0.0))
+	var color_texture := GradientTexture1D.new()
+	color_texture.gradient = color_ramp
+	mat.color_ramp = color_texture
+
+	particles.process_material = mat
+	add_child(particles)
+
+	# Auto-cleanup after particles finish
+	await get_tree().create_timer(1.5).timeout
+	if is_instance_valid(particles):
+		particles.queue_free()
 @rpc("any_peer", "call_local", "reliable")
 func request_map_change_rpc(new_map_id: String, spawn_point_name: String = "", client_data_string: String = ""):
 	"""Server receives map change request"""
