@@ -1,6 +1,6 @@
 [gd_scene load_steps=25 format=4 uid="uid://d1hwvomjwdrjv"]
 
-[ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_e24jv"]
+[ext_resource type="Script" path="res://scripts/Gameplay/map_base.gd" id="1_e24jv"]
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/damage_numbers.gd" id="1_ryi0r"]
 [ext_resource type="Texture2D" uid="uid://jorjvuc5wn72" path="res://assets/sprites/world_tileset.png" id="2_l25cu"]
 [ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="3_j167y"]
@@ -550,7 +550,7 @@ _data = {
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_e24jv")
-bgm_path = "res://assets/music/gameplay.mp3"
+bgm_path = "uid://1ib7gi5y7uov"
 
 [node name="DmgNumberSpawner" type="MultiplayerSpawner" parent="."]
 spawn_path = NodePath("..")
@@ -562,8 +562,6 @@ spawn_path = NodePath("../Projectiles")
 
 [node name="PortalToGame2" parent="." instance=ExtResource("3_jq5g6")]
 position = Vector2(504, 0)
-collision_layer = 0
-collision_mask = 2
 target_map_id = "game2"
 target_spawn_point_name = "Game2_Game_Portal_Spawn"
 
@@ -572,8 +570,6 @@ position = Vector2(486, 6)
 
 [node name="PortalToGame3" parent="." instance=ExtResource("3_jq5g6")]
 position = Vector2(-824, 0)
-collision_layer = 0
-collision_mask = 2
 target_map_id = "game3"
 target_spawn_point_name = "Game3_Game_Portal_Spawn"
 
