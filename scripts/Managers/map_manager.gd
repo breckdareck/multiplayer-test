@@ -77,6 +77,9 @@ func request_map_change(player_id: int, target_map_id: String, target_spawn_poin
 	if player_id == 1:
 		current_map_instance = map_instance
 		current_map_id = target_map_id
+		# Play per-map BGM for the host player
+		if map_instance is MapBase and not map_instance.bgm_path.is_empty():
+			AudioManager.play_song(map_instance.bgm_path)
 		_finalize_player_spawn(player_id, target_map_id, target_spawn_point_name)
 		return
 
@@ -421,9 +424,13 @@ func client_set_current_map(map_id: String, spawn_point_name: String = ""):
 	current_map_instance = map_instance
 	current_map_id = map_id
 	_warned_missing_paths.clear()
-	
+
+	# Play per-map BGM if the map defines one
+	if map_instance is MapBase and not map_instance.bgm_path.is_empty():
+		AudioManager.play_song(map_instance.bgm_path)
+
 	#print("Client %d: Loaded map '%s' at path %s" % [multiplayer.get_unique_id(), map_id, map_instance.get_path()])
-	
+
 	# ACK to server
 	rpc_id(1, "client_map_loaded", map_id, spawn_point_name)
 

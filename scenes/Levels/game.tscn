@@ -550,6 +550,7 @@ _data = {
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_e24jv")
+bgm_path = "res://assets/music/gameplay.mp3"
 
 [node name="DmgNumberSpawner" type="MultiplayerSpawner" parent="."]
 spawn_path = NodePath("..")

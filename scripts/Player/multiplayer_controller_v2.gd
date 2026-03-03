@@ -76,7 +76,6 @@ func _ready() -> void:
 	if multiplayer.get_unique_id() == player_id:
 		ChatManager.register_local_player(self)
 		# Request the sprite states of all other players from the server.
-		AudioManager.play_song("res://assets/music/gameplay.mp3")
 		stats_window.update_stats_window()
 		request_all_sprite_states.rpc_id(SERVER_ID)
 
