@@ -668,6 +668,25 @@ func set_username(uname: String) -> void:
 	if is_instance_valid(player_name_label):
 		player_name_label.text = username
 
+@rpc("any_peer", "call_local", "reliable")
+func request_map_change_rpc(new_map_id: String, spawn_point_name: String = "", client_data_string: String = ""):
+	"""Server receives map change request"""
+	if not multiplayer.is_server():
+		return
+	
+	var requester_id = multiplayer.get_remote_sender_id()
+	print("Player %d requesting map change to '%s' at spawn '%s'" % [requester_id, new_map_id, spawn_point_name])
+	
+	# Save player data before moving
+	if not client_data_string.is_empty():
+		print("Server: Saving client-provided data for player %d before map change." % requester_id)
+		save_on_server(client_data_string)
+	else:
+		print("Server: No client data provided, saving server-side state for player %d." % requester_id)
+		_data_changed()
+	
+	# Change map through MapManager
+	MapManager.request_map_change(requester_id, new_map_id, spawn_point_name)
 
 ## Apply camera shake effect. Only runs on the local player's camera.
 func screen_shake(intensity: float = 4.0, duration: float = 0.2) -> void:
