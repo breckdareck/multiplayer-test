@@ -85,7 +85,10 @@ func remove_player(id: int):
 	# Notify PartyManager
 	if PartyManager:
 		PartyManager._on_player_disconnected(id)
-	
+
+	# Cancel any active trade
+	TradeManager.handle_player_disconnect(id)
+
 	# Remove from active players
 	if id in active_players:
 		active_players.erase(id)
