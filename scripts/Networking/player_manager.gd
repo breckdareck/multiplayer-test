@@ -85,7 +85,12 @@ func remove_player(id: int):
 	# Notify PartyManager
 	if PartyManager:
 		PartyManager._on_player_disconnected(id)
-	
+
+	# Notify FriendManager
+	var disconnect_username = active_players.get(id, {}).get("username", "")
+	if not disconnect_username.is_empty():
+		FriendManager.unregister_player(disconnect_username)
+
 	# Remove from active players
 	if id in active_players:
 		active_players.erase(id)
