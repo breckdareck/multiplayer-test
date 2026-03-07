@@ -10,7 +10,7 @@ func execute():
 
 	var current_map: String = MapManager.get_player_map(user.player_id)
 	if current_map == target_map:
-		print("Town Scroll: Player '%s' is already on map '%s'." % [user.username, target_map])
+		print("Town Potion: Player '%s' is already on map '%s'." % [user.username, target_map])
 		return
 
 	print("Town Scroll: Teleporting '%s' to '%s'." % [user.username, target_map])
