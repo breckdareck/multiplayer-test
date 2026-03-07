@@ -14,6 +14,11 @@ enum ClassType {
 	MAGE,
 	ROGUE,
 	BEGINNER,
+	# Advanced classes (job advancement at level 30)
+	CRUSADER,    # Swordsman → Crusader
+	RANGER,      # Archer → Ranger
+	ARCHMAGE,    # Mage → Archmage
+	ASSASSIN,    # Rogue → Assassin
 }
 
 enum ItemType {

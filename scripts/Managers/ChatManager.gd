@@ -11,6 +11,10 @@ func register_local_player(player_node: MultiplayerPlayerV2):
 	local_player_node = player_node
 
 func send_chat_message(text: String):
+	if text.strip_edges().to_lower() == "/advance":
+		JobAdvancementManager.request_advancement.rpc_id(1)
+		return
+
 	if local_player_node:
 		broadcast_message.rpc(local_player_node.username, text)
 	else:

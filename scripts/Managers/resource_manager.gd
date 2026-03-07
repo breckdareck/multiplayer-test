@@ -129,6 +129,14 @@ func get_class_type_from_string(_class_name: String) -> Constants.ClassType:
 			return Constants.ClassType.ROGUE
 		"beginner":
 			return Constants.ClassType.BEGINNER
+		"crusader":
+			return Constants.ClassType.CRUSADER
+		"ranger":
+			return Constants.ClassType.RANGER
+		"archmage":
+			return Constants.ClassType.ARCHMAGE
+		"assassin":
+			return Constants.ClassType.ASSASSIN
 		_:
 			return Constants.ClassType.BEGINNER  # Default fallback
 #endregion
