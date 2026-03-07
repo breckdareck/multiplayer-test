@@ -429,7 +429,10 @@ func get_save_data(update_type: String = "all") -> Dictionary:
 	if update_type == "all" or update_type == "buffs":
 		if is_instance_valid(buff_component):
 			data['buffs'] = buff_component.save_buffs()
-		
+
+	if update_type == "all":
+		data['guild'] = GuildManager.save_guild(username)
+
 	return data
 
 
@@ -502,7 +505,12 @@ func _load_data(data: Dictionary) -> void:
 		var buff_data = data.get("buffs", {})
 		if not buff_data.is_empty():
 			buff_component.load_buffs(buff_data)
-		
+
+	# Load guild membership
+	var guild_data = data.get("guild", {})
+	if not guild_data.is_empty():
+		GuildManager.load_guild(username, guild_data)
+
 	_is_loading_data = false
 
 
