@@ -98,7 +98,7 @@ static func get_all_resource_types() -> Array[ResourceType]:
 	var class_type = ResourceType.new(
 		"Classes",
 		"res://scripts/Resources/ClassSystem/ClassData.gd",
-		"res://resources/Classes",
+		"res://resources/Player/Classes",
 		"Class System",
 		false
 	)
