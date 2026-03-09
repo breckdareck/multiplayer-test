@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import joinedload
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 import time
@@ -9,6 +10,11 @@ import threading
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql://postgres:password@localhost:5432/gamedb')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_size': 20,
+    'pool_recycle': 3600,
+    'pool_pre_ping': True,
+}
 
 db = SQLAlchemy(app)
 
@@ -55,6 +61,10 @@ class Player(db.Model):
 
 class PlayerItem(db.Model):
     __tablename__ = 'player_items'
+    __table_args__ = (
+        db.Index('idx_playeritem_username', 'player_username'),
+        db.UniqueConstraint('player_username', 'slot_index', name='uq_playeritem_slot'),
+    )
     id = db.Column(db.Integer, primary_key=True)
     player_username = db.Column(db.String(255), db.ForeignKey('players.username'))
     item_id = db.Column(db.String(255)) # Godot UUID
@@ -81,6 +91,10 @@ class PlayerItem(db.Model):
 
 class PlayerEquipment(db.Model):
     __tablename__ = 'player_equipment'
+    __table_args__ = (
+        db.Index('idx_playerequip_username', 'player_username'),
+        db.UniqueConstraint('player_username', 'slot_type', name='uq_playerequip_slot'),
+    )
     id = db.Column(db.Integer, primary_key=True)
     player_username = db.Column(db.String(255), db.ForeignKey('players.username'))
     item_id = db.Column(db.String(255))
@@ -106,6 +120,10 @@ class PlayerEquipment(db.Model):
 
 class PlayerAbility(db.Model):
     __tablename__ = 'player_abilities'
+    __table_args__ = (
+        db.Index('idx_playerability_username', 'player_username'),
+        db.UniqueConstraint('player_username', 'ability_id', name='uq_playerability_id'),
+    )
     id = db.Column(db.Integer, primary_key=True)
     player_username = db.Column(db.String(255), db.ForeignKey('players.username'))
     ability_id = db.Column(db.String(255))
@@ -113,6 +131,10 @@ class PlayerAbility(db.Model):
 
 class PlayerHotbar(db.Model):
     __tablename__ = 'player_hotbar'
+    __table_args__ = (
+        db.Index('idx_playerhotbar_username', 'player_username'),
+        db.UniqueConstraint('player_username', 'slot_index', name='uq_playerhotbar_slot'),
+    )
     id = db.Column(db.Integer, primary_key=True)
     player_username = db.Column(db.String(255), db.ForeignKey('players.username'))
     slot_index = db.Column(db.Integer)
@@ -120,6 +142,9 @@ class PlayerHotbar(db.Model):
 
 class PlayerBuff(db.Model):
     __tablename__ = 'player_buffs'
+    __table_args__ = (
+        db.Index('idx_playerbuff_username', 'player_username'),
+    )
     id = db.Column(db.Integer, primary_key=True)
     player_username = db.Column(db.String(255), db.ForeignKey('players.username'))
     buff_id = db.Column(db.String(255))
@@ -247,8 +272,14 @@ def load_player():
     if not username:
         return jsonify({"error": "Username required"}), 400
         
-    player = Player.query.filter_by(username=username).first()
-    
+    player = Player.query.options(
+        joinedload(Player.items),
+        joinedload(Player.equipment),
+        joinedload(Player.abilities),
+        joinedload(Player.hotbar),
+        joinedload(Player.buffs),
+    ).filter_by(username=username).first()
+
     if player:
         # Reconstruct JSON structure for Godot
         response_data = {
@@ -365,7 +396,13 @@ def save_player():
         return jsonify({"error": "Save in progress"}), 429
 
     try:
-        player = Player.query.filter_by(username=username).first()
+        player = Player.query.options(
+            joinedload(Player.items),
+            joinedload(Player.equipment),
+            joinedload(Player.abilities),
+            joinedload(Player.hotbar),
+            joinedload(Player.buffs),
+        ).filter_by(username=username).first()
 
         if not player:
             player = Player(username=username)
@@ -543,7 +580,7 @@ def save_player():
 
             # Smart sync abilities
             incoming_abilities = ab_data.get('ability_levels', {})
-            existing_abilities = {a.ability_id: a for a in PlayerAbility.query.filter_by(player_username=username).all()}
+            existing_abilities = {a.ability_id: a for a in player.abilities}
 
             for ab_id, level in incoming_abilities.items():
                 if ab_id in existing_abilities:
@@ -557,7 +594,7 @@ def save_player():
 
             # Smart sync hotbar
             incoming_hotbar = ab_data.get('hotbar_config', {})
-            existing_hotbar = {str(hb.slot_index): hb for hb in PlayerHotbar.query.filter_by(player_username=username).all()}
+            existing_hotbar = {str(hb.slot_index): hb for hb in player.hotbar}
 
             for slot, ab_id in incoming_hotbar.items():
                 slot_str = str(slot)
@@ -574,7 +611,7 @@ def save_player():
         if 'buffs' in data:
             buff_data = data['buffs']
             incoming_buffs = buff_data.get('active_buffs', [])
-            existing_buffs = {b.buff_id: b for b in PlayerBuff.query.filter_by(player_username=username).all()}
+            existing_buffs = {b.buff_id: b for b in player.buffs}
 
             incoming_buff_ids = set()
             for buff in incoming_buffs:
@@ -606,6 +643,15 @@ def save_player():
         return jsonify({"error": "Save failed", "details": str(e)}), 500
     finally:
         lock.release()
+
+@app.route('/health', methods=['GET'])
+def health_check():
+    try:
+        db.session.execute(db.text('SELECT 1'))
+        return jsonify({"status": "healthy"}), 200
+    except Exception as e:
+        return jsonify({"status": "unhealthy", "error": str(e)}), 503
+
 
 def init_db():
     """Initialize database with retry logic for Docker startup"""
