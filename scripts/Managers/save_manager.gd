@@ -18,6 +18,7 @@ const DEBOUNCE_TIME: float = 0.5        # seconds before a queued save fires
 const AUTO_SAVE_INTERVAL: float = 60.0  # periodic full save for all players
 const RETRY_DELAY: float = 1.0          # delay before a single retry
 const HTTP_TIMEOUT: float = 5.0         # per-request timeout
+const HTTP_POOL_SIZE: int = 4           # parallel HTTP save slots
 
 const VALID_CATEGORIES: PackedStringArray = [
 	"stats", "inventory", "abilities", "buffs", "equipment"
@@ -30,12 +31,12 @@ var _api_url: String = ""  # Will be loaded from UserConfig
 var _players: Dictionary = {}
 
 # ── Nodes ─────────────────────────────────────────────────────────────────
-var _http_request: HTTPRequest
+var _http_pool: Array[HTTPRequest] = []
 var _auto_save_timer: Timer
 
-# ── In-flight queue (only one HTTP call at a time per username) ───────────
-var _in_flight_username: String = ""
-var _pending_queue: Array[String] = []  # usernames waiting for their turn
+# ── In-flight tracking (parallel saves via pool) ─────────────────────────
+var _in_flight: Dictionary = {}        # username -> true
+var _pending_queue: Array[String] = [] # usernames waiting for a free slot
 
 
 func _ready() -> void:
@@ -47,11 +48,13 @@ func _ready() -> void:
 	if not _is_server():
 		return
 
-	# Persistent HTTPRequest node — reused for every save call
-	_http_request = HTTPRequest.new()
-	_http_request.name = "SaveHTTPRequest"
-	_http_request.timeout = HTTP_TIMEOUT
-	add_child(_http_request)
+	# Pool of HTTPRequest nodes for parallel saves
+	for i in range(HTTP_POOL_SIZE):
+		var http = HTTPRequest.new()
+		http.name = "SaveHTTP_%d" % i
+		http.timeout = HTTP_TIMEOUT
+		add_child(http)
+		_http_pool.append(http)
 
 	# Auto-save timer
 	_auto_save_timer = Timer.new()
@@ -168,10 +171,10 @@ func flush_save(username: String) -> void:
 	if data.is_empty():
 		return
 
-	# If there's already a request in flight we can't await the HTTPRequest node,
-	# so fall back to file save for the flush to guarantee data is persisted.
-	if _in_flight_username != "":
-		print("SaveManager: Flush for '%s' — HTTP busy, saving to file." % username)
+	# If all pool slots are busy, fall back to file save for the flush
+	var http = _get_free_http()
+	if not http:
+		print("SaveManager: Flush for '%s' — HTTP pool busy, saving to file." % username)
 		_save_to_file(data)
 		info.dirty_categories.clear()
 		save_completed.emit(username)
@@ -179,7 +182,7 @@ func flush_save(username: String) -> void:
 
 	# Otherwise attempt HTTP save (blocking via await)
 	info.dirty_categories.clear()
-	await _send_http_save(username, data, true)  # is_flush = true
+	await _send_http_save(username, data, true, http)  # is_flush = true
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -208,8 +211,13 @@ func _schedule_save(username: String) -> void:
 	if info.dirty_categories.is_empty():
 		return
 
-	# If HTTP is busy, queue this username for later
-	if _in_flight_username != "":
+	# Skip if already in flight
+	if _in_flight.has(username):
+		return
+
+	# If no free HTTP slot, queue this username for later
+	var http = _get_free_http()
+	if not http:
 		if username not in _pending_queue:
 			_pending_queue.append(username)
 		return
@@ -221,18 +229,14 @@ func _schedule_save(username: String) -> void:
 		return
 
 	info.dirty_categories.clear()
-	_send_http_save(username, data, false)
+	_send_http_save(username, data, false, http)
 
 
 func _process_pending_queue() -> void:
-	if _in_flight_username != "":
-		return  # still busy
-	if _pending_queue.is_empty():
-		return
-
-	var next_username: String = _pending_queue.pop_front()
-	if _players.has(next_username):
-		_schedule_save(next_username)
+	while not _pending_queue.is_empty() and _get_free_http() != null:
+		var next_username: String = _pending_queue.pop_front()
+		if _players.has(next_username):
+			_schedule_save(next_username)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -275,7 +279,14 @@ func _collect_save_data(username: String) -> Dictionary:
 # INTERNAL — HTTP SAVE
 # ═══════════════════════════════════════════════════════════════════════════
 
-func _send_http_save(username: String, data: Dictionary, is_flush: bool) -> void:
+func _get_free_http() -> HTTPRequest:
+	for http in _http_pool:
+		if not http.get_meta("busy", false):
+			return http
+	return null
+
+
+func _send_http_save(username: String, data: Dictionary, is_flush: bool, http: HTTPRequest) -> void:
 	# Check local-save-only mode
 	if NetworkManager.use_local_save:
 		print("SaveManager: Local save mode — writing file for '%s'." % username)
@@ -283,7 +294,8 @@ func _send_http_save(username: String, data: Dictionary, is_flush: bool) -> void
 		save_completed.emit(username)
 		return
 
-	_in_flight_username = username
+	http.set_meta("busy", true)
+	_in_flight[username] = true
 
 	var payload := {
 		"username": username,
@@ -292,24 +304,25 @@ func _send_http_save(username: String, data: Dictionary, is_flush: bool) -> void
 	var json_body: String = JSON.stringify(payload)
 	var headers: PackedStringArray = ["Content-Type: application/json"]
 
-	var error := _http_request.request(_api_url + "/save", headers, HTTPClient.METHOD_POST, json_body)
+	var error := http.request(_api_url + "/save", headers, HTTPClient.METHOD_POST, json_body)
 	if error != OK:
 		push_error("SaveManager: HTTP request failed to start for '%s'. Error: %d" % [username, error])
-		_in_flight_username = ""
+		http.set_meta("busy", false)
+		_in_flight.erase(username)
 		_save_to_file(data)
 		save_failed.emit(username, "HTTP request failed to start (error %d)" % error)
 		_process_pending_queue()
 		return
 
-	var result: Array = await _http_request.request_completed
+	var result: Array = await http.request_completed
 	var response_code: int = result[1]
 
 	if response_code == 200:
 		print("SaveManager: Saved '%s' to API successfully." % username)
-		_in_flight_username = ""
+		http.set_meta("busy", false)
+		_in_flight.erase(username)
 		save_completed.emit(username)
 
-		# If more dirty data accumulated while we were in flight, schedule again
 		if _players.has(username) and not _players[username].dirty_categories.is_empty():
 			_schedule_save(username)
 
@@ -322,19 +335,21 @@ func _send_http_save(username: String, data: Dictionary, is_flush: bool) -> void
 	if not is_flush:
 		await get_tree().create_timer(RETRY_DELAY).timeout
 
-	var retry_error := _http_request.request(_api_url + "/save", headers, HTTPClient.METHOD_POST, json_body)
+	var retry_error := http.request(_api_url + "/save", headers, HTTPClient.METHOD_POST, json_body)
 	if retry_error != OK:
 		push_error("SaveManager: Retry request failed to start for '%s'." % username)
-		_in_flight_username = ""
+		http.set_meta("busy", false)
+		_in_flight.erase(username)
 		_save_to_file(data)
 		save_failed.emit(username, "Retry request failed to start")
 		_process_pending_queue()
 		return
 
-	var retry_result: Array = await _http_request.request_completed
+	var retry_result: Array = await http.request_completed
 	var retry_response_code: int = retry_result[1]
 
-	_in_flight_username = ""
+	http.set_meta("busy", false)
+	_in_flight.erase(username)
 
 	if retry_response_code == 200:
 		print("SaveManager: Retry succeeded for '%s'." % username)
@@ -344,7 +359,6 @@ func _send_http_save(username: String, data: Dictionary, is_flush: bool) -> void
 		_save_to_file(data)
 		save_failed.emit(username, "HTTP save failed after retry (code %d)" % retry_response_code)
 
-	# Process any waiting saves
 	if _players.has(username) and not _players[username].dirty_categories.is_empty():
 		_schedule_save(username)
 	_process_pending_queue()
