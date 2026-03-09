@@ -30,6 +30,9 @@ var _synchronizer_cache: Dictionary = {} ## {node_instance_id: Array[Multiplayer
 func _ready():
 	# Defer server-side setup until the server is confirmed to be running.
 	MultiplayerManager.server_has_started.connect(_on_server_started)
+	# Preload all map scenes in background so first load is non-blocking
+	for map_id in MAP_SCENES:
+		ResourceLoader.load_threaded_request(MAP_SCENES[map_id])
 
 
 func _on_scene_changed():
@@ -99,7 +102,7 @@ func _load_map_on_server(map_id: String):
 		push_error("MapManager: Invalid map_id '%s'" % map_id)
 		return
 	
-	var map_scene = load(map_path)
+	var map_scene = ResourceLoader.load_threaded_get(map_path)
 	if not map_scene:
 		push_error("MapManager: Failed to load map scene at '%s'" % map_path)
 		return
@@ -408,11 +411,11 @@ func client_set_current_map(map_id: String, spawn_point_name: String = ""):
 		push_error("Client: Invalid map_id '%s'" % map_id)
 		return
 	
-	var map_scene = load(map_path)
+	var map_scene = ResourceLoader.load_threaded_get(map_path)
 	if not map_scene:
 		push_error("Client: Failed to load map scene at '%s'" % map_path)
 		return
-		
+
 	var map_instance = map_scene.instantiate()
 	if not is_instance_valid(map_instance):
 		push_error("Client: Failed to instantiate map '%s'" % map_id)
