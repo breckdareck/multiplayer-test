@@ -24,6 +24,7 @@ var current_map_id: String = ""
 var current_map_instance: Node = null
 var my_player_node: Node = null
 var _warned_missing_paths: Dictionary = {}
+var _synchronizer_cache: Dictionary = {} ## {node_instance_id: Array[MultiplayerSynchronizer]}
 
 
 func _ready():
@@ -187,7 +188,10 @@ func _spawn_player_on_server_map(player_id: int, map_id: String, spawn_point_nam
 	
 	# Add to tree
 	players_node.add_child(player_char)
-	
+
+	# Invalidate map's synchronizer cache since new player subtree was added
+	invalidate_synchronizer_cache(map_instance)
+
 	# CRITICAL: Set public_visibility=false for all player synchronizers
 	# Visibility will be controlled via visibility filters and _update_visibility_for_player()
 	_set_synchronizers_public_visibility(player_char, false)
@@ -225,10 +229,12 @@ func _remove_player_from_map(player_id: int, map_id: String):
 	
 	var player_node = map_instance.get_node_or_null("Players/" + str(player_id))
 	if is_instance_valid(player_node):
+		# Invalidate caches before freeing (player cache + map cache since subtree changes)
+		invalidate_synchronizer_cache(player_node)
+		invalidate_synchronizer_cache(map_instance)
 		# Cleanup player components before freeing to prevent lingering network messages
 		if player_node.has_method("cleanup_before_removal"):
 			player_node.cleanup_before_removal()
-			#print("MapManager: Server cleaned up player %d before removal" % player_id)
 		player_node.queue_free()
 		
 	# Notify clients on this map to remove this player
@@ -249,6 +255,7 @@ func _unload_map_on_server(map_id: String):
 	#print("MapManager: Despawning empty map '%s'" % map_id)
 	var map_instance = active_maps[map_id].scene_instance
 	if is_instance_valid(map_instance):
+		invalidate_synchronizer_cache(map_instance)
 		map_instance.queue_free()
 
 	active_maps.erase(map_id)
@@ -290,26 +297,35 @@ func _get_all_synchronizers_in_node(node: Node) -> Array[MultiplayerSynchronizer
 func _set_visibility_for_node(node: Node, peer_id: int, visible: bool):
 	"""Sets the visibility for all synchronizers within a node for a specific peer."""
 	if not is_instance_valid(node): return
-	var synchronizers = _get_all_synchronizers_in_node(node)
-	if synchronizers.is_empty():
-		# print("DEBUG: No synchronizers found in node %s" % node.name)
-		pass
-		
+	var synchronizers = _get_cached_synchronizers(node)
 	for s in synchronizers:
 		if not is_instance_valid(s): continue
-		#print("DEBUG: Setting %s on %s visibility to %s for peer %s" % [s.name, node.name, visible, peer_id])
 		s.set_visibility_for(peer_id, visible)
-		
-		# Force update visibility just in case
 		s.update_visibility(peer_id)
 
 
 func _set_synchronizers_public_visibility(node: Node, visible: bool):
 	"""Sets the default public visibility for all synchronizers in a node."""
 	if not is_instance_valid(node): return
-	var synchronizers = _get_all_synchronizers_in_node(node)
+	var synchronizers = _get_cached_synchronizers(node)
 	for s in synchronizers:
+		if not is_instance_valid(s): continue
 		s.public_visibility = visible
+
+
+func _get_cached_synchronizers(node: Node) -> Array[MultiplayerSynchronizer]:
+	"""Returns synchronizers for a node, using cache when available."""
+	var id = node.get_instance_id()
+	if _synchronizer_cache.has(id):
+		return _synchronizer_cache[id]
+	var syncs = _get_all_synchronizers_in_node(node)
+	_synchronizer_cache[id] = syncs
+	return syncs
+
+
+func invalidate_synchronizer_cache(node: Node) -> void:
+	"""Invalidates cached synchronizers for a node. Call when subtree structure changes."""
+	_synchronizer_cache.erase(node.get_instance_id())
 
 
 func update_visibility_for_player(player_id: int):
