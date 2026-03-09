@@ -29,13 +29,13 @@ kanban-plugin: board
 - [ ] Tier 6 — World Expansion (art-heavy, pace yourself)
 	- [ ] 2-3 New Enemy Types — Recolor/variant sprites of existing enemies with different stats and AI behaviors
 	- [ ] 2-3 New Maps — Level-banded zones (30-50, 50-70). Reuse tilesets with different layouts and color palettes
-	- [ ] Hidden Areas — 1-2 secret portals in existing maps leading to small bonus rooms with rare spawns
+	- [x] Hidden Areas — 1-2 secret portals in existing maps leading to small bonus rooms with rare spawns (SecretPortal implemented)
 	- [ ] Jump Quest — One platforming challenge map using existing tiles. Reward: unique cosmetic or title
-	- [ ] Town Scrolls — Consumable item to teleport back to hub town. Just an item effect, no art
+	- [x] Town Scrolls — Consumable item to teleport back to hub town. Just an item effect, no art (Effect_TownPotion implemented)
 - [ ] Tier 7 — Juice & Feel (incremental, do as you go)
 	- [ ] Screen Shake — Simple camera shake on big hits. A few lines of code
 	- [ ] Level-up Effect — Simple particle burst or flash on level up. Use Godot's built-in GPUParticles2D
-	- [ ] Per-map BGM — Add royalty-free music tracks per zone. Just AudioStreamPlayer setup
+	- [x] Per-map BGM — Add royalty-free music tracks per zone. Just AudioStreamPlayer setup (MapBase.bgm_path implemented)
 	- [ ] Megaphone Chat — Server-wide chat via consumable item. Reuse chat system
 - [ ] Tier 8 — Stretch Goals
 	- [ ] Mini-Game — One simple game (dice roll) between two players for coin wagers
@@ -52,7 +52,7 @@ kanban-plugin: board
 	- [x] Create item effects and modifiers (for equipment)
 	- [x] Add item rarity system (common, uncommon, rare, epic, legendary)
 	- [x] Add random stats to equipment drops
-	- [ ] Create item effects and modifiers (for consumables)
+	- [x] Create item effects and modifiers (for consumables)
 - [ ] Equipment System
 	- [x] Create EquipmentComponent class
 	- [x] Define equipment slots (weapon, armor, accessories)

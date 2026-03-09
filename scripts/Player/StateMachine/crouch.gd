@@ -1,4 +1,4 @@
-﻿extends State
+extends State
 
 @export var idle_state: State
 @export var fall_state: State
@@ -8,7 +8,7 @@
 
 func enter() -> void:
 	super()
-	var player: MultiplayerPlayer = parent as MultiplayerPlayer
+	var player: MultiplayerPlayerV2 = parent as MultiplayerPlayerV2
 
 	# Keep some momentum when entering crouch state, but reduce it
 	if player.direction != 0:
@@ -24,14 +24,14 @@ func enter() -> void:
 
 func exit() -> void:
 	super()
-	var player: MultiplayerPlayer = parent as MultiplayerPlayer
+	var player: MultiplayerPlayerV2 = parent as MultiplayerPlayerV2
 
 	# CRITICAL: Always restore the original collision shape when exiting the crouch state.
 	# This ensures player returns to normal standing shape regardless of next state
 	player.end_crouch_effects()
 
 func physics_update(delta: float) -> State:
-	var player: MultiplayerPlayer = parent as MultiplayerPlayer
+	var player: MultiplayerPlayerV2 = parent as MultiplayerPlayerV2
 
 	# Apply gravity.
 	parent.velocity.y += gravity * delta

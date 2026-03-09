@@ -38,12 +38,15 @@ This is a **server-authoritative multiplayer RPG** in Godot 4. All critical stat
 | `PlayerManager` | `scripts/Networking/player_manager.gd` | Player spawn/cleanup |
 | `ChannelManager` | `scripts/Networking/channel_manager.gd` | Port switching without restart |
 | `NetworkUtils` | `scripts/Networking/network_utils.gd` | IP/port validation, scene helpers |
+| `NetworkManager` | `scripts/Networking/network_manager.gd` | Backend API (login, characters) |
 | `ResourceManager` | `scripts/Managers/resource_manager.gd` | Load/cache all `.tres` game data |
+| `SaveManager` | `scripts/Managers/save_manager.gd` | Debounced player data persistence |
 | `MapManager` | `scripts/Managers/map_manager.gd` | Map/zone transitions |
 | `PartyManager` | `scripts/Managers/party_manager.gd` | Party creation/joining |
 | `ChatManager` | `scripts/Managers/ChatManager.gd` | In-game messaging |
 | `KeybindManager` | `scripts/Managers/keybind_manager.gd` | Custom keybindings |
 | `UserConfig` | `scripts/Managers/user_config.gd` | User preferences persistence |
+| `InputManager` | `scripts/Managers/InputManager.gd` | Global input lock/unlock |
 | `AudioManager` | `scripts/Managers/audio_manager.gd` | Music and SFX |
 | `LogManager` | `scripts/Managers/LogManager.gd` | In-game debug logging |
 
