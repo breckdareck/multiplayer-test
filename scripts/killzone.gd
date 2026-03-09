@@ -4,7 +4,6 @@ func _on_body_entered(body: Node2D) -> void:
 	_multiplayer_dead(body)
 
 func _multiplayer_dead(body: Node2D) -> void:
-	print("!!!! BODY: %s - Entered: %s" % [body, owner.name])
 	# The server is the authority. It checks if the body is a player
 	# and if they aren't already marked as dead to prevent multiple triggers.
 	if multiplayer.is_server() and body is MultiplayerPlayerV2:
