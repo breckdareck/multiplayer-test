@@ -255,9 +255,8 @@ func get_buff_stat_modifiers() -> Dictionary:
 
 
 func _force_stat_recalc() -> void:
-	if _stats_component and _stats_component.has_method("_recalculate_stats_server"):
-		if multiplayer.is_server():
-			_stats_component._recalculate_stats_server("BuffChange")
+	if _stats_component and multiplayer.is_server():
+		_stats_component.mark_stats_dirty()
 
 
 func _on_damaged(amount: int, source: Node) -> void:
