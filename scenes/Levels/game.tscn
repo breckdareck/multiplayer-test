@@ -630,11 +630,10 @@ horizontal_alignment = 1
 
 [node name="Killzone" parent="." instance=ExtResource("4_kgokg")]
 position = Vector2(-1, 92)
-monitoring = false
-monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Killzone"]
 shape = SubResource("WorldBoundaryShape2D_p57ef")
+debug_color = Color(0.9764706, 0, 0, 0.75686276)
 
 [node name="Platforms" type="Node2D" parent="."]
 
