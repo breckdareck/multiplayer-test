@@ -6,7 +6,7 @@
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ce0sh"]
 atlas = ExtResource("2_h2tih")
-region = Rect2(31, 32, 17, 17)
+region = Rect2(16, 32, 16, 16)
 
 [resource]
 script = ExtResource("1_zod2q")
@@ -15,9 +15,9 @@ effect_properties = {
 "heal_amount": 50
 }
 item_id = "1012871389-11716-2483-4151510-4711211231210113"
-name = "Grape Potion"
+name = "Health Potion"
 icon = SubResource("AtlasTexture_ce0sh")
-description = "A mystical grape that restores 50 HP."
+description = "A mystical pear that restores 50 HP."
 item_type = 2
 item_level = -1
 custom_item_value = 100

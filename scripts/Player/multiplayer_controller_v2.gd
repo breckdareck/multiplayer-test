@@ -568,8 +568,12 @@ func respawn() -> void:
 	if not multiplayer.is_server() or _is_being_cleaned_up:
 		return
 
-	# The server authoritatively sets the respawn position and resets state.
-	position = MultiplayerManager.respawn_point
+	# The server authoritatively sets the respawn position from the current map's PlayerSpawn.
+	var current_map_id = MapManager.get_player_map(player_id)
+	if current_map_id != "":
+		position = MapManager.get_spawn_position_for_map(current_map_id)
+	else:
+		position = MultiplayerManager.respawn_point
 	do_attack = false
 	do_jump = false
 	do_drop = false
