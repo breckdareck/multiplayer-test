@@ -20,6 +20,14 @@ func to_dictionary() -> Dictionary:
 	dict["effect_properties"] = effect_properties
 	return dict
 
+
+func get_save_data() -> Dictionary:
+	var dict = super.get_save_data()
+	if effect_script:
+		dict["effect_script_path"] = effect_script.resource_path
+	dict["effect_properties"] = effect_properties
+	return dict
+
 static func from_dictionary(dict: Dictionary) -> ItemData:
 	var item_instance = ConsumableData.new()
 
@@ -45,5 +53,13 @@ static func from_dictionary(dict: Dictionary) -> ItemData:
 	if not script_path.is_empty():
 		item_instance.effect_script = load(script_path)
 	item_instance.effect_properties = dict.get("effect_properties", {})
-	
+
+	# Fallback: if effect data wasn't in save data, recover from original .tres resource
+	if not item_instance.effect_script and not item_instance.original_resource_path.is_empty():
+		var original = load(item_instance.original_resource_path)
+		if original is ConsumableData:
+			item_instance.effect_script = original.effect_script
+			if item_instance.effect_properties.is_empty():
+				item_instance.effect_properties = original.effect_properties
+
 	return item_instance

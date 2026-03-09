@@ -844,6 +844,9 @@ func request_use_item(slot_index: int):
 		return
 
 	var sender_id = multiplayer.get_remote_sender_id()
+	if sender_id == 0:
+		sender_id = 1  # Local call from host
+
 	# Use PlayerManager to reliably find the player's node across maps
 	var player = null
 	if PlayerManager:
@@ -868,14 +871,23 @@ func request_use_item(slot_index: int):
 
 	var consumable = item as ConsumableData
 	if not consumable.effect_script:
-		print("Use Item failed: Consumable '%s' has no effect script." % consumable.name)
+		print("Use Item failed: Consumable '%s' has no effect script. item type=%d, script=%s" % [consumable.name, consumable.item_type, consumable.get_script()])
 		return
 
-	# Execute the effect
+	# Remove one from the stack and persist before executing the effect,
+	# because effects like Town Potion trigger a map change that frees this node.
+	remove_item_from_stack(item, 1)
+
+	# Force-save inventory now so map changes don't lose the removal
+	if player.username and SaveManager:
+		SaveManager.queue_save(player.username, "inventory", player)
+		await SaveManager.flush_save(player.username)
+
+	# Execute the effect (must happen after save completes, as effects like
+	# Town Potion trigger a map change that frees this node and reloads from save)
+	if not is_instance_valid(player):
+		return
 	var effect_instance = consumable.effect_script.new() as BaseItemEffect
 	effect_instance.user = player
 	effect_instance.source_item = consumable
 	effect_instance.execute()
-
-	# Remove one item from the stack
-	remove_item_from_stack(item, 1)

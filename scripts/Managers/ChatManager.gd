@@ -16,6 +16,7 @@ func send_chat_message(text: String):
 	else:
 		broadcast_message.rpc("Player", text)
 
+@rpc("any_peer", "call_local", "reliable")
 func add_system_message(text: String, color: Color = Color.WHITE):
 	message_received.emit(text, color)
 
