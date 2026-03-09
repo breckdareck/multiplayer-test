@@ -140,19 +140,20 @@ func _receive_initial_info(id: int, character_type: int, username: String):
 	# Load player data (includes last map)
 	var player_data: Dictionary = await _load_player_data_async(username)
 
-	
 	# Determine spawn map
 	var spawn_map = player_data.get("last_map", MapManager.DEFAULT_MAP)
 	if spawn_map.is_empty():
 		spawn_map = MapManager.DEFAULT_MAP
-	
+
 	active_players[id]["last_map"] = spawn_map
-	
+	# Cache loaded data so _on_player_spawned doesn't need to load again
+	active_players[id]["_cached_player_data"] = player_data
+
 	# Request map spawn through MapManager
 	# For the host (player 1) we await so initialization continues immediately.
 	if id == 1 and multiplayer.is_server():
 		await MapManager.request_map_change(id, spawn_map)
-		# Now initialize the player character that was spawned
+		active_players[id].erase("_cached_player_data")
 		await _initialize_spawned_player(id, character_type, username, player_data)
 		return
 
@@ -542,11 +543,10 @@ func _on_player_spawned(player_id: int) -> void:
 	var info = active_players[player_id]
 	var character_type = info.get("character_type", -1)
 	var username = info.get("username", "Player")
-	
-	# Always load fresh data from file to avoid using stale cached data on map changes.
-	# Always load fresh data from file to avoid using stale cached data on map changes.
-	var player_data = await _load_player_data_async(username)
 
+	# Use cached data from _receive_initial_info instead of loading again
+	var player_data: Dictionary = info.get("_cached_player_data", {})
+	active_players[player_id].erase("_cached_player_data")
 
 	# Continue initialization
 	call_deferred("_initialize_spawned_player", player_id, character_type, username, player_data)
