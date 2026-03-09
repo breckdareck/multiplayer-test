@@ -457,10 +457,8 @@ func _learn_ability_local(ability_id: String, initial_level: int = 0, send_rpc: 
 
 ## Forces the StatsComponent to recalculate stats, applying all passive bonuses.
 func _apply_passive_effects() -> void:
-	if _stats_component and _stats_component.has_method("_recalculate_stats_server"):
-		print("Applying passive ability effects and forcing stat recalculation.")
-		if multiplayer.is_server():
-			_stats_component._recalculate_stats_server("AbilityPassiveChange")
+	if _stats_component and multiplayer.is_server():
+		_stats_component.mark_stats_dirty()
 
 
 ## Adds ability points, typically called after leveling up.

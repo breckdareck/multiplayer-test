@@ -173,7 +173,7 @@ func sync_slot_update_rpc(slot_index: int, item_dict: Dictionary, trigger_stats_
 			# Trigger stats recalc if needed (equipment change)
 		if trigger_stats_recalc:
 			if is_instance_valid(stats_component):
-				stats_component._recalculate_stats_client("InventoryRPC")
+				stats_component._recalculate_stats_client()
 
 @rpc("authority", "call_local", "reliable")
 func sync_slot_clear_rpc(slot_index: int, trigger_stats_recalc: bool):
@@ -193,7 +193,7 @@ func sync_slot_clear_rpc(slot_index: int, trigger_stats_recalc: bool):
 	# Trigger stats recalc if needed (equipment change)
 	if trigger_stats_recalc:
 		if is_instance_valid(stats_component):
-			stats_component._recalculate_stats_client("InventoryRPC")
+			stats_component._recalculate_stats_client()
 
 
 @rpc("any_peer", "call_local", "reliable")
@@ -530,7 +530,7 @@ func load_inventory_rpc(inventory_data: Dictionary):
 		
 	if not multiplayer.is_server():
 		if is_instance_valid(stats_component):
-			stats_component._recalculate_stats_client("InventoryRPC")
+			stats_component._recalculate_stats_client()
 
 func transfer_item_clientside(from_slot: Slot, to_slot: Slot) -> bool:
 	var from_path: NodePath = get_path_to(from_slot)
@@ -678,7 +678,7 @@ func confirm_transfer_item(from_slot_path: NodePath, to_slot_path: NodePath, was
 	# Trigger stats recalc if the TO slot is an equipment slot
 	if to_is_equipment:
 		if is_instance_valid(stats_component):
-			stats_component._recalculate_stats_client("InventoryRPC")
+			stats_component._recalculate_stats_client()
 
 
 @rpc("authority", "call_local", "reliable")
@@ -771,7 +771,7 @@ func sync_equipment_update_rpc(eq_key_str: String, item_dict: Dictionary, trigge
 	# Trigger stats recalc if needed
 	if trigger_stats_recalc:
 		if is_instance_valid(stats_component):
-			stats_component._recalculate_stats_client("InventoryRPC")
+			stats_component._recalculate_stats_client()
 
 
 @rpc("authority", "call_local", "reliable")
@@ -809,7 +809,7 @@ func sync_equipment_clear_rpc(eq_key_str: String, trigger_stats_recalc: bool):
 	# Trigger stats recalc if needed
 	if trigger_stats_recalc:
 		if is_instance_valid(stats_component):
-			stats_component._recalculate_stats_client("InventoryRPC")
+			stats_component._recalculate_stats_client()
 
 
 func load_inventory_silent(inventory_data: Dictionary) -> void:
