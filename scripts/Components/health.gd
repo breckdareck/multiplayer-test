@@ -168,7 +168,7 @@ func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, 
 				#print("HealthComponent: Searching for enemy's map...")
 				for map_id in MapManager.active_maps.keys():
 					var map_instance = MapManager.active_maps[map_id].scene_instance
-					if is_instance_valid(map_instance) and entity.is_a_descendant_of(map_instance):
+					if is_instance_valid(map_instance) and map_instance.is_ancestor_of(entity):
 						map_to_spawn_on = map_instance
 						#print("HealthComponent: Found enemy's map: %s" % map_to_spawn_on)
 						break
