@@ -51,6 +51,8 @@ var damage_by_player: Dictionary = {} # player_id : damage_amount
 var facing_direction: int = 1
 var _is_being_cleaned_up: bool = false
 var initial_position: Vector2
+var _overlapping_players: Array = []
+var _overlap_damage_timer: Timer
 
 
 func _apply_enemy_data() -> void:
@@ -121,6 +123,14 @@ func _ready() -> void:
 		health_component.died.connect(_on_enemy_died)
 		health_component.damaged.connect(on_enemy_damaged)
 		body_hitbox.body_entered.connect(_on_body_hitbox_body_entered)
+		body_hitbox.body_exited.connect(_on_body_hitbox_body_exited)
+		# Periodic timer for overlap damage (replaces per-frame polling)
+		_overlap_damage_timer = Timer.new()
+		_overlap_damage_timer.name = "OverlapDamageTimer"
+		_overlap_damage_timer.wait_time = 1.0
+		_overlap_damage_timer.autostart = true
+		add_child(_overlap_damage_timer)
+		_overlap_damage_timer.timeout.connect(_on_overlap_damage_tick)
 		# Only connect animation_finished if AnimatedSprite2D exists (not on dedicated server)
 		if animated_sprite:
 			animated_sprite.animation_finished.connect(_on_animation_finished)
@@ -137,11 +147,6 @@ func _process(delta: float) -> void:
 		
 	if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
 		state_machine.process_frame(delta)
-		if body_hitbox.monitoring:
-			var overlapping_bodies = body_hitbox.get_overlapping_bodies()
-			for body in overlapping_bodies:
-				if body is MultiplayerPlayerV2:
-					damage_on_overlap(body)
 
 
 func _physics_process(delta: float) -> void:
@@ -347,6 +352,7 @@ func pool_deactivate() -> void:
 		return
 		
 	damage_by_player.clear()
+	_overlapping_players.clear()
 	visible = false
 	set_process(false)
 	set_physics_process(false)
@@ -403,13 +409,25 @@ func _update_facing() -> void:
 
 
 func _on_body_hitbox_body_entered(body: Node) -> void:
-	if _is_being_cleaned_up:
+	if _is_being_cleaned_up or not multiplayer.is_server():
 		return
-		
-	if not multiplayer.is_server():
-		return
-		
+	if body is MultiplayerPlayerV2 and body not in _overlapping_players:
+		_overlapping_players.append(body)
 	damage_on_overlap(body)
+
+
+func _on_body_hitbox_body_exited(body: Node) -> void:
+	_overlapping_players.erase(body)
+
+
+func _on_overlap_damage_tick() -> void:
+	if _is_being_cleaned_up or not multiplayer.is_server():
+		return
+	if not body_hitbox.monitoring:
+		return
+	for player in _overlapping_players:
+		if is_instance_valid(player):
+			damage_on_overlap(player)
 
 
 func _get_a_coefficient(level_diff: int) -> float:
@@ -540,6 +558,9 @@ func cleanup_before_removal():
 	
 	if body_hitbox and body_hitbox.body_entered.is_connected(_on_body_hitbox_body_entered):
 		body_hitbox.body_entered.disconnect(_on_body_hitbox_body_entered)
+	if body_hitbox and body_hitbox.body_exited.is_connected(_on_body_hitbox_body_exited):
+		body_hitbox.body_exited.disconnect(_on_body_hitbox_body_exited)
+	_overlapping_players.clear()
 	
 	if animated_sprite and animated_sprite.animation_finished.is_connected(_on_animation_finished):
 		animated_sprite.animation_finished.disconnect(_on_animation_finished)
