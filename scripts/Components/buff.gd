@@ -52,6 +52,8 @@ func _ready() -> void:
 	if _health_component and multiplayer.is_server():
 		_health_component.damaged.connect(_on_damaged)
 
+	set_process(false) # No buffs active at start
+
 
 func _process(delta: float) -> void:
 	if not multiplayer.is_server():
@@ -78,6 +80,15 @@ func _process(delta: float) -> void:
 	# Remove expired buffs
 	for buff_id in expired_buffs:
 		remove_buff(buff_id)
+
+	# Disable processing when no timed buffs remain
+	var has_timed_buffs = false
+	for buff_id in _active_buffs:
+		if _active_buffs[buff_id].buff_data.duration > 0:
+			has_timed_buffs = true
+			break
+	if not has_timed_buffs:
+		set_process(false)
 #endregion
 
 #region #################### Public API ####################
@@ -144,6 +155,8 @@ func _apply_buff_local(buff_id: String, source: Node = null, custom_duration: fl
 	var active_buff := ActiveBuff.new(buff_data, source)
 	active_buff.remaining_duration = duration
 	_active_buffs[buff_id] = active_buff
+	if duration > 0:
+		set_process(true)
 	
 	# Call custom logic on_apply if available
 	if active_buff.custom_logic_instance and active_buff.custom_logic_instance.has_method("on_apply"):
@@ -298,7 +311,9 @@ func sync_buff_applied(buff_id: String, duration: float) -> void:
 	var active_buff := ActiveBuff.new(buff_data, null)
 	active_buff.remaining_duration = duration
 	_active_buffs[buff_id] = active_buff
-	
+	if duration > 0:
+		set_process(true)
+
 	buff_applied.emit(buff_id, duration)
 
 
@@ -360,7 +375,9 @@ func sync_buff_with_stacks(buff_id: String, stacks: int, duration: float) -> voi
 	active_buff.stacks = stacks
 	active_buff.remaining_duration = duration
 	_active_buffs[buff_id] = active_buff
-	
+	if duration > 0:
+		set_process(true)
+
 	buff_applied.emit(buff_id, duration)
 #endregion
 
@@ -407,6 +424,8 @@ func load_buffs(data: Dictionary) -> void:
 			active_buff.stacks = stacks
 			active_buff.remaining_duration = duration
 			_active_buffs[buff_id] = active_buff
+			if duration > 0:
+				set_process(true)
 
 			# Skip on_apply during load — we are restoring persisted state,
 			# not freshly applying a buff. on_apply callbacks may trigger

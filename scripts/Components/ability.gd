@@ -120,6 +120,7 @@ func _ready() -> void:
 				_learn_ability_local(ability_data.ability_id, 0, false)
 
 	print("AbilityComponent ready. Loaded abilities: ", _ability_levels)
+	set_process(false) # No cooldowns active at start
 
 
 func _process(delta: float) -> void:
@@ -132,6 +133,10 @@ func _process(delta: float) -> void:
 
 	for ability_id in finished_cooldowns:
 		_cooldowns.erase(ability_id)
+
+	# Disable processing when no cooldowns are active
+	if _cooldowns.is_empty():
+		set_process(false)
 #endregion
 
 
@@ -330,7 +335,8 @@ func _consume_ability_resources(ability_id: String, level_stats: AbilityLevelDat
 	# Start cooldown
 	var modified_cooldown = level_stats.cooldown_time * get_ability_cooldown_modifier(ability_id)
 	_cooldowns[ability_id] = modified_cooldown
-	
+	set_process(true)
+
 	return modified_cooldown
 
 #endregion
@@ -655,7 +661,8 @@ func ability_used_client(ability_id: String, cooldown_time: float) -> void:
 	
 	# Set cooldown locally for all instances (server and clients)
 	_cooldowns[ability_id] = cooldown_time
-	
+	set_process(true)
+
 	# Emit signals for UI and other systems
 	ability_used.emit(ability_id)
 	cooldown_started.emit(ability_id, cooldown_time)
