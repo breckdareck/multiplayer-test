@@ -28,7 +28,7 @@ func send_chat_message(text: String):
 		broadcast_message.rpc("Player", text)
 
 
-@rpc("any_peer", "call_remote", "reliable")
+@rpc("any_peer", "call_local", "reliable")
 func _request_quest_command(args: String) -> void:
 	if not multiplayer.is_server():
 		return

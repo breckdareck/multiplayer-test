@@ -197,13 +197,13 @@ To add new backend features:
 
 *   `addons/`: Contains Godot editor plugins (e.g., `ability_editor`, `script-ide`).
 *   `assets/`: Contains all of the game's visual and audio assets.
-    *   `assets/fonts/`: Custom fonts used in the UI.
-    *   `assets/music/`: Background music tracks.
-    *   `assets/Shader/`: Custom shaders.
-    *   `assets/sounds/`: Sound effects for various in-game events.
-    *   `assets/sprites/`: Character, enemy, item, and UI sprites, organized by category.
-    *   `assets/themes/`: UI themes.
-    *   `assets/UI/`: UI-specific textures and resources.
+	*   `assets/fonts/`: Custom fonts used in the UI.
+	*   `assets/music/`: Background music tracks.
+	*   `assets/Shader/`: Custom shaders.
+	*   `assets/sounds/`: Sound effects for various in-game events.
+	*   `assets/sprites/`: Character, enemy, item, and UI sprites, organized by category.
+	*   `assets/themes/`: UI themes.
+	*   `assets/UI/`: UI-specific textures and resources.
 *   `resources/`: Contains the game's data files, defined as custom Godot resources (`.tres`).
     *   `resources/Abilities/`: Definitions for all in-game abilities (`AbilityData`, `AbilityLevelData`, `AbilityScalingData`, `ProcEffectData`, `StatBonusFormula`).
     *   `resources/Buffs/`: Definitions for all in-game buffs and debuffs (`BuffData`).
@@ -213,13 +213,13 @@ To add new backend features:
         *   `resources/Player/Classes/`: Definitions for different player classes (`ClassData`).
         *   `resources/Player/SpriteFrames/`: SpriteFrames resources for player animations.
 *   `scenes/`: Contains the game's scenes, the building blocks of levels and UI.
-    *   `scenes/Collectables/`: Scenes for collectible items (e.g., `coin.tscn`).
-    *   `scenes/Gameplay/`: General gameplay elements (e.g., `dropped_item.tscn`, `enemy_spawner.tscn`).
-    *   `scenes/Levels/`: Main game levels (e.g., `main_menu.tscn`, `game.tscn`).
-    *   `scenes/NPC/`: Non-player character scenes.
-    *   `scenes/Player/`: Player character scenes and related elements.
-    *   `scenes/Tools/`: Utility scenes.
-    *   `scenes/UI/`: User interface scenes (e.g., `ability_slot.tscn`, `hotbar_slot.tscn`, `slot.tscn`).
+	*   `scenes/Collectables/`: Scenes for collectible items (e.g., `coin.tscn`).
+	*   `scenes/Gameplay/`: General gameplay elements (e.g., `dropped_item.tscn`, `enemy_spawner.tscn`).
+	*   `scenes/Levels/`: Main game levels (e.g., `main_menu.tscn`, `game.tscn`).
+	*   `scenes/NPC/`: Non-player character scenes.
+	*   `scenes/Player/`: Player character scenes and related elements.
+	*   `scenes/Tools/`: Utility scenes.
+	*   `scenes/UI/`: User interface scenes (e.g., `ability_slot.tscn`, `hotbar_slot.tscn`, `slot.tscn`).
 *   `scripts/`: Contains the game's GDScript files, defining all game logic.
     *   `scripts/AbilityLogic/`: Custom logic scripts for complex ability behaviors (e.g., `AL_EnhancedBasics.gd`, `AL_SlashBlast.gd`).
     *   `scripts/BuffLogic/`: Custom logic scripts for complex buff behaviors (e.g., `BL_MapleWarrior.gd`, `BL_PowerGuard.gd`).
@@ -569,4 +569,3 @@ godot --headless --feature dedicated_server --path . -- --port 8080
 ## License
 
 This project is for educational and demonstration purposes. See individual asset folders for specific licenses.
-

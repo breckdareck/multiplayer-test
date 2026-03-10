@@ -373,11 +373,7 @@ func _complete_quest(username: String, quest_id: String) -> void:
 
 	# Grant coins via inventory
 	if quest.reward_coins > 0 and is_instance_valid(player_node.inventory_component):
-		var coin_item = ResourceManager.get_item_by_name("Coin")
-		if coin_item:
-			var coin_copy = coin_item.duplicate_with_path()
-			coin_copy.current_stack_amount = quest.reward_coins
-			player_node.inventory_component.add_item(coin_copy)
+		player_node.player_inventory.monies_amount += quest.reward_coins
 
 	# Grant items
 	for item_name in quest.reward_items:

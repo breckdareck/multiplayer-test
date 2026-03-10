@@ -45,10 +45,10 @@ Note your server IP address.
 
 ```
 Your PC (Game Client)
-    ↓
-    └─→ [Game Server running on your PC] ← Friends connect here
-    └─→ [Cloud Backend API] ← All players share accounts/characters
-         └─→ [Cloud PostgreSQL Database]
+	↓
+	└─→ [Game Server running on your PC] ← Friends connect here
+	└─→ [Cloud Backend API] ← All players share accounts/characters
+		 └─→ [Cloud PostgreSQL Database]
 ```
 
 ---
