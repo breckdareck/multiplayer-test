@@ -1,6 +1,6 @@
 [gd_scene load_steps=26 format=4 uid="uid://ftib17laf2kk"]
 
-[ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_hd3yw"]
+[ext_resource type="Script" path="res://scripts/Gameplay/map_base.gd" id="1_hd3yw"]
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/damage_numbers.gd" id="2_cfook"]
 [ext_resource type="PackedScene" uid="uid://brfb5t5im33fl" path="res://scenes/Gameplay/portal.tscn" id="3_wye8b"]
 [ext_resource type="PackedScene" path="res://scenes/Gameplay/secret_portal.tscn" id="4_giv6l"]
@@ -613,8 +613,6 @@ texture = ExtResource("12_b22rv")
 
 [node name="Killzone" parent="." instance=ExtResource("13_07ik3")]
 position = Vector2(965, 101)
-monitoring = false
-monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Killzone"]
 position = Vector2(833, -13)

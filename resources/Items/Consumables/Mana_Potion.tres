@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="ConsumableData" load_steps=5 format=3 uid="uid://bwlru2cwcphdy"]
+
+[ext_resource type="Script" uid="uid://csghyfavie65m" path="res://scripts/Resources/ItemSystem/Effects/Effect_RestoreMana.gd" id="1_2vog4"]
+[ext_resource type="Texture2D" uid="uid://yhl18c6ei5o6" path="res://assets/sprites/fruit.png" id="1_5082v"]
+[ext_resource type="Script" uid="uid://ubv3mjjv4lvi" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="2_61u5h"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2vog4"]
+atlas = ExtResource("1_5082v")
+region = Rect2(32, 32, 16, 16)
+
+[resource]
+script = ExtResource("2_61u5h")
+effect_script = ExtResource("1_2vog4")
+effect_properties = {
+"regain_amount": 50
+}
+item_id = "141461068712-0146-161214-1013213-15301351592513105"
+name = "Mana Potion"
+icon = SubResource("AtlasTexture_2vog4")
+description = "A mystical grape that restores 50 MP."
+item_type = 2
+item_level = -1
+custom_item_value = 200
+can_stack = true
+max_stack_amount = 99
+current_stack_amount = 1

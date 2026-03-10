@@ -255,9 +255,8 @@ func get_buff_stat_modifiers() -> Dictionary:
 
 
 func _force_stat_recalc() -> void:
-	if _stats_component and _stats_component.has_method("_recalculate_stats_server"):
-		if multiplayer.is_server():
-			_stats_component._recalculate_stats_server("BuffChange")
+	if _stats_component and multiplayer.is_server():
+		_stats_component.mark_stats_dirty()
 
 
 func _on_damaged(amount: int, source: Node) -> void:
@@ -337,15 +336,39 @@ func sync_buff_stacks(buff_id: String, new_stacks: int, new_duration: float) -> 
 		buff_refreshed.emit(buff_id, new_duration)
 
 
-## [Server->Client] Sends all buff data to a newly connected client
+## [Server->Client] Sends all buff data to a newly connected client in a single RPC.
 func sync_all_buffs_to_client(peer_id: int) -> void:
 	if not multiplayer.is_server():
 		return
-	
+
 	print("Syncing all buff data to peer %d" % peer_id)
+	var buff_batch: Array = []
 	for buff_id in _active_buffs:
 		var active_buff: ActiveBuff = _active_buffs[buff_id]
-		sync_buff_with_stacks.rpc_id(peer_id, buff_id, active_buff.stacks, active_buff.remaining_duration)
+		buff_batch.append({"id": buff_id, "stacks": active_buff.stacks, "duration": active_buff.remaining_duration})
+	sync_all_buffs_batch.rpc_id(peer_id, buff_batch)
+
+
+@rpc("authority", "call_local", "reliable")
+func sync_all_buffs_batch(buffs: Array) -> void:
+	if multiplayer.is_server():
+		return
+
+	for entry in buffs:
+		var buff_id: String = entry.get("id", "")
+		var stacks: int = entry.get("stacks", 1)
+		var duration: float = entry.get("duration", 0.0)
+
+		var buff_data: BuffData = ResourceManager.get_buff_data(buff_id)
+		if not buff_data:
+			continue
+
+		var active_buff := ActiveBuff.new(buff_data, null)
+		active_buff.stacks = stacks
+		active_buff.remaining_duration = duration
+		_active_buffs[buff_id] = active_buff
+
+		buff_applied.emit(buff_id, duration)
 
 
 @rpc("authority", "call_local", "reliable")

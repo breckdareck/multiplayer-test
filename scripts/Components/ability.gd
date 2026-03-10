@@ -457,10 +457,8 @@ func _learn_ability_local(ability_id: String, initial_level: int = 0, send_rpc: 
 
 ## Forces the StatsComponent to recalculate stats, applying all passive bonuses.
 func _apply_passive_effects() -> void:
-	if _stats_component and _stats_component.has_method("_recalculate_stats_server"):
-		print("Applying passive ability effects and forcing stat recalculation.")
-		if multiplayer.is_server():
-			_stats_component._recalculate_stats_server("AbilityPassiveChange")
+	if _stats_component and multiplayer.is_server():
+		_stats_component.mark_stats_dirty()
 
 
 ## Adds ability points, typically called after leveling up.
@@ -620,14 +618,23 @@ func spawn_projectile_client(ability_id: String, level: int, start_pos: Vector2,
 		projectile_instance.global_position = start_pos
 
 
-## [Server->Client] Sends all ability data to a newly connected client.
+## [Server->Client] Sends all ability data to a newly connected client in a single RPC.
 func sync_all_abilities_to_client(peer_id: int) -> void:
 	if not multiplayer.is_server(): return
-	
+
 	print("Syncing all ability data to peer %d" % peer_id)
-	sync_ability_points.rpc_id(peer_id, _available_ability_points)
-	for ability_id in _ability_levels:
-		sync_ability_learned.rpc_id(peer_id, ability_id, _ability_levels[ability_id])
+	sync_all_abilities_batch.rpc_id(peer_id, _ability_levels.duplicate(), _available_ability_points)
+
+
+@rpc("authority", "call_local", "reliable")
+func sync_all_abilities_batch(abilities: Dictionary, ability_points: int) -> void:
+	if multiplayer.is_server(): return
+
+	for ability_id in abilities:
+		_ability_levels[ability_id] = abilities[ability_id]
+		ability_learned.emit(ability_id)
+	_available_ability_points = ability_points
+	ability_points_changed.emit(_available_ability_points)
 
 
 ## [Client->Server] Client-side wrapper to request ability use from the server.

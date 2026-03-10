@@ -250,9 +250,8 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 	
 	# Recalculate stats
 	if player_instance.stats_component:
-		await get_tree().process_frame
 		player_instance.stats_component.set_loading_mode(false)
-		player_instance.stats_component._recalculate_stats_server("PlayerSpawn")
+		player_instance.stats_component.mark_stats_dirty()
 	
 	# Reconnect signals
 	if player_instance.ability_component:

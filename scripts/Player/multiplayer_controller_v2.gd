@@ -240,7 +240,6 @@ func _setup_signals() -> void:
 	if level_component:
 		level_component.experience_changed.connect(func(_c, _e): _data_changed())
 		level_component.leveled_up.connect(func(_l): _data_changed())
-		level_component.leveled_up.connect(_handle_sprite_change_on_server.unbind(1))
 		level_component.leveled_up.connect(_on_leveled_up_effect)
 		level_component.experience_changed.connect(func(_c, _e): _data_changed("stats"))
 		level_component.leveled_up.connect(func(_l): _data_changed("all")) # Level up might affect everything (points, stats)
@@ -569,14 +568,24 @@ func _on_peer_connected(peer_id: int) -> void:
 # RPC (REMOTE PROCEDURE CALL) METHODS
 #=============================================================================
 
+# [SERVER -> CLIENT] Sets the loading state to suppress/enable saves during sync.
+@rpc("authority", "call_remote", "reliable")
+func set_loading_state_rpc(loading: bool) -> void:
+	_is_loading_data = loading
+
+
 # [SERVER-ONLY] Respawns the player at a designated point.
 @rpc("any_peer", "call_local", "reliable")
 func respawn() -> void:
 	if not multiplayer.is_server() or _is_being_cleaned_up:
 		return
 
-	# The server authoritatively sets the respawn position and resets state.
-	position = MultiplayerManager.respawn_point
+	# The server authoritatively sets the respawn position from the current map's PlayerSpawn.
+	var current_map_id = MapManager.get_player_map(player_id)
+	if current_map_id != "":
+		position = MapManager.get_spawn_position_for_map(current_map_id)
+	else:
+		position = MultiplayerManager.respawn_point
 	do_attack = false
 	do_jump = false
 	do_drop = false

@@ -341,7 +341,7 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 		else: # Attacker is an enemy
 			for map_id in MapManager.active_maps.keys():
 				var map_instance = MapManager.active_maps[map_id].scene_instance
-				if is_instance_valid(map_instance) and attacker.is_a_descendant_of(map_instance):
+				if is_instance_valid(map_instance) and map_instance.is_ancestor_of(attacker):
 					map_to_spawn_on = map_instance
 					break
 		

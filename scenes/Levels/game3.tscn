@@ -1,6 +1,6 @@
 [gd_scene load_steps=14 format=4 uid="uid://wkfowd2qg5dn"]
 
-[ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_gfksk"]
+[ext_resource type="Script" path="res://scripts/Gameplay/map_base.gd" id="1_gfksk"]
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/damage_numbers.gd" id="1_l73hv"]
 [ext_resource type="PackedScene" uid="uid://brfb5t5im33fl" path="res://scenes/Gameplay/portal.tscn" id="2_nb0i1"]
 [ext_resource type="Texture2D" uid="uid://jorjvuc5wn72" path="res://assets/sprites/world_tileset.png" id="3_m5hrh"]
@@ -516,8 +516,6 @@ spawn_path = NodePath("../Projectiles")
 
 [node name="PortalToGame" parent="." instance=ExtResource("2_nb0i1")]
 position = Vector2(-1544, -16)
-collision_layer = 0
-collision_mask = 2
 target_map_id = "game"
 target_spawn_point_name = "Game_Game3_Portal_Spawn"
 
@@ -558,8 +556,6 @@ tile_set = SubResource("TileSet_xg267")
 
 [node name="Killzone" parent="." instance=ExtResource("6_5y0l1")]
 position = Vector2(965, 101)
-monitoring = false
-monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Killzone"]
 position = Vector2(833, -13)
