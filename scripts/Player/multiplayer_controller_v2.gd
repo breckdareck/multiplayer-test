@@ -34,6 +34,7 @@ const SERVER_ID: int = 1
 @export var player_name_label: RichTextLabel
 @export var stats_window: StatsWindow
 @export var inventory_window: InventoryWindow
+@export var quest_window: QuestWindow
 
 
 var username: String = ""

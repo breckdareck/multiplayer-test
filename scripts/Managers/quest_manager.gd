@@ -15,6 +15,7 @@ extends Node
 signal quest_accepted(username: String, quest_id: String)
 signal quest_completed(username: String, quest_id: String)
 signal quest_progress_updated(username: String, quest_id: String)
+signal quest_ui_data_received(data: Dictionary)  # Emitted on client when server sends UI data
 
 # ── Quest Registry ──────────────────────────────────────────────────────────
 ## All quest definitions keyed by quest_id.
@@ -294,6 +295,7 @@ func record_level_up(username: String, new_level: int) -> void:
 				progress[i] = new_level
 		_active_quests[username][quest_id] = progress
 		_check_quest_completion(username, quest_id)
+	_push_quest_ui_update(username)
 
 
 func _advance_objectives(username: String, obj_type: int, target: String, amount: int) -> void:
@@ -324,6 +326,7 @@ func _advance_objectives(username: String, obj_type: int, target: String, amount
 
 	if changed:
 		_save_quest_data(username)
+		_push_quest_ui_update(username)
 
 
 func _check_quest_completion(username: String, quest_id: String) -> void:
@@ -393,6 +396,9 @@ func _complete_quest(username: String, quest_id: String) -> void:
 
 	quest_completed.emit(username, quest_id)
 	_save_quest_data(username)
+	# Push updated quest UI data to the client
+	if is_instance_valid(player_node):
+		_send_quest_ui_data(sender_id, username, player_node)
 
 
 func _check_level_objectives(username: String, player_node: MultiplayerPlayerV2) -> void:
@@ -445,6 +451,15 @@ func unregister_player(username: String) -> void:
 	pass
 
 
+func _push_quest_ui_update(username: String) -> void:
+	var pid: int = PlayerManager.get_player_id_from_name(username)
+	if pid == -1:
+		return
+	var player_node = PlayerManager.get_player_node(pid)
+	if player_node:
+		_send_quest_ui_data(pid, username, player_node)
+
+
 func _save_quest_data(username: String) -> void:
 	# Trigger a save through the player's normal save flow
 	var pid: int = PlayerManager.get_player_id_from_name(username)
@@ -481,3 +496,131 @@ func _objective_type_string(type: int) -> String:
 
 func get_quest_data(quest_id: String) -> QuestData:
 	return _quests.get(quest_id)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# QUEST UI — RPC methods for the QuestWindow client UI
+# ═══════════════════════════════════════════════════════════════════════════
+
+## Client → Server: request full quest UI data for the calling player.
+@rpc("any_peer", "call_remote", "reliable")
+func request_quest_ui_data() -> void:
+	if not multiplayer.is_server():
+		return
+	var requester_id: int = multiplayer.get_remote_sender_id()
+	var player_node: MultiplayerPlayerV2 = PlayerManager.get_player_node(requester_id)
+	if not player_node:
+		return
+	_send_quest_ui_data(requester_id, player_node.username, player_node)
+
+
+## Client → Server: accept a quest via the UI button.
+@rpc("any_peer", "call_remote", "reliable")
+func request_quest_accept(quest_id: String) -> void:
+	if not multiplayer.is_server():
+		return
+	var requester_id: int = multiplayer.get_remote_sender_id()
+	var player_node: MultiplayerPlayerV2 = PlayerManager.get_player_node(requester_id)
+	if not player_node:
+		return
+	_cmd_accept(requester_id, player_node.username, player_node, quest_id)
+	_send_quest_ui_data(requester_id, player_node.username, player_node)
+
+
+## Client → Server: abandon a quest via the UI button.
+@rpc("any_peer", "call_remote", "reliable")
+func request_quest_abandon(quest_id: String) -> void:
+	if not multiplayer.is_server():
+		return
+	var requester_id: int = multiplayer.get_remote_sender_id()
+	var player_node: MultiplayerPlayerV2 = PlayerManager.get_player_node(requester_id)
+	if not player_node:
+		return
+	_cmd_abandon(requester_id, player_node.username, quest_id)
+	_send_quest_ui_data(requester_id, player_node.username, player_node)
+
+
+## Server → Client: deliver serialized quest UI data.
+@rpc("authority", "call_remote", "reliable")
+func _receive_quest_ui_data(data: Dictionary) -> void:
+	quest_ui_data_received.emit(data)
+
+
+## Internal: build and deliver quest UI data to a specific peer.
+func _send_quest_ui_data(peer_id: int, username: String, player_node: MultiplayerPlayerV2) -> void:
+	var data := _build_quest_ui_data(username, player_node)
+	if multiplayer.get_unique_id() == peer_id:
+		# Host mode: emit signal directly, no RPC needed
+		quest_ui_data_received.emit(data)
+	else:
+		_receive_quest_ui_data.rpc_id(peer_id, data)
+
+
+## Build the full quest UI data dictionary for a player.
+## Called directly in host mode, or internally before sending via RPC.
+func _build_quest_ui_data(username: String, player_node: MultiplayerPlayerV2) -> Dictionary:
+	var player_level: int = 1
+	if is_instance_valid(player_node) and is_instance_valid(player_node.level_component):
+		player_level = player_node.level_component.level
+
+	var completed: Array = _completed_quests.get(username, [])
+	var active: Dictionary = _active_quests.get(username, {})
+
+	var available_list: Array = []
+	for quest_id in _quests:
+		if quest_id in completed:
+			continue
+		if active.has(quest_id):
+			continue
+		var q: QuestData = _quests[quest_id]
+		if player_level < q.required_level:
+			continue
+		if not q.prerequisite_quest_id.is_empty() and q.prerequisite_quest_id not in completed:
+			continue
+		available_list.append(_serialize_quest(q, {}))
+
+	var active_list: Array = []
+	for quest_id in active:
+		if not _quests.has(quest_id):
+			continue
+		active_list.append(_serialize_quest(_quests[quest_id], active[quest_id]))
+
+	var completed_list: Array = []
+	for quest_id in completed:
+		if _quests.has(quest_id):
+			completed_list.append(_serialize_quest(_quests[quest_id], {}))
+
+	return {
+		"available": available_list,
+		"active": active_list,
+		"completed": completed_list,
+	}
+
+
+## Serialize a QuestData resource + progress into a plain Dictionary for RPC transport.
+func _serialize_quest(q: QuestData, progress: Dictionary) -> Dictionary:
+	var objectives: Array = []
+	for obj in q.objectives:
+		objectives.append({
+			"type_name": _objective_type_string(obj.get("type", 0)),
+			"target": obj.get("target", ""),
+			"amount": obj.get("amount", 1),
+		})
+
+	var data: Dictionary = {
+		"id": q.quest_id,
+		"name": q.quest_name,
+		"description": q.description,
+		"required_level": q.required_level,
+		"reward_exp": q.reward_exp,
+		"reward_coins": q.reward_coins,
+		"reward_items": q.reward_items.duplicate(),
+		"objectives": objectives,
+	}
+	if not progress.is_empty():
+		# Convert int keys → string keys for RPC serialization
+		var str_progress: Dictionary = {}
+		for k in progress:
+			str_progress[str(k)] = progress[k]
+		data["progress"] = str_progress
+	return data
