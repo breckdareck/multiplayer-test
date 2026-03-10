@@ -236,6 +236,8 @@ func _deferred_death_processing(_killer: Node) -> void:
 				print("Member %d (non-damage dealer) base exp: %d, non-damage : %f, bonus: %f, final exp: %d" % [member_id, experience_reward, non_damage_dealer_exp_percentage, party_exp_bonus_multiplier, exp_amount])
 			
 			player_node.gain_experience(exp_amount)
+			# Track kill for quest objectives
+			QuestManager.record_enemy_kill(player_node.username, monster_name)
 			print("PID: %s (Party) gained %s exp from %s" % [str(member_id), str(exp_amount), name])
 	else:
 		# No party, distribute EXP only to damage dealers
@@ -249,6 +251,8 @@ func _deferred_death_processing(_killer: Node) -> void:
 			if player_node and player_node.has_method("gain_experience"):
 				print("PID: %s did %s%% damage to %s gaining %s exp" % [str(player_id), share * 100, name, str(exp_amount)])
 				player_node.gain_experience(exp_amount)
+				# Track kill for quest objectives
+				QuestManager.record_enemy_kill(player_node.username, monster_name)
 				
 	# Spawn drops for all eligible players
 	if not eligible_player_ids_for_drops.is_empty():

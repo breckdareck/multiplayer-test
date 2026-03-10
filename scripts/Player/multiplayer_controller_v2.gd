@@ -243,6 +243,10 @@ func _setup_signals() -> void:
 		level_component.leveled_up.connect(_on_leveled_up_effect)
 		level_component.experience_changed.connect(func(_c, _e): _data_changed("stats"))
 		level_component.leveled_up.connect(func(_l): _data_changed("all")) # Level up might affect everything (points, stats)
+		level_component.leveled_up.connect(func(new_level):
+			if multiplayer.is_server() and not _is_loading_data:
+				QuestManager.record_level_up(username, new_level)
+		)
 		if multiplayer.is_server():
 			level_component.leveled_up.connect(_handle_sprite_change_on_server.unbind(1))
 	
@@ -428,7 +432,10 @@ func get_save_data(update_type: String = "all") -> Dictionary:
 	if update_type == "all" or update_type == "buffs":
 		if is_instance_valid(buff_component):
 			data['buffs'] = buff_component.save_buffs()
-		
+
+	if update_type == "all":
+		data['quests'] = QuestManager.save_quests(username)
+
 	return data
 
 
@@ -501,7 +508,12 @@ func _load_data(data: Dictionary) -> void:
 		var buff_data = data.get("buffs", {})
 		if not buff_data.is_empty():
 			buff_component.load_buffs(buff_data)
-		
+
+	# Load quest progress
+	var quest_data = data.get("quests", {})
+	if not quest_data.is_empty():
+		QuestManager.load_quests(username, quest_data)
+
 	_is_loading_data = false
 
 
