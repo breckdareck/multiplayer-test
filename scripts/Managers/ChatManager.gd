@@ -35,6 +35,7 @@ func _request_quest_command(args: String) -> void:
 	var sender_id: int = multiplayer.get_remote_sender_id()
 	QuestManager.handle_quest_command(args, sender_id)
 
+@rpc("any_peer", "call_local", "reliable")
 func add_system_message(text: String, color: Color = Color.WHITE):
 	message_received.emit(text, color)
 

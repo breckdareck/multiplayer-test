@@ -45,6 +45,8 @@ class Player(db.Model):
     experience = db.Column(db.Integer, default=0)
     current_health = db.Column(db.Integer, default=100)
     max_health = db.Column(db.Integer, default=100)
+    current_mana = db.Column(db.Integer, default=100)
+    max_mana = db.Column(db.Integer, default=100)
     last_map = db.Column(db.String(255), default="game")
     party_id = db.Column(db.Integer, default=-1)
     monies = db.Column(db.Integer, default=0)
@@ -149,6 +151,7 @@ class PlayerBuff(db.Model):
     player_username = db.Column(db.String(255), db.ForeignKey('players.username'))
     buff_id = db.Column(db.String(255))
     duration = db.Column(db.Float)
+    total_duration = db.Column(db.Float, default=0)
     stacks = db.Column(db.Integer, default=1)
 
 # ==================== PER-PLAYER SAVE LOCKING ====================
@@ -253,6 +256,8 @@ def create_character():
         character_class=class_id,
         current_health=100,
         max_health=100,
+        current_mana=100,
+        max_mana=100,
         party_id=-1
     )
     
@@ -289,6 +294,8 @@ def load_player():
             'experience': player.experience,
             'current_health': player.current_health,
             'max_health': player.max_health,
+            'current_mana': player.current_mana,
+            'max_mana': player.max_mana,
             'last_map': player.last_map,
             'party_id': player.party_id,
             'monies': player.monies
@@ -362,6 +369,7 @@ def load_player():
             active_buffs.append({
                 "buff_id": buff.buff_id,
                 "remaining_duration": buff.duration,
+                "total_duration": buff.total_duration or 0,
                 "stacks": buff.stacks
             })
             
@@ -414,6 +422,8 @@ def save_player():
         if 'experience' in data: player.experience = data['experience']
         if 'current_health' in data: player.current_health = data['current_health']
         if 'max_health' in data: player.max_health = data['max_health']
+        if 'current_mana' in data: player.current_mana = data['current_mana']
+        if 'max_mana' in data: player.max_mana = data['max_mana']
         if 'last_map' in data: player.last_map = data['last_map']
         if 'party_id' in data: player.party_id = data['party_id']
 
@@ -621,12 +631,14 @@ def save_player():
                 incoming_buff_ids.add(bid)
                 if bid in existing_buffs:
                     existing_buffs[bid].duration = buff.get('remaining_duration')
+                    existing_buffs[bid].total_duration = buff.get('total_duration', 0)
                     existing_buffs[bid].stacks = buff.get('stacks', 1)
                 else:
                     db.session.add(PlayerBuff(
                         player_username=username,
                         buff_id=bid,
                         duration=buff.get('remaining_duration'),
+                        total_duration=buff.get('total_duration', 0),
                         stacks=buff.get('stacks', 1)
                     ))
 
@@ -653,6 +665,25 @@ def health_check():
         return jsonify({"status": "unhealthy", "error": str(e)}), 503
 
 
+def _run_migrations():
+    """Add columns that may be missing from older database schemas."""
+    migrations = [
+        ("players", "current_mana", "ALTER TABLE players ADD COLUMN current_mana INTEGER DEFAULT 100"),
+        ("players", "max_mana",     "ALTER TABLE players ADD COLUMN max_mana INTEGER DEFAULT 100"),
+        ("player_buffs", "total_duration", "ALTER TABLE player_buffs ADD COLUMN total_duration FLOAT DEFAULT 0"),
+    ]
+    for table, column, sql in migrations:
+        try:
+            db.session.execute(db.text(
+                f"SELECT {column} FROM {table} LIMIT 1"
+            ))
+        except Exception:
+            db.session.rollback()
+            print(f"Migration: adding {table}.{column}")
+            db.session.execute(db.text(sql))
+            db.session.commit()
+
+
 def init_db():
     """Initialize database with retry logic for Docker startup"""
     retries = 5
@@ -660,6 +691,7 @@ def init_db():
         try:
             with app.app_context():
                 db.create_all()
+                _run_migrations()
                 print("Database tables created successfully!")
                 return
         except Exception as e:
