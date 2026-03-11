@@ -291,16 +291,19 @@ func _on_buff_applied(buff_id: String, duration: float) -> void:
 	# Determine if buff can be manually removed (beneficial buffs can be removed, debuffs cannot)
 	var is_removable = not buff_data.is_debuff
 	
-	# Create buff icon
-	var icon := BuffIcon.new(buff_id, buff_data.buff_icon, duration, icon_size, is_removable)
-	
+	# Create buff icon — use the buff's original full duration for the progress bar,
+	# and the passed-in duration (which may be remaining time on load) for the countdown.
+	var icon := BuffIcon.new(buff_id, buff_data.buff_icon, buff_data.duration, icon_size, is_removable)
+	icon.remaining_time = duration
+	icon.update_time(duration)
+
 	# NEW: Connect the remove signal
 	icon.buff_remove_requested.connect(_on_buff_remove_requested)
-	
+
 	# Update stacks if applicable
 	var stacks := _buff_component.get_buff_stacks(buff_id)
 	icon.update_stacks(stacks)
-	
+
 	_buff_icons[buff_id] = icon
 	_container.add_child(icon)
 	

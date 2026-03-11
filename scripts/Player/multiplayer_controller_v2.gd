@@ -447,6 +447,8 @@ func _get_stats_data() -> Dictionary:
 	return {
 		'max_health': health_component.max_health if is_instance_valid(health_component) else 100,
 		'current_health': health_component.current_health if is_instance_valid(health_component) else 100,
+		'max_mana': mana_component.max_mana if is_instance_valid(mana_component) else 100,
+		'current_mana': mana_component.current_mana if is_instance_valid(mana_component) else 100,
 		'level': level_component.level if is_instance_valid(level_component) else 1,
 		'experience': level_component.experience if is_instance_valid(level_component) else 0,
 		'party_id': _current_party_id,
@@ -485,6 +487,10 @@ func _load_data(data: Dictionary) -> void:
 		health_component.set_loading_mode(true)
 		health_component.max_health = data.get("max_health", health_component.max_health)
 		health_component.current_health = data.get("current_health", health_component.max_health)
+
+	if is_instance_valid(mana_component):
+		mana_component.max_mana = data.get("max_mana", mana_component.max_mana)
+		mana_component.current_mana = data.get("current_mana", mana_component.max_mana)
 
 	if is_instance_valid(ability_component):
 		var ability_data = data.get("abilities", {})

@@ -258,10 +258,12 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 		player_instance.equipment_component.legs_slot.item = ResourceManager.get_item_by_name("Blue Jean Shorts")
 		player_instance.equipment_component.feet_slot.item = ResourceManager.get_item_by_name("Leather Sandals")
 	
-	# Set health
+	# Set health and mana
 	if player_instance.health_component:
 		player_instance.health_component.current_health = player_data.get("current_health", 100)
-	
+	if player_instance.mana_component:
+		player_instance.mana_component.current_mana = player_data.get("current_mana", 100)
+
 	# Recalculate stats
 	if player_instance.stats_component:
 		player_instance.stats_component.set_loading_mode(false)
@@ -287,7 +289,9 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 	
 	if player_instance.health_component:
 		player_instance.health_component.current_health = player_data.get("current_health", 100)
-	
+	if player_instance.mana_component:
+		player_instance.mana_component.current_mana = player_data.get("current_mana", 100)
+
 	if id != 1 and player_instance.buff_component:
 		await get_tree().process_frame
 		player_instance.buff_component.sync_all_buffs_to_client(id)

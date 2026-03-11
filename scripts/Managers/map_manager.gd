@@ -59,10 +59,12 @@ func request_map_change(player_id: int, target_map_id: String, target_spawn_poin
 		push_warning("MapManager: Invalid target_map_id '%s' for player %d. Using default map." % [target_map_id, player_id])
 		target_map_id = DEFAULT_MAP
 
+	# Track whether this is a map change (not the initial join)
+	var is_map_change := player_id in player_current_maps
+
 	# Remove player from current map
-	if player_id in player_current_maps:
+	if is_map_change:
 		_remove_player_from_map(player_id, player_current_maps[player_id])
-		#print("MapManager: Waited for visibility updates to propagate before map change")
 
 	player_current_maps[player_id] = target_map_id
 
@@ -82,6 +84,11 @@ func request_map_change(player_id: int, target_map_id: String, target_spawn_poin
 		if map_instance is MapBase and not map_instance.bgm_path.is_empty():
 			AudioManager.play_song(map_instance.bgm_path)
 		_finalize_player_spawn(player_id, target_map_id, target_spawn_point_name)
+		# On map changes (not initial join), emit player_spawned so
+		# PlayerManager._on_player_spawned re-initializes the host player
+		# with fresh data from the backend.
+		if is_map_change:
+			player_spawned.emit(player_id)
 		return
 
 	client_set_current_map.rpc_id(player_id, target_map_id, target_spawn_point_name)

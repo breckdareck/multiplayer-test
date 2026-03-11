@@ -45,6 +45,8 @@ class Player(db.Model):
     experience = db.Column(db.Integer, default=0)
     current_health = db.Column(db.Integer, default=100)
     max_health = db.Column(db.Integer, default=100)
+    current_mana = db.Column(db.Integer, default=100)
+    max_mana = db.Column(db.Integer, default=100)
     last_map = db.Column(db.String(255), default="game")
     party_id = db.Column(db.Integer, default=-1)
     monies = db.Column(db.Integer, default=0)
@@ -253,6 +255,8 @@ def create_character():
         character_class=class_id,
         current_health=100,
         max_health=100,
+        current_mana=100,
+        max_mana=100,
         party_id=-1
     )
     
@@ -289,6 +293,8 @@ def load_player():
             'experience': player.experience,
             'current_health': player.current_health,
             'max_health': player.max_health,
+            'current_mana': player.current_mana,
+            'max_mana': player.max_mana,
             'last_map': player.last_map,
             'party_id': player.party_id,
             'monies': player.monies
@@ -414,6 +420,8 @@ def save_player():
         if 'experience' in data: player.experience = data['experience']
         if 'current_health' in data: player.current_health = data['current_health']
         if 'max_health' in data: player.max_health = data['max_health']
+        if 'current_mana' in data: player.current_mana = data['current_mana']
+        if 'max_mana' in data: player.max_mana = data['max_mana']
         if 'last_map' in data: player.last_map = data['last_map']
         if 'party_id' in data: player.party_id = data['party_id']
 
@@ -653,6 +661,24 @@ def health_check():
         return jsonify({"status": "unhealthy", "error": str(e)}), 503
 
 
+def _run_migrations():
+    """Add columns that may be missing from older database schemas."""
+    migrations = [
+        ("players", "current_mana", "ALTER TABLE players ADD COLUMN current_mana INTEGER DEFAULT 100"),
+        ("players", "max_mana",     "ALTER TABLE players ADD COLUMN max_mana INTEGER DEFAULT 100"),
+    ]
+    for table, column, sql in migrations:
+        try:
+            db.session.execute(db.text(
+                f"SELECT {column} FROM {table} LIMIT 1"
+            ))
+        except Exception:
+            db.session.rollback()
+            print(f"Migration: adding {table}.{column}")
+            db.session.execute(db.text(sql))
+            db.session.commit()
+
+
 def init_db():
     """Initialize database with retry logic for Docker startup"""
     retries = 5
@@ -660,6 +686,7 @@ def init_db():
         try:
             with app.app_context():
                 db.create_all()
+                _run_migrations()
                 print("Database tables created successfully!")
                 return
         except Exception as e:
