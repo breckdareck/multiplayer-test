@@ -151,6 +151,7 @@ class PlayerBuff(db.Model):
     player_username = db.Column(db.String(255), db.ForeignKey('players.username'))
     buff_id = db.Column(db.String(255))
     duration = db.Column(db.Float)
+    total_duration = db.Column(db.Float, default=0)
     stacks = db.Column(db.Integer, default=1)
 
 # ==================== PER-PLAYER SAVE LOCKING ====================
@@ -368,6 +369,7 @@ def load_player():
             active_buffs.append({
                 "buff_id": buff.buff_id,
                 "remaining_duration": buff.duration,
+                "total_duration": buff.total_duration or 0,
                 "stacks": buff.stacks
             })
             
@@ -629,12 +631,14 @@ def save_player():
                 incoming_buff_ids.add(bid)
                 if bid in existing_buffs:
                     existing_buffs[bid].duration = buff.get('remaining_duration')
+                    existing_buffs[bid].total_duration = buff.get('total_duration', 0)
                     existing_buffs[bid].stacks = buff.get('stacks', 1)
                 else:
                     db.session.add(PlayerBuff(
                         player_username=username,
                         buff_id=bid,
                         duration=buff.get('remaining_duration'),
+                        total_duration=buff.get('total_duration', 0),
                         stacks=buff.get('stacks', 1)
                     ))
 
@@ -666,6 +670,7 @@ def _run_migrations():
     migrations = [
         ("players", "current_mana", "ALTER TABLE players ADD COLUMN current_mana INTEGER DEFAULT 100"),
         ("players", "max_mana",     "ALTER TABLE players ADD COLUMN max_mana INTEGER DEFAULT 100"),
+        ("player_buffs", "total_duration", "ALTER TABLE player_buffs ADD COLUMN total_duration FLOAT DEFAULT 0"),
     ]
     for table, column, sql in migrations:
         try:

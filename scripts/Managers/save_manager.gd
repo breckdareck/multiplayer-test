@@ -168,16 +168,16 @@ func flush_save(username: String) -> void:
 	if data.is_empty():
 		return
 
-	# If there's already a request in flight we can't await the HTTPRequest node,
-	# so fall back to file save for the flush to guarantee data is persisted.
+	# If there's already a request in flight, wait for it to finish before
+	# sending our flush. Without this, we'd fall back to file save while the
+	# API keeps stale data — and loads always read from the API first.
 	if _in_flight_username != "":
-		print("SaveManager: Flush for '%s' — HTTP busy, saving to file." % username)
-		_save_to_file(data)
-		info.dirty_categories.clear()
-		save_completed.emit(username)
-		return
+		print("SaveManager: Flush for '%s' — waiting for in-flight save ('%s') to finish." % [username, _in_flight_username])
+		while _in_flight_username != "":
+			await get_tree().process_frame
+		print("SaveManager: In-flight save finished, proceeding with flush for '%s'." % username)
 
-	# Otherwise attempt HTTP save (blocking via await)
+	# Send via HTTP (blocking via await)
 	info.dirty_categories.clear()
 	await _send_http_save(username, data, true)  # is_flush = true
 

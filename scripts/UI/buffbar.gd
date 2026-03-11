@@ -291,9 +291,13 @@ func _on_buff_applied(buff_id: String, duration: float) -> void:
 	# Determine if buff can be manually removed (beneficial buffs can be removed, debuffs cannot)
 	var is_removable = not buff_data.is_debuff
 	
-	# Create buff icon — use the buff's original full duration for the progress bar,
+	# Create buff icon — use the actual applied total duration for the progress bar
+	# (which may differ from the resource default if a custom duration was used),
 	# and the passed-in duration (which may be remaining time on load) for the countdown.
-	var icon := BuffIcon.new(buff_id, buff_data.buff_icon, buff_data.duration, icon_size, is_removable)
+	var total_dur: float = _buff_component.get_buff_total_duration(buff_id)
+	if total_dur <= 0.0:
+		total_dur = buff_data.duration  # fallback to resource default
+	var icon := BuffIcon.new(buff_id, buff_data.buff_icon, total_dur, icon_size, is_removable)
 	icon.remaining_time = duration
 	icon.update_time(duration)
 
@@ -331,9 +335,14 @@ func _on_buff_refreshed(buff_id: String, new_duration: float) -> void:
 		# Icon doesn't exist (possibly due to reconnection), create it
 		_on_buff_applied(buff_id, new_duration)
 		return
-	
+
 	var icon: BuffIcon = _buff_icons[buff_id]
-	icon.total_duration = new_duration
+	# Use the actual applied total duration from the buff component,
+	# which accounts for custom durations from ability level scaling.
+	var total_dur: float = _buff_component.get_buff_total_duration(buff_id)
+	if total_dur > 0.0:
+		icon.total_duration = total_dur
+	icon.remaining_time = new_duration
 	icon.update_time(new_duration)
 	
 	# Update stacks

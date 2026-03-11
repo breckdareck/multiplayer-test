@@ -15,13 +15,15 @@ class ActiveBuff:
 	var buff_data: BuffData
 	var stacks: int = 1
 	var remaining_duration: float = 0.0
+	var total_duration: float = 0.0  # The full applied duration (may differ from resource)
 	var source_node: Node = null  # Who applied this buff
 	var custom_logic_instance: Node = null  # For buffs with custom scripts
-	
+
 	func _init(data: BuffData, src: Node = null):
 		buff_data = data
 		source_node = src
 		remaining_duration = data.duration
+		total_duration = data.duration
 		
 		# Instantiate custom logic if the buff has a script
 		if data.logic_script:
@@ -111,6 +113,13 @@ func get_buff_duration(buff_id: String) -> float:
 	return _active_buffs[buff_id].remaining_duration
 
 
+## Gets the total (original applied) duration of a buff
+func get_buff_total_duration(buff_id: String) -> float:
+	if not _active_buffs.has(buff_id):
+		return 0.0
+	return _active_buffs[buff_id].total_duration
+
+
 ## Gets the stack count of a buff
 func get_buff_stacks(buff_id: String) -> int:
 	if not _active_buffs.has(buff_id):
@@ -143,6 +152,7 @@ func _apply_buff_local(buff_id: String, source: Node = null, custom_duration: fl
 	# Create new active buff
 	var active_buff := ActiveBuff.new(buff_data, source)
 	active_buff.remaining_duration = duration
+	active_buff.total_duration = duration
 	_active_buffs[buff_id] = active_buff
 	
 	# Call custom logic on_apply if available
@@ -156,9 +166,9 @@ func _apply_buff_local(buff_id: String, source: Node = null, custom_duration: fl
 	# Emit signal and sync to clients
 	buff_applied.emit(buff_id, duration)
 	print("Applied buff: %s (duration: %.1fs)" % [buff_data.buff_name, duration])
-	
+
 	if multiplayer.is_server():
-		sync_buff_applied.rpc(buff_id, duration)
+		sync_buff_applied.rpc(buff_id, duration, duration)
 	
 	return true
 
@@ -173,29 +183,32 @@ func _handle_existing_buff(buff_id: String, buff_data: BuffData, source: Node, d
 		BuffData.StackBehavior.REFRESH:
 			# Reset duration to new duration
 			active_buff.remaining_duration = new_duration
-			
+			active_buff.total_duration = new_duration
+
 			_force_stat_recalc()
-					
+
 			buff_refreshed.emit(buff_id, new_duration)
-			
+
 			if multiplayer.is_server():
 				sync_buff_refreshed.rpc(buff_id, new_duration)
-			
+
 		BuffData.StackBehavior.STACK:
 			# Increase stack count up to max
 			if active_buff.stacks < buff_data.max_stacks:
 				active_buff.stacks += 1
 				active_buff.remaining_duration = new_duration
-				
+				active_buff.total_duration = new_duration
+
 				_force_stat_recalc()
-				
+
 				buff_refreshed.emit(buff_id, new_duration)
-				
+
 				if multiplayer.is_server():
 					sync_buff_stacks.rpc(buff_id, active_buff.stacks, new_duration)
 			else:
 				# At max stacks, just refresh
 				active_buff.remaining_duration = new_duration
+				active_buff.total_duration = new_duration
 				
 		BuffData.StackBehavior.IGNORE:
 			# Do nothing, keep existing buff running
@@ -287,18 +300,19 @@ func remove_buff_request(buff_id: String) -> void:
 
 
 @rpc("authority", "call_local", "reliable")
-func sync_buff_applied(buff_id: String, duration: float) -> void:
+func sync_buff_applied(buff_id: String, duration: float, total_dur: float = -1.0) -> void:
 	if multiplayer.is_server():
 		return
-		
+
 	var buff_data: BuffData = ResourceManager.get_buff_data(buff_id)
 	if not buff_data:
 		return
-	
+
 	var active_buff := ActiveBuff.new(buff_data, null)
 	active_buff.remaining_duration = duration
+	active_buff.total_duration = total_dur if total_dur > 0.0 else duration
 	_active_buffs[buff_id] = active_buff
-	
+
 	buff_applied.emit(buff_id, duration)
 
 
@@ -319,9 +333,10 @@ func sync_buff_removed(buff_id: String) -> void:
 func sync_buff_refreshed(buff_id: String, new_duration: float) -> void:
 	if multiplayer.is_server():
 		return
-		
+
 	if _active_buffs.has(buff_id):
 		_active_buffs[buff_id].remaining_duration = new_duration
+		_active_buffs[buff_id].total_duration = new_duration
 		buff_refreshed.emit(buff_id, new_duration)
 
 
@@ -329,10 +344,11 @@ func sync_buff_refreshed(buff_id: String, new_duration: float) -> void:
 func sync_buff_stacks(buff_id: String, new_stacks: int, new_duration: float) -> void:
 	if multiplayer.is_server():
 		return
-		
+
 	if _active_buffs.has(buff_id):
 		_active_buffs[buff_id].stacks = new_stacks
 		_active_buffs[buff_id].remaining_duration = new_duration
+		_active_buffs[buff_id].total_duration = new_duration
 		buff_refreshed.emit(buff_id, new_duration)
 
 
@@ -345,7 +361,7 @@ func sync_all_buffs_to_client(peer_id: int) -> void:
 	var buff_batch: Array = []
 	for buff_id in _active_buffs:
 		var active_buff: ActiveBuff = _active_buffs[buff_id]
-		buff_batch.append({"id": buff_id, "stacks": active_buff.stacks, "duration": active_buff.remaining_duration})
+		buff_batch.append({"id": buff_id, "stacks": active_buff.stacks, "duration": active_buff.remaining_duration, "total_duration": active_buff.total_duration})
 	sync_all_buffs_batch.rpc_id(peer_id, buff_batch)
 
 
@@ -358,6 +374,7 @@ func sync_all_buffs_batch(buffs: Array) -> void:
 		var buff_id: String = entry.get("id", "")
 		var stacks: int = entry.get("stacks", 1)
 		var duration: float = entry.get("duration", 0.0)
+		var total_dur: float = entry.get("total_duration", 0.0)
 
 		var buff_data: BuffData = ResourceManager.get_buff_data(buff_id)
 		if not buff_data:
@@ -366,6 +383,7 @@ func sync_all_buffs_batch(buffs: Array) -> void:
 		var active_buff := ActiveBuff.new(buff_data, null)
 		active_buff.stacks = stacks
 		active_buff.remaining_duration = duration
+		active_buff.total_duration = total_dur if total_dur > 0.0 else duration
 		_active_buffs[buff_id] = active_buff
 
 		buff_applied.emit(buff_id, duration)
@@ -391,15 +409,20 @@ func sync_buff_with_stacks(buff_id: String, stacks: int, duration: float) -> voi
 #region #################### Save & Load System ####################
 func save_buffs() -> Dictionary:
 	var buff_data: Array = []
-	
+
 	for buff_id in _active_buffs:
 		var active_buff: ActiveBuff = _active_buffs[buff_id]
 		buff_data.append({
 			"buff_id": buff_id,
 			"stacks": active_buff.stacks,
-			"remaining_duration": active_buff.remaining_duration
+			"remaining_duration": active_buff.remaining_duration,
+			"total_duration": active_buff.total_duration
 		})
-	
+		print("BuffComponent: save_buffs — '%s' remaining=%.2f total=%.2f stacks=%d" % [buff_id, active_buff.remaining_duration, active_buff.total_duration, active_buff.stacks])
+
+	if buff_data.is_empty():
+		print("BuffComponent: save_buffs — no active buffs to save")
+
 	return {
 		"active_buffs": buff_data
 	}
@@ -407,29 +430,38 @@ func save_buffs() -> Dictionary:
 
 func load_buffs(data: Dictionary) -> void:
 	if data.is_empty():
+		print("BuffComponent: load_buffs — received empty data, skipping")
 		return
-	
+
 	_loading_mode = true
-	
-	# Clear existing buffs without triggering stat recalc
+
+	# Clear existing buffs — emit buff_removed so the BuffBar cleans up icons
 	for buff_id in _active_buffs.keys():
 		var active_buff: ActiveBuff = _active_buffs[buff_id]
 		if active_buff.custom_logic_instance:
 			active_buff.custom_logic_instance.queue_free()
+		buff_removed.emit(buff_id)
 	_active_buffs.clear()
-	
+
 	# Load saved buffs
 	var buff_data: Array = data.get("active_buffs", [])
+	print("BuffComponent: load_buffs — loading %d buff(s)" % buff_data.size())
 	for buff_entry in buff_data:
 		var buff_id: String = buff_entry.get("buff_id", "")
 		var stacks: int = buff_entry.get("stacks", 1)
 		var duration: float = buff_entry.get("remaining_duration", 0.0)
+		var saved_total: float = buff_entry.get("total_duration", 0.0)
 
 		var buff_resource: BuffData = ResourceManager.get_buff_data(buff_id)
 		if buff_resource:
+			# Use saved total_duration if available, otherwise fall back to resource default
+			var total_dur: float = saved_total if saved_total > 0.0 else buff_resource.duration
+			print("BuffComponent: load_buffs — '%s' remaining=%.2f total=%.2f stacks=%d" % [buff_id, duration, total_dur, stacks])
+
 			var active_buff := ActiveBuff.new(buff_resource, null)
 			active_buff.stacks = stacks
 			active_buff.remaining_duration = duration
+			active_buff.total_duration = total_dur
 			_active_buffs[buff_id] = active_buff
 
 			# Skip on_apply during load — we are restoring persisted state,
