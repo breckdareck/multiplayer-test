@@ -66,10 +66,14 @@ func switch_channel(new_port: int):
 
 func reset_data():
 	host_mode_enabled = false
+	# Flush all player saves BEFORE closing the peer — SaveManager._is_server()
+	# returns false once the peer is gone, so saves must complete while it is still active.
+	if multiplayer.is_server():
+		await PlayerManager.save_all_players()
 	ServerManager.stop_server()
 	ClientManager._disconnect()
 	PlayerManager.cleanup()
-	
+
 	if multiplayer.multiplayer_peer:
 		multiplayer.multiplayer_peer.close()
 		multiplayer.multiplayer_peer = null

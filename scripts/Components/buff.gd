@@ -424,7 +424,7 @@ func load_buffs(data: Dictionary) -> void:
 		var buff_id: String = buff_entry.get("buff_id", "")
 		var stacks: int = buff_entry.get("stacks", 1)
 		var duration: float = buff_entry.get("remaining_duration", 0.0)
-		
+
 		var buff_resource: BuffData = ResourceManager.get_buff_data(buff_id)
 		if buff_resource:
 			var active_buff := ActiveBuff.new(buff_resource, null)
@@ -437,9 +437,14 @@ func load_buffs(data: Dictionary) -> void:
 			# side effects (damage, heals, signals) that are inappropriate
 			# during the load phase. Stat modifiers are handled by the
 			# _force_stat_recalc() call after all buffs are loaded.
-	
+			#
+			# Emit buff_applied so the local HUD refreshes (e.g. host player buff
+			# icons). _data_changed is suppressed by _is_loading_data on the
+			# player controller, so this does not trigger a redundant re-save.
+			buff_applied.emit(buff_id, duration)
+
 	_loading_mode = false
-	
+
 	# Single stat recalc after loading all buffs
 	_force_stat_recalc()
 

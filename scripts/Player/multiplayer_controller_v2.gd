@@ -399,8 +399,11 @@ func change_to_map(new_map_id: String, spawn_point_name: String = ""):
 		var data_string: String = JSON.stringify(get_save_data())
 		request_map_change_rpc.rpc_id(1, new_map_id, spawn_point_name, data_string)
 	else:
-		# Server can change directly, but MUST save first
-		_data_changed()
+		# Flush save before map change — the player node is freed during the transition,
+		# so a debounced save would fire on an already-freed node and be silently skipped.
+		if not username.is_empty() and SaveManager:
+			SaveManager.queue_save(username, "all", self)
+			await SaveManager.flush_save(username)
 		MapManager.request_map_change(player_id, new_map_id, spawn_point_name)
 
 
@@ -753,18 +756,16 @@ func request_map_change_rpc(new_map_id: String, spawn_point_name: String = "", c
 	"""Server receives map change request"""
 	if not multiplayer.is_server():
 		return
-	
+
 	var requester_id = multiplayer.get_remote_sender_id()
 	print("Player %d requesting map change to '%s' at spawn '%s'" % [requester_id, new_map_id, spawn_point_name])
-	
-	# Save player data before moving
-	if not client_data_string.is_empty():
-		print("Server: Saving client-provided data for player %d before map change." % requester_id)
-		save_on_server(client_data_string)
-	else:
-		print("Server: No client data provided, saving server-side state for player %d." % requester_id)
-		_data_changed()
-	
+
+	# Flush save before map change — the player node is freed during the transition,
+	# so a debounced save would fire on an already-freed node and be silently skipped.
+	if not username.is_empty() and SaveManager:
+		SaveManager.queue_save(username, "all", self)
+		await SaveManager.flush_save(username)
+
 	# Change map through MapManager
 	MapManager.request_map_change(requester_id, new_map_id, spawn_point_name)
 

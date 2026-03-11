@@ -91,6 +91,20 @@ func remove_player(id: int):
 		active_players.erase(id)
 
 
+func save_all_players() -> void:
+	"""Flush saves for all active players. Call BEFORE closing the multiplayer peer."""
+	if not multiplayer.is_server():
+		return
+	for player_id in active_players.keys():
+		var uname: String = active_players[player_id].get("username", "")
+		var player_node = get_player_node(player_id)
+		if is_instance_valid(player_node) and not uname.is_empty():
+			SaveManager.register_player(uname, player_node)
+			SaveManager.queue_save(uname, "all", player_node)
+			await SaveManager.flush_save(uname)
+			print("PlayerManager: Flushed save for player '%s' during shutdown." % uname)
+
+
 func cleanup():
 	"""Remove all networked entities and reset player tracking"""
 	print("Cleaning up all players and entities")
