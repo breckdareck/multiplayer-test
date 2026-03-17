@@ -1191,7 +1191,7 @@ zoom = Vector2(4, 4)
 process_callback = 0
 limit_enabled = false
 limit_bottom = 120
-position_smoothing_enabled = true
+position_smoothing_enabled = false
 
 [node name="RespawnTimer" type="Timer" parent="."]
 wait_time = 2.0
