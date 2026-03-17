@@ -1,0 +1,82 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=19 format=3 uid="uid://aicestrik001x"]
+
+[ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_icst1"]
+[ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="1_icst2"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_icst1"]
+[ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_icst2"]
+[ext_resource type="PackedScene" uid="uid://d0ig4oiimrnei" path="res://scenes/Gameplay/projectile_base.tscn" id="2_icst3"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="6_icst1"]
+[ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_icst1"]
+[ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_icst1"]
+[ext_resource type="Resource" uid="uid://amagcbolt001x" path="res://resources/Abilities/Mage/A_Magic_Bolt.tres" id="9_icst1"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_icst1"]
+size = Vector2(120, 46)
+
+[sub_resource type="Resource" id="Resource_icst1"]
+script = ExtResource("2_icst2")
+target_type = 1
+hit_box_shape_data = SubResource("RectangleShape2D_icst1")
+hit_box_position_data = Vector2(60, -10)
+animation_name = "attack_2"
+is_projectile = true
+projectile_scene = ExtResource("2_icst3")
+projectile_speed = 250.0
+metadata/_custom_type_script = "uid://1raaatfhww5y"
+
+[sub_resource type="Resource" id="Resource_icst2"]
+script = ExtResource("6_icst1")
+base_value = 0.6
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_icst3"]
+script = ExtResource("6_icst1")
+base_value = 8.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_icst4"]
+script = ExtResource("6_icst1")
+base_value = 90.0
+per_level = 5.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_icst5"]
+script = ExtResource("6_icst1")
+base_value = 16.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_icst6"]
+script = ExtResource("6_icst1")
+base_value = 1.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_icst7"]
+script = ExtResource("6_icst1")
+base_value = 1.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_icst8"]
+script = ExtResource("7_icst1")
+mana_cost_formula = SubResource("Resource_icst5")
+cooldown_formula = SubResource("Resource_icst3")
+damage_percent_formula = SubResource("Resource_icst4")
+max_targets_formula = SubResource("Resource_icst7")
+max_hits_formula = SubResource("Resource_icst6")
+cast_time_formula = SubResource("Resource_icst2")
+metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
+
+[resource]
+script = ExtResource("2_icst1")
+ability_id = "9315195116108-10180-11141197-8591-12491086711491459"
+ability_name = "Ice Strike"
+description = "Launches a freezing bolt at $[target_count] enemy dealing $[damage_percent] magic damage."
+ability_icon = ExtResource("1_icst1")
+max_level = 10
+required_class = Array[int]([2])
+required_weapon_types = Array[int]([2])
+prerequisite_abilities = Dictionary[ExtResource("2_icst1"), int]({
+ExtResource("9_icst1"): 3
+})
+active_behavior = SubResource("Resource_icst1")
+scaling_data = SubResource("Resource_icst8")
+metadata/_custom_type_script = "uid://b8y62rc8nb40j"

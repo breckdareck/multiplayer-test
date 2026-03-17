@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="BuffData" load_steps=4 format=3 uid="uid://bfocusbf0001x"]
+
+[ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_focus1"]
+[ext_resource type="Script" uid="uid://bcuvemv85jprb" path="res://scripts/Resources/BuffSystem/BuffData.gd" id="1_focus2"]
+[ext_resource type="Script" path="res://scripts/BuffLogic/BL_Focus.gd" id="2_focus1"]
+
+[resource]
+resource_local_to_scene = true
+script = ExtResource("1_focus2")
+buff_id = "6636311513-1091051-514155-3601-82154121514511"
+buff_name = "Focus"
+description = "Increases weapon attack and critical hit chance."
+buff_icon = ExtResource("1_focus1")
+duration = 30.0
+logic_script = ExtResource("2_focus1")
+metadata/_custom_type_script = "uid://bcuvemv85jprb"

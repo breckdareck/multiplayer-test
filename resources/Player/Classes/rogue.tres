@@ -1,10 +1,15 @@
-[gd_resource type="Resource" script_class="ClassData" load_steps=6 format=3 uid="uid://cd72f2m3bg0sh"]
+[gd_resource type="Resource" script_class="ClassData" load_steps=11 format=3 uid="uid://cd72f2m3bg0sh"]
 
 [ext_resource type="Texture2D" uid="uid://cgx33w5mdt6ar" path="res://assets/UI/rogue_portrait.tres" id="1_5hc5c"]
 [ext_resource type="Script" uid="uid://buwbui1bka8vl" path="res://scripts/Resources/ClassSystem/ClassData.gd" id="2_ynuw2"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="3_76b0u"]
 [ext_resource type="Resource" uid="uid://dxf1ejii6pw" path="res://resources/Abilities/Rogue/A_Double_Stab.tres" id="4_so2ya"]
 [ext_resource type="SpriteFrames" uid="uid://61bhtp5n4qmo" path="res://resources/Player/SpriteFrames/Rogue.tres" id="4_ynuw2"]
+[ext_resource type="Resource" uid="uid://animblstp001x" path="res://resources/Abilities/Rogue/A_Nimble_Step.tres" id="5_so2ya"]
+[ext_resource type="Resource" uid="uid://alky7abl001xx" path="res://resources/Abilities/Rogue/A_Lucky_Seven.tres" id="6_so2ya"]
+[ext_resource type="Resource" uid="uid://adrksghtabl01" path="res://resources/Abilities/Rogue/A_Dark_Sight.tres" id="7_so2ya"]
+[ext_resource type="Resource" uid="uid://adisorder001x" path="res://resources/Abilities/Rogue/A_Disorder.tres" id="8_so2ya"]
+[ext_resource type="Resource" uid="uid://ashdwpart001x" path="res://resources/Abilities/Rogue/A_Shadow_Partner.tres" id="9_so2ya"]
 
 [resource]
 script = ExtResource("2_ynuw2")
@@ -13,7 +18,7 @@ class_type = 3
 sprite_frames = Dictionary[int, SpriteFrames]({
 1: ExtResource("4_ynuw2")
 })
-skills = Array[ExtResource("3_76b0u")]([ExtResource("4_so2ya")])
+skills = Array[ExtResource("3_76b0u")]([ExtResource("4_so2ya"), ExtResource("5_so2ya"), ExtResource("6_so2ya"), ExtResource("7_so2ya"), ExtResource("8_so2ya"), ExtResource("9_so2ya")])
 icon = ExtResource("1_5hc5c")
 primary_stat = 3
 secondary_stat = 2

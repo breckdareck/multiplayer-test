@@ -1,0 +1,46 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=13 format=3 uid="uid://adexpasv0001x"]
+
+[ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_dxpa1"]
+[ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_dxpa2"]
+[ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="2_dxpa1"]
+[ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_dxpa1"]
+[ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_dxpa1"]
+[ext_resource type="Resource" uid="uid://hhx8fc5iylxh" path="res://resources/Abilities/Archer/A_Arrow_Shot.tres" id="5_dxpa1"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_dxpa2"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_dxpa1"]
+
+[sub_resource type="Resource" id="Resource_dxpa1"]
+resource_local_to_scene = true
+script = ExtResource("1_dxpa2")
+
+[sub_resource type="Resource" id="Resource_dxpa2"]
+script = ExtResource("5_dxpa2")
+base_value = 2.0
+per_level = 2.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_dxpa3"]
+resource_local_to_scene = true
+script = ExtResource("4_dxpa1")
+stat_type = 2
+percent_bonus_formula = SubResource("Resource_dxpa2")
+
+[sub_resource type="Resource" id="Resource_dxpa4"]
+script = ExtResource("3_dxpa1")
+stat_bonus_formulas = Array[ExtResource("4_dxpa1")]([SubResource("Resource_dxpa3")])
+
+[resource]
+script = ExtResource("6_dxpa1")
+ability_id = "4456712011361-15113-1011311-4101-1413111411105114"
+ability_name = "DEX Passive"
+description = "Permanently increases DEX by $[stat_bonus]%."
+ability_icon = ExtResource("1_dxpa1")
+max_level = 20
+ability_type = 1
+required_class = Array[int]([1])
+prerequisite_abilities = Dictionary[ExtResource("6_dxpa1"), int]({
+ExtResource("5_dxpa1"): 3
+})
+active_behavior = SubResource("Resource_dxpa1")
+scaling_data = SubResource("Resource_dxpa4")
+metadata/_custom_type_script = "uid://b8y62rc8nb40j"

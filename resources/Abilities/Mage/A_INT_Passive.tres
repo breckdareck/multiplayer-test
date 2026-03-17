@@ -1,0 +1,46 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=13 format=3 uid="uid://aintpassv001xx"]
+
+[ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_intp1"]
+[ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_intp2"]
+[ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="2_intp1"]
+[ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_intp1"]
+[ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_intp1"]
+[ext_resource type="Resource" uid="uid://cgywubtniaon0" path="res://resources/Abilities/Mage/A_Fireball.tres" id="5_intp1"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_intp2"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_intp1"]
+
+[sub_resource type="Resource" id="Resource_intp1"]
+resource_local_to_scene = true
+script = ExtResource("1_intp2")
+
+[sub_resource type="Resource" id="Resource_intp2"]
+script = ExtResource("5_intp2")
+base_value = 2.0
+per_level = 2.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_intp3"]
+resource_local_to_scene = true
+script = ExtResource("4_intp1")
+stat_type = 1
+percent_bonus_formula = SubResource("Resource_intp2")
+
+[sub_resource type="Resource" id="Resource_intp4"]
+script = ExtResource("3_intp1")
+stat_bonus_formulas = Array[ExtResource("4_intp1")]([SubResource("Resource_intp3")])
+
+[resource]
+script = ExtResource("6_intp1")
+ability_id = "9140121551-15113-1011311-4101-1013111411105114"
+ability_name = "INT Passive"
+description = "Permanently increases INT by $[stat_bonus]%."
+ability_icon = ExtResource("1_intp1")
+max_level = 20
+ability_type = 1
+required_class = Array[int]([2])
+prerequisite_abilities = Dictionary[ExtResource("6_intp1"), int]({
+ExtResource("5_intp1"): 3
+})
+active_behavior = SubResource("Resource_intp1")
+scaling_data = SubResource("Resource_intp4")
+metadata/_custom_type_script = "uid://b8y62rc8nb40j"
