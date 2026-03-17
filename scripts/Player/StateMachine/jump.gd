@@ -14,6 +14,8 @@ func enter() -> void:
 		player = parent
 	player.do_jump = false
 
+	AudioManager.play_sfx_rpc.rpc("res://assets/sounds/jump.wav", parent.global_position)
+
 	# A regular jump should immediately stop any active coyote timer
 	# to prevent weird interactions.
 	player.coyote_timer.stop()

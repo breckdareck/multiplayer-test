@@ -232,10 +232,10 @@ func _load_sound_settings_from_config(config: ConfigFile):
 		master_volume_db = config.get_value(SOUND_CONFIG_SECTION, "master_volume_db", master_volume_db)
 		music_volume_db = config.get_value(SOUND_CONFIG_SECTION, "music_volume_db", music_volume_db)
 		sfx_volume_db = config.get_value(SOUND_CONFIG_SECTION, "sfx_volume_db", sfx_volume_db)
-		
-		# Apply loaded settings to AudioServer
-		_apply_sound_settings()
 		print("Sound settings loaded.")
+
+	# Always apply — ensures defaults take effect even when section is missing
+	_apply_sound_settings()
 
 
 func _save_sound_settings_to_config(config: ConfigFile, file_existed_before_save: bool):
