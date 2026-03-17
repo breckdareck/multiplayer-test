@@ -24,8 +24,11 @@ func _ready():
 	
 	if not ability_component:
 		push_error("Hotbar: Could not find AbilityComponent")
-	
+
 	create_hotbar_slots()
+
+	if ability_component:
+		ability_component.cooldown_started.connect(_on_cooldown_started)
 
 func create_hotbar_slots():
 	for i in range(slot_count):
@@ -49,6 +52,10 @@ func activate_slot(slot_index: int):
 		# Integrate with your ability system here
 		if player and player.ability_component.has_method("use_ability"):
 			player.ability_component.use_ability(slot.assigned_ability.ability_id)
+
+func _on_cooldown_started(ability_id: String, duration: float) -> void:
+	for slot in hotbar_slots:
+		slot.start_cooldown(ability_id, duration)
 
 ## Optional: Handle keybind inputs
 func _input(event: InputEvent):
