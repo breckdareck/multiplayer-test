@@ -487,7 +487,6 @@ inventory_window = NodePath("CanvasLayer/MoveableWindows/InventoryWindow")
 quest_window = NodePath("CanvasLayer/MoveableWindows/QuestWindow")
 
 [node name="PlayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
-replication_interval = 0.05
 replication_config = SubResource("SceneReplicationConfig_2d20i")
 visibility_update_mode = 1
 
