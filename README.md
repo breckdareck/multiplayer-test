@@ -1,24 +1,52 @@
 # Multiplayer Godot Project
 
-Welcome to the **Multiplayer Godot Project**! This project is a demonstration of multiplayer features built using the Godot Engine. It includes player movement, enemy AI, collectibles, and networked gameplay.
+A robust **multiplayer RPG** built with Godot Engine 4.5+ featuring server-authoritative gameplay, component-based character systems, and full backend integration (Flask + PostgreSQL). Play with friends in a persistent world with leveling, equipment, abilities, and more.
 
-## Features
+## ✅ Completed Features
 
-- Host/Join from the main menu with a listen server on port 8080 by default
-- Channel switching between ports with safe reconnect (client-side)
-- Server-authoritative player controller with RPC-driven inputs
-- Character selection from the main menu with class/sprite changes
-- Health system with damage, invulnerability frames, regen, death/respawn
-- Collectibles with pickup animation
-- Killzones that trigger server-authoritative death
-- Droppable one-way platforms and mobile HUD support
-- Enemy AI and spawners
-- **Ability System**: Learn and level up abilities with skill points, active/passive abilities with cooldowns
-- **Buff/Debuff System**: Temporary stat modifications with stacking, refresh, and custom logic
-- **Equipment System**: Equip armor and weapons with stat bonuses and visual changes
-- **Inventory System**: Item management with stacking, drag-and-drop, and server validation
-- **Resource Management**: Centralized loading and caching of game data
-- **Advanced UI**: Draggable windows for abilities, equipment, stats, and inventory
+### Core Multiplayer
+- **Host/Join Networking**: Listen server on port 8080 with safe channel switching between ports
+- **Server-Authoritative Architecture**: All state validated on server with RPC-driven client inputs
+- **Account & Character System**: Account creation, character selection, persistence to PostgreSQL
+- **Player Management**: Player spawning, synchronization, and cleanup
+
+### Character Systems
+- **Class System**: Swordsman, Archer, Mage with class-specific abilities and stat bonuses
+- **Health & Combat**: Damage, invulnerability frames, passive regen, death/respawn, critical hits
+- **Leveling System**: Experience-based progression with configurable EXP curves
+- **Stats System**: STR, DEX, INT, LUCK, HEALTH, MANA, DEFENSE, CRIT CHANCE, CRIT DAMAGE, etc.
+- **Equipment System**: Head, chest, legs, feet, and weapon slots with stat bonuses and visual changes
+
+### RPG Mechanics
+- **Ability System**: Active/passive abilities with cooldowns, skill points, prerequisites, stat scaling, and proc effects
+- **Buff/Debuff System**: Stacking, duration tracking, custom logic hooks, stat modifiers
+- **Inventory System**: Item stacking, drag-and-drop, grid-based UI, server validation
+- **Consumables**: Item usage effects (heal, restore mana, grant experience, town teleport) with extensible effect system
+- **Merchant System**: Buy/sell with unique and stackable item buyback
+- **Party System**: Create, invite, join, and leave parties with shared member visibility
+
+### World & Exploration
+- **Multiple Zones**: Support for multiple maps/levels (game, game2, game3)
+- **Portals & Fast Travel**: Portal-based teleportation between zones
+- **Enemy AI**: State machines with idle, patrol, attack, and slash attack behaviors
+- **Collectibles**: Pickup coins with animations
+- **Platforms**: Drop-through platforms with collision management
+- **Killzones**: Server-authoritative death triggers
+
+### Social & Communication
+- **Chat System**: In-game messaging with RPC-based broadcast
+- **Friend System**: Infrastructure for friend lists and direct messaging
+
+### User Interface
+- **Advanced UI**: Draggable windows for abilities, equipment, stats, inventory, party, and chat
+- **Mobile HUD**: Touch-friendly buttons for movement and actions
+- **Hotbar System**: Quick-access ability bar with cooldown visualization
+- **Buff Bar**: Display active buffs/debuffs with duration timers
+
+### Data Management
+- **Resource Manager**: Centralized loading and caching of abilities, items, buffs, classes
+- **Player Persistence**: Save/load to JSON files with class, level, experience, equipment, inventory
+- **Backend Integration**: Flask REST API for accounts, characters, party data
 
 ## Screenshots
 
@@ -36,147 +64,264 @@ Welcome to the **Multiplayer Godot Project**! This project is a demonstration of
 
 ## Getting Started
 
-1. **Open the project in Godot Engine (version 4.x recommended).**
-2. Run the `main_menu.tscn` scene to start playing.
-3. For multiplayer, launch multiple instances and connect via the provided UI or script.
+### Prerequisites
+- **Godot Engine** 4.5+ (Forward Plus rendering)
+- **Docker & Docker Compose** (for backend/database)
+- **Python 3.9+** (optional, if running backend standalone)
 
-### How to Play (Multiplayer)
-- Host: starts a listen server on port 8080 and spawns the host player.
-- Join: connects to the IP in the input box (validated) on port 8080.
-- Channel switching: use the UI arrows to switch ports; the client disconnects/cleans up and reconnects safely.
+### Setup
 
-#### Flow details
-- After hosting, the game switches into the in-game scene automatically.
-- On join, the server asks the client for their character selection; the server then spawns that character for the player.
-- Your username is captured from the main menu and synced to your player label.
+1. **Clone and open in Godot**:
+   ```bash
+   git clone <repository-url>
+   cd multiplayer-test
+   godot --path .
+   ```
 
-### Controls (default actions)
-- Move: `Move Left` / `Move Right`
-- Down: `Move Down`
-- Jump: `Jump`
-- Attack: `Attack`
+2. **Start the backend** (required for account/character persistence):
+   ```bash
+   docker-compose up -d
+   ```
+   - Backend API: http://localhost:5000
+   - Database: PostgreSQL on localhost:5432
+   - Adminer (DB UI): http://localhost:8080
 
-Notes:
-- Mobile HUD buttons drive the same actions on touch devices.
-- Input is sent to the server via a `MultiplayerSynchronizer`; the server is authoritative.
+3. **Run the game**:
+   - Press F5 in Godot to start the main scene (`scenes/UI/LoginScreen.tscn`)
+   - Or run the built executable
 
-## Folder Structure
+### How to Play
+
+**Account & Character Management**:
+- Create account and login via LoginScreen
+- Create or select a character
+- Characters persist across sessions
+
+**Multiplayer (Same Machine)**:
+- Launch multiple instances
+- Click "Host Game" (creates listen server) or "Join Game"
+- Enter IP and port, then connect
+
+**Multiplayer (Network)**:
+- Host: Click "Host Game"
+- Clients: Click "Join Game", enter host's IP
+- Both connect to port 8080 by default
+
+**Channel Switching**:
+- Use UI arrows to switch ports (reconnects safely)
+- Useful for testing with multiple servers
+
+### Controls (Default Keybinds)
+- **Move Left/Right**: A / D
+- **Move Down**: S
+- **Jump**: Space
+- **Attack**: Left Click
+- **Ability Hotkeys**: 1-5 (configurable)
+- **Open Windows**: Tab (abilities), I (inventory), E (equipment), C (stats), P (party), etc.
+- **Mobile**: On-screen touch buttons
+
+All keybinds are customizable via the Options menu.
+
+## 🛣️ Development Roadmap
+
+### In Progress (1)
+- **Equipment Upgrade/Enhancement** - Planned system for refining and enchanting gear
+
+### High Priority - Planned (21 items)
+**Visual & Audio:**
+- Particle effects for combat and abilities
+- Screen shake and impact feedback
+- Ambient sounds and music transitions
+- Visual effects for status conditions
+
+**Content & Progression:**
+- Boss encounters with multi-phase mechanics
+- Mini-boss and world boss systems
+- Enemy scaling with player level
+- More enemy types beyond goblin/slime
+- Jump Quests and platforming challenges
+- Exploration rewards and discoveries
+- Job Advancement system for advanced classes
+
+**Economy & Trading:**
+- Player-to-player trading
+- Auction house system
+- Free Market system with stall placement
+- Currency system (gold, premium currency)
+- Item pricing and market dynamics
+
+**User Experience:**
+- Tutorials and help system
+- Accessibility features (colorblind modes, text scaling)
+- Localization system
+- Weather and time systems
+
+### Blocked - Not Started (8 items)
+These systems require architectural planning before implementation:
+- **Guild System**: Guild creation, ranks, permissions, guild chat
+- **Guild Activities**: Guild quests, raids, competitive events
+- **Quest System**: Quest framework, objectives, rewards, daily/weekly quests
+- **Party Quests**: Group-only quests with scaling difficulty
+- **Reputation System**: NPC faction reputation with rewards
+- **Achievement System**: Achievement tracking and badges
+
+## Backend Integration
+
+The project uses a **Flask REST API** with **PostgreSQL** for persistent data storage (accounts, characters, parties).
+
+### Database Tables
+- `accounts`: User accounts with username and hashed passwords
+- `players`: Character records (name, level, class, experience, health, inventory state)
+- `player_items`: Inventory items linked to players
+- `player_equipment`: Equipped items per player
+- `player_abilities`: Character abilities and levels
+- `parties`: Party groups with timestamps
+- `party_members`: Player membership in parties
+
+### Key Endpoints
+- `POST /api/accounts` - Register account
+- `POST /api/login` - Authenticate and get session token
+- `GET /api/players` - List characters for account
+- `POST /api/players` - Create new character
+- `PUT /api/players/<id>` - Update character state
+- `POST /api/parties` - Create/manage parties
+
+### Development
+To add new backend features:
+1. Define SQLAlchemy models in `backend/app.py`
+2. Create Flask routes
+3. Call from Godot using `HTTPRequest` nodes
+4. Example: See `scripts/UI/LoginScreen.gd` for account creation flow
+
+## Project Structure
 
 *   `addons/`: Contains Godot editor plugins (e.g., `ability_editor`, `script-ide`).
 *   `assets/`: Contains all of the game's visual and audio assets.
-    *   `assets/fonts/`: Custom fonts used in the UI.
-    *   `assets/music/`: Background music tracks.
-    *   `assets/Shader/`: Custom shaders.
-    *   `assets/sounds/`: Sound effects for various in-game events.
-    *   `assets/sprites/`: Character, enemy, item, and UI sprites, organized by category.
-    *   `assets/themes/`: UI themes.
-    *   `assets/UI/`: UI-specific textures and resources.
+	*   `assets/fonts/`: Custom fonts used in the UI.
+	*   `assets/music/`: Background music tracks.
+	*   `assets/Shader/`: Custom shaders.
+	*   `assets/sounds/`: Sound effects for various in-game events.
+	*   `assets/sprites/`: Character, enemy, item, and UI sprites, organized by category.
+	*   `assets/themes/`: UI themes.
+	*   `assets/UI/`: UI-specific textures and resources.
 *   `resources/`: Contains the game's data files, defined as custom Godot resources (`.tres`).
-	*   `resources/Abilities/`: Definitions for all in-game abilities (`AbilityData`, `AbilityLevelData`, `AbilityScalingData`, `ProcEffectData`, `StatBonusFormula`).
-	*   `resources/Buffs/`: Definitions for all in-game buffs and debuffs (`BuffData`).
-	*   `resources/DropTables/`: Configuration for item drops from enemies.
-	*   `resources/Items/`: Definitions for all in-game items (`ItemData`, `EquipmentData`, `ArmorData`, `WeaponData`, `ItemDropResource`).
-	*   `resources/Player/`: Player-specific resources.
-		*   `resources/Player/Classes/`: Definitions for different player classes (`ClassData`).
-		*   `resources/Player/SpriteFrames/`: SpriteFrames resources for player animations.
+    *   `resources/Abilities/`: Definitions for all in-game abilities (`AbilityData`, `AbilityLevelData`, `AbilityScalingData`, `ProcEffectData`, `StatBonusFormula`).
+    *   `resources/Buffs/`: Definitions for all in-game buffs and debuffs (`BuffData`).
+    *   `resources/DropTables/`: Configuration for item drops from enemies.
+    *   `resources/Items/`: Definitions for all in-game items (`ItemData`, `EquipmentData`, `ArmorData`, `WeaponData`, `ItemDropResource`).
+    *   `resources/Player/`: Player-specific resources.
+        *   `resources/Player/Classes/`: Definitions for different player classes (`ClassData`).
+        *   `resources/Player/SpriteFrames/`: SpriteFrames resources for player animations.
 *   `scenes/`: Contains the game's scenes, the building blocks of levels and UI.
-    *   `scenes/Collectables/`: Scenes for collectible items (e.g., `coin.tscn`).
-    *   `scenes/Gameplay/`: General gameplay elements (e.g., `dropped_item.tscn`, `enemy_spawner.tscn`).
-    *   `scenes/Levels/`: Main game levels (e.g., `main_menu.tscn`, `game.tscn`).
-    *   `scenes/NPC/`: Non-player character scenes.
-    *   `scenes/Player/`: Player character scenes and related elements.
-    *   `scenes/Tools/`: Utility scenes.
-    *   `scenes/UI/`: User interface scenes (e.g., `ability_slot.tscn`, `hotbar_slot.tscn`, `slot.tscn`).
+	*   `scenes/Collectables/`: Scenes for collectible items (e.g., `coin.tscn`).
+	*   `scenes/Gameplay/`: General gameplay elements (e.g., `dropped_item.tscn`, `enemy_spawner.tscn`).
+	*   `scenes/Levels/`: Main game levels (e.g., `main_menu.tscn`, `game.tscn`).
+	*   `scenes/NPC/`: Non-player character scenes.
+	*   `scenes/Player/`: Player character scenes and related elements.
+	*   `scenes/Tools/`: Utility scenes.
+	*   `scenes/UI/`: User interface scenes (e.g., `ability_slot.tscn`, `hotbar_slot.tscn`, `slot.tscn`).
 *   `scripts/`: Contains the game's GDScript files, defining all game logic.
-	*   `scripts/AbilityLogic/`: Custom logic scripts for complex ability behaviors (e.g., `AL_EnhancedBasics.gd`, `AL_SlashBlast.gd`).
-	*   `scripts/BuffLogic/`: Custom logic scripts for complex buff behaviors (e.g., `BL_MapleWarrior.gd`, `BL_PowerGuard.gd`).
-	*   `scripts/Components/`: Reusable components attached to game entities (e.g., `ability.gd`, `buff.gd`, `class.gd`, `combat.gd`, `debug.gd`, `equipment.gd`, `health.gd`, `inventory.gd`, `level.gd`, `merchant_inventory.gd`, `player_inventory.gd`, `stats.gd`).
-	*   `scripts/Enemy/`: Enemy-specific scripts.
-		*   `scripts/Enemy/StateMachine/`: State scripts for enemy AI (e.g., `enemy_attack.gd`, `enemy_idle.gd`, `enemy_patrol.gd`).
-		*   `scripts/Enemy/enemy_base.gd`: Base class for all enemies.
-		*   `scripts/Enemy/enemy_spawner.gd`: Manages enemy spawning and pooling.
-	*   `scripts/Enums/`: Global enumerations (`constants.gd`).
-	*   `scripts/Managers/`: Autoloaded singletons for global game systems (e.g., `game_manager.gd`, `multiplayer_manager.gd`, `resource_manager.gd`, `keybind_manager.gd`, `user_config.gd`).
-	*   `scripts/Networking/`: Scripts handling multiplayer networking logic (e.g., `channel_manager.gd`, `client_manager.gd`, `network_utils.gd`, `player_manager.gd`, `server_manager.gd`).
-	*   `scripts/NPC/`: Non-player character logic (e.g., `npc_interaction.gd`).
-	*   `scripts/Player/`: Player-specific scripts.
-		*   `scripts/Player/StateMachine/`: State scripts for player character behavior (e.g., `attack.gd`, `crouch.gd`, `death.gd`, `fall.gd`, `hit.gd`, `idle.gd`, `jump.gd`, `move.gd`, `slide.gd`).
-		*   `scripts/Player/multiplayer_controller_v2.gd`: The main player character script.
-		*   `scripts/Player/multiplayer_input.gd`: Handles player input synchronization.
-		*   `scripts/Player/player_hud.gd`: Manages player HUD elements.
-	*   `scripts/Resources/`: Base classes for custom resource types (e.g., `AbilitySystem`, `BuffSystem`, `ClassSystem`, `ItemSystem`, `StatSystem` subdirectories).
-	*   `scripts/StateMachine/`: Generic state machine implementation (`state.gd`, `state_machine.gd`).
-	`scripts/UI/`: Scripts for user interface elements (e.g., `ability_slot.gd`, `ability_window.gd`, `buffbar.gd`, `equipment_slot.gd`, `equipment_window.gd`, `global_drop_handler.gd`, `hotbar.gd`, `hotbar_slot.gd`, `inventory_window.gd`, `shop_window.gd`, `slot.gd`, `stats_window.gd`, `game_menu.gd`, `keybinds_menu.gd`, `options_menu.gd`).
-	*   `scripts/coin.gd`: Logic for collectible coins.
-	*   `scripts/damage_numbers.gd`: Manages floating damage numbers.
-	*   `scripts/killzone.gd`: Logic for kill zones.
-	*   `scripts/main_menu.gd`: Main menu logic.
-	*   `scripts/platform.gd`: Logic for platforms.
-*   `README/` — Project documentation and screenshots
+    *   `scripts/AbilityLogic/`: Custom logic scripts for complex ability behaviors (e.g., `AL_EnhancedBasics.gd`, `AL_SlashBlast.gd`).
+    *   `scripts/BuffLogic/`: Custom logic scripts for complex buff behaviors (e.g., `BL_MapleWarrior.gd`, `BL_PowerGuard.gd`).
+    *   `scripts/Components/`: Reusable components attached to game entities (e.g., `ability.gd`, `buff.gd`, `class.gd`, `combat.gd`, `debug.gd`, `equipment.gd`, `health.gd`, `inventory.gd`, `level.gd`, `merchant_inventory.gd`, `player_inventory.gd`, `stats.gd`).
+    *   `scripts/Enemy/`: Enemy-specific scripts.
+        *   `scripts/Enemy/StateMachine/`: State scripts for enemy AI (e.g., `enemy_attack.gd`, `enemy_idle.gd`, `enemy_patrol.gd`).
+        *   `scripts/Enemy/enemy_base.gd`: Base class for all enemies.
+        *   `scripts/Enemy/enemy_spawner.gd`: Manages enemy spawning and pooling.
+    *   `scripts/Enums/`: Global enumerations (`constants.gd`).
+    *   `scripts/Managers/`: Autoloaded singletons for global game systems (e.g., `multiplayer_manager.gd`, `resource_manager.gd`, `map_manager.gd`, `save_manager.gd`, `ChatManager.gd`, `LogManager.gd`, `keybind_manager.gd`, `user_config.gd`).
+    *   `scripts/Networking/`: Scripts handling multiplayer networking logic (e.g., `channel_manager.gd`, `client_manager.gd`, `network_manager.gd`, `network_utils.gd`, `player_manager.gd`, `server_manager.gd`).
+    *   `scripts/NPC/`: Non-player character logic (e.g., `npc_interaction.gd`).
+    *   `scripts/Player/`: Player-specific scripts.
+        *   `scripts/Player/StateMachine/`: State scripts for player character behavior (e.g., `attack.gd`, `crouch.gd`, `death.gd`, `fall.gd`, `hit.gd`, `idle.gd`, `jump.gd`, `move.gd`, `slide.gd`).
+        *   `scripts/Player/multiplayer_controller_v2.gd`: The main player character script.
+        *   `scripts/Player/multiplayer_input.gd`: Handles player input synchronization.
+        *   `scripts/Player/player_hud.gd`: Manages player HUD elements.
+    *   `scripts/Resources/`: Base classes for custom resource types (e.g., `AbilitySystem`, `BuffSystem`, `ClassSystem`, `ItemSystem`, `StatSystem` subdirectories).
+    *   `scripts/StateMachine/`: Generic state machine implementation (`state.gd`, `state_machine.gd`).
+    *   `scripts/UI/`: Scripts for user interface elements (e.g., `ability_slot.gd`, `ability_window.gd`, `buffbar.gd`, `ChatWindow.gd`, `CharacterCreationScreen.gd`, `CharacterSelectScreen.gd`, `death_popup.gd`, `equipment_slot.gd`, `equipment_window.gd`, `game_menu.gd`, `global_drop_handler.gd`, `hotbar.gd`, `hotbar_slot.gd`, `inventory_window.gd`, `LoginScreen.gd`, `LogMessage.gd`, `ScrollingLog.gd`, `shop_window.gd`, `slot.gd`, `stats_window.gd`, `keybinds_menu.gd`, `options_menu.gd`, `party_invite_popup.gd`, `party_window.gd`, `target_frame.gd`).
+    *   `scripts/coin.gd`: Logic for collectible coins.
+    *   `scripts/damage_numbers.gd`: Manages floating damage numbers.
+    *   `scripts/killzone.gd`: Logic for kill zones.
+    *   `scripts/main_menu.gd`: Main menu logic.
+    *   `scripts/platform.gd`: Logic for platforms.
+*   `backend/`: Flask REST API for account and character persistence.
+    *   `backend/app.py`: Main Flask application with database models and API endpoints.
+    *   `backend/requirements.txt`: Python dependencies.
+    *   `backend/Dockerfile`: Container image for backend.
+*   `docker-compose.yml`: Docker Compose configuration for PostgreSQL, Flask API, and Adminer.
+*   `README/`: Project documentation and screenshots
 
-## Multiplayer Architecture (from `scripts/`)
+## Multiplayer Architecture
 
-- `Managers/`
-  - `multiplayer_manager.gd`
-	- Signals: `server_has_started`, `channel_switch_started/success/failed`.
-	- Config: `DEFAULT_PORT` (8080), `DEFAULT_IP` (127.0.0.1).
-	- Public API: `host_game()`, `join_game()`, `switch_channel(port)`, `reset_data()`, `change_level(scene)`.
-	- Behavior: initializes signal wiring to Client/Server/Channel managers; hides/shows menu UI; tracks `host_mode_enabled` and `respawn_point`; returns to main menu on disconnect; starts dedicated server when the `dedicated_server` feature is present.
-  - `server_manager.gd`
-	- Signals: `server_started`, `server_failed`.
-	- Public API: `start_listen_server(port)`, `start_dedicated_server(port)`, `stop_server()`, `get_current_port()`, `get_server_info()`.
-	- Behavior: owns the `ENetMultiplayerPeer` for the server; sets `multiplayer.multiplayer_peer`; retries ports for dedicated server up to a small cap.
-  - `client_manager.gd`
-	- Signals: `connection_succeeded`, `connection_failed`.
-	- Public API: `connect_to_server(ip, port)`, `cleanup()`/`_disconnect()`, `get_connection_info()`, `get_connection_status()`, `create_new_peer(ip, port)`.
-	- Behavior: owns the client `ENetMultiplayerPeer`; sets `multiplayer.multiplayer_peer`; tracks current IP/port and connection timestamps; emits results consumed by `MultiplayerManager`.
-  - `player_manager.gd`
-	- State: `active_players: { id -> {character_type, spawn_time, synced} }`.
-	- Public API: `add_host_player()`, `add_player(id)`, `remove_player(id)`, `cleanup()`, `force_respawn_player(id)`, info getters.
-	- Behavior: on join, requests client character selection via RPC, spawns the chosen character under `Level/Players`, syncs existing networked entities to the new peer, and updates tracking; removes entities on disconnect.
-  - `resource_manager.gd`
-	- Centralized resource loading and caching system.
-	- Manages: `class_data`, `item_data`, `ability_data`, `buff_data` dictionaries.
-	- Public API: `get_item_data()`, `get_ability_data()`, `get_buff_data()`, `get_class_data()`.
-	- Behavior: loads all game resources on startup; provides ID and name-based lookups; supports both UUID and string identifiers.
-  - `music_manager.gd`
-	- Audio management for background music and sound effects.
-	- Public API: `play_song(path)`.
-	- Behavior: handles audio stream loading and playback.
+### Managers
 
-- `Networking/`
-  - `channel_manager.gd`
-	- Signals: `switch_started`, `switch_success`, `switch_failed`.
-	- Public API: `switch_channel(new_port)`, `is_switching()`, `get_switch_progress()`.
-	- Behavior: tests reachability of the target port, cleans up entities, disconnects, creates a new client peer, waits for connection (with timeouts), updates UI PID; on failure, returns to main menu.
-  - `network_utils.gd`
-	- Validation: `is_valid_ip(text)`, `is_valid_port(port)`, `is_port_in_range(...)`.
-	- CLI: `get_port_from_args(default)`, `get_string_arg(name)`, `has_flag(name)`.
-	- Scene helpers: `get_players_spawn_node(tree)`, `get_node_safe(node, path)`.
-	- Cleanup/logging/testing: `clear_networked_entities(tree)`, `log_network_event(...)`, `test_tcp_connection(ip, port)`.
+- **multiplayer_manager.gd**
+  - Signals: `server_has_started`, `channel_switch_started/success/failed`
+  - Config: `DEFAULT_PORT` (8080), `DEFAULT_IP` (127.0.0.1)
+  - Public API: `host_game()`, `join_game()`, `switch_channel(port)`, `reset_data()`, `change_level(scene)`
+  - Behavior: initializes signal wiring to Client/Server/Channel managers; hides/shows menu UI; tracks `host_mode_enabled` and `respawn_point`; returns to main menu on disconnect; starts dedicated server when the `dedicated_server` feature is present
 
-- `Player/`
-  - `multiplayer_controller_v2.gd`
-	- Role: authoritative character controller. Exports references to Health/Combat/Leveling/Stats/Class/Debug and UI.
-	- Server duties: processes input/state via a state machine, manages facing/animations, death/respawn, persistent save/load (`player_<username>.json`), class/sprite changes, drop-through logic, and cleanup before removal (for channel switching).
-	- Client duties: shows HUD and camera for local player; requests sprite state and data from server.
-  - `multiplayer_input.gd`
-	- Role: local-authority `MultiplayerSynchronizer`; samples input, mirrors facing direction, RPCs `jump()`, `attack()`, and `drop()` to the server; provides cleanup to avoid stale references.
+- **server_manager.gd**
+  - Signals: `server_started`, `server_failed`
+  - Public API: `start_listen_server(port)`, `start_dedicated_server(port)`, `stop_server()`, `get_current_port()`, `get_server_info()`
+  - Behavior: owns the `ENetMultiplayerPeer` for the server; sets `multiplayer.multiplayer_peer`; retries ports for dedicated server up to a small cap
 
-- `Components/`
-  - `health.gd`: health/regen/invulnerability signals and RPCs; integrates with leveling and HUD.
-  - `stats.gd`: level- and class-driven stat computation with derived values.
-  - `level.gd`: EXP curve and level-up signals; server-side add-exp.
-  - `class.gd`: authoritative class changes and bonuses.
-  - `combat.gd`: timed hitbox attacks, stat-aware damage, per-attack de-duplication.
+- **client_manager.gd**
+  - Signals: `connection_succeeded`, `connection_failed`
+  - Public API: `connect_to_server(ip, port)`, `cleanup()`/`_disconnect()`, `get_connection_info()`, `get_connection_status()`, `create_new_peer(ip, port)`
+  - Behavior: owns the client `ENetMultiplayerPeer`; sets `multiplayer.multiplayer_peer`; tracks current IP/port and connection timestamps; emits results consumed by `MultiplayerManager`
 
-- Gameplay scripts
-  - `killzone.gd`: server-only death trigger for `MultiplayerPlayerV2` using the player's `HealthComponent`.
-  - `platform.gd`: stops client-side platform animation for authority correctness.
+- **player_manager.gd**
+  - State: `active_players: { id -> {character_type, spawn_time, synced} }`
+  - Public API: `add_host_player()`, `add_player(id)`, `remove_player(id)`, `cleanup()`, `force_respawn_player(id)`, info getters
+  - Behavior: on join, requests client character selection via RPC, spawns the chosen character under `Level/Players`, syncs existing networked entities to the new peer, and updates tracking; removes entities on disconnect
 
-High-level host/join flow
-- Host: Main Menu → `MultiplayerManager.host_game()` → `ServerManager.start_listen_server()` → `server_started` → connect peer signals → load `game.tscn` → `PlayerManager.add_host_player()` → spawn under `Level/Players`.
-- Join: Main Menu → `MultiplayerManager.join_game()` → `ClientManager.connect_to_server()` → `connected_to_server` → hide menu and show connection panel → `PlayerManager._request_character_selection` → server spawns chosen character.
+- **resource_manager.gd**
+  - Centralized resource loading and caching system
+  - Manages: `class_data`, `item_data`, `ability_data`, `buff_data` dictionaries
+  - Public API: `get_item_data()`, `get_ability_data()`, `get_buff_data()`, `get_class_data()`
+  - Behavior: loads all game resources on startup; provides ID and name-based lookups; supports both UUID and string identifiers
+
+- **music_manager.gd**
+  - Audio management for background music and sound effects
+  - Public API: `play_song(path)`
+  - Behavior: handles audio stream loading and playback
+
+### Networking
+
+- **channel_manager.gd**
+  - Signals: `switch_started`, `switch_success`, `switch_failed`
+  - Public API: `switch_channel(new_port)`, `is_switching()`, `get_switch_progress()`
+  - Behavior: tests reachability of the target port, cleans up entities, disconnects, creates a new client peer, waits for connection (with timeouts), updates UI PID; on failure, returns to main menu
+
+- **network_utils.gd**
+  - Validation: `is_valid_ip(text)`, `is_valid_port(port)`, `is_port_in_range(...)`
+  - CLI: `get_port_from_args(default)`, `get_string_arg(name)`, `has_flag(name)`
+  - Scene helpers: `get_players_spawn_node(tree)`, `get_node_safe(node, path)`
+  - Cleanup/logging/testing: `clear_networked_entities(tree)`, `log_network_event(...)`, `test_tcp_connection(ip, port)`
+
+### Player Controller
+
+- **multiplayer_controller_v2.gd**
+  - Role: authoritative character controller
+  - Exports references to Health/Combat/Leveling/Stats/Class/Debug and UI
+  - Server duties: processes input/state via state machine, manages facing/animations, death/respawn, persistent save/load (`player_<username>.json`), class/sprite changes, drop-through logic, and cleanup before removal (for channel switching)
+  - Client duties: shows HUD and camera for local player; requests sprite state and data from server
+
+- **multiplayer_input.gd**
+  - Role: local-authority `MultiplayerSynchronizer`
+  - Samples input, mirrors facing direction
+  - RPCs `jump()`, `attack()`, and `drop()` to the server
+  - Provides cleanup to avoid stale references
+
+### Host/Join Flow
+
+**Host Flow:**
+Main Menu → `MultiplayerManager.host_game()` → `ServerManager.start_listen_server()` → `server_started` → connect peer signals → load `game.tscn` → `PlayerManager.add_host_player()` → spawn under `Level/Players`
+
+**Join Flow:**
+Main Menu → `MultiplayerManager.join_game()` → `ClientManager.connect_to_server()` → `connected_to_server` → hide menu and show connection panel → `PlayerManager._request_character_selection` → server spawns chosen character
 
 ## Component Systems
 
@@ -414,7 +559,7 @@ godot --headless --feature dedicated_server --path . -- --port 8080
 - Drop-through: hold `Move Down` and press `Jump` to pass through drop-through platforms. The player temporarily disables collision with the platform's layer.
 
 ### Autoload singletons (expected)
-- `MultiplayerManager`, `ServerManager`, `ClientManager`, `PlayerManager`, `ChannelManager`, `NetworkUtils`, `ResourceManager`, `MusicManager` should be configured as AutoLoads and accessible globally.
+- `MultiplayerManager`, `ServerManager`, `ClientManager`, `PlayerManager`, `ChannelManager`, `NetworkUtils`, `NetworkManager`, `ResourceManager`, `MapManager`, `SaveManager`, `ChatManager`, `LogManager`, `PartyManager`, `KeybindManager`, `UserConfig`, `AudioManager`, `InputManager`, `MusicManager` should be configured as AutoLoads and accessible globally.
 
 ## Credits
 

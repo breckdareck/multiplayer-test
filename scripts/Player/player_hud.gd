@@ -6,8 +6,11 @@ var party_window_scene = preload("res://scenes/UI/party_window.tscn")
 var party_window_instance
 
 var party_invite_popup_scene = preload("res://scenes/UI/party_invite_popup.tscn")
+var death_popup_scene = preload("res://scenes/UI/death_popup.tscn")
 var scrolling_log_scene = preload("res://scenes/UI/ScrollingLog.tscn")
 var chat_window_scene = preload("res://scenes/UI/ChatWindow.tscn")
+
+var death_popup_instance: DeathPopup
 
 @onready var health_bar: TextureProgressBar = $BottomStatsContainer/HealthBar
 @onready var hp_value_label: Label = $BottomStatsContainer/HealthBar/HPValueLabel
@@ -22,9 +25,7 @@ var chat_window_scene = preload("res://scenes/UI/ChatWindow.tscn")
 @onready var moveable_windows_container: Node = %MoveableWindows
 
 func _ready() -> void:
-	if owner is MultiplayerPlayer:
-		player = owner
-	elif owner is MultiplayerPlayerV2:
+	if owner is MultiplayerPlayerV2:
 		player = owner
 		
 	if player.player_id != multiplayer.get_unique_id():
@@ -66,6 +67,7 @@ func _ready() -> void:
 	level_label.text = "LV.[color=yellow]%s[/color]" % str(player.level_component.level)
 	
 	player.health_component.health_changed.connect(_on_health_changed)
+	player.health_component.died.connect(_on_player_died)
 	player.mana_component.mana_changed.connect(_on_mana_changed)
 	player.level_component.experience_changed.connect(_on_experience_changed)
 	player.level_component.leveled_up.connect(_on_level_changed)
@@ -80,11 +82,13 @@ func _input(event: InputEvent) -> void:
 	if player.player_id != multiplayer.get_unique_id():
 		return
 
+	if InputManager.is_locked():
+		return
+
 	if event.is_action_pressed("OpenPartyWindow"):
 		party_window_instance.visible = not party_window_instance.visible
 		get_viewport().set_input_as_handled()
 
-	# NEW: Handle "Esc" key to close all UI windows
 	if event.is_action_pressed("ui_cancel"):
 		var any_window_was_open = false
 		
@@ -102,11 +106,31 @@ func _input(event: InputEvent) -> void:
 		if any_window_was_open:
 			get_viewport().set_input_as_handled()
 
+func _on_player_died(_killer: Node) -> void:
+	# Lock input so no other windows can be opened
+	InputManager.set_input_locked(true)
+	# Close all open UI windows
+	if party_window_instance.visible:
+		party_window_instance.visible = false
+	for window in get_tree().get_nodes_in_group("ui_window"):
+		if window is Control and window.visible:
+			window.visible = false
+	# Show death popup
+	if not is_instance_valid(death_popup_instance):
+		death_popup_instance = death_popup_scene.instantiate()
+		add_child(death_popup_instance)
+		death_popup_instance.set_player(player)
+	death_popup_instance.show()
+
 func _on_health_changed(new_health: int, _max_health: int) -> void:
 	"""Updates the ProgressBar value when health changes."""
 	health_bar.max_value = _max_health
 	health_bar.value = new_health
 	hp_value_label.text = str(player.health_component.current_health) + "/" + str(player.health_component.max_health)
+	# Hide death popup and unlock input when health is restored (respawned)
+	if new_health > 0 and is_instance_valid(death_popup_instance) and death_popup_instance.visible:
+		death_popup_instance.hide()
+		InputManager.set_input_locked(false)
 
 func _on_mana_changed(new_mana: int, _max_mana: int) -> void:
 	"""Updates the ProgressBar value when health changes."""

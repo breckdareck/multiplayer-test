@@ -1,0 +1,49 @@
+[gd_scene load_steps=5 format=3 uid="uid://brfb5t5im33fl"]
+
+[ext_resource type="Script" uid="uid://c61d1532ig3lo" path="res://scripts/Gameplay/portal.gd" id="1_portal_gd"]
+[ext_resource type="Texture2D" uid="uid://1oyrvvlfb431" path="res://assets/sprites/Portal.editor.pg.webp" id="2_ecvi2"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_shape"]
+size = Vector2(16, 29)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ecvi2"]
+bg_color = Color(1, 1, 1, 0.7882353)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[node name="Portal" type="Area2D"]
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1_portal_gd")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 1.5)
+shape = SubResource("RectangleShape2D_shape")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.185, 0.185)
+texture = ExtResource("2_ecvi2")
+
+[node name="InteractionLabel" type="Label" parent="."]
+visible = false
+offset_left = -6.0
+offset_top = -29.0
+offset_right = 2333.0
+offset_bottom = 2056.0
+scale = Vector2(0.005, 0.005)
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 1516
+theme_override_styles/normal = SubResource("StyleBoxFlat_ecvi2")
+text = "↑"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="body_exited" from="." to="." method="_on_body_exited"]

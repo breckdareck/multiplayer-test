@@ -33,9 +33,7 @@ func set_health_component(component: HealthComponent) -> void:
 	health_component = component
 
 func set_player(player_node) -> void:
-	if player_node is MultiplayerPlayer:
-		player = player_node as MultiplayerPlayer
-	elif player_node is MultiplayerPlayerV2:
+	if player_node is MultiplayerPlayerV2:
 		player = player_node as MultiplayerPlayerV2
 
 func _on_debug_heal_pressed() -> void:

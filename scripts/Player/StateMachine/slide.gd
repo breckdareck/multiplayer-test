@@ -13,7 +13,7 @@ extends State
 func enter() -> void:
 	super()
 	allow_flip = false
-	var player: MultiplayerPlayer = parent as MultiplayerPlayer
+	var player: MultiplayerPlayerV2 = parent as MultiplayerPlayerV2
 	player.do_slide = false # Consume the input immediately
 
 	# Determine the roll direction. If standing still, use the sprite's facing direction.
@@ -29,7 +29,7 @@ func enter() -> void:
 	parent.velocity.x = slide_direction * player.slide_speed_boost
 
 func physics_update(delta: float) -> State:
-	var player: MultiplayerPlayer = parent as MultiplayerPlayer
+	var player: MultiplayerPlayerV2 = parent as MultiplayerPlayerV2
 
 	# --- JUMP CANCEL LOGIC ---
 	# Allow the player to cancel the roll with a jump.
@@ -81,7 +81,7 @@ func physics_update(delta: float) -> State:
 func exit() -> void:
 	super()
 	# Get reference to player for clarity
-	var player: MultiplayerPlayer = parent as MultiplayerPlayer
+	var player: MultiplayerPlayerV2 = parent as MultiplayerPlayerV2
 
 	# Set a flag to indicate we're coming from a roll
 	player.coming_from_slide = true

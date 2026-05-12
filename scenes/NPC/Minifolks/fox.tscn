@@ -188,6 +188,7 @@ collision_layer = 8
 collision_mask = 2
 
 [node name="SlashCollisionShape" type="CollisionShape2D" parent="AttackHitbox"]
+visible = false
 position = Vector2(20, -19.5)
 shape = SubResource("RectangleShape2D_17tps")
 disabled = true

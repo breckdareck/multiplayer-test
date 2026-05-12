@@ -1,15 +1,26 @@
 extends Node
 
 var _music_player: AudioStreamPlayer = AudioStreamPlayer.new()
+var _current_song_path: String = ""
 
 func _ready():
 	add_child(_music_player)
 	_music_player.bus = "Music"
 
 func play_song(path: String):
+	if path.is_empty():
+		return
+	# Skip if already playing this track
+	if path == _current_song_path and _music_player.playing:
+		return
+	_current_song_path = path
 	var song: AudioStream = ResourceLoader.load(path)
 	_music_player.stream = song
 	_music_player.play()
+
+func stop_song():
+	_music_player.stop()
+	_current_song_path = ""
 
 # Plays an SFX locally.
 func play_sfx(sfx_path: String, global_position: Vector2 = Vector2.ZERO, volume_db: float = 0.0):

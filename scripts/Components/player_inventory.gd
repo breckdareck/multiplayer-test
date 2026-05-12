@@ -6,13 +6,15 @@ extends Node
 @export var monies_label: Label
 
 const MAX_MONIES_AMOUNT: int = 999999999
+var _loading_mode: bool = false
 
 var monies_amount: int = 0:
 	set(value):
 		monies_amount = clampi(value, 0, MAX_MONIES_AMOUNT)
 		if monies_label:
 			monies_label.text = inventory_component.format_number_with_commas(value)
-		_notify_player_data_changed()
+		if not _loading_mode:
+			_notify_player_data_changed()
 
 
 func _ready():
@@ -35,11 +37,13 @@ func _ready():
 
 
 func _on_inventory_changed(_inventory: InventoryComponent):
+	if _loading_mode:
+		return
 	# Only trigger stats recalc on client when inventory_changed signal is emitted
 	# This happens when equipment changes or full inventory loads
 	if player and player.stats_component:
-		player.stats_component._recalculate_stats()
-	
+		player.stats_component.mark_stats_dirty()
+
 	# Notify player data changed (for saving on server)
 	_notify_player_data_changed()
 
@@ -62,7 +66,7 @@ func _notify_player_data_changed():
 	"""Notify the player that data changed (for saving)"""
 	if multiplayer.is_server() and player:
 		if player.has_method("_data_changed"):
-			player._data_changed()
+			player._data_changed("inventory")
 
 
 # Public API - delegates to inventory component
@@ -97,10 +101,19 @@ func save_player_inventory() -> Dictionary:
 
 
 func load_player_inventory(data: Dictionary):
+	_loading_mode = true
 	inventory_component.load_inventory(data)
 	monies_amount = data.get("monies", 0)
+	_loading_mode = false
 
 
 func load_player_inventory_silent(data: Dictionary):
+	_loading_mode = true
 	inventory_component.load_inventory_silent(data)
 	monies_amount = data.get("monies", 0)
+	_loading_mode = false
+
+
+@rpc("authority", "call_local", "reliable")
+func set_monies_rpc(amount: int):
+	monies_amount = amount

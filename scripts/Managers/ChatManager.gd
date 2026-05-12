@@ -19,19 +19,20 @@ func register_local_player(player_node: MultiplayerPlayerV2):
 	local_player_node = player_node
 
 func send_chat_message(text: String):
-	# Handle slash commands
-	if text.begins_with("/"):
-		var command: String = text.strip_edges().split(" ", false)[0].to_lower()
-		if EMOTES.has(command):
-			_request_emote.rpc_id(1, command)
-			return
-		# Unknown command — just send as normal chat
-
 	if local_player_node:
 		broadcast_message.rpc(local_player_node.username, text)
 	else:
 		broadcast_message.rpc("Player", text)
 
+
+@rpc("any_peer", "call_local", "reliable")
+func _request_quest_command(args: String) -> void:
+	if not multiplayer.is_server():
+		return
+	var sender_id: int = multiplayer.get_remote_sender_id()
+	QuestManager.handle_quest_command(args, sender_id)
+
+@rpc("any_peer", "call_local", "reliable")
 func add_system_message(text: String, color: Color = Color.WHITE):
 	message_received.emit(text, color)
 

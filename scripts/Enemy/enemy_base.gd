@@ -13,8 +13,8 @@ signal ready_for_pooling
 @export var health_component: HealthComponent
 @export var stats_component: StatsComponent
 
-@export_category("Curves")                              
-@export var health_curve: Curve                                                                                
+@export_category("Curves")
+@export var health_curve: Curve
 @export var experience_curve: Curve
 @export var wep_att_curve: Curve
 @export var magic_att_curve: Curve
@@ -47,7 +47,7 @@ var experience_reward: int = 0:
 			return int(experience_curve.sample(monster_level))
 		return 0
 var post_death_delay: float = 1.5 # Time to wait after death animation before disappearing.
-var damage_by_player: Dictionary = {}  # player_id : damage_amount
+var damage_by_player: Dictionary = {} # player_id : damage_amount
 var facing_direction: int = 1
 var _is_being_cleaned_up: bool = false
 var initial_position: Vector2
@@ -63,7 +63,7 @@ func _apply_enemy_data() -> void:
 	var filtered_array: Array[ItemDropResource] = item_drops.filter(func(drop): return drop.item_name == "Coin")
 	if len(filtered_array) > 0:
 		filtered_array[0].min_amount = roundi(monies_curve.sample(monster_level) * 0.9)
-		filtered_array[0].max_amount = roundi(monies_curve.sample(enemy_data.monster_level)* 1.1)
+		filtered_array[0].max_amount = roundi(monies_curve.sample(enemy_data.monster_level) * 1.1)
 	else:
 		var monies_drop = ItemDropResource.new()
 		monies_drop.drop_chance = 0.9
@@ -97,6 +97,9 @@ func _apply_enemy_data() -> void:
 
 
 func _ready() -> void:
+	if not is_multiplayer_authority():
+		set_process(false)
+		set_physics_process(false)
 	if enemy_data:
 		_apply_enemy_data()
 	else:
@@ -157,7 +160,9 @@ func on_enemy_damaged(amount: int, source: Node) -> void:
 		player_id = source.owner.player_id
 	if player_id != null:
 		damage_by_player[player_id] = damage_by_player.get(player_id, 0) + amount
-		rpc("client_show_name_label")
+		if multiplayer.is_server():
+			for pid in _get_players_on_same_map():
+				client_show_name_label.rpc_id(pid)
 
 
 func _on_enemy_died(_killer: Node) -> void:
@@ -189,14 +194,24 @@ func _deferred_death_processing(_killer: Node) -> void:
 	var non_damage_dealer_exp_percentage = 0.25 # 25% of base EXP for non-damage dealers in party
 
 	if killer_party_id != -1:
-		# Killer is in a party, distribute EXP to all party members
-		players_to_reward.append_array(PartyManager.get_party_members(killer_player_id))
-		print("Players in party to reward: ", players_to_reward)
-		# All party members are eligible for drops
+		# Killer is in a party, distribute EXP to party members on the same map
+		var all_party_members: Array[int] = PartyManager.get_party_members(killer_player_id)
+		var players_on_same_map: Array = _get_players_on_same_map()
+		for member_id in all_party_members:
+			if member_id in players_on_same_map:
+				players_to_reward.append(member_id)
+		print("Players in party to reward (same map only): ", players_to_reward)
+		# Only party members on the same map are eligible for drops
 		eligible_player_ids_for_drops = players_to_reward
+		# Scaling party EXP bonus: +10% per additional member (2p=1.1x, 3p=1.2x, 4p=1.3x, etc.)
+		var party_size: int = players_to_reward.size()
+		if party_size > 1:
+			party_exp_bonus_multiplier = 1.0 + (0.1 * (party_size - 1))
+		print("Party EXP bonus multiplier: ", party_exp_bonus_multiplier)
+		# Party XP bonus: 10% for 2 members, +5% per additional member (up to 25% at 5 members)
 		if players_to_reward.size() > 1:
-			party_exp_bonus_multiplier = 1.1 # 10% party bonus
-		
+			party_exp_bonus_multiplier = 1.0 + (0.05 * players_to_reward.size())
+		 
 		var total_party_damage = 0
 		for member_id in players_to_reward:
 			if damage_by_player.has(member_id):
@@ -221,6 +236,8 @@ func _deferred_death_processing(_killer: Node) -> void:
 				print("Member %d (non-damage dealer) base exp: %d, non-damage : %f, bonus: %f, final exp: %d" % [member_id, experience_reward, non_damage_dealer_exp_percentage, party_exp_bonus_multiplier, exp_amount])
 			
 			player_node.gain_experience(exp_amount)
+			# Track kill for quest objectives
+			QuestManager.record_enemy_kill(player_node.username, monster_name)
 			print("PID: %s (Party) gained %s exp from %s" % [str(member_id), str(exp_amount), name])
 	else:
 		# No party, distribute EXP only to damage dealers
@@ -232,8 +249,10 @@ func _deferred_death_processing(_killer: Node) -> void:
 			var exp_amount = int(experience_reward * share)
 			var player_node = PlayerManager.get_player_node(player_id)
 			if player_node and player_node.has_method("gain_experience"):
-				print("PID: %s did %s%% damage to %s gaining %s exp" % [str(player_id), share*100, name, str(exp_amount)])
+				print("PID: %s did %s%% damage to %s gaining %s exp" % [str(player_id), share * 100, name, str(exp_amount)])
 				player_node.gain_experience(exp_amount)
+				# Track kill for quest objectives
+				QuestManager.record_enemy_kill(player_node.username, monster_name)
 				
 	# Spawn drops for all eligible players
 	if not eligible_player_ids_for_drops.is_empty():
@@ -255,6 +274,39 @@ func _spawn_drops(eligible_player_ids: Array[int]) -> void:
 	if not multiplayer.is_server():
 		return
 	
+	# Server needs to find the map this enemy is in
+	var map_instance = null
+	
+	# Try to find map by walking up the tree to find a parent map container
+	var parent = get_parent()
+	while parent:
+		if parent.name.begins_with("Map_"):
+			map_instance = parent
+			break
+		parent = parent.get_parent()
+	
+	# If not found by walking tree, try to get from current scene structure
+	if not map_instance:
+		var root = get_tree().current_scene
+		if root:
+			var maps_node = root.get_node_or_null("Maps")
+			if maps_node:
+				# Find any Map_* child
+				for child in maps_node.get_children():
+					if child.name.begins_with("Map_"):
+						map_instance = child
+						break
+	
+	if not map_instance:
+		push_error("EnemyBase: Could not determine map instance for enemy %s" % name)
+		return
+
+	# Find the GlobalDropHandler specific to this map
+	var drop_handler = map_instance.get_node_or_null("GlobalDropHandler")
+	if not drop_handler:
+		push_error("EnemyBase: GlobalDropHandler not found in map %s" % map_instance.name)
+		return
+	
 	for drop_resource in item_drops:
 		if drop_resource == null:
 			continue
@@ -272,26 +324,14 @@ func _spawn_drops(eligible_player_ids: Array[int]) -> void:
 		# Determine stack amount
 		var amount = drop_resource.get_drop_amount()
 		
-		# Create dropped item instance
-		var dropped_item = DROPPED_ITEM.instantiate() as DroppedItem
-		
 		# Position it at enemy's location with slight offset to prevent stacking
 		var offset = Vector2(randf_range(-10, 10), randf_range(-10, 0))
-		dropped_item.global_position = global_position + offset
+		var spawn_pos = global_position + offset
 		
-		# Setup the dropped item with eligible player IDs
-		dropped_item.setup(item, amount, eligible_player_ids)
-		
-		# Add to scene
-		get_tree().current_scene.get_node("Level/Game/ItemDrops").add_child(dropped_item, true)
-		
-		rpc("client_setup_item", dropped_item.get_path(), item.item_id)
+		# Delegate spawning to GlobalDropHandler which handles RPCs and map filtering
+		drop_handler.create_dropped_item(item, amount, spawn_pos, eligible_player_ids, map_instance)
 		
 		print("Enemy '%s' dropped %dx %s for eligible players: %s" % [name, amount, item.name, str(eligible_player_ids)])
-
-@rpc
-func client_setup_item(dropped_item: NodePath, item_id: String):
-	(get_node(dropped_item) as DroppedItem).sprite.texture = ResourceManager.get_item_data(item_id).icon
 
 
 @rpc("any_peer", "call_local", "reliable")
@@ -317,9 +357,18 @@ func pool_deactivate() -> void:
 	collision_shape.set_deferred("disabled", true)
 	attack_hitbox.monitoring = false
 	body_hitbox.monitoring = false
+	
+	# CRITICAL: Disable the synchronizer to stop sending delta updates
+	var sync = get_node_or_null("MultiplayerSynchronizer")
+	if sync:
+		sync.set_process_mode(Node.PROCESS_MODE_DISABLED)
+	
 	# Move far away to prevent any lingering interactions.
 	global_position = Vector2(INF, INF)
-	rpc("client_hide_name_label")
+	
+	if multiplayer.is_server():
+		for pid in _get_players_on_same_map():
+			client_hide_name_label.rpc_id(pid)
 
 
 func pool_reset() -> void:
@@ -327,7 +376,7 @@ func pool_reset() -> void:
 		return
 	
 	if respawnable:
-		global_position = 	initial_position
+		global_position = initial_position
 	
 	# Reset health and death state using the component.
 	if health_component:
@@ -340,6 +389,11 @@ func pool_reset() -> void:
 	collision_shape.set_deferred("disabled", false)
 	attack_hitbox.monitoring = true
 	body_hitbox.monitoring = true
+	
+	# CRITICAL: Re-enable the synchronizer to resume sending delta updates
+	var sync = get_node_or_null("MultiplayerSynchronizer")
+	if sync:
+		sync.set_process_mode(Node.PROCESS_MODE_INHERIT)
 
 
 func _update_facing() -> void:
@@ -442,7 +496,7 @@ func damage_on_overlap(body: Node):
 		health.take_damage(final_damage, self)
 
 		# Knockback logic
-		var knockback_dir = -body.facing_direction
+		var knockback_dir = - body.facing_direction
 		var knockback_strength = 120.0
 		var knockback_lift = -100.0
 		var knockback_vec = Vector2(knockback_dir * knockback_strength, knockback_lift)
@@ -512,3 +566,20 @@ func cleanup_before_removal():
 # Override _exit_tree to handle cleanup
 func _exit_tree():
 	cleanup_before_removal()
+
+
+func _get_players_on_same_map() -> Array:
+	if not multiplayer.is_server(): return []
+	
+	# Try to find map by walking up the tree to find a parent map container
+	var parent = get_parent()
+	var map_name = ""
+	while parent:
+		if parent.name.begins_with("Map_"):
+			map_name = parent.name.replace("Map_", "")
+			break
+		parent = parent.get_parent()
+	
+	if map_name != "":
+		return MapManager.get_players_on_map(map_name)
+	return []

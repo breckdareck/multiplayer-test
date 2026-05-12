@@ -7,14 +7,14 @@ extends Node
 @export var weapon_multiplier: float = 1.2
 
 # Attack type tracking
-enum AttackMode { NONE, BASIC, ABILITY }
+enum AttackMode {NONE, BASIC, ABILITY}
 var _current_attack_mode: AttackMode = AttackMode.NONE
 
 # Basic attack data
 var current_attack_data: String = "" # Using string ID as a flag for basic attack
 
 # Ability attack data
-var current_ability_data: AbilityData = null 
+var current_ability_data: AbilityData = null
 var current_active_data: ActiveBehaviorData = null
 var current_level_stats: AbilityLevelData = null
 
@@ -75,7 +75,7 @@ func perform_attack(_attack_name: String, _duration: float) -> void:
 		
 	# Set basic attack flag and data
 	_current_attack_mode = AttackMode.BASIC
-	current_attack_data = _attack_name 
+	current_attack_data = _attack_name
 	
 	attack_hitbox.shape = original_attack_shape
 	attack_hitbox.position = original_attack_transform
@@ -173,7 +173,7 @@ func _process_collected_bodies() -> void:
 	# For projectiles, we might fire even if no body was collected.
 	if current_ability_data and current_ability_data.active_behavior.is_projectile:
 		# Sort bodies by distance to prioritize closest targets
-		_pending_bodies.sort_custom(func(a, b): 
+		_pending_bodies.sort_custom(func(a, b):
 			return owner_node.global_position.distance_squared_to(a.global_position) < owner_node.global_position.distance_squared_to(b.global_position)
 		)
 
@@ -207,13 +207,13 @@ func _process_collected_bodies() -> void:
 	
 	if current_ability_data and current_level_stats:
 		max_targets = current_level_stats.max_targets
-	elif current_attack_data != "": 
+	elif current_attack_data != "":
 		max_targets = 1
 	else:
 		_pending_bodies.clear()
 		return
 	
-	_pending_bodies.sort_custom(func(a, b): 
+	_pending_bodies.sort_custom(func(a, b):
 		return owner_node.global_position.distance_to(a.global_position) < owner_node.global_position.distance_to(b.global_position)
 	)
 	
@@ -330,7 +330,26 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 	# After the loop, display all collected hits as a single combo
 	if not damage_values.is_empty():
 		var spawn_pos = health_comp.damage_number_origin.global_position
-		get_node("/root/MainMenu/Level/Game").get_node("%DmgNumberSpawner").display_number_combo(damage_values, crit_values, spawn_pos)
+		
+		# Server-side: Find the correct DmgNumberSpawner based on the attacker's map.
+		var dmg_spawner = null
+		var map_to_spawn_on: Node = null
+		var attacker = owner_node
+		
+		if attacker is MultiplayerPlayerV2:
+			map_to_spawn_on = MapManager.get_player_map_node(attacker.player_id)
+		else: # Attacker is an enemy
+			for map_id in MapManager.active_maps.keys():
+				var map_instance = MapManager.active_maps[map_id].scene_instance
+				if is_instance_valid(map_instance) and map_instance.is_ancestor_of(attacker):
+					map_to_spawn_on = map_instance
+					break
+		
+		if is_instance_valid(map_to_spawn_on):
+			dmg_spawner = map_to_spawn_on.find_child("DmgNumberSpawner", true, false)
+
+		if dmg_spawner:
+			dmg_spawner.display_number_combo(damage_values, crit_values, spawn_pos)
 
 
 func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelData) -> int:
