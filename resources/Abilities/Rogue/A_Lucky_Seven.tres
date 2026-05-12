@@ -1,0 +1,81 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=19 format=3 uid="uid://alky7abl001xx"]
+
+[ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_lk7a1"]
+[ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="1_lk7a2"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_lk7a1"]
+[ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_lk7a2"]
+[ext_resource type="PackedScene" uid="uid://d0ig4oiimrnei" path="res://scenes/Gameplay/projectile_base.tscn" id="2_lk7a3"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="6_lk7a1"]
+[ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_lk7a1"]
+[ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_lk7a1"]
+[ext_resource type="Resource" uid="uid://dxf1ejii6pw" path="res://resources/Abilities/Rogue/A_Double_Stab.tres" id="9_lk7a1"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_lk7a1"]
+size = Vector2(120, 46)
+
+[sub_resource type="Resource" id="Resource_lk7a1"]
+script = ExtResource("2_lk7a2")
+target_type = 1
+hit_box_shape_data = SubResource("RectangleShape2D_lk7a1")
+hit_box_position_data = Vector2(60, -10)
+animation_name = "attack_2"
+is_projectile = true
+projectile_scene = ExtResource("2_lk7a3")
+projectile_speed = 350.0
+metadata/_custom_type_script = "uid://1raaatfhww5y"
+
+[sub_resource type="Resource" id="Resource_lk7a2"]
+script = ExtResource("6_lk7a1")
+base_value = 0.3
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_lk7a3"]
+script = ExtResource("6_lk7a1")
+base_value = 3.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_lk7a4"]
+script = ExtResource("6_lk7a1")
+base_value = 70.0
+per_level = 5.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_lk7a5"]
+script = ExtResource("6_lk7a1")
+base_value = 10.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_lk7a6"]
+script = ExtResource("6_lk7a1")
+base_value = 7.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_lk7a7"]
+script = ExtResource("6_lk7a1")
+base_value = 7.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_lk7a8"]
+script = ExtResource("7_lk7a1")
+mana_cost_formula = SubResource("Resource_lk7a5")
+cooldown_formula = SubResource("Resource_lk7a3")
+damage_percent_formula = SubResource("Resource_lk7a4")
+max_targets_formula = SubResource("Resource_lk7a7")
+max_hits_formula = SubResource("Resource_lk7a6")
+cast_time_formula = SubResource("Resource_lk7a2")
+metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
+
+[resource]
+script = ExtResource("2_lk7a1")
+ability_id = "1211275562-138101118-1531145-13011-7115116120105121"
+ability_name = "Lucky Seven"
+description = "Throws $[hit_count] stars at up to $[target_count] enemies dealing $[damage_percent] damage each."
+ability_icon = ExtResource("1_lk7a1")
+max_level = 10
+required_class = Array[int]([3])
+prerequisite_abilities = Dictionary[ExtResource("2_lk7a1"), int]({
+ExtResource("9_lk7a1"): 3
+})
+active_behavior = SubResource("Resource_lk7a1")
+scaling_data = SubResource("Resource_lk7a8")
+metadata/_custom_type_script = "uid://b8y62rc8nb40j"

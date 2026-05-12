@@ -1,0 +1,64 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=17 format=3 uid="uid://telport001xx"]
+
+[ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_telp1"]
+[ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_telp2"]
+[ext_resource type="Script" uid="uid://d3kt7luapmbgf" path="res://scripts/AbilityLogic/AL_Teleport.gd" id="2_telp1"]
+[ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="2_telp2"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="3_telp1"]
+[ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="4_telp1"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="7_telp1"]
+[ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="9_jlg0d"]
+[ext_resource type="Resource" uid="uid://icestrik001x" path="res://resources/Abilities/Mage/A_Ice_Strike.tres" id="9_telp1"]
+
+[sub_resource type="Resource" id="Resource_telp1"]
+resource_local_to_scene = true
+script = ExtResource("1_telp2")
+logic_script = ExtResource("2_telp1")
+
+[sub_resource type="Resource" id="Resource_telp4"]
+script = ExtResource("7_telp1")
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_telp2"]
+script = ExtResource("7_telp1")
+base_value = 10.0
+per_level = -1.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_telp3"]
+script = ExtResource("7_telp1")
+base_value = 20.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_telp6"]
+script = ExtResource("7_telp1")
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_telp5"]
+script = ExtResource("7_telp1")
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_telp7"]
+script = ExtResource("4_telp1")
+mana_cost_formula = SubResource("Resource_telp3")
+cooldown_formula = SubResource("Resource_telp2")
+damage_percent_formula = SubResource("Resource_telp4")
+max_targets_formula = SubResource("Resource_telp5")
+max_hits_formula = SubResource("Resource_telp6")
+cast_time_formula = SubResource("Resource_telp4")
+metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
+
+[resource]
+script = ExtResource("3_telp1")
+ability_id = "1651081019112111-10180-18141116-8591-12491086711491466"
+ability_name = "Teleport"
+description = "Blinks the player forward in their facing direction. Cooldown reduces with level."
+ability_icon = ExtResource("1_telp1")
+max_level = 10
+required_class = Array[int]([2])
+prerequisite_abilities = Dictionary[ExtResource("3_telp1"), int]({
+ExtResource("9_telp1"): 5
+})
+active_behavior = SubResource("Resource_telp1")
+scaling_data = SubResource("Resource_telp7")
+metadata/_custom_type_script = "uid://b8y62rc8nb40j"

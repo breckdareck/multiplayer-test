@@ -1,9 +1,10 @@
 [gd_scene load_steps=3 format=3 uid="uid://d2yqkm8death1"]
 
-[ext_resource type="Theme" path="res://assets/themes/UI_Theme.tres" id="1_theme"]
-[ext_resource type="Script" path="res://scripts/UI/death_popup.gd" id="2_script"]
+[ext_resource type="Theme" uid="uid://dumv2cfji0owj" path="res://assets/themes/UI_Theme.tres" id="1_theme"]
+[ext_resource type="Script" uid="uid://cmdf4v7ps1rbd" path="res://scripts/UI/death_popup.gd" id="2_script"]
 
 [node name="DeathPopup" type="Window"]
+oversampling_override = 1.0
 title = "You Died"
 initial_position = 1
 size = Vector2i(350, 120)
