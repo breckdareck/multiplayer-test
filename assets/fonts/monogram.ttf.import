@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://bxv5w2dv4xg3m"
-path="res://.godot/imported/Inter.ttc-66c7399c8d6a50c268050210d29ab386.fontdata"
+uid="uid://cb26fl25xidcr"
+path="res://.godot/imported/monogram.ttf-c95719ff5218ca8efa10f8f40fd456da.fontdata"
 
 [deps]
 
-source_file="res://assets/fonts/Inter.ttc"
-dest_files=["res://.godot/imported/Inter.ttc-66c7399c8d6a50c268050210d29ab386.fontdata"]
+source_file="res://assets/fonts/monogram.ttf"
+dest_files=["res://.godot/imported/monogram.ttf-c95719ff5218ca8efa10f8f40fd456da.fontdata"]
 
 [params]
 
@@ -22,7 +22,7 @@ msdf_size=48
 allow_system_fallback=true
 force_autohinter=false
 modulate_color_glyphs=false
-hinting=2
+hinting=1
 subpixel_positioning=4
 keep_rounding_remainders=true
 oversampling=0.0
@@ -30,12 +30,7 @@ Fallbacks=null
 fallbacks=[]
 Compress=null
 compress=true
-preload=[{
-"chars": [],
-"glyphs": [],
-"name": "New Configuration",
-"size": Vector2i(16, 0)
-}]
+preload=[]
 language_support={}
 script_support={}
 opentype_features={}

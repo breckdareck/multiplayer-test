@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=18 format=3 uid="uid://adrksghtabl01"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=18 format=3 uid="uid://drksghtabl01"]
 
 [ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_drks1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_drks2"]
