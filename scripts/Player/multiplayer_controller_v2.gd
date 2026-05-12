@@ -757,6 +757,7 @@ func _play_levelup_effect() -> void:
 	await get_tree().create_timer(1.5).timeout
 	if is_instance_valid(particles):
 		particles.queue_free()
+
 @rpc("any_peer", "call_local", "reliable")
 func request_map_change_rpc(new_map_id: String, spawn_point_name: String = "", client_data_string: String = ""):
 	"""Server receives map change request"""
@@ -788,3 +789,116 @@ func screen_shake(intensity: float = 4.0, duration: float = 0.2) -> void:
 		tween.tween_property(camera, "offset", Vector2(0, -16) + offset, 0.02)
 		tween.tween_property(camera, "offset", Vector2(0, -16), 0.02)
 	tween.tween_property(camera, "offset", Vector2(0, -16), 0.02)
+
+
+
+const BUBBLE_MAX_WIDTH := 95.0
+const BUBBLE_MAX_HEIGHT := 120
+const BUBBLE_MAX_CHARS := 80
+const BUBBLE_FONT_SIZE := 14
+const BUBBLE_Y_OFFSET := -20.0  # How far above origin to start the bubble
+const BUBBLE_SCALE := 0.3
+const BUBBLE_FONT := preload("res://assets/fonts/Inter.ttc")
+var _active_chat_bubble: PanelContainer = null
+var _active_emote_bubble: PanelContainer = null
+
+func _build_bubble(text: String) -> PanelContainer:
+	var display_text := text.substr(0, BUBBLE_MAX_CHARS)
+	if text.length() > BUBBLE_MAX_CHARS:
+		display_text = text.substr(0, BUBBLE_MAX_CHARS - 3) + "..."
+
+	var label := Label.new()
+	label.text = display_text
+	label.add_theme_font_override("font", BUBBLE_FONT)
+	label.add_theme_font_size_override("font_size", BUBBLE_FONT_SIZE)
+	label.add_theme_color_override("font_color", Color.WHITE)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	label.custom_minimum_size = Vector2.ZERO
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 8)
+	margin.add_theme_constant_override("margin_right", 8)
+	margin.add_theme_constant_override("margin_top", 5)
+	margin.add_theme_constant_override("margin_bottom", 5)
+	margin.add_child(label)
+
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.0, 0.0, 0.0, 0.75)
+	style.set_corner_radius_all(6)
+	style.set_border_width_all(1)
+	style.border_color = Color(1.0, 1.0, 1.0, 0.15)
+
+	var panel := PanelContainer.new()
+	panel.add_theme_stylebox_override("panel", style)
+	panel.add_child(margin)
+
+	# Must be in the tree before get_minimum_size() returns real values
+	add_child(panel)
+	await get_tree().process_frame
+
+	var natural_width := label.get_minimum_size().x + 16
+	var bubble_width := minf(natural_width, BUBBLE_MAX_WIDTH)
+	label.custom_minimum_size = Vector2(bubble_width, 0)
+	if natural_width > BUBBLE_MAX_WIDTH:
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+
+	return panel
+
+
+func _position_bubble(panel: PanelContainer) -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+
+	if panel.size.y > BUBBLE_MAX_HEIGHT:
+		panel.custom_minimum_size.y = BUBBLE_MAX_HEIGHT
+		panel.size.y = BUBBLE_MAX_HEIGHT
+
+	# Apply scale first so position math accounts for the shrunken size
+	panel.scale = Vector2(BUBBLE_SCALE, BUBBLE_SCALE)
+
+	panel.position = Vector2(
+		roundf(-panel.size.x * BUBBLE_SCALE / 2.0),
+		roundf(BUBBLE_Y_OFFSET - panel.size.y * BUBBLE_SCALE)
+	)
+
+	panel.resized.connect(func():
+		var clamped_height := minf(panel.size.y, BUBBLE_MAX_HEIGHT)
+		panel.position = Vector2(
+			roundf(-panel.size.x * BUBBLE_SCALE / 2.0),
+			roundf(BUBBLE_Y_OFFSET - clamped_height * BUBBLE_SCALE)
+		)
+	)
+
+
+func show_chat_bubble(message: String) -> void:
+	if is_instance_valid(_active_chat_bubble):
+		_active_chat_bubble.queue_free()
+		_active_chat_bubble = null
+
+	var panel := await _build_bubble(message)
+	_active_chat_bubble = panel
+	# No add_child here — _build_bubble already added it
+	await _position_bubble(panel)
+
+	await get_tree().create_timer(5.0).timeout
+	if is_instance_valid(panel):
+		panel.queue_free()
+	_active_chat_bubble = null
+
+
+func show_emote_bubble(text: String) -> void:
+	if is_instance_valid(_active_emote_bubble):
+		_active_emote_bubble.queue_free()
+		_active_emote_bubble = null
+
+	var panel := await _build_bubble(text)
+	panel.modulate = Color(1.0, 0.92, 0.6, 1.0)
+	_active_emote_bubble = panel
+	# No add_child here — _build_bubble already added it
+	await _position_bubble(panel)
+
+	await get_tree().create_timer(3.0).timeout
+	if is_instance_valid(panel):
+		panel.queue_free()
+	_active_emote_bubble = null
