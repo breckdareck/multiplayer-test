@@ -39,6 +39,8 @@ func _process(delta: float) -> void:
 func start_cooldown(ability_id: String, duration: float) -> void:
 	if not assigned_ability or assigned_ability.ability_id != ability_id:
 		return
+	if duration <= 0.0:
+		return
 	_cooldown_total = duration
 	_cooldown_timer = duration
 	if cooldown_overlay:
