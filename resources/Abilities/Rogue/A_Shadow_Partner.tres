@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=12 format=3 uid="uid://shdwpart001x"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=13 format=3 uid="uid://shdwpart001x"]
 
 [ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_shpn1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_shpn2"]
@@ -6,7 +6,8 @@
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_shpn2"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="4_shpn1"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="7_shpn1"]
-[ext_resource type="Resource" uid="uid://adrksghtabl01" path="res://resources/Abilities/Rogue/A_Dark_Sight.tres" id="9_shpn1"]
+[ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_t6c7f"]
+[ext_resource type="Resource" uid="uid://drksghtabl01" path="res://resources/Abilities/Rogue/A_Dark_Sight.tres" id="9_shpn1"]
 
 [sub_resource type="Resource" id="Resource_shpn1"]
 resource_local_to_scene = true

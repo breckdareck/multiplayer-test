@@ -20,7 +20,6 @@
 [ext_resource type="Texture2D" uid="uid://b41h3nwnk7ghm" path="res://assets/UI/Left_button.png" id="15_32uah"]
 [ext_resource type="Script" uid="uid://c8fllkah6qfdg" path="res://scripts/Components/inventory.gd" id="15_cg2hl"]
 [ext_resource type="Texture2D" uid="uid://7wc85wst4rwd" path="res://assets/UI/Right_button.png" id="16_ihqbe"]
-[ext_resource type="Script" uid="uid://dwv2k28spwfby" path="res://scripts/StateMachine/state_machine.gd" id="16_ploos"]
 [ext_resource type="Script" uid="uid://d162wvxl3tos0" path="res://scripts/Player/StateMachine/attack.gd" id="17_e6s7e"]
 [ext_resource type="PackedScene" uid="uid://op5a1mqidavt" path="res://scenes/UI/hotbar.tscn" id="17_ploos"]
 [ext_resource type="PackedScene" uid="uid://c2sweq4gkie70" path="res://scenes/UI/abilities_window.tscn" id="18_7iww4"]
@@ -40,6 +39,7 @@
 [ext_resource type="Texture2D" uid="uid://rmxapeohsar7" path="res://assets/sprites/MinifolksHumans/Outline/MiniTemplate.png" id="29_7iww4"]
 [ext_resource type="Texture2D" uid="uid://d03pwys7xt7nr" path="res://assets/sprites/Test/СlothesV1-Sheet.png" id="30_e6s7e"]
 [ext_resource type="Texture2D" uid="uid://cpw28wasl3ylq" path="res://assets/sprites/Test/СlothesV2-Sheet.png" id="31_gb22u"]
+[ext_resource type="Script" uid="uid://dwv2k28spwfby" path="res://scripts/Core/StateMachine/state_machine.gd" id="33_gb22u"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_2d20i"]
 properties/0/path = NodePath(".:player_id")
@@ -464,7 +464,7 @@ size = Vector2(21, 21)
 [sub_resource type="CircleShape2D" id="CircleShape2D_h0wtf"]
 radius = 4.0
 
-[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "mana_component", "combat_component", "level_component", "stats_component", "class_component", "player_inventory", "inventory_component", "equipment_component", "ability_component", "buff_component", "debug_component", "player_HUD", "player_name_label", "stats_window", "inventory_window") groups=["Players", "networked_entities"]]
+[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "mana_component", "combat_component", "level_component", "stats_component", "class_component", "player_inventory", "inventory_component", "equipment_component", "ability_component", "buff_component", "debug_component", "player_HUD", "player_name_label", "stats_window", "inventory_window", "quest_window") groups=["Players", "networked_entities"]]
 collision_layer = 2
 collision_mask = 5
 script = ExtResource("1_an8q1")
@@ -484,6 +484,7 @@ player_HUD = NodePath("CanvasLayer/PlayerHUD")
 player_name_label = NodePath("PlayerWorldHUD/PlayerNameLabel")
 stats_window = NodePath("CanvasLayer/MoveableWindows/StatsWindow")
 inventory_window = NodePath("CanvasLayer/MoveableWindows/InventoryWindow")
+quest_window = NodePath("CanvasLayer/MoveableWindows/QuestWindow")
 
 [node name="PlayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_2d20i")
@@ -1212,7 +1213,7 @@ wait_time = 0.8
 one_shot = true
 
 [node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("starting_state", "state_label")]
-script = ExtResource("16_ploos")
+script = ExtResource("33_gb22u")
 starting_state = NodePath("idle")
 state_label = NodePath("../PlayerWorldHUD/DebugStateLabel")
 
