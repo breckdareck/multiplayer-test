@@ -33,6 +33,7 @@ LogManager="*res://scripts/Managers/LogManager.gd"
 ChatManager="*res://scripts/Managers/ChatManager.gd"
 NetworkManager="*res://scripts/Networking/network_manager.gd"
 SaveManager="*res://scripts/Managers/save_manager.gd"
+JobAdvancementManager="*res://scripts/Managers/job_advancement_manager.gd"
 QuestManager="*res://scripts/Managers/quest_manager.gd"
 
 [display]

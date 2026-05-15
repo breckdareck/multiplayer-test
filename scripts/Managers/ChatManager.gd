@@ -34,6 +34,10 @@ func send_chat_message(text: String) -> void:
 			_request_quest_command.rpc_id(1, text)
 			return
 
+		if command == "/advance":
+			JobAdvancementManager.request_advancement.rpc_id(1)
+			return
+
 		_send_system_message("Unknown command: %s" % command, Color.ORANGE)
 		return
 
