@@ -43,6 +43,7 @@ var _current_party_id: int = -1
 var direction: int = 0 # The current input direction from the synchronizer
 var facing_direction: int = 1 # The last non-zero direction, for facing
 var input_down: bool = false # The current down input from the synchronizer
+var input_up: bool = false # The current up input from the synchronizer
 
 var do_attack: bool = false
 var do_jump: bool = false
@@ -348,16 +349,19 @@ func _update_input_from_synchronizer() -> void:
 	if is_instance_valid(health_component) and health_component.is_dead:
 		direction = 0
 		input_down = false
+		input_up = false
 		return
 
 	var input_sync: Node = get_node_or_null("%InputSynchronizer")
 	if is_instance_valid(input_sync):
 		direction = input_sync.input_direction
 		input_down = input_sync.input_down
+		input_up = input_sync.input_up
 	else:
 		# Fallback if the synchronizer is not found.
 		direction = 0
 		input_down = false
+		input_up = false
 
 
 func is_pressing_pickup() -> bool:
@@ -701,6 +705,12 @@ func set_username(uname: String) -> void:
 	username = uname
 	if is_instance_valid(player_name_label):
 		player_name_label.text = username
+
+
+@rpc("authority", "call_local", "reliable")
+func sync_dark_sight_visual(alpha: float) -> void:
+	if is_instance_valid(animated_sprite):
+		animated_sprite.modulate.a = alpha
 
 
 func _on_leveled_up_effect(_new_level: int) -> void:

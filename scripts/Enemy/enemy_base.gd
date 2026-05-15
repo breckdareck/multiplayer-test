@@ -463,11 +463,14 @@ func damage_on_overlap(body: Node):
 		push_warning("Enemy %s is missing a StatsComponent! Cannot calculate damage." % name)
 		return
 
+	if body.has_meta("is_invisible") and body.get_meta("is_invisible"):
+		return
+
 	if body.has_node("Components/Health"):
 		var health: HealthComponent = body.get_node("Components/Health")
 		var player_stats: StatsComponent = body.get_node("Components/Stats")
 		var player_level_comp: LevelingComponent = body.get_node("Components/Leveling")
-		
+
 		if health.is_dead or health.is_invulnerable:
 			return
 
