@@ -352,6 +352,27 @@ func sync_buff_stacks(buff_id: String, new_stacks: int, new_duration: float) -> 
 		buff_refreshed.emit(buff_id, new_duration)
 
 
+@rpc("authority", "call_local", "reliable")
+func sync_buff_stat_modifiers(buff_id: String, modifier_data: Dictionary) -> void:
+	if multiplayer.is_server():
+		return
+
+	if not _active_buffs.has(buff_id):
+		return
+
+	var active_buff: ActiveBuff = _active_buffs[buff_id]
+	active_buff.buff_data = active_buff.buff_data.duplicate()
+	active_buff.buff_data.stat_modifiers.clear()
+
+	for stat_type_int in modifier_data:
+		var stat_type: Constants.StatType = stat_type_int as Constants.StatType
+		var mod: Dictionary = modifier_data[stat_type_int]
+		var stat_data = StatData.new(stat_type, 0)
+		stat_data.flat_bonus_value = mod.get("flat", 0)
+		stat_data.percent_bonus_value = mod.get("percent", 0.0)
+		active_buff.buff_data.stat_modifiers[stat_type] = stat_data
+
+
 ## [Server->Client] Sends all buff data to a newly connected client in a single RPC.
 func sync_all_buffs_to_client(peer_id: int) -> void:
 	if not multiplayer.is_server():
