@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ClassData" load_steps=12 format=3 uid="uid://dmkd1505putdo"]
+[gd_resource type="Resource" script_class="ClassData" load_steps=13 format=3 uid="uid://dmkd1505putdo"]
 
 [ext_resource type="Texture2D" uid="uid://cig1ahxxfil30" path="res://assets/sprites/MinifolksHumans/Outline/MiniCrossBowMan.png" id="1_msg8v"]
 [ext_resource type="Script" uid="uid://buwbui1bka8vl" path="res://scripts/Resources/ClassSystem/ClassData.gd" id="2_0er32"]
@@ -9,6 +9,7 @@
 [ext_resource type="Resource" uid="uid://rrwrain001x" path="res://resources/Abilities/Archer/A_Arrow_Rain.tres" id="7_0rdxn"]
 [ext_resource type="Resource" uid="uid://focusabl001x" path="res://resources/Abilities/Archer/A_Focus.tres" id="8_g5get"]
 [ext_resource type="Resource" uid="uid://strafearc01x" path="res://resources/Abilities/Archer/A_Strafe.tres" id="9_y0b2h"]
+[ext_resource type="Resource" uid="uid://shrpeyes001x" path="res://resources/Abilities/Archer/A_Sharp_Eyes.tres" id="10_seyes"]
 [ext_resource type="SpriteFrames" uid="uid://pqxtacaxyo41" path="res://resources/Player/SpriteFrames/Crossbow.tres" id="11_4p4o7"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0er32"]
@@ -22,7 +23,7 @@ class_type = 6
 sprite_frames = Dictionary[int, SpriteFrames]({
 15: ExtResource("11_4p4o7")
 })
-skills = Array[ExtResource("3_j76vt")]([ExtResource("4_hvlbx"), ExtResource("5_wtaon"), ExtResource("6_ygfep"), ExtResource("7_0rdxn"), ExtResource("8_g5get"), ExtResource("9_y0b2h")])
+skills = Array[ExtResource("3_j76vt")]([ExtResource("4_hvlbx"), ExtResource("5_wtaon"), ExtResource("6_ygfep"), ExtResource("7_0rdxn"), ExtResource("8_g5get"), ExtResource("9_y0b2h"), ExtResource("10_seyes")])
 description = "A ranged fighter with exceptional dexterity and precision."
 icon = SubResource("AtlasTexture_0er32")
 primary_stat = 2

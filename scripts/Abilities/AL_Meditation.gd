@@ -11,7 +11,6 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 		party_members = [owner_id]
 
 	var duration = _ability.buff_duration_formula.calculate(_level_stats.level)
-	var stats_percent = ceil(_level_stats.level / 2.0)
 
 	for member_id in party_members:
 		var member_node = PlayerManager.get_player_node(member_id)
@@ -22,14 +21,13 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 		if not buff_component:
 			continue
 
-		buff_component.apply_buff("Maple Warrior", _owner_node, duration)
+		buff_component.apply_buff("Meditation", _owner_node, duration)
 
-		var active_buff = buff_component._active_buffs.get("Maple Warrior")
+		var active_buff = buff_component._active_buffs.get("Meditation")
 		if not active_buff:
 			continue
 
 		if active_buff.custom_logic_instance:
-			active_buff.custom_logic_instance.stats_percent = stats_percent
 			active_buff.custom_logic_instance.source_ability_level = _level_stats.level
 
 		active_buff.buff_data = active_buff.buff_data.duplicate()
@@ -45,5 +43,5 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 
 		buff_component._force_stat_recalc()
 
-	print("%s activated Maple Warrior (Level %d) - Duration: %ds, Stats: +%.0f%% [%d members]" %
-		[_owner_node.name, _level_stats.level, duration, stats_percent, party_members.size()])
+	print("%s activated Meditation (Level %d) - Duration: %ds [%d members]" %
+		[_owner_node.name, _level_stats.level, duration, party_members.size()])

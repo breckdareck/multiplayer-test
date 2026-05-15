@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ClassData" load_steps=11 format=3 uid="uid://cd72f2m3bg0sh"]
+[gd_resource type="Resource" script_class="ClassData" load_steps=12 format=3 uid="uid://cd72f2m3bg0sh"]
 
 [ext_resource type="Texture2D" uid="uid://cgx33w5mdt6ar" path="res://assets/UI/rogue_portrait.tres" id="1_5hc5c"]
 [ext_resource type="Script" uid="uid://buwbui1bka8vl" path="res://scripts/Resources/ClassSystem/ClassData.gd" id="2_ynuw2"]
@@ -10,6 +10,7 @@
 [ext_resource type="Resource" uid="uid://drksghtabl01" path="res://resources/Abilities/Rogue/A_Dark_Sight.tres" id="7_so2ya"]
 [ext_resource type="Resource" uid="uid://disorder001x" path="res://resources/Abilities/Rogue/A_Disorder.tres" id="8_so2ya"]
 [ext_resource type="Resource" uid="uid://shdwpart001x" path="res://resources/Abilities/Rogue/A_Shadow_Partner.tres" id="9_so2ya"]
+[ext_resource type="Resource" uid="uid://hasteabl001x" path="res://resources/Abilities/Rogue/A_Haste.tres" id="10_so2ya"]
 
 [resource]
 script = ExtResource("2_ynuw2")
@@ -18,7 +19,7 @@ class_type = 3
 sprite_frames = Dictionary[int, SpriteFrames]({
 1: ExtResource("4_ynuw2")
 })
-skills = Array[ExtResource("3_76b0u")]([ExtResource("4_so2ya"), ExtResource("5_so2ya"), ExtResource("6_so2ya"), ExtResource("7_so2ya"), ExtResource("8_so2ya"), ExtResource("9_so2ya")])
+skills = Array[ExtResource("3_76b0u")]([ExtResource("4_so2ya"), ExtResource("5_so2ya"), ExtResource("6_so2ya"), ExtResource("7_so2ya"), ExtResource("8_so2ya"), ExtResource("9_so2ya"), ExtResource("10_so2ya")])
 icon = ExtResource("1_5hc5c")
 primary_stat = 3
 secondary_stat = 2

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ClassData" load_steps=12 format=3 uid="uid://cvxw64kd5bfn7"]
+[gd_resource type="Resource" script_class="ClassData" load_steps=13 format=3 uid="uid://cvxw64kd5bfn7"]
 
 [ext_resource type="Texture2D" uid="uid://xooxqubnslej" path="res://assets/sprites/MinifolksHumans/Outline/MiniMage.png" id="1_lnmub"]
 [ext_resource type="Script" uid="uid://buwbui1bka8vl" path="res://scripts/Resources/ClassSystem/ClassData.gd" id="1_uo3r6"]
@@ -10,6 +10,7 @@
 [ext_resource type="Resource" uid="uid://icestrik001x" path="res://resources/Abilities/Mage/A_Ice_Strike.tres" id="8_h2y4b"]
 [ext_resource type="Resource" uid="uid://mshldabl001x" path="res://resources/Abilities/Mage/A_Mana_Shield.tres" id="9_h2y4b"]
 [ext_resource type="Resource" uid="uid://telport001xx" path="res://resources/Abilities/Mage/A_Teleport.tres" id="10_h2y4b"]
+[ext_resource type="Resource" uid="uid://meditate001x" path="res://resources/Abilities/Mage/A_Meditation.tres" id="11_h2y4b"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_pq730"]
 atlas = ExtResource("1_lnmub")
@@ -22,7 +23,7 @@ class_type = 2
 sprite_frames = Dictionary[int, SpriteFrames]({
 1: ExtResource("3_uwn8l")
 })
-skills = Array[ExtResource("3_csbtv")]([ExtResource("5_h2y4b"), ExtResource("6_h2y4b"), ExtResource("7_h2y4b"), ExtResource("8_h2y4b"), ExtResource("9_h2y4b"), ExtResource("10_h2y4b")])
+skills = Array[ExtResource("3_csbtv")]([ExtResource("5_h2y4b"), ExtResource("6_h2y4b"), ExtResource("7_h2y4b"), ExtResource("8_h2y4b"), ExtResource("9_h2y4b"), ExtResource("10_h2y4b"), ExtResource("11_h2y4b")])
 description = "A spellcaster with powerful magic abilities."
 icon = SubResource("AtlasTexture_pq730")
 primary_stat = 1
