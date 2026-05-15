@@ -1,6 +1,6 @@
 [gd_scene load_steps=26 format=4 uid="uid://d1hwvomjwdrjv"]
 
-[ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_e24jv"]
+[ext_resource type="Script" path="res://scripts/Gameplay/map_base.gd" id="1_e24jv"]
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/damage_numbers.gd" id="1_ryi0r"]
 [ext_resource type="Texture2D" uid="uid://jorjvuc5wn72" path="res://assets/sprites/world_tileset.png" id="2_l25cu"]
 [ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="3_j167y"]
@@ -630,11 +630,10 @@ horizontal_alignment = 1
 
 [node name="Killzone" parent="." instance=ExtResource("4_kgokg")]
 position = Vector2(-1, 92)
-monitoring = false
-monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Killzone"]
 shape = SubResource("WorldBoundaryShape2D_p57ef")
+debug_color = Color(0.9764706, 0, 0, 0.75686276)
 
 [node name="Platforms" type="Node2D" parent="."]
 

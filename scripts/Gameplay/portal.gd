@@ -44,6 +44,12 @@ func interact(player_id: int):
 	
 	if player_in_portal:
 		print("Player %d activated portal to map '%s' at spawn '%s'" % [player_id, target_map_id, target_spawn_point_name])
-		MapManager.call_deferred("request_map_change", player_id, target_map_id, target_spawn_point_name)
+		# Route through the player's change_to_map so save data is flushed
+		# before the transition (buff durations, health, mana, etc.).
+		var player_node = PlayerManager.get_player_node(player_id)
+		if is_instance_valid(player_node) and player_node.has_method("change_to_map"):
+			player_node.call_deferred("change_to_map", target_map_id, target_spawn_point_name)
+		else:
+			MapManager.call_deferred("request_map_change", player_id, target_map_id, target_spawn_point_name)
 	else:
 		push_warning("Player %d tried to interact with portal but is no longer overlapping." % player_id)

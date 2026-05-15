@@ -193,6 +193,9 @@ func _pickup_item(picking_player: MultiplayerPlayerV2 = null) -> void:
 		else:
 			player_to_give_item.player_inventory.add_item_instance(item_data.duplicate(true))
 
+		# Track item collection for quest objectives
+		QuestManager.record_item_collected(player_to_give_item.username, item_data.name, stack_amount)
+
 	# RPC to client to show log message
 		show_pickup_log_rpc.rpc_id(player_to_give_item.player_id, item_data.name, stack_amount)
 	

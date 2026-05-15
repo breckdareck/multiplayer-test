@@ -7,15 +7,46 @@ signal ability_removed(slot_index: int)
 @export var slot_index: int = 0
 @export var ability_icon: TextureRect
 @export var keybind_label: Label
+@export var cooldown_overlay: ColorRect
+@export var cooldown_label: Label
 
 var assigned_ability: AbilityData = null
 var is_drag_hovering: bool = false
 
+var _cooldown_timer: float = 0.0
+var _cooldown_total: float = 0.0
+
 func _ready():
 	_update_keybind_label()
-	
+
 	# Enable mouse filter to receive drop events
 	mouse_filter = Control.MOUSE_FILTER_STOP
+
+func _process(delta: float) -> void:
+	if _cooldown_timer <= 0.0:
+		return
+	_cooldown_timer -= delta
+	if _cooldown_timer <= 0.0:
+		_cooldown_timer = 0.0
+		if cooldown_overlay:
+			cooldown_overlay.visible = false
+	else:
+		if cooldown_label:
+			cooldown_label.text = "%.1fs" % _cooldown_timer
+		if cooldown_overlay:
+			cooldown_overlay.color.a = 0.4 + 0.3 * (_cooldown_timer / _cooldown_total)
+
+func start_cooldown(ability_id: String, duration: float) -> void:
+	if not assigned_ability or assigned_ability.ability_id != ability_id:
+		return
+	if duration <= 0.0:
+		return
+	_cooldown_total = duration
+	_cooldown_timer = duration
+	if cooldown_overlay:
+		cooldown_overlay.visible = true
+	if cooldown_label:
+		cooldown_label.text = "%.1fs" % duration
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_ENTER_TREE:

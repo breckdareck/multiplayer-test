@@ -21,7 +21,7 @@ A robust **multiplayer RPG** built with Godot Engine 4.5+ featuring server-autho
 - **Ability System**: Active/passive abilities with cooldowns, skill points, prerequisites, stat scaling, and proc effects
 - **Buff/Debuff System**: Stacking, duration tracking, custom logic hooks, stat modifiers
 - **Inventory System**: Item stacking, drag-and-drop, grid-based UI, server validation
-- **Consumables**: Item usage effects (heal, grant experience, etc.) with extensible effect system
+- **Consumables**: Item usage effects (heal, restore mana, grant experience, town teleport) with extensible effect system
 - **Merchant System**: Buy/sell with unique and stackable item buyback
 - **Party System**: Create, invite, join, and leave parties with shared member visibility
 
@@ -197,13 +197,13 @@ To add new backend features:
 
 *   `addons/`: Contains Godot editor plugins (e.g., `ability_editor`, `script-ide`).
 *   `assets/`: Contains all of the game's visual and audio assets.
-    *   `assets/fonts/`: Custom fonts used in the UI.
-    *   `assets/music/`: Background music tracks.
-    *   `assets/Shader/`: Custom shaders.
-    *   `assets/sounds/`: Sound effects for various in-game events.
-    *   `assets/sprites/`: Character, enemy, item, and UI sprites, organized by category.
-    *   `assets/themes/`: UI themes.
-    *   `assets/UI/`: UI-specific textures and resources.
+	*   `assets/fonts/`: Custom fonts used in the UI.
+	*   `assets/music/`: Background music tracks.
+	*   `assets/Shader/`: Custom shaders.
+	*   `assets/sounds/`: Sound effects for various in-game events.
+	*   `assets/sprites/`: Character, enemy, item, and UI sprites, organized by category.
+	*   `assets/themes/`: UI themes.
+	*   `assets/UI/`: UI-specific textures and resources.
 *   `resources/`: Contains the game's data files, defined as custom Godot resources (`.tres`).
     *   `resources/Abilities/`: Definitions for all in-game abilities (`AbilityData`, `AbilityLevelData`, `AbilityScalingData`, `ProcEffectData`, `StatBonusFormula`).
     *   `resources/Buffs/`: Definitions for all in-game buffs and debuffs (`BuffData`).
@@ -213,13 +213,13 @@ To add new backend features:
         *   `resources/Player/Classes/`: Definitions for different player classes (`ClassData`).
         *   `resources/Player/SpriteFrames/`: SpriteFrames resources for player animations.
 *   `scenes/`: Contains the game's scenes, the building blocks of levels and UI.
-    *   `scenes/Collectables/`: Scenes for collectible items (e.g., `coin.tscn`).
-    *   `scenes/Gameplay/`: General gameplay elements (e.g., `dropped_item.tscn`, `enemy_spawner.tscn`).
-    *   `scenes/Levels/`: Main game levels (e.g., `main_menu.tscn`, `game.tscn`).
-    *   `scenes/NPC/`: Non-player character scenes.
-    *   `scenes/Player/`: Player character scenes and related elements.
-    *   `scenes/Tools/`: Utility scenes.
-    *   `scenes/UI/`: User interface scenes (e.g., `ability_slot.tscn`, `hotbar_slot.tscn`, `slot.tscn`).
+	*   `scenes/Collectables/`: Scenes for collectible items (e.g., `coin.tscn`).
+	*   `scenes/Gameplay/`: General gameplay elements (e.g., `dropped_item.tscn`, `enemy_spawner.tscn`).
+	*   `scenes/Levels/`: Main game levels (e.g., `main_menu.tscn`, `game.tscn`).
+	*   `scenes/NPC/`: Non-player character scenes.
+	*   `scenes/Player/`: Player character scenes and related elements.
+	*   `scenes/Tools/`: Utility scenes.
+	*   `scenes/UI/`: User interface scenes (e.g., `ability_slot.tscn`, `hotbar_slot.tscn`, `slot.tscn`).
 *   `scripts/`: Contains the game's GDScript files, defining all game logic.
     *   `scripts/AbilityLogic/`: Custom logic scripts for complex ability behaviors (e.g., `AL_EnhancedBasics.gd`, `AL_SlashBlast.gd`).
     *   `scripts/BuffLogic/`: Custom logic scripts for complex buff behaviors (e.g., `BL_MapleWarrior.gd`, `BL_PowerGuard.gd`).
@@ -229,8 +229,8 @@ To add new backend features:
         *   `scripts/Enemy/enemy_base.gd`: Base class for all enemies.
         *   `scripts/Enemy/enemy_spawner.gd`: Manages enemy spawning and pooling.
     *   `scripts/Enums/`: Global enumerations (`constants.gd`).
-    *   `scripts/Managers/`: Autoloaded singletons for global game systems (e.g., `game_manager.gd`, `multiplayer_manager.gd`, `resource_manager.gd`, `keybind_manager.gd`, `user_config.gd`).
-    *   `scripts/Networking/`: Scripts handling multiplayer networking logic (e.g., `channel_manager.gd`, `client_manager.gd`, `network_utils.gd`, `player_manager.gd`, `server_manager.gd`).
+    *   `scripts/Managers/`: Autoloaded singletons for global game systems (e.g., `multiplayer_manager.gd`, `resource_manager.gd`, `map_manager.gd`, `save_manager.gd`, `ChatManager.gd`, `LogManager.gd`, `keybind_manager.gd`, `user_config.gd`).
+    *   `scripts/Networking/`: Scripts handling multiplayer networking logic (e.g., `channel_manager.gd`, `client_manager.gd`, `network_manager.gd`, `network_utils.gd`, `player_manager.gd`, `server_manager.gd`).
     *   `scripts/NPC/`: Non-player character logic (e.g., `npc_interaction.gd`).
     *   `scripts/Player/`: Player-specific scripts.
         *   `scripts/Player/StateMachine/`: State scripts for player character behavior (e.g., `attack.gd`, `crouch.gd`, `death.gd`, `fall.gd`, `hit.gd`, `idle.gd`, `jump.gd`, `move.gd`, `slide.gd`).
@@ -239,7 +239,7 @@ To add new backend features:
         *   `scripts/Player/player_hud.gd`: Manages player HUD elements.
     *   `scripts/Resources/`: Base classes for custom resource types (e.g., `AbilitySystem`, `BuffSystem`, `ClassSystem`, `ItemSystem`, `StatSystem` subdirectories).
     *   `scripts/StateMachine/`: Generic state machine implementation (`state.gd`, `state_machine.gd`).
-    *   `scripts/UI/`: Scripts for user interface elements (e.g., `ability_slot.gd`, `ability_window.gd`, `buffbar.gd`, `equipment_slot.gd`, `equipment_window.gd`, `global_drop_handler.gd`, `hotbar.gd`, `hotbar_slot.gd`, `inventory_window.gd`, `shop_window.gd`, `slot.gd`, `stats_window.gd`, `game_menu.gd`, `keybinds_menu.gd`, `options_menu.gd`).
+    *   `scripts/UI/`: Scripts for user interface elements (e.g., `ability_slot.gd`, `ability_window.gd`, `buffbar.gd`, `ChatWindow.gd`, `CharacterCreationScreen.gd`, `CharacterSelectScreen.gd`, `death_popup.gd`, `equipment_slot.gd`, `equipment_window.gd`, `game_menu.gd`, `global_drop_handler.gd`, `hotbar.gd`, `hotbar_slot.gd`, `inventory_window.gd`, `LoginScreen.gd`, `LogMessage.gd`, `ScrollingLog.gd`, `shop_window.gd`, `slot.gd`, `stats_window.gd`, `keybinds_menu.gd`, `options_menu.gd`, `party_invite_popup.gd`, `party_window.gd`, `target_frame.gd`).
     *   `scripts/coin.gd`: Logic for collectible coins.
     *   `scripts/damage_numbers.gd`: Manages floating damage numbers.
     *   `scripts/killzone.gd`: Logic for kill zones.
@@ -559,7 +559,7 @@ godot --headless --feature dedicated_server --path . -- --port 8080
 - Drop-through: hold `Move Down` and press `Jump` to pass through drop-through platforms. The player temporarily disables collision with the platform's layer.
 
 ### Autoload singletons (expected)
-- `MultiplayerManager`, `ServerManager`, `ClientManager`, `PlayerManager`, `ChannelManager`, `NetworkUtils`, `ResourceManager`, `MusicManager` should be configured as AutoLoads and accessible globally.
+- `MultiplayerManager`, `ServerManager`, `ClientManager`, `PlayerManager`, `ChannelManager`, `NetworkUtils`, `NetworkManager`, `ResourceManager`, `MapManager`, `SaveManager`, `ChatManager`, `LogManager`, `PartyManager`, `KeybindManager`, `UserConfig`, `AudioManager`, `InputManager`, `MusicManager` should be configured as AutoLoads and accessible globally.
 
 ## Credits
 
@@ -569,4 +569,3 @@ godot --headless --feature dedicated_server --path . -- --port 8080
 ## License
 
 This project is for educational and demonstration purposes. See individual asset folders for specific licenses.
-

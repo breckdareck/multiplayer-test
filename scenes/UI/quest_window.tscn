@@ -1,0 +1,164 @@
+[gd_scene load_steps=3 format=3 uid="uid://1ufb4svp8iwu"]
+
+[ext_resource type="Theme" uid="uid://dumv2cfji0owj" path="res://assets/themes/UI_Theme.tres" id="1_theme"]
+[ext_resource type="Script" path="res://scripts/UI/quest_window.gd" id="2_script"]
+
+[node name="QuestWindow" type="Panel"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -230.0
+offset_top = -255.0
+offset_right = 230.0
+offset_bottom = 255.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_theme")
+script = ExtResource("2_script")
+visible = false
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="TitleBar" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 28)
+
+[node name="TitleLabel" type="Label" parent="VBoxContainer/TitleBar"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "  QUEST"
+
+[node name="CloseButton" type="Button" parent="VBoxContainer/TitleBar"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 0
+text = "X"
+
+[node name="TabButtons" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="AvailableTabBtn" type="Button" parent="VBoxContainer/TabButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+text = "Available"
+
+[node name="ActiveTabBtn" type="Button" parent="VBoxContainer/TabButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+text = "Active"
+
+[node name="CompletedTabBtn" type="Button" parent="VBoxContainer/TabButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+text = "Completed"
+
+[node name="ContentPanel" type="PanelContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ContentMargin" type="MarginContainer" parent="VBoxContainer/ContentPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="HSplitContainer" type="HSplitContainer" parent="VBoxContainer/ContentPanel/ContentMargin"]
+layout_mode = 2
+split_offset = 155
+
+[node name="ListPanel" type="PanelContainer" parent="VBoxContainer/ContentPanel/ContentMargin/HSplitContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(130, 0)
+
+[node name="QuestListScroll" type="ScrollContainer" parent="VBoxContainer/ContentPanel/ContentMargin/HSplitContainer/ListPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="QuestListContainer" type="VBoxContainer" parent="VBoxContainer/ContentPanel/ContentMargin/HSplitContainer/ListPanel/QuestListScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="DetailPanel" type="PanelContainer" parent="VBoxContainer/ContentPanel/ContentMargin/HSplitContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DetailMargin" type="MarginContainer" parent="VBoxContainer/ContentPanel/ContentMargin/HSplitContainer/DetailPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="DetailVBox" type="VBoxContainer" parent="VBoxContainer/ContentPanel/ContentMargin/HSplitContainer/DetailPanel/DetailMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+
+[node name="QuestTitleLabel" type="Label" parent="VBoxContainer/ContentPanel/ContentMargin/HSplitContainer/DetailPanel/DetailMargin/DetailVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Select a quest"
+
+[node name="HSeparator" type="HSeparator" parent="VBoxContainer/ContentPanel/ContentMargin/HSplitContainer/DetailPanel/DetailMargin/DetailVBox"]
+layout_mode = 2
+
+[node name="QuestDescLabel" type="RichTextLabel" parent="VBoxContainer/ContentPanel/ContentMargin/HSplitContainer/DetailPanel/DetailMargin/DetailVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+
+[node name="ObjHeader" type="Label" parent="VBoxContainer/ContentPanel/ContentMargin/HSplitContainer/DetailPanel/DetailMargin/DetailVBox"]
+layout_mode = 2
+text = "Objectives:"
+
+[node name="ObjectivesContainer" type="VBoxContainer" parent="VBoxContainer/ContentPanel/ContentMargin/HSplitContainer/DetailPanel/DetailMargin/DetailVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="RewardsSep" type="HSeparator" parent="VBoxContainer/ContentPanel/ContentMargin/HSplitContainer/DetailPanel/DetailMargin/DetailVBox"]
+layout_mode = 2
+
+[node name="RewHeader" type="Label" parent="VBoxContainer/ContentPanel/ContentMargin/HSplitContainer/DetailPanel/DetailMargin/DetailVBox"]
+layout_mode = 2
+text = "Rewards:"
+
+[node name="RewardsContainer" type="VBoxContainer" parent="VBoxContainer/ContentPanel/ContentMargin/HSplitContainer/DetailPanel/DetailMargin/DetailVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Spacer" type="Control" parent="VBoxContainer/ContentPanel/ContentMargin/HSplitContainer/DetailPanel/DetailMargin/DetailVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ActionButton" type="Button" parent="VBoxContainer/ContentPanel/ContentMargin/HSplitContainer/DetailPanel/DetailMargin/DetailVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+text = "Accept Quest"
+visible = false

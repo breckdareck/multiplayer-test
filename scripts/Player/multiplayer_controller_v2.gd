@@ -34,6 +34,7 @@ const SERVER_ID: int = 1
 @export var player_name_label: RichTextLabel
 @export var stats_window: StatsWindow
 @export var inventory_window: InventoryWindow
+@export var quest_window: QuestWindow
 
 
 var username: String = ""
@@ -240,10 +241,13 @@ func _setup_signals() -> void:
 	if level_component:
 		level_component.experience_changed.connect(func(_c, _e): _data_changed())
 		level_component.leveled_up.connect(func(_l): _data_changed())
-		level_component.leveled_up.connect(_handle_sprite_change_on_server.unbind(1))
 		level_component.leveled_up.connect(_on_leveled_up_effect)
 		level_component.experience_changed.connect(func(_c, _e): _data_changed("stats"))
 		level_component.leveled_up.connect(func(_l): _data_changed("all")) # Level up might affect everything (points, stats)
+		level_component.leveled_up.connect(func(new_level):
+			if multiplayer.is_server() and not _is_loading_data:
+				QuestManager.record_level_up(username, new_level)
+		)
 		if multiplayer.is_server():
 			level_component.leveled_up.connect(_handle_sprite_change_on_server.unbind(1))
 	
@@ -395,8 +399,11 @@ func change_to_map(new_map_id: String, spawn_point_name: String = ""):
 		var data_string: String = JSON.stringify(get_save_data())
 		request_map_change_rpc.rpc_id(1, new_map_id, spawn_point_name, data_string)
 	else:
-		# Server can change directly, but MUST save first
-		_data_changed()
+		# Flush save before map change — the player node is freed during the transition,
+		# so a debounced save would fire on an already-freed node and be silently skipped.
+		if not username.is_empty() and SaveManager:
+			SaveManager.queue_save(username, "all", self)
+			await SaveManager.flush_save(username)
 		MapManager.request_map_change(player_id, new_map_id, spawn_point_name)
 
 
@@ -429,7 +436,10 @@ func get_save_data(update_type: String = "all") -> Dictionary:
 	if update_type == "all" or update_type == "buffs":
 		if is_instance_valid(buff_component):
 			data['buffs'] = buff_component.save_buffs()
-		
+
+	if update_type == "all":
+		data['quests'] = QuestManager.save_quests(username)
+
 	return data
 
 
@@ -437,6 +447,8 @@ func _get_stats_data() -> Dictionary:
 	return {
 		'max_health': health_component.max_health if is_instance_valid(health_component) else 100,
 		'current_health': health_component.current_health if is_instance_valid(health_component) else 100,
+		'max_mana': mana_component.max_mana if is_instance_valid(mana_component) else 100,
+		'current_mana': mana_component.current_mana if is_instance_valid(mana_component) else 100,
 		'level': level_component.level if is_instance_valid(level_component) else 1,
 		'experience': level_component.experience if is_instance_valid(level_component) else 0,
 		'party_id': _current_party_id,
@@ -476,6 +488,10 @@ func _load_data(data: Dictionary) -> void:
 		health_component.max_health = data.get("max_health", health_component.max_health)
 		health_component.current_health = data.get("current_health", health_component.max_health)
 
+	if is_instance_valid(mana_component):
+		mana_component.max_mana = data.get("max_mana", mana_component.max_mana)
+		mana_component.current_mana = data.get("current_mana", mana_component.max_mana)
+
 	if is_instance_valid(ability_component):
 		var ability_data = data.get("abilities", {})
 		if not ability_data.is_empty():
@@ -502,7 +518,12 @@ func _load_data(data: Dictionary) -> void:
 		var buff_data = data.get("buffs", {})
 		if not buff_data.is_empty():
 			buff_component.load_buffs(buff_data)
-		
+
+	# Load quest progress
+	var quest_data = data.get("quests", {})
+	if not quest_data.is_empty():
+		QuestManager.load_quests(username, quest_data)
+
 	_is_loading_data = false
 
 
@@ -557,14 +578,24 @@ func _on_peer_connected(peer_id: int) -> void:
 # RPC (REMOTE PROCEDURE CALL) METHODS
 #=============================================================================
 
+# [SERVER -> CLIENT] Sets the loading state to suppress/enable saves during sync.
+@rpc("authority", "call_remote", "reliable")
+func set_loading_state_rpc(loading: bool) -> void:
+	_is_loading_data = loading
+
+
 # [SERVER-ONLY] Respawns the player at a designated point.
 @rpc("any_peer", "call_local", "reliable")
 func respawn() -> void:
 	if not multiplayer.is_server() or _is_being_cleaned_up:
 		return
 
-	# The server authoritatively sets the respawn position and resets state.
-	position = MultiplayerManager.respawn_point
+	# The server authoritatively sets the respawn position from the current map's PlayerSpawn.
+	var current_map_id = MapManager.get_player_map(player_id)
+	if current_map_id != "":
+		position = MapManager.get_spawn_position_for_map(current_map_id)
+	else:
+		position = MultiplayerManager.respawn_point
 	do_attack = false
 	do_jump = false
 	do_drop = false
@@ -726,23 +757,22 @@ func _play_levelup_effect() -> void:
 	await get_tree().create_timer(1.5).timeout
 	if is_instance_valid(particles):
 		particles.queue_free()
+
 @rpc("any_peer", "call_local", "reliable")
 func request_map_change_rpc(new_map_id: String, spawn_point_name: String = "", client_data_string: String = ""):
 	"""Server receives map change request"""
 	if not multiplayer.is_server():
 		return
-	
+
 	var requester_id = multiplayer.get_remote_sender_id()
 	print("Player %d requesting map change to '%s' at spawn '%s'" % [requester_id, new_map_id, spawn_point_name])
-	
-	# Save player data before moving
-	if not client_data_string.is_empty():
-		print("Server: Saving client-provided data for player %d before map change." % requester_id)
-		save_on_server(client_data_string)
-	else:
-		print("Server: No client data provided, saving server-side state for player %d." % requester_id)
-		_data_changed()
-	
+
+	# Flush save before map change — the player node is freed during the transition,
+	# so a debounced save would fire on an already-freed node and be silently skipped.
+	if not username.is_empty() and SaveManager:
+		SaveManager.queue_save(username, "all", self)
+		await SaveManager.flush_save(username)
+
 	# Change map through MapManager
 	MapManager.request_map_change(requester_id, new_map_id, spawn_point_name)
 
@@ -759,3 +789,116 @@ func screen_shake(intensity: float = 4.0, duration: float = 0.2) -> void:
 		tween.tween_property(camera, "offset", Vector2(0, -16) + offset, 0.02)
 		tween.tween_property(camera, "offset", Vector2(0, -16), 0.02)
 	tween.tween_property(camera, "offset", Vector2(0, -16), 0.02)
+
+
+
+const BUBBLE_MAX_WIDTH := 95.0
+const BUBBLE_MAX_HEIGHT := 120
+const BUBBLE_MAX_CHARS := 80
+const BUBBLE_FONT_SIZE := 14
+const BUBBLE_Y_OFFSET := -20.0  # How far above origin to start the bubble
+const BUBBLE_SCALE := 0.3
+const BUBBLE_FONT := preload("res://assets/fonts/Inter.ttc")
+var _active_chat_bubble: PanelContainer = null
+var _active_emote_bubble: PanelContainer = null
+
+func _build_bubble(text: String) -> PanelContainer:
+	var display_text := text.substr(0, BUBBLE_MAX_CHARS)
+	if text.length() > BUBBLE_MAX_CHARS:
+		display_text = text.substr(0, BUBBLE_MAX_CHARS - 3) + "..."
+
+	var label := Label.new()
+	label.text = display_text
+	label.add_theme_font_override("font", BUBBLE_FONT)
+	label.add_theme_font_size_override("font_size", BUBBLE_FONT_SIZE)
+	label.add_theme_color_override("font_color", Color.WHITE)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	label.custom_minimum_size = Vector2.ZERO
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 8)
+	margin.add_theme_constant_override("margin_right", 8)
+	margin.add_theme_constant_override("margin_top", 5)
+	margin.add_theme_constant_override("margin_bottom", 5)
+	margin.add_child(label)
+
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.0, 0.0, 0.0, 0.75)
+	style.set_corner_radius_all(6)
+	style.set_border_width_all(1)
+	style.border_color = Color(1.0, 1.0, 1.0, 0.15)
+
+	var panel := PanelContainer.new()
+	panel.add_theme_stylebox_override("panel", style)
+	panel.add_child(margin)
+
+	# Must be in the tree before get_minimum_size() returns real values
+	add_child(panel)
+	await get_tree().process_frame
+
+	var natural_width := label.get_minimum_size().x + 16
+	var bubble_width := minf(natural_width, BUBBLE_MAX_WIDTH)
+	label.custom_minimum_size = Vector2(bubble_width, 0)
+	if natural_width > BUBBLE_MAX_WIDTH:
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+
+	return panel
+
+
+func _position_bubble(panel: PanelContainer) -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+
+	if panel.size.y > BUBBLE_MAX_HEIGHT:
+		panel.custom_minimum_size.y = BUBBLE_MAX_HEIGHT
+		panel.size.y = BUBBLE_MAX_HEIGHT
+
+	# Apply scale first so position math accounts for the shrunken size
+	panel.scale = Vector2(BUBBLE_SCALE, BUBBLE_SCALE)
+
+	panel.position = Vector2(
+		roundf(-panel.size.x * BUBBLE_SCALE / 2.0),
+		roundf(BUBBLE_Y_OFFSET - panel.size.y * BUBBLE_SCALE)
+	)
+
+	panel.resized.connect(func():
+		var clamped_height := minf(panel.size.y, BUBBLE_MAX_HEIGHT)
+		panel.position = Vector2(
+			roundf(-panel.size.x * BUBBLE_SCALE / 2.0),
+			roundf(BUBBLE_Y_OFFSET - clamped_height * BUBBLE_SCALE)
+		)
+	)
+
+
+func show_chat_bubble(message: String) -> void:
+	if is_instance_valid(_active_chat_bubble):
+		_active_chat_bubble.queue_free()
+		_active_chat_bubble = null
+
+	var panel := await _build_bubble(message)
+	_active_chat_bubble = panel
+	# No add_child here — _build_bubble already added it
+	await _position_bubble(panel)
+
+	await get_tree().create_timer(5.0).timeout
+	if is_instance_valid(panel):
+		panel.queue_free()
+	_active_chat_bubble = null
+
+
+func show_emote_bubble(text: String) -> void:
+	if is_instance_valid(_active_emote_bubble):
+		_active_emote_bubble.queue_free()
+		_active_emote_bubble = null
+
+	var panel := await _build_bubble(text)
+	panel.modulate = Color(1.0, 0.92, 0.6, 1.0)
+	_active_emote_bubble = panel
+	# No add_child here — _build_bubble already added it
+	await _position_bubble(panel)
+
+	await get_tree().create_timer(3.0).timeout
+	if is_instance_valid(panel):
+		panel.queue_free()
+	_active_emote_bubble = null

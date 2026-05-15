@@ -1,0 +1,83 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=19 format=3 uid="uid://strafearc01x"]
+
+[ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_strf1"]
+[ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="1_strf2"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_strf1"]
+[ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_strf2"]
+[ext_resource type="PackedScene" uid="uid://d0ig4oiimrnei" path="res://scenes/Gameplay/projectile_base.tscn" id="2_strf3"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="6_strf1"]
+[ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_strf1"]
+[ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_strf1"]
+[ext_resource type="Resource" uid="uid://rrwrain001x" path="res://resources/Abilities/Archer/A_Arrow_Rain.tres" id="9_strf1"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_strf1"]
+size = Vector2(120, 46)
+
+[sub_resource type="Resource" id="Resource_strf1"]
+script = ExtResource("2_strf2")
+target_type = 1
+hit_box_shape_data = SubResource("RectangleShape2D_strf1")
+hit_box_position_data = Vector2(60, -10)
+animation_name = "attack_2"
+is_projectile = true
+projectile_scene = ExtResource("2_strf3")
+projectile_speed = 250.0
+metadata/_custom_type_script = "uid://1raaatfhww5y"
+
+[sub_resource type="Resource" id="Resource_strf2"]
+script = ExtResource("6_strf1")
+base_value = 0.4
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_strf3"]
+script = ExtResource("6_strf1")
+base_value = 8.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_strf4"]
+script = ExtResource("6_strf1")
+base_value = 40.0
+per_level = 2.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_strf5"]
+script = ExtResource("6_strf1")
+base_value = 25.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_strf6"]
+script = ExtResource("6_strf1")
+base_value = 3.0
+per_level = 0.4
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_strf7"]
+script = ExtResource("6_strf1")
+base_value = 3.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_strf8"]
+script = ExtResource("7_strf1")
+mana_cost_formula = SubResource("Resource_strf5")
+cooldown_formula = SubResource("Resource_strf3")
+damage_percent_formula = SubResource("Resource_strf4")
+max_targets_formula = SubResource("Resource_strf7")
+max_hits_formula = SubResource("Resource_strf6")
+cast_time_formula = SubResource("Resource_strf2")
+metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
+
+[resource]
+script = ExtResource("2_strf1")
+ability_id = "19116981024514-10180-13141116-8591-12491086711491459"
+ability_name = "Strafe"
+description = "Rapidly fires $[hit_count] arrows at up to $[target_count] enemies dealing $[damage_percent] damage each."
+ability_icon = ExtResource("1_strf1")
+max_level = 10
+required_class = Array[int]([1])
+required_weapon_types = Array[int]([1])
+prerequisite_abilities = Dictionary[ExtResource("2_strf1"), int]({
+ExtResource("9_strf1"): 5
+})
+active_behavior = SubResource("Resource_strf1")
+scaling_data = SubResource("Resource_strf8")
+metadata/_custom_type_script = "uid://b8y62rc8nb40j"

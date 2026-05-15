@@ -91,6 +91,20 @@ func remove_player(id: int):
 		active_players.erase(id)
 
 
+func save_all_players() -> void:
+	"""Flush saves for all active players. Call BEFORE closing the multiplayer peer."""
+	if not multiplayer.is_server():
+		return
+	for player_id in active_players.keys():
+		var uname: String = active_players[player_id].get("username", "")
+		var player_node = get_player_node(player_id)
+		if is_instance_valid(player_node) and not uname.is_empty():
+			SaveManager.register_player(uname, player_node)
+			SaveManager.queue_save(uname, "all", player_node)
+			await SaveManager.flush_save(uname)
+			print("PlayerManager: Flushed save for player '%s' during shutdown." % uname)
+
+
 func cleanup():
 	"""Remove all networked entities and reset player tracking"""
 	print("Cleaning up all players and entities")
@@ -244,15 +258,16 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 		player_instance.equipment_component.legs_slot.item = ResourceManager.get_item_by_name("Blue Jean Shorts")
 		player_instance.equipment_component.feet_slot.item = ResourceManager.get_item_by_name("Leather Sandals")
 	
-	# Set health
+	# Set health and mana
 	if player_instance.health_component:
 		player_instance.health_component.current_health = player_data.get("current_health", 100)
-	
+	if player_instance.mana_component:
+		player_instance.mana_component.current_mana = player_data.get("current_mana", 100)
+
 	# Recalculate stats
 	if player_instance.stats_component:
-		await get_tree().process_frame
 		player_instance.stats_component.set_loading_mode(false)
-		player_instance.stats_component._recalculate_stats_server("PlayerSpawn")
+		player_instance.stats_component.mark_stats_dirty()
 	
 	# Reconnect signals
 	if player_instance.ability_component:
@@ -274,7 +289,9 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 	
 	if player_instance.health_component:
 		player_instance.health_component.current_health = player_data.get("current_health", 100)
-	
+	if player_instance.mana_component:
+		player_instance.mana_component.current_mana = player_data.get("current_mana", 100)
+
 	if id != 1 and player_instance.buff_component:
 		await get_tree().process_frame
 		player_instance.buff_component.sync_all_buffs_to_client(id)

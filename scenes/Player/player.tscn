@@ -1,4 +1,4 @@
-[gd_scene load_steps=92 format=3 uid="uid://bdtdpx0d05sy3"]
+[gd_scene load_steps=93 format=3 uid="uid://bdtdpx0d05sy3"]
 
 [ext_resource type="Script" uid="uid://yibpus3whwuj" path="res://scripts/Player/multiplayer_controller_v2.gd" id="1_an8q1"]
 [ext_resource type="Script" uid="uid://cy1j38lpy671e" path="res://scripts/Player/multiplayer_input.gd" id="2_hxkm2"]
@@ -20,7 +20,6 @@
 [ext_resource type="Texture2D" uid="uid://b41h3nwnk7ghm" path="res://assets/UI/Left_button.png" id="15_32uah"]
 [ext_resource type="Script" uid="uid://c8fllkah6qfdg" path="res://scripts/Components/inventory.gd" id="15_cg2hl"]
 [ext_resource type="Texture2D" uid="uid://7wc85wst4rwd" path="res://assets/UI/Right_button.png" id="16_ihqbe"]
-[ext_resource type="Script" uid="uid://dwv2k28spwfby" path="res://scripts/StateMachine/state_machine.gd" id="16_ploos"]
 [ext_resource type="Script" uid="uid://d162wvxl3tos0" path="res://scripts/Player/StateMachine/attack.gd" id="17_e6s7e"]
 [ext_resource type="PackedScene" uid="uid://op5a1mqidavt" path="res://scenes/UI/hotbar.tscn" id="17_ploos"]
 [ext_resource type="PackedScene" uid="uid://c2sweq4gkie70" path="res://scenes/UI/abilities_window.tscn" id="18_7iww4"]
@@ -34,11 +33,13 @@
 [ext_resource type="PackedScene" uid="uid://chfqd31o6lr2s" path="res://scenes/UI/stats_window.tscn" id="23_fqhit"]
 [ext_resource type="PackedScene" uid="uid://dh7yjshjnm377" path="res://scenes/UI/inventory_window.tscn" id="24_e8txv"]
 [ext_resource type="PackedScene" uid="uid://cy54vn8lpmh2s" path="res://scenes/UI/equipment_window.tscn" id="25_7iww4"]
+[ext_resource type="PackedScene" uid="uid://1ufb4svp8iwu" path="res://scenes/UI/quest_window.tscn" id="26_quest"]
 [ext_resource type="FontVariation" uid="uid://bpwl38ly8lvyj" path="res://assets/fonts/DamageNumbersFontVariation.tres" id="27_7iww4"]
 [ext_resource type="SpriteFrames" uid="uid://c05dyrlp5i5bj" path="res://resources/Player/SpriteFrames/Swordsman.tres" id="27_e8txv"]
 [ext_resource type="Texture2D" uid="uid://rmxapeohsar7" path="res://assets/sprites/MinifolksHumans/Outline/MiniTemplate.png" id="29_7iww4"]
 [ext_resource type="Texture2D" uid="uid://d03pwys7xt7nr" path="res://assets/sprites/Test/СlothesV1-Sheet.png" id="30_e6s7e"]
 [ext_resource type="Texture2D" uid="uid://cpw28wasl3ylq" path="res://assets/sprites/Test/СlothesV2-Sheet.png" id="31_gb22u"]
+[ext_resource type="Script" uid="uid://dwv2k28spwfby" path="res://scripts/Core/StateMachine/state_machine.gd" id="33_gb22u"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_2d20i"]
 properties/0/path = NodePath(".:player_id")
@@ -463,7 +464,7 @@ size = Vector2(21, 21)
 [sub_resource type="CircleShape2D" id="CircleShape2D_h0wtf"]
 radius = 4.0
 
-[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "mana_component", "combat_component", "level_component", "stats_component", "class_component", "player_inventory", "inventory_component", "equipment_component", "ability_component", "buff_component", "debug_component", "player_HUD", "player_name_label", "stats_window", "inventory_window") groups=["Players", "networked_entities"]]
+[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "mana_component", "combat_component", "level_component", "stats_component", "class_component", "player_inventory", "inventory_component", "equipment_component", "ability_component", "buff_component", "debug_component", "player_HUD", "player_name_label", "stats_window", "inventory_window", "quest_window") groups=["Players", "networked_entities"]]
 collision_layer = 2
 collision_mask = 5
 script = ExtResource("1_an8q1")
@@ -483,9 +484,9 @@ player_HUD = NodePath("CanvasLayer/PlayerHUD")
 player_name_label = NodePath("PlayerWorldHUD/PlayerNameLabel")
 stats_window = NodePath("CanvasLayer/MoveableWindows/StatsWindow")
 inventory_window = NodePath("CanvasLayer/MoveableWindows/InventoryWindow")
+quest_window = NodePath("CanvasLayer/MoveableWindows/QuestWindow")
 
 [node name="PlayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
-replication_interval = 0.05
 replication_config = SubResource("SceneReplicationConfig_2d20i")
 visibility_update_mode = 1
 
@@ -1060,6 +1061,20 @@ offset_top = 290.0
 offset_right = 1510.0
 offset_bottom = 647.0
 
+[node name="QuestWindow" parent="CanvasLayer/MoveableWindows" instance=ExtResource("26_quest")]
+layout_mode = 0
+anchors_preset = 0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 720.0
+offset_top = 290.0
+offset_right = 1180.0
+offset_bottom = 800.0
+grow_horizontal = 1
+grow_vertical = 1
+
 [node name="PlayerWorldHUD" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 15
@@ -1198,7 +1213,7 @@ wait_time = 0.8
 one_shot = true
 
 [node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("starting_state", "state_label")]
-script = ExtResource("16_ploos")
+script = ExtResource("33_gb22u")
 starting_state = NodePath("idle")
 state_label = NodePath("../PlayerWorldHUD/DebugStateLabel")
 
@@ -1260,3 +1275,4 @@ animation_name = "hit"
 [editable path="CanvasLayer/MoveableWindows/StatsWindow"]
 [editable path="CanvasLayer/MoveableWindows/InventoryWindow"]
 [editable path="CanvasLayer/MoveableWindows/EquipmentWindow"]
+[editable path="CanvasLayer/MoveableWindows/QuestWindow"]

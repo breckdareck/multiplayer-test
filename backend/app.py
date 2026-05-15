@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import joinedload
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 import time
@@ -9,6 +10,11 @@ import threading
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql://postgres:password@localhost:5432/gamedb')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_size': 20,
+    'pool_recycle': 3600,
+    'pool_pre_ping': True,
+}
 
 db = SQLAlchemy(app)
 
@@ -39,6 +45,8 @@ class Player(db.Model):
     experience = db.Column(db.Integer, default=0)
     current_health = db.Column(db.Integer, default=100)
     max_health = db.Column(db.Integer, default=100)
+    current_mana = db.Column(db.Integer, default=100)
+    max_mana = db.Column(db.Integer, default=100)
     last_map = db.Column(db.String(255), default="game")
     party_id = db.Column(db.Integer, default=-1)
     monies = db.Column(db.Integer, default=0)
@@ -55,6 +63,10 @@ class Player(db.Model):
 
 class PlayerItem(db.Model):
     __tablename__ = 'player_items'
+    __table_args__ = (
+        db.Index('idx_playeritem_username', 'player_username'),
+        db.UniqueConstraint('player_username', 'slot_index', name='uq_playeritem_slot'),
+    )
     id = db.Column(db.Integer, primary_key=True)
     player_username = db.Column(db.String(255), db.ForeignKey('players.username'))
     item_id = db.Column(db.String(255)) # Godot UUID
@@ -81,6 +93,10 @@ class PlayerItem(db.Model):
 
 class PlayerEquipment(db.Model):
     __tablename__ = 'player_equipment'
+    __table_args__ = (
+        db.Index('idx_playerequip_username', 'player_username'),
+        db.UniqueConstraint('player_username', 'slot_type', name='uq_playerequip_slot'),
+    )
     id = db.Column(db.Integer, primary_key=True)
     player_username = db.Column(db.String(255), db.ForeignKey('players.username'))
     item_id = db.Column(db.String(255))
@@ -106,6 +122,10 @@ class PlayerEquipment(db.Model):
 
 class PlayerAbility(db.Model):
     __tablename__ = 'player_abilities'
+    __table_args__ = (
+        db.Index('idx_playerability_username', 'player_username'),
+        db.UniqueConstraint('player_username', 'ability_id', name='uq_playerability_id'),
+    )
     id = db.Column(db.Integer, primary_key=True)
     player_username = db.Column(db.String(255), db.ForeignKey('players.username'))
     ability_id = db.Column(db.String(255))
@@ -113,6 +133,10 @@ class PlayerAbility(db.Model):
 
 class PlayerHotbar(db.Model):
     __tablename__ = 'player_hotbar'
+    __table_args__ = (
+        db.Index('idx_playerhotbar_username', 'player_username'),
+        db.UniqueConstraint('player_username', 'slot_index', name='uq_playerhotbar_slot'),
+    )
     id = db.Column(db.Integer, primary_key=True)
     player_username = db.Column(db.String(255), db.ForeignKey('players.username'))
     slot_index = db.Column(db.Integer)
@@ -120,10 +144,14 @@ class PlayerHotbar(db.Model):
 
 class PlayerBuff(db.Model):
     __tablename__ = 'player_buffs'
+    __table_args__ = (
+        db.Index('idx_playerbuff_username', 'player_username'),
+    )
     id = db.Column(db.Integer, primary_key=True)
     player_username = db.Column(db.String(255), db.ForeignKey('players.username'))
     buff_id = db.Column(db.String(255))
     duration = db.Column(db.Float)
+    total_duration = db.Column(db.Float, default=0)
     stacks = db.Column(db.Integer, default=1)
 
 # ==================== PER-PLAYER SAVE LOCKING ====================
@@ -228,6 +256,8 @@ def create_character():
         character_class=class_id,
         current_health=100,
         max_health=100,
+        current_mana=100,
+        max_mana=100,
         party_id=-1
     )
     
@@ -247,8 +277,14 @@ def load_player():
     if not username:
         return jsonify({"error": "Username required"}), 400
         
-    player = Player.query.filter_by(username=username).first()
-    
+    player = Player.query.options(
+        joinedload(Player.items),
+        joinedload(Player.equipment),
+        joinedload(Player.abilities),
+        joinedload(Player.hotbar),
+        joinedload(Player.buffs),
+    ).filter_by(username=username).first()
+
     if player:
         # Reconstruct JSON structure for Godot
         response_data = {
@@ -258,6 +294,8 @@ def load_player():
             'experience': player.experience,
             'current_health': player.current_health,
             'max_health': player.max_health,
+            'current_mana': player.current_mana,
+            'max_mana': player.max_mana,
             'last_map': player.last_map,
             'party_id': player.party_id,
             'monies': player.monies
@@ -331,6 +369,7 @@ def load_player():
             active_buffs.append({
                 "buff_id": buff.buff_id,
                 "remaining_duration": buff.duration,
+                "total_duration": buff.total_duration or 0,
                 "stacks": buff.stacks
             })
             
@@ -365,7 +404,13 @@ def save_player():
         return jsonify({"error": "Save in progress"}), 429
 
     try:
-        player = Player.query.filter_by(username=username).first()
+        player = Player.query.options(
+            joinedload(Player.items),
+            joinedload(Player.equipment),
+            joinedload(Player.abilities),
+            joinedload(Player.hotbar),
+            joinedload(Player.buffs),
+        ).filter_by(username=username).first()
 
         if not player:
             player = Player(username=username)
@@ -377,6 +422,8 @@ def save_player():
         if 'experience' in data: player.experience = data['experience']
         if 'current_health' in data: player.current_health = data['current_health']
         if 'max_health' in data: player.max_health = data['max_health']
+        if 'current_mana' in data: player.current_mana = data['current_mana']
+        if 'max_mana' in data: player.max_mana = data['max_mana']
         if 'last_map' in data: player.last_map = data['last_map']
         if 'party_id' in data: player.party_id = data['party_id']
 
@@ -543,7 +590,7 @@ def save_player():
 
             # Smart sync abilities
             incoming_abilities = ab_data.get('ability_levels', {})
-            existing_abilities = {a.ability_id: a for a in PlayerAbility.query.filter_by(player_username=username).all()}
+            existing_abilities = {a.ability_id: a for a in player.abilities}
 
             for ab_id, level in incoming_abilities.items():
                 if ab_id in existing_abilities:
@@ -557,7 +604,7 @@ def save_player():
 
             # Smart sync hotbar
             incoming_hotbar = ab_data.get('hotbar_config', {})
-            existing_hotbar = {str(hb.slot_index): hb for hb in PlayerHotbar.query.filter_by(player_username=username).all()}
+            existing_hotbar = {str(hb.slot_index): hb for hb in player.hotbar}
 
             for slot, ab_id in incoming_hotbar.items():
                 slot_str = str(slot)
@@ -574,7 +621,7 @@ def save_player():
         if 'buffs' in data:
             buff_data = data['buffs']
             incoming_buffs = buff_data.get('active_buffs', [])
-            existing_buffs = {b.buff_id: b for b in PlayerBuff.query.filter_by(player_username=username).all()}
+            existing_buffs = {b.buff_id: b for b in player.buffs}
 
             incoming_buff_ids = set()
             for buff in incoming_buffs:
@@ -584,12 +631,14 @@ def save_player():
                 incoming_buff_ids.add(bid)
                 if bid in existing_buffs:
                     existing_buffs[bid].duration = buff.get('remaining_duration')
+                    existing_buffs[bid].total_duration = buff.get('total_duration', 0)
                     existing_buffs[bid].stacks = buff.get('stacks', 1)
                 else:
                     db.session.add(PlayerBuff(
                         player_username=username,
                         buff_id=bid,
                         duration=buff.get('remaining_duration'),
+                        total_duration=buff.get('total_duration', 0),
                         stacks=buff.get('stacks', 1)
                     ))
 
@@ -607,6 +656,34 @@ def save_player():
     finally:
         lock.release()
 
+@app.route('/health', methods=['GET'])
+def health_check():
+    try:
+        db.session.execute(db.text('SELECT 1'))
+        return jsonify({"status": "healthy"}), 200
+    except Exception as e:
+        return jsonify({"status": "unhealthy", "error": str(e)}), 503
+
+
+def _run_migrations():
+    """Add columns that may be missing from older database schemas."""
+    migrations = [
+        ("players", "current_mana", "ALTER TABLE players ADD COLUMN current_mana INTEGER DEFAULT 100"),
+        ("players", "max_mana",     "ALTER TABLE players ADD COLUMN max_mana INTEGER DEFAULT 100"),
+        ("player_buffs", "total_duration", "ALTER TABLE player_buffs ADD COLUMN total_duration FLOAT DEFAULT 0"),
+    ]
+    for table, column, sql in migrations:
+        try:
+            db.session.execute(db.text(
+                f"SELECT {column} FROM {table} LIMIT 1"
+            ))
+        except Exception:
+            db.session.rollback()
+            print(f"Migration: adding {table}.{column}")
+            db.session.execute(db.text(sql))
+            db.session.commit()
+
+
 def init_db():
     """Initialize database with retry logic for Docker startup"""
     retries = 5
@@ -614,6 +691,7 @@ def init_db():
         try:
             with app.app_context():
                 db.create_all()
+                _run_migrations()
                 print("Database tables created successfully!")
                 return
         except Exception as e:

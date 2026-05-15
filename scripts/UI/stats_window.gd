@@ -28,6 +28,7 @@ var player: MultiplayerPlayerV2
 
 var is_dragging = false
 var drag_offset = Vector2()
+var _ui_dirty: bool = false
 
 func _ready() -> void:
 	# Add to ui_window group for drop detection
@@ -37,12 +38,12 @@ func _ready() -> void:
 		player = owner as MultiplayerPlayerV2
 		
 	if multiplayer.get_unique_id() == player.player_id:
-		player.stats_component.stats_changed.connect(update_stats_window)
-		player.level_component.leveled_up.connect(update_stats_window.unbind(1))
-		player.level_component.experience_changed.connect(update_stats_window.unbind(2))
-		player.health_component.health_changed.connect(update_stats_window.unbind(2))
-		player.class_component.class_changed.connect(update_stats_window.unbind(1))
-		
+		player.stats_component.stats_changed.connect(_mark_ui_dirty)
+		player.level_component.leveled_up.connect(_mark_ui_dirty.unbind(1))
+		player.level_component.experience_changed.connect(_mark_ui_dirty.unbind(2))
+		player.health_component.health_changed.connect(_mark_ui_dirty.unbind(2))
+		player.class_component.class_changed.connect(_mark_ui_dirty.unbind(1))
+
 		update_stats_window()
 
 func _process(_delta: float) -> void:
@@ -75,6 +76,20 @@ func _gui_input(event: InputEvent) -> void:
 		else:
 			is_dragging = false
 			
+
+func _mark_ui_dirty() -> void:
+	if _ui_dirty:
+		return
+	_ui_dirty = true
+	call_deferred("_flush_ui_update")
+
+
+func _flush_ui_update() -> void:
+	if not _ui_dirty:
+		return
+	_ui_dirty = false
+	update_stats_window()
+
 
 func update_stats_window():
 	name_string_label.text = player.username
