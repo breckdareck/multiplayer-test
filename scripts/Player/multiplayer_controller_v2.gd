@@ -713,6 +713,29 @@ func sync_dark_sight_visual(alpha: float) -> void:
 		animated_sprite.modulate.a = alpha
 
 
+@rpc("authority", "call_local", "reliable")
+func sync_shadow_partner(active: bool) -> void:
+	if active:
+		if not get_node_or_null("ShadowPartnerClient"):
+			var shadow := Node2D.new()
+			shadow.name = "ShadowPartnerClient"
+			var shadow_sprite := AnimatedSprite2D.new()
+			shadow_sprite.name = "ShadowSprite"
+			if is_instance_valid(animated_sprite) and animated_sprite.sprite_frames:
+				shadow_sprite.sprite_frames = animated_sprite.sprite_frames
+				shadow_sprite.offset = animated_sprite.offset
+				shadow_sprite.scale = animated_sprite.scale
+			shadow_sprite.modulate = Color(0.15, 0.05, 0.25, 0.6)
+			shadow_sprite.z_index = -1
+			shadow.add_child(shadow_sprite)
+			add_child(shadow)
+			shadow.position = Vector2(-20 * facing_direction, 0)
+	else:
+		var shadow := get_node_or_null("ShadowPartnerClient")
+		if shadow:
+			shadow.queue_free()
+
+
 func _on_leveled_up_effect(_new_level: int) -> void:
 	if _is_loading_data or _is_being_cleaned_up:
 		return

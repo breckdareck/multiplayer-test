@@ -24,6 +24,11 @@ extends Resource
 @export var applies_buff: BuffData = null
 @export var buff_duration_formula: AbilityScalingFormula = null
 
+@export_group("Target Debuff")
+## Debuff applied to each enemy hit by this ability
+@export var applies_target_debuff: BuffData = null
+@export var debuff_duration_formula: AbilityScalingFormula = null
+
 ## NEW: Use either scaling data OR manual level data
 @export_group("Scaling Configuration")
 @export var use_scaling_formulas: bool = true

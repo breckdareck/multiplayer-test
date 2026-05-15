@@ -327,6 +327,13 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 			}
 			_ability_component.try_trigger_procs(event_type, target_enemy, context)
 
+	# Apply target debuff if the ability defines one
+	if ability and ability.applies_target_debuff and target_enemy is EnemyBase:
+		var debuff_duration := 10.0
+		if ability.debuff_duration_formula:
+			debuff_duration = ability.debuff_duration_formula.calculate(level_stats.level)
+		_apply_enemy_debuff(target_enemy, ability.applies_target_debuff, debuff_duration)
+
 	# After the loop, display all collected hits as a single combo
 	if not damage_values.is_empty():
 		var spawn_pos = health_comp.damage_number_origin.global_position
@@ -392,3 +399,45 @@ func _calculate_base_damage() -> int:
 	
 	# This is the core shared formula
 	return roundi(weapon_multiplier * stat_contribution * weapon_attack / 100.0)
+
+
+func _apply_enemy_debuff(enemy: EnemyBase, debuff: BuffData, duration: float) -> void:
+	if not enemy.stats_component:
+		return
+
+	var debuff_key := "debuff_%s" % debuff.buff_name
+	if enemy.has_meta(debuff_key):
+		return
+
+	var saved_values: Dictionary = {}
+	for stat_type in debuff.stat_modifiers:
+		var modifier: StatData = debuff.stat_modifiers[stat_type]
+		if enemy.stats_component.stats.has(stat_type):
+			var enemy_stat: StatData = enemy.stats_component.stats[stat_type]
+			saved_values[stat_type] = {
+				"flat": enemy_stat.flat_bonus_value,
+				"percent": enemy_stat.percent_bonus_value
+			}
+			enemy_stat.flat_bonus_value += modifier.flat_bonus_value
+			enemy_stat.percent_bonus_value += modifier.percent_bonus_value
+
+	enemy.set_meta(debuff_key, true)
+
+	if enemy.animated_sprite and is_instance_valid(enemy.animated_sprite):
+		enemy.animated_sprite.modulate = Color(0.6, 0.5, 0.8, 1.0)
+
+	get_tree().create_timer(duration).timeout.connect(
+		func():
+			if not is_instance_valid(enemy) or not is_instance_valid(enemy.stats_component):
+				return
+			for stat_type in saved_values:
+				if enemy.stats_component.stats.has(stat_type):
+					var enemy_stat: StatData = enemy.stats_component.stats[stat_type]
+					enemy_stat.flat_bonus_value = saved_values[stat_type]["flat"]
+					enemy_stat.percent_bonus_value = saved_values[stat_type]["percent"]
+			enemy.remove_meta(debuff_key)
+			if enemy.animated_sprite and is_instance_valid(enemy.animated_sprite):
+				enemy.animated_sprite.modulate = Color.WHITE
+			print("Debuff '%s' expired on %s" % [debuff.buff_name, enemy.name])
+	)
+	print("Applied debuff '%s' to %s for %.1fs" % [debuff.buff_name, enemy.name, duration])
