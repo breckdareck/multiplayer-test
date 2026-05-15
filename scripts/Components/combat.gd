@@ -86,6 +86,47 @@ func perform_attack(_attack_name: String, _duration: float) -> void:
 	get_tree().create_timer(0.1).timeout.connect(end_attack)
 
 
+const BASIC_ARROW_SCENE = preload("uid://d0ig4oiimrnei")
+const BASIC_ARROW_SPEED: float = 250.0
+
+func perform_ranged_attack(_attack_name: String, _duration: float) -> void:
+	if not multiplayer.is_server():
+		return
+
+	if current_attack_data != "" or current_ability_data != null:
+		return
+
+	_current_attack_mode = AttackMode.BASIC
+	current_attack_data = _attack_name
+
+	if not _ability_component:
+		return
+
+	var direction := Vector2(owner_node.facing_direction, 0).normalized()
+	var projectile := BASIC_ARROW_SCENE.instantiate()
+	projectile.initialize(owner_node, null, null, null, BASIC_ARROW_SPEED, direction)
+	projectile.set_meta("basic_attack_caster", owner_node)
+
+	var current_map = owner_node.get_parent().get_parent()
+	var container: Node = null
+	if current_map and current_map.is_in_group("map_base"):
+		container = current_map.get_node_or_null("Projectiles")
+		if not container:
+			container = Node.new()
+			container.name = "Projectiles"
+			current_map.add_child(container)
+	if not container:
+		return
+
+	container.add_child(projectile, true)
+	if is_instance_valid(owner_node.projectile_spawn_location):
+		projectile.global_position = owner_node.projectile_spawn_location.global_position
+	else:
+		projectile.global_position = owner_node.global_position
+
+	get_tree().create_timer(0.1).timeout.connect(func(): current_attack_data = "")
+
+
 func process_ability_hit(ability: AbilityData, level_stats: AbilityLevelData) -> void:
 	"""Called by the attack state when an ability attack is triggered"""
 	if not multiplayer.is_server():
@@ -240,9 +281,10 @@ func process_projectile_hit(target_enemy: Node, ability: AbilityData, level_stat
 	"""Public function for projectiles to call when they hit a target."""
 	if not multiplayer.is_server():
 		return
-	
+
 	print("CombatComponent: Processing projectile hit on %s" % target_enemy.name)
-	_execute_hit(target_enemy, ability, level_stats, "") # Projectiles are always abilities, so basic attack is empty
+	var attack_name := "basic_arrow" if ability == null else ""
+	_execute_hit(target_enemy, ability, level_stats, attack_name)
 
 
 func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: AbilityLevelData, attack_name: String) -> void:

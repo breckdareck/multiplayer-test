@@ -58,19 +58,28 @@ func _play_animation(anim_name: String) -> void:
 				animations.play(anim_name, attack_speed_percent)
 
 func _start_basic_attack():
-	"""Executes a basic melee attack"""
-	_play_animation(_current_attack_name)
-	
-	var duration: float = _get_animation_duration(_current_attack_name)
-	print("Basic Attack: %s, Duration: %f" % [_current_attack_name, duration])
-	
+	"""Executes a basic melee attack, or a projectile for Archer"""
+	var is_archer := false
+	if player.class_component:
+		var cls: int = player.class_component.current_class
+		is_archer = cls == Constants.ClassType.ARCHER or cls == Constants.ClassType.RANGER
+
+	var anim_name: String = "attack_2" if is_archer else _current_attack_name
+	_play_animation(anim_name)
+
+	var duration: float = _get_animation_duration(anim_name)
+	print("Basic Attack: %s, Duration: %f" % [anim_name, duration])
+
 	var buffer: float = 0.02
 	attack_state_timer.start(max(duration - buffer, 0.01))
-	
+
 	# Server handles the combat component
 	if multiplayer.is_server():
 		if player.combat_component:
-			player.combat_component.perform_attack(_current_attack_name, duration)
+			if is_archer:
+				player.combat_component.perform_ranged_attack(anim_name, duration)
+			else:
+				player.combat_component.perform_attack(_current_attack_name, duration)
 
 func _start_ability_attack():
 	"""Executes an ability attack"""
