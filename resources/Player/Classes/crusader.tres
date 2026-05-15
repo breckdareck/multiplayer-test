@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="ClassData" load_steps=14 format=3 uid="uid://blx1p13r5y2j5"]
+
+[ext_resource type="Texture2D" uid="uid://b8wmh4njg47dy" path="res://assets/sprites/MinifolksHumans/Outline/MiniHalberdMan.png" id="1_5kmlu"]
+[ext_resource type="Script" uid="uid://buwbui1bka8vl" path="res://scripts/Resources/ClassSystem/ClassData.gd" id="2_v4ypo"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="3_edr2g"]
+[ext_resource type="Resource" uid="uid://c6er05pqmi5sn" path="res://resources/Abilities/Warrior/A_HP_Boost.tres" id="4_sw68k"]
+[ext_resource type="Resource" uid="uid://dyl558pcmpdgf" path="res://resources/Abilities/Warrior/A_STR_Passive.tres" id="5_bvrjc"]
+[ext_resource type="Resource" uid="uid://ccxoh5fmx317x" path="res://resources/Abilities/Warrior/A_Slash.tres" id="6_03r6i"]
+[ext_resource type="Resource" uid="uid://dq088g6civvd8" path="res://resources/Abilities/Warrior/A_Power_Strike.tres" id="7_ce4f1"]
+[ext_resource type="Resource" uid="uid://bj44mdaqov8t" path="res://resources/Abilities/Warrior/A_Power_Guard.tres" id="8_mbtpd"]
+[ext_resource type="Resource" uid="uid://ctuuha6kutnms" path="res://resources/Abilities/Warrior/A_Brandish.tres" id="9_xcha8"]
+[ext_resource type="Resource" uid="uid://fei5h0kw8ykp" path="res://resources/Abilities/A_FMA.tres" id="10_bfuf2"]
+[ext_resource type="Resource" uid="uid://bdk2jbx2m0hu1" path="res://resources/Abilities/Warrior/A_Maple_Warrior.tres" id="11_ut1do"]
+[ext_resource type="SpriteFrames" uid="uid://rf6et7ge33gc" path="res://resources/Player/SpriteFrames/Halberd.tres" id="13_wv4ep"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_aupp1"]
+atlas = ExtResource("1_5kmlu")
+region = Rect2(7, 14, 19, 19)
+
+[resource]
+script = ExtResource("2_v4ypo")
+_class_name = "Crusader"
+class_type = 5
+sprite_frames = Dictionary[int, SpriteFrames]({
+15: ExtResource("13_wv4ep")
+})
+skills = Array[ExtResource("3_edr2g")]([ExtResource("4_sw68k"), ExtResource("5_bvrjc"), ExtResource("6_03r6i"), ExtResource("7_ce4f1"), ExtResource("8_mbtpd"), ExtResource("9_xcha8"), ExtResource("10_bfuf2"), ExtResource("11_ut1do")])
+description = "A melee warrior with high strength and vitality."
+icon = SubResource("AtlasTexture_aupp1")
+secondary_stat = 2
+stat_bonuses = Dictionary[int, int]({
+0: 4,
+2: 3
+})
+metadata/_custom_type_script = "uid://buwbui1bka8vl"

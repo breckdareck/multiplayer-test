@@ -48,7 +48,7 @@ func get_advanced_class_name(base_class: Constants.ClassType) -> String:
 
 
 ## Attempt job advancement for a player
-@rpc("any_peer", "call_remote", "reliable")
+@rpc("any_peer", "call_local", "reliable")
 func request_advancement() -> void:
 	if not multiplayer.is_server():
 		return
