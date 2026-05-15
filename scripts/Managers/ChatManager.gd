@@ -15,6 +15,14 @@ const EMOTES: Dictionary = {
 func register_local_player(player_node: MultiplayerPlayerV2) -> void:
 	local_player_node = player_node
 
+func _send_system_message(text: String, color: Color = Color.YELLOW) -> void:
+	message_received.emit(text, color)
+
+func send_chat_message(text: String) -> void:
+	text = text.strip_edges()
+	if text.is_empty():
+		return
+
 	if text.begins_with("/"):
 		var command: String = text.split(" ", false)[0].to_lower()
 

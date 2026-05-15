@@ -76,6 +76,7 @@ func request_advancement() -> void:
 
 	# Perform the class change
 	player.class_component.change_class_rpc.rpc(new_class)
+	player._handle_sprite_change_on_server()
 
 	_send_message.rpc_id(sender_id, "Congratulations! You have advanced from %s to %s!" % [old_name, new_name], Color.GOLD)
 
