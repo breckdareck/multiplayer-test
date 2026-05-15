@@ -11,7 +11,7 @@ const EDGE_SNAP_DISTANCE: float = 24.0
 const GROUND_CHECK_DISTANCE: float = 200.0
 
 func execute(owner_node: Node, _ability: AbilityData, level_stats: AbilityLevelData):
-	var space_state := owner_node.get_world_2d().direct_space_state
+	var space_state: PhysicsDirectSpaceState2D = owner_node.get_world_2d().direct_space_state
 	var collision_mask: int = owner_node.collision_mask
 	var origin: Vector2 = owner_node.global_position
 
