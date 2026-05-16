@@ -83,18 +83,12 @@ func _start_basic_attack():
 
 
 func _try_use_arrow_shot() -> bool:
-	"""For archers, route basic attack through Arrow Shot ability"""
-	var arrow_shot := _find_arrow_shot_ability()
+	"""For archers, route basic attack through Arrow Shot ability at base level"""
+	var arrow_shot: AbilityData = ResourceManager.get_ability_data("Arrow Shot")
 	if not arrow_shot:
 		return false
 
-	var level := 1
-	if player.ability_component:
-		var learned_level := player.ability_component.get_ability_level(arrow_shot.ability_id)
-		if learned_level > 0:
-			level = learned_level
-
-	var level_stats := arrow_shot.get_level_stats(level)
+	var level_stats := arrow_shot.get_level_stats(1)
 	if not level_stats:
 		return false
 
@@ -103,16 +97,6 @@ func _try_use_arrow_shot() -> bool:
 	_current_attack_type = AttackType.ABILITY
 	_start_ability_attack(true)
 	return true
-
-
-func _find_arrow_shot_ability() -> AbilityData:
-	"""Find the Arrow Shot ability from the archer's class abilities"""
-	if not player.class_component:
-		return null
-	for ability in player.class_component.get_class_abilities():
-		if ability.ability_name == "Arrow Shot":
-			return ability
-	return null
 
 func _start_ability_attack(use_anim_duration: bool = false):
 	"""Executes an ability attack"""

@@ -60,10 +60,14 @@ func _ready() -> void:
 	_ability_component = get_parent().get_node_or_null("Ability")
 
 	hitbox_area.monitoring = false
-	
+
 	# Connect to hitbox area
 	if not hitbox_area.area_entered.is_connected(_on_hitbox_area_entered):
 		hitbox_area.area_entered.connect(_on_hitbox_area_entered)
+
+	attack_hitbox_timer.one_shot = true
+	if not attack_hitbox_timer.timeout.is_connected(_on_attack_hitbox_timer_timeout):
+		attack_hitbox_timer.timeout.connect(_on_attack_hitbox_timer_timeout)
 
 
 func perform_attack(_attack_name: String, _duration: float) -> void:
@@ -72,9 +76,8 @@ func perform_attack(_attack_name: String, _duration: float) -> void:
 		return
 		
 	if current_attack_data != "" or current_ability_data != null:
-		print("CombatComponent: Attack already in progress.")
-		return
-		
+		force_end_current_attack()
+
 	# Set basic attack flag and data
 	_current_attack_mode = AttackMode.BASIC
 	current_attack_data = _attack_name
@@ -83,9 +86,8 @@ func perform_attack(_attack_name: String, _duration: float) -> void:
 	attack_hitbox.position = original_attack_transform
 	
 	turn_on_hitbox()
-	
-	# Optional: Use another timer to call end_attack() after attack_duration.
-	get_tree().create_timer(0.1).timeout.connect(end_attack)
+
+	attack_hitbox_timer.start(0.1)
 
 
 const BASIC_ARROW_SCENE = preload("uid://d0ig4oiimrnei")
@@ -129,14 +131,31 @@ func perform_ranged_attack(_attack_name: String, _duration: float) -> void:
 	get_tree().create_timer(0.1).timeout.connect(func(): current_attack_data = "")
 
 
+func force_end_current_attack() -> void:
+	"""Force-clears any in-progress attack state so a new attack can begin."""
+	if not multiplayer.is_server():
+		return
+	attack_hitbox_timer.stop()
+	if current_attack_data != "":
+		end_attack()
+	elif current_ability_data != null:
+		end_ability_attack()
+
+
+func _on_attack_hitbox_timer_timeout() -> void:
+	if current_attack_data != "":
+		end_attack()
+	elif current_ability_data != null:
+		end_ability_attack()
+
+
 func process_ability_hit(ability: AbilityData, level_stats: AbilityLevelData, duration_override: float = -1.0) -> void:
 	"""Called by the attack state when an ability attack is triggered"""
 	if not multiplayer.is_server():
 		return
 
 	if current_attack_data != "" or current_ability_data != null:
-		print("CombatComponent: Attack already in progress.")
-		return
+		force_end_current_attack()
 
 	_current_attack_mode = AttackMode.ABILITY
 	current_ability_data = ability
@@ -152,7 +171,7 @@ func process_ability_hit(ability: AbilityData, level_stats: AbilityLevelData, du
 	if attack_duration <= 0.0:
 		attack_duration = 0.05
 
-	get_tree().create_timer(attack_duration).timeout.connect(end_ability_attack)
+	attack_hitbox_timer.start(attack_duration)
 
 
 func turn_on_hitbox() -> void:
@@ -212,6 +231,16 @@ func _on_hitbox_area_entered(area: Area2D) -> void:
 
 
 func _process_collected_bodies() -> void:
+	# Also gather any areas currently overlapping the hitbox, in case
+	# area_entered signals didn't fire (e.g. hitbox toggled same frame).
+	if hitbox_area.monitoring:
+		for area in hitbox_area.get_overlapping_areas():
+			if not _pending_bodies.has(area) and is_instance_valid(area) and is_instance_valid(area.owner):
+				if "health_component" in area.owner:
+					var hc = area.owner.get("health_component")
+					if hc and not hc.is_dead:
+						_pending_bodies.append(area)
+
 	# For projectiles, we might fire even if no body was collected.
 	if current_ability_data and current_ability_data.active_behavior.is_projectile:
 		# Sort bodies by distance to prioritize closest targets

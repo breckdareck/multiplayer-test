@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_behav"]
 [ext_resource type="Texture2D" uid="uid://cflfc6h5gx3n2" path="res://assets/sprites/Abilities/Maple Warrior.png" id="1_icon"]
-[ext_resource type="Script" uid="uid://tcmlhlo7jekp" path="res://scripts/Abilities/AL_SharpEyes.gd" id="2_logic"]
+[ext_resource type="Script" path="res://scripts/Abilities/AL_SharpEyes.gd" id="2_logic"]
 [ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="2_lvl"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="3_abil"]
 [ext_resource type="Resource" path="res://resources/Buffs/B_Sharp_Eyes.tres" id="4_buff"]

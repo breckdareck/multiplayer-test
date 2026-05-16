@@ -29,7 +29,7 @@ metadata/_custom_type_script = "uid://1raaatfhww5y"
 
 [sub_resource type="Resource" id="Resource_i0kt6"]
 script = ExtResource("6_aa4ap")
-base_value = 0.9
+base_value = 0.8
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_ob6q3"]
@@ -47,12 +47,12 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_t0uj7"]
 script = ExtResource("6_aa4ap")
-base_value = 2.0
+base_value = 1.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_v53hh"]
 script = ExtResource("6_aa4ap")
-base_value = 2.0
+base_value = 1.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_7cnym"]
@@ -71,7 +71,7 @@ ability_id = "101151213413-5431-141468-1331514-133108135414100149"
 ability_name = "Arrow Shot"
 description = "Shoots 1 arrow hitting $[hit_count] time(s) on $[target_count] enemies dealing $[damage_percent] damage."
 ability_icon = SubResource("AtlasTexture_22vhk")
-max_level = 5
+max_level = 1
 required_class = Array[int]([1])
 required_weapon_types = Array[int]([1])
 active_behavior = SubResource("Resource_vrq40")

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=19 format=3 uid="uid://dblshot0001x"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=18 format=3 uid="uid://dblshot0001x"]
 
 [ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_dbsh1"]
 [ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="1_dbsh2"]
@@ -8,7 +8,6 @@
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="6_dbsh1"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_dbsh1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_dbsh1"]
-[ext_resource type="Resource" uid="uid://hhx8fc5iylxh" path="res://resources/Abilities/Archer/A_Arrow_Shot.tres" id="9_dbsh1"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_dbsh1"]
 size = Vector2(120, 46)
@@ -31,17 +30,30 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_dbsh3"]
 script = ExtResource("6_dbsh1")
-base_value = 6.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_dbsh4"]
 script = ExtResource("6_dbsh1")
-base_value = 80.0
+base_value = 77.0
+per_level = 7.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_dbsh5"]
 script = ExtResource("6_dbsh1")
+scaling_type = 2
 base_value = 8.0
+step_values = Dictionary[int, int]({
+0: 8,
+1: 8,
+2: 8,
+3: 10,
+4: 10,
+5: 10,
+6: 12,
+7: 12,
+8: 14,
+9: 14
+})
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_dbsh6"]
@@ -73,9 +85,6 @@ ability_icon = ExtResource("1_dbsh1")
 max_level = 10
 required_class = Array[int]([1])
 required_weapon_types = Array[int]([1])
-prerequisite_abilities = Dictionary[ExtResource("2_dbsh1"), int]({
-ExtResource("9_dbsh1"): 3
-})
 active_behavior = SubResource("Resource_dbsh1")
 scaling_data = SubResource("Resource_dbsh8")
 metadata/_custom_type_script = "uid://b8y62rc8nb40j"
