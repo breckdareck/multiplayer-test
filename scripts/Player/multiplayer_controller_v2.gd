@@ -374,6 +374,15 @@ func _update_sprite_facing_direction() -> void:
 		var offset_sign: float = -1.0 if facing_direction < 0 else 1.0
 		animated_sprite.offset.x = _sprite_base_offset_x * offset_sign
 
+	var client_shadow = get_node_or_null("ShadowPartnerClient")
+	if client_shadow:
+		client_shadow.position = Vector2(-10 * facing_direction, 0)
+		var shadow_sprite = client_shadow.get_node_or_null("ShadowSprite")
+		if shadow_sprite and animated_sprite:
+			shadow_sprite.flip_h = animated_sprite.flip_h
+			if animated_sprite.is_playing():
+				shadow_sprite.play(animated_sprite.animation)
+
 
 func _change_sprite() -> void:
 	if player_id != multiplayer.get_unique_id():
@@ -715,6 +724,8 @@ func sync_dark_sight_visual(alpha: float) -> void:
 
 @rpc("authority", "call_local", "reliable")
 func sync_shadow_partner(active: bool) -> void:
+	if multiplayer.is_server():
+		return
 	if active:
 		if not get_node_or_null("ShadowPartnerClient"):
 			var shadow := Node2D.new()
@@ -725,11 +736,12 @@ func sync_shadow_partner(active: bool) -> void:
 				shadow_sprite.sprite_frames = animated_sprite.sprite_frames
 				shadow_sprite.offset = animated_sprite.offset
 				shadow_sprite.scale = animated_sprite.scale
+				shadow_sprite.position = animated_sprite.position
 			shadow_sprite.modulate = Color(0.15, 0.05, 0.25, 0.6)
 			shadow_sprite.z_index = -1
 			shadow.add_child(shadow_sprite)
 			add_child(shadow)
-			shadow.position = Vector2(-20 * facing_direction, 0)
+			shadow.position = Vector2(-10 * facing_direction, 0)
 	else:
 		var shadow := get_node_or_null("ShadowPartnerClient")
 		if shadow:

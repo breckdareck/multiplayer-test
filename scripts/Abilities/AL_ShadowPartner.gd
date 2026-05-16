@@ -10,7 +10,7 @@ func execute(owner_node: Node, ability: AbilityData, level_stats: AbilityLevelDa
 		return
 
 	var duration: float = ability.buff_duration_formula.calculate(level_stats.level)
-	var damage_percent: float = 30.0 + level_stats.level * 5.0
+	var damage_percent: float = ability.scaling_data.damage_percent_formula.calculate(level_stats.level)
 
 	buff_component.apply_buff("Shadow Partner", owner_node, duration)
 

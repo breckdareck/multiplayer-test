@@ -5,8 +5,12 @@ const EDGE_SNAP_DISTANCE: float = 32.0
 const GROUND_CHECK_DISTANCE: float = 300.0
 const LANDING_OFFSET: float = 1.0
 const STEP_SIZE: float = 8.0
+const HORIZONTAL_HEIGHT_TOLERANCE: float = 50.0
 
 func execute(owner_node: Node, _ability: AbilityData, level_stats: AbilityLevelData):
+	if not owner_node.multiplayer.is_server():
+		return
+
 	var space_state: PhysicsDirectSpaceState2D = owner_node.get_world_2d().direct_space_state
 	var collision_mask: int = owner_node.collision_mask
 	var origin: Vector2 = owner_node.global_position
@@ -25,8 +29,9 @@ func execute(owner_node: Node, _ability: AbilityData, level_stats: AbilityLevelD
 	if destination == origin:
 		return
 
-	owner_node.global_position = destination
 	owner_node.velocity = Vector2.ZERO
+	owner_node.global_position = destination
+	owner_node.move_and_slide()
 	print("%s teleported to %s (Level %d)" % [owner_node.name, destination, level_stats.level])
 
 
@@ -37,7 +42,7 @@ func _try_horizontal_teleport(origin: Vector2, dir: int, space: PhysicsDirectSpa
 	while dist <= TELEPORT_RANGE:
 		var test_x := origin.x + dir * dist
 
-		var ground_y := _find_ground_y_from_above(Vector2(test_x, origin.y), space, mask, owner)
+		var ground_y := _find_ground_y_from_above(Vector2(test_x, origin.y), space, mask, owner, HORIZONTAL_HEIGHT_TOLERANCE)
 		if ground_y == INF:
 			break
 
@@ -94,9 +99,9 @@ func _try_teleport_down(origin: Vector2, space: PhysicsDirectSpaceState2D, mask:
 	return landing
 
 
-func _find_ground_y_from_above(reference: Vector2, space: PhysicsDirectSpaceState2D, mask: int, owner: Node) -> float:
-	var scan_top := Vector2(reference.x, reference.y - TELEPORT_RANGE)
-	var scan_bottom := scan_top + Vector2(0, TELEPORT_RANGE + GROUND_CHECK_DISTANCE)
+func _find_ground_y_from_above(reference: Vector2, space: PhysicsDirectSpaceState2D, mask: int, owner: Node, max_up: float = TELEPORT_RANGE) -> float:
+	var scan_top := Vector2(reference.x, reference.y - max_up)
+	var scan_bottom := Vector2(reference.x, reference.y + GROUND_CHECK_DISTANCE)
 	var ray := PhysicsRayQueryParameters2D.create(scan_top, scan_bottom, mask, [owner.get_rid()])
 	var result := space.intersect_ray(ray)
 	if result.is_empty():

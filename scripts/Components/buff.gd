@@ -364,6 +364,9 @@ func sync_all_buffs_to_client(peer_id: int) -> void:
 		buff_batch.append({"id": buff_id, "stacks": active_buff.stacks, "duration": active_buff.remaining_duration, "total_duration": active_buff.total_duration})
 	sync_all_buffs_batch.rpc_id(peer_id, buff_batch)
 
+	if _active_buffs.has("Shadow Partner") and owner.has_method("sync_shadow_partner"):
+		owner.sync_shadow_partner.rpc_id(peer_id, true)
+
 
 @rpc("authority", "call_local", "reliable")
 func sync_all_buffs_batch(buffs: Array) -> void:

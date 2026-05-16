@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=16 format=3 uid="uid://shdwpart001x"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=20 format=3 uid="uid://shdwpart001x"]
 
 [ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_shpn1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_shpn2"]
@@ -8,7 +8,7 @@
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="7_shpn1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_t6c7f"]
 [ext_resource type="Resource" uid="uid://drksghtabl01" path="res://resources/Abilities/Rogue/A_Dark_Sight.tres" id="9_shpn1"]
-[ext_resource type="Script" path="res://scripts/Abilities/AL_ShadowPartner.gd" id="10_shpn1"]
+[ext_resource type="Script" uid="uid://bbvma1cem5p87" path="res://scripts/Abilities/AL_ShadowPartner.gd" id="10_shpn1"]
 [ext_resource type="Resource" uid="uid://bshdwprt0001" path="res://resources/Buffs/B_Shadow_Partner.tres" id="11_shpn1"]
 
 [sub_resource type="Resource" id="Resource_shpn1"]
@@ -16,26 +16,48 @@ resource_local_to_scene = true
 script = ExtResource("1_shpn2")
 logic_script = ExtResource("10_shpn1")
 
+[sub_resource type="Resource" id="Resource_shpn5"]
+script = ExtResource("7_shpn1")
+base_value = 60.0
+per_level = 10.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_kkjdo"]
+script = ExtResource("7_shpn1")
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
 [sub_resource type="Resource" id="Resource_shpn2"]
 script = ExtResource("7_shpn1")
 base_value = 120.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
-[sub_resource type="Resource" id="Resource_shpn3"]
+[sub_resource type="Resource" id="Resource_eglkh"]
 script = ExtResource("7_shpn1")
-base_value = 30.0
+base_value = 54.0
+per_level = 4.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
-[sub_resource type="Resource" id="Resource_shpn5"]
+[sub_resource type="Resource" id="Resource_shpn3"]
 script = ExtResource("7_shpn1")
-base_value = 30.0
-per_level = 5.0
+base_value = 20.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_0jlfv"]
+script = ExtResource("7_shpn1")
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_3rfqk"]
+script = ExtResource("7_shpn1")
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_shpn4"]
 script = ExtResource("4_shpn1")
 mana_cost_formula = SubResource("Resource_shpn3")
 cooldown_formula = SubResource("Resource_shpn2")
+damage_percent_formula = SubResource("Resource_eglkh")
+max_targets_formula = SubResource("Resource_3rfqk")
+max_hits_formula = SubResource("Resource_0jlfv")
+cast_time_formula = SubResource("Resource_kkjdo")
 metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
 
 [resource]

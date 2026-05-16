@@ -1,6 +1,8 @@
 class_name CombatComponent
 extends Node
 
+signal dealt_damage(target: Node, damage_values: Array, crit_values: Array)
+
 @export var attack_hitbox: CollisionShape2D
 @export_category("Debug - Weapon Stats")
 ## Weapon Multipliers = 1.2 ~ 1.75
@@ -350,7 +352,7 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 		crit_values.append(is_crit)
 		
 		health_comp.take_damage(damage_to_deal, self, true, is_crit, false)
-		
+
 		if damage_to_deal > 0:
 			# Knockback logic
 			var knockback_dir = owner.facing_direction
@@ -359,7 +361,7 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 			var knockback_vec = Vector2(knockback_dir * knockback_strength, knockback_lift)
 			if target_enemy.has_method("apply_knockback"):
 				target_enemy.apply_knockback(knockback_vec)
-		
+
 		if _ability_component:
 			var event_type = "on_crit" if is_crit else "on_hit"
 			var context = {
@@ -376,24 +378,25 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 			debuff_duration = ability.debuff_duration_formula.calculate(level_stats.level)
 		_apply_enemy_debuff(target_enemy, ability.applies_target_debuff, debuff_duration)
 
-	# After the loop, display all collected hits as a single combo
+	# After the loop, emit signal first so listeners (e.g. Shadow Partner) can append hits
 	if not damage_values.is_empty():
+		dealt_damage.emit(target_enemy, damage_values, crit_values)
+
+		# Now display the combined combo (signal handlers may have appended to the arrays)
 		var spawn_pos = health_comp.damage_number_origin.global_position
-		
-		# Server-side: Find the correct DmgNumberSpawner based on the attacker's map.
 		var dmg_spawner = null
 		var map_to_spawn_on: Node = null
 		var attacker = owner_node
-		
+
 		if attacker is MultiplayerPlayerV2:
 			map_to_spawn_on = MapManager.get_player_map_node(attacker.player_id)
-		else: # Attacker is an enemy
+		else:
 			for map_id in MapManager.active_maps.keys():
 				var map_instance = MapManager.active_maps[map_id].scene_instance
 				if is_instance_valid(map_instance) and map_instance.is_ancestor_of(attacker):
 					map_to_spawn_on = map_instance
 					break
-		
+
 		if is_instance_valid(map_to_spawn_on):
 			dmg_spawner = map_to_spawn_on.find_child("DmgNumberSpawner", true, false)
 
