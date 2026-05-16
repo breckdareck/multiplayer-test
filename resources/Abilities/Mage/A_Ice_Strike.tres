@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=19 format=3 uid="uid://icestrik001x"]
 
-[ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_icst1"]
 [ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="1_icst2"]
+[ext_resource type="Texture2D" uid="uid://cq7r2r0v4dc42" path="res://assets/sprites/Abilities/ice_strike.png" id="1_l2dqg"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_icst1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_icst2"]
 [ext_resource type="PackedScene" uid="uid://d0ig4oiimrnei" path="res://scenes/Gameplay/projectile_base.tscn" id="2_icst3"]
@@ -70,7 +70,7 @@ script = ExtResource("2_icst1")
 ability_id = "9315195116108-10180-11141197-8591-12491086711491459"
 ability_name = "Ice Strike"
 description = "Launches a freezing bolt at $[target_count] enemy dealing $[damage_percent] magic damage."
-ability_icon = ExtResource("1_icst1")
+ability_icon = ExtResource("1_l2dqg")
 max_level = 10
 required_class = Array[int]([2])
 required_weapon_types = Array[int]([2])

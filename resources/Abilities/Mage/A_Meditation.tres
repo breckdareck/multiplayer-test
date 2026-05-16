@@ -1,8 +1,8 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://meditate001x"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://bkdmqdujl55nf"]
 
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_behav"]
-[ext_resource type="Texture2D" uid="uid://cflfc6h5gx3n2" path="res://assets/sprites/Abilities/Maple Warrior.png" id="1_icon"]
-[ext_resource type="Script" uid="uid://cgorujwyt5d3" path="res://scripts/Abilities/AL_Meditation.gd" id="2_logic"]
+[ext_resource type="Texture2D" uid="uid://30u18vfwsa5i" path="res://assets/sprites/Abilities/meditation.png" id="1_h4exd"]
+[ext_resource type="Script" path="res://scripts/Abilities/AL_Meditation.gd" id="2_logic"]
 [ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="2_lvl"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="3_abil"]
 [ext_resource type="Resource" path="res://resources/Buffs/B_Meditation.tres" id="4_buff"]
@@ -87,7 +87,7 @@ script = ExtResource("3_abil")
 ability_id = "9751111025-69115-100811-142130-111111471072141439"
 ability_name = "Meditation"
 description = "Grants a temporary buff that increases MP regeneration and magic attack by $[stat_bonus]% for all party members for $[buff_duration]."
-ability_icon = ExtResource("1_icon")
+ability_icon = ExtResource("1_h4exd")
 max_level = 30
 required_class = Array[int]([2])
 required_weapon_types = Array[int]([2])

@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="BuffData" load_steps=5 format=3 uid="uid://bdarksite0001"]
 
-[ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_dkst1"]
 [ext_resource type="Script" uid="uid://bcuvemv85jprb" path="res://scripts/Resources/BuffSystem/BuffData.gd" id="1_dkst2"]
+[ext_resource type="Texture2D" uid="uid://3nomn5ckt1dh" path="res://assets/sprites/Abilities/dark_sight.webp" id="1_tfn6t"]
 [ext_resource type="Script" uid="uid://bldrksght001x" path="res://scripts/Buffs/BL_DarkSight.gd" id="2_tfn6t"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="4_pv34y"]
 
@@ -11,6 +11,6 @@ script = ExtResource("1_dkst2")
 buff_id = "4114118107105103-10410400-989905-7201-561201321019"
 buff_name = "Dark Sight"
 description = "Cloaks the player, making them untargetable by enemies."
-buff_icon = ExtResource("1_dkst1")
+buff_icon = ExtResource("1_tfn6t")
 logic_script = ExtResource("2_tfn6t")
 metadata/_custom_type_script = "uid://bcuvemv85jprb"

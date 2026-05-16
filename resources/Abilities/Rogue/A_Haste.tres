@@ -1,11 +1,11 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://hasteabl001x"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://c37bseifhg1hl"]
 
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_behav"]
-[ext_resource type="Texture2D" uid="uid://cflfc6h5gx3n2" path="res://assets/sprites/Abilities/Maple Warrior.png" id="1_icon"]
-[ext_resource type="Script" uid="uid://btljx6d0d4ayu" path="res://scripts/Abilities/AL_Haste.gd" id="2_logic"]
+[ext_resource type="Texture2D" uid="uid://bqhw3o83totq5" path="res://assets/sprites/Abilities/haste.webp" id="1_t12uv"]
+[ext_resource type="Script" path="res://scripts/Abilities/AL_Haste.gd" id="2_logic"]
 [ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="2_lvl"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="3_abil"]
-[ext_resource type="Resource" path="res://resources/Buffs/B_Haste.tres" id="4_buff"]
+[ext_resource type="Resource" uid="uid://cif2v0bysv5tc" path="res://resources/Buffs/B_Haste.tres" id="4_buff"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="4_scale"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="5_sbf"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="7_formula"]
@@ -87,7 +87,7 @@ script = ExtResource("3_abil")
 ability_id = "7115611096-110147-37148-67110-808141342121414115"
 ability_name = "Haste"
 description = "Grants a temporary buff that increases dexterity by $[stat_bonus]% and luck for all party members for $[buff_duration]."
-ability_icon = ExtResource("1_icon")
+ability_icon = ExtResource("1_t12uv")
 max_level = 30
 required_class = Array[int]([3])
 required_weapon_types = Array[int]([0])

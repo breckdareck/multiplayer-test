@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=18 format=3 uid="uid://dblshot0001x"]
 
-[ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_dbsh1"]
+[ext_resource type="Texture2D" uid="uid://vctf0t1xc33c" path="res://assets/sprites/Abilities/double_shot.webp" id="1_3k7tx"]
 [ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="1_dbsh2"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_dbsh1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_dbsh2"]
@@ -81,7 +81,7 @@ script = ExtResource("2_dbsh1")
 ability_id = "4512810012154-1121-911514-10152-114108121051511514"
 ability_name = "Double Shot"
 description = "Fires $[hit_count] arrows at $[target_count] enemy dealing $[damage_percent] damage per hit."
-ability_icon = ExtResource("1_dbsh1")
+ability_icon = ExtResource("1_3k7tx")
 max_level = 10
 required_class = Array[int]([1])
 required_weapon_types = Array[int]([1])

@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=18 format=3 uid="uid://magcbolt001x"]
 
-[ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_mgbt1"]
 [ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="1_mgbt2"]
+[ext_resource type="Texture2D" uid="uid://cu1y53548p0uf" path="res://assets/sprites/Abilities/magic_bolt.png" id="1_yj04x"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_mgbt1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_mgbt2"]
 [ext_resource type="PackedScene" uid="uid://d0ig4oiimrnei" path="res://scenes/Gameplay/projectile_base.tscn" id="2_mgbt3"]
@@ -69,7 +69,7 @@ script = ExtResource("2_mgbt1")
 ability_id = "1397103679912-10180-12141116-8591-12491086711491461"
 ability_name = "Magic Bolt"
 description = "Fires a bolt of magical energy at $[target_count] enemy dealing $[damage_percent] damage."
-ability_icon = ExtResource("1_mgbt1")
+ability_icon = ExtResource("1_yj04x")
 max_level = 10
 required_class = Array[int]([2])
 required_weapon_types = Array[int]([2])

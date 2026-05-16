@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=19 format=3 uid="uid://drksghtabl01"]
 
-[ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_drks1"]
+[ext_resource type="Texture2D" uid="uid://3nomn5ckt1dh" path="res://assets/sprites/Abilities/dark_sight.webp" id="1_8vb02"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_drks2"]
 [ext_resource type="Script" uid="uid://ldrksght001x" path="res://scripts/Abilities/AL_DarkSight.gd" id="2_drks1"]
 [ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="2_drks2"]
@@ -59,7 +59,7 @@ script = ExtResource("3_drks1")
 ability_id = "4971141151039211-10180-16141116-8591-12491086711491465"
 ability_name = "Dark Sight"
 description = "Cloaks the player, making them untargetable by enemies for $[buff_duration]."
-ability_icon = ExtResource("1_drks1")
+ability_icon = ExtResource("1_8vb02")
 max_level = 10
 required_class = Array[int]([3])
 prerequisite_abilities = Dictionary[ExtResource("3_drks1"), int]({

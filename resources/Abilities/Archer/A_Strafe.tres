@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=19 format=3 uid="uid://strafearc01x"]
 
-[ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_strf1"]
+[ext_resource type="Texture2D" uid="uid://drobx0va8sphc" path="res://assets/sprites/Abilities/strafe.png" id="1_py52j"]
 [ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="1_strf2"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_strf1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_strf2"]
@@ -71,7 +71,7 @@ script = ExtResource("2_strf1")
 ability_id = "19116981024514-10180-13141116-8591-12491086711491459"
 ability_name = "Strafe"
 description = "Rapidly fires $[hit_count] arrows at up to $[target_count] enemies dealing $[damage_percent] damage each."
-ability_icon = ExtResource("1_strf1")
+ability_icon = ExtResource("1_py52j")
 max_level = 10
 required_class = Array[int]([1])
 required_weapon_types = Array[int]([1])

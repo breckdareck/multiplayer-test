@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=19 format=3 uid="uid://mshldabl001x"]
 
-[ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_mnsh1"]
+[ext_resource type="Texture2D" uid="uid://djx8um8tttwxa" path="res://assets/sprites/Abilities/mana_shield.png" id="1_dpl8i"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_mnsh2"]
 [ext_resource type="Script" uid="uid://lmnashld001x" path="res://scripts/Abilities/AL_ManaShield.gd" id="2_mnsh1"]
 [ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="2_mnsh2"]
@@ -59,7 +59,7 @@ script = ExtResource("3_mnsh1")
 ability_id = "1397110197211254-10180-15141116-8591-12491086711491464"
 ability_name = "Mana Shield"
 description = "Absorbs incoming damage by draining mana instead of HP for $[buff_duration]."
-ability_icon = ExtResource("1_mnsh1")
+ability_icon = ExtResource("1_dpl8i")
 max_level = 10
 required_class = Array[int]([2])
 prerequisite_abilities = Dictionary[ExtResource("3_mnsh1"), int]({

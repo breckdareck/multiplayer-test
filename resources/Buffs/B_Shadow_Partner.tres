@@ -1,8 +1,9 @@
-[gd_resource type="Resource" script_class="BuffData" load_steps=4 format=3 uid="uid://bshdwprt0001"]
+[gd_resource type="Resource" script_class="BuffData" load_steps=5 format=3 uid="uid://bshdwprt0001"]
 
-[ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_shp01"]
+[ext_resource type="Texture2D" uid="uid://cp0i4hv10gcbt" path="res://assets/sprites/Abilities/shadow-partner.png" id="1_4dnim"]
 [ext_resource type="Script" uid="uid://bcuvemv85jprb" path="res://scripts/Resources/BuffSystem/BuffData.gd" id="1_shp02"]
-[ext_resource type="Script" path="res://scripts/Buffs/BL_ShadowPartner.gd" id="2_shp01"]
+[ext_resource type="Script" uid="uid://3x8eqqrymaav" path="res://scripts/Buffs/BL_ShadowPartner.gd" id="2_shp01"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="4_842jt"]
 
 [resource]
 resource_local_to_scene = true
@@ -10,7 +11,7 @@ script = ExtResource("1_shp02")
 buff_id = "19104979711132011-10180-21141116-8591-12491086711491470"
 buff_name = "Shadow Partner"
 description = "A shadow copy follows you and mimics your attacks."
-buff_icon = ExtResource("1_shp01")
+buff_icon = ExtResource("1_4dnim")
 duration = 30.0
 logic_script = ExtResource("2_shp01")
 metadata/_custom_type_script = "uid://bcuvemv85jprb"

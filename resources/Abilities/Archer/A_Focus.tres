@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=19 format=3 uid="uid://focusabl001x"]
 
-[ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_focs1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_focs2"]
+[ext_resource type="Texture2D" uid="uid://bjs4ee54xusb1" path="res://assets/sprites/Abilities/focus.webp" id="1_xyi1c"]
 [ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="2_focs2"]
 [ext_resource type="Script" uid="uid://lfocusgd001x" path="res://scripts/Abilities/AL_Focus.gd" id="2_xyi1c"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="3_focs1"]
@@ -59,7 +59,7 @@ script = ExtResource("3_focs1")
 ability_id = "6111511712115-10180-14141116-8591-12491086711491463"
 ability_name = "Focus"
 description = "Grants a buff increasing weapon attack and critical hit chance for $[buff_duration]."
-ability_icon = ExtResource("1_focs1")
+ability_icon = ExtResource("1_xyi1c")
 max_level = 10
 required_class = Array[int]([1])
 prerequisite_abilities = Dictionary[ExtResource("3_focs1"), int]({

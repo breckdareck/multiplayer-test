@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=17 format=3 uid="uid://telport001xx"]
 
-[ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_telp1"]
+[ext_resource type="Texture2D" uid="uid://brgub14p68lpk" path="res://assets/sprites/Abilities/teleport.png" id="1_jlg0d"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_telp2"]
 [ext_resource type="Script" uid="uid://d3kt7luapmbgf" path="res://scripts/Abilities/AL_Teleport.gd" id="2_telp1"]
 [ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="2_telp2"]
@@ -53,7 +53,7 @@ script = ExtResource("3_telp1")
 ability_id = "1651081019112111-10180-18141116-8591-12491086711491466"
 ability_name = "Teleport"
 description = "Blinks the player forward in their facing direction. Cooldown reduces with level."
-ability_icon = ExtResource("1_telp1")
+ability_icon = ExtResource("1_jlg0d")
 max_level = 10
 required_class = Array[int]([2])
 prerequisite_abilities = Dictionary[ExtResource("3_telp1"), int]({
