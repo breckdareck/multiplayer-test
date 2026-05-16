@@ -58,13 +58,16 @@ func _play_animation(anim_name: String) -> void:
 				animations.play(anim_name, attack_speed_percent)
 
 func _start_basic_attack():
-	"""Executes a basic melee attack, or a projectile for Archer"""
+	"""Executes a basic melee attack, or Arrow Shot for Archer/Ranger"""
 	var is_archer := false
 	if player.class_component:
 		var cls: int = player.class_component.current_class
 		is_archer = cls == Constants.ClassType.ARCHER or cls == Constants.ClassType.RANGER
 
-	var anim_name: String = "attack_2" if is_archer else _current_attack_name
+	if is_archer and _try_use_arrow_shot():
+		return
+
+	var anim_name: String = _current_attack_name
 	_play_animation(anim_name)
 
 	var duration: float = _get_animation_duration(anim_name)
@@ -76,30 +79,46 @@ func _start_basic_attack():
 	# Server handles the combat component
 	if multiplayer.is_server():
 		if player.combat_component:
-			if is_archer:
-				player.combat_component.perform_ranged_attack(anim_name, duration)
-			else:
-				player.combat_component.perform_attack(_current_attack_name, duration)
+			player.combat_component.perform_attack(_current_attack_name, duration)
 
-func _start_ability_attack():
+
+func _try_use_arrow_shot() -> bool:
+	"""For archers, route basic attack through Arrow Shot ability at base level"""
+	var arrow_shot: AbilityData = ResourceManager.get_ability_data("Arrow Shot")
+	if not arrow_shot:
+		return false
+
+	var level_stats := arrow_shot.get_level_stats(1)
+	if not level_stats:
+		return false
+
+	_current_ability = arrow_shot
+	_current_level_stats = level_stats
+	_current_attack_type = AttackType.ABILITY
+	_start_ability_attack(true)
+	return true
+
+func _start_ability_attack(use_anim_duration: bool = false):
 	"""Executes an ability attack"""
 	if not _current_ability or not _current_level_stats:
 		return
-	
+
 	var anim_name: String = _current_ability.active_behavior.animation_name
 	_play_animation(anim_name)
-	
+
 	var duration: float = _get_animation_duration(anim_name)
 	print("Ability Attack: %s, Animation: %s, Duration: %f" % [_current_ability.ability_name, anim_name, duration])
-	
+
 	var buffer: float = 0.02
 	attack_state_timer.start(max(duration - buffer, 0.01))
-	
+
 	# Server handles the combat component
 	if multiplayer.is_server():
 		if player.combat_component:
-			# Pass ability data to combat component
-			player.combat_component.process_ability_hit(_current_ability, _current_level_stats)
+			if use_anim_duration:
+				player.combat_component.process_ability_hit(_current_ability, _current_level_stats, duration)
+			else:
+				player.combat_component.process_ability_hit(_current_ability, _current_level_stats)
 
 func _get_animation_duration(anim_name: String) -> float:
 	var sprite_frames: SpriteFrames = player.animated_sprite.sprite_frames
