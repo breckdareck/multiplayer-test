@@ -1,6 +1,8 @@
 class_name CombatComponent
 extends Node
 
+signal dealt_damage(target: Node, damage_values: Array, crit_values: Array)
+
 @export var attack_hitbox: CollisionShape2D
 @export_category("Debug - Weapon Stats")
 ## Weapon Multipliers = 1.2 ~ 1.75
@@ -84,6 +86,47 @@ func perform_attack(_attack_name: String, _duration: float) -> void:
 	
 	# Optional: Use another timer to call end_attack() after attack_duration.
 	get_tree().create_timer(0.1).timeout.connect(end_attack)
+
+
+const BASIC_ARROW_SCENE = preload("uid://d0ig4oiimrnei")
+const BASIC_ARROW_SPEED: float = 250.0
+
+func perform_ranged_attack(_attack_name: String, _duration: float) -> void:
+	if not multiplayer.is_server():
+		return
+
+	if current_attack_data != "" or current_ability_data != null:
+		return
+
+	_current_attack_mode = AttackMode.BASIC
+	current_attack_data = _attack_name
+
+	if not _ability_component:
+		return
+
+	var direction := Vector2(owner_node.facing_direction, 0).normalized()
+	var projectile := BASIC_ARROW_SCENE.instantiate()
+	projectile.initialize(owner_node, null, null, null, BASIC_ARROW_SPEED, direction)
+	projectile.set_meta("basic_attack_caster", owner_node)
+
+	var current_map = owner_node.get_parent().get_parent()
+	var container: Node = null
+	if current_map and current_map.is_in_group("map_base"):
+		container = current_map.get_node_or_null("Projectiles")
+		if not container:
+			container = Node.new()
+			container.name = "Projectiles"
+			current_map.add_child(container)
+	if not container:
+		return
+
+	container.add_child(projectile, true)
+	if is_instance_valid(owner_node.projectile_spawn_location):
+		projectile.global_position = owner_node.projectile_spawn_location.global_position
+	else:
+		projectile.global_position = owner_node.global_position
+
+	get_tree().create_timer(0.1).timeout.connect(func(): current_attack_data = "")
 
 
 func process_ability_hit(ability: AbilityData, level_stats: AbilityLevelData) -> void:
@@ -240,9 +283,10 @@ func process_projectile_hit(target_enemy: Node, ability: AbilityData, level_stat
 	"""Public function for projectiles to call when they hit a target."""
 	if not multiplayer.is_server():
 		return
-	
+
 	print("CombatComponent: Processing projectile hit on %s" % target_enemy.name)
-	_execute_hit(target_enemy, ability, level_stats, "") # Projectiles are always abilities, so basic attack is empty
+	var attack_name := "basic_arrow" if ability == null else ""
+	_execute_hit(target_enemy, ability, level_stats, attack_name)
 
 
 func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: AbilityLevelData, attack_name: String) -> void:
@@ -308,7 +352,7 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 		crit_values.append(is_crit)
 		
 		health_comp.take_damage(damage_to_deal, self, true, is_crit, false)
-		
+
 		if damage_to_deal > 0:
 			# Knockback logic
 			var knockback_dir = owner.facing_direction
@@ -317,7 +361,7 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 			var knockback_vec = Vector2(knockback_dir * knockback_strength, knockback_lift)
 			if target_enemy.has_method("apply_knockback"):
 				target_enemy.apply_knockback(knockback_vec)
-		
+
 		if _ability_component:
 			var event_type = "on_crit" if is_crit else "on_hit"
 			var context = {
@@ -327,24 +371,32 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 			}
 			_ability_component.try_trigger_procs(event_type, target_enemy, context)
 
-	# After the loop, display all collected hits as a single combo
+	# Apply target debuff if the ability defines one
+	if ability and ability.applies_target_debuff and target_enemy is EnemyBase:
+		var debuff_duration := 10.0
+		if ability.debuff_duration_formula:
+			debuff_duration = ability.debuff_duration_formula.calculate(level_stats.level)
+		_apply_enemy_debuff(target_enemy, ability.applies_target_debuff, debuff_duration)
+
+	# After the loop, emit signal first so listeners (e.g. Shadow Partner) can append hits
 	if not damage_values.is_empty():
+		dealt_damage.emit(target_enemy, damage_values, crit_values)
+
+		# Now display the combined combo (signal handlers may have appended to the arrays)
 		var spawn_pos = health_comp.damage_number_origin.global_position
-		
-		# Server-side: Find the correct DmgNumberSpawner based on the attacker's map.
 		var dmg_spawner = null
 		var map_to_spawn_on: Node = null
 		var attacker = owner_node
-		
+
 		if attacker is MultiplayerPlayerV2:
 			map_to_spawn_on = MapManager.get_player_map_node(attacker.player_id)
-		else: # Attacker is an enemy
+		else:
 			for map_id in MapManager.active_maps.keys():
 				var map_instance = MapManager.active_maps[map_id].scene_instance
 				if is_instance_valid(map_instance) and map_instance.is_ancestor_of(attacker):
 					map_to_spawn_on = map_instance
 					break
-		
+
 		if is_instance_valid(map_to_spawn_on):
 			dmg_spawner = map_to_spawn_on.find_child("DmgNumberSpawner", true, false)
 
@@ -392,3 +444,45 @@ func _calculate_base_damage() -> int:
 	
 	# This is the core shared formula
 	return roundi(weapon_multiplier * stat_contribution * weapon_attack / 100.0)
+
+
+func _apply_enemy_debuff(enemy: EnemyBase, debuff: BuffData, duration: float) -> void:
+	if not enemy.stats_component:
+		return
+
+	var debuff_key := "debuff_%s" % debuff.buff_name
+	if enemy.has_meta(debuff_key):
+		return
+
+	var saved_values: Dictionary = {}
+	for stat_type in debuff.stat_modifiers:
+		var modifier: StatData = debuff.stat_modifiers[stat_type]
+		if enemy.stats_component.stats.has(stat_type):
+			var enemy_stat: StatData = enemy.stats_component.stats[stat_type]
+			saved_values[stat_type] = {
+				"flat": enemy_stat.flat_bonus_value,
+				"percent": enemy_stat.percent_bonus_value
+			}
+			enemy_stat.flat_bonus_value += modifier.flat_bonus_value
+			enemy_stat.percent_bonus_value += modifier.percent_bonus_value
+
+	enemy.set_meta(debuff_key, true)
+
+	if enemy.animated_sprite and is_instance_valid(enemy.animated_sprite):
+		enemy.animated_sprite.modulate = Color(0.6, 0.5, 0.8, 1.0)
+
+	get_tree().create_timer(duration).timeout.connect(
+		func():
+			if not is_instance_valid(enemy) or not is_instance_valid(enemy.stats_component):
+				return
+			for stat_type in saved_values:
+				if enemy.stats_component.stats.has(stat_type):
+					var enemy_stat: StatData = enemy.stats_component.stats[stat_type]
+					enemy_stat.flat_bonus_value = saved_values[stat_type]["flat"]
+					enemy_stat.percent_bonus_value = saved_values[stat_type]["percent"]
+			enemy.remove_meta(debuff_key)
+			if enemy.animated_sprite and is_instance_valid(enemy.animated_sprite):
+				enemy.animated_sprite.modulate = Color.WHITE
+			print("Debuff '%s' expired on %s" % [debuff.buff_name, enemy.name])
+	)
+	print("Applied debuff '%s' to %s for %.1fs" % [debuff.buff_name, enemy.name, duration])

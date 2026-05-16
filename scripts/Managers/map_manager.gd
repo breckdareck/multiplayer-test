@@ -152,23 +152,31 @@ func _finalize_player_spawn(player_id: int, map_id: String, spawn_point_name: St
 	
 	# Sync EXISTING players to the new joiner
 	# The new joiner needs to know about everyone else already on the map
+	var map_instance = active_maps[map_id].scene_instance
 	for existing_id in active_maps[map_id].player_ids:
 		if existing_id == player_id: continue # Skip self (handled in _spawn_player_on_server_map)
-		
+
 		var existing_node = get_player_map_node(existing_id)
 		if existing_node:
 			# Tell the new player to spawn the existing player
 			client_spawn_player.rpc_id(player_id, existing_id, existing_node.global_position)
 			# Also update visibility for the existing player
 			update_visibility_for_player(existing_id)
-			
+
 	_spawn_player_on_server_map(player_id, map_id, spawn_point_name)
+
+	# Sync existing players' buff visuals (e.g. Shadow Partner) to the new joiner
+	await get_tree().process_frame
+	for existing_id in active_maps[map_id].player_ids:
+		if existing_id == player_id: continue
+		var existing_player = map_instance.get_node_or_null("Players/" + str(existing_id))
+		if is_instance_valid(existing_player) and existing_player.buff_component:
+			existing_player.buff_component.sync_all_buffs_to_client(player_id)
 	
 	# After the player is spawned and on the map, update visibilities.
 	update_visibility_for_player(player_id)
 	
 	# Sync existing dropped items to the new player
-	var map_instance = active_maps[map_id].scene_instance
 	var drop_handler = map_instance.get_node_or_null("GlobalDropHandler")
 	if drop_handler and drop_handler.has_method("sync_items_to_player"):
 		drop_handler.sync_items_to_player(player_id)

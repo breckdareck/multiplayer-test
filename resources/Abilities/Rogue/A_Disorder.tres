@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=18 format=3 uid="uid://disorder001x"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=21 format=3 uid="uid://disorder001x"]
 
 [ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_diso1"]
 [ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="1_diso2"]
@@ -8,6 +8,8 @@
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="6_diso1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="7_diso1"]
 [ext_resource type="Resource" uid="uid://dxf1ejii6pw" path="res://resources/Abilities/Rogue/A_Double_Stab.tres" id="9_diso1"]
+[ext_resource type="Script" path="res://scripts/Abilities/AL_Disorder.gd" id="10_diso1"]
+[ext_resource type="Resource" uid="uid://bdisorder0001" path="res://resources/Buffs/B_Disorder.tres" id="11_diso1"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_diso1"]
 size = Vector2(30, 20)
@@ -19,6 +21,7 @@ hit_box_shape_data = SubResource("RectangleShape2D_diso1")
 hit_box_position_data = Vector2(15, -10)
 animation_name = "attack_1"
 sfx_path = "res://assets/sounds/tap.wav"
+logic_script = ExtResource("10_diso1")
 
 [sub_resource type="Resource" id="Resource_diso2"]
 script = ExtResource("5_diso1")
@@ -50,6 +53,12 @@ script = ExtResource("5_diso1")
 base_value = 1.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
+[sub_resource type="Resource" id="Resource_diso9"]
+script = ExtResource("5_diso1")
+base_value = 10.0
+per_level = 1.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
 [sub_resource type="Resource" id="Resource_diso8"]
 script = ExtResource("6_diso1")
 mana_cost_formula = SubResource("Resource_diso5")
@@ -72,5 +81,7 @@ prerequisite_abilities = Dictionary[ExtResource("2_diso2"), int]({
 ExtResource("9_diso1"): 5
 })
 active_behavior = SubResource("Resource_diso1")
+applies_target_debuff = ExtResource("11_diso1")
+debuff_duration_formula = SubResource("Resource_diso9")
 scaling_data = SubResource("Resource_diso8")
 metadata/_custom_type_script = "uid://b8y62rc8nb40j"

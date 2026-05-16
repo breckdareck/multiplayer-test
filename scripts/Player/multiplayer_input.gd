@@ -10,6 +10,7 @@ extends MultiplayerSynchronizer
 
 var input_direction
 var input_down: bool
+var input_up: bool
 var portal_interact: bool
 var is_left_pressed := false
 var is_right_pressed := false
@@ -29,6 +30,7 @@ func _ready():
 
 	input_direction = Input.get_axis("Move Left", "Move Right")
 	input_down = Input.is_action_pressed("Move Down")
+	input_up = Input.is_action_pressed("Move Up")
 	portal_interact = Input.is_action_just_pressed("Portal Interact")
 
 func _physics_process(_delta: float) -> void:
@@ -56,8 +58,9 @@ func _physics_process(_delta: float) -> void:
 	if input_direction != 0:
 		sync_facing_direction = input_direction
 
-	# Get down input
+	# Get vertical input
 	input_down = Input.is_action_pressed("Move Down")
+	input_up = Input.is_action_pressed("Move Up")
 
 func _process(_delta: float) -> void:
 	if InputManager.is_locked():
@@ -134,6 +137,7 @@ func cleanup_before_removal():
 	# Reset input states
 	input_direction = 0
 	input_down = false
+	input_up = false
 	is_left_pressed = false
 	is_right_pressed = false
 	sync_facing_direction = 1

@@ -43,6 +43,7 @@ var _current_party_id: int = -1
 var direction: int = 0 # The current input direction from the synchronizer
 var facing_direction: int = 1 # The last non-zero direction, for facing
 var input_down: bool = false # The current down input from the synchronizer
+var input_up: bool = false # The current up input from the synchronizer
 
 var do_attack: bool = false
 var do_jump: bool = false
@@ -348,16 +349,19 @@ func _update_input_from_synchronizer() -> void:
 	if is_instance_valid(health_component) and health_component.is_dead:
 		direction = 0
 		input_down = false
+		input_up = false
 		return
 
 	var input_sync: Node = get_node_or_null("%InputSynchronizer")
 	if is_instance_valid(input_sync):
 		direction = input_sync.input_direction
 		input_down = input_sync.input_down
+		input_up = input_sync.input_up
 	else:
 		# Fallback if the synchronizer is not found.
 		direction = 0
 		input_down = false
+		input_up = false
 
 
 func is_pressing_pickup() -> bool:
@@ -369,6 +373,15 @@ func _update_sprite_facing_direction() -> void:
 
 		var offset_sign: float = -1.0 if facing_direction < 0 else 1.0
 		animated_sprite.offset.x = _sprite_base_offset_x * offset_sign
+
+	var client_shadow = get_node_or_null("ShadowPartnerClient")
+	if client_shadow:
+		client_shadow.position = Vector2(-10 * facing_direction, 0)
+		var shadow_sprite = client_shadow.get_node_or_null("ShadowSprite")
+		if shadow_sprite and animated_sprite:
+			shadow_sprite.flip_h = animated_sprite.flip_h
+			if animated_sprite.is_playing():
+				shadow_sprite.play(animated_sprite.animation)
 
 
 func _change_sprite() -> void:
@@ -701,6 +714,38 @@ func set_username(uname: String) -> void:
 	username = uname
 	if is_instance_valid(player_name_label):
 		player_name_label.text = username
+
+
+@rpc("authority", "call_local", "reliable")
+func sync_dark_sight_visual(alpha: float) -> void:
+	if is_instance_valid(animated_sprite):
+		animated_sprite.modulate.a = alpha
+
+
+@rpc("authority", "call_local", "reliable")
+func sync_shadow_partner(active: bool) -> void:
+	if multiplayer.is_server():
+		return
+	if active:
+		if not get_node_or_null("ShadowPartnerClient"):
+			var shadow := Node2D.new()
+			shadow.name = "ShadowPartnerClient"
+			var shadow_sprite := AnimatedSprite2D.new()
+			shadow_sprite.name = "ShadowSprite"
+			if is_instance_valid(animated_sprite) and animated_sprite.sprite_frames:
+				shadow_sprite.sprite_frames = animated_sprite.sprite_frames
+				shadow_sprite.offset = animated_sprite.offset
+				shadow_sprite.scale = animated_sprite.scale
+				shadow_sprite.position = animated_sprite.position
+			shadow_sprite.modulate = Color(0.15, 0.05, 0.25, 0.6)
+			shadow_sprite.z_index = -1
+			shadow.add_child(shadow_sprite)
+			add_child(shadow)
+			shadow.position = Vector2(-10 * facing_direction, 0)
+	else:
+		var shadow := get_node_or_null("ShadowPartnerClient")
+		if shadow:
+			shadow.queue_free()
 
 
 func _on_leveled_up_effect(_new_level: int) -> void:
