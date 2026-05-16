@@ -129,7 +129,7 @@ func perform_ranged_attack(_attack_name: String, _duration: float) -> void:
 	get_tree().create_timer(0.1).timeout.connect(func(): current_attack_data = "")
 
 
-func process_ability_hit(ability: AbilityData, level_stats: AbilityLevelData) -> void:
+func process_ability_hit(ability: AbilityData, level_stats: AbilityLevelData, duration_override: float = -1.0) -> void:
 	"""Called by the attack state when an ability attack is triggered"""
 	if not multiplayer.is_server():
 		return
@@ -142,15 +142,14 @@ func process_ability_hit(ability: AbilityData, level_stats: AbilityLevelData) ->
 	current_ability_data = ability
 	current_active_data = ability.active_behavior
 	current_level_stats = level_stats
-	
+
 	attack_hitbox.shape = ability.active_behavior.hit_box_shape_data
 	attack_hitbox.position = ability.active_behavior.hit_box_position_data
 
 	turn_on_hitbox()
-	
-	var attack_duration = level_stats.cast_time
+
+	var attack_duration = duration_override if duration_override > 0.0 else level_stats.cast_time
 	if attack_duration <= 0.0:
-		# Ensure a minimum duration for the hitbox to register hits in a single frame
 		attack_duration = 0.05
 
 	get_tree().create_timer(attack_duration).timeout.connect(end_ability_attack)
