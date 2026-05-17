@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ItemDropResource" load_steps=2 format=3 uid="uid://8kef633j5jd1"]
+
+[ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_dtmc"]
+
+[resource]
+script = ExtResource("1_dtmc")
+item_name = "Mystic Cap"
+randomize_stats = true
+possible_stats = Array[int]([0, 1, 2, 3, 4, 5])
+drop_chance = 0.12
+metadata/_custom_type_script = "uid://cucvsoha2s1kj"

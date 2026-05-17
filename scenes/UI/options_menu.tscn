@@ -3,16 +3,16 @@
 [ext_resource type="Script" uid="uid://15ma6wfvu7x0" path="res://scripts/UI/options_menu.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
-bg_color = Color(0.1, 0.1, 0.15, 0.9)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.3, 0.3, 0.4, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+bg_color = Color(0.047, 0.047, 0.047, 0.94)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.871, 0.871, 0.871, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [node name="OptionsMenu" type="PanelContainer"]
 anchors_preset = 15
@@ -28,13 +28,14 @@ custom_minimum_size = Vector2(250, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
-theme_override_constants/separation = 15
+theme_override_constants/separation = 25
 alignment = 1
 
 [node name="TitleLabel" type="Label" parent="VBoxContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "Options"
+theme_override_colors/font_color = Color(0.905882, 0.890196, 0.34902, 1)
+theme_override_font_sizes/font_size = 16
+text = "OPTIONS"
 horizontal_alignment = 1
 
 [node name="MasterVolumeHBox" type="HBoxContainer" parent="VBoxContainer"]
@@ -42,8 +43,8 @@ layout_mode = 2
 alignment = 1
 
 [node name="MasterLabel" type="Label" parent="VBoxContainer/MasterVolumeHBox"]
+custom_minimum_size = Vector2(130, 0)
 layout_mode = 2
-size_flags_horizontal = 3
 text = "Master Volume:"
 
 [node name="MasterSlider" type="HSlider" parent="VBoxContainer/MasterVolumeHBox"]
@@ -60,8 +61,8 @@ layout_mode = 2
 alignment = 1
 
 [node name="MusicLabel" type="Label" parent="VBoxContainer/MusicVolumeHBox"]
+custom_minimum_size = Vector2(130, 0)
 layout_mode = 2
-size_flags_horizontal = 3
 text = "Music Volume:"
 
 [node name="MusicSlider" type="HSlider" parent="VBoxContainer/MusicVolumeHBox"]
@@ -78,8 +79,8 @@ layout_mode = 2
 alignment = 1
 
 [node name="SfxLabel" type="Label" parent="VBoxContainer/SfxVolumeHBox"]
+custom_minimum_size = Vector2(130, 0)
 layout_mode = 2
-size_flags_horizontal = 3
 text = "SFX Volume:"
 
 [node name="SfxSlider" type="HSlider" parent="VBoxContainer/SfxVolumeHBox"]

@@ -15,6 +15,8 @@ var is_public_pickup: bool = false
 @export var pickup_distance: float = 15.0
 @export var ground_friction: float = 0.85
 @export var min_settle_time: float = 0.5
+@export var despawn_time: float = 300.0
+@export var despawn_warning_time: float = 30.0
 
 @export var sprite: Sprite2D
 @export var collision_shape: CollisionShape2D
@@ -30,6 +32,7 @@ var state_timer: float = 0.0
 var ground_timer: float = 0.0
 var is_pickup_ready: bool = false
 var pulse_tween: Tween
+var is_despawn_warning: bool = false
 
 
 func _ready() -> void:
@@ -116,10 +119,21 @@ func _handle_settled() -> void:
 	# First check if we need to make the item public
 	if not is_public_pickup:
 		check_and_make_public_if_needed()
-	
+
 	if state_timer > 120 and not is_public_pickup:
 		make_public()
-	
+
+	# Despawn after configured time
+	if state_timer >= despawn_time:
+		print("DroppedItem: Despawning %s after %.0f seconds" % [item_data.name if item_data else "unknown", despawn_time])
+		queue_free()
+		return
+
+	# Start flashing warning before despawn
+	if not is_despawn_warning and state_timer >= despawn_time - despawn_warning_time:
+		is_despawn_warning = true
+		_start_despawn_warning.rpc()
+
 	var nearby_player = _find_nearby_player()
 	if nearby_player:
 		# Check if the nearby player is trying to pick up
@@ -295,6 +309,17 @@ func _start_pulse_tween() -> void:
 	pulse_tween.tween_property(sprite, "scale", pulse_scale, duration / 2.0)
 	# Pulse back down
 	pulse_tween.tween_property(sprite, "scale", base_scale, duration / 2.0)
+
+
+@rpc("authority", "call_local", "reliable")
+func _start_despawn_warning() -> void:
+	if pulse_tween and pulse_tween.is_valid():
+		pulse_tween.kill()
+
+	var warning_tween = create_tween()
+	warning_tween.set_loops()
+	warning_tween.tween_property(sprite, "modulate:a", 0.2, 0.3)
+	warning_tween.tween_property(sprite, "modulate:a", 1.0, 0.3)
 
 
 @rpc("any_peer", "call_local", "reliable")

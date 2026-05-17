@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ItemDropResource" load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_dtwst"]
+
+[resource]
+script = ExtResource("1_dtwst")
+item_name = "Wooden Staff"
+randomize_stats = true
+possible_stats = Array[int]([13, 0, 1, 2, 3, 4, 5])
+drop_chance = 0.15
+metadata/_custom_type_script = "uid://cucvsoha2s1kj"

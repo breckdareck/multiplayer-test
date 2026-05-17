@@ -1,91 +1,25 @@
-[gd_scene load_steps=14 format=3 uid="uid://chfqd31o6lr2s"]
+[gd_scene load_steps=6 format=3 uid="uid://chfqd31o6lr2s"]
 
 [ext_resource type="StyleBox" uid="uid://dm8jxifs8rqrm" path="res://assets/UI/Themes/PanelStyleboxTheme.tres" id="1_8ot1e"]
 [ext_resource type="Script" uid="uid://cim4ffnwf0bi8" path="res://scripts/UI/stats_window.gd" id="2_2xr41"]
 [ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="3_3grst"]
-[ext_resource type="FontFile" uid="uid://bxv5w2dv4xg3m" path="res://assets/fonts/Inter.ttc" id="4_hyo3f"]
-
-[sub_resource type="Theme" id="Theme_nbg44"]
-default_font = ExtResource("4_hyo3f")
-Label/colors/font_outline_color = Color(0.521569, 0.607843, 0.105882, 1)
-Label/constants/outline_size = 6
-Label/fonts/font = ExtResource("3_3grst")
-Label/styles/normal = null
+[ext_resource type="Theme" uid="uid://dumv2cfji0owj" path="res://assets/themes/UI_Theme.tres" id="4_theme"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ihqbe"]
+content_margin_left = 5.0
 content_margin_top = 5.0
-bg_color = Color(0.996078, 0.992157, 0.988235, 1)
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0.08, 0.08, 0.1, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25, 0.25, 0.3, 1)
 corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cgmen"]
-bg_color = Color(0.8310881, 0.9995641, 0.18639073, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 2
-corner_radius_top_left = 4
-corner_radius_bottom_left = 4
-expand_margin_left = 2.0
-expand_margin_top = 4.0
-expand_margin_right = 2.0
-expand_margin_bottom = 4.0
-
-[sub_resource type="Gradient" id="Gradient_jn0uf"]
-colors = PackedColorArray(0, 0, 0, 0.588235, 1, 1, 1, 0)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_4ni0x"]
-gradient = SubResource("Gradient_jn0uf")
-fill_from = Vector2(0.5, 1)
-fill_to = Vector2(0.5, 0)
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_kp55c"]
-texture = SubResource("GradientTexture2D_4ni0x")
-expand_margin_left = 2.0
-expand_margin_top = 4.0
-expand_margin_right = 2.0
-expand_margin_bottom = 4.0
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7iww4"]
-bg_color = Color(1, 1, 1, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-expand_margin_left = 4.0
-expand_margin_top = 2.0
-expand_margin_right = 4.0
-expand_margin_bottom = 2.0
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fqhit"]
-bg_color = Color(1, 1, 1, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-expand_margin_left = 4.0
-expand_margin_top = 2.0
-expand_margin_right = 4.0
-expand_margin_bottom = 2.0
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_e8txv"]
-bg_color = Color(1, 1, 1, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-expand_margin_left = 4.0
-expand_margin_top = 2.0
-expand_margin_right = 4.0
-expand_margin_bottom = 2.0
 
 [node name="StatsWindow" type="Panel"]
 visible = false
@@ -93,6 +27,7 @@ offset_left = 115.0
 offset_top = 291.0
 offset_right = 530.0
 offset_bottom = 826.0
+theme = ExtResource("4_theme")
 theme_override_styles/panel = ExtResource("1_8ot1e")
 script = ExtResource("2_2xr41")
 
@@ -107,7 +42,7 @@ grow_horizontal = 2
 theme_override_colors/font_color = Color(0.905882, 0.890196, 0.34902, 1)
 theme_override_fonts/font = ExtResource("3_3grst")
 theme_override_font_sizes/font_size = 16
-text = "Stats"
+text = "CHARACTER STATS"
 horizontal_alignment = 1
 vertical_alignment = 1
 uppercase = true
@@ -125,7 +60,6 @@ offset_right = 199.5
 offset_bottom = -9.0
 grow_horizontal = 2
 grow_vertical = 0
-theme = SubResource("Theme_nbg44")
 theme_override_styles/panel = SubResource("StyleBoxFlat_ihqbe")
 
 [node name="ScrollContainer" type="ScrollContainer" parent="StatsPanel"]
@@ -155,36 +89,16 @@ layout_mode = 2
 alignment = 1
 
 [node name="NameLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/NameContainer"]
-clip_children = 2
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
-theme_override_constants/shadow_outline_size = 4
-theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
 text = "Name"
 uppercase = true
-
-[node name="GradientMask" type="Panel" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/NameContainer/NameLabel"]
-clip_contents = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -2.0
-offset_top = -4.0
-offset_right = 2.0
-offset_bottom = 5.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
 
 [node name="NameStringLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/NameContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 0
-theme_override_fonts/font = ExtResource("4_hyo3f")
-theme_override_styles/normal = SubResource("StyleBoxFlat_7iww4")
 text = "Player"
 horizontal_alignment = 2
 
@@ -193,36 +107,16 @@ layout_mode = 2
 alignment = 1
 
 [node name="ClassLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/ClassContainer"]
-clip_children = 2
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
-theme_override_constants/shadow_outline_size = 4
-theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
 text = "Class"
 uppercase = true
-
-[node name="GradientMask" type="Panel" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/ClassContainer/ClassLabel"]
-clip_contents = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -2.0
-offset_top = -4.0
-offset_right = 2.0
-offset_bottom = 5.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
 
 [node name="ClassStringLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/ClassContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 0
-theme_override_fonts/font = ExtResource("4_hyo3f")
-theme_override_styles/normal = SubResource("StyleBoxFlat_fqhit")
 text = "Warrior"
 horizontal_alignment = 2
 
@@ -231,36 +125,16 @@ layout_mode = 2
 alignment = 1
 
 [node name="LevelLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/LevelContainer"]
-clip_children = 2
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
-theme_override_constants/shadow_outline_size = 4
-theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
 text = "Level"
 uppercase = true
-
-[node name="GradientMask" type="Panel" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/LevelContainer/LevelLabel"]
-clip_contents = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -2.0
-offset_top = -4.0
-offset_right = 2.0
-offset_bottom = 5.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
 
 [node name="LevelStringLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/LevelContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 0
-theme_override_fonts/font = ExtResource("4_hyo3f")
-theme_override_styles/normal = SubResource("StyleBoxFlat_fqhit")
 text = "1"
 horizontal_alignment = 2
 
@@ -269,36 +143,16 @@ layout_mode = 2
 alignment = 1
 
 [node name="ExperienceLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/ExperienceContainer"]
-clip_children = 2
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
-theme_override_constants/shadow_outline_size = 4
-theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
 text = "Experience"
 uppercase = true
-
-[node name="GradientMask" type="Panel" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/ExperienceContainer/ExperienceLabel"]
-clip_contents = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -2.0
-offset_top = -4.0
-offset_right = 2.0
-offset_bottom = 5.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
 
 [node name="ExperienceStringLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/ExperienceContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 0
-theme_override_fonts/font = ExtResource("4_hyo3f")
-theme_override_styles/normal = SubResource("StyleBoxFlat_fqhit")
 text = "0"
 horizontal_alignment = 2
 
@@ -307,36 +161,16 @@ layout_mode = 2
 alignment = 1
 
 [node name="HealthLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/HealthContainer"]
-clip_children = 2
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
-theme_override_constants/shadow_outline_size = 4
-theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
 text = "Health"
 uppercase = true
-
-[node name="GradientMask" type="Panel" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/HealthContainer/HealthLabel"]
-clip_contents = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -2.0
-offset_top = -4.0
-offset_right = 2.0
-offset_bottom = 5.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
 
 [node name="HealthAmountLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/HealthContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 0
-theme_override_fonts/font = ExtResource("4_hyo3f")
-theme_override_styles/normal = SubResource("StyleBoxFlat_fqhit")
 text = "100/100"
 horizontal_alignment = 2
 
@@ -345,36 +179,16 @@ layout_mode = 2
 alignment = 1
 
 [node name="ManaLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/ManaContainer"]
-clip_children = 2
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
-theme_override_constants/shadow_outline_size = 4
-theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
 text = "Mana"
 uppercase = true
-
-[node name="GradientMask" type="Panel" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/ManaContainer/ManaLabel"]
-clip_contents = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -2.0
-offset_top = -4.0
-offset_right = 2.0
-offset_bottom = 5.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
 
 [node name="ManaAmountLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/ManaContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 0
-theme_override_fonts/font = ExtResource("4_hyo3f")
-theme_override_styles/normal = SubResource("StyleBoxFlat_fqhit")
 text = "100/100"
 horizontal_alignment = 2
 
@@ -387,36 +201,16 @@ layout_mode = 2
 alignment = 1
 
 [node name="STRLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/STRContainer"]
-clip_children = 2
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
-theme_override_constants/shadow_outline_size = 4
-theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
 text = "Str"
 uppercase = true
-
-[node name="GradientMask" type="Panel" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/STRContainer/STRLabel"]
-clip_contents = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -2.0
-offset_top = -4.0
-offset_right = 2.0
-offset_bottom = 5.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
 
 [node name="STRAmountLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/STRContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 0
-theme_override_fonts/font = ExtResource("4_hyo3f")
-theme_override_styles/normal = SubResource("StyleBoxFlat_fqhit")
 text = "0"
 horizontal_alignment = 2
 
@@ -425,36 +219,16 @@ layout_mode = 2
 alignment = 1
 
 [node name="INTLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/INTContainer"]
-clip_children = 2
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
-theme_override_constants/shadow_outline_size = 4
-theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
 text = "Int"
 uppercase = true
-
-[node name="GradientMask" type="Panel" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/INTContainer/INTLabel"]
-clip_contents = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -2.0
-offset_top = -4.0
-offset_right = 2.0
-offset_bottom = 5.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
 
 [node name="INTAmountLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/INTContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 0
-theme_override_fonts/font = ExtResource("4_hyo3f")
-theme_override_styles/normal = SubResource("StyleBoxFlat_e8txv")
 text = "0"
 horizontal_alignment = 2
 
@@ -463,36 +237,16 @@ layout_mode = 2
 alignment = 1
 
 [node name="DEXLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/DEXContainer"]
-clip_children = 2
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
-theme_override_constants/shadow_outline_size = 4
-theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
 text = "Dex"
 uppercase = true
-
-[node name="GradientMask" type="Panel" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/DEXContainer/DEXLabel"]
-clip_contents = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -2.0
-offset_top = -4.0
-offset_right = 2.0
-offset_bottom = 5.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
 
 [node name="DEXAmountLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/DEXContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 0
-theme_override_fonts/font = ExtResource("4_hyo3f")
-theme_override_styles/normal = SubResource("StyleBoxFlat_e8txv")
 text = "0"
 horizontal_alignment = 2
 
@@ -501,36 +255,16 @@ layout_mode = 2
 alignment = 1
 
 [node name="LUKLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/LUKContainer"]
-clip_children = 2
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
-theme_override_constants/shadow_outline_size = 4
-theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
 text = "Luk"
 uppercase = true
-
-[node name="GradientMask" type="Panel" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/LUKContainer/LUKLabel"]
-clip_contents = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -2.0
-offset_top = -4.0
-offset_right = 2.0
-offset_bottom = 5.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
 
 [node name="LUKAmountLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/LUKContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 0
-theme_override_fonts/font = ExtResource("4_hyo3f")
-theme_override_styles/normal = SubResource("StyleBoxFlat_e8txv")
 text = "0"
 horizontal_alignment = 2
 
@@ -543,36 +277,16 @@ layout_mode = 2
 alignment = 1
 
 [node name="DMGRangeLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/DMGRangeContainer"]
-clip_children = 2
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
-theme_override_constants/shadow_outline_size = 4
-theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
 text = "Damage Range"
 uppercase = true
-
-[node name="GradientMask" type="Panel" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/DMGRangeContainer/DMGRangeLabel"]
-clip_contents = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -2.0
-offset_top = -4.0
-offset_right = 2.0
-offset_bottom = 5.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
 
 [node name="DMGRangeAmountLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/DMGRangeContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 0
-theme_override_fonts/font = ExtResource("4_hyo3f")
-theme_override_styles/normal = SubResource("StyleBoxFlat_e8txv")
 text = "0 ~ 1"
 horizontal_alignment = 2
 
@@ -581,36 +295,16 @@ layout_mode = 2
 alignment = 1
 
 [node name="WeaponAttackLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/WeaponAttackContainer"]
-clip_children = 2
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
-theme_override_constants/shadow_outline_size = 4
-theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
 text = "Weapon Atk"
 uppercase = true
-
-[node name="GradientMask" type="Panel" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/WeaponAttackContainer/WeaponAttackLabel"]
-clip_contents = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -2.0
-offset_top = -4.0
-offset_right = 2.0
-offset_bottom = 5.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
 
 [node name="WeaponAttackAmountLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/WeaponAttackContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 0
-theme_override_fonts/font = ExtResource("4_hyo3f")
-theme_override_styles/normal = SubResource("StyleBoxFlat_e8txv")
 text = "0"
 horizontal_alignment = 2
 
@@ -619,36 +313,16 @@ layout_mode = 2
 alignment = 1
 
 [node name="MagicAttackLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/MagicAttackContainer"]
-clip_children = 2
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
-theme_override_constants/shadow_outline_size = 4
-theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
 text = "Magic Atk"
 uppercase = true
-
-[node name="GradientMask" type="Panel" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/MagicAttackContainer/MagicAttackLabel"]
-clip_contents = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -2.0
-offset_top = -4.0
-offset_right = 2.0
-offset_bottom = 5.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
 
 [node name="MagicAttackAmountLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/MagicAttackContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 0
-theme_override_fonts/font = ExtResource("4_hyo3f")
-theme_override_styles/normal = SubResource("StyleBoxFlat_e8txv")
 text = "0"
 horizontal_alignment = 2
 
@@ -661,36 +335,16 @@ layout_mode = 2
 alignment = 1
 
 [node name="CritRateLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/CritRateContainer"]
-clip_children = 2
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
-theme_override_constants/shadow_outline_size = 4
-theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
 text = "Crit Rate"
 uppercase = true
-
-[node name="GradientMask" type="Panel" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/CritRateContainer/CritRateLabel"]
-clip_contents = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -2.0
-offset_top = -4.0
-offset_right = 2.0
-offset_bottom = 5.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
 
 [node name="CritRateAmountLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/CritRateContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 0
-theme_override_fonts/font = ExtResource("4_hyo3f")
-theme_override_styles/normal = SubResource("StyleBoxFlat_e8txv")
 text = "5%"
 horizontal_alignment = 2
 
@@ -699,37 +353,17 @@ layout_mode = 2
 alignment = 1
 
 [node name="CritDmgLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/CritDmgContainer"]
-clip_children = 2
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
-theme_override_constants/shadow_outline_size = 4
-theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
 text = "Crit Damage"
 uppercase = true
-
-[node name="GradientMask" type="Panel" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/CritDmgContainer/CritDmgLabel"]
-clip_contents = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -2.0
-offset_top = -4.0
-offset_right = 2.0
-offset_bottom = 5.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
 
 [node name="CritDmgAmountLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/CritDmgContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 0
-theme_override_fonts/font = ExtResource("4_hyo3f")
-theme_override_styles/normal = SubResource("StyleBoxFlat_e8txv")
-text = "50%"
+text = "0%"
 horizontal_alignment = 2
 
 [node name="HSeparator4" type="HSeparator" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer"]
@@ -741,36 +375,16 @@ layout_mode = 2
 alignment = 1
 
 [node name="DefenseLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/DefenseContainer"]
-clip_children = 2
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
-theme_override_constants/shadow_outline_size = 4
-theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
 text = "Defense"
 uppercase = true
-
-[node name="GradientMask" type="Panel" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/DefenseContainer/DefenseLabel"]
-clip_contents = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -2.0
-offset_top = -4.0
-offset_right = 2.0
-offset_bottom = 5.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
 
 [node name="DefenseAmountLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/DefenseContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 0
-theme_override_fonts/font = ExtResource("4_hyo3f")
-theme_override_styles/normal = SubResource("StyleBoxFlat_e8txv")
 text = "0"
 horizontal_alignment = 2
 
@@ -779,36 +393,16 @@ layout_mode = 2
 alignment = 1
 
 [node name="MagicDefenseLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/MagicDefenseContainer"]
-clip_children = 2
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
-theme_override_constants/shadow_outline_size = 4
-theme_override_styles/normal = SubResource("StyleBoxFlat_cgmen")
 text = "Magic Defense"
 uppercase = true
-
-[node name="GradientMask" type="Panel" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/MagicDefenseContainer/MagicDefenseLabel"]
-clip_contents = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -2.0
-offset_top = -4.0
-offset_right = 2.0
-offset_bottom = 5.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxTexture_kp55c")
 
 [node name="MagicDefenseAmountLabel" type="Label" parent="StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/MagicDefenseContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 0
-theme_override_fonts/font = ExtResource("4_hyo3f")
-theme_override_styles/normal = SubResource("StyleBoxFlat_e8txv")
 text = "0"
 horizontal_alignment = 2
 

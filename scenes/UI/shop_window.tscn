@@ -7,56 +7,43 @@
 [ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="7_5kvlq"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_header"]
-bg_color = Color(0.15, 0.15, 0.2, 0.95)
-border_width_bottom = 2
-border_color = Color(0.4, 0.6, 0.8, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
+bg_color = Color(0.06, 0.06, 0.08, 1)
+border_width_bottom = 1
+border_color = Color(0.3, 0.3, 0.35, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
 content_margin_left = 8.0
 content_margin_top = 8.0
 content_margin_right = 8.0
 content_margin_bottom = 8.0
-bg_color = Color(0.92, 0.9, 0.88, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.3, 0.3, 0.35, 0.5)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-shadow_color = Color(0, 0, 0, 0.3)
-shadow_size = 4
+bg_color = Color(0.06, 0.06, 0.08, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_section"]
 content_margin_left = 5.0
 content_margin_top = 5.0
 content_margin_right = 5.0
 content_margin_bottom = 5.0
-bg_color = Color(0.98, 0.97, 0.96, 1)
+bg_color = Color(0.08, 0.08, 0.1, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.4, 0.4, 0.45, 0.3)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
+border_color = Color(0.25, 0.25, 0.3, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_footer"]
 content_margin_left = 12.0
 content_margin_top = 8.0
 content_margin_right = 12.0
 content_margin_bottom = 8.0
-bg_color = Color(0.25, 0.25, 0.3, 0.9)
-border_width_top = 2
-border_color = Color(0.5, 0.7, 0.9, 0.8)
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+bg_color = Color(0.06, 0.06, 0.08, 1)
+border_width_top = 1
+border_color = Color(0.3, 0.3, 0.35, 1)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_fcv6u"]
 atlas = ExtResource("6_wr21r")
@@ -85,9 +72,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(0.9, 0.9, 0.95, 1)
+theme_override_colors/font_color = Color(0.905882, 0.890196, 0.34902, 1)
 theme_override_fonts/font = ExtResource("7_5kvlq")
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "MERCHANT SHOP"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -142,10 +129,7 @@ anchors_preset = 10
 anchor_right = 1.0
 offset_bottom = 35.0
 grow_horizontal = 2
-theme_override_colors/font_color = Color(0.2, 0.2, 0.25, 1)
-theme_override_colors/font_shadow_color = Color(1, 1, 1, 0.3)
-theme_override_constants/shadow_offset_x = 1
-theme_override_constants/shadow_offset_y = 1
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = ExtResource("7_5kvlq")
 theme_override_font_sizes/font_size = 13
 text = "YOUR ITEMS"
@@ -159,7 +143,7 @@ anchor_right = 1.0
 offset_top = 35.0
 offset_bottom = 37.0
 grow_horizontal = 2
-color = Color(0.4, 0.4, 0.45, 0.3)
+color = Color(0.3, 0.3, 0.35, 1)
 
 [node name="SellScroll" type="ScrollContainer" parent="ContentPanel/HBoxContainer/SellPanel"]
 layout_mode = 1
@@ -187,10 +171,7 @@ anchors_preset = 10
 anchor_right = 1.0
 offset_bottom = 35.0
 grow_horizontal = 2
-theme_override_colors/font_color = Color(0.2, 0.2, 0.25, 1)
-theme_override_colors/font_shadow_color = Color(1, 1, 1, 0.3)
-theme_override_constants/shadow_offset_x = 1
-theme_override_constants/shadow_offset_y = 1
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = ExtResource("7_5kvlq")
 theme_override_font_sizes/font_size = 13
 text = "MERCHANT'S STOCK"
@@ -204,7 +185,7 @@ anchor_right = 1.0
 offset_top = 35.0
 offset_bottom = 37.0
 grow_horizontal = 2
-color = Color(0.4, 0.4, 0.45, 0.3)
+color = Color(0.3, 0.3, 0.35, 1)
 
 [node name="BuyScroll" type="ScrollContainer" parent="ContentPanel/HBoxContainer/BuyPanel"]
 layout_mode = 1

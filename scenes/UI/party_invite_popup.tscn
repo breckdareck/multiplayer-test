@@ -1,31 +1,53 @@
-[gd_scene load_steps=3 format=3 uid="uid://drcwhmf2bmuci"]
+[gd_scene load_steps=4 format=3 uid="uid://drcwhmf2bmuci"]
 
-[ext_resource type="Theme" path="res://assets/themes/UI_Theme.tres" id="1_theme"]
+[ext_resource type="Theme" uid="uid://dumv2cfji0owj" path="res://assets/themes/UI_Theme.tres" id="1_theme"]
 [ext_resource type="Script" uid="uid://c5v3yw2xswyos" path="res://scripts/UI/party_invite_popup.gd" id="2_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_popup"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0.047, 0.047, 0.047, 0.94)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.871, 0.871, 0.871, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [node name="PartyInvitePopup" type="Window"]
 title = "Party Invitation"
 initial_position = 1
-size = Vector2i(400, 120)
+size = Vector2i(400, 160)
+borderless = true
 theme = ExtResource("1_theme")
 script = ExtResource("2_script")
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="PanelContainer" type="PanelContainer" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
+theme_override_styles/panel = SubResource("StyleBoxFlat_popup")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
 layout_mode = 2
 theme_override_constants/separation = 10
+alignment = 1
 
-[node name="MessageLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+[node name="TitleLabel" type="Label" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.905882, 0.890196, 0.34902, 1)
+theme_override_font_sizes/font_size = 16
+text = "PARTY INVITATION"
+horizontal_alignment = 1
+
+[node name="MessageLabel" type="Label" parent="PanelContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
@@ -34,18 +56,18 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
 layout_mode = 2
 alignment = 1
 theme_override_constants/separation = 20
 
-[node name="AcceptButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="AcceptButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Accept"
 
-[node name="DeclineButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="DeclineButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
