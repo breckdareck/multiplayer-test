@@ -43,8 +43,8 @@ layout_mode = 2
 alignment = 1
 
 [node name="MasterLabel" type="Label" parent="VBoxContainer/MasterVolumeHBox"]
+custom_minimum_size = Vector2(130, 0)
 layout_mode = 2
-size_flags_horizontal = 3
 text = "Master Volume:"
 
 [node name="MasterSlider" type="HSlider" parent="VBoxContainer/MasterVolumeHBox"]
@@ -61,8 +61,8 @@ layout_mode = 2
 alignment = 1
 
 [node name="MusicLabel" type="Label" parent="VBoxContainer/MusicVolumeHBox"]
+custom_minimum_size = Vector2(130, 0)
 layout_mode = 2
-size_flags_horizontal = 3
 text = "Music Volume:"
 
 [node name="MusicSlider" type="HSlider" parent="VBoxContainer/MusicVolumeHBox"]
@@ -79,8 +79,8 @@ layout_mode = 2
 alignment = 1
 
 [node name="SfxLabel" type="Label" parent="VBoxContainer/SfxVolumeHBox"]
+custom_minimum_size = Vector2(130, 0)
 layout_mode = 2
-size_flags_horizontal = 3
 text = "SFX Volume:"
 
 [node name="SfxSlider" type="HSlider" parent="VBoxContainer/SfxVolumeHBox"]
