@@ -448,10 +448,9 @@ func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelDa
 
 
 func calculate_attack_damage() -> int:
-	# TODO: FIX THIS TO USE BASED ON THE CLASS AKA WEAPON ATTACK VS MAGIC ATTACK
 	if not (_equipment_component and _equipment_component.weapon_slot and _equipment_component.weapon_slot.item):
 		return 0
-	
+
 	var base_damage = _calculate_base_damage()
 	return roundi(base_damage)
 
@@ -460,18 +459,18 @@ func _calculate_base_damage() -> int:
 	if not _stats_component or not _class_component:
 		return 0
 
-	var weapon_attack = _stats_component.stats.get(Constants.StatType.WEAPONATTACK).total_value
-	
+	var attack_stat_type = ResourceManager.get_attack_stat(_class_component.current_class)
+	var attack_power = _stats_component.stats.get(attack_stat_type).total_value
+
 	var primary_stat_type = ResourceManager.get_primary_stat(_class_component.current_class)
 	var secondary_stat_type = ResourceManager.get_secondary_stat(_class_component.current_class)
-	
+
 	var primary_stat_value = _stats_component.stats.get(primary_stat_type).total_value
 	var secondary_stat_value = _stats_component.stats.get(secondary_stat_type).total_value
-	
+
 	var stat_contribution: float = (primary_stat_value * 4 + secondary_stat_value)
-	
-	# This is the core shared formula
-	return roundi(weapon_multiplier * stat_contribution * weapon_attack / 100.0)
+
+	return roundi(weapon_multiplier * stat_contribution * attack_power / 100.0)
 
 
 func _apply_enemy_debuff(enemy: EnemyBase, debuff: BuffData, duration: float) -> void:

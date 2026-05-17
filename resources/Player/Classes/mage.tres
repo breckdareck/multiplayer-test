@@ -28,6 +28,7 @@ description = "A spellcaster with powerful magic abilities."
 icon = SubResource("AtlasTexture_pq730")
 primary_stat = 1
 secondary_stat = 3
+attack_stat = 13
 stat_bonuses = Dictionary[int, int]({
 1: 3,
 3: 2

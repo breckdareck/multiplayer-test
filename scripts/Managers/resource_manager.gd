@@ -116,6 +116,11 @@ func get_secondary_stat(class_type: Constants.ClassType) -> Constants.StatType:
 	var data: ClassData = get_class_data(class_type)
 	return data.secondary_stat
 
+
+func get_attack_stat(class_type: Constants.ClassType) -> Constants.StatType:
+	var data: ClassData = get_class_data(class_type)
+	return data.attack_stat
+
 # Utility function to get ClassType enum from string
 func get_class_type_from_string(_class_name: String) -> Constants.ClassType:
 	match _class_name.to_lower():
