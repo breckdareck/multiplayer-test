@@ -245,7 +245,7 @@ func add_shop_item(container: VBoxContainer, data: Dictionary, is_sell: bool) ->
 	info_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	
 	var name_label = Label.new()
-	name_label.add_theme_color_override("font_color", Color(0.15, 0.15, 0.2, 1))
+	name_label.add_theme_color_override("font_color", Color(1, 1, 1, 1))
 	name_label.add_theme_font_size_override("font_size", 11)
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var display_name = item.name
@@ -271,7 +271,7 @@ func add_shop_item(container: VBoxContainer, data: Dictionary, is_sell: bool) ->
 	price_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	
 	var price_label = Label.new()
-	price_label.add_theme_color_override("font_color", Color(0.7, 0.5, 0.2, 1))
+	price_label.add_theme_color_override("font_color", Color(0.9, 0.75, 0.3, 1))
 	price_label.add_theme_font_size_override("font_size", 12)
 	price_label.text = str(price)
 	price_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
@@ -279,7 +279,7 @@ func add_shop_item(container: VBoxContainer, data: Dictionary, is_sell: bool) ->
 	price_container.add_child(price_label)
 	
 	var monies_label = Label.new()
-	monies_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.55, 1))
+	monies_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.75, 1))
 	monies_label.add_theme_font_size_override("font_size", 8)
 	monies_label.text = "Monies"
 	monies_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
