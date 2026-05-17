@@ -10,6 +10,7 @@ const RARITY_COLORS = {
 }
 
 const PANEL_STYLEBOX_THEME: StyleBoxFlat = preload("uid://dm8jxifs8rqrm")
+const DEFAULT_SLOT_BORDER_COLOR := Color(0.3, 0.3, 0.35, 1)
 
 @onready var texture_rect: TextureRect = $TextureRect
 @onready var label: Label = $Label
@@ -38,21 +39,43 @@ var _custom_tooltip_theme: Theme = null # Declare as instance variable
 
 func update_display():
 		if item != null:
-			texture_rect.texture = ResourceManager.get_item_data(item.item_id).icon		
+			texture_rect.texture = ResourceManager.get_item_data(item.item_id).icon
 			if item.can_stack and item.current_stack_amount > 1:
 				label.text = str(item.current_stack_amount)
 				label.visible = true
 			else:
 				label.visible = false
-			# Ensure the panel is visible when there's an item
-			add_theme_stylebox_override("panel", get_theme_stylebox("panel")) # Reapply default panel
+			_apply_rarity_border()
 		else:
 			texture_rect.texture = null
 			label.visible = false
-		# Hide the panel when there's no item
-			remove_theme_stylebox_override("panel")
+			_reset_slot_border()
 		texture_rect.queue_redraw()
 		label.queue_redraw()
+
+
+func _get_item_rarity_color() -> Color:
+	if item == null:
+		return DEFAULT_SLOT_BORDER_COLOR
+	var rarity := -1
+	if item.has_method("get_rarity"):
+		rarity = item.get_rarity()
+	elif typeof(item.rarity) == TYPE_INT:
+		rarity = item.rarity
+	return RARITY_COLORS.get(rarity, DEFAULT_SLOT_BORDER_COLOR)
+
+
+func _apply_rarity_border() -> void:
+	var color := _get_item_rarity_color()
+	var current_style = get_theme_stylebox("panel")
+	if current_style is StyleBoxFlat:
+		var style := (current_style as StyleBoxFlat).duplicate()
+		style.border_color = color
+		add_theme_stylebox_override("panel", style)
+
+
+func _reset_slot_border() -> void:
+	remove_theme_stylebox_override("panel")
 
 
 func set_inventory(inv: Node):
