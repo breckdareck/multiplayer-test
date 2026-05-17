@@ -91,5 +91,17 @@ layout_mode = 1
 unique_name_in_owner = true
 layout_mode = 1
 
+[node name="MasterSlider" parent="BackgroundPanel/SubMenuContainer/OptionsMenu/VBoxContainer/MasterVolumeHBox" index="1"]
+custom_minimum_size = Vector2(150, 0)
+size_flags_horizontal = 10
+
+[node name="MusicSlider" parent="BackgroundPanel/SubMenuContainer/OptionsMenu/VBoxContainer/MusicVolumeHBox" index="1"]
+custom_minimum_size = Vector2(150, 0)
+size_flags_horizontal = 10
+
+[node name="SfxSlider" parent="BackgroundPanel/SubMenuContainer/OptionsMenu/VBoxContainer/SfxVolumeHBox" index="1"]
+custom_minimum_size = Vector2(150, 0)
+size_flags_horizontal = 10
+
 [editable path="BackgroundPanel/SubMenuContainer/KeybindsMenu"]
 [editable path="BackgroundPanel/SubMenuContainer/OptionsMenu"]

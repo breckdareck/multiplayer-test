@@ -2,9 +2,9 @@ extends PanelContainer
 class_name Slot
 
 const RARITY_COLORS = {
-	0: Color.GRAY, # Common (Gray)
+	0: Color.DARK_GRAY, # Common (Dim Gray)
 	1: Color.WHITE, # Uncommon (White)
-	2: Color.BLUE, # Rare (Blue)
+	2: Color.ORANGE, # Rare (Orange)
 	3: Color.PURPLE, # Epic (Purple)
 	4: Color.GOLD, # Legendary (Gold)
 }
