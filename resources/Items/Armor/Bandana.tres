@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=6 format=3]
+
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_ba001"]
+[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_ba001"]
+[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_ba001"]
+
+[sub_resource type="Resource" id="Resource_ba001"]
+script = ExtResource("1_ba001")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 3
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ba001"]
+atlas = ExtResource("2_ba001")
+region = Rect2(108, 114, 10, 4)
+margin = Rect2(0, 3, 0, 6)
+
+[resource]
+script = ExtResource("3_ba001")
+armor_type = 0
+bonus_stats = Dictionary[int, ExtResource("1_ba001")]({
+8: SubResource("Resource_ba001")
+})
+item_id = "20260517004-400404-030204-40004-440400300040400404"
+name = "Bandana"
+icon = SubResource("AtlasTexture_ba001")
+description = "A simple cloth bandana."
+item_type = 1
+item_level = 2
+metadata/_custom_type_script = "uid://c2fkjsnluarqk"

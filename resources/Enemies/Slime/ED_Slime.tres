@@ -1,8 +1,12 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=7 format=3 uid="uid://c6pskfllhxxrd"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://c6pskfllhxxrd"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="2_3rusi"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="3_fuai5"]
 [ext_resource type="SpriteFrames" uid="uid://b2ohgim61o1bm" path="res://resources/Enemies/Slime/SF_Slime.tres" id="4_3rusi"]
+[ext_resource type="Resource" path="res://resources/DropTables/Bronze_Dagger.tres" id="5_bddr"]
+[ext_resource type="Resource" path="res://resources/DropTables/Leather_Cap.tres" id="6_lcdr"]
+[ext_resource type="Resource" path="res://resources/DropTables/Apprentice_Staff.tres" id="7_asdr"]
+[ext_resource type="Resource" path="res://resources/DropTables/Mystic_Cap.tres" id="8_mcdr"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_v5wyi"]
 size = Vector2(64, 37)
@@ -27,5 +31,5 @@ sprite_frames = ExtResource("4_3rusi")
 character_collision_shape = SubResource("CircleShape2D_n6pvg")
 body_hitbox_shape = SubResource("CircleShape2D_n6pvg")
 attack_hitbox_shape = SubResource("RectangleShape2D_v5wyi")
-item_drops = Array[ExtResource("2_3rusi")]([SubResource("Resource_3rusi")])
+item_drops = Array[ExtResource("2_3rusi")]([SubResource("Resource_3rusi"), ExtResource("5_bddr"), ExtResource("6_lcdr"), ExtResource("7_asdr"), ExtResource("8_mcdr")])
 metadata/_custom_type_script = "uid://dv7aj5x3e50cg"

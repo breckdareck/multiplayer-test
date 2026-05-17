@@ -1,8 +1,10 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=8 format=3 uid="uid://dhemo6klgxfve"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=10 format=3 uid="uid://dhemo6klgxfve"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="2_qhy1p"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="3_vlron"]
 [ext_resource type="SpriteFrames" uid="uid://bujet2eddxc5l" path="res://resources/Enemies/Bunny/SF_Bunny.tres" id="4_67r2w"]
+[ext_resource type="Resource" path="res://resources/DropTables/Wooden_Sword.tres" id="5_wsdr"]
+[ext_resource type="Resource" path="res://resources/DropTables/Wooden_Staff.tres" id="6_wstdr"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_17tps"]
 size = Vector2(64, 37)
@@ -30,5 +32,5 @@ sprite_frames = ExtResource("4_67r2w")
 character_collision_shape = SubResource("CircleShape2D_n6pvg")
 body_hitbox_shape = SubResource("CapsuleShape2D_h5euh")
 attack_hitbox_shape = SubResource("RectangleShape2D_17tps")
-item_drops = Array[ExtResource("2_qhy1p")]([SubResource("Resource_cxe2s")])
+item_drops = Array[ExtResource("2_qhy1p")]([SubResource("Resource_cxe2s"), ExtResource("5_wsdr"), ExtResource("6_wstdr")])
 metadata/_custom_type_script = "uid://dv7aj5x3e50cg"

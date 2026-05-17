@@ -495,7 +495,12 @@ func _load_data(data: Dictionary) -> void:
 		var inventory_data = data.get("inventory", {})
 		if not inventory_data.is_empty():
 			inventory_component.load_inventory(inventory_data)
-			
+		elif multiplayer.is_server() and data.get("level", 1) == 1:
+			var starter_weapon := "Wooden Sword"
+			if is_instance_valid(class_component) and class_component.current_class in [Constants.ClassType.MAGE, Constants.ClassType.ARCHMAGE]:
+				starter_weapon = "Wooden Staff"
+			inventory_component.server_add_item(starter_weapon)
+
 	if is_instance_valid(health_component):
 		health_component.set_loading_mode(true)
 		health_component.max_health = data.get("max_health", health_component.max_health)

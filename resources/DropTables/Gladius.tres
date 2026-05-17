@@ -6,6 +6,13 @@
 script = ExtResource("1_nwju6")
 item_name = "Gladius"
 randomize_stats = true
+rarity_chances = {
+&"COMMON": 70,
+&"EPIC": 7,
+&"LEGENDARY": 2,
+&"RARE": 15,
+&"UNCOMMON": 30
+}
 possible_stats = Array[int]([12, 0, 1, 2, 3, 4, 5])
 drop_chance = 0.2
 metadata/_custom_type_script = "uid://cucvsoha2s1kj"

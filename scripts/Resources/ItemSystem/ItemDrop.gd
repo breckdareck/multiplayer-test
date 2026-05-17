@@ -15,8 +15,9 @@ const RARITY_BUDGETS = {
 
 @export_group("Randomization")
 @export var randomize_stats: bool = false
-## Chances are relative. E.g., {COMMON:100, UNCOMMON:30, RARE:10} means ~71% Common, ~21% Uncommon, ~7% Rare.
-@export var rarity_chances: Dictionary = {&"COMMON": 100, &"UNCOMMON": 30, &"RARE": 10, &"EPIC": 3, &"LEGENDARY": 1}
+
+## Relative weights for each rarity tier (higher = more likely)
+@export var rarity_chances: Dictionary = {"COMMON": 100, "UNCOMMON": 30, "RARE": 10, "EPIC": 3, "LEGENDARY": 1}
 @export var possible_stats: Array[Constants.StatType]
 
 @export_group("Drop Settings")
@@ -29,6 +30,39 @@ const RARITY_BUDGETS = {
 
 ## Maximum amount to drop (for stackable items)
 @export var max_amount: int = 1
+
+func _get_property_list() -> Array[Dictionary]:
+	var properties: Array[Dictionary] = []
+
+	var breakdown = "Chances are relative. Current breakdown:\n"
+	var percentages = get_rarity_percentages()
+	for rarity_name in percentages:
+		breakdown += "%s: %.1f%%\n" % [rarity_name, percentages[rarity_name]]
+
+	properties.append({
+		"name": "rarity_breakdown",
+		"type": TYPE_STRING,
+		"usage": PROPERTY_USAGE_EDITOR,
+		"hint": PROPERTY_HINT_MULTILINE_TEXT,
+	})
+
+	return properties
+
+func _get(property: StringName):
+	if property == &"rarity_breakdown":
+		var text = ""
+		var percentages = get_rarity_percentages()
+		for rarity_name in percentages:
+			text += "%s: %.1f%%\n" % [rarity_name, percentages[rarity_name]]
+		return text.strip_edges()
+	return null
+
+func _set(property: StringName, value) -> bool:
+	if property == &"rarity_breakdown":
+		notify_property_list_changed()
+		return true
+	return false
+
 
 ## Returns true if this drop should occur based on drop_chance
 func should_drop() -> bool:
@@ -131,3 +165,37 @@ func _choose_random_rarity() -> Constants.ItemRarity:
 	print("Loop finished without selection, falling back to COMMON.")
 	print("------------------------------")
 	return Constants.ItemRarity.COMMON
+
+
+## Call this anytime to print the current rarity percentages for quick reference.
+func _print_rarity_percentages() -> void:
+	var total_weight := 0.0
+	for key in rarity_chances:
+		total_weight += float(rarity_chances[key])
+	
+	if total_weight <= 0:
+		print("⚠ Total weight is zero — no valid chances defined.")
+		return
+	
+	print("\n=== Rarity Percentages ===")
+	for rarity_name in Constants.ItemRarity.keys():
+		var weight = rarity_chances.get(rarity_name, 0)
+		var percentage := (float(weight) / total_weight) * 100.0
+		print("%s: %.2f%%" % [rarity_name.to_upper(), percentage])
+	print("Total: %.2f%%\n" % total_weight)
+
+## Returns a dictionary of rarity -> percentage for programmatic use.
+func get_rarity_percentages() -> Dictionary:
+	var result := {}
+	var total_weight := 0.0
+	for key in rarity_chances:
+		total_weight += float(rarity_chances[key])
+	
+	if total_weight <= 0:
+		return result
+	
+	for rarity_name in Constants.ItemRarity.keys():
+		var weight = rarity_chances.get(rarity_name, 0)
+		result[rarity_name] = (float(weight) / total_weight) * 100.0
+	
+	return result

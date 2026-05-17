@@ -1,0 +1,54 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=13 format=3]
+
+[ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
+[ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
+[ext_resource type="SpriteFrames" uid="uid://ckcbsuhp72f5i" path="res://resources/Enemies/Goblin/SF_Goblin.tres" id="3_sf"]
+[ext_resource type="Resource" path="res://resources/DropTables/Iron_Sword.tres" id="4_is"]
+[ext_resource type="Resource" path="res://resources/DropTables/Crystal_Staff.tres" id="5_cs"]
+[ext_resource type="Resource" path="res://resources/DropTables/Mystic_Robe.tres" id="6_mr"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_atk"]
+size = Vector2(64, 37)
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_body"]
+radius = 13.0
+height = 34.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_col"]
+radius = 6.0
+
+[sub_resource type="Resource" id="Resource_coin"]
+script = ExtResource("1_drop")
+item_name = "Coin"
+drop_chance = 0.9
+min_amount = 25
+max_amount = 40
+metadata/_custom_type_script = "uid://cucvsoha2s1kj"
+
+[sub_resource type="Resource" id="Resource_koif"]
+script = ExtResource("1_drop")
+item_name = "Metal Koif"
+randomize_stats = true
+possible_stats = Array[int]([0, 1, 2, 3, 4, 5])
+drop_chance = 0.2
+metadata/_custom_type_script = "uid://cucvsoha2s1kj"
+
+[sub_resource type="Resource" id="Resource_lolico"]
+script = ExtResource("1_drop")
+item_name = "Blue Lolico Armor"
+randomize_stats = true
+possible_stats = Array[int]([0, 1, 2, 3, 4, 5])
+drop_chance = 0.2
+metadata/_custom_type_script = "uid://cucvsoha2s1kj"
+
+[resource]
+script = ExtResource("2_ed")
+monster_name = "Goblin Warrior"
+monster_level = 12
+movement_speed = 42.0
+sprite_frames = ExtResource("3_sf")
+character_collision_shape = SubResource("CircleShape2D_col")
+body_hitbox_shape = SubResource("CapsuleShape2D_body")
+attack_hitbox_shape = SubResource("RectangleShape2D_atk")
+item_drops = Array[ExtResource("1_drop")]([SubResource("Resource_coin"), ExtResource("4_is"), SubResource("Resource_koif"), SubResource("Resource_lolico"), ExtResource("5_cs"), ExtResource("6_mr")])
+metadata/_custom_type_script = "uid://dv7aj5x3e50cg"

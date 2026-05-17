@@ -1,0 +1,41 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=7 format=3]
+
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_ast01"]
+[ext_resource type="Texture2D" uid="uid://cj4kv8pk70aal" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_ast01"]
+[ext_resource type="Script" uid="uid://mysmonmct4jm" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_ast01"]
+
+[sub_resource type="Resource" id="Resource_ast01"]
+script = ExtResource("1_ast01")
+stat_type = 13
+base_value = 0
+flat_bonus_value = 9
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_ast01_atk"]
+script = ExtResource("1_ast01")
+stat_type = 12
+base_value = 0
+flat_bonus_value = 3
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ast01"]
+atlas = ExtResource("2_ast01")
+region = Rect2(10, 17, 4, 11)
+margin = Rect2(3.5, 0, 7, 0)
+
+[resource]
+script = ExtResource("3_ast01")
+weapon_type = 2
+weapon_attack_speed = 4
+equipment_type = 1
+bonus_stats = Dictionary[int, ExtResource("1_ast01")]({
+12: SubResource("Resource_ast01_atk"),
+13: SubResource("Resource_ast01")
+})
+item_id = "20260517011-200211-090611-20011-220200900020200211"
+name = "Apprentice Staff"
+icon = SubResource("AtlasTexture_ast01")
+description = "A staff favored by novice mages."
+item_type = 1
+item_level = 3
+metadata/_custom_type_script = "uid://mysmonmct4jm"

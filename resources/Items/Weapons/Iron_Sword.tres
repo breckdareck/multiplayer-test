@@ -26,4 +26,5 @@ name = "Iron Sword"
 icon = SubResource("AtlasTexture_0opnw")
 description = "It's an Iron Sword"
 item_type = 1
+item_level = 10
 metadata/_custom_type_script = "uid://ob3kriis8m08"
