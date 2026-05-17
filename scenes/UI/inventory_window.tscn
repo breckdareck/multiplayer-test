@@ -10,12 +10,12 @@
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4ni0x"]
 content_margin_top = 5.0
-bg_color = Color(0.996078, 0.992157, 0.988235, 1)
+bg_color = Color(0.08, 0.08, 0.1, 1)
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jn0uf"]
-bg_color = Color(0.996078, 0.992157, 0.988235, 1)
+bg_color = Color(0.06, 0.06, 0.08, 1)
 corner_radius_top_left = 5
 corner_radius_top_right = 5
 expand_margin_top = 5.0
@@ -23,25 +23,29 @@ expand_margin_top = 5.0
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_32uah"]
 content_margin_left = 10.0
 content_margin_right = 10.0
-bg_color = Color(0.372549, 0.372549, 0.372549, 1)
+bg_color = Color(0.1, 0.1, 0.12, 1)
 corner_radius_top_left = 5
 corner_radius_top_right = 5
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_kp55c"]
 content_margin_left = 10.0
 content_margin_right = 10.0
-bg_color = Color(0.952941, 0.666667, 0, 1)
+bg_color = Color(0.2, 0.2, 0.25, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_color = Color(0.4, 0.4, 0.45, 1)
 corner_radius_top_left = 5
 corner_radius_top_right = 5
 expand_margin_top = 3.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4xm4e"]
-bg_color = Color(1, 1, 1, 1)
+bg_color = Color(0.06, 0.06, 0.08, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.3547774, 0.35477757, 0.35477746, 1)
+border_color = Color(0.25, 0.25, 0.3, 1)
 corner_radius_top_left = 2
 corner_radius_top_right = 2
 corner_radius_bottom_right = 2
@@ -72,7 +76,7 @@ grow_horizontal = 2
 theme_override_colors/font_color = Color(0.905882, 0.890196, 0.34902, 1)
 theme_override_fonts/font = ExtResource("3_wr21r")
 theme_override_font_sizes/font_size = 16
-text = "Item Inventory"
+text = "INVENTORY"
 horizontal_alignment = 1
 vertical_alignment = 1
 uppercase = true
@@ -915,7 +919,7 @@ offset_right = -2.0
 offset_bottom = 13.0
 grow_horizontal = 0
 grow_vertical = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = ExtResource("7_5kvlq")
 text = "0"
 horizontal_alignment = 2

@@ -7,26 +7,26 @@
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ihqbe"]
 content_margin_top = 5.0
-bg_color = Color(0.996078, 0.992157, 0.988235, 1)
+bg_color = Color(0.08, 0.08, 0.1, 1)
 corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tuhj4"]
-bg_color = Color(1, 1, 1, 1)
+bg_color = Color(0.1, 0.1, 0.13, 1)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.374139, 0.374139, 0.374139, 1)
+border_color = Color(0.3, 0.3, 0.35, 1)
 corner_radius_top_left = 1
 corner_radius_top_right = 1
 corner_radius_bottom_right = 1
 corner_radius_bottom_left = 1
 
 [sub_resource type="Gradient" id="Gradient_tuhj4"]
-colors = PackedColorArray(0.798366, 0.798366, 0.798366, 1, 1, 1, 1, 0)
+colors = PackedColorArray(0.15, 0.15, 0.18, 0.5, 0.08, 0.08, 0.1, 0)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_tuhj4"]
 gradient = SubResource("Gradient_tuhj4")

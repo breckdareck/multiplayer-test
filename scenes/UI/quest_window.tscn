@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://1ufb4svp8iwu"]
+[gd_scene load_steps=4 format=3 uid="uid://1ufb4svp8iwu"]
 
 [ext_resource type="Theme" uid="uid://dumv2cfji0owj" path="res://assets/themes/UI_Theme.tres" id="1_theme"]
 [ext_resource type="Script" path="res://scripts/UI/quest_window.gd" id="2_script"]
+[ext_resource type="StyleBox" uid="uid://dm8jxifs8rqrm" path="res://assets/UI/Themes/PanelStyleboxTheme.tres" id="3_panel"]
 
 [node name="QuestWindow" type="Panel"]
 anchors_preset = 8
@@ -16,6 +17,7 @@ offset_bottom = 255.0
 grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("1_theme")
+theme_override_styles/panel = ExtResource("3_panel")
 script = ExtResource("2_script")
 visible = false
 
@@ -35,7 +37,11 @@ custom_minimum_size = Vector2(0, 28)
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-text = "  QUEST"
+theme_override_colors/font_color = Color(0.905882, 0.890196, 0.34902, 1)
+theme_override_font_sizes/font_size = 16
+text = "QUEST JOURNAL"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="CloseButton" type="Button" parent="VBoxContainer/TitleBar"]
 unique_name_in_owner = true
