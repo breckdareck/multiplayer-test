@@ -32,3 +32,4 @@ README - COPY.md
 *.bak
 GEMINI.md
 /assets/references
+/.claude/worktrees
