@@ -121,22 +121,24 @@ func get_characters():
 				var dev_char_name = "Dev" + class_name_str
 				var dev_file_path = saves_path.path_join("player_%s.json" % dev_char_name)
 				if not FileAccess.file_exists(dev_file_path):
+					var is_advanced = class_enum >= Constants.ClassType.CRUSADER
+					var starting_level = 30 if is_advanced else 1
 					var save_data = {
-						"username": dev_char_name,
-						"level": 1,
-						"experience": 0,
-						"character_class": class_enum,
-						"current_health": 100,
-						"max_health": 100,
-						"current_mana": 100,
-						"max_mana": 100,
-						"monies": 0,
-						"inventory": {},
-						"equipment": {},
-						"abilities": {},
-						"buffs": {},
-						"quests": {}
-					}
+							"username": dev_char_name,
+							"level": starting_level,
+							"experience": 0,
+							"character_class": class_enum,
+							"current_health": 100,
+							"max_health": 100,
+							"current_mana": 100,
+							"max_mana": 100,
+							"monies": 0,
+							"inventory": {},
+							"equipment": {},
+							"abilities": {"available_points": (starting_level - 1) * 3},
+							"buffs": {},
+							"quests": {}
+						}
 					var file = FileAccess.open(dev_file_path, FileAccess.WRITE)
 					if file:
 						file.store_string(JSON.stringify(save_data, "\t"))
@@ -222,9 +224,11 @@ func create_character(char_name, class_id):
 			print("Create character: FileAccess.open failed, error: ", FileAccess.get_open_error())
 			character_creation_failed.emit("Failed to create save file")
 			return
+		var is_advanced = class_id >= Constants.ClassType.CRUSADER
+		var starting_level = 30 if is_advanced else 1
 		var save_data = {
 			"username": char_name,
-			"level": 1,
+			"level": starting_level,
 			"experience": 0,
 			"character_class": class_id,
 			"current_health": 100,
@@ -234,7 +238,7 @@ func create_character(char_name, class_id):
 			"monies": 0,
 			"inventory": {},
 			"equipment": {},
-			"abilities": {},
+			"abilities": {"available_points": (starting_level - 1) * 3},
 			"buffs": {},
 			"quests": {}
 		}

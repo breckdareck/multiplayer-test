@@ -6,7 +6,7 @@
 [ext_resource type="Resource" path="res://resources/DropTables/Bronze_Dagger.tres" id="5_bddr"]
 [ext_resource type="Resource" path="res://resources/DropTables/Leather_Cap.tres" id="6_lcdr"]
 [ext_resource type="Resource" path="res://resources/DropTables/Apprentice_Staff.tres" id="7_asdr"]
-[ext_resource type="Resource" path="res://resources/DropTables/Mystic_Cap.tres" id="8_mcdr"]
+[ext_resource type="Resource" uid="uid://8kef633j5jd1" path="res://resources/DropTables/Mystic_Cap.tres" id="8_mcdr"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_v5wyi"]
 size = Vector2(64, 37)
