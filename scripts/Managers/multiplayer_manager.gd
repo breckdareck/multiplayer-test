@@ -17,14 +17,23 @@ const CONFIG = {
 var host_mode_enabled: bool = false
 var respawn_point: Vector2 = Vector2.ZERO
 var menu_container: Control
+var _pending_shutdown_reason: String = ""
 
 # === INITIALIZATION ===
 func _ready():
 	_setup_signals()
-	
+	get_tree().set_auto_accept_quit(false)
+
 	if OS.has_feature("dedicated_server"):
 		var port = NetworkUtils.get_port_from_args(CONFIG.DEFAULT_PORT)
 		ServerManager.start_dedicated_server(port)
+
+func _notification(what):
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		if multiplayer.is_server():
+			_graceful_shutdown()
+		else:
+			get_tree().quit()
 
 func _setup_signals():
 	# Forward signals from components
@@ -98,11 +107,29 @@ func _on_client_failed():
 func _on_server_disconnected():
 	if ChannelManager.is_switching():
 		return
-	
-	print("Disconnected from server")
-	menu_container._connection_status_label.text = "Disconnected from server."
+
+	var reason = _pending_shutdown_reason if _pending_shutdown_reason != "" else "Disconnected from server."
+	_pending_shutdown_reason = ""
+	print(reason)
+	if menu_container and is_instance_valid(menu_container) and menu_container.has_node("_connection_status_label"):
+		menu_container._connection_status_label.text = reason
 	get_tree().change_scene_to_file("res://scenes/UI/LoginScreen.tscn")
-	
+
+
+# === GRACEFUL SHUTDOWN ===
+
+func _graceful_shutdown():
+	print("Server shutting down gracefully...")
+	_notify_clients_shutdown.rpc()
+	await PlayerManager.save_all_players()
+	get_tree().quit()
+
+@rpc("authority", "call_local", "reliable")
+func _notify_clients_shutdown():
+	if multiplayer.is_server():
+		return
+	_pending_shutdown_reason = "Server is shutting down."
+
 
 # === UTILITY METHODS ===
 # These methods are deprecated - kept for backward compatibility with main_menu
