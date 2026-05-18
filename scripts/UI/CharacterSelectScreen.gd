@@ -11,6 +11,8 @@ extends Control
 var characters = []
 var selected_character_name = ""
 var _server_info_label: Label = null
+var _backend_status_label: Label = null
+var _status_request: HTTPRequest = null
 
 func _ready():
 	create_button.pressed.connect(_on_create_pressed)
@@ -42,12 +44,37 @@ func _setup_server_info_display():
 
 
 func _setup_backend_info_display():
-	# Display current backend API being used
 	var backend_url = UserConfig.get_backend_api_url()
-	var backend_label = Label.new()
-	backend_label.add_theme_color_override("font_color", Color.CYAN)
-	backend_label.text = "Backend: %s" % backend_url
-	$Panel/VBoxContainer.add_child(backend_label)
+	_backend_status_label = Label.new()
+	_backend_status_label.add_theme_color_override("font_color", Color.GRAY)
+	_backend_status_label.text = "Backend: %s (checking...)" % backend_url
+	$Panel/VBoxContainer.add_child(_backend_status_label)
+
+	_status_request = HTTPRequest.new()
+	_status_request.request_completed.connect(_on_status_check_completed)
+	add_child(_status_request)
+	_check_server_status()
+
+
+func _check_server_status():
+	var api_url = UserConfig.get_backend_api_url()
+	var error = _status_request.request(api_url + "/health")
+	if error != OK:
+		_update_server_status(false)
+
+
+func _on_status_check_completed(result: int, response_code: int, _headers: PackedStringArray, _body: PackedByteArray):
+	_update_server_status(response_code == 200)
+
+
+func _update_server_status(online: bool):
+	var backend_url = UserConfig.get_backend_api_url()
+	if online:
+		_backend_status_label.text = "Backend: %s (Online)" % backend_url
+		_backend_status_label.add_theme_color_override("font_color", Color.GREEN)
+	else:
+		_backend_status_label.text = "Backend: %s (Offline)" % backend_url
+		_backend_status_label.add_theme_color_override("font_color", Color.RED)
 
 
 func _on_characters_received(chars):
