@@ -29,7 +29,7 @@ func get_public_ip_address() -> String:
 
 # === COMMAND LINE PARSING ===
 func get_port_from_args(default_port: int = 8080) -> int:
-	var args = OS.get_cmdline_args()
+	var args = OS.get_cmdline_args() + OS.get_cmdline_user_args()
 	
 	for i in range(args.size()):
 		if args[i] == "--port" and i + 1 < args.size():
@@ -46,16 +46,17 @@ func get_port_from_args(default_port: int = 8080) -> int:
 	return default_port
 
 func get_string_arg(arg_name: String, default_value: String = "") -> String:
-	var args = OS.get_cmdline_args()
-	
+	var args = OS.get_cmdline_args() + OS.get_cmdline_user_args()
+
 	for i in range(args.size()):
 		if args[i] == arg_name and i + 1 < args.size():
 			return args[i + 1]
-	
+
 	return default_value
 
 func has_flag(flag_name: String) -> bool:
-	return flag_name in OS.get_cmdline_args()
+	var args = OS.get_cmdline_args() + OS.get_cmdline_user_args()
+	return flag_name in args
 
 # === SCENE UTILITIES ===
 func get_players_spawn_node(scene_tree: SceneTree) -> Node:
