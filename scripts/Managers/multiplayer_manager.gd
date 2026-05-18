@@ -19,6 +19,8 @@ var respawn_point: Vector2 = Vector2.ZERO
 var menu_container: Control
 var _pending_shutdown_reason: String = ""
 var disconnect_reason: String = ""
+var _was_connected_to_server: bool = false
+var _handling_disconnect: bool = false
 
 # === INITIALIZATION ===
 func _ready():
@@ -28,6 +30,18 @@ func _ready():
 	if OS.has_feature("dedicated_server"):
 		var port = NetworkUtils.get_port_from_args(CONFIG.DEFAULT_PORT)
 		ServerManager.start_dedicated_server(port)
+
+func _process(_delta):
+	if multiplayer.is_server():
+		return
+	if not _was_connected_to_server:
+		return
+	if _handling_disconnect:
+		return
+	var peer = multiplayer.multiplayer_peer
+	if not peer or peer.get_connection_status() == MultiplayerPeer.CONNECTION_DISCONNECTED:
+		print("MultiplayerManager: Connection lost detected via poll")
+		_handle_server_disconnect()
 
 func _notification(what):
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
@@ -76,6 +90,8 @@ func switch_channel(new_port: int):
 
 func reset_data():
 	host_mode_enabled = false
+	_was_connected_to_server = false
+	_handling_disconnect = false
 	# Flush all player saves BEFORE closing the peer — SaveManager._is_server()
 	# returns false once the peer is gone, so saves must complete while it is still active.
 	if multiplayer.is_server():
@@ -100,18 +116,28 @@ func _on_server_started():
 
 func _on_client_connected():
 	print("Successfully connected to server!")
+	_was_connected_to_server = true
+	_handling_disconnect = false
 	_update_ui_for_client()
 
 func _on_client_failed():
 	print("Failed to connect to server")
 
 func _on_server_disconnected():
+	print("MultiplayerManager: server_disconnected signal fired")
+	_handle_server_disconnect()
+
+func _handle_server_disconnect():
 	if ChannelManager.is_switching():
 		return
+	if _handling_disconnect:
+		return
+	_handling_disconnect = true
+	_was_connected_to_server = false
 
 	var reason = _pending_shutdown_reason if _pending_shutdown_reason != "" else "Disconnected from server."
 	_pending_shutdown_reason = ""
-	print(reason)
+	print("MultiplayerManager: Redirecting to login — %s" % reason)
 	disconnect_reason = reason
 	get_tree().change_scene_to_file("res://scenes/UI/LoginScreen.tscn")
 
