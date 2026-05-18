@@ -433,17 +433,15 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 
 
 func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelData) -> int:
-	var base_damage = _calculate_base_damage()
-	
-	# Apply ability-specific damage modifier from level stats
+	var base_damage = _calculate_base_damage(_ability.damage_stat)
+
 	var ability_damage = base_damage * (level_stats.damage_percent / 100.0)
-	
-	# NEW: Apply passive ability damage modifiers (Enhanced Basics)
+
 	if _ability_component:
 		var passive_modifier = _ability_component.get_ability_damage_modifier(_ability.ability_id)
 		ability_damage *= passive_modifier
 		print("Applied passive damage modifier: %.2fx" % passive_modifier)
-	
+
 	return roundi(ability_damage)
 
 
@@ -455,11 +453,10 @@ func calculate_attack_damage() -> int:
 	return roundi(base_damage)
 
 
-func _calculate_base_damage() -> int:
+func _calculate_base_damage(attack_stat_type: Constants.StatType = Constants.StatType.WEAPONATTACK) -> int:
 	if not _stats_component or not _class_component:
 		return 0
 
-	var attack_stat_type = ResourceManager.get_attack_stat(_class_component.current_class)
 	var attack_power = _stats_component.stats.get(attack_stat_type).total_value
 
 	var primary_stat_type = ResourceManager.get_primary_stat(_class_component.current_class)

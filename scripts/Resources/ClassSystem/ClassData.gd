@@ -9,7 +9,6 @@ extends Resource
 @export var icon: Texture2D
 @export var primary_stat: Constants.StatType
 @export var secondary_stat: Constants.StatType
-@export var attack_stat: Constants.StatType = Constants.StatType.WEAPONATTACK
 @export var base_stats: Dictionary[Constants.StatType, int] = {
 	Constants.StatType.STRENGTH: 4,
 	Constants.StatType.DEXTERITY: 4,
