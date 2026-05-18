@@ -137,8 +137,18 @@ func _handle_server_disconnect():
 
 	var reason = _pending_shutdown_reason if _pending_shutdown_reason != "" else "Disconnected from server."
 	_pending_shutdown_reason = ""
-	print("MultiplayerManager: Redirecting to login — %s" % reason)
+	print("MultiplayerManager: Cleaning up network state...")
 	disconnect_reason = reason
+
+	# Clean up all networked entities before scene change
+	get_tree().call_group("networked_entities", "queue_free")
+	PlayerManager.cleanup()
+	ClientManager._disconnect()
+	if multiplayer.multiplayer_peer:
+		multiplayer.multiplayer_peer.close()
+		multiplayer.multiplayer_peer = null
+
+	print("MultiplayerManager: Redirecting to login — %s" % reason)
 	get_tree().change_scene_to_file("res://scenes/UI/LoginScreen.tscn")
 
 
