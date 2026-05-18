@@ -7,6 +7,8 @@ signal dealt_damage(target: Node, damage_values: Array, crit_values: Array)
 @export_category("Debug - Weapon Stats")
 ## Weapon Multipliers = 1.2 ~ 1.75
 @export var weapon_multiplier: float = 1.2
+## Mastery: min damage as a fraction of max (0.2 = 20%, 0.6 = 60%)
+@export var mastery: float = 0.2
 
 # Attack type tracking
 enum AttackMode {NONE, BASIC, ABILITY}
@@ -24,25 +26,12 @@ var hit_list: Array = []
 var _unique_targets_for_attack: Dictionary = {}
 var _pending_bodies: Array = []
 
-var attack_damage: int:
-	get:
-		return calculate_attack_damage()
-var min_damage: int:
-	get:
-		return roundi(attack_damage * 0.8)
-var max_damage: int:
-	get:
-		return roundi(attack_damage * 1.2)
-
-var display_damage: int:
-	get:
-		return _calculate_base_damage(_get_class_attack_stat())
-var display_min_damage: int:
-	get:
-		return roundi(display_damage * 0.8)
 var display_max_damage: int:
 	get:
-		return roundi(display_damage * 1.2)
+		return _calculate_max_range(_get_class_attack_stat())
+var display_min_damage: int:
+	get:
+		return roundi(display_max_damage * mastery)
 
 var original_attack_shape: Shape2D
 var original_attack_transform: Vector2
@@ -381,8 +370,6 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 			var crit_damage_bonus = _stats_component.stats.get(Constants.StatType.CRITDAMAGE).total_value
 			var crit_multiplier = randf_range(1.2, 1.5) + (crit_damage_bonus / 100.0)
 			modified_damage *= crit_multiplier
-		else:
-			modified_damage *= randf_range(0.8, 1.2)
 
 		var damage_to_deal = roundi(modified_damage)
 		
@@ -443,24 +430,25 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 
 
 func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelData) -> int:
-	var base_damage = _calculate_base_damage(_ability.damage_stat)
+	var max_range = _calculate_max_range(_ability.damage_stat)
+	var damage = roundi(randf_range(max_range * mastery, max_range))
 
-	var ability_damage = base_damage * (level_stats.damage_percent / 100.0)
+	damage = roundi(damage * (level_stats.damage_percent / 100.0))
 
 	if _ability_component:
 		var passive_modifier = _ability_component.get_ability_damage_modifier(_ability.ability_id)
-		ability_damage *= passive_modifier
+		damage = roundi(damage * passive_modifier)
 		print("Applied passive damage modifier: %.2fx" % passive_modifier)
 
-	return roundi(ability_damage)
+	return damage
 
 
 func calculate_attack_damage() -> int:
 	if not (_equipment_component and _equipment_component.weapon_slot and _equipment_component.weapon_slot.item):
 		return 0
 
-	var base_damage = _calculate_base_damage()
-	return roundi(base_damage)
+	var max_range = _calculate_max_range()
+	return roundi(randf_range(max_range * mastery, max_range))
 
 
 func _get_class_attack_stat() -> Constants.StatType:
@@ -471,7 +459,7 @@ func _get_class_attack_stat() -> Constants.StatType:
 	return Constants.StatType.WEAPONATTACK
 
 
-func _calculate_base_damage(attack_stat_type: Constants.StatType = Constants.StatType.WEAPONATTACK) -> int:
+func _calculate_max_range(attack_stat_type: Constants.StatType = Constants.StatType.WEAPONATTACK) -> int:
 	if not _stats_component or not _class_component:
 		return 0
 
@@ -483,9 +471,16 @@ func _calculate_base_damage(attack_stat_type: Constants.StatType = Constants.Sta
 	var primary_stat_value = _stats_component.stats.get(primary_stat_type).total_value
 	var secondary_stat_value = _stats_component.stats.get(secondary_stat_type).total_value
 
-	var stat_contribution: float = (primary_stat_value * 4 + secondary_stat_value)
+	var stat_multiplier: float = (primary_stat_value * 4 + secondary_stat_value)
 
-	return roundi(weapon_multiplier * stat_contribution * attack_power / 100.0)
+	var max_range = weapon_multiplier * stat_multiplier * attack_power / 100.0
+
+	# Damage% and Final Damage% slots — currently no stats for these,
+	# but the formula is ready for when they're added:
+	# max_range *= (1.0 + damage_percent / 100.0)
+	# max_range *= (1.0 + final_damage_percent / 100.0)
+
+	return roundi(max_range)
 
 
 func _apply_enemy_debuff(enemy: EnemyBase, debuff: BuffData, duration: float) -> void:
