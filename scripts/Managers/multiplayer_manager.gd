@@ -146,6 +146,10 @@ func _handle_server_disconnect():
 	print("MultiplayerManager: Cleaning up network state...")
 	disconnect_reason = reason
 
+	# Save connection info before cleanup clears them
+	var ip = ClientManager.current_server_ip
+	var port = ClientManager.current_server_port
+
 	# Kill the peer first to stop all network errors
 	if multiplayer.multiplayer_peer:
 		multiplayer.multiplayer_peer.close()
@@ -166,8 +170,6 @@ func _handle_server_disconnect():
 		maps_container.free()
 
 	print("MultiplayerManager: Connection lost — %s" % reason)
-	var ip = ClientManager.current_server_ip
-	var port = ClientManager.current_server_port
 	_show_connection_lost_popup(reason, ip, port)
 
 func _show_connection_lost_popup(reason: String, ip: String = "", port: int = 0):
