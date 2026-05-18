@@ -9,6 +9,12 @@ const MAX_PORT_ATTEMPTS = 10
 var _server_peer: ENetMultiplayerPeer
 var _current_port: int = 0
 var _is_dedicated: bool = false
+var max_players: int = 25
+
+func _ready():
+	var cli_max = NetworkUtils.get_string_arg("--max-players", "")
+	if not cli_max.is_empty() and cli_max.is_valid_int():
+		max_players = cli_max.to_int()
 
 func start_dedicated_server(port: int) -> bool:
 	print("--- Starting Dedicated Server ---")
@@ -19,7 +25,7 @@ func start_dedicated_server(port: int) -> bool:
 	
 	for i in range(MAX_PORT_ATTEMPTS):
 		var current_port = port + i
-		var error = _server_peer.create_server(current_port)
+		var error = _server_peer.create_server(current_port, max_players)
 		
 		if error == OK:
 			_finalize_server_setup(current_port)
@@ -36,7 +42,7 @@ func start_listen_server(port: int) -> bool:
 	_is_dedicated = false
 	_server_peer = ENetMultiplayerPeer.new()
 	
-	var error = _server_peer.create_server(port)
+	var error = _server_peer.create_server(port, max_players)
 	if error == OK:
 		_finalize_server_setup(port)
 		return true
