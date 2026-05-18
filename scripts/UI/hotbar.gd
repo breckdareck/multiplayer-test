@@ -59,6 +59,8 @@ func _on_cooldown_started(ability_id: String, duration: float) -> void:
 
 ## Optional: Handle keybind inputs
 func _input(event: InputEvent):
+	if InputManager.is_locked():
+		return
 	if multiplayer.get_unique_id() == player.player_id:
 		for i in range(slot_count):
 			var action_name = "hotbar_" + str(i + 1)

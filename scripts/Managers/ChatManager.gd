@@ -5,7 +5,7 @@ signal message_received(message, color)
 var local_player_node: MultiplayerPlayerV2 = null
 
 const MAX_MESSAGE_LENGTH: int = 200
-const RATE_LIMIT_INTERVAL: float = 1.0
+const RATE_LIMIT_INTERVAL: float = 2.0
 const RATE_LIMIT_BURST: int = 3
 var _rate_limits: Dictionary = {}
 
