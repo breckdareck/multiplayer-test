@@ -10,7 +10,7 @@
 [ext_resource type="Resource" uid="uid://icestrik001x" path="res://resources/Abilities/Mage/A_Ice_Strike.tres" id="8_h2y4b"]
 [ext_resource type="Resource" uid="uid://mshldabl001x" path="res://resources/Abilities/Mage/A_Mana_Shield.tres" id="9_h2y4b"]
 [ext_resource type="Resource" uid="uid://telport001xx" path="res://resources/Abilities/Mage/A_Teleport.tres" id="10_h2y4b"]
-[ext_resource type="Resource" uid="uid://meditate001x" path="res://resources/Abilities/Mage/A_Meditation.tres" id="11_h2y4b"]
+[ext_resource type="Resource" uid="uid://bkdmqdujl55nf" path="res://resources/Abilities/Mage/A_Meditation.tres" id="11_h2y4b"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_pq730"]
 atlas = ExtResource("1_lnmub")
