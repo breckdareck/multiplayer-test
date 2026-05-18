@@ -17,6 +17,8 @@ const CONFIG = {
 var host_mode_enabled: bool = false
 var respawn_point: Vector2 = Vector2.ZERO
 var menu_container: Control
+var _connection_lost_scene = preload("res://scenes/UI/connection_lost_popup.tscn")
+var _connection_lost_popup: CanvasLayer = null
 
 # === INITIALIZATION ===
 func _ready():
@@ -98,11 +100,18 @@ func _on_client_failed():
 func _on_server_disconnected():
 	if ChannelManager.is_switching():
 		return
-	
 	print("Disconnected from server")
-	menu_container._connection_status_label.text = "Disconnected from server."
-	get_tree().change_scene_to_file("res://scenes/UI/LoginScreen.tscn")
-	
+	var ip = ClientManager.current_server_ip
+	var port = ClientManager.current_server_port
+	var reason = "Lost connection to %s:%d" % [ip, port]
+	_show_connection_lost_popup(reason, ip, port)
+
+func _show_connection_lost_popup(reason: String, ip: String = "", port: int = 0):
+	if not _connection_lost_popup or not is_instance_valid(_connection_lost_popup):
+		_connection_lost_popup = _connection_lost_scene.instantiate()
+		get_tree().root.add_child(_connection_lost_popup)
+	_connection_lost_popup.show_popup(reason, ip, port)
+
 
 # === UTILITY METHODS ===
 # These methods are deprecated - kept for backward compatibility with main_menu
