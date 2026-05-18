@@ -4,6 +4,11 @@ signal message_received(message, color)
 
 var local_player_node: MultiplayerPlayerV2 = null
 
+const MAX_MESSAGE_LENGTH: int = 200
+const RATE_LIMIT_INTERVAL: float = 1.0
+const RATE_LIMIT_BURST: int = 3
+var _rate_limits: Dictionary = {}
+
 ## Supported emotes: command -> display text
 const EMOTES: Dictionary = {
 	"/sit": "*sits down*",
@@ -12,11 +17,31 @@ const EMOTES: Dictionary = {
 	"/cry": "*cries*",
 }
 
+func _ready():
+	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
+
 func register_local_player(player_node: MultiplayerPlayerV2) -> void:
 	local_player_node = player_node
 
 func _send_system_message(text: String, color: Color = Color.YELLOW) -> void:
 	message_received.emit(text, color)
+
+func _check_rate_limit(peer_id: int) -> bool:
+	var now = Time.get_ticks_msec() / 1000.0
+	if not _rate_limits.has(peer_id):
+		_rate_limits[peer_id] = { "last_time": now, "burst_count": 0 }
+		return true
+	var info = _rate_limits[peer_id]
+	if now - info["last_time"] >= RATE_LIMIT_INTERVAL:
+		info["burst_count"] = 0
+		info["last_time"] = now
+		return true
+	info["burst_count"] += 1
+	info["last_time"] = now
+	return info["burst_count"] <= RATE_LIMIT_BURST
+
+func _on_peer_disconnected(peer_id: int):
+	_rate_limits.erase(peer_id)
 
 func send_chat_message(text: String) -> void:
 	text = text.strip_edges()
@@ -51,6 +76,14 @@ func _broadcast_message(text: String) -> void:
 		return
 
 	var sender_id: int = multiplayer.get_remote_sender_id()
+
+	if text.length() > MAX_MESSAGE_LENGTH:
+		text = text.substr(0, MAX_MESSAGE_LENGTH)
+
+	if not _check_rate_limit(sender_id):
+		add_system_message.rpc_id(sender_id, "You are sending messages too fast.", Color.ORANGE)
+		return
+
 	var player_node: MultiplayerPlayerV2 = PlayerManager.get_player_node(sender_id)
 	if not is_instance_valid(player_node):
 		return
@@ -90,6 +123,8 @@ func _request_emote(emote_command: String) -> void:
 	if not multiplayer.is_server():
 		return
 	if not EMOTES.has(emote_command):
+		return
+	if not _check_rate_limit(multiplayer.get_remote_sender_id()):
 		return
 
 	var sender_id: int = multiplayer.get_remote_sender_id()
@@ -134,5 +169,7 @@ func add_system_message(text: String, color: Color = Color.WHITE) -> void:
 @rpc("any_peer", "call_local", "reliable")
 func _request_quest_command(args: String) -> void:
 	if not multiplayer.is_server():
+		return
+	if not _check_rate_limit(multiplayer.get_remote_sender_id()):
 		return
 	QuestManager.handle_quest_command(args, multiplayer.get_remote_sender_id())
