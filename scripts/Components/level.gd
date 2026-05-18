@@ -39,7 +39,8 @@ func add_exp(amount: int) -> void:
 		return
 		
 	experience += amount
-	show_exp_gain_log_rpc.rpc_id(owner.player_id, amount)
+	if not BotManager.is_bot(owner.player_id):
+		show_exp_gain_log_rpc.rpc_id(owner.player_id, amount)
 	
 	while experience >= get_exp_to_next_level() and level < max_level:
 		experience -= get_exp_to_next_level()

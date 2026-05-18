@@ -53,7 +53,7 @@ var _last_damage_source: Node = null
 					for pid in players:
 						if pid != 1:
 							die.rpc_id(pid)
-				elif entity is MultiplayerPlayerV2 and entity.player_id != 1:
+				elif entity is MultiplayerPlayerV2 and entity.player_id != 1 and not BotManager.is_bot(entity.player_id):
 					die.rpc_id(entity.player_id)
 			if not _loading_mode:
 				health_changed.emit(current_health, max_health)
@@ -226,7 +226,7 @@ func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, 
 			# Shake on server (if host is the player)
 			player_owner.screen_shake(shake_intensity)
 			# Also shake on the owning client
-			if player_owner.player_id != 1:
+			if player_owner.player_id != 1 and not BotManager.is_bot(player_owner.player_id):
 				_trigger_screen_shake.rpc_id(player_owner.player_id, shake_intensity)
 
 

@@ -109,7 +109,8 @@ func _flush_recalculate() -> void:
 		return
 	_stats_dirty = false
 	_recalculate_stats()
-	_recalculate_stats_client.rpc_id(owner.player_id)
+	if not BotManager.is_bot(owner.player_id):
+		_recalculate_stats_client.rpc_id(owner.player_id)
 
 
 func _recalculate_stats() -> void:
