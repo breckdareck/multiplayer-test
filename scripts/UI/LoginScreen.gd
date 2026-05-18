@@ -44,6 +44,11 @@ func _ready():
 	
 	_setup_backend_display()
 
+	if MultiplayerManager.disconnect_reason != "":
+		status_label.text = MultiplayerManager.disconnect_reason
+		status_label.add_theme_color_override("font_color", Color.RED)
+		MultiplayerManager.disconnect_reason = ""
+
 
 func _setup_backend_display():
 	# Initialize with current backend URL
