@@ -121,7 +121,17 @@ func _on_server_disconnected():
 func _graceful_shutdown():
 	print("Server shutting down gracefully...")
 	_notify_clients_shutdown.rpc()
+	# Let the RPC packet actually send before we start tearing down
+	await get_tree().create_timer(0.5).timeout
 	await PlayerManager.save_all_players()
+	# Close the peer properly so clients get a clean ENet disconnect
+	# instead of waiting for the ~30s timeout
+	ServerManager.stop_server()
+	if multiplayer.multiplayer_peer:
+		multiplayer.multiplayer_peer.close()
+		multiplayer.multiplayer_peer = null
+	# Brief delay for disconnect packets to propagate
+	await get_tree().create_timer(0.2).timeout
 	get_tree().quit()
 
 @rpc("authority", "call_local", "reliable")
