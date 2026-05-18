@@ -21,6 +21,7 @@ var _pending_shutdown_reason: String = ""
 var disconnect_reason: String = ""
 var _was_connected_to_server: bool = false
 var _handling_disconnect: bool = false
+var _kicked_before_game: bool = false
 
 # === INITIALIZATION ===
 func _ready():
@@ -128,6 +129,13 @@ func _handle_server_disconnect():
 		return
 	if _handling_disconnect:
 		return
+	if _kicked_before_game:
+		_kicked_before_game = false
+		_was_connected_to_server = false
+		if multiplayer.multiplayer_peer:
+			multiplayer.multiplayer_peer.close()
+			multiplayer.multiplayer_peer = null
+		return
 	_handling_disconnect = true
 	_was_connected_to_server = false
 
@@ -184,6 +192,13 @@ func _notify_clients_shutdown():
 	if multiplayer.is_server():
 		return
 	_pending_shutdown_reason = "Server is shutting down."
+
+@rpc("authority", "call_local", "reliable")
+func _notify_client_kicked(reason: String):
+	if multiplayer.is_server():
+		return
+	_pending_shutdown_reason = reason
+	_kicked_before_game = true
 
 
 # === UTILITY METHODS ===
