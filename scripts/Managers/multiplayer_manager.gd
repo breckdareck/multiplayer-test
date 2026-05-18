@@ -157,6 +157,8 @@ func _handle_server_disconnect():
 
 	print("MultiplayerManager: Redirecting to login — %s" % reason)
 	get_tree().change_scene_to_file("res://scenes/UI/LoginScreen.tscn")
+	await get_tree().tree_changed
+	get_tree().reload_current_scene()
 
 
 # === GRACEFUL SHUTDOWN ===
