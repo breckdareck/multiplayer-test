@@ -108,7 +108,7 @@ func update_stats_window():
 	int_amount_label.text = "%d (%d+%d)" % [player.stats_component.stats.get(Constants.StatType.INTELLIGENCE).total_value, player.stats_component.stats.get(Constants.StatType.INTELLIGENCE).base_value, player.stats_component.stats.get(Constants.StatType.INTELLIGENCE).combined_bonus_value]	
 	luk_amount_label.text = "%d (%d+%d)" % [player.stats_component.stats.get(Constants.StatType.LUCK).total_value, player.stats_component.stats.get(Constants.StatType.LUCK).base_value, player.stats_component.stats.get(Constants.StatType.LUCK).combined_bonus_value]	
 	
-	dmg_range_label.text = "%d ~ %d" % [player.combat_component.min_damage, player.combat_component.max_damage]
+	dmg_range_label.text = "%d ~ %d" % [player.combat_component.display_min_damage, player.combat_component.display_max_damage]
 	weapon_attack_amount_label.text = "%d (%d+%d)" % [player.stats_component.stats.get(Constants.StatType.WEAPONATTACK).total_value, player.stats_component.stats.get(Constants.StatType.WEAPONATTACK).base_value, player.stats_component.stats.get(Constants.StatType.WEAPONATTACK).combined_bonus_value]
 	magic_attack_amount_label.text = "%d (%d+%d)" % [player.stats_component.stats.get(Constants.StatType.MAGICATTACK).total_value, player.stats_component.stats.get(Constants.StatType.MAGICATTACK).base_value, player.stats_component.stats.get(Constants.StatType.MAGICATTACK).combined_bonus_value]
 	crit_rate_amount_label.text = "%d%%" % [player.stats_component.stats.get(Constants.StatType.CRITCHANCE).total_value]

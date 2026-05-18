@@ -34,6 +34,16 @@ var max_damage: int:
 	get:
 		return roundi(attack_damage * 1.2)
 
+var display_damage: int:
+	get:
+		return _calculate_base_damage(_get_class_attack_stat())
+var display_min_damage: int:
+	get:
+		return roundi(display_damage * 0.8)
+var display_max_damage: int:
+	get:
+		return roundi(display_damage * 1.2)
+
 var original_attack_shape: Shape2D
 var original_attack_transform: Vector2
 
@@ -451,6 +461,14 @@ func calculate_attack_damage() -> int:
 
 	var base_damage = _calculate_base_damage()
 	return roundi(base_damage)
+
+
+func _get_class_attack_stat() -> Constants.StatType:
+	if _class_component:
+		var primary = ResourceManager.get_primary_stat(_class_component.current_class)
+		if primary == Constants.StatType.INTELLIGENCE:
+			return Constants.StatType.MAGICATTACK
+	return Constants.StatType.WEAPONATTACK
 
 
 func _calculate_base_damage(attack_stat_type: Constants.StatType = Constants.StatType.WEAPONATTACK) -> int:
