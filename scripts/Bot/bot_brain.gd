@@ -30,6 +30,10 @@ const RESPAWN_DELAY: float = 3.0
 var _equip_check_timer: float = 0.0
 const EQUIP_CHECK_INTERVAL: float = 2.0
 
+const MAX_JUMP_HEIGHT: float = 40.0
+const JUMP_COOLDOWN: float = 0.6
+var _jump_cooldown_timer: float = 0.0
+
 
 func init(player_node: MultiplayerPlayerV2, id: int, behavior_config: Dictionary = {}) -> void:
 	player = player_node
@@ -60,6 +64,7 @@ func _process(delta: float) -> void:
 		return
 
 	_respawn_timer = -1.0
+	_jump_cooldown_timer -= delta
 	action_timer -= delta
 	think_timer -= delta
 
@@ -225,10 +230,13 @@ func _do_wander() -> void:
 			player.facing_direction = player.direction
 
 	if player.is_on_floor() and _is_near_ledge():
-		wander_direction *= -1
-		player.direction = wander_direction
-		if player.direction != 0:
-			player.facing_direction = player.direction
+		if randf() < 0.3:
+			_try_jump()
+		else:
+			wander_direction *= -1
+			player.direction = wander_direction
+			if player.direction != 0:
+				player.facing_direction = player.direction
 
 
 func _do_fight() -> void:
@@ -244,12 +252,7 @@ func _do_fight() -> void:
 		player.facing_direction = 1 if to_enemy.x > 0 else -1
 		player.do_attack = true
 	else:
-		var dir := 1 if to_enemy.x > 0 else -1
-		player.direction = dir
-		player.facing_direction = dir
-
-		if player.is_on_floor() and _is_near_ledge():
-			player.direction = 0
+		_navigate_toward(target_enemy.global_position)
 
 
 func _do_retreat() -> void:
@@ -278,20 +281,58 @@ func _do_loot() -> void:
 		player.do_pickup = false
 		return
 
-	var to_loot := target_loot.global_position - player.global_position
-	var dist := abs(to_loot.x)
+	var dist := player.global_position.distance_to(target_loot.global_position)
 
-	if dist <= target_loot.pickup_distance:
+	if dist <= target_loot.pickup_distance + 5.0:
 		player.direction = 0
 		player.do_pickup = true
 	else:
 		player.do_pickup = false
-		var dir := 1 if to_loot.x > 0 else -1
-		player.direction = dir
-		player.facing_direction = dir
+		_navigate_toward(target_loot.global_position)
 
-		if player.is_on_floor() and _is_near_ledge():
-			player.direction = 0
+
+## Navigates the bot toward a target position, handling platform traversal.
+func _navigate_toward(target_pos: Vector2) -> void:
+	var to_target := target_pos - player.global_position
+	var dir := 1 if to_target.x > 0 else -1
+	player.direction = dir
+	player.facing_direction = dir
+
+	if not player.is_on_floor():
+		return
+
+	var dy := to_target.y
+
+	# Target is significantly above — jump if reachable
+	if dy < -10.0 and abs(dy) <= MAX_JUMP_HEIGHT:
+		if abs(to_target.x) < 60.0:
+			_try_jump()
+			return
+
+	# Target is below — drop through platform or walk off edge
+	if dy > 20.0:
+		if player.can_drop_through_platform():
+			player.do_drop = true
+			return
+		elif _is_near_ledge():
+			# Walk off the edge intentionally
+			return
+
+	# Horizontal movement — handle walls and ledges
+	if player.is_on_wall():
+		_try_jump()
+	elif _is_near_ledge():
+		# Target is roughly same level or above — don't walk off
+		if dy >= -10.0 and dy <= 20.0:
+			_try_jump()
+		# Target is far below — allow walking off
+		# (no action needed, direction is already set)
+
+
+func _try_jump() -> void:
+	if _jump_cooldown_timer <= 0.0 and player.is_on_floor():
+		player.do_jump = true
+		_jump_cooldown_timer = JUMP_COOLDOWN
 
 
 func _evaluate_and_equip() -> void:
