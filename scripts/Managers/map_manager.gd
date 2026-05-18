@@ -100,6 +100,13 @@ func request_map_change(player_id: int, target_map_id: String, target_spawn_poin
 			player_spawned.emit(player_id)
 		return
 
+	# Bots have no client — skip the RPC and finalize directly on server.
+	if BotManager.is_bot(player_id):
+		_finalize_player_spawn(player_id, target_map_id, target_spawn_point_name)
+		if is_map_change:
+			player_spawned.emit(player_id)
+		return
+
 	client_set_current_map.rpc_id(player_id, target_map_id, target_spawn_point_name)
 	
 func _load_map_on_server(map_id: String):
@@ -162,35 +169,39 @@ func _finalize_player_spawn(player_id: int, map_id: String, spawn_point_name: St
 	# Sync EXISTING players to the new joiner
 	# The new joiner needs to know about everyone else already on the map
 	var map_instance = active_maps[map_id].scene_instance
+	var _joiner_is_bot := BotManager.is_bot(player_id)
 	for existing_id in active_maps[map_id].player_ids:
 		if existing_id == player_id: continue # Skip self (handled in _spawn_player_on_server_map)
 
 		var existing_node = get_player_map_node(existing_id)
 		if existing_node:
-			# Tell the new player to spawn the existing player
-			client_spawn_player.rpc_id(player_id, existing_id, existing_node.global_position)
+			# Tell the new player to spawn the existing player (skip for bots)
+			if not _joiner_is_bot:
+				client_spawn_player.rpc_id(player_id, existing_id, existing_node.global_position)
 			# Also update visibility for the existing player
 			update_visibility_for_player(existing_id)
 
 	_spawn_player_on_server_map(player_id, map_id, spawn_point_name)
 
-	# Sync existing players' buff visuals (e.g. Shadow Partner) to the new joiner
-	await get_tree().process_frame
-	for existing_id in active_maps[map_id].player_ids:
-		if existing_id == player_id: continue
-		var existing_player = map_instance.get_node_or_null("Players/" + str(existing_id))
-		if is_instance_valid(existing_player) and existing_player.buff_component:
-			existing_player.buff_component.sync_all_buffs_to_client(player_id)
+	# Sync existing players' buff visuals (e.g. Shadow Partner) to the new joiner (skip for bots)
+	if not _joiner_is_bot:
+		await get_tree().process_frame
+		for existing_id in active_maps[map_id].player_ids:
+			if existing_id == player_id: continue
+			var existing_player = map_instance.get_node_or_null("Players/" + str(existing_id))
+			if is_instance_valid(existing_player) and existing_player.buff_component:
+				existing_player.buff_component.sync_all_buffs_to_client(player_id)
 	
 	# After the player is spawned and on the map, update visibilities.
 	update_visibility_for_player(player_id)
 	
-	# Sync existing dropped items to the new player
-	var drop_handler = map_instance.get_node_or_null("GlobalDropHandler")
-	if drop_handler and drop_handler.has_method("sync_items_to_player"):
-		drop_handler.sync_items_to_player(player_id)
-	else:
-		push_warning("MapManager: Could not find GlobalDropHandler to sync items for player %d on map %s" % [player_id, map_id])
+	# Sync existing dropped items to the new player (skip for bots)
+	if not _joiner_is_bot:
+		var drop_handler = map_instance.get_node_or_null("GlobalDropHandler")
+		if drop_handler and drop_handler.has_method("sync_items_to_player"):
+			drop_handler.sync_items_to_player(player_id)
+		else:
+			push_warning("MapManager: Could not find GlobalDropHandler to sync items for player %d on map %s" % [player_id, map_id])
 
 
 func _spawn_player_on_server_map(player_id: int, map_id: String, spawn_point_name: String = ""):
@@ -227,11 +238,14 @@ func _spawn_player_on_server_map(player_id: int, map_id: String, spawn_point_nam
 	# We iterate through all players currently on this map
 	var players_on_map = active_maps[map_id].player_ids
 	for peer_id in players_on_map:
+		if BotManager.is_bot(peer_id):
+			continue
 		# RPC each peer to spawn this new player
 		client_spawn_player.rpc_id(peer_id, player_id, player_char.global_position)
-	
+
 	# Explicitly tell the client which node is theirs (for PlayerManager init)
-	client_identify_player.rpc_id(player_id, player_char.get_path())
+	if not BotManager.is_bot(player_id):
+		client_identify_player.rpc_id(player_id, player_char.get_path())
 
 
 func _remove_player_from_map(player_id: int, map_id: String):
@@ -261,8 +275,10 @@ func _remove_player_from_map(player_id: int, map_id: String):
 			player_node.cleanup_before_removal()
 		player_node.queue_free()
 		
-	# Notify clients on this map to remove this player
+	# Notify clients on this map to remove this player (skip bot peers)
 	for peer_id in active_maps[map_id].player_ids:
+		if BotManager.is_bot(peer_id):
+			continue
 		client_despawn_player.rpc_id(peer_id, player_id)
 	
 	if player_id == 1 and current_map_instance == map_instance:
@@ -365,28 +381,36 @@ func update_visibility_for_player(player_id: int):
 	var player_map = player_current_maps.get(player_id, "")
 	if player_map.is_empty(): return
 
+	var _this_is_bot := BotManager.is_bot(player_id)
+
 	# 1. Update visibility between this player and all OTHER PLAYERS
 	for other_id in player_current_maps.keys():
 		if other_id == player_id: continue
 		var other_node = PlayerManager.get_player_node(other_id)
 		if not is_instance_valid(other_node): continue
-		
+
 		var other_map = player_current_maps.get(other_id, "")
 		var is_visible = (player_map == other_map)
-		
-		# Update other player's view of me
-		_set_visibility_for_node(player_node, other_id, is_visible)
-		# Update my view of other player
-		_set_visibility_for_node(other_node, player_id, is_visible)
+
+		# Update other player's view of me (skip if other is a bot)
+		if not BotManager.is_bot(other_id):
+			_set_visibility_for_node(player_node, other_id, is_visible)
+		# Update my view of other player (skip if I'm a bot)
+		if not _this_is_bot:
+			_set_visibility_for_node(other_node, player_id, is_visible)
+
+	# Bots don't need map visibility updates — they have no client to sync to.
+	if _this_is_bot:
+		return
 
 	# 2. Update this player's visibility of the ENTIRE MAP
 	# This includes Enemies, Items, Projectiles, etc.
 	for map_id in active_maps.keys():
 		var map_instance = active_maps[map_id].scene_instance
 		if not is_instance_valid(map_instance): continue
-		
+
 		var is_visible = (player_map == map_id)
-		
+
 		# Set visibility for all synchronizers in this map for this player
 		_set_visibility_for_node(map_instance, player_id, is_visible)
 

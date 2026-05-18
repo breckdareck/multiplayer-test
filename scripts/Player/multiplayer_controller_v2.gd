@@ -75,7 +75,9 @@ const GAME_MENU_SCENE = preload("res://scenes/UI/game_menu.tscn")
 #=============================================================================
 
 func _ready() -> void:
-	if multiplayer.get_unique_id() == player_id:
+	var _is_bot := BotManager.is_bot(player_id)
+
+	if not _is_bot and multiplayer.get_unique_id() == player_id:
 		ChatManager.register_local_player(self)
 		# Request the sprite states of all other players from the server.
 		stats_window.update_stats_window()
@@ -86,25 +88,23 @@ func _ready() -> void:
 		# Handle sprite change on initial spawn
 		await get_tree().process_frame
 		_handle_sprite_change_on_server()
-		
+
 	# Setup signals for both client and server (for data saving)
 	_setup_signals()
 
-	# Client-specific setup
-	if not OS.has_feature("dedicated_server"):
+	# Client-specific setup (skip for bots — they have no display)
+	if not _is_bot and not OS.has_feature("dedicated_server"):
 		_setup_client_visuals()
 
-	# Initialize components
-	if is_instance_valid(debug_component):
+	# Initialize components (skip debug panel for bots)
+	if not _is_bot and is_instance_valid(debug_component):
 		debug_component.set_health_component(health_component)
 		debug_component.set_player(self)
 
-	# Auto-save is now handled by SaveManager (server-side, for all players).
-
 	state_machine.init(self, animated_sprite)
-	
-	# Setup visibility filter if multiplayer
-	if multiplayer.has_multiplayer_peer():
+
+	# Setup visibility filter if multiplayer (bots don't need input sync visibility)
+	if not _is_bot and multiplayer.has_multiplayer_peer():
 		call_deferred("_setup_visibility_filter")
 
 
@@ -334,7 +334,11 @@ func _check_visibility_by_map(peer_id: int) -> bool:
 	# Server always sees everyone
 	if peer_id == 1:
 		return true
-	
+
+	# Bots have no client — don't sync to them
+	if BotManager.is_bot(peer_id):
+		return false
+
 	# Get other player's map - handle case where they might not exist
 	var their_map = MapManager.get_player_map(peer_id)
 	if their_map.is_empty():
@@ -345,6 +349,10 @@ func _check_visibility_by_map(peer_id: int) -> bool:
 
 
 func _update_input_from_synchronizer() -> void:
+	# Bots set their own input flags via BotBrain — skip synchronizer read.
+	if BotManager.is_bot(player_id):
+		return
+
 	# Do not process input if the player is dead.
 	if is_instance_valid(health_component) and health_component.is_dead:
 		direction = 0
@@ -580,6 +588,8 @@ func _data_changed(update_type: String = "all") -> void:
 
 func _on_peer_connected(peer_id: int) -> void:
 	if not multiplayer.is_server() or peer_id == player_id:
+		return
+	if BotManager.is_bot(peer_id):
 		return
 
 	# Wait a frame to ensure the new peer is ready.

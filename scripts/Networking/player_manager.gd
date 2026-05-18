@@ -34,6 +34,29 @@ func add_host_player():
 	call_deferred("add_player", 1)
 
 
+func add_bot(bot_id: int, username: String, class_type: int, map_id: String) -> void:
+	if not multiplayer.is_server():
+		return
+	active_players[bot_id] = {
+		"id": bot_id,
+		"character_type": class_type,
+		"spawn_time": Time.get_unix_time_from_system(),
+		"synced": false,
+		"party_id": -1,
+		"last_map": map_id,
+		"username": username,
+		"is_bot": true,
+	}
+
+	var player_data: Dictionary = await _load_player_data_async(username)
+	var spawn_map: String = player_data.get("last_map", map_id)
+	if spawn_map.is_empty():
+		spawn_map = map_id
+	active_players[bot_id]["last_map"] = spawn_map
+
+	MapManager.request_map_change(bot_id, spawn_map)
+
+
 func add_player(id: int):
 	if multiplayer.is_server() and id != 1:
 		var current_count = active_players.size()
@@ -247,12 +270,12 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 		var inventory_data = player_data.get("inventory", {})
 		player_instance.player_inventory.load_player_inventory_silent(inventory_data)
 		# Sync money to client
-		if id != 1:
+		if not BotManager.is_bot(id) and id != 1:
 			var monies = player_data.get("monies", 0)
 			# Also check if monies is inside inventory data structure depending on save format
 			if monies == 0 and inventory_data.has("monies"):
 				monies = inventory_data.get("monies", 0)
-				
+
 			player_instance.player_inventory.set_monies_rpc.rpc_id(id, monies)
 
 	
@@ -286,37 +309,45 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 	if player_instance.ability_component:
 		player_instance.ability_component.reconnect_level_signals()
 	
+	var _is_bot: bool = BotManager.is_bot(id)
+
 	# Set username and class over network
-	player_instance.set_username.rpc(username)
+	if _is_bot:
+		player_instance.set_username(username)
+	else:
+		player_instance.set_username.rpc(username)
 	player_instance.class_component.change_class_rpc(character_type)
 
-	# Sync to client
-	if id != 1:
+	# Sync to client (skip for bots — they have no client)
+	if not _is_bot and id != 1:
 		# Tell client to start loading mode (suppress saves)
 		player_instance.set_loading_state_rpc.rpc_id(id, true)
-		
+
 		if player_instance.ability_component:
 			await get_tree().process_frame
 			player_instance.ability_component.sync_all_abilities_to_client(id)
 
-	
+
 	if player_instance.health_component:
 		player_instance.health_component.current_health = player_data.get("current_health", 100)
 	if player_instance.mana_component:
 		player_instance.mana_component.current_mana = player_data.get("current_mana", 100)
 
-	if id != 1 and player_instance.buff_component:
+	if not _is_bot and id != 1 and player_instance.buff_component:
 		await get_tree().process_frame
 		player_instance.buff_component.sync_all_buffs_to_client(id)
-	
+
 	if id in active_players:
 		active_players[id]["synced"] = true
-	
+
 	# Loading done
 
-	if id != 1:
+	if not _is_bot and id != 1:
 		# Tell client loading is done (enable saves)
 		player_instance.set_loading_state_rpc.rpc_id(id, false)
+
+	if _is_bot:
+		BotManager._on_bot_spawned(id)
 
 
 func _load_player_data_from_file(username: String) -> Dictionary:
@@ -589,12 +620,15 @@ func player_input(input_type: String, data: Variant = null):
 	if not multiplayer.is_server(): return
 	
 	var peer_id = multiplayer.get_remote_sender_id()
+	if BotManager.is_bot(peer_id):
+		return
+
 	var player_node = get_player_node(peer_id)
-	
+
 	if not is_instance_valid(player_node):
 		# Player might be dead or changing maps - ignore
 		return
-		
+
 	match input_type:
 		"jump": player_node.do_jump = true
 		"drop": player_node.do_drop = true
