@@ -210,6 +210,30 @@ func _notify_client_kicked(reason: String):
 	_pending_shutdown_reason = reason
 	_kicked_before_game = true
 
+# === PING ===
+var _ping_display: Label = null
+
+func set_ping_display(label: Label):
+	_ping_display = label
+
+@rpc("any_peer", "call_remote", "unreliable")
+func _ping_request():
+	if not multiplayer.is_server():
+		return
+	var sender = multiplayer.get_remote_sender_id()
+	_ping_response.rpc_id(sender)
+
+@rpc("authority", "call_remote", "unreliable")
+func _ping_response():
+	if _ping_display and is_instance_valid(_ping_display):
+		var rtt = Time.get_ticks_msec() - _ping_display._ping_send_time
+		_ping_display.text = "Ping: %dms" % rtt
+		if rtt < 80:
+			_ping_display.add_theme_color_override("font_color", Color.GREEN)
+		elif rtt < 150:
+			_ping_display.add_theme_color_override("font_color", Color.YELLOW)
+		else:
+			_ping_display.add_theme_color_override("font_color", Color.RED)
 
 # === UTILITY METHODS ===
 # These methods are deprecated - kept for backward compatibility with main_menu
