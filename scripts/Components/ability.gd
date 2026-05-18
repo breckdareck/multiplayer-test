@@ -61,6 +61,9 @@ var _passive_proc_cooldowns: Dictionary = {} # { "ability_id_event_type": last_p
 # Track active passive abilities for easy access
 var _active_passive_abilities: Array[AbilityData] = []
 
+const MAX_ABILITY_REQUESTS_PER_SECOND: int = 10
+var _ability_request_times: Array[float] = []
+
 # Projectile container
 var _projectiles_container: Node
 
@@ -643,11 +646,24 @@ func _request_ability_use(ability_id: String) -> void:
 	use_ability_server.rpc_id(1, ability_id) # Server is always peer ID 1
 
 
+func _is_ability_rpc_rate_limited() -> bool:
+	var now = Time.get_ticks_msec() / 1000.0
+	while _ability_request_times.size() > 0 and now - _ability_request_times[0] > 1.0:
+		_ability_request_times.pop_front()
+	if _ability_request_times.size() >= MAX_ABILITY_REQUESTS_PER_SECOND:
+		return true
+	_ability_request_times.append(now)
+	return false
+
+
 @rpc("any_peer", "call_local", "reliable")
 ## [Client->Server] RPC for a client to request using an ability.
 func use_ability_server(ability_id: String) -> void:
 	if not multiplayer.is_server(): return
-	
+
+	if _is_ability_rpc_rate_limited():
+		return
+
 	var validation = _validate_ability_use(ability_id)
 	if not validation.valid:
 		return

@@ -3,7 +3,8 @@ extends Control
 @onready var character_list = $Panel/VBoxContainer/CharacterList
 @onready var create_button = $Panel/VBoxContainer/CreateButton
 @onready var logout_button = $Panel/VBoxContainer/LogoutButton
-@onready var host_button = $Panel/VBoxContainer/HostButton
+@onready var host_button = $Panel/VBoxContainer/HostRow/HostButton
+@onready var max_players_input = $Panel/VBoxContainer/HostRow/MaxPlayersInput
 @onready var join_button = $Panel/VBoxContainer/JoinButton
 @onready var ip_input = $Panel/VBoxContainer/IPInput
 @onready var status_label = $Panel/VBoxContainer/StatusLabel
@@ -11,6 +12,7 @@ extends Control
 var characters = []
 var selected_character_name = ""
 var _server_info_label: Label = null
+var _kick_received: bool = false
 
 func _ready():
 	create_button.pressed.connect(_on_create_pressed)
@@ -24,6 +26,7 @@ func _ready():
 	MultiplayerManager.server_has_started.connect(_on_server_started)
 	ClientManager.connection_succeeded.connect(_on_connection_succeeded)
 	ClientManager.connection_failed.connect(_on_connection_failed)
+	multiplayer.server_disconnected.connect(_on_kicked_from_server)
 	
 	_setup_server_info_display()
 	_setup_backend_info_display()
@@ -81,12 +84,14 @@ func _on_host_pressed():
 	NetworkManager.set_meta("selected_character_name", char_name)
 	NetworkManager.set_meta("selected_character_class", char_class)
 	
-	status_label.text = "Starting server..."
+	ServerManager.max_players = int(max_players_input.value)
+
+	status_label.text = "Starting server (max %d players)..." % ServerManager.max_players
 	_set_buttons_enabled(false)
-	
+
 	# Show server info (will display once we determine the IP)
 	_display_server_info()
-	
+
 	# Host the game
 	MultiplayerManager.host_game()
 
@@ -157,12 +162,26 @@ func _on_server_started():
 	queue_free()
 
 func _on_connection_succeeded():
-	status_label.text = "Connected!"
+	status_label.text = "Connected! Entering game..."
 	status_label.add_theme_color_override("font_color", Color.GREEN)
-	queue_free()
+	await get_tree().create_timer(1.0).timeout
+	if is_instance_valid(self) and not _kick_received:
+		queue_free()
 
 func _on_connection_failed():
-	status_label.text = "Connection failed!"
+	var ip = ip_input.text if ip_input.text != "" else "127.0.0.1"
+	var port = MultiplayerManager.CONFIG.DEFAULT_PORT
+	status_label.text = "Failed to connect to %s:%d\n(Server may be offline or full)" % [ip, port]
+	status_label.add_theme_color_override("font_color", Color.RED)
+	_set_buttons_enabled(true)
+
+func _on_kicked_from_server():
+	_kick_received = true
+	var reason = MultiplayerManager._pending_shutdown_reason
+	if reason.is_empty():
+		reason = "Disconnected from server."
+	MultiplayerManager._pending_shutdown_reason = ""
+	status_label.text = reason
 	status_label.add_theme_color_override("font_color", Color.RED)
 	_set_buttons_enabled(true)
 

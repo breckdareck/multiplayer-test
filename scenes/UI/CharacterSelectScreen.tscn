@@ -57,12 +57,33 @@ theme_override_font_sizes/font_size = 20
 [node name="Separator1" type="HSeparator" parent="Panel/VBoxContainer"]
 layout_mode = 2
 
-[node name="HostButton" type="Button" parent="Panel/VBoxContainer"]
+[node name="HostRow" type="HBoxContainer" parent="Panel/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="HostButton" type="Button" parent="Panel/VBoxContainer/HostRow"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 32
 text = "Host Server"
+
+[node name="MaxPlayersLabel" type="Label" parent="Panel/VBoxContainer/HostRow"]
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 16
+text = "Max:"
+
+[node name="MaxPlayersInput" type="SpinBox" parent="Panel/VBoxContainer/HostRow"]
+layout_mode = 2
+size_flags_horizontal = 0
+min_value = 2.0
+max_value = 50.0
+value = 25.0
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 16
 
 [node name="IPInput" type="LineEdit" parent="Panel/VBoxContainer"]
 layout_mode = 2

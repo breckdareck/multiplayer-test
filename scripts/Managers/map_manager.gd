@@ -26,6 +26,15 @@ var my_player_node: Node = null
 var _warned_missing_paths: Dictionary = {}
 var _synchronizer_cache: Dictionary = {} ## {node_instance_id: Array[MultiplayerSynchronizer]}
 
+var _loading_overlay_scene = preload("res://scenes/UI/loading_overlay.tscn")
+var _loading_overlay: CanvasLayer = null
+
+func _get_loading_overlay() -> CanvasLayer:
+	if not _loading_overlay or not is_instance_valid(_loading_overlay):
+		_loading_overlay = _loading_overlay_scene.instantiate()
+		get_tree().root.add_child(_loading_overlay)
+	return _loading_overlay
+
 
 func _ready():
 	# Defer server-side setup until the server is confirmed to be running.
@@ -399,8 +408,11 @@ func client_set_current_map(map_id: String, spawn_point_name: String = ""):
 	Server tells client which map to load.
 	Client manually instantiates ONLY this map.
 	"""
+	if not multiplayer.is_server():
+		_get_loading_overlay().show_loading(map_id)
+
 	#print("Client %d: Server requesting map '%s'" % [multiplayer.get_unique_id(), map_id])
-	
+
 	# Unload previous map if exists
 	if is_instance_valid(current_map_instance):
 		#print("Client: Unloading previous map '%s'" % current_map_id)
@@ -483,6 +495,8 @@ func client_identify_player(player_node_path: String):
 		return
 		
 	my_player_node = node
+	if _loading_overlay and is_instance_valid(_loading_overlay):
+		_loading_overlay.hide_loading()
 	#print("Client: Found my player node. Notifying server.")
 	rpc_id(1, "client_player_spawned", current_map_id)
 
