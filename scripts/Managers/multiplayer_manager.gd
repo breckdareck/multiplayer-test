@@ -18,6 +18,7 @@ var host_mode_enabled: bool = false
 var respawn_point: Vector2 = Vector2.ZERO
 var menu_container: Control
 var _pending_shutdown_reason: String = ""
+var disconnect_reason: String = ""
 
 # === INITIALIZATION ===
 func _ready():
@@ -111,8 +112,7 @@ func _on_server_disconnected():
 	var reason = _pending_shutdown_reason if _pending_shutdown_reason != "" else "Disconnected from server."
 	_pending_shutdown_reason = ""
 	print(reason)
-	if menu_container and is_instance_valid(menu_container) and menu_container.has_node("_connection_status_label"):
-		menu_container._connection_status_label.text = reason
+	disconnect_reason = reason
 	get_tree().change_scene_to_file("res://scenes/UI/LoginScreen.tscn")
 
 
