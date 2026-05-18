@@ -181,7 +181,7 @@ func _do_fight() -> void:
 		return
 
 	var to_enemy := target_enemy.global_position - player.global_position
-	var dist := abs(to_enemy.x)
+	var dist :int= abs(to_enemy.x)
 
 	if dist <= attack_range:
 		# In range — stop and attack

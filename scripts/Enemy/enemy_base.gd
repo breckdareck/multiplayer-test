@@ -161,7 +161,7 @@ func on_enemy_damaged(amount: int, source: Node) -> void:
 	if player_id != null:
 		damage_by_player[player_id] = damage_by_player.get(player_id, 0) + amount
 		if multiplayer.is_server():
-			for pid in _get_players_on_same_map():
+			for pid in _get_real_players_on_same_map():
 				client_show_name_label.rpc_id(pid)
 
 
@@ -367,7 +367,7 @@ func pool_deactivate() -> void:
 	global_position = Vector2(INF, INF)
 	
 	if multiplayer.is_server():
-		for pid in _get_players_on_same_map():
+		for pid in _get_real_players_on_same_map():
 			client_hide_name_label.rpc_id(pid)
 
 
@@ -585,4 +585,18 @@ func _get_players_on_same_map() -> Array:
 	
 	if map_name != "":
 		return MapManager.get_players_on_map(map_name)
+	return []
+
+
+func _get_real_players_on_same_map() -> Array:
+	if not multiplayer.is_server(): return []
+	var parent = get_parent()
+	var map_name = ""
+	while parent:
+		if parent.name.begins_with("Map_"):
+			map_name = parent.name.replace("Map_", "")
+			break
+		parent = parent.get_parent()
+	if map_name != "":
+		return MapManager.get_real_players_on_map(map_name)
 	return []
