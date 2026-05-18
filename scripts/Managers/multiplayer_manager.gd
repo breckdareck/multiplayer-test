@@ -22,6 +22,8 @@ var disconnect_reason: String = ""
 var _was_connected_to_server: bool = false
 var _handling_disconnect: bool = false
 var _kicked_before_game: bool = false
+var _connection_lost_scene = preload("res://scenes/UI/connection_lost_popup.tscn")
+var _connection_lost_popup: CanvasLayer = null
 
 # === INITIALIZATION ===
 func _ready():
@@ -55,7 +57,7 @@ func _setup_signals():
 	ChannelManager.switch_started.connect(channel_switch_started.emit)
 	ChannelManager.switch_success.connect(channel_switch_success.emit)
 	ChannelManager.switch_failed.connect(channel_switch_failed.emit)
-	
+
 	# Setup core multiplayer signals
 	multiplayer.connected_to_server.connect(ClientManager._on_connection_succeeded)
 	multiplayer.connection_failed.connect(ClientManager._on_connection_failed)
@@ -65,21 +67,21 @@ func _setup_signals():
 func host_game():
 	print("Starting listen server...")
 	host_mode_enabled = true
-	
+
 	if ServerManager.start_listen_server(CONFIG.DEFAULT_PORT):
 		PlayerManager.add_host_player()
 		print("Host server started successfully")
 
 func join_game(ip: String = ""):
 	print("Joining game as client...")
-	
+
 	# Use provided IP or fall back to stored IP in ClientManager
 	var target_ip = ip if not ip.is_empty() else CONFIG.DEFAULT_IP
-	
+
 	if not NetworkUtils.is_valid_ip(target_ip):
 		print("Invalid IP Address: " + target_ip)
 		return
-	
+
 	ClientManager.connect_to_server(target_ip, CONFIG.DEFAULT_PORT)
 
 func switch_channel(new_port: int):
@@ -104,7 +106,7 @@ func reset_data():
 # === EVENT HANDLERS ===
 func _on_server_started():
 	server_has_started.emit()
-	
+
 	# Connect multiplayer signals
 	if not multiplayer.peer_connected.is_connected(PlayerManager.add_player):
 		multiplayer.peer_connected.connect(PlayerManager.add_player)
@@ -144,6 +146,10 @@ func _handle_server_disconnect():
 	print("MultiplayerManager: Cleaning up network state...")
 	disconnect_reason = reason
 
+	# Save connection info before cleanup clears them
+	var ip = ClientManager.current_server_ip
+	var port = ClientManager.current_server_port
+
 	# Kill the peer first to stop all network errors
 	if multiplayer.multiplayer_peer:
 		multiplayer.multiplayer_peer.close()
@@ -163,10 +169,14 @@ func _handle_server_disconnect():
 		get_tree().root.remove_child(maps_container)
 		maps_container.free()
 
-	print("MultiplayerManager: Redirecting to login — %s" % reason)
-	get_tree().change_scene_to_file("res://scenes/UI/LoginScreen.tscn")
-	await get_tree().tree_changed
-	#get_tree().reload_current_scene()
+	print("MultiplayerManager: Connection lost — %s" % reason)
+	_show_connection_lost_popup(reason, ip, port)
+
+func _show_connection_lost_popup(reason: String, ip: String = "", port: int = 0):
+	if not _connection_lost_popup or not is_instance_valid(_connection_lost_popup):
+		_connection_lost_popup = _connection_lost_scene.instantiate()
+		get_tree().root.add_child(_connection_lost_popup)
+	_connection_lost_popup.show_popup(reason, ip, port)
 
 
 # === GRACEFUL SHUTDOWN ===
