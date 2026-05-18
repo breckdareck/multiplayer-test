@@ -4,22 +4,41 @@ echo   Multiplayer Test - Server Launcher
 echo ============================================
 echo.
 
-echo Starting backend services (Docker)...
 cd /d "%~dp0"
-docker-compose up -d
+
+REM Check if Docker is running
+docker info >nul 2>&1
 if errorlevel 1 (
-    echo ERROR: Failed to start Docker services. Is Docker running?
+    echo ERROR: Docker is not running. Please start Docker Desktop first.
     pause
     exit /b 1
 )
 
-echo Waiting for backend API to be ready...
-:wait_loop
-timeout /t 2 /nobreak >nul
+REM Check if backend containers are already running
+docker-compose ps --services --filter "status=running" 2>nul | findstr /r "." >nul 2>&1
+if not errorlevel 1 (
+    echo Backend services already running.
+) else (
+    echo Starting backend services...
+    docker-compose up -d
+    if errorlevel 1 (
+        echo ERROR: Failed to start Docker services.
+        pause
+        exit /b 1
+    )
+)
+
+REM Check if API is already responding
 curl -s -o nul -w "" http://localhost:5000/health >nul 2>&1
 if errorlevel 1 (
-    echo   Still waiting for API...
-    goto wait_loop
+    echo Waiting for backend API to be ready...
+    :wait_loop
+    timeout /t 2 /nobreak >nul
+    curl -s -o nul -w "" http://localhost:5000/health >nul 2>&1
+    if errorlevel 1 (
+        echo   Still waiting for API...
+        goto wait_loop
+    )
 )
 echo Backend API is ready!
 echo.
