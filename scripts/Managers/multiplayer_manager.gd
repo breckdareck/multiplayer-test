@@ -32,11 +32,7 @@ func _ready():
 		ServerManager.start_dedicated_server(port)
 
 func _process(_delta):
-	if multiplayer.is_server():
-		return
-	if not _was_connected_to_server:
-		return
-	if _handling_disconnect:
+	if _handling_disconnect or not _was_connected_to_server:
 		return
 	var peer = multiplayer.multiplayer_peer
 	if not peer or peer.get_connection_status() == MultiplayerPeer.CONNECTION_DISCONNECTED:
@@ -140,17 +136,24 @@ func _handle_server_disconnect():
 	print("MultiplayerManager: Cleaning up network state...")
 	disconnect_reason = reason
 
-	# Clean up all networked entities and maps before scene change
-	get_tree().call_group("networked_entities", "queue_free")
+	# Kill the peer first to stop all network errors
+	if multiplayer.multiplayer_peer:
+		multiplayer.multiplayer_peer.close()
+		multiplayer.multiplayer_peer = null
+	ClientManager._disconnect()
+
+	# Stop music
+	AudioManager.stop_song()
+
+	# Free all networked entities and maps
+	for node in get_tree().get_nodes_in_group("networked_entities"):
+		node.queue_free()
 	PlayerManager.cleanup()
 	MapManager.reset_client_state()
 	var maps_container = get_tree().root.get_node_or_null("Maps")
 	if maps_container:
-		maps_container.queue_free()
-	ClientManager._disconnect()
-	if multiplayer.multiplayer_peer:
-		multiplayer.multiplayer_peer.close()
-		multiplayer.multiplayer_peer = null
+		get_tree().root.remove_child(maps_container)
+		maps_container.free()
 
 	print("MultiplayerManager: Redirecting to login — %s" % reason)
 	get_tree().change_scene_to_file("res://scenes/UI/LoginScreen.tscn")
