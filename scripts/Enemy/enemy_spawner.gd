@@ -195,8 +195,8 @@ func _update_all_player_visibility():
 		return
 	
 	var map_id = map_node.name.replace("Map_", "")
-	var players_on_map = MapManager.get_players_on_map(map_id)
-	
+	var players_on_map = MapManager.get_real_players_on_map(map_id)
+
 	for player_id in players_on_map:
 		MapManager.update_visibility_for_player(player_id)
 	

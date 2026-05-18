@@ -47,14 +47,14 @@ func display_number(value: int, position: Vector2, is_critical: bool = false, is
 			print("DamageNumbers: map_node=%s, in_group=%s" % [map_node, map_node.is_in_group("map_base") if map_node else false])
 			if map_node and map_node.is_in_group("map_base"):
 				var map_name = map_node.name.replace("Map_", "")
-				var players_on_map = MapManager.get_players_on_map(map_name)
-				
+				var players_on_map = MapManager.get_real_players_on_map(map_name)
+
 				print("DamageNumbers: Sending to players on map %s: %s" % [map_name, players_on_map])
 				for peer_id in players_on_map:
 					# Send RPC to spawn on client
 					if peer_id != 1: # Skip server, already spawned locally
 						spawn_damage_number_rpc.rpc_id(peer_id, args)
-					
+
 					# Set visibility for this peer
 					if sync:
 						sync.set_visibility_for(peer_id, true)
@@ -78,8 +78,8 @@ func display_number_combo(values: Array, are_crits: Array, position: Vector2, is
 		return
 	
 	var map_name = map_node.name.replace("Map_", "")
-	var players_on_map = MapManager.get_players_on_map(map_name)
-	
+	var players_on_map = MapManager.get_real_players_on_map(map_name)
+
 	# Spawn each hit number with vertical offset
 	for i in range(values.size()):
 		var value = values[i]

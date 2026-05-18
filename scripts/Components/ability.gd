@@ -577,8 +577,8 @@ func spawn_projectile(ability: AbilityData, level_stats: AbilityLevelData, targe
 		
 	if current_map and current_map.is_in_group("map_base"):
 		var map_name = current_map.name.replace("Map_", "")
-		var players_on_map = MapManager.get_players_on_map(map_name)
-		
+		var players_on_map = MapManager.get_real_players_on_map(map_name)
+
 		for peer_id in players_on_map:
 			if peer_id != 1: # Server already has it
 				spawn_projectile_client.rpc_id(peer_id, ability.ability_id, level_stats.level, spawn_pos, initial_direction, target_path)

@@ -103,8 +103,7 @@ func request_map_change(player_id: int, target_map_id: String, target_spawn_poin
 	# Bots have no client — skip the RPC and finalize directly on server.
 	if BotManager.is_bot(player_id):
 		_finalize_player_spawn(player_id, target_map_id, target_spawn_point_name)
-		if is_map_change:
-			player_spawned.emit(player_id)
+		player_spawned.emit(player_id)
 		return
 
 	client_set_current_map.rpc_id(player_id, target_map_id, target_spawn_point_name)
@@ -647,6 +646,11 @@ func get_players_on_map(map_id: String) -> Array:
 	if not multiplayer.is_server(): return []
 	if map_id in active_maps: return active_maps[map_id].player_ids.duplicate()
 	return []
+
+
+func get_real_players_on_map(map_id: String) -> Array:
+	var all_players := get_players_on_map(map_id)
+	return all_players.filter(func(id): return not BotManager.is_bot(id))
 
 func get_player_map(player_id: int) -> String:
 	if not multiplayer.is_server(): return ""

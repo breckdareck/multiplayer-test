@@ -183,14 +183,14 @@ func create_dropped_item(item_data: ItemData, amount: int, world_position: Vecto
 	# Manual RPC for clients on the same map
 	if scene_to_add_to.is_in_group("map_base"):
 		var map_name = scene_to_add_to.name.replace("Map_", "")
-		var players_on_map = MapManager.get_players_on_map(map_name)
-		
+		var players_on_map = MapManager.get_real_players_on_map(map_name)
+
 		print("GlobalDropHandler: Spawning item %s on map %s for players: %s" % [item_data.item_id, map_name, players_on_map])
 		for peer_id in players_on_map:
 			if peer_id != 1: # Server already has it
 				print("GlobalDropHandler: Sending spawn_item_client RPC to peer %d" % peer_id)
 				spawn_item_client.rpc_id(peer_id, item_data.item_id, amount, world_position, eligible_player_ids, item_unique_name, scene_to_add_to.name)
-				
+
 				# Update synchronizer visibility for this peer
 				if synchronizer:
 					synchronizer.set_visibility_for(peer_id, dropped_item.should_be_visible_to(peer_id))

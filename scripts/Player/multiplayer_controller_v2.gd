@@ -772,7 +772,7 @@ func _on_leveled_up_effect(_new_level: int) -> void:
 	var map_node = MapManager.get_player_map_node(player_id)
 	if map_node:
 		var map_name: String = map_node.name.replace("Map_", "")
-		var players_on_map: Array = MapManager.get_players_on_map(map_name)
+		var players_on_map: Array = MapManager.get_real_players_on_map(map_name)
 		for peer_id in players_on_map:
 			_play_levelup_effect.rpc_id(peer_id)
 		# Also play on server if host

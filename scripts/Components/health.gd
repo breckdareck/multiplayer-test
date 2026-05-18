@@ -49,7 +49,7 @@ var _last_damage_source: Node = null
 						parent = parent.get_parent()
 
 				if map_name != "":
-					var players = MapManager.get_players_on_map(map_name)
+					var players = MapManager.get_real_players_on_map(map_name)
 					for pid in players:
 						if pid != 1:
 							die.rpc_id(pid)
@@ -191,12 +191,9 @@ func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, 
 		var map_node = MapManager.get_player_map_node(get_owner().player_id)
 		if map_node:
 			var map_name = map_node.name.replace("Map_", "")
-			var players_on_map = MapManager.get_players_on_map(map_name)
-			
+			var players_on_map = MapManager.get_real_players_on_map(map_name)
+
 			for peer_id in players_on_map:
-				# Skip server (played locally? No, AudioManager.rpc is usually for clients)
-				# Actually AudioManager.play_sfx_rpc is likely "any_peer" or "authority".
-				# If we are server, we can call rpc_id.
 				if peer_id != 1:
 					AudioManager.play_sfx_rpc.rpc_id(peer_id, "res://assets/sounds/player_hit.wav", get_owner().global_position)
 			

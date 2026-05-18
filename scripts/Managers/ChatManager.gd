@@ -94,7 +94,7 @@ func _broadcast_message(text: String) -> void:
 
 	# Use authoritative server-side username — never trust the client for this
 	var sender_name: String = player_node.username
-	var players_on_map: Array = MapManager.get_players_on_map(sender_map)
+	var players_on_map: Array = MapManager.get_real_players_on_map(sender_map)
 	var server_id: int = multiplayer.get_unique_id()
 
 	for peer_id in players_on_map:
@@ -138,7 +138,7 @@ func _request_emote(emote_command: String) -> void:
 
 	var sender_name: String = player_node.username
 	var emote_text: String = EMOTES[emote_command]
-	var players_on_map: Array = MapManager.get_players_on_map(sender_map)
+	var players_on_map: Array = MapManager.get_real_players_on_map(sender_map)
 	var server_id: int = multiplayer.get_unique_id()
 
 	for peer_id in players_on_map:
