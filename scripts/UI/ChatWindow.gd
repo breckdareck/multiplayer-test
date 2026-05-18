@@ -35,3 +35,6 @@ func add_system_message(message: String, color: Color):
 func _unhandled_input(event: InputEvent):
 	if input_line.has_focus() and event.is_action_pressed("ui_cancel"):
 		input_line.release_focus()
+	elif not input_line.has_focus() and event is InputEventKey and event.pressed and event.keycode == KEY_ENTER:
+		input_line.grab_focus()
+		get_viewport().set_input_as_handled()

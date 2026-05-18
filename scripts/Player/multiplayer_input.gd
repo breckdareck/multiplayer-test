@@ -35,6 +35,9 @@ func _ready():
 
 func _physics_process(_delta: float) -> void:
 	if InputManager.is_locked():
+		input_direction = 0
+		input_down = false
+		input_up = false
 		return
 	# Don't process if being cleaned up
 	if _is_being_cleaned_up:

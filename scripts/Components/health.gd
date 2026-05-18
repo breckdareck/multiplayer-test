@@ -32,30 +32,29 @@ var _last_damage_source: Node = null
 		current_health = clamp(value, 0, max_health)
 		if current_health != previous_health:
 			if current_health == 0 and not is_dead and multiplayer.is_server():
-				# Call locally
 				die()
-				
-				# RPC to players on the same map
+
 				var entity = get_owner()
 				var map_name = ""
-				
+
 				if entity is MultiplayerPlayerV2:
 					var map_node = MapManager.get_player_map_node(entity.player_id)
 					if map_node: map_name = map_node.name.replace("Map_", "")
 				else:
-					# For enemies/others, find map parent
 					var parent = entity.get_parent()
 					while parent:
 						if parent.name.begins_with("Map_"):
 							map_name = parent.name.replace("Map_", "")
 							break
 						parent = parent.get_parent()
-				
+
 				if map_name != "":
 					var players = MapManager.get_players_on_map(map_name)
 					for pid in players:
-						if pid != 1: # Server already called locally
+						if pid != 1:
 							die.rpc_id(pid)
+				elif entity is MultiplayerPlayerV2 and entity.player_id != 1:
+					die.rpc_id(entity.player_id)
 			if not _loading_mode:
 				health_changed.emit(current_health, max_health)
 @onready var health_bar: ProgressBar = get_node_or_null(health_bar_path)
@@ -256,13 +255,11 @@ func heal_damage(amount: int, source: Node = null) -> void:
 
 @rpc("authority", "call_local", "reliable")
 func die() -> void:
-	# Guard clauses to ensure this only runs once on the server.
-	if is_dead or not multiplayer.is_server():
+	if is_dead:
 		return
 
 	is_dead = true
-	died.emit(_last_damage_source) # Pass the killer/source to the signal
-	#print("HealthComponent: Owner '%s' has died." % get_owner().name)
+	died.emit(_last_damage_source)
 
 
 func set_loading_mode(enabled: bool) -> void:

@@ -35,6 +35,13 @@ func add_host_player():
 
 
 func add_player(id: int):
+	if multiplayer.is_server() and id != 1:
+		var current_count = active_players.size()
+		if current_count >= ServerManager.max_players:
+			print("PlayerManager: Server full (%d/%d), rejecting player %d" % [current_count, ServerManager.max_players, id])
+			MultiplayerManager._notify_client_kicked.rpc_id(id, "Server is full (%d/%d)." % [current_count, ServerManager.max_players])
+			get_tree().create_timer(0.5).timeout.connect(func(): multiplayer.multiplayer_peer.disconnect_peer(id))
+			return
 	print("Player %d joined - preparing to spawn character" % id)
 	NetworkUtils.log_network_event("PLAYER_JOIN", "Player ID: %d" % id)
 	
@@ -52,6 +59,9 @@ func add_player(id: int):
 
 
 func remove_player(id: int):
+	if id not in active_players:
+		print("PlayerManager: Peer %d disconnected (was not an active player)" % id)
+		return
 	print("Player %d left - removing character" % id)
 	NetworkUtils.log_network_event("PLAYER_LEAVE", "Player ID: %d" % id)
 	

@@ -18,6 +18,7 @@ func _on_respawn_button_pressed():
 	if is_instance_valid(_player):
 		_player.respawn.rpc()
 	hide()
+	InputManager.set_input_locked(false)
 
 func _on_close_requested():
 	# Don't allow closing via X button while dead
