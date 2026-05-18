@@ -31,8 +31,12 @@ var _equip_check_timer: float = 0.0
 const EQUIP_CHECK_INTERVAL: float = 2.0
 
 const MAX_JUMP_HEIGHT: float = 40.0
-const JUMP_COOLDOWN: float = 0.6
+const JUMP_COOLDOWN: float = 0.8
 var _jump_cooldown_timer: float = 0.0
+
+# Collision masks: Layer 1 (World) = bit 0, Layer 3 (Platforms) = bit 2
+const GROUND_MASK: int = 0b101  # World + Platforms
+const SOLID_MASK: int = 0b001  # World only (not one-way platforms)
 
 
 func init(player_node: MultiplayerPlayerV2, id: int, behavior_config: Dictionary = {}) -> void:
@@ -230,13 +234,10 @@ func _do_wander() -> void:
 			player.facing_direction = player.direction
 
 	if player.is_on_floor() and _is_near_ledge():
-		if randf() < 0.3:
-			_try_jump()
-		else:
-			wander_direction *= -1
-			player.direction = wander_direction
-			if player.direction != 0:
-				player.facing_direction = player.direction
+		wander_direction *= -1
+		player.direction = wander_direction
+		if player.direction != 0:
+			player.facing_direction = player.direction
 
 
 func _do_fight() -> void:
@@ -301,38 +302,117 @@ func _navigate_toward(target_pos: Vector2) -> void:
 	if not player.is_on_floor():
 		return
 
-	var dy := to_target.y
+	var dy := to_target.y  # positive = target below, negative = target above
 
-	# Target is significantly above — jump if reachable
-	if dy < -10.0 and abs(dy) <= MAX_JUMP_HEIGHT:
-		if abs(to_target.x) < 60.0:
-			_try_jump()
-			return
-
-	# Target is below — drop through platform or walk off edge
+	# --- Target is below us ---
 	if dy > 20.0:
+		# On a one-way platform? Drop through it
 		if player.can_drop_through_platform():
 			player.do_drop = true
 			return
-		elif _is_near_ledge():
-			# Walk off the edge intentionally
+		# At a ledge? Check if there's ground to land on below
+		if _is_near_ledge():
+			if _raycast_down(player.global_position + Vector2(dir * 18.0, 0), 200.0):
+				return  # safe to walk off — ground below
+			# No ground found, stop at edge
+			player.direction = 0
 			return
+		# Not at a ledge, keep walking toward target
+		return
 
-	# Horizontal movement — handle walls and ledges
+	# --- Target is above us ---
+	if dy < -10.0:
+		# Only jump if target is within jump height and we're close horizontally
+		if abs(dy) <= MAX_JUMP_HEIGHT and abs(to_target.x) < 50.0:
+			# Verify there's a platform above to land on
+			if _raycast_up(player.global_position, abs(dy) + 18.0):
+				_try_jump()
+				return
+		# Can't reach by jumping — walk horizontally to find a way up
+		# (keep walking in target direction)
+		if player.is_on_wall():
+			player.direction = 0
+		elif _is_near_ledge():
+			player.direction = 0
+		return
+
+	# --- Target is roughly same level ---
 	if player.is_on_wall():
-		_try_jump()
-	elif _is_near_ledge():
-		# Target is roughly same level or above — don't walk off
-		if dy >= -10.0 and dy <= 20.0:
+		# Wall ahead — check if it's short enough to jump over
+		if _can_jump_over_wall(dir):
 			_try_jump()
-		# Target is far below — allow walking off
-		# (no action needed, direction is already set)
+		else:
+			player.direction = 0
+		return
+
+	if _is_near_ledge():
+		# Check if there's ground ahead across the gap
+		if _has_ground_across_gap(dir):
+			return  # safe to walk off — will land on ground ahead
+		# Check if there's ground directly below the ledge
+		if dy > 5.0 and _raycast_down(player.global_position + Vector2(dir * 18.0, 0), 200.0):
+			return  # target is slightly below and there's ground — walk off
+		# No safe path, stop
+		player.direction = 0
 
 
 func _try_jump() -> void:
 	if _jump_cooldown_timer <= 0.0 and player.is_on_floor():
 		player.do_jump = true
 		_jump_cooldown_timer = JUMP_COOLDOWN
+
+
+# --- Raycast helpers ---
+# All rays extend 2px past tile boundaries (16px tiles) to ensure hits.
+
+func _get_space_state() -> PhysicsDirectSpaceState2D:
+	return player.get_world_2d().direct_space_state
+
+
+## Cast a ray downward from a position. Returns true if ground is found within max_depth.
+func _raycast_down(from: Vector2, max_depth: float) -> bool:
+	var query := PhysicsRayQueryParameters2D.create(from, from + Vector2(0, max_depth), GROUND_MASK)
+	query.exclude = [player.get_rid()]
+	var result := _get_space_state().intersect_ray(query)
+	return not result.is_empty()
+
+
+## Cast a ray upward from a position. Returns true if there's a platform above within max_height.
+func _raycast_up(from: Vector2, max_height: float) -> bool:
+	# Cast upward checking for solid ground above (the underside of a platform)
+	# We actually want to check if there's a platform to land ON, so cast from
+	# an offset position above us back down
+	var check_pos := from + Vector2(0, -max_height)
+	var query := PhysicsRayQueryParameters2D.create(check_pos, from, GROUND_MASK)
+	query.exclude = [player.get_rid()]
+	var result := _get_space_state().intersect_ray(query)
+	return not result.is_empty()
+
+
+## Check if the wall ahead is short enough to jump over.
+## Casts a horizontal ray at jump-height to see if it's clear above the wall.
+func _can_jump_over_wall(dir: int) -> bool:
+	# Check 34px up (most of jump height) — if no wall there, we can clear it
+	var from := player.global_position + Vector2(0, -34.0)
+	var to := from + Vector2(dir * 18.0, 0)
+	var query := PhysicsRayQueryParameters2D.create(from, to, SOLID_MASK)
+	query.exclude = [player.get_rid()]
+	var result := _get_space_state().intersect_ray(query)
+	return result.is_empty()  # clear above = can jump over
+
+
+## Check if there's ground on the other side of a gap (within ~3 tiles ahead).
+func _has_ground_across_gap(dir: int) -> bool:
+	# Check at 2-tile and 3-tile distances ahead for ground
+	for offset_x in [34, 50]:
+		var from := player.global_position + Vector2(dir * offset_x, -2.0)
+		var to := from + Vector2(0, 34.0)
+		var query := PhysicsRayQueryParameters2D.create(from, to, GROUND_MASK)
+		query.exclude = [player.get_rid()]
+		var result := _get_space_state().intersect_ray(query)
+		if not result.is_empty():
+			return true
+	return false
 
 
 func _evaluate_and_equip() -> void:
@@ -363,7 +443,7 @@ func _evaluate_and_equip() -> void:
 
 func _is_near_ledge() -> bool:
 	var check_distance := 12.0
-	var check_depth := 16.0
+	var check_depth := 18.0  # 16px tile + 2px buffer
 	var dir := player.direction if player.direction != 0 else player.facing_direction
 	var forward_offset := Vector2(dir * check_distance, 0)
 	var forward_transform := player.global_transform.translated(forward_offset)
