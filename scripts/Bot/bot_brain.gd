@@ -19,11 +19,16 @@ var wander_chance: float = 0.6
 var aggro_range: float = 200.0
 var attack_range: float = 25.0
 var retreat_health_pct: float = 0.2
+var loot_range: float = 80.0
 
 var target_enemy: EnemyBase = null
+var target_loot: DroppedItem = null
 
 var _respawn_timer: float = -1.0
 const RESPAWN_DELAY: float = 3.0
+
+var _equip_check_timer: float = 0.0
+const EQUIP_CHECK_INTERVAL: float = 2.0
 
 
 func init(player_node: MultiplayerPlayerV2, id: int, behavior_config: Dictionary = {}) -> void:
@@ -37,6 +42,7 @@ func init(player_node: MultiplayerPlayerV2, id: int, behavior_config: Dictionary
 	wander_duration_min = behavior_config.get("wander_duration_min", 2.0)
 	wander_duration_max = behavior_config.get("wander_duration_max", 6.0)
 	aggro_range = behavior_config.get("aggro_range", 200.0)
+	loot_range = behavior_config.get("loot_range", 80.0)
 
 	think_timer = randf() * think_interval
 
@@ -61,6 +67,11 @@ func _process(delta: float) -> void:
 		think_timer = think_interval
 		_think()
 
+	_equip_check_timer -= delta
+	if _equip_check_timer <= 0.0:
+		_equip_check_timer = EQUIP_CHECK_INTERVAL
+		_evaluate_and_equip()
+
 	_apply_current_action()
 
 
@@ -74,20 +85,23 @@ func _handle_dead(delta: float) -> void:
 
 
 func _think() -> void:
-	# Validate current target
 	if is_instance_valid(target_enemy):
 		if target_enemy.health_component and target_enemy.health_component.is_dead:
 			target_enemy = null
 	else:
 		target_enemy = null
 
-	# Check health for retreat
+	if is_instance_valid(target_loot):
+		if target_loot.current_state == DroppedItem.ItemState.COLLECTED:
+			target_loot = null
+	else:
+		target_loot = null
+
 	if _should_retreat():
 		if target_enemy:
 			current_action = "retreat"
 			return
 
-	# Look for enemies
 	if not target_enemy:
 		target_enemy = _find_nearest_enemy()
 
@@ -95,7 +109,13 @@ func _think() -> void:
 		current_action = "fight"
 		return
 
-	# No enemies — wander or idle
+	if not target_loot:
+		target_loot = _find_best_loot()
+
+	if target_loot:
+		current_action = "loot"
+		return
+
 	if action_timer > 0.0:
 		return
 
@@ -133,6 +153,36 @@ func _find_nearest_enemy() -> EnemyBase:
 	return best
 
 
+func _find_best_loot() -> DroppedItem:
+	var map_node = MapManager.get_player_map_node(bot_id)
+	if not map_node:
+		return null
+
+	var drops_node = map_node.get_node_or_null("ItemDrops")
+	if not drops_node:
+		return null
+
+	var best: DroppedItem = null
+	var best_dist_sq := loot_range * loot_range
+
+	for child in drops_node.get_children():
+		if child is not DroppedItem:
+			continue
+		if not is_instance_valid(child):
+			continue
+		if child.current_state != DroppedItem.ItemState.SETTLED:
+			continue
+		if not child._can_player_pickup(player):
+			continue
+
+		var dist_sq := player.global_position.distance_squared_to(child.global_position)
+		if dist_sq < best_dist_sq:
+			best_dist_sq = dist_sq
+			best = child
+
+	return best
+
+
 func _start_idle() -> void:
 	current_action = "idle"
 	action_timer = randf_range(idle_duration_min, idle_duration_max)
@@ -149,12 +199,18 @@ func _apply_current_action() -> void:
 	match current_action:
 		"idle":
 			player.direction = 0
+			player.do_pickup = false
 		"wander":
+			player.do_pickup = false
 			_do_wander()
 		"fight":
+			player.do_pickup = false
 			_do_fight()
 		"retreat":
+			player.do_pickup = false
 			_do_retreat()
+		"loot":
+			_do_loot()
 
 
 func _do_wander() -> void:
@@ -184,17 +240,14 @@ func _do_fight() -> void:
 	var dist :int= abs(to_enemy.x)
 
 	if dist <= attack_range:
-		# In range — stop and attack
 		player.direction = 0
 		player.facing_direction = 1 if to_enemy.x > 0 else -1
 		player.do_attack = true
 	else:
-		# Move toward enemy
 		var dir := 1 if to_enemy.x > 0 else -1
 		player.direction = dir
 		player.facing_direction = dir
 
-		# Don't walk off ledges while chasing
 		if player.is_on_floor() and _is_near_ledge():
 			player.direction = 0
 
@@ -205,7 +258,6 @@ func _do_retreat() -> void:
 		return
 
 	var to_enemy := target_enemy.global_position - player.global_position
-	# Move away from enemy
 	var dir := -1 if to_enemy.x > 0 else 1
 	player.direction = dir
 	player.facing_direction = dir
@@ -213,11 +265,59 @@ func _do_retreat() -> void:
 	if player.is_on_floor() and _is_near_ledge():
 		player.direction = 0
 
-	# Stop retreating if health recovers or enemy is far away
 	if not _should_retreat() or abs(to_enemy.x) > aggro_range:
 		target_enemy = null
 		current_action = "idle"
 		action_timer = 1.0
+
+
+func _do_loot() -> void:
+	if not is_instance_valid(target_loot) or target_loot.current_state == DroppedItem.ItemState.COLLECTED:
+		target_loot = null
+		current_action = "idle"
+		player.do_pickup = false
+		return
+
+	var to_loot := target_loot.global_position - player.global_position
+	var dist := abs(to_loot.x)
+
+	if dist <= target_loot.pickup_distance:
+		player.direction = 0
+		player.do_pickup = true
+	else:
+		player.do_pickup = false
+		var dir := 1 if to_loot.x > 0 else -1
+		player.direction = dir
+		player.facing_direction = dir
+
+		if player.is_on_floor() and _is_near_ledge():
+			player.direction = 0
+
+
+func _evaluate_and_equip() -> void:
+	if not is_instance_valid(player):
+		return
+	if not is_instance_valid(player.inventory_component):
+		return
+	if not is_instance_valid(player.equipment_component):
+		return
+
+	for slot in player.inventory_component.slots:
+		if slot.item == null:
+			continue
+		if slot.item is not EquipmentData:
+			continue
+
+		var target_slot := BotEquipmentLogic.get_target_slot(slot.item, player.equipment_component)
+		if target_slot == null:
+			continue
+
+		if BotEquipmentLogic.should_equip(target_slot.item, slot.item):
+			var old_item = target_slot.item
+			target_slot.item = slot.item
+			slot.item = old_item
+			slot.update_display()
+			target_slot.update_display()
 
 
 func _is_near_ledge() -> bool:

@@ -211,7 +211,8 @@ func _pickup_item(picking_player: MultiplayerPlayerV2 = null) -> void:
 		QuestManager.record_item_collected(player_to_give_item.username, item_data.name, stack_amount)
 
 	# RPC to client to show log message
-		show_pickup_log_rpc.rpc_id(player_to_give_item.player_id, item_data.name, stack_amount)
+		if not BotManager.is_bot(player_to_give_item.player_id):
+			show_pickup_log_rpc.rpc_id(player_to_give_item.player_id, item_data.name, stack_amount)
 	
 	# Stop syncing immediately to prevent "Node not found" errors on client
 	var synchronizer = get_node_or_null("MultiplayerSynchronizer")
