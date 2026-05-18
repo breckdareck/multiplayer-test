@@ -20,6 +20,7 @@ var aggro_range: float = 200.0
 var attack_range: float = 25.0
 var retreat_health_pct: float = 0.2
 var loot_range: float = 80.0
+var loot_priority_range: float = 50.0
 
 var target_enemy: EnemyBase = null
 var target_loot: DroppedItem = null
@@ -120,6 +121,15 @@ func _think() -> void:
 			current_action = "retreat"
 			return
 
+	# Check for nearby loot first — pick it up before chasing the next enemy
+	if not target_loot:
+		target_loot = _find_best_loot()
+	if target_loot:
+		var loot_dist := player.global_position.distance_to(target_loot.global_position)
+		if loot_dist <= loot_priority_range:
+			current_action = "loot"
+			return
+
 	if not target_enemy:
 		target_enemy = _find_nearest_enemy()
 
@@ -127,9 +137,7 @@ func _think() -> void:
 		current_action = "fight"
 		return
 
-	if not target_loot:
-		target_loot = _find_best_loot()
-
+	# Loot is available but farther away — go get it now since nothing else to do
 	if target_loot:
 		current_action = "loot"
 		return
@@ -256,11 +264,20 @@ func _do_fight() -> void:
 
 	var to_enemy := target_enemy.global_position - player.global_position
 	var dist :int= abs(to_enemy.x)
+	var dir := 1 if to_enemy.x > 0 else -1
 
 	if dist <= attack_range:
-		player.direction = 0
-		player.facing_direction = 1 if to_enemy.x > 0 else -1
-		player.do_attack = true
+		# Check if there's a wall between us and the enemy
+		if _is_wall_between(player.global_position, target_enemy.global_position):
+			# Wall is blocking — navigate around/over it
+			player.direction = dir
+			player.facing_direction = dir
+			if player.is_on_wall() and player.is_on_floor():
+				_try_jump()
+		else:
+			player.direction = 0
+			player.facing_direction = dir
+			player.do_attack = true
 	else:
 		_navigate_toward(target_enemy.global_position)
 
@@ -313,7 +330,7 @@ func _navigate_toward(target_pos: Vector2) -> void:
 
 	var dy := to_target.y  # positive = target below, negative = target above
 
-	# --- Stuck against a wall: always jump after a short delay ---
+	# --- Stuck against a wall: jump to get over it ---
 	if player.is_on_wall():
 		if _wall_stuck_timer >= WALL_STUCK_JUMP_TIME:
 			_try_jump()
@@ -321,11 +338,9 @@ func _navigate_toward(target_pos: Vector2) -> void:
 
 	# --- Target is below us ---
 	if dy > 20.0:
-		# On a one-way platform? Drop through it
 		if player.can_drop_through_platform():
 			player.do_drop = true
 			return
-		# At a ledge? Check if there's ground to land on below
 		if _is_near_ledge():
 			if _raycast_down(player.global_position + Vector2(dir * 18.0, 0), 200.0):
 				return  # safe to walk off — ground below
@@ -338,19 +353,16 @@ func _navigate_toward(target_pos: Vector2) -> void:
 		if abs(dy) <= MAX_JUMP_HEIGHT:
 			_try_jump()
 			return
-		# Target is too high to jump to — walk horizontally, maybe find a ramp
 		if _is_near_ledge():
 			player.direction = 0
 		return
 
 	# --- Target is roughly same level ---
 	if _is_near_ledge():
-		# Check if there's ground ahead across the gap
 		if _has_ground_across_gap(dir):
 			return  # safe to walk off — will land on ground ahead
-		# Check if target is slightly below and there's ground under the ledge
 		if dy > 5.0 and _raycast_down(player.global_position + Vector2(dir * 18.0, 0), 200.0):
-			return  # walk off to reach target below
+			return
 		player.direction = 0
 
 
@@ -376,7 +388,6 @@ func _raycast_down(from: Vector2, max_depth: float) -> bool:
 
 
 ## Check if there's ground on the other side of a gap (within ~3 tiles ahead).
-## Casts downward from positions 2 and 3 tiles ahead to find a landing spot.
 func _has_ground_across_gap(dir: int) -> bool:
 	for offset_x in [34, 50]:
 		var from := player.global_position + Vector2(dir * offset_x, -2.0)
@@ -387,6 +398,14 @@ func _has_ground_across_gap(dir: int) -> bool:
 		if not result.is_empty():
 			return true
 	return false
+
+
+## Check if there's a solid wall between two positions (horizontal ray on World layer only).
+func _is_wall_between(from: Vector2, to: Vector2) -> bool:
+	var query := PhysicsRayQueryParameters2D.create(from, to, SOLID_MASK)
+	query.exclude = [player.get_rid()]
+	var result := _get_space_state().intersect_ray(query)
+	return not result.is_empty()
 
 
 func _evaluate_and_equip() -> void:
