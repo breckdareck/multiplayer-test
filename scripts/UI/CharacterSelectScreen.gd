@@ -162,7 +162,9 @@ func _on_connection_succeeded():
 	queue_free()
 
 func _on_connection_failed():
-	status_label.text = "Connection failed!"
+	var ip = ip_input.text if ip_input.text != "" else "127.0.0.1"
+	var port = MultiplayerManager.CONFIG.DEFAULT_PORT
+	status_label.text = "Failed to connect to %s:%d\n(Server may be offline or full)" % [ip, port]
 	status_label.add_theme_color_override("font_color", Color.RED)
 	_set_buttons_enabled(true)
 

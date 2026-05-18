@@ -93,7 +93,7 @@ func _on_client_connected():
 	_update_ui_for_client()
 
 func _on_client_failed():
-	print("Failed to connect to server")
+	print("Failed to connect to %s:%d" % [ClientManager.current_server_ip, ClientManager.current_server_port])
 
 func _on_server_disconnected():
 	if ChannelManager.is_switching():
