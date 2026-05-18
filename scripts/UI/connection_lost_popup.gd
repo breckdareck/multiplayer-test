@@ -43,7 +43,6 @@ func _on_reconnect_failed():
 func _on_return_to_login():
 	_cleanup_signals()
 	visible = false
-	await MultiplayerManager.reset_data()
 	get_tree().change_scene_to_file("res://scenes/UI/LoginScreen.tscn")
 
 func _cleanup_signals():
