@@ -15,7 +15,10 @@ var idle_duration_max: float = 4.0
 var wander_duration_min: float = 2.0
 var wander_duration_max: float = 6.0
 var wander_chance: float = 0.6
-var jump_chance: float = 0.08
+var jump_chance: float = 0.15
+
+var _respawn_timer: float = -1.0
+const RESPAWN_DELAY: float = 3.0
 
 
 func init(player_node: MultiplayerPlayerV2, id: int, behavior_config: Dictionary = {}) -> void:
@@ -42,8 +45,10 @@ func _process(delta: float) -> void:
 
 	if is_instance_valid(player.health_component) and player.health_component.is_dead:
 		_clear_input()
+		_handle_dead(delta)
 		return
 
+	_respawn_timer = -1.0
 	action_timer -= delta
 	think_timer -= delta
 
@@ -52,6 +57,15 @@ func _process(delta: float) -> void:
 		_think()
 
 	_apply_current_action()
+
+
+func _handle_dead(delta: float) -> void:
+	if _respawn_timer < 0.0:
+		_respawn_timer = RESPAWN_DELAY
+	_respawn_timer -= delta
+	if _respawn_timer <= 0.0:
+		_respawn_timer = -1.0
+		player.respawn()
 
 
 func _think() -> void:
@@ -85,14 +99,27 @@ func _apply_current_action() -> void:
 			if player.direction != 0:
 				player.facing_direction = player.direction
 
+			# Wall detection — turn around
 			if player.is_on_wall():
 				wander_direction *= -1
 				player.direction = wander_direction
 				if player.direction != 0:
 					player.facing_direction = player.direction
 
-			if randf() < jump_chance and player.is_on_floor():
-				player.do_jump = true
+			# Ledge detection — check if ground exists ahead before walking off
+			if player.is_on_floor() and _is_near_ledge():
+				wander_direction *= -1
+				player.direction = wander_direction
+				if player.direction != 0:
+					player.facing_direction = player.direction
+
+
+func _is_near_ledge() -> bool:
+	var check_distance := 12.0
+	var check_depth := 16.0
+	var forward_offset := Vector2(wander_direction * check_distance, 0)
+	var forward_transform := player.global_transform.translated(forward_offset)
+	return not player.test_move(forward_transform, Vector2(0, check_depth))
 
 
 func _clear_input() -> void:
