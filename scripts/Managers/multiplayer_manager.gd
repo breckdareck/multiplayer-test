@@ -140,9 +140,13 @@ func _handle_server_disconnect():
 	print("MultiplayerManager: Cleaning up network state...")
 	disconnect_reason = reason
 
-	# Clean up all networked entities before scene change
+	# Clean up all networked entities and maps before scene change
 	get_tree().call_group("networked_entities", "queue_free")
 	PlayerManager.cleanup()
+	MapManager.reset_client_state()
+	var maps_container = get_tree().root.get_node_or_null("Maps")
+	if maps_container:
+		maps_container.queue_free()
 	ClientManager._disconnect()
 	if multiplayer.multiplayer_peer:
 		multiplayer.multiplayer_peer.close()
