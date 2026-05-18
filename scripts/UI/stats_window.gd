@@ -10,7 +10,9 @@ extends Control
 @onready var level_string_label: Label = $StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/LevelContainer/LevelStringLabel
 @onready var experience_string_label: Label = $StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/ExperienceContainer/ExperienceStringLabel
 @onready var health_amount_label: Label = $StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/HealthContainer/HealthAmountLabel
+@onready var health_regen_amount_label: Label = $StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/HealthRegenContainer/HealthRegenAmountLabel
 @onready var mana_amount_label: Label = $StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/ManaContainer/ManaAmountLabel
+@onready var mana_regen_amount_label: Label = $StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/ManaRegenContainer/ManaRegenAmountLabel
 
 @onready var str_amount_label: Label = $StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/STRContainer/STRAmountLabel
 @onready var dex_amount_label: Label = $StatsPanel/ScrollContainer/MarginContainer/VBoxContainer/DEXContainer/DEXAmountLabel
@@ -97,7 +99,9 @@ func update_stats_window():
 	level_string_label.text = str(int(player.level_component.level))
 	experience_string_label.text = str(int(player.level_component.experience)) + "/" + str(int(player.level_component.get_exp_to_next_level()))
 	health_amount_label.text = str(player.health_component.current_health) + "/" + str(player.health_component.max_health)
+	health_regen_amount_label.text = str(player.stats_component.stats.get(Constants.StatType.HPREGEN).total_value)
 	mana_amount_label.text = str(player.mana_component.current_mana) + "/" + str(player.mana_component.max_mana)
+	mana_regen_amount_label.text = str(player.stats_component.stats.get(Constants.StatType.MPREGEN).total_value)
 	
 	str_amount_label.text = "%d (%d+%d)" % [player.stats_component.stats.get(Constants.StatType.STRENGTH).total_value, player.stats_component.stats.get(Constants.StatType.STRENGTH).base_value, player.stats_component.stats.get(Constants.StatType.STRENGTH).combined_bonus_value]	
 	dex_amount_label.text = "%d (%d+%d)" % [player.stats_component.stats.get(Constants.StatType.DEXTERITY).total_value, player.stats_component.stats.get(Constants.StatType.DEXTERITY).base_value, player.stats_component.stats.get(Constants.StatType.DEXTERITY).combined_bonus_value]	
