@@ -1,10 +1,10 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://bdp6un27d174w"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
 [ext_resource type="SpriteFrames" uid="uid://b2ohgim61o1bm" path="res://resources/Enemies/Slime/SF_Slime.tres" id="3_sf"]
 [ext_resource type="Resource" path="res://resources/DropTables/Short_Sword.tres" id="4_ss"]
-[ext_resource type="Resource" path="res://resources/DropTables/Iron_Sword.tres" id="5_is"]
+[ext_resource type="Resource" uid="uid://e88f354c6hrj" path="res://resources/DropTables/Iron_Sword.tres" id="5_is"]
 [ext_resource type="Resource" path="res://resources/DropTables/Oak_Staff.tres" id="6_os"]
 [ext_resource type="Resource" path="res://resources/DropTables/Crystal_Staff.tres" id="7_cs"]
 

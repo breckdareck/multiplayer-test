@@ -15,7 +15,7 @@ var is_public_pickup: bool = false
 @export var pickup_distance: float = 15.0
 @export var ground_friction: float = 0.85
 @export var min_settle_time: float = 0.5
-@export var despawn_time: float = 300.0
+@export var despawn_time: float = 130.0
 @export var despawn_warning_time: float = 30.0
 
 @export var sprite: Sprite2D
@@ -120,7 +120,7 @@ func _handle_settled() -> void:
 	if not is_public_pickup:
 		check_and_make_public_if_needed()
 
-	if state_timer > 120 and not is_public_pickup:
+	if state_timer > 30 and not is_public_pickup:
 		make_public()
 
 	# Despawn after configured time

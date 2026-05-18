@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=4 uid="uid://wkfowd2qg5dn"]
+[gd_scene load_steps=18 format=4 uid="uid://wkfowd2qg5dn"]
 
 [ext_resource type="Script" path="res://scripts/Gameplay/map_base.gd" id="1_gfksk"]
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/VFX/damage_numbers.gd" id="1_l73hv"]
@@ -7,6 +7,10 @@
 [ext_resource type="Texture2D" uid="uid://cd28i3fo3v1m0" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/country village tileset.png" id="4_br3j8"]
 [ext_resource type="Texture2D" uid="uid://b8r3ov605pnuj" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/Country_village_props.png" id="5_s57hd"]
 [ext_resource type="PackedScene" uid="uid://bx2n3vrfxk75m" path="res://scenes/Gameplay/killzone.tscn" id="6_5y0l1"]
+[ext_resource type="PackedScene" path="res://scenes/NPC/Minifolks/dark_bunny.tscn" id="9_j2jkv"]
+[ext_resource type="PackedScene" path="res://scenes/NPC/fire_slime.tscn" id="10_e6cox"]
+[ext_resource type="PackedScene" path="res://scenes/NPC/Minifolks/shadow_fox.tscn" id="10_obygc"]
+[ext_resource type="PackedScene" path="res://scenes/NPC/Minifolks/wild_boar.tscn" id="11_q3qox"]
 [ext_resource type="Script" uid="uid://igk1rxt26f2i" path="res://scripts/UI/global_drop_handler.gd" id="12_1vulb"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_m14ue"]
@@ -567,6 +571,54 @@ shape = SubResource("WorldBoundaryShape2D_pyfba")
 
 [node name="Enemies" type="Node2D" parent="."]
 position = Vector2(830, -33)
+
+[node name="DarkBunny" parent="Enemies" instance=ExtResource("9_j2jkv")]
+position = Vector2(-2420, 32)
+respawnable = true
+
+[node name="DarkBunny2" parent="Enemies" instance=ExtResource("9_j2jkv")]
+position = Vector2(-2484, 32)
+respawnable = true
+
+[node name="ShadowFox" parent="Enemies" instance=ExtResource("10_obygc")]
+position = Vector2(-2570, 17)
+respawnable = true
+
+[node name="ShadowFox2" parent="Enemies" instance=ExtResource("10_obygc")]
+position = Vector2(-2734, 17)
+respawnable = true
+
+[node name="ShadowFox3" parent="Enemies" instance=ExtResource("10_obygc")]
+position = Vector2(-2877, 17)
+respawnable = true
+
+[node name="FireSlime" parent="Enemies" instance=ExtResource("10_e6cox")]
+position = Vector2(-2644, 17)
+respawnable = true
+
+[node name="FireSlime2" parent="Enemies" instance=ExtResource("10_e6cox")]
+position = Vector2(-2802, 18)
+respawnable = true
+
+[node name="WildBoar" parent="Enemies" instance=ExtResource("11_q3qox")]
+position = Vector2(-3025, 33)
+respawnable = true
+
+[node name="WildBoar2" parent="Enemies" instance=ExtResource("11_q3qox")]
+position = Vector2(-2987, 32)
+respawnable = true
+
+[node name="WildBoar3" parent="Enemies" instance=ExtResource("11_q3qox")]
+position = Vector2(-2950, 32)
+respawnable = true
+
+[node name="WildBoar4" parent="Enemies" instance=ExtResource("11_q3qox")]
+position = Vector2(-2776, 16)
+respawnable = true
+
+[node name="WildBoar5" parent="Enemies" instance=ExtResource("11_q3qox")]
+position = Vector2(-2689, 16)
+respawnable = true
 
 [node name="Projectiles" type="Node2D" parent="."]
 
