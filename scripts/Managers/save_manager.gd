@@ -173,9 +173,15 @@ func flush_save(username: String) -> void:
 	# API keeps stale data — and loads always read from the API first.
 	if _in_flight_username != "":
 		print("SaveManager: Flush for '%s' — waiting for in-flight save ('%s') to finish." % [username, _in_flight_username])
-		while _in_flight_username != "":
+		var wait_frames := 0
+		while _in_flight_username != "" and wait_frames < 300:
 			await get_tree().process_frame
-		print("SaveManager: In-flight save finished, proceeding with flush for '%s'." % username)
+			wait_frames += 1
+		if wait_frames >= 300:
+			push_error("SaveManager: Timed out waiting for in-flight save, forcing continue")
+			_in_flight_username = ""
+		else:
+			print("SaveManager: In-flight save finished, proceeding with flush for '%s'." % username)
 
 	# Send via HTTP (blocking via await)
 	info.dirty_categories.clear()
