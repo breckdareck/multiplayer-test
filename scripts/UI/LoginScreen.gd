@@ -50,10 +50,33 @@ func _ready():
 		MultiplayerManager.disconnect_reason = ""
 
 
+var _health_request: HTTPRequest = null
+
 func _setup_backend_display():
-	# Initialize with current backend URL
 	api_url_input.text = UserConfig.get_backend_api_url()
-	api_status_label.text = "API URL: %s" % UserConfig.get_backend_api_url()
+	api_status_label.text = "API URL: %s (checking...)" % UserConfig.get_backend_api_url()
+	_health_request = HTTPRequest.new()
+	_health_request.request_completed.connect(_on_health_check_completed)
+	add_child(_health_request)
+	_check_backend_health()
+
+func _check_backend_health():
+	var base_url = UserConfig.get_backend_api_url().replace("/api", "")
+	var error = _health_request.request(base_url + "/health")
+	if error != OK:
+		_update_backend_status(false)
+
+func _on_health_check_completed(_result: int, response_code: int, _headers: PackedStringArray, _body: PackedByteArray):
+	_update_backend_status(response_code == 200)
+
+func _update_backend_status(online: bool):
+	var url = UserConfig.get_backend_api_url()
+	if online:
+		api_status_label.text = "API URL: %s (Online)" % url
+		api_status_label.add_theme_color_override("font_color", Color.GREEN)
+	else:
+		api_status_label.text = "API URL: %s (Offline)" % url
+		api_status_label.add_theme_color_override("font_color", Color.RED)
 
 
 func _toggle_backend_settings():
@@ -76,9 +99,9 @@ func _on_preset_selected(preset_name: String):
 	# Apply the preset
 	UserConfig.set_backend_api_url(preset_url)
 	api_url_input.text = preset_url
-	api_status_label.text = "API URL: %s" % preset_url
 	NetworkManager.api_url = preset_url
-	
+	_check_backend_health()
+
 	status_label.text = "Switched to %s backend" % preset_name
 	status_label.add_theme_color_override("font_color", Color.GREEN)
 	_toggle_backend_settings()  # Collapse the settings
@@ -99,11 +122,10 @@ func _on_apply_api_url():
 	
 	UserConfig.set_backend_api_url(new_url)
 	api_presets["Cloud"] = new_url  # Save as Cloud preset
-	api_status_label.text = "API URL: %s" % new_url
-	
 	# Reconnect NetworkManager to use new URL
 	NetworkManager.api_url = UserConfig.get_backend_api_url()
-	
+	_check_backend_health()
+
 	status_label.text = "Backend API URL updated!"
 	status_label.add_theme_color_override("font_color", Color.GREEN)
 	_toggle_backend_settings()  # Collapse the settings

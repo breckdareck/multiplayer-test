@@ -56,10 +56,10 @@ echo Press Ctrl+C to stop the server.
 echo.
 
 REM Use the exported server binary — check .console.exe first (shows output), then .exe
-if exist "%~dp0builds\Server\MultiplayerServer.console.exe" (
-    "%~dp0builds\Server\MultiplayerServer.console.exe" --headless --log-file "%LOG_FILE%" -- --port 8080
-) else if exist "%~dp0builds\Server\MultiplayerServer.exe" (
-    "%~dp0builds\Server\MultiplayerServer.exe" --headless --log-file "%LOG_FILE%" -- --port 8080
+if exist "%~dp0..\builds\Server\MultiplayerServer.console.exe" (
+    "%~dp0..\builds\Server\MultiplayerServer.console.exe" --headless --log-file "%LOG_FILE%" -- --port 8080
+) else if exist "%~dp0..\builds\Server\MultiplayerServer.exe" (
+    "%~dp0..\builds\Server\MultiplayerServer.exe" --headless --log-file "%LOG_FILE%" -- --port 8080
 ) else (
     echo ERROR: Server binary not found.
     echo Checked: builds\Server\MultiplayerServer.console.exe

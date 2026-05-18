@@ -60,7 +60,7 @@ func _setup_backend_info_display():
 
 
 func _check_server_status():
-	var api_url = UserConfig.get_backend_api_url()
+	var api_url = UserConfig.get_backend_api_url().replace("/api", "")
 	var error = _status_request.request(api_url + "/health")
 	if error != OK:
 		_update_server_status(false)
