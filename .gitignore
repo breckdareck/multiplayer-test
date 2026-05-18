@@ -4,6 +4,7 @@
 
 # Temporary files and logs
 *.log
+/logs/
 *.pck.tmp
 
 # User-specific settings (if applicable)
