@@ -11,6 +11,7 @@ var scrolling_log_scene = preload("res://scenes/UI/ScrollingLog.tscn")
 var chat_window_scene = preload("res://scenes/UI/ChatWindow.tscn")
 
 var death_popup_instance: DeathPopup
+var ping_display_script = preload("res://scripts/UI/ping_display.gd")
 
 @onready var health_bar: TextureProgressBar = $BottomStatsContainer/HealthBar
 @onready var hp_value_label: Label = $BottomStatsContainer/HealthBar/HPValueLabel
@@ -51,6 +52,17 @@ func _ready() -> void:
 	# Setup Chat Window
 	var chat_window_instance = chat_window_scene.instantiate()
 	add_child(chat_window_instance)
+
+	# Setup Ping Display (top-right corner)
+	var ping_label = Label.new()
+	ping_label.name = "PingDisplay"
+	ping_label.set_script(ping_display_script)
+	ping_label.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	ping_label.offset_left = -120
+	ping_label.offset_top = 8
+	ping_label.offset_right = -8
+	ping_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	add_child(ping_label)
 
 	health_bar.max_value = player.health_component.max_health
 	health_bar.value = player.health_component.current_health
