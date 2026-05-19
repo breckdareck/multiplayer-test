@@ -31,6 +31,13 @@ const RESPAWN_DELAY: float = 3.0
 var _equip_check_timer: float = 0.0
 const EQUIP_CHECK_INTERVAL: float = 2.0
 
+var _ability_check_timer: float = 0.0
+const ABILITY_CHECK_INTERVAL: float = 5.0
+var _buff_abilities: Array[String] = []
+var _attack_abilities: Array[String] = []
+var _attack_ability_index: int = 0
+const MANA_RESERVE_PCT: float = 0.2
+
 const MAX_JUMP_HEIGHT: float = 40.0
 const JUMP_COOLDOWN: float = 0.8
 var _jump_cooldown_timer: float = 0.0
@@ -84,6 +91,11 @@ func _process(delta: float) -> void:
 	if _equip_check_timer <= 0.0:
 		_equip_check_timer = EQUIP_CHECK_INTERVAL
 		_evaluate_and_equip()
+
+	_ability_check_timer -= delta
+	if _ability_check_timer <= 0.0:
+		_ability_check_timer = ABILITY_CHECK_INTERVAL
+		_build_ability_lists()
 
 	# Track how long we've been stuck against a wall
 	if player.is_on_wall() and player.is_on_floor() and player.direction != 0:
@@ -282,7 +294,9 @@ func _do_fight() -> void:
 		else:
 			player.direction = 0
 			player.facing_direction = dir
-			player.do_attack = true
+			if not _try_use_buff():
+				if not _try_use_attack_ability():
+					player.do_attack = true
 	else:
 		_navigate_toward(target_enemy.global_position)
 
@@ -324,7 +338,7 @@ func _do_loot() -> void:
 		return
 
 	var to_loot := target_loot.global_position - player.global_position
-	var dx := abs(to_loot.x)
+	var dx = abs(to_loot.x)
 
 	# Use horizontal distance for "am I on top of the item" since Y can differ
 	# due to player origin vs item ground position
@@ -450,6 +464,103 @@ func _evaluate_and_equip() -> void:
 			slot.item = old_item
 			slot.update_display()
 			target_slot.update_display()
+
+
+func _build_ability_lists() -> void:
+	_buff_abilities.clear()
+	_attack_abilities.clear()
+
+	if not is_instance_valid(player):
+		return
+	var ability_comp: AbilityComponent = player.ability_component
+	if not is_instance_valid(ability_comp):
+		return
+
+	_auto_spend_ability_points(ability_comp)
+
+	for ability_id in ability_comp._ability_levels:
+		if ability_comp._ability_levels[ability_id] <= 0:
+			continue
+		var ability_data: AbilityData = ResourceManager.get_ability_data(ability_id)
+		if not ability_data or ability_data.ability_type != Constants.AbilityType.ACTIVE:
+			continue
+		if ability_data.applies_buff:
+			_buff_abilities.append(ability_id)
+		else:
+			_attack_abilities.append(ability_id)
+
+
+func _auto_spend_ability_points(ability_comp: AbilityComponent) -> void:
+	while ability_comp.get_available_ability_points() > 0:
+		var leveled_any := false
+		for ability_id in ability_comp._ability_levels:
+			if ability_comp.can_level_up_ability(ability_id):
+				ability_comp.level_up_ability(ability_id)
+				leveled_any = true
+				break
+		if not leveled_any:
+			break
+
+
+func _try_use_buff() -> bool:
+	if _buff_abilities.is_empty():
+		return false
+	var ability_comp: AbilityComponent = player.ability_component
+	var buff_comp: BuffComponent = player.buff_component
+	if not is_instance_valid(ability_comp) or not is_instance_valid(buff_comp):
+		return false
+
+	for ability_id in _buff_abilities:
+		var ability_data: AbilityData = ResourceManager.get_ability_data(ability_id)
+		if not ability_data or not ability_data.applies_buff:
+			continue
+		if buff_comp.has_buff(ability_data.applies_buff.buff_id):
+			continue
+		if ability_comp.get_cooldown_remaining(ability_id) > 0.0:
+			continue
+		if not _has_enough_mana(ability_id):
+			continue
+		ability_comp.use_ability_server(ability_id)
+		return true
+	return false
+
+
+func _try_use_attack_ability() -> bool:
+	if _attack_abilities.is_empty():
+		return false
+	var ability_comp: AbilityComponent = player.ability_component
+	if not is_instance_valid(ability_comp):
+		return false
+
+	var count := _attack_abilities.size()
+	for i in count:
+		var idx := (_attack_ability_index + i) % count
+		var ability_id: String = _attack_abilities[idx]
+		if ability_comp.get_cooldown_remaining(ability_id) > 0.0:
+			continue
+		if not _has_enough_mana(ability_id):
+			continue
+		ability_comp.use_ability_server(ability_id)
+		_attack_ability_index = (idx + 1) % count
+		return true
+	return false
+
+
+func _has_enough_mana(ability_id: String) -> bool:
+	var ability_comp: AbilityComponent = player.ability_component
+	var mana_comp: ManaComponent = player.mana_component
+	if not is_instance_valid(ability_comp) or not is_instance_valid(mana_comp):
+		return false
+	var ability_data: AbilityData = ResourceManager.get_ability_data(ability_id)
+	if not ability_data:
+		return false
+	var level := ability_comp.get_ability_level(ability_id)
+	var level_stats: AbilityLevelData = ability_data.get_level_stats(level)
+	if not level_stats:
+		return false
+	var mana_cost: float = level_stats.mana_cost * ability_comp.get_ability_mana_modifier(ability_id)
+	var mana_after := mana_comp.current_mana - mana_cost
+	return mana_after >= mana_comp.max_mana * MANA_RESERVE_PCT
 
 
 func _is_near_ledge() -> bool:
