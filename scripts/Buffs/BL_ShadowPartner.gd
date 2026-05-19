@@ -45,6 +45,10 @@ func on_tick(owner_node: Node, _active_buff, _delta: float) -> void:
 		if owner_node.has_method("sync_shadow_partner"):
 			owner_node.sync_shadow_partner.rpc(true)
 
+	if not _combat_component:
+		_combat_component = owner_node.get_node_or_null("Components/Combat")
+		_connect_combat_signal()
+
 	var dir: int = owner_node.facing_direction
 	_shadow.position = Vector2(-10 * dir, 0)
 
@@ -77,8 +81,12 @@ func _create_shadow_visual(owner_node: Node) -> void:
 
 
 func _connect_combat_signal() -> void:
-	if _combat_component and not _combat_component.dealt_damage.is_connected(_on_owner_dealt_damage):
+	if not _combat_component:
+		print("BL_ShadowPartner: _combat_component is NULL — cannot connect dealt_damage signal")
+		return
+	if not _combat_component.dealt_damage.is_connected(_on_owner_dealt_damage):
 		_combat_component.dealt_damage.connect(_on_owner_dealt_damage)
+		print("BL_ShadowPartner: Connected to dealt_damage signal on %s" % _combat_component.get_path())
 
 
 func _disconnect_combat_signal() -> void:
@@ -88,8 +96,10 @@ func _disconnect_combat_signal() -> void:
 
 func _on_owner_dealt_damage(target: Node, damage_values: Array, crit_values: Array) -> void:
 	if not is_instance_valid(_owner_ref) or not _owner_ref.multiplayer.is_server():
+		print("BL_ShadowPartner: _on_owner_dealt_damage skipped — owner invalid or not server")
 		return
 	if not target is EnemyBase:
+		print("BL_ShadowPartner: _on_owner_dealt_damage skipped — target is not EnemyBase: %s" % target)
 		return
 	var health_comp = target.get("health_component")
 	if not health_comp:
@@ -139,6 +149,7 @@ func _on_owner_dealt_damage(target: Node, damage_values: Array, crit_values: Arr
 		health_comp.take_damage(final_damage, _combat_component, true, is_crit, false)
 
 	# Interleave: insert each shadow hit after its corresponding player hit
+	print("BL_ShadowPartner: Shadow dealt %s damage (dmg_pct=%.0f)" % [shadow_damages, damage_percent])
 	for i in range(shadow_damages.size()):
 		var insert_idx: int = (i * 2) + 1
 		damage_values.insert(insert_idx, shadow_damages[i])

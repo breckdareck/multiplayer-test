@@ -300,6 +300,8 @@ func _do_fight() -> void:
 		current_action = "idle"
 		return
 
+	_try_use_buff()
+
 	var to_enemy := target_enemy.global_position - player.global_position
 	var dx :int= abs(to_enemy.x)
 	var dy := to_enemy.y
@@ -320,9 +322,8 @@ func _do_fight() -> void:
 		else:
 			player.direction = 0
 			player.facing_direction = dir
-			if not _try_use_buff():
-				if not _try_use_attack_ability():
-					player.do_attack = true
+			if not _try_use_attack_ability():
+				player.do_attack = true
 	else:
 		_navigate_toward(target_enemy.global_position)
 
