@@ -67,6 +67,14 @@ func send_chat_message(text: String) -> void:
 			_request_bot_command.rpc_id(1, text)
 			return
 
+		if command == "/trade":
+			var parts := text.split(" ", false)
+			if parts.size() < 2:
+				_send_system_message("Usage: /trade <player_name>", Color.ORANGE)
+			else:
+				TradeManager.rpc_request_trade.rpc_id(1, parts[1])
+			return
+
 		_send_system_message("Unknown command: %s" % command, Color.ORANGE)
 		return
 

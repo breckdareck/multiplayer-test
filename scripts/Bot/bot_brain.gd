@@ -46,10 +46,18 @@ var _shop_check_timer: float = 0.0
 const SHOP_CHECK_INTERVAL: float = 10.0
 const POTION_STOCK_TARGET: int = 20
 
-var _portal_idle_time: float = 0.0
-const PORTAL_IDLE_THRESHOLD: float = 8.0
-const PORTAL_CHANCE: float = 0.3
 var allow_map_travel: bool = true
+
+const FOLLOW_RANGE: float = 120.0
+const FOLLOW_CLOSE_RANGE: float = 40.0
+
+var patrol_route: Array = []
+var patrol_index: int = 0
+var target_portal: Node = null
+var _map_travel_timer: float = 0.0
+const MAP_TRAVEL_CHECK_INTERVAL: float = 15.0
+const LEVEL_OVERRIDE_THRESHOLD: int = 5
+const PORTAL_ARRIVE_DIST: float = 30.0
 
 const MAX_JUMP_HEIGHT: float = 40.0
 const JUMP_COOLDOWN: float = 0.8
@@ -76,6 +84,7 @@ func init(player_node: MultiplayerPlayerV2, id: int, behavior_config: Dictionary
 	aggro_range = behavior_config.get("aggro_range", 200.0)
 	loot_range = behavior_config.get("loot_range", 80.0)
 	allow_map_travel = behavior_config.get("allow_map_travel", true)
+	patrol_route = behavior_config.get("patrol_route", [])
 
 	think_timer = randf() * think_interval
 
@@ -121,11 +130,6 @@ func _process(delta: float) -> void:
 		_shop_check_timer = SHOP_CHECK_INTERVAL
 		_do_shop_maintenance()
 
-	if current_action == "idle" or current_action == "wander":
-		_portal_idle_time += delta
-	else:
-		_portal_idle_time = 0.0
-
 	# Track how long we've been stuck against a wall
 	if player.is_on_wall() and player.is_on_floor() and player.direction != 0:
 		_wall_stuck_timer += delta
@@ -162,6 +166,21 @@ func _think() -> void:
 			current_action = "retreat"
 			return
 
+	# Follow player party leader if in a player-led party
+	if _should_follow_leader():
+		var leader_id := _get_party_leader()
+		var leader_map := MapManager.get_player_map(leader_id)
+		var my_map := MapManager.get_player_map(bot_id)
+		if leader_map != my_map and not leader_map.is_empty():
+			MapManager.request_map_change(bot_id, leader_map)
+			return
+		var leader_node := PlayerManager.get_player_node(leader_id)
+		if is_instance_valid(leader_node):
+			var dist := player.global_position.distance_to(leader_node.global_position)
+			if dist > FOLLOW_CLOSE_RANGE:
+				current_action = "follow"
+				return
+
 	# Check for nearby loot first — pick it up before chasing the next enemy
 	var has_space := _has_inventory_space()
 	if has_space:
@@ -187,10 +206,17 @@ func _think() -> void:
 		current_action = "loot"
 		return
 
-	if allow_map_travel and _portal_idle_time >= PORTAL_IDLE_THRESHOLD:
-		if is_instance_valid(player.current_portal) and randf() < PORTAL_CHANCE:
-			_portal_idle_time = 0.0
-			player.do_portal_interact = true
+	if allow_map_travel and _is_squad_leader() and not _should_follow_leader():
+		_map_travel_timer -= think_interval
+		if _map_travel_timer <= 0.0:
+			_map_travel_timer = MAP_TRAVEL_CHECK_INTERVAL
+			target_portal = null
+			if _should_change_map():
+				var target_map := _get_target_map()
+				if not target_map.is_empty():
+					target_portal = _find_portal_to_map(target_map)
+		if is_instance_valid(target_portal):
+			current_action = "travel"
 			return
 
 	if action_timer > 0.0:
@@ -288,6 +314,10 @@ func _apply_current_action() -> void:
 			_do_retreat()
 		"loot":
 			_do_loot()
+		"follow":
+			_do_follow()
+		"travel":
+			_do_navigate_to_portal()
 
 
 func _do_wander() -> void:
@@ -403,6 +433,144 @@ func _do_loot() -> void:
 	else:
 		player.do_pickup = true  # keep trying while approaching
 		_navigate_toward(target_loot.global_position)
+
+
+func _do_follow() -> void:
+	var leader_id := _get_party_leader()
+	var leader_node := PlayerManager.get_player_node(leader_id)
+	if not is_instance_valid(leader_node):
+		current_action = "idle"
+		return
+	var dist := player.global_position.distance_to(leader_node.global_position)
+	if dist <= FOLLOW_CLOSE_RANGE:
+		player.direction = 0
+		return
+	_navigate_toward(leader_node.global_position)
+
+
+func _get_party_leader() -> int:
+	var party_id := PartyManager.get_player_party_id(bot_id)
+	if party_id == -1:
+		return 0
+	return PartyManager.get_party_leader(party_id)
+
+
+func _should_follow_leader() -> bool:
+	var leader_id := _get_party_leader()
+	if leader_id <= 0:
+		return false
+	# Only follow if the leader is a real player (not a bot)
+	return not BotManager.is_bot(leader_id)
+
+
+func _is_squad_leader() -> bool:
+	var party_id := PartyManager.get_player_party_id(bot_id)
+	if party_id == -1:
+		return true
+	return PartyManager.get_party_leader(party_id) == bot_id
+
+
+func _should_change_map() -> bool:
+	if not is_instance_valid(player) or not is_instance_valid(player.level_component):
+		return false
+
+	var my_map := MapManager.get_player_map(bot_id)
+	var difficulty := BotManager.get_map_difficulty(my_map)
+	if difficulty.is_empty():
+		return not patrol_route.is_empty()
+
+	var bot_level: int = player.level_component.level
+	var max_level: int = difficulty.get("max_level", 999)
+	var min_level: int = difficulty.get("min_level", 1)
+
+	if bot_level >= max_level + LEVEL_OVERRIDE_THRESHOLD:
+		return true
+	if bot_level <= min_level - LEVEL_OVERRIDE_THRESHOLD:
+		return true
+
+	return not patrol_route.is_empty()
+
+
+func _get_target_map() -> String:
+	if not is_instance_valid(player) or not is_instance_valid(player.level_component):
+		return ""
+
+	var bot_level: int = player.level_component.level
+	var my_map := MapManager.get_player_map(bot_id)
+	var difficulty := BotManager.get_map_difficulty(my_map)
+
+	# Level override: find best-fit map
+	if not difficulty.is_empty():
+		var max_level: int = difficulty.get("max_level", 999)
+		var min_level: int = difficulty.get("min_level", 1)
+
+		if bot_level >= max_level + LEVEL_OVERRIDE_THRESHOLD or bot_level <= min_level - LEVEL_OVERRIDE_THRESHOLD:
+			var best_map := ""
+			var best_fit := 999
+			var all_difficulties: Dictionary = BotManager.bot_config.get("map_difficulty", {})
+			for map_id in all_difficulties:
+				if map_id == my_map:
+					continue
+				var md: Dictionary = all_difficulties[map_id]
+				var mid_level: int = (md.get("min_level", 1) + md.get("max_level", 60)) / 2
+				var fit := absi(bot_level - mid_level)
+				if fit < best_fit:
+					best_fit = fit
+					best_map = map_id
+			if not best_map.is_empty():
+				return best_map
+
+	# Patrol route: advance to next map
+	if patrol_route.is_empty():
+		return ""
+	patrol_index = (patrol_index + 1) % patrol_route.size()
+	var next_map: String = patrol_route[patrol_index]
+	if next_map == my_map and patrol_route.size() > 1:
+		patrol_index = (patrol_index + 1) % patrol_route.size()
+		next_map = patrol_route[patrol_index]
+	return next_map
+
+
+func _find_portal_to_map(target_map_id: String) -> Node:
+	var map_node = MapManager.get_player_map_node(bot_id)
+	if not map_node:
+		return null
+	return _search_for_portal(map_node, target_map_id)
+
+
+func _search_for_portal(node: Node, target_map_id: String) -> Node:
+	if "target_map_id" in node and node.target_map_id == target_map_id:
+		return node
+	for child in node.get_children():
+		var result := _search_for_portal(child, target_map_id)
+		if result:
+			return result
+	return null
+
+
+func _do_navigate_to_portal() -> void:
+	if not is_instance_valid(target_portal):
+		target_portal = null
+		current_action = "idle"
+		return
+
+	# If we're already in the portal's area, use it
+	if is_instance_valid(player.current_portal) and player.current_portal == target_portal:
+		player.do_portal_interact = true
+		target_portal = null
+		return
+
+	var dist := player.global_position.distance_to(target_portal.global_position)
+	if dist <= PORTAL_ARRIVE_DIST:
+		# Close enough — wait for portal body_entered trigger
+		player.direction = 0
+		# Try interacting if we happen to be in range
+		if is_instance_valid(player.current_portal):
+			player.do_portal_interact = true
+			target_portal = null
+		return
+
+	_navigate_toward(target_portal.global_position)
 
 
 ## Navigates the bot toward a target position, handling platform traversal.

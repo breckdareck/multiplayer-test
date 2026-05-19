@@ -88,11 +88,20 @@ func send_invite(inviter_id: int, invitee_id: int) -> bool:
 		return false
 
 	if _player_party_map.has(invitee_id):
-		print("Player %d is already in a party." % invitee_id)
-		return false
+		if BotManager.is_bot(invitee_id):
+			leave_party(invitee_id)
+		else:
+			print("Player %d is already in a party." % invitee_id)
+			return false
 
 	party.add_invite(inviter_id, invitee_id)
-	
+
+	# Bots auto-accept invites (they have no client to receive the RPC)
+	if BotManager.is_bot(invitee_id):
+		print("PartyManager: Bot %d auto-accepting invite to party %d." % [invitee_id, inviter_party_id])
+		accept_invite(invitee_id, party.party_id)
+		return true
+
 	# Get inviter's username for the invite message
 	var inviter_info = PlayerManager.get_player_info(inviter_id)
 	var inviter_username = inviter_info.get("username", str(inviter_id))
@@ -133,7 +142,8 @@ func leave_party(player_id: int) -> bool:
 	member_removed.emit(party_id, player_id)
 
 	# Send RPC to the player who left to clear their local party status
-	rpc_id(player_id, "_client_clear_my_party_status")
+	if not BotManager.is_bot(player_id):
+		rpc_id(player_id, "_client_clear_my_party_status")
 
 	if party.members.is_empty():
 		_parties.erase(party_id)
@@ -321,7 +331,8 @@ func _send_party_data_to_members(party_id: int):
 	}
 
 	for member_id in party.members:
-		rpc_id(member_id, "_client_update_party_data", party_data_to_send)
+		if not BotManager.is_bot(member_id):
+			rpc_id(member_id, "_client_update_party_data", party_data_to_send)
 
 @rpc("reliable", "call_local")
 func _client_clear_my_party_status():
