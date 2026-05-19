@@ -336,6 +336,7 @@ func _get_all_synchronizers_in_node(node: Node) -> Array[MultiplayerSynchronizer
 func _set_visibility_for_node(node: Node, peer_id: int, visible: bool):
 	"""Sets the visibility for all synchronizers within a node for a specific peer."""
 	if not is_instance_valid(node): return
+	if BotManager.is_bot(peer_id): return
 	var synchronizers = _get_cached_synchronizers(node)
 	for s in synchronizers:
 		if not is_instance_valid(s): continue

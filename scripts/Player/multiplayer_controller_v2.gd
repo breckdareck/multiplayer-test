@@ -55,6 +55,7 @@ var current_portal: Portal = null
 var _sprite_base_offset_x: float
 var _is_being_cleaned_up: bool = false
 var _is_loading_data: bool = false
+var _context_menu: PlayerContextMenu
 
 @onready var camera: Camera2D = $Camera2D
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
@@ -152,14 +153,54 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event is InputEventKey and event.is_echo():
 			return
 
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+			if _handle_right_click(event):
+				return
+
 		if is_instance_valid(game_menu):
 			# Always pass input to game_menu so it can open/close itself
 			game_menu._unhandled_input(event)
 			if game_menu.visible: # If game menu is now visible (or was already visible and handled an event)
 				return # Consume input so it doesn't affect player movement
-	
+
 	if multiplayer.is_server():
 		state_machine.process_input(event)
+
+
+func _handle_right_click(event: InputEventMouseButton) -> bool:
+	var click_world_pos := get_global_mouse_position()
+	var click_range_sq := 900.0  # 30px radius for click detection
+	var sprite_center_offset := Vector2(0, -16)
+
+	var best_target: MultiplayerPlayerV2 = null
+	var best_dist_sq := click_range_sq
+
+	for node in get_tree().get_nodes_in_group("Players"):
+		if node is not MultiplayerPlayerV2:
+			continue
+		if not is_instance_valid(node):
+			continue
+		if node == self:
+			continue
+		var char_center = node.global_position + sprite_center_offset
+		var dist_sq := click_world_pos.distance_squared_to(char_center)
+		if dist_sq < best_dist_sq:
+			best_dist_sq = dist_sq
+			best_target = node
+
+	if not best_target:
+		return false
+
+	if not is_instance_valid(_context_menu):
+		_context_menu = PlayerContextMenu.create()
+		var moveable_container = get_node_or_null("CanvasLayer/MoveableWindows")
+		if moveable_container:
+			moveable_container.add_child(_context_menu)
+		else:
+			get_node("CanvasLayer").add_child(_context_menu)
+
+	_context_menu.show_for_target(best_target.player_id, event.global_position)
+	return true
 
 
 func _exit_tree():

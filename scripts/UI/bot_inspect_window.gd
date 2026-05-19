@@ -5,13 +5,36 @@ var is_dragging := false
 var drag_offset := Vector2()
 var title_label: Label
 var content_container: VBoxContainer
-var close_button: Button
+var scroll_container: ScrollContainer
+var _current_bot_id: int = 0
+var _refresh_timer: float = 0.0
+var _built := false
 
 const WINDOW_WIDTH: float = 320.0
 const WINDOW_HEIGHT: float = 500.0
 const TITLE_HEIGHT: float = 28.0
 const PADDING: float = 8.0
 const ICON_SIZE: float = 32.0
+const REFRESH_INTERVAL: float = 0.5
+
+# Stored references for update-in-place
+var _name_label: Label
+var _level_label: Label
+var _hp_value: Label
+var _mp_value: Label
+var _gold_value: Label
+var _map_value: Label
+var _action_row: HBoxContainer
+var _action_value: Label
+
+var _equip_rows: Array[HBoxContainer] = []  # 5 rows: Weapon, Head, Chest, Legs, Feet
+var _stat_rows: Dictionary = {}  # StatType -> value Label
+var _inv_total_value: Label
+var _inv_equip_value: Label
+var _inv_consumable_value: Label
+var _inv_other_row: HBoxContainer
+var _inv_other_value: Label
+var _inv_notable_section: VBoxContainer
 
 
 static func create() -> BotInspectWindow:
@@ -19,6 +42,8 @@ static func create() -> BotInspectWindow:
 	window.custom_minimum_size = Vector2(WINDOW_WIDTH, WINDOW_HEIGHT)
 	window.size = Vector2(WINDOW_WIDTH, WINDOW_HEIGHT)
 	window.visible = false
+	window.clip_contents = true
+	window.mouse_filter = Control.MOUSE_FILTER_STOP
 	window.add_to_group("ui_window")
 
 	var bg := StyleBoxFlat.new()
@@ -33,44 +58,53 @@ static func create() -> BotInspectWindow:
 
 
 func _build_ui() -> void:
-	# Title bar
+	var root_vbox := VBoxContainer.new()
+	root_vbox.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	root_vbox.add_theme_constant_override("separation", 0)
+	add_child(root_vbox)
+
+	# --- Title bar ---
 	var title_bar := Panel.new()
 	title_bar.custom_minimum_size = Vector2(0, TITLE_HEIGHT)
-	title_bar.set_anchors_preset(PRESET_TOP_WIDE)
-	title_bar.size = Vector2(WINDOW_WIDTH, TITLE_HEIGHT)
+	title_bar.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	title_bar.mouse_filter = Control.MOUSE_FILTER_PASS
 	var title_bg := StyleBoxFlat.new()
 	title_bg.bg_color = Color(0.18, 0.18, 0.22, 1.0)
 	title_bg.set_corner_radius_all(4)
 	title_bg.corner_radius_bottom_left = 0
 	title_bg.corner_radius_bottom_right = 0
 	title_bar.add_theme_stylebox_override("panel", title_bg)
-	add_child(title_bar)
+	root_vbox.add_child(title_bar)
 
 	title_label = Label.new()
-	title_label.text = "Bot Inspect"
+	title_label.text = "Inspect"
 	title_label.add_theme_font_size_override("font_size", 13)
 	title_label.add_theme_color_override("font_color", Color(0.9, 0.85, 0.6, 1.0))
 	title_label.position = Vector2(PADDING, 4)
+	title_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	title_bar.add_child(title_label)
 
-	close_button = Button.new()
+	var close_button := Button.new()
 	close_button.text = "X"
 	close_button.flat = true
 	close_button.add_theme_font_size_override("font_size", 12)
 	close_button.add_theme_color_override("font_color", Color.WHITE)
 	close_button.add_theme_color_override("font_hover_color", Color.RED)
-	close_button.position = Vector2(WINDOW_WIDTH - 28, 2)
-	close_button.size = Vector2(24, 24)
+	close_button.set_anchors_preset(PRESET_TOP_RIGHT)
+	close_button.offset_left = -28
+	close_button.offset_top = 2
+	close_button.offset_right = -4
+	close_button.offset_bottom = 26
 	close_button.pressed.connect(func(): visible = false)
 	title_bar.add_child(close_button)
 
-	# Scrollable content
-	var scroll := ScrollContainer.new()
-	scroll.position = Vector2(0, TITLE_HEIGHT)
-	scroll.size = Vector2(WINDOW_WIDTH, WINDOW_HEIGHT - TITLE_HEIGHT)
-	scroll.set_anchors_preset(PRESET_FULL_RECT)
-	scroll.offset_top = TITLE_HEIGHT
-	add_child(scroll)
+	# --- Scroll area ---
+	scroll_container = ScrollContainer.new()
+	scroll_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll_container.clip_contents = true
+	scroll_container.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	root_vbox.add_child(scroll_container)
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", int(PADDING))
@@ -78,7 +112,7 @@ func _build_ui() -> void:
 	margin.add_theme_constant_override("margin_top", int(PADDING))
 	margin.add_theme_constant_override("margin_bottom", int(PADDING))
 	margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.add_child(margin)
+	scroll_container.add_child(margin)
 
 	content_container = VBoxContainer.new()
 	content_container.add_theme_constant_override("separation", 6)
@@ -86,102 +120,52 @@ func _build_ui() -> void:
 	margin.add_child(content_container)
 
 
-func show_bot(bot_id: int) -> void:
-	var player_node := PlayerManager.get_player_node(bot_id)
-	if not is_instance_valid(player_node):
-		return
-
-	var bot_info: Dictionary = BotManager.active_bots.get(bot_id, {})
-	var bot_name: String = bot_info.get("username", "Bot %d" % bot_id)
-
-	title_label.text = "Inspect: %s" % bot_name
-
-	# Clear old content
+func _build_sections() -> void:
 	for child in content_container.get_children():
 		child.queue_free()
+	_equip_rows.clear()
+	_stat_rows.clear()
 
-	_add_header_section(player_node, bot_name)
+	# --- Header ---
+	_name_label = _make_label("", 14, Color(1.0, 0.95, 0.7))
+	content_container.add_child(_name_label)
+	_level_label = _make_label("", 11, Color(0.7, 0.8, 0.9))
+	content_container.add_child(_level_label)
+
+	var hp_row := _make_stat_row("HP", "", Color(0.9, 0.3, 0.3))
+	_hp_value = hp_row.get_child(1)
+	content_container.add_child(hp_row)
+
+	var mp_row := _make_stat_row("MP", "", Color(0.3, 0.5, 0.9))
+	_mp_value = mp_row.get_child(1)
+	content_container.add_child(mp_row)
+
+	var gold_row := _make_stat_row("Gold", "", Color(0.9, 0.8, 0.3))
+	_gold_value = gold_row.get_child(1)
+	content_container.add_child(gold_row)
+
+	var map_row := _make_stat_row("Map", "", Color(0.6, 0.7, 0.6))
+	_map_value = map_row.get_child(1)
+	content_container.add_child(map_row)
+
+	_action_row = _make_stat_row("Action", "", Color(0.6, 0.7, 0.6))
+	_action_value = _action_row.get_child(1)
+	content_container.add_child(_action_row)
+
 	_add_separator()
-	_add_equipment_section(player_node)
+
+	# --- Equipment (5 fixed rows) ---
+	content_container.add_child(_make_label("Equipment", 12, Color(0.9, 0.85, 0.6)))
+	var slot_names := ["Weapon", "Head", "Chest", "Legs", "Feet"]
+	for slot_name in slot_names:
+		var row := _make_item_row(slot_name, null)
+		_equip_rows.append(row)
+		content_container.add_child(row)
+
 	_add_separator()
-	_add_stats_section(player_node)
-	_add_separator()
-	_add_inventory_section(player_node)
 
-	# Position near center of screen
-	var vp_size := get_viewport_rect().size
-	global_position = (vp_size - size) * 0.5
-	visible = true
-	move_to_front()
-
-
-func _add_header_section(player_node: Node, bot_name: String) -> void:
-	var class_str := "Unknown"
-	if is_instance_valid(player_node.class_component):
-		class_str = Constants.ClassType.find_key(player_node.class_component.current_class)
-	var level := 1
-	if is_instance_valid(player_node.level_component):
-		level = player_node.level_component.level
-
-	_add_label("%s" % bot_name, 14, Color(1.0, 0.95, 0.7))
-	_add_label("Level %d %s" % [level, class_str], 11, Color(0.7, 0.8, 0.9))
-
-	var hp_str := "?"
-	if is_instance_valid(player_node.health_component):
-		hp_str = "%d / %d" % [player_node.health_component.current_health, player_node.health_component.max_health]
-	var mp_str := "?"
-	if is_instance_valid(player_node.mana_component):
-		mp_str = "%d / %d" % [player_node.mana_component.current_mana, player_node.mana_component.max_mana]
-	var gold := 0
-	if is_instance_valid(player_node.player_inventory):
-		gold = player_node.player_inventory.monies_amount
-
-	_add_stat_row("HP", hp_str, Color(0.9, 0.3, 0.3))
-	_add_stat_row("MP", mp_str, Color(0.3, 0.5, 0.9))
-	_add_stat_row("Gold", str(gold), Color(0.9, 0.8, 0.3))
-
-	var map_id := MapManager.get_player_map(player_node.player_id)
-	var brain = player_node.get_node_or_null("BotBrain")
-	var action := "unknown"
-	if brain:
-		action = brain.current_action
-	_add_stat_row("Map", map_id, Color(0.6, 0.7, 0.6))
-	_add_stat_row("Action", action, Color(0.6, 0.7, 0.6))
-
-
-func _add_equipment_section(player_node: Node) -> void:
-	_add_label("Equipment", 12, Color(0.9, 0.85, 0.6))
-
-	if not is_instance_valid(player_node.equipment_component):
-		_add_label("  (unavailable)", 10, Color(0.5, 0.5, 0.5))
-		return
-
-	var eq = player_node.equipment_component
-	var slot_data := [
-		["Weapon", eq.weapon_slot],
-		["Head", eq.head_slot],
-		["Chest", eq.chest_slot],
-		["Legs", eq.legs_slot],
-		["Feet", eq.feet_slot],
-	]
-
-	for entry in slot_data:
-		var slot_name: String = entry[0]
-		var slot: EquipmentSlot = entry[1]
-		if slot and slot.item:
-			_add_item_row(slot_name, slot.item)
-		else:
-			_add_stat_row(slot_name, "(empty)", Color(0.4, 0.4, 0.4))
-
-
-func _add_stats_section(player_node: Node) -> void:
-	_add_label("Stats", 12, Color(0.9, 0.85, 0.6))
-
-	if not is_instance_valid(player_node.stats_component):
-		_add_label("  (unavailable)", 10, Color(0.5, 0.5, 0.5))
-		return
-
-	var stats: Dictionary = player_node.stats_component.stats
+	# --- Stats (fixed rows) ---
+	content_container.add_child(_make_label("Stats", 12, Color(0.9, 0.85, 0.6)))
 	var stat_entries := [
 		["STR", Constants.StatType.STRENGTH],
 		["DEX", Constants.StatType.DEXTERITY],
@@ -194,74 +178,179 @@ func _add_stats_section(player_node: Node) -> void:
 		["CRIT%", Constants.StatType.CRITCHANCE],
 		["CRITD%", Constants.StatType.CRITDAMAGE],
 	]
-
 	for entry in stat_entries:
-		var label_text: String = entry[0]
-		var stat_type = entry[1]
-		if stats.has(stat_type):
-			var stat_data = stats[stat_type]
-			var total: int = stat_data.total_value
-			var base: int = stat_data.base_value
-			var bonus: int = stat_data.combined_bonus_value
-			var value_str := "%d" % total
-			if bonus > 0:
-				value_str = "%d (%d+%d)" % [total, base, bonus]
-			_add_stat_row(label_text, value_str, Color(0.8, 0.8, 0.8))
+		var row := _make_stat_row(entry[0], "", Color(0.8, 0.8, 0.8))
+		_stat_rows[entry[1]] = row.get_child(1)
+		content_container.add_child(row)
+
+	_add_separator()
+
+	# --- Inventory (fixed rows + notable section) ---
+	content_container.add_child(_make_label("Inventory", 12, Color(0.9, 0.85, 0.6)))
+
+	var total_row := _make_stat_row("Total", "", Color(0.8, 0.8, 0.8))
+	_inv_total_value = total_row.get_child(1)
+	content_container.add_child(total_row)
+
+	var equip_row := _make_stat_row("Equipment", "", Color(0.6, 0.8, 1.0))
+	_inv_equip_value = equip_row.get_child(1)
+	content_container.add_child(equip_row)
+
+	var consumable_row := _make_stat_row("Consumables", "", Color(0.6, 1.0, 0.6))
+	_inv_consumable_value = consumable_row.get_child(1)
+	content_container.add_child(consumable_row)
+
+	_inv_other_row = _make_stat_row("Other", "", Color(0.8, 0.8, 0.6))
+	_inv_other_value = _inv_other_row.get_child(1)
+	content_container.add_child(_inv_other_row)
+
+	_inv_notable_section = VBoxContainer.new()
+	_inv_notable_section.add_theme_constant_override("separation", 4)
+	content_container.add_child(_inv_notable_section)
+
+	_built = true
 
 
-func _add_inventory_section(player_node: Node) -> void:
-	_add_label("Inventory", 12, Color(0.9, 0.85, 0.6))
+func show_bot(bot_id: int) -> void:
+	_current_bot_id = bot_id
+	_refresh_timer = 0.0
+	_built = false
+	_build_sections()
+	_update_content()
 
-	if not is_instance_valid(player_node.inventory_component):
-		_add_label("  (unavailable)", 10, Color(0.5, 0.5, 0.5))
+	var vp_size := get_viewport_rect().size
+	global_position = (vp_size - size) * 0.5
+	visible = true
+	move_to_front()
+
+	await get_tree().process_frame
+	scroll_container.scroll_vertical = 0
+
+
+func _update_content() -> void:
+	if not _built:
+		return
+	var player_node := PlayerManager.get_player_node(_current_bot_id)
+	if not is_instance_valid(player_node):
+		visible = false
 		return
 
-	var equip_count := 0
-	var consumable_count := 0
-	var other_count := 0
-	var total_items := 0
+	var display_name: String
+	if BotManager.is_bot(_current_bot_id):
+		var bot_info: Dictionary = BotManager.active_bots.get(_current_bot_id, {})
+		display_name = bot_info.get("username", "Bot %d" % _current_bot_id)
+	else:
+		display_name = player_node.username if not player_node.username.is_empty() else str(_current_bot_id)
 
-	for slot in player_node.inventory_component.slots:
-		if slot.item:
-			total_items += 1
-			if slot.item is EquipmentData:
-				equip_count += 1
-			elif slot.item is ConsumableData:
-				consumable_count += 1
+	title_label.text = "Inspect: %s" % display_name
+	_name_label.text = display_name
+
+	var class_str := "Unknown"
+	if is_instance_valid(player_node.class_component):
+		class_str = Constants.ClassType.find_key(player_node.class_component.current_class)
+	var level := 1
+	if is_instance_valid(player_node.level_component):
+		level = player_node.level_component.level
+	_level_label.text = "Level %d %s" % [level, class_str]
+
+	if is_instance_valid(player_node.health_component):
+		_hp_value.text = "%d / %d" % [player_node.health_component.current_health, player_node.health_component.max_health]
+	else:
+		_hp_value.text = "?"
+	if is_instance_valid(player_node.mana_component):
+		_mp_value.text = "%d / %d" % [player_node.mana_component.current_mana, player_node.mana_component.max_mana]
+	else:
+		_mp_value.text = "?"
+	if is_instance_valid(player_node.player_inventory):
+		_gold_value.text = str(player_node.player_inventory.monies_amount)
+	else:
+		_gold_value.text = "0"
+
+	_map_value.text = MapManager.get_player_map(player_node.player_id)
+
+	var brain = player_node.get_node_or_null("BotBrain")
+	if brain:
+		_action_row.visible = true
+		_action_value.text = brain.current_action
+	else:
+		_action_row.visible = false
+
+	# --- Equipment (update 5 fixed rows in place) ---
+	if is_instance_valid(player_node.equipment_component):
+		var eq = player_node.equipment_component
+		# Access the actual ItemData resources from the slots
+		var slots := [
+		eq.weapon_slot.item if eq.weapon_slot else null,
+		eq.head_slot.item if eq.head_slot else null,
+		eq.chest_slot.item if eq.chest_slot else null,
+		eq.legs_slot.item if eq.legs_slot else null,
+		eq.feet_slot.item if eq.feet_slot else null]
+		for i in 5:
+			_update_item_row(_equip_rows[i], slots[i])
+
+	# --- Stats (update value labels in place) ---
+	if is_instance_valid(player_node.stats_component):
+		var stats: Dictionary = player_node.stats_component.stats
+		for stat_type in _stat_rows:
+			var value_label: Label = _stat_rows[stat_type]
+			if stats.has(stat_type):
+				var stat_data = stats[stat_type]
+				var total: int = stat_data.total_value
+				var base: int = stat_data.base_value
+				var bonus: int = stat_data.combined_bonus_value
+				if bonus > 0:
+					value_label.text = "%d (%d+%d)" % [total, base, bonus]
+				else:
+					value_label.text = "%d" % total
 			else:
-				other_count += 1
+				value_label.text = "0"
 
-	_add_stat_row("Total", str(total_items), Color(0.8, 0.8, 0.8))
-	_add_stat_row("Equipment", str(equip_count), Color(0.6, 0.8, 1.0))
-	_add_stat_row("Consumables", str(consumable_count), Color(0.6, 1.0, 0.6))
-	if other_count > 0:
-		_add_stat_row("Other", str(other_count), Color(0.8, 0.8, 0.6))
+	# --- Inventory (update value labels in place, rebuild notable list) ---
+	if is_instance_valid(player_node.inventory_component):
+		var equip_count := 0
+		var consumable_count := 0
+		var other_count := 0
+		var total_items := 0
 
-	# Show notable items
-	var notable_items: Array[String] = []
-	for slot in player_node.inventory_component.slots:
-		if slot.item and slot.item is EquipmentData:
-			if notable_items.size() < 5:
-				notable_items.append("  %s (Lv.%d)" % [slot.item.name, slot.item.item_level])
+		for slot in player_node.inventory_component.slots:
+			if slot.item:
+				total_items += 1
+				if slot.item is EquipmentData:
+					equip_count += 1
+				elif slot.item is ConsumableData:
+					consumable_count += 1
+				else:
+					other_count += 1
 
-	if not notable_items.is_empty():
-		_add_label("Notable Items:", 10, Color(0.6, 0.6, 0.7))
-		for item_text in notable_items:
-			_add_label(item_text, 9, Color(0.6, 0.7, 0.8))
+		_inv_total_value.text = str(total_items)
+		_inv_equip_value.text = str(equip_count)
+		_inv_consumable_value.text = str(consumable_count)
+		_inv_other_value.text = str(other_count)
+		_inv_other_row.visible = other_count > 0
+
+		for child in _inv_notable_section.get_children():
+			child.queue_free()
+		var notable_count := 0
+		for slot in player_node.inventory_component.slots:
+			if slot.item and slot.item is EquipmentData and notable_count < 5:
+				if notable_count == 0:
+					_inv_notable_section.add_child(_make_label("Notable Items:", 10, Color(0.6, 0.6, 0.7)))
+				_inv_notable_section.add_child(_make_label("  %s (Lv.%d)" % [slot.item.name, slot.item.item_level], 9, Color(0.6, 0.7, 0.8)))
+				notable_count += 1
 
 
-# --- UI Helpers ---
+# --- Node Factories (return nodes, don't add to tree) ---
 
-func _add_label(text: String, font_size: int, color: Color) -> void:
+func _make_label(text: String, font_size: int, color: Color) -> Label:
 	var label := Label.new()
 	label.text = text
 	label.add_theme_font_size_override("font_size", font_size)
 	label.add_theme_color_override("font_color", color)
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD
-	content_container.add_child(label)
+	return label
 
 
-func _add_stat_row(label_text: String, value_text: String, value_color: Color) -> void:
+func _make_stat_row(label_text: String, value_text: String, value_color: Color) -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)
 
@@ -279,10 +368,10 @@ func _add_stat_row(label_text: String, value_text: String, value_color: Color) -
 	value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(value)
 
-	content_container.add_child(row)
+	return row
 
 
-func _add_item_row(slot_name: String, item: ItemData) -> void:
+func _make_item_row(slot_name: String, item: ItemData) -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 6)
 
@@ -291,18 +380,46 @@ func _add_item_row(slot_name: String, item: ItemData) -> void:
 	name_label.add_theme_font_size_override("font_size", 10)
 	name_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.65))
 	name_label.custom_minimum_size.x = 55
+	name_label.mouse_filter = Control.MOUSE_FILTER_PASS
 	row.add_child(name_label)
 
-	if item.icon:
-		var icon := TextureRect.new()
-		icon.texture = item.icon
-		icon.custom_minimum_size = Vector2(ICON_SIZE, ICON_SIZE)
-		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		row.add_child(icon)
+	# Added missing placeholder TextureRect so icon slots can be safely indexed/replaced later
+	var icon := TextureRect.new()
+	icon.custom_minimum_size = Vector2(ICON_SIZE, ICON_SIZE)
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.mouse_filter = Control.MOUSE_FILTER_PASS
+	row.add_child(icon)
 
 	var info := Label.new()
-	info.text = "%s Lv.%d" % [item.name, item.item_level]
 	info.add_theme_font_size_override("font_size", 10)
+	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	info.mouse_filter = Control.MOUSE_FILTER_PASS
+	row.add_child(info)
+
+	_update_item_row(row, item)
+	return row
+
+
+func _update_item_row(row: HBoxContainer, item: ItemData) -> void:
+	var icon_rect: TextureRect = row.get_child(1)
+	var info_label: Label = row.get_child(2)
+
+	if not is_instance_valid(item):
+		icon_rect.texture = null
+		icon_rect.visible = false
+		info_label.text = "Empty"
+		info_label.add_theme_color_override("font_color", Color(0.4, 0.4, 0.4))
+		row.tooltip_text = ""
+		return
+
+	if item.icon:
+		icon_rect.texture = item.icon
+		icon_rect.visible = true
+	else:
+		icon_rect.texture = null
+		icon_rect.visible = false
+
+	info_label.text = "%s Lv.%d" % [item.name, item.item_level]
 
 	var rarity_color := Color(0.8, 0.8, 0.8)
 	if item is EquipmentData:
@@ -312,11 +429,8 @@ func _add_item_row(slot_name: String, item: ItemData) -> void:
 			Constants.ItemRarity.RARE: rarity_color = Color(1.0, 0.6, 0.2)
 			Constants.ItemRarity.EPIC: rarity_color = Color(0.7, 0.3, 0.9)
 			Constants.ItemRarity.LEGENDARY: rarity_color = Color(1.0, 0.85, 0.0)
-	info.add_theme_color_override("font_color", rarity_color)
-	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_child(info)
+	info_label.add_theme_color_override("font_color", rarity_color)
 
-	# Tooltip with stats
 	var tooltip := item.name
 	if item is EquipmentData:
 		var eq := item as EquipmentData
@@ -325,8 +439,6 @@ func _add_item_row(slot_name: String, item: ItemData) -> void:
 			if stat_data.flat_bonus_value > 0:
 				tooltip += "\n%s: +%d" % [Constants.StatType.find_key(stat_type), stat_data.flat_bonus_value]
 	row.tooltip_text = tooltip
-
-	content_container.add_child(row)
 
 
 func _add_separator() -> void:
@@ -342,13 +454,19 @@ func _add_separator() -> void:
 
 # --- Draggable ---
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if is_dragging:
 		var new_pos := get_global_mouse_position() - drag_offset
 		var vp_size := get_viewport_rect().size
 		new_pos.x = clampf(new_pos.x, 0, vp_size.x - size.x)
 		new_pos.y = clampf(new_pos.y, 0, vp_size.y - size.y)
 		global_position = new_pos
+
+	if visible and _current_bot_id != 0:
+		_refresh_timer += delta
+		if _refresh_timer >= REFRESH_INTERVAL:
+			_refresh_timer = 0.0
+			_update_content()
 
 
 func _gui_input(event: InputEvent) -> void:

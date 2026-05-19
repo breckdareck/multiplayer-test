@@ -134,27 +134,24 @@ func _handle_settled() -> void:
 		is_despawn_warning = true
 		_start_despawn_warning.rpc()
 
-	var nearby_player = _find_nearby_player()
-	if nearby_player:
-		# Check if the nearby player is trying to pick up
-		if _is_player_trying_to_pickup(nearby_player):
-			#print("DroppedItem: Player %s picking up item" % nearby_player.username)
-			_pickup_item(nearby_player)
+	var picking_player = _find_player_trying_to_pickup()
+	if picking_player:
+		_pickup_item(picking_player)
 
 
-func _find_nearby_player() -> MultiplayerPlayerV2:
-	"""Find a nearby player who can pick up this item"""
+func _find_player_trying_to_pickup() -> MultiplayerPlayerV2:
+	"""Find a nearby player who can and is trying to pick up this item"""
 	var all_players = get_tree().get_nodes_in_group("Players")
-	
+
 	for player_node in all_players:
 		if not is_instance_valid(player_node):
 			continue
-		# Only consider players who are eligible to pick up
-		if _can_player_pickup(player_node):
-			var distance = global_position.distance_to(player_node.global_position)
-			if distance <= pickup_distance:
-				return player_node
-	
+		if not _can_player_pickup(player_node):
+			continue
+		var distance = global_position.distance_to(player_node.global_position)
+		if distance <= pickup_distance and _is_player_trying_to_pickup(player_node):
+			return player_node
+
 	return null
 
 

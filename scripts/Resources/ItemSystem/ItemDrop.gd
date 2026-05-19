@@ -94,9 +94,9 @@ func get_item_data() -> ItemData:
 func _apply_random_stats(item: EquipmentData) -> void:
 	# 1. Determine Rarity
 	var chosen_rarity = _choose_random_rarity()
-	print(">> Rarity chosen by function: %s" % Constants.ItemRarity.find_key(chosen_rarity))
+	#print(">> Rarity chosen by function: %s" % Constants.ItemRarity.find_key(chosen_rarity))
 	item.rarity = chosen_rarity
-	print(">> Rarity assigned to item: %s" % Constants.ItemRarity.find_key(item.rarity))
+	#print(">> Rarity assigned to item: %s" % Constants.ItemRarity.find_key(item.rarity))
 	
 	# 2. Determine Stat Budget based on Rarity
 	var budget_range = RARITY_BUDGETS.get(chosen_rarity, {"min": 1, "max": 1})
@@ -125,7 +125,7 @@ func _apply_random_stats(item: EquipmentData) -> void:
 		remaining_budget -= amount_to_assign
 
 func _choose_random_rarity() -> Constants.ItemRarity:
-	print("--- Choosing Random Rarity ---")
+	#print("--- Choosing Random Rarity ---")
 	
 	# Filter chances to only include valid rarity keys from the enum
 	var valid_chances: Dictionary = {}
@@ -136,34 +136,34 @@ func _choose_random_rarity() -> Constants.ItemRarity:
 				valid_chances[rarity_name] = rarity_chances[key]
 				break # Move to next enum key
 
-	print("Rarity Chances (validated): ", valid_chances)
+	#print("Rarity Chances (validated): ", valid_chances)
 
 	var total_weight = 0
 	for rarity_key in valid_chances:
 		total_weight += valid_chances[rarity_key]
 
-	print("Total Weight: ", total_weight)
+	#print("Total Weight: ", total_weight)
 
 	if total_weight <= 0:
 		push_warning("ItemDropResource has no valid rarity weights defined.")
 		return Constants.ItemRarity.COMMON
 
 	var random_weight = randi_range(1, total_weight)
-	print("Random Weight Chosen: ", random_weight)
+	#print("Random Weight Chosen: ", random_weight)
 	var current_weight = 0
 	
 	for rarity_key in valid_chances:
 		current_weight += valid_chances[rarity_key]
-		print("Checking rarity: %s, Current Weight: %d" % [rarity_key, current_weight])
+		#print("Checking rarity: %s, Current Weight: %d" % [rarity_key, current_weight])
 		if random_weight <= current_weight:
 			# We know the key is valid now, so find_key won't fail
 			var rarity_val = Constants.ItemRarity[rarity_key]
-			print("Selected Rarity: %s (Value: %d)" % [rarity_key, rarity_val])
-			print("------------------------------")
+			#print("Selected Rarity: %s (Value: %d)" % [rarity_key, rarity_val])
+			#print("------------------------------")
 			return rarity_val
 			
-	print("Loop finished without selection, falling back to COMMON.")
-	print("------------------------------")
+	#print("Loop finished without selection, falling back to COMMON.")
+	#print("------------------------------")
 	return Constants.ItemRarity.COMMON
 
 
@@ -177,7 +177,7 @@ func _print_rarity_percentages() -> void:
 		print("⚠ Total weight is zero — no valid chances defined.")
 		return
 	
-	print("\n=== Rarity Percentages ===")
+	#print("\n=== Rarity Percentages ===")
 	for rarity_name in Constants.ItemRarity.keys():
 		var weight = rarity_chances.get(rarity_name, 0)
 		var percentage := (float(weight) / total_weight) * 100.0

@@ -398,11 +398,36 @@ func rpc_cancel_trade() -> void:
 	cancel_trade(sender_id)
 
 
-@rpc("authority", "call_local", "reliable")
-func _client_receive_trade_data(_data: Dictionary) -> void:
-	pass
+var _trade_window: TradeWindow = null
+
+
+func _get_or_create_trade_window() -> TradeWindow:
+	if is_instance_valid(_trade_window):
+		return _trade_window
+	_trade_window = TradeWindow.create()
+	var local_player := PlayerManager.get_player_node(multiplayer.get_unique_id())
+	if is_instance_valid(local_player):
+		var container = local_player.get_node_or_null("CanvasLayer/MoveableWindows")
+		if container:
+			container.add_child(_trade_window)
+			return _trade_window
+	# Fallback: add to scene tree root
+	get_tree().current_scene.add_child(_trade_window)
+	return _trade_window
 
 
 @rpc("authority", "call_local", "reliable")
-func _client_trade_closed(_message: String) -> void:
-	pass
+func _client_receive_trade_data(data: Dictionary) -> void:
+	var target_id: int = data.get("partner_id", -1)
+	if target_id == -1:
+		return
+	var window := _get_or_create_trade_window()
+	window.show_for_target(target_id)
+
+
+@rpc("authority", "call_local", "reliable")
+func _client_trade_closed(message: String) -> void:
+	if is_instance_valid(_trade_window):
+		_trade_window.visible = false
+	if not message.is_empty():
+		ChatManager.add_system_message(message, Color.CYAN)

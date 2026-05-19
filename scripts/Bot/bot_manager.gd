@@ -316,11 +316,11 @@ func _handle_inspect_command(args: Array) -> String:
 	if not is_instance_valid(player_node):
 		return "Bot %d player node not ready." % bot_id_val
 
-	_open_inspect_window(bot_id_val)
+	open_inspect_window(bot_id_val)
 	return "Inspecting bot '%s'." % active_bots[bot_id_val].username
 
 
-func _open_inspect_window(bot_id: int) -> void:
+func open_inspect_window(bot_id: int) -> void:
 	if not is_instance_valid(_inspect_window):
 		_inspect_window = BotInspectWindow.create()
 		# Add to the host player's MoveableWindows container

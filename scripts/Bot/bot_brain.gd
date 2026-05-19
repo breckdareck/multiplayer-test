@@ -25,6 +25,13 @@ var loot_priority_range: float = 50.0
 var target_enemy: EnemyBase = null
 var target_loot: DroppedItem = null
 
+var _combat_timer: float = 0.0
+var _combat_last_enemy_hp: int = -1
+var _blacklisted_enemies: Array[EnemyBase] = []
+var _blacklist_clear_timer: float = 0.0
+const COMBAT_DISENGAGE_TIME: float = 6.0
+const BLACKLIST_DURATION: float = 15.0
+
 var _respawn_timer: float = -1.0
 const RESPAWN_DELAY: float = 3.0
 
@@ -45,11 +52,14 @@ const MANA_POTION_THRESHOLD: float = 0.3
 var _shop_check_timer: float = 0.0
 const SHOP_CHECK_INTERVAL: float = 10.0
 const POTION_STOCK_TARGET: int = 20
+const POTION_RESTOCK_THRESHOLD: int = 0
+const TOWN_MAP_ID: String = "game"
+var _needs_restock: bool = false
 
 var allow_map_travel: bool = true
 
-const FOLLOW_RANGE: float = 120.0
-const FOLLOW_CLOSE_RANGE: float = 40.0
+const FOLLOW_RANGE: float = 500.0
+const FOLLOW_CLOSE_RANGE: float = 60.0
 
 var patrol_route: Array = []
 var patrol_index: int = 0
@@ -105,6 +115,21 @@ func _process(delta: float) -> void:
 	_jump_cooldown_timer -= delta
 	action_timer -= delta
 	think_timer -= delta
+
+	if current_action == "fight" and is_instance_valid(target_enemy):
+		var enemy_hp := -1
+		if target_enemy.health_component:
+			enemy_hp = target_enemy.health_component.current_health
+		if _combat_last_enemy_hp != enemy_hp and enemy_hp >= 0:
+			_combat_last_enemy_hp = enemy_hp
+			_combat_timer = 0.0
+		else:
+			_combat_timer += delta
+
+	_blacklist_clear_timer -= delta
+	if _blacklist_clear_timer <= 0.0:
+		_blacklist_clear_timer = BLACKLIST_DURATION
+		_blacklisted_enemies.clear()
 
 	if think_timer <= 0.0:
 		think_timer = think_interval
@@ -177,8 +202,19 @@ func _think() -> void:
 		var leader_node := PlayerManager.get_player_node(leader_id)
 		if is_instance_valid(leader_node):
 			var dist := player.global_position.distance_to(leader_node.global_position)
-			if dist > FOLLOW_CLOSE_RANGE:
+			if dist > FOLLOW_RANGE:
 				current_action = "follow"
+				return
+
+	# Travel to town to restock potions if out and no merchant on current map
+	if _needs_restock and not _should_follow_leader():
+		var my_map := MapManager.get_player_map(bot_id)
+		if my_map != TOWN_MAP_ID:
+			if not is_instance_valid(target_portal):
+				target_portal = _find_portal_to_map(TOWN_MAP_ID)
+			if is_instance_valid(target_portal):
+				target_enemy = null
+				current_action = "travel"
 				return
 
 	# Check for nearby loot first — pick it up before chasing the next enemy
@@ -195,7 +231,11 @@ func _think() -> void:
 		target_loot = null
 
 	if not target_enemy:
-		target_enemy = _find_nearest_enemy()
+		var new_enemy := _find_nearest_enemy()
+		if new_enemy:
+			target_enemy = new_enemy
+			_combat_timer = 0.0
+			_combat_last_enemy_hp = -1
 
 	if target_enemy:
 		current_action = "fight"
@@ -246,6 +286,8 @@ func _find_nearest_enemy() -> EnemyBase:
 		if not is_instance_valid(node):
 			continue
 		if node.health_component and node.health_component.is_dead:
+			continue
+		if node in _blacklisted_enemies:
 			continue
 
 		var dist_sq := player.global_position.distance_squared_to(node.global_position)
@@ -347,7 +389,12 @@ func _do_wander() -> void:
 
 func _do_fight() -> void:
 	if not is_instance_valid(target_enemy):
-		current_action = "idle"
+		_disengage()
+		return
+
+	if _combat_timer >= COMBAT_DISENGAGE_TIME:
+		_blacklisted_enemies.append(target_enemy)
+		_disengage()
 		return
 
 	if _is_in_attack_state():
@@ -358,14 +405,12 @@ func _do_fight() -> void:
 	var dy := to_enemy.y
 	var dir := 1 if to_enemy.x > 0 else -1
 
-	# Enemy is on a different Y level — navigate to them first
 	if abs(dy) > 12.0:
 		_navigate_toward(target_enemy.global_position)
 		return
 
 	player.facing_direction = dir
 
-	# Try ranged abilities first if enemy is beyond melee range
 	if dx > attack_range:
 		if _try_use_attack_ability(dx):
 			player.direction = 0
@@ -373,7 +418,6 @@ func _do_fight() -> void:
 		_navigate_toward(target_enemy.global_position)
 		return
 
-	# In melee range — check line of sight
 	if _is_wall_between(player.global_position, target_enemy.global_position):
 		player.direction = dir
 		if player.is_on_wall() and player.is_on_floor():
@@ -384,6 +428,14 @@ func _do_fight() -> void:
 	if not _try_use_buff():
 		if not _try_use_attack_ability(dx):
 			player.do_attack = true
+
+
+func _disengage() -> void:
+	target_enemy = null
+	_combat_timer = 0.0
+	_combat_last_enemy_hp = -1
+	current_action = "idle"
+	action_timer = 2.0
 
 
 func _do_retreat() -> void:
@@ -410,9 +462,7 @@ func _do_retreat() -> void:
 				_try_jump()
 
 	if not _should_retreat() or abs(to_enemy.x) > aggro_range:
-		target_enemy = null
-		current_action = "idle"
-		action_timer = 1.0
+		_disengage()
 
 
 func _do_loot() -> void:
@@ -554,22 +604,14 @@ func _do_navigate_to_portal() -> void:
 		current_action = "idle"
 		return
 
-	# If we're already in the portal's area, use it
-	if is_instance_valid(player.current_portal) and player.current_portal == target_portal:
+	# If we're overlapping any portal, use it
+	if is_instance_valid(player.current_portal):
+		player.direction = 0
 		player.do_portal_interact = true
 		target_portal = null
 		return
 
-	var dist := player.global_position.distance_to(target_portal.global_position)
-	if dist <= PORTAL_ARRIVE_DIST:
-		# Close enough — wait for portal body_entered trigger
-		player.direction = 0
-		# Try interacting if we happen to be in range
-		if is_instance_valid(player.current_portal):
-			player.do_portal_interact = true
-			target_portal = null
-		return
-
+	# Keep walking toward the portal until body_entered fires
 	_navigate_toward(target_portal.global_position)
 
 
@@ -742,7 +784,8 @@ func _try_use_buff() -> bool:
 		var ability_data: AbilityData = ResourceManager.get_ability_data(ability_id)
 		if not ability_data or not ability_data.applies_buff:
 			continue
-		if buff_comp.has_buff(ability_data.applies_buff.buff_id):
+		var buff_ref: BuffData = ability_data.applies_buff
+		if buff_comp.has_buff(buff_ref.buff_id) or buff_comp.has_buff(buff_ref.buff_name):
 			continue
 		if ability_comp.get_cooldown_remaining(ability_id) > 0.0:
 			continue
@@ -840,6 +883,12 @@ func _do_shop_maintenance() -> void:
 	_sell_unwanted_items(merchant)
 	_buy_potions(merchant)
 
+	var health_count := _count_consumable("heal_amount")
+	var mana_count := _count_consumable("regain_amount")
+	var needs_health_pots := health_count <= POTION_RESTOCK_THRESHOLD
+	var needs_mana_pots := mana_count <= POTION_RESTOCK_THRESHOLD and is_instance_valid(player.mana_component) and player.mana_component.max_mana > 0
+	_needs_restock = (needs_health_pots or needs_mana_pots) and merchant == null
+
 
 func _find_merchant_inventory() -> MerchantInventory:
 	var map_node = MapManager.get_player_map_node(bot_id)
@@ -852,13 +901,20 @@ func _find_merchant_inventory() -> MerchantInventory:
 	return null
 
 
+const SELL_FULLNESS_THRESHOLD: float = 0.85
+
 func _sell_unwanted_items(merchant: MerchantInventory) -> void:
+	var tab_counts := _count_slots_by_tab()
+	var equip_full = tab_counts.equip_used >= int(tab_counts.equip_total * SELL_FULLNESS_THRESHOLD)
+	var material_full = tab_counts.material_used >= int(tab_counts.material_total * SELL_FULLNESS_THRESHOLD)
+
+	if not equip_full and not material_full:
+		return
 
 	var class_type: Constants.ClassType = Constants.ClassType.BEGINNER
 	if is_instance_valid(player.class_component):
 		class_type = player.class_component.current_class
 
-	# Build scores for currently equipped gear
 	var equipped_scores: Dictionary = {}
 	if is_instance_valid(player.equipment_component):
 		for eq_slot in [player.equipment_component.weapon_slot, player.equipment_component.head_slot,
@@ -870,7 +926,6 @@ func _sell_unwanted_items(merchant: MerchantInventory) -> void:
 				if not equipped_scores.has(slot_key) or score > equipped_scores[slot_key]:
 					equipped_scores[slot_key] = score
 
-	# Also track the best unequipped item per slot so we keep one upgrade candidate
 	var best_inventory_scores: Dictionary = {}
 	for slot in player.inventory_component.slots:
 		if not slot.item or slot.item is not EquipmentData:
@@ -885,15 +940,15 @@ func _sell_unwanted_items(merchant: MerchantInventory) -> void:
 		if not slot.item:
 			continue
 
-		# Never sell consumables (potions, etc.)
 		if slot.item is ConsumableData:
 			continue
 
 		if slot.item is EquipmentData:
+			if not equip_full:
+				continue
 			var item := slot.item as EquipmentData
 			var item_score := BotEquipmentLogic.score_item(item, class_type)
 
-			# Always sell unusable weapons
 			if item is WeaponData and not BotEquipmentLogic.can_equip_weapon(item as WeaponData, class_type):
 				items_to_sell.append(item)
 				continue
@@ -904,11 +959,10 @@ func _sell_unwanted_items(merchant: MerchantInventory) -> void:
 			if item_score <= threshold:
 				items_to_sell.append(item)
 			elif item_score < best_inventory_scores.get(slot_key, 0.0):
-				# Not the best candidate for this slot — sell it
 				items_to_sell.append(item)
 		else:
-			# Non-equipment, non-consumable items (materials, etc.) — sell them
-			items_to_sell.append(slot.item)
+			if material_full:
+				items_to_sell.append(slot.item)
 
 	for item in items_to_sell:
 		var sell_price: int
@@ -918,6 +972,38 @@ func _sell_unwanted_items(merchant: MerchantInventory) -> void:
 			sell_price = maxi(1, roundi(item.base_value * 0.5))
 		player.player_inventory.monies_amount += sell_price
 		player.inventory_component.remove_item(item)
+
+
+func _count_slots_by_tab() -> Dictionary:
+	var result := {
+		"equip_used": 0, "equip_total": 0,
+		"consumable_used": 0, "consumable_total": 0,
+		"material_used": 0, "material_total": 0,
+	}
+	for slot in player.inventory_component.slots:
+		match slot.allowed_item_type:
+			Constants.ItemType.EQUIPMENT:
+				result.equip_total += 1
+				if slot.item:
+					result.equip_used += 1
+			Constants.ItemType.CONSUMABLE:
+				result.consumable_total += 1
+				if slot.item:
+					result.consumable_used += 1
+			Constants.ItemType.MATERIAL:
+				result.material_total += 1
+				if slot.item:
+					result.material_used += 1
+			Constants.ItemType.ANY:
+				if slot.item:
+					if slot.item is EquipmentData:
+						result.equip_used += 1
+					elif slot.item is ConsumableData:
+						result.consumable_used += 1
+					else:
+						result.material_used += 1
+				result.equip_total += 1
+	return result
 
 
 func _buy_potions(merchant: MerchantInventory) -> void:
@@ -997,15 +1083,12 @@ func _get_ability_range(ability_id: String) -> float:
 		return attack_range
 
 	var behavior: ActiveBehaviorData = ability_data.active_behavior
-	if behavior.is_projectile:
-		return aggro_range
-
 	var hitbox_x := absf(behavior.hit_box_position_data.x)
 	if behavior.hit_box_shape_data is RectangleShape2D:
 		hitbox_x += behavior.hit_box_shape_data.size.x * 0.5
 	elif behavior.hit_box_shape_data is CircleShape2D:
 		hitbox_x += behavior.hit_box_shape_data.radius
-	return maxf(hitbox_x, attack_range)
+	return maxf(hitbox_x * 0.85, attack_range)
 
 
 func _is_in_attack_state() -> bool:

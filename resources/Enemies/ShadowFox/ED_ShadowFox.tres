@@ -29,7 +29,7 @@ metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 [resource]
 script = ExtResource("2_ed")
 monster_name = "Shadow Fox"
-monster_level = 6
+monster_level = 60
 movement_speed = 50.0
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("CircleShape2D_col")
