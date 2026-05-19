@@ -156,7 +156,7 @@ func _add_equipment_section(player_node: Node) -> void:
 		_add_label("  (unavailable)", 10, Color(0.5, 0.5, 0.5))
 		return
 
-	var eq := player_node.equipment_component
+	var eq = player_node.equipment_component
 	var slot_data := [
 		["Weapon", eq.weapon_slot],
 		["Head", eq.head_slot],
@@ -306,7 +306,7 @@ func _add_item_row(slot_name: String, item: ItemData) -> void:
 
 	var rarity_color := Color(0.8, 0.8, 0.8)
 	if item is EquipmentData:
-		match item.item_rarity:
+		match item.rarity:
 			Constants.ItemRarity.COMMON: rarity_color = Color(0.7, 0.7, 0.7)
 			Constants.ItemRarity.UNCOMMON: rarity_color = Color(1.0, 1.0, 1.0)
 			Constants.ItemRarity.RARE: rarity_color = Color(1.0, 0.6, 0.2)
