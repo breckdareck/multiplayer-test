@@ -133,7 +133,7 @@ func _class_string_to_type(class_str: String) -> int:
 
 func handle_command(args: Array) -> String:
 	if args.is_empty():
-		return "Usage: /bot <spawn|despawn|despawn_all|list>"
+		return "Usage: /bot <spawn|despawn|despawn_all|list|teleport|set_level|reload_config>"
 
 	var sub_command: String = args[0].to_lower()
 	match sub_command:
@@ -167,14 +167,52 @@ func handle_command(args: Array) -> String:
 			var lines: PackedStringArray = []
 			for bot_id in active_bots:
 				var info = active_bots[bot_id]
-				lines.append("  [%d] %s (%s) on map '%s'" % [
+				var player_node := PlayerManager.get_player_node(bot_id)
+				var level_str := "?"
+				if is_instance_valid(player_node) and is_instance_valid(player_node.level_component):
+					level_str = str(player_node.level_component.level)
+				lines.append("  [%d] %s (%s) Lv.%s on '%s'" % [
 					bot_id, info.username,
 					Constants.ClassType.find_key(info.class_type),
-					info.map_id])
+					level_str, info.map_id])
 			return "Active bots:\n" + "\n".join(lines)
 
+		"teleport":
+			if args.size() < 3:
+				return "Usage: /bot teleport <name|id> <map>"
+			var target: String = args[1]
+			var bot_id := _find_bot_by_name_or_id(target)
+			if bot_id == 0:
+				return "Bot '%s' not found." % target
+			var map_id: String = args[2]
+			active_bots[bot_id].map_id = map_id
+			MapManager.request_map_change(bot_id, map_id)
+			return "Teleported bot %d to map '%s'." % [bot_id, map_id]
+
+		"set_level":
+			if args.size() < 3:
+				return "Usage: /bot set_level <name|id> <level>"
+			var target: String = args[1]
+			var bot_id := _find_bot_by_name_or_id(target)
+			if bot_id == 0:
+				return "Bot '%s' not found." % target
+			var level := args[2].to_int()
+			if level < 1:
+				return "Level must be >= 1."
+			var player_node := PlayerManager.get_player_node(bot_id)
+			if not is_instance_valid(player_node) or not is_instance_valid(player_node.level_component):
+				return "Bot %d player node not ready." % bot_id
+			var current := player_node.level_component.level
+			while player_node.level_component.level < level:
+				player_node.level_component.add_exp(player_node.level_component.get_exp_to_next_level())
+			return "Bot %d leveled from %d to %d." % [bot_id, current, player_node.level_component.level]
+
+		"reload_config":
+			load_config(_config_path)
+			return "Bot config reloaded (%d bot definitions)." % bot_config.get("bots", []).size()
+
 		_:
-			return "Unknown bot command '%s'. Use: spawn, despawn, despawn_all, list" % sub_command
+			return "Unknown bot command '%s'. Use: spawn, despawn, despawn_all, list, teleport, set_level, reload_config" % sub_command
 
 
 func _find_bot_by_name_or_id(target: String) -> int:

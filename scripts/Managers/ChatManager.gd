@@ -63,6 +63,10 @@ func send_chat_message(text: String) -> void:
 			JobAdvancementManager.request_advancement.rpc_id(1)
 			return
 
+		if command == "/bot":
+			_request_bot_command.rpc_id(1, text)
+			return
+
 		_send_system_message("Unknown command: %s" % command, Color.ORANGE)
 		return
 
@@ -173,3 +177,20 @@ func _request_quest_command(args: String) -> void:
 	if not _check_rate_limit(multiplayer.get_remote_sender_id()):
 		return
 	QuestManager.handle_quest_command(args, multiplayer.get_remote_sender_id())
+
+
+@rpc("any_peer", "call_local", "reliable")
+func _request_bot_command(text: String) -> void:
+	if not multiplayer.is_server():
+		return
+	var sender_id := multiplayer.get_remote_sender_id()
+	if sender_id != 1 and sender_id != 0:
+		add_system_message.rpc_id(sender_id, "Bot commands are server-only.", Color.ORANGE)
+		return
+	var parts := text.split(" ", false)
+	parts.remove_at(0)
+	var result := BotManager.handle_command(parts)
+	if sender_id == 1 or sender_id == 0:
+		add_system_message(result, Color.CYAN)
+	else:
+		add_system_message.rpc_id(sender_id, result, Color.CYAN)
