@@ -146,7 +146,7 @@ func _on_bot_spawned(bot_id: int) -> void:
 
 func generate_bot_name() -> String:
 	for _attempt in 30:
-		var name := NAME_PREFIXES.pick_random() + NAME_SUFFIXES.pick_random()
+		var name = NAME_PREFIXES.pick_random() + NAME_SUFFIXES.pick_random()
 		if not _used_names.has(name):
 			_used_names[name] = true
 			return name

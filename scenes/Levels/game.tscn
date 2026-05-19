@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=4 uid="uid://d1hwvomjwdrjv"]
+[gd_scene load_steps=28 format=4 uid="uid://d1hwvomjwdrjv"]
 
 [ext_resource type="Script" path="res://scripts/Gameplay/map_base.gd" id="1_e24jv"]
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/VFX/damage_numbers.gd" id="1_ryi0r"]
@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://q6iqwsi8meq4" path="res://scenes/NPC/slime.tscn" id="7_ukxhe"]
 [ext_resource type="PackedScene" uid="uid://betkg72vd7iav" path="res://scenes/NPC/Minifolks/boar.tscn" id="8_pd7st"]
 [ext_resource type="PackedScene" uid="uid://c06qbiant345e" path="res://scenes/NPC/Minifolks/bunny.tscn" id="9_qb3j5"]
+[ext_resource type="Resource" uid="uid://bwlru2cwcphdy" path="res://resources/Items/Consumables/Mana_Potion.tres" id="16_kgokg"]
 [ext_resource type="PackedScene" path="res://scenes/Gameplay/secret_portal.tscn" id="17_j167y"]
 [ext_resource type="PackedScene" uid="uid://f4gho8l6o1ld" path="res://scenes/NPC/merchant_npc.tscn" id="20_ukxhe"]
 [ext_resource type="Resource" uid="uid://cjl5ggbs3c237" path="res://resources/Items/Consumables/Grape_Potion.tres" id="21_pd7st"]
@@ -676,42 +677,52 @@ autoplay = "move"
 [node name="Slime" parent="Enemies" instance=ExtResource("7_ukxhe")]
 position = Vector2(-688, 16)
 respawnable = true
+respawn_delay = 15
 
 [node name="Slime2" parent="Enemies" instance=ExtResource("7_ukxhe")]
 position = Vector2(-647, 16)
 respawnable = true
+respawn_delay = 15
 
 [node name="Slime3" parent="Enemies" instance=ExtResource("7_ukxhe")]
 position = Vector2(-728, 16)
 respawnable = true
+respawn_delay = 15
 
 [node name="Boar" parent="Enemies" instance=ExtResource("8_pd7st")]
 position = Vector2(337, 15)
 respawnable = true
+respawn_delay = 15
 
 [node name="Boar2" parent="Enemies" instance=ExtResource("8_pd7st")]
 position = Vector2(373, 15)
 respawnable = true
+respawn_delay = 15
 
 [node name="Boar3" parent="Enemies" instance=ExtResource("8_pd7st")]
 position = Vector2(406, 15)
 respawnable = true
+respawn_delay = 15
 
 [node name="Boar4" parent="Enemies" instance=ExtResource("8_pd7st")]
 position = Vector2(435, 15)
 respawnable = true
+respawn_delay = 15
 
 [node name="Bunny" parent="Enemies" instance=ExtResource("9_qb3j5")]
 position = Vector2(-68, 0)
 respawnable = true
+respawn_delay = 15
 
 [node name="Bunny2" parent="Enemies" instance=ExtResource("9_qb3j5")]
 position = Vector2(-172, 16)
 respawnable = true
+respawn_delay = 15
 
 [node name="Bunny3" parent="Enemies" instance=ExtResource("9_qb3j5")]
 position = Vector2(128, 16)
 respawnable = true
+respawn_delay = 15
 
 [node name="Projectiles" type="Node2D" parent="."]
 
@@ -724,6 +735,8 @@ position = Vector2(-17, -18)
 shop_window = NodePath("../CanvasLayer/ShopWindow")
 base_stock_config = Array[Dictionary]([{
 ExtResource("21_pd7st"): -1
+}, {
+ExtResource("16_kgokg"): -1
 }, {
 ExtResource("22_qb3j5"): 10
 }])

@@ -180,7 +180,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(1888, 20)]
+"values": [Vector2(1888, 35)]
 }
 
 [sub_resource type="Animation" id="Animation_e6s7e"]
@@ -195,7 +195,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0, 1),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Vector2(1520, 20), Vector2(1888, 20)]
+"values": [Vector2(1520, 35), Vector2(1888, 35)]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_pnj8v"]
@@ -496,6 +496,7 @@ visibility_update_mode = 1
 [node name="InputSynchronizer" type="MultiplayerSynchronizer" parent="."]
 unique_name_in_owner = true
 replication_config = SubResource("SceneReplicationConfig_80evv")
+visibility_update_mode = 1
 public_visibility = false
 script = ExtResource("2_hxkm2")
 
@@ -897,13 +898,14 @@ offset_right = 940.0
 offset_bottom = -21.0
 
 [node name="Debug" type="Panel" parent="CanvasLayer"]
+visible = false
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -32.0
-offset_top = 20.0
+offset_top = 35.0
 offset_right = 348.0017
-offset_bottom = 239.99991
+offset_bottom = 254.99991
 grow_horizontal = 0
 focus_mode = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_v00ed")
@@ -1193,6 +1195,7 @@ process_callback = 0
 limit_enabled = false
 limit_bottom = 120
 position_smoothing_enabled = true
+position_smoothing_speed = 4.0
 
 [node name="RespawnTimer" type="Timer" parent="."]
 wait_time = 2.0

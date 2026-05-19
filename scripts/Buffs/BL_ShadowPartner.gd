@@ -19,8 +19,7 @@ func on_apply(owner_node: Node, _active_buff) -> void:
 	if owner_node.has_method("sync_shadow_partner"):
 		owner_node.sync_shadow_partner.rpc(true)
 
-	print("Shadow Partner spawned for %s (Level %d, %.0f%% damage)" % [
-		owner_node.name, source_ability_level, damage_percent])
+	print("Shadow Partner spawned for %s (%.0f%% damage)" % [owner_node.name, damage_percent])
 
 
 func on_remove(owner_node: Node, _active_buff) -> void:
@@ -33,7 +32,6 @@ func on_remove(owner_node: Node, _active_buff) -> void:
 	if owner_node.has_method("sync_shadow_partner"):
 		owner_node.sync_shadow_partner.rpc(false)
 
-	print("Shadow Partner expired on %s" % owner_node.name)
 
 
 func on_tick(owner_node: Node, _active_buff, _delta: float) -> void:
@@ -82,11 +80,9 @@ func _create_shadow_visual(owner_node: Node) -> void:
 
 func _connect_combat_signal() -> void:
 	if not _combat_component:
-		print("BL_ShadowPartner: _combat_component is NULL — cannot connect dealt_damage signal")
 		return
 	if not _combat_component.dealt_damage.is_connected(_on_owner_dealt_damage):
 		_combat_component.dealt_damage.connect(_on_owner_dealt_damage)
-		print("BL_ShadowPartner: Connected to dealt_damage signal on %s" % _combat_component.get_path())
 
 
 func _disconnect_combat_signal() -> void:
@@ -96,10 +92,8 @@ func _disconnect_combat_signal() -> void:
 
 func _on_owner_dealt_damage(target: Node, damage_values: Array, crit_values: Array) -> void:
 	if not is_instance_valid(_owner_ref) or not _owner_ref.multiplayer.is_server():
-		print("BL_ShadowPartner: _on_owner_dealt_damage skipped — owner invalid or not server")
 		return
 	if not target is EnemyBase:
-		print("BL_ShadowPartner: _on_owner_dealt_damage skipped — target is not EnemyBase: %s" % target)
 		return
 	var health_comp = target.get("health_component")
 	if not health_comp:
@@ -149,7 +143,6 @@ func _on_owner_dealt_damage(target: Node, damage_values: Array, crit_values: Arr
 		health_comp.take_damage(final_damage, _combat_component, true, is_crit, false)
 
 	# Interleave: insert each shadow hit after its corresponding player hit
-	print("BL_ShadowPartner: Shadow dealt %s damage (dmg_pct=%.0f)" % [shadow_damages, damage_percent])
 	for i in range(shadow_damages.size()):
 		var insert_idx: int = (i * 2) + 1
 		damage_values.insert(insert_idx, shadow_damages[i])
