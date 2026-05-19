@@ -263,13 +263,18 @@ func _do_fight() -> void:
 		return
 
 	var to_enemy := target_enemy.global_position - player.global_position
-	var dist :int= abs(to_enemy.x)
+	var dx :int= abs(to_enemy.x)
+	var dy := to_enemy.y
 	var dir := 1 if to_enemy.x > 0 else -1
 
-	if dist <= attack_range:
-		# Check if there's a wall between us and the enemy
+	# Enemy is on a different Y level — navigate to them first
+	if abs(dy) > 12.0:
+		_navigate_toward(target_enemy.global_position)
+		return
+
+	# Same level: check X range and line of sight
+	if dx <= attack_range:
 		if _is_wall_between(player.global_position, target_enemy.global_position):
-			# Wall is blocking — navigate around/over it
 			player.direction = dir
 			player.facing_direction = dir
 			if player.is_on_wall() and player.is_on_floor():
@@ -292,8 +297,18 @@ func _do_retreat() -> void:
 	player.direction = dir
 	player.facing_direction = dir
 
-	if player.is_on_floor() and _is_near_ledge():
-		player.direction = 0
+	if player.is_on_floor():
+		# Jump over walls when fleeing
+		if player.is_on_wall():
+			if _wall_stuck_timer >= WALL_STUCK_JUMP_TIME:
+				_try_jump()
+		elif _is_near_ledge():
+			# Check if there's ground to land on in the escape direction
+			if _raycast_down(player.global_position + Vector2(dir * 18.0, 0), 200.0):
+				pass  # safe to walk off
+			else:
+				# Cornered at edge — jump up to escape
+				_try_jump()
 
 	if not _should_retreat() or abs(to_enemy.x) > aggro_range:
 		target_enemy = null
@@ -308,13 +323,16 @@ func _do_loot() -> void:
 		player.do_pickup = false
 		return
 
-	var dist := player.global_position.distance_to(target_loot.global_position)
+	var to_loot := target_loot.global_position - player.global_position
+	var dx := abs(to_loot.x)
 
-	if dist <= target_loot.pickup_distance + 5.0:
+	# Use horizontal distance for "am I on top of the item" since Y can differ
+	# due to player origin vs item ground position
+	if dx <= 10.0:
 		player.direction = 0
 		player.do_pickup = true
 	else:
-		player.do_pickup = false
+		player.do_pickup = true  # keep trying while approaching
 		_navigate_toward(target_loot.global_position)
 
 
