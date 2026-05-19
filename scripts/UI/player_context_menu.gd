@@ -26,8 +26,8 @@ static func create() -> PlayerContextMenu:
 	menu.add_theme_stylebox_override("panel", bg)
 
 	menu._button_container = VBoxContainer.new()
-	menu._button_container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	menu._button_container.add_theme_constant_override("separation", 1)
+	menu._button_container.position = Vector2(4, 4)
+	menu._button_container.add_theme_constant_override("separation", 0)
 	menu.add_child(menu._button_container)
 
 	return menu
@@ -38,6 +38,7 @@ func show_for_target(target_id: int, screen_pos: Vector2) -> void:
 	_target_is_bot = BotManager.is_bot(target_id)
 
 	for child in _button_container.get_children():
+		_button_container.remove_child(child)
 		child.queue_free()
 
 	var target_name := _get_target_name()
@@ -52,8 +53,10 @@ func show_for_target(target_id: int, screen_pos: Vector2) -> void:
 		_add_button("Kick from Party", _do_kick)
 		_add_button("Despawn Bot", _do_despawn)
 
-	await get_tree().process_frame
-	size = Vector2(MENU_WIDTH, _button_container.size.y + 8)
+	var total_height: float = 0.0
+	for child in _button_container.get_children():
+		total_height += child.custom_minimum_size.y
+	size = Vector2(MENU_WIDTH, total_height + 8)
 
 	var vp_size := get_viewport_rect().size
 	var pos := screen_pos
@@ -71,7 +74,7 @@ func _add_button(text: String, callback: Callable) -> void:
 	btn.text = text
 	btn.flat = true
 	btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
-	btn.custom_minimum_size = Vector2(MENU_WIDTH - 8, 24)
+	btn.custom_minimum_size = Vector2(MENU_WIDTH - 8, 22)
 	btn.add_theme_font_size_override("font_size", 11)
 	btn.add_theme_color_override("font_color", Color(0.85, 0.85, 0.85))
 	btn.add_theme_color_override("font_hover_color", Color(1.0, 0.95, 0.7))
@@ -81,10 +84,10 @@ func _add_button(text: String, callback: Callable) -> void:
 	hover_bg.set_corner_radius_all(2)
 	btn.add_theme_stylebox_override("hover", hover_bg)
 
-	var normal_bg := StyleBoxEmpty.new()
-	btn.add_theme_stylebox_override("normal", normal_bg)
+	var empty := StyleBoxEmpty.new()
+	btn.add_theme_stylebox_override("normal", empty)
 	btn.add_theme_stylebox_override("pressed", hover_bg)
-	btn.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+	btn.add_theme_stylebox_override("focus", empty)
 
 	btn.pressed.connect(func():
 		callback.call()
@@ -94,13 +97,14 @@ func _add_button(text: String, callback: Callable) -> void:
 
 
 func _add_separator() -> void:
-	var sep := HSeparator.new()
-	sep.add_theme_constant_override("separation", 4)
-	var sep_style := StyleBoxFlat.new()
-	sep_style.bg_color = Color(0.3, 0.3, 0.4, 0.5)
-	sep_style.content_margin_top = 1
-	sep_style.content_margin_bottom = 1
-	sep.add_theme_stylebox_override("separator", sep_style)
+	var sep := Control.new()
+	sep.custom_minimum_size = Vector2(MENU_WIDTH - 8, 5)
+	var line := ColorRect.new()
+	line.color = Color(0.3, 0.3, 0.4, 0.5)
+	line.custom_minimum_size = Vector2(MENU_WIDTH - 16, 1)
+	line.position = Vector2(4, 2)
+	line.size = Vector2(MENU_WIDTH - 16, 1)
+	sep.add_child(line)
 	_button_container.add_child(sep)
 
 

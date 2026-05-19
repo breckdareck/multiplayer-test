@@ -213,18 +213,29 @@ func end_ability_attack() -> void:
 	_unique_targets_for_attack.clear()
 
 
+func _is_on_same_map(target: Node) -> bool:
+	var map_id := MapManager.get_player_map(owner_node.player_id)
+	if map_id.is_empty():
+		return true
+	var map_data: Dictionary = MapManager.active_maps.get(map_id, {})
+	var map_node: Node = map_data.get("scene_instance")
+	if not is_instance_valid(map_node):
+		return true
+	return map_node.is_ancestor_of(target)
+
+
 func _on_hitbox_area_entered(area: Area2D) -> void:
 	if not multiplayer.is_server():
 		return
-	print("Hit: %s" % area.owner.name)
 	if not "health_component" in (area.owner as EnemyBase):
 		return
-		
+	if not _is_on_same_map(area.owner):
+		return
+
 	var health_comp = area.owner.get("health_component")
 	if not health_comp or health_comp.is_dead:
 		return
-	
-	# NEW: Just collect the body, don't process yet
+
 	if not _pending_bodies.has(area):
 		_pending_bodies.append(area)
 
@@ -235,7 +246,7 @@ func _process_collected_bodies() -> void:
 	if hitbox_area.monitoring:
 		for area in hitbox_area.get_overlapping_areas():
 			if not _pending_bodies.has(area) and is_instance_valid(area) and is_instance_valid(area.owner):
-				if "health_component" in area.owner:
+				if "health_component" in area.owner and _is_on_same_map(area.owner):
 					var hc = area.owner.get("health_component")
 					if hc and not hc.is_dead:
 						_pending_bodies.append(area)

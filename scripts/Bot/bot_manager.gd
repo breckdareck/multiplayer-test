@@ -169,12 +169,10 @@ func _form_squad_on_map(map_id: String, bot_ids: Array) -> void:
 	var leader_id: int = bot_ids[0]
 	var party_id := PartyManager.create_party(leader_id)
 	if party_id == -1:
-		push_warning("BotManager: Failed to create squad for map '%s'." % map_id)
 		return
 
 	for i in range(1, bot_ids.size()):
-		var member_id: int = bot_ids[i]
-		PartyManager.send_invite(leader_id, member_id)
+		PartyManager.send_invite(leader_id, bot_ids[i])
 
 	print("BotManager: Formed squad (party %d) on map '%s' with %d bots." % [party_id, map_id, bot_ids.size()])
 

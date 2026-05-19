@@ -548,6 +548,8 @@ func _receive_quest_ui_data(data: Dictionary) -> void:
 
 ## Internal: build and deliver quest UI data to a specific peer.
 func _send_quest_ui_data(peer_id: int, username: String, player_node: MultiplayerPlayerV2) -> void:
+	if BotManager.is_bot(peer_id):
+		return
 	var data := _build_quest_ui_data(username, player_node)
 	if multiplayer.get_unique_id() == peer_id:
 		# Host mode: emit signal directly, no RPC needed

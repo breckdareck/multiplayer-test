@@ -19,39 +19,32 @@ func _ready():
 	if not multiplayer.is_server():                                                                         
 		return 
 
-func accept_invite(invitee_id: int, party_id: int) -> bool:                                                 
-	print("PartyManager: In accept_invite(), multiplayer.is_server(): ", multiplayer.is_server())           
-	print("PartyManager: accept_invite called. Invitee ID: ", invitee_id, ", Party ID: ", party_id)         
-	if not multiplayer.is_server():                                                                         
-		print("PartyManager: accept_invite: Not server.")                                                   
-		return false                                                                                        
-																					  
-	if _player_party_map.has(invitee_id):                                                                   
-		print("PartyManager: accept_invite: Player %d is already in a party." % invitee_id)                 
-		return false                                                                                        
+func accept_invite(invitee_id: int, party_id: int) -> bool:
+	if not multiplayer.is_server():
+		return false
 
-	if not _parties.has(party_id):                                                                          
-		print("PartyManager: accept_invite: Party %d does not exist." % party_id)                           
-		return false                                                                                                                                                                                          
-	
-	var party: PartyData = _parties[party_id]                                                               
-	var invite_found = false                                                                                
-	for inviter_id in party.invites.keys():                                                                 
-		if party.has_invite(inviter_id, invitee_id):                                                        
-			party.remove_invite(inviter_id, invitee_id)                                                     
-			invite_found = true                                                                             
-			break                                                                                           
-			
-	if not invite_found:                                                                                    
-		print("PartyManager: accept_invite: Player %d was not invited to party %d." % [invitee_id, party_id])                                                                                                    
-		return false                                                                                        
-																							
-	party.add_member(invitee_id)                                                                            
-	_player_party_map[invitee_id] = party_id                                                                
-	print("PartyManager: Player %d joined party %d." % [invitee_id, party_id])                              
-	party_joined.emit(invitee_id, party_id)                                                                 
-	member_added.emit(party_id, invitee_id)                                                                 
-	_send_party_data_to_members(party_id)                                                                   
+	if _player_party_map.has(invitee_id):
+		return false
+
+	if not _parties.has(party_id):
+		return false
+
+	var party: PartyData = _parties[party_id]
+	var invite_found = false
+	for inviter_id in party.invites.keys():
+		if party.has_invite(inviter_id, invitee_id):
+			party.remove_invite(inviter_id, invitee_id)
+			invite_found = true
+			break
+
+	if not invite_found:
+		return false
+
+	party.add_member(invitee_id)
+	_player_party_map[invitee_id] = party_id
+	party_joined.emit(invitee_id, party_id)
+	member_added.emit(party_id, invitee_id)
+	_send_party_data_to_members(party_id)
 	return true
 
 func create_party(leader_id: int) -> int:
@@ -96,8 +89,12 @@ func send_invite(inviter_id: int, invitee_id: int) -> bool:
 
 	party.add_invite(inviter_id, invitee_id)
 
-	# Bots auto-accept invites (they have no client to receive the RPC)
 	if BotManager.is_bot(invitee_id):
+		if BotManager.is_bot(inviter_id):
+			if not _bot_evaluate_invite(inviter_id, invitee_id):
+				party.remove_invite(inviter_id, invitee_id)
+				print("PartyManager: Bot %d declined invite from bot %d." % [invitee_id, inviter_id])
+				return false
 		print("PartyManager: Bot %d auto-accepting invite to party %d." % [invitee_id, inviter_party_id])
 		accept_invite(invitee_id, party.party_id)
 		return true
@@ -173,6 +170,19 @@ func get_party_leader(party_id: int) -> int:
 func get_player_party_id(player_id: int) -> int:
 	return _player_party_map.get(player_id, -1)
 
+func _bot_evaluate_invite(inviter_id: int, invitee_id: int) -> bool:
+	var inviter_node := PlayerManager.get_player_node(inviter_id)
+	var invitee_node := PlayerManager.get_player_node(invitee_id)
+	if not is_instance_valid(inviter_node) or not is_instance_valid(invitee_node):
+		return false
+	var lvl_a: int = inviter_node.level_component.level if is_instance_valid(inviter_node.level_component) else 1
+	var lvl_b: int = invitee_node.level_component.level if is_instance_valid(invitee_node.level_component) else 1
+	if absi(lvl_a - lvl_b) > 10:
+		return false
+	# 70% base accept chance for bot-to-bot invites
+	return randf() < 0.7
+
+
 func get_party_member_info(player_id: int) -> Dictionary:
 	return _player_info_cache.get(player_id, {})
 
@@ -203,12 +213,18 @@ func rpc_send_invite(invitee_name: String):
 	if sender_id == 0:
 		sender_id = multiplayer.get_unique_id()
 	
-	# Resolve player name to ID on the server
-	var invitee_id = PlayerManager.get_player_id_from_name(invitee_name) # Assuming this exists on server
+	var invitee_id = PlayerManager.get_player_id_from_name(invitee_name)
+	if invitee_id == -1:
+		for bot_id in BotManager.active_bots:
+			if BotManager.active_bots[bot_id].username.to_lower() == invitee_name.to_lower():
+				invitee_id = bot_id
+				break
 	if invitee_id == -1:
 		print("Server: Player not found by name: ", invitee_name)
-		# Optionally, send an RPC back to the sender to notify them
 		return
+
+	if not _player_party_map.has(sender_id):
+		create_party(sender_id)
 
 	send_invite(sender_id, invitee_id)
 
@@ -387,13 +403,23 @@ func remove_quest_from_party(party_id: int, quest_id: String):
 		print("Quest %s removed from party %d." % [quest_id, party_id])
 
 func notify_player_data_changed(player_id: int):
-	# This function should be called by other systems (like LevelingComponent) on the server
-	# when a player's data that is relevant to the party UI changes.
 	if not multiplayer.is_server():
 		return
 
 	var party_id = _player_party_map.get(player_id)
-	if party_id:
-		print("PartyManager: Player %d data changed, re-syncing party %d." % [player_id, party_id])
-		_send_party_data_to_members(party_id)
-		host_party_data_updated.emit()
+	if not party_id:
+		return
+
+	# Skip sync for bot-only parties — no client needs the update
+	var party: PartyData = _parties.get(party_id)
+	if party:
+		var has_real_player := false
+		for mid in party.members:
+			if not BotManager.is_bot(mid):
+				has_real_player = true
+				break
+		if not has_real_player:
+			return
+
+	_send_party_data_to_members(party_id)
+	host_party_data_updated.emit()

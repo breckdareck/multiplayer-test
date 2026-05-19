@@ -65,9 +65,15 @@ var patrol_route: Array = []
 var patrol_index: int = 0
 var target_portal: Node = null
 var _map_travel_timer: float = 0.0
+var _map_stay_timer: float = 0.0
 const MAP_TRAVEL_CHECK_INTERVAL: float = 15.0
+const MAP_MIN_STAY_TIME: float = 120.0
 const LEVEL_OVERRIDE_THRESHOLD: int = 5
 const PORTAL_ARRIVE_DIST: float = 30.0
+
+var _party_seek_timer: float = 0.0
+const PARTY_SEEK_INTERVAL: float = 12.0
+const PARTY_SEEK_RANGE: float = 300.0
 
 const MAX_JUMP_HEIGHT: float = 40.0
 const JUMP_COOLDOWN: float = 0.8
@@ -97,6 +103,7 @@ func init(player_node: MultiplayerPlayerV2, id: int, behavior_config: Dictionary
 	patrol_route = behavior_config.get("patrol_route", [])
 
 	think_timer = randf() * think_interval
+	_party_seek_timer = PARTY_SEEK_INTERVAL + randf() * PARTY_SEEK_INTERVAL
 
 
 func _process(delta: float) -> void:
@@ -198,6 +205,7 @@ func _think() -> void:
 		var my_map := MapManager.get_player_map(bot_id)
 		if leader_map != my_map and not leader_map.is_empty():
 			MapManager.request_map_change(bot_id, leader_map)
+			_map_stay_timer = MAP_MIN_STAY_TIME
 			return
 		var leader_node := PlayerManager.get_player_node(leader_id)
 		if is_instance_valid(leader_node):
@@ -247,6 +255,7 @@ func _think() -> void:
 		return
 
 	if allow_map_travel and _is_squad_leader() and not _should_follow_leader():
+		_map_stay_timer -= think_interval
 		_map_travel_timer -= think_interval
 		if _map_travel_timer <= 0.0:
 			_map_travel_timer = MAP_TRAVEL_CHECK_INTERVAL
@@ -258,6 +267,8 @@ func _think() -> void:
 		if is_instance_valid(target_portal):
 			current_action = "travel"
 			return
+
+	_try_party_seek()
 
 	if action_timer > 0.0:
 		return
@@ -513,6 +524,46 @@ func _should_follow_leader() -> bool:
 	return not BotManager.is_bot(leader_id)
 
 
+func _try_party_seek() -> void:
+	_party_seek_timer -= think_interval
+	if _party_seek_timer > 0.0:
+		return
+	_party_seek_timer = PARTY_SEEK_INTERVAL + randf() * 5.0
+
+	var my_party_id := PartyManager.get_player_party_id(bot_id)
+	if my_party_id != -1:
+		return
+
+	var my_map := MapManager.get_player_map(bot_id)
+	var best_bot_id: int = 0
+	var best_dist: float = PARTY_SEEK_RANGE
+
+	for other_id in BotManager.active_bots:
+		if other_id == bot_id:
+			continue
+		if PartyManager.get_player_party_id(other_id) != -1:
+			continue
+		if MapManager.get_player_map(other_id) != my_map:
+			continue
+		var other_node := PlayerManager.get_player_node(other_id)
+		if not is_instance_valid(other_node):
+			continue
+		var dist := player.global_position.distance_to(other_node.global_position)
+		if dist < best_dist:
+			best_dist = dist
+			best_bot_id = other_id
+
+	if best_bot_id == 0:
+		return
+
+	var party_id := PartyManager.create_party(bot_id)
+	if party_id == -1:
+		return
+	var accepted := PartyManager.send_invite(bot_id, best_bot_id)
+	if not accepted:
+		PartyManager.leave_party(bot_id)
+
+
 func _is_squad_leader() -> bool:
 	var party_id := PartyManager.get_player_party_id(bot_id)
 	if party_id == -1:
@@ -533,12 +584,19 @@ func _should_change_map() -> bool:
 	var max_level: int = difficulty.get("max_level", 999)
 	var min_level: int = difficulty.get("min_level", 1)
 
+	# Level override: always travel immediately if way out of range
 	if bot_level >= max_level + LEVEL_OVERRIDE_THRESHOLD:
 		return true
 	if bot_level <= min_level - LEVEL_OVERRIDE_THRESHOLD:
 		return true
 
-	return not patrol_route.is_empty()
+	# Patrol route: only after stay timer expires, 30% chance per check
+	if _map_stay_timer > 0.0:
+		return false
+	if not patrol_route.is_empty():
+		return randf() < 0.3
+
+	return false
 
 
 func _get_target_map() -> String:
@@ -570,15 +628,25 @@ func _get_target_map() -> String:
 			if not best_map.is_empty():
 				return best_map
 
-	# Patrol route: advance to next map
+	# Patrol route: pick the next level-appropriate map
 	if patrol_route.is_empty():
 		return ""
-	patrol_index = (patrol_index + 1) % patrol_route.size()
-	var next_map: String = patrol_route[patrol_index]
-	if next_map == my_map and patrol_route.size() > 1:
-		patrol_index = (patrol_index + 1) % patrol_route.size()
-		next_map = patrol_route[patrol_index]
-	return next_map
+	var all_difficulties: Dictionary = BotManager.bot_config.get("map_difficulty", {})
+	for i in patrol_route.size():
+		var idx := (patrol_index + 1 + i) % patrol_route.size()
+		var candidate: String = patrol_route[idx]
+		if candidate == my_map:
+			continue
+		var md: Dictionary = all_difficulties.get(candidate, {})
+		if md.is_empty():
+			patrol_index = idx
+			return candidate
+		var min_lvl: int = md.get("min_level", 1)
+		var max_lvl: int = md.get("max_level", 999)
+		if bot_level >= min_lvl - LEVEL_OVERRIDE_THRESHOLD and bot_level <= max_lvl + LEVEL_OVERRIDE_THRESHOLD:
+			patrol_index = idx
+			return candidate
+	return ""
 
 
 func _find_portal_to_map(target_map_id: String) -> Node:
@@ -604,11 +672,11 @@ func _do_navigate_to_portal() -> void:
 		current_action = "idle"
 		return
 
-	# If we're overlapping any portal, use it
 	if is_instance_valid(player.current_portal):
 		player.direction = 0
 		player.do_portal_interact = true
 		target_portal = null
+		_map_stay_timer = MAP_MIN_STAY_TIME
 		return
 
 	# Keep walking toward the portal until body_entered fires
