@@ -6,6 +6,18 @@ var bot_counter: int = 0
 var active_bots: Dictionary = {}
 var bot_config: Dictionary = {}
 var _config_path: String = "res://config/bot_config.json"
+var _used_names: Dictionary = {}
+
+const NAME_PREFIXES: Array[String] = [
+	"Shadow", "Iron", "Storm", "Frost", "Fire", "Dark", "Silver", "Golden",
+	"Brave", "Swift", "Wild", "Stone", "Moon", "Star", "Thunder", "Ice",
+	"Crimson", "Azure", "Jade", "Ember", "Night", "Dawn", "Dusk", "Ash",
+]
+const NAME_SUFFIXES: Array[String] = [
+	"blade", "heart", "wind", "fang", "strike", "wolf", "hawk", "shield",
+	"born", "walker", "fury", "soul", "flame", "guard", "fall", "forge",
+	"bane", "claw", "storm", "song", "breaker", "thorn", "ridge", "vale",
+]
 
 
 func _ready() -> void:
@@ -42,7 +54,8 @@ func load_config(path: String) -> void:
 func _auto_spawn_bots() -> void:
 	var bots_array: Array = bot_config.get("bots", [])
 	for bot_def in bots_array:
-		var bot_name: String = bot_def.get("name", "Bot_%d" % abs(bot_counter - 1))
+		var raw_name: String = bot_def.get("name", "")
+		var bot_name := raw_name if not raw_name.is_empty() and raw_name.to_lower() != "random" else generate_bot_name()
 		var class_str: String = bot_def.get("class", "SWORDSMAN")
 		var class_type: int = _class_string_to_type(class_str)
 		var map_id: String = bot_def.get("map", bot_config.get("default_map", MapManager.DEFAULT_MAP))
@@ -69,6 +82,7 @@ func spawn_bot(bot_name: String, class_type: int, map_id: String = "") -> int:
 	print("BotManager: Spawning bot '%s' (ID %d, class %s) on map '%s'" % [
 		bot_name, bot_id, Constants.ClassType.find_key(class_type), map_id])
 
+	_used_names[bot_name] = true
 	PlayerManager.add_bot(bot_id, bot_name, class_type, map_id)
 	return bot_id
 
@@ -81,6 +95,7 @@ func despawn_bot(bot_id: int) -> void:
 	var info = active_bots[bot_id]
 	print("BotManager: Despawning bot '%s' (ID %d)" % [info.username, bot_id])
 
+	_used_names.erase(info.username)
 	PlayerManager.remove_player(bot_id)
 	active_bots.erase(bot_id)
 
@@ -109,6 +124,10 @@ func _on_bot_spawned(bot_id: int) -> void:
 		push_error("BotManager: Could not find player node for bot %d after spawn." % bot_id)
 		return
 
+	var old_brain = player_node.get_node_or_null("BotBrain")
+	if old_brain:
+		old_brain.queue_free()
+
 	var brain := BotBrain.new()
 	brain.name = "BotBrain"
 	player_node.add_child(brain)
@@ -118,8 +137,22 @@ func _on_bot_spawned(bot_id: int) -> void:
 
 	if bot_id in active_bots:
 		active_bots[bot_id]["brain"] = brain
+		var current_map := MapManager.get_player_map(bot_id)
+		if not current_map.is_empty():
+			active_bots[bot_id]["map_id"] = current_map
 
 	print("BotManager: Bot %d brain attached and running." % bot_id)
+
+
+func generate_bot_name() -> String:
+	for _attempt in 30:
+		var name := NAME_PREFIXES.pick_random() + NAME_SUFFIXES.pick_random()
+		if not _used_names.has(name):
+			_used_names[name] = true
+			return name
+	var fallback := "Bot_%d" % abs(bot_counter)
+	_used_names[fallback] = true
+	return fallback
 
 
 func _class_string_to_type(class_str: String) -> int:
@@ -139,8 +172,10 @@ func handle_command(args: Array) -> String:
 	match sub_command:
 		"spawn":
 			if args.size() < 3:
-				return "Usage: /bot spawn <name> <class> [map]"
+				return "Usage: /bot spawn <name|random> <class> [map]"
 			var bot_name: String = args[1]
+			if bot_name.to_lower() == "random":
+				bot_name = generate_bot_name()
 			var class_type: int = _class_string_to_type(args[2])
 			var map_id: String = args[3] if args.size() > 3 else ""
 			var bot_id := spawn_bot(bot_name, class_type, map_id)
@@ -196,7 +231,7 @@ func handle_command(args: Array) -> String:
 			var bot_id := _find_bot_by_name_or_id(target)
 			if bot_id == 0:
 				return "Bot '%s' not found." % target
-			var level := args[2].to_int()
+			var level = args[2].to_int()
 			if level < 1:
 				return "Level must be >= 1."
 			var player_node := PlayerManager.get_player_node(bot_id)

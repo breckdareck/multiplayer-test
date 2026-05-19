@@ -38,6 +38,15 @@ var _attack_abilities: Array[String] = []
 var _attack_ability_index: int = 0
 const MANA_RESERVE_PCT: float = 0.2
 
+var _consumable_check_timer: float = 0.0
+const CONSUMABLE_CHECK_INTERVAL: float = 1.0
+const HEALTH_POTION_THRESHOLD: float = 0.4
+
+var _portal_idle_time: float = 0.0
+const PORTAL_IDLE_THRESHOLD: float = 8.0
+const PORTAL_CHANCE: float = 0.3
+var allow_map_travel: bool = true
+
 const MAX_JUMP_HEIGHT: float = 40.0
 const JUMP_COOLDOWN: float = 0.8
 var _jump_cooldown_timer: float = 0.0
@@ -62,6 +71,7 @@ func init(player_node: MultiplayerPlayerV2, id: int, behavior_config: Dictionary
 	wander_duration_max = behavior_config.get("wander_duration_max", 6.0)
 	aggro_range = behavior_config.get("aggro_range", 200.0)
 	loot_range = behavior_config.get("loot_range", 80.0)
+	allow_map_travel = behavior_config.get("allow_map_travel", true)
 
 	think_timer = randf() * think_interval
 
@@ -96,6 +106,16 @@ func _process(delta: float) -> void:
 	if _ability_check_timer <= 0.0:
 		_ability_check_timer = ABILITY_CHECK_INTERVAL
 		_build_ability_lists()
+
+	_consumable_check_timer -= delta
+	if _consumable_check_timer <= 0.0:
+		_consumable_check_timer = CONSUMABLE_CHECK_INTERVAL
+		_try_use_consumable()
+
+	if current_action == "idle" or current_action == "wander":
+		_portal_idle_time += delta
+	else:
+		_portal_idle_time = 0.0
 
 	# Track how long we've been stuck against a wall
 	if player.is_on_wall() and player.is_on_floor() and player.direction != 0:
@@ -153,6 +173,12 @@ func _think() -> void:
 	if target_loot:
 		current_action = "loot"
 		return
+
+	if allow_map_travel and _portal_idle_time >= PORTAL_IDLE_THRESHOLD:
+		if is_instance_valid(player.current_portal) and randf() < PORTAL_CHANCE:
+			_portal_idle_time = 0.0
+			player.do_portal_interact = true
+			return
 
 	if action_timer > 0.0:
 		return
@@ -561,6 +587,34 @@ func _has_enough_mana(ability_id: String) -> bool:
 	var mana_cost: float = level_stats.mana_cost * ability_comp.get_ability_mana_modifier(ability_id)
 	var mana_after := mana_comp.current_mana - mana_cost
 	return mana_after >= mana_comp.max_mana * MANA_RESERVE_PCT
+
+
+func _try_use_consumable() -> void:
+	if not is_instance_valid(player) or not is_instance_valid(player.health_component):
+		return
+	if not is_instance_valid(player.inventory_component):
+		return
+
+	var health_pct := float(player.health_component.current_health) / float(player.health_component.max_health)
+	if health_pct >= HEALTH_POTION_THRESHOLD:
+		return
+
+	for i in player.inventory_component.slots.size():
+		var slot = player.inventory_component.slots[i]
+		if not slot.item or slot.item is not ConsumableData:
+			continue
+		var consumable := slot.item as ConsumableData
+		if not consumable.effect_script:
+			continue
+		if not consumable.effect_properties.has("heal_amount"):
+			continue
+
+		player.inventory_component.remove_item_from_stack(consumable, 1)
+		var effect_instance = consumable.effect_script.new() as BaseItemEffect
+		effect_instance.user = player
+		effect_instance.source_item = consumable
+		effect_instance.execute()
+		return
 
 
 func _is_near_ledge() -> bool:

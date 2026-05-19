@@ -2,8 +2,8 @@
   "auto_spawn": true,
   "default_map": "game",
   "bots": [
-    { "name": "Bot_Warrior", "class": "SWORDSMAN", "map": "game" },
-    { "name": "Bot_Mage", "class": "MAGE", "map": "game" }
+    { "name": "random", "class": "SWORDSMAN", "map": "game" },
+    { "name": "random", "class": "MAGE", "map": "game" }
   ],
   "behavior": {
     "think_interval": 0.3,
@@ -13,6 +13,7 @@
     "wander_duration_min": 2.0,
     "wander_duration_max": 6.0,
     "aggro_range": 200.0,
-    "loot_range": 80.0
+    "loot_range": 80.0,
+    "allow_map_travel": true
   }
 }
