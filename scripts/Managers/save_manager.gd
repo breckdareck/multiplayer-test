@@ -15,9 +15,12 @@ signal save_failed(username: String, error: String)
 
 # ── Configuration ──────────────────────────────────────────────────────────
 const DEBOUNCE_TIME: float = 0.5        # seconds before a queued save fires
-const AUTO_SAVE_INTERVAL: float = 60.0  # periodic full save for all players
+const AUTO_SAVE_INTERVAL: float = 60.0  # periodic full save for real players
 const RETRY_DELAY: float = 1.0          # delay before a single retry
 const HTTP_TIMEOUT: float = 5.0         # per-request timeout
+## Bots auto-save once every Nth auto-save tick (5 × 60s = every 5 minutes),
+## instead of every change, to avoid flooding the backend API.
+const BOT_AUTO_SAVE_EVERY_N_TICKS: int = 5
 
 const VALID_CATEGORIES: PackedStringArray = [
 	"stats", "inventory", "abilities", "buffs", "equipment"
@@ -36,6 +39,9 @@ var _auto_save_timer: Timer
 # ── In-flight queue (only one HTTP call at a time per username) ───────────
 var _in_flight_username: String = ""
 var _pending_queue: Array[String] = []  # usernames waiting for their turn
+
+# ── Auto-save tick counter (used to throttle bot auto-saves) ──────────────
+var _auto_save_tick: int = 0
 
 
 func _ready() -> void:
@@ -142,6 +148,14 @@ func queue_save(username: String, category: String, player_node: Node) -> void:
 		for cat in VALID_CATEGORIES:
 			info.dirty_categories[cat] = true
 
+	# Bots batch their saves: dirty state is accumulated above, but the
+	# per-change debounce save is skipped. Bot data is still persisted on
+	# despawn (via flush_save in PlayerManager.remove_player) and on a longer
+	# auto-save interval (see _on_auto_save_timeout). This stops bots from
+	# hammering the backend API as they constantly loot, level, and buff.
+	if BotManager.is_bot_username(username):
+		return
+
 	# (Re)start debounce timer
 	if is_instance_valid(info.timer):
 		info.timer.start(DEBOUNCE_TIME)
@@ -199,7 +213,13 @@ func _on_debounce_timeout(username: String) -> void:
 
 
 func _on_auto_save_timeout() -> void:
+	_auto_save_tick += 1
+	# Real players auto-save every tick; bots only every Nth tick to limit
+	# backend API traffic (they have no per-change save, unlike real players).
+	var include_bots: bool = (_auto_save_tick % BOT_AUTO_SAVE_EVERY_N_TICKS) == 0
 	for username in _players.keys():
+		if not include_bots and BotManager.is_bot_username(username):
+			continue
 		# Mark everything dirty for auto-save
 		var info: Dictionary = _players[username]
 		for cat in VALID_CATEGORIES:

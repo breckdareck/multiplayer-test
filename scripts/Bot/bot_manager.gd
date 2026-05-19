@@ -124,6 +124,15 @@ func is_bot(peer_id: int) -> bool:
 	return peer_id < 0
 
 
+## Returns true if the given username belongs to an active bot.
+## Used by SaveManager, which keys players by username rather than peer ID.
+func is_bot_username(username: String) -> bool:
+	for bot_id in active_bots:
+		if active_bots[bot_id].username == username:
+			return true
+	return false
+
+
 func get_bot_ids() -> Array:
 	return active_bots.keys()
 
