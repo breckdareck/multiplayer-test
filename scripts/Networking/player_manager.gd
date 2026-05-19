@@ -3,6 +3,9 @@ extends Node
 
 var character_scene = preload("res://scenes/Player/player.tscn")
 var active_players: Dictionary = {}
+# Cache of player_id -> player Node to avoid scanning all maps on every lookup.
+# Populated on spawn, validated on read, erased on despawn/cleanup.
+var _node_cache: Dictionary = {}
 var _load_http_request: HTTPRequest
 var _load_in_progress: bool = false
 var _api_url: String = ""
@@ -122,6 +125,7 @@ func remove_player(id: int):
 	# Remove from active players
 	if id in active_players:
 		active_players.erase(id)
+	_node_cache.erase(id)
 
 
 func save_all_players() -> void:
@@ -142,6 +146,7 @@ func cleanup():
 	"""Remove all networked entities and reset player tracking"""
 	print("Cleaning up all players and entities")
 	active_players.clear()
+	_node_cache.clear()
 
 
 # This function is called on the client to gather character selection info
@@ -229,9 +234,11 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 		return
 	
 	print("PlayerManager: Found player %d instance, starting initialization" % id)
-	
+
 	player_instance.player_id = id
 	player_instance.name = str(id)
+	# Refresh the node cache — covers both initial spawn and map changes.
+	_node_cache[id] = player_instance
 	
 	# Set up player
 	if not player_instance.class_component:
@@ -548,8 +555,25 @@ func _get_quick_save_data(player_id: int) -> Dictionary:
 	return data
 
 
+func _is_cached_node_valid(node: Variant) -> bool:
+	"""A cached node is usable only if it still exists and is attached to the
+	scene tree (a node removed during a map change reports is_inside_tree() == false)."""
+	return is_instance_valid(node) \
+		and not node.is_queued_for_deletion() \
+		and node.is_inside_tree()
+
+
 func get_player_node(player_id: int) -> MultiplayerPlayerV2:
-	"""Find player node across all maps"""
+	"""Find player node across all maps. Uses a node cache to avoid scanning
+	every active map on each call (this runs 100+ times/sec on the server)."""
+	# Fast path: return cached node if still valid.
+	var cached: Variant = _node_cache.get(player_id)
+	if cached != null:
+		if _is_cached_node_valid(cached):
+			return cached
+		# Stale entry — drop it and fall through to a full scan.
+		_node_cache.erase(player_id)
+
 	if not multiplayer.is_server():
 		# Client only has current map
 		var current_map = MapManager.current_map_instance
@@ -558,6 +582,7 @@ func get_player_node(player_id: int) -> MultiplayerPlayerV2:
 			if players_node and players_node.has_node(str(player_id)):
 				var node = players_node.get_node(str(player_id))
 				if is_instance_valid(node) and not node.is_queued_for_deletion():
+					_node_cache[player_id] = node
 					return node
 	else:
 		# Server checks all active maps
@@ -569,8 +594,9 @@ func get_player_node(player_id: int) -> MultiplayerPlayerV2:
 			if players_node and players_node.has_node(str(player_id)):
 				var node = players_node.get_node(str(player_id))
 				if is_instance_valid(node) and not node.is_queued_for_deletion():
+					_node_cache[player_id] = node
 					return node
-	
+
 	return null
 
 
