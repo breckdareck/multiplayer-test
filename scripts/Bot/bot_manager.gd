@@ -8,6 +8,7 @@ var bot_config: Dictionary = {}
 var _config_path: String = "res://config/bot_config.json"
 var _used_names: Dictionary = {}
 var _bot_def_map: Dictionary = {}  # { bot_id: bot_def Dictionary from config }
+var _inspect_window: BotInspectWindow = null
 
 const NAME_PREFIXES: Array[String] = [
 	"Shadow", "Iron", "Storm", "Frost", "Fire", "Dark", "Silver", "Golden",
@@ -315,64 +316,25 @@ func _handle_inspect_command(args: Array) -> String:
 	if not is_instance_valid(player_node):
 		return "Bot %d player node not ready." % bot_id_val
 
-	var info = active_bots[bot_id_val]
-	var lines: PackedStringArray = []
-	lines.append("=== Bot: %s (ID %d) ===" % [info.username, bot_id_val])
+	_open_inspect_window(bot_id_val)
+	return "Inspecting bot '%s'." % active_bots[bot_id_val].username
 
-	# Class and level
-	var class_name_str := "Unknown"
-	if is_instance_valid(player_node.class_component):
-		class_name_str = Constants.ClassType.find_key(player_node.class_component.current_class)
-	var level_str := "?"
-	if is_instance_valid(player_node.level_component):
-		level_str = str(player_node.level_component.level)
-	lines.append("Class: %s | Level: %s" % [class_name_str, level_str])
 
-	# HP and Mana
-	if is_instance_valid(player_node.health_component):
-		lines.append("HP: %d/%d" % [player_node.health_component.current_health, player_node.health_component.max_health])
-	if is_instance_valid(player_node.mana_component):
-		lines.append("MP: %d/%d" % [player_node.mana_component.current_mana, player_node.mana_component.max_mana])
-
-	# Gold
-	if is_instance_valid(player_node.player_inventory):
-		lines.append("Gold: %d" % player_node.player_inventory.monies_amount)
-
-	# Equipment
-	if is_instance_valid(player_node.equipment_component):
-		lines.append("--- Equipment ---")
-		var eq := player_node.equipment_component
-		for slot_info in [["Weapon", eq.weapon_slot], ["Head", eq.head_slot],
-				["Chest", eq.chest_slot], ["Legs", eq.legs_slot], ["Feet", eq.feet_slot]]:
-			var slot_name: String = slot_info[0]
-			var slot: EquipmentSlot = slot_info[1]
-			if slot and slot.item:
-				lines.append("  %s: %s (Lv.%d)" % [slot_name, slot.item.name, slot.item.item_level])
+func _open_inspect_window(bot_id: int) -> void:
+	if not is_instance_valid(_inspect_window):
+		_inspect_window = BotInspectWindow.create()
+		# Add to the host player's MoveableWindows container
+		var host_id := multiplayer.get_unique_id()
+		var host_node := PlayerManager.get_player_node(host_id)
+		if is_instance_valid(host_node):
+			var moveable_container = host_node.get_node_or_null("CanvasLayer/MoveableWindows")
+			if moveable_container:
+				moveable_container.add_child(_inspect_window)
 			else:
-				lines.append("  %s: (empty)" % slot_name)
-
-	# Inventory summary
-	if is_instance_valid(player_node.inventory_component):
-		var item_count := 0
-		var equip_count := 0
-		var consumable_count := 0
-		for slot in player_node.inventory_component.slots:
-			if slot.item:
-				item_count += 1
-				if slot.item is EquipmentData:
-					equip_count += 1
-				elif slot.item is ConsumableData:
-					consumable_count += 1
-		lines.append("--- Inventory ---")
-		lines.append("  Items: %d (%d equip, %d consumables)" % [item_count, equip_count, consumable_count])
-
-	# Current action
-	var brain = player_node.get_node_or_null("BotBrain")
-	if brain:
-		lines.append("--- Status ---")
-		lines.append("  Action: %s | Map: %s" % [brain.current_action, MapManager.get_player_map(bot_id_val)])
-
-	return "\n".join(lines)
+				host_node.get_node("CanvasLayer").add_child(_inspect_window)
+		else:
+			get_tree().root.add_child(_inspect_window)
+	_inspect_window.show_bot(bot_id)
 
 
 func _handle_trade_command(args: Array) -> String:
