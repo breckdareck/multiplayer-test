@@ -17,10 +17,10 @@ func request_trade(initiator_id: int, target_id: int) -> int:
 		return -1
 
 	if _player_trade_map.has(initiator_id):
-		print("TradeManager: Player %d is already in a trade." % initiator_id)
+		#print("TradeManager: Player %d is already in a trade." % initiator_id)
 		return -1
 	if _player_trade_map.has(target_id):
-		print("TradeManager: Target %d is already in a trade." % target_id)
+		#print("TradeManager: Target %d is already in a trade." % target_id)
 		return -1
 
 	var trade_id := _next_trade_id
@@ -41,7 +41,7 @@ func request_trade(initiator_id: int, target_id: int) -> int:
 	_player_trade_map[initiator_id] = trade_id
 	_player_trade_map[target_id] = trade_id
 
-	print("TradeManager: Trade %d started between %d and %d." % [trade_id, initiator_id, target_id])
+	#print("TradeManager: Trade %d started between %d and %d." % [trade_id, initiator_id, target_id])
 	trade_started.emit(trade_id, initiator_id, target_id)
 
 	if not BotManager.is_bot(initiator_id):
@@ -153,7 +153,7 @@ func confirm_trade(player_id: int) -> bool:
 	if session.is_bot_trade:
 		session.confirmed_b = _bot_evaluate_trade(trade_id)
 		if not session.confirmed_b:
-			print("TradeManager: Bot rejected trade %d." % trade_id)
+			#print("TradeManager: Bot rejected trade %d." % trade_id)
 			_sync_trade_to_client(session.player_a, trade_id)
 			return false
 
@@ -174,7 +174,7 @@ func cancel_trade(player_id: int) -> void:
 		return
 
 	var session: Dictionary = _active_trades[trade_id]
-	print("TradeManager: Trade %d cancelled by %d." % [trade_id, player_id])
+	#print("TradeManager: Trade %d cancelled by %d." % [trade_id, player_id])
 
 	_player_trade_map.erase(session.player_a)
 	_player_trade_map.erase(session.player_b)
@@ -244,8 +244,7 @@ func _execute_trade(trade_id: int) -> void:
 		pinv_b.monies_amount -= offer_b.gold
 		pinv_a.monies_amount += offer_b.gold
 
-	print("TradeManager: Trade %d completed. %d items A→B, %d items B→A, gold A→B: %d, B→A: %d" % [
-		trade_id, items_from_a.size(), items_from_b.size(), offer_a.gold, offer_b.gold])
+	#print("TradeManager: Trade %d completed. %d items A→B, %d items B→A, gold A→B: %d, B→A: %d" % [trade_id, items_from_a.size(), items_from_b.size(), offer_a.gold, offer_b.gold])
 
 	_player_trade_map.erase(session.player_a)
 	_player_trade_map.erase(session.player_b)

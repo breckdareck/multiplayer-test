@@ -31,23 +31,23 @@ func get_switch_progress() -> Dictionary:
 func _can_switch_channels(new_port: int) -> bool:
 	"""Check if channel switching is possible"""
 	if multiplayer.is_server():
-		print("Cannot switch channels: running as server")
+		#print("Cannot switch channels: running as server")
 		return false
 	
 	if not multiplayer.multiplayer_peer:
-		print("Cannot switch channels: not connected")
+		#print("Cannot switch channels: not connected")
 		return false
 	
 	if new_port == ClientManager.current_server_port:
-		print("Already connected to port %d" % new_port)
+		#print("Already connected to port %d" % new_port)
 		return false
 	
 	if _is_switching:
-		print("Channel switch already in progress")
+		#print("Channel switch already in progress")
 		return false
 	
 	if not NetworkUtils.is_valid_port(new_port):
-		print("Invalid port: %d" % new_port)
+		#print("Invalid port: %d" % new_port)
 		return false
 	
 	return true
@@ -58,13 +58,13 @@ func _perform_channel_switch(new_port: int):
 	_switch_start_time = Time.get_time_dict_from_system().hour * 3600 + Time.get_time_dict_from_system().minute * 60 + Time.get_time_dict_from_system().second
 	switch_started.emit()
 	
-	print("Starting channel switch to port %d..." % new_port)
+	#print("Starting channel switch to port %d..." % new_port)
 	NetworkUtils.log_network_event("CHANNEL_SWITCH_START", "Target port: %d" % new_port)
 	
 	# Test if new channel is reachable
 	var can_connect = await _test_channel_connection(new_port)
 	if not can_connect:
-		print("Channel switch failed: cannot reach port %d" % new_port)
+		#print("Channel switch failed: cannot reach port %d" % new_port)
 		NetworkUtils.log_network_event("CHANNEL_SWITCH_FAIL", "Cannot reach port %d" % new_port)
 		switch_failed.emit()
 		_is_switching = false
@@ -74,11 +74,11 @@ func _perform_channel_switch(new_port: int):
 	var switch_successful = await _execute_channel_switch(new_port)
 	
 	if switch_successful:
-		print("Channel switch successful to port %d!" % new_port)
+		#print("Channel switch successful to port %d!" % new_port)
 		NetworkUtils.log_network_event("CHANNEL_SWITCH_SUCCESS", "Switched to port %d" % new_port)
 		switch_success.emit()
 	else:
-		print("Channel switch failed during execution")
+		#print("Channel switch failed during execution")
 		NetworkUtils.log_network_event("CHANNEL_SWITCH_FAIL", "Execution failed for port %d" % new_port)
 		switch_failed.emit()
 		_handle_switch_failure()
@@ -87,7 +87,7 @@ func _perform_channel_switch(new_port: int):
 
 func _test_channel_connection(port: int) -> bool:
 	"""Test if we can connect to the target channel"""
-	print("Testing connection to port %d..." % port)
+	#print("Testing connection to port %d..." % port)
 	
 	var test_peer = ClientManager.create_new_peer(ClientManager.current_server_ip, port)
 	if not test_peer:
@@ -102,12 +102,12 @@ func _test_channel_connection(port: int) -> bool:
 		
 		if status == MultiplayerPeer.CONNECTION_CONNECTED:
 			can_connect = true
-			print("Connection test successful")
+			#print("Connection test successful")
 			break
 		elif status == MultiplayerPeer.CONNECTION_DISCONNECTED and time_waited > 0.2:
 			# Server exists but may have rejected us - this is still a valid test
 			can_connect = true
-			print("Connection test completed (server responded)")
+			#print("Connection test completed (server responded)")
 			break
 		
 		await get_tree().process_frame
@@ -120,19 +120,19 @@ func _test_channel_connection(port: int) -> bool:
 
 func _execute_channel_switch(new_port: int) -> bool:
 	"""Execute the actual channel switch"""
-	print("Executing channel switch to port %d..." % new_port)
+	#print("Executing channel switch to port %d..." % new_port)
 	
 	# Store old connection info
 	var old_peer = multiplayer.multiplayer_peer
 	var old_ip = ClientManager.current_server_ip
 	
 	# Step 2: Clean up game state
-	print("Cleaning up game state...")
+	#print("Cleaning up game state...")
 	PlayerManager.cleanup()
 	await get_tree().process_frame
 	
 	# Step 3: Disconnect from old server
-	print("Disconnecting from old server...")
+	#print("Disconnecting from old server...")
 	old_peer.close()
 	multiplayer.multiplayer_peer = null
 	
@@ -140,17 +140,17 @@ func _execute_channel_switch(new_port: int) -> bool:
 	await get_tree().create_timer(0.1).timeout
 	
 	# Step 5: Create new connection
-	print("Creating new connection to port %d..." % new_port)
+	#print("Creating new connection to port %d..." % new_port)
 	var new_peer = ClientManager.create_new_peer(old_ip, new_port)
 	if not new_peer:
-		print("Failed to create new peer")
+		#print("Failed to create new peer")
 		return false
 	
 	multiplayer.multiplayer_peer = new_peer
 	ClientManager.current_server_port = new_port
 	
 	# Step 6: Wait for connection to establish
-	print("Waiting for connection to establish...")
+	#print("Waiting for connection to establish...")
 	var time_waited = 0.0
 	var connected = false
 	
@@ -159,10 +159,10 @@ func _execute_channel_switch(new_port: int) -> bool:
 		
 		if status == MultiplayerPeer.CONNECTION_CONNECTED:
 			connected = true
-			print("New connection established!")
+			#print("New connection established!")
 			break
 		elif status == MultiplayerPeer.CONNECTION_DISCONNECTED and time_waited > 0.5:
-			print("New connection was rejected")
+			#print("New connection was rejected")
 			break
 		
 		await get_tree().process_frame
@@ -182,7 +182,7 @@ func _update_ui_after_switch():
 
 func _handle_switch_failure():
 	"""Handle complete failure of channel switch"""
-	print("Handling channel switch failure...")
+	#print("Handling channel switch failure...")
 	ClientManager.cleanup()
 	
 	var menu_container = get_tree().get_current_scene().get_node_or_null("%MenuContainer")

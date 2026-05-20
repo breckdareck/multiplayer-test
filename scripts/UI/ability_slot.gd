@@ -42,13 +42,13 @@ func _get_drag_data(_at_position: Vector2):
 		return null
 	
 	if ability_data.ability_type == Constants.AbilityType.PASSIVE:
-		print("Cannot drag Passive ability")
+		#print("Cannot drag Passive ability")
 		return null
 	
 	# Only allow dragging learned abilities (level > 0)
 	var current_level = int(ability_level.text) if ability_level else 0
 	if current_level <= 0:
-		print("Cannot drag unlearned ability")
+		#print("Cannot drag unlearned ability")
 		return null
 	
 	# Create preview for dragging

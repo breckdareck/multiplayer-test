@@ -71,7 +71,7 @@ func _start_basic_attack():
 	_play_animation(anim_name)
 
 	var duration: float = _get_animation_duration(anim_name)
-	print("Basic Attack: %s, Duration: %f" % [anim_name, duration])
+	#print("Basic Attack: %s, Duration: %f" % [anim_name, duration])
 
 	var buffer: float = 0.02
 	attack_state_timer.start(max(duration - buffer, 0.01))
@@ -107,7 +107,7 @@ func _start_ability_attack(use_anim_duration: bool = false):
 	_play_animation(anim_name)
 
 	var duration: float = _get_animation_duration(anim_name)
-	print("Ability Attack: %s, Animation: %s, Duration: %f" % [_current_ability.ability_name, anim_name, duration])
+	#print("Ability Attack: %s, Animation: %s, Duration: %f" % [_current_ability.ability_name, anim_name, duration])
 
 	var buffer: float = 0.02
 	attack_state_timer.start(max(duration - buffer, 0.01))

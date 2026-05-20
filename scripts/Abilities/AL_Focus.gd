@@ -34,5 +34,4 @@ func execute(owner_node: Node, ability: AbilityData, level_stats: AbilityLevelDa
 	active_buff.buff_data.stat_modifiers[Constants.StatType.CRITCHANCE] = crit_stat
 
 	buff_component._force_stat_recalc()
-	print("%s activated Focus (Level %d) — +%d ATK, +%.1f%% CRIT for %.0fs" % [
-		owner_node.name, level_stats.level, attack_bonus, crit_bonus, duration])
+	print("%s activated Focus (Level %d) — +%d ATK, +%.1f%% CRIT for %.0fs" % [owner_node.name, level_stats.level, attack_bonus, crit_bonus, duration])

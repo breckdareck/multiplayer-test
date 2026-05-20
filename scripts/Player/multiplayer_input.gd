@@ -127,7 +127,7 @@ func _on_jump_button_pressed() -> void:
 
 # Cleanup method called before removal during channel switching
 func cleanup_before_removal():
-	print("Cleaning up InputSynchronizer for player: ", get_multiplayer_authority())
+	#print("Cleaning up InputSynchronizer for player: ", get_multiplayer_authority())
 	_is_being_cleaned_up = true
 
 	# Stop all processing

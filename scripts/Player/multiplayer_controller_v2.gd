@@ -253,7 +253,7 @@ func drop_through_platform() -> void:
 
 
 func cleanup_before_removal():
-	print("MPController: Cleaning up MultiplayerPlayer: ", player_id)
+	#print("MPController: Cleaning up MultiplayerPlayer: ", player_id)
 	_is_being_cleaned_up = true
 
 	# Stop all processing
@@ -355,7 +355,7 @@ func _setup_visibility_filter():
 	
 	# Add visibility filter to control which peers can see this player
 	input_synchronizer.add_visibility_filter(_check_visibility_by_map)
-	print("Player %d: Added visibility filter to InputSynchronizer" % player_id)
+	#print("Player %d: Added visibility filter to InputSynchronizer" % player_id)
 
 
 func _check_visibility_by_map(peer_id: int) -> bool:
@@ -525,7 +525,7 @@ func _load_data(data: Dictionary) -> void:
 	
 	_is_loading_data = true
 	
-	print("Loading data for ", data.get("username", "Unknown"))
+	#print("Loading data for ", data.get("username", "Unknown"))
 	
 	if is_instance_valid(stats_component):
 		stats_component.set_loading_mode(true)
@@ -636,7 +636,7 @@ func _on_peer_connected(peer_id: int) -> void:
 	# Wait a frame to ensure the new peer is ready.
 	await get_tree().process_frame
 
-	print("Sending sprite data for player %d to new peer %d" % [player_id, peer_id])
+	#print("Sending sprite data for player %d to new peer %d" % [player_id, peer_id])
 	if is_instance_valid(class_component) and is_instance_valid(level_component):
 		var _class_name: String = class_component.get_class_name()
 		var current_level: int = level_component.level
@@ -717,7 +717,7 @@ func request_sprite_change() -> void:
 func change_sprite_rpc(_class_name: String, level: int) -> void:
 	var class_type: int = ResourceManager.get_class_type_from_string(_class_name)
 	var sprite_frames: SpriteFrames = ResourceManager.get_sprite_for_level(class_type, level)
-	print("Sprite Frames:" + sprite_frames.resource_path)
+	#print("Sprite Frames:" + sprite_frames.resource_path)
 	if sprite_frames:
 		animated_sprite.sprite_frames = sprite_frames
 		animated_sprite.play("idle")
@@ -730,7 +730,7 @@ func change_sprite_rpc(_class_name: String, level: int) -> void:
 func change_class_request(new_class: int) -> void:
 	if not multiplayer.is_server():
 		return
-	print("Change Class Request")
+	#print("Change Class Request")
 	if is_instance_valid(class_component):
 		class_component.change_class_rpc.rpc(new_class)
 		_handle_sprite_change_on_server()
@@ -743,7 +743,7 @@ func request_all_sprite_states() -> void:
 		return
 	
 	var requester_id: int = multiplayer.get_remote_sender_id()
-	print("Player %d requesting all sprite states" % requester_id)
+	#print("Player %d requesting all sprite states" % requester_id)
 	
 	# Get the map this player is on
 	var requester_map = MapManager.get_player_map(requester_id)
@@ -760,7 +760,7 @@ func request_all_sprite_states() -> void:
 		
 		var other_player = PlayerManager.get_player_node(other_player_id)
 		if other_player and other_player is MultiplayerPlayerV2:
-			print("  Syncing sprite for player %d to requester %d" % [other_player_id, requester_id])
+			#print("  Syncing sprite for player %d to requester %d" % [other_player_id, requester_id])
 			other_player._on_peer_connected(requester_id)
 
 
@@ -866,7 +866,7 @@ func request_map_change_rpc(new_map_id: String, spawn_point_name: String = "", c
 		return
 
 	var requester_id = multiplayer.get_remote_sender_id()
-	print("Player %d requesting map change to '%s' at spawn '%s'" % [requester_id, new_map_id, spawn_point_name])
+	#print("Player %d requesting map change to '%s' at spawn '%s'" % [requester_id, new_map_id, spawn_point_name])
 
 	# Flush save before map change — the player node is freed during the transition,
 	# so a debounced save would fire on an already-freed node and be silently skipped.

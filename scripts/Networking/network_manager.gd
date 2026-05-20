@@ -17,7 +17,7 @@ var use_local_save: bool = false
 func _ready():
 	# Load API URL from config (supports environment variable override)
 	api_url = UserConfig.get_backend_api_url()
-	print("NetworkManager: Using API URL: %s" % api_url)
+	#print("NetworkManager: Using API URL: %s" % api_url)
 
 func register(username, password):
 	var http = HTTPRequest.new()
@@ -34,14 +34,14 @@ func register(username, password):
 
 func _on_register_completed(result, response_code, headers, body, http):
 	var response_text = body.get_string_from_utf8()
-	print("Register Response Code: ", response_code)
-	print("Register Response Body: ", response_text)
+	#print("Register Response Code: ", response_code)
+	#print("Register Response Body: ", response_text)
 	
 	var json = JSON.new()
 	var error = json.parse(response_text)
 	
 	if error != OK:
-		print("JSON Parse Error: ", error)
+		#print("JSON Parse Error: ", error)
 		registration_failed.emit("Failed to parse server response")
 		http.queue_free()
 		return
@@ -82,14 +82,14 @@ func dev_login():
 
 func _on_login_completed(result, response_code, headers, body, http):
 	var response_text = body.get_string_from_utf8()
-	print("Login Response Code: ", response_code)
-	print("Login Response Body: ", response_text)
+	#print("Login Response Code: ", response_code)
+	#print("Login Response Body: ", response_text)
 	
 	var json = JSON.new()
 	var error = json.parse(response_text)
 	
 	if error != OK:
-		print("JSON Parse Error: ", error)
+		#print("JSON Parse Error: ", error)
 		login_failed.emit("Failed to parse server response")
 		http.queue_free()
 		return
@@ -143,11 +143,11 @@ func get_characters():
 					if file:
 						file.store_string(JSON.stringify(save_data, "\t"))
 						file.close()
-						print("Dev mode: Created save for %s" % dev_char_name)
+						#print("Dev mode: Created save for %s" % dev_char_name)
 
 		var dir = DirAccess.open(saves_path)
 		if dir == null:
-			print("Local save: Failed to open saves directory: ", saves_path, " error: ", DirAccess.get_open_error())
+			#print("Local save: Failed to open saves directory: ", saves_path, " error: ", DirAccess.get_open_error())
 			characters_received.emit(characters)
 			return
 		dir.list_dir_begin()
@@ -159,7 +159,7 @@ func get_characters():
 				var file_path = saves_path.path_join(file_name)
 				var file = FileAccess.open(file_path, FileAccess.READ)
 				if file == null:
-					print("Local save: Failed to open file: ", file_path)
+					#print("Local save: Failed to open file: ", file_path)
 					file_name = dir.get_next()
 					continue
 				var loaded_data = JSON.parse_string(file.get_as_text())
@@ -174,11 +174,11 @@ func get_characters():
 					char_data["level"] = loaded_data.get("level", 1)
 					char_data["character_class"] = loaded_data.get("character_class", 0)
 				characters.append(char_data)
-				print("Local save: Found character '%s' (level %d)" % [char_name, char_data["level"]])
+				#print("Local save: Found character '%s' (level %d)" % [char_name, char_data["level"]])
 				idx += 1
 			file_name = dir.get_next()
 		dir.list_dir_end()
-		print("Local save: Emitting %d characters" % characters.size())
+		#print("Local save: Emitting %d characters" % characters.size())
 		characters_received.emit(characters)
 		return
 
@@ -212,7 +212,7 @@ func create_character(char_name, class_id):
 	if is_dev_mode or use_local_save:
 		var saves_dir = ProjectSettings.globalize_path("res://saves")
 		var file_path = saves_dir.path_join("player_%s.json" % char_name)
-		print("Create character: saving to ", file_path)
+		#print("Create character: saving to ", file_path)
 		if FileAccess.file_exists(file_path):
 			character_creation_failed.emit("Character name already exists")
 			return
@@ -221,7 +221,7 @@ func create_character(char_name, class_id):
 			DirAccess.make_dir_recursive_absolute(saves_dir)
 		var file = FileAccess.open(file_path, FileAccess.WRITE)
 		if file == null:
-			print("Create character: FileAccess.open failed, error: ", FileAccess.get_open_error())
+			#print("Create character: FileAccess.open failed, error: ", FileAccess.get_open_error())
 			character_creation_failed.emit("Failed to create save file")
 			return
 		var is_advanced = class_id >= Constants.ClassType.CRUSADER

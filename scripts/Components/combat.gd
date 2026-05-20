@@ -322,7 +322,7 @@ func process_projectile_hit(target_enemy: Node, ability: AbilityData, level_stat
 	if not multiplayer.is_server():
 		return
 
-	print("CombatComponent: Processing projectile hit on %s" % target_enemy.name)
+	#print("CombatComponent: Processing projectile hit on %s" % target_enemy.name)
 	var attack_name := "basic_arrow" if ability == null else ""
 	_execute_hit(target_enemy, ability, level_stats, attack_name)
 
@@ -353,7 +353,7 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 		if roll > hit_chance:
 			damage_values.append(-1) # -1 signifies a MISS
 			crit_values.append(false)
-			print("Attack MISSED! (Roll: %.2f > Chance: %.2f)" % [roll, hit_chance])
+			#print("Attack MISSED! (Roll: %.2f > Chance: %.2f)" % [roll, hit_chance])
 			continue # Skip to the next hit
 
 		# --- Damage Calculation ---
@@ -449,7 +449,7 @@ func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelDa
 	if _ability_component:
 		var passive_modifier = _ability_component.get_ability_damage_modifier(_ability.ability_id)
 		damage = roundi(damage * passive_modifier)
-		print("Applied passive damage modifier: %.2fx" % passive_modifier)
+		#print("Applied passive damage modifier: %.2fx" % passive_modifier)
 
 	return damage
 
@@ -531,6 +531,6 @@ func _apply_enemy_debuff(enemy: EnemyBase, debuff: BuffData, duration: float) ->
 			enemy.remove_meta(debuff_key)
 			if enemy.animated_sprite and is_instance_valid(enemy.animated_sprite):
 				enemy.animated_sprite.modulate = Color.WHITE
-			print("Debuff '%s' expired on %s" % [debuff.buff_name, enemy.name])
+			#print("Debuff '%s' expired on %s" % [debuff.buff_name, enemy.name])
 	)
-	print("Applied debuff '%s' to %s for %.1fs" % [debuff.buff_name, enemy.name, duration])
+	#print("Applied debuff '%s' to %s for %.1fs" % [debuff.buff_name, enemy.name, duration])

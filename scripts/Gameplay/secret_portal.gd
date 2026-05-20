@@ -27,7 +27,7 @@ func _on_body_entered(body: Node2D):
 		if multiplayer.is_server() and not reveal_message.is_empty():
 			ChatManager.add_system_message.rpc_id(body.player_id, reveal_message, Color.CYAN)
 
-		print("Player %d discovered secret portal to '%s'" % [body.player_id, target_map_id])
+		#print("Player %d discovered secret portal to '%s'" % [body.player_id, target_map_id])
 
 func _on_body_exited(body: Node2D):
 	if body is MultiplayerPlayerV2 and body.player_id != 0:

@@ -36,13 +36,13 @@ func get_port_from_args(default_port: int = 8080) -> int:
 			var port_str = args[i + 1]
 			if port_str.is_valid_int():
 				var port = int(port_str)
-				print("Using port from command line: %d" % port)
+				#print("Using port from command line: %d" % port)
 				return port
 			else:
-				print("ERROR: Invalid port specified: %s" % port_str)
+				#print("ERROR: Invalid port specified: %s" % port_str)
 				break
 	
-	print("Using default port: %d" % default_port)
+	#print("Using default port: %d" % default_port)
 	return default_port
 
 func get_string_arg(arg_name: String, default_value: String = "") -> String:

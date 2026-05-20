@@ -11,4 +11,4 @@ class_name MapBase
 func _ready():
 	# Add to group so MapManager can identify maps
 	add_to_group("map_base")
-	print("Map '%s' initialized" % name)
+	#print("Map '%s' initialized" % name)

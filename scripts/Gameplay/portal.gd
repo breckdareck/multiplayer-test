@@ -19,7 +19,7 @@ func _on_body_entered(body: Node2D):
 			# Inform the player that they are in a portal
 			if body.has_method("set_current_portal"):
 				body.set_current_portal(self)
-			print("Player %d entered portal to map '%s' at spawn '%s'" % [player_id, target_map_id, target_spawn_point_name])
+			#print("Player %d entered portal to map '%s' at spawn '%s'" % [player_id, target_map_id, target_spawn_point_name])
 
 func _on_body_exited(body: Node2D):
 	if body.player_id:
@@ -29,7 +29,7 @@ func _on_body_exited(body: Node2D):
 			# Inform the player that they have left the portal
 			if body.has_method("clear_current_portal"):
 				body.clear_current_portal()
-			print("Player %d exited portal." % player_id)
+			#print("Player %d exited portal." % player_id)
 
 func interact(player_id: int):
 	if not multiplayer.is_server():
@@ -43,7 +43,7 @@ func interact(player_id: int):
 			break
 	
 	if player_in_portal:
-		print("Player %d activated portal to map '%s' at spawn '%s'" % [player_id, target_map_id, target_spawn_point_name])
+		#print("Player %d activated portal to map '%s' at spawn '%s'" % [player_id, target_map_id, target_spawn_point_name])
 		# Route through the player's change_to_map so save data is flushed
 		# before the transition (buff durations, health, mana, etc.).
 		var player_node = PlayerManager.get_player_node(player_id)
