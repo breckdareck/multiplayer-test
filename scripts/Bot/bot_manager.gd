@@ -10,6 +10,9 @@ var _used_names: Dictionary = {}
 var _bot_def_map: Dictionary = {}  # { bot_id: bot_def Dictionary from config }
 var _inspect_window: BotInspectWindow = null
 
+## Emitted (on any peer) when a requested bot data snapshot arrives.
+signal bot_snapshot_received(bot_id: int, snapshot: Dictionary)
+
 const NAME_PREFIXES: Array[String] = [
 	"Shadow", "Iron", "Storm", "Frost", "Fire", "Dark", "Silver", "Golden",
 	"Brave", "Swift", "Wild", "Stone", "Moon", "Star", "Thunder", "Ice",
@@ -186,6 +189,81 @@ func _on_bot_spawned(bot_id: int) -> void:
 			active_bots[bot_id]["map_id"] = current_map
 
 	#print("BotManager: Bot %d brain attached and running." % bot_id)
+
+
+# --- Client-side bot data sync (on-demand snapshots) ---
+
+## [Client -> Server] Request a full data snapshot of a bot. The server
+## replies via receive_bot_snapshot to the requester only.
+@rpc("any_peer", "call_local", "reliable")
+func request_bot_snapshot(bot_id: int) -> void:
+	if not multiplayer.is_server():
+		return
+	var requester := multiplayer.get_remote_sender_id()
+	if requester == 0:
+		requester = multiplayer.get_unique_id()  # local (host) call
+	receive_bot_snapshot.rpc_id(requester, bot_id, _gather_bot_snapshot(bot_id))
+
+
+## [Server -> Client] Delivers a bot snapshot; listeners use bot_snapshot_received.
+@rpc("authority", "call_local", "reliable")
+func receive_bot_snapshot(bot_id: int, snapshot: Dictionary) -> void:
+	bot_snapshot_received.emit(bot_id, snapshot)
+
+
+## Server-side: collects a bot's full state into an RPC-serializable Dictionary.
+func _gather_bot_snapshot(bot_id: int) -> Dictionary:
+	var node := PlayerManager.get_player_node(bot_id)
+	if not is_instance_valid(node):
+		return {}
+
+	var snap: Dictionary = {
+		"name": node.username,
+		"class": node.class_component.current_class if is_instance_valid(node.class_component) else 0,
+		"level": node.level_component.level if is_instance_valid(node.level_component) else 1,
+		"hp": node.health_component.current_health if is_instance_valid(node.health_component) else 0,
+		"max_hp": node.health_component.max_health if is_instance_valid(node.health_component) else 0,
+		"mp": node.mana_component.current_mana if is_instance_valid(node.mana_component) else 0,
+		"max_mp": node.mana_component.max_mana if is_instance_valid(node.mana_component) else 0,
+		"gold": node.player_inventory.monies_amount if is_instance_valid(node.player_inventory) else 0,
+		"map": MapManager.get_player_map(bot_id),
+		"action": "",
+	}
+
+	var brain = node.get_node_or_null("BotBrain")
+	if brain:
+		snap["action"] = brain.current_action
+
+	# Equipment — keyed by str(equipment key); {} for an empty slot.
+	var eq: Dictionary = {}
+	if is_instance_valid(node.equipment_component):
+		for key in node.equipment_component.slots_data:
+			var esd: SlotData = node.equipment_component.slots_data[key]
+			eq[str(key)] = esd.item.to_dictionary() if esd and esd.item else {}
+	snap["equipment"] = eq
+
+	# Inventory — non-empty slots only.
+	var inv: Array = []
+	if is_instance_valid(node.inventory_component):
+		var slot_list: Array = node.inventory_component.get_slots()
+		for i in slot_list.size():
+			if slot_list[i].item:
+				inv.append({"slot_index": i, "item": slot_list[i].item.to_dictionary()})
+	snap["inventory"] = inv
+
+	# Stats — total/base/bonus per StatType.
+	var stats: Dictionary = {}
+	if is_instance_valid(node.stats_component):
+		for stat_type in node.stats_component.stats:
+			var stat: StatData = node.stats_component.stats[stat_type]
+			stats[stat_type] = {
+				"total": stat.total_value,
+				"base": stat.base_value,
+				"bonus": stat.combined_bonus_value,
+			}
+	snap["stats"] = stats
+
+	return snap
 
 
 func _form_squad_on_map(map_id: String, bot_ids: Array) -> void:
