@@ -97,7 +97,9 @@ func _build_slot_data() -> void:
 		return
 	for i in slots.size():
 		var data := SlotData.new()
+		data.container_kind = SlotData.CONTAINER_INVENTORY
 		data.index = i
+		data.key = i
 		data.allowed_item_type = slots[i].allowed_item_type
 		slots_data.append(data)
 		slots[i].bind_slot_data(data)
@@ -185,6 +187,53 @@ func _apply_equipment_item(key, new_item: ItemData) -> void:
 		return
 	sd.item = new_item
 	equipment_component.refresh_view(key)
+
+
+## Refreshes whichever view (inventory or equipment) is bound to a SlotData.
+func _refresh_slot_data_view(sd: SlotData) -> void:
+	if sd.container_kind == SlotData.CONTAINER_EQUIPMENT:
+		if is_instance_valid(equipment_component):
+			equipment_component.refresh_view(sd.key)
+	else:
+		_refresh_view(sd.index)
+
+
+## Swaps the items of two slots (inventory and/or equipment). UI-independent —
+## the entry point bot equip logic uses, since a bot has no Slot views to drive
+## a normal drag-and-drop transfer.
+func swap_slot_data(from_sd: SlotData, to_sd: SlotData) -> void:
+	if from_sd == null or to_sd == null:
+		return
+
+	var from_item := from_sd.item
+	var to_item := to_sd.item
+	from_sd.item = to_item
+	to_sd.item = from_item
+
+	_update_item_tracking(from_sd, from_item, to_item)
+	_update_item_tracking(to_sd, to_item, from_item)
+
+	_refresh_slot_data_view(from_sd)
+	_refresh_slot_data_view(to_sd)
+
+	var from_is_equipment := from_sd.container_kind == SlotData.CONTAINER_EQUIPMENT
+	var to_is_equipment := to_sd.container_kind == SlotData.CONTAINER_EQUIPMENT
+
+	# An equipment change drives the stats-recalc / save signal chain.
+	if (from_is_equipment or to_is_equipment) and is_instance_valid(equipment_component):
+		equipment_component.mark_changed()
+
+	if multiplayer.is_server():
+		if from_is_equipment:
+			_sync_equipment_slot_to_client(from_sd, true)
+		else:
+			_sync_slot_to_client(from_sd, false)
+		if to_is_equipment:
+			_sync_equipment_slot_to_client(to_sd, true)
+		else:
+			_sync_slot_to_client(to_sd, false)
+
+	_notify_changed()
 
 
 func _sync_slot_to_client(sd: SlotData, trigger_stats_recalc: bool = false):

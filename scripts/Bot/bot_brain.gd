@@ -807,7 +807,7 @@ func _evaluate_and_equip() -> void:
 	if is_instance_valid(player.class_component):
 		class_type = player.class_component.current_class
 
-	for slot in player.inventory_component.slots:
+	for slot in player.inventory_component.get_slots():
 		if slot.item == null:
 			continue
 		if slot.item is not EquipmentData:
@@ -818,11 +818,9 @@ func _evaluate_and_equip() -> void:
 			continue
 
 		if BotEquipmentLogic.should_equip(target_slot.item, slot.item, class_type):
-			var old_item = target_slot.item
-			target_slot.item = slot.item
-			slot.item = old_item
-			slot.update_display()
-			target_slot.update_display()
+			# UI-independent swap — moves the upgrade into equipment and the
+			# old item back into this inventory slot, with tracking + stats.
+			player.inventory_component.swap_slot_data(slot, target_slot)
 
 
 func _build_ability_lists() -> void:

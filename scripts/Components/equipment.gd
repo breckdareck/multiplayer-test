@@ -30,6 +30,8 @@ func _ready():
 		# The component owns a SlotData for every equipment key, even when the
 		# matching UI slot is absent (e.g. a headless bot scene).
 		var data := SlotData.new()
+		data.container_kind = SlotData.CONTAINER_EQUIPMENT
+		data.key = armor_type
 		data.allowed_item_type = Constants.ItemType.EQUIPMENT
 		data.allowed_equipment_type = Constants.EquipmentType.ARMOR
 		data.allowed_armor_type = armor_type
@@ -44,6 +46,8 @@ func _ready():
 			slot.bind_slot_data(data)
 
 	var weapon_data := SlotData.new()
+	weapon_data.container_kind = SlotData.CONTAINER_EQUIPMENT
+	weapon_data.key = "WEAPON"
 	weapon_data.allowed_item_type = Constants.ItemType.EQUIPMENT
 	weapon_data.allowed_equipment_type = Constants.EquipmentType.WEAPON
 	slots_data["WEAPON"] = weapon_data
