@@ -78,6 +78,17 @@ const GAME_MENU_SCENE = preload("res://scenes/UI/game_menu.tscn")
 func _ready() -> void:
 	var _is_bot := BotManager.is_bot(player_id)
 
+	# Bots have no client-side interface — drop the entire CanvasLayer subtree
+	# (on-screen HUD, mobile buttons, debug panel, hotbar, buffbar, and the
+	# draggable windows) on every peer that instantiates this node. This frees
+	# the memory and removes the per-frame _process / _input cost of every UI
+	# node a bot would otherwise carry. Gameplay nodes and the floating
+	# PlayerWorldHUD (name + HP bar that real players see) are kept.
+	if _is_bot:
+		var bot_canvas_layer := get_node_or_null("CanvasLayer")
+		if is_instance_valid(bot_canvas_layer):
+			bot_canvas_layer.queue_free()
+
 	if not _is_bot and multiplayer.get_unique_id() == player_id:
 		ChatManager.register_local_player(self)
 		# Request the sprite states of all other players from the server.
