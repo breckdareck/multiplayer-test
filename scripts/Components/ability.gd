@@ -578,10 +578,17 @@ func spawn_projectile(ability: AbilityData, level_stats: AbilityLevelData, targe
 	if current_map and current_map.is_in_group("map_base"):
 		var map_name = current_map.name.replace("Map_", "")
 		var players_on_map = MapManager.get_real_players_on_map(map_name)
+		# A bot's AbilityComponent node may not exist on a client (e.g. mid
+		# map-transition), which makes a node-addressed RPC fail. Route bot
+		# projectiles through MapManager — an autoload that always resolves.
+		var caster_is_bot := BotManager.is_bot(owner.player_id)
 
 		for peer_id in players_on_map:
 			if peer_id != 1: # Server already has it
-				spawn_projectile_client.rpc_id(peer_id, ability.ability_id, level_stats.level, spawn_pos, initial_direction, target_path)
+				if caster_is_bot:
+					MapManager.spawn_bot_projectile.rpc_id(peer_id, owner.player_id, ability.ability_id, level_stats.level, spawn_pos, initial_direction, target_path)
+				else:
+					spawn_projectile_client.rpc_id(peer_id, ability.ability_id, level_stats.level, spawn_pos, initial_direction, target_path)
 	else:
 		# Fallback
 		spawn_projectile_client.rpc(ability.ability_id, level_stats.level, spawn_pos, initial_direction, target_path)

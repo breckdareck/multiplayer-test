@@ -581,6 +581,19 @@ func client_despawn_player(player_id_to_remove: int):
 		#print("Client: Despawned player %d" % player_id_to_remove)
 
 
+## [Server -> Client] Spawns a bot's projectile visual. Routed through
+## MapManager (an autoload that always resolves) rather than addressed to the
+## bot's AbilityComponent node, which a client may lack during map transitions.
+@rpc("authority", "call_remote", "reliable")
+func spawn_bot_projectile(caster_id: int, ability_id: String, level: int, start_pos: Vector2, direction: Vector2, target_path: NodePath) -> void:
+	if multiplayer.is_server():
+		return
+	var caster = PlayerManager.get_player_node(caster_id)
+	if not is_instance_valid(caster) or not is_instance_valid(caster.ability_component):
+		return  # bot not present on this client — skip the visual, no error
+	caster.ability_component.spawn_projectile_client(ability_id, level, start_pos, direction, target_path)
+
+
 # === SERVER-SIDE ACKS FROM CLIENTS ===
 
 @rpc("any_peer", "call_local", "reliable")
