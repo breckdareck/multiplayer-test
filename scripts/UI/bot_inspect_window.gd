@@ -278,13 +278,13 @@ func _update_content() -> void:
 	# --- Equipment (update 5 fixed rows in place) ---
 	if is_instance_valid(player_node.equipment_component):
 		var eq = player_node.equipment_component
-		# Access the actual ItemData resources from the slots
+		# Access the actual ItemData resources from the SlotData model
 		var slots := [
-		eq.weapon_slot.item if eq.weapon_slot else null,
-		eq.head_slot.item if eq.head_slot else null,
-		eq.chest_slot.item if eq.chest_slot else null,
-		eq.legs_slot.item if eq.legs_slot else null,
-		eq.feet_slot.item if eq.feet_slot else null]
+		eq.weapon_slot_data.item if eq.weapon_slot_data else null,
+		eq.head_slot_data.item if eq.head_slot_data else null,
+		eq.chest_slot_data.item if eq.chest_slot_data else null,
+		eq.legs_slot_data.item if eq.legs_slot_data else null,
+		eq.feet_slot_data.item if eq.feet_slot_data else null]
 		for i in 5:
 			_update_item_row(_equip_rows[i], slots[i])
 
@@ -312,7 +312,7 @@ func _update_content() -> void:
 		var other_count := 0
 		var total_items := 0
 
-		for slot in player_node.inventory_component.slots:
+		for slot in player_node.inventory_component.get_slots():
 			if slot.item:
 				total_items += 1
 				if slot.item is EquipmentData:
@@ -331,7 +331,7 @@ func _update_content() -> void:
 		for child in _inv_notable_section.get_children():
 			child.queue_free()
 		var notable_count := 0
-		for slot in player_node.inventory_component.slots:
+		for slot in player_node.inventory_component.get_slots():
 			if slot.item and slot.item is EquipmentData and notable_count < 5:
 				if notable_count == 0:
 					_inv_notable_section.add_child(_make_label("Notable Items:", 10, Color(0.6, 0.6, 0.7)))

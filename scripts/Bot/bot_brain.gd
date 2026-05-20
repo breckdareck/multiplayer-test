@@ -944,7 +944,7 @@ func _try_use_consumable() -> void:
 	if not need_health and not need_mana:
 		return
 
-	for slot in player.inventory_component.slots:
+	for slot in player.inventory_component.get_slots():
 		if not slot.item or slot.item is not ConsumableData:
 			continue
 		var consumable := slot.item as ConsumableData
@@ -1007,9 +1007,9 @@ func _sell_unwanted_items(merchant: MerchantInventory) -> void:
 
 	var equipped_scores: Dictionary = {}
 	if is_instance_valid(player.equipment_component):
-		for eq_slot in [player.equipment_component.weapon_slot, player.equipment_component.head_slot,
-				player.equipment_component.chest_slot, player.equipment_component.legs_slot,
-				player.equipment_component.feet_slot]:
+		for eq_slot in [player.equipment_component.weapon_slot_data, player.equipment_component.head_slot_data,
+				player.equipment_component.chest_slot_data, player.equipment_component.legs_slot_data,
+				player.equipment_component.feet_slot_data]:
 			if eq_slot and eq_slot.item:
 				var slot_key := _get_equip_slot_key(eq_slot.item)
 				var score := BotEquipmentLogic.score_item(eq_slot.item, class_type)
@@ -1017,7 +1017,7 @@ func _sell_unwanted_items(merchant: MerchantInventory) -> void:
 					equipped_scores[slot_key] = score
 
 	var best_inventory_scores: Dictionary = {}
-	for slot in player.inventory_component.slots:
+	for slot in player.inventory_component.get_slots():
 		if not slot.item or slot.item is not EquipmentData:
 			continue
 		var slot_key := _get_equip_slot_key(slot.item)
@@ -1026,7 +1026,7 @@ func _sell_unwanted_items(merchant: MerchantInventory) -> void:
 			best_inventory_scores[slot_key] = score
 
 	var items_to_sell: Array[ItemData] = []
-	for slot in player.inventory_component.slots:
+	for slot in player.inventory_component.get_slots():
 		if not slot.item:
 			continue
 
@@ -1070,7 +1070,7 @@ func _count_slots_by_tab() -> Dictionary:
 		"consumable_used": 0, "consumable_total": 0,
 		"material_used": 0, "material_total": 0,
 	}
-	for slot in player.inventory_component.slots:
+	for slot in player.inventory_component.get_slots():
 		match slot.allowed_item_type:
 			Constants.ItemType.EQUIPMENT:
 				result.equip_total += 1
@@ -1138,7 +1138,7 @@ func _get_potion_item_id(effect_key: String) -> String:
 
 func _count_consumable(effect_key: String) -> int:
 	var count := 0
-	for slot in player.inventory_component.slots:
+	for slot in player.inventory_component.get_slots():
 		if not slot.item or slot.item is not ConsumableData:
 			continue
 		var consumable := slot.item as ConsumableData
@@ -1148,7 +1148,7 @@ func _count_consumable(effect_key: String) -> int:
 
 
 func _has_inventory_space() -> bool:
-	for slot in player.inventory_component.slots:
+	for slot in player.inventory_component.get_slots():
 		if slot.item == null and slot.allowed_item_type in [Constants.ItemType.ANY, Constants.ItemType.EQUIPMENT]:
 			return true
 	return false
