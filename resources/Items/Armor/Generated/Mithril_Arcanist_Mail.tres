@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_u0ijt"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_hugou"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_5vgfw"]
+
+[sub_resource type="Resource" id="Resource_mvvo5"]
+script = ExtResource("1_u0ijt")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 31
+
+[sub_resource type="Resource" id="Resource_niegs"]
+script = ExtResource("1_u0ijt")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 18
+
+[sub_resource type="Resource" id="Resource_qprkx"]
+script = ExtResource("1_u0ijt")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 13
+
+[sub_resource type="Resource" id="Resource_eayxl"]
+script = ExtResource("1_u0ijt")
+stat_type = 5
+base_value = 0
+flat_bonus_value = 66
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jagjn"]
+atlas = ExtResource("2_hugou")
+region = Rect2(77, 91, 6, 3)
+
+[resource]
+script = ExtResource("3_5vgfw")
+armor_type = 1
+bonus_stats = Dictionary[int, ExtResource("1_u0ijt")]({
+1: SubResource("Resource_qprkx"),
+5: SubResource("Resource_eayxl"),
+8: SubResource("Resource_mvvo5"),
+9: SubResource("Resource_niegs")
+})
+item_id = "8021515229-99108-131114-1414212-910214615821513150"
+name = "Mithril Arcanist Mail"
+rarity = 0
+icon = SubResource("AtlasTexture_jagjn")
+description = "Enchanted vestments that channel a Mage's power."
+item_type = 1
+item_level = 40
+custom_item_value = 0

@@ -1,0 +1,50 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_5qh34"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_nqj0y"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_re4bo"]
+
+[sub_resource type="Resource" id="Resource_grb5i"]
+script = ExtResource("1_5qh34")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 66
+
+[sub_resource type="Resource" id="Resource_x7vmo"]
+script = ExtResource("1_5qh34")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 38
+
+[sub_resource type="Resource" id="Resource_mrr6q"]
+script = ExtResource("1_5qh34")
+base_value = 0
+flat_bonus_value = 24
+
+[sub_resource type="Resource" id="Resource_f83wa"]
+script = ExtResource("1_5qh34")
+stat_type = 4
+base_value = 0
+flat_bonus_value = 170
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yshgp"]
+atlas = ExtResource("2_nqj0y")
+region = Rect2(77, 91, 6, 3)
+
+[resource]
+script = ExtResource("3_re4bo")
+armor_type = 1
+bonus_stats = Dictionary[int, ExtResource("1_5qh34")]({
+0: SubResource("Resource_mrr6q"),
+4: SubResource("Resource_f83wa"),
+8: SubResource("Resource_grb5i"),
+9: SubResource("Resource_x7vmo")
+})
+item_id = "71211961151-84159-841313-116103-9151173131212121014"
+name = "Astral Vanguard Mail"
+rarity = 0
+icon = SubResource("AtlasTexture_yshgp")
+description = "Heavy plate forged for front-line Swordsmen."
+item_type = 1
+item_level = 90
+custom_item_value = 0

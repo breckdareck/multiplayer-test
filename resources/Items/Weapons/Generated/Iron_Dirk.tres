@@ -1,0 +1,47 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_xxiir"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_2d68a"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_jcrdx"]
+
+[sub_resource type="Resource" id="Resource_yysnw"]
+script = ExtResource("1_xxiir")
+stat_type = 12
+base_value = 0
+flat_bonus_value = 23
+
+[sub_resource type="Resource" id="Resource_yn28q"]
+script = ExtResource("1_xxiir")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 9
+
+[sub_resource type="Resource" id="Resource_77ysl"]
+script = ExtResource("1_xxiir")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_32t3g"]
+atlas = ExtResource("2_2d68a")
+region = Rect2(10, 17, 4, 11)
+margin = Rect2(3.5, 0, 7, 0)
+
+[resource]
+script = ExtResource("3_jcrdx")
+weapon_type = 3
+weapon_attack_speed = 8
+equipment_type = 1
+bonus_stats = Dictionary[int, ExtResource("1_xxiir")]({
+3: SubResource("Resource_yn28q"),
+10: SubResource("Resource_77ysl"),
+12: SubResource("Resource_yysnw")
+})
+item_id = "0112644142-015129-50110-21121-120654121071814"
+name = "Iron Dirk"
+rarity = 0
+icon = SubResource("AtlasTexture_32t3g")
+description = "A swift, wickedly sharp blade prized by Rogues."
+item_type = 1
+item_level = 20
+custom_item_value = 0

@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_dc7yw"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_6ae0n"]
+
+[sub_resource type="Resource" id="Resource_m6e7o"]
+script = ExtResource("1_dc7yw")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 19
+
+[sub_resource type="Resource" id="Resource_n7tgm"]
+script = ExtResource("1_dc7yw")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 11
+
+[sub_resource type="Resource" id="Resource_27yow"]
+script = ExtResource("1_dc7yw")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 8
+
+[sub_resource type="Resource" id="Resource_yj81r"]
+script = ExtResource("1_dc7yw")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_4q2tm"]
+load_path = "res://.godot/imported/Eqp_Leather_Sandals.png-23f0cc5f3f25b855dccf580eeba0d806.ctex"
+
+[resource]
+script = ExtResource("2_6ae0n")
+armor_type = 3
+bonus_stats = Dictionary[int, ExtResource("1_dc7yw")]({
+3: SubResource("Resource_27yow"),
+8: SubResource("Resource_m6e7o"),
+9: SubResource("Resource_n7tgm"),
+11: SubResource("Resource_yj81r")
+})
+item_id = "4411482715-3789-141157-3674-110106106143107915"
+name = "Adamant Nightshade Boots"
+rarity = 0
+icon = SubResource("CompressedTexture2D_4q2tm")
+description = "Shadowy garb tailored for a Rogue's deadly craft."
+item_type = 1
+item_level = 50
+custom_item_value = 0

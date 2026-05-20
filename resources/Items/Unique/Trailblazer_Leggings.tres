@@ -1,0 +1,52 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_stat"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_icon"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_armor"]
+
+[sub_resource type="Resource" id="Resource_dex"]
+script = ExtResource("1_stat")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 26
+
+[sub_resource type="Resource" id="Resource_hp"]
+script = ExtResource("1_stat")
+stat_type = 4
+base_value = 0
+flat_bonus_value = 260
+
+[sub_resource type="Resource" id="Resource_def"]
+script = ExtResource("1_stat")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 32
+
+[sub_resource type="Resource" id="Resource_crit"]
+script = ExtResource("1_stat")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 13
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_icon"]
+atlas = ExtResource("2_icon")
+region = Rect2(0, 0, 25, 16)
+margin = Rect2(0.5, 5.5, 1, 10)
+
+[resource]
+script = ExtResource("3_armor")
+armor_type = 2
+bonus_stats = Dictionary[int, ExtResource("1_stat")]({
+2: SubResource("Resource_dex"),
+4: SubResource("Resource_hp"),
+8: SubResource("Resource_def"),
+10: SubResource("Resource_crit")
+})
+item_id = "48261013130-482610-261348-13260-132604826013"
+name = "Trailblazer Leggings"
+rarity = 4
+icon = SubResource("AtlasTexture_icon")
+description = "Supple leggings that have crossed every frontier and worn none."
+item_type = 1
+item_level = 48
+custom_item_value = 0

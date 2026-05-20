@@ -1,0 +1,50 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_niaf6"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_jf0eu"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_hf8hk"]
+
+[sub_resource type="Resource" id="Resource_8n4wl"]
+script = ExtResource("1_niaf6")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 70
+
+[sub_resource type="Resource" id="Resource_8t0y6"]
+script = ExtResource("1_niaf6")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 45
+
+[sub_resource type="Resource" id="Resource_o5byn"]
+script = ExtResource("1_niaf6")
+stat_type = 4
+base_value = 0
+flat_bonus_value = 600
+
+[sub_resource type="Resource" id="Resource_sbmgm"]
+script = ExtResource("1_niaf6")
+base_value = 0
+flat_bonus_value = 25
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6jh4y"]
+atlas = ExtResource("2_jf0eu")
+region = Rect2(77, 91, 6, 3)
+
+[resource]
+script = ExtResource("3_hf8hk")
+armor_type = 1
+bonus_stats = Dictionary[int, ExtResource("1_niaf6")]({
+0: SubResource("Resource_sbmgm"),
+4: SubResource("Resource_o5byn"),
+8: SubResource("Resource_8n4wl"),
+9: SubResource("Resource_8t0y6")
+})
+item_id = "014123715143-11101111-4864-511115-7117151151512115213"
+name = "Aegis of the Vanguard"
+rarity = 4
+icon = SubResource("AtlasTexture_6jh4y")
+description = "An impregnable bulwark worn by legendary Swordsmen."
+item_type = 1
+item_level = 60
+custom_item_value = 0

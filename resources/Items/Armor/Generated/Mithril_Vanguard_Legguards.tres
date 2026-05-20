@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_adv66"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_nb78d"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_wso24"]
+
+[sub_resource type="Resource" id="Resource_gf0g6"]
+script = ExtResource("1_adv66")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 25
+
+[sub_resource type="Resource" id="Resource_1pbv3"]
+script = ExtResource("1_adv66")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 14
+
+[sub_resource type="Resource" id="Resource_i4e6b"]
+script = ExtResource("1_adv66")
+base_value = 0
+flat_bonus_value = 9
+
+[sub_resource type="Resource" id="Resource_up85f"]
+script = ExtResource("1_adv66")
+stat_type = 4
+base_value = 0
+flat_bonus_value = 64
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2m5hb"]
+atlas = ExtResource("2_nb78d")
+region = Rect2(0, 0, 25, 16)
+margin = Rect2(0.5, 5.5, 1, 10)
+
+[resource]
+script = ExtResource("3_wso24")
+armor_type = 2
+bonus_stats = Dictionary[int, ExtResource("1_adv66")]({
+0: SubResource("Resource_i4e6b"),
+4: SubResource("Resource_up85f"),
+8: SubResource("Resource_gf0g6"),
+9: SubResource("Resource_1pbv3")
+})
+item_id = "1012852347-811810-361110-9111413-711215331031215310"
+name = "Mithril Vanguard Legguards"
+rarity = 0
+icon = SubResource("AtlasTexture_2m5hb")
+description = "Heavy plate forged for front-line Swordsmen."
+item_type = 1
+item_level = 40
+custom_item_value = 0

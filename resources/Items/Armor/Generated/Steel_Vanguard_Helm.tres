@@ -1,0 +1,50 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_12syc"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_p63p1"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_e05di"]
+
+[sub_resource type="Resource" id="Resource_47qja"]
+script = ExtResource("1_12syc")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 14
+
+[sub_resource type="Resource" id="Resource_vq8ym"]
+script = ExtResource("1_12syc")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 8
+
+[sub_resource type="Resource" id="Resource_wq8or"]
+script = ExtResource("1_12syc")
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="Resource" id="Resource_exxyk"]
+script = ExtResource("1_12syc")
+stat_type = 4
+base_value = 0
+flat_bonus_value = 37
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dwihy"]
+atlas = ExtResource("2_p63p1")
+region = Rect2(108, 114, 10, 4)
+margin = Rect2(0, 3, 0, 6)
+
+[resource]
+script = ExtResource("3_e05di")
+bonus_stats = Dictionary[int, ExtResource("1_12syc")]({
+0: SubResource("Resource_wq8or"),
+4: SubResource("Resource_exxyk"),
+8: SubResource("Resource_47qja"),
+9: SubResource("Resource_vq8ym")
+})
+item_id = "15113214057-410011-13343-10701-279139136101415914"
+name = "Steel Vanguard Helm"
+rarity = 0
+icon = SubResource("AtlasTexture_dwihy")
+description = "Heavy plate forged for front-line Swordsmen."
+item_type = 1
+item_level = 30
+custom_item_value = 0

@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="ConsumableData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/Effects/Effect_RestoreMana.gd" id="1_qibw0"]
+[ext_resource type="Texture2D" path="res://assets/sprites/fruit.png" id="2_lqv41"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="3_to2qi"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_oqg4q"]
+atlas = ExtResource("2_lqv41")
+region = Rect2(32, 32, 16, 16)
+
+[resource]
+script = ExtResource("3_to2qi")
+effect_script = ExtResource("1_qibw0")
+effect_properties = {
+"regain_amount": 40
+}
+item_id = "1511147531210-15605-21318-6237-21414515111314111158"
+name = "Lesser Mana Draught"
+rarity = 0
+icon = SubResource("AtlasTexture_oqg4q")
+description = "Restores 40 MP when consumed."
+item_type = 2
+item_level = -1
+custom_item_value = 40
+can_stack = true
+max_stack_amount = 99
+current_stack_amount = 1

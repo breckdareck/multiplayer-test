@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_2bd6r"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_od1in"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_yoqs5"]
+
+[sub_resource type="Resource" id="Resource_5x3sf"]
+script = ExtResource("1_2bd6r")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 10
+
+[sub_resource type="Resource" id="Resource_xsjn2"]
+script = ExtResource("1_2bd6r")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 6
+
+[sub_resource type="Resource" id="Resource_4oruc"]
+script = ExtResource("1_2bd6r")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_0j8gp"]
+script = ExtResource("1_2bd6r")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ctmmj"]
+atlas = ExtResource("2_od1in")
+region = Rect2(77, 91, 6, 3)
+
+[resource]
+script = ExtResource("3_yoqs5")
+armor_type = 1
+bonus_stats = Dictionary[int, ExtResource("1_2bd6r")]({
+2: SubResource("Resource_4oruc"),
+8: SubResource("Resource_5x3sf"),
+9: SubResource("Resource_xsjn2"),
+10: SubResource("Resource_0j8gp")
+})
+item_id = "18837111014-35913-1014611-1231512-6612131231141510156"
+name = "Bronze Pathfinder Mail"
+rarity = 0
+icon = SubResource("AtlasTexture_ctmmj")
+description = "Light, flexible armour suited to an Archer's mobility."
+item_type = 1
+item_level = 10
+custom_item_value = 0

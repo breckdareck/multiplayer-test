@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_x28rw"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_s0n44"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_wdruj"]
+
+[sub_resource type="Resource" id="Resource_kkvjt"]
+script = ExtResource("1_x28rw")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 23
+
+[sub_resource type="Resource" id="Resource_2xyfv"]
+script = ExtResource("1_x28rw")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 13
+
+[sub_resource type="Resource" id="Resource_clni7"]
+script = ExtResource("1_x28rw")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 10
+
+[sub_resource type="Resource" id="Resource_qeqy1"]
+script = ExtResource("1_x28rw")
+stat_type = 5
+base_value = 0
+flat_bonus_value = 49
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_74vjy"]
+atlas = ExtResource("2_s0n44")
+region = Rect2(108, 114, 10, 4)
+margin = Rect2(0, 3, 0, 6)
+
+[resource]
+script = ExtResource("3_wdruj")
+bonus_stats = Dictionary[int, ExtResource("1_x28rw")]({
+1: SubResource("Resource_clni7"),
+5: SubResource("Resource_qeqy1"),
+8: SubResource("Resource_kkvjt"),
+9: SubResource("Resource_2xyfv")
+})
+item_id = "9267821311-0554-13908-02512-15815157138891252"
+name = "Adamant Arcanist Helm"
+rarity = 0
+icon = SubResource("AtlasTexture_74vjy")
+description = "Enchanted vestments that channel a Mage's power."
+item_type = 1
+item_level = 50
+custom_item_value = 0

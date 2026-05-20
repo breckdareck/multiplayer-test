@@ -1,0 +1,47 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_gf0i1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_isab3"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_ia1ix"]
+
+[sub_resource type="Resource" id="Resource_0m5we"]
+script = ExtResource("1_gf0i1")
+stat_type = 13
+base_value = 0
+flat_bonus_value = 52
+
+[sub_resource type="Resource" id="Resource_grysk"]
+script = ExtResource("1_gf0i1")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 14
+
+[sub_resource type="Resource" id="Resource_ieivc"]
+script = ExtResource("1_gf0i1")
+stat_type = 5
+base_value = 0
+flat_bonus_value = 42
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uj7ro"]
+atlas = ExtResource("2_isab3")
+region = Rect2(10, 17, 4, 11)
+margin = Rect2(3.5, 0, 7, 0)
+
+[resource]
+script = ExtResource("3_ia1ix")
+weapon_type = 2
+weapon_attack_speed = 3
+equipment_type = 1
+bonus_stats = Dictionary[int, ExtResource("1_gf0i1")]({
+1: SubResource("Resource_grysk"),
+5: SubResource("Resource_ieivc"),
+13: SubResource("Resource_0m5we")
+})
+item_id = "6591290012-25915-95414-151064-515111101311522119"
+name = "Steel Spellstaff"
+rarity = 0
+icon = SubResource("AtlasTexture_uj7ro")
+description = "A conduit of arcane power wielded by Mages."
+item_type = 1
+item_level = 30
+custom_item_value = 0

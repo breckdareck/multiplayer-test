@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="ItemDropResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_hhiy7"]
+
+[resource]
+script = ExtResource("1_hhiy7")
+item_name = "Cloak of the Nightshade"
+drop_chance = 0.01

@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_ciph5"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_ea3mm"]
+
+[sub_resource type="Resource" id="Resource_ae84b"]
+script = ExtResource("1_ciph5")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="Resource" id="Resource_sdo86"]
+script = ExtResource("1_ciph5")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_crico"]
+script = ExtResource("1_ciph5")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_tr8tk"]
+script = ExtResource("1_ciph5")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_cjgpj"]
+load_path = "res://.godot/imported/Eqp_Leather_Sandals.png-23f0cc5f3f25b855dccf580eeba0d806.ctex"
+
+[resource]
+script = ExtResource("2_ea3mm")
+armor_type = 3
+bonus_stats = Dictionary[int, ExtResource("1_ciph5")]({
+2: SubResource("Resource_crico"),
+8: SubResource("Resource_ae84b"),
+9: SubResource("Resource_sdo86"),
+10: SubResource("Resource_tr8tk")
+})
+item_id = "3119932122-0458-014135-6111213-60655151011133"
+name = "Bronze Pathfinder Boots"
+rarity = 0
+icon = SubResource("CompressedTexture2D_cjgpj")
+description = "Light, flexible armour suited to an Archer's mobility."
+item_type = 1
+item_level = 10
+custom_item_value = 0

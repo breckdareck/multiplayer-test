@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_fv1l4"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_bq85f"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_6qykc"]
+
+[sub_resource type="Resource" id="Resource_msx5m"]
+script = ExtResource("1_fv1l4")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 38
+
+[sub_resource type="Resource" id="Resource_qe7cb"]
+script = ExtResource("1_fv1l4")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 60
+
+[sub_resource type="Resource" id="Resource_oqedy"]
+script = ExtResource("1_fv1l4")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 35
+
+[sub_resource type="Resource" id="Resource_0mqga"]
+script = ExtResource("1_fv1l4")
+stat_type = 5
+base_value = 0
+flat_bonus_value = 450
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jyffg"]
+atlas = ExtResource("2_bq85f")
+region = Rect2(77, 91, 6, 3)
+
+[resource]
+script = ExtResource("3_6qykc")
+armor_type = 1
+bonus_stats = Dictionary[int, ExtResource("1_fv1l4")]({
+1: SubResource("Resource_oqedy"),
+5: SubResource("Resource_0mqga"),
+8: SubResource("Resource_msx5m"),
+9: SubResource("Resource_qe7cb")
+})
+item_id = "11214464156-8134-5563-014101-134413851160795"
+name = "Robes of the Archmagus"
+rarity = 4
+icon = SubResource("AtlasTexture_jyffg")
+description = "Robes layered with centuries of protective enchantment."
+item_type = 1
+item_level = 55
+custom_item_value = 0

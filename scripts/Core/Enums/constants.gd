@@ -61,6 +61,7 @@ enum WeaponType {
 	SWORD,
 	BOW,
 	STAFF,
+	DAGGER,
 }
 
 enum AttackType {

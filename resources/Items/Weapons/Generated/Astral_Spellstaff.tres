@@ -1,0 +1,47 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_p7b5v"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_ouum3"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_gn4wm"]
+
+[sub_resource type="Resource" id="Resource_gjfrn"]
+script = ExtResource("1_p7b5v")
+stat_type = 13
+base_value = 0
+flat_bonus_value = 142
+
+[sub_resource type="Resource" id="Resource_ko6wh"]
+script = ExtResource("1_p7b5v")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 38
+
+[sub_resource type="Resource" id="Resource_318rp"]
+script = ExtResource("1_p7b5v")
+stat_type = 5
+base_value = 0
+flat_bonus_value = 114
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4lnts"]
+atlas = ExtResource("2_ouum3")
+region = Rect2(10, 17, 4, 11)
+margin = Rect2(3.5, 0, 7, 0)
+
+[resource]
+script = ExtResource("3_gn4wm")
+weapon_type = 2
+weapon_attack_speed = 3
+equipment_type = 1
+bonus_stats = Dictionary[int, ExtResource("1_p7b5v")]({
+1: SubResource("Resource_ko6wh"),
+5: SubResource("Resource_318rp"),
+13: SubResource("Resource_gjfrn")
+})
+item_id = "1214118910155-214113-1431214-641110-999561081561113"
+name = "Astral Spellstaff"
+rarity = 0
+icon = SubResource("AtlasTexture_4lnts")
+description = "A conduit of arcane power wielded by Mages."
+item_type = 1
+item_level = 90
+custom_item_value = 0

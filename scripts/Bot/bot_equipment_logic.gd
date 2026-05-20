@@ -7,8 +7,8 @@ const CLASS_WEAPON_TYPES: Dictionary = {
 	Constants.ClassType.RANGER: [Constants.WeaponType.BOW],
 	Constants.ClassType.MAGE: [Constants.WeaponType.STAFF],
 	Constants.ClassType.ARCHMAGE: [Constants.WeaponType.STAFF],
-	Constants.ClassType.ROGUE: [Constants.WeaponType.SWORD],
-	Constants.ClassType.ASSASSIN: [Constants.WeaponType.SWORD],
+	Constants.ClassType.ROGUE: [Constants.WeaponType.DAGGER],
+	Constants.ClassType.ASSASSIN: [Constants.WeaponType.DAGGER],
 	Constants.ClassType.BEGINNER: [Constants.WeaponType.SWORD],
 }
 

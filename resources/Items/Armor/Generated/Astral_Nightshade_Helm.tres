@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_266ta"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_8k7mg"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_34ss3"]
+
+[sub_resource type="Resource" id="Resource_db051"]
+script = ExtResource("1_266ta")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 40
+
+[sub_resource type="Resource" id="Resource_ymlog"]
+script = ExtResource("1_266ta")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 23
+
+[sub_resource type="Resource" id="Resource_wmc2o"]
+script = ExtResource("1_266ta")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 17
+
+[sub_resource type="Resource" id="Resource_iv16f"]
+script = ExtResource("1_266ta")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_42cl3"]
+atlas = ExtResource("2_8k7mg")
+region = Rect2(108, 114, 10, 4)
+margin = Rect2(0, 3, 0, 6)
+
+[resource]
+script = ExtResource("3_34ss3")
+bonus_stats = Dictionary[int, ExtResource("1_266ta")]({
+3: SubResource("Resource_wmc2o"),
+8: SubResource("Resource_db051"),
+9: SubResource("Resource_ymlog"),
+11: SubResource("Resource_iv16f")
+})
+item_id = "9770111010-11121310-2085-1410913-28125826298815"
+name = "Astral Nightshade Helm"
+rarity = 0
+icon = SubResource("AtlasTexture_42cl3")
+description = "Shadowy garb tailored for a Rogue's deadly craft."
+item_type = 1
+item_level = 90
+custom_item_value = 0

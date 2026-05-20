@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="ConsumableData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/Effects/Effect_RestoreHealth.gd" id="1_0dr5e"]
+[ext_resource type="Texture2D" path="res://assets/sprites/fruit.png" id="2_ofbmq"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="3_svjgg"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d0b0j"]
+atlas = ExtResource("2_ofbmq")
+region = Rect2(16, 32, 16, 16)
+
+[resource]
+script = ExtResource("3_svjgg")
+effect_script = ExtResource("1_0dr5e")
+effect_properties = {
+"heal_amount": 1800
+}
+item_id = "6120729129-371212-01022-412415-9815131271541341415"
+name = "Supreme Healing Draught"
+rarity = 0
+icon = SubResource("AtlasTexture_d0b0j")
+description = "Restores 1800 HP when consumed."
+item_type = 2
+item_level = -1
+custom_item_value = 1600
+can_stack = true
+max_stack_amount = 99
+current_stack_amount = 1

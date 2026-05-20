@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_pyn3o"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_fiqdo"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_022pf"]
+
+[sub_resource type="Resource" id="Resource_chhwx"]
+script = ExtResource("1_pyn3o")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 59
+
+[sub_resource type="Resource" id="Resource_nuh54"]
+script = ExtResource("1_pyn3o")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 34
+
+[sub_resource type="Resource" id="Resource_waqrd"]
+script = ExtResource("1_pyn3o")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 25
+
+[sub_resource type="Resource" id="Resource_dicf1"]
+script = ExtResource("1_pyn3o")
+stat_type = 5
+base_value = 0
+flat_bonus_value = 126
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_h8kt3"]
+atlas = ExtResource("2_fiqdo")
+region = Rect2(77, 91, 6, 3)
+
+[resource]
+script = ExtResource("3_022pf")
+armor_type = 1
+bonus_stats = Dictionary[int, ExtResource("1_pyn3o")]({
+1: SubResource("Resource_waqrd"),
+5: SubResource("Resource_dicf1"),
+8: SubResource("Resource_chhwx"),
+9: SubResource("Resource_nuh54")
+})
+item_id = "121019100511-1115119-615117-115129-6075037226103"
+name = "Celestial Arcanist Mail"
+rarity = 0
+icon = SubResource("AtlasTexture_h8kt3")
+description = "Enchanted vestments that channel a Mage's power."
+item_type = 1
+item_level = 80
+custom_item_value = 0
