@@ -19,18 +19,26 @@ func _serialize_bonus_stats() -> Dictionary:
 	return serialized
 
 
-## Slim-save hook: persist rarity + bonus_stats only for modified equipment
-## (random drops, and later crafting/enchanting). Unmodified equipment derives
-## both from its canonical resource at load time.
-func _append_variant_data(dict: Dictionary) -> void:
-	if is_modified:
+## Slim-save hook: persist rarity + bonus_stats only when this instance
+## diverges from its canonical resource (random drop rolls, and later
+## crafting/enchanting). Divergence is detected by comparison, not a flag, so
+## it survives duplicate() and serialization round-trips — a plain flag would
+## be dropped by Resource.duplicate(), which only copies exported properties.
+## Unmodified equipment derives rarity and bonus_stats from the resource.
+func _append_variant_data(dict: Dictionary, res_path: String) -> void:
+	var canonical: Resource = load(res_path) if ResourceLoader.exists(res_path) else null
+	var diverged := true
+	if canonical is EquipmentData:
+		diverged = rarity != canonical.rarity \
+			or _serialize_bonus_stats() != canonical._serialize_bonus_stats()
+	if diverged:
 		dict["rarity"] = rarity
 		dict["bonus_stats"] = _serialize_bonus_stats()
 
 
 ## Slim-load hook: re-apply roll data after the item is rebuilt from its
-## resource. Only flags the instance as modified when the saved data actually
-## diverges from the resource — old saves serialized base stats for every item.
+## resource. Skips when the saved data matches the resource — old saves
+## serialized base stats for every item.
 func _apply_variant_data(dict: Dictionary) -> void:
 	if not dict.has("bonus_stats"):
 		return
@@ -38,7 +46,6 @@ func _apply_variant_data(dict: Dictionary) -> void:
 	var saved_rarity: int = dict.get("rarity", rarity)
 	if saved_rarity == rarity and saved_stats == _serialize_bonus_stats():
 		return
-	is_modified = true
 	rarity = saved_rarity
 	bonus_stats = {}
 	for stat_type_str in saved_stats:

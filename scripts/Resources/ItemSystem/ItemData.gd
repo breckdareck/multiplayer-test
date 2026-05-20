@@ -41,11 +41,6 @@ var current_stack_amount: int = 1
 var original_resource_path: String
 var instance_id: String
 
-## True when this instance's stats diverge from its canonical .tres — e.g. a
-## random drop roll, or (later) crafting/enchanting. Drives whether variant
-## data is persisted; unmodified items are fully re-derived from the resource.
-var is_modified: bool = false
-
 
 func _get_property_list():
 	if OS.has_feature("editor"):
@@ -152,7 +147,7 @@ func get_save_data() -> Dictionary:
 		"item_id": item_id,
 		"current_stack_amount": current_stack_amount,
 	}
-	_append_variant_data(dict)
+	_append_variant_data(dict, res_path)
 	return dict
 
 
@@ -162,8 +157,9 @@ func to_dictionary() -> Dictionary:
 
 
 ## Overridden by EquipmentData to append per-instance roll data (rarity,
-## bonus_stats) for modified items. Base items have no variant data.
-func _append_variant_data(_dict: Dictionary) -> void:
+## bonus_stats) for items that diverge from their canonical resource. Base
+## items have no variant data.
+func _append_variant_data(_dict: Dictionary, _res_path: String) -> void:
 	pass
 
 
