@@ -64,7 +64,8 @@ func set_silent_mode(enabled: bool) -> void:
 
 
 # This function is called by the Slot's item setter whenever an item is changed.
-func _update_item_tracking(_slot: Slot, _old_item: ItemData, _new_item: ItemData):
+# `_slot` is untyped — it may be a Slot view or a SlotData, both are ignored here.
+func _update_item_tracking(_slot, _old_item: ItemData, _new_item: ItemData):
 	if _changed_in_frame:
 		return
 	_changed_in_frame = true
@@ -75,9 +76,15 @@ func _emit_equipment_changed_deferred():
 	if _silent_mode:
 		_changed_in_frame = false
 		return
-		
+
 	on_equipment_changed.emit()
 	_changed_in_frame = false
+
+
+## Flags an equipment change so on_equipment_changed fires (deferred). Used by
+## code that mutates a SlotData directly instead of through a Slot view setter.
+func mark_changed() -> void:
+	_update_item_tracking(null, null, null)
 
 
 func get_slots() -> Array[EquipmentSlot]:
@@ -88,3 +95,33 @@ func get_slots() -> Array[EquipmentSlot]:
 	if feet_slot: slots_array.append(feet_slot)
 	if weapon_slot: slots_array.append(weapon_slot)
 	return slots_array
+
+
+# --- SlotData model accessors (UI-independent; safe on a headless bot) ---
+
+func get_slot_data(key) -> SlotData:
+	return slots_data.get(key)
+
+
+func get_all_slot_data() -> Array:
+	return slots_data.values()
+
+
+var weapon_slot_data: SlotData:
+	get: return slots_data.get("WEAPON")
+var head_slot_data: SlotData:
+	get: return slots_data.get(Constants.ArmorType.HEAD)
+var chest_slot_data: SlotData:
+	get: return slots_data.get(Constants.ArmorType.CHEST)
+var legs_slot_data: SlotData:
+	get: return slots_data.get(Constants.ArmorType.LEGS)
+var feet_slot_data: SlotData:
+	get: return slots_data.get(Constants.ArmorType.FEET)
+
+
+## Refreshes the UI view bound to an equipment key, if one exists. A no-op on
+## a headless bot scene (no equipment window).
+func refresh_view(key) -> void:
+	var view = equipment.get(key)
+	if is_instance_valid(view):
+		view.update_display()

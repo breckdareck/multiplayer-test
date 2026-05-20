@@ -124,7 +124,9 @@ func _rebuild_item_tracking():
 				item_locations[item_instance_id] = [slot]
 
 
-func _update_item_tracking(slot: Slot, old_item: ItemData, new_item: ItemData):
+## `slot` is untyped — it accepts a Slot view (current callers) or a SlotData
+## (component-driven callers from Stage 2b). It is only used as a collection key.
+func _update_item_tracking(slot, old_item: ItemData, new_item: ItemData):
 	if old_item != null:
 		var old_instance_id = old_item.item_id
 		if old_instance_id in item_counts:
@@ -156,6 +158,33 @@ func _update_item_tracking(slot: Slot, old_item: ItemData, new_item: ItemData):
 func _get_slot_index(slot: Slot) -> int:
 	"""Get the index of a slot in the slots array, or -1 if not found"""
 	return slots.find(slot)
+
+
+## Refreshes the UI view bound to an inventory slot index, if one exists.
+## No-op on a headless bot scene (no inventory window).
+func _refresh_view(index: int) -> void:
+	if index >= 0 and index < slots.size() and is_instance_valid(slots[index]):
+		slots[index].update_display()
+
+
+## Sets a SlotData's item, updates tracking, and refreshes its bound view.
+## The single mutation entry point for component-driven inventory changes.
+func _apply_item(sd: SlotData, new_item: ItemData) -> void:
+	var old_item: ItemData = sd.item
+	sd.item = new_item
+	_update_item_tracking(sd, old_item, new_item)
+	_refresh_view(sd.index)
+
+
+## Sets an equipment SlotData's item and refreshes its bound view.
+func _apply_equipment_item(key, new_item: ItemData) -> void:
+	if not is_instance_valid(equipment_component):
+		return
+	var sd: SlotData = equipment_component.get_slot_data(key)
+	if sd == null:
+		return
+	sd.item = new_item
+	equipment_component.refresh_view(key)
 
 
 func _sync_slot_to_client(slot: Slot, trigger_stats_recalc: bool = false):
