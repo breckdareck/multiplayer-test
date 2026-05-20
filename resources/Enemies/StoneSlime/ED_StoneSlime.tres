@@ -1,14 +1,14 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=13 format=3 uid="uid://bdp6un27d174w"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=13 format=3]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
 [ext_resource type="SpriteFrames" uid="uid://b2ohgim61o1bm" path="res://resources/Enemies/Slime/SF_Slime.tres" id="3_sf"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Dragonbone_Longsword.tres" id="d_1"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Dragonbone_Spellstaff.tres" id="d_2"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Dragonbone_Vanguard_Mail.tres" id="d_3"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Dragonbone_Arcanist_Mail.tres" id="d_4"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Dragonbone_Arcanist_Helm.tres" id="d_5"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Dragonbone_Vanguard_Helm.tres" id="d_6"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Steel_Longsword.tres" id="d_1"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Steel_Spellstaff.tres" id="d_2"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Steel_Vanguard_Mail.tres" id="d_3"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Steel_Arcanist_Helm.tres" id="d_4"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Steel_Arcanist_Mail.tres" id="d_5"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Steel_Arcanist_Legguards.tres" id="d_6"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)
@@ -26,8 +26,8 @@ metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 
 [resource]
 script = ExtResource("2_ed")
-monster_name = "Fire Slime"
-monster_level = 70
+monster_name = "Stone Slime"
+monster_level = 30
 movement_speed = 55
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")

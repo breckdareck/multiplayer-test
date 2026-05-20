@@ -1,12 +1,14 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=12 format=3 uid="uid://bliarhg40csoo"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=14 format=3]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
 [ext_resource type="SpriteFrames" uid="uid://c28y4uyabwctv" path="res://resources/Enemies/Boar/SF_Boar.tres" id="3_sf"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Worn_Warbow.tres" id="d_1"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Worn_Pathfinder_Mail.tres" id="d_2"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Worn_Vanguard_Legguards.tres" id="d_3"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Worn_Nightshade_Mail.tres" id="d_4"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Iron_Warbow.tres" id="d_1"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Iron_Spellstaff.tres" id="d_2"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Iron_Pathfinder_Helm.tres" id="d_3"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Iron_Pathfinder_Mail.tres" id="d_4"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Iron_Arcanist_Mail.tres" id="d_5"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Iron_Nightshade_Mail.tres" id="d_6"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)
@@ -28,12 +30,12 @@ metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 
 [resource]
 script = ExtResource("2_ed")
-monster_name = "Boar"
-monster_level = 5
-movement_speed = 40
+monster_name = "Tusk Brute"
+monster_level = 24
+movement_speed = 45
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")
 body_hitbox_shape = SubResource("Shape_body")
 attack_hitbox_shape = SubResource("Shape_atk")
-item_drops = Array[ExtResource("1_drop")]([SubResource("Resource_coin"), ExtResource("d_1"), ExtResource("d_2"), ExtResource("d_3"), ExtResource("d_4")])
+item_drops = Array[ExtResource("1_drop")]([SubResource("Resource_coin"), ExtResource("d_1"), ExtResource("d_2"), ExtResource("d_3"), ExtResource("d_4"), ExtResource("d_5"), ExtResource("d_6")])
 metadata/_custom_type_script = "uid://dv7aj5x3e50cg"

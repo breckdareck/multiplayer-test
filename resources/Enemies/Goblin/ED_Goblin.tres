@@ -1,54 +1,41 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=13 format=3 uid="uid://cvctd6i3vmgiy"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=14 format=3 uid="uid://cvctd6i3vmgiy"]
 
-[ext_resource type="Resource" uid="uid://e88f354c6hrj" path="res://resources/DropTables/Iron_Sword.tres" id="2_fxfdn"]
-[ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="2_iyr8y"]
-[ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="3_fxfdn"]
-[ext_resource type="SpriteFrames" uid="uid://ckcbsuhp72f5i" path="res://resources/Enemies/Goblin/SF_Goblin.tres" id="4_iyr8y"]
-[ext_resource type="Resource" path="res://resources/DropTables/Crystal_Staff.tres" id="5_csdr"]
-[ext_resource type="Resource" path="res://resources/DropTables/Mystic_Robe.tres" id="6_mrdr"]
+[ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
+[ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
+[ext_resource type="SpriteFrames" uid="uid://ckcbsuhp72f5i" path="res://resources/Enemies/Goblin/SF_Goblin.tres" id="3_sf"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Bronze_Longsword.tres" id="d_1"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Bronze_Spellstaff.tres" id="d_2"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Bronze_Vanguard_Helm.tres" id="d_3"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Bronze_Vanguard_Mail.tres" id="d_4"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Bronze_Arcanist_Helm.tres" id="d_5"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Bronze_Arcanist_Mail.tres" id="d_6"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_17tps"]
+[sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)
 
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_y64qe"]
+[sub_resource type="CircleShape2D" id="Shape_col"]
+radius = 6.0
+
+[sub_resource type="CapsuleShape2D" id="Shape_body"]
 radius = 13.0
 height = 34.0
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_a0il2"]
-radius = 6.0
-
-[sub_resource type="Resource" id="Resource_iyr8y"]
-script = ExtResource("2_iyr8y")
+[sub_resource type="Resource" id="Resource_coin"]
+script = ExtResource("1_drop")
 item_name = "Coin"
 drop_chance = 0.9
-min_amount = 20
-max_amount = 35
-metadata/_custom_type_script = "uid://cucvsoha2s1kj"
-
-[sub_resource type="Resource" id="Resource_jpamu"]
-script = ExtResource("2_iyr8y")
-item_name = "Metal Koif"
-randomize_stats = true
-possible_stats = Array[int]([0, 1, 2, 3, 4, 5])
-drop_chance = 0.2
-metadata/_custom_type_script = "uid://cucvsoha2s1kj"
-
-[sub_resource type="Resource" id="Resource_fxfdn"]
-script = ExtResource("2_iyr8y")
-item_name = "Blue Lolico Armor"
-randomize_stats = true
-possible_stats = Array[int]([0, 1, 2, 3, 4, 5])
-drop_chance = 0.2
+min_amount = 10
+max_amount = 16
 metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 
 [resource]
-script = ExtResource("3_fxfdn")
+script = ExtResource("2_ed")
 monster_name = "Goblin"
 monster_level = 10
-movement_speed = 40.0
-sprite_frames = ExtResource("4_iyr8y")
-character_collision_shape = SubResource("CircleShape2D_a0il2")
-body_hitbox_shape = SubResource("CapsuleShape2D_y64qe")
-attack_hitbox_shape = SubResource("RectangleShape2D_17tps")
-item_drops = Array[ExtResource("2_iyr8y")]([SubResource("Resource_iyr8y"), ExtResource("2_fxfdn"), SubResource("Resource_jpamu"), SubResource("Resource_fxfdn"), ExtResource("5_csdr"), ExtResource("6_mrdr")])
+movement_speed = 40
+sprite_frames = ExtResource("3_sf")
+character_collision_shape = SubResource("Shape_col")
+body_hitbox_shape = SubResource("Shape_body")
+attack_hitbox_shape = SubResource("Shape_atk")
+item_drops = Array[ExtResource("1_drop")]([SubResource("Resource_coin"), ExtResource("d_1"), ExtResource("d_2"), ExtResource("d_3"), ExtResource("d_4"), ExtResource("d_5"), ExtResource("d_6")])
 metadata/_custom_type_script = "uid://dv7aj5x3e50cg"

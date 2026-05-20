@@ -1,0 +1,215 @@
+[gd_scene load_steps=29 format=3]
+
+[ext_resource type="Script" uid="uid://cj6lu2r6oxt6o" path="res://scripts/Enemy/enemy_base.gd" id="1_fd6lc"]
+[ext_resource type="Script" uid="uid://dhhn4ks2uixk8" path="res://scripts/Components/health.gd" id="2_0l8pv"]
+[ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="2_fd6lc"]
+[ext_resource type="Resource" path="res://resources/Enemies/AdamantCrawler/ED_AdamantCrawler.tres" id="2_ko2xg"]
+[ext_resource type="Curve" uid="uid://q6qc5kgdbmyv" path="res://assets/curves/monster_hp_curve.tres" id="2_ykovo"]
+[ext_resource type="Curve" uid="uid://la82to0yhbrk" path="res://assets/curves/monster_exp_curve.tres" id="3_k8y7s"]
+[ext_resource type="Script" uid="uid://dwv2k28spwfby" path="res://scripts/StateMachine/state_machine.gd" id="4_2npkn"]
+[ext_resource type="Curve" uid="uid://c20efdba57fc" path="res://assets/curves/monster_wep_att_curve.tres" id="5_m5n82"]
+[ext_resource type="Script" uid="uid://dk2rcptcq3hb8" path="res://scripts/Enemy/StateMachine/enemy_patrol.gd" id="6_fd6lc"]
+[ext_resource type="Script" uid="uid://71v08yv5tjrt" path="res://scripts/Components/stats.gd" id="6_ko2xg"]
+[ext_resource type="Curve" uid="uid://cf67a4a36687" path="res://assets/curves/monster_magic_att_curve.tres" id="6_ku4na"]
+[ext_resource type="Script" uid="uid://u6b813y5rtm4" path="res://scripts/Enemy/StateMachine/enemy_idle.gd" id="6_v5wyi"]
+[ext_resource type="Curve" uid="uid://e847666d08f4" path="res://assets/curves/monster_wep_def_curve.tres" id="7_t40u2"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="7_x022k"]
+[ext_resource type="Script" uid="uid://bfh8yeyv2wu0g" path="res://scripts/Player/StateMachine/death.gd" id="8_0l8pv"]
+[ext_resource type="Curve" uid="uid://1b70eda8f0b1" path="res://assets/curves/monster_magic_def_curve.tres" id="8_5w3s7"]
+[ext_resource type="SpriteFrames" uid="uid://b2ohgim61o1bm" path="res://resources/Enemies/Slime/SF_Slime.tres" id="9_ko2xg"]
+[ext_resource type="Curve" uid="uid://321810bf3a5a" path="res://assets/curves/monster_monies_curve.tres" id="9_m6m44"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_n6pvg"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+properties/1/path = NodePath("AnimatedSprite2D:flip_h")
+properties/1/spawn = true
+properties/1/replication_mode = 2
+properties/2/path = NodePath("Health:is_dead")
+properties/2/spawn = true
+properties/2/replication_mode = 2
+properties/3/path = NodePath("Health:max_health")
+properties/3/spawn = true
+properties/3/replication_mode = 2
+properties/4/path = NodePath("Health:current_health")
+properties/4/spawn = true
+properties/4/replication_mode = 2
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_n6pvg"]
+radius = 8.062258
+
+[sub_resource type="Resource" id="Resource_ex684"]
+script = ExtResource("7_x022k")
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_iglj4"]
+script = ExtResource("7_x022k")
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_h1jh3"]
+script = ExtResource("7_x022k")
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_st7t5"]
+script = ExtResource("7_x022k")
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ko2xg"]
+bg_color = Color(0, 0, 0, 0.59607846)
+expand_margin_left = 2.0
+expand_margin_top = 2.0
+expand_margin_right = 2.0
+expand_margin_bottom = 2.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0l8pv"]
+bg_color = Color(0.0866292, 0.0866293, 0.0866292, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vnioy"]
+bg_color = Color(1, 0.0784314, 0.12549, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_v5wyi"]
+size = Vector2(64, 37)
+
+[node name="AdamantCrawler" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"]]
+collision_layer = 8
+collision_mask = 5
+script = ExtResource("1_fd6lc")
+enemy_data = ExtResource("2_ko2xg")
+health_component = NodePath("Health")
+stats_component = NodePath("Stats")
+health_curve = ExtResource("2_ykovo")
+experience_curve = ExtResource("3_k8y7s")
+wep_att_curve = ExtResource("5_m5n82")
+magic_att_curve = ExtResource("6_ku4na")
+wep_def_curve = ExtResource("7_t40u2")
+magic_def_curve = ExtResource("8_5w3s7")
+monies_curve = ExtResource("9_m6m44")
+name_label = NodePath("NameLabel")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+delta_interval = 0.015
+replication_config = SubResource("SceneReplicationConfig_n6pvg")
+
+[node name="AimTarget" type="Marker2D" parent="."]
+position = Vector2(0, -7)
+
+[node name="DmgNumOrigin" type="Node2D" parent="."]
+position = Vector2(0, -47)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -6)
+shape = SubResource("CircleShape2D_n6pvg")
+
+[node name="Health" type="Node" parent="." node_paths=PackedStringArray("damage_number_origin")]
+script = ExtResource("2_0l8pv")
+damage_number_origin = NodePath("../DmgNumOrigin")
+health_bar_path = NodePath("../HealthBar")
+
+[node name="Stats" type="Node" parent="."]
+script = ExtResource("6_ko2xg")
+stats = Dictionary[int, Object]({
+8: SubResource("Resource_ex684"),
+9: SubResource("Resource_iglj4"),
+12: SubResource("Resource_h1jh3"),
+13: SubResource("Resource_st7t5")
+})
+
+[node name="StateLabel" type="Label" parent="."]
+visible = false
+offset_left = -20.0
+offset_top = -48.0
+offset_right = 20.0
+offset_bottom = -39.0
+theme_override_fonts/font = ExtResource("2_fd6lc")
+theme_override_font_sizes/font_size = 8
+text = "State"
+horizontal_alignment = 1
+
+[node name="NameLabel" type="Label" parent="."]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -50.0
+offset_top = 3.9999998
+offset_right = 50.000008
+offset_bottom = 12.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.3, 0.4)
+pivot_offset = Vector2(50, 4)
+size_flags_horizontal = 6
+theme_override_fonts/font = ExtResource("2_fd6lc")
+theme_override_font_sizes/font_size = 8
+theme_override_styles/normal = SubResource("StyleBoxFlat_ko2xg")
+text = "Lv.0 Pookie"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HealthBar" type="ProgressBar" parent="."]
+offset_left = -11.0
+offset_top = -37.0
+offset_right = 89.0
+offset_bottom = -27.0
+scale = Vector2(0.225, 0.225)
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_0l8pv")
+theme_override_styles/fill = SubResource("StyleBoxFlat_vnioy")
+step = 1.0
+value = 73.0
+show_percentage = false
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+self_modulate = Color(0.3, 0.8, 0.7, 1)
+position = Vector2(0, -12)
+sprite_frames = ExtResource("9_ko2xg")
+animation = &"patrol"
+autoplay = "idle"
+
+[node name="AttackHitbox" type="Area2D" parent="."]
+collision_layer = 8
+collision_mask = 2
+
+[node name="SlashCollisionShape" type="CollisionShape2D" parent="AttackHitbox"]
+position = Vector2(20, -19.5)
+shape = SubResource("RectangleShape2D_v5wyi")
+disabled = true
+
+[node name="BodyHitbox" type="Area2D" parent="."]
+collision_layer = 8
+collision_mask = 2
+
+[node name="EnemyBody" type="CollisionShape2D" parent="BodyHitbox"]
+position = Vector2(0, -6)
+shape = SubResource("CircleShape2D_n6pvg")
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("starting_state", "state_label")]
+script = ExtResource("4_2npkn")
+starting_state = NodePath("patrol")
+state_label = NodePath("../StateLabel")
+
+[node name="idle" type="Node" parent="StateMachine" node_paths=PackedStringArray("patrol_state")]
+script = ExtResource("6_v5wyi")
+patrol_state = NodePath("../patrol")
+animation_name = "idle"
+
+[node name="patrol" type="Node" parent="StateMachine" node_paths=PackedStringArray("idle_state")]
+script = ExtResource("6_fd6lc")
+idle_state = NodePath("../idle")
+animation_name = "patrol"
+
+[node name="death" type="Node" parent="StateMachine" node_paths=PackedStringArray("respawn_state")]
+script = ExtResource("8_0l8pv")
+respawn_state = NodePath("../patrol")
+animation_name = "death"

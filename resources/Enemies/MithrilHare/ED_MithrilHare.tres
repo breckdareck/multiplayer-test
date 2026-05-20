@@ -1,14 +1,14 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=14 format=3 uid="uid://dqq6qlj4obqbs"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=14 format=3]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
 [ext_resource type="SpriteFrames" uid="uid://bujet2eddxc5l" path="res://resources/Enemies/Bunny/SF_Bunny.tres" id="3_sf"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Adamant_Longsword.tres" id="d_1"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Adamant_Dirk.tres" id="d_2"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Adamant_Vanguard_Mail.tres" id="d_3"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Adamant_Nightshade_Mail.tres" id="d_4"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Adamant_Pathfinder_Helm.tres" id="d_5"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Adamant_Arcanist_Helm.tres" id="d_6"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Mithril_Spellstaff.tres" id="d_1"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Mithril_Arcanist_Helm.tres" id="d_2"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Mithril_Arcanist_Mail.tres" id="d_3"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Mithril_Arcanist_Boots.tres" id="d_4"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Mithril_Pathfinder_Legguards.tres" id="d_5"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Mithril_Vanguard_Helm.tres" id="d_6"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)
@@ -30,8 +30,8 @@ metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 
 [resource]
 script = ExtResource("2_ed")
-monster_name = "Dark Bunny"
-monster_level = 50
+monster_name = "Mithril Hare"
+monster_level = 40
 movement_speed = 45
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")
