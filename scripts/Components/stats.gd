@@ -3,6 +3,10 @@ extends Node
 
 signal stats_changed
 
+# All classes scale from level 1 (base classes are created at level 1;
+# advanced classes at level 30). The BASE_MAX_* constants are the level-1
+# values; SCALING_MULTIPLIER is the per-level gain.
+
 # Beginner Health Scaling
 # Health: int(50 + (13 * (_level_component.level - 1)))
 # Mana: int(50 + (11 * (_level_component.level - 1)))
@@ -13,38 +17,38 @@ const BEGINNER_HEALTH_SCALING_MULTIPLIER: int = 13
 const BEGINNER_MANA_SCALING_MULTIPLIER: int = 11
 
 # Warrior Health Scaling
-# Health: int(500 + (26 * (_level_component.level - 10)))
-# Mana: int(161 + (5 * (_level_component.level - 10)))
+# Health: int(120 + (26 * (_level_component.level - 1)))
+# Mana: int(30 + (5 * (_level_component.level - 1)))
 
-const WARRIOR_BASE_MAX_HEALTH: int = 500
-const WARRIOR_BASE_MAX_MANA: int = 160
+const WARRIOR_BASE_MAX_HEALTH: int = 120
+const WARRIOR_BASE_MAX_MANA: int = 30
 const WARRIOR_HEALTH_SCALING_MULTIPLIER: int = 26
 const WARRIOR_MANA_SCALING_MULTIPLIER: int = 5
 
 # Rogue Health Scaling
-# Health: int(356 + (22 * (_level_component.level - 10)))
-# Mana: int(249 + (15 * (_level_component.level - 10)))
+# Health: int(95 + (22 * (_level_component.level - 1)))
+# Mana: int(45 + (15 * (_level_component.level - 1)))
 
-const ROGUE_BASE_MAX_HEALTH: int = 356
-const ROGUE_BASE_MAX_MANA: int = 249
+const ROGUE_BASE_MAX_HEALTH: int = 95
+const ROGUE_BASE_MAX_MANA: int = 45
 const ROGUE_HEALTH_SCALING_MULTIPLIER: int = 22
 const ROGUE_MANA_SCALING_MULTIPLIER: int = 15
 
 # Mage Health Scaling
-# Health: int(190 + (23 * (_level_component.level - 10)))
-# Mana: int(550 + (37 * (_level_component.level - 10)))
+# Health: int(70 + (23 * (_level_component.level - 1)))
+# Mana: int(100 + (37 * (_level_component.level - 1)))
 
-const MAGE_BASE_MAX_HEALTH: int = 190
-const MAGE_BASE_MAX_MANA: int = 550
+const MAGE_BASE_MAX_HEALTH: int = 70
+const MAGE_BASE_MAX_MANA: int = 100
 const MAGE_HEALTH_SCALING_MULTIPLIER: int = 23
 const MAGE_MANA_SCALING_MULTIPLIER: int = 37
 
 # Archer Health Scaling
-# Health: int(352 + (22 * (_level_component.level - 10)))
-# Mana: int(250 + (16 * (_level_component.level - 10)))
+# Health: int(90 + (22 * (_level_component.level - 1)))
+# Mana: int(50 + (16 * (_level_component.level - 1)))
 
-const ARCHER_BASE_MAX_HEALTH: int = 352
-const ARCHER_BASE_MAX_MANA: int = 250
+const ARCHER_BASE_MAX_HEALTH: int = 90
+const ARCHER_BASE_MAX_MANA: int = 50
 const ARCHER_HEALTH_SCALING_MULTIPLIER: int = 22
 const ARCHER_MANA_SCALING_MULTIPLIER: int = 16
 
@@ -126,17 +130,17 @@ func _recalculate_stats() -> void:
 			stats[Constants.StatType.HEALTH].base_value = int(BEGINNER_BASE_MAX_HEALTH + (BEGINNER_HEALTH_SCALING_MULTIPLIER * (level - 1)))
 			stats[Constants.StatType.MANA].base_value = int(BEGINNER_BASE_MAX_MANA + (BEGINNER_MANA_SCALING_MULTIPLIER * (level - 1)))
 		Constants.ClassType.SWORDSMAN:
-			stats[Constants.StatType.HEALTH].base_value = int(WARRIOR_BASE_MAX_HEALTH + (WARRIOR_HEALTH_SCALING_MULTIPLIER * (level - 10)))
-			stats[Constants.StatType.MANA].base_value = int(WARRIOR_BASE_MAX_MANA + (WARRIOR_MANA_SCALING_MULTIPLIER * (level - 10)))
+			stats[Constants.StatType.HEALTH].base_value = int(WARRIOR_BASE_MAX_HEALTH + (WARRIOR_HEALTH_SCALING_MULTIPLIER * (level - 1)))
+			stats[Constants.StatType.MANA].base_value = int(WARRIOR_BASE_MAX_MANA + (WARRIOR_MANA_SCALING_MULTIPLIER * (level - 1)))
 		Constants.ClassType.MAGE:
-			stats[Constants.StatType.HEALTH].base_value = int(MAGE_BASE_MAX_HEALTH + (MAGE_HEALTH_SCALING_MULTIPLIER * (level - 10)))
-			stats[Constants.StatType.MANA].base_value = int(MAGE_BASE_MAX_MANA + (MAGE_MANA_SCALING_MULTIPLIER * (level - 10)))
+			stats[Constants.StatType.HEALTH].base_value = int(MAGE_BASE_MAX_HEALTH + (MAGE_HEALTH_SCALING_MULTIPLIER * (level - 1)))
+			stats[Constants.StatType.MANA].base_value = int(MAGE_BASE_MAX_MANA + (MAGE_MANA_SCALING_MULTIPLIER * (level - 1)))
 		Constants.ClassType.ARCHER:
-			stats[Constants.StatType.HEALTH].base_value = int(ARCHER_BASE_MAX_HEALTH + (ARCHER_HEALTH_SCALING_MULTIPLIER * (level - 10)))
-			stats[Constants.StatType.MANA].base_value = int(ARCHER_BASE_MAX_MANA + (ARCHER_MANA_SCALING_MULTIPLIER * (level - 10)))
+			stats[Constants.StatType.HEALTH].base_value = int(ARCHER_BASE_MAX_HEALTH + (ARCHER_HEALTH_SCALING_MULTIPLIER * (level - 1)))
+			stats[Constants.StatType.MANA].base_value = int(ARCHER_BASE_MAX_MANA + (ARCHER_MANA_SCALING_MULTIPLIER * (level - 1)))
 		Constants.ClassType.ROGUE:
-			stats[Constants.StatType.HEALTH].base_value = int(ROGUE_BASE_MAX_HEALTH + (ROGUE_HEALTH_SCALING_MULTIPLIER * (level - 10)))
-			stats[Constants.StatType.MANA].base_value = int(ROGUE_BASE_MAX_MANA + (ROGUE_MANA_SCALING_MULTIPLIER * (level - 10)))
+			stats[Constants.StatType.HEALTH].base_value = int(ROGUE_BASE_MAX_HEALTH + (ROGUE_HEALTH_SCALING_MULTIPLIER * (level - 1)))
+			stats[Constants.StatType.MANA].base_value = int(ROGUE_BASE_MAX_MANA + (ROGUE_MANA_SCALING_MULTIPLIER * (level - 1)))
 		_:
 			stats[Constants.StatType.HEALTH].base_value = int(BEGINNER_BASE_MAX_HEALTH + (BEGINNER_HEALTH_SCALING_MULTIPLIER * (level - 1)))
 			stats[Constants.StatType.MANA].base_value = int(BEGINNER_BASE_MAX_MANA + (BEGINNER_MANA_SCALING_MULTIPLIER * (level - 1)))
