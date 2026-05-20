@@ -157,6 +157,10 @@ func _on_bot_spawned(bot_id: int) -> void:
 		push_error("BotManager: Could not find player node for bot %d after spawn." % bot_id)
 		return
 
+	# Send the bot's class/level sprite to clients already on its map — a bot's
+	# appearance is never streamed via the node-addressed sprite RPC.
+	MapManager.broadcast_player_appearance(bot_id)
+
 	# A bot has no client and never opens a window — drop the entire UI subtree
 	# (HUD, mobile buttons, debug panel, hotbar, buffbar, and the draggable
 	# windows). Safe because inventory/equipment data lives in the components

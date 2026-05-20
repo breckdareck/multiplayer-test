@@ -177,6 +177,12 @@ func _finalize_player_spawn(player_id: int, map_id: String, spawn_point_name: St
 			# Tell the new player to spawn the existing player (skip for bots)
 			if not _joiner_is_bot:
 				client_spawn_player.rpc_id(player_id, existing_id, existing_node.global_position, _player_username(existing_id))
+				# A bot's sprite isn't streamed via the node-addressed sprite
+				# RPC, so send the joiner the bot's class/level appearance.
+				if BotManager.is_bot(existing_id) and is_instance_valid(existing_node.class_component) \
+						and is_instance_valid(existing_node.level_component):
+					client_apply_appearance.rpc_id(player_id, existing_id, \
+						existing_node.class_component.current_class, existing_node.level_component.level)
 			# Also update visibility for the existing player
 			update_visibility_for_player(existing_id)
 
@@ -592,6 +598,50 @@ func spawn_bot_projectile(caster_id: int, ability_id: String, level: int, start_
 	if not is_instance_valid(caster) or not is_instance_valid(caster.ability_component):
 		return  # bot not present on this client — skip the visual, no error
 	caster.ability_component.spawn_projectile_client(ability_id, level, start_pos, direction, target_path)
+
+
+## [Server -> Client] Plays a bot's ability-cast visual. Routed through
+## MapManager (an autoload that always resolves) rather than the bot's
+## AbilityComponent node, which a client may lack during a map transition.
+@rpc("authority", "call_remote", "reliable")
+func bot_ability_used(caster_id: int, ability_id: String, level: int) -> void:
+	if multiplayer.is_server():
+		return
+	var caster = PlayerManager.get_player_node(caster_id)
+	if not is_instance_valid(caster) or not is_instance_valid(caster.ability_component):
+		return  # bot not present on this client — skip the visual, no error
+	caster.ability_component.play_ability_visual(ability_id, level)
+
+
+## [Server] Sends a bot's class/level to every real client on its map so they
+## render the correct sprite. Bot appearance isn't streamed via the
+## node-addressed sprite RPC, so this delivers it on demand.
+func broadcast_player_appearance(player_id: int) -> void:
+	if not multiplayer.is_server():
+		return
+	var node = PlayerManager.get_player_node(player_id)
+	if not is_instance_valid(node) or not is_instance_valid(node.class_component) \
+			or not is_instance_valid(node.level_component):
+		return
+	var class_type: int = node.class_component.current_class
+	var level: int = node.level_component.level
+	# Apply on the host directly — client_apply_appearance early-returns on the
+	# server, but the host is also a client and must render the bot.
+	node.apply_appearance(class_type, level)
+	for peer_id in get_real_players_on_map(get_player_map(player_id)):
+		if peer_id != 1:
+			client_apply_appearance.rpc_id(peer_id, player_id, class_type, level)
+
+
+## [Server -> Client] Applies a player/bot's sprite frames for its class/level.
+## Routed through MapManager so it always resolves even mid map-transition.
+@rpc("authority", "call_remote", "reliable")
+func client_apply_appearance(player_id: int, class_type: int, level: int) -> void:
+	if multiplayer.is_server():
+		return
+	var node = PlayerManager.get_player_node(player_id)
+	if is_instance_valid(node):
+		node.apply_appearance(class_type, level)
 
 
 # === SERVER-SIDE ACKS FROM CLIENTS ===
