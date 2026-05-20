@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="ConsumableData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/Effects/Effect_RestoreMana.gd" id="1_4cd6c"]
+[ext_resource type="Texture2D" path="res://assets/sprites/fruit.png" id="2_ew1d7"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="3_lae7q"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_sq8u6"]
+atlas = ExtResource("2_ew1d7")
+region = Rect2(32, 32, 16, 16)
+
+[resource]
+script = ExtResource("3_lae7q")
+effect_script = ExtResource("1_4cd6c")
+effect_properties = {
+"regain_amount": 1200
+}
+item_id = "12891414101511-441413-111089-415116-13413142713101015113"
+name = "Supreme Mana Draught"
+rarity = 0
+icon = SubResource("AtlasTexture_sq8u6")
+description = "Restores 1200 MP when consumed."
+item_type = 2
+item_level = -1
+custom_item_value = 1600
+can_stack = true
+max_stack_amount = 99
+current_stack_amount = 1

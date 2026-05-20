@@ -1,0 +1,52 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_lboj5"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_0aycp"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_225pu"]
+
+[sub_resource type="Resource" id="Resource_iws6k"]
+script = ExtResource("1_lboj5")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 25
+
+[sub_resource type="Resource" id="Resource_y4fjt"]
+script = ExtResource("1_lboj5")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 14
+
+[sub_resource type="Resource" id="Resource_vbfuq"]
+script = ExtResource("1_lboj5")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 10
+
+[sub_resource type="Resource" id="Resource_8krcj"]
+script = ExtResource("1_lboj5")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ptaby"]
+atlas = ExtResource("2_0aycp")
+region = Rect2(0, 0, 25, 16)
+margin = Rect2(0.5, 5.5, 1, 10)
+
+[resource]
+script = ExtResource("3_225pu")
+armor_type = 2
+bonus_stats = Dictionary[int, ExtResource("1_lboj5")]({
+2: SubResource("Resource_vbfuq"),
+8: SubResource("Resource_iws6k"),
+9: SubResource("Resource_y4fjt"),
+10: SubResource("Resource_8krcj")
+})
+item_id = "0152194815-7111412-1845-10844-1313205714281040"
+name = "Mithril Pathfinder Legguards"
+rarity = 0
+icon = SubResource("AtlasTexture_ptaby")
+description = "Light, flexible armour suited to an Archer's mobility."
+item_type = 1
+item_level = 40
+custom_item_value = 0

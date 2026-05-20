@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_d1s5j"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_x7ovx"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_70t8g"]
+
+[sub_resource type="Resource" id="Resource_d5ub6"]
+script = ExtResource("1_d1s5j")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 48
+
+[sub_resource type="Resource" id="Resource_lwck8"]
+script = ExtResource("1_d1s5j")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 30
+
+[sub_resource type="Resource" id="Resource_5kpvc"]
+script = ExtResource("1_d1s5j")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 15
+
+[sub_resource type="Resource" id="Resource_qb44g"]
+script = ExtResource("1_d1s5j")
+stat_type = 4
+base_value = 0
+flat_bonus_value = 350
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_alm5x"]
+atlas = ExtResource("2_x7ovx")
+region = Rect2(77, 91, 6, 3)
+
+[resource]
+script = ExtResource("3_70t8g")
+armor_type = 1
+bonus_stats = Dictionary[int, ExtResource("1_d1s5j")]({
+2: SubResource("Resource_lwck8"),
+4: SubResource("Resource_qb44g"),
+8: SubResource("Resource_d5ub6"),
+10: SubResource("Resource_5kpvc")
+})
+item_id = "315692507-51141-88612-45710-0121141211201358"
+name = "Windrunner's Garb"
+rarity = 4
+icon = SubResource("AtlasTexture_alm5x")
+description = "Featherlight armour that never slows its wearer."
+item_type = 1
+item_level = 50
+custom_item_value = 0

@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="ConsumableData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/Effects/Effect_RestoreMana.gd" id="1_mm5fc"]
+[ext_resource type="Texture2D" path="res://assets/sprites/fruit.png" id="2_2gipl"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="3_0u248"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pikgg"]
+atlas = ExtResource("2_2gipl")
+region = Rect2(32, 32, 16, 16)
+
+[resource]
+script = ExtResource("3_0u248")
+effect_script = ExtResource("1_mm5fc")
+effect_properties = {
+"regain_amount": 720
+}
+item_id = "81114721411-3111312-121133-311512-68312147131415511"
+name = "Superior Mana Draught"
+rarity = 0
+icon = SubResource("AtlasTexture_pikgg")
+description = "Restores 720 MP when consumed."
+item_type = 2
+item_level = -1
+custom_item_value = 920
+can_stack = true
+max_stack_amount = 99
+current_stack_amount = 1

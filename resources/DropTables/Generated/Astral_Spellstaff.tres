@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ItemDropResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_6774i"]
+
+[resource]
+script = ExtResource("1_6774i")
+item_name = "Astral Spellstaff"
+randomize_stats = true
+possible_stats = Array[int]([13, 1, 5])
+drop_chance = 0.062

@@ -1,0 +1,52 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_r3urf"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_k6gt4"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_18ae1"]
+
+[sub_resource type="Resource" id="Resource_i8eeh"]
+script = ExtResource("1_r3urf")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 42
+
+[sub_resource type="Resource" id="Resource_llsye"]
+script = ExtResource("1_r3urf")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 24
+
+[sub_resource type="Resource" id="Resource_vx6e1"]
+script = ExtResource("1_r3urf")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 18
+
+[sub_resource type="Resource" id="Resource_gt3fd"]
+script = ExtResource("1_r3urf")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_sop78"]
+atlas = ExtResource("2_k6gt4")
+region = Rect2(0, 0, 25, 16)
+margin = Rect2(0.5, 5.5, 1, 10)
+
+[resource]
+script = ExtResource("3_18ae1")
+armor_type = 2
+bonus_stats = Dictionary[int, ExtResource("1_r3urf")]({
+3: SubResource("Resource_vx6e1"),
+8: SubResource("Resource_i8eeh"),
+9: SubResource("Resource_llsye"),
+11: SubResource("Resource_gt3fd")
+})
+item_id = "570113074-721513-12112-315159-81512111014141211210"
+name = "Dragonbone Nightshade Legguards"
+rarity = 0
+icon = SubResource("AtlasTexture_sop78")
+description = "Shadowy garb tailored for a Rogue's deadly craft."
+item_type = 1
+item_level = 70
+custom_item_value = 0

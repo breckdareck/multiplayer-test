@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="ConsumableData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/Effects/Effect_RestoreHealth.gd" id="1_cov4o"]
+[ext_resource type="Texture2D" path="res://assets/sprites/fruit.png" id="2_2uu5y"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="3_04x7s"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0md6a"]
+atlas = ExtResource("2_2uu5y")
+region = Rect2(16, 32, 16, 16)
+
+[resource]
+script = ExtResource("3_04x7s")
+effect_script = ExtResource("1_cov4o")
+effect_properties = {
+"heal_amount": 320
+}
+item_id = "109111471344-123108-14835-711310-357783169625"
+name = "Greater Healing Draught"
+rarity = 0
+icon = SubResource("AtlasTexture_0md6a")
+description = "Restores 320 HP when consumed."
+item_type = 2
+item_level = -1
+custom_item_value = 260
+can_stack = true
+max_stack_amount = 99
+current_stack_amount = 1

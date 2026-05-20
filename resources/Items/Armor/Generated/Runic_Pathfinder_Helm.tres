@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_s4kl3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_mt1k4"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_cdiuk"]
+
+[sub_resource type="Resource" id="Resource_h0uv8"]
+script = ExtResource("1_s4kl3")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 27
+
+[sub_resource type="Resource" id="Resource_pl0kr"]
+script = ExtResource("1_s4kl3")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 16
+
+[sub_resource type="Resource" id="Resource_pqw5v"]
+script = ExtResource("1_s4kl3")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 11
+
+[sub_resource type="Resource" id="Resource_3ucbr"]
+script = ExtResource("1_s4kl3")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2rvxi"]
+atlas = ExtResource("2_mt1k4")
+region = Rect2(108, 114, 10, 4)
+margin = Rect2(0, 3, 0, 6)
+
+[resource]
+script = ExtResource("3_cdiuk")
+bonus_stats = Dictionary[int, ExtResource("1_s4kl3")]({
+2: SubResource("Resource_pqw5v"),
+8: SubResource("Resource_h0uv8"),
+9: SubResource("Resource_pl0kr"),
+10: SubResource("Resource_3ucbr")
+})
+item_id = "10791111201-57011-2817-213150-6389113151261194"
+name = "Runic Pathfinder Helm"
+rarity = 0
+icon = SubResource("AtlasTexture_2rvxi")
+description = "Light, flexible armour suited to an Archer's mobility."
+item_type = 1
+item_level = 60
+custom_item_value = 0

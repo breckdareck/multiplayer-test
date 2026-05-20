@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_22etv"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_fj5bo"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_r7u70"]
+
+[sub_resource type="Resource" id="Resource_htwjg"]
+script = ExtResource("1_22etv")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 19
+
+[sub_resource type="Resource" id="Resource_ofaof"]
+script = ExtResource("1_22etv")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 11
+
+[sub_resource type="Resource" id="Resource_4ool3"]
+script = ExtResource("1_22etv")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 8
+
+[sub_resource type="Resource" id="Resource_fbgok"]
+script = ExtResource("1_22etv")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ic2nn"]
+atlas = ExtResource("2_fj5bo")
+region = Rect2(108, 114, 10, 4)
+margin = Rect2(0, 3, 0, 6)
+
+[resource]
+script = ExtResource("3_r7u70")
+bonus_stats = Dictionary[int, ExtResource("1_22etv")]({
+2: SubResource("Resource_4ool3"),
+8: SubResource("Resource_htwjg"),
+9: SubResource("Resource_ofaof"),
+10: SubResource("Resource_fbgok")
+})
+item_id = "40237151312-1415512-151146-10121511-9431511131541312511"
+name = "Mithril Pathfinder Helm"
+rarity = 0
+icon = SubResource("AtlasTexture_ic2nn")
+description = "Light, flexible armour suited to an Archer's mobility."
+item_type = 1
+item_level = 40
+custom_item_value = 0

@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_swvht"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_j5g5w"]
+
+[sub_resource type="Resource" id="Resource_mnmu5"]
+script = ExtResource("1_swvht")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 37
+
+[sub_resource type="Resource" id="Resource_prs0k"]
+script = ExtResource("1_swvht")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 21
+
+[sub_resource type="Resource" id="Resource_ldolv"]
+script = ExtResource("1_swvht")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 16
+
+[sub_resource type="Resource" id="Resource_1rw5o"]
+script = ExtResource("1_swvht")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_ovifc"]
+load_path = "res://.godot/imported/Eqp_Leather_Sandals.png-23f0cc5f3f25b855dccf580eeba0d806.ctex"
+
+[resource]
+script = ExtResource("2_j5g5w")
+armor_type = 3
+bonus_stats = Dictionary[int, ExtResource("1_swvht")]({
+2: SubResource("Resource_ldolv"),
+8: SubResource("Resource_mnmu5"),
+9: SubResource("Resource_prs0k"),
+10: SubResource("Resource_1rw5o")
+})
+item_id = "0110111013123-2715-20714-101113-610117682232153"
+name = "Eternal Pathfinder Boots"
+rarity = 0
+icon = SubResource("CompressedTexture2D_ovifc")
+description = "Light, flexible armour suited to an Archer's mobility."
+item_type = 1
+item_level = 100
+custom_item_value = 0

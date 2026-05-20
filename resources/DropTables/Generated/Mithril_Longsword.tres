@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ItemDropResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_vdlxc"]
+
+[resource]
+script = ExtResource("1_vdlxc")
+item_name = "Mithril Longsword"
+randomize_stats = true
+possible_stats = Array[int]([12, 0])
+drop_chance = 0.222

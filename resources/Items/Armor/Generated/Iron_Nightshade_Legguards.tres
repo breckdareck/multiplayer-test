@@ -1,0 +1,52 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_jsik2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_wtwso"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_rs3o3"]
+
+[sub_resource type="Resource" id="Resource_im8ef"]
+script = ExtResource("1_jsik2")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 14
+
+[sub_resource type="Resource" id="Resource_x75fc"]
+script = ExtResource("1_jsik2")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 8
+
+[sub_resource type="Resource" id="Resource_tqhng"]
+script = ExtResource("1_jsik2")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 6
+
+[sub_resource type="Resource" id="Resource_kb20x"]
+script = ExtResource("1_jsik2")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jvgri"]
+atlas = ExtResource("2_wtwso")
+region = Rect2(0, 0, 25, 16)
+margin = Rect2(0.5, 5.5, 1, 10)
+
+[resource]
+script = ExtResource("3_rs3o3")
+armor_type = 2
+bonus_stats = Dictionary[int, ExtResource("1_jsik2")]({
+3: SubResource("Resource_tqhng"),
+8: SubResource("Resource_im8ef"),
+9: SubResource("Resource_x75fc"),
+11: SubResource("Resource_kb20x")
+})
+item_id = "1251110111135-0131213-0151-911144-15218021440347"
+name = "Iron Nightshade Legguards"
+rarity = 0
+icon = SubResource("AtlasTexture_jvgri")
+description = "Shadowy garb tailored for a Rogue's deadly craft."
+item_type = 1
+item_level = 20
+custom_item_value = 0

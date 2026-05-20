@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_nrvld"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_ej8ik"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_yknod"]
+
+[sub_resource type="Resource" id="Resource_sai2v"]
+script = ExtResource("1_nrvld")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 73
+
+[sub_resource type="Resource" id="Resource_61sll"]
+script = ExtResource("1_nrvld")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 42
+
+[sub_resource type="Resource" id="Resource_njnam"]
+script = ExtResource("1_nrvld")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 31
+
+[sub_resource type="Resource" id="Resource_wjmhy"]
+script = ExtResource("1_nrvld")
+stat_type = 5
+base_value = 0
+flat_bonus_value = 156
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nkxy2"]
+atlas = ExtResource("2_ej8ik")
+region = Rect2(77, 91, 6, 3)
+
+[resource]
+script = ExtResource("3_yknod")
+armor_type = 1
+bonus_stats = Dictionary[int, ExtResource("1_nrvld")]({
+1: SubResource("Resource_njnam"),
+5: SubResource("Resource_wjmhy"),
+8: SubResource("Resource_sai2v"),
+9: SubResource("Resource_61sll")
+})
+item_id = "742621206-39152-171415-13002-1311086291110238"
+name = "Eternal Arcanist Mail"
+rarity = 0
+icon = SubResource("AtlasTexture_nkxy2")
+description = "Enchanted vestments that channel a Mage's power."
+item_type = 1
+item_level = 100
+custom_item_value = 0
