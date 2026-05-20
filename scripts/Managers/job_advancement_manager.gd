@@ -84,7 +84,7 @@ func request_advancement() -> void:
 	_server_announce.rpc("[ADVANCE] %s has advanced from %s to %s!" % [player.username, old_name, new_name])
 
 	player_advanced.emit(player.username, old_name, new_name)
-	print("JobAdvancement: %s advanced from %s to %s" % [player.username, old_name, new_name])
+	#print("JobAdvancement: %s advanced from %s to %s" % [player.username, old_name, new_name])
 
 
 @rpc("authority", "call_local", "reliable")

@@ -109,7 +109,8 @@ func _flush_recalculate() -> void:
 		return
 	_stats_dirty = false
 	_recalculate_stats()
-	_recalculate_stats_client.rpc_id(owner.player_id)
+	if not BotManager.is_bot(owner.player_id):
+		_recalculate_stats_client.rpc_id(owner.player_id)
 
 
 func _recalculate_stats() -> void:
@@ -150,9 +151,10 @@ func _recalculate_stats() -> void:
 	for stat in class_bonuses:
 		stats[stat].base_value += class_bonuses[stat] * level
 
-	# Add equipment bonuses (single pass)
+	# Add equipment bonuses (single pass) — read the SlotData model so this
+	# works with no equipment UI (headless / bot).
 	if _equipment_component:
-		for slot in _equipment_component.get_slots():
+		for slot in _equipment_component.get_all_slot_data():
 			if slot.item != null and slot.item.bonus_stats != null:
 				for stat_type in slot.item.bonus_stats:
 					if stats.has(stat_type):

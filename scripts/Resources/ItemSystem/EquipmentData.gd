@@ -60,16 +60,14 @@ static func from_dictionary(dict: Dictionary) -> ItemData:
 		Constants.EquipmentType.WEAPON:
 			item_instance = WeaponData.new()
 		_:
-			print("Error: Attempted to deserialize abstract EquipmentData without concrete type.")
+			#print("Error: Attempted to deserialize abstract EquipmentData without concrete type.")
 			return null
 
 	# Populate ItemData properties (manually, as ItemData.from_dictionary is static)
 	item_instance.item_id = dict.get("item_id", ItemData.new().generate_uuid())
 	item_instance.name = dict.get("name", "")
 	item_instance.rarity = dict.get("rarity", Constants.ItemRarity.COMMON)
-	var icon_path = dict.get("icon_path", "")
-	if not icon_path.is_empty():
-		item_instance.icon = load(icon_path)
+	item_instance.icon = ItemData.resolve_icon(dict.get("icon_path", ""), item_instance.name)
 	item_instance.description = dict.get("description", "")
 	item_instance.item_type = dict.get("item_type", Constants.ItemType.EQUIPMENT) # Ensure it's EQUIPMENT
 	item_instance.item_level = dict.get("item_level", 0)

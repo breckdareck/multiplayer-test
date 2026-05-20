@@ -51,7 +51,8 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 			}
 
 		buff_component._force_stat_recalc()
-		buff_component.sync_buff_stat_modifiers.rpc("Maple Warrior", modifier_data)
+		if not buff_component.is_bot_owned():
+			buff_component.sync_buff_stat_modifiers.rpc("Maple Warrior", modifier_data)
 
 	print("%s activated Maple Warrior (Level %d) - Duration: %ds, Stats: +%.0f%% [%d members]" %
 		[_owner_node.name, _level_stats.level, duration, stats_percent, party_members.size()])

@@ -3,6 +3,9 @@ extends Node
 
 var character_scene = preload("res://scenes/Player/player.tscn")
 var active_players: Dictionary = {}
+# Cache of player_id -> player Node to avoid scanning all maps on every lookup.
+# Populated on spawn, validated on read, erased on despawn/cleanup.
+var _node_cache: Dictionary = {}
 var _load_http_request: HTTPRequest
 var _load_in_progress: bool = false
 var _api_url: String = ""
@@ -11,7 +14,7 @@ var _api_url: String = ""
 func _ready() -> void:
 	# Load API URL from config (supports environment variable override)
 	_api_url = UserConfig.get_backend_api_url() + "/player"
-	print("PlayerManager: Using API URL: %s" % _api_url)
+	#print("PlayerManager: Using API URL: %s" % _api_url)
 	
 	# Connect to MapManager's player_spawned so we can finish initialization
 	# after the server-side spawn is completed.
@@ -34,15 +37,38 @@ func add_host_player():
 	call_deferred("add_player", 1)
 
 
+func add_bot(bot_id: int, username: String, class_type: int, map_id: String) -> void:
+	if not multiplayer.is_server():
+		return
+	active_players[bot_id] = {
+		"id": bot_id,
+		"character_type": class_type,
+		"spawn_time": Time.get_unix_time_from_system(),
+		"synced": false,
+		"party_id": -1,
+		"last_map": map_id,
+		"username": username,
+		"is_bot": true,
+	}
+
+	var player_data: Dictionary = await _load_player_data_async(username)
+	var spawn_map: String = player_data.get("last_map", map_id)
+	if spawn_map.is_empty():
+		spawn_map = map_id
+	active_players[bot_id]["last_map"] = spawn_map
+
+	MapManager.request_map_change(bot_id, spawn_map)
+
+
 func add_player(id: int):
 	if multiplayer.is_server() and id != 1:
 		var current_count = active_players.size()
 		if current_count >= ServerManager.max_players:
-			print("PlayerManager: Server full (%d/%d), rejecting player %d" % [current_count, ServerManager.max_players, id])
+			#print("PlayerManager: Server full (%d/%d), rejecting player %d" % [current_count, ServerManager.max_players, id])
 			MultiplayerManager._notify_client_kicked.rpc_id(id, "Server is full (%d/%d)." % [current_count, ServerManager.max_players])
 			get_tree().create_timer(0.5).timeout.connect(func(): multiplayer.multiplayer_peer.disconnect_peer(id))
 			return
-	print("Player %d joined - preparing to spawn character" % id)
+	#print("Player %d joined - preparing to spawn character" % id)
 	NetworkUtils.log_network_event("PLAYER_JOIN", "Player ID: %d" % id)
 	
 	active_players[id] = {
@@ -60,9 +86,9 @@ func add_player(id: int):
 
 func remove_player(id: int):
 	if id not in active_players:
-		print("PlayerManager: Peer %d disconnected (was not an active player)" % id)
+		#print("PlayerManager: Peer %d disconnected (was not an active player)" % id)
 		return
-	print("Player %d left - removing character" % id)
+	#print("Player %d left - removing character" % id)
 	NetworkUtils.log_network_event("PLAYER_LEAVE", "Player ID: %d" % id)
 	
 	# Full save before disconnect — delegate to SaveManager for consistency
@@ -81,10 +107,10 @@ func remove_player(id: int):
 			# Flush immediately — blocks until save completes or falls back to file
 			await SaveManager.flush_save(username)
 			SaveManager.unregister_player(username)
-			print("PlayerManager: Saved player '%s' via SaveManager on disconnect." % username)
+			#print("PlayerManager: Saved player '%s' via SaveManager on disconnect." % username)
 		elif not username.is_empty():
 			# Player node already gone — fall back to quick save with what we have
-			print("PlayerManager: WARNING - Player %d node not found for full save, using quick save" % id)
+			#print("PlayerManager: WARNING - Player %d node not found for full save, using quick save" % id)
 			var quick_data = _get_quick_save_data(id)
 			if not quick_data.is_empty():
 				_save_player_data_to_file(quick_data)
@@ -99,6 +125,7 @@ func remove_player(id: int):
 	# Remove from active players
 	if id in active_players:
 		active_players.erase(id)
+	_node_cache.erase(id)
 
 
 func save_all_players() -> void:
@@ -112,20 +139,21 @@ func save_all_players() -> void:
 			SaveManager.register_player(uname, player_node)
 			SaveManager.queue_save(uname, "all", player_node)
 			await SaveManager.flush_save(uname)
-			print("PlayerManager: Flushed save for player '%s' during shutdown." % uname)
+			#print("PlayerManager: Flushed save for player '%s' during shutdown." % uname)
 
 
 func cleanup():
 	"""Remove all networked entities and reset player tracking"""
-	print("Cleaning up all players and entities")
+	#print("Cleaning up all players and entities")
 	active_players.clear()
+	_node_cache.clear()
 
 
 # This function is called on the client to gather character selection info
 # and send it to the server.
 @rpc("call_local", "any_peer") # This RPC is called by the server on the client
 func _client_send_initial_info(id: int):
-	print("PlayerManager: Client %d preparing to send initial info." % id)
+	#print("PlayerManager: Client %d preparing to send initial info." % id)
 	
 	# Try to get character data from NetworkManager metadata first (new flow)
 	var username: String = NetworkManager.get_meta("selected_character_name", "")
@@ -144,7 +172,7 @@ func _client_send_initial_info(id: int):
 	if username.is_empty():
 		username = "Player" + str(id)
 	
-	print("PlayerManager: Client sending character: %s & username: %s from PID: %d" % [Constants.ClassType.find_key(selected_char), username, id])
+	#print("PlayerManager: Client sending character: %s & username: %s from PID: %d" % [Constants.ClassType.find_key(selected_char), username, id])
 	# Send the gathered info to the server (ID 1)
 	rpc_id(1, "_receive_initial_info", id, selected_char, username)
 
@@ -155,7 +183,7 @@ func _receive_initial_info(id: int, character_type: int, username: String):
 	if not multiplayer.is_server():
 		return
 	
-	print("PlayerManager: Server received character: %s & username: %s from PID: %d" % [Constants.ClassType.find_key(character_type), username, id])
+	#print("PlayerManager: Server received character: %s & username: %s from PID: %d" % [Constants.ClassType.find_key(character_type), username, id])
 	
 	if id in active_players:
 		active_players[id]["character_type"] = character_type
@@ -205,10 +233,12 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 		push_error("PlayerManager: Timed out finding spawned player %d to initialize after %d frames!" % [id, max_wait_frames])
 		return
 	
-	print("PlayerManager: Found player %d instance, starting initialization" % id)
-	
+	#print("PlayerManager: Found player %d instance, starting initialization" % id)
+
 	player_instance.player_id = id
 	player_instance.name = str(id)
+	# Refresh the node cache — covers both initial spawn and map changes.
+	_node_cache[id] = player_instance
 	
 	# Set up player
 	if not player_instance.class_component:
@@ -247,12 +277,12 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 		var inventory_data = player_data.get("inventory", {})
 		player_instance.player_inventory.load_player_inventory_silent(inventory_data)
 		# Sync money to client
-		if id != 1:
+		if not BotManager.is_bot(id) and id != 1:
 			var monies = player_data.get("monies", 0)
 			# Also check if monies is inside inventory data structure depending on save format
 			if monies == 0 and inventory_data.has("monies"):
 				monies = inventory_data.get("monies", 0)
-				
+
 			player_instance.player_inventory.set_monies_rpc.rpc_id(id, monies)
 
 	
@@ -262,7 +292,7 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 	var has_equipment = not inv_data_check.get("equipment", {}).is_empty()
 	
 	if not player_data or not player_data.has("inventory") or (not has_items and not has_equipment):
-		print("PlayerManager: Adding default items for player %d (class %d)" % [id, character_type])
+		#print("PlayerManager: Adding default items for player %d (class %d)" % [id, character_type])
 		var starter_weapon := "Wooden Sword"
 		if character_type in [Constants.ClassType.MAGE, Constants.ClassType.ARCHMAGE]:
 			starter_weapon = "Wooden Staff"
@@ -286,37 +316,45 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 	if player_instance.ability_component:
 		player_instance.ability_component.reconnect_level_signals()
 	
+	var _is_bot: bool = BotManager.is_bot(id)
+
 	# Set username and class over network
-	player_instance.set_username.rpc(username)
+	if _is_bot:
+		player_instance.set_username(username)
+	else:
+		player_instance.set_username.rpc(username)
 	player_instance.class_component.change_class_rpc(character_type)
 
-	# Sync to client
-	if id != 1:
+	# Sync to client (skip for bots — they have no client)
+	if not _is_bot and id != 1:
 		# Tell client to start loading mode (suppress saves)
 		player_instance.set_loading_state_rpc.rpc_id(id, true)
-		
+
 		if player_instance.ability_component:
 			await get_tree().process_frame
 			player_instance.ability_component.sync_all_abilities_to_client(id)
 
-	
+
 	if player_instance.health_component:
 		player_instance.health_component.current_health = player_data.get("current_health", 100)
 	if player_instance.mana_component:
 		player_instance.mana_component.current_mana = player_data.get("current_mana", 100)
 
-	if id != 1 and player_instance.buff_component:
+	if not _is_bot and id != 1 and player_instance.buff_component:
 		await get_tree().process_frame
 		player_instance.buff_component.sync_all_buffs_to_client(id)
-	
+
 	if id in active_players:
 		active_players[id]["synced"] = true
-	
+
 	# Loading done
 
-	if id != 1:
+	if not _is_bot and id != 1:
 		# Tell client loading is done (enable saves)
 		player_instance.set_loading_state_rpc.rpc_id(id, false)
+
+	if _is_bot:
+		BotManager._on_bot_spawned(id)
 
 
 func _load_player_data_from_file(username: String) -> Dictionary:
@@ -334,7 +372,7 @@ func _load_player_data_from_file(username: String) -> Dictionary:
 
 func _load_player_data_async(username: String) -> Dictionary:
 	if NetworkManager.use_local_save:
-		print("PlayerManager: Local Save enabled. Loading from file for ", username)
+		#print("PlayerManager: Local Save enabled. Loading from file for ", username)
 		return _load_player_data_from_file(username)
 
 	# Wait if another load is already in progress (reusing persistent HTTPRequest)
@@ -342,16 +380,16 @@ func _load_player_data_async(username: String) -> Dictionary:
 		await get_tree().process_frame
 
 	_load_in_progress = true
-	print("PlayerManager: Attempting to load data for %s from API..." % username)
+	#print("PlayerManager: Attempting to load data for %s from API..." % username)
 
 	var json = JSON.stringify({"username": username})
 	var headers = ["Content-Type: application/json"]
 	var error = _load_http_request.request(_api_url + "/load", headers, HTTPClient.METHOD_POST, json)
 
 	if error != OK:
-		print("PlayerManager: HTTP load request failed to start for %s. Error: %d" % [username, error])
+		#print("PlayerManager: HTTP load request failed to start for %s. Error: %d" % [username, error])
 		_load_in_progress = false
-		print("PlayerManager: WARNING - Loading %s from LOCAL FILE (API unavailable)" % username)
+		#print("PlayerManager: WARNING - Loading %s from LOCAL FILE (API unavailable)" % username)
 		return _load_player_data_from_file(username)
 
 	var result = await _load_http_request.request_completed
@@ -363,23 +401,23 @@ func _load_player_data_async(username: String) -> Dictionary:
 		if json_result != null:
 			_load_in_progress = false
 			if json_result.is_empty():
-				print("PlayerManager: Loaded %s via API (no existing save data)" % username)
+				#print("PlayerManager: Loaded %s via API (no existing save data)" % username)
 				return {}
 
-			print("PlayerManager: Loaded %s via API" % username)
+			#print("PlayerManager: Loaded %s via API" % username)
 			# Ensure default fields exist
 			json_result["party_id"] = json_result.get("party_id", -1)
 			json_result["last_map"] = json_result.get("last_map", "")
 			return json_result
 
-	print("PlayerManager: API load failed for %s (code: %d). Retrying..." % [username, response_code])
+	#print("PlayerManager: API load failed for %s (code: %d). Retrying..." % [username, response_code])
 	await get_tree().create_timer(1.0).timeout
 
 	# Retry once
 	error = _load_http_request.request(_api_url + "/load", headers, HTTPClient.METHOD_POST, json)
 	if error != OK:
 		_load_in_progress = false
-		print("PlayerManager: WARNING - Loading %s from LOCAL FILE (API unavailable)" % username)
+		#print("PlayerManager: WARNING - Loading %s from LOCAL FILE (API unavailable)" % username)
 		return _load_player_data_from_file(username)
 
 	result = await _load_http_request.request_completed
@@ -391,15 +429,15 @@ func _load_player_data_async(username: String) -> Dictionary:
 		var json_result = JSON.parse_string(body.get_string_from_utf8())
 		if json_result != null:
 			if json_result.is_empty():
-				print("PlayerManager: Retry succeeded for %s (no existing save data)" % username)
+				#print("PlayerManager: Retry succeeded for %s (no existing save data)" % username)
 				return {}
 
-			print("PlayerManager: Retry succeeded for %s" % username)
+			#print("PlayerManager: Retry succeeded for %s" % username)
 			json_result["party_id"] = json_result.get("party_id", -1)
 			json_result["last_map"] = json_result.get("last_map", "")
 			return json_result
 
-	print("PlayerManager: WARNING - Loading %s from LOCAL FILE (API unavailable after retry)" % username)
+	#print("PlayerManager: WARNING - Loading %s from LOCAL FILE (API unavailable after retry)" % username)
 	return _load_player_data_from_file(username)
 
 
@@ -427,7 +465,7 @@ func _save_player_data_to_file(data: Dictionary):
 	if file:
 		file.store_string(JSON.stringify(existing_data))
 		file.close()
-		print("PlayerManager: Saved to local file for ", username)
+		#print("PlayerManager: Saved to local file for ", username)
 
 
 func _save_player_data_async(data: Dictionary) -> void:
@@ -436,11 +474,11 @@ func _save_player_data_async(data: Dictionary) -> void:
 		return
 
 	if NetworkManager.use_local_save:
-		print("PlayerManager: Local Save enabled. Saving to file for ", username)
+		#print("PlayerManager: Local Save enabled. Saving to file for ", username)
 		_save_player_data_to_file(data)
 		return
 
-	print("PlayerManager: Attempting to save data for %s to API..." % username)
+	#print("PlayerManager: Attempting to save data for %s to API..." % username)
 
 	var request = HTTPRequest.new()
 	add_child(request)
@@ -456,9 +494,9 @@ func _save_player_data_async(data: Dictionary) -> void:
 	var error = request.request(_api_url + "/save", headers, HTTPClient.METHOD_POST, json)
 
 	if error != OK:
-		print("PlayerManager: HTTP save request failed to start for %s. Error: %d" % [username, error])
+		#print("PlayerManager: HTTP save request failed to start for %s. Error: %d" % [username, error])
 		request.queue_free()
-		print("PlayerManager: WARNING - Saved %s to LOCAL FILE (API unavailable)" % username)
+		#print("PlayerManager: WARNING - Saved %s to LOCAL FILE (API unavailable)" % username)
 		_save_player_data_to_file(data)
 		return
 
@@ -466,18 +504,18 @@ func _save_player_data_async(data: Dictionary) -> void:
 	var response_code = result[1]
 
 	if response_code == 200:
-		print("PlayerManager: Saved %s via API" % username)
+		#print("PlayerManager: Saved %s via API" % username)
 		request.queue_free()
 		return
 
 	# First attempt failed — retry once after 1 second
-	print("PlayerManager: API save failed for %s (code: %d), retrying..." % [username, response_code])
+	#print("PlayerManager: API save failed for %s (code: %d), retrying..." % [username, response_code])
 	await get_tree().create_timer(1.0).timeout
 
 	error = request.request(_api_url + "/save", headers, HTTPClient.METHOD_POST, json)
 	if error != OK:
 		request.queue_free()
-		print("PlayerManager: WARNING - Saved %s to LOCAL FILE (API unavailable)" % username)
+		#print("PlayerManager: WARNING - Saved %s to LOCAL FILE (API unavailable)" % username)
 		_save_player_data_to_file(data)
 		return
 
@@ -517,8 +555,25 @@ func _get_quick_save_data(player_id: int) -> Dictionary:
 	return data
 
 
+func _is_cached_node_valid(node: Variant) -> bool:
+	"""A cached node is usable only if it still exists and is attached to the
+	scene tree (a node removed during a map change reports is_inside_tree() == false)."""
+	return is_instance_valid(node) \
+		and not node.is_queued_for_deletion() \
+		and node.is_inside_tree()
+
+
 func get_player_node(player_id: int) -> MultiplayerPlayerV2:
-	"""Find player node across all maps"""
+	"""Find player node across all maps. Uses a node cache to avoid scanning
+	every active map on each call (this runs 100+ times/sec on the server)."""
+	# Fast path: return cached node if still valid.
+	var cached: Variant = _node_cache.get(player_id)
+	if cached != null:
+		if _is_cached_node_valid(cached):
+			return cached
+		# Stale entry — drop it and fall through to a full scan.
+		_node_cache.erase(player_id)
+
 	if not multiplayer.is_server():
 		# Client only has current map
 		var current_map = MapManager.current_map_instance
@@ -527,6 +582,7 @@ func get_player_node(player_id: int) -> MultiplayerPlayerV2:
 			if players_node and players_node.has_node(str(player_id)):
 				var node = players_node.get_node(str(player_id))
 				if is_instance_valid(node) and not node.is_queued_for_deletion():
+					_node_cache[player_id] = node
 					return node
 	else:
 		# Server checks all active maps
@@ -538,8 +594,9 @@ func get_player_node(player_id: int) -> MultiplayerPlayerV2:
 			if players_node and players_node.has_node(str(player_id)):
 				var node = players_node.get_node(str(player_id))
 				if is_instance_valid(node) and not node.is_queued_for_deletion():
+					_node_cache[player_id] = node
 					return node
-	
+
 	return null
 
 
@@ -567,7 +624,7 @@ func _on_player_spawned(player_id: int) -> void:
 	Continue initialization for the player (clients only were deferred).
 	"""
 	if not player_id in active_players:
-		print("PlayerManager: _on_player_spawned called for unknown player %d" % player_id)
+		#print("PlayerManager: _on_player_spawned called for unknown player %d" % player_id)
 		return
 
 	var info = active_players[player_id]
@@ -589,12 +646,15 @@ func player_input(input_type: String, data: Variant = null):
 	if not multiplayer.is_server(): return
 	
 	var peer_id = multiplayer.get_remote_sender_id()
+	if BotManager.is_bot(peer_id):
+		return
+
 	var player_node = get_player_node(peer_id)
-	
+
 	if not is_instance_valid(player_node):
 		# Player might be dead or changing maps - ignore
 		return
-		
+
 	match input_type:
 		"jump": player_node.do_jump = true
 		"drop": player_node.do_drop = true

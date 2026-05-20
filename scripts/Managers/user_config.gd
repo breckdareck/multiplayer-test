@@ -42,7 +42,7 @@ func load_config():
 	
 	if error != OK:
 		if error == ERR_FILE_NOT_FOUND:
-			print("User config file not found. Creating with default keybinds and sound settings.")
+			#print("User config file not found. Creating with default keybinds and sound settings.")
 			_prefill_default_keybinds() # Populate custom_keybinds
 			_apply_sound_settings() # Apply default sound settings immediately
 			save_config() # Save these defaults to the file
@@ -59,7 +59,7 @@ func load_config():
 	_load_sound_settings_from_config(config)
 	_load_server_settings_from_config(config)
 	
-	print("User config loaded.")
+	#print("User config loaded.")
 
 
 func save_config():
@@ -106,7 +106,7 @@ func _load_keybinds_from_config(config: ConfigFile):
 					key_events.append(_create_unset_key_event())
 				
 				custom_keybinds[action_name] = key_events
-				print("Loaded custom keybinds for '%s': %s" % [action_name, get_keybind_text(action_name, -1)])
+				#print("Loaded custom keybinds for '%s': %s" % [action_name, get_keybind_text(action_name, -1)])
 			else:
 				# If action not in config, prefill with unset events
 				var key_events: Array[int] = [_create_unset_key_event(), _create_unset_key_event()]
@@ -133,7 +133,7 @@ func _save_keybinds_to_config(config: ConfigFile, _file_existed_before_save: boo
 
 
 func _prefill_default_keybinds():
-	print("Prefilling custom_keybinds with InputMap defaults.")
+	#print("Prefilling custom_keybinds with InputMap defaults.")
 	for action_name in _all_managed_actions:
 		var key_events: Array[int] = []
 		var events = InputMap.action_get_events(action_name)
@@ -148,7 +148,7 @@ func _prefill_default_keybinds():
 			key_events.append(_create_unset_key_event())
 		
 		custom_keybinds[action_name] = key_events
-		print("Prefilled '%s' with defaults: %s" % [action_name, get_keybind_text(action_name, -1)])
+		#print("Prefilled '%s' with defaults: %s" % [action_name, get_keybind_text(action_name, -1)])
 
 
 func get_keybind_event(action_name: String, key_index: int = 0) -> InputEventKey:
@@ -216,7 +216,7 @@ func set_keybind_data(action_name: String, new_event: InputEventKey, key_index: 
 		if key_index >= 0 and key_index < key_codes.size():
 			key_codes[key_index] = new_event.physical_keycode
 			save_config()
-			print("Keybind %d for '%s' changed to '%s'." % [key_index, action_name, _get_single_key_text(new_event.physical_keycode)])
+			#print("Keybind %d for '%s' changed to '%s'." % [key_index, action_name, _get_single_key_text(new_event.physical_keycode)])
 		else:
 			push_error("Invalid key_index %d for action '%s'. Keybind not set." % [key_index, action_name])
 	else:
@@ -233,7 +233,7 @@ func _load_sound_settings_from_config(config: ConfigFile):
 		music_volume_db = config.get_value(SOUND_CONFIG_SECTION, "music_volume_db", music_volume_db)
 		sfx_volume_db = config.get_value(SOUND_CONFIG_SECTION, "sfx_volume_db", sfx_volume_db)
 		
-		print("Sound settings loaded.")
+		#print("Sound settings loaded.")
 		
 	_apply_sound_settings()
 
@@ -276,7 +276,7 @@ func _load_server_settings_from_config(config: ConfigFile):
 	if config.has_section(SERVER_CONFIG_SECTION):
 		backend_api_url = config.get_value(SERVER_CONFIG_SECTION, "backend_api_url", DEFAULT_API_URL)
 		game_server_port = config.get_value(SERVER_CONFIG_SECTION, "game_server_port", 8080)
-		print("Server settings loaded. API URL: %s" % backend_api_url)
+		#print("Server settings loaded. API URL: %s" % backend_api_url)
 	else:
 		# Initialize with defaults if section doesn't exist
 		backend_api_url = DEFAULT_API_URL
@@ -291,7 +291,7 @@ func _save_server_settings_to_config(config: ConfigFile, file_existed_before_sav
 func set_backend_api_url(url: String):
 	backend_api_url = url
 	save_config()
-	print("Backend API URL updated to: %s" % url)
+	#print("Backend API URL updated to: %s" % url)
 
 
 func get_backend_api_url() -> String:
@@ -305,4 +305,4 @@ func get_backend_api_url() -> String:
 func set_game_server_port(port: int):
 	game_server_port = port
 	save_config()
-	print("Game server port updated to: %d" % port)
+	#print("Game server port updated to: %d" % port)

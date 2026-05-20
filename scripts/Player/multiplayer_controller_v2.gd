@@ -55,6 +55,7 @@ var current_portal: Portal = null
 var _sprite_base_offset_x: float
 var _is_being_cleaned_up: bool = false
 var _is_loading_data: bool = false
+var _context_menu: PlayerContextMenu
 
 @onready var camera: Camera2D = $Camera2D
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
@@ -75,7 +76,9 @@ const GAME_MENU_SCENE = preload("res://scenes/UI/game_menu.tscn")
 #=============================================================================
 
 func _ready() -> void:
-	if multiplayer.get_unique_id() == player_id:
+	var _is_bot := BotManager.is_bot(player_id)
+
+	if not _is_bot and multiplayer.get_unique_id() == player_id:
 		ChatManager.register_local_player(self)
 		# Request the sprite states of all other players from the server.
 		stats_window.update_stats_window()
@@ -86,25 +89,23 @@ func _ready() -> void:
 		# Handle sprite change on initial spawn
 		await get_tree().process_frame
 		_handle_sprite_change_on_server()
-		
+
 	# Setup signals for both client and server (for data saving)
 	_setup_signals()
 
-	# Client-specific setup
-	if not OS.has_feature("dedicated_server"):
+	# Client-specific setup (skip for bots — they have no display)
+	if not _is_bot and not OS.has_feature("dedicated_server"):
 		_setup_client_visuals()
 
-	# Initialize components
-	if is_instance_valid(debug_component):
+	# Initialize components (skip debug panel for bots)
+	if not _is_bot and is_instance_valid(debug_component):
 		debug_component.set_health_component(health_component)
 		debug_component.set_player(self)
 
-	# Auto-save is now handled by SaveManager (server-side, for all players).
-
 	state_machine.init(self, animated_sprite)
-	
-	# Setup visibility filter if multiplayer
-	if multiplayer.has_multiplayer_peer():
+
+	# Setup visibility filter if multiplayer (bots don't need input sync visibility)
+	if not _is_bot and multiplayer.has_multiplayer_peer():
 		call_deferred("_setup_visibility_filter")
 
 
@@ -152,14 +153,54 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event is InputEventKey and event.is_echo():
 			return
 
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+			if _handle_right_click(event):
+				return
+
 		if is_instance_valid(game_menu):
 			# Always pass input to game_menu so it can open/close itself
 			game_menu._unhandled_input(event)
 			if game_menu.visible: # If game menu is now visible (or was already visible and handled an event)
 				return # Consume input so it doesn't affect player movement
-	
+
 	if multiplayer.is_server():
 		state_machine.process_input(event)
+
+
+func _handle_right_click(event: InputEventMouseButton) -> bool:
+	var click_world_pos := get_global_mouse_position()
+	var click_range_sq := 900.0  # 30px radius for click detection
+	var sprite_center_offset := Vector2(0, -16)
+
+	var best_target: MultiplayerPlayerV2 = null
+	var best_dist_sq := click_range_sq
+
+	for node in get_tree().get_nodes_in_group("Players"):
+		if node is not MultiplayerPlayerV2:
+			continue
+		if not is_instance_valid(node):
+			continue
+		if node == self:
+			continue
+		var char_center = node.global_position + sprite_center_offset
+		var dist_sq := click_world_pos.distance_squared_to(char_center)
+		if dist_sq < best_dist_sq:
+			best_dist_sq = dist_sq
+			best_target = node
+
+	if not best_target:
+		return false
+
+	if not is_instance_valid(_context_menu):
+		_context_menu = PlayerContextMenu.create()
+		var moveable_container = get_node_or_null("CanvasLayer/MoveableWindows")
+		if moveable_container:
+			moveable_container.add_child(_context_menu)
+		else:
+			get_node("CanvasLayer").add_child(_context_menu)
+
+	_context_menu.show_for_target(best_target.player_id, event.global_position)
+	return true
 
 
 func _exit_tree():
@@ -212,7 +253,7 @@ func drop_through_platform() -> void:
 
 
 func cleanup_before_removal():
-	print("MPController: Cleaning up MultiplayerPlayer: ", player_id)
+	#print("MPController: Cleaning up MultiplayerPlayer: ", player_id)
 	_is_being_cleaned_up = true
 
 	# Stop all processing
@@ -314,7 +355,7 @@ func _setup_visibility_filter():
 	
 	# Add visibility filter to control which peers can see this player
 	input_synchronizer.add_visibility_filter(_check_visibility_by_map)
-	print("Player %d: Added visibility filter to InputSynchronizer" % player_id)
+	#print("Player %d: Added visibility filter to InputSynchronizer" % player_id)
 
 
 func _check_visibility_by_map(peer_id: int) -> bool:
@@ -334,7 +375,11 @@ func _check_visibility_by_map(peer_id: int) -> bool:
 	# Server always sees everyone
 	if peer_id == 1:
 		return true
-	
+
+	# Bots have no client — don't sync to them
+	if BotManager.is_bot(peer_id):
+		return false
+
 	# Get other player's map - handle case where they might not exist
 	var their_map = MapManager.get_player_map(peer_id)
 	if their_map.is_empty():
@@ -345,6 +390,10 @@ func _check_visibility_by_map(peer_id: int) -> bool:
 
 
 func _update_input_from_synchronizer() -> void:
+	# Bots set their own input flags via BotBrain — skip synchronizer read.
+	if BotManager.is_bot(player_id):
+		return
+
 	# Do not process input if the player is dead.
 	if is_instance_valid(health_component) and health_component.is_dead:
 		direction = 0
@@ -403,7 +452,12 @@ func _handle_sprite_change_on_server() -> void:
 
 	var sprite_frames: SpriteFrames = ResourceManager.get_sprite_for_level(class_type, current_level)
 	if sprite_frames:
-		change_sprite_rpc.rpc(class_component.get_class_name(), current_level)
+		if BotManager.is_bot(player_id):
+			# A bot's node may be missing on a client mid map-transition, so
+			# route its sprite updates through MapManager (an autoload).
+			MapManager.broadcast_player_appearance(player_id)
+		else:
+			change_sprite_rpc.rpc(class_component.get_class_name(), current_level)
 
 func change_to_map(new_map_id: String, spawn_point_name: String = ""):
 	if not multiplayer.is_server():
@@ -476,7 +530,7 @@ func _load_data(data: Dictionary) -> void:
 	
 	_is_loading_data = true
 	
-	print("Loading data for ", data.get("username", "Unknown"))
+	#print("Loading data for ", data.get("username", "Unknown"))
 	
 	if is_instance_valid(stats_component):
 		stats_component.set_loading_mode(true)
@@ -581,11 +635,13 @@ func _data_changed(update_type: String = "all") -> void:
 func _on_peer_connected(peer_id: int) -> void:
 	if not multiplayer.is_server() or peer_id == player_id:
 		return
+	if BotManager.is_bot(peer_id):
+		return
 
 	# Wait a frame to ensure the new peer is ready.
 	await get_tree().process_frame
 
-	print("Sending sprite data for player %d to new peer %d" % [player_id, peer_id])
+	#print("Sending sprite data for player %d to new peer %d" % [player_id, peer_id])
 	if is_instance_valid(class_component) and is_instance_valid(level_component):
 		var _class_name: String = class_component.get_class_name()
 		var current_level: int = level_component.level
@@ -666,7 +722,7 @@ func request_sprite_change() -> void:
 func change_sprite_rpc(_class_name: String, level: int) -> void:
 	var class_type: int = ResourceManager.get_class_type_from_string(_class_name)
 	var sprite_frames: SpriteFrames = ResourceManager.get_sprite_for_level(class_type, level)
-	print("Sprite Frames:" + sprite_frames.resource_path)
+	#print("Sprite Frames:" + sprite_frames.resource_path)
 	if sprite_frames:
 		animated_sprite.sprite_frames = sprite_frames
 		animated_sprite.play("idle")
@@ -674,12 +730,24 @@ func change_sprite_rpc(_class_name: String, level: int) -> void:
 		push_warning("Could not find sprite for %s level %d" % [_class_name, level])
 
 
+# [CLIENT] Applies sprite frames for the given class/level. Used for bots,
+# whose appearance is delivered via MapManager rather than the node-addressed
+# change_sprite_rpc (a bot's node may be missing on a client mid-transition).
+func apply_appearance(class_type: int, level: int) -> void:
+	if is_instance_valid(class_component):
+		class_component.current_class = class_type
+	var frames: SpriteFrames = ResourceManager.get_sprite_for_level(class_type, level)
+	if frames and is_instance_valid(animated_sprite):
+		animated_sprite.sprite_frames = frames
+		animated_sprite.play("idle")
+
+
 # [CLIENT -> SERVER] Client requests to change their class.
 @rpc("any_peer", "call_local", "reliable")
 func change_class_request(new_class: int) -> void:
 	if not multiplayer.is_server():
 		return
-	print("Change Class Request")
+	#print("Change Class Request")
 	if is_instance_valid(class_component):
 		class_component.change_class_rpc.rpc(new_class)
 		_handle_sprite_change_on_server()
@@ -692,7 +760,7 @@ func request_all_sprite_states() -> void:
 		return
 	
 	var requester_id: int = multiplayer.get_remote_sender_id()
-	print("Player %d requesting all sprite states" % requester_id)
+	#print("Player %d requesting all sprite states" % requester_id)
 	
 	# Get the map this player is on
 	var requester_map = MapManager.get_player_map(requester_id)
@@ -709,7 +777,7 @@ func request_all_sprite_states() -> void:
 		
 		var other_player = PlayerManager.get_player_node(other_player_id)
 		if other_player and other_player is MultiplayerPlayerV2:
-			print("  Syncing sprite for player %d to requester %d" % [other_player_id, requester_id])
+			#print("  Syncing sprite for player %d to requester %d" % [other_player_id, requester_id])
 			other_player._on_peer_connected(requester_id)
 
 
@@ -762,7 +830,7 @@ func _on_leveled_up_effect(_new_level: int) -> void:
 	var map_node = MapManager.get_player_map_node(player_id)
 	if map_node:
 		var map_name: String = map_node.name.replace("Map_", "")
-		var players_on_map: Array = MapManager.get_players_on_map(map_name)
+		var players_on_map: Array = MapManager.get_real_players_on_map(map_name)
 		for peer_id in players_on_map:
 			_play_levelup_effect.rpc_id(peer_id)
 		# Also play on server if host
@@ -815,7 +883,7 @@ func request_map_change_rpc(new_map_id: String, spawn_point_name: String = "", c
 		return
 
 	var requester_id = multiplayer.get_remote_sender_id()
-	print("Player %d requesting map change to '%s' at spawn '%s'" % [requester_id, new_map_id, spawn_point_name])
+	#print("Player %d requesting map change to '%s' at spawn '%s'" % [requester_id, new_map_id, spawn_point_name])
 
 	# Flush save before map change — the player node is freed during the transition,
 	# so a debounced save would fire on an already-freed node and be silently skipped.

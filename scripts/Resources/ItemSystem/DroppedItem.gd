@@ -43,7 +43,7 @@ func _ready() -> void:
 	
 	velocity = Vector2(0, pop_force_y)
 	
-	print("DroppedItem spawned with velocity: ", velocity)
+	##print("DroppedItem spawned with velocity: ", velocity)
 	
 	# Setup collision to only interact with world (not players/enemies)
 	collision_layer = 0 # Don't exist on any layer
@@ -99,7 +99,7 @@ func _handle_popping(delta: float) -> void:
 		
 		# If we've been on ground for a bit and velocity is low, settle
 		if state_timer > min_settle_time and abs(velocity.x) < 20 and abs(velocity.y) < 20:
-			print("DroppedItem settling after ", state_timer, " seconds")
+			##print("DroppedItem settling after ", state_timer, " seconds")
 			current_state = ItemState.SETTLED
 			is_pickup_ready = true
 			state_timer = 0.0
@@ -107,7 +107,7 @@ func _handle_popping(delta: float) -> void:
 	
 	# After magnetize_delay, force transition to settled even if still moving
 	if state_timer >= magnetize_delay:
-		print("DroppedItem force settling after ", state_timer, " seconds")
+		##print("DroppedItem force settling after ", state_timer, " seconds")
 		current_state = ItemState.SETTLED
 		is_pickup_ready = true
 		state_timer = 0.0
@@ -125,7 +125,7 @@ func _handle_settled() -> void:
 
 	# Despawn after configured time
 	if state_timer >= despawn_time:
-		print("DroppedItem: Despawning %s after %.0f seconds" % [item_data.name if item_data else "unknown", despawn_time])
+		##print("DroppedItem: Despawning %s after %.0f seconds" % [item_data.name if item_data else "unknown", despawn_time])
 		queue_free()
 		return
 
@@ -134,27 +134,24 @@ func _handle_settled() -> void:
 		is_despawn_warning = true
 		_start_despawn_warning.rpc()
 
-	var nearby_player = _find_nearby_player()
-	if nearby_player:
-		# Check if the nearby player is trying to pick up
-		if _is_player_trying_to_pickup(nearby_player):
-			print("DroppedItem: Player %s picking up item" % nearby_player.username)
-			_pickup_item(nearby_player)
+	var picking_player = _find_player_trying_to_pickup()
+	if picking_player:
+		_pickup_item(picking_player)
 
 
-func _find_nearby_player() -> MultiplayerPlayerV2:
-	"""Find a nearby player who can pick up this item"""
+func _find_player_trying_to_pickup() -> MultiplayerPlayerV2:
+	"""Find a nearby player who can and is trying to pick up this item"""
 	var all_players = get_tree().get_nodes_in_group("Players")
-	
+
 	for player_node in all_players:
 		if not is_instance_valid(player_node):
 			continue
-		# Only consider players who are eligible to pick up
-		if _can_player_pickup(player_node):
-			var distance = global_position.distance_to(player_node.global_position)
-			if distance <= pickup_distance:
-				return player_node
-	
+		if not _can_player_pickup(player_node):
+			continue
+		var distance = global_position.distance_to(player_node.global_position)
+		if distance <= pickup_distance and _is_player_trying_to_pickup(player_node):
+			return player_node
+
 	return null
 
 
@@ -196,7 +193,7 @@ func _pickup_item(picking_player: MultiplayerPlayerV2 = null) -> void:
 	
 	# Add item to player's inventory
 	if player_to_give_item and player_to_give_item.player_inventory:
-		print("DroppedItem: Adding %dx %s to player %s inventory" % [stack_amount, item_data.name, player_to_give_item.username])
+		##print("DroppedItem: Adding %dx %s to player %s inventory" % [stack_amount, item_data.name, player_to_give_item.username])
 		if item_data.name == "Coin":
 			player_to_give_item.player_inventory.monies_amount += stack_amount
 		# For stackable items, add with the stack amount
@@ -211,7 +208,8 @@ func _pickup_item(picking_player: MultiplayerPlayerV2 = null) -> void:
 		QuestManager.record_item_collected(player_to_give_item.username, item_data.name, stack_amount)
 
 	# RPC to client to show log message
-		show_pickup_log_rpc.rpc_id(player_to_give_item.player_id, item_data.name, stack_amount)
+		if not BotManager.is_bot(player_to_give_item.player_id):
+			show_pickup_log_rpc.rpc_id(player_to_give_item.player_id, item_data.name, stack_amount)
 	
 	# Stop syncing immediately to prevent "Node not found" errors on client
 	var synchronizer = get_node_or_null("MultiplayerSynchronizer")
@@ -251,7 +249,7 @@ func setup(item: ItemData, amount: int, eligible_player_ids: Array[int]) -> void
 	if _eligible_player_ids.is_empty():
 		is_public_pickup = true
 	
-	print("DroppedItem setup: %s x%d for eligible players: %s" % [item_data.name if item_data else "NULL", amount, str(_eligible_player_ids)])
+	##print("DroppedItem setup: %s x%d for eligible players: %s" % [item_data.name if item_data else "NULL", amount, str(_eligible_player_ids)])
 	
 	# Set sprite to item's icon
 	_update_sprite()
@@ -275,7 +273,7 @@ func _update_sprite() -> void:
 func make_public() -> void:
 	"""Make this item available for anyone to pick up"""
 	is_public_pickup = true
-	print("DroppedItem: Item is now public - anyone can pick it up")
+	##print("DroppedItem: Item is now public - anyone can pick it up")
 
 
 func check_and_make_public_if_needed() -> void:
@@ -288,7 +286,7 @@ func check_and_make_public_if_needed() -> void:
 			break
 	
 	if not has_valid_targets:
-		print("DroppedItem: No valid targets remaining, making item public")
+		##print("DroppedItem: No valid targets remaining, making item public")
 		make_public()
 
 
@@ -332,7 +330,7 @@ func sync_state_to_peer(peer_id: int) -> void:
 	if not multiplayer.is_server() or not sprite:
 		return
 	
-	print("DroppedItem: Sync State to peer: %d" % peer_id)
+	#print("DroppedItem: Sync State to peer: %d" % peer_id)
 	if item_data:
 		_set_state_rpc.rpc_id(peer_id, item_data.item_id)
 	

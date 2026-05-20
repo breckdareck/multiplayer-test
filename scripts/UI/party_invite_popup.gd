@@ -28,6 +28,6 @@ func _on_accept_button_pressed():
 func _on_decline_button_pressed():
 	# Optional: Notify PartyManager that the invite was declined.
 	# PartyManager.rpc_id(1, "rpc_decline_invite", _party_id)
-	print("Declined invite from %d for party %d." % [_inviter_id, _party_id])
+	#print("Declined invite from %d for party %d." % [_inviter_id, _party_id])
 	hide()
 	queue_free()

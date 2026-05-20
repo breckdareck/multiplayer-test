@@ -64,10 +64,10 @@ func _create_pool() -> void:
 	
 	# Ensure the spawn function is set up on the MultiplayerSpawner
 	if _multiplayer_spawner.spawn_function == null:
-		print("EnemySpawner: Setting up spawn function on MultiplayerSpawner")
+		#print("EnemySpawner: Setting up spawn function on MultiplayerSpawner")
 		_multiplayer_spawner.spawn_function = _create_enemy_instance
 	
-	print("EnemySpawner: Creating pool of %d enemies using MultiplayerSpawner" % pool_size)
+	#print("EnemySpawner: Creating pool of %d enemies using MultiplayerSpawner" % pool_size)
 	
 	for i in range(pool_size):
 		var enemy: EnemyBase = enemy_scene.instantiate() as EnemyBase
@@ -95,7 +95,7 @@ func _create_pool() -> void:
 		# Deactivate the enemy until it's needed
 		enemy.pool_deactivate()
 	
-	print("EnemySpawner: Pool created with %d enemies" % _pool.size())
+	#print("EnemySpawner: Pool created with %d enemies" % _pool.size())
 	
 	# Update visibility for all players on this map
 	# This ensures the enemies are visible to the right players
@@ -195,9 +195,9 @@ func _update_all_player_visibility():
 		return
 	
 	var map_id = map_node.name.replace("Map_", "")
-	var players_on_map = MapManager.get_players_on_map(map_id)
-	
+	var players_on_map = MapManager.get_real_players_on_map(map_id)
+
 	for player_id in players_on_map:
 		MapManager.update_visibility_for_player(player_id)
 	
-	print("EnemySpawner: Updated visibility for %d players on map %s" % [players_on_map.size(), map_id])
+	#print("EnemySpawner: Updated visibility for %d players on map %s" % [players_on_map.size(), map_id])

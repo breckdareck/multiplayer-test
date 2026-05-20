@@ -55,7 +55,7 @@ func setup_PID_label(is_host: bool, pid: int):
 
 
 func get_username() -> String:
-	print("MainMenu: Returning username: ", username_input.text)
+	#print("MainMenu: Returning username: ", username_input.text)
 	return username_input.text
 
 func change_character(value: int):

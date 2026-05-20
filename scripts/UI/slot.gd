@@ -20,14 +20,27 @@ var item_container: Node = null
 
 @export var allowed_item_type: Constants.ItemType = Constants.ItemType.ANY
 
-@export var item: ItemData = null:
+# The data model this view is bound to. While unbound, the slot falls back to
+# its own _legacy_item storage — that fallback is removed once every slot is
+# bound (Stage 2). The data lives in the component, not in this UI node.
+var slot_data: SlotData = null
+var _legacy_item: ItemData = null
+
+var item: ItemData:
+	get:
+		return slot_data.item if slot_data != null else _legacy_item
 	set(value):
-		var old_item = item
-		item = value
+		var old_item: ItemData = item
+		if slot_data != null:
+			slot_data.item = value
+		else:
+			_legacy_item = value
 		update_display()
-		
+
 		if is_instance_valid(item_container) and item_container.has_method("_update_item_tracking"):
-			item_container._update_item_tracking(self, old_item, item)
+			# Report the SlotData (the model) so component tracking is keyed
+			# consistently whether mutated via this view or directly.
+			item_container._update_item_tracking(slot_data, old_item, value)
 
 # Drag state variables
 var is_dragging: bool = false
@@ -80,6 +93,15 @@ func _reset_slot_border() -> void:
 
 func set_inventory(inv: Node):
 	item_container = inv
+
+
+## Binds this view to a SlotData model owned by a component. After binding, the
+## SlotData is the single source of truth and this node only renders it.
+func bind_slot_data(data: SlotData) -> void:
+	slot_data = data
+	# Refresh now if the node is ready; otherwise _ready()'s update_display() covers it.
+	if is_node_ready():
+		update_display()
 
 
 func _drop_data(_at_position: Vector2, data: Variant) -> void:
@@ -402,9 +424,9 @@ func _remove_item_from_inventory():
 	if item_container:
 		if item_container is InventoryComponent:
 			# Call through the inventory system which will handle sync
-			item_container.clear_slot(self)
+			item_container.clear_slot(self, "dropped")
 		elif item_container.has_method("clear_slot"):
-			item_container.clear_slot(self)
+			item_container.clear_slot(self, "dropped")
 		else:
 			# Fallback
 			item = null

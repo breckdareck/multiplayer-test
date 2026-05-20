@@ -24,15 +24,15 @@ func _ready():
 	
 
 func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
-	print("DEBUG: GlobalDropHandler._can_drop_data received data: %s" % str(data))
+	#print("DEBUG: GlobalDropHandler._can_drop_data received data: %s" % str(data))
 	var can_drop = data is Slot
-	print("DEBUG: GlobalDropHandler.can_drop returned: %s" % str(can_drop))
+	#print("DEBUG: GlobalDropHandler.can_drop returned: %s" % str(can_drop))
 	# Only accept Slot data
 	return can_drop
 
 func _drop_data(at_position: Vector2, data: Variant) -> void:
 	var source_slot: Slot = data
-	print("We made it here!")
+	#print("We made it here!")
 	
 	if not source_slot or not source_slot.drag_item:
 		return
@@ -102,9 +102,9 @@ func server_request_item_drop(item_id: String, amount: int, world_position: Vect
 	# 2. Remove the item from the player's inventory.
 	# This will sync the change back to the client automatically.
 	if amount >= slot_node.item.current_stack_amount:
-		inventory_component.clear_slot(slot_node)
+		inventory_component.clear_slot(slot_node, "dropped")
 	else:
-		inventory_component.remove_item_from_stack(slot_node.item, amount)
+		inventory_component.remove_item_from_stack(slot_node.item, amount, "dropped")
 
 func _screen_to_world_position(screen_position: Vector2) -> Vector2:
 	# Convert screen coordinates to world coordinates
@@ -170,10 +170,10 @@ func create_dropped_item(item_data: ItemData, amount: int, world_position: Vecto
 	# 	var map_name = scene_to_add_to.name.replace("Map_", "")
 	# 	var players_on_map = MapManager.get_players_on_map(map_name)
 	# 	
-	# 	print("GlobalDropHandler: Spawning item %s on map %s for players: %s" % [item_data.item_id, map_name, players_on_map])
+	# 	#print("GlobalDropHandler: Spawning item %s on map %s for players: %s" % [item_data.item_id, map_name, players_on_map])
 	# 	for peer_id in players_on_map:
 	# 		if peer_id != 1: # Server already has it
-	# 			print("GlobalDropHandler: Sending spawn_item_client RPC to peer %d" % peer_id)
+	# 			#print("GlobalDropHandler: Sending spawn_item_client RPC to peer %d" % peer_id)
 	# 			spawn_item_client.rpc_id(peer_id, item_data.item_id, amount, world_position, eligible_player_ids, item_unique_name, scene_to_add_to.name)
 	# 			
 	# 			# Update synchronizer visibility for this peer
@@ -183,30 +183,30 @@ func create_dropped_item(item_data: ItemData, amount: int, world_position: Vecto
 	# Manual RPC for clients on the same map
 	if scene_to_add_to.is_in_group("map_base"):
 		var map_name = scene_to_add_to.name.replace("Map_", "")
-		var players_on_map = MapManager.get_players_on_map(map_name)
-		
-		print("GlobalDropHandler: Spawning item %s on map %s for players: %s" % [item_data.item_id, map_name, players_on_map])
+		var players_on_map = MapManager.get_real_players_on_map(map_name)
+
+		#print("GlobalDropHandler: Spawning item %s on map %s for players: %s" % [item_data.item_id, map_name, players_on_map])
 		for peer_id in players_on_map:
 			if peer_id != 1: # Server already has it
-				print("GlobalDropHandler: Sending spawn_item_client RPC to peer %d" % peer_id)
+				#print("GlobalDropHandler: Sending spawn_item_client RPC to peer %d" % peer_id)
 				spawn_item_client.rpc_id(peer_id, item_data.item_id, amount, world_position, eligible_player_ids, item_unique_name, scene_to_add_to.name)
-				
+
 				# Update synchronizer visibility for this peer
 				if synchronizer:
 					synchronizer.set_visibility_for(peer_id, dropped_item.should_be_visible_to(peer_id))
 	else:
 		# Fallback if not added to a map (e.g. global drop?)
-		print("GlobalDropHandler: Fallback RPC (scene not in map_base group)")
+		#print("GlobalDropHandler: Fallback RPC (scene not in map_base group)")
 		rpc("spawn_item_client", item_data.item_id, amount, world_position, eligible_player_ids, item_unique_name, "")
 
-	print("GlobalDropHandler: Created dropped item %s x%d at %s for eligible players: %s" % [item_data.name, amount, world_position, str(eligible_player_ids)])
+	#print("GlobalDropHandler: Created dropped item %s x%d at %s for eligible players: %s" % [item_data.name, amount, world_position, str(eligible_player_ids)])
 
 
 @rpc("authority", "call_local", "reliable")
 func spawn_item_client(item_id: String, amount: int, world_position: Vector2, eligible_player_ids: Array = [], item_name: String = "", _map_name: String = ""):
-	print("GlobalDropHandler.spawn_item_client called: item=%s, name=%s, is_server=%s" % [item_id, item_name, multiplayer.is_server()])
+	#print("GlobalDropHandler.spawn_item_client called: item=%s, name=%s, is_server=%s" % [item_id, item_name, multiplayer.is_server()])
 	if multiplayer.is_server():
-		print("GlobalDropHandler.spawn_item_client: Exiting on server")
+		#print("GlobalDropHandler.spawn_item_client: Exiting on server")
 		return # Server already spawned it
 	
 	if not dropped_item_scene:
@@ -257,7 +257,7 @@ func sync_items_to_player(player_id: int) -> void:
 	var drops_node = map_instance.get_node_or_null("ItemDrops")
 	if not drops_node: return
 	
-	print("GlobalDropHandler: Syncing items on map %s to player %d" % [map_instance.name, player_id])
+	#print("GlobalDropHandler: Syncing items on map %s to player %d" % [map_instance.name, player_id])
 	
 	for child in drops_node.get_children():
 		if child is DroppedItem and is_instance_valid(child):

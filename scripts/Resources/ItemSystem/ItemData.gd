@@ -99,6 +99,23 @@ func duplicate_with_path(subresources: bool = false) -> ItemData:
 	return duplicated
 
 
+## Resolves an item's icon from serialized data. A stored icon_path can be a
+## placeholder sub-resource path (e.g. "Foo.tres::PlaceholderTexture2D_x"),
+## produced for unimported textures — load() errors on those. When the path
+## isn't a real, standalone file, fall back to the canonical item resource's
+## icon (looked up by name) instead of erroring.
+static func resolve_icon(icon_path: String, item_name: String) -> Texture2D:
+	if not icon_path.is_empty() and not icon_path.contains("::") and ResourceLoader.exists(icon_path):
+		var tex = load(icon_path)
+		if tex is Texture2D:
+			return tex
+	if not item_name.is_empty():
+		var canonical: ItemData = ResourceManager.get_item_by_name(item_name)
+		if canonical:
+			return canonical.icon
+	return null
+
+
 func to_dictionary() -> Dictionary:
 	var res_path = get_resource_path()
 	if res_path.is_empty() and not name.is_empty():
@@ -106,13 +123,14 @@ func to_dictionary() -> Dictionary:
 		if item_from_manager:
 			res_path = item_from_manager.get_resource_path()
 
+	# Skip placeholder sub-resource paths ("::") — they can't be loaded back.
 	var icon_path := ""
-	if icon:
+	if icon and not icon.resource_path.contains("::"):
 		icon_path = icon.resource_path
-	
-	if icon_path.is_empty() and not res_path.is_empty():
+
+	if icon_path.is_empty() and not res_path.is_empty() and not res_path.contains("::"):
 		var original_res = load(res_path)
-		if original_res and original_res.icon:
+		if original_res and original_res.icon and not original_res.icon.resource_path.contains("::"):
 			icon_path = original_res.icon.resource_path
 
 	var dict = {
@@ -140,13 +158,14 @@ func get_save_data() -> Dictionary:
 		if item_from_manager:
 			res_path = item_from_manager.get_resource_path()
 
+	# Skip placeholder sub-resource paths ("::") — they can't be loaded back.
 	var icon_path := ""
-	if icon:
+	if icon and not icon.resource_path.contains("::"):
 		icon_path = icon.resource_path
-	
-	if icon_path.is_empty() and not res_path.is_empty():
+
+	if icon_path.is_empty() and not res_path.is_empty() and not res_path.contains("::"):
 		var original_res = load(res_path)
-		if original_res and original_res.icon:
+		if original_res and original_res.icon and not original_res.icon.resource_path.contains("::"):
 			icon_path = original_res.icon.resource_path
 
 	return {
@@ -185,10 +204,7 @@ static func from_dictionary(dict: Dictionary) -> ItemData:
 		item_instance.item_id = dict.get("item_id", ItemData.new().generate_uuid())
 		item_instance.name = dict.get("name", "")
 		item_instance.rarity = dict.get("rarity", Constants.ItemRarity.COMMON)
-		var icon_path = dict.get("icon_path", "")
-		if not icon_path.is_empty():
-			item_instance.icon = load(icon_path)
-		
+		item_instance.icon = resolve_icon(dict.get("icon_path", ""), item_instance.name)
 		item_instance.description = dict.get("description", "")
 		item_instance.item_type = item_type_enum
 		item_instance.item_level = dict.get("item_level", 0)

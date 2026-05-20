@@ -36,6 +36,11 @@ var display_min_damage: int:
 var original_attack_shape: Shape2D
 var original_attack_transform: Vector2
 
+# Cached owner map node — avoids repeated MapManager dictionary lookups on
+# every hitbox collision. Refreshed lazily when the owner changes maps.
+var _cached_map_node: Node = null
+var _cached_map_id: String = ""
+
 var _stats_component: StatsComponent
 var _class_component: ClassComponent
 var _equipment_component: EquipmentComponent
@@ -213,18 +218,37 @@ func end_ability_attack() -> void:
 	_unique_targets_for_attack.clear()
 
 
+func _get_owner_map_node() -> Node:
+	"""Returns the owner's current map node, re-resolving it through MapManager
+	only when the owner has actually changed maps."""
+	var map_id := MapManager.get_player_map(owner_node.player_id)
+	if map_id != _cached_map_id or not is_instance_valid(_cached_map_node):
+		_cached_map_id = map_id
+		var map_data: Dictionary = MapManager.active_maps.get(map_id, {})
+		_cached_map_node = map_data.get("scene_instance")
+	return _cached_map_node
+
+
+func _is_on_same_map(target: Node) -> bool:
+	var map_node := _get_owner_map_node()
+	# No resolvable map (e.g. empty map_id) — fall back to allowing the hit.
+	if not is_instance_valid(map_node):
+		return true
+	return map_node.is_ancestor_of(target)
+
+
 func _on_hitbox_area_entered(area: Area2D) -> void:
 	if not multiplayer.is_server():
 		return
-	print("Hit: %s" % area.owner.name)
 	if not "health_component" in (area.owner as EnemyBase):
 		return
-		
+	if not _is_on_same_map(area.owner):
+		return
+
 	var health_comp = area.owner.get("health_component")
 	if not health_comp or health_comp.is_dead:
 		return
-	
-	# NEW: Just collect the body, don't process yet
+
 	if not _pending_bodies.has(area):
 		_pending_bodies.append(area)
 
@@ -235,7 +259,7 @@ func _process_collected_bodies() -> void:
 	if hitbox_area.monitoring:
 		for area in hitbox_area.get_overlapping_areas():
 			if not _pending_bodies.has(area) and is_instance_valid(area) and is_instance_valid(area.owner):
-				if "health_component" in area.owner:
+				if "health_component" in area.owner and _is_on_same_map(area.owner):
 					var hc = area.owner.get("health_component")
 					if hc and not hc.is_dead:
 						_pending_bodies.append(area)
@@ -311,7 +335,7 @@ func process_projectile_hit(target_enemy: Node, ability: AbilityData, level_stat
 	if not multiplayer.is_server():
 		return
 
-	print("CombatComponent: Processing projectile hit on %s" % target_enemy.name)
+	#print("CombatComponent: Processing projectile hit on %s" % target_enemy.name)
 	var attack_name := "basic_arrow" if ability == null else ""
 	_execute_hit(target_enemy, ability, level_stats, attack_name)
 
@@ -342,7 +366,7 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 		if roll > hit_chance:
 			damage_values.append(-1) # -1 signifies a MISS
 			crit_values.append(false)
-			print("Attack MISSED! (Roll: %.2f > Chance: %.2f)" % [roll, hit_chance])
+			#print("Attack MISSED! (Roll: %.2f > Chance: %.2f)" % [roll, hit_chance])
 			continue # Skip to the next hit
 
 		# --- Damage Calculation ---
@@ -438,13 +462,13 @@ func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelDa
 	if _ability_component:
 		var passive_modifier = _ability_component.get_ability_damage_modifier(_ability.ability_id)
 		damage = roundi(damage * passive_modifier)
-		print("Applied passive damage modifier: %.2fx" % passive_modifier)
+		#print("Applied passive damage modifier: %.2fx" % passive_modifier)
 
 	return damage
 
 
 func calculate_attack_damage() -> int:
-	if not (_equipment_component and _equipment_component.weapon_slot and _equipment_component.weapon_slot.item):
+	if not (_equipment_component and _equipment_component.weapon_slot_data and _equipment_component.weapon_slot_data.item):
 		return 0
 
 	var max_range = _calculate_max_range()
@@ -520,6 +544,6 @@ func _apply_enemy_debuff(enemy: EnemyBase, debuff: BuffData, duration: float) ->
 			enemy.remove_meta(debuff_key)
 			if enemy.animated_sprite and is_instance_valid(enemy.animated_sprite):
 				enemy.animated_sprite.modulate = Color.WHITE
-			print("Debuff '%s' expired on %s" % [debuff.buff_name, enemy.name])
+			#print("Debuff '%s' expired on %s" % [debuff.buff_name, enemy.name])
 	)
-	print("Applied debuff '%s' to %s for %.1fs" % [debuff.buff_name, enemy.name, duration])
+	#print("Applied debuff '%s' to %s for %.1fs" % [debuff.buff_name, enemy.name, duration])

@@ -19,8 +19,7 @@ func on_apply(owner_node: Node, _active_buff) -> void:
 	if owner_node.has_method("sync_shadow_partner"):
 		owner_node.sync_shadow_partner.rpc(true)
 
-	print("Shadow Partner spawned for %s (Level %d, %.0f%% damage)" % [
-		owner_node.name, source_ability_level, damage_percent])
+	#print("Shadow Partner spawned for %s (%.0f%% damage)" % [owner_node.name, damage_percent])
 
 
 func on_remove(owner_node: Node, _active_buff) -> void:
@@ -33,7 +32,6 @@ func on_remove(owner_node: Node, _active_buff) -> void:
 	if owner_node.has_method("sync_shadow_partner"):
 		owner_node.sync_shadow_partner.rpc(false)
 
-	print("Shadow Partner expired on %s" % owner_node.name)
 
 
 func on_tick(owner_node: Node, _active_buff, _delta: float) -> void:
@@ -44,6 +42,10 @@ func on_tick(owner_node: Node, _active_buff, _delta: float) -> void:
 		_connect_combat_signal()
 		if owner_node.has_method("sync_shadow_partner"):
 			owner_node.sync_shadow_partner.rpc(true)
+
+	if not _combat_component:
+		_combat_component = owner_node.get_node_or_null("Components/Combat")
+		_connect_combat_signal()
 
 	var dir: int = owner_node.facing_direction
 	_shadow.position = Vector2(-10 * dir, 0)
@@ -77,7 +79,9 @@ func _create_shadow_visual(owner_node: Node) -> void:
 
 
 func _connect_combat_signal() -> void:
-	if _combat_component and not _combat_component.dealt_damage.is_connected(_on_owner_dealt_damage):
+	if not _combat_component:
+		return
+	if not _combat_component.dealt_damage.is_connected(_on_owner_dealt_damage):
 		_combat_component.dealt_damage.connect(_on_owner_dealt_damage)
 
 

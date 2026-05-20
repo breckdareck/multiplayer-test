@@ -22,20 +22,20 @@ func open_shop(player_inv: PlayerInventory, merchant_inv: MerchantInventory, mer
 	# This needs to be an RPC to the server's MerchantInventory instance
 	merchant_inventory.shop_window = self
 	
-	print("=== SHOP OPEN DEBUG ===")
-	print("Player ID: %d" % multiplayer.get_unique_id())
-	print("Player inventory valid: %s" % (player_inventory != null))
-	print("Inventory component valid: %s" % (player_inv_component != null))
+	#print("=== SHOP OPEN DEBUG ===")
+	#print("Player ID: %d" % multiplayer.get_unique_id())
+	#print("Player inventory valid: %s" % (player_inventory != null))
+	#print("Inventory component valid: %s" % (player_inv_component != null))
 	if player_inv_component:
 		var slots = player_inv_component.get_slots()
-		print("Inventory slots count: %d" % slots.size())
+		#print("Inventory slots count: %d" % slots.size())
 		var item_count = 0
 		for slot in slots:
 			if slot and slot.item:
 				item_count += 1
-		print("Items in inventory: %d" % item_count)
-	print("Registered shop window with merchant: %s" % (merchant_inventory.shop_window != null))
-	print("=== END DEBUG ===")
+		#print("Items in inventory: %d" % item_count)
+	#print("Registered shop window with merchant: %s" % (merchant_inventory.shop_window != null))
+	#print("=== END DEBUG ===")
 	
 	# Connect to player inventory changes
 	if not player_inv_component.inventory_changed.is_connected(update_displays):
@@ -61,16 +61,16 @@ func close_shop() -> void:
 # Separate RPC for updating just the sell display
 @rpc("authority", "call_local", "reliable")
 func update_sell_display() -> void:
-	print("=== UPDATE SELL DISPLAY DEBUG ===")
-	print("Player %d updating sell display" % multiplayer.get_unique_id())
+	#print("=== UPDATE SELL DISPLAY DEBUG ===")
+	#print("Player %d updating sell display" % multiplayer.get_unique_id())
 	update_displays()
-	print("=== END DEBUG ===")
+	#print("=== END DEBUG ===")
 
 # This RPC is called by the server to update the client's shop UI
 @rpc("authority", "call_local", "reliable")
 func receive_shop_data(data: Array):
-	print("=== RECEIVE SHOP DATA DEBUG ===")
-	print("Player %d received shop data with %d items" % [multiplayer.get_unique_id(), data.size()])
+	#print("=== RECEIVE SHOP DATA DEBUG ===")
+	#print("Player %d received shop data with %d items" % [multiplayer.get_unique_id(), data.size()])
 	
 	# Clear buy list
 	for child in buy_list.get_children():
@@ -80,12 +80,12 @@ func receive_shop_data(data: Array):
 	for item_data in data:
 		add_shop_item(buy_list, item_data, false)
 	
-	print("Added %d items to buy list" % buy_list.get_child_count())
-	print("=== END DEBUG ===")
+	#print("Added %d items to buy list" % buy_list.get_child_count())
+	#print("=== END DEBUG ===")
 
 func update_displays() -> void:
-	print("=== UPDATE DISPLAYS DEBUG ===")
-	print("Player ID: %d" % multiplayer.get_unique_id())
+	#print("=== UPDATE DISPLAYS DEBUG ===")
+	#print("Player ID: %d" % multiplayer.get_unique_id())
 	
 	# Clear sell list
 	for child in sell_list.get_children():
@@ -94,21 +94,21 @@ func update_displays() -> void:
 	# Populate sell list with player's items
 	if player_inv_component:
 		var slots = player_inv_component.get_slots()
-		print("Updating sell list with %d slots" % slots.size())
+		#print("Updating sell list with %d slots" % slots.size())
 		var items_added = 0
 		for i in slots.size():
 			var slot = slots[i]
 			if slot.item:
 				add_shop_item(sell_list, {"item": slot.item, "slot_index": i}, true)
 				items_added += 1
-		print("Added %d items to sell list" % items_added)
+		#print("Added %d items to sell list" % items_added)
 	else:
 		print("WARNING: player_inv_component is null!")
 	
 	# Update money display
 	if player_inventory:
 		money_label.text = player_inv_component.format_number_with_commas(player_inventory.monies_amount) + " Monies"
-	print("=== END UPDATE DISPLAYS DEBUG ===")
+	#print("=== END UPDATE DISPLAYS DEBUG ===")
 
 @rpc("authority", "call_local", "reliable")
 func update_money_display(new_monies_amount: int) -> void:
@@ -133,7 +133,7 @@ func add_shop_item(container: VBoxContainer, data: Dictionary, is_sell: bool) ->
 		count = data["count"]
 		is_buyback = data.get("is_buyback", false)
 		if is_buyback:
-			print("DEBUG: add_shop_item - item_dict for buyback: %s" % data["item_dict"])
+			#print("DEBUG: add_shop_item - item_dict for buyback: %s" % data["item_dict"])
 			item = ItemData.from_dictionary(data["item_dict"])
 		else:
 			item = ResourceManager.get_item_data(data["item_id"])

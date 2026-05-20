@@ -165,11 +165,11 @@ func _apply_buff_local(buff_id: String, source: Node = null, custom_duration: fl
 	
 	# Emit signal and sync to clients
 	buff_applied.emit(buff_id, duration)
-	print("Applied buff: %s (duration: %.1fs)" % [buff_data.buff_name, duration])
+	#print("Applied buff: %s (duration: %.1fs)" % [buff_data.buff_name, duration])
 
-	if multiplayer.is_server():
+	if multiplayer.is_server() and not is_bot_owned():
 		sync_buff_applied.rpc(buff_id, duration, duration)
-	
+
 	return true
 
 
@@ -189,7 +189,7 @@ func _handle_existing_buff(buff_id: String, buff_data: BuffData, source: Node, d
 
 			buff_refreshed.emit(buff_id, new_duration)
 
-			if multiplayer.is_server():
+			if multiplayer.is_server() and not is_bot_owned():
 				sync_buff_refreshed.rpc(buff_id, new_duration)
 
 		BuffData.StackBehavior.STACK:
@@ -203,7 +203,7 @@ func _handle_existing_buff(buff_id: String, buff_data: BuffData, source: Node, d
 
 				buff_refreshed.emit(buff_id, new_duration)
 
-				if multiplayer.is_server():
+				if multiplayer.is_server() and not is_bot_owned():
 					sync_buff_stacks.rpc(buff_id, active_buff.stacks, new_duration)
 			else:
 				# At max stacks, just refresh
@@ -239,11 +239,11 @@ func _remove_buff_local(buff_id: String) -> bool:
 	
 	# Emit signal and sync to clients
 	buff_removed.emit(buff_id)
-	print("Removed buff: %s" % buff_id)
+	#print("Removed buff: %s" % buff_id)
 	
-	if multiplayer.is_server():
+	if multiplayer.is_server() and not is_bot_owned():
 		sync_buff_removed.rpc(buff_id)
-	
+
 	return true
 
 
@@ -282,6 +282,13 @@ func _on_damaged(amount: int, source: Node) -> void:
 #endregion
 
 #region #################### Multiplayer & RPCs ####################
+## True when this component belongs to a bot. Bots are server-authoritative and
+## have no client-side buff UI, so buff-sync RPCs — addressed to the bot's Buff
+## node, which a client may lack mid map-transition — must be skipped for them.
+func is_bot_owned() -> bool:
+	return is_instance_valid(owner) and "player_id" in owner and BotManager.is_bot(owner.player_id)
+
+
 @rpc("any_peer", "call_local", "reliable")
 func apply_buff_request(buff_id: String, source_path: NodePath, custom_duration: float = -1.0) -> void:
 	if not multiplayer.is_server():
@@ -378,7 +385,7 @@ func sync_all_buffs_to_client(peer_id: int) -> void:
 	if not multiplayer.is_server():
 		return
 
-	print("Syncing all buff data to peer %d" % peer_id)
+	#print("Syncing all buff data to peer %d" % peer_id)
 	var buff_batch: Array = []
 	for buff_id in _active_buffs:
 		var active_buff: ActiveBuff = _active_buffs[buff_id]
@@ -442,10 +449,8 @@ func save_buffs() -> Dictionary:
 			"remaining_duration": active_buff.remaining_duration,
 			"total_duration": active_buff.total_duration
 		})
-		print("BuffComponent: save_buffs — '%s' remaining=%.2f total=%.2f stacks=%d" % [buff_id, active_buff.remaining_duration, active_buff.total_duration, active_buff.stacks])
+		#print("BuffComponent: save_buffs — '%s' remaining=%.2f total=%.2f stacks=%d" % [buff_id, active_buff.remaining_duration, active_buff.total_duration, active_buff.stacks])
 
-	if buff_data.is_empty():
-		print("BuffComponent: save_buffs — no active buffs to save")
 
 	return {
 		"active_buffs": buff_data
@@ -454,7 +459,7 @@ func save_buffs() -> Dictionary:
 
 func load_buffs(data: Dictionary) -> void:
 	if data.is_empty():
-		print("BuffComponent: load_buffs — received empty data, skipping")
+		#print("BuffComponent: load_buffs — received empty data, skipping")
 		return
 
 	_loading_mode = true
@@ -469,7 +474,7 @@ func load_buffs(data: Dictionary) -> void:
 
 	# Load saved buffs
 	var buff_data: Array = data.get("active_buffs", [])
-	print("BuffComponent: load_buffs — loading %d buff(s)" % buff_data.size())
+	#print("BuffComponent: load_buffs — loading %d buff(s)" % buff_data.size())
 	for buff_entry in buff_data:
 		var buff_id: String = buff_entry.get("buff_id", "")
 		var stacks: int = buff_entry.get("stacks", 1)
@@ -480,7 +485,7 @@ func load_buffs(data: Dictionary) -> void:
 		if buff_resource:
 			# Use saved total_duration if available, otherwise fall back to resource default
 			var total_dur: float = saved_total if saved_total > 0.0 else buff_resource.duration
-			print("BuffComponent: load_buffs — '%s' remaining=%.2f total=%.2f stacks=%d" % [buff_id, duration, total_dur, stacks])
+			#print("BuffComponent: load_buffs — '%s' remaining=%.2f total=%.2f stacks=%d" % [buff_id, duration, total_dur, stacks])
 
 			var active_buff := ActiveBuff.new(buff_resource, null)
 			active_buff.stacks = stacks

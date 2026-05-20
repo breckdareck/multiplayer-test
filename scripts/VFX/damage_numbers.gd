@@ -28,7 +28,7 @@ func display_number(value: int, position: Vector2, is_critical: bool = false, is
 	# Generate deterministic name for this damage number
 	var dmg_number_name = "DmgNum_%d_%d" % [Time.get_ticks_msec(), randi()]
 	
-	print("DamageNumbers.display_number called: value=%d, is_server=%s" % [value, multiplayer.is_server()])
+	##print("DamageNumbers.display_number called: value=%d, is_server=%s" % [value, multiplayer.is_server()])
 	
 	# Server-side: Broadcast to relevant clients manually
 	if multiplayer.is_server():
@@ -38,29 +38,20 @@ func display_number(value: int, position: Vector2, is_critical: bool = false, is
 		var local_number = _create_damage_number_node(value, position, is_critical, is_player, z_index, dmg_number_name)
 		if is_instance_valid(local_number):
 			_setup_drift_animation.call_deferred(local_number)
-			
-			# Get the synchronizer to set visibility
-			var sync = local_number.get_node_or_null("MultiplayerSynchronizer")
-			
+
 			# Find which map this spawner belongs to
 			var map_node = get_parent()
-			print("DamageNumbers: map_node=%s, in_group=%s" % [map_node, map_node.is_in_group("map_base") if map_node else false])
 			if map_node and map_node.is_in_group("map_base"):
 				var map_name = map_node.name.replace("Map_", "")
-				var players_on_map = MapManager.get_players_on_map(map_name)
-				
-				print("DamageNumbers: Sending to players on map %s: %s" % [map_name, players_on_map])
+				var players_on_map = MapManager.get_real_players_on_map(map_name)
+
 				for peer_id in players_on_map:
 					# Send RPC to spawn on client
 					if peer_id != 1: # Skip server, already spawned locally
 						spawn_damage_number_rpc.rpc_id(peer_id, args)
-					
-					# Set visibility for this peer
-					if sync:
-						sync.set_visibility_for(peer_id, true)
 	else:
 		# Client-side local spawn (if called locally, though usually called via RPC)
-		print("DamageNumbers: Called on client, doing nothing (expecting RPC)")
+		#print("DamageNumbers: Called on client, doing nothing (expecting RPC)")
 		pass
 
 # For combo hits from the player
@@ -78,8 +69,8 @@ func display_number_combo(values: Array, are_crits: Array, position: Vector2, is
 		return
 	
 	var map_name = map_node.name.replace("Map_", "")
-	var players_on_map = MapManager.get_players_on_map(map_name)
-	
+	var players_on_map = MapManager.get_real_players_on_map(map_name)
+
 	# Spawn each hit number with vertical offset
 	for i in range(values.size()):
 		var value = values[i]
@@ -106,18 +97,12 @@ func _spawn_combo_hit_with_rpc(value: int, spawn_pos: Vector2, is_crit: bool, is
 	var local_number = _create_damage_number_node(value, spawn_pos, is_crit, is_player, z_index, dmg_number_name)
 	if is_instance_valid(local_number):
 		_setup_combo_animation.call_deferred(local_number, 0) # No additional delay since timer already delayed
-		
-		# Get synchronizer and set visibility
-		var sync = local_number.get_node_or_null("MultiplayerSynchronizer")
-		
-		# Send RPC to clients and set visibility
+
+		# Send RPC to clients
 		var args = [value, spawn_pos, is_crit, is_player, z_index, dmg_number_name]
 		for peer_id in players_on_map:
 			if peer_id != 1: # Skip server
 				spawn_damage_number_combo_rpc.rpc_id(peer_id, args, 0)
-			
-			if sync:
-				sync.set_visibility_for(peer_id, true)
 
 @rpc("authority", "call_local", "reliable")
 func spawn_damage_number_combo_rpc(args: Array, hit_index: int):
@@ -171,7 +156,7 @@ func spawn_damage_number_rpc(args: Array):
 
 func _setup_drift_animation(number: Node):
 	if not is_instance_valid(number):
-		print("Node is invalid.")
+		#print("Node is invalid.")
 		return
 
 	var intended_global_position = number.global_position
@@ -209,18 +194,11 @@ func _create_damage_number_node(value: int, position: Vector2, is_critical: bool
 	if dmg_number_name != "":
 		number_outline.name = dmg_number_name
 	
-	# Add MultiplayerSynchronizer for animation sync
-	var sync = MultiplayerSynchronizer.new()
-	var config = SceneReplicationConfig.new()
-
-	sync.replication_config = config
-	sync.public_visibility = false
-	config.add_property(".:position")
-	config.add_property(".:scale")
-	config.add_property(".:modulate")
-	config.add_property(".:pivot_offset")
-	
-	number_outline.add_child(sync )
+	# Damage numbers are purely cosmetic and animated by a local tween on every
+	# peer (see _setup_drift_animation / _setup_combo_animation), so they need
+	# no network replication. A MultiplayerSynchronizer here only produced
+	# "node not found" errors when peers freed the short-lived node at slightly
+	# different times.
 	number_outline.add_child(number)
 	number.add_child(gradient_texture)
 	
@@ -308,22 +286,9 @@ func spawn_damage_number(args: Array) -> Label:
 	var number_outline = Label.new()
 	var number = Label.new()
 	var gradient_texture = TextureRect.new()
-	var sync = MultiplayerSynchronizer.new()
 	number_outline.add_child(number)
-	number_outline.add_child(sync )
 	number.add_child(gradient_texture)
-	
-	var config = sync.replication_config
-	if config == null:
-		config = SceneReplicationConfig.new()
-		sync.replication_config = config
-	
-	sync.replication_config.add_property(".:position")
-	sync.replication_config.add_property(".:scale")
-	sync.replication_config.add_property(".:pivot_offset")
-	sync.replication_config.add_property(".:modulate")
-	
-	
+
 	var font = DAMAGE_NUMBERS_1
 	var font_size = 290
 	

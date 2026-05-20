@@ -71,7 +71,7 @@ func _on_create_party_button_pressed():
 func _on_invite_player_button_pressed():
 	var invitee_name = invite_line_edit.text
 	if invitee_name.is_empty():
-		print("Player name is empty.")
+		#print("Player name is empty.")
 		return
 
 	# Send the name to the server for resolution
@@ -86,12 +86,12 @@ func _on_kick_button_pressed():
 		selected = offline_tree.get_selected()
 	
 	if not selected:
-		print("No player selected to kick.")
+		#print("No player selected to kick.")
 		return
 	
 	var player_id_to_kick = selected.get_metadata(0)
 	if player_id_to_kick == multiplayer.get_unique_id():
-		print("You can't kick yourself.")
+		#print("You can't kick yourself.")
 		return
 
 	PartyManager.rpc("rpc_kick_player", player_id_to_kick)
@@ -99,7 +99,7 @@ func _on_kick_button_pressed():
 func _on_party_leader_button_pressed():
 	var selected = online_tree.get_selected()
 	if not selected:
-		print("No player selected to make leader.")
+		#print("No player selected to make leader.")
 		return
 	
 	var new_leader_id = selected.get_metadata(0)
@@ -131,18 +131,26 @@ func _on_show_hp_button_pressed():
 
 
 # --- PartyManager Signal Handlers ---
+func _is_my_party(party_id: int) -> bool:
+	var my_id := multiplayer.get_unique_id()
+	return PartyManager.get_player_party_id(my_id) == party_id
+
 func _on_party_created(_party_id: int):
+	if not _is_my_party(_party_id):
+		return
 	_update_party_display()
-	# NEW: Automatically show HP frames
 	if not _hp_frames_shown:
 		_on_show_hp_button_pressed()
 
 func _on_party_joined(_player_id: int, _party_id: int):
+	if not _is_my_party(_party_id):
+		return
 	_update_party_display()
 
 func _on_party_left(_player_id: int, _party_id: int):
+	if _player_id != multiplayer.get_unique_id() and not _is_my_party(_party_id):
+		return
 	_update_party_display()
-	# Clean up HP frame if the player leaves the party
 	if _hp_frames_shown and is_instance_valid(_single_target_frame):
 		_single_target_frame.queue_free()
 		_single_target_frame = null
@@ -150,12 +158,18 @@ func _on_party_left(_player_id: int, _party_id: int):
 		show_hp_button.text = "Show HP"
 
 func _on_member_added(_party_id: int, _player_id: int):
+	if not _is_my_party(_party_id):
+		return
 	_update_party_display()
 
 func _on_member_removed(_party_id: int, _player_id: int):
+	if not _is_my_party(_party_id):
+		return
 	_update_party_display()
 
 func _on_leader_changed(_party_id: int, _new_leader_id: int):
+	if not _is_my_party(_party_id):
+		return
 	_update_party_display()
 
 func _notification(what):

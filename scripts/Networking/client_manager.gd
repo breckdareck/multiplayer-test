@@ -10,7 +10,7 @@ var current_server_port: int = 0
 var _connection_attempt_time: float = 0.0
 
 func connect_to_server(ip: String, port: int):
-	print("Connecting to %s:%d..." % [ip, port])
+	#print("Connecting to %s:%d..." % [ip, port])
 	NetworkUtils.log_connection_attempt(ip, port)
 	
 	_client_peer = ENetMultiplayerPeer.new()
@@ -20,7 +20,7 @@ func connect_to_server(ip: String, port: int):
 	
 	var error = _client_peer.create_client(ip, port)
 	if error != OK:
-		print("ERROR: Could not create client - Error code: %d" % error)
+		#print("ERROR: Could not create client - Error code: %d" % error)
 		connection_failed.emit()
 		return
 	
@@ -28,7 +28,7 @@ func connect_to_server(ip: String, port: int):
 
 func _disconnect():
 	if _client_peer:
-		print("Disconnecting from %s:%d" % [current_server_ip, current_server_port])
+		#print("Disconnecting from %s:%d" % [current_server_ip, current_server_port])
 		NetworkUtils.log_network_event("CLIENT_DISCONNECT", "From %s:%d" % [current_server_ip, current_server_port])
 		_client_peer.close()
 		_client_peer = null
@@ -66,12 +66,12 @@ func get_connection_status() -> String:
 
 # Called by multiplayer manager when connection signals are received
 func _on_connection_succeeded():
-	print("Client connection succeeded to %s:%d" % [current_server_ip, current_server_port])
+	#print("Client connection succeeded to %s:%d" % [current_server_ip, current_server_port])
 	NetworkUtils.log_connection_result(true, current_server_ip, current_server_port)
 	connection_succeeded.emit()
 
 func _on_connection_failed():
-	print("Client connection failed to %s:%d" % [current_server_ip, current_server_port])
+	#print("Client connection failed to %s:%d" % [current_server_ip, current_server_port])
 	NetworkUtils.log_connection_result(false, current_server_ip, current_server_port)
 	cleanup()
 	connection_failed.emit()

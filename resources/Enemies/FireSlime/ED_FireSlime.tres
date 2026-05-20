@@ -25,7 +25,7 @@ metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 [resource]
 script = ExtResource("2_ed")
 monster_name = "Fire Slime"
-monster_level = 8
+monster_level = 70
 movement_speed = 55.0
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("CircleShape2D_col")

@@ -161,7 +161,7 @@ func on_enemy_damaged(amount: int, source: Node) -> void:
 	if player_id != null:
 		damage_by_player[player_id] = damage_by_player.get(player_id, 0) + amount
 		if multiplayer.is_server():
-			for pid in _get_players_on_same_map():
+			for pid in _get_real_players_on_same_map():
 				client_show_name_label.rpc_id(pid)
 
 
@@ -173,7 +173,7 @@ func _deferred_death_processing(_killer: Node) -> void:
 	if _is_being_cleaned_up:
 		return
 	
-	print("Enemy died. Killer: ", _killer, " Type: ", typeof(_killer))
+	#print("Enemy died. Killer: ", _killer, " Type: ", typeof(_killer))
 
 	var total_damage = 0
 	for dmg in damage_by_player.values():
@@ -183,10 +183,10 @@ func _deferred_death_processing(_killer: Node) -> void:
 	if _killer.owner is MultiplayerPlayerV2:
 		killer_player_id = _killer.owner.player_id
 	
-	print("Determined killer_player_id: ", killer_player_id)
+	#print("Determined killer_player_id: ", killer_player_id)
 
 	var killer_party_id = PartyManager.get_player_party_id(killer_player_id)
-	print("Determined killer_party_id: ", killer_party_id)
+	#print("Determined killer_party_id: ", killer_party_id)
 	
 	var players_to_reward: Array[int] = []
 	var eligible_player_ids_for_drops: Array[int] = []
@@ -200,14 +200,14 @@ func _deferred_death_processing(_killer: Node) -> void:
 		for member_id in all_party_members:
 			if member_id in players_on_same_map:
 				players_to_reward.append(member_id)
-		print("Players in party to reward (same map only): ", players_to_reward)
+		#print("Players in party to reward (same map only): ", players_to_reward)
 		# Only party members on the same map are eligible for drops
 		eligible_player_ids_for_drops = players_to_reward
 		# Scaling party EXP bonus: +10% per additional member (2p=1.1x, 3p=1.2x, 4p=1.3x, etc.)
 		var party_size: int = players_to_reward.size()
 		if party_size > 1:
 			party_exp_bonus_multiplier = 1.0 + (0.1 * (party_size - 1))
-		print("Party EXP bonus multiplier: ", party_exp_bonus_multiplier)
+		#print("Party EXP bonus multiplier: ", party_exp_bonus_multiplier)
 		# Party XP bonus: 10% for 2 members, +5% per additional member (up to 25% at 5 members)
 		if players_to_reward.size() > 1:
 			party_exp_bonus_multiplier = 1.0 + (0.05 * players_to_reward.size())
@@ -216,40 +216,40 @@ func _deferred_death_processing(_killer: Node) -> void:
 		for member_id in players_to_reward:
 			if damage_by_player.has(member_id):
 				total_party_damage += damage_by_player[member_id]
-		print("Total party damage: ", total_party_damage)
+		#print("Total party damage: ", total_party_damage)
 		
 		for member_id in players_to_reward:
 			var exp_amount = 0
 			var player_node = PlayerManager.get_player_node(member_id)
 			if not player_node:
-				print("Could not find player node for member ID: ", member_id)
+				#print("Could not find player node for member ID: ", member_id)
 				continue
 
 			if damage_by_player.has(member_id) and total_party_damage > 0:
 				# Player dealt damage, calculate share based on damage
 				var share = float(damage_by_player[member_id]) / total_party_damage
 				exp_amount = int(experience_reward * share * party_exp_bonus_multiplier)
-				print("Member %d (damage dealer) share: %f, base exp: %d, bonus: %f, final exp: %d" % [member_id, share, experience_reward, party_exp_bonus_multiplier, exp_amount])
+				#print("Member %d (damage dealer) share: %f, base exp: %d, bonus: %f, final exp: %d" % [member_id, share, experience_reward, party_exp_bonus_multiplier, exp_amount])
 			else:
 				# Player is in party but didn't deal damage, give a fixed percentage
 				exp_amount = ceili(experience_reward * non_damage_dealer_exp_percentage * party_exp_bonus_multiplier)
-				print("Member %d (non-damage dealer) base exp: %d, non-damage : %f, bonus: %f, final exp: %d" % [member_id, experience_reward, non_damage_dealer_exp_percentage, party_exp_bonus_multiplier, exp_amount])
+				#print("Member %d (non-damage dealer) base exp: %d, non-damage : %f, bonus: %f, final exp: %d" % [member_id, experience_reward, non_damage_dealer_exp_percentage, party_exp_bonus_multiplier, exp_amount])
 			
 			player_node.gain_experience(exp_amount)
 			# Track kill for quest objectives
 			QuestManager.record_enemy_kill(player_node.username, monster_name)
-			print("PID: %s (Party) gained %s exp from %s" % [str(member_id), str(exp_amount), name])
+			#print("PID: %s (Party) gained %s exp from %s" % [str(member_id), str(exp_amount), name])
 	else:
 		# No party, distribute EXP only to damage dealers
 		players_to_reward.append_array(damage_by_player.keys())
 		eligible_player_ids_for_drops = players_to_reward
-		print("No party. Players to reward: ", players_to_reward)
+		#print("No party. Players to reward: ", players_to_reward)
 		for player_id in players_to_reward:
 			var share = float(damage_by_player[player_id]) / total_damage
 			var exp_amount = int(experience_reward * share)
 			var player_node = PlayerManager.get_player_node(player_id)
 			if player_node and player_node.has_method("gain_experience"):
-				print("PID: %s did %s%% damage to %s gaining %s exp" % [str(player_id), share * 100, name, str(exp_amount)])
+				#print("PID: %s did %s%% damage to %s gaining %s exp" % [str(player_id), share * 100, name, str(exp_amount)])
 				player_node.gain_experience(exp_amount)
 				# Track kill for quest objectives
 				QuestManager.record_enemy_kill(player_node.username, monster_name)
@@ -331,7 +331,7 @@ func _spawn_drops(eligible_player_ids: Array[int]) -> void:
 		# Delegate spawning to GlobalDropHandler which handles RPCs and map filtering
 		drop_handler.create_dropped_item(item, amount, spawn_pos, eligible_player_ids, map_instance)
 		
-		print("Enemy '%s' dropped %dx %s for eligible players: %s" % [name, amount, item.name, str(eligible_player_ids)])
+		#print("Enemy '%s' dropped %dx %s for eligible players: %s" % [name, amount, item.name, str(eligible_player_ids)])
 
 
 @rpc("any_peer", "call_local", "reliable")
@@ -367,7 +367,7 @@ func pool_deactivate() -> void:
 	global_position = Vector2(INF, INF)
 	
 	if multiplayer.is_server():
-		for pid in _get_players_on_same_map():
+		for pid in _get_real_players_on_same_map():
 			client_hide_name_label.rpc_id(pid)
 
 
@@ -534,7 +534,7 @@ func emit_ready_for_pooling() -> void:
 
 
 func cleanup_before_removal():
-	print("Cleaning up enemy: ", name)
+	#print("Cleaning up enemy: ", name)
 	_is_being_cleaned_up = true
 	
 	# Stop all processing
@@ -585,4 +585,18 @@ func _get_players_on_same_map() -> Array:
 	
 	if map_name != "":
 		return MapManager.get_players_on_map(map_name)
+	return []
+
+
+func _get_real_players_on_same_map() -> Array:
+	if not multiplayer.is_server(): return []
+	var parent = get_parent()
+	var map_name = ""
+	while parent:
+		if parent.name.begins_with("Map_"):
+			map_name = parent.name.replace("Map_", "")
+			break
+		parent = parent.get_parent()
+	if map_name != "":
+		return MapManager.get_real_players_on_map(map_name)
 	return []

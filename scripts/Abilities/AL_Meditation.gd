@@ -48,7 +48,8 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 			}
 
 		buff_component._force_stat_recalc()
-		buff_component.sync_buff_stat_modifiers.rpc("Meditation", modifier_data)
+		if not buff_component.is_bot_owned():
+			buff_component.sync_buff_stat_modifiers.rpc("Meditation", modifier_data)
 
 	print("%s activated Meditation (Level %d) - Duration: %ds [%d members]" %
 		[_owner_node.name, _level_stats.level, duration, party_members.size()])

@@ -45,26 +45,22 @@ func change_state(new_state: State) -> void:
 			var map_name = map_node.name.replace("Map_", "")
 			var players_on_this_map = MapManager.get_players_on_map(map_name)
 			
-			# Send RPC only to REMOTE players on this map
+			# Send RPC only to REMOTE players on this map (skip bots)
 			for peer_id in players_on_this_map:
-				if peer_id != 1: # Skip server (already updated locally)
+				if peer_id != 1 and not BotManager.is_bot(peer_id):
 					_set_state_rpc.rpc_id(peer_id, new_state.name)
 			return
-	
+
 	# Fallback for non-map entities: broadcast to all REMOTE peers
 	for peer_id in multiplayer.get_peers():
-		if peer_id != 1:
+		if peer_id != 1 and not BotManager.is_bot(peer_id):
 			_set_state_rpc.rpc_id(peer_id, new_state.name)
 
 func sync_state_to_peer(peer_id: int) -> void:
-	"""
-	Sends the current state to a specific peer. This is useful for when
-	a new client joins and needs to be brought up-to-date.
-	This should only be called on the server.
-	"""
 	if not multiplayer.is_server() or not current_state:
 		return
-	
+	if BotManager.is_bot(peer_id):
+		return
 	_set_state_rpc.rpc_id(peer_id, current_state.name)
 
 @rpc("authority", "call_local", "reliable")
@@ -77,7 +73,7 @@ func _set_state_rpc(state_name: String) -> void:
 
 		if current_state:
 			current_state.exit()
-			#print("Changing from %s to %s" % [current_state.animation_name, new_state.animation_name])
+			##print("Changing from %s to %s" % [current_state.animation_name, new_state.animation_name])
 
 		current_state = new_state
 		state_label.text = current_state.animation_name

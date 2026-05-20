@@ -11,7 +11,8 @@ var _loading_mode: bool = false
 var monies_amount: int = 0:
 	set(value):
 		monies_amount = clampi(value, 0, MAX_MONIES_AMOUNT)
-		if monies_label:
+		# monies_label is a UI node; a bot frees its UI subtree, so validate it.
+		if is_instance_valid(monies_label):
 			monies_label.text = inventory_component.format_number_with_commas(value)
 		if not _loading_mode:
 			_notify_player_data_changed()
@@ -52,14 +53,27 @@ func _on_item_added(item: ItemData):
 	# Handle special items like coins
 	if item.name == "Coin":
 		monies_amount += item.current_stack_amount
-		print("Player gained %d coins" % item.current_stack_amount)
+		#print("Player gained %d coins" % item.current_stack_amount)
 		if multiplayer.is_server():
-			AudioManager.rpc("play_sfx_rpc", "res://assets/sounds/coin.wav", player.global_position)
+			var map_node = MapManager.get_player_map_node(player.player_id)
+			if map_node:
+				var map_name = map_node.name.replace("Map_", "")
+				for pid in MapManager.get_real_players_on_map(map_name):
+					if pid != 1:
+						AudioManager.play_sfx_rpc.rpc_id(pid, "res://assets/sounds/coin.wav", player.global_position)
+			AudioManager.play_sfx("res://assets/sounds/coin.wav", player.global_position)
 
 
-func _on_item_removed(item: ItemData):
-	# Player-specific behavior when items are removed
-	print("Player lost: " + item.name)
+func _on_item_removed(item: ItemData, reason: String) -> void:
+	# Player-specific behavior when an item leaves the inventory.
+	var who: String = player.username if is_instance_valid(player) and not player.username.is_empty() else "Player"
+	var verb: String = {
+		"sold": "sold",
+		"traded": "traded away",
+		"dropped": "dropped",
+		"used": "used",
+	}.get(reason, "removed")
+	print("%s %s %s." % [who, verb, item.name])
 
 
 func _notify_player_data_changed():
@@ -81,8 +95,8 @@ func add_item_instance(item_data: ItemData):
 		inventory_component.server_add_item_instance.rpc_id(1, item_data.to_dictionary())
 
 
-func remove_item(item: ItemData):
-	inventory_component.remove_item(item)
+func remove_item(item: ItemData, reason: String = "removed"):
+	inventory_component.remove_item(item, reason)
 
 
 func has_item(item_name: String, amount: int = 1) -> bool:
