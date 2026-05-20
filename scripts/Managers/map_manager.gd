@@ -172,8 +172,10 @@ func _finalize_player_spawn(player_id: int, map_id: String, spawn_point_name: St
 	for existing_id in active_maps[map_id].player_ids:
 		if existing_id == player_id: continue # Skip self (handled in _spawn_player_on_server_map)
 
-		var existing_node = get_player_map_node(existing_id)
-		if existing_node:
+		# The actual player/bot character node (get_player_map_node returns the
+		# map, not the character — its components must be read off this node).
+		var existing_node = PlayerManager.get_player_node(existing_id)
+		if is_instance_valid(existing_node):
 			# Tell the new player to spawn the existing player (skip for bots)
 			if not _joiner_is_bot:
 				client_spawn_player.rpc_id(player_id, existing_id, existing_node.global_position, _player_username(existing_id))
