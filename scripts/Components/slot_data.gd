@@ -10,11 +10,22 @@ extends RefCounted
 ## Server, headless builds, and bots can therefore carry a complete inventory
 ## with zero UI nodes instantiated.
 
+## Which container owns this slot.
+const CONTAINER_INVENTORY := 0
+const CONTAINER_EQUIPMENT := 1
+
 ## The item currently in this slot, or null when empty.
 var item: ItemData = null
 
-## Address key of this slot within its owning container:
-## an int index for inventory slots, set by the component on creation.
+## Owning container kind (CONTAINER_INVENTORY / CONTAINER_EQUIPMENT).
+var container_kind: int = CONTAINER_INVENTORY
+
+## Address key within the owning container: an int index for inventory slots,
+## or the equipment key (ArmorType int / "WEAPON") for equipment slots.
+var key = 0
+
+## Inventory slot index (== key for inventory slots; -1 for equipment slots).
+## Set by the component on creation.
 var index: int = -1
 
 ## Acceptance rules. `allowed_item_type` defaults to ANY (no restriction).

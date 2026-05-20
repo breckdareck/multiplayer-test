@@ -76,18 +76,18 @@ static func should_equip(current: ItemData, candidate: ItemData, class_type: Con
 	return candidate_score > score_item(current, class_type)
 
 
-static func get_target_slot(item: ItemData, equipment_component: EquipmentComponent) -> EquipmentSlot:
+static func get_target_slot(item: ItemData, equipment_component: EquipmentComponent) -> SlotData:
 	if item is WeaponData:
-		return equipment_component.weapon_slot
+		return equipment_component.weapon_slot_data
 	elif item is ArmorData:
 		var armor := item as ArmorData
 		match armor.armor_type:
 			Constants.ArmorType.HEAD:
-				return equipment_component.head_slot
+				return equipment_component.head_slot_data
 			Constants.ArmorType.CHEST:
-				return equipment_component.chest_slot
+				return equipment_component.chest_slot_data
 			Constants.ArmorType.LEGS:
-				return equipment_component.legs_slot
+				return equipment_component.legs_slot_data
 			Constants.ArmorType.FEET:
-				return equipment_component.feet_slot
+				return equipment_component.feet_slot_data
 	return null

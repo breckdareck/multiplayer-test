@@ -7,8 +7,8 @@ var player
 
 var attack_speed_percent: float:
 	get():
-		if parent.equipment_component.weapon_slot.item != null:
-			return float(100.0 / ((20.0 - parent.equipment_component.weapon_slot.item.weapon_attack_speed) / 16.0)) / 100
+		if parent.equipment_component.weapon_slot_data.item != null:
+			return float(100.0 / ((20.0 - parent.equipment_component.weapon_slot_data.item.weapon_attack_speed) / 16.0)) / 100
 		else:
 			return 1
 

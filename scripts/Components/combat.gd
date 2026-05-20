@@ -468,7 +468,7 @@ func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelDa
 
 
 func calculate_attack_damage() -> int:
-	if not (_equipment_component and _equipment_component.weapon_slot and _equipment_component.weapon_slot.item):
+	if not (_equipment_component and _equipment_component.weapon_slot_data and _equipment_component.weapon_slot_data.item):
 		return 0
 
 	var max_range = _calculate_max_range()
