@@ -364,9 +364,24 @@ func _handle_authoritative_use(ability_id: String, ability: AbilityData, level_s
 	cooldown_started.emit(ability_id, cooldown_duration)
 	
 	if multiplayer.is_server():
-		ability_used_client.rpc(ability_id, cooldown_duration)
-		
+		if BotManager.is_bot(owner.player_id):
+			# A bot's AbilityComponent node may be missing on a client mid
+			# map-transition; route the cast visual through MapManager instead.
+			_broadcast_bot_ability_visual(ability_id, level_stats.level)
+		else:
+			ability_used_client.rpc(ability_id, cooldown_duration)
+
 	return true
+
+
+## Routes a bot's ability-cast visual through MapManager (an autoload that
+## always resolves) rather than the bot's AbilityComponent node, which a client
+## may lack mid map-transition.
+func _broadcast_bot_ability_visual(ability_id: String, level: int) -> void:
+	var map_name: String = MapManager.get_player_map(owner.player_id)
+	for peer_id in MapManager.get_real_players_on_map(map_name):
+		if peer_id != 1:
+			MapManager.bot_ability_used.rpc_id(peer_id, owner.player_id, ability_id, level)
 
 
 ## Triggers the state machine transition and custom logic for an active ability.
@@ -426,8 +441,9 @@ func _level_up_ability_local(ability_id: String) -> bool:
 	ability_leveled_up.emit(ability_id, current_level + 1)
 	##print("Leveled up %s to level %d" % [ability.ability_name, current_level + 1])
 	
-	# Sync changes to clients
-	if multiplayer.is_server():
+	# Sync changes to clients (bots have no client UI — skip to avoid a
+	# node-addressed RPC failing on clients that lack the bot node).
+	if multiplayer.is_server() and not BotManager.is_bot(owner.player_id):
 		sync_ability_level.rpc(ability_id, current_level + 1)
 		sync_ability_points.rpc(_available_ability_points)
 	
@@ -452,7 +468,7 @@ func _learn_ability_local(ability_id: String, initial_level: int = 0, send_rpc: 
 	ability_learned.emit(ability_id)
 	##print("Learned ability: %s at level %d" % [ability.ability_name, initial_level])
 	
-	if send_rpc and multiplayer.is_server():
+	if send_rpc and multiplayer.is_server() and not BotManager.is_bot(owner.player_id):
 		sync_ability_learned.rpc(ability_id, initial_level)
 	
 	return true
@@ -469,8 +485,8 @@ func _add_ability_points(amount: int) -> void:
 	_available_ability_points += amount
 	##print("Added %d ability points. Total: %d" % [amount, _available_ability_points])
 	ability_points_changed.emit(_available_ability_points)
-	
-	if multiplayer.is_server():
+
+	if multiplayer.is_server() and not BotManager.is_bot(owner.player_id):
 		sync_ability_points.rpc(_available_ability_points)
 
 
@@ -578,10 +594,17 @@ func spawn_projectile(ability: AbilityData, level_stats: AbilityLevelData, targe
 	if current_map and current_map.is_in_group("map_base"):
 		var map_name = current_map.name.replace("Map_", "")
 		var players_on_map = MapManager.get_real_players_on_map(map_name)
+		# A bot's AbilityComponent node may not exist on a client (e.g. mid
+		# map-transition), which makes a node-addressed RPC fail. Route bot
+		# projectiles through MapManager — an autoload that always resolves.
+		var caster_is_bot := BotManager.is_bot(owner.player_id)
 
 		for peer_id in players_on_map:
 			if peer_id != 1: # Server already has it
-				spawn_projectile_client.rpc_id(peer_id, ability.ability_id, level_stats.level, spawn_pos, initial_direction, target_path)
+				if caster_is_bot:
+					MapManager.spawn_bot_projectile.rpc_id(peer_id, owner.player_id, ability.ability_id, level_stats.level, spawn_pos, initial_direction, target_path)
+				else:
+					spawn_projectile_client.rpc_id(peer_id, ability.ability_id, level_stats.level, spawn_pos, initial_direction, target_path)
 	else:
 		# Fallback
 		spawn_projectile_client.rpc(ability.ability_id, level_stats.level, spawn_pos, initial_direction, target_path)
@@ -619,6 +642,20 @@ func spawn_projectile_client(ability_id: String, level: int, start_pos: Vector2,
 	if target_container:
 		target_container.add_child(projectile_instance)
 		projectile_instance.global_position = start_pos
+
+
+## [Client] Plays an ability's cast visual without the cooldown/UI bookkeeping
+## that ability_used_client does. Used for bot casts, which are routed through
+## MapManager (the bot's AbilityComponent node may be missing on this client).
+func play_ability_visual(ability_id: String, level: int) -> void:
+	if multiplayer.is_server():
+		return
+	var ability = ResourceManager.get_ability_data(ability_id)
+	if not ability:
+		return
+	var level_stats = ability.get_level_stats(level)
+	if level_stats:
+		_trigger_ability_state_change(ability, level_stats)
 
 
 ## [Server->Client] Sends all ability data to a newly connected client in a single RPC.

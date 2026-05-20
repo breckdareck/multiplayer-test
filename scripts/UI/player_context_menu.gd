@@ -109,16 +109,20 @@ func _add_separator() -> void:
 
 
 func _get_target_name() -> String:
+	# The spawned node carries the username on every peer (set in
+	# client_spawn_player), so this works for bots on clients too.
+	var player_node := PlayerManager.get_player_node(_target_id)
+	if is_instance_valid(player_node) and not player_node.username.is_empty():
+		return player_node.username
+
+	# Server-side fallbacks (BotManager.active_bots is empty on clients).
 	if _target_is_bot:
 		var bot_info: Dictionary = BotManager.active_bots.get(_target_id, {})
 		return bot_info.get("username", "Bot %d" % _target_id)
-	else:
-		var player_node := PlayerManager.get_player_node(_target_id)
-		if is_instance_valid(player_node) and not player_node.username.is_empty():
-			return player_node.username
-		var player_info = PlayerManager.get_player_info(_target_id)
-		if player_info:
-			return player_info.get("username", str(_target_id))
+
+	var player_info = PlayerManager.get_player_info(_target_id)
+	if player_info:
+		return player_info.get("username", str(_target_id))
 	return str(_target_id)
 
 

@@ -5,11 +5,7 @@
 	{ "name": "Bob", "class": "SWORDSMAN", "map": "game", "patrol_route": ["game", "game2", "game3"] },
 	{ "name": "Bobbert", "class": "MAGE", "map": "game", "patrol_route": ["game", "game2", "game3"] },
 	{ "name": "Breck", "class": "ROGUE", "map": "game", "patrol_route": ["game", "game2", "game3"] },
-	{ "name": "Breck2", "class": "ROGUE", "map": "game", "patrol_route": ["game", "game2", "game3"] },
-	{ "name": "Breck3", "class": "ROGUE", "map": "game", "patrol_route": ["game", "game2", "game3"] },
-	{ "name": "Breck4", "class": "ROGUE", "map": "game", "patrol_route": ["game", "game2", "game3"] },
-	{ "name": "Breck5", "class": "ROGUE", "map": "game", "patrol_route": ["game", "game2", "game3"] },
-	{ "name": "Breck6", "class": "ROGUE", "map": "game", "patrol_route": ["game", "game2", "game3"] },
+	{ "name": "Bert", "class": "ARCHER", "map": "game", "patrol_route": ["game", "game2", "game3"] },
   ],
   "behavior": {
 	"think_interval": 0.3,

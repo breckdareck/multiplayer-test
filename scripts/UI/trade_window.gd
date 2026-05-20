@@ -6,6 +6,8 @@ var drag_offset := Vector2()
 var _built := false
 var _target_id: int = 0
 var _refresh_timer: float = 0.0
+## Latest data snapshot for the trade target (their inventory is server-only).
+var _bot_snapshot: Dictionary = {}
 
 const WINDOW_WIDTH: float = 500.0
 const WINDOW_HEIGHT: float = 520.0
@@ -51,6 +53,7 @@ static func create() -> TradeWindow:
 	window._normal_bg = StyleBoxEmpty.new()
 
 	window._build_ui()
+	BotManager.bot_snapshot_received.connect(window._on_bot_snapshot)
 	return window
 
 
@@ -196,6 +199,8 @@ func _create_button_pool(container: VBoxContainer) -> Array[Button]:
 func show_for_target(target_id: int) -> void:
 	_target_id = target_id
 	_refresh_timer = 0.0
+	_bot_snapshot = {}
+	_request_target_snapshot()
 	_refresh_lists()
 
 	var target_name := _get_target_name()
@@ -208,61 +213,84 @@ func show_for_target(target_id: int) -> void:
 	move_to_front()
 
 
+## Asks the server for a fresh snapshot of the trade target (their inventory
+## is server-authoritative — not present on this client).
+func _request_target_snapshot() -> void:
+	if _target_id != 0:
+		BotManager.request_bot_snapshot.rpc_id(1, _target_id)
+
+
+func _on_bot_snapshot(bot_id: int, snapshot: Dictionary) -> void:
+	if bot_id != _target_id or not visible:
+		return
+	_bot_snapshot = snapshot
+	_refresh_lists()
+
+
 func _refresh_lists() -> void:
 	if not _built:
 		return
 
 	var local_player := _get_local_player()
-	var target_node := PlayerManager.get_player_node(_target_id)
-
-	if not is_instance_valid(local_player) or not is_instance_valid(target_node):
+	if not is_instance_valid(local_player):
 		visible = false
 		return
 
 	if is_instance_valid(local_player.player_inventory):
 		_my_gold_label.text = "Gold: %d" % local_player.player_inventory.monies_amount
-	if is_instance_valid(target_node.player_inventory):
-		_bot_gold_label.text = "Gold: %d" % target_node.player_inventory.monies_amount
+	_bot_gold_label.text = "Gold: %d" % int(_bot_snapshot.get("gold", 0))
 
-	_update_button_list(_my_buttons, _my_button_slot, local_player, true)
-	_update_button_list(_bot_buttons, _bot_button_slot, target_node, false)
+	# My items — read live from my own inventory.
+	var my_items: Array = []
+	if is_instance_valid(local_player.inventory_component):
+		var slots: Array = local_player.inventory_component.get_slots()
+		for i in slots.size():
+			if slots[i].item:
+				my_items.append({"index": i, "item": slots[i].item})
+	_update_button_list(_my_buttons, _my_button_slot, my_items, true)
+
+	# Their items — from the snapshot (the target's inventory is server-only).
+	var their_items: Array = []
+	for entry in _bot_snapshot.get("inventory", []):
+		var item: ItemData = ItemData.from_dictionary(entry.get("item", {}))
+		if item:
+			their_items.append({"index": int(entry.get("slot_index", -1)), "item": item})
+	_update_button_list(_bot_buttons, _bot_button_slot, their_items, false)
 
 
-func _update_button_list(buttons: Array[Button], slot_map: Array[int], player_node: MultiplayerPlayerV2, is_mine: bool) -> void:
+## `items` is an Array of { "index": int, "item": ItemData }.
+func _update_button_list(buttons: Array[Button], slot_map: Array[int], items: Array, is_mine: bool) -> void:
 	var btn_idx := 0
 
-	if is_instance_valid(player_node.inventory_component):
-		var slots := player_node.inventory_component.get_slots()
-		for i in slots.size():
-			if btn_idx >= buttons.size():
-				break
-			var slot: SlotData = slots[i]
-			if not slot.item:
-				continue
+	for entry in items:
+		if btn_idx >= buttons.size():
+			break
+		var item: ItemData = entry["item"]
+		var slot_idx: int = entry["index"]
 
-			var btn := buttons[btn_idx]
-			var item_text := slot.item.name
-			if slot.item.can_stack and slot.item.current_stack_amount > 1:
-				item_text += " x%d" % slot.item.current_stack_amount
-			if slot.item is EquipmentData:
-				item_text += " (Lv.%d)" % slot.item.item_level
+		var btn := buttons[btn_idx]
+		var item_text := item.name
+		if item.can_stack and item.current_stack_amount > 1:
+			item_text += " x%d" % item.current_stack_amount
+		if item is EquipmentData:
+			item_text += " (Lv.%d)" % item.item_level
 
-			btn.text = item_text
-			btn.tooltip_text = _build_item_tooltip(slot.item)
-			btn.add_theme_color_override("font_color", _get_rarity_color(slot.item))
-			btn.visible = true
+		btn.text = item_text
+		btn.tooltip_text = _build_item_tooltip(item)
+		btn.add_theme_color_override("font_color", _get_rarity_color(item))
+		btn.visible = true
 
-			# Only reconnect if the slot index changed
-			if slot_map[btn_idx] != i:
-				_disconnect_all(btn)
-				var slot_idx := i
-				if is_mine:
-					btn.pressed.connect(func(): _give_item(slot_idx))
-				else:
-					btn.pressed.connect(func(): _take_item(slot_idx))
-				slot_map[btn_idx] = i
+		# Only reconnect if the slot index changed
+		if slot_map[btn_idx] != slot_idx:
+			_disconnect_all(btn)
+			var captured_idx := slot_idx
+			if is_mine:
+				btn.pressed.connect(func(): _give_item(captured_idx))
+			else:
+				btn.pressed.connect(func(): _take_item(captured_idx))
+			slot_map[btn_idx] = slot_idx
 
-			btn_idx += 1
+		btn_idx += 1
 
 	# Hide remaining buttons
 	for j in range(btn_idx, buttons.size()):
@@ -358,12 +386,16 @@ func _build_item_tooltip(item: ItemData) -> String:
 
 
 func _get_target_name() -> String:
-	if BotManager.is_bot(_target_id):
-		var bot_info: Dictionary = BotManager.active_bots.get(_target_id, {})
-		return bot_info.get("username", "Bot %d" % _target_id)
+	# Prefer the snapshot, then the node's username (set on every peer at spawn).
+	var snap_name: String = _bot_snapshot.get("name", "")
+	if not snap_name.is_empty():
+		return snap_name
 	var player_node := PlayerManager.get_player_node(_target_id)
 	if is_instance_valid(player_node) and not player_node.username.is_empty():
 		return player_node.username
+	if BotManager.is_bot(_target_id):
+		var bot_info: Dictionary = BotManager.active_bots.get(_target_id, {})
+		return bot_info.get("username", "Bot %d" % _target_id)
 	return str(_target_id)
 
 
@@ -409,4 +441,5 @@ func _process(delta: float) -> void:
 		_refresh_timer += delta
 		if _refresh_timer >= REFRESH_INTERVAL:
 			_refresh_timer = 0.0
+			_request_target_snapshot()
 			_refresh_lists()

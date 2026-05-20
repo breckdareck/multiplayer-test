@@ -9,6 +9,8 @@ var scroll_container: ScrollContainer
 var _current_bot_id: int = 0
 var _refresh_timer: float = 0.0
 var _built := false
+## Latest data snapshot for the inspected bot (populated via BotManager RPC).
+var _snapshot: Dictionary = {}
 
 const WINDOW_WIDTH: float = 320.0
 const WINDOW_HEIGHT: float = 500.0
@@ -54,6 +56,7 @@ static func create() -> BotInspectWindow:
 	window.add_theme_stylebox_override("panel", bg)
 
 	window._build_ui()
+	BotManager.bot_snapshot_received.connect(window._on_bot_snapshot)
 	return window
 
 
@@ -214,6 +217,7 @@ func _build_sections() -> void:
 func show_bot(bot_id: int) -> void:
 	_current_bot_id = bot_id
 	_refresh_timer = 0.0
+	_snapshot = {}
 	_built = false
 	_build_sections()
 	_update_content()
@@ -223,120 +227,114 @@ func show_bot(bot_id: int) -> void:
 	visible = true
 	move_to_front()
 
+	_request_snapshot()
+
 	await get_tree().process_frame
 	scroll_container.scroll_vertical = 0
 
 
+## Asks the server for a fresh snapshot of the inspected bot.
+func _request_snapshot() -> void:
+	if _current_bot_id == 0:
+		return
+	BotManager.request_bot_snapshot.rpc_id(1, _current_bot_id)
+
+
+func _on_bot_snapshot(bot_id: int, snapshot: Dictionary) -> void:
+	if bot_id != _current_bot_id or not visible:
+		return
+	_snapshot = snapshot
+	_update_content()
+
+
+## Populates the window from `_snapshot` (filled by the BotManager RPC), so it
+## works on a client where the bot's live components hold no data.
 func _update_content() -> void:
-	if not _built:
-		return
-	var player_node := PlayerManager.get_player_node(_current_bot_id)
-	if not is_instance_valid(player_node):
-		visible = false
+	if not _built or _snapshot.is_empty():
 		return
 
-	var display_name: String
-	if BotManager.is_bot(_current_bot_id):
-		var bot_info: Dictionary = BotManager.active_bots.get(_current_bot_id, {})
-		display_name = bot_info.get("username", "Bot %d" % _current_bot_id)
-	else:
-		display_name = player_node.username if not player_node.username.is_empty() else str(_current_bot_id)
-
+	var display_name: String = _snapshot.get("name", "")
+	if display_name.is_empty():
+		display_name = "Bot %d" % _current_bot_id
 	title_label.text = "Inspect: %s" % display_name
 	_name_label.text = display_name
 
-	var class_str := "Unknown"
-	if is_instance_valid(player_node.class_component):
-		class_str = Constants.ClassType.find_key(player_node.class_component.current_class)
-	var level := 1
-	if is_instance_valid(player_node.level_component):
-		level = player_node.level_component.level
-	_level_label.text = "Level %d %s" % [level, class_str]
+	_level_label.text = "Level %d %s" % [
+		_snapshot.get("level", 1),
+		Constants.ClassType.find_key(_snapshot.get("class", 0)),
+	]
 
-	if is_instance_valid(player_node.health_component):
-		_hp_value.text = "%d / %d" % [player_node.health_component.current_health, player_node.health_component.max_health]
-	else:
-		_hp_value.text = "?"
-	if is_instance_valid(player_node.mana_component):
-		_mp_value.text = "%d / %d" % [player_node.mana_component.current_mana, player_node.mana_component.max_mana]
-	else:
-		_mp_value.text = "?"
-	if is_instance_valid(player_node.player_inventory):
-		_gold_value.text = str(player_node.player_inventory.monies_amount)
-	else:
-		_gold_value.text = "0"
+	_hp_value.text = "%d / %d" % [_snapshot.get("hp", 0), _snapshot.get("max_hp", 0)]
+	_mp_value.text = "%d / %d" % [_snapshot.get("mp", 0), _snapshot.get("max_mp", 0)]
+	_gold_value.text = str(_snapshot.get("gold", 0))
+	_map_value.text = _snapshot.get("map", "")
 
-	_map_value.text = MapManager.get_player_map(player_node.player_id)
+	var action: String = _snapshot.get("action", "")
+	_action_row.visible = not action.is_empty()
+	_action_value.text = action
 
-	var brain = player_node.get_node_or_null("BotBrain")
-	if brain:
-		_action_row.visible = true
-		_action_value.text = brain.current_action
-	else:
-		_action_row.visible = false
+	# --- Equipment (5 fixed rows: Weapon, Head, Chest, Legs, Feet) ---
+	var equipment: Dictionary = _snapshot.get("equipment", {})
+	var eq_keys := [
+		"WEAPON",
+		str(Constants.ArmorType.HEAD), str(Constants.ArmorType.CHEST),
+		str(Constants.ArmorType.LEGS), str(Constants.ArmorType.FEET),
+	]
+	for i in 5:
+		var eq_item_dict: Dictionary = equipment.get(eq_keys[i], {})
+		var eq_item: ItemData = ItemData.from_dictionary(eq_item_dict) if not eq_item_dict.is_empty() else null
+		_update_item_row(_equip_rows[i], eq_item)
 
-	# --- Equipment (update 5 fixed rows in place) ---
-	if is_instance_valid(player_node.equipment_component):
-		var eq = player_node.equipment_component
-		# Access the actual ItemData resources from the SlotData model
-		var slots := [
-		eq.weapon_slot_data.item if eq.weapon_slot_data else null,
-		eq.head_slot_data.item if eq.head_slot_data else null,
-		eq.chest_slot_data.item if eq.chest_slot_data else null,
-		eq.legs_slot_data.item if eq.legs_slot_data else null,
-		eq.feet_slot_data.item if eq.feet_slot_data else null]
-		for i in 5:
-			_update_item_row(_equip_rows[i], slots[i])
-
-	# --- Stats (update value labels in place) ---
-	if is_instance_valid(player_node.stats_component):
-		var stats: Dictionary = player_node.stats_component.stats
-		for stat_type in _stat_rows:
-			var value_label: Label = _stat_rows[stat_type]
-			if stats.has(stat_type):
-				var stat_data = stats[stat_type]
-				var total: int = stat_data.total_value
-				var base: int = stat_data.base_value
-				var bonus: int = stat_data.combined_bonus_value
-				if bonus > 0:
-					value_label.text = "%d (%d+%d)" % [total, base, bonus]
-				else:
-					value_label.text = "%d" % total
+	# --- Stats ---
+	var stats: Dictionary = _snapshot.get("stats", {})
+	for stat_type in _stat_rows:
+		var value_label: Label = _stat_rows[stat_type]
+		if stats.has(stat_type):
+			var s: Dictionary = stats[stat_type]
+			var total: int = s.get("total", 0)
+			var bonus: int = s.get("bonus", 0)
+			if bonus > 0:
+				value_label.text = "%d (%d+%d)" % [total, s.get("base", 0), bonus]
 			else:
-				value_label.text = "0"
+				value_label.text = "%d" % total
+		else:
+			value_label.text = "0"
 
-	# --- Inventory (update value labels in place, rebuild notable list) ---
-	if is_instance_valid(player_node.inventory_component):
-		var equip_count := 0
-		var consumable_count := 0
-		var other_count := 0
-		var total_items := 0
+	# --- Inventory ---
+	var inventory: Array = _snapshot.get("inventory", [])
+	var equip_count := 0
+	var consumable_count := 0
+	var other_count := 0
+	var notable: Array = []
+	for entry in inventory:
+		var inv_item_dict: Dictionary = entry.get("item", {})
+		if inv_item_dict.is_empty():
+			continue
+		var inv_item: ItemData = ItemData.from_dictionary(inv_item_dict)
+		if not inv_item:
+			continue
+		if inv_item is EquipmentData:
+			equip_count += 1
+			if notable.size() < 5:
+				notable.append(inv_item)
+		elif inv_item is ConsumableData:
+			consumable_count += 1
+		else:
+			other_count += 1
 
-		for slot in player_node.inventory_component.get_slots():
-			if slot.item:
-				total_items += 1
-				if slot.item is EquipmentData:
-					equip_count += 1
-				elif slot.item is ConsumableData:
-					consumable_count += 1
-				else:
-					other_count += 1
+	_inv_total_value.text = str(inventory.size())
+	_inv_equip_value.text = str(equip_count)
+	_inv_consumable_value.text = str(consumable_count)
+	_inv_other_value.text = str(other_count)
+	_inv_other_row.visible = other_count > 0
 
-		_inv_total_value.text = str(total_items)
-		_inv_equip_value.text = str(equip_count)
-		_inv_consumable_value.text = str(consumable_count)
-		_inv_other_value.text = str(other_count)
-		_inv_other_row.visible = other_count > 0
-
-		for child in _inv_notable_section.get_children():
-			child.queue_free()
-		var notable_count := 0
-		for slot in player_node.inventory_component.get_slots():
-			if slot.item and slot.item is EquipmentData and notable_count < 5:
-				if notable_count == 0:
-					_inv_notable_section.add_child(_make_label("Notable Items:", 10, Color(0.6, 0.6, 0.7)))
-				_inv_notable_section.add_child(_make_label("  %s (Lv.%d)" % [slot.item.name, slot.item.item_level], 9, Color(0.6, 0.7, 0.8)))
-				notable_count += 1
+	for child in _inv_notable_section.get_children():
+		child.queue_free()
+	for i in notable.size():
+		if i == 0:
+			_inv_notable_section.add_child(_make_label("Notable Items:", 10, Color(0.6, 0.6, 0.7)))
+		var n_item: ItemData = notable[i]
+		_inv_notable_section.add_child(_make_label("  %s (Lv.%d)" % [n_item.name, n_item.item_level], 9, Color(0.6, 0.7, 0.8)))
 
 
 # --- Node Factories (return nodes, don't add to tree) ---
@@ -466,7 +464,7 @@ func _process(delta: float) -> void:
 		_refresh_timer += delta
 		if _refresh_timer >= REFRESH_INTERVAL:
 			_refresh_timer = 0.0
-			_update_content()
+			_request_snapshot()
 
 
 func _gui_input(event: InputEvent) -> void:

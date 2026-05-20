@@ -172,11 +172,19 @@ func _finalize_player_spawn(player_id: int, map_id: String, spawn_point_name: St
 	for existing_id in active_maps[map_id].player_ids:
 		if existing_id == player_id: continue # Skip self (handled in _spawn_player_on_server_map)
 
-		var existing_node = get_player_map_node(existing_id)
-		if existing_node:
+		# The actual player/bot character node (get_player_map_node returns the
+		# map, not the character — its components must be read off this node).
+		var existing_node = PlayerManager.get_player_node(existing_id)
+		if is_instance_valid(existing_node):
 			# Tell the new player to spawn the existing player (skip for bots)
 			if not _joiner_is_bot:
-				client_spawn_player.rpc_id(player_id, existing_id, existing_node.global_position)
+				client_spawn_player.rpc_id(player_id, existing_id, existing_node.global_position, _player_username(existing_id))
+				# A bot's sprite isn't streamed via the node-addressed sprite
+				# RPC, so send the joiner the bot's class/level appearance.
+				if BotManager.is_bot(existing_id) and is_instance_valid(existing_node.class_component) \
+						and is_instance_valid(existing_node.level_component):
+					client_apply_appearance.rpc_id(player_id, existing_id, \
+						existing_node.class_component.current_class, existing_node.level_component.level)
 			# Also update visibility for the existing player
 			update_visibility_for_player(existing_id)
 
@@ -240,7 +248,7 @@ func _spawn_player_on_server_map(player_id: int, map_id: String, spawn_point_nam
 		if BotManager.is_bot(peer_id):
 			continue
 		# RPC each peer to spawn this new player
-		client_spawn_player.rpc_id(peer_id, player_id, player_char.global_position)
+		client_spawn_player.rpc_id(peer_id, player_id, player_char.global_position, _player_username(player_id))
 
 	# Explicitly tell the client which node is theirs (for PlayerManager init)
 	if not BotManager.is_bot(player_id):
@@ -526,33 +534,41 @@ func client_identify_player(player_node_path: String):
 
 
 @rpc("authority", "call_local", "reliable")
-func client_spawn_player(new_player_id: int, spawn_pos: Vector2):
+func client_spawn_player(new_player_id: int, spawn_pos: Vector2, username: String = ""):
 	"""Client: Instantiate a player node manually."""
 	if not is_instance_valid(current_map_instance):
 		return
-	
+
 	var players_node = current_map_instance.get_node_or_null("Players")
 	if not players_node:
 		push_error("Client: Current map missing Players node!")
 		return
-	
+
 	if players_node.has_node(str(new_player_id)):
 		# Already exists
 		if multiplayer.is_server():
 			# Server is authority, do not reset position of existing players
 			return
-			
+
 		var p = players_node.get_node(str(new_player_id))
 		p.global_position = spawn_pos
+		if not username.is_empty():
+			p.set_username(username)
 		return
-		
+
 	var player_scene = load("res://scenes/Player/player.tscn")
 	var player_node = player_scene.instantiate()
 	player_node.name = str(new_player_id)
 	player_node.player_id = new_player_id
 	player_node.global_position = spawn_pos
-	
+
 	players_node.add_child(player_node)
+
+	# Apply the player's name so the floating label and right-click context
+	# menu show it — covers bots, whose username is otherwise never sent to
+	# clients (bot state is server-authoritative).
+	if not username.is_empty():
+		player_node.set_username(username)
 	
 	# Set public_visibility=false for player synchronizers (client-side)
 	# if not multiplayer.is_server():
@@ -571,6 +587,63 @@ func client_despawn_player(player_id_to_remove: int):
 		var node = players_node.get_node(str(player_id_to_remove))
 		node.queue_free()
 		#print("Client: Despawned player %d" % player_id_to_remove)
+
+
+## [Server -> Client] Spawns a bot's projectile visual. Routed through
+## MapManager (an autoload that always resolves) rather than addressed to the
+## bot's AbilityComponent node, which a client may lack during map transitions.
+@rpc("authority", "call_remote", "reliable")
+func spawn_bot_projectile(caster_id: int, ability_id: String, level: int, start_pos: Vector2, direction: Vector2, target_path: NodePath) -> void:
+	if multiplayer.is_server():
+		return
+	var caster = PlayerManager.get_player_node(caster_id)
+	if not is_instance_valid(caster) or not is_instance_valid(caster.ability_component):
+		return  # bot not present on this client — skip the visual, no error
+	caster.ability_component.spawn_projectile_client(ability_id, level, start_pos, direction, target_path)
+
+
+## [Server -> Client] Plays a bot's ability-cast visual. Routed through
+## MapManager (an autoload that always resolves) rather than the bot's
+## AbilityComponent node, which a client may lack during a map transition.
+@rpc("authority", "call_remote", "reliable")
+func bot_ability_used(caster_id: int, ability_id: String, level: int) -> void:
+	if multiplayer.is_server():
+		return
+	var caster = PlayerManager.get_player_node(caster_id)
+	if not is_instance_valid(caster) or not is_instance_valid(caster.ability_component):
+		return  # bot not present on this client — skip the visual, no error
+	caster.ability_component.play_ability_visual(ability_id, level)
+
+
+## [Server] Sends a bot's class/level to every real client on its map so they
+## render the correct sprite. Bot appearance isn't streamed via the
+## node-addressed sprite RPC, so this delivers it on demand.
+func broadcast_player_appearance(player_id: int) -> void:
+	if not multiplayer.is_server():
+		return
+	var node = PlayerManager.get_player_node(player_id)
+	if not is_instance_valid(node) or not is_instance_valid(node.class_component) \
+			or not is_instance_valid(node.level_component):
+		return
+	var class_type: int = node.class_component.current_class
+	var level: int = node.level_component.level
+	# Apply on the host directly — client_apply_appearance early-returns on the
+	# server, but the host is also a client and must render the bot.
+	node.apply_appearance(class_type, level)
+	for peer_id in get_real_players_on_map(get_player_map(player_id)):
+		if peer_id != 1:
+			client_apply_appearance.rpc_id(peer_id, player_id, class_type, level)
+
+
+## [Server -> Client] Applies a player/bot's sprite frames for its class/level.
+## Routed through MapManager so it always resolves even mid map-transition.
+@rpc("authority", "call_remote", "reliable")
+func client_apply_appearance(player_id: int, class_type: int, level: int) -> void:
+	if multiplayer.is_server():
+		return
+	var node = PlayerManager.get_player_node(player_id)
+	if is_instance_valid(node):
+		node.apply_appearance(class_type, level)
 
 
 # === SERVER-SIDE ACKS FROM CLIENTS ===
@@ -656,6 +729,12 @@ func get_real_players_on_map(map_id: String) -> Array:
 func get_player_map(player_id: int) -> String:
 	if not multiplayer.is_server(): return ""
 	return player_current_maps.get(player_id, "")
+
+
+## Username for a player/bot id, used to pass names to clients on spawn.
+func _player_username(id: int) -> String:
+	var info: Dictionary = PlayerManager.get_player_info(id)
+	return info.get("username", "")
 	
 func get_player_map_node(player_id: int) -> Node:
 	if not multiplayer.is_server(): return null

@@ -452,7 +452,12 @@ func _handle_sprite_change_on_server() -> void:
 
 	var sprite_frames: SpriteFrames = ResourceManager.get_sprite_for_level(class_type, current_level)
 	if sprite_frames:
-		change_sprite_rpc.rpc(class_component.get_class_name(), current_level)
+		if BotManager.is_bot(player_id):
+			# A bot's node may be missing on a client mid map-transition, so
+			# route its sprite updates through MapManager (an autoload).
+			MapManager.broadcast_player_appearance(player_id)
+		else:
+			change_sprite_rpc.rpc(class_component.get_class_name(), current_level)
 
 func change_to_map(new_map_id: String, spawn_point_name: String = ""):
 	if not multiplayer.is_server():
@@ -723,6 +728,18 @@ func change_sprite_rpc(_class_name: String, level: int) -> void:
 		animated_sprite.play("idle")
 	else:
 		push_warning("Could not find sprite for %s level %d" % [_class_name, level])
+
+
+# [CLIENT] Applies sprite frames for the given class/level. Used for bots,
+# whose appearance is delivered via MapManager rather than the node-addressed
+# change_sprite_rpc (a bot's node may be missing on a client mid-transition).
+func apply_appearance(class_type: int, level: int) -> void:
+	if is_instance_valid(class_component):
+		class_component.current_class = class_type
+	var frames: SpriteFrames = ResourceManager.get_sprite_for_level(class_type, level)
+	if frames and is_instance_valid(animated_sprite):
+		animated_sprite.sprite_frames = frames
+		animated_sprite.play("idle")
 
 
 # [CLIENT -> SERVER] Client requests to change their class.
