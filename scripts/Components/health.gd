@@ -102,14 +102,14 @@ func _ready() -> void:
 
 func _on_stats_changed():
 	max_health = _stats_component.stats.get(Constants.StatType.HEALTH).total_value
-	#print("HealthComponent: StatsChanged, new max health: %d" % max_health)
+	##print("HealthComponent: StatsChanged, new max health: %d" % max_health)
 	if current_health > max_health:
 		current_health = max_health
 
 
 func _on_leveled_up(_new_level: int):
 	max_health = _stats_component.stats.get(Constants.StatType.HEALTH).total_value
-	#print("HealthComponent: StatsChanged, new max health: %d" % max_health)
+	##print("HealthComponent: StatsChanged, new max health: %d" % max_health)
 	current_health = max_health
 
 
@@ -143,7 +143,7 @@ func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, 
 	
 	var is_player = (owner is MultiplayerPlayerV2)
 	
-	#print("HealthComponent.take_damage: amount=%d, show_number=%s, is_player=%s, is_server=%s" % [amount, show_number, is_player, multiplayer.is_server()])
+	##print("HealthComponent.take_damage: amount=%d, show_number=%s, is_player=%s, is_server=%s" % [amount, show_number, is_player, multiplayer.is_server()])
 	
 	# --- Visual/Audio Effects ---
 	if show_number:
@@ -157,32 +157,32 @@ func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, 
 			if source and source.owner is MultiplayerPlayerV2:
 				# If source is a player, use their map
 				map_to_spawn_on = MapManager.get_player_map_node(source.owner.player_id)
-				#print("HealthComponent: Using source player's map: %s" % map_to_spawn_on)
+				##print("HealthComponent: Using source player's map: %s" % map_to_spawn_on)
 			elif entity is MultiplayerPlayerV2:
 				# If entity being hit is a player, use their map
 				map_to_spawn_on = MapManager.get_player_map_node(entity.player_id)
-				#print("HealthComponent: Using target player's map: %s" % map_to_spawn_on)
+				##print("HealthComponent: Using target player's map: %s" % map_to_spawn_on)
 			else:
 				# If it's an enemy being hit by a non-player, find the enemy's map
-				#print("HealthComponent: Searching for enemy's map...")
+				##print("HealthComponent: Searching for enemy's map...")
 				for map_id in MapManager.active_maps.keys():
 					var map_instance = MapManager.active_maps[map_id].scene_instance
 					if is_instance_valid(map_instance) and map_instance.is_ancestor_of(entity):
 						map_to_spawn_on = map_instance
-						#print("HealthComponent: Found enemy's map: %s" % map_to_spawn_on)
+						##print("HealthComponent: Found enemy's map: %s" % map_to_spawn_on)
 						break
 		else:
 			# --- Client-side: Use the client's currently visible map ---
 			if get_owner().visible:
 				map_to_spawn_on = MapManager.get_current_visible_map()
-				#print("HealthComponent: Client using visible map: %s" % map_to_spawn_on)
+				##print("HealthComponent: Client using visible map: %s" % map_to_spawn_on)
 
 		if is_instance_valid(map_to_spawn_on):
 			dmg_spawner = map_to_spawn_on.find_child("DmgNumberSpawner", true, false)
-			#print("HealthComponent: Found dmg_spawner: %s" % dmg_spawner)
+			##print("HealthComponent: Found dmg_spawner: %s" % dmg_spawner)
 
 		if dmg_spawner:
-			#print("HealthComponent: Calling display_number on spawner")
+			##print("HealthComponent: Calling display_number on spawner")
 			dmg_spawner.display_number(amount, damage_number_origin.global_position, is_crit, is_player)
 
 	
@@ -207,7 +207,7 @@ func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, 
 	if multiplayer.is_server():
 		_last_damage_source = source
 		
-		#print("HealthComponent: Owner '%s' took %s damage from '%s'." % [get_owner().name, amount, source_str])
+		##print("HealthComponent: Owner '%s' took %s damage from '%s'." % [get_owner().name, amount, source_str])
 		damaged.emit(amount, source)
 		
 		if is_invulnerable and not ignore_invuln or is_dead:
@@ -246,7 +246,7 @@ func heal_damage(amount: int, source: Node = null) -> void:
 	if source:
 		source_str = str(source.name)
 
-	#print("HealthComponent: Owner '%s' healed %s damage from '%s'." % [get_owner().name, amount, source_str])
+	##print("HealthComponent: Owner '%s' healed %s damage from '%s'." % [get_owner().name, amount, source_str])
 	self.current_health += amount
 
 
@@ -275,4 +275,4 @@ func respawn() -> void:
 	
 	is_invulnerable = true
 	invulnerability_timer.start()
-	# print("HealthComponent: Owner '%s' has respawned." % get_owner().name)
+	# #print("HealthComponent: Owner '%s' has respawned." % get_owner().name)

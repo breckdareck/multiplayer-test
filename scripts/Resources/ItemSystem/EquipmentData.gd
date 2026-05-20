@@ -60,7 +60,7 @@ static func from_dictionary(dict: Dictionary) -> ItemData:
 		Constants.EquipmentType.WEAPON:
 			item_instance = WeaponData.new()
 		_:
-			print("Error: Attempted to deserialize abstract EquipmentData without concrete type.")
+			#print("Error: Attempted to deserialize abstract EquipmentData without concrete type.")
 			return null
 
 	# Populate ItemData properties (manually, as ItemData.from_dictionary is static)

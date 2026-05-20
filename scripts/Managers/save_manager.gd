@@ -47,7 +47,7 @@ var _auto_save_tick: int = 0
 func _ready() -> void:
 	# Load API URL from config (supports environment variable override)
 	_api_url = UserConfig.get_backend_api_url() + "/player"
-	print("SaveManager: Using API URL: %s" % _api_url)
+	#print("SaveManager: Using API URL: %s" % _api_url)
 	
 	# SaveManager only does work on the server
 	if not _is_server():
@@ -68,7 +68,7 @@ func _ready() -> void:
 	add_child(_auto_save_timer)
 	_auto_save_timer.timeout.connect(_on_auto_save_timeout)
 
-	print("SaveManager: Initialized on server.")
+	#print("SaveManager: Initialized on server.")
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -97,7 +97,7 @@ func register_player(username: String, player_node: Node) -> void:
 		"timer": debounce_timer,
 		"in_flight": false,
 	}
-	print("SaveManager: Registered player '%s'." % username)
+	#print("SaveManager: Registered player '%s'." % username)
 
 
 ## Unregister a player. Flushes any pending data first.
@@ -118,7 +118,7 @@ func unregister_player(username: String) -> void:
 	# Clean up pending queue references
 	_pending_queue.erase(username)
 
-	print("SaveManager: Unregistered player '%s'." % username)
+	#print("SaveManager: Unregistered player '%s'." % username)
 
 
 ## Mark a category as dirty and (re)start the debounce timer.
@@ -186,7 +186,7 @@ func flush_save(username: String) -> void:
 	# sending our flush. Without this, we'd fall back to file save while the
 	# API keeps stale data — and loads always read from the API first.
 	if _in_flight_username != "":
-		print("SaveManager: Flush for '%s' — waiting for in-flight save ('%s') to finish." % [username, _in_flight_username])
+		#print("SaveManager: Flush for '%s' — waiting for in-flight save ('%s') to finish." % [username, _in_flight_username])
 		var wait_frames := 0
 		while _in_flight_username != "" and wait_frames < 300:
 			await get_tree().process_frame
@@ -194,8 +194,6 @@ func flush_save(username: String) -> void:
 		if wait_frames >= 300:
 			push_error("SaveManager: Timed out waiting for in-flight save, forcing continue")
 			_in_flight_username = ""
-		else:
-			print("SaveManager: In-flight save finished, proceeding with flush for '%s'." % username)
 
 	# Send via HTTP (blocking via await)
 	info.dirty_categories.clear()
@@ -304,7 +302,7 @@ func _collect_save_data(username: String) -> Dictionary:
 func _send_http_save(username: String, data: Dictionary, is_flush: bool) -> void:
 	# Check local-save-only mode
 	if NetworkManager.use_local_save:
-		print("SaveManager: Local save mode — writing file for '%s'." % username)
+		#print("SaveManager: Local save mode — writing file for '%s'." % username)
 		_save_to_file(data)
 		save_completed.emit(username)
 		return
@@ -331,7 +329,7 @@ func _send_http_save(username: String, data: Dictionary, is_flush: bool) -> void
 	var response_code: int = result[1]
 
 	if response_code == 200:
-		print("SaveManager: Saved '%s' to API successfully." % username)
+		#print("SaveManager: Saved '%s' to API successfully." % username)
 		_in_flight_username = ""
 		save_completed.emit(username)
 
@@ -343,7 +341,7 @@ func _send_http_save(username: String, data: Dictionary, is_flush: bool) -> void
 		return
 
 	# ── First failure — retry once after RETRY_DELAY ──────────────────────
-	print("SaveManager: Save failed for '%s' (HTTP %d). Retrying in %0.1fs..." % [username, response_code, RETRY_DELAY])
+	#print("SaveManager: Save failed for '%s' (HTTP %d). Retrying in %0.1fs..." % [username, response_code, RETRY_DELAY])
 
 	if not is_flush:
 		await get_tree().create_timer(RETRY_DELAY).timeout
@@ -363,7 +361,7 @@ func _send_http_save(username: String, data: Dictionary, is_flush: bool) -> void
 	_in_flight_username = ""
 
 	if retry_response_code == 200:
-		print("SaveManager: Retry succeeded for '%s'." % username)
+		#print("SaveManager: Retry succeeded for '%s'." % username)
 		save_completed.emit(username)
 	else:
 		push_error("SaveManager: Retry failed for '%s' (HTTP %d). Falling back to file." % [username, retry_response_code])
@@ -412,7 +410,7 @@ func _save_to_file(data: Dictionary) -> void:
 	if file_write:
 		file_write.store_string(JSON.stringify(existing_data))
 		file_write.close()
-		print("SaveManager: Saved to local file for '%s' at %s" % [uname, file_path])
+		#print("SaveManager: Saved to local file for '%s' at %s" % [uname, file_path])
 	else:
 		push_error("SaveManager: Failed to open file for writing: %s" % file_path)
 

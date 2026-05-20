@@ -16,7 +16,7 @@ func _load_class_abilities() -> void:
 	class_abilities.clear()
 	for ability in abilities:
 		class_abilities.append(ability)
-	print("ClassComponent: Loaded %d abilities for %s." % [class_abilities.size(), get_class_name()])
+	##print("ClassComponent: Loaded %d abilities for %s." % [class_abilities.size(), get_class_name()])
 
 
 func get_class_abilities() -> Array[AbilityData]:
@@ -37,7 +37,7 @@ func get_available_abilities() -> Array[AbilityData]:
 func change_class(new_class: Constants.ClassType) -> void:
 	if new_class != current_class:
 		var old_class_name: String = get_class_name()
-		print("ClassComponent: Changing class from %s to %s" % [old_class_name, ResourceManager.get_class_name(new_class)])
+		##print("ClassComponent: Changing class from %s to %s" % [old_class_name, ResourceManager.get_class_name(new_class)])
 		current_class = new_class
 		_load_class_abilities()
 		class_changed.emit(get_class_name())
@@ -47,5 +47,5 @@ func change_class(new_class: Constants.ClassType) -> void:
 
 @rpc("authority", "call_local", "reliable")
 func change_class_rpc(new_class: int) -> void:
-	print("ClassComponent: Change Class RPC called")
+	##print("ClassComponent: Change Class RPC called")
 	change_class(new_class as Constants.ClassType)

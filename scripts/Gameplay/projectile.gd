@@ -61,33 +61,33 @@ func _on_area_entered(area: Area2D) -> void:
 	if not is_instance_valid(area):
 		return
 
-	#print("Projectile: Collision detected with %s (owner: %s)" % [area.name, area.owner.name])
+	##print("Projectile: Collision detected with %s (owner: %s)" % [area.name, area.owner.name])
 	# This function is only connected on the server (_ready function)
 	
 	# Don't hit the caster
 	if area.owner == caster:
-		#print("Projectile: Hit caster, ignoring.")
+		##print("Projectile: Hit caster, ignoring.")
 		return
 
 	# Check if the area belongs to a valid damagable entity
 	if not "health_component" in area.owner:
-		#print("Projectile: %s does not have a health_component, ignoring." % area.owner.name)
+		##print("Projectile: %s does not have a health_component, ignoring." % area.owner.name)
 		return
 		
 	var health_comp = area.owner.get("health_component")
 	if not health_comp or health_comp.is_dead:
-		#print("Projectile: %s health_component is invalid or dead, ignoring." % area.owner.name)
+		##print("Projectile: %s health_component is invalid or dead, ignoring." % area.owner.name)
 		return
 
 	# If this is a targeted projectile, only hit the intended target.
 	if is_instance_valid(target) and area.owner != target:
-		#print("Projectile: Targeted projectile hit %s, but target is %s, ignoring." % [area.owner.name, target.name])
+		##print("Projectile: Targeted projectile hit %s, but target is %s, ignoring." % [area.owner.name, target.name])
 		return
 
 	# If we've reached here, we have a valid hit.
 	# Instead of dealing damage directly, we tell the caster's CombatComponent to process the hit.
 	if is_instance_valid(caster) and caster.combat_component:
-		#print("Projectile: Valid hit on %s. Telling caster to process damage." % area.owner.name)
+		##print("Projectile: Valid hit on %s. Telling caster to process damage." % area.owner.name)
 		caster.combat_component.process_projectile_hit(area.owner, ability, level_stats)
 	else:
 		printerr("Projectile: Caster or its CombatComponent is invalid.")

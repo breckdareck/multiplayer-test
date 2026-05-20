@@ -71,7 +71,7 @@ func _on_create_party_button_pressed():
 func _on_invite_player_button_pressed():
 	var invitee_name = invite_line_edit.text
 	if invitee_name.is_empty():
-		print("Player name is empty.")
+		#print("Player name is empty.")
 		return
 
 	# Send the name to the server for resolution
@@ -86,12 +86,12 @@ func _on_kick_button_pressed():
 		selected = offline_tree.get_selected()
 	
 	if not selected:
-		print("No player selected to kick.")
+		#print("No player selected to kick.")
 		return
 	
 	var player_id_to_kick = selected.get_metadata(0)
 	if player_id_to_kick == multiplayer.get_unique_id():
-		print("You can't kick yourself.")
+		#print("You can't kick yourself.")
 		return
 
 	PartyManager.rpc("rpc_kick_player", player_id_to_kick)
@@ -99,7 +99,7 @@ func _on_kick_button_pressed():
 func _on_party_leader_button_pressed():
 	var selected = online_tree.get_selected()
 	if not selected:
-		print("No player selected to make leader.")
+		#print("No player selected to make leader.")
 		return
 	
 	var new_leader_id = selected.get_metadata(0)

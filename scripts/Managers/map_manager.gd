@@ -168,7 +168,7 @@ func _finalize_player_spawn(player_id: int, map_id: String, spawn_point_name: St
 	# Sync EXISTING players to the new joiner
 	# The new joiner needs to know about everyone else already on the map
 	var map_instance = active_maps[map_id].scene_instance
-	var _joiner_is_bot := BotManager.is_bot(player_id)
+	var _joiner_is_bot = BotManager.is_bot(player_id)
 	for existing_id in active_maps[map_id].player_ids:
 		if existing_id == player_id: continue # Skip self (handled in _spawn_player_on_server_map)
 
@@ -381,7 +381,7 @@ func update_visibility_for_player(player_id: int):
 	var player_map = player_current_maps.get(player_id, "")
 	if player_map.is_empty(): return
 
-	var _this_is_bot := BotManager.is_bot(player_id)
+	var _this_is_bot = BotManager.is_bot(player_id)
 
 	# 1. Update visibility between this player and all OTHER PLAYERS
 	for other_id in player_current_maps.keys():

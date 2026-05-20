@@ -39,7 +39,7 @@ func _on_server_started() -> void:
 
 func load_config(path: String) -> void:
 	if not FileAccess.file_exists(path):
-		print("BotManager: No config file found at %s — using defaults." % path)
+		#print("BotManager: No config file found at %s — using defaults." % path)
 		bot_config = {}
 		return
 	var file := FileAccess.open(path, FileAccess.READ)
@@ -47,7 +47,7 @@ func load_config(path: String) -> void:
 	file.close()
 	if parsed is Dictionary:
 		bot_config = parsed
-		print("BotManager: Loaded config with %d bot definitions." % bot_config.get("bots", []).size())
+		#print("BotManager: Loaded config with %d bot definitions." % bot_config.get("bots", []).size())
 	else:
 		push_warning("BotManager: Failed to parse config at %s" % path)
 		bot_config = {}
@@ -90,8 +90,7 @@ func spawn_bot(bot_name: String, class_type: int, map_id: String = "") -> int:
 		"brain": null,
 	}
 
-	print("BotManager: Spawning bot '%s' (ID %d, class %s) on map '%s'" % [
-		bot_name, bot_id, Constants.ClassType.find_key(class_type), map_id])
+	#print("BotManager: Spawning bot '%s' (ID %d, class %s) on map '%s'" % [bot_name, bot_id, Constants.ClassType.find_key(class_type), map_id])
 
 	_used_names[bot_name] = true
 	PlayerManager.add_bot(bot_id, bot_name, class_type, map_id)
@@ -104,7 +103,7 @@ func despawn_bot(bot_id: int) -> void:
 		return
 
 	var info = active_bots[bot_id]
-	print("BotManager: Despawning bot '%s' (ID %d)" % [info.username, bot_id])
+	#print("BotManager: Despawning bot '%s' (ID %d)" % [info.username, bot_id])
 
 	if PartyManager.get_player_party_id(bot_id) != -1:
 		PartyManager.leave_party(bot_id)
@@ -168,7 +167,7 @@ func _on_bot_spawned(bot_id: int) -> void:
 		if not current_map.is_empty():
 			active_bots[bot_id]["map_id"] = current_map
 
-	print("BotManager: Bot %d brain attached and running." % bot_id)
+	#print("BotManager: Bot %d brain attached and running." % bot_id)
 
 
 func _form_squad_on_map(map_id: String, bot_ids: Array) -> void:
@@ -183,7 +182,7 @@ func _form_squad_on_map(map_id: String, bot_ids: Array) -> void:
 	for i in range(1, bot_ids.size()):
 		PartyManager.send_invite(leader_id, bot_ids[i])
 
-	print("BotManager: Formed squad (party %d) on map '%s' with %d bots." % [party_id, map_id, bot_ids.size()])
+	#print("BotManager: Formed squad (party %d) on map '%s' with %d bots." % [party_id, map_id, bot_ids.size()])
 
 
 func get_bot_definition(bot_id: int) -> Dictionary:

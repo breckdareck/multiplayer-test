@@ -19,7 +19,7 @@ func on_apply(owner_node: Node, _active_buff) -> void:
 	if owner_node.has_method("sync_shadow_partner"):
 		owner_node.sync_shadow_partner.rpc(true)
 
-	print("Shadow Partner spawned for %s (%.0f%% damage)" % [owner_node.name, damage_percent])
+	#print("Shadow Partner spawned for %s (%.0f%% damage)" % [owner_node.name, damage_percent])
 
 
 func on_remove(owner_node: Node, _active_buff) -> void:

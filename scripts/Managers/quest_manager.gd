@@ -30,7 +30,7 @@ var _completed_quests: Dictionary = {}
 
 func _ready() -> void:
 	_define_quests()
-	print("QuestManager: Loaded %d quest definitions." % _quests.size())
+	#print("QuestManager: Loaded %d quest definitions." % _quests.size())
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -363,7 +363,7 @@ func _complete_quest(username: String, quest_id: String) -> void:
 		player_node = PlayerManager.get_player_node(pid)
 
 	if not player_node:
-		print("QuestManager: Could not find player node for '%s' to grant rewards." % username)
+		#print("QuestManager: Could not find player node for '%s' to grant rewards." % username)
 		quest_completed.emit(username, quest_id)
 		_save_quest_data(username)
 		return
@@ -442,7 +442,7 @@ func load_quests(username: String, data: Dictionary) -> void:
 
 	_active_quests[username] = active
 	_completed_quests[username] = completed
-	print("QuestManager: Loaded quest data for '%s' — %d active, %d completed." % [username, active.size(), completed.size()])
+	#print("QuestManager: Loaded quest data for '%s' — %d active, %d completed." % [username, active.size(), completed.size()])
 
 
 func unregister_player(username: String) -> void:
