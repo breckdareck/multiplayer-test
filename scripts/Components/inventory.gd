@@ -54,7 +54,7 @@ func _ready() -> void:
 	_rebuild_item_tracking()
 	
 	if not pending_inventory_data.is_empty():
-		print("Applying pending inventory data")
+		#print("Applying pending inventory data")
 		_apply_inventory_data(pending_inventory_data)
 		pending_inventory_data.clear()
 
@@ -240,7 +240,7 @@ func server_add_item(item_id: String):
 			item_added.emit(original_item)
 			return
 			
-	print("Inventory is full or no suitable slot found for this item type.")
+	#print("Inventory is full or no suitable slot found for this item type.")
 
 
 @rpc("any_peer", "call_local", "reliable")
@@ -250,7 +250,7 @@ func server_add_item_instance(item_dict: Dictionary):
 	
 	var original_item: ItemData = ItemData.from_dictionary(item_dict)
 	if not original_item:
-		print("Failed to create ItemData from dictionary in server_add_item_instance")
+		#print("Failed to create ItemData from dictionary in server_add_item_instance")
 		return
 
 	var original_item_id = original_item.item_id
@@ -289,7 +289,7 @@ func server_add_item_instance(item_dict: Dictionary):
 			item_added.emit(original_item)
 			return
 			
-	print("Inventory is full or no suitable slot found for this item type.")
+	#print("Inventory is full or no suitable slot found for this item type.")
 
 
 func add_item(item_id: String):
@@ -311,7 +311,7 @@ func remove_item(item: ItemData):
 			_sync_slot_to_client(slot)
 			_notify_changed()
 			return
-	print("Item not found")
+	#print("Item not found")
 
 
 func remove_item_from_stack(item: ItemData, amount: int = 1):
@@ -338,7 +338,7 @@ func remove_item_from_stack(item: ItemData, amount: int = 1):
 			_sync_slot_to_client(slot)
 			_notify_changed()
 			return removed
-	print("Item not found")
+	#print("Item not found")
 	return 0
 
 
@@ -512,7 +512,7 @@ func load_inventory(inventory_data: Dictionary) -> void:
 @rpc("authority", "call_local", "reliable")
 func load_inventory_rpc(inventory_data: Dictionary):
 	"""Full inventory sync - only used for initial load or corrections"""
-	print("Client %s received full inventory data" % str(multiplayer.get_unique_id()))
+	#print("Client %s received full inventory data" % str(multiplayer.get_unique_id()))
 	
 	if not is_inside_tree():
 		pending_inventory_data = inventory_data
@@ -538,7 +538,7 @@ func transfer_item_clientside(from_slot: Slot, to_slot: Slot) -> bool:
 
 	# 1. Always run client-side validation for instant feedback.
 	if not _is_move_valid(from_slot, to_slot):
-		print("[CLIENT] Move invalid.")
+		#print("[CLIENT] Move invalid.")
 		return false
 
 	# 2. Set up the backup state for rollbacks
@@ -601,11 +601,11 @@ func _execute_swap_local(from_slot: Slot, to_slot: Slot):
 
 func _is_move_valid(from_slot: Slot, to_slot: Slot) -> bool:
 	if from_slot.item == null:
-		print("[INV][VALIDATE] from_slot has no item")
+		#print("[INV][VALIDATE] from_slot has no item")
 		return false
 	
 	if to_slot.has_method("can_accept_item") and not to_slot.can_accept_item(from_slot.item):
-		print("[INV][VALIDATE] to_slot cannot accept item '%s'" % from_slot.item.name)
+		#print("[INV][VALIDATE] to_slot cannot accept item '%s'" % from_slot.item.name)
 		return false
 	
 	return true
@@ -686,7 +686,7 @@ func send_inventory_correction():
 	if not multiplayer.is_server():
 		return
 		
-	print("Sending inventory correction to client")
+	#print("Sending inventory correction to client")
 	var current_inventory = save_inventory()
 	receive_inventory_correction.rpc_id(multiplayer.get_remote_sender_id(), current_inventory)
 
@@ -696,7 +696,7 @@ func receive_inventory_correction(authoritative_inventory: Dictionary):
 	if multiplayer.is_server():
 		return
 		
-	print("Received inventory correction from server - restoring authoritative state")
+	#print("Received inventory correction from server - restoring authoritative state")
 	
 	pending_moves.clear()
 	pending_splits.clear()
@@ -835,7 +835,7 @@ func _initial_sync_to_client():
 	
 	var inv_data = save_inventory()
 	load_inventory_rpc.rpc_id(owner_id, inv_data)
-	print("Sent initial inventory sync to client %d" % owner_id)
+	#print("Sent initial inventory sync to client %d" % owner_id)
 
 
 @rpc("any_peer", "call_local", "reliable")
@@ -852,26 +852,26 @@ func request_use_item(slot_index: int):
 	if PlayerManager:
 		player = PlayerManager.get_player_node(sender_id)
 	if not player:
-		print("Use Item failed: Player %d not found." % sender_id)
+		#print("Use Item failed: Player %d not found." % sender_id)
 		return
 
 	if slot_index < 0 or slot_index >= slots.size():
-		print("Use Item failed: Invalid slot index %d for player %d." % [slot_index, sender_id])
+		#print("Use Item failed: Invalid slot index %d for player %d." % [slot_index, sender_id])
 		return
 
 	var slot = slots[slot_index]
 	if not slot.item:
-		print("Use Item failed: No item in slot %d for player %d." % [slot_index, sender_id])
+		#print("Use Item failed: No item in slot %d for player %d." % [slot_index, sender_id])
 		return
 
 	var item = slot.item
 	if not item is ConsumableData:
-		print("Use Item failed: Item '%s' is not a consumable." % item.name)
+		#print("Use Item failed: Item '%s' is not a consumable." % item.name)
 		return
 
 	var consumable = item as ConsumableData
 	if not consumable.effect_script:
-		print("Use Item failed: Consumable '%s' has no effect script. item type=%d, script=%s" % [consumable.name, consumable.item_type, consumable.get_script()])
+		#print("Use Item failed: Consumable '%s' has no effect script. item type=%d, script=%s" % [consumable.name, consumable.item_type, consumable.get_script()])
 		return
 
 	# Remove one from the stack and persist before executing the effect,

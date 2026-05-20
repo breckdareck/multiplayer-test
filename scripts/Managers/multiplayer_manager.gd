@@ -39,7 +39,7 @@ func _process(_delta):
 		return
 	var peer = multiplayer.multiplayer_peer
 	if not peer or peer.get_connection_status() == MultiplayerPeer.CONNECTION_DISCONNECTED:
-		print("MultiplayerManager: Connection lost detected via poll")
+		#print("MultiplayerManager: Connection lost detected via poll")
 		_handle_server_disconnect()
 
 func _notification(what):
@@ -65,21 +65,21 @@ func _setup_signals():
 
 # === PUBLIC API ===
 func host_game():
-	print("Starting listen server...")
+	#print("Starting listen server...")
 	host_mode_enabled = true
 
 	if ServerManager.start_listen_server(CONFIG.DEFAULT_PORT):
 		PlayerManager.add_host_player()
-		print("Host server started successfully")
+		#print("Host server started successfully")
 
 func join_game(ip: String = ""):
-	print("Joining game as client...")
+	#print("Joining game as client...")
 
 	# Use provided IP or fall back to stored IP in ClientManager
 	var target_ip = ip if not ip.is_empty() else CONFIG.DEFAULT_IP
 
 	if not NetworkUtils.is_valid_ip(target_ip):
-		print("Invalid IP Address: " + target_ip)
+		#print("Invalid IP Address: " + target_ip)
 		return
 
 	ClientManager.connect_to_server(target_ip, CONFIG.DEFAULT_PORT)
@@ -114,7 +114,7 @@ func _on_server_started():
 		multiplayer.peer_disconnected.connect(PlayerManager.remove_player)
 
 func _on_client_connected():
-	print("Successfully connected to server!")
+	#print("Successfully connected to server!")
 	_was_connected_to_server = true
 	_handling_disconnect = false
 	_update_ui_for_client()
@@ -123,7 +123,7 @@ func _on_client_failed():
 	print("Failed to connect to %s:%d" % [ClientManager.current_server_ip, ClientManager.current_server_port])
 
 func _on_server_disconnected():
-	print("MultiplayerManager: server_disconnected signal fired")
+	#print("MultiplayerManager: server_disconnected signal fired")
 	_handle_server_disconnect()
 
 func _handle_server_disconnect():
@@ -143,7 +143,7 @@ func _handle_server_disconnect():
 
 	var reason = _pending_shutdown_reason if _pending_shutdown_reason != "" else "Disconnected from server."
 	_pending_shutdown_reason = ""
-	print("MultiplayerManager: Cleaning up network state...")
+	#print("MultiplayerManager: Cleaning up network state...")
 	disconnect_reason = reason
 
 	# Save connection info before cleanup clears them
@@ -169,7 +169,7 @@ func _handle_server_disconnect():
 		get_tree().root.remove_child(maps_container)
 		maps_container.free()
 
-	print("MultiplayerManager: Connection lost — %s" % reason)
+	#print("MultiplayerManager: Connection lost — %s" % reason)
 	_show_connection_lost_popup(reason, ip, port)
 
 func _show_connection_lost_popup(reason: String, ip: String = "", port: int = 0):
@@ -182,7 +182,7 @@ func _show_connection_lost_popup(reason: String, ip: String = "", port: int = 0)
 # === GRACEFUL SHUTDOWN ===
 
 func _graceful_shutdown():
-	print("Server shutting down gracefully...")
+	#print("Server shutting down gracefully...")
 	_notify_clients_shutdown.rpc()
 	# Let the RPC packet actually send before we start tearing down
 	await get_tree().create_timer(0.5).timeout
@@ -247,7 +247,7 @@ func _setup_menu_container():
 
 func _update_ui_for_host():
 	if not menu_container or not is_instance_valid(menu_container):
-		print("MultiplayerManager: No menu container, skipping UI update")
+		#print("MultiplayerManager: No menu container, skipping UI update")
 		return
 	menu_container.hide()
 	if menu_container.has_method("setup_PID_label"):
@@ -257,7 +257,7 @@ func _update_ui_for_host():
 
 func _update_ui_for_client():
 	if not menu_container or not is_instance_valid(menu_container):
-		print("MultiplayerManager: No menu container, skipping UI update")
+		#print("MultiplayerManager: No menu container, skipping UI update")
 		return
 	menu_container.hide()
 	if menu_container.has_method("setup_PID_label"):

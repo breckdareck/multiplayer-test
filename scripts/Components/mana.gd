@@ -35,14 +35,14 @@ func _ready() -> void:
 
 func _on_stats_changed():
 	max_mana = _stats_component.stats.get(Constants.StatType.MANA).total_value
-	print("HealthComponent: StatsChanged, new max health: %d" % max_mana)
+	#print("HealthComponent: StatsChanged, new max health: %d" % max_mana)
 	if current_mana > max_mana:
 		current_mana = max_mana
 
 
 func _on_leveled_up(_new_level: int):
 	max_mana = _stats_component.stats.get(Constants.StatType.MANA).total_value
-	print("HealthComponent: StatsChanged, new max health: %d" % max_mana)
+	#print("HealthComponent: StatsChanged, new max health: %d" % max_mana)
 	current_mana = max_mana
 
 
@@ -67,5 +67,5 @@ func regain_mana(amount: int, source: Node = null) -> void:
 	if source:
 		source_str = str(source.name)
 
-	print("ManaComponent: Owner '%s' regained %s mana from '%s'." % [get_owner().name, amount, source_str])
+	#print("ManaComponent: Owner '%s' regained %s mana from '%s'." % [get_owner().name, amount, source_str])
 	self.current_mana += amount

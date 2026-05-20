@@ -73,7 +73,7 @@ func _set_state_rpc(state_name: String) -> void:
 
 		if current_state:
 			current_state.exit()
-			#print("Changing from %s to %s" % [current_state.animation_name, new_state.animation_name])
+			##print("Changing from %s to %s" % [current_state.animation_name, new_state.animation_name])
 
 		current_state = new_state
 		state_label.text = current_state.animation_name

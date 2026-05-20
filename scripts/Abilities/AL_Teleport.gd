@@ -89,7 +89,7 @@ func _try_horizontal_teleport(origin: Vector2, dir: int, space: PhysicsDirectSpa
 					_debug_draw_circle(owner, snapped, 3.0, Color.YELLOW)
 				best = snapped
 			else:
-				print("Teleport: BLOCKED LANDING at %s, edge snap failed (dist=%.0f)" % [landing, dist])
+				#print("Teleport: BLOCKED LANDING at %s, edge snap failed (dist=%.0f)" % [landing, dist])
 				if DEBUG_DRAW:
 					_debug_draw_circle(owner, landing, 3.0, Color.RED)
 				break

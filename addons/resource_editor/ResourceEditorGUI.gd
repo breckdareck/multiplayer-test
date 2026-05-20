@@ -529,7 +529,7 @@ func _save_resource(path: String) -> void:
 		return
 	var err = ResourceSaver.save(current_resource, path)
 	if err == OK:
-		print("✅ Resource saved to: ", path)
+		#print("✅ Resource saved to: ", path)
 		_set_status("Saved → " + path.get_file())
 		_scan_for_resources()
 	else:
@@ -874,7 +874,7 @@ func _add_stat_bonus() -> void:
 
 
 func _add_ability_modifier() -> void:
-	print("Add ability modifier - need ability ID input dialog")
+	#print("Add ability modifier - need ability ID input dialog")
 
 
 func _on_preset_selected(index: int) -> void:

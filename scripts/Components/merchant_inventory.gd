@@ -143,7 +143,7 @@ func record_player_purchase(player_id: int, item_name: String):
 			player_purchase_counts[player_id] = {}
 		
 		player_purchase_counts[player_id][item_name] = player_purchase_counts[player_id].get(item_name, 0) + 1
-		print("Player %d has now bought %d/%d of %s" % [player_id, player_purchase_counts[player_id][item_name], stock_info["stock"], item_name])
+		#print("Player %d has now bought %d/%d of %s" % [player_id, player_purchase_counts[player_id][item_name], stock_info["stock"], item_name])
 
 func get_buyback_price(player_id: int, item_id: String, is_stackable: bool) -> int:
 	# Returns the price the player sold the item for (what they'll pay to buy it back)
@@ -233,7 +233,7 @@ func request_buy_item(item_id: String, is_buyback: bool, is_stackable_buyback: b
 	var player = get_player_by_id(sender_id)
 	
 	if not player or not player.inventory_component or not player.player_inventory:
-		print("Buy failed: player not found or missing components for peer %d" % sender_id)
+		#print("Buy failed: player not found or missing components for peer %d" % sender_id)
 		return
 		
 	var price: int
@@ -242,17 +242,17 @@ func request_buy_item(item_id: String, is_buyback: bool, is_stackable_buyback: b
 		var item_to_buyback: ItemData
 		if is_stackable_buyback:
 			if not player_sold_stackable_items.has(sender_id) or not player_sold_stackable_items[sender_id].has(item_id):
-				print("Buyback failed for player %d: stackable item %s not in buyback list" % [sender_id, item_id])
+				#print("Buyback failed for player %d: stackable item %s not in buyback list" % [sender_id, item_id])
 				return
 			item_to_buyback = player_sold_stackable_items[sender_id][item_id]["item_data"]
 		else:
 			if not player_sold_unique_items.has(sender_id) or not player_sold_unique_items[sender_id].has(item_id):
-				print("Buyback failed for player %d: unique item %s not in buyback list" % [sender_id, item_id])
+				#print("Buyback failed for player %d: unique item %s not in buyback list" % [sender_id, item_id])
 				return
 			item_to_buyback = player_sold_unique_items[sender_id][item_id]
 		
 		price = get_buyback_price(sender_id, item_id, is_stackable_buyback)
-		print("DEBUG: request_buy_item (buyback) - Buying back %s for %d coins" % [item_to_buyback.name, price])
+		#print("DEBUG: request_buy_item (buyback) - Buying back %s for %d coins" % [item_to_buyback.name, price])
 		
 		if player.player_inventory.monies_amount >= price:
 			player.player_inventory.monies_amount -= price
@@ -273,14 +273,14 @@ func request_buy_item(item_id: String, is_buyback: bool, is_stackable_buyback: b
 		return # End of buyback logic	# --- Logic for buying from base stock ---
 	var item_data: ItemData = ResourceManager.get_item_data(item_id)
 	if not item_data:
-		print("Buy failed: Item not found: %s" % item_id)
+		#print("Buy failed: Item not found: %s" % item_id)
 		return
 
 	var item_name_key = item_data.name
 	price = get_buy_price(item_id)
 	
 	if not can_player_buy_from_stock(sender_id, item_name_key):
-		print("Buy failed for player %d: %s - stock limit reached or unavailable" % [sender_id, item_name_key])
+		#print("Buy failed for player %d: %s - stock limit reached or unavailable" % [sender_id, item_name_key])
 		return
 	
 	if player.player_inventory.monies_amount >= price:
@@ -308,17 +308,17 @@ func request_sell_item(slot_index: int):
 	var player = get_player_by_id(sender_id)
 	
 	if not player or not player.inventory_component:
-		print("Sell failed: player not found or missing inventory for peer %d" % sender_id)
+		#print("Sell failed: player not found or missing inventory for peer %d" % sender_id)
 		return
 	
 	var slots = player.inventory_component.get_slots()
 	if slot_index >= slots.size():
-		print("Sell failed: invalid slot index %d for peer %d" % [slot_index, sender_id])
+		#print("Sell failed: invalid slot index %d for peer %d" % [slot_index, sender_id])
 		return
 		
 	var slot = slots[slot_index]
 	if not slot or not slot.item:
-		print("Sell failed: empty slot at index %d for peer %d" % [slot_index, sender_id])
+		#print("Sell failed: empty slot at index %d for peer %d" % [slot_index, sender_id])
 		return
 	
 	var item = slot.item
@@ -361,12 +361,12 @@ func request_sell_item(slot_index: int):
 		# Also trigger update of the sell list (player's inventory)
 		shop_window.update_sell_display.rpc_id(sender_id)
 	
-	print("%s: Player %d sold %s for %d coins" % [merchant_name, sender_id, item.name, price_for_transaction])
+	#print("%s: Player %d sold %s for %d coins" % [merchant_name, sender_id, item.name, price_for_transaction])
 
 func get_player_by_id(peer_id: int) -> Node:
 	var players = get_tree().get_nodes_in_group("Players")
 	for p in players:
 		if p.player_id == peer_id:
 			return p
-	print("Warning: Could not find player with peer_id %d" % peer_id)
+	#print("Warning: Could not find player with peer_id %d" % peer_id)
 	return null

@@ -52,7 +52,7 @@ func _on_item_added(item: ItemData):
 	# Handle special items like coins
 	if item.name == "Coin":
 		monies_amount += item.current_stack_amount
-		print("Player gained %d coins" % item.current_stack_amount)
+		#print("Player gained %d coins" % item.current_stack_amount)
 		if multiplayer.is_server():
 			var map_node = MapManager.get_player_map_node(player.player_id)
 			if map_node:

@@ -50,7 +50,7 @@ func _ready():
 		ability_component.ability_leveled_up.connect(_on_ability_leveled_up)
 		ability_component.ability_learned.connect(_on_ability_learned)
 		ability_component.ability_points_changed.connect(_on_ability_points_changed)
-		print("AbilityWindow: Connected to ability component signals")
+		##print("AbilityWindow: Connected to ability component signals")
 	
 	# Load UI
 	update_skill_points_display()
@@ -529,11 +529,11 @@ func on_level_up_button_pressed():
 		return
 	
 	# Use the ability component's level up method
-	if ability_component.level_up_ability(selected_ability_id):
-		print("Successfully leveled up ability: %s" % selected_ability_id)
+	#if ability_component.level_up_ability(selected_ability_id):
+		##print("Successfully leveled up ability: %s" % selected_ability_id)
 		# UI will be updated by the signal callback
-	else:
-		print("Failed to level up ability: %s" % selected_ability_id)
+	#else:
+		##print("Failed to level up ability: %s" % selected_ability_id)
 
 
 ## Updates the SP display in the header
@@ -548,7 +548,7 @@ func update_skill_points_display():
 
 ## Signal callback when ability levels up
 func _on_ability_leveled_up(ability_id: String, new_level: int):
-	print("AbilityWindow: Ability %s leveled up to %d" % [ability_id, new_level])
+	##print("AbilityWindow: Ability %s leveled up to %d" % [ability_id, new_level])
 	
 	# Update UI
 	update_skill_points_display()
@@ -561,7 +561,7 @@ func _on_ability_leveled_up(ability_id: String, new_level: int):
 
 ## Signal callback when ability is learned
 func _on_ability_learned(ability_id: String):
-	print("AbilityWindow: Ability %s learned" % ability_id)
+	##print("AbilityWindow: Ability %s learned" % ability_id)
 	
 	# Update UI
 	load_ability_list()
@@ -573,7 +573,7 @@ func _on_ability_learned(ability_id: String):
 
 ## Signal callback when ability points change
 func _on_ability_points_changed(new_total: int):
-	print("AbilityWindow: Ability points changed to %d" % new_total)
+	##print("AbilityWindow: Ability points changed to %d" % new_total)
 	
 	# Update skill points display
 	update_skill_points_display()
