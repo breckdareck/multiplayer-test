@@ -56,6 +56,11 @@ func load_config(path: String) -> void:
 func _auto_spawn_bots() -> void:
 	var bots_array: Array = bot_config.get("bots", [])
 	var spawned_maps: Dictionary = {}
+	# Stagger spawns so each bot's scene instantiation + initialization lands
+	# in its own frame window. Spawning every bot in a single frame causes a
+	# noticeable freeze at server start (worst with local save, where data
+	# loading is synchronous and adds no natural delay between spawns).
+	var stagger: float = bot_config.get("spawn_stagger", 0.5)
 	for bot_def in bots_array:
 		var raw_name: String = bot_def.get("name", "")
 		var bot_name := raw_name if not raw_name.is_empty() and raw_name.to_lower() != "random" else generate_bot_name()
@@ -67,6 +72,8 @@ func _auto_spawn_bots() -> void:
 		if not spawned_maps.has(map_id):
 			spawned_maps[map_id] = []
 		spawned_maps[map_id].append(bot_id)
+		if stagger > 0.0:
+			await get_tree().create_timer(stagger).timeout
 
 	await get_tree().create_timer(3.0).timeout
 	for map_id in spawned_maps:
