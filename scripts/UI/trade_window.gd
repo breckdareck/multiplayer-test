@@ -236,7 +236,7 @@ func _update_button_list(buttons: Array[Button], slot_map: Array[int], player_no
 		for i in slots.size():
 			if btn_idx >= buttons.size():
 				break
-			var slot: Slot = slots[i]
+			var slot: SlotData = slots[i]
 			if not slot.item:
 				continue
 
@@ -289,7 +289,7 @@ func _give_item(slot_index: int) -> void:
 	var my_slots := local_player.inventory_component.get_slots()
 	if slot_index < 0 or slot_index >= my_slots.size():
 		return
-	var slot: Slot = my_slots[slot_index]
+	var slot: SlotData = my_slots[slot_index]
 	if not slot.item:
 		return
 
@@ -319,7 +319,7 @@ func _take_item(slot_index: int) -> void:
 	var their_slots := target_node.inventory_component.get_slots()
 	if slot_index < 0 or slot_index >= their_slots.size():
 		return
-	var slot: Slot = their_slots[slot_index]
+	var slot: SlotData = their_slots[slot_index]
 	if not slot.item:
 		return
 
