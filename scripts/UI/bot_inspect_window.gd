@@ -221,7 +221,16 @@ func show_bot(bot_id: int) -> void:
 	_built = false
 	_build_sections()
 	_update_content()
+
+	var vp_size := get_viewport_rect().size
+	global_position = (vp_size - size) * 0.5
+	visible = true
+	move_to_front()
+
 	_request_snapshot()
+
+	await get_tree().process_frame
+	scroll_container.scroll_vertical = 0
 
 
 ## Asks the server for a fresh snapshot of the inspected bot.
@@ -236,14 +245,6 @@ func _on_bot_snapshot(bot_id: int, snapshot: Dictionary) -> void:
 		return
 	_snapshot = snapshot
 	_update_content()
-
-	var vp_size := get_viewport_rect().size
-	global_position = (vp_size - size) * 0.5
-	visible = true
-	move_to_front()
-
-	await get_tree().process_frame
-	scroll_container.scroll_vertical = 0
 
 
 ## Populates the window from `_snapshot` (filled by the BotManager RPC), so it
