@@ -10,6 +10,9 @@ signal on_equipment_changed
 @export var weapon_slot: EquipmentSlot
 
 var equipment: Dictionary = {}
+# The component-owned data model: equipment key -> SlotData. This is the real
+# storage; the EquipmentSlot UI nodes are views bound to these.
+var slots_data: Dictionary = {}
 var _changed_in_frame: bool = false
 var _silent_mode: bool = false
 
@@ -21,25 +24,39 @@ func _ready():
 		Constants.ArmorType.LEGS: legs_slot,
 		Constants.ArmorType.FEET: feet_slot,
 	}
-	
+
 	for armor_type in armor_slots:
 		var slot = armor_slots[armor_type]
+		# The component owns a SlotData for every equipment key, even when the
+		# matching UI slot is absent (e.g. a headless bot scene).
+		var data := SlotData.new()
+		data.allowed_item_type = Constants.ItemType.EQUIPMENT
+		data.allowed_equipment_type = Constants.EquipmentType.ARMOR
+		data.allowed_armor_type = armor_type
+		slots_data[armor_type] = data
+
 		if is_instance_valid(slot):
 			equipment[armor_type] = slot
 			slot.set_inventory(self)
 			slot.allowed_item_type = Constants.ItemType.EQUIPMENT
 			slot.allowed_equipment_type = Constants.EquipmentType.ARMOR
 			slot.allowed_armor_type = armor_type
+			slot.bind_slot_data(data)
+
+	var weapon_data := SlotData.new()
+	weapon_data.allowed_item_type = Constants.ItemType.EQUIPMENT
+	weapon_data.allowed_equipment_type = Constants.EquipmentType.WEAPON
+	slots_data["WEAPON"] = weapon_data
 
 	if weapon_slot:
 		equipment["WEAPON"] = weapon_slot
 		weapon_slot.set_inventory(self)
 		weapon_slot.allowed_item_type = Constants.ItemType.EQUIPMENT
 		weapon_slot.allowed_equipment_type = Constants.EquipmentType.WEAPON
+		weapon_slot.bind_slot_data(weapon_data)
 
 	# When equipment changes on the server, persist the player's data
 	# Logic moved to multiplayer_controller_v2.gd to handle both client and server
-	pass
 
 
 func set_silent_mode(enabled: bool) -> void:

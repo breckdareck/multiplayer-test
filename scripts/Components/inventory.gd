@@ -12,6 +12,9 @@ signal inventory_saved(inventory: InventoryComponent)
 
 
 var slots: Array[Slot] = []
+# Component-owned data model, kept 1:1 and in index order with `slots`. The
+# item data lives here; the Slot nodes are views bound to these entries.
+var slots_data: Array[SlotData] = []
 var item_counts: Dictionary = {} # item_id -> total_count
 var item_locations: Dictionary = {} # item_id -> Array[Slot]
 
@@ -74,6 +77,8 @@ func _ensure_slots_initialized() -> void:
 			slot.set_inventory(self)
 		slot.add_to_group("inventory_slots")
 
+	_build_slot_data()
+
 
 func setup_slots(slot_array: Array[Slot]):
 	slots = slot_array
@@ -81,7 +86,21 @@ func setup_slots(slot_array: Array[Slot]):
 		if slot.has_method("set_inventory"):
 			slot.set_inventory(self)
 		slot.add_to_group("inventory_slots")
+	_build_slot_data()
 	_rebuild_item_tracking()
+
+
+## Creates one SlotData per UI slot (in index order) and binds them. After this
+## the data model lives in the component; the Slot nodes are pure views.
+func _build_slot_data() -> void:
+	if not slots_data.is_empty():
+		return
+	for i in slots.size():
+		var data := SlotData.new()
+		data.index = i
+		data.allowed_item_type = slots[i].allowed_item_type
+		slots_data.append(data)
+		slots[i].bind_slot_data(data)
 
 
 func _rebuild_item_tracking():
