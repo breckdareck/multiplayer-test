@@ -221,6 +221,18 @@ func _generate_uniques() -> void:
 	_make_unique_armor("Whisperstep Boots", 3, 45, "armor3",
 		"Not even stone remembers the tread of these boots.",
 		{DEF: 20, LUCK: 22, CRITCHANCE: 14})
+	_make_unique_armor("Stoneward Greaves", 2, 55, "armor2",
+		"Greaves so heavy the earth itself seems to anchor their wearer.",
+		{DEF: 52, MDEF: 30, HEALTH: 440, STR: 20})
+	_make_unique_armor("Trailblazer Leggings", 2, 48, "armor2",
+		"Supple leggings that have crossed every frontier and worn none.",
+		{DEF: 32, DEX: 26, CRITCHANCE: 13, HEALTH: 260})
+	_make_unique_armor("Wovenstar Leggings", 2, 52, "armor2",
+		"Leggings woven from threads of captured starlight.",
+		{DEF: 26, MDEF: 42, INT: 28, MANA: 380})
+	_make_unique_armor("Duskwalker Leggings", 2, 47, "armor2",
+		"Leggings that fall silent the moment dusk takes the sky.",
+		{DEF: 28, LUCK: 24, CRITCHANCE: 13, CRITDMG: 22})
 
 
 func _make_unique_weapon(uname: String, wtype: int, speed: int, lv: int,
