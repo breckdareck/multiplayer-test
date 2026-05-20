@@ -576,10 +576,6 @@ bgm_path = "uid://1ib7gi5y7uov"
 spawn_path = NodePath("..")
 script = ExtResource("1_ryi0r")
 
-[node name="ProjectileSpawner" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("uid://d0ig4oiimrnei")
-spawn_path = NodePath("../Projectiles")
-
 [node name="PortalToGame2" parent="." instance=ExtResource("3_jq5g6")]
 position = Vector2(504, 0)
 target_map_id = "game2"

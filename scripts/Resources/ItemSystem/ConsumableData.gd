@@ -13,16 +13,10 @@ func _init():
 	super()
 	item_type = Constants.ItemType.CONSUMABLE
 
-func to_dictionary() -> Dictionary:
-	var dict = super.to_dictionary()
-	if effect_script:
-		dict["effect_script_path"] = effect_script.resource_path
-	dict["effect_properties"] = effect_properties
-	return dict
-
-
-func get_save_data() -> Dictionary:
-	var dict = super.get_save_data()
+## Full serialization fallback (no resolvable resource). Slim saves derive the
+## effect script and properties from the canonical resource at load time.
+func _full_save_data(res_path: String) -> Dictionary:
+	var dict := super._full_save_data(res_path)
 	if effect_script:
 		dict["effect_script_path"] = effect_script.resource_path
 	dict["effect_properties"] = effect_properties

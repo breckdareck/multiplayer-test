@@ -1,15 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://d0ig4oiimrnei"]
+[gd_scene load_steps=5 format=3 uid="uid://d0ig4oiimrnei"]
 
 [ext_resource type="Script" uid="uid://dpe8y7w1xqk1y" path="res://scripts/Gameplay/projectile.gd" id="1_22vhk"]
 [ext_resource type="Texture2D" uid="uid://b407mfrctd50w" path="res://assets/sprites/MinifolksHumans/HumansProjectiles.png" id="1_j81vn"]
-
-[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_22vhk"]
-properties/0/path = NodePath(".:position")
-properties/0/spawn = true
-properties/0/replication_mode = 2
-properties/1/path = NodePath(".:rotation")
-properties/1/spawn = true
-properties/1/replication_mode = 2
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_22vhk"]
 size = Vector2(8, 3)
@@ -22,9 +14,6 @@ region = Rect2(16, 0, 16, 16)
 collision_layer = 0
 collision_mask = 8
 script = ExtResource("1_22vhk")
-
-[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
-replication_config = SubResource("SceneReplicationConfig_22vhk")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(1, 0.5)

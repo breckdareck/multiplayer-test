@@ -514,10 +514,6 @@ bgm_path = "res://assets/music/gameplay.mp3"
 spawn_path = NodePath("..")
 script = ExtResource("1_l73hv")
 
-[node name="ProjectileSpawner" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("uid://d0ig4oiimrnei")
-spawn_path = NodePath("../Projectiles")
-
 [node name="PortalToGame" parent="." instance=ExtResource("2_nb0i1")]
 position = Vector2(-1544, -16)
 target_map_id = "game"

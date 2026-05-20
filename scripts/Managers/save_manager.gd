@@ -312,6 +312,9 @@ func _send_http_save(username: String, data: Dictionary, is_flush: bool) -> void
 	var payload := {
 		"username": username,
 		"data": data,
+		# Bots have no player account — the backend routes them to the shared
+		# bot account so their Player row satisfies the NOT NULL account FK.
+		"is_bot": BotManager.is_bot_username(username),
 	}
 	var json_body: String = JSON.stringify(payload)
 	var headers: PackedStringArray = ["Content-Type: application/json"]

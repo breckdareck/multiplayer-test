@@ -34,11 +34,9 @@ func initialize(p_caster: Node2D, p_target: Node2D, p_ability: AbilityData, p_le
 	#sprite_2d.texture = p_ability.ability_icon #TESTING
 
 func _physics_process(delta: float) -> void:
-	# Movement logic should only be processed on the server,
-	# as the MultiplayerSynchronizer will replicate the position to clients.
-	if not multiplayer.is_server():
-		return
-
+	# Every peer simulates the projectile's movement locally — there is no
+	# MultiplayerSynchronizer. The server stays authoritative for hit detection
+	# (see _on_area_entered, connected only on the server).
 	var current_direction: Vector2
 
 	if is_instance_valid(target):
@@ -92,6 +90,20 @@ func _on_area_entered(area: Area2D) -> void:
 	else:
 		printerr("Projectile: Caster or its CombatComponent is invalid.")
 
-	# The projectile is destroyed on the server.
-	# The MultiplayerSpawner should handle cleaning it up on clients.
+	# The projectile is destroyed on the server; tell clients to drop their copy.
+	_server_destroy()
+
+
+## Server-only: remove this projectile early (it hit something) and tell
+## same-map clients to drop their visual copy. Lifetime expiry needs no RPC —
+## each peer's own _ready timer frees its copy independently.
+func _server_destroy() -> void:
+	var container := get_parent()
+	if is_instance_valid(container):
+		var map_node := container.get_parent()
+		if is_instance_valid(map_node) and map_node.is_in_group("map_base"):
+			var map_name: String = map_node.name.replace("Map_", "")
+			for peer_id in MapManager.get_real_players_on_map(map_name):
+				if peer_id != 1:
+					MapManager.despawn_projectile_visual.rpc_id(peer_id, name)
 	queue_free()

@@ -549,7 +549,9 @@ func spawn_projectile(ability: AbilityData, level_stats: AbilityLevelData, targe
 		initial_direction = Vector2(owner.facing_direction, 0).normalized()
 
 	var projectile_instance = active_behavior.projectile_scene.instantiate()
-	
+	var proj_name := "Proj_%d_%d" % [Time.get_ticks_msec(), randi()]
+	projectile_instance.name = proj_name
+
 	# The projectile will now store the ability data and call back to the CombatComponent to process the hit.
 	projectile_instance.initialize(owner, target, ability, level_stats, active_behavior.projectile_speed, initial_direction)
 	
@@ -586,62 +588,20 @@ func spawn_projectile(ability: AbilityData, level_stats: AbilityLevelData, targe
 	
 	projectile_instance.global_position = spawn_pos
 	
-	# Manual RPC for clients on the same map
+	# Replicate the visual to same-map clients. Routed through MapManager (an
+	# autoload that always resolves on every peer) so it works for bot casters
+	# too. Clients simulate the projectile locally; the server is authoritative
+	# for hit detection.
 	var target_path = NodePath("")
 	if is_instance_valid(target):
 		target_path = target.get_path()
-		
+
 	if current_map and current_map.is_in_group("map_base"):
 		var map_name = current_map.name.replace("Map_", "")
-		var players_on_map = MapManager.get_real_players_on_map(map_name)
-		# A bot's AbilityComponent node may not exist on a client (e.g. mid
-		# map-transition), which makes a node-addressed RPC fail. Route bot
-		# projectiles through MapManager — an autoload that always resolves.
-		var caster_is_bot := BotManager.is_bot(owner.player_id)
-
-		for peer_id in players_on_map:
+		var scene_path: String = active_behavior.projectile_scene.resource_path
+		for peer_id in MapManager.get_real_players_on_map(map_name):
 			if peer_id != 1: # Server already has it
-				if caster_is_bot:
-					MapManager.spawn_bot_projectile.rpc_id(peer_id, owner.player_id, ability.ability_id, level_stats.level, spawn_pos, initial_direction, target_path)
-				else:
-					spawn_projectile_client.rpc_id(peer_id, ability.ability_id, level_stats.level, spawn_pos, initial_direction, target_path)
-	else:
-		# Fallback
-		spawn_projectile_client.rpc(ability.ability_id, level_stats.level, spawn_pos, initial_direction, target_path)
-
-
-@rpc("authority", "call_local", "reliable")
-func spawn_projectile_client(ability_id: String, level: int, start_pos: Vector2, direction: Vector2, target_path: NodePath):
-	if multiplayer.is_server(): return # Server already spawned it
-	
-	var ability = ResourceManager.get_ability_data(ability_id)
-	if not ability or not ability.active_behavior or not ability.active_behavior.projectile_scene:
-		return
-		
-	var level_stats = ability.get_level_stats(level)
-	if not level_stats: return
-	
-	var target = get_node_or_null(target_path)
-	
-	var projectile_instance = ability.active_behavior.projectile_scene.instantiate()
-	
-	# Initialize on client
-	projectile_instance.initialize(owner, target, ability, level_stats, ability.active_behavior.projectile_speed, direction)
-	
-	# Find container on client
-	var map_node = MapManager.get_current_visible_map()
-	var target_container = null
-	
-	if map_node:
-		target_container = map_node.get_node_or_null("Projectiles")
-		if not target_container:
-			target_container = Node.new()
-			target_container.name = "Projectiles"
-			map_node.add_child(target_container)
-	
-	if target_container:
-		target_container.add_child(projectile_instance)
-		projectile_instance.global_position = start_pos
+				MapManager.spawn_projectile_visual.rpc_id(peer_id, proj_name, scene_path, spawn_pos, initial_direction, active_behavior.projectile_speed, target_path)
 
 
 ## [Client] Plays an ability's cast visual without the cooldown/UI bookkeeping

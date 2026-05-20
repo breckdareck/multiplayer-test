@@ -61,6 +61,11 @@ class Player(db.Model):
     hotbar = db.relationship('PlayerHotbar', backref='player', cascade="all, delete-orphan", foreign_keys='PlayerHotbar.player_username', primaryjoin="Player.username==PlayerHotbar.player_username")
     buffs = db.relationship('PlayerBuff', backref='player', cascade="all, delete-orphan", foreign_keys='PlayerBuff.player_username', primaryjoin="Player.username==PlayerBuff.player_username")
 
+# Items are stored slim: only instance-specific data. All static fields (name,
+# icon, type, base stats, etc.) are re-derived from the canonical .tres on the
+# Godot side via `item_path`. `variant` holds per-instance overrides — either
+# {"rarity", "bonus_stats"} for modified items (random rolls / crafting), or
+# {"_full": <full item dict>} for items with no canonical resource.
 class PlayerItem(db.Model):
     __tablename__ = 'player_items'
     __table_args__ = (
@@ -73,23 +78,7 @@ class PlayerItem(db.Model):
     slot_index = db.Column(db.Integer)
     item_path = db.Column(db.String(512))
     quantity = db.Column(db.Integer, default=1)
-    
-    # Normalized Data
-    name = db.Column(db.String(255))
-    description = db.Column(db.Text)
-    icon_path = db.Column(db.String(512))
-    item_type = db.Column(db.Integer, default=0)
-    item_level = db.Column(db.Integer, default=0)
-    rarity = db.Column(db.Integer, default=0)
-    custom_value = db.Column(db.Integer, default=0)
-    
-    # Equipment Specifics (Nullable since not all items are equipment)
-    equipment_type = db.Column(db.Integer, nullable=True)
-    armor_type = db.Column(db.Integer, nullable=True)
-    weapon_type = db.Column(db.Integer, nullable=True)
-    attack_speed = db.Column(db.Float, nullable=True)
-    
-    stats = db.Column(JSONB, default=dict) # Replaces dynamic_data
+    variant = db.Column(JSONB, nullable=True)
 
 class PlayerEquipment(db.Model):
     __tablename__ = 'player_equipment'
@@ -102,23 +91,7 @@ class PlayerEquipment(db.Model):
     item_id = db.Column(db.String(255))
     slot_type = db.Column(db.String(50))
     item_path = db.Column(db.String(512))
-    
-    # Normalized Data
-    name = db.Column(db.String(255))
-    description = db.Column(db.Text)
-    icon_path = db.Column(db.String(512))
-    item_type = db.Column(db.Integer, default=1) # Default to EQUIPMENT
-    item_level = db.Column(db.Integer, default=0)
-    rarity = db.Column(db.Integer, default=0)
-    custom_value = db.Column(db.Integer, default=0)
-    
-    # Equipment Specifics
-    equipment_type = db.Column(db.Integer, default=0)
-    armor_type = db.Column(db.Integer, default=0)
-    weapon_type = db.Column(db.Integer, default=0)
-    attack_speed = db.Column(db.Float, default=0.0)
-    
-    stats = db.Column(JSONB, default=dict) # Replaces dynamic_data
+    variant = db.Column(JSONB, nullable=True)
 
 class PlayerAbility(db.Model):
     __tablename__ = 'player_abilities'
@@ -164,6 +137,70 @@ def get_player_lock(username):
         if username not in _player_locks:
             _player_locks[username] = threading.Lock()
         return _player_locks[username]
+
+# ==================== ITEM SERIALIZATION HELPERS ====================
+
+def _build_item_data(item_path, item_id, variant, quantity):
+    """Reconstructs the slim item dict the Godot client expects on load.
+    `variant` may be None, {"rarity", "bonus_stats"} for modified items, or
+    {"_full": <dict>} for items with no canonical resource."""
+    if variant and '_full' in variant:
+        return variant['_full']
+    item_data = {
+        "original_resource_path": item_path,
+        "item_id": item_id,
+    }
+    if quantity is not None:
+        item_data["current_stack_amount"] = quantity
+    if variant:
+        item_data.update(variant)
+    return item_data
+
+
+def _extract_variant(item_data, path):
+    """Returns the variant blob to persist for an incoming item, or None for
+    plain canonical items. Pathless items store the full dict so they can still
+    be reconstructed without a backing resource."""
+    if not path:
+        return {'_full': item_data}
+    if 'bonus_stats' in item_data:
+        return {
+            'rarity': item_data.get('rarity'),
+            'bonus_stats': item_data.get('bonus_stats', {}),
+        }
+    return None
+
+
+# ==================== BOT ACCOUNT ====================
+
+# Bot characters have no player account, but Player.account_id is NOT NULL.
+# All bots are owned by a single shared system account so they satisfy the FK
+# while staying out of real players' character lists (those filter by account_id).
+BOT_ACCOUNT_USERNAME = '__bots__'
+_bot_account_id = None
+
+
+def _ensure_bot_account():
+    """Creates the shared bot account once, and caches its id."""
+    global _bot_account_id
+    account = Account.query.filter_by(username=BOT_ACCOUNT_USERNAME).first()
+    if not account:
+        # Not a valid password hash — check_password_hash always fails, so the
+        # bot account can never be logged into.
+        account = Account(username=BOT_ACCOUNT_USERNAME, password_hash='!no-login!')
+        db.session.add(account)
+        db.session.commit()
+        print(f"Created shared bot account (id={account.id})")
+    _bot_account_id = account.id
+    return _bot_account_id
+
+
+def _get_bot_account_id():
+    """Returns the cached bot account id, resolving it lazily if needed."""
+    if _bot_account_id is None:
+        _ensure_bot_account()
+    return _bot_account_id
+
 
 # ==================== ACCOUNT ENDPOINTS ====================
 
@@ -301,51 +338,18 @@ def load_player():
             'monies': player.monies
         }
         
-        # Reconstruct Inventory
+        # Reconstruct Inventory — slim dicts; Godot re-derives static fields
+        # from the canonical .tres referenced by original_resource_path.
         inventory_slots = []
         for item in player.items:
-            item_data = {
-                "original_resource_path": item.item_path,
-                "current_stack_amount": item.quantity,
-                "item_id": item.item_id,
-                "name": item.name,
-                "description": item.description,
-                "icon_path": item.icon_path,
-                "item_type": item.item_type,
-                "item_level": item.item_level,
-                "rarity": item.rarity,
-                "custom_item_value": item.custom_value,
-                "equipment_type": item.equipment_type,
-                "armor_type": item.armor_type,
-                "weapon_type": item.weapon_type,
-                "weapon_attack_speed": item.attack_speed,
-                "bonus_stats": item.stats
-            }
-            
             inventory_slots.append({
                 "slot_index": item.slot_index,
-                "item_data": item_data
+                "item_data": _build_item_data(item.item_path, item.item_id, item.variant, item.quantity)
             })
-            
+
         equipment_data = {}
         for eq in player.equipment:
-            item_data = {
-                "original_resource_path": eq.item_path,
-                "item_id": eq.item_id,
-                "name": eq.name,
-                "description": eq.description,
-                "icon_path": eq.icon_path,
-                "item_type": eq.item_type,
-                "item_level": eq.item_level,
-                "rarity": eq.rarity,
-                "custom_item_value": eq.custom_value,
-                "equipment_type": eq.equipment_type,
-                "armor_type": eq.armor_type,
-                "weapon_type": eq.weapon_type,
-                "weapon_attack_speed": eq.attack_speed,
-                "bonus_stats": eq.stats
-            }
-            equipment_data[eq.slot_type] = item_data
+            equipment_data[eq.slot_type] = _build_item_data(eq.item_path, eq.item_id, eq.variant, None)
             
         response_data['inventory'] = {
             'monies': player.monies, # Legacy support if client looks here
@@ -390,6 +394,7 @@ def save_player():
 
     username = content.get('username')
     data = content.get('data')
+    is_bot = bool(content.get('is_bot', False))
 
     if not username or not isinstance(username, str):
         return jsonify({"error": "Valid username required"}), 400
@@ -413,7 +418,11 @@ def save_player():
         ).filter_by(username=username).first()
 
         if not player:
-            player = Player(username=username)
+            # Real players already have a Player row from character creation;
+            # only bots reach here, and they're owned by the shared bot account.
+            if not is_bot:
+                return jsonify({"error": f"No character record for '{username}'"}), 404
+            player = Player(username=username, account_id=_get_bot_account_id())
             db.session.add(player)
 
         # Update Core Stats
@@ -443,65 +452,27 @@ def save_player():
                 incoming_slots.add(slot_index)
                 item_data = slot.get('item_data', {})
                 path = item_data.get('original_resource_path') or item_data.get('resource_path') or ""
-
                 item_id = item_data.get('item_id')
-
-                # Extract normalized data
-                name = item_data.get('name', "")
-                description = item_data.get('description', "")
-                icon_path = item_data.get('icon_path', "")
-                item_type = item_data.get('item_type', 0)
-                item_level = item_data.get('item_level', 0)
-                rarity = item_data.get('rarity', 0)
-                custom_value = item_data.get('custom_item_value', 0)
-
-                equipment_type = item_data.get('equipment_type')
-                armor_type = item_data.get('armor_type')
-                weapon_type = item_data.get('weapon_type')
-                attack_speed = item_data.get('weapon_attack_speed')
-
-                stats = item_data.get('bonus_stats', {})
+                quantity = item_data.get('current_stack_amount', 1)
+                variant = _extract_variant(item_data, path)
 
                 if slot_index in existing_items:
                     # UPDATE existing slot
                     item = existing_items[slot_index]
                     item.item_id = item_id
                     item.item_path = path
-                    item.quantity = item_data.get('current_stack_amount', 1)
-                    item.name = name
-                    item.description = description
-                    item.icon_path = icon_path
-                    item.item_type = item_type
-                    item.item_level = item_level
-                    item.rarity = rarity
-                    item.custom_value = custom_value
-                    item.equipment_type = equipment_type
-                    item.armor_type = armor_type
-                    item.weapon_type = weapon_type
-                    item.attack_speed = attack_speed
-                    item.stats = stats
+                    item.quantity = quantity
+                    item.variant = variant
                 else:
                     # INSERT new slot
-                    new_item = PlayerItem(
+                    db.session.add(PlayerItem(
                         player_username=username,
                         item_id=item_id,
                         slot_index=slot_index,
                         item_path=path,
-                        quantity=item_data.get('current_stack_amount', 1),
-                        name=name,
-                        description=description,
-                        icon_path=icon_path,
-                        item_type=item_type,
-                        item_level=item_level,
-                        rarity=rarity,
-                        custom_value=custom_value,
-                        equipment_type=equipment_type,
-                        armor_type=armor_type,
-                        weapon_type=weapon_type,
-                        attack_speed=attack_speed,
-                        stats=stats
-                    )
-                    db.session.add(new_item)
+                        quantity=quantity,
+                        variant=variant,
+                    ))
 
             # DELETE items in slots that are no longer occupied
             for idx, item in existing_items.items():
@@ -519,61 +490,23 @@ def save_player():
 
                 path = item_data.get('original_resource_path') or item_data.get('resource_path') or ""
                 item_id = item_data.get('item_id')
-
-                # Extract normalized data
-                name = item_data.get('name', "")
-                description = item_data.get('description', "")
-                icon_path = item_data.get('icon_path', "")
-                item_type = item_data.get('item_type', 1) # Default Equipment
-                item_level = item_data.get('item_level', 0)
-                rarity = item_data.get('rarity', 0)
-                custom_value = item_data.get('custom_item_value', 0)
-
-                equipment_type = item_data.get('equipment_type', 0)
-                armor_type = item_data.get('armor_type', 0)
-                weapon_type = item_data.get('weapon_type', 0)
-                attack_speed = item_data.get('weapon_attack_speed', 0.0)
-
-                stats = item_data.get('bonus_stats', {})
+                variant = _extract_variant(item_data, path)
 
                 if slot_type_str in existing_eq:
                     # UPDATE existing equipment slot
                     eq = existing_eq[slot_type_str]
                     eq.item_id = item_id
                     eq.item_path = path
-                    eq.name = name
-                    eq.description = description
-                    eq.icon_path = icon_path
-                    eq.item_type = item_type
-                    eq.item_level = item_level
-                    eq.rarity = rarity
-                    eq.custom_value = custom_value
-                    eq.equipment_type = equipment_type
-                    eq.armor_type = armor_type
-                    eq.weapon_type = weapon_type
-                    eq.attack_speed = attack_speed
-                    eq.stats = stats
+                    eq.variant = variant
                 else:
                     # INSERT new equipment slot
-                    new_eq = PlayerEquipment(
+                    db.session.add(PlayerEquipment(
                         player_username=username,
                         item_id=item_id,
                         slot_type=slot_type_str,
                         item_path=path,
-                        name=name,
-                        description=description,
-                        icon_path=icon_path,
-                        item_type=item_type,
-                        item_level=item_level,
-                        rarity=rarity,
-                        custom_value=custom_value,
-                        equipment_type=equipment_type,
-                        armor_type=armor_type,
-                        weapon_type=weapon_type,
-                        attack_speed=attack_speed,
-                        stats=stats
-                    )
-                    db.session.add(new_eq)
+                        variant=variant,
+                    ))
 
             # DELETE equipment in slots that are no longer occupied
             for stype, eq in existing_eq.items():
@@ -671,6 +604,8 @@ def _run_migrations():
         ("players", "current_mana", "ALTER TABLE players ADD COLUMN current_mana INTEGER DEFAULT 100"),
         ("players", "max_mana",     "ALTER TABLE players ADD COLUMN max_mana INTEGER DEFAULT 100"),
         ("player_buffs", "total_duration", "ALTER TABLE player_buffs ADD COLUMN total_duration FLOAT DEFAULT 0"),
+        ("player_items", "variant", "ALTER TABLE player_items ADD COLUMN variant JSONB"),
+        ("player_equipment", "variant", "ALTER TABLE player_equipment ADD COLUMN variant JSONB"),
     ]
     for table, column, sql in migrations:
         try:
@@ -683,6 +618,52 @@ def _run_migrations():
             db.session.execute(db.text(sql))
             db.session.commit()
 
+    # Backfill `variant` from the legacy normalized columns before they are
+    # dropped, so existing modified items (random rolls) keep their stats.
+    # Godot discards variant data that matches the canonical resource on load,
+    # so over-preserving unmodified items here is harmless.
+    for table in ("player_items", "player_equipment"):
+        try:
+            db.session.execute(db.text(f"SELECT stats FROM {table} LIMIT 1"))
+        except Exception:
+            db.session.rollback()
+            continue  # legacy columns already gone — nothing to backfill
+        try:
+            print(f"Migration: backfilling {table}.variant from legacy columns")
+            db.session.execute(db.text(
+                f"UPDATE {table} "
+                f"SET variant = jsonb_build_object('rarity', rarity, 'bonus_stats', stats) "
+                f"WHERE variant IS NULL "
+                f"AND stats IS NOT NULL AND stats::text NOT IN ('{{}}', 'null')"
+            ))
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            print(f"Migration: backfill failed for {table}: {e}")
+
+    # Drop obsolete normalized item columns — superseded by the `variant` JSONB.
+    # Item static fields are now re-derived from the canonical .tres in Godot.
+    obsolete_columns = [
+        (table, column)
+        for table in ("player_items", "player_equipment")
+        for column in ("name", "description", "icon_path", "item_type", "item_level",
+                       "rarity", "custom_value", "equipment_type", "armor_type",
+                       "weapon_type", "attack_speed", "stats")
+    ]
+    for table, column in obsolete_columns:
+        try:
+            db.session.execute(db.text(f"SELECT {column} FROM {table} LIMIT 1"))
+        except Exception:
+            db.session.rollback()
+            continue  # column (or table) already absent
+        try:
+            print(f"Migration: dropping obsolete {table}.{column}")
+            db.session.execute(db.text(f"ALTER TABLE {table} DROP COLUMN {column}"))
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            print(f"Migration: failed to drop {table}.{column}: {e}")
+
 
 def init_db():
     """Initialize database with retry logic for Docker startup"""
@@ -692,6 +673,7 @@ def init_db():
             with app.app_context():
                 db.create_all()
                 _run_migrations()
+                _ensure_bot_account()
                 print("Database tables created successfully!")
                 return
         except Exception as e:

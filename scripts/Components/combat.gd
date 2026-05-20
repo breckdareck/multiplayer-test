@@ -114,6 +114,8 @@ func perform_ranged_attack(_attack_name: String, _duration: float) -> void:
 	var projectile := BASIC_ARROW_SCENE.instantiate()
 	projectile.initialize(owner_node, null, null, null, BASIC_ARROW_SPEED, direction)
 	projectile.set_meta("basic_attack_caster", owner_node)
+	var proj_name := "Proj_%d_%d" % [Time.get_ticks_msec(), randi()]
+	projectile.name = proj_name
 
 	var current_map = owner_node.get_parent().get_parent()
 	var container: Node = null
@@ -127,10 +129,18 @@ func perform_ranged_attack(_attack_name: String, _duration: float) -> void:
 		return
 
 	container.add_child(projectile, true)
+	var spawn_pos: Vector2 = owner_node.global_position
 	if is_instance_valid(owner_node.projectile_spawn_location):
-		projectile.global_position = owner_node.projectile_spawn_location.global_position
-	else:
-		projectile.global_position = owner_node.global_position
+		spawn_pos = owner_node.projectile_spawn_location.global_position
+	projectile.global_position = spawn_pos
+
+	# Replicate the visual to same-map clients. Clients simulate the arrow's
+	# movement locally; the server's copy stays authoritative for any hit.
+	if current_map and current_map.is_in_group("map_base"):
+		var map_name: String = current_map.name.replace("Map_", "")
+		for peer_id in MapManager.get_real_players_on_map(map_name):
+			if peer_id != 1:
+				MapManager.spawn_projectile_visual.rpc_id(peer_id, proj_name, BASIC_ARROW_SCENE.resource_path, spawn_pos, direction, BASIC_ARROW_SPEED, NodePath(""))
 
 	get_tree().create_timer(0.1).timeout.connect(func(): current_attack_data = "")
 

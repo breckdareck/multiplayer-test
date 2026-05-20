@@ -124,6 +124,10 @@ func _apply_random_stats(item: EquipmentData) -> void:
 		stat_data_instance.flat_bonus_value += amount_to_assign
 		remaining_budget -= amount_to_assign
 
+	# Rolled stats diverge from the canonical .tres, so the instance's variant
+	# data (rarity + bonus_stats) must be persisted on save.
+	item.is_modified = true
+
 func _choose_random_rarity() -> Constants.ItemRarity:
 	##print("--- Choosing Random Rarity ---")
 	

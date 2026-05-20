@@ -10,43 +10,51 @@ extends ItemData
 func _init():
 	super ()
 
-func to_dictionary() -> Dictionary:
-	var dict = super.to_dictionary()
-	
-	var serialized_bonus_stats = {}
+## Serializes bonus_stats with string keys (JSON-safe) for persistence.
+func _serialize_bonus_stats() -> Dictionary:
+	var serialized := {}
 	for stat_type in bonus_stats:
 		var stat_data: StatData = bonus_stats[stat_type]
-		serialized_bonus_stats[stat_type] = stat_data.to_dictionary()
-	dict["bonus_stats"] = serialized_bonus_stats
-	
+		serialized[str(stat_type)] = stat_data.to_dictionary()
+	return serialized
+
+
+## Slim-save hook: persist rarity + bonus_stats only for modified equipment
+## (random drops, and later crafting/enchanting). Unmodified equipment derives
+## both from its canonical resource at load time.
+func _append_variant_data(dict: Dictionary) -> void:
+	if is_modified:
+		dict["rarity"] = rarity
+		dict["bonus_stats"] = _serialize_bonus_stats()
+
+
+## Slim-load hook: re-apply roll data after the item is rebuilt from its
+## resource. Only flags the instance as modified when the saved data actually
+## diverges from the resource — old saves serialized base stats for every item.
+func _apply_variant_data(dict: Dictionary) -> void:
+	if not dict.has("bonus_stats"):
+		return
+	var saved_stats: Dictionary = dict.get("bonus_stats", {})
+	var saved_rarity: int = dict.get("rarity", rarity)
+	if saved_rarity == rarity and saved_stats == _serialize_bonus_stats():
+		return
+	is_modified = true
+	rarity = saved_rarity
+	bonus_stats = {}
+	for stat_type_str in saved_stats:
+		bonus_stats[int(stat_type_str)] = StatData.from_dictionary(saved_stats[stat_type_str])
+
+
+## Full serialization fallback (no resolvable resource) — includes every field.
+func _full_save_data(res_path: String) -> Dictionary:
+	var dict := super._full_save_data(res_path)
+	dict["bonus_stats"] = _serialize_bonus_stats()
 	dict["equipment_type"] = equipment_type
-	
 	if self is ArmorData:
 		dict["armor_type"] = (self as ArmorData).armor_type
 	elif self is WeaponData:
 		dict["weapon_type"] = (self as WeaponData).weapon_type
 		dict["weapon_attack_speed"] = (self as WeaponData).weapon_attack_speed
-		
-	return dict
-
-
-func get_save_data() -> Dictionary:
-	var dict = super.get_save_data()
-	
-	var serialized_bonus_stats = {}
-	for stat_type in bonus_stats:
-		var stat_data: StatData = bonus_stats[stat_type]
-		serialized_bonus_stats[str(stat_type)] = stat_data.to_dictionary()
-	dict["bonus_stats"] = serialized_bonus_stats
-	
-	dict["equipment_type"] = equipment_type
-	
-	if self is ArmorData:
-		dict["armor_type"] = (self as ArmorData).armor_type
-	elif self is WeaponData:
-		dict["weapon_type"] = (self as WeaponData).weapon_type
-		dict["weapon_attack_speed"] = (self as WeaponData).weapon_attack_speed
-		
 	return dict
 
 

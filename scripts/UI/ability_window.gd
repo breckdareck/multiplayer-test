@@ -528,12 +528,9 @@ func on_level_up_button_pressed():
 	if not ability_component or selected_ability_id.is_empty():
 		return
 	
-	# Use the ability component's level up method
-	#if ability_component.level_up_ability(selected_ability_id):
-		##print("Successfully leveled up ability: %s" % selected_ability_id)
-		# UI will be updated by the signal callback
-	#else:
-		##print("Failed to level up ability: %s" % selected_ability_id)
+	# Level up (or learn, at level 0) the selected ability. The UI refreshes
+	# via the ability_leveled_up / ability_learned signal callbacks.
+	ability_component.level_up_ability(selected_ability_id)
 
 
 ## Updates the SP display in the header

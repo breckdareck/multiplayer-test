@@ -589,17 +589,52 @@ func client_despawn_player(player_id_to_remove: int):
 		#print("Client: Despawned player %d" % player_id_to_remove)
 
 
-## [Server -> Client] Spawns a bot's projectile visual. Routed through
-## MapManager (an autoload that always resolves) rather than addressed to the
-## bot's AbilityComponent node, which a client may lack during map transitions.
+## [Server -> Client] Spawns a projectile visual on a client. Routed through
+## MapManager (an autoload that always resolves on every peer) so it works for
+## any caster — including bots, whose component nodes a client may lack during
+## a map transition. Clients simulate the projectile's movement locally; the
+## server stays authoritative for hit detection.
 @rpc("authority", "call_remote", "reliable")
-func spawn_bot_projectile(caster_id: int, ability_id: String, level: int, start_pos: Vector2, direction: Vector2, target_path: NodePath) -> void:
+func spawn_projectile_visual(proj_name: String, scene_path: String, start_pos: Vector2, direction: Vector2, speed: float, target_path: NodePath) -> void:
 	if multiplayer.is_server():
 		return
-	var caster = PlayerManager.get_player_node(caster_id)
-	if not is_instance_valid(caster) or not is_instance_valid(caster.ability_component):
-		return  # bot not present on this client — skip the visual, no error
-	caster.ability_component.spawn_projectile_client(ability_id, level, start_pos, direction, target_path)
+	var map_node = get_current_visible_map()
+	if not is_instance_valid(map_node):
+		return
+	var container = map_node.get_node_or_null("Projectiles")
+	if not is_instance_valid(container):
+		container = Node.new()
+		container.name = "Projectiles"
+		map_node.add_child(container)
+	if container.has_node(proj_name):
+		return  # already spawned — defensive against a duplicate RPC
+	var scene: PackedScene = load(scene_path)
+	if not scene:
+		return
+	var projectile = scene.instantiate()
+	projectile.name = proj_name
+	var target: Node = get_node_or_null(target_path) if not target_path.is_empty() else null
+	projectile.initialize(null, target, null, null, speed, direction)
+	container.add_child(projectile)
+	projectile.global_position = start_pos
+
+
+## [Server -> Client] Removes a projectile visual early — the server's
+## authoritative copy hit something before its lifetime expired. Lifetime
+## expiry is handled independently on each peer by the projectile's own timer.
+@rpc("authority", "call_remote", "reliable")
+func despawn_projectile_visual(proj_name: String) -> void:
+	if multiplayer.is_server():
+		return
+	var map_node = get_current_visible_map()
+	if not is_instance_valid(map_node):
+		return
+	var container = map_node.get_node_or_null("Projectiles")
+	if not is_instance_valid(container):
+		return
+	var projectile = container.get_node_or_null(proj_name)
+	if is_instance_valid(projectile):
+		projectile.queue_free()
 
 
 ## [Server -> Client] Plays a bot's ability-cast visual. Routed through

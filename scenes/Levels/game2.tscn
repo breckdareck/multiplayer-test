@@ -523,10 +523,6 @@ unique_name_in_owner = true
 spawn_path = NodePath("..")
 script = ExtResource("2_cfook")
 
-[node name="ProjectileSpawner" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("uid://d0ig4oiimrnei")
-spawn_path = NodePath("../Projectiles")
-
 [node name="PortalToGame" parent="." instance=ExtResource("3_wye8b")]
 position = Vector2(1336, -32)
 target_map_id = "game"

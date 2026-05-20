@@ -41,6 +41,11 @@ var current_stack_amount: int = 1
 var original_resource_path: String
 var instance_id: String
 
+## True when this instance's stats diverge from its canonical .tres — e.g. a
+## random drop roll, or (later) crafting/enchanting. Drives whether variant
+## data is persisted; unmodified items are fully re-derived from the resource.
+var is_modified: bool = false
+
 
 func _get_property_list():
 	if OS.has_feature("editor"):
@@ -116,57 +121,57 @@ static func resolve_icon(icon_path: String, item_name: String) -> Texture2D:
 	return null
 
 
-func to_dictionary() -> Dictionary:
-	var res_path = get_resource_path()
-	if res_path.is_empty() and not name.is_empty():
+## Resolves the canonical .tres path for this item, falling back to a
+## name lookup via ResourceManager. Returns "" when no canonical resource
+## exists (truly ad-hoc items with no backing .tres).
+func _resolve_save_path() -> String:
+	var res_path := get_resource_path()
+	if (res_path.is_empty() or res_path.contains("::")) and not name.is_empty():
 		var item_from_manager = ResourceManager.get_item_by_name(name)
 		if item_from_manager:
 			res_path = item_from_manager.get_resource_path()
+	return res_path
 
-	# Skip placeholder sub-resource paths ("::") — they can't be loaded back.
-	var icon_path := ""
-	if icon and not icon.resource_path.contains("::"):
-		icon_path = icon.resource_path
 
-	if icon_path.is_empty() and not res_path.is_empty() and not res_path.contains("::"):
-		var original_res = load(res_path)
-		if original_res and original_res.icon and not original_res.icon.resource_path.contains("::"):
-			icon_path = original_res.icon.resource_path
+## True when the item can be rebuilt from a canonical .tres at load time.
+## Placeholder sub-resource paths ("::") can't be loaded back, so they don't count.
+func _can_slim_save(res_path: String) -> bool:
+	return not res_path.is_empty() and not res_path.contains("::")
 
-	var dict = {
-		"item_id": item_id,
-		"name": name,
-		"rarity": rarity,
-		"icon_path": icon_path,
-		"description": description,
-		"item_type": item_type,
-		"item_level": item_level,
-		"custom_item_value": custom_item_value,
-		"can_stack": can_stack,
-		"max_stack_amount": max_stack_amount,
-		"current_stack_amount": current_stack_amount,
+
+## Serializes the item for persistence and network sync. Items backed by a
+## canonical resource store only instance-specific data (path, id, stack, and
+## any variant rolls); all static fields are re-derived from the .tres on load.
+func get_save_data() -> Dictionary:
+	var res_path := _resolve_save_path()
+	if not _can_slim_save(res_path):
+		return _full_save_data(res_path)
+
+	var dict := {
 		"original_resource_path": res_path,
+		"item_id": item_id,
+		"current_stack_amount": current_stack_amount,
 	}
-	
+	_append_variant_data(dict)
 	return dict
 
 
-func get_save_data() -> Dictionary:
-	var res_path = get_resource_path()
-	if res_path.is_empty() and not name.is_empty():
-		var item_from_manager = ResourceManager.get_item_by_name(name)
-		if item_from_manager:
-			res_path = item_from_manager.get_resource_path()
+## Alias kept for callers that serialize items for RPC sync and trading.
+func to_dictionary() -> Dictionary:
+	return get_save_data()
 
-	# Skip placeholder sub-resource paths ("::") — they can't be loaded back.
+
+## Overridden by EquipmentData to append per-instance roll data (rarity,
+## bonus_stats) for modified items. Base items have no variant data.
+func _append_variant_data(_dict: Dictionary) -> void:
+	pass
+
+
+## Full serialization fallback for items with no resolvable canonical resource.
+func _full_save_data(res_path: String) -> Dictionary:
 	var icon_path := ""
 	if icon and not icon.resource_path.contains("::"):
 		icon_path = icon.resource_path
-
-	if icon_path.is_empty() and not res_path.is_empty() and not res_path.contains("::"):
-		var original_res = load(res_path)
-		if original_res and original_res.icon and not original_res.icon.resource_path.contains("::"):
-			icon_path = original_res.icon.resource_path
 
 	return {
 		"original_resource_path": res_path,
@@ -181,13 +186,34 @@ func get_save_data() -> Dictionary:
 		"item_level": item_level,
 		"rarity": rarity,
 		"custom_item_value": custom_item_value,
-		# Base items don't have equipment stats, but backend expects keys or defaults
-		# We can leave them null or omit them if backend handles missing keys (it does .get())
-		"bonus_stats": {}
+		"bonus_stats": {},
 	}
 
 
 static func from_dictionary(dict: Dictionary) -> ItemData:
+	# Slim format — reconstruct from the canonical resource, then re-apply
+	# instance-specific data (id, stack, variant rolls).
+	var res_path: String = dict.get("original_resource_path", "")
+	if not res_path.is_empty() and ResourceLoader.exists(res_path):
+		var base_res = load(res_path)
+		if base_res is ItemData:
+			var item: ItemData = base_res.duplicate_with_path(true)
+			item.item_id = dict.get("item_id", item.item_id)
+			item.current_stack_amount = dict.get("current_stack_amount", item.current_stack_amount)
+			item._apply_variant_data(dict)
+			return item
+
+	# Legacy / pathless format — reconstruct entirely from the dictionary.
+	return _from_full_dictionary(dict)
+
+
+## Overridden by EquipmentData to re-apply per-instance roll data after the
+## item has been rebuilt from its canonical resource.
+func _apply_variant_data(_dict: Dictionary) -> void:
+	pass
+
+
+static func _from_full_dictionary(dict: Dictionary) -> ItemData:
 	var item_type_enum = dict.get("item_type", Constants.ItemType.ANY)
 	var item_instance: ItemData
 	if item_type_enum == Constants.ItemType.EQUIPMENT:
