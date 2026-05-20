@@ -26,14 +26,14 @@ func on_damaged(owner_node: Node, active_buff, damage_amount: int, source: Node)
 		return
 	
 	
-	print("Recieved Dmg Amount: %d" % damage_amount)
-	print("Power Guard: On Damaged %d%% " % round(reflect_percentage))
+	#print("Recieved Dmg Amount: %d" % damage_amount)
+	#print("Power Guard: On Damaged %d%% " % round(reflect_percentage))
 	
 	
 	# Calculate reflected damage
 	var reflected_damage: int = roundi(damage_amount * (round(reflect_percentage) / 100.0) * active_buff.stacks)
 	
-	print("Reflected Dmg: %d" % reflected_damage)
+	#print("Reflected Dmg: %d" % reflected_damage)
 	
 	# Cap reflected damage at half of attacker's max HP
 	var attacker_health_comp = source.get("health_component")
@@ -43,5 +43,5 @@ func on_damaged(owner_node: Node, active_buff, damage_amount: int, source: Node)
 	
 	# Apply reflected damage back to the attacker
 	if reflected_damage > 0 and attacker_health_comp:
-		print("Power Guard reflects %d damage back to %s!" % [reflected_damage, source.name])
+		#print("Power Guard reflects %d damage back to %s!" % [reflected_damage, source.name])
 		attacker_health_comp.take_damage(reflected_damage, owner_node, true)

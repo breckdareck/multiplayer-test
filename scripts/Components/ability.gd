@@ -29,12 +29,12 @@ signal ability_points_changed(new_total: int)
 		
 		# Update the debug hitbox shape and position based on the assigned AbilityData
 		if new_ability_data and new_ability_data.active_behavior and is_instance_valid(new_ability_data.active_behavior.hit_box_shape_data):
-			print("Setting debug hitbox from: %s" % new_ability_data.ability_name)
+			##print("Setting debug hitbox from: %s" % new_ability_data.ability_name)
 			hitbox.shape = new_ability_data.active_behavior.hit_box_shape_data.duplicate()
 			hitbox.position = new_ability_data.active_behavior.hit_box_position_data
 		else:
 			# Fallback to a default shape if the ability data is invalid
-			print("Setting debug hitbox to default shape.")
+			##print("Setting debug hitbox to default shape.")
 			var default_shape := RectangleShape2D.new()
 			default_shape.size = Vector2(21, 21)
 			hitbox.shape = default_shape
@@ -122,7 +122,7 @@ func _ready() -> void:
 				# Level 0 signifies the ability is known but not yet leveled up.
 				_learn_ability_local(ability_data.ability_id, 0, false)
 
-	print("AbilityComponent ready. Loaded abilities: ", _ability_levels)
+	##print("AbilityComponent ready. Loaded abilities: ", _ability_levels)
 
 
 func _process(delta: float) -> void:
@@ -147,7 +147,7 @@ func use_ability(ability_id: String) -> bool:
 	
 	# Client-side check to prevent sending pointless requests
 	if _cooldowns.has(ability_id):
-		print("Ability '%s' is on cooldown." % validation.ability.ability_name)
+		##print("Ability '%s' is on cooldown." % validation.ability.ability_name)
 		return false
 		
 	# In multiplayer, clients request the server to use the ability.
@@ -280,21 +280,21 @@ func _validate_ability_use(ability_id: String) -> Dictionary:
 	
 	var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
 	if not ability:
-		printerr("Ability ID '%s' not found." % ability_id)
+		#printerr("Ability ID '%s' not found." % ability_id)
 		return result
 	
 	var ability_level := get_ability_level(ability_id)
 	if ability_level <= 0:
-		print("Ability '%s' has not been learned." % ability.ability_name)
+		##print("Ability '%s' has not been learned." % ability.ability_name)
 		return result
 	
 	if ability.ability_type != Constants.AbilityType.ACTIVE:
-		print("Ability '%s' is not an active ability." % ability.ability_name)
+		##print("Ability '%s' is not an active ability." % ability.ability_name)
 		return result
 	
 	var level_stats = ability.get_level_stats(ability_level)
 	if not level_stats:
-		printerr("Invalid level data for '%s' at level %d" % [ability.ability_name, ability_level])
+		#printerr("Invalid level data for '%s' at level %d" % [ability.ability_name, ability_level])
 		return result
 	
 	result.valid = true
@@ -309,7 +309,7 @@ func _can_afford_ability(ability_id: String, level_stats: AbilityLevelData) -> b
 	# Check mana
 	var modified_mana_cost = level_stats.mana_cost * get_ability_mana_modifier(ability_id)
 	if _mana_component.current_mana < modified_mana_cost:
-		print("Server: Not enough mana.")
+		##print("Server: Not enough mana.")
 		return false
 	
 	# Check if already attacking
@@ -317,7 +317,7 @@ func _can_afford_ability(ability_id: String, level_stats: AbilityLevelData) -> b
 	if state_machine:
 		var attack_state = state_machine.get_node_or_null("attack")
 		if "current_state" in state_machine and state_machine.current_state == attack_state:
-			print("Server: Cannot use ability, an attack is already in progress.")
+			##print("Server: Cannot use ability, an attack is already in progress.")
 			return false
 	
 	return true
@@ -371,7 +371,7 @@ func _handle_authoritative_use(ability_id: String, ability: AbilityData, level_s
 
 ## Triggers the state machine transition and custom logic for an active ability.
 func _trigger_ability_state_change(ability: AbilityData, level_stats: AbilityLevelData) -> void:
-	print("Executing %s (Level %d)" % [ability.ability_name, level_stats.level])
+	##print("Executing %s (Level %d)" % [ability.ability_name, level_stats.level])
 	
 	var active_behavior = ability.active_behavior
 	if not active_behavior:
@@ -410,7 +410,7 @@ func _trigger_ability_state_change(ability: AbilityData, level_stats: AbilityLev
 ## The authoritative logic for leveling up an ability.
 func _level_up_ability_local(ability_id: String) -> bool:
 	if not can_level_up_ability(ability_id):
-		print("Validation failed for leveling up ability: %s." % ability_id)
+		##print("Validation failed for leveling up ability: %s." % ability_id)
 		return false
 
 	var ability = ResourceManager.get_ability_data(ability_id)
@@ -424,7 +424,7 @@ func _level_up_ability_local(ability_id: String) -> bool:
 		_apply_passive_effects()
 
 	ability_leveled_up.emit(ability_id, current_level + 1)
-	print("Leveled up %s to level %d" % [ability.ability_name, current_level + 1])
+	##print("Leveled up %s to level %d" % [ability.ability_name, current_level + 1])
 	
 	# Sync changes to clients
 	if multiplayer.is_server():
@@ -441,7 +441,7 @@ func _learn_ability_local(ability_id: String, initial_level: int = 0, send_rpc: 
 	
 	var ability = ResourceManager.get_ability_data(ability_id)
 	if not ability:
-		printerr("AbilityData not found for ID: %s" % ability_id)
+		#printerr("AbilityData not found for ID: %s" % ability_id)
 		return false
 	
 	_ability_levels[ability_id] = initial_level
@@ -450,7 +450,7 @@ func _learn_ability_local(ability_id: String, initial_level: int = 0, send_rpc: 
 		_apply_passive_effects()
 		
 	ability_learned.emit(ability_id)
-	print("Learned ability: %s at level %d" % [ability.ability_name, initial_level])
+	##print("Learned ability: %s at level %d" % [ability.ability_name, initial_level])
 	
 	if send_rpc and multiplayer.is_server():
 		sync_ability_learned.rpc(ability_id, initial_level)
@@ -467,7 +467,7 @@ func _apply_passive_effects() -> void:
 ## Adds ability points, typically called after leveling up.
 func _add_ability_points(amount: int) -> void:
 	_available_ability_points += amount
-	print("Added %d ability points. Total: %d" % [amount, _available_ability_points])
+	##print("Added %d ability points. Total: %d" % [amount, _available_ability_points])
 	ability_points_changed.emit(_available_ability_points)
 	
 	if multiplayer.is_server():
@@ -475,14 +475,14 @@ func _add_ability_points(amount: int) -> void:
 
 
 func _execute_proc(proc: ProcEffectData, target: Node, context: Dictionary) -> void:
-	print("Proc triggered! Chance was: %.1f%%" % (proc.proc_chance * 100))
+	##print("Proc triggered! Chance was: %.1f%%" % (proc.proc_chance * 100))
 	
 	# Deal damage if specified
 	if proc.damage_percent > 0 and target and "health_component" in target:
 		var base_damage = context.get("base_damage", 0)
 		var proc_damage = base_damage * (proc.damage_percent / 100.0)
 		target.health_component.take_damage(proc_damage, owner, true)
-		print("Proc dealt %d damage" % proc_damage)
+		##print("Proc dealt %d damage" % proc_damage)
 	
 	# Execute ability if specified
 	if proc.execute_ability:
@@ -553,7 +553,7 @@ func spawn_projectile(ability: AbilityData, level_stats: AbilityLevelData, targe
 			new_container.name = "Projectiles"
 			current_map.add_child(new_container)
 			target_container = new_container
-			print("Created missing Projectiles container on map: %s" % current_map.name)
+			#print("Created missing Projectiles container on map: %s" % current_map.name)
 	
 	if not is_instance_valid(target_container):
 		printerr("Could not find valid Projectiles container for ability: %s" % ability.ability_name)
@@ -625,7 +625,7 @@ func spawn_projectile_client(ability_id: String, level: int, start_pos: Vector2,
 func sync_all_abilities_to_client(peer_id: int) -> void:
 	if not multiplayer.is_server(): return
 
-	print("Syncing all ability data to peer %d" % peer_id)
+	#print("Syncing all ability data to peer %d" % peer_id)
 	sync_all_abilities_batch.rpc_id(peer_id, _ability_levels.duplicate(), _available_ability_points)
 
 
@@ -642,7 +642,7 @@ func sync_all_abilities_batch(abilities: Dictionary, ability_points: int) -> voi
 
 ## [Client->Server] Client-side wrapper to request ability use from the server.
 func _request_ability_use(ability_id: String) -> void:
-	print("Client: Sending request to use ability %s" % ability_id)
+	#print("Client: Sending request to use ability %s" % ability_id)
 	use_ability_server.rpc_id(1, ability_id) # Server is always peer ID 1
 
 
@@ -692,7 +692,7 @@ func ability_used_client(ability_id: String, cooldown_time: float) -> void:
 		if level_stats:
 			_trigger_ability_state_change(ability, level_stats)
 	
-	print("Synchronized ability use for %s." % ability_id)
+	#print("Synchronized ability use for %s." % ability_id)
 
 
 @rpc("any_peer", "call_local", "reliable")
@@ -714,7 +714,7 @@ func learn_ability_request(ability_id: String, initial_level: int) -> void:
 func sync_ability_level(ability_id: String, new_level: int) -> void:
 	_ability_levels[ability_id] = new_level
 	ability_leveled_up.emit(ability_id, new_level)
-	print("Synced ability level: %s to %d" % [ability_id, new_level])
+	#print("Synced ability level: %s to %d" % [ability_id, new_level])
 
 
 @rpc("authority", "call_local", "reliable")
@@ -739,12 +739,12 @@ func sync_ability_points(new_total: int) -> void:
 ## Called when the LevelingComponent emits the `leveled_up` signal.
 func _on_leveled_up(new_level: int) -> void:
 	# Grant 3 ability points on level up
-	print("Leveled up to %d. Gaining 3 ability points." % new_level)
+	#print("Leveled up to %d. Gaining 3 ability points." % new_level)
 	_add_ability_points(3)
 
 
 func _on_class_changed(new_class_name: String) -> void:
-	print("AbilityComponent: Class changed to %s. Reloading abilities." % new_class_name)
+	#print("AbilityComponent: Class changed to %s. Reloading abilities." % new_class_name)
 	_ability_levels.clear()
 	
 	# Re-initialize class abilities
@@ -776,7 +776,7 @@ func load_abilities(data: Dictionary) -> void:
 	for ability_data in _class_component.get_class_abilities():
 		if ability_data != null and not _ability_levels.has(ability_data.ability_id):
 			_ability_levels[ability_data.ability_id] = 0
-			print("Added new ability from class: %s at level 0" % ability_data.ability_id)
+			#print("Added new ability from class: %s at level 0" % ability_data.ability_id)
 			
 	# Load saved data by merging (not replacing) to preserve new abilities
 	var saved_levels = data.get("ability_levels", {})
@@ -795,23 +795,23 @@ func load_abilities(data: Dictionary) -> void:
 			if level > 0:
 				ability_learned.emit(ability_id)
 				ability_leveled_up.emit(ability_id, level)
-			print("Loaded ability: %s at level %d" % [ability_id, level])
-	else:
-		for ability_id in _ability_levels:
-			print("Loaded ability: %s at level %d" % [ability_id, _ability_levels[ability_id]])
+			#print("Loaded ability: %s at level %d" % [ability_id, level])
+	#else:
+		#for ability_id in _ability_levels:
+			#print("Loaded ability: %s at level %d" % [ability_id, _ability_levels[ability_id]])
 			
 ## Disconnects from leveling component signals to prevent side effects during loading.
 func disconnect_level_signals() -> void:
 	if _level_component and _level_component.leveled_up.is_connected(_on_leveled_up):
 		_level_component.leveled_up.disconnect(_on_leveled_up)
-		print("AbilityComponent: Disconnected from leveling signals for loading.")
+		#print("AbilityComponent: Disconnected from leveling signals for loading.")
 
 
 ## Reconnects to leveling component signals after loading is complete.
 func reconnect_level_signals() -> void:
 	if _level_component and not _level_component.leveled_up.is_connected(_on_leveled_up):
 		_level_component.leveled_up.connect(_on_leveled_up)
-		print("AbilityComponent: Reconnected to leveling signals.")
+		#print("AbilityComponent: Reconnected to leveling signals.")
 
 
 func set_loading_mode(enabled: bool) -> void:

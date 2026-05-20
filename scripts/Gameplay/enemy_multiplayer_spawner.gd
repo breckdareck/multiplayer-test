@@ -10,7 +10,7 @@ func _ready() -> void:
 	# Only set spawn_function on the server
 	# Clients will use the default spawner behavior (instantiate from _spawnable_scenes)
 	if not is_multiplayer_authority():
-		print("EnemyMultiplayerSpawner: Client mode at %s, spawn_path: %s" % [get_path(), spawn_path])
+		#print("EnemyMultiplayerSpawner: Client mode at %s, spawn_path: %s" % [get_path(), spawn_path])
 		return
 		
 	# Find the parent EnemySpawner if not explicitly set
@@ -22,7 +22,7 @@ func _ready() -> void:
 		spawn_function = _spawn_enemy_instance
 		_spawn_function_set = true
 	
-	print("EnemyMultiplayerSpawner: Server mode at %s, spawn_path: %s" % [get_path(), spawn_path])
+	#print("EnemyMultiplayerSpawner: Server mode at %s, spawn_path: %s" % [get_path(), spawn_path])
 
 func _spawn_enemy_instance() -> Node:
 	"""Called by MultiplayerSpawner to create enemy instances for replication (server only)"""

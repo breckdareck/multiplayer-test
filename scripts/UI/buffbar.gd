@@ -360,6 +360,6 @@ func _on_buff_remove_requested(buff_id: String) -> void:
 		return
 	
 	# Request buff removal from the buff component
-	print("BuffBar: Requesting removal of buff '%s'" % buff_id)
+	#print("BuffBar: Requesting removal of buff '%s'" % buff_id)
 	_buff_component.remove_buff(buff_id)
 #endregion

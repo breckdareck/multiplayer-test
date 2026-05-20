@@ -9,7 +9,7 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 	
 	# Calculate reflect percentage based on ability level
 	var reflect_percent = round(12 + ((_level_stats.level - 1)  * 2))  # 12% + 2% per level
-	print("DEBUG: Applying Reflect Percent - %d" % reflect_percent)
+	#print("DEBUG: Applying Reflect Percent - %d" % reflect_percent)
 	
 	# Apply the buff
 	buff_component.apply_buff("Power Guard", _owner_node, duration)

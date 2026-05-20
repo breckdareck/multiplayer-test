@@ -48,7 +48,7 @@ func get_slot_at_index(index: int) -> Node:
 func activate_slot(slot_index: int):
 	var slot = get_slot_at_index(slot_index)
 	if slot and slot.assigned_ability:
-		print("Activating ability: %s" % slot.assigned_ability.ability_name)
+		#print("Activating ability: %s" % slot.assigned_ability.ability_name)
 		# Integrate with your ability system here
 		if player and player.ability_component.has_method("use_ability"):
 			player.ability_component.use_ability(slot.assigned_ability.ability_id)
@@ -81,7 +81,7 @@ func save_hotbar_config() -> Dictionary:
 ## Load hotbar configuration (from save data)
 func load_hotbar_config(config: Dictionary):
 	if config.size() != hotbar_slots.size():
-		print("Warning: Hotbar config size mismatch")
+		#print("Warning: Hotbar config size mismatch")
 		return
 	
 	for i in range(config.size()):

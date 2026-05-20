@@ -29,10 +29,8 @@ func _load_item_data() -> void:
 		if resource is ItemData:
 			item_data[resource.item_id] = resource
 			item_by_name[resource.name] = resource
-			print("Loaded item: %s from path: %s" % [resource.name, path])
-			print("DEBUG: ResourceManager loaded item icon: ", resource.icon)
-		else:
-			print("Skipped (not ItemData): %s" % path)
+			#print("Loaded item: %s from path: %s" % [resource.name, path])
+			#print("DEBUG: ResourceManager loaded item icon: ", resource.icon)
 			
 	# Call the generic loader
 	_load_resources_recursively(item_folder, process_item)
@@ -48,7 +46,7 @@ func get_item_data(item_id: String) -> ItemData:
 		return item_by_name[item_id]
 	
 	# Nothing found
-	print("Item not found: %s" % item_id)
+	#print("Item not found: %s" % item_id)
 	return null
 	
 	
@@ -66,9 +64,7 @@ func _load_class_data() -> void:
 	var process_class = func(resource, path):
 		if resource is ClassData:
 			class_data[resource.class_type] = resource
-			print("Loaded class: %s from path: %s" % [resource._class_name, path])
-		else:
-			print("Skipped (not ClassData): %s" % path)
+			#print("Loaded class: %s from path: %s" % [resource._class_name, path])
 
 	_load_resources_recursively(class_folder, process_class)
 
@@ -151,9 +147,7 @@ func _load_ability_data() -> void:
 		if resource is AbilityData:
 			ability_data[resource.ability_id] = resource 
 			ability_by_name[resource.ability_name] = resource 
-			print("Loaded ability: %s from path: %s" % [resource.ability_name, path])
-		else:
-			print("Skipped (not AbilityData): %s" % path)
+			#print("Loaded ability: %s from path: %s" % [resource.ability_name, path])
 
 	_load_resources_recursively(ability_folder, process_ability)
 
@@ -168,7 +162,7 @@ func get_ability_data(ability_identifier: String) -> AbilityData:
 		return ability_by_name[ability_identifier]
 	
 	# Nothing found
-	print("Ability not found: %s" % ability_identifier)
+	#print("Ability not found: %s" % ability_identifier)
 	return null
 
 func get_ability_by_name(ability_name: String) -> AbilityData:
@@ -186,9 +180,7 @@ func _load_buff_data() -> void:
 		if resource is BuffData:
 			buff_data[resource.buff_id] = resource 
 			buffs_by_name[resource.buff_name] = resource 
-			print("Loaded buff: %s from path: %s" % [resource.buff_name, path])
-		else:
-			print("Skipped (not BuffData): %s" % path)
+			#print("Loaded buff: %s from path: %s" % [resource.buff_name, path])
 			
 	_load_resources_recursively(buff_folder, process_buff)
 		
@@ -199,7 +191,7 @@ func get_buff_data(buff_identifier: String) -> BuffData:
 	if buffs_by_name.has(buff_identifier):
 		return buffs_by_name[buff_identifier]
 		
-	print("Buff not found: %s" % buff_identifier)
+	#print("Buff not found: %s" % buff_identifier)
 	return null
 	
 func get_buff_by_name(buff_name: String) -> BuffData:
@@ -231,5 +223,3 @@ func _load_resources_recursively(path: String, process_callable: Callable) -> vo
 			if resource:
 				# Call the provided 'Callable' and pass it the loaded resource
 				process_callable.call(resource, full_path)
-			else:
-				print("Failed to load resource at: %s" % full_path)
