@@ -187,19 +187,18 @@ func _apply_equipment_item(key, new_item: ItemData) -> void:
 	equipment_component.refresh_view(key)
 
 
-func _sync_slot_to_client(slot: Slot, trigger_stats_recalc: bool = false):
+func _sync_slot_to_client(sd: SlotData, trigger_stats_recalc: bool = false):
 	"""Send a single slot update to the client"""
 	if not enable_multiplayer_sync or owner_id <= 0 or not multiplayer.is_server():
 		return
-	
-	var slot_index = _get_slot_index(slot)
-	if slot_index == -1:
+
+	if sd == null or sd.index < 0:
 		return
-	
-	if slot.item != null:
-		sync_slot_update_rpc.rpc_id(owner_id, slot_index, slot.item.to_dictionary(), trigger_stats_recalc)
+
+	if sd.item != null:
+		sync_slot_update_rpc.rpc_id(owner_id, sd.index, sd.item.to_dictionary(), trigger_stats_recalc)
 	else:
-		sync_slot_clear_rpc.rpc_id(owner_id, slot_index, trigger_stats_recalc)
+		sync_slot_clear_rpc.rpc_id(owner_id, sd.index, trigger_stats_recalc)
 
 
 @rpc("authority", "call_local", "reliable")
@@ -250,44 +249,43 @@ func server_add_item(item_id: String):
 		return
 	var original_item: ItemData = ResourceManager.get_item_data(item_id).duplicate_with_path()
 	var original_item_id = original_item.item_id
-	
 
 	# Try to stack with existing items in valid slots
 	if original_item_id in item_locations and original_item.can_stack:
-		var existing_slots = item_locations[original_item_id]
-		for slot in existing_slots:
-			if slot.has_method("can_accept_item") and not slot.can_accept_item(original_item):
+		var existing_slots: Array = item_locations[original_item_id]
+		for sd in existing_slots:
+			if not sd.can_accept_item(original_item):
 				continue
 
-			if slot.can_add_to_stack(original_item):
-				var space_left = slot.get_remaining_space()
+			if sd.can_add_to_stack(original_item):
+				var space_left = sd.get_remaining_space()
 				if space_left > 0:
 					var amount_to_add = min(original_item.current_stack_amount, space_left)
-					slot.add_to_stack(amount_to_add)
+					sd.add_to_stack(amount_to_add)
 					original_item.current_stack_amount -= amount_to_add
 					item_counts[original_item_id] += amount_to_add
-					
+					_refresh_view(sd.index)
+
 					# Only sync this one slot
-					_sync_slot_to_client(slot)
+					_sync_slot_to_client(sd)
 					_notify_changed()
-					
+
 					if original_item.current_stack_amount <= 0:
 						item_added.emit(original_item)
 						return
 	# Find a valid empty slot
-	for slot in slots:
-		if slot.item == null and (not slot.has_method("can_accept_item") or slot.can_accept_item(original_item)):
-			slot.item = original_item.duplicate_with_path()
-			slot.item.current_stack_amount = original_item.current_stack_amount
-			slot.update_display()
-			_update_item_tracking(slot, null, slot.item)
-			
+	for sd in slots_data:
+		if sd.item == null and sd.can_accept_item(original_item):
+			var new_item: ItemData = original_item.duplicate_with_path()
+			new_item.current_stack_amount = original_item.current_stack_amount
+			_apply_item(sd, new_item)
+
 			# Only sync this one slot
-			_sync_slot_to_client(slot)
+			_sync_slot_to_client(sd)
 			_notify_changed()
 			item_added.emit(original_item)
 			return
-			
+
 	#print("Inventory is full or no suitable slot found for this item type.")
 
 
@@ -305,18 +303,19 @@ func server_add_item_instance(item_dict: Dictionary):
 	
 	# Try to stack with existing items in valid slots
 	if original_item_id in item_locations and original_item.can_stack:
-		var existing_slots = item_locations[original_item_id]
-		for slot in existing_slots:
-			if slot.has_method("can_accept_item") and not slot.can_accept_item(original_item):
+		var existing_slots: Array = item_locations[original_item_id]
+		for sd in existing_slots:
+			if not sd.can_accept_item(original_item):
 				continue
 
-			if slot.can_add_to_stack(original_item):
-				var space_left = slot.get_remaining_space()
+			if sd.can_add_to_stack(original_item):
+				var space_left = sd.get_remaining_space()
 				if space_left > 0:
 					var amount_to_add = min(original_item.current_stack_amount, space_left)
-					slot.add_to_stack(amount_to_add)
+					sd.add_to_stack(amount_to_add)
 					original_item.current_stack_amount -= amount_to_add
 					item_counts[original_item_id] += amount_to_add
+					_refresh_view(sd.index)
 					_notify_changed()
 					
 					if original_item.current_stack_amount <= 0:
@@ -324,19 +323,18 @@ func server_add_item_instance(item_dict: Dictionary):
 						return
 						
 	# Find a valid empty slot
-	for slot in slots:
-		if slot.item == null and (not slot.has_method("can_accept_item") or slot.can_accept_item(original_item)):
-			slot.item = original_item.duplicate_with_path()
-			slot.item.current_stack_amount = original_item.current_stack_amount
-			slot.update_display()
-			_update_item_tracking(slot, null, slot.item)
-			
+	for sd in slots_data:
+		if sd.item == null and sd.can_accept_item(original_item):
+			var new_item: ItemData = original_item.duplicate_with_path()
+			new_item.current_stack_amount = original_item.current_stack_amount
+			_apply_item(sd, new_item)
+
 			# Only sync this one slot
-			_sync_slot_to_client(slot)
+			_sync_slot_to_client(sd)
 			_notify_changed()
 			item_added.emit(original_item)
 			return
-			
+
 	#print("Inventory is full or no suitable slot found for this item type.")
 
 
@@ -348,42 +346,42 @@ func add_item(item_id: String):
 
 
 func remove_item(item: ItemData):
-	for slot in slots:
-		if slot.item == item:
-			var old_item = slot.item
-			slot.item = null
-			slot.update_display()
+	for sd in slots_data:
+		if sd.item == item:
+			var old_item = sd.item
+			_apply_item(sd, null)
 			item_removed.emit(old_item)
-			
+
 			# Only sync this one slot
-			_sync_slot_to_client(slot)
+			_sync_slot_to_client(sd)
 			_notify_changed()
 			return
 	#print("Item not found")
 
 
 func remove_item_from_stack(item: ItemData, amount: int = 1):
-	for slot in slots:
-		if slot.item == item:
-			var removed = slot.remove_from_stack(amount)
+	for sd in slots_data:
+		if sd.item == item:
+			var removed = sd.remove_from_stack(amount)
 
 			if item.item_id in item_counts:
 				item_counts[item.item_id] -= removed
 				if item_counts[item.item_id] <= 0:
 					item_counts.erase(item.item_id)
 					if item.item_id in item_locations:
-						item_locations[item.item_id].erase(slot)
+						item_locations[item.item_id].erase(sd)
 						if item_locations[item.item_id].is_empty():
 							item_locations.erase(item.item_id)
 
-			if slot.item.current_stack_amount <= 0:
-				var old_item = slot.item
-				slot.item = null
-				_update_item_tracking(slot, old_item, null)
+			if sd.item.current_stack_amount <= 0:
+				var old_item = sd.item
+				_apply_item(sd, null)
 				item_removed.emit(old_item)
-			
+			else:
+				_refresh_view(sd.index)
+
 			# Only sync this one slot
-			_sync_slot_to_client(slot)
+			_sync_slot_to_client(sd)
 			_notify_changed()
 			return removed
 	#print("Item not found")
@@ -393,15 +391,14 @@ func remove_item_from_stack(item: ItemData, amount: int = 1):
 func clear_slot(slot: Slot):
 	"""Clear a specific slot and update tracking"""
 	if slot in slots:
-		var old_item = slot.item
-		slot.item = null
-		slot.update_display()
-		_update_item_tracking(slot, old_item, null)
+		var sd: SlotData = slot.slot_data
+		var old_item = sd.item
+		_apply_item(sd, null)
 		if old_item:
 			item_removed.emit(old_item)
-		
+
 		# Only sync this one slot
-		_sync_slot_to_client(slot)
+		_sync_slot_to_client(sd)
 		_notify_changed()
 	else:
 		print("Slot not found in inventory")
@@ -423,22 +420,22 @@ func get_item_by_id(item_id: String) -> ItemData:
 	return null
 
 
-func get_empty_slots() -> Array[Slot]:
-	var empty_slots: Array[Slot] = []
-	for slot in slots:
-		if slot.item == null:
-			empty_slots.append(slot)
+func get_empty_slots() -> Array[SlotData]:
+	var empty_slots: Array[SlotData] = []
+	for sd in slots_data:
+		if sd.item == null:
+			empty_slots.append(sd)
 	return empty_slots
 
 
-func get_slots() -> Array[Slot]:
-	return slots
+func get_slots() -> Array[SlotData]:
+	return slots_data
 
 
-func get_all_slots() -> Array[Slot]:
-	var all_slots = slots.duplicate()
+func get_all_slots() -> Array:
+	var all_slots: Array = slots_data.duplicate()
 	if equipment_component:
-		all_slots.append_array(equipment_component.get_slots())
+		all_slots.append_array(equipment_component.get_all_slot_data())
 	return all_slots
 
 
@@ -453,62 +450,63 @@ func get_total_items() -> int:
 	return total
 
 
-func get_all_items_of_id(item_id: String) -> Array[Slot]:
+func get_all_items_of_id(item_id: String) -> Array:
 	return item_locations.get(item_id, [])
 
 
 func save_inventory() -> Dictionary:
 	var inventory_data = {}
-	var slot_data = []
-	
-	for i in range(slots.size()):
-		var slot = slots[i]
-		if slot.item != null:
-			slot_data.append({
-				"slot_index": i,
-				"item_data": slot.item.get_save_data()
-			})
-	
-	var equipment_data: Dictionary = {}
-	if equipment_component and not equipment_component.equipment.is_empty():
-		for eq_key in equipment_component.equipment.keys():
-			var eq_slot: Slot = equipment_component.equipment[eq_key]
-			if eq_slot and eq_slot.item != null:
-				var key_str := str(eq_key)
-				equipment_data[key_str] = eq_slot.item.get_save_data()
+	var slot_entries = []
 
-	inventory_data["slots"] = slot_data
+	for i in range(slots_data.size()):
+		var sd: SlotData = slots_data[i]
+		if sd.item != null:
+			slot_entries.append({
+				"slot_index": i,
+				"item_data": sd.item.get_save_data()
+			})
+
+	var equipment_data: Dictionary = {}
+	if equipment_component:
+		for eq_key in equipment_component.slots_data.keys():
+			var eq_sd: SlotData = equipment_component.slots_data[eq_key]
+			if eq_sd and eq_sd.item != null:
+				equipment_data[str(eq_key)] = eq_sd.item.get_save_data()
+
+	inventory_data["slots"] = slot_entries
 	inventory_data["equipment"] = equipment_data
 	return inventory_data
 
 
 func _apply_inventory_data(inventory_data: Dictionary) -> void:
-	# Clear existing inventory
-	for slot in slots:
-		if slot.has_method("cancel_drag"):
-			slot.cancel_drag()
-		slot.item = null
-		slot.update_display()
+	# Clear existing inventory (cancel any in-progress drag on the views first)
+	for view in slots:
+		if is_instance_valid(view):
+			view.cancel_drag()
+	for sd in slots_data:
+		sd.item = null
+		_refresh_view(sd.index)
 
 	# Clear existing equipment items
 	if equipment_component:
-		for eq_slot in equipment_component.get_slots():
-			if eq_slot.has_method("cancel_drag"):
-				eq_slot.cancel_drag()
-			eq_slot.item = null
-			eq_slot.update_display()
-	
+		for view in equipment_component.get_slots():
+			if is_instance_valid(view):
+				view.cancel_drag()
+		for eq_key in equipment_component.slots_data.keys():
+			equipment_component.slots_data[eq_key].item = null
+			equipment_component.refresh_view(eq_key)
+
 	# Load saved items
-	var slot_data = inventory_data.get("slots", [])
-	for item_dict_wrapper in slot_data:
-		var slot_index = item_dict_wrapper.get("slot_index", -1)
-		var item_dict = item_dict_wrapper.get("item_data", {})
-		
-		if slot_index >= 0 and slot_index < slots.size() and not item_dict.is_empty():
+	var slot_entries = inventory_data.get("slots", [])
+	for entry in slot_entries:
+		var slot_index = entry.get("slot_index", -1)
+		var item_dict = entry.get("item_data", {})
+
+		if slot_index >= 0 and slot_index < slots_data.size() and not item_dict.is_empty():
 			var item_instance = ItemData.from_dictionary(item_dict)
 			if item_instance:
-				slots[slot_index].item = item_instance
-				slots[slot_index].update_display()
+				slots_data[slot_index].item = item_instance
+				_refresh_view(slot_index)
 			else:
 				print("Failed to load item from dictionary: " + str(item_dict))
 
@@ -519,28 +517,24 @@ func _apply_inventory_data(inventory_data: Dictionary) -> void:
 			var item_dict: Dictionary = equipment_data_dict[key_str]
 			if item_dict.is_empty():
 				continue
-			var target_slot: Slot = null
-			if key_str == "WEAPON":
-				target_slot = equipment_component.equipment.get("WEAPON")
-			else:
-				var key_val := int(key_str)
-				target_slot = equipment_component.equipment.get(key_val)
-			if target_slot:
+			var key = "WEAPON" if key_str == "WEAPON" else int(key_str)
+			var target_sd: SlotData = equipment_component.get_slot_data(key)
+			if target_sd:
 				var item_instance = ItemData.from_dictionary(item_dict)
 				if item_instance:
-					target_slot.item = item_instance
-					target_slot.update_display()
+					target_sd.item = item_instance
+					equipment_component.refresh_view(key)
 				else:
 					print("Failed to load equipment item from dictionary: " + str(item_dict))
-	
+
 	_rebuild_item_tracking()
 
 	# After loading equipment on the server, sync it to the client
 	if multiplayer.is_server() and owner_id > 0 and equipment_component:
-		for eq_key in equipment_component.equipment.keys():
-			var eq_slot: Slot = equipment_component.equipment[eq_key]
-			if eq_slot and eq_slot.item != null:
-				_sync_equipment_slot_to_client(eq_slot, true)
+		for eq_key in equipment_component.slots_data.keys():
+			var eq_sd: SlotData = equipment_component.slots_data[eq_key]
+			if eq_sd and eq_sd.item != null:
+				_sync_equipment_slot_to_client(eq_sd, true)
 
 
 func load_inventory(inventory_data: Dictionary) -> void:
@@ -622,29 +616,29 @@ func _execute_swap_local(from_slot: Slot, to_slot: Slot):
 	from_slot.item = to_item
 	to_slot.item = from_item
 
-	_update_item_tracking(from_slot, from_item, to_item)
-	_update_item_tracking(to_slot, to_item, from_item)
+	_update_item_tracking(from_slot.slot_data, from_item, to_item)
+	_update_item_tracking(to_slot.slot_data, to_item, from_item)
 
 	from_slot.update_display()
 	to_slot.update_display()
-	
+
 	# Check if these are equipment slots
 	var from_is_equipment = _is_equipment_slot(from_slot)
 	var to_is_equipment = _is_equipment_slot(to_slot)
 	var involves_equipment = from_is_equipment or to_is_equipment
-		
+
 	# If on server, sync the changed slots to client
 	if multiplayer.is_server():
 		# Sync slots - only trigger stats recalc if the slot itself is an equipment slot
 		if from_is_equipment:
-			_sync_equipment_slot_to_client(from_slot, true)
+			_sync_equipment_slot_to_client(from_slot.slot_data, true)
 		else:
-			_sync_slot_to_client(from_slot, false)
-		
+			_sync_slot_to_client(from_slot.slot_data, false)
+
 		if to_is_equipment:
-			_sync_equipment_slot_to_client(to_slot, true)
+			_sync_equipment_slot_to_client(to_slot.slot_data, true)
 		else:
-			_sync_slot_to_client(to_slot, false)
+			_sync_slot_to_client(to_slot.slot_data, false)
 
 
 func _is_move_valid(from_slot: Slot, to_slot: Slot) -> bool:
@@ -762,26 +756,26 @@ func sync_full_inventory_to_client() -> void:
 	load_inventory_rpc.rpc_id(owner_id, inv_data)
 
 
-func _sync_equipment_slot_to_client(slot: Slot, trigger_stats_recalc: bool = true):
+func _sync_equipment_slot_to_client(sd: SlotData, trigger_stats_recalc: bool = true):
 	"""Send an equipment slot update to the client"""
 	if not enable_multiplayer_sync or owner_id <= 0 or not multiplayer.is_server():
 		return
-	
+
 	if not equipment_component:
 		return
-	
-	# Find which equipment slot this is
+
+	# Find which equipment key this SlotData belongs to
 	var eq_key = null
-	for key in equipment_component.equipment.keys():
-		if equipment_component.equipment[key] == slot:
+	for key in equipment_component.slots_data.keys():
+		if equipment_component.slots_data[key] == sd:
 			eq_key = key
 			break
-	
+
 	if eq_key == null:
 		return
-	
-	if slot.item != null:
-		sync_equipment_update_rpc.rpc_id(owner_id, str(eq_key), slot.item.to_dictionary(), trigger_stats_recalc)
+
+	if sd.item != null:
+		sync_equipment_update_rpc.rpc_id(owner_id, str(eq_key), sd.item.to_dictionary(), trigger_stats_recalc)
 	else:
 		sync_equipment_clear_rpc.rpc_id(owner_id, str(eq_key), trigger_stats_recalc)
 
@@ -903,16 +897,16 @@ func request_use_item(slot_index: int):
 		#print("Use Item failed: Player %d not found." % sender_id)
 		return
 
-	if slot_index < 0 or slot_index >= slots.size():
+	if slot_index < 0 or slot_index >= slots_data.size():
 		#print("Use Item failed: Invalid slot index %d for player %d." % [slot_index, sender_id])
 		return
 
-	var slot = slots[slot_index]
-	if not slot.item:
+	var sd: SlotData = slots_data[slot_index]
+	if not sd.item:
 		#print("Use Item failed: No item in slot %d for player %d." % [slot_index, sender_id])
 		return
 
-	var item = slot.item
+	var item = sd.item
 	if not item is ConsumableData:
 		#print("Use Item failed: Item '%s' is not a consumable." % item.name)
 		return

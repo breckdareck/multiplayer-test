@@ -38,7 +38,9 @@ var item: ItemData:
 		update_display()
 
 		if is_instance_valid(item_container) and item_container.has_method("_update_item_tracking"):
-			item_container._update_item_tracking(self, old_item, value)
+			# Report the SlotData (the model) so component tracking is keyed
+			# consistently whether mutated via this view or directly.
+			item_container._update_item_tracking(slot_data, old_item, value)
 
 # Drag state variables
 var is_dragging: bool = false
