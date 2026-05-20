@@ -36,9 +36,7 @@ static func from_dictionary(dict: Dictionary) -> ItemData:
 	item_instance.instance_id = dict.get("instance_id", item_instance.generate_uuid())
 	item_instance.name = dict.get("name", "")
 	item_instance.rarity = dict.get("rarity", Constants.ItemRarity.COMMON)
-	var icon_path = dict.get("icon_path", "")
-	if not icon_path.is_empty():
-		item_instance.icon = load(icon_path)
+	item_instance.icon = ItemData.resolve_icon(dict.get("icon_path", ""), item_instance.name)
 	item_instance.description = dict.get("description", "")
 	item_instance.item_type = dict.get("item_type", Constants.ItemType.CONSUMABLE)
 	item_instance.item_level = dict.get("item_level", 0)
