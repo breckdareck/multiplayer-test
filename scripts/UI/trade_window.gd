@@ -307,64 +307,28 @@ func _disconnect_all(btn: Button) -> void:
 
 
 func _give_item(slot_index: int) -> void:
-	var local_player := _get_local_player()
-	var target_node := PlayerManager.get_player_node(_target_id)
-	if not is_instance_valid(local_player) or not is_instance_valid(target_node):
+	if _target_id == 0:
 		return
-	if not is_instance_valid(local_player.inventory_component) or not is_instance_valid(target_node.inventory_component):
-		return
-
-	var my_slots := local_player.inventory_component.get_slots()
-	if slot_index < 0 or slot_index >= my_slots.size():
-		return
-	var slot: SlotData = my_slots[slot_index]
-	if not slot.item:
-		return
-
-	var empty_slots := target_node.inventory_component.get_empty_slots()
-	if empty_slots.is_empty():
-		ChatManager.add_system_message("Their inventory is full.", Color.ORANGE)
-		return
-
-	var item: ItemData = slot.item
-	# Remove through the component API so tracking, the bound view and client
-	# sync all update — `slot` is a SlotData, not a UI node.
-	local_player.inventory_component.remove_item(item, "traded")
-	target_node.inventory_component.server_add_item_instance(item.to_dictionary())
-	# Force immediate refresh and reset slot maps so buttons rebind
-	_my_button_slot.fill(-1)
-	_bot_button_slot.fill(-1)
-	_refresh_lists()
+	# The transfer runs on the server — a client holds no authoritative copy of
+	# the bot's inventory, so it cannot move items locally.
+	TradeManager.rpc_transfer_trade_item.rpc_id(1, _target_id, slot_index, true)
+	_request_post_transfer_refresh()
 
 
 func _take_item(slot_index: int) -> void:
-	var local_player := _get_local_player()
-	var target_node := PlayerManager.get_player_node(_target_id)
-	if not is_instance_valid(local_player) or not is_instance_valid(target_node):
+	if _target_id == 0:
 		return
-	if not is_instance_valid(local_player.inventory_component) or not is_instance_valid(target_node.inventory_component):
-		return
+	TradeManager.rpc_transfer_trade_item.rpc_id(1, _target_id, slot_index, false)
+	_request_post_transfer_refresh()
 
-	var their_slots := target_node.inventory_component.get_slots()
-	if slot_index < 0 or slot_index >= their_slots.size():
-		return
-	var slot: SlotData = their_slots[slot_index]
-	if not slot.item:
-		return
 
-	var empty_slots := local_player.inventory_component.get_empty_slots()
-	if empty_slots.is_empty():
-		ChatManager.add_system_message("Your inventory is full.", Color.ORANGE)
-		return
-
-	var item: ItemData = slot.item
-	# Remove through the component API so tracking, the bound view and client
-	# sync all update — `slot` is a SlotData, not a UI node.
-	target_node.inventory_component.remove_item(item, "traded")
-	local_player.inventory_component.server_add_item_instance(item.to_dictionary())
+## After a transfer RPC, reset slot maps and pull a fresh target snapshot. The
+## server applies the move; the own-inventory sync and the snapshot reply arrive
+## ordered after it, and the snapshot reply drives a full list refresh.
+func _request_post_transfer_refresh() -> void:
 	_my_button_slot.fill(-1)
 	_bot_button_slot.fill(-1)
-	_refresh_lists()
+	_request_target_snapshot()
 
 
 func _build_item_tooltip(item: ItemData) -> String:

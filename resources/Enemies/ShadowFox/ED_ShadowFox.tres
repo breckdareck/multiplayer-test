@@ -6,7 +6,7 @@
 [ext_resource type="Resource" path="res://resources/DropTables/Short_Sword.tres" id="4_ss"]
 [ext_resource type="Resource" path="res://resources/DropTables/Leather_Vest.tres" id="5_lv"]
 [ext_resource type="Resource" path="res://resources/DropTables/Oak_Staff.tres" id="6_os"]
-[ext_resource type="Resource" path="res://resources/DropTables/Apprentice_Robe.tres" id="7_ar"]
+[ext_resource type="Resource" uid="uid://jomuxvwfxcbn" path="res://resources/DropTables/Apprentice_Robe.tres" id="7_ar"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_atk"]
 size = Vector2(64, 37)

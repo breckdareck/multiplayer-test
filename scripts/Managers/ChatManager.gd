@@ -192,13 +192,16 @@ func _request_bot_command(text: String) -> void:
 	if not multiplayer.is_server():
 		return
 	var sender_id := multiplayer.get_remote_sender_id()
-	if sender_id != 1 and sender_id != 0:
-		add_system_message.rpc_id(sender_id, "Bot commands are server-only.", Color.ORANGE)
+	# A local (host) call reports sender 0 — normalize to the server's peer id.
+	if sender_id == 0:
+		sender_id = multiplayer.get_unique_id()
+	if not _check_rate_limit(sender_id):
+		add_system_message.rpc_id(sender_id, "You are sending commands too fast.", Color.ORANGE)
 		return
 	var parts := text.split(" ", false)
 	parts.remove_at(0)
-	var result := BotManager.handle_command(parts)
-	if sender_id == 1 or sender_id == 0:
+	var result := BotManager.handle_command(parts, sender_id)
+	if sender_id == multiplayer.get_unique_id():
 		add_system_message(result, Color.CYAN)
 	else:
 		add_system_message.rpc_id(sender_id, result, Color.CYAN)

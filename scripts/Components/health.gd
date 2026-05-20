@@ -55,6 +55,13 @@ var _last_damage_source: Node = null
 							die.rpc_id(pid)
 				elif entity is MultiplayerPlayerV2 and entity.player_id != 1 and not BotManager.is_bot(entity.player_id):
 					die.rpc_id(entity.player_id)
+			elif current_health > 0 and is_dead and not multiplayer.is_server():
+				# Clients learn of death via the die() RPC but never run respawn()
+				# (server-only), so is_dead is otherwise never cleared client-side.
+				# Reset it when the server syncs health back up; otherwise die()'s
+				# `if is_dead: return` guard suppresses the death popup on every
+				# death after the first.
+				is_dead = false
 			if not _loading_mode:
 				health_changed.emit(current_health, max_health)
 @onready var health_bar: ProgressBar = get_node_or_null(health_bar_path)

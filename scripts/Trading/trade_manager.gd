@@ -397,6 +397,68 @@ func rpc_cancel_trade() -> void:
 	cancel_trade(sender_id)
 
 
+## [Client/Host -> Server] Immediately moves one item between the requesting
+## player and a bot. The bot trade window has no offer/confirm step, so the
+## transfer must run server-side where every inventory is authoritative — a
+## client holds no real data for the bot's inventory.
+@rpc("any_peer", "call_local", "reliable")
+func rpc_transfer_trade_item(target_id: int, slot_index: int, giving: bool) -> void:
+	if not multiplayer.is_server():
+		return
+	var sender_id := multiplayer.get_remote_sender_id()
+	if sender_id == 0:
+		sender_id = multiplayer.get_unique_id()
+	_transfer_trade_item(sender_id, target_id, slot_index, giving)
+
+
+## Moves one item between `player_id` and `target_id`. `giving` true => player
+## gives to target; false => player takes from target.
+func _transfer_trade_item(player_id: int, target_id: int, slot_index: int, giving: bool) -> void:
+	# The bot trade window only trades with bots; gating here stops this RPC
+	# from being used to move items in or out of another real player.
+	if not BotManager.is_bot(target_id):
+		return
+
+	var player_node := PlayerManager.get_player_node(player_id)
+	var target_node := PlayerManager.get_player_node(target_id)
+	if not is_instance_valid(player_node) or not is_instance_valid(target_node):
+		return
+
+	var player_inv: InventoryComponent = player_node.inventory_component
+	var target_inv: InventoryComponent = target_node.inventory_component
+	if not is_instance_valid(player_inv) or not is_instance_valid(target_inv):
+		return
+
+	var source_inv: InventoryComponent = player_inv if giving else target_inv
+	var dest_inv: InventoryComponent = target_inv if giving else player_inv
+
+	var src_slots := source_inv.get_slots()
+	if slot_index < 0 or slot_index >= src_slots.size():
+		return
+	var slot: SlotData = src_slots[slot_index]
+	if not slot.item:
+		return
+
+	# Check space before removing — a full destination would otherwise destroy
+	# the item (the remove succeeds but the add silently fails).
+	if dest_inv.get_empty_slots().is_empty():
+		var msg := "Their inventory is full." if giving else "Your inventory is full."
+		_notify_player(player_id, msg, Color.ORANGE)
+		return
+
+	var item: ItemData = slot.item
+	source_inv.remove_item(item, "traded")
+	dest_inv.server_add_item_instance(item.to_dictionary())
+
+
+## Sends a system message to a player — directly if it is the host, else by RPC.
+func _notify_player(player_id: int, message: String, color: Color) -> void:
+	if player_id == multiplayer.get_unique_id():
+		ChatManager.add_system_message(message, color)
+	else:
+		ChatManager.add_system_message.rpc_id(player_id, message, color)
+
+
 var _trade_window: TradeWindow = null
 
 

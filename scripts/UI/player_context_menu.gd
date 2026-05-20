@@ -171,8 +171,11 @@ func _find_moveable_container() -> Node:
 
 
 func _do_party_invite() -> void:
-	var target_name := _get_target_name()
-	PartyManager.rpc_send_invite(target_name)
+	if _target_id == 0:
+		return
+	# Invite by id — the menu already has the exact target, so there is no need
+	# for a name lookup. Routed to the server so a client's invite reaches it.
+	PartyManager.rpc_send_invite_to_id.rpc_id(1, _target_id)
 
 
 func _do_kick() -> void:

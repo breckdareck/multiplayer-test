@@ -224,6 +224,10 @@ func gain_experience(amount: int) -> void:
 	if _is_being_cleaned_up:
 		return
 
+	# Dead players earn no experience, even if they dealt damage before dying.
+	if is_instance_valid(health_component) and health_component.is_dead:
+		return
+
 	if level_component and level_component.has_method("add_exp"):
 		level_component.add_exp(amount)
 

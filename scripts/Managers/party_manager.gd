@@ -82,6 +82,10 @@ func send_invite(inviter_id: int, invitee_id: int) -> bool:
 
 	if _player_party_map.has(invitee_id):
 		if BotManager.is_bot(invitee_id):
+			# A bot already grouped with a real player stays put — don't poach
+			# it. Otherwise it leaves its bot-only party to join the inviter.
+			if _party_has_real_player(_player_party_map[invitee_id]):
+				return false
 			leave_party(invitee_id)
 		else:
 			#print("Player %d is already in a party." % invitee_id)
@@ -170,6 +174,17 @@ func get_party_leader(party_id: int) -> int:
 func get_player_party_id(player_id: int) -> int:
 	return _player_party_map.get(player_id, -1)
 
+## Returns true if the party has at least one non-bot (real) player member.
+func _party_has_real_player(party_id: int) -> bool:
+	var party: PartyData = _parties.get(party_id)
+	if not party:
+		return false
+	for member_id in party.members:
+		if not BotManager.is_bot(member_id):
+			return true
+	return false
+
+
 func _bot_evaluate_invite(inviter_id: int, invitee_id: int) -> bool:
 	var inviter_node := PlayerManager.get_player_node(inviter_id)
 	var invitee_node := PlayerManager.get_player_node(invitee_id)
@@ -228,6 +243,25 @@ func rpc_send_invite(invitee_name: String):
 
 	send_invite(sender_id, invitee_id)
 
+## [Client/Host -> Server] Party-invite a peer by id. Used by the right-click
+## context menu, which already knows the exact target — this avoids the fragile
+## id -> name -> id round-trip that rpc_send_invite needs for the text field.
+@rpc("any_peer", "call_local", "reliable")
+func rpc_send_invite_to_id(invitee_id: int):
+	if not multiplayer.is_server():
+		return
+	var sender_id = multiplayer.get_remote_sender_id()
+	if sender_id == 0:
+		sender_id = multiplayer.get_unique_id()
+
+	if invitee_id == sender_id:
+		return
+
+	if not _player_party_map.has(sender_id):
+		create_party(sender_id)
+
+	send_invite(sender_id, invitee_id)
+
 @rpc("any_peer", "call_local") # Execute on the remote peer (server)
 func rpc_accept_invite(party_id: int):
 	var sender_id = multiplayer.get_remote_sender_id()
@@ -243,6 +277,35 @@ func rpc_leave_party():
 		sender_id = multiplayer.get_unique_id()
 	#print("RPC sender ID in PartyManager.rpc_leave_party: ", sender_id)
 	leave_party(sender_id)
+
+@rpc("any_peer", "call_local", "reliable") # Execute on the remote peer (server)
+func rpc_kick_player(target_id: int):
+	if not multiplayer.is_server():
+		return
+	var sender_id = multiplayer.get_remote_sender_id()
+	if sender_id == 0:
+		sender_id = multiplayer.get_unique_id()
+
+	# Kicking yourself is just leaving — handled by rpc_leave_party.
+	if target_id == sender_id:
+		return
+
+	var party_id = _player_party_map.get(sender_id)
+	if not party_id:
+		#print("Player %d is not in a party." % sender_id)
+		return
+
+	var party: PartyData = _parties[party_id]
+	if not party.is_leader(sender_id):
+		#print("Player %d is not the leader of party %d." % [sender_id, party_id])
+		return
+
+	if not party.members.has(target_id):
+		#print("Player %d is not a member of party %d." % [target_id, party_id])
+		return
+
+	# leave_party handles member removal, signals, client sync and disband.
+	leave_party(target_id)
 
 @rpc("any_peer", "call_local") # Execute on the remote peer (server)
 func rpc_change_leader(new_leader_id: int):

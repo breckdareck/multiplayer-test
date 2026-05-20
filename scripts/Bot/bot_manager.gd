@@ -313,7 +313,10 @@ func _class_string_to_type(class_str: String) -> int:
 		_: return Constants.ClassType.SWORDSMAN
 
 
-func handle_command(args: Array) -> String:
+## Dispatches a parsed /bot command. `requester_id` is the peer that issued the
+## command (server peer id for a host call); it lets subcommands like `inspect`
+## route UI back to the requesting client rather than always the host.
+func handle_command(args: Array, requester_id: int = 0) -> String:
 	if args.is_empty():
 		return "Usage: /bot <spawn|despawn|despawn_all|list|teleport|set_level|party|travel|reload_config>"
 
@@ -398,7 +401,7 @@ func handle_command(args: Array) -> String:
 			return _handle_travel_command(args.slice(1))
 
 		"inspect":
-			return _handle_inspect_command(args.slice(1))
+			return _handle_inspect_command(args.slice(1), requester_id)
 
 		"trade":
 			return _handle_trade_command(args.slice(1))
@@ -411,7 +414,7 @@ func handle_command(args: Array) -> String:
 			return "Unknown bot command '%s'. Use: spawn, despawn, despawn_all, list, teleport, set_level, party, travel, inspect, trade, reload_config" % sub_command
 
 
-func _handle_inspect_command(args: Array) -> String:
+func _handle_inspect_command(args: Array, requester_id: int = 0) -> String:
 	if args.is_empty():
 		return "Usage: /bot inspect <name|id>"
 	var bot_id_val := _find_bot_by_name_or_id(args[0])
@@ -422,8 +425,19 @@ func _handle_inspect_command(args: Array) -> String:
 	if not is_instance_valid(player_node):
 		return "Bot %d player node not ready." % bot_id_val
 
-	open_inspect_window(bot_id_val)
+	# The inspect window pulls its data over RPC, so it can live on any peer —
+	# open it on the requesting client when the command did not come from the host.
+	if requester_id == 0 or requester_id == multiplayer.get_unique_id():
+		open_inspect_window(bot_id_val)
+	else:
+		open_bot_inspect_window.rpc_id(requester_id, bot_id_val)
 	return "Inspecting bot '%s'." % active_bots[bot_id_val].username
+
+
+## [Server -> Client] Tells the requesting client to open its own bot inspect window.
+@rpc("authority", "call_remote", "reliable")
+func open_bot_inspect_window(bot_id: int) -> void:
+	open_inspect_window(bot_id)
 
 
 func open_inspect_window(bot_id: int) -> void:
