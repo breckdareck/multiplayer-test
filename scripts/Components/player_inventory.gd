@@ -11,7 +11,8 @@ var _loading_mode: bool = false
 var monies_amount: int = 0:
 	set(value):
 		monies_amount = clampi(value, 0, MAX_MONIES_AMOUNT)
-		if monies_label:
+		# monies_label is a UI node; a bot frees its UI subtree, so validate it.
+		if is_instance_valid(monies_label):
 			monies_label.text = inventory_component.format_number_with_commas(value)
 		if not _loading_mode:
 			_notify_player_data_changed()

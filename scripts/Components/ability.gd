@@ -761,10 +761,11 @@ func _on_class_changed(new_class_name: String) -> void:
 #region #################### Save & Load System ####################
 ## Returns a dictionary of all ability data for saving.
 func save_abilities() -> Dictionary:
+	# `hotbar` is a UI node; a bot frees its UI subtree, so guard the access.
 	return {
 		"ability_levels": _ability_levels.duplicate(),
 		"available_points": _available_ability_points,
-		"hotbar_config": hotbar.save_hotbar_config()
+		"hotbar_config": hotbar.save_hotbar_config() if is_instance_valid(hotbar) else {}
 	}
 
 
@@ -784,7 +785,8 @@ func load_abilities(data: Dictionary) -> void:
 		_ability_levels[ability_id] = saved_levels[ability_id]
 	
 	_available_ability_points = data.get("available_points", 0)
-	hotbar.load_hotbar_config(data.get("hotbar_config", {}))
+	if is_instance_valid(hotbar):
+		hotbar.load_hotbar_config(data.get("hotbar_config", {}))
 	
 	# Re-apply passives and update UI with loaded data
 	_apply_passive_effects()
