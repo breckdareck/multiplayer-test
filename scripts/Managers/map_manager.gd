@@ -176,7 +176,7 @@ func _finalize_player_spawn(player_id: int, map_id: String, spawn_point_name: St
 		if existing_node:
 			# Tell the new player to spawn the existing player (skip for bots)
 			if not _joiner_is_bot:
-				client_spawn_player.rpc_id(player_id, existing_id, existing_node.global_position)
+				client_spawn_player.rpc_id(player_id, existing_id, existing_node.global_position, _player_username(existing_id))
 			# Also update visibility for the existing player
 			update_visibility_for_player(existing_id)
 
@@ -240,7 +240,7 @@ func _spawn_player_on_server_map(player_id: int, map_id: String, spawn_point_nam
 		if BotManager.is_bot(peer_id):
 			continue
 		# RPC each peer to spawn this new player
-		client_spawn_player.rpc_id(peer_id, player_id, player_char.global_position)
+		client_spawn_player.rpc_id(peer_id, player_id, player_char.global_position, _player_username(player_id))
 
 	# Explicitly tell the client which node is theirs (for PlayerManager init)
 	if not BotManager.is_bot(player_id):
@@ -526,33 +526,41 @@ func client_identify_player(player_node_path: String):
 
 
 @rpc("authority", "call_local", "reliable")
-func client_spawn_player(new_player_id: int, spawn_pos: Vector2):
+func client_spawn_player(new_player_id: int, spawn_pos: Vector2, username: String = ""):
 	"""Client: Instantiate a player node manually."""
 	if not is_instance_valid(current_map_instance):
 		return
-	
+
 	var players_node = current_map_instance.get_node_or_null("Players")
 	if not players_node:
 		push_error("Client: Current map missing Players node!")
 		return
-	
+
 	if players_node.has_node(str(new_player_id)):
 		# Already exists
 		if multiplayer.is_server():
 			# Server is authority, do not reset position of existing players
 			return
-			
+
 		var p = players_node.get_node(str(new_player_id))
 		p.global_position = spawn_pos
+		if not username.is_empty():
+			p.set_username(username)
 		return
-		
+
 	var player_scene = load("res://scenes/Player/player.tscn")
 	var player_node = player_scene.instantiate()
 	player_node.name = str(new_player_id)
 	player_node.player_id = new_player_id
 	player_node.global_position = spawn_pos
-	
+
 	players_node.add_child(player_node)
+
+	# Apply the player's name so the floating label and right-click context
+	# menu show it — covers bots, whose username is otherwise never sent to
+	# clients (bot state is server-authoritative).
+	if not username.is_empty():
+		player_node.set_username(username)
 	
 	# Set public_visibility=false for player synchronizers (client-side)
 	# if not multiplayer.is_server():
@@ -656,6 +664,12 @@ func get_real_players_on_map(map_id: String) -> Array:
 func get_player_map(player_id: int) -> String:
 	if not multiplayer.is_server(): return ""
 	return player_current_maps.get(player_id, "")
+
+
+## Username for a player/bot id, used to pass names to clients on spawn.
+func _player_username(id: int) -> String:
+	var info: Dictionary = PlayerManager.get_player_info(id)
+	return info.get("username", "")
 	
 func get_player_map_node(player_id: int) -> Node:
 	if not multiplayer.is_server(): return null
