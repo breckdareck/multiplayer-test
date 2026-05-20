@@ -64,6 +64,11 @@ const FOLLOW_CLOSE_RANGE: float = 60.0
 var patrol_route: Array = []
 var patrol_index: int = 0
 var target_portal: Node = null
+
+# Cached reference to the bot's current map node — avoids resolving it through
+# MapManager on every think tick. Refreshed lazily when the bot's map changes.
+var _cached_map_node: Node = null
+var _cached_map_id: String = ""
 var _map_travel_timer: float = 0.0
 var _map_stay_timer: float = 0.0
 const MAP_TRAVEL_CHECK_INTERVAL: float = 15.0
@@ -286,7 +291,21 @@ func _should_retreat() -> bool:
 	return health_pct < retreat_health_pct
 
 
+## Returns the bot's current map node, resolving it through MapManager only
+## when the bot has actually changed maps (cheap map_id string compare otherwise).
+func _get_map_node() -> Node:
+	var map_id := MapManager.get_player_map(bot_id)
+	if map_id != _cached_map_id or not is_instance_valid(_cached_map_node):
+		_cached_map_id = map_id
+		_cached_map_node = MapManager.get_player_map_node(bot_id)
+	return _cached_map_node
+
+
 func _find_nearest_enemy() -> EnemyBase:
+	var map_node := _get_map_node()
+	if not is_instance_valid(map_node):
+		return null
+
 	var enemies := get_tree().get_nodes_in_group("Enemies")
 	var best: EnemyBase = null
 	var best_dist_sq := aggro_range * aggro_range
@@ -295,6 +314,9 @@ func _find_nearest_enemy() -> EnemyBase:
 		if node is not EnemyBase:
 			continue
 		if not is_instance_valid(node):
+			continue
+		# Skip enemies that live on a different map (the "Enemies" group is global).
+		if not map_node.is_ancestor_of(node):
 			continue
 		if node.health_component and node.health_component.is_dead:
 			continue
@@ -310,8 +332,8 @@ func _find_nearest_enemy() -> EnemyBase:
 
 
 func _find_best_loot() -> DroppedItem:
-	var map_node = MapManager.get_player_map_node(bot_id)
-	if not map_node:
+	var map_node := _get_map_node()
+	if not is_instance_valid(map_node):
 		return null
 
 	var drops_node = map_node.get_node_or_null("ItemDrops")
@@ -650,8 +672,8 @@ func _get_target_map() -> String:
 
 
 func _find_portal_to_map(target_map_id: String) -> Node:
-	var map_node = MapManager.get_player_map_node(bot_id)
-	if not map_node:
+	var map_node := _get_map_node()
+	if not is_instance_valid(map_node):
 		return null
 	return _search_for_portal(map_node, target_map_id)
 
@@ -959,8 +981,8 @@ func _do_shop_maintenance() -> void:
 
 
 func _find_merchant_inventory() -> MerchantInventory:
-	var map_node = MapManager.get_player_map_node(bot_id)
-	if not map_node:
+	var map_node := _get_map_node()
+	if not is_instance_valid(map_node):
 		return null
 	for child in map_node.get_children():
 		var merchant := child.get_node_or_null("MerchantInventory") as MerchantInventory

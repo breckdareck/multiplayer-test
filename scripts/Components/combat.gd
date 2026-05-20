@@ -36,6 +36,11 @@ var display_min_damage: int:
 var original_attack_shape: Shape2D
 var original_attack_transform: Vector2
 
+# Cached owner map node — avoids repeated MapManager dictionary lookups on
+# every hitbox collision. Refreshed lazily when the owner changes maps.
+var _cached_map_node: Node = null
+var _cached_map_id: String = ""
+
 var _stats_component: StatsComponent
 var _class_component: ClassComponent
 var _equipment_component: EquipmentComponent
@@ -213,12 +218,20 @@ func end_ability_attack() -> void:
 	_unique_targets_for_attack.clear()
 
 
-func _is_on_same_map(target: Node) -> bool:
+func _get_owner_map_node() -> Node:
+	"""Returns the owner's current map node, re-resolving it through MapManager
+	only when the owner has actually changed maps."""
 	var map_id := MapManager.get_player_map(owner_node.player_id)
-	if map_id.is_empty():
-		return true
-	var map_data: Dictionary = MapManager.active_maps.get(map_id, {})
-	var map_node: Node = map_data.get("scene_instance")
+	if map_id != _cached_map_id or not is_instance_valid(_cached_map_node):
+		_cached_map_id = map_id
+		var map_data: Dictionary = MapManager.active_maps.get(map_id, {})
+		_cached_map_node = map_data.get("scene_instance")
+	return _cached_map_node
+
+
+func _is_on_same_map(target: Node) -> bool:
+	var map_node := _get_owner_map_node()
+	# No resolvable map (e.g. empty map_id) — fall back to allowing the hit.
 	if not is_instance_valid(map_node):
 		return true
 	return map_node.is_ancestor_of(target)
