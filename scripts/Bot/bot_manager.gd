@@ -154,6 +154,17 @@ func _on_bot_spawned(bot_id: int) -> void:
 		push_error("BotManager: Could not find player node for bot %d after spawn." % bot_id)
 		return
 
+	# A bot has no client and never opens a window — drop the entire UI subtree
+	# (HUD, mobile buttons, debug panel, hotbar, buffbar, and the draggable
+	# windows). Safe because inventory/equipment data lives in the components
+	# (SlotData), not the windows. Only free once the inventory's SlotData has
+	# been built (it is, by this point — load_player_inventory ran during spawn);
+	# the guard is belt-and-braces against an unexpected spawn ordering.
+	var inv = player_node.inventory_component
+	var canvas_layer := player_node.get_node_or_null("CanvasLayer")
+	if is_instance_valid(canvas_layer) and is_instance_valid(inv) and not inv.slots_data.is_empty():
+		canvas_layer.queue_free()
+
 	var old_brain = player_node.get_node_or_null("BotBrain")
 	if old_brain:
 		old_brain.queue_free()
