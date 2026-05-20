@@ -424,9 +424,9 @@ func _remove_item_from_inventory():
 	if item_container:
 		if item_container is InventoryComponent:
 			# Call through the inventory system which will handle sync
-			item_container.clear_slot(self)
+			item_container.clear_slot(self, "dropped")
 		elif item_container.has_method("clear_slot"):
-			item_container.clear_slot(self)
+			item_container.clear_slot(self, "dropped")
 		else:
 			# Fallback
 			item = null

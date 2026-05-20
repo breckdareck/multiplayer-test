@@ -102,9 +102,9 @@ func server_request_item_drop(item_id: String, amount: int, world_position: Vect
 	# 2. Remove the item from the player's inventory.
 	# This will sync the change back to the client automatically.
 	if amount >= slot_node.item.current_stack_amount:
-		inventory_component.clear_slot(slot_node)
+		inventory_component.clear_slot(slot_node, "dropped")
 	else:
-		inventory_component.remove_item_from_stack(slot_node.item, amount)
+		inventory_component.remove_item_from_stack(slot_node.item, amount, "dropped")
 
 func _screen_to_world_position(screen_position: Vector2) -> Vector2:
 	# Convert screen coordinates to world coordinates

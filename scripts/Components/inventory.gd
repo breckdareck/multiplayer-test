@@ -3,7 +3,7 @@ extends Node
 
 signal inventory_changed(inventory: InventoryComponent)
 signal item_added(item: ItemData)
-signal item_removed(item: ItemData)
+signal item_removed(item: ItemData, reason: String)
 signal inventory_saved(inventory: InventoryComponent)
 
 @export var inventory_grids: Array[GridContainer]
@@ -394,12 +394,14 @@ func add_item(item_id: String):
 		server_add_item.rpc_id(1, item_id)
 
 
-func remove_item(item: ItemData):
+## `reason` describes why the item left (e.g. "sold", "traded", "dropped",
+## "used") and is forwarded on the item_removed signal for logging.
+func remove_item(item: ItemData, reason: String = "removed"):
 	for sd in slots_data:
 		if sd.item == item:
 			var old_item = sd.item
 			_apply_item(sd, null)
-			item_removed.emit(old_item)
+			item_removed.emit(old_item, reason)
 
 			# Only sync this one slot
 			_sync_slot_to_client(sd)
@@ -408,7 +410,7 @@ func remove_item(item: ItemData):
 	#print("Item not found")
 
 
-func remove_item_from_stack(item: ItemData, amount: int = 1):
+func remove_item_from_stack(item: ItemData, amount: int = 1, reason: String = "removed"):
 	for sd in slots_data:
 		if sd.item == item:
 			var removed = sd.remove_from_stack(amount)
@@ -425,7 +427,7 @@ func remove_item_from_stack(item: ItemData, amount: int = 1):
 			if sd.item.current_stack_amount <= 0:
 				var old_item = sd.item
 				_apply_item(sd, null)
-				item_removed.emit(old_item)
+				item_removed.emit(old_item, reason)
 			else:
 				_refresh_view(sd.index)
 
@@ -437,14 +439,14 @@ func remove_item_from_stack(item: ItemData, amount: int = 1):
 	return 0
 
 
-func clear_slot(slot: Slot):
+func clear_slot(slot: Slot, reason: String = "removed"):
 	"""Clear a specific slot and update tracking"""
 	if slot in slots:
 		var sd: SlotData = slot.slot_data
 		var old_item = sd.item
 		_apply_item(sd, null)
 		if old_item:
-			item_removed.emit(old_item)
+			item_removed.emit(old_item, reason)
 
 		# Only sync this one slot
 		_sync_slot_to_client(sd)
@@ -967,7 +969,7 @@ func request_use_item(slot_index: int):
 
 	# Remove one from the stack and persist before executing the effect,
 	# because effects like Town Potion trigger a map change that frees this node.
-	remove_item_from_stack(item, 1)
+	remove_item_from_stack(item, 1, "used")
 
 	# Force-save inventory now so map changes don't lose the removal
 	if player.username and SaveManager:

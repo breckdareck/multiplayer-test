@@ -226,9 +226,9 @@ func _execute_trade(trade_id: int) -> void:
 
 	# Remove items from sources
 	for item in items_from_a:
-		inv_a.remove_item(item)
+		inv_a.remove_item(item, "traded")
 	for item in items_from_b:
-		inv_b.remove_item(item)
+		inv_b.remove_item(item, "traded")
 
 	# Add items to recipients
 	for item in items_from_a:

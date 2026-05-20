@@ -953,7 +953,7 @@ func _try_use_consumable() -> void:
 		var is_mana_pot := consumable.effect_properties.has("regain_amount")
 
 		if (need_health and is_health_pot) or (need_mana and is_mana_pot):
-			player.inventory_component.remove_item_from_stack(consumable, 1)
+			player.inventory_component.remove_item_from_stack(consumable, 1, "used")
 			var effect_instance = consumable.effect_script.new() as BaseItemEffect
 			effect_instance.user = player
 			effect_instance.source_item = consumable
@@ -1059,7 +1059,7 @@ func _sell_unwanted_items(merchant: MerchantInventory) -> void:
 		else:
 			sell_price = maxi(1, roundi(item.base_value * 0.5))
 		player.player_inventory.monies_amount += sell_price
-		player.inventory_component.remove_item(item)
+		player.inventory_component.remove_item(item, "sold")
 
 
 func _count_slots_by_tab() -> Dictionary:

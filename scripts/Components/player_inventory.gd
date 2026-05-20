@@ -64,9 +64,16 @@ func _on_item_added(item: ItemData):
 			AudioManager.play_sfx("res://assets/sounds/coin.wav", player.global_position)
 
 
-func _on_item_removed(item: ItemData):
-	# Player-specific behavior when items are removed
-	print("Player lost: " + item.name)
+func _on_item_removed(item: ItemData, reason: String) -> void:
+	# Player-specific behavior when an item leaves the inventory.
+	var who: String = player.username if is_instance_valid(player) and not player.username.is_empty() else "Player"
+	var verb: String = {
+		"sold": "sold",
+		"traded": "traded away",
+		"dropped": "dropped",
+		"used": "used",
+	}.get(reason, "removed")
+	print("%s %s %s." % [who, verb, item.name])
 
 
 func _notify_player_data_changed():
@@ -88,8 +95,8 @@ func add_item_instance(item_data: ItemData):
 		inventory_component.server_add_item_instance.rpc_id(1, item_data.to_dictionary())
 
 
-func remove_item(item: ItemData):
-	inventory_component.remove_item(item)
+func remove_item(item: ItemData, reason: String = "removed"):
+	inventory_component.remove_item(item, reason)
 
 
 func has_item(item_name: String, amount: int = 1) -> bool:

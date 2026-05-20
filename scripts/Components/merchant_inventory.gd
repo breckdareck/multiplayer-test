@@ -336,7 +336,7 @@ func request_sell_item(slot_index: int):
 		price_for_transaction = get_sell_price(item.item_id)
 		
 		# Remove one item from the player's stack
-		player.inventory_component.remove_item_from_stack(item, 1)
+		player.inventory_component.remove_item_from_stack(item, 1, "sold")
 	else:
 		# Not stackable, or stack of 1. Sell the whole item.
 		item_to_sell = item # Use the existing item object
@@ -345,7 +345,7 @@ func request_sell_item(slot_index: int):
 		price_for_transaction = get_sell_price(item.item_id) * item.current_stack_amount
 		
 		# Remove the whole item from the player's inventory
-		player.inventory_component.remove_item(item)
+		player.inventory_component.remove_item(item, "sold")
 	
 	# Add to this player's sold items (for buyback) and store the sell price
 	add_sold_item(sender_id, item_to_sell, price_for_transaction)
