@@ -1553,23 +1553,35 @@ func _do_shop_maintenance() -> void:
 		return
 
 	var merchant := _find_merchant_inventory()
-	_sell_unwanted_items(merchant)
-	_buy_potions(merchant)
-
-	# Bag full with no merchant here — route to town to offload gear.
-	_needs_sell = merchant == null and _inventory_is_full()
 
 	var health_count := _count_consumable("heal_amount")
 	var mana_count := _count_consumable("regain_amount")
 	var needs_health_pots := health_count <= POTION_RESTOCK_THRESHOLD
-	var needs_mana_pots := mana_count <= POTION_RESTOCK_THRESHOLD and is_instance_valid(player.mana_component) and player.mana_component.max_mana > 0
+	var needs_mana_pots := mana_count <= POTION_RESTOCK_THRESHOLD \
+		and is_instance_valid(player.mana_component) and player.mana_component.max_mana > 0
 
-	# Only flag a restock run the bot can actually pay for. A broke bot skips
-	# the trip and keeps fighting — earning the gold to afford potions later —
-	# instead of looping to town and buying nothing.
 	var gold: int = player.player_inventory.monies_amount
-	var want_health := needs_health_pots and _can_afford_potion("heal_amount", gold)
-	var want_mana := needs_mana_pots and _can_afford_potion("regain_amount", gold)
+	var can_afford_health := _can_afford_potion("heal_amount", gold)
+	var can_afford_mana := _can_afford_potion("regain_amount", gold)
+
+	# Out of potions and too broke to buy them: if the bot is carrying items
+	# worth selling, liquidate them for the gold instead of going without.
+	var broke_for_potions := (needs_health_pots and not can_afford_health) \
+		or (needs_mana_pots and not can_afford_mana)
+	var liquidate := broke_for_potions and not _collect_items_to_sell(true).is_empty()
+
+	var bag_full := _inventory_is_full()
+	_sell_unwanted_items(merchant, bag_full or liquidate)
+	_buy_potions(merchant)
+
+	# Route to a town merchant when the bag needs offloading, or when the bot
+	# must sell to afford potions.
+	_needs_sell = merchant == null and (bag_full or liquidate)
+	# Flag a restock run only if the bot can pay for it — it has the gold now,
+	# or the liquidation sale will cover it. A broke bot with nothing to sell
+	# skips the trip and keeps fighting to earn gold instead.
+	var want_health := needs_health_pots and (can_afford_health or liquidate)
+	var want_mana := needs_mana_pots and (can_afford_mana or liquidate)
 	_needs_restock = merchant == null and (want_health or want_mana)
 
 
@@ -1586,17 +1598,22 @@ func _find_merchant_inventory() -> MerchantInventory:
 
 const SELL_FULLNESS_THRESHOLD: float = 0.85
 
-func _sell_unwanted_items(merchant: MerchantInventory) -> void:
-	# Selling requires a merchant — a bot never offloads gear out in the field.
-	if not merchant:
-		return
+## Items the bot should offload to a merchant: junk equipment (unusable, or no
+## better than what it already has) and materials. With `force` the per-tab
+## fullness gates are ignored — used when the bot must raise gold for potions.
+func _collect_items_to_sell(force: bool) -> Array[ItemData]:
+	var items_to_sell: Array[ItemData] = []
+	if not is_instance_valid(player) or not is_instance_valid(player.inventory_component):
+		return items_to_sell
 
 	var tab_counts := _count_slots_by_tab()
-	var equip_full = tab_counts.equip_used >= int(tab_counts.equip_total * SELL_FULLNESS_THRESHOLD)
-	var material_full = tab_counts.material_used >= int(tab_counts.material_total * SELL_FULLNESS_THRESHOLD)
+	var sell_equip: bool = force \
+		or tab_counts.equip_used >= int(tab_counts.equip_total * SELL_FULLNESS_THRESHOLD)
+	var sell_material: bool = force \
+		or tab_counts.material_used >= int(tab_counts.material_total * SELL_FULLNESS_THRESHOLD)
 
-	if not equip_full and not material_full:
-		return
+	if not sell_equip and not sell_material:
+		return items_to_sell
 
 	var class_type: Constants.ClassType = Constants.ClassType.BEGINNER
 	if is_instance_valid(player.class_component):
@@ -1622,7 +1639,6 @@ func _sell_unwanted_items(merchant: MerchantInventory) -> void:
 		if not best_inventory_scores.has(slot_key) or score > best_inventory_scores[slot_key]:
 			best_inventory_scores[slot_key] = score
 
-	var items_to_sell: Array[ItemData] = []
 	for slot in player.inventory_component.get_slots():
 		if not slot.item:
 			continue
@@ -1631,7 +1647,7 @@ func _sell_unwanted_items(merchant: MerchantInventory) -> void:
 			continue
 
 		if slot.item is EquipmentData:
-			if not equip_full:
+			if not sell_equip:
 				continue
 			var item := slot.item as EquipmentData
 			var item_score := BotEquipmentLogic.score_item(item, class_type)
@@ -1647,11 +1663,19 @@ func _sell_unwanted_items(merchant: MerchantInventory) -> void:
 				items_to_sell.append(item)
 			elif item_score < best_inventory_scores.get(slot_key, 0.0):
 				items_to_sell.append(item)
-		else:
-			if material_full:
-				items_to_sell.append(slot.item)
+		elif sell_material:
+			items_to_sell.append(slot.item)
 
-	for item in items_to_sell:
+	return items_to_sell
+
+
+## Sells the bot's unwanted items to a merchant. `force` ignores the bag-
+## fullness gates so a broke bot can liquidate gear/materials for potion money.
+func _sell_unwanted_items(merchant: MerchantInventory, force: bool) -> void:
+	# Selling requires a merchant — a bot never offloads gear out in the field.
+	if not merchant:
+		return
+	for item in _collect_items_to_sell(force):
 		var sell_price: int = merchant.get_sell_price(item.item_id)
 		player.player_inventory.monies_amount += sell_price
 		player.inventory_component.remove_item(item, "sold")
