@@ -1,0 +1,87 @@
+[gd_resource type="Resource" script_class="SkillTreeData" load_steps=10 format=3 uid="uid://dskltree00mage"]
+
+[ext_resource type="Script" uid="uid://cskltreedata01" path="res://scripts/Resources/SkillTreeSystem/SkillTreeData.gd" id="1_tree"]
+[ext_resource type="Script" uid="uid://cskltreenode01" path="res://scripts/Resources/SkillTreeSystem/SkillTreeNodeData.gd" id="2_node"]
+
+[sub_resource type="Resource" id="Resource_magicbolt"]
+script = ExtResource("2_node")
+node_id = "magic_bolt"
+display_name = "Magic Bolt"
+ability_name = "Magic Bolt"
+skill_point_cost = 1
+required_level = 0
+prerequisite_node_ids = PackedStringArray()
+ui_position = Vector2i(0, 1)
+description = "A basic magic projectile. The foundation of the mage path."
+
+[sub_resource type="Resource" id="Resource_intpassive"]
+script = ExtResource("2_node")
+node_id = "int_passive"
+display_name = "INT Mastery"
+ability_name = "INT Passive"
+skill_point_cost = 1
+required_level = 0
+prerequisite_node_ids = PackedStringArray()
+ui_position = Vector2i(0, 0)
+description = "Passive arcane study. Permanently raises your INT."
+
+[sub_resource type="Resource" id="Resource_fireball"]
+script = ExtResource("2_node")
+node_id = "fireball"
+display_name = "Fireball"
+ability_name = "Fireball"
+skill_point_cost = 1
+required_level = 5
+prerequisite_node_ids = PackedStringArray("magic_bolt")
+ui_position = Vector2i(1, 1)
+description = "A blazing projectile that scorches enemies. Requires basic spellcasting."
+
+[sub_resource type="Resource" id="Resource_meditation"]
+script = ExtResource("2_node")
+node_id = "meditation"
+display_name = "Meditation"
+ability_name = "Meditation"
+skill_point_cost = 1
+required_level = 8
+prerequisite_node_ids = PackedStringArray("int_passive")
+ui_position = Vector2i(1, 0)
+description = "A party buff that raises magic attack."
+
+[sub_resource type="Resource" id="Resource_teleport"]
+script = ExtResource("2_node")
+node_id = "teleport"
+display_name = "Teleport"
+ability_name = "Teleport"
+skill_point_cost = 1
+required_level = 10
+prerequisite_node_ids = PackedStringArray("magic_bolt")
+ui_position = Vector2i(1, 2)
+description = "Instantly blink a short distance, a core mage mobility tool."
+
+[sub_resource type="Resource" id="Resource_icestrike"]
+script = ExtResource("2_node")
+node_id = "ice_strike"
+display_name = "Ice Strike"
+ability_name = "Ice Strike"
+skill_point_cost = 2
+required_level = 15
+prerequisite_node_ids = PackedStringArray("fireball")
+ui_position = Vector2i(2, 1)
+description = "A freezing blast that damages and slows multiple enemies."
+
+[sub_resource type="Resource" id="Resource_manashield"]
+script = ExtResource("2_node")
+node_id = "mana_shield"
+display_name = "Mana Shield"
+ability_name = "Mana Shield"
+skill_point_cost = 3
+required_level = 22
+prerequisite_node_ids = PackedStringArray("meditation", "ice_strike")
+ui_position = Vector2i(3, 0)
+description = "Converts incoming damage into mana loss. Requires both offensive and supportive mastery."
+
+[resource]
+script = ExtResource("1_tree")
+class_type = 2
+tree_name = "Mage Skill Tree"
+nodes = Array[ExtResource("2_node")]([SubResource("Resource_intpassive"), SubResource("Resource_magicbolt"), SubResource("Resource_meditation"), SubResource("Resource_fireball"), SubResource("Resource_teleport"), SubResource("Resource_icestrike"), SubResource("Resource_manashield")])

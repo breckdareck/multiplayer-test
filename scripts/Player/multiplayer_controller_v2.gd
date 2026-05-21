@@ -26,6 +26,7 @@ const SERVER_ID: int = 1
 @export var inventory_component: InventoryComponent
 @export var equipment_component: EquipmentComponent
 @export var ability_component: AbilityComponent
+@export var skill_tree_component: SkillTreeComponent
 @export var buff_component: BuffComponent
 @export var debug_component: MyDebugComponent
 
@@ -305,6 +306,10 @@ func _setup_signals() -> void:
 		ability_component.ability_points_changed.connect(func(_p): _data_changed("abilities"))
 		ability_component.ability_learned.connect(func(_a): _data_changed("abilities"))
 
+	if skill_tree_component:
+		skill_tree_component.node_unlocked.connect(func(_n): _data_changed("abilities"))
+		skill_tree_component.skill_points_changed.connect(func(_p): _data_changed("abilities"))
+
 	if inventory_component:
 		inventory_component.inventory_saved.connect(func(_inv): _data_changed("inventory"))
 		
@@ -503,6 +508,8 @@ func get_save_data(update_type: String = "all") -> Dictionary:
 	if update_type == "all" or update_type == "abilities":
 		if is_instance_valid(ability_component):
 			data['abilities'] = ability_component.save_abilities()
+		if is_instance_valid(skill_tree_component):
+			data['skill_tree'] = skill_tree_component.save_skill_tree()
 		
 	if update_type == "all" or update_type == "buffs":
 		if is_instance_valid(buff_component):
@@ -544,6 +551,10 @@ func _load_data(data: Dictionary) -> void:
 		ability_component.set_loading_mode(true)
 		ability_component.disconnect_level_signals()
 
+	if is_instance_valid(skill_tree_component):
+		skill_tree_component.set_loading_mode(true)
+		skill_tree_component.disconnect_level_signals()
+
 	if is_instance_valid(level_component):
 		level_component.set_block_signals(true)
 		level_component.level = data.get("level", 1)
@@ -572,7 +583,14 @@ func _load_data(data: Dictionary) -> void:
 		var ability_data = data.get("abilities", {})
 		if not ability_data.is_empty():
 			ability_component.load_abilities(ability_data)
-			
+
+	# Skill tree loads after abilities so the granted-ability bookkeeping is
+	# consistent. Older saves simply lack a "skill_tree" key — load_skill_tree
+	# handles the empty case and retroactively awards owed skill points.
+	if is_instance_valid(skill_tree_component):
+		skill_tree_component.load_skill_tree(data.get("skill_tree", {}))
+
+
 	if is_instance_valid(level_component):
 		level_component.set_block_signals(false)
 		level_component.leveled_up.emit(level_component.level)
@@ -585,6 +603,10 @@ func _load_data(data: Dictionary) -> void:
 	if is_instance_valid(ability_component):
 		ability_component.reconnect_level_signals()
 		ability_component.set_loading_mode(false)
+
+	if is_instance_valid(skill_tree_component):
+		skill_tree_component.reconnect_level_signals()
+		skill_tree_component.set_loading_mode(false)
 
 	if is_instance_valid(health_component):
 		health_component.set_loading_mode(false)

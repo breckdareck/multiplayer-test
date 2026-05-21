@@ -34,6 +34,8 @@
 [ext_resource type="PackedScene" uid="uid://dh7yjshjnm377" path="res://scenes/UI/inventory_window.tscn" id="24_e8txv"]
 [ext_resource type="PackedScene" uid="uid://cy54vn8lpmh2s" path="res://scenes/UI/equipment_window.tscn" id="25_7iww4"]
 [ext_resource type="PackedScene" uid="uid://1ufb4svp8iwu" path="res://scenes/UI/quest_window.tscn" id="26_quest"]
+[ext_resource type="Script" uid="uid://cskltreecomp01" path="res://scripts/Components/skill_tree.gd" id="34_skilltree"]
+[ext_resource type="PackedScene" uid="uid://b7sk1ltree001" path="res://scenes/UI/skill_tree_window.tscn" id="35_skilltree"]
 [ext_resource type="FontVariation" uid="uid://bpwl38ly8lvyj" path="res://assets/fonts/DamageNumbersFontVariation.tres" id="27_7iww4"]
 [ext_resource type="SpriteFrames" uid="uid://c05dyrlp5i5bj" path="res://resources/Player/SpriteFrames/Swordsman.tres" id="27_e8txv"]
 [ext_resource type="Texture2D" uid="uid://rmxapeohsar7" path="res://assets/sprites/MinifolksHumans/Outline/MiniTemplate.png" id="29_7iww4"]
@@ -467,7 +469,7 @@ size = Vector2(21, 21)
 [sub_resource type="CircleShape2D" id="CircleShape2D_h0wtf"]
 radius = 4.0
 
-[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "mana_component", "combat_component", "level_component", "stats_component", "class_component", "player_inventory", "inventory_component", "equipment_component", "ability_component", "buff_component", "debug_component", "player_HUD", "player_name_label", "stats_window", "inventory_window", "quest_window") groups=["Players", "networked_entities"]]
+[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "mana_component", "combat_component", "level_component", "stats_component", "class_component", "player_inventory", "inventory_component", "equipment_component", "ability_component", "skill_tree_component", "buff_component", "debug_component", "player_HUD", "player_name_label", "stats_window", "inventory_window", "quest_window") groups=["Players", "networked_entities"]]
 collision_layer = 2
 collision_mask = 5
 script = ExtResource("1_an8q1")
@@ -481,6 +483,7 @@ player_inventory = NodePath("Components/PlayerInventory")
 inventory_component = NodePath("Components/PlayerInventory/InventoryComponent")
 equipment_component = NodePath("Components/Equipment")
 ability_component = NodePath("Components/Ability")
+skill_tree_component = NodePath("Components/SkillTree")
 buff_component = NodePath("Components/Buff")
 debug_component = NodePath("CanvasLayer/Debug")
 player_HUD = NodePath("CanvasLayer/PlayerHUD")
@@ -545,6 +548,9 @@ script = ExtResource("4_cg2hl")
 [node name="Ability" type="Node" parent="Components" node_paths=PackedStringArray("hitbox")]
 script = ExtResource("14_ploos")
 hitbox = NodePath("../../Hitbox/BasicAttackHitbox")
+
+[node name="SkillTree" type="Node" parent="Components"]
+script = ExtResource("34_skilltree")
 
 [node name="Health" type="Node" parent="Components" node_paths=PackedStringArray("damage_number_origin")]
 script = ExtResource("5_o05ft")
@@ -1075,6 +1081,20 @@ anchor_bottom = 0.0
 offset_left = 720.0
 offset_top = 290.0
 offset_right = 1180.0
+offset_bottom = 800.0
+grow_horizontal = 1
+grow_vertical = 1
+
+[node name="SkillTreeWindow" parent="CanvasLayer/MoveableWindows" instance=ExtResource("35_skilltree")]
+layout_mode = 0
+anchors_preset = 0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 620.0
+offset_top = 280.0
+offset_right = 1260.0
 offset_bottom = 800.0
 grow_horizontal = 1
 grow_vertical = 1

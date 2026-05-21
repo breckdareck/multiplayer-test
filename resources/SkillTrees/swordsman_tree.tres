@@ -1,0 +1,87 @@
+[gd_resource type="Resource" script_class="SkillTreeData" load_steps=10 format=3 uid="uid://dskltree0sword"]
+
+[ext_resource type="Script" uid="uid://cskltreedata01" path="res://scripts/Resources/SkillTreeSystem/SkillTreeData.gd" id="1_tree"]
+[ext_resource type="Script" uid="uid://cskltreenode01" path="res://scripts/Resources/SkillTreeSystem/SkillTreeNodeData.gd" id="2_node"]
+
+[sub_resource type="Resource" id="Resource_slash"]
+script = ExtResource("2_node")
+node_id = "slash"
+display_name = "Slash"
+ability_name = "Slash"
+skill_point_cost = 1
+required_level = 0
+prerequisite_node_ids = PackedStringArray()
+ui_position = Vector2i(0, 1)
+description = "A basic sword swing that hits several enemies in front of you. The foundation of the warrior path."
+
+[sub_resource type="Resource" id="Resource_strpassive"]
+script = ExtResource("2_node")
+node_id = "str_passive"
+display_name = "STR Mastery"
+ability_name = "STR Passive"
+skill_point_cost = 1
+required_level = 0
+prerequisite_node_ids = PackedStringArray()
+ui_position = Vector2i(0, 0)
+description = "Passive strength training. Permanently raises your STR."
+
+[sub_resource type="Resource" id="Resource_powerstrike"]
+script = ExtResource("2_node")
+node_id = "power_strike"
+display_name = "Power Strike"
+ability_name = "Power Strike"
+skill_point_cost = 1
+required_level = 5
+prerequisite_node_ids = PackedStringArray("slash")
+ui_position = Vector2i(1, 1)
+description = "A heavy single-target blow. Requires basic mastery of Slash."
+
+[sub_resource type="Resource" id="Resource_hpboost"]
+script = ExtResource("2_node")
+node_id = "hp_boost"
+display_name = "HP Boost"
+ability_name = "HP Boost"
+skill_point_cost = 1
+required_level = 8
+prerequisite_node_ids = PackedStringArray("str_passive")
+ui_position = Vector2i(1, 0)
+description = "Toughens your body, permanently increasing maximum HP."
+
+[sub_resource type="Resource" id="Resource_brandish"]
+script = ExtResource("2_node")
+node_id = "brandish"
+display_name = "Brandish"
+ability_name = "Brandish"
+skill_point_cost = 2
+required_level = 15
+prerequisite_node_ids = PackedStringArray("power_strike")
+ui_position = Vector2i(2, 1)
+description = "A sweeping double strike that hits multiple foes. Demands real combat experience."
+
+[sub_resource type="Resource" id="Resource_powerguard"]
+script = ExtResource("2_node")
+node_id = "power_guard"
+display_name = "Power Guard"
+ability_name = "Power Guard"
+skill_point_cost = 2
+required_level = 18
+prerequisite_node_ids = PackedStringArray("hp_boost")
+ui_position = Vector2i(2, 0)
+description = "Reflects a portion of melee damage back at attackers."
+
+[sub_resource type="Resource" id="Resource_maplewarrior"]
+script = ExtResource("2_node")
+node_id = "maple_warrior"
+display_name = "Maple Warrior"
+ability_name = "Maple Warrior"
+skill_point_cost = 3
+required_level = 25
+prerequisite_node_ids = PackedStringArray("brandish", "power_guard")
+ui_position = Vector2i(3, 0)
+description = "The ultimate warrior buff, boosting all core stats. Requires mastery of both offence and defence."
+
+[resource]
+script = ExtResource("1_tree")
+class_type = 0
+tree_name = "Swordsman Skill Tree"
+nodes = Array[ExtResource("2_node")]([SubResource("Resource_strpassive"), SubResource("Resource_slash"), SubResource("Resource_hpboost"), SubResource("Resource_powerstrike"), SubResource("Resource_powerguard"), SubResource("Resource_brandish"), SubResource("Resource_maplewarrior")])

@@ -59,6 +59,7 @@ func _populate_keybinds():
 	_add_keybind_entry("OpenInventoryWindow", "Open Inventory")
 	_add_keybind_entry("OpenEquipmentWindow", "Open Equipment")
 	_add_keybind_entry("OpenAbilityWindow", "Open Abilities")
+	_add_keybind_entry("OpenSkillTreeWindow", "Open Skill Tree")
 
 func _add_keybind_entry(action_name: String, display_name: String): 
 	var hbox = HBoxContainer.new()
