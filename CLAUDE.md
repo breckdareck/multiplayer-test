@@ -1,137 +1,158 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for Claude Code in this repository. This is the **lean root** — it holds
+only repo-wide truths. Each major subsystem carries its own `CLAUDE.md` that loads
+additively when you work in that directory; see [Subsystem guides](#subsystem-guides).
 
-## Running the Game
+## What this is
+
+A **server-authoritative multiplayer RPG** built in Godot 4, with a Flask +
+PostgreSQL backend for account and character persistence.
+
+**The rule that governs everything:** the server owns all critical state. Clients
+send *intent* via RPCs; the server validates it, mutates state, and broadcasts the
+authoritative result back. Never mutate health, stats, inventory, drops, abilities,
+or progression on a client and assume it sticks — it will be overwritten.
+
+## Running the game
 
 - **Engine**: Godot 4.5+ (Forward Plus rendering)
-- **Main scene**: `scenes/UI/LoginScreen.tscn` (set in project.godot)
-- **Run in editor**: Press F5
-- **Multiple instances for local multiplayer testing**: Launch additional instances from the editor's Debug menu or run the exported binary
+- **Main scene**: `scenes/UI/LoginScreen.tscn`
+- **Run in editor**: F5
+- **Local multiplayer testing**: launch extra instances from the editor's Debug
+  menu, or run the exported binary
 - **Dedicated server** (headless):
-  ```
-  godot --headless --feature dedicated_server --path . -- --port 8080
-  ```
+  `godot --headless --feature dedicated_server --path . -- --port 8080`
+- **Windows helpers**: `start_server.bat` / `stop_server.bat`
 
-## Backend (Required for account/character persistence)
+## Backend (required for account/character persistence)
 
-```bash
+```
 docker-compose up -d
-# Flask API: http://localhost:5000
-# PostgreSQL: localhost:5432 (user: postgres, password: password, db: gamedb)
-# Adminer DB UI: http://localhost:8080
 ```
 
-Backend logs: `docker-compose logs api`
+| Service | URL / port | Credentials |
+|---|---|---|
+| Flask API | http://localhost:5000 | — |
+| PostgreSQL | localhost:5432 | `postgres` / `password` / db `gamedb` |
+| Adminer (DB UI) | http://localhost:8080 | — |
 
-## Architecture Overview
+Logs: `docker-compose logs api`. Schema and endpoint conventions live in
+[backend/CLAUDE.md](backend/CLAUDE.md).
 
-This is a **server-authoritative multiplayer RPG** in Godot 4. All critical state mutations happen on the server; clients send intent via RPCs and receive authoritative state back.
+## Autoload singletons
 
-### Autoload Singletons (globally accessible)
+Registered in `project.godot`; globally accessible by name from any script.
 
 | Singleton | Script | Purpose |
 |---|---|---|
-| `MultiplayerManager` | `scripts/Managers/multiplayer_manager.gd` | Host/join, channel switching, level loading |
+| `MultiplayerManager` | `scripts/Managers/multiplayer_manager.gd` | Host/join, channel switching, level loading; emits `server_has_started` |
 | `ServerManager` | `scripts/Networking/server_manager.gd` | ENet server lifecycle |
 | `ClientManager` | `scripts/Networking/client_manager.gd` | ENet client connection |
-| `PlayerManager` | `scripts/Networking/player_manager.gd` | Player spawn/cleanup |
-| `ChannelManager` | `scripts/Networking/channel_manager.gd` | Port switching without restart |
+| `PlayerManager` | `scripts/Networking/player_manager.gd` | Player/bot spawn & cleanup, player-node lookup |
+| `ChannelManager` | `scripts/Networking/channel_manager.gd` | Port switching without a restart |
 | `NetworkUtils` | `scripts/Networking/network_utils.gd` | IP/port validation, scene helpers |
-| `NetworkManager` | `scripts/Networking/network_manager.gd` | Backend API (login, characters) |
-| `ResourceManager` | `scripts/Managers/resource_manager.gd` | Load/cache all `.tres` game data |
-| `SaveManager` | `scripts/Managers/save_manager.gd` | Debounced player data persistence |
-| `MapManager` | `scripts/Managers/map_manager.gd` | Map/zone transitions |
+| `NetworkManager` | `scripts/Networking/network_manager.gd` | Backend HTTP API (login, characters, save/load) |
+| `ResourceManager` | `scripts/Managers/resource_manager.gd` | Loads & caches ability/item/buff/class `.tres` |
+| `SaveManager` | `scripts/Managers/save_manager.gd` | Debounced player-data persistence |
+| `MapManager` | `scripts/Managers/map_manager.gd` | Map registry, transitions, visibility, spawning |
 | `PartyManager` | `scripts/Managers/party_manager.gd` | Party creation/joining |
-| `ChatManager` | `scripts/Managers/ChatManager.gd` | In-game messaging |
+| `BotManager` | `scripts/Bot/bot_manager.gd` | Server-side AI bot lifecycle, `/bot` commands |
+| `TradeManager` | `scripts/Trading/trade_manager.gd` | Player-to-player trading |
+| `QuestManager` | `scripts/Managers/quest_manager.gd` | Quest tracking and objectives |
+| `JobAdvancementManager` | `scripts/Managers/job_advancement_manager.gd` | Class advancement at level 30 |
+| `ChatManager` | `scripts/Managers/ChatManager.gd` | In-game messaging and slash commands |
 | `KeybindManager` | `scripts/Managers/keybind_manager.gd` | Custom keybindings |
-| `UserConfig` | `scripts/Managers/user_config.gd` | User preferences persistence |
+| `UserConfig` | `scripts/Managers/user_config.gd` | User-preference persistence |
 | `InputManager` | `scripts/Managers/InputManager.gd` | Global input lock/unlock |
 | `AudioManager` | `scripts/Managers/audio_manager.gd` | Music and SFX |
 | `LogManager` | `scripts/Managers/LogManager.gd` | In-game debug logging |
 
-### Component-Based Character System
-
-Player and enemy characters are composed of child Node components under a root character node:
-
-```
-Player/
-├── Health/       # health.gd — damage, invuln frames, regen, death/respawn
-├── Stats/        # stats.gd — STR/DEX/INT/LUCK/etc., aggregates all bonuses
-├── Combat/       # combat.gd — hitboxes, damage calc, crit hits
-├── Ability/      # ability.gd — learn/level/use abilities, cooldowns, passives
-├── Buff/         # buff.gd — timed buffs/debuffs with stacking and custom logic
-├── Equipment/    # equipment.gd — 5 slots (head/chest/legs/feet/weapon)
-├── Inventory/    # inventory.gd — item slots, stacking, drag-and-drop
-└── Debug/        # debug.gd — dev-only heal/damage/exp buttons
-```
-
-Set exported references in `multiplayer_controller_v2.gd` to wire these together.
-
-### Data-Driven Resources
-
-Game data lives in `resources/` as Godot `.tres` files:
-- `resources/Abilities/` — `AbilityData`, `AbilityLevelData`, `AbilityScalingData`, `ProcEffectData`
-- `resources/Buffs/` — `BuffData`
-- `resources/Items/` — `ItemData`, `EquipmentData`, `ArmorData`, `WeaponData`
-- `resources/Player/Classes/` — `ClassData` (Swordsman, Archer, Mage)
-- `resources/DropTables/` — enemy drop configuration
-
-Access all resources via `ResourceManager` (never load directly at runtime).
-
-### Custom Logic Scripts
-
-- `scripts/AbilityLogic/` — `AL_*.gd` scripts executed by AbilityComponent for complex active abilities
-- `scripts/BuffLogic/` — `BL_*.gd` scripts executed by BuffComponent for reactive buff effects
-
-### Scene Requirements
-
-- Gameplay scenes need `Level/Players` node path for player spawning
-- Main menu needs `%MenuContainer` with `selected_character`, `get_username()`, and `setup_PID_label()`
-
-### UI Flow
-
-`LoginScreen` → `CharacterSelectScreen` / `CharacterCreationScreen` → `game.tscn`
-
-All UI windows are draggable and toggled by input actions (Tab, I, E, C, P, etc.).
-
-## RPC Conventions
+## RPC conventions
 
 ```gdscript
-# Server → Clients (authoritative updates) — "call_local" because host is also a client
+# Server -> all peers (authoritative state). call_local: the host is also a
+# client, so it must run the update too.
 @rpc("authority", "call_local", "reliable")
 
-# Client → Server (input only)
-@rpc("any_peer", "call_remote", "unreliable")
-
-# Always guard server-only logic:
-func _physics_process(delta: float) -> void:
-    if not is_multiplayer_authority():
+# Client -> server (intent request). Always guard the body:
+@rpc("any_peer", "call_local", "reliable")
+func do_something_server(arg) -> void:
+    if not multiplayer.is_server():
         return
+    ...
+
+# Server -> clients only (the server must NOT run it itself):
+@rpc("authority", "call_remote", "reliable")
 ```
 
-Add all networked entities to the `networked_entities` group for consistent cleanup on disconnect/channel switch.
+- The **server is always peer ID 1**. Clients reach it with `rpc_id(1, ...)`.
+- Guard server-only logic with `if not multiplayer.is_server(): return` (or
+  `is_multiplayer_authority()` for per-entity authority).
+- **Bots have negative peer IDs** and no client. Never send a node-addressed RPC
+  to a bot — route bot-related visuals through an autoload (e.g. `MapManager`),
+  which resolves on every peer. See [scripts/Bot/CLAUDE.md](scripts/Bot/CLAUDE.md).
+
+Full networking detail: [scripts/Networking/CLAUDE.md](scripts/Networking/CLAUDE.md).
+
+## Global groups
+
+- `networked_entities` — every network-spawned node; cleared on disconnect /
+  channel switch. Add new networked entities to this group.
+- `Players` — player (and bot) character nodes.
+- `Enemies` — enemy nodes. This group is **global across all maps**; filter by map
+  when iterating (see how `bot_brain.gd` does it).
 
 ## Persistence
 
-- In-game state: saved to `player_<username>.json` on server (health, level, exp, abilities, buffs, equipment, inventory, monies)
-- Account/character records: persisted to PostgreSQL via Flask API
-- Delete `player_<username>.json` to reset a character's in-game progress
+Two layers:
 
-## Adding New Content
+- **Account / character records** → PostgreSQL via the Flask API. `username` is
+  the unique **character name**. See [backend/CLAUDE.md](backend/CLAUDE.md).
+- **In-game character state** (health, level, exp, abilities, buffs, equipment,
+  inventory, monies) → persisted through `SaveManager` to the backend.
 
-**New ability**: Add `.tres` in `resources/Abilities/`, create `AL_*.gd` in `scripts/AbilityLogic/` if it needs custom active behavior, register in `ResourceManager`.
+## Component-based characters
 
-**New item**: Add `.tres` in `resources/Items/`, add to drop tables if needed.
+Player and enemy characters are composed of `Node` components under a root
+character node (`Player/Components/Health`, `.../Stats`, …). The root player
+script is `scripts/Player/multiplayer_controller_v2.gd` (`MultiplayerPlayerV2`).
+See [scripts/Components/CLAUDE.md](scripts/Components/CLAUDE.md).
 
-**New enemy**: Create scene under `scenes/NPC/`, extend `enemy_base.gd`, add states in `scripts/Enemy/StateMachine/`.
+## Data-driven content
 
-**New map**: Create scene inheriting `MapBase` (`scripts/Gameplay/map_base.gd`), define spawn points and portals, register with `MapManager`.
+Game content is Godot `.tres` resources under `resources/`, defined by classes in
+`scripts/Resources/`. `ResourceManager` auto-loads abilities, items, buffs, and
+classes recursively — no manual registration. See
+[scripts/Resources/CLAUDE.md](scripts/Resources/CLAUDE.md).
 
-**New backend endpoint**: Add SQLAlchemy model + Flask route in `backend/app.py`, call from Godot using `HTTPRequest`.
+## Subsystem guides
 
-## Global Groups
+| Area | Guide |
+|---|---|
+| Networking, RPCs, ENet, channels | [scripts/Networking/CLAUDE.md](scripts/Networking/CLAUDE.md) |
+| Character components | [scripts/Components/CLAUDE.md](scripts/Components/CLAUDE.md) |
+| Data resource classes | [scripts/Resources/CLAUDE.md](scripts/Resources/CLAUDE.md) |
+| AI bots | [scripts/Bot/CLAUDE.md](scripts/Bot/CLAUDE.md) |
+| Backend (Flask / Postgres) | [backend/CLAUDE.md](backend/CLAUDE.md) |
 
-- `networked_entities` — all network-spawned nodes; cleared on cleanup
-- `Players` — player character nodes
-- `Enemies` — enemy nodes
+## Skills — repeatable content workflows
+
+Adding game content follows fixed, multi-step recipes, packaged as Claude Code
+skills under `.claude/skills/`. They load automatically when you work in the
+matching files:
+
+| Skill | Use when |
+|---|---|
+| `add-ability` | Creating/editing an ability (`resources/Abilities/`, `scripts/Abilities/`) |
+| `add-buff` | Creating/editing a buff or debuff (`resources/Buffs/`, `scripts/Buffs/`) |
+| `add-item` | Creating a weapon, armor, or consumable (`resources/Items/`) |
+| `add-enemy` | Creating an enemy (`resources/Enemies/`, `scenes/NPC/`) |
+| `add-map` | Creating a map/level (`scenes/Levels/`) |
+| `add-backend-endpoint` | Adding a Flask route or model (`backend/`) |
+
+## The AI Layer
+
+This repo's Claude Code configuration — the CLAUDE.md hierarchy, the skills above,
+the read-only `explorer` subagent, and the `SessionStart` orientation hook — is
+catalogued in [AI-LAYER.md](AI-LAYER.md).
