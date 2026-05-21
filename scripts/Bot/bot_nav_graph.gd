@@ -4,19 +4,22 @@ extends RefCounted
 ##
 ## Surfaces are discovered by raycast-probing the *live* physics world, so the
 ## graph works uniformly across TileMaps, one-way platforms and StaticBody2Ds
-## without parsing any tileset data. Edges model how a bot can move between
-## surfaces — walk, jump-up, drop-down, gap-jump — and jump edges are gated by
-## the bot's real jump reach.
+## without parsing any tileset data. Each surface is classified solid or
+## one-way. Edges model how a bot can move between surfaces — walk, jump-up,
+## drop-down, gap-jump — gated by the bot's real jump reach and by where a drop
+## is actually possible (a solid surface's ledges, or anywhere on a one-way
+## platform).
 ##
-## Build once per map (physics must be live), then call find_path(). This is
-## stage 1 of the platform-graph navigation work: the graph + A* exist and are
-## inspectable via `/bot navgraph`, but are not yet wired into bot movement.
+## Build incrementally (begin_build + build_step) while physics is live, then
+## call find_path() / find_id_path().
 
 const GROUND_MASK: int = 0b101  ## World + Platforms — mirrors bot_brain.
+const WORLD_MASK: int = 0b001   ## Solid world only — excludes one-way platforms.
 
 const CELL: float = 16.0            ## Probe / cluster resolution (one tile).
 const Y_TOLERANCE: float = 6.0      ## Max Y diff for adjacent columns to share a surface.
 const AIR_GAP_CHECK: float = 6.0    ## A surface hit only counts if this much space above it is clear.
+const SOLID_PROBE_DEPTH: float = 2.0 ## How far below a surface top to sample when classifying it.
 const POINT_SPACING: float = 40.0   ## Graph points placed along a surface this far apart.
 const MAX_LINK_DIST: float = 220.0  ## Point pairs farther apart than this are never linked.
 const DROP_DX: float = 30.0         ## Max horizontal drift tolerated for a straight drop edge.
@@ -25,9 +28,10 @@ const MAX_COLUMN_ITERS: int = 400   ## Defensive cap on the per-column probe loo
 enum EdgeKind { WALK, JUMP, DROP, GAP }
 
 var bounds: Rect2
-var segments: Array[Dictionary] = []         ## Each: {y, x_min, x_max, last_col}
+var segments: Array[Dictionary] = []         ## Each: {y, x_min, x_max, last_col, one_way}
 var points: PackedVector2Array = PackedVector2Array()
 var point_segment: PackedInt32Array = PackedInt32Array()
+var point_is_ledge: PackedByteArray = PackedByteArray()  ## 1 at a segment's end points.
 var edges: Dictionary = {}                   ## Vector2i(from_id, to_id) -> EdgeKind
 var astar: AStar2D = AStar2D.new()
 var built: bool = false
@@ -54,6 +58,7 @@ func begin_build(map_node: Node2D, max_jump_height: float, jump_reach: float) ->
 	segments.clear()
 	points = PackedVector2Array()
 	point_segment = PackedInt32Array()
+	point_is_ledge = PackedByteArray()
 	edges.clear()
 	_build_columns = []
 	_build_col_index = 0
@@ -160,10 +165,15 @@ func get_stats() -> Dictionary:
 	var kinds := {EdgeKind.WALK: 0, EdgeKind.JUMP: 0, EdgeKind.DROP: 0, EdgeKind.GAP: 0}
 	for k in edges.values():
 		kinds[k] += 1
+	var one_way_segs := 0
+	for seg in segments:
+		if seg.one_way:
+			one_way_segs += 1
 	return {
 		"built": built,
 		"bounds": bounds,
 		"segments": segments.size(),
+		"one_way_segments": one_way_segs,
 		"points": points.size(),
 		"edges": edges.size(),
 		"walk": kinds[EdgeKind.WALK],
@@ -211,11 +221,11 @@ func _find_tilemap_layers(node: Node) -> Array:
 
 # --- Surface probing --------------------------------------------------------
 
-
-## Casts repeated downward rays through one column, recording the top of every
-## standable surface — a collider top with clear air directly above it.
-func _probe_one_column(space: PhysicsDirectSpaceState2D, x: float) -> PackedFloat32Array:
-	var ys := PackedFloat32Array()
+## Casts repeated downward rays through one column, recording each standable
+## surface: its top Y and whether it is a one-way platform (vs solid ground).
+## Returns an Array of {y: float, one_way: bool}.
+func _probe_one_column(space: PhysicsDirectSpaceState2D, x: float) -> Array:
+	var surfaces: Array = []
 	var bottom := bounds.position.y + bounds.size.y
 	var y := bounds.position.y
 	var iters := 0
@@ -226,37 +236,39 @@ func _probe_one_column(space: PhysicsDirectSpaceState2D, x: float) -> PackedFloa
 		if hit.is_empty():
 			break
 		var hit_y: float = hit.position.y
-		# A ray that starts inside stacked solid tiles still "hits" every
-		# internal tile boundary below it — the engine skips only the tile the
-		# ray started in. A genuine standable surface has clear air just above
-		# it, so verify that with a point query; this rejects the internal
-		# boundaries that were otherwise logged as walkable ground.
-		if not _point_solid(space, Vector2(x, hit_y - AIR_GAP_CHECK)):
-			ys.append(hit_y)
+		# A ray starting inside stacked solid tiles still "hits" every internal
+		# tile boundary below it. A genuine standable surface has clear air just
+		# above it — verify that, rejecting internal boundaries.
+		if not _point_solid(space, Vector2(x, hit_y - AIR_GAP_CHECK), GROUND_MASK):
+			# Classify: solid world geometry just under the top, or a one-way
+			# platform (something on the Platforms layer but not on World).
+			var solid := _point_solid(space, Vector2(x, hit_y + SOLID_PROBE_DEPTH), WORLD_MASK)
+			surfaces.append({"y": hit_y, "one_way": not solid})
 		y = hit_y + 2.0      # nudge past this hit and keep scanning down
-	return ys
+	return surfaces
 
 
-## True if a point lies inside solid ground / platform geometry.
-func _point_solid(space: PhysicsDirectSpaceState2D, p: Vector2) -> bool:
+## True if a point lies inside collision geometry on `mask`.
+func _point_solid(space: PhysicsDirectSpaceState2D, p: Vector2, mask: int) -> bool:
 	var q := PhysicsPointQueryParameters2D.new()
 	q.position = p
-	q.collision_mask = GROUND_MASK
+	q.collision_mask = mask
 	q.collide_with_areas = false
 	q.collide_with_bodies = true
 	return not space.intersect_point(q, 1).is_empty()
 
 
 ## Sweeps columns left to right, joining surface hits at a consistent Y into
-## horizontal segments.
+## horizontal segments. A segment inherits the one-way flag of its first hit.
 func _cluster_segments(columns: Array) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	var open: Array[Dictionary] = []
 	for c in range(columns.size()):
 		var col_x := bounds.position.x + c * CELL + CELL * 0.5
-		var ys: PackedFloat32Array = columns[c]
+		var surfaces: Array = columns[c]
 		var matched := {}
-		for sy in ys:
+		for surf in surfaces:
+			var sy: float = surf.y
 			var best := -1
 			var best_d := Y_TOLERANCE
 			for oi in range(open.size()):
@@ -275,7 +287,8 @@ func _cluster_segments(columns: Array) -> Array[Dictionary]:
 				open[best].last_col = c
 				matched[best] = true
 			else:
-				open.append({"y": sy, "x_min": col_x, "x_max": col_x, "last_col": c})
+				open.append({"y": sy, "x_min": col_x, "x_max": col_x,
+					"last_col": c, "one_way": surf.one_way})
 		# Close any segment that wasn't extended into this column.
 		var still_open: Array[Dictionary] = []
 		for seg in open:
@@ -294,18 +307,31 @@ func _cluster_segments(columns: Array) -> Array[Dictionary]:
 func _place_points() -> void:
 	for si in range(segments.size()):
 		var seg := segments[si]
+		var first_id := points.size()
 		var x: float = seg.x_min
 		while x < seg.x_max:
 			_add_point(Vector2(x, seg.y), si)
 			x += POINT_SPACING
 		_add_point(Vector2(seg.x_max, seg.y), si)
+		# The segment's two end points are its ledges.
+		point_is_ledge[first_id] = 1
+		point_is_ledge[points.size() - 1] = 1
 
 
 func _add_point(pos: Vector2, seg_index: int) -> void:
 	var id := points.size()
 	points.append(pos)
 	point_segment.append(seg_index)
+	point_is_ledge.append(0)
 	astar.add_point(id, pos)
+
+
+## Whether a bot can descend from a point: off a solid surface only at its
+## ledges (segment ends), but anywhere on a one-way platform (drops through).
+func _can_drop_from(point_id: int) -> bool:
+	if point_is_ledge[point_id] == 1:
+		return true
+	return bool(segments[point_segment[point_id]].one_way)
 
 
 func _build_edges() -> void:
@@ -317,6 +343,7 @@ func _build_edges() -> void:
 	# Inter-segment edges: jump-up, drop-down, gap-jump.
 	for i in range(points.size()):
 		var pa: Vector2 = points[i]
+		var can_drop := _can_drop_from(i)
 		var nearest_drop := -1
 		var nearest_drop_dy := INF
 		for j in range(points.size()):
@@ -331,9 +358,9 @@ func _build_edges() -> void:
 				if dy <= _max_jump_height and dx <= _jump_reach:
 					_connect(i, j, EdgeKind.JUMP, false)
 			elif dy < -2.0:
-				# Keep only the nearest surface directly below — that's where a
-				# straight drop actually lands.
-				if dx <= DROP_DX and -dy < nearest_drop_dy:
+				# A drop is only valid where the bot can actually leave the
+				# surface — a solid ledge, or anywhere on a one-way platform.
+				if can_drop and dx <= DROP_DX and -dy < nearest_drop_dy:
 					nearest_drop_dy = -dy
 					nearest_drop = j
 			else:

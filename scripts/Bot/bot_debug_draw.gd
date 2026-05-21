@@ -20,6 +20,7 @@ const EDGE_COLORS: Array[Color] = [
 	Color(1.0, 0.9, 0.2, 0.75),   # GAP   — yellow
 ]
 const SURFACE_COLOR := Color(1, 1, 1, 0.55)
+const ONEWAY_SURFACE_COLOR := Color(0.5, 1.0, 0.7, 0.7)  ## One-way platforms.
 const POINT_COLOR := Color(1, 1, 1, 0.9)
 const PATH_COLOR := Color(1.0, 0.25, 0.85, 0.95)
 const GOAL_COLOR := Color(1.0, 0.25, 0.85, 0.4)
@@ -54,7 +55,8 @@ func _draw() -> void:
 
 func _draw_graph(graph: BotNavGraph) -> void:
 	for seg in graph.segments:
-		draw_line(Vector2(seg.x_min, seg.y), Vector2(seg.x_max, seg.y), SURFACE_COLOR, 1.5)
+		var surface_color: Color = ONEWAY_SURFACE_COLOR if seg.one_way else SURFACE_COLOR
+		draw_line(Vector2(seg.x_min, seg.y), Vector2(seg.x_max, seg.y), surface_color, 1.5)
 
 	for key in graph.edges:
 		var kind: int = graph.edges[key]
