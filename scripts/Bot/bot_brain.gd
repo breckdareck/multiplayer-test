@@ -772,7 +772,8 @@ func _do_fight() -> void:
 	var dir := 1 if to_enemy.x > 0 else -1
 
 	if abs(dy) > 12.0:
-		_navigate_toward(target_enemy.global_position)
+		# Enemy on another level — route across terrain via the nav graph.
+		_navigate_smart(target_enemy.global_position)
 		return
 
 	player.facing_direction = dir
@@ -815,7 +816,7 @@ func _do_fight() -> void:
 		if is_ranged and dx <= _combat_range:
 			player.direction = 0
 			return
-		_navigate_toward(target_enemy.global_position)
+		_navigate_smart(target_enemy.global_position)
 		return
 
 	if _is_wall_between(player.global_position, target_enemy.global_position):
@@ -921,7 +922,7 @@ func _do_loot() -> void:
 		player.do_pickup = true
 	else:
 		player.do_pickup = true  # keep trying while approaching
-		_navigate_toward(target_loot.global_position)
+		_navigate_smart(target_loot.global_position)
 
 
 func _do_follow() -> void:
