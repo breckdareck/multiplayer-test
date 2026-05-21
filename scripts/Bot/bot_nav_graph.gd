@@ -16,7 +16,7 @@ const GROUND_MASK: int = 0b101  ## World + Platforms — mirrors bot_brain.
 
 const CELL: float = 16.0            ## Probe / cluster resolution (one tile).
 const Y_TOLERANCE: float = 6.0      ## Max Y diff for adjacent columns to share a surface.
-const STAND_EPS: float = 3.0        ## Ray must clear this much air before a hit is a surface.
+const AIR_GAP_CHECK: float = 6.0    ## A surface hit only counts if this much space above it is clear.
 const POINT_SPACING: float = 40.0   ## Graph points placed along a surface this far apart.
 const MAX_LINK_DIST: float = 220.0  ## Point pairs farther apart than this are never linked.
 const DROP_DX: float = 30.0         ## Max horizontal drift tolerated for a straight drop edge.
@@ -213,7 +213,7 @@ func _find_tilemap_layers(node: Node) -> Array:
 
 
 ## Casts repeated downward rays through one column, recording the top of every
-## standable surface (a collider with open air above it).
+## standable surface — a collider top with clear air directly above it.
 func _probe_one_column(space: PhysicsDirectSpaceState2D, x: float) -> PackedFloat32Array:
 	var ys := PackedFloat32Array()
 	var bottom := bounds.position.y + bounds.size.y
@@ -226,14 +226,25 @@ func _probe_one_column(space: PhysicsDirectSpaceState2D, x: float) -> PackedFloa
 		if hit.is_empty():
 			break
 		var hit_y: float = hit.position.y
-		if hit_y - y >= STAND_EPS:
-			# The ray crossed open air before hitting — top of a standable surface.
+		# A ray that starts inside stacked solid tiles still "hits" every
+		# internal tile boundary below it — the engine skips only the tile the
+		# ray started in. A genuine standable surface has clear air just above
+		# it, so verify that with a point query; this rejects the internal
+		# boundaries that were otherwise logged as walkable ground.
+		if not _point_solid(space, Vector2(x, hit_y - AIR_GAP_CHECK)):
 			ys.append(hit_y)
-			y = hit_y + 2.0      # step just past the surface to find the next one
-		else:
-			# Started inside / flush against solid — skip a tile and retry.
-			y = hit_y + CELL
+		y = hit_y + 2.0      # nudge past this hit and keep scanning down
 	return ys
+
+
+## True if a point lies inside solid ground / platform geometry.
+func _point_solid(space: PhysicsDirectSpaceState2D, p: Vector2) -> bool:
+	var q := PhysicsPointQueryParameters2D.new()
+	q.position = p
+	q.collision_mask = GROUND_MASK
+	q.collide_with_areas = false
+	q.collide_with_bodies = true
+	return not space.intersect_point(q, 1).is_empty()
 
 
 ## Sweeps columns left to right, joining surface hits at a consistent Y into
