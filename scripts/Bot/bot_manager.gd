@@ -333,10 +333,17 @@ func get_nav_graph(map_id: String, map_node: Node2D, max_jump: float, jump_reach
 	return null
 
 
+func _process(_delta: float) -> void:
+	if not multiplayer.is_server():
+		return
+	_step_nav_graph_builds()
+	_update_watch_camera()
+
+
 ## Drives in-progress nav-graph builds a slice at a time, and cleans up builds
 ## that produced nothing or were aborted by the map being freed.
-func _process(_delta: float) -> void:
-	if not multiplayer.is_server() or _nav_graphs.is_empty():
+func _step_nav_graph_builds() -> void:
+	if _nav_graphs.is_empty():
 		return
 	for map_id in _nav_graphs:
 		var graph: BotNavGraph = _nav_graphs[map_id]
@@ -352,6 +359,50 @@ func _process(_delta: float) -> void:
 			# Build aborted (map freed mid-build) — drop it so it retries.
 			_nav_graphs.erase(map_id)
 		break  # one graph per frame is plenty
+
+
+## Camera-follow a bot for debugging. watch_bot(0) stops and restores the host
+## camera. Host-only — peer 1's player owns the active viewport camera there.
+var _watched_bot: int = 0
+var _watch_saved_cam_pos: Vector2 = Vector2.ZERO
+var _watch_cam_saved: bool = false
+
+func watch_bot(bot_id: int) -> void:
+	if bot_id == _watched_bot:
+		return
+	if bot_id == 0:
+		_restore_watch_camera()
+	_watched_bot = bot_id
+
+
+## ID of the bot the debug camera is following, or 0.
+func get_watched_bot() -> int:
+	return _watched_bot
+
+
+func _restore_watch_camera() -> void:
+	if not _watch_cam_saved:
+		return
+	var host := PlayerManager.get_player_node(1)
+	if is_instance_valid(host) and is_instance_valid(host.camera):
+		host.camera.position = _watch_saved_cam_pos
+	_watch_cam_saved = false
+
+
+func _update_watch_camera() -> void:
+	if _watched_bot == 0:
+		return
+	if not active_bots.has(_watched_bot):
+		watch_bot(0)  # bot despawned — stop following
+		return
+	var bot := PlayerManager.get_player_node(_watched_bot)
+	var host := PlayerManager.get_player_node(1)
+	if not is_instance_valid(bot) or not is_instance_valid(host) or not is_instance_valid(host.camera):
+		return
+	if not _watch_cam_saved:
+		_watch_saved_cam_pos = host.camera.position
+		_watch_cam_saved = true
+	host.camera.global_position = bot.global_position
 
 
 ## The cached nav graph for a map (built or still building), for debug tooling.
@@ -388,7 +439,7 @@ func _class_string_to_type(class_str: String) -> int:
 ## route UI back to the requesting client rather than always the host.
 func handle_command(args: Array, requester_id: int = 0) -> String:
 	if args.is_empty():
-		return "Usage: /bot <spawn|despawn|despawn_all|list|teleport|set_level|party|travel|inspect|trade|navgraph|navpath|debugdraw|reload_config>"
+		return "Usage: /bot <spawn|despawn|despawn_all|list|teleport|set_level|party|travel|inspect|trade|navgraph|navpath|debugdraw|stats|watch|reload_config>"
 
 	var sub_command: String = args[0].to_lower()
 	match sub_command:
@@ -489,8 +540,44 @@ func handle_command(args: Array, requester_id: int = 0) -> String:
 		"debugdraw":
 			return _handle_debugdraw_command(args.slice(1))
 
+		"stats":
+			return _handle_stats_command(args.slice(1))
+
+		"watch":
+			return _handle_watch_command(args.slice(1))
+
 		_:
-			return "Unknown bot command '%s'. Use: spawn, despawn, despawn_all, list, teleport, set_level, party, travel, inspect, trade, navgraph, navpath, debugdraw, reload_config" % sub_command
+			return "Unknown bot command '%s'. Use: spawn, despawn, despawn_all, list, teleport, set_level, party, travel, inspect, trade, navgraph, navpath, debugdraw, stats, watch, reload_config" % sub_command
+
+
+## Reports a bot's lifetime behaviour metrics.
+func _handle_stats_command(args: Array) -> String:
+	if args.is_empty():
+		return "Usage: /bot stats <name|id>"
+	var bot_id_val := _find_bot_by_name_or_id(args[0])
+	if bot_id_val == 0:
+		return "Bot '%s' not found." % args[0]
+	var brain := get_bot_brain(bot_id_val)
+	if brain == null:
+		return "Bot %d has no active brain." % bot_id_val
+	var m: Dictionary = brain.get_metrics()
+	return "Bot %d — kills %d, deaths %d (enemy %d / hazard %d), stuck %d, travel-abandons %d, loot %d, sale-gold %d" % [
+		bot_id_val, m.kills, m.deaths, m.deaths_to_enemy, m.deaths_to_hazard,
+		m.stuck_recoveries, m.travel_abandons, m.loot_collected, m.gold_from_sales]
+
+
+## Camera-follows a bot (host view). `/bot watch off` stops.
+func _handle_watch_command(args: Array) -> String:
+	if args.is_empty():
+		return "Usage: /bot watch <name|id|off>"
+	if args[0].to_lower() == "off":
+		watch_bot(0)
+		return "Stopped watching."
+	var bot_id_val := _find_bot_by_name_or_id(args[0])
+	if bot_id_val == 0:
+		return "Bot '%s' not found." % args[0]
+	watch_bot(bot_id_val)
+	return "Camera now following bot %d." % bot_id_val
 
 
 ## Toggles the host-side bot navigation debug overlay (see bot_debug_draw.gd).
