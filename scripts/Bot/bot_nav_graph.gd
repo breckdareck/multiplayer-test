@@ -77,8 +77,31 @@ func find_path(from: Vector2, to: Vector2) -> PackedVector2Array:
 	return astar.get_point_path(a, b)
 
 
+## Like find_path but returns the A* point IDs rather than positions, so a
+## caller can walk the path and query each hop's edge kind / position.
+func find_id_path(from: Vector2, to: Vector2) -> PackedInt64Array:
+	if not built or astar.get_point_count() == 0:
+		return PackedInt64Array()
+	var a := astar.get_closest_point(from)
+	var b := astar.get_closest_point(to)
+	if a < 0 or b < 0:
+		return PackedInt64Array()
+	return astar.get_id_path(a, b)
+
+
+## World position of a graph point.
+func point_position(id: int) -> Vector2:
+	return astar.get_point_position(id)
+
+
+## Whether a point ID still exists in this graph (guards against stale IDs
+## held across a map change).
+func has_point(id: int) -> bool:
+	return astar.has_point(id)
+
+
 ## The EdgeKind for a directed edge, or -1 if the two points aren't connected
-## that way. Stage 2's navigator uses this to know when to jump vs walk.
+## that way. The navigator uses this to know when to jump vs walk.
 func edge_kind(from_id: int, to_id: int) -> int:
 	return edges.get(Vector2i(from_id, to_id), -1)
 

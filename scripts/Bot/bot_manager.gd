@@ -308,6 +308,26 @@ func get_bot_brain(bot_id: int) -> BotBrain:
 	return brain if is_instance_valid(brain) else null
 
 
+## Cached platform-navigation graph per map. Map geometry is static, so a graph
+## is built once and shared by every bot on that map (and survives the map node
+## being recreated by a channel switch — the graph stores positions, not refs).
+var _nav_graphs: Dictionary = {}
+
+## The nav graph for a map, building it on first request. Returns null if the
+## map has no probeable surfaces yet (e.g. physics not live) so the build is
+## retried later rather than caching an empty graph.
+func get_nav_graph(map_id: String, map_node: Node2D, max_jump: float, jump_reach: float) -> BotNavGraph:
+	var cached = _nav_graphs.get(map_id)
+	if cached != null and cached.built:
+		return cached
+	var graph := BotNavGraph.new()
+	graph.build(map_node, max_jump, jump_reach)
+	if graph.built and graph.points.size() > 0:
+		_nav_graphs[map_id] = graph
+		return graph
+	return null
+
+
 func get_map_difficulty(map_id: String) -> Dictionary:
 	return bot_config.get("map_difficulty", {}).get(map_id, {})
 

@@ -1,5 +1,7 @@
 extends Node
 
+const BotNavGraph = preload("res://scripts/Bot/bot_nav_graph.gd")
+
 var player: MultiplayerPlayerV2
 var bot_id: int
 
@@ -123,6 +125,21 @@ var _travel_timed_portal: Node = null
 var _travel_timeout_timer: float = 0.0
 const TRAVEL_TIMEOUT: float = 35.0
 
+# --- Graph navigation: the map's platform-nav graph (bot_nav_graph.gd) routes
+# the bot across terrain; per-waypoint movement reuses _navigate_toward /
+# _climb_toward. Falls back to direct navigation when no graph/path exists. ---
+var _nav_path: PackedInt64Array = PackedInt64Array()
+var _nav_index: int = 0
+var _nav_goal: Vector2 = Vector2.INF
+var _nav_repath_timer: float = 0.0
+const NAV_REPATH_INTERVAL: float = 2.0
+## Within this distance of the goal, skip the graph and navigate directly.
+const NAV_DIRECT_RANGE: float = 96.0
+## Goal drifting this far from the planned path's goal forces a re-plan.
+const NAV_GOAL_MOVED: float = 64.0
+const NAV_WAYPOINT_X_TOL: float = 20.0
+const NAV_WAYPOINT_Y_TOL: float = 22.0
+
 # Collision masks: Layer 1 (World) = bit 0, Layer 3 (Platforms) = bit 2
 const GROUND_MASK: int = 0b101  # World + Platforms
 const SOLID_MASK: int = 0b001  # World only (not one-way platforms)
@@ -193,6 +210,10 @@ func attach_to_player(player_node: MultiplayerPlayerV2) -> void:
 	_cached_map_node = null
 	_cached_map_id = ""
 	_respawn_timer = -1.0
+	# The new map has its own nav graph — point IDs from the old graph are
+	# meaningless here, so drop any planned path.
+	_nav_path = PackedInt64Array()
+	_nav_goal = Vector2.INF
 
 
 func _process(delta: float) -> void:
@@ -209,6 +230,7 @@ func _process(delta: float) -> void:
 
 	_respawn_timer = -1.0
 	_jump_cooldown_timer -= delta
+	_nav_repath_timer -= delta
 	action_timer -= delta
 	think_timer -= delta
 
@@ -320,6 +342,7 @@ func _abandon_travel() -> void:
 	current_action = "idle"
 	action_timer = 2.0
 	_map_travel_timer = MAP_TRAVEL_CHECK_INTERVAL
+	_nav_path = PackedInt64Array()
 	player.direction = 0
 
 
@@ -713,7 +736,7 @@ func _do_follow() -> void:
 	if dist <= FOLLOW_CLOSE_RANGE:
 		player.direction = 0
 		return
-	_navigate_toward(leader_node.global_position)
+	_navigate_smart(leader_node.global_position)
 
 
 func _get_party_leader() -> int:
@@ -887,26 +910,109 @@ func _do_navigate_to_portal() -> void:
 		_map_stay_timer = MAP_MIN_STAY_TIME
 		return
 
-	var portal_pos: Vector2 = target_portal.global_position
+	# Route to the portal via the platform-nav graph; it handles terrain the
+	# greedy heuristics can't, and falls back to direct navigation itself.
+	_navigate_smart(target_portal.global_position)
 
-	# Portal sits well above us on an elevated platform (e.g. on top of a
-	# block). The flat-ground jump cap in _navigate_toward would never fire,
-	# so use dedicated climb logic instead.
-	if portal_pos.y - player.global_position.y < -_max_jump_height:
-		_navigate_up_to_portal(portal_pos)
+
+## Routes the bot toward a distant goal using the map's platform-nav graph,
+## falling back to direct navigation when the graph is unavailable or the goal
+## is near. The graph picks the route; _navigate_toward / _climb_toward execute
+## each hop.
+func _navigate_smart(goal: Vector2) -> void:
+	# Close in — the graph adds nothing, and its waypoints are coarser than the
+	# direct heuristics for the final approach (e.g. entering a portal Area2D).
+	if player.global_position.distance_to(goal) < NAV_DIRECT_RANGE:
+		_nav_path = PackedInt64Array()
+		_navigate_toward_or_climb(goal)
 		return
 
-	# Keep walking toward the portal until body_entered fires
-	_navigate_toward(portal_pos)
+	_ensure_nav_path(goal)
+	if _nav_path.is_empty():
+		_navigate_toward_or_climb(goal)
+		return
+
+	_steer_along_nav_path(goal)
 
 
-## Climbs the bot up to a portal that sits above its current floor. Walks to a
-## horizontal launch point offset from the portal, then jumps so the rising arc
-## carries the bot onto (or into) the portal's Area2D.
-func _navigate_up_to_portal(portal_pos: Vector2) -> void:
+## (Re)plans the waypoint path when none exists, the goal has drifted, or the
+## repath interval has elapsed.
+func _ensure_nav_path(goal: Vector2) -> void:
+	var need := _nav_path.is_empty()
+	if not need and _nav_goal.distance_to(goal) > NAV_GOAL_MOVED:
+		need = true
+	if not need and _nav_repath_timer <= 0.0:
+		need = true
+	if not need:
+		return
+
+	_nav_repath_timer = NAV_REPATH_INTERVAL
+	_nav_goal = goal
+	_nav_index = 0
+	_nav_path = PackedInt64Array()
+	var graph := _get_nav_graph()
+	if graph != null:
+		_nav_path = graph.find_id_path(player.global_position, goal)
+
+
+## The platform-nav graph for the bot's current map, or null.
+func _get_nav_graph() -> BotNavGraph:
+	var map_node := _get_map_node()
+	if not is_instance_valid(map_node):
+		return null
+	var map_id := MapManager.get_player_map(bot_id)
+	return BotManager.get_nav_graph(map_id, map_node, _max_jump_height, _jump_launch_offset)
+
+
+## Advances past reached waypoints and steers toward the next one. When the path
+## is consumed, finishes with direct navigation to the real goal.
+func _steer_along_nav_path(goal: Vector2) -> void:
+	var graph := _get_nav_graph()
+	if graph == null:
+		_nav_path = PackedInt64Array()
+		_navigate_toward_or_climb(goal)
+		return
+
+	while _nav_index < _nav_path.size():
+		var id: int = _nav_path[_nav_index]
+		if not graph.has_point(id):
+			# Stale path (graph changed under us) — drop it and re-plan later.
+			_nav_path = PackedInt64Array()
+			_navigate_toward_or_climb(goal)
+			return
+		var wp := graph.point_position(id)
+		var reached := player.is_on_floor() \
+			and absf(wp.x - player.global_position.x) <= NAV_WAYPOINT_X_TOL \
+			and absf(wp.y - player.global_position.y) <= NAV_WAYPOINT_Y_TOL
+		if reached:
+			_nav_index += 1
+		else:
+			break
+
+	if _nav_index >= _nav_path.size():
+		_nav_path = PackedInt64Array()
+		_navigate_toward_or_climb(goal)
+		return
+
+	_navigate_toward_or_climb(graph.point_position(_nav_path[_nav_index]))
+
+
+## Single-hop movement toward a target: climb logic if it sits above jump range,
+## otherwise the standard ground/jump heuristic.
+func _navigate_toward_or_climb(target: Vector2) -> void:
+	if target.y - player.global_position.y < -_max_jump_height:
+		_climb_toward(target)
+	else:
+		_navigate_toward(target)
+
+
+## Climbs the bot up to a target that sits above its current floor (e.g. a
+## portal on a block). Walks to a horizontal launch point offset from the
+## target, then jumps so the rising arc carries the bot onto it.
+func _climb_toward(portal_pos: Vector2) -> void:
 	var bot_pos := player.global_position
 
-	# Steer toward the portal itself while airborne or mounting a wall.
+	# Steer toward the target itself while airborne or mounting a wall.
 	var portal_dir := 1 if portal_pos.x > bot_pos.x else -1
 
 	if not player.is_on_floor():
