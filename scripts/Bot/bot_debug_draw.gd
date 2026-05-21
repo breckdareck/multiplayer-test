@@ -10,7 +10,13 @@ extends Node2D
 
 const BotNavGraph = preload("res://scripts/Bot/bot_nav_graph.gd")
 
-var enabled: bool = false
+## Force a repaint whenever this changes — _process stops queuing redraws once
+## disabled, so without an explicit redraw the last frame's lines and dots would
+## linger on screen after the overlay is turned off.
+var enabled: bool = false:
+	set(value):
+		enabled = value
+		queue_redraw()
 
 ## Indexed by BotNavGraph.EdgeKind (WALK, JUMP, DROP, GAP).
 const EDGE_COLORS: Array[Color] = [
