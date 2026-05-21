@@ -505,7 +505,11 @@ func _think() -> void:
 	# Acquire a target, or — if already fighting — switch to a much closer enemy
 	# so the bot doesn't tunnel-vision a distant foe while one is on top of it.
 	if not target_enemy:
-		var new_enemy := _find_best_enemy()
+		# Prefer an enemy a party member is already on (focus fire); otherwise
+		# pick the nearest.
+		var new_enemy := _party_focus_target()
+		if not is_instance_valid(new_enemy):
+			new_enemy = _find_best_enemy()
 		if new_enemy:
 			_set_target_enemy(new_enemy)
 	else:
@@ -614,6 +618,41 @@ func _set_target_enemy(enemy: EnemyBase) -> void:
 	target_enemy = enemy
 	_combat_timer = 0.0
 	_combat_last_enemy_hp = -1
+
+
+## An enemy a party member is already fighting and that's within this bot's
+## aggro range — so a squad focus-fires one target instead of scattering.
+## Returns the nearest such enemy, or null when not useful.
+func _party_focus_target() -> EnemyBase:
+	var members := PartyManager.get_party_members(bot_id)
+	if members.size() <= 1:
+		return null
+	var map_node := _get_map_node()
+	if not is_instance_valid(map_node):
+		return null
+
+	var best: EnemyBase = null
+	var best_sq := aggro_range * aggro_range
+	for member_id in members:
+		if member_id == bot_id:
+			continue
+		var mate = BotManager.get_bot_brain(member_id)
+		if mate == null:
+			continue  # human party members expose no target
+		var foe: EnemyBase = mate.target_enemy
+		if not is_instance_valid(foe):
+			continue
+		if foe.health_component and foe.health_component.is_dead:
+			continue
+		if foe in _blacklisted_enemies:
+			continue
+		if not map_node.is_ancestor_of(foe):
+			continue
+		var d := player.global_position.distance_squared_to(foe.global_position)
+		if d < best_sq:
+			best_sq = d
+			best = foe
+	return best
 
 
 func _find_best_loot() -> DroppedItem:
