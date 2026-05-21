@@ -57,6 +57,9 @@ const KITE_DANGER_RANGE: float = 60.0
 ## Effective reach assumed for a projectile attack ability — projectiles have
 ## no fixed hitbox to measure.
 const RANGED_ABILITY_REACH: float = 220.0
+## Enemies within this radius of the target count as a cluster, biasing the
+## bot's ability choice toward AoE skills.
+const AOE_CLUSTER_RADIUS: float = 72.0
 
 var _respawn_timer: float = -1.0
 const RESPAWN_DELAY: float = 3.0
@@ -68,7 +71,6 @@ var _ability_check_timer: float = 0.0
 const ABILITY_CHECK_INTERVAL: float = 5.0
 var _buff_abilities: Array[String] = []
 var _attack_abilities: Array[String] = []
-var _attack_ability_index: int = 0
 # Combat profile, refreshed in _build_ability_lists. A bot kites only when it
 # is a ranged class AND actually has a projectile attack ability.
 var _combat_range: float = 25.0       ## Longest attack reach (abilities or melee).
@@ -729,6 +731,17 @@ func _do_fight() -> void:
 	# A bot kites only if it is a ranged class wielding an actual projectile
 	# ability — Rogues and other melee classes always close in and fight.
 	var is_ranged := _is_ranged_class and _has_ranged_ability
+
+	# A caster with no mana for any ability is dead weight at range — pull back
+	# to safety and let mana regenerate rather than idling in melee reach.
+	if is_ranged and not _has_mana_for_any_attack():
+		if dx < KITE_DANGER_RANGE:
+			if dx <= attack_range:
+				player.do_attack = true
+			_kite_away(dir)
+		else:
+			player.direction = 0
+		return
 
 	# Enemy inside melee-threat range — give ground, but keep attacking so the
 	# bot is fighting on the way out, not just fleeing.
@@ -1392,6 +1405,8 @@ func _try_use_buff() -> bool:
 	return false
 
 
+## Picks and casts the best usable attack ability for the situation — highest
+## damage potential, biased toward AoE skills when enemies are clustered.
 func _try_use_attack_ability(distance_to_target: float = 0.0) -> bool:
 	if _attack_abilities.is_empty():
 		return false
@@ -1399,20 +1414,77 @@ func _try_use_attack_ability(distance_to_target: float = 0.0) -> bool:
 	if not is_instance_valid(ability_comp):
 		return false
 
-	var count := _attack_abilities.size()
-	for i in count:
-		var idx := (_attack_ability_index + i) % count
-		var ability_id: String = _attack_abilities[idx]
+	# How many enemies are bunched on the target — drives AoE preference.
+	var cluster := 1
+	if is_instance_valid(target_enemy):
+		cluster = _count_enemies_near(target_enemy.global_position, AOE_CLUSTER_RADIUS)
+
+	var best_id := ""
+	var best_score := -1.0
+	for ability_id in _attack_abilities:
 		if ability_comp.get_cooldown_remaining(ability_id) > 0.0:
 			continue
 		if not _has_enough_mana(ability_id):
 			continue
-		var ability_range := _get_ability_range(ability_id)
-		if distance_to_target > ability_range:
+		if distance_to_target > _get_ability_range(ability_id):
 			continue
-		ability_comp.use_ability_server(ability_id)
-		_attack_ability_index = (idx + 1) % count
-		return true
+		var score := _score_attack_ability(ability_id, cluster)
+		if score > best_score:
+			best_score = score
+			best_id = ability_id
+
+	if best_id.is_empty():
+		return false
+	ability_comp.use_ability_server(best_id)
+	return true
+
+
+## Rates an attack ability for the current situation: base damage potential,
+## boosted when it is an AoE skill and several enemies are clustered.
+func _score_attack_ability(ability_id: String, cluster: int) -> float:
+	var data: AbilityData = ResourceManager.get_ability_data(ability_id)
+	if not data:
+		return 0.0
+	var level := 1
+	if is_instance_valid(player.ability_component):
+		level = player.ability_component._ability_levels.get(ability_id, 1)
+	var stats: AbilityLevelData = data.get_level_stats(level)
+	if not stats:
+		return 1.0
+	var score := float(stats.damage_percent) * float(maxi(stats.max_hits, 1))
+	if stats.max_targets > 1 and cluster >= 2:
+		# Reward hitting the pack, capped at how many the ability can hit.
+		score *= 1.0 + 0.4 * float(mini(cluster, stats.max_targets) - 1)
+	return score
+
+
+## Counts live enemies on the bot's map within `radius` of a point.
+func _count_enemies_near(pos: Vector2, radius: float) -> int:
+	var map_node := _get_map_node()
+	if not is_instance_valid(map_node):
+		return 0
+	var r_sq := radius * radius
+	var count := 0
+	for node in get_tree().get_nodes_in_group("Enemies"):
+		if node is not EnemyBase or not is_instance_valid(node):
+			continue
+		if not map_node.is_ancestor_of(node):
+			continue
+		if node.health_component and node.health_component.is_dead:
+			continue
+		if pos.distance_squared_to(node.global_position) <= r_sq:
+			count += 1
+	return count
+
+
+## True if the bot can currently afford at least one attack ability. A caster
+## that can't is effectively out of the fight until mana regenerates.
+func _has_mana_for_any_attack() -> bool:
+	if _attack_abilities.is_empty():
+		return true  # melee-only — basic attacks cost no mana
+	for ability_id in _attack_abilities:
+		if _has_enough_mana(ability_id):
+			return true
 	return false
 
 
