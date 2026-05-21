@@ -1,0 +1,113 @@
+[gd_scene load_steps=12 format=3 uid="uid://cf3mkt0free01"]
+
+[ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_mapbase"]
+[ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/VFX/damage_numbers.gd" id="2_dmgnum"]
+[ext_resource type="PackedScene" path="res://scenes/Gameplay/portal.tscn" id="3_portal"]
+[ext_resource type="PackedScene" uid="uid://bx2n3vrfxk75m" path="res://scenes/Gameplay/killzone.tscn" id="4_killzone"]
+[ext_resource type="Texture2D" uid="uid://cd28i3fo3v1m0" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/country village tileset.png" id="5_tileset"]
+[ext_resource type="Script" uid="uid://igk1rxt26f2i" path="res://scripts/UI/global_drop_handler.gd" id="6_drophandler"]
+[ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="7_font"]
+
+[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_kill"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
+size = Vector2(640, 24)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wall"]
+size = Vector2(24, 200)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ground"]
+atlas = ExtResource("5_tileset")
+region = Rect2(16, 16, 16, 16)
+
+[node name="FreeMarket" type="Node2D"]
+script = ExtResource("1_mapbase")
+bgm_path = "uid://1ib7gi5y7uov"
+
+[node name="DmgNumberSpawner" type="MultiplayerSpawner" parent="."]
+spawn_path = NodePath("..")
+script = ExtResource("2_dmgnum")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(0, -40)
+zoom = Vector2(4, 4)
+process_callback = 0
+limit_enabled = false
+position_smoothing_enabled = true
+
+[node name="PlayerSpawn" type="Marker2D" parent="."]
+position = Vector2(0, 0)
+
+[node name="Town_FreeMarket_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(-260, 0)
+
+[node name="GroundSprite" type="Sprite2D" parent="."]
+position = Vector2(0, 24)
+scale = Vector2(41, 1.6)
+texture = SubResource("AtlasTexture_ground")
+
+[node name="Ground" type="StaticBody2D" parent="."]
+collision_layer = 1
+collision_mask = 0
+
+[node name="FloorShape" type="CollisionShape2D" parent="Ground"]
+position = Vector2(0, 24)
+shape = SubResource("RectangleShape2D_floor")
+
+[node name="LeftWallShape" type="CollisionShape2D" parent="Ground"]
+position = Vector2(-320, -76)
+shape = SubResource("RectangleShape2D_wall")
+
+[node name="RightWallShape" type="CollisionShape2D" parent="Ground"]
+position = Vector2(320, -76)
+shape = SubResource("RectangleShape2D_wall")
+
+[node name="PortalToTown" parent="." instance=ExtResource("3_portal")]
+position = Vector2(-280, 4)
+target_map_id = "town"
+target_spawn_point_name = "Town_FreeMarket_Portal_Spawn"
+
+[node name="MarketSign" type="Label" parent="."]
+offset_left = -90.0
+offset_top = -110.0
+offset_right = 90.0
+offset_bottom = -86.0
+scale = Vector2(0.5, 0.5)
+theme_override_fonts/font = ExtResource("7_font")
+theme_override_font_sizes/font_size = 14
+text = "FREE MARKET — Press M to open your shop"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Killzone" parent="." instance=ExtResource("4_killzone")]
+position = Vector2(0, 220)
+monitoring = false
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Killzone"]
+shape = SubResource("WorldBoundaryShape2D_kill")
+debug_color = Color(0.9764706, 0, 0, 0.75686276)
+
+[node name="Platforms" type="Node2D" parent="."]
+
+[node name="Players" type="Node2D" parent="."]
+
+[node name="Enemies" type="Node2D" parent="."]
+
+[node name="Projectiles" type="Node2D" parent="."]
+
+[node name="ItemDrops" type="Node2D" parent="."]
+
+[node name="GlobalDropHandler" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 1152.0
+offset_bottom = 648.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("6_drophandler")
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]

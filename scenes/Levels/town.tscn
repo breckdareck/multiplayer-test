@@ -528,6 +528,14 @@ target_spawn_point_name = "Game_Town_Portal_Spawn"
 [node name="Town_Game_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(-53, -606)
 
+[node name="PortalToFreeMarket" parent="." instance=ExtResource("3_knl1o")]
+position = Vector2(78, -608)
+target_map_id = "free_market"
+target_spawn_point_name = "Town_FreeMarket_Portal_Spawn"
+
+[node name="Town_FreeMarket_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(53, -606)
+
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(0, -608)
 zoom = Vector2(4, 4)

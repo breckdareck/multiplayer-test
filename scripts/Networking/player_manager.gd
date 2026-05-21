@@ -91,6 +91,12 @@ func remove_player(id: int):
 	#print("Player %d left - removing character" % id)
 	NetworkUtils.log_network_event("PLAYER_LEAVE", "Player ID: %d" % id)
 	
+	# Close any personal shop BEFORE the save flush so items held in listings are
+	# returned to the seller's inventory and persisted (the shop itself is not
+	# saved — its held items must land back in the inventory snapshot).
+	if multiplayer.is_server() and PersonalShopManager:
+		PersonalShopManager.handle_player_left(id)
+
 	# Full save before disconnect — delegate to SaveManager for consistency
 	if multiplayer.is_server() and id in active_players:
 		var current_map = MapManager.get_player_map(id)

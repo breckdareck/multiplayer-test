@@ -153,6 +153,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event is InputEventKey and event.is_echo():
 			return
 
+		# Toggle the personal shop panel (Free Market only).
+		if event.is_action_pressed("OpenPersonalShop") and not InputManager.is_locked():
+			PersonalShopManager.open_my_shop_panel()
+			return
+
 		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 			if _handle_right_click(event):
 				return
@@ -470,6 +475,10 @@ func change_to_map(new_map_id: String, spawn_point_name: String = ""):
 		var data_string: String = JSON.stringify(get_save_data())
 		request_map_change_rpc.rpc_id(1, new_map_id, spawn_point_name, data_string)
 	else:
+		# Close any personal shop first so held listing items return to the
+		# inventory BEFORE the save flush captures it (the shop is not persisted).
+		if PersonalShopManager:
+			PersonalShopManager.handle_player_left(player_id)
 		# Flush save before map change — the player node is freed during the transition,
 		# so a debounced save would fire on an already-freed node and be silently skipped.
 		if not username.is_empty() and SaveManager:
@@ -888,6 +897,11 @@ func request_map_change_rpc(new_map_id: String, spawn_point_name: String = "", c
 
 	var requester_id = multiplayer.get_remote_sender_id()
 	#print("Player %d requesting map change to '%s' at spawn '%s'" % [requester_id, new_map_id, spawn_point_name])
+
+	# Close any personal shop first so held listing items return to the
+	# inventory BEFORE the save flush captures it (the shop is not persisted).
+	if PersonalShopManager:
+		PersonalShopManager.handle_player_left(requester_id)
 
 	# Flush save before map change — the player node is freed during the transition,
 	# so a debounced save would fire on an already-freed node and be silently skipped.

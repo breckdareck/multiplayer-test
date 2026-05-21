@@ -47,6 +47,10 @@ func show_for_target(target_id: int, screen_pos: Vector2) -> void:
 	_add_button("Trade with %s" % target_name, _do_trade)
 	_add_button("Invite to Party", _do_party_invite)
 
+	# Show "Browse Shop" only when the target currently has a personal shop open.
+	if PersonalShopManager.is_shop_open(_target_id):
+		_add_button("Browse Shop", _do_browse_shop)
+
 	if _target_is_bot and multiplayer.is_server():
 		_add_separator()
 		_add_button("Force Travel", _do_travel)
@@ -141,6 +145,12 @@ func _do_inspect() -> void:
 
 func _do_trade() -> void:
 	_open_trade_window(_target_id)
+
+
+func _do_browse_shop() -> void:
+	if _target_id == 0:
+		return
+	PersonalShopManager.browse_player_shop(_target_id)
 
 
 func _open_trade_window(target_id: int) -> void:

@@ -12,6 +12,7 @@ const MAP_SCENES = {
 	"game2": "res://scenes/Levels/game2.tscn",
 	"game3": "res://scenes/Levels/game3.tscn",
 	"town": "res://scenes/Levels/town.tscn",
+	"free_market": "res://scenes/Levels/free_market.tscn",
 }
 
 const DEFAULT_MAP = "town"
@@ -258,7 +259,12 @@ func _spawn_player_on_server_map(player_id: int, map_id: String, spawn_point_nam
 
 func _remove_player_from_map(player_id: int, map_id: String):
 	if not map_id in active_maps: return
-	
+
+	# Close any personal shop this player had open — leaving the Free Market (or
+	# disconnecting) must not leave an orphaned shop with their items held.
+	if PersonalShopManager:
+		PersonalShopManager.handle_player_left(player_id)
+
 	var map_instance = active_maps[map_id].scene_instance
 	if not is_instance_valid(map_instance): return
 	
