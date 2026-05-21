@@ -355,7 +355,7 @@ func _build_edges() -> void:
 			var dx: float = absf(pb.x - pa.x)
 			var dy: float = pa.y - pb.y      # > 0 => b is above a
 			if dy > 2.0:
-				if dy <= _max_jump_height and dx <= _jump_reach:
+				if dy <= _max_jump_height and dx <= _jump_reach and _jump_path_clear(pa, pb):
 					_connect(i, j, EdgeKind.JUMP, false)
 			elif dy < -2.0:
 				# A drop is only valid where the bot can actually leave the
@@ -364,10 +364,25 @@ func _build_edges() -> void:
 					nearest_drop_dy = -dy
 					nearest_drop = j
 			else:
-				if dx > CELL and dx <= _jump_reach * 2.0:
+				if dx > CELL and dx <= _jump_reach * 2.0 and _jump_path_clear(pa, pb):
 					_connect(i, j, EdgeKind.GAP, true)
 		if nearest_drop >= 0:
 			_connect(i, nearest_drop, EdgeKind.DROP, false)
+
+
+## Whether a jump/gap edge between two points is unobstructed. Rejects an edge
+## when solid world geometry sits between the points — a ceiling or wall the bot
+## would bonk into. Solid hits right at the destination are its own platform and
+## don't count; one-way platforms never block (the bot passes through them).
+func _jump_path_clear(a: Vector2, b: Vector2) -> bool:
+	if not is_instance_valid(_build_map_node) or _build_map_node.get_world_2d() == null:
+		return true  # can't verify — don't prune the edge
+	var space := _build_map_node.get_world_2d().direct_space_state
+	var q := PhysicsRayQueryParameters2D.create(a, b, WORLD_MASK)
+	var hit := space.intersect_ray(q)
+	if hit.is_empty():
+		return true
+	return hit.position.distance_to(b) <= CELL
 
 
 func _connect(a: int, b: int, kind: int, bidirectional: bool) -> void:
