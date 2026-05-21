@@ -7,4 +7,4 @@ script = ExtResource("1_wshl4")
 item_name = "Iron Dirk"
 randomize_stats = true
 possible_stats = Array[int]([12, 3, 10])
-drop_chance = 0.28600000000000003
+drop_chance = 0.03

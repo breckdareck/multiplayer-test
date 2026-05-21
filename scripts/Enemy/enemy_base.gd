@@ -33,6 +33,7 @@ var movement_speed: float
 @export_category("Drops")
 var item_drops: Array[ItemDropResource] = []
 const DROPPED_ITEM = preload("uid://b43dktokqxhjo")
+const POTION_DROP_CHANCE := 0.05
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var state_machine: StateMachine = $StateMachine
@@ -71,6 +72,8 @@ func _apply_enemy_data() -> void:
 		monies_drop.max_amount = roundi(monies_curve.sample(monster_level) * 1.1)
 		item_drops.append(monies_drop)
 
+	_add_potion_drops()
+
 	if animated_sprite:
 		animated_sprite.sprite_frames = enemy_data.sprite_frames
 	
@@ -94,6 +97,39 @@ func _apply_enemy_data() -> void:
 	var attack_hitbox_shape_node: CollisionShape2D = $AttackHitbox/SlashCollisionShape
 	if attack_hitbox_shape_node and enemy_data.attack_hitbox_shape:
 		attack_hitbox_shape_node.shape = enemy_data.attack_hitbox_shape
+
+
+## Gives every enemy a small chance to drop a healing/mana potion matched to its
+## level. Idempotent: EnemyData (and its item_drops array) is shared between
+## pooled instances, so skip potions that were already injected.
+func _add_potion_drops() -> void:
+	var tier := _potion_tier_for_level(monster_level)
+	for kind in ["Healing", "Mana"]:
+		var potion_name := "%s%s Draught" % [tier, kind]
+		var already_added := item_drops.any(
+			func(drop): return drop != null and drop.item_name == potion_name
+		)
+		if already_added:
+			continue
+		var potion_drop := ItemDropResource.new()
+		potion_drop.item_name = potion_name
+		potion_drop.drop_chance = POTION_DROP_CHANCE
+		item_drops.append(potion_drop)
+
+
+## Maps an enemy level to a Draught tier prefix ("" is the base, untiered tier).
+func _potion_tier_for_level(level: int) -> String:
+	if level <= 16:
+		return "Lesser "
+	if level <= 33:
+		return ""
+	if level <= 50:
+		return "Greater "
+	if level <= 66:
+		return "Grand "
+	if level <= 83:
+		return "Superior "
+	return "Supreme "
 
 
 func _ready() -> void:

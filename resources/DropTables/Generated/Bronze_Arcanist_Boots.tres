@@ -7,4 +7,4 @@ script = ExtResource("1_5pcxk")
 item_name = "Bronze Arcanist Boots"
 randomize_stats = true
 possible_stats = Array[int]([8, 9, 1, 5])
-drop_chance = 0.318
+drop_chance = 0.033

@@ -1,10 +1,10 @@
-[gd_resource type="Resource" script_class="ItemDropResource" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="ItemDropResource" load_steps=2 format=3 uid="uid://b1ewjw45dtoqt"]
 
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_v2r6g"]
+[ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_v2r6g"]
 
 [resource]
 script = ExtResource("1_v2r6g")
 item_name = "Adamant Pathfinder Helm"
 randomize_stats = true
 possible_stats = Array[int]([8, 9, 2, 10])
-drop_chance = 0.19
+drop_chance = 0.023

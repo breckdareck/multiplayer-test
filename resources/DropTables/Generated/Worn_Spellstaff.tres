@@ -1,10 +1,10 @@
-[gd_resource type="Resource" script_class="ItemDropResource" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="ItemDropResource" load_steps=2 format=3 uid="uid://dbcdfbcl40hge"]
 
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_kaduo"]
+[ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_kaduo"]
 
 [resource]
 script = ExtResource("1_kaduo")
 item_name = "Worn Spellstaff"
 randomize_stats = true
 possible_stats = Array[int]([13, 1, 5])
-drop_chance = 0.34700000000000003
+drop_chance = 0.035

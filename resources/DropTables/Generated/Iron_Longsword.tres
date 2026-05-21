@@ -7,4 +7,4 @@ script = ExtResource("1_ahkfe")
 item_name = "Iron Longsword"
 randomize_stats = true
 possible_stats = Array[int]([12, 0])
-drop_chance = 0.28600000000000003
+drop_chance = 0.03

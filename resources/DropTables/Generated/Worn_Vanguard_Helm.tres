@@ -1,10 +1,10 @@
-[gd_resource type="Resource" script_class="ItemDropResource" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="ItemDropResource" load_steps=2 format=3 uid="uid://bvsh3woek8eg7"]
 
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_m64k6"]
+[ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_m64k6"]
 
 [resource]
 script = ExtResource("1_m64k6")
 item_name = "Worn Vanguard Helm"
 randomize_stats = true
 possible_stats = Array[int]([8, 9, 0, 4])
-drop_chance = 0.34700000000000003
+drop_chance = 0.035

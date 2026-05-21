@@ -2,6 +2,8 @@
 class_name ItemDropResource
 extends Resource
 
+## Base stat budgets at item level 1. Scaled up by the item's level via
+## BUDGET_GROWTH_PER_LEVEL so higher-level gear rolls more total stats.
 const RARITY_BUDGETS = {
 	Constants.ItemRarity.COMMON: {"min": 1, "max": 3},
 	Constants.ItemRarity.UNCOMMON: {"min": 3, "max": 6},
@@ -9,6 +11,11 @@ const RARITY_BUDGETS = {
 	Constants.ItemRarity.EPIC: {"min": 10, "max": 15},
 	Constants.ItemRarity.LEGENDARY: {"min": 15, "max": 22},
 }
+
+## Each item level above 1 grows the stat budget multiplicatively. At 0.035 a
+## level-50 item rolls ~2.7x and a level-90 item ~4.1x the base budget, while
+## the rarity tiers stay proportional to one another.
+const BUDGET_GROWTH_PER_LEVEL := 0.035
 
 ## The item that can drop (reference by name for easy setup)
 @export var item_name: String = ""
@@ -98,9 +105,12 @@ func _apply_random_stats(item: EquipmentData) -> void:
 	item.rarity = chosen_rarity
 	##print(">> Rarity assigned to item: %s" % Constants.ItemRarity.find_key(item.rarity))
 	
-	# 2. Determine Stat Budget based on Rarity
+	# 2. Determine Stat Budget based on Rarity, scaled by the item's level
 	var budget_range = RARITY_BUDGETS.get(chosen_rarity, {"min": 1, "max": 1})
-	var stat_budget = randi_range(budget_range.min, budget_range.max)
+	var level_scale = _get_level_budget_scale(item.item_level)
+	var scaled_min = maxi(1, roundi(budget_range.min * level_scale))
+	var scaled_max = maxi(scaled_min, roundi(budget_range.max * level_scale))
+	var stat_budget = randi_range(scaled_min, scaled_max)
 	
 	# 3. Allocate Stats
 	var remaining_budget = stat_budget
@@ -123,6 +133,14 @@ func _apply_random_stats(item: EquipmentData) -> void:
 		var stat_data_instance: StatData = item.bonus_stats[stat_type]
 		stat_data_instance.flat_bonus_value += amount_to_assign
 		remaining_budget -= amount_to_assign
+
+## Multiplier applied to the base rarity budget based on the item's level.
+## Level 1 (or lower / unset) leaves the budget unchanged.
+func _get_level_budget_scale(item_level: int) -> float:
+	if item_level <= 1:
+		return 1.0
+	return 1.0 + (item_level - 1) * BUDGET_GROWTH_PER_LEVEL
+
 
 func _choose_random_rarity() -> Constants.ItemRarity:
 	##print("--- Choosing Random Rarity ---")

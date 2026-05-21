@@ -1,10 +1,10 @@
-[gd_resource type="Resource" script_class="ItemDropResource" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="ItemDropResource" load_steps=2 format=3 uid="uid://3b2qenjevomy"]
 
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_4dhap"]
+[ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_4dhap"]
 
 [resource]
 script = ExtResource("1_4dhap")
 item_name = "Worn Nightshade Boots"
 randomize_stats = true
 possible_stats = Array[int]([8, 9, 3, 11])
-drop_chance = 0.34700000000000003
+drop_chance = 0.035

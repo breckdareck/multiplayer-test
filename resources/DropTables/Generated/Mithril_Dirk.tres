@@ -7,4 +7,4 @@ script = ExtResource("1_jc4ld")
 item_name = "Mithril Dirk"
 randomize_stats = true
 possible_stats = Array[int]([12, 3, 10])
-drop_chance = 0.222
+drop_chance = 0.025

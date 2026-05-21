@@ -7,4 +7,4 @@ script = ExtResource("1_5scac")
 item_name = "Astral Vanguard Mail"
 randomize_stats = true
 possible_stats = Array[int]([8, 9, 0, 4])
-drop_chance = 0.062
+drop_chance = 0.013

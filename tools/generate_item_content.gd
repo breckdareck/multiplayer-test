@@ -291,9 +291,9 @@ func _make_drop_table(item: ItemData, chance: float, randomize: bool,
 	_counts["drops"] += 1
 
 
-# Equipment drop chance falls off with item level: ~0.35 at lv1 -> ~0.03 at lv100.
+# Equipment drop chance falls off with item level: ~0.035 at lv1 -> ~0.011 at lv100.
 func _equip_drop_chance(lv: int) -> float:
-	return clampf(0.35 - lv * 0.0032, 0.03, 0.35)
+	return clampf(0.035 - lv * 0.00024, 0.01, 0.035)
 
 
 # Uniques are rare everywhere and rarer the higher their level.

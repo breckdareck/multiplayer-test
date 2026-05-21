@@ -7,4 +7,4 @@ script = ExtResource("1_ciyh4")
 item_name = "Worn Nightshade Legguards"
 randomize_stats = true
 possible_stats = Array[int]([8, 9, 3, 11])
-drop_chance = 0.34700000000000003
+drop_chance = 0.035

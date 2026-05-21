@@ -1,10 +1,10 @@
-[gd_resource type="Resource" script_class="ItemDropResource" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="ItemDropResource" load_steps=2 format=3 uid="uid://el0dporkrsce"]
 
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_0o6lx"]
+[ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_0o6lx"]
 
 [resource]
 script = ExtResource("1_0o6lx")
 item_name = "Bronze Arcanist Helm"
 randomize_stats = true
 possible_stats = Array[int]([8, 9, 1, 5])
-drop_chance = 0.318
+drop_chance = 0.033

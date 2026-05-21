@@ -7,4 +7,4 @@ script = ExtResource("1_xtkra")
 item_name = "Steel Vanguard Legguards"
 randomize_stats = true
 possible_stats = Array[int]([8, 9, 0, 4])
-drop_chance = 0.254
+drop_chance = 0.028

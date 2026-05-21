@@ -1,10 +1,10 @@
-[gd_resource type="Resource" script_class="ItemDropResource" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="ItemDropResource" load_steps=2 format=3 uid="uid://bqym3la47g07k"]
 
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_j3lgm"]
+[ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_j3lgm"]
 
 [resource]
 script = ExtResource("1_j3lgm")
 item_name = "Dragonbone Spellstaff"
 randomize_stats = true
 possible_stats = Array[int]([13, 1, 5])
-drop_chance = 0.126
+drop_chance = 0.018
