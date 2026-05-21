@@ -23,6 +23,11 @@ var attack_range: float = 25.0
 var retreat_health_pct: float = 0.2
 var loot_range: float = 80.0
 var loot_priority_range: float = 50.0
+## Periodic loot sweep: when this elapses the bot collects every reachable
+## drop in range even mid-combat, so forever-spawning enemies don't starve it
+## of loot before drops despawn (~2m10s). Reset once no loot remains in range.
+var _loot_sweep_timer: float = 0.0
+const LOOT_SWEEP_INTERVAL: float = 14.0
 
 var target_enemy: EnemyBase = null
 var target_loot: DroppedItem = null
@@ -30,6 +35,7 @@ var target_loot: DroppedItem = null
 var _combat_timer: float = 0.0
 var _combat_last_enemy_hp: int = -1
 var _blacklisted_enemies: Array[EnemyBase] = []
+var _blacklisted_loot: Array[DroppedItem] = []
 var _blacklist_clear_timer: float = 0.0
 const COMBAT_DISENGAGE_TIME: float = 6.0
 const BLACKLIST_DURATION: float = 15.0
@@ -247,6 +253,7 @@ func _process(delta: float) -> void:
 	_respawn_timer = -1.0
 	_jump_cooldown_timer -= delta
 	_nav_repath_timer -= delta
+	_loot_sweep_timer -= delta
 	action_timer -= delta
 	think_timer -= delta
 
@@ -264,6 +271,7 @@ func _process(delta: float) -> void:
 	if _blacklist_clear_timer <= 0.0:
 		_blacklist_clear_timer = BLACKLIST_DURATION
 		_blacklisted_enemies.clear()
+		_blacklisted_loot.clear()
 
 	if think_timer <= 0.0:
 		think_timer = think_interval
@@ -371,6 +379,10 @@ func _recover_from_stuck() -> void:
 				_blacklisted_enemies.append(target_enemy)
 			_disengage()
 		"loot":
+			# Loot we can't reach — blacklist it so the sweep moves on rather
+			# than re-targeting the same unreachable drop forever.
+			if is_instance_valid(target_loot) and not _blacklisted_loot.has(target_loot):
+				_blacklisted_loot.append(target_loot)
 			target_loot = null
 			current_action = "idle"
 			action_timer = 1.0
@@ -450,16 +462,21 @@ func _think() -> void:
 					current_action = "follow"
 					return
 
-	# Check for nearby loot first — pick it up before chasing the next enemy
+	# Grab loot before chasing the next enemy when it's close, and on a periodic
+	# sweep clear every reachable drop even mid-combat — otherwise forever-
+	# spawning enemies keep the bot fighting until the loot despawns.
 	var has_space := _has_inventory_space()
 	if has_space:
 		if not target_loot:
 			target_loot = _find_best_loot()
 		if target_loot:
 			var loot_dist := player.global_position.distance_to(target_loot.global_position)
-			if loot_dist <= loot_priority_range:
+			if loot_dist <= loot_priority_range or _loot_sweep_timer <= 0.0:
 				current_action = "loot"
 				return
+		elif _loot_sweep_timer <= 0.0:
+			# Sweep done — nothing reachable left in range; wait for the next one.
+			_loot_sweep_timer = LOOT_SWEEP_INTERVAL
 	else:
 		target_loot = null
 
@@ -590,6 +607,8 @@ func _find_best_loot() -> DroppedItem:
 		if child.current_state != DroppedItem.ItemState.SETTLED:
 			continue
 		if not child._can_player_pickup(player):
+			continue
+		if child in _blacklisted_loot:
 			continue
 
 		var dist_sq := player.global_position.distance_squared_to(child.global_position)
