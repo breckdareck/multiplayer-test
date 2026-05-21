@@ -233,6 +233,10 @@ func set_trade_gold(player_id: int, amount: int) -> bool:
 		return false
 
 	amount = clampi(amount, 0, player_node.player_inventory.monies_amount)
+	# A no-op set (e.g. the gold field losing focus on Confirm with an
+	# unchanged value) must not reset confirmations — only a real change does.
+	if session[offer_key].gold == amount:
+		return true
 	session[offer_key].gold = amount
 	_reset_confirmations(session)
 	_sync_both(trade_id)
@@ -592,7 +596,7 @@ func _sync_trade_to_client(player_id: int, trade_id: int) -> void:
 	if session.is_empty():
 		return
 
-	var is_a := session.player_a == player_id
+	var is_a = session.player_a == player_id
 	var partner_id: int = session.player_b if is_a else session.player_a
 
 	var data := {

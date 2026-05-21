@@ -52,6 +52,7 @@ var _partner_offer_container: VBoxContainer
 var _my_offer_buttons: Array[Button] = []
 var _partner_offer_labels: Array[Label] = []
 var _my_gold_field: LineEdit
+var _my_offer_gold_label: Label
 var _partner_gold_label: Label
 var _confirm_button: Button
 var _my_status_label: Label
@@ -291,6 +292,7 @@ func _build_player_ui() -> void:
 	var my_col := _build_offer_column(offers, "Your Offer", Color(0.5, 0.8, 1.0), true)
 	_my_offer_container = my_col.container
 	_my_status_label = my_col.status
+	_my_offer_gold_label = my_col.gold_label
 	_my_offer_buttons = _create_button_pool(_my_offer_container, OFFER_POOL_SIZE)
 
 	var their_col := _build_offer_column(offers, "Their Offer", Color(1.0, 0.8, 0.5), false)
@@ -650,6 +652,7 @@ func _refresh_offers() -> void:
 	_partner_status_label.text = "CONFIRMED" if _partner_confirmed else "Not confirmed"
 	_partner_status_label.add_theme_color_override("font_color",
 			Color(0.4, 0.9, 0.4) if _partner_confirmed else Color(0.8, 0.5, 0.5))
+	_my_offer_gold_label.text = "Gold: %d" % int(my_offer.get("gold", 0))
 	_partner_gold_label.text = "Gold: %d" % int(partner_offer.get("gold", 0))
 
 	if _confirm_button:
