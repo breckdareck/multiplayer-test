@@ -6,6 +6,9 @@ var active_players: Dictionary = {}
 # Cache of player_id -> player Node to avoid scanning all maps on every lookup.
 # Populated on spawn, validated on read, erased on despawn/cleanup.
 var _node_cache: Dictionary = {}
+# State carried in-memory across a map change (player_id -> save-data dict),
+# set by MapManager.request_map_change so the respawn skips a backend reload.
+var _carried_state: Dictionary = {}
 var _load_http_request: HTTPRequest
 var _load_in_progress: bool = false
 var _api_url: String = ""
@@ -130,6 +133,7 @@ func remove_player(id: int):
 	if id in active_players:
 		active_players.erase(id)
 	_node_cache.erase(id)
+	_carried_state.erase(id)
 
 
 func save_all_players() -> void:
@@ -350,6 +354,12 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 
 	if id in active_players:
 		active_players[id]["synced"] = true
+
+	# Refresh SaveManager's node reference. On a map change the previous node
+	# was freed, and SaveManager keeps a per-player node ref for its debounce /
+	# auto-save — without this it would collect against the stale, freed node.
+	if multiplayer.is_server() and not username.is_empty():
+		SaveManager.register_player(username, player_instance)
 
 	# Loading done
 
@@ -623,6 +633,13 @@ func get_player_id_from_name(username: String) -> int:
 	return -1
 
 
+## Stores a player's live state, captured at map-change time, so the imminent
+## respawn can restore it without a save-backend round-trip. Called by
+## MapManager.request_map_change just before the old character node is freed.
+func set_carried_state(player_id: int, data: Dictionary) -> void:
+	_carried_state[player_id] = data
+
+
 func _on_player_spawned(player_id: int) -> void:
 	"""Called by MapManager when a server-side player spawn has completed.
 	Continue initialization for the player (clients only were deferred).
@@ -635,9 +652,15 @@ func _on_player_spawned(player_id: int) -> void:
 	var character_type = info.get("character_type", -1)
 	var username = info.get("username", "Player")
 	
-	# Always load fresh data from file to avoid using stale cached data on map changes.
-	# Always load fresh data from file to avoid using stale cached data on map changes.
-	var player_data = await _load_player_data_async(username)
+	# On a map change the player's live state was carried over in memory — use
+	# it directly and skip the save-backend round-trip. An initial spawn has no
+	# carried state, so fall back to a real load from file/API.
+	var player_data: Dictionary
+	if _carried_state.has(player_id):
+		player_data = _carried_state[player_id]
+		_carried_state.erase(player_id)
+	else:
+		player_data = await _load_player_data_async(username)
 
 
 	# Continue initialization

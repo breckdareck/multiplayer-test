@@ -251,11 +251,15 @@ func _collect_save_data(username: String) -> Dictionary:
 		return {}
 
 	var info: Dictionary = _players[username]
-	var player_node: Node = info.node
 
-	if not is_instance_valid(player_node):
+	# Validate the raw Dictionary value before the typed assignment below — a
+	# typed assignment of a freed instance (e.g. a player node freed by a map
+	# change before its debounce timer fired) raises a runtime error.
+	if not is_instance_valid(info.node):
 		push_warning("SaveManager: Player node for '%s' is invalid, skipping save." % username)
 		return {}
+
+	var player_node: Node = info.node
 
 	if not player_node.has_method("get_save_data"):
 		push_warning("SaveManager: Player node for '%s' missing get_save_data()." % username)

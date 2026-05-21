@@ -55,6 +55,9 @@ const POTION_STOCK_TARGET: int = 20
 const POTION_RESTOCK_THRESHOLD: int = 0
 const TOWN_MAP_ID: String = "town"
 var _needs_restock: bool = false
+## Potion buy prices learned at a merchant (effect_key -> price). Lets the
+## affordability gate use the real price on maps with no merchant to query.
+var _merchant_pot_cache: Dictionary = {}
 
 var allow_map_travel: bool = true
 
@@ -109,6 +112,26 @@ func init(player_node: MultiplayerPlayerV2, id: int, behavior_config: Dictionary
 
 	think_timer = randf() * think_interval
 	_party_seek_timer = PARTY_SEEK_INTERVAL + randf() * PARTY_SEEK_INTERVAL
+
+
+## Re-points the brain at a freshly spawned character body after a map change.
+## The brain is parented to BotManager, not the character (see
+## BotManager._on_bot_spawned), so it persists across the despawn/respawn a map
+## change performs — keeping travel timers, patrol progress and cooldowns. Only
+## references into the old, now-freed map are cleared.
+func attach_to_player(player_node: MultiplayerPlayerV2) -> void:
+	player = player_node
+	current_action = "idle"
+	action_timer = 0.0
+	target_enemy = null
+	target_loot = null
+	target_portal = null
+	_combat_timer = 0.0
+	_combat_last_enemy_hp = -1
+	_blacklisted_enemies.clear()
+	_cached_map_node = null
+	_cached_map_id = ""
+	_respawn_timer = -1.0
 
 
 func _process(delta: float) -> void:
@@ -203,32 +226,42 @@ func _think() -> void:
 			current_action = "retreat"
 			return
 
-	# Follow player party leader if in a player-led party
+	# Restock potions before considering the leader: head to town when out and
+	# no merchant is on this map. Routes hop-by-hop (town may not be directly
+	# portal-connected). Members run this on their own. The affordability gate
+	# in _do_shop_maintenance keeps a broke bot from looping here instead of
+	# fighting and earning the gold it needs.
+	if _needs_restock:
+		var my_map := MapManager.get_player_map(bot_id)
+		if my_map != TOWN_MAP_ID:
+			var hop := MapManager.get_next_map_toward(my_map, TOWN_MAP_ID)
+			if not hop.is_empty():
+				if not is_instance_valid(target_portal) or target_portal.target_map_id != hop:
+					target_portal = _find_portal_to_map(hop)
+				if is_instance_valid(target_portal):
+					target_enemy = null
+					current_action = "travel"
+					return
+
+	# Squad members follow their party leader (player or bot) across maps — but
+	# never into town. The leader visits town only to restock; members keep
+	# farming the current map and rejoin when the leader heads back out.
 	if _should_follow_leader():
 		var leader_id := _get_party_leader()
 		var leader_map := MapManager.get_player_map(leader_id)
 		var my_map := MapManager.get_player_map(bot_id)
-		if leader_map != my_map and not leader_map.is_empty():
-			MapManager.request_map_change(bot_id, leader_map)
-			_map_stay_timer = MAP_MIN_STAY_TIME
-			return
-		var leader_node := PlayerManager.get_player_node(leader_id)
-		if is_instance_valid(leader_node):
-			var dist := player.global_position.distance_to(leader_node.global_position)
-			if dist > FOLLOW_RANGE:
-				current_action = "follow"
+		if leader_map != my_map:
+			if not leader_map.is_empty() and leader_map != TOWN_MAP_ID:
+				MapManager.request_map_change(bot_id, leader_map)
+				_map_stay_timer = MAP_MIN_STAY_TIME
 				return
-
-	# Travel to town to restock potions if out and no merchant on current map
-	if _needs_restock and not _should_follow_leader():
-		var my_map := MapManager.get_player_map(bot_id)
-		if my_map != TOWN_MAP_ID:
-			if not is_instance_valid(target_portal):
-				target_portal = _find_portal_to_map(TOWN_MAP_ID)
-			if is_instance_valid(target_portal):
-				target_enemy = null
-				current_action = "travel"
-				return
+		else:
+			var leader_node := PlayerManager.get_player_node(leader_id)
+			if is_instance_valid(leader_node):
+				var dist := player.global_position.distance_to(leader_node.global_position)
+				if dist > FOLLOW_RANGE:
+					current_action = "follow"
+					return
 
 	# Check for nearby loot first — pick it up before chasing the next enemy
 	var has_space := _has_inventory_space()
@@ -266,9 +299,13 @@ func _think() -> void:
 			_map_travel_timer = MAP_TRAVEL_CHECK_INTERVAL
 			target_portal = null
 			if _should_change_map():
-				var target_map := _get_target_map()
-				if not target_map.is_empty():
-					target_portal = _find_portal_to_map(target_map)
+				var dest_map := _get_target_map()
+				if not dest_map.is_empty():
+					# Step toward the destination via the next reachable map —
+					# the destination is often not directly portal-connected.
+					var hop := MapManager.get_next_map_toward(MapManager.get_player_map(bot_id), dest_map)
+					if not hop.is_empty():
+						target_portal = _find_portal_to_map(hop)
 		if is_instance_valid(target_portal):
 			current_action = "travel"
 			return
@@ -540,10 +577,11 @@ func _get_party_leader() -> int:
 
 func _should_follow_leader() -> bool:
 	var leader_id := _get_party_leader()
-	if leader_id <= 0:
-		return false
-	# Only follow if the leader is a real player (not a bot)
-	return not BotManager.is_bot(leader_id)
+	if leader_id == 0:
+		return false  # not in a party
+	# Follow whoever leads the party — bot or player — unless that is this bot.
+	# Only the squad leader makes its own travel decisions; members follow it.
+	return leader_id != bot_id
 
 
 func _try_party_seek() -> void:
@@ -975,7 +1013,14 @@ func _do_shop_maintenance() -> void:
 	var mana_count := _count_consumable("regain_amount")
 	var needs_health_pots := health_count <= POTION_RESTOCK_THRESHOLD
 	var needs_mana_pots := mana_count <= POTION_RESTOCK_THRESHOLD and is_instance_valid(player.mana_component) and player.mana_component.max_mana > 0
-	_needs_restock = (needs_health_pots or needs_mana_pots) and merchant == null
+
+	# Only flag a restock run the bot can actually pay for. A broke bot skips
+	# the trip and keeps fighting — earning the gold to afford potions later —
+	# instead of looping to town and buying nothing.
+	var gold: int = player.player_inventory.monies_amount
+	var want_health := needs_health_pots and _can_afford_potion("heal_amount", gold)
+	var want_mana := needs_mana_pots and _can_afford_potion("regain_amount", gold)
+	_needs_restock = merchant == null and (want_health or want_mana)
 
 
 func _find_merchant_inventory() -> MerchantInventory:
@@ -1097,41 +1142,79 @@ func _count_slots_by_tab() -> Dictionary:
 func _buy_potions(merchant: MerchantInventory) -> void:
 	if not merchant:
 		return
+	# Buy only what this merchant actually stocks — never an arbitrary potion
+	# pulled from the global item table.
+	var stock: Array = merchant.get_stock_data(bot_id)
+	_buy_potion_type(merchant, stock, "heal_amount")
+	_buy_potion_type(merchant, stock, "regain_amount")
 
-	var health_pot_id := _get_potion_item_id("heal_amount")
-	var mana_pot_id := _get_potion_item_id("regain_amount")
-	var health_count := _count_consumable("heal_amount")
-	var mana_count := _count_consumable("regain_amount")
 
-	while health_count < POTION_STOCK_TARGET and not health_pot_id.is_empty():
-		var price := merchant.get_buy_price(health_pot_id)
-		if price <= 0 or player.player_inventory.monies_amount < price:
+## Buys, up to POTION_STOCK_TARGET, the best-sized potion of the given effect
+## type from the merchant's own base stock: the largest heal/regain that does
+## not exceed the bot's max stat (or, if every option exceeds it, the smallest).
+## Caches the price so the affordability gate can use it on merchant-less maps.
+func _buy_potion_type(merchant: MerchantInventory, stock: Array, effect_key: String) -> void:
+	var cap := _potion_effect_cap(effect_key)
+
+	var pot_id := ""
+	var pot_name := ""
+	var pot_price := 0
+	var best_score := 0.0
+	for entry in stock:
+		if entry.get("is_buyback", false):
+			continue
+		var item = ResourceManager.get_item_data(entry.get("item_id", ""))
+		if item is not ConsumableData:
+			continue
+		var consumable := item as ConsumableData
+		if not consumable.effect_properties.has(effect_key):
+			continue
+		# Score: a potion that fits (<= cap) ranks by heal size, biggest first;
+		# one that overshoots ranks below every fitting potion, smallest first.
+		var amount := float(consumable.effect_properties.get(effect_key, 0))
+		var score := amount if amount <= cap else -amount
+		if pot_id.is_empty() or score > best_score:
+			pot_id = entry.get("item_id", "")
+			pot_name = entry.get("name", "")
+			pot_price = entry.get("price", 0)
+			best_score = score
+	if pot_id.is_empty():
+		return  # this merchant does not sell that potion type
+
+	_merchant_pot_cache[effect_key] = pot_price
+
+	var count := _count_consumable(effect_key)
+	while count < POTION_STOCK_TARGET:
+		if pot_price <= 0 or player.player_inventory.monies_amount < pot_price:
+			break
+		if not merchant.can_player_buy_from_stock(bot_id, pot_name):
 			break
 		if player.inventory_component.get_empty_slots().is_empty():
 			break
-		player.player_inventory.monies_amount -= price
-		player.inventory_component.server_add_item(health_pot_id)
-		health_count += 1
-
-	while mana_count < POTION_STOCK_TARGET and not mana_pot_id.is_empty():
-		var price := merchant.get_buy_price(mana_pot_id)
-		if price <= 0 or player.player_inventory.monies_amount < price:
-			break
-		if player.inventory_component.get_empty_slots().is_empty():
-			break
-		player.player_inventory.monies_amount -= price
-		player.inventory_component.server_add_item(mana_pot_id)
-		mana_count += 1
+		player.player_inventory.monies_amount -= pot_price
+		player.inventory_component.server_add_item(pot_id)
+		merchant.record_player_purchase(bot_id, pot_name)
+		count += 1
 
 
-func _get_potion_item_id(effect_key: String) -> String:
-	for item_id in ResourceManager.item_data:
-		var item: ItemData = ResourceManager.item_data[item_id]
-		if item is ConsumableData:
-			var consumable := item as ConsumableData
-			if consumable.effect_properties.has(effect_key):
-				return item_id
-	return ""
+## The max stat a potion of this effect type refills — used to size potion
+## choice so the bot doesn't buy heals that overshoot its pool.
+func _potion_effect_cap(effect_key: String) -> int:
+	match effect_key:
+		"heal_amount":
+			return player.health_component.max_health if is_instance_valid(player.health_component) else 0
+		"regain_amount":
+			return player.mana_component.max_mana if is_instance_valid(player.mana_component) else 0
+	return 0
+
+
+## Whether the bot can afford a potion of the given effect type, using the price
+## learned at a merchant. Before the bot has ever reached one, assume yes so it
+## still makes the discovery trip — it spawns in town, so this gap is brief.
+func _can_afford_potion(effect_key: String, gold: int) -> bool:
+	if not _merchant_pot_cache.has(effect_key):
+		return true
+	return gold >= _merchant_pot_cache[effect_key]
 
 
 func _count_consumable(effect_key: String) -> int:

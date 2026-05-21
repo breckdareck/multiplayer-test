@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=4 uid="uid://ykvov1wfh1gv"]
+[gd_scene load_steps=31 format=4 uid="uid://ykvov1wfh1gv"]
 
 [ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_as7l3"]
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/VFX/damage_numbers.gd" id="2_bkv3e"]
@@ -11,6 +11,19 @@
 [ext_resource type="Resource" uid="uid://cjl5ggbs3c237" path="res://resources/Items/Consumables/Grape_Potion.tres" id="15_273qs"]
 [ext_resource type="Resource" uid="uid://bwlru2cwcphdy" path="res://resources/Items/Consumables/Mana_Potion.tres" id="16_um1b1"]
 [ext_resource type="Resource" uid="uid://jwwtuktlssm4" path="res://resources/Items/Consumables/Exp_Potion.tres" id="17_1o3m4"]
+[ext_resource type="Resource" uid="uid://cpjl8touji5vt" path="res://resources/Items/Consumables/Town_Potion.tres" id="19_twnpt"]
+[ext_resource type="Resource" path="res://resources/Items/Consumables/Generated/Lesser_Healing_Draught.tres" id="20_lhd00"]
+[ext_resource type="Resource" path="res://resources/Items/Consumables/Generated/Lesser_Mana_Draught.tres" id="21_lmd00"]
+[ext_resource type="Resource" path="res://resources/Items/Consumables/Generated/Healing_Draught.tres" id="22_hd000"]
+[ext_resource type="Resource" path="res://resources/Items/Consumables/Generated/Mana_Draught.tres" id="23_md000"]
+[ext_resource type="Resource" path="res://resources/Items/Consumables/Generated/Greater_Healing_Draught.tres" id="24_ghd00"]
+[ext_resource type="Resource" path="res://resources/Items/Consumables/Generated/Greater_Mana_Draught.tres" id="25_gmd00"]
+[ext_resource type="Resource" path="res://resources/Items/Consumables/Generated/Grand_Healing_Draught.tres" id="26_grhd0"]
+[ext_resource type="Resource" path="res://resources/Items/Consumables/Generated/Grand_Mana_Draught.tres" id="27_grmd0"]
+[ext_resource type="Resource" path="res://resources/Items/Consumables/Generated/Superior_Healing_Draught.tres" id="28_suhd0"]
+[ext_resource type="Resource" path="res://resources/Items/Consumables/Generated/Superior_Mana_Draught.tres" id="29_sumd0"]
+[ext_resource type="Resource" path="res://resources/Items/Consumables/Generated/Supreme_Healing_Draught.tres" id="30_sphd0"]
+[ext_resource type="Resource" path="res://resources/Items/Consumables/Generated/Supreme_Mana_Draught.tres" id="31_spmd0"]
 [ext_resource type="Script" uid="uid://igk1rxt26f2i" path="res://scripts/UI/global_drop_handler.gd" id="18_a3rpc"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lnu2h"]
@@ -590,6 +603,32 @@ ExtResource("15_273qs"): -1
 ExtResource("16_um1b1"): -1
 }, {
 ExtResource("17_1o3m4"): 10
+}, {
+ExtResource("19_twnpt"): -1
+}, {
+ExtResource("20_lhd00"): -1
+}, {
+ExtResource("21_lmd00"): -1
+}, {
+ExtResource("22_hd000"): -1
+}, {
+ExtResource("23_md000"): -1
+}, {
+ExtResource("24_ghd00"): -1
+}, {
+ExtResource("25_gmd00"): -1
+}, {
+ExtResource("26_grhd0"): -1
+}, {
+ExtResource("27_grmd0"): -1
+}, {
+ExtResource("28_suhd0"): -1
+}, {
+ExtResource("29_sumd0"): -1
+}, {
+ExtResource("30_sphd0"): -1
+}, {
+ExtResource("31_spmd0"): -1
 }])
 
 [node name="ShopWindow" parent="MerchantNPC/CanvasLayer" index="0"]

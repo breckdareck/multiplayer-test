@@ -20,6 +20,10 @@ const DEFAULT_MAP = "town"
 var active_maps: Dictionary = {} ## {map_id: {scene_instance, player_ids: []}}
 var player_current_maps: Dictionary = {} ## {player_id: map_id}
 
+## Map adjacency graph {map_id: Array[String]} derived from portal target_map_id
+## values. Built once, server-side; used by bots to route across maps.
+var map_connections: Dictionary = {}
+
 # Client-side state
 var current_map_id: String = ""
 var current_map_instance: Node = null
@@ -53,8 +57,8 @@ func _exit_tree():
 
 
 func _on_server_started():
-	# Server started - ready to spawn maps manually
-	pass
+	# Build the portal connectivity graph once, before bots start pathfinding.
+	_build_map_connections()
 
 
 # === SERVER LOGIC ===
@@ -74,6 +78,11 @@ func request_map_change(player_id: int, target_map_id: String, target_spawn_poin
 
 	# Remove player from current map
 	if is_map_change:
+		# Snapshot live state before the old body is freed so the respawn can
+		# restore it in-memory — no save-backend round-trip, no stale-data race.
+		var old_node := PlayerManager.get_player_node(player_id)
+		if is_instance_valid(old_node) and old_node.has_method("get_save_data"):
+			PlayerManager.set_carried_state(player_id, old_node.get_save_data("all"))
 		_remove_player_from_map(player_id, player_current_maps[player_id])
 
 	player_current_maps[player_id] = target_map_id
@@ -708,6 +717,68 @@ func client_player_spawned(_map_id: String) -> void:
 	var peer_id: int = multiplayer.get_remote_sender_id()
 	#print("MapManager: Received player-spawned ACK from %d. Initializing." % peer_id)
 	player_spawned.emit(peer_id)
+
+
+# === MAP CONNECTIVITY ===
+
+## Builds the map adjacency graph by scanning each map scene's portal nodes for
+## their target_map_id. Done once, server-side, before bots start pathfinding.
+func _build_map_connections() -> void:
+	map_connections.clear()
+	for map_id in MAP_SCENES:
+		var connections: Array[String] = []
+		var scene: PackedScene = load(MAP_SCENES[map_id])
+		if is_instance_valid(scene):
+			# Instantiate (without entering the tree, so no _ready runs) and
+			# walk the live nodes — property overrides on instanced portals are
+			# only reliably readable off a real node, not the PackedScene state.
+			var root := scene.instantiate()
+			_collect_portal_targets(root, map_id, connections)
+			root.free()
+		map_connections[map_id] = connections
+	print("MapManager: Map connectivity graph: %s" % map_connections)
+
+
+## Recursively collects portal destination map ids under `node` into `out`.
+func _collect_portal_targets(node: Node, map_id: String, out: Array) -> void:
+	if "target_map_id" in node:
+		var dest = node.target_map_id
+		if dest is String and not dest.is_empty() and dest != map_id and dest not in out:
+			out.append(dest)
+	for child in node.get_children():
+		_collect_portal_targets(child, map_id, out)
+
+
+## Maps directly reachable from `map_id` via its portals.
+func get_map_connections(map_id: String) -> Array:
+	if map_connections.is_empty():
+		_build_map_connections()
+	return map_connections.get(map_id, [])
+
+
+## Returns the next map to travel to along the shortest portal route from
+## `from_map` to `to_map`, or "" if they are the same or no route exists. The
+## returned map is always directly connected to `from_map`.
+func get_next_map_toward(from_map: String, to_map: String) -> String:
+	if from_map == to_map or to_map.is_empty():
+		return ""
+	if map_connections.is_empty():
+		_build_map_connections()
+	var visited := {from_map: true}
+	var queue: Array = []  # entries: [current_map, first_hop_from_origin]
+	for neighbor in map_connections.get(from_map, []):
+		visited[neighbor] = true
+		queue.append([neighbor, neighbor])
+	while not queue.is_empty():
+		var entry: Array = queue.pop_front()
+		if entry[0] == to_map:
+			return entry[1]
+		for neighbor in map_connections.get(entry[0], []):
+			if neighbor in visited:
+				continue
+			visited[neighbor] = true
+			queue.append([neighbor, entry[1]])
+	return ""
 
 
 # === UTILITY FUNCTIONS ===

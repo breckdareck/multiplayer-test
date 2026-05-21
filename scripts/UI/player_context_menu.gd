@@ -168,12 +168,10 @@ func _do_kick() -> void:
 
 func _do_travel() -> void:
 	if _target_is_bot and multiplayer.is_server():
-		var player_node := PlayerManager.get_player_node(_target_id)
-		if is_instance_valid(player_node):
-			var brain = player_node.get_node_or_null("BotBrain")
-			if brain:
-				brain._map_travel_timer = 0.0
-				ChatManager.add_system_message("Forcing travel check for bot.", Color.CYAN)
+		var brain = BotManager.get_bot_brain(_target_id)
+		if brain:
+			brain._map_travel_timer = 0.0
+			ChatManager.add_system_message("Forcing travel check for bot.", Color.CYAN)
 
 
 func _do_despawn() -> void:

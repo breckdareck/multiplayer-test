@@ -118,6 +118,12 @@ func despawn_bot(bot_id: int) -> void:
 	if PartyManager.get_player_party_id(bot_id) != -1:
 		PartyManager.leave_party(bot_id)
 
+	# The brain lives under BotManager, so free it explicitly — it is not a
+	# child of the character node that remove_player tears down.
+	var brain = info.get("brain")
+	if is_instance_valid(brain):
+		brain.queue_free()
+
 	_used_names.erase(info.username)
 	_bot_def_map.erase(bot_id)
 	PlayerManager.remove_player(bot_id)
@@ -172,22 +178,27 @@ func _on_bot_spawned(bot_id: int) -> void:
 	if is_instance_valid(canvas_layer) and is_instance_valid(inv) and not inv.slots_data.is_empty():
 		canvas_layer.queue_free()
 
-	var old_brain = player_node.get_node_or_null("BotBrain")
-	if old_brain:
-		old_brain.queue_free()
-
-	var brain := BotBrain.new()
-	brain.name = "BotBrain"
-	player_node.add_child(brain)
-
-	var behavior_cfg: Dictionary = bot_config.get("behavior", {}).duplicate()
-	var bot_def := get_bot_definition(bot_id)
-	if bot_def.has("patrol_route"):
-		behavior_cfg["patrol_route"] = bot_def["patrol_route"]
-	brain.init(player_node, bot_id, behavior_cfg)
+	# The brain is parented to BotManager — not the character node — so it
+	# survives the character being freed and recreated on every map change,
+	# keeping its travel timers, patrol progress and cooldowns intact. On a map
+	# change we just re-point the existing brain at the new body; only the bot's
+	# first spawn constructs one.
+	var brain: BotBrain = active_bots.get(bot_id, {}).get("brain")
+	if is_instance_valid(brain):
+		brain.attach_to_player(player_node)
+	else:
+		brain = BotBrain.new()
+		brain.name = "BotBrain_%d" % abs(bot_id)
+		add_child(brain)
+		var behavior_cfg: Dictionary = bot_config.get("behavior", {}).duplicate()
+		var bot_def := get_bot_definition(bot_id)
+		if bot_def.has("patrol_route"):
+			behavior_cfg["patrol_route"] = bot_def["patrol_route"]
+		brain.init(player_node, bot_id, behavior_cfg)
+		if bot_id in active_bots:
+			active_bots[bot_id]["brain"] = brain
 
 	if bot_id in active_bots:
-		active_bots[bot_id]["brain"] = brain
 		var current_map := MapManager.get_player_map(bot_id)
 		if not current_map.is_empty():
 			active_bots[bot_id]["map_id"] = current_map
@@ -234,7 +245,7 @@ func _gather_bot_snapshot(bot_id: int) -> Dictionary:
 		"action": "",
 	}
 
-	var brain = node.get_node_or_null("BotBrain")
+	var brain := get_bot_brain(bot_id)
 	if brain:
 		snap["action"] = brain.current_action
 
@@ -287,6 +298,13 @@ func _form_squad_on_map(map_id: String, bot_ids: Array) -> void:
 
 func get_bot_definition(bot_id: int) -> Dictionary:
 	return _bot_def_map.get(bot_id, {})
+
+
+## The persistent BotBrain node for a bot, or null. The brain is parented to
+## BotManager (not the bot's character node), so it survives map changes.
+func get_bot_brain(bot_id: int) -> BotBrain:
+	var brain = active_bots.get(bot_id, {}).get("brain")
+	return brain if is_instance_valid(brain) else null
 
 
 func get_map_difficulty(map_id: String) -> Dictionary:
