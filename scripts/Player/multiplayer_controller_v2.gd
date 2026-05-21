@@ -4,6 +4,10 @@ extends CharacterBody2D
 const SPEED: float = 130.0
 const JUMP_VELOCITY: float = -300.0
 const SERVER_ID: int = 1
+# Terminal fall speed. Without this, a long fall (or velocity accumulated while
+# dead) lets the body move far enough per frame to pass through thin one-way
+# platforms via the one-way collision heuristic.
+const MAX_FALL_SPEED: float = 1200.0
 
 @export var player_id := 1:
 	set(id):
@@ -124,6 +128,7 @@ func _physics_process(delta: float) -> void:
 	# Server-authoritative physics processing
 	if get_tree().get_multiplayer().has_multiplayer_peer() and multiplayer.is_server():
 		_update_input_from_synchronizer()
+		velocity.y = minf(velocity.y, MAX_FALL_SPEED)
 		state_machine.process_physics(delta)
 
 	# Visual updates run on all peers (clients and server)
@@ -674,6 +679,9 @@ func respawn() -> void:
 		position = MapManager.get_spawn_position_for_map(current_map_id)
 	else:
 		position = MultiplayerManager.respawn_point
+	# Clear any velocity accumulated while dead/falling so the player spawns at
+	# rest — otherwise stale downward speed makes them tunnel through platforms.
+	velocity = Vector2.ZERO
 	do_attack = false
 	do_jump = false
 	do_drop = false
