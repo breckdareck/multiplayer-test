@@ -2,6 +2,7 @@ extends Node
 
 const BotBrain = preload("res://scripts/Bot/bot_brain.gd")
 const BotNavGraph = preload("res://scripts/Bot/bot_nav_graph.gd")
+const BotDebugDraw = preload("res://scripts/Bot/bot_debug_draw.gd")
 
 var bot_counter: int = 0
 var active_bots: Dictionary = {}
@@ -312,6 +313,8 @@ func get_bot_brain(bot_id: int) -> BotBrain:
 ## is built once and shared by every bot on that map (and survives the map node
 ## being recreated by a channel switch — the graph stores positions, not refs).
 var _nav_graphs: Dictionary = {}
+## The navigation debug overlay node, created lazily by `/bot debugdraw`.
+var _debug_draw: Node2D = null
 ## Probe columns advanced per frame for in-progress nav-graph builds — keeps the
 ## thousands of build raycasts from hitching a single frame.
 const NAV_BUILD_COLUMNS_PER_FRAME: int = 12
@@ -351,6 +354,11 @@ func _process(_delta: float) -> void:
 		break  # one graph per frame is plenty
 
 
+## The cached nav graph for a map (built or still building), for debug tooling.
+func debug_nav_graph(map_id: String) -> BotNavGraph:
+	return _nav_graphs.get(map_id)
+
+
 func get_map_difficulty(map_id: String) -> Dictionary:
 	return bot_config.get("map_difficulty", {}).get(map_id, {})
 
@@ -380,7 +388,7 @@ func _class_string_to_type(class_str: String) -> int:
 ## route UI back to the requesting client rather than always the host.
 func handle_command(args: Array, requester_id: int = 0) -> String:
 	if args.is_empty():
-		return "Usage: /bot <spawn|despawn|despawn_all|list|teleport|set_level|party|travel|inspect|trade|navgraph|navpath|reload_config>"
+		return "Usage: /bot <spawn|despawn|despawn_all|list|teleport|set_level|party|travel|inspect|trade|navgraph|navpath|debugdraw|reload_config>"
 
 	var sub_command: String = args[0].to_lower()
 	match sub_command:
@@ -478,8 +486,43 @@ func handle_command(args: Array, requester_id: int = 0) -> String:
 		"navpath":
 			return _handle_navpath_command(args.slice(1))
 
+		"debugdraw":
+			return _handle_debugdraw_command(args.slice(1))
+
 		_:
-			return "Unknown bot command '%s'. Use: spawn, despawn, despawn_all, list, teleport, set_level, party, travel, inspect, trade, navgraph, navpath, reload_config" % sub_command
+			return "Unknown bot command '%s'. Use: spawn, despawn, despawn_all, list, teleport, set_level, party, travel, inspect, trade, navgraph, navpath, debugdraw, reload_config" % sub_command
+
+
+## Toggles the host-side bot navigation debug overlay (see bot_debug_draw.gd).
+func _handle_debugdraw_command(args: Array) -> String:
+	var want: bool
+	if args.is_empty():
+		want = not (is_instance_valid(_debug_draw) and _debug_draw.enabled)
+	else:
+		match args[0].to_lower():
+			"on", "true", "1":
+				want = true
+			"off", "false", "0":
+				want = false
+			_:
+				return "Usage: /bot debugdraw [on|off]"
+
+	if want:
+		if not is_instance_valid(_debug_draw):
+			_debug_draw = BotDebugDraw.new()
+			_debug_draw.name = "BotDebugDraw"
+			add_child(_debug_draw)
+		_debug_draw.enabled = true
+		# Kick off a graph build for the host's map so it's visible even with
+		# no bots around to trigger one.
+		var map_node := MapManager.get_player_map_node(1)
+		var map_id: String = MapManager.get_player_map(1)
+		if is_instance_valid(map_node) and not map_id.is_empty():
+			get_nav_graph(map_id, map_node, 45.0, 40.0)
+	elif is_instance_valid(_debug_draw):
+		_debug_draw.enabled = false
+
+	return "Bot navigation debug draw %s (host view)." % ("ON" if want else "OFF")
 
 
 ## Debug: builds the platform-navigation graph for a bot's current map and
