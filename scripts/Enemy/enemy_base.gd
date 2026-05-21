@@ -238,6 +238,7 @@ func _deferred_death_processing(_killer: Node) -> void:
 			player_node.gain_experience(exp_amount)
 			# Track kill for quest objectives
 			QuestManager.record_enemy_kill(player_node.username, monster_name)
+			DailyQuestManager.record_enemy_kill(player_node.username, monster_name, MapManager.get_player_map(member_id))
 			#print("PID: %s (Party) gained %s exp from %s" % [str(member_id), str(exp_amount), name])
 	else:
 		# No party, distribute EXP only to damage dealers
@@ -253,7 +254,8 @@ func _deferred_death_processing(_killer: Node) -> void:
 				player_node.gain_experience(exp_amount)
 				# Track kill for quest objectives
 				QuestManager.record_enemy_kill(player_node.username, monster_name)
-				
+				DailyQuestManager.record_enemy_kill(player_node.username, monster_name, MapManager.get_player_map(player_id))
+
 	# Spawn drops for all eligible players
 	if not eligible_player_ids_for_drops.is_empty():
 		_spawn_drops(eligible_player_ids_for_drops)

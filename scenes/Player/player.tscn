@@ -1,4 +1,4 @@
-[gd_scene load_steps=93 format=3 uid="uid://bdtdpx0d05sy3"]
+[gd_scene load_steps=94 format=3 uid="uid://bdtdpx0d05sy3"]
 
 [ext_resource type="Script" uid="uid://yibpus3whwuj" path="res://scripts/Player/multiplayer_controller_v2.gd" id="1_an8q1"]
 [ext_resource type="Script" uid="uid://cy1j38lpy671e" path="res://scripts/Player/multiplayer_input.gd" id="2_hxkm2"]
@@ -34,6 +34,7 @@
 [ext_resource type="PackedScene" uid="uid://dh7yjshjnm377" path="res://scenes/UI/inventory_window.tscn" id="24_e8txv"]
 [ext_resource type="PackedScene" uid="uid://cy54vn8lpmh2s" path="res://scenes/UI/equipment_window.tscn" id="25_7iww4"]
 [ext_resource type="PackedScene" uid="uid://1ufb4svp8iwu" path="res://scenes/UI/quest_window.tscn" id="26_quest"]
+[ext_resource type="PackedScene" uid="uid://dqwnd0w5p3k7m" path="res://scenes/UI/daily_quest_window.tscn" id="26_daily"]
 [ext_resource type="FontVariation" uid="uid://bpwl38ly8lvyj" path="res://assets/fonts/DamageNumbersFontVariation.tres" id="27_7iww4"]
 [ext_resource type="SpriteFrames" uid="uid://c05dyrlp5i5bj" path="res://resources/Player/SpriteFrames/Swordsman.tres" id="27_e8txv"]
 [ext_resource type="Texture2D" uid="uid://rmxapeohsar7" path="res://assets/sprites/MinifolksHumans/Outline/MiniTemplate.png" id="29_7iww4"]
@@ -1079,6 +1080,20 @@ offset_bottom = 800.0
 grow_horizontal = 1
 grow_vertical = 1
 
+[node name="DailyQuestWindow" parent="CanvasLayer/MoveableWindows" instance=ExtResource("26_daily")]
+layout_mode = 0
+anchors_preset = 0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 760.0
+offset_top = 320.0
+offset_right = 1140.0
+offset_bottom = 760.0
+grow_horizontal = 1
+grow_vertical = 1
+
 [node name="PlayerWorldHUD" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 15
@@ -1281,3 +1296,4 @@ animation_name = "hit"
 [editable path="CanvasLayer/MoveableWindows/InventoryWindow"]
 [editable path="CanvasLayer/MoveableWindows/EquipmentWindow"]
 [editable path="CanvasLayer/MoveableWindows/QuestWindow"]
+[editable path="CanvasLayer/MoveableWindows/DailyQuestWindow"]

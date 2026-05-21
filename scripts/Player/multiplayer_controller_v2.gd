@@ -510,6 +510,7 @@ func get_save_data(update_type: String = "all") -> Dictionary:
 
 	if update_type == "all":
 		data['quests'] = QuestManager.save_quests(username)
+		data['daily_quests'] = DailyQuestManager.save_daily(username)
 
 	return data
 
@@ -599,6 +600,11 @@ func _load_data(data: Dictionary) -> void:
 	var quest_data = data.get("quests", {})
 	if not quest_data.is_empty():
 		QuestManager.load_quests(username, quest_data)
+
+	# Load daily-quest progress (rolls over automatically if the date changed)
+	var daily_quest_data = data.get("daily_quests", {})
+	if not daily_quest_data.is_empty():
+		DailyQuestManager.load_daily(username, daily_quest_data)
 
 	_is_loading_data = false
 

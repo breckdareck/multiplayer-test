@@ -394,6 +394,11 @@ func _complete_quest(username: String, quest_id: String) -> void:
 	for item_name in quest.reward_items:
 		_send_message(sender_id, "  +%s" % item_name, Color.GREEN)
 
+	# Count toward the "Complete a Party Quest" daily objective if the player
+	# finished this quest while in a party.
+	if PartyManager.get_player_party_id(sender_id) != -1:
+		DailyQuestManager.record_party_quest_completed(username)
+
 	quest_completed.emit(username, quest_id)
 	_save_quest_data(username)
 	# Push updated quest UI data to the client

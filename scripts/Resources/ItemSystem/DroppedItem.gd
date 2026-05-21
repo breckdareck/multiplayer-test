@@ -206,6 +206,7 @@ func _pickup_item(picking_player: MultiplayerPlayerV2 = null) -> void:
 
 		# Track item collection for quest objectives
 		QuestManager.record_item_collected(player_to_give_item.username, item_data.name, stack_amount)
+		DailyQuestManager.record_item_collected(player_to_give_item.username, item_data.name, stack_amount)
 
 	# RPC to client to show log message
 		if not BotManager.is_bot(player_to_give_item.player_id):
