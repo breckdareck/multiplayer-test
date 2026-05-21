@@ -427,7 +427,24 @@ func _handle_dead(delta: float) -> void:
 		player.respawn()
 
 
+## The bot's decision step. Each consideration is checked in strict priority
+## order; the first that commits an action stops the cascade. Survival outranks
+## errands, errands outrank combat, combat outranks chores, chores outrank idle.
 func _think() -> void:
+	_refresh_targets()
+
+	if _consider_retreat(): return
+	if _consider_restock_trip(): return
+	if _consider_follow_leader(): return
+	if _consider_priority_loot(): return
+	if _consider_fight(): return
+	if _consider_pending_loot(): return
+	if _consider_map_travel(): return
+	_consider_idle()
+
+
+## Clears a dead enemy or collected drop from the current targets.
+func _refresh_targets() -> void:
 	if is_instance_valid(target_enemy):
 		if target_enemy.health_component and target_enemy.health_component.is_dead:
 			target_enemy = null
@@ -440,80 +457,95 @@ func _think() -> void:
 	else:
 		target_loot = null
 
-	# Survival: when critically low on HP, retreat to safety and regenerate.
-	# Stay in recovery until HP is comfortably back up — without this hysteresis
-	# the bot pops out of retreat 1 HP over the threshold and dives back in.
+
+## Survival: when critically low on HP, retreat to safety and regenerate. Stays
+## in recovery until HP is comfortably back up — without this hysteresis the bot
+## pops out of retreat 1 HP over the threshold and dives straight back in.
+func _consider_retreat() -> bool:
 	if _recovering:
 		if _health_fraction() >= RECOVER_TARGET_PCT:
 			_recovering = false
 		else:
 			current_action = "retreat"
-			return
+			return true
 	elif _should_retreat():
 		_recovering = true
 		current_action = "retreat"
-		return
+		return true
+	return false
 
-	# Visit town before considering the leader: head there when out of potions,
-	# or when the bag is full and there's no merchant here to sell to. Routes
-	# hop-by-hop (town may not be directly portal-connected). Members run this
-	# on their own. The affordability gate in _do_shop_maintenance keeps a broke
-	# bot from looping here instead of fighting and earning the gold it needs.
-	if _needs_restock or _needs_sell:
-		var my_map := MapManager.get_player_map(bot_id)
-		if my_map != TOWN_MAP_ID:
-			var hop := MapManager.get_next_map_toward(my_map, TOWN_MAP_ID)
-			if not hop.is_empty():
-				if not is_instance_valid(target_portal) or target_portal.target_map_id != hop:
-					target_portal = _find_portal_to_map(hop)
-				if is_instance_valid(target_portal):
-					target_enemy = null
-					current_action = "travel"
-					return
 
-	# Squad members follow their party leader (player or bot) across maps — but
-	# never into town. The leader visits town only to restock; members keep
-	# farming the current map and rejoin when the leader heads back out.
-	if _should_follow_leader():
-		var leader_id := _get_party_leader()
-		var leader_map := MapManager.get_player_map(leader_id)
-		var my_map := MapManager.get_player_map(bot_id)
-		if leader_map != my_map:
-			if not leader_map.is_empty() and leader_map != TOWN_MAP_ID:
-				MapManager.request_map_change(bot_id, leader_map)
-				_map_stay_timer = MAP_MIN_STAY_TIME
-				return
-		else:
-			var leader_node := PlayerManager.get_player_node(leader_id)
-			if is_instance_valid(leader_node):
-				var dist := player.global_position.distance_to(leader_node.global_position)
-				if dist > FOLLOW_RANGE:
-					current_action = "follow"
-					return
+## Visit town when out of potions, or when the bag is full with no merchant here
+## to sell to. Routes hop-by-hop (town may not be directly portal-connected).
+## The affordability gate in _do_shop_maintenance keeps a broke bot from looping
+## here instead of fighting to earn the gold it needs.
+func _consider_restock_trip() -> bool:
+	if not (_needs_restock or _needs_sell):
+		return false
+	var my_map := MapManager.get_player_map(bot_id)
+	if my_map == TOWN_MAP_ID:
+		return false
+	var hop := MapManager.get_next_map_toward(my_map, TOWN_MAP_ID)
+	if hop.is_empty():
+		return false
+	if not is_instance_valid(target_portal) or target_portal.target_map_id != hop:
+		target_portal = _find_portal_to_map(hop)
+	if not is_instance_valid(target_portal):
+		return false
+	target_enemy = null
+	current_action = "travel"
+	return true
 
-	# Grab loot before chasing the next enemy when it's close, and on a periodic
-	# sweep clear every reachable drop even mid-combat — otherwise forever-
-	# spawning enemies keep the bot fighting until the loot despawns.
-	var has_space := _has_inventory_space()
-	if has_space:
-		if not target_loot:
-			target_loot = _find_best_loot()
-		if target_loot:
-			var loot_dist := player.global_position.distance_to(target_loot.global_position)
-			if loot_dist <= loot_priority_range or _loot_sweep_timer <= 0.0:
-				current_action = "loot"
-				return
-		elif _loot_sweep_timer <= 0.0:
-			# Sweep done — nothing reachable left in range; wait for the next one.
-			_loot_sweep_timer = LOOT_SWEEP_INTERVAL
-	else:
+
+## Squad members follow their party leader across maps — but never into town.
+## The leader visits town only to restock; members keep farming and rejoin when
+## the leader heads back out.
+func _consider_follow_leader() -> bool:
+	if not _should_follow_leader():
+		return false
+	var leader_id := _get_party_leader()
+	var leader_map := MapManager.get_player_map(leader_id)
+	var my_map := MapManager.get_player_map(bot_id)
+	if leader_map != my_map:
+		if not leader_map.is_empty() and leader_map != TOWN_MAP_ID:
+			MapManager.request_map_change(bot_id, leader_map)
+			_map_stay_timer = MAP_MIN_STAY_TIME
+			return true
+		return false
+	var leader_node := PlayerManager.get_player_node(leader_id)
+	if is_instance_valid(leader_node):
+		if player.global_position.distance_to(leader_node.global_position) > FOLLOW_RANGE:
+			current_action = "follow"
+			return true
+	return false
+
+
+## Grab loot before chasing the next enemy when it's close, and on a periodic
+## sweep clear every reachable drop even mid-combat — otherwise forever-spawning
+## enemies keep the bot fighting until the loot despawns. Also keeps target_loot
+## current for the lower-priority pending-loot check.
+func _consider_priority_loot() -> bool:
+	if not _has_inventory_space():
 		target_loot = null
+		return false
+	if not target_loot:
+		target_loot = _find_best_loot()
+	if target_loot:
+		var loot_dist := player.global_position.distance_to(target_loot.global_position)
+		if loot_dist <= loot_priority_range or _loot_sweep_timer <= 0.0:
+			current_action = "loot"
+			return true
+	elif _loot_sweep_timer <= 0.0:
+		# Sweep done — nothing reachable left in range; wait for the next one.
+		_loot_sweep_timer = LOOT_SWEEP_INTERVAL
+	return false
 
-	# Acquire a target, or — if already fighting — switch to a much closer enemy
-	# so the bot doesn't tunnel-vision a distant foe while one is on top of it.
+
+## Acquire a combat target, or — if already fighting — switch to a much closer
+## enemy so the bot doesn't tunnel-vision a distant foe while one is on top of
+## it. Prefers an enemy a party member is already on (focus fire).
+func _consider_fight() -> bool:
 	if not target_enemy:
-		# Prefer an enemy a party member is already on (focus fire); otherwise
-		# pick the nearest.
 		var new_enemy := _party_focus_target()
 		if not is_instance_valid(new_enemy):
 			new_enemy = _find_best_enemy()
@@ -526,39 +558,49 @@ func _think() -> void:
 			var new_sq := player.global_position.distance_squared_to(closer.global_position)
 			if new_sq < cur_sq * RETARGET_FACTOR:
 				_set_target_enemy(closer)
-
 	if target_enemy:
 		current_action = "fight"
-		return
+		return true
+	return false
 
-	# Loot is available but farther away — go get it now since nothing else to do
-	if has_space and target_loot:
+
+## Known loot that was farther than the priority range — collect it now since
+## nothing more urgent is pending.
+func _consider_pending_loot() -> bool:
+	if target_loot and _has_inventory_space():
 		current_action = "loot"
-		return
+		return true
+	return false
 
-	if allow_map_travel and _is_squad_leader() and not _should_follow_leader():
-		_map_stay_timer -= think_interval
-		_map_travel_timer -= think_interval
-		if _map_travel_timer <= 0.0:
-			_map_travel_timer = MAP_TRAVEL_CHECK_INTERVAL
-			target_portal = null
-			if _should_change_map():
-				var dest_map := _get_target_map()
-				if not dest_map.is_empty():
-					# Step toward the destination via the next reachable map —
-					# the destination is often not directly portal-connected.
-					var hop := MapManager.get_next_map_toward(MapManager.get_player_map(bot_id), dest_map)
-					if not hop.is_empty():
-						target_portal = _find_portal_to_map(hop)
-		if is_instance_valid(target_portal):
-			current_action = "travel"
-			return
 
+## Squad leaders periodically travel toward a level-appropriate map.
+func _consider_map_travel() -> bool:
+	if not (allow_map_travel and _is_squad_leader() and not _should_follow_leader()):
+		return false
+	_map_stay_timer -= think_interval
+	_map_travel_timer -= think_interval
+	if _map_travel_timer <= 0.0:
+		_map_travel_timer = MAP_TRAVEL_CHECK_INTERVAL
+		target_portal = null
+		if _should_change_map():
+			var dest_map := _get_target_map()
+			if not dest_map.is_empty():
+				# Step toward the destination via the next reachable map — the
+				# destination is often not directly portal-connected.
+				var hop := MapManager.get_next_map_toward(MapManager.get_player_map(bot_id), dest_map)
+				if not hop.is_empty():
+					target_portal = _find_portal_to_map(hop)
+	if is_instance_valid(target_portal):
+		current_action = "travel"
+		return true
+	return false
+
+
+## Nothing pressing — seek a party, then idle or wander.
+func _consider_idle() -> void:
 	_try_party_seek()
-
 	if action_timer > 0.0:
 		return
-
 	if randf() < wander_chance:
 		_start_wander()
 	else:
