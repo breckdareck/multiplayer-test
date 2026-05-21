@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=14 format=3 uid="uid://cvctd6i3vmgiy"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=15 format=3 uid="uid://cvctd6i3vmgiy"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
@@ -28,6 +28,14 @@ min_amount = 10
 max_amount = 16
 metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 
+[sub_resource type="Resource" id="Resource_material"]
+script = ExtResource("1_drop")
+item_name = "Mushroom Cap"
+drop_chance = 0.7
+min_amount = 1
+max_amount = 3
+metadata/_custom_type_script = "uid://cucvsoha2s1kj"
+
 [resource]
 script = ExtResource("2_ed")
 monster_name = "Goblin"
@@ -37,5 +45,5 @@ sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")
 body_hitbox_shape = SubResource("Shape_body")
 attack_hitbox_shape = SubResource("Shape_atk")
-item_drops = Array[ExtResource("1_drop")]([SubResource("Resource_coin"), ExtResource("d_1"), ExtResource("d_2"), ExtResource("d_3"), ExtResource("d_4"), ExtResource("d_5"), ExtResource("d_6")])
+item_drops = Array[ExtResource("1_drop")]([SubResource("Resource_coin"), SubResource("Resource_material"), ExtResource("d_1"), ExtResource("d_2"), ExtResource("d_3"), ExtResource("d_4"), ExtResource("d_5"), ExtResource("d_6")])
 metadata/_custom_type_script = "uid://dv7aj5x3e50cg"

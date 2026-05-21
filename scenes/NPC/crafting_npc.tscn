@@ -1,0 +1,103 @@
+[gd_scene load_steps=12 format=3 uid="uid://b1craftnpc0001"]
+
+[ext_resource type="Script" path="res://scripts/NPC/crafting_npc_interaction.gd" id="1_interact"]
+[ext_resource type="Texture2D" uid="uid://bovy7ly4pd77y" path="res://assets/sprites/MinifolksVillagers2/Original/Outline/MiniBlacksmith.png" id="2_sprite"]
+[ext_resource type="Script" path="res://scripts/Components/crafting_station.gd" id="3_station"]
+[ext_resource type="PackedScene" uid="uid://b1craftwindow01" path="res://scenes/UI/crafting_window.tscn" id="4_window"]
+[ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="5_font"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f0"]
+atlas = ExtResource("2_sprite")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f1"]
+atlas = ExtResource("2_sprite")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f2"]
+atlas = ExtResource("2_sprite")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f3"]
+atlas = ExtResource("2_sprite")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_idle"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f3")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 8.0
+}]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_prompt"]
+content_margin_left = 20.0
+content_margin_top = 10.0
+content_margin_right = 20.0
+content_margin_bottom = 10.0
+bg_color = Color(0.0470588, 0.0470588, 0.0470588, 0.937255)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.871141, 0.871141, 0.871141, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="CraftingNPC" type="Node2D" node_paths=PackedStringArray("crafting_window_scene", "crafting_station", "prompt_label", "clickable_overlay")]
+script = ExtResource("1_interact")
+crafting_window_scene = NodePath("CanvasLayer/CraftingWindow")
+crafting_station = NodePath("CraftingStation")
+prompt_label = NodePath("Label")
+clickable_overlay = NodePath("ClickableOverlay")
+
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+z_index = -1
+scale = Vector2(1.2, 1.2)
+sprite_frames = SubResource("SpriteFrames_idle")
+animation = &"idle"
+autoplay = "idle"
+
+[node name="ClickableOverlay" type="TextureButton" parent="."]
+offset_left = -7.0
+offset_top = 2.0
+offset_right = 8.0
+offset_bottom = 18.0
+mouse_filter = 1
+
+[node name="CraftingStation" type="Node" parent="."]
+script = ExtResource("3_station")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="CraftingWindow" parent="CanvasLayer" node_paths=PackedStringArray("crafting_station") instance=ExtResource("4_window")]
+visible = false
+crafting_station = NodePath("../../CraftingStation")
+
+[node name="Label" type="Label" parent="."]
+visible = false
+offset_left = -30.0
+offset_top = -11.0
+offset_right = 165.0
+offset_bottom = 17.0
+scale = Vector2(0.3, 0.3)
+theme_override_fonts/font = ExtResource("5_font")
+theme_override_font_sizes/font_size = 8
+theme_override_styles/normal = SubResource("StyleBoxFlat_prompt")
+text = "Right-click to craft."
+horizontal_alignment = 1
+vertical_alignment = 1

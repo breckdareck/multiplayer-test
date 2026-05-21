@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/CraftingRecipeData.gd" id="1_recipe"]
+[ext_resource type="Script" uid="uid://ob3kriis8m08" path="res://scripts/Resources/ItemSystem/ItemData.gd" id="2_itemdata"]
+[ext_resource type="Resource" path="res://resources/Items/Materials/Wolf_Fang.tres" id="3_wolffang"]
+[ext_resource type="Resource" path="res://resources/Items/Weapons/Bronze_Dagger.tres" id="4_result"]
+
+[resource]
+script = ExtResource("1_recipe")
+recipe_name = "Bronze Dagger"
+ingredients = Array[ExtResource("2_itemdata")]([ExtResource("3_wolffang")])
+ingredient_counts = Array[int]([5])
+result = ExtResource("4_result")
+result_count = 1

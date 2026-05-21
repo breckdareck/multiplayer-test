@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=4 format=3]
+
+[ext_resource type="Script" uid="uid://ob3kriis8m08" path="res://scripts/Resources/ItemSystem/ItemData.gd" id="1_item"]
+[ext_resource type="Texture2D" uid="uid://yhl18c6ei5o6" path="res://assets/sprites/fruit.png" id="2_tex"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wolffang"]
+atlas = ExtResource("2_tex")
+region = Rect2(0, 0, 16, 16)
+
+[resource]
+script = ExtResource("1_item")
+item_id = "craft-material-wolf-fang-0001"
+name = "Wolf Fang"
+rarity = 0
+icon = SubResource("AtlasTexture_wolffang")
+description = "A sharp fang torn from a beast. A crafting material."
+item_type = 3
+item_level = -1
+custom_item_value = 15
+can_stack = true
+max_stack_amount = 99
+current_stack_amount = 1
+metadata/_custom_type_script = "uid://ob3kriis8m08"

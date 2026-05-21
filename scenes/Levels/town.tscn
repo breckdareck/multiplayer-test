@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=4 uid="uid://ykvov1wfh1gv"]
+[gd_scene load_steps=19 format=4 uid="uid://ykvov1wfh1gv"]
 
 [ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_as7l3"]
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/VFX/damage_numbers.gd" id="2_bkv3e"]
@@ -12,6 +12,7 @@
 [ext_resource type="Resource" uid="uid://bwlru2cwcphdy" path="res://resources/Items/Consumables/Mana_Potion.tres" id="16_um1b1"]
 [ext_resource type="Resource" uid="uid://jwwtuktlssm4" path="res://resources/Items/Consumables/Exp_Potion.tres" id="17_1o3m4"]
 [ext_resource type="Script" uid="uid://igk1rxt26f2i" path="res://scripts/UI/global_drop_handler.gd" id="18_a3rpc"]
+[ext_resource type="PackedScene" uid="uid://b1craftnpc0001" path="res://scenes/NPC/crafting_npc.tscn" id="19_craft"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lnu2h"]
 texture = ExtResource("5_t0e5x")
@@ -598,6 +599,9 @@ offset_left = 563.0
 offset_top = 254.0
 offset_right = 1313.0
 offset_bottom = 854.0
+
+[node name="CraftingNPC" parent="." instance=ExtResource("19_craft")]
+position = Vector2(-120, -674)
 
 [node name="GlobalDropHandler" type="Control" parent="."]
 layout_mode = 3

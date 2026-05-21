@@ -13,12 +13,16 @@ var ability_by_name: Dictionary[String, AbilityData] = {}
 var buff_data: Dictionary[String, BuffData] = {}
 var buffs_by_name: Dictionary[String, BuffData] = {}
 
+var crafting_recipes: Array[CraftingRecipeData] = []
+var recipe_by_name: Dictionary[String, CraftingRecipeData] = {}
+
 func _ready() -> void:
 	_load_class_data()
 	_load_item_data()
 	_load_ability_data()
 	_load_buff_data()
-	
+	_load_crafting_data()
+
 
 #region Item Data Functions
 
@@ -198,6 +202,30 @@ func get_buff_by_name(buff_name: String) -> BuffData:
 	return buffs_by_name.get(buff_name)
 
 		
+#endregion
+
+
+#region Crafting Data Functions
+
+func _load_crafting_data() -> void:
+	var crafting_folder: String = "res://resources/Crafting/"
+
+	var process_recipe = func(resource, _path):
+		if resource is CraftingRecipeData:
+			crafting_recipes.append(resource)
+			recipe_by_name[resource.recipe_name] = resource
+			#print("Loaded recipe: %s from path: %s" % [resource.recipe_name, _path])
+
+	_load_resources_recursively(crafting_folder, process_recipe)
+
+
+func get_crafting_recipes() -> Array[CraftingRecipeData]:
+	return crafting_recipes
+
+
+func get_recipe_by_name(recipe_name: String) -> CraftingRecipeData:
+	return recipe_by_name.get(recipe_name)
+
 #endregion
 
 

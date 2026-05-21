@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/CraftingRecipeData.gd" id="1_recipe"]
+[ext_resource type="Script" uid="uid://ob3kriis8m08" path="res://scripts/Resources/ItemSystem/ItemData.gd" id="2_itemdata"]
+[ext_resource type="Resource" path="res://resources/Items/Materials/Mushroom_Cap.tres" id="3_mushroom"]
+[ext_resource type="Resource" path="res://resources/Items/Materials/Slime_Gel.tres" id="4_slimegel"]
+[ext_resource type="Resource" uid="uid://cjl5ggbs3c237" path="res://resources/Items/Consumables/Grape_Potion.tres" id="5_result"]
+
+[resource]
+script = ExtResource("1_recipe")
+recipe_name = "Health Potion"
+ingredients = Array[ExtResource("2_itemdata")]([ExtResource("3_mushroom"), ExtResource("4_slimegel")])
+ingredient_counts = Array[int]([3, 2])
+result = ExtResource("5_result")
+result_count = 1
