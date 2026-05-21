@@ -312,20 +312,43 @@ func get_bot_brain(bot_id: int) -> BotBrain:
 ## is built once and shared by every bot on that map (and survives the map node
 ## being recreated by a channel switch — the graph stores positions, not refs).
 var _nav_graphs: Dictionary = {}
+## Probe columns advanced per frame for in-progress nav-graph builds — keeps the
+## thousands of build raycasts from hitching a single frame.
+const NAV_BUILD_COLUMNS_PER_FRAME: int = 12
 
-## The nav graph for a map, building it on first request. Returns null if the
-## map has no probeable surfaces yet (e.g. physics not live) so the build is
-## retried later rather than caching an empty graph.
+## The nav graph for a map. The first request kicks off an incremental build
+## (amortized in _process) and returns null; null is also returned while a build
+## is still running, so the caller falls back to direct navigation until ready.
 func get_nav_graph(map_id: String, map_node: Node2D, max_jump: float, jump_reach: float) -> BotNavGraph:
-	var cached = _nav_graphs.get(map_id)
-	if cached != null and cached.built:
-		return cached
+	var cached: BotNavGraph = _nav_graphs.get(map_id)
+	if cached != null:
+		return cached if cached.built else null
 	var graph := BotNavGraph.new()
-	graph.build(map_node, max_jump, jump_reach)
-	if graph.built and graph.points.size() > 0:
-		_nav_graphs[map_id] = graph
-		return graph
+	if not graph.begin_build(map_node, max_jump, jump_reach):
+		return null  # physics not live yet — a later request retries
+	_nav_graphs[map_id] = graph
 	return null
+
+
+## Drives in-progress nav-graph builds a slice at a time, and cleans up builds
+## that produced nothing or were aborted by the map being freed.
+func _process(_delta: float) -> void:
+	if not multiplayer.is_server() or _nav_graphs.is_empty():
+		return
+	for map_id in _nav_graphs:
+		var graph: BotNavGraph = _nav_graphs[map_id]
+		if graph.built:
+			continue
+		if graph.is_building():
+			graph.build_step(NAV_BUILD_COLUMNS_PER_FRAME)
+			# A finished build with no surfaces is useless — drop it so a later
+			# request rebuilds (covers a probe that ran before physics settled).
+			if graph.built and graph.points.size() == 0:
+				_nav_graphs.erase(map_id)
+		else:
+			# Build aborted (map freed mid-build) — drop it so it retries.
+			_nav_graphs.erase(map_id)
+		break  # one graph per frame is plenty
 
 
 func get_map_difficulty(map_id: String) -> Dictionary:

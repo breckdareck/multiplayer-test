@@ -35,34 +35,83 @@ var built: bool = false
 var _max_jump_height: float = 40.0
 var _jump_reach: float = 40.0
 
+# Incremental build state. Surface probing fires thousands of raycasts, so it
+# is spread across frames (build_step) to avoid a one-frame hitch.
+var _building: bool = false
+var _build_map_node: Node2D = null
+var _build_col_total: int = 0
+var _build_col_index: int = 0
+var _build_columns: Array = []
 
-## Builds the graph for a live map node. `max_jump_height` and `jump_reach` are
-## the bot's vertical and horizontal jump limits (see bot_brain). Returns false
-## if the map has no live physics world.
-func build(map_node: Node2D, max_jump_height: float, jump_reach: float) -> bool:
+
+## Starts an incremental build for a live map node. `max_jump_height` and
+## `jump_reach` are the bot's jump limits (see bot_brain). Returns false if the
+## map has no live physics world. Drive it with build_step() until `built`.
+func begin_build(map_node: Node2D, max_jump_height: float, jump_reach: float) -> bool:
 	built = false
+	_building = false
 	astar.clear()
 	segments.clear()
 	points = PackedVector2Array()
 	point_segment = PackedInt32Array()
 	edges.clear()
+	_build_columns = []
+	_build_col_index = 0
 
-	if not is_instance_valid(map_node):
-		return false
-	var world := map_node.get_world_2d()
-	if world == null:
+	if not is_instance_valid(map_node) or map_node.get_world_2d() == null:
 		return false
 
 	_max_jump_height = max_jump_height
 	_jump_reach = jump_reach
+	_build_map_node = map_node
 	bounds = _compute_bounds(map_node)
-
-	var columns := _probe_columns(world.direct_space_state)
-	segments = _cluster_segments(columns)
-	_place_points()
-	_build_edges()
-	built = true
+	_build_col_total = int(bounds.size.x / CELL)
+	_building = true
 	return true
+
+
+## Advances an in-progress build by up to `max_columns` probe columns. Sets
+## `built` once finished. Aborts cleanly (leaving built = false) if the map was
+## freed mid-build.
+func build_step(max_columns: int) -> void:
+	if not _building:
+		return
+	if not is_instance_valid(_build_map_node) or _build_map_node.get_world_2d() == null:
+		_building = false
+		_build_map_node = null
+		return
+	var space := _build_map_node.get_world_2d().direct_space_state
+
+	var end_col := mini(_build_col_index + max_columns, _build_col_total)
+	while _build_col_index < end_col:
+		var x := bounds.position.x + _build_col_index * CELL + CELL * 0.5
+		_build_columns.append(_probe_one_column(space, x))
+		_build_col_index += 1
+
+	if _build_col_index >= _build_col_total:
+		# All columns probed — finish: cluster, place points, link edges.
+		segments = _cluster_segments(_build_columns)
+		_place_points()
+		_build_edges()
+		_build_columns = []
+		_build_map_node = null
+		_building = false
+		built = true
+
+
+## Whether an incremental build is still running.
+func is_building() -> bool:
+	return _building
+
+
+## Synchronous full build — used by debug tooling (`/bot navgraph`). Gameplay
+## uses begin_build + build_step to spread the probe cost across frames.
+func build(map_node: Node2D, max_jump_height: float, jump_reach: float) -> bool:
+	if not begin_build(map_node, max_jump_height, jump_reach):
+		return false
+	while _building:
+		build_step(_build_col_total)
+	return built
 
 
 ## Returns a waypoint path (world positions) from `from` to `to`, snapping each
@@ -161,14 +210,6 @@ func _find_tilemap_layers(node: Node) -> Array:
 
 
 # --- Surface probing --------------------------------------------------------
-
-func _probe_columns(space: PhysicsDirectSpaceState2D) -> Array:
-	var result: Array = []
-	var col_count := int(bounds.size.x / CELL)
-	for c in range(col_count):
-		var x := bounds.position.x + c * CELL + CELL * 0.5
-		result.append(_probe_one_column(space, x))
-	return result
 
 
 ## Casts repeated downward rays through one column, recording the top of every
