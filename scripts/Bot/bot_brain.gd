@@ -184,6 +184,40 @@ var _descend_dir: int = 0
 const GROUND_MASK: int = 0b101  # World + Platforms
 const SOLID_MASK: int = 0b001  # World only (not one-way platforms)
 
+# --- Lifetime metrics, surfaced by `/bot stats` and the debug panel. ---
+var _metrics := {
+	"kills": 0,
+	"deaths": 0,
+	"deaths_to_enemy": 0,
+	"deaths_to_hazard": 0,
+	"stuck_recoveries": 0,
+	"travel_abandons": 0,
+	"loot_collected": 0,
+	"gold_from_sales": 0,
+}
+
+
+## Lifetime behaviour counters for this bot (see _metrics).
+func get_metrics() -> Dictionary:
+	return _metrics
+
+
+## Connects to the character's death signal for death-cause metrics. Safe to
+## call repeatedly (e.g. after a map change re-bodies the bot).
+func _connect_health_signals() -> void:
+	if not is_instance_valid(player) or not is_instance_valid(player.health_component):
+		return
+	if not player.health_component.died.is_connected(_on_player_died):
+		player.health_component.died.connect(_on_player_died)
+
+
+func _on_player_died(killer: Node) -> void:
+	_metrics.deaths += 1
+	if killer is EnemyBase:
+		_metrics.deaths_to_enemy += 1
+	else:
+		_metrics.deaths_to_hazard += 1
+
 
 func init(player_node: MultiplayerPlayerV2, id: int, behavior_config: Dictionary = {}) -> void:
 	player = player_node
@@ -204,6 +238,7 @@ func init(player_node: MultiplayerPlayerV2, id: int, behavior_config: Dictionary
 	_party_seek_timer = PARTY_SEEK_INTERVAL + randf() * PARTY_SEEK_INTERVAL
 
 	_compute_jump_profile()
+	_connect_health_signals()
 
 
 ## Derives jump reachability limits from the player's real movement tuning so the
@@ -256,6 +291,7 @@ func attach_to_player(player_node: MultiplayerPlayerV2) -> void:
 	_nav_path = PackedInt64Array()
 	_nav_goal = Vector2.INF
 	_descend_dir = 0
+	_connect_health_signals()
 
 
 func _process(delta: float) -> void:
@@ -387,12 +423,14 @@ func _abandon_travel() -> void:
 	action_timer = 2.0
 	_map_travel_timer = MAP_TRAVEL_CHECK_INTERVAL
 	_nav_path = PackedInt64Array()
+	_metrics.travel_abandons += 1
 	player.direction = 0
 
 
 ## Last-resort recovery when the bot is wedged against terrain it can't pass —
 ## drops whatever target caused it so the think loop can re-plan.
 func _recover_from_stuck() -> void:
+	_metrics.stuck_recoveries += 1
 	match current_action:
 		"fight":
 			if is_instance_valid(target_enemy) and not _blacklisted_enemies.has(target_enemy):
@@ -447,12 +485,14 @@ func _think() -> void:
 func _refresh_targets() -> void:
 	if is_instance_valid(target_enemy):
 		if target_enemy.health_component and target_enemy.health_component.is_dead:
+			_metrics.kills += 1
 			target_enemy = null
 	else:
 		target_enemy = null
 
 	if is_instance_valid(target_loot):
 		if target_loot.current_state == DroppedItem.ItemState.COLLECTED:
+			_metrics.loot_collected += 1
 			target_loot = null
 	else:
 		target_loot = null
@@ -1783,6 +1823,7 @@ func _sell_unwanted_items(merchant: MerchantInventory, force: bool) -> void:
 	for item in _collect_items_to_sell(force):
 		var sell_price: int = merchant.get_sell_price(item.item_id)
 		player.player_inventory.monies_amount += sell_price
+		_metrics.gold_from_sales += sell_price
 		player.inventory_component.remove_item(item, "sold")
 
 
