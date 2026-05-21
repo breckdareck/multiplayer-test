@@ -33,6 +33,11 @@ var _blacklisted_enemies: Array[EnemyBase] = []
 var _blacklist_clear_timer: float = 0.0
 const COMBAT_DISENGAGE_TIME: float = 6.0
 const BLACKLIST_DURATION: float = 15.0
+## A bot whose effective attack reach exceeds this is treated as ranged and
+## will kite — hold distance and back away rather than charge into melee.
+const KITE_MIN_RANGE: float = 60.0
+## A ranged bot backs away once an enemy is within this fraction of its reach.
+const KITE_INNER_FRAC: float = 0.55
 
 var _respawn_timer: float = -1.0
 const RESPAWN_DELAY: float = 3.0
@@ -45,6 +50,9 @@ const ABILITY_CHECK_INTERVAL: float = 5.0
 var _buff_abilities: Array[String] = []
 var _attack_abilities: Array[String] = []
 var _attack_ability_index: int = 0
+## Effective attack reach (longest attack-ability range, or melee attack_range).
+## Recomputed in _build_ability_lists; drives kiting decisions in _do_fight.
+var _combat_range: float = 25.0
 
 var _consumable_check_timer: float = 0.0
 const CONSUMABLE_CHECK_INTERVAL: float = 1.0
@@ -448,7 +456,7 @@ func _think() -> void:
 		target_loot = null
 
 	if not target_enemy:
-		var new_enemy := _find_nearest_enemy()
+		var new_enemy := _find_best_enemy()
 		if new_enemy:
 			target_enemy = new_enemy
 			_combat_timer = 0.0
@@ -509,14 +517,17 @@ func _get_map_node() -> Node:
 	return _cached_map_node
 
 
-func _find_nearest_enemy() -> EnemyBase:
+## Picks a combat target within aggro range. Scores by distance, discounting
+## wounded enemies so a bot finishes off low-HP foes first.
+func _find_best_enemy() -> EnemyBase:
 	var map_node := _get_map_node()
 	if not is_instance_valid(map_node):
 		return null
 
 	var enemies := get_tree().get_nodes_in_group("Enemies")
 	var best: EnemyBase = null
-	var best_dist_sq := aggro_range * aggro_range
+	var best_score := INF
+	var aggro_sq := aggro_range * aggro_range
 
 	for node in enemies:
 		if node is not EnemyBase:
@@ -532,8 +543,18 @@ func _find_nearest_enemy() -> EnemyBase:
 			continue
 
 		var dist_sq := player.global_position.distance_squared_to(node.global_position)
-		if dist_sq < best_dist_sq:
-			best_dist_sq = dist_sq
+		if dist_sq > aggro_sq:
+			continue
+
+		var score := dist_sq
+		# Discount wounded enemies so they read as "closer" — finish them off.
+		if node.health_component and node.health_component.max_health > 0:
+			var hp_frac := float(node.health_component.current_health) \
+				/ float(node.health_component.max_health)
+			if hp_frac < 0.35:
+				score *= 0.45
+		if score < best_score:
+			best_score = score
 			best = node
 
 	return best
@@ -652,8 +673,22 @@ func _do_fight() -> void:
 
 	player.facing_direction = dir
 
+	var is_ranged := _combat_range > KITE_MIN_RANGE
+
+	# Ranged bot with an enemy in its face — back off to re-open distance,
+	# still firing whatever ability can reach on the way out.
+	if is_ranged and dx < _combat_range * KITE_INNER_FRAC:
+		_try_use_attack_ability(dx)
+		_kite_away(dir)
+		return
+
 	if dx > attack_range:
 		if _try_use_attack_ability(dx):
+			player.direction = 0
+			return
+		# A ranged bot already within ability reach holds its ground while
+		# abilities cool down, instead of charging into melee.
+		if is_ranged and dx <= _combat_range:
 			player.direction = 0
 			return
 		_navigate_toward(target_enemy.global_position)
@@ -669,6 +704,22 @@ func _do_fight() -> void:
 	if not _try_use_buff():
 		if not _try_use_attack_ability(dx):
 			player.do_attack = true
+
+
+## Steps a ranged bot away from an enemy to re-open attack distance while
+## keeping it facing the enemy. Holds position rather than backing off a ledge
+## or into a wall.
+func _kite_away(enemy_dir: int) -> void:
+	var dir := -enemy_dir
+	player.direction = dir
+	player.facing_direction = enemy_dir
+	if not player.is_on_floor():
+		return
+	if player.is_on_wall():
+		player.direction = 0
+		return
+	if _is_near_ledge() and not _raycast_down(player.global_position + Vector2(dir * 18.0, 0), 200.0):
+		player.direction = 0
 
 
 func _disengage() -> void:
@@ -1195,6 +1246,11 @@ func _build_ability_lists() -> void:
 			_buff_abilities.append(ability_id)
 		else:
 			_attack_abilities.append(ability_id)
+
+	# Cache effective attack reach for the kiting logic in _do_fight.
+	_combat_range = attack_range
+	for ability_id in _attack_abilities:
+		_combat_range = maxf(_combat_range, _get_ability_range(ability_id))
 
 
 func _auto_spend_ability_points(ability_comp: AbilityComponent) -> void:
