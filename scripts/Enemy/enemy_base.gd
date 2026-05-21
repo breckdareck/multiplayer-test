@@ -238,6 +238,12 @@ func _deferred_death_processing(_killer: Node) -> void:
 			player_node.gain_experience(exp_amount)
 			# Track kill for quest objectives
 			QuestManager.record_enemy_kill(player_node.username, monster_name)
+			# Track kill for daily co-op challenges (party-gated — only counts
+			# while the player is in a party of 2+ on the correct map).
+			DailyChallengeManager.record_party_enemy_kill(
+				player_node.username, monster_name, _get_map_name(), players_to_reward)
+			DailyChallengeManager.record_party_boss_kill(
+				player_node.username, monster_name, players_to_reward)
 			#print("PID: %s (Party) gained %s exp from %s" % [str(member_id), str(exp_amount), name])
 	else:
 		# No party, distribute EXP only to damage dealers
@@ -571,18 +577,20 @@ func _exit_tree():
 	cleanup_before_removal()
 
 
-func _get_players_on_same_map() -> Array:
-	if not multiplayer.is_server(): return []
-	
-	# Try to find map by walking up the tree to find a parent map container
+## Returns the map id this enemy belongs to (e.g. "game"), or "" if unknown.
+func _get_map_name() -> String:
 	var parent = get_parent()
-	var map_name = ""
 	while parent:
 		if parent.name.begins_with("Map_"):
-			map_name = parent.name.replace("Map_", "")
-			break
+			return parent.name.replace("Map_", "")
 		parent = parent.get_parent()
-	
+	return ""
+
+
+func _get_players_on_same_map() -> Array:
+	if not multiplayer.is_server(): return []
+
+	var map_name = _get_map_name()
 	if map_name != "":
 		return MapManager.get_players_on_map(map_name)
 	return []

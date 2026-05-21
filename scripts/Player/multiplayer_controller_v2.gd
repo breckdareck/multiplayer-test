@@ -228,6 +228,13 @@ func gain_experience(amount: int) -> void:
 	if is_instance_valid(health_component) and health_component.is_dead:
 		return
 
+	# Apply the Daily Challenge double-EXP buff (Speed Challenge reward), if active.
+	# Server-authoritative: only the server scales, so all EXP grants stay consistent.
+	if multiplayer.is_server() and not username.is_empty():
+		var mult: float = DailyChallengeManager.get_exp_multiplier(username)
+		if mult != 1.0:
+			amount = int(round(amount * mult))
+
 	if level_component and level_component.has_method("add_exp"):
 		level_component.add_exp(amount)
 
@@ -510,6 +517,7 @@ func get_save_data(update_type: String = "all") -> Dictionary:
 
 	if update_type == "all":
 		data['quests'] = QuestManager.save_quests(username)
+		data['daily_challenge'] = DailyChallengeManager.save_challenge_data(username)
 
 	return data
 
@@ -599,6 +607,11 @@ func _load_data(data: Dictionary) -> void:
 	var quest_data = data.get("quests", {})
 	if not quest_data.is_empty():
 		QuestManager.load_quests(username, quest_data)
+
+	# Load daily co-op challenge progress
+	var daily_challenge_data = data.get("daily_challenge", {})
+	if not daily_challenge_data.is_empty():
+		DailyChallengeManager.load_challenge_data(username, daily_challenge_data)
 
 	_is_loading_data = false
 

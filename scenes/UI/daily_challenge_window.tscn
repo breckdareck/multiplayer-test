@@ -1,0 +1,127 @@
+[gd_scene load_steps=4 format=3 uid="uid://dcclwindow1a2b3"]
+
+[ext_resource type="Theme" uid="uid://dumv2cfji0owj" path="res://assets/themes/UI_Theme.tres" id="1_theme"]
+[ext_resource type="Script" path="res://scripts/UI/daily_challenge_window.gd" id="2_script"]
+[ext_resource type="StyleBox" uid="uid://dm8jxifs8rqrm" path="res://assets/UI/Themes/PanelStyleboxTheme.tres" id="3_panel"]
+
+[node name="DailyChallengeWindow" type="Panel"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -190.0
+offset_top = -150.0
+offset_right = 190.0
+offset_bottom = 150.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_theme")
+theme_override_styles/panel = ExtResource("3_panel")
+script = ExtResource("2_script")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 4
+
+[node name="TitleBar" type="HBoxContainer" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="VBoxContainer/TitleBar"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.905882, 0.890196, 0.34902, 1)
+theme_override_font_sizes/font_size = 16
+text = "    DAILY CO-OP CHALLENGE"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CloseButton" type="Button" parent="VBoxContainer/TitleBar"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 0
+text = "X"
+flat = true
+
+[node name="ContentPanel" type="PanelContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ContentMargin" type="MarginContainer" parent="VBoxContainer/ContentPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="ContentVBox" type="VBoxContainer" parent="VBoxContainer/ContentPanel/ContentMargin"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+
+[node name="ChallengeNameLabel" type="Label" parent="VBoxContainer/ContentPanel/ContentMargin/ContentVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
+theme_override_font_sizes/font_size = 15
+text = "Challenge"
+autowrap_mode = 2
+
+[node name="TypeLabel" type="Label" parent="VBoxContainer/ContentPanel/ContentMargin/ContentVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.8, 1, 1)
+text = "[Type]"
+
+[node name="DescLabel" type="RichTextLabel" parent="VBoxContainer/ContentPanel/ContentMargin/ContentVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 70)
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+
+[node name="ProgressSep" type="HSeparator" parent="VBoxContainer/ContentPanel/ContentMargin/ContentVBox"]
+layout_mode = 2
+
+[node name="ProgressHeader" type="Label" parent="VBoxContainer/ContentPanel/ContentMargin/ContentVBox"]
+layout_mode = 2
+text = "Progress:"
+
+[node name="ProgressBar" type="ProgressBar" parent="VBoxContainer/ContentPanel/ContentMargin/ContentVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 18)
+layout_mode = 2
+show_percentage = false
+
+[node name="ProgressLabel" type="Label" parent="VBoxContainer/ContentPanel/ContentMargin/ContentVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_alignment = 1
+text = "0 / 0"
+
+[node name="RewardLabel" type="Label" parent="VBoxContainer/ContentPanel/ContentMargin/ContentVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.9, 0.4, 1)
+text = "Reward:"
+autowrap_mode = 2
+
+[node name="Spacer" type="Control" parent="VBoxContainer/ContentPanel/ContentMargin/ContentVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="StatusLabel" type="Label" parent="VBoxContainer/ContentPanel/ContentMargin/ContentVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.85, 1, 1)
+text = "Progress only counts in a party of 2+."
+horizontal_alignment = 1
+autowrap_mode = 2
