@@ -85,16 +85,43 @@ var _party_seek_timer: float = 0.0
 const PARTY_SEEK_INTERVAL: float = 12.0
 const PARTY_SEEK_RANGE: float = 300.0
 
-const MAX_JUMP_HEIGHT: float = 40.0
 const JUMP_COOLDOWN: float = 0.8
-# Horizontal stand-off used when jumping up to a portal on an elevated platform.
-# Roughly the bot's horizontal travel during a jump's rise (move_speed * time-to-apex),
-# so the jump arc carries the bot from the launch point onto the portal.
-const PORTAL_LAUNCH_OFFSET: float = 40.0
 var _jump_cooldown_timer: float = 0.0
+
+# Jump reachability — derived from the player's real jump_velocity, move_speed
+# and project gravity in _compute_jump_profile(). Defaults match the stock
+# player tuning so navigation still behaves sanely if derivation fails.
+## Safety margin on the raw physics peak so the bot only commits to jumps it
+## can comfortably clear.
+const JUMP_HEIGHT_SAFETY: float = 0.88
+## Max vertical distance (px) the bot will attempt to jump to reach a target.
+var _max_jump_height: float = 40.0
+## Horizontal stand-off (px) used when launching up to an elevated portal —
+## roughly the bot's horizontal travel during a jump's rise, so the arc carries
+## it from the launch point onto the portal.
+var _jump_launch_offset: float = 40.0
 
 var _wall_stuck_timer: float = 0.0
 const WALL_STUCK_JUMP_TIME: float = 0.4
+
+# --- Stuck detection: catches a bot that intends to move but makes no
+# progress (bad terrain, an unreachable target) and escalates to recovery. ---
+var _stuck_sample_pos: Vector2 = Vector2.ZERO
+var _stuck_sample_timer: float = 0.0
+var _stuck_timer: float = 0.0
+const STUCK_SAMPLE_INTERVAL: float = 0.5
+## Min px of progress expected per sample while actively walking.
+const STUCK_MIN_PROGRESS: float = 6.0
+## Stuck this long -> attempt a recovery jump.
+const STUCK_JUMP_TIME: float = 1.0
+## Stuck this long -> abandon the current target so the think loop re-plans.
+const STUCK_ABANDON_TIME: float = 4.0
+
+# --- Travel watchdog: a hard cap per portal hop, since an oscillating failed
+# climb keeps "moving" and would slip past the stuck detector. ---
+var _travel_timed_portal: Node = null
+var _travel_timeout_timer: float = 0.0
+const TRAVEL_TIMEOUT: float = 35.0
 
 # Collision masks: Layer 1 (World) = bit 0, Layer 3 (Platforms) = bit 2
 const GROUND_MASK: int = 0b101  # World + Platforms
@@ -118,6 +145,34 @@ func init(player_node: MultiplayerPlayerV2, id: int, behavior_config: Dictionary
 
 	think_timer = randf() * think_interval
 	_party_seek_timer = PARTY_SEEK_INTERVAL + randf() * PARTY_SEEK_INTERVAL
+
+	_compute_jump_profile()
+
+
+## Derives jump reachability limits from the player's real movement tuning so the
+## navigation heuristics stay correct if jump_velocity / move_speed / gravity are
+## ever retuned. Falls back to the defaults if the state machine is unavailable.
+func _compute_jump_profile() -> void:
+	var grav: float = ProjectSettings.get_setting("physics/2d/default_gravity", 980.0)
+	if grav <= 0.0:
+		return
+
+	var jump_velocity: float = -300.0
+	var move_speed: float = 130.0
+	if is_instance_valid(player) and is_instance_valid(player.state_machine):
+		var jump_state: Node = player.state_machine.get_node_or_null("jump")
+		if jump_state and "jump_velocity" in jump_state:
+			jump_velocity = jump_state.jump_velocity
+		var move_state: Node = player.state_machine.get_node_or_null("move")
+		if move_state and "move_speed" in move_state:
+			move_speed = move_state.move_speed
+
+	# Peak height of a jump is v^2 / 2g; keep a safety margin so the bot only
+	# commits to jumps it can comfortably clear.
+	var raw_height: float = (jump_velocity * jump_velocity) / (2.0 * grav)
+	_max_jump_height = raw_height * JUMP_HEIGHT_SAFETY
+	# Horizontal travel during the jump's rise = move_speed * time-to-apex.
+	_jump_launch_offset = move_speed * (absf(jump_velocity) / grav)
 
 
 ## Re-points the brain at a freshly spawned character body after a map change.
@@ -203,6 +258,93 @@ func _process(delta: float) -> void:
 		_wall_stuck_timer = 0.0
 
 	_apply_current_action()
+
+	# Stuck detection runs after the action set player.direction this frame.
+	_update_stuck_detection(delta)
+	_update_travel_watchdog(delta)
+
+
+## Detects a bot that intends to move but is making no progress, and escalates:
+## a recovery jump first, then abandoning the wedged target.
+func _update_stuck_detection(delta: float) -> void:
+	# Only meaningful while actively trying to walk on the ground. Airborne
+	# frames (jump arcs) and deliberate stops reset the tracker.
+	if player.direction == 0 or not player.is_on_floor():
+		_stuck_timer = 0.0
+		_stuck_sample_timer = STUCK_SAMPLE_INTERVAL
+		_stuck_sample_pos = player.global_position
+		return
+
+	_stuck_sample_timer -= delta
+	if _stuck_sample_timer > 0.0:
+		return
+	_stuck_sample_timer = STUCK_SAMPLE_INTERVAL
+
+	var progress := player.global_position.distance_to(_stuck_sample_pos)
+	_stuck_sample_pos = player.global_position
+	if progress >= STUCK_MIN_PROGRESS:
+		_stuck_timer = 0.0
+		return
+
+	_stuck_timer += STUCK_SAMPLE_INTERVAL
+	if _stuck_timer >= STUCK_ABANDON_TIME:
+		_stuck_timer = 0.0
+		_recover_from_stuck()
+	elif _stuck_timer >= STUCK_JUMP_TIME:
+		_try_jump()
+
+
+## Hard cap on a single portal hop. An oscillating failed climb keeps "moving"
+## and would slip past the stuck detector, so time the hop directly.
+func _update_travel_watchdog(delta: float) -> void:
+	if current_action != "travel" or not is_instance_valid(target_portal):
+		_travel_timed_portal = null
+		_travel_timeout_timer = 0.0
+		return
+
+	if target_portal != _travel_timed_portal:
+		_travel_timed_portal = target_portal
+		_travel_timeout_timer = 0.0
+
+	_travel_timeout_timer += delta
+	if _travel_timeout_timer >= TRAVEL_TIMEOUT:
+		_travel_timed_portal = null
+		_travel_timeout_timer = 0.0
+		_abandon_travel()
+
+
+## Abandons the current travel target and defers the next travel attempt so the
+## bot doesn't immediately re-wedge on the same unreachable route.
+func _abandon_travel() -> void:
+	target_portal = null
+	current_action = "idle"
+	action_timer = 2.0
+	_map_travel_timer = MAP_TRAVEL_CHECK_INTERVAL
+	player.direction = 0
+
+
+## Last-resort recovery when the bot is wedged against terrain it can't pass —
+## drops whatever target caused it so the think loop can re-plan.
+func _recover_from_stuck() -> void:
+	match current_action:
+		"fight":
+			if is_instance_valid(target_enemy) and not _blacklisted_enemies.has(target_enemy):
+				_blacklisted_enemies.append(target_enemy)
+			_disengage()
+		"loot":
+			target_loot = null
+			current_action = "idle"
+			action_timer = 1.0
+			player.do_pickup = false
+		"travel":
+			_abandon_travel()
+		"follow":
+			current_action = "idle"
+			action_timer = 1.0
+		"wander":
+			wander_direction *= -1
+		_:
+			player.direction = 0
 
 
 func _handle_dead(delta: float) -> void:
@@ -750,7 +892,7 @@ func _do_navigate_to_portal() -> void:
 	# Portal sits well above us on an elevated platform (e.g. on top of a
 	# block). The flat-ground jump cap in _navigate_toward would never fire,
 	# so use dedicated climb logic instead.
-	if portal_pos.y - player.global_position.y < -MAX_JUMP_HEIGHT:
+	if portal_pos.y - player.global_position.y < -_max_jump_height:
 		_navigate_up_to_portal(portal_pos)
 		return
 
@@ -783,7 +925,7 @@ func _navigate_up_to_portal(portal_pos: Vector2) -> void:
 	# Approach from whichever side of the portal the bot is already on, so it
 	# never tries to jump straight up into the underside of the platform.
 	var side := -1 if bot_pos.x <= portal_pos.x else 1
-	var launch_x := portal_pos.x + side * PORTAL_LAUNCH_OFFSET
+	var launch_x := portal_pos.x + side * _jump_launch_offset
 	var to_launch := launch_x - bot_pos.x
 
 	# At the launch point: jump and steer toward the portal. Wait in place if
@@ -838,7 +980,7 @@ func _navigate_toward(target_pos: Vector2) -> void:
 
 	# --- Target is above us ---
 	if dy < -10.0:
-		if abs(dy) <= MAX_JUMP_HEIGHT:
+		if abs(dy) <= _max_jump_height:
 			_try_jump()
 			return
 		if _is_near_ledge():
