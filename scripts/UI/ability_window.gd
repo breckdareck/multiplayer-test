@@ -4,10 +4,10 @@ class_name AbilityWindow
 ## References to ability data classes
 const ABILITYDATA = preload("res://scripts/Resources/AbilitySystem/AbilityData.gd")
 const ABILITYLEVELDATA = preload("res://scripts/Resources/AbilitySystem/AbilityLevelData.gd")
-const ABILITYSLOT = preload("res://scenes/UI/ability_slot.tscn")
 
 ## Unique Names from ability_window.tscn
-@onready var ability_list_container: VBoxContainer = %AbilityListContainer
+## The left panel is a branching graph of the player's whole class ability tree.
+@onready var ability_list_container: Control = %AbilityListContainer
 @onready var ability_icon: TextureRect = %AbilityIcon
 @onready var ability_name_label: Label = %AbilityName
 @onready var ability_level_label: Label = %AbilityLevel
@@ -30,10 +30,37 @@ const COLOR_UPGRADE = "#00FF00" # Green for stat increases
 const COLOR_DOWNGRADE = "#FF0000" # Red for stat decreases (e.g., cooldown time)
 const COLOR_BASE = "#B0B0B0" # Gray for base stats
 
+## ── Ability tree graph ────────────────────────────────────────────────────────
+## ability_id -> Button node, for the branching class-ability graph.
+var _node_buttons: Dictionary = {}
+## Cached prerequisite edges as [prereq_ability_id, ability_id] pairs.
+var _connections: Array = []
+
+# Graph layout: the tree flows top-to-bottom — row = prerequisite depth, and
+# nodes within a depth are spread across columns, ordered to reduce edge
+# crossings (by the average position of their prerequisites).
+const GRAPH_MARGIN: float = 16.0
+const COL_W: float = 128.0
+const ROW_H: float = 124.0
+const NODE_SIZE: Vector2 = Vector2(112, 94)
+const ICON_SIZE: Vector2 = Vector2(46, 46)
+const LABEL_FONT_SIZE: int = 9
+
+# Node state colours.
+const COLOR_MAXED: Color = Color(0.42, 0.85, 0.62)
+const COLOR_LEARNED: Color = Color(0.30, 0.78, 0.36)
+const COLOR_AVAILABLE: Color = Color(0.94, 0.78, 0.25)
+const COLOR_LOCKED: Color = Color(0.30, 0.30, 0.34)
+const COLOR_LINE_MET: Color = Color(0.45, 0.78, 0.45, 0.9)
+const COLOR_LINE_UNMET: Color = Color(0.4, 0.4, 0.45, 0.55)
+
 func _ready():
 	# Add to ui_window group for drop detection
 	add_to_group("ui_window")
-	
+
+	# The graph container draws its own prerequisite edges behind the nodes.
+	ability_list_container.draw.connect(_draw_connections)
+
 	if owner is MultiplayerPlayerV2:
 		player = owner as MultiplayerPlayerV2
 		ability_component = player.ability_component
@@ -52,14 +79,11 @@ func _ready():
 		ability_component.ability_points_changed.connect(_on_ability_points_changed)
 		##print("AbilityWindow: Connected to ability component signals")
 	
-	# Load UI
+	# Load UI — load_ability_list() builds the graph and picks a default node.
 	update_skill_points_display()
 	load_ability_list()
-	
-	# Select first ability if any exist
-	if ability_component and not ability_component._ability_levels.is_empty():
-		var first_ability_id = ability_component._ability_levels.keys()[0]
-		select_ability(first_ability_id)
+	if not selected_ability_id.is_empty():
+		select_ability(selected_ability_id)
 	else:
 		clear_details()
 
@@ -105,60 +129,265 @@ func _gui_input(event: InputEvent) -> void:
 			is_dragging = false
 
 
-## Clears the list and generates AbilitySlot nodes for each ability
+## Rebuilds the branching ability-tree graph for the player's whole class.
+## Shows every class ability — learned, learnable and still-locked — laid out
+## by prerequisite depth, with edges connecting prerequisites to dependents.
 func load_ability_list():
 	if not ability_component:
 		return
-		
+
 	for child in ability_list_container.get_children():
 		child.queue_free()
-	
-	# Get all abilities from the ability component
-	for ability_id in ability_component._ability_levels.keys():
-		var ability_data = ResourceManager.get_ability_data(ability_id)
-		if not ability_data:
+	_node_buttons.clear()
+	_connections.clear()
+
+	var abilities := _get_class_abilities()
+	if abilities.is_empty():
+		ability_list_container.custom_minimum_size = Vector2.ZERO
+		ability_list_container.queue_redraw()
+		return
+
+	# ability_id -> AbilityData, so prerequisite lookups stay within the class.
+	var by_id: Dictionary = {}
+	for ability in abilities:
+		if ability:
+			by_id[ability.ability_id] = ability
+
+	# Column of each node = longest prerequisite chain leading to it.
+	var depth_memo: Dictionary = {}
+	for ability in abilities:
+		if ability:
+			_compute_depth(ability, by_id, depth_memo, {})
+
+	# Group abilities into layers by prerequisite depth (layer 0 = no prereqs).
+	var layers: Dictionary = {}
+	var max_depth: int = 0
+	for ability in abilities:
+		if not ability:
 			continue
-			
-		var current_level = ability_component._ability_levels[ability_id]
-		var slot = ABILITYSLOT.instantiate()
-		slot.setup(ability_data, current_level)
-		slot.ability_selected.connect(select_ability)
-		ability_list_container.add_child(slot)
-		
-		# Select first ability if none is selected
-		if selected_ability_id.is_empty():
-			select_ability(ability_id)
+		var depth: int = depth_memo.get(ability.ability_id, 0)
+		if not layers.has(depth):
+			layers[depth] = []
+		(layers[depth] as Array).append(ability)
+		max_depth = maxi(max_depth, depth)
+
+	var max_layer_size: int = 0
+	for d in layers:
+		max_layer_size = maxi(max_layer_size, (layers[d] as Array).size())
+	var total_width: float = float(max_layer_size) * COL_W
+
+	# Place layer by layer, top-down. Within each layer, nodes are sorted by the
+	# average horizontal position of their prerequisites so connecting edges
+	# cross as little as possible; the layer is then centred horizontally.
+	var x_center: Dictionary = {}
+	for d in range(max_depth + 1):
+		if not layers.has(d):
+			continue
+		var layer: Array = layers[d]
+		if d > 0:
+			var bary: Dictionary = {}
+			for n in layer:
+				bary[n.ability_id] = _barycenter(n, by_id, x_center)
+			layer.sort_custom(func(a, b): return bary[a.ability_id] < bary[b.ability_id])
+		var start_x: float = GRAPH_MARGIN + (total_width - float(layer.size()) * COL_W) * 0.5
+		var node_y: float = GRAPH_MARGIN + float(d) * ROW_H
+		for i in range(layer.size()):
+			var ab: AbilityData = layer[i]
+			var node_x: float = start_x + float(i) * COL_W
+			x_center[ab.ability_id] = node_x + NODE_SIZE.x * 0.5
+			_create_ability_node(ab, Vector2(node_x, node_y))
+
+	ability_list_container.custom_minimum_size = Vector2(
+		GRAPH_MARGIN * 2.0 + total_width,
+		GRAPH_MARGIN * 2.0 + float(max_depth) * ROW_H + NODE_SIZE.y
+	)
+
+	for ability in abilities:
+		if not ability:
+			continue
+		for prereq in ability.prerequisite_abilities:
+			if prereq and by_id.has(prereq.ability_id):
+				_connections.append([prereq.ability_id, ability.ability_id])
+
+	# Keep a valid selection; default to the first node.
+	if selected_ability_id.is_empty() or not by_id.has(selected_ability_id):
+		selected_ability_id = abilities[0].ability_id if abilities[0] else ""
+
+	_restyle_all_nodes()
+	ability_list_container.queue_redraw()
 
 
-## Selects an ability, updates the details panel, and highlights the slot
+## All abilities defined for the player's class (learned or not).
+func _get_class_abilities() -> Array[AbilityData]:
+	if is_instance_valid(player) and player.class_component:
+		return player.class_component.get_class_abilities()
+	return []
+
+
+## Longest prerequisite chain depth for an ability, memoised. The visiting set
+## guards against a malformed cyclic prerequisite definition.
+func _compute_depth(ability: AbilityData, by_id: Dictionary, memo: Dictionary, visiting: Dictionary) -> int:
+	var aid: String = ability.ability_id
+	if memo.has(aid):
+		return memo[aid]
+	if visiting.has(aid):
+		return 0
+	visiting[aid] = true
+	var depth: int = 0
+	for prereq in ability.prerequisite_abilities:
+		if prereq and by_id.has(prereq.ability_id):
+			depth = maxi(depth, 1 + _compute_depth(prereq, by_id, memo, visiting))
+	visiting.erase(aid)
+	memo[aid] = depth
+	return depth
+
+
+## Creates a positioned, clickable node for one ability: a large icon above a
+## small wrapped name label, all inside a styled Button.
+func _create_ability_node(ability: AbilityData, pos: Vector2) -> void:
+	var btn := Button.new()
+	btn.custom_minimum_size = NODE_SIZE
+	btn.size = NODE_SIZE
+	btn.position = pos
+	btn.focus_mode = Control.FOCUS_NONE
+	btn.clip_contents = true
+	btn.tooltip_text = ability.ability_name
+
+	# Icon + label stacked vertically; children ignore the mouse so the whole
+	# node registers as a single button click.
+	var vbox := VBoxContainer.new()
+	vbox.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	vbox.add_theme_constant_override("separation", 3)
+
+	var icon_rect := TextureRect.new()
+	icon_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	icon_rect.custom_minimum_size = ICON_SIZE
+	icon_rect.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	if ability.ability_icon:
+		icon_rect.texture = ability.ability_icon
+	vbox.add_child(icon_rect)
+
+	var label := Label.new()
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.text = ability.ability_name
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.add_theme_font_size_override("font_size", LABEL_FONT_SIZE)
+	label.add_theme_color_override("font_color", Color.WHITE)
+	vbox.add_child(label)
+
+	btn.add_child(vbox)
+	btn.pressed.connect(select_ability.bind(ability.ability_id))
+	ability_list_container.add_child(btn)
+	_node_buttons[ability.ability_id] = btn
+
+
+## Average horizontal centre of an ability's already-placed prerequisites.
+## Used to order a layer's nodes so prerequisite edges cross as little as possible.
+func _barycenter(ability: AbilityData, by_id: Dictionary, x_center: Dictionary) -> float:
+	var total: float = 0.0
+	var count: int = 0
+	for prereq in ability.prerequisite_abilities:
+		if prereq and by_id.has(prereq.ability_id) and x_center.has(prereq.ability_id):
+			total += x_center[prereq.ability_id]
+			count += 1
+	return total / float(count) if count > 0 else 0.0
+
+
+## "maxed", "learned", "available" (prereqs met, not yet learned) or "locked".
+func _get_ability_state(ability_id: String) -> String:
+	var level: int = ability_component.get_ability_level(ability_id)
+	var data: AbilityData = ResourceManager.get_ability_data(ability_id)
+	if level >= 1:
+		if data and level >= data.max_level:
+			return "maxed"
+		return "learned"
+	if data:
+		for prereq in data.prerequisite_abilities:
+			var required_level: int = data.prerequisite_abilities[prereq]
+			if prereq and ability_component.get_ability_level(prereq.ability_id) < required_level:
+				return "locked"
+	return "available"
+
+
+## Applies state-coloured styleboxes to one node, highlighting it if selected.
+func _style_ability_node(ability_id: String) -> void:
+	var btn: Button = _node_buttons.get(ability_id)
+	if not is_instance_valid(btn):
+		return
+	var state := _get_ability_state(ability_id)
+	var base: Color
+	match state:
+		"maxed":     base = COLOR_MAXED
+		"learned":   base = COLOR_LEARNED
+		"available": base = COLOR_AVAILABLE
+		_:           base = COLOR_LOCKED
+	var selected: bool = ability_id == selected_ability_id
+	for sb_name in ["normal", "hover", "pressed", "focus", "disabled"]:
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = base.darkened(0.2 if sb_name == "hover" else 0.4)
+		sb.set_corner_radius_all(5)
+		sb.set_border_width_all(3 if selected else 1)
+		sb.border_color = Color.WHITE if selected else base
+		sb.set_content_margin_all(4)
+		btn.add_theme_stylebox_override(sb_name, sb)
+	btn.add_theme_color_override("font_color", Color.WHITE)
+	btn.modulate = Color(1, 1, 1, 1) if state != "locked" else Color(1, 1, 1, 0.7)
+
+
+## Re-applies styling to every node (after a selection or progression change).
+func _restyle_all_nodes() -> void:
+	for ability_id in _node_buttons:
+		_style_ability_node(ability_id)
+	ability_list_container.queue_redraw()
+
+
+## Draw callback for the graph container — draws prerequisite edges behind the
+## nodes as orthogonal (elbow) connectors flowing top-down: down out of the
+## prerequisite, across, then down into the dependent ability.
+func _draw_connections() -> void:
+	for conn in _connections:
+		var from_btn: Button = _node_buttons.get(conn[0])
+		var to_btn: Button = _node_buttons.get(conn[1])
+		if not is_instance_valid(from_btn) or not is_instance_valid(to_btn):
+			continue
+		var p_bottom: Vector2 = from_btn.position + Vector2(from_btn.size.x * 0.5, from_btn.size.y)
+		var c_top: Vector2 = to_btn.position + Vector2(to_btn.size.x * 0.5, 0.0)
+		var mid_y: float = (p_bottom.y + c_top.y) * 0.5
+		var prereq_met: bool = ability_component.get_ability_level(conn[0]) >= 1
+		var col: Color = COLOR_LINE_MET if prereq_met else COLOR_LINE_UNMET
+		var points := PackedVector2Array([
+			p_bottom,
+			Vector2(p_bottom.x, mid_y),
+			Vector2(c_top.x, mid_y),
+			c_top,
+		])
+		ability_list_container.draw_polyline(points, col, 2.0, true)
+
+
+## Selects an ability node, updates the details panel and highlights the node.
 func select_ability(ability_id: String):
 	if not ability_component:
 		return
-		
-	# Deselect previous slot
-	if selected_ability_id:
-		for child in ability_list_container.get_children():
-			if child is AbilitySlot and child.ability_data and child.ability_data.ability_id == selected_ability_id:
-				child.set_selected(false)
-				break
-	
+
 	selected_ability_id = ability_id
-	
+
 	# Get ability data from ResourceManager
 	var selected_data: AbilityData = ResourceManager.get_ability_data(ability_id)
 	if not selected_data:
 		clear_details()
+		_restyle_all_nodes()
 		return
-	
+
 	# Get current level from ability component
 	var current_level: int = ability_component.get_ability_level(ability_id)
-	
-	# Select the new slot
-	for child in ability_list_container.get_children():
-		if child is AbilitySlot and child.ability_data and child.ability_data.ability_id == ability_id:
-			child.set_selected(true)
-			break
-	
+
+	_restyle_all_nodes()
 	update_details(selected_data, current_level)
 
 
@@ -545,38 +774,27 @@ func update_skill_points_display():
 
 ## Signal callback when ability levels up
 func _on_ability_leveled_up(ability_id: String, new_level: int):
-	##print("AbilityWindow: Ability %s leveled up to %d" % [ability_id, new_level])
-	
-	# Update UI
 	update_skill_points_display()
 	load_ability_list()
-	
-	# Re-select if this was the selected ability
-	if selected_ability_id == ability_id:
-		select_ability(ability_id)
+	if not selected_ability_id.is_empty():
+		select_ability(selected_ability_id)
 
 
 ## Signal callback when ability is learned
 func _on_ability_learned(ability_id: String):
-	##print("AbilityWindow: Ability %s learned" % ability_id)
-	
-	# Update UI
+	update_skill_points_display()
 	load_ability_list()
-	
-	# Auto-select if no ability is selected
-	if selected_ability_id.is_empty():
-		select_ability(ability_id)
+	if not selected_ability_id.is_empty():
+		select_ability(selected_ability_id)
 
 
 ## Signal callback when ability points change
 func _on_ability_points_changed(new_total: int):
-	##print("AbilityWindow: Ability points changed to %d" % new_total)
-	
-	# Update skill points display
 	update_skill_points_display()
-	
-	# Refresh the details panel to update button state
-	if selected_ability_id:
+	_restyle_all_nodes()
+
+	# Refresh the details panel to update the level-up button state.
+	if not selected_ability_id.is_empty():
 		var selected_data = ResourceManager.get_ability_data(selected_ability_id)
 		if selected_data:
 			var current_level = ability_component.get_ability_level(selected_ability_id)

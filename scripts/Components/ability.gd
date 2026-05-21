@@ -474,42 +474,6 @@ func _learn_ability_local(ability_id: String, initial_level: int = 0, send_rpc: 
 	return true
 
 
-## Sets an ability to a specific level without consuming ability points.
-## Used by external systems (e.g. the SkillTreeComponent) that grant ability
-## ranks through their own progression and currency. Learns the ability first
-## if it is not yet tracked. Re-applies passive effects and syncs to clients.
-func grant_ability_level(ability_id: String, target_level: int) -> bool:
-	var ability = ResourceManager.get_ability_data(ability_id)
-	if not ability:
-		#printerr("AbilityComponent: grant_ability_level — unknown ability '%s'." % ability_id)
-		return false
-
-	target_level = clampi(target_level, 0, ability.max_level)
-
-	var was_known: bool = _ability_levels.has(ability_id)
-	var old_level: int = _ability_levels.get(ability_id, 0)
-	if was_known and old_level >= target_level:
-		return false
-
-	_ability_levels[ability_id] = target_level
-
-	if ability.ability_type == Constants.AbilityType.PASSIVE:
-		_apply_passive_effects()
-
-	if not was_known:
-		ability_learned.emit(ability_id)
-	if target_level > 0:
-		ability_leveled_up.emit(ability_id, target_level)
-
-	# Sync to clients (bots have no client UI — skip the node-addressed RPC).
-	if multiplayer.is_server() and not BotManager.is_bot(owner.player_id):
-		if not was_known:
-			sync_ability_learned.rpc(ability_id, target_level)
-		sync_ability_level.rpc(ability_id, target_level)
-
-	return true
-
-
 ## Forces the StatsComponent to recalculate stats, applying all passive bonuses.
 func _apply_passive_effects() -> void:
 	if _stats_component and multiplayer.is_server():

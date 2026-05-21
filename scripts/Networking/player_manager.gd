@@ -253,9 +253,6 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 	
 	if player_instance.ability_component:
 		player_instance.ability_component.disconnect_level_signals()
-
-	if player_instance.skill_tree_component:
-		player_instance.skill_tree_component.disconnect_level_signals()
 	
 	if player_instance.level_component:
 		player_instance.level_component._is_loading_data = true
@@ -318,9 +315,6 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 	# Reconnect signals
 	if player_instance.ability_component:
 		player_instance.ability_component.reconnect_level_signals()
-
-	if player_instance.skill_tree_component:
-		player_instance.skill_tree_component.reconnect_level_signals()
 	
 	var _is_bot: bool = BotManager.is_bot(id)
 
@@ -339,10 +333,6 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 		if player_instance.ability_component:
 			await get_tree().process_frame
 			player_instance.ability_component.sync_all_abilities_to_client(id)
-
-		if player_instance.skill_tree_component:
-			await get_tree().process_frame
-			player_instance.skill_tree_component.sync_full_state_to_client(id)
 
 
 	if player_instance.health_component:
