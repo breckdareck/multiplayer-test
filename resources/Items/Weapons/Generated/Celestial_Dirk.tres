@@ -1,14 +1,8 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://upv6mod2etrb"]
 
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_0akek"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_7yn5h"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_pv7p1"]
-
-[sub_resource type="Resource" id="Resource_mnu6w"]
-script = ExtResource("1_0akek")
-stat_type = 12
-base_value = 0
-flat_bonus_value = 80
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_0akek"]
+[ext_resource type="Texture2D" uid="uid://cj4kv8pk70aal" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_7yn5h"]
+[ext_resource type="Script" uid="uid://mysmonmct4jm" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_pv7p1"]
 
 [sub_resource type="Resource" id="Resource_b6sbm"]
 script = ExtResource("1_0akek")
@@ -21,6 +15,12 @@ script = ExtResource("1_0akek")
 stat_type = 10
 base_value = 0
 flat_bonus_value = 12
+
+[sub_resource type="Resource" id="Resource_mnu6w"]
+script = ExtResource("1_0akek")
+stat_type = 12
+base_value = 0
+flat_bonus_value = 80
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_8x00w"]
 atlas = ExtResource("2_7yn5h")
@@ -39,9 +39,7 @@ bonus_stats = Dictionary[int, ExtResource("1_0akek")]({
 })
 item_id = "181215614712-94112-13150-110711-7344143112159415"
 name = "Celestial Dirk"
-rarity = 0
 icon = SubResource("AtlasTexture_8x00w")
 description = "A swift, wickedly sharp blade prized by Rogues."
 item_type = 1
 item_level = 80
-custom_item_value = 0

@@ -1,14 +1,8 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://ch0qgyxdv1l3v"]
 
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_jwtfm"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_lbrn4"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_r1yuf"]
-
-[sub_resource type="Resource" id="Resource_4v3wa"]
-script = ExtResource("1_jwtfm")
-stat_type = 9
-base_value = 0
-flat_bonus_value = 30
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_jwtfm"]
+[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_lbrn4"]
+[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_r1yuf"]
 
 [sub_resource type="Resource" id="Resource_ce02l"]
 script = ExtResource("1_jwtfm")
@@ -27,6 +21,12 @@ script = ExtResource("1_jwtfm")
 stat_type = 7
 base_value = 0
 flat_bonus_value = 15
+
+[sub_resource type="Resource" id="Resource_4v3wa"]
+script = ExtResource("1_jwtfm")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 30
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_awmmj"]
 atlas = ExtResource("2_lbrn4")
@@ -48,4 +48,3 @@ icon = SubResource("AtlasTexture_awmmj")
 description = "A silver circlet that sharpens every arcane thought."
 item_type = 1
 item_level = 40
-custom_item_value = 0

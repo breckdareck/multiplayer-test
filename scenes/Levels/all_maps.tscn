@@ -1,13 +1,17 @@
-[gd_scene load_steps=4 format=3 uid="uid://c2qbe7c6nwhri"]
+[gd_scene load_steps=5 format=3 uid="uid://diocki1xcv3kc"]
 
 [ext_resource type="PackedScene" uid="uid://d1hwvomjwdrjv" path="res://scenes/Levels/game.tscn" id="1_as7dj"]
 [ext_resource type="PackedScene" uid="uid://ftib17laf2kk" path="res://scenes/Levels/game2.tscn" id="2_v0s4u"]
 [ext_resource type="PackedScene" uid="uid://wkfowd2qg5dn" path="res://scenes/Levels/game3.tscn" id="3_ejh3b"]
+[ext_resource type="PackedScene" uid="uid://ykvov1wfh1gv" path="res://scenes/Levels/town.tscn" id="4_ejh3b"]
 
 [node name="All_Maps" type="Node"]
 
 [node name="Game" parent="." instance=ExtResource("1_as7dj")]
+position = Vector2(-121, 25)
 
 [node name="Game2" parent="." instance=ExtResource("2_v0s4u")]
 
 [node name="Game3" parent="." instance=ExtResource("3_ejh3b")]
+
+[node name="Town" parent="." instance=ExtResource("4_ejh3b")]

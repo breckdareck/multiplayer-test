@@ -1,17 +1,17 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=7 format=3]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=7 format=3 uid="uid://b278ittmmq28g"]
 
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_2v5he"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_ld160"]
-
-[sub_resource type="Resource" id="Resource_4icmw"]
-script = ExtResource("1_2v5he")
-stat_type = 8
-base_value = 0
-flat_bonus_value = 22
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_2v5he"]
+[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_ld160"]
 
 [sub_resource type="Resource" id="Resource_oknfc"]
 script = ExtResource("1_2v5he")
 stat_type = 2
+base_value = 0
+flat_bonus_value = 22
+
+[sub_resource type="Resource" id="Resource_4icmw"]
+script = ExtResource("1_2v5he")
+stat_type = 8
 base_value = 0
 flat_bonus_value = 22
 
@@ -39,4 +39,3 @@ icon = SubResource("CompressedTexture2D_jpo30")
 description = "Boots that carry an Archer as swift as a stooping falcon."
 item_type = 1
 item_level = 45
-custom_item_value = 0

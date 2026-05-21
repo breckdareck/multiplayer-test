@@ -1,14 +1,13 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://cdbfeulqxteog"]
 
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_k8o1f"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_8hqg8"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_41pyc"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_k8o1f"]
+[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_8hqg8"]
+[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_41pyc"]
 
-[sub_resource type="Resource" id="Resource_y125i"]
+[sub_resource type="Resource" id="Resource_so23s"]
 script = ExtResource("1_k8o1f")
-stat_type = 8
 base_value = 0
-flat_bonus_value = 35
+flat_bonus_value = 15
 
 [sub_resource type="Resource" id="Resource_gjptf"]
 script = ExtResource("1_k8o1f")
@@ -16,16 +15,17 @@ stat_type = 4
 base_value = 0
 flat_bonus_value = 300
 
-[sub_resource type="Resource" id="Resource_so23s"]
-script = ExtResource("1_k8o1f")
-base_value = 0
-flat_bonus_value = 15
-
 [sub_resource type="Resource" id="Resource_ihx0k"]
 script = ExtResource("1_k8o1f")
 stat_type = 6
 base_value = 0
 flat_bonus_value = 12
+
+[sub_resource type="Resource" id="Resource_y125i"]
+script = ExtResource("1_k8o1f")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 35
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_r6iqb"]
 atlas = ExtResource("2_8hqg8")
@@ -47,4 +47,3 @@ icon = SubResource("AtlasTexture_r6iqb")
 description = "A battered helm that has never once been split."
 item_type = 1
 item_level = 40
-custom_item_value = 0
