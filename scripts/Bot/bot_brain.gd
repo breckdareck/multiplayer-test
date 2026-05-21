@@ -55,6 +55,8 @@ const POTION_STOCK_TARGET: int = 20
 const POTION_RESTOCK_THRESHOLD: int = 0
 const TOWN_MAP_ID: String = "town"
 var _needs_restock: bool = false
+## Set when the bag is full and no merchant is on this map — routes to town to sell.
+var _needs_sell: bool = false
 ## Potion buy prices learned at a merchant (effect_key -> price). Lets the
 ## affordability gate use the real price on maps with no merchant to query.
 var _merchant_pot_cache: Dictionary = {}
@@ -85,6 +87,10 @@ const PARTY_SEEK_RANGE: float = 300.0
 
 const MAX_JUMP_HEIGHT: float = 40.0
 const JUMP_COOLDOWN: float = 0.8
+# Horizontal stand-off used when jumping up to a portal on an elevated platform.
+# Roughly the bot's horizontal travel during a jump's rise (move_speed * time-to-apex),
+# so the jump arc carries the bot from the launch point onto the portal.
+const PORTAL_LAUNCH_OFFSET: float = 40.0
 var _jump_cooldown_timer: float = 0.0
 
 var _wall_stuck_timer: float = 0.0
@@ -226,12 +232,12 @@ func _think() -> void:
 			current_action = "retreat"
 			return
 
-	# Restock potions before considering the leader: head to town when out and
-	# no merchant is on this map. Routes hop-by-hop (town may not be directly
-	# portal-connected). Members run this on their own. The affordability gate
-	# in _do_shop_maintenance keeps a broke bot from looping here instead of
-	# fighting and earning the gold it needs.
-	if _needs_restock:
+	# Visit town before considering the leader: head there when out of potions,
+	# or when the bag is full and there's no merchant here to sell to. Routes
+	# hop-by-hop (town may not be directly portal-connected). Members run this
+	# on their own. The affordability gate in _do_shop_maintenance keeps a broke
+	# bot from looping here instead of fighting and earning the gold it needs.
+	if _needs_restock or _needs_sell:
 		var my_map := MapManager.get_player_map(bot_id)
 		if my_map != TOWN_MAP_ID:
 			var hop := MapManager.get_next_map_toward(my_map, TOWN_MAP_ID)
@@ -739,8 +745,65 @@ func _do_navigate_to_portal() -> void:
 		_map_stay_timer = MAP_MIN_STAY_TIME
 		return
 
+	var portal_pos: Vector2 = target_portal.global_position
+
+	# Portal sits well above us on an elevated platform (e.g. on top of a
+	# block). The flat-ground jump cap in _navigate_toward would never fire,
+	# so use dedicated climb logic instead.
+	if portal_pos.y - player.global_position.y < -MAX_JUMP_HEIGHT:
+		_navigate_up_to_portal(portal_pos)
+		return
+
 	# Keep walking toward the portal until body_entered fires
-	_navigate_toward(target_portal.global_position)
+	_navigate_toward(portal_pos)
+
+
+## Climbs the bot up to a portal that sits above its current floor. Walks to a
+## horizontal launch point offset from the portal, then jumps so the rising arc
+## carries the bot onto (or into) the portal's Area2D.
+func _navigate_up_to_portal(portal_pos: Vector2) -> void:
+	var bot_pos := player.global_position
+
+	# Steer toward the portal itself while airborne or mounting a wall.
+	var portal_dir := 1 if portal_pos.x > bot_pos.x else -1
+
+	if not player.is_on_floor():
+		player.direction = portal_dir
+		player.facing_direction = portal_dir
+		return
+
+	# Blocked by the platform's side — jump to mount it.
+	if player.is_on_wall():
+		player.direction = portal_dir
+		player.facing_direction = portal_dir
+		if _wall_stuck_timer >= WALL_STUCK_JUMP_TIME:
+			_try_jump()
+		return
+
+	# Approach from whichever side of the portal the bot is already on, so it
+	# never tries to jump straight up into the underside of the platform.
+	var side := -1 if bot_pos.x <= portal_pos.x else 1
+	var launch_x := portal_pos.x + side * PORTAL_LAUNCH_OFFSET
+	var to_launch := launch_x - bot_pos.x
+
+	# At the launch point: jump and steer toward the portal. Wait in place if
+	# the jump is still on cooldown rather than drifting off the mark.
+	if absf(to_launch) <= 4.0:
+		if _jump_cooldown_timer <= 0.0:
+			player.direction = portal_dir
+			player.facing_direction = portal_dir
+			_try_jump()
+		else:
+			player.direction = 0
+		return
+
+	# Walk toward the launch point, stopping short of any unsafe ledge.
+	var dir := 1 if to_launch > 0 else -1
+	player.direction = dir
+	player.facing_direction = dir
+	if _is_near_ledge() and not _has_ground_across_gap(dir):
+		if not _raycast_down(bot_pos + Vector2(dir * 18.0, 0), 200.0):
+			player.direction = 0
 
 
 ## Navigates the bot toward a target position, handling platform traversal.
@@ -1009,6 +1072,9 @@ func _do_shop_maintenance() -> void:
 	_sell_unwanted_items(merchant)
 	_buy_potions(merchant)
 
+	# Bag full with no merchant here — route to town to offload gear.
+	_needs_sell = merchant == null and _inventory_is_full()
+
 	var health_count := _count_consumable("heal_amount")
 	var mana_count := _count_consumable("regain_amount")
 	var needs_health_pots := health_count <= POTION_RESTOCK_THRESHOLD
@@ -1037,6 +1103,10 @@ func _find_merchant_inventory() -> MerchantInventory:
 const SELL_FULLNESS_THRESHOLD: float = 0.85
 
 func _sell_unwanted_items(merchant: MerchantInventory) -> void:
+	# Selling requires a merchant — a bot never offloads gear out in the field.
+	if not merchant:
+		return
+
 	var tab_counts := _count_slots_by_tab()
 	var equip_full = tab_counts.equip_used >= int(tab_counts.equip_total * SELL_FULLNESS_THRESHOLD)
 	var material_full = tab_counts.material_used >= int(tab_counts.material_total * SELL_FULLNESS_THRESHOLD)
@@ -1098,11 +1168,7 @@ func _sell_unwanted_items(merchant: MerchantInventory) -> void:
 				items_to_sell.append(slot.item)
 
 	for item in items_to_sell:
-		var sell_price: int
-		if merchant:
-			sell_price = merchant.get_sell_price(item.item_id)
-		else:
-			sell_price = maxi(1, roundi(item.base_value * 0.5))
+		var sell_price: int = merchant.get_sell_price(item.item_id)
 		player.player_inventory.monies_amount += sell_price
 		player.inventory_component.remove_item(item, "sold")
 
@@ -1137,6 +1203,15 @@ func _count_slots_by_tab() -> Dictionary:
 						result.material_used += 1
 				result.equip_total += 1
 	return result
+
+
+## True when the equipment or material tab has crossed the sell threshold —
+## the same fullness gate _sell_unwanted_items uses to decide it's time to sell.
+func _inventory_is_full() -> bool:
+	var tab_counts := _count_slots_by_tab()
+	var equip_full: bool = tab_counts.equip_used >= int(tab_counts.equip_total * SELL_FULLNESS_THRESHOLD)
+	var material_full: bool = tab_counts.material_used >= int(tab_counts.material_total * SELL_FULLNESS_THRESHOLD)
+	return equip_full or material_full
 
 
 func _buy_potions(merchant: MerchantInventory) -> void:
