@@ -21,6 +21,13 @@ var wander_chance: float = 0.6
 var aggro_range: float = 200.0
 var attack_range: float = 25.0
 var retreat_health_pct: float = 0.2
+## When retreating, the bot flees to safety and waits until HP regenerates to
+## this fraction before re-engaging — hysteresis well above retreat_health_pct
+## so it doesn't yo-yo straight back into a fight at 1 HP over the threshold.
+const RECOVER_TARGET_PCT: float = 0.7
+## A retreating bot considers itself safe once no enemy is within this distance.
+const SAFE_DISTANCE: float = 260.0
+var _recovering: bool = false
 var loot_range: float = 80.0
 var loot_priority_range: float = 50.0
 ## Periodic loot sweep: when this elapses the bot collects every reachable
@@ -228,6 +235,7 @@ func attach_to_player(player_node: MultiplayerPlayerV2) -> void:
 	target_portal = null
 	_combat_timer = 0.0
 	_combat_last_enemy_hp = -1
+	_recovering = false
 	_blacklisted_enemies.clear()
 	_cached_map_node = null
 	_cached_map_id = ""
@@ -420,10 +428,19 @@ func _think() -> void:
 	else:
 		target_loot = null
 
-	if _should_retreat():
-		if target_enemy:
+	# Survival: when critically low on HP, retreat to safety and regenerate.
+	# Stay in recovery until HP is comfortably back up — without this hysteresis
+	# the bot pops out of retreat 1 HP over the threshold and dives back in.
+	if _recovering:
+		if _health_fraction() >= RECOVER_TARGET_PCT:
+			_recovering = false
+		else:
 			current_action = "retreat"
 			return
+	elif _should_retreat():
+		_recovering = true
+		current_action = "retreat"
+		return
 
 	# Visit town before considering the leader: head there when out of potions,
 	# or when the bag is full and there's no merchant here to sell to. Routes
@@ -533,10 +550,17 @@ func _think() -> void:
 
 
 func _should_retreat() -> bool:
+	return _health_fraction() < retreat_health_pct
+
+
+## Current HP as a 0..1 fraction (1.0 when there is no health component).
+func _health_fraction() -> float:
 	if not is_instance_valid(player.health_component):
-		return false
-	var health_pct := float(player.health_component.current_health) / float(player.health_component.max_health)
-	return health_pct < retreat_health_pct
+		return 1.0
+	var max_hp: int = player.health_component.max_health
+	if max_hp <= 0:
+		return 1.0
+	return float(player.health_component.current_health) / float(max_hp)
 
 
 ## Returns the bot's current map node, resolving it through MapManager only
@@ -762,31 +786,53 @@ func _disengage() -> void:
 	action_timer = 2.0
 
 
+## Retreats from danger and waits to regenerate. Moves away from the nearest
+## threat; once no enemy is within SAFE_DISTANCE it holds still and lets HP (and
+## any potion _try_use_consumable can drink) bring it back up. The think loop
+## keeps the bot in this action until _recovering clears.
 func _do_retreat() -> void:
-	if not is_instance_valid(target_enemy):
-		current_action = "idle"
+	var threat := _nearest_enemy(SAFE_DISTANCE)
+	if not is_instance_valid(threat):
+		# Clear of every enemy — stand still and recover.
+		player.direction = 0
 		return
 
-	var to_enemy := target_enemy.global_position - player.global_position
-	var dir := -1 if to_enemy.x > 0 else 1
+	var to_threat := threat.global_position - player.global_position
+	var dir := -1 if to_threat.x > 0 else 1
 	player.direction = dir
 	player.facing_direction = dir
 
 	if player.is_on_floor():
-		# Jump over walls when fleeing
+		# Jump over walls when fleeing.
 		if player.is_on_wall():
 			if _wall_stuck_timer >= WALL_STUCK_JUMP_TIME:
 				_try_jump()
 		elif _is_near_ledge():
-			# Check if there's ground to land on in the escape direction
-			if _raycast_down(player.global_position + Vector2(dir * 18.0, 0), 200.0):
-				pass  # safe to walk off
-			else:
-				# Cornered at edge — jump up to escape
+			# Drop to lower ground if there is any; otherwise jump out of the corner.
+			if not _raycast_down(player.global_position + Vector2(dir * 18.0, 0), 200.0):
 				_try_jump()
 
-	if not _should_retreat() or abs(to_enemy.x) > aggro_range:
-		_disengage()
+
+## Nearest live enemy on the bot's map within max_dist, or null. Unlike
+## _find_best_enemy this is used for retreat safety checks, not target picking.
+func _nearest_enemy(max_dist: float) -> EnemyBase:
+	var map_node := _get_map_node()
+	if not is_instance_valid(map_node):
+		return null
+	var best: EnemyBase = null
+	var best_sq := max_dist * max_dist
+	for node in get_tree().get_nodes_in_group("Enemies"):
+		if node is not EnemyBase or not is_instance_valid(node):
+			continue
+		if not map_node.is_ancestor_of(node):
+			continue
+		if node.health_component and node.health_component.is_dead:
+			continue
+		var d := player.global_position.distance_squared_to(node.global_position)
+		if d < best_sq:
+			best_sq = d
+			best = node
+	return best
 
 
 func _do_loot() -> void:
