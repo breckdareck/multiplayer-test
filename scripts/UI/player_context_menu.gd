@@ -140,34 +140,12 @@ func _do_inspect() -> void:
 
 
 func _do_trade() -> void:
-	_open_trade_window(_target_id)
-
-
-func _open_trade_window(target_id: int) -> void:
-	var moveable := _find_moveable_container()
-	if not moveable:
+	if _target_id == 0:
 		return
-
-	var existing: TradeWindow = null
-	for child in moveable.get_children():
-		if child is TradeWindow:
-			existing = child
-			break
-
-	if not existing:
-		existing = TradeWindow.create()
-		moveable.add_child(existing)
-
-	existing.show_for_target(target_id)
-
-
-func _find_moveable_container() -> Node:
-	var player_node := PlayerManager.get_player_node(multiplayer.get_unique_id())
-	if is_instance_valid(player_node):
-		var container = player_node.get_node_or_null("CanvasLayer/MoveableWindows")
-		if container:
-			return container
-	return null
+	# Bots: instant give/take window opens once the server confirms range.
+	# Players: a trade request is sent; the partner must accept before a
+	# session (and its window) opens. The server enforces proximity for both.
+	TradeManager.rpc_request_trade_with_id.rpc_id(1, _target_id)
 
 
 func _do_party_invite() -> void:

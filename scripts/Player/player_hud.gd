@@ -13,6 +13,11 @@ var chat_window_scene = preload("res://scenes/UI/ChatWindow.tscn")
 var death_popup_instance: DeathPopup
 var ping_display_script = preload("res://scripts/UI/ping_display.gd")
 
+## Player-to-player trade UI. The window is created lazily when a trade session
+## opens; the request popup is created per incoming request.
+var _trade_window: TradeWindow = null
+var _trade_request_popup: TradeRequestPopup = null
+
 @onready var health_bar: TextureProgressBar = $BottomStatsContainer/HealthBar
 @onready var hp_value_label: Label = $BottomStatsContainer/HealthBar/HPValueLabel
 
@@ -43,6 +48,10 @@ func _ready() -> void:
 	
 	# Connect to PartyManager invite signal
 	PartyManager.party_invite_received.connect(_on_party_invite_received)
+
+	# Connect to TradeManager signals for player-to-player trading
+	TradeManager.trade_request_received.connect(_on_trade_request_received)
+	TradeManager.trade_session_opened.connect(_on_trade_session_opened)
 
 	# Setup Scrolling Log
 	var scrolling_log_instance = scrolling_log_scene.instantiate()
@@ -89,6 +98,29 @@ func _on_party_invite_received(inviter_id: int, inviter_username: String, party_
 	add_child(invite_popup)
 	invite_popup.set_invite_data(inviter_id, inviter_username, party_id)
 	invite_popup.show()
+
+
+## An incoming trade request — show an accept/decline popup.
+func _on_trade_request_received(_requester_id: int, requester_name: String) -> void:
+	if is_instance_valid(_trade_request_popup):
+		_trade_request_popup.queue_free()
+	_trade_request_popup = TradeRequestPopup.create(requester_name)
+	if moveable_windows_container:
+		moveable_windows_container.add_child(_trade_request_popup)
+	else:
+		add_child(_trade_request_popup)
+	_trade_request_popup.present()
+
+
+## A trade session has been established — open the dual-offer trade window.
+func _on_trade_session_opened(partner_id: int, partner_name: String) -> void:
+	if not is_instance_valid(_trade_window):
+		_trade_window = TradeWindow.create_player_window()
+		if moveable_windows_container:
+			moveable_windows_container.add_child(_trade_window)
+		else:
+			add_child(_trade_window)
+	_trade_window.open_session(partner_id, partner_name)
 
 func _input(event: InputEvent) -> void:
 	if player.player_id != multiplayer.get_unique_id():
