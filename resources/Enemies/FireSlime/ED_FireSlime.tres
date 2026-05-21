@@ -1,35 +1,37 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://bdp6un27d174w"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=13 format=3 uid="uid://bdp6un27d174w"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
 [ext_resource type="SpriteFrames" uid="uid://b2ohgim61o1bm" path="res://resources/Enemies/Slime/SF_Slime.tres" id="3_sf"]
-[ext_resource type="Resource" path="res://resources/DropTables/Short_Sword.tres" id="4_ss"]
-[ext_resource type="Resource" uid="uid://e88f354c6hrj" path="res://resources/DropTables/Iron_Sword.tres" id="5_is"]
-[ext_resource type="Resource" path="res://resources/DropTables/Oak_Staff.tres" id="6_os"]
-[ext_resource type="Resource" path="res://resources/DropTables/Crystal_Staff.tres" id="7_cs"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Dragonbone_Longsword.tres" id="d_1"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Dragonbone_Spellstaff.tres" id="d_2"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Dragonbone_Vanguard_Mail.tres" id="d_3"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Dragonbone_Arcanist_Mail.tres" id="d_4"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Dragonbone_Arcanist_Helm.tres" id="d_5"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Dragonbone_Vanguard_Helm.tres" id="d_6"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_atk"]
+[sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_col"]
+[sub_resource type="CircleShape2D" id="Shape_col"]
 radius = 8.062258
 
 [sub_resource type="Resource" id="Resource_coin"]
 script = ExtResource("1_drop")
 item_name = "Coin"
 drop_chance = 0.9
-min_amount = 18
-max_amount = 28
+min_amount = 10
+max_amount = 16
 metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 
 [resource]
 script = ExtResource("2_ed")
 monster_name = "Fire Slime"
 monster_level = 70
-movement_speed = 55.0
+movement_speed = 55
 sprite_frames = ExtResource("3_sf")
-character_collision_shape = SubResource("CircleShape2D_col")
-body_hitbox_shape = SubResource("CircleShape2D_col")
-attack_hitbox_shape = SubResource("RectangleShape2D_atk")
-item_drops = Array[ExtResource("1_drop")]([SubResource("Resource_coin"), ExtResource("4_ss"), ExtResource("5_is"), ExtResource("6_os"), ExtResource("7_cs")])
+character_collision_shape = SubResource("Shape_col")
+body_hitbox_shape = SubResource("Shape_col")
+attack_hitbox_shape = SubResource("Shape_atk")
+item_drops = Array[ExtResource("1_drop")]([SubResource("Resource_coin"), ExtResource("d_1"), ExtResource("d_2"), ExtResource("d_3"), ExtResource("d_4"), ExtResource("d_5"), ExtResource("d_6")])
 metadata/_custom_type_script = "uid://dv7aj5x3e50cg"

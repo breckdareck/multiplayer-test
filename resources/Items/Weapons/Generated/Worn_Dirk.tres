@@ -1,14 +1,8 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://cujpj8tdeelqw"]
 
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_njx7r"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_a6nfo"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_uy4cl"]
-
-[sub_resource type="Resource" id="Resource_g7fkk"]
-script = ExtResource("1_njx7r")
-stat_type = 12
-base_value = 0
-flat_bonus_value = 5
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_njx7r"]
+[ext_resource type="Texture2D" uid="uid://cj4kv8pk70aal" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_a6nfo"]
+[ext_resource type="Script" uid="uid://mysmonmct4jm" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_uy4cl"]
 
 [sub_resource type="Resource" id="Resource_gmy5d"]
 script = ExtResource("1_njx7r")
@@ -21,6 +15,12 @@ script = ExtResource("1_njx7r")
 stat_type = 10
 base_value = 0
 flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_g7fkk"]
+script = ExtResource("1_njx7r")
+stat_type = 12
+base_value = 0
+flat_bonus_value = 5
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_lvcvo"]
 atlas = ExtResource("2_a6nfo")
@@ -39,9 +39,7 @@ bonus_stats = Dictionary[int, ExtResource("1_njx7r")]({
 })
 item_id = "81051413762-413143-109123-1081412-707314671590120"
 name = "Worn Dirk"
-rarity = 0
 icon = SubResource("AtlasTexture_lvcvo")
 description = "A swift, wickedly sharp blade prized by Rogues."
 item_type = 1
 item_level = 1
-custom_item_value = 0

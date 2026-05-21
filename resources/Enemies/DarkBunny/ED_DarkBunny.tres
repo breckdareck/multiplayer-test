@@ -1,21 +1,23 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=12 format=3 uid="uid://dqq6qlj4obqbs"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=14 format=3 uid="uid://dqq6qlj4obqbs"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
 [ext_resource type="SpriteFrames" uid="uid://bujet2eddxc5l" path="res://resources/Enemies/Bunny/SF_Bunny.tres" id="3_sf"]
-[ext_resource type="Resource" path="res://resources/DropTables/Bronze_Dagger.tres" id="4_bd"]
-[ext_resource type="Resource" path="res://resources/DropTables/Leather_Cap.tres" id="5_lc"]
-[ext_resource type="Resource" path="res://resources/DropTables/Apprentice_Staff.tres" id="6_as"]
-[ext_resource type="Resource" uid="uid://8kef633j5jd1" path="res://resources/DropTables/Mystic_Cap.tres" id="7_mc"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Adamant_Longsword.tres" id="d_1"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Adamant_Dirk.tres" id="d_2"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Adamant_Vanguard_Mail.tres" id="d_3"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Adamant_Nightshade_Mail.tres" id="d_4"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Adamant_Pathfinder_Helm.tres" id="d_5"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Adamant_Arcanist_Helm.tres" id="d_6"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_atk"]
+[sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)
 
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_body"]
+[sub_resource type="CapsuleShape2D" id="Shape_body"]
 radius = 6.0
 height = 18.0
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_col"]
+[sub_resource type="CircleShape2D" id="Shape_col"]
 radius = 5.0
 
 [sub_resource type="Resource" id="Resource_coin"]
@@ -30,10 +32,10 @@ metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 script = ExtResource("2_ed")
 monster_name = "Dark Bunny"
 monster_level = 50
-movement_speed = 45.0
+movement_speed = 45
 sprite_frames = ExtResource("3_sf")
-character_collision_shape = SubResource("CircleShape2D_col")
-body_hitbox_shape = SubResource("CapsuleShape2D_body")
-attack_hitbox_shape = SubResource("RectangleShape2D_atk")
-item_drops = Array[ExtResource("1_drop")]([SubResource("Resource_coin"), ExtResource("4_bd"), ExtResource("5_lc"), ExtResource("6_as"), ExtResource("7_mc")])
+character_collision_shape = SubResource("Shape_col")
+body_hitbox_shape = SubResource("Shape_body")
+attack_hitbox_shape = SubResource("Shape_atk")
+item_drops = Array[ExtResource("1_drop")]([SubResource("Resource_coin"), ExtResource("d_1"), ExtResource("d_2"), ExtResource("d_3"), ExtResource("d_4"), ExtResource("d_5"), ExtResource("d_6")])
 metadata/_custom_type_script = "uid://dv7aj5x3e50cg"
