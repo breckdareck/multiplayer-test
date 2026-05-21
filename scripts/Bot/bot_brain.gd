@@ -54,9 +54,12 @@ const RETARGET_FACTOR: float = 0.36
 ## beyond it the bot holds and attacks. Kept tight so the bot actually fights
 ## instead of fleeing.
 const KITE_DANGER_RANGE: float = 60.0
-## Effective reach assumed for a projectile attack ability — projectiles have
-## no fixed hitbox to measure.
-const RANGED_ABILITY_REACH: float = 220.0
+## Projectile lifetime in seconds — mirrors the despawn timer in projectile.gd.
+## A projectile's real reach is projectile_speed * this.
+const PROJECTILE_LIFETIME: float = 1.0
+## Fraction of a projectile's max travel the bot will actually fire at, so the
+## shot connects instead of expiring just short of the target.
+const PROJECTILE_RANGE_MARGIN: float = 0.85
 ## Enemies within this radius of the target count as a cluster, biasing the
 ## bot's ability choice toward AoE skills.
 const AOE_CLUSTER_RADIUS: float = 72.0
@@ -1808,10 +1811,11 @@ func _get_ability_range(ability_id: String) -> float:
 		return attack_range
 
 	var behavior: ActiveBehaviorData = ability_data.active_behavior
-	# A projectile travels far beyond any measurable hitbox — treat it as the
-	# bot's long-range option.
+	# A projectile homes to its target and is freed after PROJECTILE_LIFETIME
+	# (see projectile.gd), so its real reach is speed * lifetime. The margin
+	# keeps the bot from firing a shot that expires just short of the target.
 	if behavior.is_projectile:
-		return RANGED_ABILITY_REACH
+		return behavior.projectile_speed * PROJECTILE_LIFETIME * PROJECTILE_RANGE_MARGIN
 	var hitbox_x := absf(behavior.hit_box_position_data.x)
 	if behavior.hit_box_shape_data is RectangleShape2D:
 		hitbox_x += behavior.hit_box_shape_data.size.x * 0.5
