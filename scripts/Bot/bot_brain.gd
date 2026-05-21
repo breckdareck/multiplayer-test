@@ -33,11 +33,13 @@ var _blacklisted_enemies: Array[EnemyBase] = []
 var _blacklist_clear_timer: float = 0.0
 const COMBAT_DISENGAGE_TIME: float = 6.0
 const BLACKLIST_DURATION: float = 15.0
-## A bot whose effective attack reach exceeds this is treated as ranged and
-## will kite — hold distance and back away rather than charge into melee.
-const KITE_MIN_RANGE: float = 60.0
-## A ranged bot backs away once an enemy is within this fraction of its reach.
-const KITE_INNER_FRAC: float = 0.55
+## A ranged bot gives ground only when an enemy closes inside this distance;
+## beyond it the bot holds and attacks. Kept tight so the bot actually fights
+## instead of fleeing.
+const KITE_DANGER_RANGE: float = 60.0
+## Effective reach assumed for a projectile attack ability — projectiles have
+## no fixed hitbox to measure.
+const RANGED_ABILITY_REACH: float = 220.0
 
 var _respawn_timer: float = -1.0
 const RESPAWN_DELAY: float = 3.0
@@ -50,9 +52,11 @@ const ABILITY_CHECK_INTERVAL: float = 5.0
 var _buff_abilities: Array[String] = []
 var _attack_abilities: Array[String] = []
 var _attack_ability_index: int = 0
-## Effective attack reach (longest attack-ability range, or melee attack_range).
-## Recomputed in _build_ability_lists; drives kiting decisions in _do_fight.
-var _combat_range: float = 25.0
+# Combat profile, refreshed in _build_ability_lists. A bot kites only when it
+# is a ranged class AND actually has a projectile attack ability.
+var _combat_range: float = 25.0       ## Longest attack reach (abilities or melee).
+var _is_ranged_class: bool = false
+var _has_ranged_ability: bool = false
 
 var _consumable_check_timer: float = 0.0
 const CONSUMABLE_CHECK_INTERVAL: float = 1.0
@@ -673,12 +677,15 @@ func _do_fight() -> void:
 
 	player.facing_direction = dir
 
-	var is_ranged := _combat_range > KITE_MIN_RANGE
+	# A bot kites only if it is a ranged class wielding an actual projectile
+	# ability — Rogues and other melee classes always close in and fight.
+	var is_ranged := _is_ranged_class and _has_ranged_ability
 
-	# Ranged bot with an enemy in its face — back off to re-open distance,
-	# still firing whatever ability can reach on the way out.
-	if is_ranged and dx < _combat_range * KITE_INNER_FRAC:
-		_try_use_attack_ability(dx)
+	# Enemy inside melee-threat range — give ground, but keep attacking so the
+	# bot is fighting on the way out, not just fleeing.
+	if is_ranged and dx < KITE_DANGER_RANGE:
+		if not _try_use_attack_ability(dx) and dx <= attack_range:
+			player.do_attack = true
 		_kite_away(dir)
 		return
 
@@ -1257,10 +1264,25 @@ func _build_ability_lists() -> void:
 		else:
 			_attack_abilities.append(ability_id)
 
-	# Cache effective attack reach for the kiting logic in _do_fight.
+	_refresh_combat_profile()
+
+
+## Recomputes the kiting inputs after the ability list (or class) changes.
+func _refresh_combat_profile() -> void:
 	_combat_range = attack_range
+	_has_ranged_ability = false
 	for ability_id in _attack_abilities:
 		_combat_range = maxf(_combat_range, _get_ability_range(ability_id))
+		var adata: AbilityData = ResourceManager.get_ability_data(ability_id)
+		if adata and adata.active_behavior and adata.active_behavior.is_projectile:
+			_has_ranged_ability = true
+
+	_is_ranged_class = false
+	if is_instance_valid(player) and is_instance_valid(player.class_component):
+		match player.class_component.current_class:
+			Constants.ClassType.ARCHER, Constants.ClassType.MAGE, \
+			Constants.ClassType.RANGER, Constants.ClassType.ARCHMAGE:
+				_is_ranged_class = true
 
 
 func _auto_spend_ability_points(ability_comp: AbilityComponent) -> void:
@@ -1643,6 +1665,10 @@ func _get_ability_range(ability_id: String) -> float:
 		return attack_range
 
 	var behavior: ActiveBehaviorData = ability_data.active_behavior
+	# A projectile travels far beyond any measurable hitbox — treat it as the
+	# bot's long-range option.
+	if behavior.is_projectile:
+		return RANGED_ABILITY_REACH
 	var hitbox_x := absf(behavior.hit_box_position_data.x)
 	if behavior.hit_box_shape_data is RectangleShape2D:
 		hitbox_x += behavior.hit_box_shape_data.size.x * 0.5
