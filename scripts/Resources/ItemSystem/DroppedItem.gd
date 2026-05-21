@@ -33,6 +33,8 @@ var ground_timer: float = 0.0
 var is_pickup_ready: bool = false
 var pulse_tween: Tween
 var is_despawn_warning: bool = false
+## Throttles the "inventory full" notice so it isn't sent every physics frame.
+var _full_bag_notice_cooldown: float = 0.0
 
 
 func _ready() -> void:
@@ -76,7 +78,9 @@ func _physics_process(delta: float) -> void:
 		return
 	
 	state_timer += delta
-	
+	if _full_bag_notice_cooldown > 0.0:
+		_full_bag_notice_cooldown -= delta
+
 	match current_state:
 		ItemState.POPPING:
 			_handle_popping(delta)
@@ -150,9 +154,33 @@ func _find_player_trying_to_pickup() -> MultiplayerPlayerV2:
 			continue
 		var distance = global_position.distance_to(player_node.global_position)
 		if distance <= pickup_distance and _is_player_trying_to_pickup(player_node):
+			# Don't hand the item over — and don't destroy it — if there's
+			# nowhere to put it. Tell the player their bag is full instead.
+			if not _player_has_room_for_item(player_node):
+				_notify_bag_full(player_node)
+				continue
 			return player_node
 
 	return null
+
+
+func _player_has_room_for_item(player: MultiplayerPlayerV2) -> bool:
+	"""Whether the player's inventory can actually hold this item."""
+	# Coins are tracked as a currency total, not an inventory slot.
+	if item_data and item_data.name == "Coin":
+		return true
+	if not is_instance_valid(player) or not player.player_inventory:
+		return false
+	return player.player_inventory.can_accept_item(item_data)
+
+
+func _notify_bag_full(player: MultiplayerPlayerV2) -> void:
+	"""Throttled feedback when a player tries to pick up with a full bag."""
+	if _full_bag_notice_cooldown > 0.0:
+		return
+	_full_bag_notice_cooldown = 2.0
+	if not BotManager.is_bot(player.player_id):
+		show_bag_full_log_rpc.rpc_id(player.player_id)
 
 
 func _can_player_pickup(player: MultiplayerPlayerV2) -> bool:
@@ -324,6 +352,11 @@ func _start_despawn_warning() -> void:
 func show_pickup_log_rpc(item_name: String, amount: int):
 	var text = "+%d %s" % [amount, item_name]
 	LogManager.add_scrolling_log(text, Color.AQUAMARINE)
+
+
+@rpc("authority", "call_local", "reliable")
+func show_bag_full_log_rpc():
+	LogManager.add_scrolling_log("Inventory is full", Color.INDIAN_RED)
 
 
 func sync_state_to_peer(peer_id: int) -> void:

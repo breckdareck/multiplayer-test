@@ -494,6 +494,24 @@ func is_full() -> bool:
 	return get_empty_slots().is_empty()
 
 
+## Whether `item` could actually be placed — merged into an existing partial
+## stack, or dropped into a valid empty slot. Mirrors the placement logic of
+## `server_add_item_instance` so callers can gate before handing an item over.
+func can_accept_item(item: ItemData) -> bool:
+	if item == null:
+		return false
+	# A stackable item with room left in an existing valid stack fits.
+	if item.can_stack and item.item_id in item_locations:
+		for sd in item_locations[item.item_id]:
+			if sd.can_accept_item(item) and sd.can_add_to_stack(item) and sd.get_remaining_space() > 0:
+				return true
+	# Otherwise it needs an empty slot that accepts this item type.
+	for sd in slots_data:
+		if sd.item == null and sd.can_accept_item(item):
+			return true
+	return false
+
+
 func get_total_items() -> int:
 	var total = 0
 	for count in item_counts.values():

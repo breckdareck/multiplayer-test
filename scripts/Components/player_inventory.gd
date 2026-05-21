@@ -92,6 +92,10 @@ func add_item_instance(item_data: ItemData):
 		inventory_component.server_add_item_instance.rpc_id(1, item_data.to_dictionary())
 
 
+func can_accept_item(item_data: ItemData) -> bool:
+	return inventory_component.can_accept_item(item_data)
+
+
 func remove_item(item: ItemData, reason: String = "removed"):
 	inventory_component.remove_item(item, reason)
 
