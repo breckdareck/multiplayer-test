@@ -193,8 +193,14 @@ func _finalize_player_spawn(player_id: int, map_id: String, spawn_point_name: St
 				# RPC, so send the joiner the bot's class/level appearance.
 				if BotManager.is_bot(existing_id) and is_instance_valid(existing_node.class_component) \
 						and is_instance_valid(existing_node.level_component):
-					client_apply_appearance.rpc_id(player_id, existing_id, \
-						existing_node.class_component.current_class, existing_node.level_component.level)
+					var bot_class: int = existing_node.class_component.current_class
+					var bot_level: int = existing_node.level_component.level
+					if player_id == 1:
+						# The host is the server — client_apply_appearance is a
+						# call_remote RPC and can't target self; apply directly.
+						existing_node.apply_appearance(bot_class, bot_level)
+					else:
+						client_apply_appearance.rpc_id(player_id, existing_id, bot_class, bot_level)
 			# Also update visibility for the existing player
 			update_visibility_for_player(existing_id)
 
