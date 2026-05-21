@@ -37,6 +37,7 @@ BotManager="*res://scripts/Bot/bot_manager.gd"
 TradeManager="*res://scripts/Trading/trade_manager.gd"
 JobAdvancementManager="*res://scripts/Managers/job_advancement_manager.gd"
 QuestManager="*res://scripts/Managers/quest_manager.gd"
+DebugPanel="*res://scripts/UI/debug_panel.gd"
 
 [display]
 
