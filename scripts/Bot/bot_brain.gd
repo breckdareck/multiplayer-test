@@ -33,6 +33,10 @@ var _blacklisted_enemies: Array[EnemyBase] = []
 var _blacklist_clear_timer: float = 0.0
 const COMBAT_DISENGAGE_TIME: float = 6.0
 const BLACKLIST_DURATION: float = 15.0
+## While fighting, switch to a different enemy only when it is this much closer
+## (fraction of the current target's squared distance) — hysteresis so the bot
+## doesn't flip-flop between similar-distance foes.
+const RETARGET_FACTOR: float = 0.36
 ## A ranged bot gives ground only when an enemy closes inside this distance;
 ## beyond it the bot holds and attacks. Kept tight so the bot actually fights
 ## instead of fleeing.
@@ -459,12 +463,19 @@ func _think() -> void:
 	else:
 		target_loot = null
 
+	# Acquire a target, or — if already fighting — switch to a much closer enemy
+	# so the bot doesn't tunnel-vision a distant foe while one is on top of it.
 	if not target_enemy:
 		var new_enemy := _find_best_enemy()
 		if new_enemy:
-			target_enemy = new_enemy
-			_combat_timer = 0.0
-			_combat_last_enemy_hp = -1
+			_set_target_enemy(new_enemy)
+	else:
+		var closer := _find_best_enemy()
+		if is_instance_valid(closer) and closer != target_enemy:
+			var cur_sq := player.global_position.distance_squared_to(target_enemy.global_position)
+			var new_sq := player.global_position.distance_squared_to(closer.global_position)
+			if new_sq < cur_sq * RETARGET_FACTOR:
+				_set_target_enemy(closer)
 
 	if target_enemy:
 		current_action = "fight"
@@ -521,8 +532,7 @@ func _get_map_node() -> Node:
 	return _cached_map_node
 
 
-## Picks a combat target within aggro range. Scores by distance, discounting
-## wounded enemies so a bot finishes off low-HP foes first.
+## Picks the nearest live, non-blacklisted enemy within aggro range.
 func _find_best_enemy() -> EnemyBase:
 	var map_node := _get_map_node()
 	if not is_instance_valid(map_node):
@@ -530,8 +540,7 @@ func _find_best_enemy() -> EnemyBase:
 
 	var enemies := get_tree().get_nodes_in_group("Enemies")
 	var best: EnemyBase = null
-	var best_score := INF
-	var aggro_sq := aggro_range * aggro_range
+	var best_dist_sq := aggro_range * aggro_range
 
 	for node in enemies:
 		if node is not EnemyBase:
@@ -547,21 +556,18 @@ func _find_best_enemy() -> EnemyBase:
 			continue
 
 		var dist_sq := player.global_position.distance_squared_to(node.global_position)
-		if dist_sq > aggro_sq:
-			continue
-
-		var score := dist_sq
-		# Discount wounded enemies so they read as "closer" — finish them off.
-		if node.health_component and node.health_component.max_health > 0:
-			var hp_frac := float(node.health_component.current_health) \
-				/ float(node.health_component.max_health)
-			if hp_frac < 0.35:
-				score *= 0.45
-		if score < best_score:
-			best_score = score
+		if dist_sq < best_dist_sq:
+			best_dist_sq = dist_sq
 			best = node
 
 	return best
+
+
+## Sets the combat target and resets the per-fight disengage tracking.
+func _set_target_enemy(enemy: EnemyBase) -> void:
+	target_enemy = enemy
+	_combat_timer = 0.0
+	_combat_last_enemy_hp = -1
 
 
 func _find_best_loot() -> DroppedItem:
