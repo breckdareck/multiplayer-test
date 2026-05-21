@@ -819,14 +819,16 @@ func _do_retreat() -> void:
 	player.facing_direction = dir
 
 	if player.is_on_floor():
-		# Jump over walls when fleeing.
+		# Jump over a wall in the escape direction.
 		if player.is_on_wall():
 			if _wall_stuck_timer >= WALL_STUCK_JUMP_TIME:
 				_try_jump()
 		elif _is_near_ledge():
-			# Drop to lower ground if there is any; otherwise jump out of the corner.
+			# Drop down only when there is safe ground below. At a pit or the
+			# map edge, stop at the ledge — never jump or walk off into the
+			# void (jumping while fleeing toward the edge launches the bot off).
 			if not _raycast_down(player.global_position + Vector2(dir * 18.0, 0), 200.0):
-				_try_jump()
+				player.direction = 0
 
 
 ## Nearest live enemy on the bot's map within max_dist, or null. Unlike
