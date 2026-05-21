@@ -13,7 +13,7 @@ func enter() -> void:
 	if parent is MultiplayerPlayerV2:
 		player = parent
 	player.do_jump = false
-	AudioManager.play_sfx_rpc.rpc("res://assets/sounds/jump.wav", player.global_position)
+	AudioManager.play_sfx_for_map(MapManager.get_player_map(player.player_id), "res://assets/sounds/jump.wav", player.global_position)
 
 	# A regular jump should immediately stop any active coyote timer
 	# to prevent weird interactions.

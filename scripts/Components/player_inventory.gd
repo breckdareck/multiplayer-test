@@ -58,10 +58,7 @@ func _on_item_added(item: ItemData):
 			var map_node = MapManager.get_player_map_node(player.player_id)
 			if map_node:
 				var map_name = map_node.name.replace("Map_", "")
-				for pid in MapManager.get_real_players_on_map(map_name):
-					if pid != 1:
-						AudioManager.play_sfx_rpc.rpc_id(pid, "res://assets/sounds/coin.wav", player.global_position)
-			AudioManager.play_sfx("res://assets/sounds/coin.wav", player.global_position)
+				AudioManager.play_sfx_for_map(map_name, "res://assets/sounds/coin.wav", player.global_position)
 
 
 func _on_item_removed(item: ItemData, reason: String) -> void:

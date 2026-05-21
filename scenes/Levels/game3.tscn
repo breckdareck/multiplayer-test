@@ -564,10 +564,10 @@ shape = SubResource("WorldBoundaryShape2D_pyfba")
 [node name="Platforms" type="Node2D" parent="."]
 
 [node name="Platform" parent="Platforms" instance=ExtResource("7_e6cox")]
-position = Vector2(-1979, -75)
+position = Vector2(-1979, -58)
 
 [node name="Platform2" parent="Platforms" instance=ExtResource("7_e6cox")]
-position = Vector2(-1811, -74)
+position = Vector2(-1811, -57)
 
 [node name="Players" type="Node2D" parent="."]
 

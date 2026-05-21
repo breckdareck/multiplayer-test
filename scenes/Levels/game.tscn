@@ -590,10 +590,10 @@ tile_map_data = PackedByteArray("AAD3/wAAAAAAAAAAAAD4/wAAAAAAAAAAAAD5/wAAAAAAAAA
 tile_set = SubResource("TileSet_lbhrr")
 
 [node name="Tutorial" type="Label" parent="."]
-offset_left = -93.0
-offset_top = -91.0
-offset_right = 89.0
-offset_bottom = -68.0
+offset_left = 27.0
+offset_top = -88.0
+offset_right = 209.0
+offset_bottom = -54.0
 theme_override_colors/font_color = Color(0.0980392, 0.313726, 0.752941, 1)
 theme_override_fonts/font = ExtResource("3_j167y")
 theme_override_font_sizes/font_size = 8

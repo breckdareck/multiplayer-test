@@ -194,21 +194,14 @@ func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, 
 
 	
 	if is_player:
-		# Filter SFX to players on the same map
+		# Filter SFX to players on the same map (host included only when on it)
 		var map_node = MapManager.get_player_map_node(get_owner().player_id)
 		if map_node:
 			var map_name = map_node.name.replace("Map_", "")
-			var players_on_map = MapManager.get_real_players_on_map(map_name)
-
-			for peer_id in players_on_map:
-				if peer_id != 1:
-					AudioManager.play_sfx_rpc.rpc_id(peer_id, "res://assets/sounds/player_hit.wav", get_owner().global_position)
-			
-			# Play on server too if needed
+			AudioManager.play_sfx_for_map(map_name, "res://assets/sounds/player_hit.wav", get_owner().global_position)
+		elif not multiplayer.is_server():
+			# Client-side path (e.g. debug damage RPC): play locally only.
 			AudioManager.play_sfx("res://assets/sounds/player_hit.wav", get_owner().global_position)
-		else:
-			# Fallback
-			AudioManager.rpc("play_sfx_rpc", "res://assets/sounds/player_hit.wav", get_owner().global_position)
 	
 	# --- Server-side game logic ---
 	if multiplayer.is_server():

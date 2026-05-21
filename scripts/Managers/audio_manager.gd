@@ -45,3 +45,11 @@ func play_sfx_rpc(sfx_path: String, global_position: Vector2 = Vector2.ZERO, vol
 	# This function will be executed on all peers (server and clients)
 	# when called by the server using rpc_id(0, "play_sfx_rpc", ...)
 	play_sfx(sfx_path, global_position, volume_db)
+
+# Server-only: plays an SFX for every real player on a given map, so positional
+# SFX (jumps, hits) aren't heard by players on other maps.
+func play_sfx_for_map(map_id: String, sfx_path: String, global_position: Vector2 = Vector2.ZERO, volume_db: float = 0.0):
+	if not multiplayer.is_server():
+		return
+	for peer_id in MapManager.get_real_players_on_map(map_id):
+		play_sfx_rpc.rpc_id(peer_id, sfx_path, global_position, volume_db)
