@@ -68,12 +68,14 @@ func _build_ui() -> void:
 
 	_roster = ItemList.new()
 	_roster.custom_minimum_size = Vector2(0, 150)
+	_roster.focus_mode = Control.FOCUS_NONE
 	_roster.item_selected.connect(_on_roster_selected)
 	vb.add_child(_roster)
 
 	var spawn_row := HBoxContainer.new()
 	vb.add_child(spawn_row)
 	_class_picker = OptionButton.new()
+	_class_picker.focus_mode = Control.FOCUS_NONE
 	for cls in SPAWN_CLASSES:
 		_class_picker.add_item(cls)
 	spawn_row.add_child(_class_picker)
@@ -94,6 +96,7 @@ func _build_ui() -> void:
 
 	_debugdraw_check = CheckBox.new()
 	_debugdraw_check.text = "Nav debug draw"
+	_debugdraw_check.focus_mode = Control.FOCUS_NONE
 	_debugdraw_check.toggled.connect(_on_debugdraw_toggled)
 	vb.add_child(_debugdraw_check)
 
@@ -107,6 +110,7 @@ func _build_ui() -> void:
 func _make_button(text: String, handler: Callable) -> Button:
 	var b := Button.new()
 	b.text = text
+	b.focus_mode = Control.FOCUS_NONE
 	b.pressed.connect(handler)
 	return b
 
