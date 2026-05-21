@@ -1,6 +1,7 @@
 extends Node
 
 const BotBrain = preload("res://scripts/Bot/bot_brain.gd")
+const BotNavGraph = preload("res://scripts/Bot/bot_nav_graph.gd")
 
 var bot_counter: int = 0
 var active_bots: Dictionary = {}
@@ -336,7 +337,7 @@ func _class_string_to_type(class_str: String) -> int:
 ## route UI back to the requesting client rather than always the host.
 func handle_command(args: Array, requester_id: int = 0) -> String:
 	if args.is_empty():
-		return "Usage: /bot <spawn|despawn|despawn_all|list|teleport|set_level|party|travel|reload_config>"
+		return "Usage: /bot <spawn|despawn|despawn_all|list|teleport|set_level|party|travel|inspect|trade|navgraph|reload_config>"
 
 	var sub_command: String = args[0].to_lower()
 	match sub_command:
@@ -428,8 +429,62 @@ func handle_command(args: Array, requester_id: int = 0) -> String:
 			load_config(_config_path)
 			return "Bot config reloaded (%d bot definitions)." % bot_config.get("bots", []).size()
 
+		"navgraph":
+			return _handle_navgraph_command(args.slice(1))
+
 		_:
-			return "Unknown bot command '%s'. Use: spawn, despawn, despawn_all, list, teleport, set_level, party, travel, inspect, trade, reload_config" % sub_command
+			return "Unknown bot command '%s'. Use: spawn, despawn, despawn_all, list, teleport, set_level, party, travel, inspect, trade, navgraph, reload_config" % sub_command
+
+
+## Debug: builds the platform-navigation graph for a bot's current map and
+## reports its size, plus a sample path from the bot to a portal. The graph is
+## not yet wired into bot movement — this is for inspecting stage-1 output.
+func _handle_navgraph_command(args: Array) -> String:
+	if args.is_empty():
+		return "Usage: /bot navgraph <name|id>"
+	var bot_id_val := _find_bot_by_name_or_id(args[0])
+	if bot_id_val == 0:
+		return "Bot '%s' not found." % args[0]
+	var map_node := MapManager.get_player_map_node(bot_id_val)
+	if not is_instance_valid(map_node):
+		return "Bot %d has no live map node." % bot_id_val
+
+	var max_jump := 45.0
+	var jump_reach := 40.0
+	var brain := get_bot_brain(bot_id_val)
+	if brain:
+		max_jump = brain._max_jump_height
+		jump_reach = brain._jump_launch_offset
+
+	var graph := BotNavGraph.new()
+	if not graph.build(map_node, max_jump, jump_reach):
+		return "Failed to build nav graph for bot %d's map." % bot_id_val
+
+	var s := graph.get_stats()
+	var lines: PackedStringArray = []
+	lines.append("Nav graph for bot %d (map '%s'):" % [bot_id_val, map_node.name])
+	lines.append("  bounds: %s" % str(s.bounds))
+	lines.append("  surfaces: %d   points: %d" % [s.segments, s.points])
+	lines.append("  edges: %d (walk %d, jump %d, drop %d, gap %d)" % [
+		s.edges, s.walk, s.jump, s.drop, s.gap])
+
+	var player_node := PlayerManager.get_player_node(bot_id_val)
+	var portal := _find_any_portal(map_node)
+	if is_instance_valid(player_node) and is_instance_valid(portal):
+		var path := graph.find_path(player_node.global_position, portal.global_position)
+		lines.append("  sample path bot -> %s: %d waypoints" % [portal.name, path.size()])
+	return "\n".join(lines)
+
+
+## First node carrying a `target_map_id` (a portal) found under `node`.
+func _find_any_portal(node: Node) -> Node:
+	if "target_map_id" in node:
+		return node
+	for child in node.get_children():
+		var found := _find_any_portal(child)
+		if found:
+			return found
+	return null
 
 
 func _handle_inspect_command(args: Array, requester_id: int = 0) -> String:
