@@ -783,11 +783,21 @@ func _do_follow() -> void:
 	if not is_instance_valid(leader_node):
 		current_action = "idle"
 		return
-	var dist := player.global_position.distance_to(leader_node.global_position)
+	# Aim at a per-bot slot beside the leader so squad members spread out
+	# instead of stacking on a single tile.
+	var target := leader_node.global_position + _follow_slot_offset()
+	var dist := player.global_position.distance_to(target)
 	if dist <= FOLLOW_CLOSE_RANGE:
 		player.direction = 0
 		return
-	_navigate_smart(leader_node.global_position)
+	_navigate_smart(target)
+
+
+## A small, stable per-bot horizontal offset used to fan squad members out
+## around their leader.
+func _follow_slot_offset() -> Vector2:
+	var slot := absi(bot_id) % 4
+	return Vector2((float(slot) - 1.5) * 36.0, 0.0)
 
 
 func _get_party_leader() -> int:

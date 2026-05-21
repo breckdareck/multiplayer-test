@@ -357,7 +357,7 @@ func _class_string_to_type(class_str: String) -> int:
 ## route UI back to the requesting client rather than always the host.
 func handle_command(args: Array, requester_id: int = 0) -> String:
 	if args.is_empty():
-		return "Usage: /bot <spawn|despawn|despawn_all|list|teleport|set_level|party|travel|inspect|trade|navgraph|reload_config>"
+		return "Usage: /bot <spawn|despawn|despawn_all|list|teleport|set_level|party|travel|inspect|trade|navgraph|navpath|reload_config>"
 
 	var sub_command: String = args[0].to_lower()
 	match sub_command:
@@ -452,8 +452,11 @@ func handle_command(args: Array, requester_id: int = 0) -> String:
 		"navgraph":
 			return _handle_navgraph_command(args.slice(1))
 
+		"navpath":
+			return _handle_navpath_command(args.slice(1))
+
 		_:
-			return "Unknown bot command '%s'. Use: spawn, despawn, despawn_all, list, teleport, set_level, party, travel, inspect, trade, navgraph, reload_config" % sub_command
+			return "Unknown bot command '%s'. Use: spawn, despawn, despawn_all, list, teleport, set_level, party, travel, inspect, trade, navgraph, navpath, reload_config" % sub_command
 
 
 ## Debug: builds the platform-navigation graph for a bot's current map and
@@ -493,6 +496,31 @@ func _handle_navgraph_command(args: Array) -> String:
 	if is_instance_valid(player_node) and is_instance_valid(portal):
 		var path := graph.find_path(player_node.global_position, portal.global_position)
 		lines.append("  sample path bot -> %s: %d waypoints" % [portal.name, path.size()])
+	return "\n".join(lines)
+
+
+## Debug: reports a bot's live graph-navigation state — current action, goal,
+## and whether it's following a planned waypoint path or navigating directly.
+func _handle_navpath_command(args: Array) -> String:
+	if args.is_empty():
+		return "Usage: /bot navpath <name|id>"
+	var bot_id_val := _find_bot_by_name_or_id(args[0])
+	if bot_id_val == 0:
+		return "Bot '%s' not found." % args[0]
+	var brain := get_bot_brain(bot_id_val)
+	if brain == null:
+		return "Bot %d has no active brain." % bot_id_val
+
+	var lines: PackedStringArray = []
+	lines.append("Bot %d nav state:" % bot_id_val)
+	lines.append("  action: %s" % brain.current_action)
+	lines.append("  nav goal: %s" % str(brain._nav_goal))
+	var path: PackedInt64Array = brain._nav_path
+	if path.is_empty():
+		lines.append("  waypoint path: none (direct navigation / no route)")
+	else:
+		lines.append("  waypoint path: %d points, currently at index %d" % [
+			path.size(), brain._nav_index])
 	return "\n".join(lines)
 
 
