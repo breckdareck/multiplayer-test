@@ -731,6 +731,12 @@ func _do_fight() -> void:
 
 	player.facing_direction = dir
 
+	# Keep combat buffs up before positioning — placed here so ranged bots,
+	# which never reach the melee branch, also buff. A cast takes the tick.
+	if _try_use_buff():
+		player.direction = 0
+		return
+
 	# A bot kites only if it is a ranged class wielding an actual projectile
 	# ability — Rogues and other melee classes always close in and fight.
 	var is_ranged := _is_ranged_class and _has_ranged_ability
@@ -773,9 +779,8 @@ func _do_fight() -> void:
 		return
 
 	player.direction = 0
-	if not _try_use_buff():
-		if not _try_use_attack_ability(dx):
-			player.do_attack = true
+	if not _try_use_attack_ability(dx):
+		player.do_attack = true
 
 
 ## Steps a ranged bot away from an enemy to re-open attack distance while
