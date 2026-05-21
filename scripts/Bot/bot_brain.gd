@@ -173,6 +173,12 @@ const NAV_DIRECT_RANGE: float = 96.0
 const NAV_GOAL_MOVED: float = 64.0
 const NAV_WAYPOINT_X_TOL: float = 20.0
 const NAV_WAYPOINT_Y_TOL: float = 22.0
+## How far down to look for landing ground when deciding to walk off a ledge —
+## generous so a bot will drop from a tall platform instead of freezing on it.
+const DROP_SCAN_DEPTH: float = 400.0
+## Committed direction while walking to a ledge to descend, so a wall in the way
+## doesn't make the bot jitter (or jump). 0 when not currently seeking a drop.
+var _descend_dir: int = 0
 
 # Collision masks: Layer 1 (World) = bit 0, Layer 3 (Platforms) = bit 2
 const GROUND_MASK: int = 0b101  # World + Platforms
@@ -249,6 +255,7 @@ func attach_to_player(player_node: MultiplayerPlayerV2) -> void:
 	# meaningless here, so drop any planned path.
 	_nav_path = PackedInt64Array()
 	_nav_goal = Vector2.INF
+	_descend_dir = 0
 
 
 func _process(delta: float) -> void:
@@ -1267,22 +1274,33 @@ func _navigate_toward(target_pos: Vector2) -> void:
 
 	var dy := to_target.y  # positive = target below, negative = target above
 
-	# --- Stuck against a wall: jump to get over it ---
+	# --- Target is below us: descend by dropping/walking off a ledge. Handled
+	# before the wall check because jumping can never take the bot downward. ---
+	if dy > 20.0:
+		if player.can_drop_through_platform():
+			_descend_dir = 0
+			player.do_drop = true
+			return
+		# Commit to a direction toward a ledge so a wall in the way doesn't make
+		# the bot jitter; if it stays walled, flip to seek a ledge the other way.
+		if _descend_dir == 0:
+			_descend_dir = dir
+		if player.is_on_wall() and _wall_stuck_timer >= WALL_STUCK_JUMP_TIME:
+			_descend_dir = -_descend_dir
+		player.direction = _descend_dir
+		player.facing_direction = _descend_dir
+		# At a ledge — walk off it only when there is ground below to land on.
+		if _is_near_ledge():
+			_descend_dir = 0
+			if not _raycast_down(player.global_position + Vector2(player.direction * 18.0, 0), DROP_SCAN_DEPTH):
+				player.direction = 0  # ledge over a pit / map edge — hold
+		return
+	_descend_dir = 0
+
+	# --- Stuck against a wall (target at or above us): jump to get over it ---
 	if player.is_on_wall():
 		if _wall_stuck_timer >= WALL_STUCK_JUMP_TIME:
 			_try_jump()
-		return
-
-	# --- Target is below us ---
-	if dy > 20.0:
-		if player.can_drop_through_platform():
-			player.do_drop = true
-			return
-		if _is_near_ledge():
-			if _raycast_down(player.global_position + Vector2(dir * 18.0, 0), 200.0):
-				return  # safe to walk off — ground below
-			player.direction = 0
-			return
 		return
 
 	# --- Target is above us ---
@@ -1298,7 +1316,7 @@ func _navigate_toward(target_pos: Vector2) -> void:
 	if _is_near_ledge():
 		if _has_ground_across_gap(dir):
 			return  # safe to walk off — will land on ground ahead
-		if dy > 5.0 and _raycast_down(player.global_position + Vector2(dir * 18.0, 0), 200.0):
+		if dy > 5.0 and _raycast_down(player.global_position + Vector2(dir * 18.0, 0), DROP_SCAN_DEPTH):
 			return
 		player.direction = 0
 
