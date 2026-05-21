@@ -14,7 +14,7 @@ const MAP_SCENES = {
 	"town": "res://scenes/Levels/town.tscn",
 }
 
-const DEFAULT_MAP = "game"
+const DEFAULT_MAP = "town"
 
 # Server-side tracking
 var active_maps: Dictionary = {} ## {map_id: {scene_instance, player_ids: []}}

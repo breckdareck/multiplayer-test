@@ -53,7 +53,7 @@ var _shop_check_timer: float = 0.0
 const SHOP_CHECK_INTERVAL: float = 10.0
 const POTION_STOCK_TARGET: int = 20
 const POTION_RESTOCK_THRESHOLD: int = 0
-const TOWN_MAP_ID: String = "game"
+const TOWN_MAP_ID: String = "town"
 var _needs_restock: bool = false
 
 var allow_map_travel: bool = true
