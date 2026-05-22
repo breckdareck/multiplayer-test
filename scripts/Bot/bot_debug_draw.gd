@@ -104,12 +104,12 @@ func _draw_bots(map_id: String, graph: BotNavGraph) -> void:
 
 
 func _draw_bot_path(brain, graph: BotNavGraph, pos: Vector2) -> void:
-	var goal: Vector2 = brain._nav_goal
+	var goal: Vector2 = brain._navigator._nav_goal
 	if goal.is_finite():
 		draw_line(pos, goal, GOAL_COLOR, 1.0)
-	var path: PackedInt64Array = brain._nav_path
+	var path: PackedInt64Array = brain._navigator._nav_path
 	var prev := pos
-	for idx in range(brain._nav_index, path.size()):
+	for idx in range(brain._navigator._nav_index, path.size()):
 		var id: int = path[idx]
 		if not graph.has_point(id):
 			break

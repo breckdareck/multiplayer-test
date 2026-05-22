@@ -133,7 +133,7 @@ func do_fight() -> void:
 
 	if abs(dy) > 12.0:
 		# Enemy on another level — route across terrain via the nav graph.
-		brain._navigate_smart(target_enemy.global_position)
+		brain._navigator.navigate_smart(target_enemy.global_position)
 		return
 
 	player.facing_direction = dir
@@ -176,13 +176,13 @@ func do_fight() -> void:
 		if is_ranged and dx <= _combat_range:
 			player.direction = 0
 			return
-		brain._navigate_smart(target_enemy.global_position)
+		brain._navigator.navigate_smart(target_enemy.global_position)
 		return
 
-	if brain._is_wall_between(player.global_position, target_enemy.global_position):
+	if brain._navigator.is_wall_between(player.global_position, target_enemy.global_position):
 		player.direction = dir
 		if player.is_on_wall() and player.is_on_floor():
-			brain._try_jump()
+			brain._navigator.try_jump()
 		return
 
 	player.direction = 0
@@ -203,7 +203,7 @@ func _kite_away(enemy_dir: int) -> void:
 	if player.is_on_wall():
 		player.direction = 0
 		return
-	if brain._is_near_ledge() and not brain._raycast_down(player.global_position + Vector2(dir * 18.0, 0), 200.0):
+	if brain._navigator.is_near_ledge() and not brain._navigator.raycast_down(player.global_position + Vector2(dir * 18.0, 0), 200.0):
 		player.direction = 0
 
 

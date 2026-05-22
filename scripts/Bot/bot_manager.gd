@@ -664,8 +664,8 @@ func _handle_navgraph_command(args: Array) -> String:
 	var jump_reach := 40.0
 	var brain := get_bot_brain(bot_id_val)
 	if brain:
-		max_jump = brain._max_jump_height
-		jump_reach = brain._jump_launch_offset
+		max_jump = brain._navigator._max_jump_height
+		jump_reach = brain._navigator._jump_launch_offset
 
 	var graph := BotNavGraph.new()
 	if not graph.build(map_node, max_jump, jump_reach):
@@ -702,13 +702,13 @@ func _handle_navpath_command(args: Array) -> String:
 	var lines: PackedStringArray = []
 	lines.append("Bot %d nav state:" % bot_id_val)
 	lines.append("  action: %s" % brain.current_action)
-	lines.append("  nav goal: %s" % str(brain._nav_goal))
-	var path: PackedInt64Array = brain._nav_path
+	lines.append("  nav goal: %s" % str(brain._navigator._nav_goal))
+	var path: PackedInt64Array = brain._navigator._nav_path
 	if path.is_empty():
 		lines.append("  waypoint path: none (direct navigation / no route)")
 	else:
 		lines.append("  waypoint path: %d points, currently at index %d" % [
-			path.size(), brain._nav_index])
+			path.size(), brain._navigator._nav_index])
 	return "\n".join(lines)
 
 
