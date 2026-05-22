@@ -16,6 +16,9 @@ var _panel: PanelContainer
 var _roster: ItemList
 var _class_picker: OptionButton
 var _debugdraw_check: CheckBox
+var _layer_graph: CheckBox
+var _layer_paths: CheckBox
+var _layer_info: CheckBox
 var _stats_label: Label
 var _watch_label: Label
 var _roster_ids: Array[int] = []
@@ -100,6 +103,23 @@ func _build_ui() -> void:
 	_debugdraw_check.toggled.connect(_on_debugdraw_toggled)
 	vb.add_child(_debugdraw_check)
 
+	# Sub-layer toggles for the overlay.
+	var layer_row := HBoxContainer.new()
+	vb.add_child(layer_row)
+	_layer_graph = _make_layer_check("Graph")
+	_layer_paths = _make_layer_check("Paths")
+	_layer_info = _make_layer_check("Bot info")
+	layer_row.add_child(_layer_graph)
+	layer_row.add_child(_layer_paths)
+	layer_row.add_child(_layer_info)
+
+	var legend := Label.new()
+	legend.text = "white/green: solid/one-way surface   cyan/orange/yellow: jump/drop/gap\nmagenta: bot path   red: target enemy   green: target loot"
+	legend.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	legend.add_theme_font_size_override("font_size", 10)
+	legend.modulate = Color(1, 1, 1, 0.6)
+	vb.add_child(legend)
+
 	_stats_label = Label.new()
 	_stats_label.text = "Select a bot to see its stats."
 	_stats_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -115,11 +135,31 @@ func _make_button(text: String, handler: Callable) -> Button:
 	return b
 
 
+func _make_layer_check(text: String) -> CheckBox:
+	var c := CheckBox.new()
+	c.text = text
+	c.button_pressed = true
+	c.focus_mode = Control.FOCUS_NONE
+	c.toggled.connect(func(_on): _push_layers())
+	return c
+
+
+## Pushes the sub-layer checkbox states onto the overlay (if it exists).
+func _push_layers() -> void:
+	var dd = BotManager.get_debug_draw()
+	if dd == null:
+		return
+	dd.show_graph = _layer_graph.button_pressed
+	dd.show_paths = _layer_paths.button_pressed
+	dd.show_bot_info = _layer_info.button_pressed
+
+
 # --- Refresh ----------------------------------------------------------------
 
 func _refresh() -> void:
 	_refresh_roster()
 	_refresh_stats()
+	_push_layers()
 	var watched: int = BotManager.get_watched_bot()
 	_watch_label.text = "Watching: %s" % ("none" if watched == 0 else str(watched))
 

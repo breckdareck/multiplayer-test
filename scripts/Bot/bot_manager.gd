@@ -410,6 +410,11 @@ func debug_nav_graph(map_id: String) -> BotNavGraph:
 	return _nav_graphs.get(map_id)
 
 
+## The debug-draw overlay node, or null if it hasn't been created yet.
+func get_debug_draw() -> Node:
+	return _debug_draw if is_instance_valid(_debug_draw) else null
+
+
 # --- Per-frame enemy cache. Every bot scans the global "Enemies" group; this
 # caches the alive-enemies-per-map list once per frame so N bots on a map share
 # a single scan instead of each re-querying and re-filtering. ---
