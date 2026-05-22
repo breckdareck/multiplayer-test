@@ -27,7 +27,14 @@ var retreat_health_pct: float = 0.2
 const RECOVER_TARGET_PCT: float = 0.7
 ## A retreating bot considers itself safe once no enemy is within this distance.
 const SAFE_DISTANCE: float = 260.0
+## Recovery gives up waiting once HP has gone this long without climbing — so a
+## bot that can't heal (no regen, no potions) doesn't stand frozen forever.
+const RECOVER_STALL_TIMEOUT: float = 8.0
+## HP must climb at least this fraction to count as recovery progress.
+const RECOVER_PROGRESS_STEP: float = 0.02
 var _recovering: bool = false
+var _recover_hp_mark: float = 0.0
+var _recover_stall_timer: float = 0.0
 var loot_range: float = 80.0
 var loot_priority_range: float = 50.0
 ## Periodic loot sweep: when this elapses the bot collects every reachable
@@ -533,17 +540,37 @@ func _refresh_targets() -> void:
 
 
 ## Survival: when critically low on HP, retreat to safety and regenerate. Stays
-## in recovery until HP is comfortably back up — without this hysteresis the bot
-## pops out of retreat 1 HP over the threshold and dives straight back in.
+## in recovery until HP is comfortably back up — hysteresis so the bot doesn't
+## pop out of retreat 1 HP over the threshold and dive straight back in.
 func _consider_retreat() -> bool:
+	# Town is safe and has the merchant — never recover here. Standing idle to
+	# regen wastes time when the bot can shop, heal and head back out; staying
+	# in retreat would also leave it stuck if HP regenerates slowly.
+	if MapManager.get_player_map(bot_id) == TOWN_MAP_ID:
+		_recovering = false
+		return false
+
 	if _recovering:
-		if _health_fraction() >= RECOVER_TARGET_PCT:
+		var hp := _health_fraction()
+		if hp >= RECOVER_TARGET_PCT:
 			_recovering = false
-		else:
-			current_action = "retreat"
-			return true
+			return false
+		# Track HP progress; if it stalls (no regen, no potions) and the bot is
+		# out of the critical danger band, give up waiting and resume activity.
+		if hp > _recover_hp_mark + RECOVER_PROGRESS_STEP:
+			_recover_hp_mark = hp
+			_recover_stall_timer = 0.0
+		elif hp >= retreat_health_pct:
+			_recover_stall_timer += think_interval
+			if _recover_stall_timer >= RECOVER_STALL_TIMEOUT:
+				_recovering = false
+				return false
+		current_action = "retreat"
+		return true
 	elif _should_retreat():
 		_recovering = true
+		_recover_hp_mark = _health_fraction()
+		_recover_stall_timer = 0.0
 		current_action = "retreat"
 		return true
 	return false
