@@ -410,6 +410,36 @@ func debug_nav_graph(map_id: String) -> BotNavGraph:
 	return _nav_graphs.get(map_id)
 
 
+# --- Per-frame enemy cache. Every bot scans the global "Enemies" group; this
+# caches the alive-enemies-per-map list once per frame so N bots on a map share
+# a single scan instead of each re-querying and re-filtering. ---
+var _enemy_cache: Dictionary = {}      ## map_id -> Array of live EnemyBase
+var _enemy_cache_frame: int = -1
+
+## Alive enemies on a map, cached for the current frame. Bots apply their own
+## per-bot filters (blacklist, distance) on top of this shared list.
+func get_enemies_on_map(map_id: String, map_node: Node) -> Array:
+	var frame := Engine.get_process_frames()
+	if frame != _enemy_cache_frame:
+		_enemy_cache.clear()
+		_enemy_cache_frame = frame
+	if _enemy_cache.has(map_id):
+		return _enemy_cache[map_id]
+
+	var list: Array = []
+	if is_instance_valid(map_node):
+		for node in get_tree().get_nodes_in_group("Enemies"):
+			if node is not EnemyBase or not is_instance_valid(node):
+				continue
+			if not map_node.is_ancestor_of(node):
+				continue
+			if node.health_component and node.health_component.is_dead:
+				continue
+			list.append(node)
+	_enemy_cache[map_id] = list
+	return list
+
+
 func get_map_difficulty(map_id: String) -> Dictionary:
 	return bot_config.get("map_difficulty", {}).get(map_id, {})
 

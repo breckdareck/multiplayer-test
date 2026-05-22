@@ -677,23 +677,12 @@ func _find_best_enemy() -> EnemyBase:
 	if not is_instance_valid(map_node):
 		return null
 
-	var enemies := get_tree().get_nodes_in_group("Enemies")
 	var best: EnemyBase = null
 	var best_dist_sq := aggro_range * aggro_range
 
-	for node in enemies:
-		if node is not EnemyBase:
-			continue
-		if not is_instance_valid(node):
-			continue
-		# Skip enemies that live on a different map (the "Enemies" group is global).
-		if not map_node.is_ancestor_of(node):
-			continue
-		if node.health_component and node.health_component.is_dead:
-			continue
+	for node: EnemyBase in BotManager.get_enemies_on_map(MapManager.get_player_map(bot_id), map_node):
 		if node in _blacklisted_enemies:
 			continue
-
 		var dist_sq := player.global_position.distance_squared_to(node.global_position)
 		if dist_sq < best_dist_sq:
 			best_dist_sq = dist_sq
@@ -973,13 +962,7 @@ func _nearest_enemy(max_dist: float) -> EnemyBase:
 		return null
 	var best: EnemyBase = null
 	var best_sq := max_dist * max_dist
-	for node in get_tree().get_nodes_in_group("Enemies"):
-		if node is not EnemyBase or not is_instance_valid(node):
-			continue
-		if not map_node.is_ancestor_of(node):
-			continue
-		if node.health_component and node.health_component.is_dead:
-			continue
+	for node: EnemyBase in BotManager.get_enemies_on_map(MapManager.get_player_map(bot_id), map_node):
 		var d := player.global_position.distance_squared_to(node.global_position)
 		if d < best_sq:
 			best_sq = d
@@ -1615,13 +1598,7 @@ func _count_enemies_near(pos: Vector2, radius: float) -> int:
 		return 0
 	var r_sq := radius * radius
 	var count := 0
-	for node in get_tree().get_nodes_in_group("Enemies"):
-		if node is not EnemyBase or not is_instance_valid(node):
-			continue
-		if not map_node.is_ancestor_of(node):
-			continue
-		if node.health_component and node.health_component.is_dead:
-			continue
+	for node: EnemyBase in BotManager.get_enemies_on_map(MapManager.get_player_map(bot_id), map_node):
 		if pos.distance_squared_to(node.global_position) <= r_sq:
 			count += 1
 	return count
