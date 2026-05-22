@@ -184,6 +184,16 @@ var _descend_dir: int = 0
 const GROUND_MASK: int = 0b101  # World + Platforms
 const SOLID_MASK: int = 0b001  # World only (not one-way platforms)
 
+# --- Level-of-detail: a bot on a map with no real player re-applies its action
+# only once every LOD_APPLY_EVERY frames. The character keeps moving on its held
+# input flags between updates, so this lowers decision fidelity only where
+# nobody is watching, and cuts the per-frame nav/combat raycast cost there. ---
+var _lod_far: bool = false
+var _lod_check_timer: float = 0.0
+var _lod_frame: int = 0
+const LOD_CHECK_INTERVAL: float = 1.0
+const LOD_APPLY_EVERY: int = 4
+
 # --- Lifetime metrics, surfaced by `/bot stats` and the debug panel. ---
 var _metrics := {
 	"kills": 0,
@@ -313,6 +323,11 @@ func _process(delta: float) -> void:
 	action_timer -= delta
 	think_timer -= delta
 
+	_lod_check_timer -= delta
+	if _lod_check_timer <= 0.0:
+		_lod_check_timer = LOD_CHECK_INTERVAL
+		_lod_far = _is_lod_far()
+
 	if current_action == "fight" and is_instance_valid(target_enemy):
 		var enemy_hp := -1
 		if target_enemy.health_component:
@@ -359,11 +374,30 @@ func _process(delta: float) -> void:
 	else:
 		_wall_stuck_timer = 0.0
 
-	_apply_current_action()
+	if _should_apply_action():
+		_apply_current_action()
 
 	# Stuck detection runs after the action set player.direction this frame.
 	_update_stuck_detection(delta)
 	_update_travel_watchdog(delta)
+
+
+## True when no real (non-bot) player is on the bot's map — its action updates
+## can run at a reduced rate since no one is observing it.
+func _is_lod_far() -> bool:
+	var map_id := MapManager.get_player_map(bot_id)
+	if map_id.is_empty():
+		return false
+	return MapManager.get_real_players_on_map(map_id).is_empty()
+
+
+## Whether to re-apply the current action this frame. Always true near a real
+## player; throttled to 1-in-LOD_APPLY_EVERY frames when LOD-far.
+func _should_apply_action() -> bool:
+	if not _lod_far:
+		return true
+	_lod_frame = (_lod_frame + 1) % LOD_APPLY_EVERY
+	return _lod_frame == 0
 
 
 ## Detects a bot that intends to move but is making no progress, and escalates:
