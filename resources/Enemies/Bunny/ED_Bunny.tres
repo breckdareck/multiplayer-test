@@ -3,10 +3,10 @@
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
 [ext_resource type="SpriteFrames" uid="uid://bujet2eddxc5l" path="res://resources/Enemies/Bunny/SF_Bunny.tres" id="3_sf"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Worn_Longsword.tres" id="d_1"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Worn_Vanguard_Helm.tres" id="d_2"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Worn_Vanguard_Mail.tres" id="d_3"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Worn_Pathfinder_Boots.tres" id="d_4"]
+[ext_resource type="Resource" uid="uid://dktndkeqg1sgg" path="res://resources/DropTables/Generated/Worn_Longsword.tres" id="d_1"]
+[ext_resource type="Resource" uid="uid://bvsh3woek8eg7" path="res://resources/DropTables/Generated/Worn_Vanguard_Helm.tres" id="d_2"]
+[ext_resource type="Resource" uid="uid://cfofrvdvq7kfp" path="res://resources/DropTables/Generated/Worn_Vanguard_Mail.tres" id="d_3"]
+[ext_resource type="Resource" uid="uid://bl8frbvwsuqll" path="res://resources/DropTables/Generated/Worn_Pathfinder_Boots.tres" id="d_4"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)

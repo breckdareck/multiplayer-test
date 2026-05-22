@@ -29,7 +29,7 @@ metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 [resource]
 script = ExtResource("2_ed")
 monster_name = "Astral Slime"
-monster_level = 92
+monster_level = 93
 movement_speed = 55
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")

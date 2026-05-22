@@ -74,9 +74,6 @@ var _economy = BotEconomy.new(self)
 
 var allow_map_travel: bool = true
 
-const FOLLOW_RANGE: float = 500.0
-const FOLLOW_CLOSE_RANGE: float = 60.0
-
 var patrol_route: Array = []
 var patrol_index: int = 0
 var target_portal: Node = null
@@ -390,9 +387,6 @@ func _recover_from_stuck() -> void:
 			player.do_pickup = false
 		"travel":
 			_abandon_travel()
-		"follow":
-			current_action = "idle"
-			action_timer = 1.0
 		"wander":
 			wander_direction *= -1
 		_:
@@ -413,10 +407,12 @@ func _handle_dead(delta: float) -> void:
 ## errands, errands outrank combat, combat outranks chores, chores outrank idle.
 func _think() -> void:
 	_refresh_targets()
+	_tick_travel_timers()
 
 	if _consider_retreat(): return
 	if _consider_restock_trip(): return
 	if _consider_follow_leader(): return
+	if _consider_urgent_travel(): return
 	if _consider_priority_loot(): return
 	if _consider_fight(): return
 	if _consider_pending_loot(): return
@@ -500,27 +496,33 @@ func _consider_restock_trip() -> bool:
 	return true
 
 
-## Squad members follow their party leader across maps — but never into town.
-## The leader visits town only to restock; members keep farming and rejoin when
-## the leader heads back out.
+## Squad members regroup with their party leader only when separated onto a
+## different map — never into town (the leader visits town to restock; members
+## keep farming and rejoin when it heads back out). On the same map a member
+## explores, fights and loots on its own instead of clustering on the leader.
+## Regrouping routes the bot to the leader's map on foot, hop-by-hop through
+## portals — it is never a teleport.
 func _consider_follow_leader() -> bool:
 	if not _should_follow_leader():
 		return false
-	var leader_id := _get_party_leader()
-	var leader_map := MapManager.get_player_map(leader_id)
+	var leader_map := MapManager.get_player_map(_get_party_leader())
 	var my_map := MapManager.get_player_map(bot_id)
-	if leader_map != my_map:
-		if not leader_map.is_empty() and leader_map != TOWN_MAP_ID:
-			MapManager.request_map_change(bot_id, leader_map)
-			_map_stay_timer = MAP_MIN_STAY_TIME
-			return true
+	if leader_map == my_map:
 		return false
-	var leader_node := PlayerManager.get_player_node(leader_id)
-	if is_instance_valid(leader_node):
-		if player.global_position.distance_to(leader_node.global_position) > FOLLOW_RANGE:
-			current_action = "follow"
-			return true
-	return false
+	if leader_map.is_empty() or leader_map == TOWN_MAP_ID:
+		return false
+	# Step toward the leader's map via the next directly-connected hop, then
+	# walk to and through that portal like any other travel action.
+	var hop := MapManager.get_next_map_toward(my_map, leader_map)
+	if hop.is_empty():
+		return false
+	if not is_instance_valid(target_portal) or target_portal.target_map_id != hop:
+		target_portal = _find_portal_to_map(hop)
+	if not is_instance_valid(target_portal):
+		return false
+	target_enemy = null
+	current_action = "travel"
+	return true
 
 
 ## Grab loot before chasing the next enemy when it's close, and on a periodic
@@ -576,23 +578,60 @@ func _consider_pending_loot() -> bool:
 	return false
 
 
-## Squad leaders periodically travel toward a level-appropriate map.
+## Per-think bookkeeping: advances the travel and min-stay timers no matter
+## what the bot is doing. These were previously decremented only when the think
+## cascade reached _consider_map_travel — so a bot kept busy by a steady supply
+## of enemies or loot never advanced them, and never reconsidered travel until
+## it happened to run dry. Gated to squad leaders, who own travel decisions.
+func _tick_travel_timers() -> void:
+	if not (allow_map_travel and _is_squad_leader() and not _should_follow_leader()):
+		return
+	_map_stay_timer -= think_interval
+	_map_travel_timer -= think_interval
+
+
+## The portal on the current map that steps toward `dest_map`, routing via the
+## next directly-connected hop (the destination is often not adjacent). Null
+## when there is no route or no matching portal.
+func _portal_toward(dest_map: String) -> Node:
+	if dest_map.is_empty():
+		return null
+	var hop := MapManager.get_next_map_toward(MapManager.get_player_map(bot_id), dest_map)
+	if hop.is_empty():
+		return null
+	return _find_portal_to_map(hop)
+
+
+## High-priority travel: a bot sitting well outside its map's level band leaves
+## now. Checked ahead of looting and combat so an over-/under-levelled bot
+## stops farming the wrong map instead of lingering there until the enemies and
+## drops run out. Ignores the min-stay timer and re-plans the moment it has no
+## portal target, so a multi-hop journey doesn't stall on a transit map.
+func _consider_urgent_travel() -> bool:
+	if not (allow_map_travel and _is_squad_leader() and not _should_follow_leader()):
+		return false
+	if not _is_level_out_of_band():
+		return false
+	if _map_travel_timer <= 0.0 or not is_instance_valid(target_portal):
+		_map_travel_timer = MAP_TRAVEL_CHECK_INTERVAL
+		target_portal = _portal_toward(_get_target_map())
+	if is_instance_valid(target_portal):
+		current_action = "travel"
+		return true
+	return false
+
+
+## Routine travel: an in-band squad leader drifts toward the next patrol map
+## once its min-stay on the current map has elapsed. Low priority — combat and
+## looting come first. Out-of-band travel is handled by _consider_urgent_travel.
 func _consider_map_travel() -> bool:
 	if not (allow_map_travel and _is_squad_leader() and not _should_follow_leader()):
 		return false
-	_map_stay_timer -= think_interval
-	_map_travel_timer -= think_interval
 	if _map_travel_timer <= 0.0:
 		_map_travel_timer = MAP_TRAVEL_CHECK_INTERVAL
 		target_portal = null
 		if _should_change_map():
-			var dest_map := _get_target_map()
-			if not dest_map.is_empty():
-				# Step toward the destination via the next reachable map — the
-				# destination is often not directly portal-connected.
-				var hop := MapManager.get_next_map_toward(MapManager.get_player_map(bot_id), dest_map)
-				if not hop.is_empty():
-					target_portal = _find_portal_to_map(hop)
+			target_portal = _portal_toward(_get_target_map())
 	if is_instance_valid(target_portal):
 		current_action = "travel"
 		return true
@@ -694,8 +733,6 @@ func _apply_current_action() -> void:
 			_do_retreat()
 		"loot":
 			_do_loot()
-		"follow":
-			_do_follow()
 		"travel":
 			_do_navigate_to_portal()
 
@@ -790,29 +827,6 @@ func _do_loot() -> void:
 		_navigator.navigate_smart(target_loot.global_position)
 
 
-func _do_follow() -> void:
-	var leader_id := _get_party_leader()
-	var leader_node := PlayerManager.get_player_node(leader_id)
-	if not is_instance_valid(leader_node):
-		current_action = "idle"
-		return
-	# Aim at a per-bot slot beside the leader so squad members spread out
-	# instead of stacking on a single tile.
-	var target := leader_node.global_position + _follow_slot_offset()
-	var dist := player.global_position.distance_to(target)
-	if dist <= FOLLOW_CLOSE_RANGE:
-		player.direction = 0
-		return
-	_navigator.navigate_smart(target)
-
-
-## A small, stable per-bot horizontal offset used to fan squad members out
-## around their leader.
-func _follow_slot_offset() -> Vector2:
-	var slot := absi(bot_id) % 4
-	return Vector2((float(slot) - 1.5) * 36.0, 0.0)
-
-
 func _get_party_leader() -> int:
 	var party_id := PartyManager.get_player_party_id(bot_id)
 	if party_id == -1:
@@ -876,6 +890,22 @@ func _is_squad_leader() -> bool:
 	return PartyManager.get_party_leader(party_id) == bot_id
 
 
+## True when the bot's level sits far enough outside its current map's
+## difficulty band (by LEVEL_OVERRIDE_THRESHOLD) that it should travel now,
+## even mid-combat. False on maps with no difficulty entry (e.g. town).
+func _is_level_out_of_band() -> bool:
+	if not is_instance_valid(player) or not is_instance_valid(player.level_component):
+		return false
+	var difficulty := BotManager.get_map_difficulty(MapManager.get_player_map(bot_id))
+	if difficulty.is_empty():
+		return false
+	var bot_level: int = player.level_component.level
+	var max_level: int = difficulty.get("max_level", 999)
+	var min_level: int = difficulty.get("min_level", 1)
+	return bot_level >= max_level + LEVEL_OVERRIDE_THRESHOLD \
+		or bot_level <= min_level - LEVEL_OVERRIDE_THRESHOLD
+
+
 func _should_change_map() -> bool:
 	if not is_instance_valid(player) or not is_instance_valid(player.level_component):
 		return false
@@ -885,17 +915,11 @@ func _should_change_map() -> bool:
 	if difficulty.is_empty():
 		return not patrol_route.is_empty()
 
-	var bot_level: int = player.level_component.level
-	var max_level: int = difficulty.get("max_level", 999)
-	var min_level: int = difficulty.get("min_level", 1)
-
-	# Level override: always travel immediately if way out of range
-	if bot_level >= max_level + LEVEL_OVERRIDE_THRESHOLD:
-		return true
-	if bot_level <= min_level - LEVEL_OVERRIDE_THRESHOLD:
+	# Level override: always travel immediately if way out of range.
+	if _is_level_out_of_band():
 		return true
 
-	# Patrol route: only after stay timer expires, 30% chance per check
+	# Patrol route: only after stay timer expires, 30% chance per check.
 	if _map_stay_timer > 0.0:
 		return false
 	if not patrol_route.is_empty():
@@ -910,28 +934,23 @@ func _get_target_map() -> String:
 
 	var bot_level: int = player.level_component.level
 	var my_map := MapManager.get_player_map(bot_id)
-	var difficulty := BotManager.get_map_difficulty(my_map)
 
-	# Level override: find best-fit map
-	if not difficulty.is_empty():
-		var max_level: int = difficulty.get("max_level", 999)
-		var min_level: int = difficulty.get("min_level", 1)
-
-		if bot_level >= max_level + LEVEL_OVERRIDE_THRESHOLD or bot_level <= min_level - LEVEL_OVERRIDE_THRESHOLD:
-			var best_map := ""
-			var best_fit := 999
-			var all_difficulties: Dictionary = BotManager.bot_config.get("map_difficulty", {})
-			for map_id in all_difficulties:
-				if map_id == my_map:
-					continue
-				var md: Dictionary = all_difficulties[map_id]
-				var mid_level: int = (md.get("min_level", 1) + md.get("max_level", 60)) / 2
-				var fit := absi(bot_level - mid_level)
-				if fit < best_fit:
-					best_fit = fit
-					best_map = map_id
-			if not best_map.is_empty():
-				return best_map
+	# Level override: pick the map whose difficulty band best fits the bot.
+	if _is_level_out_of_band():
+		var best_map := ""
+		var best_fit := 999
+		var all_difficulties: Dictionary = BotManager.bot_config.get("map_difficulty", {})
+		for map_id in all_difficulties:
+			if map_id == my_map:
+				continue
+			var md: Dictionary = all_difficulties[map_id]
+			var mid_level: int = (md.get("min_level", 1) + md.get("max_level", 60)) / 2
+			var fit := absi(bot_level - mid_level)
+			if fit < best_fit:
+				best_fit = fit
+				best_map = map_id
+		if not best_map.is_empty():
+			return best_map
 
 	# Patrol route: pick the next level-appropriate map
 	if patrol_route.is_empty():

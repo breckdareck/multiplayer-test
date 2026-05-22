@@ -31,7 +31,7 @@ metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 [resource]
 script = ExtResource("2_ed")
 monster_name = "Tusk Brute"
-monster_level = 24
+monster_level = 28
 movement_speed = 45
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")

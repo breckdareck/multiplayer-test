@@ -19,8 +19,8 @@
 	"allow_map_travel": true
   },
   "map_difficulty": {
-	"game": { "min_level": 1, "max_level": 20 },
-	"game2": { "min_level": 15, "max_level": 40 },
+	"game": { "min_level": 1, "max_level": 10 },
+	"game2": { "min_level": 10, "max_level": 40 },
 	"game3": { "min_level": 55, "max_level": 90 }
   }
 }

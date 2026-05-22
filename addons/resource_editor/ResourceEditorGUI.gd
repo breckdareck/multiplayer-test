@@ -874,7 +874,7 @@ func _add_stat_bonus() -> void:
 
 
 func _add_ability_modifier() -> void:
-	#print("Add ability modifier - need ability ID input dialog")
+	print("Add ability modifier - need ability ID input dialog")
 
 
 func _on_preset_selected(index: int) -> void:

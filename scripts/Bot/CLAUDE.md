@@ -8,7 +8,7 @@ human would — it just supplies input flags instead of a keyboard.
 | File | Role |
 |---|---|
 | `bot_manager.gd` | Autoload. Spawns/despawns bots, owns `/bot` chat commands, loads `config/bot_config.json` |
-| `bot_brain.gd` | Per-bot AI: a think-loop FSM (idle / wander / fight / retreat / loot / follow / travel) |
+| `bot_brain.gd` | Per-bot AI: a think-loop FSM (idle / wander / fight / retreat / loot / travel) |
 | `bot_equipment_logic.gd` | Scores gear and decides equip/sell swaps |
 
 ## Key facts

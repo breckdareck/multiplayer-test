@@ -3,12 +3,12 @@
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
 [ext_resource type="SpriteFrames" uid="uid://bujet2eddxc5l" path="res://resources/Enemies/Bunny/SF_Bunny.tres" id="3_sf"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Adamant_Longsword.tres" id="d_1"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Adamant_Dirk.tres" id="d_2"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Adamant_Vanguard_Mail.tres" id="d_3"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Adamant_Nightshade_Mail.tres" id="d_4"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Adamant_Pathfinder_Helm.tres" id="d_5"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Adamant_Arcanist_Helm.tres" id="d_6"]
+[ext_resource type="Resource" uid="uid://cwgd24ibg8o6a" path="res://resources/DropTables/Generated/Adamant_Longsword.tres" id="d_1"]
+[ext_resource type="Resource" uid="uid://ur7wcpgn4oi6" path="res://resources/DropTables/Generated/Adamant_Dirk.tres" id="d_2"]
+[ext_resource type="Resource" uid="uid://btfa7e13cwxy1" path="res://resources/DropTables/Generated/Adamant_Vanguard_Mail.tres" id="d_3"]
+[ext_resource type="Resource" uid="uid://bm3jwq5i6kxgm" path="res://resources/DropTables/Generated/Adamant_Nightshade_Mail.tres" id="d_4"]
+[ext_resource type="Resource" uid="uid://b1ewjw45dtoqt" path="res://resources/DropTables/Generated/Adamant_Pathfinder_Helm.tres" id="d_5"]
+[ext_resource type="Resource" uid="uid://bmvjgv1qong7o" path="res://resources/DropTables/Generated/Adamant_Arcanist_Helm.tres" id="d_6"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)
@@ -31,7 +31,7 @@ metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 [resource]
 script = ExtResource("2_ed")
 monster_name = "Dark Bunny"
-monster_level = 50
+monster_level = 53
 movement_speed = 45
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")

@@ -3,12 +3,12 @@
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
 [ext_resource type="SpriteFrames" uid="uid://ckcbsuhp72f5i" path="res://resources/Enemies/Goblin/SF_Goblin.tres" id="3_sf"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Bronze_Longsword.tres" id="d_1"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Bronze_Spellstaff.tres" id="d_2"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Bronze_Vanguard_Helm.tres" id="d_3"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Bronze_Vanguard_Mail.tres" id="d_4"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Bronze_Arcanist_Helm.tres" id="d_5"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Bronze_Arcanist_Mail.tres" id="d_6"]
+[ext_resource type="Resource" uid="uid://bpbhsjdpq8fb5" path="res://resources/DropTables/Generated/Bronze_Longsword.tres" id="d_1"]
+[ext_resource type="Resource" uid="uid://wau2hmgjpg7g" path="res://resources/DropTables/Generated/Bronze_Spellstaff.tres" id="d_2"]
+[ext_resource type="Resource" uid="uid://b6dkmasx0bpi" path="res://resources/DropTables/Generated/Bronze_Vanguard_Helm.tres" id="d_3"]
+[ext_resource type="Resource" uid="uid://cj20cvduku0i8" path="res://resources/DropTables/Generated/Bronze_Vanguard_Mail.tres" id="d_4"]
+[ext_resource type="Resource" uid="uid://el0dporkrsce" path="res://resources/DropTables/Generated/Bronze_Arcanist_Helm.tres" id="d_5"]
+[ext_resource type="Resource" uid="uid://b8y8je5im2qgn" path="res://resources/DropTables/Generated/Bronze_Arcanist_Mail.tres" id="d_6"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)
@@ -31,7 +31,7 @@ metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 [resource]
 script = ExtResource("2_ed")
 monster_name = "Goblin"
-monster_level = 10
+monster_level = 18
 movement_speed = 40
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")

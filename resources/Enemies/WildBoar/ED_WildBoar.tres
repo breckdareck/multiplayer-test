@@ -31,7 +31,7 @@ metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 [resource]
 script = ExtResource("2_ed")
 monster_name = "Wild Boar"
-monster_level = 80
+monster_level = 83
 movement_speed = 45
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")

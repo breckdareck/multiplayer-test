@@ -3,12 +3,12 @@
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
 [ext_resource type="SpriteFrames" uid="uid://baqtyjguyoxo2" path="res://resources/Enemies/Fox/SF_Fox.tres" id="3_sf"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Runic_Dirk.tres" id="d_1"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Runic_Warbow.tres" id="d_2"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Runic_Nightshade_Mail.tres" id="d_3"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Runic_Nightshade_Helm.tres" id="d_4"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Runic_Pathfinder_Mail.tres" id="d_5"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Runic_Arcanist_Mail.tres" id="d_6"]
+[ext_resource type="Resource" uid="uid://dh086ncj3thdx" path="res://resources/DropTables/Generated/Runic_Dirk.tres" id="d_1"]
+[ext_resource type="Resource" uid="uid://t5mycs1rb07m" path="res://resources/DropTables/Generated/Runic_Warbow.tres" id="d_2"]
+[ext_resource type="Resource" uid="uid://b0jo65dsgt6nl" path="res://resources/DropTables/Generated/Runic_Nightshade_Mail.tres" id="d_3"]
+[ext_resource type="Resource" uid="uid://c1psu5egtw5vh" path="res://resources/DropTables/Generated/Runic_Nightshade_Helm.tres" id="d_4"]
+[ext_resource type="Resource" uid="uid://borc2xr804w8e" path="res://resources/DropTables/Generated/Runic_Pathfinder_Mail.tres" id="d_5"]
+[ext_resource type="Resource" uid="uid://dkvkxs6apflb0" path="res://resources/DropTables/Generated/Runic_Arcanist_Mail.tres" id="d_6"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)
@@ -31,7 +31,7 @@ metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 [resource]
 script = ExtResource("2_ed")
 monster_name = "Shadow Fox"
-monster_level = 60
+monster_level = 63
 movement_speed = 50
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")

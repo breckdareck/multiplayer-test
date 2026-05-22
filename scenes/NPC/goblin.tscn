@@ -7,7 +7,7 @@
 [ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="2_lkl8q"]
 [ext_resource type="Resource" uid="uid://cvctd6i3vmgiy" path="res://resources/Enemies/Goblin/ED_Goblin.tres" id="2_vbub7"]
 [ext_resource type="Curve" uid="uid://c20efdba57fc" path="res://assets/curves/monster_wep_att_curve.tres" id="5_p6uye"]
-[ext_resource type="Script" uid="uid://dwv2k28spwfby" path="res://scripts/StateMachine/state_machine.gd" id="5_yyaat"]
+[ext_resource type="Script" uid="uid://dwv2k28spwfby" path="res://scripts/Core/StateMachine/state_machine.gd" id="5_yyaat"]
 [ext_resource type="Script" uid="uid://dk2rcptcq3hb8" path="res://scripts/Enemy/StateMachine/enemy_patrol.gd" id="6_u21pb"]
 [ext_resource type="Script" uid="uid://71v08yv5tjrt" path="res://scripts/Components/stats.gd" id="6_vbub7"]
 [ext_resource type="Curve" uid="uid://cf67a4a36687" path="res://assets/curves/monster_magic_att_curve.tres" id="6_xxpon"]

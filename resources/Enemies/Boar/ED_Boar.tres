@@ -3,10 +3,10 @@
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
 [ext_resource type="SpriteFrames" uid="uid://c28y4uyabwctv" path="res://resources/Enemies/Boar/SF_Boar.tres" id="3_sf"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Worn_Warbow.tres" id="d_1"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Worn_Pathfinder_Mail.tres" id="d_2"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Worn_Vanguard_Legguards.tres" id="d_3"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Worn_Nightshade_Mail.tres" id="d_4"]
+[ext_resource type="Resource" uid="uid://cm3gs1mqm8k7b" path="res://resources/DropTables/Generated/Worn_Warbow.tres" id="d_1"]
+[ext_resource type="Resource" uid="uid://do7u1m07eoq8s" path="res://resources/DropTables/Generated/Worn_Pathfinder_Mail.tres" id="d_2"]
+[ext_resource type="Resource" uid="uid://cehhyd04q7xl6" path="res://resources/DropTables/Generated/Worn_Vanguard_Legguards.tres" id="d_3"]
+[ext_resource type="Resource" uid="uid://xfubmy6r2lqa" path="res://resources/DropTables/Generated/Worn_Nightshade_Mail.tres" id="d_4"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)
@@ -29,7 +29,7 @@ metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 [resource]
 script = ExtResource("2_ed")
 monster_name = "Boar"
-monster_level = 5
+monster_level = 6
 movement_speed = 40
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")

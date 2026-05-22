@@ -1,8 +1,8 @@
 [gd_scene load_steps=26 format=4 uid="uid://ftib17laf2kk"]
 
-[ext_resource type="Script" path="res://scripts/Gameplay/map_base.gd" id="1_hd3yw"]
-[ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/damage_numbers.gd" id="2_cfook"]
-[ext_resource type="PackedScene" uid="uid://brfb5t5im33fl" path="res://scenes/Gameplay/portal.tscn" id="3_wye8b"]
+[ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_hd3yw"]
+[ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/VFX/damage_numbers.gd" id="2_cfook"]
+[ext_resource type="PackedScene" path="res://scenes/Gameplay/portal.tscn" id="3_wye8b"]
 [ext_resource type="PackedScene" path="res://scenes/Gameplay/secret_portal.tscn" id="4_giv6l"]
 [ext_resource type="Texture2D" uid="uid://jorjvuc5wn72" path="res://assets/sprites/world_tileset.png" id="4_rjw66"]
 [ext_resource type="Texture2D" uid="uid://cd28i3fo3v1m0" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/country village tileset.png" id="5_61k7k"]
@@ -18,7 +18,7 @@
 [ext_resource type="PackedScene" uid="uid://c06qbiant345e" path="res://scenes/NPC/Minifolks/bunny.tscn" id="15_mrgbh"]
 [ext_resource type="Script" uid="uid://bwpy3okndk0cu" path="res://scripts/Enemy/enemy_spawner.gd" id="16_mxmss"]
 [ext_resource type="PackedScene" uid="uid://c0fdrl7mq5ou7" path="res://scenes/NPC/goblin.tscn" id="17_i3lvf"]
-[ext_resource type="Script" path="res://scripts/Gameplay/enemy_multiplayer_spawner.gd" id="18_y6jw5"]
+[ext_resource type="Script" uid="uid://b4ed7py37e6nt" path="res://scripts/Gameplay/enemy_multiplayer_spawner.gd" id="18_y6jw5"]
 [ext_resource type="Script" uid="uid://igk1rxt26f2i" path="res://scripts/UI/global_drop_handler.gd" id="19_a5oj5"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_wcg0u"]
