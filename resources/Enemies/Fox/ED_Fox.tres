@@ -31,6 +31,7 @@ script = ExtResource("2_ed")
 monster_name = "Fox"
 monster_level = 9
 movement_speed = 40
+is_aggressive = true
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")
 body_hitbox_shape = SubResource("Shape_body")

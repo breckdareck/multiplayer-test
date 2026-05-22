@@ -33,6 +33,7 @@ script = ExtResource("2_ed")
 monster_name = "Wild Boar"
 monster_level = 83
 movement_speed = 45
+is_aggressive = true
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")
 body_hitbox_shape = SubResource("Shape_body")

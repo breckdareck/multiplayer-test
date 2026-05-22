@@ -12,6 +12,9 @@ func enter() -> void:
 
 
 func process_frame(delta: float) -> State:
+	var aggro := _check_aggro()
+	if aggro:
+		return aggro
 	patrol_timer -= delta
 	if patrol_timer <= 0.0:
 		if idle_state:

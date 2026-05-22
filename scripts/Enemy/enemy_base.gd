@@ -53,6 +53,16 @@ var facing_direction: int = 1
 var _is_being_cleaned_up: bool = false
 var initial_position: Vector2
 
+# --- AI / aggro state ---
+## The player or bot this enemy is currently hunting (null when not aggroed).
+var current_target: Node2D = null
+## Where the enemy stood when it began chasing — used to leash the pursuit.
+var leash_anchor: Vector2
+## Time.get_ticks_msec() at which the next attack becomes available.
+var _attack_cooldown_until: int = 0
+
+const _CHASE_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_chase.gd")
+
 
 func _apply_enemy_data() -> void:
 	monster_name = enemy_data.monster_name
@@ -163,7 +173,9 @@ func _ready() -> void:
 		await get_tree().process_frame
 
 	name_label.text = "Lv.%d %s" % [monster_level, monster_name]
-	# Initialize state machine with the same pattern as player
+	# Inject the AI chase state, then initialize the state machine with the
+	# same pattern as the player.
+	_ensure_chase_state()
 	state_machine.init(self, animated_sprite)
 
 
@@ -199,6 +211,12 @@ func on_enemy_damaged(amount: int, source: Node) -> void:
 		if multiplayer.is_server():
 			for pid in _get_real_players_on_same_map():
 				client_show_name_label.rpc_id(pid)
+
+	# Provoked: a passive enemy wakes up and chases whoever just hit it. An
+	# already-aggressive enemy retargets onto its current attacker.
+	var attacker := _resolve_character(source)
+	if is_valid_target(attacker):
+		current_target = attacker
 
 
 func _on_enemy_died(_killer: Node) -> void:
@@ -385,8 +403,9 @@ func client_hide_name_label():
 func pool_deactivate() -> void:
 	if _is_being_cleaned_up:
 		return
-		
+
 	damage_by_player.clear()
+	current_target = null
 	visible = false
 	set_process(false)
 	set_physics_process(false)
@@ -410,7 +429,10 @@ func pool_deactivate() -> void:
 func pool_reset() -> void:
 	if _is_being_cleaned_up:
 		return
-	
+
+	current_target = null
+	_attack_cooldown_until = 0
+
 	if respawnable:
 		global_position = initial_position
 	
@@ -636,3 +658,124 @@ func _get_real_players_on_same_map() -> Array:
 	if map_name != "":
 		return MapManager.get_real_players_on_map(map_name)
 	return []
+
+
+# --- AI: targeting & combat ----------------------------------------------
+
+## Creates and attaches the runtime "chase" AI state if it isn't already in the
+## state machine. Done in code so every enemy scene gets the behaviour without
+## per-scene wiring; sibling states are resolved by name at transition time.
+func _ensure_chase_state() -> void:
+	if state_machine == null or state_machine.has_node("chase"):
+		return
+	var chase := Node.new()
+	chase.set_script(_CHASE_STATE_SCRIPT)
+	chase.name = "chase"
+	# Reuse the walk/patrol animation while pursuing a target.
+	chase.animation_name = "patrol"
+	state_machine.add_child(chase)
+
+
+## Resolves a damage source (a player/bot node, or an ability/projectile owned
+## by one) down to the player or bot character node behind it.
+func _resolve_character(source: Node) -> Node2D:
+	if source is MultiplayerPlayerV2:
+		return source as MultiplayerPlayerV2
+	if source != null and source.owner is MultiplayerPlayerV2:
+		return source.owner as MultiplayerPlayerV2
+	return null
+
+
+## True when `node` is a living, visible player or bot this enemy may attack.
+func is_valid_target(node) -> bool:
+	if not is_instance_valid(node):
+		return false
+	if not node is MultiplayerPlayerV2:
+		return false
+	if node.has_meta("is_invisible") and node.get_meta("is_invisible"):
+		return false
+	var health := node.get_node_or_null("Components/Health") as HealthComponent
+	if health == null or health.is_dead:
+		return false
+	return true
+
+
+## Nearest living player/bot on this enemy's map within its detection radius,
+## or null when none are in sight.
+func acquire_target() -> Node2D:
+	if not multiplayer.is_server() or enemy_data == null:
+		return null
+	var best: Node2D = null
+	var best_dist: float = enemy_data.detection_radius
+	for pid in _get_players_on_same_map():
+		var node: Node2D = PlayerManager.get_player_node(pid)
+		if not is_valid_target(node):
+			continue
+		var d: float = global_position.distance_to(node.global_position)
+		if d < best_dist:
+			best_dist = d
+			best = node
+	return best
+
+
+## The target the idle/patrol states should chase, or null to keep wandering.
+## A passive enemy only returns a target it was already provoked by; an
+## aggressive enemy actively scans for one in sight.
+func get_aggro_target() -> Node2D:
+	if is_valid_target(current_target):
+		return current_target
+	current_target = null
+	if enemy_data and enemy_data.is_aggressive:
+		current_target = acquire_target()
+	return current_target
+
+
+## True when this enemy has a melee attack state — i.e. it swings rather than
+## simply charging into its target.
+func has_attack_state() -> bool:
+	return state_machine != null and state_machine.has_node("slash_attack")
+
+
+func can_attack() -> bool:
+	return Time.get_ticks_msec() >= _attack_cooldown_until
+
+
+func start_attack_cooldown() -> void:
+	var cd: float = enemy_data.attack_cooldown if enemy_data else 1.4
+	_attack_cooldown_until = Time.get_ticks_msec() + int(cd * 1000.0)
+
+
+## Points facing (and the sprite) in a horizontal direction (-1 or +1).
+func face_direction(dir: int) -> void:
+	if dir == 0:
+		return
+	facing_direction = dir
+	if animated_sprite and is_instance_valid(animated_sprite):
+		animated_sprite.flip_h = facing_direction < 0
+
+
+## Points facing at a world position. Used while attacking, when velocity is
+## ~0 and the velocity-based _update_facing won't fire.
+func face_toward(pos: Vector2) -> void:
+	var dx: float = pos.x - global_position.x
+	if absf(dx) < 1.0:
+		return
+	face_direction(1 if dx > 0 else -1)
+
+
+## Damages every valid target in front of the enemy within melee reach. Called
+## once mid-swing by the slash-attack state.
+func perform_slash_hit() -> void:
+	if not multiplayer.is_server() or enemy_data == null:
+		return
+	var reach: float = enemy_data.attack_range + 18.0
+	for pid in _get_players_on_same_map():
+		var node: Node2D = PlayerManager.get_player_node(pid)
+		if not is_valid_target(node):
+			continue
+		var to: Vector2 = node.global_position - global_position
+		# The target must be on the side the enemy is facing.
+		if signf(to.x) != float(facing_direction) and absf(to.x) > 6.0:
+			continue
+		if global_position.distance_to(node.global_position) <= reach:
+			damage_on_overlap(node)
