@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=4 uid="uid://d1hwvomjwdrjv"]
+[gd_scene load_steps=22 format=4 uid="uid://d1hwvomjwdrjv"]
 
 [ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_e24jv"]
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/VFX/damage_numbers.gd" id="1_ryi0r"]
@@ -14,6 +14,7 @@
 [ext_resource type="PackedScene" uid="uid://c06qbiant345e" path="res://scenes/NPC/Minifolks/bunny.tscn" id="9_qb3j5"]
 [ext_resource type="PackedScene" path="res://scenes/Gameplay/secret_portal.tscn" id="17_j167y"]
 [ext_resource type="Script" uid="uid://igk1rxt26f2i" path="res://scripts/UI/global_drop_handler.gd" id="24_drop_handler"]
+[ext_resource type="PackedScene" uid="uid://cvbk0n8a7q2x1" path="res://scenes/Levels/village_background.tscn" id="bg_village"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lnu2h"]
 texture = ExtResource("2_l25cu")
@@ -529,6 +530,10 @@ expand_margin_bottom = 2.0
 [node name="Game" type="Node2D"]
 script = ExtResource("1_e24jv")
 bgm_path = "uid://1ib7gi5y7uov"
+display_name = "Slime Meadow"
+
+[node name="VillageBackground" parent="." instance=ExtResource("bg_village")]
+position = Vector2(0, -260)
 
 [node name="DmgNumberSpawner" type="MultiplayerSpawner" parent="."]
 spawn_path = NodePath("..")

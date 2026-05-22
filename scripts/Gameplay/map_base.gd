@@ -8,6 +8,11 @@ class_name MapBase
 ## Leave empty to keep playing whatever is currently playing.
 @export_file("*.mp3", "*.ogg", "*.wav") var bgm_path: String = ""
 
+## Themed display name for this zone (e.g. "Maple Town", "Goblin Hollow").
+## Surfaced by the ZoneBanner overlay when the local player enters the map.
+## Leave empty to suppress the banner for this map.
+@export var display_name: String = ""
+
 func _ready():
 	# Add to group so MapManager can identify maps
 	add_to_group("map_base")

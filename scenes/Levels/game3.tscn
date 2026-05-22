@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=4 uid="uid://wkfowd2qg5dn"]
+[gd_scene load_steps=19 format=4 uid="uid://wkfowd2qg5dn"]
 
 [ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_gfksk"]
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/VFX/damage_numbers.gd" id="1_l73hv"]
@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" path="res://scenes/NPC/fire_slime.tscn" id="10_e6cox"]
 [ext_resource type="PackedScene" path="res://scenes/NPC/Minifolks/shadow_fox.tscn" id="10_obygc"]
 [ext_resource type="Script" uid="uid://igk1rxt26f2i" path="res://scripts/UI/global_drop_handler.gd" id="12_1vulb"]
+[ext_resource type="PackedScene" uid="uid://cvbk0n8a7q2x1" path="res://scenes/Levels/village_background.tscn" id="bg_village"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_m14ue"]
 texture = ExtResource("3_m5hrh")
@@ -509,6 +510,11 @@ sources/2 = SubResource("TileSetAtlasSource_72b6d")
 [node name="Game3" type="Node2D"]
 script = ExtResource("1_gfksk")
 bgm_path = "res://assets/music/gameplay.mp3"
+display_name = "Shadowfell"
+
+[node name="VillageBackground" parent="." instance=ExtResource("bg_village")]
+modulate = Color(0.5, 0.5, 0.65, 1)
+position = Vector2(-1889, -260)
 
 [node name="DmgNumberSpawner" type="MultiplayerSpawner" parent="."]
 spawn_path = NodePath("..")

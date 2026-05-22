@@ -298,6 +298,8 @@ func _setup_signals() -> void:
 		level_component.leveled_up.connect(func(new_level):
 			if multiplayer.is_server() and not _is_loading_data:
 				QuestManager.record_level_up(username, new_level)
+				if new_level == JobAdvancementManager.ADVANCEMENT_LEVEL:
+					QuestManager.notify_advancement_available(username)
 		)
 		if multiplayer.is_server():
 			level_component.leveled_up.connect(_handle_sprite_change_on_server.unbind(1))
@@ -349,6 +351,20 @@ func _setup_client_visuals() -> void:
 			# Instantiate and add GameMenu
 			game_menu = GAME_MENU_SCENE.instantiate()
 			player_HUD.add_child(game_menu)
+
+			# Instantiate and add the always-on quest tracker overlay
+			var quest_tracker := QuestTracker.new()
+			quest_tracker.setup(self)
+			player_HUD.add_child(quest_tracker)
+
+			# Zone-entry banner — shown briefly when the local player spawns
+			# into a new map. Reads the themed name from MapBase.display_name.
+			var parent_node := get_parent()
+			var map_root := parent_node.get_parent() if parent_node else null
+			if map_root and map_root is MapBase and not (map_root as MapBase).display_name.is_empty():
+				var banner := ZoneBanner.new()
+				player_HUD.add_child(banner)
+				banner.show_zone((map_root as MapBase).display_name)
 	else:
 		camera.enabled = false
 

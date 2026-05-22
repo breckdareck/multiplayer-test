@@ -44,14 +44,27 @@ func get_slot_at_index(index: int) -> Node:
 		return hotbar_slots[index]
 	return null
 
-## Call this to activate an ability from a slot (e.g., when pressing keybind)
+## Call this to activate a slot (e.g., when pressing its keybind)
 func activate_slot(slot_index: int):
 	var slot = get_slot_at_index(slot_index)
-	if slot and slot.assigned_ability:
-		#print("Activating ability: %s" % slot.assigned_ability.ability_name)
-		# Integrate with your ability system here
+	if not slot:
+		return
+	if slot.assigned_ability:
 		if player and player.ability_component.has_method("use_ability"):
 			player.ability_component.use_ability(slot.assigned_ability.ability_id)
+	elif slot.assigned_consumable:
+		_use_consumable(slot.assigned_consumable)
+
+## Finds an inventory slot holding this consumable and asks the server to use it.
+func _use_consumable(consumable: ConsumableData) -> void:
+	if not is_instance_valid(player) or not is_instance_valid(player.inventory_component):
+		return
+	var inv := player.inventory_component
+	for i in range(inv.slots.size()):
+		var inv_slot = inv.slots[i]
+		if inv_slot.item != null and inv_slot.item.item_id == consumable.item_id:
+			inv.request_use_item.rpc_id(1, i)
+			return
 
 func _on_cooldown_started(ability_id: String, duration: float) -> void:
 	for slot in hotbar_slots:
@@ -74,6 +87,8 @@ func save_hotbar_config() -> Dictionary:
 	for slot in hotbar_slots:
 		if slot.assigned_ability:
 			config[slot.get_index()] = slot.assigned_ability.ability_id
+		elif slot.assigned_consumable:
+			config[slot.get_index()] = slot.assigned_consumable.item_id
 		else:
 			config[slot.get_index()] = ""
 	return config
@@ -85,11 +100,14 @@ func load_hotbar_config(config: Dictionary):
 		return
 	
 	for i in range(config.size()):
-		if config.get(str(i)) != "":
-			var ability_id = config.get(str(i))
-			# Find the ability data from the ability window
-			for ability in ability_component._ability_levels.keys():
-				if ability == ability_id:
-					var ability_data = ResourceManager.get_ability_data(ability)
-					hotbar_slots[i].assign_ability(ability_data)
-					break
+		var entry_id: String = config.get(str(i), "")
+		if entry_id == "":
+			continue
+		# Hotbar entries store either a learned ability's id or a consumable's
+		# item_id — ability and item ids occupy distinct id spaces.
+		if ability_component and ability_component._ability_levels.has(entry_id):
+			hotbar_slots[i].assign_ability(ResourceManager.get_ability_data(entry_id))
+		else:
+			var item_data = ResourceManager.get_item_data(entry_id)
+			if item_data is ConsumableData:
+				hotbar_slots[i].assign_consumable(item_data)

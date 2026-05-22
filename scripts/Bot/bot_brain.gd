@@ -207,6 +207,12 @@ func attach_to_player(player_node: MultiplayerPlayerV2) -> void:
 	_navigator._nav_path = PackedInt64Array()
 	_navigator._nav_goal = Vector2.INF
 	_navigator._descend_dir = 0
+	# Run shop maintenance on the very next think instead of waiting up to
+	# SHOP_CHECK_INTERVAL. Without this, a bot that traveled to town for a
+	# restock can leave again before the timer elapses — needs_restock /
+	# needs_sell stay stale, the bot re-enters the training map, and the same
+	# flags immediately send it back to town. Ping-pong through the portal.
+	_shop_check_timer = 0.0
 	_connect_health_signals()
 
 
@@ -226,6 +232,7 @@ func _process(delta: float) -> void:
 	_navigator._jump_cooldown_timer -= delta
 	_navigator._nav_repath_timer -= delta
 	_loot_sweep_timer -= delta
+	_combat._gcd_timer -= delta
 	action_timer -= delta
 	think_timer -= delta
 
@@ -952,10 +959,21 @@ func _get_target_map() -> String:
 		if not best_map.is_empty():
 			return best_map
 
-	# Patrol route: pick the next level-appropriate map
+	# Patrol route: prefer the next entry whose difficulty band fits the bot's
+	# level. On a "transient" map with no band of its own (e.g. town), fall
+	# back to the closest-fitting entry when nothing is in-band — otherwise the
+	# bot refuses to leave and idles forever. On a banded map, do NOT fall
+	# back: returning "" tells the caller "no patrol move right now," and the
+	# bot stays where it is. Falling back from a banded map would patrol-travel
+	# an in-band bot onto a wrong-level map, triggering urgent travel back —
+	# slow oscillation through the same portals.
 	if patrol_route.is_empty():
 		return ""
+	var on_transient_map: bool = BotManager.get_map_difficulty(my_map).is_empty()
 	var all_difficulties: Dictionary = BotManager.bot_config.get("map_difficulty", {})
+	var fallback_map := ""
+	var fallback_idx := patrol_index
+	var fallback_gap := 1 << 30
 	for i in patrol_route.size():
 		var idx := (patrol_index + 1 + i) % patrol_route.size()
 		var candidate: String = patrol_route[idx]
@@ -970,6 +988,16 @@ func _get_target_map() -> String:
 		if bot_level >= min_lvl - LEVEL_OVERRIDE_THRESHOLD and bot_level <= max_lvl + LEVEL_OVERRIDE_THRESHOLD:
 			patrol_index = idx
 			return candidate
+		if on_transient_map:
+			# Track the closest-fit out-of-band entry as a transient-map fallback.
+			var gap: int = maxi(min_lvl - bot_level, bot_level - max_lvl)
+			if gap < fallback_gap:
+				fallback_gap = gap
+				fallback_map = candidate
+				fallback_idx = idx
+	if not fallback_map.is_empty():
+		patrol_index = fallback_idx
+		return fallback_map
 	return ""
 
 

@@ -11,24 +11,39 @@ signal ability_selected(ability_id: String)
 
 var ability_data: AbilityData
 var is_selected: bool = false
+var current_level: int = 0
 
 func _ready():
-	pass
+	TooltipTheme.apply_to(self)
+	mouse_entered.connect(_on_mouse_entered)
 
 ## Called by the AbilityWindow to set the data for the slot
-func setup(data: AbilityData, current_level: int):
+func setup(data: AbilityData, level: int):
 	ability_data = data
+	current_level = level
 	if ability_data:
 		if ability_icon:
 			ability_icon.texture = data.ability_icon
 		if ability_name:
 			ability_name.text = data.ability_name
-	
+
 	# Mocking the AbilityType display, replace with actual Constants
 	var type_text = "Passive" if data.ability_type == 1 else "Active"
 	ability_type.text = type_text
-	
-	ability_level.text = str(current_level)
+
+	ability_level.text = str(level)
+	_refresh_tooltip()
+
+
+func _on_mouse_entered() -> void:
+	_refresh_tooltip()
+
+
+func _refresh_tooltip() -> void:
+	if ability_data:
+		tooltip_text = ability_data.get_tooltip_text(current_level)
+	else:
+		tooltip_text = ""
 
 ## Handles mouse click to select the ability
 func _gui_input(event: InputEvent):
@@ -46,7 +61,6 @@ func _get_drag_data(_at_position: Vector2):
 		return null
 	
 	# Only allow dragging learned abilities (level > 0)
-	var current_level = int(ability_level.text) if ability_level else 0
 	if current_level <= 0:
 		#print("Cannot drag unlearned ability")
 		return null

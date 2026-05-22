@@ -14,6 +14,9 @@ var attack_range: float = 25.0
 
 var _combat_timer: float = 0.0
 var _combat_last_enemy_hp: int = -1
+## Global cooldown countdown: time before the bot may start another attack
+## (basic swing or ability). Armed on every attack, ticked down by the brain.
+var _gcd_timer: float = 0.0
 var _blacklisted_enemies: Array[EnemyBase] = []
 const COMBAT_DISENGAGE_TIME: float = 6.0
 ## While fighting, switch to a different enemy only when it is this much closer
@@ -27,6 +30,10 @@ const KITE_DANGER_RANGE: float = 60.0
 ## Enemies within this radius of the target count as a cluster, biasing the
 ## bot's ability choice toward AoE skills.
 const AOE_CLUSTER_RADIUS: float = 72.0
+## Global cooldown between any two attacks the bot starts — basic swing or
+## ability. Without it the bot chains a free, cooldown-less basic attack onto
+## every Slash and attacks at roughly twice the intended rate.
+const GCD: float = 1.0
 
 var _buff_abilities: Array[String] = []
 var _attack_abilities: Array[String] = []
@@ -147,7 +154,7 @@ func do_fight() -> void:
 	if is_ranged and not _has_mana_for_any_attack():
 		if dx < KITE_DANGER_RANGE:
 			if dx <= attack_range:
-				player.do_attack = true
+				_try_basic_attack()
 			_kite_away(dir)
 		else:
 			player.direction = 0
@@ -157,7 +164,7 @@ func do_fight() -> void:
 	# bot is fighting on the way out, not just fleeing.
 	if is_ranged and dx < KITE_DANGER_RANGE:
 		if not _try_use_attack_ability(dx) and dx <= attack_range:
-			player.do_attack = true
+			_try_basic_attack()
 		_kite_away(dir)
 		return
 
@@ -181,7 +188,16 @@ func do_fight() -> void:
 
 	player.direction = 0
 	if not _try_use_attack_ability(dx):
-		player.do_attack = true
+		_try_basic_attack()
+
+
+## Issues a basic melee attack, but only once the global cooldown has elapsed.
+## Arms the GCD so the next attack — basic or ability — waits its full duration.
+func _try_basic_attack() -> void:
+	if _gcd_timer > 0.0:
+		return
+	brain.player.do_attack = true
+	_gcd_timer = GCD
 
 
 ## Steps a ranged bot away from an enemy to re-open attack distance while
@@ -271,6 +287,8 @@ func _auto_spend_ability_points(ability_comp: AbilityComponent) -> void:
 func _try_use_buff() -> bool:
 	if _buff_abilities.is_empty():
 		return false
+	if _gcd_timer > 0.0:
+		return false
 	var player: MultiplayerPlayerV2 = brain.player
 	var ability_comp: AbilityComponent = player.ability_component
 	var buff_comp: BuffComponent = player.buff_component
@@ -289,6 +307,7 @@ func _try_use_buff() -> bool:
 		if not _has_enough_mana(ability_id):
 			continue
 		ability_comp.use_ability_server(ability_id)
+		_gcd_timer = GCD
 		return true
 	return false
 
@@ -297,6 +316,8 @@ func _try_use_buff() -> bool:
 ## damage potential, biased toward AoE skills when enemies are clustered.
 func _try_use_attack_ability(distance_to_target: float = 0.0) -> bool:
 	if _attack_abilities.is_empty():
+		return false
+	if _gcd_timer > 0.0:
 		return false
 	var player: MultiplayerPlayerV2 = brain.player
 	var ability_comp: AbilityComponent = player.ability_component
@@ -326,6 +347,7 @@ func _try_use_attack_ability(distance_to_target: float = 0.0) -> bool:
 	if best_id.is_empty():
 		return false
 	ability_comp.use_ability_server(best_id)
+	_gcd_timer = GCD
 	return true
 
 

@@ -52,6 +52,38 @@ const ARCHER_BASE_MAX_MANA: int = 50
 const ARCHER_HEALTH_SCALING_MULTIPLIER: int = 22
 const ARCHER_MANA_SCALING_MULTIPLIER: int = 16
 
+# Advanced classes — earned at level 30 via Job Advancement. Each is calibrated
+# to be ~1.5× the base class at level 30 (a noticeable jump on advancement) and
+# scale slightly faster per level than the base.
+
+# Crusader (advanced Swordsman)
+const CRUSADER_BASE_MAX_HEALTH: int = 180
+const CRUSADER_BASE_MAX_MANA: int = 45
+const CRUSADER_HEALTH_SCALING_MULTIPLIER: int = 34
+const CRUSADER_MANA_SCALING_MULTIPLIER: int = 7
+
+# Ranger (advanced Archer)
+const RANGER_BASE_MAX_HEALTH: int = 135
+const RANGER_BASE_MAX_MANA: int = 75
+const RANGER_HEALTH_SCALING_MULTIPLIER: int = 28
+const RANGER_MANA_SCALING_MULTIPLIER: int = 20
+
+# Archmage (advanced Mage)
+const ARCHMAGE_BASE_MAX_HEALTH: int = 105
+const ARCHMAGE_BASE_MAX_MANA: int = 150
+const ARCHMAGE_HEALTH_SCALING_MULTIPLIER: int = 28
+const ARCHMAGE_MANA_SCALING_MULTIPLIER: int = 47
+
+# Assassin (advanced Rogue)
+const ASSASSIN_BASE_MAX_HEALTH: int = 142
+const ASSASSIN_BASE_MAX_MANA: int = 67
+const ASSASSIN_HEALTH_SCALING_MULTIPLIER: int = 28
+const ASSASSIN_MANA_SCALING_MULTIPLIER: int = 19
+
+# Flat knockback resistance every class starts with. Equipment and buffs add
+# flat bonuses on top through the normal stat aggregation.
+const BASE_KNOCKBACK_RESIST: int = 80
+
 
 @export var stats: Dictionary[Constants.StatType, StatData] = {
 	Constants.StatType.STRENGTH: StatData.new(Constants.StatType.STRENGTH, 4),
@@ -68,7 +100,8 @@ const ARCHER_MANA_SCALING_MULTIPLIER: int = 16
 	Constants.StatType.CRITDAMAGE: StatData.new(Constants.StatType.CRITDAMAGE, 0),
 	Constants.StatType.WEAPONATTACK: StatData.new(Constants.StatType.WEAPONATTACK, 0),
 	Constants.StatType.MAGICATTACK: StatData.new(Constants.StatType.MAGICATTACK, 0),
-	
+	Constants.StatType.KNOCKBACKRESIST: StatData.new(Constants.StatType.KNOCKBACKRESIST, BASE_KNOCKBACK_RESIST),
+
 }
 
 var _level_component: LevelingComponent
@@ -141,6 +174,18 @@ func _recalculate_stats() -> void:
 		Constants.ClassType.ROGUE:
 			stats[Constants.StatType.HEALTH].base_value = int(ROGUE_BASE_MAX_HEALTH + (ROGUE_HEALTH_SCALING_MULTIPLIER * (level - 1)))
 			stats[Constants.StatType.MANA].base_value = int(ROGUE_BASE_MAX_MANA + (ROGUE_MANA_SCALING_MULTIPLIER * (level - 1)))
+		Constants.ClassType.CRUSADER:
+			stats[Constants.StatType.HEALTH].base_value = int(CRUSADER_BASE_MAX_HEALTH + (CRUSADER_HEALTH_SCALING_MULTIPLIER * (level - 1)))
+			stats[Constants.StatType.MANA].base_value = int(CRUSADER_BASE_MAX_MANA + (CRUSADER_MANA_SCALING_MULTIPLIER * (level - 1)))
+		Constants.ClassType.RANGER:
+			stats[Constants.StatType.HEALTH].base_value = int(RANGER_BASE_MAX_HEALTH + (RANGER_HEALTH_SCALING_MULTIPLIER * (level - 1)))
+			stats[Constants.StatType.MANA].base_value = int(RANGER_BASE_MAX_MANA + (RANGER_MANA_SCALING_MULTIPLIER * (level - 1)))
+		Constants.ClassType.ARCHMAGE:
+			stats[Constants.StatType.HEALTH].base_value = int(ARCHMAGE_BASE_MAX_HEALTH + (ARCHMAGE_HEALTH_SCALING_MULTIPLIER * (level - 1)))
+			stats[Constants.StatType.MANA].base_value = int(ARCHMAGE_BASE_MAX_MANA + (ARCHMAGE_MANA_SCALING_MULTIPLIER * (level - 1)))
+		Constants.ClassType.ASSASSIN:
+			stats[Constants.StatType.HEALTH].base_value = int(ASSASSIN_BASE_MAX_HEALTH + (ASSASSIN_HEALTH_SCALING_MULTIPLIER * (level - 1)))
+			stats[Constants.StatType.MANA].base_value = int(ASSASSIN_BASE_MAX_MANA + (ASSASSIN_MANA_SCALING_MULTIPLIER * (level - 1)))
 		_:
 			stats[Constants.StatType.HEALTH].base_value = int(BEGINNER_BASE_MAX_HEALTH + (BEGINNER_HEALTH_SCALING_MULTIPLIER * (level - 1)))
 			stats[Constants.StatType.MANA].base_value = int(BEGINNER_BASE_MAX_MANA + (BEGINNER_MANA_SCALING_MULTIPLIER * (level - 1)))
@@ -209,3 +254,15 @@ func set_loading_mode(enabled: bool) -> void:
 
 func is_loading() -> bool:
 	return _loading_mode
+
+
+## Rolls whether a hit with the given knockback `power` should knock back a
+## target. Chance is power / (power + resist): a target with 0 knockback resist
+## is always knocked back, while resist far above the hit's power rarely is.
+static func rolls_knockback(target_stats: StatsComponent, power: float) -> bool:
+	if power <= 0.0:
+		return false
+	var resist: float = 0.0
+	if target_stats and target_stats.stats.has(Constants.StatType.KNOCKBACKRESIST):
+		resist = float(target_stats.stats[Constants.StatType.KNOCKBACKRESIST].total_value)
+	return randf() < power / (power + maxf(resist, 0.0))

@@ -370,6 +370,13 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 	if _is_bot:
 		BotManager._on_bot_spawned(id)
 
+	# First-login onboarding. QuestManager handles idempotency via a persisted
+	# `_onboarded` flag — calling this on every spawn is safe and the only
+	# reliable trigger, because the backend creates a save row at character
+	# creation time (so "no save data" is never true for a real new character).
+	if multiplayer.is_server() and not _is_bot:
+		QuestManager.start_onboarding(username)
+
 
 func _load_player_data_from_file(username: String) -> Dictionary:
 	var file_path = "res://saves/player_%s.json" % username

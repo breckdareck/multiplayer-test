@@ -35,6 +35,9 @@ var item_drops: Array[ItemDropResource] = []
 const DROPPED_ITEM = preload("uid://b43dktokqxhjo")
 const POTION_DROP_CHANCE := 0.05
 
+# Flat knockback resistance shared by all enemies, rolled against incoming hits.
+const BASE_KNOCKBACK_RESIST := 60
+
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var state_machine: StateMachine = $StateMachine
 @onready var attack_hitbox: Area2D = $AttackHitbox
@@ -93,7 +96,8 @@ func _apply_enemy_data() -> void:
 		curve_stats[Constants.StatType.MAGICATTACK] = StatData.new(Constants.StatType.MAGICATTACK, roundi(magic_att_curve.sample(monster_level)))
 		curve_stats[Constants.StatType.DEFENSE] = StatData.new(Constants.StatType.DEFENSE, roundi(wep_def_curve.sample(monster_level)))
 		curve_stats[Constants.StatType.MAGICDEFENSE] = StatData.new(Constants.StatType.MAGICDEFENSE, roundi(magic_def_curve.sample(monster_level)))
-		
+		curve_stats[Constants.StatType.KNOCKBACKRESIST] = StatData.new(Constants.StatType.KNOCKBACKRESIST, BASE_KNOCKBACK_RESIST)
+
 		stats_component.stats = curve_stats
 		
 	var character_collision_shape_node: CollisionShape2D = $CollisionShape2D
@@ -556,12 +560,12 @@ func damage_on_overlap(body: Node):
 
 		health.take_damage(final_damage, self)
 
-		# Knockback logic
+		# Knockback, gated by the player's knockback resist.
 		var knockback_dir = - body.facing_direction
 		var knockback_strength = 120.0
 		var knockback_lift = -100.0
 		var knockback_vec = Vector2(knockback_dir * knockback_strength, knockback_lift)
-		if body.has_method("apply_knockback"):
+		if body.has_method("apply_knockback") and StatsComponent.rolls_knockback(player_stats, knockback_strength):
 			body.apply_knockback(knockback_vec)
 
 
@@ -761,21 +765,3 @@ func face_toward(pos: Vector2) -> void:
 	if absf(dx) < 1.0:
 		return
 	face_direction(1 if dx > 0 else -1)
-
-
-## Damages every valid target in front of the enemy within melee reach. Called
-## once mid-swing by the slash-attack state.
-func perform_slash_hit() -> void:
-	if not multiplayer.is_server() or enemy_data == null:
-		return
-	var reach: float = enemy_data.attack_range + 18.0
-	for pid in _get_players_on_same_map():
-		var node: Node2D = PlayerManager.get_player_node(pid)
-		if not is_valid_target(node):
-			continue
-		var to: Vector2 = node.global_position - global_position
-		# The target must be on the side the enemy is facing.
-		if signf(to.x) != float(facing_direction) and absf(to.x) > 6.0:
-			continue
-		if global_position.distance_to(node.global_position) <= reach:
-			damage_on_overlap(node)

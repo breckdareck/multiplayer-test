@@ -47,10 +47,15 @@ class Player(db.Model):
     max_health = db.Column(db.Integer, default=100)
     current_mana = db.Column(db.Integer, default=100)
     max_mana = db.Column(db.Integer, default=100)
-    last_map = db.Column(db.String(255), default="game")
+    last_map = db.Column(db.String(255), default="town")
     party_id = db.Column(db.Integer, default=-1)
     monies = db.Column(db.Integer, default=0)
     ability_points = db.Column(db.Integer, default=0)
+    # QuestManager.save_quests blob: {active, completed, onboarded}. Stored as a
+    # single JSONB column since quests are only ever read/written wholesale per
+    # character — no piecemeal queries — and the schema evolves freely on the
+    # Godot side.
+    quests = db.Column(JSONB, nullable=True)
 
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
@@ -288,7 +293,7 @@ def create_character():
         username=char_name,
         level=1,
         experience=0,
-        last_map="game",
+        last_map="town",
         monies=0,
         character_class=class_id,
         current_health=100,
@@ -380,7 +385,11 @@ def load_player():
         response_data['buffs'] = {
             'active_buffs': active_buffs
         }
-            
+
+        # Quest progress (active, completed, onboarded). QuestManager.load_quests
+        # treats an empty dict as "no save data" and falls through to defaults.
+        response_data['quests'] = player.quests or {}
+
         return jsonify(response_data)
     else:
         return jsonify({})
@@ -579,6 +588,12 @@ def save_player():
                 if bid not in incoming_buff_ids:
                     db.session.delete(existing_buffs[bid])
 
+        # Quests — opaque JSONB blob shaped by QuestManager.save_quests on the
+        # Godot side. Only update if the client sent it (partial saves like
+        # "stats"-only never include it), so we don't blank out the column.
+        if 'quests' in data and isinstance(data['quests'], dict):
+            player.quests = data['quests']
+
         db.session.commit()
         return jsonify({"status": "success"}), 200
 
@@ -606,6 +621,7 @@ def _run_migrations():
         ("player_buffs", "total_duration", "ALTER TABLE player_buffs ADD COLUMN total_duration FLOAT DEFAULT 0"),
         ("player_items", "variant", "ALTER TABLE player_items ADD COLUMN variant JSONB"),
         ("player_equipment", "variant", "ALTER TABLE player_equipment ADD COLUMN variant JSONB"),
+        ("players", "quests", "ALTER TABLE players ADD COLUMN quests JSONB"),
     ]
     for table, column, sql in migrations:
         try:

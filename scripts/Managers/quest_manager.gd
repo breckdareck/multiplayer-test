@@ -21,11 +21,18 @@ signal quest_ui_data_received(data: Dictionary)  # Emitted on client when server
 ## All quest definitions keyed by quest_id.
 var _quests: Dictionary = {}  # quest_id -> QuestData
 
+## The starter quest auto-granted to brand-new characters during onboarding.
+const ONBOARDING_QUEST_ID: String = "q_first_blood"
+
 # ── Per-player State (server only) ──────────────────────────────────────────
 ## Active quests: username -> { quest_id -> { objective_index -> current_count } }
 var _active_quests: Dictionary = {}
 ## Completed quest IDs: username -> Array[String]
 var _completed_quests: Dictionary = {}
+## Whether the onboarding flow has already run for a username. Persisted with
+## quest data so it survives logout — a "no save data" check is unreliable
+## because the backend creates a save row at character creation.
+var _onboarded: Dictionary = {}
 
 
 func _ready() -> void:
@@ -47,15 +54,15 @@ func _define_quests() -> void:
 		[{"type": QuestData.ObjectiveType.KILL, "target": "Slime", "amount": 10}],
 		150, 30, [])
 
-	_add_quest("q_mushroom_menace", "Mushroom Menace", "The mushrooms in the forest are becoming aggressive. Deal with them.", 3, "",
-		[{"type": QuestData.ObjectiveType.KILL, "target": "Mushroom", "amount": 5}],
+	_add_quest("q_boar_patrol", "Boar Patrol", "The boars near the village have grown bold and trample the crops. Cull a few of them.", 3, "",
+		[{"type": QuestData.ObjectiveType.KILL, "target": "Boar", "amount": 5}],
 		100, 20, [])
 
 	# --- Early quests (level 5-10) ---
 	_add_quest("q_pest_control", "Pest Control", "Multiple monster species threaten the village. Eliminate them.", 5, "q_slime_slayer",
 		[
 			{"type": QuestData.ObjectiveType.KILL, "target": "Slime", "amount": 15},
-			{"type": QuestData.ObjectiveType.KILL, "target": "Mushroom", "amount": 10},
+			{"type": QuestData.ObjectiveType.KILL, "target": "Boar", "amount": 10},
 		],
 		300, 50, [])
 
@@ -68,8 +75,8 @@ func _define_quests() -> void:
 		500, 75, [])
 
 	# --- Mid-level quests (level 10-20) ---
-	_add_quest("q_deep_woods", "Into the Deep Woods", "Venture deeper and face tougher creatures.", 10, "q_pest_control",
-		[{"type": QuestData.ObjectiveType.KILL, "target": "Mushroom", "amount": 25}],
+	_add_quest("q_deep_woods", "Into the Deep Woods", "Venture past the meadow into goblin territory and prove you can handle the deep woods.", 10, "q_pest_control",
+		[{"type": QuestData.ObjectiveType.KILL, "target": "Goblin", "amount": 25}],
 		600, 100, [])
 
 	_add_quest("q_slime_exterminator", "Slime Exterminator", "The slime population is out of control. A massive cull is needed.", 8, "q_slime_slayer",
@@ -83,6 +90,19 @@ func _define_quests() -> void:
 	_add_quest("q_collector", "The Collector", "Gather coins from fallen monsters to fund the village defense.", 5, "",
 		[{"type": QuestData.ObjectiveType.COLLECT, "target": "Coin", "amount": 100}],
 		250, 0, [])
+
+	# --- Advancement track (level 13-30) ---
+	_add_quest("q_goblin_trouble", "Goblin Trouble", "The goblin warbands are growing. Break their numbers before they march on the village.", 13, "q_deep_woods",
+		[{"type": QuestData.ObjectiveType.KILL, "target": "Goblin", "amount": 40}],
+		1400, 180, [])
+
+	_add_quest("q_veterans_path", "A Veteran's Path", "Only seasoned fighters can hope to specialize. Reach level 25 to walk the veteran's path.", 20, "q_seasoned_warrior",
+		[{"type": QuestData.ObjectiveType.REACH_LEVEL, "target": "", "amount": 25}],
+		2000, 300, [])
+
+	_add_quest("q_call_to_advance", "Answer the Call", "You have mastered the fundamentals. At level 30 a warrior may choose a specialized path. Reach level 30, return to town, and type /advance to claim your advanced class.", 25, "q_veterans_path",
+		[{"type": QuestData.ObjectiveType.REACH_LEVEL, "target": "", "amount": 30}],
+		3000, 500, [])
 
 
 func _add_quest(id: String, qname: String, desc: String, req_level: int, prereq: String,
@@ -298,6 +318,58 @@ func record_level_up(username: String, new_level: int) -> void:
 	_push_quest_ui_update(username)
 
 
+## Called by PlayerManager on every spawn. Idempotent: only fires once per
+## character, gated on a persisted `_onboarded` flag so it survives the fact
+## that the backend creates a save row at character creation (which would
+## otherwise make "no save data" never true for a real new character).
+func start_onboarding(username: String) -> void:
+	if not multiplayer.is_server():
+		return
+	if _onboarded.get(username, false):
+		return
+	var pid: int = PlayerManager.get_player_id_from_name(username)
+	if pid == -1 or BotManager.is_bot(pid):
+		return
+	var player_node: MultiplayerPlayerV2 = PlayerManager.get_player_node(pid)
+	if not is_instance_valid(player_node):
+		return
+
+	# Mark before sending anything so a duplicate call (e.g. a race on map
+	# change) can't fire the welcome twice.
+	_onboarded[username] = true
+
+	_send_message(pid, "Welcome, %s!" % username, Color.GOLD)
+	_send_message(pid, "Move with A/D or the arrow keys, jump with Space, and attack with Ctrl.", Color.WHITE)
+	_send_message(pid, "Press Q to open your Quest Log. Step into a glowing portal and interact to travel between areas.", Color.WHITE)
+	_send_message(pid, "Reach level 30 to unlock Job Advancement. Your journey begins now:", Color.WHITE)
+
+	# Auto-accept the starter quest so a new player always has a goal.
+	var completed: Array = _completed_quests.get(username, [])
+	var active: Dictionary = _active_quests.get(username, {})
+	if _quests.has(ONBOARDING_QUEST_ID) and ONBOARDING_QUEST_ID not in completed and not active.has(ONBOARDING_QUEST_ID):
+		_cmd_accept(pid, username, player_node, ONBOARDING_QUEST_ID)
+	# Ensure the onboarded flag persists even if _cmd_accept was a no-op above.
+	_save_quest_data(username)
+	_push_quest_ui_update(username)
+
+
+## Called on a genuine level-up when the player reaches the advancement level.
+## Nudges them toward the /advance command.
+func notify_advancement_available(username: String) -> void:
+	if not multiplayer.is_server():
+		return
+	var pid: int = PlayerManager.get_player_id_from_name(username)
+	if pid == -1 or BotManager.is_bot(pid):
+		return
+	var player_node: MultiplayerPlayerV2 = PlayerManager.get_player_node(pid)
+	if not is_instance_valid(player_node):
+		return
+	if not JobAdvancementManager.can_advance(player_node):
+		return
+	_send_message(pid, "You have reached Level 30 — you are ready for Job Advancement!", Color.GOLD)
+	_send_message(pid, "Type /advance to choose your specialized class.", Color.GOLD)
+
+
 func _advance_objectives(username: String, obj_type: int, target: String, amount: int) -> void:
 	var active: Dictionary = _active_quests.get(username, {})
 	if active.is_empty():
@@ -394,11 +466,37 @@ func _complete_quest(username: String, quest_id: String) -> void:
 	for item_name in quest.reward_items:
 		_send_message(sender_id, "  +%s" % item_name, Color.GREEN)
 
+	# Guide the player toward whatever this completion just unlocked.
+	_notify_newly_available(username, quest_id, player_node)
+
 	quest_completed.emit(username, quest_id)
 	_save_quest_data(username)
 	# Push updated quest UI data to the client
 	if is_instance_valid(player_node):
 		_send_quest_ui_data(sender_id, username, player_node)
+
+
+## After a quest completes, tell the player about any quest it just unlocked.
+func _notify_newly_available(username: String, completed_id: String, player_node: MultiplayerPlayerV2) -> void:
+	if not is_instance_valid(player_node):
+		return
+	var player_level: int = 1
+	if is_instance_valid(player_node.level_component):
+		player_level = player_node.level_component.level
+	var completed: Array = _completed_quests.get(username, [])
+	var active: Dictionary = _active_quests.get(username, {})
+	var unlocked: Array = []
+	for quest_id in _quests:
+		if quest_id in completed or active.has(quest_id):
+			continue
+		var q: QuestData = _quests[quest_id]
+		if q.prerequisite_quest_id != completed_id:
+			continue
+		if player_level < q.required_level:
+			continue
+		unlocked.append(q.quest_name)
+	if not unlocked.is_empty():
+		_send_message(player_node.player_id, "[Quest] New quest available: %s. Press Q to view." % ", ".join(unlocked), Color.GOLD)
 
 
 func _check_level_objectives(username: String, player_node: MultiplayerPlayerV2) -> void:
@@ -416,6 +514,7 @@ func save_quests(username: String) -> Dictionary:
 	return {
 		"active": _active_quests.get(username, {}),
 		"completed": _completed_quests.get(username, []),
+		"onboarded": _onboarded.get(username, false),
 	}
 
 
@@ -442,6 +541,7 @@ func load_quests(username: String, data: Dictionary) -> void:
 
 	_active_quests[username] = active
 	_completed_quests[username] = completed
+	_onboarded[username] = bool(data.get("onboarded", false))
 	#print("QuestManager: Loaded quest data for '%s' — %d active, %d completed." % [username, active.size(), completed.size()])
 
 

@@ -413,12 +413,13 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 		health_comp.take_damage(damage_to_deal, self, true, is_crit, false)
 
 		if damage_to_deal > 0:
-			# Knockback logic
+			# Knockback, gated by the target's knockback resist.
 			var knockback_dir = owner.facing_direction
 			var knockback_strength = 90.0
 			var knockback_lift = -90.0
 			var knockback_vec = Vector2(knockback_dir * knockback_strength, knockback_lift)
-			if target_enemy.has_method("apply_knockback"):
+			var target_stats: StatsComponent = target_enemy.get_node_or_null("Stats")
+			if target_enemy.has_method("apply_knockback") and StatsComponent.rolls_knockback(target_stats, knockback_strength):
 				target_enemy.apply_knockback(knockback_vec)
 
 		if _ability_component:

@@ -267,13 +267,15 @@ func _gui_input(event: InputEvent):
 				get_viewport().gui_release_focus()
 				return
 			
-			# If not dragging, try to use the item
+			# If not dragging, try to use/equip the item
 			if item != null and item_container is InventoryComponent:
 				if item is ConsumableData:
 					# Find the index of this slot in the inventory
 					var slot_index = item_container.slots.find(self)
 					if slot_index != -1:
 						item_container.request_use_item.rpc_id(1, slot_index)
+				elif item is EquipmentData:
+					_equip_item()
 
 
 func _ready():
@@ -348,6 +350,13 @@ func _on_mouse_entered():
 			# Reset to default tooltip style if rarity not found
 			_custom_tooltip_theme.set_stylebox("panel", "TooltipPanel", PANEL_STYLEBOX_THEME)
 			self.theme = _custom_tooltip_theme
+
+		# Equipment items use a custom side-by-side compare tooltip that draws
+		# its own rarity-coloured borders per side. Strip the outer popup panel
+		# so we don't get a third nested border around the pair.
+		if item.item_type == Constants.ItemType.EQUIPMENT:
+			_custom_tooltip_theme.set_stylebox("panel", "TooltipPanel", StyleBoxEmpty.new())
+			self.theme = _custom_tooltip_theme
 	else:
 		tooltip_text = ""
 		# Reset to default tooltip style when no item
@@ -362,6 +371,54 @@ func _on_mouse_exited():
 	self.theme = _custom_tooltip_theme
 	if not is_dragging:
 		modulate = Color.WHITE
+
+
+## Overrides Godot's default tooltip for equipment items so the player can see
+## the currently equipped counterpart side-by-side. Non-equipment items fall
+## through to `tooltip_text` (still styled via _custom_tooltip_theme).
+func _make_custom_tooltip(_for_text: String) -> Object:
+	if item == null:
+		return null
+	if item.item_type != Constants.ItemType.EQUIPMENT:
+		return null
+	return EquipmentCompareTooltip.build(item, _get_equipped_counterpart(item))
+
+
+## Equips this slot's item into the matching EquipmentSlot view. Reuses the
+## inventory's normal transfer pipeline, which handles validation, swaps with
+## whatever is already equipped, and the server sync.
+func _equip_item() -> void:
+	if not item_container is InventoryComponent:
+		return
+	var eq: EquipmentComponent = item_container.equipment_component
+	if not is_instance_valid(eq):
+		return
+	var target: Slot = null
+	if item.equipment_type == Constants.EquipmentType.WEAPON:
+		target = eq.equipment.get("WEAPON")
+	elif item.equipment_type == Constants.EquipmentType.ARMOR:
+		target = eq.equipment.get(item.armor_type)
+	if target == null:
+		return
+	item_container.transfer_item_clientside(self, target)
+
+
+## Finds the item currently equipped in the slot this equipment would occupy.
+## Returns null when this slot is not part of an InventoryComponent (e.g. when
+## hovering an equipment slot itself), or when nothing is equipped.
+func _get_equipped_counterpart(hovered: ItemData) -> ItemData:
+	if not item_container is InventoryComponent:
+		return null
+	var eq: EquipmentComponent = item_container.equipment_component
+	if not is_instance_valid(eq):
+		return null
+	if hovered.equipment_type == Constants.EquipmentType.WEAPON:
+		var sd: SlotData = eq.get_slot_data("WEAPON")
+		return sd.item if sd else null
+	elif hovered.equipment_type == Constants.EquipmentType.ARMOR:
+		var sd: SlotData = eq.get_slot_data(hovered.armor_type)
+		return sd.item if sd else null
+	return null
 
 
 func _should_create_dropped_item() -> bool:

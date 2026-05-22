@@ -1227,6 +1227,7 @@ script = ExtResource("17_e6s7e")
 idle_state = NodePath("../idle")
 fall_state = NodePath("../fall")
 animation_name = "attack_1"
+move_speed = 100.0
 
 [node name="idle" type="Node" parent="StateMachine" node_paths=PackedStringArray("jump_state", "fall_state", "move_state", "attack_state")]
 script = ExtResource("18_gb22u")
@@ -1235,6 +1236,7 @@ fall_state = NodePath("../fall")
 move_state = NodePath("../move")
 attack_state = NodePath("../attack")
 animation_name = "idle"
+move_speed = 100.0
 
 [node name="fall" type="Node" parent="StateMachine" node_paths=PackedStringArray("idle_state", "move_state", "jump_state", "attack_state")]
 script = ExtResource("19_pnj8v")
@@ -1243,6 +1245,7 @@ move_state = NodePath("../move")
 jump_state = NodePath("../jump")
 attack_state = NodePath("../attack")
 animation_name = "fall"
+move_speed = 100.0
 
 [node name="move" type="Node" parent="StateMachine" node_paths=PackedStringArray("idle_state", "fall_state", "jump_state", "attack_state")]
 script = ExtResource("20_4xm4e")
@@ -1251,22 +1254,25 @@ fall_state = NodePath("../fall")
 jump_state = NodePath("../jump")
 attack_state = NodePath("../attack")
 animation_name = "move"
-move_speed = 100.0
+move_speed = 80.0
 
 [node name="jump" type="Node" parent="StateMachine" node_paths=PackedStringArray("fall_state", "attack_state")]
 script = ExtResource("21_v6vns")
 fall_state = NodePath("../fall")
 attack_state = NodePath("../attack")
 animation_name = "jump"
+move_speed = 100.0
 
 [node name="death" type="Node" parent="StateMachine" node_paths=PackedStringArray("respawn_state")]
 script = ExtResource("22_eiysd")
 respawn_state = NodePath("../idle")
 animation_name = "death"
+move_speed = 100.0
 
 [node name="hit" type="Node" parent="StateMachine"]
 script = ExtResource("23_03slv")
 animation_name = "hit"
+move_speed = 100.0
 
 [connection signal="button_down" from="CanvasLayer/PlayerHUD/MobileButtons/LeftButton" to="InputSynchronizer" method="_on_left_button_button_down"]
 [connection signal="button_up" from="CanvasLayer/PlayerHUD/MobileButtons/LeftButton" to="InputSynchronizer" method="_on_left_button_button_up"]

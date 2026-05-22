@@ -43,6 +43,7 @@ enum StatType {
 	CRITDAMAGE,
 	WEAPONATTACK,
 	MAGICATTACK,
+	KNOCKBACKRESIST,
 }
 
 enum EquipmentType {

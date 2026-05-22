@@ -113,14 +113,34 @@ class BuffIcon extends Control:
 		_stack_label.visible = false
 		_stack_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(_stack_label)
+
+		TooltipTheme.apply_to(self)
 	
 	# NEW: Handle mouse enter
 	func _mouse_enter() -> void:
 		if is_removable:
 			_hover_overlay.visible = true
-			# Optional: Show tooltip
-			tooltip_text = "Right-click to remove"
-	
+		tooltip_text = _build_tooltip()
+		# Debuffs (non-removable buffs) get a red tooltip border to match the
+		# "this is bad" cue the rest of the UI uses.
+		var border: Variant = Color(0.9, 0.3, 0.3) if not is_removable else null
+		TooltipTheme.set_border_color(self, border)
+
+	func _build_tooltip() -> String:
+		var buff_data: BuffData = ResourceManager.get_buff_data(buff_id)
+		var lines: Array[String] = []
+		if buff_data and not buff_data.buff_name.is_empty():
+			lines.append(buff_data.buff_name)
+		else:
+			lines.append(buff_id)
+		if buff_data and not buff_data.description.is_empty():
+			lines.append("")
+			lines.append(buff_data.description)
+		if is_removable:
+			lines.append("")
+			lines.append("(Right-click to remove)")
+		return "\n".join(lines)
+
 	# NEW: Handle mouse exit
 	func _mouse_exit() -> void:
 		_hover_overlay.visible = false

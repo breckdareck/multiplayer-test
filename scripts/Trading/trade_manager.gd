@@ -7,7 +7,9 @@ extends Node
 ##    A player sends a trade request; the target accepts; both place items/gold
 ##    into their offer; both press Confirm; the server atomically swaps.
 ##  * Player <-> Bot — an instant give/take used by the bot trade window.
-##    Bots have no client, so there is no offer/confirm step.
+##    Bots have no client, so there is no offer/confirm step — and no proximity
+##    check, since bots roam constantly and an area gate makes them impractical
+##    to trade with.
 ##
 ## All inventory mutations happen on the server. Clients only send intent
 ## (request / accept / decline / offer item / set gold / confirm / cancel).
@@ -504,11 +506,10 @@ func _enforce_proximity() -> void:
 
 ## Opens the instant bot-trade window on the requesting client. Bots have no
 ## offer/confirm flow; items move one at a time through _transfer_trade_item.
+## Not proximity-gated: bots never stop moving, so a range check makes them
+## impractical to trade with. Player-to-player trades remain proximity-gated.
 func _start_bot_trade(initiator_id: int, bot_id: int) -> bool:
 	if BotManager.is_bot(initiator_id):
-		return false
-	if not _players_in_range(initiator_id, bot_id):
-		_notify_player(initiator_id, "You must be closer to trade.", Color.ORANGE)
 		return false
 	_client_open_bot_trade.rpc_id(initiator_id, bot_id)
 	return true
@@ -538,10 +539,6 @@ func _transfer_trade_item(player_id: int, target_id: int, slot_index: int, givin
 	var player_node := PlayerManager.get_player_node(player_id)
 	var target_node := PlayerManager.get_player_node(target_id)
 	if not is_instance_valid(player_node) or not is_instance_valid(target_node):
-		return
-
-	if not _players_in_range(player_id, target_id):
-		_notify_player(player_id, "You moved too far from the trader.", Color.ORANGE)
 		return
 
 	var player_inv: InventoryComponent = player_node.inventory_component
