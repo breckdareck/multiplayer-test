@@ -32,6 +32,13 @@ Look content up with `ResourceManager.get_ability_data(id_or_name)`,
 referenced directly by an exported `enemy_data` on each enemy scene, not via
 `ResourceManager`.
 
+**Exception — quests are NOT data-driven.** `QuestData` carries `@export` fields
+for future `.tres` authoring, but the live quest list is registered in code by
+`_define_quests()` on `QuestManager`. There is no `resources/Quests/` folder.
+`KILL` objectives match exactly on `EnemyData.monster_name`, so the target
+string must be the same one set on the enemy `.tres` — past bugs shipped
+quests targeting non-existent enemy names that silently never completed.
+
 ## Conventions
 
 - `AbilityData`, `BuffData`, and `ItemData` carry an **auto-generated UUID** id

@@ -20,6 +20,12 @@ through `scripts/Networking/network_manager.gd`.
 - `PlayerItem` / `PlayerEquipment` store items **slim**: `item_path` (the canonical
   `.tres`), `item_id`, `quantity`, and a `variant` JSONB blob for per-instance rolls
   (random stats, crafting). Static fields are re-derived in Godot from the `.tres`.
+- `Player.last_map` defaults to `"town"` — new characters spawn at the Maple
+  Town hub on first login. Existing rows from earlier defaults may need a one-off
+  `UPDATE players SET last_map='town' WHERE last_map='game';` after pulling.
+- `Player.quests` is a single **JSONB blob** holding the whole `QuestManager.save_quests()`
+  payload: `{active, completed, onboarded}`. Quests are only ever read/written
+  wholesale per character, so there's no separate relational table for them.
 
 ## Conventions
 

@@ -5,11 +5,20 @@ human would — it just supplies input flags instead of a keyboard.
 
 ## Files
 
+`bot_brain.gd` is the orchestrator — it owns the think loop and delegates
+combat / navigation / economy / equipment decisions to sibling modules so
+each piece stays small.
+
 | File | Role |
 |---|---|
-| `bot_manager.gd` | Autoload. Spawns/despawns bots, owns `/bot` chat commands, loads `config/bot_config.json` |
-| `bot_brain.gd` | Per-bot AI: a think-loop FSM (idle / wander / fight / retreat / loot / travel) |
+| `bot_manager.gd` | Autoload. Spawns/despawns bots, owns `/bot` chat commands, loads `config/bot_config.json`, caches per-map nav graphs |
+| `bot_brain.gd` | Per-bot think-loop FSM (idle / wander / fight / retreat / loot / travel); routes the decision through priority "considerations" and writes input flags onto the character |
+| `bot_combat.gd` | Combat sub-module: target selection, attack timing, ability use |
+| `bot_navigator.gd` | Per-bot navigation: queries `bot_nav_graph` for waypoint paths and steers the bot via input flags, with a periodic repath |
+| `bot_nav_graph.gd` | Runtime-built nav graph from the map's tilemap (WALK / JUMP / DROP / GAP edges across `TileMapLayer.get_used_rect()`); built incrementally a few columns per frame; cached per `map_id` on `BotManager` |
+| `bot_economy.gd` | Inventory pickup, gold management, sell decisions |
 | `bot_equipment_logic.gd` | Scores gear and decides equip/sell swaps |
+| `bot_debug_draw.gd` | Debug-overlay rendering for `/bot watch` and the backtick `DebugPanel` bot view (targets, HP bars, nav-graph sub-layers) |
 
 ## Key facts
 
