@@ -105,8 +105,9 @@ godot --headless --feature dedicated_server --path . -- --port 8080
 ```
 Windows helpers: `start_server.bat` / `stop_server.bat`.
 
-To let friends outside your network connect, see [DEPLOYMENT.md](DEPLOYMENT.md)
-and [QUICK_START.md](QUICK_START.md).
+To let friends outside your network play with persistent characters, see
+[DEPLOYMENT.md](DEPLOYMENT.md) for the VPS recipe and the in-game Backend
+Settings flow.
 
 ## How to Play
 

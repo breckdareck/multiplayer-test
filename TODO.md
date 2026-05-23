@@ -20,8 +20,9 @@ kanban-plugin: board
 	- [ ] First Party Quest — Start with ONE simple PQ: 3 stages (kill room, switch puzzle, boss). Reuse existing enemies and tilesets. Level 15-30
 	- [ ] First Boss Encounter — One boss with 2 phases. Reskin/recolor an existing enemy sprite as a larger variant. Unique drops
 - [ ] Tier 4 — Progression & Identity
-	- [ ] Job Advancement — Class evolution at level 30 (e.g., Swordsman → Crusader). Server announcement. 2-3 new abilities per advanced class. No new sprites needed if abilities are projectile/hitbox based
-	- [ ] Simple Quest System — NPC interaction + kill/collect objectives. Quest log UI. Start with 5-10 quests to guide early leveling
+	- [x] Job Advancement — Swordsman → Crusader, Archer → Ranger, Mage → Archmage, Rogue → Assassin at level 30 via the Job Master NPC in town. Skills survive advancement; advanced classes have their own HP/MP scaling
+	- [x] Simple Quest System — 13-quest guided level-1→30 journey with KILL / COLLECT / REACH_LEVEL objectives, onboarding briefing for new characters, always-on Quest Tracker HUD, and a capstone that points to the Job Master
+	- [ ] NPC quest-givers — replace self-service Quest log acceptance with right-click NPC dialog (the Job Master pattern, generalized). Add quest-giver NPCs in each zone
 	- [ ] Daily Quests — 3 rotating daily objectives (kill X enemies, collect Y items, complete a PQ). Rewards: EXP + coins
 - [ ] Tier 5 — Guild System (mostly code)
 	- [ ] Guild Basics — Create/join guilds, guild chat channel, member list with ranks. Reuse party UI patterns
@@ -108,8 +109,21 @@ kanban-plugin: board
 	- [x] Ability logic scripts (SlashBlast, PowerGuard, MapleWarrior, EnhancedBasics)
 - [x] Backend & Persistence
 	- [x] Account system with Flask API and PostgreSQL
-	- [x] 3 maps with portal system (game, game2, game3)
-	- [x] Map transitions via MapManager
+	- [x] 4 themed zones with portal system (Maple Town, Slime Meadow, Goblin Hollow, Shadowfell)
+	- [x] Map transitions via MapManager (carried-state on map change, no backend round-trip)
+- [x] Progression Journey
+	- [x] Job Advancement Master NPC in town (level-30 gate, class change persists, abilities survive)
+	- [x] First-login onboarding: welcome briefing + auto-accepted starter quest
+	- [x] 13-quest guided 1→30 chain with KILL/COLLECT/REACH_LEVEL objectives and prerequisites
+	- [x] Always-on Quest Tracker HUD overlay (top-right, live updates)
+	- [x] Capstone quest "Answer the Call" directs players to the Job Master
+	- [x] Level-30 chat nudge when the player can advance
+	- [x] Advanced class HP/MP scaling (no more falling through to BEGINNER)
+- [x] World Polish
+	- [x] Themed zone names + zone-entry banner that fades in on map change
+	- [x] Per-zone camera bounds (auto-computed from the Mid tilemap with padding, @tool editor preview outline)
+	- [x] Parallax background layers on hunting maps (ParallaxBackground + per-map visibility gate so the host doesn't see other maps' layers)
+	- [x] Camera2D limit_smoothed for clean clamping at zone edges
 
 
 ***
