@@ -750,10 +750,13 @@ func _on_leveled_up(new_level: int) -> void:
 
 
 func _on_class_changed(new_class_name: String) -> void:
-	# Job advancement must preserve anything the player has actually leveled
-	# (level > 0). But on initial character creation the component pre-loaded
-	# the default class's abilities at level 0 in _ready() before the real
-	# class was assigned — those stale level-0 entries must be dropped.
+	# On initial character creation the component pre-loaded the default
+	# class's abilities in _ready() (including its starter at level 1)
+	# before the real class was assigned, so anything not in the new class
+	# must be dropped — including a stale level-1 starter from the default
+	# class. Job advancement stays safe because the advanced class's skill
+	# list is a superset of the base class's, so any leveled ability is
+	# present in new_class_ids and survives.
 	#
 	# RPCs are not broadcast here because the class change itself is synced,
 	# so clients run this same logic locally.
@@ -764,12 +767,14 @@ func _on_class_changed(new_class_name: String) -> void:
 				new_class_ids[ability_data.ability_id] = true
 
 		for ability_id in _ability_levels.keys():
-			if _ability_levels[ability_id] <= 0 and not new_class_ids.has(ability_id):
+			if not new_class_ids.has(ability_id):
 				_ability_levels.erase(ability_id)
 
+		var starter: AbilityData = _class_component.get_starter_ability()
 		for ability_data in _class_component.get_class_abilities():
 			if ability_data and not _ability_levels.has(ability_data.ability_id):
-				_learn_ability_local(ability_data.ability_id, 0, false)
+				var initial_level: int = 1 if (starter and ability_data == starter) else 0
+				_learn_ability_local(ability_data.ability_id, initial_level, false)
 
 #endregion
 
