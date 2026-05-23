@@ -61,6 +61,12 @@ directly. Add new behaviour by extending the `_think()` decision tree and the
 Reload at runtime with `/bot reload_config` — it only affects bots spawned
 afterward.
 
+A bot spawned via `/bot spawn` has no `bots[]` entry, so no configured
+`patrol_route`. `BotManager._default_patrol_route()` substitutes every map in
+`map_difficulty`, sorted by `min_level`, so a manually-spawned bot still has a
+way to leave town after its first restock trip (without this fallback,
+`_should_change_map` returns false on town and the bot wedges there).
+
 ## `/bot` commands
 
 `spawn`, `despawn`, `despawn_all`, `list`, `teleport`, `set_level`, `party`,

@@ -19,11 +19,21 @@ const NAME_PREFIXES: Array[String] = [
 	"Shadow", "Iron", "Storm", "Frost", "Fire", "Dark", "Silver", "Golden",
 	"Brave", "Swift", "Wild", "Stone", "Moon", "Star", "Thunder", "Ice",
 	"Crimson", "Azure", "Jade", "Ember", "Night", "Dawn", "Dusk", "Ash",
+	"Blood", "Bone", "Wind", "Sky", "Sun", "Sea", "Tide", "Rain",
+	"Mist", "Cloud", "Snow", "Hollow", "Grim", "Bright", "Pale", "Black",
+	"Steel", "Copper", "Bronze", "Onyx", "Ruby", "Cinder", "Briar", "Oak",
+	"Wolf", "Raven", "Drake", "Phoenix", "Tempest", "Bramble", "Glimmer", "Whisper",
+	"Hex", "Rune", "Dread", "Lone",
 ]
 const NAME_SUFFIXES: Array[String] = [
 	"blade", "heart", "wind", "fang", "strike", "wolf", "hawk", "shield",
 	"born", "walker", "fury", "soul", "flame", "guard", "fall", "forge",
 	"bane", "claw", "storm", "song", "breaker", "thorn", "ridge", "vale",
+	"mane", "bow", "hammer", "spire", "gale", "crest", "brand", "edge",
+	"mark", "light", "tear", "kin", "ward", "gaze", "scar", "stalker",
+	"runner", "slayer", "hunter", "weaver", "smith", "mantle", "bloom", "root",
+	"seeker", "dancer", "mender", "scribe", "watcher", "rider", "glaive", "peak",
+	"hollow", "reach", "mire", "fen",
 ]
 
 
@@ -88,6 +98,14 @@ func _auto_spawn_bots() -> void:
 func spawn_bot(bot_name: String, class_type: int, map_id: String = "") -> int:
 	if not multiplayer.is_server():
 		push_warning("BotManager: spawn_bot called on client — ignored.")
+		return 0
+
+	if bot_name.is_empty():
+		push_warning("BotManager: spawn_bot called with an empty name — ignored.")
+		return 0
+
+	if _is_name_taken(bot_name):
+		push_warning("BotManager: bot name '%s' is already active — ignored." % bot_name)
 		return 0
 
 	if map_id.is_empty():
@@ -196,6 +214,15 @@ func _on_bot_spawned(bot_id: int) -> void:
 		var bot_def := get_bot_definition(bot_id)
 		if bot_def.has("patrol_route"):
 			behavior_cfg["patrol_route"] = bot_def["patrol_route"]
+		else:
+			# Bots spawned via `/bot spawn` have no bot_def, so no configured
+			# patrol_route. Without a route, `_should_change_map` on an unbanded
+			# map (town) returns false — and since the first shop check sends
+			# every fresh bot to town to "restock" (the discovery-trip assumption
+			# in bot_economy._can_afford_potion), an unrouted bot lands in town
+			# and is stuck there forever. Default to every banded map in
+			# level order so manually-spawned bots have a way back out.
+			behavior_cfg["patrol_route"] = _default_patrol_route()
 		brain.init(player_node, bot_id, behavior_cfg)
 		if bot_id in active_bots:
 			active_bots[bot_id]["brain"] = brain
@@ -460,15 +487,45 @@ func get_map_difficulty(map_id: String) -> Dictionary:
 	return bot_config.get("map_difficulty", {}).get(map_id, {})
 
 
+## Patrol route fallback for bots spawned without a configured route: every map
+## that has a difficulty band, sorted by min_level so the bot walks the ladder
+## from low to high rather than dictionary insertion order.
+func _default_patrol_route() -> Array:
+	var entries: Array = []
+	var difficulties: Dictionary = bot_config.get("map_difficulty", {})
+	for map_id in difficulties:
+		entries.append({"map_id": map_id, "min_level": int(difficulties[map_id].get("min_level", 0))})
+	entries.sort_custom(func(a, b): return a.min_level < b.min_level)
+	var route: Array = []
+	for e in entries:
+		route.append(e.map_id)
+	return route
+
+
 func generate_bot_name() -> String:
 	for _attempt in 30:
 		var name = NAME_PREFIXES.pick_random() + NAME_SUFFIXES.pick_random()
-		if not _used_names.has(name):
+		if not _is_name_taken(name):
 			_used_names[name] = true
 			return name
-	var fallback := "Bot_%d" % abs(bot_counter)
+	# Tie the fallback to the bot counter, which monotonically decrements on
+	# every spawn — guaranteed unique even if the random pool is exhausted.
+	var fallback := "Bot_%d" % abs(bot_counter - 1)
+	while _is_name_taken(fallback):
+		fallback += "_x"
 	_used_names[fallback] = true
 	return fallback
+
+
+## True when a bot with this name (case-insensitive) is currently active.
+## Checks active_bots directly rather than _used_names so the answer matches
+## what `/bot list` shows, even if _used_names ever drifts out of sync.
+func _is_name_taken(bot_name: String) -> bool:
+	var lower := bot_name.to_lower()
+	for info in active_bots.values():
+		if String(info.get("username", "")).to_lower() == lower:
+			return true
+	return false
 
 
 func _class_string_to_type(class_str: String) -> int:
@@ -495,9 +552,13 @@ func handle_command(args: Array, requester_id: int = 0) -> String:
 			var bot_name: String = args[1]
 			if bot_name.to_lower() == "random":
 				bot_name = generate_bot_name()
+			elif _is_name_taken(bot_name):
+				return "Bot name '%s' is already active. Pick another, or use 'random'." % bot_name
 			var class_type: int = _class_string_to_type(args[2])
 			var map_id: String = args[3] if args.size() > 3 else ""
 			var bot_id := spawn_bot(bot_name, class_type, map_id)
+			if bot_id == 0:
+				return "Failed to spawn bot '%s' (see server log)." % bot_name
 			return "Spawned bot '%s' with ID %d" % [bot_name, bot_id]
 
 		"despawn":

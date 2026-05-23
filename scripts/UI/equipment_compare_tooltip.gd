@@ -26,11 +26,11 @@ static func build(hovered: ItemData, equipped: ItemData) -> Control:
 
 	var show_compare := equipped != null and equipped != hovered
 
-	var header_left := "Hovered" if show_compare else ""
-	root.add_child(_build_panel(hovered, equipped if show_compare else null, header_left))
-
 	if show_compare:
 		root.add_child(_build_panel(equipped, null, "Currently Equipped"))
+
+	var header_right := "Hovered" if show_compare else ""
+	root.add_child(_build_panel(hovered, equipped if show_compare else null, header_right))
 
 	return root
 

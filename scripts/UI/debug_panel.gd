@@ -166,6 +166,7 @@ func _build_quick_actions_row() -> HBoxContainer:
 	row.add_child(_layer_paths_check)
 	row.add_child(_layer_info_check)
 	row.add_child(_make_button("State", func(): _run_line("state")))
+	row.add_child(_make_button("Roster", func(): _run_line("botdock")))
 	row.add_child(_make_button("Pause", func(): _run_line("pause")))
 	row.add_child(_make_button("Heal", func(): _run_line("heal")))
 	row.add_child(_make_button("Snap", func(): _run_line("snapshot")))
@@ -480,6 +481,7 @@ func _register_commands() -> void:
 	_register("gold", "gold [@target] <amount> — negative subtracts", _cmd_gold, _complete_target_first)
 	_register("tp", "tp [@target] <map> | tp [@target] <x> <y>", _cmd_tp, _complete_tp)
 	_register("come", "come <bot_id|name> — teleport a bot to your map", _cmd_come, _complete_bot_target)
+	_register("botdock", "Open the live bot roster window (host-only).", _cmd_botdock)
 
 	# Enemies (host-only; spawned enemy is server-side and visible to clients
 	# via the normal MultiplayerSpawner path on the map).
@@ -828,6 +830,30 @@ func _cmd_tp(args: Array) -> String:
 	return "Map change requested for %s: %s." % [_target_label(t), map_id]
 
 
+## Opens (or focuses) the live bot roster window. Lazily creates the dock the
+## first time it is opened and parents it under the host's MoveableWindows
+## container, matching how BotInspectWindow is hosted.
+var _bot_dock: BotDock = null
+
+func _cmd_botdock(_args: Array) -> String:
+	if not multiplayer.is_server():
+		return "[color=#ff8888]botdock: host-only (bots are server-side).[/color]"
+	if not is_instance_valid(_bot_dock):
+		_bot_dock = BotDock.create()
+		var host := _local_player()
+		var parent: Node = get_tree().root
+		if is_instance_valid(host):
+			var movable = host.get_node_or_null("CanvasLayer/MoveableWindows")
+			if movable: parent = movable
+		parent.add_child(_bot_dock)
+		# Center-ish on first open.
+		var vp_size := get_viewport().get_visible_rect().size
+		_bot_dock.global_position = (vp_size - _bot_dock.size) * 0.5
+	_bot_dock.visible = true
+	_bot_dock.move_to_front()
+	return "Bot roster opened."
+
+
 func _cmd_come(args: Array) -> String:
 	if args.is_empty(): return "Usage: come <bot_id|name>"
 	if not multiplayer.is_server(): return "[color=#ff8888]come: host-only.[/color]"
@@ -836,12 +862,19 @@ func _cmd_come(args: Array) -> String:
 	var host := _local_player()
 	if not is_instance_valid(host): return "(no local player)"
 	var host_map := MapManager.get_player_map(host.player_id)
-	BotManager.active_bots[bot_id].map_id = host_map
-	MapManager.request_map_change(bot_id, host_map)
+	# Same map: just teleport the existing body. Different map: trigger a real
+	# map change (which respawns the bot on the new map; bail without setting
+	# position because the new body isn't live yet). Calling request_map_change
+	# for the same map causes an unwanted respawn-in-place that leaves a ghost.
+	var bot_map: String = MapManager.get_player_map(bot_id)
+	if bot_map != host_map:
+		BotManager.active_bots[bot_id].map_id = host_map
+		MapManager.request_map_change(bot_id, host_map)
+		return "Bot %d travelling to %s." % [bot_id, host_map]
 	var bot_node := PlayerManager.get_player_node(bot_id)
 	if is_instance_valid(bot_node):
 		bot_node.global_position = host.global_position
-	return "Bot %d coming to %s @ %s." % [bot_id, host_map, str(host.global_position)]
+	return "Bot %d teleported to %s." % [bot_id, str(host.global_position)]
 
 
 # --- Enemies ----------------------------------------------------------------

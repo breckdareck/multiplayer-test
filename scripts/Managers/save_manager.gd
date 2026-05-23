@@ -9,6 +9,14 @@ extends Node
 ##   SaveManager.queue_save(username, "stats", player_node)
 ##   SaveManager.flush_save(username)       # before disconnect
 ##   SaveManager.unregister_player(username)
+##
+## Architecture: an HTTP pool of HTTP_POOL_SIZE HTTPRequest nodes lets several
+## saves run in parallel. Each save is a SaveJob with its own `completed` signal,
+## so flush_save can await its specific job without racing against other flushes
+## (the old single-flag wait-loop let two flushes through on the same frame and
+## tripped HTTPRequest's ERR_BUSY guard, which freezes the server). A per-
+## username in-flight set still serializes saves for the same player so two
+## POSTs can't race for the same backend row.
 
 signal save_completed(username: String)
 signal save_failed(username: String, error: String)
@@ -18,6 +26,7 @@ const DEBOUNCE_TIME: float = 0.5        # seconds before a queued save fires
 const AUTO_SAVE_INTERVAL: float = 60.0  # periodic full-save safety net
 const RETRY_DELAY: float = 1.0          # delay before a single retry
 const HTTP_TIMEOUT: float = 5.0         # per-request timeout
+const HTTP_POOL_SIZE: int = 8           # max concurrent in-flight saves
 
 const VALID_CATEGORIES: PackedStringArray = [
 	"stats", "inventory", "abilities", "buffs", "equipment"
@@ -26,32 +35,48 @@ const VALID_CATEGORIES: PackedStringArray = [
 var _api_url: String = ""  # Will be loaded from UserConfig
 
 # ── Per-player tracking ───────────────────────────────────────────────────
-## Registered players: username -> { node, dirty_categories, timer, in_flight }
+## Registered players: username -> { node, dirty_categories, timer }
 var _players: Dictionary = {}
 
-# ── Nodes ─────────────────────────────────────────────────────────────────
-var _http_request: HTTPRequest
+# ── HTTP pool & dispatch queue ─────────────────────────────────────────────
+var _http_pool: Array[HTTPRequest] = []
+var _http_busy: Array[bool] = []
+## Pending save jobs awaiting a free pool slot (FIFO; same-user jobs are skipped
+## while that user already has a save in flight, to avoid racing POSTs).
+var _save_queue: Array[SaveJob] = []
+## Usernames whose save is currently being POSTed — guards against two parallel
+## saves stomping on the same backend row.
+var _in_flight_usernames: Dictionary = {}
+
 var _auto_save_timer: Timer
 
-# ── In-flight queue (only one HTTP call at a time per username) ───────────
-var _in_flight_username: String = ""
-var _pending_queue: Array[String] = []  # usernames waiting for their turn
+
+## A single save request. Owns its own completion signal so `flush_save` can
+## await exactly its own job without a flag-based wait-loop that lets multiple
+## callers through on the same frame.
+class SaveJob extends RefCounted:
+	signal completed
+	var username: String
+	var data: Dictionary
+	var is_flush: bool
 
 
 func _ready() -> void:
 	# Load API URL from config (supports environment variable override)
 	_api_url = UserConfig.get_backend_api_url() + "/player"
-	#print("SaveManager: Using API URL: %s" % _api_url)
-	
+
 	# SaveManager only does work on the server
 	if not _is_server():
 		return
 
-	# Persistent HTTPRequest node — reused for every save call
-	_http_request = HTTPRequest.new()
-	_http_request.name = "SaveHTTPRequest"
-	_http_request.timeout = HTTP_TIMEOUT
-	add_child(_http_request)
+	# HTTP pool — N concurrent HTTPRequest nodes. Each slot is independent.
+	for i in HTTP_POOL_SIZE:
+		var req := HTTPRequest.new()
+		req.name = "SaveHTTPRequest_%d" % i
+		req.timeout = HTTP_TIMEOUT
+		add_child(req)
+		_http_pool.append(req)
+		_http_busy.append(false)
 
 	# Auto-save timer
 	_auto_save_timer = Timer.new()
@@ -61,8 +86,6 @@ func _ready() -> void:
 	_auto_save_timer.one_shot = false
 	add_child(_auto_save_timer)
 	_auto_save_timer.timeout.connect(_on_auto_save_timeout)
-
-	#print("SaveManager: Initialized on server.")
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -89,9 +112,7 @@ func register_player(username: String, player_node: Node) -> void:
 		"node": player_node,
 		"dirty_categories": {} as Dictionary,  # category_name -> true
 		"timer": debounce_timer,
-		"in_flight": false,
 	}
-	#print("SaveManager: Registered player '%s'." % username)
 
 
 ## Unregister a player. Flushes any pending data first.
@@ -100,7 +121,10 @@ func unregister_player(username: String) -> void:
 		return
 
 	# Flush remaining data before removing
-	flush_save(username)
+	await flush_save(username)
+
+	if not _players.has(username):
+		return  # someone else unregistered us during the flush
 
 	var info: Dictionary = _players[username]
 	if is_instance_valid(info.timer):
@@ -108,11 +132,6 @@ func unregister_player(username: String) -> void:
 		info.timer.queue_free()
 
 	_players.erase(username)
-
-	# Clean up pending queue references
-	_pending_queue.erase(username)
-
-	#print("SaveManager: Unregistered player '%s'." % username)
 
 
 ## Mark a category as dirty and (re)start the debounce timer.
@@ -143,49 +162,45 @@ func queue_save(username: String, category: String, player_node: Node) -> void:
 			info.dirty_categories[cat] = true
 
 	# (Re)start the debounce timer. Bots save on change just like real players
-	# — the debounce coalesces rapid changes and the in-flight queue serializes
-	# HTTP calls, so frequent bot activity can't flood the backend.
+	# — the debounce coalesces rapid changes and the pool dispatch serializes
+	# per-username, so frequent activity can't corrupt the backend row.
 	if is_instance_valid(info.timer):
 		info.timer.start(DEBOUNCE_TIME)
 
 
-## Immediately collect and send any pending dirty data for this player.
-## Used before disconnect / map change to ensure nothing is lost.
+## Immediately enqueue any pending dirty data for this player and await its
+## completion. Used before disconnect / map change to ensure nothing is lost.
 func flush_save(username: String) -> void:
 	if not _is_server() or not _players.has(username):
 		return
 
 	var info: Dictionary = _players[username]
 
-	# Stop the debounce timer so it doesn't double-fire
+	# Stop the debounce timer so it doesn't double-fire after we drain it.
 	if is_instance_valid(info.timer):
 		info.timer.stop()
 
-	# If nothing is dirty, skip
 	if info.dirty_categories.is_empty():
 		return
 
-	# Collect data and save synchronously (blocking via local file as last resort)
 	var data := _collect_save_data(username)
 	if data.is_empty():
+		info.dirty_categories.clear()
 		return
-
-	# If there's already a request in flight, wait for it to finish before
-	# sending our flush. Without this, we'd fall back to file save while the
-	# API keeps stale data — and loads always read from the API first.
-	if _in_flight_username != "":
-		#print("SaveManager: Flush for '%s' — waiting for in-flight save ('%s') to finish." % [username, _in_flight_username])
-		var wait_frames := 0
-		while _in_flight_username != "" and wait_frames < 300:
-			await get_tree().process_frame
-			wait_frames += 1
-		if wait_frames >= 300:
-			push_error("SaveManager: Timed out waiting for in-flight save, forcing continue")
-			_in_flight_username = ""
-
-	# Send via HTTP (blocking via await)
 	info.dirty_categories.clear()
-	await _send_http_save(username, data, true)  # is_flush = true
+
+	var job := SaveJob.new()
+	job.username = username
+	job.data = data
+	job.is_flush = true
+
+	_save_queue.append(job)
+	_try_dispatch()
+
+	# Wait for this specific job to finish. The signal is per-job, so two
+	# concurrent flush_save callers each await their own SaveJob and never
+	# race for the shared HTTP pool the way the old wait-loop did.
+	await job.completed
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -201,7 +216,6 @@ func _on_debounce_timeout(username: String) -> void:
 func _on_auto_save_timeout() -> void:
 	# Periodic full-save safety net for every tracked player, bots included.
 	for username in _players.keys():
-		# Mark everything dirty for auto-save
 		var info: Dictionary = _players[username]
 		for cat in VALID_CATEGORIES:
 			info.dirty_categories[cat] = true
@@ -215,31 +229,49 @@ func _schedule_save(username: String) -> void:
 	if info.dirty_categories.is_empty():
 		return
 
-	# If HTTP is busy, queue this username for later
-	if _in_flight_username != "":
-		if username not in _pending_queue:
-			_pending_queue.append(username)
-		return
-
-	# Collect data now (lazy collection)
 	var data := _collect_save_data(username)
 	if data.is_empty():
 		info.dirty_categories.clear()
 		return
-
 	info.dirty_categories.clear()
-	_send_http_save(username, data, false)
+
+	var job := SaveJob.new()
+	job.username = username
+	job.data = data
+	job.is_flush = false
+
+	_save_queue.append(job)
+	_try_dispatch()
 
 
-func _process_pending_queue() -> void:
-	if _in_flight_username != "":
-		return  # still busy
-	if _pending_queue.is_empty():
-		return
+## Walks the queue and dispatches jobs into free pool slots. Jobs for a
+## username with a save already in flight are left in place — they get picked
+## up once that prior save releases the username.
+func _try_dispatch() -> void:
+	var i := 0
+	while i < _save_queue.size():
+		var slot := _find_free_slot()
+		if slot == -1:
+			return
+		var job: SaveJob = _save_queue[i]
+		if _in_flight_usernames.has(job.username):
+			i += 1
+			continue
+		_save_queue.remove_at(i)
+		_dispatch_job(slot, job)
 
-	var next_username: String = _pending_queue.pop_front()
-	if _players.has(next_username):
-		_schedule_save(next_username)
+
+func _find_free_slot() -> int:
+	for i in _http_busy.size():
+		if not _http_busy[i]:
+			return i
+	return -1
+
+
+func _dispatch_job(slot: int, job: SaveJob) -> void:
+	_http_busy[slot] = true
+	_in_flight_usernames[job.username] = true
+	_send_via_slot(slot, job)  # async; runs to its first await synchronously
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -269,9 +301,6 @@ func _collect_save_data(username: String) -> Dictionary:
 	var dirty: Dictionary = info.dirty_categories
 	var update_type: String = "all"
 	if dirty.size() < VALID_CATEGORIES.size():
-		# Only some categories are dirty — but _get_save_data only supports
-		# one category string OR "all". If multiple categories are dirty,
-		# just request "all" to be safe.
 		var dirty_keys: Array = dirty.keys()
 		if dirty_keys.size() == 1:
 			update_type = dirty_keys[0]
@@ -283,85 +312,82 @@ func _collect_save_data(username: String) -> Dictionary:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# INTERNAL — HTTP SAVE
+# INTERNAL — HTTP SEND
 # ═══════════════════════════════════════════════════════════════════════════
 
-func _send_http_save(username: String, data: Dictionary, is_flush: bool) -> void:
-	# Check local-save-only mode
+func _send_via_slot(slot: int, job: SaveJob) -> void:
 	if NetworkManager.use_local_save:
-		#print("SaveManager: Local save mode — writing file for '%s'." % username)
-		_save_to_file(data)
-		save_completed.emit(username)
+		_save_to_file(job.data)
+		_release_slot(slot, job, true, "")
 		return
 
-	_in_flight_username = username
-
+	var req: HTTPRequest = _http_pool[slot]
+	var headers: PackedStringArray = ["Content-Type: application/json"]
 	var payload := {
-		"username": username,
-		"data": data,
+		"username": job.username,
+		"data": job.data,
 		# Bots have no player account — the backend routes them to the shared
 		# bot account so their Player row satisfies the NOT NULL account FK.
-		"is_bot": BotManager.is_bot_username(username),
+		"is_bot": BotManager.is_bot_username(job.username),
 	}
 	var json_body: String = JSON.stringify(payload)
-	var headers: PackedStringArray = ["Content-Type: application/json"]
 
-	var error := _http_request.request(_api_url + "/save", headers, HTTPClient.METHOD_POST, json_body)
+	var error := req.request(_api_url + "/save", headers, HTTPClient.METHOD_POST, json_body)
 	if error != OK:
-		push_error("SaveManager: HTTP request failed to start for '%s'. Error: %d" % [username, error])
-		_in_flight_username = ""
-		_save_to_file(data)
-		save_failed.emit(username, "HTTP request failed to start (error %d)" % error)
-		_process_pending_queue()
+		push_error("SaveManager: HTTP request failed to start for '%s'. Error: %d" % [job.username, error])
+		_save_to_file(job.data)
+		_release_slot(slot, job, false, "HTTP request failed to start (error %d)" % error)
 		return
 
-	var result: Array = await _http_request.request_completed
+	var result: Array = await req.request_completed
 	var response_code: int = result[1]
 
 	if response_code == 200:
-		#print("SaveManager: Saved '%s' to API successfully." % username)
-		_in_flight_username = ""
-		save_completed.emit(username)
-
-		# If more dirty data accumulated while we were in flight, schedule again
-		if _players.has(username) and not _players[username].dirty_categories.is_empty():
-			_schedule_save(username)
-
-		_process_pending_queue()
+		_release_slot(slot, job, true, "")
 		return
 
 	# ── First failure — retry once after RETRY_DELAY ──────────────────────
-	#print("SaveManager: Save failed for '%s' (HTTP %d). Retrying in %0.1fs..." % [username, response_code, RETRY_DELAY])
-
-	if not is_flush:
+	if not job.is_flush:
 		await get_tree().create_timer(RETRY_DELAY).timeout
 
-	var retry_error := _http_request.request(_api_url + "/save", headers, HTTPClient.METHOD_POST, json_body)
+	var retry_error := req.request(_api_url + "/save", headers, HTTPClient.METHOD_POST, json_body)
 	if retry_error != OK:
-		push_error("SaveManager: Retry request failed to start for '%s'." % username)
-		_in_flight_username = ""
-		_save_to_file(data)
-		save_failed.emit(username, "Retry request failed to start")
-		_process_pending_queue()
+		push_error("SaveManager: Retry request failed to start for '%s'." % job.username)
+		_save_to_file(job.data)
+		_release_slot(slot, job, false, "Retry request failed to start")
 		return
 
-	var retry_result: Array = await _http_request.request_completed
+	var retry_result: Array = await req.request_completed
 	var retry_response_code: int = retry_result[1]
 
-	_in_flight_username = ""
-
 	if retry_response_code == 200:
-		#print("SaveManager: Retry succeeded for '%s'." % username)
-		save_completed.emit(username)
+		_release_slot(slot, job, true, "")
 	else:
-		push_error("SaveManager: Retry failed for '%s' (HTTP %d). Falling back to file." % [username, retry_response_code])
-		_save_to_file(data)
-		save_failed.emit(username, "HTTP save failed after retry (code %d)" % retry_response_code)
+		push_error("SaveManager: Retry failed for '%s' (HTTP %d). Falling back to file." % [job.username, retry_response_code])
+		_save_to_file(job.data)
+		_release_slot(slot, job, false, "HTTP save failed after retry (code %d)" % retry_response_code)
 
-	# Process any waiting saves
-	if _players.has(username) and not _players[username].dirty_categories.is_empty():
-		_schedule_save(username)
-	_process_pending_queue()
+
+## Frees the pool slot and unblocks anyone awaiting this job. If new dirty data
+## accumulated during the in-flight window, reschedule the user. Then walk the
+## queue for the next dispatch.
+func _release_slot(slot: int, job: SaveJob, success: bool, err: String) -> void:
+	_http_busy[slot] = false
+	_in_flight_usernames.erase(job.username)
+
+	if success:
+		save_completed.emit(job.username)
+	else:
+		save_failed.emit(job.username, err)
+
+	# Wake any flush_save caller awaiting this specific job.
+	job.completed.emit()
+
+	# More data dirtied during the in-flight window? Schedule another pass.
+	if _players.has(job.username) and not _players[job.username].dirty_categories.is_empty():
+		_schedule_save(job.username)
+
+	_try_dispatch()
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -375,14 +401,13 @@ func _save_to_file(data: Dictionary) -> void:
 		return
 
 	var file_path: String = "res://saves/player_%s.json" % uname
-	var save_dir = "res://saves"
-	
+
 	# Create saves directory if it doesn't exist
 	var dir = DirAccess.open("res://")
 	if dir:
 		if not dir.dir_exists("saves"):
 			dir.make_dir("saves")
-	
+
 	var existing_data: Dictionary = {}
 
 	if FileAccess.file_exists(file_path):
@@ -400,7 +425,6 @@ func _save_to_file(data: Dictionary) -> void:
 	if file_write:
 		file_write.store_string(JSON.stringify(existing_data))
 		file_write.close()
-		#print("SaveManager: Saved to local file for '%s' at %s" % [uname, file_path])
 	else:
 		push_error("SaveManager: Failed to open file for writing: %s" % file_path)
 

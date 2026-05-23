@@ -676,9 +676,8 @@ func _on_player_spawned(player_id: int) -> void:
 		return
 
 	var info = active_players[player_id]
-	var character_type = info.get("character_type", -1)
 	var username = info.get("username", "Player")
-	
+
 	# On a map change the player's live state was carried over in memory — use
 	# it directly and skip the save-backend round-trip. An initial spawn has no
 	# carried state, so fall back to a real load from file/API.
@@ -689,6 +688,14 @@ func _on_player_spawned(player_id: int) -> void:
 	else:
 		player_data = await _load_player_data_async(username)
 
+	# Prefer character_type from player_data — `info.character_type` is set
+	# from the client's character pick at join time and is never refreshed
+	# when the class changes mid-session (job advancement). The carried
+	# state (from get_save_data("all")) and the backend load both include
+	# the current value, so trust them when present. Without this the
+	# next map change reverts an advanced player back to their base class.
+	var character_type: int = player_data.get("character_type", info.get("character_type", -1))
+	info["character_type"] = character_type
 
 	# Continue initialization
 	call_deferred("_initialize_spawned_player", player_id, character_type, username, player_data)

@@ -507,7 +507,10 @@ func change_to_map(new_map_id: String, spawn_point_name: String = ""):
 	else:
 		# Flush save before map change — the player node is freed during the transition,
 		# so a debounced save would fire on an already-freed node and be silently skipped.
-		if not username.is_empty() and SaveManager:
+		# Bots skip this: PlayerManager.set_carried_state preserves their live state in
+		# memory across the despawn/respawn, and at high bot counts every portal hop
+		# firing a flush would saturate the save pool and freeze the server.
+		if not username.is_empty() and SaveManager and not BotManager.is_bot(player_id):
 			SaveManager.queue_save(username, "all", self)
 			await SaveManager.flush_save(username)
 		MapManager.request_map_change(player_id, new_map_id, spawn_point_name)
