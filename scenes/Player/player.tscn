@@ -1,4 +1,4 @@
-[gd_scene load_steps=93 format=3 uid="uid://bdtdpx0d05sy3"]
+[gd_scene load_steps=88 format=3 uid="uid://bdtdpx0d05sy3"]
 
 [ext_resource type="Script" uid="uid://yibpus3whwuj" path="res://scripts/Player/multiplayer_controller_v2.gd" id="1_an8q1"]
 [ext_resource type="Script" uid="uid://cy1j38lpy671e" path="res://scripts/Player/multiplayer_input.gd" id="2_hxkm2"]
@@ -12,7 +12,6 @@
 [ext_resource type="Script" uid="uid://boxv5npw3xeg3" path="res://scripts/Player/player_hud.gd" id="11_ihqbe"]
 [ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="12_cgmen"]
 [ext_resource type="Script" uid="uid://dbmsw7l1mf6nj" path="res://scripts/Components/buff.gd" id="13_e6s7e"]
-[ext_resource type="Script" uid="uid://chuj37r7r0ydq" path="res://scripts/Components/debug.gd" id="13_fqhit"]
 [ext_resource type="Script" uid="uid://cix831bp8wxft" path="res://scripts/Components/equipment.gd" id="13_ihqbe"]
 [ext_resource type="Script" uid="uid://ddc622hy8m6tk" path="res://scripts/Components/mana.gd" id="14_7iww4"]
 [ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="14_e8txv"]
@@ -164,45 +163,6 @@ corner_radius_bottom_left = 15
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_cgmen"]
 size = Vector2(275, 275)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v00ed"]
-bg_color = Color(0.168627, 0.168627, 0.168627, 0.882353)
-
-[sub_resource type="Animation" id="Animation_gb22u"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath(".:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(1888, 35)]
-}
-
-[sub_resource type="Animation" id="Animation_e6s7e"]
-resource_name = "slide"
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath(".:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 1),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Vector2(1520, 35), Vector2(1888, 35)]
-}
-
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_pnj8v"]
-_data = {
-&"RESET": SubResource("Animation_gb22u"),
-&"slide": SubResource("Animation_e6s7e")
-}
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wikug"]
 bg_color = Color(0, 0, 0, 0.74902)
@@ -467,7 +427,7 @@ size = Vector2(21, 21)
 [sub_resource type="CircleShape2D" id="CircleShape2D_h0wtf"]
 radius = 4.0
 
-[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "mana_component", "combat_component", "level_component", "stats_component", "class_component", "player_inventory", "inventory_component", "equipment_component", "ability_component", "buff_component", "debug_component", "player_HUD", "player_name_label", "stats_window", "inventory_window") groups=["Players", "networked_entities"]]
+[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "mana_component", "combat_component", "level_component", "stats_component", "class_component", "player_inventory", "inventory_component", "equipment_component", "ability_component", "buff_component", "player_HUD", "player_name_label", "stats_window", "inventory_window") groups=["Players", "networked_entities"]]
 collision_layer = 2
 collision_mask = 5
 script = ExtResource("1_an8q1")
@@ -482,7 +442,6 @@ inventory_component = NodePath("Components/PlayerInventory/InventoryComponent")
 equipment_component = NodePath("Components/Equipment")
 ability_component = NodePath("Components/Ability")
 buff_component = NodePath("Components/Buff")
-debug_component = NodePath("CanvasLayer/Debug")
 player_HUD = NodePath("CanvasLayer/PlayerHUD")
 player_name_label = NodePath("PlayerWorldHUD/PlayerNameLabel")
 stats_window = NodePath("CanvasLayer/MoveableWindows/StatsWindow")
@@ -895,128 +854,6 @@ offset_left = 420.0
 offset_top = -91.0
 offset_right = 940.0
 offset_bottom = -21.0
-
-[node name="Debug" type="Panel" parent="CanvasLayer"]
-visible = false
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -32.0
-offset_top = 35.0
-offset_right = 348.0017
-offset_bottom = 254.99991
-grow_horizontal = 0
-focus_mode = 1
-theme_override_styles/panel = SubResource("StyleBoxFlat_v00ed")
-script = ExtResource("13_fqhit")
-
-[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/Debug"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 10.0
-offset_top = 10.0
-offset_right = -10.0
-offset_bottom = -10.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Panel" type="Panel" parent="CanvasLayer/Debug/HBoxContainer"]
-custom_minimum_size = Vector2(20, 0)
-layout_mode = 2
-
-[node name="ShowHideButton" type="Button" parent="CanvasLayer/Debug/HBoxContainer/Panel"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-focus_mode = 0
-
-[node name="Label" type="Label" parent="CanvasLayer/Debug/HBoxContainer/Panel"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_fonts/font = ExtResource("14_e8txv")
-theme_override_font_sizes/font_size = 24
-text = "<"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/Debug/HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 10
-alignment = 1
-
-[node name="Label" type="Label" parent="CanvasLayer/Debug/HBoxContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("12_cgmen")
-theme_override_font_sizes/font_size = 24
-text = "DEBUG BUTTONS"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="DebugHeal" type="Button" parent="CanvasLayer/Debug/HBoxContainer/VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-focus_mode = 0
-theme_override_fonts/font = ExtResource("12_cgmen")
-theme_override_font_sizes/font_size = 16
-text = "Heal 5"
-
-[node name="DebugDamage" type="Button" parent="CanvasLayer/Debug/HBoxContainer/VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-focus_mode = 0
-theme_override_fonts/font = ExtResource("12_cgmen")
-theme_override_font_sizes/font_size = 16
-text = "Damage 10"
-
-[node name="DebugRevive" type="Button" parent="CanvasLayer/Debug/HBoxContainer/VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-focus_mode = 0
-theme_override_fonts/font = ExtResource("12_cgmen")
-theme_override_font_sizes/font_size = 16
-text = "Revive"
-
-[node name="DebugLevel" type="Button" parent="CanvasLayer/Debug/HBoxContainer/VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-focus_mode = 0
-theme_override_fonts/font = ExtResource("12_cgmen")
-theme_override_font_sizes/font_size = 16
-text = "Level Up"
-
-[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/Debug/HBoxContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="ItemDropdown" type="OptionButton" parent="CanvasLayer/Debug/HBoxContainer/VBoxContainer/HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-focus_mode = 0
-item_count = 1
-popup/item_0/id = 0
-
-[node name="DebugItem" type="Button" parent="CanvasLayer/Debug/HBoxContainer/VBoxContainer/HBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-focus_mode = 0
-theme_override_fonts/font = ExtResource("12_cgmen")
-theme_override_font_sizes/font_size = 16
-text = "Give Item"
-
-[node name="AnimationPlayer" type="AnimationPlayer" parent="CanvasLayer/Debug"]
-libraries = {
-&"": SubResource("AnimationLibrary_pnj8v")
-}
-speed_scale = 2.0
 
 [node name="MoveableWindows" type="Control" parent="CanvasLayer"]
 unique_name_in_owner = true

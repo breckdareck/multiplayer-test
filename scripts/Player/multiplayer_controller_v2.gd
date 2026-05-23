@@ -31,7 +31,6 @@ const MAX_FALL_SPEED: float = 1200.0
 @export var equipment_component: EquipmentComponent
 @export var ability_component: AbilityComponent
 @export var buff_component: BuffComponent
-@export var debug_component: MyDebugComponent
 
 @export_category("UI")
 @export var player_HUD: Control
@@ -100,11 +99,6 @@ func _ready() -> void:
 	# Client-specific setup (skip for bots — they have no display)
 	if not _is_bot and not OS.has_feature("dedicated_server"):
 		_setup_client_visuals()
-
-	# Initialize components (skip debug panel for bots)
-	if not _is_bot and is_instance_valid(debug_component):
-		debug_component.set_health_component(health_component)
-		debug_component.set_player(self)
 
 	state_machine.init(self, animated_sprite)
 
@@ -360,8 +354,6 @@ func _setup_client_visuals() -> void:
 	if multiplayer.get_unique_id() == player_id:
 		camera.make_current()
 		_apply_map_camera_bounds(camera)
-		if is_instance_valid(debug_component):
-			debug_component.debug_panel.show()
 		if is_instance_valid(player_HUD):
 			player_HUD.show()
 			# Show mobile controls on Android

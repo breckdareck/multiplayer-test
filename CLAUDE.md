@@ -67,7 +67,7 @@ Registered in `project.godot`; globally accessible by name from any script.
 | `InputManager` | `scripts/Managers/InputManager.gd` | Global input lock/unlock |
 | `AudioManager` | `scripts/Managers/audio_manager.gd` | Music and SFX |
 | `LogManager` | `scripts/Managers/LogManager.gd` | In-game debug logging |
-| `DebugPanel` | `scripts/UI/debug_panel.gd` | Backtick-toggled in-game debug / bot overlay |
+| `DebugPanel` | `scripts/UI/debug_panel.gd` | Backtick-toggled developer console (typed commands w/ Tab autocomplete + history, quick-action buttons; routes `bot`/`quest` through their managers) |
 
 ## RPC conventions
 

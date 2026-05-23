@@ -20,9 +20,12 @@ Player (MultiplayerPlayerV2)
     ├── Class      class.gd       - current class, per-level sprites
     ├── Leveling   level.gd       - experience and level-ups
     ├── Equipment  equipment.gd   - 5 slots: head/chest/legs/feet/weapon
-    ├── Inventory  inventory.gd   - item slots, stacking, drag-and-drop
-    └── Debug      debug.gd       - dev-only heal/damage/grant-exp
+    └── Inventory  inventory.gd   - item slots, stacking, drag-and-drop
 ```
+
+(Dev-only `heal`, `damage`, `revive`, `level`, `give`, `gold`, `tp` actions
+were previously a separate `Debug` component with its own right-side panel;
+they're now console commands in the backtick `DebugPanel` autoload.)
 
 Enemies (`EnemyBase`, `scripts/Enemy/enemy_base.gd`) reuse a subset — `Health` and
 `Stats` — wired through exported references on the enemy scene.
