@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://drv3kaqrhk2wn"
-path="res://.godot/imported/ability_window.png-41f9d91f6f60885836dad2a85d044fd9.ctex"
+uid="uid://3vjgtjixbapb"
+path="res://.godot/imported/Login.png-4efb6c999af65e908a2ed26019ff30c8.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://README/ability_window.png"
-dest_files=["res://.godot/imported/ability_window.png-41f9d91f6f60885836dad2a85d044fd9.ctex"]
+source_file="res://README/Login.png"
+dest_files=["res://.godot/imported/Login.png-4efb6c999af65e908a2ed26019ff30c8.ctex"]
 
 [params]
 

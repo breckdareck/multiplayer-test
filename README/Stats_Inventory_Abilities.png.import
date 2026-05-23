@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cqnm4derkkutf"
-path="res://.godot/imported/In_game_view.png-13059f5b109cf6f1b900bcb8a55e1c89.ctex"
+uid="uid://dugo3tl5w3w0f"
+path="res://.godot/imported/Stats_Inventory_Abilities.png-411241490362fe2ccddabf5638376294.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://README/In_game_view.png"
-dest_files=["res://.godot/imported/In_game_view.png-13059f5b109cf6f1b900bcb8a55e1c89.ctex"]
+source_file="res://README/Stats_Inventory_Abilities.png"
+dest_files=["res://.godot/imported/Stats_Inventory_Abilities.png-411241490362fe2ccddabf5638376294.ctex"]
 
 [params]
 
