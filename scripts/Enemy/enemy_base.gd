@@ -322,10 +322,16 @@ func _deferred_death_processing(_killer: Node) -> void:
 	if respawnable:
 		get_tree().create_timer(post_death_delay).timeout.connect(pool_deactivate)
 		get_tree().create_timer(respawn_delay).timeout.connect(pool_reset)
-		
-	# On dedicated server, AnimatedSprite2D is stripped, so trigger pooling after delay
+
+	# On dedicated server, AnimatedSprite2D is stripped, so we can't wait on animation_finished.
+	# Respawnable: trigger pooling after the post-death delay.
+	# Non-respawnable: linger briefly, then free (MultiplayerSpawner despawns the node on clients).
 	if OS.has_feature("dedicated_server"):
-		get_tree().create_timer(post_death_delay).timeout.connect(emit_ready_for_pooling)
+		if respawnable:
+			get_tree().create_timer(post_death_delay).timeout.connect(emit_ready_for_pooling)
+		else:
+			var corpse_linger := post_death_delay + randf_range(5.0, 10.0)
+			get_tree().create_timer(corpse_linger).timeout.connect(queue_free)
 
 
 func _spawn_drops(eligible_player_ids: Array[int]) -> void:
@@ -584,8 +590,12 @@ func _on_animation_finished() -> void:
 	# If the death animation has just finished, signal to the spawner that this
 	# enemy instance is ready to be deactivated and returned to the pool, after a short delay.
 	if animated_sprite.animation == "death": # Assumes death animation is named "death"
-		# Create a one-shot timer to wait before disappearing.
-		get_tree().create_timer(post_death_delay).timeout.connect(emit_ready_for_pooling)
+		if respawnable:
+			# Create a one-shot timer to wait before disappearing.
+			get_tree().create_timer(post_death_delay).timeout.connect(emit_ready_for_pooling)
+		else:
+			# Non-respawnable enemies: corpse lingers 5-10s after death anim, then frees.
+			get_tree().create_timer(randf_range(5.0, 10.0)).timeout.connect(queue_free)
 
 
 func emit_ready_for_pooling() -> void:
