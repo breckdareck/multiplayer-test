@@ -172,6 +172,10 @@ Planned work is tracked in [TODO.md](TODO.md) — a tiered board covering social
 systems, the player economy, cooperative content (party quests, bosses), guilds,
 and world expansion.
 
+For the focused "what's left to polish into a showable demo" checklist (the
+showcase path, must-fix art / audio / feel gaps, and pre-demo verification),
+see [DEMO_POLISH.md](DEMO_POLISH.md).
+
 ## Credits
 
 - Built with [Godot Engine](https://godotengine.org/)
