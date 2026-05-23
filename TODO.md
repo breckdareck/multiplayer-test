@@ -7,16 +7,16 @@ kanban-plugin: board
 ## TODO
 
 - [ ] Tier 1 — Social Foundation (mostly code, minimal art)
-	- [ ] Social Hub Town — Reuse existing tileset for a safe zone with NPC shops and a bulletin board. Players spawn here and return via town scrolls
+	- [x] Social Hub Town — Maple Town: safe hub with merchant + Job Master NPCs, players spawn here on first login, Town Scroll consumable returns here (still no bulletin board)
 	- [ ] Friend/Buddy System — Friend list with online status, current map, whisper/PM. Purely UI + networking code
-	- [ ] Server-wide Announcements — Chat broadcasts for level milestones, rare drops, boss kills. Just formatted chat messages, no art needed
+	- [ ] Server-wide Announcements — Chat broadcasts for level milestones, rare drops, boss kills. Infrastructure exists (`_server_announce` already used for job advancement) — just need event hooks
 	- [ ] Fame/Reputation System — Once per day, +1 or -1 fame to another player. Simple number on character info panel
-	- [ ] Emotes — Chat commands (/sit, /wave) that play existing sprite frames or simple text bubbles. Keep it simple
+	- [x] Emotes — `/sit`, `/wave`, `/laugh`, `/cry` chat commands with rate limiting, server-broadcast text bubbles above the character (`show_emote_bubble`), and chat-window entries
 - [ ] Tier 2 — Player Economy (all code)
-	- [ ] Player-to-Player Trading — Proximity-based trade window with dual confirmation. Reuse inventory UI patterns
+	- [x] Player-to-Player Trading — `TradeManager` runs a proximity-gated, dual-confirmation offer/swap session (server-atomic swap of items + gold). Also supports a no-confirm player↔bot give/take flow
 	- [ ] Free Market Zone — A map room where players open personal shops (UI panel listing items + prices). No new art, just a shop UI overlay
 - [ ] Tier 3 — Cooperative Content
-	- [ ] Party Grind Zones — Bonus EXP multiplier when in a party. Pure code change to existing EXP system, zero art
+	- [x] Party Grind Zones — `enemy_base.gd` distributes EXP across party members on the same map with a scaling bonus (+10% per additional member, e.g. 2p = 1.1×, 4p = 1.3×); non-damage-dealing members in the party still get 25% of base
 	- [ ] First Party Quest — Start with ONE simple PQ: 3 stages (kill room, switch puzzle, boss). Reuse existing enemies and tilesets. Level 15-30
 	- [ ] First Boss Encounter — One boss with 2 phases. Reskin/recolor an existing enemy sprite as a larger variant. Unique drops
 - [ ] Tier 4 — Progression & Identity
@@ -28,14 +28,14 @@ kanban-plugin: board
 	- [ ] Guild Basics — Create/join guilds, guild chat channel, member list with ranks. Reuse party UI patterns
 	- [ ] Guild Perks — Simple passive buffs that scale with member count (bonus EXP %, drop rate %). Pure data, no art
 - [ ] Tier 6 — World Expansion (art-heavy, pace yourself)
-	- [ ] 2-3 New Enemy Types — Recolor/variant sprites of existing enemies with different stats and AI behaviors
-	- [ ] 2-3 New Maps — Level-banded zones (30-50, 50-70). Reuse tilesets with different layouts and color palettes
+	- [x] 2-3 New Enemy Types — overshot: **22 enemy types** across Slime / Boar / Bunny / Fox / Goblin families with shadow, fire, dust, mithril, ember, runed, astral, and celestial variants spanning level bands 1–100
+	- [x] 2-3 New Maps — 4 themed zones (Maple Town, Slime Meadow, Goblin Hollow, Shadowfell) — more themed maps for level 30+ are still wanted
 	- [x] Hidden Areas — 1-2 secret portals in existing maps leading to small bonus rooms with rare spawns (SecretPortal implemented)
 	- [ ] Jump Quest — One platforming challenge map using existing tiles. Reward: unique cosmetic or title
 	- [x] Town Scrolls — Consumable item to teleport back to hub town. Just an item effect, no art (Effect_TownPotion implemented)
 - [ ] Tier 7 — Juice & Feel (incremental, do as you go)
-	- [ ] Screen Shake — Simple camera shake on big hits. A few lines of code
-	- [ ] Level-up Effect — Simple particle burst or flash on level up. Use Godot's built-in GPUParticles2D
+	- [x] Screen Shake — `screen_shake()` on the player controller, triggered by `HealthComponent` on damage with intensity scaled to (damage / max_health)
+	- [x] Level-up Effect — `_play_levelup_effect` spawns a GPUParticles2D burst on level-up, broadcast to all peers on the same map
 	- [x] Per-map BGM — Add royalty-free music tracks per zone. Just AudioStreamPlayer setup (MapBase.bgm_path implemented)
 	- [ ] Megaphone Chat — Server-wide chat via consumable item. Reuse chat system
 - [ ] Tier 8 — Stretch Goals
@@ -47,7 +47,7 @@ kanban-plugin: board
 
 ## In Progress
 
-- [ ] Item System Foundation
+- [x] Item System Foundation
 	- [x] Create ItemData resource class
 	- [x] Implement item categories (weapon, armor, consumable, material)
 	- [x] Create item effects and modifiers (for equipment)
@@ -59,7 +59,7 @@ kanban-plugin: board
 	- [x] Define equipment slots (weapon, armor, accessories)
 	- [x] Implement equipment stats and bonuses
 	- [ ] Create equipment upgrade/enhancement system
-- [ ] Combat System Expansion
+- [x] Combat System Expansion
 	- [x] Expand attack types beyond basic attacks
 	- [x] Add skill system implementation
 	- [x] Add critical hit mechanics
