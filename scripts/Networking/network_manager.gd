@@ -7,6 +7,8 @@ signal registration_failed(error_message)
 signal characters_received(characters)
 signal character_created(character_name)
 signal character_creation_failed(error_message)
+signal character_deleted(character_name)
+signal character_deletion_failed(error_message)
 
 var account_id: int = -1
 var account_username: String = ""
@@ -286,5 +288,59 @@ func _on_create_character_completed(result, response_code, headers, body, http):
 		character_created.emit(response.get("name"))
 	else:
 		character_creation_failed.emit(response.get("error", "Unknown error"))
-	
+
+	http.queue_free()
+
+func delete_character(char_name: String):
+	if account_id == -1:
+		return
+
+	if is_dev_mode or use_local_save:
+		var saves_dir = ProjectSettings.globalize_path("res://saves")
+		var file_path = saves_dir.path_join("player_%s.json" % char_name)
+		if not FileAccess.file_exists(file_path):
+			character_deletion_failed.emit("Character save file not found")
+			return
+		var err = DirAccess.remove_absolute(file_path)
+		if err != OK:
+			character_deletion_failed.emit("Failed to delete save file (error %d)" % err)
+			return
+		character_deleted.emit(char_name)
+		return
+
+	var http = HTTPRequest.new()
+	add_child(http)
+	http.request_completed.connect(_on_delete_character_completed.bind(http, char_name))
+
+	var body = JSON.stringify({
+		"account_id": account_id,
+		"name": char_name
+	})
+	var headers = ["Content-Type: application/json"]
+	var error = http.request(api_url + "/character/delete", headers, HTTPClient.METHOD_POST, body)
+
+	if error != OK:
+		character_deletion_failed.emit("Connection error")
+		http.queue_free()
+
+func _on_delete_character_completed(result, response_code, _headers, body, http, char_name):
+	if result != HTTPRequest.RESULT_SUCCESS:
+		character_deletion_failed.emit("Connection failed (result: %d)" % result)
+		http.queue_free()
+		return
+
+	var response_text = body.get_string_from_utf8()
+	var response = JSON.parse_string(response_text) if not response_text.is_empty() else null
+
+	if response_code == 200:
+		var deleted_name = char_name
+		if response != null and response.has("name"):
+			deleted_name = response.get("name")
+		character_deleted.emit(deleted_name)
+	else:
+		var err_msg = "Delete failed (HTTP %d)" % response_code
+		if response != null and response.has("error"):
+			err_msg = response.get("error")
+		character_deletion_failed.emit(err_msg)
+
 	http.queue_free()

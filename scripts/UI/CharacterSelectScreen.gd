@@ -2,6 +2,7 @@ extends Control
 
 @onready var character_list = $Panel/VBoxContainer/CharacterList
 @onready var create_button = $Panel/VBoxContainer/CreateButton
+@onready var delete_button = $Panel/VBoxContainer/DeleteButton
 @onready var logout_button = $Panel/VBoxContainer/LogoutButton
 @onready var host_button = $Panel/VBoxContainer/HostRow/HostButton
 @onready var max_players_input = $Panel/VBoxContainer/HostRow/MaxPlayersInput
@@ -18,11 +19,14 @@ var _kick_received: bool = false
 
 func _ready():
 	create_button.pressed.connect(_on_create_pressed)
+	delete_button.pressed.connect(_on_delete_pressed)
 	logout_button.pressed.connect(_on_logout_pressed)
 	host_button.pressed.connect(_on_host_pressed)
 	join_button.pressed.connect(_on_join_pressed)
-	
+
 	NetworkManager.characters_received.connect(_on_characters_received)
+	NetworkManager.character_deleted.connect(_on_character_deleted)
+	NetworkManager.character_deletion_failed.connect(_on_character_deletion_failed)
 	
 	# Connect to connection signals
 	MultiplayerManager.server_has_started.connect(_on_server_started)
@@ -216,10 +220,45 @@ func _set_buttons_enabled(enabled: bool):
 	host_button.disabled = !enabled
 	join_button.disabled = !enabled
 	create_button.disabled = !enabled
+	delete_button.disabled = !enabled
 	logout_button.disabled = !enabled
 
 func _on_create_pressed():
 	get_tree().change_scene_to_file("res://scenes/UI/CharacterCreationScreen.tscn")
+
+func _on_delete_pressed():
+	var char_data = _get_selected_character_data()
+	if char_data.is_empty():
+		status_label.text = "Please select a character to delete."
+		status_label.add_theme_color_override("font_color", Color.RED)
+		return
+
+	var char_name = char_data.name
+	var confirm = ConfirmationDialog.new()
+	confirm.title = "Delete Character"
+	confirm.dialog_text = "Permanently delete '%s'?\nThis cannot be undone." % char_name
+	confirm.confirmed.connect(_on_delete_confirmed.bind(char_name, confirm))
+	confirm.canceled.connect(confirm.queue_free)
+	add_child(confirm)
+	confirm.popup_centered()
+
+func _on_delete_confirmed(char_name: String, dialog: ConfirmationDialog):
+	dialog.queue_free()
+	status_label.text = "Deleting %s..." % char_name
+	status_label.add_theme_color_override("font_color", Color.WHITE)
+	_set_buttons_enabled(false)
+	NetworkManager.delete_character(char_name)
+
+func _on_character_deleted(char_name: String):
+	status_label.text = "Deleted '%s'." % char_name
+	status_label.add_theme_color_override("font_color", Color.GREEN)
+	_set_buttons_enabled(true)
+	NetworkManager.get_characters()
+
+func _on_character_deletion_failed(error: String):
+	status_label.text = "Delete failed: %s" % error
+	status_label.add_theme_color_override("font_color", Color.RED)
+	_set_buttons_enabled(true)
 
 func _on_logout_pressed():
 	NetworkManager.account_id = -1

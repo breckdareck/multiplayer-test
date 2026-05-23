@@ -317,6 +317,38 @@ def create_character():
     return jsonify({"message": "Character created", "name": char_name}), 201
 
 
+@app.route('/api/character/delete', methods=['POST'])
+def delete_character():
+    content = request.json
+    account_id = content.get('account_id')
+    char_name = content.get('name')
+
+    if not account_id or not char_name:
+        return jsonify({"error": "Account ID and character name required"}), 400
+
+    player = Player.query.filter_by(username=char_name, account_id=account_id).first()
+    if not player:
+        return jsonify({"error": "Character not found"}), 404
+
+    # Serialize against any in-flight save for this character before deletion.
+    lock = get_player_lock(char_name)
+    if not lock.acquire(timeout=5):
+        return jsonify({"error": "Save in progress"}), 429
+
+    try:
+        db.session.delete(player)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        app.logger.warning("CHARACTER_DELETE_FAILED: '%s' (account_id=%d): %s", char_name, account_id, e)
+        return jsonify({"error": "Delete failed", "details": str(e)}), 500
+    finally:
+        lock.release()
+
+    app.logger.info("CHARACTER_DELETED: '%s' (account_id=%d)", char_name, account_id)
+    return jsonify({"message": "Character deleted", "name": char_name}), 200
+
+
 # ==================== PLAYER ENDPOINTS ====================
 
 @app.route('/api/player/load', methods=['POST'])
