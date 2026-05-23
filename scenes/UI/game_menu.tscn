@@ -73,6 +73,11 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Options"
 
+[node name="ShowTutorialButton" type="Button" parent="BackgroundPanel/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Show Tutorial"
+
 [node name="ExitButton" type="Button" parent="BackgroundPanel/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2

@@ -26,6 +26,12 @@ var hit_list: Array = []
 var _unique_targets_for_attack: Dictionary = {}
 var _pending_bodies: Array = []
 
+## Damage range shown in the stats window. Uses the class's attack stat
+## (`_get_class_attack_stat()`) — for Mages and other INT-primary classes
+## that's MAGICATTACK, reflecting the channel their abilities scale on (which
+## is what they actually fight with). Basic-attack *actual* damage is a
+## separate concern: `calculate_attack_damage` always uses WEAPONATTACK
+## regardless of class.
 var display_max_damage: int:
 	get:
 		return _calculate_max_range(_get_class_attack_stat())
@@ -482,6 +488,10 @@ func calculate_attack_damage() -> int:
 	if not (_equipment_component and _equipment_component.weapon_slot_data and _equipment_component.weapon_slot_data.item):
 		return 0
 
+	# Basic attacks always use WEAPONATTACK, regardless of class. A Mage's
+	# basic staff swing intentionally uses the Wooden Staff's WEAPONATTACK,
+	# not its MAGICATTACK — abilities are the channel for MAGICATTACK and
+	# pass their own stat via `_calculate_max_range(_ability.damage_stat)`.
 	var max_range = _calculate_max_range()
 	return roundi(randf_range(max_range * mastery, max_range))
 

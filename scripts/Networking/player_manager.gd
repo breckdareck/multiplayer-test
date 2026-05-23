@@ -253,7 +253,16 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 	player_instance.name = str(id)
 	# Refresh the node cache — covers both initial spawn and map changes.
 	_node_cache[id] = player_instance
-	
+
+	# Set username on the server immediately. Several pieces of code that run
+	# during _load_data — notably QuestManager.load_quests — read the
+	# controller's `username` field. If that field is still empty when
+	# _load_data fires, every per-player dict gets keyed under "" instead of
+	# the real name, and the onboarding flag (etc.) never resolves on the
+	# next spawn. The set_username.rpc broadcast lower down still runs to
+	# sync the value to remote clients and refresh their labels.
+	player_instance.username = username
+
 	# Set up player
 	if not player_instance.class_component:
 		push_error("Player %d missing class_component!" % id)

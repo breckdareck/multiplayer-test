@@ -413,6 +413,11 @@ func start_onboarding(username: String) -> void:
 			# Ensure the onboarded flag persists even if _cmd_accept was a no-op above.
 			_save_quest_data(username)
 
+			# Trigger the client-side WelcomeOverlay (full-screen tutorial card).
+			# Sits alongside the chat messages — the overlay is the primary
+			# read-this-now surface; the chat lines remain as scroll-back.
+			_show_welcome_overlay.rpc_id(pid)
+
 	# Push the current snapshot to the freshly-spawned client so the tracker
 	# populates without waiting on its retry timer. Runs even for returning
 	# players (the onboarding block above is gated, this is not).
@@ -527,14 +532,22 @@ func _complete_quest(username: String, quest_id: String) -> void:
 			continue
 		player_node.inventory_component.add_item(item_name)
 
-	# Notify player
-	_send_message(sender_id, "[Quest] COMPLETED: %s!" % quest.quest_name, Color.GOLD)
+	# Single concise chat line for scroll-back history; the QuestRewardPopup
+	# below is the read-this-now surface.
+	var summary_parts := PackedStringArray()
 	if quest.reward_exp > 0:
-		_send_message(sender_id, "  +%d EXP" % quest.reward_exp, Color.GREEN)
+		summary_parts.append("%d EXP" % quest.reward_exp)
 	if quest.reward_coins > 0:
-		_send_message(sender_id, "  +%d Coins" % quest.reward_coins, Color.GREEN)
+		summary_parts.append("%d Coins" % quest.reward_coins)
 	for item_name in quest.reward_items:
-		_send_message(sender_id, "  +%s" % item_name, Color.GREEN)
+		summary_parts.append(str(item_name))
+	var summary: String = ""
+	if summary_parts.size() > 0:
+		summary = " (+%s)" % ", ".join(summary_parts)
+	_send_message(sender_id, "[Quest] Completed: %s%s" % [quest.quest_name, summary], Color.GOLD)
+
+	# Showcase popup on the player's HUD.
+	_show_quest_reward_popup.rpc_id(sender_id, quest.quest_name, quest.reward_exp, quest.reward_coins, quest.reward_items)
 
 	# Guide the player toward whatever this completion just unlocked.
 	_notify_newly_available(username, quest_id, player_node)
@@ -669,6 +682,43 @@ func _send_message(peer_id: int, text: String, color: Color) -> void:
 @rpc("authority", "call_local", "reliable")
 func _client_receive_quest_message(text: String, color: Color) -> void:
 	ChatManager.add_system_message(text, color)
+
+
+## Server-triggered, client-rendered: spawn a QuestRewardPopup on the local
+## player's HUD when a quest completes. `call_local` so the host sees its
+## own popup when its character completes a quest.
+@rpc("authority", "call_local", "reliable")
+func _show_quest_reward_popup(quest_name: String, exp_amount: int, coins_amount: int, items: Array) -> void:
+	var local_id: int = multiplayer.get_unique_id()
+	for p in get_tree().get_nodes_in_group("Players"):
+		if p.player_id != local_id:
+			continue
+		if not is_instance_valid(p.player_HUD):
+			return
+		var popup := QuestRewardPopup.new()
+		popup.setup(quest_name, exp_amount, coins_amount, items)
+		p.player_HUD.add_child(popup)
+		return
+
+
+## Server-triggered, client-rendered: show the first-login WelcomeOverlay
+## inside the local player's HUD. The RPC is `call_local` so the host (who
+## is both server and a client) sees its own overlay too.
+@rpc("authority", "call_local", "reliable")
+func _show_welcome_overlay() -> void:
+	var local_id: int = multiplayer.get_unique_id()
+	for p in get_tree().get_nodes_in_group("Players"):
+		if p.player_id != local_id:
+			continue
+		if not is_instance_valid(p.player_HUD):
+			return
+		# Avoid stacking duplicates if the RPC somehow fires twice.
+		for child in p.player_HUD.get_children():
+			if child is WelcomeOverlay:
+				return
+		var overlay := WelcomeOverlay.new()
+		p.player_HUD.add_child(overlay)
+		return
 
 
 func _objective_type_string(type: int) -> String:

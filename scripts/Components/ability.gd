@@ -116,11 +116,20 @@ func _ready() -> void:
 		
 	# Initialize class abilities on the server or in single-player.
 	# Clients will receive this data via an RPC sync when they connect.
+	#
+	# Each class's starter ability (configured on ClassData.starter_ability)
+	# is auto-leveled to 1 so a fresh character can cast something immediately.
+	# Without this, classes like Mage (whose basic attack uses the staff's
+	# tiny WEAPONATTACK while their kit is built around MAGICATTACK abilities)
+	# can't fight effectively until they earn their first ability point on
+	# level-up. Save data still overrides this — returning characters keep
+	# whatever level they had leveled the ability to.
 	if not multiplayer.has_multiplayer_peer() or multiplayer.is_server():
+		var starter: AbilityData = _class_component.get_starter_ability() if _class_component else null
 		for ability_data in _class_component.get_class_abilities():
 			if ability_data and not _ability_levels.has(ability_data.ability_id):
-				# Level 0 signifies the ability is known but not yet leveled up.
-				_learn_ability_local(ability_data.ability_id, 0, false)
+				var initial_level: int = 1 if (starter and ability_data == starter) else 0
+				_learn_ability_local(ability_data.ability_id, initial_level, false)
 
 	##print("AbilityComponent ready. Loaded abilities: ", _ability_levels)
 

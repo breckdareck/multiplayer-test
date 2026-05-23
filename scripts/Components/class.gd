@@ -34,6 +34,16 @@ func get_class_bonuses() -> Dictionary:
 func get_available_abilities() -> Array[AbilityData]:
 	return ResourceManager.get_class_skills(current_class)
 
+
+## Returns the ability auto-granted at level 1 to a new character of this
+## class (the class's "starter skill" — Slash for Swordsman, Magic Bolt for
+## Mage, etc.). Returns null if the class has no starter configured.
+func get_starter_ability() -> AbilityData:
+	var data: ClassData = ResourceManager.get_class_data(current_class)
+	if data == null:
+		return null
+	return data.starter_ability
+
 func change_class(new_class: Constants.ClassType) -> void:
 	if new_class != current_class:
 		var old_class_name: String = get_class_name()

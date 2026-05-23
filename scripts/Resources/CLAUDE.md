@@ -54,6 +54,12 @@ quests targeting non-existent enemy names that silently never completed.
   `variant` rolls). All static fields are re-derived from the canonical `.tres` on
   load. Don't add a field expecting it to round-trip per-instance unless you also
   extend the variant serialization (`_append_variant_data` / `_apply_variant_data`).
+- `ClassData.starter_ability` is the ability auto-granted at **level 1** to a
+  brand-new character of that class. New class `.tres` files should set it so the
+  player has a castable skill from spawn — otherwise classes whose basic attack
+  is weak (Mage's staff has only +3 WEAPONATTACK) feel unplayable before earning
+  their first ability point. Returning characters keep their saved levels;
+  the auto-grant only matters on first creation.
 
 ## Creating content
 

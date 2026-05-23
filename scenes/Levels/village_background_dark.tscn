@@ -1,0 +1,87 @@
+[gd_scene load_steps=8 format=3 uid="uid://dshadow7vbgdrk"]
+
+[ext_resource type="Script" path="res://scripts/Gameplay/village_background.gd" id="0_vb_script"]
+[ext_resource type="Texture2D" uid="uid://bcoeao6eds8lo" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/background.png" id="1_sky"]
+[ext_resource type="Texture2D" uid="uid://c4yftnkh1io5d" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Back_Forest_1.png" id="2_forest1"]
+[ext_resource type="Texture2D" uid="uid://clxbanmod7qm8" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Back_Forest_2.png" id="3_forest2"]
+[ext_resource type="Texture2D" uid="uid://wwvi0f5l6iis" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Back_tree_1.png" id="4_tree1"]
+[ext_resource type="Texture2D" uid="uid://bltuclvu72dcb" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Back_tree_2.png" id="5_tree2"]
+[ext_resource type="Texture2D" uid="uid://dn66ntccqo3io" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/props_clouds.png" id="6_clouds"]
+
+; Shadowfell variant of the village parallax. Same ParallaxBackground +
+; ParallaxLayer wiring as village_background.tscn; each layer's inner Sprite2D
+; carries a twilight-purple `modulate` so the zone reads visually distinct
+; from the brighter Slime Meadow / Goblin Hollow. The sky layer is darkest
+; (deepest depth fade), the foreground trees keep more saturation so they
+; remain readable as silhouettes.
+
+[node name="VillageBackground" type="ParallaxBackground"]
+layer = -1
+scroll_ignore_camera_zoom = true
+script = ExtResource("0_vb_script")
+
+[node name="Sky" type="ParallaxLayer" parent="."]
+motion_scale = Vector2(0.05, 0)
+motion_offset = Vector2(0, -100)
+motion_mirroring = Vector2(1920, 0)
+
+[node name="Sprite" type="Sprite2D" parent="Sky"]
+modulate = Color(0.35, 0.35, 0.55, 1)
+scale = Vector2(5, 4.5)
+texture = ExtResource("1_sky")
+centered = false
+
+[node name="BackForest1" type="ParallaxLayer" parent="."]
+motion_scale = Vector2(0.2, 0)
+motion_offset = Vector2(0, -100)
+motion_mirroring = Vector2(1920, 0)
+
+[node name="Sprite" type="Sprite2D" parent="BackForest1"]
+modulate = Color(0.4, 0.4, 0.6, 1)
+scale = Vector2(5, 4.5)
+texture = ExtResource("2_forest1")
+centered = false
+
+[node name="BackForest2" type="ParallaxLayer" parent="."]
+motion_scale = Vector2(0.35, 0)
+motion_offset = Vector2(0, -100)
+motion_mirroring = Vector2(1920, 0)
+
+[node name="Sprite" type="Sprite2D" parent="BackForest2"]
+modulate = Color(0.45, 0.45, 0.65, 1)
+scale = Vector2(5, 4.5)
+texture = ExtResource("3_forest2")
+centered = false
+
+[node name="BackTree1" type="ParallaxLayer" parent="."]
+motion_scale = Vector2(0.55, 0)
+motion_offset = Vector2(0, -100)
+motion_mirroring = Vector2(1920, 0)
+
+[node name="Sprite" type="Sprite2D" parent="BackTree1"]
+modulate = Color(0.5, 0.5, 0.7, 1)
+scale = Vector2(5, 4.5)
+texture = ExtResource("4_tree1")
+centered = false
+
+[node name="BackTree2" type="ParallaxLayer" parent="."]
+motion_scale = Vector2(0.75, 0)
+motion_offset = Vector2(0, -100)
+motion_mirroring = Vector2(1920, 0)
+
+[node name="Sprite" type="Sprite2D" parent="BackTree2"]
+modulate = Color(0.55, 0.55, 0.75, 1)
+scale = Vector2(5, 4.5)
+texture = ExtResource("5_tree2")
+centered = false
+
+[node name="Clouds" type="ParallaxLayer" parent="."]
+motion_scale = Vector2(0.1, 0)
+motion_offset = Vector2(0, -100)
+motion_mirroring = Vector2(1345, 0)
+
+[node name="Sprite" type="Sprite2D" parent="Clouds"]
+modulate = Color(0.4, 0.4, 0.55, 1)
+scale = Vector2(5, 5)
+texture = ExtResource("6_clouds")
+centered = false

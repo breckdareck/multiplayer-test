@@ -51,18 +51,22 @@ The blocking issues. If you only have time for a few, do these.
   ~20 icons covering: wooden / iron / steel weapon tier, beginner armor set,
   3 potion tiers. Items the demo will actually surface need to look like
   items, not pixel scraps.
-- [ ] **Shadowfell visual differentiation** — `game3` (Shadowfell) currently
-  reuses the same Country-village parallax + tileset as `game` and `game2`.
-  The "shadow" theme isn't sold. Easiest fix: duplicate
-  `scenes/Levels/village_background.tscn` → `village_background_dark.tscn`,
-  put `modulate = Color(0.45, 0.45, 0.6)` on every inner `Sprite2D`, and swap
-  the ext_resource in `game3.tscn`. Bonus: also tint the tilemap layers with a
-  CanvasModulate.
-- [ ] **Onboarding overlay** — the welcome chat lines are easy to miss. Add a
-  one-time dismissable overlay in `scripts/UI/` (instantiated by the player
-  controller when the QuestManager onboarding fires) that lists the
-  control mappings + "press Q for quest log" prominently. Replace the static
-  `Tutorial` Label in `game.tscn` with this.
+- [x] **Shadowfell visual differentiation** — `scenes/Levels/village_background_dark.tscn`
+  is the Shadowfell variant of the parallax with twilight-purple `modulate`
+  on each layer (sky darkest, foreground trees lightest so silhouettes
+  stay readable); `game3.tscn` swaps to it via ext_resource AND tints its
+  root `Node2D` `modulate = Color(0.75, 0.7, 0.85)` so the tilemap, enemies,
+  and player share the dusk tint (modulate stops at `CanvasLayer`, so the
+  parallax keeps its own deeper tint without compounding).
+- [x] **Onboarding overlay** — `scripts/UI/welcome_overlay.gd` (`class_name
+  WelcomeOverlay`) is a code-built full-screen card with a dimmed backdrop,
+  a controls grid, four "don't miss" tips (Q quest log / K abilities /
+  right-click NPC / portals), and a focused "Got it!" button (also dismissed
+  via Escape). `InputManager.set_input_locked(true)` while shown so the
+  player actually reads it. Triggered server→client via
+  `QuestManager._show_welcome_overlay.rpc_id(pid)` inside the new-player
+  branch of `start_onboarding` (gated on `_onboarded`, so it fires once per
+  character). The old static `Tutorial` label in `game.tscn` was removed.
 
 ### Audio coverage
 
@@ -105,12 +109,18 @@ Real quality bumps, but the demo can ship without them.
   skill in ~30 min. Adds visual variety to existing maps.
 - [ ] **Splash / title screen art** — the login screen is functional but
   plain. Even a tinted logo at the top makes the first impression land.
-- [ ] **Job advancement transition VFX** — when the player advances, the
-  class change is a sprite swap with the existing level-up particle burst.
-  Add a brief screen flash + class name banner fly-in. Showcase moment.
-- [ ] **Quest reward popups** — completing a quest currently spams 3-5 chat
-  lines (`+50 EXP`, `+10 Coins`, etc.). Replace with a single centered
-  reward popup that animates in/out.
+- [x] **Job advancement transition VFX** — `scripts/UI/advancement_vfx.gd`
+  (`class_name AdvancementVFX`) runs a warm-gold full-screen flash + a
+  centered "JOB ADVANCEMENT" / `<CLASS NAME>` banner that fades in, holds,
+  and fades out. Triggered by `JobAdvancementManager._show_advancement_vfx.rpc_id(sender_id, new_name)`
+  fired right after `change_class_rpc` — sent to the advancing player only,
+  while the server-wide chat broadcast still goes to everyone else.
+- [x] **Quest reward popups** — `scripts/UI/quest_reward_popup.gd`
+  (`class_name QuestRewardPopup`) is a top-center card showing
+  "Quest Complete!" / quest name / EXP / Coins / item rewards, with a
+  fade-in / hold / fade-out tween. `_complete_quest` now sends ONE concise
+  chat line for scroll-back (`[Quest] Completed: First Blood (+50 EXP, 10 Coins)`)
+  and `_show_quest_reward_popup.rpc_id(sender_id, ...)` for the visual.
 - [ ] **Mob health bars in world** — the bot debug overlay already draws
   enemy HP bars. Make it a player-facing toggle (default on) and style it
   with the UI theme.

@@ -80,6 +80,11 @@ func request_advancement() -> void:
 
 	_send_message.rpc_id(sender_id, "Congratulations! You have advanced from %s to %s!" % [old_name, new_name], Color.GOLD)
 
+	# Personal showcase VFX (flash + class-name banner) on the advancing
+	# player's local screen. Sent to that player only — the server-wide
+	# chat broadcast below is what other peers see.
+	_show_advancement_vfx.rpc_id(sender_id, new_name)
+
 	# Server-wide announcement
 	_server_announce.rpc("[ADVANCE] %s has advanced from %s to %s!" % [player.username, old_name, new_name])
 
@@ -95,3 +100,24 @@ func _send_message(text: String, color: Color) -> void:
 @rpc("authority", "call_local", "reliable")
 func _server_announce(text: String) -> void:
 	ChatManager.message_received.emit(text, Color.GOLD)
+
+
+## Server-triggered, client-rendered: spawn the AdvancementVFX overlay (flash
+## + class-name banner) on the local player's HUD. `call_local` so the host
+## sees the VFX when its own character advances.
+@rpc("authority", "call_local", "reliable")
+func _show_advancement_vfx(class_text: String) -> void:
+	var local_id: int = multiplayer.get_unique_id()
+	for p in get_tree().get_nodes_in_group("Players"):
+		if p.player_id != local_id:
+			continue
+		if not is_instance_valid(p.player_HUD):
+			return
+		# Avoid stacking if a previous VFX is still mid-animation.
+		for child in p.player_HUD.get_children():
+			if child is AdvancementVFX:
+				return
+		var vfx := AdvancementVFX.new()
+		vfx.setup(class_text)
+		p.player_HUD.add_child(vfx)
+		return

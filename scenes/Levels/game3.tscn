@@ -12,7 +12,7 @@
 [ext_resource type="PackedScene" path="res://scenes/NPC/fire_slime.tscn" id="10_e6cox"]
 [ext_resource type="PackedScene" path="res://scenes/NPC/Minifolks/shadow_fox.tscn" id="10_obygc"]
 [ext_resource type="Script" uid="uid://igk1rxt26f2i" path="res://scripts/UI/global_drop_handler.gd" id="12_1vulb"]
-[ext_resource type="PackedScene" uid="uid://cvbk0n8a7q2x1" path="res://scenes/Levels/village_background.tscn" id="bg_village"]
+[ext_resource type="PackedScene" uid="uid://dshadow7vbgdrk" path="res://scenes/Levels/village_background_dark.tscn" id="bg_village"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_m14ue"]
 texture = ExtResource("3_m5hrh")
@@ -1005,6 +1005,7 @@ sources/2 = SubResource("TileSetAtlasSource_3kdb4")
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_pyfba"]
 
 [node name="Game3" type="Node2D"]
+modulate = Color(0.75, 0.7, 0.85, 1)
 script = ExtResource("1_gfksk")
 bgm_path = "res://assets/music/gameplay.mp3"
 display_name = "Shadowfell"

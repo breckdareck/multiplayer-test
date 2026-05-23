@@ -4,6 +4,7 @@ class_name GameMenu
 @onready var resume_button: Button = %ResumeButton
 @onready var keybinds_button: Button = %KeybindsButton
 @onready var options_button: Button = %OptionsButton
+@onready var show_tutorial_button: Button = %ShowTutorialButton
 @onready var exit_button: Button = %ExitButton
 @onready var sub_menu_container: Control = %SubMenuContainer
 @onready var keybinds_menu: KeybindsMenu = %KeybindsMenu
@@ -13,17 +14,18 @@ var _main_menu_buttons: Array[Button]
 
 func _ready():
 	visible = false # Start hidden
-	
-	_main_menu_buttons = [resume_button, keybinds_button, options_button, exit_button]
+
+	_main_menu_buttons = [resume_button, keybinds_button, options_button, show_tutorial_button, exit_button]
 
 	resume_button.pressed.connect(_on_resume_button_pressed)
 	keybinds_button.pressed.connect(_on_keybinds_button_pressed)
 	options_button.pressed.connect(_on_options_button_pressed)
+	show_tutorial_button.pressed.connect(_on_show_tutorial_pressed)
 	exit_button.pressed.connect(_on_exit_button_pressed)
-	
+
 	keybinds_menu.back_pressed.connect(_on_keybinds_menu_back_pressed)
 	options_menu.back_pressed.connect(_on_options_menu_back_pressed)
-	
+
 	_show_main_menu() # Ensure main menu is visible initially
 
 func _unhandled_input(event: InputEvent):
@@ -70,3 +72,22 @@ func _on_options_menu_back_pressed():
 
 func _on_exit_button_pressed():
 	get_tree().quit()
+
+
+## Re-open the first-login tutorial overlay from Options → Show Tutorial. The
+## `_onboarded` flag in QuestManager isn't touched (this is a manual replay,
+## not a "treat me as new" reset), so closing it again won't re-fire the
+## auto-grant of First Blood. The overlay is added to player_HUD — our
+## parent — so it covers the full HUD just like the auto-spawned version.
+func _on_show_tutorial_pressed():
+	close_menu()
+	var hud := get_parent()
+	if not is_instance_valid(hud):
+		return
+	# De-dupe in case one is somehow already mounted (e.g. first-login RPC
+	# happened to fire on the same frame).
+	for child in hud.get_children():
+		if child is WelcomeOverlay:
+			return
+	var overlay := WelcomeOverlay.new()
+	hud.add_child(overlay)

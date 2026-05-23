@@ -26,4 +26,5 @@ stat_bonuses = Dictionary[int, int]({
 0: 3,
 2: 2
 })
+starter_ability = ExtResource("4_qbbda")
 metadata/_custom_type_script = "uid://buwbui1bka8vl"
