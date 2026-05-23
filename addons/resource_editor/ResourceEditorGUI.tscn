@@ -62,6 +62,11 @@ popup/item_6/id = 6
 popup/item_7/text = "Enemies"
 popup/item_7/id = 7
 
+[node name="SearchEdit" type="LineEdit" parent="Panel/MainHSplit/ResourceBrowser"]
+layout_mode = 2
+placeholder_text = "Search…"
+clear_button_enabled = true
+
 [node name="RefreshButton" type="Button" parent="Panel/MainHSplit/ResourceBrowser"]
 layout_mode = 2
 text = "Refresh List"
@@ -102,6 +107,16 @@ text = " Save "
 layout_mode = 2
 text = " Save As... "
 
+[node name="DuplicateButton" type="Button" parent="Panel/MainHSplit/EditorPanel/Header/FileButtons"]
+layout_mode = 2
+tooltip_text = "Duplicate current resource to a new file"
+text = " Duplicate "
+
+[node name="DeleteButton" type="Button" parent="Panel/MainHSplit/EditorPanel/Header/FileButtons"]
+layout_mode = 2
+tooltip_text = "Delete current resource file from disk"
+text = " Delete "
+
 [node name="PreviewButton" type="Button" parent="Panel/MainHSplit/EditorPanel/Header/FileButtons"]
 layout_mode = 2
 text = " Preview "
@@ -109,7 +124,6 @@ text = " Preview "
 [node name="ScrollContainer" type="ScrollContainer" parent="Panel/MainHSplit/EditorPanel"]
 layout_mode = 2
 size_flags_vertical = 3
-scroll_vertical = 445
 horizontal_scroll_mode = 0
 
 [node name="EditorContent" type="VBoxContainer" parent="Panel/MainHSplit/EditorPanel/ScrollContainer"]
@@ -265,32 +279,6 @@ popup/item_1/id = 1
 popup/item_2/text = "STAFF"
 popup/item_2/id = 2
 
-[node name="ScalingMode" type="VBoxContainer" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent"]
-layout_mode = 2
-
-[node name="SectionLabel" type="Label" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/ScalingMode"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "Scaling Mode"
-
-[node name="MarginContainer" type="MarginContainer" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/ScalingMode"]
-layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_right = 10
-
-[node name="Form" type="HBoxContainer" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/ScalingMode/MarginContainer"]
-layout_mode = 2
-
-[node name="UseFormulasCheckbox" type="CheckBox" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/ScalingMode/MarginContainer/Form"]
-layout_mode = 2
-button_pressed = true
-text = "Use Formula-Based Scaling"
-
-[node name="HelpButton" type="Button" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/ScalingMode/MarginContainer/Form"]
-layout_mode = 2
-tooltip_text = "Show formula help"
-text = "?"
-
 [node name="ActiveBehavior" type="VBoxContainer" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent"]
 layout_mode = 2
 
@@ -361,6 +349,11 @@ layout_mode = 2
 layout_mode = 2
 text = "+ Add Formula"
 
+[node name="HelpButton" type="Button" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/FormulaEditor/HeaderButtons"]
+layout_mode = 2
+tooltip_text = "Show formula help"
+text = "?"
+
 [node name="PresetOption" type="OptionButton" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/FormulaEditor/HeaderButtons"]
 layout_mode = 2
 size_flags_horizontal = 3
@@ -391,49 +384,6 @@ columns = 2
 hide_root = true
 
 [node name="FormulaInspector" type="EditorInspector" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/FormulaEditor/HSplit"]
-layout_mode = 2
-
-[node name="LevelSettings" type="VBoxContainer" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent"]
-visible = false
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 10
-
-[node name="Label" type="Label" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/LevelSettings"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "Manual Level Configuration"
-horizontal_alignment = 1
-
-[node name="HSplitContainer" type="HSplitContainer" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/LevelSettings"]
-custom_minimum_size = Vector2(0, 600)
-layout_mode = 2
-split_offset = 150
-
-[node name="VBoxContainer" type="VBoxContainer" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/LevelSettings/HSplitContainer"]
-layout_mode = 2
-
-[node name="LevelList" type="ItemList" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/LevelSettings/HSplitContainer/VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="HBoxContainer" type="HBoxContainer" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/LevelSettings/HSplitContainer/VBoxContainer"]
-layout_mode = 2
-alignment = 1
-
-[node name="AddLevelButton" type="Button" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/LevelSettings/HSplitContainer/VBoxContainer/HBoxContainer"]
-layout_mode = 2
-text = " + "
-
-[node name="RemoveLevelButton" type="Button" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/LevelSettings/HSplitContainer/VBoxContainer/HBoxContainer"]
-layout_mode = 2
-text = " - "
-
-[node name="LevelDetailsPanel" type="PanelContainer" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/LevelSettings/HSplitContainer"]
-visible = false
-layout_mode = 2
-
-[node name="LevelDetailInspector" type="EditorInspector" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/LevelSettings/HSplitContainer/LevelDetailsPanel"]
 layout_mode = 2
 
 [node name="GenericResourceInspector" type="EditorInspector" parent="Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent"]

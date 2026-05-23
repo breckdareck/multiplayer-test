@@ -157,10 +157,9 @@ static func create_new_resource(type: ResourceType) -> Resource:
 	if type.display_name == "Abilities":
 		# Initialize ability with default values
 		resource.max_level = 10
-		resource.use_scaling_formulas = true
 		resource.scaling_data = load("res://scripts/Resources/AbilitySystem/AbilityScalingData.gd").new()
 		resource.scaling_data.resource_local_to_scene = true
 		resource.active_behavior = load("res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd").new()
 		resource.active_behavior.resource_local_to_scene = true
-	
+
 	return resource

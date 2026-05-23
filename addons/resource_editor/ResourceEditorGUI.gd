@@ -36,8 +36,11 @@ const TYPE_ICONS: Dictionary = {
 
 # ── @onready refs (paths must match ResourceEditorGUI.tscn exactly) ────────────
 @onready var resource_type_selector = $Panel/MainHSplit/ResourceBrowser/ResourceTypeSelector
+@onready var search_edit            = $Panel/MainHSplit/ResourceBrowser/SearchEdit
 @onready var refresh_button         = $Panel/MainHSplit/ResourceBrowser/RefreshButton
 @onready var resource_tree          = $Panel/MainHSplit/ResourceBrowser/ResourceTree
+
+@onready var general_settings_panel = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/GeneralSettings
 
 @onready var ability_id_edit       = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/GeneralSettings/MarginContainer/Form/HBox_ID/AbilityIDEdit
 @onready var ability_name_edit     = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/GeneralSettings/MarginContainer/Form/HBox_Name/AbilityNameEdit
@@ -48,9 +51,6 @@ const TYPE_ICONS: Dictionary = {
 @onready var required_class_option = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/GeneralSettings/MarginContainer/Form/HBox_Class/RequiredClassOption
 @onready var required_weapon_option= $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/GeneralSettings/MarginContainer/Form/HBox_Weapon/RequiredWeaponOption
 
-@onready var use_formulas_checkbox  = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/ScalingMode/MarginContainer/Form/UseFormulasCheckbox
-@onready var formula_help_button    = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/ScalingMode/MarginContainer/Form/HelpButton
-
 @onready var active_behavior_panel    = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/ActiveBehavior
 @onready var active_behavior_inspector= $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/ActiveBehavior/MarginContainer/ContentVBox/ActiveBehaviorInspector
 
@@ -58,22 +58,18 @@ const TYPE_ICONS: Dictionary = {
 @onready var formula_tree          = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/FormulaEditor/HSplit/FormulaTree
 @onready var formula_inspector     = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/FormulaEditor/HSplit/FormulaInspector
 @onready var add_formula_button    = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/FormulaEditor/HeaderButtons/AddFormulaButton
+@onready var formula_help_button   = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/FormulaEditor/HeaderButtons/HelpButton
 @onready var formula_preset_option = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/FormulaEditor/HeaderButtons/PresetOption
-
-@onready var manual_level_panel    = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/LevelSettings
-@onready var level_list            = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/LevelSettings/HSplitContainer/VBoxContainer/LevelList
-@onready var add_level_button      = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/LevelSettings/HSplitContainer/VBoxContainer/HBoxContainer/AddLevelButton
-@onready var remove_level_button   = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/LevelSettings/HSplitContainer/VBoxContainer/HBoxContainer/RemoveLevelButton
-@onready var level_details_panel   = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/LevelSettings/HSplitContainer/LevelDetailsPanel
-@onready var level_detail_inspector= $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/LevelSettings/HSplitContainer/LevelDetailsPanel/LevelDetailInspector
 
 @onready var generic_resource_inspector = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/GenericResourceInspector
 
-@onready var new_button      = $Panel/MainHSplit/EditorPanel/Header/FileButtons/NewButton
-@onready var save_button     = $Panel/MainHSplit/EditorPanel/Header/FileButtons/SaveButton
-@onready var save_as_button  = $Panel/MainHSplit/EditorPanel/Header/FileButtons/SaveAsButton
-@onready var preview_button  = $Panel/MainHSplit/EditorPanel/Header/FileButtons/PreviewButton
-@onready var file_dialog     = $FileDialog
+@onready var new_button       = $Panel/MainHSplit/EditorPanel/Header/FileButtons/NewButton
+@onready var save_button      = $Panel/MainHSplit/EditorPanel/Header/FileButtons/SaveButton
+@onready var save_as_button   = $Panel/MainHSplit/EditorPanel/Header/FileButtons/SaveAsButton
+@onready var duplicate_button = $Panel/MainHSplit/EditorPanel/Header/FileButtons/DuplicateButton
+@onready var delete_button    = $Panel/MainHSplit/EditorPanel/Header/FileButtons/DeleteButton
+@onready var preview_button   = $Panel/MainHSplit/EditorPanel/Header/FileButtons/PreviewButton
+@onready var file_dialog      = $FileDialog
 
 @onready var visualizer_container     = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/ActiveBehavior/MarginContainer/ContentVBox/VisualizerContainer
 @onready var visualizer_control       = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/ActiveBehavior/MarginContainer/ContentVBox/VisualizerContainer/PanelContainer/VisualizerControl
@@ -97,6 +93,45 @@ var _ftree_panel_sb:    StyleBoxFlat   = null
 var _ftree_selected_sb: StyleBoxFlat   = null
 var _current_accent:    Color          = CATEGORY_COLORS["Ability System"]
 
+# Search / cache / dirty / dialog state
+var _search_filter: String = ""
+var _scanned_entries: Array = [] # [{path, res, folder_parts, name}]
+var _path_to_tree_item: Dictionary = {} # res_path -> TreeItem
+var _status_version: int = 0
+var _dirty: bool = false
+var _pending_action: Callable = Callable() # queued action to run after dirty confirm
+var _help_dialog: AcceptDialog = null
+var _popup_body_label: Label = null
+var _confirm_delete_dialog: ConfirmationDialog = null
+var _unsaved_dialog: ConfirmationDialog = null
+
+# Theming registries (drained when accent changes)
+var _accent_appliers: Array = []      # Array of Callable(Color) -> void
+var _section_labels: Array = []        # Label refs (kept after card wrap)
+var _section_label_meta: Array = []    # Matching text for each label
+var _status_count_label: Label = null  # right-aligned resource count in status bar
+var _status_type_chip: Label = null    # left chip showing current type icon
+var _browser_count_label: Label = null # under search bar, shows result counts
+
+# Tree right-click context menu
+var _tree_context_menu: PopupMenu = null
+var _tree_context_path: String = ""
+enum _CtxAction { OPEN, DUPLICATE, DELETE, REVEAL, COPY_ID, COPY_PATH }
+
+# Empty-state placeholder (a card shown above the tree when no resources exist)
+var _empty_state_panel: PanelContainer = null
+var _empty_state_label: Label = null
+
+# Collapsible section state — keyed by SectionLabel
+var _section_bodies: Dictionary = {}    # Label -> Array[Control]
+var _section_collapsed: Dictionary = {} # Label -> bool
+
+# Persisted dock state key
+const _STATE_KEY = "resource_editor/last_state"
+
+# Formula curve chart
+var _curve_chart: Control = null
+
 var formula_presets = {
 	"Linear +1/level":  {"type": AbilityScalingFormula.ScalingType.FLAT,          "base": 0,   "per_level": 1.0},
 	"Linear +5/level":  {"type": AbilityScalingFormula.ScalingType.FLAT,          "base": 0,   "per_level": 5.0},
@@ -114,10 +149,12 @@ func _ready() -> void:
 	_populate_formula_presets()
 	_connect_signals()
 	if resource_types.size() > 0:
-		current_resource_type = resource_types[0]
-		_update_accent(CATEGORY_COLORS.get(current_resource_type.category, C_DIM))
-		_scan_for_resources()
-		_on_new_button_pressed()
+		# Try to restore the last session's selection first
+		if not _restore_dock_state():
+			current_resource_type = resource_types[0]
+			_update_accent(CATEGORY_COLORS.get(current_resource_type.category, C_DIM))
+			_scan_for_resources()
+			_on_new_button_pressed()
 
 
 # ── Base theme (called once in _ready after @onready resolution) ───────────────
@@ -129,91 +166,634 @@ func _apply_base_theme() -> void:
 	panel.add_theme_stylebox_override("panel", root_sb)
 	panel.offset_bottom = -26
 
+	$Panel/MainHSplit.add_theme_constant_override("separation", 10)
+	$Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent.add_theme_constant_override("separation", 16)
+	$Panel/MainHSplit/ResourceBrowser.add_theme_constant_override("separation", 6)
+	$Panel/MainHSplit/EditorPanel/Header.add_theme_constant_override("separation", 8)
+	$Panel/MainHSplit/EditorPanel.add_theme_constant_override("separation", 10)
+
 	# ── Browser header ─────────────────────────────────────────────────────
 	var browser_lbl = $Panel/MainHSplit/ResourceBrowser/Label
 	browser_lbl.text = "PROJECT RESOURCES"
-	browser_lbl.add_theme_font_size_override("font_size", 10)
+	browser_lbl.add_theme_font_size_override("font_size", 11)
 	browser_lbl.add_theme_color_override("font_color", C_DIM)
 
-	# Type selector
-	var opt_sb = StyleBoxFlat.new()
-	opt_sb.bg_color = C_CARD
-	opt_sb.set_border_width_all(1)
-	opt_sb.border_color = C_BORDER
-	opt_sb.set_corner_radius_all(3)
-	opt_sb.set_content_margin_all(4)
-	resource_type_selector.add_theme_stylebox_override("normal", opt_sb)
-	resource_type_selector.add_theme_font_size_override("font_size", 11)
+	# Title — larger now that we have a chip-style breadcrumb beside it
+	_title_label = $Panel/MainHSplit/EditorPanel/Header/Title
+	_title_label.add_theme_font_size_override("font_size", 22)
+	_title_label.add_theme_color_override("font_color", _current_accent)
 
-	# Resource tree
-	_tree_panel_sb = StyleBoxFlat.new()
-	_tree_panel_sb.bg_color = C_CARD
-	_tree_panel_sb.set_border_width_all(1)
-	_tree_panel_sb.border_color = Color(_current_accent, 0.35)
-	_tree_panel_sb.set_corner_radius_all(4)
+	# Themed tree styleboxes (these vars persist so _update_accent mutates them in place)
+	_tree_panel_sb = _make_tree_panel_sb()
 	resource_tree.add_theme_stylebox_override("panel", _tree_panel_sb)
-
-	_tree_selected_sb = StyleBoxFlat.new()
-	_tree_selected_sb.bg_color = Color(_current_accent, 0.22)
-	_tree_selected_sb.set_border_width_all(0)
+	_tree_selected_sb = _make_tree_selected_sb()
 	resource_tree.add_theme_stylebox_override("selected",       _tree_selected_sb)
 	resource_tree.add_theme_stylebox_override("selected_focus", _tree_selected_sb)
-
 	resource_tree.add_theme_color_override("font_color",          C_TEXT)
 	resource_tree.add_theme_color_override("font_color_selected", Color.WHITE)
 	resource_tree.add_theme_color_override("guide_color",         Color(C_BORDER, 0.5))
+	resource_tree.add_theme_constant_override("item_margin", 6)
+	resource_tree.add_theme_constant_override("v_separation", 3)
 
-	_style_btn(refresh_button, C_DIM, false)
-
-	# ── Editor panel ────────────────────────────────────────────────────────
-	_title_label = $Panel/MainHSplit/EditorPanel/Header/Title
-	_title_label.add_theme_font_size_override("font_size", 18)
-	_title_label.add_theme_color_override("font_color", _current_accent)
-
-	_style_btn(new_button,      C_DIM,          false)
-	_style_btn(save_button,     _current_accent, true)
-	_style_btn(save_as_button,  C_DIM,          false)
-	_style_btn(preview_button,  C_DIM,          false)
-	_style_btn(add_formula_button, C_DIM,        false)
-	_style_btn(formula_help_button, C_DIM,       false)
-	_style_btn(add_level_button,   C_DIM,        false)
-	_style_btn(remove_level_button, C_DIM,       false)
-
-	# Formula tree (same style as resource tree)
-	_ftree_panel_sb = StyleBoxFlat.new()
-	_ftree_panel_sb.bg_color = C_CARD
-	_ftree_panel_sb.set_border_width_all(1)
-	_ftree_panel_sb.border_color = Color(_current_accent, 0.35)
-	_ftree_panel_sb.set_corner_radius_all(4)
+	_ftree_panel_sb = _make_tree_panel_sb()
 	formula_tree.add_theme_stylebox_override("panel", _ftree_panel_sb)
-
-	_ftree_selected_sb = StyleBoxFlat.new()
-	_ftree_selected_sb.bg_color = Color(_current_accent, 0.22)
-	_ftree_selected_sb.set_border_width_all(0)
+	_ftree_selected_sb = _make_tree_selected_sb()
 	formula_tree.add_theme_stylebox_override("selected",       _ftree_selected_sb)
 	formula_tree.add_theme_stylebox_override("selected_focus", _ftree_selected_sb)
 	formula_tree.add_theme_color_override("font_color",          C_TEXT)
 	formula_tree.add_theme_color_override("font_color_selected", Color.WHITE)
+	formula_tree.add_theme_constant_override("item_margin", 6)
+	formula_tree.add_theme_constant_override("v_separation", 3)
 
-	# Section labels – styled as compact all-caps headers
+	# Card-wrap each major section in the editor panel
+	_wrap_sections_in_cards()
+
+	# Style all input controls with accent focus borders
+	_polish_inputs()
+
+	# Section headers — call AFTER wrap so we can cache the labels
+	_cache_section_labels()
 	_restyle_section_labels(_current_accent)
+	_add_section_dividers()
+	_create_curve_chart()
+	_make_sections_collapsible()
+
+	# File buttons & helper buttons
+	_style_btn(refresh_button, C_DIM, false)
+	_style_btn(new_button,      C_DIM,          false)
+	_style_btn(save_button,     _current_accent, true)
+	_style_btn(save_as_button,  C_DIM,          false)
+	_style_btn(duplicate_button, C_DIM,         false)
+	_style_btn(delete_button,   C_ERR,          false)
+	_style_btn(preview_button,  C_DIM,          false)
+	_style_btn(add_formula_button, C_DIM,        false)
+	_style_btn(formula_help_button, C_DIM,       false)
+
+	_apply_button_icons()
+	_polish_visualizer_panel()
+
+
+# ── Card wrapping ──────────────────────────────────────────────────────────────
+func _wrap_sections_in_cards() -> void:
+	# Existing section VBoxes get hoisted into a PanelContainer with a rounded
+	# card stylebox + left-accent stripe. @onready refs are by node reference,
+	# not path, so re-parenting here doesn't break them.
+	for section_name in ["GeneralSettings", "ActiveBehavior", "FormulaEditor", "GenericResourceInspector"]:
+		var section = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent.get_node_or_null(section_name)
+		if section:
+			_wrap_in_card(section)
+
+
+func _wrap_in_card(section: Control) -> void:
+	var parent = section.get_parent()
+	var idx = section.get_index()
+
+	var card = PanelContainer.new()
+	card.name = section.name + "Card"
+	card.size_flags_horizontal = section.size_flags_horizontal if section.size_flags_horizontal != 0 else Control.SIZE_EXPAND_FILL
+	card.size_flags_vertical = section.size_flags_vertical
+	card.visible = section.visible  # mirror initial visibility (e.g. GenericResourceInspector starts hidden)
+
+	var sb = StyleBoxFlat.new()
+	sb.bg_color = C_CARD
+	sb.border_color = Color(_current_accent, 0.40)
+	sb.border_width_top = 1
+	sb.border_width_right = 1
+	sb.border_width_bottom = 1
+	sb.border_width_left = 3
+	sb.corner_radius_top_left = 8
+	sb.corner_radius_top_right = 8
+	sb.corner_radius_bottom_left = 8
+	sb.corner_radius_bottom_right = 8
+	sb.content_margin_left = 16
+	sb.content_margin_right = 16
+	sb.content_margin_top = 12
+	sb.content_margin_bottom = 14
+	sb.shadow_size = 3
+	sb.shadow_color = Color(0, 0, 0, 0.30)
+	sb.shadow_offset = Vector2(0, 1)
+	card.add_theme_stylebox_override("panel", sb)
+
+	parent.remove_child(section)
+	card.add_child(section)
+	parent.add_child(card)
+	parent.move_child(card, idx)
+
+	# Pump existing per-section MarginContainers' padding down a bit – the card
+	# now provides outer padding, so the inner margin can be smaller.
+	var inner_margin = section.get_node_or_null("MarginContainer")
+	if inner_margin:
+		inner_margin.add_theme_constant_override("margin_left", 0)
+		inner_margin.add_theme_constant_override("margin_right", 0)
+		inner_margin.add_theme_constant_override("margin_top", 4)
+
+	_accent_appliers.append(func(c: Color):
+		sb.border_color = Color(c, 0.40)
+	)
+
+
+# ── Section label cache + restyle ──────────────────────────────────────────────
+func _cache_section_labels() -> void:
+	_section_labels.clear()
+	_section_label_meta.clear()
+	var content = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent
+	var sections: Array = [
+		["GeneralSettings", "◈  GENERAL SETTINGS",   "SectionLabel"],
+		["ActiveBehavior",  "⚔  ACTIVE BEHAVIOR",    "SectionLabel"],
+		["FormulaEditor",   "📊  FORMULA EDITOR",    "SectionLabel"],
+	]
+	for entry in sections:
+		# Sections were re-parented under "<name>Card" by _wrap_sections_in_cards.
+		var section = content.get_node_or_null(entry[0] + "Card/" + entry[0])
+		if not section:
+			section = content.get_node_or_null(entry[0])
+		if not section:
+			continue
+		var lbl: Label = section.get_node_or_null(entry[2])
+		if lbl:
+			_section_labels.append(lbl)
+			_section_label_meta.append(entry[1])
 
 
 func _restyle_section_labels(color: Color) -> void:
-	var content = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent
-	var sections: Array = [
-		["GeneralSettings", "◈  GENERAL SETTINGS"],
-		["ScalingMode",     "⚡  SCALING MODE"],
-		["ActiveBehavior",  "⚔  ACTIVE BEHAVIOR"],
-		["FormulaEditor",   "📊  FORMULA EDITOR"],
-		["LevelSettings",   "📋  LEVEL SETTINGS"],
-	]
-	for entry in sections:
-		var lbl: Label = content.get_node_or_null(entry[0] + "/SectionLabel")
-		if lbl:
-			lbl.text = entry[1]
-			lbl.add_theme_font_size_override("font_size", 10)
-			lbl.add_theme_color_override("font_color", color)
+	for i in range(_section_labels.size()):
+		var lbl: Label = _section_labels[i]
+		if not is_instance_valid(lbl):
+			continue
+		var base_text = _section_label_meta[i] if i < _section_label_meta.size() else lbl.text
+		# Preserve the collapse chevron if set
+		var chev = "▾  " if not _section_collapsed.get(lbl, false) else "▸  "
+		lbl.text = chev + base_text
+		lbl.add_theme_font_size_override("font_size", 13)
+		lbl.add_theme_color_override("font_color", color)
+		lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+
+
+# Make each section header clickable; clicking toggles the rest of the section.
+func _make_sections_collapsible() -> void:
+	for lbl in _section_labels:
+		if not is_instance_valid(lbl):
+			continue
+		var section = lbl.get_parent()
+		if not section:
+			continue
+		# Capture all children except the label itself — these get hidden when collapsed.
+		var body: Array = []
+		for child in section.get_children():
+			if child != lbl and child is Control:
+				body.append(child)
+		_section_bodies[lbl] = body
+		_section_collapsed[lbl] = false
+		lbl.mouse_filter = Control.MOUSE_FILTER_STOP
+		lbl.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		lbl.gui_input.connect(_on_section_header_input.bind(lbl))
+
+
+func _on_section_header_input(event: InputEvent, lbl: Label) -> void:
+	var mb := event as InputEventMouseButton
+	if mb and mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT:
+		_toggle_section_collapsed(lbl)
+
+
+func _toggle_section_collapsed(lbl: Label) -> void:
+	var collapsed = not _section_collapsed.get(lbl, false)
+	_section_collapsed[lbl] = collapsed
+	var body: Array = _section_bodies.get(lbl, [])
+	for ctrl in body:
+		if is_instance_valid(ctrl):
+			ctrl.visible = not collapsed
+	# Refresh the chevron in the header
+	_restyle_section_labels(_current_accent)
+
+
+# ── Section header divider (thin accent line under each section title) ────────
+func _add_section_dividers() -> void:
+	for lbl in _section_labels:
+		if not is_instance_valid(lbl):
+			continue
+		var section = lbl.get_parent()
+		if not section:
+			continue
+		var sep = HSeparator.new()
+		sep.name = "HeaderDivider"
+		var sep_sb = StyleBoxFlat.new()
+		sep_sb.bg_color = Color(_current_accent, 0.25)
+		sep_sb.content_margin_top = 0
+		sep_sb.content_margin_bottom = 0
+		sep.add_theme_stylebox_override("separator", sep_sb)
+		sep.add_theme_constant_override("separation", 4)
+		_accent_appliers.append(func(c: Color):
+			sep_sb.bg_color = Color(c, 0.25)
+		)
+		section.add_child(sep)
+		section.move_child(sep, lbl.get_index() + 1)
+
+
+# ── Formula curve chart ────────────────────────────────────────────────────────
+func _create_curve_chart() -> void:
+	if is_instance_valid(_curve_chart):
+		return
+	var wrap = VBoxContainer.new()
+	wrap.name = "CurveChartWrap"
+	wrap.add_theme_constant_override("separation", 4)
+
+	var hdr = Label.new()
+	hdr.text = "📈  CURVE PREVIEW"
+	hdr.add_theme_font_size_override("font_size", 10)
+	hdr.add_theme_color_override("font_color", C_DIM)
+	wrap.add_child(hdr)
+
+	_curve_chart = Control.new()
+	_curve_chart.custom_minimum_size = Vector2(0, 140)
+	_curve_chart.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_curve_chart.draw.connect(_draw_curve_chart)
+	_curve_chart.resized.connect(func(): _curve_chart.queue_redraw())
+	wrap.add_child(_curve_chart)
+
+	# Add inside the FormulaEditor section so it collapses with it
+	if formula_editor_panel:
+		formula_editor_panel.add_child(wrap)
+
+
+func _draw_curve_chart() -> void:
+	if not is_instance_valid(_curve_chart):
+		return
+	var size = _curve_chart.size
+	var rect = Rect2(Vector2.ZERO, size)
+
+	# Background
+	var bg = StyleBoxFlat.new()
+	bg.bg_color = C_DARK.darkened(0.10)
+	bg.border_color = C_BORDER
+	bg.set_border_width_all(1)
+	bg.set_corner_radius_all(4)
+	_curve_chart.draw_style_box(bg, rect)
+
+	var font = ThemeDB.fallback_font
+	if not font:
+		return
+
+	if not current_editing_formula or not current_resource is AbilityData:
+		_curve_chart.draw_string(font, Vector2(12, size.y / 2 + 4),
+			"Select a formula on the left to preview its curve.",
+			HORIZONTAL_ALIGNMENT_LEFT, -1, 11, C_DIM)
+		return
+
+	var ability := current_resource as AbilityData
+	var max_level: int = max(1, ability.max_level)
+
+	var values: Array[float] = []
+	var max_val = -INF
+	var min_val = INF
+	for lvl in range(1, max_level + 1):
+		var v: float = float(current_editing_formula.calculate(lvl))
+		values.append(v)
+		if v > max_val: max_val = v
+		if v < min_val: min_val = v
+	if absf(max_val - min_val) < 0.001:
+		max_val = min_val + 1.0
+
+	var pad_l = 40.0
+	var pad_r = 12.0
+	var pad_t = 12.0
+	var pad_b = 22.0
+	var plot_w = size.x - pad_l - pad_r
+	var plot_h = size.y - pad_t - pad_b
+	if plot_w <= 1 or plot_h <= 1:
+		return
+
+	var origin = Vector2(pad_l, pad_t + plot_h)
+
+	# Subtle horizontal grid lines (3 ticks)
+	for i in range(4):
+		var y = pad_t + plot_h * float(i) / 3.0
+		_curve_chart.draw_line(Vector2(pad_l, y), Vector2(pad_l + plot_w, y), Color(C_BORDER, 0.4), 1)
+
+	# Axes
+	_curve_chart.draw_line(origin, Vector2(pad_l + plot_w, origin.y), C_BORDER, 1)
+	_curve_chart.draw_line(origin, Vector2(pad_l, pad_t), C_BORDER, 1)
+
+	# Curve points
+	var points: PackedVector2Array = PackedVector2Array()
+	for i in range(values.size()):
+		var lvl = i + 1
+		var v = values[i]
+		var fx: float = 0.0 if max_level == 1 else float(lvl - 1) / float(max_level - 1)
+		var fy: float = (v - min_val) / (max_val - min_val)
+		points.push_back(Vector2(pad_l + plot_w * fx, pad_t + plot_h - plot_h * fy))
+
+	# Filled area under curve (semi-transparent accent)
+	if points.size() >= 2:
+		var fill_poly: PackedVector2Array = points.duplicate()
+		fill_poly.push_back(Vector2(points[points.size() - 1].x, origin.y))
+		fill_poly.push_back(Vector2(points[0].x, origin.y))
+		_curve_chart.draw_colored_polygon(fill_poly, Color(_current_accent, 0.15))
+		_curve_chart.draw_polyline(points, _current_accent, 2.0, true)
+
+	# Sample dots
+	for p in points:
+		_curve_chart.draw_circle(p, 2.5, _current_accent)
+
+	# Axis labels
+	_curve_chart.draw_string(font, Vector2(4, pad_t + 8),                "%.1f" % max_val, HORIZONTAL_ALIGNMENT_LEFT, -1, 10, C_DIM)
+	_curve_chart.draw_string(font, Vector2(4, pad_t + plot_h),           "%.1f" % min_val, HORIZONTAL_ALIGNMENT_LEFT, -1, 10, C_DIM)
+	_curve_chart.draw_string(font, Vector2(pad_l - 2, origin.y + 14),    "1",            HORIZONTAL_ALIGNMENT_LEFT, -1, 10, C_DIM)
+	_curve_chart.draw_string(font, Vector2(pad_l + plot_w - 16, origin.y + 14), str(max_level), HORIZONTAL_ALIGNMENT_LEFT, -1, 10, C_DIM)
+
+
+func _refresh_curve_chart() -> void:
+	if is_instance_valid(_curve_chart):
+		_curve_chart.queue_redraw()
+
+
+# ── Persisted dock state ───────────────────────────────────────────────────────
+func _save_dock_state() -> void:
+	if not Engine.is_editor_hint():
+		return
+	var settings = EditorInterface.get_editor_settings()
+	if not settings:
+		return
+	var type_name := ""
+	if current_resource_type:
+		type_name = current_resource_type.display_name
+	var resource_path := ""
+	if current_resource and not current_resource.resource_path.is_empty():
+		resource_path = current_resource.resource_path
+	settings.set_project_metadata("resource_editor", "last_state", {
+		"type": type_name,
+		"resource": resource_path,
+	})
+
+
+func _restore_dock_state() -> bool:
+	if not Engine.is_editor_hint():
+		return false
+	var settings = EditorInterface.get_editor_settings()
+	if not settings:
+		return false
+	var state = settings.get_project_metadata("resource_editor", "last_state", null)
+	if not state is Dictionary:
+		return false
+	var saved_type = state.get("type", "")
+	var saved_resource = state.get("resource", "")
+
+	# Restore the type dropdown
+	for i in range(resource_types.size()):
+		if resource_types[i].display_name == saved_type:
+			current_resource_type = resource_types[i]
+			resource_type_selector.select(i)
+			_update_accent(CATEGORY_COLORS.get(current_resource_type.category, C_DIM))
+			_scan_for_resources()
+			break
+
+	# Restore the resource if it still exists
+	if saved_resource != "" and FileAccess.file_exists(saved_resource):
+		_load_resource(saved_resource)
+		var item = _path_to_tree_item.get(saved_resource, null)
+		if item:
+			item.select(0)
+		return true
+	return false
+
+
+# ── Reusable stylebox factories ────────────────────────────────────────────────
+func _make_tree_panel_sb() -> StyleBoxFlat:
+	var sb = StyleBoxFlat.new()
+	sb.bg_color = C_CARD
+	sb.set_border_width_all(1)
+	sb.border_color = Color(_current_accent, 0.35)
+	sb.set_corner_radius_all(6)
+	sb.set_content_margin_all(4)
+	_accent_appliers.append(func(c: Color):
+		sb.border_color = Color(c, 0.35)
+	)
+	return sb
+
+
+func _make_tree_selected_sb() -> StyleBoxFlat:
+	var sb = StyleBoxFlat.new()
+	sb.bg_color = Color(_current_accent, 0.22)
+	sb.set_border_width_all(0)
+	sb.set_corner_radius_all(4)
+	_accent_appliers.append(func(c: Color):
+		sb.bg_color = Color(c, 0.22)
+	)
+	return sb
+
+
+func _make_input_normal_sb() -> StyleBoxFlat:
+	var sb = StyleBoxFlat.new()
+	sb.bg_color = C_DARK
+	sb.border_color = C_BORDER
+	sb.set_border_width_all(1)
+	sb.set_corner_radius_all(4)
+	sb.content_margin_left = 8
+	sb.content_margin_right = 8
+	sb.content_margin_top = 5
+	sb.content_margin_bottom = 5
+	return sb
+
+
+func _make_input_hover_sb() -> StyleBoxFlat:
+	var sb = _make_input_normal_sb()
+	sb.bg_color = C_DARK.lightened(0.04)
+	sb.border_color = Color(_current_accent, 0.55)
+	_accent_appliers.append(func(c: Color):
+		sb.border_color = Color(c, 0.55)
+	)
+	return sb
+
+
+func _make_input_focus_sb() -> StyleBoxFlat:
+	var sb = _make_input_normal_sb()
+	sb.border_color = _current_accent
+	sb.set_border_width_all(2)
+	sb.content_margin_left = 7
+	sb.content_margin_right = 7
+	sb.content_margin_top = 4
+	sb.content_margin_bottom = 4
+	_accent_appliers.append(func(c: Color):
+		sb.border_color = c
+	)
+	return sb
+
+
+# ── Input control polish ───────────────────────────────────────────────────────
+func _polish_inputs() -> void:
+	# LineEdits
+	for le in [ability_id_edit, ability_name_edit, search_edit]:
+		_style_line_edit(le)
+	_style_text_edit(description_edit)
+	_style_spin_box(max_level_spinbox)
+	for ob in [resource_type_selector, ability_type_option, required_class_option,
+			   required_weapon_option, formula_preset_option]:
+		_style_option_button(ob)
+	# Search bar gets a magnifier icon if available
+	if is_instance_valid(search_edit):
+		var icon = _editor_icon("Search")
+		if icon:
+			search_edit.right_icon = icon
+
+
+func _style_line_edit(le: LineEdit) -> void:
+	if not is_instance_valid(le):
+		return
+	le.add_theme_stylebox_override("normal", _make_input_normal_sb())
+	le.add_theme_stylebox_override("focus",  _make_input_focus_sb())
+	le.add_theme_color_override("font_color",             C_TEXT)
+	le.add_theme_color_override("font_placeholder_color", C_DIM)
+	le.add_theme_color_override("caret_color",            _current_accent)
+	le.add_theme_color_override("selection_color",        Color(_current_accent, 0.30))
+	le.add_theme_font_size_override("font_size", 12)
+	_accent_appliers.append(func(c: Color):
+		le.add_theme_color_override("caret_color",     c)
+		le.add_theme_color_override("selection_color", Color(c, 0.30))
+	)
+
+
+func _style_text_edit(te: TextEdit) -> void:
+	if not is_instance_valid(te):
+		return
+	te.add_theme_stylebox_override("normal", _make_input_normal_sb())
+	te.add_theme_stylebox_override("focus",  _make_input_focus_sb())
+	te.add_theme_color_override("font_color",      C_TEXT)
+	te.add_theme_color_override("caret_color",     _current_accent)
+	te.add_theme_color_override("selection_color", Color(_current_accent, 0.30))
+	te.add_theme_font_size_override("font_size", 12)
+	_accent_appliers.append(func(c: Color):
+		te.add_theme_color_override("caret_color",     c)
+		te.add_theme_color_override("selection_color", Color(c, 0.30))
+	)
+
+
+func _style_spin_box(sb: SpinBox) -> void:
+	if not is_instance_valid(sb):
+		return
+	# SpinBox draws its inner LineEdit – style that instead.
+	_style_line_edit(sb.get_line_edit())
+
+
+func _style_option_button(ob: OptionButton) -> void:
+	if not is_instance_valid(ob):
+		return
+	ob.add_theme_stylebox_override("normal",  _make_input_normal_sb())
+	ob.add_theme_stylebox_override("hover",   _make_input_hover_sb())
+	ob.add_theme_stylebox_override("pressed", _make_input_hover_sb())
+	ob.add_theme_stylebox_override("focus",   _make_input_focus_sb())
+	ob.add_theme_color_override("font_color",         C_TEXT)
+	ob.add_theme_color_override("font_hover_color",   Color.WHITE)
+	ob.add_theme_color_override("font_pressed_color", Color.WHITE)
+	ob.add_theme_font_size_override("font_size", 12)
+
+
+func _style_check_box(cb: CheckBox) -> void:
+	if not is_instance_valid(cb):
+		return
+	cb.add_theme_color_override("font_color",         C_TEXT)
+	cb.add_theme_color_override("font_hover_color",   Color.WHITE)
+	cb.add_theme_color_override("font_pressed_color", _current_accent)
+	cb.add_theme_color_override("font_focus_color",   _current_accent)
+	cb.add_theme_font_size_override("font_size", 12)
+	_accent_appliers.append(func(c: Color):
+		cb.add_theme_color_override("font_pressed_color", c)
+		cb.add_theme_color_override("font_focus_color",   c)
+	)
+
+
+# ── Visualizer panel polish ────────────────────────────────────────────────────
+func _polish_visualizer_panel() -> void:
+	if not is_instance_valid(visualizer_container):
+		return
+	var pc = visualizer_container.get_node_or_null("PanelContainer")
+	if pc:
+		var sb = StyleBoxFlat.new()
+		sb.bg_color = C_DARK.darkened(0.10)
+		sb.border_color = C_BORDER
+		sb.set_border_width_all(1)
+		sb.set_corner_radius_all(4)
+		pc.add_theme_stylebox_override("panel", sb)
+	# Polish the info labels above the visualizer too
+	var info: Label = visualizer_container.get_node_or_null("InfoLabel")
+	if info:
+		info.add_theme_color_override("font_color", C_DIM)
+		info.add_theme_font_size_override("font_size", 11)
+	var hlbl: Label = visualizer_container.get_node_or_null("Label")
+	if hlbl:
+		hlbl.add_theme_color_override("font_color", C_TEXT)
+		hlbl.add_theme_font_size_override("font_size", 13)
+
+	# Mouse wheel zoom on the visualizer
+	if is_instance_valid(visualizer_control):
+		visualizer_control.mouse_filter = Control.MOUSE_FILTER_STOP
+		if not visualizer_control.gui_input.is_connected(_on_visualizer_gui_input):
+			visualizer_control.gui_input.connect(_on_visualizer_gui_input)
+
+	# Zoom controls row beneath the preview
+	if visualizer_container.get_node_or_null("ZoomRow") == null:
+		var row = HBoxContainer.new()
+		row.name = "ZoomRow"
+		row.alignment = BoxContainer.ALIGNMENT_CENTER
+		row.add_theme_constant_override("separation", 6)
+		visualizer_container.add_child(row)
+
+		var zoom_out = Button.new()
+		zoom_out.text = " − "
+		zoom_out.tooltip_text = "Zoom out"
+		zoom_out.pressed.connect(func(): _set_visualizer_zoom(_visualizer_zoom / 1.25))
+		_style_btn(zoom_out, C_DIM, false)
+		row.add_child(zoom_out)
+
+		_zoom_label = Label.new()
+		_zoom_label.text = "Zoom: %.1fx" % _visualizer_zoom
+		_zoom_label.custom_minimum_size = Vector2(90, 0)
+		_zoom_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_zoom_label.add_theme_font_size_override("font_size", 11)
+		_zoom_label.add_theme_color_override("font_color", C_DIM)
+		row.add_child(_zoom_label)
+
+		var zoom_in = Button.new()
+		zoom_in.text = " + "
+		zoom_in.tooltip_text = "Zoom in"
+		zoom_in.pressed.connect(func(): _set_visualizer_zoom(_visualizer_zoom * 1.25))
+		_style_btn(zoom_in, C_DIM, false)
+		row.add_child(zoom_in)
+
+		var reset = Button.new()
+		reset.text = " Reset "
+		reset.tooltip_text = "Reset zoom to default"
+		reset.pressed.connect(func(): _set_visualizer_zoom(_VISUALIZER_DEFAULT_ZOOM))
+		_style_btn(reset, C_DIM, false)
+		row.add_child(reset)
+
+
+# ── Editor icons (best-effort: returns null when the editor theme isn't ready) ──
+func _editor_icon(icon_name: String) -> Texture2D:
+	if not Engine.is_editor_hint():
+		return null
+	var theme = EditorInterface.get_editor_theme()
+	if theme and theme.has_icon(icon_name, "EditorIcons"):
+		return theme.get_icon(icon_name, "EditorIcons")
+	return null
+
+
+func _apply_button_icons() -> void:
+	var icon_map = {
+		new_button:           "Add",
+		save_button:          "Save",
+		save_as_button:       "Save",
+		duplicate_button:     "Duplicate",
+		delete_button:        "Remove",
+		preview_button:       "Search",
+		refresh_button:       "Reload",
+		add_formula_button:   "Add",
+		formula_help_button:  "Help",
+	}
+	for btn in icon_map:
+		var icon = _editor_icon(icon_map[btn])
+		if icon and is_instance_valid(btn):
+			btn.icon = icon
+			# Add a hair of horizontal separation between icon and label
+			btn.add_theme_constant_override("h_separation", 4)
 
 
 func _add_status_bar() -> void:
@@ -229,17 +809,61 @@ func _add_status_bar() -> void:
 	add_child(bar)
 
 	var m = MarginContainer.new()
-	m.add_theme_constant_override("margin_left",   10)
-	m.add_theme_constant_override("margin_right",  10)
+	m.add_theme_constant_override("margin_left",   12)
+	m.add_theme_constant_override("margin_right",  12)
 	m.add_theme_constant_override("margin_top",     5)
 	m.add_theme_constant_override("margin_bottom",  5)
 	bar.add_child(m)
 
+	var row = HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	m.add_child(row)
+
+	# Left chip — shows current type icon and category
+	_status_type_chip = Label.new()
+	_status_type_chip.text = ""
+	_status_type_chip.add_theme_font_size_override("font_size", 10)
+	_status_type_chip.add_theme_color_override("font_color", _current_accent)
+	_status_type_chip.custom_minimum_size = Vector2(110, 0)
+	row.add_child(_status_type_chip)
+	_accent_appliers.append(func(c: Color):
+		if is_instance_valid(_status_type_chip):
+			_status_type_chip.add_theme_color_override("font_color", c)
+	)
+
+	# Center status message (expands)
 	_status_label = Label.new()
 	_status_label.text = "Select a resource type to browse or create new."
 	_status_label.add_theme_font_size_override("font_size", 10)
 	_status_label.add_theme_color_override("font_color", C_DIM)
-	m.add_child(_status_label)
+	_status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(_status_label)
+
+	# Right resource count
+	_status_count_label = Label.new()
+	_status_count_label.text = ""
+	_status_count_label.add_theme_font_size_override("font_size", 10)
+	_status_count_label.add_theme_color_override("font_color", C_DIM)
+	_status_count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	row.add_child(_status_count_label)
+
+
+func _refresh_status_chrome() -> void:
+	if current_resource_type:
+		var icon = TYPE_ICONS.get(current_resource_type.display_name, "◈")
+		if is_instance_valid(_status_type_chip):
+			_status_type_chip.text = icon + "  " + current_resource_type.display_name.to_upper()
+	if is_instance_valid(_status_count_label):
+		var n = _scanned_entries.size()
+		if not _search_filter.is_empty():
+			var visible := 0
+			var fl = _search_filter.to_lower()
+			for e in _scanned_entries:
+				if str(e.name).to_lower().contains(fl):
+					visible += 1
+			_status_count_label.text = "%d / %d resources" % [visible, n]
+		else:
+			_status_count_label.text = "%d resources" % n
 
 
 # ── Reactive accent update ─────────────────────────────────────────────────────
@@ -249,24 +873,16 @@ func _update_accent(color: Color) -> void:
 	if _title_label:
 		_title_label.add_theme_color_override("font_color", color)
 
-	if _tree_panel_sb:
-		_tree_panel_sb.border_color = Color(color, 0.35)
-		resource_tree.add_theme_stylebox_override("panel", _tree_panel_sb)
-	if _tree_selected_sb:
-		_tree_selected_sb.bg_color = Color(color, 0.22)
-		resource_tree.add_theme_stylebox_override("selected",       _tree_selected_sb)
-		resource_tree.add_theme_stylebox_override("selected_focus", _tree_selected_sb)
+	# Drive every accent-tracked stylebox / color through its registered applier.
+	for applier in _accent_appliers:
+		if applier is Callable and applier.is_valid():
+			applier.call(color)
 
-	if _ftree_panel_sb:
-		_ftree_panel_sb.border_color = Color(color, 0.35)
-		formula_tree.add_theme_stylebox_override("panel", _ftree_panel_sb)
-	if _ftree_selected_sb:
-		_ftree_selected_sb.bg_color = Color(color, 0.22)
-		formula_tree.add_theme_stylebox_override("selected",       _ftree_selected_sb)
-		formula_tree.add_theme_stylebox_override("selected_focus", _ftree_selected_sb)
-
+	# Save button uses the legacy _style_btn helper which builds new styleboxes
 	_style_btn(save_button, color, true)
 	_restyle_section_labels(color)
+	_refresh_status_chrome()
+	_refresh_curve_chart()
 
 
 # ── Button styling helper ──────────────────────────────────────────────────────
@@ -330,10 +946,15 @@ func _set_status(msg: String, is_err: bool = false) -> void:
 		return
 	_status_label.text = msg
 	_status_label.add_theme_color_override("font_color", C_ERR if is_err else C_OK)
+	_status_version += 1
+	var my_version = _status_version
 	if not is_err:
 		get_tree().create_timer(4.0).timeout.connect(func():
-			if is_instance_valid(_status_label):
-				_status_label.add_theme_color_override("font_color", C_DIM)
+			if not is_instance_valid(_status_label):
+				return
+			if my_version != _status_version:
+				return  # superseded by a newer status message
+			_status_label.add_theme_color_override("font_color", C_DIM)
 		)
 
 
@@ -373,12 +994,16 @@ func _connect_signals() -> void:
 	new_button.pressed.connect(_on_new_button_pressed)
 	save_button.pressed.connect(_on_save_button_pressed)
 	save_as_button.pressed.connect(_on_save_as_button_pressed)
+	duplicate_button.pressed.connect(_on_duplicate_pressed)
+	delete_button.pressed.connect(_on_delete_pressed)
 	preview_button.pressed.connect(_on_preview_button_pressed)
 	file_dialog.file_selected.connect(_on_file_selected)
 
 	resource_type_selector.item_selected.connect(_on_resource_type_changed)
 	refresh_button.pressed.connect(_scan_for_resources)
 	resource_tree.item_selected.connect(_on_resource_tree_item_selected)
+	resource_tree.item_mouse_selected.connect(_on_tree_item_mouse_selected)
+	search_edit.text_changed.connect(_on_search_changed)
 
 	ability_name_edit.text_changed.connect(_on_general_info_changed)
 	description_edit.text_changed.connect(_on_general_info_changed)
@@ -388,7 +1013,6 @@ func _connect_signals() -> void:
 	required_class_option.item_selected.connect(_on_general_info_changed)
 	required_weapon_option.item_selected.connect(_on_general_info_changed)
 
-	use_formulas_checkbox.toggled.connect(_on_scaling_mode_toggled)
 	formula_help_button.pressed.connect(_show_formula_help)
 
 	visualizer_control.draw.connect(_draw_hitbox_visualization)
@@ -397,10 +1021,6 @@ func _connect_signals() -> void:
 	formula_preset_option.item_selected.connect(_on_preset_selected)
 	formula_tree.item_selected.connect(_on_formula_tree_selected)
 
-	add_level_button.pressed.connect(_on_add_level_pressed)
-	remove_level_button.pressed.connect(_on_remove_level_pressed)
-	level_list.item_selected.connect(_on_level_selected)
-
 
 # ========================================
 # FILE BROWSER
@@ -408,67 +1028,386 @@ func _connect_signals() -> void:
 func _on_resource_type_changed(index: int) -> void:
 	if index < 0 or index >= resource_types.size():
 		return
-	current_resource_type = resource_types[index]
-	var accent = CATEGORY_COLORS.get(current_resource_type.category, C_DIM)
-	_update_accent(accent)
-	_scan_for_resources()
-	_on_new_button_pressed()
+	_guard_unsaved(func():
+		current_resource_type = resource_types[index]
+		var accent = CATEGORY_COLORS.get(current_resource_type.category, C_DIM)
+		_update_accent(accent)
+		_scan_for_resources()
+		_on_new_button_pressed()
+		_save_dock_state()
+	)
 
 
 func _scan_for_resources() -> void:
 	if not current_resource_type:
 		return
 
-	resource_tree.clear()
-	var root = resource_tree.create_item()
+	_scanned_entries.clear()
 	var resource_script = load(current_resource_type.script_path)
 	if not resource_script:
 		push_error("Could not find script: " + current_resource_type.script_path)
+		_rebuild_tree()
 		return
 
-	var accent = CATEGORY_COLORS.get(current_resource_type.category, C_DIM)
-	var icon   = TYPE_ICONS.get(current_resource_type.display_name, "◈")
-	var path   = current_resource_type.base_folder
-
+	var path = current_resource_type.base_folder
 	if DirAccess.dir_exists_absolute(path):
-		_recursive_scan(path, root, resource_script, accent, icon)
-	else:
-		var empty = resource_tree.create_item(root)
-		empty.set_text(0, "No resources found in " + path)
-		empty.set_custom_color(0, C_DIM)
-		empty.set_selectable(0, false)
+		_collect_resources(path, resource_script, [])
+
+	_rebuild_tree()
+	_refresh_status_chrome()
 
 
-func _recursive_scan(
-		path: String,
-		parent_item: TreeItem,
-		script_to_match: Script,
-		accent: Color,
-		icon: String) -> void:
-
+func _collect_resources(path: String, script_to_match: Script, folder_parts: Array) -> void:
 	var dir = DirAccess.open(path)
 	if not dir:
 		return
 	dir.list_dir_begin()
 	var fname = dir.get_next()
-
 	while fname != "":
 		if fname != "." and fname != "..":
 			var full = path.path_join(fname)
 			if dir.current_is_dir():
+				var sub = folder_parts.duplicate()
+				sub.append(fname)
+				_collect_resources(full, script_to_match, sub)
+			elif fname.get_extension() == "tres":
+				var res = load(full)
+				if res and _script_matches_or_inherits(res.get_script(), script_to_match):
+					_scanned_entries.append({
+						"path": full,
+						"res": res,
+						"folder_parts": folder_parts,
+						"name": _resource_display_name(res, fname),
+					})
+		fname = dir.get_next()
+	dir.list_dir_end()
+
+
+# Matches when res_script == target OR target is anywhere up res_script's chain.
+# Without this, "Items" can't show Weapons/Armor/Consumables (which extend ItemData).
+func _script_matches_or_inherits(res_script: Script, target: Script) -> bool:
+	var s = res_script
+	while s:
+		if s == target:
+			return true
+		s = s.get_base_script()
+	return false
+
+
+func _rebuild_tree() -> void:
+	resource_tree.clear()
+	_path_to_tree_item.clear()
+	var root = resource_tree.create_item()
+
+	# Toggle the empty-state placeholder card based on whether we have anything.
+	_update_empty_state_visibility()
+
+	if not current_resource_type:
+		return
+
+	var accent = CATEGORY_COLORS.get(current_resource_type.category, C_DIM)
+	var icon   = TYPE_ICONS.get(current_resource_type.display_name, "◈")
+	var folder_items: Dictionary = {} # "a/b" -> TreeItem
+
+	var filter_lc = _search_filter.to_lower()
+	var visible_count := 0
+
+	for entry in _scanned_entries:
+		if not filter_lc.is_empty() and not str(entry.name).to_lower().contains(filter_lc):
+			continue
+
+		var parent_item = root
+		var folder_key = ""
+		for fname in entry.folder_parts:
+			folder_key = folder_key.path_join(fname) if not folder_key.is_empty() else fname
+			if folder_items.has(folder_key):
+				parent_item = folder_items[folder_key]
+			else:
 				var folder = resource_tree.create_item(parent_item)
 				folder.set_text(0, "📁  " + fname)
 				folder.set_custom_color(0, C_DIM)
 				folder.set_selectable(0, false)
-				_recursive_scan(full, folder, script_to_match, accent, icon)
-			elif fname.get_extension() == "tres":
-				var res = load(full)
-				if res and res.get_script() == script_to_match:
-					var item = resource_tree.create_item(parent_item)
-					item.set_text(0, icon + "  " + _resource_display_name(res, fname))
-					item.set_metadata(0, full)
-					item.set_custom_color(0, accent)
-		fname = dir.get_next()
+				folder_items[folder_key] = folder
+				parent_item = folder
+
+		var item = resource_tree.create_item(parent_item)
+		var validation_msg := _validate_resource(entry.res)
+		var label_prefix = "⚠  " if not validation_msg.is_empty() else icon + "  "
+		item.set_text(0, label_prefix + entry.name)
+		item.set_metadata(0, entry.path)
+		item.set_custom_color(0, C_ERR if not validation_msg.is_empty() else accent)
+
+		# Thumbnail
+		var thumb = _resource_thumbnail(entry.res)
+		if thumb:
+			item.set_icon(0, thumb)
+			item.set_icon_max_width(0, 22)
+
+		# Hover tooltip with quick context
+		item.set_tooltip_text(0, _build_tooltip(entry, validation_msg))
+
+		_path_to_tree_item[entry.path] = item
+		visible_count += 1
+
+	# Show the empty/no-matches placeholder as a tree row when appropriate
+	if visible_count == 0:
+		var empty = resource_tree.create_item(root)
+		if _scanned_entries.is_empty():
+			empty.set_text(0, "  No %s yet — use New or the empty-state button" % current_resource_type.display_name.to_lower())
+		else:
+			empty.set_text(0, "  No matches for \"%s\"" % _search_filter)
+		empty.set_custom_color(0, C_DIM)
+		empty.set_selectable(0, false)
+
+
+# Extract the resource's icon Texture2D (varies by type) for the tree thumbnail.
+func _resource_thumbnail(res: Resource) -> Texture2D:
+	if not res:
+		return null
+	for prop in ["ability_icon", "icon", "buff_icon"]:
+		if prop in res:
+			var t = res.get(prop)
+			if t is Texture2D:
+				return t
+	return null
+
+
+# Returns "" when the resource looks complete, or a human-readable reason when
+# something common is missing. Drives the warning chip on the tree row + title.
+func _validate_resource(res: Resource) -> String:
+	if not res:
+		return ""
+	var issues: Array[String] = []
+	if res is AbilityData:
+		var a := res as AbilityData
+		if a.ability_name.strip_edges().is_empty():
+			issues.append("missing name")
+		if a.ability_icon == null:
+			issues.append("no icon")
+		if a.max_level <= 0:
+			issues.append("max_level is 0")
+		if a.scaling_data == null:
+			issues.append("no scaling_data")
+	else:
+		var name_val = null
+		for prop in ["name", "_class_name", "monster_name", "buff_name"]:
+			if prop in res:
+				var v = res.get(prop)
+				if v != null and str(v).strip_edges() != "":
+					name_val = v
+					break
+		if name_val == null:
+			issues.append("missing name")
+		if "icon" in res and res.get("icon") == null:
+			issues.append("no icon")
+		if "buff_icon" in res and res.get("buff_icon") == null:
+			issues.append("no icon")
+	return ", ".join(issues)
+
+
+func _build_tooltip(entry: Dictionary, validation_msg: String) -> String:
+	var lines: Array[String] = []
+	lines.append(str(entry.name))
+	lines.append(entry.path)
+	var res: Resource = entry.res
+	if res is AbilityData:
+		var a := res as AbilityData
+		var type_name = "Active" if a.ability_type == Constants.AbilityType.ACTIVE else "Passive"
+		lines.append("%s · max_level %d" % [type_name, a.max_level])
+		if not a.ability_id.is_empty():
+			lines.append("id: " + a.ability_id)
+	elif res is ItemData:
+		var rarity_val = res.get("rarity")
+		if rarity_val != null and "ItemRarity" in Constants:
+			var keys = Constants.ItemRarity.keys()
+			if rarity_val >= 0 and rarity_val < keys.size():
+				lines.append("Rarity: " + str(keys[rarity_val]))
+		var item_id = res.get("item_id")
+		if item_id != null and str(item_id) != "":
+			lines.append("id: " + str(item_id))
+	elif res is BuffData:
+		if res.get("is_debuff"):
+			lines.append("Debuff")
+		else:
+			lines.append("Buff")
+		var bid = res.get("buff_id")
+		if bid != null and str(bid) != "":
+			lines.append("id: " + str(bid))
+	if not validation_msg.is_empty():
+		lines.append("")
+		lines.append("⚠ " + validation_msg)
+	return "\n".join(lines)
+
+
+# ========================================
+# TREE CONTEXT MENU
+# ========================================
+func _ensure_context_menu() -> void:
+	if is_instance_valid(_tree_context_menu):
+		return
+	_tree_context_menu = PopupMenu.new()
+	_tree_context_menu.add_item("Open",                _CtxAction.OPEN)
+	_tree_context_menu.add_separator()
+	_tree_context_menu.add_item("Duplicate",           _CtxAction.DUPLICATE)
+	_tree_context_menu.add_item("Delete",              _CtxAction.DELETE)
+	_tree_context_menu.add_separator()
+	_tree_context_menu.add_item("Reveal in FileSystem", _CtxAction.REVEAL)
+	_tree_context_menu.add_item("Copy ID",              _CtxAction.COPY_ID)
+	_tree_context_menu.add_item("Copy Resource Path",   _CtxAction.COPY_PATH)
+	_tree_context_menu.id_pressed.connect(_on_context_menu_action)
+	add_child(_tree_context_menu)
+
+
+func _on_tree_item_mouse_selected(pos: Vector2, mouse_button: int) -> void:
+	if mouse_button != MOUSE_BUTTON_RIGHT:
+		return
+	var item = resource_tree.get_selected()
+	if not item:
+		return
+	var path = item.get_metadata(0)
+	if not path or str(path).is_empty():
+		return
+	_tree_context_path = str(path)
+	_ensure_context_menu()
+	_tree_context_menu.position = Vector2i(resource_tree.get_screen_position() + pos)
+	_tree_context_menu.popup()
+
+
+func _on_context_menu_action(id: int) -> void:
+	if _tree_context_path.is_empty():
+		return
+	var path = _tree_context_path
+	match id:
+		_CtxAction.OPEN:
+			_guard_unsaved(func(): _load_resource(path))
+		_CtxAction.DUPLICATE:
+			# Load first so current_resource matches the menu target, then duplicate
+			if not current_resource or current_resource.resource_path != path:
+				_load_resource(path)
+			_on_duplicate_pressed()
+		_CtxAction.DELETE:
+			if not current_resource or current_resource.resource_path != path:
+				_load_resource(path)
+			_on_delete_pressed()
+		_CtxAction.REVEAL:
+			if Engine.is_editor_hint():
+				var fs = EditorInterface.get_file_system_dock()
+				if fs:
+					fs.navigate_to_path(path)
+		_CtxAction.COPY_ID:
+			var res = load(path)
+			var id_val := ""
+			if res:
+				for prop in ["ability_id", "item_id", "buff_id", "_class_name"]:
+					if prop in res:
+						id_val = str(res.get(prop))
+						break
+			DisplayServer.clipboard_set(id_val)
+			_set_status("Copied ID: " + id_val)
+		_CtxAction.COPY_PATH:
+			DisplayServer.clipboard_set(path)
+			_set_status("Copied path: " + path.get_file())
+
+
+# ========================================
+# KEYBOARD SHORTCUTS
+# ========================================
+func _unhandled_key_input(event: InputEvent) -> void:
+	var key := event as InputEventKey
+	if key == null or not key.pressed or key.echo:
+		return
+
+	# Don't steal keys from text-entry controls.
+	var focus_owner := get_viewport().gui_get_focus_owner()
+	if focus_owner is LineEdit or focus_owner is TextEdit or focus_owner is SpinBox:
+		# Allow Ctrl+S even inside text fields
+		if not (key.ctrl_pressed and key.keycode == KEY_S):
+			return
+
+	if key.ctrl_pressed and key.keycode == KEY_S:
+		_on_save_button_pressed()
+		get_viewport().set_input_as_handled()
+	elif key.ctrl_pressed and key.keycode == KEY_N:
+		_on_new_button_pressed()
+		get_viewport().set_input_as_handled()
+	elif key.ctrl_pressed and key.keycode == KEY_D:
+		_on_duplicate_pressed()
+		get_viewport().set_input_as_handled()
+	elif key.keycode == KEY_DELETE and current_resource and not current_resource.resource_path.is_empty():
+		_on_delete_pressed()
+		get_viewport().set_input_as_handled()
+	elif key.keycode == KEY_F2 and is_instance_valid(ability_name_edit) and ability_name_edit.visible:
+		ability_name_edit.grab_focus()
+		ability_name_edit.select_all()
+		get_viewport().set_input_as_handled()
+	elif key.keycode == KEY_ESCAPE and is_instance_valid(search_edit):
+		if not search_edit.text.is_empty():
+			search_edit.text = ""
+			_on_search_changed("")
+			get_viewport().set_input_as_handled()
+
+
+# ========================================
+# EMPTY STATE PLACEHOLDER
+# ========================================
+func _ensure_empty_state() -> void:
+	if is_instance_valid(_empty_state_panel):
+		return
+	_empty_state_panel = PanelContainer.new()
+	_empty_state_panel.visible = false
+	var sb = StyleBoxFlat.new()
+	sb.bg_color = C_CARD
+	sb.border_color = Color(_current_accent, 0.35)
+	sb.set_border_width_all(1)
+	sb.set_corner_radius_all(8)
+	sb.content_margin_left = 18
+	sb.content_margin_right = 18
+	sb.content_margin_top = 18
+	sb.content_margin_bottom = 18
+	_empty_state_panel.add_theme_stylebox_override("panel", sb)
+	_accent_appliers.append(func(c: Color):
+		sb.border_color = Color(c, 0.35)
+	)
+
+	var col = VBoxContainer.new()
+	col.add_theme_constant_override("separation", 10)
+	col.alignment = BoxContainer.ALIGNMENT_CENTER
+	_empty_state_panel.add_child(col)
+
+	_empty_state_label = Label.new()
+	_empty_state_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_empty_state_label.add_theme_font_size_override("font_size", 12)
+	_empty_state_label.add_theme_color_override("font_color", C_DIM)
+	col.add_child(_empty_state_label)
+
+	var btn = Button.new()
+	btn.text = "  + Create first one  "
+	btn.pressed.connect(_on_new_button_pressed)
+	_style_btn(btn, _current_accent, true)
+	col.add_child(btn)
+
+	# Insert above the resource tree
+	var browser = $Panel/MainHSplit/ResourceBrowser
+	browser.add_child(_empty_state_panel)
+	browser.move_child(_empty_state_panel, resource_tree.get_index())
+
+
+func _update_empty_state_visibility() -> void:
+	_ensure_empty_state()
+	if _scanned_entries.is_empty() and current_resource_type:
+		if is_instance_valid(_empty_state_label):
+			_empty_state_label.text = "No %s in this project yet." % current_resource_type.display_name
+		_empty_state_panel.visible = true
+		resource_tree.visible = false
+	else:
+		_empty_state_panel.visible = false
+		resource_tree.visible = true
+
+
+func _on_search_changed(new_text: String) -> void:
+	_search_filter = new_text.strip_edges()
+	_rebuild_tree()
+	_refresh_status_chrome()
 
 
 func _resource_display_name(res: Resource, fallback: String) -> String:
@@ -485,18 +1424,24 @@ func _resource_display_name(res: Resource, fallback: String) -> String:
 func _on_new_button_pressed() -> void:
 	if not current_resource_type:
 		return
-	resource_tree.deselect_all()
-	current_resource = ResourceTypeConfig.create_new_resource(current_resource_type)
-	if current_resource is AbilityData:
-		current_scaling_data = current_resource.scaling_data
-	# Reactive title
-	if _title_label and current_resource_type:
-		var icon = TYPE_ICONS.get(current_resource_type.display_name, "◈")
-		_title_label.text = icon + "  New " + current_resource_type.display_name
-	if is_instance_valid(_status_label):
-		_status_label.text = "New %s — fill in the fields and save." % current_resource_type.display_name
-		_status_label.add_theme_color_override("font_color", C_DIM)
-	_update_ui()
+	_guard_unsaved(func():
+		resource_tree.deselect_all()
+		_disconnect_dirty_tracking()
+		current_resource = ResourceTypeConfig.create_new_resource(current_resource_type)
+		if current_resource is AbilityData:
+			current_scaling_data = current_resource.scaling_data
+		_connect_dirty_tracking()
+		_set_dirty(false)
+		# Reactive title
+		if _title_label and current_resource_type:
+			var icon = TYPE_ICONS.get(current_resource_type.display_name, "◈")
+			_title_label.text = icon + "  New " + current_resource_type.display_name
+		if is_instance_valid(_status_label):
+			_status_label.text = "New %s — fill in the fields and save." % current_resource_type.display_name
+			_status_label.add_theme_color_override("font_color", C_DIM)
+			_status_version += 1
+		_update_ui()
+	)
 
 
 func _on_save_button_pressed() -> void:
@@ -514,6 +1459,8 @@ func _on_save_as_button_pressed() -> void:
 	file_dialog.file_mode = FileDialog.FILE_MODE_SAVE_FILE
 	file_dialog.clear_filters()
 	file_dialog.add_filter("*.tres", current_resource_type.display_name + " Resource")
+	if not current_resource_type.base_folder.is_empty() and DirAccess.dir_exists_absolute(current_resource_type.base_folder):
+		file_dialog.current_dir = current_resource_type.base_folder
 	file_dialog.popup_centered()
 
 
@@ -529,14 +1476,18 @@ func _save_resource(path: String) -> void:
 		return
 	var err = ResourceSaver.save(current_resource, path)
 	if err == OK:
-		#print("✅ Resource saved to: ", path)
+		_set_dirty(false)
 		_set_status("Saved → " + path.get_file())
 		_scan_for_resources()
+		var item = _path_to_tree_item.get(current_resource.resource_path, null)
+		if item:
+			item.select(0)
 	else:
 		_set_status("Save failed (error %d)" % err, true)
 
 
 func _load_resource(path: String) -> void:
+	_disconnect_dirty_tracking()
 	current_resource = load(path)
 	if not current_resource:
 		_set_status("Failed to load: " + path.get_file(), true)
@@ -554,16 +1505,185 @@ func _load_resource(path: String) -> void:
 			ability.scaling_data.resource_local_to_scene = true
 			current_scaling_data = ability.scaling_data
 
+	_connect_dirty_tracking()
+	_set_dirty(false)
 	_update_ui()
 	_set_status("Loaded: " + path.get_file())
+	_save_dock_state()
 
 
 func _on_resource_tree_item_selected() -> void:
 	var selected = resource_tree.get_selected()
-	if selected:
-		var path = selected.get_metadata(0)
-		if path and not path.is_empty():
-			_load_resource(path)
+	if not selected:
+		return
+	var path = selected.get_metadata(0)
+	if not path or path.is_empty():
+		return
+	if current_resource and current_resource.resource_path == path:
+		return
+	_guard_unsaved(func(): _load_resource(path))
+
+
+# ========================================
+# DUPLICATE / DELETE
+# ========================================
+func _on_duplicate_pressed() -> void:
+	if not current_resource:
+		_set_status("Nothing to duplicate.", true)
+		return
+	var dup = current_resource.duplicate(true)
+	dup.resource_path = ""
+	if dup is AbilityData:
+		var ab = dup as AbilityData
+		if ab.ability_name:
+			ab.ability_name = ab.ability_name + " (Copy)"
+	else:
+		var n = dup.get("name")
+		if n != null and str(n) != "":
+			dup.set("name", str(n) + " (Copy)")
+	_disconnect_dirty_tracking()
+	current_resource = dup
+	if current_resource is AbilityData:
+		current_scaling_data = current_resource.scaling_data
+	_connect_dirty_tracking()
+	_set_dirty(true)
+	resource_tree.deselect_all()
+	_update_ui()
+	_set_status("Duplicated — Save As to write a new file.")
+
+
+func _on_delete_pressed() -> void:
+	if not current_resource or current_resource.resource_path.is_empty():
+		_set_status("Nothing to delete (resource is unsaved).", true)
+		return
+
+	if not is_instance_valid(_confirm_delete_dialog):
+		_confirm_delete_dialog = ConfirmationDialog.new()
+		_confirm_delete_dialog.title = "Delete Resource"
+		_confirm_delete_dialog.ok_button_text = "Delete"
+		_confirm_delete_dialog.confirmed.connect(_perform_delete)
+		_style_popup_window(_confirm_delete_dialog)
+		add_child(_confirm_delete_dialog)
+	_confirm_delete_dialog.dialog_text = "Permanently delete this file?\n\n%s" % current_resource.resource_path
+	_confirm_delete_dialog.popup_centered()
+
+
+func _perform_delete() -> void:
+	if not current_resource or current_resource.resource_path.is_empty():
+		return
+	var path = current_resource.resource_path
+	var os_path = ProjectSettings.globalize_path(path)
+	var err = DirAccess.remove_absolute(os_path)
+	if err == OK:
+		# Best-effort cleanup of Godot's UID sidecar
+		var uid_path = os_path + ".uid"
+		if FileAccess.file_exists(uid_path):
+			DirAccess.remove_absolute(uid_path)
+		_set_status("Deleted → " + path.get_file())
+		_disconnect_dirty_tracking()
+		current_resource = null
+		current_scaling_data = null
+		_scan_for_resources()
+		_on_new_button_pressed()
+	else:
+		_set_status("Delete failed (error %d)" % err, true)
+
+
+# ========================================
+# DIRTY STATE TRACKING
+# ========================================
+func _connect_dirty_tracking() -> void:
+	if not current_resource:
+		return
+	if not current_resource.changed.is_connected(_on_current_resource_changed):
+		current_resource.changed.connect(_on_current_resource_changed)
+	# Inspector edits target sub-resources whose `changed` won't bubble up. Hook
+	# the common ones so any inspector edit still flips dirty state.
+	for sub in _ability_subresources(current_resource):
+		if sub and not sub.changed.is_connected(_on_current_resource_changed):
+			sub.changed.connect(_on_current_resource_changed)
+
+
+func _disconnect_dirty_tracking() -> void:
+	if not current_resource:
+		return
+	if current_resource.changed.is_connected(_on_current_resource_changed):
+		current_resource.changed.disconnect(_on_current_resource_changed)
+	for sub in _ability_subresources(current_resource):
+		if sub and sub.changed.is_connected(_on_current_resource_changed):
+			sub.changed.disconnect(_on_current_resource_changed)
+
+
+# Returns sub-resources of an AbilityData whose changed signal we want to track.
+# Tolerates missing properties via `in` so AbilityData shape changes don't crash.
+func _ability_subresources(res: Resource) -> Array:
+	var out: Array = []
+	if not (res is AbilityData):
+		return out
+	for prop_name in ["scaling_data", "active_behavior", "level_data"]:
+		if not (prop_name in res):
+			continue
+		var val = res.get(prop_name)
+		if val is Resource:
+			out.append(val)
+		elif val is Array:
+			for entry in val:
+				if entry is Resource:
+					out.append(entry)
+	return out
+
+
+func _on_current_resource_changed() -> void:
+	if is_updating_ui:
+		return
+	_set_dirty(true)
+	# Live-update tree label when name changes
+	if current_resource and not current_resource.resource_path.is_empty():
+		var item: TreeItem = _path_to_tree_item.get(current_resource.resource_path, null)
+		if item:
+			var icon = TYPE_ICONS.get(current_resource_type.display_name, "◈") if current_resource_type else "◈"
+			item.set_text(0, icon + "  " + _resource_display_name(current_resource, current_resource.resource_path.get_file()))
+	# Live-update title
+	if _title_label and current_resource_type:
+		var icon = TYPE_ICONS.get(current_resource_type.display_name, "◈")
+		var rname = _resource_display_name(current_resource, current_resource_type.display_name)
+		_title_label.text = ("● " if _dirty else "") + icon + "  " + rname
+
+
+func _set_dirty(dirty: bool) -> void:
+	_dirty = dirty
+	if not _title_label:
+		return
+	var text = _title_label.text
+	var has_marker = text.begins_with("● ")
+	if dirty and not has_marker:
+		_title_label.text = "● " + text
+	elif not dirty and has_marker:
+		_title_label.text = text.substr(2)
+
+
+# Show an unsaved-changes prompt before running `action`; otherwise run it now.
+func _guard_unsaved(action: Callable) -> void:
+	if not _dirty or not current_resource:
+		action.call()
+		return
+
+	if not is_instance_valid(_unsaved_dialog):
+		_unsaved_dialog = ConfirmationDialog.new()
+		_unsaved_dialog.title = "Unsaved Changes"
+		_unsaved_dialog.dialog_text = "You have unsaved changes. Discard them?"
+		_unsaved_dialog.ok_button_text = "Discard"
+		_unsaved_dialog.confirmed.connect(func():
+			if _pending_action.is_valid():
+				var a = _pending_action
+				_pending_action = Callable()
+				_set_dirty(false)
+				a.call()
+		)
+		_style_popup_window(_unsaved_dialog)
+		add_child(_unsaved_dialog)
+	_pending_action = action
+	_unsaved_dialog.popup_centered()
 
 
 # ========================================
@@ -575,11 +1695,11 @@ func _update_ui() -> void:
 
 	is_updating_ui = true
 
-	# Reactive title: show type icon + resource name
+	# Reactive title: show type icon + resource name (preserve dirty marker)
 	if _title_label and current_resource_type:
 		var icon = TYPE_ICONS.get(current_resource_type.display_name, "◈")
 		var rname = _resource_display_name(current_resource, current_resource_type.display_name)
-		_title_label.text = icon + "  " + rname
+		_title_label.text = ("● " if _dirty else "") + icon + "  " + rname
 
 	if current_resource is AbilityData:
 		var ability = current_resource as AbilityData
@@ -597,8 +1717,12 @@ func _update_ui() -> void:
 		if not ability.required_weapon_types.is_empty():
 			required_weapon_option.selected = ability.required_weapon_types[0]
 
-		use_formulas_checkbox.button_pressed = ability.use_scaling_formulas
-		_on_scaling_mode_toggled(ability.use_scaling_formulas)
+		# Ensure scaling_data exists, then refresh the formula tree
+		if not ability.scaling_data:
+			ability.scaling_data = AbilityScalingData.new()
+			ability.scaling_data.resource_local_to_scene = true
+			current_scaling_data = ability.scaling_data
+		_update_formula_tree()
 		_update_active_behavior_ui()
 	else:
 		_hide_ability_ui()
@@ -609,33 +1733,42 @@ func _update_ui() -> void:
 
 
 func _show_ability_ui() -> void:
-	if ability_id_edit: ability_id_edit.get_parent().get_parent().get_parent().show()
-	if formula_editor_panel: formula_editor_panel.get_parent().show()
-	if manual_level_panel: manual_level_panel.show()
-	if active_behavior_panel: active_behavior_panel.get_parent().show()
+	_set_section_visible(general_settings_panel, true)
+	_set_section_visible(formula_editor_panel, true)
+	_set_section_visible(active_behavior_panel, true)
 	if generic_resource_inspector:
-		generic_resource_inspector.hide()
+		_set_section_visible(generic_resource_inspector, false)
 		generic_resource_inspector.edit(null)
 
 
 func _hide_ability_ui() -> void:
-	if ability_id_edit: ability_id_edit.get_parent().get_parent().get_parent().hide()
-	if formula_editor_panel: formula_editor_panel.hide()
-	if manual_level_panel: manual_level_panel.hide()
-	if active_behavior_panel: active_behavior_panel.hide()
+	_set_section_visible(general_settings_panel, false)
+	_set_section_visible(formula_editor_panel, false)
+	_set_section_visible(active_behavior_panel, false)
 	if generic_resource_inspector:
-		generic_resource_inspector.show()
+		_set_section_visible(generic_resource_inspector, true)
+
+
+# Toggle a section AND its wrapping card (from _wrap_in_card) together, so non-
+# ability resources don't see empty card outlines stacked above the inspector.
+func _set_section_visible(section: Control, vis: bool) -> void:
+	if not is_instance_valid(section):
+		return
+	section.visible = vis
+	var parent = section.get_parent()
+	if parent and parent is PanelContainer and str(parent.name).ends_with("Card"):
+		parent.visible = vis
 
 
 func _update_active_behavior_ui() -> void:
 	if not current_resource or not current_resource is AbilityData:
-		active_behavior_panel.hide()
+		_set_section_visible(active_behavior_panel, false)
 		active_behavior_inspector.edit(null)
 		return
 
 	var ability = current_resource as AbilityData
 	if ability.ability_type == Constants.AbilityType.ACTIVE:
-		active_behavior_panel.show()
+		_set_section_visible(active_behavior_panel, true)
 		active_behavior_inspector.edit(ability.active_behavior)
 		if ability.active_behavior:
 			if not ability.active_behavior.changed.is_connected(_on_active_behavior_changed):
@@ -647,7 +1780,7 @@ func _update_active_behavior_ui() -> void:
 			_update_visualizer_sprite_pos()
 			visualizer_control.queue_redraw()
 	else:
-		active_behavior_panel.hide()
+		_set_section_visible(active_behavior_panel, false)
 		active_behavior_inspector.edit(null)
 
 
@@ -667,41 +1800,25 @@ func _on_general_info_changed(value = null) -> void:
 	ability.required_class.append(required_class_option.get_selected_id())
 	ability.required_weapon_types.clear()
 	ability.required_weapon_types.append(required_weapon_option.get_selected_id())
+	_set_dirty(true)
+	# Live-update tree label as the user types
+	if not ability.resource_path.is_empty():
+		var item: TreeItem = _path_to_tree_item.get(ability.resource_path, null)
+		if item:
+			var icon = TYPE_ICONS.get(current_resource_type.display_name, "◈") if current_resource_type else "◈"
+			item.set_text(0, icon + "  " + _resource_display_name(ability, ability.resource_path.get_file()))
+	if _title_label and current_resource_type:
+		var icon2 = TYPE_ICONS.get(current_resource_type.display_name, "◈")
+		var rname = _resource_display_name(ability, current_resource_type.display_name)
+		_title_label.text = ("● " if _dirty else "") + icon2 + "  " + rname
+	_refresh_curve_chart()
 
 
 func _on_ability_type_changed(index: int) -> void:
 	_on_general_info_changed()
 	_update_active_behavior_ui()
 	if current_resource and current_resource is AbilityData:
-		var ability = current_resource as AbilityData
-		if ability.use_scaling_formulas:
-			_update_formula_tree()
-
-
-# ========================================
-# SCALING MODE TOGGLE
-# ========================================
-func _on_scaling_mode_toggled(use_formulas: bool) -> void:
-	if not current_resource or not current_resource is AbilityData:
-		return
-	var ability = current_resource as AbilityData
-	ability.use_scaling_formulas = use_formulas
-
-	if use_formulas:
-		formula_editor_panel.show()
-		manual_level_panel.hide()
-		if not ability.scaling_data:
-			ability.scaling_data = AbilityScalingData.new()
-			ability.scaling_data.resource_local_to_scene = true
-			current_scaling_data = ability.scaling_data
 		_update_formula_tree()
-	else:
-		formula_editor_panel.hide()
-		manual_level_panel.show()
-		_update_manual_level_list()
-
-	formula_inspector.edit(null)
-	level_detail_inspector.edit(null)
 
 
 # ========================================
@@ -814,10 +1931,13 @@ func _on_formula_tree_selected() -> void:
 			_assign_formula_to_key(metadata, formula)
 		current_editing_formula = formula
 		formula_inspector.edit(formula)
+		if not formula.changed.is_connected(_refresh_curve_chart):
+			formula.changed.connect(_refresh_curve_chart)
 	elif metadata is Dictionary and metadata.has("type") and metadata.type == "stat_bonus":
 		selected_formula_key = ""
 		current_editing_formula = null
 		formula_inspector.edit(metadata.resource)
+	_refresh_curve_chart()
 
 
 func _get_formula_by_key(key: String) -> AbilityScalingFormula:
@@ -871,10 +1991,11 @@ func _add_stat_bonus() -> void:
 	new_stat_formula.stat_type = Constants.StatType.STRENGTH
 	current_scaling_data.stat_bonus_formulas.append(new_stat_formula)
 	_update_formula_tree()
+	_set_dirty(true)
 
 
 func _add_ability_modifier() -> void:
-	print("Add ability modifier - need ability ID input dialog")
+	_set_status("Ability damage modifiers aren't editable from this dock yet.", true)
 
 
 func _on_preset_selected(index: int) -> void:
@@ -895,64 +2016,7 @@ func _on_preset_selected(index: int) -> void:
 	formula_inspector.edit(current_editing_formula)
 	_update_formula_tree()
 	formula_preset_option.select(0)
-
-
-# ========================================
-# MANUAL LEVEL EDITOR
-# ========================================
-func _update_manual_level_list() -> void:
-	level_list.clear()
-	if not current_resource or not current_resource is AbilityData:
-		return
-	var ability = current_resource as AbilityData
-	for i in range(ability.level_data.size()):
-		level_list.add_item("Level %d" % ability.level_data[i].level)
-
-
-func _on_add_level_pressed() -> void:
-	if not current_resource or not current_resource is AbilityData:
-		return
-	var ability = current_resource as AbilityData
-	var next_level = ability.level_data.size() + 1
-	var new_level_data = AbilityLevelData.new(next_level)
-	new_level_data.resource_local_to_scene = true
-	ability.level_data.append(new_level_data)
-	_update_manual_level_list()
-	level_list.select(ability.level_data.size() - 1)
-	_update_manual_level_details()
-
-
-func _on_remove_level_pressed() -> void:
-	if not current_resource or not current_resource is AbilityData:
-		return
-	var ability = current_resource as AbilityData
-	var selected = level_list.get_selected_items()
-	if selected.is_empty():
-		return
-	ability.level_data.remove_at(selected[0])
-	for i in range(ability.level_data.size()):
-		ability.level_data[i].level = i + 1
-	_update_manual_level_list()
-	level_list.deselect_all()
-	_update_manual_level_details()
-
-
-func _on_level_selected(_index: int) -> void:
-	_update_manual_level_details()
-
-
-func _update_manual_level_details() -> void:
-	var selected = level_list.get_selected_items()
-	if selected.is_empty():
-		level_details_panel.hide()
-		level_detail_inspector.edit(null)
-		return
-	if not current_resource or not current_resource is AbilityData:
-		return
-	var ability = current_resource as AbilityData
-	level_details_panel.show()
-	level_detail_inspector.edit(ability.level_data[selected[0]])
-	is_updating_ui = false
+	_set_dirty(true)
 
 
 # ========================================
@@ -967,8 +2031,7 @@ func _on_preview_button_pressed() -> void:
 	preview_text += "═══════════════════════════════════════\n\n"
 	preview_text += "Name: %s\n" % ability.ability_name
 	preview_text += "Type: %s\n" % ("Active" if ability.ability_type == Constants.AbilityType.ACTIVE else "Passive")
-	preview_text += "Max Level: %d\n" % ability.max_level
-	preview_text += "Scaling: %s\n\n" % ("Formula-Based" if ability.use_scaling_formulas else "Manual")
+	preview_text += "Max Level: %d\n\n" % ability.max_level
 
 	var max_preview = min(ability.max_level, 15)
 	for level in range(1, max_preview + 1):
@@ -998,15 +2061,21 @@ func _on_preview_button_pressed() -> void:
 	if ability.max_level > 15:
 		preview_text += "\n... (showing first 15 of %d levels)\n" % ability.max_level
 	preview_text += "\n═══════════════════════════════════════\n"
-	print(preview_text)
+	_show_text_popup("Ability Preview", preview_text)
 
 
 # ========================================
 # HITBOX VISUALIZER
 # ========================================
-const VISUALIZER_ZOOM      = 6.0
-const GAME_PLAYER_SCALE    = 1.3
-const GAME_PLAYER_OFFSET_Y = -12.0
+const _VISUALIZER_DEFAULT_ZOOM = 6.0
+const _VISUALIZER_MIN_ZOOM     = 1.0
+const _VISUALIZER_MAX_ZOOM     = 30.0
+const GAME_PLAYER_SCALE        = 1.3
+const GAME_PLAYER_OFFSET_Y     = -12.0
+
+var _visualizer_zoom: float = _VISUALIZER_DEFAULT_ZOOM
+var _zoom_label: Label = null
+
 
 func _on_active_behavior_changed() -> void:
 	visualizer_control.queue_redraw()
@@ -1015,9 +2084,30 @@ func _on_active_behavior_changed() -> void:
 func _update_visualizer_sprite_pos() -> void:
 	if not visualizer_player_sprite.texture:
 		return
-	visualizer_player_sprite.scale = Vector2.ONE * GAME_PLAYER_SCALE * VISUALIZER_ZOOM
+	visualizer_player_sprite.scale = Vector2.ONE * GAME_PLAYER_SCALE * _visualizer_zoom
 	var center = visualizer_control.size / 2
-	visualizer_player_sprite.position = center + Vector2(0, (GAME_PLAYER_OFFSET_Y * VISUALIZER_ZOOM) / GAME_PLAYER_SCALE)
+	visualizer_player_sprite.position = center + Vector2(0, (GAME_PLAYER_OFFSET_Y * _visualizer_zoom) / GAME_PLAYER_SCALE)
+
+
+func _set_visualizer_zoom(value: float) -> void:
+	_visualizer_zoom = clamp(value, _VISUALIZER_MIN_ZOOM, _VISUALIZER_MAX_ZOOM)
+	if is_instance_valid(_zoom_label):
+		_zoom_label.text = "Zoom: %.1fx" % _visualizer_zoom
+	_update_visualizer_sprite_pos()
+	if is_instance_valid(visualizer_control):
+		visualizer_control.queue_redraw()
+
+
+func _on_visualizer_gui_input(event: InputEvent) -> void:
+	var mb := event as InputEventMouseButton
+	if mb == null or not mb.pressed:
+		return
+	if mb.button_index == MOUSE_BUTTON_WHEEL_UP:
+		_set_visualizer_zoom(_visualizer_zoom * 1.15)
+		visualizer_control.accept_event()
+	elif mb.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+		_set_visualizer_zoom(_visualizer_zoom / 1.15)
+		visualizer_control.accept_event()
 
 
 func _draw_hitbox_visualization() -> void:
@@ -1035,51 +2125,107 @@ func _draw_hitbox_visualization() -> void:
 
 	if behavior.hit_box_shape_data:
 		var shape      = behavior.hit_box_shape_data
-		var pos_offset = behavior.hit_box_position_data * VISUALIZER_ZOOM
+		var pos_offset = behavior.hit_box_position_data * _visualizer_zoom
 		var draw_pos   = center + pos_offset
+		var label_text := ""
+		var label_anchor = draw_pos
 
 		if shape is CircleShape2D:
-			var radius = shape.radius * VISUALIZER_ZOOM
+			var radius = shape.radius * _visualizer_zoom
 			visualizer_control.draw_circle(draw_pos, radius, Color(0, 1, 0, 0.5))
 			visualizer_control.draw_arc(draw_pos, radius, 0, TAU, 32, Color.GREEN, 2)
+			label_text = "r = %.0f" % shape.radius
+			label_anchor = draw_pos + Vector2(-radius, -radius - 6)
 		elif shape is RectangleShape2D:
-			var size = shape.size * VISUALIZER_ZOOM
+			var size = shape.size * _visualizer_zoom
 			var rect = Rect2(draw_pos - size / 2, size)
 			visualizer_control.draw_rect(rect, Color(0, 1, 0, 0.5))
 			visualizer_control.draw_rect(rect, Color.GREEN, false, 2)
+			label_text = "%.0f × %.0f" % [shape.size.x, shape.size.y]
+			label_anchor = rect.position + Vector2(0, -6)
 		elif shape is CapsuleShape2D:
-			var height = shape.height * VISUALIZER_ZOOM
-			var radius = shape.radius * VISUALIZER_ZOOM
+			var height = shape.height * _visualizer_zoom
+			var radius = shape.radius * _visualizer_zoom
 			var rect   = Rect2(draw_pos - Vector2(radius, height / 2), Vector2(radius * 2, height))
 			visualizer_control.draw_rect(rect, Color(0, 1, 0, 0.5))
 			visualizer_control.draw_rect(rect, Color.GREEN, false, 2)
+			label_text = "r = %.0f · h = %.0f" % [shape.radius, shape.height]
+			label_anchor = rect.position + Vector2(0, -6)
+
+		# Dimension label — drawn above the shape's bounding box
+		if not label_text.is_empty():
+			var font = ThemeDB.fallback_font
+			if font:
+				# Background pill for readability
+				var fsize := 11
+				var text_size = font.get_string_size(label_text, HORIZONTAL_ALIGNMENT_LEFT, -1, fsize)
+				var bg_rect = Rect2(label_anchor - Vector2(4, text_size.y + 2),
+									Vector2(text_size.x + 8, text_size.y + 4))
+				visualizer_control.draw_rect(bg_rect, Color(0, 0, 0, 0.55), true)
+				visualizer_control.draw_string(font, label_anchor - Vector2(0, 4),
+					label_text, HORIZONTAL_ALIGNMENT_LEFT, -1, fsize, Color.GREEN)
 
 
 # ========================================
 # HELP DIALOG
 # ========================================
 func _show_formula_help() -> void:
-	var help_text = """
-	═══ FORMULA SYSTEM GUIDE ═══
+	var help_text = "═══ FORMULA SYSTEM GUIDE ═══\n\n"
+	help_text += "LINEAR (FLAT):\n"
+	help_text += "  Formula: base + (level × per_level)\n"
+	help_text += "  Example: 10 + (level × 5)  →  10, 15, 20, 25, 30...\n\n"
+	help_text += "EXPONENTIAL (MULTIPLICATIVE):\n"
+	help_text += "  Formula: base × (multiplier ^ level)\n"
+	help_text += "  Example: 100 × (1.1 ^ level)  →  100, 110, 121, 133, 146...\n\n"
+	help_text += "BREAKPOINTS (STEPPED):\n"
+	help_text += "  Changes at specific levels.\n"
+	help_text += "  Example: {1: 100, 5: 150, 10: 200}\n"
+	help_text += "  Levels 1-4: 100 | Levels 5-9: 150 | Levels 10+: 200\n\n"
+	help_text += "CUSTOM:\n"
+	help_text += "  Write your own GDScript formula.\n"
+	help_text += "  Variables: level, base_value\n"
+	help_text += "  Example: base_value + (level * 10) + (level * level * 0.5)\n"
+	_show_text_popup("Formula System Guide", help_text)
 
-	LINEAR (FLAT):
-	  Formula: base + (level × per_level)
-	  Example: 10 + (level × 5)  →  10, 15, 20, 25, 30...
 
-	EXPONENTIAL (MULTIPLICATIVE):
-	  Formula: base × (multiplier ^ level)
-	  Example: 100 × (1.1 ^ level)  →  100, 110, 121, 133, 146...
+# Shared popup for Preview and Help. Lazy-built and re-used.
+func _show_text_popup(title: String, body: String) -> void:
+	if not is_instance_valid(_help_dialog):
+		_help_dialog = AcceptDialog.new()
+		_help_dialog.unresizable = false
+		_help_dialog.min_size = Vector2i(640, 540)
+		var scroll = ScrollContainer.new()
+		scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		scroll.custom_minimum_size = Vector2(600, 480)
+		_popup_body_label = Label.new()
+		_popup_body_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+		_popup_body_label.add_theme_font_size_override("font_size", 12)
+		_popup_body_label.add_theme_color_override("font_color", C_TEXT)
+		scroll.add_child(_popup_body_label)
+		_help_dialog.add_child(scroll)
+		_style_popup_window(_help_dialog)
+		add_child(_help_dialog)
+	_help_dialog.title = title
+	if is_instance_valid(_popup_body_label):
+		_popup_body_label.text = body
+	_help_dialog.popup_centered()
 
-	BREAKPOINTS (STEPPED):
-	  Changes at specific levels.
-	  Example: {1: 100, 5: 150, 10: 200}
-	  Levels 1-4: 100 | Levels 5-9: 150 | Levels 10+: 200
 
-	CUSTOM:
-	  Write your own GDScript formula.
-	  Variables: level, base_value
-	  Example: base_value + (level * 10) + (level * level * 0.5)
-
-	═══════════════════════════════
-	"""
-	print(help_text)
+# Apply the dark theme to a Window-derived dialog (AcceptDialog, ConfirmationDialog).
+func _style_popup_window(win: Window) -> void:
+	if not is_instance_valid(win):
+		return
+	var panel_sb = StyleBoxFlat.new()
+	panel_sb.bg_color = C_DARK
+	panel_sb.border_color = Color(_current_accent, 0.35)
+	panel_sb.set_border_width_all(1)
+	panel_sb.set_corner_radius_all(6)
+	panel_sb.content_margin_left = 14
+	panel_sb.content_margin_right = 14
+	panel_sb.content_margin_top = 14
+	panel_sb.content_margin_bottom = 14
+	win.add_theme_stylebox_override("panel", panel_sb)
+	_accent_appliers.append(func(c: Color):
+		panel_sb.border_color = Color(c, 0.35)
+	)
