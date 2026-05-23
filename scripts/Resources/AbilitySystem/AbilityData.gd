@@ -30,13 +30,15 @@ extends Resource
 @export var applies_target_debuff: BuffData = null
 @export var debuff_duration_formula: AbilityScalingFormula = null
 
-## NEW: Use either scaling data OR manual level data
 @export_group("Scaling Configuration")
-@export var use_scaling_formulas: bool = true
 @export var scaling_data: AbilityScalingData
 
-## OLD: Manual level data (only used if use_scaling_formulas = false)
-@export var level_data: Array[AbilityLevelData]
+## Legacy field — formerly toggled between scaling_data formulas (true) and a
+## manual `level_data` array (false). The manual path and the array are gone;
+## abilities are formula-only now. Kept as a non-exported var purely so the
+## `addons/resource_editor` plugin's "use formulas?" checkbox doesn't error
+## when it reads/writes this property. Has no runtime effect.
+var use_scaling_formulas: bool = true
 
 ## Cache for generated level data to avoid recalculating
 var _level_data_cache: Dictionary = {}
@@ -60,28 +62,20 @@ func generate_uuid() -> String:
 	]
 
 
-## Retrieves the AbilityLevelData resource for the specified level.
-## If using scaling formulas, generates it on-the-fly and caches it.
+## Retrieves the AbilityLevelData resource for the specified level by
+## generating it from `scaling_data`'s formulas. Cached per level.
 func get_level_stats(level: int) -> AbilityLevelData:
 	if level < 1 or level > max_level:
 		return null
-	
-	# Use manual level data if not using formulas
-	if not use_scaling_formulas:
-		var index = level - 1
-		if index >= 0 and index < level_data.size():
-			return level_data[index]
-		return null
-	
-	# Use scaling formulas
+
 	if not scaling_data:
-		push_error("Ability '%s' is set to use scaling formulas but has no scaling_data!" % ability_name)
+		push_error("Ability '%s' has no scaling_data!" % ability_name)
 		return null
-	
+
 	# Check cache first
 	if _level_data_cache.has(level):
 		return _level_data_cache[level]
-	
+
 	# Generate and cache
 	var generated_data = scaling_data.generate_level_data(level)
 	_level_data_cache[level] = generated_data

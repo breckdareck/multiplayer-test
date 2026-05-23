@@ -1,12 +1,8 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=41 format=3 uid="uid://ccxoh5fmx317x"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=16 format=3 uid="uid://ccxoh5fmx317x"]
 
 [ext_resource type="Texture2D" uid="uid://cg8rq8kjvxwi7" path="res://assets/sprites/Abilities/slash_blast.png" id="1_ajojy"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_7svtf"]
-[ext_resource type="Script" uid="uid://bdjkulhrpqni2" path="res://scripts/Abilities/AL_SlashBlast.gd" id="2_ajojy"]
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="4_5ui4y"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_7e1xr"]
-[ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="4_ajojy"]
-[ext_resource type="Script" uid="uid://cau788b3d2nqu" path="res://scripts/Resources/AbilitySystem/ProcEffectData.gd" id="5_7e1xr"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="8_yntj7"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="9_hscra"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="9_n4786"]
@@ -21,137 +17,6 @@ hit_box_shape_data = SubResource("RectangleShape2D_ajojy")
 hit_box_position_data = Vector2(33, -10)
 animation_name = "attack_1"
 sfx_path = "res://assets/sounds/tap.wav"
-logic_script = ExtResource("2_ajojy")
-
-[sub_resource type="Resource" id="Resource_u5quj"]
-script = ExtResource("5_7e1xr")
-proc_chance = 1.0
-metadata/_custom_type_script = "uid://cau788b3d2nqu"
-
-[sub_resource type="Resource" id="Resource_ajojy"]
-script = ExtResource("4_ajojy")
-mana_cost = 1
-cooldown_time = 1.0
-damage_percent = 85
-max_targets = 6
-on_hit_proc = SubResource("Resource_u5quj")
-metadata/_custom_type_script = "uid://iols3c70aq2j"
-
-[sub_resource type="Resource" id="Resource_gmqqq"]
-script = ExtResource("4_ajojy")
-level = 2
-damage_percent = 90
-max_targets = 6
-metadata/_custom_type_script = "uid://iols3c70aq2j"
-
-[sub_resource type="Resource" id="Resource_yntj7"]
-script = ExtResource("4_ajojy")
-level = 3
-damage_percent = 95
-max_targets = 6
-metadata/_custom_type_script = "uid://iols3c70aq2j"
-
-[sub_resource type="Resource" id="Resource_n4786"]
-script = ExtResource("4_ajojy")
-level = 4
-max_targets = 6
-metadata/_custom_type_script = "uid://iols3c70aq2j"
-
-[sub_resource type="Resource" id="Resource_hscra"]
-script = ExtResource("4_ajojy")
-level = 5
-damage_percent = 105
-max_targets = 6
-
-[sub_resource type="Resource" id="Resource_r0u5b"]
-script = ExtResource("4_ajojy")
-level = 6
-damage_percent = 110
-max_targets = 6
-
-[sub_resource type="Resource" id="Resource_4wh34"]
-script = ExtResource("4_ajojy")
-level = 7
-damage_percent = 115
-max_targets = 6
-
-[sub_resource type="Resource" id="Resource_c0sum"]
-script = ExtResource("4_ajojy")
-level = 8
-damage_percent = 120
-max_targets = 6
-
-[sub_resource type="Resource" id="Resource_bdcag"]
-script = ExtResource("4_ajojy")
-level = 9
-damage_percent = 125
-max_targets = 6
-
-[sub_resource type="Resource" id="Resource_ja4au"]
-script = ExtResource("4_ajojy")
-level = 10
-damage_percent = 130
-max_targets = 6
-
-[sub_resource type="Resource" id="Resource_1rm05"]
-script = ExtResource("4_ajojy")
-level = 11
-damage_percent = 135
-max_targets = 6
-
-[sub_resource type="Resource" id="Resource_2b5dv"]
-script = ExtResource("4_ajojy")
-level = 12
-damage_percent = 140
-max_targets = 6
-
-[sub_resource type="Resource" id="Resource_1pjde"]
-script = ExtResource("4_ajojy")
-level = 13
-damage_percent = 145
-max_targets = 6
-
-[sub_resource type="Resource" id="Resource_un368"]
-script = ExtResource("4_ajojy")
-level = 14
-damage_percent = 150
-max_targets = 6
-
-[sub_resource type="Resource" id="Resource_wxnfw"]
-script = ExtResource("4_ajojy")
-level = 15
-damage_percent = 155
-max_targets = 6
-
-[sub_resource type="Resource" id="Resource_mfojr"]
-script = ExtResource("4_ajojy")
-level = 16
-damage_percent = 160
-max_targets = 6
-
-[sub_resource type="Resource" id="Resource_nryi0"]
-script = ExtResource("4_ajojy")
-level = 17
-damage_percent = 165
-max_targets = 6
-
-[sub_resource type="Resource" id="Resource_gxvmq"]
-script = ExtResource("4_ajojy")
-level = 18
-damage_percent = 170
-max_targets = 6
-
-[sub_resource type="Resource" id="Resource_x3d43"]
-script = ExtResource("4_ajojy")
-level = 19
-damage_percent = 180
-max_targets = 6
-
-[sub_resource type="Resource" id="Resource_pppag"]
-script = ExtResource("4_ajojy")
-level = 20
-damage_percent = 190
-max_targets = 6
 
 [sub_resource type="Resource" id="Resource_qud4a"]
 script = ExtResource("8_yntj7")
@@ -170,8 +35,8 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_g21j2"]
 script = ExtResource("8_yntj7")
-base_value = 1.0
-per_level = 1.0
+base_value = 2.0
+per_level = 0.2
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_6s8at"]
@@ -205,5 +70,4 @@ required_class = Array[int]([0])
 required_weapon_types = Array[int]([0])
 active_behavior = SubResource("Resource_7e1xr")
 scaling_data = SubResource("Resource_x5s8u")
-level_data = Array[ExtResource("4_ajojy")]([SubResource("Resource_ajojy"), SubResource("Resource_gmqqq"), SubResource("Resource_yntj7"), SubResource("Resource_n4786"), SubResource("Resource_hscra"), SubResource("Resource_r0u5b"), SubResource("Resource_4wh34"), SubResource("Resource_c0sum"), SubResource("Resource_bdcag"), SubResource("Resource_ja4au"), SubResource("Resource_1rm05"), SubResource("Resource_2b5dv"), SubResource("Resource_1pjde"), SubResource("Resource_un368"), SubResource("Resource_wxnfw"), SubResource("Resource_mfojr"), SubResource("Resource_nryi0"), SubResource("Resource_gxvmq"), SubResource("Resource_x3d43"), SubResource("Resource_pppag")])
 metadata/_custom_type_script = "uid://b8y62rc8nb40j"

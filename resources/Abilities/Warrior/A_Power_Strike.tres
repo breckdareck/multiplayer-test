@@ -213,4 +213,3 @@ ExtResource("6_v0yfe"): 5
 })
 active_behavior = SubResource("Resource_pdrvi")
 scaling_data = SubResource("Resource_4al8t")
-level_data = Array[ExtResource("3_v0yfe")]([SubResource("Resource_t6bdd"), SubResource("Resource_xenhc"), SubResource("Resource_sxbta"), SubResource("Resource_kq87s"), SubResource("Resource_tysym"), SubResource("Resource_xdbo8"), SubResource("Resource_sddue"), SubResource("Resource_bkhln"), SubResource("Resource_l7cm7"), SubResource("Resource_et1ip"), SubResource("Resource_6rosx"), SubResource("Resource_1x2bc"), SubResource("Resource_hidl6"), SubResource("Resource_x8mhh"), SubResource("Resource_gabhx"), SubResource("Resource_hvhmm"), SubResource("Resource_j286c"), SubResource("Resource_5hkh5"), SubResource("Resource_bh1lf"), SubResource("Resource_57lwd")])
