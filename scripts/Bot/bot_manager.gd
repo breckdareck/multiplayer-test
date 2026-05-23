@@ -386,6 +386,11 @@ func _restore_watch_camera() -> void:
 	var host := PlayerManager.get_player_node(1)
 	if is_instance_valid(host) and is_instance_valid(host.camera):
 		host.camera.position = _watch_saved_cam_pos
+		# Reinstate the current map's camera bounds (they were widened to let the
+		# follow camera move freely). _apply_map_camera_bounds re-reads the active
+		# MapBase, so it handles the case where the host changed maps mid-watch.
+		if host.has_method("_apply_map_camera_bounds"):
+			host._apply_map_camera_bounds(host.camera)
 	_watch_cam_saved = false
 
 
@@ -402,6 +407,12 @@ func _update_watch_camera() -> void:
 	if not _watch_cam_saved:
 		_watch_saved_cam_pos = host.camera.position
 		_watch_cam_saved = true
+	# Widen the camera limits every frame: the per-map MapBase bounds otherwise
+	# clamp the follow camera, and a mid-watch map change would re-apply them.
+	host.camera.limit_left = -10000000
+	host.camera.limit_top = -10000000
+	host.camera.limit_right = 10000000
+	host.camera.limit_bottom = 10000000
 	host.camera.global_position = bot.global_position
 
 
