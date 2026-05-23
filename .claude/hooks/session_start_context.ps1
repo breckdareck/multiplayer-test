@@ -10,6 +10,21 @@ $ErrorActionPreference = 'SilentlyContinue'
 # Repo root = two levels up from this script (.claude/hooks/).
 $root = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 
+# Record a session-start baseline so the Stop hook can diff against it.
+# Keyed by hook-input session_id when available; falls back to a shared file.
+try {
+    $stdin = [Console]::In.ReadToEnd()
+    $sid = $null
+    if ($stdin) { $sid = (ConvertFrom-Json $stdin -ErrorAction SilentlyContinue).session_id }
+    $headSha = (& git -C $root rev-parse HEAD 2>$null).Trim()
+    $stateDir = Join-Path $root '.claude\.session-state'
+    if (-not (Test-Path $stateDir)) { New-Item -ItemType Directory -Path $stateDir -Force | Out-Null }
+    $markerName = if ($sid) { "$sid.json" } else { 'last.json' }
+    @{ session_id = $sid; head_sha = $headSha; started_at = (Get-Date).ToString('o') } |
+        ConvertTo-Json -Compress |
+        Set-Content -Path (Join-Path $stateDir $markerName) -Encoding utf8
+} catch {}
+
 $out = [System.Collections.Generic.List[string]]::new()
 $out.Add('## Orientation - multiplayer-test (Godot 4 multiplayer RPG)')
 $out.Add('')

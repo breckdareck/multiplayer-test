@@ -48,14 +48,25 @@ window for the edit itself.
 
 Prints a short orientation block at the start of each session: the
 server-authoritative invariant, the list of subsystem guides, and which guides
-cover any uncommitted changes. Wired up in `.claude/settings.json`. PowerShell,
-so it has no Python/runtime dependency.
+cover any uncommitted changes. Also writes a `.claude/.session-state/<id>.json`
+baseline (HEAD SHA at session start) for the Stop hook to diff against. Wired
+up in `.claude/settings.json`. PowerShell, so it has no Python/runtime
+dependency.
+
+### Stop hook — `.claude/hooks/stop_reflect.ps1`
+
+End-of-turn drift check. Diffs the current tree against the session-start SHA,
+maps changed files to their subsystem `CLAUDE.md`, and if a subsystem has code
+changes but its guide was never touched this session, blocks the stop with a
+structured reason listing the guides that need review. Also nudges a memory
+pass for explicit user corrections/confirmations.
+
+Deterministic and free — no LLM call per Stop. Respects `stop_hook_active` so
+it nudges at most once per stop-chain; Claude can always finish by updating the
+guide or replying with one sentence on why no update is needed.
 
 ## Not included, and why
 
-- **Self-improving `Stop` hook** — helpline's `Stop` hook asks a headless model
-  to propose `CLAUDE.md` edits after each session. Omitted to keep a single
-  source of truth for context; revisit if the guides start drifting.
 - **LSP config** — Godot ships its own GDScript language server; nothing to add.
 - **MCP server / plugin** — helpline's are a Python-AST search server and a
   multi-repo distribution mechanism; neither applies to a single Godot project.
