@@ -127,10 +127,13 @@ func _handle_settled() -> void:
 	if state_timer > 30 and not is_public_pickup:
 		make_public()
 
-	# Despawn after configured time
+	# Despawn after configured time. The item is spawned via a manual
+	# per-client RPC (no MultiplayerSpawner), so the server must explicitly
+	# tell every client to free its copy — otherwise clients are left with
+	# orphaned ghost items they can't pick up.
 	if state_timer >= despawn_time:
 		##print("DroppedItem: Despawning %s after %.0f seconds" % [item_data.name if item_data else "unknown", despawn_time])
-		queue_free()
+		_despawn_item_client.rpc()
 		return
 
 	# Start flashing warning before despawn
@@ -346,6 +349,16 @@ func _start_despawn_warning() -> void:
 	warning_tween.set_loops()
 	warning_tween.tween_property(sprite, "modulate:a", 0.2, 0.3)
 	warning_tween.tween_property(sprite, "modulate:a", 1.0, 0.3)
+
+
+@rpc("authority", "call_local", "reliable")
+func _despawn_item_client() -> void:
+	# Stop syncing first so a final modulate/scale update from a still-running
+	# warning tween doesn't race the queue_free and log "Node not found".
+	var synchronizer := get_node_or_null("MultiplayerSynchronizer")
+	if synchronizer:
+		synchronizer.queue_free()
+	queue_free()
 
 
 @rpc("any_peer", "call_local", "reliable")

@@ -24,11 +24,18 @@ var _quests: Dictionary = {}  # quest_id -> QuestData
 ## The starter quest auto-granted to brand-new characters during onboarding.
 const ONBOARDING_QUEST_ID: String = "q_first_blood"
 
+## Maximum number of quests the player can pin to their on-screen Quest Tracker.
+## Mirrors QuestTracker.MAX_TRACKED — keep the two constants in sync.
+const MAX_TRACKED_QUESTS: int = 5
+
 # ── Per-player State (server only) ──────────────────────────────────────────
 ## Active quests: username -> { quest_id -> { objective_index -> current_count } }
 var _active_quests: Dictionary = {}
 ## Completed quest IDs: username -> Array[String]
 var _completed_quests: Dictionary = {}
+## Quest IDs the player has pinned to their on-screen tracker.
+## username -> Array[String]. Capped at MAX_TRACKED_QUESTS.
+var _tracked_quests: Dictionary = {}
 ## Whether the onboarding flow has already run for a username. Persisted with
 ## quest data so it survives logout — a "no save data" check is unreliable
 ## because the backend creates a save row at character creation.
@@ -66,13 +73,16 @@ func _define_quests() -> void:
 		],
 		300, 50, [])
 
+	# REACH_LEVEL quests grant no EXP — the level itself was already earned by
+	# grinding EXP, so rewarding EXP for it creates a self-feeding loop. Pay out
+	# in coins and consumables instead.
 	_add_quest("q_level_up", "Getting Stronger", "Reach level 5 to unlock new abilities.", 1, "",
 		[{"type": QuestData.ObjectiveType.REACH_LEVEL, "target": "", "amount": 5}],
-		200, 25, [])
+		0, 50, ["Health Potion"])
 
 	_add_quest("q_growing_power", "Growing Power", "Continue your training and reach level 10.", 5, "q_level_up",
 		[{"type": QuestData.ObjectiveType.REACH_LEVEL, "target": "", "amount": 10}],
-		500, 75, [])
+		0, 150, ["Health Potion", "Mana Potion"])
 
 	# --- Mid-level quests (level 10-20) ---
 	_add_quest("q_deep_woods", "Into the Deep Woods", "Venture past the meadow into goblin territory and prove you can handle the deep woods.", 10, "q_pest_control",
@@ -85,7 +95,7 @@ func _define_quests() -> void:
 
 	_add_quest("q_seasoned_warrior", "Seasoned Warrior", "Prove your dedication by reaching level 20.", 10, "q_growing_power",
 		[{"type": QuestData.ObjectiveType.REACH_LEVEL, "target": "", "amount": 20}],
-		1000, 200, [])
+		0, 400, ["Healing Draught"])
 
 	_add_quest("q_collector", "The Collector", "Gather coins from fallen monsters to fund the village defense.", 5, "",
 		[{"type": QuestData.ObjectiveType.COLLECT, "target": "Coin", "amount": 100}],
@@ -98,11 +108,11 @@ func _define_quests() -> void:
 
 	_add_quest("q_veterans_path", "A Veteran's Path", "Only seasoned fighters can hope to specialize. Reach level 25 to walk the veteran's path.", 20, "q_seasoned_warrior",
 		[{"type": QuestData.ObjectiveType.REACH_LEVEL, "target": "", "amount": 25}],
-		2000, 300, [])
+		0, 600, ["Greater Healing Draught"])
 
 	_add_quest("q_call_to_advance", "Answer the Call", "You have mastered the fundamentals. At level 30 a warrior may choose a specialized path. Reach level 30, return to town, and type /advance to claim your advanced class.", 25, "q_veterans_path",
 		[{"type": QuestData.ObjectiveType.REACH_LEVEL, "target": "", "amount": 30}],
-		3000, 500, [])
+		0, 1000, ["Grand Healing Draught", "Grand Mana Draught"])
 
 
 func _add_quest(id: String, qname: String, desc: String, req_level: int, prereq: String,
@@ -137,7 +147,7 @@ func handle_quest_command(args: String, sender_id: int) -> void:
 
 	var parts: PackedStringArray = args.strip_edges().split(" ", false, 2)
 	if parts.is_empty():
-		_send_message(sender_id, "[Quest] Usage: /quest list | accept <id> | progress | abandon <id>", Color.YELLOW)
+		_send_message(sender_id, "[Quest] Usage: /quest list | accept <id> | progress | abandon <id> | track <id>", Color.YELLOW)
 		return
 
 	match parts[0].to_lower():
@@ -155,8 +165,13 @@ func handle_quest_command(args: String, sender_id: int) -> void:
 				_send_message(sender_id, "[Quest] Usage: /quest abandon <quest_id>", Color.YELLOW)
 				return
 			_cmd_abandon(sender_id, username, parts[1])
+		"track":
+			if parts.size() < 2:
+				_send_message(sender_id, "[Quest] Usage: /quest track <quest_id>", Color.YELLOW)
+				return
+			_cmd_toggle_track(sender_id, username, parts[1])
 		_:
-			_send_message(sender_id, "[Quest] Unknown subcommand. Use: list, accept, progress, abandon", Color.YELLOW)
+			_send_message(sender_id, "[Quest] Unknown subcommand. Use: list, accept, progress, abandon, track", Color.YELLOW)
 
 
 # ── List available quests ────────────────────────────────────────────────
@@ -235,6 +250,13 @@ func _cmd_accept(sender_id: int, username: String, player_node: MultiplayerPlaye
 		progress[i] = 0
 	_active_quests[username][quest_id] = progress
 
+	# Auto-pin to the tracker if there's room — saves the player a click on the
+	# common case where they only have a handful of active quests.
+	var tracked: Array = _tracked_quests.get(username, [])
+	if quest_id not in tracked and tracked.size() < MAX_TRACKED_QUESTS:
+		tracked.append(quest_id)
+		_tracked_quests[username] = tracked
+
 	# Check if any REACH_LEVEL objectives are already met
 	_check_level_objectives(username, player_node)
 
@@ -276,9 +298,41 @@ func _cmd_abandon(sender_id: int, username: String, quest_id: String) -> void:
 		return
 
 	_active_quests[username].erase(quest_id)
+	_untrack_quest(username, quest_id)
 	var quest_name: String = _quests[quest_id].quest_name if _quests.has(quest_id) else quest_id
 	_send_message(sender_id, "[Quest] Abandoned: %s" % quest_name, Color.ORANGE_RED)
 	_save_quest_data(username)
+
+
+# ── Track / untrack a quest ─────────────────────────────────────────────
+func _cmd_toggle_track(sender_id: int, username: String, quest_id: String) -> void:
+	var active: Dictionary = _active_quests.get(username, {})
+	if not active.has(quest_id):
+		_send_message(sender_id, "[Quest] Only active quests can be tracked.", Color.RED)
+		return
+
+	var tracked: Array = _tracked_quests.get(username, [])
+	var qname: String = _quests[quest_id].quest_name if _quests.has(quest_id) else quest_id
+	if quest_id in tracked:
+		tracked.erase(quest_id)
+		_send_message(sender_id, "[Quest] Untracked: %s" % qname, Color.YELLOW)
+	else:
+		if tracked.size() >= MAX_TRACKED_QUESTS:
+			_send_message(sender_id, "[Quest] You can only track %d quests at a time." % MAX_TRACKED_QUESTS, Color.RED)
+			return
+		tracked.append(quest_id)
+		_send_message(sender_id, "[Quest] Tracking: %s" % qname, Color.GREEN)
+
+	_tracked_quests[username] = tracked
+	_save_quest_data(username)
+	_push_quest_ui_update(username)
+
+
+## Quietly remove a quest from the tracker — used when it ends (abandon/complete).
+func _untrack_quest(username: String, quest_id: String) -> void:
+	if not _tracked_quests.has(username):
+		return
+	_tracked_quests[username].erase(quest_id)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -325,8 +379,6 @@ func record_level_up(username: String, new_level: int) -> void:
 func start_onboarding(username: String) -> void:
 	if not multiplayer.is_server():
 		return
-	if _onboarded.get(username, false):
-		return
 	var pid: int = PlayerManager.get_player_id_from_name(username)
 	if pid == -1 or BotManager.is_bot(pid):
 		return
@@ -334,22 +386,36 @@ func start_onboarding(username: String) -> void:
 	if not is_instance_valid(player_node):
 		return
 
-	# Mark before sending anything so a duplicate call (e.g. a race on map
-	# change) can't fire the welcome twice.
-	_onboarded[username] = true
+	if not _onboarded.get(username, false):
+		# Pre-existing characters (created before quest persistence shipped) come
+		# back with no saved quest blob and `_onboarded == false` even though
+		# they've clearly played. Use level / experience as a "has played before"
+		# signal and mark them onboarded silently — otherwise they get the
+		# welcome speech and the auto-granted First Blood quest on every login.
+		if _has_played_before(player_node):
+			_onboarded[username] = true
+			_save_quest_data(username)
+		else:
+			# Mark before sending anything so a duplicate call (e.g. a race on map
+			# change) can't fire the welcome twice.
+			_onboarded[username] = true
 
-	_send_message(pid, "Welcome, %s!" % username, Color.GOLD)
-	_send_message(pid, "Move with A/D or the arrow keys, jump with Space, and attack with Ctrl.", Color.WHITE)
-	_send_message(pid, "Press Q to open your Quest Log. Step into a glowing portal and interact to travel between areas.", Color.WHITE)
-	_send_message(pid, "Reach level 30 to unlock Job Advancement. Your journey begins now:", Color.WHITE)
+			_send_message(pid, "Welcome, %s!" % username, Color.GOLD)
+			_send_message(pid, "Move with A/D or the arrow keys, jump with Space, and attack with Ctrl.", Color.WHITE)
+			_send_message(pid, "Press Q to open your Quest Log. Step into a glowing portal and interact to travel between areas.", Color.WHITE)
+			_send_message(pid, "Reach level 30 to unlock Job Advancement. Your journey begins now:", Color.WHITE)
 
-	# Auto-accept the starter quest so a new player always has a goal.
-	var completed: Array = _completed_quests.get(username, [])
-	var active: Dictionary = _active_quests.get(username, {})
-	if _quests.has(ONBOARDING_QUEST_ID) and ONBOARDING_QUEST_ID not in completed and not active.has(ONBOARDING_QUEST_ID):
-		_cmd_accept(pid, username, player_node, ONBOARDING_QUEST_ID)
-	# Ensure the onboarded flag persists even if _cmd_accept was a no-op above.
-	_save_quest_data(username)
+			# Auto-accept the starter quest so a new player always has a goal.
+			var completed: Array = _completed_quests.get(username, [])
+			var active: Dictionary = _active_quests.get(username, {})
+			if _quests.has(ONBOARDING_QUEST_ID) and ONBOARDING_QUEST_ID not in completed and not active.has(ONBOARDING_QUEST_ID):
+				_cmd_accept(pid, username, player_node, ONBOARDING_QUEST_ID)
+			# Ensure the onboarded flag persists even if _cmd_accept was a no-op above.
+			_save_quest_data(username)
+
+	# Push the current snapshot to the freshly-spawned client so the tracker
+	# populates without waiting on its retry timer. Runs even for returning
+	# players (the onboarding block above is gated, this is not).
 	_push_quest_ui_update(username)
 
 
@@ -424,6 +490,7 @@ func _complete_quest(username: String, quest_id: String) -> void:
 	# Move from active to completed
 	if _active_quests.has(username):
 		_active_quests[username].erase(quest_id)
+	_untrack_quest(username, quest_id)
 	if not _completed_quests.has(username):
 		_completed_quests[username] = []
 	_completed_quests[username].append(quest_id)
@@ -450,12 +517,15 @@ func _complete_quest(username: String, quest_id: String) -> void:
 	if quest.reward_coins > 0 and is_instance_valid(player_node.inventory_component):
 		player_node.player_inventory.monies_amount += quest.reward_coins
 
-	# Grant items
+	# Grant items. InventoryComponent.add_item takes an item id/name string and
+	# resolves + duplicates internally via ResourceManager.get_item_data.
 	for item_name in quest.reward_items:
-		var item = ResourceManager.get_item_by_name(item_name)
-		if item and is_instance_valid(player_node.inventory_component):
-			var item_copy = item.duplicate_with_path()
-			player_node.inventory_component.add_item(item_copy)
+		if not is_instance_valid(player_node.inventory_component):
+			break
+		if ResourceManager.get_item_by_name(item_name) == null:
+			push_warning("QuestManager: reward item '%s' not found for quest '%s'." % [item_name, quest_id])
+			continue
+		player_node.inventory_component.add_item(item_name)
 
 	# Notify player
 	_send_message(sender_id, "[Quest] COMPLETED: %s!" % quest.quest_name, Color.GOLD)
@@ -514,6 +584,7 @@ func save_quests(username: String) -> Dictionary:
 	return {
 		"active": _active_quests.get(username, {}),
 		"completed": _completed_quests.get(username, []),
+		"tracked": _tracked_quests.get(username, []),
 		"onboarded": _onboarded.get(username, false),
 	}
 
@@ -542,7 +613,25 @@ func load_quests(username: String, data: Dictionary) -> void:
 	_active_quests[username] = active
 	_completed_quests[username] = completed
 	_onboarded[username] = bool(data.get("onboarded", false))
-	#print("QuestManager: Loaded quest data for '%s' — %d active, %d completed." % [username, active.size(), completed.size()])
+
+	# Restore the tracker list. For legacy saves that pre-date tracking, fall
+	# back to auto-tracking the first MAX_TRACKED_QUESTS active quests so the
+	# player isn't greeted by an empty tracker.
+	var tracked: Array = []
+	if data.has("tracked"):
+		for qid in data.get("tracked", []):
+			var sid: String = str(qid)
+			if active.has(sid) and sid not in tracked:
+				tracked.append(sid)
+			if tracked.size() >= MAX_TRACKED_QUESTS:
+				break
+	else:
+		for qid in active.keys():
+			tracked.append(qid)
+			if tracked.size() >= MAX_TRACKED_QUESTS:
+				break
+	_tracked_quests[username] = tracked
+	#print("QuestManager: Loaded quest data for '%s' — %d active, %d completed, %d tracked." % [username, active.size(), completed.size(), tracked.size()])
 
 
 func unregister_player(username: String) -> void:
@@ -598,6 +687,20 @@ func get_quest_data(quest_id: String) -> QuestData:
 	return _quests.get(quest_id)
 
 
+## Heuristic for "this character has played before, even though we have no quest
+## data on file." Used to suppress the onboarding welcome for characters whose
+## save predates the `quests` blob. Brand-new characters always start at level 1
+## with zero experience, so any level/exp above that is a strong tell.
+func _has_played_before(player_node: MultiplayerPlayerV2) -> bool:
+	if not is_instance_valid(player_node) or not is_instance_valid(player_node.level_component):
+		return false
+	if player_node.level_component.level > 1:
+		return true
+	if player_node.level_component.experience > 0:
+		return true
+	return false
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 # QUEST UI — RPC methods for the QuestWindow client UI
 # ═══════════════════════════════════════════════════════════════════════════
@@ -637,6 +740,19 @@ func request_quest_abandon(quest_id: String) -> void:
 	if not player_node:
 		return
 	_cmd_abandon(requester_id, player_node.username, quest_id)
+	_send_quest_ui_data(requester_id, player_node.username, player_node)
+
+
+## Client → Server: toggle whether a quest is pinned to the on-screen tracker.
+@rpc("any_peer", "call_remote", "reliable")
+func request_quest_toggle_track(quest_id: String) -> void:
+	if not multiplayer.is_server():
+		return
+	var requester_id: int = multiplayer.get_remote_sender_id()
+	var player_node: MultiplayerPlayerV2 = PlayerManager.get_player_node(requester_id)
+	if not player_node:
+		return
+	_cmd_toggle_track(requester_id, player_node.username, quest_id)
 	_send_quest_ui_data(requester_id, player_node.username, player_node)
 
 
@@ -681,11 +797,14 @@ func _build_quest_ui_data(username: String, player_node: MultiplayerPlayerV2) ->
 			continue
 		available_list.append(_serialize_quest(q, {}))
 
+	var tracked_list: Array = _tracked_quests.get(username, [])
 	var active_list: Array = []
 	for quest_id in active:
 		if not _quests.has(quest_id):
 			continue
-		active_list.append(_serialize_quest(_quests[quest_id], active[quest_id]))
+		var entry: Dictionary = _serialize_quest(_quests[quest_id], active[quest_id])
+		entry["tracked"] = quest_id in tracked_list
+		active_list.append(entry)
 
 	var completed_list: Array = []
 	for quest_id in completed:

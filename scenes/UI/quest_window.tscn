@@ -11,10 +11,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -230.0
-offset_top = -255.0
-offset_right = 230.0
-offset_bottom = 255.0
+offset_left = -290.0
+offset_top = -275.0
+offset_right = 290.0
+offset_bottom = 275.0
 grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("1_theme")
@@ -88,7 +88,7 @@ theme_override_constants/margin_bottom = 4
 
 [node name="HSplitContainer" type="HSplitContainer" parent="VBoxContainer/ContentPanel/ContentMargin"]
 layout_mode = 2
-split_offset = 155
+split_offset = 220
 
 [node name="ListPanel" type="PanelContainer" parent="VBoxContainer/ContentPanel/ContentMargin/HSplitContainer"]
 custom_minimum_size = Vector2(130, 0)
@@ -161,6 +161,13 @@ theme_override_constants/separation = 2
 [node name="Spacer" type="Control" parent="VBoxContainer/ContentPanel/ContentMargin/HSplitContainer/DetailPanel/DetailMargin/DetailVBox"]
 layout_mode = 2
 size_flags_vertical = 3
+
+[node name="TrackButton" type="CheckButton" parent="VBoxContainer/ContentPanel/ContentMargin/HSplitContainer/DetailPanel/DetailMargin/DetailVBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+focus_mode = 0
+text = "Track Quest"
 
 [node name="ActionButton" type="Button" parent="VBoxContainer/ContentPanel/ContentMargin/HSplitContainer/DetailPanel/DetailMargin/DetailVBox"]
 unique_name_in_owner = true

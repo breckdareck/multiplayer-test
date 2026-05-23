@@ -123,6 +123,11 @@ func _rebuild(active: Array) -> void:
 	for q in active:
 		if _active_count >= MAX_TRACKED:
 			break
+		# Only quests the player has pinned via the Quest Journal show in the HUD.
+		# An older save snapshot lacking the field defaults to tracked so the
+		# tracker still works while the upgrade rolls out.
+		if not bool(q.get("tracked", true)):
+			continue
 		_entries_box.add_child(_make_entry(q))
 		_active_count += 1
 

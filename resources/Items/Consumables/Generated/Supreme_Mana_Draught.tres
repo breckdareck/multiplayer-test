@@ -1,8 +1,8 @@
-[gd_resource type="Resource" script_class="ConsumableData" load_steps=5 format=3]
+[gd_resource type="Resource" script_class="ConsumableData" load_steps=5 format=3 uid="uid://du18ipmsccmp1"]
 
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/Effects/Effect_RestoreMana.gd" id="1_4cd6c"]
-[ext_resource type="Texture2D" path="res://assets/sprites/fruit.png" id="2_ew1d7"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="3_lae7q"]
+[ext_resource type="Script" uid="uid://csghyfavie65m" path="res://scripts/Resources/ItemSystem/Effects/Effect_RestoreMana.gd" id="1_4cd6c"]
+[ext_resource type="Texture2D" uid="uid://yhl18c6ei5o6" path="res://assets/sprites/fruit.png" id="2_ew1d7"]
+[ext_resource type="Script" uid="uid://ubv3mjjv4lvi" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="3_lae7q"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_sq8u6"]
 atlas = ExtResource("2_ew1d7")
@@ -16,7 +16,6 @@ effect_properties = {
 }
 item_id = "12891414101511-441413-111089-415116-13413142713101015113"
 name = "Supreme Mana Draught"
-rarity = 0
 icon = SubResource("AtlasTexture_sq8u6")
 description = "Restores 1200 MP when consumed."
 item_type = 2

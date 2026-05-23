@@ -323,7 +323,12 @@ func _setup_signals() -> void:
 	if equipment_component:
 		equipment_component.on_equipment_changed.connect(func(): _data_changed("equipment"))
 
-		
+	if class_component:
+		# Persist class changes (job advancement) so the new class survives the
+		# next spawn / login. character_type rides in the "stats" save bucket,
+		# which the backend maps onto the Player.character_class column.
+		class_component.class_changed.connect(func(_new_class): _data_changed("stats"))
+
 	# Server-only logic
 	if multiplayer.is_server():
 		if is_instance_valid(drop_timer):
@@ -333,11 +338,28 @@ func _setup_signals() -> void:
 			respawn_timer.timeout.connect(respawn)
 
 
+## Read the current map's camera_limit_* from its MapBase root and apply to
+## the local player's Camera2D. Called on every spawn (including map changes),
+## so each zone gets its own bounds.
+func _apply_map_camera_bounds(cam: Camera2D) -> void:
+	if not is_instance_valid(cam):
+		return
+	var parent_node := get_parent()
+	var map_root := parent_node.get_parent() if parent_node else null
+	if map_root and map_root is MapBase:
+		var mb := map_root as MapBase
+		cam.limit_left = mb.camera_limit_left
+		cam.limit_top = mb.camera_limit_top
+		cam.limit_right = mb.camera_limit_right
+		cam.limit_bottom = mb.camera_limit_bottom
+
+
 func _setup_client_visuals() -> void:
 	var camera: Camera2D = $Camera2D
 
 	if multiplayer.get_unique_id() == player_id:
 		camera.make_current()
+		_apply_map_camera_bounds(camera)
 		if is_instance_valid(debug_component):
 			debug_component.debug_panel.show()
 		if is_instance_valid(player_HUD):

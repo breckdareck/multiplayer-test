@@ -10,7 +10,7 @@
 [ext_resource type="Resource" uid="uid://drksghtabl01" path="res://resources/Abilities/Rogue/A_Dark_Sight.tres" id="7_so2ya"]
 [ext_resource type="Resource" uid="uid://disorder001x" path="res://resources/Abilities/Rogue/A_Disorder.tres" id="8_so2ya"]
 [ext_resource type="Resource" uid="uid://shdwpart001x" path="res://resources/Abilities/Rogue/A_Shadow_Partner.tres" id="9_so2ya"]
-[ext_resource type="Resource" uid="uid://hasteabl001x" path="res://resources/Abilities/Rogue/A_Haste.tres" id="10_so2ya"]
+[ext_resource type="Resource" uid="uid://c37bseifhg1hl" path="res://resources/Abilities/Rogue/A_Haste.tres" id="10_so2ya"]
 
 [resource]
 script = ExtResource("2_ynuw2")

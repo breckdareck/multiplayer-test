@@ -16,6 +16,7 @@ extends Panel
 @onready var objectives_container: VBoxContainer = %ObjectivesContainer
 @onready var rewards_container: VBoxContainer = %RewardsContainer
 @onready var action_button: Button = %ActionButton
+@onready var track_button: CheckButton = %TrackButton
 
 var player: MultiplayerPlayerV2
 
@@ -40,6 +41,7 @@ func _ready() -> void:
 	active_tab_btn.pressed.connect(func(): _switch_tab(TabMode.ACTIVE))
 	completed_tab_btn.pressed.connect(func(): _switch_tab(TabMode.COMPLETED))
 	action_button.pressed.connect(_on_action_pressed)
+	track_button.toggled.connect(_on_track_toggled)
 
 	QuestManager.quest_ui_data_received.connect(_on_quest_data_received)
 
@@ -239,18 +241,22 @@ func _show_quest_detail(quest_id: String) -> void:
 		lbl.text = "  • %s" % item
 		rewards_container.add_child(lbl)
 
-	# Action button
+	# Action button + Track toggle (Track only meaningful on the Active tab)
 	match current_tab:
 		TabMode.AVAILABLE:
 			action_button.text = "Accept Quest"
 			action_button.disabled = false
 			action_button.visible = true
+			track_button.visible = false
 		TabMode.ACTIVE:
 			action_button.text = "Abandon Quest"
 			action_button.disabled = false
 			action_button.visible = true
+			track_button.visible = true
+			_refresh_track_button(quest_info)
 		TabMode.COMPLETED:
 			action_button.visible = false
+			track_button.visible = false
 
 
 func _try_reselect_quest() -> void:
@@ -277,6 +283,13 @@ func _clear_detail_panel() -> void:
 	for child in rewards_container.get_children():
 		child.queue_free()
 	action_button.visible = false
+	track_button.visible = false
+
+
+## Sync the Track checkbox to the server-reported state for the given quest,
+## without re-firing the toggled signal.
+func _refresh_track_button(quest_info: Dictionary) -> void:
+	track_button.set_pressed_no_signal(bool(quest_info.get("tracked", false)))
 
 
 # ── Action button ─────────────────────────────────────────────────────────────
@@ -298,3 +311,15 @@ func _on_action_pressed() -> void:
 				_request_data()
 			else:
 				QuestManager.request_quest_abandon.rpc_id(1, selected_quest_id)
+
+
+func _on_track_toggled(_pressed: bool) -> void:
+	if selected_quest_id.is_empty() or not is_instance_valid(player):
+		return
+	# Always round-trip through the server — it owns the cap (MAX_TRACKED_QUESTS)
+	# and may reject the change with a chat message. The follow-up snapshot push
+	# resyncs the checkbox to whatever the server actually applied.
+	if multiplayer.is_server():
+		QuestManager._cmd_toggle_track(player.player_id, player.username, selected_quest_id)
+	else:
+		QuestManager.request_quest_toggle_track.rpc_id(1, selected_quest_id)

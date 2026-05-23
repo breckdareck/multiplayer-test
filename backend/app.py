@@ -6,8 +6,12 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import os
 import time
 import threading
+import logging
 
 app = Flask(__name__)
+# Flask defaults app.logger to WARNING outside debug mode — raise it so account
+# / character lifecycle info lines emit to docker logs.
+app.logger.setLevel(logging.INFO)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql://postgres:password@localhost:5432/gamedb')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
@@ -228,7 +232,8 @@ def register_account():
     new_account = Account(username=username, password_hash=hashed_password)
     db.session.add(new_account)
     db.session.commit()
-    
+
+    app.logger.info("ACCOUNT_REGISTERED: '%s' (account_id=%d)", username, new_account.id)
     return jsonify({"message": "Account created", "account_id": new_account.id}), 201
 
 
@@ -245,8 +250,10 @@ def login_account():
     account = Account.query.filter_by(username=username).first()
     
     if not account or not check_password_hash(account.password_hash, password):
+        app.logger.info("ACCOUNT_LOGIN_FAILED: '%s'", username)
         return jsonify({"error": "Invalid username or password"}), 401
-    
+
+    app.logger.info("ACCOUNT_LOGIN: '%s' (account_id=%d)", account.username, account.id)
     return jsonify({"account_id": account.id, "username": account.username}), 200
 
 
@@ -305,7 +312,8 @@ def create_character():
     
     db.session.add(new_player)
     db.session.commit()
-    
+
+    app.logger.info("CHARACTER_CREATED: '%s' (class_id=%d, account_id=%d)", char_name, class_id, account_id)
     return jsonify({"message": "Character created", "name": char_name}), 201
 
 

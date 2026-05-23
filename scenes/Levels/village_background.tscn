@@ -1,5 +1,6 @@
-[gd_scene load_steps=7 format=4 uid="uid://cvbk0n8a7q2x1"]
+[gd_scene load_steps=8 format=3 uid="uid://cvbk0n8a7q2x1"]
 
+[ext_resource type="Script" path="res://scripts/Gameplay/village_background.gd" id="0_vb_script"]
 [ext_resource type="Texture2D" uid="uid://bcoeao6eds8lo" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/background.png" id="1_sky"]
 [ext_resource type="Texture2D" uid="uid://c4yftnkh1io5d" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Back_Forest_1.png" id="2_forest1"]
 [ext_resource type="Texture2D" uid="uid://clxbanmod7qm8" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Back_Forest_2.png" id="3_forest2"]
@@ -7,35 +8,67 @@
 [ext_resource type="Texture2D" uid="uid://bltuclvu72dcb" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Back_tree_2.png" id="5_tree2"]
 [ext_resource type="Texture2D" uid="uid://dn66ntccqo3io" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/props_clouds.png" id="6_clouds"]
 
-[node name="VillageBackground" type="Node2D"]
+[node name="VillageBackground" type="ParallaxBackground"]
+layer = -1
+scroll_ignore_camera_zoom = true
+script = ExtResource("0_vb_script")
 
-[node name="Sky" type="Sprite2D" parent="."]
-z_index = -10
-scale = Vector2(3, 3)
+[node name="Sky" type="ParallaxLayer" parent="."]
+motion_scale = Vector2(0.05, 0)
+motion_offset = Vector2(0, -100)
+motion_mirroring = Vector2(1920, 0)
+
+[node name="Sprite" type="Sprite2D" parent="Sky"]
+scale = Vector2(5, 4.5)
 texture = ExtResource("1_sky")
+centered = false
 
-[node name="BackForest1" type="Sprite2D" parent="."]
-z_index = -9
-scale = Vector2(3, 3)
+[node name="BackForest1" type="ParallaxLayer" parent="."]
+motion_scale = Vector2(0.2, 0)
+motion_offset = Vector2(0, -100)
+motion_mirroring = Vector2(1920, 0)
+
+[node name="Sprite" type="Sprite2D" parent="BackForest1"]
+scale = Vector2(5, 4.5)
 texture = ExtResource("2_forest1")
+centered = false
 
-[node name="BackForest2" type="Sprite2D" parent="."]
-z_index = -8
-scale = Vector2(3, 3)
+[node name="BackForest2" type="ParallaxLayer" parent="."]
+motion_scale = Vector2(0.35, 0)
+motion_offset = Vector2(0, -100)
+motion_mirroring = Vector2(1920, 0)
+
+[node name="Sprite" type="Sprite2D" parent="BackForest2"]
+scale = Vector2(5, 4.5)
 texture = ExtResource("3_forest2")
+centered = false
 
-[node name="BackTree1" type="Sprite2D" parent="."]
-z_index = -7
-scale = Vector2(3, 3)
+[node name="BackTree1" type="ParallaxLayer" parent="."]
+motion_scale = Vector2(0.55, 0)
+motion_offset = Vector2(0, -100)
+motion_mirroring = Vector2(1920, 0)
+
+[node name="Sprite" type="Sprite2D" parent="BackTree1"]
+scale = Vector2(5, 4.5)
 texture = ExtResource("4_tree1")
+centered = false
 
-[node name="BackTree2" type="Sprite2D" parent="."]
-z_index = -7
-scale = Vector2(3, 3)
+[node name="BackTree2" type="ParallaxLayer" parent="."]
+motion_scale = Vector2(0.75, 0)
+motion_offset = Vector2(0, -100)
+motion_mirroring = Vector2(1920, 0)
+
+[node name="Sprite" type="Sprite2D" parent="BackTree2"]
+scale = Vector2(5, 4.5)
 texture = ExtResource("5_tree2")
+centered = false
 
-[node name="Clouds" type="Sprite2D" parent="."]
-z_index = -7
-position = Vector2(0, -164)
-scale = Vector2(3, 3)
+[node name="Clouds" type="ParallaxLayer" parent="."]
+motion_scale = Vector2(0.1, 0)
+motion_offset = Vector2(0, -100)
+motion_mirroring = Vector2(1345, 0)
+
+[node name="Sprite" type="Sprite2D" parent="Clouds"]
+scale = Vector2(5, 5)
 texture = ExtResource("6_clouds")
+centered = false

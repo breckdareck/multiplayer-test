@@ -741,13 +741,23 @@ func _on_leveled_up(new_level: int) -> void:
 
 
 func _on_class_changed(new_class_name: String) -> void:
-	#print("AbilityComponent: Class changed to %s. Reloading abilities." % new_class_name)
-	_ability_levels.clear()
-	
-	# Re-initialize class abilities
-	# We don't broadcast RPCs here because the class change itself is usually synced,
-	# causing clients to run this logic locally as well.
+	# Job advancement must preserve anything the player has actually leveled
+	# (level > 0). But on initial character creation the component pre-loaded
+	# the default class's abilities at level 0 in _ready() before the real
+	# class was assigned — those stale level-0 entries must be dropped.
+	#
+	# RPCs are not broadcast here because the class change itself is synced,
+	# so clients run this same logic locally.
 	if not multiplayer.has_multiplayer_peer() or multiplayer.is_server():
+		var new_class_ids: Dictionary = {}
+		for ability_data in _class_component.get_class_abilities():
+			if ability_data:
+				new_class_ids[ability_data.ability_id] = true
+
+		for ability_id in _ability_levels.keys():
+			if _ability_levels[ability_id] <= 0 and not new_class_ids.has(ability_id):
+				_ability_levels.erase(ability_id)
+
 		for ability_data in _class_component.get_class_abilities():
 			if ability_data and not _ability_levels.has(ability_data.ability_id):
 				_learn_ability_local(ability_data.ability_id, 0, false)

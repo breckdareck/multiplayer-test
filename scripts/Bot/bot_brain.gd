@@ -87,7 +87,6 @@ var _map_stay_timer: float = 0.0
 const MAP_TRAVEL_CHECK_INTERVAL: float = 15.0
 const MAP_MIN_STAY_TIME: float = 120.0
 const LEVEL_OVERRIDE_THRESHOLD: int = 5
-const PORTAL_ARRIVE_DIST: float = 30.0
 
 var _party_seek_timer: float = 0.0
 const PARTY_SEEK_INTERVAL: float = 12.0
@@ -1024,7 +1023,14 @@ func _do_navigate_to_portal() -> void:
 		current_action = "idle"
 		return
 
-	if is_instance_valid(player.current_portal):
+	# Interact ONLY with the portal we actually want — not whatever portal we
+	# happen to be passing through (or spawned next to). Without this, a bot
+	# that arrives in a map at a spawn point overlapping a *different* portal's
+	# Area2D — common because spawn points are placed adjacent to their portal
+	# of origin — immediately portal-interacts and rides that portal back the
+	# way it came on the very first travel tick, even when target_portal is
+	# somewhere else. That's a single-frame town <-> game oscillation.
+	if player.current_portal == target_portal:
 		player.direction = 0
 		player.do_portal_interact = true
 		target_portal = null

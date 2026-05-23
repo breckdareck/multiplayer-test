@@ -72,8 +72,8 @@ func add_player(id: int):
 			get_tree().create_timer(0.5).timeout.connect(func(): multiplayer.multiplayer_peer.disconnect_peer(id))
 			return
 	#print("Player %d joined - preparing to spawn character" % id)
-	NetworkUtils.log_network_event("PLAYER_JOIN", "Player ID: %d" % id)
-	
+	NetworkUtils.log_network_event("PLAYER_JOIN", "Peer %d connected (%d/%d players)" % [id, active_players.size() + 1, ServerManager.max_players])
+
 	active_players[id] = {
 		"id": id,
 		"character_type": - 1,
@@ -90,9 +90,14 @@ func add_player(id: int):
 func remove_player(id: int):
 	if id not in active_players:
 		#print("PlayerManager: Peer %d disconnected (was not an active player)" % id)
+		NetworkUtils.log_network_event("PLAYER_LEAVE", "Peer %d disconnected (no active character)" % id)
 		return
+	var _leaving_username: String = active_players[id].get("username", "")
+	var _leaving_class_id: int = active_players[id].get("character_type", -1)
+	var _leaving_class: String = Constants.ClassType.find_key(_leaving_class_id) if _leaving_class_id >= 0 else "unknown"
+	var _leaving_label: String = _leaving_username if not _leaving_username.is_empty() else "<unidentified>"
 	#print("Player %d left - removing character" % id)
-	NetworkUtils.log_network_event("PLAYER_LEAVE", "Player ID: %d" % id)
+	NetworkUtils.log_network_event("PLAYER_LEAVE", "Character '%s' (%s, peer %d) disconnecting (%d players remaining)" % [_leaving_label, _leaving_class, id, max(0, active_players.size() - 1)])
 	
 	# Full save before disconnect — delegate to SaveManager for consistency
 	if multiplayer.is_server() and id in active_players:
@@ -192,7 +197,8 @@ func _receive_initial_info(id: int, character_type: int, username: String):
 		return
 	
 	#print("PlayerManager: Server received character: %s & username: %s from PID: %d" % [Constants.ClassType.find_key(character_type), username, id])
-	
+	NetworkUtils.log_network_event("PLAYER_IDENTIFIED", "Peer %d -> character '%s' (%s)" % [id, username, Constants.ClassType.find_key(character_type)])
+
 	if id in active_players:
 		active_players[id]["character_type"] = character_type
 		active_players[id]["username"] = username
@@ -354,6 +360,11 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 
 	if id in active_players:
 		active_players[id]["synced"] = true
+
+	var _spawn_level: int = int(player_data.get("level", 1))
+	var _spawn_map: String = active_players[id].get("last_map", "unknown") if id in active_players else "unknown"
+	var _spawn_kind: String = "Bot" if _is_bot else "Player"
+	NetworkUtils.log_network_event("PLAYER_SPAWNED", "%s '%s' (%s lv%d, peer %d) spawned on '%s'" % [_spawn_kind, username, Constants.ClassType.find_key(character_type), _spawn_level, id, _spawn_map])
 
 	# Refresh SaveManager's node reference. On a map change the previous node
 	# was freed, and SaveManager keeps a per-player node ref for its debounce /
