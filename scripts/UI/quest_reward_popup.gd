@@ -9,6 +9,16 @@ extends Control
 ## Non-modal (mouse_filter = IGNORE everywhere) and self-frees when the
 ## tween completes. Positioned ~25% from the top so it doesn't overlap the
 ## player or the quest tracker (which lives in the top-right).
+##
+## Back-to-back completions (e.g. a kill that finishes a kill-quest AND
+## triggers a level-up that finishes q_level_up) defer: each new popup
+## chains onto the previously queued one and plays only after it ends, so
+## the cards never overlap.
+
+## Tail of the deferral chain — the most recently added popup. Each new
+## popup awaits this one's `tree_exited` before animating, then becomes
+## the new tail. Cleared implicitly when the tail is freed.
+static var _last_queued: QuestRewardPopup
 
 const THEME_PATH: String = "res://assets/themes/UI_Theme.tres"
 
@@ -46,6 +56,16 @@ func _ready() -> void:
 	offset_bottom = 0.0
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	# Stay invisible until our turn — keeps the card from flashing at full
+	# alpha while we're awaiting a predecessor.
+	modulate.a = 0.0
+
+	var predecessor: QuestRewardPopup = _last_queued
+	_last_queued = self
+	if is_instance_valid(predecessor) and predecessor != self:
+		await predecessor.tree_exited
+		if not is_inside_tree():
+			return
 
 	_build_and_play()
 

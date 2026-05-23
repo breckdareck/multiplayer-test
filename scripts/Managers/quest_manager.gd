@@ -358,9 +358,14 @@ func record_level_up(username: String, new_level: int) -> void:
 	if not multiplayer.is_server():
 		return
 	var active: Dictionary = _active_quests.get(username, {})
+	# Snapshot the keys: _check_quest_completion can grant EXP that triggers
+	# another level-up, which re-enters this function and may erase entries
+	# we haven't visited yet. The .has() guard inside the loop catches that.
 	for quest_id in active.keys():
 		if not _quests.has(quest_id):
 			continue
+		if not active.has(quest_id):
+			continue  # erased by a re-entrant completion
 		var quest: QuestData = _quests[quest_id]
 		var progress: Dictionary = active[quest_id]
 		for i in range(quest.objectives.size()):
@@ -447,9 +452,14 @@ func _advance_objectives(username: String, obj_type: int, target: String, amount
 		return
 
 	var changed: bool = false
+	# Snapshot the keys: _check_quest_completion can grant EXP that triggers
+	# a level-up, which calls record_level_up and may erase entries we haven't
+	# visited yet. The .has() guard inside the loop catches that.
 	for quest_id in active.keys():
 		if not _quests.has(quest_id):
 			continue
+		if not active.has(quest_id):
+			continue  # erased by a re-entrant completion
 		var quest: QuestData = _quests[quest_id]
 		var progress: Dictionary = active[quest_id]
 		for i in range(quest.objectives.size()):
