@@ -137,11 +137,12 @@ classes recursively — no manual registration. See
 | AI bots | [scripts/Bot/CLAUDE.md](scripts/Bot/CLAUDE.md) |
 | Backend (Flask / Postgres) | [backend/CLAUDE.md](backend/CLAUDE.md) |
 
-## Skills — repeatable content workflows
+## Skills — workflow recipes
 
-Adding game content follows fixed, multi-step recipes, packaged as Claude Code
-skills under `.claude/skills/`. They load automatically when you work in the
-matching files:
+Repeatable workflows packaged as Claude Code skills under `.claude/skills/`.
+The `add-*` skills are path-scoped and load automatically when you work in
+the matching files; `grill-with-docs` is intent-triggered (no path scope) —
+invoke it when you want to stress-test a plan before building.
 
 | Skill | Use when |
 |---|---|
@@ -151,6 +152,7 @@ matching files:
 | `add-enemy` | Creating an enemy (`resources/Enemies/`, `scenes/NPC/`) |
 | `add-map` | Creating a map/level (`scenes/Levels/`) |
 | `add-backend-endpoint` | Adding a Flask route or model (`backend/`) |
+| `grill-with-docs` | Socratic interview that stress-tests a plan against this repo's server-authoritative invariants, components, .tres content, RPC patterns, and persistence layers; maintains `CONTEXT.md` glossary and `docs/adr/`. No path scope — invoke by intent. |
 
 ## The AI Layer
 
