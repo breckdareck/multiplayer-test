@@ -1,0 +1,44 @@
+{
+  "skill_name": "grill-with-docs",
+  "evals": [
+    {
+      "id": 0,
+      "name": "guild-system-multi-faceted",
+      "prompt": "I want to add a guild system to the game. Guilds have a name, a guild leader, members (let's say up to 30), a shared XP pool that all members contribute kills to, a guild bank for shared items, and a guild chat channel. Players should be able to create a guild, invite/kick members, deposit/withdraw items, and view a leaderboard of guild XP across the server. Can you grill me on this plan before I start building?",
+      "expected_output": "A single first question that probes one of the project's invariants. Should not be a list of all questions at once.",
+      "files": [],
+      "assertions": [
+        "Asks one focused primary question (sub-options under it are fine) rather than dumping a long enumerated list of independent questions",
+        "Provides a recommended answer to whatever question is asked, not just the question itself",
+        "Pins down at least one fuzzy term from the user's prompt (e.g., 'channel' for chat, 'shared XP pool', 'leaderboard across the server')",
+        "Surfaces the persistence-layer choice (Flask/Postgres vs SaveManager) for guild-level state"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "passive-ability-should-redirect-to-skill",
+      "prompt": "I'd like to design a passive ability called Fleet Foot that increases movement speed by 5% per level, up to a max of level 10 (so +50% at max). Unlocks at character level 5. It should only be available to the Rogue class. Can you stress-test the design before I build it?",
+      "expected_output": "First question should probe a real design tension. Should ask one question, not many.",
+      "files": [],
+      "assertions": [
+        "Asks one focused primary question (sub-options under it are fine) rather than dumping a long enumerated list of independent questions",
+        "Provides a recommended answer to whatever question is asked",
+        "Identifies a real, codebase-specific obstacle to the plan as written — e.g. movement speed not being a StatType, or AbilityData lacking a character-level gate",
+        "References either AbilityData, the .tres / ResourceManager pattern, the add-ability skill, or an existing similar ability (Haste / Nimble Step / passive)"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "offline-mode-violates-server-authority",
+      "prompt": "I want to add an offline mode. If the player loses their connection to the server, the game should keep running locally — they can still fight enemies, gain XP, pick up items — and then sync everything back to the server when they reconnect. Poke holes in this before I get too deep.",
+      "expected_output": "Must immediately surface the server-authority contradiction. Should not start by asking secondary questions.",
+      "files": [],
+      "assertions": [
+        "Leads with (does not bury) the contradiction between offline-mutation-and-sync and the server-authoritative rule from root CLAUDE.md",
+        "Names or quotes the server-authority rule explicitly (not just paraphrases generic multiplayer caveats)",
+        "Offers at least one concrete alternative framing (graceful reconnect, local listen-server / solo mode, offline-viewing only, etc.) rather than only listing objections",
+        "Asks the user to pick which framing they actually meant before grilling secondary details"
+      ]
+    }
+  ]
+}
