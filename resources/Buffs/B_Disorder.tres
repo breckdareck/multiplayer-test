@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="BuffData" load_steps=6 format=3 uid="uid://bdisorder0001"]
 
-[ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_dis01"]
+[ext_resource type="Texture2D" uid="uid://dliub1pvja86r" path="res://assets/sprites/Abilities/disorder.webp" id="1_26chg"]
 [ext_resource type="Script" uid="uid://bcuvemv85jprb" path="res://scripts/Resources/BuffSystem/BuffData.gd" id="1_dis02"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="2_dis01"]
 
@@ -26,7 +26,7 @@ script = ExtResource("1_dis02")
 buff_id = "8105115111411410011-10180-20141116-8591-12491086711491469"
 buff_name = "Disorder"
 description = "Weakens the target, reducing their defense and attack power."
-buff_icon = ExtResource("1_dis01")
+buff_icon = ExtResource("1_26chg")
 is_debuff = true
 stat_modifiers = Dictionary[int, ExtResource("2_dis01")]({
 8: SubResource("Resource_dis_def"),

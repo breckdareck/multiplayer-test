@@ -1,6 +1,5 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=19 format=3 uid="uid://icestrik001x"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=18 format=3 uid="uid://icestrik001x"]
 
-[ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="1_icst2"]
 [ext_resource type="Texture2D" uid="uid://cq7r2r0v4dc42" path="res://assets/sprites/Abilities/ice_strike.png" id="1_l2dqg"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_icst1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_icst2"]

@@ -22,12 +22,11 @@ Companion to the `add-ability` skill. Class definitions live in
 | `buff_duration_formula` | `AbilityScalingFormula` | |
 | `applies_target_debuff` | `BuffData` | Debuff applied to each enemy hit |
 | `debuff_duration_formula` | `AbilityScalingFormula` | |
-| `use_scaling_formulas` | bool | `true` (default) → use `scaling_data` |
-| `scaling_data` | `AbilityScalingData` | Per-level formulas |
-| `level_data` | Array[AbilityLevelData] | Only used when `use_scaling_formulas = false` |
+| `scaling_data` | `AbilityScalingData` | Per-level formulas (required) |
 
-`get_level_stats(level)` returns an `AbilityLevelData` — generated from
-`scaling_data` and cached, or read from `level_data` when formulas are off.
+`get_level_stats(level)` returns an `AbilityLevelData` generated from
+`scaling_data` on demand. Abilities are formula-only — there is no manual
+`level_data` array.
 
 ## ActiveBehaviorData
 

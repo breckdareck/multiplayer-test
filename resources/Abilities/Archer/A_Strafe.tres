@@ -1,7 +1,6 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=19 format=3 uid="uid://strafearc01x"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=18 format=3 uid="uid://strafearc01x"]
 
 [ext_resource type="Texture2D" uid="uid://drobx0va8sphc" path="res://assets/sprites/Abilities/strafe.png" id="1_py52j"]
-[ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="1_strf2"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_strf1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_strf2"]
 [ext_resource type="PackedScene" uid="uid://d0ig4oiimrnei" path="res://scenes/Gameplay/projectile_base.tscn" id="2_strf3"]

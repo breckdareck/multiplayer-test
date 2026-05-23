@@ -1,6 +1,5 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=18 format=3 uid="uid://magcbolt001x"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=17 format=3 uid="uid://magcbolt001x"]
 
-[ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="1_mgbt2"]
 [ext_resource type="Texture2D" uid="uid://cu1y53548p0uf" path="res://assets/sprites/Abilities/magic_bolt.png" id="1_yj04x"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_mgbt1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_mgbt2"]

@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=18 format=3 uid="uid://fei5h0kw8ykp"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=17 format=3 uid="uid://fei5h0kw8ykp"]
 
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_h56gw"]
 [ext_resource type="Texture2D" uid="uid://labtoxvnp0j3" path="res://assets/sprites/Goblin/Bomb_sprite.png" id="1_hs673"]
-[ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="2_ojw4x"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="3_bx44w"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_io58w"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_2her1"]

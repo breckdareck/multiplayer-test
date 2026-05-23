@@ -33,17 +33,6 @@ extends Resource
 @export_group("Scaling Configuration")
 @export var scaling_data: AbilityScalingData
 
-## Legacy field — formerly toggled between scaling_data formulas (true) and a
-## manual `level_data` array (false). The manual path and the array are gone;
-## abilities are formula-only now. Kept as a non-exported var purely so the
-## `addons/resource_editor` plugin's "use formulas?" checkbox doesn't error
-## when it reads/writes this property. Has no runtime effect.
-var use_scaling_formulas: bool = true
-
-## Cache for generated level data to avoid recalculating
-var _level_data_cache: Dictionary = {}
-
-
 func _init():
 	if ability_id.is_empty():
 		ability_id = generate_uuid()
@@ -63,7 +52,7 @@ func generate_uuid() -> String:
 
 
 ## Retrieves the AbilityLevelData resource for the specified level by
-## generating it from `scaling_data`'s formulas. Cached per level.
+## generating it from `scaling_data`'s formulas.
 func get_level_stats(level: int) -> AbilityLevelData:
 	if level < 1 or level > max_level:
 		return null
@@ -72,14 +61,7 @@ func get_level_stats(level: int) -> AbilityLevelData:
 		push_error("Ability '%s' has no scaling_data!" % ability_name)
 		return null
 
-	# Check cache first
-	if _level_data_cache.has(level):
-		return _level_data_cache[level]
-
-	# Generate and cache
-	var generated_data = scaling_data.generate_level_data(level)
-	_level_data_cache[level] = generated_data
-	return generated_data
+	return scaling_data.generate_level_data(level)
 
 
 ## Builds a plain-text tooltip describing this ability.

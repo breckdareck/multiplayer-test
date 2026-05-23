@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=13 format=3 uid="uid://nimblstp001x"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=12 format=3 uid="uid://nimblstp001x"]
 
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_nmbs2"]
 [ext_resource type="Texture2D" uid="uid://diu2y84uc82ch" path="res://assets/sprites/Abilities/nimble_step.png" id="1_pvtcf"]
-[ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="2_nmbs1"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_nmbs1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_nmbs1"]
 [ext_resource type="Resource" uid="uid://dxf1ejii6pw" path="res://resources/Abilities/Rogue/A_Double_Stab.tres" id="5_nmbs1"]

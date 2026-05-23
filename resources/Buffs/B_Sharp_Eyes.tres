@@ -1,16 +1,17 @@
-[gd_resource type="Resource" script_class="BuffData" load_steps=4 format=3]
+[gd_resource type="Resource" script_class="BuffData" load_steps=5 format=3 uid="uid://b7q0sg83d763q"]
 
-[ext_resource type="Texture2D" uid="uid://cflfc6h5gx3n2" path="res://assets/sprites/Abilities/Maple Warrior.png" id="1_icon"]
+[ext_resource type="Texture2D" uid="uid://cc18m1wu0h2vl" path="res://assets/sprites/Abilities/sharp_eyes.png" id="1_hn06s"]
 [ext_resource type="Script" uid="uid://bcuvemv85jprb" path="res://scripts/Resources/BuffSystem/BuffData.gd" id="1_script"]
-[ext_resource type="Script" path="res://scripts/Buffs/BL_SharpEyes.gd" id="2_logic"]
+[ext_resource type="Script" uid="uid://dpl8kvrfdsvhq" path="res://scripts/Buffs/BL_SharpEyes.gd" id="2_logic"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="4_ijvkc"]
 
 [resource]
 resource_local_to_scene = true
 script = ExtResource("1_script")
-buff_id = "sharp-eyes-party-buff-001"
+buff_id = "12156113715-4150-21438-71311-14782111197300"
 buff_name = "Sharp Eyes"
 description = "Increases critical hit chance and critical damage of all party members."
-buff_icon = ExtResource("1_icon")
+buff_icon = ExtResource("1_hn06s")
 duration = 30.0
 logic_script = ExtResource("2_logic")
 metadata/_custom_type_script = "uid://bcuvemv85jprb"

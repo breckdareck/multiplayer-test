@@ -1,10 +1,8 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=39 format=3 uid="uid://dq088g6civvd8"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=17 format=3 uid="uid://dq088g6civvd8"]
 
 [ext_resource type="Texture2D" uid="uid://bstguvwrql18p" path="res://assets/sprites/Abilities/power_strike.png" id="1_v0yfe"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_vuhxl"]
-[ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="3_v0yfe"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_hhglo"]
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="4_xyi2w"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="6_pdrvi"]
 [ext_resource type="Resource" uid="uid://ccxoh5fmx317x" path="res://resources/Abilities/Warrior/A_Slash.tres" id="6_v0yfe"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_tn7bo"]
@@ -20,145 +18,6 @@ hit_box_shape_data = SubResource("RectangleShape2D_i4okq")
 hit_box_position_data = Vector2(15, -10)
 animation_name = "attack_1"
 sfx_path = "res://assets/sounds/tap.wav"
-
-[sub_resource type="Resource" id="Resource_t6bdd"]
-script = ExtResource("3_v0yfe")
-mana_cost = 4
-cooldown_time = 0.5
-damage_percent = 114
-
-[sub_resource type="Resource" id="Resource_xenhc"]
-script = ExtResource("3_v0yfe")
-level = 2
-mana_cost = 4
-cooldown_time = 0.5
-damage_percent = 120
-
-[sub_resource type="Resource" id="Resource_sxbta"]
-script = ExtResource("3_v0yfe")
-level = 3
-mana_cost = 4
-cooldown_time = 0.5
-damage_percent = 126
-
-[sub_resource type="Resource" id="Resource_kq87s"]
-script = ExtResource("3_v0yfe")
-level = 4
-mana_cost = 4
-cooldown_time = 0.5
-damage_percent = 132
-
-[sub_resource type="Resource" id="Resource_tysym"]
-script = ExtResource("3_v0yfe")
-level = 5
-mana_cost = 5
-cooldown_time = 0.5
-damage_percent = 142
-
-[sub_resource type="Resource" id="Resource_xdbo8"]
-script = ExtResource("3_v0yfe")
-level = 6
-mana_cost = 5
-cooldown_time = 0.5
-damage_percent = 148
-
-[sub_resource type="Resource" id="Resource_sddue"]
-script = ExtResource("3_v0yfe")
-level = 7
-mana_cost = 5
-cooldown_time = 0.5
-damage_percent = 154
-
-[sub_resource type="Resource" id="Resource_bkhln"]
-script = ExtResource("3_v0yfe")
-level = 8
-mana_cost = 6
-cooldown_time = 0.5
-damage_percent = 164
-
-[sub_resource type="Resource" id="Resource_l7cm7"]
-script = ExtResource("3_v0yfe")
-level = 9
-mana_cost = 6
-cooldown_time = 0.5
-damage_percent = 170
-
-[sub_resource type="Resource" id="Resource_et1ip"]
-script = ExtResource("3_v0yfe")
-level = 10
-mana_cost = 7
-cooldown_time = 0.5
-damage_percent = 180
-
-[sub_resource type="Resource" id="Resource_6rosx"]
-script = ExtResource("3_v0yfe")
-level = 11
-mana_cost = 7
-cooldown_time = 0.5
-damage_percent = 186
-
-[sub_resource type="Resource" id="Resource_1x2bc"]
-script = ExtResource("3_v0yfe")
-level = 12
-mana_cost = 8
-cooldown_time = 0.5
-damage_percent = 196
-
-[sub_resource type="Resource" id="Resource_hidl6"]
-script = ExtResource("3_v0yfe")
-level = 13
-mana_cost = 8
-cooldown_time = 0.5
-damage_percent = 202
-
-[sub_resource type="Resource" id="Resource_x8mhh"]
-script = ExtResource("3_v0yfe")
-level = 14
-mana_cost = 9
-cooldown_time = 0.5
-damage_percent = 212
-
-[sub_resource type="Resource" id="Resource_gabhx"]
-script = ExtResource("3_v0yfe")
-level = 15
-mana_cost = 9
-cooldown_time = 0.5
-damage_percent = 218
-
-[sub_resource type="Resource" id="Resource_hvhmm"]
-script = ExtResource("3_v0yfe")
-level = 16
-mana_cost = 10
-cooldown_time = 0.5
-damage_percent = 228
-
-[sub_resource type="Resource" id="Resource_j286c"]
-script = ExtResource("3_v0yfe")
-level = 17
-mana_cost = 10
-cooldown_time = 0.5
-damage_percent = 234
-
-[sub_resource type="Resource" id="Resource_5hkh5"]
-script = ExtResource("3_v0yfe")
-level = 18
-mana_cost = 11
-cooldown_time = 0.5
-damage_percent = 244
-
-[sub_resource type="Resource" id="Resource_bh1lf"]
-script = ExtResource("3_v0yfe")
-level = 19
-mana_cost = 11
-cooldown_time = 0.5
-damage_percent = 250
-
-[sub_resource type="Resource" id="Resource_57lwd"]
-script = ExtResource("3_v0yfe")
-level = 20
-mana_cost = 12
-cooldown_time = 0.5
-damage_percent = 260
 
 [sub_resource type="Resource" id="Resource_lc80b"]
 script = ExtResource("6_pdrvi")

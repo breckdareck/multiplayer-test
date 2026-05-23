@@ -1,9 +1,8 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=19 format=3 uid="uid://drksghtabl01"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=18 format=3 uid="uid://drksghtabl01"]
 
 [ext_resource type="Texture2D" uid="uid://3nomn5ckt1dh" path="res://assets/sprites/Abilities/dark_sight.webp" id="1_8vb02"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_drks2"]
 [ext_resource type="Script" uid="uid://ldrksght001x" path="res://scripts/Abilities/AL_DarkSight.gd" id="2_drks1"]
-[ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="2_drks2"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="3_drks1"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="4_drks1"]
 [ext_resource type="Resource" uid="uid://bdarksite0001" path="res://resources/Buffs/B_Dark_Sight.tres" id="4_drks2"]

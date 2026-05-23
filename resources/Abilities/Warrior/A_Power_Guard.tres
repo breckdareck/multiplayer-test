@@ -1,11 +1,9 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=40 format=3 uid="uid://bj44mdaqov8t"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=18 format=3 uid="uid://bj44mdaqov8t"]
 
 [ext_resource type="Texture2D" uid="uid://ky00whwbxbmx" path="res://assets/sprites/Abilities/power_guard.png" id="1_26017"]
-[ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="1_mshui"]
 [ext_resource type="Script" uid="uid://doiljfws248yw" path="res://scripts/Abilities/AL_PowerGuard.gd" id="2_1gbs7"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_26017"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_rxk8e"]
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="3_hts6v"]
 [ext_resource type="Resource" uid="uid://exhase0djcpt" path="res://resources/Buffs/B_Power_Guard.tres" id="4_b8raq"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="6_jrmpn"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_b8raq"]
@@ -22,106 +20,6 @@ scaling_type = 3
 base_value = 10.0
 custom_formula = "base_value * ceil(level / 2.0)"
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
-
-[sub_resource type="Resource" id="Resource_rxk8e"]
-script = ExtResource("1_mshui")
-damage_percent = 12
-metadata/_custom_type_script = "uid://iols3c70aq2j"
-
-[sub_resource type="Resource" id="Resource_a02wj"]
-script = ExtResource("1_mshui")
-level = 2
-damage_percent = 14
-
-[sub_resource type="Resource" id="Resource_atp6n"]
-script = ExtResource("1_mshui")
-level = 3
-damage_percent = 16
-
-[sub_resource type="Resource" id="Resource_jrmpn"]
-script = ExtResource("1_mshui")
-level = 4
-damage_percent = 18
-
-[sub_resource type="Resource" id="Resource_b8raq"]
-script = ExtResource("1_mshui")
-level = 5
-damage_percent = 20
-
-[sub_resource type="Resource" id="Resource_cm1ky"]
-script = ExtResource("1_mshui")
-level = 6
-damage_percent = 22
-
-[sub_resource type="Resource" id="Resource_a403f"]
-script = ExtResource("1_mshui")
-level = 7
-damage_percent = 24
-
-[sub_resource type="Resource" id="Resource_t8g0x"]
-script = ExtResource("1_mshui")
-level = 8
-damage_percent = 26
-
-[sub_resource type="Resource" id="Resource_sgo30"]
-script = ExtResource("1_mshui")
-level = 9
-damage_percent = 28
-
-[sub_resource type="Resource" id="Resource_0qx7u"]
-script = ExtResource("1_mshui")
-level = 10
-damage_percent = 30
-
-[sub_resource type="Resource" id="Resource_t8u55"]
-script = ExtResource("1_mshui")
-level = 11
-damage_percent = 32
-
-[sub_resource type="Resource" id="Resource_y4s2m"]
-script = ExtResource("1_mshui")
-level = 12
-damage_percent = 34
-
-[sub_resource type="Resource" id="Resource_ntug8"]
-script = ExtResource("1_mshui")
-level = 13
-damage_percent = 36
-
-[sub_resource type="Resource" id="Resource_p4y07"]
-script = ExtResource("1_mshui")
-level = 14
-damage_percent = 38
-
-[sub_resource type="Resource" id="Resource_156be"]
-script = ExtResource("1_mshui")
-level = 15
-damage_percent = 40
-
-[sub_resource type="Resource" id="Resource_rx031"]
-script = ExtResource("1_mshui")
-level = 16
-damage_percent = 42
-
-[sub_resource type="Resource" id="Resource_ghqrc"]
-script = ExtResource("1_mshui")
-level = 17
-damage_percent = 44
-
-[sub_resource type="Resource" id="Resource_pxkol"]
-script = ExtResource("1_mshui")
-level = 18
-damage_percent = 46
-
-[sub_resource type="Resource" id="Resource_wyhxt"]
-script = ExtResource("1_mshui")
-level = 19
-damage_percent = 48
-
-[sub_resource type="Resource" id="Resource_jbdbt"]
-script = ExtResource("1_mshui")
-level = 20
-damage_percent = 50
 
 [sub_resource type="Resource" id="Resource_b2sp4"]
 script = ExtResource("6_jrmpn")

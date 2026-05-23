@@ -32,10 +32,11 @@ and level editor, hitbox visualizer) — prefer it over the raw inspector.
    `hit_box_position_data`, `animation_name`, `sfx_path`. For a projectile, set
    `is_projectile`, `projectile_scene`, and `projectile_speed`.
 
-4. **Scaling.** Keep `use_scaling_formulas = true` and fill `scaling_data`
-   (`AbilityScalingData`) — one `AbilityScalingFormula` per stat
-   (`mana_cost_formula`, `cooldown_formula`, `damage_percent_formula`, …). A
-   `FLAT` formula is `base_value + (level - 1) * per_level`.
+4. **Scaling.** Fill `scaling_data` (`AbilityScalingData`) — one
+   `AbilityScalingFormula` per stat (`mana_cost_formula`, `cooldown_formula`,
+   `damage_percent_formula`, …). A `FLAT` formula is
+   `base_value + (level - 1) * per_level`. Abilities are formula-only; there
+   is no manual level-data array.
 
 5. **Custom logic** (optional). If the ability does anything beyond a hitbox or
    projectile, write `scripts/Abilities/AL_<Name>.gd` and assign it to

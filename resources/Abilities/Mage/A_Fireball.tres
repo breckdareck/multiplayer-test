@@ -1,9 +1,8 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=19 format=3 uid="uid://cgywubtniaon0"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=18 format=3 uid="uid://cgywubtniaon0"]
 
 [ext_resource type="Texture2D" uid="uid://b407mfrctd50w" path="res://assets/sprites/MinifolksHumans/HumansProjectiles.png" id="1_k2vp6"]
-[ext_resource type="PackedScene" path="res://scenes/Gameplay/fireball.tscn" id="2_xltx3"]
+[ext_resource type="PackedScene" uid="uid://7v8f1uwug0qe" path="res://scenes/Gameplay/fireball.tscn" id="2_xltx3"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="3_hkoui"]
-[ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="4_e3t0y"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="5_p2735"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="6_ojaxv"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_sthl3"]

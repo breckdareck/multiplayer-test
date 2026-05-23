@@ -1,16 +1,17 @@
-[gd_resource type="Resource" script_class="BuffData" load_steps=4 format=3]
+[gd_resource type="Resource" script_class="BuffData" load_steps=5 format=3 uid="uid://mphxpdgw4jyj"]
 
-[ext_resource type="Texture2D" uid="uid://cflfc6h5gx3n2" path="res://assets/sprites/Abilities/Maple Warrior.png" id="1_icon"]
+[ext_resource type="Texture2D" uid="uid://30u18vfwsa5i" path="res://assets/sprites/Abilities/meditation.png" id="1_58es0"]
 [ext_resource type="Script" uid="uid://bcuvemv85jprb" path="res://scripts/Resources/BuffSystem/BuffData.gd" id="1_script"]
-[ext_resource type="Script" path="res://scripts/Buffs/BL_Meditation.gd" id="2_logic"]
+[ext_resource type="Script" uid="uid://dpdrf8nthv53k" path="res://scripts/Buffs/BL_Meditation.gd" id="2_logic"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="4_v0jc3"]
 
 [resource]
 resource_local_to_scene = true
 script = ExtResource("1_script")
-buff_id = "meditation-party-buff-001"
+buff_id = "14108320159-811714-18510-22127-881415515431114810"
 buff_name = "Meditation"
 description = "Increases MP regeneration and magic attack of all party members."
-buff_icon = ExtResource("1_icon")
+buff_icon = ExtResource("1_58es0")
 duration = 30.0
 logic_script = ExtResource("2_logic")
 metadata/_custom_type_script = "uid://bcuvemv85jprb"

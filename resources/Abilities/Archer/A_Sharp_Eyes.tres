@@ -1,11 +1,10 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://shrpeyes001x"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=22 format=3 uid="uid://shrpeyes001x"]
 
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_behav"]
 [ext_resource type="Texture2D" uid="uid://cc18m1wu0h2vl" path="res://assets/sprites/Abilities/sharp_eyes.png" id="1_chef7"]
-[ext_resource type="Script" path="res://scripts/Abilities/AL_SharpEyes.gd" id="2_logic"]
-[ext_resource type="Script" uid="uid://iols3c70aq2j" path="res://scripts/Resources/AbilitySystem/AbilityLevelData.gd" id="2_lvl"]
+[ext_resource type="Script" uid="uid://tcmlhlo7jekp" path="res://scripts/Abilities/AL_SharpEyes.gd" id="2_logic"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="3_abil"]
-[ext_resource type="Resource" path="res://resources/Buffs/B_Sharp_Eyes.tres" id="4_buff"]
+[ext_resource type="Resource" uid="uid://b7q0sg83d763q" path="res://resources/Buffs/B_Sharp_Eyes.tres" id="4_buff"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="4_scale"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="5_sbf"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="7_formula"]
@@ -90,7 +89,7 @@ description = "Grants a temporary buff that increases critical hit chance by $[s
 ability_icon = ExtResource("1_chef7")
 max_level = 30
 required_class = Array[int]([1])
-required_weapon_types = Array[int]([0])
+required_weapon_types = Array[int]([1])
 active_behavior = SubResource("Resource_behav")
 applies_buff = ExtResource("4_buff")
 buff_duration_formula = SubResource("Resource_buff_dur")
