@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
+
+[resource]
+script = ExtResource("1_quest_data")
+quest_id = "q_boar_patrol"
+quest_name = "Boar Patrol"
+description = "The boars near the village have grown bold and trample the crops. Cull a few of them."
+required_level = 3
+objectives = Array[Dictionary]([{
+"type": 0,
+"target": "Boar",
+"amount": 5
+}])
+reward_exp = 100
+reward_coins = 20
+sort_order = 30

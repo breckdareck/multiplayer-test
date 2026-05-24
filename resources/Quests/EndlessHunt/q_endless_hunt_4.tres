@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
+
+[resource]
+script = ExtResource("1_quest_data")
+quest_id = "q_endless_hunt_4"
+quest_name = "Endless Hunt IV: The Final Tide"
+description = "Legend speaks of a warrior who would cull 999. The village will sing of the boar-slayer for generations. Are you that warrior?"
+required_level = 12
+prerequisite_quest_id = "q_endless_hunt_3"
+objectives = Array[Dictionary]([{
+"type": 0,
+"target": "Boar",
+"amount": 999
+}])
+reward_exp = 10000
+reward_coins = 3000
+reward_items = Array[String](["Grand Healing Draught", "Grand Mana Draught"])
+npc_only = true
+sort_order = 230

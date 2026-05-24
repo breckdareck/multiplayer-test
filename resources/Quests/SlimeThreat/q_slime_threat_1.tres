@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
+
+[resource]
+script = ExtResource("1_quest_data")
+quest_id = "q_slime_threat_1"
+quest_name = "Slime Threat: Level 1"
+description = "Slimes have been spotted in this area. The local authority asks that travelers cull 15 of them."
+required_level = 1
+objectives = Array[Dictionary]([{
+"type": 0,
+"target": "Slime",
+"amount": 15
+}])
+reward_exp = 200
+reward_coins = 40
+npc_only = true
+sort_order = 300

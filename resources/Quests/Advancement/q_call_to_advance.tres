@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
+
+[resource]
+script = ExtResource("1_quest_data")
+quest_id = "q_call_to_advance"
+quest_name = "Answer the Call"
+description = "You have mastered the fundamentals. At level 30 a warrior may choose a specialized path. Reach level 30, return to town, and type /advance to claim your advanced class."
+required_level = 25
+prerequisite_quest_id = "q_veterans_path"
+objectives = Array[Dictionary]([{
+"type": 2,
+"target": "",
+"amount": 30
+}])
+reward_coins = 1000
+reward_items = Array[String](["Grand Healing Draught", "Grand Mana Draught"])
+sort_order = 130

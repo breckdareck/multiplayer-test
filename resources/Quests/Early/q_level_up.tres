@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
+
+[resource]
+script = ExtResource("1_quest_data")
+quest_id = "q_level_up"
+quest_name = "Getting Stronger"
+description = "Reach level 5 to unlock new abilities."
+required_level = 1
+objectives = Array[Dictionary]([{
+"type": 2,
+"target": "",
+"amount": 5
+}])
+reward_coins = 50
+reward_items = Array[String](["Health Potion"])
+sort_order = 50

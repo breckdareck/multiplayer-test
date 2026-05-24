@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
+
+[resource]
+script = ExtResource("1_quest_data")
+quest_id = "q_goblin_trouble"
+quest_name = "Goblin Trouble"
+description = "The goblin warbands are growing. Break their numbers before they march on the village."
+required_level = 13
+prerequisite_quest_id = "q_deep_woods"
+objectives = Array[Dictionary]([{
+"type": 0,
+"target": "Goblin",
+"amount": 40
+}])
+reward_exp = 1400
+reward_coins = 180
+sort_order = 110

@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
+
+[resource]
+script = ExtResource("1_quest_data")
+quest_id = "q_veterans_path"
+quest_name = "A Veteran's Path"
+description = "Only seasoned fighters can hope to specialize. Reach level 25 to walk the veteran's path."
+required_level = 20
+prerequisite_quest_id = "q_seasoned_warrior"
+objectives = Array[Dictionary]([{
+"type": 2,
+"target": "",
+"amount": 25
+}])
+reward_coins = 600
+reward_items = Array[String](["Greater Healing Draught"])
+sort_order = 120
