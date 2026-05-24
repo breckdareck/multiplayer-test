@@ -257,6 +257,15 @@ func pickup_item_client() -> void:
 	if synchronizer:
 		synchronizer.set_process_mode(Node.PROCESS_MODE_DISABLED)
 
+	# Skip the pickup animation + sound if this item lives inside a map that
+	# isn't visible on this peer (e.g. a bot's map on the host). map_root.visible
+	# gates rendering but not audio, so without this guard pickups in hidden
+	# maps still play through the host's speakers. Still queue_free so the node
+	# doesn't linger.
+	if not is_visible_in_tree():
+		queue_free()
+		return
+
 	# Visual effects for pickup
 	pickup_sound.stream = pickup_sfx
 	pickup_sound.play()
