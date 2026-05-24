@@ -83,6 +83,9 @@ func _ensure_maps_container() -> SubViewportContainer:
 	container.anchor_bottom = 1.0
 	container.stretch = true
 	container.mouse_filter = Control.MOUSE_FILTER_PASS
+	# Keep the per-viewport render texture sampled as nearest-neighbor when
+	# blitted to the window, so pixel-art doesn't go blurry through the wrap.
+	container.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	get_tree().root.add_child(container)
 	return container
 
@@ -95,6 +98,10 @@ func _wrap_in_subviewport(map_instance: Node, map_id: String) -> SubViewport:
 	viewport.handle_input_locally = false
 	viewport.audio_listener_enable_2d = true
 	viewport.physics_object_picking = true
+	# SubViewport does NOT inherit the project's rendering/textures/canvas_textures/
+	# default_texture_filter setting — it defaults to LINEAR. Force nearest so the
+	# pixel-art textures rendered inside the viewport stay crisp.
+	viewport.canvas_item_default_texture_filter = Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_NEAREST
 	viewport.add_child(map_instance)
 	return viewport
 
