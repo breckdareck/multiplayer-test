@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3 uid="uid://bg32yjx0fdu4l"]
 
-[ext_resource type="Script" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
+[ext_resource type="Script" uid="uid://cpw7x68b3o353" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
 
 [resource]
 script = ExtResource("1_quest_data")
@@ -10,9 +10,9 @@ description = "The goblin warbands are growing. Break their numbers before they 
 required_level = 13
 prerequisite_quest_id = "q_deep_woods"
 objectives = Array[Dictionary]([{
-"type": 0,
+"amount": 40,
 "target": "Goblin",
-"amount": 40
+"type": 0
 }])
 reward_exp = 1400
 reward_coins = 180

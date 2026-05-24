@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3 uid="uid://drk8x3wk8wgwm"]
 
-[ext_resource type="Script" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
+[ext_resource type="Script" uid="uid://cpw7x68b3o353" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
 
 [resource]
 script = ExtResource("1_quest_data")
@@ -10,9 +10,9 @@ description = "The slimes are multiplying! Thin the herd."
 required_level = 2
 prerequisite_quest_id = "q_first_blood"
 objectives = Array[Dictionary]([{
-"type": 0,
+"amount": 10,
 "target": "Slime",
-"amount": 10
+"type": 0
 }])
 reward_exp = 150
 reward_coins = 30

@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3 uid="uid://d1a1otwg25erm"]
 
-[ext_resource type="Script" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
+[ext_resource type="Script" uid="uid://cpw7x68b3o353" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
 
 [resource]
 script = ExtResource("1_quest_data")
@@ -10,9 +10,9 @@ description = "Continue your training and reach level 10."
 required_level = 5
 prerequisite_quest_id = "q_level_up"
 objectives = Array[Dictionary]([{
-"type": 2,
+"amount": 10,
 "target": "",
-"amount": 10
+"type": 2
 }])
 reward_coins = 150
 reward_items = Array[String](["Health Potion", "Mana Potion"])

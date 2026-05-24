@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3 uid="uid://b0rkli0sblgi8"]
 
-[ext_resource type="Script" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
+[ext_resource type="Script" uid="uid://cpw7x68b3o353" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
 
 [resource]
 script = ExtResource("1_quest_data")
@@ -10,9 +10,9 @@ description = "Still more boars. The herd needs serious thinning. Bring down 50 
 required_level = 5
 prerequisite_quest_id = "q_endless_hunt_1"
 objectives = Array[Dictionary]([{
-"type": 0,
+"amount": 50,
 "target": "Boar",
-"amount": 50
+"type": 0
 }])
 reward_exp = 700
 reward_coins = 200

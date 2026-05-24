@@ -55,6 +55,16 @@ var do_pickup: bool = false
 var do_portal_interact: bool = false
 var current_portal: Portal = null
 
+# Server-only list of Ladder Area2Ds the player currently overlaps. Ladders
+# call enter_ladder/exit_ladder on their body_entered/exited signals.
+var _ladder_zones: Array = []
+
+# Position-based drop-through state. We disable the platform-layer mask until
+# the player's center has cleared the bottom edge of the specific platform
+# they dropped from — that way stacked platforms aren't all passed through.
+var _drop_through_active: bool = false
+var _drop_through_target_y: float = 0.0
+
 var _sprite_base_offset_x: float
 var _is_being_cleaned_up: bool = false
 var _is_loading_data: bool = false
@@ -124,6 +134,7 @@ func _physics_process(delta: float) -> void:
 		_update_input_from_synchronizer()
 		velocity.y = minf(velocity.y, MAX_FALL_SPEED)
 		state_machine.process_physics(delta)
+		_check_drop_through_complete()
 
 	# Visual updates run on all peers (clients and server)
 	_update_sprite_facing_direction()
@@ -140,6 +151,32 @@ func set_current_portal(portal_node: Portal):
 
 func clear_current_portal():
 	current_portal = null
+
+
+# --- Ladder zone tracking (server-authoritative) ---
+
+func enter_ladder(ladder: Node) -> void:
+	if not multiplayer.is_server():
+		return
+	if not _ladder_zones.has(ladder):
+		_ladder_zones.append(ladder)
+
+func exit_ladder(ladder: Node) -> void:
+	if not multiplayer.is_server():
+		return
+	_ladder_zones.erase(ladder)
+
+func is_in_ladder_zone() -> bool:
+	# Prune any freed ladders lazily.
+	for i in range(_ladder_zones.size() - 1, -1, -1):
+		if not is_instance_valid(_ladder_zones[i]):
+			_ladder_zones.remove_at(i)
+	return _ladder_zones.size() > 0
+
+func get_active_ladder() -> Node:
+	if is_in_ladder_zone():
+		return _ladder_zones[0]
+	return null
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -251,8 +288,42 @@ func drop_through_platform() -> void:
 	if _is_being_cleaned_up:
 		return
 
+	# Default fallback distance if we can't read the platform's shape.
+	var target_y: float = global_position.y + 12.0
+
+	for i in range(get_slide_collision_count()):
+		var collision: KinematicCollision2D = get_slide_collision(i)
+		if collision.get_angle(up_direction) >= floor_max_angle + 0.01:
+			continue
+		var collider_rid: RID = collision.get_collider_rid()
+		var collider_layer_mask: int = PhysicsServer2D.body_get_collision_layer(collider_rid)
+		if not (collider_layer_mask & (1 << (platform_layer - 1))):
+			continue
+		var collider_shape: Object = collision.get_collider_shape()
+		if collider_shape is CollisionShape2D:
+			var cs := collider_shape as CollisionShape2D
+			if cs.shape is RectangleShape2D:
+				var rect := cs.shape as RectangleShape2D
+				target_y = cs.global_position.y + rect.size.y * 0.5 + 1.0
+		break
+
+	_drop_through_target_y = target_y
+	_drop_through_active = true
 	set_collision_mask_value(platform_layer, false)
+	# Safety fallback in case the position check never fires (e.g. player gets
+	# caught in a wall, gravity disabled, etc.). The position check normally
+	# wins long before this expires.
 	drop_timer.start()
+
+
+func _check_drop_through_complete() -> void:
+	if not _drop_through_active:
+		return
+	if global_position.y >= _drop_through_target_y:
+		set_collision_mask_value(platform_layer, true)
+		_drop_through_active = false
+		if is_instance_valid(drop_timer):
+			drop_timer.stop()
 
 
 func cleanup_before_removal():
@@ -718,6 +789,10 @@ func respawn() -> void:
 	do_attack = false
 	do_jump = false
 	do_drop = false
+	# Reset drop-through state so a death mid-drop doesn't leave the next
+	# life with a stale target_y far above the respawn point.
+	_drop_through_active = false
+	set_collision_mask_value(platform_layer, true)
 	if is_instance_valid(health_component):
 		health_component.respawn()
 

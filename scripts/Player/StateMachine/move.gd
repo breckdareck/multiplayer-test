@@ -6,6 +6,7 @@ extends State
 @export var slide_state: State
 @export var attack_state: State
 @export var crouch_state: State
+@export var climb_state: State
 
 func enter() -> void:
 	super()
@@ -46,6 +47,10 @@ func physics_update(delta: float) -> State:
 
 	if player.do_jump and player.is_on_floor():
 		return jump_state
+
+	# Grab a ladder if walking through one and pressing up or down.
+	if climb_state and player.is_in_ladder_zone() and (player.input_up or player.input_down):
+		return climb_state
 
 	if movement == 0:
 		return idle_state

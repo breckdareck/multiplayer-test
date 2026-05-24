@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3 uid="uid://babvmlp5g4fwx"]
 
-[ext_resource type="Script" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
+[ext_resource type="Script" uid="uid://cpw7x68b3o353" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
 
 [resource]
 script = ExtResource("1_quest_data")
@@ -10,9 +10,9 @@ description = "Only seasoned fighters can hope to specialize. Reach level 25 to 
 required_level = 20
 prerequisite_quest_id = "q_seasoned_warrior"
 objectives = Array[Dictionary]([{
-"type": 2,
+"amount": 25,
 "target": "",
-"amount": 25
+"type": 2
 }])
 reward_coins = 600
 reward_items = Array[String](["Greater Healing Draught"])

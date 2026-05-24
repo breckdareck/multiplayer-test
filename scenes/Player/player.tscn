@@ -1,4 +1,4 @@
-[gd_scene load_steps=88 format=3 uid="uid://bdtdpx0d05sy3"]
+[gd_scene load_steps=89 format=3 uid="uid://bdtdpx0d05sy3"]
 
 [ext_resource type="Script" uid="uid://yibpus3whwuj" path="res://scripts/Player/multiplayer_controller_v2.gd" id="1_an8q1"]
 [ext_resource type="Script" uid="uid://cy1j38lpy671e" path="res://scripts/Player/multiplayer_input.gd" id="2_hxkm2"]
@@ -29,6 +29,7 @@
 [ext_resource type="Script" uid="uid://vfu8l4cq1qt1" path="res://scripts/Player/StateMachine/jump.gd" id="21_v6vns"]
 [ext_resource type="Script" uid="uid://bfh8yeyv2wu0g" path="res://scripts/Player/StateMachine/death.gd" id="22_eiysd"]
 [ext_resource type="Script" uid="uid://bvunkdne8wduc" path="res://scripts/Player/StateMachine/hit.gd" id="23_03slv"]
+[ext_resource type="Script" path="res://scripts/Player/StateMachine/climb.gd" id="23_climb_gd"]
 [ext_resource type="PackedScene" uid="uid://chfqd31o6lr2s" path="res://scenes/UI/stats_window.tscn" id="23_fqhit"]
 [ext_resource type="PackedScene" uid="uid://dh7yjshjnm377" path="res://scenes/UI/inventory_window.tscn" id="24_e8txv"]
 [ext_resource type="PackedScene" uid="uid://cy54vn8lpmh2s" path="res://scenes/UI/equipment_window.tscn" id="25_7iww4"]
@@ -1031,7 +1032,7 @@ wait_time = 0.15
 one_shot = true
 
 [node name="DropTimer" type="Timer" parent="."]
-wait_time = 0.3
+wait_time = 0.15
 one_shot = true
 
 [node name="AttackStateTimer" type="Timer" parent="."]
@@ -1054,30 +1055,33 @@ fall_state = NodePath("../fall")
 animation_name = "attack_1"
 move_speed = 100.0
 
-[node name="idle" type="Node" parent="StateMachine" node_paths=PackedStringArray("jump_state", "fall_state", "move_state", "attack_state")]
+[node name="idle" type="Node" parent="StateMachine" node_paths=PackedStringArray("jump_state", "fall_state", "move_state", "attack_state", "climb_state")]
 script = ExtResource("18_gb22u")
 jump_state = NodePath("../jump")
 fall_state = NodePath("../fall")
 move_state = NodePath("../move")
 attack_state = NodePath("../attack")
+climb_state = NodePath("../climb")
 animation_name = "idle"
 move_speed = 100.0
 
-[node name="fall" type="Node" parent="StateMachine" node_paths=PackedStringArray("idle_state", "move_state", "jump_state", "attack_state")]
+[node name="fall" type="Node" parent="StateMachine" node_paths=PackedStringArray("idle_state", "move_state", "jump_state", "attack_state", "climb_state")]
 script = ExtResource("19_pnj8v")
 idle_state = NodePath("../idle")
 move_state = NodePath("../move")
 jump_state = NodePath("../jump")
 attack_state = NodePath("../attack")
+climb_state = NodePath("../climb")
 animation_name = "fall"
 move_speed = 100.0
 
-[node name="move" type="Node" parent="StateMachine" node_paths=PackedStringArray("idle_state", "fall_state", "jump_state", "attack_state")]
+[node name="move" type="Node" parent="StateMachine" node_paths=PackedStringArray("idle_state", "fall_state", "jump_state", "attack_state", "climb_state")]
 script = ExtResource("20_4xm4e")
 idle_state = NodePath("../idle")
 fall_state = NodePath("../fall")
 jump_state = NodePath("../jump")
 attack_state = NodePath("../attack")
+climb_state = NodePath("../climb")
 animation_name = "move"
 move_speed = 80.0
 
@@ -1097,6 +1101,14 @@ move_speed = 100.0
 [node name="hit" type="Node" parent="StateMachine"]
 script = ExtResource("23_03slv")
 animation_name = "hit"
+move_speed = 100.0
+
+[node name="climb" type="Node" parent="StateMachine" node_paths=PackedStringArray("idle_state", "fall_state", "jump_state")]
+script = ExtResource("23_climb_gd")
+idle_state = NodePath("../idle")
+fall_state = NodePath("../fall")
+jump_state = NodePath("../jump")
+animation_name = "idle"
 move_speed = 100.0
 
 [connection signal="button_down" from="CanvasLayer/PlayerHUD/MobileButtons/LeftButton" to="InputSynchronizer" method="_on_left_button_button_down"]

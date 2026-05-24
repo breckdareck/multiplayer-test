@@ -1,17 +1,16 @@
-[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3 uid="uid://dxy55c4jfj60g"]
 
-[ext_resource type="Script" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
+[ext_resource type="Script" uid="uid://cpw7x68b3o353" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
 
 [resource]
 script = ExtResource("1_quest_data")
 quest_id = "q_first_blood"
 quest_name = "First Blood"
 description = "Defeat your first Slime to prove your mettle."
-required_level = 1
 objectives = Array[Dictionary]([{
-"type": 0,
+"amount": 3,
 "target": "Slime",
-"amount": 3
+"type": 0
 }])
 reward_exp = 50
 reward_coins = 10

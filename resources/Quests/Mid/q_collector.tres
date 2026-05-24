@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3 uid="uid://ceurrqb4oaqnk"]
 
-[ext_resource type="Script" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
+[ext_resource type="Script" uid="uid://cpw7x68b3o353" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
 
 [resource]
 script = ExtResource("1_quest_data")
@@ -9,9 +9,8 @@ quest_name = "The Collector"
 description = "Gather coins from fallen monsters to fund the village defense."
 required_level = 5
 objectives = Array[Dictionary]([{
-"type": 1,
+"amount": 100,
 "target": "Coin",
-"amount": 100
+"type": 1
 }])
 reward_exp = 250
-sort_order = 100

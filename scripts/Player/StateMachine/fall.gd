@@ -4,6 +4,7 @@ extends State
 @export var move_state: State
 @export var jump_state: State
 @export var attack_state: State
+@export var climb_state: State
 
 @export_group("Physics Properties")
 @export var air_acceleration: float = 600.0
@@ -26,6 +27,10 @@ func physics_update(delta: float) -> State:
 	# Allow air attacks.
 	if player.do_attack:
 		return attack_state
+
+	# Grab a ladder mid-fall if overlapping one and pressing up or down.
+	if climb_state and player.is_in_ladder_zone() and (player.input_up or player.input_down):
+		return climb_state
 
 	parent.move_and_slide()
 

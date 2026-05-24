@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3 uid="uid://y5rog3b73nbq"]
 
-[ext_resource type="Script" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
+[ext_resource type="Script" uid="uid://cpw7x68b3o353" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
 
 [resource]
 script = ExtResource("1_quest_data")
@@ -10,9 +10,9 @@ description = "The slime population is out of control. A massive cull is needed.
 required_level = 8
 prerequisite_quest_id = "q_slime_slayer"
 objectives = Array[Dictionary]([{
-"type": 0,
+"amount": 50,
 "target": "Slime",
-"amount": 50
+"type": 0
 }])
 reward_exp = 800
 reward_coins = 120

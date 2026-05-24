@@ -11,6 +11,7 @@ const MAP_SCENES = {
 	"game": "res://scenes/Levels/game.tscn",
 	"game2": "res://scenes/Levels/game2.tscn",
 	"game3": "res://scenes/Levels/game3.tscn",
+	"game4": "res://scenes/Levels/game4.tscn",
 	"town": "res://scenes/Levels/town.tscn",
 }
 

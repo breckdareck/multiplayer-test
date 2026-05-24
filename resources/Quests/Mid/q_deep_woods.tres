@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3 uid="uid://cfxupq7cq2pcl"]
 
-[ext_resource type="Script" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
+[ext_resource type="Script" uid="uid://cpw7x68b3o353" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
 
 [resource]
 script = ExtResource("1_quest_data")
@@ -10,9 +10,9 @@ description = "Venture past the meadow into goblin territory and prove you can h
 required_level = 10
 prerequisite_quest_id = "q_pest_control"
 objectives = Array[Dictionary]([{
-"type": 0,
+"amount": 25,
 "target": "Goblin",
-"amount": 25
+"type": 0
 }])
 reward_exp = 600
 reward_coins = 100
