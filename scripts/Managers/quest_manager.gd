@@ -114,9 +114,51 @@ func _define_quests() -> void:
 		[{"type": QuestData.ObjectiveType.REACH_LEVEL, "target": "", "amount": 30}],
 		0, 1000, ["Grand Healing Draught", "Grand Mana Draught"])
 
+	# --- Endless Hunt: Village Elder's signature NPC-only chain ---
+	# Hidden from the Quest Log's Available tab; the player can only get the
+	# next link by talking to the Village Elder in Maple Town. Escalates
+	# 15 -> 50 -> 99 -> 999 in the MapleStory tradition of long-tail grind
+	# chains. The 999 tier is prestige content, gated to level 12+ so it
+	# doesn't masquerade as normal progression.
+	_add_quest("q_endless_hunt_1", "Endless Hunt I", "The boars keep coming back to trample the crops. Cull 15 of them — that should give us some peace.", 3, "",
+		[{"type": QuestData.ObjectiveType.KILL, "target": "Boar", "amount": 15}],
+		250, 60, [], true)
+
+	_add_quest("q_endless_hunt_2", "Endless Hunt II", "Still more boars. The herd needs serious thinning. Bring down 50 this time.", 5, "q_endless_hunt_1",
+		[{"type": QuestData.ObjectiveType.KILL, "target": "Boar", "amount": 50}],
+		700, 200, [], true)
+
+	_add_quest("q_endless_hunt_3", "Endless Hunt III", "Truly endless. The boars seem infinite. Slay 99 more to prove your dedication.", 8, "q_endless_hunt_2",
+		[{"type": QuestData.ObjectiveType.KILL, "target": "Boar", "amount": 99}],
+		1800, 500, [], true)
+
+	_add_quest("q_endless_hunt_4", "Endless Hunt IV: The Final Tide", "Legend speaks of a warrior who would cull 999. The village will sing of the boar-slayer for generations. Are you that warrior?", 12, "q_endless_hunt_3",
+		[{"type": QuestData.ObjectiveType.KILL, "target": "Boar", "amount": 999}],
+		10000, 3000, ["Grand Healing Draught", "Grand Mana Draught"], true)
+
+	# --- Slime Threat: Slime Meadow's NPC-only chain ---
+	# Posted on a sign in the Slime Meadow itself; same 15/50/99/999 cadence
+	# as the Village Elder's Endless Hunt, but targets slimes and starts at
+	# level 1 because slimes are the lowest-level mob in the zone.
+	_add_quest("q_slime_threat_1", "Slime Threat: Level 1", "Slimes have been spotted in this area. The local authority asks that travelers cull 15 of them.", 1, "",
+		[{"type": QuestData.ObjectiveType.KILL, "target": "Slime", "amount": 15}],
+		200, 40, [], true)
+
+	_add_quest("q_slime_threat_2", "Slime Threat: Level 2", "The slime population is growing. Take down 50 more to contain the threat.", 3, "q_slime_threat_1",
+		[{"type": QuestData.ObjectiveType.KILL, "target": "Slime", "amount": 50}],
+		600, 150, [], true)
+
+	_add_quest("q_slime_threat_3", "Slime Threat: Level 3", "Slime infestation level rising. Eliminate 99 more — your reward will be substantial.", 6, "q_slime_threat_2",
+		[{"type": QuestData.ObjectiveType.KILL, "target": "Slime", "amount": 99}],
+		1600, 450, [], true)
+
+	_add_quest("q_slime_threat_4", "Slime Threat: Level 4 — Total Eradication", "EXTREME SLIME EMERGENCY. The legendary hunter who slays 999 will be honored forever.", 10, "q_slime_threat_3",
+		[{"type": QuestData.ObjectiveType.KILL, "target": "Slime", "amount": 999}],
+		9000, 2700, ["Grand Healing Draught", "Grand Mana Draught"], true)
+
 
 func _add_quest(id: String, qname: String, desc: String, req_level: int, prereq: String,
-		objectives: Array, exp: int, coins: int, items: Array) -> void:
+		objectives: Array, exp: int, coins: int, items: Array, npc_only: bool = false) -> void:
 	var quest := QuestData.new()
 	quest.quest_id = id
 	quest.quest_name = qname
@@ -129,6 +171,7 @@ func _add_quest(id: String, qname: String, desc: String, req_level: int, prereq:
 	quest.reward_coins = coins
 	for item_name in items:
 		quest.reward_items.append(item_name)
+	quest.npc_only = npc_only
 	_quests[id] = quest
 
 
@@ -897,6 +940,7 @@ func _serialize_quest(q: QuestData, progress: Dictionary) -> Dictionary:
 		"reward_coins": q.reward_coins,
 		"reward_items": q.reward_items.duplicate(),
 		"objectives": objectives,
+		"npc_only": q.npc_only,
 	}
 	if not progress.is_empty():
 		# Convert int keys → string keys for RPC serialization

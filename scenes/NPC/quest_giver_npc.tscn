@@ -71,8 +71,8 @@ corner_radius_bottom_left = 6
 
 [node name="QuestGiverNPC" type="Node2D" node_paths=PackedStringArray("clickable_overlay", "prompt_label", "dialog_window")]
 script = ExtResource("1_npc")
-npc_name = "Village Elder"
-offered_quest_ids = PackedStringArray("q_level_up", "q_boar_patrol", "q_collector", "q_growing_power")
+npc_name = "Quest-Giver"
+offered_quest_ids = PackedStringArray()
 clickable_overlay = NodePath("ClickableOverlay")
 prompt_label = NodePath("Label")
 dialog_window = NodePath("CanvasLayer/Dialog")

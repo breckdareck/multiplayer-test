@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://dk63ctw7epbmm"]
+[gd_scene load_steps=14 format=3 uid="uid://dk63ctw7epbmm"]
 
 [ext_resource type="StyleBox" uid="uid://dm8jxifs8rqrm" path="res://assets/UI/Themes/PanelStyleboxTheme.tres" id="1_qmw2t"]
 [ext_resource type="Script" uid="uid://ycltftf5rwxt" path="res://scripts/UI/shop_window.gd" id="2_shop"]
@@ -7,9 +7,9 @@
 [ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="7_5kvlq"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_header"]
-bg_color = Color(0.06, 0.06, 0.08, 1)
-border_width_bottom = 1
-border_color = Color(0.3, 0.3, 0.35, 1)
+bg_color = Color(0.07, 0.07, 0.09, 1)
+border_width_bottom = 2
+border_color = Color(0.55, 0.45, 0.2, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 
@@ -20,30 +20,63 @@ content_margin_right = 8.0
 content_margin_bottom = 8.0
 bg_color = Color(0.06, 0.06, 0.08, 1)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_section"]
-content_margin_left = 5.0
-content_margin_top = 5.0
-content_margin_right = 5.0
-content_margin_bottom = 5.0
-bg_color = Color(0.08, 0.08, 0.1, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.25, 0.25, 0.3, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_footer"]
 content_margin_left = 12.0
 content_margin_top = 8.0
 content_margin_right = 12.0
 content_margin_bottom = 8.0
+bg_color = Color(0.07, 0.07, 0.09, 1)
+border_width_top = 2
+border_color = Color(0.55, 0.45, 0.2, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_close_hover"]
+bg_color = Color(0.5, 0.15, 0.15, 0.55)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tab_panel"]
+content_margin_left = 4.0
+content_margin_top = 6.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.09, 0.09, 0.12, 1)
+border_width_left = 1
+border_width_top = 0
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3, 0.28, 0.22, 1)
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tabbar_bg"]
 bg_color = Color(0.06, 0.06, 0.08, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tab_unselected"]
+content_margin_left = 12.0
+content_margin_top = 4.0
+content_margin_right = 12.0
+content_margin_bottom = 4.0
+bg_color = Color(0.1, 0.1, 0.12, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tab_selected"]
+content_margin_left = 12.0
+content_margin_top = 4.0
+content_margin_right = 12.0
+content_margin_bottom = 4.0
+bg_color = Color(0.18, 0.15, 0.09, 1)
+border_width_left = 1
 border_width_top = 1
-border_color = Color(0.3, 0.3, 0.35, 1)
+border_width_right = 1
+border_color = Color(0.55, 0.45, 0.2, 0.9)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+expand_margin_top = 2.0
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_fcv6u"]
 atlas = ExtResource("6_wr21r")
@@ -72,9 +105,13 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(0.905882, 0.890196, 0.34902, 1)
+theme_override_colors/font_color = Color(1, 0.85, 0.35, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.65)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_constants/shadow_outline_size = 1
 theme_override_fonts/font = ExtResource("7_5kvlq")
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 17
 text = "MERCHANT SHOP"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -84,15 +121,17 @@ layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -40.0
-offset_top = 5.0
-offset_right = -5.0
-offset_bottom = 40.0
+offset_left = -38.0
+offset_top = 7.0
+offset_right = -8.0
+offset_bottom = 37.0
 grow_horizontal = 0
 focus_mode = 0
 theme_override_colors/font_color = Color(0.9, 0.9, 0.95, 1)
-theme_override_colors/font_hover_color = Color(1, 0.4, 0.4, 1)
+theme_override_colors/font_hover_color = Color(1, 0.95, 0.95, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.7, 0.7, 1)
 theme_override_font_sizes/font_size = 20
+theme_override_styles/hover = SubResource("StyleBoxFlat_close_hover")
 text = "×"
 flat = true
 
@@ -118,85 +157,214 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 15
 
-[node name="SellPanel" type="Panel" parent="ContentPanel/HBoxContainer"]
+[node name="SellSection" type="VBoxContainer" parent="ContentPanel/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_section")
+theme_override_constants/separation = 4
 
-[node name="SellLabel" type="Label" parent="ContentPanel/HBoxContainer/SellPanel"]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_bottom = 35.0
-grow_horizontal = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+[node name="SellHeader" type="Label" parent="ContentPanel/HBoxContainer/SellSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.65, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.6)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
 theme_override_fonts/font = ExtResource("7_5kvlq")
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 12
 text = "YOUR ITEMS"
 horizontal_alignment = 1
-vertical_alignment = 1
 
-[node name="Divider1" type="ColorRect" parent="ContentPanel/HBoxContainer/SellPanel"]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_top = 35.0
-offset_bottom = 37.0
-grow_horizontal = 2
-color = Color(0.3, 0.3, 0.35, 1)
+[node name="SellTabs" type="TabContainer" parent="ContentPanel/HBoxContainer/SellSection"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_unselected_color = Color(0.7, 0.7, 0.75, 1)
+theme_override_colors/font_selected_color = Color(1, 0.9, 0.65, 1)
+theme_override_colors/font_hovered_color = Color(1, 0.95, 0.85, 1)
+theme_override_fonts/font = ExtResource("7_5kvlq")
+theme_override_font_sizes/font_size = 11
+theme_override_styles/panel = SubResource("StyleBoxFlat_tab_panel")
+theme_override_styles/tabbar_background = SubResource("StyleBoxFlat_tabbar_bg")
+theme_override_styles/tab_unselected = SubResource("StyleBoxFlat_tab_unselected")
+theme_override_styles/tab_hovered = SubResource("StyleBoxFlat_tab_unselected")
+theme_override_styles/tab_selected = SubResource("StyleBoxFlat_tab_selected")
+current_tab = 0
+clip_tabs = false
+tab_focus_mode = 0
 
-[node name="SellScroll" type="ScrollContainer" parent="ContentPanel/HBoxContainer/SellPanel"]
+[node name="EQUIP" type="Control" parent="ContentPanel/HBoxContainer/SellSection/SellTabs"]
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="ContentPanel/HBoxContainer/SellSection/SellTabs/EQUIP"]
 layout_mode = 1
-anchors_preset = -1
-anchor_top = 0.08
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 theme = ExtResource("4_5kvlq")
 horizontal_scroll_mode = 0
 
-[node name="SellList" type="VBoxContainer" parent="ContentPanel/HBoxContainer/SellPanel/SellScroll"]
+[node name="SellListEquip" type="VBoxContainer" parent="ContentPanel/HBoxContainer/SellSection/SellTabs/EQUIP/ScrollContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 3
 
-[node name="BuyPanel" type="Panel" parent="ContentPanel/HBoxContainer"]
+[node name="USE" type="Control" parent="ContentPanel/HBoxContainer/SellSection/SellTabs"]
+visible = false
 layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_section")
 
-[node name="BuyLabel" type="Label" parent="ContentPanel/HBoxContainer/BuyPanel"]
+[node name="ScrollContainer" type="ScrollContainer" parent="ContentPanel/HBoxContainer/SellSection/SellTabs/USE"]
 layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_bottom = 35.0
-grow_horizontal = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_fonts/font = ExtResource("7_5kvlq")
-theme_override_font_sizes/font_size = 13
-text = "MERCHANT'S STOCK"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Divider2" type="ColorRect" parent="ContentPanel/HBoxContainer/BuyPanel"]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_top = 35.0
-offset_bottom = 37.0
-grow_horizontal = 2
-color = Color(0.3, 0.3, 0.35, 1)
-
-[node name="BuyScroll" type="ScrollContainer" parent="ContentPanel/HBoxContainer/BuyPanel"]
-layout_mode = 1
-anchors_preset = -1
-anchor_top = 0.08
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 theme = ExtResource("4_5kvlq")
 horizontal_scroll_mode = 0
 
-[node name="BuyList" type="VBoxContainer" parent="ContentPanel/HBoxContainer/BuyPanel/BuyScroll"]
+[node name="SellListUse" type="VBoxContainer" parent="ContentPanel/HBoxContainer/SellSection/SellTabs/USE/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 3
+
+[node name="ETC" type="Control" parent="ContentPanel/HBoxContainer/SellSection/SellTabs"]
+visible = false
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="ContentPanel/HBoxContainer/SellSection/SellTabs/ETC"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("4_5kvlq")
+horizontal_scroll_mode = 0
+
+[node name="SellListEtc" type="VBoxContainer" parent="ContentPanel/HBoxContainer/SellSection/SellTabs/ETC/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 3
+
+[node name="BuySection" type="VBoxContainer" parent="ContentPanel/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="BuyHeader" type="Label" parent="ContentPanel/HBoxContainer/BuySection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.65, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.6)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_fonts/font = ExtResource("7_5kvlq")
+theme_override_font_sizes/font_size = 12
+text = "MERCHANT'S STOCK"
+horizontal_alignment = 1
+
+[node name="BuyTabs" type="TabContainer" parent="ContentPanel/HBoxContainer/BuySection"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_unselected_color = Color(0.7, 0.7, 0.75, 1)
+theme_override_colors/font_selected_color = Color(1, 0.9, 0.65, 1)
+theme_override_colors/font_hovered_color = Color(1, 0.95, 0.85, 1)
+theme_override_fonts/font = ExtResource("7_5kvlq")
+theme_override_font_sizes/font_size = 11
+theme_override_styles/panel = SubResource("StyleBoxFlat_tab_panel")
+theme_override_styles/tabbar_background = SubResource("StyleBoxFlat_tabbar_bg")
+theme_override_styles/tab_unselected = SubResource("StyleBoxFlat_tab_unselected")
+theme_override_styles/tab_hovered = SubResource("StyleBoxFlat_tab_unselected")
+theme_override_styles/tab_selected = SubResource("StyleBoxFlat_tab_selected")
+current_tab = 0
+clip_tabs = false
+tab_focus_mode = 0
+
+[node name="EQUIP" type="Control" parent="ContentPanel/HBoxContainer/BuySection/BuyTabs"]
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="ContentPanel/HBoxContainer/BuySection/BuyTabs/EQUIP"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("4_5kvlq")
+horizontal_scroll_mode = 0
+
+[node name="BuyListEquip" type="VBoxContainer" parent="ContentPanel/HBoxContainer/BuySection/BuyTabs/EQUIP/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 3
+
+[node name="USE" type="Control" parent="ContentPanel/HBoxContainer/BuySection/BuyTabs"]
+visible = false
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="ContentPanel/HBoxContainer/BuySection/BuyTabs/USE"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("4_5kvlq")
+horizontal_scroll_mode = 0
+
+[node name="BuyListUse" type="VBoxContainer" parent="ContentPanel/HBoxContainer/BuySection/BuyTabs/USE/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 3
+
+[node name="ETC" type="Control" parent="ContentPanel/HBoxContainer/BuySection/BuyTabs"]
+visible = false
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="ContentPanel/HBoxContainer/BuySection/BuyTabs/ETC"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("4_5kvlq")
+horizontal_scroll_mode = 0
+
+[node name="BuyListEtc" type="VBoxContainer" parent="ContentPanel/HBoxContainer/BuySection/BuyTabs/ETC/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 3
+
+[node name="BUYBACK" type="Control" parent="ContentPanel/HBoxContainer/BuySection/BuyTabs"]
+visible = false
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="ContentPanel/HBoxContainer/BuySection/BuyTabs/BUYBACK"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("4_5kvlq")
+horizontal_scroll_mode = 0
+
+[node name="BuyListBuyback" type="VBoxContainer" parent="ContentPanel/HBoxContainer/BuySection/BuyTabs/BUYBACK/ScrollContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -226,6 +394,14 @@ grow_vertical = 2
 theme_override_constants/separation = 8
 alignment = 2
 
+[node name="CoinIcon" type="TextureRect" parent="FooterPanel/MoneyContainer"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+size_flags_vertical = 4
+texture = SubResource("AtlasTexture_fcv6u")
+expand_mode = 1
+stretch_mode = 5
+
 [node name="MoneyLabel" type="Label" parent="FooterPanel/MoneyContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.9, 0.5, 1)
@@ -236,11 +412,5 @@ theme_override_fonts/font = ExtResource("7_5kvlq")
 theme_override_font_sizes/font_size = 14
 text = "0 Monies"
 vertical_alignment = 1
-
-[node name="CoinIcon" type="TextureRect" parent="FooterPanel/MoneyContainer"]
-layout_mode = 2
-texture = SubResource("AtlasTexture_fcv6u")
-expand_mode = 2
-stretch_mode = 4
 
 [connection signal="pressed" from="HeaderPanel/CloseButton" to="." method="hide"]

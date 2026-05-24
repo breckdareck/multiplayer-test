@@ -26,8 +26,10 @@ const DIM_GRAY: Color = Color(0.55, 0.55, 0.55)
 
 var npc_name: String = "Quest-Giver"
 var offered_quest_ids: PackedStringArray = PackedStringArray()
+var npc_greeting: String = ""
 
 var _title_label: Label
+var _greeting_label: Label
 var _list_container: VBoxContainer
 var _signal_connected: bool = false
 
@@ -84,6 +86,16 @@ func _build_ui() -> void:
 	_title_label.add_theme_font_size_override("font_size", 18)
 	vbox.add_child(_title_label)
 
+	# NPC greeting / posted-notice flavor. Hidden when the NPC doesn't set one.
+	_greeting_label = Label.new()
+	_greeting_label.text = npc_greeting
+	_greeting_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_greeting_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_greeting_label.add_theme_color_override("font_color", DESC_GRAY)
+	_greeting_label.add_theme_font_size_override("font_size", 13)
+	_greeting_label.visible = not npc_greeting.is_empty()
+	vbox.add_child(_greeting_label)
+
 	vbox.add_child(HSeparator.new())
 
 	var scroll := ScrollContainer.new()
@@ -110,11 +122,15 @@ func _build_ui() -> void:
 
 
 ## Called by QuestGiverNPC after instantiation, before the dialog is opened.
-func configure(display_name: String, quest_ids: PackedStringArray) -> void:
+func configure(display_name: String, quest_ids: PackedStringArray, greeting: String = "") -> void:
 	npc_name = display_name
 	offered_quest_ids = quest_ids.duplicate()
+	npc_greeting = greeting
 	if _title_label:
 		_title_label.text = display_name
+	if _greeting_label:
+		_greeting_label.text = greeting
+		_greeting_label.visible = not greeting.is_empty()
 
 
 ## Re-populate the list against the local player's current quest state.

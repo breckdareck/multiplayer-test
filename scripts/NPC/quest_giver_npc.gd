@@ -15,6 +15,10 @@ extends Node2D
 ## Quest IDs this NPC offers, in the order they should appear in the dialog.
 ## Must match keys registered in QuestManager._define_quests().
 @export var offered_quest_ids: PackedStringArray = PackedStringArray()
+## Flavor text shown at the top of the dialog above the quest list — the NPC's
+## greeting / monologue / posted-notice text. Leave empty for a bare quest
+## list (the greeting label hides itself).
+@export_multiline var npc_greeting: String = ""
 
 @export var clickable_overlay: TextureButton
 @export var prompt_label: Label = null
@@ -29,7 +33,7 @@ func _ready() -> void:
 		push_error("QuestGiverNPC: dialog_window missing!")
 		return
 
-	dialog_window.configure(npc_name, offered_quest_ids)
+	dialog_window.configure(npc_name, offered_quest_ids, npc_greeting)
 
 	clickable_overlay.gui_input.connect(_on_gui_input)
 	clickable_overlay.mouse_entered.connect(_on_mouse_entered)
