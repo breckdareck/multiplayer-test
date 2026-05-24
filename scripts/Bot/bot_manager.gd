@@ -198,6 +198,13 @@ func _on_bot_spawned(bot_id: int) -> void:
 	if is_instance_valid(canvas_layer) and is_instance_valid(inv) and not inv.slots_data.is_empty():
 		canvas_layer.queue_free()
 
+	# A bot has no display — free its Camera2D so it can't compete with the
+	# host's camera inside the map's shared SubViewport (the host is server+
+	# client, so bot characters spawn in the same viewport as the host's body).
+	var bot_camera := player_node.get_node_or_null("Camera2D")
+	if is_instance_valid(bot_camera):
+		bot_camera.queue_free()
+
 	# The brain is parented to BotManager — not the character node — so it
 	# survives the character being freed and recreated on every map change,
 	# keeping its travel timers, patrol progress and cooldowns intact. On a map
