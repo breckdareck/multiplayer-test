@@ -115,7 +115,18 @@ static func get_all_resource_types() -> Array[ResourceType]:
 	)
 	enemy_type.icon_name = "CharacterBody2D"
 	types.append(enemy_type)
-	
+
+	# Quest System Resources
+	var quest_type = ResourceType.new(
+		"Quests",
+		"res://scripts/Resources/QuestSystem/QuestData.gd",
+		"res://resources/Quests",
+		"Quest System",
+		true # Needs special UI (objectives editor + curated field layout)
+	)
+	quest_type.icon_name = "Script"
+	types.append(quest_type)
+
 	return types
 
 
@@ -161,5 +172,11 @@ static func create_new_resource(type: ResourceType) -> Resource:
 		resource.scaling_data.resource_local_to_scene = true
 		resource.active_behavior = load("res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd").new()
 		resource.active_behavior.resource_local_to_scene = true
+	elif type.display_name == "Quests":
+		# QuestData has sort_order default of 100 in the class, but be explicit so
+		# fresh quests get an even, slot-between-able starting position.
+		resource.sort_order = 100
+		resource.required_level = 1
+		resource.objectives = []
 
 	return resource
