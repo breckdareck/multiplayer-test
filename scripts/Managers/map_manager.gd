@@ -62,6 +62,43 @@ func _on_server_started():
 	_build_map_connections()
 
 
+# === MAP CONTAINER + SUBVIEWPORT WRAPPING ===
+# Each map lives inside its own SubViewport with a fresh World2D, so physics,
+# navigation, canvas (lights), and audio listeners are fully isolated between
+# maps. Authors keep editing map scenes at (0,0); the wrap is added at runtime.
+# Both server and client mirror the same wrapping so absolute node paths line up
+# for MultiplayerSynchronizer replication and RPC routing.
+
+func _ensure_maps_container() -> SubViewportContainer:
+	var existing := get_tree().root.get_node_or_null("Maps")
+	if existing is SubViewportContainer:
+		return existing
+	if existing != null:
+		push_warning("MapManager: /root/Maps exists but is not a SubViewportContainer; replacing.")
+		get_tree().root.remove_child(existing)
+		existing.queue_free()
+	var container := SubViewportContainer.new()
+	container.name = "Maps"
+	container.anchor_right = 1.0
+	container.anchor_bottom = 1.0
+	container.stretch = true
+	container.mouse_filter = Control.MOUSE_FILTER_PASS
+	get_tree().root.add_child(container)
+	return container
+
+
+func _wrap_in_subviewport(map_instance: Node, map_id: String) -> SubViewport:
+	var viewport := SubViewport.new()
+	viewport.name = "Map_%s_VP" % map_id
+	viewport.world_2d = World2D.new()
+	viewport.disable_3d = true
+	viewport.handle_input_locally = false
+	viewport.audio_listener_enable_2d = true
+	viewport.physics_object_picking = true
+	viewport.add_child(map_instance)
+	return viewport
+
+
 # === SERVER LOGIC ===
 
 func request_map_change(player_id: int, target_map_id: String, target_spawn_point_name: String = ""):
@@ -143,18 +180,13 @@ func _load_map_on_server(map_id: String):
 		return
 	
 	map_instance.name = "Map_" + map_id
-	
-	# Create Maps container if needed
-	var maps_container = get_tree().root.get_node_or_null("Maps")
-	if not maps_container:
-		maps_container = Node.new()
-		maps_container.name = "Maps"
-		get_tree().root.add_child(maps_container)
-		#print("MapManager: Created Maps container at /root/Maps")
-	
-	# Add to server's scene tree
-	maps_container.add_child(map_instance)
-																											
+
+	# Wrap in a SubViewport (isolated World2D) so physics/nav don't leak across
+	# maps that share the (0,0) authoring origin. See helpers above.
+	var maps_container := _ensure_maps_container()
+	var viewport := _wrap_in_subviewport(map_instance, map_id)
+	maps_container.add_child(viewport)
+
 	active_maps[map_id] = {"scene_instance": map_instance, "player_ids": []}
 	map_loaded.emit(map_id)
 	
@@ -315,12 +347,19 @@ func _remove_player_from_map(player_id: int, map_id: String):
 
 func _unload_map_on_server(map_id: String):
 	if not map_id in active_maps: return
-	
+
 	#print("MapManager: Despawning empty map '%s'" % map_id)
 	var map_instance = active_maps[map_id].scene_instance
 	if is_instance_valid(map_instance):
 		invalidate_synchronizer_cache(map_instance)
-		map_instance.queue_free()
+		# Free the SubViewport wrapper, not just the map, so the wrap doesn't
+		# leak. Falls back to freeing the map directly if a wrap is somehow
+		# missing (defensive — shouldn't happen with the current load path).
+		var viewport: Node = map_instance.get_parent()
+		if viewport is SubViewport:
+			viewport.queue_free()
+		else:
+			map_instance.queue_free()
 
 	active_maps.erase(map_id)
 	map_unloaded.emit(map_id)
@@ -474,8 +513,14 @@ func client_set_current_map(map_id: String, spawn_point_name: String = ""):
 			if is_instance_valid(my_player) and my_player.has_method("cleanup_before_removal"):
 				my_player.cleanup_before_removal()
 				#print("Client: Cleaned up own player before map transition")
-		
-		current_map_instance.queue_free()
+
+		# Free the SubViewport wrapper (created in the wrap below) so it doesn't
+		# leak. Falls back to freeing the map directly if a wrap is missing.
+		var old_viewport: Node = current_map_instance.get_parent()
+		if old_viewport is SubViewport:
+			old_viewport.queue_free()
+		else:
+			current_map_instance.queue_free()
 		current_map_instance = null
 	
 	# Load and instantiate new map
@@ -495,17 +540,13 @@ func client_set_current_map(map_id: String, spawn_point_name: String = ""):
 		return
 		
 	map_instance.name = "Map_" + map_id
-	
-	# Create Maps container if needed (same structure as server)
-	var maps_container = get_tree().root.get_node_or_null("Maps")
-	if not maps_container:
-		maps_container = Node.new()
-		maps_container.name = "Maps"
-		get_tree().root.add_child(maps_container)
-		#print("Client: Created Maps container at /root/Maps")
-	
-	# Add to client's scene tree under Maps (matching server structure)
-	maps_container.add_child(map_instance)
+
+	# Mirror the server's wrap so the absolute node path of every map-child
+	# (Players/<id>, Enemies, spawners, ...) matches between server and client.
+	# Synchronizer replication and RPC routing rely on this parity.
+	var maps_container := _ensure_maps_container()
+	var viewport := _wrap_in_subviewport(map_instance, map_id)
+	maps_container.add_child(viewport)
 	
 	# On client, map synchronizers should start hidden and rely on server visibility updates
 	# if not multiplayer.is_server():
