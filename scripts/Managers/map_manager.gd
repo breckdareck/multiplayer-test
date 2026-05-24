@@ -102,8 +102,24 @@ func _wrap_in_subviewport(map_instance: Node, map_id: String) -> SubViewport:
 	# default_texture_filter setting — it defaults to LINEAR. Force nearest so the
 	# pixel-art textures rendered inside the viewport stay crisp.
 	viewport.canvas_item_default_texture_filter = Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_NEAREST
+	# Render transparent when the map's content is hidden (visible=false on the
+	# map root) so SubViewportContainer doesn't stack one map's render on top of
+	# another on the host's screen. See _set_local_map_visible.
+	viewport.transparent_bg = true
 	viewport.add_child(map_instance)
 	return viewport
+
+
+## Show/hide a map LOCALLY on this peer. Bot/non-local maps stay loaded for
+## physics, but their SubViewport content is hidden so the SubViewportContainer
+## renders only the local peer's current map. Affects only the local peer's
+## tree — remote clients have their own map instances and are unaffected.
+func _set_local_map_visible(map_id: String, vis: bool) -> void:
+	if not active_maps.has(map_id):
+		return
+	var map_instance = active_maps[map_id].scene_instance
+	if is_instance_valid(map_instance):
+		map_instance.visible = vis
 
 
 # === SERVER LOGIC ===
@@ -142,6 +158,12 @@ func request_map_change(player_id: int, target_map_id: String, target_spawn_poin
 		return
 
 	if player_id == 1:
+		# Hide the previously-active map locally so its SubViewport stops
+		# compositing on top of the host's view; show the new one.
+		if not current_map_id.is_empty() and current_map_id != target_map_id:
+			_set_local_map_visible(current_map_id, false)
+		_set_local_map_visible(target_map_id, true)
+
 		current_map_instance = map_instance
 		current_map_id = target_map_id
 		# Play per-map BGM for the host player
@@ -193,6 +215,10 @@ func _load_map_on_server(map_id: String):
 	var maps_container := _ensure_maps_container()
 	var viewport := _wrap_in_subviewport(map_instance, map_id)
 	maps_container.add_child(viewport)
+	# Default to hidden locally — the host toggles it visible only when they
+	# travel to this map. Bots/other peers keep simulating regardless; this
+	# only suppresses local rendering on the host's screen.
+	map_instance.visible = false
 
 	active_maps[map_id] = {"scene_instance": map_instance, "player_ids": []}
 	map_loaded.emit(map_id)
@@ -554,6 +580,9 @@ func client_set_current_map(map_id: String, spawn_point_name: String = ""):
 	var maps_container := _ensure_maps_container()
 	var viewport := _wrap_in_subviewport(map_instance, map_id)
 	maps_container.add_child(viewport)
+	# Remote clients only ever have one map loaded; it's always the local
+	# peer's current map, so render it.
+	map_instance.visible = true
 	
 	# On client, map synchronizers should start hidden and rely on server visibility updates
 	# if not multiplayer.is_server():
