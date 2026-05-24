@@ -552,7 +552,7 @@ target_map_id = "game4"
 target_spawn_point_name = "Game4_Town_Portal_Spawn"
 
 [node name="TownSecret_Game4Secret_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(-53, -606)
+position = Vector2(135, -606)
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(0, -608)
