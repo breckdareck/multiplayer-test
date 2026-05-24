@@ -30,3 +30,11 @@ enum ObjectiveType {
 ## an NPC. Once accepted, the quest behaves normally — it shows up in the
 ## Active tab, persists, and grants rewards the same way.
 @export var npc_only: bool = false
+
+## Display order in the Q-window's Available tab and the QuestGiverDialog row
+## list. Lower values appear first. The QuestManager auto-loader sorts loaded
+## quests by this field before inserting into the registry, so curated
+## narrative order survives the move from `_define_quests()` to scanning
+## files alphabetically off disk. Use ~10-unit spacing (10, 20, 30, ...) so
+## new quests can slot in between existing ones without renumbering the rest.
+@export var sort_order: int = 100

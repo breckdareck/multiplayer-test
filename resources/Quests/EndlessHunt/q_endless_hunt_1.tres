@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
+
+[resource]
+script = ExtResource("1_quest_data")
+quest_id = "q_endless_hunt_1"
+quest_name = "Endless Hunt I"
+description = "The boars keep coming back to trample the crops. Cull 15 of them — that should give us some peace."
+required_level = 3
+objectives = Array[Dictionary]([{
+"type": 0,
+"target": "Boar",
+"amount": 15
+}])
+reward_exp = 250
+reward_coins = 60
+npc_only = true
+sort_order = 200

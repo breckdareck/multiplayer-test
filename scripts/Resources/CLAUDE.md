@@ -28,24 +28,52 @@ here; the **data instances** (`.tres` files) live under `resources/`.
 Look content up with `ResourceManager.get_ability_data(id_or_name)`,
 `get_item_by_name(name)`, etc. — never `load()` content `.tres` at runtime.
 
+**`QuestData` follows the same pattern, but owned by `QuestManager`** —
+`QuestManager._load_quests_from_resources()` recursively scans
+`resources/Quests/` on `_ready()` and keys each loaded `QuestData` by its
+`quest_id` string. Look quests up with `QuestManager.get_quest_data(id)`.
+Quests live in chain-themed subfolders (`Beginner/`, `Early/`, `Mid/`,
+`Advancement/`, `EndlessHunt/`, `SlimeThreat/`) so they're discoverable by
+narrative role rather than alphabetic dump. To add a quest, drop a new
+`.tres` under the right subfolder — no code change required.
+
 **Exception — enemies are NOT auto-loaded.** `EnemyData` (`resources/Enemies/`) is
 referenced directly by an exported `enemy_data` on each enemy scene, not via
 `ResourceManager`.
 
-**Exception — quests are NOT data-driven.** `QuestData` carries `@export` fields
-for future `.tres` authoring, but the live quest list is registered in code by
-`_define_quests()` on `QuestManager`. There is no `resources/Quests/` folder.
-`KILL` objectives match exactly on `EnemyData.monster_name`, so the target
-string must be the same one set on the enemy `.tres` — past bugs shipped
-quests targeting non-existent enemy names that silently never completed.
+### QuestData author notes
 
-`QuestData.npc_only` (bool, default false): set true to hide a quest from the
-Q-window's Available tab so it can ONLY be obtained through a `QuestGiverNPC`
-whose `offered_quest_ids` includes it. Use for NPC-locked chains (e.g. the
-Village Elder's Endless Hunt 15/50/99/999) where the journal shouldn't
-spoil quests that are meant to be discovered through dialogue. After accept,
-the quest behaves normally — it appears in the Active / Completed tabs and
-in the Quest Tracker HUD like any other.
+- **`quest_id` is a hand-authored stable string, not a UUID.** Player save data
+  persists references to it (`_active_quests`, `_completed_quests`,
+  `_tracked_quests`) and scene files bake it into NPC `offered_quest_ids` arrays
+  in `town.tscn` / `game.tscn`. Renaming a `quest_id` is a breaking change —
+  existing characters lose progress on the renamed quest.
+- **`KILL` objective `target` strings match exactly on `EnemyData.monster_name`** —
+  past bugs shipped quests targeting non-existent enemy names that silently
+  never completed.
+- **`reward_items` are item NAMES** (e.g. `"Health Potion"`), resolved by
+  `ResourceManager.get_item_by_name` at completion time. Mismatches `push_warning`
+  but silently skip the reward.
+- **`sort_order: int`** controls display order in the Q-window's Available tab
+  and `QuestGiverDialog` rows. Lower values appear first; use ~10-unit spacing
+  (10, 20, 30, ...) so new quests can slot in between existing ones without
+  renumbering. Without it, `ResourceLoader.list_directory` returns filesystem
+  (alphabetical) order, which scrambles narrative flow.
+- **`npc_only: bool`** (default false): hide a quest from the Q-window's
+  Available tab so it can ONLY be obtained through a `QuestGiverNPC` whose
+  `offered_quest_ids` includes it. Use for NPC-locked chains (e.g. the
+  Village Elder's Endless Hunt 15/50/99/999) where the journal shouldn't
+  spoil quests meant to be discovered through dialogue. Once accepted the
+  quest behaves normally — it appears in the Active / Completed tabs and in
+  the Quest Tracker HUD like any other.
+- **`objectives: Array[Dictionary]`** is the per-objective list. Each dict is
+  `{"type": int, "target": String, "amount": int}` where `type` is the int
+  value of `QuestData.ObjectiveType` (`KILL = 0`, `COLLECT = 1`,
+  `REACH_LEVEL = 2`). The generic inspector renders this as expandable
+  dictionaries — workable but clunky; you author the keys by hand. A future
+  improvement is wrapping each objective in a typed `QuestObjective` Resource
+  subclass for dropdowns/validation, but it would require updating every
+  `obj.get("type", ...)` read site in `quest_manager.gd`.
 
 ## Conventions
 

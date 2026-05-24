@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
+
+[resource]
+script = ExtResource("1_quest_data")
+quest_id = "q_growing_power"
+quest_name = "Growing Power"
+description = "Continue your training and reach level 10."
+required_level = 5
+prerequisite_quest_id = "q_level_up"
+objectives = Array[Dictionary]([{
+"type": 2,
+"target": "",
+"amount": 10
+}])
+reward_coins = 150
+reward_items = Array[String](["Health Potion", "Mana Potion"])
+sort_order = 60

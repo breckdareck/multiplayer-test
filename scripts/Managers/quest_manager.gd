@@ -42,137 +42,67 @@ var _tracked_quests: Dictionary = {}
 var _onboarded: Dictionary = {}
 
 
+## Folder that the auto-loader recursively scans for QuestData .tres files at
+## QuestManager._ready(). Mirrors the ResourceManager pattern for abilities,
+## items, buffs, and classes. Subfolders are allowed (and used — see
+## resources/Quests/Beginner/, /Early/, /Mid/, /Advancement/, /EndlessHunt/,
+## /SlimeThreat/) — the scanner descends into them.
+const QUESTS_DIR: String = "res://resources/Quests/"
+
+
 func _ready() -> void:
-	_define_quests()
+	_load_quests_from_resources()
 	#print("QuestManager: Loaded %d quest definitions." % _quests.size())
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# QUEST DEFINITIONS
+# QUEST DEFINITIONS — loaded from .tres files in res://resources/Quests/
 # ═══════════════════════════════════════════════════════════════════════════
+#
+# Each quest lives in its own .tres file. Quest IDs are stable strings (not
+# auto-generated UUIDs) because player save data persists references to them
+# in `_active_quests`, `_completed_quests`, and `_tracked_quests`, and scene
+# files (town.tscn, game.tscn) bake quest IDs into NPC `offered_quest_ids`.
+# Renaming a quest_id is a breaking change.
+#
+# To add a quest: drop a new .tres under res://resources/Quests/<chain>/,
+# fill in the QuestData fields (use a unique quest_id, set sort_order to
+# control its position in the Q-window's Available tab), and reload the
+# editor. No code change required.
 
-func _define_quests() -> void:
-	# --- Beginner quests (level 1-5) ---
-	_add_quest("q_first_blood", "First Blood", "Defeat your first Slime to prove your mettle.", 1, "",
-		[{"type": QuestData.ObjectiveType.KILL, "target": "Slime", "amount": 3}],
-		50, 10, [])
-
-	_add_quest("q_slime_slayer", "Slime Slayer", "The slimes are multiplying! Thin the herd.", 2, "q_first_blood",
-		[{"type": QuestData.ObjectiveType.KILL, "target": "Slime", "amount": 10}],
-		150, 30, [])
-
-	_add_quest("q_boar_patrol", "Boar Patrol", "The boars near the village have grown bold and trample the crops. Cull a few of them.", 3, "",
-		[{"type": QuestData.ObjectiveType.KILL, "target": "Boar", "amount": 5}],
-		100, 20, [])
-
-	# --- Early quests (level 5-10) ---
-	_add_quest("q_pest_control", "Pest Control", "Multiple monster species threaten the village. Eliminate them.", 5, "q_slime_slayer",
-		[
-			{"type": QuestData.ObjectiveType.KILL, "target": "Slime", "amount": 15},
-			{"type": QuestData.ObjectiveType.KILL, "target": "Boar", "amount": 10},
-		],
-		300, 50, [])
-
-	# REACH_LEVEL quests grant no EXP — the level itself was already earned by
-	# grinding EXP, so rewarding EXP for it creates a self-feeding loop. Pay out
-	# in coins and consumables instead.
-	_add_quest("q_level_up", "Getting Stronger", "Reach level 5 to unlock new abilities.", 1, "",
-		[{"type": QuestData.ObjectiveType.REACH_LEVEL, "target": "", "amount": 5}],
-		0, 50, ["Health Potion"])
-
-	_add_quest("q_growing_power", "Growing Power", "Continue your training and reach level 10.", 5, "q_level_up",
-		[{"type": QuestData.ObjectiveType.REACH_LEVEL, "target": "", "amount": 10}],
-		0, 150, ["Health Potion", "Mana Potion"])
-
-	# --- Mid-level quests (level 10-20) ---
-	_add_quest("q_deep_woods", "Into the Deep Woods", "Venture past the meadow into goblin territory and prove you can handle the deep woods.", 10, "q_pest_control",
-		[{"type": QuestData.ObjectiveType.KILL, "target": "Goblin", "amount": 25}],
-		600, 100, [])
-
-	_add_quest("q_slime_exterminator", "Slime Exterminator", "The slime population is out of control. A massive cull is needed.", 8, "q_slime_slayer",
-		[{"type": QuestData.ObjectiveType.KILL, "target": "Slime", "amount": 50}],
-		800, 120, [])
-
-	_add_quest("q_seasoned_warrior", "Seasoned Warrior", "Prove your dedication by reaching level 20.", 10, "q_growing_power",
-		[{"type": QuestData.ObjectiveType.REACH_LEVEL, "target": "", "amount": 20}],
-		0, 400, ["Healing Draught"])
-
-	_add_quest("q_collector", "The Collector", "Gather coins from fallen monsters to fund the village defense.", 5, "",
-		[{"type": QuestData.ObjectiveType.COLLECT, "target": "Coin", "amount": 100}],
-		250, 0, [])
-
-	# --- Advancement track (level 13-30) ---
-	_add_quest("q_goblin_trouble", "Goblin Trouble", "The goblin warbands are growing. Break their numbers before they march on the village.", 13, "q_deep_woods",
-		[{"type": QuestData.ObjectiveType.KILL, "target": "Goblin", "amount": 40}],
-		1400, 180, [])
-
-	_add_quest("q_veterans_path", "A Veteran's Path", "Only seasoned fighters can hope to specialize. Reach level 25 to walk the veteran's path.", 20, "q_seasoned_warrior",
-		[{"type": QuestData.ObjectiveType.REACH_LEVEL, "target": "", "amount": 25}],
-		0, 600, ["Greater Healing Draught"])
-
-	_add_quest("q_call_to_advance", "Answer the Call", "You have mastered the fundamentals. At level 30 a warrior may choose a specialized path. Reach level 30, return to town, and type /advance to claim your advanced class.", 25, "q_veterans_path",
-		[{"type": QuestData.ObjectiveType.REACH_LEVEL, "target": "", "amount": 30}],
-		0, 1000, ["Grand Healing Draught", "Grand Mana Draught"])
-
-	# --- Endless Hunt: Village Elder's signature NPC-only chain ---
-	# Hidden from the Quest Log's Available tab; the player can only get the
-	# next link by talking to the Village Elder in Maple Town. Escalates
-	# 15 -> 50 -> 99 -> 999 in the MapleStory tradition of long-tail grind
-	# chains. The 999 tier is prestige content, gated to level 12+ so it
-	# doesn't masquerade as normal progression.
-	_add_quest("q_endless_hunt_1", "Endless Hunt I", "The boars keep coming back to trample the crops. Cull 15 of them — that should give us some peace.", 3, "",
-		[{"type": QuestData.ObjectiveType.KILL, "target": "Boar", "amount": 15}],
-		250, 60, [], true)
-
-	_add_quest("q_endless_hunt_2", "Endless Hunt II", "Still more boars. The herd needs serious thinning. Bring down 50 this time.", 5, "q_endless_hunt_1",
-		[{"type": QuestData.ObjectiveType.KILL, "target": "Boar", "amount": 50}],
-		700, 200, [], true)
-
-	_add_quest("q_endless_hunt_3", "Endless Hunt III", "Truly endless. The boars seem infinite. Slay 99 more to prove your dedication.", 8, "q_endless_hunt_2",
-		[{"type": QuestData.ObjectiveType.KILL, "target": "Boar", "amount": 99}],
-		1800, 500, [], true)
-
-	_add_quest("q_endless_hunt_4", "Endless Hunt IV: The Final Tide", "Legend speaks of a warrior who would cull 999. The village will sing of the boar-slayer for generations. Are you that warrior?", 12, "q_endless_hunt_3",
-		[{"type": QuestData.ObjectiveType.KILL, "target": "Boar", "amount": 999}],
-		10000, 3000, ["Grand Healing Draught", "Grand Mana Draught"], true)
-
-	# --- Slime Threat: Slime Meadow's NPC-only chain ---
-	# Posted on a sign in the Slime Meadow itself; same 15/50/99/999 cadence
-	# as the Village Elder's Endless Hunt, but targets slimes and starts at
-	# level 1 because slimes are the lowest-level mob in the zone.
-	_add_quest("q_slime_threat_1", "Slime Threat: Level 1", "Slimes have been spotted in this area. The local authority asks that travelers cull 15 of them.", 1, "",
-		[{"type": QuestData.ObjectiveType.KILL, "target": "Slime", "amount": 15}],
-		200, 40, [], true)
-
-	_add_quest("q_slime_threat_2", "Slime Threat: Level 2", "The slime population is growing. Take down 50 more to contain the threat.", 3, "q_slime_threat_1",
-		[{"type": QuestData.ObjectiveType.KILL, "target": "Slime", "amount": 50}],
-		600, 150, [], true)
-
-	_add_quest("q_slime_threat_3", "Slime Threat: Level 3", "Slime infestation level rising. Eliminate 99 more — your reward will be substantial.", 6, "q_slime_threat_2",
-		[{"type": QuestData.ObjectiveType.KILL, "target": "Slime", "amount": 99}],
-		1600, 450, [], true)
-
-	_add_quest("q_slime_threat_4", "Slime Threat: Level 4 — Total Eradication", "EXTREME SLIME EMERGENCY. The legendary hunter who slays 999 will be honored forever.", 10, "q_slime_threat_3",
-		[{"type": QuestData.ObjectiveType.KILL, "target": "Slime", "amount": 999}],
-		9000, 2700, ["Grand Healing Draught", "Grand Mana Draught"], true)
+func _load_quests_from_resources() -> void:
+	var loaded: Array[QuestData] = []
+	_scan_quests_recursive(QUESTS_DIR, loaded)
+	# Sort by `sort_order` so curated narrative order survives the move from
+	# `_define_quests()` (insertion order) to scanning files off disk
+	# (filesystem/alphabetical order). Dictionary preserves insertion order
+	# in GDScript, so inserting in sorted order is sufficient.
+	loaded.sort_custom(func(a: QuestData, b: QuestData) -> bool:
+		return a.sort_order < b.sort_order)
+	for q in loaded:
+		if q.quest_id.is_empty():
+			push_warning("QuestManager: skipping quest with empty quest_id (file: %s)" % q.resource_path)
+			continue
+		if _quests.has(q.quest_id):
+			push_warning("QuestManager: duplicate quest_id '%s' — '%s' overwrites '%s'" % [
+				q.quest_id, q.resource_path, _quests[q.quest_id].resource_path
+			])
+		_quests[q.quest_id] = q
 
 
-func _add_quest(id: String, qname: String, desc: String, req_level: int, prereq: String,
-		objectives: Array, exp: int, coins: int, items: Array, npc_only: bool = false) -> void:
-	var quest := QuestData.new()
-	quest.quest_id = id
-	quest.quest_name = qname
-	quest.description = desc
-	quest.required_level = req_level
-	quest.prerequisite_quest_id = prereq
-	for obj in objectives:
-		quest.objectives.append(obj)
-	quest.reward_exp = exp
-	quest.reward_coins = coins
+## Walk QUESTS_DIR (and any subfolders) for QuestData .tres files. Mirrors
+## ResourceManager._load_resources_recursively but specialized to QuestData
+## so we get the type guard for free.
+func _scan_quests_recursive(path: String, into: Array[QuestData]) -> void:
+	var items: PackedStringArray = ResourceLoader.list_directory(path)
 	for item_name in items:
-		quest.reward_items.append(item_name)
-	quest.npc_only = npc_only
-	_quests[id] = quest
+		var full_path: String = path + item_name
+		if item_name.ends_with("/"):
+			_scan_quests_recursive(full_path, into)
+		elif full_path.ends_with(".tres") or full_path.ends_with(".res"):
+			var resource: Resource = ResourceLoader.load(full_path)
+			if resource is QuestData:
+				into.append(resource)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
