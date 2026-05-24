@@ -20,6 +20,7 @@ const CATEGORY_COLORS: Dictionary = {
 	"Buff System":    Color(0.42, 0.85, 0.52),   # green
 	"Class System":   Color(0.30, 0.85, 0.78),   # teal
 	"Enemy System":   Color(0.90, 0.35, 0.35),   # red
+	"Quest System":   Color(1.00, 0.60, 0.20),   # orange
 }
 
 # Per-type icons shown in the browser tree
@@ -32,6 +33,7 @@ const TYPE_ICONS: Dictionary = {
 	"Buffs":       "✦",
 	"Classes":     "★",
 	"Enemies":     "☠",
+	"Quests":      "📜",
 }
 
 # ── @onready refs (paths must match ResourceEditorGUI.tscn exactly) ────────────
@@ -60,6 +62,21 @@ const TYPE_ICONS: Dictionary = {
 @onready var add_formula_button    = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/FormulaEditor/HeaderButtons/AddFormulaButton
 @onready var formula_help_button   = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/FormulaEditor/HeaderButtons/HelpButton
 @onready var formula_preset_option = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/FormulaEditor/HeaderButtons/PresetOption
+
+# Quest editor refs
+@onready var quest_editor_panel        = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/QuestEditor
+@onready var quest_id_edit             = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/QuestEditor/MarginContainer/Form/HBox_QuestID/QuestIDEdit
+@onready var quest_name_edit           = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/QuestEditor/MarginContainer/Form/HBox_QuestName/QuestNameEdit
+@onready var quest_description_edit    = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/QuestEditor/MarginContainer/Form/HBox_Desc/QuestDescriptionEdit
+@onready var quest_required_level_spin = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/QuestEditor/MarginContainer/Form/HBox_Level/RequiredLevelSpinBox
+@onready var quest_prereq_option       = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/QuestEditor/MarginContainer/Form/HBox_Prereq/PrereqQuestOption
+@onready var quest_npc_only_check      = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/QuestEditor/MarginContainer/Form/HBox_Flags/NpcOnlyCheck
+@onready var quest_sort_order_spin     = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/QuestEditor/MarginContainer/Form/HBox_SortOrder/SortOrderSpinBox
+@onready var quest_objectives_list     = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/QuestEditor/MarginContainer/Form/ObjectivesSection/ObjectivesList
+@onready var quest_add_objective_btn   = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/QuestEditor/MarginContainer/Form/ObjectivesSection/ObjectivesHeader/AddObjectiveButton
+@onready var quest_reward_exp_spin     = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/QuestEditor/MarginContainer/Form/RewardsSection/HBox_RewardExp/RewardExpSpinBox
+@onready var quest_reward_coins_spin   = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/QuestEditor/MarginContainer/Form/RewardsSection/HBox_RewardCoins/RewardCoinsSpinBox
+@onready var quest_reward_items_edit   = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/QuestEditor/MarginContainer/Form/RewardsSection/HBox_RewardItems/RewardItemsEdit
 
 @onready var generic_resource_inspector = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent/GenericResourceInspector
 
@@ -238,7 +255,7 @@ func _wrap_sections_in_cards() -> void:
 	# Existing section VBoxes get hoisted into a PanelContainer with a rounded
 	# card stylebox + left-accent stripe. @onready refs are by node reference,
 	# not path, so re-parenting here doesn't break them.
-	for section_name in ["GeneralSettings", "ActiveBehavior", "FormulaEditor", "GenericResourceInspector"]:
+	for section_name in ["GeneralSettings", "ActiveBehavior", "FormulaEditor", "QuestEditor", "GenericResourceInspector"]:
 		var section = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent.get_node_or_null(section_name)
 		if section:
 			_wrap_in_card(section)
@@ -301,6 +318,7 @@ func _cache_section_labels() -> void:
 		["GeneralSettings", "◈  GENERAL SETTINGS",   "SectionLabel"],
 		["ActiveBehavior",  "⚔  ACTIVE BEHAVIOR",    "SectionLabel"],
 		["FormulaEditor",   "📊  FORMULA EDITOR",    "SectionLabel"],
+		["QuestEditor",     "📜  QUEST DETAILS",     "SectionLabel"],
 	]
 	for entry in sections:
 		# Sections were re-parented under "<name>Card" by _wrap_sections_in_cards.
@@ -621,13 +639,18 @@ func _make_input_focus_sb() -> StyleBoxFlat:
 # ── Input control polish ───────────────────────────────────────────────────────
 func _polish_inputs() -> void:
 	# LineEdits
-	for le in [ability_id_edit, ability_name_edit, search_edit]:
+	for le in [ability_id_edit, ability_name_edit, search_edit,
+			   quest_id_edit, quest_name_edit, quest_reward_items_edit]:
 		_style_line_edit(le)
 	_style_text_edit(description_edit)
-	_style_spin_box(max_level_spinbox)
+	_style_text_edit(quest_description_edit)
+	for sb in [max_level_spinbox, quest_required_level_spin, quest_sort_order_spin,
+			   quest_reward_exp_spin, quest_reward_coins_spin]:
+		_style_spin_box(sb)
 	for ob in [resource_type_selector, ability_type_option, required_class_option,
-			   required_weapon_option, formula_preset_option]:
+			   required_weapon_option, formula_preset_option, quest_prereq_option]:
 		_style_option_button(ob)
+	_style_check_box(quest_npc_only_check)
 	# Search bar gets a magnifier icon if available
 	if is_instance_valid(search_edit):
 		var icon = _editor_icon("Search")
@@ -1021,6 +1044,19 @@ func _connect_signals() -> void:
 	formula_preset_option.item_selected.connect(_on_preset_selected)
 	formula_tree.item_selected.connect(_on_formula_tree_selected)
 
+	# Quest editor signals
+	quest_id_edit.text_changed.connect(_on_quest_field_changed)
+	quest_name_edit.text_changed.connect(_on_quest_field_changed)
+	quest_description_edit.text_changed.connect(_on_quest_field_changed)
+	quest_required_level_spin.value_changed.connect(_on_quest_field_changed)
+	quest_prereq_option.item_selected.connect(_on_quest_field_changed)
+	quest_npc_only_check.toggled.connect(_on_quest_field_changed)
+	quest_sort_order_spin.value_changed.connect(_on_quest_field_changed)
+	quest_reward_exp_spin.value_changed.connect(_on_quest_field_changed)
+	quest_reward_coins_spin.value_changed.connect(_on_quest_field_changed)
+	quest_reward_items_edit.text_changed.connect(_on_quest_field_changed)
+	quest_add_objective_btn.pressed.connect(_on_add_objective_pressed)
+
 
 # ========================================
 # FILE BROWSER
@@ -1188,6 +1224,22 @@ func _validate_resource(res: Resource) -> String:
 			issues.append("max_level is 0")
 		if a.scaling_data == null:
 			issues.append("no scaling_data")
+	elif res is QuestData:
+		var q := res as QuestData
+		if q.quest_id.strip_edges().is_empty():
+			issues.append("missing quest_id")
+		if q.quest_name.strip_edges().is_empty():
+			issues.append("missing name")
+		if q.objectives.is_empty():
+			issues.append("no objectives")
+		else:
+			# A single missing target on a KILL/COLLECT objective is the most
+			# common silent-failure bug — call it out specifically.
+			for obj in q.objectives:
+				var t := int(obj.get("type", 0))
+				if t != QuestData.ObjectiveType.REACH_LEVEL and str(obj.get("target", "")).strip_edges().is_empty():
+					issues.append("objective has no target")
+					break
 	else:
 		var name_val = null
 		for prop in ["name", "_class_name", "monster_name", "buff_name"]:
@@ -1233,6 +1285,22 @@ func _build_tooltip(entry: Dictionary, validation_msg: String) -> String:
 		var bid = res.get("buff_id")
 		if bid != null and str(bid) != "":
 			lines.append("id: " + str(bid))
+	elif res is QuestData:
+		var q := res as QuestData
+		var bits: Array[String] = []
+		bits.append("Lv %d" % q.required_level)
+		bits.append("%d obj" % q.objectives.size())
+		if q.reward_exp > 0:
+			bits.append("%d EXP" % q.reward_exp)
+		if q.reward_coins > 0:
+			bits.append("%d coins" % q.reward_coins)
+		if q.npc_only:
+			bits.append("NPC-only")
+		lines.append(" · ".join(bits))
+		if not q.quest_id.is_empty():
+			lines.append("id: " + q.quest_id)
+		if not q.prerequisite_quest_id.is_empty():
+			lines.append("after: " + q.prerequisite_quest_id)
 	if not validation_msg.is_empty():
 		lines.append("")
 		lines.append("⚠ " + validation_msg)
@@ -1298,7 +1366,7 @@ func _on_context_menu_action(id: int) -> void:
 			var res = load(path)
 			var id_val := ""
 			if res:
-				for prop in ["ability_id", "item_id", "buff_id", "_class_name"]:
+				for prop in ["ability_id", "item_id", "buff_id", "quest_id", "_class_name"]:
 					if prop in res:
 						id_val = str(res.get(prop))
 						break
@@ -1411,7 +1479,7 @@ func _on_search_changed(new_text: String) -> void:
 
 
 func _resource_display_name(res: Resource, fallback: String) -> String:
-	for prop in ["ability_name", "name", "_class_name", "monster_name", "buff_name"]:
+	for prop in ["ability_name", "quest_name", "name", "_class_name", "monster_name", "buff_name"]:
 		var val = res.get(prop) if res.has_method("get") else null
 		if val != null and str(val) != "":
 			return str(val)
@@ -1537,6 +1605,13 @@ func _on_duplicate_pressed() -> void:
 		var ab = dup as AbilityData
 		if ab.ability_name:
 			ab.ability_name = ab.ability_name + " (Copy)"
+	elif dup is QuestData:
+		var dq = dup as QuestData
+		# Wipe quest_id so save data doesn't accidentally reuse the source quest's
+		# progress — quest_id is the persistence key and must be unique per quest.
+		dq.quest_id = ""
+		if not dq.quest_name.is_empty():
+			dq.quest_name = dq.quest_name + " (Copy)"
 	else:
 		var n = dup.get("name")
 		if n != null and str(n) != "":
@@ -1724,8 +1799,12 @@ func _update_ui() -> void:
 			current_scaling_data = ability.scaling_data
 		_update_formula_tree()
 		_update_active_behavior_ui()
+	elif current_resource is QuestData:
+		_show_quest_ui()
+		_update_quest_ui()
 	else:
 		_hide_ability_ui()
+		_hide_quest_ui()
 		if generic_resource_inspector:
 			generic_resource_inspector.edit(current_resource)
 
@@ -1736,6 +1815,7 @@ func _show_ability_ui() -> void:
 	_set_section_visible(general_settings_panel, true)
 	_set_section_visible(formula_editor_panel, true)
 	_set_section_visible(active_behavior_panel, true)
+	_set_section_visible(quest_editor_panel, false)
 	if generic_resource_inspector:
 		_set_section_visible(generic_resource_inspector, false)
 		generic_resource_inspector.edit(null)
@@ -1747,6 +1827,21 @@ func _hide_ability_ui() -> void:
 	_set_section_visible(active_behavior_panel, false)
 	if generic_resource_inspector:
 		_set_section_visible(generic_resource_inspector, true)
+
+
+# ── Quest UI section toggles ──────────────────────────────────────────────────
+func _show_quest_ui() -> void:
+	_set_section_visible(general_settings_panel, false)
+	_set_section_visible(formula_editor_panel, false)
+	_set_section_visible(active_behavior_panel, false)
+	_set_section_visible(quest_editor_panel, true)
+	if generic_resource_inspector:
+		_set_section_visible(generic_resource_inspector, false)
+		generic_resource_inspector.edit(null)
+
+
+func _hide_quest_ui() -> void:
+	_set_section_visible(quest_editor_panel, false)
 
 
 # Toggle a section AND its wrapping card (from _wrap_in_card) together, so non-
@@ -1819,6 +1914,311 @@ func _on_ability_type_changed(index: int) -> void:
 	_update_active_behavior_ui()
 	if current_resource and current_resource is AbilityData:
 		_update_formula_tree()
+
+
+# ========================================
+# QUEST EDITOR
+# ========================================
+# Push the QuestData fields into the form widgets, then rebuild the objectives
+# list (each row is its own OptionButton + LineEdit + SpinBox + delete button).
+func _update_quest_ui() -> void:
+	if not current_resource or not current_resource is QuestData:
+		return
+	var quest := current_resource as QuestData
+
+	quest_id_edit.text = quest.quest_id
+	quest_name_edit.text = quest.quest_name
+	quest_description_edit.text = quest.description
+	quest_required_level_spin.value = quest.required_level
+	quest_npc_only_check.button_pressed = quest.npc_only
+	quest_sort_order_spin.value = quest.sort_order
+	quest_reward_exp_spin.value = quest.reward_exp
+	quest_reward_coins_spin.value = quest.reward_coins
+	quest_reward_items_edit.text = ", ".join(quest.reward_items)
+
+	_populate_quest_prereq_options(quest)
+	_rebuild_objectives_list(quest)
+
+
+# Scan every other QuestData on disk so the prereq dropdown lists real chain
+# targets instead of forcing the user to memorize quest_id strings.
+func _populate_quest_prereq_options(quest: QuestData) -> void:
+	quest_prereq_option.clear()
+	quest_prereq_option.add_item("(None)", 0)
+	quest_prereq_option.set_item_metadata(0, "")
+	var selected_index := 0
+	var all_quests := _scan_all_quest_ids(quest)
+	for i in range(all_quests.size()):
+		var entry: Dictionary = all_quests[i]
+		quest_prereq_option.add_item(entry.label, i + 1)
+		quest_prereq_option.set_item_metadata(i + 1, entry.quest_id)
+		if entry.quest_id == quest.prerequisite_quest_id:
+			selected_index = i + 1
+	# Prereq was set to a quest that doesn't exist on disk — preserve the string
+	# so we don't silently lose user data, surface it as a free-text fallback row.
+	if selected_index == 0 and not quest.prerequisite_quest_id.is_empty():
+		quest_prereq_option.add_item("⚠ unknown: " + quest.prerequisite_quest_id, quest_prereq_option.item_count)
+		quest_prereq_option.set_item_metadata(quest_prereq_option.item_count - 1, quest.prerequisite_quest_id)
+		selected_index = quest_prereq_option.item_count - 1
+	quest_prereq_option.select(selected_index)
+
+
+# Walk resources/Quests/ looking for QuestData .tres files. Returns
+# [{label, quest_id}] sorted by quest_id, excluding the quest being edited.
+func _scan_all_quest_ids(exclude: QuestData) -> Array:
+	var out: Array = []
+	var base := "res://resources/Quests"
+	if not DirAccess.dir_exists_absolute(base):
+		return out
+	_scan_quests_recursive(base, out, exclude)
+	out.sort_custom(func(a, b): return str(a.quest_id) < str(b.quest_id))
+	return out
+
+
+func _scan_quests_recursive(path: String, out: Array, exclude: QuestData) -> void:
+	var dir := DirAccess.open(path)
+	if not dir:
+		return
+	dir.list_dir_begin()
+	var fname := dir.get_next()
+	while fname != "":
+		if fname != "." and fname != "..":
+			var full := path.path_join(fname)
+			if dir.current_is_dir():
+				_scan_quests_recursive(full, out, exclude)
+			elif fname.get_extension() == "tres":
+				var res := load(full)
+				if res is QuestData and res != exclude:
+					var q := res as QuestData
+					if not q.quest_id.is_empty():
+						var label = q.quest_id
+						if not q.quest_name.is_empty():
+							label += "  —  " + q.quest_name
+						out.append({"quest_id": q.quest_id, "label": label})
+		fname = dir.get_next()
+	dir.list_dir_end()
+
+
+# Wipe and rebuild every objective row to reflect quest.objectives. Cheaper than
+# diffing because objectives are short (~1–5 per quest) and edits already trigger
+# a full UI refresh via _set_dirty + _update_ui downstream.
+func _rebuild_objectives_list(quest: QuestData) -> void:
+	for child in quest_objectives_list.get_children():
+		child.queue_free()
+
+	if quest.objectives.is_empty():
+		var hint := Label.new()
+		hint.text = "  No objectives yet — click + Add Objective to create one."
+		hint.add_theme_color_override("font_color", C_DIM)
+		hint.add_theme_font_size_override("font_size", 11)
+		quest_objectives_list.add_child(hint)
+		return
+
+	for i in range(quest.objectives.size()):
+		var row := _build_objective_row(i, quest.objectives[i])
+		quest_objectives_list.add_child(row)
+
+
+# A single objective row: [Type ▼] [target text] [× amount SpinBox] [✕ remove].
+# Each control captures `idx` via closure so it can update the dict in-place.
+func _build_objective_row(idx: int, objective: Dictionary) -> Control:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 6)
+
+	# Index pill
+	var idx_lbl := Label.new()
+	idx_lbl.text = "#%d" % (idx + 1)
+	idx_lbl.custom_minimum_size = Vector2(34, 0)
+	idx_lbl.add_theme_color_override("font_color", C_DIM)
+	idx_lbl.add_theme_font_size_override("font_size", 11)
+	row.add_child(idx_lbl)
+
+	# Type dropdown
+	var type_option := OptionButton.new()
+	for key in QuestData.ObjectiveType:
+		type_option.add_item(str(key), QuestData.ObjectiveType[key])
+	var current_type := int(objective.get("type", QuestData.ObjectiveType.KILL))
+	type_option.select(_index_for_id(type_option, current_type))
+	type_option.custom_minimum_size = Vector2(120, 0)
+	_style_option_button(type_option)
+	type_option.item_selected.connect(func(_sel): _on_objective_type_changed(idx, type_option))
+	row.add_child(type_option)
+
+	# Target — for KILL/COLLECT this is an enemy/item name; for REACH_LEVEL it's
+	# unused (we still keep the field around so a future objective type can use it).
+	var target_edit := LineEdit.new()
+	target_edit.text = str(objective.get("target", ""))
+	target_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	target_edit.placeholder_text = _placeholder_for_objective_type(current_type)
+	target_edit.editable = current_type != QuestData.ObjectiveType.REACH_LEVEL
+	_style_line_edit(target_edit)
+	target_edit.text_changed.connect(func(new_text): _on_objective_target_changed(idx, new_text))
+	row.add_child(target_edit)
+
+	# Amount — for KILL/COLLECT it's the count; for REACH_LEVEL it's the level number.
+	var amount_label := Label.new()
+	amount_label.text = "×" if current_type != QuestData.ObjectiveType.REACH_LEVEL else "Lv"
+	amount_label.add_theme_color_override("font_color", C_DIM)
+	row.add_child(amount_label)
+
+	var amount_spin := SpinBox.new()
+	amount_spin.min_value = 1
+	amount_spin.max_value = 9999
+	amount_spin.value = int(objective.get("amount", 1))
+	amount_spin.custom_minimum_size = Vector2(80, 0)
+	_style_spin_box(amount_spin)
+	amount_spin.value_changed.connect(func(v): _on_objective_amount_changed(idx, int(v)))
+	row.add_child(amount_spin)
+
+	# Remove
+	var remove_btn := Button.new()
+	remove_btn.text = " ✕ "
+	remove_btn.tooltip_text = "Delete this objective"
+	_style_btn(remove_btn, C_ERR, false)
+	remove_btn.pressed.connect(func(): _on_objective_remove(idx))
+	row.add_child(remove_btn)
+
+	return row
+
+
+# OptionButton's `select(index)` takes a popup index, not an id — translate.
+func _index_for_id(option: OptionButton, id: int) -> int:
+	for i in range(option.item_count):
+		if option.get_item_id(i) == id:
+			return i
+	return 0
+
+
+func _placeholder_for_objective_type(type: int) -> String:
+	match type:
+		QuestData.ObjectiveType.KILL:
+			return "Enemy monster_name (exact match, e.g. \"Slime\")"
+		QuestData.ObjectiveType.COLLECT:
+			return "Item NAME (exact match, e.g. \"Health Potion\")"
+		QuestData.ObjectiveType.REACH_LEVEL:
+			return "(target unused — set the level in the Lv field)"
+	return ""
+
+
+func _on_add_objective_pressed() -> void:
+	if not current_resource or not current_resource is QuestData:
+		return
+	if is_updating_ui:
+		return
+	var quest := current_resource as QuestData
+	quest.objectives.append({
+		"type": QuestData.ObjectiveType.KILL,
+		"target": "",
+		"amount": 1,
+	})
+	quest.emit_changed()
+	_set_dirty(true)
+	_rebuild_objectives_list(quest)
+
+
+func _on_objective_remove(idx: int) -> void:
+	if not current_resource or not current_resource is QuestData:
+		return
+	var quest := current_resource as QuestData
+	if idx < 0 or idx >= quest.objectives.size():
+		return
+	quest.objectives.remove_at(idx)
+	quest.emit_changed()
+	_set_dirty(true)
+	_rebuild_objectives_list(quest)
+
+
+func _on_objective_type_changed(idx: int, option: OptionButton) -> void:
+	if not current_resource or not current_resource is QuestData:
+		return
+	var quest := current_resource as QuestData
+	if idx < 0 or idx >= quest.objectives.size():
+		return
+	var obj: Dictionary = quest.objectives[idx]
+	obj["type"] = option.get_selected_id()
+	# Clearing target for REACH_LEVEL keeps the saved dict tidy
+	if obj["type"] == QuestData.ObjectiveType.REACH_LEVEL:
+		obj["target"] = ""
+	quest.objectives[idx] = obj
+	quest.emit_changed()
+	_set_dirty(true)
+	_rebuild_objectives_list(quest)  # rebuild so placeholders/editable flags update
+
+
+func _on_objective_target_changed(idx: int, new_text: String) -> void:
+	if is_updating_ui:
+		return
+	if not current_resource or not current_resource is QuestData:
+		return
+	var quest := current_resource as QuestData
+	if idx < 0 or idx >= quest.objectives.size():
+		return
+	var obj: Dictionary = quest.objectives[idx]
+	obj["target"] = new_text
+	quest.objectives[idx] = obj
+	quest.emit_changed()
+	_set_dirty(true)
+
+
+func _on_objective_amount_changed(idx: int, value: int) -> void:
+	if is_updating_ui:
+		return
+	if not current_resource or not current_resource is QuestData:
+		return
+	var quest := current_resource as QuestData
+	if idx < 0 or idx >= quest.objectives.size():
+		return
+	var obj: Dictionary = quest.objectives[idx]
+	obj["amount"] = value
+	quest.objectives[idx] = obj
+	quest.emit_changed()
+	_set_dirty(true)
+
+
+# Single handler for the scalar quest fields. Mirrors _on_general_info_changed
+# (the ability equivalent) — pulls every widget's value into the resource and
+# refreshes the tree label / title so renames are live.
+func _on_quest_field_changed(_value = null) -> void:
+	if is_updating_ui or not current_resource or not current_resource is QuestData:
+		return
+	var quest := current_resource as QuestData
+	quest.quest_id = quest_id_edit.text
+	quest.quest_name = quest_name_edit.text
+	quest.description = quest_description_edit.text
+	quest.required_level = int(quest_required_level_spin.value)
+	# Prereq comes from the dropdown's per-item metadata (the actual quest_id),
+	# not the visible label.
+	var sel = quest_prereq_option.get_selected_id()
+	var meta = quest_prereq_option.get_item_metadata(quest_prereq_option.selected)
+	quest.prerequisite_quest_id = str(meta) if meta != null else ""
+	quest.npc_only = quest_npc_only_check.button_pressed
+	quest.sort_order = int(quest_sort_order_spin.value)
+	quest.reward_exp = int(quest_reward_exp_spin.value)
+	quest.reward_coins = int(quest_reward_coins_spin.value)
+	quest.reward_items = _parse_reward_items_csv(quest_reward_items_edit.text)
+	_set_dirty(true)
+	# Live-update tree label as the user types
+	if not quest.resource_path.is_empty():
+		var item: TreeItem = _path_to_tree_item.get(quest.resource_path, null)
+		if item:
+			var icon = TYPE_ICONS.get(current_resource_type.display_name, "◈") if current_resource_type else "◈"
+			item.set_text(0, icon + "  " + _resource_display_name(quest, quest.resource_path.get_file()))
+	if _title_label and current_resource_type:
+		var icon2 = TYPE_ICONS.get(current_resource_type.display_name, "◈")
+		var rname = _resource_display_name(quest, current_resource_type.display_name)
+		_title_label.text = ("● " if _dirty else "") + icon2 + "  " + rname
+
+
+# Comma-separated text → trimmed Array[String] (empties dropped). The reverse of
+# the join we do when populating quest_reward_items_edit. Note: returns Array[String]
+# explicitly because QuestData.reward_items is typed and a loose Array would error.
+func _parse_reward_items_csv(text: String) -> Array[String]:
+	var out: Array[String] = []
+	for piece in text.split(","):
+		var trimmed := str(piece).strip_edges()
+		if not trimmed.is_empty():
+			out.append(trimmed)
+	return out
 
 
 # ========================================
