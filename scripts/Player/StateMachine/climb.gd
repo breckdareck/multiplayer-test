@@ -7,9 +7,14 @@ extends State
 
 @export var idle_state: State
 @export var fall_state: State
-@export var jump_state: State
 
 @export var climb_speed: float = 43.0
+
+# Velocities applied when dismounting a ladder via Jump + horizontal direction.
+# Much smaller than a full jump — a tiny upward hop with a sideways kick, not a
+# launch. Tune to taste.
+@export var dismount_velocity_y: float = -110.0
+@export var dismount_velocity_x: float = 140.0
 
 const TILE_COLLISION_LAYER: int = 1
 
@@ -57,7 +62,11 @@ func physics_update(_delta: float) -> State:
 	if player.do_jump:
 		player.do_jump = false
 		if player.direction != 0:
-			return jump_state
+			# Apply a small hop + sideways kick directly and go to fall, instead
+			# of routing through jump_state (which would apply the full -300
+			# launch). The fall state then handles air control and landing.
+			parent.velocity = Vector2(player.direction * dismount_velocity_x, dismount_velocity_y)
+			return fall_state
 
 	# Left the ladder area (climbed off the top or bottom).
 	if not player.is_in_ladder_zone():

@@ -1103,11 +1103,10 @@ script = ExtResource("23_03slv")
 animation_name = "hit"
 move_speed = 100.0
 
-[node name="climb" type="Node" parent="StateMachine" node_paths=PackedStringArray("idle_state", "fall_state", "jump_state")]
+[node name="climb" type="Node" parent="StateMachine" node_paths=PackedStringArray("idle_state", "fall_state")]
 script = ExtResource("23_climb_gd")
 idle_state = NodePath("../idle")
 fall_state = NodePath("../fall")
-jump_state = NodePath("../jump")
 animation_name = "idle"
 move_speed = 100.0
 
