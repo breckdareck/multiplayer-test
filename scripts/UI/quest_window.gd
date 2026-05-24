@@ -125,7 +125,15 @@ func _refresh_quest_list() -> void:
 
 	var quests: Array = []
 	match current_tab:
-		TabMode.AVAILABLE: quests = quest_data_cache.get("available", [])
+		TabMode.AVAILABLE:
+			# NPC-only quests are hidden from the journal's Available tab —
+			# they only show in the dialog of the QuestGiverNPC that offers
+			# them. After acceptance they appear normally in Active /
+			# Completed (which is why those tabs don't filter).
+			for q in quest_data_cache.get("available", []):
+				if bool(q.get("npc_only", false)):
+					continue
+				quests.append(q)
 		TabMode.ACTIVE:    quests = quest_data_cache.get("active", [])
 		TabMode.COMPLETED: quests = quest_data_cache.get("completed", [])
 

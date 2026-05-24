@@ -39,6 +39,14 @@ for future `.tres` authoring, but the live quest list is registered in code by
 string must be the same one set on the enemy `.tres` — past bugs shipped
 quests targeting non-existent enemy names that silently never completed.
 
+`QuestData.npc_only` (bool, default false): set true to hide a quest from the
+Q-window's Available tab so it can ONLY be obtained through a `QuestGiverNPC`
+whose `offered_quest_ids` includes it. Use for NPC-locked chains (e.g. the
+Village Elder's Endless Hunt 15/50/99/999) where the journal shouldn't
+spoil quests that are meant to be discovered through dialogue. After accept,
+the quest behaves normally — it appears in the Active / Completed tabs and
+in the Quest Tracker HUD like any other.
+
 ## Conventions
 
 - `AbilityData`, `BuffData`, and `ItemData` carry an **auto-generated UUID** id

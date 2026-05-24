@@ -127,10 +127,18 @@ Real quality bumps, but the demo can ship without them.
 - [ ] **Persistent quest tracker tab order** — `QuestTracker` already supports
   pinning via the journal (`tracked` field exists in `quest_window.gd`).
   Verify the pin UI is obvious and that pinned quests stay across logout.
-- [ ] **NPC quest-givers** — generalize the Job Master pattern
-  (`scripts/NPC/job_advancement_npc.gd`) into a `QuestGiverNPC` that lists
-  available/turn-in quests via the same dialog window. Replaces the
-  self-service "press Q to accept" feel with NPC interaction.
+- [x] **NPC quest-givers** — `scripts/NPC/quest_giver_npc.gd`
+  (`class_name QuestGiverNPC`) generalizes the Job Master pattern. Each NPC
+  is configured with `npc_name` and a `PackedStringArray offered_quest_ids`;
+  right-clicking opens `scripts/UI/quest_giver_dialog.gd`
+  (`class_name QuestGiverDialog`), which queries `QuestManager._build_quest_ui_data`
+  (host) or sends `request_quest_ui_data.rpc_id(1)` (client), filters to the
+  NPC's list, and renders rows by player state (Available with an Accept
+  button → fires `request_quest_accept`; Active with the live objective
+  progress; Completed hidden). Demo NPC "Village Elder" placed in
+  `scenes/Levels/town.tscn` at `(15, -674)` offering `q_level_up`,
+  `q_boar_patrol`, `q_collector`, `q_growing_power`. Existing self-service
+  Q-window flow remains as a parallel surface.
 
 ---
 
