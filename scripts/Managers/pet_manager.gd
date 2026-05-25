@@ -627,6 +627,130 @@ func request_feed_pet_server(pet_uuid: String, inventory_slot_index: int) -> voi
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# AUTO-LOOT (Phase 5)
+# ═══════════════════════════════════════════════════════════════════════════
+
+const AUTOLOOT_RATE_LIMIT_MS: int = 200
+
+@rpc("any_peer", "call_local", "reliable")
+func request_autoloot_server(pet_uuid: String, drop_node_name: String) -> void:
+	if not multiplayer.is_server():
+		return
+	var caller := multiplayer.get_remote_sender_id()
+	if caller == 0:
+		caller = 1
+	if not _active_pets.has(pet_uuid):
+		return
+	var info: Dictionary = _active_pets[pet_uuid]
+	if info.get("owner_peer_id", 0) != caller:
+		return
+
+	var pet_node: Node = info.get("pet_node")
+	if not is_instance_valid(pet_node):
+		return
+	var owner_username: String = info.get("owner_username", "")
+	var record := find_pet(owner_username, pet_uuid)
+	if record.is_empty():
+		return
+	if record.get(KEY_HUNGER, 100.0) <= 0.0:
+		return  # Hungry pets stop auto-actions.
+
+	var learned: Array = record.get(KEY_LEARNED, [])
+	var can_loot_items: bool = learned.has(CMD_ITEM_POUCH)
+	var can_loot_coins: bool = learned.has(CMD_MESO_MAGNET)
+	if not can_loot_items and not can_loot_coins:
+		return
+
+	var owner_player := PlayerManager.get_player_node(caller)
+	if not is_instance_valid(owner_player):
+		return
+
+	# Resolve the drop node from the pet's map siblings (or ItemDrops child).
+	var map_node := pet_node.get_parent()
+	if not map_node:
+		return
+	var drop: Node = map_node.get_node_or_null(drop_node_name)
+	if not drop:
+		var drops_container := map_node.get_node_or_null("ItemDrops")
+		if drops_container:
+			drop = drops_container.get_node_or_null(drop_node_name)
+	if not (drop is DroppedItem):
+		return
+
+	if not drop.item_data:
+		return
+	var is_coin: bool = drop.item_data.name == "Coin"
+	if is_coin and not can_loot_coins:
+		return
+	if not is_coin and not can_loot_items:
+		return
+
+	var pet_data := get_pet_data(info.get("pet_data_id", ""))
+	var leash: float = pet_data.leash_radius if pet_data else 200.0
+	# Sanity clamp: pet must be within leash of owner. Defeats client position spoofing.
+	if pet_node.global_position.distance_to(owner_player.global_position) > leash:
+		return
+	var max_range: float = (pet_data.autoloot_radius if pet_data else 100.0) + 16.0
+	if pet_node.global_position.distance_to(drop.global_position) > max_range:
+		return
+
+	# Reuse the existing manual-pickup validation gates verbatim.
+	if drop.has_method("_can_player_pickup") and not drop._can_player_pickup(owner_player):
+		return
+	if drop.has_method("_player_has_room_for_item") and not drop._player_has_room_for_item(owner_player):
+		return
+
+	var now_ms := Time.get_ticks_msec()
+	if now_ms - int(info.get("last_autoloot_ms", 0)) < AUTOLOOT_RATE_LIMIT_MS:
+		return
+	info["last_autoloot_ms"] = now_ms
+
+	# Hand off to the existing pickup pathway.
+	if drop.has_method("_pickup_item"):
+		drop._pickup_item(owner_player)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SKILL-BOOK FEEDBACK
+# ═══════════════════════════════════════════════════════════════════════════
+
+## Called by Effect_TeachPetCommand server-side after a successful command teach.
+func notify_command_learned(username: String, _pet_uuid: String, command_id: String) -> void:
+	if not multiplayer.is_server():
+		return
+	_push_roster_to_owner(username)
+	_queue_save(username)
+	var peer := _find_peer_id_for_username(username)
+	var msg := "Pet learned: %s" % command_id
+	_show_message_to_owner(peer, msg)
+
+
+## Called by Effect_TeachPetCommand server-side when the book couldn't be applied.
+func notify_book_use_failed(username: String, reason: String) -> void:
+	if not multiplayer.is_server():
+		return
+	var peer := _find_peer_id_for_username(username)
+	_show_message_to_owner(peer, reason)
+
+
+func _show_message_to_owner(peer: int, message: String) -> void:
+	if peer == 0:
+		return
+	if peer == 1:
+		# Host has the LogManager locally.
+		LogManager.add_scrolling_log(message, Color.GOLD)
+		return
+	_log_to_client_rpc.rpc_id(peer, message)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _log_to_client_rpc(message: String) -> void:
+	if multiplayer.is_server():
+		return
+	LogManager.add_scrolling_log(message, Color.GOLD)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # CLIENT-SIDE ROSTER MIRROR
 # ═══════════════════════════════════════════════════════════════════════════
 

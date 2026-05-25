@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="PetSkillBookData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/PetSystem/PetSkillBookData.gd" id="1_book"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/Effects/Effect_TeachPetCommand.gd" id="2_effect"]
+
+[resource]
+script = ExtResource("1_book")
+command_id = "item_pouch"
+effect_script = ExtResource("2_effect")
+effect_properties = {
+"command_id": "item_pouch"
+}
+item_id = "pet_book_item_pouch"
+name = "Pet Item Pouch Command"
+rarity = 2
+description = "Teaches a summoned pet to automatically pick up items in range."
+item_type = 2
+item_level = 5
+custom_item_value = 1000
+can_stack = false
+max_stack_amount = 1
+current_stack_amount = 1

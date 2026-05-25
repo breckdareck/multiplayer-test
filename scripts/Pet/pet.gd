@@ -23,6 +23,10 @@ var max_hunger_display: float = 100.0
 var is_hungry_state: bool = false
 const LOW_HUNGER_FRACTION: float = 0.25
 
+# ── Auto-loot (owner-client only) ─────────────────────────────────────────
+var _autoloot_accumulator: float = 0.0
+const AUTOLOOT_TICK_INTERVAL: float = 0.1
+
 
 func _ready() -> void:
 	add_to_group("networked_entities")
@@ -73,9 +77,7 @@ func _physics_process(delta: float) -> void:
 	if pet_data and distance > pet_data.leash_radius:
 		global_position = target
 		_play_animation("idle")
-		return
-
-	if distance > ARRIVE_DISTANCE:
+	elif distance > ARRIVE_DISTANCE:
 		var speed: float = pet_data.walk_speed if pet_data else 120.0
 		var step := delta_pos.normalized() * speed * delta
 		if step.length() > distance:
@@ -88,6 +90,63 @@ func _physics_process(delta: float) -> void:
 		_play_animation("idle")
 
 	_apply_facing()
+
+	# Auto-loot scan (owner-client driven; server validates each request).
+	_autoloot_accumulator += delta
+	if _autoloot_accumulator >= AUTOLOOT_TICK_INTERVAL:
+		_autoloot_accumulator = 0.0
+		_try_autoloot()
+
+
+func _try_autoloot() -> void:
+	if not pet_data:
+		return
+	var record := PetManager.client_find_pet(pet_uuid)
+	if record.is_empty():
+		return
+	var learned: Array = record.get(PetManager.KEY_LEARNED, [])
+	var can_loot_items: bool = learned.has(PetManager.CMD_ITEM_POUCH)
+	var can_loot_coins: bool = learned.has(PetManager.CMD_MESO_MAGNET)
+	if not can_loot_items and not can_loot_coins:
+		return
+
+	var map_node := get_parent()
+	if not map_node:
+		return
+
+	var best_drop: Node = _scan_drops(map_node, can_loot_items, can_loot_coins)
+	# Fall back to the ItemDrops container if present.
+	var drops_container := map_node.get_node_or_null("ItemDrops")
+	if drops_container:
+		var alt: Node = _scan_drops(drops_container, can_loot_items, can_loot_coins)
+		if alt and (not best_drop or global_position.distance_to(alt.global_position) < global_position.distance_to(best_drop.global_position)):
+			best_drop = alt
+
+	if best_drop:
+		PetManager.request_autoloot_server.rpc_id(1, pet_uuid, best_drop.name)
+
+
+func _scan_drops(container: Node, can_loot_items: bool, can_loot_coins: bool) -> Node:
+	var best: Node = null
+	var best_dist: float = pet_data.autoloot_radius
+	for child in container.get_children():
+		if not (child is DroppedItem):
+			continue
+		var drop: DroppedItem = child
+		if drop.current_state == DroppedItem.ItemState.COLLECTED:
+			continue
+		if not drop.item_data:
+			continue
+		var is_coin: bool = drop.item_data.name == "Coin"
+		if is_coin and not can_loot_coins:
+			continue
+		if not is_coin and not can_loot_items:
+			continue
+		var d: float = global_position.distance_to(drop.global_position)
+		if d < best_dist:
+			best_dist = d
+			best = drop
+	return best
 
 
 func _play_animation(anim_name: String) -> void:
