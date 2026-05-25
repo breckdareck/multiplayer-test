@@ -15,11 +15,6 @@ var player: MultiplayerPlayerV2
 var is_dragging = false
 var drag_offset = Vector2()
 
-# Track whether we toggled the input lock so we don't unlock something
-# another window had already locked.
-var _input_locked_by_us: bool = false
-var _was_visible: bool = false
-
 
 func _ready() -> void:
 	# Add to ui_window group for drop detection
@@ -46,8 +41,6 @@ func _process(_delta: float) -> void:
 			elif not InputManager.is_locked():
 				equipment_window.visible = true
 
-	_handle_visibility_change()
-
 	if is_dragging:
 		var new_position = get_global_mouse_position() - drag_offset
 		var viewport_size = get_viewport_rect().size
@@ -57,22 +50,6 @@ func _process(_delta: float) -> void:
 		new_position.y = clamp(new_position.y, 0, viewport_size.y - window_size.y)
 
 		global_position = new_position
-
-
-func _handle_visibility_change() -> void:
-	if equipment_window.visible == _was_visible:
-		return
-	_was_visible = equipment_window.visible
-	# Per the input-lock pattern in feedback_input_lock_pattern memory:
-	# only unlock if WE locked it, so we don't unlock for a sibling window.
-	if equipment_window.visible:
-		if not InputManager.is_locked():
-			InputManager.set_input_locked(true)
-			_input_locked_by_us = true
-	else:
-		if _input_locked_by_us:
-			InputManager.set_input_locked(false)
-			_input_locked_by_us = false
 
 
 func _gui_input(event: InputEvent) -> void:
