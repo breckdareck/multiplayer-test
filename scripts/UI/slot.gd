@@ -52,7 +52,18 @@ var _custom_tooltip_theme: Theme = null # Declare as instance variable
 
 func update_display():
 		if item != null:
-			texture_rect.texture = ResourceManager.get_item_data(item.item_id).icon
+			# Prefer the canonical resource's icon (handles slim-saved items whose
+			# instance.icon was stripped at save time). Fall back to the item's
+			# own icon if the canonical resource has been removed or renamed —
+			# happens for saves that reference deleted items, e.g. the old
+			# pet_book_item_pouch / pet_book_meso_magnet ids that were folded
+			# into the unified pet_book_magnet. Without this fallback, the slot
+			# load crashes during _refresh_view on stale inventory data.
+			var canonical = ResourceManager.get_item_data(item.item_id)
+			if canonical and canonical.icon:
+				texture_rect.texture = canonical.icon
+			else:
+				texture_rect.texture = item.icon
 			if item.can_stack and item.current_stack_amount > 1:
 				label.text = str(item.current_stack_amount)
 				label.visible = true
