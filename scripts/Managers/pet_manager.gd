@@ -309,6 +309,11 @@ func request_release_pet_server(pet_uuid: String) -> void:
 	if record.is_empty():
 		return
 
+	# Return pet-inventory contents to the player's main inventory before the
+	# record disappears. server_add_item handles free-slot search + stacking.
+	if is_instance_valid(player.inventory_component):
+		_return_pet_inventory_to_player(record, player.inventory_component)
+
 	# Despawn if summoned, then drop from the roster permanently.
 	_unsummon_internal(username, pet_uuid)
 	var roster: Dictionary = _rosters[username]
@@ -318,6 +323,33 @@ func request_release_pet_server(pet_uuid: String) -> void:
 	pet_roster_changed.emit()
 	_push_roster_to_owner(username)
 	_queue_save(username)
+
+
+## Returns every non-empty pet inventory slot to the player's main inventory.
+## Called on Release. Items the inventory can't accept (full bag) are lost —
+## Release is destructive by design. The player gets a warning dialog before
+## confirming.
+func _return_pet_inventory_to_player(record: Dictionary, inv) -> void:
+	var pet_inv: Dictionary = record.get(KEY_INVENTORY, {})
+	for slot_key in [KEY_AUTOPOT_HP, KEY_AUTOPOT_MP]:
+		_return_one_pet_slot(pet_inv.get(slot_key, {}), inv)
+		pet_inv[slot_key] = {}
+	var storage: Array = pet_inv.get(KEY_STORAGE, [])
+	for i in storage.size():
+		_return_one_pet_slot(storage[i], inv)
+		storage[i] = {}
+	pet_inv[KEY_STORAGE] = storage
+
+
+func _return_one_pet_slot(slot_data: Dictionary, inv) -> void:
+	if slot_data == null or slot_data.is_empty():
+		return
+	var item_id: String = slot_data.get("item_id", "")
+	var stack: int = int(slot_data.get("stack", 0))
+	if item_id.is_empty() or stack <= 0:
+		return
+	for i in stack:
+		inv.server_add_item(item_id)
 
 
 @rpc("any_peer", "call_local", "reliable")
