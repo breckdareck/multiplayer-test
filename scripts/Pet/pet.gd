@@ -6,6 +6,8 @@ extends Node2D
 
 @export var sprite: AnimatedSprite2D
 @export var bubble_label: Label
+@export var event_bubble: Label
+@export var summon_poof: CPUParticles2D
 
 # ── Identity (assigned by PetManager.setup) ───────────────────────────────
 var owner_peer_id: int = 0
@@ -31,11 +33,20 @@ const AUTOLOOT_TICK_INTERVAL: float = 0.1
 var _autopot_accumulator: float = 0.0
 const AUTOPOT_TICK_INTERVAL: float = 0.2
 
+# ── Juice (every peer) ────────────────────────────────────────────────────
+var _idle_bounce_phase: float = 0.0
+var _idle_bounce_amplitude: float = 1.5
+var _event_bubble_tween: Tween = null
+
 
 func _ready() -> void:
 	add_to_group("networked_entities")
 	_apply_pet_data()
 	_refresh_bubble()
+	# Summon poof — every peer plays it locally when the pet appears.
+	if is_instance_valid(summon_poof):
+		summon_poof.restart()
+		summon_poof.emitting = true
 
 
 func setup(pet_data_in: PetData, peer_owner: int, uuid: String, owner_name: String) -> void:
@@ -57,6 +68,16 @@ func _apply_pet_data() -> void:
 	if pet_data.sprite_frames:
 		sprite.sprite_frames = pet_data.sprite_frames
 	_play_animation("idle")
+
+
+func _process(delta: float) -> void:
+	# Idle bounce — small Y oscillation when not actively moving. Cosmetic;
+	# runs on every peer.
+	if is_instance_valid(sprite):
+		_idle_bounce_phase += delta * 4.0
+		var bounce_active := is_hungry_state or (sprite.animation == "idle")
+		var bob := sin(_idle_bounce_phase) * _idle_bounce_amplitude if bounce_active else 0.0
+		sprite.position.y = bob
 
 
 func _physics_process(delta: float) -> void:
@@ -232,6 +253,50 @@ func _refresh_bubble() -> void:
 		bubble_label.visible = true
 		return
 	bubble_label.visible = false
+
+
+## Plays a short feedback animation when the server broadcasts a pet event.
+## Called from PetManager._pet_event_visual_rpc.
+func play_event_visual(event_type: String) -> void:
+	match event_type:
+		"autoloot":
+			_pulse_scale()
+		"autopot_hp":
+			_show_event_bubble("+HP", Color(1, 0.5, 0.5))
+		"autopot_mp":
+			_show_event_bubble("+MP", Color(0.5, 0.7, 1))
+		"autobuff":
+			_show_event_bubble("✨", Color(0.8, 0.6, 1))
+		"fed":
+			_show_event_bubble("Yum!", Color(0.8, 1, 0.6))
+
+
+func _pulse_scale() -> void:
+	if not is_instance_valid(sprite):
+		return
+	var base: Vector2 = sprite.scale
+	var tween := create_tween()
+	tween.tween_property(sprite, "scale", base * 1.25, 0.08).set_trans(Tween.TRANS_QUAD)
+	tween.tween_property(sprite, "scale", base, 0.18).set_trans(Tween.TRANS_QUAD)
+
+
+func _show_event_bubble(text: String, color: Color) -> void:
+	if not is_instance_valid(event_bubble):
+		return
+	event_bubble.text = text
+	event_bubble.add_theme_color_override("font_color", color)
+	event_bubble.modulate = Color(1, 1, 1, 1)
+	event_bubble.visible = true
+	if _event_bubble_tween and _event_bubble_tween.is_valid():
+		_event_bubble_tween.kill()
+	_event_bubble_tween = create_tween()
+	_event_bubble_tween.tween_property(event_bubble, "position:y", event_bubble.position.y - 10.0, 0.5)
+	_event_bubble_tween.parallel().tween_interval(0.4)
+	_event_bubble_tween.tween_property(event_bubble, "modulate:a", 0.0, 0.3)
+	_event_bubble_tween.tween_callback(func():
+		event_bubble.visible = false
+		event_bubble.position.y += 10.0
+	)
 
 
 func cleanup_before_removal() -> void:

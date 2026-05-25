@@ -615,6 +615,18 @@ func _broadcast_pet_hunger_rpc(pet_uuid: String, hunger: float, max_hunger: floa
 			return
 
 
+## Server -> all peers. Triggers a short visual feedback on the pet node
+## (scale pulse for loot, bubble for pot/buff/feed). Cosmetic only.
+@rpc("authority", "call_local", "reliable")
+func _pet_event_visual_rpc(pet_uuid: String, event_type: String) -> void:
+	var node_name := _pet_node_name(pet_uuid)
+	for map_node in get_tree().get_nodes_in_group("map_base"):
+		var pet := map_node.get_node_or_null(node_name)
+		if pet and pet.has_method("play_event_visual"):
+			pet.play_event_visual(event_type)
+			return
+
+
 ## Server-only. Player asks server to feed pet from a specific inventory slot.
 @rpc("any_peer", "call_local", "reliable")
 func request_feed_pet_server(pet_uuid: String, inventory_slot_index: int) -> void:
@@ -655,6 +667,7 @@ func request_feed_pet_server(pet_uuid: String, inventory_slot_index: int) -> voi
 	_broadcast_pet_hunger_rpc.rpc(pet_uuid, new_hunger, max_h, new_hunger <= 0.0)
 
 	inventory.remove_item_from_stack(food, 1, "fed_to_pet")
+	_pet_event_visual_rpc.rpc(pet_uuid, "fed")
 	_push_roster_to_owner(username)
 	_queue_save(username)
 
@@ -741,6 +754,7 @@ func request_autoloot_server(pet_uuid: String, drop_node_name: String) -> void:
 	# Hand off to the existing pickup pathway.
 	if drop.has_method("_pickup_item"):
 		drop._pickup_item(owner_player)
+		_pet_event_visual_rpc.rpc(pet_uuid, "autoloot")
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -823,6 +837,7 @@ func request_autopot_server(pet_uuid: String, slot_type: String) -> void:
 	else:
 		inv[slot_key] = slot_data
 
+	_pet_event_visual_rpc.rpc(pet_uuid, "autopot_hp" if slot_type == "hp" else "autopot_mp")
 	_push_roster_to_owner(owner_username)
 	_queue_save(owner_username)
 
@@ -1044,6 +1059,7 @@ func _tick_autobuff() -> void:
 		# Cast.
 		owner_player.buff_component.apply_buff(buff_id, null, -1.0)
 		info["autobuff_last_cast_ms_%s" % ability_id] = now_ms
+		_pet_event_visual_rpc.rpc(pet_uuid, "autobuff")
 
 
 @rpc("any_peer", "call_local", "reliable")
