@@ -21,7 +21,15 @@ var pet_data: PetData = null
 var owner_username: String = ""
 
 # ── Movement state ────────────────────────────────────────────────────────
-const ARRIVE_X_DISTANCE: float = 6.0   # close enough to "stop following" the owner
+# FOLLOW mode uses hysteresis: don't start walking until the owner is more
+# than FOLLOW_START_X away on X, don't stop until the gap shrinks below
+# FOLLOW_STOP_X. This prevents the walk/idle flicker that happens when the
+# owner walks at a speed close to the pet's. The pet targets the owner's
+# position directly (no fixed-side offset), so it ends up trailing on
+# whichever side it currently is, swapping naturally when the owner walks
+# past it.
+const FOLLOW_START_X: float = 70.0     # gap that triggers walking
+const FOLLOW_STOP_X: float = 22.0      # gap at which we stop (acts as standoff)
 const PICKUP_X_DISTANCE: float = 4.0   # walk onto the item's center before grabbing
 const SAME_LEVEL_Y_DELTA: float = 64.0 # max Y diff to consider items "same platform"
 
@@ -29,6 +37,7 @@ enum PetMode { FOLLOW, LOOT }
 var _mode: PetMode = PetMode.FOLLOW
 var _loot_target_node: Node = null  # DroppedItem we're pursuing
 var _facing_right: bool = true
+var _is_following: bool = false  # FOLLOW-mode hysteresis state
 var _leash_breach_timer: float = 0.0
 var _has_pending_jump: bool = false
 
@@ -162,8 +171,20 @@ func _physics_process(delta: float) -> void:
 	# Horizontal motion — walk toward target X.
 	var to_target_x: float = target_pos.x - global_position.x
 	var speed: float = pet_data.walk_speed if pet_data else 120.0
-	var arrive: float = PICKUP_X_DISTANCE if _mode == PetMode.LOOT else ARRIVE_X_DISTANCE
-	if absf(to_target_x) > arrive:
+	var should_walk: bool
+	if _mode == PetMode.LOOT:
+		should_walk = absf(to_target_x) > PICKUP_X_DISTANCE
+	else:
+		# Hysteresis around the owner: start at FOLLOW_START_X, stop at FOLLOW_STOP_X.
+		var gap: float = absf(to_target_x)
+		if _is_following:
+			if gap <= FOLLOW_STOP_X:
+				_is_following = false
+		else:
+			if gap > FOLLOW_START_X:
+				_is_following = true
+		should_walk = _is_following
+	if should_walk:
 		velocity.x = sign(to_target_x) * speed
 		_facing_right = to_target_x >= 0.0
 		_play_animation("walk")
@@ -171,8 +192,11 @@ func _physics_process(delta: float) -> void:
 		velocity.x = 0.0
 		_play_animation("idle")
 
-	# Jump if the target is above us and we're standing on ground.
-	if is_on_floor() and not _has_pending_jump:
+	# Jump only when following the owner to a higher platform. We do NOT jump
+	# for loot — same-level filtering in _scan_drops already restricts loot
+	# targets to drops on the pet's current Y, so a jump would always be at
+	# something off-screen or mid-air anyway.
+	if _mode == PetMode.FOLLOW and is_on_floor() and not _has_pending_jump:
 		var jump_threshold: float = pet_data.jump_threshold_y if pet_data else 24.0
 		if target_pos.y < global_position.y - jump_threshold:
 			velocity.y = pet_data.jump_velocity if pet_data else -360.0
@@ -222,9 +246,9 @@ func _resolve_target_position(owner_node: Node) -> Vector2:
 		# Drop pursuit if it became out-of-level (player moved away from it).
 		_mode = PetMode.FOLLOW
 		_loot_target_node = null
-	# Default: follow owner with the configured offset.
-	var offset := pet_data.follow_offset if pet_data else Vector2(-32.0, 0.0)
-	return owner_node.global_position + offset
+	# Aim directly at the owner; FOLLOW_STOP_X gives the natural standoff and
+	# the pet ends up on whichever side it was already on.
+	return owner_node.global_position
 
 
 func _teleport_to_owner(owner_node: Node) -> void:
@@ -279,7 +303,10 @@ func _scan_drops(container: Node) -> Node:
 		if not (child is DroppedItem):
 			continue
 		var drop: DroppedItem = child
-		if drop.current_state == DroppedItem.ItemState.COLLECTED:
+		# Only chase SETTLED drops. POPPING / FALLING items are still in the
+		# air arc and shouldn't be pursued (the pet would dart at the bounce
+		# trajectory). COLLECTED items are already gone.
+		if drop.current_state != DroppedItem.ItemState.SETTLED:
 			continue
 		if not drop.item_data:
 			continue
