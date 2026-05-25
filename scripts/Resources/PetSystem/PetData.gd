@@ -26,6 +26,16 @@ extends Resource
 @export var leash_radius: float = 200.0
 ## Pixel offset behind the owner the pet aims to settle at.
 @export var follow_offset: Vector2 = Vector2(-32.0, 0.0)
+## Initial upward velocity when jumping platforms (px/sec, negative is up).
+@export var jump_velocity: float = -360.0
+## Downward gravity applied each second (px/sec²).
+@export var gravity: float = 900.0
+## How much higher the owner must be than the pet (and pet on floor) before
+## the pet attempts a jump (px).
+@export var jump_threshold_y: float = 24.0
+## How long (seconds) the pet can be > leash_radius from owner before it
+## auto-teleports. Used to bridge ropes/ladders the pet can't navigate.
+@export var leash_teleport_grace_sec: float = 1.5
 
 @export_group("Auto-loot")
 ## Range around the pet body within which it will auto-loot drops (px).

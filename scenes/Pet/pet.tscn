@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/Pet/pet.gd" id="1_pet"]
 
@@ -16,12 +16,21 @@ properties/3/path = NodePath("Sprite:animation")
 properties/3/spawn = true
 properties/3/replication_mode = 2
 
-[node name="Pet" type="Node2D" node_paths=PackedStringArray("sprite", "bubble_label", "event_bubble", "summon_poof") groups=["networked_entities"]]
+[sub_resource type="CircleShape2D" id="CircleShape2D_pet"]
+radius = 4.0
+
+[node name="Pet" type="CharacterBody2D" node_paths=PackedStringArray("sprite", "bubble_label", "event_bubble", "summon_poof", "collision_shape") groups=["networked_entities"]]
+collision_layer = 0
+collision_mask = 1
 script = ExtResource("1_pet")
 sprite = NodePath("Sprite")
 bubble_label = NodePath("BubbleLabel")
 event_bubble = NodePath("EventBubble")
 summon_poof = NodePath("SummonPoof")
+collision_shape = NodePath("CollisionShape2D")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_pet")
 
 [node name="Sprite" type="AnimatedSprite2D" parent="."]
 scale = Vector2(2, 2)

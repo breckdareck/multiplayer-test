@@ -1,19 +1,14 @@
-[gd_resource type="Resource" script_class="PetSkillBookData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="PetSkillBookData" load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://scripts/Resources/PetSystem/PetSkillBookData.gd" id="1_book"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/Effects/Effect_TeachPetCommand.gd" id="2_effect"]
 
 [resource]
 script = ExtResource("1_book")
 command_id = "meso_magnet"
-effect_script = ExtResource("2_effect")
-effect_properties = {
-"command_id": "meso_magnet"
-}
 item_id = "pet_book_meso_magnet"
 name = "Pet Meso Magnet Command"
 rarity = 2
-description = "Teaches a summoned pet to automatically pick up coins in range."
+description = "Drag this onto a summoned pet to teach it to auto-pick coins."
 item_type = 2
 item_level = 5
 custom_item_value = 1000

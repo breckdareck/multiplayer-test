@@ -1,13 +1,18 @@
 class_name Pet
-extends Node2D
+extends CharacterBody2D
 
 ## A summoned pet entity. Owner-bound, server-spawned, owner-client-authoritative
 ## on position. See docs/adr/0001-pet-system-architecture.md.
+##
+## Movement is platform-aware: gravity, walking, jumping to follow the owner
+## up short platforms. When the owner gets clearly out of reach (rope/ladder
+## travel, big drops), the pet teleports after a short grace period.
 
 @export var sprite: AnimatedSprite2D
 @export var bubble_label: Label
 @export var event_bubble: Label
 @export var summon_poof: CPUParticles2D
+@export var collision_shape: CollisionShape2D
 
 # ── Identity (assigned by PetManager.setup) ───────────────────────────────
 var owner_peer_id: int = 0
@@ -15,9 +20,17 @@ var pet_uuid: String = ""
 var pet_data: PetData = null
 var owner_username: String = ""
 
-# ── Position / animation state (owner client only) ────────────────────────
+# ── Movement state ────────────────────────────────────────────────────────
+const ARRIVE_X_DISTANCE: float = 6.0   # close enough to "stop following"
+const PICKUP_X_DISTANCE: float = 18.0  # close enough to grab a drop
+const SAME_LEVEL_Y_DELTA: float = 64.0 # max Y diff to consider items "same platform"
+
+enum PetMode { FOLLOW, LOOT }
+var _mode: PetMode = PetMode.FOLLOW
+var _loot_target_node: Node = null  # DroppedItem we're pursuing
 var _facing_right: bool = true
-const ARRIVE_DISTANCE: float = 6.0
+var _leash_breach_timer: float = 0.0
+var _has_pending_jump: bool = false
 
 # ── Hunger display state (broadcast by server) ────────────────────────────
 var current_hunger: float = 100.0
@@ -25,9 +38,9 @@ var max_hunger_display: float = 100.0
 var is_hungry_state: bool = false
 const LOW_HUNGER_FRACTION: float = 0.25
 
-# ── Auto-loot (owner-client only) ─────────────────────────────────────────
+# ── Auto-loot scan (owner client only) ────────────────────────────────────
 var _autoloot_accumulator: float = 0.0
-const AUTOLOOT_TICK_INTERVAL: float = 0.1
+const AUTOLOOT_SCAN_INTERVAL: float = 0.25
 
 # ── Auto-pot (owner-client only) ──────────────────────────────────────────
 var _autopot_accumulator: float = 0.0
@@ -43,7 +56,6 @@ func _ready() -> void:
 	add_to_group("networked_entities")
 	_apply_pet_data()
 	_refresh_bubble()
-	# Summon poof — every peer plays it locally when the pet appears.
 	if is_instance_valid(summon_poof):
 		summon_poof.restart()
 		summon_poof.emitting = true
@@ -71,65 +83,133 @@ func _apply_pet_data() -> void:
 
 
 func _process(delta: float) -> void:
-	# Idle bounce — small Y oscillation when not actively moving. Cosmetic;
-	# runs on every peer.
+	# Idle bounce — small visual oscillation. Runs on every peer.
 	if is_instance_valid(sprite):
 		_idle_bounce_phase += delta * 4.0
-		var bounce_active := is_hungry_state or (sprite.animation == "idle")
+		var bounce_active := (sprite.animation == "idle") or is_hungry_state
 		var bob := sin(_idle_bounce_phase) * _idle_bounce_amplitude if bounce_active else 0.0
 		sprite.position.y = bob
 
 
 func _physics_process(delta: float) -> void:
+	# Only the owner's client computes motion. Other peers receive position via
+	# the MultiplayerSynchronizer.
 	if multiplayer.get_unique_id() != owner_peer_id:
 		return
 
-	# Hungry pets sit still and stop following.
+	# Apply gravity always (so the pet falls onto platforms after being placed).
+	if not is_on_floor():
+		velocity.y += (pet_data.gravity if pet_data else 900.0) * delta
+	else:
+		_has_pending_jump = false
+
 	if is_hungry_state:
+		# Hungry pets sit still where they are (gravity still keeps them on floor).
+		velocity.x = 0.0
 		_play_animation("idle")
+		move_and_slide()
 		return
 
 	var owner_node := PlayerManager.get_player_node(owner_peer_id)
 	if not is_instance_valid(owner_node):
+		move_and_slide()
 		return
 
-	var offset := pet_data.follow_offset if pet_data else Vector2(-32.0, 0.0)
-	var target := owner_node.global_position + offset
+	# Periodic loot scan (decides whether to switch to LOOT mode).
+	_autoloot_accumulator += delta
+	if _autoloot_accumulator >= AUTOLOOT_SCAN_INTERVAL:
+		_autoloot_accumulator = 0.0
+		_refresh_loot_target(owner_node)
 
-	var delta_pos := target - global_position
-	var distance := delta_pos.length()
+	# Pick the target position for this frame based on current mode.
+	var target_pos: Vector2 = _resolve_target_position(owner_node)
 
-	if pet_data and distance > pet_data.leash_radius:
-		global_position = target
-		_play_animation("idle")
-	elif distance > ARRIVE_DISTANCE:
-		var speed: float = pet_data.walk_speed if pet_data else 120.0
-		var step := delta_pos.normalized() * speed * delta
-		if step.length() > distance:
-			global_position = target
-		else:
-			global_position += step
-		_facing_right = delta_pos.x >= 0.0
+	# Leash timeout (e.g., owner climbed a rope the pet can't follow).
+	var dist_to_owner: float = global_position.distance_to(owner_node.global_position)
+	var leash: float = pet_data.leash_radius if pet_data else 200.0
+	if dist_to_owner > leash:
+		_leash_breach_timer += delta
+		var grace: float = pet_data.leash_teleport_grace_sec if pet_data else 1.5
+		if _leash_breach_timer >= grace:
+			_teleport_to_owner(owner_node)
+			move_and_slide()
+			return
+	else:
+		_leash_breach_timer = 0.0
+
+	# Hard teleport if the owner moved very far above/below in one frame
+	# (e.g., portal, instant respawn) — no point grinding the pet up.
+	if absf(owner_node.global_position.y - global_position.y) > leash * 1.5:
+		_teleport_to_owner(owner_node)
+		move_and_slide()
+		return
+
+	# Horizontal motion — walk toward target X.
+	var to_target_x: float = target_pos.x - global_position.x
+	var speed: float = pet_data.walk_speed if pet_data else 120.0
+	var arrive: float = PICKUP_X_DISTANCE if _mode == PetMode.LOOT else ARRIVE_X_DISTANCE
+	if absf(to_target_x) > arrive:
+		velocity.x = sign(to_target_x) * speed
+		_facing_right = to_target_x >= 0.0
 		_play_animation("walk")
 	else:
+		velocity.x = 0.0
 		_play_animation("idle")
 
+	# Jump if the target is above us and we're standing on ground.
+	if is_on_floor() and not _has_pending_jump:
+		var jump_threshold: float = pet_data.jump_threshold_y if pet_data else 24.0
+		if target_pos.y < global_position.y - jump_threshold:
+			velocity.y = pet_data.jump_velocity if pet_data else -360.0
+			_has_pending_jump = true
+
 	_apply_facing()
+	move_and_slide()
 
-	# Auto-loot scan (owner-client driven; server validates each request).
-	_autoloot_accumulator += delta
-	if _autoloot_accumulator >= AUTOLOOT_TICK_INTERVAL:
-		_autoloot_accumulator = 0.0
-		_try_autoloot()
+	# Trigger pickup if we've reached a loot target.
+	if _mode == PetMode.LOOT and is_instance_valid(_loot_target_node):
+		var loot_pos: Vector2 = _loot_target_node.global_position
+		if absf(loot_pos.x - global_position.x) <= PICKUP_X_DISTANCE \
+				and absf(loot_pos.y - global_position.y) <= SAME_LEVEL_Y_DELTA:
+			PetManager.request_autoloot_server.rpc_id(1, pet_uuid, _loot_target_node.name)
+			_mode = PetMode.FOLLOW
+			_loot_target_node = null
 
-	# Auto-pot tick (owner-client driven; server validates each request).
+	# Auto-pot tick (independent of mode — happens while walking).
 	_autopot_accumulator += delta
 	if _autopot_accumulator >= AUTOPOT_TICK_INTERVAL:
 		_autopot_accumulator = 0.0
 		_try_autopot()
 
 
-func _try_autoloot() -> void:
+func _resolve_target_position(owner_node: Node) -> Vector2:
+	if _mode == PetMode.LOOT and is_instance_valid(_loot_target_node):
+		# Only chase loot on the same vertical level — if the player walked off
+		# the platform, we'll follow them back via FOLLOW mode instead.
+		if absf(_loot_target_node.global_position.y - global_position.y) <= SAME_LEVEL_Y_DELTA:
+			return _loot_target_node.global_position
+		# Drop pursuit if it became out-of-level (player moved away from it).
+		_mode = PetMode.FOLLOW
+		_loot_target_node = null
+	# Default: follow owner with the configured offset.
+	var offset := pet_data.follow_offset if pet_data else Vector2(-32.0, 0.0)
+	return owner_node.global_position + offset
+
+
+func _teleport_to_owner(owner_node: Node) -> void:
+	global_position = owner_node.global_position + (pet_data.follow_offset if pet_data else Vector2(-32.0, 0.0))
+	velocity = Vector2.ZERO
+	_leash_breach_timer = 0.0
+	_mode = PetMode.FOLLOW
+	_loot_target_node = null
+	_has_pending_jump = false
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# AUTO-LOOT (owner client picks targets, server validates the actual pickup)
+# ═══════════════════════════════════════════════════════════════════════════
+
+func _refresh_loot_target(_owner_node: Node) -> void:
 	if not pet_data:
 		return
 	var record := PetManager.client_find_pet(pet_uuid)
@@ -139,23 +219,64 @@ func _try_autoloot() -> void:
 	var can_loot_items: bool = learned.has(PetManager.CMD_ITEM_POUCH)
 	var can_loot_coins: bool = learned.has(PetManager.CMD_MESO_MAGNET)
 	if not can_loot_items and not can_loot_coins:
+		_mode = PetMode.FOLLOW
+		_loot_target_node = null
 		return
 
+	# Existing loot target still valid? (alive + same level + in range)
+	if is_instance_valid(_loot_target_node) and _loot_target_node is DroppedItem:
+		var d: DroppedItem = _loot_target_node
+		if d.current_state != DroppedItem.ItemState.COLLECTED \
+				and absf(d.global_position.y - global_position.y) <= SAME_LEVEL_Y_DELTA \
+				and global_position.distance_to(d.global_position) <= pet_data.autoloot_radius:
+			return  # keep chasing it
+	_loot_target_node = null
+	_mode = PetMode.FOLLOW
+
+	# Find nearest eligible drop on the same vertical level.
 	var map_node := get_parent()
 	if not map_node:
 		return
-
-	var best_drop: Node = _scan_drops(map_node, can_loot_items, can_loot_coins)
-	# Fall back to the ItemDrops container if present.
+	var best: Node = _scan_drops(map_node, can_loot_items, can_loot_coins)
 	var drops_container := map_node.get_node_or_null("ItemDrops")
 	if drops_container:
 		var alt: Node = _scan_drops(drops_container, can_loot_items, can_loot_coins)
-		if alt and (not best_drop or global_position.distance_to(alt.global_position) < global_position.distance_to(best_drop.global_position)):
-			best_drop = alt
+		if alt and (not best or global_position.distance_to(alt.global_position) < global_position.distance_to(best.global_position)):
+			best = alt
+	if best:
+		_loot_target_node = best
+		_mode = PetMode.LOOT
 
-	if best_drop:
-		PetManager.request_autoloot_server.rpc_id(1, pet_uuid, best_drop.name)
 
+func _scan_drops(container: Node, can_loot_items: bool, can_loot_coins: bool) -> Node:
+	var best: Node = null
+	var best_dist: float = pet_data.autoloot_radius
+	for child in container.get_children():
+		if not (child is DroppedItem):
+			continue
+		var drop: DroppedItem = child
+		if drop.current_state == DroppedItem.ItemState.COLLECTED:
+			continue
+		if not drop.item_data:
+			continue
+		# Same-platform check: ignore drops too far above/below.
+		if absf(drop.global_position.y - global_position.y) > SAME_LEVEL_Y_DELTA:
+			continue
+		var is_coin: bool = drop.item_data.name == "Coin"
+		if is_coin and not can_loot_coins:
+			continue
+		if not is_coin and not can_loot_items:
+			continue
+		var d: float = global_position.distance_to(drop.global_position)
+		if d < best_dist:
+			best_dist = d
+			best = drop
+	return best
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# AUTO-POT
+# ═══════════════════════════════════════════════════════════════════════════
 
 func _try_autopot() -> void:
 	var record := PetManager.client_find_pet(pet_uuid)
@@ -170,7 +291,6 @@ func _try_autopot() -> void:
 	var inv: Dictionary = record.get(PetManager.KEY_INVENTORY, {})
 	var cfg: Dictionary = record.get(PetManager.KEY_AUTOPOT_CONFIG, {})
 
-	# HP
 	var hp_slot: Dictionary = inv.get(PetManager.KEY_AUTOPOT_HP, {})
 	if not hp_slot.is_empty() and int(hp_slot.get("stack", 0)) > 0:
 		var hp_threshold: float = cfg.get(PetManager.KEY_HP_THRESHOLD, 0.5)
@@ -179,7 +299,6 @@ func _try_autopot() -> void:
 			if float(hp_node.current_health) < float(hp_node.max_health) * hp_threshold:
 				PetManager.request_autopot_server.rpc_id(1, pet_uuid, "hp")
 
-	# MP
 	var mp_slot: Dictionary = inv.get(PetManager.KEY_AUTOPOT_MP, {})
 	if not mp_slot.is_empty() and int(mp_slot.get("stack", 0)) > 0:
 		var mp_threshold: float = cfg.get(PetManager.KEY_MP_THRESHOLD, 0.5)
@@ -189,28 +308,9 @@ func _try_autopot() -> void:
 				PetManager.request_autopot_server.rpc_id(1, pet_uuid, "mp")
 
 
-func _scan_drops(container: Node, can_loot_items: bool, can_loot_coins: bool) -> Node:
-	var best: Node = null
-	var best_dist: float = pet_data.autoloot_radius
-	for child in container.get_children():
-		if not (child is DroppedItem):
-			continue
-		var drop: DroppedItem = child
-		if drop.current_state == DroppedItem.ItemState.COLLECTED:
-			continue
-		if not drop.item_data:
-			continue
-		var is_coin: bool = drop.item_data.name == "Coin"
-		if is_coin and not can_loot_coins:
-			continue
-		if not is_coin and not can_loot_items:
-			continue
-		var d: float = global_position.distance_to(drop.global_position)
-		if d < best_dist:
-			best_dist = d
-			best = drop
-	return best
-
+# ═══════════════════════════════════════════════════════════════════════════
+# DISPLAY / VISUAL FEEDBACK
+# ═══════════════════════════════════════════════════════════════════════════
 
 func _play_animation(anim_name: String) -> void:
 	if not sprite or not sprite.sprite_frames:
@@ -231,7 +331,6 @@ func _apply_facing() -> void:
 	sprite.flip_h = not _facing_right
 
 
-## Called by PetManager via RPC when the server's hunger tick changes state.
 func apply_hunger_state(hunger: float, max_hunger: float, hungry: bool) -> void:
 	current_hunger = hunger
 	max_hunger_display = max_hunger
@@ -255,8 +354,6 @@ func _refresh_bubble() -> void:
 	bubble_label.visible = false
 
 
-## Plays a short feedback animation when the server broadcasts a pet event.
-## Called from PetManager._pet_event_visual_rpc.
 func play_event_visual(event_type: String) -> void:
 	match event_type:
 		"autoloot":
@@ -269,6 +366,8 @@ func play_event_visual(event_type: String) -> void:
 			_show_event_bubble("✨", Color(0.8, 0.6, 1))
 		"fed":
 			_show_event_bubble("Yum!", Color(0.8, 1, 0.6))
+		"taught":
+			_show_event_bubble("★", Color(1, 0.9, 0.3))
 
 
 func _pulse_scale() -> void:

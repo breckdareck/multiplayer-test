@@ -673,6 +673,95 @@ func request_feed_pet_server(pet_uuid: String, inventory_slot_index: int) -> voi
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# DRAG-ITEM-ONTO-PET (MapleStory parity — alternate to inventory `Use`)
+# ═══════════════════════════════════════════════════════════════════════════
+
+const DROP_ON_PET_RADIUS: float = 48.0
+
+## Server-side. Called by GlobalDropHandler.server_request_item_drop when the
+## player drops an inventory stack onto the world. If the drop lands on a
+## summoned pet owned by this player AND the item is pet-targeted (PetFoodData
+## or PetSkillBookData), the pet consumes it and the function returns true
+## (caller should NOT create a world drop, but SHOULD remove from inventory).
+func try_consume_dropped_item_on_pet(item: ItemData, player_peer: int, drop_position: Vector2) -> bool:
+	if not multiplayer.is_server():
+		return false
+	if not item:
+		return false
+	if not (item is PetFoodData or item is PetSkillBookData):
+		return false
+
+	var player_node := PlayerManager.get_player_node(player_peer)
+	if not is_instance_valid(player_node):
+		return false
+	var username: String = player_node.username
+	var summoned: Array = get_summoned_ids(username)
+	if summoned.is_empty():
+		_show_message_to_owner(player_peer, "No pet summoned.")
+		return false
+
+	# v1: 1 summoned pet max. Pick the closest one as a defensive default.
+	var pet_uuid: String = ""
+	var closest_dist: float = DROP_ON_PET_RADIUS
+	for uuid in summoned:
+		if not _active_pets.has(uuid):
+			continue
+		var pet_node: Node = _active_pets[uuid].get("pet_node")
+		if not is_instance_valid(pet_node):
+			continue
+		var d: float = pet_node.global_position.distance_to(drop_position)
+		if d <= closest_dist:
+			closest_dist = d
+			pet_uuid = uuid
+	if pet_uuid.is_empty():
+		return false  # No pet within reach of drop — let it land on the floor.
+
+	if item is PetFoodData:
+		return _apply_food_to_pet(item, username, pet_uuid)
+	if item is PetSkillBookData:
+		return _apply_book_to_pet(item, username, pet_uuid, player_peer)
+	return false
+
+
+func _apply_food_to_pet(food: PetFoodData, username: String, pet_uuid: String) -> bool:
+	var record := find_pet(username, pet_uuid)
+	if record.is_empty():
+		return false
+	var pet_data := get_pet_data(record.get(KEY_PET_DATA_ID, ""))
+	var max_h: float = pet_data.max_hunger if pet_data else 100.0
+	var new_hunger: float = min(max_h, record.get(KEY_HUNGER, max_h) + food.fullness_restore)
+	record[KEY_HUNGER] = new_hunger
+
+	if _active_pets.has(pet_uuid):
+		_active_pets[pet_uuid]["hungry_since_ms"] = 0
+		_active_pets[pet_uuid]["last_broadcast_ms"] = Time.get_ticks_msec()
+	_broadcast_pet_hunger_rpc.rpc(pet_uuid, new_hunger, max_h, new_hunger <= 0.0)
+	_pet_event_visual_rpc.rpc(pet_uuid, "fed")
+	_push_roster_to_owner(username)
+	_queue_save(username)
+	return true
+
+
+func _apply_book_to_pet(book: PetSkillBookData, username: String, pet_uuid: String, player_peer: int) -> bool:
+	var record := find_pet(username, pet_uuid)
+	if record.is_empty():
+		return false
+	var command_id: String = book.command_id
+	if command_id.is_empty():
+		return false
+	var learned: Array = record.get(KEY_LEARNED, [])
+	if learned.has(command_id):
+		# Already knows it — don't consume the book.
+		_show_message_to_owner(player_peer, "Pet already knows this command.")
+		return false
+	learned.append(command_id)
+	record[KEY_LEARNED] = learned
+	_pet_event_visual_rpc.rpc(pet_uuid, "taught")
+	notify_command_learned(username, pet_uuid, command_id)
+	return true
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # AUTO-LOOT (Phase 5)
 # ═══════════════════════════════════════════════════════════════════════════
 

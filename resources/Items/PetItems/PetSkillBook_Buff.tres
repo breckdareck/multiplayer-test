@@ -1,19 +1,14 @@
-[gd_resource type="Resource" script_class="PetSkillBookData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="PetSkillBookData" load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://scripts/Resources/PetSystem/PetSkillBookData.gd" id="1_book"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/Effects/Effect_TeachPetCommand.gd" id="2_effect"]
 
 [resource]
 script = ExtResource("1_book")
 command_id = "autobuff"
-effect_script = ExtResource("2_effect")
-effect_properties = {
-"command_id": "autobuff"
-}
 item_id = "pet_book_autobuff"
 name = "Pet Buff Command"
 rarity = 3
-description = "Unlocks a buff slot on your summoned pet. Drag any of your owned self-target buff abilities into the slot; the pet casts it on you periodically."
+description = "Drag onto a summoned pet to unlock its buff slot. Then drag any owned self-target buff ability into the slot in the Pet tab."
 item_type = 2
 item_level = 10
 custom_item_value = 3500
