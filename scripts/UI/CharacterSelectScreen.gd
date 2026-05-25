@@ -36,9 +36,33 @@ func _ready():
 	
 	_setup_server_info_display()
 	_setup_backend_info_display()
-	
+	_apply_default_join_ip()
+
 	# Fetch characters on load
 	NetworkManager.get_characters()
+
+
+func _apply_default_join_ip():
+	# Default Join Server IP to the host of the currently-selected backend API
+	# (Local -> 127.0.0.1, Cloud -> the cloud host). The user can still override.
+	var host = _extract_host_from_url(UserConfig.get_backend_api_url())
+	if host != "":
+		ip_input.text = host
+
+
+func _extract_host_from_url(url: String) -> String:
+	var s = url
+	if s.begins_with("http://"):
+		s = s.substr(7)
+	elif s.begins_with("https://"):
+		s = s.substr(8)
+	var slash = s.find("/")
+	if slash != -1:
+		s = s.substr(0, slash)
+	var colon = s.find(":")
+	if colon != -1:
+		s = s.substr(0, colon)
+	return s
 
 
 func _setup_server_info_display():
