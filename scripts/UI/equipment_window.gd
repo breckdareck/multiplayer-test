@@ -5,10 +5,9 @@ extends Control
 @onready var window_title_label: Label = $Label
 @onready var equipment_panel: Control = $PanelContainer
 @onready var pet_tab_content: Control = $PetTabContent
+@onready var pet_tab: Node = $PetTabContent/PetTab
 @onready var equipment_tab_button: Button = $TabButtons/EquipmentTabButton
 @onready var pets_tab_button: Button = $TabButtons/PetsTabButton
-
-const PET_TAB_SCENE: PackedScene = preload("res://scenes/UI/pet_tab.tscn")
 
 var player: MultiplayerPlayerV2
 
@@ -23,12 +22,9 @@ func _ready() -> void:
 	if owner is MultiplayerPlayerV2:
 		player = owner as MultiplayerPlayerV2
 
-	# Instantiate the pet tab UI inside PetTabContent.
-	if is_instance_valid(pet_tab_content):
-		var pet_tab := PET_TAB_SCENE.instantiate()
-		pet_tab_content.add_child(pet_tab)
-		if pet_tab.has_method("set_owner_player"):
-			pet_tab.set_owner_player(player)
+	# The pet tab is embedded in equipment_window.tscn — wire its owner ref.
+	if is_instance_valid(pet_tab) and pet_tab.has_method("set_owner_player"):
+		pet_tab.set_owner_player(player)
 
 	_show_equipment_tab()
 

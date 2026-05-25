@@ -1,9 +1,10 @@
-[gd_scene load_steps=11 format=3 uid="uid://cy54vn8lpmh2s"]
+[gd_scene load_steps=12 format=3 uid="uid://cy54vn8lpmh2s"]
 
 [ext_resource type="StyleBox" uid="uid://dm8jxifs8rqrm" path="res://assets/UI/Themes/PanelStyleboxTheme.tres" id="1_1pa5l"]
 [ext_resource type="Script" uid="uid://d0ixu8eft25uo" path="res://scripts/UI/equipment_window.gd" id="2_jqadm"]
 [ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="3_h143n"]
 [ext_resource type="Script" uid="uid://djwyi64hs6ufi" path="res://scripts/UI/equipment_slot.gd" id="4_84hex"]
+[ext_resource type="PackedScene" path="res://scenes/UI/pet_tab.tscn" id="5_pettab"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ihqbe"]
 content_margin_top = 5.0
@@ -358,6 +359,9 @@ offset_bottom = -9.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_ihqbe")
+
+[node name="PetTab" parent="PetTabContent" instance=ExtResource("5_pettab")]
+layout_mode = 2
 
 [connection signal="pressed" from="CloseButton" to="." method="hide"]
 [connection signal="pressed" from="TabButtons/EquipmentTabButton" to="." method="_on_equipment_tab_pressed"]
