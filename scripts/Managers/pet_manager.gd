@@ -990,33 +990,41 @@ func request_set_autopot_threshold_server(pet_uuid: String, slot_type: String, t
 
 @rpc("any_peer", "call_local", "reliable")
 func request_transfer_to_pet_slot_server(pet_uuid: String, slot_key: String, source_inventory_idx: int) -> void:
+	print("[PetMgr.transfer_to] RPC received. pet=%s slot=%s idx=%d is_server=%s" % [pet_uuid, slot_key, source_inventory_idx, multiplayer.is_server()])
 	if not multiplayer.is_server():
+		print("[PetMgr.transfer_to] not server — early return")
 		return
 	var caller := multiplayer.get_remote_sender_id()
 	if caller == 0:
 		caller = 1
-	# Equipping a pet item doesn't require the pet to be currently summoned —
-	# look the pet up by its owner's roster, not by _active_pets.
+	print("[PetMgr.transfer_to] caller=%d" % caller)
 	var player := PlayerManager.get_player_node(caller)
 	if not is_instance_valid(player) or not is_instance_valid(player.inventory_component):
+		print("[PetMgr.transfer_to] REJECT: player or inventory_component invalid")
 		return
 	var owner_username: String = player.username
 	var record := find_pet(owner_username, pet_uuid)
 	if record.is_empty():
+		print("[PetMgr.transfer_to] REJECT: pet '%s' not in '%s' roster" % [pet_uuid, owner_username])
 		return
+	print("[PetMgr.transfer_to] pet found in roster")
 	var source_inv = player.inventory_component
+	print("[PetMgr.transfer_to] source_inv has %d slots_data" % source_inv.slots_data.size())
 	if source_inventory_idx < 0 or source_inventory_idx >= source_inv.slots_data.size():
+		print("[PetMgr.transfer_to] REJECT: idx %d out of range" % source_inventory_idx)
 		return
 	var source_sd = source_inv.slots_data[source_inventory_idx]
 	if not source_sd or not source_sd.item:
+		print("[PetMgr.transfer_to] REJECT: source slot %d empty (sd=%s, item=%s)" % [source_inventory_idx, source_sd, source_sd.item if source_sd else "n/a"])
 		return
 	var item: ItemData = source_sd.item
+	print("[PetMgr.transfer_to] source item: name='%s' item_id='%s' class='%s'" % [item.name, item.item_id, item.get_class()])
 
-	# Per-slot type gate (HP/MP slots accept normal consumables; command slots
-	# accept only the matching book).
 	if not _slot_accepts_item(slot_key, item):
+		print("[PetMgr.transfer_to] REJECT: _slot_accepts_item false. canonical_id=%s expected=%s" % [resolve_canonical_id(item), book_id_for_slot(slot_key)])
 		_show_message_to_owner(caller, "That item doesn't fit this slot.")
 		return
+	print("[PetMgr.transfer_to] _slot_accepts_item OK, writing slot")
 
 	var inv: Dictionary = record.get(KEY_INVENTORY, {})
 	var existing := _read_pet_slot(inv, slot_key)

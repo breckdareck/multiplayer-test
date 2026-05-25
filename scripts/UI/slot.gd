@@ -436,16 +436,22 @@ func _should_create_dropped_item() -> bool:
 	# Check if we're dragging and the mouse is outside of any UI windows
 	if not is_dragging or not drag_item:
 		return false
-	
+
+	# Pet command books and pet food are bound to the Pet UI — the only legal
+	# way to use them is the pet slot in the Pet tab. Refuse to create a
+	# world drop. Drag will fall through to restore_drag_to_source().
+	if drag_item is PetSkillBookData or drag_item is PetFoodData:
+		return false
+
 	# Get the current mouse position
 	var mouse_pos = get_global_mouse_position()
-	
+
 	# Check if mouse is outside of all UI windows
 	var ui_windows = get_tree().get_nodes_in_group("ui_window")
 	for window in ui_windows:
 		if window.visible and window.get_global_rect().has_point(mouse_pos):
 			return false
-	
+
 	# If we're here, the mouse is outside all UI windows
 	return true
 

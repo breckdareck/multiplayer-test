@@ -126,29 +126,35 @@ func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 
 
 func _drop_data(_at_position: Vector2, data: Variant) -> void:
+	print("[PetSlot._drop_data] fired. slot_key=%s slot_kind=%s pet_uuid=%s" % [slot_key, slot_kind, pet_uuid])
 	if slot_kind == "ability_buff":
 		if not _is_buff_ability_drag(data):
+			print("[PetSlot._drop_data] buff: not a buff-ability drag, ignored")
 			return
 		var ability: AbilityData = data.get("ability_data")
+		print("[PetSlot._drop_data] buff: sending set_active_buff for ability=%s" % ability.ability_id)
 		PetManager.request_set_active_buff_ability_server.rpc_id(1, pet_uuid, ability.ability_id)
 		return
 
 	if not (data is Slot):
+		print("[PetSlot._drop_data] data is not Slot, ignored")
 		return
 	var source_slot: Slot = data
 	if not source_slot.drag_item:
+		print("[PetSlot._drop_data] source_slot has no drag_item, ignored")
 		return
 	if not (source_slot.item_container is InventoryComponent):
+		print("[PetSlot._drop_data] source_slot.item_container is %s (not InventoryComponent), bailing" % typeof(source_slot.item_container))
 		source_slot.cancel_drag()
 		return
 	var source_inv: InventoryComponent = source_slot.item_container
-	# Find the slot's index via the Slot node array — works even when the
-	# slot is in legacy mode (slot_data == null), unlike slots_data.find().
 	var idx: int = source_inv.slots.find(source_slot)
 	if idx == -1:
+		print("[PetSlot._drop_data] source_slot not in inventory.slots — bailing")
 		push_warning("PetSlot: drop source slot not found in inventory.slots")
 		source_slot.cancel_drag()
 		return
+	print("[PetSlot._drop_data] sending RPC: pet_uuid=%s slot_key=%s inv_idx=%d item_name=%s item_id=%s" % [pet_uuid, slot_key, idx, source_slot.drag_item.name, source_slot.drag_item.item_id])
 	PetManager.request_transfer_to_pet_slot_server.rpc_id(1, pet_uuid, slot_key, idx)
 	source_slot.cancel_drag()
 
