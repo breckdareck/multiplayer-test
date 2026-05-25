@@ -374,8 +374,15 @@ func _build_edges() -> void:
 					_connect(i, j, EdgeKind.JUMP, false)
 			elif dy < -2.0:
 				# A drop is only valid where the bot can actually leave the
-				# surface — a solid ledge, or anywhere on a one-way platform.
+				# surface — a solid ledge, or anywhere on a one-way platform —
+				# AND the path between source and destination is unobstructed.
+				# Without the path-clear check, A* happily picks DROP edges
+				# that cut across solid terrain (e.g. straight across a
+				# triangle-shaped staircase) and the bot tries to execute them
+				# by walking into the side of the obstacle.
 				if not can_drop or dx > DROP_DX:
+					continue
+				if not _jump_path_clear(pa, pb):
 					continue
 				if raw_dx >= 0.0 and -dy < drop_right_dy:
 					drop_right_dy = -dy

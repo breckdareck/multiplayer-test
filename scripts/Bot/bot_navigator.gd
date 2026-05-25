@@ -327,7 +327,16 @@ func _navigate_toward(target_pos: Vector2) -> void:
 	# --- Target is above us ---
 	if dy < -10.0:
 		if abs(dy) <= _max_jump_height:
-			try_jump()
+			if _jump_cooldown_timer <= 0.0:
+				try_jump()
+			else:
+				# Hold position until the cooldown clears. JUMP_COOLDOWN is 0.8 s
+				# but a jump's airtime is only ~0.5 s, so the bot lands with
+				# cooldown remaining; walking forward in that window crosses a
+				# narrow step in <0.25 s and drops the bot off the far edge,
+				# resetting the climb. Standing still until we can jump again
+				# is what lets a staircase actually be ascended.
+				player.direction = 0
 			return
 		if is_near_ledge():
 			player.direction = 0
