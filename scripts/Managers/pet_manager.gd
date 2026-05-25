@@ -95,6 +95,7 @@ func _process(delta: float) -> void:
 	if not multiplayer.is_server():
 		return
 	_tick_hunger(delta)
+	_tick_autobuff()
 
 
 func _load_pet_data_registry() -> void:
@@ -947,6 +948,106 @@ func _write_pet_slot(inv: Dictionary, slot_key: String, slot_data: Dictionary) -
 		inv[KEY_STORAGE] = storage
 		return
 	inv[slot_key] = slot_data
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# AUTO-BUFF (Phase 7)
+# ═══════════════════════════════════════════════════════════════════════════
+
+## Server-side buff timer. Deliberate deviation from Option B — the trigger is
+## purely time-based, not client-observable, so a server-driven timer beats a
+## redundant client RPC round-trip. See docs/adr/0001-pet-system-architecture.md.
+func _tick_autobuff() -> void:
+	if _active_pets.is_empty():
+		return
+	var now_ms := Time.get_ticks_msec()
+	for pet_uuid in _active_pets.keys():
+		var info: Dictionary = _active_pets[pet_uuid]
+		var owner_username: String = info.get("owner_username", "")
+		var owner_peer: int = info.get("owner_peer_id", 0)
+		if owner_username.is_empty() or owner_peer <= 0:
+			continue
+
+		var record := find_pet(owner_username, pet_uuid)
+		if record.is_empty():
+			continue
+		if record.get(KEY_HUNGER, 100.0) <= 0.0:
+			continue
+		if not (record.get(KEY_LEARNED, []) as Array).has(CMD_AUTOBUFF):
+			continue
+		var ability_id: String = record.get(KEY_ACTIVE_BUFF, "")
+		if ability_id.is_empty():
+			continue
+
+		var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
+		if not ability or not ability.applies_buff:
+			continue
+		if not ability.active_behavior or ability.active_behavior.target_type != Constants.TargetType.SELF:
+			continue
+
+		var owner_player := PlayerManager.get_player_node(owner_peer)
+		if not is_instance_valid(owner_player) or not is_instance_valid(owner_player.buff_component):
+			continue
+
+		# Validate the owner actually has this ability learned.
+		if not is_instance_valid(owner_player.ability_component):
+			continue
+		var owner_level: int = owner_player.ability_component._ability_levels.get(ability_id, 0)
+		if owner_level <= 0:
+			continue
+
+		# Use the ability's own cooldown at the owner's current level.
+		var level_data: AbilityLevelData = ability.get_level_stats(owner_level)
+		var cd_sec: float = level_data.cooldown_time if level_data and level_data.cooldown_time > 0.0 else 60.0
+		var last_cast_ms: int = info.get("autobuff_last_cast_ms_%s" % ability_id, 0)
+		if now_ms - last_cast_ms < int(cd_sec * 1000.0):
+			continue
+
+		var buff_id: String = ability.applies_buff.buff_id
+		# Skip if owner already has plenty of buff remaining.
+		if owner_player.buff_component.has_buff(buff_id):
+			if owner_player.buff_component.get_buff_duration(buff_id) > 5.0:
+				continue
+
+		# Cast.
+		owner_player.buff_component.apply_buff(buff_id, null, -1.0)
+		info["autobuff_last_cast_ms_%s" % ability_id] = now_ms
+
+
+@rpc("any_peer", "call_local", "reliable")
+func request_set_active_buff_ability_server(pet_uuid: String, ability_id: String) -> void:
+	if not multiplayer.is_server():
+		return
+	var caller := multiplayer.get_remote_sender_id()
+	if caller == 0:
+		caller = 1
+	if not _active_pets.has(pet_uuid):
+		return
+	var info: Dictionary = _active_pets[pet_uuid]
+	if info.get("owner_peer_id", 0) != caller:
+		return
+	var owner_username: String = info.get("owner_username", "")
+	var record := find_pet(owner_username, pet_uuid)
+	if record.is_empty():
+		return
+
+	# An empty string clears the slot. Otherwise validate caller owns it and
+	# it's a self-target buff ability.
+	if not ability_id.is_empty():
+		var player := PlayerManager.get_player_node(caller)
+		if not is_instance_valid(player) or not is_instance_valid(player.ability_component):
+			return
+		if int(player.ability_component._ability_levels.get(ability_id, 0)) <= 0:
+			return
+		var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
+		if not ability or not ability.applies_buff:
+			return
+		if not ability.active_behavior or ability.active_behavior.target_type != Constants.TargetType.SELF:
+			return
+
+	record[KEY_ACTIVE_BUFF] = ability_id
+	_push_roster_to_owner(owner_username)
+	_queue_save(owner_username)
 
 
 # ═══════════════════════════════════════════════════════════════════════════

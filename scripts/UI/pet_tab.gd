@@ -193,13 +193,13 @@ func _build_ui() -> void:
 	_mp_threshold_slider.drag_ended.connect(_on_mp_threshold_drag_ended)
 	mp_row.add_child(_mp_threshold_slider)
 
-	# Active buff slot (dropdown wires up Phase 7)
+	# Active buff slot — populated per pet in _refresh_detail.
 	var buff_label := Label.new()
 	buff_label.text = "Active Buff:"
 	_detail_container.add_child(buff_label)
 	_buff_dropdown = OptionButton.new()
 	_buff_dropdown.add_item("(none)")
-	_buff_dropdown.disabled = true
+	_buff_dropdown.item_selected.connect(_on_buff_dropdown_selected)
 	_detail_container.add_child(_buff_dropdown)
 
 	# Learned commands status
@@ -371,6 +371,9 @@ func _refresh_detail() -> void:
 		var slot_node: PetSlot = entry.node
 		slot_node.setup(_selected_pet_uuid, entry.key, entry.label, entry.require)
 
+	# Active buff dropdown
+	_rebuild_buff_dropdown(record)
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # UI EVENT HANDLERS
@@ -400,6 +403,67 @@ func _on_feed_pressed() -> void:
 	if slot_idx == -1:
 		return
 	PetManager.request_feed_pet_server.rpc_id(1, _selected_pet_uuid, slot_idx)
+
+
+## Repopulate the buff dropdown from the player's owned self-target buff
+## abilities. Selection is preserved from record.KEY_ACTIVE_BUFF; "(none)" is
+## item 0. Disabled when the pet hasn't learned the autobuff command.
+func _rebuild_buff_dropdown(record: Dictionary) -> void:
+	if not is_instance_valid(_buff_dropdown):
+		return
+	# Suppress the item_selected signal while we rebuild.
+	_buff_dropdown.set_block_signals(true)
+	_buff_dropdown.clear()
+	_buff_dropdown.add_item("(none)")
+	_buff_dropdown.set_item_metadata(0, "")
+
+	var eligible := _get_eligible_buff_abilities()
+	for i in eligible.size():
+		var ability: AbilityData = eligible[i]
+		_buff_dropdown.add_item(ability.ability_name)
+		_buff_dropdown.set_item_metadata(i + 1, ability.ability_id)
+
+	# Select the current active buff (or "(none)" if not in list).
+	var current_id: String = record.get(PetManager.KEY_ACTIVE_BUFF, "")
+	var selected_idx := 0
+	for i in _buff_dropdown.item_count:
+		if str(_buff_dropdown.get_item_metadata(i)) == current_id:
+			selected_idx = i
+			break
+	_buff_dropdown.select(selected_idx)
+
+	var learned: Array = record.get(PetManager.KEY_LEARNED, [])
+	_buff_dropdown.disabled = not learned.has(PetManager.CMD_AUTOBUFF)
+	if _buff_dropdown.disabled:
+		_buff_dropdown.tooltip_text = "Use a Pet Buff Command book to unlock."
+	else:
+		_buff_dropdown.tooltip_text = "Pet will cast this buff on you periodically."
+	_buff_dropdown.set_block_signals(false)
+
+
+func _get_eligible_buff_abilities() -> Array:
+	var result: Array = []
+	if not is_instance_valid(player) or not is_instance_valid(player.ability_component):
+		return result
+	var levels: Dictionary = player.ability_component._ability_levels
+	for ability_id in levels.keys():
+		var level: int = int(levels[ability_id])
+		if level <= 0:
+			continue
+		var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
+		if not ability or not ability.applies_buff:
+			continue
+		if not ability.active_behavior or ability.active_behavior.target_type != Constants.TargetType.SELF:
+			continue
+		result.append(ability)
+	return result
+
+
+func _on_buff_dropdown_selected(idx: int) -> void:
+	if _selected_pet_uuid.is_empty():
+		return
+	var ability_id: String = str(_buff_dropdown.get_item_metadata(idx))
+	PetManager.request_set_active_buff_ability_server.rpc_id(1, _selected_pet_uuid, ability_id)
 
 
 func _on_hp_threshold_drag_ended(_value_changed: bool) -> void:
