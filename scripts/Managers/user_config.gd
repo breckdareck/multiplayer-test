@@ -4,6 +4,7 @@ const SAVE_FILE_PATH = "user://user_config.cfg"
 const KEYBIND_CONFIG_SECTION = "Keybinds"
 const SOUND_CONFIG_SECTION = "SoundSettings"
 const SERVER_CONFIG_SECTION = "ServerSettings"
+const GAMEPLAY_CONFIG_SECTION = "GameplaySettings"
 const DEFAULT_API_URL = "http://127.0.0.1:5000/api"
 
 var custom_keybinds: Dictionary = {}
@@ -18,6 +19,9 @@ var sfx_volume_db: float = -8
 # Server settings
 var backend_api_url: String = DEFAULT_API_URL
 var game_server_port: int = 8080
+
+# Gameplay settings
+var screen_shake_enabled: bool = true
 
 func _init():
 	# Define default hotbar actions
@@ -58,6 +62,7 @@ func load_config():
 	_load_keybinds_from_config(config)
 	_load_sound_settings_from_config(config)
 	_load_server_settings_from_config(config)
+	_load_gameplay_settings_from_config(config)
 	
 	#print("User config loaded.")
 
@@ -75,6 +80,7 @@ func save_config():
 	_save_keybinds_to_config(config, file_existed_before_save)
 	_save_sound_settings_to_config(config, file_existed_before_save)
 	_save_server_settings_to_config(config, file_existed_before_save)
+	_save_gameplay_settings_to_config(config, file_existed_before_save)
 	
 	error = config.save(SAVE_FILE_PATH)
 	if error != OK:
@@ -306,3 +312,17 @@ func set_game_server_port(port: int):
 	game_server_port = port
 	save_config()
 	#print("Game server port updated to: %d" % port)
+
+
+func _load_gameplay_settings_from_config(config: ConfigFile):
+	if config.has_section(GAMEPLAY_CONFIG_SECTION):
+		screen_shake_enabled = config.get_value(GAMEPLAY_CONFIG_SECTION, "screen_shake_enabled", screen_shake_enabled)
+
+
+func _save_gameplay_settings_to_config(config: ConfigFile, _file_existed_before_save: bool):
+	config.set_value(GAMEPLAY_CONFIG_SECTION, "screen_shake_enabled", screen_shake_enabled)
+
+
+func set_screen_shake_enabled(enabled: bool):
+	screen_shake_enabled = enabled
+	save_config()

@@ -221,7 +221,7 @@ func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, 
 	# Screen shake for player characters on big hits
 	if is_player:
 		var player_owner: MultiplayerPlayerV2 = owner as MultiplayerPlayerV2
-		var shake_intensity: float = clampf(float(amount) / float(max_health) * 12.0, 2.0, 8.0)
+		var shake_intensity: float = clampf(float(amount) / float(max_health) * 14.0, 4.0, 10.0)
 		if player_owner.has_method("screen_shake"):
 			# Shake on server (if host is the player)
 			player_owner.screen_shake(shake_intensity)

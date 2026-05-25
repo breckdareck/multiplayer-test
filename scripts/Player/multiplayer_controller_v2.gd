@@ -1018,15 +1018,17 @@ func request_map_change_rpc(new_map_id: String, spawn_point_name: String = "", c
 func screen_shake(intensity: float = 4.0, duration: float = 0.2) -> void:
 	if player_id != multiplayer.get_unique_id():
 		return  # Only shake the local player's camera
+	if not UserConfig.screen_shake_enabled:
+		return
 	if not is_instance_valid(camera):
 		return
 	var tween: Tween = create_tween()
 	var shake_count: int = int(duration / 0.04)
 	for i in range(shake_count):
 		var offset := Vector2(randf_range(-intensity, intensity), randf_range(-intensity, intensity))
-		tween.tween_property(camera, "offset", Vector2(0, -16) + offset, 0.02)
-		tween.tween_property(camera, "offset", Vector2(0, -16), 0.02)
-	tween.tween_property(camera, "offset", Vector2(0, -16), 0.02)
+		tween.tween_property(camera, "offset", offset, 0.02)
+		tween.tween_property(camera, "offset", Vector2.ZERO, 0.02)
+	tween.tween_property(camera, "offset", Vector2.ZERO, 0.02)
 
 
 

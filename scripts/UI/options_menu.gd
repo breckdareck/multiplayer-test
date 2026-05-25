@@ -6,6 +6,7 @@ signal back_pressed
 @onready var master_slider: HSlider = %MasterSlider
 @onready var music_slider: HSlider = %MusicSlider
 @onready var sfx_slider: HSlider = %SfxSlider
+@onready var screen_shake_checkbox: CheckBox = %ScreenShakeCheckBox
 @onready var back_button: Button = %BackButton
 
 var master_bus_idx: int
@@ -24,12 +25,14 @@ func _ready():
 	master_slider.value = db_to_linear(UserConfig.master_volume_db)
 	music_slider.value = db_to_linear(UserConfig.music_volume_db)
 	sfx_slider.value = db_to_linear(UserConfig.sfx_volume_db)
+	screen_shake_checkbox.button_pressed = UserConfig.screen_shake_enabled
 
 
 	# Connect slider signals
 	master_slider.value_changed.connect(_on_master_slider_value_changed)
 	music_slider.value_changed.connect(_on_music_slider_value_changed)
 	sfx_slider.value_changed.connect(_on_sfx_slider_value_changed)
+	screen_shake_checkbox.toggled.connect(_on_screen_shake_toggled)
 
 func show_menu():
 	visible = true
@@ -45,3 +48,6 @@ func _on_music_slider_value_changed(value: float):
 
 func _on_sfx_slider_value_changed(value: float):
 	UserConfig.set_sfx_volume(linear_to_db(value))
+
+func _on_screen_shake_toggled(button_pressed: bool):
+	UserConfig.set_screen_shake_enabled(button_pressed)
