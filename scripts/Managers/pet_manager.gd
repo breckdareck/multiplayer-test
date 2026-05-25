@@ -1029,14 +1029,21 @@ func request_transfer_to_pet_slot_server(pet_uuid: String, slot_key: String, sou
 		print("[PetMgr.transfer_to] REJECT: _slot_accepts_item false. item.name='%s' expected_name='%s'" % [item.name, book_name_for_slot(slot_key)])
 		_show_message_to_owner(caller, "That item doesn't fit this slot.")
 		return
-	print("[PetMgr.transfer_to] _slot_accepts_item OK, writing slot")
 
 	var inv: Dictionary = record.get(KEY_INVENTORY, {})
 	var existing := _read_pet_slot(inv, slot_key)
+	var is_command_slot: bool = slot_key == KEY_CMD_AUTO_POT or slot_key == KEY_CMD_BUFF or slot_key == KEY_CMD_MAGNET
 
-	# If the pet slot already holds the SAME item id, stack onto it.
-	# If it holds a different item, swap them (return existing to main inventory).
-	if not existing.is_empty() and existing.get("item_id", "") != item.item_id:
+	if is_command_slot and not existing.is_empty():
+		# Command slots hold exactly ONE book. Refuse to stack or overwrite
+		# silently — the player has to right-click to unequip first.
+		print("[PetMgr.transfer_to] REJECT: command slot '%s' already equipped" % slot_key)
+		_show_message_to_owner(caller, "That command slot is already equipped. Right-click to unequip first.")
+		return
+
+	# Pot slots may stack the same item or swap a different one.
+	var canonical_key: String = item.name
+	if not is_command_slot and not existing.is_empty() and existing.get("item_id", "") != canonical_key:
 		# Swap: put the existing item back into main inventory first.
 		var existing_id: String = existing.get("item_id", "")
 		var existing_stack: int = int(existing.get("stack", 0))
@@ -1046,15 +1053,22 @@ func request_transfer_to_pet_slot_server(pet_uuid: String, slot_key: String, sou
 				source_inv.server_add_item(existing_id)
 		_write_pet_slot(inv, slot_key, {})
 
-	# Store via the item's NAME (the stable identifier — see BOOK_*_NAME).
-	var canonical_key: String = item.name
 	var new_stack: int = int(existing.get("stack", 0)) + item.current_stack_amount if existing.get("item_id", "") == canonical_key else item.current_stack_amount
 	_write_pet_slot(inv, slot_key, {
 		"item_id": canonical_key,
 		"stack": new_stack,
 	})
 
-	source_inv.remove_item_from_stack(item, item.current_stack_amount, "transferred_to_pet")
+	# Remove the source from main inventory. remove_item_from_stack short-
+	# circuits to 0 for non-stackable items (Slot.remove_from_stack returns 0
+	# early when !can_stack), so we use clear_slot for the whole-slot move.
+	# That handles both stackable and non-stackable in one path since we're
+	# always moving the entire source stack to the pet slot.
+	if source_inventory_idx >= 0 and source_inventory_idx < source_inv.slots.size():
+		var source_slot_node: Slot = source_inv.slots[source_inventory_idx]
+		if is_instance_valid(source_slot_node):
+			source_inv.clear_slot(source_slot_node, "transferred_to_pet")
+	print("[PetMgr.transfer_to] DONE: inventory slot %d cleared, pet slot '%s' now holds '%s'" % [source_inventory_idx, slot_key, canonical_key])
 	_push_roster_to_owner(owner_username)
 	_queue_save(owner_username)
 
