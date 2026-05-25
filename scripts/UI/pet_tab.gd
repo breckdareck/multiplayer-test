@@ -3,34 +3,32 @@ extends MarginContainer
 
 ## Pet management UI controller.
 ##
-## The UI structure lives in pet_tab.tscn — tweak layout/colors/sizes there.
-## This script binds data into the exported nodes and handles the signal
-## callbacks (wired by editor connections, see pet_tab.tscn `[connection]`s).
-##
-## The 5 pet-inventory slots inside InventoryGrid are still instantiated here
-## because their count/config is data-driven (PetManager constants).
+## The layout is in pet_tab.tscn — tweak there. This script binds data into
+## the exported nodes, instances the 6 pet-inventory slots (PotsGrid + CommandsGrid),
+## and handles the signal callbacks wired by the scene.
 
 @export var pet_list: ItemList
 @export var detail_container: VBoxContainer
 @export var empty_state_label: Label
 @export var portrait: TextureRect
 @export var name_edit: LineEdit
-@export var hunger_bar: ProgressBar
-@export var feed_button: Button
 @export var summon_button: Button
 @export var release_button: Button
-@export var inventory_grid: HBoxContainer
+@export var hunger_bar: ProgressBar
+@export var feed_button: Button
+@export var pots_grid: HBoxContainer       # HP / MP / Active-Buff slots
+@export var commands_grid: HBoxContainer   # AutoPot / Buff Cmd / Magnet slots
 @export var hp_threshold_slider: HSlider
+@export var hp_threshold_value_label: Label
 @export var mp_threshold_slider: HSlider
-@export var buff_dropdown: OptionButton
-@export var learned_commands_label: Label
+@export var mp_threshold_value_label: Label
 @export var confirm_dialog: ConfirmationDialog
 
 const PET_SLOT_SCENE: PackedScene = preload("res://scenes/UI/pet_slot.tscn")
 
 var player: MultiplayerPlayerV2 = null
 
-# Runtime-built widget cache for the 5 inventory slots.
+# Runtime-built slot widget cache. Each entry: { node, key, label, kind }.
 var _pet_slot_widgets: Array = []
 
 var _selected_pet_uuid: String = ""
@@ -39,9 +37,6 @@ var _selected_pet_uuid: String = ""
 func _ready() -> void:
 	_build_inventory_slots()
 	_connect_pet_manager_signals()
-	# Make sure "(none)" is in the buff dropdown until populated.
-	if is_instance_valid(buff_dropdown) and buff_dropdown.item_count == 0:
-		buff_dropdown.add_item("(none)")
 	_refresh()
 
 
@@ -50,27 +45,30 @@ func set_owner_player(p: MultiplayerPlayerV2) -> void:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# DATA-DRIVEN INVENTORY SLOT BUILDOUT
+# SLOT BUILDOUT (data-driven; layout containers live in the .tscn)
 # ═══════════════════════════════════════════════════════════════════════════
 
 func _build_inventory_slots() -> void:
-	if not is_instance_valid(inventory_grid):
-		return
-	# Clear any previous instances (handles hot-reload / re-entry).
-	for child in inventory_grid.get_children():
-		child.queue_free()
 	_pet_slot_widgets.clear()
-
-	var slot_configs := [
-		{"key": PetManager.KEY_AUTOPOT_HP, "label": "HP", "kind": "pot"},
-		{"key": PetManager.KEY_AUTOPOT_MP, "label": "MP", "kind": "pot"},
-		{"key": PetManager.KEY_CMD_AUTO_POT, "label": "AutoPot", "kind": "book"},
-		{"key": PetManager.KEY_CMD_BUFF, "label": "Buff", "kind": "book"},
-		{"key": PetManager.KEY_CMD_MAGNET, "label": "Magnet", "kind": "book"},
+	# Row 1: triggers — HP pot, MP pot, the active buff ability.
+	var row1 := [
+		{"key": PetManager.KEY_AUTOPOT_HP, "label": "HP", "kind": "pot", "container": pots_grid},
+		{"key": PetManager.KEY_AUTOPOT_MP, "label": "MP", "kind": "pot", "container": pots_grid},
+		{"key": "", "label": "Buff", "kind": "ability_buff", "container": pots_grid},
 	]
-	for cfg in slot_configs:
+	# Row 2: enabler books — AutoPot, Buff Command, Magnet.
+	var row2 := [
+		{"key": PetManager.KEY_CMD_AUTO_POT, "label": "Auto Pot", "kind": "book", "container": commands_grid},
+		{"key": PetManager.KEY_CMD_BUFF, "label": "Buff Cmd", "kind": "book", "container": commands_grid},
+		{"key": PetManager.KEY_CMD_MAGNET, "label": "Magnet", "kind": "book", "container": commands_grid},
+	]
+	for cfg in (row1 + row2):
+		if not is_instance_valid(cfg.container):
+			continue
+		# Clear any previous instances (handles hot-reload).
+		# (No-op on first build.)
 		var slot: PetSlot = PET_SLOT_SCENE.instantiate()
-		inventory_grid.add_child(slot)
+		cfg.container.add_child(slot)
 		_pet_slot_widgets.append({
 			"node": slot,
 			"key": cfg.key,
@@ -80,7 +78,7 @@ func _build_inventory_slots() -> void:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# SIGNAL WIRING (PetManager → UI)
+# PetManager → UI WIRING
 # ═══════════════════════════════════════════════════════════════════════════
 
 func _connect_pet_manager_signals() -> void:
@@ -97,7 +95,6 @@ func _on_roster_updated() -> void:
 
 
 func _on_pet_hatched(pet_uuid: String, _pet_name: String, _pet_data_id: String) -> void:
-	# Open this tab and select the new pet so the player can rename it.
 	_selected_pet_uuid = pet_uuid
 	_refresh()
 	var equipment_window := _find_equipment_window()
@@ -120,7 +117,7 @@ func _find_equipment_window() -> Node:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# REFRESH (data -> UI)
+# REFRESH
 # ═══════════════════════════════════════════════════════════════════════════
 
 func _refresh() -> void:
@@ -174,7 +171,7 @@ func _refresh_detail() -> void:
 	if is_instance_valid(portrait):
 		portrait.texture = pet_data.icon if pet_data else null
 
-	# Name (don't overwrite while the user is typing).
+	# Name.
 	if is_instance_valid(name_edit) and not name_edit.has_focus():
 		name_edit.text = record.get(PetManager.KEY_NAME, "")
 
@@ -202,79 +199,19 @@ func _refresh_detail() -> void:
 
 	# Autopot thresholds.
 	var ap_cfg: Dictionary = record.get(PetManager.KEY_AUTOPOT_CONFIG, {})
+	var hp_t: float = ap_cfg.get(PetManager.KEY_HP_THRESHOLD, 0.5)
+	var mp_t: float = ap_cfg.get(PetManager.KEY_MP_THRESHOLD, 0.5)
 	if is_instance_valid(hp_threshold_slider):
-		hp_threshold_slider.value = ap_cfg.get(PetManager.KEY_HP_THRESHOLD, 0.5)
+		hp_threshold_slider.set_value_no_signal(hp_t)
 	if is_instance_valid(mp_threshold_slider):
-		mp_threshold_slider.value = ap_cfg.get(PetManager.KEY_MP_THRESHOLD, 0.5)
-
-	# Active commands (derived from which books are in command slots).
-	if is_instance_valid(learned_commands_label):
-		var active: Array = PetManager.get_active_commands(record)
-		if active.is_empty():
-			learned_commands_label.text = "Commands: (none — equip command books in the slots)"
-		else:
-			learned_commands_label.text = "Commands: " + ", ".join(active)
+		mp_threshold_slider.set_value_no_signal(mp_t)
+	_update_threshold_label(hp_threshold_value_label, hp_t)
+	_update_threshold_label(mp_threshold_value_label, mp_t)
 
 	# Pet inventory slots.
 	for entry in _pet_slot_widgets:
 		var slot_node: PetSlot = entry.node
 		slot_node.setup(_selected_pet_uuid, entry.key, entry.label, entry.kind)
-
-	# Active buff dropdown.
-	_rebuild_buff_dropdown(record)
-
-
-# ═══════════════════════════════════════════════════════════════════════════
-# BUFF DROPDOWN
-# ═══════════════════════════════════════════════════════════════════════════
-
-func _rebuild_buff_dropdown(record: Dictionary) -> void:
-	if not is_instance_valid(buff_dropdown):
-		return
-	buff_dropdown.set_block_signals(true)
-	buff_dropdown.clear()
-	buff_dropdown.add_item("(none)")
-	buff_dropdown.set_item_metadata(0, "")
-
-	var eligible := _get_eligible_buff_abilities()
-	for i in eligible.size():
-		var ability: AbilityData = eligible[i]
-		buff_dropdown.add_item(ability.ability_name)
-		buff_dropdown.set_item_metadata(i + 1, ability.ability_id)
-
-	var current_id: String = record.get(PetManager.KEY_ACTIVE_BUFF, "")
-	var selected_idx := 0
-	for i in buff_dropdown.item_count:
-		if str(buff_dropdown.get_item_metadata(i)) == current_id:
-			selected_idx = i
-			break
-	buff_dropdown.select(selected_idx)
-
-	var has_buff_cmd: bool = PetManager.is_command_active(record, PetManager.CMD_AUTOBUFF)
-	buff_dropdown.disabled = not has_buff_cmd
-	if buff_dropdown.disabled:
-		buff_dropdown.tooltip_text = "Equip a Pet Buff Command book in the Buff slot."
-	else:
-		buff_dropdown.tooltip_text = "Pet will cast this buff on you periodically."
-	buff_dropdown.set_block_signals(false)
-
-
-func _get_eligible_buff_abilities() -> Array:
-	var result: Array = []
-	if not is_instance_valid(player) or not is_instance_valid(player.ability_component):
-		return result
-	var levels: Dictionary = player.ability_component._ability_levels
-	for ability_id in levels.keys():
-		var level: int = int(levels[ability_id])
-		if level <= 0:
-			continue
-		var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
-		if not ability or not ability.applies_buff:
-			continue
-		if not ability.active_behavior or ability.active_behavior.target_type != Constants.TargetType.SELF:
-			continue
-		result.append(ability)
-	return result
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -351,11 +288,14 @@ func _on_feed_pressed() -> void:
 	PetManager.request_feed_pet_server.rpc_id(1, _selected_pet_uuid, slot_idx)
 
 
-func _on_buff_dropdown_selected(idx: int) -> void:
-	if _selected_pet_uuid.is_empty() or not is_instance_valid(buff_dropdown):
-		return
-	var ability_id: String = str(buff_dropdown.get_item_metadata(idx))
-	PetManager.request_set_active_buff_ability_server.rpc_id(1, _selected_pet_uuid, ability_id)
+# ── Threshold sliders ─────────────────────────────────────────────────────
+
+func _on_hp_threshold_value_changed(value: float) -> void:
+	_update_threshold_label(hp_threshold_value_label, value)
+
+
+func _on_mp_threshold_value_changed(value: float) -> void:
+	_update_threshold_label(mp_threshold_value_label, value)
 
 
 func _on_hp_threshold_drag_ended(_value_changed: bool) -> void:
@@ -368,6 +308,12 @@ func _on_mp_threshold_drag_ended(_value_changed: bool) -> void:
 	if _selected_pet_uuid.is_empty() or not is_instance_valid(mp_threshold_slider):
 		return
 	PetManager.request_set_autopot_threshold_server.rpc_id(1, _selected_pet_uuid, "mp", mp_threshold_slider.value)
+
+
+static func _update_threshold_label(label: Label, value: float) -> void:
+	if not is_instance_valid(label):
+		return
+	label.text = "%d%%" % roundi(value * 100.0)
 
 
 ## Returns the index of the first inventory slot holding PetFoodData, or -1.

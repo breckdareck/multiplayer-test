@@ -1,24 +1,26 @@
 class_name PetSlot
 extends PanelContainer
 
-## A pet inventory slot. Holds 1 item type at a time (with stack).
-## Accepts drops from main-inventory Slot nodes by sending a transfer RPC
-## through PetManager. Used for the 2 autopot slots and the 3 storage slots.
+## A pet inventory slot. Three kinds:
 ##
-## Owns no game state itself — reads from PetManager.client_find_pet
-## whenever asked to refresh.
+##   "pot"          — accepts non-pet ConsumableData (HP/MP potions).
+##   "book"         — accepts only the PetSkillBookData matching this slot's command.
+##   "ability_buff" — accepts an AbilityData (drag from the ability window) that
+##                    is self-target + applies a buff. Stored separately from
+##                    pet_inventory (in record.active_buff_ability_id).
+##
+## Owns no game state itself — reads from PetManager whenever asked to refresh.
 
 @export var slot_label: Label
 @export var icon_rect: TextureRect
 @export var count_label: Label
 
-## The pet whose inventory this slot belongs to.
 var pet_uuid: String = ""
-## PetManager.KEY_AUTOPOT_HP / KEY_AUTOPOT_MP / KEY_CMD_AUTO_POT / KEY_CMD_BUFF / KEY_CMD_MAGNET.
+## PetManager.KEY_AUTOPOT_HP / KEY_AUTOPOT_MP / KEY_CMD_AUTO_POT / KEY_CMD_BUFF
+## / KEY_CMD_MAGNET. For ability_buff kind this is unused (data lives on the
+## record directly).
 var slot_key: String = ""
-## "pot" = normal HP/MP consumable. "book" = a specific PetSkillBook only.
-## The server-side `_slot_accepts_item` is the authoritative gate; this just
-## suppresses obviously-wrong drop highlights client-side.
+## "pot" / "book" / "ability_buff".
 var slot_kind: String = "pot"
 
 
@@ -39,12 +41,19 @@ func refresh() -> void:
 	if record.is_empty():
 		_clear_display()
 		return
+
+	if slot_kind == "ability_buff":
+		_refresh_ability_buff(record)
+		return
+	_refresh_item_slot(record)
+
+
+func _refresh_item_slot(record: Dictionary) -> void:
 	var inv: Dictionary = record.get(PetManager.KEY_INVENTORY, {})
-	var slot_data := _read_slot_data(inv)
+	var slot_data := inv.get(slot_key, {}) as Dictionary
 	if slot_data.is_empty():
 		_clear_display()
 		return
-
 	var item_id: String = slot_data.get("item_id", "")
 	var stack: int = int(slot_data.get("stack", 0))
 	if item_id.is_empty() or stack <= 0:
@@ -62,8 +71,22 @@ func refresh() -> void:
 		slot_label.visible = false
 
 
-func _read_slot_data(inv: Dictionary) -> Dictionary:
-	return inv.get(slot_key, {})
+func _refresh_ability_buff(record: Dictionary) -> void:
+	var ability_id: String = record.get(PetManager.KEY_ACTIVE_BUFF, "")
+	if ability_id.is_empty():
+		_clear_display()
+		return
+	var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
+	if not ability:
+		_clear_display()
+		return
+	if is_instance_valid(icon_rect):
+		icon_rect.texture = ability.ability_icon
+		icon_rect.visible = ability.ability_icon != null
+	if is_instance_valid(count_label):
+		count_label.visible = false
+	if is_instance_valid(slot_label):
+		slot_label.visible = ability.ability_icon == null
 
 
 func _clear_display() -> void:
@@ -76,16 +99,17 @@ func _clear_display() -> void:
 		slot_label.visible = true
 
 
-# ── Drag-drop (drops from main-inventory Slot) ───────────────────────────
+# ── Drag-drop ────────────────────────────────────────────────────────────
 
 func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
+	if slot_kind == "ability_buff":
+		return _is_buff_ability_drag(data)
 	if not (data is Slot):
 		return false
 	var s: Slot = data
 	if not s.drag_item:
 		return false
 	if slot_kind == "pot":
-		# HP/MP slots take normal consumables only (not pet books or pet food).
 		if not (s.drag_item is ConsumableData):
 			return false
 		if s.drag_item is PetSkillBookData or s.drag_item is PetFoodData:
@@ -94,13 +118,19 @@ func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 	if slot_kind == "book":
 		if not (s.drag_item is PetSkillBookData):
 			return false
-		# Each command slot only takes its matching book id.
 		var expected := PetManager.book_id_for_slot(slot_key)
 		return s.drag_item.item_id == expected
 	return false
 
 
 func _drop_data(_at_position: Vector2, data: Variant) -> void:
+	if slot_kind == "ability_buff":
+		if not _is_buff_ability_drag(data):
+			return
+		var ability: AbilityData = data.get("ability_data")
+		PetManager.request_set_active_buff_ability_server.rpc_id(1, pet_uuid, ability.ability_id)
+		return
+
 	if not (data is Slot):
 		return
 	var source_slot: Slot = data
@@ -122,10 +152,32 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 	source_slot.cancel_drag()
 
 
-# ── Click-to-remove (returns the held item to main inventory) ────────────
-
+## Right-click clears the slot.
+##   - Item slots return the held stack to main inventory.
+##   - Ability-buff slot clears active_buff_ability_id.
 func _gui_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
-		if pet_uuid.is_empty():
-			return
-		PetManager.request_transfer_from_pet_slot_server.rpc_id(1, pet_uuid, slot_key)
+	if not (event is InputEventMouseButton) or event.button_index != MOUSE_BUTTON_RIGHT or not event.pressed:
+		return
+	if pet_uuid.is_empty():
+		return
+	if slot_kind == "ability_buff":
+		PetManager.request_set_active_buff_ability_server.rpc_id(1, pet_uuid, "")
+		return
+	PetManager.request_transfer_from_pet_slot_server.rpc_id(1, pet_uuid, slot_key)
+
+
+# ── Helpers ──────────────────────────────────────────────────────────────
+
+## Ability drags from AbilitySlot are Dictionaries: {"ability_data": AbilityData}.
+## A valid buff drop must be a self-target ability that applies a BuffData.
+static func _is_buff_ability_drag(data: Variant) -> bool:
+	if not (data is Dictionary):
+		return false
+	var ability_data = data.get("ability_data")
+	if not (ability_data is AbilityData):
+		return false
+	if not ability_data.applies_buff:
+		return false
+	if not ability_data.active_behavior:
+		return false
+	return ability_data.active_behavior.target_type == Constants.TargetType.SELF

@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/UI/pet_tab.gd" id="1_pet_tab"]
 
-[node name="PetTab" type="MarginContainer" node_paths=PackedStringArray("pet_list", "detail_container", "empty_state_label", "portrait", "name_edit", "hunger_bar", "feed_button", "summon_button", "release_button", "inventory_grid", "hp_threshold_slider", "mp_threshold_slider", "buff_dropdown", "learned_commands_label", "confirm_dialog")]
+[node name="PetTab" type="MarginContainer" node_paths=PackedStringArray("pet_list", "detail_container", "empty_state_label", "portrait", "name_edit", "summon_button", "release_button", "hunger_bar", "feed_button", "pots_grid", "commands_grid", "hp_threshold_slider", "hp_threshold_value_label", "mp_threshold_slider", "mp_threshold_value_label", "confirm_dialog")]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -17,26 +17,27 @@ pet_list = NodePath("RootHBox/ListPanel/ListVBox/PetList")
 detail_container = NodePath("RootHBox/DetailVBox")
 empty_state_label = NodePath("RootHBox/DetailVBox/EmptyState")
 portrait = NodePath("RootHBox/DetailVBox/PortraitRow/Portrait")
-name_edit = NodePath("RootHBox/DetailVBox/PortraitRow/NameBox/NameEdit")
+name_edit = NodePath("RootHBox/DetailVBox/PortraitRow/NameEdit")
+summon_button = NodePath("RootHBox/DetailVBox/PortraitRow/SummonButton")
+release_button = NodePath("RootHBox/DetailVBox/ReleaseButton")
 hunger_bar = NodePath("RootHBox/DetailVBox/HungerRow/HungerBar")
 feed_button = NodePath("RootHBox/DetailVBox/HungerRow/FeedButton")
-summon_button = NodePath("RootHBox/DetailVBox/ButtonRow/SummonButton")
-release_button = NodePath("RootHBox/DetailVBox/ButtonRow/ReleaseButton")
-inventory_grid = NodePath("RootHBox/DetailVBox/InventoryGrid")
+pots_grid = NodePath("RootHBox/DetailVBox/PotsGrid")
+commands_grid = NodePath("RootHBox/DetailVBox/CommandsGrid")
 hp_threshold_slider = NodePath("RootHBox/DetailVBox/HPRow/HPSlider")
+hp_threshold_value_label = NodePath("RootHBox/DetailVBox/HPRow/HPValueLabel")
 mp_threshold_slider = NodePath("RootHBox/DetailVBox/MPRow/MPSlider")
-buff_dropdown = NodePath("RootHBox/DetailVBox/BuffDropdown")
-learned_commands_label = NodePath("RootHBox/DetailVBox/CommandsLabel")
+mp_threshold_value_label = NodePath("RootHBox/DetailVBox/MPRow/MPValueLabel")
 confirm_dialog = NodePath("ConfirmDialog")
 
 [node name="RootHBox" type="HBoxContainer" parent="."]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 
 [node name="ListPanel" type="PanelContainer" parent="RootHBox"]
-custom_minimum_size = Vector2(110, 0)
+custom_minimum_size = Vector2(90, 0)
 layout_mode = 2
 size_flags_vertical = 3
 
@@ -45,7 +46,7 @@ layout_mode = 2
 
 [node name="ListHeader" type="Label" parent="RootHBox/ListPanel/ListVBox"]
 layout_mode = 2
-text = "MY PETS"
+text = "PETS"
 horizontal_alignment = 1
 
 [node name="PetList" type="ItemList" parent="RootHBox/ListPanel/ListVBox"]
@@ -57,7 +58,7 @@ allow_reselect = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 6
+theme_override_constants/separation = 4
 
 [node name="EmptyState" type="Label" parent="RootHBox/DetailVBox"]
 layout_mode = 2
@@ -70,7 +71,7 @@ vertical_alignment = 1
 
 [node name="PortraitRow" type="HBoxContainer" parent="RootHBox/DetailVBox"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 
 [node name="Portrait" type="TextureRect" parent="RootHBox/DetailVBox/PortraitRow"]
 custom_minimum_size = Vector2(48, 48)
@@ -78,26 +79,25 @@ layout_mode = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="NameBox" type="VBoxContainer" parent="RootHBox/DetailVBox/PortraitRow"]
+[node name="NameEdit" type="LineEdit" parent="RootHBox/DetailVBox/PortraitRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-
-[node name="NameLabel" type="Label" parent="RootHBox/DetailVBox/PortraitRow/NameBox"]
-layout_mode = 2
-text = "Name:"
-
-[node name="NameEdit" type="LineEdit" parent="RootHBox/DetailVBox/PortraitRow/NameBox"]
-layout_mode = 2
+size_flags_vertical = 4
 placeholder_text = "Pet name"
 max_length = 20
+
+[node name="SummonButton" type="Button" parent="RootHBox/DetailVBox/PortraitRow"]
+layout_mode = 2
+size_flags_vertical = 4
+text = "Summon"
 
 [node name="HungerRow" type="HBoxContainer" parent="RootHBox/DetailVBox"]
 layout_mode = 2
 
 [node name="HungerLabel" type="Label" parent="RootHBox/DetailVBox/HungerRow"]
-custom_minimum_size = Vector2(60, 0)
+custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
-text = "Hunger:"
+text = "Hunger"
 
 [node name="HungerBar" type="ProgressBar" parent="RootHBox/DetailVBox/HungerRow"]
 layout_mode = 2
@@ -109,34 +109,23 @@ value = 100.0
 layout_mode = 2
 text = "Feed"
 
-[node name="ButtonRow" type="HBoxContainer" parent="RootHBox/DetailVBox"]
+[node name="PotsGrid" type="HBoxContainer" parent="RootHBox/DetailVBox"]
 layout_mode = 2
+alignment = 1
 theme_override_constants/separation = 4
 
-[node name="SummonButton" type="Button" parent="RootHBox/DetailVBox/ButtonRow"]
+[node name="CommandsGrid" type="HBoxContainer" parent="RootHBox/DetailVBox"]
 layout_mode = 2
-size_flags_horizontal = 3
-text = "Summon"
-
-[node name="ReleaseButton" type="Button" parent="RootHBox/DetailVBox/ButtonRow"]
-layout_mode = 2
-text = "Release"
-
-[node name="InventoryLabel" type="Label" parent="RootHBox/DetailVBox"]
-layout_mode = 2
-text = "Pet Inventory"
-
-[node name="InventoryGrid" type="HBoxContainer" parent="RootHBox/DetailVBox"]
-layout_mode = 2
+alignment = 1
 theme_override_constants/separation = 4
 
 [node name="HPRow" type="HBoxContainer" parent="RootHBox/DetailVBox"]
 layout_mode = 2
 
 [node name="HPRowLabel" type="Label" parent="RootHBox/DetailVBox/HPRow"]
-custom_minimum_size = Vector2(60, 0)
+custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
-text = "HP %:"
+text = "HP %"
 
 [node name="HPSlider" type="HSlider" parent="RootHBox/DetailVBox/HPRow"]
 layout_mode = 2
@@ -145,13 +134,19 @@ max_value = 1.0
 step = 0.05
 value = 0.5
 
+[node name="HPValueLabel" type="Label" parent="RootHBox/DetailVBox/HPRow"]
+custom_minimum_size = Vector2(40, 0)
+layout_mode = 2
+text = "50%"
+horizontal_alignment = 2
+
 [node name="MPRow" type="HBoxContainer" parent="RootHBox/DetailVBox"]
 layout_mode = 2
 
 [node name="MPRowLabel" type="Label" parent="RootHBox/DetailVBox/MPRow"]
-custom_minimum_size = Vector2(60, 0)
+custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
-text = "MP %:"
+text = "MP %"
 
 [node name="MPSlider" type="HSlider" parent="RootHBox/DetailVBox/MPRow"]
 layout_mode = 2
@@ -160,27 +155,27 @@ max_value = 1.0
 step = 0.05
 value = 0.5
 
-[node name="BuffLabel" type="Label" parent="RootHBox/DetailVBox"]
+[node name="MPValueLabel" type="Label" parent="RootHBox/DetailVBox/MPRow"]
+custom_minimum_size = Vector2(40, 0)
 layout_mode = 2
-text = "Active Buff:"
+text = "50%"
+horizontal_alignment = 2
 
-[node name="BuffDropdown" type="OptionButton" parent="RootHBox/DetailVBox"]
+[node name="ReleaseButton" type="Button" parent="RootHBox/DetailVBox"]
 layout_mode = 2
-
-[node name="CommandsLabel" type="Label" parent="RootHBox/DetailVBox"]
-layout_mode = 2
-text = "Commands: —"
-theme_override_font_sizes/font_size = 11
+size_flags_horizontal = 4
+text = "Release Pet"
 
 [node name="ConfirmDialog" type="ConfirmationDialog" parent="."]
 
 [connection signal="item_selected" from="RootHBox/ListPanel/ListVBox/PetList" to="." method="_on_pet_list_selected"]
-[connection signal="text_submitted" from="RootHBox/DetailVBox/PortraitRow/NameBox/NameEdit" to="." method="_on_name_submitted"]
-[connection signal="focus_exited" from="RootHBox/DetailVBox/PortraitRow/NameBox/NameEdit" to="." method="_on_name_focus_exited"]
+[connection signal="text_submitted" from="RootHBox/DetailVBox/PortraitRow/NameEdit" to="." method="_on_name_submitted"]
+[connection signal="focus_exited" from="RootHBox/DetailVBox/PortraitRow/NameEdit" to="." method="_on_name_focus_exited"]
+[connection signal="pressed" from="RootHBox/DetailVBox/PortraitRow/SummonButton" to="." method="_on_summon_pressed"]
 [connection signal="pressed" from="RootHBox/DetailVBox/HungerRow/FeedButton" to="." method="_on_feed_pressed"]
-[connection signal="pressed" from="RootHBox/DetailVBox/ButtonRow/SummonButton" to="." method="_on_summon_pressed"]
-[connection signal="pressed" from="RootHBox/DetailVBox/ButtonRow/ReleaseButton" to="." method="_on_release_pressed"]
+[connection signal="value_changed" from="RootHBox/DetailVBox/HPRow/HPSlider" to="." method="_on_hp_threshold_value_changed"]
 [connection signal="drag_ended" from="RootHBox/DetailVBox/HPRow/HPSlider" to="." method="_on_hp_threshold_drag_ended"]
+[connection signal="value_changed" from="RootHBox/DetailVBox/MPRow/MPSlider" to="." method="_on_mp_threshold_value_changed"]
 [connection signal="drag_ended" from="RootHBox/DetailVBox/MPRow/MPSlider" to="." method="_on_mp_threshold_drag_ended"]
-[connection signal="item_selected" from="RootHBox/DetailVBox/BuffDropdown" to="." method="_on_buff_dropdown_selected"]
+[connection signal="pressed" from="RootHBox/DetailVBox/ReleaseButton" to="." method="_on_release_pressed"]
 [connection signal="confirmed" from="ConfirmDialog" to="." method="_on_release_confirmed"]
