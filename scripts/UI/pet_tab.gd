@@ -99,23 +99,6 @@ func _on_roster_updated() -> void:
 func _on_pet_hatched(pet_uuid: String, _pet_name: String, _pet_data_id: String) -> void:
 	_selected_pet_uuid = pet_uuid
 	_refresh()
-	var equipment_window := _find_equipment_window()
-	if equipment_window:
-		equipment_window.visible = true
-		if equipment_window.has_method("_show_pet_tab"):
-			equipment_window._show_pet_tab()
-	if is_instance_valid(name_edit):
-		name_edit.grab_focus.call_deferred()
-		name_edit.select_all.call_deferred()
-
-
-func _find_equipment_window() -> Node:
-	var parent: Node = self
-	while is_instance_valid(parent):
-		if parent is EquipmentWindow:
-			return parent
-		parent = parent.get_parent()
-	return null
 
 
 # ═══════════════════════════════════════════════════════════════════════════

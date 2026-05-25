@@ -41,6 +41,17 @@ var _is_following: bool = false  # FOLLOW-mode hysteresis state
 var _leash_breach_timer: float = 0.0
 var _has_pending_jump: bool = false
 
+# Vertical-stuck detection — owner is on a higher platform and we're not
+# gaining height. Tracks Y progress over a short grace; if none, teleport
+# instead of pogo-jumping in place forever. Real platform pathing would need
+# a nav graph; this is the practical fallback.
+const VERTICAL_STUCK_MIN_GAP: float = 48.0    # owner this far above counts as "different platform"
+const VERTICAL_STUCK_GRACE_SEC: float = 0.9   # how long to keep trying before teleporting
+const VERTICAL_STUCK_PROGRESS_PX: float = 16.0  # upward movement that resets the timer
+const VERTICAL_STUCK_GIVEUP_JUMP_SEC: float = 0.25  # stop height-jumping after this if no progress
+var _vertical_stuck_timer: float = 0.0
+var _vertical_stuck_y_anchor: float = 0.0
+
 # ── Hunger display state (broadcast by server) ────────────────────────────
 var current_hunger: float = 100.0
 var max_hunger_display: float = 100.0
@@ -51,20 +62,33 @@ const LOW_HUNGER_FRACTION: float = 0.25
 var _autoloot_accumulator: float = 0.0
 const AUTOLOOT_SCAN_INTERVAL: float = 0.1
 
-# Per-drop cooldown — when we fire a pickup RPC and the server rejects (or is
-# rate-limited), the drop stays alive in the world. Without a cooldown the
-# pet immediately re-targets it next scan and ping-pongs. Mark the drop's
-# name as "recently tried" so subsequent scans skip it briefly. Successful
-# pickups are filtered out by the COLLECTED state check instead.
+# Per-drop cooldown — when we fire a pickup RPC and the server rejects, the
+# drop stays alive in the world. Without a cooldown the vacuum re-targets it
+# next frame and spams the server. Successful pickups are filtered out by
+# the COLLECTED state check instead, so this only delays *rejected* drops.
 var _recently_tried_drops: Dictionary = {}  # drop.name -> Time.get_ticks_msec()
-const PICKUP_RETRY_COOLDOWN_MS: int = 1500
+const PICKUP_RETRY_COOLDOWN_MS: int = 350
+
+# Vacuum fires AT MOST one pickup RPC per VACUUM_FIRE_INTERVAL_MS, paced just
+# faster than the server's AUTOLOOT_RATE_LIMIT_MS so RPCs don't get rejected
+# for rate-limiting and clutter the recently-tried map. Sweep through a
+# cluster runs at ~20 picks/sec.
+const VACUUM_FIRE_INTERVAL_MS: int = 50
+var _last_vacuum_fire_ms: int = 0
 
 # Dwell at the drop before firing pickup, so the pet pauses on the item
 # rather than instant-snapping the RPC. Cosmetic — gives a small "yoink"
-# beat that reads better.
+# beat that reads better. Only triggers as a fallback; the vacuum pass below
+# usually grabs the item before the pet reaches the precise pickup distance.
 var _pickup_dwell_target: Node = null
 var _pickup_dwell_start_ms: int = 0
 const PICKUP_DWELL_MS: int = 200
+
+# Vacuum: drops within this radius are picked up immediately on any frame,
+# without changing mode or stopping. Lets the pet sweep through an item
+# cluster in one pass instead of stopping at each drop. Tuned wider than
+# PICKUP_X_DISTANCE so the pet "sucks up" items while walking past them.
+const PICKUP_VACUUM_RADIUS: float = 36.0
 
 # ── Auto-pot (owner-client only) ──────────────────────────────────────────
 var _autopot_accumulator: float = 0.0
@@ -74,10 +98,14 @@ const AUTOPOT_TICK_INTERVAL: float = 0.2
 var _idle_bounce_phase: float = 0.0
 var _idle_bounce_amplitude: float = 1.5
 var _event_bubble_tween: Tween = null
+var _pulse_tween: Tween = null
+var _sprite_base_scale: Vector2 = Vector2.ONE  # captured once; pulses always return here
 
 
 func _ready() -> void:
 	add_to_group("networked_entities")
+	if is_instance_valid(sprite):
+		_sprite_base_scale = sprite.scale
 	_apply_pet_data()
 	_refresh_bubble()
 	if is_instance_valid(summon_poof):
@@ -139,6 +167,23 @@ func _physics_process(delta: float) -> void:
 		move_and_slide()
 		return
 
+	# Ride along while the owner is climbing a ladder/rope. Player state-machine
+	# state isn't replicated to non-host clients, so we detect the climb by
+	# geometry: the climb state snaps the owner's X to the ladder's center.
+	if _owner_is_climbing(owner_node):
+		global_position = owner_node.global_position
+		velocity = Vector2.ZERO
+		_facing_right = true
+		_play_animation("idle")
+		_has_pending_jump = false
+		_leash_breach_timer = 0.0
+		_is_following = false
+		_mode = PetMode.FOLLOW
+		_loot_target_node = null
+		_pickup_dwell_target = null
+		move_and_slide()
+		return
+
 	# Periodic loot scan (decides whether to switch to LOOT mode).
 	_autoloot_accumulator += delta
 	if _autoloot_accumulator >= AUTOLOOT_SCAN_INTERVAL:
@@ -168,6 +213,25 @@ func _physics_process(delta: float) -> void:
 		move_and_slide()
 		return
 
+	# Vertical-stuck: owner is on a higher platform we can't reach by jumping.
+	# Give the pet a short grace to find a route by walking, then teleport.
+	var owner_y_gap: float = global_position.y - owner_node.global_position.y
+	if owner_y_gap > VERTICAL_STUCK_MIN_GAP:
+		if _vertical_stuck_timer == 0.0:
+			_vertical_stuck_y_anchor = global_position.y
+		_vertical_stuck_timer += delta
+		var upward_progress: float = _vertical_stuck_y_anchor - global_position.y
+		if upward_progress >= VERTICAL_STUCK_PROGRESS_PX:
+			_vertical_stuck_y_anchor = global_position.y
+			_vertical_stuck_timer = 0.0
+		elif _vertical_stuck_timer >= VERTICAL_STUCK_GRACE_SEC:
+			_teleport_to_owner(owner_node)
+			_vertical_stuck_timer = 0.0
+			move_and_slide()
+			return
+	else:
+		_vertical_stuck_timer = 0.0
+
 	# Horizontal motion — walk toward target X.
 	var to_target_x: float = target_pos.x - global_position.x
 	var speed: float = pet_data.walk_speed if pet_data else 120.0
@@ -192,18 +256,32 @@ func _physics_process(delta: float) -> void:
 		velocity.x = 0.0
 		_play_animation("idle")
 
-	# Jump only when following the owner to a higher platform. We do NOT jump
-	# for loot — same-level filtering in _scan_drops already restricts loot
-	# targets to drops on the pet's current Y, so a jump would always be at
-	# something off-screen or mid-air anyway.
+	# Jump in FOLLOW mode for two reasons:
+	#  1. Owner is settled on a platform above us (jump_threshold_y higher).
+	#     Owner must be grounded — otherwise the pet copies every player jump
+	#     just because the player's Y briefly went up mid-air.
+	#  2. We're trying to walk but a wall is blocking us (obstacle on the
+	#     way to the owner). is_on_wall() reflects the previous frame's slide.
+	# After the brief give-up window, suppress height-jumping so we walk
+	# horizontally toward the owner instead of bouncing in place.
 	if _mode == PetMode.FOLLOW and is_on_floor() and not _has_pending_jump:
 		var jump_threshold: float = pet_data.jump_threshold_y if pet_data else 24.0
-		if target_pos.y < global_position.y - jump_threshold:
+		var owner_grounded: bool = owner_node.has_method("is_on_floor") and owner_node.is_on_floor()
+		var jump_for_height: bool = owner_grounded and target_pos.y < global_position.y - jump_threshold
+		if _vertical_stuck_timer >= VERTICAL_STUCK_GIVEUP_JUMP_SEC:
+			jump_for_height = false
+		var jump_for_wall: bool = should_walk and is_on_wall()
+		if jump_for_height or jump_for_wall:
 			velocity.y = pet_data.jump_velocity if pet_data else -360.0
 			_has_pending_jump = true
 
 	_apply_facing()
 	move_and_slide()
+
+	# Vacuum pass: pick up any same-level drop within PICKUP_VACUUM_RADIUS this
+	# frame, no targeting / no dwell. Lets the pet drive-by-sweep an item
+	# cluster instead of stopping at each one.
+	_vacuum_pickup_pass()
 
 	# Pickup with a short dwell: pet stops at the item, waits PICKUP_DWELL_MS,
 	# then fires the RPC. Reads better than the instant snap-pickup.
@@ -260,6 +338,17 @@ func _teleport_to_owner(owner_node: Node) -> void:
 	_has_pending_jump = false
 
 
+func _owner_is_climbing(owner_node: Node) -> bool:
+	# Authoritative climb signal: the player's state machine. State changes
+	# are RPC'd to every peer (state_machine.gd:_set_state_rpc), so this is
+	# accurate on the host AND on remote clients.
+	var sm = owner_node.get("state_machine") if "state_machine" in owner_node else null
+	if sm == null or not is_instance_valid(sm):
+		return false
+	var cs = sm.current_state
+	return cs != null and cs.name == "climb"
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 # AUTO-LOOT (owner client picks targets, server validates the actual pickup)
 # ═══════════════════════════════════════════════════════════════════════════
@@ -275,9 +364,9 @@ func _refresh_loot_target(_owner_node: Node) -> void:
 		_loot_target_node = null
 		return
 
-	# Always pick the closest valid same-level drop, every scan. This prevents
-	# the pet from stalling on a stale target while a newer/closer drop is
-	# available, and re-engages immediately after a drop is collected.
+	# Pick the FURTHEST valid same-level drop in range. Walking to it sweeps
+	# the pet across every closer drop, and the vacuum pass collects them in
+	# passing — one sweep instead of a hop-by-hop nearest-neighbor walk.
 	var map_node := get_parent()
 	if not map_node:
 		return
@@ -285,7 +374,7 @@ func _refresh_loot_target(_owner_node: Node) -> void:
 	var drops_container := map_node.get_node_or_null("ItemDrops")
 	if drops_container:
 		var alt: Node = _scan_drops(drops_container)
-		if alt and (not best or global_position.distance_to(alt.global_position) < global_position.distance_to(best.global_position)):
+		if alt and (not best or global_position.distance_to(alt.global_position) > global_position.distance_to(best.global_position)):
 			best = alt
 	if best:
 		_loot_target_node = best
@@ -295,9 +384,68 @@ func _refresh_loot_target(_owner_node: Node) -> void:
 		_mode = PetMode.FOLLOW
 
 
-func _scan_drops(container: Node) -> Node:
+func _vacuum_pickup_pass() -> void:
+	var now: int = Time.get_ticks_msec()
+	if now - _last_vacuum_fire_ms < VACUUM_FIRE_INTERVAL_MS:
+		return
+	var record := PetManager.client_find_pet(pet_uuid)
+	if record.is_empty():
+		return
+	if not PetManager.is_command_active(record, PetManager.CMD_MAGNET):
+		return
+	var map_node := get_parent()
+	if not map_node:
+		return
+	# Pick the closest in-radius drop and fire ONE RPC. Throttling here keeps
+	# the wire quiet and lets the server's rate limit do its job without
+	# rejecting and burning the per-drop retry cooldown.
+	var target: Node = _find_vacuum_target(map_node, now)
+	var drops_container := map_node.get_node_or_null("ItemDrops")
+	if drops_container:
+		var alt: Node = _find_vacuum_target(drops_container, now)
+		if alt and (not target or global_position.distance_to(alt.global_position) < global_position.distance_to(target.global_position)):
+			target = alt
+	if target == null:
+		return
+	_last_vacuum_fire_ms = now
+	_recently_tried_drops[target.name] = now
+	PetManager.request_autoloot_server.rpc_id(1, pet_uuid, target.name)
+	# If we just fired on our LOOT target, clear it so the next scan retargets.
+	if target == _loot_target_node:
+		_mode = PetMode.FOLLOW
+		_loot_target_node = null
+		_pickup_dwell_target = null
+
+
+func _find_vacuum_target(container: Node, now: int) -> Node:
 	var best: Node = null
-	var best_dist: float = pet_data.autoloot_radius
+	var best_dist: float = PICKUP_VACUUM_RADIUS
+	for child in container.get_children():
+		if not (child is DroppedItem):
+			continue
+		var drop: DroppedItem = child
+		if drop.current_state != DroppedItem.ItemState.SETTLED:
+			continue
+		if not drop.item_data:
+			continue
+		var tried: int = int(_recently_tried_drops.get(drop.name, 0))
+		if tried > 0 and now - tried < PICKUP_RETRY_COOLDOWN_MS:
+			continue
+		if absf(drop.global_position.y - global_position.y) > SAME_LEVEL_Y_DELTA:
+			continue
+		var d: float = global_position.distance_to(drop.global_position)
+		if d < best_dist:
+			best_dist = d
+			best = drop
+	return best
+
+
+func _scan_drops(container: Node) -> Node:
+	# Returns the FURTHEST same-level drop within autoloot_radius. Walking
+	# toward it lets the vacuum sweep every closer drop in passing.
+	var best: Node = null
+	var best_dist: float = 0.0
+	var scan_radius: float = pet_data.autoloot_radius
 	var now: int = Time.get_ticks_msec()
 	for child in container.get_children():
 		if not (child is DroppedItem):
@@ -319,7 +467,9 @@ func _scan_drops(container: Node) -> Node:
 		if absf(drop.global_position.y - global_position.y) > SAME_LEVEL_Y_DELTA:
 			continue
 		var d: float = global_position.distance_to(drop.global_position)
-		if d < best_dist:
+		if d > scan_radius:
+			continue
+		if d > best_dist:
 			best_dist = d
 			best = drop
 	return best
@@ -426,10 +576,15 @@ func play_event_visual(event_type: String) -> void:
 func _pulse_scale() -> void:
 	if not is_instance_valid(sprite):
 		return
-	var base: Vector2 = sprite.scale
-	var tween := create_tween()
-	tween.tween_property(sprite, "scale", base * 1.25, 0.08).set_trans(Tween.TRANS_QUAD)
-	tween.tween_property(sprite, "scale", base, 0.18).set_trans(Tween.TRANS_QUAD)
+	# Kill any in-flight pulse and snap back to base; otherwise rapid pickups
+	# (vacuum sweep fires ~20/sec) compound — each new tween captures the
+	# already-inflated scale as its "base" and the sprite grows unboundedly.
+	if _pulse_tween and _pulse_tween.is_valid():
+		_pulse_tween.kill()
+	sprite.scale = _sprite_base_scale
+	_pulse_tween = create_tween()
+	_pulse_tween.tween_property(sprite, "scale", _sprite_base_scale * 1.25, 0.08).set_trans(Tween.TRANS_QUAD)
+	_pulse_tween.tween_property(sprite, "scale", _sprite_base_scale, 0.18).set_trans(Tween.TRANS_QUAD)
 
 
 func _show_event_bubble(text: String, color: Color) -> void:

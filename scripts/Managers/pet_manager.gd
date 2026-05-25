@@ -807,7 +807,7 @@ static func _slot_key_for_book(book: PetSkillBookData) -> String:
 # AUTO-LOOT (Phase 5)
 # ═══════════════════════════════════════════════════════════════════════════
 
-const AUTOLOOT_RATE_LIMIT_MS: int = 200
+const AUTOLOOT_RATE_LIMIT_MS: int = 40
 
 @rpc("any_peer", "call_local", "reliable")
 func request_autoloot_server(pet_uuid: String, drop_node_name: String) -> void:
