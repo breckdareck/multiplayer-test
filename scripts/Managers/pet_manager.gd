@@ -960,12 +960,11 @@ func request_set_autopot_threshold_server(pet_uuid: String, slot_type: String, t
 	var caller := multiplayer.get_remote_sender_id()
 	if caller == 0:
 		caller = 1
-	if not _active_pets.has(pet_uuid):
+	# Configuring thresholds doesn't require the pet to be currently summoned.
+	var player := PlayerManager.get_player_node(caller)
+	if not is_instance_valid(player):
 		return
-	var info: Dictionary = _active_pets[pet_uuid]
-	if info.get("owner_peer_id", 0) != caller:
-		return
-	var owner_username: String = info.get("owner_username", "")
+	var owner_username: String = player.username
 	var record := find_pet(owner_username, pet_uuid)
 	if record.is_empty():
 		return
@@ -993,18 +992,14 @@ func request_transfer_to_pet_slot_server(pet_uuid: String, slot_key: String, sou
 	var caller := multiplayer.get_remote_sender_id()
 	if caller == 0:
 		caller = 1
-	if not _active_pets.has(pet_uuid):
-		return
-	var info: Dictionary = _active_pets[pet_uuid]
-	if info.get("owner_peer_id", 0) != caller:
-		return
-	var owner_username: String = info.get("owner_username", "")
-	var record := find_pet(owner_username, pet_uuid)
-	if record.is_empty():
-		return
-
+	# Equipping a pet item doesn't require the pet to be currently summoned —
+	# look the pet up by its owner's roster, not by _active_pets.
 	var player := PlayerManager.get_player_node(caller)
 	if not is_instance_valid(player) or not is_instance_valid(player.inventory_component):
+		return
+	var owner_username: String = player.username
+	var record := find_pet(owner_username, pet_uuid)
+	if record.is_empty():
 		return
 	var source_inv = player.inventory_component
 	if source_inventory_idx < 0 or source_inventory_idx >= source_inv.slots_data.size():
@@ -1053,17 +1048,13 @@ func request_transfer_from_pet_slot_server(pet_uuid: String, slot_key: String) -
 	var caller := multiplayer.get_remote_sender_id()
 	if caller == 0:
 		caller = 1
-	if not _active_pets.has(pet_uuid):
-		return
-	var info: Dictionary = _active_pets[pet_uuid]
-	if info.get("owner_peer_id", 0) != caller:
-		return
-	var owner_username: String = info.get("owner_username", "")
-	var record := find_pet(owner_username, pet_uuid)
-	if record.is_empty():
-		return
+	# Unequipping a pet item doesn't require the pet to be currently summoned.
 	var player := PlayerManager.get_player_node(caller)
 	if not is_instance_valid(player) or not is_instance_valid(player.inventory_component):
+		return
+	var owner_username: String = player.username
+	var record := find_pet(owner_username, pet_uuid)
+	if record.is_empty():
 		return
 
 	var inv: Dictionary = record.get(KEY_INVENTORY, {})
@@ -1176,12 +1167,11 @@ func request_set_active_buff_ability_server(pet_uuid: String, ability_id: String
 	var caller := multiplayer.get_remote_sender_id()
 	if caller == 0:
 		caller = 1
-	if not _active_pets.has(pet_uuid):
+	# Setting the active buff ability doesn't require the pet to be currently summoned.
+	var player := PlayerManager.get_player_node(caller)
+	if not is_instance_valid(player):
 		return
-	var info: Dictionary = _active_pets[pet_uuid]
-	if info.get("owner_peer_id", 0) != caller:
-		return
-	var owner_username: String = info.get("owner_username", "")
+	var owner_username: String = player.username
 	var record := find_pet(owner_username, pet_uuid)
 	if record.is_empty():
 		return
@@ -1189,8 +1179,7 @@ func request_set_active_buff_ability_server(pet_uuid: String, ability_id: String
 	# An empty string clears the slot. Otherwise validate caller owns it and
 	# it's a self-target buff ability.
 	if not ability_id.is_empty():
-		var player := PlayerManager.get_player_node(caller)
-		if not is_instance_valid(player) or not is_instance_valid(player.ability_component):
+		if not is_instance_valid(player.ability_component):
 			return
 		if int(player.ability_component._ability_levels.get(ability_id, 0)) <= 0:
 			return
