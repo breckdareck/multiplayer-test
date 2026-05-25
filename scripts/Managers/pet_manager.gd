@@ -28,16 +28,23 @@ const KEY_AUTOPOT_CONFIG := "autopot_config"
 
 const KEY_AUTOPOT_HP := "autopot_hp_slot"
 const KEY_AUTOPOT_MP := "autopot_mp_slot"
-const KEY_STORAGE := "storage_slots"
-const STORAGE_SLOT_COUNT := 3
+# Pet inventory now has 3 *command* slots instead of generic storage.
+# A command is "active" while its matching skill book is equipped in its slot.
+const KEY_CMD_AUTO_POT := "command_auto_pot_slot"
+const KEY_CMD_BUFF := "command_buff_slot"
+const KEY_CMD_MAGNET := "command_magnet_slot"
 
 const KEY_HP_THRESHOLD := "hp_threshold"
 const KEY_MP_THRESHOLD := "mp_threshold"
 
 const CMD_AUTO_POT := "auto_pot"
-const CMD_ITEM_POUCH := "item_pouch"
-const CMD_MESO_MAGNET := "meso_magnet"
 const CMD_AUTOBUFF := "autobuff"
+const CMD_MAGNET := "magnet"  # unified item+coin auto-loot
+
+# Book item ids that fit each command slot. Drag rejected if id doesn't match.
+const BOOK_AUTO_POT_ID := "pet_book_auto_pot"
+const BOOK_AUTOBUFF_ID := "pet_book_autobuff"
+const BOOK_MAGNET_ID := "pet_book_magnet"
 
 # v1: only 1 pet active at a time. Increase to support multi-pet later.
 const MAX_ACTIVE_PETS: int = 1
@@ -336,14 +343,9 @@ func request_release_pet_server(pet_uuid: String) -> void:
 ## confirming.
 func _return_pet_inventory_to_player(record: Dictionary, inv) -> void:
 	var pet_inv: Dictionary = record.get(KEY_INVENTORY, {})
-	for slot_key in [KEY_AUTOPOT_HP, KEY_AUTOPOT_MP]:
+	for slot_key in [KEY_AUTOPOT_HP, KEY_AUTOPOT_MP, KEY_CMD_AUTO_POT, KEY_CMD_BUFF, KEY_CMD_MAGNET]:
 		_return_one_pet_slot(pet_inv.get(slot_key, {}), inv)
 		pet_inv[slot_key] = {}
-	var storage: Array = pet_inv.get(KEY_STORAGE, [])
-	for i in storage.size():
-		_return_one_pet_slot(storage[i], inv)
-		storage[i] = {}
-	pet_inv[KEY_STORAGE] = storage
 
 
 func _return_one_pet_slot(slot_data: Dictionary, inv) -> void:
@@ -747,23 +749,45 @@ func _apply_food_to_pet(food: PetFoodData, username: String, pet_uuid: String) -
 	return true
 
 
+## Places a command book in its matching pet inventory slot (Auto Pot / Buff /
+## Magnet). The book is NOT consumed — it occupies the slot as long as the
+## player wants the command active. Removing the book deactivates the command.
 func _apply_book_to_pet(book: PetSkillBookData, username: String, pet_uuid: String, player_peer: int) -> bool:
 	var record := find_pet(username, pet_uuid)
 	if record.is_empty():
 		return false
-	var command_id: String = book.command_id
-	if command_id.is_empty():
+	var target_slot_key: String = _slot_key_for_book(book)
+	if target_slot_key.is_empty():
+		_show_message_to_owner(player_peer, "This book doesn't fit any pet command slot.")
 		return false
-	var learned: Array = record.get(KEY_LEARNED, [])
-	if learned.has(command_id):
-		# Already knows it — don't consume the book.
-		_show_message_to_owner(player_peer, "Pet already knows this command.")
+
+	var inv: Dictionary = record.get(KEY_INVENTORY, {})
+	var existing: Dictionary = _read_pet_slot(inv, target_slot_key)
+	if not existing.is_empty():
+		# Slot already occupied — drag through the Pet UI to swap manually.
+		_show_message_to_owner(player_peer, "Pet already has that command equipped.")
 		return false
-	learned.append(command_id)
-	record[KEY_LEARNED] = learned
+
+	_write_pet_slot(inv, target_slot_key, {
+		"item_id": book.item_id,
+		"stack": 1,
+	})
 	_pet_event_visual_rpc.rpc(pet_uuid, "taught")
-	notify_command_learned(username, pet_uuid, command_id)
+	_push_roster_to_owner(username)
+	_queue_save(username)
 	return true
+
+
+static func _slot_key_for_book(book: PetSkillBookData) -> String:
+	match book.item_id:
+		BOOK_AUTO_POT_ID:
+			return KEY_CMD_AUTO_POT
+		BOOK_AUTOBUFF_ID:
+			return KEY_CMD_BUFF
+		BOOK_MAGNET_ID:
+			return KEY_CMD_MAGNET
+		_:
+			return ""
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -795,10 +819,7 @@ func request_autoloot_server(pet_uuid: String, drop_node_name: String) -> void:
 	if record.get(KEY_HUNGER, 100.0) <= 0.0:
 		return  # Hungry pets stop auto-actions.
 
-	var learned: Array = record.get(KEY_LEARNED, [])
-	var can_loot_items: bool = learned.has(CMD_ITEM_POUCH)
-	var can_loot_coins: bool = learned.has(CMD_MESO_MAGNET)
-	if not can_loot_items and not can_loot_coins:
+	if not is_command_active(record, CMD_MAGNET):
 		return
 
 	var owner_player := PlayerManager.get_player_node(caller)
@@ -819,11 +840,7 @@ func request_autoloot_server(pet_uuid: String, drop_node_name: String) -> void:
 
 	if not drop.item_data:
 		return
-	var is_coin: bool = drop.item_data.name == "Coin"
-	if is_coin and not can_loot_coins:
-		return
-	if not is_coin and not can_loot_items:
-		return
+	# Magnet covers both items and coins — no further type gate.
 
 	var pet_data := get_pet_data(info.get("pet_data_id", ""))
 	var leash: float = pet_data.leash_radius if pet_data else 200.0
@@ -875,7 +892,7 @@ func request_autopot_server(pet_uuid: String, slot_type: String) -> void:
 		return
 	if record.get(KEY_HUNGER, 100.0) <= 0.0:
 		return
-	if not (record.get(KEY_LEARNED, []) as Array).has(CMD_AUTO_POT):
+	if not is_command_active(record, CMD_AUTO_POT):
 		return
 	var slot_key := KEY_AUTOPOT_HP if slot_type == "hp" else KEY_AUTOPOT_MP
 	var inv: Dictionary = record.get(KEY_INVENTORY, {})
@@ -997,11 +1014,11 @@ func request_transfer_to_pet_slot_server(pet_uuid: String, slot_key: String, sou
 		return
 	var item: ItemData = source_sd.item
 
-	# Type validation per slot
-	if slot_key == KEY_AUTOPOT_HP or slot_key == KEY_AUTOPOT_MP:
-		if not (item is ConsumableData):
-			_show_message_to_owner(caller, "Pet autopot slot only holds consumables.")
-			return
+	# Per-slot type gate (HP/MP slots accept normal consumables; command slots
+	# accept only the matching book).
+	if not _slot_accepts_item(slot_key, item):
+		_show_message_to_owner(caller, "That item doesn't fit this slot.")
+		return
 
 	var inv: Dictionary = record.get(KEY_INVENTORY, {})
 	var existing := _read_pet_slot(inv, slot_key)
@@ -1066,29 +1083,28 @@ func request_transfer_from_pet_slot_server(pet_uuid: String, slot_key: String) -
 
 
 func _read_pet_slot(inv: Dictionary, slot_key: String) -> Dictionary:
-	if slot_key.begins_with("storage_"):
-		var idx := int(slot_key.substr("storage_".length()))
-		var storage: Array = inv.get(KEY_STORAGE, [])
-		if idx >= 0 and idx < storage.size():
-			return storage[idx]
-		return {}
 	return inv.get(slot_key, {})
 
 
 func _write_pet_slot(inv: Dictionary, slot_key: String, slot_data: Dictionary) -> void:
-	if slot_key.begins_with("storage_"):
-		var idx := int(slot_key.substr("storage_".length()))
-		var storage: Array = inv.get(KEY_STORAGE, [])
-		if storage.size() < STORAGE_SLOT_COUNT:
-			storage.resize(STORAGE_SLOT_COUNT)
-			for i in STORAGE_SLOT_COUNT:
-				if storage[i] == null:
-					storage[i] = {}
-		if idx >= 0 and idx < storage.size():
-			storage[idx] = slot_data
-		inv[KEY_STORAGE] = storage
-		return
 	inv[slot_key] = slot_data
+
+
+## Server-side validation: does this slot accept this item?
+##   - Autopot HP/MP slots: any ConsumableData except a pet-only consumable.
+##   - Command slots: ONLY the matching PetSkillBookData.
+##   - Any other slot key: reject.
+func _slot_accepts_item(slot_key: String, item: ItemData) -> bool:
+	if slot_key == KEY_AUTOPOT_HP or slot_key == KEY_AUTOPOT_MP:
+		if not (item is ConsumableData):
+			return false
+		if item is PetSkillBookData or item is PetFoodData:
+			return false
+		return true
+	var expected_book_id: String = book_id_for_slot(slot_key)
+	if expected_book_id.is_empty():
+		return false
+	return item is PetSkillBookData and item.item_id == expected_book_id
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -1117,7 +1133,7 @@ func _tick_autobuff() -> void:
 			continue
 		if record.get(KEY_HUNGER, 100.0) <= 0.0:
 			continue
-		if not (record.get(KEY_LEARNED, []) as Array).has(CMD_AUTOBUFF):
+		if not is_command_active(record, CMD_AUTOBUFF):
 			continue
 		var ability_id: String = record.get(KEY_ACTIVE_BUFF, "")
 		if ability_id.is_empty():
@@ -1393,26 +1409,20 @@ static func make_pet_record(pet_data_id: String, custom_name: String) -> Diction
 		KEY_PET_DATA_ID: pet_data_id,
 		KEY_NAME: custom_name,
 		KEY_HUNGER: 100.0,
-		KEY_LEARNED: [],
+		KEY_LEARNED: [],  # kept for legacy reads; commands now derived from inventory slots
 		KEY_ACTIVE_BUFF: "",
 		KEY_INVENTORY: {
 			KEY_AUTOPOT_HP: {},
 			KEY_AUTOPOT_MP: {},
-			KEY_STORAGE: _empty_storage(),
+			KEY_CMD_AUTO_POT: {},
+			KEY_CMD_BUFF: {},
+			KEY_CMD_MAGNET: {},
 		},
 		KEY_AUTOPOT_CONFIG: {
 			KEY_HP_THRESHOLD: 0.5,
 			KEY_MP_THRESHOLD: 0.5,
 		},
 	}
-
-
-static func _empty_storage() -> Array:
-	var arr: Array = []
-	arr.resize(STORAGE_SLOT_COUNT)
-	for i in STORAGE_SLOT_COUNT:
-		arr[i] = {}
-	return arr
 
 
 static func _normalize_record(record: Dictionary) -> Dictionary:
@@ -1427,22 +1437,55 @@ static func _normalize_record(record: Dictionary) -> Dictionary:
 		out[KEY_INVENTORY] = {
 			KEY_AUTOPOT_HP: {},
 			KEY_AUTOPOT_MP: {},
-			KEY_STORAGE: _empty_storage(),
+			KEY_CMD_AUTO_POT: {},
+			KEY_CMD_BUFF: {},
+			KEY_CMD_MAGNET: {},
 		}
 	else:
 		var inv: Dictionary = out[KEY_INVENTORY]
-		if not inv.has(KEY_AUTOPOT_HP):
-			inv[KEY_AUTOPOT_HP] = {}
-		if not inv.has(KEY_AUTOPOT_MP):
-			inv[KEY_AUTOPOT_MP] = {}
-		if not inv.has(KEY_STORAGE):
-			inv[KEY_STORAGE] = _empty_storage()
+		for k in [KEY_AUTOPOT_HP, KEY_AUTOPOT_MP, KEY_CMD_AUTO_POT, KEY_CMD_BUFF, KEY_CMD_MAGNET]:
+			if not inv.has(k):
+				inv[k] = {}
+		# Legacy storage_slots from earlier prototype — drop it; the player keeps
+		# anything in main inventory. (No live testers had storage filled.)
+		inv.erase("storage_slots")
 	if not out.has(KEY_AUTOPOT_CONFIG):
 		out[KEY_AUTOPOT_CONFIG] = {
 			KEY_HP_THRESHOLD: 0.5,
 			KEY_MP_THRESHOLD: 0.5,
 		}
 	return out
+
+
+# Active-command derivation: a command is "active" while its matching book is
+# in the pet's command slot. No separate learned_commands tracking.
+static func get_active_commands(record: Dictionary) -> Array:
+	var active: Array = []
+	var inv: Dictionary = record.get(KEY_INVENTORY, {})
+	if not inv.get(KEY_CMD_AUTO_POT, {}).is_empty():
+		active.append(CMD_AUTO_POT)
+	if not inv.get(KEY_CMD_BUFF, {}).is_empty():
+		active.append(CMD_AUTOBUFF)
+	if not inv.get(KEY_CMD_MAGNET, {}).is_empty():
+		active.append(CMD_MAGNET)
+	return active
+
+
+static func is_command_active(record: Dictionary, command_id: String) -> bool:
+	return get_active_commands(record).has(command_id)
+
+
+## Returns the book item id that a command slot exclusively accepts.
+static func book_id_for_slot(slot_key: String) -> String:
+	match slot_key:
+		KEY_CMD_AUTO_POT:
+			return BOOK_AUTO_POT_ID
+		KEY_CMD_BUFF:
+			return BOOK_AUTOBUFF_ID
+		KEY_CMD_MAGNET:
+			return BOOK_MAGNET_ID
+		_:
+			return ""
 
 
 static func _clone_record(record: Dictionary) -> Dictionary:

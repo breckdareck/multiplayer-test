@@ -14,17 +14,18 @@ extends PanelContainer
 
 ## The pet whose inventory this slot belongs to.
 var pet_uuid: String = ""
-## Which sub-slot — "autopot_hp_slot", "autopot_mp_slot", or "storage_<i>".
+## PetManager.KEY_AUTOPOT_HP / KEY_AUTOPOT_MP / KEY_CMD_AUTO_POT / KEY_CMD_BUFF / KEY_CMD_MAGNET.
 var slot_key: String = ""
-## Which item types are allowed in this slot — kept loose for v1 so the player
-## can experiment. The server validates by command anyway.
-var require_consumable: bool = false
+## "pot" = normal HP/MP consumable. "book" = a specific PetSkillBook only.
+## The server-side `_slot_accepts_item` is the authoritative gate; this just
+## suppresses obviously-wrong drop highlights client-side.
+var slot_kind: String = "pot"
 
 
-func setup(pet_uuid_in: String, slot_key_in: String, label_text: String, require_consumable_in: bool) -> void:
+func setup(pet_uuid_in: String, slot_key_in: String, label_text: String, kind: String) -> void:
 	pet_uuid = pet_uuid_in
 	slot_key = slot_key_in
-	require_consumable = require_consumable_in
+	slot_kind = kind
 	if is_instance_valid(slot_label):
 		slot_label.text = label_text
 	refresh()
@@ -62,13 +63,6 @@ func refresh() -> void:
 
 
 func _read_slot_data(inv: Dictionary) -> Dictionary:
-	if slot_key.begins_with("storage_"):
-		var idx_str := slot_key.substr("storage_".length())
-		var idx := int(idx_str)
-		var storage: Array = inv.get(PetManager.KEY_STORAGE, [])
-		if idx >= 0 and idx < storage.size():
-			return storage[idx]
-		return {}
 	return inv.get(slot_key, {})
 
 
@@ -90,9 +84,20 @@ func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 	var s: Slot = data
 	if not s.drag_item:
 		return false
-	if require_consumable and not (s.drag_item is ConsumableData):
-		return false
-	return true
+	if slot_kind == "pot":
+		# HP/MP slots take normal consumables only (not pet books or pet food).
+		if not (s.drag_item is ConsumableData):
+			return false
+		if s.drag_item is PetSkillBookData or s.drag_item is PetFoodData:
+			return false
+		return true
+	if slot_kind == "book":
+		if not (s.drag_item is PetSkillBookData):
+			return false
+		# Each command slot only takes its matching book id.
+		var expected := PetManager.book_id_for_slot(slot_key)
+		return s.drag_item.item_id == expected
+	return false
 
 
 func _drop_data(_at_position: Vector2, data: Variant) -> void:

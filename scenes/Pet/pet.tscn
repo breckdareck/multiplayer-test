@@ -1,6 +1,9 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=4 format=3 uid="uid://cpbech0bhn8wl"]
 
-[ext_resource type="Script" path="res://scripts/Pet/pet.gd" id="1_pet"]
+[ext_resource type="Script" uid="uid://dq4cl42bii43q" path="res://scripts/Pet/pet.gd" id="1_pet"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_pet"]
+radius = 4.0
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_pet"]
 properties/0/path = NodePath(".:position")
@@ -16,12 +19,8 @@ properties/3/path = NodePath("Sprite:animation")
 properties/3/spawn = true
 properties/3/replication_mode = 2
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_pet"]
-radius = 4.0
-
 [node name="Pet" type="CharacterBody2D" node_paths=PackedStringArray("sprite", "bubble_label", "event_bubble", "summon_poof", "collision_shape") groups=["networked_entities"]]
 collision_layer = 0
-collision_mask = 1
 script = ExtResource("1_pet")
 sprite = NodePath("Sprite")
 bubble_label = NodePath("BubbleLabel")
@@ -33,8 +32,8 @@ collision_shape = NodePath("CollisionShape2D")
 shape = SubResource("CircleShape2D_pet")
 
 [node name="Sprite" type="AnimatedSprite2D" parent="."]
-scale = Vector2(2, 2)
 z_index = 4
+scale = Vector2(2, 2)
 
 [node name="BubbleLabel" type="Label" parent="."]
 visible = false
@@ -42,11 +41,11 @@ offset_left = -28.0
 offset_top = -48.0
 offset_right = 28.0
 offset_bottom = -28.0
-horizontal_alignment = 1
-vertical_alignment = 1
 theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 4
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="EventBubble" type="Label" parent="."]
 visible = false
@@ -55,11 +54,11 @@ offset_left = -32.0
 offset_top = -36.0
 offset_right = 32.0
 offset_bottom = -18.0
-horizontal_alignment = 1
-vertical_alignment = 1
 theme_override_colors/font_color = Color(0.6, 1, 0.9, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 4
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="SummonPoof" type="CPUParticles2D" parent="."]
 emitting = false

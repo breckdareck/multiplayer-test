@@ -216,13 +216,14 @@ func _build_ui() -> void:
 
 
 func _build_placeholder_inventory_slots() -> void:
-	# 2 autopot slots + 3 generic storage slots — all real PetSlot widgets.
+	# 5 slots: 2 potion slots + 3 command-book slots. Books equipped in
+	# command slots make their command active; removing the book deactivates it.
 	var slot_configs := [
-		{"key": PetManager.KEY_AUTOPOT_HP, "label": "HP", "require_consumable": true},
-		{"key": PetManager.KEY_AUTOPOT_MP, "label": "MP", "require_consumable": true},
-		{"key": "storage_0", "label": "1", "require_consumable": false},
-		{"key": "storage_1", "label": "2", "require_consumable": false},
-		{"key": "storage_2", "label": "3", "require_consumable": false},
+		{"key": PetManager.KEY_AUTOPOT_HP, "label": "HP", "kind": "pot"},
+		{"key": PetManager.KEY_AUTOPOT_MP, "label": "MP", "kind": "pot"},
+		{"key": PetManager.KEY_CMD_AUTO_POT, "label": "AutoPot", "kind": "book"},
+		{"key": PetManager.KEY_CMD_BUFF, "label": "Buff", "kind": "book"},
+		{"key": PetManager.KEY_CMD_MAGNET, "label": "Magnet", "kind": "book"},
 	]
 	for cfg in slot_configs:
 		var slot: PetSlot = PET_SLOT_SCENE.instantiate()
@@ -231,7 +232,7 @@ func _build_placeholder_inventory_slots() -> void:
 			"node": slot,
 			"key": cfg.key,
 			"label": cfg.label,
-			"require": cfg.require_consumable,
+			"kind": cfg.kind,
 		})
 
 
@@ -359,17 +360,17 @@ func _refresh_detail() -> void:
 	_hp_threshold_slider.value = ap_cfg.get(PetManager.KEY_HP_THRESHOLD, 0.5)
 	_mp_threshold_slider.value = ap_cfg.get(PetManager.KEY_MP_THRESHOLD, 0.5)
 
-	# Learned commands
-	var learned: Array = record.get(PetManager.KEY_LEARNED, [])
-	if learned.is_empty():
-		_learned_commands_label.text = "Commands: (none — find skill books!)"
+	# Active commands (derived from which books are in command slots).
+	var active: Array = PetManager.get_active_commands(record)
+	if active.is_empty():
+		_learned_commands_label.text = "Commands: (none — equip command books in the slots)"
 	else:
-		_learned_commands_label.text = "Commands: " + ", ".join(learned)
+		_learned_commands_label.text = "Commands: " + ", ".join(active)
 
 	# Pet inventory slots
 	for entry in _pet_slot_widgets:
 		var slot_node: PetSlot = entry.node
-		slot_node.setup(_selected_pet_uuid, entry.key, entry.label, entry.require)
+		slot_node.setup(_selected_pet_uuid, entry.key, entry.label, entry.kind)
 
 	# Active buff dropdown
 	_rebuild_buff_dropdown(record)
@@ -432,10 +433,10 @@ func _rebuild_buff_dropdown(record: Dictionary) -> void:
 			break
 	_buff_dropdown.select(selected_idx)
 
-	var learned: Array = record.get(PetManager.KEY_LEARNED, [])
-	_buff_dropdown.disabled = not learned.has(PetManager.CMD_AUTOBUFF)
+	var has_buff_cmd: bool = PetManager.is_command_active(record, PetManager.CMD_AUTOBUFF)
+	_buff_dropdown.disabled = not has_buff_cmd
 	if _buff_dropdown.disabled:
-		_buff_dropdown.tooltip_text = "Use a Pet Buff Command book to unlock."
+		_buff_dropdown.tooltip_text = "Equip a Pet Buff Command book in the Buff slot."
 	else:
 		_buff_dropdown.tooltip_text = "Pet will cast this buff on you periodically."
 	_buff_dropdown.set_block_signals(false)

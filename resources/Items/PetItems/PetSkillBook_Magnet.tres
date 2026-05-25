@@ -4,11 +4,11 @@
 
 [resource]
 script = ExtResource("1_book")
-command_id = "meso_magnet"
-item_id = "pet_book_meso_magnet"
-name = "Pet Meso Magnet Command"
+command_id = "magnet"
+item_id = "pet_book_magnet"
+name = "Pet Magnet Command"
 rarity = 2
-description = "Drag this onto a summoned pet to teach it to auto-pick coins."
+description = "Equip in your pet's Magnet slot to enable auto-pickup of items and coins on the same platform."
 item_type = 2
 item_level = 5
 custom_item_value = 1000

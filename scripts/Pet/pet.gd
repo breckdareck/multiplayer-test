@@ -215,10 +215,7 @@ func _refresh_loot_target(_owner_node: Node) -> void:
 	var record := PetManager.client_find_pet(pet_uuid)
 	if record.is_empty():
 		return
-	var learned: Array = record.get(PetManager.KEY_LEARNED, [])
-	var can_loot_items: bool = learned.has(PetManager.CMD_ITEM_POUCH)
-	var can_loot_coins: bool = learned.has(PetManager.CMD_MESO_MAGNET)
-	if not can_loot_items and not can_loot_coins:
+	if not PetManager.is_command_active(record, PetManager.CMD_MAGNET):
 		_mode = PetMode.FOLLOW
 		_loot_target_node = null
 		return
@@ -237,10 +234,10 @@ func _refresh_loot_target(_owner_node: Node) -> void:
 	var map_node := get_parent()
 	if not map_node:
 		return
-	var best: Node = _scan_drops(map_node, can_loot_items, can_loot_coins)
+	var best: Node = _scan_drops(map_node)
 	var drops_container := map_node.get_node_or_null("ItemDrops")
 	if drops_container:
-		var alt: Node = _scan_drops(drops_container, can_loot_items, can_loot_coins)
+		var alt: Node = _scan_drops(drops_container)
 		if alt and (not best or global_position.distance_to(alt.global_position) < global_position.distance_to(best.global_position)):
 			best = alt
 	if best:
@@ -248,7 +245,7 @@ func _refresh_loot_target(_owner_node: Node) -> void:
 		_mode = PetMode.LOOT
 
 
-func _scan_drops(container: Node, can_loot_items: bool, can_loot_coins: bool) -> Node:
+func _scan_drops(container: Node) -> Node:
 	var best: Node = null
 	var best_dist: float = pet_data.autoloot_radius
 	for child in container.get_children():
@@ -259,13 +256,8 @@ func _scan_drops(container: Node, can_loot_items: bool, can_loot_coins: bool) ->
 			continue
 		if not drop.item_data:
 			continue
-		# Same-platform check: ignore drops too far above/below.
+		# Magnet covers both items and coins — no type gate.
 		if absf(drop.global_position.y - global_position.y) > SAME_LEVEL_Y_DELTA:
-			continue
-		var is_coin: bool = drop.item_data.name == "Coin"
-		if is_coin and not can_loot_coins:
-			continue
-		if not is_coin and not can_loot_items:
 			continue
 		var d: float = global_position.distance_to(drop.global_position)
 		if d < best_dist:
@@ -282,7 +274,7 @@ func _try_autopot() -> void:
 	var record := PetManager.client_find_pet(pet_uuid)
 	if record.is_empty():
 		return
-	if not (record.get(PetManager.KEY_LEARNED, []) as Array).has(PetManager.CMD_AUTO_POT):
+	if not PetManager.is_command_active(record, PetManager.CMD_AUTO_POT):
 		return
 	var owner_node := PlayerManager.get_player_node(owner_peer_id)
 	if not is_instance_valid(owner_node):
