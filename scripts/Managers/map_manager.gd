@@ -106,6 +106,13 @@ func _wrap_in_subviewport(map_instance: Node, map_id: String) -> SubViewport:
 	# map root) so SubViewportContainer doesn't stack one map's render on top of
 	# another on the host's screen. See _set_local_map_visible.
 	viewport.transparent_bg = true
+	# Default: GUI input off. _set_local_map_visible re-enables it when the
+	# host moves to this map. SubViewportContainer dispatches input to EVERY
+	# child SubViewport, so hidden maps would otherwise steal drag-drop hit-
+	# tests from the active map. Clients only have one map loaded so this is
+	# a no-op for them; matters for the host (server) which keeps every map
+	# loaded for the other players.
+	viewport.gui_disable_input = true
 	viewport.add_child(map_instance)
 	return viewport
 
@@ -114,12 +121,22 @@ func _wrap_in_subviewport(map_instance: Node, map_id: String) -> SubViewport:
 ## physics, but their SubViewport content is hidden so the SubViewportContainer
 ## renders only the local peer's current map. Affects only the local peer's
 ## tree — remote clients have their own map instances and are unaffected.
+##
+## ALSO gates GUI input on the SubViewport. SubViewportContainer dispatches
+## input to EVERY child SubViewport regardless of which one is visually on
+## top, so without `gui_disable_input` the hidden maps' GUI tree silently
+## competes for drag-drop hit-tests and steals drops from the host's active
+## inventory the moment the host is on a map by themselves.
 func _set_local_map_visible(map_id: String, vis: bool) -> void:
 	if not active_maps.has(map_id):
 		return
 	var map_instance = active_maps[map_id].scene_instance
-	if is_instance_valid(map_instance):
-		map_instance.visible = vis
+	if not is_instance_valid(map_instance):
+		return
+	map_instance.visible = vis
+	var viewport: Node = map_instance.get_parent()
+	if viewport is SubViewport:
+		(viewport as SubViewport).gui_disable_input = not vis
 
 
 # === SERVER LOGIC ===
@@ -587,8 +604,10 @@ func client_set_current_map(map_id: String, spawn_point_name: String = ""):
 	var viewport := _wrap_in_subviewport(map_instance, map_id)
 	maps_container.add_child(viewport)
 	# Remote clients only ever have one map loaded; it's always the local
-	# peer's current map, so render it.
+	# peer's current map, so render it and re-enable GUI input on its
+	# SubViewport (which defaults to disabled — see _wrap_in_subviewport).
 	map_instance.visible = true
+	viewport.gui_disable_input = false
 	
 	# On client, map synchronizers should start hidden and rely on server visibility updates
 	# if not multiplayer.is_server():
