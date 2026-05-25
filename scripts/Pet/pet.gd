@@ -42,6 +42,14 @@ const LOW_HUNGER_FRACTION: float = 0.25
 var _autoloot_accumulator: float = 0.0
 const AUTOLOOT_SCAN_INTERVAL: float = 0.1
 
+# Per-drop cooldown — when we fire a pickup RPC and the server rejects (or is
+# rate-limited), the drop stays alive in the world. Without a cooldown the
+# pet immediately re-targets it next scan and ping-pongs. Mark the drop's
+# name as "recently tried" so subsequent scans skip it briefly. Successful
+# pickups are filtered out by the COLLECTED state check instead.
+var _recently_tried_drops: Dictionary = {}  # drop.name -> Time.get_ticks_msec()
+const PICKUP_RETRY_COOLDOWN_MS: int = 1500
+
 # ── Auto-pot (owner-client only) ──────────────────────────────────────────
 var _autopot_accumulator: float = 0.0
 const AUTOPOT_TICK_INTERVAL: float = 0.2
@@ -171,7 +179,9 @@ func _physics_process(delta: float) -> void:
 		var loot_pos: Vector2 = _loot_target_node.global_position
 		if absf(loot_pos.x - global_position.x) <= PICKUP_X_DISTANCE \
 				and absf(loot_pos.y - global_position.y) <= SAME_LEVEL_Y_DELTA:
-			PetManager.request_autoloot_server.rpc_id(1, pet_uuid, _loot_target_node.name)
+			var drop_name: String = _loot_target_node.name
+			_recently_tried_drops[drop_name] = Time.get_ticks_msec()
+			PetManager.request_autoloot_server.rpc_id(1, pet_uuid, drop_name)
 			_mode = PetMode.FOLLOW
 			_loot_target_node = null
 
@@ -243,6 +253,7 @@ func _refresh_loot_target(_owner_node: Node) -> void:
 func _scan_drops(container: Node) -> Node:
 	var best: Node = null
 	var best_dist: float = pet_data.autoloot_radius
+	var now: int = Time.get_ticks_msec()
 	for child in container.get_children():
 		if not (child is DroppedItem):
 			continue
@@ -250,6 +261,11 @@ func _scan_drops(container: Node) -> Node:
 		if drop.current_state == DroppedItem.ItemState.COLLECTED:
 			continue
 		if not drop.item_data:
+			continue
+		# Skip drops we recently tried to pick up — gives the server time to
+		# respond and prevents ping-pong when a rejection happens.
+		var tried: int = int(_recently_tried_drops.get(drop.name, 0))
+		if tried > 0 and now - tried < PICKUP_RETRY_COOLDOWN_MS:
 			continue
 		# Magnet covers both items and coins — no type gate.
 		if absf(drop.global_position.y - global_position.y) > SAME_LEVEL_Y_DELTA:

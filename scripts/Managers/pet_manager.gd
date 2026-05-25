@@ -812,31 +812,38 @@ func request_autoloot_server(pet_uuid: String, drop_node_name: String) -> void:
 	if caller == 0:
 		caller = 1
 	if not _active_pets.has(pet_uuid):
+		print("[autoloot] REJECT: pet '%s' not in _active_pets" % pet_uuid)
 		return
 	var info: Dictionary = _active_pets[pet_uuid]
 	if info.get("owner_peer_id", 0) != caller:
+		print("[autoloot] REJECT: caller %d not owner of pet (owner=%s)" % [caller, info.get("owner_peer_id", 0)])
 		return
 
 	var pet_node: Node = info.get("pet_node")
 	if not is_instance_valid(pet_node):
+		print("[autoloot] REJECT: pet_node invalid")
 		return
 	var owner_username: String = info.get("owner_username", "")
 	var record := find_pet(owner_username, pet_uuid)
 	if record.is_empty():
+		print("[autoloot] REJECT: pet not in roster")
 		return
 	if record.get(KEY_HUNGER, 100.0) <= 0.0:
-		return  # Hungry pets stop auto-actions.
+		print("[autoloot] REJECT: pet is Hungry")
+		return
 
 	if not is_command_active(record, CMD_MAGNET):
+		print("[autoloot] REJECT: magnet command not active")
 		return
 
 	var owner_player := PlayerManager.get_player_node(caller)
 	if not is_instance_valid(owner_player):
+		print("[autoloot] REJECT: owner_player invalid")
 		return
 
-	# Resolve the drop node from the pet's map siblings (or ItemDrops child).
 	var map_node := pet_node.get_parent()
 	if not map_node:
+		print("[autoloot] REJECT: pet has no parent map")
 		return
 	var drop: Node = map_node.get_node_or_null(drop_node_name)
 	if not drop:
@@ -844,34 +851,40 @@ func request_autoloot_server(pet_uuid: String, drop_node_name: String) -> void:
 		if drops_container:
 			drop = drops_container.get_node_or_null(drop_node_name)
 	if not (drop is DroppedItem):
+		print("[autoloot] REJECT: drop '%s' not found or not DroppedItem (parent=%s)" % [drop_node_name, map_node.name])
 		return
 
 	if not drop.item_data:
+		print("[autoloot] REJECT: drop has no item_data")
 		return
-	# Magnet covers both items and coins — no further type gate.
 
 	var pet_data := get_pet_data(info.get("pet_data_id", ""))
 	var leash: float = pet_data.leash_radius if pet_data else 200.0
-	# Sanity clamp: pet must be within leash of owner. Defeats client position spoofing.
-	if pet_node.global_position.distance_to(owner_player.global_position) > leash:
+	var pet_owner_dist: float = pet_node.global_position.distance_to(owner_player.global_position)
+	if pet_owner_dist > leash:
+		print("[autoloot] REJECT: pet-to-owner %.1f > leash %.1f" % [pet_owner_dist, leash])
 		return
 	var max_range: float = (pet_data.autoloot_radius if pet_data else 100.0) + 16.0
-	if pet_node.global_position.distance_to(drop.global_position) > max_range:
+	var pet_drop_dist: float = pet_node.global_position.distance_to(drop.global_position)
+	if pet_drop_dist > max_range:
+		print("[autoloot] REJECT: pet-to-drop %.1f > max_range %.1f" % [pet_drop_dist, max_range])
 		return
 
-	# Reuse the existing manual-pickup validation gates verbatim.
 	if drop.has_method("_can_player_pickup") and not drop._can_player_pickup(owner_player):
+		print("[autoloot] REJECT: _can_player_pickup false (eligible=%s, public=%s, drop='%s')" % [drop._eligible_player_ids if "_eligible_player_ids" in drop else "?", drop.is_public_pickup if "is_public_pickup" in drop else "?", drop.item_data.name])
 		return
 	if drop.has_method("_player_has_room_for_item") and not drop._player_has_room_for_item(owner_player):
+		print("[autoloot] REJECT: _player_has_room_for_item false (inventory full?)")
 		return
 
 	var now_ms := Time.get_ticks_msec()
 	if now_ms - int(info.get("last_autoloot_ms", 0)) < AUTOLOOT_RATE_LIMIT_MS:
+		print("[autoloot] REJECT: rate-limited (last=%d now=%d delta=%d)" % [info.get("last_autoloot_ms", 0), now_ms, now_ms - int(info.get("last_autoloot_ms", 0))])
 		return
 	info["last_autoloot_ms"] = now_ms
 
-	# Hand off to the existing pickup pathway.
 	if drop.has_method("_pickup_item"):
+		print("[autoloot] PICKUP firing for '%s'" % drop.item_data.name)
 		drop._pickup_item(owner_player)
 		_pet_event_visual_rpc.rpc(pet_uuid, "autoloot")
 
