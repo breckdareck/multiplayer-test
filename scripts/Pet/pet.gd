@@ -27,6 +27,10 @@ const LOW_HUNGER_FRACTION: float = 0.25
 var _autoloot_accumulator: float = 0.0
 const AUTOLOOT_TICK_INTERVAL: float = 0.1
 
+# ── Auto-pot (owner-client only) ──────────────────────────────────────────
+var _autopot_accumulator: float = 0.0
+const AUTOPOT_TICK_INTERVAL: float = 0.2
+
 
 func _ready() -> void:
 	add_to_group("networked_entities")
@@ -97,6 +101,12 @@ func _physics_process(delta: float) -> void:
 		_autoloot_accumulator = 0.0
 		_try_autoloot()
 
+	# Auto-pot tick (owner-client driven; server validates each request).
+	_autopot_accumulator += delta
+	if _autopot_accumulator >= AUTOPOT_TICK_INTERVAL:
+		_autopot_accumulator = 0.0
+		_try_autopot()
+
 
 func _try_autoloot() -> void:
 	if not pet_data:
@@ -124,6 +134,38 @@ func _try_autoloot() -> void:
 
 	if best_drop:
 		PetManager.request_autoloot_server.rpc_id(1, pet_uuid, best_drop.name)
+
+
+func _try_autopot() -> void:
+	var record := PetManager.client_find_pet(pet_uuid)
+	if record.is_empty():
+		return
+	if not (record.get(PetManager.KEY_LEARNED, []) as Array).has(PetManager.CMD_AUTO_POT):
+		return
+	var owner_node := PlayerManager.get_player_node(owner_peer_id)
+	if not is_instance_valid(owner_node):
+		return
+
+	var inv: Dictionary = record.get(PetManager.KEY_INVENTORY, {})
+	var cfg: Dictionary = record.get(PetManager.KEY_AUTOPOT_CONFIG, {})
+
+	# HP
+	var hp_slot: Dictionary = inv.get(PetManager.KEY_AUTOPOT_HP, {})
+	if not hp_slot.is_empty() and int(hp_slot.get("stack", 0)) > 0:
+		var hp_threshold: float = cfg.get(PetManager.KEY_HP_THRESHOLD, 0.5)
+		var hp_node = owner_node.get("health_component") if owner_node.has_method("get") else null
+		if is_instance_valid(hp_node) and hp_node.max_health > 0:
+			if float(hp_node.current_health) < float(hp_node.max_health) * hp_threshold:
+				PetManager.request_autopot_server.rpc_id(1, pet_uuid, "hp")
+
+	# MP
+	var mp_slot: Dictionary = inv.get(PetManager.KEY_AUTOPOT_MP, {})
+	if not mp_slot.is_empty() and int(mp_slot.get("stack", 0)) > 0:
+		var mp_threshold: float = cfg.get(PetManager.KEY_MP_THRESHOLD, 0.5)
+		var mp_node = owner_node.get("mana_component") if owner_node.has_method("get") else null
+		if is_instance_valid(mp_node) and mp_node.max_mana > 0:
+			if float(mp_node.current_mana) < float(mp_node.max_mana) * mp_threshold:
+				PetManager.request_autopot_server.rpc_id(1, pet_uuid, "mp")
 
 
 func _scan_drops(container: Node, can_loot_items: bool, can_loot_coins: bool) -> Node:

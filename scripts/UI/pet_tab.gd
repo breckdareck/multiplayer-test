@@ -20,11 +20,14 @@ var _feed_button: Button
 var _summon_button: Button
 var _release_button: Button
 var _inventory_grid: HBoxContainer
+var _pet_slot_widgets: Array = []  # PetSlot instances
 var _hp_threshold_slider: HSlider
 var _mp_threshold_slider: HSlider
 var _buff_dropdown: OptionButton
 var _learned_commands_label: Label
 var _empty_state_label: Label
+
+const PET_SLOT_SCENE: PackedScene = preload("res://scenes/UI/pet_slot.tscn")
 
 var _selected_pet_uuid: String = ""
 var _confirm_dialog: ConfirmationDialog
@@ -172,6 +175,7 @@ func _build_ui() -> void:
 	_hp_threshold_slider.step = 0.05
 	_hp_threshold_slider.value = 0.5
 	_hp_threshold_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_hp_threshold_slider.drag_ended.connect(_on_hp_threshold_drag_ended)
 	hp_row.add_child(_hp_threshold_slider)
 
 	var mp_row := HBoxContainer.new()
@@ -186,6 +190,7 @@ func _build_ui() -> void:
 	_mp_threshold_slider.step = 0.05
 	_mp_threshold_slider.value = 0.5
 	_mp_threshold_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_mp_threshold_slider.drag_ended.connect(_on_mp_threshold_drag_ended)
 	mp_row.add_child(_mp_threshold_slider)
 
 	# Active buff slot (dropdown wires up Phase 7)
@@ -211,17 +216,23 @@ func _build_ui() -> void:
 
 
 func _build_placeholder_inventory_slots() -> void:
-	var labels := ["HP", "MP", "1", "2", "3"]
-	for i in 5:
-		var slot := PanelContainer.new()
-		slot.custom_minimum_size = Vector2(38, 38)
+	# 2 autopot slots + 3 generic storage slots — all real PetSlot widgets.
+	var slot_configs := [
+		{"key": PetManager.KEY_AUTOPOT_HP, "label": "HP", "require_consumable": true},
+		{"key": PetManager.KEY_AUTOPOT_MP, "label": "MP", "require_consumable": true},
+		{"key": "storage_0", "label": "1", "require_consumable": false},
+		{"key": "storage_1", "label": "2", "require_consumable": false},
+		{"key": "storage_2", "label": "3", "require_consumable": false},
+	]
+	for cfg in slot_configs:
+		var slot: PetSlot = PET_SLOT_SCENE.instantiate()
 		_inventory_grid.add_child(slot)
-		var slot_label := Label.new()
-		slot_label.text = labels[i]
-		slot_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		slot_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		slot_label.add_theme_font_size_override("font_size", 10)
-		slot.add_child(slot_label)
+		_pet_slot_widgets.append({
+			"node": slot,
+			"key": cfg.key,
+			"label": cfg.label,
+			"require": cfg.require_consumable,
+		})
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -355,6 +366,11 @@ func _refresh_detail() -> void:
 	else:
 		_learned_commands_label.text = "Commands: " + ", ".join(learned)
 
+	# Pet inventory slots
+	for entry in _pet_slot_widgets:
+		var slot_node: PetSlot = entry.node
+		slot_node.setup(_selected_pet_uuid, entry.key, entry.label, entry.require)
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # UI EVENT HANDLERS
@@ -384,6 +400,18 @@ func _on_feed_pressed() -> void:
 	if slot_idx == -1:
 		return
 	PetManager.request_feed_pet_server.rpc_id(1, _selected_pet_uuid, slot_idx)
+
+
+func _on_hp_threshold_drag_ended(_value_changed: bool) -> void:
+	if _selected_pet_uuid.is_empty():
+		return
+	PetManager.request_set_autopot_threshold_server.rpc_id(1, _selected_pet_uuid, "hp", _hp_threshold_slider.value)
+
+
+func _on_mp_threshold_drag_ended(_value_changed: bool) -> void:
+	if _selected_pet_uuid.is_empty():
+		return
+	PetManager.request_set_autopot_threshold_server.rpc_id(1, _selected_pet_uuid, "mp", _mp_threshold_slider.value)
 
 
 ## Returns the index of the first inventory slot holding PetFoodData, or -1.

@@ -711,6 +711,245 @@ func request_autoloot_server(pet_uuid: String, drop_node_name: String) -> void:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# AUTO-POT (Phase 6)
+# ═══════════════════════════════════════════════════════════════════════════
+
+const AUTOPOT_COOLDOWN_MS: int = 1000
+
+@rpc("any_peer", "call_local", "reliable")
+func request_autopot_server(pet_uuid: String, slot_type: String) -> void:
+	if not multiplayer.is_server():
+		return
+	var caller := multiplayer.get_remote_sender_id()
+	if caller == 0:
+		caller = 1
+	if not _active_pets.has(pet_uuid):
+		return
+	var info: Dictionary = _active_pets[pet_uuid]
+	if info.get("owner_peer_id", 0) != caller:
+		return
+	var owner_username: String = info.get("owner_username", "")
+	var record := find_pet(owner_username, pet_uuid)
+	if record.is_empty():
+		return
+	if record.get(KEY_HUNGER, 100.0) <= 0.0:
+		return
+	if not (record.get(KEY_LEARNED, []) as Array).has(CMD_AUTO_POT):
+		return
+	var slot_key := KEY_AUTOPOT_HP if slot_type == "hp" else KEY_AUTOPOT_MP
+	var inv: Dictionary = record.get(KEY_INVENTORY, {})
+	var slot_data: Dictionary = inv.get(slot_key, {})
+	var item_id: String = slot_data.get("item_id", "")
+	var stack: int = int(slot_data.get("stack", 0))
+	if item_id.is_empty() or stack <= 0:
+		return
+
+	var owner_player := PlayerManager.get_player_node(caller)
+	if not is_instance_valid(owner_player):
+		return
+	var cfg: Dictionary = record.get(KEY_AUTOPOT_CONFIG, {})
+	if slot_type == "hp":
+		var hp := owner_player.health_component
+		if not is_instance_valid(hp) or hp.max_health <= 0:
+			return
+		if float(hp.current_health) >= float(hp.max_health) * cfg.get(KEY_HP_THRESHOLD, 0.5):
+			return
+	else:
+		var mp := owner_player.mana_component
+		if not is_instance_valid(mp) or mp.max_mana <= 0:
+			return
+		if float(mp.current_mana) >= float(mp.max_mana) * cfg.get(KEY_MP_THRESHOLD, 0.5):
+			return
+
+	# Per-slot cooldown
+	var cd_key := "last_autopot_hp_ms" if slot_type == "hp" else "last_autopot_mp_ms"
+	var now_ms := Time.get_ticks_msec()
+	if now_ms - int(info.get(cd_key, 0)) < AUTOPOT_COOLDOWN_MS:
+		return
+	info[cd_key] = now_ms
+
+	# Look up the consumable and run its effect on the owner.
+	var consumable_res := ResourceManager.get_item_data(item_id)
+	if not (consumable_res is ConsumableData):
+		return
+	var consumable: ConsumableData = consumable_res as ConsumableData
+	if not consumable.effect_script:
+		return
+	var effect_instance = consumable.effect_script.new() as BaseItemEffect
+	if not effect_instance:
+		return
+	effect_instance.user = owner_player
+	effect_instance.source_item = consumable
+	effect_instance.execute()
+
+	# Decrement the pet slot stack.
+	slot_data["stack"] = stack - 1
+	if slot_data["stack"] <= 0:
+		inv[slot_key] = {}
+		_show_message_to_owner(caller, "Pet's %s pot slot is empty!" % slot_type.to_upper())
+	else:
+		inv[slot_key] = slot_data
+
+	_push_roster_to_owner(owner_username)
+	_queue_save(owner_username)
+
+
+@rpc("any_peer", "call_local", "reliable")
+func request_set_autopot_threshold_server(pet_uuid: String, slot_type: String, threshold: float) -> void:
+	if not multiplayer.is_server():
+		return
+	var caller := multiplayer.get_remote_sender_id()
+	if caller == 0:
+		caller = 1
+	if not _active_pets.has(pet_uuid):
+		return
+	var info: Dictionary = _active_pets[pet_uuid]
+	if info.get("owner_peer_id", 0) != caller:
+		return
+	var owner_username: String = info.get("owner_username", "")
+	var record := find_pet(owner_username, pet_uuid)
+	if record.is_empty():
+		return
+	threshold = clamp(threshold, 0.0, 1.0)
+	var cfg: Dictionary = record.get(KEY_AUTOPOT_CONFIG, {})
+	if slot_type == "hp":
+		cfg[KEY_HP_THRESHOLD] = threshold
+	elif slot_type == "mp":
+		cfg[KEY_MP_THRESHOLD] = threshold
+	else:
+		return
+	record[KEY_AUTOPOT_CONFIG] = cfg
+	_push_roster_to_owner(owner_username)
+	_queue_save(owner_username)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PET INVENTORY TRANSFER (Phase 6 + Phase 8)
+# ═══════════════════════════════════════════════════════════════════════════
+
+@rpc("any_peer", "call_local", "reliable")
+func request_transfer_to_pet_slot_server(pet_uuid: String, slot_key: String, source_inventory_idx: int) -> void:
+	if not multiplayer.is_server():
+		return
+	var caller := multiplayer.get_remote_sender_id()
+	if caller == 0:
+		caller = 1
+	if not _active_pets.has(pet_uuid):
+		return
+	var info: Dictionary = _active_pets[pet_uuid]
+	if info.get("owner_peer_id", 0) != caller:
+		return
+	var owner_username: String = info.get("owner_username", "")
+	var record := find_pet(owner_username, pet_uuid)
+	if record.is_empty():
+		return
+
+	var player := PlayerManager.get_player_node(caller)
+	if not is_instance_valid(player) or not is_instance_valid(player.inventory_component):
+		return
+	var source_inv = player.inventory_component
+	if source_inventory_idx < 0 or source_inventory_idx >= source_inv.slots_data.size():
+		return
+	var source_sd = source_inv.slots_data[source_inventory_idx]
+	if not source_sd or not source_sd.item:
+		return
+	var item: ItemData = source_sd.item
+
+	# Type validation per slot
+	if slot_key == KEY_AUTOPOT_HP or slot_key == KEY_AUTOPOT_MP:
+		if not (item is ConsumableData):
+			_show_message_to_owner(caller, "Pet autopot slot only holds consumables.")
+			return
+
+	var inv: Dictionary = record.get(KEY_INVENTORY, {})
+	var existing := _read_pet_slot(inv, slot_key)
+
+	# If the pet slot already holds the SAME item id, stack onto it.
+	# If it holds a different item, swap them (return existing to main inventory).
+	if not existing.is_empty() and existing.get("item_id", "") != item.item_id:
+		# Swap: put the existing item back into main inventory first.
+		var existing_id: String = existing.get("item_id", "")
+		var existing_stack: int = int(existing.get("stack", 0))
+		var ex_resource := ResourceManager.get_item_data(existing_id)
+		if ex_resource and existing_stack > 0:
+			for i in existing_stack:
+				source_inv.server_add_item(existing_id)
+		_write_pet_slot(inv, slot_key, {})
+
+	var new_stack: int = int(existing.get("stack", 0)) + item.current_stack_amount if existing.get("item_id", "") == item.item_id else item.current_stack_amount
+	_write_pet_slot(inv, slot_key, {
+		"item_id": item.item_id,
+		"stack": new_stack,
+	})
+
+	source_inv.remove_item_from_stack(item, item.current_stack_amount, "transferred_to_pet")
+	_push_roster_to_owner(owner_username)
+	_queue_save(owner_username)
+
+
+@rpc("any_peer", "call_local", "reliable")
+func request_transfer_from_pet_slot_server(pet_uuid: String, slot_key: String) -> void:
+	if not multiplayer.is_server():
+		return
+	var caller := multiplayer.get_remote_sender_id()
+	if caller == 0:
+		caller = 1
+	if not _active_pets.has(pet_uuid):
+		return
+	var info: Dictionary = _active_pets[pet_uuid]
+	if info.get("owner_peer_id", 0) != caller:
+		return
+	var owner_username: String = info.get("owner_username", "")
+	var record := find_pet(owner_username, pet_uuid)
+	if record.is_empty():
+		return
+	var player := PlayerManager.get_player_node(caller)
+	if not is_instance_valid(player) or not is_instance_valid(player.inventory_component):
+		return
+
+	var inv: Dictionary = record.get(KEY_INVENTORY, {})
+	var slot_data := _read_pet_slot(inv, slot_key)
+	var item_id: String = slot_data.get("item_id", "")
+	var stack: int = int(slot_data.get("stack", 0))
+	if item_id.is_empty() or stack <= 0:
+		return
+
+	# Push the held stack back to main inventory one at a time. server_add_item
+	# handles stacking + free-slot search via existing inventory logic.
+	for i in stack:
+		player.inventory_component.server_add_item(item_id)
+	_write_pet_slot(inv, slot_key, {})
+	_push_roster_to_owner(owner_username)
+	_queue_save(owner_username)
+
+
+func _read_pet_slot(inv: Dictionary, slot_key: String) -> Dictionary:
+	if slot_key.begins_with("storage_"):
+		var idx := int(slot_key.substr("storage_".length()))
+		var storage: Array = inv.get(KEY_STORAGE, [])
+		if idx >= 0 and idx < storage.size():
+			return storage[idx]
+		return {}
+	return inv.get(slot_key, {})
+
+
+func _write_pet_slot(inv: Dictionary, slot_key: String, slot_data: Dictionary) -> void:
+	if slot_key.begins_with("storage_"):
+		var idx := int(slot_key.substr("storage_".length()))
+		var storage: Array = inv.get(KEY_STORAGE, [])
+		if storage.size() < STORAGE_SLOT_COUNT:
+			storage.resize(STORAGE_SLOT_COUNT)
+			for i in STORAGE_SLOT_COUNT:
+				if storage[i] == null:
+					storage[i] = {}
+		if idx >= 0 and idx < storage.size():
+			storage[idx] = slot_data
+		inv[KEY_STORAGE] = storage
+		return
+	inv[slot_key] = slot_data
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # SKILL-BOOK FEEDBACK
 # ═══════════════════════════════════════════════════════════════════════════
 
