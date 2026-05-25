@@ -83,14 +83,18 @@ func _input(event: InputEvent):
 
 ## Save hotbar configuration (useful for persistence)
 func save_hotbar_config() -> Dictionary:
+	# Keys are stringified to match load_hotbar_config (which uses str(i)) so the
+	# in-memory carry-over on map changes lines up — backend JSON would coerce
+	# them anyway, masking the mismatch on initial join.
 	var config = {}
 	for slot in hotbar_slots:
+		var key := str(slot.get_index())
 		if slot.assigned_ability:
-			config[slot.get_index()] = slot.assigned_ability.ability_id
+			config[key] = slot.assigned_ability.ability_id
 		elif slot.assigned_consumable:
-			config[slot.get_index()] = slot.assigned_consumable.item_id
+			config[key] = slot.assigned_consumable.item_id
 		else:
-			config[slot.get_index()] = ""
+			config[key] = ""
 	return config
 
 ## Load hotbar configuration (from save data)
@@ -105,9 +109,15 @@ func load_hotbar_config(config: Dictionary):
 			continue
 		# Hotbar entries store either a learned ability's id or a consumable's
 		# item_id — ability and item ids occupy distinct id spaces.
+		# Apply via the slot's internal setters rather than the public assign_*
+		# helpers: those helpers broadcast a node-addressed RPC, and during
+		# server-side load on a map change the slot's path hasn't resolved on
+		# remote peers yet (per-map SubViewport hierarchy), so the broadcast
+		# logs "Node not found". The host's UI is the same node as the server
+		# instance, so the local setter is all that's needed here.
 		if ability_component and ability_component._ability_levels.has(entry_id):
-			hotbar_slots[i].assign_ability(ResourceManager.get_ability_data(entry_id))
+			hotbar_slots[i]._set_ability(ResourceManager.get_ability_data(entry_id))
 		else:
 			var item_data = ResourceManager.get_item_data(entry_id)
 			if item_data is ConsumableData:
-				hotbar_slots[i].assign_consumable(item_data)
+				hotbar_slots[i]._set_consumable(item_data)
