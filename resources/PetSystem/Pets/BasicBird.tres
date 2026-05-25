@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="PetData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/PetSystem/PetData.gd" id="1_script"]
+[ext_resource type="SpriteFrames" uid="uid://b0bird1mfa01o" path="res://resources/Enemies/Bird/SF_Bird.tres" id="2_frames"]
+
+[resource]
+script = ExtResource("1_script")
+pet_id = "basic_bird"
+display_name = "Bird"
+description = "A cheerful starter pet that flutters by your side."
+sprite_frames = ExtResource("2_frames")
+walk_speed = 140.0
+leash_radius = 240.0
+follow_offset = Vector2(-32, -16)
+autoloot_radius = 100.0
+max_hunger = 100.0
+hunger_decay_per_sec = 0.0333

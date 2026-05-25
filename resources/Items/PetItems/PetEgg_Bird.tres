@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="ConsumableData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="1_consumable"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/Effects/Effect_HatchPet.gd" id="2_effect"]
+
+[resource]
+script = ExtResource("1_consumable")
+effect_script = ExtResource("2_effect")
+effect_properties = {
+"default_name": "Birdie",
+"pet_data_id": "basic_bird"
+}
+item_id = "pet_egg_bird"
+name = "Pet Egg: Bird"
+rarity = 1
+description = "Use to hatch a Bird companion that will follow you."
+item_type = 2
+item_level = 1
+custom_item_value = 500
+can_stack = true
+max_stack_amount = 10
+current_stack_amount = 1
