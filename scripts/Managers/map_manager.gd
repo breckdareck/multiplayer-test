@@ -136,6 +136,11 @@ func request_map_change(player_id: int, target_map_id: String, target_spawn_poin
 
 	# Track whether this is a map change (not the initial join)
 	var is_map_change := player_id in player_current_maps
+	# Snapshot the host's previous map BEFORE _remove_player_from_map runs —
+	# that call clears current_map_id when the host's own instance is removed,
+	# which would otherwise hide the wrong (now-empty) value below and leave
+	# the old map's SubViewport composited on top of the new one.
+	var old_map_id: String = player_current_maps.get(player_id, "")
 
 	# Remove player from current map
 	if is_map_change:
@@ -159,9 +164,10 @@ func request_map_change(player_id: int, target_map_id: String, target_spawn_poin
 
 	if player_id == 1:
 		# Hide the previously-active map locally so its SubViewport stops
-		# compositing on top of the host's view; show the new one.
-		if not current_map_id.is_empty() and current_map_id != target_map_id:
-			_set_local_map_visible(current_map_id, false)
+		# compositing on top of the host's view; show the new one. Use the
+		# pre-removal old_map_id — current_map_id was wiped above.
+		if not old_map_id.is_empty() and old_map_id != target_map_id:
+			_set_local_map_visible(old_map_id, false)
 		_set_local_map_visible(target_map_id, true)
 
 		current_map_instance = map_instance
