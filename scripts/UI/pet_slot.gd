@@ -117,9 +117,14 @@ func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 		return true
 	if slot_kind == "book":
 		if not (s.drag_item is PetSkillBookData):
+			print("[PetSlot] reject: kind=book but drag_item is not PetSkillBookData (got %s)" % s.drag_item.get_class())
 			return false
 		var expected := PetManager.book_id_for_slot(slot_key)
-		return s.drag_item.item_id == expected
+		var accept: bool = s.drag_item.item_id == expected
+		if not accept:
+			print("[PetSlot] reject: kind=book slot_key=%s expected=%s got_id=%s" % [slot_key, expected, s.drag_item.item_id])
+		return accept
+	print("[PetSlot] reject: unknown slot_kind=%s for slot_key=%s" % [slot_kind, slot_key])
 	return false
 
 
@@ -147,6 +152,9 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 		push_warning("PetSlot: drop source slot not found in inventory.slots")
 		source_slot.cancel_drag()
 		return
+	if pet_uuid.is_empty():
+		print("[PetSlot] drop accepted client-side but pet_uuid is empty — server will reject. Select a pet first.")
+	print("[PetSlot] sending transfer RPC: pet=%s slot=%s inv_idx=%d item=%s" % [pet_uuid, slot_key, idx, source_slot.drag_item.item_id])
 	PetManager.request_transfer_to_pet_slot_server.rpc_id(1, pet_uuid, slot_key, idx)
 	source_slot.cancel_drag()
 
