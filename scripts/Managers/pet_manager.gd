@@ -341,15 +341,20 @@ func request_release_pet_server(pet_uuid: String) -> void:
 	_queue_save(username)
 
 
-## Returns every non-empty pet inventory slot to the player's main inventory.
-## Called on Release. Items the inventory can't accept (full bag) are lost —
-## Release is destructive by design. The player gets a warning dialog before
-## confirming.
+## Returns every non-empty pet COMMAND slot's book to the player's main
+## inventory. Pot slots are references (the actual potions stayed in the
+## player's inventory all along), so nothing to return for them — just
+## clear the references.
+## Called on Release; the player gets a warning dialog before confirming.
 func _return_pet_inventory_to_player(record: Dictionary, inv) -> void:
 	var pet_inv: Dictionary = record.get(KEY_INVENTORY, {})
-	for slot_key in [KEY_AUTOPOT_HP, KEY_AUTOPOT_MP, KEY_CMD_AUTO_POT, KEY_CMD_BUFF, KEY_CMD_MAGNET]:
+	# Command slots: books are stored, return them.
+	for slot_key in [KEY_CMD_AUTO_POT, KEY_CMD_BUFF, KEY_CMD_MAGNET]:
 		_return_one_pet_slot(pet_inv.get(slot_key, {}), inv)
 		pet_inv[slot_key] = {}
+	# Pot slots: just clear the references.
+	pet_inv[KEY_AUTOPOT_HP] = {}
+	pet_inv[KEY_AUTOPOT_MP] = {}
 
 
 func _return_one_pet_slot(slot_data: Dictionary, inv) -> void:
@@ -925,13 +930,12 @@ func request_autopot_server(pet_uuid: String, slot_type: String) -> void:
 	var slot_key := KEY_AUTOPOT_HP if slot_type == "hp" else KEY_AUTOPOT_MP
 	var inv: Dictionary = record.get(KEY_INVENTORY, {})
 	var slot_data: Dictionary = inv.get(slot_key, {})
-	var item_id: String = slot_data.get("item_id", "")
-	var stack: int = int(slot_data.get("stack", 0))
-	if item_id.is_empty() or stack <= 0:
-		return
+	var pot_name: String = slot_data.get("item_id", "")  # this is the potion's canonical NAME
+	if pot_name.is_empty():
+		return  # No potion type configured for this slot
 
 	var owner_player := PlayerManager.get_player_node(caller)
-	if not is_instance_valid(owner_player):
+	if not is_instance_valid(owner_player) or not is_instance_valid(owner_player.inventory_component):
 		return
 	var cfg: Dictionary = record.get(KEY_AUTOPOT_CONFIG, {})
 	if slot_type == "hp":
@@ -952,10 +956,25 @@ func request_autopot_server(pet_uuid: String, slot_type: String) -> void:
 	var now_ms := Time.get_ticks_msec()
 	if now_ms - int(info.get(cd_key, 0)) < AUTOPOT_COOLDOWN_MS:
 		return
-	info[cd_key] = now_ms
 
-	# Look up the consumable and run its effect on the owner.
-	var consumable_res := ResourceManager.get_item_data(item_id)
+	# Look up an actual potion of this type in the player's main inventory.
+	# The pet slot is a REFERENCE, not storage — the player keeps stacks in
+	# their inventory and the pet draws from them.
+	var pot_in_inventory: ItemData = null
+	var pot_inv_slot: SlotData = null
+	for sd in owner_player.inventory_component.slots_data:
+		if sd and sd.item and sd.item.name == pot_name:
+			pot_in_inventory = sd.item
+			pot_inv_slot = sd
+			break
+	if not pot_in_inventory:
+		# Out of potions — don't spam; just message once per cooldown window.
+		info[cd_key] = now_ms
+		_show_message_to_owner(caller, "Out of %s!" % pot_name)
+		return
+
+	# Look up canonical for effect_script and run the effect on the owner.
+	var consumable_res := ResourceManager.get_item_data(pot_name)
 	if not (consumable_res is ConsumableData):
 		return
 	var consumable: ConsumableData = consumable_res as ConsumableData
@@ -968,16 +987,11 @@ func request_autopot_server(pet_uuid: String, slot_type: String) -> void:
 	effect_instance.source_item = consumable
 	effect_instance.execute()
 
-	# Decrement the pet slot stack.
-	slot_data["stack"] = stack - 1
-	if slot_data["stack"] <= 0:
-		inv[slot_key] = {}
-		_show_message_to_owner(caller, "Pet's %s pot slot is empty!" % slot_type.to_upper())
-	else:
-		inv[slot_key] = slot_data
+	# Consume one from the main inventory stack.
+	owner_player.inventory_component.remove_item_from_stack(pot_in_inventory, 1, "pet_autopot")
 
+	info[cd_key] = now_ms
 	_pet_event_visual_rpc.rpc(pet_uuid, "autopot_hp" if slot_type == "hp" else "autopot_mp")
-	_push_roster_to_owner(owner_username)
 	_queue_save(owner_username)
 
 
@@ -1053,42 +1067,37 @@ func request_transfer_to_pet_slot_server(pet_uuid: String, slot_key: String, sou
 	var inv: Dictionary = record.get(KEY_INVENTORY, {})
 	var existing := _read_pet_slot(inv, slot_key)
 	var is_command_slot: bool = slot_key == KEY_CMD_AUTO_POT or slot_key == KEY_CMD_BUFF or slot_key == KEY_CMD_MAGNET
+	var canonical_key: String = item.name
 
-	if is_command_slot and not existing.is_empty():
-		# Command slots hold exactly ONE book. Refuse to stack or overwrite
-		# silently — the player has to right-click to unequip first.
+	# Pot slots are REFERENCES — they just remember the potion type. The
+	# actual potions stay in the player's main inventory. Auto-pot consumes
+	# from there, so the player can keep multiple stacks and the pet draws
+	# from all of them without needing to "refill" the pet slot.
+	if not is_command_slot:
+		_write_pet_slot(inv, slot_key, {
+			"item_id": canonical_key,
+			"stack": 0,  # reference only — no items stored in the pet slot
+		})
+		print("[PetMgr.transfer_to] DONE: pot slot '%s' now references '%s' (inventory untouched)" % [slot_key, canonical_key])
+		_push_roster_to_owner(owner_username)
+		_queue_save(owner_username)
+		return
+
+	# Command slots EQUIP the book — book is moved from inventory to slot.
+	if not existing.is_empty():
 		print("[PetMgr.transfer_to] REJECT: command slot '%s' already equipped" % slot_key)
 		_show_message_to_owner(caller, "That command slot is already equipped. Right-click to unequip first.")
 		return
 
-	# Pot slots may stack the same item or swap a different one.
-	var canonical_key: String = item.name
-	if not is_command_slot and not existing.is_empty() and existing.get("item_id", "") != canonical_key:
-		# Swap: put the existing item back into main inventory first.
-		var existing_id: String = existing.get("item_id", "")
-		var existing_stack: int = int(existing.get("stack", 0))
-		var ex_resource := ResourceManager.get_item_data(existing_id)
-		if ex_resource and existing_stack > 0:
-			for i in existing_stack:
-				source_inv.server_add_item(existing_id)
-		_write_pet_slot(inv, slot_key, {})
-
-	var new_stack: int = int(existing.get("stack", 0)) + item.current_stack_amount if existing.get("item_id", "") == canonical_key else item.current_stack_amount
 	_write_pet_slot(inv, slot_key, {
 		"item_id": canonical_key,
-		"stack": new_stack,
+		"stack": 1,
 	})
-
-	# Remove the source from main inventory. remove_item_from_stack short-
-	# circuits to 0 for non-stackable items (Slot.remove_from_stack returns 0
-	# early when !can_stack), so we use clear_slot for the whole-slot move.
-	# That handles both stackable and non-stackable in one path since we're
-	# always moving the entire source stack to the pet slot.
 	if source_inventory_idx >= 0 and source_inventory_idx < source_inv.slots.size():
 		var source_slot_node: Slot = source_inv.slots[source_inventory_idx]
 		if is_instance_valid(source_slot_node):
 			source_inv.clear_slot(source_slot_node, "transferred_to_pet")
-	print("[PetMgr.transfer_to] DONE: inventory slot %d cleared, pet slot '%s' now holds '%s'" % [source_inventory_idx, slot_key, canonical_key])
+	print("[PetMgr.transfer_to] DONE: book slot '%s' now holds '%s' (book removed from inventory)" % [slot_key, canonical_key])
 	_push_roster_to_owner(owner_username)
 	_queue_save(owner_username)
 
@@ -1112,14 +1121,16 @@ func request_transfer_from_pet_slot_server(pet_uuid: String, slot_key: String) -
 	var inv: Dictionary = record.get(KEY_INVENTORY, {})
 	var slot_data := _read_pet_slot(inv, slot_key)
 	var item_id: String = slot_data.get("item_id", "")
-	var stack: int = int(slot_data.get("stack", 0))
-	if item_id.is_empty() or stack <= 0:
+	if item_id.is_empty():
 		return
 
-	# Push the held stack back to main inventory one at a time. server_add_item
-	# handles stacking + free-slot search via existing inventory logic.
-	for i in stack:
-		player.inventory_component.server_add_item(item_id)
+	var is_command_slot: bool = slot_key == KEY_CMD_AUTO_POT or slot_key == KEY_CMD_BUFF or slot_key == KEY_CMD_MAGNET
+	if is_command_slot:
+		# Books are stored in the pet slot — return them to the player's inventory.
+		var stack: int = int(slot_data.get("stack", 1))
+		for i in stack:
+			player.inventory_component.server_add_item(item_id)
+	# Pot slots are pure references — nothing to return. Just clear the slot.
 	_write_pet_slot(inv, slot_key, {})
 	_push_roster_to_owner(owner_username)
 	_queue_save(owner_username)

@@ -55,8 +55,13 @@ func _refresh_item_slot(record: Dictionary) -> void:
 		_clear_display()
 		return
 	var item_id: String = slot_data.get("item_id", "")
+	if item_id.is_empty():
+		_clear_display()
+		return
+	# Pot slots are references — stack 0 is valid (the pet draws from main
+	# inventory). Command slots store the actual book and have stack=1.
 	var stack: int = int(slot_data.get("stack", 0))
-	if item_id.is_empty() or stack <= 0:
+	if slot_kind == "book" and stack <= 0:
 		_clear_display()
 		return
 
@@ -65,8 +70,10 @@ func _refresh_item_slot(record: Dictionary) -> void:
 		icon_rect.texture = item.icon if item else null
 		icon_rect.visible = item != null
 	if is_instance_valid(count_label):
+		# Pot slots don't show a count (it lives in main inventory).
+		# Command slots show count only if > 1 (which shouldn't happen for books).
 		count_label.text = "x%d" % stack
-		count_label.visible = stack > 1
+		count_label.visible = slot_kind == "book" and stack > 1
 	if is_instance_valid(slot_label):
 		slot_label.visible = false
 

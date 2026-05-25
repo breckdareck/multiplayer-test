@@ -315,8 +315,10 @@ func _try_autopot() -> void:
 	var inv: Dictionary = record.get(PetManager.KEY_INVENTORY, {})
 	var cfg: Dictionary = record.get(PetManager.KEY_AUTOPOT_CONFIG, {})
 
+	# Pot slots are REFERENCES — non-empty item_id means "this potion type is
+	# configured". The server consumes one from main inventory on each fire.
 	var hp_slot: Dictionary = inv.get(PetManager.KEY_AUTOPOT_HP, {})
-	if not hp_slot.is_empty() and int(hp_slot.get("stack", 0)) > 0:
+	if not (hp_slot.get("item_id", "") as String).is_empty():
 		var hp_threshold: float = cfg.get(PetManager.KEY_HP_THRESHOLD, 0.5)
 		var hp_node = owner_node.get("health_component") if owner_node.has_method("get") else null
 		if is_instance_valid(hp_node) and hp_node.max_health > 0:
@@ -324,7 +326,7 @@ func _try_autopot() -> void:
 				PetManager.request_autopot_server.rpc_id(1, pet_uuid, "hp")
 
 	var mp_slot: Dictionary = inv.get(PetManager.KEY_AUTOPOT_MP, {})
-	if not mp_slot.is_empty() and int(mp_slot.get("stack", 0)) > 0:
+	if not (mp_slot.get("item_id", "") as String).is_empty():
 		var mp_threshold: float = cfg.get(PetManager.KEY_MP_THRESHOLD, 0.5)
 		var mp_node = owner_node.get("mana_component") if owner_node.has_method("get") else null
 		if is_instance_valid(mp_node) and mp_node.max_mana > 0:
