@@ -44,10 +44,10 @@ outline_color = Color(0, 0, 0, 1)
 
 [node name="EquipmentWindow" type="Panel"]
 visible = false
-offset_left = 1309.0
-offset_top = 288.0
-offset_right = 1511.0
-offset_bottom = 645.0
+offset_left = 1190.0
+offset_top = 200.0
+offset_right = 1540.0
+offset_bottom = 700.0
 theme_override_styles/panel = ExtResource("1_1pa5l")
 script = ExtResource("2_jqadm")
 
@@ -81,13 +81,34 @@ focus_mode = 0
 text = "X"
 flat = true
 
+[node name="TabButtons" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 8.0
+offset_top = 40.0
+offset_right = -8.0
+offset_bottom = 70.0
+grow_horizontal = 2
+theme_override_constants/separation = 4
+
+[node name="EquipmentTabButton" type="Button" parent="TabButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "EQUIPMENT"
+
+[node name="PetsTabButton" type="Button" parent="TabButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "PETS"
+
 [node name="PanelContainer" type="PanelContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 8.0
-offset_top = 35.0
+offset_top = 75.0
 offset_right = -8.0
 offset_bottom = -9.0
 grow_horizontal = 2
@@ -324,4 +345,20 @@ text = "WEAPON"
 scroll_active = false
 autowrap_mode = 2
 
+[node name="PetTabContent" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 75.0
+offset_right = -8.0
+offset_bottom = -9.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ihqbe")
+
 [connection signal="pressed" from="CloseButton" to="." method="hide"]
+[connection signal="pressed" from="TabButtons/EquipmentTabButton" to="." method="_on_equipment_tab_pressed"]
+[connection signal="pressed" from="TabButtons/PetsTabButton" to="." method="_on_pets_tab_pressed"]

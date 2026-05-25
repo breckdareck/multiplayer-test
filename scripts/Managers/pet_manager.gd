@@ -58,6 +58,12 @@ var _active_pets: Dictionary = {}
 ## pet_data_id -> PetData (loaded from PET_DATA_FOLDER on _ready).
 var _pet_data_cache: Dictionary = {}
 
+# ── Client-side mirror (the local player's roster) ────────────────────────
+## Pushed by the server via sync_roster_to_client_rpc whenever the roster
+## changes. UI subscribes to client_roster_updated.
+var _client_roster: Dictionary = {KEY_PETS: [], KEY_SUMMONED: []}
+signal client_roster_updated()
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # LIFECYCLE
@@ -144,6 +150,8 @@ func load_pets(username: String, data: Dictionary) -> void:
 		KEY_PETS: clean_pets,
 		KEY_SUMMONED: clean_summoned,
 	}
+	# Push the freshly-loaded roster to the owner client so its UI hydrates.
+	_push_roster_to_owner(username)
 
 
 func clear_player(username: String) -> void:
@@ -214,6 +222,7 @@ func hatch_pet_server(username: String, pet_data_id: String, default_name: Strin
 
 	notify_pet_hatched_rpc.rpc_id(owner_peer, pet_uuid, default_name, pet_data_id)
 	pet_roster_changed.emit()
+	_push_roster_to_owner(username)
 	_queue_save(username)
 
 
@@ -242,6 +251,7 @@ func request_summon_pet_server(pet_uuid: String) -> void:
 		roster[KEY_SUMMONED].append(pet_uuid)
 	_spawn_pet_internal(username, pet_uuid)
 	pet_roster_changed.emit()
+	_push_roster_to_owner(username)
 	_queue_save(username)
 
 
@@ -263,6 +273,7 @@ func request_unsummon_pet_server(pet_uuid: String) -> void:
 
 	_unsummon_internal(username, pet_uuid)
 	pet_roster_changed.emit()
+	_push_roster_to_owner(username)
 	_queue_save(username)
 
 
@@ -290,6 +301,7 @@ func request_release_pet_server(pet_uuid: String) -> void:
 		if roster[KEY_PETS][i].get(KEY_ID, "") == pet_uuid:
 			roster[KEY_PETS].remove_at(i)
 	pet_roster_changed.emit()
+	_push_roster_to_owner(username)
 	_queue_save(username)
 
 
@@ -314,6 +326,7 @@ func request_rename_pet_server(pet_uuid: String, new_name: String) -> void:
 		return
 	record[KEY_NAME] = clean_name
 	pet_roster_changed.emit()
+	_push_roster_to_owner(username)
 	_queue_save(username)
 
 
@@ -447,6 +460,71 @@ func despawn_pet_client(pet_uuid: String) -> void:
 @rpc("authority", "call_remote", "reliable")
 func notify_pet_hatched_rpc(pet_uuid: String, pet_name: String, pet_data_id: String) -> void:
 	pet_hatched.emit(pet_uuid, pet_name, pet_data_id)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# CLIENT-SIDE ROSTER MIRROR
+# ═══════════════════════════════════════════════════════════════════════════
+
+## Server -> owner only. Pushes the latest roster so the owner client's UI
+## can display owned pets, hunger, learned commands, etc. Called after every
+## roster mutation and on initial load.
+@rpc("authority", "call_remote", "reliable")
+func sync_roster_to_client_rpc(roster: Dictionary) -> void:
+	if multiplayer.is_server():
+		return
+	_client_roster = roster
+	client_roster_updated.emit()
+
+
+## Server-side: push the current roster for `username` to its owner.
+## On a remote client, this travels via RPC. On the host, it short-circuits
+## to a local signal so the UI doesn't depend on RPC round-trips.
+func _push_roster_to_owner(username: String) -> void:
+	if not multiplayer.is_server():
+		return
+	var peer := _find_peer_id_for_username(username)
+	if peer == 0:
+		return  # offline / unknown
+	if BotManager.is_bot(peer):
+		return
+	if peer == 1:
+		# Host is also a client — fire the UI signal directly. UI binds to
+		# client_roster_updated regardless of host/client role.
+		client_roster_updated.emit()
+		return
+	sync_roster_to_client_rpc.rpc_id(peer, get_save_data(username))
+
+
+## Owner-side: returns the roster the UI should display. Transparent across
+## host (reads server state) and client (reads the mirrored copy).
+func client_get_roster() -> Array:
+	if multiplayer.is_server():
+		var local := PlayerManager.get_player_node(1)
+		if is_instance_valid(local):
+			return get_roster(local.username)
+		return []
+	return _client_roster.get(KEY_PETS, [])
+
+
+func client_get_summoned_ids() -> Array:
+	if multiplayer.is_server():
+		var local := PlayerManager.get_player_node(1)
+		if is_instance_valid(local):
+			return get_summoned_ids(local.username)
+		return []
+	return _client_roster.get(KEY_SUMMONED, [])
+
+
+func client_find_pet(pet_uuid: String) -> Dictionary:
+	for pet in client_get_roster():
+		if pet.get(KEY_ID, "") == pet_uuid:
+			return pet
+	return {}
+
+
+func client_is_pet_summoned(pet_uuid: String) -> bool:
+	return client_get_summoned_ids().has(pet_uuid)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
