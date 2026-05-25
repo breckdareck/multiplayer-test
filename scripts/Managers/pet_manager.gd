@@ -768,8 +768,10 @@ func _apply_book_to_pet(book: PetSkillBookData, username: String, pet_uuid: Stri
 		_show_message_to_owner(player_peer, "Pet already has that command equipped.")
 		return false
 
+	# Store the canonical id so PetSlot.refresh can look the item back up
+	# via ResourceManager (instance UUIDs don't survive that lookup).
 	_write_pet_slot(inv, target_slot_key, {
-		"item_id": book.item_id,
+		"item_id": resolve_canonical_id(book),
 		"stack": 1,
 	})
 	_pet_event_visual_rpc.rpc(pet_uuid, "taught")
@@ -779,7 +781,8 @@ func _apply_book_to_pet(book: PetSkillBookData, username: String, pet_uuid: Stri
 
 
 static func _slot_key_for_book(book: PetSkillBookData) -> String:
-	match book.item_id:
+	# Resolve via the canonical id, not the instance's item_id (which is a UUID).
+	match resolve_canonical_id(book):
 		BOOK_AUTO_POT_ID:
 			return KEY_CMD_AUTO_POT
 		BOOK_AUTOBUFF_ID:
@@ -996,30 +999,24 @@ func request_transfer_to_pet_slot_server(pet_uuid: String, slot_key: String, sou
 	# look the pet up by its owner's roster, not by _active_pets.
 	var player := PlayerManager.get_player_node(caller)
 	if not is_instance_valid(player) or not is_instance_valid(player.inventory_component):
-		print("[PetMgr][transfer_to] reject: player or inventory_component invalid (caller=%d)" % caller)
 		return
 	var owner_username: String = player.username
 	var record := find_pet(owner_username, pet_uuid)
 	if record.is_empty():
-		print("[PetMgr][transfer_to] reject: pet '%s' not in '%s' roster" % [pet_uuid, owner_username])
 		return
 	var source_inv = player.inventory_component
 	if source_inventory_idx < 0 or source_inventory_idx >= source_inv.slots_data.size():
-		print("[PetMgr][transfer_to] reject: source idx %d out of range (size=%d)" % [source_inventory_idx, source_inv.slots_data.size()])
 		return
 	var source_sd = source_inv.slots_data[source_inventory_idx]
 	if not source_sd or not source_sd.item:
-		print("[PetMgr][transfer_to] reject: source slot %d has no item (sd=%s)" % [source_inventory_idx, source_sd])
 		return
 	var item: ItemData = source_sd.item
 
 	# Per-slot type gate (HP/MP slots accept normal consumables; command slots
 	# accept only the matching book).
 	if not _slot_accepts_item(slot_key, item):
-		print("[PetMgr][transfer_to] reject: _slot_accepts_item false. slot=%s item_class=%s item_id=%s" % [slot_key, item.get_class(), item.item_id])
 		_show_message_to_owner(caller, "That item doesn't fit this slot.")
 		return
-	print("[PetMgr][transfer_to] accepted: slot=%s item=%s" % [slot_key, item.item_id])
 
 	var inv: Dictionary = record.get(KEY_INVENTORY, {})
 	var existing := _read_pet_slot(inv, slot_key)
@@ -1036,9 +1033,11 @@ func request_transfer_to_pet_slot_server(pet_uuid: String, slot_key: String, sou
 				source_inv.server_add_item(existing_id)
 		_write_pet_slot(inv, slot_key, {})
 
-	var new_stack: int = int(existing.get("stack", 0)) + item.current_stack_amount if existing.get("item_id", "") == item.item_id else item.current_stack_amount
+	# Store via canonical id so pet-slot lookups via ResourceManager round-trip.
+	var canonical_id: String = resolve_canonical_id(item)
+	var new_stack: int = int(existing.get("stack", 0)) + item.current_stack_amount if existing.get("item_id", "") == canonical_id else item.current_stack_amount
 	_write_pet_slot(inv, slot_key, {
-		"item_id": item.item_id,
+		"item_id": canonical_id,
 		"stack": new_stack,
 	})
 
@@ -1089,7 +1088,9 @@ func _write_pet_slot(inv: Dictionary, slot_key: String, slot_data: Dictionary) -
 
 ## Server-side validation: does this slot accept this item?
 ##   - Autopot HP/MP slots: any ConsumableData except a pet-only consumable.
-##   - Command slots: ONLY the matching PetSkillBookData.
+##   - Command slots: ONLY the matching PetSkillBookData (matched via the
+##     canonical id from ResourceManager — instances carry a UUID in
+##     `item_id`, not the "pet_book_*" string from the .tres).
 ##   - Any other slot key: reject.
 func _slot_accepts_item(slot_key: String, item: ItemData) -> bool:
 	if slot_key == KEY_AUTOPOT_HP or slot_key == KEY_AUTOPOT_MP:
@@ -1101,7 +1102,7 @@ func _slot_accepts_item(slot_key: String, item: ItemData) -> bool:
 	var expected_book_id: String = book_id_for_slot(slot_key)
 	if expected_book_id.is_empty():
 		return false
-	return item is PetSkillBookData and item.item_id == expected_book_id
+	return item is PetSkillBookData and resolve_canonical_id(item) == expected_book_id
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -1481,6 +1482,24 @@ static func book_id_for_slot(slot_key: String) -> String:
 			return BOOK_MAGNET_ID
 		_:
 			return ""
+
+
+## Resolves an item instance to its canonical item_id via ResourceManager.
+## Item instances carry a generated UUID in `item_id` (from `_init`); the
+## stable "pet_book_*" / canonical id lives on the resource registered with
+## ResourceManager (keyed by both id and name). Use this anywhere the pet
+## system needs to compare "what KIND of item is this" rather than "is it
+## this exact instance".
+static func resolve_canonical_id(item: ItemData) -> String:
+	if not item:
+		return ""
+	var canonical: ItemData = ResourceManager.get_item_data(item.item_id)
+	if canonical:
+		return canonical.item_id
+	canonical = ResourceManager.get_item_data(item.name)
+	if canonical:
+		return canonical.item_id
+	return item.item_id  # last-ditch fallback
 
 
 static func _clone_record(record: Dictionary) -> Dictionary:
