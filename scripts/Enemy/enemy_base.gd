@@ -345,7 +345,13 @@ func _deferred_death_processing(_killer: Node) -> void:
 	attack_hitbox.monitoring = false
 	body_hitbox.monitoring = false
 	
-	if respawnable:
+	# When a spawner is managing this enemy it drives the pool cycle via
+	# ready_for_pooling -> _spawn_enemy (which also picks a fresh spawn
+	# marker). The direct timers below are only for self-respawning enemies
+	# placed manually in the scene — otherwise pool_reset would teleport the
+	# enemy back to initial_position (≈ the spawn container's origin for
+	# pooled enemies) and drop them through the floor.
+	if respawnable and ready_for_pooling.get_connections().is_empty():
 		get_tree().create_timer(post_death_delay).timeout.connect(pool_deactivate)
 		get_tree().create_timer(respawn_delay).timeout.connect(pool_reset)
 
