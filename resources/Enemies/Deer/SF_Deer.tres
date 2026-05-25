@@ -1,0 +1,124 @@
+[gd_resource type="SpriteFrames" load_steps=16 format=3 uid="uid://b0deer1mfa01o"]
+
+[ext_resource type="Texture2D" uid="uid://b3y1g7qhtpimy" path="res://assets/sprites/MinifolksForestAnimals/Outline/MiniDeer1.png" id="1_deer"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_luu43"]
+atlas = ExtResource("1_deer")
+region = Rect2(0, 160, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_u23sk"]
+atlas = ExtResource("1_deer")
+region = Rect2(32, 160, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_q4g5e"]
+atlas = ExtResource("1_deer")
+region = Rect2(64, 160, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l2hpo"]
+atlas = ExtResource("1_deer")
+region = Rect2(96, 160, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_w614y"]
+atlas = ExtResource("1_deer")
+region = Rect2(0, 128, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1cep5"]
+atlas = ExtResource("1_deer")
+region = Rect2(32, 128, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d_i0"]
+atlas = ExtResource("1_deer")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d_i1"]
+atlas = ExtResource("1_deer")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d_i2"]
+atlas = ExtResource("1_deer")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d_i3"]
+atlas = ExtResource("1_deer")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_w6m33"]
+atlas = ExtResource("1_deer")
+region = Rect2(0, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3dubi"]
+atlas = ExtResource("1_deer")
+region = Rect2(32, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vlv6i"]
+atlas = ExtResource("1_deer")
+region = Rect2(64, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pb1ln"]
+atlas = ExtResource("1_deer")
+region = Rect2(96, 32, 32, 32)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_luu43")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_u23sk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_q4g5e")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l2hpo")
+}],
+"loop": false,
+"name": &"death",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_w614y")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1cep5")
+}],
+"loop": false,
+"name": &"hit",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d_i0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d_i1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d_i2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d_i3")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 6.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_w6m33")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3dubi")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vlv6i")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pb1ln")
+}],
+"loop": true,
+"name": &"patrol",
+"speed": 8.0
+}]

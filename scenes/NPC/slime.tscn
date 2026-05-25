@@ -6,7 +6,7 @@
 [ext_resource type="Resource" uid="uid://c6pskfllhxxrd" path="res://resources/Enemies/Slime/ED_Slime.tres" id="2_ko2xg"]
 [ext_resource type="Curve" uid="uid://q6qc5kgdbmyv" path="res://assets/curves/monster_hp_curve.tres" id="2_ykovo"]
 [ext_resource type="Curve" uid="uid://la82to0yhbrk" path="res://assets/curves/monster_exp_curve.tres" id="3_k8y7s"]
-[ext_resource type="Script" uid="uid://dwv2k28spwfby" path="res://scripts/StateMachine/state_machine.gd" id="4_2npkn"]
+[ext_resource type="Script" uid="uid://dwv2k28spwfby" path="res://scripts/Core/StateMachine/state_machine.gd" id="4_2npkn"]
 [ext_resource type="Curve" uid="uid://c20efdba57fc" path="res://assets/curves/monster_wep_att_curve.tres" id="5_m5n82"]
 [ext_resource type="Script" uid="uid://dk2rcptcq3hb8" path="res://scripts/Enemy/StateMachine/enemy_patrol.gd" id="6_fd6lc"]
 [ext_resource type="Script" uid="uid://71v08yv5tjrt" path="res://scripts/Components/stats.gd" id="6_ko2xg"]
@@ -159,9 +159,9 @@ vertical_alignment = 1
 
 [node name="HealthBar" type="ProgressBar" parent="."]
 offset_left = -11.0
-offset_top = -37.0
+offset_top = -19.000004
 offset_right = 89.0
-offset_bottom = -27.0
+offset_bottom = -9.000004
 scale = Vector2(0.225, 0.225)
 mouse_filter = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_0l8pv")

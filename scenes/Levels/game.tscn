@@ -11,7 +11,6 @@
 [ext_resource type="PackedScene" uid="uid://dprr4d0kjfbgn" path="res://scenes/Gameplay/platform.tscn" id="6_ryi0r"]
 [ext_resource type="PackedScene" uid="uid://q6iqwsi8meq4" path="res://scenes/NPC/slime.tscn" id="7_ukxhe"]
 [ext_resource type="PackedScene" uid="uid://betkg72vd7iav" path="res://scenes/NPC/Minifolks/boar.tscn" id="8_pd7st"]
-[ext_resource type="PackedScene" uid="uid://c06qbiant345e" path="res://scenes/NPC/Minifolks/bunny.tscn" id="9_qb3j5"]
 [ext_resource type="Script" uid="uid://bu07farg11vu3" path="res://scripts/Gameplay/platform.gd" id="11_kgokg"]
 [ext_resource type="Script" uid="uid://cvqlmxlnxa5ab" path="res://scripts/NPC/quest_giver_npc.gd" id="15_j167y"]
 [ext_resource type="Script" uid="uid://be1clobtt03tr" path="res://scripts/UI/quest_giver_dialog.gd" id="16_kgokg"]
@@ -1219,18 +1218,6 @@ respawnable = true
 
 [node name="Boar8" parent="Enemies" instance=ExtResource("8_pd7st")]
 position = Vector2(207, 15)
-respawnable = true
-
-[node name="Bunny" parent="Enemies" instance=ExtResource("9_qb3j5")]
-position = Vector2(-68, 0)
-respawnable = true
-
-[node name="Bunny2" parent="Enemies" instance=ExtResource("9_qb3j5")]
-position = Vector2(-172, 16)
-respawnable = true
-
-[node name="Bunny3" parent="Enemies" instance=ExtResource("9_qb3j5")]
-position = Vector2(128, 16)
 respawnable = true
 
 [node name="Projectiles" type="Node2D" parent="."]

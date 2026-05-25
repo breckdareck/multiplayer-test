@@ -65,6 +65,7 @@ var leash_anchor: Vector2
 var _attack_cooldown_until: int = 0
 
 const _CHASE_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_chase.gd")
+const _HIT_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_hit.gd")
 
 
 func _apply_enemy_data() -> void:
@@ -180,6 +181,7 @@ func _ready() -> void:
 	# Inject the AI chase state, then initialize the state machine with the
 	# same pattern as the player.
 	_ensure_chase_state()
+	_ensure_hit_state()
 	state_machine.init(self, animated_sprite)
 
 
@@ -221,6 +223,30 @@ func on_enemy_damaged(amount: int, source: Node) -> void:
 	var attacker := _resolve_character(source)
 	if is_valid_target(attacker):
 		current_target = attacker
+
+	# Play a brief stagger state if this enemy has a "hit" animation. The
+	# attack state is exempt so a swing already in progress still lands.
+	if multiplayer.is_server() and not health_component.is_dead:
+		_try_enter_hit_state()
+
+
+## Transitions the enemy into the "hit" stagger state when:
+##  - the SpriteFrames contains a "hit" clip (slimes don't),
+##  - the enemy isn't mid-swing (attack states should complete), and
+##  - the enemy isn't already in the hit state.
+func _try_enter_hit_state() -> void:
+	if state_machine == null:
+		return
+	var hit_state: Node = state_machine.get_node_or_null("hit")
+	if hit_state == null or state_machine.current_state == hit_state:
+		return
+	if state_machine.current_state is EnemyAttackState:
+		return
+	if enemy_data == null or enemy_data.sprite_frames == null:
+		return
+	if not enemy_data.sprite_frames.has_animation("hit"):
+		return
+	state_machine.change_state(hit_state)
 
 
 func _on_enemy_died(_killer: Node) -> void:
@@ -688,6 +714,19 @@ func _ensure_chase_state() -> void:
 	# Reuse the walk/patrol animation while pursuing a target.
 	chase.animation_name = "patrol"
 	state_machine.add_child(chase)
+
+
+## Creates and attaches the runtime "hit" stagger state. Entered from
+## on_enemy_damaged when the enemy has a "hit" animation; injected unconditionally
+## so the state-machine node lookup ("hit") works on every enemy.
+func _ensure_hit_state() -> void:
+	if state_machine == null or state_machine.has_node("hit"):
+		return
+	var hit := Node.new()
+	hit.set_script(_HIT_STATE_SCRIPT)
+	hit.name = "hit"
+	hit.animation_name = "hit"
+	state_machine.add_child(hit)
 
 
 ## Resolves a damage source (a player/bot node, or an ability/projectile owned

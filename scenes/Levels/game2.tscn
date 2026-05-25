@@ -14,8 +14,6 @@
 [ext_resource type="Texture2D" uid="uid://bltuclvu72dcb" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Back_tree_2.png" id="11_grdtf"]
 [ext_resource type="Texture2D" uid="uid://dn66ntccqo3io" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/props_clouds.png" id="12_b22rv"]
 [ext_resource type="PackedScene" uid="uid://bx2n3vrfxk75m" path="res://scenes/Gameplay/killzone.tscn" id="13_07ik3"]
-[ext_resource type="PackedScene" uid="uid://sxpgdsdpf5ma" path="res://scenes/NPC/Minifolks/fox.tscn" id="14_oqfux"]
-[ext_resource type="PackedScene" uid="uid://c06qbiant345e" path="res://scenes/NPC/Minifolks/bunny.tscn" id="15_mrgbh"]
 [ext_resource type="Script" uid="uid://bwpy3okndk0cu" path="res://scripts/Enemy/enemy_spawner.gd" id="16_mxmss"]
 [ext_resource type="PackedScene" uid="uid://c0fdrl7mq5ou7" path="res://scenes/NPC/goblin.tscn" id="17_i3lvf"]
 [ext_resource type="Script" uid="uid://b4ed7py37e6nt" path="res://scripts/Gameplay/enemy_multiplayer_spawner.gd" id="18_y6jw5"]
@@ -1124,30 +1122,6 @@ shape = SubResource("WorldBoundaryShape2D_j018g")
 
 [node name="Enemies" type="Node2D" parent="."]
 position = Vector2(830, -33)
-
-[node name="Fox" parent="Enemies" instance=ExtResource("14_oqfux")]
-position = Vector2(840, -17)
-respawnable = true
-
-[node name="Fox2" parent="Enemies" instance=ExtResource("14_oqfux")]
-position = Vector2(916, -17)
-respawnable = true
-
-[node name="Fox3" parent="Enemies" instance=ExtResource("14_oqfux")]
-position = Vector2(990, -17)
-respawnable = true
-
-[node name="Bunny" parent="Enemies" instance=ExtResource("15_mrgbh")]
-position = Vector2(723, 16)
-respawnable = true
-
-[node name="Bunny2" parent="Enemies" instance=ExtResource("15_mrgbh")]
-position = Vector2(879, -17)
-respawnable = true
-
-[node name="Bunny3" parent="Enemies" instance=ExtResource("15_mrgbh")]
-position = Vector2(954, -17)
-respawnable = true
 
 [node name="Projectiles" type="Node2D" parent="."]
 

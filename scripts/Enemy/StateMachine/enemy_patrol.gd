@@ -8,6 +8,9 @@ var patrol_timer: float
 
 func enter() -> void:
 	super.enter()
+	# Randomize heading so the enemy doesn't always march the same way after
+	# each idle break — wall/ledge bounces still flip it during the patrol.
+	direction.x = 1.0 if randf() < 0.5 else -1.0
 	_reset_patrol_timer()
 
 
