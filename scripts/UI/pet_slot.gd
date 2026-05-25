@@ -140,12 +140,11 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 		source_slot.cancel_drag()
 		return
 	var source_inv: InventoryComponent = source_slot.item_container
-	var idx := -1
-	for i in source_inv.slots_data.size():
-		if source_inv.slots_data[i] == source_slot.slot_data:
-			idx = i
-			break
+	# Find the slot's index via the Slot node array — works even when the
+	# slot is in legacy mode (slot_data == null), unlike slots_data.find().
+	var idx: int = source_inv.slots.find(source_slot)
 	if idx == -1:
+		push_warning("PetSlot: drop source slot not found in inventory.slots")
 		source_slot.cancel_drag()
 		return
 	PetManager.request_transfer_to_pet_slot_server.rpc_id(1, pet_uuid, slot_key, idx)
