@@ -1004,10 +1004,13 @@ func _write_pet_slot(inv: Dictionary, slot_key: String, slot_data: Dictionary) -
 ## Server-side buff timer. Deliberate deviation from Option B — the trigger is
 ## purely time-based, not client-observable, so a server-driven timer beats a
 ## redundant client RPC round-trip. See docs/adr/0001-pet-system-architecture.md.
+##
+## The cast routes through the owner's AbilityComponent.use_ability — same
+## pathway as a player-driven cast — so MP cost, cooldown, and ability visuals
+## all behave identically to a manual cast.
 func _tick_autobuff() -> void:
 	if _active_pets.is_empty():
 		return
-	var now_ms := Time.get_ticks_msec()
 	for pet_uuid in _active_pets.keys():
 		var info: Dictionary = _active_pets[pet_uuid]
 		var owner_username: String = info.get("owner_username", "")
@@ -1033,33 +1036,27 @@ func _tick_autobuff() -> void:
 			continue
 
 		var owner_player := PlayerManager.get_player_node(owner_peer)
-		if not is_instance_valid(owner_player) or not is_instance_valid(owner_player.buff_component):
+		if not is_instance_valid(owner_player) or not is_instance_valid(owner_player.ability_component):
 			continue
 
 		# Validate the owner actually has this ability learned.
-		if not is_instance_valid(owner_player.ability_component):
-			continue
-		var owner_level: int = owner_player.ability_component._ability_levels.get(ability_id, 0)
-		if owner_level <= 0:
+		if int(owner_player.ability_component._ability_levels.get(ability_id, 0)) <= 0:
 			continue
 
-		# Use the ability's own cooldown at the owner's current level.
-		var level_data: AbilityLevelData = ability.get_level_stats(owner_level)
-		var cd_sec: float = level_data.cooldown_time if level_data and level_data.cooldown_time > 0.0 else 60.0
-		var last_cast_ms: int = info.get("autobuff_last_cast_ms_%s" % ability_id, 0)
-		if now_ms - last_cast_ms < int(cd_sec * 1000.0):
-			continue
+		# Skip if owner already has plenty of the buff remaining (avoids wasting
+		# MP on a no-op refresh). AbilityComponent will also refuse on cooldown.
+		if is_instance_valid(owner_player.buff_component):
+			var buff_id: String = ability.applies_buff.buff_id
+			if owner_player.buff_component.has_buff(buff_id):
+				if owner_player.buff_component.get_buff_duration(buff_id) > 5.0:
+					continue
 
-		var buff_id: String = ability.applies_buff.buff_id
-		# Skip if owner already has plenty of buff remaining.
-		if owner_player.buff_component.has_buff(buff_id):
-			if owner_player.buff_component.get_buff_duration(buff_id) > 5.0:
-				continue
-
-		# Cast.
-		owner_player.buff_component.apply_buff(buff_id, null, -1.0)
-		info["autobuff_last_cast_ms_%s" % ability_id] = now_ms
-		_pet_event_visual_rpc.rpc(pet_uuid, "autobuff")
+		# Cast via the canonical pathway. use_ability() on the server runs
+		# _handle_authoritative_use, which validates cooldown + MP, deducts
+		# MP, applies the buff, sets the cooldown, and broadcasts visuals.
+		var cast_ok: bool = owner_player.ability_component.use_ability(ability_id)
+		if cast_ok:
+			_pet_event_visual_rpc.rpc(pet_uuid, "autobuff")
 
 
 @rpc("any_peer", "call_local", "reliable")

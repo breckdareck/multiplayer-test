@@ -44,7 +44,9 @@ _Avoid_: Pet scroll, pet skill scroll.
 **Pet command**:
 A capability the pet can perform once taught — auto-pot, item pickup, coin
 pickup, auto-buff. Distinct from a player **Ability**: commands are not
-castable manually and have no MP cost.
+castable manually. Most cost nothing; auto-buff is the exception — it routes
+through the owner's `AbilityComponent.use_ability`, so the owner's MP is
+deducted exactly as if they had cast the buff themselves.
 _Avoid_: Pet skill, pet ability.
 
 **Pet inventory**:
