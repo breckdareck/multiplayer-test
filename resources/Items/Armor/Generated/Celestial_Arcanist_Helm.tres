@@ -1,20 +1,8 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bdb66hxtp24e0"]
 
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_pvnvy"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_474kr"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_6tjp6"]
-
-[sub_resource type="Resource" id="Resource_swltr"]
-script = ExtResource("1_pvnvy")
-stat_type = 8
-base_value = 0
-flat_bonus_value = 35
-
-[sub_resource type="Resource" id="Resource_jv874"]
-script = ExtResource("1_pvnvy")
-stat_type = 9
-base_value = 0
-flat_bonus_value = 20
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_pvnvy"]
+[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_474kr"]
+[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_6tjp6"]
 
 [sub_resource type="Resource" id="Resource_1cd0d"]
 script = ExtResource("1_pvnvy")
@@ -27,6 +15,18 @@ script = ExtResource("1_pvnvy")
 stat_type = 5
 base_value = 0
 flat_bonus_value = 76
+
+[sub_resource type="Resource" id="Resource_swltr"]
+script = ExtResource("1_pvnvy")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 35
+
+[sub_resource type="Resource" id="Resource_jv874"]
+script = ExtResource("1_pvnvy")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 20
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_i2nr2"]
 atlas = ExtResource("2_474kr")
@@ -43,9 +43,7 @@ bonus_stats = Dictionary[int, ExtResource("1_pvnvy")]({
 })
 item_id = "621371551313-58148-10069-514152-136410121214141725"
 name = "Celestial Arcanist Helm"
-rarity = 0
 icon = SubResource("AtlasTexture_i2nr2")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
 item_level = 80
-custom_item_value = 0

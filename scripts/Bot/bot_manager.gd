@@ -42,6 +42,9 @@ func _ready() -> void:
 		return
 	# Defer bot spawning until the server and maps are ready.
 	MultiplayerManager.server_has_started.connect(_on_server_started)
+	# Recreate the debug overlay on the host's new map_instance after a map
+	# change — the previous one was freed along with the old map.
+	MapManager.player_spawned.connect(_on_player_spawned_for_debug_draw)
 
 
 func _on_server_started() -> void:
@@ -347,8 +350,18 @@ func get_bot_brain(bot_id: int) -> BotBrain:
 ## is built once and shared by every bot on that map (and survives the map node
 ## being recreated by a channel switch — the graph stores positions, not refs).
 var _nav_graphs: Dictionary = {}
-## The navigation debug overlay node, created lazily by `/bot debugdraw`.
+## The navigation debug overlay node, created lazily by `/bot debugdraw`. Lives
+## as a child of the host's current map_instance so it shares that map's
+## SubViewport / World2D / camera transform — a Node2D under /root would draw
+## into the root viewport (no camera) and end up off-screen.
 var _debug_draw: Node2D = null
+## Persisted across overlay recreations. The host's map_instance is freed on
+## every map change, taking _debug_draw with it; we rebuild on the new map
+## from these cached toggles so the user's settings survive the switch.
+var _debug_draw_enabled: bool = false
+var _debug_draw_show_graph: bool = true
+var _debug_draw_show_paths: bool = true
+var _debug_draw_show_bot_info: bool = true
 ## Probe columns advanced per frame for in-progress nav-graph builds — keeps the
 ## thousands of build raycasts from hitching a single frame.
 const NAV_BUILD_COLUMNS_PER_FRAME: int = 12
@@ -698,7 +711,7 @@ func _handle_watch_command(args: Array) -> String:
 func _handle_debugdraw_command(args: Array) -> String:
 	var want: bool
 	if args.is_empty():
-		want = not (is_instance_valid(_debug_draw) and _debug_draw.enabled)
+		want = not _debug_draw_enabled
 	else:
 		match args[0].to_lower():
 			"on", "true", "1":
@@ -708,12 +721,9 @@ func _handle_debugdraw_command(args: Array) -> String:
 			_:
 				return "Usage: /bot debugdraw [on|off]"
 
+	_debug_draw_enabled = want
 	if want:
-		if not is_instance_valid(_debug_draw):
-			_debug_draw = BotDebugDraw.new()
-			_debug_draw.name = "BotDebugDraw"
-			add_child(_debug_draw)
-		_debug_draw.enabled = true
+		_ensure_debug_draw_node()
 		# Kick off a graph build for the host's map so it's visible even with
 		# no bots around to trigger one.
 		var map_node := MapManager.get_player_map_node(1)
@@ -724,6 +734,49 @@ func _handle_debugdraw_command(args: Array) -> String:
 		_debug_draw.enabled = false
 
 	return "Bot navigation debug draw %s (host view)." % ("ON" if want else "OFF")
+
+
+## Creates the overlay node under the host's current map_instance, or moves it
+## there if it lives under a stale parent. Sub-layer toggles are restored from
+## the BotManager-side cache so they persist across map changes.
+func _ensure_debug_draw_node() -> void:
+	var parent: Node = MapManager.current_map_instance
+	if not is_instance_valid(parent):
+		return
+	if is_instance_valid(_debug_draw) and _debug_draw.get_parent() == parent:
+		_debug_draw.enabled = true
+		return
+	if is_instance_valid(_debug_draw):
+		_debug_draw.queue_free()
+	_debug_draw = BotDebugDraw.new()
+	_debug_draw.name = "BotDebugDraw"
+	_debug_draw.show_graph = _debug_draw_show_graph
+	_debug_draw.show_paths = _debug_draw_show_paths
+	_debug_draw.show_bot_info = _debug_draw_show_bot_info
+	parent.add_child(_debug_draw)
+	_debug_draw.enabled = true
+
+
+func _on_player_spawned_for_debug_draw(player_id: int) -> void:
+	if player_id != 1 or not _debug_draw_enabled:
+		return
+	_ensure_debug_draw_node()
+
+
+## Updates a sub-layer toggle. Writes through to the live overlay AND the cache
+## so the choice survives the next host map change (which recreates the node).
+func set_debug_draw_layer(layer: String, value: bool) -> void:
+	match layer:
+		"graph": _debug_draw_show_graph = value
+		"paths": _debug_draw_show_paths = value
+		"info":  _debug_draw_show_bot_info = value
+		_: return
+	if not is_instance_valid(_debug_draw):
+		return
+	match layer:
+		"graph": _debug_draw.show_graph = value
+		"paths": _debug_draw.show_paths = value
+		"info":  _debug_draw.show_bot_info = value
 
 
 ## Debug: builds the platform-navigation graph for a bot's current map and

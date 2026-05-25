@@ -1,8 +1,14 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bls4u1xom4ad8"]
 
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_rqvjn"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_vtkvg"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_h23o1"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_rqvjn"]
+[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_vtkvg"]
+[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_h23o1"]
+
+[sub_resource type="Resource" id="Resource_2qa1g"]
+script = ExtResource("1_rqvjn")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 8
 
 [sub_resource type="Resource" id="Resource_ppl7h"]
 script = ExtResource("1_rqvjn")
@@ -15,12 +21,6 @@ script = ExtResource("1_rqvjn")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 11
-
-[sub_resource type="Resource" id="Resource_2qa1g"]
-script = ExtResource("1_rqvjn")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 8
 
 [sub_resource type="Resource" id="Resource_umxs8"]
 script = ExtResource("1_rqvjn")
@@ -43,9 +43,7 @@ bonus_stats = Dictionary[int, ExtResource("1_rqvjn")]({
 })
 item_id = "21123143148-4473-712121-011513-11413121301501101"
 name = "Mithril Nightshade Helm"
-rarity = 0
 icon = SubResource("AtlasTexture_6c5d0")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 40
-custom_item_value = 0

@@ -60,6 +60,7 @@ Registered in `project.godot`; globally accessible by name from any script.
 | `BotManager` | `scripts/Bot/bot_manager.gd` | Server-side AI bot lifecycle, `/bot` commands |
 | `TradeManager` | `scripts/Trading/trade_manager.gd` | Player-to-player trading |
 | `QuestManager` | `scripts/Managers/quest_manager.gd` | Quest tracking and objectives |
+| `PetManager` | `scripts/Managers/pet_manager.gd` | Per-character pet roster, hunger tick, auto-buff timer, auto-loot / auto-pot validation — see [docs/adr/0001-pet-system-architecture.md](docs/adr/0001-pet-system-architecture.md) |
 | `JobAdvancementManager` | `scripts/Managers/job_advancement_manager.gd` | Class advancement at level 30 |
 | `ChatManager` | `scripts/Managers/ChatManager.gd` | In-game messaging and slash commands |
 | `KeybindManager` | `scripts/Managers/keybind_manager.gd` | Custom keybindings |

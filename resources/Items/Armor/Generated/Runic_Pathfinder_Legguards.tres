@@ -1,8 +1,14 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://du81dyjuhqvvh"]
 
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_2dpb4"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_qpcow"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_2tomw"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_2dpb4"]
+[ext_resource type="Texture2D" uid="uid://bannlqdgbwmld" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_qpcow"]
+[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_2tomw"]
+
+[sub_resource type="Resource" id="Resource_0ps33"]
+script = ExtResource("1_2dpb4")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 15
 
 [sub_resource type="Resource" id="Resource_frfdu"]
 script = ExtResource("1_2dpb4")
@@ -15,12 +21,6 @@ script = ExtResource("1_2dpb4")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 21
-
-[sub_resource type="Resource" id="Resource_0ps33"]
-script = ExtResource("1_2dpb4")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 15
 
 [sub_resource type="Resource" id="Resource_jtpmw"]
 script = ExtResource("1_2dpb4")
@@ -44,9 +44,7 @@ bonus_stats = Dictionary[int, ExtResource("1_2dpb4")]({
 })
 item_id = "13310553128-6776-0252-12551-615831115133311610"
 name = "Runic Pathfinder Legguards"
-rarity = 0
 icon = SubResource("AtlasTexture_bpa55")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 60
-custom_item_value = 0

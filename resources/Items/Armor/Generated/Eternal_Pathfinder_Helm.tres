@@ -1,8 +1,14 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://u02b0uf8uyin"]
 
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_6mnhy"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_k7641"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_ys250"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_6mnhy"]
+[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_k7641"]
+[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_ys250"]
+
+[sub_resource type="Resource" id="Resource_wfo4x"]
+script = ExtResource("1_6mnhy")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 19
 
 [sub_resource type="Resource" id="Resource_fng0b"]
 script = ExtResource("1_6mnhy")
@@ -15,12 +21,6 @@ script = ExtResource("1_6mnhy")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 25
-
-[sub_resource type="Resource" id="Resource_wfo4x"]
-script = ExtResource("1_6mnhy")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 19
 
 [sub_resource type="Resource" id="Resource_kw4cq"]
 script = ExtResource("1_6mnhy")
@@ -43,9 +43,7 @@ bonus_stats = Dictionary[int, ExtResource("1_6mnhy")]({
 })
 item_id = "11812143383-154133-141414-15745-1014974210094613"
 name = "Eternal Pathfinder Helm"
-rarity = 0
 icon = SubResource("AtlasTexture_g3wdd")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 100
-custom_item_value = 0

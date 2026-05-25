@@ -1,8 +1,19 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://d4av2mk8fjdrx"]
 
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_0dmg1"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_vmhjw"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_ohixy"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_0dmg1"]
+[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_vmhjw"]
+[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_ohixy"]
+
+[sub_resource type="Resource" id="Resource_s3sur"]
+script = ExtResource("1_0dmg1")
+base_value = 0
+flat_bonus_value = 11
+
+[sub_resource type="Resource" id="Resource_b8ieb"]
+script = ExtResource("1_0dmg1")
+stat_type = 4
+base_value = 0
+flat_bonus_value = 80
 
 [sub_resource type="Resource" id="Resource_ea6rp"]
 script = ExtResource("1_0dmg1")
@@ -15,17 +26,6 @@ script = ExtResource("1_0dmg1")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 18
-
-[sub_resource type="Resource" id="Resource_s3sur"]
-script = ExtResource("1_0dmg1")
-base_value = 0
-flat_bonus_value = 11
-
-[sub_resource type="Resource" id="Resource_b8ieb"]
-script = ExtResource("1_0dmg1")
-stat_type = 4
-base_value = 0
-flat_bonus_value = 80
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_aj8gs"]
 atlas = ExtResource("2_vmhjw")
@@ -42,9 +42,7 @@ bonus_stats = Dictionary[int, ExtResource("1_0dmg1")]({
 })
 item_id = "713781011152-17411-1315414-84912-12101510012871312132"
 name = "Mithril Vanguard Mail"
-rarity = 0
 icon = SubResource("AtlasTexture_aj8gs")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 40
-custom_item_value = 0

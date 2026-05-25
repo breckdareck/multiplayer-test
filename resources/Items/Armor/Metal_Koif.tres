@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_1b7il"]
 [ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="1_6hwkf"]
-[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_l7cfj"]
 
 [sub_resource type="Resource" id="Resource_t3n6i"]
 script = ExtResource("1_1b7il")
@@ -11,10 +10,12 @@ base_value = 0
 flat_bonus_value = 12
 metadata/_custom_type_script = "uid://cptesvvlfbytw"
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_ci4cm"]
-atlas = ExtResource("2_l7cfj")
-region = Rect2(108, 114, 10, 4)
-margin = Rect2(0, 3, 0, 6)
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_jpfoh"]
+load_path = "res://.godot/imported/Items.png-00c1f5b5ac7591379f437f33a0898d74.ctex"
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vhi6t"]
+atlas = SubResource("CompressedTexture2D_jpfoh")
+region = Rect2(852, 57, 46, 47)
 
 [resource]
 script = ExtResource("1_6hwkf")
@@ -23,7 +24,7 @@ bonus_stats = Dictionary[int, ExtResource("1_1b7il")]({
 })
 item_id = "1011156217-11826-06141-19119-0121210141071058127"
 name = "Metal Koif"
-icon = SubResource("AtlasTexture_ci4cm")
+icon = SubResource("AtlasTexture_vhi6t")
 item_type = 1
 item_level = 10
 metadata/_custom_type_script = "uid://c2fkjsnluarqk"

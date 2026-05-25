@@ -1,8 +1,19 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://b4qdarl6y6q0n"]
 
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_mx3oy"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_daosj"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_nua8t"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_mx3oy"]
+[ext_resource type="Texture2D" uid="uid://bannlqdgbwmld" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_daosj"]
+[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_nua8t"]
+
+[sub_resource type="Resource" id="Resource_lcla8"]
+script = ExtResource("1_mx3oy")
+base_value = 0
+flat_bonus_value = 17
+
+[sub_resource type="Resource" id="Resource_41g6u"]
+script = ExtResource("1_mx3oy")
+stat_type = 4
+base_value = 0
+flat_bonus_value = 122
 
 [sub_resource type="Resource" id="Resource_yuqgg"]
 script = ExtResource("1_mx3oy")
@@ -15,17 +26,6 @@ script = ExtResource("1_mx3oy")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 27
-
-[sub_resource type="Resource" id="Resource_lcla8"]
-script = ExtResource("1_mx3oy")
-base_value = 0
-flat_bonus_value = 17
-
-[sub_resource type="Resource" id="Resource_41g6u"]
-script = ExtResource("1_mx3oy")
-stat_type = 4
-base_value = 0
-flat_bonus_value = 122
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_6jpxw"]
 atlas = ExtResource("2_daosj")
@@ -43,9 +43,7 @@ bonus_stats = Dictionary[int, ExtResource("1_mx3oy")]({
 })
 item_id = "512315691310-1012144-69145-1511812-51211310911510111"
 name = "Celestial Vanguard Legguards"
-rarity = 0
 icon = SubResource("AtlasTexture_6jpxw")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 80
-custom_item_value = 0

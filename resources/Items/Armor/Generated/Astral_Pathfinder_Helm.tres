@@ -1,8 +1,14 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://ddv2a8pak4i5a"]
 
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_flfpj"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_htik5"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_o3i6w"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_flfpj"]
+[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_htik5"]
+[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_o3i6w"]
+
+[sub_resource type="Resource" id="Resource_avx2o"]
+script = ExtResource("1_flfpj")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 17
 
 [sub_resource type="Resource" id="Resource_cssyq"]
 script = ExtResource("1_flfpj")
@@ -15,12 +21,6 @@ script = ExtResource("1_flfpj")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 23
-
-[sub_resource type="Resource" id="Resource_avx2o"]
-script = ExtResource("1_flfpj")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 17
 
 [sub_resource type="Resource" id="Resource_pny7d"]
 script = ExtResource("1_flfpj")
@@ -43,9 +43,7 @@ bonus_stats = Dictionary[int, ExtResource("1_flfpj")]({
 })
 item_id = "14774913511-94513-412410-15111313-13170134151203811"
 name = "Astral Pathfinder Helm"
-rarity = 0
 icon = SubResource("AtlasTexture_7kbon")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 90
-custom_item_value = 0

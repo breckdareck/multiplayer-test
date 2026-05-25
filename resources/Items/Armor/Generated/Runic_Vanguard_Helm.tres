@@ -1,8 +1,19 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://cxyakg8hpho25"]
 
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_p3rll"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_rutqs"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_k6r8h"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_p3rll"]
+[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_rutqs"]
+[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_k6r8h"]
+
+[sub_resource type="Resource" id="Resource_3hps3"]
+script = ExtResource("1_p3rll")
+base_value = 0
+flat_bonus_value = 10
+
+[sub_resource type="Resource" id="Resource_w03uj"]
+script = ExtResource("1_p3rll")
+stat_type = 4
+base_value = 0
+flat_bonus_value = 70
 
 [sub_resource type="Resource" id="Resource_uqeob"]
 script = ExtResource("1_p3rll")
@@ -15,17 +26,6 @@ script = ExtResource("1_p3rll")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 16
-
-[sub_resource type="Resource" id="Resource_3hps3"]
-script = ExtResource("1_p3rll")
-base_value = 0
-flat_bonus_value = 10
-
-[sub_resource type="Resource" id="Resource_w03uj"]
-script = ExtResource("1_p3rll")
-stat_type = 4
-base_value = 0
-flat_bonus_value = 70
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_q7p8o"]
 atlas = ExtResource("2_rutqs")
@@ -42,9 +42,7 @@ bonus_stats = Dictionary[int, ExtResource("1_p3rll")]({
 })
 item_id = "82735883-135914-10805-12585-7237115213110135"
 name = "Runic Vanguard Helm"
-rarity = 0
 icon = SubResource("AtlasTexture_q7p8o")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 60
-custom_item_value = 0

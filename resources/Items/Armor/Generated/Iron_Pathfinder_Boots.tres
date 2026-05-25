@@ -1,7 +1,13 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://cm7l7vtyghvmq"]
 
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_qcw0e"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_lefg3"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_qcw0e"]
+[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_lefg3"]
+
+[sub_resource type="Resource" id="Resource_gkmit"]
+script = ExtResource("1_qcw0e")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 4
 
 [sub_resource type="Resource" id="Resource_352cm"]
 script = ExtResource("1_qcw0e")
@@ -14,12 +20,6 @@ script = ExtResource("1_qcw0e")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_gkmit"]
-script = ExtResource("1_qcw0e")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 4
 
 [sub_resource type="Resource" id="Resource_m7cdi"]
 script = ExtResource("1_qcw0e")
@@ -41,9 +41,7 @@ bonus_stats = Dictionary[int, ExtResource("1_qcw0e")]({
 })
 item_id = "4117135443-99125-01213-109120-141310121141212851512"
 name = "Iron Pathfinder Boots"
-rarity = 0
 icon = SubResource("CompressedTexture2D_omvjt")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 20
-custom_item_value = 0

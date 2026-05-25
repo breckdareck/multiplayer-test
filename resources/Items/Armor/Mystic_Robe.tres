@@ -1,7 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=6 format=3]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=5 format=3 uid="uid://do0m6107vwbor"]
 
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_mr01"]
-[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_mr01"]
 [ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_mr01"]
 
 [sub_resource type="Resource" id="Resource_mr01"]
@@ -11,9 +10,8 @@ base_value = 0
 flat_bonus_value = 15
 metadata/_custom_type_script = "uid://cptesvvlfbytw"
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_mr01"]
-atlas = ExtResource("2_mr01")
-region = Rect2(77, 91, 6, 3)
+[sub_resource type="AtlasTexture" id="AtlasTexture_pw4qg"]
+region = Rect2(980, 213, 58, 59)
 
 [resource]
 script = ExtResource("3_mr01")
@@ -23,7 +21,7 @@ bonus_stats = Dictionary[int, ExtResource("1_mr01")]({
 })
 item_id = "20260517017-800817-150117-80017-880801500080800817"
 name = "Mystic Robe"
-icon = SubResource("AtlasTexture_mr01")
+icon = SubResource("AtlasTexture_pw4qg")
 description = "A robe woven with protective enchantments."
 item_type = 1
 item_level = 10

@@ -1,21 +1,21 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=7 format=3]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=7 format=3 uid="uid://dcc03rkl1sq80"]
 
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_ost01"]
 [ext_resource type="Texture2D" uid="uid://cj4kv8pk70aal" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_ost01"]
 [ext_resource type="Script" uid="uid://mysmonmct4jm" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_ost01"]
-
-[sub_resource type="Resource" id="Resource_ost01"]
-script = ExtResource("1_ost01")
-stat_type = 13
-base_value = 0
-flat_bonus_value = 12
-metadata/_custom_type_script = "uid://cptesvvlfbytw"
 
 [sub_resource type="Resource" id="Resource_ost01_atk"]
 script = ExtResource("1_ost01")
 stat_type = 12
 base_value = 0
 flat_bonus_value = 4
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[sub_resource type="Resource" id="Resource_ost01"]
+script = ExtResource("1_ost01")
+stat_type = 13
+base_value = 0
+flat_bonus_value = 12
 metadata/_custom_type_script = "uid://cptesvvlfbytw"
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ost01"]
@@ -26,7 +26,6 @@ margin = Rect2(3.5, 0, 7, 0)
 [resource]
 script = ExtResource("3_ost01")
 weapon_type = 2
-weapon_attack_speed = 4
 equipment_type = 1
 bonus_stats = Dictionary[int, ExtResource("1_ost01")]({
 12: SubResource("Resource_ost01_atk"),

@@ -1,8 +1,19 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://c2u4xs2f8etvv"]
 
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_3uion"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_bm2xj"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_gxytb"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_3uion"]
+[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_bm2xj"]
+[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_gxytb"]
+
+[sub_resource type="Resource" id="Resource_h5p41"]
+script = ExtResource("1_3uion")
+base_value = 0
+flat_bonus_value = 13
+
+[sub_resource type="Resource" id="Resource_kly63"]
+script = ExtResource("1_3uion")
+stat_type = 4
+base_value = 0
+flat_bonus_value = 91
 
 [sub_resource type="Resource" id="Resource_x11wm"]
 script = ExtResource("1_3uion")
@@ -15,17 +26,6 @@ script = ExtResource("1_3uion")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 20
-
-[sub_resource type="Resource" id="Resource_h5p41"]
-script = ExtResource("1_3uion")
-base_value = 0
-flat_bonus_value = 13
-
-[sub_resource type="Resource" id="Resource_kly63"]
-script = ExtResource("1_3uion")
-stat_type = 4
-base_value = 0
-flat_bonus_value = 91
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_3mbfy"]
 atlas = ExtResource("2_bm2xj")
@@ -42,9 +42,7 @@ bonus_stats = Dictionary[int, ExtResource("1_3uion")]({
 })
 item_id = "71128121456-119106-0121014-60614-1551514010814415712"
 name = "Celestial Vanguard Helm"
-rarity = 0
 icon = SubResource("AtlasTexture_3mbfy")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 80
-custom_item_value = 0

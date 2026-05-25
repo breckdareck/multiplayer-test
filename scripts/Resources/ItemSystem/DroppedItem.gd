@@ -48,8 +48,8 @@ func _ready() -> void:
 	##print("DroppedItem spawned with velocity: ", velocity)
 	
 	# Setup collision to only interact with world (not players/enemies)
-	collision_layer = 0 # Don't exist on any layer
-	collision_mask = 1 # Only collide with world (layer 1)
+	#collision_layer = 0 # Don't exist on any layer
+	#collision_mask = 1 # Only collide with world (layer 1)
 
 func should_be_visible_to(peer_id: int) -> bool:
 	"""Returns true if the peer should see this item (same map)"""

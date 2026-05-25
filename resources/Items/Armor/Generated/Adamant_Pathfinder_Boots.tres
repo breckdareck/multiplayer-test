@@ -1,7 +1,13 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://cdqi5xxjv4ewc"]
 
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_hrbkh"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_p3ur7"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_hrbkh"]
+[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_p3ur7"]
+
+[sub_resource type="Resource" id="Resource_fk8me"]
+script = ExtResource("1_hrbkh")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 8
 
 [sub_resource type="Resource" id="Resource_u477r"]
 script = ExtResource("1_hrbkh")
@@ -14,12 +20,6 @@ script = ExtResource("1_hrbkh")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 11
-
-[sub_resource type="Resource" id="Resource_fk8me"]
-script = ExtResource("1_hrbkh")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 8
 
 [sub_resource type="Resource" id="Resource_o6pf2"]
 script = ExtResource("1_hrbkh")
@@ -41,9 +41,7 @@ bonus_stats = Dictionary[int, ExtResource("1_hrbkh")]({
 })
 item_id = "1231487917-771211-54115-111123-415108195521241"
 name = "Adamant Pathfinder Boots"
-rarity = 0
 icon = SubResource("CompressedTexture2D_kpheh")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 50
-custom_item_value = 0

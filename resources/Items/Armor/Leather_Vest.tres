@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=6 format=3]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=6 format=3 uid="uid://bhbdmqn63iqfw"]
 
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_lv001"]
-[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_lv001"]
+[ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="2_j5448"]
 [ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_lv001"]
 
 [sub_resource type="Resource" id="Resource_lv001"]
@@ -11,9 +11,9 @@ base_value = 0
 flat_bonus_value = 8
 metadata/_custom_type_script = "uid://cptesvvlfbytw"
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_lv001"]
-atlas = ExtResource("2_lv001")
-region = Rect2(77, 91, 6, 3)
+[sub_resource type="AtlasTexture" id="AtlasTexture_lh71a"]
+atlas = ExtResource("2_j5448")
+region = Rect2(848, 142, 54, 54)
 
 [resource]
 script = ExtResource("3_lv001")
@@ -23,7 +23,7 @@ bonus_stats = Dictionary[int, ExtResource("1_lv001")]({
 })
 item_id = "20260517006-600606-080106-60006-660600800060600606"
 name = "Leather Vest"
-icon = SubResource("AtlasTexture_lv001")
+icon = SubResource("AtlasTexture_lh71a")
 description = "A tough leather vest."
 item_type = 1
 item_level = 5

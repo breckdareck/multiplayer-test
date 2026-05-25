@@ -71,7 +71,7 @@ func _create_shadow_visual(owner_node: Node) -> void:
 		shadow_sprite.offset = owner_sprite.offset
 		shadow_sprite.scale = owner_sprite.scale
 		shadow_sprite.position = owner_sprite.position
-		shadow_sprite.z_index = -1
+		shadow_sprite.z_index = 0
 		_shadow.add_child(shadow_sprite)
 
 	owner_node.add_child(_shadow)

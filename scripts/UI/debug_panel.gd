@@ -213,12 +213,7 @@ func _on_grabber_input(event: InputEvent) -> void:
 
 
 func _push_layer(which: String, on: bool) -> void:
-	var dd = BotManager.get_debug_draw()
-	if dd == null: return
-	match which:
-		"graph": dd.show_graph = on
-		"paths": dd.show_paths = on
-		"info":  dd.show_bot_info = on
+	BotManager.set_debug_draw_layer(which, on)
 
 
 # --- Open / close -----------------------------------------------------------
@@ -1013,16 +1008,11 @@ func _cmd_navdraw(args: Array) -> String:
 			"graph": want = not dd.show_graph
 			"paths": want = not dd.show_paths
 			"info":  want = not dd.show_bot_info
+	BotManager.set_debug_draw_layer(first, want)
 	match first:
-		"graph":
-			dd.show_graph = want
-			_layer_graph_check.set_pressed_no_signal(want)
-		"paths":
-			dd.show_paths = want
-			_layer_paths_check.set_pressed_no_signal(want)
-		"info":
-			dd.show_bot_info = want
-			_layer_info_check.set_pressed_no_signal(want)
+		"graph": _layer_graph_check.set_pressed_no_signal(want)
+		"paths": _layer_paths_check.set_pressed_no_signal(want)
+		"info":  _layer_info_check.set_pressed_no_signal(want)
 	return "navdraw.%s = %s" % [first, "on" if want else "off"]
 
 

@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="PetFoodData" load_steps=4 format=3 uid="uid://dslpve16tifxd"]
+
+[ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="1_0chqr"]
+[ext_resource type="Script" uid="uid://efkwonvx6blb" path="res://scripts/Resources/PetSystem/PetFoodData.gd" id="1_petfood"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e5v7s"]
+atlas = ExtResource("1_0chqr")
+region = Rect2(852, 698, 47, 57)
+
+[resource]
+script = ExtResource("1_petfood")
+fullness_restore = 30.0
+item_id = "12021710313-89712-81016-101493-11712729936251"
+name = "Pet Food (Basic)"
+icon = SubResource("AtlasTexture_e5v7s")
+description = "A nutritious snack for your pet. Restores 30 fullness."
+item_type = 2
+item_level = 1
+custom_item_value = 25
+can_stack = true
+max_stack_amount = 99
+current_stack_amount = 1

@@ -24,11 +24,14 @@ func _ready():
 	
 
 func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
-	#print("DEBUG: GlobalDropHandler._can_drop_data received data: %s" % str(data))
-	var can_drop = data is Slot
-	#print("DEBUG: GlobalDropHandler.can_drop returned: %s" % str(can_drop))
-	# Only accept Slot data
-	return can_drop
+	if not (data is Slot):
+		return false
+	var s: Slot = data
+	# Pet command books and pet food are bound to the Pet UI — they can't be
+	# thrown on the ground. Reject the world drop so the drag returns to source.
+	if s.drag_item is PetSkillBookData or s.drag_item is PetFoodData:
+		return false
+	return true
 
 func _drop_data(at_position: Vector2, data: Variant) -> void:
 	var source_slot: Slot = data
@@ -87,8 +90,6 @@ func server_request_item_drop(item_id: String, amount: int, world_position: Vect
 		return
 
 	# --- Execution ---
-	# 1. Create the dropped item in the world.
-	# The original item data from the slot is used to preserve its unique properties.
 	# 1. Create the dropped item in the world.
 	# The original item data from the slot is used to preserve its unique properties.
 	# We need to find the correct map instance for this player to drop the item into.

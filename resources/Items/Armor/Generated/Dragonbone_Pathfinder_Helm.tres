@@ -1,8 +1,14 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bqtyiwtxenoam"]
 
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_fpgf8"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_hyf5w"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_13u6p"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_fpgf8"]
+[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_hyf5w"]
+[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_13u6p"]
+
+[sub_resource type="Resource" id="Resource_cx1uk"]
+script = ExtResource("1_fpgf8")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 13
 
 [sub_resource type="Resource" id="Resource_rytx3"]
 script = ExtResource("1_fpgf8")
@@ -15,12 +21,6 @@ script = ExtResource("1_fpgf8")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 18
-
-[sub_resource type="Resource" id="Resource_cx1uk"]
-script = ExtResource("1_fpgf8")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 13
 
 [sub_resource type="Resource" id="Resource_auw28"]
 script = ExtResource("1_fpgf8")
@@ -43,9 +43,7 @@ bonus_stats = Dictionary[int, ExtResource("1_fpgf8")]({
 })
 item_id = "7612110144-310112-981412-281413-014139351514156149"
 name = "Dragonbone Pathfinder Helm"
-rarity = 0
 icon = SubResource("AtlasTexture_wmcpi")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 70
-custom_item_value = 0

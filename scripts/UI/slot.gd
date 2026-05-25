@@ -52,7 +52,18 @@ var _custom_tooltip_theme: Theme = null # Declare as instance variable
 
 func update_display():
 		if item != null:
-			texture_rect.texture = ResourceManager.get_item_data(item.item_id).icon
+			# Prefer the canonical resource's icon (handles slim-saved items whose
+			# instance.icon was stripped at save time). Fall back to the item's
+			# own icon if the canonical resource has been removed or renamed —
+			# happens for saves that reference deleted items, e.g. the old
+			# pet_book_item_pouch / pet_book_meso_magnet ids that were folded
+			# into the unified pet_book_magnet. Without this fallback, the slot
+			# load crashes during _refresh_view on stale inventory data.
+			var canonical = ResourceManager.get_item_data(item.item_id)
+			if canonical and canonical.icon:
+				texture_rect.texture = canonical.icon
+			else:
+				texture_rect.texture = item.icon
 			if item.can_stack and item.current_stack_amount > 1:
 				label.text = str(item.current_stack_amount)
 				label.visible = true
@@ -425,16 +436,22 @@ func _should_create_dropped_item() -> bool:
 	# Check if we're dragging and the mouse is outside of any UI windows
 	if not is_dragging or not drag_item:
 		return false
-	
+
+	# Pet command books and pet food are bound to the Pet UI — the only legal
+	# way to use them is the pet slot in the Pet tab. Refuse to create a
+	# world drop. Drag will fall through to restore_drag_to_source().
+	if drag_item is PetSkillBookData or drag_item is PetFoodData:
+		return false
+
 	# Get the current mouse position
 	var mouse_pos = get_global_mouse_position()
-	
+
 	# Check if mouse is outside of all UI windows
 	var ui_windows = get_tree().get_nodes_in_group("ui_window")
 	for window in ui_windows:
 		if window.visible and window.get_global_rect().has_point(mouse_pos):
 			return false
-	
+
 	# If we're here, the mouse is outside all UI windows
 	return true
 
