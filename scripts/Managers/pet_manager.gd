@@ -41,10 +41,14 @@ const CMD_AUTO_POT := "auto_pot"
 const CMD_AUTOBUFF := "autobuff"
 const CMD_MAGNET := "magnet"  # unified item+coin auto-loot
 
-# Book item ids that fit each command slot. Drag rejected if id doesn't match.
-const BOOK_AUTO_POT_ID := "pet_book_auto_pot"
-const BOOK_AUTOBUFF_ID := "pet_book_autobuff"
-const BOOK_MAGNET_ID := "pet_book_magnet"
+# Books are identified by their canonical NAME, not item_id. This project
+# generates UUIDs for `item_id` in `_init()` and the .tres-set value doesn't
+# stick reliably; `name` is the stable identifier and ResourceManager indexes
+# items by it. Confirmed by looking at existing items like Grape_Potion.tres
+# which has a UUID for item_id and "Health Potion" for name.
+const BOOK_AUTO_POT_NAME := "Pet Auto Pot Command"
+const BOOK_AUTOBUFF_NAME := "Pet Buff Command"
+const BOOK_MAGNET_NAME := "Pet Magnet Command"
 
 # v1: only 1 pet active at a time. Increase to support multi-pet later.
 const MAX_ACTIVE_PETS: int = 1
@@ -768,10 +772,11 @@ func _apply_book_to_pet(book: PetSkillBookData, username: String, pet_uuid: Stri
 		_show_message_to_owner(player_peer, "Pet already has that command equipped.")
 		return false
 
-	# Store the canonical id so PetSlot.refresh can look the item back up
-	# via ResourceManager (instance UUIDs don't survive that lookup).
+	# Store the canonical name — ResourceManager indexes items by name, and
+	# PetSlot.refresh looks up via that key. Instance UUIDs don't survive
+	# game restarts reliably so we don't store them.
 	_write_pet_slot(inv, target_slot_key, {
-		"item_id": resolve_canonical_id(book),
+		"item_id": book.name,
 		"stack": 1,
 	})
 	_pet_event_visual_rpc.rpc(pet_uuid, "taught")
@@ -781,13 +786,13 @@ func _apply_book_to_pet(book: PetSkillBookData, username: String, pet_uuid: Stri
 
 
 static func _slot_key_for_book(book: PetSkillBookData) -> String:
-	# Resolve via the canonical id, not the instance's item_id (which is a UUID).
-	match resolve_canonical_id(book):
-		BOOK_AUTO_POT_ID:
+	# Match by name — see note on BOOK_*_NAME constants.
+	match book.name:
+		BOOK_AUTO_POT_NAME:
 			return KEY_CMD_AUTO_POT
-		BOOK_AUTOBUFF_ID:
+		BOOK_AUTOBUFF_NAME:
 			return KEY_CMD_BUFF
-		BOOK_MAGNET_ID:
+		BOOK_MAGNET_NAME:
 			return KEY_CMD_MAGNET
 		_:
 			return ""
@@ -1021,7 +1026,7 @@ func request_transfer_to_pet_slot_server(pet_uuid: String, slot_key: String, sou
 	print("[PetMgr.transfer_to] source item: name='%s' item_id='%s' class='%s'" % [item.name, item.item_id, item.get_class()])
 
 	if not _slot_accepts_item(slot_key, item):
-		print("[PetMgr.transfer_to] REJECT: _slot_accepts_item false. canonical_id=%s expected=%s" % [resolve_canonical_id(item), book_id_for_slot(slot_key)])
+		print("[PetMgr.transfer_to] REJECT: _slot_accepts_item false. item.name='%s' expected_name='%s'" % [item.name, book_name_for_slot(slot_key)])
 		_show_message_to_owner(caller, "That item doesn't fit this slot.")
 		return
 	print("[PetMgr.transfer_to] _slot_accepts_item OK, writing slot")
@@ -1041,11 +1046,11 @@ func request_transfer_to_pet_slot_server(pet_uuid: String, slot_key: String, sou
 				source_inv.server_add_item(existing_id)
 		_write_pet_slot(inv, slot_key, {})
 
-	# Store via canonical id so pet-slot lookups via ResourceManager round-trip.
-	var canonical_id: String = resolve_canonical_id(item)
-	var new_stack: int = int(existing.get("stack", 0)) + item.current_stack_amount if existing.get("item_id", "") == canonical_id else item.current_stack_amount
+	# Store via the item's NAME (the stable identifier — see BOOK_*_NAME).
+	var canonical_key: String = item.name
+	var new_stack: int = int(existing.get("stack", 0)) + item.current_stack_amount if existing.get("item_id", "") == canonical_key else item.current_stack_amount
 	_write_pet_slot(inv, slot_key, {
-		"item_id": canonical_id,
+		"item_id": canonical_key,
 		"stack": new_stack,
 	})
 
@@ -1096,9 +1101,8 @@ func _write_pet_slot(inv: Dictionary, slot_key: String, slot_data: Dictionary) -
 
 ## Server-side validation: does this slot accept this item?
 ##   - Autopot HP/MP slots: any ConsumableData except a pet-only consumable.
-##   - Command slots: ONLY the matching PetSkillBookData (matched via the
-##     canonical id from ResourceManager — instances carry a UUID in
-##     `item_id`, not the "pet_book_*" string from the .tres).
+##   - Command slots: ONLY the matching PetSkillBookData (matched by name —
+##     item_id is a generated UUID per the project convention).
 ##   - Any other slot key: reject.
 func _slot_accepts_item(slot_key: String, item: ItemData) -> bool:
 	if slot_key == KEY_AUTOPOT_HP or slot_key == KEY_AUTOPOT_MP:
@@ -1107,10 +1111,10 @@ func _slot_accepts_item(slot_key: String, item: ItemData) -> bool:
 		if item is PetSkillBookData or item is PetFoodData:
 			return false
 		return true
-	var expected_book_id: String = book_id_for_slot(slot_key)
-	if expected_book_id.is_empty():
+	var expected_name: String = book_name_for_slot(slot_key)
+	if expected_name.is_empty():
 		return false
-	return item is PetSkillBookData and resolve_canonical_id(item) == expected_book_id
+	return item is PetSkillBookData and item.name == expected_name
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -1479,41 +1483,20 @@ static func is_command_active(record: Dictionary, command_id: String) -> bool:
 	return get_active_commands(record).has(command_id)
 
 
-## Returns the book item id that a command slot exclusively accepts.
-static func book_id_for_slot(slot_key: String) -> String:
+## Returns the canonical book NAME that a command slot exclusively accepts.
+## (Items in this project use UUID for `item_id` and the `name` field as the
+## stable identifier — that's what ResourceManager keys by, that's what
+## survives duplicate.)
+static func book_name_for_slot(slot_key: String) -> String:
 	match slot_key:
 		KEY_CMD_AUTO_POT:
-			return BOOK_AUTO_POT_ID
+			return BOOK_AUTO_POT_NAME
 		KEY_CMD_BUFF:
-			return BOOK_AUTOBUFF_ID
+			return BOOK_AUTOBUFF_NAME
 		KEY_CMD_MAGNET:
-			return BOOK_MAGNET_ID
+			return BOOK_MAGNET_NAME
 		_:
 			return ""
-
-
-## Resolves an item instance to its canonical item_id via ResourceManager.
-## Item instances carry a generated UUID in `item_id` (from `_init`); the
-## stable "pet_book_*" / canonical id lives on the resource registered with
-## ResourceManager (keyed by both id and name). Use this anywhere the pet
-## system needs to compare "what KIND of item is this" rather than "is it
-## this exact instance".
-static func resolve_canonical_id(item: ItemData) -> String:
-	if not item:
-		print("[resolve_canonical_id] item is null")
-		return ""
-	# Try by the (possibly-UUID) instance id first.
-	var canonical: ItemData = ResourceManager.get_item_data(item.item_id)
-	if canonical:
-		print("[resolve_canonical_id] resolved via item_id '%s' -> '%s'" % [item.item_id, canonical.item_id])
-		return canonical.item_id
-	# Fall back to lookup by name (which ResourceManager also indexes).
-	canonical = ResourceManager.get_item_data(item.name)
-	if canonical:
-		print("[resolve_canonical_id] resolved via name '%s' -> '%s'" % [item.name, canonical.item_id])
-		return canonical.item_id
-	print("[resolve_canonical_id] FAILED: item_id='%s' name='%s' class='%s' — not in ResourceManager" % [item.item_id, item.name, item.get_class()])
-	return item.item_id  # last-ditch fallback
 
 
 static func _clone_record(record: Dictionary) -> Dictionary:

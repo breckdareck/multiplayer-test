@@ -118,10 +118,9 @@ func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 	if slot_kind == "book":
 		if not (s.drag_item is PetSkillBookData):
 			return false
-		# Instance item_ids are UUIDs from _init — resolve the canonical id
-		# via ResourceManager (which indexes by both id and name) and compare.
-		var expected := PetManager.book_id_for_slot(slot_key)
-		return PetManager.resolve_canonical_id(s.drag_item) == expected
+		# Match by NAME — item_id is a UUID in this project, name is the
+		# stable identifier (ResourceManager indexes by name).
+		return s.drag_item.name == PetManager.book_name_for_slot(slot_key)
 	return false
 
 
