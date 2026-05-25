@@ -1,12 +1,12 @@
 [gd_resource type="Resource" script_class="ConsumableData" load_steps=5 format=3 uid="uid://bwy06fjcsbcqk"]
 
 [ext_resource type="Script" uid="uid://bwha778d03wb3" path="res://scripts/Resources/ItemSystem/Effects/Effect_RestoreHealth.gd" id="1_s7260"]
-[ext_resource type="Texture2D" uid="uid://yhl18c6ei5o6" path="res://assets/sprites/fruit.png" id="2_bnn5w"]
+[ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="2_s7260"]
 [ext_resource type="Script" uid="uid://ubv3mjjv4lvi" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="3_0dmhp"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_nirvd"]
-atlas = ExtResource("2_bnn5w")
-region = Rect2(16, 32, 16, 16)
+[sub_resource type="AtlasTexture" id="AtlasTexture_ba83o"]
+atlas = ExtResource("2_s7260")
+region = Rect2(391, 634, 54, 54)
 
 [resource]
 script = ExtResource("3_0dmhp")
@@ -16,7 +16,7 @@ effect_properties = {
 }
 item_id = "86213138147-23156-4167-13166-61514375708282"
 name = "Lesser Healing Draught"
-icon = SubResource("AtlasTexture_nirvd")
+icon = SubResource("AtlasTexture_ba83o")
 description = "Restores 60 HP when consumed."
 item_type = 2
 item_level = -1

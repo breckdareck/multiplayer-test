@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=6 format=3]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=6 format=3 uid="uid://mlmrlf2djdor"]
 
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_mc01"]
 [ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_mc01"]
@@ -18,7 +18,6 @@ margin = Rect2(0, 3, 0, 6)
 
 [resource]
 script = ExtResource("3_mc01")
-armor_type = 0
 bonus_stats = Dictionary[int, ExtResource("1_mc01")]({
 9: SubResource("Resource_mc01")
 })

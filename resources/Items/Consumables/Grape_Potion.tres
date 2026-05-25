@@ -1,12 +1,12 @@
 [gd_resource type="Resource" script_class="ConsumableData" load_steps=5 format=3 uid="uid://cjl5ggbs3c237"]
 
 [ext_resource type="Script" uid="uid://ubv3mjjv4lvi" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="1_zod2q"]
-[ext_resource type="Texture2D" uid="uid://yhl18c6ei5o6" path="res://assets/sprites/fruit.png" id="2_h2tih"]
+[ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="2_xf8nk"]
 [ext_resource type="Script" uid="uid://bwha778d03wb3" path="res://scripts/Resources/ItemSystem/Effects/Effect_RestoreHealth.gd" id="3_q2y5w"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_ce0sh"]
-atlas = ExtResource("2_h2tih")
-region = Rect2(16, 32, 16, 16)
+[sub_resource type="AtlasTexture" id="AtlasTexture_ba83o"]
+atlas = ExtResource("2_xf8nk")
+region = Rect2(391, 634, 54, 54)
 
 [resource]
 script = ExtResource("1_zod2q")
@@ -16,7 +16,7 @@ effect_properties = {
 }
 item_id = "1012871389-11716-2483-4151510-4711211231210113"
 name = "Health Potion"
-icon = SubResource("AtlasTexture_ce0sh")
+icon = SubResource("AtlasTexture_ba83o")
 description = "A mystical pear that restores 50 HP."
 item_type = 2
 item_level = -1

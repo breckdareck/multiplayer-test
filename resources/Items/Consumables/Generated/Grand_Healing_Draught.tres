@@ -1,12 +1,12 @@
 [gd_resource type="Resource" script_class="ConsumableData" load_steps=5 format=3 uid="uid://dhvpuopshjch7"]
 
 [ext_resource type="Script" uid="uid://bwha778d03wb3" path="res://scripts/Resources/ItemSystem/Effects/Effect_RestoreHealth.gd" id="1_ct2ow"]
-[ext_resource type="Texture2D" uid="uid://yhl18c6ei5o6" path="res://assets/sprites/fruit.png" id="2_awtxl"]
+[ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="2_ct2ow"]
 [ext_resource type="Script" uid="uid://ubv3mjjv4lvi" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="3_26fda"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_bak82"]
-atlas = ExtResource("2_awtxl")
-region = Rect2(16, 32, 16, 16)
+[sub_resource type="AtlasTexture" id="AtlasTexture_ba83o"]
+atlas = ExtResource("2_ct2ow")
+region = Rect2(391, 634, 54, 54)
 
 [resource]
 script = ExtResource("3_26fda")
@@ -16,7 +16,7 @@ effect_properties = {
 }
 item_id = "001201031411-6169-61378-26153-141290941547299"
 name = "Grand Healing Draught"
-icon = SubResource("AtlasTexture_bak82")
+icon = SubResource("AtlasTexture_ba83o")
 description = "Restores 600 HP when consumed."
 item_type = 2
 item_level = -1

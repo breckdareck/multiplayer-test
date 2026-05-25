@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=6 format=3]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=6 format=3 uid="uid://dhn6dnoqx8m0a"]
 
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_ar01"]
-[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_ar01"]
+[ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="2_o0hxq"]
 [ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_ar01"]
 
 [sub_resource type="Resource" id="Resource_ar01"]
@@ -11,9 +11,9 @@ base_value = 0
 flat_bonus_value = 8
 metadata/_custom_type_script = "uid://cptesvvlfbytw"
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_ar01"]
-atlas = ExtResource("2_ar01")
-region = Rect2(77, 91, 6, 3)
+[sub_resource type="AtlasTexture" id="AtlasTexture_bmxot"]
+atlas = ExtResource("2_o0hxq")
+region = Rect2(916, 51, 54, 59)
 
 [resource]
 script = ExtResource("3_ar01")
@@ -23,7 +23,7 @@ bonus_stats = Dictionary[int, ExtResource("1_ar01")]({
 })
 item_id = "20260517016-700716-080116-70016-770700800070700716"
 name = "Apprentice Robe"
-icon = SubResource("AtlasTexture_ar01")
+icon = SubResource("AtlasTexture_bmxot")
 description = "A simple robe that resists magical damage."
 item_type = 1
 item_level = 5
