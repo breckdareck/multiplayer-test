@@ -21,8 +21,8 @@ var pet_data: PetData = null
 var owner_username: String = ""
 
 # ── Movement state ────────────────────────────────────────────────────────
-const ARRIVE_X_DISTANCE: float = 6.0   # close enough to "stop following"
-const PICKUP_X_DISTANCE: float = 18.0  # close enough to grab a drop
+const ARRIVE_X_DISTANCE: float = 6.0   # close enough to "stop following" the owner
+const PICKUP_X_DISTANCE: float = 4.0   # walk onto the item's center before grabbing
 const SAME_LEVEL_Y_DELTA: float = 64.0 # max Y diff to consider items "same platform"
 
 enum PetMode { FOLLOW, LOOT }
@@ -40,7 +40,7 @@ const LOW_HUNGER_FRACTION: float = 0.25
 
 # ── Auto-loot scan (owner client only) ────────────────────────────────────
 var _autoloot_accumulator: float = 0.0
-const AUTOLOOT_SCAN_INTERVAL: float = 0.25
+const AUTOLOOT_SCAN_INTERVAL: float = 0.1
 
 # ── Auto-pot (owner-client only) ──────────────────────────────────────────
 var _autopot_accumulator: float = 0.0
@@ -220,17 +220,9 @@ func _refresh_loot_target(_owner_node: Node) -> void:
 		_loot_target_node = null
 		return
 
-	# Existing loot target still valid? (alive + same level + in range)
-	if is_instance_valid(_loot_target_node) and _loot_target_node is DroppedItem:
-		var d: DroppedItem = _loot_target_node
-		if d.current_state != DroppedItem.ItemState.COLLECTED \
-				and absf(d.global_position.y - global_position.y) <= SAME_LEVEL_Y_DELTA \
-				and global_position.distance_to(d.global_position) <= pet_data.autoloot_radius:
-			return  # keep chasing it
-	_loot_target_node = null
-	_mode = PetMode.FOLLOW
-
-	# Find nearest eligible drop on the same vertical level.
+	# Always pick the closest valid same-level drop, every scan. This prevents
+	# the pet from stalling on a stale target while a newer/closer drop is
+	# available, and re-engages immediately after a drop is collected.
 	var map_node := get_parent()
 	if not map_node:
 		return
@@ -243,6 +235,9 @@ func _refresh_loot_target(_owner_node: Node) -> void:
 	if best:
 		_loot_target_node = best
 		_mode = PetMode.LOOT
+	else:
+		_loot_target_node = null
+		_mode = PetMode.FOLLOW
 
 
 func _scan_drops(container: Node) -> Node:
