@@ -1,13 +1,17 @@
-[gd_resource type="Resource" script_class="PetSkillBookData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="PetSkillBookData" load_steps=3 format=3 uid="uid://c1ndnojic5s6x"]
 
-[ext_resource type="Script" path="res://scripts/Resources/PetSystem/PetSkillBookData.gd" id="1_book"]
+[ext_resource type="Script" uid="uid://cio054l2yk8vc" path="res://scripts/Resources/PetSystem/PetSkillBookData.gd" id="1_book"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_0nmdl"]
+size = Vector2(16, 16)
 
 [resource]
 script = ExtResource("1_book")
 command_id = "autobuff"
-item_id = "pet_book_autobuff"
+item_id = "911515710013-1213412-84153-54103-918151540384105"
 name = "Pet Buff Command"
 rarity = 3
+icon = SubResource("PlaceholderTexture2D_0nmdl")
 description = "Drag onto a summoned pet to unlock its buff slot. Then drag any owned self-target buff ability into the slot in the Pet tab."
 item_type = 2
 item_level = 10

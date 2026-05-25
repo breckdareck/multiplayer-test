@@ -1,13 +1,17 @@
-[gd_resource type="Resource" script_class="PetSkillBookData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="PetSkillBookData" load_steps=3 format=3 uid="uid://tmfdb2airlx0"]
 
-[ext_resource type="Script" path="res://scripts/Resources/PetSystem/PetSkillBookData.gd" id="1_book"]
+[ext_resource type="Script" uid="uid://cio054l2yk8vc" path="res://scripts/Resources/PetSystem/PetSkillBookData.gd" id="1_book"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_0nmdl"]
+size = Vector2(16, 16)
 
 [resource]
 script = ExtResource("1_book")
 command_id = "auto_pot"
-item_id = "pet_book_auto_pot"
+item_id = "5139119715-5239-81558-8934-013110108074141111"
 name = "Pet Auto Pot Command"
 rarity = 2
+icon = SubResource("PlaceholderTexture2D_0nmdl")
 description = "Drag this onto a summoned pet to teach it to auto-consume HP/MP potions from its pet inventory."
 item_type = 2
 item_level = 5

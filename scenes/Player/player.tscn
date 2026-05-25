@@ -897,10 +897,10 @@ offset_bottom = 824.0
 
 [node name="EquipmentWindow" parent="CanvasLayer/MoveableWindows" instance=ExtResource("25_7iww4")]
 layout_mode = 0
-offset_left = 1190.0
-offset_top = 200.0
-offset_right = 1490.0
-offset_bottom = 700.0
+offset_left = 1195.0
+offset_top = 289.0
+offset_right = 1506.0
+offset_bottom = 826.0
 
 [node name="QuestWindow" parent="CanvasLayer/MoveableWindows" instance=ExtResource("26_quest")]
 layout_mode = 1

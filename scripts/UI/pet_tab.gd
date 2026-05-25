@@ -65,10 +65,12 @@ func _build_inventory_slots() -> void:
 	for cfg in (row1 + row2):
 		if not is_instance_valid(cfg.container):
 			continue
-		# Clear any previous instances (handles hot-reload).
-		# (No-op on first build.)
 		var slot: PetSlot = PET_SLOT_SCENE.instantiate()
 		cfg.container.add_child(slot)
+		# Set kind/key immediately so the slot's drop filter works even
+		# before a pet is selected. pet_uuid stays empty until _refresh_detail
+		# runs with a selected pet, at which point setup is called again.
+		slot.setup("", cfg.key, cfg.label, cfg.kind)
 		_pet_slot_widgets.append({
 			"node": slot,
 			"key": cfg.key,

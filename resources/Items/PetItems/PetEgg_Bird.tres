@@ -1,7 +1,10 @@
-[gd_resource type="Resource" script_class="ConsumableData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="ConsumableData" load_steps=4 format=3 uid="uid://c77oseqvltmkk"]
 
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="1_consumable"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/Effects/Effect_HatchPet.gd" id="2_effect"]
+[ext_resource type="Script" uid="uid://ubv3mjjv4lvi" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="1_consumable"]
+[ext_resource type="Script" uid="uid://ctrsc6b2wgtji" path="res://scripts/Resources/ItemSystem/Effects/Effect_HatchPet.gd" id="2_effect"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_0nmdl"]
+size = Vector2(16, 16)
 
 [resource]
 script = ExtResource("1_consumable")
@@ -10,9 +13,10 @@ effect_properties = {
 "default_name": "Birdie",
 "pet_data_id": "basic_bird"
 }
-item_id = "pet_egg_bird"
+item_id = "91215521185-102010-1114210-10710-414615101413291512"
 name = "Pet Egg: Bird"
 rarity = 1
+icon = SubResource("PlaceholderTexture2D_0nmdl")
 description = "Use to hatch a Bird companion that will follow you."
 item_type = 2
 item_level = 1

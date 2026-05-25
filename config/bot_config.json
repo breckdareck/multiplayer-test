@@ -2,10 +2,10 @@
   "auto_spawn": true,
   "default_map": "game",
   "bots": [
-	{ "name": "Bob", "class": "SWORDSMAN", "map": "town", "patrol_route": ["game", "game2", "game3"] },
-	{ "name": "Bobbert", "class": "MAGE", "map": "town", "patrol_route": ["game", "game2", "game3"] },
-	{ "name": "Breck", "class": "ROGUE", "map": "town", "patrol_route": ["game", "game2", "game3"] },
-	{ "name": "Bert", "class": "ARCHER", "map": "town", "patrol_route": ["game", "game2", "game3"] },
+	{ "name": "Bob", "class": "SWORDSMAN", "map": "town", "patrol_route": ["game", "game2", "game3", "game4"] },
+	{ "name": "Bobbert", "class": "MAGE", "map": "town", "patrol_route": ["game", "game2", "game3", "game4"] },
+	{ "name": "Breck", "class": "ROGUE", "map": "town", "patrol_route": ["game", "game2", "game3", "game4"] },
+	{ "name": "Bert", "class": "ARCHER", "map": "town", "patrol_route": ["game", "game2", "game3", "game4"] },
   ],
   "behavior": {
 	"think_interval": 0.3,
@@ -21,6 +21,7 @@
   "map_difficulty": {
 	"game": { "min_level": 1, "max_level": 10 },
 	"game2": { "min_level": 10, "max_level": 50 },
-	"game3": { "min_level": 45, "max_level": 90 }
+	"game3": { "min_level": 45, "max_level": 90 },
+	"game4": { "min_level": 1, "max_level": 15 },
   }
 }
