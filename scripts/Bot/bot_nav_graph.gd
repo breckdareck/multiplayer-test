@@ -22,7 +22,13 @@ const AIR_GAP_CHECK: float = 6.0    ## A surface hit only counts if this much sp
 const SOLID_PROBE_DEPTH: float = 2.0 ## How far below a surface top to sample when classifying it.
 const POINT_SPACING: float = 40.0   ## Graph points placed along a surface this far apart.
 const MAX_LINK_DIST: float = 220.0  ## Point pairs farther apart than this are never linked.
-const DROP_DX: float = 30.0         ## Max horizontal drift tolerated for a straight drop edge.
+## Max horizontal drift tolerated for a drop edge. A bot in free-fall drifts
+## move_speed * fall_time horizontally; for a typical 200 px fall, drift is
+## ~80 px. 30 px (the previous value) restricted drops to nearly-straight-down
+## and made the graph prefer tiny offset platforms over the wide ground floor
+## directly under a ledge — bots ended up trying to land on shelf platforms
+## they couldn't physically reach.
+const DROP_DX: float = 80.0
 const MAX_COLUMN_ITERS: int = 400   ## Defensive cap on the per-column probe loop.
 
 enum EdgeKind { WALK, JUMP, DROP, GAP }
@@ -344,15 +350,24 @@ func _build_edges() -> void:
 	for i in range(points.size()):
 		var pa: Vector2 = points[i]
 		var can_drop := _can_drop_from(i)
-		var nearest_drop := -1
-		var nearest_drop_dy := INF
+		# Track the nearest drop landing on each side of the source — left
+		# (dx ≤ 0) and right (dx ≥ 0). Connecting only the single nearest by
+		# dy makes the graph prefer tiny shelf platforms one tile beneath a
+		# ledge over the much wider main-ground floor a bit further down on
+		# the other side. With both sides exposed, A* picks based on overall
+		# path cost (Euclidean), which naturally favors the wide floor.
+		var drop_left := -1
+		var drop_left_dy := INF
+		var drop_right := -1
+		var drop_right_dy := INF
 		for j in range(points.size()):
 			if i == j or point_segment[i] == point_segment[j]:
 				continue
 			var pb: Vector2 = points[j]
 			if pa.distance_to(pb) > MAX_LINK_DIST:
 				continue
-			var dx: float = absf(pb.x - pa.x)
+			var raw_dx: float = pb.x - pa.x
+			var dx: float = absf(raw_dx)
 			var dy: float = pa.y - pb.y      # > 0 => b is above a
 			if dy > 2.0:
 				if dy <= _max_jump_height and dx <= _jump_reach and _jump_path_clear(pa, pb):
@@ -360,14 +375,21 @@ func _build_edges() -> void:
 			elif dy < -2.0:
 				# A drop is only valid where the bot can actually leave the
 				# surface — a solid ledge, or anywhere on a one-way platform.
-				if can_drop and dx <= DROP_DX and -dy < nearest_drop_dy:
-					nearest_drop_dy = -dy
-					nearest_drop = j
+				if not can_drop or dx > DROP_DX:
+					continue
+				if raw_dx >= 0.0 and -dy < drop_right_dy:
+					drop_right_dy = -dy
+					drop_right = j
+				if raw_dx <= 0.0 and -dy < drop_left_dy:
+					drop_left_dy = -dy
+					drop_left = j
 			else:
 				if dx > CELL and dx <= _jump_reach * 2.0 and _jump_path_clear(pa, pb):
 					_connect(i, j, EdgeKind.GAP, true)
-		if nearest_drop >= 0:
-			_connect(i, nearest_drop, EdgeKind.DROP, false)
+		if drop_left >= 0:
+			_connect(i, drop_left, EdgeKind.DROP, false)
+		if drop_right >= 0 and drop_right != drop_left:
+			_connect(i, drop_right, EdgeKind.DROP, false)
 
 
 ## Whether a jump/gap edge between two points is unobstructed. Rejects an edge

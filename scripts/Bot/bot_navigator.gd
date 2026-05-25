@@ -50,6 +50,12 @@ const DROP_SCAN_DEPTH: float = 400.0
 ## Committed direction while walking to a ledge to descend, so a wall in the way
 ## doesn't make the bot jitter (or jump). 0 when not currently seeking a drop.
 var _descend_dir: int = 0
+## Set per-frame from _steer_along_nav_path when the bot is following a DROP
+## edge A* already validated. The descent branch of _navigate_toward then
+## bypasses its forward-raycast safety check — that check halts the bot when
+## the lower landing is offset 25+ px from the ledge X (DROP_DX allows up to
+## 30), since the raycast probes the air gap rather than the landing.
+var _committed_to_drop: bool = false
 
 # Collision masks: Layer 1 (World) = bit 0, Layer 3 (Platforms) = bit 2
 const GROUND_MASK: int = 0b101  # World + Platforms
@@ -93,6 +99,9 @@ func compute_jump_profile() -> void:
 ## each hop.
 func navigate_smart(goal: Vector2) -> void:
 	var player: MultiplayerPlayerV2 = brain.player
+	# Re-evaluated each frame inside _steer_along_nav_path; clear here so a
+	# direct-navigation fallback doesn't inherit a stale "I'm dropping" flag.
+	_committed_to_drop = false
 	# Close in — the graph adds nothing, and its waypoints are coarser than the
 	# direct heuristics for the final approach (e.g. entering a portal Area2D).
 	if player.global_position.distance_to(goal) < NAV_DIRECT_RANGE:
@@ -169,7 +178,45 @@ func _steer_along_nav_path(goal: Vector2) -> void:
 		_navigate_toward_or_climb(goal)
 		return
 
-	_navigate_toward_or_climb(graph.point_position(_nav_path[_nav_index]))
+	_navigate_toward_or_climb(_resolve_waypoint_target(graph))
+
+
+## The position the navigator should steer toward this frame, derived from the
+## current waypoint and the kind of edge that led to it. Defaults to the
+## waypoint itself; for a DROP-edge arrival, while the bot is still on the
+## source segment, aim X at the source ledge (= the actual edge of the upper
+## platform) instead of the lower-landing's X. The lower-landing can sit up to
+## DROP_DX (30 px) horizontally offset from the ledge, and steering toward that
+## offset can flip `_descend_dir` AWAY from the ledge and walk the bot deeper
+## into the upper platform. Once airborne, the override stops applying and the
+## bot drifts toward the landing's X naturally.
+func _resolve_waypoint_target(graph: BotNavGraph) -> Vector2:
+	var player: MultiplayerPlayerV2 = brain.player
+	var cur_id: int = _nav_path[_nav_index]
+	var target_pos: Vector2 = graph.point_position(cur_id)
+	if _nav_index < 1:
+		return target_pos
+	var prev_id: int = _nav_path[_nav_index - 1]
+	if not graph.has_point(prev_id):
+		return target_pos
+	if graph.edge_kind(prev_id, cur_id) != BotNavGraph.EdgeKind.DROP:
+		return target_pos
+	# A* validated this DROP; trust it and skip the descent safety raycast that
+	# would otherwise halt the bot at the ledge when the landing sits in the
+	# raycast's air gap.
+	_committed_to_drop = true
+	var src_pos: Vector2 = graph.point_position(prev_id)
+	# Still on the source segment? Aim a few px PAST the ledge in the drop
+	# direction. Targeting src_pos.x exactly causes `_navigate_toward`'s
+	# `dir := 1 if to_target.x > 0 else -1` to default to -1 the moment the
+	# bot reaches src_pos.x, flipping `_descend_dir` and oscillating the bot
+	# around the ledge instead of stepping over it. Airborne / below: use the
+	# landing's X for natural in-flight drift.
+	if player.is_on_floor() \
+			and absf(src_pos.y - player.global_position.y) <= NAV_WAYPOINT_Y_TOL:
+		var drop_dir := 1.0 if target_pos.x >= src_pos.x else -1.0
+		return Vector2(src_pos.x + drop_dir * 8.0, target_pos.y)
+	return target_pos
 
 
 ## Single-hop movement toward a target: climb logic if it sits above jump range,
@@ -260,9 +307,13 @@ func _navigate_toward(target_pos: Vector2) -> void:
 		player.direction = _descend_dir
 		player.facing_direction = _descend_dir
 		# At a ledge — walk off it only when there is ground below to land on.
+		# When _committed_to_drop, trust A*'s validated DROP edge instead: the
+		# safety raycast probes 18 px forward and misses any landing offset
+		# more than that from the ledge, halting the bot at the very edge.
 		if is_near_ledge():
 			_descend_dir = 0
-			if not raycast_down(player.global_position + Vector2(player.direction * 18.0, 0), DROP_SCAN_DEPTH):
+			if not _committed_to_drop \
+					and not raycast_down(player.global_position + Vector2(player.direction * 18.0, 0), DROP_SCAN_DEPTH):
 				player.direction = 0  # ledge over a pit / map edge — hold
 		return
 	_descend_dir = 0
