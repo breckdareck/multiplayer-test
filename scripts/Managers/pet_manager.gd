@@ -1492,13 +1492,19 @@ static func book_id_for_slot(slot_key: String) -> String:
 ## this exact instance".
 static func resolve_canonical_id(item: ItemData) -> String:
 	if not item:
+		print("[resolve_canonical_id] item is null")
 		return ""
+	# Try by the (possibly-UUID) instance id first.
 	var canonical: ItemData = ResourceManager.get_item_data(item.item_id)
 	if canonical:
+		print("[resolve_canonical_id] resolved via item_id '%s' -> '%s'" % [item.item_id, canonical.item_id])
 		return canonical.item_id
+	# Fall back to lookup by name (which ResourceManager also indexes).
 	canonical = ResourceManager.get_item_data(item.name)
 	if canonical:
+		print("[resolve_canonical_id] resolved via name '%s' -> '%s'" % [item.name, canonical.item_id])
 		return canonical.item_id
+	print("[resolve_canonical_id] FAILED: item_id='%s' name='%s' class='%s' — not in ResourceManager" % [item.item_id, item.name, item.get_class()])
 	return item.item_id  # last-ditch fallback
 
 
