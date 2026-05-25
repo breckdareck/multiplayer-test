@@ -539,9 +539,9 @@ func _tick_hunger(delta: float) -> void:
 
 		var prev_hunger: float = record.get(KEY_HUNGER, pet_data.max_hunger)
 		var prev_hungry: bool = prev_hunger <= 0.0
-		var new_hunger := max(0.0, prev_hunger - pet_data.hunger_decay_per_sec * delta)
+		var new_hunger: float = max(0.0, prev_hunger - pet_data.hunger_decay_per_sec * delta)
 		record[KEY_HUNGER] = new_hunger
-		var is_hungry := new_hunger <= 0.0
+		var is_hungry: bool = new_hunger <= 0.0
 
 		# State transition: just entered Hungry -> stamp the timer, push state, save now.
 		if is_hungry and not prev_hungry:

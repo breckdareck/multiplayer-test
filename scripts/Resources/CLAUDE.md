@@ -10,7 +10,8 @@ here; the **data instances** (`.tres` files) live under `resources/`.
 | `AbilitySystem/` | `AbilityData`, `AbilityLevelData`, `AbilityScalingData`, `AbilityScalingFormula`, `ActiveBehaviorData`, `ProcEffectData`, `StatBonusFormula` |
 | `BuffSystem/` | `BuffData` (with the `StackBehavior` enum) |
 | `ClassSystem/` | `ClassData` |
-| `ItemSystem/` | `ItemData` → `EquipmentData` → `ArmorData` / `WeaponData`; `ConsumableData`; `ItemDrop.gd` (class `ItemDropResource`); `DroppedItem`; `Effects/` |
+| `ItemSystem/` | `ItemData` → `EquipmentData` → `ArmorData` / `WeaponData`; `ConsumableData` → `PetFoodData` / `PetSkillBookData`; `ItemDrop.gd` (class `ItemDropResource`); `DroppedItem`; `Effects/` |
+| `PetSystem/` | `PetData` (the static pet variety definition — sprite, walk speed, leash radius, autoloot radius, hunger curve) |
 | `StatSystem/` | `StatData` |
 | `QuestSystem/` | `QuestData` |
 | (root) | `EnemyData.gd` |
@@ -40,6 +41,36 @@ narrative role rather than alphabetic dump. To add a quest, drop a new
 **Exception — enemies are NOT auto-loaded.** `EnemyData` (`resources/Enemies/`) is
 referenced directly by an exported `enemy_data` on each enemy scene, not via
 `ResourceManager`.
+
+**`PetData` follows the quest pattern, but owned by `PetManager`** —
+`PetManager._load_pet_data_registry()` scans `resources/PetSystem/Pets/` on
+`_ready()` and keys each `PetData` by its `pet_id` (a hand-authored stable
+string, e.g. `"basic_bird"`). Look pets up with `PetManager.get_pet_data(id)`.
+Per-character pet state (hunger, learned commands, pet inventory) lives in
+the player save under `pets: []`, not as `.tres`. See
+[docs/adr/0001-pet-system-architecture.md](../../docs/adr/0001-pet-system-architecture.md).
+
+### Item-system pet subclasses (`ItemSystem/`)
+
+- **`PetFoodData extends ConsumableData`** — fed to a summoned pet via the
+  Pet UI's Feed button, NOT via the normal "Use Item" pipeline. Author with
+  no `effect_script` so accidental Use becomes a silent no-op; the only
+  field beyond `ConsumableData` is `fullness_restore: float`.
+- **`PetSkillBookData extends ConsumableData`** — teaches a pet a single
+  command. Author with `effect_script = Effect_TeachPetCommand` and
+  `effect_properties = {"command_id": "..."}` matching one of
+  `PetManager.CMD_AUTO_POT` / `CMD_ITEM_POUCH` / `CMD_MESO_MAGNET` /
+  `CMD_AUTOBUFF`. The effect refunds the book on failure (no pet summoned,
+  already learned).
+
+### Item-effects (`ItemSystem/Effects/`)
+
+- **`Effect_HatchPet`** — used by Pet Egg consumables; reads
+  `{"pet_data_id": "...", "default_name": "..."}` from `effect_properties`
+  and calls `PetManager.hatch_pet_server`.
+- **`Effect_TeachPetCommand`** — used by Pet Skill Book consumables; reads
+  `{"command_id": "..."}` and appends to the summoned pet's
+  `learned_commands`. Refunds the book if no pet is summoned.
 
 ### QuestData author notes
 

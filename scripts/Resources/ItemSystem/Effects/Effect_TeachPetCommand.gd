@@ -8,8 +8,9 @@ extends BaseItemEffect
 ## the pet already knows the command, the book is refunded.
 
 func execute() -> void:
-	if not multiplayer.is_server():
-		return
+	# This effect runs server-side because InventoryComponent.request_use_item
+	# is server-gated. BaseItemEffect extends RefCounted, so we cannot reference
+	# the `multiplayer` Node-only global directly here — trust the caller.
 	if not is_instance_valid(user):
 		return
 	if not source_item:
