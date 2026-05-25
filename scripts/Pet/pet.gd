@@ -50,6 +50,13 @@ const AUTOLOOT_SCAN_INTERVAL: float = 0.1
 var _recently_tried_drops: Dictionary = {}  # drop.name -> Time.get_ticks_msec()
 const PICKUP_RETRY_COOLDOWN_MS: int = 1500
 
+# Dwell at the drop before firing pickup, so the pet pauses on the item
+# rather than instant-snapping the RPC. Cosmetic — gives a small "yoink"
+# beat that reads better.
+var _pickup_dwell_target: Node = null
+var _pickup_dwell_start_ms: int = 0
+const PICKUP_DWELL_MS: int = 200
+
 # ── Auto-pot (owner-client only) ──────────────────────────────────────────
 var _autopot_accumulator: float = 0.0
 const AUTOPOT_TICK_INTERVAL: float = 0.2
@@ -174,16 +181,30 @@ func _physics_process(delta: float) -> void:
 	_apply_facing()
 	move_and_slide()
 
-	# Trigger pickup if we've reached a loot target.
+	# Pickup with a short dwell: pet stops at the item, waits PICKUP_DWELL_MS,
+	# then fires the RPC. Reads better than the instant snap-pickup.
 	if _mode == PetMode.LOOT and is_instance_valid(_loot_target_node):
 		var loot_pos: Vector2 = _loot_target_node.global_position
-		if absf(loot_pos.x - global_position.x) <= PICKUP_X_DISTANCE \
-				and absf(loot_pos.y - global_position.y) <= SAME_LEVEL_Y_DELTA:
-			var drop_name: String = _loot_target_node.name
-			_recently_tried_drops[drop_name] = Time.get_ticks_msec()
-			PetManager.request_autoloot_server.rpc_id(1, pet_uuid, drop_name)
-			_mode = PetMode.FOLLOW
-			_loot_target_node = null
+		var at_item: bool = absf(loot_pos.x - global_position.x) <= PICKUP_X_DISTANCE \
+				and absf(loot_pos.y - global_position.y) <= SAME_LEVEL_Y_DELTA
+		if at_item:
+			var now_ms: int = Time.get_ticks_msec()
+			if _pickup_dwell_target != _loot_target_node:
+				# Just arrived — start the dwell timer.
+				_pickup_dwell_target = _loot_target_node
+				_pickup_dwell_start_ms = now_ms
+			elif now_ms - _pickup_dwell_start_ms >= PICKUP_DWELL_MS:
+				# Dwell complete — fire the pickup.
+				var drop_name: String = _loot_target_node.name
+				_recently_tried_drops[drop_name] = now_ms
+				PetManager.request_autoloot_server.rpc_id(1, pet_uuid, drop_name)
+				_mode = PetMode.FOLLOW
+				_loot_target_node = null
+				_pickup_dwell_target = null
+		else:
+			# Wandered off the item before dwell completed (e.g., another drop
+			# became closer and we're switching targets). Reset.
+			_pickup_dwell_target = null
 
 	# Auto-pot tick (independent of mode — happens while walking).
 	_autopot_accumulator += delta
