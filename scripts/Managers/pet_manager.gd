@@ -235,7 +235,12 @@ func hatch_pet_server(username: String, pet_data_id: String, default_name: Strin
 	roster[KEY_SUMMONED].append(pet_uuid)
 	_spawn_pet_internal(username, pet_uuid)
 
-	notify_pet_hatched_rpc.rpc_id(owner_peer, pet_uuid, default_name, pet_data_id)
+	# Notify the owner client. Host is its own owner — emit the signal locally
+	# (call_remote rpc_id to self is disallowed by Godot's scene rpc layer).
+	if owner_peer == 1:
+		pet_hatched.emit(pet_uuid, default_name, pet_data_id)
+	else:
+		notify_pet_hatched_rpc.rpc_id(owner_peer, pet_uuid, default_name, pet_data_id)
 	pet_roster_changed.emit()
 	_push_roster_to_owner(username)
 	_queue_save(username)
