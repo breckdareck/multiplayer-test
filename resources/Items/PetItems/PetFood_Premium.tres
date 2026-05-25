@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="PetFoodData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/PetSystem/PetFoodData.gd" id="1_petfood"]
+
+[resource]
+script = ExtResource("1_petfood")
+fullness_restore = 75.0
+item_id = "pet_food_premium"
+name = "Pet Food (Premium)"
+rarity = 2
+description = "A gourmet meal for the discerning pet. Restores 75 fullness."
+item_type = 2
+item_level = 10
+custom_item_value = 150
+can_stack = true
+max_stack_amount = 99
+current_stack_amount = 1

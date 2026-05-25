@@ -42,6 +42,12 @@ const CMD_AUTOBUFF := "autobuff"
 # v1: only 1 pet active at a time. Increase to support multi-pet later.
 const MAX_ACTIVE_PETS: int = 1
 
+# Hunger config
+const HUNGER_SAVE_THROTTLE_MS: int = 30_000      # min ms between hunger-triggered saves
+const HUNGER_BROADCAST_INTERVAL_MS: int = 2_000  # min ms between hunger broadcasts (no-state-change)
+const HUNGER_HUNGRY_AUTO_UNSUMMON_MS: int = 300_000  # 5 min in Hungry state with owner away -> auto-unsummon
+const HUNGER_LOW_FRACTION: float = 0.25          # bubble appears at <=25%
+
 # Signals — clients listen for UI hooks.
 signal pet_hatched(pet_uuid: String, pet_name: String, pet_data_id: String)
 signal pet_summoned(pet_uuid: String)
@@ -81,6 +87,14 @@ func _ready() -> void:
 	if multiplayer:
 		if not multiplayer.peer_disconnected.is_connected(_on_peer_disconnected):
 			multiplayer.peer_disconnected.connect(_on_peer_disconnected)
+
+
+func _process(delta: float) -> void:
+	if not multiplayer or not multiplayer.has_multiplayer_peer():
+		return
+	if not multiplayer.is_server():
+		return
+	_tick_hunger(delta)
 
 
 func _load_pet_data_registry() -> void:
@@ -460,6 +474,156 @@ func despawn_pet_client(pet_uuid: String) -> void:
 @rpc("authority", "call_remote", "reliable")
 func notify_pet_hatched_rpc(pet_uuid: String, pet_name: String, pet_data_id: String) -> void:
 	pet_hatched.emit(pet_uuid, pet_name, pet_data_id)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# HUNGER TICK / FEEDING
+# ═══════════════════════════════════════════════════════════════════════════
+
+func _tick_hunger(delta: float) -> void:
+	if _active_pets.is_empty():
+		return
+	var now_ms := Time.get_ticks_msec()
+	var to_auto_unsummon: Array = []
+
+	for pet_uuid in _active_pets.keys():
+		var info: Dictionary = _active_pets[pet_uuid]
+		var owner_peer: int = info.get("owner_peer_id", 0)
+		var owner_username: String = info.get("owner_username", "")
+		if owner_peer <= 0 or owner_username.is_empty():
+			continue
+		# Pause hunger if owner went offline (defence in depth — peer_disconnected
+		# normally despawns first).
+		if not PlayerManager.has_player(owner_peer):
+			continue
+
+		var record := find_pet(owner_username, pet_uuid)
+		if record.is_empty():
+			continue
+		var pet_data := get_pet_data(record.get(KEY_PET_DATA_ID, ""))
+		if not pet_data:
+			continue
+
+		var prev_hunger: float = record.get(KEY_HUNGER, pet_data.max_hunger)
+		var prev_hungry: bool = prev_hunger <= 0.0
+		var new_hunger := max(0.0, prev_hunger - pet_data.hunger_decay_per_sec * delta)
+		record[KEY_HUNGER] = new_hunger
+		var is_hungry := new_hunger <= 0.0
+
+		# State transition: just entered Hungry -> stamp the timer, push state, save now.
+		if is_hungry and not prev_hungry:
+			info["hungry_since_ms"] = now_ms
+			_broadcast_pet_hunger_rpc.rpc(pet_uuid, new_hunger, pet_data.max_hunger, true)
+			info["last_broadcast_ms"] = now_ms
+			_queue_save(owner_username)
+		elif not is_hungry and prev_hungry:
+			info["hungry_since_ms"] = 0
+			_broadcast_pet_hunger_rpc.rpc(pet_uuid, new_hunger, pet_data.max_hunger, false)
+			info["last_broadcast_ms"] = now_ms
+			_queue_save(owner_username)
+		else:
+			# No transition — throttle broadcast to once every ~2s.
+			var last_bcast: int = info.get("last_broadcast_ms", 0)
+			if now_ms - last_bcast >= HUNGER_BROADCAST_INTERVAL_MS:
+				_broadcast_pet_hunger_rpc.rpc(pet_uuid, new_hunger, pet_data.max_hunger, is_hungry)
+				info["last_broadcast_ms"] = now_ms
+
+		# 5-min auto-unsummon if Hungry and owner has wandered far away.
+		if is_hungry:
+			var hungry_since: int = info.get("hungry_since_ms", 0)
+			if hungry_since > 0 and now_ms - hungry_since >= HUNGER_HUNGRY_AUTO_UNSUMMON_MS:
+				if _owner_far_from_pet(info):
+					to_auto_unsummon.append(pet_uuid)
+
+		# Save throttle for non-transition tick updates.
+		var last_save_ms: int = info.get("last_save_ms", 0)
+		if now_ms - last_save_ms >= HUNGER_SAVE_THROTTLE_MS:
+			info["last_save_ms"] = now_ms
+			_queue_save(owner_username)
+
+	# Auto-unsummon after the loop so we don't mutate _active_pets while iterating.
+	for pet_uuid in to_auto_unsummon:
+		var info: Dictionary = _active_pets.get(pet_uuid, {})
+		var owner_username: String = info.get("owner_username", "")
+		if owner_username.is_empty():
+			continue
+		# Boot hunger to 1 so resummoning gives a small feed window.
+		var record := find_pet(owner_username, pet_uuid)
+		if not record.is_empty():
+			record[KEY_HUNGER] = 1.0
+		_unsummon_internal(owner_username, pet_uuid)
+		_push_roster_to_owner(owner_username)
+		_queue_save(owner_username)
+
+
+func _owner_far_from_pet(info: Dictionary) -> bool:
+	var pet_node: Node = info.get("pet_node")
+	var owner_peer: int = info.get("owner_peer_id", 0)
+	if not is_instance_valid(pet_node) or owner_peer <= 0:
+		return true
+	var owner_node := PlayerManager.get_player_node(owner_peer)
+	if not is_instance_valid(owner_node):
+		return true
+	var pet_data := get_pet_data(info.get("pet_data_id", ""))
+	var leash: float = pet_data.leash_radius if pet_data else 200.0
+	# "Far" = 2x leash, so a player standing right next to a Hungry pet doesn't
+	# trigger the polite cleanup.
+	return owner_node.global_position.distance_to(pet_node.global_position) > leash * 2.0
+
+
+@rpc("authority", "call_local", "reliable")
+func _broadcast_pet_hunger_rpc(pet_uuid: String, hunger: float, max_hunger: float, hungry: bool) -> void:
+	# Find the pet node on this peer's map tree and apply the state.
+	var node_name := _pet_node_name(pet_uuid)
+	for map_node in get_tree().get_nodes_in_group("map_base"):
+		var pet := map_node.get_node_or_null(node_name)
+		if pet and pet.has_method("apply_hunger_state"):
+			pet.apply_hunger_state(hunger, max_hunger, hungry)
+			return
+
+
+## Server-only. Player asks server to feed pet from a specific inventory slot.
+@rpc("any_peer", "call_local", "reliable")
+func request_feed_pet_server(pet_uuid: String, inventory_slot_index: int) -> void:
+	if not multiplayer.is_server():
+		return
+	var caller := multiplayer.get_remote_sender_id()
+	if caller == 0:
+		caller = 1
+	var player := PlayerManager.get_player_node(caller)
+	if not is_instance_valid(player):
+		return
+	var username: String = player.username
+	if not _rosters.has(username):
+		return
+	var record := find_pet(username, pet_uuid)
+	if record.is_empty():
+		return
+	if not _active_pets.has(pet_uuid):
+		return  # Must be summoned to feed (MapleStory parity)
+	var inventory := player.inventory_component
+	if not inventory or inventory_slot_index < 0 or inventory_slot_index >= inventory.slots_data.size():
+		return
+	var slot = inventory.slots_data[inventory_slot_index]
+	if not slot or not slot.item or not slot.item is PetFoodData:
+		return
+
+	var food: PetFoodData = slot.item as PetFoodData
+	var pet_data := get_pet_data(record.get(KEY_PET_DATA_ID, ""))
+	var max_h: float = pet_data.max_hunger if pet_data else 100.0
+
+	var new_hunger: float = min(max_h, record.get(KEY_HUNGER, max_h) + food.fullness_restore)
+	record[KEY_HUNGER] = new_hunger
+
+	# Wake from Hungry state on any successful feed.
+	if _active_pets.has(pet_uuid):
+		_active_pets[pet_uuid]["hungry_since_ms"] = 0
+		_active_pets[pet_uuid]["last_broadcast_ms"] = Time.get_ticks_msec()
+	_broadcast_pet_hunger_rpc.rpc(pet_uuid, new_hunger, max_h, new_hunger <= 0.0)
+
+	inventory.remove_item_from_stack(food, 1, "fed_to_pet")
+	_push_roster_to_owner(username)
+	_queue_save(username)
 
 
 # ═══════════════════════════════════════════════════════════════════════════

@@ -16,6 +16,7 @@ var _detail_container: VBoxContainer
 var _portrait: TextureRect
 var _name_edit: LineEdit
 var _hunger_bar: ProgressBar
+var _feed_button: Button
 var _summon_button: Button
 var _release_button: Button
 var _inventory_grid: HBoxContainer
@@ -126,6 +127,11 @@ func _build_ui() -> void:
 	_hunger_bar.max_value = 100.0
 	_hunger_bar.value = 100.0
 	hunger_row.add_child(_hunger_bar)
+
+	_feed_button = Button.new()
+	_feed_button.text = "Feed"
+	_feed_button.pressed.connect(_on_feed_pressed)
+	hunger_row.add_child(_feed_button)
 
 	# Action buttons
 	var button_row := HBoxContainer.new()
@@ -328,6 +334,15 @@ func _refresh_detail() -> void:
 	var is_summoned := PetManager.client_is_pet_summoned(_selected_pet_uuid)
 	_summon_button.text = "Unsummon" if is_summoned else "Summon"
 
+	# Feed button — disabled when pet not summoned (MapleStory parity) or no food.
+	_feed_button.disabled = not is_summoned or _find_first_pet_food_slot() == -1
+	if not is_summoned:
+		_feed_button.tooltip_text = "Summon the pet first."
+	elif _feed_button.disabled:
+		_feed_button.tooltip_text = "No Pet Food in inventory."
+	else:
+		_feed_button.tooltip_text = "Feed your pet a Pet Food item."
+
 	# Autopot thresholds
 	var ap_cfg: Dictionary = record.get(PetManager.KEY_AUTOPOT_CONFIG, {})
 	_hp_threshold_slider.value = ap_cfg.get(PetManager.KEY_HP_THRESHOLD, 0.5)
@@ -360,6 +375,27 @@ func _on_summon_pressed() -> void:
 		PetManager.request_unsummon_pet_server.rpc_id(1, _selected_pet_uuid)
 	else:
 		PetManager.request_summon_pet_server.rpc_id(1, _selected_pet_uuid)
+
+
+func _on_feed_pressed() -> void:
+	if _selected_pet_uuid.is_empty():
+		return
+	var slot_idx := _find_first_pet_food_slot()
+	if slot_idx == -1:
+		return
+	PetManager.request_feed_pet_server.rpc_id(1, _selected_pet_uuid, slot_idx)
+
+
+## Returns the index of the first inventory slot holding PetFoodData, or -1.
+func _find_first_pet_food_slot() -> int:
+	if not is_instance_valid(player) or not is_instance_valid(player.inventory_component):
+		return -1
+	var slots := player.inventory_component.slots_data
+	for i in slots.size():
+		var sd = slots[i]
+		if sd and sd.item and sd.item is PetFoodData:
+			return i
+	return -1
 
 
 func _on_release_pressed() -> void:
