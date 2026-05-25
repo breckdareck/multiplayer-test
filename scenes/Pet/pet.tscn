@@ -34,6 +34,7 @@ shape = SubResource("CircleShape2D_pet")
 [node name="Sprite" type="AnimatedSprite2D" parent="."]
 z_index = 4
 scale = Vector2(2, 2)
+offset = Vector2(0, -10)
 
 [node name="BubbleLabel" type="Label" parent="."]
 visible = false
