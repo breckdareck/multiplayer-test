@@ -80,7 +80,11 @@ func _create_pool() -> void:
 			printerr("EnemySpawner: Enemy instance %d is missing a HealthComponent." % i)
 			enemy.queue_free()
 			continue
-		
+
+		# Pool-managed enemies must be respawnable; otherwise enemy_base.gd's
+		# death path queue_free's them and the pool never refills.
+		enemy.respawnable = true
+
 		# CRITICAL: Set public_visibility = false on enemy synchronizers BEFORE adding to tree
 		# This ensures the MultiplayerSpawner tracks it with correct visibility from the start
 		_set_enemy_synchronizers_visibility(enemy, false)
