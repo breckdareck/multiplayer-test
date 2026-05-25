@@ -29,7 +29,7 @@ const HTTP_TIMEOUT: float = 5.0         # per-request timeout
 const HTTP_POOL_SIZE: int = 8           # max concurrent in-flight saves
 
 const VALID_CATEGORIES: PackedStringArray = [
-	"stats", "inventory", "abilities", "buffs", "equipment"
+	"stats", "inventory", "abilities", "buffs", "equipment", "pets"
 ]
 
 var _api_url: String = ""  # Will be loaded from UserConfig

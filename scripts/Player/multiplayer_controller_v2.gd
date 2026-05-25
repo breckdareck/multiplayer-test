@@ -620,6 +620,12 @@ func get_save_data(update_type: String = "all") -> Dictionary:
 	if update_type == "all":
 		data['quests'] = QuestManager.save_quests(username)
 
+	if update_type == "all" or update_type == "pets":
+		# PetManager returns {pets: [...], summoned_pet_ids: [...]} —
+		# merge both keys at the top level of the save payload (matches the
+		# format named in docs/adr/0001-pet-system-architecture.md).
+		data.merge(PetManager.get_save_data(username))
+
 	return data
 
 
@@ -708,6 +714,12 @@ func _load_data(data: Dictionary) -> void:
 	var quest_data = data.get("quests", {})
 	if not quest_data.is_empty():
 		QuestManager.load_quests(username, quest_data)
+
+	# Load pet roster (may be missing on legacy saves — defaults to empty).
+	PetManager.load_pets(username, {
+		PetManager.KEY_PETS: data.get("pets", []),
+		PetManager.KEY_SUMMONED: data.get("summoned_pet_ids", []),
+	})
 
 	_is_loading_data = false
 
