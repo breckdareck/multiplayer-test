@@ -858,16 +858,23 @@ func request_autoloot_server(pet_uuid: String, drop_node_name: String) -> void:
 		print("[autoloot] REJECT: drop has no item_data")
 		return
 
+	# Validate by OWNER position, not pet position. The pet is owner-client
+	# authoritative; its server-side position lags by network latency (the
+	# server only receives updates via MultiplayerSynchronizer). Reports
+	# from the field showed server-side pet-to-drop distance was 120-180px
+	# behind the client's view, blowing past any pet-tight range gate.
+	#
+	# The owner's character is reliably synced (player movement is the
+	# canonical authoritative-replicated state). Constrain the pickup to
+	# "drop is within reach of the OWNER + pet's reach" — i.e., the pet
+	# could plausibly walk from the owner to the drop.
 	var pet_data := get_pet_data(info.get("pet_data_id", ""))
+	var autoloot: float = pet_data.autoloot_radius if pet_data else 100.0
 	var leash: float = pet_data.leash_radius if pet_data else 200.0
-	var pet_owner_dist: float = pet_node.global_position.distance_to(owner_player.global_position)
-	if pet_owner_dist > leash:
-		print("[autoloot] REJECT: pet-to-owner %.1f > leash %.1f" % [pet_owner_dist, leash])
-		return
-	var max_range: float = (pet_data.autoloot_radius if pet_data else 100.0) + 16.0
-	var pet_drop_dist: float = pet_node.global_position.distance_to(drop.global_position)
-	if pet_drop_dist > max_range:
-		print("[autoloot] REJECT: pet-to-drop %.1f > max_range %.1f" % [pet_drop_dist, max_range])
+	var pickup_range: float = autoloot + leash
+	var owner_drop_dist: float = owner_player.global_position.distance_to(drop.global_position)
+	if owner_drop_dist > pickup_range:
+		print("[autoloot] REJECT: owner-to-drop %.1f > pickup_range %.1f (autoloot %.1f + leash %.1f)" % [owner_drop_dist, pickup_range, autoloot, leash])
 		return
 
 	if drop.has_method("_can_player_pickup") and not drop._can_player_pickup(owner_player):
