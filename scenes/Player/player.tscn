@@ -29,7 +29,7 @@
 [ext_resource type="Script" uid="uid://vfu8l4cq1qt1" path="res://scripts/Player/StateMachine/jump.gd" id="21_v6vns"]
 [ext_resource type="Script" uid="uid://bfh8yeyv2wu0g" path="res://scripts/Player/StateMachine/death.gd" id="22_eiysd"]
 [ext_resource type="Script" uid="uid://bvunkdne8wduc" path="res://scripts/Player/StateMachine/hit.gd" id="23_03slv"]
-[ext_resource type="Script" path="res://scripts/Player/StateMachine/climb.gd" id="23_climb_gd"]
+[ext_resource type="Script" uid="uid://tnuxo6lbsuxq" path="res://scripts/Player/StateMachine/climb.gd" id="23_climb_gd"]
 [ext_resource type="PackedScene" uid="uid://chfqd31o6lr2s" path="res://scenes/UI/stats_window.tscn" id="23_fqhit"]
 [ext_resource type="PackedScene" uid="uid://dh7yjshjnm377" path="res://scenes/UI/inventory_window.tscn" id="24_e8txv"]
 [ext_resource type="PackedScene" uid="uid://cy54vn8lpmh2s" path="res://scenes/UI/equipment_window.tscn" id="25_7iww4"]
@@ -1089,6 +1089,7 @@ move_speed = 80.0
 script = ExtResource("21_v6vns")
 fall_state = NodePath("../fall")
 attack_state = NodePath("../attack")
+jump_velocity = -230.0
 animation_name = "jump"
 move_speed = 100.0
 
