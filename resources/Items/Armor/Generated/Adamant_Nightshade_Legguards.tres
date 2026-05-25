@@ -1,8 +1,14 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bgi42h3ig6ua4"]
 
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_c1qu7"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_0a51e"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_32kp1"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_c1qu7"]
+[ext_resource type="Texture2D" uid="uid://bannlqdgbwmld" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_0a51e"]
+[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_32kp1"]
+
+[sub_resource type="Resource" id="Resource_enw6c"]
+script = ExtResource("1_c1qu7")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 13
 
 [sub_resource type="Resource" id="Resource_pwo5k"]
 script = ExtResource("1_c1qu7")
@@ -15,12 +21,6 @@ script = ExtResource("1_c1qu7")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 18
-
-[sub_resource type="Resource" id="Resource_enw6c"]
-script = ExtResource("1_c1qu7")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 13
 
 [sub_resource type="Resource" id="Resource_27crm"]
 script = ExtResource("1_c1qu7")
@@ -44,9 +44,7 @@ bonus_stats = Dictionary[int, ExtResource("1_c1qu7")]({
 })
 item_id = "13811141341313-12014-1312415-912122-1013691212391013116"
 name = "Adamant Nightshade Legguards"
-rarity = 0
 icon = SubResource("AtlasTexture_55772")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 50
-custom_item_value = 0

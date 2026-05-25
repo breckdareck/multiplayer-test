@@ -1,8 +1,14 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://c0t7x1scm4jvh"]
 
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_j0wry"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_y5fro"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_pse2d"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_j0wry"]
+[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_y5fro"]
+[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_pse2d"]
+
+[sub_resource type="Resource" id="Resource_vpjbo"]
+script = ExtResource("1_j0wry")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 7
 
 [sub_resource type="Resource" id="Resource_c3fwp"]
 script = ExtResource("1_j0wry")
@@ -15,12 +21,6 @@ script = ExtResource("1_j0wry")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 10
-
-[sub_resource type="Resource" id="Resource_vpjbo"]
-script = ExtResource("1_j0wry")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 7
 
 [sub_resource type="Resource" id="Resource_f4302"]
 script = ExtResource("1_j0wry")
@@ -43,9 +43,7 @@ bonus_stats = Dictionary[int, ExtResource("1_j0wry")]({
 })
 item_id = "12141567101-81125-6680-61023-812915111587136113"
 name = "Iron Pathfinder Mail"
-rarity = 0
 icon = SubResource("AtlasTexture_7tlk8")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 20
-custom_item_value = 0

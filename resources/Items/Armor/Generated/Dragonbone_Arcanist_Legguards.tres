@@ -1,20 +1,8 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bgrqhqylya876"]
 
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_o6s7t"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_plik8"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_2vx38"]
-
-[sub_resource type="Resource" id="Resource_pgnon"]
-script = ExtResource("1_o6s7t")
-stat_type = 8
-base_value = 0
-flat_bonus_value = 42
-
-[sub_resource type="Resource" id="Resource_586jx"]
-script = ExtResource("1_o6s7t")
-stat_type = 9
-base_value = 0
-flat_bonus_value = 24
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_o6s7t"]
+[ext_resource type="Texture2D" uid="uid://bannlqdgbwmld" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_plik8"]
+[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_2vx38"]
 
 [sub_resource type="Resource" id="Resource_tf0cy"]
 script = ExtResource("1_o6s7t")
@@ -27,6 +15,18 @@ script = ExtResource("1_o6s7t")
 stat_type = 5
 base_value = 0
 flat_bonus_value = 89
+
+[sub_resource type="Resource" id="Resource_pgnon"]
+script = ExtResource("1_o6s7t")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 42
+
+[sub_resource type="Resource" id="Resource_586jx"]
+script = ExtResource("1_o6s7t")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 24
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_4s7ln"]
 atlas = ExtResource("2_plik8")
@@ -44,9 +44,7 @@ bonus_stats = Dictionary[int, ExtResource("1_o6s7t")]({
 })
 item_id = "101029131513-1414310-701311-61178-11391410124691113"
 name = "Dragonbone Arcanist Legguards"
-rarity = 0
 icon = SubResource("AtlasTexture_4s7ln")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
 item_level = 70
-custom_item_value = 0

@@ -1,14 +1,8 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://c8r7vcuqjebqv"]
 
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_cs06l"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_wfhup"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_q1dff"]
-
-[sub_resource type="Resource" id="Resource_qfm5r"]
-script = ExtResource("1_cs06l")
-stat_type = 13
-base_value = 0
-flat_bonus_value = 97
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_cs06l"]
+[ext_resource type="Texture2D" uid="uid://cj4kv8pk70aal" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_wfhup"]
+[ext_resource type="Script" uid="uid://mysmonmct4jm" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_q1dff"]
 
 [sub_resource type="Resource" id="Resource_1g54s"]
 script = ExtResource("1_cs06l")
@@ -21,6 +15,12 @@ script = ExtResource("1_cs06l")
 stat_type = 5
 base_value = 0
 flat_bonus_value = 78
+
+[sub_resource type="Resource" id="Resource_qfm5r"]
+script = ExtResource("1_cs06l")
+stat_type = 13
+base_value = 0
+flat_bonus_value = 97
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_hglhm"]
 atlas = ExtResource("2_wfhup")
@@ -39,9 +39,7 @@ bonus_stats = Dictionary[int, ExtResource("1_cs06l")]({
 })
 item_id = "14010911033-41520-8122-31129-138831113814130815"
 name = "Runic Spellstaff"
-rarity = 0
 icon = SubResource("AtlasTexture_hglhm")
 description = "A conduit of arcane power wielded by Mages."
 item_type = 1
 item_level = 60
-custom_item_value = 0

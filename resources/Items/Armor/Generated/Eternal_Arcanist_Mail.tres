@@ -1,20 +1,8 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://b0ep5v4g4nbcx"]
 
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_nrvld"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_ej8ik"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_yknod"]
-
-[sub_resource type="Resource" id="Resource_sai2v"]
-script = ExtResource("1_nrvld")
-stat_type = 8
-base_value = 0
-flat_bonus_value = 73
-
-[sub_resource type="Resource" id="Resource_61sll"]
-script = ExtResource("1_nrvld")
-stat_type = 9
-base_value = 0
-flat_bonus_value = 42
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_nrvld"]
+[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_ej8ik"]
+[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_yknod"]
 
 [sub_resource type="Resource" id="Resource_njnam"]
 script = ExtResource("1_nrvld")
@@ -27,6 +15,18 @@ script = ExtResource("1_nrvld")
 stat_type = 5
 base_value = 0
 flat_bonus_value = 156
+
+[sub_resource type="Resource" id="Resource_sai2v"]
+script = ExtResource("1_nrvld")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 73
+
+[sub_resource type="Resource" id="Resource_61sll"]
+script = ExtResource("1_nrvld")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 42
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_nkxy2"]
 atlas = ExtResource("2_ej8ik")
@@ -43,9 +43,7 @@ bonus_stats = Dictionary[int, ExtResource("1_nrvld")]({
 })
 item_id = "742621206-39152-171415-13002-1311086291110238"
 name = "Eternal Arcanist Mail"
-rarity = 0
 icon = SubResource("AtlasTexture_nkxy2")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
 item_level = 100
-custom_item_value = 0

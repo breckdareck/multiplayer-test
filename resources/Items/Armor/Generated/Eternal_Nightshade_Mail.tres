@@ -1,8 +1,14 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://c3cpnrksg0yx4"]
 
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_dkby6"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_ggsdi"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_oqj7a"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_dkby6"]
+[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_ggsdi"]
+[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_oqj7a"]
+
+[sub_resource type="Resource" id="Resource_lxdch"]
+script = ExtResource("1_dkby6")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 31
 
 [sub_resource type="Resource" id="Resource_r17jj"]
 script = ExtResource("1_dkby6")
@@ -15,12 +21,6 @@ script = ExtResource("1_dkby6")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 42
-
-[sub_resource type="Resource" id="Resource_lxdch"]
-script = ExtResource("1_dkby6")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 31
 
 [sub_resource type="Resource" id="Resource_o2khg"]
 script = ExtResource("1_dkby6")
@@ -43,9 +43,7 @@ bonus_stats = Dictionary[int, ExtResource("1_dkby6")]({
 })
 item_id = "79013913145-66101-1040-1215012-21160216154152"
 name = "Eternal Nightshade Mail"
-rarity = 0
 icon = SubResource("AtlasTexture_x4p1a")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 100
-custom_item_value = 0

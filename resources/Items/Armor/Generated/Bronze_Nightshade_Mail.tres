@@ -1,8 +1,14 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bg68jtvwpvmbn"]
 
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_upjuu"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_4vva1"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_qo2na"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_upjuu"]
+[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_4vva1"]
+[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_qo2na"]
+
+[sub_resource type="Resource" id="Resource_wp1xj"]
+script = ExtResource("1_upjuu")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 4
 
 [sub_resource type="Resource" id="Resource_dgx17"]
 script = ExtResource("1_upjuu")
@@ -15,12 +21,6 @@ script = ExtResource("1_upjuu")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 6
-
-[sub_resource type="Resource" id="Resource_wp1xj"]
-script = ExtResource("1_upjuu")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 4
 
 [sub_resource type="Resource" id="Resource_wstd8"]
 script = ExtResource("1_upjuu")
@@ -43,9 +43,7 @@ bonus_stats = Dictionary[int, ExtResource("1_upjuu")]({
 })
 item_id = "112151115333-51001-4918-42210-028412121099834"
 name = "Bronze Nightshade Mail"
-rarity = 0
 icon = SubResource("AtlasTexture_jr71y")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 10
-custom_item_value = 0
