@@ -40,6 +40,13 @@ var _facing_right: bool = true
 var _is_following: bool = false  # FOLLOW-mode hysteresis state
 var _leash_breach_timer: float = 0.0
 var _has_pending_jump: bool = false
+# Previous-frame owner state tracking so we can fire edge-triggered behaviors
+# (jump-when-owner-jumps, pop-up-when-owner-exits-ladder) without re-firing
+# every frame the state stays the same.
+var _was_owner_climbing: bool = false
+var _was_owner_jumping: bool = false
+const CLIMB_EXIT_POP_PX: float = 16.0   # upward bias when owner finishes climbing
+const TELEPORT_UP_BIAS_PX: float = 32.0  # upward bias on any teleport-to-owner
 
 # Vertical-stuck detection — owner is on a higher platform and we're not
 # gaining height. Tracks Y progress over a short grace; if none, teleport
@@ -170,7 +177,8 @@ func _physics_process(delta: float) -> void:
 	# Ride along while the owner is climbing a ladder/rope. Player state-machine
 	# state isn't replicated to non-host clients, so we detect the climb by
 	# geometry: the climb state snaps the owner's X to the ladder's center.
-	if _owner_is_climbing(owner_node):
+	var owner_climbing_now: bool = _owner_is_climbing(owner_node)
+	if owner_climbing_now:
 		global_position = owner_node.global_position
 		velocity = Vector2.ZERO
 		_facing_right = true
@@ -181,8 +189,18 @@ func _physics_process(delta: float) -> void:
 		_mode = PetMode.FOLLOW
 		_loot_target_node = null
 		_pickup_dwell_target = null
+		_was_owner_climbing = true
 		move_and_slide()
 		return
+
+	# Owner just exited a climb (top or bottom). If exiting from above, the pet
+	# was glued to the owner's climb-end position which is right at the platform
+	# edge — physics often slides it off. Pop it up a few px so it lands on the
+	# platform surface instead.
+	if _was_owner_climbing:
+		_was_owner_climbing = false
+		global_position.y -= CLIMB_EXIT_POP_PX
+		velocity = Vector2.ZERO
 
 	# Periodic loot scan (decides whether to switch to LOOT mode).
 	_autoloot_accumulator += delta
@@ -256,14 +274,21 @@ func _physics_process(delta: float) -> void:
 		velocity.x = 0.0
 		_play_animation("idle")
 
-	# Jump in FOLLOW mode for two reasons:
+	# Jump in FOLLOW mode for three reasons:
 	#  1. Owner is settled on a platform above us (jump_threshold_y higher).
 	#     Owner must be grounded — otherwise the pet copies every player jump
 	#     just because the player's Y briefly went up mid-air.
 	#  2. We're trying to walk but a wall is blocking us (obstacle on the
 	#     way to the owner). is_on_wall() reflects the previous frame's slide.
+	#  3. Owner just entered the "jump" state. Edge-triggered — fires once at
+	#     the start of the owner's jump, so the pet hops along in the same
+	#     direction instead of staying on the ground while the player leaps.
 	# After the brief give-up window, suppress height-jumping so we walk
 	# horizontally toward the owner instead of bouncing in place.
+	var owner_jumping_now: bool = _owner_state_name(owner_node) == "jump"
+	var owner_jump_edge: bool = owner_jumping_now and not _was_owner_jumping
+	_was_owner_jumping = owner_jumping_now
+
 	if _mode == PetMode.FOLLOW and is_on_floor() and not _has_pending_jump:
 		var jump_threshold: float = pet_data.jump_threshold_y if pet_data else 24.0
 		var owner_grounded: bool = owner_node.has_method("is_on_floor") and owner_node.is_on_floor()
@@ -271,8 +296,20 @@ func _physics_process(delta: float) -> void:
 		if _vertical_stuck_timer >= VERTICAL_STUCK_GIVEUP_JUMP_SEC:
 			jump_for_height = false
 		var jump_for_wall: bool = should_walk and is_on_wall()
-		if jump_for_height or jump_for_wall:
+		if jump_for_height or jump_for_wall or owner_jump_edge:
 			velocity.y = pet_data.jump_velocity if pet_data else -360.0
+			# Mirror the owner's jump direction when copying their jump. For the
+			# height/wall paths we keep the horizontal velocity already computed
+			# from the FOLLOW walk logic.
+			if owner_jump_edge:
+				var owner_dir: float = 0.0
+				if "facing_direction" in owner_node:
+					owner_dir = sign(float(owner_node.facing_direction))
+				if owner_dir == 0.0 and "velocity" in owner_node and owner_node.velocity is Vector2:
+					owner_dir = sign(owner_node.velocity.x)
+				if owner_dir != 0.0:
+					velocity.x = owner_dir * (pet_data.walk_speed if pet_data else 120.0)
+					_facing_right = owner_dir >= 0.0
 			_has_pending_jump = true
 
 	_apply_facing()
@@ -330,13 +367,12 @@ func _resolve_target_position(owner_node: Node) -> Vector2:
 
 
 func _teleport_to_owner(owner_node: Node) -> void:
-	# Bias the teleport slightly upward. Teleporting exactly at the owner's
-	# Y when the owner just landed at the top of a rope/ladder can drop the
-	# pet right on the edge of the platform — physics then push it off the
-	# side. Spawning ~20px above and letting gravity drop it onto the
-	# platform produces a reliable landing.
+	# Bias the teleport upward by TELEPORT_UP_BIAS_PX so the pet spawns above
+	# the platform surface and falls onto it with gravity. Without the bias
+	# the pet lands exactly on the platform edge and physics slides it off
+	# before the next frame.
 	var offset := pet_data.follow_offset if pet_data else Vector2(-32.0, 0.0)
-	offset.y -= 20.0
+	offset.y -= TELEPORT_UP_BIAS_PX
 	global_position = owner_node.global_position + offset
 	velocity = Vector2.ZERO
 	_leash_breach_timer = 0.0
@@ -345,15 +381,19 @@ func _teleport_to_owner(owner_node: Node) -> void:
 	_has_pending_jump = false
 
 
-func _owner_is_climbing(owner_node: Node) -> bool:
-	# Authoritative climb signal: the player's state machine. State changes
-	# are RPC'd to every peer (state_machine.gd:_set_state_rpc), so this is
-	# accurate on the host AND on remote clients.
+func _owner_state_name(owner_node: Node) -> String:
+	# Authoritative state from the player's state machine. State changes are
+	# RPC'd to every peer (state_machine.gd:_set_state_rpc), so this is
+	# accurate on host AND remote clients.
 	var sm = owner_node.get("state_machine") if "state_machine" in owner_node else null
 	if sm == null or not is_instance_valid(sm):
-		return false
+		return ""
 	var cs = sm.current_state
-	return cs != null and cs.name == "climb"
+	return cs.name if cs != null else ""
+
+
+func _owner_is_climbing(owner_node: Node) -> bool:
+	return _owner_state_name(owner_node) == "climb"
 
 
 # ═══════════════════════════════════════════════════════════════════════════
