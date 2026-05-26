@@ -257,15 +257,20 @@ func _physics_process(delta: float) -> void:
 	var to_target_x: float = target_pos.x - global_position.x
 	var speed: float = pet_data.walk_speed if pet_data else 120.0
 	var jump_threshold: float = pet_data.jump_threshold_y if pet_data else 24.0
-	# Owner is on a platform above us (e.g. just hopped onto a crate). Override
-	# the hysteresis so the pet walks INTO the platform wall — that's what
-	# triggers is_on_wall() and fires jump_for_wall below. Without this
-	# override the pet sits idle next to the box because the X gap is small.
+	# Owner is on a higher or lower platform than us. Override the FOLLOW
+	# hysteresis in both cases:
+	#  - above: pet walks INTO the platform wall, which triggers is_on_wall()
+	#    and fires jump_for_wall below (so we can hop onto a crate next to us).
+	#  - below: pet walks off the edge to fall down after the player. Without
+	#    this override the pet stays on the platform when the player drops
+	#    straight down, because the X gap is small.
 	var owner_above: bool = target_pos.y < global_position.y - jump_threshold
+	var owner_below: bool = target_pos.y > global_position.y + jump_threshold
+	var owner_vertical_gap: bool = owner_above or owner_below
 	var should_walk: bool
 	if _mode == PetMode.LOOT:
 		should_walk = absf(to_target_x) > PICKUP_X_DISTANCE
-	elif owner_above:
+	elif owner_vertical_gap:
 		should_walk = absf(to_target_x) > FOLLOW_STOP_X
 		_is_following = should_walk
 	else:
