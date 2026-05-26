@@ -44,7 +44,6 @@ var _has_pending_jump: bool = false
 # (jump-when-owner-jumps, pop-up-when-owner-exits-ladder) without re-firing
 # every frame the state stays the same.
 var _was_owner_climbing: bool = false
-var _was_owner_jumping: bool = false
 const CLIMB_EXIT_POP_PX: float = 16.0   # upward bias when owner finishes climbing
 const TELEPORT_UP_BIAS_PX: float = 32.0  # upward bias on any teleport-to-owner
 
@@ -193,12 +192,16 @@ func _physics_process(delta: float) -> void:
 		move_and_slide()
 		return
 
-	# Owner just exited a climb (top or bottom). If exiting from above, the pet
-	# was glued to the owner's climb-end position which is right at the platform
-	# edge — physics often slides it off. Pop it up a few px so it lands on the
-	# platform surface instead.
-	if _was_owner_climbing:
-		_was_owner_climbing = false
+	# Owner just exited the climb state this frame. Two sub-cases:
+	#  - walked onto the platform → pop up so the pet doesn't slide off the edge
+	#  - jumped off the ladder/rope → skip the pop, let the jump-mimic block
+	#    below handle it (we don't want to nudge the pet up and then jump,
+	#    that double-launches)
+	var climb_exited_now: bool = _was_owner_climbing
+	_was_owner_climbing = false
+	var owner_state: String = _owner_state_name(owner_node)
+	var owner_jumping_now: bool = owner_state == "jump"
+	if climb_exited_now and not owner_jumping_now:
 		global_position.y -= CLIMB_EXIT_POP_PX
 		velocity = Vector2.ZERO
 
@@ -280,14 +283,13 @@ func _physics_process(delta: float) -> void:
 	#     just because the player's Y briefly went up mid-air.
 	#  2. We're trying to walk but a wall is blocking us (obstacle on the
 	#     way to the owner). is_on_wall() reflects the previous frame's slide.
-	#  3. Owner just entered the "jump" state. Edge-triggered — fires once at
-	#     the start of the owner's jump, so the pet hops along in the same
-	#     direction instead of staying on the ground while the player leaps.
+	#  3. Owner just jumped OFF a ladder/rope — i.e., climb state ended THIS
+	#     frame and they're now in jump state. We don't mimic every player
+	#     jump (too spammy), only the ladder dismount jump, in the owner's
+	#     facing direction. Per user request.
 	# After the brief give-up window, suppress height-jumping so we walk
 	# horizontally toward the owner instead of bouncing in place.
-	var owner_jumping_now: bool = _owner_state_name(owner_node) == "jump"
-	var owner_jump_edge: bool = owner_jumping_now and not _was_owner_jumping
-	_was_owner_jumping = owner_jumping_now
+	var jump_off_ladder: bool = climb_exited_now and owner_jumping_now
 
 	if _mode == PetMode.FOLLOW and is_on_floor() and not _has_pending_jump:
 		var jump_threshold: float = pet_data.jump_threshold_y if pet_data else 24.0
@@ -296,12 +298,12 @@ func _physics_process(delta: float) -> void:
 		if _vertical_stuck_timer >= VERTICAL_STUCK_GIVEUP_JUMP_SEC:
 			jump_for_height = false
 		var jump_for_wall: bool = should_walk and is_on_wall()
-		if jump_for_height or jump_for_wall or owner_jump_edge:
+		if jump_for_height or jump_for_wall or jump_off_ladder:
 			velocity.y = pet_data.jump_velocity if pet_data else -360.0
-			# Mirror the owner's jump direction when copying their jump. For the
-			# height/wall paths we keep the horizontal velocity already computed
-			# from the FOLLOW walk logic.
-			if owner_jump_edge:
+			# Mirror the owner's jump direction on the ladder-dismount case.
+			# The height/wall paths keep the horizontal velocity already
+			# computed from the FOLLOW walk logic.
+			if jump_off_ladder:
 				var owner_dir: float = 0.0
 				if "facing_direction" in owner_node:
 					owner_dir = sign(float(owner_node.facing_direction))
