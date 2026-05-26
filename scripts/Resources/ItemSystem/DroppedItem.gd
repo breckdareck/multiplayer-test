@@ -299,6 +299,11 @@ func setup(item: ItemData, amount: int, eligible_player_ids: Array[int]) -> void
 	is_pickup_ready = false
 
 
+## Target on-screen size (px) for any dropped item's icon. Item icons range
+## from 16x16 (Coin) to ~64x64 (potion atlases); without normalization the
+## bigger ones render as enormous billboards next to the player. Scale to fit.
+const TARGET_ICON_SIZE: float = 10.24
+
 func _update_sprite() -> void:
 	if item_data:
 		var resource_item_data = ResourceManager.get_item_data(item_data.item_id)
@@ -308,6 +313,13 @@ func _update_sprite() -> void:
 			print("WARNING: DroppedItem has no icon for item_id: %s" % item_data.item_id)
 	else:
 		print("WARNING: DroppedItem has no item_data!")
+
+	if sprite.texture:
+		var size := sprite.texture.get_size()
+		var longest := maxf(size.x, size.y)
+		if longest > 0.0:
+			var s := TARGET_ICON_SIZE / longest
+			sprite.scale = Vector2(s, s)
 
 
 func make_public() -> void:
