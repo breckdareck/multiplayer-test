@@ -26,6 +26,11 @@ through `scripts/Networking/network_manager.gd`.
 - `Player.quests` is a single **JSONB blob** holding the whole `QuestManager.save_quests()`
   payload: `{active, completed, onboarded}`. Quests are only ever read/written
   wholesale per character, so there's no separate relational table for them.
+- `Player.pets` is a single **JSONB blob** holding the pet roster:
+  `{roster: [<pet records>], summoned: [<uuids>]}`. Same wholesale-only pattern
+  as quests. On the wire, the save/load endpoints flatten this into two
+  top-level keys (`pets`, `summoned_pet_ids`) to match Godot's existing save
+  shape — see `multiplayer_controller_v2.get_save_data` and `PetManager.load_pets`.
 
 ## Conventions
 

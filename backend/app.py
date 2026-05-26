@@ -60,6 +60,12 @@ class Player(db.Model):
     # character — no piecemeal queries — and the schema evolves freely on the
     # Godot side.
     quests = db.Column(JSONB, nullable=True)
+    # PetManager save blob: {roster: [<pet records>], summoned: [<uuids>]}.
+    # Same wholesale-only pattern as quests — pet records are dictionaries
+    # whose shape is owned by Godot (see pet_manager.gd / docs/adr/0001).
+    # The endpoint flattens this into two top-level keys on the wire
+    # ('pets', 'summoned_pet_ids') to match Godot's existing save shape.
+    pets = db.Column(JSONB, nullable=True)
 
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
@@ -430,6 +436,12 @@ def load_player():
         # treats an empty dict as "no save data" and falls through to defaults.
         response_data['quests'] = player.quests or {}
 
+        # Pet roster — flatten the {roster, summoned} blob back into the two
+        # top-level keys the Godot player save expects.
+        pets_blob = player.pets or {}
+        response_data['pets'] = pets_blob.get('roster', [])
+        response_data['summoned_pet_ids'] = pets_blob.get('summoned', [])
+
         return jsonify(response_data)
     else:
         return jsonify({})
@@ -634,6 +646,18 @@ def save_player():
         if 'quests' in data and isinstance(data['quests'], dict):
             player.quests = data['quests']
 
+        # Pets — Godot sends the roster as the flat 'pets' top-level key plus
+        # 'summoned_pet_ids' (see multiplayer_controller_v2.get_save_data). We
+        # bundle them into one JSONB column. Only touch the column when EITHER
+        # key is present in the payload, so partial saves don't clobber it.
+        # When only one of the two keys arrives, preserve the other from the
+        # existing row.
+        if 'pets' in data or 'summoned_pet_ids' in data:
+            existing_pets = player.pets or {}
+            new_roster = data.get('pets', existing_pets.get('roster', []))
+            new_summoned = data.get('summoned_pet_ids', existing_pets.get('summoned', []))
+            player.pets = {'roster': new_roster, 'summoned': new_summoned}
+
         db.session.commit()
         return jsonify({"status": "success"}), 200
 
@@ -662,6 +686,7 @@ def _run_migrations():
         ("player_items", "variant", "ALTER TABLE player_items ADD COLUMN variant JSONB"),
         ("player_equipment", "variant", "ALTER TABLE player_equipment ADD COLUMN variant JSONB"),
         ("players", "quests", "ALTER TABLE players ADD COLUMN quests JSONB"),
+        ("players", "pets",   "ALTER TABLE players ADD COLUMN pets JSONB"),
     ]
     for table, column, sql in migrations:
         try:
