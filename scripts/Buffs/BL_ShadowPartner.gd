@@ -59,6 +59,14 @@ func on_tick(owner_node: Node, _active_buff, _delta: float) -> void:
 
 
 func _create_shadow_visual(owner_node: Node) -> void:
+	# Free any stale "ShadowPartner" child left behind by a previous BL_ShadowPartner
+	# instance whose owner the buff outlived (e.g. load_buffs frees the old logic
+	# node but the _shadow child it parented on the player stays — without this
+	# cleanup, the next on_tick adds a second Node2D that Godot auto-renames).
+	var stale := owner_node.get_node_or_null("ShadowPartner")
+	if stale:
+		stale.queue_free()
+
 	_shadow = Node2D.new()
 	_shadow.name = "ShadowPartner"
 
