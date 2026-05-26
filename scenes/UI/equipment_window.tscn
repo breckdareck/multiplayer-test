@@ -45,7 +45,7 @@ outline_color = Color(0, 0, 0, 1)
 
 [node name="EquipmentWindow" type="Panel"]
 visible = false
-offset_left = 1190.0
+offset_left = 1127.0
 offset_top = 200.0
 offset_right = 1490.0
 offset_bottom = 700.0

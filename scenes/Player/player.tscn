@@ -897,7 +897,7 @@ offset_bottom = 824.0
 
 [node name="EquipmentWindow" parent="CanvasLayer/MoveableWindows" instance=ExtResource("25_7iww4")]
 layout_mode = 0
-offset_left = 1195.0
+offset_left = 1103.0
 offset_top = 289.0
 offset_right = 1506.0
 offset_bottom = 826.0
@@ -1118,9 +1118,3 @@ move_speed = 100.0
 [connection signal="pressed" from="CanvasLayer/PlayerHUD/MobileButtons/AttackButton" to="InputSynchronizer" method="_on_attack_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/PlayerHUD/MobileButtons/JumpButton" to="InputSynchronizer" method="_on_jump_button_pressed"]
 [connection signal="area_entered" from="Hitbox" to="Components/Combat" method="_on_hitbox_area_entered"]
-
-[editable path="CanvasLayer/MoveableWindows/AbilityWindow"]
-[editable path="CanvasLayer/MoveableWindows/StatsWindow"]
-[editable path="CanvasLayer/MoveableWindows/InventoryWindow"]
-[editable path="CanvasLayer/MoveableWindows/EquipmentWindow"]
-[editable path="CanvasLayer/MoveableWindows/QuestWindow"]
