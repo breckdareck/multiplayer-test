@@ -76,6 +76,7 @@ func _refresh_item_slot(record: Dictionary) -> void:
 		count_label.visible = slot_kind == "book" and stack > 1
 	if is_instance_valid(slot_label):
 		slot_label.visible = false
+	tooltip_text = _build_item_tooltip(item)
 
 
 func _refresh_ability_buff(record: Dictionary) -> void:
@@ -94,6 +95,7 @@ func _refresh_ability_buff(record: Dictionary) -> void:
 		count_label.visible = false
 	if is_instance_valid(slot_label):
 		slot_label.visible = ability.ability_icon == null
+	tooltip_text = _build_ability_tooltip(ability)
 
 
 func _clear_display() -> void:
@@ -104,6 +106,46 @@ func _clear_display() -> void:
 		count_label.visible = false
 	if is_instance_valid(slot_label):
 		slot_label.visible = true
+	tooltip_text = _empty_slot_tooltip()
+
+
+func _empty_slot_tooltip() -> String:
+	match slot_kind:
+		"pot":
+			if slot_key == PetManager.KEY_AUTOPOT_HP:
+				return "HP potion slot\nDrop an HP potion here for auto-pot."
+			if slot_key == PetManager.KEY_AUTOPOT_MP:
+				return "MP potion slot\nDrop an MP potion here for auto-pot."
+			return "Potion slot"
+		"book":
+			var book_name: String = PetManager.book_name_for_slot(slot_key)
+			if book_name.is_empty():
+				return "Command slot"
+			return "%s slot\nEquip the matching pet skill book." % book_name
+		"ability_buff":
+			return "Active buff ability\nDrag a self-target buff ability here."
+		_:
+			return ""
+
+
+func _build_item_tooltip(item: ItemData) -> String:
+	if not item:
+		return _empty_slot_tooltip()
+	var lines: PackedStringArray = [item.name]
+	if item.description != "":
+		lines.append(item.description)
+	if slot_kind == "pot":
+		lines.append("(auto-pot reference — potions are drawn from your inventory)")
+	return "\n".join(lines)
+
+
+func _build_ability_tooltip(ability: AbilityData) -> String:
+	if not ability:
+		return _empty_slot_tooltip()
+	var lines: PackedStringArray = [ability.ability_name if ability.ability_name != "" else ability.ability_id]
+	if ability.description != "":
+		lines.append(ability.description)
+	return "\n".join(lines)
 
 
 # ── Drag-drop ────────────────────────────────────────────────────────────
@@ -117,11 +159,11 @@ func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 	if not s.drag_item:
 		return false
 	if slot_kind == "pot":
-		if not (s.drag_item is ConsumableData):
-			return false
-		if s.drag_item is PetSkillBookData or s.drag_item is PetFoodData:
-			return false
-		return true
+		if slot_key == PetManager.KEY_AUTOPOT_HP:
+			return PetManager.is_hp_potion(s.drag_item)
+		if slot_key == PetManager.KEY_AUTOPOT_MP:
+			return PetManager.is_mp_potion(s.drag_item)
+		return false
 	if slot_kind == "book":
 		if not (s.drag_item is PetSkillBookData):
 			return false

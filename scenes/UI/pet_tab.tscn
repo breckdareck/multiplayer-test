@@ -1,17 +1,18 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/UI/pet_tab.gd" id="1_pet_tab"]
+[ext_resource type="PackedScene" path="res://scenes/UI/pet_slot.tscn" id="2_pet_slot"]
 
-[node name="PetTab" type="MarginContainer" node_paths=PackedStringArray("pet_list", "detail_container", "empty_state_label", "portrait", "name_edit", "summon_button", "release_button", "hunger_bar", "feed_button", "pots_grid", "commands_grid", "hp_threshold_slider", "hp_threshold_value_label", "mp_threshold_slider", "mp_threshold_value_label", "confirm_dialog")]
+[node name="PetTab" type="MarginContainer" node_paths=PackedStringArray("pet_list", "detail_container", "empty_state_label", "portrait", "name_edit", "summon_button", "release_button", "hunger_bar", "feed_button", "pots_grid", "commands_grid", "hp_threshold_slider", "hp_threshold_value_label", "mp_threshold_slider", "mp_threshold_value_label", "confirm_dialog", "slot_autopot_hp", "slot_autopot_mp", "slot_ability_buff", "slot_cmd_auto_pot", "slot_cmd_buff", "slot_cmd_magnet")]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 4
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 4
-theme_override_constants/margin_bottom = 4
+theme_override_constants/margin_left = 2
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 2
+theme_override_constants/margin_bottom = 2
 script = ExtResource("1_pet_tab")
 pet_list = NodePath("RootHBox/ListPanel/ListVBox/PetList")
 detail_container = NodePath("RootHBox/DetailVBox")
@@ -29,6 +30,12 @@ hp_threshold_value_label = NodePath("RootHBox/DetailVBox/HPRow/HPValueLabel")
 mp_threshold_slider = NodePath("RootHBox/DetailVBox/MPRow/MPSlider")
 mp_threshold_value_label = NodePath("RootHBox/DetailVBox/MPRow/MPValueLabel")
 confirm_dialog = NodePath("ConfirmDialog")
+slot_autopot_hp = NodePath("RootHBox/DetailVBox/PotsGrid/SlotAutopotHP")
+slot_autopot_mp = NodePath("RootHBox/DetailVBox/PotsGrid/SlotAutopotMP")
+slot_ability_buff = NodePath("RootHBox/DetailVBox/PotsGrid/SlotAbilityBuff")
+slot_cmd_auto_pot = NodePath("RootHBox/DetailVBox/CommandsGrid/SlotCmdAutoPot")
+slot_cmd_buff = NodePath("RootHBox/DetailVBox/CommandsGrid/SlotCmdBuff")
+slot_cmd_magnet = NodePath("RootHBox/DetailVBox/CommandsGrid/SlotCmdMagnet")
 
 [node name="RootHBox" type="HBoxContainer" parent="."]
 layout_mode = 2
@@ -37,7 +44,7 @@ size_flags_vertical = 3
 theme_override_constants/separation = 6
 
 [node name="ListPanel" type="PanelContainer" parent="RootHBox"]
-custom_minimum_size = Vector2(90, 0)
+custom_minimum_size = Vector2(70, 0)
 layout_mode = 2
 size_flags_vertical = 3
 
@@ -95,7 +102,7 @@ text = "Summon"
 layout_mode = 2
 
 [node name="HungerLabel" type="Label" parent="RootHBox/DetailVBox/HungerRow"]
-custom_minimum_size = Vector2(50, 0)
+custom_minimum_size = Vector2(35, 0)
 layout_mode = 2
 text = "Hunger"
 
@@ -112,18 +119,54 @@ text = "Feed"
 [node name="PotsGrid" type="HBoxContainer" parent="RootHBox/DetailVBox"]
 layout_mode = 2
 alignment = 1
-theme_override_constants/separation = 4
+theme_override_constants/separation = 10
+
+[node name="SlotAutopotHP" parent="RootHBox/DetailVBox/PotsGrid" instance=ExtResource("2_pet_slot")]
+custom_minimum_size = Vector2(55, 55)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="SlotAutopotMP" parent="RootHBox/DetailVBox/PotsGrid" instance=ExtResource("2_pet_slot")]
+custom_minimum_size = Vector2(55, 55)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="SlotAbilityBuff" parent="RootHBox/DetailVBox/PotsGrid" instance=ExtResource("2_pet_slot")]
+custom_minimum_size = Vector2(55, 55)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
 
 [node name="CommandsGrid" type="HBoxContainer" parent="RootHBox/DetailVBox"]
 layout_mode = 2
 alignment = 1
-theme_override_constants/separation = 4
+theme_override_constants/separation = 10
+
+[node name="SlotCmdAutoPot" parent="RootHBox/DetailVBox/CommandsGrid" instance=ExtResource("2_pet_slot")]
+custom_minimum_size = Vector2(55, 55)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="SlotCmdBuff" parent="RootHBox/DetailVBox/CommandsGrid" instance=ExtResource("2_pet_slot")]
+custom_minimum_size = Vector2(55, 55)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="SlotCmdMagnet" parent="RootHBox/DetailVBox/CommandsGrid" instance=ExtResource("2_pet_slot")]
+custom_minimum_size = Vector2(55, 55)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
 
 [node name="HPRow" type="HBoxContainer" parent="RootHBox/DetailVBox"]
 layout_mode = 2
 
 [node name="HPRowLabel" type="Label" parent="RootHBox/DetailVBox/HPRow"]
-custom_minimum_size = Vector2(50, 0)
+custom_minimum_size = Vector2(35, 0)
 layout_mode = 2
 text = "HP %"
 
@@ -144,7 +187,7 @@ horizontal_alignment = 2
 layout_mode = 2
 
 [node name="MPRowLabel" type="Label" parent="RootHBox/DetailVBox/MPRow"]
-custom_minimum_size = Vector2(50, 0)
+custom_minimum_size = Vector2(35, 0)
 layout_mode = 2
 text = "MP %"
 

@@ -1150,16 +1150,37 @@ func _write_pet_slot(inv: Dictionary, slot_key: String, slot_data: Dictionary) -
 ##     item_id is a generated UUID per the project convention).
 ##   - Any other slot key: reject.
 func _slot_accepts_item(slot_key: String, item: ItemData) -> bool:
-	if slot_key == KEY_AUTOPOT_HP or slot_key == KEY_AUTOPOT_MP:
-		if not (item is ConsumableData):
-			return false
-		if item is PetSkillBookData or item is PetFoodData:
-			return false
-		return true
+	if slot_key == KEY_AUTOPOT_HP:
+		return is_hp_potion(item)
+	if slot_key == KEY_AUTOPOT_MP:
+		return is_mp_potion(item)
 	var expected_name: String = book_name_for_slot(slot_key)
 	if expected_name.is_empty():
 		return false
 	return item is PetSkillBookData and item.name == expected_name
+
+
+const _HP_EFFECT_PATH := "res://scripts/Resources/ItemSystem/Effects/Effect_RestoreHealth.gd"
+const _MP_EFFECT_PATH := "res://scripts/Resources/ItemSystem/Effects/Effect_RestoreMana.gd"
+
+
+static func is_hp_potion(item: ItemData) -> bool:
+	return _potion_effect_path(item) == _HP_EFFECT_PATH
+
+
+static func is_mp_potion(item: ItemData) -> bool:
+	return _potion_effect_path(item) == _MP_EFFECT_PATH
+
+
+static func _potion_effect_path(item: ItemData) -> String:
+	if not (item is ConsumableData):
+		return ""
+	if item is PetSkillBookData or item is PetFoodData:
+		return ""
+	var consumable: ConsumableData = item
+	if not consumable.effect_script:
+		return ""
+	return consumable.effect_script.resource_path
 
 
 # ═══════════════════════════════════════════════════════════════════════════

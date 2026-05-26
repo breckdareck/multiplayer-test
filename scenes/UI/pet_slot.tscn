@@ -1,12 +1,27 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=3 format=3 uid="uid://cxcj4uyi4rrh"]
 
-[ext_resource type="Script" path="res://scripts/UI/pet_slot.gd" id="1_petslot"]
-[ext_resource type="StyleBox" uid="uid://dm8jxifs8rqrm" path="res://assets/UI/Themes/PanelStyleboxTheme.tres" id="2_style"]
+[ext_resource type="Script" uid="uid://bb3qpbf6b7y2l" path="res://scripts/UI/pet_slot.gd" id="1_petslot"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_petslot"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0.0470588, 0.0470588, 0.0470588, 0.937255)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.871141, 0.871141, 0.871141, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
 [node name="PetSlot" type="PanelContainer" node_paths=PackedStringArray("slot_label", "icon_rect", "count_label")]
 custom_minimum_size = Vector2(55, 55)
 mouse_filter = 1
-theme_override_styles/panel = ExtResource("2_style")
+theme_override_styles/panel = SubResource("StyleBoxFlat_petslot")
 script = ExtResource("1_petslot")
 slot_label = NodePath("SlotLabel")
 icon_rect = NodePath("Icon")
@@ -22,10 +37,11 @@ stretch_mode = 5
 [node name="SlotLabel" type="Label" parent="."]
 layout_mode = 2
 mouse_filter = 2
-horizontal_alignment = 1
-vertical_alignment = 1
 theme_override_font_sizes/font_size = 10
 text = "—"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
 
 [node name="Count" type="Label" parent="."]
 visible = false

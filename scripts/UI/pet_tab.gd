@@ -3,9 +3,10 @@ extends MarginContainer
 
 ## Pet management UI controller.
 ##
-## The layout is in pet_tab.tscn — tweak there. This script binds data into
-## the exported nodes, instances the 6 pet-inventory slots (PotsGrid + CommandsGrid),
-## and handles the signal callbacks wired by the scene.
+## The full layout — including the 6 pet-inventory slots under PotsGrid and
+## CommandsGrid — lives in pet_tab.tscn. This script binds data into the
+## exported nodes, configures each slot's key/kind, and handles the signal
+## callbacks wired by the scene.
 
 @export var pet_list: ItemList
 @export var detail_container: VBoxContainer
@@ -24,18 +25,24 @@ extends MarginContainer
 @export var mp_threshold_value_label: Label
 @export var confirm_dialog: ConfirmationDialog
 
-const PET_SLOT_SCENE: PackedScene = preload("res://scenes/UI/pet_slot.tscn")
+# Pet inventory slots — pre-instanced in pet_tab.tscn under PotsGrid / CommandsGrid.
+@export var slot_autopot_hp: PetSlot
+@export var slot_autopot_mp: PetSlot
+@export var slot_ability_buff: PetSlot
+@export var slot_cmd_auto_pot: PetSlot
+@export var slot_cmd_buff: PetSlot
+@export var slot_cmd_magnet: PetSlot
 
 var player: MultiplayerPlayerV2 = null
 
-# Runtime-built slot widget cache. Each entry: { node, key, label, kind }.
+# Slot config cache. Each entry: { node, key, label, kind }.
 var _pet_slot_widgets: Array = []
 
 var _selected_pet_uuid: String = ""
 
 
 func _ready() -> void:
-	_build_inventory_slots()
+	_init_inventory_slots()
 	_connect_pet_manager_signals()
 	_refresh()
 
@@ -45,38 +52,29 @@ func set_owner_player(p: MultiplayerPlayerV2) -> void:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# SLOT BUILDOUT (data-driven; layout containers live in the .tscn)
+# SLOT BUILDOUT (slot nodes live in pet_tab.tscn; this assigns key/kind/label)
 # ═══════════════════════════════════════════════════════════════════════════
 
-func _build_inventory_slots() -> void:
+func _init_inventory_slots() -> void:
 	_pet_slot_widgets.clear()
 	# Row 1: triggers — HP pot, MP pot, the active buff ability.
-	var row1 := [
-		{"key": PetManager.KEY_AUTOPOT_HP, "label": "HP", "kind": "pot", "container": pots_grid},
-		{"key": PetManager.KEY_AUTOPOT_MP, "label": "MP", "kind": "pot", "container": pots_grid},
-		{"key": "", "label": "Buff", "kind": "ability_buff", "container": pots_grid},
-	]
 	# Row 2: enabler books — AutoPot, Buff Command, Magnet.
-	var row2 := [
-		{"key": PetManager.KEY_CMD_AUTO_POT, "label": "Auto Pot", "kind": "book", "container": commands_grid},
-		{"key": PetManager.KEY_CMD_BUFF, "label": "Buff Cmd", "kind": "book", "container": commands_grid},
-		{"key": PetManager.KEY_CMD_MAGNET, "label": "Magnet", "kind": "book", "container": commands_grid},
+	var configs := [
+		{"node": slot_autopot_hp, "key": PetManager.KEY_AUTOPOT_HP, "label": "HP", "kind": "pot"},
+		{"node": slot_autopot_mp, "key": PetManager.KEY_AUTOPOT_MP, "label": "MP", "kind": "pot"},
+		{"node": slot_ability_buff, "key": "", "label": "Buff", "kind": "ability_buff"},
+		{"node": slot_cmd_auto_pot, "key": PetManager.KEY_CMD_AUTO_POT, "label": "Auto Pot", "kind": "book"},
+		{"node": slot_cmd_buff, "key": PetManager.KEY_CMD_BUFF, "label": "Buff Cmd", "kind": "book"},
+		{"node": slot_cmd_magnet, "key": PetManager.KEY_CMD_MAGNET, "label": "Magnet", "kind": "book"},
 	]
-	for cfg in (row1 + row2):
-		if not is_instance_valid(cfg.container):
+	for cfg in configs:
+		if not is_instance_valid(cfg.node):
 			continue
-		var slot: PetSlot = PET_SLOT_SCENE.instantiate()
-		cfg.container.add_child(slot)
 		# Set kind/key immediately so the slot's drop filter works even
 		# before a pet is selected. pet_uuid stays empty until _refresh_detail
 		# runs with a selected pet, at which point setup is called again.
-		slot.setup("", cfg.key, cfg.label, cfg.kind)
-		_pet_slot_widgets.append({
-			"node": slot,
-			"key": cfg.key,
-			"label": cfg.label,
-			"kind": cfg.kind,
-		})
+		cfg.node.setup("", cfg.key, cfg.label, cfg.kind)
+		_pet_slot_widgets.append(cfg)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
