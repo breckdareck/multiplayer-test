@@ -1792,63 +1792,63 @@ metadata/_edit_use_anchors_ = true
 [node name="Enemies" type="Node2D" parent="."]
 
 [node name="Bunny" parent="Enemies" instance=ExtResource("10_bunny4")]
-position = Vector2(-168.85715, -142)
+position = Vector2(-154.85715, -142)
 respawnable = true
 
 [node name="Bunny2" parent="Enemies" instance=ExtResource("10_bunny4")]
-position = Vector2(-205.71428, -142)
+position = Vector2(-191.71428, -142)
 respawnable = true
 
 [node name="Bunny3" parent="Enemies" instance=ExtResource("10_bunny4")]
-position = Vector2(-132, -142)
+position = Vector2(-118, -142)
 respawnable = true
 
 [node name="Bunny4" parent="Enemies" instance=ExtResource("10_bunny4")]
-position = Vector2(-58.285713, -142)
+position = Vector2(-44.285713, -142)
 respawnable = true
 
 [node name="Bunny5" parent="Enemies" instance=ExtResource("10_bunny4")]
-position = Vector2(-95.14286, -142)
+position = Vector2(-81.14286, -142)
 respawnable = true
 
 [node name="Bunny6" parent="Enemies" instance=ExtResource("10_bunny4")]
-position = Vector2(-353.14285, -142)
+position = Vector2(-339.14285, -142)
 respawnable = true
 
 [node name="Bunny7" parent="Enemies" instance=ExtResource("10_bunny4")]
-position = Vector2(-390, -142)
+position = Vector2(-376, -142)
 respawnable = true
 
 [node name="Bunny8" parent="Enemies" instance=ExtResource("10_bunny4")]
-position = Vector2(-316.2857, -142)
+position = Vector2(-302.2857, -142)
 respawnable = true
 
 [node name="Bunny9" parent="Enemies" instance=ExtResource("10_bunny4")]
-position = Vector2(-242.57143, -142)
+position = Vector2(-228.57143, -142)
 respawnable = true
 
 [node name="Bunny10" parent="Enemies" instance=ExtResource("10_bunny4")]
-position = Vector2(-279.42856, -142)
+position = Vector2(-265.42856, -142)
 respawnable = true
 
 [node name="Bunny11" parent="Enemies" instance=ExtResource("10_bunny4")]
-position = Vector2(15.428572, -142)
+position = Vector2(29.428572, -142)
 respawnable = true
 
 [node name="Bunny12" parent="Enemies" instance=ExtResource("10_bunny4")]
-position = Vector2(-21.428572, -142)
+position = Vector2(-7.4285717, -142)
 respawnable = true
 
 [node name="Bunny13" parent="Enemies" instance=ExtResource("10_bunny4")]
-position = Vector2(52.285713, -142)
+position = Vector2(66.28571, -142)
 respawnable = true
 
 [node name="Bunny14" parent="Enemies" instance=ExtResource("10_bunny4")]
-position = Vector2(126, -142)
+position = Vector2(140, -142)
 respawnable = true
 
 [node name="Bunny15" parent="Enemies" instance=ExtResource("10_bunny4")]
-position = Vector2(89.14286, -142)
+position = Vector2(103.14286, -142)
 respawnable = true
 
 [node name="Bird" parent="Enemies" instance=ExtResource("10_bird4")]

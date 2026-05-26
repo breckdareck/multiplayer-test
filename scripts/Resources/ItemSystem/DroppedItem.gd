@@ -302,7 +302,7 @@ func setup(item: ItemData, amount: int, eligible_player_ids: Array[int]) -> void
 ## Target on-screen size (px) for any dropped item's icon. Item icons range
 ## from 16x16 (Coin) to ~64x64 (potion atlases); without normalization the
 ## bigger ones render as enormous billboards next to the player. Scale to fit.
-const TARGET_ICON_SIZE: float = 10.24
+const TARGET_ICON_SIZE: float = 11
 
 func _update_sprite() -> void:
 	if item_data:
