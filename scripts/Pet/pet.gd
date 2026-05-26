@@ -45,7 +45,7 @@ var _has_pending_jump: bool = false
 # every frame the state stays the same.
 var _was_owner_climbing: bool = false
 const CLIMB_EXIT_POP_PX: float = 16.0   # upward bias when owner finishes climbing
-const TELEPORT_UP_BIAS_PX: float = 32.0  # upward bias on any teleport-to-owner
+const TELEPORT_UP_BIAS_PX: float = 16.0  # upward bias on any teleport-to-owner
 
 # Vertical-stuck detection — owner is on a higher platform and we're not
 # gaining height. Tracks Y progress over a short grace; if none, teleport
@@ -302,13 +302,24 @@ func _physics_process(delta: float) -> void:
 			velocity.y = pet_data.jump_velocity if pet_data else -360.0
 			# Mirror the owner's jump direction on the ladder-dismount case.
 			# The height/wall paths keep the horizontal velocity already
-			# computed from the FOLLOW walk logic.
+			# computed from the FOLLOW walk logic. Read priority:
+			#   1. InputSynchronizer.input_direction — live axis at the moment
+			#      they jumped off the rope. The pet runs on the owner's
+			#      client (owner-authoritative), so this is always available.
+			#   2. owner.velocity.x — physics-frame fallback.
+			#   3. owner.facing_direction — stale-but-correct last resort.
+			# facing_direction alone wasn't enough: on a ladder it stays at
+			# the value set before grabbing the rope, so the pet would mirror
+			# the pre-climb facing instead of the current input.
 			if jump_off_ladder:
 				var owner_dir: float = 0.0
-				if "facing_direction" in owner_node:
-					owner_dir = sign(float(owner_node.facing_direction))
+				var input_sync: Node = owner_node.get_node_or_null("%InputSynchronizer")
+				if input_sync and "input_direction" in input_sync:
+					owner_dir = sign(float(input_sync.input_direction))
 				if owner_dir == 0.0 and "velocity" in owner_node and owner_node.velocity is Vector2:
 					owner_dir = sign(owner_node.velocity.x)
+				if owner_dir == 0.0 and "facing_direction" in owner_node:
+					owner_dir = sign(float(owner_node.facing_direction))
 				if owner_dir != 0.0:
 					velocity.x = owner_dir * (pet_data.walk_speed if pet_data else 120.0)
 					_facing_right = owner_dir >= 0.0
