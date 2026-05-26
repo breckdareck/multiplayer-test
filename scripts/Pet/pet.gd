@@ -45,7 +45,7 @@ var _has_pending_jump: bool = false
 # every frame the state stays the same.
 var _was_owner_climbing: bool = false
 const CLIMB_EXIT_POP_PX: float = 16.0   # upward bias when owner finishes climbing
-const TELEPORT_UP_BIAS_PX: float = 16.0  # upward bias on any teleport-to-owner
+const TELEPORT_UP_BIAS_PX: float = 8.0   # upward bias on any teleport-to-owner
 
 # Vertical-stuck detection — owner is on a higher platform and we're not
 # gaining height. Tracks Y progress over a short grace; if none, teleport
@@ -256,9 +256,18 @@ func _physics_process(delta: float) -> void:
 	# Horizontal motion — walk toward target X.
 	var to_target_x: float = target_pos.x - global_position.x
 	var speed: float = pet_data.walk_speed if pet_data else 120.0
+	var jump_threshold: float = pet_data.jump_threshold_y if pet_data else 24.0
+	# Owner is on a platform above us (e.g. just hopped onto a crate). Override
+	# the hysteresis so the pet walks INTO the platform wall — that's what
+	# triggers is_on_wall() and fires jump_for_wall below. Without this
+	# override the pet sits idle next to the box because the X gap is small.
+	var owner_above: bool = target_pos.y < global_position.y - jump_threshold
 	var should_walk: bool
 	if _mode == PetMode.LOOT:
 		should_walk = absf(to_target_x) > PICKUP_X_DISTANCE
+	elif owner_above:
+		should_walk = absf(to_target_x) > FOLLOW_STOP_X
+		_is_following = should_walk
 	else:
 		# Hysteresis around the owner: start at FOLLOW_START_X, stop at FOLLOW_STOP_X.
 		var gap: float = absf(to_target_x)
@@ -292,14 +301,19 @@ func _physics_process(delta: float) -> void:
 	var jump_off_ladder: bool = climb_exited_now and owner_jumping_now
 
 	if _mode == PetMode.FOLLOW and is_on_floor() and not _has_pending_jump:
-		var jump_threshold: float = pet_data.jump_threshold_y if pet_data else 24.0
 		var owner_grounded: bool = owner_node.has_method("is_on_floor") and owner_node.is_on_floor()
-		var jump_for_height: bool = owner_grounded and target_pos.y < global_position.y - jump_threshold
+		var jump_for_height: bool = owner_grounded and owner_above
 		if _vertical_stuck_timer >= VERTICAL_STUCK_GIVEUP_JUMP_SEC:
 			jump_for_height = false
 		var jump_for_wall: bool = should_walk and is_on_wall()
 		if jump_for_height or jump_for_wall or jump_off_ladder:
 			velocity.y = pet_data.jump_velocity if pet_data else -360.0
+			# For a height-jump (player on a box / platform above) make sure
+			# we're carrying horizontal velocity toward the target so we
+			# actually clear the lip instead of pogoing in place.
+			if jump_for_height and to_target_x != 0.0:
+				velocity.x = sign(to_target_x) * speed
+				_facing_right = to_target_x >= 0.0
 			# Mirror the owner's jump direction on the ladder-dismount case.
 			# The height/wall paths keep the horizontal velocity already
 			# computed from the FOLLOW walk logic. Read priority:
