@@ -632,11 +632,12 @@ func sync_all_abilities_to_client(peer_id: int) -> void:
 	if not multiplayer.is_server(): return
 
 	#print("Syncing all ability data to peer %d" % peer_id)
-	sync_all_abilities_batch.rpc_id(peer_id, _ability_levels.duplicate(), _available_ability_points)
+	var hotbar_config: Dictionary = hotbar.save_hotbar_config() if is_instance_valid(hotbar) else {}
+	sync_all_abilities_batch.rpc_id(peer_id, _ability_levels.duplicate(), _available_ability_points, hotbar_config, _cooldowns.duplicate())
 
 
 @rpc("authority", "call_local", "reliable")
-func sync_all_abilities_batch(abilities: Dictionary, ability_points: int) -> void:
+func sync_all_abilities_batch(abilities: Dictionary, ability_points: int, hotbar_config: Dictionary = {}, cooldowns: Dictionary = {}) -> void:
 	if multiplayer.is_server(): return
 
 	for ability_id in abilities:
@@ -644,6 +645,15 @@ func sync_all_abilities_batch(abilities: Dictionary, ability_points: int) -> voi
 		ability_learned.emit(ability_id)
 	_available_ability_points = ability_points
 	ability_points_changed.emit(_available_ability_points)
+
+	if is_instance_valid(hotbar):
+		hotbar.load_hotbar_config(hotbar_config)
+
+	for ability_id in cooldowns:
+		var remaining: float = cooldowns[ability_id]
+		if remaining > 0.0:
+			_cooldowns[ability_id] = remaining
+			cooldown_started.emit(ability_id, remaining)
 
 
 ## [Client->Server] Client-side wrapper to request ability use from the server.
@@ -786,7 +796,8 @@ func save_abilities() -> Dictionary:
 	return {
 		"ability_levels": _ability_levels.duplicate(),
 		"available_points": _available_ability_points,
-		"hotbar_config": hotbar.save_hotbar_config() if is_instance_valid(hotbar) else {}
+		"hotbar_config": hotbar.save_hotbar_config() if is_instance_valid(hotbar) else {},
+		"cooldowns": _cooldowns.duplicate()
 	}
 
 
@@ -808,6 +819,13 @@ func load_abilities(data: Dictionary) -> void:
 	_available_ability_points = data.get("available_points", 0)
 	if is_instance_valid(hotbar):
 		hotbar.load_hotbar_config(data.get("hotbar_config", {}))
+
+	var saved_cooldowns: Dictionary = data.get("cooldowns", {})
+	for ability_id in saved_cooldowns:
+		var remaining: float = saved_cooldowns[ability_id]
+		if remaining > 0.0:
+			_cooldowns[ability_id] = remaining
+			cooldown_started.emit(ability_id, remaining)
 	
 	# Re-apply passives and update UI with loaded data
 	_apply_passive_effects()
