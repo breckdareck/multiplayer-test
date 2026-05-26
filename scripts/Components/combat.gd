@@ -287,11 +287,11 @@ func _process_collected_bodies() -> void:
 			return owner_node.global_position.distance_squared_to(a.global_position) < owner_node.global_position.distance_squared_to(b.global_position)
 		)
 
-		var max_targets = current_level_stats.max_targets
-		var targets_processed = 0
+		var proj_max_targets = current_level_stats.max_targets
+		var proj_targets_processed = 0
 
 		for body_area in _pending_bodies:
-			if targets_processed >= max_targets:
+			if proj_targets_processed >= proj_max_targets:
 				break
 
 			var health_comp = body_area.owner.get("health_component")
@@ -299,10 +299,10 @@ func _process_collected_bodies() -> void:
 				if _ability_component:
 					# Spawn one projectile for each valid target
 					_ability_component.spawn_projectile(current_ability_data, current_level_stats, body_area.owner)
-				targets_processed += 1
-		
+				proj_targets_processed += 1
+
 		# If no targets were in the hitbox, spawn one projectile straight ahead
-		if targets_processed == 0:
+		if proj_targets_processed == 0:
 			if _ability_component:
 				_ability_component.spawn_projectile(current_ability_data, current_level_stats, null)
 

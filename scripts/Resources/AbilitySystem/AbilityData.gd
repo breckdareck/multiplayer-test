@@ -114,7 +114,7 @@ func _format_plain_description(level_data: AbilityLevelData) -> String:
 	if level_data and not level_data.stat_bonuses.is_empty():
 		var stat_key = level_data.stat_bonuses.keys()[0]
 		var stat_data: StatData = level_data.stat_bonuses[stat_key]
-		var stat_value = stat_data.total_value if stat_data.total_value > 0 else stat_data.percent_bonus_value
+		var stat_value: float = float(stat_data.total_value) if stat_data.total_value > 0 else stat_data.percent_bonus_value
 		output = output.replace("$[stat_bonus]", "%d" % stat_value)
 
 	return output

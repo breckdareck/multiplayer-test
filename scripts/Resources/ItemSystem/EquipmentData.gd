@@ -46,10 +46,10 @@ func _apply_variant_data(dict: Dictionary) -> void:
 	var saved_rarity: int = dict.get("rarity", rarity)
 	if saved_rarity == rarity and saved_stats == _serialize_bonus_stats():
 		return
-	rarity = saved_rarity
+	rarity = saved_rarity as Constants.ItemRarity
 	bonus_stats = {}
 	for stat_type_str in saved_stats:
-		bonus_stats[int(stat_type_str)] = StatData.from_dictionary(saved_stats[stat_type_str])
+		bonus_stats[int(stat_type_str) as Constants.StatType] = StatData.from_dictionary(saved_stats[stat_type_str])
 
 
 ## Full serialization fallback (no resolvable resource) — includes every field.
@@ -67,8 +67,8 @@ func _full_save_data(res_path: String) -> Dictionary:
 
 static func from_dictionary(dict: Dictionary) -> ItemData:
 	var item_instance: EquipmentData
-	var equipment_type_enum = int(dict.get("equipment_type", -1))
-	
+	var equipment_type_enum: Constants.EquipmentType = int(dict.get("equipment_type", -1)) as Constants.EquipmentType
+
 	match equipment_type_enum:
 		Constants.EquipmentType.ARMOR:
 			item_instance = ArmorData.new()
@@ -95,9 +95,9 @@ static func from_dictionary(dict: Dictionary) -> ItemData:
 	# Populate EquipmentData specific properties
 	item_instance.equipment_type = equipment_type_enum
 	if item_instance is ArmorData:
-		(item_instance as ArmorData).armor_type = dict.get("armor_type", -1)
+		(item_instance as ArmorData).armor_type = int(dict.get("armor_type", -1)) as Constants.ArmorType
 	elif item_instance is WeaponData:
-		(item_instance as WeaponData).weapon_type = dict.get("weapon_type", -1)
+		(item_instance as WeaponData).weapon_type = int(dict.get("weapon_type", -1)) as Constants.WeaponType
 		(item_instance as WeaponData).weapon_attack_speed = dict.get("weapon_attack_speed", 4)
 
 	# Initialize bonus_stats if it's null or not a dictionary

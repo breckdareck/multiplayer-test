@@ -1,9 +1,9 @@
 extends Slot
 class_name EquipmentSlot
 
-@export var allowed_equipment_type: Constants.EquipmentType = -1 # Sentinel for no specific equipment type
-@export var allowed_armor_type: Constants.ArmorType = -1 # Sentinel for no specific armor type
-@export var allowed_weapon_type: Constants.WeaponType = -1 # Sentinel for no specific weapon type
+@export var allowed_equipment_type: int = -1 # Sentinel for no specific equipment type
+@export var allowed_armor_type: int = -1 # Sentinel for no specific armor type
+@export var allowed_weapon_type: int = -1 # Sentinel for no specific weapon type
 
 
 func can_accept_item(item_to_check: ItemData) -> bool:

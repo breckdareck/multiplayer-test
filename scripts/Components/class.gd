@@ -46,8 +46,7 @@ func get_starter_ability() -> AbilityData:
 
 func change_class(new_class: Constants.ClassType) -> void:
 	if new_class != current_class:
-		var old_class_name: String = get_class_name()
-		##print("ClassComponent: Changing class from %s to %s" % [old_class_name, ResourceManager.get_class_name(new_class)])
+		##print("ClassComponent: Changing class from %s to %s" % [get_class_name(), ResourceManager.get_class_name(new_class)])
 		current_class = new_class
 		_load_class_abilities()
 		class_changed.emit(get_class_name())

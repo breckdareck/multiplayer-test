@@ -37,11 +37,11 @@ func execute(owner_node: Node, _ability: AbilityData, level_stats: AbilityLevelD
 	print("%s teleported to %s (Level %d)" % [owner_node.name, destination, level_stats.level])
 
 
-func _try_horizontal_teleport(origin: Vector2, dir: int, space: PhysicsDirectSpaceState2D, mask: int, owner: Node) -> Vector2:
+func _try_horizontal_teleport(origin: Vector2, dir: int, space: PhysicsDirectSpaceState2D, mask: int, actor: Node) -> Vector2:
 	var best := origin
 
 	if DEBUG_DRAW:
-		_debug_draw_circle(owner, origin, 4.0, Color.WHITE)
+		_debug_draw_circle(actor, origin, 4.0, Color.WHITE)
 
 	var dist := STEP_SIZE
 	while dist <= TELEPORT_RANGE:
@@ -49,81 +49,81 @@ func _try_horizontal_teleport(origin: Vector2, dir: int, space: PhysicsDirectSpa
 		var ref := Vector2(test_x, origin.y)
 
 		# Try to find ground first (handles slopes and normal terrain)
-		var ground_y := _find_ground_in_range(ref, space, mask, owner)
+		var ground_y := _find_ground_in_range(ref, space, mask, actor)
 		if ground_y == INF:
 			# No ground below — check if we've hit a wall/obstacle
-			if _is_position_blocked(ref, space, mask, owner):
+			if _is_position_blocked(ref, space, mask, actor):
 				if DEBUG_DRAW:
-					_debug_draw_circle(owner, ref, 2.0, Color.MAGENTA)
-				var top_y := _find_ground_y_from_above(ref, space, mask, owner, HORIZONTAL_HEIGHT_TOLERANCE)
+					_debug_draw_circle(actor, ref, 2.0, Color.MAGENTA)
+				var top_y := _find_ground_y_from_above(ref, space, mask, actor, HORIZONTAL_HEIGHT_TOLERANCE)
 				if top_y != INF:
-					var landing := Vector2(test_x, top_y - LANDING_OFFSET)
-					if not _is_position_blocked(landing, space, mask, owner):
+					var wall_top := Vector2(test_x, top_y - LANDING_OFFSET)
+					if not _is_position_blocked(wall_top, space, mask, actor):
 						if DEBUG_DRAW:
-							_debug_draw_circle(owner, landing, 3.0, Color.GREEN)
-						best = landing
+							_debug_draw_circle(actor, wall_top, 3.0, Color.GREEN)
+						best = wall_top
 						break
 					else:
-						var snapped := _try_edge_snap(landing, space, mask, owner)
-						if not _is_position_blocked(snapped, space, mask, owner):
+						var snapped_pos := _try_edge_snap(wall_top, space, mask, actor)
+						if not _is_position_blocked(snapped_pos, space, mask, actor):
 							if DEBUG_DRAW:
-								_debug_draw_circle(owner, snapped, 3.0, Color.YELLOW)
-							best = snapped
+								_debug_draw_circle(actor, snapped_pos, 3.0, Color.YELLOW)
+							best = snapped_pos
 							break
 			# No ground, no landable obstacle — keep stepping
 			if DEBUG_DRAW:
-				_debug_draw_circle(owner, ref, 2.0, Color.DARK_GRAY)
+				_debug_draw_circle(actor, ref, 2.0, Color.DARK_GRAY)
 			dist += STEP_SIZE
 			continue
 
 		var landing := Vector2(test_x, ground_y - LANDING_OFFSET)
 
-		if not _is_position_blocked(landing, space, mask, owner):
+		if not _is_position_blocked(landing, space, mask, actor):
 			if DEBUG_DRAW:
-				_debug_draw_circle(owner, landing, 3.0, Color.GREEN)
+				_debug_draw_circle(actor, landing, 3.0, Color.GREEN)
 			best = landing
 		else:
-			var snapped := _try_edge_snap(landing, space, mask, owner)
-			if not _is_position_blocked(snapped, space, mask, owner):
+			var snapped_pos := _try_edge_snap(landing, space, mask, actor)
+			if not _is_position_blocked(snapped_pos, space, mask, actor):
 				if DEBUG_DRAW:
-					_debug_draw_circle(owner, snapped, 3.0, Color.YELLOW)
-				best = snapped
+					_debug_draw_circle(actor, snapped_pos, 3.0, Color.YELLOW)
+				best = snapped_pos
 			else:
 				#print("Teleport: BLOCKED LANDING at %s, edge snap failed (dist=%.0f)" % [landing, dist])
 				if DEBUG_DRAW:
-					_debug_draw_circle(owner, landing, 3.0, Color.RED)
+					_debug_draw_circle(actor, landing, 3.0, Color.RED)
 				break
 
 		dist += STEP_SIZE
 
 	if DEBUG_DRAW and best != origin:
-		_debug_draw_circle(owner, best, 6.0, Color.CYAN)
+		_debug_draw_circle(actor, best, 6.0, Color.CYAN)
 
 	return best
 
 
-func _find_ground_in_range(reference: Vector2, space: PhysicsDirectSpaceState2D, mask: int, owner: Node) -> float:
+func _find_ground_in_range(reference: Vector2, space: PhysicsDirectSpaceState2D, mask: int, actor: Node) -> float:
 	# Start slightly above origin to handle uphill slopes
 	var scan_start := Vector2(reference.x, reference.y - STEP_SIZE * 2)
 	var scan_end := Vector2(reference.x, reference.y + GROUND_CHECK_DISTANCE)
-	var ray := PhysicsRayQueryParameters2D.create(scan_start, scan_end, mask, [owner.get_rid()])
+	var ray := PhysicsRayQueryParameters2D.create(scan_start, scan_end, mask, [actor.get_rid()])
 	var result := space.intersect_ray(ray)
 	if DEBUG_DRAW:
-		_debug_draw_line(owner, scan_start, scan_end, Color(1, 0.5, 0, 0.4))
+		_debug_draw_line(actor, scan_start, scan_end, Color(1, 0.5, 0, 0.4))
 	if not result.is_empty():
 		if DEBUG_DRAW:
-			_debug_draw_circle(owner, result.position, 2.0, Color.ORANGE)
+			_debug_draw_circle(actor, result.position, 2.0, Color.ORANGE)
 		return result.position.y
 	return INF
 
 
-func _try_teleport_up(origin: Vector2, space: PhysicsDirectSpaceState2D, mask: int, owner: Node) -> Vector2:
+func _try_teleport_up(origin: Vector2, space: PhysicsDirectSpaceState2D, mask: int, actor: Node) -> Vector2:
 	var was_blocked := false
 
 	var y := origin.y - STEP_SIZE
 	while y >= origin.y - TELEPORT_RANGE:
 		var pos := Vector2(origin.x, y)
-		var blocked := _is_position_blocked(pos, space, mask, owner)
+		var blocked := _is_position_blocked(pos, space, mask, actor)
 
 		if was_blocked and not blocked:
 			return pos
@@ -134,10 +134,10 @@ func _try_teleport_up(origin: Vector2, space: PhysicsDirectSpaceState2D, mask: i
 	return origin
 
 
-func _try_teleport_down(origin: Vector2, space: PhysicsDirectSpaceState2D, mask: int, owner: Node) -> Vector2:
+func _try_teleport_down(origin: Vector2, space: PhysicsDirectSpaceState2D, mask: int, actor: Node) -> Vector2:
 	var scan_start := origin + Vector2(0, STEP_SIZE)
 	var ray := PhysicsRayQueryParameters2D.create(
-		scan_start, scan_start + Vector2(0, TELEPORT_RANGE), mask, [owner.get_rid()])
+		scan_start, scan_start + Vector2(0, TELEPORT_RANGE), mask, [actor.get_rid()])
 	var result := space.intersect_ray(ray)
 
 	if result.is_empty():
@@ -148,45 +148,45 @@ func _try_teleport_down(origin: Vector2, space: PhysicsDirectSpaceState2D, mask:
 	if landing.y <= origin.y + STEP_SIZE:
 		return origin
 
-	if _is_position_blocked(landing, space, mask, owner):
+	if _is_position_blocked(landing, space, mask, actor):
 		return origin
 
 	return landing
 
 
-func _find_ground_y_from_above(reference: Vector2, space: PhysicsDirectSpaceState2D, mask: int, owner: Node, max_up: float = TELEPORT_RANGE) -> float:
+func _find_ground_y_from_above(reference: Vector2, space: PhysicsDirectSpaceState2D, mask: int, actor: Node, max_up: float = TELEPORT_RANGE) -> float:
 	var scan_top := Vector2(reference.x, reference.y - max_up)
 	var scan_bottom := Vector2(reference.x, reference.y + GROUND_CHECK_DISTANCE)
-	var ray := PhysicsRayQueryParameters2D.create(scan_top, scan_bottom, mask, [owner.get_rid()])
+	var ray := PhysicsRayQueryParameters2D.create(scan_top, scan_bottom, mask, [actor.get_rid()])
 	var result := space.intersect_ray(ray)
 	if result.is_empty():
 		return INF
 	return result.position.y
 
 
-func _is_position_blocked(pos: Vector2, space: PhysicsDirectSpaceState2D, mask: int, owner: Node) -> bool:
-	var shape := owner.get_node("StandingCollisionShape").shape as Shape2D
-	var offset: Vector2 = owner.get_node("StandingCollisionShape").position
+func _is_position_blocked(pos: Vector2, space: PhysicsDirectSpaceState2D, mask: int, actor: Node) -> bool:
+	var shape := actor.get_node("StandingCollisionShape").shape as Shape2D
+	var offset: Vector2 = actor.get_node("StandingCollisionShape").position
 	var params := PhysicsShapeQueryParameters2D.new()
 	params.shape = shape
 	params.transform = Transform2D(0, pos + offset)
 	params.collision_mask = mask
-	params.exclude = [owner.get_rid()]
+	params.exclude = [actor.get_rid()]
 	var results := space.intersect_shape(params, 1)
 	return not results.is_empty()
 
 
-func _try_edge_snap(pos: Vector2, space: PhysicsDirectSpaceState2D, mask: int, owner: Node) -> Vector2:
-	if _is_position_blocked(pos, space, mask, owner):
+func _try_edge_snap(pos: Vector2, space: PhysicsDirectSpaceState2D, mask: int, actor: Node) -> Vector2:
+	if _is_position_blocked(pos, space, mask, actor):
 		for i in range(1, int(EDGE_SNAP_DISTANCE / 4.0) + 1):
-			var snapped := pos + Vector2(0, -4.0 * i)
-			if not _is_position_blocked(snapped, space, mask, owner):
-				return snapped
+			var snapped_pos := pos + Vector2(0, -4.0 * i)
+			if not _is_position_blocked(snapped_pos, space, mask, actor):
+				return snapped_pos
 	return pos
 
 
-func _debug_draw_circle(owner: Node, pos: Vector2, radius: float, color: Color) -> void:
-	var map = owner.get_parent().get_parent()
+func _debug_draw_circle(actor: Node, pos: Vector2, radius: float, color: Color) -> void:
+	var map = actor.get_parent().get_parent()
 	if not is_instance_valid(map):
 		return
 	var line := Line2D.new()
@@ -202,8 +202,8 @@ func _debug_draw_circle(owner: Node, pos: Vector2, radius: float, color: Color) 
 	map.get_tree().create_timer(DEBUG_DURATION).timeout.connect(line.queue_free)
 
 
-func _debug_draw_line(owner: Node, from: Vector2, to: Vector2, color: Color) -> void:
-	var map = owner.get_parent().get_parent()
+func _debug_draw_line(actor: Node, from: Vector2, to: Vector2, color: Color) -> void:
+	var map = actor.get_parent().get_parent()
 	if not is_instance_valid(map):
 		return
 	var line := Line2D.new()

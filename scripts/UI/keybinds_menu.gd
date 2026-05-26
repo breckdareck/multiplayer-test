@@ -19,7 +19,7 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_EXIT_TREE:
 		KeybindManager.keybind_changed.disconnect(_on_keybind_changed)
 
-func _on_keybind_changed(action_name: String, _new_event: InputEventKey, key_index: int):
+func _on_keybind_changed(action_name: String, _new_event: InputEventKey, _key_index: int):
 	# Find the buttons for this action and update their text
 	for child in keybind_list.get_children():
 		if child is HBoxContainer:
@@ -93,10 +93,10 @@ func _add_keybind_entry(action_name: String, display_name: String):
 	
 	keybind_list.add_child(hbox)
 
-func _on_rebind_button_pressed(button: Button, action_name: String, key_index: int):
+func _on_rebind_button_pressed(button: Button, _action_name: String, key_index: int):
 	if listening_for_key:
 		_stop_listening_for_key()
-	
+
 	current_rebind_button = button
 	current_rebind_key_index = key_index # Store the key_index
 	current_rebind_button.text = "Press a key..."
@@ -113,7 +113,7 @@ func _on_keybind_button_gui_input(event: InputEvent, button: Button, action_name
 			_on_rebind_button_pressed(button, action_name, key_index)
 			get_viewport().set_input_as_handled()
 
-func _clear_keybind(button: Button, action_name: String, key_index: int):
+func _clear_keybind(_button: Button, action_name: String, key_index: int):
 	if listening_for_key:
 		_stop_listening_for_key() # Stop any active rebind process
 	

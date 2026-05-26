@@ -243,7 +243,7 @@ func _load_sound_settings_from_config(config: ConfigFile):
 		
 	_apply_sound_settings()
 
-func _save_sound_settings_to_config(config: ConfigFile, file_existed_before_save: bool):
+func _save_sound_settings_to_config(config: ConfigFile, _file_existed_before_save: bool):
 	config.set_value(SOUND_CONFIG_SECTION, "master_volume_db", master_volume_db)
 	config.set_value(SOUND_CONFIG_SECTION, "music_volume_db", music_volume_db)
 	config.set_value(SOUND_CONFIG_SECTION, "sfx_volume_db", sfx_volume_db)
@@ -289,7 +289,7 @@ func _load_server_settings_from_config(config: ConfigFile):
 		game_server_port = 8080
 
 
-func _save_server_settings_to_config(config: ConfigFile, file_existed_before_save: bool):
+func _save_server_settings_to_config(config: ConfigFile, _file_existed_before_save: bool):
 	config.set_value(SERVER_CONFIG_SECTION, "backend_api_url", backend_api_url)
 	config.set_value(SERVER_CONFIG_SECTION, "game_server_port", game_server_port)
 

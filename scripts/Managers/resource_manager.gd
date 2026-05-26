@@ -25,7 +25,7 @@ func _ready() -> void:
 func _load_item_data() -> void:
 	var item_folder: String = "res://resources/Items/"
 
-	var process_item = func(resource, path):
+	var process_item = func(resource, _path):
 		if resource is ItemData:
 			item_data[resource.item_id] = resource
 			item_by_name[resource.name] = resource
@@ -61,7 +61,7 @@ func get_item_by_name(item_name: String) -> ItemData:
 func _load_class_data() -> void:
 	var class_folder: String = "res://resources/Player/Classes/"
 	
-	var process_class = func(resource, path):
+	var process_class = func(resource, _path):
 		if resource is ClassData:
 			class_data[resource.class_type] = resource
 			#print("Loaded class: %s from path: %s" % [resource._class_name, path])
@@ -143,7 +143,7 @@ func get_class_type_from_string(_class_name: String) -> Constants.ClassType:
 func _load_ability_data() -> void:
 	var ability_folder: String = "res://resources/Abilities/"
 	
-	var process_ability = func(resource, path):
+	var process_ability = func(resource, _path):
 		if resource is AbilityData:
 			ability_data[resource.ability_id] = resource 
 			ability_by_name[resource.ability_name] = resource 
@@ -176,7 +176,7 @@ func get_ability_by_name(ability_name: String) -> AbilityData:
 func _load_buff_data() -> void:
 	var buff_folder: String = "res://resources/Buffs/"
 	
-	var process_buff = func(resource, path):
+	var process_buff = func(resource, _path):
 		if resource is BuffData:
 			buff_data[resource.buff_id] = resource 
 			buffs_by_name[resource.buff_name] = resource 

@@ -59,6 +59,7 @@ var _loading_mode: bool = false
 var _passive_proc_cooldowns: Dictionary = {} # { "ability_id_event_type": last_proc_time }
 
 # Track active passive abilities for easy access
+@warning_ignore("unused_private_class_variable")
 var _active_passive_abilities: Array[AbilityData] = []
 
 const MAX_ABILITY_REQUESTS_PER_SECOND: int = 10
@@ -753,13 +754,13 @@ func sync_ability_points(new_total: int) -> void:
 
 #region #################### Signal Callbacks ####################
 ## Called when the LevelingComponent emits the `leveled_up` signal.
-func _on_leveled_up(new_level: int) -> void:
+func _on_leveled_up(_new_level: int) -> void:
 	# Grant 3 ability points on level up
 	#print("Leveled up to %d. Gaining 3 ability points." % new_level)
 	_add_ability_points(3)
 
 
-func _on_class_changed(new_class_name: String) -> void:
+func _on_class_changed(_new_class_name: String) -> void:
 	# On initial character creation the component pre-loaded the default
 	# class's abilities in _ready() (including its starter at level 1)
 	# before the real class was assigned, so anything not in the new class

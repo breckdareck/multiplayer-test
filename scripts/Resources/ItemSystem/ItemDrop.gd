@@ -41,11 +41,6 @@ const BUDGET_GROWTH_PER_LEVEL := 0.035
 func _get_property_list() -> Array[Dictionary]:
 	var properties: Array[Dictionary] = []
 
-	var breakdown = "Chances are relative. Current breakdown:\n"
-	var percentages = get_rarity_percentages()
-	for rarity_name in percentages:
-		breakdown += "%s: %.1f%%\n" % [rarity_name, percentages[rarity_name]]
-
 	properties.append({
 		"name": "rarity_breakdown",
 		"type": TYPE_STRING,
@@ -64,7 +59,7 @@ func _get(property: StringName):
 		return text.strip_edges()
 	return null
 
-func _set(property: StringName, value) -> bool:
+func _set(property: StringName, _value) -> bool:
 	if property == &"rarity_breakdown":
 		notify_property_list_changed()
 		return true
@@ -197,9 +192,8 @@ func _print_rarity_percentages() -> void:
 	
 	##print("\n=== Rarity Percentages ===")
 	for rarity_name in Constants.ItemRarity.keys():
-		var weight = rarity_chances.get(rarity_name, 0)
-		var percentage := (float(weight) / total_weight) * 100.0
-		#print("%s: %.2f%%" % [rarity_name.to_upper(), percentage])
+		var _weight = rarity_chances.get(rarity_name, 0)
+		#print("%s: %.2f%%" % [rarity_name.to_upper(), (float(_weight) / total_weight) * 100.0])
 	#print("Total: %.2f%%\n" % total_weight)
 
 ## Returns a dictionary of rarity -> percentage for programmatic use.

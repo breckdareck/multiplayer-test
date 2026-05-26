@@ -77,7 +77,7 @@ func _open_shop(player_id: int) -> void:
 	_shop_instance.open_shop(
 		player_inv,
 		merchant_inventory,
-		merchant_id if merchant_id else name
+		merchant_id if merchant_id else String(name)
 	)
 
 func _get_local_player_inventory(player_id: int) -> PlayerInventory:

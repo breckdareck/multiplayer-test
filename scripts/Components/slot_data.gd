@@ -32,9 +32,9 @@ var index: int = -1
 ## The equipment-type fields default to -1, a sentinel meaning "no restriction"
 ## (matches the previous EquipmentSlot exports).
 var allowed_item_type: Constants.ItemType = Constants.ItemType.ANY
-var allowed_equipment_type: Constants.EquipmentType = -1
-var allowed_armor_type: Constants.ArmorType = -1
-var allowed_weapon_type: Constants.WeaponType = -1
+var allowed_equipment_type: int = -1
+var allowed_armor_type: int = -1
+var allowed_weapon_type: int = -1
 
 
 ## Whether this slot may hold the given item. A null item (clearing the slot)

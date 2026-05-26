@@ -980,11 +980,9 @@ func request_autopot_server(pet_uuid: String, slot_type: String) -> void:
 	# The pet slot is a REFERENCE, not storage — the player keeps stacks in
 	# their inventory and the pet draws from them.
 	var pot_in_inventory: ItemData = null
-	var pot_inv_slot: SlotData = null
 	for sd in owner_player.inventory_component.slots_data:
 		if sd and sd.item and sd.item.name == pot_name:
 			pot_in_inventory = sd.item
-			pot_inv_slot = sd
 			break
 	if not pot_in_inventory:
 		# Out of potions — don't spam; just message once per cooldown window.

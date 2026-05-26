@@ -144,9 +144,6 @@ func _on_regen_timer_timeout() -> void:
 	
 @rpc("any_peer", "call_local", "reliable")
 func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, is_crit: bool = false, show_number: bool = true) -> void:
-	var source_str = "unknown"
-	if source:
-		source_str = str(source)
 	
 	var is_player = (owner is MultiplayerPlayerV2)
 	
@@ -238,15 +235,12 @@ func _trigger_screen_shake(intensity: float) -> void:
 
 
 @rpc("any_peer", "call_local", "reliable")
-func heal_damage(amount: int, source: Node = null) -> void:
+func heal_damage(amount: int, _source: Node = null) -> void:
 	# This function can be called from anywhere, but only the server will process it.
 	if not multiplayer.is_server():
 		return
-	var source_str = "unknown"
-	if source:
-		source_str = str(source.name)
 
-	##print("HealthComponent: Owner '%s' healed %s damage from '%s'." % [get_owner().name, amount, source_str])
+	##print("HealthComponent: Owner '%s' healed %s damage." % [get_owner().name, amount])
 	self.current_health += amount
 
 

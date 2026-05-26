@@ -167,7 +167,7 @@ func _on_local_save_toggled(toggled_on: bool):
 		status_label.text = "Local Save Disabled"
 		status_label.add_theme_color_override("font_color", Color.WHITE)
 
-func _on_login_success(account_id, username):
+func _on_login_success(_account_id, _username):
 	status_label.text = "Login Successful!"
 	status_label.add_theme_color_override("font_color", Color.GREEN)
 	# Transition to Character Select
@@ -177,7 +177,7 @@ func _on_login_failed(error):
 	status_label.text = "Login Failed: " + error
 	status_label.add_theme_color_override("font_color", Color.RED)
 
-func _on_registration_success(account_id):
+func _on_registration_success(_account_id):
 	status_label.text = "Registration Successful! Please Login."
 	status_label.add_theme_color_override("font_color", Color.GREEN)
 

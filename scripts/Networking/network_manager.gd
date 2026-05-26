@@ -34,7 +34,7 @@ func register(username, password):
 		registration_failed.emit("Connection error")
 		http.queue_free()
 
-func _on_register_completed(result, response_code, headers, body, http):
+func _on_register_completed(_result, response_code, _headers, body, http):
 	var response_text = body.get_string_from_utf8()
 	#print("Register Response Code: ", response_code)
 	#print("Register Response Body: ", response_text)
@@ -82,7 +82,7 @@ func dev_login():
 	account_username = "DevUser"
 	login_success.emit(account_id, account_username)
 
-func _on_login_completed(result, response_code, headers, body, http):
+func _on_login_completed(_result, response_code, _headers, body, http):
 	var response_text = body.get_string_from_utf8()
 	#print("Login Response Code: ", response_code)
 	#print("Login Response Body: ", response_text)
@@ -198,7 +198,7 @@ func get_characters():
 	if error != OK:
 		http.queue_free()
 
-func _on_get_characters_completed(result, response_code, headers, body, http):
+func _on_get_characters_completed(_result, response_code, _headers, body, http):
 	if response_code == 200:
 		var response = JSON.parse_string(body.get_string_from_utf8())
 		
@@ -265,7 +265,7 @@ func create_character(char_name, class_id):
 		character_creation_failed.emit("Connection error")
 		http.queue_free()
 
-func _on_create_character_completed(result, response_code, headers, body, http):
+func _on_create_character_completed(result, response_code, _headers, body, http):
 	if result != HTTPRequest.RESULT_SUCCESS:
 		character_creation_failed.emit("Connection failed (result: %d)" % result)
 		http.queue_free()

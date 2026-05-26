@@ -10,9 +10,6 @@ extends State
 
 func enter() -> void:
 	super()
-	var player
-	if parent is MultiplayerPlayerV2:
-		player = parent
 
 func physics_update(delta: float) -> State:
 	var player

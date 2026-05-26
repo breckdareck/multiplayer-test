@@ -278,7 +278,6 @@ func update_details(data: AbilityData, current_level: int):
 
 ## Helper function to create the final description text for comparison
 func create_description_comparison_text(data: AbilityData, current: AbilityLevelData, next: AbilityLevelData) -> String:
-	var desc_template = data.description
 	var output = ""
 	
 	if current == null: # Level 0 / Unlearned
@@ -544,7 +543,7 @@ func update_skill_points_display():
 
 
 ## Signal callback when ability levels up
-func _on_ability_leveled_up(ability_id: String, new_level: int):
+func _on_ability_leveled_up(ability_id: String, _new_level: int):
 	##print("AbilityWindow: Ability %s leveled up to %d" % [ability_id, new_level])
 	
 	# Update UI
@@ -569,7 +568,7 @@ func _on_ability_learned(ability_id: String):
 
 
 ## Signal callback when ability points change
-func _on_ability_points_changed(new_total: int):
+func _on_ability_points_changed(_new_total: int):
 	##print("AbilityWindow: Ability points changed to %d" % new_total)
 	
 	# Update skill points display

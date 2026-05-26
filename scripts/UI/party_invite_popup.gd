@@ -2,6 +2,7 @@ extends Window
 
 class_name PartyInvitePopup
 
+@warning_ignore("unused_signal")
 signal invite_responded(accepted: bool, party_id: int)
 
 @onready var message_label: Label = %MessageLabel

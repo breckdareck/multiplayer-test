@@ -16,7 +16,7 @@ func on_remove(owner_node: Node, _active_buff) -> void:
 func on_tick(_owner_node: Node, _active_buff, _delta: float) -> void:
 	pass
 
-func on_damaged(owner_node: Node, active_buff, damage_amount: int, _source: Node) -> void:
+func on_damaged(owner_node: Node, _active_buff, damage_amount: int, _source: Node) -> void:
 	var mana_comp = owner_node.get("mana_component")
 	var health_comp = owner_node.get("health_component")
 	if not mana_comp or not health_comp:

@@ -1,6 +1,7 @@
 class_name InventoryComponent
 extends Node
 
+@warning_ignore("unused_signal")
 signal inventory_changed(inventory: InventoryComponent)
 signal item_added(item: ItemData)
 signal item_removed(item: ItemData, reason: String)
@@ -260,8 +261,7 @@ func sync_slot_update_rpc(slot_index: int, item_dict: Dictionary, trigger_stats_
 		return
 	
 	var slot = slots[slot_index]
-	var old_item = slot.item
-	
+
 	var item_instance = ItemData.from_dictionary(item_dict)
 	if item_instance:
 		slot.item = item_instance
@@ -586,7 +586,11 @@ func _apply_inventory_data(inventory_data: Dictionary) -> void:
 			var item_dict: Dictionary = equipment_data_dict[key_str]
 			if item_dict.is_empty():
 				continue
-			var key = "WEAPON" if key_str == "WEAPON" else int(key_str)
+			var key: Variant
+			if key_str == "WEAPON":
+				key = "WEAPON"
+			else:
+				key = int(key_str)
 			var target_sd: SlotData = equipment_component.get_slot_data(key)
 			if target_sd:
 				var item_instance = ItemData.from_dictionary(item_dict)
@@ -694,7 +698,6 @@ func _execute_swap_local(from_slot: Slot, to_slot: Slot):
 	# Check if these are equipment slots
 	var from_is_equipment = _is_equipment_slot(from_slot)
 	var to_is_equipment = _is_equipment_slot(to_slot)
-	var involves_equipment = from_is_equipment or to_is_equipment
 
 	# If on server, sync the changed slots to client
 	if multiplayer.is_server():
@@ -771,7 +774,7 @@ func request_transfer_item(from_slot_path: NodePath, to_slot_path: NodePath, req
 
 
 @rpc("authority", "call_local", "reliable")
-func confirm_transfer_item(from_slot_path: NodePath, to_slot_path: NodePath, was_requesting_client: bool, from_is_equipment: bool, to_is_equipment: bool):
+func confirm_transfer_item(from_slot_path: NodePath, to_slot_path: NodePath, was_requesting_client: bool, _from_is_equipment: bool, to_is_equipment: bool):
 	if multiplayer.is_server():
 		return
 

@@ -14,6 +14,7 @@ extends Node
 # ── Signals ──────────────────────────────────────────────────────────────────
 signal quest_accepted(username: String, quest_id: String)
 signal quest_completed(username: String, quest_id: String)
+@warning_ignore("unused_signal")
 signal quest_progress_updated(username: String, quest_id: String)
 signal quest_ui_data_received(data: Dictionary)  # Emitted on client when server sends UI data
 
@@ -630,7 +631,7 @@ func load_quests(username: String, data: Dictionary) -> void:
 	#print("QuestManager: Loaded quest data for '%s' — %d active, %d completed, %d tracked." % [username, active.size(), completed.size(), tracked.size()])
 
 
-func unregister_player(username: String) -> void:
+func unregister_player(_username: String) -> void:
 	# Keep data in memory — it's persisted through save system.
 	# Only clean up if needed to free memory on large servers.
 	pass

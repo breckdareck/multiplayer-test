@@ -323,9 +323,9 @@ func _compute_matches(text: String) -> PackedStringArray:
 		var keys := _commands.keys()
 		keys.append_array(_aliases.keys())
 		keys.sort()
-		for name in keys:
-			if name.begins_with(token):
-				names.append(name)
+		for cmd in keys:
+			if cmd.begins_with(token):
+				names.append(cmd)
 		return names
 
 	var head: String = prefix_text.substr(0, space_idx)
@@ -424,18 +424,18 @@ func _longest_common_prefix(arr: PackedStringArray) -> String:
 func _run_line(line: String) -> void:
 	var parts: PackedStringArray = line.split(" ", false)
 	if parts.is_empty(): return
-	var name: String = parts[0].to_lower()
+	var cmd_name: String = parts[0].to_lower()
 	# Alias expansion: replace the first token, keep the rest.
-	if _aliases.has(name):
-		var expansion: String = _aliases[name]
+	if _aliases.has(cmd_name):
+		var expansion: String = _aliases[cmd_name]
 		var rest: String = "" if parts.size() == 1 else " " + " ".join(parts.slice(1))
 		_run_line(expansion + rest)
 		return
 	var args: Array = Array(parts.slice(1))
-	if not _commands.has(name):
-		_print("[color=#ff8888]Unknown command '%s'. Try: help[/color]" % name)
+	if not _commands.has(cmd_name):
+		_print("[color=#ff8888]Unknown command '%s'. Try: help[/color]" % cmd_name)
 		return
-	var handler: Callable = _commands[name].handler
+	var handler: Callable = _commands[cmd_name].handler
 	var result: String = handler.call(args)
 	if not result.is_empty():
 		_print(result)
@@ -489,8 +489,8 @@ func _register_commands() -> void:
 	_register("quest", "Quest subcommands. Host-only.", _cmd_quest)
 
 
-func _register(name: String, desc: String, handler: Callable, completer: Callable = Callable()) -> void:
-	_commands[name] = { "desc": desc, "handler": handler, "completer": completer }
+func _register(cmd_name: String, desc: String, handler: Callable, completer: Callable = Callable()) -> void:
+	_commands[cmd_name] = { "desc": desc, "handler": handler, "completer": completer }
 
 
 # --- Help / utility ---------------------------------------------------------
@@ -507,12 +507,12 @@ func _cmd_help(args: Array) -> String:
 			for a in _aliases:
 				lines.append("  [color=#fc9]%s[/color] -> %s" % [a, _aliases[a]])
 		return "\n".join(lines)
-	var name: String = args[0].to_lower()
-	if _commands.has(name):
-		return "[b]%s[/b] — %s" % [name, _commands[name].desc]
-	if _aliases.has(name):
-		return "[b]%s[/b] (alias) -> %s" % [name, _aliases[name]]
-	return "[color=#ff8888]No such command: %s[/color]" % name
+	var cmd_name: String = args[0].to_lower()
+	if _commands.has(cmd_name):
+		return "[b]%s[/b] — %s" % [cmd_name, _commands[cmd_name].desc]
+	if _aliases.has(cmd_name):
+		return "[b]%s[/b] (alias) -> %s" % [cmd_name, _aliases[cmd_name]]
+	return "[color=#ff8888]No such command: %s[/color]" % cmd_name
 
 
 func _cmd_clear(_args: Array) -> String:
@@ -660,17 +660,17 @@ func _cmd_alias(args: Array) -> String:
 		for a in _aliases:
 			lines.append("  %s -> %s" % [a, _aliases[a]])
 		return "\n".join(lines)
-	var name: String = String(args[0]).to_lower()
+	var alias_name: String = String(args[0]).to_lower()
 	if args.size() == 1:
-		if _aliases.has(name):
-			_aliases.erase(name)
-			return "Removed alias '%s'." % name
-		return "(no such alias '%s'; provide an expansion to create one)" % name
-	if _commands.has(name):
-		return "[color=#ff8888]'%s' is a built-in command; choose a different alias name.[/color]" % name
+		if _aliases.has(alias_name):
+			_aliases.erase(alias_name)
+			return "Removed alias '%s'." % alias_name
+		return "(no such alias '%s'; provide an expansion to create one)" % alias_name
+	if _commands.has(alias_name):
+		return "[color=#ff8888]'%s' is a built-in command; choose a different alias name.[/color]" % alias_name
 	var expansion: String = " ".join(PackedStringArray(args).slice(1))
-	_aliases[name] = expansion
-	return "Alias '%s' -> '%s'" % [name, expansion]
+	_aliases[alias_name] = expansion
+	return "Alias '%s' -> '%s'" % [alias_name, expansion]
 
 
 # --- Targeted commands ------------------------------------------------------
@@ -900,7 +900,7 @@ func _cmd_enemy(args: Array) -> String:
 ## Defaults: count=1; map=host's current map; pos=in-front-of-host (40px in
 ## facing_direction). If @map is given without x/y, pos defaults to (0, 0).
 func _do_enemy_spawn(args: Array) -> String:
-	var name: String = String(args[0])
+	var enemy_name: String = String(args[0])
 	var idx := 1
 	var count := 1
 	if idx < args.size() and String(args[idx]).is_valid_int():
@@ -943,11 +943,11 @@ func _do_enemy_spawn(args: Array) -> String:
 				dir = -1.0 if host.facing_direction < 0 else 1.0
 			pos = host.global_position + Vector2(40.0 * dir, 0.0)
 
-	return _spawn_enemy_by_name(name, count, map_node, pos)
+	return _spawn_enemy_by_name(enemy_name, count, map_node, pos)
 
 
-func _spawn_enemy_by_name(name: String, count: int, map_node: Node, base_pos: Vector2) -> String:
-	var snake: String = name.to_snake_case().replace(" ", "_").to_lower()
+func _spawn_enemy_by_name(enemy_name: String, count: int, map_node: Node, base_pos: Vector2) -> String:
+	var snake: String = enemy_name.to_snake_case().replace(" ", "_").to_lower()
 	var path: String = ENEMY_SCENES_DIR + snake + ".tscn"
 	if not ResourceLoader.exists(path):
 		return "[color=#ff8888]No enemy scene '%s'. Try 'enemy list'.[/color]" % path
@@ -1125,8 +1125,8 @@ func _complete_bot_target(_p: PackedStringArray, _t: String) -> PackedStringArra
 	var out: PackedStringArray = ["off"]
 	for bot_id in BotManager.active_bots:
 		out.append(str(bot_id))
-		var name: String = BotManager.active_bots[bot_id].get("username", "")
-		if not name.is_empty(): out.append(name)
+		var bot_name: String = BotManager.active_bots[bot_id].get("username", "")
+		if not bot_name.is_empty(): out.append(bot_name)
 	return out
 
 

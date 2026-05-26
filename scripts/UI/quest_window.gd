@@ -230,13 +230,13 @@ func _show_quest_detail(quest_id: String) -> void:
 	for child in rewards_container.get_children():
 		child.queue_free()
 
-	var exp: int = quest_info.get("reward_exp", 0)
+	var reward_exp: int = quest_info.get("reward_exp", 0)
 	var coins: int = quest_info.get("reward_coins", 0)
 	var items: Array = quest_info.get("reward_items", [])
 
-	if exp > 0:
+	if reward_exp > 0:
 		var lbl := Label.new()
-		lbl.text = "  • %d EXP" % exp
+		lbl.text = "  • %d EXP" % reward_exp
 		lbl.add_theme_color_override("font_color", Color(1.0, 0.95, 0.4))
 		rewards_container.add_child(lbl)
 	if coins > 0:

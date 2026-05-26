@@ -295,7 +295,6 @@ func cancel_trade(player_id: int) -> void:
 		_cancel_pending_for(player_id)
 		return
 
-	var session: Dictionary = _active_trades[trade_id]
 	_close_session(trade_id, "Trade cancelled.")
 	trade_cancelled.emit(trade_id)
 

@@ -35,13 +35,13 @@ class BuffIcon extends Control:
 	var _gradient_overlay: ColorRect
 	var _hover_overlay: ColorRect  # NEW: Shows when hovering
 	
-	func _init(id: String, texture: Texture2D, duration: float, size: Vector2, removable: bool = true):
+	func _init(id: String, texture: Texture2D, duration: float, icon_dimensions: Vector2, removable: bool = true):
 		buff_id = id
 		icon_texture = texture
 		remaining_time = duration
 		total_duration = duration
 		is_removable = removable
-		custom_minimum_size = size
+		custom_minimum_size = icon_dimensions
 		name = "BuffIcon_" + id
 		
 		# NEW: Enable mouse input
@@ -123,7 +123,9 @@ class BuffIcon extends Control:
 		tooltip_text = _build_tooltip()
 		# Debuffs (non-removable buffs) get a red tooltip border to match the
 		# "this is bad" cue the rest of the UI uses.
-		var border: Variant = Color(0.9, 0.3, 0.3) if not is_removable else null
+		var border: Variant = null
+		if not is_removable:
+			border = Color(0.9, 0.3, 0.3)
 		TooltipTheme.set_border_color(self, border)
 
 	func _build_tooltip() -> String:

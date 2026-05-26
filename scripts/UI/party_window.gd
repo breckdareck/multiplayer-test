@@ -218,7 +218,7 @@ func _update_party_display():
 		
 		for member_id in members:
 			var player_node = PlayerManager.get_player_node(member_id)
-			var is_leader = (member_id == leader_id)
+			var member_is_leader = (member_id == leader_id)
 			var username = PartyManager.get_player_username(member_id)
 			
 			var level: int
@@ -242,7 +242,7 @@ func _update_party_display():
 			if player_node: # Player is online
 				var item = online_tree.create_item(root_online)
 				var display_name = username
-				if is_leader:
+				if member_is_leader:
 					display_name += " (Leader)"
 				item.set_text(0, display_name)
 				item.set_text(1, player_class)
@@ -254,7 +254,7 @@ func _update_party_display():
 				var item = offline_tree.create_item(root_offline)
 				# Offline players still use cached data on client, or direct data on host
 				var display_name = username
-				if is_leader:
+				if member_is_leader:
 					display_name += " (Leader)"
 				item.set_text(0, display_name)
 				item.set_text(1, player_class)

@@ -59,13 +59,10 @@ func _on_regen_timer_timeout() -> void:
 
 
 @rpc("any_peer", "call_local", "reliable")
-func regain_mana(amount: int, source: Node = null) -> void:
+func regain_mana(amount: int, _source: Node = null) -> void:
 	# This function can be called from anywhere, but only the server will process it.
 	if not multiplayer.is_server():
 		return
-	var source_str = "unknown"
-	if source:
-		source_str = str(source.name)
 
-	#print("ManaComponent: Owner '%s' regained %s mana from '%s'." % [get_owner().name, amount, source_str])
+	#print("ManaComponent: Owner '%s' regained %s mana." % [get_owner().name, amount])
 	self.current_mana += amount

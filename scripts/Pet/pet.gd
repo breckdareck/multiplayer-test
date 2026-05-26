@@ -518,6 +518,7 @@ func _refresh_loot_target(_owner_node: Node) -> void:
 	var record := PetManager.client_find_pet(pet_uuid)
 	if record.is_empty():
 		return
+	@warning_ignore("static_called_on_instance")
 	if not PetManager.is_command_active(record, PetManager.CMD_MAGNET):
 		_mode = PetMode.FOLLOW
 		_loot_target_node = null
@@ -550,6 +551,7 @@ func _vacuum_pickup_pass() -> void:
 	var record := PetManager.client_find_pet(pet_uuid)
 	if record.is_empty():
 		return
+	@warning_ignore("static_called_on_instance")
 	if not PetManager.is_command_active(record, PetManager.CMD_MAGNET):
 		return
 	var map_node := get_parent()
@@ -642,6 +644,7 @@ func _try_autopot() -> void:
 	var record := PetManager.client_find_pet(pet_uuid)
 	if record.is_empty():
 		return
+	@warning_ignore("static_called_on_instance")
 	if not PetManager.is_command_active(record, PetManager.CMD_AUTO_POT):
 		return
 	var owner_node := PlayerManager.get_player_node(owner_peer_id)

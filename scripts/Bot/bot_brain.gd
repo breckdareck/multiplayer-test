@@ -945,11 +945,11 @@ func _get_target_map() -> String:
 	if _is_level_out_of_band():
 		var best_map := ""
 		var best_fit := 999
-		var all_difficulties: Dictionary = BotManager.bot_config.get("map_difficulty", {})
-		for map_id in all_difficulties:
+		var difficulties_map: Dictionary = BotManager.bot_config.get("map_difficulty", {})
+		for map_id in difficulties_map:
 			if map_id == my_map:
 				continue
-			var md: Dictionary = all_difficulties[map_id]
+			var md: Dictionary = difficulties_map[map_id]
 			var mid_level: int = (md.get("min_level", 1) + md.get("max_level", 60)) / 2
 			var fit := absi(bot_level - mid_level)
 			if fit < best_fit:

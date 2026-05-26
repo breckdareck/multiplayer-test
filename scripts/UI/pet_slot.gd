@@ -118,6 +118,7 @@ func _empty_slot_tooltip() -> String:
 				return "MP potion slot\nDrop an MP potion here for auto-pot."
 			return "Potion slot"
 		"book":
+			@warning_ignore("static_called_on_instance")
 			var book_name: String = PetManager.book_name_for_slot(slot_key)
 			if book_name.is_empty():
 				return "Command slot"
@@ -160,8 +161,10 @@ func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 		return false
 	if slot_kind == "pot":
 		if slot_key == PetManager.KEY_AUTOPOT_HP:
+			@warning_ignore("static_called_on_instance")
 			return PetManager.is_hp_potion(s.drag_item)
 		if slot_key == PetManager.KEY_AUTOPOT_MP:
+			@warning_ignore("static_called_on_instance")
 			return PetManager.is_mp_potion(s.drag_item)
 		return false
 	if slot_kind == "book":
@@ -169,6 +172,7 @@ func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 			return false
 		# Match by NAME — item_id is a UUID in this project, name is the
 		# stable identifier (ResourceManager indexes by name).
+		@warning_ignore("static_called_on_instance")
 		return s.drag_item.name == PetManager.book_name_for_slot(slot_key)
 	return false
 

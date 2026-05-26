@@ -173,7 +173,7 @@ func _apply_buff_local(buff_id: String, source: Node = null, custom_duration: fl
 	return true
 
 
-func _handle_existing_buff(buff_id: String, buff_data: BuffData, source: Node, duration: float = -1.0) -> bool:
+func _handle_existing_buff(buff_id: String, buff_data: BuffData, _source: Node, duration: float = -1.0) -> bool:
 	var active_buff: ActiveBuff = _active_buffs[buff_id]
 	
 	# Use custom duration if provided, otherwise use buff_data duration

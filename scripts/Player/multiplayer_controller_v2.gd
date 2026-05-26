@@ -420,11 +420,11 @@ func _apply_map_camera_bounds(cam: Camera2D) -> void:
 
 
 func _setup_client_visuals() -> void:
-	var camera: Camera2D = $Camera2D
+	var cam: Camera2D = $Camera2D
 
 	if multiplayer.get_unique_id() == player_id:
-		camera.make_current()
-		_apply_map_camera_bounds(camera)
+		cam.make_current()
+		_apply_map_camera_bounds(cam)
 		if is_instance_valid(player_HUD):
 			player_HUD.show()
 			# Show mobile controls on Android
@@ -867,7 +867,7 @@ func change_sprite_rpc(_class_name: String, level: int) -> void:
 # change_sprite_rpc (a bot's node may be missing on a client mid-transition).
 func apply_appearance(class_type: int, level: int) -> void:
 	if is_instance_valid(class_component):
-		class_component.current_class = class_type
+		class_component.current_class = class_type as Constants.ClassType
 	var frames: SpriteFrames = ResourceManager.get_sprite_for_level(class_type, level)
 	if frames and is_instance_valid(animated_sprite):
 		animated_sprite.sprite_frames = frames
@@ -1009,7 +1009,7 @@ func _play_levelup_effect() -> void:
 		particles.queue_free()
 
 @rpc("any_peer", "call_local", "reliable")
-func request_map_change_rpc(new_map_id: String, spawn_point_name: String = "", client_data_string: String = ""):
+func request_map_change_rpc(new_map_id: String, spawn_point_name: String = "", _client_data_string: String = ""):
 	"""Server receives map change request"""
 	if not multiplayer.is_server():
 		return

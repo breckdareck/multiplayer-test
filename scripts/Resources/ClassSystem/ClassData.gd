@@ -1,6 +1,7 @@
 class_name ClassData
 extends Resource
 
+@warning_ignore("unused_private_class_variable")
 @export var _class_name: String
 @export var class_type: Constants.ClassType
 @export var sprite_frames: Dictionary[int, SpriteFrames] = {} # level -> SpriteFrames resource path

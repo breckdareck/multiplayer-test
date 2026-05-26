@@ -320,7 +320,7 @@ func _gather_bot_snapshot(bot_id: int) -> Dictionary:
 	return snap
 
 
-func _form_squad_on_map(map_id: String, bot_ids: Array) -> void:
+func _form_squad_on_map(_map_id: String, bot_ids: Array) -> void:
 	if bot_ids.size() < 2:
 		return
 
@@ -524,10 +524,10 @@ func _default_patrol_route() -> Array:
 
 func generate_bot_name() -> String:
 	for _attempt in 30:
-		var name = NAME_PREFIXES.pick_random() + NAME_SUFFIXES.pick_random()
-		if not _is_name_taken(name):
-			_used_names[name] = true
-			return name
+		var candidate = NAME_PREFIXES.pick_random() + NAME_SUFFIXES.pick_random()
+		if not _is_name_taken(candidate):
+			_used_names[candidate] = true
+			return candidate
 	# Tie the fallback to the bot counter, which monotonically decrements on
 	# every spawn — guaranteed unique even if the random pool is exhausted.
 	var fallback := "Bot_%d" % abs(bot_counter - 1)

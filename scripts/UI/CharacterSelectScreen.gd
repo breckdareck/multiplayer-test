@@ -94,7 +94,7 @@ func _check_server_status():
 		_update_server_status(false)
 
 
-func _on_status_check_completed(result: int, response_code: int, _headers: PackedStringArray, _body: PackedByteArray):
+func _on_status_check_completed(_result: int, response_code: int, _headers: PackedStringArray, _body: PackedByteArray):
 	_update_server_status(response_code == 200)
 
 
@@ -174,7 +174,7 @@ func _fetch_external_ip():
 		http.queue_free()
 
 
-func _on_external_ip_received(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray, http: HTTPRequest):
+func _on_external_ip_received(_result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray, http: HTTPRequest):
 	if response_code == 200:
 		var response = JSON.parse_string(body.get_string_from_utf8())
 		if response != null and response.has("ip"):
