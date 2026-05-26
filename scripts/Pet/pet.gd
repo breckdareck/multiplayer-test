@@ -330,7 +330,14 @@ func _resolve_target_position(owner_node: Node) -> Vector2:
 
 
 func _teleport_to_owner(owner_node: Node) -> void:
-	global_position = owner_node.global_position + (pet_data.follow_offset if pet_data else Vector2(-32.0, 0.0))
+	# Bias the teleport slightly upward. Teleporting exactly at the owner's
+	# Y when the owner just landed at the top of a rope/ladder can drop the
+	# pet right on the edge of the platform — physics then push it off the
+	# side. Spawning ~20px above and letting gravity drop it onto the
+	# platform produces a reliable landing.
+	var offset := pet_data.follow_offset if pet_data else Vector2(-32.0, 0.0)
+	offset.y -= 20.0
+	global_position = owner_node.global_position + offset
 	velocity = Vector2.ZERO
 	_leash_breach_timer = 0.0
 	_mode = PetMode.FOLLOW
