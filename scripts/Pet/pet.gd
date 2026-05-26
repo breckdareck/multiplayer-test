@@ -13,6 +13,10 @@ extends CharacterBody2D
 @export var event_bubble: Label
 @export var summon_poof: CPUParticles2D
 @export var collision_shape: CollisionShape2D
+# One-way platform mask bit. Must match MultiplayerPlayerV2.platform_layer (3).
+# Drop-through temporarily clears this so the pet falls through the platform
+# the player just dropped through, then re-enables it once we're past.
+@export var platform_layer: int = 3
 
 # ── Identity (assigned by PetManager.setup) ───────────────────────────────
 var owner_peer_id: int = 0
@@ -57,6 +61,14 @@ const VERTICAL_STUCK_PROGRESS_PX: float = 16.0  # upward movement that resets th
 const VERTICAL_STUCK_GIVEUP_JUMP_SEC: float = 0.25  # stop height-jumping after this if no progress
 var _vertical_stuck_timer: float = 0.0
 var _vertical_stuck_y_anchor: float = 0.0
+
+# Position-based drop-through (mirrors MultiplayerPlayerV2's approach). Once
+# fired, the platform-layer mask is off until the pet's Y crosses
+# _drop_through_target_y — that's the bottom of the platform we dropped
+# through, computed from the collider's RectangleShape.
+var _drop_through_active: bool = false
+var _drop_through_target_y: float = 0.0
+const DROP_THROUGH_FALLBACK_PX: float = 12.0  # used if we can't read the platform shape
 
 # ── Hunger display state (broadcast by server) ────────────────────────────
 var current_hunger: float = 100.0
@@ -154,6 +166,11 @@ func _physics_process(delta: float) -> void:
 	# the MultiplayerSynchronizer.
 	if multiplayer.get_unique_id() != owner_peer_id:
 		return
+
+	# Restore platform collision once we've fallen past the dropped-through
+	# platform. Done before any movement logic so a freshly-completed drop
+	# can immediately resume normal walking.
+	_check_drop_through_complete()
 
 	# Apply gravity always (so the pet falls onto platforms after being placed).
 	if not is_on_floor():
@@ -291,6 +308,14 @@ func _physics_process(delta: float) -> void:
 		velocity.x = 0.0
 		_play_animation("idle")
 
+	# Drop-through: owner is below the platform we're standing on, and the
+	# floor under us is a one-way platform. Mirror what the player does on
+	# down+jump (see MultiplayerPlayerV2.drop_through_platform) so the pet
+	# tracks the player through stacked layers of platforms.
+	if owner_below and is_on_floor() and not _drop_through_active:
+		if _can_drop_through_platform():
+			_drop_through_platform()
+
 	# Jump in FOLLOW mode for three reasons:
 	#  1. Owner is settled on a platform above us (jump_threshold_y higher).
 	#     Owner must be grounded — otherwise the pet copies every player jump
@@ -411,6 +436,61 @@ func _teleport_to_owner(owner_node: Node) -> void:
 	_mode = PetMode.FOLLOW
 	_loot_target_node = null
 	_has_pending_jump = false
+	# Cancel any in-flight drop-through — the teleport already put us where
+	# we need to be, and leaving the mask off would let us fall through the
+	# next platform we land on.
+	if _drop_through_active:
+		_drop_through_active = false
+		set_collision_mask_value(platform_layer, true)
+
+
+# Mirror MultiplayerPlayerV2.can_drop_through_platform / drop_through_platform.
+# We're standing on a one-way platform iff one of our slide collisions this
+# frame is a near-flat floor whose collider's collision layer includes the
+# platform layer.
+func _can_drop_through_platform() -> bool:
+	for i in range(get_slide_collision_count()):
+		var collision: KinematicCollision2D = get_slide_collision(i)
+		if collision.get_angle(up_direction) < floor_max_angle + 0.01:
+			var collider_rid: RID = collision.get_collider_rid()
+			var collider_layer_mask: int = PhysicsServer2D.body_get_collision_layer(collider_rid)
+			if collider_layer_mask & (1 << (platform_layer - 1)):
+				return true
+			break
+	return false
+
+
+func _drop_through_platform() -> void:
+	# Target Y = bottom edge of the platform we're dropping through, so the
+	# completion check re-enables the mask the instant we've fully cleared.
+	# Fallback distance is used if we can't read the shape (non-Rectangle, etc.).
+	var target_y: float = global_position.y + DROP_THROUGH_FALLBACK_PX
+	for i in range(get_slide_collision_count()):
+		var collision: KinematicCollision2D = get_slide_collision(i)
+		if collision.get_angle(up_direction) >= floor_max_angle + 0.01:
+			continue
+		var collider_rid: RID = collision.get_collider_rid()
+		var collider_layer_mask: int = PhysicsServer2D.body_get_collision_layer(collider_rid)
+		if not (collider_layer_mask & (1 << (platform_layer - 1))):
+			continue
+		var collider_shape: Object = collision.get_collider_shape()
+		if collider_shape is CollisionShape2D:
+			var cs := collider_shape as CollisionShape2D
+			if cs.shape is RectangleShape2D:
+				var rect := cs.shape as RectangleShape2D
+				target_y = cs.global_position.y + rect.size.y * 0.5 + 1.0
+		break
+	_drop_through_target_y = target_y
+	_drop_through_active = true
+	set_collision_mask_value(platform_layer, false)
+
+
+func _check_drop_through_complete() -> void:
+	if not _drop_through_active:
+		return
+	if global_position.y >= _drop_through_target_y:
+		set_collision_mask_value(platform_layer, true)
+		_drop_through_active = false
 
 
 func _owner_state_name(owner_node: Node) -> String:
