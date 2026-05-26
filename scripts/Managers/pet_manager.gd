@@ -179,6 +179,25 @@ func load_pets(username: String, data: Dictionary) -> void:
 	# Push the freshly-loaded roster to the owner client so its UI hydrates.
 	_push_roster_to_owner(username)
 
+	# Spawn any persisted summoned pets right here. MapManager.player_spawned
+	# fires BEFORE the player's _load_data runs, so the _on_player_spawned_on_map
+	# handler always sees an empty roster on initial join and bails. By the time
+	# load_pets is called, the player node is in the map tree, so spawning
+	# directly here works for both initial join and map change.
+	if multiplayer.is_server():
+		# Clean up any stale active entities for this owner (map change case —
+		# networked_entities cleanup may have already freed the nodes, but
+		# _active_pets entries still need clearing).
+		var to_despawn: Array = []
+		for pet_uuid in _active_pets:
+			if _active_pets[pet_uuid].get("owner_username", "") == username:
+				to_despawn.append(pet_uuid)
+		for pet_uuid in to_despawn:
+			_despawn_pet_entity(pet_uuid)
+		# Spawn summoned pets in the player's current map.
+		for pet_uuid in clean_summoned:
+			_spawn_pet_internal(username, pet_uuid)
+
 
 func clear_player(username: String) -> void:
 	_rosters.erase(username)
@@ -1389,29 +1408,28 @@ func client_is_pet_summoned(pet_uuid: String) -> bool:
 # ═══════════════════════════════════════════════════════════════════════════
 
 func _on_player_spawned_on_map(player_id: int) -> void:
+	# This signal fires from MapManager BEFORE the player's _load_data runs,
+	# so on initial join the roster isn't populated yet and we can't reliably
+	# spawn here. The actual respawn now happens inside `load_pets`, which
+	# runs from _load_data with the player already in the map tree. This
+	# handler just clears stale _active_pets entries left behind by the
+	# networked_entities cleanup on map change.
 	if not multiplayer.is_server():
 		return
 	if BotManager.is_bot(player_id):
 		return
-
 	var player := PlayerManager.get_player_node(player_id)
 	if not is_instance_valid(player):
 		return
 	var username: String = player.username
-	if username.is_empty() or not _rosters.has(username):
+	if username.is_empty():
 		return
-
-	# Despawn any existing pet entities for this player (they're on the old map).
 	var to_despawn: Array = []
 	for pet_uuid in _active_pets:
 		if _active_pets[pet_uuid].get("owner_username", "") == username:
 			to_despawn.append(pet_uuid)
 	for pet_uuid in to_despawn:
 		_despawn_pet_entity(pet_uuid)
-
-	# Re-spawn summoned pets on the new map.
-	for pet_uuid in (_rosters[username][KEY_SUMMONED] as Array).duplicate():
-		_spawn_pet_internal(username, pet_uuid)
 
 
 func _on_peer_disconnected(peer_id: int) -> void:
