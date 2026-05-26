@@ -11,7 +11,7 @@ var initial_direction: Vector2 = Vector2.RIGHT
 var ability: AbilityData
 var level_stats: AbilityLevelData
 
-@onready var sprite_2d: Sprite2D = $Sprite2D
+@onready var sprite_2d: Node2D = $Sprite2D
 
 func _ready() -> void:
 	# The projectile should only detect collisions on the server
