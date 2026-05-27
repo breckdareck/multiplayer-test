@@ -7,8 +7,13 @@ var player
 
 var attack_speed_percent: float:
 	get():
-		if parent.equipment_component.weapon_slot_data.item != null:
-			return float(100.0 / ((20.0 - parent.equipment_component.weapon_slot_data.item.weapon_attack_speed) / 16.0)) / 100
+		# PR 3: route attack speed through the ACTIVE weapon so a swap to a
+		# faster/slower weapon takes effect immediately. Reads through the
+		# active_weapon_data accessor so the inactive slot's stats don't
+		# bleed in.
+		var active_weapon: WeaponData = parent.equipment_component.active_weapon_data
+		if active_weapon != null:
+			return float(100.0 / ((20.0 - active_weapon.weapon_attack_speed) / 16.0)) / 100
 		else:
 			return 1
 
@@ -58,10 +63,13 @@ func _play_animation(anim_name: String) -> void:
 				animations.play(anim_name, attack_speed_percent)
 
 func _start_basic_attack():
-	"""Executes a basic melee attack, or Arrow Shot for Archer/Ranger"""
+	"""Executes a basic melee attack, or Arrow Shot for the wielded weapon's
+	discipline. Uses the player's CURRENTLY-WIELDED discipline (via
+	get_active_discipline), not the starting class — so a Swordsman who swapped
+	to a bow correctly fires arrows, and a Mage who picked up a sword swings."""
 	var is_archer := false
-	if player.class_component:
-		var cls: int = player.class_component.current_class
+	if player.has_method("get_active_discipline"):
+		var cls: int = player.get_active_discipline()
 		is_archer = cls == Constants.ClassType.BOW or cls == Constants.ClassType.RANGER
 
 	if is_archer and _try_use_arrow_shot():

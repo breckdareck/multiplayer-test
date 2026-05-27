@@ -93,6 +93,13 @@ func _process(_delta: float) -> void:
 	if Input.is_action_just_pressed("Portal Interact"):
 		PlayerManager.player_input.rpc_id(1, "portal")
 
+	# PR 3: Tab cycles between primary and secondary weapons. Routes through
+	# PlayerManager.player_input -> the player node's request_weapon_swap_server
+	# RPC so the server validates the cooldown / occupancy and broadcasts the
+	# authoritative result.
+	if Input.is_action_just_pressed("Weapon Swap Loadout"):
+		PlayerManager.player_input.rpc_id(1, "weapon_swap")
+
 
 func _on_left_button_button_down() -> void:
 	if _is_being_cleaned_up:

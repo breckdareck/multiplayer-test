@@ -485,13 +485,14 @@ inventory_grids = [NodePath("../../../CanvasLayer/MoveableWindows/InventoryWindo
 equipment_component = NodePath("../../Equipment")
 stats_component = NodePath("../../Stats")
 
-[node name="Equipment" type="Node" parent="Components" node_paths=PackedStringArray("head_slot", "chest_slot", "legs_slot", "feet_slot", "weapon_slot")]
+[node name="Equipment" type="Node" parent="Components" node_paths=PackedStringArray("head_slot", "chest_slot", "legs_slot", "feet_slot", "weapon_slot", "secondary_weapon_slot")]
 script = ExtResource("13_ihqbe")
 head_slot = NodePath("../../CanvasLayer/MoveableWindows/EquipmentWindow/PanelContainer/GridContainer/HeadSlot")
 chest_slot = NodePath("../../CanvasLayer/MoveableWindows/EquipmentWindow/PanelContainer/GridContainer/ChestSlot")
 legs_slot = NodePath("../../CanvasLayer/MoveableWindows/EquipmentWindow/PanelContainer/GridContainer/LegsSlot")
 feet_slot = NodePath("../../CanvasLayer/MoveableWindows/EquipmentWindow/PanelContainer/GridContainer/FeetSlot")
 weapon_slot = NodePath("../../CanvasLayer/MoveableWindows/EquipmentWindow/PanelContainer/GridContainer/WeaponSlot")
+secondary_weapon_slot = NodePath("../../CanvasLayer/MoveableWindows/EquipmentWindow/PanelContainer/GridContainer/SecondaryWeaponSlot")
 
 [node name="Leveling" type="Node" parent="Components"]
 script = ExtResource("3_18ciy")

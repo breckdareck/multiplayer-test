@@ -238,9 +238,12 @@ func _recalculate_stats() -> void:
 				stats[stat_type].base_value += bonus
 
 	# Add equipment bonuses (single pass) — read the SlotData model so this
-	# works with no equipment UI (headless / bot).
+	# works with no equipment UI (headless / bot). PR 3: use the
+	# stat-contributing filter so only the ACTIVE weapon's bonus_stats fold
+	# in. The inactive (secondary or primary, depending on swap state) sits
+	# in equipment storage but does NOT contribute to live stats.
 	if _equipment_component:
-		for slot in _equipment_component.get_all_slot_data():
+		for slot in _equipment_component.get_stat_contributing_slot_data():
 			if slot.item != null and slot.item.bonus_stats != null:
 				for stat_type in slot.item.bonus_stats:
 					if stats.has(stat_type):

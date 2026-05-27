@@ -346,6 +346,50 @@ text = "WEAPON"
 scroll_active = false
 autowrap_mode = 2
 
+[node name="SecondaryWeaponSlot" type="PanelContainer" parent="PanelContainer/GridContainer"]
+custom_minimum_size = Vector2(55, 55)
+layout_mode = 2
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxFlat_tuhj4")
+script = ExtResource("4_84hex")
+allowed_equipment_type = 1
+allowed_item_type = 1
+
+[node name="Panel" type="Panel" parent="PanelContainer/GridContainer/SecondaryWeaponSlot"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_3xeyi")
+
+[node name="TextureRect" type="TextureRect" parent="PanelContainer/GridContainer/SecondaryWeaponSlot"]
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="PanelContainer/GridContainer/SecondaryWeaponSlot"]
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_constants/outline_size = 8
+theme_override_fonts/font = ExtResource("3_h143n")
+theme_override_font_sizes/font_size = 24
+label_settings = SubResource("LabelSettings_tuhj4")
+vertical_alignment = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/GridContainer/SecondaryWeaponSlot"]
+layout_mode = 2
+theme_override_constants/margin_left = 2
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 2
+theme_override_constants/margin_bottom = 2
+
+[node name="SlotTextLabel" type="RichTextLabel" parent="PanelContainer/GridContainer/SecondaryWeaponSlot/MarginContainer"]
+layout_mode = 2
+mouse_filter = 1
+theme_override_colors/default_color = Color(0.97227865, 0.9722778, 0.97227794, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.28627452)
+theme_override_font_sizes/normal_font_size = 10
+text = "2ND WEAPON"
+scroll_active = false
+autowrap_mode = 2
+
 [node name="PetTabContent" type="PanelContainer" parent="."]
 visible = false
 layout_mode = 1

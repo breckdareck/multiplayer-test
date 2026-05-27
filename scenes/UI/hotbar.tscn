@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://op5a1mqidavt"]
+[gd_scene load_steps=5 format=3 uid="uid://op5a1mqidavt"]
 
 [ext_resource type="Script" uid="uid://c0rkvuk20x8br" path="res://scripts/UI/hotbar.gd" id="1_hotbar"]
+[ext_resource type="PackedScene" path="res://scenes/UI/hotbar_weapon_slot.tscn" id="2_wslot"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hotbar"]
 content_margin_left = 5.0
@@ -18,6 +19,11 @@ corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_separator"]
+content_margin_left = 4.0
+content_margin_right = 4.0
+bg_color = Color(0, 0, 0, 0)
+
 [node name="Hotbar" type="Control"]
 layout_mode = 3
 anchors_preset = 7
@@ -25,9 +31,9 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -260.0
+offset_left = -325.0
 offset_top = -80.0
-offset_right = 260.0
+offset_right = 325.0
 offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 0
@@ -42,7 +48,29 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_hotbar")
 
-[node name="SlotsContainer" type="HBoxContainer" parent="Background"]
+[node name="RootHBox" type="HBoxContainer" parent="Background"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="WeaponSwapSection" type="HBoxContainer" parent="Background/RootHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="PrimaryWeaponSlot" parent="Background/RootHBox/WeaponSwapSection" instance=ExtResource("2_wslot")]
+layout_mode = 2
+slot_kind = "primary"
+
+[node name="SecondaryWeaponSlot" parent="Background/RootHBox/WeaponSwapSection" instance=ExtResource("2_wslot")]
+layout_mode = 2
+slot_kind = "secondary"
+
+[node name="Separator" type="Panel" parent="Background/RootHBox"]
+custom_minimum_size = Vector2(2, 50)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_separator")
+
+[node name="SlotsContainer" type="HBoxContainer" parent="Background/RootHBox"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 4
