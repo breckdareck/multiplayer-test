@@ -184,11 +184,44 @@ func _ready() -> void:
 	# can't fight effectively until they earn their first ability point on
 	# level-up. Save data still overrides this — returning characters keep
 	# whatever level they had leveled the ability to.
+	#
+	# PR 4 fix (2026-05-28): all FOUR tier-1 disciplines' starter abilities
+	# are auto-leveled to 1, not just the player's starting class's starter.
+	# So when a Swordsman picks up a bow they immediately have Double Shot
+	# ready to fire instead of being stuck with a basic-attack swing of a
+	# weapon they have no abilities for. Each discipline's full ability list
+	# is also added at level 0 so the AbilityWindow can show them with a
+	# "Learn" / "+" affordance.
 	if not multiplayer.has_multiplayer_peer() or multiplayer.is_server():
+		# Original class abilities first (keeps the existing per-class starter
+		# behavior intact for the player's chosen discipline).
 		var starter: AbilityData = _class_component.get_starter_ability() if _class_component else null
 		for ability_data in _class_component.get_class_abilities():
 			if ability_data and not _ability_levels.has(ability_data.ability_id):
 				var initial_level: int = 1 if (starter and ability_data == starter) else 0
+				_learn_ability_local(ability_data.ability_id, initial_level, false)
+
+		# Then iterate the OTHER three tier-1 disciplines and seed their
+		# starter abilities at level 1 + the rest of each tree at level 0.
+		# Skips the starting discipline (already handled above) and tier-2
+		# advancement classes (those live in their tier-1 parent's tree).
+		var starting_class: int = _class_component.current_class if _class_component else -1
+		for tier1_disc in [
+			Constants.ClassType.SWORD,
+			Constants.ClassType.BOW,
+			Constants.ClassType.STAFF,
+			Constants.ClassType.DAGGER,
+		]:
+			if tier1_disc == starting_class:
+				continue
+			var disc_data: WeaponDisciplineData = ResourceManager.get_class_data(tier1_disc)
+			if disc_data == null:
+				continue
+			var disc_starter: AbilityData = disc_data.starter_ability
+			for ability_data in disc_data.skills:
+				if ability_data == null or _ability_levels.has(ability_data.ability_id):
+					continue
+				var initial_level: int = 1 if (disc_starter and ability_data == disc_starter) else 0
 				_learn_ability_local(ability_data.ability_id, initial_level, false)
 
 	##print("AbilityComponent ready. Loaded abilities: ", _ability_levels)
