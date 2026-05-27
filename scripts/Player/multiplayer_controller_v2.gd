@@ -379,7 +379,7 @@ func _setup_signals() -> void:
 		
 	if ability_component:
 		ability_component.ability_leveled_up.connect(func(_a, _l): _data_changed("abilities"))
-		ability_component.ability_points_changed.connect(func(_p): _data_changed("abilities"))
+		ability_component.ability_points_changed.connect(func(_k, _p): _data_changed("abilities"))
 		ability_component.ability_learned.connect(func(_a): _data_changed("abilities"))
 
 	if inventory_component:

@@ -31,6 +31,18 @@ through `scripts/Networking/network_manager.gd`.
   as quests. On the wire, the save/load endpoints flatten this into two
   top-level keys (`pets`, `summoned_pet_ids`) to match Godot's existing save
   shape — see `multiplayer_controller_v2.get_save_data` and `PetManager.load_pets`.
+- `Player.weapon_mastery` (PR 2) is a **JSONB blob** keyed by lowercase
+  discipline name: `{sword: {level, xp}, bow: {level, xp}, staff: {level, xp},
+  dagger: {level, xp}}`. NULL on legacy rows; Godot's `WeaponMasteryComponent`
+  initializes missing keys to `{level: 0, xp: 0}` on load.
+- `Player.ability_points_per_discipline` (PR 4) is a **JSONB blob** keyed by
+  the same lowercase discipline names, values are int pools:
+  `{sword: 12, bow: 3, staff: 0, dagger: 0}`. The legacy `Player.ability_points`
+  int column is still populated as `sum(values)` for one release as a
+  fallback safety net but should not be read for spending decisions — the
+  authoritative pools live in the JSONB column. NULL on legacy rows; the
+  save handler distributes the legacy int evenly into all four pools (with
+  remainder going to the player's starting discipline) on first save.
 
 ## Conventions
 

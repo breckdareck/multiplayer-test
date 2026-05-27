@@ -17,6 +17,19 @@ const ABILITYSLOT = preload("res://scenes/UI/ability_slot.tscn")
 @onready var cost_label: Label = %CostLabel
 @onready var level_up_button: Button = %LevelUpButton
 @onready var skill_points_label: Label = %SkillPointsLabel
+## PR 4: TabBar above the list, one tab per weapon discipline. Selecting a
+## tab filters the ability list and switches the SP label to the matching
+## discipline pool.
+@onready var discipline_tab_bar: TabBar = %DisciplineTabBar
+
+## PR 4: discipline keys in tab order. Stays in lockstep with TabBar tab
+## indices set in `abilities_window.tscn`.
+const DISCIPLINE_TAB_KEYS: Array[String] = ["sword", "bow", "staff", "dagger"]
+const DISCIPLINE_TAB_TITLES: Array[String] = ["Sword", "Bow", "Staff", "Dagger"]
+
+## PR 4: which discipline tab is currently selected. Drives both the list
+## filter and the SP-label readout.
+var _current_discipline_key: String = "sword"
 
 var selected_ability_id: String = ""
 var player: MultiplayerPlayerV2
@@ -44,22 +57,36 @@ func _ready():
 	
 	# Connect signals
 	level_up_button.pressed.connect(on_level_up_button_pressed)
-	
+
+	# PR 4: discipline tab bar drives the list filter + SP label.
+	if is_instance_valid(discipline_tab_bar):
+		discipline_tab_bar.tab_selected.connect(_on_discipline_tab_selected)
+
 	# Connect to ability component signals
 	if ability_component:
 		ability_component.ability_leveled_up.connect(_on_ability_leveled_up)
 		ability_component.ability_learned.connect(_on_ability_learned)
+		# PR 4: signal now carries (discipline_key, new_total). The handler
+		# only refreshes the UI when the changed key matches the open tab.
 		ability_component.ability_points_changed.connect(_on_ability_points_changed)
+		# PR 4: surface a UI ping when a spend is denied (empty pool, etc).
+		if ability_component.has_signal("ability_points_spend_denied"):
+			ability_component.ability_points_spend_denied.connect(_on_ability_points_spend_denied)
 		##print("AbilityWindow: Connected to ability component signals")
-	
+
+	# PR 4: default the tab to the player's currently-active discipline so
+	# someone who just swapped to a bow opens the window directly on the Bow
+	# tab. Falls back to Sword on lookup failure.
+	_select_initial_discipline()
+
 	# Load UI
 	update_skill_points_display()
 	load_ability_list()
-	
+
 	# Select first ability if any exist
-	if ability_component and not ability_component._ability_levels.is_empty():
-		var first_ability_id = ability_component._ability_levels.keys()[0]
-		select_ability(first_ability_id)
+	var first_id_in_tab: String = _first_ability_id_in_current_tab()
+	if first_id_in_tab != "":
+		select_ability(first_id_in_tab)
 	else:
 		clear_details()
 
@@ -75,11 +102,20 @@ func _process(_delta: float) -> void:
 			elif not InputManager.is_locked():
 				self.visible = true
 				if self.visible:
+					# PR 4: re-default the tab to whichever discipline the
+					# player is currently wielding -- so swap-then-open keeps
+					# the open tab in sync with the visible weapon.
+					_select_initial_discipline()
 					# Refresh the display when opening
 					update_skill_points_display()
 					load_ability_list()
-					if selected_ability_id:
+					var first_id := _first_ability_id_in_current_tab()
+					if selected_ability_id != "" and _ability_in_current_tab(selected_ability_id):
 						select_ability(selected_ability_id)
+					elif first_id != "":
+						select_ability(first_id)
+					else:
+						clear_details()
 			
 	if is_dragging:
 		global_position = get_global_mouse_position() - drag_offset
@@ -105,26 +141,32 @@ func _gui_input(event: InputEvent) -> void:
 			is_dragging = false
 
 
-## Clears the list and generates AbilitySlot nodes for each ability
+## Clears the list and generates AbilitySlot nodes for each ability.
+## PR 4: filters to the currently-selected discipline tab so each tab only
+## shows the abilities that belong to it (via AbilityData.required_class[0]).
 func load_ability_list():
 	if not ability_component:
 		return
-		
+
 	for child in ability_list_container.get_children():
 		child.queue_free()
-	
-	# Get all abilities from the ability component
+
+	# Get all abilities from the ability component, filtered by the active tab.
 	for ability_id in ability_component._ability_levels.keys():
 		var ability_data = ResourceManager.get_ability_data(ability_id)
 		if not ability_data:
 			continue
-			
+
+		# PR 4: filter by the currently-selected discipline tab.
+		if _ability_discipline_key(ability_data) != _current_discipline_key:
+			continue
+
 		var current_level = ability_component._ability_levels[ability_id]
 		var slot = ABILITYSLOT.instantiate()
 		slot.setup(ability_data, current_level)
 		slot.ability_selected.connect(select_ability)
 		ability_list_container.add_child(slot)
-		
+
 		# Select first ability if none is selected
 		if selected_ability_id.is_empty():
 			select_ability(ability_id)
@@ -236,7 +278,11 @@ func update_details(data: AbilityData, current_level: int):
 
 		# Level Up Cost/Button Logic
 		var cost = 1
-		var available_points = ability_component.get_available_ability_points()
+		# PR 4: read the per-discipline pool for the ability we're showing,
+		# not the global sum. "Not Enough SP" should fire when the *owning*
+		# discipline's pool is empty even if other tabs have spare points.
+		var ability_disc_key: String = _ability_discipline_key(data)
+		var available_points: int = ability_component.get_available_points_for_discipline(ability_disc_key) if ability_disc_key != "" else 0
 		var can_level_up = ability_component.can_level_up_ability(data.ability_id)
 		
 		# Update button text based on current level
@@ -532,14 +578,17 @@ func on_level_up_button_pressed():
 	ability_component.level_up_ability(selected_ability_id)
 
 
-## Updates the SP display in the header
+## Updates the SP display in the header.
+## PR 4: reads the active discipline tab's pool, not the global total, so
+## the header reflects what the player can actually spend in this tab.
 func update_skill_points_display():
 	if not ability_component:
 		skill_points_label.text = "SP: 0"
 		return
-		
-	var points = ability_component.get_available_ability_points()
-	skill_points_label.text = "SP: %d" % points
+
+	var tab_label: String = _current_discipline_tab_title()
+	var points = ability_component.get_available_points_for_discipline(_current_discipline_key)
+	skill_points_label.text = "%s SP: %d" % [tab_label, points]
 
 
 ## Signal callback when ability levels up
@@ -567,16 +616,142 @@ func _on_ability_learned(ability_id: String):
 		select_ability(ability_id)
 
 
-## Signal callback when ability points change
-func _on_ability_points_changed(_new_total: int):
-	##print("AbilityWindow: Ability points changed to %d" % new_total)
-	
-	# Update skill points display
-	update_skill_points_display()
-	
+## PR 4: signal callback when ability points change for a single
+## discipline. Updates the header only when the changed discipline matches
+## the currently-open tab; refreshes button state regardless so the right
+## panel reflects the new pool.
+func _on_ability_points_changed(discipline_key: String, _new_total: int):
+	##print("AbilityWindow: %s points changed to %d" % [discipline_key, _new_total])
+
+	if discipline_key == _current_discipline_key:
+		update_skill_points_display()
+
 	# Refresh the details panel to update button state
 	if selected_ability_id:
 		var selected_data = ResourceManager.get_ability_data(selected_ability_id)
 		if selected_data:
 			var current_level = ability_component.get_ability_level(selected_ability_id)
 			update_details(selected_data, current_level)
+
+
+## PR 4: surface a denial when the player tries to spend a point with an
+## empty pool (or on an unmapped ability). Lightweight UI ping only --
+## the actual cost label is already painted red by `update_details`.
+func _on_ability_points_spend_denied(_ability_id: String, _reason: String) -> void:
+	# Trigger an unobtrusive UI feedback (color flash on cost label). The
+	# existing red-coloured "Not Enough SP" text covers the empty-pool case
+	# already; this is the hook for future audio/animation polish.
+	if is_instance_valid(cost_label):
+		var prior: Color = cost_label.get_theme_color("font_color")
+		cost_label.add_theme_color_override("font_color", Color(1, 0.3, 0.3))
+		await get_tree().create_timer(0.15).timeout
+		if is_instance_valid(cost_label):
+			cost_label.add_theme_color_override("font_color", prior)
+
+
+## PR 4: called by the TabBar when the player clicks a discipline tab.
+## Switches the filter + SP label, rebuilds the list, and auto-selects the
+## first ability in the new tab (if any).
+func _on_discipline_tab_selected(tab_index: int) -> void:
+	if tab_index < 0 or tab_index >= DISCIPLINE_TAB_KEYS.size():
+		return
+	_current_discipline_key = DISCIPLINE_TAB_KEYS[tab_index]
+	selected_ability_id = ""
+	update_skill_points_display()
+	load_ability_list()
+	var first_id := _first_ability_id_in_current_tab()
+	if first_id != "":
+		select_ability(first_id)
+	else:
+		clear_details()
+
+
+## PR 4: maps an AbilityData to its primary discipline key by reading
+## `required_class[0]`. Returns "" for abilities with no required_class --
+## those don't fit in any tab and are hidden from the list.
+func _ability_discipline_key(ability: AbilityData) -> String:
+	if ability == null:
+		return ""
+	if ability.required_class == null or ability.required_class.is_empty():
+		return ""
+	return _class_type_to_discipline_key(ability.required_class[0])
+
+
+## PR 4: maps a `Constants.ClassType` int (tier-1 or tier-2 advancement)
+## to the lowercase discipline key. Mirrors `AbilityComponent`'s helper
+## so the UI doesn't have to reach back across the component boundary.
+func _class_type_to_discipline_key(class_type: int) -> String:
+	match class_type:
+		Constants.ClassType.SWORD, Constants.ClassType.CRUSADER:
+			return "sword"
+		Constants.ClassType.BOW, Constants.ClassType.RANGER:
+			return "bow"
+		Constants.ClassType.STAFF, Constants.ClassType.ARCHMAGE:
+			return "staff"
+		Constants.ClassType.DAGGER, Constants.ClassType.ASSASSIN:
+			return "dagger"
+	return ""
+
+
+## PR 4: returns true if the given ability ID belongs to the active tab.
+## Used on window-open to decide whether to keep the previously-selected
+## ability or auto-pick the first ability in the new tab.
+func _ability_in_current_tab(ability_id: String) -> bool:
+	if ability_id.is_empty():
+		return false
+	var ability_data: AbilityData = ResourceManager.get_ability_data(ability_id)
+	if ability_data == null:
+		return false
+	return _ability_discipline_key(ability_data) == _current_discipline_key
+
+
+## PR 4: returns the first known ability ID that belongs to the current
+## discipline tab. Used to auto-select on tab change / window open.
+func _first_ability_id_in_current_tab() -> String:
+	if not ability_component:
+		return ""
+	for ability_id in ability_component._ability_levels.keys():
+		var ability_data: AbilityData = ResourceManager.get_ability_data(ability_id)
+		if ability_data == null:
+			continue
+		if _ability_discipline_key(ability_data) == _current_discipline_key:
+			return ability_id
+	return ""
+
+
+## PR 4: defaults the open tab to the player's currently-wielded
+## discipline (driven by the equipped weapon, falling back to the
+## starting class). Called on _ready and again on window open.
+func _select_initial_discipline() -> void:
+	var key: String = _resolve_active_discipline_key()
+	var idx: int = DISCIPLINE_TAB_KEYS.find(key)
+	if idx < 0:
+		idx = 0
+	_current_discipline_key = DISCIPLINE_TAB_KEYS[idx]
+	if is_instance_valid(discipline_tab_bar):
+		discipline_tab_bar.current_tab = idx
+
+
+## PR 4: queries the player for its current active-discipline ClassType
+## and translates that to a lowercase tab key. Falls back to the starting
+## class when no weapon is equipped, then to "sword" on any failure.
+func _resolve_active_discipline_key() -> String:
+	if is_instance_valid(player):
+		if player.has_method("get_active_discipline"):
+			var disc: int = player.get_active_discipline()
+			var key: String = _class_type_to_discipline_key(disc)
+			if key != "":
+				return key
+		if is_instance_valid(player.class_component):
+			var key2: String = _class_type_to_discipline_key(player.class_component.current_class)
+			if key2 != "":
+				return key2
+	return "sword"
+
+
+## PR 4: tab title string for the current tab.
+func _current_discipline_tab_title() -> String:
+	var idx: int = DISCIPLINE_TAB_KEYS.find(_current_discipline_key)
+	if idx < 0:
+		return ""
+	return DISCIPLINE_TAB_TITLES[idx]

@@ -11,7 +11,16 @@ signal ability_used(ability_id: String)
 signal cooldown_started(ability_id: String, duration: float)
 signal ability_leveled_up(ability_id: String, new_level: int)
 signal ability_learned(ability_id: String)
-signal ability_points_changed(new_total: int)
+## PR 4: ability points are pooled per-weapon-discipline. The signal
+## carries the affected discipline ("sword" / "bow" / "staff" / "dagger")
+## and the new total for that discipline only. UI consumers should refresh
+## the matching tab; existing "mark data dirty" callbacks ignore the args
+## and just re-save.
+signal ability_points_changed(discipline_key: String, new_total: int)
+## PR 4: fired when a spend was denied because the discipline pool was
+## empty (or the ability is not bound to any tier-1 discipline). The
+## AbilityWindow uses this to surface a UI ping.
+signal ability_points_spend_denied(ability_id: String, reason: String)
 #endregion
 
 
@@ -54,8 +63,28 @@ var _weapon_mastery_component: WeaponMasteryComponent
 # State variables
 var _cooldowns: Dictionary = {} # { ability_id: time_remaining }
 var _ability_levels: Dictionary = {} # { ability_id: current_level }
-var _available_ability_points: int = 0
+## PR 4: per-weapon-discipline ability point pools. Keys are the lowercase
+## discipline strings ("sword" / "bow" / "staff" / "dagger"); values are
+## ints. Replaces the legacy single-pool `_available_ability_points: int`.
+## Save migration in `load_abilities` redistributes the legacy int evenly
+## across the four pools, with the remainder going to the player's
+## starting discipline.
+var _available_points_per_discipline: Dictionary = {
+	"sword": 0,
+	"bow": 0,
+	"staff": 0,
+	"dagger": 0,
+}
 var _loading_mode: bool = false
+
+## PR 4: how many ability points each level-up grants. Awarded entirely to
+## the active weapon's discipline pool (the discipline the player is
+## wielding at the moment the level-up signal fires).
+const ABILITY_POINTS_PER_LEVEL: int = 3
+
+## PR 4: canonical lowercase discipline keys, in display order (the order
+## the AbilityWindow renders tabs).
+const DISCIPLINE_KEYS: Array[String] = ["sword", "bow", "staff", "dagger"]
 
 # PR 3: per-weapon hotbar bindings (Option A — ESO model).
 # Each weapon carries its own independent hotbar layout. Bind Slash Blast to
@@ -256,6 +285,59 @@ func try_trigger_procs(event_type: String, target: Node = null, context: Diction
 ## Helper to check if we're a client in a multiplayer session
 func _is_multiplayer_client() -> bool:
 	return multiplayer.has_multiplayer_peer() and not multiplayer.is_server()
+
+
+## PR 4: returns the lowercase discipline key for an ability based on its
+## `required_class[0]`. Maps SWORD/CRUSADER -> "sword", BOW/RANGER ->
+## "bow", STAFF/ARCHMAGE -> "staff", DAGGER/ASSASSIN -> "dagger". Returns
+## "" for abilities without a `required_class` entry; those become
+## unspendable per the locked design ("every ability belongs to a weapon
+## tree"). Authors should fix any flagged ability instead of relying on
+## a fallback bucket.
+func _ability_primary_discipline(ability: AbilityData) -> String:
+	if ability == null:
+		return ""
+	if ability.required_class == null or ability.required_class.is_empty():
+		return ""
+	return _class_type_to_discipline_key(ability.required_class[0])
+
+
+## Maps a `Constants.ClassType` enum value (tier-1 starting discipline OR
+## tier-2 advancement) to the lowercase discipline key the per-pool dict
+## uses. Returns "" for BEGINNER (no tree).
+func _class_type_to_discipline_key(class_type: int) -> String:
+	match class_type:
+		Constants.ClassType.SWORD, Constants.ClassType.CRUSADER:
+			return "sword"
+		Constants.ClassType.BOW, Constants.ClassType.RANGER:
+			return "bow"
+		Constants.ClassType.STAFF, Constants.ClassType.ARCHMAGE:
+			return "staff"
+		Constants.ClassType.DAGGER, Constants.ClassType.ASSASSIN:
+			return "dagger"
+	return ""
+
+
+## Returns the discipline key the player is *currently wielding* - driven
+## by the active weapon, not the starting class. Falls back to "" when no
+## weapon is equipped (callers can substitute the starting discipline).
+func _active_discipline_key() -> String:
+	if not is_instance_valid(owner):
+		return ""
+	if owner.has_method("get_active_discipline"):
+		var disc: int = owner.get_active_discipline()
+		return _class_type_to_discipline_key(disc)
+	return ""
+
+
+## Returns the discipline key for the player's starting class - used as a
+## fallback when the active weapon can't supply one (e.g. unequipped at
+## first level-up after creation) and as the "remainder" target for the
+## legacy-save even-distribute migration.
+func _starting_discipline_key() -> String:
+	if is_instance_valid(_class_component):
+		return _class_type_to_discipline_key(_class_component.current_class)
+	return ""
 
 
 ## Helper function to iterate through all learned passive abilities
@@ -493,27 +575,47 @@ func _trigger_ability_state_change(ability: AbilityData, level_stats: AbilityLev
 func _level_up_ability_local(ability_id: String) -> bool:
 	if not can_level_up_ability(ability_id):
 		##print("Validation failed for leveling up ability: %s." % ability_id)
+		# PR 4: surface a precise denial reason for the AbilityWindow to ping.
+		var ability_for_reason: AbilityData = ResourceManager.get_ability_data(ability_id)
+		if ability_for_reason:
+			var denial_key: String = _ability_primary_discipline(ability_for_reason)
+			if denial_key == "":
+				ability_points_spend_denied.emit(ability_id, "no_discipline")
+			elif int(_available_points_per_discipline.get(denial_key, 0)) <= 0:
+				ability_points_spend_denied.emit(ability_id, "no_points")
+			else:
+				ability_points_spend_denied.emit(ability_id, "blocked")
 		return false
 
 	var ability = ResourceManager.get_ability_data(ability_id)
 	var current_level = _ability_levels[ability_id]
-	
-	_available_ability_points -= 1
+
+	# PR 4: spend one point from the discipline pool that owns this ability.
+	# `can_level_up_ability` already validated the pool; we re-derive the key
+	# here rather than trust the caller.
+	var disc_key: String = _ability_primary_discipline(ability)
+	if disc_key != "" and _available_points_per_discipline.has(disc_key):
+		_available_points_per_discipline[disc_key] = max(0, int(_available_points_per_discipline[disc_key]) - 1)
 	_ability_levels[ability_id] = current_level + 1
-	
+
 	# Re-apply passive effects if a passive ability was leveled up
 	if ability.ability_type == Constants.AbilityType.PASSIVE:
 		_apply_passive_effects()
 
 	ability_leveled_up.emit(ability_id, current_level + 1)
 	##print("Leveled up %s to level %d" % [ability.ability_name, current_level + 1])
-	
+
+	# PR 4: fire the per-discipline points-changed signal so the right tab
+	# refreshes.
+	if disc_key != "":
+		ability_points_changed.emit(disc_key, int(_available_points_per_discipline.get(disc_key, 0)))
+
 	# Sync changes to clients (bots have no client UI — skip to avoid a
 	# node-addressed RPC failing on clients that lack the bot node).
 	if multiplayer.is_server() and not BotManager.is_bot(owner.player_id):
 		sync_ability_level.rpc(ability_id, current_level + 1)
-		sync_ability_points.rpc(_available_ability_points)
-	
+		sync_ability_points_per_discipline.rpc(_available_points_per_discipline.duplicate())
+
 	return true
 
 
@@ -547,14 +649,23 @@ func _apply_passive_effects() -> void:
 		_stats_component.mark_stats_dirty()
 
 
-## Adds ability points, typically called after leveling up.
-func _add_ability_points(amount: int) -> void:
-	_available_ability_points += amount
-	##print("Added %d ability points. Total: %d" % [amount, _available_ability_points])
-	ability_points_changed.emit(_available_ability_points)
+## PR 4: grants ability points to a specific weapon-discipline pool.
+## `discipline_key` is one of "sword" / "bow" / "staff" / "dagger". An
+## empty or unknown key falls back to the player's starting-class
+## discipline so level-ups never silently lose points.
+func _add_ability_points(amount: int, discipline_key: String = "") -> void:
+	var key: String = discipline_key
+	if key == "" or not _available_points_per_discipline.has(key):
+		key = _starting_discipline_key()
+	if key == "":
+		push_warning("AbilityComponent: no discipline available to credit %d points to" % amount)
+		return
+	_available_points_per_discipline[key] = int(_available_points_per_discipline.get(key, 0)) + amount
+	##print("Added %d ability points to %s. Total: %d" % [amount, key, _available_points_per_discipline[key]])
+	ability_points_changed.emit(key, int(_available_points_per_discipline[key]))
 
 	if multiplayer.is_server() and not BotManager.is_bot(owner.player_id):
-		sync_ability_points.rpc(_available_ability_points)
+		sync_ability_points_per_discipline.rpc(_available_points_per_discipline.duplicate())
 
 
 func _execute_proc(proc: ProcEffectData, target: Node, context: Dictionary) -> void:
@@ -699,7 +810,7 @@ func sync_all_abilities_to_client(peer_id: int) -> void:
 	sync_all_abilities_batch.rpc_id(
 		peer_id,
 		_ability_levels.duplicate(),
-		_available_ability_points,
+		_available_points_per_discipline.duplicate(),
 		live_config,
 		_cooldowns.duplicate(),
 		_primary_hotbar_bindings.duplicate(),
@@ -708,9 +819,12 @@ func sync_all_abilities_to_client(peer_id: int) -> void:
 
 
 @rpc("authority", "call_local", "reliable")
+## PR 4: `ability_points` is now a per-discipline Dictionary, not an int.
+## Older clients that still send an int will be normalized via the
+## migration helper so the round-trip stays safe through the rollout.
 func sync_all_abilities_batch(
 		abilities: Dictionary,
-		ability_points: int,
+		ability_points,
 		hotbar_config: Dictionary = {},
 		cooldowns: Dictionary = {},
 		primary_bindings: Dictionary = {},
@@ -721,8 +835,9 @@ func sync_all_abilities_batch(
 	for ability_id in abilities:
 		_ability_levels[ability_id] = abilities[ability_id]
 		ability_learned.emit(ability_id)
-	_available_ability_points = ability_points
-	ability_points_changed.emit(_available_ability_points)
+	_apply_per_discipline_payload(ability_points)
+	for key in DISCIPLINE_KEYS:
+		ability_points_changed.emit(key, int(_available_points_per_discipline.get(key, 0)))
 
 	# PR 3: restore both binding arrays so the inactive weapon's bindings
 	# survive client-side swaps until the next save round-trip.
@@ -824,22 +939,30 @@ func sync_ability_learned(ability_id: String, initial_level: int) -> void:
 
 
 @rpc("authority", "reliable")
-## [Server->Client] Syncs the total available ability points to all clients.
-func sync_ability_points(new_total: int) -> void:
+## [Server->Client] PR 4: syncs the per-weapon-discipline ability point pools
+## to all clients. Replaces the legacy `sync_ability_points` int RPC.
+func sync_ability_points_per_discipline(new_pools) -> void:
 	# This RPC should only be processed by clients, not the server that sent it.
 	if multiplayer.is_server(): return
-	
-	_available_ability_points = new_total
-	ability_points_changed.emit(_available_ability_points)
+
+	_apply_per_discipline_payload(new_pools)
+	for key in DISCIPLINE_KEYS:
+		ability_points_changed.emit(key, int(_available_points_per_discipline.get(key, 0)))
 #endregion
 
 
 #region #################### Signal Callbacks ####################
 ## Called when the LevelingComponent emits the `leveled_up` signal.
+## PR 4: points are granted to the discipline the player is *currently
+## wielding*. Mainline a sword -> sword gets the points. Mid-fight swap to
+## a bow then level -> bow gets them. Falls back to the starting
+## discipline when no weapon is equipped.
 func _on_leveled_up(_new_level: int) -> void:
-	# Grant 3 ability points on level up
-	#print("Leveled up to %d. Gaining 3 ability points." % new_level)
-	_add_ability_points(3)
+	var key: String = _active_discipline_key()
+	if key == "":
+		key = _starting_discipline_key()
+	#print("Leveled up to %d. Gaining %d ability points to %s." % [new_level, ABILITY_POINTS_PER_LEVEL, key])
+	_add_ability_points(ABILITY_POINTS_PER_LEVEL, key)
 
 
 func _on_class_changed(_new_class_name: String) -> void:
@@ -882,9 +1005,22 @@ func save_abilities() -> Dictionary:
 	# Sync the live binding back into the per-weapon dict so the save reflects
 	# any edits the player made since the last swap.
 	_capture_active_bindings(live_config)
+	# PR 4: defensively normalize int values (in case a level-up's max(0, ...)
+	# or similar accidentally stored a float). Sum the pools for the legacy
+	# fallback column on the backend.
+	var per_disc_copy: Dictionary = {}
+	var legacy_total: int = 0
+	for key in _available_points_per_discipline:
+		var v: int = int(_available_points_per_discipline[key])
+		per_disc_copy[key] = v
+		legacy_total += v
 	return {
 		"ability_levels": _ability_levels.duplicate(),
-		"available_points": _available_ability_points,
+		# PR 4: legacy fallback (sum of per-discipline pools). Kept populated
+		# for one release so the backend's legacy `ability_points` column
+		# stays useful if the new JSONB column is somehow missing.
+		"available_points": legacy_total,
+		"available_points_per_discipline": per_disc_copy,
 		# Legacy compatibility: keep `hotbar_config` writing the active set so
 		# older clients / tools that read it still see a coherent layout.
 		"hotbar_config": live_config,
@@ -909,7 +1045,9 @@ func load_abilities(data: Dictionary) -> void:
 	for ability_id in saved_levels:
 		_ability_levels[ability_id] = saved_levels[ability_id]
 
-	_available_ability_points = data.get("available_points", 0)
+	# PR 4: per-discipline pool migration. Defers to a helper so the priority
+	# order (new dict > legacy int > zeros) is documented in one place.
+	_load_ability_points_with_migration(data)
 
 	# PR 3: restore both binding arrays. Legacy saves that only have
 	# `hotbar_config` populate the primary binding so a returning character
@@ -936,7 +1074,10 @@ func load_abilities(data: Dictionary) -> void:
 	# Re-apply passives and update UI with loaded data
 	_apply_passive_effects()
 	if not _loading_mode:
-		ability_points_changed.emit(_available_ability_points)
+		# PR 4: fire one signal per discipline so the AbilityWindow's per-tab
+		# labels refresh.
+		for key in DISCIPLINE_KEYS:
+			ability_points_changed.emit(key, int(_available_points_per_discipline.get(key, 0)))
 		for ability_id in _ability_levels:
 			var level = _ability_levels[ability_id]
 			if level > 0:
@@ -1024,8 +1165,27 @@ func get_ability_level(ability_id: String) -> int:
 	return _ability_levels.get(ability_id, 0)
 
 
+## PR 4: returns the sum of all per-discipline pools. Preserved for bot
+## auto-spend logic and any caller that just needs "do I have any points at
+## all?". UI consumers should prefer `get_available_points_for_discipline`.
 func get_available_ability_points() -> int:
-	return _available_ability_points
+	var total: int = 0
+	for key in _available_points_per_discipline:
+		total += int(_available_points_per_discipline.get(key, 0))
+	return total
+
+
+## PR 4: returns the available points in a specific discipline pool.
+## `discipline_key` is one of "sword" / "bow" / "staff" / "dagger".
+## Returns 0 for unknown keys.
+func get_available_points_for_discipline(discipline_key: String) -> int:
+	return int(_available_points_per_discipline.get(discipline_key, 0))
+
+
+## PR 4: returns a copy of the full per-discipline pool dictionary. UI uses
+## this to render the tab header counts.
+func get_available_points_per_discipline() -> Dictionary:
+	return _available_points_per_discipline.duplicate()
 
 
 func get_cooldown_remaining(ability_id: String) -> float:
@@ -1033,21 +1193,89 @@ func get_cooldown_remaining(ability_id: String) -> float:
 
 
 ## Checks if an ability meets all criteria to be leveled up.
+## PR 4: checks the discipline-specific pool, not the global total.
 func can_level_up_ability(ability_id: String) -> bool:
-	if _available_ability_points <= 0: return false
-	
 	var ability = ResourceManager.get_ability_data(ability_id)
 	if not ability: return false
-	
+
 	var current_level = get_ability_level(ability_id)
 	if current_level >= ability.max_level: return false
-	
+
 	# Check for prerequisite ability levels
 	if ability.prerequisite_abilities:
 		for prereq_id in ability.prerequisite_abilities:
 			var required_level = ability.prerequisite_abilities[prereq_id]
 			if get_ability_level(prereq_id.ability_id) < required_level:
 				return false
-	
+
+	# PR 4: every ability belongs to exactly one weapon discipline (read off
+	# `required_class[0]`). An ability with no discipline mapping is
+	# unspendable; that's an authoring bug. Surface it but don't crash.
+	var disc_key: String = _ability_primary_discipline(ability)
+	if disc_key == "":
+		push_warning("Ability '%s' has no required_class \u2014 cannot map to a discipline pool" % ability.ability_name)
+		return false
+	if int(_available_points_per_discipline.get(disc_key, 0)) <= 0:
+		return false
+
 	return true
+
+
+## PR 4: applies the legacy-save migration logic for ability points.
+##
+## Priority order:
+##   1. `available_points_per_discipline` (the new shape) - load verbatim,
+##      coercing values to ints and filling missing keys with 0.
+##   2. `available_points` (legacy int) - distribute evenly across the four
+##      pools, remainder to the starting discipline. Logs a warning so it's
+##      visible during testing.
+##   3. Neither - initialize all four pools to 0.
+func _load_ability_points_with_migration(data: Dictionary) -> void:
+	# Reset all pools to 0 - the dict-load case may not mention every key.
+	for key in DISCIPLINE_KEYS:
+		_available_points_per_discipline[key] = 0
+
+	if data.has("available_points_per_discipline"):
+		var saved_dict = data["available_points_per_discipline"]
+		if saved_dict is Dictionary and not saved_dict.is_empty():
+			for key in DISCIPLINE_KEYS:
+				_available_points_per_discipline[key] = int(saved_dict.get(key, 0))
+			return
+
+	if data.has("available_points"):
+		var legacy_total: int = int(data["available_points"])
+		if legacy_total > 0:
+			var base: int = legacy_total / 4
+			var remainder: int = legacy_total - (base * 4)
+			for key in DISCIPLINE_KEYS:
+				_available_points_per_discipline[key] = base
+			var starting_key: String = _starting_discipline_key()
+			if starting_key == "" or not _available_points_per_discipline.has(starting_key):
+				starting_key = "sword"
+			_available_points_per_discipline[starting_key] = base + remainder
+			push_warning("AbilityComponent: migrated legacy %d ability points \u2014 per-discipline pools (remainder %d to '%s')" % [legacy_total, remainder, starting_key])
+
+
+## PR 4: normalizes a per-discipline payload from save / RPC. Accepts
+## either the new Dictionary shape OR a legacy int (for cross-version
+## compatibility during the rollout) and writes the result into
+## `_available_points_per_discipline`. Does not emit signals; the caller
+## decides whether to fan-out per-discipline notifications.
+func _apply_per_discipline_payload(payload) -> void:
+	for key in DISCIPLINE_KEYS:
+		_available_points_per_discipline[key] = 0
+	if payload is Dictionary:
+		for key in DISCIPLINE_KEYS:
+			_available_points_per_discipline[key] = int(payload.get(key, 0))
+	elif payload is int or payload is float:
+		var legacy_total: int = int(payload)
+		if legacy_total > 0:
+			var base: int = legacy_total / 4
+			var remainder: int = legacy_total - (base * 4)
+			for key in DISCIPLINE_KEYS:
+				_available_points_per_discipline[key] = base
+			var starting_key: String = _starting_discipline_key()
+			if starting_key == "" or not _available_points_per_discipline.has(starting_key):
+				starting_key = "sword"
+			_available_points_per_discipline[starting_key] = base + remainder
 #endregion

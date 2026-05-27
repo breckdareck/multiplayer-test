@@ -15,11 +15,23 @@ Player (MultiplayerPlayerV2)
     ├── Mana       mana.gd        - MP, regen, consumption
     ├── Stats      stats.gd       - STR/DEX/INT/LUCK/... aggregates ALL bonuses
     ├── Combat     combat.gd      - hitboxes, damage calc, crit
-    ├── Ability    ability.gd     - learn/level/use abilities, cooldowns, passives
+    ├── Ability    ability.gd     - learn/level/use abilities, cooldowns, passives.
+    │                               Ability points are PER-DISCIPLINE (PR 4 — see
+    │                               available_points_per_discipline dict; level-up
+    │                               grants 3 to the active weapon's discipline).
+    ├── WeaponMastery weapon_mastery.gd - Per-discipline mastery levels + XP (PR 2)
+    │                                     mastery_data: {sword/bow/staff/dagger →
+    │                                     {level, xp}}. Drives STR/DEX/INT/LUK
+    │                                     scaling additively on top of class-level.
     ├── Buff       buff.gd        - timed buffs/debuffs, stacking, custom logic
-    ├── Class      class.gd       - current class, per-level sprites
+    ├── Class      class.gd       - current_class = STARTING discipline (does NOT
+    │                               change on weapon swap). Drives HP/MP curves.
+    │                               For "what am I wielding right now", use
+    │                               MultiplayerPlayerV2.get_active_discipline().
     ├── Leveling   level.gd       - experience and level-ups
-    ├── Equipment  equipment.gd   - 5 slots: head/chest/legs/feet/weapon
+    ├── Equipment  equipment.gd   - 6 slots after PR 3: head/chest/legs/feet/weapon
+    │                               + secondary_weapon. active_weapon tracks which
+    │                               weapon is current. Swap via request_weapon_swap_server.
     └── Inventory  inventory.gd   - item slots, stacking, drag-and-drop
 ```
 

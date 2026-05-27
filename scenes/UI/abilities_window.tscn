@@ -115,6 +115,18 @@ focus_mode = 0
 text = "X"
 flat = true
 
+[node name="DisciplineTabBar" type="TabBar" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_702f5")
+theme_override_font_sizes/font_size = 14
+tab_count = 4
+tab_0/title = "Sword"
+tab_1/title = "Bow"
+tab_2/title = "Staff"
+tab_3/title = "Dagger"
+
 [node name="HSplitContainer" type="HSplitContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
