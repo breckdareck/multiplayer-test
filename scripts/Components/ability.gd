@@ -1383,25 +1383,41 @@ func can_level_up_ability(ability_id: String) -> bool:
 
 ## PR 4: applies the legacy-save migration logic for ability points.
 ##
-## Priority order:
-##   1. `available_points_per_discipline` (the new shape) - load verbatim,
-##      coercing values to ints and filling missing keys with 0.
-##   2. `available_points` (legacy int) - distribute evenly across the four
-##      pools, remainder to the starting discipline. Logs a warning so it's
-##      visible during testing.
-##   3. Neither - initialize all four pools to 0.
+## Priority order (revised 2026-05-28):
+##   1. `available_points_per_discipline` PRESENT in `data` at all (even as
+##      an empty dict) \u2192 trust it as the source of truth. Load verbatim
+##      with missing keys defaulting to 0. Do NOT fall through to legacy.
+##   2. New key completely absent BUT legacy `available_points` int present
+##      AND > 0 \u2192 one-shot migrate: distribute evenly across the four
+##      pools, remainder to the starting discipline. Logs a warning.
+##   3. Neither \u2192 initialize all four pools to 0.
+##
+## Bug fix (2026-05-28): previously the new-shape branch required the dict
+## to be non-empty (`not saved_dict.is_empty()`). An empty dict \u2014 which the
+## backend can legitimately return when the new JSONB column is NULL or the
+## save layer hands back `{}` for a fresh-but-zeroed-pool character \u2014 fell
+## through to the legacy migration, double-granting `available_points`
+## worth of points on EVERY load. A player who spent their 3 mastery points
+## would get the migrated 3 added back on next load, ad infinitum.
+##
+## The rule now is: PRESENCE of the new key (not its contents) signals
+## "this save was written by the per-discipline-aware codepath; trust it."
+## A truly fresh character with no points still ends up with all-zero pools
+## via the dict, which is correct. Legacy migration only fires for saves
+## that predate the per-discipline shape entirely.
 func _load_ability_points_with_migration(data: Dictionary) -> void:
-	# Reset all pools to 0 - the dict-load case may not mention every key.
+	# Reset all pools to 0 \u2014 the dict-load case may not mention every key.
 	for key in DISCIPLINE_KEYS:
 		_available_points_per_discipline[key] = 0
 
 	if data.has("available_points_per_discipline"):
 		var saved_dict = data["available_points_per_discipline"]
-		if saved_dict is Dictionary and not saved_dict.is_empty():
+		if saved_dict is Dictionary:
 			for key in DISCIPLINE_KEYS:
 				_available_points_per_discipline[key] = int(saved_dict.get(key, 0))
 			return
 
+	# Only legacy migration path \u2014 fires exactly once for saves predating PR 4.
 	if data.has("available_points"):
 		var legacy_total: int = int(data["available_points"])
 		if legacy_total > 0:
