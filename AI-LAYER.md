@@ -24,8 +24,9 @@ Each subsystem guide loads additively when Claude works in that directory.
 
 Repeatable workflows. The `add-*` skills are content recipes, path-scoped
 (`paths:` frontmatter) so they auto-activate when Claude works in matching
-files. `grill-with-docs` is intent-triggered (no path scope) — invoked when
-the user wants to pressure-test a plan.
+files. `grill-with-docs` and `improve-codebase-architecture` are
+intent-triggered (no path scope) — invoked when the user wants to
+pressure-test a plan or hunt for deepening opportunities.
 
 | Skill | Path scope |
 |---|---|
@@ -36,12 +37,18 @@ the user wants to pressure-test a plan.
 | `add-map` | `scenes/Levels/`, `scripts/Gameplay/` |
 | `add-backend-endpoint` | `backend/` |
 | `grill-with-docs` | — (intent-triggered: "grill this plan", "poke holes in X", "what am I missing before I build Y") |
+| `improve-codebase-architecture` | — (intent-triggered: "what's shallow here", "find refactors", "where can we deepen", "review the architecture") |
 
 `add-ability` uses progressive disclosure — its `references/ability-fields.md`
 holds the full field and formula reference, loaded only when needed.
 `grill-with-docs` uses the same pattern: its `CONTEXT-FORMAT.md` and
 `ADR-FORMAT.md` siblings only load when the skill is about to write a glossary
-entry or an ADR.
+entry or an ADR. `improve-codebase-architecture` follows suit: its
+`LANGUAGE.md` (vocabulary), `DEEPENING.md` (dependency categories),
+`HTML-REPORT.md` (report scaffold), and `INTERFACE-DESIGN.md` (Design-It-Twice
+sub-agent pattern) load only when the skill is mid-process. It re-uses
+`grill-with-docs`'s `CONTEXT-FORMAT.md` and `ADR-FORMAT.md` for side-effect
+writes.
 
 ### Subagent — `.claude/agents/explorer.md`
 
