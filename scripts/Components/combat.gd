@@ -421,15 +421,25 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 		var was_alive: bool = not health_comp.is_dead
 		health_comp.take_damage(damage_to_deal, self, true, is_crit, false)
 
-		# Mastery-XP-on-kill (PR 2). If this hit transitioned the target from
-		# alive -> dead, grant XP_PER_KILL to the active weapon's discipline.
-		# Subsequent multi-hit iterations land on an already-dead target and
-		# `was_alive` is false, so the grant fires at most once per enemy.
+		# Mastery-XP-on-kill (PR 2; rule corrected 2026-05-28). If this hit
+		# transitioned the target from alive -> dead, grant XP_PER_KILL to BOTH
+		# the primary AND the secondary equipped weapons' disciplines — so a
+		# carried-but-unused weapon doesn't fall infinitely behind. (Cast XP
+		# in ability.gd still only credits the active weapon, so swap-spammers
+		# still gain casts on whatever they're actively wielding.) Multi-hit
+		# iterations land on an already-dead target with was_alive=false, so
+		# the grants fire at most once per enemy.
 		if was_alive and health_comp.is_dead and _weapon_mastery_component:
 			var kill_discipline := _active_weapon_discipline()
 			if kill_discipline != -1:
 				_weapon_mastery_component.grant_mastery_xp_server(
 					kill_discipline,
+					WeaponMasteryComponent.XP_PER_KILL
+				)
+			var secondary_discipline := _secondary_weapon_discipline()
+			if secondary_discipline != -1 and secondary_discipline != kill_discipline:
+				_weapon_mastery_component.grant_mastery_xp_server(
+					secondary_discipline,
 					WeaponMasteryComponent.XP_PER_KILL
 				)
 
@@ -540,6 +550,22 @@ func _active_weapon_discipline() -> int:
 			Constants.ClassType.STAFF, Constants.ClassType.DAGGER:
 				return _class_component.current_class
 	return -1
+
+
+## Returns the discipline of the SECONDARY-slot weapon, or -1 if no secondary
+## is equipped. Added 2026-05-28 so kill-XP can credit both equipped weapons
+## (the player's "carried but not wielded" weapon shouldn't fall infinitely
+## behind the one they're actively swinging — see _execute_hit).
+func _secondary_weapon_discipline() -> int:
+	if not _equipment_component:
+		return -1
+	var sd: SlotData = _equipment_component.secondary_weapon_slot_data
+	if sd == null or sd.item == null:
+		return -1
+	var weapon: WeaponData = sd.item as WeaponData
+	if weapon == null:
+		return -1
+	return WeaponMasteryComponent.weapon_type_to_discipline(weapon.weapon_type)
 
 
 ## Returns the StatType the ACTIVE weapon's damage scales off. PR 3 replaced

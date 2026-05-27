@@ -340,6 +340,21 @@ func _active_discipline_key() -> String:
 	return ""
 
 
+## PR 4 fix (2026-05-28): true iff the given ability's discipline matches
+## the currently-wielded weapon's discipline. Used by _validate_ability_use
+## to reject cross-discipline casts (e.g. firing Slash while wielding a
+## staff). Falls back to the starting class's discipline when the player
+## has no weapon equipped, so a bare-handed Swordsman can still cast Slash.
+func _ability_matches_active_discipline(ability: AbilityData) -> bool:
+	var ability_disc: String = _ability_primary_discipline(ability)
+	if ability_disc == "":
+		return true  # defensive: discipline-less abilities aren't gated
+	var active_disc: String = _active_discipline_key()
+	if active_disc == "":
+		active_disc = _starting_discipline_key()
+	return ability_disc == active_disc
+
+
 ## Returns the discipline key for the player's starting class - used as a
 ## fallback when the active weapon can't supply one (e.g. unequipped at
 ## first level-up after creation) and as the "remainder" target for the
@@ -352,22 +367,38 @@ func _starting_discipline_key() -> String:
 
 ## Helper function to iterate through all learned passive abilities
 ## Calls the provided callable for each passive ability with its data
+##
+## PR 4 fix (2026-05-28): passives only apply when the matching weapon is
+## currently WIELDED. Sword's "HP Boost" passive gives no benefit while you
+## hold a staff, and vice versa. This filtering happens at the iteration
+## source so it cascades to every consumer of learned-passive iteration
+## (stat modifiers, on-hit/on-crit/on-kill procs, ability-damage/cooldown
+## modifiers). StatsComponent recalcs on equipment_changed, so the filter
+## refreshes whenever the player swaps weapons.
 func _foreach_learned_passive(callback: Callable) -> void:
+	var active_disc_key: String = _active_discipline_key()
 	for ability_id in _ability_levels:
 		var ability_level = _ability_levels[ability_id]
-		
+
 		# Skip unlearned abilities
 		if ability_level <= 0:
 			continue
-			
+
 		var ability = ResourceManager.get_ability_data(ability_id)
 		if not ability or ability.ability_type != Constants.AbilityType.PASSIVE:
 			continue
-			
+
+		# Discipline gate: only apply this passive if its discipline matches
+		# the currently-wielded weapon. Abilities with no required_class
+		# (shouldn't exist post-PR-4 but be defensive) are allowed through.
+		var ability_disc_key: String = _ability_primary_discipline(ability)
+		if ability_disc_key != "" and ability_disc_key != active_disc_key:
+			continue
+
 		var level_stats = ability.get_level_stats(ability_level)
 		if not level_stats:
 			continue
-			
+
 		# Call the callback with the ability data
 		callback.call(ability, level_stats, ability_id)
 
@@ -413,7 +444,18 @@ func _validate_ability_use(ability_id: String) -> Dictionary:
 	if ability.ability_type != Constants.AbilityType.ACTIVE:
 		##print("Ability '%s' is not an active ability." % ability.ability_name)
 		return result
-	
+
+	# PR 4 fix (2026-05-28): you can only cast an ability while wielding a
+	# weapon of its discipline. Catches the case where the player swapped
+	# the ITEM in their active slot (e.g. sword -> staff) but the hotbar
+	# binding still points at a sword ability — the binding's cast must
+	# fail instead of incorrectly firing a sword swing while holding a
+	# staff. Abilities with no required_class (shouldn't exist post-PR-4)
+	# pass through.
+	if not _ability_matches_active_discipline(ability):
+		##print("Ability '%s' is for a different discipline than the wielded weapon." % ability.ability_name)
+		return result
+
 	var level_stats = ability.get_level_stats(ability_level)
 	if not level_stats:
 		#printerr("Invalid level data for '%s' at level %d" % [ability.ability_name, ability_level])
