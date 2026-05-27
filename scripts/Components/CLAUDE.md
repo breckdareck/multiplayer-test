@@ -54,6 +54,12 @@ Player (MultiplayerPlayerV2)
     │                                     between 0.10 and 2.5. See
     │                                     compute_kill_xp(enemy_level, player_level)
     │                                     and the KILL_XP_* tunable constants.
+    │                                     Cast XP requires a LANDED HIT (PR 4
+    │                                     fix 2026-05-28 rev 3) — granted in
+    │                                     combat.gd._execute_hit, not at ability
+    │                                     cast time. Spam-cast in empty area =
+    │                                     0 XP. Self-targeted buffs/heals that
+    │                                     never reach _execute_hit also = 0 XP.
     ├── Buff       buff.gd        - timed buffs/debuffs, stacking, custom logic
     ├── Class      class.gd       - current_class = STARTING discipline (does NOT
     │                               change on weapon swap). Drives HP/MP curves.
