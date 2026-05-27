@@ -427,17 +427,31 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 		# weapon's discipline (not secondary — distinct from the kill rule
 		# which credits both), since cast XP is for actively USING the weapon.
 		# Multi-hit abilities credit per landed hit (Lucky Seven's 2 hits =
-		# 2 XP) — they're harder to land so the bonus is earned. Basic attacks
-		# don't get this grant: `ability == null` for the basic-attack path.
+		# 2 XP) — they're harder to land so the bonus is earned.
+		#
+		# Skipped for:
+		#  - Basic attacks where `ability == null` (the melee-swing path).
+		#  - Internal-pathway abilities with empty `required_class` (the
+		#    convention from the Arrow Shot fix earlier today). Archers' basic
+		#    attack routes through the Arrow Shot AbilityData so `ability` IS
+		#    non-null here — without this second guard, archers would double-
+		#    dip relative to sword/dagger (which use basic-melee with
+		#    `ability == null`). Future "basic attack via internal ability"
+		#    additions (Mage's basic staff projectile, etc.) get the same
+		#    treatment for free by following the empty-required_class
+		#    convention.
+		#
 		# Self-targeted buff/heal abilities that never reach _execute_hit
 		# give zero mastery XP — combat engagement is the proxy for growth.
 		if ability and _weapon_mastery_component:
-			var hit_discipline := _active_weapon_discipline()
-			if hit_discipline != -1:
-				_weapon_mastery_component.grant_mastery_xp_server(
-					hit_discipline,
-					WeaponMasteryComponent.XP_PER_CAST
-				)
+			var is_internal_ability: bool = ability.required_class == null or ability.required_class.is_empty()
+			if not is_internal_ability:
+				var hit_discipline := _active_weapon_discipline()
+				if hit_discipline != -1:
+					_weapon_mastery_component.grant_mastery_xp_server(
+						hit_discipline,
+						WeaponMasteryComponent.XP_PER_CAST
+					)
 
 		# Mastery-XP-on-kill (PR 2; rule corrected 2026-05-28). If this hit
 		# transitioned the target from alive -> dead, grant XP to BOTH the

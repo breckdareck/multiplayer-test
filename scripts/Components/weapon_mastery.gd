@@ -25,10 +25,16 @@ const MASTERY_CAP: int = 20
 ## enemy. Multi-hit abilities credit per landed hit (so a 2-hit ability that
 ## lands both hits gives 2 XP). Self-targeted buff/heal abilities that never
 ## reach _execute_hit give zero mastery XP — combat engagement is the proxy.
-## Basic attacks (where `ability == null`) don't get this grant; kill XP is
-## the basic-attack reward. Flat (not level-scaled): a single hit isn't a
-## strong enough signal of difficulty to warrant scaling and casts are
-## already MP/cooldown-bounded.
+##
+## Skipped for:
+##  - Basic attacks (where `ability == null` in _execute_hit)
+##  - Internal-pathway abilities with empty `required_class` (the convention
+##    from the Arrow Shot fix). Archers' basic attack routes through Arrow
+##    Shot which IS an AbilityData; without that guard, archers would double-
+##    dip mastery XP compared to sword/dagger basic swings.
+##
+## Flat (not level-scaled): a single hit isn't a strong enough signal of
+## difficulty to warrant scaling, and casts are already MP/cooldown-bounded.
 const XP_PER_CAST: int = 1
 
 ## PR 4 fix (2026-05-28 revision 2): kill XP now uses `enemy_level` as the
