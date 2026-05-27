@@ -25,10 +25,24 @@ const XP_PER_KILL: int = 5
 ## ability.
 const XP_PER_CAST: int = 1
 
-## XP cost to reach mastery level N from level N-1 is `N * XP_PER_LEVEL_FACTOR`.
-## Level 1 -> 2 = 100 XP, level 2 -> 3 = 200 XP, ..., level 19 -> 20 = 1900 XP.
-## Total 0 -> 20 = 21,000 XP.
-const XP_PER_LEVEL_FACTOR: int = 100
+## XP curve (PR 4 fix 2026-05-28 — replaced flat linear (N+1)*100):
+## `_xp_to_next_level(N) = XP_BASE + XP_LINEAR * N + XP_QUADRATIC * N * N`.
+## Quick early levels for instant gratification, then quadratic ramp so
+## maxing a weapon is a real commitment (New World-style mastery feel).
+##
+##   level 0 -> 1:    30 XP    (~6 kills, ~30 seconds)
+##   level 4 -> 5:   550 XP    (~110 kills, ~10 minutes)
+##   level 9 -> 10: 2,325 XP   (~465 kills, ~30-45 minutes)
+##   level 14 -> 15: 5,350 XP  (~1,070 kills, ~1-2 hours)
+##   level 19 -> 20: 9,625 XP  (~1,925 kills, ~3+ hours)
+##   total 0 -> 20:  ~68,000 XP (~10-15 hours focused play per weapon)
+##
+## Tune these constants together — they trade off early gratification vs.
+## late-game commitment. Raising XP_QUADRATIC most steeply punishes late
+## levels; raising XP_BASE most slows the first few levels.
+const XP_BASE: int = 30
+const XP_LINEAR: int = 30
+const XP_QUADRATIC: int = 25
 
 #endregion
 
@@ -99,9 +113,12 @@ func get_mastery_xp(discipline: int) -> int:
 
 
 ## XP required to advance from `current_level` to `current_level + 1`.
-## Formula: `(current_level + 1) * XP_PER_LEVEL_FACTOR`.
+## Quadratic curve calibrated for quick early levels + a real late-game grind.
+## See XP_BASE / XP_LINEAR / XP_QUADRATIC constants for the curve shape and
+## the cost-per-level table.
 func _xp_to_next_level(current_level: int) -> int:
-	return (current_level + 1) * XP_PER_LEVEL_FACTOR
+	var n: int = current_level
+	return XP_BASE + XP_LINEAR * n + XP_QUADRATIC * n * n
 
 
 ## Returns the XP cost to advance from a discipline's CURRENT level. Useful
