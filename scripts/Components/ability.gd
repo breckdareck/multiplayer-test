@@ -1065,18 +1065,64 @@ func _on_class_changed(_new_class_name: String) -> void:
 	# list is a superset of the base class's, so any leveled ability is
 	# present in new_class_ids and survives.
 	#
+	# PR 4 fix (2026-05-28): "valid" abilities span ALL FOUR tier-1
+	# disciplines now, not just the new class's skills. Without this, the
+	# all-disciplines-starter init in _ready was getting wiped here — class
+	# change from default → BOW would prune Sword/Staff/Dagger starters
+	# because they weren't in Bow's skills list. With the broadened set,
+	# only stale non-tier-1 abilities (e.g. from a default BEGINNER class)
+	# get pruned, while cross-discipline starters persist.
+	#
 	# RPCs are not broadcast here because the class change itself is synced,
 	# so clients run this same logic locally.
 	if not multiplayer.has_multiplayer_peer() or multiplayer.is_server():
 		var new_class_ids: Dictionary = {}
+		# Include the current class's abilities (covers tier-2 advancements
+		# whose superset includes their tier-1 parent's tree).
 		for ability_data in _class_component.get_class_abilities():
 			if ability_data:
 				new_class_ids[ability_data.ability_id] = true
+		# Also include every tier-1 discipline's abilities so cross-discipline
+		# starters aren't pruned.
+		for tier1_disc in [
+			Constants.ClassType.SWORD,
+			Constants.ClassType.BOW,
+			Constants.ClassType.STAFF,
+			Constants.ClassType.DAGGER,
+		]:
+			var disc_data: WeaponDisciplineData = ResourceManager.get_class_data(tier1_disc)
+			if disc_data == null:
+				continue
+			for ability_data in disc_data.skills:
+				if ability_data:
+					new_class_ids[ability_data.ability_id] = true
 
 		for ability_id in _ability_levels.keys():
 			if not new_class_ids.has(ability_id):
 				_ability_levels.erase(ability_id)
 
+		# Re-seed each tier-1 discipline's starter ability at level 1 if it's
+		# missing from _ability_levels (defensive — the init in _ready does
+		# this, but the prune above could have removed it in edge cases).
+		# Other abilities get added at level 0 so they show in the UI.
+		for tier1_disc in [
+			Constants.ClassType.SWORD,
+			Constants.ClassType.BOW,
+			Constants.ClassType.STAFF,
+			Constants.ClassType.DAGGER,
+		]:
+			var disc_data: WeaponDisciplineData = ResourceManager.get_class_data(tier1_disc)
+			if disc_data == null:
+				continue
+			var disc_starter: AbilityData = disc_data.starter_ability
+			for ability_data in disc_data.skills:
+				if ability_data == null or _ability_levels.has(ability_data.ability_id):
+					continue
+				var initial_level: int = 1 if (disc_starter and ability_data == disc_starter) else 0
+				_learn_ability_local(ability_data.ability_id, initial_level, false)
+
+		# Re-seed the current class's starter too (covers tier-2 advancement
+		# starter abilities that aren't in any tier-1 tree).
 		var starter: AbilityData = _class_component.get_starter_ability()
 		for ability_data in _class_component.get_class_abilities():
 			if ability_data and not _ability_levels.has(ability_data.ability_id):
