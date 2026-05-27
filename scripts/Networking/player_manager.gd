@@ -688,12 +688,22 @@ func _on_player_spawned(player_id: int) -> void:
 	else:
 		player_data = await _load_player_data_async(username)
 
+	# Normalise legacy save-key aliases (e.g. dev-mode local saves that wrote
+	# "character_class" instead of the canonical "character_type") before any
+	# read. The same normalisation runs again at the top of _load_data so any
+	# future direct caller is covered; doing it here as well means the
+	# character_type lookup below sees the canonical key regardless of which
+	# write path produced the file.
+	player_data = MultiplayerPlayerV2.normalise_save_keys(player_data)
+
 	# Prefer character_type from player_data — `info.character_type` is set
 	# from the client's character pick at join time and is never refreshed
 	# when the class changes mid-session (job advancement). The carried
 	# state (from get_save_data("all")) and the backend load both include
 	# the current value, so trust them when present. Without this the
 	# next map change reverts an advanced player back to their base class.
+	# (The fallback to info.character_type covers first-spawn-no-save-data,
+	# not the legacy key — the normaliser above already rewrote that.)
 	var character_type: int = player_data.get("character_type", info.get("character_type", -1))
 	info["character_type"] = character_type
 

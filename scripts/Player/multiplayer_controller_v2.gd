@@ -643,12 +643,54 @@ func _get_stats_data() -> Dictionary:
 	}
 
 
+## Save-key alias map.
+##
+## Translates legacy keys in incoming save payloads to their canonical form.
+## Add a row here when a key is renamed; every read site flows through
+## `normalise_save_keys` so callers only ever see the canonical key.
+##
+## Currently:
+##   - "character_class" -> "character_type"
+##     The dev-mode local save (network_manager.create_character /
+##     get_characters) used to write "character_class". The wire format and
+##     the runtime controller both use "character_type". Existing files in
+##     the wild may still carry the legacy key.
+const _SAVE_KEY_ALIASES: Dictionary = {
+	"character_class": "character_type",
+}
+
+
+## Returns a NEW dict with any legacy save-key aliases rewritten to their
+## canonical form. Idempotent: passing an already-normalised dict is a no-op.
+## Does not mutate the input.
+##
+## Public so other server-side loaders (e.g. PlayerManager._on_player_spawned,
+## which reads character_type out of player_data BEFORE _load_data runs) can
+## share the same alias table.
+static func normalise_save_keys(data: Dictionary) -> Dictionary:
+	var out: Dictionary = data.duplicate()
+	for legacy_key in _SAVE_KEY_ALIASES:
+		if out.has(legacy_key):
+			var canonical_key: String = _SAVE_KEY_ALIASES[legacy_key]
+			# If the canonical key isn't already present, copy the legacy value
+			# over. If both are present, the canonical value wins (the legacy
+			# one is stale by definition).
+			if not out.has(canonical_key):
+				out[canonical_key] = out[legacy_key]
+			out.erase(legacy_key)
+	return out
+
+
 func _load_data(data: Dictionary) -> void:
 	if _is_being_cleaned_up:
 		return
-	
+
+	# Centralise legacy-key handling here so individual component loaders
+	# don't each need their own fallback. See `normalise_save_keys`.
+	data = normalise_save_keys(data)
+
 	_is_loading_data = true
-	
+
 	#print("Loading data for ", data.get("username", "Unknown"))
 	
 	if is_instance_valid(stats_component):

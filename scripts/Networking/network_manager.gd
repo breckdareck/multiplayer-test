@@ -125,11 +125,17 @@ func get_characters():
 				if not FileAccess.file_exists(dev_file_path):
 					var is_advanced = class_enum >= Constants.ClassType.CRUSADER
 					var starting_level = 30 if is_advanced else 1
+					# Use the canonical "character_type" key on the wire / in
+					# save payloads — matches multiplayer_controller_v2's
+					# get_save_data and the backend's /load response. Older
+					# dev-mode files on disk may still have "character_class";
+					# MultiplayerPlayerV2.normalise_save_keys rewrites them
+					# on load.
 					var save_data = {
 							"username": dev_char_name,
 							"level": starting_level,
 							"experience": 0,
-							"character_class": class_enum,
+							"character_type": class_enum,
 							"current_health": 100,
 							"max_health": 100,
 							"current_mana": 100,
@@ -174,7 +180,14 @@ func get_characters():
 				}
 				if loaded_data is Dictionary:
 					char_data["level"] = loaded_data.get("level", 1)
-					char_data["character_class"] = loaded_data.get("character_class", 0)
+					# Prefer the canonical "character_type" key; fall back to
+					# "character_class" for legacy dev-mode files on disk.
+					# The response key stays "character_class" because that's
+					# the lobby/UI contract (CharacterSelectScreen reads it).
+					char_data["character_class"] = loaded_data.get(
+						"character_type",
+						loaded_data.get("character_class", 0)
+					)
 				characters.append(char_data)
 				#print("Local save: Found character '%s' (level %d)" % [char_name, char_data["level"]])
 				idx += 1
@@ -228,11 +241,13 @@ func create_character(char_name, class_id):
 			return
 		var is_advanced = class_id >= Constants.ClassType.CRUSADER
 		var starting_level = 30 if is_advanced else 1
+		# Use the canonical "character_type" key — see the matching comment in
+		# get_characters above.
 		var save_data = {
 			"username": char_name,
 			"level": starting_level,
 			"experience": 0,
-			"character_class": class_id,
+			"character_type": class_id,
 			"current_health": 100,
 			"max_health": 100,
 			"current_mana": 100,
