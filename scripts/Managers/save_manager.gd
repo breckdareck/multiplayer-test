@@ -195,7 +195,13 @@ func flush_save(username: String) -> void:
 	job.is_flush = true
 
 	_save_queue.append(job)
-	_try_dispatch()
+	# Defer dispatch so the `await job.completed` below is set up BEFORE the
+	# synchronous local-save dispatch path could fire `_release_slot` and emit
+	# the signal. Without this, in local-save mode `_send_via_slot` runs to
+	# completion synchronously inside `_try_dispatch`, the signal emits, and
+	# the await below would then hang forever waiting for a signal that has
+	# already fired (Godot await is one-shot — it cannot catch past emissions).
+	call_deferred("_try_dispatch")
 
 	# Wait for this specific job to finish. The signal is per-job, so two
 	# concurrent flush_save callers each await their own SaveJob and never
