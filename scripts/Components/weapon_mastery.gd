@@ -263,10 +263,13 @@ func is_loading() -> bool:
 
 #region #################### RPCs ####################
 
-## Server -> owning client only. Mirrors the authoritative mastery state so
-## the client's UI and downstream stat refresh can react. The server already
-## applied the change locally before sending.
-@rpc("authority", "call_remote", "reliable")
+## Server -> owning client. Mirrors the authoritative mastery state so the
+## client's UI and downstream stat refresh can react. The body is idempotent
+## (just sets values), so `call_local` is safe: on the server, running this
+## with the values it just wrote is a no-op overwrite. `call_local` is required
+## because the host is both server and client — without it, the server's
+## `rpc_id(1, ...)` to itself errors with "RPC on yourself is not allowed".
+@rpc("authority", "call_local", "reliable")
 func sync_mastery_to_client(discipline: int, level: int, xp: int) -> void:
 	if not mastery_data.has(discipline):
 		mastery_data[discipline] = {"level": 0, "xp": 0}
