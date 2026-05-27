@@ -198,6 +198,23 @@ func _recalculate_stats() -> void:
 			stats[Constants.StatType.HEALTH].base_value = int(BEGINNER_BASE_MAX_HEALTH + (BEGINNER_HEALTH_SCALING_MULTIPLIER * (level - 1)))
 			stats[Constants.StatType.MANA].base_value = int(BEGINNER_BASE_MAX_MANA + (BEGINNER_MANA_SCALING_MULTIPLIER * (level - 1)))
 
+	# Apply the character's CURRENT-CLASS per-level STR/DEX/INT/LUK scaling.
+	# This is the familiar Maple-shape baseline: a level-30 Swordsman gets
+	# ~+87 STR purely from class progression, regardless of any weapon mastery.
+	# Mastery (below) layers on top as additional growth that rewards focused
+	# specialisation. Cards / signature systems (later PRs) layer on top of that.
+	#
+	# This restores behaviour the first cut of PR 2 inadvertently removed when
+	# it routed all primary-stat scaling exclusively through mastery — the
+	# resulting un-mastered baseline felt punishingly weak relative to today.
+	if _class_component and _level_component:
+		var class_disc: WeaponDisciplineData = ResourceManager.get_class_data(_class_component.current_class)
+		if class_disc:
+			var per_level_growth: int = max(_level_component.level - 1, 0)
+			for stat_type in class_disc.stat_bonuses:
+				if stats.has(stat_type):
+					stats[stat_type].base_value += class_disc.stat_bonuses[stat_type] * per_level_growth
+
 	# Reset flat bonuses before recalculating
 	for stat_type in stats:
 		stats[stat_type].flat_bonus_value = 0
@@ -207,10 +224,10 @@ func _recalculate_stats() -> void:
 	# overhaul). For every owned discipline (mastery level > 0), apply
 	# `discipline.stat_bonuses[stat] * mastery_level_of_that_discipline`,
 	# summed across disciplines. This stacks across all four tier-1 weapons,
-	# encouraging build versatility — pure mastery-20-in-one == ~30% lower
-	# primary stat than today's per-character-level cap at level 30, which
-	# is intentional and compensated by future cards / signature systems
-	# (PRs 4-8 of the weapon-identity-overhaul).
+	# encouraging build versatility on TOP of the per-character-level
+	# baseline above. A level-30 Sword main with mastery 20 ends at roughly
+	# 87 (level) + 60 (mastery) = +147 primary STR before equipment/cards —
+	# meaningful reward for focused play, not a punishment for being level 1.
 	#
 	# `stat_bonuses` is reused verbatim from each WeaponDisciplineData —
 	# zero new balance numbers in this PR.
