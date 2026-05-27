@@ -171,6 +171,11 @@ func get_all_slot_data() -> Array:
 ## wielded weapon contributes. Other equipment is always counted. Used by
 ## stats.gd in place of get_all_slot_data() so a stashed secondary's bonuses
 ## don't double up.
+##
+## NOTE: slots_data has mixed key types — String for the two weapon slots
+## ("WEAPON" / "SECONDARY_WEAPON") and Constants.ArmorType ints for the four
+## armor slots. The weapon-active checks must guard with `is String` so the
+## == comparison doesn't error against int keys.
 func get_stat_contributing_slot_data() -> Array:
 	var out: Array = []
 	for key in slots_data.keys():
@@ -178,10 +183,11 @@ func get_stat_contributing_slot_data() -> Array:
 		if sd == null:
 			continue
 		# Hide the inactive weapon slot from the stats pipeline.
-		if key == "WEAPON" and active_weapon != ACTIVE_PRIMARY:
-			continue
-		if key == "SECONDARY_WEAPON" and active_weapon != ACTIVE_SECONDARY:
-			continue
+		if key is String:
+			if key == "WEAPON" and active_weapon != ACTIVE_PRIMARY:
+				continue
+			if key == "SECONDARY_WEAPON" and active_weapon != ACTIVE_SECONDARY:
+				continue
 		out.append(sd)
 	return out
 
