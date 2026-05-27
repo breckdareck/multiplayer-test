@@ -401,15 +401,21 @@ func _starting_discipline_key() -> String:
 ## Helper function to iterate through all learned passive abilities
 ## Calls the provided callable for each passive ability with its data
 ##
-## PR 4 fix (2026-05-28): passives only apply when the matching weapon is
-## currently WIELDED. Sword's "HP Boost" passive gives no benefit while you
-## hold a staff, and vice versa. This filtering happens at the iteration
-## source so it cascades to every consumer of learned-passive iteration
+## PR 4 fix (2026-05-28, refined 2026-05-28): passives apply when the
+## matching weapon is in EITHER equipped slot (primary or secondary), not
+## just the currently-wielded active. The "I am my weapon" rule applies
+## to active casts and the sprite/attack-pattern identity, but passives
+## come from carrying the weapon at all — a Swordsman with Sword in
+## primary and Bow in secondary keeps both trees' passives active, while
+## Staff and Dagger passives (no weapon equipped in those disciplines)
+## stay dormant.
+##
+## This filter cascades to every consumer of learned-passive iteration
 ## (stat modifiers, on-hit/on-crit/on-kill procs, ability-damage/cooldown
 ## modifiers). StatsComponent recalcs on equipment_changed, so the filter
-## refreshes whenever the player swaps weapons.
+## refreshes whenever a slot's weapon item changes.
 func _foreach_learned_passive(callback: Callable) -> void:
-	var active_disc_key: String = _active_discipline_key()
+	var equipped_disc_keys: Dictionary = _equipped_discipline_keys()
 	for ability_id in _ability_levels:
 		var ability_level = _ability_levels[ability_id]
 
@@ -422,10 +428,10 @@ func _foreach_learned_passive(callback: Callable) -> void:
 			continue
 
 		# Discipline gate: only apply this passive if its discipline matches
-		# the currently-wielded weapon. Abilities with no required_class
-		# (shouldn't exist post-PR-4 but be defensive) are allowed through.
+		# an EQUIPPED weapon (primary or secondary). Abilities with no
+		# required_class (defensive — shouldn't exist post-PR-4) pass through.
 		var ability_disc_key: String = _ability_primary_discipline(ability)
-		if ability_disc_key != "" and ability_disc_key != active_disc_key:
+		if ability_disc_key != "" and not equipped_disc_keys.has(ability_disc_key):
 			continue
 
 		var level_stats = ability.get_level_stats(ability_level)
@@ -434,6 +440,24 @@ func _foreach_learned_passive(callback: Callable) -> void:
 
 		# Call the callback with the ability data
 		callback.call(ability, level_stats, ability_id)
+
+
+## Returns a Dictionary keyed by discipline string (set-like) for every
+## currently-equipped weapon's discipline. Used by _foreach_learned_passive
+## to gate passive effects to equipped disciplines only. Routes through the
+## player root's get_equipped_disciplines() method so this component
+## doesn't have to reach across to EquipmentComponent directly.
+func _equipped_discipline_keys() -> Dictionary:
+	var result: Dictionary = {}
+	if not is_instance_valid(owner):
+		return result
+	if owner.has_method("get_equipped_disciplines"):
+		var disciplines: Array = owner.get_equipped_disciplines()
+		for disc in disciplines:
+			var key: String = _class_type_to_discipline_key(int(disc))
+			if key != "":
+				result[key] = true
+	return result
 
 
 ## Generic modifier calculator - reduces code duplication

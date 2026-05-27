@@ -600,6 +600,37 @@ func get_active_discipline() -> int:
 	return Constants.ClassType.SWORD
 
 
+## Returns the disciplines of ALL equipped weapons — both the primary AND
+## the secondary slot. Used by AbilityComponent for the passive-application
+## rule: a passive from discipline X applies if discipline X has a weapon
+## in EITHER slot (not just the active one). Trees you've put points into
+## but haven't equipped contribute nothing.
+##
+## De-duplicates (two swords in both slots → one SWORD entry). If neither
+## slot is equipped (bare-handed), falls back to the starting class's
+## discipline so passives still work in the un-equipped baseline case.
+func get_equipped_disciplines() -> Array[int]:
+	var disciplines: Array[int] = []
+	if is_instance_valid(equipment_component):
+		var primary_sd: SlotData = equipment_component.weapon_slot_data
+		if primary_sd != null and primary_sd.item != null:
+			var primary_weapon: WeaponData = primary_sd.item as WeaponData
+			if primary_weapon != null:
+				var disc: int = _weapon_type_to_class_type(primary_weapon.weapon_type)
+				if disc != -1:
+					disciplines.append(disc)
+		var secondary_sd: SlotData = equipment_component.secondary_weapon_slot_data
+		if secondary_sd != null and secondary_sd.item != null:
+			var secondary_weapon: WeaponData = secondary_sd.item as WeaponData
+			if secondary_weapon != null:
+				var disc: int = _weapon_type_to_class_type(secondary_weapon.weapon_type)
+				if disc != -1 and not disciplines.has(disc):
+					disciplines.append(disc)
+	if disciplines.is_empty() and is_instance_valid(class_component):
+		disciplines.append(class_component.current_class)
+	return disciplines
+
+
 func _handle_sprite_change_on_server() -> void:
 	if not is_instance_valid(level_component):
 		return
