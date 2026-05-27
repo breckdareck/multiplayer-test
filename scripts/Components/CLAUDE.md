@@ -33,6 +33,14 @@ Player (MultiplayerPlayerV2)
     │                                   ability discipline doesn't match the wielded
     │                                   weapon. Hotbar binding still exists, just
     │                                   fails to fire until matching weapon equipped.
+    │                               Character-creation init (PR 4 fix 2026-05-28):
+    │                               ALL four tier-1 disciplines' starter abilities
+    │                               are auto-leveled to 1 (Slash + Double Shot +
+    │                               Magic Bolt + Double Stab), so a fresh character
+    │                               has a usable basic ability the moment they
+    │                               equip any of the four weapons. Returning
+    │                               characters keep saved levels via the merge
+    │                               (not clear) in load_abilities.
     ├── WeaponMastery weapon_mastery.gd - Per-discipline mastery levels + XP (PR 2)
     │                                     mastery_data: {sword/bow/staff/dagger →
     │                                     {level, xp}}. Drives STR/DEX/INT/LUK
