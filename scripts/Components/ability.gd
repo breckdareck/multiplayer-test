@@ -80,7 +80,14 @@ var _loading_mode: bool = false
 ## PR 4: how many ability points each level-up grants. Awarded entirely to
 ## the active weapon's discipline pool (the discipline the player is
 ## wielding at the moment the level-up signal fires).
-const ABILITY_POINTS_PER_LEVEL: int = 3
+## PR 4 fix (2026-05-27): ability points are granted per MASTERY-LEVEL of the
+## relevant weapon discipline, NOT per character level. A level-30 character
+## who never used a bow has zero Bow ability points — they earn them by
+## actually using the bow (mastery XP from kills + casts → mastery levels →
+## ability points to that discipline's pool). Replaces the earlier per-character-
+## level grant rule which leaked points evenly across the 4 trees and let a
+## character earn points for trees they never touched.
+const ABILITY_POINTS_PER_MASTERY_LEVEL: int = 3
 
 ## PR 4: canonical lowercase discipline keys, in display order (the order
 ## the AbilityWindow renders tabs).
@@ -157,12 +164,15 @@ func _ready() -> void:
 				_projectiles_container.name = "Projectiles"
 				legacy.add_child(_projectiles_container)
 
-	# Connect to the LevelingComponent to grant ability points on level up
-	if _level_component:
+	# PR 4 fix (2026-05-27): grant ability points per-mastery-level, not per-
+	# character-level. The old _level_component.leveled_up hookup is gone —
+	# WeaponMasteryComponent.mastery_level_changed is now the only point-grant
+	# source. See ABILITY_POINTS_PER_MASTERY_LEVEL for the rate.
+	if _weapon_mastery_component:
 		if multiplayer.is_server():
-			_level_component.leveled_up.connect(_on_leveled_up)
+			_weapon_mastery_component.mastery_level_changed.connect(_on_mastery_level_up)
 	else:
-		push_warning("AbilityComponent: No LevelingComponent found. Points won't be granted on level up.")
+		push_warning("AbilityComponent: No WeaponMasteryComponent found. Points won't be granted on mastery level up.")
 		
 	# Initialize class abilities on the server or in single-player.
 	# Clients will receive this data via an RPC sync when they connect.
@@ -588,7 +598,12 @@ func _level_up_ability_local(ability_id: String) -> bool:
 		return false
 
 	var ability = ResourceManager.get_ability_data(ability_id)
-	var current_level = _ability_levels[ability_id]
+	# PR 4 fix (2026-05-27): use safe get() because unlearned abilities (level 0)
+	# may not be in _ability_levels yet — they're only pre-seeded for the
+	# player's starting class. Now that the AbilityWindow shows all 4 trees, a
+	# player can level up an ability from a discipline they never started in,
+	# which would crash on the bare `_ability_levels[ability_id]` lookup.
+	var current_level: int = int(_ability_levels.get(ability_id, 0))
 
 	# PR 4: spend one point from the discipline pool that owns this ability.
 	# `can_level_up_ability` already validated the pool; we re-derive the key
@@ -952,17 +967,18 @@ func sync_ability_points_per_discipline(new_pools) -> void:
 
 
 #region #################### Signal Callbacks ####################
-## Called when the LevelingComponent emits the `leveled_up` signal.
-## PR 4: points are granted to the discipline the player is *currently
-## wielding*. Mainline a sword -> sword gets the points. Mid-fight swap to
-## a bow then level -> bow gets them. Falls back to the starting
-## discipline when no weapon is equipped.
-func _on_leveled_up(_new_level: int) -> void:
-	var key: String = _active_discipline_key()
+## PR 4 fix (2026-05-27): replaced the level-up grant. Called when
+## WeaponMasteryComponent emits `mastery_level_changed(discipline_int, new_level)`.
+## Each mastery level grants ABILITY_POINTS_PER_MASTERY_LEVEL points to THAT
+## discipline's pool — and ONLY that discipline's. Trees you don't use grant
+## you nothing; trees you main accumulate points as your mastery climbs.
+func _on_mastery_level_up(discipline: int, _new_level: int) -> void:
+	var key: String = _class_type_to_discipline_key(discipline)
 	if key == "":
-		key = _starting_discipline_key()
-	#print("Leveled up to %d. Gaining %d ability points to %s." % [new_level, ABILITY_POINTS_PER_LEVEL, key])
-	_add_ability_points(ABILITY_POINTS_PER_LEVEL, key)
+		push_warning("AbilityComponent: mastery_level_changed for discipline %d with no key mapping" % discipline)
+		return
+	#print("Mastery up: %s -> level %d. +%d ability points to %s pool." % [key, _new_level, ABILITY_POINTS_PER_MASTERY_LEVEL, key])
+	_add_ability_points(ABILITY_POINTS_PER_MASTERY_LEVEL, key)
 
 
 func _on_class_changed(_new_class_name: String) -> void:
@@ -1141,18 +1157,20 @@ func _on_active_weapon_changed(_active_weapon: String, _active_item: ItemData) -
 	if hotbar.has_method("flash_swap_indicator"):
 		hotbar.flash_swap_indicator()
 			
-## Disconnects from leveling component signals to prevent side effects during loading.
+## Disconnects from mastery component signals to prevent side effects during loading.
+## (PR 4 fix 2026-05-27: was disconnecting LevelingComponent.leveled_up before
+## the point-grant rule changed; the leveled_up hook is no longer used.)
 func disconnect_level_signals() -> void:
-	if _level_component and _level_component.leveled_up.is_connected(_on_leveled_up):
-		_level_component.leveled_up.disconnect(_on_leveled_up)
-		#print("AbilityComponent: Disconnected from leveling signals for loading.")
+	if _weapon_mastery_component and _weapon_mastery_component.mastery_level_changed.is_connected(_on_mastery_level_up):
+		_weapon_mastery_component.mastery_level_changed.disconnect(_on_mastery_level_up)
+		#print("AbilityComponent: Disconnected from mastery signals for loading.")
 
 
-## Reconnects to leveling component signals after loading is complete.
+## Reconnects to mastery component signals after loading is complete.
 func reconnect_level_signals() -> void:
-	if _level_component and not _level_component.leveled_up.is_connected(_on_leveled_up):
-		_level_component.leveled_up.connect(_on_leveled_up)
-		#print("AbilityComponent: Reconnected to leveling signals.")
+	if _weapon_mastery_component and not _weapon_mastery_component.mastery_level_changed.is_connected(_on_mastery_level_up):
+		_weapon_mastery_component.mastery_level_changed.connect(_on_mastery_level_up)
+		#print("AbilityComponent: Reconnected to mastery signals.")
 
 
 func set_loading_mode(enabled: bool) -> void:
