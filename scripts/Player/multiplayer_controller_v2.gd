@@ -572,21 +572,46 @@ func _change_sprite() -> void:
 		request_sprite_change.rpc_id(SERVER_ID) # Remote clients must ask server.
 
 		
+## Returns the discipline (Constants.ClassType) the player is CURRENTLY
+## wielding — i.e. the discipline of the active weapon. Falls back to the
+## starting class (class_component.current_class) when no weapon is equipped.
+##
+## This is the "I am my weapon" identity lookup. Use it for sprite picking,
+## attack-state branches, and anything else whose behavior should follow the
+## equipped weapon rather than the character's chosen starting class. HP/MP
+## curves intentionally stay anchored to class_component.current_class
+## (per the locked design — HP/MP doesn't shift on weapon swap).
+func get_active_discipline() -> int:
+	if is_instance_valid(equipment_component):
+		var weapon: WeaponData = equipment_component.active_weapon_data
+		if weapon != null:
+			var disc: int = _weapon_type_to_class_type(weapon.weapon_type)
+			if disc != -1:
+				return disc
+	if is_instance_valid(class_component):
+		return class_component.current_class
+	return Constants.ClassType.SWORD
+
+
 func _handle_sprite_change_on_server() -> void:
-	if not is_instance_valid(class_component) or not is_instance_valid(level_component):
+	if not is_instance_valid(level_component):
 		return
 
-	var class_type: int = class_component.current_class
+	# Use the currently-wielded discipline, not the starting class — so a
+	# Swordsman who's swapped to a bow stays an Archer sprite on level-up.
+	var discipline: int = get_active_discipline()
 	var current_level: int = level_component.level
 
-	var sprite_frames: SpriteFrames = ResourceManager.get_sprite_for_level(class_type, current_level)
+	var sprite_frames: SpriteFrames = ResourceManager.get_sprite_for_level(discipline, current_level)
 	if sprite_frames:
 		if BotManager.is_bot(player_id):
 			# A bot's node may be missing on a client mid map-transition, so
 			# route its sprite updates through MapManager (an autoload).
 			MapManager.broadcast_player_appearance(player_id)
 		else:
-			change_sprite_rpc.rpc(class_component.get_class_name(), current_level)
+			# Pass the enum-key string so change_sprite_rpc resolves the same
+			# way on every peer via ResourceManager.get_class_type_from_string.
+			change_sprite_rpc.rpc(Constants.ClassType.find_key(discipline), current_level)
 
 func change_to_map(new_map_id: String, spawn_point_name: String = ""):
 	if not multiplayer.is_server():
@@ -800,10 +825,13 @@ func _on_peer_connected(peer_id: int) -> void:
 	await get_tree().process_frame
 
 	#print("Sending sprite data for player %d to new peer %d" % [player_id, peer_id])
-	if is_instance_valid(class_component) and is_instance_valid(level_component):
-		var _class_name: String = class_component.get_class_name()
+	if is_instance_valid(level_component):
+		# Use the currently-wielded discipline (NOT class_component.current_class)
+		# so a newly-joining peer sees the player with whichever weapon they're
+		# actually holding right now, not their starting-class default.
+		var discipline: int = get_active_discipline()
 		var current_level: int = level_component.level
-		change_sprite_rpc.rpc_id(peer_id, _class_name, current_level)
+		change_sprite_rpc.rpc_id(peer_id, Constants.ClassType.find_key(discipline), current_level)
 
 
 #=============================================================================

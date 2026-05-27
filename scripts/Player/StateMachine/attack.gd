@@ -63,10 +63,13 @@ func _play_animation(anim_name: String) -> void:
 				animations.play(anim_name, attack_speed_percent)
 
 func _start_basic_attack():
-	"""Executes a basic melee attack, or Arrow Shot for Archer/Ranger"""
+	"""Executes a basic melee attack, or Arrow Shot for the wielded weapon's
+	discipline. Uses the player's CURRENTLY-WIELDED discipline (via
+	get_active_discipline), not the starting class — so a Swordsman who swapped
+	to a bow correctly fires arrows, and a Mage who picked up a sword swings."""
 	var is_archer := false
-	if player.class_component:
-		var cls: int = player.class_component.current_class
+	if player.has_method("get_active_discipline"):
+		var cls: int = player.get_active_discipline()
 		is_archer = cls == Constants.ClassType.BOW or cls == Constants.ClassType.RANGER
 
 	if is_archer and _try_use_arrow_shot():
