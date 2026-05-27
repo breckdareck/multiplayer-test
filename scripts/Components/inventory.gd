@@ -988,20 +988,43 @@ func request_use_item(slot_index: int):
 		#print("Use Item failed: Consumable '%s' has no effect script. item type=%d, script=%s" % [consumable.name, consumable.item_type, consumable.get_script()])
 		return
 
+	await _execute_consumable(player, consumable)
+
+
+## Shared server-side consumable-use verb. Both the player RPC path
+## (`request_use_item`) and the bot brain (`bot_brain._try_use_consumable`)
+## funnel through here so a single sequence — remove from stack, conditionally
+## flush save, execute effect — applies to both.
+##
+## The save-flush is the only thing the bot path skips: bots have negative peer
+## IDs and no persisted save row, and `SaveManager.flush_save` on a bot username
+## would either no-op or waste an HTTP round-trip. Future fixes to consumable
+## use now apply to bots automatically; the only intentional split is the one
+## guarded line below.
+func _execute_consumable(player_node, consumable: ConsumableData) -> void:
+	if not multiplayer.is_server():
+		return
+	if not is_instance_valid(player_node) or not consumable:
+		return
+	if not consumable.effect_script:
+		return
+
 	# Remove one from the stack and persist before executing the effect,
 	# because effects like Town Potion trigger a map change that frees this node.
-	remove_item_from_stack(item, 1, "used")
+	remove_item_from_stack(consumable, 1, "used")
 
-	# Force-save inventory now so map changes don't lose the removal
-	if player.username and SaveManager:
-		SaveManager.queue_save(player.username, "inventory", player)
-		await SaveManager.flush_save(player.username)
+	# Force-save inventory now so map changes don't lose the removal.
+	# Bots have no persisted save row, so skip the flush for them.
+	var is_bot := BotManager and BotManager.is_bot(player_node.player_id)
+	if not is_bot and player_node.username and SaveManager:
+		SaveManager.queue_save(player_node.username, "inventory", player_node)
+		await SaveManager.flush_save(player_node.username)
 
 	# Execute the effect (must happen after save completes, as effects like
 	# Town Potion trigger a map change that frees this node and reloads from save)
-	if not is_instance_valid(player):
+	if not is_instance_valid(player_node):
 		return
 	var effect_instance = consumable.effect_script.new() as BaseItemEffect
-	effect_instance.user = player
+	effect_instance.user = player_node
 	effect_instance.source_item = consumable
 	effect_instance.execute()

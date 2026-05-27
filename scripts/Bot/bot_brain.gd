@@ -1099,11 +1099,10 @@ func _try_use_consumable() -> void:
 		var is_mana_pot := consumable.effect_properties.has("regain_amount")
 
 		if (need_health and is_health_pot) or (need_mana and is_mana_pot):
-			player.inventory_component.remove_item_from_stack(consumable, 1, "used")
-			var effect_instance = consumable.effect_script.new() as BaseItemEffect
-			effect_instance.user = player
-			effect_instance.source_item = consumable
-			effect_instance.execute()
+			# Delegate to the shared server-side verb so the bot path picks up
+			# any future fixes to consumable use. The helper skips flush_save
+			# for bots automatically (no persisted save row).
+			player.inventory_component._execute_consumable(player, consumable)
 			return
 
 
