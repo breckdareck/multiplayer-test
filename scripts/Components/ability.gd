@@ -118,7 +118,7 @@ func _ready() -> void:
 	# Initialize class abilities on the server or in single-player.
 	# Clients will receive this data via an RPC sync when they connect.
 	#
-	# Each class's starter ability (configured on ClassData.starter_ability)
+	# Each discipline's starter ability (configured on WeaponDisciplineData.starter_ability)
 	# is auto-leveled to 1 so a fresh character can cast something immediately.
 	# Without this, classes like Mage (whose basic attack uses the staff's
 	# tiny WEAPONATTACK while their kit is built around MAGICATTACK abilities)

@@ -94,11 +94,13 @@ static func get_all_resource_types() -> Array[ResourceType]:
 	buff_type.icon_name = "StatusEffect"
 	types.append(buff_type)
 	
-	# Class System Resources
+	# Weapon Discipline System Resources
+	# (Label kept as "Classes" so the resource_editor dock doesn't reflow until
+	# the broader UI gets a polish pass.)
 	var class_type = ResourceType.new(
 		"Classes",
-		"res://scripts/Resources/ClassSystem/ClassData.gd",
-		"res://resources/Player/Classes",
+		"res://scripts/Resources/DisciplineSystem/WeaponDisciplineData.gd",
+		"res://resources/Player/Disciplines",
 		"Class System",
 		false
 	)

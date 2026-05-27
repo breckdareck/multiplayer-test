@@ -1242,7 +1242,7 @@ func _validate_resource(res: Resource) -> String:
 					break
 	else:
 		var name_val = null
-		for prop in ["name", "_class_name", "monster_name", "buff_name"]:
+		for prop in ["name", "_discipline_name", "monster_name", "buff_name"]:
 			if prop in res:
 				var v = res.get(prop)
 				if v != null and str(v).strip_edges() != "":
@@ -1366,7 +1366,7 @@ func _on_context_menu_action(id: int) -> void:
 			var res = load(path)
 			var id_val := ""
 			if res:
-				for prop in ["ability_id", "item_id", "buff_id", "quest_id", "_class_name"]:
+				for prop in ["ability_id", "item_id", "buff_id", "quest_id", "_discipline_name"]:
 					if prop in res:
 						id_val = str(res.get(prop))
 						break
@@ -1479,7 +1479,7 @@ func _on_search_changed(new_text: String) -> void:
 
 
 func _resource_display_name(res: Resource, fallback: String) -> String:
-	for prop in ["ability_name", "quest_name", "name", "_class_name", "monster_name", "buff_name"]:
+	for prop in ["ability_name", "quest_name", "name", "_discipline_name", "monster_name", "buff_name"]:
 		var val = res.get(prop) if res.has_method("get") else null
 		if val != null and str(val) != "":
 			return str(val)

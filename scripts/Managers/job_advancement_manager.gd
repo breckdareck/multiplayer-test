@@ -8,12 +8,12 @@ signal player_advanced(username: String, old_class: String, new_class: String)
 
 const ADVANCEMENT_LEVEL: int = 30
 
-# Maps base class -> advanced class
+# Maps base discipline -> advanced discipline
 const ADVANCEMENT_MAP: Dictionary = {
-	Constants.ClassType.SWORDSMAN: Constants.ClassType.CRUSADER,
-	Constants.ClassType.ARCHER: Constants.ClassType.RANGER,
-	Constants.ClassType.MAGE: Constants.ClassType.ARCHMAGE,
-	Constants.ClassType.ROGUE: Constants.ClassType.ASSASSIN,
+	Constants.ClassType.SWORD: Constants.ClassType.CRUSADER,
+	Constants.ClassType.BOW: Constants.ClassType.RANGER,
+	Constants.ClassType.STAFF: Constants.ClassType.ARCHMAGE,
+	Constants.ClassType.DAGGER: Constants.ClassType.ASSASSIN,
 }
 
 # Display names for advanced classes

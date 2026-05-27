@@ -1,13 +1,13 @@
 class_name BotEquipmentLogic
 
 const CLASS_WEAPON_TYPES: Dictionary = {
-	Constants.ClassType.SWORDSMAN: [Constants.WeaponType.SWORD],
+	Constants.ClassType.SWORD: [Constants.WeaponType.SWORD],
 	Constants.ClassType.CRUSADER: [Constants.WeaponType.SWORD],
-	Constants.ClassType.ARCHER: [Constants.WeaponType.BOW],
+	Constants.ClassType.BOW: [Constants.WeaponType.BOW],
 	Constants.ClassType.RANGER: [Constants.WeaponType.BOW],
-	Constants.ClassType.MAGE: [Constants.WeaponType.STAFF],
+	Constants.ClassType.STAFF: [Constants.WeaponType.STAFF],
 	Constants.ClassType.ARCHMAGE: [Constants.WeaponType.STAFF],
-	Constants.ClassType.ROGUE: [Constants.WeaponType.DAGGER],
+	Constants.ClassType.DAGGER: [Constants.WeaponType.DAGGER],
 	Constants.ClassType.ASSASSIN: [Constants.WeaponType.DAGGER],
 	Constants.ClassType.BEGINNER: [Constants.WeaponType.SWORD],
 }

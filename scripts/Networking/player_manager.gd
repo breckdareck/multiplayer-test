@@ -317,7 +317,7 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 	if not player_data or not player_data.has("inventory") or (not has_items and not has_equipment):
 		#print("PlayerManager: Adding default items for player %d (class %d)" % [id, character_type])
 		var starter_weapon := "Wooden Sword"
-		if character_type in [Constants.ClassType.MAGE, Constants.ClassType.ARCHMAGE]:
+		if character_type in [Constants.ClassType.STAFF, Constants.ClassType.ARCHMAGE]:
 			starter_weapon = "Wooden Staff"
 		player_instance.equipment_component.weapon_slot.item = ResourceManager.get_item_by_name(starter_weapon)
 		player_instance.equipment_component.chest_slot.item = ResourceManager.get_item_by_name("White Shirt")

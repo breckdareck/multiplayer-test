@@ -10,15 +10,15 @@ extends Control
 @onready var left_button = $ClassSelectPanel/LeftButton
 @onready var right_button = $ClassSelectPanel/RightButton
 
-const STARTER_CLASSES: Array[Constants.ClassType] = [
-	Constants.ClassType.SWORDSMAN,
-	Constants.ClassType.MAGE,
-	Constants.ClassType.ARCHER,
-	Constants.ClassType.ROGUE,
+const STARTER_DISCIPLINES: Array[Constants.ClassType] = [
+	Constants.ClassType.SWORD,
+	Constants.ClassType.STAFF,
+	Constants.ClassType.BOW,
+	Constants.ClassType.DAGGER,
 ]
 
 var _starter_index: int = 0
-var selected_class: Constants.ClassType = Constants.ClassType.SWORDSMAN
+var selected_class: Constants.ClassType = Constants.ClassType.SWORD
 
 func _ready():
 	create_button.pressed.connect(_on_create_pressed)
@@ -33,8 +33,8 @@ func _ready():
 	change_class(0)
 
 func change_class(value: int):
-	_starter_index = wrapi(_starter_index + value, 0, STARTER_CLASSES.size())
-	selected_class = STARTER_CLASSES[_starter_index]
+	_starter_index = wrapi(_starter_index + value, 0, STARTER_DISCIPLINES.size())
+	selected_class = STARTER_DISCIPLINES[_starter_index]
 
 	# Get class data from ResourceManager
 	var class_data = ResourceManager.get_class_data(selected_class)

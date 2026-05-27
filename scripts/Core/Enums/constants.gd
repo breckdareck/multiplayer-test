@@ -8,17 +8,22 @@ enum ItemRarity {
 	LEGENDARY,
 }
 
+# ClassType now semantically means "weapon discipline" — the starting weapon
+# family a character chose. Enum container kept named ClassType to keep PR 1's
+# diff small (rename of the container is deferred). Int values are stable, so
+# existing saves persisting the old SWORDSMAN/MAGE/ARCHER/ROGUE positions still
+# resolve to the new SWORD/STAFF/BOW/DAGGER members.
 enum ClassType {
-	SWORDSMAN,
-	ARCHER,
-	MAGE,
-	ROGUE,
+	SWORD,       # was SWORDSMAN
+	BOW,         # was ARCHER
+	STAFF,       # was MAGE
+	DAGGER,      # was ROGUE
 	BEGINNER,
-	# Advanced classes (job advancement at level 30)
-	CRUSADER,    # Swordsman → Crusader
-	RANGER,      # Archer → Ranger
-	ARCHMAGE,    # Mage → Archmage
-	ASSASSIN,    # Rogue → Assassin
+	# Advanced disciplines (job advancement at level 30) — PR 10 will rework these.
+	CRUSADER,    # Sword → Crusader
+	RANGER,      # Bow → Ranger
+	ARCHMAGE,    # Staff → Archmage
+	ASSASSIN,    # Dagger → Assassin
 }
 
 enum ItemType {

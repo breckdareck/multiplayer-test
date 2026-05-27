@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_intp2"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_intp1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_intp1"]
-[ext_resource type="Resource" uid="uid://cgywubtniaon0" path="res://resources/Abilities/Mage/A_Fireball.tres" id="5_intp1"]
+[ext_resource type="Resource" uid="uid://cgywubtniaon0" path="res://resources/Abilities/Staff/A_Fireball.tres" id="5_intp1"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_intp2"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_intp1"]
 

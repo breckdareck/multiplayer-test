@@ -9,7 +9,7 @@ extends Control
 ## only be verified by running the game.
 
 const ABILITIES_ROOT := "res://resources/Abilities/"
-const CLASSES_ROOT := "res://resources/Player/Classes/"
+const CLASSES_ROOT := "res://resources/Player/Disciplines/"
 
 # Stat-type names mirroring Constants.StatType keys we care about in passive
 # bonuses. Discovered from level_data.stat_bonuses at render time, but having
@@ -78,8 +78,8 @@ func _build_ui() -> void:
 	_class_filter.add_item("All")
 	# Items beyond "All" are populated from the actual folder names under
 	# resources/Abilities/ in _refresh_abilities() — the on-disk layout is the
-	# source of truth, not Constants.ClassType (folders are e.g. "Warrior" but
-	# the enum has "SWORDSMAN").
+	# source of truth, not Constants.ClassType (folders are e.g. "Sword" and the
+	# enum has "SWORD" — they line up now post-rename).
 	_class_filter.item_selected.connect(func(_i): _refresh_list())
 	top.add_child(_class_filter)
 
@@ -165,8 +165,8 @@ func _refresh_abilities() -> void:
 	_refresh_list()
 
 
-## Scans resources/Player/Classes/ for ClassData .tres so the combat dropdown
-## knows each class's primary / secondary stat pairing without hardcoding.
+## Scans resources/Player/Disciplines/ for WeaponDisciplineData .tres so the combat dropdown
+## knows each discipline's primary / secondary stat pairing without hardcoding.
 func _load_classes() -> void:
 	_classes.clear()
 	var dir := DirAccess.open(CLASSES_ROOT)
@@ -174,9 +174,9 @@ func _load_classes() -> void:
 	for f in dir.get_files():
 		if not (f.ends_with(".tres") or f.ends_with(".res")): continue
 		var res := load(CLASSES_ROOT.path_join(f))
-		if res is ClassData:
+		if res is WeaponDisciplineData:
 			_classes[res.class_type] = {
-				"name": res._class_name if not res._class_name.is_empty() else f.get_basename(),
+				"name": res._discipline_name if not res._discipline_name.is_empty() else f.get_basename(),
 				"primary": res.primary_stat,
 				"secondary": res.secondary_stat,
 			}
@@ -539,7 +539,7 @@ func _build_combat_section() -> void:
 	var player_grid := _make_input_grid()
 	player_body.add_child(player_grid)
 
-	# Defaults: a fresh level-1 character — base ClassData stats (4 each),
+	# Defaults: a fresh level-1 character — base WeaponDisciplineData stats (4 each),
 	# no equipment, no crit. Adjust upward to test gear / progression.
 	_add_spinbox(player_grid, "player_level",     "Level",      1,     999,     1, 1)
 	_add_spinbox(player_grid, "primary_stat",     "Primary",    0,    9999,     4, 1)
@@ -695,7 +695,7 @@ func _on_quick_level_selected(idx: int, dropdown: OptionButton) -> void:
 func _on_class_changed() -> void:
 	if _combat_class_dropdown == null: return
 	if _combat_class_dropdown.item_count == 0:
-		_combat_class_hint.text = "  (no ClassData found in %s)" % CLASSES_ROOT
+		_combat_class_hint.text = "  (no WeaponDisciplineData found in %s)" % CLASSES_ROOT
 		return
 	var ct: int = _combat_class_dropdown.get_item_id(_combat_class_dropdown.get_selected())
 	var c: Dictionary = _classes.get(ct, {})

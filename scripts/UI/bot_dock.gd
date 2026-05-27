@@ -124,7 +124,7 @@ func _build_ui() -> void:
 	content_vbox.add_child(_rows_container)
 
 	_empty_label = Label.new()
-	_empty_label.text = "(no active bots — try /bot spawn random SWORDSMAN)"
+	_empty_label.text = "(no active bots — try /bot spawn random SWORD)"
 	_empty_label.modulate = Color(1, 1, 1, 0.5)
 	_rows_container.add_child(_empty_label)
 

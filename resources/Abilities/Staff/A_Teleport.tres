@@ -7,7 +7,7 @@
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="4_telp1"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="7_telp1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="9_jlg0d"]
-[ext_resource type="Resource" uid="uid://icestrik001x" path="res://resources/Abilities/Mage/A_Ice_Strike.tres" id="9_telp1"]
+[ext_resource type="Resource" uid="uid://icestrik001x" path="res://resources/Abilities/Staff/A_Ice_Strike.tres" id="9_telp1"]
 
 [sub_resource type="Resource" id="Resource_telp1"]
 resource_local_to_scene = true

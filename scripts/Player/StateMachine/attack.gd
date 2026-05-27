@@ -62,7 +62,7 @@ func _start_basic_attack():
 	var is_archer := false
 	if player.class_component:
 		var cls: int = player.class_component.current_class
-		is_archer = cls == Constants.ClassType.ARCHER or cls == Constants.ClassType.RANGER
+		is_archer = cls == Constants.ClassType.BOW or cls == Constants.ClassType.RANGER
 
 	if is_archer and _try_use_arrow_shot():
 		return

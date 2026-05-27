@@ -267,7 +267,7 @@ func _refresh_combat_profile() -> void:
 	_is_ranged_class = false
 	if is_instance_valid(player) and is_instance_valid(player.class_component):
 		match player.class_component.current_class:
-			Constants.ClassType.ARCHER, Constants.ClassType.MAGE, \
+			Constants.ClassType.BOW, Constants.ClassType.STAFF, \
 			Constants.ClassType.RANGER, Constants.ClassType.ARCHMAGE:
 				_is_ranged_class = true
 
