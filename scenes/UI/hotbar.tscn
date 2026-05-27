@@ -24,6 +24,30 @@ content_margin_left = 4.0
 content_margin_right = 4.0
 bg_color = Color(0, 0, 0, 0)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pip_empty"]
+bg_color = Color(0.15, 0.15, 0.18, 0.85)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.45, 0.45, 0.5, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pip_filled"]
+bg_color = Color(1, 0.65, 0.15, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.85, 0.4, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
 [node name="Hotbar" type="Control"]
 layout_mode = 3
 anchors_preset = 7
@@ -64,6 +88,29 @@ slot_kind = "primary"
 [node name="SecondaryWeaponSlot" parent="Background/RootHBox/WeaponSwapSection" instance=ExtResource("2_wslot")]
 layout_mode = 2
 slot_kind = "secondary"
+
+[node name="ComboIndicator" type="VBoxContainer" parent="Background/RootHBox/WeaponSwapSection"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 2
+tooltip_text = "Sword combo points. Build with basic attacks, spend with Slash for amplified damage."
+
+[node name="Pip0" type="Panel" parent="Background/RootHBox/WeaponSwapSection/ComboIndicator"]
+custom_minimum_size = Vector2(14, 14)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_pip_empty")
+
+[node name="Pip1" type="Panel" parent="Background/RootHBox/WeaponSwapSection/ComboIndicator"]
+custom_minimum_size = Vector2(14, 14)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_pip_empty")
+
+[node name="Pip2" type="Panel" parent="Background/RootHBox/WeaponSwapSection/ComboIndicator"]
+custom_minimum_size = Vector2(14, 14)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_pip_empty")
 
 [node name="Separator" type="Panel" parent="Background/RootHBox"]
 custom_minimum_size = Vector2(2, 50)

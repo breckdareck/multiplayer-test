@@ -12,6 +12,15 @@ var weapon_swap_section: HBoxContainer = null
 var primary_weapon_slot: HotbarWeaponSlot = null
 var secondary_weapon_slot: HotbarWeaponSlot = null
 
+# PR 5: Sword combo indicator — three pips visible only while the active
+# discipline is SWORD. Filled vs empty stylebox swap reflects the combo
+# count. Resolved through the unique-name lookup against the WeaponSwapSection.
+var combo_indicator: VBoxContainer = null
+var combo_pips: Array[Panel] = []
+var _combo_pip_style_empty: StyleBox = null
+var _combo_pip_style_filled: StyleBox = null
+var sword_combo_component: SwordComboComponent = null
+
 var hotbar_slots: Array[Node] = []
 var slot_count: int = 8
 var player: MultiplayerPlayerV2
@@ -31,6 +40,33 @@ func _ready():
 		primary_weapon_slot = weapon_swap_section.get_node_or_null("PrimaryWeaponSlot") as HotbarWeaponSlot
 		secondary_weapon_slot = weapon_swap_section.get_node_or_null("SecondaryWeaponSlot") as HotbarWeaponSlot
 
+	# PR 5: combo indicator lives under the weapon-swap section. Cache pip
+	# refs + the empty/filled styleboxes once so the per-frame refresh is
+	# just a stylebox swap, not a tree lookup. Unique-name (%) lookup
+	# resolves it cleanly regardless of whether the section is moved later.
+	combo_indicator = get_node_or_null("%ComboIndicator") as VBoxContainer
+	if is_instance_valid(combo_indicator):
+		var pip0: Panel = combo_indicator.get_node_or_null("Pip0") as Panel
+		var pip1: Panel = combo_indicator.get_node_or_null("Pip1") as Panel
+		var pip2: Panel = combo_indicator.get_node_or_null("Pip2") as Panel
+		if pip0 and pip1 and pip2:
+			combo_pips = [pip0, pip1, pip2]
+			# Both pips start with the empty stylebox per the tscn; the filled
+			# stylebox is fetched off whichever pip we duplicate from. To keep
+			# the two stylebox references independent (so toggling one pip
+			# doesn't recolor every other), look up via the sub_resource on
+			# disk. The scene serializes them in the file as
+			# StyleBoxFlat_pip_empty / StyleBoxFlat_pip_filled — they're inline
+			# subresources, so we grab the empty one off Pip0 and synthesize
+			# the filled one from a duplicate, since exporting the sub_resource
+			# from gdscript is awkward.
+			_combo_pip_style_empty = pip0.get_theme_stylebox("panel")
+			# Filled style: read off the scene resource. Because the empty and
+			# filled styleboxes are declared inline in the tscn and we cannot
+			# directly reach a non-applied subresource, build the filled style
+			# in code so the visual rule is owned in one place.
+			_combo_pip_style_filled = _build_filled_pip_style()
+
 	# Get reference to player (adjust based on your scene structure)
 	if owner is MultiplayerPlayerV2:
 		player = owner as MultiplayerPlayerV2
@@ -41,6 +77,7 @@ func _ready():
 	if player:
 		ability_component = player.ability_component
 		equipment_component = player.equipment_component
+		sword_combo_component = player.sword_combo_component
 
 	if not ability_component:
 		push_error("Hotbar: Could not find AbilityComponent")
@@ -64,10 +101,17 @@ func _ready():
 		equipment_component.swap_cooldown_started.connect(_on_swap_cooldown_started)
 		equipment_component.swap_denied.connect(_on_swap_denied)
 
+	# PR 5: subscribe to combo updates. The component fires combo_changed on
+	# every build/spend/decay/reset on both server and client (via
+	# sync_combo_to_client RPC), so a single connection works for both.
+	if is_instance_valid(sword_combo_component):
+		sword_combo_component.combo_changed.connect(_on_combo_changed)
+
 	# Defer the first refresh by a frame — the equipment component's slots
 	# may not be populated yet when _ready fires (loaded asynchronously).
 	call_deferred("_refresh_weapon_section")
 	call_deferred("_refresh_active_highlight")
+	call_deferred("_refresh_combo_indicator")
 
 
 func _process(delta: float) -> void:
@@ -198,6 +242,9 @@ func _refresh_weapon_section() -> void:
 		secondary_weapon_slot.set_weapon_item(secondary_sd.item if secondary_sd else null)
 
 	_refresh_active_highlight()
+	# PR 5: an equipment change (item swap, weapon dragged in/out) may flip
+	# the active discipline — refresh combo visibility to match.
+	_refresh_combo_indicator()
 
 
 func _refresh_active_highlight() -> void:
@@ -212,6 +259,10 @@ func _refresh_active_highlight() -> void:
 
 func _on_active_weapon_changed(_active_weapon: String, _active_item: ItemData) -> void:
 	_refresh_active_highlight()
+	# PR 5: Tab-swapping flips which discipline is active. Hide the pips when
+	# swapping away from Sword; show them again when swapping back. The combo
+	# count itself persists across the swap per the locked design.
+	_refresh_combo_indicator()
 
 
 func _on_swap_cooldown_started(duration: float) -> void:
@@ -247,3 +298,67 @@ func _on_weapon_slot_click(_slot_kind: String) -> void:
 func flash_swap_indicator() -> void:
 	_flash_remaining = HOTBAR_FLASH_DURATION
 	modulate = HOTBAR_FLASH_COLOR
+
+
+# ============================================================================
+# Combo indicator (PR 5 — Sword signature)
+# ============================================================================
+
+## Builds the filled-pip stylebox at runtime. Kept here (not in the tscn) so
+## the empty/filled visual contract lives in one place — the tscn declares
+## the empty style on each pip, and this builds the matching filled variant.
+func _build_filled_pip_style() -> StyleBox:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(1.0, 0.65, 0.15, 1.0)
+	style.border_color = Color(1.0, 0.85, 0.4, 1.0)
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_left = 8
+	style.corner_radius_bottom_right = 8
+	return style
+
+
+## Signal handler — runs on every combo_changed (build/spend/decay/reset).
+## Just delegates to _refresh_combo_indicator so the pip-fill logic stays in
+## one place.
+func _on_combo_changed(_new_count: int) -> void:
+	_refresh_combo_indicator()
+
+
+## Visibility + per-pip fill update for the combo indicator. Hidden iff the
+## active discipline is not SWORD (matches the locked design "only visible
+## when wielding a sword"). When visible, paints the first N pips with the
+## filled stylebox and the rest with the empty stylebox.
+func _refresh_combo_indicator() -> void:
+	if not is_instance_valid(combo_indicator):
+		return
+
+	# Hide for any non-Sword discipline. Falls open (hidden) when the player
+	# root or its equipment component isn't ready yet, which is the safe
+	# default — a stale visible indicator on a Bow loadout would be confusing.
+	var show_indicator: bool = false
+	if is_instance_valid(player) and player.has_method("get_active_discipline"):
+		show_indicator = player.get_active_discipline() == Constants.ClassType.SWORD
+	combo_indicator.visible = show_indicator
+	if not show_indicator:
+		return
+
+	var count: int = 0
+	if is_instance_valid(sword_combo_component):
+		count = sword_combo_component.get_combo_count()
+
+	for i in range(combo_pips.size()):
+		var pip: Panel = combo_pips[i]
+		if not is_instance_valid(pip):
+			continue
+		# Use a guard to avoid restyling pips that are already in the right
+		# state — saves a theme_override write per frame on a non-change.
+		var should_fill: bool = i < count
+		var style_to_apply: StyleBox = _combo_pip_style_filled if should_fill else _combo_pip_style_empty
+		if pip.get_theme_stylebox("panel") == style_to_apply:
+			continue
+		pip.add_theme_stylebox_override("panel", style_to_apply)
