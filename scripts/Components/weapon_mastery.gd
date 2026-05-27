@@ -4,10 +4,10 @@ extends Node
 ## Tracks per-weapon-discipline mastery levels. Each tier-1 weapon discipline
 ## (Sword / Bow / Staff / Dagger) has its own independent mastery scale capped
 ## at MASTERY_CAP. Mastery XP is granted on the server when the character lands
-## an enemy kill with that weapon (XP_PER_KILL) or casts an ability while that
-## weapon is equipped (XP_PER_CAST). Mastery drives the player's STR/DEX/INT/LUK
-## scaling in StatsComponent (the per-character-level scaling was removed in
-## PR 2 of the weapon-identity-overhaul initiative).
+## an enemy kill with that weapon (see compute_kill_xp for the level-scaled
+## formula) or casts an ability while that weapon is equipped (XP_PER_CAST).
+## Mastery drives the player's STR/DEX/INT/LUK scaling in StatsComponent
+## additively on top of class-level scaling.
 ##
 ## Server-authoritative: only the server mutates state; clients receive updates
 ## via sync_mastery_to_client RPCs and maintain a mirror copy for UI.
@@ -17,27 +17,39 @@ extends Node
 ## Maximum mastery level a single discipline can reach.
 const MASTERY_CAP: int = 20
 
-## XP granted to the active weapon's discipline when its wielder lands a killing
-## blow on an enemy.
-const XP_PER_KILL: int = 5
-
 ## XP granted to the active weapon's discipline when its wielder casts an
-## ability.
+## ability. Kept flat (not level-scaled) because casts are MP/cooldown-bounded
+## and don't have the farming exploit that prompted scaling kill XP.
 const XP_PER_CAST: int = 1
 
-## PR 4 fix (2026-05-28): kill XP now scales with enemy level relative to
-## player level. Flat XP_PER_KILL was a farming exploit — players could
-## one-shot level-1 mobs forever and rack up mastery just as fast as
-## fighting same-level enemies. Now killing significantly-below-level mobs
-## gives the floor (1 XP), same-level gives XP_PER_KILL (5), and higher-level
-## kills give a bonus that scales linearly with the level gap.
+## PR 4 fix (2026-05-28 revision 2): kill XP now uses `enemy_level` as the
+## BASE (scaled by KILL_XP_PER_ENEMY_LEVEL), with the relative-level-diff
+## modifier on top. This solves the high-level-pickup problem: a Lv 70
+## character starting fresh on Halberd kills Lv 70 enemies for ~70 XP per
+## kill, so the catch-up is fast. Meanwhile, that same Lv 70 character
+## one-shotting Lv 1 slimes still hits the floor (1 XP) — farming stays
+## suppressed.
 ##
-## Tune via these knobs:
-##   KILL_XP_LEVEL_DIFF_SCALAR: amount the modifier shifts per level of gap
-##   KILL_XP_MIN_MODIFIER:      floor multiplier (penalty cap for farming)
-##   KILL_XP_FLOOR:             absolute minimum XP per kill regardless
+## Formula:
+##   base = max(1, enemy_level * KILL_XP_PER_ENEMY_LEVEL)
+##   modifier = clamp(1 + (enemy_level - player_level) * SCALAR, MIN, MAX)
+##   final = max(FLOOR, round(base * modifier))
+##
+## Examples (player_level = 70):
+##   Lv 70 enemy → base 70 × 1.0 = 70 XP (baseline at-level kill)
+##   Lv 80 enemy → base 80 × 2.5 (clamped) = 200 XP (reach-up bonus)
+##   Lv 1 slime  → base 1 × 0.10 (floored) = 1 XP (farming useless)
+##
+## Tune via:
+##   KILL_XP_PER_ENEMY_LEVEL:    base scalar — raise to multiply all kills
+##   KILL_XP_LEVEL_DIFF_SCALAR:  modifier shift per level of gap
+##   KILL_XP_MIN_MODIFIER:       floor multiplier (caps farming penalty)
+##   KILL_XP_MAX_MODIFIER:       ceiling multiplier (caps reach-up bonus)
+##   KILL_XP_FLOOR:              absolute minimum XP per kill
+const KILL_XP_PER_ENEMY_LEVEL: float = 1.0
 const KILL_XP_LEVEL_DIFF_SCALAR: float = 0.15
 const KILL_XP_MIN_MODIFIER: float = 0.10
+const KILL_XP_MAX_MODIFIER: float = 2.5
 const KILL_XP_FLOOR: int = 1
 
 
@@ -46,11 +58,14 @@ const KILL_XP_FLOOR: int = 1
 ## without needing a component instance (used for both primary + secondary
 ## weapon credits in the same hit).
 static func compute_kill_xp(enemy_level: int, player_level: int) -> int:
+	var base_xp: float = max(1.0, float(enemy_level) * KILL_XP_PER_ENEMY_LEVEL)
 	var level_diff: int = enemy_level - player_level
-	var modifier: float = 1.0 + level_diff * KILL_XP_LEVEL_DIFF_SCALAR
-	if modifier < KILL_XP_MIN_MODIFIER:
-		modifier = KILL_XP_MIN_MODIFIER
-	return max(KILL_XP_FLOOR, roundi(XP_PER_KILL * modifier))
+	var modifier: float = clampf(
+		1.0 + level_diff * KILL_XP_LEVEL_DIFF_SCALAR,
+		KILL_XP_MIN_MODIFIER,
+		KILL_XP_MAX_MODIFIER
+	)
+	return max(KILL_XP_FLOOR, roundi(base_xp * modifier))
 
 ## XP curve (PR 4 fix 2026-05-28 — replaced flat linear (N+1)*100):
 ## `_xp_to_next_level(N) = XP_BASE + XP_LINEAR * N + XP_QUADRATIC * N * N`.
