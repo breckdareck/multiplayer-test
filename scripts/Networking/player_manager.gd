@@ -705,7 +705,7 @@ func _on_player_spawned(player_id: int) -> void:
 func player_input(input_type: String, data: Variant = null):
 	"""Handles input actions from clients safely."""
 	if not multiplayer.is_server(): return
-	
+
 	var peer_id = multiplayer.get_remote_sender_id()
 	if BotManager.is_bot(peer_id):
 		return

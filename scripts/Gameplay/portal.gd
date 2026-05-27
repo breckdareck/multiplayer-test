@@ -41,7 +41,7 @@ func interact(player_id: int):
 		if body.player_id == player_id:
 			player_in_portal = true
 			break
-	
+
 	if player_in_portal:
 		#print("Player %d activated portal to map '%s' at spawn '%s'" % [player_id, target_map_id, target_spawn_point_name])
 		# Route through the player's change_to_map so save data is flushed
