@@ -1,0 +1,371 @@
+/* ---------------------------------------------------------------
+   GDD rendered preview — stylesheet
+   Inlined by render_html.py into the standalone HTML output.
+   Uses CSS variables for light/dark themes (toggle in the header).
+--------------------------------------------------------------- */
+
+:root {
+  /* Light theme (default) */
+  --bg:           #fafaf7;
+  --bg-elevated:  #ffffff;
+  --bg-code:      #f4f3ef;
+  --bg-callout-q: #fff9e6;
+  --bg-callout-i: #eef4ff;
+  --bg-callout-w: #fdecec;
+
+  --fg:           #1d1d1f;
+  --fg-muted:     #555;
+  --fg-faint:     #888;
+
+  --accent:       #5f5fff;
+  --accent-soft:  #b7b7ff;
+  --pillar:       #c75d2f;
+  --rule:         #e6e3dc;
+
+  --shadow:       0 1px 2px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04);
+
+  --font-sans:    "Inter", "SF Pro Text", -apple-system, BlinkMacSystemFont,
+                  "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-serif:   "Charter", "Iowan Old Style", "Georgia", serif;
+  --font-mono:    "JetBrains Mono", "SF Mono", "Menlo", Consolas, monospace;
+
+  --max-w:        780px;
+  --toc-w:        260px;
+}
+
+html[data-theme="dark"] {
+  --bg:           #15161a;
+  --bg-elevated:  #1d1f24;
+  --bg-code:      #24262c;
+  --bg-callout-q: #3a2e16;
+  --bg-callout-i: #16243a;
+  --bg-callout-w: #3a1818;
+
+  --fg:           #ececec;
+  --fg-muted:     #aaa;
+  --fg-faint:     #7a7a7a;
+
+  --accent:       #8f8fff;
+  --accent-soft:  #4a4a8c;
+  --pillar:       #f08a5c;
+  --rule:         #2c2e34;
+
+  --shadow:       0 1px 2px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.25);
+}
+
+/* -------- Base -------- */
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  display: grid;
+  grid-template-columns: var(--toc-w) minmax(0, 1fr);
+  gap: 0;
+  min-height: 100vh;
+}
+
+/* -------- Header bar -------- */
+.gdd-header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 28px;
+  border-bottom: 1px solid var(--rule);
+  background: var(--bg-elevated);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.gdd-header .brand {
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  color: var(--fg-muted);
+  text-transform: uppercase;
+}
+
+.gdd-header .theme-toggle {
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--fg-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.gdd-header .theme-toggle:hover {
+  color: var(--fg);
+  border-color: var(--accent-soft);
+}
+
+/* -------- TOC (left rail) -------- */
+.gdd-toc {
+  position: sticky;
+  top: 56px;
+  align-self: start;
+  max-height: calc(100vh - 56px);
+  overflow-y: auto;
+  padding: 28px 18px 28px 28px;
+  border-right: 1px solid var(--rule);
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+.gdd-toc h2 {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  margin: 0 0 10px 0;
+  font-weight: 600;
+}
+
+.gdd-toc ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.gdd-toc ul ul {
+  padding-left: 14px;
+  margin-top: 2px;
+  margin-bottom: 6px;
+}
+.gdd-toc a {
+  display: block;
+  color: var(--fg-muted);
+  text-decoration: none;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border-left: 2px solid transparent;
+  transition: all 0.1s ease;
+}
+.gdd-toc a:hover {
+  color: var(--fg);
+  background: var(--bg-code);
+}
+.gdd-toc a.active {
+  color: var(--accent);
+  border-left-color: var(--accent);
+  background: var(--bg-code);
+}
+
+/* -------- Main content -------- */
+.gdd-main {
+  padding: 36px 48px 96px 48px;
+  max-width: calc(var(--max-w) + 96px);
+}
+
+.gdd-content {
+  max-width: var(--max-w);
+}
+
+/* -------- Typography -------- */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--fg);
+  scroll-margin-top: 80px;
+}
+
+h1 {
+  font-size: 36px;
+  margin: 12px 0 8px;
+  letter-spacing: -0.02em;
+}
+h2 {
+  font-size: 26px;
+  margin: 48px 0 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--rule);
+  letter-spacing: -0.01em;
+}
+h3 {
+  font-size: 20px;
+  margin: 32px 0 10px;
+}
+h4 {
+  font-size: 16px;
+  margin: 22px 0 8px;
+  color: var(--fg-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+p {
+  margin: 0 0 14px 0;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid var(--accent-soft);
+  transition: border-color 0.1s ease;
+}
+a:hover { border-bottom-color: var(--accent); }
+
+strong { color: var(--fg); font-weight: 600; }
+
+hr {
+  border: 0;
+  height: 1px;
+  background: var(--rule);
+  margin: 32px 0;
+}
+
+/* -------- Meta block (the first blockquote under H1) -------- */
+.gdd-content > blockquote:first-of-type {
+  background: var(--bg-elevated);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 12px 18px;
+  margin: 16px 0 28px;
+  color: var(--fg-muted);
+  font-size: 14px;
+}
+.gdd-content > blockquote:first-of-type p { margin: 4px 0; }
+
+/* -------- Callouts -------- */
+blockquote {
+  margin: 18px 0;
+  padding: 12px 18px;
+  border-left: 3px solid var(--accent-soft);
+  background: var(--bg-callout-i);
+  border-radius: 0 6px 6px 0;
+  color: var(--fg);
+}
+
+/* Open-question callout — starts with ⚠ */
+blockquote p:first-child:where(
+  :first-letter
+) { /* no-op selector to keep specificity but avoid weird first-letter mods */ }
+
+blockquote.callout-question {
+  border-left-color: var(--pillar);
+  background: var(--bg-callout-q);
+}
+blockquote.callout-warning {
+  border-left-color: #d34646;
+  background: var(--bg-callout-w);
+}
+
+/* -------- Tables -------- */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 18px 0 24px;
+  font-size: 14.5px;
+  background: var(--bg-elevated);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+thead { background: var(--bg-code); }
+th, td {
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+th {
+  font-weight: 600;
+  font-size: 12.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--fg-muted);
+}
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover { background: var(--bg-code); }
+
+/* -------- Code -------- */
+code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background: var(--bg-code);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--fg);
+}
+pre {
+  background: var(--bg-code);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 16px 18px;
+  overflow-x: auto;
+  margin: 18px 0;
+  line-height: 1.5;
+}
+pre code {
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  font-size: 13.5px;
+}
+
+/* -------- Mermaid -------- */
+.mermaid {
+  background: var(--bg-elevated);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  text-align: center;
+  overflow-x: auto;
+}
+
+/* -------- Lists -------- */
+ul, ol {
+  padding-left: 24px;
+  margin: 8px 0 16px;
+}
+li { margin: 4px 0; }
+li > p { margin: 4px 0; }
+
+/* -------- Pillar list (ordered list under H2 "Design pillars") -------- */
+.pillars-list li::marker {
+  color: var(--pillar);
+  font-weight: 600;
+}
+
+/* -------- Responsive -------- */
+@media (max-width: 900px) {
+  body {
+    grid-template-columns: 1fr;
+  }
+  .gdd-toc {
+    position: static;
+    max-height: none;
+    border-right: 0;
+    border-bottom: 1px solid var(--rule);
+    padding: 20px 24px;
+  }
+  .gdd-main {
+    padding: 24px 24px 64px;
+  }
+}
+
+/* -------- Print -------- */
+@media print {
+  body { grid-template-columns: 1fr; background: white; color: black; }
+  .gdd-header, .gdd-toc { display: none; }
+  .gdd-main { padding: 0; max-width: none; }
+  a { color: black; border-bottom: 0; }
+  h2 { page-break-before: auto; break-before: auto; }
+  pre, table, .mermaid { page-break-inside: avoid; break-inside: avoid; }
+}
