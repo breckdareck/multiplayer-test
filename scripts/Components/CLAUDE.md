@@ -48,6 +48,12 @@ Player (MultiplayerPlayerV2)
     │                                     Kill XP credits BOTH primary AND secondary
     │                                     equipped weapons (PR 4 fix 2026-05-28);
     │                                     cast XP only credits the ACTIVE weapon.
+    │                                     Kill XP is level-scaled (PR 4 fix
+    │                                     2026-05-28 rev 2): base = enemy_level,
+    │                                     modifier = clamped (1 + diff * 0.15)
+    │                                     between 0.10 and 2.5. See
+    │                                     compute_kill_xp(enemy_level, player_level)
+    │                                     and the KILL_XP_* tunable constants.
     ├── Buff       buff.gd        - timed buffs/debuffs, stacking, custom logic
     ├── Class      class.gd       - current_class = STARTING discipline (does NOT
     │                               change on weapon swap). Drives HP/MP curves.
