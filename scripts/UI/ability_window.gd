@@ -144,6 +144,15 @@ func _gui_input(event: InputEvent) -> void:
 ## Clears the list and generates AbilitySlot nodes for each ability.
 ## PR 4: filters to the currently-selected discipline tab so each tab only
 ## shows the abilities that belong to it (via AbilityData.required_class[0]).
+##
+## PR 4 fix (2026-05-27): iterate ALL abilities of the active discipline from
+## ResourceManager, not just the ones the player has LEARNED. Previously
+## (line `for ability_id in ability_component._ability_levels.keys()`) the
+## bow/staff/dagger tabs were empty for a Swordsman because they hadn't
+## learned any of those abilities yet. Now every tab shows the full discipline
+## tree, with unlearned abilities displaying as level 0 / max so the player
+## can preview what's available and spend a point to learn them when they
+## have mastery points in that discipline's pool.
 func load_ability_list():
 	if not ability_component:
 		return
@@ -151,23 +160,30 @@ func load_ability_list():
 	for child in ability_list_container.get_children():
 		child.queue_free()
 
-	# Get all abilities from the ability component, filtered by the active tab.
-	for ability_id in ability_component._ability_levels.keys():
-		var ability_data = ResourceManager.get_ability_data(ability_id)
+	# Collect & sort all abilities for the active discipline tab so display
+	# order is stable across reloads (alphabetical by id is fine for v1; can
+	# switch to sort_order later if AbilityData gains the field).
+	var matching_ids: Array[String] = []
+	for ability_id in ResourceManager.ability_data.keys():
+		var ability_data: AbilityData = ResourceManager.ability_data[ability_id]
 		if not ability_data:
 			continue
-
-		# PR 4: filter by the currently-selected discipline tab.
 		if _ability_discipline_key(ability_data) != _current_discipline_key:
 			continue
+		matching_ids.append(ability_id)
+	matching_ids.sort()
 
-		var current_level = ability_component._ability_levels[ability_id]
+	for ability_id in matching_ids:
+		var ability_data: AbilityData = ResourceManager.ability_data[ability_id]
+		# get_ability_level returns 0 for unlearned abilities — the slot UI
+		# already renders the level/max correctly at 0.
+		var current_level: int = ability_component.get_ability_level(ability_id)
 		var slot = ABILITYSLOT.instantiate()
 		slot.setup(ability_data, current_level)
 		slot.ability_selected.connect(select_ability)
 		ability_list_container.add_child(slot)
 
-		# Select first ability if none is selected
+		# Select first ability if none is selected.
 		if selected_ability_id.is_empty():
 			select_ability(ability_id)
 
@@ -705,17 +721,25 @@ func _ability_in_current_tab(ability_id: String) -> bool:
 	return _ability_discipline_key(ability_data) == _current_discipline_key
 
 
-## PR 4: returns the first known ability ID that belongs to the current
-## discipline tab. Used to auto-select on tab change / window open.
+## PR 4: returns the first ability ID that belongs to the current discipline
+## tab. Used to auto-select on tab change / window open.
+##
+## PR 4 fix (2026-05-27): iterate ResourceManager.ability_data (ALL abilities)
+## instead of just the player's learned _ability_levels, so a fresh character
+## can still auto-select something when they switch to a non-starting tab.
 func _first_ability_id_in_current_tab() -> String:
 	if not ability_component:
 		return ""
-	for ability_id in ability_component._ability_levels.keys():
-		var ability_data: AbilityData = ResourceManager.get_ability_data(ability_id)
+	var matching_ids: Array[String] = []
+	for ability_id in ResourceManager.ability_data.keys():
+		var ability_data: AbilityData = ResourceManager.ability_data[ability_id]
 		if ability_data == null:
 			continue
 		if _ability_discipline_key(ability_data) == _current_discipline_key:
-			return ability_id
+			matching_ids.append(ability_id)
+	matching_ids.sort()
+	if not matching_ids.is_empty():
+		return matching_ids[0]
 	return ""
 
 

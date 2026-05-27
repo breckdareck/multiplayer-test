@@ -80,7 +80,14 @@ var _loading_mode: bool = false
 ## PR 4: how many ability points each level-up grants. Awarded entirely to
 ## the active weapon's discipline pool (the discipline the player is
 ## wielding at the moment the level-up signal fires).
-const ABILITY_POINTS_PER_LEVEL: int = 3
+## PR 4 fix (2026-05-27): ability points are granted per MASTERY-LEVEL of the
+## relevant weapon discipline, NOT per character level. A level-30 character
+## who never used a bow has zero Bow ability points — they earn them by
+## actually using the bow (mastery XP from kills + casts → mastery levels →
+## ability points to that discipline's pool). Replaces the earlier per-character-
+## level grant rule which leaked points evenly across the 4 trees and let a
+## character earn points for trees they never touched.
+const ABILITY_POINTS_PER_MASTERY_LEVEL: int = 3
 
 ## PR 4: canonical lowercase discipline keys, in display order (the order
 ## the AbilityWindow renders tabs).
@@ -157,12 +164,15 @@ func _ready() -> void:
 				_projectiles_container.name = "Projectiles"
 				legacy.add_child(_projectiles_container)
 
-	# Connect to the LevelingComponent to grant ability points on level up
-	if _level_component:
+	# PR 4 fix (2026-05-27): grant ability points per-mastery-level, not per-
+	# character-level. The old _level_component.leveled_up hookup is gone —
+	# WeaponMasteryComponent.mastery_level_changed is now the only point-grant
+	# source. See ABILITY_POINTS_PER_MASTERY_LEVEL for the rate.
+	if _weapon_mastery_component:
 		if multiplayer.is_server():
-			_level_component.leveled_up.connect(_on_leveled_up)
+			_weapon_mastery_component.mastery_level_changed.connect(_on_mastery_level_up)
 	else:
-		push_warning("AbilityComponent: No LevelingComponent found. Points won't be granted on level up.")
+		push_warning("AbilityComponent: No WeaponMasteryComponent found. Points won't be granted on mastery level up.")
 		
 	# Initialize class abilities on the server or in single-player.
 	# Clients will receive this data via an RPC sync when they connect.
@@ -174,11 +184,44 @@ func _ready() -> void:
 	# can't fight effectively until they earn their first ability point on
 	# level-up. Save data still overrides this — returning characters keep
 	# whatever level they had leveled the ability to.
+	#
+	# PR 4 fix (2026-05-28): all FOUR tier-1 disciplines' starter abilities
+	# are auto-leveled to 1, not just the player's starting class's starter.
+	# So when a Swordsman picks up a bow they immediately have Double Shot
+	# ready to fire instead of being stuck with a basic-attack swing of a
+	# weapon they have no abilities for. Each discipline's full ability list
+	# is also added at level 0 so the AbilityWindow can show them with a
+	# "Learn" / "+" affordance.
 	if not multiplayer.has_multiplayer_peer() or multiplayer.is_server():
+		# Original class abilities first (keeps the existing per-class starter
+		# behavior intact for the player's chosen discipline).
 		var starter: AbilityData = _class_component.get_starter_ability() if _class_component else null
 		for ability_data in _class_component.get_class_abilities():
 			if ability_data and not _ability_levels.has(ability_data.ability_id):
 				var initial_level: int = 1 if (starter and ability_data == starter) else 0
+				_learn_ability_local(ability_data.ability_id, initial_level, false)
+
+		# Then iterate the OTHER three tier-1 disciplines and seed their
+		# starter abilities at level 1 + the rest of each tree at level 0.
+		# Skips the starting discipline (already handled above) and tier-2
+		# advancement classes (those live in their tier-1 parent's tree).
+		var starting_class: int = _class_component.current_class if _class_component else -1
+		for tier1_disc in [
+			Constants.ClassType.SWORD,
+			Constants.ClassType.BOW,
+			Constants.ClassType.STAFF,
+			Constants.ClassType.DAGGER,
+		]:
+			if tier1_disc == starting_class:
+				continue
+			var disc_data: WeaponDisciplineData = ResourceManager.get_class_data(tier1_disc)
+			if disc_data == null:
+				continue
+			var disc_starter: AbilityData = disc_data.starter_ability
+			for ability_data in disc_data.skills:
+				if ability_data == null or _ability_levels.has(ability_data.ability_id):
+					continue
+				var initial_level: int = 1 if (disc_starter and ability_data == disc_starter) else 0
 				_learn_ability_local(ability_data.ability_id, initial_level, false)
 
 	##print("AbilityComponent ready. Loaded abilities: ", _ability_levels)
@@ -330,6 +373,21 @@ func _active_discipline_key() -> String:
 	return ""
 
 
+## PR 4 fix (2026-05-28): true iff the given ability's discipline matches
+## the currently-wielded weapon's discipline. Used by _validate_ability_use
+## to reject cross-discipline casts (e.g. firing Slash while wielding a
+## staff). Falls back to the starting class's discipline when the player
+## has no weapon equipped, so a bare-handed Swordsman can still cast Slash.
+func _ability_matches_active_discipline(ability: AbilityData) -> bool:
+	var ability_disc: String = _ability_primary_discipline(ability)
+	if ability_disc == "":
+		return true  # defensive: discipline-less abilities aren't gated
+	var active_disc: String = _active_discipline_key()
+	if active_disc == "":
+		active_disc = _starting_discipline_key()
+	return ability_disc == active_disc
+
+
 ## Returns the discipline key for the player's starting class - used as a
 ## fallback when the active weapon can't supply one (e.g. unequipped at
 ## first level-up after creation) and as the "remainder" target for the
@@ -342,24 +400,64 @@ func _starting_discipline_key() -> String:
 
 ## Helper function to iterate through all learned passive abilities
 ## Calls the provided callable for each passive ability with its data
+##
+## PR 4 fix (2026-05-28, refined 2026-05-28): passives apply when the
+## matching weapon is in EITHER equipped slot (primary or secondary), not
+## just the currently-wielded active. The "I am my weapon" rule applies
+## to active casts and the sprite/attack-pattern identity, but passives
+## come from carrying the weapon at all — a Swordsman with Sword in
+## primary and Bow in secondary keeps both trees' passives active, while
+## Staff and Dagger passives (no weapon equipped in those disciplines)
+## stay dormant.
+##
+## This filter cascades to every consumer of learned-passive iteration
+## (stat modifiers, on-hit/on-crit/on-kill procs, ability-damage/cooldown
+## modifiers). StatsComponent recalcs on equipment_changed, so the filter
+## refreshes whenever a slot's weapon item changes.
 func _foreach_learned_passive(callback: Callable) -> void:
+	var equipped_disc_keys: Dictionary = _equipped_discipline_keys()
 	for ability_id in _ability_levels:
 		var ability_level = _ability_levels[ability_id]
-		
+
 		# Skip unlearned abilities
 		if ability_level <= 0:
 			continue
-			
+
 		var ability = ResourceManager.get_ability_data(ability_id)
 		if not ability or ability.ability_type != Constants.AbilityType.PASSIVE:
 			continue
-			
+
+		# Discipline gate: only apply this passive if its discipline matches
+		# an EQUIPPED weapon (primary or secondary). Abilities with no
+		# required_class (defensive — shouldn't exist post-PR-4) pass through.
+		var ability_disc_key: String = _ability_primary_discipline(ability)
+		if ability_disc_key != "" and not equipped_disc_keys.has(ability_disc_key):
+			continue
+
 		var level_stats = ability.get_level_stats(ability_level)
 		if not level_stats:
 			continue
-			
+
 		# Call the callback with the ability data
 		callback.call(ability, level_stats, ability_id)
+
+
+## Returns a Dictionary keyed by discipline string (set-like) for every
+## currently-equipped weapon's discipline. Used by _foreach_learned_passive
+## to gate passive effects to equipped disciplines only. Routes through the
+## player root's get_equipped_disciplines() method so this component
+## doesn't have to reach across to EquipmentComponent directly.
+func _equipped_discipline_keys() -> Dictionary:
+	var result: Dictionary = {}
+	if not is_instance_valid(owner):
+		return result
+	if owner.has_method("get_equipped_disciplines"):
+		var disciplines: Array = owner.get_equipped_disciplines()
+		for disc in disciplines:
+			var key: String = _class_type_to_discipline_key(int(disc))
+			if key != "":
+				result[key] = true
+	return result
 
 
 ## Generic modifier calculator - reduces code duplication
@@ -403,7 +501,18 @@ func _validate_ability_use(ability_id: String) -> Dictionary:
 	if ability.ability_type != Constants.AbilityType.ACTIVE:
 		##print("Ability '%s' is not an active ability." % ability.ability_name)
 		return result
-	
+
+	# PR 4 fix (2026-05-28): you can only cast an ability while wielding a
+	# weapon of its discipline. Catches the case where the player swapped
+	# the ITEM in their active slot (e.g. sword -> staff) but the hotbar
+	# binding still points at a sword ability — the binding's cast must
+	# fail instead of incorrectly firing a sword swing while holding a
+	# staff. Abilities with no required_class (shouldn't exist post-PR-4)
+	# pass through.
+	if not _ability_matches_active_discipline(ability):
+		##print("Ability '%s' is for a different discipline than the wielded weapon." % ability.ability_name)
+		return result
+
 	var level_stats = ability.get_level_stats(ability_level)
 	if not level_stats:
 		#printerr("Invalid level data for '%s' at level %d" % [ability.ability_name, ability_level])
@@ -509,16 +618,13 @@ func _handle_authoritative_use(ability_id: String, ability: AbilityData, level_s
 		else:
 			ability_used_client.rpc(ability_id, cooldown_duration)
 
-		# Mastery-XP-on-cast (PR 2). Grant XP_PER_CAST to the active weapon's
-		# discipline. Bots use the same path (they call into this same
-		# component), so their mastery accumulates naturally as well.
-		if _weapon_mastery_component:
-			var cast_discipline := _active_weapon_discipline()
-			if cast_discipline != -1:
-				_weapon_mastery_component.grant_mastery_xp_server(
-					cast_discipline,
-					WeaponMasteryComponent.XP_PER_CAST
-				)
+		# PR 4 fix (2026-05-28): cast XP grant moved to combat.gd._execute_hit
+		# so it only fires when the ability actually LANDS a hit on an enemy.
+		# Granting on the bare cast was a farming exploit — a player could
+		# spam an ability in an empty area to grind mastery without engaging
+		# enemies. Self-targeted abilities (buffs/heals) now give no mastery
+		# XP, which is intended — combat engagement is the proxy for
+		# weapon-mastery growth.
 
 	return true
 
@@ -588,7 +694,12 @@ func _level_up_ability_local(ability_id: String) -> bool:
 		return false
 
 	var ability = ResourceManager.get_ability_data(ability_id)
-	var current_level = _ability_levels[ability_id]
+	# PR 4 fix (2026-05-27): use safe get() because unlearned abilities (level 0)
+	# may not be in _ability_levels yet — they're only pre-seeded for the
+	# player's starting class. Now that the AbilityWindow shows all 4 trees, a
+	# player can level up an ability from a discipline they never started in,
+	# which would crash on the bare `_ability_levels[ability_id]` lookup.
+	var current_level: int = int(_ability_levels.get(ability_id, 0))
 
 	# PR 4: spend one point from the discipline pool that owns this ability.
 	# `can_level_up_ability` already validated the pool; we re-derive the key
@@ -952,17 +1063,18 @@ func sync_ability_points_per_discipline(new_pools) -> void:
 
 
 #region #################### Signal Callbacks ####################
-## Called when the LevelingComponent emits the `leveled_up` signal.
-## PR 4: points are granted to the discipline the player is *currently
-## wielding*. Mainline a sword -> sword gets the points. Mid-fight swap to
-## a bow then level -> bow gets them. Falls back to the starting
-## discipline when no weapon is equipped.
-func _on_leveled_up(_new_level: int) -> void:
-	var key: String = _active_discipline_key()
+## PR 4 fix (2026-05-27): replaced the level-up grant. Called when
+## WeaponMasteryComponent emits `mastery_level_changed(discipline_int, new_level)`.
+## Each mastery level grants ABILITY_POINTS_PER_MASTERY_LEVEL points to THAT
+## discipline's pool — and ONLY that discipline's. Trees you don't use grant
+## you nothing; trees you main accumulate points as your mastery climbs.
+func _on_mastery_level_up(discipline: int, _new_level: int) -> void:
+	var key: String = _class_type_to_discipline_key(discipline)
 	if key == "":
-		key = _starting_discipline_key()
-	#print("Leveled up to %d. Gaining %d ability points to %s." % [new_level, ABILITY_POINTS_PER_LEVEL, key])
-	_add_ability_points(ABILITY_POINTS_PER_LEVEL, key)
+		push_warning("AbilityComponent: mastery_level_changed for discipline %d with no key mapping" % discipline)
+		return
+	#print("Mastery up: %s -> level %d. +%d ability points to %s pool." % [key, _new_level, ABILITY_POINTS_PER_MASTERY_LEVEL, key])
+	_add_ability_points(ABILITY_POINTS_PER_MASTERY_LEVEL, key)
 
 
 func _on_class_changed(_new_class_name: String) -> void:
@@ -974,18 +1086,64 @@ func _on_class_changed(_new_class_name: String) -> void:
 	# list is a superset of the base class's, so any leveled ability is
 	# present in new_class_ids and survives.
 	#
+	# PR 4 fix (2026-05-28): "valid" abilities span ALL FOUR tier-1
+	# disciplines now, not just the new class's skills. Without this, the
+	# all-disciplines-starter init in _ready was getting wiped here — class
+	# change from default → BOW would prune Sword/Staff/Dagger starters
+	# because they weren't in Bow's skills list. With the broadened set,
+	# only stale non-tier-1 abilities (e.g. from a default BEGINNER class)
+	# get pruned, while cross-discipline starters persist.
+	#
 	# RPCs are not broadcast here because the class change itself is synced,
 	# so clients run this same logic locally.
 	if not multiplayer.has_multiplayer_peer() or multiplayer.is_server():
 		var new_class_ids: Dictionary = {}
+		# Include the current class's abilities (covers tier-2 advancements
+		# whose superset includes their tier-1 parent's tree).
 		for ability_data in _class_component.get_class_abilities():
 			if ability_data:
 				new_class_ids[ability_data.ability_id] = true
+		# Also include every tier-1 discipline's abilities so cross-discipline
+		# starters aren't pruned.
+		for tier1_disc in [
+			Constants.ClassType.SWORD,
+			Constants.ClassType.BOW,
+			Constants.ClassType.STAFF,
+			Constants.ClassType.DAGGER,
+		]:
+			var disc_data: WeaponDisciplineData = ResourceManager.get_class_data(tier1_disc)
+			if disc_data == null:
+				continue
+			for ability_data in disc_data.skills:
+				if ability_data:
+					new_class_ids[ability_data.ability_id] = true
 
 		for ability_id in _ability_levels.keys():
 			if not new_class_ids.has(ability_id):
 				_ability_levels.erase(ability_id)
 
+		# Re-seed each tier-1 discipline's starter ability at level 1 if it's
+		# missing from _ability_levels (defensive — the init in _ready does
+		# this, but the prune above could have removed it in edge cases).
+		# Other abilities get added at level 0 so they show in the UI.
+		for tier1_disc in [
+			Constants.ClassType.SWORD,
+			Constants.ClassType.BOW,
+			Constants.ClassType.STAFF,
+			Constants.ClassType.DAGGER,
+		]:
+			var disc_data: WeaponDisciplineData = ResourceManager.get_class_data(tier1_disc)
+			if disc_data == null:
+				continue
+			var disc_starter: AbilityData = disc_data.starter_ability
+			for ability_data in disc_data.skills:
+				if ability_data == null or _ability_levels.has(ability_data.ability_id):
+					continue
+				var initial_level: int = 1 if (disc_starter and ability_data == disc_starter) else 0
+				_learn_ability_local(ability_data.ability_id, initial_level, false)
+
+		# Re-seed the current class's starter too (covers tier-2 advancement
+		# starter abilities that aren't in any tier-1 tree).
 		var starter: AbilityData = _class_component.get_starter_ability()
 		for ability_data in _class_component.get_class_abilities():
 			if ability_data and not _ability_levels.has(ability_data.ability_id):
@@ -1141,18 +1299,20 @@ func _on_active_weapon_changed(_active_weapon: String, _active_item: ItemData) -
 	if hotbar.has_method("flash_swap_indicator"):
 		hotbar.flash_swap_indicator()
 			
-## Disconnects from leveling component signals to prevent side effects during loading.
+## Disconnects from mastery component signals to prevent side effects during loading.
+## (PR 4 fix 2026-05-27: was disconnecting LevelingComponent.leveled_up before
+## the point-grant rule changed; the leveled_up hook is no longer used.)
 func disconnect_level_signals() -> void:
-	if _level_component and _level_component.leveled_up.is_connected(_on_leveled_up):
-		_level_component.leveled_up.disconnect(_on_leveled_up)
-		#print("AbilityComponent: Disconnected from leveling signals for loading.")
+	if _weapon_mastery_component and _weapon_mastery_component.mastery_level_changed.is_connected(_on_mastery_level_up):
+		_weapon_mastery_component.mastery_level_changed.disconnect(_on_mastery_level_up)
+		#print("AbilityComponent: Disconnected from mastery signals for loading.")
 
 
-## Reconnects to leveling component signals after loading is complete.
+## Reconnects to mastery component signals after loading is complete.
 func reconnect_level_signals() -> void:
-	if _level_component and not _level_component.leveled_up.is_connected(_on_leveled_up):
-		_level_component.leveled_up.connect(_on_leveled_up)
-		#print("AbilityComponent: Reconnected to leveling signals.")
+	if _weapon_mastery_component and not _weapon_mastery_component.mastery_level_changed.is_connected(_on_mastery_level_up):
+		_weapon_mastery_component.mastery_level_changed.connect(_on_mastery_level_up)
+		#print("AbilityComponent: Reconnected to mastery signals.")
 
 
 func set_loading_mode(enabled: bool) -> void:

@@ -17,12 +17,49 @@ Player (MultiplayerPlayerV2)
     ├── Combat     combat.gd      - hitboxes, damage calc, crit
     ├── Ability    ability.gd     - learn/level/use abilities, cooldowns, passives.
     │                               Ability points are PER-DISCIPLINE (PR 4 — see
-    │                               available_points_per_discipline dict; level-up
-    │                               grants 3 to the active weapon's discipline).
+    │                               available_points_per_discipline dict). Points
+    │                               are granted PER MASTERY LEVEL of the relevant
+    │                               weapon (PR 4 fix 2026-05-27 — NOT per
+    │                               character level). Trees the player never
+    │                               masters never accumulate points.
+    │                               Discipline-gating (PR 4 fix 2026-05-28):
+    │                                 - Active-only PASSIVES: _foreach_learned_passive
+    │                                   filters by active discipline, so Sword's
+    │                                   HP Boost only applies while wielding a sword.
+    │                                   Cascades to stat modifiers + procs + ability
+    │                                   damage/cooldown/mana modifiers.
+    │                                 - Cross-discipline CAST guard:
+    │                                   _validate_ability_use rejects casts whose
+    │                                   ability discipline doesn't match the wielded
+    │                                   weapon. Hotbar binding still exists, just
+    │                                   fails to fire until matching weapon equipped.
+    │                               Character-creation init (PR 4 fix 2026-05-28):
+    │                               ALL four tier-1 disciplines' starter abilities
+    │                               are auto-leveled to 1 (Slash + Double Shot +
+    │                               Magic Bolt + Double Stab), so a fresh character
+    │                               has a usable basic ability the moment they
+    │                               equip any of the four weapons. Returning
+    │                               characters keep saved levels via the merge
+    │                               (not clear) in load_abilities.
     ├── WeaponMastery weapon_mastery.gd - Per-discipline mastery levels + XP (PR 2)
     │                                     mastery_data: {sword/bow/staff/dagger →
     │                                     {level, xp}}. Drives STR/DEX/INT/LUK
     │                                     scaling additively on top of class-level.
+    │                                     Kill XP credits BOTH primary AND secondary
+    │                                     equipped weapons (PR 4 fix 2026-05-28);
+    │                                     cast XP only credits the ACTIVE weapon.
+    │                                     Kill XP is level-scaled (PR 4 fix
+    │                                     2026-05-28 rev 2): base = enemy_level,
+    │                                     modifier = clamped (1 + diff * 0.15)
+    │                                     between 0.10 and 2.5. See
+    │                                     compute_kill_xp(enemy_level, player_level)
+    │                                     and the KILL_XP_* tunable constants.
+    │                                     Cast XP requires a LANDED HIT (PR 4
+    │                                     fix 2026-05-28 rev 3) — granted in
+    │                                     combat.gd._execute_hit, not at ability
+    │                                     cast time. Spam-cast in empty area =
+    │                                     0 XP. Self-targeted buffs/heals that
+    │                                     never reach _execute_hit also = 0 XP.
     ├── Buff       buff.gd        - timed buffs/debuffs, stacking, custom logic
     ├── Class      class.gd       - current_class = STARTING discipline (does NOT
     │                               change on weapon swap). Drives HP/MP curves.

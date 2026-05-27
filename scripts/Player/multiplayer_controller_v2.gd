@@ -395,6 +395,13 @@ func _setup_signals() -> void:
 		# PR 3: react to active-weapon flips for sprite swap + transition FX.
 		# The active_weapon flag itself rides in the equipment save bucket.
 		equipment_component.active_weapon_changed.connect(_on_active_weapon_changed)
+		# PR 4 fix (2026-05-27): also refresh the sprite when the ITEM in the
+		# active weapon slot changes (e.g. dragging a different weapon in/out
+		# of the equipped slot), not just on a Tab-swap. No FX/lock for this
+		# path — just resync the sprite + class signals downstream. Runs on
+		# the server so the change_sprite_rpc broadcast hits every peer.
+		if multiplayer.is_server():
+			equipment_component.on_equipment_changed.connect(_on_equipment_changed_refresh_sprite)
 
 	if class_component:
 		# Persist class changes (job advancement) so the new class survives the
@@ -591,6 +598,37 @@ func get_active_discipline() -> int:
 	if is_instance_valid(class_component):
 		return class_component.current_class
 	return Constants.ClassType.SWORD
+
+
+## Returns the disciplines of ALL equipped weapons — both the primary AND
+## the secondary slot. Used by AbilityComponent for the passive-application
+## rule: a passive from discipline X applies if discipline X has a weapon
+## in EITHER slot (not just the active one). Trees you've put points into
+## but haven't equipped contribute nothing.
+##
+## De-duplicates (two swords in both slots → one SWORD entry). If neither
+## slot is equipped (bare-handed), falls back to the starting class's
+## discipline so passives still work in the un-equipped baseline case.
+func get_equipped_disciplines() -> Array[int]:
+	var disciplines: Array[int] = []
+	if is_instance_valid(equipment_component):
+		var primary_sd: SlotData = equipment_component.weapon_slot_data
+		if primary_sd != null and primary_sd.item != null:
+			var primary_weapon: WeaponData = primary_sd.item as WeaponData
+			if primary_weapon != null:
+				var disc: int = _weapon_type_to_class_type(primary_weapon.weapon_type)
+				if disc != -1:
+					disciplines.append(disc)
+		var secondary_sd: SlotData = equipment_component.secondary_weapon_slot_data
+		if secondary_sd != null and secondary_sd.item != null:
+			var secondary_weapon: WeaponData = secondary_sd.item as WeaponData
+			if secondary_weapon != null:
+				var disc: int = _weapon_type_to_class_type(secondary_weapon.weapon_type)
+				if disc != -1 and not disciplines.has(disc):
+					disciplines.append(disc)
+	if disciplines.is_empty() and is_instance_valid(class_component):
+		disciplines.append(class_component.current_class)
+	return disciplines
 
 
 func _handle_sprite_change_on_server() -> void:
@@ -951,6 +989,26 @@ func request_weapon_swap_server() -> void:
 ## Signal handler. Runs on every peer that mirrors this player. Triggers the
 ## sprite swap + transition FX. Sprite-swap timing is locked to frame 3 of
 ## the FX animation so the swap happens at the visual peak of the flash.
+## PR 4 fix (2026-05-27): handles equipment changes that aren't a Tab-swap
+## (e.g. user dragged a new weapon into the active slot). Triggers a sprite
+## broadcast through the standard server pathway IF the wielded discipline
+## actually changed. No transition FX / input lock — those are reserved for
+## explicit swaps. Bare-hands fallback (no weapon equipped) reads through
+## get_active_discipline()'s class_component fallback so the sprite never
+## ends up "empty" — the player visually reverts to their starting-class
+## sprite, which is the intended guard for the "no weapon equipped" case.
+func _on_equipment_changed_refresh_sprite() -> void:
+	if _is_being_cleaned_up:
+		return
+	if not multiplayer.is_server():
+		return
+	# Cheap call — the rpc/sprite resolution is idempotent if the discipline
+	# didn't actually change. Don't try to gate this against the previous
+	# value here; just re-emit and let the client overwrite with the same
+	# sprite frames where appropriate.
+	_handle_sprite_change_on_server()
+
+
 func _on_active_weapon_changed(_active_weapon: String, _active_item: ItemData) -> void:
 	if _is_being_cleaned_up:
 		return

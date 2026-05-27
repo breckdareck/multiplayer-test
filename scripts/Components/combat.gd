@@ -421,17 +421,64 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 		var was_alive: bool = not health_comp.is_dead
 		health_comp.take_damage(damage_to_deal, self, true, is_crit, false)
 
-		# Mastery-XP-on-kill (PR 2). If this hit transitioned the target from
-		# alive -> dead, grant XP_PER_KILL to the active weapon's discipline.
-		# Subsequent multi-hit iterations land on an already-dead target and
-		# `was_alive` is false, so the grant fires at most once per enemy.
+		# PR 4 fix (2026-05-28): cast XP, formerly granted unconditionally in
+		# ability.gd at cast time, now requires the ability to actually LAND
+		# a hit. Spam-cast-in-empty-area exploit gone. Only credits the active
+		# weapon's discipline (not secondary — distinct from the kill rule
+		# which credits both), since cast XP is for actively USING the weapon.
+		# Multi-hit abilities credit per landed hit (Lucky Seven's 2 hits =
+		# 2 XP) — they're harder to land so the bonus is earned.
+		#
+		# Skipped for:
+		#  - Basic attacks where `ability == null` (the melee-swing path).
+		#  - Internal-pathway abilities with empty `required_class` (the
+		#    convention from the Arrow Shot fix earlier today). Archers' basic
+		#    attack routes through the Arrow Shot AbilityData so `ability` IS
+		#    non-null here — without this second guard, archers would double-
+		#    dip relative to sword/dagger (which use basic-melee with
+		#    `ability == null`). Future "basic attack via internal ability"
+		#    additions (Mage's basic staff projectile, etc.) get the same
+		#    treatment for free by following the empty-required_class
+		#    convention.
+		#
+		# Self-targeted buff/heal abilities that never reach _execute_hit
+		# give zero mastery XP — combat engagement is the proxy for growth.
+		if ability and _weapon_mastery_component:
+			var is_internal_ability: bool = ability.required_class == null or ability.required_class.is_empty()
+			if not is_internal_ability:
+				var hit_discipline := _active_weapon_discipline()
+				if hit_discipline != -1:
+					_weapon_mastery_component.grant_mastery_xp_server(
+						hit_discipline,
+						WeaponMasteryComponent.XP_PER_CAST
+					)
+
+		# Mastery-XP-on-kill (PR 2; rule corrected 2026-05-28). If this hit
+		# transitioned the target from alive -> dead, grant XP to BOTH the
+		# primary AND the secondary equipped weapons' disciplines — so a
+		# carried-but-unused weapon doesn't fall infinitely behind. (Cast XP
+		# in ability.gd still only credits the active weapon, so swap-spammers
+		# still gain casts on whatever they're actively wielding.) Multi-hit
+		# iterations land on an already-dead target with was_alive=false, so
+		# the grants fire at most once per enemy.
+		#
+		# PR 4 fix (2026-05-28): kill XP now scales with enemy level vs. player
+		# level via WeaponMasteryComponent.compute_kill_xp. Flat XP_PER_KILL
+		# was a farming exploit (one-shotting level-1 mobs for full XP). Now
+		# below-level kills give the floor and higher-level kills give a
+		# scaling bonus. Computed once and applied to both equipped weapons
+		# so both disciplines see the same level-modified amount.
 		if was_alive and health_comp.is_dead and _weapon_mastery_component:
+			var kill_xp: int = WeaponMasteryComponent.compute_kill_xp(
+				target_enemy.monster_level,
+				owner_node.level_component.level
+			)
 			var kill_discipline := _active_weapon_discipline()
 			if kill_discipline != -1:
-				_weapon_mastery_component.grant_mastery_xp_server(
-					kill_discipline,
-					WeaponMasteryComponent.XP_PER_KILL
-				)
+				_weapon_mastery_component.grant_mastery_xp_server(kill_discipline, kill_xp)
+			var secondary_discipline := _secondary_weapon_discipline()
+			if secondary_discipline != -1 and secondary_discipline != kill_discipline:
+				_weapon_mastery_component.grant_mastery_xp_server(secondary_discipline, kill_xp)
 
 		if damage_to_deal > 0:
 			# Knockback, gated by the target's knockback resist.
@@ -540,6 +587,22 @@ func _active_weapon_discipline() -> int:
 			Constants.ClassType.STAFF, Constants.ClassType.DAGGER:
 				return _class_component.current_class
 	return -1
+
+
+## Returns the discipline of the SECONDARY-slot weapon, or -1 if no secondary
+## is equipped. Added 2026-05-28 so kill-XP can credit both equipped weapons
+## (the player's "carried but not wielded" weapon shouldn't fall infinitely
+## behind the one they're actively swinging — see _execute_hit).
+func _secondary_weapon_discipline() -> int:
+	if not _equipment_component:
+		return -1
+	var sd: SlotData = _equipment_component.secondary_weapon_slot_data
+	if sd == null or sd.item == null:
+		return -1
+	var weapon: WeaponData = sd.item as WeaponData
+	if weapon == null:
+		return -1
+	return WeaponMasteryComponent.weapon_type_to_discipline(weapon.weapon_type)
 
 
 ## Returns the StatType the ACTIVE weapon's damage scales off. PR 3 replaced
