@@ -56,9 +56,9 @@ and level editor, hitbox visualizer) — prefer it over the raw inspector.
 7. **Passives.** Set `ability_type = PASSIVE`; put stat bonuses in
    `scaling_data.stat_bonus_formulas`, or proc effects in the `proc_*` fields.
 
-8. **Register to a class.** Open the class `.tres` in
-   `resources/Player/Classes/` and add the new `AbilityData` to its `skills`
+8. **Register to a discipline.** Open the discipline `.tres` in
+   `resources/Player/Disciplines/` and add the new `AbilityData` to its `skills`
    array. Gate the unlock with the ability's `prerequisite_abilities`.
 
-9. **Test.** Run the game, create or load a character of the class, spend points
+9. **Test.** Run the game, create or load a character of the discipline, spend points
    to learn/level the ability, and cast it from the hotbar.

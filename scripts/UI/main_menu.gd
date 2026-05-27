@@ -10,7 +10,7 @@ const MAGE_PORTRAIT = preload("res://assets/UI/mage_portrait.tres")
 const BEGINNER_PORTRAIT = preload("uid://c7usopkgeat5h")
 const ROGUE_PORTRAIT = preload("uid://cgx33w5mdt6ar")
 
-var selected_character: Constants.ClassType = Constants.ClassType.SWORDSMAN
+var selected_character: Constants.ClassType = Constants.ClassType.SWORD
 
 @onready var main_menu: Control = $"."
 @onready var username_input: LineEdit = $MenuPanel/VBoxContainer/Username
@@ -65,13 +65,13 @@ func change_character(value: int):
 	elif selected_character < 0:
 		selected_character = len(Constants.ClassType) - 1
 	match selected_character:
-		Constants.ClassType.SWORDSMAN:
+		Constants.ClassType.SWORD:
 			character_portrait.texture = SWORDSMAN_PORTRAIT
-		Constants.ClassType.ARCHER:
+		Constants.ClassType.BOW:
 			character_portrait.texture = ARCHER_PORTRAIT
-		Constants.ClassType.MAGE:
+		Constants.ClassType.STAFF:
 			character_portrait.texture = MAGE_PORTRAIT
 		Constants.ClassType.BEGINNER:
 			character_portrait.texture = BEGINNER_PORTRAIT
-		Constants.ClassType.ROGUE:
+		Constants.ClassType.DAGGER:
 			character_portrait.texture = ROGUE_PORTRAIT

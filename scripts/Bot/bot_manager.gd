@@ -549,12 +549,14 @@ func _is_name_taken(bot_name: String) -> bool:
 
 
 func _class_string_to_type(class_str: String) -> int:
+	# Accept both the legacy starting-discipline names (still used by bot_config.json
+	# and any externally-typed /bot spawn commands) and the new weapon-keyed names.
 	match class_str.to_upper():
-		"SWORDSMAN": return Constants.ClassType.SWORDSMAN
-		"ARCHER": return Constants.ClassType.ARCHER
-		"MAGE": return Constants.ClassType.MAGE
-		"ROGUE": return Constants.ClassType.ROGUE
-		_: return Constants.ClassType.SWORDSMAN
+		"SWORDSMAN", "SWORD": return Constants.ClassType.SWORD
+		"ARCHER", "BOW": return Constants.ClassType.BOW
+		"MAGE", "STAFF": return Constants.ClassType.STAFF
+		"ROGUE", "DAGGER": return Constants.ClassType.DAGGER
+		_: return Constants.ClassType.SWORD
 
 
 ## Dispatches a parsed /bot command. `requester_id` is the peer that issued the

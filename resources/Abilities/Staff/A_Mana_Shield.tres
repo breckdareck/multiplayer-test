@@ -7,7 +7,7 @@
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="4_mnsh1"]
 [ext_resource type="Resource" uid="uid://bmanas001xxxx" path="res://resources/Buffs/B_Mana_Shield.tres" id="4_mnsh2"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="7_mnsh1"]
-[ext_resource type="Resource" uid="uid://w0x3oyevmbgf" path="res://resources/Abilities/Mage/A_INT_Passive.tres" id="9_mnsh1"]
+[ext_resource type="Resource" uid="uid://w0x3oyevmbgf" path="res://resources/Abilities/Staff/A_INT_Passive.tres" id="9_mnsh1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="10_dpl8i"]
 
 [sub_resource type="Resource" id="Resource_mnsh1"]

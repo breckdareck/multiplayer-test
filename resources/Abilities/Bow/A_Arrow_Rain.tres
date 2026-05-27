@@ -7,7 +7,7 @@
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="6_arrn1"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_arrn1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_arrn1"]
-[ext_resource type="Resource" uid="uid://dblshot0001x" path="res://resources/Abilities/Archer/A_Double_Shot.tres" id="9_arrn1"]
+[ext_resource type="Resource" uid="uid://dblshot0001x" path="res://resources/Abilities/Bow/A_Double_Shot.tres" id="9_arrn1"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_arrn1"]
 size = Vector2(120, 46)

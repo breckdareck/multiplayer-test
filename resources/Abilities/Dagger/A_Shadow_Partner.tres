@@ -6,7 +6,7 @@
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="4_shpn1"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="7_shpn1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_t6c7f"]
-[ext_resource type="Resource" uid="uid://drksghtabl01" path="res://resources/Abilities/Rogue/A_Dark_Sight.tres" id="9_shpn1"]
+[ext_resource type="Resource" uid="uid://drksghtabl01" path="res://resources/Abilities/Dagger/A_Dark_Sight.tres" id="9_shpn1"]
 [ext_resource type="Script" uid="uid://bbvma1cem5p87" path="res://scripts/Abilities/AL_ShadowPartner.gd" id="10_shpn1"]
 [ext_resource type="Resource" uid="uid://bshdwprt0001" path="res://resources/Buffs/B_Shadow_Partner.tres" id="11_shpn1"]
 

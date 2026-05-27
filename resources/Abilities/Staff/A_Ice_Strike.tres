@@ -7,7 +7,7 @@
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="6_icst1"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_icst1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_icst1"]
-[ext_resource type="Resource" uid="uid://magcbolt001x" path="res://resources/Abilities/Mage/A_Magic_Bolt.tres" id="9_icst1"]
+[ext_resource type="Resource" uid="uid://magcbolt001x" path="res://resources/Abilities/Staff/A_Magic_Bolt.tres" id="9_icst1"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_icst1"]
 size = Vector2(120, 46)

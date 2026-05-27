@@ -1,8 +1,9 @@
 # ResourceManager.gd - Autoload script
 extends Node
 
-# Dictionary to store class data by class type enum value
-var class_data: Dictionary[Constants.ClassType, ClassData] = {}
+# Dictionary to store weapon-discipline data by ClassType enum value.
+# (ClassType semantically means "weapon discipline" now — see Constants.gd.)
+var class_data: Dictionary[Constants.ClassType, WeaponDisciplineData] = {}
 
 var item_data: Dictionary[String, ItemData] = {}
 var item_by_name: Dictionary[String, ItemData] = {}
@@ -59,70 +60,73 @@ func get_item_by_name(item_name: String) -> ItemData:
 #region Class Data Functions
 
 func _load_class_data() -> void:
-	var class_folder: String = "res://resources/Player/Classes/"
-	
+	var class_folder: String = "res://resources/Player/Disciplines/"
+
 	var process_class = func(resource, _path):
-		if resource is ClassData:
+		if resource is WeaponDisciplineData:
 			class_data[resource.class_type] = resource
-			#print("Loaded class: %s from path: %s" % [resource._class_name, path])
+			#print("Loaded discipline: %s from path: %s" % [resource._discipline_name, path])
 
 	_load_resources_recursively(class_folder, process_class)
 
 
-func get_class_data(class_type: Constants.ClassType) -> ClassData:
+func get_class_data(class_type: Constants.ClassType) -> WeaponDisciplineData:
 	return class_data.get(class_type)
 
 
 func get_class_name(class_type: Constants.ClassType) -> String:
-	var data: ClassData = get_class_data(class_type)
-	return data._class_name if data else "unknown"
+	var data: WeaponDisciplineData = get_class_data(class_type)
+	return data._discipline_name if data else "unknown"
 
 
 func get_class_bonuses(class_type: Constants.ClassType) -> Dictionary:
-	var data: ClassData = get_class_data(class_type)
+	var data: WeaponDisciplineData = get_class_data(class_type)
 	return data.stat_bonuses if data else {}
 
 
 func get_class_skills(class_type: Constants.ClassType) -> Array[AbilityData]:
-	var data: ClassData = get_class_data(class_type)
+	var data: WeaponDisciplineData = get_class_data(class_type)
 	return data.skills if data else []
 
 
 func get_sprite_frames_for_class(class_type: Constants.ClassType) -> Dictionary:
-	var data: ClassData = get_class_data(class_type)
+	var data: WeaponDisciplineData = get_class_data(class_type)
 	return data.sprite_frames if data else {}
 
 
 func get_sprite_for_level(class_type: Constants.ClassType, level: int) -> SpriteFrames:
-	var data: ClassData = get_class_data(class_type)
+	var data: WeaponDisciplineData = get_class_data(class_type)
 	return data.get_sprite_for_level(level) if data else null
 
 
 func get_base_stats(class_type: Constants.ClassType) -> Dictionary:
-	var data: ClassData = get_class_data(class_type)
+	var data: WeaponDisciplineData = get_class_data(class_type)
 	return data.base_stats if data else {}
 
 
 func get_primary_stat(class_type: Constants.ClassType) -> Constants.StatType:
-	var data: ClassData = get_class_data(class_type)
+	var data: WeaponDisciplineData = get_class_data(class_type)
 	return data.primary_stat
-	
+
 
 func get_secondary_stat(class_type: Constants.ClassType) -> Constants.StatType:
-	var data: ClassData = get_class_data(class_type)
+	var data: WeaponDisciplineData = get_class_data(class_type)
 	return data.secondary_stat
 
-# Utility function to get ClassType enum from string
+# Utility function to get ClassType enum from string. Accepts the legacy
+# starting-discipline names ("swordsman" / "mage" / "archer" / "rogue") as
+# well as the new weapon-keyed names ("sword" / "staff" / "bow" / "dagger"),
+# since saved characters and the bot_config.json still carry the legacy names.
 func get_class_type_from_string(_class_name: String) -> Constants.ClassType:
 	match _class_name.to_lower():
-		"swordsman":
-			return Constants.ClassType.SWORDSMAN
-		"archer":
-			return Constants.ClassType.ARCHER
-		"mage":
-			return Constants.ClassType.MAGE
-		"rogue":
-			return Constants.ClassType.ROGUE
+		"swordsman", "sword":
+			return Constants.ClassType.SWORD
+		"archer", "bow":
+			return Constants.ClassType.BOW
+		"mage", "staff":
+			return Constants.ClassType.STAFF
+		"rogue", "dagger":
+			return Constants.ClassType.DAGGER
 		"beginner":
 			return Constants.ClassType.BEGINNER
 		"crusader":

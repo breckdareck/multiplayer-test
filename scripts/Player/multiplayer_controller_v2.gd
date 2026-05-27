@@ -670,7 +670,7 @@ func _load_data(data: Dictionary) -> void:
 			inventory_component.load_inventory(inventory_data)
 		elif multiplayer.is_server() and data.get("level", 1) == 1:
 			var starter_weapon := "Wooden Sword"
-			if is_instance_valid(class_component) and class_component.current_class in [Constants.ClassType.MAGE, Constants.ClassType.ARCHMAGE]:
+			if is_instance_valid(class_component) and class_component.current_class in [Constants.ClassType.STAFF, Constants.ClassType.ARCHMAGE]:
 				starter_weapon = "Wooden Staff"
 			inventory_component.server_add_item(starter_weapon)
 

@@ -17,7 +17,7 @@ extends CanvasLayer
 ##
 ## Opens only in debug builds. Locks input via InputManager.set_input_locked.
 
-const SPAWN_CLASSES := ["SWORDSMAN", "ARCHER", "MAGE", "ROGUE"]
+const SPAWN_CLASSES := ["SWORD", "BOW", "STAFF", "DAGGER"]
 const DEFAULT_PANEL_HEIGHT := 360
 const MIN_PANEL_HEIGHT := 160
 const MAX_PANEL_HEIGHT := 720

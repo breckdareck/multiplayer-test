@@ -9,7 +9,7 @@ here; the **data instances** (`.tres` files) live under `resources/`.
 |---|---|
 | `AbilitySystem/` | `AbilityData`, `AbilityLevelData`, `AbilityScalingData`, `AbilityScalingFormula`, `ActiveBehaviorData`, `ProcEffectData`, `StatBonusFormula` |
 | `BuffSystem/` | `BuffData` (with the `StackBehavior` enum) |
-| `ClassSystem/` | `ClassData` |
+| `DisciplineSystem/` | `WeaponDisciplineData` (the starting weapon family and its passive scaling — previously `ClassData`) |
 | `ItemSystem/` | `ItemData` → `EquipmentData` → `ArmorData` / `WeaponData`; `ConsumableData` → `PetFoodData` / `PetSkillBookData`; `ItemDrop.gd` (class `ItemDropResource`); `DroppedItem`; `Effects/` |
 | `PetSystem/` | `PetData` (the static pet variety definition — sprite, walk speed, leash radius, autoloot radius, hunger curve) |
 | `StatSystem/` | `StatData` |
@@ -24,7 +24,7 @@ here; the **data instances** (`.tres` files) live under `resources/`.
 - `resources/Abilities/` → `AbilityData`, keyed by `ability_id` and `ability_name`
 - `resources/Buffs/` → `BuffData`, keyed by `buff_id` and `buff_name`
 - `resources/Items/` → `ItemData`, keyed by `item_id` and `name`
-- `resources/Player/Classes/` → `ClassData`, keyed by `class_type`
+- `resources/Player/Disciplines/` → `WeaponDisciplineData`, keyed by `class_type` (the `ClassType` enum still names the field; semantically it's a weapon discipline now)
 
 Look content up with `ResourceManager.get_ability_data(id_or_name)`,
 `get_item_by_name(name)`, etc. — never `load()` content `.tres` at runtime.
@@ -121,11 +121,11 @@ the player save under `pets: []`, not as `.tres`. See
   `variant` rolls). All static fields are re-derived from the canonical `.tres` on
   load. Don't add a field expecting it to round-trip per-instance unless you also
   extend the variant serialization (`_append_variant_data` / `_apply_variant_data`).
-- `ClassData.starter_ability` is the ability auto-granted at **level 1** to a
-  brand-new character of that class. New class `.tres` files should set it so the
-  player has a castable skill from spawn — otherwise classes whose basic attack
-  is weak (Mage's staff has only +3 WEAPONATTACK) feel unplayable before earning
-  their first ability point. Returning characters keep their saved levels;
+- `WeaponDisciplineData.starter_ability` is the ability auto-granted at **level 1** to a
+  brand-new character of that discipline. New discipline `.tres` files should set it so the
+  player has a castable skill from spawn — otherwise disciplines whose basic attack
+  is weak (Staff's basic attack scales off the +3 WEAPONATTACK staff) feel unplayable before
+  earning their first ability point. Returning characters keep their saved levels;
   the auto-grant only matters on first creation.
 
 ## Creating content
