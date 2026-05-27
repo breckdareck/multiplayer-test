@@ -49,6 +49,11 @@ func _ready() -> void:
 		player.level_component.experience_changed.connect(_mark_ui_dirty.unbind(2))
 		player.health_component.health_changed.connect(_mark_ui_dirty.unbind(2))
 		player.class_component.class_changed.connect(_mark_ui_dirty.unbind(1))
+		# PR 4 fix (2026-05-27): the class label now reflects the wielded
+		# discipline, so refresh it whenever equipment or active weapon shifts.
+		if player.equipment_component:
+			player.equipment_component.on_equipment_changed.connect(_mark_ui_dirty)
+			player.equipment_component.active_weapon_changed.connect(_mark_ui_dirty.unbind(2))
 
 		_build_mastery_section()
 		if player.weapon_mastery_component:
@@ -104,7 +109,13 @@ func _flush_ui_update() -> void:
 
 func update_stats_window():
 	name_string_label.text = player.username
-	class_string_label.text = str(Constants.ClassType.find_key(player.class_component.current_class))
+	# PR 4 fix (2026-05-27): show the WIELDED discipline (follows weapon swaps
+	# + equipment changes), not just the starting class. get_active_discipline
+	# falls back to the starting class when no weapon is equipped — so the
+	# label still reads sensibly in the bare-handed edge case.
+	var wielded_disc: int = player.get_active_discipline() if player.has_method("get_active_discipline") else player.class_component.current_class
+	var disc_key: String = Constants.ClassType.find_key(wielded_disc) if wielded_disc >= 0 else ""
+	class_string_label.text = str(disc_key).capitalize()
 	level_string_label.text = str(int(player.level_component.level))
 	experience_string_label.text = str(int(player.level_component.experience)) + "/" + str(int(player.level_component.get_exp_to_next_level()))
 	health_amount_label.text = str(player.health_component.current_health) + "/" + str(player.health_component.max_health)

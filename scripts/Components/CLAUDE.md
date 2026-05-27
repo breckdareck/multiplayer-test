@@ -17,8 +17,13 @@ Player (MultiplayerPlayerV2)
     ├── Combat     combat.gd      - hitboxes, damage calc, crit
     ├── Ability    ability.gd     - learn/level/use abilities, cooldowns, passives.
     │                               Ability points are PER-DISCIPLINE (PR 4 — see
-    │                               available_points_per_discipline dict; level-up
-    │                               grants 3 to the active weapon's discipline).
+    │                               available_points_per_discipline dict). Points
+    │                               are granted PER MASTERY LEVEL of the relevant
+    │                               weapon (PR 4 fix 2026-05-27 — NOT per
+    │                               character level). WeaponMasteryComponent.
+    │                               mastery_level_changed → 3 points to THAT
+    │                               discipline's pool. Trees the player never
+    │                               masters never accumulate points.
     ├── WeaponMastery weapon_mastery.gd - Per-discipline mastery levels + XP (PR 2)
     │                                     mastery_data: {sword/bow/staff/dagger →
     │                                     {level, xp}}. Drives STR/DEX/INT/LUK
