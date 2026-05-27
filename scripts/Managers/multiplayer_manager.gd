@@ -264,10 +264,3 @@ func _update_ui_for_client():
 		menu_container.setup_PID_label(false, multiplayer.get_unique_id())
 	if menu_container.has_node("connection_panel"):
 		menu_container.connection_panel.show()
-
-# === LEGACY COMPATIBILITY ===
-func get_public_IP_address() -> String:
-	return NetworkUtils.get_public_ip_address()
-
-func is_valid_ip(text: String) -> bool:
-	return NetworkUtils.is_valid_ip(text)
