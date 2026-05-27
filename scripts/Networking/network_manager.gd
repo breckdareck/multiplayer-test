@@ -12,14 +12,17 @@ signal character_deletion_failed(error_message)
 
 var account_id: int = -1
 var account_username: String = ""
-var api_url = ""  # Will be loaded from UserConfig
+# Computed property so a runtime change via UserConfig.set_backend_api_url(...)
+# takes effect immediately on the next request. Previously this was cached at
+# _ready, so switching the URL in-game (e.g. dev pointing at a port-shifted
+# backend) had no effect until the next process restart.
+var api_url: String:
+	get: return UserConfig.get_backend_api_url()
 var is_dev_mode: bool = false
 var use_local_save: bool = false
 
 func _ready():
-	# Load API URL from config (supports environment variable override)
-	api_url = UserConfig.get_backend_api_url()
-	#print("NetworkManager: Using API URL: %s" % api_url)
+	pass  # api_url is now computed on demand from UserConfig.
 
 func register(username, password):
 	var http = HTTPRequest.new()

@@ -107,6 +107,7 @@ const BASE_KNOCKBACK_RESIST: int = 80
 var _level_component: LevelingComponent
 var _class_component: ClassComponent
 var _equipment_component: EquipmentComponent
+var _weapon_mastery_component: WeaponMasteryComponent
 
 var _stats_dirty: bool = false
 var _loading_mode: bool = false
@@ -115,6 +116,7 @@ func _ready() -> void:
 	_level_component = get_parent().get_node_or_null("Leveling")
 	_class_component = get_parent().get_node_or_null("Class")
 	_equipment_component = get_parent().get_node_or_null("Equipment")
+	_weapon_mastery_component = get_parent().get_node_or_null("WeaponMastery")
 
 	#TODO: Fix Syncing of Stats for Clients - SLIGHTY FIXED - LOOK AT LATER
 	if !multiplayer.is_server():
@@ -130,7 +132,13 @@ func _ready() -> void:
 
 	if _equipment_component:
 		_equipment_component.on_equipment_changed.connect(_on_equipment_changed)
-		
+
+	# Mastery levels drive per-mastery-level STR/DEX/INT/LUK scaling (PR 2):
+	# whenever a discipline gains a level, stats need a recalc.
+	if _weapon_mastery_component:
+		_weapon_mastery_component.mastery_level_changed.connect(_on_mastery_level_changed)
+
+
 
 ## Marks stats as needing recalculation. Multiple calls in the same frame
 ## are coalesced into a single recalc via call_deferred.
@@ -190,15 +198,44 @@ func _recalculate_stats() -> void:
 			stats[Constants.StatType.HEALTH].base_value = int(BEGINNER_BASE_MAX_HEALTH + (BEGINNER_HEALTH_SCALING_MULTIPLIER * (level - 1)))
 			stats[Constants.StatType.MANA].base_value = int(BEGINNER_BASE_MAX_MANA + (BEGINNER_MANA_SCALING_MULTIPLIER * (level - 1)))
 
+	# Apply the character's CURRENT-CLASS per-level STR/DEX/INT/LUK scaling.
+	# This is the familiar Maple-shape baseline: a level-30 Swordsman gets
+	# ~+87 STR purely from class progression, regardless of any weapon mastery.
+	# Mastery (below) layers on top as additional growth that rewards focused
+	# specialisation. Cards / signature systems (later PRs) layer on top of that.
+	#
+	# This restores behaviour the first cut of PR 2 inadvertently removed when
+	# it routed all primary-stat scaling exclusively through mastery — the
+	# resulting un-mastered baseline felt punishingly weak relative to today.
+	if _class_component and _level_component:
+		var class_disc: WeaponDisciplineData = ResourceManager.get_class_data(_class_component.current_class)
+		if class_disc:
+			var per_level_growth: int = max(_level_component.level - 1, 0)
+			for stat_type in class_disc.stat_bonuses:
+				if stats.has(stat_type):
+					stats[stat_type].base_value += class_disc.stat_bonuses[stat_type] * per_level_growth
+
 	# Reset flat bonuses before recalculating
 	for stat_type in stats:
 		stats[stat_type].flat_bonus_value = 0
 		stats[stat_type].percent_bonus_value = 0
 
-	# Apply class bonus scaling
-	var class_bonuses: Dictionary[Constants.StatType, int] = _class_component.get_class_bonuses()
-	for stat in class_bonuses:
-		stats[stat].base_value += class_bonuses[stat] * level
+	# Apply per-mastery-level STR/DEX/INT/LUK scaling (PR 2 weapon-identity
+	# overhaul). For every owned discipline (mastery level > 0), apply
+	# `discipline.stat_bonuses[stat] * mastery_level_of_that_discipline`,
+	# summed across disciplines. This stacks across all four tier-1 weapons,
+	# encouraging build versatility on TOP of the per-character-level
+	# baseline above. A level-30 Sword main with mastery 20 ends at roughly
+	# 87 (level) + 60 (mastery) = +147 primary STR before equipment/cards —
+	# meaningful reward for focused play, not a punishment for being level 1.
+	#
+	# `stat_bonuses` is reused verbatim from each WeaponDisciplineData —
+	# zero new balance numbers in this PR.
+	if _weapon_mastery_component:
+		for stat_type in stats:
+			var bonus: int = _weapon_mastery_component.get_summed_stat_bonus(stat_type)
+			if bonus != 0:
+				stats[stat_type].base_value += bonus
 
 	# Add equipment bonuses (single pass) — read the SlotData model so this
 	# works with no equipment UI (headless / bot).
@@ -246,6 +283,10 @@ func _on_class_changed(_new_class: String) -> void:
 
 
 func _on_equipment_changed() -> void:
+	mark_stats_dirty()
+
+
+func _on_mastery_level_changed(_discipline: int, _new_level: int) -> void:
 	mark_stats_dirty()
 
 

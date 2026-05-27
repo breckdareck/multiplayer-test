@@ -48,6 +48,8 @@ var _class_component: ClassComponent
 var _stats_component: StatsComponent
 var _level_component: LevelingComponent
 var _mana_component: ManaComponent
+var _equipment_component: EquipmentComponent
+var _weapon_mastery_component: WeaponMasteryComponent
 
 # State variables
 var _cooldowns: Dictionary = {} # { ability_id: time_remaining }
@@ -80,6 +82,8 @@ func _ready() -> void:
 	_stats_component = get_parent().get_node_or_null("Stats")
 	_level_component = get_parent().get_node_or_null("Leveling")
 	_mana_component = get_parent().get_node_or_null("Mana")
+	_equipment_component = get_parent().get_node_or_null("Equipment")
+	_weapon_mastery_component = get_parent().get_node_or_null("WeaponMastery")
 	
 	if not _class_component or not _stats_component:
 		push_error("AbilityComponent requires ClassComponent and StatsComponent siblings.")
@@ -321,7 +325,7 @@ func _can_afford_ability(ability_id: String, level_stats: AbilityLevelData) -> b
 	if _mana_component.current_mana < modified_mana_cost:
 		##print("Server: Not enough mana.")
 		return false
-	
+
 	# Check if already attacking
 	var state_machine = owner.get_node_or_null("StateMachine")
 	if state_machine:
@@ -329,8 +333,33 @@ func _can_afford_ability(ability_id: String, level_stats: AbilityLevelData) -> b
 		if "current_state" in state_machine and state_machine.current_state == attack_state:
 			##print("Server: Cannot use ability, an attack is already in progress.")
 			return false
-	
+
 	return true
+
+
+## Returns the `Constants.ClassType` discipline of the currently-equipped
+## weapon, or -1 if there's no tier-1 weapon equipped. Used by the
+## mastery-XP-on-cast grant. Falls back to the character's current_class
+## when no weapon is in the slot (a Beginner casting their starter ability
+## with no weapon still credits the chosen discipline if it's tier-1).
+## Mirrors CombatComponent._active_weapon_discipline — kept duplicated
+## (~10 lines) rather than centralised so each component can be read in
+## isolation; both go through WeaponMasteryComponent.weapon_type_to_discipline
+## for the actual mapping.
+func _active_weapon_discipline() -> int:
+	if _equipment_component and _equipment_component.weapon_slot_data and _equipment_component.weapon_slot_data.item:
+		var item = _equipment_component.weapon_slot_data.item
+		if item is WeaponData:
+			var discipline := WeaponMasteryComponent.weapon_type_to_discipline(item.weapon_type)
+			if discipline != -1:
+				return discipline
+
+	if _class_component:
+		match _class_component.current_class:
+			Constants.ClassType.SWORD, Constants.ClassType.BOW, \
+			Constants.ClassType.STAFF, Constants.ClassType.DAGGER:
+				return _class_component.current_class
+	return -1
 
 
 ## Consumes resources and starts cooldown for an ability
@@ -380,6 +409,17 @@ func _handle_authoritative_use(ability_id: String, ability: AbilityData, level_s
 			_broadcast_bot_ability_visual(ability_id, level_stats.level)
 		else:
 			ability_used_client.rpc(ability_id, cooldown_duration)
+
+		# Mastery-XP-on-cast (PR 2). Grant XP_PER_CAST to the active weapon's
+		# discipline. Bots use the same path (they call into this same
+		# component), so their mastery accumulates naturally as well.
+		if _weapon_mastery_component:
+			var cast_discipline := _active_weapon_discipline()
+			if cast_discipline != -1:
+				_weapon_mastery_component.grant_mastery_xp_server(
+					cast_discipline,
+					WeaponMasteryComponent.XP_PER_CAST
+				)
 
 	return true
 

@@ -32,19 +32,28 @@ var is_dragging = false
 var drag_offset = Vector2()
 var _ui_dirty: bool = false
 
+# Per-discipline mastery rows, built dynamically in _ready and refreshed by
+# update_stats_window. Keyed by Constants.ClassType int.
+var _mastery_labels: Dictionary = {}
+
 func _ready() -> void:
 	# Add to ui_window group for drop detection
 	add_to_group("ui_window")
-	
+
 	if owner is MultiplayerPlayerV2:
 		player = owner as MultiplayerPlayerV2
-		
+
 	if multiplayer.get_unique_id() == player.player_id:
 		player.stats_component.stats_changed.connect(_mark_ui_dirty)
 		player.level_component.leveled_up.connect(_mark_ui_dirty.unbind(1))
 		player.level_component.experience_changed.connect(_mark_ui_dirty.unbind(2))
 		player.health_component.health_changed.connect(_mark_ui_dirty.unbind(2))
 		player.class_component.class_changed.connect(_mark_ui_dirty.unbind(1))
+
+		_build_mastery_section()
+		if player.weapon_mastery_component:
+			player.weapon_mastery_component.mastery_level_changed.connect(_mark_ui_dirty.unbind(2))
+			player.weapon_mastery_component.mastery_xp_changed.connect(_mark_ui_dirty.unbind(3))
 
 		update_stats_window()
 
@@ -115,3 +124,64 @@ func update_stats_window():
 	crit_dmg_amount_label.text = "%d%%" % [player.stats_component.stats.get(Constants.StatType.CRITDAMAGE).total_value]
 	defense_amount_label.text = "%d" % player.stats_component.stats.get(Constants.StatType.DEFENSE).total_value
 	magic_defense_amount_label.text = "%d" % player.stats_component.stats.get(Constants.StatType.MAGICDEFENSE).total_value
+
+	_update_mastery_labels()
+
+
+# ─── Weapon Mastery section (built dynamically; .tscn untouched) ──────────────
+
+const _MASTERY_DISCIPLINES: Array[int] = [
+	Constants.ClassType.SWORD,
+	Constants.ClassType.BOW,
+	Constants.ClassType.STAFF,
+	Constants.ClassType.DAGGER,
+]
+
+func _build_mastery_section() -> void:
+	var vbox: Node = get_node_or_null("StatsPanel/ScrollContainer/MarginContainer/VBoxContainer")
+	if vbox == null:
+		push_warning("StatsWindow: VBoxContainer not found; skipping mastery section.")
+		return
+
+	# Section header — small visual separator + label
+	var separator := HSeparator.new()
+	separator.add_theme_constant_override("separation", 8)
+	vbox.add_child(separator)
+
+	var header := Label.new()
+	header.text = "Weapon Mastery"
+	header.add_theme_color_override("font_color", Color(0.9, 0.85, 0.5))  # soft gold to set it apart
+	vbox.add_child(header)
+
+	# One row per discipline
+	for discipline in _MASTERY_DISCIPLINES:
+		var row := HBoxContainer.new()
+		row.name = "Mastery_" + Constants.ClassType.find_key(discipline)
+
+		var name_label := Label.new()
+		name_label.text = "%s:" % Constants.ClassType.find_key(discipline).capitalize()
+		name_label.custom_minimum_size = Vector2(80, 0)
+		row.add_child(name_label)
+
+		var value_label := Label.new()
+		value_label.text = "Lv 0 (0 / 100 XP)"
+		row.add_child(value_label)
+
+		vbox.add_child(row)
+		_mastery_labels[discipline] = value_label
+
+
+func _update_mastery_labels() -> void:
+	if not player.weapon_mastery_component:
+		return
+	for discipline in _MASTERY_DISCIPLINES:
+		if not _mastery_labels.has(discipline):
+			continue
+		var label: Label = _mastery_labels[discipline]
+		var level: int = player.weapon_mastery_component.get_mastery_level(discipline)
+		var xp: int = player.weapon_mastery_component.get_mastery_xp(discipline)
+		if level >= player.weapon_mastery_component.MASTERY_CAP:
+			label.text = "Lv %d (MAX)" % level
+		else:
+			var xp_to_next: int = player.weapon_mastery_component._xp_to_next_level(level)
+			label.text = "Lv %d (%d / %d XP)" % [level, xp, xp_to_next]

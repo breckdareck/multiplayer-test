@@ -1,4 +1,4 @@
-[gd_scene load_steps=89 format=3 uid="uid://bdtdpx0d05sy3"]
+[gd_scene load_steps=90 format=3 uid="uid://bdtdpx0d05sy3"]
 
 [ext_resource type="Script" uid="uid://yibpus3whwuj" path="res://scripts/Player/multiplayer_controller_v2.gd" id="1_an8q1"]
 [ext_resource type="Script" uid="uid://cy1j38lpy671e" path="res://scripts/Player/multiplayer_input.gd" id="2_hxkm2"]
@@ -16,6 +16,7 @@
 [ext_resource type="Script" uid="uid://ddc622hy8m6tk" path="res://scripts/Components/mana.gd" id="14_7iww4"]
 [ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="14_e8txv"]
 [ext_resource type="Script" uid="uid://d71uplx14050" path="res://scripts/Components/ability.gd" id="14_ploos"]
+[ext_resource type="Script" path="res://scripts/Components/weapon_mastery.gd" id="14_wmast"]
 [ext_resource type="Texture2D" uid="uid://b41h3nwnk7ghm" path="res://assets/UI/Left_button.png" id="15_32uah"]
 [ext_resource type="Script" uid="uid://c8fllkah6qfdg" path="res://scripts/Components/inventory.gd" id="15_cg2hl"]
 [ext_resource type="Texture2D" uid="uid://7wc85wst4rwd" path="res://assets/UI/Right_button.png" id="16_ihqbe"]
@@ -428,7 +429,7 @@ size = Vector2(21, 21)
 [sub_resource type="CircleShape2D" id="CircleShape2D_h0wtf"]
 radius = 4.0
 
-[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "mana_component", "combat_component", "level_component", "stats_component", "class_component", "player_inventory", "inventory_component", "equipment_component", "ability_component", "buff_component", "player_HUD", "player_name_label", "stats_window", "inventory_window") groups=["Players", "networked_entities"]]
+[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "mana_component", "combat_component", "level_component", "stats_component", "class_component", "weapon_mastery_component", "player_inventory", "inventory_component", "equipment_component", "ability_component", "buff_component", "player_HUD", "player_name_label", "stats_window", "inventory_window") groups=["Players", "networked_entities"]]
 collision_layer = 2
 collision_mask = 5
 script = ExtResource("1_an8q1")
@@ -438,6 +439,7 @@ combat_component = NodePath("Components/Combat")
 level_component = NodePath("Components/Leveling")
 stats_component = NodePath("Components/Stats")
 class_component = NodePath("Components/Class")
+weapon_mastery_component = NodePath("Components/WeaponMastery")
 player_inventory = NodePath("Components/PlayerInventory")
 inventory_component = NodePath("Components/PlayerInventory/InventoryComponent")
 equipment_component = NodePath("Components/Equipment")
@@ -497,6 +499,9 @@ level_curve = ExtResource("4_4ni0x")
 
 [node name="Class" type="Node" parent="Components"]
 script = ExtResource("6_nbg44")
+
+[node name="WeaponMastery" type="Node" parent="Components"]
+script = ExtResource("14_wmast")
 
 [node name="Stats" type="Node" parent="Components"]
 script = ExtResource("4_cg2hl")

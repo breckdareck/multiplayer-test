@@ -11,13 +11,15 @@ var _node_cache: Dictionary = {}
 var _carried_state: Dictionary = {}
 var _load_http_request: HTTPRequest
 var _load_in_progress: bool = false
-var _api_url: String = ""
+# Computed property so a runtime change via UserConfig.set_backend_api_url(...)
+# takes effect immediately on the next request. Previously this was cached at
+# _ready, so switching the URL in-game (e.g. dev pointing at a port-shifted
+# backend) had no effect until the next process restart.
+var _api_url: String:
+	get: return UserConfig.get_backend_api_url() + "/player"
 
 
 func _ready() -> void:
-	# Load API URL from config (supports environment variable override)
-	_api_url = UserConfig.get_backend_api_url() + "/player"
-	#print("PlayerManager: Using API URL: %s" % _api_url)
 	
 	# Connect to MapManager's player_spawned so we can finish initialization
 	# after the server-side spawn is completed.
@@ -153,6 +155,24 @@ func save_all_players() -> void:
 			SaveManager.queue_save(uname, "all", player_node)
 			await SaveManager.flush_save(uname)
 			#print("PlayerManager: Flushed save for player '%s' during shutdown." % uname)
+
+
+## Returns the starter weapon NAME (matches ResourceManager.get_item_by_name)
+## for a given weapon discipline. Bow/Dagger had no entry-tier "Wooden" item
+## in resources/Items/Weapons, so they fall back to the cheapest existing item
+## (Worn Warbow / Bronze Dagger) until proper Wooden_Bow / Wooden_Dagger items
+## are authored. Beginner and the 4 tier-2 advancement classes inherit from
+## their tier-1 parent so they spawn with the right discipline weapon.
+static func _starter_weapon_for(class_type: int) -> String:
+	match class_type:
+		Constants.ClassType.STAFF, Constants.ClassType.ARCHMAGE:
+			return "Wooden Staff"
+		Constants.ClassType.BOW, Constants.ClassType.RANGER:
+			return "Worn Warbow"
+		Constants.ClassType.DAGGER, Constants.ClassType.ASSASSIN:
+			return "Bronze Dagger"
+		Constants.ClassType.SWORD, Constants.ClassType.CRUSADER, Constants.ClassType.BEGINNER, _:
+			return "Wooden Sword"
 
 
 func cleanup():
@@ -316,9 +336,7 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 	
 	if not player_data or not player_data.has("inventory") or (not has_items and not has_equipment):
 		#print("PlayerManager: Adding default items for player %d (class %d)" % [id, character_type])
-		var starter_weapon := "Wooden Sword"
-		if character_type in [Constants.ClassType.STAFF, Constants.ClassType.ARCHMAGE]:
-			starter_weapon = "Wooden Staff"
+		var starter_weapon := _starter_weapon_for(character_type)
 		player_instance.equipment_component.weapon_slot.item = ResourceManager.get_item_by_name(starter_weapon)
 		player_instance.equipment_component.chest_slot.item = ResourceManager.get_item_by_name("White Shirt")
 		player_instance.equipment_component.legs_slot.item = ResourceManager.get_item_by_name("Blue Jean Shorts")
@@ -407,6 +425,10 @@ func _load_player_data_from_file(username: String) -> Dictionary:
 		if data:
 			data["party_id"] = data.get("party_id", -1)
 			data["last_map"] = data.get("last_map", "")
+			# weapon_mastery (PR 2) — legacy saves without the key load with
+			# an empty dict so the component picks up four zero-state
+			# disciplines on _ensure_default_disciplines.
+			data["weapon_mastery"] = data.get("weapon_mastery", {})
 			return data
 	return {}
 
@@ -449,6 +471,7 @@ func _load_player_data_async(username: String) -> Dictionary:
 			# Ensure default fields exist
 			json_result["party_id"] = json_result.get("party_id", -1)
 			json_result["last_map"] = json_result.get("last_map", "")
+			json_result["weapon_mastery"] = json_result.get("weapon_mastery", {})
 			return json_result
 
 	#print("PlayerManager: API load failed for %s (code: %d). Retrying..." % [username, response_code])
@@ -476,6 +499,7 @@ func _load_player_data_async(username: String) -> Dictionary:
 			#print("PlayerManager: Retry succeeded for %s" % username)
 			json_result["party_id"] = json_result.get("party_id", -1)
 			json_result["last_map"] = json_result.get("last_map", "")
+			json_result["weapon_mastery"] = json_result.get("weapon_mastery", {})
 			return json_result
 
 	#print("PlayerManager: WARNING - Loading %s from LOCAL FILE (API unavailable after retry)" % username)
