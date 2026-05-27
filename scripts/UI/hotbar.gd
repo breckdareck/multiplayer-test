@@ -20,6 +20,11 @@ var combo_pips: Array[Panel] = []
 var _combo_pip_style_empty: StyleBox = null
 var _combo_pip_style_filled: StyleBox = null
 var sword_combo_component: SwordComboComponent = null
+## PR 5 polish: track the previous combo count so _on_combo_changed can tell
+## a gain (animate the newly-filled pip with a pulse) apart from a consume
+## (flash all pips quickly to telegraph the spend) apart from decay (just
+## refresh, no animation — decay shouldn't startle the player).
+var _last_combo_count: int = 0
 
 var hotbar_slots: Array[Node] = []
 var slot_count: int = 8
@@ -323,10 +328,46 @@ func _build_filled_pip_style() -> StyleBox:
 
 
 ## Signal handler — runs on every combo_changed (build/spend/decay/reset).
-## Just delegates to _refresh_combo_indicator so the pip-fill logic stays in
-## one place.
-func _on_combo_changed(_new_count: int) -> void:
+## Delegates the visual fill to _refresh_combo_indicator and additionally
+## triggers a one-shot animation distinguishing build vs spend so the
+## player gets clear feedback on the mechanic.
+func _on_combo_changed(new_count: int) -> void:
+	var was: int = _last_combo_count
+	_last_combo_count = new_count
 	_refresh_combo_indicator()
+	if not is_instance_valid(combo_indicator) or not combo_indicator.visible:
+		return
+	if new_count > was:
+		# Build — pulse the newly-filled pip(s). If multiple landed in one
+		# tick (defensive), pulse each. Usually just one.
+		for i in range(was, min(new_count, combo_pips.size())):
+			_pulse_pip(combo_pips[i])
+	elif new_count < was and was > 0:
+		# Spend / consume — quick all-pip flash so the player sees the cost
+		# pay off. Skip if was==0 (decay/reset from empty, nothing to spend).
+		_flash_all_pips()
+
+
+## PR 5 polish: scale-tween a single pip 1.0 → 1.4 → 1.0 over ~0.2s. Reads
+## as a "satisfying click" when combo lands. Tween auto-frees on completion.
+func _pulse_pip(pip: Panel) -> void:
+	if not is_instance_valid(pip):
+		return
+	pip.pivot_offset = pip.size * 0.5
+	var tween: Tween = create_tween()
+	tween.tween_property(pip, "scale", Vector2(1.4, 1.4), 0.1).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(pip, "scale", Vector2(1.0, 1.0), 0.1).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+
+
+## PR 5 polish: quick brightness flash across all pips on combo consume.
+## Modulates the ComboIndicator (not individual pips) so the label tints
+## along with the pips, reinforcing "the whole stack just paid off."
+func _flash_all_pips() -> void:
+	if not is_instance_valid(combo_indicator):
+		return
+	var tween: Tween = create_tween()
+	tween.tween_property(combo_indicator, "modulate", Color(1.6, 1.4, 0.8, 1.0), 0.06)
+	tween.tween_property(combo_indicator, "modulate", Color.WHITE, 0.12)
 
 
 ## Visibility + per-pip fill update for the combo indicator. Hidden iff the

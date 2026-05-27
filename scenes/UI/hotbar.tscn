@@ -91,11 +91,19 @@ slot_kind = "secondary"
 
 [node name="ComboIndicator" type="VBoxContainer" parent="Background/RootHBox/WeaponSwapSection"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(20, 0)
+custom_minimum_size = Vector2(32, 0)
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_constants/separation = 2
 tooltip_text = "Sword combo points. Build with basic attacks, spend with Slash for amplified damage."
+
+[node name="ComboLabel" type="Label" parent="Background/RootHBox/WeaponSwapSection/ComboIndicator"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(1.0, 0.85, 0.4, 1.0)
+theme_override_font_sizes/font_size = 8
+text = "COMBO"
+horizontal_alignment = 1
 
 [node name="Pip0" type="Panel" parent="Background/RootHBox/WeaponSwapSection/ComboIndicator"]
 custom_minimum_size = Vector2(14, 14)
