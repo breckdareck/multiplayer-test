@@ -54,7 +54,20 @@ class Player(db.Model):
     last_map = db.Column(db.String(255), default="town")
     party_id = db.Column(db.Integer, default=-1)
     monies = db.Column(db.Integer, default=0)
+    # Legacy single-pool ability points. PR 4 replaced this with
+    # `ability_points_per_discipline` (a JSONB dict keyed by lowercase weapon
+    # discipline -- "sword" / "bow" / "staff" / "dagger"). The legacy column
+    # stays populated as `sum(values)` for one release so older clients /
+    # tools that still read it stay coherent. A later PR can drop it once
+    # we're confident the new column round-trips reliably.
     ability_points = db.Column(db.Integer, default=0)
+    # PR 4: per-weapon-discipline ability point pools. Dict shape:
+    # `{"sword": <int>, "bow": <int>, "staff": <int>, "dagger": <int>}`.
+    # NULL means "never persisted in the new shape" -- the load handler then
+    # falls back to evenly distributing the legacy `ability_points` int across
+    # the four disciplines on the Godot side (with the remainder going to the
+    # character's starting discipline).
+    ability_points_per_discipline = db.Column(JSONB, nullable=True)
     # QuestManager.save_quests blob: {active, completed, onboarded}. Stored as a
     # single JSONB column since quests are only ever read/written wholesale per
     # character — no piecemeal queries — and the schema evolves freely on the
@@ -419,8 +432,13 @@ def load_player():
         ability_levels = {ab.ability_id: ab.level for ab in player.abilities}
         hotbar_config = {str(hb.slot_index): hb.ability_id for hb in player.hotbar}
         
+        # PR 4: emit the per-discipline pool dict. Godot's load_abilities
+        # migrates an empty/missing dict by evenly distributing the legacy
+        # `available_points` int across the four disciplines. We also keep
+        # the legacy key on the wire as a safety fallback for one release.
         response_data['abilities'] = {
             'available_points': player.ability_points if player.ability_points is not None else 0,
+            'available_points_per_discipline': player.ability_points_per_discipline or {},
             'ability_levels': ability_levels,
             'hotbar_config': hotbar_config
         }
@@ -590,9 +608,34 @@ def save_player():
         if 'abilities' in data:
             ab_data = data['abilities']
 
-            # Save ability points
-            if 'available_points' in ab_data:
-                player.ability_points = ab_data['available_points']
+            # Save ability points. PR 4: prefer the per-discipline dict; the
+            # legacy single-int `available_points` is written through as
+            # `sum(values)` for one release as a safety fallback. If only the
+            # legacy key is present (older clients pre-rollout, or a partial
+            # save written before the migration ran), distribute it evenly
+            # into the JSONB dict so the next load round-trips cleanly.
+            if 'available_points_per_discipline' in ab_data:
+                per_disc = ab_data.get('available_points_per_discipline') or {}
+                # Coerce to ints defensively -- JSON ints can arrive as floats.
+                per_disc = {str(k): int(v) for k, v in per_disc.items() if v is not None}
+                player.ability_points_per_discipline = per_disc
+                player.ability_points = sum(per_disc.values())
+            elif 'available_points' in ab_data:
+                legacy_total = int(ab_data['available_points'] or 0)
+                player.ability_points = legacy_total
+                # Server-side migration safety net: split the legacy int evenly
+                # across the four disciplines so the next load already has the
+                # new shape persisted. Remainder goes to "sword" -- the Godot
+                # client overrides this on the very next save with its own
+                # starting-discipline-weighted distribution.
+                base = legacy_total // 4
+                remainder = legacy_total - (base * 4)
+                player.ability_points_per_discipline = {
+                    "sword": base + remainder,
+                    "bow": base,
+                    "staff": base,
+                    "dagger": base,
+                }
 
             # Smart sync abilities
             incoming_abilities = ab_data.get('ability_levels', {})
@@ -709,6 +752,11 @@ def _run_migrations():
         # PR 2 of the weapon-identity-overhaul: per-discipline mastery.
         # Shape is {sword: {level, xp}, bow: {...}, staff: {...}, dagger: {...}}.
         ("players", "weapon_mastery", "ALTER TABLE players ADD COLUMN weapon_mastery JSONB"),
+        # PR 4: per-weapon-discipline ability-point pools (Sword / Bow /
+        # Staff / Dagger). Replaces the single-pool `ability_points` int,
+        # which stays populated as a fallback for one release.
+        ("players", "ability_points_per_discipline",
+         "ALTER TABLE players ADD COLUMN ability_points_per_discipline JSONB"),
     ]
     for table, column, sql in migrations:
         try:

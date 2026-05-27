@@ -140,7 +140,10 @@ func get_characters():
 							"monies": 0,
 							"inventory": {},
 							"equipment": {},
-							"abilities": {"available_points": (starting_level - 1) * 3},
+							# PR 4: per-discipline ability-point pools. New chars get the
+						# full level-1->starting-level allotment in their starting
+						# discipline's pool; the other three start at zero.
+						"abilities": {"available_points_per_discipline": _starter_ability_point_pools(class_enum, starting_level)},
 							"buffs": {},
 							"quests": {}
 						}
@@ -243,7 +246,9 @@ func create_character(char_name, class_id):
 			"monies": 0,
 			"inventory": {},
 			"equipment": {},
-			"abilities": {"available_points": (starting_level - 1) * 3},
+			# PR 4: per-discipline ability-point pools. See dev-mode site for
+			# the helper that fills the starting discipline and zeros the rest.
+			"abilities": {"available_points_per_discipline": _starter_ability_point_pools(class_id, starting_level)},
 			"buffs": {},
 			"quests": {}
 		}
@@ -347,3 +352,43 @@ func _on_delete_character_completed(result, response_code, _headers, body, http,
 		character_deletion_failed.emit(err_msg)
 
 	http.queue_free()
+
+
+## PR 4: builds the starter per-discipline ability-point pool dict for a
+## newly-created character. The character's starting `class_id` discipline
+## receives the full `(starting_level - 1) * 3` allotment; the other three
+## tier-1 disciplines start at zero. Advanced classes (Crusader / Ranger /
+## Archmage / Assassin) map to their parent tier-1 discipline.
+func _starter_ability_point_pools(class_id: int, starting_level: int) -> Dictionary:
+	var total: int = max(0, (starting_level - 1) * 3)
+	var pools := {
+		"sword": 0,
+		"bow": 0,
+		"staff": 0,
+		"dagger": 0,
+	}
+	var key: String = _class_id_to_discipline_key(class_id)
+	if key == "":
+		# Beginner or unknown class -- credit the lump to sword so points
+		# never silently vanish. AbilityComponent's first-load migration
+		# will re-credit at the right discipline if it has better info.
+		key = "sword"
+	pools[key] = total
+	return pools
+
+
+## PR 4: maps a `Constants.ClassType` int (tier-1 starting OR tier-2
+## advancement) to the lowercase discipline key. Mirrors the helper in
+## `AbilityComponent` (kept duplicated here so this autoload doesn't have
+## to reach into a sibling node before the player exists).
+func _class_id_to_discipline_key(class_id: int) -> String:
+	match class_id:
+		Constants.ClassType.SWORD, Constants.ClassType.CRUSADER:
+			return "sword"
+		Constants.ClassType.BOW, Constants.ClassType.RANGER:
+			return "bow"
+		Constants.ClassType.STAFF, Constants.ClassType.ARCHMAGE:
+			return "staff"
+		Constants.ClassType.DAGGER, Constants.ClassType.ASSASSIN:
+			return "dagger"
+	return ""
