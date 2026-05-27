@@ -746,3 +746,9 @@ func player_input(input_type: String, data: Variant = null):
 		"attack": player_node.do_attack = true
 		"pickup": player_node.do_pickup = data
 		"portal": player_node.do_portal_interact = true
+		"weapon_swap":
+			# PR 3: route weapon-swap intent through the player node's
+			# request_weapon_swap_server RPC. The player node owns the
+			# equipment component reference and the cleanup/death gate.
+			if player_node.has_method("request_weapon_swap_server"):
+				player_node.request_weapon_swap_server()

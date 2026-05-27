@@ -69,6 +69,10 @@ var _drop_through_target_y: float = 0.0
 var _sprite_base_offset_x: float
 var _is_being_cleaned_up: bool = false
 var _is_loading_data: bool = false
+## PR 3: server-side gate for the weapon-swap transition window. While true,
+## input flags are zeroed in _update_input_from_synchronizer so the player
+## can't act mid-flash. Re-enabled when the transition timer fires.
+var _swap_input_locked: bool = false
 var _context_menu: PlayerContextMenu
 
 @onready var camera: Camera2D = $Camera2D
@@ -388,6 +392,9 @@ func _setup_signals() -> void:
 
 	if equipment_component:
 		equipment_component.on_equipment_changed.connect(func(): _data_changed("equipment"))
+		# PR 3: react to active-weapon flips for sprite swap + transition FX.
+		# The active_weapon flag itself rides in the equipment save bucket.
+		equipment_component.active_weapon_changed.connect(_on_active_weapon_changed)
 
 	if class_component:
 		# Persist class changes (job advancement) so the new class survives the
@@ -510,6 +517,17 @@ func _update_input_from_synchronizer() -> void:
 		direction = 0
 		input_down = false
 		input_up = false
+		return
+
+	# PR 3: zero input during the weapon-swap transition window so the player
+	# can't act mid-flash. The lock auto-clears after SWAP_TRANSITION_DURATION.
+	if _swap_input_locked:
+		direction = 0
+		input_down = false
+		input_up = false
+		do_attack = false
+		do_jump = false
+		do_drop = false
 		return
 
 	var input_sync: Node = get_node_or_null("%InputSynchronizer")
@@ -862,6 +880,180 @@ func request_sprite_change() -> void:
 	if not multiplayer.is_server():
 		return
 	_handle_sprite_change_on_server()
+
+
+# ============================================================================
+# Weapon Swap (PR 3) — server-authoritative
+# ============================================================================
+
+const SWAP_TRANSITION_DURATION: float = 0.25
+const SWAP_FX_PATH: String = "res://assets/sprites/MiniDarkElves/MiniDarkElves/Starfall-Sheet.png"
+const SWAP_FX_FRAME_COUNT: int = 11
+const SWAP_FX_FRAME_SIZE: int = 32
+# Frame at which the sprite swap happens (visual peak of the flash).
+const SWAP_FX_SPRITE_SWAP_FRAME: int = 3
+
+## [CLIENT -> SERVER] Local player presses Tab. Forwarded by multiplayer_input.
+## Validates and applies the swap; on success, the EquipmentComponent's
+## swap_applied_rpc broadcasts the new active weapon to every peer (and our
+## _on_active_weapon_changed handler runs the sprite swap + FX).
+@rpc("any_peer", "call_local", "reliable")
+func request_weapon_swap_server() -> void:
+	if not multiplayer.is_server():
+		return
+
+	# Cleanup / death-state gate. A respawning player shouldn't swap mid-respawn.
+	if _is_being_cleaned_up:
+		return
+	if is_instance_valid(health_component) and health_component.is_dead:
+		return
+
+	if not is_instance_valid(equipment_component):
+		return
+
+	var initiator: int = multiplayer.get_remote_sender_id()
+	# When the host (peer 1) calls this locally, get_remote_sender_id() is 0.
+	# Use the player_id so the denied-ping RPC has a real target.
+	if initiator == 0:
+		initiator = player_id
+
+	equipment_component.try_perform_swap_server(initiator)
+
+
+## Signal handler. Runs on every peer that mirrors this player. Triggers the
+## sprite swap + transition FX. Sprite-swap timing is locked to frame 3 of
+## the FX animation so the swap happens at the visual peak of the flash.
+func _on_active_weapon_changed(_active_weapon: String, _active_item: ItemData) -> void:
+	if _is_being_cleaned_up:
+		return
+
+	# Persist the new active_weapon. The inventory bucket already serializes
+	# equipment + active_weapon together (see InventoryComponent.save_inventory),
+	# so queue an inventory save explicitly. The default `on_equipment_changed`
+	# handler fires the "equipment" category, which today doesn't round-trip
+	# in get_save_data — so we route through "inventory" for the swap.
+	if multiplayer.is_server() and not _is_loading_data:
+		_data_changed("inventory")
+
+	# Spawn the transition FX on every peer that has this player node.
+	_spawn_swap_transition_fx()
+
+	# Schedule the sprite swap to land at the FX's visual peak.
+	# Frame 3 of 11 frames at ~44fps (0.25s total) = ~0.068s.
+	var swap_delay: float = SWAP_TRANSITION_DURATION * (float(SWAP_FX_SPRITE_SWAP_FRAME) / float(SWAP_FX_FRAME_COUNT))
+
+	# Lock input for the full transition duration on the SERVER side only — the
+	# server is authoritative over movement; the client mirrors anyway.
+	if multiplayer.is_server():
+		_lock_input_for_swap()
+
+	get_tree().create_timer(swap_delay).timeout.connect(_apply_active_weapon_sprite)
+
+
+## Locks input for the swap transition window on the server. Sets
+## `_swap_input_locked` so `_update_input_from_synchronizer` zeros direction
+## /jump/drop/attack each frame until the transition timer fires. Auto-clears
+## via a one-shot create_timer connection.
+func _lock_input_for_swap() -> void:
+	if not multiplayer.is_server():
+		return
+	_swap_input_locked = true
+	direction = 0
+	do_attack = false
+	do_jump = false
+	do_drop = false
+	# Auto-clear after the transition completes. The timer connection is
+	# one-shot per Godot's create_timer contract — safe to wire as a fire-and-
+	# forget. No `await` here so the sync-emit-await-hang trap is avoided.
+	get_tree().create_timer(SWAP_TRANSITION_DURATION).timeout.connect(
+		func() -> void:
+			if is_instance_valid(self):
+				_swap_input_locked = false
+	)
+
+
+## Resolves the active weapon's discipline and updates the AnimatedSprite2D
+## frames. Runs on the same peers that see the FX. Reads through
+## `active_weapon_data.weapon_type` and maps to the matching tier-1 sprite.
+func _apply_active_weapon_sprite() -> void:
+	if _is_being_cleaned_up:
+		return
+	if not is_instance_valid(equipment_component) or not is_instance_valid(animated_sprite):
+		return
+	if not is_instance_valid(level_component):
+		return
+
+	var weapon: WeaponData = equipment_component.active_weapon_data
+	# If the active slot is empty (bare hands), fall back to the character's
+	# current discipline so the sprite stays sensible.
+	var discipline_class: int = -1
+	if weapon != null:
+		discipline_class = _weapon_type_to_class_type(weapon.weapon_type)
+	if discipline_class == -1 and is_instance_valid(class_component):
+		discipline_class = class_component.current_class
+
+	if discipline_class == -1:
+		return
+
+	var frames: SpriteFrames = ResourceManager.get_sprite_for_level(discipline_class, level_component.level)
+	if frames:
+		animated_sprite.sprite_frames = frames
+		animated_sprite.play("idle")
+
+
+static func _weapon_type_to_class_type(weapon_type: int) -> int:
+	match weapon_type:
+		Constants.WeaponType.SWORD:
+			return Constants.ClassType.SWORD
+		Constants.WeaponType.BOW:
+			return Constants.ClassType.BOW
+		Constants.WeaponType.STAFF:
+			return Constants.ClassType.STAFF
+		Constants.WeaponType.DAGGER:
+			return Constants.ClassType.DAGGER
+	return -1
+
+
+## Spawns the one-shot transition FX at the player's chest position. Runs on
+## every peer that has this player node (server included). Auto-frees when
+## the animation finishes.
+func _spawn_swap_transition_fx() -> void:
+	# Skip for headless dedicated server, and skip for bots whose UI subtree
+	# is freed — but DO render on the host (server + client in one tree) and
+	# on every remote client that sees this player.
+	if OS.has_feature("dedicated_server"):
+		return
+
+	if not is_instance_valid(animated_sprite):
+		return
+
+	var fx_texture: Texture2D = load(SWAP_FX_PATH)
+	if fx_texture == null:
+		return
+
+	var fx_frames := SpriteFrames.new()
+	fx_frames.add_animation("swap")
+	fx_frames.set_animation_loop("swap", false)
+	# 11 frames over 0.25s = 44 fps.
+	fx_frames.set_animation_speed("swap", float(SWAP_FX_FRAME_COUNT) / SWAP_TRANSITION_DURATION)
+
+	for i in range(SWAP_FX_FRAME_COUNT):
+		var atlas := AtlasTexture.new()
+		atlas.atlas = fx_texture
+		atlas.region = Rect2(i * SWAP_FX_FRAME_SIZE, 0, SWAP_FX_FRAME_SIZE, SWAP_FX_FRAME_SIZE)
+		fx_frames.add_frame("swap", atlas)
+
+	var fx_sprite := AnimatedSprite2D.new()
+	fx_sprite.name = "WeaponSwapFX"
+	fx_sprite.sprite_frames = fx_frames
+	fx_sprite.position = Vector2(0, -16) # Roughly the player's chest.
+	fx_sprite.z_index = 5
+	add_child(fx_sprite)
+	fx_sprite.play("swap")
+
+	# Auto-free when the animation finishes. animation_finished is one-shot
+	# per non-looping animation, so this fires exactly once.
+	fx_sprite.animation_finished.connect(fx_sprite.queue_free)
 
 
 # [SERVER -> CLIENTS] Broadcasts the sprite change to all clients.

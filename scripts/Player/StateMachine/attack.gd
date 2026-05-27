@@ -7,8 +7,13 @@ var player
 
 var attack_speed_percent: float:
 	get():
-		if parent.equipment_component.weapon_slot_data.item != null:
-			return float(100.0 / ((20.0 - parent.equipment_component.weapon_slot_data.item.weapon_attack_speed) / 16.0)) / 100
+		# PR 3: route attack speed through the ACTIVE weapon so a swap to a
+		# faster/slower weapon takes effect immediately. Reads through the
+		# active_weapon_data accessor so the inactive slot's stats don't
+		# bleed in.
+		var active_weapon: WeaponData = parent.equipment_component.active_weapon_data
+		if active_weapon != null:
+			return float(100.0 / ((20.0 - active_weapon.weapon_attack_speed) / 16.0)) / 100
 		else:
 			return 1
 

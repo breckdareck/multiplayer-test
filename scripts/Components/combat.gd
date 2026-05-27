@@ -26,15 +26,15 @@ var hit_list: Array = []
 var _unique_targets_for_attack: Dictionary = {}
 var _pending_bodies: Array = []
 
-## Damage range shown in the stats window. Uses the class's attack stat
-## (`_get_class_attack_stat()`) — for Mages and other INT-primary classes
-## that's MAGICATTACK, reflecting the channel their abilities scale on (which
-## is what they actually fight with). Basic-attack *actual* damage is a
+## Damage range shown in the stats window. Uses the active weapon's attack
+## stat (`_get_weapon_attack_stat()`) — for a Staff or Wand that's
+## MAGICATTACK, reflecting the channel their abilities scale on (which is
+## what they actually fight with). Basic-attack *actual* damage is a
 ## separate concern: `calculate_attack_damage` always uses WEAPONATTACK
-## regardless of class.
+## regardless of weapon type.
 var display_max_damage: int:
 	get:
-		return _calculate_max_range(_get_class_attack_stat())
+		return _calculate_max_range(_get_weapon_attack_stat())
 var display_min_damage: int:
 	get:
 		return roundi(display_max_damage * mastery)
@@ -500,30 +500,35 @@ func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelDa
 
 
 func calculate_attack_damage() -> int:
-	if not (_equipment_component and _equipment_component.weapon_slot_data and _equipment_component.weapon_slot_data.item):
+	# Read through the active weapon accessor so PR 3's primary/secondary swap
+	# is honored — the inactive weapon must not contribute to basic-attack
+	# damage even though it stays in the equipment dictionary.
+	if not (_equipment_component and _equipment_component.active_weapon_data):
 		return 0
 
-	# Basic attacks always use WEAPONATTACK, regardless of class. A Mage's
-	# basic staff swing intentionally uses the Wooden Staff's WEAPONATTACK,
+	# Basic attacks always use WEAPONATTACK, regardless of weapon type. A
+	# Staff's basic swing intentionally uses the Wooden Staff's WEAPONATTACK,
 	# not its MAGICATTACK — abilities are the channel for MAGICATTACK and
 	# pass their own stat via `_calculate_max_range(_ability.damage_stat)`.
 	var max_range = _calculate_max_range()
 	return roundi(randf_range(max_range * mastery, max_range))
 
 
-## Returns the `Constants.ClassType` discipline of the currently-equipped
-## weapon, or -1 if there's no weapon equipped (or the equipped weapon is
-## not one of the four tier-1 disciplines). Used by the mastery-XP grant
-## path so kills only feed mastery to weapons the system actually tracks.
-## Falls back to the character's `current_class` when the weapon slot is
-## empty but the character's discipline is a tier-1 weapon, so a bare-fisted
-## kill still credits the player's chosen discipline.
+## Returns the `Constants.ClassType` discipline of the ACTIVE weapon (PR 3),
+## or -1 if there's no weapon equipped in the active slot (or the equipped
+## weapon is not one of the four tier-1 disciplines). Used by the mastery-XP
+## grant path so kills only feed mastery to weapons the system actually
+## tracks. Falls back to the character's `current_class` when the active slot
+## is empty but the character's discipline is a tier-1 weapon, so a
+## bare-fisted kill still credits the player's chosen discipline. Routes
+## through `active_weapon_data` instead of the raw `weapon_slot.item` so the
+## swap UX correctly attributes mastery to whichever weapon is wielded.
 func _active_weapon_discipline() -> int:
-	# Preferred: the actual weapon currently in the WEAPON slot.
-	if _equipment_component and _equipment_component.weapon_slot_data and _equipment_component.weapon_slot_data.item:
-		var item = _equipment_component.weapon_slot_data.item
-		if item is WeaponData:
-			var discipline := WeaponMasteryComponent.weapon_type_to_discipline(item.weapon_type)
+	# Preferred: the actual weapon currently in the ACTIVE slot.
+	if _equipment_component:
+		var weapon: WeaponData = _equipment_component.active_weapon_data
+		if weapon != null:
+			var discipline := WeaponMasteryComponent.weapon_type_to_discipline(weapon.weapon_type)
 			if discipline != -1:
 				return discipline
 
@@ -537,11 +542,18 @@ func _active_weapon_discipline() -> int:
 	return -1
 
 
-func _get_class_attack_stat() -> Constants.StatType:
-	if _class_component:
-		var primary = ResourceManager.get_primary_stat(_class_component.current_class)
-		if primary == Constants.StatType.INTELLIGENCE:
-			return Constants.StatType.MAGICATTACK
+## Returns the StatType the ACTIVE weapon's damage scales off. PR 3 replaced
+## the old class-driven attack-stat lookup with this — once the player carries
+## two weapons, the channel a Staff vs a Sword fights through is a per-weapon
+## decision, not a per-character one. Staff / Wand → MAGICATTACK;
+## anything else (including bare hands) → WEAPONATTACK.
+func _get_weapon_attack_stat() -> Constants.StatType:
+	if _equipment_component:
+		var weapon: WeaponData = _equipment_component.active_weapon_data
+		if weapon != null:
+			match weapon.weapon_type:
+				Constants.WeaponType.STAFF:
+					return Constants.StatType.MAGICATTACK
 	return Constants.StatType.WEAPONATTACK
 
 

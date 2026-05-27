@@ -540,10 +540,18 @@ func save_inventory() -> Dictionary:
 		for eq_key in equipment_component.slots_data.keys():
 			var eq_sd: SlotData = equipment_component.slots_data[eq_key]
 			if eq_sd and eq_sd.item != null:
+				# `eq_key` may be "WEAPON" / "SECONDARY_WEAPON" (PR 3) or an
+				# armor-type int. The backend `equipment.slot_type` column is a
+				# free-form string, so "SECONDARY_WEAPON" piggybacks the same
+				# table — zero schema change.
 				equipment_data[str(eq_key)] = eq_sd.item.get_save_data()
 
 	inventory_data["slots"] = slot_entries
 	inventory_data["equipment"] = equipment_data
+	# PR 3: persist which weapon slot is currently active. Lives at the
+	# inventory-data level so it round-trips with the equipment payload.
+	if equipment_component:
+		inventory_data["active_weapon"] = equipment_component.active_weapon
 	return inventory_data
 
 
@@ -586,9 +594,11 @@ func _apply_inventory_data(inventory_data: Dictionary) -> void:
 			var item_dict: Dictionary = equipment_data_dict[key_str]
 			if item_dict.is_empty():
 				continue
+			# PR 3: string keys cover both "WEAPON" and "SECONDARY_WEAPON".
+			# Armor types are persisted as their int values (stringified).
 			var key: Variant
-			if key_str == "WEAPON":
-				key = "WEAPON"
+			if key_str == "WEAPON" or key_str == "SECONDARY_WEAPON":
+				key = key_str
 			else:
 				key = int(key_str)
 			var target_sd: SlotData = equipment_component.get_slot_data(key)
@@ -599,6 +609,11 @@ func _apply_inventory_data(inventory_data: Dictionary) -> void:
 					equipment_component.refresh_view(key)
 				else:
 					print("Failed to load equipment item from dictionary: " + str(item_dict))
+
+		# PR 3: restore the persisted active weapon. Default to primary on
+		# legacy saves that pre-date the field.
+		var saved_active_weapon: String = inventory_data.get("active_weapon", EquipmentComponent.ACTIVE_PRIMARY)
+		equipment_component.set_active_weapon_silent(saved_active_weapon)
 
 	_rebuild_item_tracking()
 
@@ -857,31 +872,31 @@ func sync_equipment_update_rpc(eq_key_str: String, item_dict: Dictionary, trigge
 	"""Client receives an equipment slot update"""
 	if multiplayer.is_server():
 		return
-	
+
 	if not equipment_component:
 		return
-	
+
 	var target_slot: Slot = null
-	if eq_key_str == "WEAPON":
-		target_slot = equipment_component.equipment.get("WEAPON")
+	if eq_key_str == "WEAPON" or eq_key_str == "SECONDARY_WEAPON":
+		target_slot = equipment_component.equipment.get(eq_key_str)
 	else:
 		var key_val := int(eq_key_str)
 		target_slot = equipment_component.equipment.get(key_val)
-	
+
 	if not target_slot:
 		return
-	
+
 	var old_item = target_slot.item
 	var item_instance = ItemData.from_dictionary(item_dict)
 	if item_instance:
 		# Use silent mode if we're batching multiple equipment changes
 		if equipment_component and not trigger_stats_recalc:
 			equipment_component.set_silent_mode(true)
-		
+
 		target_slot.item = item_instance
 		target_slot.update_display()
 		_update_item_tracking(target_slot, old_item, item_instance)
-		
+
 	# Trigger stats recalc if needed
 	if trigger_stats_recalc:
 		if is_instance_valid(stats_component):
@@ -893,13 +908,13 @@ func sync_equipment_clear_rpc(eq_key_str: String, trigger_stats_recalc: bool):
 	"""Client receives notification that an equipment slot was cleared"""
 	if multiplayer.is_server():
 		return
-	
+
 	if not equipment_component:
 		return
-	
+
 	var target_slot: Slot = null
-	if eq_key_str == "WEAPON":
-		target_slot = equipment_component.equipment.get("WEAPON")
+	if eq_key_str == "WEAPON" or eq_key_str == "SECONDARY_WEAPON":
+		target_slot = equipment_component.equipment.get(eq_key_str)
 	else:
 		var key_val := int(eq_key_str)
 		target_slot = equipment_component.equipment.get(key_val)

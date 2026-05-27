@@ -57,6 +57,16 @@ var _ability_levels: Dictionary = {} # { ability_id: current_level }
 var _available_ability_points: int = 0
 var _loading_mode: bool = false
 
+# PR 3: per-weapon hotbar bindings (Option A — ESO model).
+# Each weapon carries its own independent hotbar layout. Bind Slash Blast to
+# slot 1 for the sword, Strafe to slot 1 for the bow — they don't collide.
+# On swap, the live `hotbar.save_hotbar_config()` is captured into the
+# leaving binding, then the becoming-active binding is pushed into
+# `hotbar.load_hotbar_config()`. The hotbar UI re-renders in lockstep with
+# the active weapon flip.
+var _primary_hotbar_bindings: Dictionary = {}
+var _secondary_hotbar_bindings: Dictionary = {}
+
 # Track proc cooldowns per passive ability
 var _passive_proc_cooldowns: Dictionary = {} # { "ability_id_event_type": last_proc_time }
 
@@ -93,6 +103,12 @@ func _ready() -> void:
 	# Connect to ClassComponent to handle class changes
 	if _class_component:
 		_class_component.class_changed.connect(_on_class_changed)
+
+	# PR 3: react to active-weapon flips by swapping the live hotbar to the
+	# becoming-active weapon's bindings. Runs on both server and client so the
+	# host (server + client in one tree) and remote clients both refresh.
+	if _equipment_component:
+		_equipment_component.active_weapon_changed.connect(_on_active_weapon_changed)
 
 	# Find or create the projectiles container inside the current visible map.
 	var map_node = MapManager.get_current_visible_map()
@@ -337,20 +353,21 @@ func _can_afford_ability(ability_id: String, level_stats: AbilityLevelData) -> b
 	return true
 
 
-## Returns the `Constants.ClassType` discipline of the currently-equipped
-## weapon, or -1 if there's no tier-1 weapon equipped. Used by the
-## mastery-XP-on-cast grant. Falls back to the character's current_class
-## when no weapon is in the slot (a Beginner casting their starter ability
-## with no weapon still credits the chosen discipline if it's tier-1).
+## Returns the `Constants.ClassType` discipline of the ACTIVE weapon (PR 3),
+## or -1 if there's no tier-1 weapon equipped in the active slot. Used by the
+## mastery-XP-on-cast grant. Falls back to the character's current_class when
+## the active slot is empty (a Beginner casting their starter ability with no
+## weapon still credits the chosen discipline if it's tier-1).
 ## Mirrors CombatComponent._active_weapon_discipline — kept duplicated
 ## (~10 lines) rather than centralised so each component can be read in
 ## isolation; both go through WeaponMasteryComponent.weapon_type_to_discipline
-## for the actual mapping.
+## for the actual mapping. Routes through `active_weapon_data` so the
+## primary/secondary swap correctly attributes XP.
 func _active_weapon_discipline() -> int:
-	if _equipment_component and _equipment_component.weapon_slot_data and _equipment_component.weapon_slot_data.item:
-		var item = _equipment_component.weapon_slot_data.item
-		if item is WeaponData:
-			var discipline := WeaponMasteryComponent.weapon_type_to_discipline(item.weapon_type)
+	if _equipment_component:
+		var weapon: WeaponData = _equipment_component.active_weapon_data
+		if weapon != null:
+			var discipline := WeaponMasteryComponent.weapon_type_to_discipline(weapon.weapon_type)
 			if discipline != -1:
 				return discipline
 
@@ -673,12 +690,32 @@ func sync_all_abilities_to_client(peer_id: int) -> void:
 	if not multiplayer.is_server(): return
 
 	#print("Syncing all ability data to peer %d" % peer_id)
-	var hotbar_config: Dictionary = hotbar.save_hotbar_config() if is_instance_valid(hotbar) else {}
-	sync_all_abilities_batch.rpc_id(peer_id, _ability_levels.duplicate(), _available_ability_points, hotbar_config, _cooldowns.duplicate())
+	# PR 3: snapshot the live hotbar back to whichever binding side is active
+	# before sending so the dirty in-memory state lines up with the persisted
+	# pair. The client receives both arrays + the active flag (via the
+	# equipment sync RPC), so it can re-hydrate and swap freely.
+	var live_config: Dictionary = hotbar.save_hotbar_config() if is_instance_valid(hotbar) else {}
+	_capture_active_bindings(live_config)
+	sync_all_abilities_batch.rpc_id(
+		peer_id,
+		_ability_levels.duplicate(),
+		_available_ability_points,
+		live_config,
+		_cooldowns.duplicate(),
+		_primary_hotbar_bindings.duplicate(),
+		_secondary_hotbar_bindings.duplicate()
+	)
 
 
 @rpc("authority", "call_local", "reliable")
-func sync_all_abilities_batch(abilities: Dictionary, ability_points: int, hotbar_config: Dictionary = {}, cooldowns: Dictionary = {}) -> void:
+func sync_all_abilities_batch(
+		abilities: Dictionary,
+		ability_points: int,
+		hotbar_config: Dictionary = {},
+		cooldowns: Dictionary = {},
+		primary_bindings: Dictionary = {},
+		secondary_bindings: Dictionary = {}
+		) -> void:
 	if multiplayer.is_server(): return
 
 	for ability_id in abilities:
@@ -686,6 +723,11 @@ func sync_all_abilities_batch(abilities: Dictionary, ability_points: int, hotbar
 		ability_learned.emit(ability_id)
 	_available_ability_points = ability_points
 	ability_points_changed.emit(_available_ability_points)
+
+	# PR 3: restore both binding arrays so the inactive weapon's bindings
+	# survive client-side swaps until the next save round-trip.
+	_primary_hotbar_bindings = primary_bindings.duplicate()
+	_secondary_hotbar_bindings = secondary_bindings.duplicate()
 
 	if is_instance_valid(hotbar):
 		hotbar.load_hotbar_config(hotbar_config)
@@ -831,13 +873,23 @@ func _on_class_changed(_new_class_name: String) -> void:
 
 
 #region #################### Save & Load System ####################
-## Returns a dictionary of all ability data for saving.
+## Returns a dictionary of all ability data for saving. PR 3 saves both
+## binding arrays — the live hotbar reflects whichever weapon is currently
+## active, so before serializing we snapshot it into the matching slot.
 func save_abilities() -> Dictionary:
 	# `hotbar` is a UI node; a bot frees its UI subtree, so guard the access.
+	var live_config: Dictionary = hotbar.save_hotbar_config() if is_instance_valid(hotbar) else {}
+	# Sync the live binding back into the per-weapon dict so the save reflects
+	# any edits the player made since the last swap.
+	_capture_active_bindings(live_config)
 	return {
 		"ability_levels": _ability_levels.duplicate(),
 		"available_points": _available_ability_points,
-		"hotbar_config": hotbar.save_hotbar_config() if is_instance_valid(hotbar) else {},
+		# Legacy compatibility: keep `hotbar_config` writing the active set so
+		# older clients / tools that read it still see a coherent layout.
+		"hotbar_config": live_config,
+		"primary_hotbar_bindings": _primary_hotbar_bindings.duplicate(),
+		"secondary_hotbar_bindings": _secondary_hotbar_bindings.duplicate(),
 		"cooldowns": _cooldowns.duplicate()
 	}
 
@@ -845,21 +897,34 @@ func save_abilities() -> Dictionary:
 ## Loads and applies ability data from a dictionary.
 func load_abilities(data: Dictionary) -> void:
 	if data.is_empty(): return
-	
+
 	# First, ensure all current class abilities are initialized
 	for ability_data in _class_component.get_class_abilities():
 		if ability_data != null and not _ability_levels.has(ability_data.ability_id):
 			_ability_levels[ability_data.ability_id] = 0
 			#print("Added new ability from class: %s at level 0" % ability_data.ability_id)
-			
+
 	# Load saved data by merging (not replacing) to preserve new abilities
 	var saved_levels = data.get("ability_levels", {})
 	for ability_id in saved_levels:
 		_ability_levels[ability_id] = saved_levels[ability_id]
-	
+
 	_available_ability_points = data.get("available_points", 0)
+
+	# PR 3: restore both binding arrays. Legacy saves that only have
+	# `hotbar_config` populate the primary binding so a returning character
+	# keeps their layout (the secondary starts empty until they bind it).
+	var legacy_config: Dictionary = data.get("hotbar_config", {})
+	_primary_hotbar_bindings = data.get("primary_hotbar_bindings", legacy_config).duplicate()
+	_secondary_hotbar_bindings = data.get("secondary_hotbar_bindings", {}).duplicate()
+
+	# Push the ACTIVE binding into the live hotbar. The equipment component's
+	# load step (run separately by the player root) will tell us which one
+	# that is — until then we assume primary, which matches a fresh-character
+	# default and a legacy save's only binding.
+	var active_bindings: Dictionary = _active_bindings_for_load()
 	if is_instance_valid(hotbar):
-		hotbar.load_hotbar_config(data.get("hotbar_config", {}))
+		hotbar.load_hotbar_config(active_bindings)
 
 	var saved_cooldowns: Dictionary = data.get("cooldowns", {})
 	for ability_id in saved_cooldowns:
@@ -867,7 +932,7 @@ func load_abilities(data: Dictionary) -> void:
 		if remaining > 0.0:
 			_cooldowns[ability_id] = remaining
 			cooldown_started.emit(ability_id, remaining)
-	
+
 	# Re-apply passives and update UI with loaded data
 	_apply_passive_effects()
 	if not _loading_mode:
@@ -881,6 +946,59 @@ func load_abilities(data: Dictionary) -> void:
 	#else:
 		#for ability_id in _ability_levels:
 			#print("Loaded ability: %s at level %d" % [ability_id, _ability_levels[ability_id]])
+
+
+## PR 3 helper. Picks the currently-active weapon's binding dict for a load.
+## Used by load_abilities and by _on_active_weapon_changed to know which set
+## to push into the live hotbar.
+func _active_bindings_for_load() -> Dictionary:
+	if _equipment_component and _equipment_component.active_weapon == EquipmentComponent.ACTIVE_SECONDARY:
+		return _secondary_hotbar_bindings
+	return _primary_hotbar_bindings
+
+
+## PR 3 helper. Captures the live hotbar config back into whichever binding
+## array is currently active. Called before saving (so any edits made since
+## the last swap land in the save) and on a swap (snapshot the leaving
+## weapon's layout).
+func _capture_active_bindings(live_config: Dictionary) -> void:
+	if not _equipment_component:
+		_primary_hotbar_bindings = live_config.duplicate()
+		return
+	if _equipment_component.active_weapon == EquipmentComponent.ACTIVE_SECONDARY:
+		_secondary_hotbar_bindings = live_config.duplicate()
+	else:
+		_primary_hotbar_bindings = live_config.duplicate()
+
+
+## PR 3 signal handler. Snapshot the leaving weapon's bindings, then push the
+## new weapon's bindings into the live hotbar. The hotbar UI re-renders.
+## Runs on both server and client (signal connection in `_ready`), so the host
+## and remote clients both refresh in lockstep with the authoritative swap.
+func _on_active_weapon_changed(_active_weapon: String, _active_item: ItemData) -> void:
+	# Capture the *outgoing* binding (whatever the live hotbar shows right now,
+	# which still reflects the *previous* active weapon at the moment this
+	# signal fires — EquipmentComponent emits AFTER it flipped active_weapon,
+	# so we have to look at the OPPOSITE side from the current active flag).
+	if not is_instance_valid(hotbar):
+		return
+
+	var live_config: Dictionary = hotbar.save_hotbar_config()
+	# `_equipment_component.active_weapon` has already flipped to the NEW
+	# active value, so capture the live config into the OTHER slot.
+	if _equipment_component and _equipment_component.active_weapon == EquipmentComponent.ACTIVE_SECONDARY:
+		# Just flipped to secondary — the live config still shows primary.
+		_primary_hotbar_bindings = live_config.duplicate()
+	else:
+		# Just flipped to primary — the live config still shows secondary.
+		_secondary_hotbar_bindings = live_config.duplicate()
+
+	# Push the new active set into the live hotbar.
+	hotbar.load_hotbar_config(_active_bindings_for_load())
+
+	# Visual ping: flash the hotbar to draw the eye to the changed bindings.
+	if hotbar.has_method("flash_swap_indicator"):
+		hotbar.flash_swap_indicator()
 			
 ## Disconnects from leveling component signals to prevent side effects during loading.
 func disconnect_level_signals() -> void:
