@@ -1852,35 +1852,35 @@ position = Vector2(103.14286, -142)
 respawnable = true
 
 [node name="Bird" parent="Enemies" instance=ExtResource("10_bird4")]
-position = Vector2(-268, -223)
+position = Vector2(-268, -222)
 respawnable = true
 
 [node name="Bird2" parent="Enemies" instance=ExtResource("10_bird4")]
-position = Vector2(-224.42857, -223)
+position = Vector2(-224.42857, -222)
 respawnable = true
 
 [node name="Bird3" parent="Enemies" instance=ExtResource("10_bird4")]
-position = Vector2(-180.85715, -223)
+position = Vector2(-180.85715, -222)
 respawnable = true
 
 [node name="Bird4" parent="Enemies" instance=ExtResource("10_bird4")]
-position = Vector2(-137.28572, -223)
+position = Vector2(-137.28572, -222)
 respawnable = true
 
 [node name="Bird5" parent="Enemies" instance=ExtResource("10_bird4")]
-position = Vector2(-93.71429, -223)
+position = Vector2(-93.71429, -222)
 respawnable = true
 
 [node name="Bird6" parent="Enemies" instance=ExtResource("10_bird4")]
-position = Vector2(-50.142857, -223)
+position = Vector2(-50.142857, -222)
 respawnable = true
 
 [node name="Bird7" parent="Enemies" instance=ExtResource("10_bird4")]
-position = Vector2(-6.571429, -223)
+position = Vector2(-6.571429, -222)
 respawnable = true
 
 [node name="Bird8" parent="Enemies" instance=ExtResource("10_bird4")]
-position = Vector2(37, -223)
+position = Vector2(37, -222)
 respawnable = true
 
 [node name="Deer" parent="Enemies" instance=ExtResource("10_deer4")]
@@ -1888,23 +1888,23 @@ position = Vector2(-249, -303)
 respawnable = true
 
 [node name="Deer2" parent="Enemies" instance=ExtResource("10_deer4")]
-position = Vector2(-198, -304)
+position = Vector2(-198, -303)
 respawnable = true
 
 [node name="Deer3" parent="Enemies" instance=ExtResource("10_deer4")]
-position = Vector2(-147, -304)
+position = Vector2(-147, -303)
 respawnable = true
 
 [node name="Deer4" parent="Enemies" instance=ExtResource("10_deer4")]
-position = Vector2(-96, -304)
+position = Vector2(-96, -303)
 respawnable = true
 
 [node name="Deer5" parent="Enemies" instance=ExtResource("10_deer4")]
-position = Vector2(-45, -304)
+position = Vector2(-45, -303)
 respawnable = true
 
 [node name="Deer6" parent="Enemies" instance=ExtResource("10_deer4")]
-position = Vector2(6, -304)
+position = Vector2(6, -303)
 respawnable = true
 
 [node name="Fox" parent="Enemies" instance=ExtResource("10_fox4")]
@@ -1912,7 +1912,7 @@ position = Vector2(-171.5, -382)
 respawnable = true
 
 [node name="Fox5" parent="Enemies" instance=ExtResource("10_fox4")]
-position = Vector2(-215, -383)
+position = Vector2(-215, -382)
 respawnable = true
 
 [node name="Fox2" parent="Enemies" instance=ExtResource("10_fox4")]
