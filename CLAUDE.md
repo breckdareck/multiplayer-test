@@ -142,9 +142,10 @@ classes recursively — no manual registration. See
 
 Repeatable workflows packaged as Claude Code skills under `.claude/skills/`.
 The `add-*` skills are path-scoped and load automatically when you work in
-the matching files; `grill-with-docs` and `improve-codebase-architecture`
-are intent-triggered (no path scope) — invoke them when you want to
-stress-test a plan or surface deepening opportunities.
+the matching files; `grill-with-docs`, `improve-codebase-architecture`, and
+`create-gdd` are intent-triggered (no path scope) — invoke them when you
+want to stress-test a plan, surface deepening opportunities, or author the
+Game Design Document.
 
 | Skill | Use when |
 |---|---|
@@ -156,6 +157,7 @@ stress-test a plan or surface deepening opportunities.
 | `add-backend-endpoint` | Adding a Flask route or model (`backend/`) |
 | `grill-with-docs` | Socratic interview that stress-tests a plan against this repo's server-authoritative invariants, components, .tres content, RPC patterns, and persistence layers; maintains `CONTEXT.md` glossary and `docs/adr/`. No path scope — invoke by intent. |
 | `improve-codebase-architecture` | Surface architectural friction and propose **deepening opportunities** — shallow → deep refactors. Renders an HTML report of candidates, then drops into a grilling loop on the chosen one. Uses `CONTEXT.md` for the domain language and `LANGUAGE.md` (module / interface / seam / depth) for the architecture language. No path scope — invoke by intent. |
+| `create-gdd` | Authoring or refreshing the Game Design Document (`docs/GDD.md`). Pulls from CLAUDE.md, CONTEXT.md, ADRs, and memory pointers (verifying claims against source before citing), fills a 20-section template, and renders a styled standalone HTML preview via the bundled Python script. No path scope — invoke by intent. |
 
 ## The AI Layer
 

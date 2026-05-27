@@ -24,9 +24,10 @@ Each subsystem guide loads additively when Claude works in that directory.
 
 Repeatable workflows. The `add-*` skills are content recipes, path-scoped
 (`paths:` frontmatter) so they auto-activate when Claude works in matching
-files. `grill-with-docs` and `improve-codebase-architecture` are
-intent-triggered (no path scope) — invoked when the user wants to
-pressure-test a plan or hunt for deepening opportunities.
+files. `grill-with-docs`, `improve-codebase-architecture`, and `create-gdd`
+are intent-triggered (no path scope) — invoked when the user wants to
+pressure-test a plan, hunt for deepening opportunities, or author the
+Game Design Document.
 
 | Skill | Path scope |
 |---|---|
@@ -38,6 +39,7 @@ pressure-test a plan or hunt for deepening opportunities.
 | `add-backend-endpoint` | `backend/` |
 | `grill-with-docs` | — (intent-triggered: "grill this plan", "poke holes in X", "what am I missing before I build Y") |
 | `improve-codebase-architecture` | — (intent-triggered: "what's shallow here", "find refactors", "where can we deepen", "review the architecture") |
+| `create-gdd` | — (intent-triggered: "draft the GDD", "update the design doc", "write the combat chapter") |
 
 `add-ability` uses progressive disclosure — its `references/ability-fields.md`
 holds the full field and formula reference, loaded only when needed.
@@ -48,7 +50,11 @@ entry or an ADR. `improve-codebase-architecture` follows suit: its
 `HTML-REPORT.md` (report scaffold), and `INTERFACE-DESIGN.md` (Design-It-Twice
 sub-agent pattern) load only when the skill is mid-process. It re-uses
 `grill-with-docs`'s `CONTEXT-FORMAT.md` and `ADR-FORMAT.md` for side-effect
-writes.
+writes. `create-gdd` does the same: `assets/gdd-template.md` (the 20-section
+skeleton), `assets/styles.css` (preview stylesheet), `references/gdd-sections.md`
+(per-section guidance), `references/design-principles.md` (core loops, MDA,
+Bartle, flow, juice), and `scripts/render_html.py` all load only when the
+section the model is filling actually needs them.
 
 ### Subagent — `.claude/agents/explorer.md`
 
