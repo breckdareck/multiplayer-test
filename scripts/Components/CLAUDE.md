@@ -20,14 +20,26 @@ Player (MultiplayerPlayerV2)
     │                               available_points_per_discipline dict). Points
     │                               are granted PER MASTERY LEVEL of the relevant
     │                               weapon (PR 4 fix 2026-05-27 — NOT per
-    │                               character level). WeaponMasteryComponent.
-    │                               mastery_level_changed → 3 points to THAT
-    │                               discipline's pool. Trees the player never
+    │                               character level). Trees the player never
     │                               masters never accumulate points.
+    │                               Discipline-gating (PR 4 fix 2026-05-28):
+    │                                 - Active-only PASSIVES: _foreach_learned_passive
+    │                                   filters by active discipline, so Sword's
+    │                                   HP Boost only applies while wielding a sword.
+    │                                   Cascades to stat modifiers + procs + ability
+    │                                   damage/cooldown/mana modifiers.
+    │                                 - Cross-discipline CAST guard:
+    │                                   _validate_ability_use rejects casts whose
+    │                                   ability discipline doesn't match the wielded
+    │                                   weapon. Hotbar binding still exists, just
+    │                                   fails to fire until matching weapon equipped.
     ├── WeaponMastery weapon_mastery.gd - Per-discipline mastery levels + XP (PR 2)
     │                                     mastery_data: {sword/bow/staff/dagger →
     │                                     {level, xp}}. Drives STR/DEX/INT/LUK
     │                                     scaling additively on top of class-level.
+    │                                     Kill XP credits BOTH primary AND secondary
+    │                                     equipped weapons (PR 4 fix 2026-05-28);
+    │                                     cast XP only credits the ACTIVE weapon.
     ├── Buff       buff.gd        - timed buffs/debuffs, stacking, custom logic
     ├── Class      class.gd       - current_class = STARTING discipline (does NOT
     │                               change on weapon swap). Drives HP/MP curves.
