@@ -11,6 +11,12 @@
 .vscode/
 .idea/
 
+# Docker Compose local overrides — port-shift for running multiple stacks
+# alongside each other (e.g. the overhaul folder running on 5001/5433/8081
+# while master keeps 5000/5432/8080). Per-machine convenience only.
+docker-compose.override.yml
+docker-compose.override.yaml
+
 # Godot 4+ specific ignores
 .godot/
 .nomedia
