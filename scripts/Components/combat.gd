@@ -362,23 +362,22 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 	if not health_comp or health_comp.is_dead:
 		return
 
-	var attacker_level = owner_node.level_component.level
-	var target_level = target_enemy.monster_level
+	var attacker_level: int = owner_node.level_component.level
+	var target_level: int = target_enemy.monster_level
 
 	# --- Hit Chance Calculation ---
-	var level_diff = attacker_level - target_level
-	# Base 95% chance to hit. Lose 2% chance for each level the monster is above you.
-	var hit_chance = clamp(95.0 + (level_diff * 2.0), 5.0, 100.0)
-	
-	var max_hits = 1
+	var level_diff: int = attacker_level - target_level
+	var hit_chance: float = _compute_hit_chance(level_diff)
+
+	var max_hits: int = 1
 	if ability and level_stats:
 		max_hits = level_stats.max_hits
-	
+
 	var damage_values: Array = []
 	var crit_values: Array = []
-	
+
 	for i in range(max_hits):
-		var roll = randf() * 100
+		var roll: float = randf() * 100.0
 		if roll > hit_chance:
 			damage_values.append(-1) # -1 signifies a MISS
 			crit_values.append(false)
@@ -386,36 +385,19 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 			continue # Skip to the next hit
 
 		# --- Damage Calculation ---
-		var base_damage = 0
+		var base_damage: int = 0
 		if attack_name != "":
 			base_damage = calculate_attack_damage()
 		elif ability and level_stats:
 			base_damage = calculate_ability_damage(ability, level_stats)
 
-		var modified_damage = float(base_damage)
+		var rolled: Dictionary = _compute_damage_to(target_enemy, float(base_damage), level_diff)
+		var damage_to_deal: int = rolled.damage
+		var is_crit: bool = rolled.is_crit
 
-		if target_enemy.has_node("Stats"):
-			var target_stats = target_enemy.get_node("Stats")
-			var target_defense = target_stats.stats.get(Constants.StatType.DEFENSE).total_value
-
-			var level_modifier = clamp(1.0 + (level_diff * 0.05), 0.5, 1.5)
-			var defense_multiplier = 1.0 - (float(target_defense) / (target_defense + 500.0))
-
-			modified_damage *= level_modifier * defense_multiplier
-		
-		var crit_chance = _stats_component.stats.get(Constants.StatType.CRITCHANCE).total_value
-		var is_crit = (randf() * 100) < crit_chance
-		
-		if is_crit:
-			var crit_damage_bonus = _stats_component.stats.get(Constants.StatType.CRITDAMAGE).total_value
-			var crit_multiplier = randf_range(1.2, 1.5) + (crit_damage_bonus / 100.0)
-			modified_damage *= crit_multiplier
-
-		var damage_to_deal = roundi(modified_damage)
-		
 		damage_values.append(damage_to_deal)
 		crit_values.append(is_crit)
-		
+
 		health_comp.take_damage(damage_to_deal, self, true, is_crit, false)
 
 		if damage_to_deal > 0:
@@ -468,6 +450,81 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 
 		if dmg_spawner:
 			dmg_spawner.display_number_combo(damage_values, crit_values, spawn_pos)
+
+
+func execute_shadow_hit(target: Node, hit_count: int, damage_percent: float) -> Dictionary:
+	"""Runs `hit_count` "shadow" hits on `target` at `damage_percent` of the
+	owner's basic-attack damage. Each shadow hit rolls hit-chance, defense,
+	level diff, and crit through the same pipeline `_execute_hit` uses, then
+	deals damage. Server-only.
+
+	Returns {damages: Array, crits: Array} matching `hit_count` in length so a
+	caller (e.g. BL_ShadowPartner) can splice the results into a combo display.
+	Misses are represented as -1 in `damages`, matching `_execute_hit`'s
+	convention."""
+	var result: Dictionary = {"damages": [], "crits": []}
+
+	if not multiplayer.is_server():
+		return result
+
+	var health_comp = target.get("health_component")
+	if not health_comp or health_comp.is_dead:
+		return result
+
+	var attacker_level: int = owner_node.level_component.level
+	var target_level: int = target.monster_level if "monster_level" in target else attacker_level
+	var level_diff: int = attacker_level - target_level
+	var hit_chance: float = _compute_hit_chance(level_diff)
+
+	for i in range(hit_count):
+		var roll: float = randf() * 100.0
+		if roll > hit_chance:
+			result.damages.append(-1)
+			result.crits.append(false)
+			continue
+
+		var base_damage: float = float(calculate_attack_damage()) * (damage_percent / 100.0)
+		var rolled: Dictionary = _compute_damage_to(target, base_damage, level_diff)
+		var damage_to_deal: int = rolled.damage
+		var is_crit: bool = rolled.is_crit
+
+		result.damages.append(damage_to_deal)
+		result.crits.append(is_crit)
+
+		health_comp.take_damage(damage_to_deal, self, true, is_crit, false)
+
+	return result
+
+
+func _compute_hit_chance(level_diff: int) -> float:
+	# Base 95% chance to hit. Lose 2% chance for each level the monster is above you.
+	return clampf(95.0 + (level_diff * 2.0), 5.0, 100.0)
+
+
+func _compute_damage_to(target_enemy: Node, base_damage: float, level_diff: int) -> Dictionary:
+	"""Applies the per-target damage pipeline: defense reduction, level-diff
+	modifier, then crit roll. Mirrors the inner block of `_execute_hit` so any
+	balance change to defense/crit/level-diff propagates to every call site."""
+	var modified_damage: float = base_damage
+
+	if target_enemy.has_node("Stats"):
+		var target_stats = target_enemy.get_node("Stats")
+		var target_defense: int = target_stats.stats.get(Constants.StatType.DEFENSE).total_value
+
+		var level_modifier: float = clampf(1.0 + (level_diff * 0.05), 0.5, 1.5)
+		var defense_multiplier: float = 1.0 - (float(target_defense) / (target_defense + 500.0))
+
+		modified_damage *= level_modifier * defense_multiplier
+
+	var crit_chance: float = _stats_component.stats.get(Constants.StatType.CRITCHANCE).total_value
+	var is_crit: bool = (randf() * 100.0) < crit_chance
+
+	if is_crit:
+		var crit_damage_bonus: float = _stats_component.stats.get(Constants.StatType.CRITDAMAGE).total_value
+		var crit_multiplier: float = randf_range(1.2, 1.5) + (crit_damage_bonus / 100.0)
+		modified_damage *= crit_multiplier
+
+	return {"damage": roundi(modified_damage), "is_crit": is_crit}
 
 
 func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelData) -> int:
