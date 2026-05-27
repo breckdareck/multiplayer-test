@@ -195,41 +195,38 @@ func process_ability_hit(ability: AbilityData, level_stats: AbilityLevelData, du
 
 
 func turn_on_hitbox() -> void:
-	if not multiplayer.is_server():
-		return
-		
+	# Server-only by construction: reachable only from perform_attack /
+	# process_ability_hit, both of which guard at the entry point.
 	attack_hitbox.position.x = abs(attack_hitbox.position.x) * owner_node.facing_direction
-	
+
 	hit_list.clear()
 	_unique_targets_for_attack.clear()
 	_pending_bodies.clear()
-		
+
 	hitbox_area.monitoring = true
 
 
 func end_attack() -> void:
-	if not multiplayer.is_server():
-		return
-		
+	# Server-only by construction: reached via force_end_current_attack (guarded)
+	# or _on_attack_hitbox_timer_timeout (timer is only started in guarded
+	# entry points, so its timeout only fires on the server).
 	_process_collected_bodies()
-	
+
 	hitbox_area.monitoring = false
 	_current_attack_mode = AttackMode.NONE
 	current_attack_data = ""
 
 
 func end_ability_attack() -> void:
-	if not multiplayer.is_server():
-		return
-		
+	# Server-only by construction: same call paths as end_attack.
 	_process_collected_bodies()
-		
+
 	hitbox_area.monitoring = false
 	_current_attack_mode = AttackMode.NONE
 	current_ability_data = null
 	current_active_data = null
 	current_level_stats = null
-	
+
 	hit_list.clear()
 	_unique_targets_for_attack.clear()
 
@@ -254,8 +251,9 @@ func _is_on_same_map(target: Node) -> bool:
 
 
 func _on_hitbox_area_entered(area: Area2D) -> void:
-	if not multiplayer.is_server():
-		return
+	# Server-only by construction: hitbox_area.monitoring is only toggled true
+	# inside turn_on_hitbox(), whose callers are all guarded. Clients never
+	# arm the hitbox, so this signal never fires off-server.
 	if not "health_component" in (area.owner as EnemyBase):
 		return
 	if not _is_on_same_map(area.owner):
