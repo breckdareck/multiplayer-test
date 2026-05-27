@@ -594,16 +594,13 @@ func _handle_authoritative_use(ability_id: String, ability: AbilityData, level_s
 		else:
 			ability_used_client.rpc(ability_id, cooldown_duration)
 
-		# Mastery-XP-on-cast (PR 2). Grant XP_PER_CAST to the active weapon's
-		# discipline. Bots use the same path (they call into this same
-		# component), so their mastery accumulates naturally as well.
-		if _weapon_mastery_component:
-			var cast_discipline := _active_weapon_discipline()
-			if cast_discipline != -1:
-				_weapon_mastery_component.grant_mastery_xp_server(
-					cast_discipline,
-					WeaponMasteryComponent.XP_PER_CAST
-				)
+		# PR 4 fix (2026-05-28): cast XP grant moved to combat.gd._execute_hit
+		# so it only fires when the ability actually LANDS a hit on an enemy.
+		# Granting on the bare cast was a farming exploit — a player could
+		# spam an ability in an empty area to grind mastery without engaging
+		# enemies. Self-targeted abilities (buffs/heals) now give no mastery
+		# XP, which is intended — combat engagement is the proxy for
+		# weapon-mastery growth.
 
 	return true
 

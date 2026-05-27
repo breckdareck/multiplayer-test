@@ -17,9 +17,18 @@ extends Node
 ## Maximum mastery level a single discipline can reach.
 const MASTERY_CAP: int = 20
 
-## XP granted to the active weapon's discipline when its wielder casts an
-## ability. Kept flat (not level-scaled) because casts are MP/cooldown-bounded
-## and don't have the farming exploit that prompted scaling kill XP.
+## XP granted to the active weapon's discipline when its wielder lands a HIT
+## with an ability. PR 4 fix (2026-05-28): the grant moved from cast-time
+## (in ability.gd) to hit-time (in combat.gd._execute_hit) because granting
+## on bare casts let a player spam an ability in an empty area to grind
+## mastery without engaging enemies. Now the cast must actually hit an
+## enemy. Multi-hit abilities credit per landed hit (so a 2-hit ability that
+## lands both hits gives 2 XP). Self-targeted buff/heal abilities that never
+## reach _execute_hit give zero mastery XP — combat engagement is the proxy.
+## Basic attacks (where `ability == null`) don't get this grant; kill XP is
+## the basic-attack reward. Flat (not level-scaled): a single hit isn't a
+## strong enough signal of difficulty to warrant scaling and casts are
+## already MP/cooldown-bounded.
 const XP_PER_CAST: int = 1
 
 ## PR 4 fix (2026-05-28 revision 2): kill XP now uses `enemy_level` as the

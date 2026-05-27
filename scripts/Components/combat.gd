@@ -421,6 +421,24 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 		var was_alive: bool = not health_comp.is_dead
 		health_comp.take_damage(damage_to_deal, self, true, is_crit, false)
 
+		# PR 4 fix (2026-05-28): cast XP, formerly granted unconditionally in
+		# ability.gd at cast time, now requires the ability to actually LAND
+		# a hit. Spam-cast-in-empty-area exploit gone. Only credits the active
+		# weapon's discipline (not secondary — distinct from the kill rule
+		# which credits both), since cast XP is for actively USING the weapon.
+		# Multi-hit abilities credit per landed hit (Lucky Seven's 2 hits =
+		# 2 XP) — they're harder to land so the bonus is earned. Basic attacks
+		# don't get this grant: `ability == null` for the basic-attack path.
+		# Self-targeted buff/heal abilities that never reach _execute_hit
+		# give zero mastery XP — combat engagement is the proxy for growth.
+		if ability and _weapon_mastery_component:
+			var hit_discipline := _active_weapon_discipline()
+			if hit_discipline != -1:
+				_weapon_mastery_component.grant_mastery_xp_server(
+					hit_discipline,
+					WeaponMasteryComponent.XP_PER_CAST
+				)
+
 		# Mastery-XP-on-kill (PR 2; rule corrected 2026-05-28). If this hit
 		# transitioned the target from alive -> dead, grant XP to BOTH the
 		# primary AND the secondary equipped weapons' disciplines — so a
