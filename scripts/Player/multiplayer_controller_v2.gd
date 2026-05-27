@@ -26,6 +26,7 @@ const MAX_FALL_SPEED: float = 1200.0
 @export var level_component: LevelingComponent
 @export var stats_component: StatsComponent
 @export var class_component: ClassComponent
+@export var weapon_mastery_component: WeaponMasteryComponent
 @export var player_inventory: PlayerInventory
 @export var inventory_component: InventoryComponent
 @export var equipment_component: EquipmentComponent
@@ -600,10 +601,16 @@ func get_save_data(update_type: String = "all") -> Dictionary:
 	var data: Dictionary = {
 		'username': username
 	}
-	
+
 	# Always include basic stats if "all" or "stats"
 	if update_type == "all" or update_type == "stats":
 		data.merge(_get_stats_data())
+		# Weapon mastery rides the "stats" update path since it feeds STR/DEX/
+		# INT/LUK scaling in StatsComponent. The component returns a dict keyed
+		# by lowercase discipline name (sword/bow/staff/dagger) with
+		# {level, xp} entries.
+		if is_instance_valid(weapon_mastery_component):
+			data['weapon_mastery'] = weapon_mastery_component.save_mastery()
 	
 	if update_type == "all" or update_type == "inventory":
 		if is_instance_valid(player_inventory):
@@ -663,7 +670,17 @@ func _load_data(data: Dictionary) -> void:
 		level_component.set_block_signals(true)
 		level_component.level = data.get("level", 1)
 		level_component.experience = data.get("experience", 0)
-		
+
+	# Weapon mastery — must load BEFORE stats_component recalculates so the
+	# mastery-driven STR/DEX/INT/LUK scaling has the right per-discipline
+	# levels in hand. load_mastery toggles its own loading_mode internally to
+	# suppress signal-driven recalcs; the final stats_changed.emit below picks
+	# up the new totals.
+	if is_instance_valid(weapon_mastery_component):
+		var mastery_data = data.get("weapon_mastery", {})
+		if mastery_data is Dictionary:
+			weapon_mastery_component.load_mastery(mastery_data)
+
 	if is_instance_valid(inventory_component):
 		var inventory_data = data.get("inventory", {})
 		if not inventory_data.is_empty():

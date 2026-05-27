@@ -1,0 +1,366 @@
+class_name WeaponMasteryComponent
+extends Node
+
+## Tracks per-weapon-discipline mastery levels. Each tier-1 weapon discipline
+## (Sword / Bow / Staff / Dagger) has its own independent mastery scale capped
+## at MASTERY_CAP. Mastery XP is granted on the server when the character lands
+## an enemy kill with that weapon (XP_PER_KILL) or casts an ability while that
+## weapon is equipped (XP_PER_CAST). Mastery drives the player's STR/DEX/INT/LUK
+## scaling in StatsComponent (the per-character-level scaling was removed in
+## PR 2 of the weapon-identity-overhaul initiative).
+##
+## Server-authoritative: only the server mutates state; clients receive updates
+## via sync_mastery_to_client RPCs and maintain a mirror copy for UI.
+
+#region #################### Constants ####################
+
+## Maximum mastery level a single discipline can reach.
+const MASTERY_CAP: int = 20
+
+## XP granted to the active weapon's discipline when its wielder lands a killing
+## blow on an enemy.
+const XP_PER_KILL: int = 5
+
+## XP granted to the active weapon's discipline when its wielder casts an
+## ability.
+const XP_PER_CAST: int = 1
+
+## XP cost to reach mastery level N from level N-1 is `N * XP_PER_LEVEL_FACTOR`.
+## Level 1 -> 2 = 100 XP, level 2 -> 3 = 200 XP, ..., level 19 -> 20 = 1900 XP.
+## Total 0 -> 20 = 21,000 XP.
+const XP_PER_LEVEL_FACTOR: int = 100
+
+#endregion
+
+
+#region #################### Signals ####################
+
+## Emitted on both server and client whenever a discipline's mastery level
+## changes. Listeners (Stats, UI) should call `mark_stats_dirty()` or refresh
+## the relevant display.
+signal mastery_level_changed(discipline: int, new_level: int)
+
+## Emitted whenever mastery XP changes (level-up included). Mainly for UI
+## progress bars; not used by stat scaling.
+signal mastery_xp_changed(discipline: int, current_xp: int, xp_to_next: int)
+
+#endregion
+
+
+#region #################### State ####################
+
+## Per-discipline mastery records, keyed by `Constants.ClassType` int.
+## Each value is a Dictionary: `{"level": int, "xp": int}` where `xp` is the
+## progress toward the NEXT level (resets on level-up). Only tier-1 weapon
+## disciplines (SWORD / BOW / STAFF / DAGGER) are populated by default.
+## Persisted by save_mastery / load_mastery.
+var mastery_data: Dictionary = {}
+
+var _loading_mode: bool = false
+
+#endregion
+
+
+#region #################### Lifecycle ####################
+
+func _ready() -> void:
+	_ensure_default_disciplines()
+
+
+## Populates mastery_data with zero-state entries for the four tier-1 weapon
+## disciplines. Safe to call multiple times — existing entries are preserved.
+func _ensure_default_disciplines() -> void:
+	for discipline in [
+		Constants.ClassType.SWORD,
+		Constants.ClassType.BOW,
+		Constants.ClassType.STAFF,
+		Constants.ClassType.DAGGER,
+	]:
+		if not mastery_data.has(discipline):
+			mastery_data[discipline] = {"level": 0, "xp": 0}
+
+#endregion
+
+
+#region #################### Public API ####################
+
+## Returns the mastery level for a given discipline. Disciplines without a
+## record return 0 — they behave as if mastery were never started.
+func get_mastery_level(discipline: int) -> int:
+	var entry: Dictionary = mastery_data.get(discipline, {})
+	return int(entry.get("level", 0))
+
+
+## Returns the current XP progress toward the next level for a given
+## discipline. Resets to 0 each time the level increments.
+func get_mastery_xp(discipline: int) -> int:
+	var entry: Dictionary = mastery_data.get(discipline, {})
+	return int(entry.get("xp", 0))
+
+
+## XP required to advance from `current_level` to `current_level + 1`.
+## Formula: `(current_level + 1) * XP_PER_LEVEL_FACTOR`.
+func _xp_to_next_level(current_level: int) -> int:
+	return (current_level + 1) * XP_PER_LEVEL_FACTOR
+
+
+## Returns the XP cost to advance from a discipline's CURRENT level. Useful
+## for UI progress bars.
+func get_xp_to_next_level(discipline: int) -> int:
+	return _xp_to_next_level(get_mastery_level(discipline))
+
+
+## Server-only. Grants `amount` mastery XP to `discipline`, levels up while
+## the XP threshold is met, emits the level-changed signal, and broadcasts
+## the new state to the owning client (skip for bots — they have no client).
+## Marks the owner's save dirty so the change persists.
+func grant_mastery_xp_server(discipline: int, amount: int) -> void:
+	if not multiplayer.is_server():
+		return
+	if amount <= 0:
+		return
+	# Mastery only applies to the four tier-1 weapon disciplines; any other
+	# enum value (BEGINNER, the six tier-2 advancement classes) is ignored
+	# so we don't accidentally grow mastery for slots that don't exist.
+	if not _is_tier1_discipline(discipline):
+		return
+
+	if not mastery_data.has(discipline):
+		mastery_data[discipline] = {"level": 0, "xp": 0}
+
+	var entry: Dictionary = mastery_data[discipline]
+	var level: int = int(entry.get("level", 0))
+	var xp: int = int(entry.get("xp", 0))
+
+	# Already capped: silently ignore further XP gains.
+	if level >= MASTERY_CAP:
+		return
+
+	xp += amount
+	var leveled_up: bool = false
+
+	while level < MASTERY_CAP and xp >= _xp_to_next_level(level):
+		xp -= _xp_to_next_level(level)
+		level += 1
+		leveled_up = true
+
+	# At the cap, drop residual XP to keep the save tidy.
+	if level >= MASTERY_CAP:
+		xp = 0
+
+	entry["level"] = level
+	entry["xp"] = xp
+	mastery_data[discipline] = entry
+
+	# Notify the owning client so the mirror copy + UI stay in sync. Bots have
+	# no client, so skip the RPC for them entirely.
+	if not BotManager.is_bot(owner.player_id):
+		sync_mastery_to_client.rpc_id(owner.player_id, discipline, level, xp)
+
+	# Local emit on the server side — stats / UI listeners react here too.
+	if leveled_up:
+		mastery_level_changed.emit(discipline, level)
+	mastery_xp_changed.emit(discipline, xp, _xp_to_next_level(level))
+
+	# Persist. The player root listens for this through the same _data_changed
+	# path the other stateful components use.
+	_mark_owner_save_dirty()
+
+
+## Returns the sum of (mastery_level * discipline.stat_bonuses[stat]) across all
+## owned disciplines for a given stat. Stacks across disciplines so a player
+## with mastery in multiple weapons grows their stats in multiple channels.
+## Used by StatsComponent._recalculate_stats.
+func get_summed_stat_bonus(stat: int) -> int:
+	var total: int = 0
+	for discipline in mastery_data:
+		var level: int = get_mastery_level(discipline)
+		if level <= 0:
+			continue
+		var data: WeaponDisciplineData = ResourceManager.get_class_data(discipline)
+		if data == null:
+			continue
+		var bonus: int = int(data.stat_bonuses.get(stat, 0))
+		if bonus == 0:
+			continue
+		total += bonus * level
+	return total
+
+#endregion
+
+
+#region #################### Save / Load ####################
+
+## Returns the persistable mastery state. Keyed by the lowercase discipline
+## name (sword/bow/staff/dagger) for backend / save-file legibility. Round-trip
+## with load_mastery: both `level` and `xp` are preserved.
+func save_mastery() -> Dictionary:
+	var out: Dictionary = {}
+	for discipline in mastery_data:
+		var key: String = _discipline_key(discipline)
+		if key.is_empty():
+			continue
+		var entry: Dictionary = mastery_data[discipline]
+		out[key] = {
+			"level": int(entry.get("level", 0)),
+			"xp": int(entry.get("xp", 0)),
+		}
+	# Guarantee all four tier-1 disciplines are present in the save payload
+	# even if no XP has been earned yet, so older saves loaded into a newer
+	# build still round-trip the full shape.
+	for tier1 in [
+		Constants.ClassType.SWORD,
+		Constants.ClassType.BOW,
+		Constants.ClassType.STAFF,
+		Constants.ClassType.DAGGER,
+	]:
+		var key2: String = _discipline_key(tier1)
+		if not out.has(key2):
+			out[key2] = {"level": 0, "xp": 0}
+	return out
+
+
+## Loads a previously-saved mastery payload. Accepts the lowercase-discipline
+## shape from save_mastery; missing disciplines fall back to zero. Suppresses
+## signals while loading via the standard `set_loading_mode` pattern other
+## components use.
+func load_mastery(data: Dictionary) -> void:
+	_loading_mode = true
+
+	mastery_data.clear()
+	_ensure_default_disciplines()
+
+	for key in data:
+		var discipline: int = _key_to_discipline(str(key))
+		if discipline == -1:
+			continue
+		var entry_in = data[key]
+		var level: int = 0
+		var xp: int = 0
+		if entry_in is Dictionary:
+			level = int(entry_in.get("level", 0))
+			xp = int(entry_in.get("xp", 0))
+		elif entry_in is int or entry_in is float:
+			# Legacy shape (level-only int) — accept gracefully.
+			level = int(entry_in)
+		mastery_data[discipline] = {
+			"level": clamp(level, 0, MASTERY_CAP),
+			"xp": max(xp, 0),
+		}
+
+	_loading_mode = false
+
+
+func set_loading_mode(enabled: bool) -> void:
+	_loading_mode = enabled
+
+
+func is_loading() -> bool:
+	return _loading_mode
+
+#endregion
+
+
+#region #################### RPCs ####################
+
+## Server -> owning client only. Mirrors the authoritative mastery state so
+## the client's UI and downstream stat refresh can react. The server already
+## applied the change locally before sending.
+@rpc("authority", "call_remote", "reliable")
+func sync_mastery_to_client(discipline: int, level: int, xp: int) -> void:
+	if not mastery_data.has(discipline):
+		mastery_data[discipline] = {"level": 0, "xp": 0}
+	var entry: Dictionary = mastery_data[discipline]
+	var old_level: int = int(entry.get("level", 0))
+	entry["level"] = level
+	entry["xp"] = xp
+	mastery_data[discipline] = entry
+
+	if level != old_level:
+		mastery_level_changed.emit(discipline, level)
+	mastery_xp_changed.emit(discipline, xp, _xp_to_next_level(level))
+
+#endregion
+
+
+#region #################### Helpers ####################
+
+## Routes "this character's data has meaningfully changed" through the same
+## debounced save path the other stateful components use. The player root
+## connects component signals to its `_data_changed("stats")` helper; we
+## piggyback by emitting on the StatsComponent's stats_changed signal — but
+## that would over-couple the two. Instead we call the owner's `_data_changed`
+## directly when available.
+func _mark_owner_save_dirty() -> void:
+	# Bots: PlayerManager.set_carried_state holds their state in memory across
+	# despawn/respawn, but their kill/cast loop still wants the save to land
+	# the next time SaveManager flushes. The owner's `_data_changed` already
+	# guards against double-saving and respects the cleanup flag.
+	var root := get_owner()
+	if root == null:
+		return
+	if root.has_method("_data_changed"):
+		root._data_changed("stats")
+
+
+## True iff `discipline` is one of the four tier-1 weapon disciplines
+## (SWORD / BOW / STAFF / DAGGER). Beginner and the six tier-2 advancement
+## classes return false — they do not earn mastery XP in PR 2.
+func _is_tier1_discipline(discipline: int) -> bool:
+	return discipline == Constants.ClassType.SWORD \
+		or discipline == Constants.ClassType.BOW \
+		or discipline == Constants.ClassType.STAFF \
+		or discipline == Constants.ClassType.DAGGER
+
+
+## Maps a ClassType enum int to the canonical lowercase save key.
+## Returns "" for non-tier-1 disciplines (they aren't persisted).
+func _discipline_key(discipline: int) -> String:
+	match discipline:
+		Constants.ClassType.SWORD:
+			return "sword"
+		Constants.ClassType.BOW:
+			return "bow"
+		Constants.ClassType.STAFF:
+			return "staff"
+		Constants.ClassType.DAGGER:
+			return "dagger"
+	return ""
+
+
+## Maps a lowercase save key back to the matching ClassType enum int.
+## Returns -1 on unknown keys so callers can skip them.
+func _key_to_discipline(key: String) -> int:
+	match key.to_lower():
+		"sword":
+			return Constants.ClassType.SWORD
+		"bow":
+			return Constants.ClassType.BOW
+		"staff":
+			return Constants.ClassType.STAFF
+		"dagger":
+			return Constants.ClassType.DAGGER
+	return -1
+
+#endregion
+
+
+#region #################### Static Helpers ####################
+
+## Maps a `Constants.WeaponType` enum value to the matching tier-1
+## `Constants.ClassType` discipline. Returns -1 if no mapping exists
+## (callers should treat that as "no mastery grant for this weapon").
+## Shared by CombatComponent and AbilityComponent.
+static func weapon_type_to_discipline(weapon_type: int) -> int:
+	match weapon_type:
+		Constants.WeaponType.SWORD:
+			return Constants.ClassType.SWORD
+		Constants.WeaponType.BOW:
+			return Constants.ClassType.BOW
+		Constants.WeaponType.STAFF:
+			return Constants.ClassType.STAFF
+		Constants.WeaponType.DAGGER:
+			return Constants.ClassType.DAGGER
+	return -1
+
+#endregion

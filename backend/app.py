@@ -66,6 +66,13 @@ class Player(db.Model):
     # The endpoint flattens this into two top-level keys on the wire
     # ('pets', 'summoned_pet_ids') to match Godot's existing save shape.
     pets = db.Column(JSONB, nullable=True)
+    # WeaponMasteryComponent.save_mastery blob: {sword: {level, xp}, bow: ...,
+    # staff: ..., dagger: ...}. Per-discipline mastery progression introduced
+    # by PR 2 of the weapon-identity-overhaul. Wholesale only — the Godot
+    # component owns the shape and rewrites the whole dict on save.
+    # NULL on existing rows → loads as an empty dict in Godot, which
+    # _ensure_default_disciplines fills in with four zero-state entries.
+    weapon_mastery = db.Column(JSONB, nullable=True)
 
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
@@ -442,6 +449,11 @@ def load_player():
         response_data['pets'] = pets_blob.get('roster', [])
         response_data['summoned_pet_ids'] = pets_blob.get('summoned', [])
 
+        # Weapon mastery (PR 2). NULL on the row -> empty dict on the wire;
+        # WeaponMasteryComponent._ensure_default_disciplines fills in the
+        # four zero-state tier-1 entries so existing characters load cleanly.
+        response_data['weapon_mastery'] = player.weapon_mastery or {}
+
         return jsonify(response_data)
     else:
         return jsonify({})
@@ -658,6 +670,13 @@ def save_player():
             new_summoned = data.get('summoned_pet_ids', existing_pets.get('summoned', []))
             player.pets = {'roster': new_roster, 'summoned': new_summoned}
 
+        # Weapon mastery (PR 2). Opaque blob owned by Godot's
+        # WeaponMasteryComponent.save_mastery. Only update if the client sent
+        # it (a partial "stats"-shape save DOES include it, since mastery
+        # piggybacks on the stats update path).
+        if 'weapon_mastery' in data and isinstance(data['weapon_mastery'], dict):
+            player.weapon_mastery = data['weapon_mastery']
+
         db.session.commit()
         return jsonify({"status": "success"}), 200
 
@@ -687,6 +706,9 @@ def _run_migrations():
         ("player_equipment", "variant", "ALTER TABLE player_equipment ADD COLUMN variant JSONB"),
         ("players", "quests", "ALTER TABLE players ADD COLUMN quests JSONB"),
         ("players", "pets",   "ALTER TABLE players ADD COLUMN pets JSONB"),
+        # PR 2 of the weapon-identity-overhaul: per-discipline mastery.
+        # Shape is {sword: {level, xp}, bow: {...}, staff: {...}, dagger: {...}}.
+        ("players", "weapon_mastery", "ALTER TABLE players ADD COLUMN weapon_mastery JSONB"),
     ]
     for table, column, sql in migrations:
         try:

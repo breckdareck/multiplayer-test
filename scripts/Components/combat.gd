@@ -51,6 +51,7 @@ var _stats_component: StatsComponent
 var _class_component: ClassComponent
 var _equipment_component: EquipmentComponent
 var _ability_component: AbilityComponent
+var _weapon_mastery_component: WeaponMasteryComponent
 
 @onready var owner_node: CharacterBody2D = get_owner()
 @onready var attack_hitbox_timer: Timer = $"../../AttackHitboxTimer"
@@ -68,6 +69,7 @@ func _ready() -> void:
 	_class_component = get_parent().get_node_or_null("Class")
 	_equipment_component = get_parent().get_node_or_null("Equipment")
 	_ability_component = get_parent().get_node_or_null("Ability")
+	_weapon_mastery_component = get_parent().get_node_or_null("WeaponMastery")
 
 	hitbox_area.monitoring = false
 
@@ -412,11 +414,24 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 			modified_damage *= crit_multiplier
 
 		var damage_to_deal = roundi(modified_damage)
-		
+
 		damage_values.append(damage_to_deal)
 		crit_values.append(is_crit)
-		
+
+		var was_alive: bool = not health_comp.is_dead
 		health_comp.take_damage(damage_to_deal, self, true, is_crit, false)
+
+		# Mastery-XP-on-kill (PR 2). If this hit transitioned the target from
+		# alive -> dead, grant XP_PER_KILL to the active weapon's discipline.
+		# Subsequent multi-hit iterations land on an already-dead target and
+		# `was_alive` is false, so the grant fires at most once per enemy.
+		if was_alive and health_comp.is_dead and _weapon_mastery_component:
+			var kill_discipline := _active_weapon_discipline()
+			if kill_discipline != -1:
+				_weapon_mastery_component.grant_mastery_xp_server(
+					kill_discipline,
+					WeaponMasteryComponent.XP_PER_KILL
+				)
 
 		if damage_to_deal > 0:
 			# Knockback, gated by the target's knockback resist.
@@ -494,6 +509,32 @@ func calculate_attack_damage() -> int:
 	# pass their own stat via `_calculate_max_range(_ability.damage_stat)`.
 	var max_range = _calculate_max_range()
 	return roundi(randf_range(max_range * mastery, max_range))
+
+
+## Returns the `Constants.ClassType` discipline of the currently-equipped
+## weapon, or -1 if there's no weapon equipped (or the equipped weapon is
+## not one of the four tier-1 disciplines). Used by the mastery-XP grant
+## path so kills only feed mastery to weapons the system actually tracks.
+## Falls back to the character's `current_class` when the weapon slot is
+## empty but the character's discipline is a tier-1 weapon, so a bare-fisted
+## kill still credits the player's chosen discipline.
+func _active_weapon_discipline() -> int:
+	# Preferred: the actual weapon currently in the WEAPON slot.
+	if _equipment_component and _equipment_component.weapon_slot_data and _equipment_component.weapon_slot_data.item:
+		var item = _equipment_component.weapon_slot_data.item
+		if item is WeaponData:
+			var discipline := WeaponMasteryComponent.weapon_type_to_discipline(item.weapon_type)
+			if discipline != -1:
+				return discipline
+
+	# Fallback: the character's current discipline (relevant for unarmed kills
+	# on a Beginner whose only tier-1 lineage is the picked starter).
+	if _class_component:
+		match _class_component.current_class:
+			Constants.ClassType.SWORD, Constants.ClassType.BOW, \
+			Constants.ClassType.STAFF, Constants.ClassType.DAGGER:
+				return _class_component.current_class
+	return -1
 
 
 func _get_class_attack_stat() -> Constants.StatType:
