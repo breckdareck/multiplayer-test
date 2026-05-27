@@ -25,6 +25,33 @@ const XP_PER_KILL: int = 5
 ## ability.
 const XP_PER_CAST: int = 1
 
+## PR 4 fix (2026-05-28): kill XP now scales with enemy level relative to
+## player level. Flat XP_PER_KILL was a farming exploit — players could
+## one-shot level-1 mobs forever and rack up mastery just as fast as
+## fighting same-level enemies. Now killing significantly-below-level mobs
+## gives the floor (1 XP), same-level gives XP_PER_KILL (5), and higher-level
+## kills give a bonus that scales linearly with the level gap.
+##
+## Tune via these knobs:
+##   KILL_XP_LEVEL_DIFF_SCALAR: amount the modifier shifts per level of gap
+##   KILL_XP_MIN_MODIFIER:      floor multiplier (penalty cap for farming)
+##   KILL_XP_FLOOR:             absolute minimum XP per kill regardless
+const KILL_XP_LEVEL_DIFF_SCALAR: float = 0.15
+const KILL_XP_MIN_MODIFIER: float = 0.10
+const KILL_XP_FLOOR: int = 1
+
+
+## Computes the mastery XP awarded for a single kill, given the enemy's
+## level and the player's character level. Static so combat.gd can call
+## without needing a component instance (used for both primary + secondary
+## weapon credits in the same hit).
+static func compute_kill_xp(enemy_level: int, player_level: int) -> int:
+	var level_diff: int = enemy_level - player_level
+	var modifier: float = 1.0 + level_diff * KILL_XP_LEVEL_DIFF_SCALAR
+	if modifier < KILL_XP_MIN_MODIFIER:
+		modifier = KILL_XP_MIN_MODIFIER
+	return max(KILL_XP_FLOOR, roundi(XP_PER_KILL * modifier))
+
 ## XP curve (PR 4 fix 2026-05-28 — replaced flat linear (N+1)*100):
 ## `_xp_to_next_level(N) = XP_BASE + XP_LINEAR * N + XP_QUADRATIC * N * N`.
 ## Quick early levels for instant gratification, then quadratic ramp so

@@ -422,26 +422,31 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 		health_comp.take_damage(damage_to_deal, self, true, is_crit, false)
 
 		# Mastery-XP-on-kill (PR 2; rule corrected 2026-05-28). If this hit
-		# transitioned the target from alive -> dead, grant XP_PER_KILL to BOTH
-		# the primary AND the secondary equipped weapons' disciplines — so a
+		# transitioned the target from alive -> dead, grant XP to BOTH the
+		# primary AND the secondary equipped weapons' disciplines — so a
 		# carried-but-unused weapon doesn't fall infinitely behind. (Cast XP
 		# in ability.gd still only credits the active weapon, so swap-spammers
 		# still gain casts on whatever they're actively wielding.) Multi-hit
 		# iterations land on an already-dead target with was_alive=false, so
 		# the grants fire at most once per enemy.
+		#
+		# PR 4 fix (2026-05-28): kill XP now scales with enemy level vs. player
+		# level via WeaponMasteryComponent.compute_kill_xp. Flat XP_PER_KILL
+		# was a farming exploit (one-shotting level-1 mobs for full XP). Now
+		# below-level kills give the floor and higher-level kills give a
+		# scaling bonus. Computed once and applied to both equipped weapons
+		# so both disciplines see the same level-modified amount.
 		if was_alive and health_comp.is_dead and _weapon_mastery_component:
+			var kill_xp: int = WeaponMasteryComponent.compute_kill_xp(
+				target_enemy.monster_level,
+				owner_node.level_component.level
+			)
 			var kill_discipline := _active_weapon_discipline()
 			if kill_discipline != -1:
-				_weapon_mastery_component.grant_mastery_xp_server(
-					kill_discipline,
-					WeaponMasteryComponent.XP_PER_KILL
-				)
+				_weapon_mastery_component.grant_mastery_xp_server(kill_discipline, kill_xp)
 			var secondary_discipline := _secondary_weapon_discipline()
 			if secondary_discipline != -1 and secondary_discipline != kill_discipline:
-				_weapon_mastery_component.grant_mastery_xp_server(
-					secondary_discipline,
-					WeaponMasteryComponent.XP_PER_KILL
-				)
+				_weapon_mastery_component.grant_mastery_xp_server(secondary_discipline, kill_xp)
 
 		if damage_to_deal > 0:
 			# Knockback, gated by the target's knockback resist.
