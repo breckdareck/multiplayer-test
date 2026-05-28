@@ -715,6 +715,7 @@ func _make_upgrade_row(data: AbilityData, upgrade: AbilityUpgradeData, _current_
 				"variant_taken": buy_btn.text = "—"
 				"no_points": buy_btn.text = "Buy (%d)" % upgrade.point_cost
 				"not_learned": buy_btn.text = "Learn first"
+				"not_maxed": buy_btn.text = "Max first"
 				_: buy_btn.text = "Locked"
 		var ability_id := data.ability_id
 		var upgrade_id := upgrade.upgrade_id

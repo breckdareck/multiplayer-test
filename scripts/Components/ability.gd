@@ -1448,9 +1448,14 @@ func can_purchase_upgrade(ability_id: String, upgrade_id: String) -> Dictionary:
 	if ability == null:
 		return { "ok": false, "reason": "unknown_upgrade" }
 
-	# Must have learned the ability itself (level >= 1) before upgrading it.
-	if int(_ability_levels.get(ability_id, 0)) <= 0:
+	# Upgrades are post-MAX build customization, not a parallel track: the
+	# ability must be at max level before any of its upgrades can be bought.
+	# (level 0 = unlearned reports separately for clearer UI messaging.)
+	var ability_level: int = int(_ability_levels.get(ability_id, 0))
+	if ability_level <= 0:
 		return { "ok": false, "reason": "not_learned" }
+	if ability_level < ability.max_level:
+		return { "ok": false, "reason": "not_maxed" }
 
 	var upgrade: AbilityUpgradeData = _find_upgrade(ability, upgrade_id)
 	if upgrade == null:

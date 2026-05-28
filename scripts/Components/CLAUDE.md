@@ -46,8 +46,9 @@ Player (MultiplayerPlayerV2)
     │                               ({ability_id: [upgrade_id,...]}). Public API:
     │                               has_upgrade / get_learned_upgrades /
     │                               can_purchase_upgrade (pure validation:
-    │                               learned + tier-gating + variant-mutex +
-    │                               point cost) / purchase_upgrade (client→RPC,
+    │                               ability at MAX level + tier-gating +
+    │                               variant-mutex + point cost) /
+    │                               purchase_upgrade (client→RPC,
     │                               server-auth spend from the discipline pool).
     │                               Round-trips via save_abilities under
     │                               `learned_ability_upgrades` (backend column
