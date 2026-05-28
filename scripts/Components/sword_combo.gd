@@ -34,8 +34,12 @@ const COMBO_CAP: int = 3
 const COMBO_DECAY_SECONDS: float = 5.0
 
 ## Damage bonus per combo point spent (multiplicative add on top of base).
-## 0.25 = +25% per point, so 3 points = +75% damage.
-const COMBO_DAMAGE_PER_POINT: float = 0.25
+## 0.50 = +50% per point, so 3 points = +150% damage on top of base (2.5×).
+## Bumped from 0.25 → 0.50 in PR 5 follow-up because Slash's longer cooldown
+## (1s → 4s) made the previous +25%/pt insufficient — the combo build window
+## now demands a finisher payoff worth the wait. Power Strike overrides this
+## locally in AL_PowerStrike.gd (+100%/pt) for the single-target burst path.
+const COMBO_DAMAGE_PER_POINT: float = 0.50
 
 #endregion
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://b7wsk2sword2cmb"]
+[gd_scene load_steps=4 format=3 uid="uid://bxi24t15fkgj6"]
 
 [ext_resource type="Script" uid="uid://csw0rdcmbow1dg" path="res://scripts/UI/sword_combo_widget.gd" id="1_widget"]
 

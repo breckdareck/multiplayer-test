@@ -509,6 +509,17 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 			if _active_weapon_discipline() == Constants.ClassType.SWORD:
 				_sword_combo_component.add_combo_point()
 
+		# PR 5 follow-up: per-ability on_hit hook. Mirrors the execute/on_proc
+		# pattern — if the ability defines an active_behavior.logic_script with
+		# an on_hit(owner, target, ability) method, fire it for each landed
+		# hit. Lets per-ability behaviors (e.g. Brandish building combo on
+		# hit) live in their own AL_*.gd files instead of new bool fields on
+		# ActiveBehaviorData. Server-only via the surrounding pathway.
+		if ability and ability.active_behavior and ability.active_behavior.logic_script:
+			var hit_logic = ability.active_behavior.logic_script.new()
+			if hit_logic.has_method("on_hit"):
+				hit_logic.on_hit(owner_node, target_enemy, ability)
+
 		if damage_to_deal > 0:
 			# Knockback, gated by the target's knockback resist.
 			var knockback_dir = owner.facing_direction

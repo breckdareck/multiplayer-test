@@ -1,7 +1,8 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=16 format=3 uid="uid://ctuuha6kutnms"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=17 format=3 uid="uid://ctuuha6kutnms"]
 
 [ext_resource type="Texture2D" uid="uid://blsf4bd1u7syc" path="res://assets/sprites/Abilities/Brandish.png" id="1_wr37i"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_xjwtl"]
+[ext_resource type="Script" uid="uid://bbrandcombobldr" path="res://scripts/Abilities/AL_Brandish.gd" id="3_brand"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="4_4i2r3"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="5_8ypyu"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="6_ox4m6"]
@@ -17,6 +18,7 @@ hit_box_shape_data = SubResource("RectangleShape2D_ajojy")
 hit_box_position_data = Vector2(33, -10)
 animation_name = "attack_1"
 sfx_path = "res://assets/sounds/tap.wav"
+logic_script = ExtResource("3_brand")
 
 [sub_resource type="Resource" id="Resource_wr37i"]
 resource_local_to_scene = true
@@ -75,7 +77,7 @@ cast_time_formula = SubResource("Resource_wr37i")
 script = ExtResource("7_qsco8")
 ability_id = "15163791113-1041414-65159-111118-13745101011213381"
 ability_name = "Brandish"
-description = "Thrusts $[hit_count] times hitting $[target_count] enemies dealing $[damage_percent] damage."
+description = "Combo builder. Thrusts $[hit_count] times hitting $[target_count] enemies dealing $[damage_percent] damage. [color=#e6c95c]Each hit landed builds 1 combo point (capped at 3).[/color]"
 ability_icon = ExtResource("1_wr37i")
 max_level = 20
 required_class = Array[int]([0])
