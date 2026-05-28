@@ -35,7 +35,10 @@ func on_tick(owner_node: Node, _active_buff, delta: float) -> void:
 			buff_comp.remove_buff(_active_buff_id())
 		return
 
-	mana_comp.consume_mana(int(MP_PER_SECOND))
+	# ManaComponent doesn't expose a consume_mana(); the setter on
+	# current_mana clamps to [0, max_mana] so direct assignment is the
+	# canonical way to deduct.
+	mana_comp.current_mana -= int(MP_PER_SECOND)
 
 
 func on_remove(_owner_node: Node, _active_buff) -> void:
