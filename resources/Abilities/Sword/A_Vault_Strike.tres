@@ -67,7 +67,7 @@ ability_id = "031515140157-1215615-0534-1191513-45135771415611010"
 ability_name = "Vault Strike"
 description = "Dash forward and strike for $[damage_percent] damage to up to $[target_count] enemies in your path. [color=#e6c95c]Builds 2 combo points per enemy hit.[/color]"
 ability_icon = ExtResource("1_icon")
-max_level = 15
+max_level = 20
 required_class = Array[int]([0])
 required_weapon_types = Array[int]([0])
 prerequisite_abilities = Dictionary[ExtResource("4_ad"), int]({

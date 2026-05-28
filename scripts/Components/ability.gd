@@ -98,7 +98,15 @@ var _loading_mode: bool = false
 ## ability points to that discipline's pool). Replaces the earlier per-character-
 ## level grant rule which leaked points evenly across the 4 trees and let a
 ## character earn points for trees they never touched.
-const ABILITY_POINTS_PER_MASTERY_LEVEL: int = 3
+##
+## PR 6 balance pass (2026-05-28): raised 3 -> 6 so a maxed-mastery discipline
+## (MASTERY_CAP 20) yields 120 points. Target endgame build at 120: MAX 3
+## actives + fully upgrade them (3 * 24) + 2 filler actives + MAX 2 passives +
+## passive upgrades. You still can't max all 8 actives, so build identity comes
+## from WHICH abilities + upgrades you pick. The reconcile_ability_points()
+## guard makes this retroactive — existing characters get the new total on
+## next load (granted = mastery_level * 6 recomputed against spent).
+const ABILITY_POINTS_PER_MASTERY_LEVEL: int = 6
 
 ## PR 4: canonical lowercase discipline keys, in display order (the order
 ## the AbilityWindow renders tabs).
@@ -1231,6 +1239,15 @@ func load_abilities(data: Dictionary) -> void:
 	var saved_levels = data.get("ability_levels", {})
 	for ability_id in saved_levels:
 		_ability_levels[ability_id] = saved_levels[ability_id]
+
+	# PR 6 balance pass: if a balance change LOWERED an ability's max_level
+	# (e.g. Vow of the Vanguard 30 -> 20), clamp any saved level that now
+	# exceeds the cap. reconcile_ability_points() (called at the end of this
+	# function) then refunds the freed points back into the discipline pool.
+	for ability_id in _ability_levels:
+		var capped_ability: AbilityData = ResourceManager.get_ability_data(ability_id)
+		if capped_ability and int(_ability_levels[ability_id]) > capped_ability.max_level:
+			_ability_levels[ability_id] = capped_ability.max_level
 
 	# PR 6: restore purchased upgrades — but ONLY when the key is present.
 	# A load payload missing the key (a stale backend reload, an older save,

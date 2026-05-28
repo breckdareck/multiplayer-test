@@ -45,15 +45,8 @@ per_level = 3.0
 [sub_resource type="Resource" id="Resource_raao4"]
 resource_local_to_scene = true
 script = ExtResource("4_4i2r3")
-scaling_type = 2
-base_value = 15.0
-step_values = Dictionary[int, int]({
-3: 16,
-6: 17,
-9: 18,
-12: 19,
-15: 20
-})
+base_value = 5.0
+per_level = 0.3
 
 [sub_resource type="Resource" id="Resource_4i2r3"]
 resource_local_to_scene = true

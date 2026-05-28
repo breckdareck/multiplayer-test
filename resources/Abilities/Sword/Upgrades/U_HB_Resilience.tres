@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "hb_t2_resilience"
 upgrade_name = "Resilience"
-description = "Increases Hardened Frame's Max HP bonus by +3%."
+description = "Increases Hardened Frame's Max HP bonus by +2%."
 point_cost = 1
 tier = 2
 variant_group = ""
 effect_key = "passive_stat_percent_bonus"
-magnitude = 3.0
+magnitude = 2.0

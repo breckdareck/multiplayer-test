@@ -71,10 +71,12 @@ Player (MultiplayerPlayerV2)
     │                               Reconcile guard (PR 6):
     │                               reconcile_ability_points() recomputes each
     │                               pool from first principles — granted
-    │                               (mastery_level * 3) minus spent (levels
-    │                               above the free starter baseline + owned
-    │                               upgrade costs) = unused — and corrects any
-    │                               drift either way. Called at the end of
+    │                               (mastery_level * ABILITY_POINTS_PER_MASTERY_LEVEL,
+    │                               6 since the 2026-05-28 balance pass) minus
+    │                               spent (levels above the free starter baseline
+    │                               + owned upgrade costs) = unused — and corrects
+    │                               any drift either way (so a grant-constant
+    │                               change is retroactive on load). Called at end of
     │                               load_abilities (do_sync=false during load;
     │                               the post-load sync_all_abilities_to_client
     │                               carries the corrected pools to the client).
