@@ -50,9 +50,16 @@ Player (MultiplayerPlayerV2)
     │                               point cost) / purchase_upgrade (client→RPC,
     │                               server-auth spend from the discipline pool).
     │                               Round-trips via save_abilities under
-    │                               `learned_ability_upgrades`. AL_*.gd read
-    │                               state via has_upgrade(); see the hook
-    │                               section below.
+    │                               `learned_ability_upgrades` (backend column
+    │                               of the same name, PR 6). Effect reads:
+    │                               ability_has_upgrade_effect(id, effect_key)
+    │                               + get_ability_upgrade_magnitude(id, key)
+    │                               (per-ability) + get_total_upgrade_magnitude(
+    │                               key) (player-wide). Generic effect_keys are
+    │                               consumed by AbilityComponent itself
+    │                               (e.g. "cooldown_flat_reduction" in
+    │                               _consume_ability_resources); ability-specific
+    │                               keys are read by AL_*.gd. See hook section.
     ├── WeaponMastery weapon_mastery.gd - Per-discipline mastery levels + XP (PR 2)
     │                                     mastery_data: {sword/bow/staff/dagger →
     │                                     {level, xp}}. Drives STR/DEX/INT/LUK
