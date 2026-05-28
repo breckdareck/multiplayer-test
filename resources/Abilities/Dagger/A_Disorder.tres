@@ -80,6 +80,7 @@ required_weapon_types = Array[int]([3])
 prerequisite_abilities = Dictionary[ExtResource("2_diso2"), int]({
 ExtResource("9_diso1"): 5
 })
+upgrades = null
 active_behavior = SubResource("Resource_diso1")
 applies_target_debuff = ExtResource("11_diso1")
 debuff_duration_formula = SubResource("Resource_diso9")

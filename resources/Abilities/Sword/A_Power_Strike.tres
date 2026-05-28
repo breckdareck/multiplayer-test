@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://bstguvwrql18p" path="res://assets/sprites/Abilities/power_strike.png" id="1_v0yfe"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_vuhxl"]
-[ext_resource type="Script" uid="uid://bpstrkcombofin" path="res://scripts/Abilities/AL_PowerStrike.gd" id="3_pstrk"]
+[ext_resource type="Script" uid="uid://dfxchnnli8wfh" path="res://scripts/Abilities/AL_PowerStrike.gd" id="3_pstrk"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_hhglo"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="6_pdrvi"]
 [ext_resource type="Resource" uid="uid://ccxoh5fmx317x" path="res://resources/Abilities/Sword/A_Slash.tres" id="6_v0yfe"]
@@ -72,5 +72,6 @@ required_weapon_types = Array[int]([0])
 prerequisite_abilities = Dictionary[ExtResource("4_hhglo"), int]({
 ExtResource("6_v0yfe"): 5
 })
+upgrades = null
 active_behavior = SubResource("Resource_pdrvi")
 scaling_data = SubResource("Resource_4al8t")

@@ -77,6 +77,7 @@ required_weapon_types = Array[int]([0])
 prerequisite_abilities = Dictionary[ExtResource("2_26017"), int]({
 ExtResource("9_slash"): 1
 })
+upgrades = null
 active_behavior = SubResource("Resource_1gbs7")
 applies_buff = ExtResource("4_b8raq")
 buff_duration_formula = SubResource("Resource_ddpfy")

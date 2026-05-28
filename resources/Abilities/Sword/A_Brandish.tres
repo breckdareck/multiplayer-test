@@ -1,8 +1,8 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=19 format=3 uid="uid://ctuuha6kutnms"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=18 format=3 uid="uid://ctuuha6kutnms"]
 
 [ext_resource type="Texture2D" uid="uid://blsf4bd1u7syc" path="res://assets/sprites/Abilities/Brandish.png" id="1_wr37i"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_xjwtl"]
-[ext_resource type="Script" uid="uid://bbrandcombobldr" path="res://scripts/Abilities/AL_Brandish.gd" id="3_brand"]
+[ext_resource type="Script" path="res://scripts/Abilities/AL_Brandish.gd" id="3_brand"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="4_4i2r3"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="5_8ypyu"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="6_ox4m6"]
@@ -86,5 +86,6 @@ required_weapon_types = Array[int]([0])
 prerequisite_abilities = Dictionary[ExtResource("7_qsco8"), int]({
 ExtResource("8_slash"): 3
 })
+upgrades = null
 active_behavior = SubResource("Resource_j17xh")
 scaling_data = SubResource("Resource_pyj0a")
