@@ -43,6 +43,14 @@ through `scripts/Networking/network_manager.gd`.
   authoritative pools live in the JSONB column. NULL on legacy rows; the
   save handler distributes the legacy int evenly into all four pools (with
   remainder going to the player's starting discipline) on first save.
+- `Player.learned_ability_upgrades` (PR 6) is a **JSONB blob** keyed by
+  `ability_id`, values are arrays of purchased `upgrade_id` strings:
+  `{"<ability_id>": ["cc_t1_razor_edge", "cc_t3_razor_wind"]}`. Wholesale —
+  Godot's `AbilityComponent` owns the shape (`save_abilities` writes the whole
+  map under the `abilities.learned_ability_upgrades` key; `load_abilities`
+  replaces it). NULL on legacy rows → empty dict → no upgrades. Like the other
+  ability columns it rides inside the `data['abilities']` save blob but is
+  destructured into its own column (the blob is NOT stored verbatim).
 
 ## Conventions
 

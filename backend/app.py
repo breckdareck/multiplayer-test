@@ -86,6 +86,11 @@ class Player(db.Model):
     # NULL on existing rows → loads as an empty dict in Godot, which
     # _ensure_default_disciplines fills in with four zero-state entries.
     weapon_mastery = db.Column(JSONB, nullable=True)
+    # PR 6: per-ability purchased upgrades. { ability_id: [upgrade_id, ...] }.
+    # Wholesale blob owned by Godot's AbilityComponent (save_abilities writes
+    # the whole map; load_abilities replaces it). NULL on existing rows →
+    # loads as empty dict → no upgrades, matching pre-PR-6 behavior.
+    learned_ability_upgrades = db.Column(JSONB, nullable=True)
 
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
@@ -440,6 +445,9 @@ def load_player():
             'available_points': player.ability_points if player.ability_points is not None else 0,
             'available_points_per_discipline': player.ability_points_per_discipline or {},
             'ability_levels': ability_levels,
+            # PR 6: purchased per-ability upgrades. Empty dict on rows that
+            # predate the column → Godot's empty default (no upgrades).
+            'learned_ability_upgrades': player.learned_ability_upgrades or {},
             'hotbar_config': hotbar_config
         }
         
@@ -637,6 +645,12 @@ def save_player():
                     "dagger": base,
                 }
 
+            # PR 6: persist purchased per-ability upgrades wholesale. Godot
+            # owns the shape ({ability_id: [upgrade_id, ...]}); we store it
+            # verbatim. Absent key (older clients) leaves the column untouched.
+            if 'learned_ability_upgrades' in ab_data:
+                player.learned_ability_upgrades = ab_data.get('learned_ability_upgrades') or {}
+
             # Smart sync abilities
             incoming_abilities = ab_data.get('ability_levels', {})
             existing_abilities = {a.ability_id: a for a in player.abilities}
@@ -757,6 +771,9 @@ def _run_migrations():
         # which stays populated as a fallback for one release.
         ("players", "ability_points_per_discipline",
          "ALTER TABLE players ADD COLUMN ability_points_per_discipline JSONB"),
+        # PR 6: per-ability purchased upgrades. { ability_id: [upgrade_id,...] }.
+        ("players", "learned_ability_upgrades",
+         "ALTER TABLE players ADD COLUMN learned_ability_upgrades JSONB"),
     ]
     for table, column, sql in migrations:
         try:
