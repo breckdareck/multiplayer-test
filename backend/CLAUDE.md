@@ -16,7 +16,14 @@ through `scripts/Networking/network_manager.gd`.
 `PlayerHotbar`, `PlayerBuff`.
 
 - **`Player.username` is the character name**, and is globally unique. The child
-  tables foreign-key to it by `player_username` — not by the integer `id`.
+  tables foreign-key to it by `player_username` (not the integer `id`), now with
+  `ON DELETE CASCADE` so deleting a player row cleans up its children at the DB
+  level instead of erroring. `Player.account_id` is indexed
+  (`idx_players_account_id`) for the character-select query.
+- **`Player.is_bot`** is a boolean discriminator. Bot characters share the player
+  save shape, so they live in `players` with `is_bot = true` (single-table
+  inheritance) rather than a separate table. Backfilled from the `__bots__`
+  account; stamped on the bot-row-creation path in `save_player`.
 - `PlayerItem` / `PlayerEquipment` store items **slim**: `item_path` (the canonical
   `.tres`), `item_id`, `quantity`, and a `variant` JSONB blob for per-instance rolls
   (random stats, crafting). Static fields are re-derived in Godot from the `.tres`.
@@ -43,14 +50,16 @@ through `scripts/Networking/network_manager.gd`.
   authoritative pools live in the JSONB column. NULL on legacy rows; the
   save handler distributes the legacy int evenly into all four pools (with
   remainder going to the player's starting discipline) on first save.
-- `Player.learned_ability_upgrades` (PR 6) is a **JSONB blob** keyed by
-  `ability_id`, values are arrays of purchased `upgrade_id` strings:
-  `{"<ability_id>": ["cc_t1_razor_edge", "cc_t3_razor_wind"]}`. Wholesale —
-  Godot's `AbilityComponent` owns the shape (`save_abilities` writes the whole
-  map under the `abilities.learned_ability_upgrades` key; `load_abilities`
-  replaces it). NULL on legacy rows → empty dict → no upgrades. Like the other
-  ability columns it rides inside the `data['abilities']` save blob but is
-  destructured into its own column (the blob is NOT stored verbatim).
+- **Purchased ability upgrades (PR 6) live on `PlayerAbility.upgrades`** — a
+  per-ability JSONB array of `upgrade_id` strings (e.g.
+  `["cc_t1_razor_edge", "cc_t3_razor_wind"]`), co-located with the ability+level
+  row they belong to. NULL = no upgrades. On the wire they still travel as the
+  `abilities.learned_ability_upgrades` map keyed by `ability_id`: `load_player`
+  rebuilds that map from the per-ability columns and `save_player` destructures
+  it back onto each `PlayerAbility` row, so Godot's `AbilityComponent` is
+  unchanged. (Was a single `players.learned_ability_upgrades` blob before the
+  persistence-cleanup PR — relocated so an ability's level and upgrades share one
+  row, cascade-clean and uniqueness-enforced.)
 
 ## Conventions
 
@@ -58,14 +67,19 @@ through `scripts/Networking/network_manager.gd`.
   return `jsonify(...), <status>`. POST is used for almost everything, reads included.
 - **No Alembic.** Schema changes go in `_run_migrations()` in `app.py` — an
   idempotent list of `ALTER TABLE` statements, each guarded by a probe `SELECT`. Add
-  new columns there; it runs on every `init_db()`.
+  new columns there; it runs on every `init_db()`. `_check_schema_drift()` runs
+  right after and logs a `SCHEMA_DRIFT` warning when model columns and live DB
+  columns diverge — catches a stale process running an older schema than `app.py`.
 - **Save concurrency**: `/api/player/save` takes a per-player lock
   (`get_player_lock`) so two saves for one character cannot interleave.
-- **Smart-sync**: the save endpoint diffs incoming vs. existing rows by slot and
-  insert/update/deletes — it does not blindly replace. Match that when extending it.
+- **Smart-sync**: the save endpoint diffs incoming vs. existing rows by key and
+  insert/update/deletes — it does not blindly replace. All five child tables go
+  through one `_sync_child_rows(model, existing_by_key, desired_by_key)` helper;
+  build a `{key: {column: value}}` desired-dict and call it. Match that when
+  extending it.
 - **Bots**: bot characters have no account, so they are all owned by one shared
   `__bots__` account (`account_id` is `NOT NULL`). `save_player` accepts an `is_bot`
-  flag to create a bot's `Player` row on the fly.
+  flag to create a bot's `Player` row on the fly and stamp the `is_bot` column.
 
 ## Adding an endpoint
 
