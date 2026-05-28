@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://ccu1razoredge"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "cc_t1_razor_edge"
+upgrade_name = "Razor Edge"
+description = "Reduces Crescent Cleave's cooldown by 1 second."
+point_cost = 1
+tier = 1
+variant_group = ""
+effect_key = "cooldown_flat_reduction"
+magnitude = 1.0

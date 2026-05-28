@@ -46,19 +46,26 @@ extends Resource
 ## Empty string = stacks freely with any other (T1, T2, and most passives).
 @export var variant_group: String = ""
 
-## Effect identifier the AL_*.gd scripts dispatch on. The script's effect
-## handler reads `has_upgrade(ability_id, upgrade_id)` and conditionally
-## applies behavior matching this key.
+## Effect identifier that consuming code dispatches on. Two interpretation
+## sites:
+##  - AbilityComponent interprets a small set of GENERIC keys that affect
+##    shared systems: "cooldown_flat_reduction" (magnitude = seconds),
+##    "combo_cap_bonus" (magnitude = +cap, player-wide sum).
+##  - The ability's AL_*.gd interprets ability-SPECIFIC keys via
+##    ability_has_upgrade_effect() / get_ability_upgrade_magnitude():
+##    e.g. "aoe_bleed_on_hit", "knockdown_on_hit",
+##    "combo_coefficient_override" (magnitude = per-point multiplier).
 ##
-## Convention: lowercase snake_case, scoped by ability where ambiguous.
-## Examples:
-##   "cooldown_minus_1s", "combo_cap_plus_1", "defense_pen_15",
-##   "bloodletting_aoe_bleed", "razor_wind_combo_coefficient_double",
-##   "decapitate_low_hp_execute", "vampire_basic_lifesteal"
-##
-## Picking a clear set of effect_keys early avoids string-match drift across
-## AL scripts later.
+## Convention: lowercase snake_case. Keep the generic-key set small and
+## documented in AbilityComponent so the cross-system effects stay legible.
 @export var effect_key: String = ""
+
+## Numeric parameter for the effect — its meaning depends on effect_key
+## (cooldown seconds, combo-cap delta, coefficient value, bleed duration,
+## stun seconds, ...). Consuming code reads this via the AbilityComponent
+## magnitude helpers. General-purpose, not effect-specific, so it isn't the
+## "bool flag for a subset" anti-pattern — most upgrades carry one number.
+@export var magnitude: float = 0.0
 
 
 func _init() -> void:

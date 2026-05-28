@@ -588,10 +588,13 @@ func _consume_ability_resources(ability_id: String, level_stats: AbilityLevelDat
 		var modified_mana_cost = roundi(level_stats.mana_cost * get_ability_mana_modifier(ability_id))
 		_mana_component.current_mana -= modified_mana_cost
 	
-	# Start cooldown
+	# Start cooldown. PR 6: subtract any flat cooldown reduction from owned
+	# upgrades (effect_key "cooldown_flat_reduction", magnitude = seconds)
+	# AFTER the multiplicative passive modifier, clamped to >= 0.
 	var modified_cooldown = level_stats.cooldown_time * get_ability_cooldown_modifier(ability_id)
+	modified_cooldown = maxf(0.0, modified_cooldown - get_ability_upgrade_magnitude(ability_id, "cooldown_flat_reduction"))
 	_cooldowns[ability_id] = modified_cooldown
-	
+
 	return modified_cooldown
 
 #endregion
@@ -1385,6 +1388,46 @@ func has_upgrade(ability_id: String, upgrade_id: String) -> bool:
 ## Returns a copy of the purchased upgrade ids for an ability (never null).
 func get_learned_upgrades(ability_id: String) -> Array:
 	return (_learned_upgrades.get(ability_id, []) as Array).duplicate()
+
+
+## True if ANY owned upgrade on this ability carries the given effect_key.
+## AL_*.gd scripts use this for boolean effects (bleed-on-hit, knockdown, ...).
+func ability_has_upgrade_effect(ability_id: String, effect_key: String) -> bool:
+	var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
+	if ability == null:
+		return false
+	for owned_id in _learned_upgrades.get(ability_id, []):
+		var up: AbilityUpgradeData = _find_upgrade(ability, owned_id)
+		if up != null and up.effect_key == effect_key:
+			return true
+	return false
+
+
+## Sums the `magnitude` of owned upgrades on THIS ability with the given
+## effect_key. Used for ability-scoped numeric effects (combo coefficient
+## override, bleed duration, ...). Returns 0.0 if none.
+func get_ability_upgrade_magnitude(ability_id: String, effect_key: String) -> float:
+	var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
+	if ability == null:
+		return 0.0
+	var total: float = 0.0
+	for owned_id in _learned_upgrades.get(ability_id, []):
+		var up: AbilityUpgradeData = _find_upgrade(ability, owned_id)
+		if up != null and up.effect_key == effect_key:
+			total += up.magnitude
+	return total
+
+
+## Sums the `magnitude` of owned upgrades across ALL abilities with the given
+## effect_key. Used for player-wide effects whose source ability shouldn't
+## matter to the consumer (e.g. SwordComboComponent's combo-cap bonus —
+## "combo_cap_bonus" — so the combo component never needs to know which
+## ability's upgrade granted it).
+func get_total_upgrade_magnitude(effect_key: String) -> float:
+	var total: float = 0.0
+	for ability_id in _learned_upgrades:
+		total += get_ability_upgrade_magnitude(ability_id, effect_key)
+	return total
 
 
 ## Finds an AbilityUpgradeData by id within an ability's upgrade list.

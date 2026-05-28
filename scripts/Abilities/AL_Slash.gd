@@ -47,9 +47,27 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 		return
 
 	var current_count: int = int(combo_comp.get_combo_count())
-	# 0 combo → multiplier 1.0 (no bonus). 3 combo → 1.75 (+75%). Tunable
-	# via SwordComboComponent.COMBO_DAMAGE_PER_POINT.
-	var multiplier: float = 1.0 + float(current_count) * SwordComboComponent.COMBO_DAMAGE_PER_POINT
+
+	# Per-combo-point coefficient. Default is the shared sword constant; the
+	# PR 6 "Razor Wind" upgrade (effect_key "combo_coefficient_override")
+	# replaces it with its magnitude (e.g. 2.0/pt → 7× at 3 combo).
+	var per_point: float = SwordComboComponent.COMBO_DAMAGE_PER_POINT
+	var ability_comp = _owner_node.get("ability_component")
+	if ability_comp and _ability != null:
+		if ability_comp.ability_has_upgrade_effect(_ability.ability_id, "combo_coefficient_override"):
+			per_point = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "combo_coefficient_override")
+
+	# 0 combo → multiplier 1.0 (no bonus). With the default 1.0/pt, 3 combo
+	# → 4.0×. Razor Wind (2.0/pt) → 7.0× at 3 combo.
+	var multiplier: float = 1.0 + float(current_count) * per_point
+
+	# PR 6 "Deep Cuts" upgrade (effect_key "bonus_damage_mult"): flat additive
+	# damage% on top of the combo multiplier (e.g. +0.25 = +25%). Stacks
+	# multiplicatively with the combo bonus.
+	if ability_comp and _ability != null:
+		var bonus: float = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_damage_mult")
+		if bonus != 0.0:
+			multiplier *= (1.0 + bonus)
 
 	# Stage the multiplier — CombatComponent.calculate_ability_damage reads it
 	# on the next damage roll, and CombatComponent.end_ability_attack resets

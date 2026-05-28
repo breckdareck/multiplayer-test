@@ -473,6 +473,7 @@ func _register_commands() -> void:
 	_register("revive", "revive [@target]", _cmd_revive, _complete_target_first)
 	_register("level", "level [@target] [n] — no n: +1 level", _cmd_level, _complete_target_first)
 	_register("mastery", "mastery [@target] <sword|bow|staff|dagger|0-3> [n=1] — grants enough XP to level that discipline's mastery N times.", _cmd_mastery, _complete_mastery)
+	_register("upgrade", "upgrade list | upgrade buy <upgrade_id> — PR 6 ability-upgrade testing (host-only).", _cmd_upgrade)
 	_register("give", "give [@target] <item_name> [count=1]", _cmd_give, _complete_give)
 	_register("gold", "gold [@target] <amount> — negative subtracts", _cmd_gold, _complete_target_first)
 	_register("tp", "tp [@target] <map> | tp [@target] <x> <y>", _cmd_tp, _complete_tp)
@@ -828,6 +829,58 @@ func _parse_discipline_arg(s: String) -> int:
 		"staff": return Constants.ClassType.STAFF
 		"dagger": return Constants.ClassType.DAGGER
 	return -1
+
+
+## upgrade list | upgrade buy <upgrade_id> — PR 6 ability-upgrade testing.
+## Operates on the local player. Host-only (purchase is server-authoritative).
+func _cmd_upgrade(args: Array) -> String:
+	if not multiplayer.is_server():
+		return "[color=#ff8888]upgrade is host-only (server-authoritative).[/color]"
+	var p: Node = _local_player()
+	if not is_instance_valid(p) or not is_instance_valid(p.ability_component):
+		return "(no ability component)"
+	var ac = p.ability_component
+
+	var sub: String = String(args[0]).to_lower() if not args.is_empty() else "list"
+
+	if sub == "list":
+		var lines: PackedStringArray = ["[b]Ability upgrades[/b] (learned abilities only):"]
+		for ability_id in ResourceManager.ability_data:
+			var ability: AbilityData = ResourceManager.ability_data[ability_id]
+			if ability == null or ability.upgrades == null or ability.upgrades.is_empty():
+				continue
+			# Only show abilities the player has learned (level >= 1).
+			if int(ac.get_ability_level(ability_id) if ac.has_method("get_ability_level") else 0) <= 0:
+				continue
+			lines.append("[color=#e6c95c]%s[/color]:" % ability.ability_name)
+			for up in ability.upgrades:
+				if up == null:
+					continue
+				var status: String = "owned" if ac.has_upgrade(ability_id, up.upgrade_id) else "T%d %dpt" % [up.tier, up.point_cost]
+				lines.append("  %s  [color=#9fcaff]%s[/color]  (%s)" % [up.upgrade_id, up.upgrade_name, status])
+		if lines.size() == 1:
+			lines.append("  (none — learn a sword ability with upgrades first, e.g. Crescent Cleave)")
+		return "\n".join(lines)
+
+	if sub == "buy":
+		if args.size() < 2:
+			return "Usage: upgrade buy <upgrade_id>"
+		var upgrade_id: String = String(args[1])
+		# Resolve the owning ability by scanning all abilities for the id.
+		for ability_id in ResourceManager.ability_data:
+			var ability: AbilityData = ResourceManager.ability_data[ability_id]
+			if ability == null or ability.upgrades == null:
+				continue
+			for up in ability.upgrades:
+				if up != null and up.upgrade_id == upgrade_id:
+					var check: Dictionary = ac.can_purchase_upgrade(ability_id, upgrade_id)
+					if not check.ok:
+						return "[color=#ff8888]Cannot buy '%s': %s[/color]" % [upgrade_id, String(check.reason)]
+					ac.purchase_upgrade(ability_id, upgrade_id)
+					return "Purchased [color=#9fcaff]%s[/color] on %s." % [up.upgrade_name, ability.ability_name]
+		return "[color=#ff8888]Unknown upgrade_id '%s'.[/color]" % upgrade_id
+
+	return "Usage: upgrade list | upgrade buy <upgrade_id>"
 
 
 func _discipline_label(disc: int) -> String:
