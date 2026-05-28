@@ -77,11 +77,10 @@ class Player(db.Model):
     # the four disciplines on the Godot side (with the remainder going to the
     # character's starting discipline).
     ability_points_per_discipline = db.Column(JSONB, nullable=True)
-    # QuestManager.save_quests blob: {active, completed, onboarded}. Stored as a
-    # single JSONB column since quests are only ever read/written wholesale per
-    # character — no piecemeal queries — and the schema evolves freely on the
-    # Godot side.
-    quests = db.Column(JSONB, nullable=True)
+    # Per-player onboarding flag (formerly part of the quests blob). Quest
+    # progress itself now lives in the relational `player_quests` table, so a
+    # quest tick rewrites one row instead of a growing wholesale blob.
+    onboarded = db.Column(db.Boolean, nullable=False, server_default=db.text('false'), default=False)
     # PetManager save blob: {roster: [<pet records>], summoned: [<uuids>]}.
     # Same wholesale-only pattern as quests — pet records are dictionaries
     # whose shape is owned by Godot (see pet_manager.gd / docs/adr/0001).
@@ -105,6 +104,7 @@ class Player(db.Model):
     abilities = db.relationship('PlayerAbility', backref='player', cascade="all, delete-orphan", foreign_keys='PlayerAbility.player_username', primaryjoin="Player.username==PlayerAbility.player_username", passive_deletes=True)
     hotbar = db.relationship('PlayerHotbar', backref='player', cascade="all, delete-orphan", foreign_keys='PlayerHotbar.player_username', primaryjoin="Player.username==PlayerHotbar.player_username", passive_deletes=True)
     buffs = db.relationship('PlayerBuff', backref='player', cascade="all, delete-orphan", foreign_keys='PlayerBuff.player_username', primaryjoin="Player.username==PlayerBuff.player_username", passive_deletes=True)
+    quest_entries = db.relationship('PlayerQuest', backref='player', cascade="all, delete-orphan", foreign_keys='PlayerQuest.player_username', primaryjoin="Player.username==PlayerQuest.player_username", passive_deletes=True)
 
 # Items are stored slim: only instance-specific data. All static fields (name,
 # icon, type, base stats, etc.) are re-derived from the canonical .tres on the
@@ -178,6 +178,27 @@ class PlayerBuff(db.Model):
     duration = db.Column(db.Float)
     total_duration = db.Column(db.Float, default=0)
     stacks = db.Column(db.Integer, default=1)
+
+# Quest progress, one row per (player, quest). Splitting active vs. completed
+# into rows means a quest-progress tick updates a single row instead of
+# rewriting a growing {active, completed, tracked} blob on the players row.
+class PlayerQuest(db.Model):
+    __tablename__ = 'player_quests'
+    __table_args__ = (
+        db.Index('idx_playerquest_username', 'player_username'),
+        db.UniqueConstraint('player_username', 'quest_id', name='uq_playerquest_id'),
+    )
+    id = db.Column(db.Integer, primary_key=True)
+    player_username = db.Column(db.String(255), db.ForeignKey('players.username', ondelete='CASCADE'))
+    quest_id = db.Column(db.String(255))
+    # 'active' | 'completed'. Active rows carry objective progress; completed
+    # rows are stable history that no longer gets rewritten on each tick.
+    status = db.Column(db.String(16))
+    # Objective progress for active quests: {objective_index: count}. NULL once
+    # completed. Keys arrive as JSON strings; QuestManager re-ints them on load.
+    progress = db.Column(JSONB, nullable=True)
+    # UI pin state (a small subset of active quests).
+    tracked = db.Column(db.Boolean, nullable=False, server_default=db.text('false'), default=False)
 
 # ==================== PER-PLAYER SAVE LOCKING ====================
 
@@ -429,6 +450,7 @@ def load_player():
         joinedload(Player.abilities),
         joinedload(Player.hotbar),
         joinedload(Player.buffs),
+        joinedload(Player.quest_entries),
     ).filter_by(username=username).first()
 
     if player:
@@ -498,9 +520,25 @@ def load_player():
             'active_buffs': active_buffs
         }
 
-        # Quest progress (active, completed, onboarded). QuestManager.load_quests
-        # treats an empty dict as "no save data" and falls through to defaults.
-        response_data['quests'] = player.quests or {}
+        # Quest progress — rebuild the {active, completed, tracked, onboarded}
+        # wire shape QuestManager.load_quests expects from the per-quest rows +
+        # the onboarded flag (was a single players.quests blob).
+        q_active = {}
+        q_completed = []
+        q_tracked = []
+        for q in player.quest_entries:
+            if q.status == 'completed':
+                q_completed.append(q.quest_id)
+            else:
+                q_active[q.quest_id] = q.progress or {}
+                if q.tracked:
+                    q_tracked.append(q.quest_id)
+        response_data['quests'] = {
+            'active': q_active,
+            'completed': q_completed,
+            'tracked': q_tracked,
+            'onboarded': player.onboarded,
+        }
 
         # Pet roster — flatten the {roster, summoned} blob back into the two
         # top-level keys the Godot player save expects.
@@ -678,11 +716,31 @@ def save_player():
                 )
             _sync_child_rows(PlayerBuff, {b.buff_id: b for b in player.buffs}, desired_buffs)
 
-        # Quests — opaque JSONB blob shaped by QuestManager.save_quests on the
-        # Godot side. Only update if the client sent it (partial saves like
-        # "stats"-only never include it), so we don't blank out the column.
+        # Quests — destructure the {active, completed, tracked, onboarded} wire
+        # shape into per-quest rows + the onboarded flag. Only when the client
+        # sent it (partial saves never include it), so we don't wipe progress.
         if 'quests' in data and isinstance(data['quests'], dict):
-            player.quests = data['quests']
+            q = data['quests']
+            player.onboarded = bool(q.get('onboarded', False))
+            tracked_set = {str(t) for t in (q.get('tracked', []) or [])}
+            desired_quests = {}
+            for qid, progress in (q.get('active', {}) or {}).items():
+                desired_quests[str(qid)] = dict(
+                    player_username=username,
+                    quest_id=str(qid),
+                    status='active',
+                    progress=progress,
+                    tracked=(str(qid) in tracked_set),
+                )
+            for qid in (q.get('completed', []) or []):
+                desired_quests[str(qid)] = dict(
+                    player_username=username,
+                    quest_id=str(qid),
+                    status='completed',
+                    progress=None,
+                    tracked=False,
+                )
+            _sync_child_rows(PlayerQuest, {pq.quest_id: pq for pq in player.quest_entries}, desired_quests)
 
         # Pets — Godot sends the roster as the flat 'pets' top-level key plus
         # 'summoned_pet_ids' (see multiplayer_controller_v2.get_save_data). We
@@ -780,7 +838,6 @@ def _run_migrations():
         ("player_buffs", "total_duration", "ALTER TABLE player_buffs ADD COLUMN total_duration FLOAT DEFAULT 0"),
         ("player_items", "variant", "ALTER TABLE player_items ADD COLUMN variant JSONB"),
         ("player_equipment", "variant", "ALTER TABLE player_equipment ADD COLUMN variant JSONB"),
-        ("players", "quests", "ALTER TABLE players ADD COLUMN quests JSONB"),
         ("players", "pets",   "ALTER TABLE players ADD COLUMN pets JSONB"),
         # PR 2 of the weapon-identity-overhaul: per-discipline mastery.
         # Shape is {sword: {level, xp}, bow: {...}, staff: {...}, dagger: {...}}.
@@ -797,6 +854,10 @@ def _run_migrations():
          "ALTER TABLE player_abilities ADD COLUMN upgrades JSONB"),
         ("players", "is_bot",
          "ALTER TABLE players ADD COLUMN is_bot BOOLEAN NOT NULL DEFAULT FALSE"),
+        # Quests relocated to the player_quests table; onboarded is the only
+        # per-player quest field that stays on the players row.
+        ("players", "onboarded",
+         "ALTER TABLE players ADD COLUMN onboarded BOOLEAN NOT NULL DEFAULT FALSE"),
     ]
     for table, column, sql in migrations:
         try:
@@ -884,6 +945,46 @@ def _run_migrations():
             db.session.rollback()
             print(f"Migration: learned_ability_upgrades relocation failed: {e}")
 
+    # Relocate the players.quests blob ({active, completed, tracked, onboarded})
+    # into relational player_quests rows + the players.onboarded flag, then drop
+    # the blob. Splitting active/completed into rows avoids rewriting a growing
+    # completed-quest list on every quest tick.
+    try:
+        db.session.execute(db.text("SELECT quests FROM players LIMIT 1"))
+        _has_quests_blob = True
+    except Exception:
+        db.session.rollback()
+        _has_quests_blob = False
+    if _has_quests_blob:
+        try:
+            print("Migration: backfilling player_quests + players.onboarded from players.quests")
+            db.session.execute(db.text(
+                "UPDATE players SET onboarded = COALESCE((quests ->> 'onboarded')::boolean, false) "
+                "WHERE quests IS NOT NULL"
+            ))
+            db.session.execute(db.text(
+                "INSERT INTO player_quests (player_username, quest_id, status, progress, tracked) "
+                "SELECT p.username, kv.key, 'active', kv.value, "
+                "       COALESCE(jsonb_exists(p.quests -> 'tracked', kv.key), false) "
+                "FROM players p, jsonb_each(p.quests -> 'active') kv "
+                "WHERE p.quests IS NOT NULL AND jsonb_typeof(p.quests -> 'active') = 'object' "
+                "ON CONFLICT (player_username, quest_id) DO NOTHING"
+            ))
+            db.session.execute(db.text(
+                "INSERT INTO player_quests (player_username, quest_id, status, progress, tracked) "
+                "SELECT p.username, ce.value #>> '{}', 'completed', NULL, false "
+                "FROM players p, jsonb_array_elements(p.quests -> 'completed') ce "
+                "WHERE p.quests IS NOT NULL AND jsonb_typeof(p.quests -> 'completed') = 'array' "
+                "ON CONFLICT (player_username, quest_id) DO NOTHING"
+            ))
+            db.session.commit()
+            print("Migration: dropping players.quests (moved into player_quests)")
+            db.session.execute(db.text("ALTER TABLE players DROP COLUMN quests"))
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            print(f"Migration: quests relocation failed: {e}")
+
     # Backfill the is_bot discriminator from the shared __bots__ account.
     try:
         db.session.execute(db.text(
@@ -946,7 +1047,7 @@ def _run_migrations():
     # Give every child FK ON DELETE CASCADE so deleting a player (or any
     # out-of-ORM delete) cleans up its rows at the DB level instead of erroring.
     for _tbl in ("player_items", "player_equipment", "player_abilities",
-                 "player_hotbar", "player_buffs"):
+                 "player_hotbar", "player_buffs", "player_quests"):
         _ensure_cascade_fk(_tbl)
 
 

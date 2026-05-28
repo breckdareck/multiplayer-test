@@ -33,7 +33,7 @@ const HTTP_POOL_SIZE: int = 8           # max concurrent in-flight saves
 # equipment changes queue an "inventory" save. There is no standalone equipment
 # producer in get_save_data, so a separate category would save an empty payload.
 const VALID_CATEGORIES: PackedStringArray = [
-	"stats", "inventory", "abilities", "buffs", "pets"
+	"stats", "inventory", "abilities", "buffs", "pets", "quests"
 ]
 
 var _api_url: String = ""  # Will be loaded from UserConfig

@@ -13,7 +13,7 @@ through `scripts/Networking/network_manager.gd`.
 ## Models
 
 `Account`, `Player`, `PlayerItem`, `PlayerEquipment`, `PlayerAbility`,
-`PlayerHotbar`, `PlayerBuff`.
+`PlayerHotbar`, `PlayerBuff`, `PlayerQuest`.
 
 - **`Player.username` is the character name**, and is globally unique. The child
   tables foreign-key to it by `player_username` (not the integer `id`), now with
@@ -30,9 +30,16 @@ through `scripts/Networking/network_manager.gd`.
 - `Player.last_map` defaults to `"town"` — new characters spawn at the Maple
   Town hub on first login. Existing rows from earlier defaults may need a one-off
   `UPDATE players SET last_map='town' WHERE last_map='game';` after pulling.
-- `Player.quests` is a single **JSONB blob** holding the whole `QuestManager.save_quests()`
-  payload: `{active, completed, onboarded}`. Quests are only ever read/written
-  wholesale per character, so there's no separate relational table for them.
+- **Quest progress lives in the `player_quests` table** — one row per
+  `(player, quest_id)` with `status` (`'active'`/`'completed'`), `progress` JSONB
+  (objective counters for active quests), and a `tracked` flag. The per-player
+  `onboarded` flag is a boolean column on `players`. On the wire it's still the
+  `{active, completed, tracked, onboarded}` shape `QuestManager` produces/consumes:
+  `load_player` rebuilds it from the rows + flag, `save_player` destructures it
+  back (Godot unchanged). Quests have their own `"quests"` save category, so a
+  quest-progress tick saves only quests — not a full `"all"` payload. (Was a
+  single `players.quests` blob before the persistence-cleanup PR; relocated so a
+  growing completed-quest list isn't rewritten on every tick.)
 - `Player.pets` is a single **JSONB blob** holding the pet roster:
   `{roster: [<pet records>], summoned: [<uuids>]}`. Same wholesale-only pattern
   as quests. On the wire, the save/load endpoints flatten this into two

@@ -713,7 +713,7 @@ func get_save_data(update_type: String = "all") -> Dictionary:
 		if is_instance_valid(buff_component):
 			data['buffs'] = buff_component.save_buffs()
 
-	if update_type == "all":
+	if update_type == "all" or update_type == "quests":
 		data['quests'] = QuestManager.save_quests(username)
 
 	if update_type == "all" or update_type == "pets":
