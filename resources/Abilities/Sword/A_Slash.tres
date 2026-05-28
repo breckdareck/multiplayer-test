@@ -64,7 +64,7 @@ metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
 [resource]
 script = ExtResource("4_7e1xr")
 ability_id = "04236384-15455-0589-12403-458981588111015"
-ability_name = "Slash"
+ability_name = "Crescent Cleave"
 description = "AOE finisher. Slashes $[target_count] enemies $[hit_count] time dealing $[damage_percent] damage. [color=#e6c95c]Consumes all combo points to amplify damage by +50% per point spent (max +150% at 3 combo).[/color]"
 ability_icon = ExtResource("1_ajojy")
 max_level = 20
