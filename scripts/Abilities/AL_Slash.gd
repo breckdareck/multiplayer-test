@@ -59,15 +59,9 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 
 	# 0 combo → multiplier 1.0 (no bonus). With the default 1.0/pt, 3 combo
 	# → 4.0×. Razor Wind (2.0/pt) → 7.0× at 3 combo.
+	# (Deep Cuts / "bonus_damage_mult" is applied generically in
+	# CombatComponent.calculate_ability_damage now — not staged here.)
 	var multiplier: float = 1.0 + float(current_count) * per_point
-
-	# PR 6 "Deep Cuts" upgrade (effect_key "bonus_damage_mult"): flat additive
-	# damage% on top of the combo multiplier (e.g. +0.25 = +25%). Stacks
-	# multiplicatively with the combo bonus.
-	if ability_comp and _ability != null:
-		var bonus: float = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_damage_mult")
-		if bonus != 0.0:
-			multiplier *= (1.0 + bonus)
 
 	# Stage the multiplier — CombatComponent.calculate_ability_damage reads it
 	# on the next damage roll, and CombatComponent.end_ability_attack resets

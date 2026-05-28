@@ -586,6 +586,8 @@ func _consume_ability_resources(ability_id: String, level_stats: AbilityLevelDat
 	# Consume mana
 	if _mana_component.current_mana:
 		var modified_mana_cost = roundi(level_stats.mana_cost * get_ability_mana_modifier(ability_id))
+		# PR 6: generic "mana_flat_reduction" upgrade (flat MP off, clamped >= 0).
+		modified_mana_cost = maxi(0, modified_mana_cost - int(get_ability_upgrade_magnitude(ability_id, "mana_flat_reduction")))
 		_mana_component.current_mana -= modified_mana_cost
 	
 	# Start cooldown. PR 6: subtract any flat cooldown reduction from owned
