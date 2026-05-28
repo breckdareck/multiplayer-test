@@ -9,7 +9,7 @@
 resource_local_to_scene = true
 script = ExtResource("1_script")
 buff_id = "14108320159-811714-18510-22127-881415515431114810"
-buff_name = "Meditation"
+buff_name = "Communion"
 description = "Increases MP regeneration and magic attack of all party members."
 buff_icon = ExtResource("1_58es0")
 duration = 30.0

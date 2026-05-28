@@ -9,6 +9,12 @@ const HORIZONTAL_HEIGHT_TOLERANCE: float = 33.0
 const DEBUG_DRAW: bool = true
 const DEBUG_DURATION: float = 3.0
 
+## Brief i-frame window after a successful blink — the mage's escape mirrors the
+## bow's Disengage / sword's Vault Strike pattern (contact damage / knockback
+## can't punish the reposition). Extendable via the "iframe_duration_bonus"
+## upgrade (Phaseguard T3 variant).
+const IFRAME_DURATION: float = 0.3
+
 func execute(owner_node: Node, _ability: AbilityData, level_stats: AbilityLevelData):
 	if not owner_node.multiplayer.is_server():
 		return
@@ -35,6 +41,34 @@ func execute(owner_node: Node, _ability: AbilityData, level_stats: AbilityLevelD
 	owner_node.global_position = destination
 	owner_node.move_and_slide()
 	print("%s teleported to %s (Level %d)" % [owner_node.name, destination, level_stats.level])
+
+	_grant_iframes(owner_node, _ability)
+
+
+## Grant a brief invulnerability window after the blink. Mirrors
+## AL_Disengage / AL_VaultStrike: set is_invulnerable directly and schedule a
+## one-shot clear, but only clear the flag if WE still own it (the
+## invulnerability_timer is stopped) so a take_damage() during the window keeps
+## its own (longer) invuln.
+func _grant_iframes(owner_node: Node, ability: AbilityData) -> void:
+	var health_comp = owner_node.get("health_component")
+	if health_comp == null or not is_instance_valid(health_comp):
+		return
+
+	var duration: float = IFRAME_DURATION
+	# Phase Step upgrade: "iframe_duration_bonus" (+s) extends the window.
+	var ability_comp = owner_node.get("ability_component")
+	if ability_comp and ability != null and ability_comp.has_method("get_ability_upgrade_magnitude"):
+		duration += ability_comp.get_ability_upgrade_magnitude(ability.ability_id, "iframe_duration_bonus")
+
+	health_comp.is_invulnerable = true
+	owner_node.get_tree().create_timer(duration).timeout.connect(
+		func():
+			if is_instance_valid(health_comp):
+				if not health_comp.invulnerability_timer.is_stopped():
+					return
+				health_comp.is_invulnerable = false
+	)
 
 
 func _try_horizontal_teleport(origin: Vector2, dir: int, space: PhysicsDirectSpaceState2D, mask: int, actor: Node) -> Vector2:

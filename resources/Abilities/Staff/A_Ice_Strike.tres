@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=18 format=3 uid="uid://icestrik001x"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://icestrik001x"]
 
 [ext_resource type="Texture2D" uid="uid://cq7r2r0v4dc42" path="res://assets/sprites/Abilities/ice_strike.png" id="1_l2dqg"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_icst1"]
@@ -8,6 +8,12 @@
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_icst1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_icst1"]
 [ext_resource type="Resource" uid="uid://magcbolt001x" path="res://resources/Abilities/Staff/A_Magic_Bolt.tres" id="9_icst1"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="10_aud"]
+[ext_resource type="Resource" uid="uid://stfu_gla1_deepfreeze" path="res://resources/Abilities/Staff/Upgrades/U_GLA_DeepFreeze.tres" id="11_df"]
+[ext_resource type="Resource" uid="uid://stfu_gla2_piercing" path="res://resources/Abilities/Staff/Upgrades/U_GLA_Piercing.tres" id="12_pc"]
+[ext_resource type="Resource" uid="uid://stfu_gla3_shatter" path="res://resources/Abilities/Staff/Upgrades/U_GLA_Shatter.tres" id="13_sh"]
+[ext_resource type="Resource" uid="uid://stfu_gla4_frostbite" path="res://resources/Abilities/Staff/Upgrades/U_GLA_Frostbite.tres" id="14_fb"]
+[ext_resource type="Resource" uid="uid://stfu_gla5_iceshards" path="res://resources/Abilities/Staff/Upgrades/U_GLA_IceShards.tres" id="15_is"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_icst1"]
 size = Vector2(120, 46)
@@ -30,7 +36,7 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_icst3"]
 script = ExtResource("6_icst1")
-base_value = 8.0
+base_value = 6.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_icst4"]
@@ -42,6 +48,7 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 [sub_resource type="Resource" id="Resource_icst5"]
 script = ExtResource("6_icst1")
 base_value = 16.0
+per_level = 0.6
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_icst6"]
@@ -67,17 +74,17 @@ metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
 [resource]
 script = ExtResource("2_icst1")
 ability_id = "9315195116108-10180-11141197-8591-12491086711491459"
-ability_name = "Ice Strike"
-description = "Launches a freezing bolt at $[target_count] enemy dealing $[damage_percent] magic damage."
+ability_name = "Glacial Spike"
+description = "Drives a spike of jagged ice into $[target_count] enemy, dealing $[damage_percent] magic damage. A heavy, deliberate strike."
 ability_icon = ExtResource("1_l2dqg")
-max_level = 10
+max_level = 20
 damage_stat = 13
 required_class = Array[int]([2])
 required_weapon_types = Array[int]([2])
 prerequisite_abilities = Dictionary[ExtResource("2_icst1"), int]({
 ExtResource("9_icst1"): 3
 })
-upgrades = null
+upgrades = Array[ExtResource("10_aud")]([ExtResource("11_df"), ExtResource("12_pc"), ExtResource("13_sh"), ExtResource("14_fb"), ExtResource("15_is")])
 active_behavior = SubResource("Resource_icst1")
 scaling_data = SubResource("Resource_icst8")
 metadata/_custom_type_script = "uid://b8y62rc8nb40j"

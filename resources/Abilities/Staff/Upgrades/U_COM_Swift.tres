@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://stfu_com5_swift"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "com_t3_swift"
+upgrade_name = "Swift Rite"
+description = "Reduces Communion's cooldown by 20 seconds."
+point_cost = 2
+tier = 3
+variant_group = "com_rite_variant"
+effect_key = "cooldown_flat_reduction"
+magnitude = 20.0
