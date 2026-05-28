@@ -9,6 +9,10 @@ var _node_cache: Dictionary = {}
 # State carried in-memory across a map change (player_id -> save-data dict),
 # set by MapManager.request_map_change so the respawn skips a backend reload.
 var _carried_state: Dictionary = {}
+# Guards the double-spawn on map change: set when _on_player_spawned consumes
+# carried state, checked so a redundant second spawn (host's client ACK)
+# doesn't stale-reload over the freshly-carried node. See _on_player_spawned.
+var _loaded_from_carry: Dictionary = {}
 var _load_http_request: HTTPRequest
 var _load_in_progress: bool = false
 # Computed property so a runtime change via UserConfig.set_backend_api_url(...)
@@ -141,6 +145,7 @@ func remove_player(id: int):
 		active_players.erase(id)
 	_node_cache.erase(id)
 	_carried_state.erase(id)
+	_loaded_from_carry.erase(id)
 
 
 func save_all_players() -> void:
@@ -705,10 +710,24 @@ func _on_player_spawned(player_id: int) -> void:
 	# On a map change the player's live state was carried over in memory — use
 	# it directly and skip the save-backend round-trip. An initial spawn has no
 	# carried state, so fall back to a real load from file/API.
+	#
+	# Map change fires _on_player_spawned TWICE for the host: once from
+	# MapManager.player_spawned (carries live state) and again from the host's
+	# own client spawn-ACK (client_player_spawned). The first consumes the
+	# carried state; without a guard the second would do a STALE backend
+	# reload that clobbers freshly-earned points + purchased upgrades. So:
+	# when we consume carried state, mark it; a subsequent spawn for the same
+	# player that finds no carried state skips the redundant reload entirely.
 	var player_data: Dictionary
 	if _carried_state.has(player_id):
 		player_data = _carried_state[player_id]
 		_carried_state.erase(player_id)
+		_loaded_from_carry[player_id] = true
+	elif _loaded_from_carry.get(player_id, false):
+		# Already initialized from carried state this spawn cycle — the node
+		# is live and correct. Don't reload stale data over it.
+		_loaded_from_carry.erase(player_id)
+		return
 	else:
 		player_data = await _load_player_data_async(username)
 

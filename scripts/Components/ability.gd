@@ -1195,7 +1195,6 @@ func save_abilities() -> Dictionary:
 		var v: int = int(_available_points_per_discipline[key])
 		per_disc_copy[key] = v
 		legacy_total += v
-	print("[Upgrades] save_abilities: _learned_upgrades=%s" % str(_learned_upgrades))
 	return {
 		"ability_levels": _ability_levels.duplicate(),
 		# PR 6: purchased per-ability upgrades. Deep-duplicated so the nested
@@ -1233,13 +1232,14 @@ func load_abilities(data: Dictionary) -> void:
 	for ability_id in saved_levels:
 		_ability_levels[ability_id] = saved_levels[ability_id]
 
-	# PR 6: restore purchased upgrades. Replace wholesale (not merge) — the
-	# saved map is authoritative for what's been bought. Missing key (older
-	# saves / backend without the column yet) leaves the empty default.
-	var saved_upgrades = data.get("learned_ability_upgrades", {})
-	print("[Upgrades] load_abilities: has_key=%s value=%s" % [str(data.has("learned_ability_upgrades")), str(saved_upgrades)])
-	if saved_upgrades is Dictionary:
-		_learned_upgrades = (saved_upgrades as Dictionary).duplicate(true)
+	# PR 6: restore purchased upgrades — but ONLY when the key is present.
+	# A load payload missing the key (a stale backend reload, an older save,
+	# or the backend before its column exists) must NOT wipe upgrades that a
+	# prior load already restored. Absent key => leave _learned_upgrades as-is.
+	if data.has("learned_ability_upgrades"):
+		var saved_upgrades = data.get("learned_ability_upgrades", {})
+		if saved_upgrades is Dictionary:
+			_learned_upgrades = (saved_upgrades as Dictionary).duplicate(true)
 
 	# PR 4: per-discipline pool migration. Defers to a helper so the priority
 	# order (new dict > legacy int > zeros) is documented in one place.
