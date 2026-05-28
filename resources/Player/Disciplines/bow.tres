@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="WeaponDisciplineData" load_steps=15 format=3 uid="uid://cx1em7dag4rai"]
+[gd_resource type="Resource" script_class="WeaponDisciplineData" load_steps=19 format=3 uid="uid://cx1em7dag4rai"]
 
 [ext_resource type="Script" uid="uid://buwbui1bka8vl" path="res://scripts/Resources/DisciplineSystem/WeaponDisciplineData.gd" id="1_eu6w6"]
 [ext_resource type="Texture2D" uid="uid://cdrrd25polg8u" path="res://assets/UI/archer_portrait.tres" id="1_v52w3"]
@@ -14,6 +14,10 @@
 [ext_resource type="Resource" uid="uid://bowsnipe0001x" path="res://resources/Abilities/Bow/A_Snipe.tres" id="12_avqjs"]
 [ext_resource type="Resource" uid="uid://bowkeeneye01x" path="res://resources/Abilities/Bow/A_Keen_Eye.tres" id="13_avqjs"]
 [ext_resource type="Resource" uid="uid://bowsurvinst01x" path="res://resources/Abilities/Bow/A_Survival_Instinct.tres" id="14_avqjs"]
+[ext_resource type="Resource" uid="uid://bowbarbedshot01x" path="res://resources/Abilities/Bow/A_Barbed_Shot.tres" id="15_avqjs"]
+[ext_resource type="Resource" uid="uid://bowlethality01x" path="res://resources/Abilities/Bow/A_Lethality.tres" id="16_avqjs"]
+[ext_resource type="Resource" uid="uid://bowdeepres01x" path="res://resources/Abilities/Bow/A_Deep_Reserves.tres" id="17_avqjs"]
+[ext_resource type="Resource" uid="uid://bowironhide01x" path="res://resources/Abilities/Bow/A_Iron_Hide.tres" id="18_avqjs"]
 
 [resource]
 script = ExtResource("1_eu6w6")
@@ -22,7 +26,7 @@ class_type = 1
 sprite_frames = Dictionary[int, SpriteFrames]({
 1: ExtResource("2_aqbok")
 })
-skills = Array[ExtResource("3_3scnm")]([ExtResource("5_avqjs"), ExtResource("6_avqjs"), ExtResource("7_avqjs"), ExtResource("8_avqjs"), ExtResource("9_avqjs"), ExtResource("10_avqjs"), ExtResource("11_avqjs"), ExtResource("12_avqjs"), ExtResource("13_avqjs"), ExtResource("14_avqjs")])
+skills = Array[ExtResource("3_3scnm")]([ExtResource("5_avqjs"), ExtResource("6_avqjs"), ExtResource("7_avqjs"), ExtResource("8_avqjs"), ExtResource("9_avqjs"), ExtResource("10_avqjs"), ExtResource("11_avqjs"), ExtResource("12_avqjs"), ExtResource("13_avqjs"), ExtResource("14_avqjs"), ExtResource("15_avqjs"), ExtResource("16_avqjs"), ExtResource("17_avqjs"), ExtResource("18_avqjs")])
 description = "A ranged fighter with exceptional dexterity and precision."
 icon = ExtResource("1_v52w3")
 primary_stat = 2

@@ -1,14 +1,14 @@
-[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://bowu_ke1_focused"]
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://bowu_ih1_thick"]
 
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
 
 [resource]
 script = ExtResource("1_aud")
-upgrade_id = "ke_t1_focused"
-upgrade_name = "Focused"
-description = "Increases Keen Eye's critical hit chance bonus by +1%."
+upgrade_id = "ih_t1_thick"
+upgrade_name = "Thick Skin"
+description = "Increases Iron Hide's Defense bonus by +2."
 point_cost = 1
 tier = 1
 variant_group = ""
 effect_key = "passive_stat_flat_bonus"
-magnitude = 1.0
+magnitude = 2.0
