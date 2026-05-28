@@ -60,6 +60,13 @@ Player (MultiplayerPlayerV2)
     │                                     cast time. Spam-cast in empty area =
     │                                     0 XP. Self-targeted buffs/heals that
     │                                     never reach _execute_hit also = 0 XP.
+    ├── SwordCombo sword_combo.gd - PR 5 sword signature: combo points (0-3).
+    │                               Basic-attack HITS build 1; finishers
+    │                               (Crescent Cleave / Sundering Blow) spend ALL
+    │                               via spend_combo(). Persists across Tab-swap,
+    │                               decays after 5s idle, resets if neither slot
+    │                               is a sword. Server-authoritative; mirrored to
+    │                               the owning client via sync_combo_to_client.
     ├── Buff       buff.gd        - timed buffs/debuffs, stacking, custom logic
     ├── Class      class.gd       - current_class = STARTING discipline (does NOT
     │                               change on weapon swap). Drives HP/MP curves.
@@ -101,3 +108,31 @@ Enemies (`EnemyBase`, `scripts/Enemy/enemy_base.gd`) reuse a subset — `Health`
 - **Bots**: a bot frees its entire UI subtree on spawn. Component code must guard
   UI-node access (`is_instance_valid(hotbar)`) and skip client-facing buff/ability
   sync RPCs for bot-owned characters (`BotManager.is_bot(owner.player_id)`).
+
+## Ability logic-script hooks (`AL_*.gd`)
+
+Per-ability behavior rides on optional methods of
+`AbilityData.active_behavior.logic_script` (and buff `BL_*.gd` on
+`BuffData.logic_script`) rather than new fields on the shared schemas — see
+the `logic_script_not_schema_field` memory. `CombatComponent` / `AbilityComponent`
+duck-type these methods (`has_method` before calling), so an AL script only
+implements the hooks it needs:
+
+- **`execute(owner, ability, level_stats)`** — fires once on cast, server-side.
+  Used for buff application (AL_PowerGuard, AL_BulwarkStance), combo spend
+  (AL_Slash, AL_PowerStrike), dash velocity (AL_VaultStrike). Note:
+  `AbilityData.applies_buff` is **metadata only** (UI/bots/pets read it) — the
+  actual `buff_component.apply_buff()` call must be made here.
+- **`on_hit(owner, target, ability)`** — fires per landed ability hit in
+  `combat.gd._execute_hit` (post-miss-check). Misses don't fire it. Used by
+  AL_Brandish (build combo per hit), AL_Hemorrhage (apply bleed), AL_VaultStrike.
+- **`on_kill(owner, target, ability_level)`** — fires for learned PASSIVES when an
+  enemy dies, dispatched by `AbilityComponent.dispatch_passive_event_on_kill`
+  (called from `combat.gd`'s kill pathway). Used by AL_Bloodthirst (heal on kill).
+- **`on_proc(owner, target, context)`** — proc-effect handler (ProcEffectData).
+
+**DOT kills** (e.g. Hemorrhage's bleed) bypass `_execute_hit`, so the AL script
+must replicate the kill side-effects itself (mastery XP + `on_kill` dispatch) —
+see `AL_Hemorrhage._credit_bleed_kill`. Character XP / quest credit come free via
+the enemy's own death handler reading `damage_by_player`, **provided the damage
+source is attributed** (pass the applier, not `null`, to `take_damage`).
