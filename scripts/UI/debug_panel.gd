@@ -472,6 +472,7 @@ func _register_commands() -> void:
 	_register("damage", "damage [@target] [amount=10]", _cmd_damage, _complete_target_first)
 	_register("revive", "revive [@target]", _cmd_revive, _complete_target_first)
 	_register("level", "level [@target] [n] — no n: +1 level", _cmd_level, _complete_target_first)
+	_register("mastery", "mastery [@target] <sword|bow|staff|dagger|0-3> [n=1] — grants enough XP to level that discipline's mastery N times.", _cmd_mastery, _complete_mastery)
 	_register("give", "give [@target] <item_name> [count=1]", _cmd_give, _complete_give)
 	_register("gold", "gold [@target] <amount> — negative subtracts", _cmd_gold, _complete_target_first)
 	_register("tp", "tp [@target] <map> | tp [@target] <x> <y>", _cmd_tp, _complete_tp)
@@ -771,6 +772,91 @@ func _cmd_level(args: Array) -> String:
 		if p.level_component.level == start and target_level > start: break
 		start = p.level_component.level
 	return "%s level %d -> %d." % [_target_label(t), start, p.level_component.level]
+
+
+## mastery [@target] <discipline> [n=1] — adds N mastery levels to a
+## specific discipline by granting just enough XP per loop iteration to
+## tick the level over. Routes through grant_mastery_xp_server so all the
+## downstream signals (mastery_level_changed → ability point grant, stat
+## recalc) fire naturally. Host-only because mastery XP grants are
+## server-authoritative.
+func _cmd_mastery(args: Array) -> String:
+	if not multiplayer.is_server():
+		return "[color=#ff8888]mastery is host-only (server-authoritative).[/color]"
+	var t := _resolve_target(args)
+	if not t.error.is_empty(): return t.error
+	var p: Node = t.node
+	if not is_instance_valid(p) or not is_instance_valid(p.weapon_mastery_component):
+		return "(no weapon mastery component)"
+	if t.remaining.is_empty():
+		return "Usage: mastery [@target] <sword|bow|staff|dagger|0-3> [n=1]"
+
+	var disc: int = _parse_discipline_arg(String(t.remaining[0]))
+	if disc < 0:
+		return "[color=#ff8888]Unknown discipline '%s'. Use sword/bow/staff/dagger or 0-3.[/color]" % String(t.remaining[0])
+
+	var n: int = 1
+	if t.remaining.size() >= 2:
+		var parsed: int = String(t.remaining[1]).to_int()
+		if parsed > 0:
+			n = parsed
+
+	var wm = p.weapon_mastery_component
+	var start_level: int = wm.get_mastery_level(disc)
+	for i in range(n):
+		var cur: int = wm.get_mastery_level(disc)
+		if cur >= WeaponMasteryComponent.MASTERY_CAP:
+			break
+		wm.grant_mastery_xp_server(disc, wm.get_xp_to_next_level(disc))
+	var end_level: int = wm.get_mastery_level(disc)
+	var disc_name: String = _discipline_label(disc)
+	return "%s %s mastery %d -> %d." % [_target_label(t), disc_name, start_level, end_level]
+
+
+## Parses a discipline argument from either a name (sword/bow/staff/dagger,
+## case-insensitive) or an int (0-3). Returns the ClassType enum value, or
+## -1 if unrecognized.
+func _parse_discipline_arg(s: String) -> int:
+	if s.is_valid_int():
+		var v: int = s.to_int()
+		if v >= 0 and v <= 3:
+			return v
+		return -1
+	match s.to_lower():
+		"sword": return Constants.ClassType.SWORD
+		"bow": return Constants.ClassType.BOW
+		"staff": return Constants.ClassType.STAFF
+		"dagger": return Constants.ClassType.DAGGER
+	return -1
+
+
+func _discipline_label(disc: int) -> String:
+	match disc:
+		Constants.ClassType.SWORD: return "Sword"
+		Constants.ClassType.BOW: return "Bow"
+		Constants.ClassType.STAFF: return "Staff"
+		Constants.ClassType.DAGGER: return "Dagger"
+	return "Unknown"
+
+
+## Completer for `mastery` command. Suggests discipline names after the
+## optional @target arg.
+func _complete_mastery(parts: PackedStringArray) -> PackedStringArray:
+	if parts.size() <= 1:
+		return PackedStringArray()
+	var prefix: String = parts[parts.size() - 1]
+	# If the previous arg is @target, we're completing the discipline. If not,
+	# we may be completing the discipline as the first non-target arg.
+	var prev: String = parts[parts.size() - 2] if parts.size() >= 2 else ""
+	var on_discipline_slot: bool = (parts.size() == 2) or (parts.size() == 3 and prev.begins_with("@"))
+	if not on_discipline_slot:
+		return PackedStringArray()
+	var candidates: PackedStringArray = PackedStringArray(["sword", "bow", "staff", "dagger"])
+	var matches: PackedStringArray = PackedStringArray()
+	for c in candidates:
+		if c.begins_with(prefix.to_lower()):
+			matches.append(c)
+	return matches
 
 
 func _cmd_give(args: Array) -> String:
