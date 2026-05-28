@@ -68,6 +68,17 @@ Player (MultiplayerPlayerV2)
     │                               pool(s), reset levels/upgrades. Shared
     │                               _refund_ability + _finalize_respec helpers.
     │                               Server-auth via respec_*_request RPCs.
+    │                               Reconcile guard (PR 6):
+    │                               reconcile_ability_points() recomputes each
+    │                               pool from first principles — granted
+    │                               (mastery_level * 3) minus spent (levels
+    │                               above the free starter baseline + owned
+    │                               upgrade costs) = unused — and corrects any
+    │                               drift either way. Called at the end of
+    │                               load_abilities (do_sync=false during load;
+    │                               the post-load sync_all_abilities_to_client
+    │                               carries the corrected pools to the client).
+    │                               Server-authoritative; a no-op when matched.
     ├── WeaponMastery weapon_mastery.gd - Per-discipline mastery levels + XP (PR 2)
     │                                     mastery_data: {sword/bow/staff/dagger →
     │                                     {level, xp}}. Drives STR/DEX/INT/LUK

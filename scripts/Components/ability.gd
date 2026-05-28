@@ -1267,6 +1267,13 @@ func load_abilities(data: Dictionary) -> void:
 			_cooldowns[ability_id] = remaining
 			cooldown_started.emit(ability_id, remaining)
 
+	# PR 6 safety net: verify the per-discipline pools match mastery level
+	# (granted = mastery_level * 3 = spent + unused) and correct any drift from
+	# a stale save / missed sync / legacy backend column. do_sync=false while
+	# loading — the post-load sync_all_abilities_to_client broadcasts the
+	# corrected pools to the owning client (player_manager._on_player_spawned).
+	reconcile_ability_points(not _loading_mode)
+
 	# Re-apply passives and update UI with loaded data
 	_apply_passive_effects()
 	if not _loading_mode:
@@ -1745,6 +1752,73 @@ func _discipline_starter_ability_id(disc_key: String) -> String:
 	if disc_data and disc_data.starter_ability:
 		return disc_data.starter_ability.ability_id
 	return ""
+
+
+## Safety net (PR 6): recompute each discipline's UNUSED point pool from first
+## principles and correct any drift. The invariant the player should never see
+## violated: a discipline's GRANTED points == mastery_level *
+## ABILITY_POINTS_PER_MASTERY_LEVEL, and granted == SPENT (levels above the
+## free starter baseline + owned-upgrade costs) + UNUSED. If a save round-trip,
+## a missed sync, or a stale/legacy backend column ever desyncs the unused
+## pool, this restores it — adding points that went missing or removing points
+## that shouldn't exist. Server-authoritative; clients take the corrected value
+## via the normal point sync. Called at the end of load_abilities.
+func reconcile_ability_points(do_sync: bool = true) -> void:
+	if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
+		return
+	if not is_instance_valid(_weapon_mastery_component):
+		return
+	var changed: Array[String] = []
+	for disc_key in DISCIPLINE_KEYS:
+		var class_type: int = _discipline_key_to_class_type(disc_key)
+		if class_type == -1:
+			continue
+		var granted: int = ABILITY_POINTS_PER_MASTERY_LEVEL * _weapon_mastery_component.get_mastery_level(class_type)
+		var spent: int = _points_spent_in_discipline(disc_key)
+		var expected: int = maxi(0, granted - spent)
+		var current: int = int(_available_points_per_discipline.get(disc_key, 0))
+		if current != expected:
+			push_warning("AbilityComponent: reconciled %s pool %d -> %d (granted=%d, spent=%d)" % [
+				disc_key, current, expected, granted, spent])
+			_available_points_per_discipline[disc_key] = expected
+			changed.append(disc_key)
+	if changed.is_empty():
+		return
+	for key in changed:
+		ability_points_changed.emit(key, int(_available_points_per_discipline[key]))
+	if do_sync and multiplayer.has_multiplayer_peer() and not BotManager.is_bot(owner.player_id):
+		sync_ability_points_per_discipline.rpc(_available_points_per_discipline.duplicate())
+
+
+## Non-mutating sum of points SPENT in a discipline: levels above each ability's
+## free baseline (1 for the discipline starter, else 0) + the point_cost of
+## every owned upgrade. Mirrors what _refund_ability would hand back, without
+## resetting anything.
+func _points_spent_in_discipline(disc_key: String) -> int:
+	var starter_id: String = _discipline_starter_ability_id(disc_key)
+	var spent: int = 0
+	for ability_id in _ability_levels:
+		var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
+		if ability == null or _ability_primary_discipline(ability) != disc_key:
+			continue
+		var baseline: int = 1 if ability_id == starter_id else 0
+		spent += maxi(0, int(_ability_levels[ability_id]) - baseline)
+		for owned_id in _learned_upgrades.get(ability_id, []):
+			var up: AbilityUpgradeData = _find_upgrade(ability, owned_id)
+			if up != null:
+				spent += up.point_cost
+	return spent
+
+
+## Inverse of _class_type_to_discipline_key, restricted to the four tier-1
+## disciplines (mastery is tracked per tier-1 discipline). -1 if unknown.
+func _discipline_key_to_class_type(disc_key: String) -> int:
+	match disc_key:
+		"sword": return Constants.ClassType.SWORD
+		"bow": return Constants.ClassType.BOW
+		"staff": return Constants.ClassType.STAFF
+		"dagger": return Constants.ClassType.DAGGER
+	return -1
 
 #endregion
 
