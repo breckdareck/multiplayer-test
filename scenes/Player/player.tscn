@@ -1,4 +1,4 @@
-[gd_scene load_steps=91 format=3 uid="uid://bdtdpx0d05sy3"]
+[gd_scene load_steps=92 format=3 uid="uid://bdtdpx0d05sy3"]
 
 [ext_resource type="Script" uid="uid://yibpus3whwuj" path="res://scripts/Player/multiplayer_controller_v2.gd" id="1_an8q1"]
 [ext_resource type="Script" uid="uid://cy1j38lpy671e" path="res://scripts/Player/multiplayer_input.gd" id="2_hxkm2"]
@@ -23,6 +23,7 @@
 [ext_resource type="Texture2D" uid="uid://7wc85wst4rwd" path="res://assets/UI/Right_button.png" id="16_ihqbe"]
 [ext_resource type="Script" uid="uid://d162wvxl3tos0" path="res://scripts/Player/StateMachine/attack.gd" id="17_e6s7e"]
 [ext_resource type="PackedScene" uid="uid://op5a1mqidavt" path="res://scenes/UI/hotbar.tscn" id="17_ploos"]
+[ext_resource type="PackedScene" uid="uid://b7wsk2sword2cmb" path="res://scenes/UI/sword_combo_widget.tscn" id="17_swcmbo"]
 [ext_resource type="PackedScene" uid="uid://c2sweq4gkie70" path="res://scenes/UI/abilities_window.tscn" id="18_7iww4"]
 [ext_resource type="Script" uid="uid://cqx4rs6bafi4b" path="res://scripts/Player/StateMachine/idle.gd" id="18_gb22u"]
 [ext_resource type="PackedScene" uid="uid://e3niuw0f1y4f" path="res://scenes/UI/buffbar.tscn" id="19_gb22u"]
@@ -866,6 +867,9 @@ offset_left = 420.0
 offset_top = -91.0
 offset_right = 940.0
 offset_bottom = -21.0
+
+[node name="SwordComboWidget" parent="CanvasLayer/PlayerHUD" instance=ExtResource("17_swcmbo")]
+layout_mode = 1
 
 [node name="MoveableWindows" type="Control" parent="CanvasLayer"]
 unique_name_in_owner = true
