@@ -1,0 +1,52 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=16 format=3 uid="uid://stfspellward1"]
+
+[ext_resource type="Texture2D" uid="uid://30u18vfwsa5i" path="res://assets/sprites/Abilities/meditation.png" id="1_sw1"]
+[ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_sw1"]
+[ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_sw1"]
+[ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_sw1"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_sw1"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_sw1"]
+[ext_resource type="Resource" uid="uid://w0x3oyevmbgf" path="res://resources/Abilities/Staff/A_INT_Passive.tres" id="7_sw1"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
+[ext_resource type="Resource" uid="uid://stfu_sw1_warded" path="res://resources/Abilities/Staff/Upgrades/U_SW_Warded.tres" id="9_wa"]
+[ext_resource type="Resource" uid="uid://stfu_sw2_bulwarked" path="res://resources/Abilities/Staff/Upgrades/U_SW_Bulwarked.tres" id="10_bu"]
+[ext_resource type="Resource" uid="uid://stfu_sw3_impervious" path="res://resources/Abilities/Staff/Upgrades/U_SW_Impervious.tres" id="11_im"]
+
+[sub_resource type="Resource" id="Resource_sw_behav"]
+resource_local_to_scene = true
+script = ExtResource("2_sw1")
+
+[sub_resource type="Resource" id="Resource_sw_mdef"]
+script = ExtResource("5_sw1")
+base_value = 3.0
+per_level = 3.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_sw_sbf"]
+script = ExtResource("4_sw1")
+stat_type = 9
+flat_bonus_formula = SubResource("Resource_sw_mdef")
+metadata/_custom_type_script = "uid://bx4thfjsjclbw"
+
+[sub_resource type="Resource" id="Resource_sw_scaling"]
+script = ExtResource("3_sw1")
+stat_bonus_formulas = Array[ExtResource("4_sw1")]([SubResource("Resource_sw_sbf")])
+metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
+
+[resource]
+script = ExtResource("6_sw1")
+ability_id = "9151514110410861-9043-1410149-105135-1410158678120293"
+ability_name = "Spell Ward"
+description = "Permanently increases Magic Defense by $[stat_bonus]."
+ability_icon = ExtResource("1_sw1")
+max_level = 10
+ability_type = 1
+required_class = Array[int]([2])
+required_weapon_types = Array[int]([2])
+prerequisite_abilities = Dictionary[ExtResource("6_sw1"), int]({
+ExtResource("7_sw1"): 3
+})
+upgrades = Array[ExtResource("8_aud")]([ExtResource("9_wa"), ExtResource("10_bu"), ExtResource("11_im")])
+active_behavior = SubResource("Resource_sw_behav")
+scaling_data = SubResource("Resource_sw_scaling")
+metadata/_custom_type_script = "uid://b8y62rc8nb40j"

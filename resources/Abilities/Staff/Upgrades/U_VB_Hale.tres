@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://stfu_vb1_hale"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "vb_t1_hale"
+upgrade_name = "Hale"
+description = "Increases Vital Bloom's Max HP bonus by +1%."
+point_cost = 1
+tier = 1
+variant_group = ""
+effect_key = "passive_stat_percent_bonus"
+magnitude = 1.0

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://stfu_sw2_bulwarked"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "sw_t2_bulwarked"
+upgrade_name = "Bulwarked"
+description = "Increases Spell Ward's Magic Defense bonus by an additional +3."
+point_cost = 1
+tier = 2
+variant_group = ""
+effect_key = "passive_stat_flat_bonus"
+magnitude = 3.0
