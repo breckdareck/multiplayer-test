@@ -1644,6 +1644,29 @@ func respec_discipline_request(disc_key: String) -> void:
 	_respec_discipline_local(disc_key)
 
 
+## Respecs all four tier-1 disciplines at once (quick full reset).
+func respec_all() -> bool:
+	if _is_multiplayer_client():
+		respec_all_request.rpc_id(1)
+		return true
+	return _respec_all_local()
+
+
+func _respec_all_local() -> bool:
+	for key in DISCIPLINE_KEYS:
+		_respec_discipline_local(key)
+	return true
+
+
+@rpc("any_peer", "call_local", "reliable")
+func respec_all_request() -> void:
+	if not multiplayer.is_server():
+		return
+	if multiplayer.get_remote_sender_id() != owner.player_id:
+		return
+	_respec_all_local()
+
+
 ## Maps a discipline key to its starter ability's id (the one auto-leveled to
 ## 1 at character creation), via the WeaponDisciplineData. "" if unknown.
 func _discipline_starter_ability_id(disc_key: String) -> String:

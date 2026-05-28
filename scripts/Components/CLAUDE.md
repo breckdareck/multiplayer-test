@@ -61,11 +61,12 @@ Player (MultiplayerPlayerV2)
     │                               (e.g. "cooldown_flat_reduction" in
     │                               _consume_ability_resources); ability-specific
     │                               keys are read by AL_*.gd. See hook section.
-    │                               Respec: respec_discipline(disc_key) refunds
-    │                               levels (above the free starter baseline) +
-    │                               upgrade costs back to that pool, resets
-    │                               levels/upgrades. Server-auth via
-    │                               respec_discipline_request RPC.
+    │                               Respec: respec_discipline(disc_key) /
+    │                               respec_all() refund levels (above the free
+    │                               starter baseline) + upgrade costs back to
+    │                               the pool(s), reset levels/upgrades.
+    │                               Server-auth via respec_discipline_request /
+    │                               respec_all_request RPCs.
     ├── WeaponMastery weapon_mastery.gd - Per-discipline mastery levels + XP (PR 2)
     │                                     mastery_data: {sword/bow/staff/dagger →
     │                                     {level, xp}}. Drives STR/DEX/INT/LUK

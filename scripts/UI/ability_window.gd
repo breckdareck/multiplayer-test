@@ -644,8 +644,6 @@ func on_level_up_button_pressed():
 ## Tier accent colors for the upgrade rows (T1 / T2 / T3-variant).
 const UPGRADE_TIER_COLORS: Array[String] = ["#9fcaff", "#c9a0ff", "#e6c95c"]
 
-## Tracks the armed state of the respec button (2-click confirm).
-var _respec_armed: bool = false
 
 ## Rebuilds the upgrade tier rows for the selected ability. Hidden entirely
 ## for abilities that define no upgrades (pre-PR-6 abilities / passives
@@ -740,32 +738,38 @@ func _on_ability_upgrade_changed(ability_id: String, _upgrade_id: String) -> voi
 		select_ability(selected_ability_id)
 
 
-## Respec the current discipline tab. Two-click confirm to avoid fat-fingering
-## away a whole tree's worth of points.
+## Respec entry — opens a small popup offering a quick respec of either the
+## current weapon discipline or all weapons. The popup IS the confirmation
+## (deliberate two-step: open menu → pick option).
 func _on_respec_button_pressed() -> void:
 	if not ability_component:
 		return
-	if not _respec_armed:
-		_respec_armed = true
-		respec_button.text = "Confirm?"
-		respec_button.add_theme_color_override("font_color", Color(COLOR_DOWNGRADE))
-		# Disarm after a few seconds if not confirmed.
-		get_tree().create_timer(3.0).timeout.connect(_disarm_respec)
+	var menu := PopupMenu.new()
+	menu.add_item("Respec %s" % _current_discipline_tab_title(), 0)
+	menu.add_item("Respec All Weapons", 1)
+	add_child(menu)
+	menu.id_pressed.connect(_on_respec_menu_selected)
+	# Free the popup once it closes (covers both selection and dismissal).
+	menu.popup_hide.connect(menu.queue_free)
+	# Anchor just below the Respec button.
+	var pos: Vector2 = respec_button.get_screen_position() + Vector2(0, respec_button.size.y)
+	menu.position = pos
+	menu.popup()
+
+
+func _on_respec_menu_selected(id: int) -> void:
+	if not ability_component:
 		return
-	_disarm_respec()
-	ability_component.respec_discipline(_current_discipline_key)
-	# Refresh: respec resets levels + clears upgrades + refunds points.
+	if id == 0:
+		ability_component.respec_discipline(_current_discipline_key)
+	elif id == 1:
+		ability_component.respec_all()
+	# Signals (ability_leveled_up / ability_points_changed) drive most of the
+	# refresh; do an explicit pass too so the open panel updates immediately.
 	update_skill_points_display()
 	load_ability_list()
 	if not selected_ability_id.is_empty():
 		select_ability(selected_ability_id)
-
-
-func _disarm_respec() -> void:
-	_respec_armed = false
-	if is_instance_valid(respec_button):
-		respec_button.text = "Respec"
-		respec_button.remove_theme_color_override("font_color")
 
 
 ## Updates the SP display in the header.
