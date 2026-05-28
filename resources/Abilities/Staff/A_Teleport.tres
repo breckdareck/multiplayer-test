@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://telport001xx"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=22 format=3 uid="uid://telport001xx"]
 
 [ext_resource type="Texture2D" uid="uid://brgub14p68lpk" path="res://assets/sprites/Abilities/teleport.png" id="1_jlg0d"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_telp2"]
