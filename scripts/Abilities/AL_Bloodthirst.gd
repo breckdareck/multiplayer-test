@@ -10,8 +10,17 @@ extends Node
 ## learned passive abilities and calls on_kill on those whose
 ## active_behavior.logic_script defines the method.
 
-const BASE_HEAL_PCT: float = 1.0
-const PER_LEVEL_HEAL_PCT: float = 1.0
+## PR 6 follow-up: original 1% + 1%/lvl (10% at L10) was way too generous
+## per playtest — a maxed Bloodthirst made the character functionally
+## unkillable in a kill-chain. Tuned down to ~3.2% at L10, modeled after
+## MapleStory Demon Avenger's HP-recovery trickle (small per-kill, real
+## but not build-defining sustain).
+##
+##   L1:   0.5% Max HP per kill
+##   L5:   1.7% Max HP per kill
+##   L10:  3.2% Max HP per kill   (was 10%)
+const BASE_HEAL_PCT: float = 0.5
+const PER_LEVEL_HEAL_PCT: float = 0.3
 
 
 func on_kill(_owner_node: Node, _target: Node, _ability_level: int) -> void:

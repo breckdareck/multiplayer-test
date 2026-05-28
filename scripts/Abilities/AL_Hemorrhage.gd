@@ -13,7 +13,11 @@ extends Node
 const MAX_STACKS: int = 3
 const TICK_INTERVAL: float = 1.0
 const DURATION_SECONDS: float = 6.0
-const DAMAGE_PER_STACK_PCT: float = 0.05  # 5% of WEAPONATTACK per tick per stack
+## PR 6 follow-up: bumped from 0.05 → 0.20 because at low WPN_ATK the bleed
+## rounded down to 1/tick — invisible against enemy HP pools. 20% gives a
+## noticeable DOT (e.g. WPN_ATK 20 → 4/tick/stack → 12/tick at 3-stack
+## → 72 total over 6s, well above a basic hit). Tunable per playtest.
+const DAMAGE_PER_STACK_PCT: float = 0.20  # 20% of WEAPONATTACK per tick per stack
 
 const BLEED_META: String = "hemorrhage_bleed"
 
@@ -81,7 +85,11 @@ func _on_bleed_tick(target: Node) -> void:
 		var applier = state.get("applier", null)
 		if not is_instance_valid(applier):
 			applier = null
-		health_comp.take_damage(damage, applier, false, false, false)
+		# PR 6 follow-up: bleed must bypass enemy i-frames (otherwise the
+		# 1s tick interval lines up with the 1s invuln from each Hemorrhage
+		# hit and half the ticks get absorbed). show_number=true so the
+		# DOT is visible — previously hidden, which read as "no damage."
+		health_comp.take_damage(damage, applier, true, false, true)
 
 	state["remaining"] = float(state.get("remaining", 0.0)) - TICK_INTERVAL
 	if state["remaining"] <= 0.0:
