@@ -60,24 +60,20 @@ func on_hit(_owner_node: Node, _target: Node, _ability: AbilityData) -> void:
 ## crediting the applier the same way a direct hit would.
 func _credit_bleed_kill(applier, target: Node) -> void:
 	if applier == null or not is_instance_valid(applier):
-		print("[Hemorrhage] _credit_bleed_kill aborted: applier invalid")
 		return
 	if target == null or not is_instance_valid(target):
-		print("[Hemorrhage] _credit_bleed_kill aborted: target invalid")
 		return
 
 	# Mastery XP — credit both equipped weapons per the same rule
 	# combat.gd uses for at-the-moment-of-kill XP.
 	var mastery_comp = applier.get("weapon_mastery_component")
 	var combat_comp = applier.get("combat_component")
-	print("[Hemorrhage] _credit_bleed_kill: mastery_comp=%s combat_comp=%s has_monster_level=%s level_component=%s" % [str(mastery_comp), str(combat_comp), str("monster_level" in target), str(applier.level_component if "level_component" in applier else "<no level_comp>")])
 	if mastery_comp and combat_comp and "monster_level" in target and applier.level_component:
 		var kill_xp: int = WeaponMasteryComponent.compute_kill_xp(
 			target.monster_level,
 			applier.level_component.level
 		)
 		var kill_disc: int = combat_comp._active_weapon_discipline()
-		print("[Hemorrhage] kill_xp=%d kill_disc=%d" % [kill_xp, kill_disc])
 		if kill_disc != -1:
 			mastery_comp.grant_mastery_xp_server(kill_disc, kill_xp)
 		var sec_disc: int = combat_comp._secondary_weapon_discipline()
@@ -87,7 +83,6 @@ func _credit_bleed_kill(applier, target: Node) -> void:
 	# Bloodthirst / future on-kill passives.
 	var ability_comp = applier.get("ability_component")
 	if ability_comp and ability_comp.has_method("dispatch_passive_event_on_kill"):
-		print("[Hemorrhage] dispatching passive on_kill")
 		ability_comp.dispatch_passive_event_on_kill(target)
 
 
@@ -135,7 +130,6 @@ func _on_bleed_tick(target: Node) -> void:
 		# Character-level XP / quest credit are driven by the enemy's own
 		# death handler reading damage_by_player, so they work for free.
 		if was_alive and health_comp.is_dead:
-			print("[Hemorrhage] Bleed kill detected. applier=%s target=%s damage_by_player=%s" % [str(applier), str(target.name if is_instance_valid(target) else "<invalid>"), str(target.damage_by_player) if is_instance_valid(target) and "damage_by_player" in target else "<no dbp>"])
 			_credit_bleed_kill(applier, target)
 
 	state["remaining"] = float(state.get("remaining", 0.0)) - TICK_INTERVAL

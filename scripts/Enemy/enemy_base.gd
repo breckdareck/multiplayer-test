@@ -276,8 +276,6 @@ func _deferred_death_processing(_killer: Node) -> void:
 		elif _killer.owner is MultiplayerPlayerV2:
 			killer_player_id = _killer.owner.player_id
 
-	print("[EnemyDeath] killer=%s id=%d total_damage=%d damage_by_player=%s exp_reward=%d" % [str(_killer), killer_player_id, total_damage, str(damage_by_player), experience_reward])
-
 	var killer_party_id = PartyManager.get_player_party_id(killer_player_id)
 	#print("Determined killer_party_id: ", killer_party_id)
 	
