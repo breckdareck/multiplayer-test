@@ -54,6 +54,38 @@ func on_hit(_owner_node: Node, _target: Node, _ability: AbilityData) -> void:
 	_schedule_bleed_tick(_target)
 
 
+## When a bleed tick downs an enemy, the regular combat-kill pathway
+## (combat.gd._execute_hit) never runs — so mastery XP and on_kill passive
+## events don't fire. This mirrors that logic locally for bleed kills,
+## crediting the applier the same way a direct hit would.
+func _credit_bleed_kill(applier, target: Node) -> void:
+	if applier == null or not is_instance_valid(applier):
+		return
+	if target == null or not is_instance_valid(target):
+		return
+
+	# Mastery XP — credit both equipped weapons per the same rule
+	# combat.gd uses for at-the-moment-of-kill XP.
+	var mastery_comp = applier.get("weapon_mastery_component")
+	var combat_comp = applier.get("combat_component")
+	if mastery_comp and combat_comp and "monster_level" in target and applier.level_component:
+		var kill_xp: int = WeaponMasteryComponent.compute_kill_xp(
+			target.monster_level,
+			applier.level_component.level
+		)
+		var kill_disc: int = combat_comp._active_weapon_discipline()
+		if kill_disc != -1:
+			mastery_comp.grant_mastery_xp_server(kill_disc, kill_xp)
+		var sec_disc: int = combat_comp._secondary_weapon_discipline()
+		if sec_disc != -1 and sec_disc != kill_disc:
+			mastery_comp.grant_mastery_xp_server(sec_disc, kill_xp)
+
+	# Bloodthirst / future on-kill passives.
+	var ability_comp = applier.get("ability_component")
+	if ability_comp and ability_comp.has_method("dispatch_passive_event_on_kill"):
+		ability_comp.dispatch_passive_event_on_kill(target)
+
+
 func _schedule_bleed_tick(target: Node) -> void:
 	if not is_instance_valid(target):
 		return
@@ -89,7 +121,16 @@ func _on_bleed_tick(target: Node) -> void:
 		# 1s tick interval lines up with the 1s invuln from each Hemorrhage
 		# hit and half the ticks get absorbed). show_number=true so the
 		# DOT is visible — previously hidden, which read as "no damage."
+		var was_alive: bool = not health_comp.is_dead
 		health_comp.take_damage(damage, applier, true, false, true)
+
+		# PR 6 fix: if the bleed tick downed the enemy, fire the same kill
+		# events that combat.gd._execute_hit fires for normal hit kills:
+		# mastery XP grant and passive on_kill dispatch (Bloodthirst etc.).
+		# Character-level XP / quest credit are driven by the enemy's own
+		# death handler reading damage_by_player, so they work for free.
+		if was_alive and health_comp.is_dead:
+			_credit_bleed_kill(applier, target)
 
 	state["remaining"] = float(state.get("remaining", 0.0)) - TICK_INTERVAL
 	if state["remaining"] <= 0.0:

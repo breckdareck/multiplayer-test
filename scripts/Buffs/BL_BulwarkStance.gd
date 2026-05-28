@@ -46,4 +46,7 @@ func on_remove(_owner_node: Node, _active_buff) -> void:
 
 
 func _active_buff_id() -> String:
-	return "bulwark-stance-buff-pr6-2026-warrior-sword"
+	# Must match the key AL_BulwarkStance used in apply_buff() — that's
+	# what BuffComponent._active_buffs is dictionary-keyed by, NOT the
+	# resource's buff_id field. See [[feedback_applies_buff_is_metadata]].
+	return "Bulwark Stance"
