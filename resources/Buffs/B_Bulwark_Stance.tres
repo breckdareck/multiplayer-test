@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="BuffData" load_steps=5 format=3 uid="uid://bbulwrkstancdat"]
+[gd_resource type="Resource" script_class="BuffData" load_steps=5 format=3 uid="uid://u8dw44fu1e3h"]
 
 [ext_resource type="Script" uid="uid://bcuvemv85jprb" path="res://scripts/Resources/BuffSystem/BuffData.gd" id="1_bd"]
 [ext_resource type="Script" uid="uid://bbulwrkstancbuf" path="res://scripts/Buffs/BL_BulwarkStance.gd" id="2_bl"]

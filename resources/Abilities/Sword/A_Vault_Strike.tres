@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=17 format=3 uid="uid://bvltstrikabili"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=17 format=3 uid="uid://bh4mkym1dg8ys"]
 
 [ext_resource type="Texture2D" uid="uid://blsf4bd1u7syc" path="res://assets/sprites/Abilities/Brandish.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]

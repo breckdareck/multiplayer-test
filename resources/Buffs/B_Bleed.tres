@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="BuffData" load_steps=3 format=3 uid="uid://bbleeddata1res"]
+[gd_resource type="Resource" script_class="BuffData" load_steps=3 format=3 uid="uid://spj1t0j67vkw"]
 
 [ext_resource type="Script" uid="uid://bcuvemv85jprb" path="res://scripts/Resources/BuffSystem/BuffData.gd" id="1_buff"]
 [ext_resource type="Script" uid="uid://bbleed1dotbuff" path="res://scripts/Buffs/BL_Bleed.gd" id="2_bleed"]
