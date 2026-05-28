@@ -1195,13 +1195,15 @@ func save_abilities() -> Dictionary:
 		var v: int = int(_available_points_per_discipline[key])
 		per_disc_copy[key] = v
 		legacy_total += v
+	print("[Upgrades] save_abilities: _learned_upgrades=%s" % str(_learned_upgrades))
 	return {
 		"ability_levels": _ability_levels.duplicate(),
 		# PR 6: purchased per-ability upgrades. Deep-duplicated so the nested
 		# arrays don't alias the live state. Backend persistence lands with
 		# the learned_ability_upgrades column (A3); in local-save mode this
 		# round-trips through the JSON immediately.
-		"learned_ability_upgrades": _learned_upgrades.duplicate(true),
+		"learned_ability_upgrades": _learned_upgrades.duplicate(true),  # PR6
+
 		# PR 4: legacy fallback (sum of per-discipline pools). Kept populated
 		# for one release so the backend's legacy `ability_points` column
 		# stays useful if the new JSONB column is somehow missing.
@@ -1235,6 +1237,7 @@ func load_abilities(data: Dictionary) -> void:
 	# saved map is authoritative for what's been bought. Missing key (older
 	# saves / backend without the column yet) leaves the empty default.
 	var saved_upgrades = data.get("learned_ability_upgrades", {})
+	print("[Upgrades] load_abilities: has_key=%s value=%s" % [str(data.has("learned_ability_upgrades")), str(saved_upgrades)])
 	if saved_upgrades is Dictionary:
 		_learned_upgrades = (saved_upgrades as Dictionary).duplicate(true)
 

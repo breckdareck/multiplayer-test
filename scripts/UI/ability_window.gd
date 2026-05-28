@@ -341,11 +341,29 @@ func update_details(data: AbilityData, current_level: int):
 		clear_details()
 		return
 		
+	# PR 6: append an ACTIVE UPGRADES section so the description reflects
+	# every owned upgrade (damage %, combo coefficient, bleed, CD, etc.) —
+	# the one place that transparently covers all effect types.
+	desc += _owned_upgrades_section(data)
+
 	# Apply final text values to UI
 	description_text.text = desc
 	mana_cost_label.text = mana_cost_text
 	cooldown_label.text = cooldown_text
-	
+
+	# PR 6: reflect flat cooldown / mana reductions from owned upgrades in the
+	# stat labels (current level's effective value). Only overrides when a
+	# reduction is owned, so the level-up comparison stays intact otherwise.
+	if data.ability_type == Constants.AbilityType.ACTIVE and ability_component and current_stats:
+		var cd_reduction: float = ability_component.get_ability_upgrade_magnitude(data.ability_id, "cooldown_flat_reduction")
+		if cd_reduction > 0.0:
+			var eff_cd: float = maxf(0.0, current_stats.cooldown_time - cd_reduction)
+			cooldown_label.text = "[color=%s]%.1fs[/color]" % [COLOR_UPGRADE, eff_cd]
+		var mana_reduction: float = ability_component.get_ability_upgrade_magnitude(data.ability_id, "mana_flat_reduction")
+		if mana_reduction > 0.0:
+			var eff_mana: int = maxi(0, current_stats.mana_cost - int(mana_reduction))
+			mana_cost_label.text = "[color=%s]%d[/color]" % [COLOR_UPGRADE, eff_mana]
+
 	# Passive abilities often don't have mana/cooldown
 	if data.ability_type == Constants.AbilityType.PASSIVE:
 		mana_cost_label.text = "N/A"
@@ -353,6 +371,22 @@ func update_details(data: AbilityData, current_level: int):
 
 	# PR 6: rebuild the upgrade tier panel for this ability.
 	_refresh_upgrades(data, current_level)
+
+
+## Builds a BBCode "ACTIVE UPGRADES" block listing owned upgrades for an
+## ability (name — effect). Empty when none owned. This is how the
+## description "changes with the upgrades" uniformly across every effect
+## type, without rewriting each ability's base description text.
+func _owned_upgrades_section(data: AbilityData) -> String:
+	if not ability_component or data.upgrades == null or data.upgrades.is_empty():
+		return ""
+	var lines: PackedStringArray = []
+	for up in data.upgrades:
+		if up != null and ability_component.has_upgrade(data.ability_id, up.upgrade_id):
+			lines.append("  [color=%s]%s[/color] — %s" % [COLOR_UPGRADE, up.upgrade_name, up.description])
+	if lines.is_empty():
+		return ""
+	return "\n\n[color=%s]ACTIVE UPGRADES:[/color]\n%s" % [COLOR_UPGRADE, "\n".join(lines)]
 
 
 ## Helper function to create the final description text for comparison
