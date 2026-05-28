@@ -41,6 +41,18 @@ Player (MultiplayerPlayerV2)
     │                               equip any of the four weapons. Returning
     │                               characters keep saved levels via the merge
     │                               (not clear) in load_abilities.
+    │                               PR 6 ability upgrades: per-ability upgrade
+    │                               purchases live in `_learned_upgrades`
+    │                               ({ability_id: [upgrade_id,...]}). Public API:
+    │                               has_upgrade / get_learned_upgrades /
+    │                               can_purchase_upgrade (pure validation:
+    │                               learned + tier-gating + variant-mutex +
+    │                               point cost) / purchase_upgrade (client→RPC,
+    │                               server-auth spend from the discipline pool).
+    │                               Round-trips via save_abilities under
+    │                               `learned_ability_upgrades`. AL_*.gd read
+    │                               state via has_upgrade(); see the hook
+    │                               section below.
     ├── WeaponMastery weapon_mastery.gd - Per-discipline mastery levels + XP (PR 2)
     │                                     mastery_data: {sword/bow/staff/dagger →
     │                                     {level, xp}}. Drives STR/DEX/INT/LUK
