@@ -13,7 +13,25 @@ Player (MultiplayerPlayerV2)
 └── Components/
     ├── Health     health.gd      - HP, invuln frames, regen, death/respawn
     ├── Mana       mana.gd        - MP, regen, consumption
-    ├── Stats      stats.gd       - STR/DEX/INT/LUCK/... aggregates ALL bonuses
+    ├── Stats      stats.gd       - STR/DEX/INT/LUCK/CON aggregates ALL bonuses.
+    │                               PR 7 attribute allocation (New World style):
+    │                               a 5/level pool (ATTRIBUTE_POINTS_PER_LEVEL) is
+    │                               MANUALLY spent into STR/DEX/INT/LUCK/CON
+    │                               (_allocated_attributes), REPLACING the old auto
+    │                               per-level discipline scaling (mastery scaling
+    │                               stays auto). API: allocate_attribute(stat,n) /
+    │                               respec_attributes() (client→RPC, server-auth) +
+    │                               reconcile_attribute_points() on load (granted ==
+    │                               spent + unused; default-allocates un-migrated
+    │                               chars to the starting discipline's ratio so
+    │                               existing stats are preserved). Each attribute
+    │                               also feeds a secondary utility:
+    │                               STR→Defense, DEX→accuracy (combat.gd hit-chance),
+    │                               INT→Mana+MPregen, LUCK→CritChance, CON→HP+HPregen
+    │                               (tunable *_TO_* consts). CON is StatType idx 15
+    │                               (appended). Round-trips via save_attributes /
+    │                               load_attributes (backend `attribute_points`
+    │                               JSONB); synced via sync_attributes RPC.
     ├── Combat     combat.gd      - hitboxes, damage calc, crit
     ├── Ability    ability.gd     - learn/level/use abilities, cooldowns, passives.
     │                               Ability points are PER-DISCIPLINE (PR 4 — see
@@ -108,10 +126,17 @@ Player (MultiplayerPlayerV2)
     │                               is a sword. Server-authoritative; mirrored to
     │                               the owning client via sync_combo_to_client.
     ├── Buff       buff.gd        - timed buffs/debuffs, stacking, custom logic
-    ├── Class      class.gd       - current_class = STARTING discipline (does NOT
-    │                               change on weapon swap). Drives HP/MP curves.
-    │                               For "what am I wielding right now", use
+    ├── Class      class.gd       - current_class = STARTING weapon discipline
+    │                               (does NOT change on weapon swap). Drives HP/MP
+    │                               curves. For "what am I wielding right now", use
     │                               MultiplayerPlayerV2.get_active_discipline().
+    │                               PR 7: NO class advancement (classes don't
+    │                               exist, only weapons). The current_class setter
+    │                               normalizes any legacy advanced class
+    │                               (CRUSADER/RANGER/ARCHMAGE/ASSASSIN) back to its
+    │                               tier-1 weapon discipline, so current_class is
+    │                               ALWAYS one of SWORD/STAFF/BOW/DAGGER (+BEGINNER).
+    │                               stats.gd no longer has advanced-class HP arms.
     ├── Leveling   level.gd       - experience and level-ups
     ├── Equipment  equipment.gd   - 6 slots after PR 3: head/chest/legs/feet/weapon
     │                               + secondary_weapon. active_weapon tracks which

@@ -78,8 +78,31 @@ const BASE_KNOCKBACK_RESIST: int = 80
 	Constants.StatType.WEAPONATTACK: StatData.new(Constants.StatType.WEAPONATTACK, 0),
 	Constants.StatType.MAGICATTACK: StatData.new(Constants.StatType.MAGICATTACK, 0),
 	Constants.StatType.KNOCKBACKRESIST: StatData.new(Constants.StatType.KNOCKBACKRESIST, BASE_KNOCKBACK_RESIST),
+	Constants.StatType.CONSTITUTION: StatData.new(Constants.StatType.CONSTITUTION, 4),
 
 }
+
+# PR 7 — manual attribute allocation (New World style). Pool = 5/level, spent
+# into STR/DEX/INT/LUCK/CON; replaces the old auto per-level discipline scaling.
+# Secondary utilities (tunable starting rates) feed derived stats.
+const ATTRIBUTE_POINTS_PER_LEVEL: int = 5
+const ALLOCATABLE_ATTRIBUTES: Array = [
+	Constants.StatType.STRENGTH, Constants.StatType.DEXTERITY,
+	Constants.StatType.INTELLIGENCE, Constants.StatType.LUCK,
+	Constants.StatType.CONSTITUTION,
+]
+const STR_TO_DEFENSE: float = 1.0
+const INT_TO_MANA: float = 5.0
+const INT_TO_MPREGEN: float = 0.1
+const LUCK_TO_CRIT: float = 0.1   # % crit per LUCK
+const CON_TO_HP: float = 8.0
+const CON_TO_HPREGEN: float = 0.2
+const DEX_TO_ACCURACY: float = 0.05  # % hit per DEX, consumed in combat.gd
+
+## {StatType: spent_points}. Server-authoritative; synced to the owning client.
+var _allocated_attributes: Dictionary = {}
+
+signal attribute_points_changed(unused: int)
 
 var _level_component: LevelingComponent
 var _class_component: ClassComponent
@@ -172,13 +195,14 @@ func _recalculate_stats() -> void:
 	# This restores behaviour the first cut of PR 2 inadvertently removed when
 	# it routed all primary-stat scaling exclusively through mastery — the
 	# resulting un-mastered baseline felt punishingly weak relative to today.
-	if _class_component and _level_component:
-		var class_disc: WeaponDisciplineData = ResourceManager.get_class_data(_class_component.current_class)
-		if class_disc:
-			var per_level_growth: int = max(_level_component.level - 1, 0)
-			for stat_type in class_disc.stat_bonuses:
-				if stats.has(stat_type):
-					stats[stat_type].base_value += class_disc.stat_bonuses[stat_type] * per_level_growth
+	# PR 7: manually-allocated attribute points replace the old auto per-level
+	# discipline scaling. The 5/level pool is spent into STR/DEX/INT/LUCK/CON;
+	# mastery scaling (below) still auto-grants on top. Existing characters are
+	# default-allocated to their starting discipline's ratio on load (see
+	# reconcile_attribute_points), so nothing changes until they choose to respec.
+	for stat_type in _allocated_attributes:
+		if stats.has(stat_type):
+			stats[stat_type].base_value += int(_allocated_attributes[stat_type])
 
 	# Reset flat bonuses before recalculating
 	for stat_type in stats:
@@ -234,12 +258,165 @@ func _recalculate_stats() -> void:
 				stats[stat_type].flat_bonus_value += buff_bonuses[stat_type].flat_bonus_value
 				stats[stat_type].percent_bonus_value += buff_bonuses[stat_type].percent_bonus_value
 
+	# PR 7: attribute secondary utilities — read FINAL attribute totals (base +
+	# allocated + mastery + equipment + buffs) and feed derived stats.
+	_apply_attribute_utilities()
+
 	stats_changed.emit()
 
 
 @rpc("authority", "call_local", "reliable")
 func _recalculate_stats_client() -> void:
 	_recalculate_stats()
+
+
+#region #################### Attribute Allocation (PR 7) ####################
+func _is_multiplayer_client() -> bool:
+	return multiplayer.has_multiplayer_peer() and not multiplayer.is_server()
+
+
+func get_attribute_points_granted() -> int:
+	if not _level_component:
+		return 0
+	return ATTRIBUTE_POINTS_PER_LEVEL * maxi(0, _level_component.level - 1)
+
+
+func get_attribute_points_spent() -> int:
+	var total: int = 0
+	for k in _allocated_attributes:
+		total += int(_allocated_attributes[k])
+	return total
+
+
+func get_attribute_points_unused() -> int:
+	return maxi(0, get_attribute_points_granted() - get_attribute_points_spent())
+
+
+func get_allocated_attribute(stat_type: int) -> int:
+	return int(_allocated_attributes.get(stat_type, 0))
+
+
+## [Client→Server] Spend `amount` points into an attribute.
+func allocate_attribute(stat_type: int, amount: int = 1) -> void:
+	if _is_multiplayer_client():
+		allocate_attribute_request.rpc_id(1, stat_type, amount)
+		return
+	_allocate_attribute_local(stat_type, amount)
+
+
+func _allocate_attribute_local(stat_type: int, amount: int) -> void:
+	if stat_type not in ALLOCATABLE_ATTRIBUTES:
+		return
+	amount = mini(amount, get_attribute_points_unused())
+	if amount <= 0:
+		return
+	_allocated_attributes[stat_type] = get_allocated_attribute(stat_type) + amount
+	mark_stats_dirty()
+	_sync_attributes_and_notify()
+
+
+@rpc("any_peer", "call_local", "reliable")
+func allocate_attribute_request(stat_type: int, amount: int) -> void:
+	if not multiplayer.is_server():
+		return
+	if multiplayer.get_remote_sender_id() != owner.player_id:
+		return
+	_allocate_attribute_local(stat_type, amount)
+
+
+## [Client→Server] Refund ALL allocated attribute points (free respec).
+func respec_attributes() -> void:
+	if _is_multiplayer_client():
+		respec_attributes_request.rpc_id(1)
+		return
+	_respec_attributes_local()
+
+
+func _respec_attributes_local() -> void:
+	if _allocated_attributes.is_empty():
+		return
+	_allocated_attributes.clear()
+	mark_stats_dirty()
+	_sync_attributes_and_notify()
+
+
+@rpc("any_peer", "call_local", "reliable")
+func respec_attributes_request() -> void:
+	if not multiplayer.is_server():
+		return
+	if multiplayer.get_remote_sender_id() != owner.player_id:
+		return
+	_respec_attributes_local()
+
+
+## Safety net (mirrors AbilityComponent.reconcile_ability_points). Default-
+## allocates un-migrated characters to their starting discipline's ratio so
+## existing characters keep their stats until they choose to respec.
+func reconcile_attribute_points(default_allocate_if_empty: bool = true) -> void:
+	if _is_multiplayer_client():
+		return
+	if default_allocate_if_empty and get_attribute_points_spent() == 0:
+		_default_allocate_to_discipline()
+
+
+func _default_allocate_to_discipline() -> void:
+	if not (_class_component and _level_component):
+		return
+	var disc: WeaponDisciplineData = ResourceManager.get_class_data(_class_component.current_class)
+	if disc == null:
+		return
+	var lvls: int = maxi(0, _level_component.level - 1)
+	for stat_type in disc.stat_bonuses:
+		_allocated_attributes[stat_type] = int(disc.stat_bonuses[stat_type]) * lvls
+
+
+## Attribute secondary utilities — read FINAL attribute totals, feed derived stats.
+func _apply_attribute_utilities() -> void:
+	var strv: int = stats[Constants.StatType.STRENGTH].total_value
+	var intv: int = stats[Constants.StatType.INTELLIGENCE].total_value
+	var luk: int = stats[Constants.StatType.LUCK].total_value
+	var con: int = stats[Constants.StatType.CONSTITUTION].total_value
+	stats[Constants.StatType.DEFENSE].flat_bonus_value += int(strv * STR_TO_DEFENSE)
+	stats[Constants.StatType.MANA].flat_bonus_value += int(intv * INT_TO_MANA)
+	stats[Constants.StatType.MPREGEN].flat_bonus_value += int(intv * INT_TO_MPREGEN)
+	stats[Constants.StatType.CRITCHANCE].flat_bonus_value += int(luk * LUCK_TO_CRIT)
+	stats[Constants.StatType.HEALTH].flat_bonus_value += int(con * CON_TO_HP)
+	stats[Constants.StatType.HPREGEN].flat_bonus_value += int(con * CON_TO_HPREGEN)
+
+
+func save_attributes() -> Dictionary:
+	return _allocated_attributes.duplicate()
+
+
+func load_attributes(data) -> void:
+	if data is Dictionary:
+		# Backend JSON round-trips dict keys as Strings; coerce back to int StatType.
+		var coerced: Dictionary = {}
+		for k in data:
+			coerced[int(k)] = int(data[k])
+		_allocated_attributes = coerced
+
+
+@rpc("authority", "reliable")
+func sync_attributes(alloc: Dictionary) -> void:
+	if multiplayer.is_server():
+		return
+	_allocated_attributes = alloc.duplicate()
+	attribute_points_changed.emit(get_attribute_points_unused())
+	mark_stats_dirty()
+
+
+## [Server] Push the current allocation to one client (post-spawn initial sync).
+func sync_attributes_to_client(peer_id: int) -> void:
+	sync_attributes.rpc_id(peer_id, _allocated_attributes.duplicate())
+
+
+## Pushes the allocation to the owning client (server→client) and notifies UI.
+func _sync_attributes_and_notify() -> void:
+	attribute_points_changed.emit(get_attribute_points_unused())
+	if multiplayer.has_multiplayer_peer() and multiplayer.is_server() and not BotManager.is_bot(owner.player_id):
+		sync_attributes.rpc(_allocated_attributes.duplicate())
+#endregion
 
 
 func _on_leveled_up(_new_level: int) -> void:

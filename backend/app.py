@@ -77,6 +77,11 @@ class Player(db.Model):
     # the four disciplines on the Godot side (with the remainder going to the
     # character's starting discipline).
     ability_points_per_discipline = db.Column(JSONB, nullable=True)
+    # PR 7: manually-allocated attribute points (New World style). JSONB dict
+    # keyed by StatType int -> spent points {"0": STR, "2": DEX, "1": INT,
+    # "3": LUCK, "15": CON}. Absent/empty => the Godot side default-allocates to
+    # the starting weapon discipline's ratio on load (existing chars keep stats).
+    attribute_points = db.Column(JSONB, nullable=True)
     # Per-player onboarding flag (formerly part of the quests blob). Quest
     # progress itself now lives in the relational `player_quests` table, so a
     # quest tick rewrites one row instead of a growing wholesale blob.
@@ -459,6 +464,7 @@ def load_player():
             'username': player.username,
             'level': player.level,
             'character_type': player.character_class,
+            'attribute_points': player.attribute_points or {},
             'experience': player.experience,
             'current_health': player.current_health,
             'max_health': player.max_health,
@@ -598,6 +604,7 @@ def save_player():
         # Update Core Stats
         if 'level' in data: player.level = data['level']
         if 'character_type' in data: player.character_class = data['character_type']
+        if 'attribute_points' in data: player.attribute_points = data['attribute_points']
         if 'experience' in data: player.experience = data['experience']
         if 'current_health' in data: player.current_health = data['current_health']
         if 'max_health' in data: player.max_health = data['max_health']
@@ -847,6 +854,10 @@ def _run_migrations():
         # which stays populated as a fallback for one release.
         ("players", "ability_points_per_discipline",
          "ALTER TABLE players ADD COLUMN ability_points_per_discipline JSONB"),
+        # PR 7: manually-allocated attribute points (New World style). JSONB dict
+        # keyed by StatType int -> spent points.
+        ("players", "attribute_points",
+         "ALTER TABLE players ADD COLUMN attribute_points JSONB"),
         # Persistence cleanup: per-ability upgrades column (replaces the
         # players.learned_ability_upgrades blob — backfilled + dropped below) and
         # the is_bot discriminator (backfilled from the __bots__ account below).

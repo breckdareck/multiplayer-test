@@ -49,6 +49,7 @@ enum StatType {
 	WEAPONATTACK,
 	MAGICATTACK,
 	KNOCKBACKRESIST,
+	CONSTITUTION, # PR 7 — appended (idx 15, NEVER insert): attribute → Max HP + HP regen
 }
 
 enum EquipmentType {

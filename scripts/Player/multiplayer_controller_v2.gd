@@ -732,7 +732,8 @@ func _get_stats_data() -> Dictionary:
 		'level': level_component.level if is_instance_valid(level_component) else 1,
 		'experience': level_component.experience if is_instance_valid(level_component) else 0,
 		'last_map': MapManager.get_player_map(player_id) if multiplayer.is_server() else MapManager.current_map_id,
-		'character_type': class_component.current_class if is_instance_valid(class_component) else 0
+		'character_type': class_component.current_class if is_instance_valid(class_component) else 0,
+		'attribute_points': stats_component.save_attributes() if is_instance_valid(stats_component) else {}
 	}
 
 
@@ -793,6 +794,12 @@ func _load_data(data: Dictionary) -> void:
 		level_component.set_block_signals(false)
 		level_component.leveled_up.emit(level_component.level)
 		level_component.experience_changed.emit(level_component.experience, level_component.get_exp_to_next_level())
+
+	# PR 7: load allocated attribute points (or default-allocate to the starting
+	# discipline's ratio for un-migrated characters) before the final recalc.
+	if is_instance_valid(stats_component):
+		stats_component.load_attributes(data.get("attribute_points", {}))
+		stats_component.reconcile_attribute_points(true)
 
 	if is_instance_valid(stats_component):
 		stats_component.set_block_signals(false)

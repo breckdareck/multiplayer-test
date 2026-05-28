@@ -57,6 +57,14 @@ through `scripts/Networking/network_manager.gd`.
   authoritative pools live in the JSONB column. NULL on legacy rows; the
   save handler distributes the legacy int evenly into all four pools (with
   remainder going to the player's starting discipline) on first save.
+- `Player.attribute_points` (PR 7) is a **JSONB blob** of the player's MANUALLY
+  allocated attribute points, keyed by `StatType` int → spent points
+  (`{"0": STR, "2": DEX, "1": INT, "3": LUCK, "15": CON}`). Travels at the top
+  level of the save payload (alongside `level` / `character_type`). NULL/empty on
+  legacy rows → the Godot side default-allocates to the starting weapon
+  discipline's ratio on load, so existing characters keep their stats until they
+  respec (StatsComponent.reconcile_attribute_points). Idempotent ALTER adds it on
+  startup.
 - **Purchased ability upgrades (PR 6) live on `PlayerAbility.upgrades`** — a
   per-ability JSONB array of `upgrade_id` strings (e.g.
   `["cc_t1_razor_edge", "cc_t3_razor_wind"]`), co-located with the ability+level

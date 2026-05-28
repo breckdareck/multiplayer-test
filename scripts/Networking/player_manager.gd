@@ -380,6 +380,10 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 			await get_tree().process_frame
 			player_instance.ability_component.sync_all_abilities_to_client(id)
 
+		# PR 7: push the server's reconciled attribute allocation to the client.
+		if player_instance.stats_component:
+			player_instance.stats_component.sync_attributes_to_client(id)
+
 
 	if player_instance.health_component:
 		player_instance.health_component.current_health = player_data.get("current_health", 100)

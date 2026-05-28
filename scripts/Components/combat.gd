@@ -383,7 +383,12 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 	# --- Hit Chance Calculation ---
 	var level_diff = attacker_level - target_level
 	# Base 95% chance to hit. Lose 2% chance for each level the monster is above you.
-	var hit_chance = clamp(95.0 + (level_diff * 2.0), 5.0, 100.0)
+	# PR 7: DEX adds accuracy (StatsComponent.DEX_TO_ACCURACY % per point) — mainly
+	# matters vs higher-level enemies where the base chance dips below the cap.
+	var dex_accuracy: float = 0.0
+	if _stats_component:
+		dex_accuracy = _stats_component.stats.get(Constants.StatType.DEXTERITY).total_value * StatsComponent.DEX_TO_ACCURACY
+	var hit_chance = clamp(95.0 + (level_diff * 2.0) + dex_accuracy, 5.0, 100.0)
 	
 	var max_hits = 1
 	if ability and level_stats:
