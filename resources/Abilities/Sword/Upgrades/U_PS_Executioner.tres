@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://psu3executioner"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "ps_t3_executioner"
+upgrade_name = "Executioner"
+description = "Combo amplification rises to +300% per point — a 3-combo Sundering Blow hits 10x instead of 7x."
+point_cost = 2
+tier = 3
+variant_group = "ps_finisher_variant"
+effect_key = "combo_coefficient_override"
+magnitude = 3.0

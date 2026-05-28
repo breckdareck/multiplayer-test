@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=18 format=3 uid="uid://dq088g6civvd8"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=24 format=3 uid="uid://dq088g6civvd8"]
 
 [ext_resource type="Texture2D" uid="uid://bstguvwrql18p" path="res://assets/sprites/Abilities/power_strike.png" id="1_v0yfe"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_vuhxl"]
@@ -8,6 +8,12 @@
 [ext_resource type="Resource" uid="uid://ccxoh5fmx317x" path="res://resources/Abilities/Sword/A_Slash.tres" id="6_v0yfe"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_tn7bo"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_t6bdd"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="9_aud"]
+[ext_resource type="Resource" uid="uid://psu1heavypommel" path="res://resources/Abilities/Sword/Upgrades/U_PS_HeavyPommel.tres" id="10_hp"]
+[ext_resource type="Resource" uid="uid://psu2armorpierce" path="res://resources/Abilities/Sword/Upgrades/U_PS_ArmorPierce.tres" id="11_ap"]
+[ext_resource type="Resource" uid="uid://psu3executioner" path="res://resources/Abilities/Sword/Upgrades/U_PS_Executioner.tres" id="12_ex"]
+[ext_resource type="Resource" uid="uid://psu4cleavingblow" path="res://resources/Abilities/Sword/Upgrades/U_PS_CleavingBlow.tres" id="13_cb"]
+[ext_resource type="Resource" uid="uid://psu5brutalforce" path="res://resources/Abilities/Sword/Upgrades/U_PS_BrutalForce.tres" id="14_bf"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_i4okq"]
 size = Vector2(30, 20)
@@ -72,6 +78,6 @@ required_weapon_types = Array[int]([0])
 prerequisite_abilities = Dictionary[ExtResource("4_hhglo"), int]({
 ExtResource("6_v0yfe"): 5
 })
-upgrades = null
+upgrades = Array[ExtResource("9_aud")]([ExtResource("10_hp"), ExtResource("11_ap"), ExtResource("12_ex"), ExtResource("13_cb"), ExtResource("14_bf")])
 active_behavior = SubResource("Resource_pdrvi")
 scaling_data = SubResource("Resource_4al8t")

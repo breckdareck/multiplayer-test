@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=19 format=3 uid="uid://4gnvgffwdh4w"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=24 format=3 uid="uid://4gnvgffwdh4w"]
 
 [ext_resource type="Texture2D" uid="uid://bstguvwrql18p" path="res://assets/sprites/Abilities/power_strike.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
@@ -8,7 +8,12 @@
 [ext_resource type="Resource" uid="uid://ccxoh5fmx317x" path="res://resources/Abilities/Sword/A_Slash.tres" id="6_slash"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_asd"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_al7y5"]
-[ext_resource type="Script" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="9_cbrln"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="9_cbrln"]
+[ext_resource type="Resource" uid="uid://hemu1serrated" path="res://resources/Abilities/Sword/Upgrades/U_HEM_SerratedEdge.tres" id="10_se"]
+[ext_resource type="Resource" uid="uid://hemu2deepgash" path="res://resources/Abilities/Sword/Upgrades/U_HEM_DeepGash.tres" id="11_dg"]
+[ext_resource type="Resource" uid="uid://hemu3hemophilia" path="res://resources/Abilities/Sword/Upgrades/U_HEM_Hemophilia.tres" id="12_hp"]
+[ext_resource type="Resource" uid="uid://hemu4exsang" path="res://resources/Abilities/Sword/Upgrades/U_HEM_Exsanguinate.tres" id="13_ex"]
+[ext_resource type="Resource" uid="uid://hemu5rupture" path="res://resources/Abilities/Sword/Upgrades/U_HEM_Rupture.tres" id="14_ru"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hem"]
 size = Vector2(30, 20)
@@ -60,7 +65,7 @@ cast_time_formula = SubResource("Resource_cast_time")
 script = ExtResource("4_ad")
 ability_id = "1014011155210-5612-108511-15095-15115211570155513"
 ability_name = "Hemorrhage"
-description = "Cuts deeply for $[damage_percent] damage. [color=#e6c95c]Applies a stacking Bleed (max 3 stacks) — each stack deals 5% Weapon Attack/s for 6 seconds.[/color]"
+description = "Cuts deeply for $[damage_percent] damage. [color=#e6c95c]Applies a stacking Bleed (max 3 stacks) — each stack deals 20% Weapon Attack/s for 6 seconds.[/color]"
 ability_icon = ExtResource("1_icon")
 max_level = 20
 required_class = Array[int]([0])
@@ -68,5 +73,6 @@ required_weapon_types = Array[int]([0])
 prerequisite_abilities = Dictionary[ExtResource("4_ad"), int]({
 ExtResource("6_slash"): 3
 })
+upgrades = Array[ExtResource("9_cbrln")]([ExtResource("10_se"), ExtResource("11_dg"), ExtResource("12_hp"), ExtResource("13_ex"), ExtResource("14_ru")])
 active_behavior = SubResource("Resource_active")
 scaling_data = SubResource("Resource_scaling")

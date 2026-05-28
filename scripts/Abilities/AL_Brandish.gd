@@ -26,4 +26,11 @@ func on_hit(_owner_node: Node, _target: Node, _ability: AbilityData) -> void:
 	if combo_comp == null or not is_instance_valid(combo_comp):
 		return
 
-	combo_comp.add_combo_point()
+	# Base 1 combo per hit; PR 6 "Doubletap" upgrade (combo_per_hit_bonus)
+	# adds more. Capped internally by SwordComboComponent.COMBO_CAP.
+	var per_hit: int = 1
+	var ability_comp = _owner_node.get("ability_component")
+	if ability_comp and _ability != null:
+		per_hit += int(ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "combo_per_hit_bonus"))
+	for i in range(maxi(1, per_hit)):
+		combo_comp.add_combo_point()

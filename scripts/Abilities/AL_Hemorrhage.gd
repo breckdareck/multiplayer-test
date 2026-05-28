@@ -32,13 +32,29 @@ func on_hit(_owner_node: Node, _target: Node, _ability: AbilityData) -> void:
 	if stats_comp == null or not stats_comp.stats.has(Constants.StatType.WEAPONATTACK):
 		return
 	var wpn_attack: int = int(stats_comp.stats[Constants.StatType.WEAPONATTACK].total_value)
-	var per_tick: int = maxi(1, roundi(wpn_attack * DAMAGE_PER_STACK_PCT))
+
+	# PR 6 upgrade reads (Hemorrhage tree):
+	#  bleed_potency_bonus   → +% per-tick damage (Hemophilia)
+	#  bleed_max_stack_bonus → +max stacks (Deep Gash)
+	#  bleed_duration_bonus  → +seconds (Exsanguinate)
+	var potency_bonus: float = 0.0
+	var stack_bonus: int = 0
+	var duration_bonus: float = 0.0
+	var ability_comp = _owner_node.get("ability_component")
+	if ability_comp and _ability != null and ability_comp.has_method("get_ability_upgrade_magnitude"):
+		potency_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bleed_potency_bonus")
+		stack_bonus = int(ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bleed_max_stack_bonus"))
+		duration_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bleed_duration_bonus")
+
+	var per_tick: int = maxi(1, roundi(wpn_attack * DAMAGE_PER_STACK_PCT * (1.0 + potency_bonus)))
+	var max_stacks: int = MAX_STACKS + stack_bonus
+	var duration: float = DURATION_SECONDS + duration_bonus
 
 	if _target.has_meta(BLEED_META):
 		# Existing bleed — increment stack count (capped) and refresh duration.
 		var existing: Dictionary = _target.get_meta(BLEED_META)
-		existing["stacks"] = mini(MAX_STACKS, int(existing.get("stacks", 1)) + 1)
-		existing["remaining"] = DURATION_SECONDS
+		existing["stacks"] = mini(max_stacks, int(existing.get("stacks", 1)) + 1)
+		existing["remaining"] = duration
 		existing["per_tick"] = per_tick  # refresh to latest applier's damage
 		_target.set_meta(BLEED_META, existing)
 		return
@@ -46,7 +62,7 @@ func on_hit(_owner_node: Node, _target: Node, _ability: AbilityData) -> void:
 	# Fresh bleed — set up state and start the tick timer.
 	var fresh: Dictionary = {
 		"stacks": 1,
-		"remaining": DURATION_SECONDS,
+		"remaining": duration,
 		"per_tick": per_tick,
 		"applier": _owner_node,
 	}

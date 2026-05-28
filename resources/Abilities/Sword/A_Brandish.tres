@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=18 format=3 uid="uid://ctuuha6kutnms"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=24 format=3 uid="uid://ctuuha6kutnms"]
 
 [ext_resource type="Texture2D" uid="uid://blsf4bd1u7syc" path="res://assets/sprites/Abilities/Brandish.png" id="1_wr37i"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_xjwtl"]
@@ -8,6 +8,12 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="6_ox4m6"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="7_qsco8"]
 [ext_resource type="Resource" uid="uid://ccxoh5fmx317x" path="res://resources/Abilities/Sword/A_Slash.tres" id="8_slash"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="9_aud"]
+[ext_resource type="Resource" uid="uid://sfu1keenedge" path="res://resources/Abilities/Sword/Upgrades/U_SF_KeenEdge.tres" id="10_ke"]
+[ext_resource type="Resource" uid="uid://sfu2widesweep" path="res://resources/Abilities/Sword/Upgrades/U_SF_WideSweep.tres" id="11_ws"]
+[ext_resource type="Resource" uid="uid://sfu3doubletap" path="res://resources/Abilities/Sword/Upgrades/U_SF_Doubletap.tres" id="12_dt"]
+[ext_resource type="Resource" uid="uid://sfu4relentless" path="res://resources/Abilities/Sword/Upgrades/U_SF_Relentless.tres" id="13_rl"]
+[ext_resource type="Resource" uid="uid://sfu5overwhelm" path="res://resources/Abilities/Sword/Upgrades/U_SF_Overwhelm.tres" id="14_ow"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ajojy"]
 size = Vector2(66, 20)
@@ -86,6 +92,6 @@ required_weapon_types = Array[int]([0])
 prerequisite_abilities = Dictionary[ExtResource("7_qsco8"), int]({
 ExtResource("8_slash"): 3
 })
-upgrades = null
+upgrades = Array[ExtResource("9_aud")]([ExtResource("10_ke"), ExtResource("11_ws"), ExtResource("12_dt"), ExtResource("13_rl"), ExtResource("14_ow")])
 active_behavior = SubResource("Resource_j17xh")
 scaling_data = SubResource("Resource_pyj0a")
