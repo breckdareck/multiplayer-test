@@ -839,24 +839,21 @@ func _discipline_label(disc: int) -> String:
 	return "Unknown"
 
 
-## Completer for `mastery` command. Suggests discipline names after the
-## optional @target arg.
-func _complete_mastery(parts: PackedStringArray) -> PackedStringArray:
-	if parts.size() <= 1:
-		return PackedStringArray()
-	var prefix: String = parts[parts.size() - 1]
-	# If the previous arg is @target, we're completing the discipline. If not,
-	# we may be completing the discipline as the first non-target arg.
-	var prev: String = parts[parts.size() - 2] if parts.size() >= 2 else ""
-	var on_discipline_slot: bool = (parts.size() == 2) or (parts.size() == 3 and prev.begins_with("@"))
-	if not on_discipline_slot:
-		return PackedStringArray()
-	var candidates: PackedStringArray = PackedStringArray(["sword", "bow", "staff", "dagger"])
-	var matches: PackedStringArray = PackedStringArray()
-	for c in candidates:
-		if c.begins_with(prefix.to_lower()):
-			matches.append(c)
-	return matches
+## Completer for `mastery` command. Suggests @target candidates and/or
+## discipline names depending on which slot the user is typing into.
+## Signature matches the other completers in this file:
+## (prior_args: PackedStringArray, _t: String) -> PackedStringArray.
+func _complete_mastery(prior_args: PackedStringArray, _t: String) -> PackedStringArray:
+	var disciplines: PackedStringArray = PackedStringArray(["sword", "bow", "staff", "dagger"])
+	if prior_args.is_empty():
+		# First slot can be either @target or discipline.
+		var out: PackedStringArray = _target_candidates()
+		out.append_array(disciplines)
+		return out
+	# After an @target slot, the next slot is the discipline.
+	if String(prior_args[0]).begins_with("@") and prior_args.size() == 1:
+		return disciplines
+	return PackedStringArray()
 
 
 func _cmd_give(args: Array) -> String:
