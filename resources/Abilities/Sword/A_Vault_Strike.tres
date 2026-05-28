@@ -1,0 +1,70 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=17 format=3 uid="uid://bvltstrikabili"]
+
+[ext_resource type="Texture2D" uid="uid://blsf4bd1u7syc" path="res://assets/sprites/Abilities/Brandish.png" id="1_icon"]
+[ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
+[ext_resource type="Script" uid="uid://bvltstrkdashab" path="res://scripts/Abilities/AL_VaultStrike.gd" id="3_alvs"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_ad"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_asf"]
+[ext_resource type="Resource" uid="uid://ccxoh5fmx317x" path="res://resources/Abilities/Sword/A_Slash.tres" id="6_slash"]
+[ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_asd"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_vault"]
+size = Vector2(90, 24)
+
+[sub_resource type="Resource" id="Resource_active"]
+script = ExtResource("2_abd")
+target_type = 1
+hit_box_shape_data = SubResource("RectangleShape2D_vault")
+hit_box_position_data = Vector2(45, -12)
+animation_name = "attack_1"
+sfx_path = "res://assets/sounds/tap.wav"
+logic_script = ExtResource("3_alvs")
+
+[sub_resource type="Resource" id="Resource_cast_time"]
+script = ExtResource("5_asf")
+
+[sub_resource type="Resource" id="Resource_cooldown"]
+script = ExtResource("5_asf")
+base_value = 3.0
+
+[sub_resource type="Resource" id="Resource_damage"]
+script = ExtResource("5_asf")
+base_value = 120.0
+per_level = 5.0
+
+[sub_resource type="Resource" id="Resource_mana"]
+script = ExtResource("5_asf")
+base_value = 6.0
+per_level = 0.4
+
+[sub_resource type="Resource" id="Resource_hits"]
+script = ExtResource("5_asf")
+base_value = 1.0
+
+[sub_resource type="Resource" id="Resource_targets"]
+script = ExtResource("5_asf")
+base_value = 2.0
+
+[sub_resource type="Resource" id="Resource_scaling"]
+script = ExtResource("7_asd")
+mana_cost_formula = SubResource("Resource_mana")
+cooldown_formula = SubResource("Resource_cooldown")
+damage_percent_formula = SubResource("Resource_damage")
+max_targets_formula = SubResource("Resource_targets")
+max_hits_formula = SubResource("Resource_hits")
+cast_time_formula = SubResource("Resource_cast_time")
+
+[resource]
+script = ExtResource("4_ad")
+ability_id = "vault-strike-dash-ability-pr6-sword-berserker"
+ability_name = "Vault Strike"
+description = "Dash forward and strike for $[damage_percent] damage to up to $[target_count] enemies in your path. [color=#e6c95c]Builds 2 combo points per enemy hit.[/color]"
+ability_icon = ExtResource("1_icon")
+max_level = 15
+required_class = Array[int]([0])
+required_weapon_types = Array[int]([0])
+prerequisite_abilities = Dictionary[ExtResource("4_ad"), int]({
+ExtResource("6_slash"): 3
+})
+active_behavior = SubResource("Resource_active")
+scaling_data = SubResource("Resource_scaling")
