@@ -152,10 +152,31 @@ implements the hooks it needs:
 - **`on_hit(owner, target, ability)`** — fires per landed ability hit in
   `combat.gd._execute_hit` (post-miss-check). Misses don't fire it. Used by
   AL_Brandish (build combo per hit), AL_Hemorrhage (apply bleed), AL_VaultStrike.
-- **`on_kill(owner, target, ability_level)`** — fires for learned PASSIVES when an
-  enemy dies, dispatched by `AbilityComponent.dispatch_passive_event_on_kill`
-  (called from `combat.gd`'s kill pathway). Used by AL_Bloodthirst (heal on kill).
+- **`on_kill(owner, target, ability_level, ability_id)`** — fires for learned
+  PASSIVES when an enemy dies, dispatched by
+  `AbilityComponent.dispatch_passive_event_on_kill` (called from `combat.gd`'s
+  kill pathway). Used by AL_Bloodthirst (heal on kill; reads its heal_pct_bonus
+  upgrade via ability_id).
 - **`on_proc(owner, target, context)`** — proc-effect handler (ProcEffectData).
+
+### PR 6 upgrade effect_keys (the full vocabulary)
+Generic — consumed by Combat/Ability with NO per-AL code:
+  `cooldown_flat_reduction` (sec, _consume_ability_resources),
+  `mana_flat_reduction` (MP, _consume_ability_resources),
+  `bonus_damage_mult` (additive %, calculate_ability_damage),
+  `bonus_targets` / `bonus_hits` (int, combat target/hit loops),
+  `passive_stat_percent_bonus` (% on the passive's stat, get_passive_effect_modifiers).
+Ability-specific — read in the named AL via `ability_has_upgrade_effect` /
+`get_ability_upgrade_magnitude`:
+  `combo_coefficient_override` (AL_Slash, AL_PowerStrike),
+  `combo_per_hit_bonus` (AL_Brandish),
+  `bleed_potency_bonus` / `bleed_max_stack_bonus` / `bleed_duration_bonus`
+  (AL_Hemorrhage),
+  `buff_duration_bonus` (AL_PowerGuard / AL_MapleWarrior / AL_BulwarkStance),
+  `reflect_bonus` (AL_PowerGuard), `vow_stat_bonus` (AL_MapleWarrior),
+  `heal_pct_bonus` (AL_Bloodthirst).
+Adding a new generic key = one wire-in + reuse everywhere; a new ability-specific
+key = a read in that ability's AL.
 
 **DOT kills** (e.g. Hemorrhage's bleed) bypass `_execute_hit`, so the AL script
 must replicate the kill side-effects itself (mastery XP + `on_kill` dispatch) —
