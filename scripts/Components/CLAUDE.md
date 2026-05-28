@@ -204,7 +204,11 @@ Generic — consumed by Combat/Ability with NO per-AL code:
   `mana_flat_reduction` (MP, _consume_ability_resources),
   `bonus_damage_mult` (additive %, calculate_ability_damage),
   `bonus_targets` / `bonus_hits` (int, combat target/hit loops),
-  `passive_stat_percent_bonus` (% on the passive's stat, get_passive_effect_modifiers).
+  `passive_stat_percent_bonus` (% on the passive's stat — for large-base stats
+  like HP/STR/Mana; get_passive_effect_modifiers),
+  `passive_stat_flat_bonus` (PR 8 — FLAT points on the passive's stat, for
+  percentage-style stats CritChance/CritDamage or base-0 Defense where a percent
+  bonus is meaningless; same function).
 Ability-specific — read in the named AL via `ability_has_upgrade_effect` /
 `get_ability_upgrade_magnitude`:
   `combo_coefficient_override` (AL_Slash, AL_PowerStrike),

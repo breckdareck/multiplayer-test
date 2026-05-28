@@ -302,16 +302,19 @@ func get_passive_effect_modifiers() -> Dictionary:
 	var modifiers = {}
 	
 	_foreach_learned_passive(func(_ability: AbilityData, level_stats: AbilityLevelData, _ability_id: String):
-		# PR 6: "passive_stat_percent_bonus" upgrade adds extra % to whatever
-		# stat(s) this passive boosts (e.g. Hardened Frame's +HP%, Iron
-		# Sinews' +STR%). Applied per modified stat.
+		# PR 6: "passive_stat_percent_bonus" adds extra % to whatever stat(s) this
+		# passive boosts — good for large-base stats (Hardened Frame +HP%, Iron
+		# Sinews +STR%, +Mana%). PR 8: "passive_stat_flat_bonus" adds FLAT points —
+		# required for percentage-style stats (CritChance/CritDamage) and base-0
+		# stats (Defense) where a percent bonus is meaningless.
 		var pct_bonus: float = get_ability_upgrade_magnitude(_ability_id, "passive_stat_percent_bonus")
+		var flat_bonus: float = get_ability_upgrade_magnitude(_ability_id, "passive_stat_flat_bonus")
 		# Use stat bonuses from the level data
 		for stat_name in level_stats.stat_bonuses:
 			if not modifiers.has(stat_name):
 				modifiers[stat_name] = StatData.new(stat_name, 0)
 			# Accumulate bonuses from multiple passives
-			modifiers[stat_name].flat_bonus_value += level_stats.stat_bonuses[stat_name].flat_bonus_value
+			modifiers[stat_name].flat_bonus_value += level_stats.stat_bonuses[stat_name].flat_bonus_value + flat_bonus
 			modifiers[stat_name].percent_bonus_value += level_stats.stat_bonuses[stat_name].percent_bonus_value + pct_bonus
 	)
 
