@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://stfu_lan2_diffuse"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "lan_t2_diffuse"
+upgrade_name = "Diffuse"
+description = "Arcane Lance splits to strike +1 additional enemy."
+point_cost = 1
+tier = 2
+variant_group = ""
+effect_key = "bonus_targets"
+magnitude = 1.0
