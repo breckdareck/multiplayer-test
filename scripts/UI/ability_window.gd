@@ -417,30 +417,36 @@ func format_ability_description(data: AbilityData, level_data: AbilityLevelData,
 	var output = ""
 	
 	if data.ability_type == Constants.AbilityType.ACTIVE:
-		var damage_text = desc_template.replace("$[damage_percent]", "[color=%s]%d%%[/color]" % [color, level_data.damage_percent])
+		var damage_text = desc_template.replace("$[damage_percent]", "[color=%s]%s%%[/color]" % [color, AbilityData._smart_format_number(level_data.damage_percent)])
 		var target_text = damage_text.replace("$[target_count]", "[color=%s]%d[/color]" % [color, data.scaling_data.max_targets_formula.calculate(level_data.level)])
 		var hit_text = target_text.replace("$[hit_count]", "[color=%s]%d[/color]" % [color, data.scaling_data.max_hits_formula.calculate(level_data.level)])
-		
+
 		# NEW: Handle buff duration placeholder
 		if data.applies_buff and data.buff_duration_formula:
 			var duration = data.buff_duration_formula.calculate(level_data.level)
 			hit_text = hit_text.replace("$[buff_duration]", "[color=%s]%.0fs[/color]" % [color, duration])
-			
+
 			var stat_key = level_data.stat_bonuses.keys()[0] if not level_data.stat_bonuses.is_empty() else null
 			if stat_key != null:
 				var stat_value = level_data.stat_bonuses.get(stat_key).total_value if level_data.stat_bonuses.get(stat_key).total_value > 0 else level_data.stat_bonuses.get(stat_key).percent_bonus_value
-				hit_text = hit_text.replace("$[stat_bonus]", "[color=%s]%d[/color]" % [color, stat_value])
-		
+				hit_text = hit_text.replace("$[stat_bonus]", "[color=%s]%s[/color]" % [color, AbilityData._smart_format_number(stat_value)])
+
 		output += hit_text
 	elif data.ability_type == Constants.AbilityType.PASSIVE:
-		# For passive abilities, use the first stat bonus in the description
+		var passive_text: String = desc_template
+		# PR 6: passives may use $[damage_percent] as a generic level-scaled
+		# value (e.g. Bloodthirst's heal %). Pulls directly from
+		# scaling_data.damage_percent_formula since level_data.damage_percent
+		# is only populated for active abilities.
+		if data.scaling_data and data.scaling_data.damage_percent_formula:
+			var v: float = data.scaling_data.damage_percent_formula.calculate(level_data.level)
+			passive_text = passive_text.replace("$[damage_percent]", "[color=%s]%s%%[/color]" % [color, AbilityData._smart_format_number(v)])
+		# Stat bonus path (HP Boost, STR Passive, etc.)
 		var stat_key = level_data.stat_bonuses.keys()[0] if not level_data.stat_bonuses.is_empty() else null
 		if stat_key != null:
 			var stat_value = level_data.stat_bonuses.get(stat_key).total_value if level_data.stat_bonuses.get(stat_key).total_value > 0 else level_data.stat_bonuses.get(stat_key).percent_bonus_value
-			var stat_text = desc_template.replace("$[stat_bonus]", "[color=%s]%d[/color]" % [color, stat_value])
-			output += stat_text
-		else:
-			output += desc_template
+			passive_text = passive_text.replace("$[stat_bonus]", "[color=%s]%s[/color]" % [color, AbilityData._smart_format_number(stat_value)])
+		output += passive_text
 	else:
 		output += desc_template
 		

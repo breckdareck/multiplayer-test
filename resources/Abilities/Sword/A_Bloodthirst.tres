@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=11 format=3 uid="uid://s0t2cijqgfop"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=12 format=3 uid="uid://s0t2cijqgfop"]
 
 [ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
@@ -16,11 +16,17 @@ logic_script = ExtResource("3_albt")
 script = ExtResource("5_asf")
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
+[sub_resource type="Resource" id="Resource_heal_pct"]
+script = ExtResource("5_asf")
+base_value = 0.5
+per_level = 0.3
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
 [sub_resource type="Resource" id="Resource_scaling"]
 script = ExtResource("6_asd")
 mana_cost_formula = SubResource("Resource_zero")
 cooldown_formula = SubResource("Resource_zero")
-damage_percent_formula = SubResource("Resource_zero")
+damage_percent_formula = SubResource("Resource_heal_pct")
 max_targets_formula = SubResource("Resource_zero")
 max_hits_formula = SubResource("Resource_zero")
 cast_time_formula = SubResource("Resource_zero")
@@ -29,7 +35,7 @@ cast_time_formula = SubResource("Resource_zero")
 script = ExtResource("4_ad")
 ability_id = "bloodthirst-passive-pr6-heal-on-kill-sword"
 ability_name = "Bloodthirst"
-description = "Restore [color=#e6c95c]0.5% + 0.3% per level[/color] of Max HP whenever you kill an enemy. (Max ~3.2% at level 10.)"
+description = "Restore [color=#e6c95c]$[damage_percent][/color] of Max HP whenever you kill an enemy."
 ability_icon = ExtResource("1_icon")
 max_level = 10
 ability_type = 1
