@@ -364,10 +364,11 @@ func _setup_signals() -> void:
 	# Connect component signals to handle game logic and data saving.
 	# These should run on both Client (to trigger RPC save) and Server (to save directly).
 	if level_component:
-		level_component.experience_changed.connect(func(_c, _e): _data_changed())
-		level_component.leveled_up.connect(func(_l): _data_changed())
-		level_component.leveled_up.connect(_on_leveled_up_effect)
+		# experience rides the lightweight "stats" save; a level-up can shift
+		# points/stats/abilities, so it triggers a full "all" save. (Previously
+		# each was also wired to a no-arg _data_changed(), double-saving.)
 		level_component.experience_changed.connect(func(_c, _e): _data_changed("stats"))
+		level_component.leveled_up.connect(_on_leveled_up_effect)
 		level_component.leveled_up.connect(func(_l): _data_changed("all")) # Level up might affect everything (points, stats)
 		level_component.leveled_up.connect(func(new_level):
 			if multiplayer.is_server() and not _is_loading_data:
@@ -395,7 +396,10 @@ func _setup_signals() -> void:
 		buff_component.buff_refreshed.connect(func(_b, _d): _data_changed("buffs"))
 
 	if equipment_component:
-		equipment_component.on_equipment_changed.connect(func(): _data_changed("equipment"))
+		# Equipment is serialized inside the inventory save bucket, so persist
+		# equipment changes via "inventory" (there is no standalone "equipment"
+		# producer in get_save_data — a separate category saved an empty payload).
+		equipment_component.on_equipment_changed.connect(func(): _data_changed("inventory"))
 		# PR 3: react to active-weapon flips for sprite swap + transition FX.
 		# The active_weapon flag itself rides in the equipment save bucket.
 		equipment_component.active_weapon_changed.connect(_on_active_weapon_changed)
@@ -709,7 +713,7 @@ func get_save_data(update_type: String = "all") -> Dictionary:
 		if is_instance_valid(buff_component):
 			data['buffs'] = buff_component.save_buffs()
 
-	if update_type == "all":
+	if update_type == "all" or update_type == "quests":
 		data['quests'] = QuestManager.save_quests(username)
 
 	if update_type == "all" or update_type == "pets":
@@ -729,7 +733,6 @@ func _get_stats_data() -> Dictionary:
 		'current_mana': mana_component.current_mana if is_instance_valid(mana_component) else 100,
 		'level': level_component.level if is_instance_valid(level_component) else 1,
 		'experience': level_component.experience if is_instance_valid(level_component) else 0,
-		'party_id': _current_party_id,
 		'last_map': MapManager.get_player_map(player_id) if multiplayer.is_server() else MapManager.current_map_id,
 		'character_type': class_component.current_class if is_instance_valid(class_component) else 0
 	}
@@ -1017,11 +1020,10 @@ func _on_active_weapon_changed(_active_weapon: String, _active_item: ItemData) -
 	if _is_being_cleaned_up:
 		return
 
-	# Persist the new active_weapon. The inventory bucket already serializes
-	# equipment + active_weapon together (see InventoryComponent.save_inventory),
-	# so queue an inventory save explicitly. The default `on_equipment_changed`
-	# handler fires the "equipment" category, which today doesn't round-trip
-	# in get_save_data — so we route through "inventory" for the swap.
+	# Persist the new active_weapon. The inventory bucket serializes equipment +
+	# active_weapon together (see InventoryComponent.save_inventory). A Tab-swap
+	# fires active_weapon_changed WITHOUT on_equipment_changed, so queue the
+	# inventory save here explicitly.
 	if multiplayer.is_server() and not _is_loading_data:
 		_data_changed("inventory")
 
