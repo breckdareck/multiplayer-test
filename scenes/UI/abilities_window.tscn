@@ -108,6 +108,16 @@ horizontal_alignment = 2
 vertical_alignment = 1
 metadata/_edit_use_anchors = true
 
+[node name="RespecMenuButton" type="Button" parent="MarginContainer/VBoxContainer/HeaderPanel/HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(70, 28)
+layout_mode = 2
+focus_mode = 0
+theme = SubResource("Theme_i6h8y")
+theme_override_font_sizes/font_size = 12
+text = "Respec ▾"
+tooltip_text = "Respec this weapon's whole tree, or all weapons."
+
 [node name="CloseButton" type="Button" parent="MarginContainer/VBoxContainer/HeaderPanel/HBoxContainer"]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
@@ -295,13 +305,13 @@ text = "UPGRADES"
 
 [node name="RespecButton" type="Button" parent="MarginContainer/VBoxContainer/HSplitContainer/AbilityDetailsPanel/DetailsVBox/UpgradesContainer/UpgradesHeader"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(90, 24)
+custom_minimum_size = Vector2(110, 24)
 layout_mode = 2
 focus_mode = 0
 theme = SubResource("Theme_i6h8y")
 theme_override_font_sizes/font_size = 12
-text = "Respec"
-tooltip_text = "Refund all spent points + upgrades in this discipline."
+text = "Respec Ability"
+tooltip_text = "Refund this ability's levels + upgrades."
 
 [node name="UpgradesList" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HSplitContainer/AbilityDetailsPanel/DetailsVBox/UpgradesContainer"]
 unique_name_in_owner = true

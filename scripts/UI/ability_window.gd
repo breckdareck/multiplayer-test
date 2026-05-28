@@ -20,7 +20,10 @@ const ABILITYSLOT = preload("res://scenes/UI/ability_slot.tscn")
 ## PR 6: upgrade panel — tier rows with buy buttons + a per-discipline respec.
 @onready var upgrades_container: VBoxContainer = %UpgradesContainer
 @onready var upgrades_list: VBoxContainer = %UpgradesList
+## Per-ability respec (in the details/upgrades panel).
 @onready var respec_button: Button = %RespecButton
+## Top-header respec (tree / all weapons) — opens a popup.
+@onready var respec_menu_button: Button = %RespecMenuButton
 ## PR 4: TabBar above the list, one tab per weapon discipline. Selecting a
 ## tab filters the ability list and switches the SP label to the matching
 ## discipline pool.
@@ -62,9 +65,11 @@ func _ready():
 	# Connect signals
 	level_up_button.pressed.connect(on_level_up_button_pressed)
 
-	# PR 6: respec button + upgrade-state refresh signals.
+	# PR 6: per-ability respec (details panel) + tree/all respec (top header).
 	if is_instance_valid(respec_button):
-		respec_button.pressed.connect(_on_respec_button_pressed)
+		respec_button.pressed.connect(_on_respec_ability_pressed)
+	if is_instance_valid(respec_menu_button):
+		respec_menu_button.pressed.connect(_on_respec_button_pressed)
 
 	# PR 4: discipline tab bar drives the list filter + SP label.
 	if is_instance_valid(discipline_tab_bar):
@@ -772,22 +777,22 @@ func _on_ability_upgrade_changed(ability_id: String, _upgrade_id: String) -> voi
 		select_ability(selected_ability_id)
 
 
-## Respec entry — opens a small popup offering a quick respec of either the
-## current weapon discipline or all weapons. The popup IS the confirmation
-## (deliberate two-step: open menu → pick option).
+## Top-header respec — opens a small popup offering a quick respec of either
+## the current weapon discipline (tree) or all weapons. The popup IS the
+## confirmation (deliberate two-step: open menu → pick option).
 func _on_respec_button_pressed() -> void:
 	if not ability_component:
 		return
 	var menu := PopupMenu.new()
-	menu.add_item("Respec %s" % _current_discipline_tab_title(), 0)
+	menu.add_item("Respec %s Tree" % _current_discipline_tab_title(), 0)
 	menu.add_item("Respec All Weapons", 1)
 	add_child(menu)
 	menu.id_pressed.connect(_on_respec_menu_selected)
 	# Free the popup once it closes (covers both selection and dismissal).
 	menu.popup_hide.connect(menu.queue_free)
-	# Anchor just below the Respec button.
-	var pos: Vector2 = respec_button.get_screen_position() + Vector2(0, respec_button.size.y)
-	menu.position = pos
+	# Anchor just below the top Respec button.
+	var anchor: Control = respec_menu_button if is_instance_valid(respec_menu_button) else self
+	menu.position = anchor.get_screen_position() + Vector2(0, anchor.size.y)
 	menu.popup()
 
 
@@ -798,8 +803,20 @@ func _on_respec_menu_selected(id: int) -> void:
 		ability_component.respec_discipline(_current_discipline_key)
 	elif id == 1:
 		ability_component.respec_all()
-	# Signals (ability_leveled_up / ability_points_changed) drive most of the
-	# refresh; do an explicit pass too so the open panel updates immediately.
+	_refresh_after_respec()
+
+
+## Per-ability respec — refunds just the selected ability's levels + upgrades.
+func _on_respec_ability_pressed() -> void:
+	if not ability_component or selected_ability_id.is_empty():
+		return
+	ability_component.respec_ability(selected_ability_id)
+	_refresh_after_respec()
+
+
+## Shared post-respec UI refresh. Signals already drive most of it; this
+## ensures the open panel + header update immediately.
+func _refresh_after_respec() -> void:
 	update_skill_points_display()
 	load_ability_list()
 	if not selected_ability_id.is_empty():

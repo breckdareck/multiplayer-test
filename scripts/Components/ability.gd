@@ -1603,44 +1603,16 @@ func respec_discipline(disc_key: String) -> bool:
 func _respec_discipline_local(disc_key: String) -> bool:
 	if not _available_points_per_discipline.has(disc_key):
 		return false
-
 	var starter_id: String = _discipline_starter_ability_id(disc_key)
+	var reset_ids: Array[String] = []
 	var refund: int = 0
-	var reset_ability_ids: Array[String] = []
-
 	for ability_id in _ability_levels.keys():
 		var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
 		if ability == null or _ability_primary_discipline(ability) != disc_key:
 			continue
-		var baseline: int = 1 if ability_id == starter_id else 0
-		var current_level: int = int(_ability_levels[ability_id])
-		refund += maxi(0, current_level - baseline)
-		# Refund any purchased upgrades on this ability.
-		for owned_id in _learned_upgrades.get(ability_id, []):
-			var up: AbilityUpgradeData = _find_upgrade(ability, owned_id)
-			if up != null:
-				refund += up.point_cost
-		# Reset level + upgrades.
-		if current_level != baseline:
-			_ability_levels[ability_id] = baseline
-			reset_ability_ids.append(ability_id)
-		_learned_upgrades.erase(ability_id)
-
+		refund += _refund_ability(ability_id, starter_id, reset_ids)
 	_available_points_per_discipline[disc_key] = int(_available_points_per_discipline.get(disc_key, 0)) + refund
-
-	# Levels changed → recompute passive contributions.
-	_apply_passive_effects()
-	ability_points_changed.emit(disc_key, int(_available_points_per_discipline[disc_key]))
-	for ability_id in reset_ability_ids:
-		ability_leveled_up.emit(ability_id, int(_ability_levels[ability_id]))
-
-	# Sync to the owning client (skip bots — no client UI).
-	if multiplayer.has_multiplayer_peer() and not BotManager.is_bot(owner.player_id):
-		for ability_id in reset_ability_ids:
-			sync_ability_level.rpc(ability_id, int(_ability_levels[ability_id]))
-		sync_ability_points_per_discipline.rpc(_available_points_per_discipline.duplicate())
-		sync_learned_upgrades.rpc(_learned_upgrades.duplicate(true))
-
+	_finalize_respec([disc_key], reset_ids)
 	return true
 
 
@@ -1653,6 +1625,39 @@ func respec_discipline_request(disc_key: String) -> void:
 	_respec_discipline_local(disc_key)
 
 
+## Per-ability respec — refunds ONE ability's levels (above the free starter
+## baseline) + its purchased upgrade costs, resets it, returns the points.
+func respec_ability(ability_id: String) -> bool:
+	if _is_multiplayer_client():
+		respec_ability_request.rpc_id(1, ability_id)
+		return true
+	return _respec_ability_local(ability_id)
+
+
+func _respec_ability_local(ability_id: String) -> bool:
+	var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
+	if ability == null:
+		return false
+	var disc_key: String = _ability_primary_discipline(ability)
+	if disc_key == "" or not _available_points_per_discipline.has(disc_key):
+		return false
+	var starter_id: String = _discipline_starter_ability_id(disc_key)
+	var reset_ids: Array[String] = []
+	var refund: int = _refund_ability(ability_id, starter_id, reset_ids)
+	_available_points_per_discipline[disc_key] = int(_available_points_per_discipline.get(disc_key, 0)) + refund
+	_finalize_respec([disc_key], reset_ids)
+	return true
+
+
+@rpc("any_peer", "call_local", "reliable")
+func respec_ability_request(ability_id: String) -> void:
+	if not multiplayer.is_server():
+		return
+	if multiplayer.get_remote_sender_id() != owner.player_id:
+		return
+	_respec_ability_local(ability_id)
+
+
 ## Respecs all four tier-1 disciplines at once (quick full reset).
 func respec_all() -> bool:
 	if _is_multiplayer_client():
@@ -1662,8 +1667,20 @@ func respec_all() -> bool:
 
 
 func _respec_all_local() -> bool:
-	for key in DISCIPLINE_KEYS:
-		_respec_discipline_local(key)
+	var reset_ids: Array[String] = []
+	var refund_by_disc: Dictionary = {}
+	for ability_id in _ability_levels.keys():
+		var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
+		if ability == null:
+			continue
+		var disc_key: String = _ability_primary_discipline(ability)
+		if disc_key == "":
+			continue
+		var starter_id: String = _discipline_starter_ability_id(disc_key)
+		refund_by_disc[disc_key] = int(refund_by_disc.get(disc_key, 0)) + _refund_ability(ability_id, starter_id, reset_ids)
+	for disc_key in refund_by_disc:
+		_available_points_per_discipline[disc_key] = int(_available_points_per_discipline.get(disc_key, 0)) + int(refund_by_disc[disc_key])
+	_finalize_respec(DISCIPLINE_KEYS, reset_ids)
 	return true
 
 
@@ -1674,6 +1691,43 @@ func respec_all_request() -> void:
 	if multiplayer.get_remote_sender_id() != owner.player_id:
 		return
 	_respec_all_local()
+
+
+## Refund + reset ONE ability: points for levels above the free starter
+## baseline + all owned upgrade costs. Mutates _ability_levels /
+## _learned_upgrades, appends to reset_ids if the level changed. Returns the
+## refund. No emit/sync — callers batch that via _finalize_respec.
+func _refund_ability(ability_id: String, starter_id: String, reset_ids: Array) -> int:
+	var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
+	if ability == null:
+		return 0
+	var baseline: int = 1 if ability_id == starter_id else 0
+	var current_level: int = int(_ability_levels.get(ability_id, 0))
+	var refund: int = maxi(0, current_level - baseline)
+	for owned_id in _learned_upgrades.get(ability_id, []):
+		var up: AbilityUpgradeData = _find_upgrade(ability, owned_id)
+		if up != null:
+			refund += up.point_cost
+	if current_level != baseline:
+		_ability_levels[ability_id] = baseline
+		reset_ids.append(ability_id)
+	_learned_upgrades.erase(ability_id)
+	return refund
+
+
+## Post-respec: recompute passives, emit per-discipline + per-ability signals,
+## and sync to the owning client.
+func _finalize_respec(disc_keys: Array, reset_ids: Array) -> void:
+	_apply_passive_effects()
+	for key in disc_keys:
+		ability_points_changed.emit(key, int(_available_points_per_discipline.get(key, 0)))
+	for ability_id in reset_ids:
+		ability_leveled_up.emit(ability_id, int(_ability_levels.get(ability_id, 0)))
+	if multiplayer.has_multiplayer_peer() and not BotManager.is_bot(owner.player_id):
+		for ability_id in reset_ids:
+			sync_ability_level.rpc(ability_id, int(_ability_levels.get(ability_id, 0)))
+		sync_ability_points_per_discipline.rpc(_available_points_per_discipline.duplicate())
+		sync_learned_upgrades.rpc(_learned_upgrades.duplicate(true))
 
 
 ## Maps a discipline key to its starter ability's id (the one auto-leveled to
