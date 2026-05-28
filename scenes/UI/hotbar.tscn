@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://op5a1mqidavt"]
+[gd_scene load_steps=3 format=3 uid="uid://op5a1mqidavt"]
 
 [ext_resource type="Script" uid="uid://c0rkvuk20x8br" path="res://scripts/UI/hotbar.gd" id="1_hotbar"]
 [ext_resource type="PackedScene" path="res://scenes/UI/hotbar_weapon_slot.tscn" id="2_wslot"]
@@ -31,9 +31,9 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -325.0
+offset_left = -310.0
 offset_top = -80.0
-offset_right = 325.0
+offset_right = 310.0
 offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 0

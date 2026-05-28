@@ -138,6 +138,51 @@ func _emit_equipment_changed_deferred():
 	on_equipment_changed.emit()
 	_changed_in_frame = false
 
+	# PR 5 — Sword combo: reset combo points when SWORD leaves both equipped
+	# slots (primary AND secondary). Combo lives on the weapon — you can't
+	# stockpile it without a sword anywhere in your loadout. Server-side only;
+	# the SwordComboComponent.reset_combo guard skips clients, and the RPC
+	# inside it broadcasts the zeroed count to the owning client.
+	if multiplayer.is_server():
+		_reset_combo_if_sword_unequipped()
+
+
+## Server-only. Checks both weapon slots and, if neither holds a sword,
+## clears any accumulated combo points on the owner's SwordComboComponent.
+## A Tab-swap between sword and bow keeps combo intact (combo persists across
+## active-weapon flips per the locked design); only the ITEM in a slot being
+## non-Sword in both slots triggers the reset.
+func _reset_combo_if_sword_unequipped() -> void:
+	# Use slot data to read the items independent of the active flag — we
+	# care about what's IN the slots, not which one is wielded right now.
+	var primary_weapon: WeaponData = null
+	var primary_sd: SlotData = slots_data.get("WEAPON")
+	if primary_sd != null and primary_sd.item != null:
+		primary_weapon = primary_sd.item as WeaponData
+
+	var secondary_weapon: WeaponData = null
+	var secondary_sd: SlotData = slots_data.get("SECONDARY_WEAPON")
+	if secondary_sd != null and secondary_sd.item != null:
+		secondary_weapon = secondary_sd.item as WeaponData
+
+	var has_sword: bool = false
+	if primary_weapon != null and primary_weapon.weapon_type == Constants.WeaponType.SWORD:
+		has_sword = true
+	if secondary_weapon != null and secondary_weapon.weapon_type == Constants.WeaponType.SWORD:
+		has_sword = true
+
+	if has_sword:
+		return
+
+	var root := get_owner()
+	if root == null:
+		return
+	# Route through the typed accessor on MultiplayerPlayerV2 (set in PR 5).
+	# Defensive: legacy bots / test scenes without the component silently skip.
+	var combo_comp = root.get("sword_combo_component")
+	if combo_comp != null and is_instance_valid(combo_comp):
+		combo_comp.reset_combo()
+
 
 ## Flags an equipment change so on_equipment_changed fires (deferred). Used by
 ## code that mutates a SlotData directly instead of through a Slot view setter.

@@ -27,6 +27,10 @@ const MAX_FALL_SPEED: float = 1200.0
 @export var stats_component: StatsComponent
 @export var class_component: ClassComponent
 @export var weapon_mastery_component: WeaponMasteryComponent
+## PR 5: Sword discipline's signature combat system — combo points built
+## by basic-attack hits and consumed by Slash for amplified damage.
+## See scripts/Components/sword_combo.gd.
+@export var sword_combo_component: SwordComboComponent
 @export var player_inventory: PlayerInventory
 @export var inventory_component: InventoryComponent
 @export var equipment_component: EquipmentComponent

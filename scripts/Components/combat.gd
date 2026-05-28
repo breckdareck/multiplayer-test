@@ -52,6 +52,13 @@ var _class_component: ClassComponent
 var _equipment_component: EquipmentComponent
 var _ability_component: AbilityComponent
 var _weapon_mastery_component: WeaponMasteryComponent
+var _sword_combo_component: SwordComboComponent
+
+## PR 5: transient damage multiplier applied to the NEXT ability damage
+## calculation. Used by AL_SlashBlast to scale damage by combo points spent
+## (+25% per point). calculate_ability_damage reads + clears this so it
+## never lingers past one hit. Defaults to 1.0 (no effect).
+var pending_ability_damage_multiplier: float = 1.0
 
 @onready var owner_node: CharacterBody2D = get_owner()
 @onready var attack_hitbox_timer: Timer = $"../../AttackHitboxTimer"
@@ -70,6 +77,7 @@ func _ready() -> void:
 	_equipment_component = get_parent().get_node_or_null("Equipment")
 	_ability_component = get_parent().get_node_or_null("Ability")
 	_weapon_mastery_component = get_parent().get_node_or_null("WeaponMastery")
+	_sword_combo_component = get_parent().get_node_or_null("SwordCombo")
 
 	hitbox_area.monitoring = false
 
@@ -223,17 +231,22 @@ func end_attack() -> void:
 func end_ability_attack() -> void:
 	if not multiplayer.is_server():
 		return
-		
+
 	_process_collected_bodies()
-		
+
 	hitbox_area.monitoring = false
 	_current_attack_mode = AttackMode.NONE
 	current_ability_data = null
 	current_active_data = null
 	current_level_stats = null
-	
+
 	hit_list.clear()
 	_unique_targets_for_attack.clear()
+	# PR 5 — Sword combo: clear the per-cast damage multiplier set by
+	# AL_SlashBlast. Guards against bleed-through to the next ability cast
+	# in the case where the player chains Slash → another sword ability
+	# while pending_ability_damage_multiplier is still non-1.0.
+	pending_ability_damage_multiplier = 1.0
 
 
 func _get_owner_map_node() -> Node:
@@ -480,6 +493,33 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 			if secondary_discipline != -1 and secondary_discipline != kill_discipline:
 				_weapon_mastery_component.grant_mastery_xp_server(secondary_discipline, kill_xp)
 
+		# PR 5 — Sword signature: build a combo point on every BASIC-ATTACK
+		# HIT while wielding a sword. Conditions:
+		#  - `ability == null` (the basic-melee pathway; not the ability or
+		#    Arrow-Shot internal pathway). Multi-hit ability hits don't
+		#    build combo per the locked design — combo is built by basic
+		#    attacks specifically.
+		#  - Active weapon discipline is SWORD (so a Tab-swap to bow stops
+		#    building combo, matching the "I am my weapon" rule).
+		#  - Past the miss `continue` above — connected swings count even
+		#    at zero damage; the connection is the signal of intent.
+		# Cap behavior, decay restart, and RPC sync are owned by the
+		# SwordComboComponent itself.
+		if ability == null and is_instance_valid(_sword_combo_component):
+			if _active_weapon_discipline() == Constants.ClassType.SWORD:
+				_sword_combo_component.add_combo_point()
+
+		# PR 5 follow-up: per-ability on_hit hook. Mirrors the execute/on_proc
+		# pattern — if the ability defines an active_behavior.logic_script with
+		# an on_hit(owner, target, ability) method, fire it for each landed
+		# hit. Lets per-ability behaviors (e.g. Brandish building combo on
+		# hit) live in their own AL_*.gd files instead of new bool fields on
+		# ActiveBehaviorData. Server-only via the surrounding pathway.
+		if ability and ability.active_behavior and ability.active_behavior.logic_script:
+			var hit_logic = ability.active_behavior.logic_script.new()
+			if hit_logic.has_method("on_hit"):
+				hit_logic.on_hit(owner_node, target_enemy, ability)
+
 		if damage_to_deal > 0:
 			# Knockback, gated by the target's knockback resist.
 			var knockback_dir = owner.facing_direction
@@ -542,6 +582,15 @@ func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelDa
 		var passive_modifier = _ability_component.get_ability_damage_modifier(_ability.ability_id)
 		damage = roundi(damage * passive_modifier)
 		#print("Applied passive damage modifier: %.2fx" % passive_modifier)
+
+	# PR 5 — Sword combo: AL_SlashBlast stages a transient damage multiplier
+	# on this component (pending_ability_damage_multiplier) when it spends
+	# combo on cast. Apply it to every damage roll for this ability cast
+	# (covers multi-hit + multi-target abilities — all hits of a finisher
+	# should share the bonus). Reset to 1.0 in end_ability_attack so the
+	# multiplier never bleeds into the next cast.
+	if pending_ability_damage_multiplier != 1.0:
+		damage = roundi(damage * pending_ability_damage_multiplier)
 
 	return damage
 

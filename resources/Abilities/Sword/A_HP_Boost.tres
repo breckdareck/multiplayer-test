@@ -31,7 +31,7 @@ metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
 [resource]
 script = ExtResource("3_04s2n")
 ability_id = "77300497-12731-60120-111544-957133612951038"
-ability_name = "HP Boost"
+ability_name = "Hardened Frame"
 description = "Permanently increases Max HP by $[stat_bonus]%."
 ability_icon = ExtResource("1_f3xb2")
 max_level = 10

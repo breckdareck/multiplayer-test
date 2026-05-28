@@ -1,0 +1,90 @@
+[gd_scene load_steps=4 format=3 uid="uid://bxi24t15fkgj6"]
+
+[ext_resource type="Script" uid="uid://csw0rdcmbow1dg" path="res://scripts/UI/sword_combo_widget.gd" id="1_widget"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_widget_panel"]
+content_margin_left = 8.0
+content_margin_top = 6.0
+content_margin_right = 8.0
+content_margin_bottom = 6.0
+bg_color = Color(0.047, 0.047, 0.047, 0.85)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.65, 0.5, 0.2, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pip_default"]
+bg_color = Color(0.15, 0.15, 0.18, 0.85)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.45, 0.45, 0.5, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[node name="SwordComboWidget" type="Control"]
+layout_mode = 3
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 16.0
+offset_top = -64.0
+offset_right = 72.0
+offset_bottom = 64.0
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_widget")
+
+[node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_widget_panel")
+
+[node name="VBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ComboLabel" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(1.0, 0.85, 0.4, 1.0)
+theme_override_font_sizes/font_size = 10
+text = "COMBO"
+horizontal_alignment = 1
+
+[node name="Pips" type="VBoxContainer" parent="Panel/VBox"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="Pip0" type="Panel" parent="Panel/VBox/Pips"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_pip_default")
+
+[node name="Pip1" type="Panel" parent="Panel/VBox/Pips"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_pip_default")
+
+[node name="Pip2" type="Panel" parent="Panel/VBox/Pips"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_pip_default")

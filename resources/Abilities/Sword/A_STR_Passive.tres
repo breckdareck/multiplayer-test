@@ -30,7 +30,7 @@ stat_bonus_formulas = Array[ExtResource("4_28yas")]([SubResource("Resource_5vc5f
 [resource]
 script = ExtResource("6_64xiq")
 ability_id = "413121311101411-157146-141212-013012-5357101513811514"
-ability_name = "STR Passive"
+ability_name = "Iron Sinews"
 description = "Permanently increases STR by $[stat_bonus]%."
 ability_icon = ExtResource("1_c7kxc")
 max_level = 10

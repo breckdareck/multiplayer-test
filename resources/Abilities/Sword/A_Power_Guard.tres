@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=18 format=3 uid="uid://bj44mdaqov8t"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=19 format=3 uid="uid://bj44mdaqov8t"]
 
 [ext_resource type="Texture2D" uid="uid://ky00whwbxbmx" path="res://assets/sprites/Abilities/power_guard.png" id="1_26017"]
 [ext_resource type="Script" uid="uid://doiljfws248yw" path="res://scripts/Abilities/AL_PowerGuard.gd" id="2_1gbs7"]
@@ -8,6 +8,7 @@
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="6_jrmpn"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_b8raq"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_cm1ky"]
+[ext_resource type="Resource" uid="uid://ccxoh5fmx317x" path="res://resources/Abilities/Sword/A_Slash.tres" id="9_slash"]
 
 [sub_resource type="Resource" id="Resource_1gbs7"]
 script = ExtResource("2_rxk8e")
@@ -66,13 +67,16 @@ metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
 [resource]
 script = ExtResource("2_26017")
 ability_id = "32121111002-711613-1312210-11605-410115144314331013"
-ability_name = "Power Guard"
+ability_name = "Iron Riposte"
 description = "Reflects $[damage_percent] of damage taken back to attackers for $[buff_duration].
 Cannot reflect more than half of the enemy's Max HP at once."
 ability_icon = ExtResource("1_26017")
 max_level = 20
 required_class = Array[int]([0])
 required_weapon_types = Array[int]([0])
+prerequisite_abilities = Dictionary[ExtResource("2_26017"), int]({
+ExtResource("9_slash"): 1
+})
 active_behavior = SubResource("Resource_1gbs7")
 applies_buff = ExtResource("4_b8raq")
 buff_duration_formula = SubResource("Resource_ddpfy")

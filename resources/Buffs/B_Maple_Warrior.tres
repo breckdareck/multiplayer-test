@@ -9,7 +9,7 @@
 resource_local_to_scene = true
 script = ExtResource("1_d5nlr")
 buff_id = "21255041514-1111715-44152-1588-52125915111413304"
-buff_name = "Maple Warrior"
+buff_name = "Vow of the Vanguard"
 description = "Increases the stats of all party members."
 buff_icon = ExtResource("1_17ssb")
 duration = 30.0
