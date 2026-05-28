@@ -3,9 +3,22 @@ extends Node
 
 signal class_changed(new_class: String)
 
-@export var current_class: Constants.ClassType
+@export var current_class: Constants.ClassType:
+	set(value):
+		current_class = _ADVANCED_TO_BASE.get(value, value)
 
 var class_abilities: Array[AbilityData] = []
+
+## PR 7 — Job Advancement removed: classes don't exist, only weapons. Any legacy
+## advanced class (CRUSADER/RANGER/ARCHMAGE/ASSASSIN) normalizes back to its
+## tier-1 weapon discipline so existing advanced characters revert to weapon-pure
+## on load. No backend migration needed; the setter catches every assignment.
+const _ADVANCED_TO_BASE: Dictionary = {
+	Constants.ClassType.CRUSADER: Constants.ClassType.SWORD,
+	Constants.ClassType.RANGER: Constants.ClassType.BOW,
+	Constants.ClassType.ARCHMAGE: Constants.ClassType.STAFF,
+	Constants.ClassType.ASSASSIN: Constants.ClassType.DAGGER,
+}
 
 func _ready() -> void:
 	_load_class_abilities()

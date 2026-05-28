@@ -373,8 +373,6 @@ func _setup_signals() -> void:
 		level_component.leveled_up.connect(func(new_level):
 			if multiplayer.is_server() and not _is_loading_data:
 				QuestManager.record_level_up(username, new_level)
-				if new_level == JobAdvancementManager.ADVANCEMENT_LEVEL:
-					QuestManager.notify_advancement_available(username)
 		)
 		if multiplayer.is_server():
 			level_component.leveled_up.connect(_handle_sprite_change_on_server.unbind(1))
