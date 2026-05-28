@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://bowu_sky1_widefall"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "sky_t1_wide_fall"
+upgrade_name = "Wide Fall"
+description = "Skyfall rains down on +2 additional enemies."
+point_cost = 1
+tier = 1
+variant_group = ""
+effect_key = "bonus_targets"
+magnitude = 2.0

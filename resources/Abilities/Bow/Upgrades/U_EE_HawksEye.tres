@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://bowu_ee3_hawkseye"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "ee_t3_hawks_eye"
+upgrade_name = "Hawk's Eye"
+description = "Eagle Eye's cooldown is reduced by 12 seconds."
+point_cost = 2
+tier = 3
+variant_group = "ee_vision_variant"
+effect_key = "cooldown_flat_reduction"
+magnitude = 12.0
