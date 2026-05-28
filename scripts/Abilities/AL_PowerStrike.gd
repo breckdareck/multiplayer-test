@@ -4,11 +4,11 @@ extends Node
 ## complementing Slash (the AOE finisher). Same combo-spend mechanic as
 ## Slash; the difference is the per-point multiplier:
 ##
-##   Slash:        +50% per combo point (SwordComboComponent.COMBO_DAMAGE_PER_POINT)
-##   Power Strike: +100% per combo point (this script's constant)
+##   Slash:        +100% per combo point (SwordComboComponent.COMBO_DAMAGE_PER_POINT)
+##   Power Strike: +200% per combo point (this script's constant)
 ##
-## At 3 combo: Slash deals 2.5× damage on up to 6 targets; Power Strike deals
-## 4.0× damage on 1 target. Players who specialize into single-target burst
+## At 3 combo: Slash deals 4× damage on up to 6 targets; Power Strike deals
+## 7× damage on 1 target. Players who specialize into single-target burst
 ## (boss play, PvP) pick Power Strike; players who clear packs pick Slash.
 ##
 ## Power Strike already requires Slash 5 as a prereq (see prerequisite_abilities
@@ -18,7 +18,7 @@ extends Node
 ## Per-combo-point damage multiplier. Local constant rather than the shared
 ## SwordComboComponent.COMBO_DAMAGE_PER_POINT because Power Strike is a
 ## stronger finisher — it trades AOE for a bigger combo payoff per point.
-const POWERSTRIKE_DAMAGE_PER_POINT: float = 1.0
+const POWERSTRIKE_DAMAGE_PER_POINT: float = 2.0
 
 
 func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevelData) -> void:

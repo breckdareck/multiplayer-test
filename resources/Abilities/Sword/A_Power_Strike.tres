@@ -64,7 +64,7 @@ metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
 script = ExtResource("4_hhglo")
 ability_id = "1115614771-143510-91359-21514-0138181401501008"
 ability_name = "Sundering Blow"
-description = "Single-target finisher. Deliver a heavy blow to a single monster for $[damage_percent] damage. [color=#e6c95c]Consumes all combo points to amplify damage by +100% per point spent (max +300% at 3 combo).[/color]"
+description = "Single-target finisher. Deliver a heavy blow to a single monster for $[damage_percent] damage. [color=#e6c95c]Consumes all combo points to amplify damage by +200% per point spent (max +600% at 3 combo).[/color]"
 ability_icon = ExtResource("1_v0yfe")
 max_level = 20
 required_class = Array[int]([0])
