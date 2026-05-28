@@ -267,10 +267,16 @@ func _deferred_death_processing(_killer: Node) -> void:
 		total_damage += dmg
 		
 	var killer_player_id = -1
-	if _killer.owner is MultiplayerPlayerV2:
-		killer_player_id = _killer.owner.player_id
-	
-	#print("Determined killer_player_id: ", killer_player_id)
+	# PR 6 fix: mirror on_enemy_damaged's source-resolution. DOT/bleed
+	# kills pass MultiplayerPlayerV2 directly as the killer; normal combat
+	# hits pass a component whose .owner is the player root.
+	if _killer != null and is_instance_valid(_killer):
+		if _killer is MultiplayerPlayerV2:
+			killer_player_id = _killer.player_id
+		elif _killer.owner is MultiplayerPlayerV2:
+			killer_player_id = _killer.owner.player_id
+
+	print("[EnemyDeath] killer=%s id=%d total_damage=%d damage_by_player=%s exp_reward=%d" % [str(_killer), killer_player_id, total_damage, str(damage_by_player), experience_reward])
 
 	var killer_party_id = PartyManager.get_player_party_id(killer_player_id)
 	#print("Determined killer_party_id: ", killer_party_id)
