@@ -37,13 +37,23 @@ class Account(db.Model):
 
 class Player(db.Model):
     __tablename__ = 'players'
+    __table_args__ = (
+        # account_id drives the character-select query; Postgres does not
+        # auto-index FK columns, so declare it explicitly.
+        db.Index('idx_players_account_id', 'account_id'),
+    )
     # Integer Primary Key (Auto-incrementing)
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     # Foreign key to Account
     account_id = db.Column(db.Integer, db.ForeignKey('accounts.id'), nullable=False)
     # Username is unique and represents the CHARACTER NAME
     username = db.Column(db.String(255), unique=True, nullable=False)
-    
+    # Discriminates bot characters (negative peer id in-game, owned by the shared
+    # __bots__ account) from real players, without resolving the magic account id.
+    # Single-table inheritance: bots share the player save shape, so they stay in
+    # this table with a discriminator rather than a parallel `bots` table.
+    is_bot = db.Column(db.Boolean, nullable=False, server_default=db.text('false'), default=False)
+
     level = db.Column(db.Integer, default=1)
     character_class = db.Column(db.Integer, default=0)
     experience = db.Column(db.Integer, default=0)
@@ -52,7 +62,6 @@ class Player(db.Model):
     current_mana = db.Column(db.Integer, default=100)
     max_mana = db.Column(db.Integer, default=100)
     last_map = db.Column(db.String(255), default="town")
-    party_id = db.Column(db.Integer, default=-1)
     monies = db.Column(db.Integer, default=0)
     # Legacy single-pool ability points. PR 4 replaced this with
     # `ability_points_per_discipline` (a JSONB dict keyed by lowercase weapon
@@ -86,20 +95,16 @@ class Player(db.Model):
     # NULL on existing rows → loads as an empty dict in Godot, which
     # _ensure_default_disciplines fills in with four zero-state entries.
     weapon_mastery = db.Column(JSONB, nullable=True)
-    # PR 6: per-ability purchased upgrades. { ability_id: [upgrade_id, ...] }.
-    # Wholesale blob owned by Godot's AbilityComponent (save_abilities writes
-    # the whole map; load_abilities replaces it). NULL on existing rows →
-    # loads as empty dict → no upgrades, matching pre-PR-6 behavior.
-    learned_ability_upgrades = db.Column(JSONB, nullable=True)
-
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
-    # Relationships
-    items = db.relationship('PlayerItem', backref='player', cascade="all, delete-orphan", foreign_keys='PlayerItem.player_username', primaryjoin="Player.username==PlayerItem.player_username")
-    equipment = db.relationship('PlayerEquipment', backref='player', cascade="all, delete-orphan", foreign_keys='PlayerEquipment.player_username', primaryjoin="Player.username==PlayerEquipment.player_username")
-    abilities = db.relationship('PlayerAbility', backref='player', cascade="all, delete-orphan", foreign_keys='PlayerAbility.player_username', primaryjoin="Player.username==PlayerAbility.player_username")
-    hotbar = db.relationship('PlayerHotbar', backref='player', cascade="all, delete-orphan", foreign_keys='PlayerHotbar.player_username', primaryjoin="Player.username==PlayerHotbar.player_username")
-    buffs = db.relationship('PlayerBuff', backref='player', cascade="all, delete-orphan", foreign_keys='PlayerBuff.player_username', primaryjoin="Player.username==PlayerBuff.player_username")
+    # Relationships. passive_deletes=True defers child cleanup to the DB's
+    # ON DELETE CASCADE (declared on each child FK) instead of emitting a DELETE
+    # per child row from the ORM.
+    items = db.relationship('PlayerItem', backref='player', cascade="all, delete-orphan", foreign_keys='PlayerItem.player_username', primaryjoin="Player.username==PlayerItem.player_username", passive_deletes=True)
+    equipment = db.relationship('PlayerEquipment', backref='player', cascade="all, delete-orphan", foreign_keys='PlayerEquipment.player_username', primaryjoin="Player.username==PlayerEquipment.player_username", passive_deletes=True)
+    abilities = db.relationship('PlayerAbility', backref='player', cascade="all, delete-orphan", foreign_keys='PlayerAbility.player_username', primaryjoin="Player.username==PlayerAbility.player_username", passive_deletes=True)
+    hotbar = db.relationship('PlayerHotbar', backref='player', cascade="all, delete-orphan", foreign_keys='PlayerHotbar.player_username', primaryjoin="Player.username==PlayerHotbar.player_username", passive_deletes=True)
+    buffs = db.relationship('PlayerBuff', backref='player', cascade="all, delete-orphan", foreign_keys='PlayerBuff.player_username', primaryjoin="Player.username==PlayerBuff.player_username", passive_deletes=True)
 
 # Items are stored slim: only instance-specific data. All static fields (name,
 # icon, type, base stats, etc.) are re-derived from the canonical .tres on the
@@ -113,7 +118,7 @@ class PlayerItem(db.Model):
         db.UniqueConstraint('player_username', 'slot_index', name='uq_playeritem_slot'),
     )
     id = db.Column(db.Integer, primary_key=True)
-    player_username = db.Column(db.String(255), db.ForeignKey('players.username'))
+    player_username = db.Column(db.String(255), db.ForeignKey('players.username', ondelete='CASCADE'))
     item_id = db.Column(db.String(255)) # Godot UUID
     slot_index = db.Column(db.Integer)
     item_path = db.Column(db.String(512))
@@ -127,7 +132,7 @@ class PlayerEquipment(db.Model):
         db.UniqueConstraint('player_username', 'slot_type', name='uq_playerequip_slot'),
     )
     id = db.Column(db.Integer, primary_key=True)
-    player_username = db.Column(db.String(255), db.ForeignKey('players.username'))
+    player_username = db.Column(db.String(255), db.ForeignKey('players.username', ondelete='CASCADE'))
     item_id = db.Column(db.String(255))
     slot_type = db.Column(db.String(50))
     item_path = db.Column(db.String(512))
@@ -140,9 +145,14 @@ class PlayerAbility(db.Model):
         db.UniqueConstraint('player_username', 'ability_id', name='uq_playerability_id'),
     )
     id = db.Column(db.Integer, primary_key=True)
-    player_username = db.Column(db.String(255), db.ForeignKey('players.username'))
+    player_username = db.Column(db.String(255), db.ForeignKey('players.username', ondelete='CASCADE'))
     ability_id = db.Column(db.String(255))
     level = db.Column(db.Integer, default=1)
+    # PR 6: purchased upgrade ids for THIS ability — co-located with the ability
+    # row instead of a parallel players.learned_ability_upgrades blob keyed by the
+    # same ability_id. Small bounded list (the 3-tier upgrade tree). NULL = none.
+    # uq_playerability_id guarantees exactly one upgrade list per owned ability.
+    upgrades = db.Column(JSONB, nullable=True)
 
 class PlayerHotbar(db.Model):
     __tablename__ = 'player_hotbar'
@@ -151,7 +161,7 @@ class PlayerHotbar(db.Model):
         db.UniqueConstraint('player_username', 'slot_index', name='uq_playerhotbar_slot'),
     )
     id = db.Column(db.Integer, primary_key=True)
-    player_username = db.Column(db.String(255), db.ForeignKey('players.username'))
+    player_username = db.Column(db.String(255), db.ForeignKey('players.username', ondelete='CASCADE'))
     slot_index = db.Column(db.Integer)
     ability_id = db.Column(db.String(255))
 
@@ -159,9 +169,11 @@ class PlayerBuff(db.Model):
     __tablename__ = 'player_buffs'
     __table_args__ = (
         db.Index('idx_playerbuff_username', 'player_username'),
+        # Buff sync keys on buff_id; enforce it so a duplicate can't orphan a row.
+        db.UniqueConstraint('player_username', 'buff_id', name='uq_playerbuff_id'),
     )
     id = db.Column(db.Integer, primary_key=True)
-    player_username = db.Column(db.String(255), db.ForeignKey('players.username'))
+    player_username = db.Column(db.String(255), db.ForeignKey('players.username', ondelete='CASCADE'))
     buff_id = db.Column(db.String(255))
     duration = db.Column(db.Float)
     total_duration = db.Column(db.Float, default=0)
@@ -209,6 +221,28 @@ def _extract_variant(item_data, path):
             'bonus_stats': item_data.get('bonus_stats', {}),
         }
     return None
+
+
+def _sync_child_rows(model, existing_by_key, desired_by_key):
+    """Generic insert/update/delete-by-key sync for a player's child rows.
+
+    existing_by_key: {key: orm_row} for the rows currently in the DB.
+    desired_by_key:  {key: {column: value, ...}} for the incoming state; each
+                     value dict carries the full column set for an INSERT
+                     (including player_username and the key column).
+
+    Updates rows present in both, inserts rows only in `desired`, deletes rows
+    only in `existing`. Replaces five hand-rolled copies of this loop."""
+    for key, fields in desired_by_key.items():
+        row = existing_by_key.get(key)
+        if row is not None:
+            for col, val in fields.items():
+                setattr(row, col, val)
+        else:
+            db.session.add(model(**fields))
+    for key, row in existing_by_key.items():
+        if key not in desired_by_key:
+            db.session.delete(row)
 
 
 # ==================== BOT ACCOUNT ====================
@@ -337,8 +371,7 @@ def create_character():
         current_health=100,
         max_health=100,
         current_mana=100,
-        max_mana=100,
-        party_id=-1
+        max_mana=100
     )
     
     db.session.add(new_player)
@@ -410,7 +443,6 @@ def load_player():
             'current_mana': player.current_mana,
             'max_mana': player.max_mana,
             'last_map': player.last_map,
-            'party_id': player.party_id,
             'monies': player.monies
         }
         
@@ -445,9 +477,10 @@ def load_player():
             'available_points': player.ability_points if player.ability_points is not None else 0,
             'available_points_per_discipline': player.ability_points_per_discipline or {},
             'ability_levels': ability_levels,
-            # PR 6: purchased per-ability upgrades. Empty dict on rows that
-            # predate the column → Godot's empty default (no upgrades).
-            'learned_ability_upgrades': player.learned_ability_upgrades or {},
+            # PR 6: rebuilt from each ability's own `upgrades` column (was a single
+            # players.learned_ability_upgrades blob keyed by ability_id). The wire
+            # shape {ability_id: [upgrade_id,...]} is unchanged, so Godot is unaffected.
+            'learned_ability_upgrades': {ab.ability_id: ab.upgrades for ab in player.abilities if ab.upgrades},
             'hotbar_config': hotbar_config
         }
         
@@ -521,7 +554,7 @@ def save_player():
             # only bots reach here, and they're owned by the shared bot account.
             if not is_bot:
                 return jsonify({"error": f"No character record for '{username}'"}), 404
-            player = Player(username=username, account_id=_get_bot_account_id())
+            player = Player(username=username, account_id=_get_bot_account_id(), is_bot=True)
             db.session.add(player)
 
         # Update Core Stats
@@ -533,84 +566,43 @@ def save_player():
         if 'current_mana' in data: player.current_mana = data['current_mana']
         if 'max_mana' in data: player.max_mana = data['max_mana']
         if 'last_map' in data: player.last_map = data['last_map']
-        if 'party_id' in data: player.party_id = data['party_id']
 
         # Update Inventory
         if 'inventory' in data:
             inv_data = data['inventory']
             player.monies = inv_data.get('monies', 0)
 
-            # --- Smart Sync for Items (By Slot Index) ---
-            existing_items = {item.slot_index: item for item in player.items}
-            incoming_slots = set()
-
+            # Items, keyed by slot_index.
+            desired_items = {}
             for slot in inv_data.get('slots', []):
                 slot_index = slot.get('slot_index')
-                if slot_index is None: continue
-
-                incoming_slots.add(slot_index)
+                if slot_index is None:
+                    continue
                 item_data = slot.get('item_data', {})
                 path = item_data.get('original_resource_path') or item_data.get('resource_path') or ""
-                item_id = item_data.get('item_id')
-                quantity = item_data.get('current_stack_amount', 1)
-                variant = _extract_variant(item_data, path)
+                desired_items[slot_index] = dict(
+                    player_username=username,
+                    slot_index=slot_index,
+                    item_id=item_data.get('item_id'),
+                    item_path=path,
+                    quantity=item_data.get('current_stack_amount', 1),
+                    variant=_extract_variant(item_data, path),
+                )
+            _sync_child_rows(PlayerItem, {it.slot_index: it for it in player.items}, desired_items)
 
-                if slot_index in existing_items:
-                    # UPDATE existing slot
-                    item = existing_items[slot_index]
-                    item.item_id = item_id
-                    item.item_path = path
-                    item.quantity = quantity
-                    item.variant = variant
-                else:
-                    # INSERT new slot
-                    db.session.add(PlayerItem(
-                        player_username=username,
-                        item_id=item_id,
-                        slot_index=slot_index,
-                        item_path=path,
-                        quantity=quantity,
-                        variant=variant,
-                    ))
-
-            # DELETE items in slots that are no longer occupied
-            for idx, item in existing_items.items():
-                if idx not in incoming_slots:
-                    db.session.delete(item)
-
-            # --- Smart Sync for Equipment (By Slot Type) ---
-            existing_eq = {eq.slot_type: eq for eq in player.equipment}
-            incoming_eq_slots = set()
-
-            eq_data = inv_data.get('equipment', {})
-            for slot_type, item_data in eq_data.items():
-                slot_type_str = str(slot_type)
-                incoming_eq_slots.add(slot_type_str)
-
+            # Equipment, keyed by slot_type.
+            desired_eq = {}
+            for slot_type, item_data in inv_data.get('equipment', {}).items():
+                st = str(slot_type)
                 path = item_data.get('original_resource_path') or item_data.get('resource_path') or ""
-                item_id = item_data.get('item_id')
-                variant = _extract_variant(item_data, path)
-
-                if slot_type_str in existing_eq:
-                    # UPDATE existing equipment slot
-                    eq = existing_eq[slot_type_str]
-                    eq.item_id = item_id
-                    eq.item_path = path
-                    eq.variant = variant
-                else:
-                    # INSERT new equipment slot
-                    db.session.add(PlayerEquipment(
-                        player_username=username,
-                        item_id=item_id,
-                        slot_type=slot_type_str,
-                        item_path=path,
-                        variant=variant,
-                    ))
-
-            # DELETE equipment in slots that are no longer occupied
-            for stype, eq in existing_eq.items():
-                if stype not in incoming_eq_slots:
-                    db.session.delete(eq)
+                desired_eq[st] = dict(
+                    player_username=username,
+                    slot_type=st,
+                    item_id=item_data.get('item_id'),
+                    item_path=path,
+                    variant=_extract_variant(item_data, path),
+                )
+            _sync_child_rows(PlayerEquipment, {eq.slot_type: eq for eq in player.equipment}, desired_eq)
 
         # --- Fix 3: UPSERT for Abilities ---
         if 'abilities' in data:
@@ -645,69 +637,46 @@ def save_player():
                     "dagger": base,
                 }
 
-            # PR 6: persist purchased per-ability upgrades wholesale. Godot
-            # owns the shape ({ability_id: [upgrade_id, ...]}); we store it
-            # verbatim. Absent key (older clients) leaves the column untouched.
-            if 'learned_ability_upgrades' in ab_data:
-                player.learned_ability_upgrades = ab_data.get('learned_ability_upgrades') or {}
+            # Abilities, keyed by ability_id. PR 6: each ability's purchased
+            # upgrades now ride on its own row (was a separate players blob). The
+            # {ability_id: [upgrade_id,...]} wire map is unchanged. Only touch the
+            # upgrades column when the client actually sent the key, so a save
+            # that omits it (older clients) never wipes existing upgrades.
+            has_upgrades_key = 'learned_ability_upgrades' in ab_data
+            incoming_upgrades = ab_data.get('learned_ability_upgrades', {}) or {}
+            desired_abilities = {}
+            for ab_id, level in ab_data.get('ability_levels', {}).items():
+                fields = dict(player_username=username, ability_id=ab_id, level=level)
+                if has_upgrades_key:
+                    fields['upgrades'] = incoming_upgrades.get(ab_id) or None
+                desired_abilities[ab_id] = fields
+            _sync_child_rows(PlayerAbility, {a.ability_id: a for a in player.abilities}, desired_abilities)
 
-            # Smart sync abilities
-            incoming_abilities = ab_data.get('ability_levels', {})
-            existing_abilities = {a.ability_id: a for a in player.abilities}
+            # Hotbar, keyed by str(slot_index).
+            desired_hotbar = {}
+            for slot, ab_id in ab_data.get('hotbar_config', {}).items():
+                desired_hotbar[str(slot)] = dict(
+                    player_username=username,
+                    slot_index=int(slot),
+                    ability_id=ab_id,
+                )
+            _sync_child_rows(PlayerHotbar, {str(hb.slot_index): hb for hb in player.hotbar}, desired_hotbar)
 
-            for ab_id, level in incoming_abilities.items():
-                if ab_id in existing_abilities:
-                    existing_abilities[ab_id].level = level
-                else:
-                    db.session.add(PlayerAbility(player_username=username, ability_id=ab_id, level=level))
-
-            for ab_id in existing_abilities:
-                if ab_id not in incoming_abilities:
-                    db.session.delete(existing_abilities[ab_id])
-
-            # Smart sync hotbar
-            incoming_hotbar = ab_data.get('hotbar_config', {})
-            existing_hotbar = {str(hb.slot_index): hb for hb in player.hotbar}
-
-            for slot, ab_id in incoming_hotbar.items():
-                slot_str = str(slot)
-                if slot_str in existing_hotbar:
-                    existing_hotbar[slot_str].ability_id = ab_id
-                else:
-                    db.session.add(PlayerHotbar(player_username=username, slot_index=int(slot), ability_id=ab_id))
-
-            for slot_str in existing_hotbar:
-                if slot_str not in {str(s) for s in incoming_hotbar}:
-                    db.session.delete(existing_hotbar[slot_str])
-
-        # --- Fix 3: UPSERT for Buffs ---
+        # --- UPSERT for Buffs (keyed by buff_id; uq_playerbuff_id enforces it) ---
         if 'buffs' in data:
-            buff_data = data['buffs']
-            incoming_buffs = buff_data.get('active_buffs', [])
-            existing_buffs = {b.buff_id: b for b in player.buffs}
-
-            incoming_buff_ids = set()
-            for buff in incoming_buffs:
+            desired_buffs = {}
+            for buff in data['buffs'].get('active_buffs', []):
                 bid = buff.get('buff_id')
                 if not bid:
                     continue
-                incoming_buff_ids.add(bid)
-                if bid in existing_buffs:
-                    existing_buffs[bid].duration = buff.get('remaining_duration')
-                    existing_buffs[bid].total_duration = buff.get('total_duration', 0)
-                    existing_buffs[bid].stacks = buff.get('stacks', 1)
-                else:
-                    db.session.add(PlayerBuff(
-                        player_username=username,
-                        buff_id=bid,
-                        duration=buff.get('remaining_duration'),
-                        total_duration=buff.get('total_duration', 0),
-                        stacks=buff.get('stacks', 1)
-                    ))
-
-            for bid in existing_buffs:
-                if bid not in incoming_buff_ids:
-                    db.session.delete(existing_buffs[bid])
+                desired_buffs[bid] = dict(
+                    player_username=username,
+                    buff_id=bid,
+                    duration=buff.get('remaining_duration'),
+                    total_duration=buff.get('total_duration', 0),
+                    stacks=buff.get('stacks', 1),
+                )
+            _sync_child_rows(PlayerBuff, {b.buff_id: b for b in player.buffs}, desired_buffs)
 
         # Quests — opaque JSONB blob shaped by QuestManager.save_quests on the
         # Godot side. Only update if the client sent it (partial saves like
@@ -753,6 +722,56 @@ def health_check():
         return jsonify({"status": "unhealthy", "error": str(e)}), 503
 
 
+def _ensure_cascade_fk(table):
+    """Ensure {table}.player_username FK has ON DELETE CASCADE. Idempotent:
+    skips when already cascade ('c'); recreates the constraint otherwise."""
+    fk = f"{table}_player_username_fkey"
+    try:
+        row = db.session.execute(db.text(
+            "SELECT confdeltype FROM pg_constraint WHERE conname = :n"
+        ), {"n": fk}).fetchone()
+        if row is None or row[0] == 'c':
+            return  # constraint absent (fresh DB already cascades) or already cascade
+        db.session.execute(db.text(f"ALTER TABLE {table} DROP CONSTRAINT {fk}"))
+        db.session.execute(db.text(
+            f"ALTER TABLE {table} ADD CONSTRAINT {fk} "
+            f"FOREIGN KEY (player_username) REFERENCES players(username) ON DELETE CASCADE"
+        ))
+        db.session.commit()
+        print(f"Migration: {fk} -> ON DELETE CASCADE")
+    except Exception as e:
+        db.session.rollback()
+        print(f"Migration: failed to set cascade on {table}: {e}")
+
+
+def _check_schema_drift():
+    """Log (not crash) any divergence between the SQLAlchemy models and the live
+    DB columns, so the 'process running an older schema than app.py' failure mode
+    is loud at boot instead of silently dropping fields."""
+    drift = False
+    for table_name, table in db.metadata.tables.items():
+        rows = db.session.execute(db.text(
+            "SELECT column_name FROM information_schema.columns "
+            "WHERE table_schema = 'public' AND table_name = :t"
+        ), {"t": table_name}).fetchall()
+        db_cols = {r[0] for r in rows}
+        if not db_cols:
+            app.logger.warning("SCHEMA_DRIFT: model table '%s' is missing from the DB", table_name)
+            drift = True
+            continue
+        model_cols = {c.name for c in table.columns}
+        missing = model_cols - db_cols
+        extra = db_cols - model_cols
+        if missing:
+            app.logger.warning("SCHEMA_DRIFT: %s missing in DB: %s", table_name, sorted(missing))
+            drift = True
+        if extra:
+            app.logger.warning("SCHEMA_DRIFT: %s extra in DB (not in model): %s", table_name, sorted(extra))
+            drift = True
+    if not drift:
+        app.logger.info("Schema check: models and DB columns are in sync.")
+
+
 def _run_migrations():
     """Add columns that may be missing from older database schemas."""
     migrations = [
@@ -771,9 +790,13 @@ def _run_migrations():
         # which stays populated as a fallback for one release.
         ("players", "ability_points_per_discipline",
          "ALTER TABLE players ADD COLUMN ability_points_per_discipline JSONB"),
-        # PR 6: per-ability purchased upgrades. { ability_id: [upgrade_id,...] }.
-        ("players", "learned_ability_upgrades",
-         "ALTER TABLE players ADD COLUMN learned_ability_upgrades JSONB"),
+        # Persistence cleanup: per-ability upgrades column (replaces the
+        # players.learned_ability_upgrades blob — backfilled + dropped below) and
+        # the is_bot discriminator (backfilled from the __bots__ account below).
+        ("player_abilities", "upgrades",
+         "ALTER TABLE player_abilities ADD COLUMN upgrades JSONB"),
+        ("players", "is_bot",
+         "ALTER TABLE players ADD COLUMN is_bot BOOLEAN NOT NULL DEFAULT FALSE"),
     ]
     for table, column, sql in migrations:
         try:
@@ -832,6 +855,100 @@ def _run_migrations():
             db.session.rollback()
             print(f"Migration: failed to drop {table}.{column}: {e}")
 
+    # ── Persistence cleanup migrations ──────────────────────────────────────
+
+    # Relocate the players.learned_ability_upgrades blob ({ability_id: [...]})
+    # into per-ability player_abilities.upgrades rows, then drop the blob.
+    try:
+        db.session.execute(db.text("SELECT learned_ability_upgrades FROM players LIMIT 1"))
+        _has_upgrade_blob = True
+    except Exception:
+        db.session.rollback()
+        _has_upgrade_blob = False
+    if _has_upgrade_blob:
+        try:
+            print("Migration: backfilling player_abilities.upgrades from players.learned_ability_upgrades")
+            db.session.execute(db.text(
+                "UPDATE player_abilities pa "
+                "SET upgrades = p.learned_ability_upgrades -> pa.ability_id "
+                "FROM players p "
+                "WHERE p.username = pa.player_username "
+                "AND p.learned_ability_upgrades IS NOT NULL "
+                "AND p.learned_ability_upgrades ? pa.ability_id"
+            ))
+            db.session.commit()
+            print("Migration: dropping players.learned_ability_upgrades (moved onto player_abilities)")
+            db.session.execute(db.text("ALTER TABLE players DROP COLUMN learned_ability_upgrades"))
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            print(f"Migration: learned_ability_upgrades relocation failed: {e}")
+
+    # Backfill the is_bot discriminator from the shared __bots__ account.
+    try:
+        db.session.execute(db.text(
+            "UPDATE players SET is_bot = TRUE "
+            "WHERE is_bot = FALSE "
+            "AND account_id = (SELECT id FROM accounts WHERE username = '__bots__')"
+        ))
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        print(f"Migration: is_bot backfill failed: {e}")
+
+    # Drop party_id — ephemeral runtime party state, never read back on load.
+    try:
+        db.session.execute(db.text("SELECT party_id FROM players LIMIT 1"))
+    except Exception:
+        db.session.rollback()
+    else:
+        try:
+            print("Migration: dropping players.party_id (ephemeral runtime state)")
+            db.session.execute(db.text("ALTER TABLE players DROP COLUMN party_id"))
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            print(f"Migration: failed to drop players.party_id: {e}")
+
+    # player_buffs lacked the per-(player, buff) unique constraint its sibling
+    # tables have; add it (dedupe defensively first, though none are expected).
+    try:
+        _has_uq = db.session.execute(db.text(
+            "SELECT 1 FROM pg_constraint WHERE conname = 'uq_playerbuff_id'"
+        )).fetchone()
+        if not _has_uq:
+            db.session.execute(db.text(
+                "DELETE FROM player_buffs a USING player_buffs b "
+                "WHERE a.id < b.id AND a.player_username = b.player_username "
+                "AND a.buff_id = b.buff_id"
+            ))
+            db.session.execute(db.text(
+                "ALTER TABLE player_buffs ADD CONSTRAINT uq_playerbuff_id "
+                "UNIQUE (player_username, buff_id)"
+            ))
+            db.session.commit()
+            print("Migration: added uq_playerbuff_id on player_buffs")
+    except Exception as e:
+        db.session.rollback()
+        print(f"Migration: failed to add uq_playerbuff_id: {e}")
+
+    # account_id powers the character-select query but Postgres doesn't
+    # auto-index FK columns. Idempotent; matches the name the model declares.
+    try:
+        db.session.execute(db.text(
+            "CREATE INDEX IF NOT EXISTS idx_players_account_id ON players(account_id)"
+        ))
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        print(f"Migration: failed to create idx_players_account_id: {e}")
+
+    # Give every child FK ON DELETE CASCADE so deleting a player (or any
+    # out-of-ORM delete) cleans up its rows at the DB level instead of erroring.
+    for _tbl in ("player_items", "player_equipment", "player_abilities",
+                 "player_hotbar", "player_buffs"):
+        _ensure_cascade_fk(_tbl)
+
 
 def init_db():
     """Initialize database with retry logic for Docker startup"""
@@ -842,6 +959,7 @@ def init_db():
                 db.create_all()
                 _run_migrations()
                 _ensure_bot_account()
+                _check_schema_drift()
                 print("Database tables created successfully!")
                 return
         except Exception as e:

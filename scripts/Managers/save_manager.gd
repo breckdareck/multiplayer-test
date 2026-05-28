@@ -28,8 +28,12 @@ const RETRY_DELAY: float = 1.0          # delay before a single retry
 const HTTP_TIMEOUT: float = 5.0         # per-request timeout
 const HTTP_POOL_SIZE: int = 8           # max concurrent in-flight saves
 
+# "equipment" is intentionally NOT a category: equipment state is serialized
+# inside the "inventory" bucket (player_inventory.save_player_inventory), so
+# equipment changes queue an "inventory" save. There is no standalone equipment
+# producer in get_save_data, so a separate category would save an empty payload.
 const VALID_CATEGORIES: PackedStringArray = [
-	"stats", "inventory", "abilities", "buffs", "equipment", "pets"
+	"stats", "inventory", "abilities", "buffs", "pets"
 ]
 
 var _api_url: String = ""  # Will be loaded from UserConfig
