@@ -1569,6 +1569,95 @@ func sync_learned_upgrades(upgrades: Dictionary) -> void:
 #endregion
 
 
+#region #################### PR 6: Respec ####################
+
+## Refunds every point spent in a discipline (ability levels above the free
+## starter baseline + all purchased upgrade costs), resets those abilities
+## and upgrades, and returns the points to that discipline's pool. Free —
+## matches Diablo 4 LoH / Last Epoch; a gold cost can layer on later.
+##
+## The discipline's starter ability keeps its free level-1 (it was granted at
+## character creation without spending a point), so respec never over-credits
+## it. Non-starter abilities reset to level 0 (unlearned).
+func respec_discipline(disc_key: String) -> bool:
+	if _is_multiplayer_client():
+		respec_discipline_request.rpc_id(1, disc_key)
+		return true
+	return _respec_discipline_local(disc_key)
+
+
+func _respec_discipline_local(disc_key: String) -> bool:
+	if not _available_points_per_discipline.has(disc_key):
+		return false
+
+	var starter_id: String = _discipline_starter_ability_id(disc_key)
+	var refund: int = 0
+	var reset_ability_ids: Array[String] = []
+
+	for ability_id in _ability_levels.keys():
+		var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
+		if ability == null or _ability_primary_discipline(ability) != disc_key:
+			continue
+		var baseline: int = 1 if ability_id == starter_id else 0
+		var current_level: int = int(_ability_levels[ability_id])
+		refund += maxi(0, current_level - baseline)
+		# Refund any purchased upgrades on this ability.
+		for owned_id in _learned_upgrades.get(ability_id, []):
+			var up: AbilityUpgradeData = _find_upgrade(ability, owned_id)
+			if up != null:
+				refund += up.point_cost
+		# Reset level + upgrades.
+		if current_level != baseline:
+			_ability_levels[ability_id] = baseline
+			reset_ability_ids.append(ability_id)
+		_learned_upgrades.erase(ability_id)
+
+	_available_points_per_discipline[disc_key] = int(_available_points_per_discipline.get(disc_key, 0)) + refund
+
+	# Levels changed → recompute passive contributions.
+	_apply_passive_effects()
+	ability_points_changed.emit(disc_key, int(_available_points_per_discipline[disc_key]))
+	for ability_id in reset_ability_ids:
+		ability_leveled_up.emit(ability_id, int(_ability_levels[ability_id]))
+
+	# Sync to the owning client (skip bots — no client UI).
+	if multiplayer.has_multiplayer_peer() and not BotManager.is_bot(owner.player_id):
+		for ability_id in reset_ability_ids:
+			sync_ability_level.rpc(ability_id, int(_ability_levels[ability_id]))
+		sync_ability_points_per_discipline.rpc(_available_points_per_discipline.duplicate())
+		sync_learned_upgrades.rpc(_learned_upgrades.duplicate(true))
+
+	return true
+
+
+@rpc("any_peer", "call_local", "reliable")
+func respec_discipline_request(disc_key: String) -> void:
+	if not multiplayer.is_server():
+		return
+	if multiplayer.get_remote_sender_id() != owner.player_id:
+		return
+	_respec_discipline_local(disc_key)
+
+
+## Maps a discipline key to its starter ability's id (the one auto-leveled to
+## 1 at character creation), via the WeaponDisciplineData. "" if unknown.
+func _discipline_starter_ability_id(disc_key: String) -> String:
+	var class_type: int = -1
+	match disc_key:
+		"sword": class_type = Constants.ClassType.SWORD
+		"bow": class_type = Constants.ClassType.BOW
+		"staff": class_type = Constants.ClassType.STAFF
+		"dagger": class_type = Constants.ClassType.DAGGER
+	if class_type == -1:
+		return ""
+	var disc_data = ResourceManager.get_class_data(class_type)
+	if disc_data and disc_data.starter_ability:
+		return disc_data.starter_ability.ability_id
+	return ""
+
+#endregion
+
+
 func get_cooldown_remaining(ability_id: String) -> float:
 	return _cooldowns.get(ability_id, 0.0)
 

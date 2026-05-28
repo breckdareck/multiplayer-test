@@ -474,6 +474,7 @@ func _register_commands() -> void:
 	_register("level", "level [@target] [n] — no n: +1 level", _cmd_level, _complete_target_first)
 	_register("mastery", "mastery [@target] <sword|bow|staff|dagger|0-3> [n=1] — grants enough XP to level that discipline's mastery N times.", _cmd_mastery, _complete_mastery)
 	_register("upgrade", "upgrade list | upgrade buy <upgrade_id> — PR 6 ability-upgrade testing (host-only).", _cmd_upgrade)
+	_register("respec", "respec <sword|bow|staff|dagger|all> — refund a discipline's spent ability points + upgrades (host-only).", _cmd_respec, _complete_mastery)
 	_register("give", "give [@target] <item_name> [count=1]", _cmd_give, _complete_give)
 	_register("gold", "gold [@target] <amount> — negative subtracts", _cmd_gold, _complete_target_first)
 	_register("tp", "tp [@target] <map> | tp [@target] <x> <y>", _cmd_tp, _complete_tp)
@@ -881,6 +882,37 @@ func _cmd_upgrade(args: Array) -> String:
 		return "[color=#ff8888]Unknown upgrade_id '%s'.[/color]" % upgrade_id
 
 	return "Usage: upgrade list | upgrade buy <upgrade_id>"
+
+
+## respec <sword|bow|staff|dagger|all> — refund a discipline's spent ability
+## points (levels above the free starter + upgrade costs) on the local player.
+## Host-only (server-authoritative).
+func _cmd_respec(args: Array) -> String:
+	if not multiplayer.is_server():
+		return "[color=#ff8888]respec is host-only (server-authoritative).[/color]"
+	var p: Node = _local_player()
+	if not is_instance_valid(p) or not is_instance_valid(p.ability_component):
+		return "(no ability component)"
+	if args.is_empty():
+		return "Usage: respec <sword|bow|staff|dagger|all>"
+	var ac = p.ability_component
+
+	var target: String = String(args[0]).to_lower()
+	var keys: Array[String] = []
+	if target == "all":
+		keys = ["sword", "bow", "staff", "dagger"]
+	elif target in ["sword", "bow", "staff", "dagger"]:
+		keys = [target]
+	else:
+		return "[color=#ff8888]Unknown discipline '%s'. Use sword/bow/staff/dagger or all.[/color]" % target
+
+	var results: PackedStringArray = []
+	for key in keys:
+		var before: int = ac.get_available_points_for_discipline(key)
+		ac.respec_discipline(key)
+		var after: int = ac.get_available_points_for_discipline(key)
+		results.append("%s: %d → %d pts" % [key, before, after])
+	return "Respec complete — " + ", ".join(results)
 
 
 func _discipline_label(disc: int) -> String:
