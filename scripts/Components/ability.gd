@@ -17,6 +17,13 @@ signal ability_learned(ability_id: String)
 ## the matching tab; existing "mark data dirty" callbacks ignore the args
 ## and just re-save.
 signal ability_points_changed(discipline_key: String, new_total: int)
+## PR 6: fired when an ability upgrade is purchased (server-auth, synced to
+## the owning client). The AbilityWindow upgrade panel refreshes on this.
+signal ability_upgrade_purchased(ability_id: String, upgrade_id: String)
+## PR 6: fired when an upgrade purchase was denied. Reason is one of
+## "not_learned" / "unknown_upgrade" / "already_owned" / "tier_locked" /
+## "variant_taken" / "no_points". The UI surfaces a ping.
+signal ability_upgrade_denied(ability_id: String, upgrade_id: String, reason: String)
 ## PR 4: fired when a spend was denied because the discipline pool was
 ## empty (or the ability is not bound to any tier-1 discipline). The
 ## AbilityWindow uses this to surface a UI ping.
@@ -63,6 +70,10 @@ var _weapon_mastery_component: WeaponMasteryComponent
 # State variables
 var _cooldowns: Dictionary = {} # { ability_id: time_remaining }
 var _ability_levels: Dictionary = {} # { ability_id: current_level }
+## PR 6: purchased per-ability upgrades. { ability_id: Array[String] of
+## upgrade_ids }. Server-authoritative; mirrored to the owning client via the
+## ability sync RPCs. Persisted alongside ability_levels in save_abilities().
+var _learned_upgrades: Dictionary = {}
 ## PR 4: per-weapon-discipline ability point pools. Keys are the lowercase
 ## discipline strings ("sword" / "bow" / "staff" / "dagger"); values are
 ## ints. Replaces the legacy single-pool `_available_ability_points: int`.
@@ -927,6 +938,9 @@ func sync_all_abilities_to_client(peer_id: int) -> void:
 		_primary_hotbar_bindings.duplicate(),
 		_secondary_hotbar_bindings.duplicate()
 	)
+	# PR 6: send purchased upgrades in the same join handshake so the
+	# AbilityWindow renders correct state immediately on connect.
+	sync_learned_upgrades.rpc_id(peer_id, _learned_upgrades.duplicate(true))
 
 
 @rpc("authority", "call_local", "reliable")
@@ -1174,6 +1188,11 @@ func save_abilities() -> Dictionary:
 		legacy_total += v
 	return {
 		"ability_levels": _ability_levels.duplicate(),
+		# PR 6: purchased per-ability upgrades. Deep-duplicated so the nested
+		# arrays don't alias the live state. Backend persistence lands with
+		# the learned_ability_upgrades column (A3); in local-save mode this
+		# round-trips through the JSON immediately.
+		"learned_ability_upgrades": _learned_upgrades.duplicate(true),
 		# PR 4: legacy fallback (sum of per-discipline pools). Kept populated
 		# for one release so the backend's legacy `ability_points` column
 		# stays useful if the new JSONB column is somehow missing.
@@ -1202,6 +1221,13 @@ func load_abilities(data: Dictionary) -> void:
 	var saved_levels = data.get("ability_levels", {})
 	for ability_id in saved_levels:
 		_ability_levels[ability_id] = saved_levels[ability_id]
+
+	# PR 6: restore purchased upgrades. Replace wholesale (not merge) — the
+	# saved map is authoritative for what's been bought. Missing key (older
+	# saves / backend without the column yet) leaves the empty default.
+	var saved_upgrades = data.get("learned_ability_upgrades", {})
+	if saved_upgrades is Dictionary:
+		_learned_upgrades = (saved_upgrades as Dictionary).duplicate(true)
 
 	# PR 4: per-discipline pool migration. Defers to a helper so the priority
 	# order (new dict > legacy int > zeros) is documented in one place.
@@ -1346,6 +1372,158 @@ func get_available_points_for_discipline(discipline_key: String) -> int:
 ## this to render the tab header counts.
 func get_available_points_per_discipline() -> Dictionary:
 	return _available_points_per_discipline.duplicate()
+
+
+#region #################### PR 6: Ability upgrades ####################
+
+## True if the given upgrade has been purchased for this ability.
+func has_upgrade(ability_id: String, upgrade_id: String) -> bool:
+	var owned: Array = _learned_upgrades.get(ability_id, [])
+	return owned.has(upgrade_id)
+
+
+## Returns a copy of the purchased upgrade ids for an ability (never null).
+func get_learned_upgrades(ability_id: String) -> Array:
+	return (_learned_upgrades.get(ability_id, []) as Array).duplicate()
+
+
+## Finds an AbilityUpgradeData by id within an ability's upgrade list.
+func _find_upgrade(ability: AbilityData, upgrade_id: String) -> AbilityUpgradeData:
+	if ability == null or ability.upgrades == null:
+		return null
+	for up in ability.upgrades:
+		if up != null and up.upgrade_id == upgrade_id:
+			return up
+	return null
+
+
+## Validates whether an upgrade can be purchased. Returns { ok: bool,
+## reason: String }. reason is "" when ok. Pure (no mutation) so the UI can
+## call it to grey out / explain locked upgrades.
+func can_purchase_upgrade(ability_id: String, upgrade_id: String) -> Dictionary:
+	var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
+	if ability == null:
+		return { "ok": false, "reason": "unknown_upgrade" }
+
+	# Must have learned the ability itself (level >= 1) before upgrading it.
+	if int(_ability_levels.get(ability_id, 0)) <= 0:
+		return { "ok": false, "reason": "not_learned" }
+
+	var upgrade: AbilityUpgradeData = _find_upgrade(ability, upgrade_id)
+	if upgrade == null:
+		return { "ok": false, "reason": "unknown_upgrade" }
+
+	if has_upgrade(ability_id, upgrade_id):
+		return { "ok": false, "reason": "already_owned" }
+
+	# Tier gating: a tier-N upgrade needs at least one tier-(N-1) upgrade owned
+	# on the same ability. Tier 1 has no prerequisite.
+	if upgrade.tier > 1 and not _has_owned_upgrade_at_tier(ability, ability_id, upgrade.tier - 1):
+		return { "ok": false, "reason": "tier_locked" }
+
+	# Variant mutex: only one upgrade per variant_group may be owned.
+	if not upgrade.variant_group.is_empty() and _owns_variant_in_group(ability, ability_id, upgrade.variant_group):
+		return { "ok": false, "reason": "variant_taken" }
+
+	# Point pool: drawn from the ability's discipline pool.
+	var disc_key: String = _ability_primary_discipline(ability)
+	if disc_key == "":
+		return { "ok": false, "reason": "no_points" }
+	if int(_available_points_per_discipline.get(disc_key, 0)) < upgrade.point_cost:
+		return { "ok": false, "reason": "no_points" }
+
+	return { "ok": true, "reason": "" }
+
+
+## True if any owned upgrade on this ability sits at the given tier.
+func _has_owned_upgrade_at_tier(ability: AbilityData, ability_id: String, tier: int) -> bool:
+	var owned: Array = _learned_upgrades.get(ability_id, [])
+	for owned_id in owned:
+		var up: AbilityUpgradeData = _find_upgrade(ability, owned_id)
+		if up != null and up.tier == tier:
+			return true
+	return false
+
+
+## True if any owned upgrade on this ability shares the given variant_group.
+func _owns_variant_in_group(ability: AbilityData, ability_id: String, group: String) -> bool:
+	var owned: Array = _learned_upgrades.get(ability_id, [])
+	for owned_id in owned:
+		var up: AbilityUpgradeData = _find_upgrade(ability, owned_id)
+		if up != null and up.variant_group == group:
+			return true
+	return false
+
+
+## Public entry — client routes to the server via RPC; server applies locally.
+func purchase_upgrade(ability_id: String, upgrade_id: String) -> bool:
+	if _is_multiplayer_client():
+		purchase_upgrade_request.rpc_id(1, ability_id, upgrade_id)
+		return true
+	return _purchase_upgrade_local(ability_id, upgrade_id)
+
+
+## Server-authoritative purchase. Validates, deducts points, records the
+## upgrade, re-applies passive effects (an upgrade may change a passive's
+## contribution), and syncs to the owning client.
+func _purchase_upgrade_local(ability_id: String, upgrade_id: String) -> bool:
+	var check: Dictionary = can_purchase_upgrade(ability_id, upgrade_id)
+	if not check.ok:
+		ability_upgrade_denied.emit(ability_id, upgrade_id, String(check.reason))
+		return false
+
+	var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
+	var upgrade: AbilityUpgradeData = _find_upgrade(ability, upgrade_id)
+	var disc_key: String = _ability_primary_discipline(ability)
+
+	# Deduct points.
+	_available_points_per_discipline[disc_key] = max(0, int(_available_points_per_discipline.get(disc_key, 0)) - upgrade.point_cost)
+
+	# Record the purchase.
+	if not _learned_upgrades.has(ability_id):
+		_learned_upgrades[ability_id] = []
+	_learned_upgrades[ability_id].append(upgrade_id)
+
+	# A purchased upgrade may alter a passive's stat contribution — recalc.
+	if ability.ability_type == Constants.AbilityType.PASSIVE:
+		_apply_passive_effects()
+
+	ability_upgrade_purchased.emit(ability_id, upgrade_id)
+	ability_points_changed.emit(disc_key, int(_available_points_per_discipline.get(disc_key, 0)))
+
+	# Sync to clients (skip for bots — no client UI).
+	if multiplayer.has_multiplayer_peer() and not BotManager.is_bot(owner.player_id):
+		sync_ability_points_per_discipline.rpc(_available_points_per_discipline.duplicate())
+		sync_learned_upgrades.rpc(_learned_upgrades.duplicate(true))
+
+	return true
+
+
+@rpc("any_peer", "call_local", "reliable")
+func purchase_upgrade_request(ability_id: String, upgrade_id: String) -> void:
+	if not multiplayer.is_server():
+		return
+	# Only the owning peer may spend this character's points.
+	if multiplayer.get_remote_sender_id() != owner.player_id:
+		return
+	_purchase_upgrade_local(ability_id, upgrade_id)
+
+
+## Server -> owning client. Mirrors the full learned-upgrades map so the
+## client's AbilityWindow renders purchased state. Deep-duplicated on send so
+## the nested arrays survive the RPC intact.
+@rpc("authority", "call_remote", "reliable")
+func sync_learned_upgrades(upgrades: Dictionary) -> void:
+	if multiplayer.is_server():
+		return
+	_learned_upgrades = upgrades.duplicate(true)
+	# Refresh any UI listening; passive contributions are server-side, so the
+	# client just needs the display state.
+	for ability_id in _learned_upgrades:
+		for upgrade_id in _learned_upgrades[ability_id]:
+			ability_upgrade_purchased.emit(ability_id, upgrade_id)
+
+#endregion
 
 
 func get_cooldown_remaining(ability_id: String) -> float:
