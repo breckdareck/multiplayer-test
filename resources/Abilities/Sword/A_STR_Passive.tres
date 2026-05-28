@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=12 format=3 uid="uid://dyl558pcmpdgf"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=16 format=3 uid="uid://dyl558pcmpdgf"]
 
 [ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_c7kxc"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_yw5go"]
@@ -7,6 +7,10 @@
 [ext_resource type="Resource" uid="uid://c6er05pqmi5sn" path="res://resources/Abilities/Sword/A_HP_Boost.tres" id="5_ry25h"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_xxtf5"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_64xiq"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="7_aud"]
+[ext_resource type="Resource" uid="uid://spu1mighty" path="res://resources/Abilities/Sword/Upgrades/U_SP_Mighty.tres" id="8_mi"]
+[ext_resource type="Resource" uid="uid://spu2powerful" path="res://resources/Abilities/Sword/Upgrades/U_SP_Powerful.tres" id="9_po"]
+[ext_resource type="Resource" uid="uid://spu3herculean" path="res://resources/Abilities/Sword/Upgrades/U_SP_Herculean.tres" id="10_he"]
 
 [sub_resource type="Resource" id="Resource_dxlh0"]
 resource_local_to_scene = true
@@ -40,6 +44,6 @@ required_weapon_types = Array[int]([0])
 prerequisite_abilities = Dictionary[ExtResource("6_64xiq"), int]({
 ExtResource("5_ry25h"): 5
 })
-upgrades = null
+upgrades = Array[ExtResource("7_aud")]([ExtResource("8_mi"), ExtResource("9_po"), ExtResource("10_he")])
 active_behavior = SubResource("Resource_dxlh0")
 scaling_data = SubResource("Resource_7tyrs")

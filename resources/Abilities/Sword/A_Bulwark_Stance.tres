@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=17 format=3 uid="uid://ccpjinaimna60"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=22 format=3 uid="uid://ccpjinaimna60"]
 
 [ext_resource type="Texture2D" uid="uid://ky00whwbxbmx" path="res://assets/sprites/Abilities/power_guard.png" id="1_icon"]
 [ext_resource type="Script" path="res://scripts/Abilities/AL_BulwarkStance.gd" id="2b_albs"]
@@ -9,7 +9,12 @@
 [ext_resource type="Resource" uid="uid://ccxoh5fmx317x" path="res://resources/Abilities/Sword/A_Slash.tres" id="6_slash"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_asd"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="9_nobye"]
-[ext_resource type="Script" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="10_qd3ji"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="10_qd3ji"]
+[ext_resource type="Resource" uid="uid://bsu1tireless" path="res://resources/Abilities/Sword/Upgrades/U_BS_Tireless.tres" id="11_ti"]
+[ext_resource type="Resource" uid="uid://bsu2steadfast" path="res://resources/Abilities/Sword/Upgrades/U_BS_Steadfast.tres" id="12_st"]
+[ext_resource type="Resource" uid="uid://bsu3indomit" path="res://resources/Abilities/Sword/Upgrades/U_BS_Indomitable.tres" id="13_in"]
+[ext_resource type="Resource" uid="uid://bsu4quickbrace" path="res://resources/Abilities/Sword/Upgrades/U_BS_QuickBrace.tres" id="14_qb"]
+[ext_resource type="Resource" uid="uid://bsu5ironwill" path="res://resources/Abilities/Sword/Upgrades/U_BS_IronWill.tres" id="15_iw"]
 
 [sub_resource type="Resource" id="Resource_active"]
 script = ExtResource("2_abd")
@@ -52,6 +57,7 @@ required_weapon_types = Array[int]([0])
 prerequisite_abilities = Dictionary[ExtResource("3_ad"), int]({
 ExtResource("6_slash"): 1
 })
+upgrades = Array[ExtResource("10_qd3ji")]([ExtResource("11_ti"), ExtResource("12_st"), ExtResource("13_in"), ExtResource("14_qb"), ExtResource("15_iw")])
 active_behavior = SubResource("Resource_active")
 applies_buff = ExtResource("4_buff")
 buff_duration_formula = SubResource("Resource_duration")

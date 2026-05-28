@@ -13,6 +13,13 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 	var duration = _ability.buff_duration_formula.calculate(_level_stats.level)
 	var stats_percent = ceil(_level_stats.level / 2.0)
 
+	# PR 6 upgrades: buff_duration_bonus (+s) and vow_stat_bonus (+% to the
+	# all-stats buff). Read once; applied to duration + stats_percent below.
+	var _ac = _owner_node.get("ability_component")
+	if _ac and _ac.has_method("get_ability_upgrade_magnitude"):
+		duration += _ac.get_ability_upgrade_magnitude(_ability.ability_id, "buff_duration_bonus")
+		stats_percent += _ac.get_ability_upgrade_magnitude(_ability.ability_id, "vow_stat_bonus")
+
 	var caster_players_node := _owner_node.get_parent()
 
 	for member_id in party_members:

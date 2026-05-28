@@ -294,15 +294,19 @@ func get_passive_effect_modifiers() -> Dictionary:
 	var modifiers = {}
 	
 	_foreach_learned_passive(func(_ability: AbilityData, level_stats: AbilityLevelData, _ability_id: String):
+		# PR 6: "passive_stat_percent_bonus" upgrade adds extra % to whatever
+		# stat(s) this passive boosts (e.g. Hardened Frame's +HP%, Iron
+		# Sinews' +STR%). Applied per modified stat.
+		var pct_bonus: float = get_ability_upgrade_magnitude(_ability_id, "passive_stat_percent_bonus")
 		# Use stat bonuses from the level data
 		for stat_name in level_stats.stat_bonuses:
 			if not modifiers.has(stat_name):
 				modifiers[stat_name] = StatData.new(stat_name, 0)
 			# Accumulate bonuses from multiple passives
 			modifiers[stat_name].flat_bonus_value += level_stats.stat_bonuses[stat_name].flat_bonus_value
-			modifiers[stat_name].percent_bonus_value += level_stats.stat_bonuses[stat_name].percent_bonus_value
+			modifiers[stat_name].percent_bonus_value += level_stats.stat_bonuses[stat_name].percent_bonus_value + pct_bonus
 	)
-	
+
 	return modifiers
 
 
@@ -1807,6 +1811,6 @@ func dispatch_passive_event_on_kill(target: Node) -> void:
 		var logic = ability.active_behavior.logic_script.new()
 		if not logic.has_method("on_kill"):
 			continue
-		logic.on_kill(owner, target, ability_level)
+		logic.on_kill(owner, target, ability_level, ability_id)
 
 #endregion

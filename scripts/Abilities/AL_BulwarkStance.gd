@@ -21,4 +21,9 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 	if _ability.buff_duration_formula:
 		duration = _ability.buff_duration_formula.calculate(_level_stats.level)
 
+	# PR 6: "buff_duration_bonus" upgrade adds flat seconds.
+	var ability_comp = _owner_node.get("ability_component")
+	if ability_comp and ability_comp.has_method("get_ability_upgrade_magnitude"):
+		duration += ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "buff_duration_bonus")
+
 	buff_component.apply_buff("Bulwark Stance", _owner_node, duration)

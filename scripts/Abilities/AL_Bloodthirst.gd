@@ -23,7 +23,7 @@ const BASE_HEAL_PCT: float = 0.5
 const PER_LEVEL_HEAL_PCT: float = 0.3
 
 
-func on_kill(_owner_node: Node, _target: Node, _ability_level: int) -> void:
+func on_kill(_owner_node: Node, _target: Node, _ability_level: int, _ability_id: String = "") -> void:
 	if not _owner_node.multiplayer.is_server():
 		return
 
@@ -34,5 +34,10 @@ func on_kill(_owner_node: Node, _target: Node, _ability_level: int) -> void:
 		return
 
 	var heal_pct: float = BASE_HEAL_PCT + PER_LEVEL_HEAL_PCT * float(_ability_level - 1)
+	# PR 6 upgrades: "heal_pct_bonus" (+flat % per kill) and "vampiric_basic"
+	# is handled elsewhere; here we only add the per-kill heal bonus.
+	var ability_comp = _owner_node.get("ability_component")
+	if _ability_id != "" and ability_comp and ability_comp.has_method("get_ability_upgrade_magnitude"):
+		heal_pct += ability_comp.get_ability_upgrade_magnitude(_ability_id, "heal_pct_bonus")
 	var heal_amount: int = maxi(1, roundi(float(health_comp.max_health) * heal_pct / 100.0))
 	health_comp.heal_damage(heal_amount, _owner_node)

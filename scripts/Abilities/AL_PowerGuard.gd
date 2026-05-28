@@ -6,11 +6,16 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 		return
 	
 	var duration = _ability.buff_duration_formula.calculate(_level_stats.level)
-	
+
 	# Calculate reflect percentage based on ability level
 	var reflect_percent = round(12 + ((_level_stats.level - 1)  * 2))  # 12% + 2% per level
-	#print("DEBUG: Applying Reflect Percent - %d" % reflect_percent)
-	
+
+	# PR 6 upgrades: buff_duration_bonus (+s) and reflect_bonus (+% reflected).
+	var ability_comp = _owner_node.get("ability_component")
+	if ability_comp and ability_comp.has_method("get_ability_upgrade_magnitude"):
+		duration += ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "buff_duration_bonus")
+		reflect_percent += ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "reflect_bonus")
+
 	# Apply the buff
 	buff_component.apply_buff("Power Guard", _owner_node, duration)
 	
