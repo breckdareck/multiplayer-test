@@ -17,6 +17,7 @@ extends Node
 ## committing to forward motion.
 
 const DASH_SPEED: float = 250.0
+const DASH_DURATION: float = 0.3
 const COMBO_PER_HIT: int = 2
 
 
@@ -33,6 +34,24 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 	if facing == 0:
 		facing = 1
 	_owner_node.velocity.x = float(facing) * DASH_SPEED
+
+	# Brief i-frames during the dash so enemy contact / knockback doesn't
+	# interrupt the momentum (was the playtest pain point on first feel).
+	# We set is_invulnerable directly and schedule a one-shot clear so the
+	# duration matches the dash, independent of the global invulnerability
+	# timer's wait_time (which is tuned for hit-stun and would be too long).
+	var health_comp = _owner_node.get("health_component")
+	if health_comp != null and is_instance_valid(health_comp):
+		health_comp.is_invulnerable = true
+		_owner_node.get_tree().create_timer(DASH_DURATION).timeout.connect(
+			func():
+				if is_instance_valid(health_comp):
+					# Only clear if WE set it — don't stomp a take_damage()
+					# call that fired its own invuln during the dash.
+					if not health_comp.invulnerability_timer.is_stopped():
+						return
+					health_comp.is_invulnerable = false
+		)
 
 
 func on_hit(_owner_node: Node, _target: Node, _ability: AbilityData) -> void:

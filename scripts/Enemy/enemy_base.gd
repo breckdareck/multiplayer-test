@@ -208,10 +208,13 @@ func _physics_process(delta: float) -> void:
 
 func on_enemy_damaged(amount: int, source: Node) -> void:
 	var player_id = null
-	if source is MultiplayerPlayerV2:
-		player_id = source.player_id
-	else:
-		player_id = source.owner.player_id
+	# PR 6 fix: DOT/environmental damage may pass null as source (or a
+	# component whose owner has despawned). Guard before dereferencing.
+	if source != null and is_instance_valid(source):
+		if source is MultiplayerPlayerV2:
+			player_id = source.player_id
+		elif source.owner != null and is_instance_valid(source.owner) and "player_id" in source.owner:
+			player_id = source.owner.player_id
 	if player_id != null:
 		damage_by_player[player_id] = damage_by_player.get(player_id, 0) + amount
 		if multiplayer.is_server():

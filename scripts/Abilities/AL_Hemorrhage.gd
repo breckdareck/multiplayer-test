@@ -73,7 +73,15 @@ func _on_bleed_tick(target: Node) -> void:
 
 	var damage: int = int(state.get("per_tick", 1)) * int(state.get("stacks", 1))
 	if damage > 0:
-		health_comp.take_damage(damage, null, false, false, false)
+		# Attribute the bleed back to the original applier so enemy aggro,
+		# damage-by-player tallies, and any source-dependent UI fire
+		# correctly. The applier may have despawned (player disconnected,
+		# died, etc.) — fall back to null in that case; enemy_base now
+		# null-guards the source path.
+		var applier = state.get("applier", null)
+		if not is_instance_valid(applier):
+			applier = null
+		health_comp.take_damage(damage, applier, false, false, false)
 
 	state["remaining"] = float(state.get("remaining", 0.0)) - TICK_INTERVAL
 	if state["remaining"] <= 0.0:
