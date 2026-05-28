@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://mwu2battlehymn"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "mw_t2_battle_hymn"
+upgrade_name = "Battle Hymn"
+description = "Reduces Vow of the Vanguard's mana cost by 5."
+point_cost = 1
+tier = 2
+variant_group = ""
+effect_key = "mana_flat_reduction"
+magnitude = 5.0

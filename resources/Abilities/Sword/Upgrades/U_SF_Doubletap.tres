@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://sfu3doubletap"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "sf_t3_doubletap"
+upgrade_name = "Doubletap"
+description = "Each Steel Flurry hit builds 2 combo points instead of 1 — fills the bar twice as fast."
+point_cost = 2
+tier = 3
+variant_group = "sf_flurry_variant"
+effect_key = "combo_per_hit_bonus"
+magnitude = 1.0

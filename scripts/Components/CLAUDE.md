@@ -41,6 +41,46 @@ Player (MultiplayerPlayerV2)
     │                               equip any of the four weapons. Returning
     │                               characters keep saved levels via the merge
     │                               (not clear) in load_abilities.
+    │                               PR 6 ability upgrades: per-ability upgrade
+    │                               purchases live in `_learned_upgrades`
+    │                               ({ability_id: [upgrade_id,...]}). Public API:
+    │                               has_upgrade / get_learned_upgrades /
+    │                               can_purchase_upgrade (pure validation:
+    │                               ability at MAX level + tier-gating +
+    │                               variant-mutex + point cost) /
+    │                               purchase_upgrade (client→RPC,
+    │                               server-auth spend from the discipline pool).
+    │                               Round-trips via save_abilities under
+    │                               `learned_ability_upgrades` (backend column
+    │                               of the same name, PR 6). Effect reads:
+    │                               ability_has_upgrade_effect(id, effect_key)
+    │                               + get_ability_upgrade_magnitude(id, key)
+    │                               (per-ability) + get_total_upgrade_magnitude(
+    │                               key) (player-wide). Generic effect_keys are
+    │                               consumed by AbilityComponent itself
+    │                               (e.g. "cooldown_flat_reduction" in
+    │                               _consume_ability_resources); ability-specific
+    │                               keys are read by AL_*.gd. See hook section.
+    │                               Respec: respec_ability(id) /
+    │                               respec_discipline(disc_key) / respec_all()
+    │                               refund levels (above the free starter
+    │                               baseline) + upgrade costs back to the
+    │                               pool(s), reset levels/upgrades. Shared
+    │                               _refund_ability + _finalize_respec helpers.
+    │                               Server-auth via respec_*_request RPCs.
+    │                               Reconcile guard (PR 6):
+    │                               reconcile_ability_points() recomputes each
+    │                               pool from first principles — granted
+    │                               (mastery_level * ABILITY_POINTS_PER_MASTERY_LEVEL,
+    │                               6 since the 2026-05-28 balance pass) minus
+    │                               spent (levels above the free starter baseline
+    │                               + owned upgrade costs) = unused — and corrects
+    │                               any drift either way (so a grant-constant
+    │                               change is retroactive on load). Called at end of
+    │                               load_abilities (do_sync=false during load;
+    │                               the post-load sync_all_abilities_to_client
+    │                               carries the corrected pools to the client).
+    │                               Server-authoritative; a no-op when matched.
     ├── WeaponMastery weapon_mastery.gd - Per-discipline mastery levels + XP (PR 2)
     │                                     mastery_data: {sword/bow/staff/dagger →
     │                                     {level, xp}}. Drives STR/DEX/INT/LUK
@@ -60,6 +100,13 @@ Player (MultiplayerPlayerV2)
     │                                     cast time. Spam-cast in empty area =
     │                                     0 XP. Self-targeted buffs/heals that
     │                                     never reach _execute_hit also = 0 XP.
+    ├── SwordCombo sword_combo.gd - PR 5 sword signature: combo points (0-3).
+    │                               Basic-attack HITS build 1; finishers
+    │                               (Crescent Cleave / Sundering Blow) spend ALL
+    │                               via spend_combo(). Persists across Tab-swap,
+    │                               decays after 5s idle, resets if neither slot
+    │                               is a sword. Server-authoritative; mirrored to
+    │                               the owning client via sync_combo_to_client.
     ├── Buff       buff.gd        - timed buffs/debuffs, stacking, custom logic
     ├── Class      class.gd       - current_class = STARTING discipline (does NOT
     │                               change on weapon swap). Drives HP/MP curves.
@@ -101,3 +148,52 @@ Enemies (`EnemyBase`, `scripts/Enemy/enemy_base.gd`) reuse a subset — `Health`
 - **Bots**: a bot frees its entire UI subtree on spawn. Component code must guard
   UI-node access (`is_instance_valid(hotbar)`) and skip client-facing buff/ability
   sync RPCs for bot-owned characters (`BotManager.is_bot(owner.player_id)`).
+
+## Ability logic-script hooks (`AL_*.gd`)
+
+Per-ability behavior rides on optional methods of
+`AbilityData.active_behavior.logic_script` (and buff `BL_*.gd` on
+`BuffData.logic_script`) rather than new fields on the shared schemas — see
+the `logic_script_not_schema_field` memory. `CombatComponent` / `AbilityComponent`
+duck-type these methods (`has_method` before calling), so an AL script only
+implements the hooks it needs:
+
+- **`execute(owner, ability, level_stats)`** — fires once on cast, server-side.
+  Used for buff application (AL_PowerGuard, AL_BulwarkStance), combo spend
+  (AL_Slash, AL_PowerStrike), dash velocity (AL_VaultStrike). Note:
+  `AbilityData.applies_buff` is **metadata only** (UI/bots/pets read it) — the
+  actual `buff_component.apply_buff()` call must be made here.
+- **`on_hit(owner, target, ability)`** — fires per landed ability hit in
+  `combat.gd._execute_hit` (post-miss-check). Misses don't fire it. Used by
+  AL_Brandish (build combo per hit), AL_Hemorrhage (apply bleed), AL_VaultStrike.
+- **`on_kill(owner, target, ability_level, ability_id)`** — fires for learned
+  PASSIVES when an enemy dies, dispatched by
+  `AbilityComponent.dispatch_passive_event_on_kill` (called from `combat.gd`'s
+  kill pathway). Used by AL_Bloodthirst (heal on kill; reads its heal_pct_bonus
+  upgrade via ability_id).
+- **`on_proc(owner, target, context)`** — proc-effect handler (ProcEffectData).
+
+### PR 6 upgrade effect_keys (the full vocabulary)
+Generic — consumed by Combat/Ability with NO per-AL code:
+  `cooldown_flat_reduction` (sec, _consume_ability_resources),
+  `mana_flat_reduction` (MP, _consume_ability_resources),
+  `bonus_damage_mult` (additive %, calculate_ability_damage),
+  `bonus_targets` / `bonus_hits` (int, combat target/hit loops),
+  `passive_stat_percent_bonus` (% on the passive's stat, get_passive_effect_modifiers).
+Ability-specific — read in the named AL via `ability_has_upgrade_effect` /
+`get_ability_upgrade_magnitude`:
+  `combo_coefficient_override` (AL_Slash, AL_PowerStrike),
+  `combo_per_hit_bonus` (AL_Brandish),
+  `bleed_potency_bonus` / `bleed_max_stack_bonus` / `bleed_duration_bonus`
+  (AL_Hemorrhage),
+  `buff_duration_bonus` (AL_PowerGuard / AL_MapleWarrior / AL_BulwarkStance),
+  `reflect_bonus` (AL_PowerGuard), `vow_stat_bonus` (AL_MapleWarrior),
+  `heal_pct_bonus` (AL_Bloodthirst).
+Adding a new generic key = one wire-in + reuse everywhere; a new ability-specific
+key = a read in that ability's AL.
+
+**DOT kills** (e.g. Hemorrhage's bleed) bypass `_execute_hit`, so the AL script
+must replicate the kill side-effects itself (mastery XP + `on_kill` dispatch) —
+see `AL_Hemorrhage._credit_bleed_kill`. Character XP / quest credit come free via
+the enemy's own death handler reading `damage_by_player`, **provided the damage
+source is attributed** (pass the applier, not `null`, to `take_damage`).

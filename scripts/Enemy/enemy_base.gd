@@ -208,10 +208,13 @@ func _physics_process(delta: float) -> void:
 
 func on_enemy_damaged(amount: int, source: Node) -> void:
 	var player_id = null
-	if source is MultiplayerPlayerV2:
-		player_id = source.player_id
-	else:
-		player_id = source.owner.player_id
+	# PR 6 fix: DOT/environmental damage may pass null as source (or a
+	# component whose owner has despawned). Guard before dereferencing.
+	if source != null and is_instance_valid(source):
+		if source is MultiplayerPlayerV2:
+			player_id = source.player_id
+		elif source.owner != null and is_instance_valid(source.owner) and "player_id" in source.owner:
+			player_id = source.owner.player_id
 	if player_id != null:
 		damage_by_player[player_id] = damage_by_player.get(player_id, 0) + amount
 		if multiplayer.is_server():
@@ -264,10 +267,14 @@ func _deferred_death_processing(_killer: Node) -> void:
 		total_damage += dmg
 		
 	var killer_player_id = -1
-	if _killer.owner is MultiplayerPlayerV2:
-		killer_player_id = _killer.owner.player_id
-	
-	#print("Determined killer_player_id: ", killer_player_id)
+	# PR 6 fix: mirror on_enemy_damaged's source-resolution. DOT/bleed
+	# kills pass MultiplayerPlayerV2 directly as the killer; normal combat
+	# hits pass a component whose .owner is the player root.
+	if _killer != null and is_instance_valid(_killer):
+		if _killer is MultiplayerPlayerV2:
+			killer_player_id = _killer.player_id
+		elif _killer.owner is MultiplayerPlayerV2:
+			killer_player_id = _killer.owner.player_id
 
 	var killer_party_id = PartyManager.get_player_party_id(killer_player_id)
 	#print("Determined killer_party_id: ", killer_party_id)

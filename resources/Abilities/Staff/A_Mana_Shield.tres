@@ -64,6 +64,7 @@ required_class = Array[int]([2])
 prerequisite_abilities = Dictionary[ExtResource("3_mnsh1"), int]({
 ExtResource("9_mnsh1"): 5
 })
+upgrades = null
 active_behavior = SubResource("Resource_mnsh1")
 applies_buff = ExtResource("4_mnsh2")
 buff_duration_formula = SubResource("Resource_mnsh2")

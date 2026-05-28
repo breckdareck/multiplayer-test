@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://ccu3razorwind"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "cc_t3_razor_wind"
+upgrade_name = "Razor Wind"
+description = "Combo amplification doubles to +200% per point — a 3-combo Crescent Cleave hits 7x instead of 4x."
+point_cost = 2
+tier = 3
+variant_group = "cc_finisher_variant"
+effect_key = "combo_coefficient_override"
+magnitude = 2.0

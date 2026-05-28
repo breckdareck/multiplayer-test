@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=19 format=3 uid="uid://bj44mdaqov8t"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=25 format=3 uid="uid://bj44mdaqov8t"]
 
 [ext_resource type="Texture2D" uid="uid://ky00whwbxbmx" path="res://assets/sprites/Abilities/power_guard.png" id="1_26017"]
 [ext_resource type="Script" uid="uid://doiljfws248yw" path="res://scripts/Abilities/AL_PowerGuard.gd" id="2_1gbs7"]
@@ -9,6 +9,12 @@
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_b8raq"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_cm1ky"]
 [ext_resource type="Resource" uid="uid://ccxoh5fmx317x" path="res://resources/Abilities/Sword/A_Slash.tres" id="9_slash"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="10_aud"]
+[ext_resource type="Resource" uid="uid://pgu1quickrec" path="res://resources/Abilities/Sword/Upgrades/U_PG_QuickRecovery.tres" id="11_qr"]
+[ext_resource type="Resource" uid="uid://pgu2lasting" path="res://resources/Abilities/Sword/Upgrades/U_PG_LastingGuard.tres" id="12_lg"]
+[ext_resource type="Resource" uid="uid://pgu3spiked" path="res://resources/Abilities/Sword/Upgrades/U_PG_SpikedBulwark.tres" id="13_sb"]
+[ext_resource type="Resource" uid="uid://pgu4eternal" path="res://resources/Abilities/Sword/Upgrades/U_PG_EternalGuard.tres" id="14_eg"]
+[ext_resource type="Resource" uid="uid://pgu5efficient" path="res://resources/Abilities/Sword/Upgrades/U_PG_EfficientGuard.tres" id="15_ef"]
 
 [sub_resource type="Resource" id="Resource_1gbs7"]
 script = ExtResource("2_rxk8e")
@@ -17,9 +23,8 @@ metadata/_custom_type_script = "uid://1raaatfhww5y"
 
 [sub_resource type="Resource" id="Resource_ddpfy"]
 script = ExtResource("6_jrmpn")
-scaling_type = 3
-base_value = 10.0
-custom_formula = "base_value * ceil(level / 2.0)"
+base_value = 12.0
+per_level = 0.5
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_b2sp4"]
@@ -28,7 +33,7 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_346sf"]
 script = ExtResource("6_jrmpn")
-base_value = 1.0
+base_value = 25.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_dgn0w"]
@@ -39,9 +44,8 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_jojv8"]
 script = ExtResource("6_jrmpn")
-scaling_type = 1
-per_level = 5.0
-multiplier = 1.1
+base_value = 18.0
+per_level = 1.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_rt43a"]
@@ -77,6 +81,7 @@ required_weapon_types = Array[int]([0])
 prerequisite_abilities = Dictionary[ExtResource("2_26017"), int]({
 ExtResource("9_slash"): 1
 })
+upgrades = Array[ExtResource("10_aud")]([ExtResource("11_qr"), ExtResource("12_lg"), ExtResource("13_sb"), ExtResource("14_eg"), ExtResource("15_ef")])
 active_behavior = SubResource("Resource_1gbs7")
 applies_buff = ExtResource("4_b8raq")
 buff_duration_formula = SubResource("Resource_ddpfy")

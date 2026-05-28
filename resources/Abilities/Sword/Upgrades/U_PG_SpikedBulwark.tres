@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://pgu3spiked"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "pg_t3_spiked_bulwark"
+upgrade_name = "Spiked Bulwark"
+description = "Reflects an additional 15% of damage taken."
+point_cost = 2
+tier = 3
+variant_group = "ir_guard_variant"
+effect_key = "reflect_bonus"
+magnitude = 15.0

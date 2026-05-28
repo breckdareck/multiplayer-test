@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://vsu3predator"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "vs_t3_predators_bound"
+upgrade_name = "Predator's Bound"
+description = "Vault Strike deals +60% damage."
+point_cost = 2
+tier = 3
+variant_group = "vs_dash_variant"
+effect_key = "bonus_damage_mult"
+magnitude = 0.6

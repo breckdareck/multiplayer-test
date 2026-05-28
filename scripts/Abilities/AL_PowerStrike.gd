@@ -39,8 +39,15 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 		return
 
 	var current_count: int = int(combo_comp.get_combo_count())
-	# 0 combo → 1.0× (no bonus). 3 combo → 4.0× (+300%).
-	var multiplier: float = 1.0 + float(current_count) * POWERSTRIKE_DAMAGE_PER_POINT
+	# Per-point coefficient. Default is this script's constant; the PR 6
+	# "Executioner" upgrade (combo_coefficient_override) replaces it.
+	var per_point: float = POWERSTRIKE_DAMAGE_PER_POINT
+	var ability_comp = _owner_node.get("ability_component")
+	if ability_comp and _ability != null:
+		if ability_comp.ability_has_upgrade_effect(_ability.ability_id, "combo_coefficient_override"):
+			per_point = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "combo_coefficient_override")
+	# 0 combo → 1.0× (no bonus). 3 combo → 4.0× (+300%) at default 2.0/pt.
+	var multiplier: float = 1.0 + float(current_count) * per_point
 
 	# Stage on combat_comp.pending_ability_damage_multiplier — read by
 	# CombatComponent.calculate_ability_damage and cleared on

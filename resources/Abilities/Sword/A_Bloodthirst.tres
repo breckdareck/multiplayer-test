@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=16 format=3 uid="uid://brh2j8b7l6sfn"]
+
+[ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_icon"]
+[ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
+[ext_resource type="Script" uid="uid://s0t2cijqvey0" path="res://scripts/Abilities/AL_Bloodthirst.gd" id="3_albt"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_ad"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_asf"]
+[ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="6_asd"]
+[ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="7_8xlpo"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_8p7k7"]
+[ext_resource type="Resource" uid="uid://btu1vitality" path="res://resources/Abilities/Sword/Upgrades/U_BT_Vitality.tres" id="9_vi"]
+[ext_resource type="Resource" uid="uid://btu2sanguine" path="res://resources/Abilities/Sword/Upgrades/U_BT_Sanguine.tres" id="10_sa"]
+[ext_resource type="Resource" uid="uid://btu3bloodfeast" path="res://resources/Abilities/Sword/Upgrades/U_BT_Bloodfeast.tres" id="11_bf"]
+
+[sub_resource type="Resource" id="Resource_active"]
+resource_local_to_scene = true
+script = ExtResource("2_abd")
+logic_script = ExtResource("3_albt")
+
+[sub_resource type="Resource" id="Resource_zero"]
+script = ExtResource("5_asf")
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_heal_pct"]
+script = ExtResource("5_asf")
+base_value = 0.5
+per_level = 0.3
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_scaling"]
+script = ExtResource("6_asd")
+mana_cost_formula = SubResource("Resource_zero")
+cooldown_formula = SubResource("Resource_zero")
+damage_percent_formula = SubResource("Resource_heal_pct")
+max_targets_formula = SubResource("Resource_zero")
+max_hits_formula = SubResource("Resource_zero")
+cast_time_formula = SubResource("Resource_zero")
+
+[resource]
+script = ExtResource("4_ad")
+ability_id = "81671215146-13387-137211-111490-12151513111068136914"
+ability_name = "Bloodthirst"
+description = "Restore [color=#e6c95c]$[damage_percent][/color] of Max HP whenever you kill an enemy."
+ability_icon = ExtResource("1_icon")
+max_level = 10
+ability_type = 1
+required_class = Array[int]([0])
+required_weapon_types = Array[int]([0])
+upgrades = Array[ExtResource("8_8p7k7")]([ExtResource("9_vi"), ExtResource("10_sa"), ExtResource("11_bf")])
+active_behavior = SubResource("Resource_active")
+scaling_data = SubResource("Resource_scaling")

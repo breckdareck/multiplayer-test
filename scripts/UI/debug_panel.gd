@@ -472,6 +472,9 @@ func _register_commands() -> void:
 	_register("damage", "damage [@target] [amount=10]", _cmd_damage, _complete_target_first)
 	_register("revive", "revive [@target]", _cmd_revive, _complete_target_first)
 	_register("level", "level [@target] [n] — no n: +1 level", _cmd_level, _complete_target_first)
+	_register("mastery", "mastery [@target] <sword|bow|staff|dagger|0-3> [n=1] — grants enough XP to level that discipline's mastery N times.", _cmd_mastery, _complete_mastery)
+	_register("upgrade", "upgrade list | upgrade buy <upgrade_id> — PR 6 ability-upgrade testing (host-only).", _cmd_upgrade)
+	_register("respec", "respec <sword|bow|staff|dagger|all> — refund a discipline's spent ability points + upgrades (host-only).", _cmd_respec, _complete_mastery)
 	_register("give", "give [@target] <item_name> [count=1]", _cmd_give, _complete_give)
 	_register("gold", "gold [@target] <amount> — negative subtracts", _cmd_gold, _complete_target_first)
 	_register("tp", "tp [@target] <map> | tp [@target] <x> <y>", _cmd_tp, _complete_tp)
@@ -771,6 +774,171 @@ func _cmd_level(args: Array) -> String:
 		if p.level_component.level == start and target_level > start: break
 		start = p.level_component.level
 	return "%s level %d -> %d." % [_target_label(t), start, p.level_component.level]
+
+
+## mastery [@target] <discipline> [n=1] — adds N mastery levels to a
+## specific discipline by granting just enough XP per loop iteration to
+## tick the level over. Routes through grant_mastery_xp_server so all the
+## downstream signals (mastery_level_changed → ability point grant, stat
+## recalc) fire naturally. Host-only because mastery XP grants are
+## server-authoritative.
+func _cmd_mastery(args: Array) -> String:
+	if not multiplayer.is_server():
+		return "[color=#ff8888]mastery is host-only (server-authoritative).[/color]"
+	var t := _resolve_target(args)
+	if not t.error.is_empty(): return t.error
+	var p: Node = t.node
+	if not is_instance_valid(p) or not is_instance_valid(p.weapon_mastery_component):
+		return "(no weapon mastery component)"
+	if t.remaining.is_empty():
+		return "Usage: mastery [@target] <sword|bow|staff|dagger|0-3> [n=1]"
+
+	var disc: int = _parse_discipline_arg(String(t.remaining[0]))
+	if disc < 0:
+		return "[color=#ff8888]Unknown discipline '%s'. Use sword/bow/staff/dagger or 0-3.[/color]" % String(t.remaining[0])
+
+	var n: int = 1
+	if t.remaining.size() >= 2:
+		var parsed: int = String(t.remaining[1]).to_int()
+		if parsed > 0:
+			n = parsed
+
+	var wm = p.weapon_mastery_component
+	var start_level: int = wm.get_mastery_level(disc)
+	for i in range(n):
+		var cur: int = wm.get_mastery_level(disc)
+		if cur >= WeaponMasteryComponent.MASTERY_CAP:
+			break
+		wm.grant_mastery_xp_server(disc, wm.get_xp_to_next_level(disc))
+	var end_level: int = wm.get_mastery_level(disc)
+	var disc_name: String = _discipline_label(disc)
+	return "%s %s mastery %d -> %d." % [_target_label(t), disc_name, start_level, end_level]
+
+
+## Parses a discipline argument from either a name (sword/bow/staff/dagger,
+## case-insensitive) or an int (0-3). Returns the ClassType enum value, or
+## -1 if unrecognized.
+func _parse_discipline_arg(s: String) -> int:
+	if s.is_valid_int():
+		var v: int = s.to_int()
+		if v >= 0 and v <= 3:
+			return v
+		return -1
+	match s.to_lower():
+		"sword": return Constants.ClassType.SWORD
+		"bow": return Constants.ClassType.BOW
+		"staff": return Constants.ClassType.STAFF
+		"dagger": return Constants.ClassType.DAGGER
+	return -1
+
+
+## upgrade list | upgrade buy <upgrade_id> — PR 6 ability-upgrade testing.
+## Operates on the local player. Host-only (purchase is server-authoritative).
+func _cmd_upgrade(args: Array) -> String:
+	if not multiplayer.is_server():
+		return "[color=#ff8888]upgrade is host-only (server-authoritative).[/color]"
+	var p: Node = _local_player()
+	if not is_instance_valid(p) or not is_instance_valid(p.ability_component):
+		return "(no ability component)"
+	var ac = p.ability_component
+
+	var sub: String = String(args[0]).to_lower() if not args.is_empty() else "list"
+
+	if sub == "list":
+		var lines: PackedStringArray = ["[b]Ability upgrades[/b] (learned abilities only):"]
+		for ability_id in ResourceManager.ability_data:
+			var ability: AbilityData = ResourceManager.ability_data[ability_id]
+			if ability == null or ability.upgrades == null or ability.upgrades.is_empty():
+				continue
+			# Only show abilities the player has learned (level >= 1).
+			if int(ac.get_ability_level(ability_id) if ac.has_method("get_ability_level") else 0) <= 0:
+				continue
+			lines.append("[color=#e6c95c]%s[/color]:" % ability.ability_name)
+			for up in ability.upgrades:
+				if up == null:
+					continue
+				var status: String = "owned" if ac.has_upgrade(ability_id, up.upgrade_id) else "T%d %dpt" % [up.tier, up.point_cost]
+				lines.append("  %s  [color=#9fcaff]%s[/color]  (%s)" % [up.upgrade_id, up.upgrade_name, status])
+		if lines.size() == 1:
+			lines.append("  (none — learn a sword ability with upgrades first, e.g. Crescent Cleave)")
+		return "\n".join(lines)
+
+	if sub == "buy":
+		if args.size() < 2:
+			return "Usage: upgrade buy <upgrade_id>"
+		var upgrade_id: String = String(args[1])
+		# Resolve the owning ability by scanning all abilities for the id.
+		for ability_id in ResourceManager.ability_data:
+			var ability: AbilityData = ResourceManager.ability_data[ability_id]
+			if ability == null or ability.upgrades == null:
+				continue
+			for up in ability.upgrades:
+				if up != null and up.upgrade_id == upgrade_id:
+					var check: Dictionary = ac.can_purchase_upgrade(ability_id, upgrade_id)
+					if not check.ok:
+						return "[color=#ff8888]Cannot buy '%s': %s[/color]" % [upgrade_id, String(check.reason)]
+					ac.purchase_upgrade(ability_id, upgrade_id)
+					return "Purchased [color=#9fcaff]%s[/color] on %s." % [up.upgrade_name, ability.ability_name]
+		return "[color=#ff8888]Unknown upgrade_id '%s'.[/color]" % upgrade_id
+
+	return "Usage: upgrade list | upgrade buy <upgrade_id>"
+
+
+## respec <sword|bow|staff|dagger|all> — refund a discipline's spent ability
+## points (levels above the free starter + upgrade costs) on the local player.
+## Host-only (server-authoritative).
+func _cmd_respec(args: Array) -> String:
+	if not multiplayer.is_server():
+		return "[color=#ff8888]respec is host-only (server-authoritative).[/color]"
+	var p: Node = _local_player()
+	if not is_instance_valid(p) or not is_instance_valid(p.ability_component):
+		return "(no ability component)"
+	if args.is_empty():
+		return "Usage: respec <sword|bow|staff|dagger|all>"
+	var ac = p.ability_component
+
+	var target: String = String(args[0]).to_lower()
+	var keys: Array[String] = []
+	if target == "all":
+		keys = ["sword", "bow", "staff", "dagger"]
+	elif target in ["sword", "bow", "staff", "dagger"]:
+		keys = [target]
+	else:
+		return "[color=#ff8888]Unknown discipline '%s'. Use sword/bow/staff/dagger or all.[/color]" % target
+
+	var results: PackedStringArray = []
+	for key in keys:
+		var before: int = ac.get_available_points_for_discipline(key)
+		ac.respec_discipline(key)
+		var after: int = ac.get_available_points_for_discipline(key)
+		results.append("%s: %d → %d pts" % [key, before, after])
+	return "Respec complete — " + ", ".join(results)
+
+
+func _discipline_label(disc: int) -> String:
+	match disc:
+		Constants.ClassType.SWORD: return "Sword"
+		Constants.ClassType.BOW: return "Bow"
+		Constants.ClassType.STAFF: return "Staff"
+		Constants.ClassType.DAGGER: return "Dagger"
+	return "Unknown"
+
+
+## Completer for `mastery` command. Suggests @target candidates and/or
+## discipline names depending on which slot the user is typing into.
+## Signature matches the other completers in this file:
+## (prior_args: PackedStringArray, _t: String) -> PackedStringArray.
+func _complete_mastery(prior_args: PackedStringArray, _t: String) -> PackedStringArray:
+	var disciplines: PackedStringArray = PackedStringArray(["sword", "bow", "staff", "dagger"])
+	if prior_args.is_empty():
+		# First slot can be either @target or discipline.
+		var out: PackedStringArray = _target_candidates()
+		out.append_array(disciplines)
+		return out
+	# After an @target slot, the next slot is the discipline.
+	if String(prior_args[0]).begins_with("@") and prior_args.size() == 1:
+		return disciplines
+	return PackedStringArray()
 
 
 func _cmd_give(args: Array) -> String:

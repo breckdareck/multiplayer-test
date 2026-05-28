@@ -90,6 +90,7 @@ ability_icon = ExtResource("1_h4exd")
 max_level = 30
 required_class = Array[int]([2])
 required_weapon_types = Array[int]([2])
+upgrades = null
 active_behavior = SubResource("Resource_behav")
 applies_buff = ExtResource("4_buff")
 buff_duration_formula = SubResource("Resource_buff_dur")

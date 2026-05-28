@@ -108,6 +108,16 @@ horizontal_alignment = 2
 vertical_alignment = 1
 metadata/_edit_use_anchors = true
 
+[node name="RespecMenuButton" type="Button" parent="MarginContainer/VBoxContainer/HeaderPanel/HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(70, 28)
+layout_mode = 2
+focus_mode = 0
+theme = SubResource("Theme_i6h8y")
+theme_override_font_sizes/font_size = 12
+text = "Respec ▾"
+tooltip_text = "Respec this weapon's whole tree, or all weapons."
+
 [node name="CloseButton" type="Button" parent="MarginContainer/VBoxContainer/HeaderPanel/HBoxContainer"]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
@@ -273,5 +283,39 @@ layout_mode = 2
 theme = SubResource("Theme_i6h8y")
 theme_override_font_sizes/font_size = 16
 text = "LEVEL UP (MAX)"
+
+[node name="UpgradesContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HSplitContainer/AbilityDetailsPanel/DetailsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="HSeparator3" type="HSeparator" parent="MarginContainer/VBoxContainer/HSplitContainer/AbilityDetailsPanel/DetailsVBox/UpgradesContainer"]
+layout_mode = 2
+
+[node name="UpgradesHeader" type="HBoxContainer" parent="MarginContainer/VBoxContainer/HSplitContainer/AbilityDetailsPanel/DetailsVBox/UpgradesContainer"]
+layout_mode = 2
+
+[node name="UpgradesTitle" type="Label" parent="MarginContainer/VBoxContainer/HSplitContainer/AbilityDetailsPanel/DetailsVBox/UpgradesContainer/UpgradesHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.905882, 0.890196, 0.34902, 1)
+theme_override_fonts/font = ExtResource("3_702f5")
+theme_override_font_sizes/font_size = 14
+text = "UPGRADES"
+
+[node name="RespecButton" type="Button" parent="MarginContainer/VBoxContainer/HSplitContainer/AbilityDetailsPanel/DetailsVBox/UpgradesContainer/UpgradesHeader"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 24)
+layout_mode = 2
+focus_mode = 0
+theme = SubResource("Theme_i6h8y")
+theme_override_font_sizes/font_size = 12
+text = "Respec Ability"
+tooltip_text = "Refund this ability's levels + upgrades."
+
+[node name="UpgradesList" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HSplitContainer/AbilityDetailsPanel/DetailsVBox/UpgradesContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 2
 
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HeaderPanel/HBoxContainer/CloseButton" to="." method="hide"]

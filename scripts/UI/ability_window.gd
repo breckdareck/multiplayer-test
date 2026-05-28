@@ -17,6 +17,13 @@ const ABILITYSLOT = preload("res://scenes/UI/ability_slot.tscn")
 @onready var cost_label: Label = %CostLabel
 @onready var level_up_button: Button = %LevelUpButton
 @onready var skill_points_label: Label = %SkillPointsLabel
+## PR 6: upgrade panel — tier rows with buy buttons + a per-discipline respec.
+@onready var upgrades_container: VBoxContainer = %UpgradesContainer
+@onready var upgrades_list: VBoxContainer = %UpgradesList
+## Per-ability respec (in the details/upgrades panel).
+@onready var respec_button: Button = %RespecButton
+## Top-header respec (tree / all weapons) — opens a popup.
+@onready var respec_menu_button: Button = %RespecMenuButton
 ## PR 4: TabBar above the list, one tab per weapon discipline. Selecting a
 ## tab filters the ability list and switches the SP label to the matching
 ## discipline pool.
@@ -58,6 +65,12 @@ func _ready():
 	# Connect signals
 	level_up_button.pressed.connect(on_level_up_button_pressed)
 
+	# PR 6: per-ability respec (details panel) + tree/all respec (top header).
+	if is_instance_valid(respec_button):
+		respec_button.pressed.connect(_on_respec_ability_pressed)
+	if is_instance_valid(respec_menu_button):
+		respec_menu_button.pressed.connect(_on_respec_button_pressed)
+
 	# PR 4: discipline tab bar drives the list filter + SP label.
 	if is_instance_valid(discipline_tab_bar):
 		discipline_tab_bar.tab_selected.connect(_on_discipline_tab_selected)
@@ -72,6 +85,9 @@ func _ready():
 		# PR 4: surface a UI ping when a spend is denied (empty pool, etc).
 		if ability_component.has_signal("ability_points_spend_denied"):
 			ability_component.ability_points_spend_denied.connect(_on_ability_points_spend_denied)
+		# PR 6: refresh the upgrade panel + list badges when upgrades change.
+		if ability_component.has_signal("ability_upgrade_purchased"):
+			ability_component.ability_upgrade_purchased.connect(_on_ability_upgrade_changed)
 		##print("AbilityWindow: Connected to ability component signals")
 
 	# PR 4: default the tab to the player's currently-active discipline so
@@ -179,7 +195,10 @@ func load_ability_list():
 		# already renders the level/max correctly at 0.
 		var current_level: int = ability_component.get_ability_level(ability_id)
 		var slot = ABILITYSLOT.instantiate()
-		slot.setup(ability_data, current_level)
+		# PR 6: pass owned/total upgrade counts for the slot's upgrade badge.
+		var total_ups: int = ability_data.upgrades.size() if ability_data.upgrades != null else 0
+		var owned_ups: int = ability_component.get_learned_upgrades(ability_id).size() if total_ups > 0 else 0
+		slot.setup(ability_data, current_level, owned_ups, total_ups)
 		slot.ability_selected.connect(select_ability)
 		ability_list_container.add_child(slot)
 
@@ -327,15 +346,52 @@ func update_details(data: AbilityData, current_level: int):
 		clear_details()
 		return
 		
+	# PR 6: append an ACTIVE UPGRADES section so the description reflects
+	# every owned upgrade (damage %, combo coefficient, bleed, CD, etc.) —
+	# the one place that transparently covers all effect types.
+	desc += _owned_upgrades_section(data)
+
 	# Apply final text values to UI
 	description_text.text = desc
 	mana_cost_label.text = mana_cost_text
 	cooldown_label.text = cooldown_text
-	
+
+	# PR 6: reflect flat cooldown / mana reductions from owned upgrades in the
+	# stat labels (current level's effective value). Only overrides when a
+	# reduction is owned, so the level-up comparison stays intact otherwise.
+	if data.ability_type == Constants.AbilityType.ACTIVE and ability_component and current_stats:
+		var cd_reduction: float = ability_component.get_ability_upgrade_magnitude(data.ability_id, "cooldown_flat_reduction")
+		if cd_reduction > 0.0:
+			var eff_cd: float = maxf(0.0, current_stats.cooldown_time - cd_reduction)
+			cooldown_label.text = "[color=%s]%.1fs[/color]" % [COLOR_UPGRADE, eff_cd]
+		var mana_reduction: float = ability_component.get_ability_upgrade_magnitude(data.ability_id, "mana_flat_reduction")
+		if mana_reduction > 0.0:
+			var eff_mana: int = maxi(0, current_stats.mana_cost - int(mana_reduction))
+			mana_cost_label.text = "[color=%s]%d[/color]" % [COLOR_UPGRADE, eff_mana]
+
 	# Passive abilities often don't have mana/cooldown
 	if data.ability_type == Constants.AbilityType.PASSIVE:
 		mana_cost_label.text = "N/A"
 		cooldown_label.text = "N/A"
+
+	# PR 6: rebuild the upgrade tier panel for this ability.
+	_refresh_upgrades(data, current_level)
+
+
+## Builds a BBCode "ACTIVE UPGRADES" block listing owned upgrades for an
+## ability (name — effect). Empty when none owned. This is how the
+## description "changes with the upgrades" uniformly across every effect
+## type, without rewriting each ability's base description text.
+func _owned_upgrades_section(data: AbilityData) -> String:
+	if not ability_component or data.upgrades == null or data.upgrades.is_empty():
+		return ""
+	var lines: PackedStringArray = []
+	for up in data.upgrades:
+		if up != null and ability_component.has_upgrade(data.ability_id, up.upgrade_id):
+			lines.append("  [color=%s]%s[/color] — %s" % [COLOR_UPGRADE, up.upgrade_name, up.description])
+	if lines.is_empty():
+		return ""
+	return "\n\n[color=%s]ACTIVE UPGRADES:[/color]\n%s" % [COLOR_UPGRADE, "\n".join(lines)]
 
 
 ## Helper function to create the final description text for comparison
@@ -367,25 +423,40 @@ func create_description_comparison_text(data: AbilityData, current: AbilityLevel
 		if data.ability_type == Constants.AbilityType.ACTIVE:
 			var current_damage = current.damage_percent
 			var next_damage = next.damage_percent
-			
+
 			if next_damage != current_damage:
 				var color = COLOR_UPGRADE if next_damage > current_damage else COLOR_DOWNGRADE
-				output += "Damage: [color=%s]%d%%[/color] [color=%s](%+d%%)[/color]\n" % [COLOR_BASE, current_damage, color, next_damage - current_damage]
-			
+				var diff = next_damage - current_damage
+				var diff_sign = "+" if diff > 0 else ""
+				output += "Damage: [color=%s]%s%%[/color] [color=%s](%s%s%%)[/color]\n" % [COLOR_BASE, AbilityData._smart_format_number(current_damage), color, diff_sign, AbilityData._smart_format_number(diff)]
+
 			if data.scaling_data.max_targets_formula:
 				var current_target_count = data.scaling_data.max_targets_formula.calculate(current.level)
 				var next_target_count = data.scaling_data.max_targets_formula.calculate(next.level)
 				if next_target_count != current_target_count:
 					var color = COLOR_UPGRADE
 					output += "Target Count: [color=%s]%d[/color] [color=%s](%+d)[/color]\n" % [COLOR_BASE, current_target_count, color, next_target_count - current_target_count]
-			
+
 			if data.scaling_data.max_hits_formula:
 				var current_hit_count = data.scaling_data.max_hits_formula.calculate(current.level)
 				var next_hit_count = data.scaling_data.max_hits_formula.calculate(next.level)
 				if next_hit_count != current_hit_count:
 					var color = COLOR_UPGRADE
 					output += "Hit Count: [color=%s]%d[/color] [color=%s](%+d)[/color]\n" % [COLOR_BASE, current_hit_count, color, next_hit_count - current_hit_count]
-		
+		elif data.ability_type == Constants.AbilityType.PASSIVE and data.scaling_data and data.scaling_data.damage_percent_formula:
+			# PR 6: passives that use damage_percent_formula as a generic
+			# level-scaled value (e.g. Bloodthirst's heal %) need an
+			# upgrade-preview line too. Mirrors the active "Damage" diff
+			# but labels generically ("Effect") since the value isn't
+			# necessarily damage on a passive.
+			var cur_val: float = data.scaling_data.damage_percent_formula.calculate(current.level)
+			var nxt_val: float = data.scaling_data.damage_percent_formula.calculate(next.level)
+			if nxt_val != cur_val:
+				var color = COLOR_UPGRADE if nxt_val > cur_val else COLOR_DOWNGRADE
+				var diff: float = nxt_val - cur_val
+				var diff_sign: String = "+" if diff > 0 else ""
+				output += "Effect: [color=%s]%s%%[/color] [color=%s](%s%s%%)[/color]\n" % [COLOR_BASE, AbilityData._smart_format_number(cur_val), color, diff_sign, AbilityData._smart_format_number(diff)]
+
 		# NEW: Show buff duration upgrade
 		var buff_duration_diff = format_buff_duration_comparison(data, current, next)
 		if not buff_duration_diff.is_empty():
@@ -417,30 +488,36 @@ func format_ability_description(data: AbilityData, level_data: AbilityLevelData,
 	var output = ""
 	
 	if data.ability_type == Constants.AbilityType.ACTIVE:
-		var damage_text = desc_template.replace("$[damage_percent]", "[color=%s]%d%%[/color]" % [color, level_data.damage_percent])
+		var damage_text = desc_template.replace("$[damage_percent]", "[color=%s]%s%%[/color]" % [color, AbilityData._smart_format_number(level_data.damage_percent)])
 		var target_text = damage_text.replace("$[target_count]", "[color=%s]%d[/color]" % [color, data.scaling_data.max_targets_formula.calculate(level_data.level)])
 		var hit_text = target_text.replace("$[hit_count]", "[color=%s]%d[/color]" % [color, data.scaling_data.max_hits_formula.calculate(level_data.level)])
-		
+
 		# NEW: Handle buff duration placeholder
 		if data.applies_buff and data.buff_duration_formula:
 			var duration = data.buff_duration_formula.calculate(level_data.level)
 			hit_text = hit_text.replace("$[buff_duration]", "[color=%s]%.0fs[/color]" % [color, duration])
-			
+
 			var stat_key = level_data.stat_bonuses.keys()[0] if not level_data.stat_bonuses.is_empty() else null
 			if stat_key != null:
 				var stat_value = level_data.stat_bonuses.get(stat_key).total_value if level_data.stat_bonuses.get(stat_key).total_value > 0 else level_data.stat_bonuses.get(stat_key).percent_bonus_value
-				hit_text = hit_text.replace("$[stat_bonus]", "[color=%s]%d[/color]" % [color, stat_value])
-		
+				hit_text = hit_text.replace("$[stat_bonus]", "[color=%s]%s[/color]" % [color, AbilityData._smart_format_number(stat_value)])
+
 		output += hit_text
 	elif data.ability_type == Constants.AbilityType.PASSIVE:
-		# For passive abilities, use the first stat bonus in the description
+		var passive_text: String = desc_template
+		# PR 6: passives may use $[damage_percent] as a generic level-scaled
+		# value (e.g. Bloodthirst's heal %). Pulls directly from
+		# scaling_data.damage_percent_formula since level_data.damage_percent
+		# is only populated for active abilities.
+		if data.scaling_data and data.scaling_data.damage_percent_formula:
+			var v: float = data.scaling_data.damage_percent_formula.calculate(level_data.level)
+			passive_text = passive_text.replace("$[damage_percent]", "[color=%s]%s%%[/color]" % [color, AbilityData._smart_format_number(v)])
+		# Stat bonus path (HP Boost, STR Passive, etc.)
 		var stat_key = level_data.stat_bonuses.keys()[0] if not level_data.stat_bonuses.is_empty() else null
 		if stat_key != null:
 			var stat_value = level_data.stat_bonuses.get(stat_key).total_value if level_data.stat_bonuses.get(stat_key).total_value > 0 else level_data.stat_bonuses.get(stat_key).percent_bonus_value
-			var stat_text = desc_template.replace("$[stat_bonus]", "[color=%s]%d[/color]" % [color, stat_value])
-			output += stat_text
-		else:
-			output += desc_template
+			passive_text = passive_text.replace("$[stat_bonus]", "[color=%s]%s[/color]" % [color, AbilityData._smart_format_number(stat_value)])
+		output += passive_text
 	else:
 		output += desc_template
 		
@@ -457,11 +534,11 @@ func format_stat_bonuses(level_data: AbilityLevelData, color: String) -> String:
 		
 		# Show flat bonus if it exists
 		if stat_data.flat_bonus_value > 0:
-			output += "  %s: [color=%s]+%d[/color]\n" % [stat_name, color, stat_data.flat_bonus_value]
-		
+			output += "  %s: [color=%s]+%s[/color]\n" % [stat_name, color, AbilityData._smart_format_number(stat_data.flat_bonus_value)]
+
 		# Show percent bonus if it exists
 		if stat_data.percent_bonus_value > 0:
-			output += "  %s: [color=%s]+%d%%[/color]\n" % [stat_name, color, stat_data.percent_bonus_value]
+			output += "  %s: [color=%s]+%s%%[/color]\n" % [stat_name, color, AbilityData._smart_format_number(stat_data.percent_bonus_value)]
 	
 	return output
 
@@ -499,14 +576,16 @@ func format_stat_bonus_comparison(current: AbilityLevelData, next: AbilityLevelD
 			has_changes = true
 			var diff = next_flat - current_flat
 			var color = COLOR_UPGRADE if diff > 0 else COLOR_DOWNGRADE
-			output += "%s: [color=%s]+%d[/color] [color=%s](%+d)[/color]\n" % [stat_name, COLOR_BASE, current_flat, color, diff]
-		
+			var sign_str: String = "+" if diff > 0 else ""
+			output += "%s: [color=%s]+%s[/color] [color=%s](%s%s)[/color]\n" % [stat_name, COLOR_BASE, AbilityData._smart_format_number(current_flat), color, sign_str, AbilityData._smart_format_number(diff)]
+
 		# Show percent bonus changes
 		if next_percent != current_percent:
 			has_changes = true
 			var diff = next_percent - current_percent
 			var color = COLOR_UPGRADE if diff > 0 else COLOR_DOWNGRADE
-			output += "%s: [color=%s]+%d%%[/color] [color=%s](%+d%%)[/color]\n" % [stat_name, COLOR_BASE, current_percent, color, diff]
+			var sign_str: String = "+" if diff > 0 else ""
+			output += "%s: [color=%s]+%s%%[/color] [color=%s](%s%s%%)[/color]\n" % [stat_name, COLOR_BASE, AbilityData._smart_format_number(current_percent), color, sign_str, AbilityData._smart_format_number(diff)]
 	
 	return output if has_changes else ""
 
@@ -582,16 +661,166 @@ func clear_details():
 	cost_label.text = "No cost"
 	level_up_button.text = "LEVEL UP"
 	level_up_button.disabled = true
+	# PR 6: hide the upgrade panel when nothing is selected.
+	if is_instance_valid(upgrades_container):
+		upgrades_container.visible = false
 
 
 ## Handles the Level Up button press
 func on_level_up_button_pressed():
 	if not ability_component or selected_ability_id.is_empty():
 		return
-	
+
 	# Level up (or learn, at level 0) the selected ability. The UI refreshes
 	# via the ability_leveled_up / ability_learned signal callbacks.
 	ability_component.level_up_ability(selected_ability_id)
+
+
+# ============================================================================
+# PR 6: Upgrade panel
+# ============================================================================
+
+## Tier accent colors for the upgrade rows (T1 / T2 / T3-variant).
+const UPGRADE_TIER_COLORS: Array[String] = ["#9fcaff", "#c9a0ff", "#e6c95c"]
+
+
+## Rebuilds the upgrade tier rows for the selected ability. Hidden entirely
+## for abilities that define no upgrades (pre-PR-6 abilities / passives
+## without trees).
+func _refresh_upgrades(data: AbilityData, current_level: int) -> void:
+	if not is_instance_valid(upgrades_container):
+		return
+	# Clear existing rows.
+	for child in upgrades_list.get_children():
+		child.queue_free()
+
+	var has_upgrades: bool = data.upgrades != null and not data.upgrades.is_empty()
+	upgrades_container.visible = has_upgrades
+	if not has_upgrades:
+		return
+
+	# Sort by tier so the panel reads T1 → T2 → T3 top-to-bottom.
+	var sorted_upgrades: Array = data.upgrades.duplicate()
+	sorted_upgrades.sort_custom(func(a, b): return a.tier < b.tier)
+
+	for up in sorted_upgrades:
+		if up == null:
+			continue
+		upgrades_list.add_child(_make_upgrade_row(data, up, current_level))
+
+
+## Builds one upgrade row: [Tn] Name ............ <Buy/Owned/Locked>.
+func _make_upgrade_row(data: AbilityData, upgrade: AbilityUpgradeData, _current_level: int) -> Control:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 6)
+	row.tooltip_text = upgrade.get_tooltip_text(ability_component.has_upgrade(data.ability_id, upgrade.upgrade_id))
+
+	var tier_color: String = UPGRADE_TIER_COLORS[clampi(upgrade.tier - 1, 0, UPGRADE_TIER_COLORS.size() - 1)]
+	var tier_badge := Label.new()
+	tier_badge.text = "T%d" % upgrade.tier
+	tier_badge.add_theme_color_override("font_color", Color(tier_color))
+	tier_badge.custom_minimum_size = Vector2(26, 0)
+	row.add_child(tier_badge)
+
+	var name_label := Label.new()
+	name_label.text = upgrade.upgrade_name
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	if not upgrade.variant_group.is_empty():
+		name_label.text += "  ◆"  # variant marker
+	row.add_child(name_label)
+
+	var owned: bool = ability_component.has_upgrade(data.ability_id, upgrade.upgrade_id)
+	if owned:
+		var owned_label := Label.new()
+		owned_label.text = "✓ Owned"
+		owned_label.add_theme_color_override("font_color", Color(COLOR_UPGRADE))
+		owned_label.custom_minimum_size = Vector2(90, 0)
+		owned_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		row.add_child(owned_label)
+	else:
+		var check: Dictionary = ability_component.can_purchase_upgrade(data.ability_id, upgrade.upgrade_id)
+		var buy_btn := Button.new()
+		buy_btn.custom_minimum_size = Vector2(90, 24)
+		buy_btn.focus_mode = Control.FOCUS_NONE
+		if check.ok:
+			buy_btn.text = "Buy (%d)" % upgrade.point_cost
+			buy_btn.disabled = false
+		else:
+			buy_btn.disabled = true
+			match String(check.reason):
+				"tier_locked": buy_btn.text = "Locked"
+				"variant_taken": buy_btn.text = "—"
+				"no_points": buy_btn.text = "Buy (%d)" % upgrade.point_cost
+				"not_learned": buy_btn.text = "Learn first"
+				"not_maxed": buy_btn.text = "Max first"
+				_: buy_btn.text = "Locked"
+		var ability_id := data.ability_id
+		var upgrade_id := upgrade.upgrade_id
+		buy_btn.pressed.connect(func(): _on_upgrade_buy_pressed(ability_id, upgrade_id))
+		row.add_child(buy_btn)
+
+	return row
+
+
+func _on_upgrade_buy_pressed(ability_id: String, upgrade_id: String) -> void:
+	if not ability_component:
+		return
+	# Server validates + applies; UI refreshes via ability_upgrade_purchased.
+	ability_component.purchase_upgrade(ability_id, upgrade_id)
+
+
+## Refresh the panel + list when an upgrade is purchased (or synced in).
+func _on_ability_upgrade_changed(ability_id: String, _upgrade_id: String) -> void:
+	update_skill_points_display()
+	load_ability_list()
+	if selected_ability_id == ability_id and not selected_ability_id.is_empty():
+		select_ability(selected_ability_id)
+
+
+## Top-header respec — opens a small popup offering a quick respec of either
+## the current weapon discipline (tree) or all weapons. The popup IS the
+## confirmation (deliberate two-step: open menu → pick option).
+func _on_respec_button_pressed() -> void:
+	if not ability_component:
+		return
+	var menu := PopupMenu.new()
+	menu.add_item("Respec %s Tree" % _current_discipline_tab_title(), 0)
+	menu.add_item("Respec All Weapons", 1)
+	add_child(menu)
+	menu.id_pressed.connect(_on_respec_menu_selected)
+	# Free the popup once it closes (covers both selection and dismissal).
+	menu.popup_hide.connect(menu.queue_free)
+	# Anchor just below the top Respec button.
+	var anchor: Control = respec_menu_button if is_instance_valid(respec_menu_button) else self
+	menu.position = anchor.get_screen_position() + Vector2(0, anchor.size.y)
+	menu.popup()
+
+
+func _on_respec_menu_selected(id: int) -> void:
+	if not ability_component:
+		return
+	if id == 0:
+		ability_component.respec_discipline(_current_discipline_key)
+	elif id == 1:
+		ability_component.respec_all()
+	_refresh_after_respec()
+
+
+## Per-ability respec — refunds just the selected ability's levels + upgrades.
+func _on_respec_ability_pressed() -> void:
+	if not ability_component or selected_ability_id.is_empty():
+		return
+	ability_component.respec_ability(selected_ability_id)
+	_refresh_after_respec()
+
+
+## Shared post-respec UI refresh. Signals already drive most of it; this
+## ensures the open panel + header update immediately.
+func _refresh_after_respec() -> void:
+	update_skill_points_display()
+	load_ability_list()
+	if not selected_ability_id.is_empty():
+		select_ability(selected_ability_id)
 
 
 ## Updates the SP display in the header.

@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="BuffData" load_steps=6 format=3 uid="uid://b7m6nox1s53pv"]
+
+[ext_resource type="Script" uid="uid://bcuvemv85jprb" path="res://scripts/Resources/BuffSystem/BuffData.gd" id="1_bd"]
+[ext_resource type="Texture2D" uid="uid://ky00whwbxbmx" path="res://assets/sprites/Abilities/power_guard.png" id="1_m5d6n"]
+[ext_resource type="Script" uid="uid://u8dw44fu1dn2" path="res://scripts/Buffs/BL_BulwarkStance.gd" id="2_bl"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="3_sd"]
+
+[sub_resource type="Resource" id="Resource_def_mod"]
+script = ExtResource("3_sd")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 250
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[resource]
+resource_local_to_scene = true
+script = ExtResource("1_bd")
+buff_id = "711321515912-28123-137142-710135-714454101581015130"
+buff_name = "Bulwark Stance"
+description = "Defensive stance — +250 Defense, drains 2 MP/s. Drops automatically when MP runs out."
+buff_icon = ExtResource("1_m5d6n")
+duration = 30.0
+stat_modifiers = Dictionary[int, ExtResource("3_sd")]({
+8: SubResource("Resource_def_mod")
+})
+logic_script = ExtResource("2_bl")
+metadata/_custom_type_script = "uid://bcuvemv85jprb"

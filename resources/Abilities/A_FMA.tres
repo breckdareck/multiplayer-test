@@ -66,5 +66,6 @@ ability_name = "FMA"
 description = "Debug Attack - Hits $[target_count] targets $[hit_count] times for $[damage_percent]"
 ability_icon = SubResource("AtlasTexture_0dvw3")
 max_level = 1
+upgrades = null
 active_behavior = SubResource("Resource_yl5mh")
 scaling_data = SubResource("Resource_ut2o4")

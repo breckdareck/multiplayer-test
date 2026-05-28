@@ -17,8 +17,11 @@ func _ready():
 	TooltipTheme.apply_to(self)
 	mouse_entered.connect(_on_mouse_entered)
 
-## Called by the AbilityWindow to set the data for the slot
-func setup(data: AbilityData, level: int):
+## Called by the AbilityWindow to set the data for the slot.
+## PR 6: owned_upgrades / total_upgrades drive a small "◆ owned/total" badge
+## so the list shows at a glance which abilities have upgrade trees and how
+## far they're invested. Defaults keep older callers working (no badge).
+func setup(data: AbilityData, level: int, owned_upgrades: int = 0, total_upgrades: int = 0):
 	ability_data = data
 	current_level = level
 	if ability_data:
@@ -32,7 +35,32 @@ func setup(data: AbilityData, level: int):
 	ability_type.text = type_text
 
 	ability_level.text = str(level)
+	_refresh_upgrade_badge(owned_upgrades, total_upgrades)
 	_refresh_tooltip()
+
+
+## Shows/updates an upgrade badge under the ability type. Gold ◆ with
+## owned/total count; hidden when the ability has no upgrades. Created lazily
+## so the slot scene needs no extra node.
+func _refresh_upgrade_badge(owned: int, total: int) -> void:
+	var vbox: Node = ability_name.get_parent() if is_instance_valid(ability_name) else null
+	if vbox == null:
+		return
+	var badge: Label = vbox.get_node_or_null("UpgradeBadge") as Label
+	if total <= 0:
+		if badge:
+			badge.visible = false
+		return
+	if badge == null:
+		badge = Label.new()
+		badge.name = "UpgradeBadge"
+		badge.add_theme_font_size_override("font_size", 8)
+		vbox.add_child(badge)
+	badge.visible = true
+	# Fully-upgraded reads gold; partial reads muted gold.
+	var col := Color(1.0, 0.82, 0.3) if owned >= total else Color(0.75, 0.68, 0.4)
+	badge.add_theme_color_override("font_color", col)
+	badge.text = "◆ %d/%d upgrades" % [owned, total]
 
 
 func _on_mouse_entered() -> void:

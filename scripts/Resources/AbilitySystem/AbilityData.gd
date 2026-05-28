@@ -19,6 +19,11 @@ extends Resource
 @export var required_weapon_types: Array[Constants.WeaponType]
 @export var prerequisite_abilities: Dictionary[AbilityData, int] = {}
 
+## PR 6 — per-ability upgrade tree. Each upgrade is its own .tres
+## (AbilityUpgradeData) referenced here. Empty array = no upgrades available
+## for this ability (the pre-PR-6 baseline behavior).
+@export var upgrades: Array[AbilityUpgradeData] = []
+
 @export var active_behavior: ActiveBehaviorData
 
 @export_group("Buff Configuration")
@@ -97,12 +102,24 @@ func get_tooltip_text(current_level: int = 0) -> String:
 ## Substitutes the description template's placeholders ($[damage_percent],
 ## $[target_count], $[hit_count], $[buff_duration], $[stat_bonus]) for the given
 ## level. Returns plain text — no BBCode.
+##
+## Note ($[damage_percent] gating): the placeholder is also evaluated for
+## PASSIVE abilities now. Passives may use `scaling_data.damage_percent_formula`
+## as a generic level-scaled "value" formula for description display (e.g.
+## Bloodthirst's heal %); the field is otherwise unused for passives since
+## they don't deal damage on cast.
 func _format_plain_description(level_data: AbilityLevelData) -> String:
 	if description.is_empty():
 		return ""
 	var output := description
-	if ability_type == Constants.AbilityType.ACTIVE and level_data:
-		output = output.replace("$[damage_percent]", "%d%%" % level_data.damage_percent)
+	if level_data:
+		if ability_type == Constants.AbilityType.ACTIVE:
+			output = output.replace("$[damage_percent]", "%s%%" % _smart_format_number(level_data.damage_percent))
+		elif scaling_data and scaling_data.damage_percent_formula:
+			# Passive: read the formula directly (level_data.damage_percent
+			# is only populated for active abilities).
+			var v: float = scaling_data.damage_percent_formula.calculate(level_data.level)
+			output = output.replace("$[damage_percent]", "%s%%" % _smart_format_number(v))
 		if scaling_data:
 			if scaling_data.max_targets_formula:
 				output = output.replace("$[target_count]", "%d" % scaling_data.max_targets_formula.calculate(level_data.level))
@@ -115,6 +132,16 @@ func _format_plain_description(level_data: AbilityLevelData) -> String:
 		var stat_key = level_data.stat_bonuses.keys()[0]
 		var stat_data: StatData = level_data.stat_bonuses[stat_key]
 		var stat_value: float = float(stat_data.total_value) if stat_data.total_value > 0 else stat_data.percent_bonus_value
-		output = output.replace("$[stat_bonus]", "%d" % stat_value)
+		output = output.replace("$[stat_bonus]", _smart_format_number(stat_value))
 
 	return output
+
+
+## Formats a numeric value for description display. Whole numbers show as
+## integers ("4"), fractional values show with one decimal place ("0.5",
+## "3.2"). Used by both the plain-text formatter here and the BBCode
+## formatter in ability_window.gd — keep them in sync if the rule changes.
+static func _smart_format_number(value: float) -> String:
+	if value == floor(value):
+		return "%d" % int(value)
+	return "%.1f" % value

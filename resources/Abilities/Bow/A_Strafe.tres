@@ -77,6 +77,7 @@ required_weapon_types = Array[int]([1])
 prerequisite_abilities = Dictionary[ExtResource("2_strf1"), int]({
 ExtResource("9_strf1"): 5
 })
+upgrades = null
 active_behavior = SubResource("Resource_strf1")
 scaling_data = SubResource("Resource_strf8")
 metadata/_custom_type_script = "uid://b8y62rc8nb40j"

@@ -302,7 +302,7 @@ func _process_collected_bodies() -> void:
 			return owner_node.global_position.distance_squared_to(a.global_position) < owner_node.global_position.distance_squared_to(b.global_position)
 		)
 
-		var proj_max_targets = current_level_stats.max_targets
+		var proj_max_targets = current_level_stats.max_targets + _upgrade_int(current_ability_data, "bonus_targets")
 		var proj_targets_processed = 0
 
 		for body_area in _pending_bodies:
@@ -329,9 +329,9 @@ func _process_collected_bodies() -> void:
 		return
 
 	var max_targets = 0
-	
+
 	if current_ability_data and current_level_stats:
-		max_targets = current_level_stats.max_targets
+		max_targets = current_level_stats.max_targets + _upgrade_int(current_ability_data, "bonus_targets")
 	elif current_attack_data != "":
 		max_targets = 1
 	else:
@@ -387,7 +387,7 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 	
 	var max_hits = 1
 	if ability and level_stats:
-		max_hits = level_stats.max_hits
+		max_hits = level_stats.max_hits + _upgrade_int(ability, "bonus_hits")
 	
 	var damage_values: Array = []
 	var crit_values: Array = []
@@ -493,6 +493,15 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 			if secondary_discipline != -1 and secondary_discipline != kill_discipline:
 				_weapon_mastery_component.grant_mastery_xp_server(secondary_discipline, kill_xp)
 
+		# PR 6: passive-on-kill event dispatch. Bloodthirst (and future
+		# kill-triggered passives) wire here. Fires once per landed killing
+		# blow — multi-hit abilities that down a target on hit N still only
+		# fire on_kill once because `was_alive` flips false after the
+		# downing hit.
+		if was_alive and health_comp.is_dead and _ability_component:
+			if _ability_component.has_method("dispatch_passive_event_on_kill"):
+				_ability_component.dispatch_passive_event_on_kill(target_enemy)
+
 		# PR 5 — Sword signature: build a combo point on every BASIC-ATTACK
 		# HIT while wielding a sword. Conditions:
 		#  - `ability == null` (the basic-melee pathway; not the ability or
@@ -592,7 +601,27 @@ func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelDa
 	if pending_ability_damage_multiplier != 1.0:
 		damage = roundi(damage * pending_ability_damage_multiplier)
 
+	# PR 6: generic "bonus_damage_mult" upgrade (additive %, e.g. +0.25).
+	# Applied here so ANY ability's damage upgrades work without per-AL code.
+	var dmg_bonus: float = _upgrade_float(_ability, "bonus_damage_mult")
+	if dmg_bonus != 0.0:
+		damage = roundi(damage * (1.0 + dmg_bonus))
+
 	return damage
+
+
+## PR 6 helpers: read summed upgrade magnitude for an ability via the
+## AbilityComponent. Return 0 when unavailable so callers stay simple.
+func _upgrade_float(ability: AbilityData, effect_key: String) -> float:
+	if ability == null or not is_instance_valid(_ability_component):
+		return 0.0
+	if not _ability_component.has_method("get_ability_upgrade_magnitude"):
+		return 0.0
+	return _ability_component.get_ability_upgrade_magnitude(ability.ability_id, effect_key)
+
+
+func _upgrade_int(ability: AbilityData, effect_key: String) -> int:
+	return int(_upgrade_float(ability, effect_key))
 
 
 func calculate_attack_damage() -> int:

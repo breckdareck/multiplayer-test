@@ -1,0 +1,64 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=22 format=3 uid="uid://ccpjinaimna60"]
+
+[ext_resource type="Texture2D" uid="uid://ky00whwbxbmx" path="res://assets/sprites/Abilities/power_guard.png" id="1_icon"]
+[ext_resource type="Script" path="res://scripts/Abilities/AL_BulwarkStance.gd" id="2b_albs"]
+[ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="3_ad"]
+[ext_resource type="Resource" uid="uid://b7m6nox1s53pv" path="res://resources/Buffs/B_Bulwark_Stance.tres" id="4_buff"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_asf"]
+[ext_resource type="Resource" uid="uid://ccxoh5fmx317x" path="res://resources/Abilities/Sword/A_Slash.tres" id="6_slash"]
+[ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_asd"]
+[ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="9_nobye"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="10_qd3ji"]
+[ext_resource type="Resource" uid="uid://bsu1tireless" path="res://resources/Abilities/Sword/Upgrades/U_BS_Tireless.tres" id="11_ti"]
+[ext_resource type="Resource" uid="uid://bsu2steadfast" path="res://resources/Abilities/Sword/Upgrades/U_BS_Steadfast.tres" id="12_st"]
+[ext_resource type="Resource" uid="uid://bsu3indomit" path="res://resources/Abilities/Sword/Upgrades/U_BS_Indomitable.tres" id="13_in"]
+[ext_resource type="Resource" uid="uid://bsu4quickbrace" path="res://resources/Abilities/Sword/Upgrades/U_BS_QuickBrace.tres" id="14_qb"]
+[ext_resource type="Resource" uid="uid://bsu5ironwill" path="res://resources/Abilities/Sword/Upgrades/U_BS_IronWill.tres" id="15_iw"]
+
+[sub_resource type="Resource" id="Resource_active"]
+script = ExtResource("2_abd")
+logic_script = ExtResource("2b_albs")
+
+[sub_resource type="Resource" id="Resource_duration"]
+script = ExtResource("5_asf")
+base_value = 30.0
+per_level = 2.0
+
+[sub_resource type="Resource" id="Resource_zero"]
+script = ExtResource("5_asf")
+
+[sub_resource type="Resource" id="Resource_cooldown"]
+script = ExtResource("5_asf")
+base_value = 30.0
+
+[sub_resource type="Resource" id="Resource_mana"]
+script = ExtResource("5_asf")
+base_value = 15.0
+
+[sub_resource type="Resource" id="Resource_scaling"]
+script = ExtResource("7_asd")
+mana_cost_formula = SubResource("Resource_mana")
+cooldown_formula = SubResource("Resource_cooldown")
+damage_percent_formula = SubResource("Resource_zero")
+max_targets_formula = SubResource("Resource_zero")
+max_hits_formula = SubResource("Resource_zero")
+cast_time_formula = SubResource("Resource_zero")
+
+[resource]
+script = ExtResource("3_ad")
+ability_id = "41061514101-22013-11147-15836-1411810914148712106"
+ability_name = "Bulwark Stance"
+description = "Enter a defensive stance — gain [color=#7ec2ff]+250 Defense[/color] for $[buff_duration]. Drains 2 MP/s; auto-cancels when MP runs out."
+ability_icon = ExtResource("1_icon")
+max_level = 20
+required_class = Array[int]([0])
+required_weapon_types = Array[int]([0])
+prerequisite_abilities = Dictionary[ExtResource("3_ad"), int]({
+ExtResource("6_slash"): 1
+})
+upgrades = Array[ExtResource("10_qd3ji")]([ExtResource("11_ti"), ExtResource("12_st"), ExtResource("13_in"), ExtResource("14_qb"), ExtResource("15_iw")])
+active_behavior = SubResource("Resource_active")
+applies_buff = ExtResource("4_buff")
+buff_duration_formula = SubResource("Resource_duration")
+scaling_data = SubResource("Resource_scaling")

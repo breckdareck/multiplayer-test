@@ -652,7 +652,9 @@ func _save_quest_data(username: String) -> void:
 	if pid != -1:
 		var pn = PlayerManager.get_player_node(pid)
 		if pn and SaveManager:
-			SaveManager.queue_save(username, "all", pn)
+			# Targeted "quests" save — a quest tick no longer forces a full "all"
+			# save of stats+inventory+abilities+buffs+pets.
+			SaveManager.queue_save(username, "quests", pn)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
