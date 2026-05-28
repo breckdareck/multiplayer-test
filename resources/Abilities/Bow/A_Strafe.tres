@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=18 format=3 uid="uid://strafearc01x"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=24 format=3 uid="uid://strafearc01x"]
 
 [ext_resource type="Texture2D" uid="uid://drobx0va8sphc" path="res://assets/sprites/Abilities/strafe.png" id="1_py52j"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_strf1"]
@@ -8,6 +8,12 @@
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_strf1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_strf1"]
 [ext_resource type="Resource" uid="uid://rrwrain001x" path="res://resources/Abilities/Bow/A_Arrow_Rain.tres" id="9_strf1"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="10_aud"]
+[ext_resource type="Resource" uid="uid://bowu_hail1_rapidloose" path="res://resources/Abilities/Bow/Upgrades/U_HAIL_RapidLoose.tres" id="11_rl"]
+[ext_resource type="Resource" uid="uid://bowu_hail2_splinter" path="res://resources/Abilities/Bow/Upgrades/U_HAIL_Splinter.tres" id="12_sp"]
+[ext_resource type="Resource" uid="uid://bowu_hail3_flurry" path="res://resources/Abilities/Bow/Upgrades/U_HAIL_Flurry.tres" id="13_fl"]
+[ext_resource type="Resource" uid="uid://bowu_hail4_bloodletting" path="res://resources/Abilities/Bow/Upgrades/U_HAIL_Bloodletting.tres" id="14_bl"]
+[ext_resource type="Resource" uid="uid://bowu_hail5_suppressingfire" path="res://resources/Abilities/Bow/Upgrades/U_HAIL_SuppressingFire.tres" id="15_sf"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_strf1"]
 size = Vector2(120, 46)
@@ -30,7 +36,7 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_strf3"]
 script = ExtResource("6_strf1")
-base_value = 8.0
+base_value = 4.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_strf4"]
@@ -41,7 +47,8 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_strf5"]
 script = ExtResource("6_strf1")
-base_value = 25.0
+base_value = 18.0
+per_level = 0.6
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_strf6"]
@@ -68,16 +75,16 @@ metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
 [resource]
 script = ExtResource("2_strf1")
 ability_id = "19116981024514-10180-13141116-8591-12491086711491459"
-ability_name = "Strafe"
-description = "Rapidly fires $[hit_count] arrows at up to $[target_count] enemies dealing $[damage_percent] damage each."
+ability_name = "Hailstorm"
+description = "Unleashes a storm of $[hit_count] arrows at up to $[target_count] enemies, dealing $[damage_percent] damage each."
 ability_icon = ExtResource("1_py52j")
-max_level = 10
+max_level = 20
 required_class = Array[int]([1])
 required_weapon_types = Array[int]([1])
 prerequisite_abilities = Dictionary[ExtResource("2_strf1"), int]({
 ExtResource("9_strf1"): 5
 })
-upgrades = null
+upgrades = Array[ExtResource("10_aud")]([ExtResource("11_rl"), ExtResource("12_sp"), ExtResource("13_fl"), ExtResource("14_bl"), ExtResource("15_sf")])
 active_behavior = SubResource("Resource_strf1")
 scaling_data = SubResource("Resource_strf8")
 metadata/_custom_type_script = "uid://b8y62rc8nb40j"

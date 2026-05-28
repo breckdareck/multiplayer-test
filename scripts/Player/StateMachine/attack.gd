@@ -63,7 +63,7 @@ func _play_animation(anim_name: String) -> void:
 				animations.play(anim_name, attack_speed_percent)
 
 func _start_basic_attack():
-	"""Executes a basic melee attack, or Arrow Shot for the wielded weapon's
+	"""Executes a basic melee attack, or Snap Shot for the wielded weapon's
 	discipline. Uses the player's CURRENTLY-WIELDED discipline (via
 	get_active_discipline), not the starting class — so a Swordsman who swapped
 	to a bow correctly fires arrows, and a Mage who picked up a sword swings."""
@@ -91,8 +91,8 @@ func _start_basic_attack():
 
 
 func _try_use_arrow_shot() -> bool:
-	"""For archers, route basic attack through Arrow Shot ability at base level"""
-	var arrow_shot: AbilityData = ResourceManager.get_ability_data("Arrow Shot")
+	"""For archers, route basic attack through Snap Shot ability at base level"""
+	var arrow_shot: AbilityData = ResourceManager.get_ability_data("Snap Shot")
 	if not arrow_shot:
 		return false
 

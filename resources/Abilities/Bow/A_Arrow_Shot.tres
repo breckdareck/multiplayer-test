@@ -67,8 +67,8 @@ metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
 [resource]
 script = ExtResource("2_3p7m4")
 ability_id = "101151213413-5431-141468-1331514-133108135414100149"
-ability_name = "Arrow Shot"
-description = "Shoots 1 arrow hitting $[hit_count] time(s) on $[target_count] enemies dealing $[damage_percent] damage."
+ability_name = "Snap Shot"
+description = "Looses a quick arrow, hitting $[hit_count] time(s) on $[target_count] enemies for $[damage_percent] damage."
 ability_icon = SubResource("AtlasTexture_22vhk")
 max_level = 1
 required_weapon_types = Array[int]([1])

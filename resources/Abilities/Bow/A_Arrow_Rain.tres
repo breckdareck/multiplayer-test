@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=18 format=3 uid="uid://rrwrain001x"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=24 format=3 uid="uid://rrwrain001x"]
 
 [ext_resource type="Texture2D" uid="uid://82ujw3r7lg5l" path="res://assets/sprites/Abilities/arrow_rain.png" id="1_r8vpe"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_arrn1"]
@@ -8,6 +8,12 @@
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_arrn1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_arrn1"]
 [ext_resource type="Resource" uid="uid://dblshot0001x" path="res://resources/Abilities/Bow/A_Double_Shot.tres" id="9_arrn1"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="10_aud"]
+[ext_resource type="Resource" uid="uid://bowu_sky1_widefall" path="res://resources/Abilities/Bow/Upgrades/U_SKY_WideFall.tres" id="11_wf"]
+[ext_resource type="Resource" uid="uid://bowu_sky2_heavyvolley" path="res://resources/Abilities/Bow/Upgrades/U_SKY_HeavyVolley.tres" id="12_hv"]
+[ext_resource type="Resource" uid="uid://bowu_sky3_torrent" path="res://resources/Abilities/Bow/Upgrades/U_SKY_Torrent.tres" id="13_to"]
+[ext_resource type="Resource" uid="uid://bowu_sky4_meteorshafts" path="res://resources/Abilities/Bow/Upgrades/U_SKY_MeteorShafts.tres" id="14_ms"]
+[ext_resource type="Resource" uid="uid://bowu_sky5_doublefall" path="res://resources/Abilities/Bow/Upgrades/U_SKY_DoubleFall.tres" id="15_df"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_arrn1"]
 size = Vector2(120, 46)
@@ -30,7 +36,7 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_arrn3"]
 script = ExtResource("6_arrn1")
-base_value = 12.0
+base_value = 5.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_arrn4"]
@@ -42,6 +48,7 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 [sub_resource type="Resource" id="Resource_arrn5"]
 script = ExtResource("6_arrn1")
 base_value = 20.0
+per_level = 1.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_arrn6"]
@@ -67,16 +74,16 @@ metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
 [resource]
 script = ExtResource("2_arrn1")
 ability_id = "1015118151393-10180-12141197-8591-1249108671149117"
-ability_name = "Arrow Rain"
-description = "Rains arrows down on up to $[target_count] enemies dealing $[damage_percent] damage each."
+ability_name = "Skyfall"
+description = "Calls a rain of arrows down on up to $[target_count] enemies, dealing $[damage_percent] damage each."
 ability_icon = ExtResource("1_r8vpe")
-max_level = 10
+max_level = 20
 required_class = Array[int]([1])
 required_weapon_types = Array[int]([1])
 prerequisite_abilities = Dictionary[ExtResource("2_arrn1"), int]({
 ExtResource("9_arrn1"): 3
 })
-upgrades = null
+upgrades = Array[ExtResource("10_aud")]([ExtResource("11_wf"), ExtResource("12_hv"), ExtResource("13_to"), ExtResource("14_ms"), ExtResource("15_df")])
 active_behavior = SubResource("Resource_arrn1")
 scaling_data = SubResource("Resource_arrn8")
 metadata/_custom_type_script = "uid://b8y62rc8nb40j"

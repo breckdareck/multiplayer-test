@@ -11,6 +11,13 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 		party_members = [owner_id]
 
 	var duration = _ability.buff_duration_formula.calculate(_level_stats.level)
+
+	# PR 8 upgrade: buff_duration_bonus (+s). mana_flat_reduction is consumed
+	# generically in AbilityComponent._consume_ability_resources — no read here.
+	var ability_comp = _owner_node.get("ability_component")
+	if ability_comp and ability_comp.has_method("get_ability_upgrade_magnitude"):
+		duration += ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "buff_duration_bonus")
+
 	var caster_players_node := _owner_node.get_parent()
 
 	for member_id in party_members:
@@ -22,9 +29,9 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 		if not buff_component:
 			continue
 
-		buff_component.apply_buff("Sharp Eyes", _owner_node, duration)
+		buff_component.apply_buff("Eagle Eye", _owner_node, duration)
 
-		var active_buff = buff_component._active_buffs.get("Sharp Eyes")
+		var active_buff = buff_component._active_buffs.get("Eagle Eye")
 		if not active_buff:
 			continue
 
@@ -49,7 +56,7 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 
 		buff_component._force_stat_recalc()
 		if not buff_component.is_bot_owned():
-			buff_component.sync_buff_stat_modifiers.rpc("Sharp Eyes", modifier_data)
+			buff_component.sync_buff_stat_modifiers.rpc("Eagle Eye", modifier_data)
 
-	print("%s activated Sharp Eyes (Level %d) - Duration: %ds [%d members]" %
+	print("%s activated Eagle Eye (Level %d) - Duration: %ds [%d members]" %
 		[_owner_node.name, _level_stats.level, duration, party_members.size()])
