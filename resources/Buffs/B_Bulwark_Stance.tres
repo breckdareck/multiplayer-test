@@ -15,7 +15,7 @@ metadata/_custom_type_script = "uid://cptesvvlfbytw"
 [resource]
 resource_local_to_scene = true
 script = ExtResource("1_bd")
-buff_id = "bulwark-stance-buff-pr6-2026-warrior-sword"
+buff_id = "711321515912-28123-137142-710135-714454101581015130"
 buff_name = "Bulwark Stance"
 description = "Defensive stance — +250 Defense, drains 2 MP/s. Drops automatically when MP runs out."
 buff_icon = ExtResource("1_m5d6n")

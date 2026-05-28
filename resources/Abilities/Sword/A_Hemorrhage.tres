@@ -1,12 +1,14 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=17 format=3 uid="uid://defls3giiacxj"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=19 format=3 uid="uid://4gnvgffwdh4w"]
 
 [ext_resource type="Texture2D" uid="uid://bstguvwrql18p" path="res://assets/sprites/Abilities/power_strike.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
-[ext_resource type="Script" uid="uid://bhemorrhagebleeed" path="res://scripts/Abilities/AL_Hemorrhage.gd" id="3_alhem"]
+[ext_resource type="Script" uid="uid://dl632twao5qdv" path="res://scripts/Abilities/AL_Hemorrhage.gd" id="3_alhem"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_ad"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_asf"]
 [ext_resource type="Resource" uid="uid://ccxoh5fmx317x" path="res://resources/Abilities/Sword/A_Slash.tres" id="6_slash"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_asd"]
+[ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_al7y5"]
+[ext_resource type="Script" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="9_cbrln"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hem"]
 size = Vector2(30, 20)
@@ -56,7 +58,7 @@ cast_time_formula = SubResource("Resource_cast_time")
 
 [resource]
 script = ExtResource("4_ad")
-ability_id = "hemorrhage-bleed-st-attack-sword-pr6-2026"
+ability_id = "1014011155210-5612-108511-15095-15115211570155513"
 ability_name = "Hemorrhage"
 description = "Cuts deeply for $[damage_percent] damage. [color=#e6c95c]Applies a stacking Bleed (max 3 stacks) — each stack deals 5% Weapon Attack/s for 6 seconds.[/color]"
 ability_icon = ExtResource("1_icon")

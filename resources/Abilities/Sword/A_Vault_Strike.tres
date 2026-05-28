@@ -1,12 +1,14 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=17 format=3 uid="uid://bh4mkym1dg8ys"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=19 format=3 uid="uid://y8fe0fckidd0"]
 
 [ext_resource type="Texture2D" uid="uid://blsf4bd1u7syc" path="res://assets/sprites/Abilities/Brandish.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
-[ext_resource type="Script" uid="uid://bvltstrkdashab" path="res://scripts/Abilities/AL_VaultStrike.gd" id="3_alvs"]
+[ext_resource type="Script" uid="uid://bh4mkyotdx7nl" path="res://scripts/Abilities/AL_VaultStrike.gd" id="3_alvs"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_ad"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_asf"]
 [ext_resource type="Resource" uid="uid://ccxoh5fmx317x" path="res://resources/Abilities/Sword/A_Slash.tres" id="6_slash"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_asd"]
+[ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_kkgle"]
+[ext_resource type="Script" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="9_galpy"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_vault"]
 size = Vector2(90, 24)
@@ -56,7 +58,7 @@ cast_time_formula = SubResource("Resource_cast_time")
 
 [resource]
 script = ExtResource("4_ad")
-ability_id = "vault-strike-dash-ability-pr6-sword-berserker"
+ability_id = "031515140157-1215615-0534-1191513-45135771415611010"
 ability_name = "Vault Strike"
 description = "Dash forward and strike for $[damage_percent] damage to up to $[target_count] enemies in your path. [color=#e6c95c]Builds 2 combo points per enemy hit.[/color]"
 ability_icon = ExtResource("1_icon")

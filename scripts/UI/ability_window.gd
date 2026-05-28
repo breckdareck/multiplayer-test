@@ -367,25 +367,40 @@ func create_description_comparison_text(data: AbilityData, current: AbilityLevel
 		if data.ability_type == Constants.AbilityType.ACTIVE:
 			var current_damage = current.damage_percent
 			var next_damage = next.damage_percent
-			
+
 			if next_damage != current_damage:
 				var color = COLOR_UPGRADE if next_damage > current_damage else COLOR_DOWNGRADE
-				output += "Damage: [color=%s]%d%%[/color] [color=%s](%+d%%)[/color]\n" % [COLOR_BASE, current_damage, color, next_damage - current_damage]
-			
+				var diff = next_damage - current_damage
+				var diff_sign = "+" if diff > 0 else ""
+				output += "Damage: [color=%s]%s%%[/color] [color=%s](%s%s%%)[/color]\n" % [COLOR_BASE, AbilityData._smart_format_number(current_damage), color, diff_sign, AbilityData._smart_format_number(diff)]
+
 			if data.scaling_data.max_targets_formula:
 				var current_target_count = data.scaling_data.max_targets_formula.calculate(current.level)
 				var next_target_count = data.scaling_data.max_targets_formula.calculate(next.level)
 				if next_target_count != current_target_count:
 					var color = COLOR_UPGRADE
 					output += "Target Count: [color=%s]%d[/color] [color=%s](%+d)[/color]\n" % [COLOR_BASE, current_target_count, color, next_target_count - current_target_count]
-			
+
 			if data.scaling_data.max_hits_formula:
 				var current_hit_count = data.scaling_data.max_hits_formula.calculate(current.level)
 				var next_hit_count = data.scaling_data.max_hits_formula.calculate(next.level)
 				if next_hit_count != current_hit_count:
 					var color = COLOR_UPGRADE
 					output += "Hit Count: [color=%s]%d[/color] [color=%s](%+d)[/color]\n" % [COLOR_BASE, current_hit_count, color, next_hit_count - current_hit_count]
-		
+		elif data.ability_type == Constants.AbilityType.PASSIVE and data.scaling_data and data.scaling_data.damage_percent_formula:
+			# PR 6: passives that use damage_percent_formula as a generic
+			# level-scaled value (e.g. Bloodthirst's heal %) need an
+			# upgrade-preview line too. Mirrors the active "Damage" diff
+			# but labels generically ("Effect") since the value isn't
+			# necessarily damage on a passive.
+			var cur_val: float = data.scaling_data.damage_percent_formula.calculate(current.level)
+			var nxt_val: float = data.scaling_data.damage_percent_formula.calculate(next.level)
+			if nxt_val != cur_val:
+				var color = COLOR_UPGRADE if nxt_val > cur_val else COLOR_DOWNGRADE
+				var diff: float = nxt_val - cur_val
+				var diff_sign: String = "+" if diff > 0 else ""
+				output += "Effect: [color=%s]%s%%[/color] [color=%s](%s%s%%)[/color]\n" % [COLOR_BASE, AbilityData._smart_format_number(cur_val), color, diff_sign, AbilityData._smart_format_number(diff)]
+
 		# NEW: Show buff duration upgrade
 		var buff_duration_diff = format_buff_duration_comparison(data, current, next)
 		if not buff_duration_diff.is_empty():
@@ -463,11 +478,11 @@ func format_stat_bonuses(level_data: AbilityLevelData, color: String) -> String:
 		
 		# Show flat bonus if it exists
 		if stat_data.flat_bonus_value > 0:
-			output += "  %s: [color=%s]+%d[/color]\n" % [stat_name, color, stat_data.flat_bonus_value]
-		
+			output += "  %s: [color=%s]+%s[/color]\n" % [stat_name, color, AbilityData._smart_format_number(stat_data.flat_bonus_value)]
+
 		# Show percent bonus if it exists
 		if stat_data.percent_bonus_value > 0:
-			output += "  %s: [color=%s]+%d%%[/color]\n" % [stat_name, color, stat_data.percent_bonus_value]
+			output += "  %s: [color=%s]+%s%%[/color]\n" % [stat_name, color, AbilityData._smart_format_number(stat_data.percent_bonus_value)]
 	
 	return output
 
@@ -505,14 +520,16 @@ func format_stat_bonus_comparison(current: AbilityLevelData, next: AbilityLevelD
 			has_changes = true
 			var diff = next_flat - current_flat
 			var color = COLOR_UPGRADE if diff > 0 else COLOR_DOWNGRADE
-			output += "%s: [color=%s]+%d[/color] [color=%s](%+d)[/color]\n" % [stat_name, COLOR_BASE, current_flat, color, diff]
-		
+			var sign_str: String = "+" if diff > 0 else ""
+			output += "%s: [color=%s]+%s[/color] [color=%s](%s%s)[/color]\n" % [stat_name, COLOR_BASE, AbilityData._smart_format_number(current_flat), color, sign_str, AbilityData._smart_format_number(diff)]
+
 		# Show percent bonus changes
 		if next_percent != current_percent:
 			has_changes = true
 			var diff = next_percent - current_percent
 			var color = COLOR_UPGRADE if diff > 0 else COLOR_DOWNGRADE
-			output += "%s: [color=%s]+%d%%[/color] [color=%s](%+d%%)[/color]\n" % [stat_name, COLOR_BASE, current_percent, color, diff]
+			var sign_str: String = "+" if diff > 0 else ""
+			output += "%s: [color=%s]+%s%%[/color] [color=%s](%s%s%%)[/color]\n" % [stat_name, COLOR_BASE, AbilityData._smart_format_number(current_percent), color, sign_str, AbilityData._smart_format_number(diff)]
 	
 	return output if has_changes else ""
 

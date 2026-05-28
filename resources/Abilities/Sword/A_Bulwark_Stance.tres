@@ -42,7 +42,7 @@ cast_time_formula = SubResource("Resource_zero")
 
 [resource]
 script = ExtResource("3_ad")
-ability_id = "bulwark-stance-active-pr6-2026-sword-bulwark-school"
+ability_id = "41061514101-22013-11147-15836-1411810914148712106"
 ability_name = "Bulwark Stance"
 description = "Enter a defensive stance — gain [color=#7ec2ff]+250 Defense[/color] for $[buff_duration]. Drains 2 MP/s; auto-cancels when MP runs out."
 ability_icon = ExtResource("1_icon")
