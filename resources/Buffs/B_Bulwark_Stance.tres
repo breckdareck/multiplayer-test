@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="BuffData" load_steps=5 format=3 uid="uid://bbulwrkstancdat"]
+
+[ext_resource type="Script" uid="uid://bcuvemv85jprb" path="res://scripts/Resources/BuffSystem/BuffData.gd" id="1_bd"]
+[ext_resource type="Script" uid="uid://bbulwrkstancbuf" path="res://scripts/Buffs/BL_BulwarkStance.gd" id="2_bl"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="3_sd"]
+
+[sub_resource type="Resource" id="Resource_def_mod"]
+script = ExtResource("3_sd")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 250
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[resource]
+resource_local_to_scene = true
+script = ExtResource("1_bd")
+buff_id = "bulwark-stance-buff-pr6-2026-warrior-sword"
+buff_name = "Bulwark Stance"
+description = "Defensive stance — +250 Defense, drains 2 MP/s. Drops automatically when MP runs out."
+duration = 30.0
+is_debuff = false
+stack_behavior = 0
+max_stacks = 1
+stat_modifiers = Dictionary[int, ExtResource("3_sd")]({
+8: SubResource("Resource_def_mod")
+})
+logic_script = ExtResource("2_bl")
+metadata/_custom_type_script = "uid://bcuvemv85jprb"

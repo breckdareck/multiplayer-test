@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="BuffData" load_steps=3 format=3 uid="uid://bbleeddata1res"]
+
+[ext_resource type="Script" uid="uid://bcuvemv85jprb" path="res://scripts/Resources/BuffSystem/BuffData.gd" id="1_buff"]
+[ext_resource type="Script" uid="uid://bbleed1dotbuff" path="res://scripts/Buffs/BL_Bleed.gd" id="2_bleed"]
+
+[resource]
+resource_local_to_scene = true
+script = ExtResource("1_buff")
+buff_id = "bleed-dot-1234-5678-90ab-cdef12345678"
+buff_name = "Bleed"
+description = "Suffering bleed damage every second."
+duration = 6.0
+is_debuff = true
+stack_behavior = 1
+max_stacks = 3
+logic_script = ExtResource("2_bleed")
+metadata/_custom_type_script = "uid://bcuvemv85jprb"

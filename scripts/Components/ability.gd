@@ -1439,3 +1439,34 @@ func _apply_per_discipline_payload(payload) -> void:
 				starting_key = "sword"
 			_available_points_per_discipline[starting_key] = base + remainder
 #endregion
+
+
+#region #################### PR 6: Passive event dispatch ####################
+
+## Server-only. Iterates learned PASSIVE abilities and invokes on_kill on
+## any whose `active_behavior.logic_script` defines the method. Bloodthirst
+## hooks here. CombatComponent calls this when an attack downs an enemy.
+##
+## Per [[project_passives_class_neutral]] we don't gate by active weapon —
+## passives apply from both equipped slots, and on_kill fires once per
+## kill regardless of which weapon's basic/ability landed the finisher.
+func dispatch_passive_event_on_kill(target: Node) -> void:
+	if not multiplayer.is_server():
+		return
+	if not is_instance_valid(target):
+		return
+	for ability_id in _ability_levels:
+		var ability_level: int = _ability_levels[ability_id]
+		if ability_level <= 0:
+			continue
+		var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
+		if not ability or ability.ability_type != Constants.AbilityType.PASSIVE:
+			continue
+		if not ability.active_behavior or not ability.active_behavior.logic_script:
+			continue
+		var logic = ability.active_behavior.logic_script.new()
+		if not logic.has_method("on_kill"):
+			continue
+		logic.on_kill(owner, target, ability_level)
+
+#endregion

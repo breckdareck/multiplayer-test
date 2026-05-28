@@ -493,6 +493,15 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 			if secondary_discipline != -1 and secondary_discipline != kill_discipline:
 				_weapon_mastery_component.grant_mastery_xp_server(secondary_discipline, kill_xp)
 
+		# PR 6: passive-on-kill event dispatch. Bloodthirst (and future
+		# kill-triggered passives) wire here. Fires once per landed killing
+		# blow — multi-hit abilities that down a target on hit N still only
+		# fire on_kill once because `was_alive` flips false after the
+		# downing hit.
+		if was_alive and health_comp.is_dead and _ability_component:
+			if _ability_component.has_method("dispatch_passive_event_on_kill"):
+				_ability_component.dispatch_passive_event_on_kill(target_enemy)
+
 		# PR 5 — Sword signature: build a combo point on every BASIC-ATTACK
 		# HIT while wielding a sword. Conditions:
 		#  - `ability == null` (the basic-melee pathway; not the ability or
