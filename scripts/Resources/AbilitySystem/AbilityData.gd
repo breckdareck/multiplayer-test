@@ -19,6 +19,11 @@ extends Resource
 @export var required_weapon_types: Array[Constants.WeaponType]
 @export var prerequisite_abilities: Dictionary[AbilityData, int] = {}
 
+## PR 6 — per-ability upgrade tree. Each upgrade is its own .tres
+## (AbilityUpgradeData) referenced here. Empty array = no upgrades available
+## for this ability (the pre-PR-6 baseline behavior).
+@export var upgrades: Array[AbilityUpgradeData] = []
+
 @export var active_behavior: ActiveBehaviorData
 
 @export_group("Buff Configuration")
