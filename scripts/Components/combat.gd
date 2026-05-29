@@ -56,6 +56,10 @@ var _sword_combo_component: SwordComboComponent
 ## PR 7: Staff discipline's signature — the active element stance. Its on-hit
 ## rider is applied from _execute_hit, strictly gated to staff ability hits.
 var _staff_element_component: StaffElementComponent
+## PR 7: Dagger discipline's signature — Shadowmeld stealth. While stealthed
+## (and wielding a dagger), _execute_hit multiplies every hit of the landing
+## attack by ShadowmeldComponent.AMBUSH_DAMAGE_MULT then breaks stealth once.
+var _shadowmeld_component: ShadowmeldComponent
 
 ## PR 5: transient damage multiplier applied to the NEXT ability damage
 ## calculation. Used by AL_SlashBlast to scale damage by combo points spent
@@ -92,6 +96,7 @@ func _ready() -> void:
 	_weapon_mastery_component = get_parent().get_node_or_null("WeaponMastery")
 	_sword_combo_component = get_parent().get_node_or_null("SwordCombo")
 	_staff_element_component = get_parent().get_node_or_null("StaffElement")
+	_shadowmeld_component = get_parent().get_node_or_null("Shadowmeld")
 
 	hitbox_area.monitoring = false
 
@@ -415,7 +420,18 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 	# multi-hit spell bases its shock off the biggest tick. Stays 0 if every
 	# hit missed (then the element hook after the loop is skipped).
 	var max_landed_damage: int = 0
-	
+
+	# PR 7 — Dagger Shadowmeld ambush. If the attacker is stealthed AND wielding a
+	# dagger, EVERY hit of this attack is multiplied by AMBUSH_DAMAGE_MULT, then
+	# stealth breaks ONCE after the loop. Computed once up front so a multi-hit
+	# ability ambushes uniformly. Unlike the staff element rider, this applies to a
+	# basic melee hit (ability == null) too — landing from stealth is the point.
+	# The _is_wielding_dagger() gate means it can never affect a sword / bow / staff
+	# hit (their active weapon isn't a dagger), even with a dagger in the off slot.
+	var ambush_mult: float = 1.0
+	if is_instance_valid(_shadowmeld_component) and _is_wielding_dagger() and _shadowmeld_component.is_stealthed():
+		ambush_mult = ShadowmeldComponent.AMBUSH_DAMAGE_MULT
+
 	for i in range(max_hits):
 		var roll = randf() * 100
 		if roll > hit_chance:
@@ -451,6 +467,11 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 			modified_damage *= crit_multiplier
 
 		var damage_to_deal = roundi(modified_damage)
+
+		# PR 7 — Dagger Shadowmeld ambush: scale this hit if the attack landed
+		# from stealth (computed once before the loop). 1.0 = no-op otherwise.
+		if ambush_mult > 1.0:
+			damage_to_deal = roundi(damage_to_deal * ambush_mult)
 
 		damage_values.append(damage_to_deal)
 		crit_values.append(is_crit)
@@ -585,6 +606,13 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 	# landed hit. Skipped if every hit missed (max_landed_damage == 0).
 	if ability != null and max_landed_damage > 0 and is_instance_valid(_staff_element_component) and _is_wielding_staff():
 		_staff_element_component.apply_element_on_hit(owner_node, target_enemy, max_landed_damage)
+
+	# PR 7 — Dagger Shadowmeld: this attack landed FROM stealth (ambush_mult was
+	# raised before the loop), so the ambush bonus has already been applied to
+	# every hit above. Break stealth exactly once now — the cloak is spent. The
+	# coexistence guard inside break_stealth() preserves a still-active Vanish.
+	if ambush_mult > 1.0 and is_instance_valid(_shadowmeld_component):
+		_shadowmeld_component.break_stealth()
 
 	# Apply target debuff if the ability defines one
 	if ability and ability.applies_target_debuff and target_enemy is EnemyBase:
@@ -760,6 +788,20 @@ func _is_wielding_staff() -> bool:
 	if weapon == null:
 		return false
 	return weapon.weapon_type == Constants.WeaponType.STAFF
+
+
+## PR 7 — Dagger ambush gate. True only when the ACTIVE weapon is a DAGGER.
+## Read through active_weapon_data so a Tab-swap to/from a dagger flips it live
+## and a carried-but-inactive dagger in the secondary slot does NOT count. This is
+## the guard the _execute_hit Shadowmeld hook uses so the ambush multiplier can
+## never affect a sword / bow / staff hit. Mirrors _is_wielding_staff().
+func _is_wielding_dagger() -> bool:
+	if not _equipment_component:
+		return false
+	var weapon: WeaponData = _equipment_component.active_weapon_data
+	if weapon == null:
+		return false
+	return weapon.weapon_type == Constants.WeaponType.DAGGER
 
 
 func _calculate_max_range(attack_stat_type: Constants.StatType = Constants.StatType.WEAPONATTACK) -> int:
