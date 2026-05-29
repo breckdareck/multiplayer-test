@@ -226,9 +226,9 @@ func _apply_slow(target: Node) -> void:
 	if not (target is EnemyBase):
 		return
 	var enemy := target as EnemyBase
-	# Already chilled — refresh by clearing the existing slow first so we don't
-	# stack reductions (each apply would otherwise compound off the reduced base
-	# and the restore would write back a wrong value).
+	# Already chilled — no-op (don't re-apply). Re-applying would compound the
+	# reduction off the already-reduced base and the restore would then write
+	# back a wrong value, so the existing slow simply runs out its own timer.
 	if enemy.has_meta(SLOW_META):
 		return
 
