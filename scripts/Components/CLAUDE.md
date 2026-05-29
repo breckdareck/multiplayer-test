@@ -163,6 +163,31 @@ Player (MultiplayerPlayerV2)
     │                               AL_Immolate). Volatile (defaults FIRE on spawn);
     │                               mirrored to the owning client via
     │                               sync_element_to_client (bot-skipped).
+    ├── Shadowmeld shadowmeld.gd  - PR 7 dagger signature: SHADOWMELD stealth.
+    │                               The WeaponSignature key (R) TOGGLES stealth
+    │                               while wielding a DAGGER (toggle_shadowmeld,
+    │                               gated to DAGGER in multiplayer_input.gd as its
+    │                               own sibling `if`; routed via player_manager
+    │                               "dagger_shadowmeld"). REUSES the existing
+    │                               `is_invisible` meta (enemy AI already respects it,
+    │                               set by Vanish/BL_DarkSight) + dims the sprite via
+    │                               the player's existing sync_dark_sight_visual RPC.
+    │                               The NEXT dagger hit from stealth is an AMBUSH:
+    │                               combat._execute_hit raises ambush_mult to
+    │                               AMBUSH_DAMAGE_MULT (×2) BEFORE the hit loop (gated
+    │                               valid-component + _is_wielding_dagger() +
+    │                               is_stealthed()), multiplies EVERY hit (incl. a
+    │                               basic melee, ability == null — unlike the staff
+    │                               rider), then calls break_stealth() ONCE after the
+    │                               loop. 6s enter cooldown + 8s safety auto-exit.
+    │                               COEXISTENCE GUARD: break/cancel only clears
+    │                               `is_invisible` if the "Vanish" buff isn't active
+    │                               (buff.has_buff), so it never strips a live Vanish.
+    │                               Cancelled on death + on swap-away-from-dagger
+    │                               (multiplayer_controller_v2). Volatile (resets on
+    │                               spawn); synced via sync_shadowmeld_to_client
+    │                               (bot-skipped). Multi-TARGET swings ambush only the
+    │                               first target then break (single-target rogue feel).
     ├── Buff       buff.gd        - timed buffs/debuffs, stacking, custom logic
     ├── Class      class.gd       - current_class = STARTING weapon discipline
     │                               (does NOT change on weapon swap). Drives HP/MP
