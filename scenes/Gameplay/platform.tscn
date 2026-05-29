@@ -29,4 +29,5 @@ region_rect = Rect2(16, 0, 32, 9)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_nlgqw")
 one_way_collision = true
+one_way_collision_margin = 24.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
