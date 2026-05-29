@@ -125,24 +125,31 @@ Player (MultiplayerPlayerV2)
     │                               decays after 5s idle, resets if neither slot
     │                               is a sword. Server-authoritative; mirrored to
     │                               the owning client via sync_combo_to_client.
-    ├── BowCharge  bow_charge.gd  - PR 8 bow signature: hold-to-charge Snap Shot.
-    │                               HOLDING Attack builds a server-timed charge
-    │                               (tiers 0-3 at 0/0.4/0.8/1.2s); RELEASING fires
-    │                               ONE Snap Shot scaled ×1.0/1.5/2.0/3.0. A tap =
-    │                               tier 0 = today's shot. Client sends only two
-    │                               intents (bow_charge_start / bow_release); the
-    │                               SERVER owns the clock (so the client can't fake
-    │                               a max-tier hold). release_and_fire stages the
-    │                               multiplier on CombatComponent.charge_damage_mult
-    │                               then sets do_attack to reuse the normal Snap Shot
-    │                               projectile path. charge_damage_mult is
-    │                               consumed-on-read in combat.calculate_ability_damage
-    │                               and GATED to ability_name == "Snap Shot" — a
-    │                               separate field from pending_ability_damage_multiplier
-    │                               because the projectile resolves AFTER
-    │                               end_ability_attack clears the sword multiplier.
-    │                               Volatile (never saved); mirrored to the owning
-    │                               client via sync_charge_to_client (bot-skipped).
+    ├── BowMomentum bow_momentum.gd - bow signature: the MOMENTUM gauge.
+    │                               (Replaced the failed hold-to-charge Snap Shot.)
+    │                               Every LANDED bow hit — the basic Snap Shot AND
+    │                               any bow ability hit — builds 1 stack (cap 10,
+    │                               MAX_STACKS) via add_momentum(), called from
+    │                               combat._execute_hit once per landed hit while a
+    │                               bow is wielded (NOT gated on ability != null, so
+    │                               the whole kit feeds it). The gauge DECAYS to 0
+    │                               when you stop firing (DECAY_DELAY_SEC 2s grace,
+    │                               then -1 stack / DECAY_STEP_SEC 0.3s, on a
+    │                               server-side tick Timer). While up it ramps BOTH:
+    │                               (a) ALL bow damage by get_damage_bonus()
+    │                               (DAMAGE_PER_STACK 0.035 → +35% at cap), applied
+    │                               in combat.calculate_ability_damage gated on
+    │                               _is_wielding_bow() so it never touches a
+    │                               sword/staff/dagger ability; and (b) fire-rate /
+    │                               attack speed by get_speed_bonus() (SPEED_PER_STACK
+    │                               0.03 → +30% at cap), applied in attack.gd's
+    │                               attack_speed_percent getter (BOW-gated, null-safe).
+    │                               Needs NO new input — builds passively from hits
+    │                               like the sword combo. reset() on death + on
+    │                               swap-away-from-bow (multiplayer_controller_v2).
+    │                               Constants are STARTING values (tunable). Volatile
+    │                               (never saved); mirrored to the owning client via
+    │                               sync_momentum_to_client (bot-skipped).
     ├── StaffElement staff_element.gd - PR 7 staff signature: the ELEMENT STANCE.
     │                               The WeaponSignature key (R) cycles the active
     │                               element FIRE→ICE→LIGHTNING (cycle_element, gated

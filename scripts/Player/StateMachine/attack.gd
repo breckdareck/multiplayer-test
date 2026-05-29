@@ -12,10 +12,20 @@ var attack_speed_percent: float:
 		# active_weapon_data accessor so the inactive slot's stats don't
 		# bleed in.
 		var active_weapon: WeaponData = parent.equipment_component.active_weapon_data
-		if active_weapon != null:
-			return float(100.0 / ((20.0 - active_weapon.weapon_attack_speed) / 16.0)) / 100
-		else:
-			return 1
+		if active_weapon == null:
+			return 1.0
+		var base: float = float(100.0 / ((20.0 - active_weapon.weapon_attack_speed) / 16.0)) / 100
+		# Bow signature — MOMENTUM fire-rate ramp. While wielding a BOW, the built-up
+		# gauge speeds up the attack animation AND the re-attack gate by
+		# get_speed_bonus() (+SPEED_PER_STACK per stack). Null-safe: the field is
+		# null on non-bow players and during teardown; non-bow weapons never apply
+		# it. The component returns the synced mirror on the client, so the local
+		# animation speed matches what the server is timing.
+		if active_weapon.weapon_type == Constants.WeaponType.BOW \
+				and parent.bow_momentum_component != null \
+				and is_instance_valid(parent.bow_momentum_component):
+			base *= (1.0 + parent.bow_momentum_component.get_speed_bonus())
+		return base
 
 var _was_on_floor: bool = false
 

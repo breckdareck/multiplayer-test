@@ -60,6 +60,11 @@ var _staff_element_component: StaffElementComponent
 ## (and wielding a dagger), _execute_hit multiplies every hit of the landing
 ## attack by ShadowmeldComponent.AMBUSH_DAMAGE_MULT then breaks stealth once.
 var _shadowmeld_component: ShadowmeldComponent
+## Bow discipline's signature — MOMENTUM. _execute_hit builds a stack on every
+## landed bow hit; calculate_ability_damage ramps ALL bow damage by the gauge's
+## current bonus. Both gated to _is_wielding_bow() so they never touch another
+## weapon. Fire-rate ramp lives in attack.gd (reads get_speed_bonus()).
+var _bow_momentum_component: BowMomentumComponent
 
 ## PR 5: transient damage multiplier applied to the NEXT ability damage
 ## calculation. Used by AL_SlashBlast to scale damage by combo points spent
@@ -87,6 +92,7 @@ func _ready() -> void:
 	_sword_combo_component = get_parent().get_node_or_null("SwordCombo")
 	_staff_element_component = get_parent().get_node_or_null("StaffElement")
 	_shadowmeld_component = get_parent().get_node_or_null("Shadowmeld")
+	_bow_momentum_component = get_parent().get_node_or_null("BowMomentum")
 
 	hitbox_area.monitoring = false
 
@@ -597,6 +603,16 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 	if ability != null and max_landed_damage > 0 and is_instance_valid(_staff_element_component) and _is_wielding_staff():
 		_staff_element_component.apply_element_on_hit(owner_node, target_enemy, max_landed_damage)
 
+	# Bow Momentum: build ONE stack whenever this attack landed at least one hit
+	# while a bow is wielded. UNLIKE the staff rider, this is NOT gated on
+	# ability != null — Momentum should build off the basic Snap Shot (which
+	# routes through the Arrow Shot ability) AND every bow ability hit, so the
+	# whole bow kit feeds the gauge. Once per landed _execute_hit (per target),
+	# matching the sword-combo cadence. The cap, decay, and RPC sync are owned by
+	# the BowMomentumComponent itself. Skipped if every hit missed.
+	if max_landed_damage > 0 and is_instance_valid(_bow_momentum_component) and _is_wielding_bow():
+		_bow_momentum_component.add_momentum()
+
 	# PR 7 — Dagger Shadowmeld: this attack landed FROM stealth (ambush_mult was
 	# raised before the loop), so the ambush bonus has already been applied to
 	# every hit above. Break stealth exactly once now — the cloak is spent. The
@@ -662,6 +678,15 @@ func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelDa
 	var dmg_bonus: float = _upgrade_float(_ability, "bonus_damage_mult")
 	if dmg_bonus != 0.0:
 		damage = roundi(damage * (1.0 + dmg_bonus))
+
+	# Bow signature — MOMENTUM damage ramp. While a bow is wielded, scale damage
+	# by the gauge's current bonus (+DAMAGE_PER_STACK per stack). The
+	# _is_wielding_bow() gate means this applies to the basic Snap Shot AND every
+	# bow ability (so the signature pervades the whole kit), and NEVER to a
+	# sword / staff / dagger ability (their active weapon isn't a bow). Read-only
+	# here — building/decaying the gauge is owned by the component.
+	if is_instance_valid(_bow_momentum_component) and _is_wielding_bow():
+		damage = roundi(damage * (1.0 + _bow_momentum_component.get_damage_bonus()))
 
 	return damage
 
@@ -780,6 +805,21 @@ func _is_wielding_dagger() -> bool:
 	if weapon == null:
 		return false
 	return weapon.weapon_type == Constants.WeaponType.DAGGER
+
+
+## Bow Momentum gate. True only when the ACTIVE weapon is a BOW. Read through
+## active_weapon_data so a Tab-swap to/from a bow flips it live and a carried-but-
+## inactive bow in the secondary slot does NOT count. This is the strict guard the
+## _execute_hit build hook and the calculate_ability_damage ramp use so Momentum
+## can never build off — or amplify — a sword / staff / dagger hit. Mirrors
+## _is_wielding_staff() / _is_wielding_dagger().
+func _is_wielding_bow() -> bool:
+	if not _equipment_component:
+		return false
+	var weapon: WeaponData = _equipment_component.active_weapon_data
+	if weapon == null:
+		return false
+	return weapon.weapon_type == Constants.WeaponType.BOW
 
 
 func _calculate_max_range(attack_stat_type: Constants.StatType = Constants.StatType.WEAPONATTACK) -> int:
