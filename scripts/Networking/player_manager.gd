@@ -357,7 +357,19 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 	if player_instance.stats_component:
 		player_instance.stats_component.set_loading_mode(false)
 		player_instance.stats_component.mark_stats_dirty()
-	
+
+	# Refresh equipment-driven UI now that the (carried/loaded or default) weapon
+	# is applied. load_player_inventory_silent above suppresses signals, AND
+	# _initialize_spawned_player runs deferred — AFTER the player node + its
+	# signature widgets already spawned. So each widget's initial visibility check
+	# (deferred in its _ready) ran BEFORE the weapon was restored and latched onto
+	# the wrong discipline, with no later signal to correct it. Re-emitting
+	# on_equipment_changed makes the signature widgets (and the stats-window class
+	# label) re-evaluate get_active_discipline() against the loaded weapon — fixes
+	# the wrong signature widget showing after a map change.
+	if is_instance_valid(player_instance.equipment_component):
+		player_instance.equipment_component.on_equipment_changed.emit()
+
 	# Reconnect signals
 	if player_instance.ability_component:
 		player_instance.ability_component.reconnect_level_signals()
