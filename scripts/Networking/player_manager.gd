@@ -782,6 +782,15 @@ func player_input(input_type: String, data: Variant = null):
 			var bcc = player_node.get("bow_charge_component")
 			if bcc != null and is_instance_valid(bcc):
 				bcc.release_and_fire()
+		"staff_cycle_element":
+			# PR 7 — Staff signature: cycle the active element (FIRE -> ICE ->
+			# LIGHTNING). The component is server-authoritative and syncs the new
+			# element to the owning client. The input branch that sends this is
+			# already gated on the STAFF discipline client-side; the component's
+			# own is_server guard is the authoritative gate.
+			var sec = player_node.get("staff_element_component")
+			if sec != null and is_instance_valid(sec):
+				sec.cycle_element()
 		"weapon_swap":
 			# PR 3: route weapon-swap intent through the player node's
 			# request_weapon_swap_server RPC. The player node owns the

@@ -97,6 +97,15 @@ func _process(_delta: float) -> void:
 		if Input.is_action_just_pressed("Attack") or Input.is_action_pressed("Attack"):
 			PlayerManager.player_input.rpc_id(1, "attack")
 
+	# PR 7 — Staff signature: the WeaponSignature key cycles the active element
+	# (FIRE -> ICE -> LIGHTNING) ONLY while wielding a STAFF. Gated on the wielded
+	# discipline so it does nothing for any other weapon — and so the dagger can
+	# add its own WeaponSignature branch here later, gated on DAGGER. This is a
+	# SEPARATE action from Attack, so the bow-charge logic above is untouched.
+	if is_instance_valid(player) and player.has_method("get_active_discipline") and player.get_active_discipline() == Constants.ClassType.STAFF:
+		if Input.is_action_just_pressed("WeaponSignature"):
+			PlayerManager.player_input.rpc_id(1, "staff_cycle_element")
+
 	if Input.is_action_just_pressed("Pickup") or Input.is_action_pressed("Pickup"):
 		PlayerManager.player_input.rpc_id(1, "pickup", true)
 	else:
