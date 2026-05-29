@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=21 format=3 uid="uid://dxf1ejii6pw"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=22 format=3 uid="uid://dxf1ejii6pw"]
 
 [ext_resource type="Texture2D" uid="uid://e4oglnq6rgd4" path="res://assets/sprites/Abilities/double_stab.png" id="1_2pao2"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_1ro77"]

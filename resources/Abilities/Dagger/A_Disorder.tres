@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=25 format=3 uid="uid://disorder001x"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=26 format=3 uid="uid://disorder001x"]
 
 [ext_resource type="Texture2D" uid="uid://dliub1pvja86r" path="res://assets/sprites/Abilities/disorder.webp" id="1_kjmtn"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_diso1"]
