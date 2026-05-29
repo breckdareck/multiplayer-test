@@ -1,0 +1,52 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=16 format=3 uid="uid://swordsavage01x"]
+
+[ext_resource type="Texture2D" uid="uid://ky00whwbxbmx" path="res://assets/sprites/Abilities/power_guard.png" id="1_sb1"]
+[ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_sb1"]
+[ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_sb1"]
+[ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_sb1"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_sb1"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_sb1"]
+[ext_resource type="Resource" uid="uid://dyl558pcmpdgf" path="res://resources/Abilities/Sword/A_STR_Passive.tres" id="7_sb1"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
+[ext_resource type="Resource" uid="uid://swu_sb1_cruel" path="res://resources/Abilities/Sword/Upgrades/U_SB_Cruel.tres" id="9_cr"]
+[ext_resource type="Resource" uid="uid://swu_sb2_savage" path="res://resources/Abilities/Sword/Upgrades/U_SB_Savage.tres" id="10_sv"]
+[ext_resource type="Resource" uid="uid://swu_sb3_devastating" path="res://resources/Abilities/Sword/Upgrades/U_SB_Devastating.tres" id="11_de"]
+
+[sub_resource type="Resource" id="Resource_sb_behav"]
+resource_local_to_scene = true
+script = ExtResource("2_sb1")
+
+[sub_resource type="Resource" id="Resource_sb_critdmg"]
+script = ExtResource("5_sb1")
+base_value = 2.0
+per_level = 2.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_sb_sbf"]
+script = ExtResource("4_sb1")
+stat_type = 11
+flat_bonus_formula = SubResource("Resource_sb_critdmg")
+metadata/_custom_type_script = "uid://bx4thfjsjclbw"
+
+[sub_resource type="Resource" id="Resource_sb_scaling"]
+script = ExtResource("3_sb1")
+stat_bonus_formulas = Array[ExtResource("4_sb1")]([SubResource("Resource_sb_sbf")])
+metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
+
+[resource]
+script = ExtResource("6_sb1")
+ability_id = "831189710397101981081111191153-2002-0801-1212-91312103146"
+ability_name = "Savage Blows"
+description = "Permanently increases critical damage by $[stat_bonus]%."
+ability_icon = ExtResource("1_sb1")
+max_level = 10
+ability_type = 1
+required_class = Array[int]([0])
+required_weapon_types = Array[int]([0])
+prerequisite_abilities = Dictionary[ExtResource("6_sb1"), int]({
+ExtResource("7_sb1"): 3
+})
+upgrades = Array[ExtResource("8_aud")]([ExtResource("9_cr"), ExtResource("10_sv"), ExtResource("11_de")])
+active_behavior = SubResource("Resource_sb_behav")
+scaling_data = SubResource("Resource_sb_scaling")
+metadata/_custom_type_script = "uid://b8y62rc8nb40j"

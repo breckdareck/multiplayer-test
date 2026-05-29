@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://swu_sb2_savage"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "sb_t2_savage"
+upgrade_name = "Savage"
+description = "Increases Savage Blows' critical damage bonus by +2%."
+point_cost = 1
+tier = 2
+variant_group = ""
+effect_key = "passive_stat_flat_bonus"
+magnitude = 2.0
