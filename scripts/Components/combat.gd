@@ -428,9 +428,20 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 	# basic melee hit (ability == null) too — landing from stealth is the point.
 	# The _is_wielding_dagger() gate means it can never affect a sword / bow / staff
 	# hit (their active weapon isn't a dagger), even with a dagger in the off slot.
+	# Ambush fires from EITHER stealth source: the Shadowmeld signature toggle OR
+	# the Vanish ability's invisibility buff — "any hit from stealth" empowers the
+	# strike. Both are consumed after the loop (one ambush per cloak).
 	var ambush_mult: float = 1.0
-	if is_instance_valid(_shadowmeld_component) and _is_wielding_dagger() and _shadowmeld_component.is_stealthed():
-		ambush_mult = ShadowmeldComponent.AMBUSH_DAMAGE_MULT
+	var ambush_from_vanish: bool = false
+	if _is_wielding_dagger():
+		var stealthed: bool = is_instance_valid(_shadowmeld_component) and _shadowmeld_component.is_stealthed()
+		var vanished: bool = false
+		var bc = owner_node.get("buff_component")
+		if bc != null and is_instance_valid(bc) and bc.has_method("has_buff"):
+			vanished = bc.has_buff("Vanish")
+		if stealthed or vanished:
+			ambush_mult = ShadowmeldComponent.AMBUSH_DAMAGE_MULT
+			ambush_from_vanish = vanished
 
 	for i in range(max_hits):
 		var roll = randf() * 100
@@ -621,14 +632,27 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 	# matching the sword-combo cadence. The cap, decay, and RPC sync are owned by
 	# the BowMomentumComponent itself. Skipped if every hit missed.
 	if max_landed_damage > 0 and is_instance_valid(_bow_momentum_component) and _is_wielding_bow():
-		_bow_momentum_component.add_momentum()
+		# Multi-shot abilities (Hailstorm / Skyfall) build EXTRA Momentum per landed
+		# attack — saturating fire ramps the gauge faster than a single Snap Shot.
+		var momentum_gain: int = 1
+		if ability != null and (ability.ability_name == "Hailstorm" or ability.ability_name == "Skyfall"):
+			momentum_gain = 2
+		_bow_momentum_component.add_momentum(momentum_gain)
 
-	# PR 7 — Dagger Shadowmeld: this attack landed FROM stealth (ambush_mult was
-	# raised before the loop), so the ambush bonus has already been applied to
-	# every hit above. Break stealth exactly once now — the cloak is spent. The
-	# coexistence guard inside break_stealth() preserves a still-active Vanish.
-	if ambush_mult > 1.0 and is_instance_valid(_shadowmeld_component):
-		_shadowmeld_component.break_stealth()
+	# PR 7 — Dagger ambush: this attack landed FROM stealth (ambush_mult raised
+	# before the loop), so the bonus + guaranteed crit already applied to every hit
+	# above. Consume the cloak now — one ambush per stealth. Break the Shadowmeld
+	# toggle, and if the ambush came from the Vanish buff, remove that too (striking
+	# reveals you). Order matters: break_stealth's coexistence guard leaves
+	# is_invisible alone while Vanish is active, then remove_buff("Vanish") ->
+	# BL_DarkSight.on_remove clears invisibility + restores the sprite.
+	if ambush_mult > 1.0:
+		if is_instance_valid(_shadowmeld_component):
+			_shadowmeld_component.break_stealth()
+		if ambush_from_vanish:
+			var bc2 = owner_node.get("buff_component")
+			if bc2 != null and is_instance_valid(bc2) and bc2.has_method("remove_buff"):
+				bc2.remove_buff("Vanish")
 
 	# Apply target debuff if the ability defines one
 	if ability and ability.applies_target_debuff and target_enemy is EnemyBase:

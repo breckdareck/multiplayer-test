@@ -20,6 +20,13 @@ func execute(owner_node: Node, ability: AbilityData, level_stats: AbilityLevelDa
 
 	buff_component.apply_buff("Steady Aim", owner_node, duration)
 
+	# Bow signature synergy: Steady Aim FREEZES Momentum decay for its duration, so
+	# you can reposition / line up shots without bleeding your ramp. No-op for a
+	# non-bow caster (the component only exists on the player root; guarded).
+	var momentum = owner_node.get("bow_momentum_component")
+	if momentum != null and is_instance_valid(momentum) and momentum.has_method("pause_decay"):
+		momentum.pause_decay(duration)
+
 	var active_buff = buff_component._active_buffs.get("Steady Aim")
 	if not active_buff:
 		return

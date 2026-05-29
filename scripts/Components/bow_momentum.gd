@@ -94,6 +94,10 @@ var _last_hit_ms: int = 0
 ## faster than that. Server-only.
 var _last_decay_ms: int = 0
 
+## Server clock anchor — decay is suspended until this Time.get_ticks_msec() value
+## (Steady Aim). 0 = not paused. While paused the tick refreshes the no-hit clock.
+var _decay_paused_until_ms: int = 0
+
 ## Server-side decay tick. A child Node Timer (freed with this component), not a
 ## tree-rooted one. Runs only while there are stacks to bleed; stopped at 0.
 var _decay_timer: Timer
@@ -120,7 +124,7 @@ func _ready() -> void:
 ## the no-hit clock so the decay delay restarts. Ensures the decay tick is running
 ## so the gauge will start bleeding once the player stops firing. Called from
 ## CombatComponent._execute_hit once per landed hit while a bow is wielded.
-func add_momentum() -> void:
+func add_momentum(amount: int = MOMENTUM_PER_HIT) -> void:
 	if not multiplayer.is_server():
 		return
 	# Refresh the activity clock on EVERY landed hit, even at the cap — the player
@@ -131,9 +135,25 @@ func add_momentum() -> void:
 		_decay_timer.start()
 
 	var before: int = _stacks
-	_stacks = mini(MAX_STACKS, _stacks + MOMENTUM_PER_HIT)
+	# `amount` lets multi-hit abilities (Hailstorm / Skyfall) build extra Momentum
+	# per landed attack — they feed the gauge faster than a single Snap Shot.
+	_stacks = mini(MAX_STACKS, _stacks + maxi(1, amount))
 	if _stacks != before:
 		_emit_and_sync()
+
+
+## Server-only. Suspends Momentum decay for `duration` seconds (Steady Aim holds
+## your ramp while you reposition / line up a shot). Implemented by pushing the
+## no-hit clock forward each tick while paused, so the existing DECAY_DELAY_SEC
+## grace never elapses. Stacking calls take the later expiry.
+func pause_decay(duration: float) -> void:
+	if not multiplayer.is_server():
+		return
+	var until: int = Time.get_ticks_msec() + int(duration * 1000.0)
+	_decay_paused_until_ms = maxi(_decay_paused_until_ms, until)
+	# Keep the tick alive so it can refresh the grace window while paused.
+	if _stacks > 0 and is_instance_valid(_decay_timer) and _decay_timer.is_stopped():
+		_decay_timer.start()
 
 
 ## Server-only. Wipes Momentum to zero. Called on death and on swap-away from a
@@ -192,6 +212,11 @@ func _on_decay_tick() -> void:
 		return
 
 	var now: int = Time.get_ticks_msec()
+	# Steady Aim pause: while active, keep pushing the no-hit clock forward so the
+	# grace window never elapses — the ramp is held frozen until the pause expires.
+	if now < _decay_paused_until_ms:
+		_last_hit_ms = now
+		return
 	# Still within the grace window after the last hit — don't decay yet.
 	if now - _last_hit_ms <= int(DECAY_DELAY_SEC * 1000.0):
 		return
