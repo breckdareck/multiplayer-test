@@ -394,6 +394,10 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 
 	var attacker_level = owner_node.level_component.level
 	var target_level = target_enemy.monster_level
+	# Training dummies (invincible) read as the attacker's level, so damage and
+	# hit-chance reflect a true even-level hit instead of the level-gap modifier.
+	if health_comp.invincible:
+		target_level = attacker_level
 
 	# --- Hit Chance Calculation ---
 	var level_diff = attacker_level - target_level
@@ -456,7 +460,13 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 		
 		var crit_chance = _stats_component.stats.get(Constants.StatType.CRITCHANCE).total_value
 		var is_crit = (randf() * 100) < crit_chance
-		
+		# PR 7 — Dagger Shadowmeld ambush GUARANTEES a crit on the strike from
+		# stealth (the assassin payoff: a hit from the shadows always lands true),
+		# in addition to the AMBUSH_DAMAGE_MULT applied below. Only when an ambush
+		# is active this call, so normal dagger hits keep their rolled crit chance.
+		if ambush_mult > 1.0:
+			is_crit = true
+
 		if is_crit:
 			var crit_damage_bonus = _stats_component.stats.get(Constants.StatType.CRITDAMAGE).total_value
 			var crit_multiplier = randf_range(1.2, 1.5) + (crit_damage_bonus / 100.0)
