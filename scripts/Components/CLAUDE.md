@@ -167,7 +167,11 @@ Player (MultiplayerPlayerV2)
     │                               = a bonus shock to the target AND a chain arc to
     │                               up to LIGHTNING_CHAIN_MAX_TARGETS nearby same-map
     │                               enemies (via _nearby_enemies, map-filtered through
-    │                               combat._is_on_same_map) — the crowd element.
+    │                               combat._is_on_same_map) — the crowd element. The
+    │                               chain also fires a cosmetic bolt VFX threading
+    │                               the struck+zapped enemies (MapManager.broadcast_
+    │                               lightning_arc → scripts/VFX/lightning_arc.gd,
+    │                               drawn per-peer under the visible map).
     │                               Applied by combat._execute_hit AFTER
     │                               the damage loop, STRICTLY gated (ability != null +
     │                               max_landed_damage > 0 + _is_wielding_staff()) so it

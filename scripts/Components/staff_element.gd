@@ -288,6 +288,7 @@ func _apply_lightning_bonus(attacker: Node, target: Node, base_damage: int) -> v
 	# LIGHTNING_CHAIN_MULT of the base hit. This is lightning's crowd identity and
 	# lets a single-target spell clear a cluster before AoE abilities are unlocked.
 	var chain_dmg: int = maxi(1, roundi(base_damage * LIGHTNING_CHAIN_MULT))
+	var zapped_positions: PackedVector2Array = PackedVector2Array()
 	for chained in _nearby_enemies(attacker, target, LIGHTNING_CHAIN_RADIUS, LIGHTNING_CHAIN_MAX_TARGETS):
 		var c_health = chained.get("health_component")
 		if c_health == null or not is_instance_valid(c_health) or c_health.is_dead:
@@ -296,6 +297,17 @@ func _apply_lightning_bonus(attacker: Node, target: Node, base_damage: int) -> v
 		c_health.take_damage(chain_dmg, applier, true, false, true)
 		if c_alive and c_health.is_dead:
 			_credit_dot_kill(applier, chained)
+		zapped_positions.append(chained.global_position)
+
+	# Cosmetic chain-bolt VFX: thread from the struck target through each enemy we
+	# actually zapped. Server-only trigger; MapManager broadcasts it to every
+	# client viewing this map (+ the host). No gameplay effect.
+	if not zapped_positions.is_empty() and is_instance_valid(attacker) and "player_id" in attacker:
+		var map_id: String = MapManager.get_player_map(attacker.player_id)
+		if map_id != "":
+			var arc_points: PackedVector2Array = PackedVector2Array([target.global_position])
+			arc_points.append_array(zapped_positions)
+			MapManager.broadcast_lightning_arc(map_id, arc_points)
 
 #endregion
 
