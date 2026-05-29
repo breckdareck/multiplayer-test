@@ -125,6 +125,44 @@ Player (MultiplayerPlayerV2)
     │                               decays after 5s idle, resets if neither slot
     │                               is a sword. Server-authoritative; mirrored to
     │                               the owning client via sync_combo_to_client.
+    ├── BowCharge  bow_charge.gd  - PR 8 bow signature: hold-to-charge Snap Shot.
+    │                               HOLDING Attack builds a server-timed charge
+    │                               (tiers 0-3 at 0/0.4/0.8/1.2s); RELEASING fires
+    │                               ONE Snap Shot scaled ×1.0/1.5/2.0/3.0. A tap =
+    │                               tier 0 = today's shot. Client sends only two
+    │                               intents (bow_charge_start / bow_release); the
+    │                               SERVER owns the clock (so the client can't fake
+    │                               a max-tier hold). release_and_fire stages the
+    │                               multiplier on CombatComponent.charge_damage_mult
+    │                               then sets do_attack to reuse the normal Snap Shot
+    │                               projectile path. charge_damage_mult is
+    │                               consumed-on-read in combat.calculate_ability_damage
+    │                               and GATED to ability_name == "Snap Shot" — a
+    │                               separate field from pending_ability_damage_multiplier
+    │                               because the projectile resolves AFTER
+    │                               end_ability_attack clears the sword multiplier.
+    │                               Volatile (never saved); mirrored to the owning
+    │                               client via sync_charge_to_client (bot-skipped).
+    ├── StaffElement staff_element.gd - PR 7 staff signature: the ELEMENT STANCE.
+    │                               The WeaponSignature key (R) cycles the active
+    │                               element FIRE→ICE→LIGHTNING (cycle_element, gated
+    │                               to STAFF in multiplayer_input.gd; routed via
+    │                               player_manager "staff_cycle_element"). The active
+    │                               element adds an on-hit rider to staff SPELL hits:
+    │                               FIRE = stacking burn DoT (own meta key
+    │                               "staff_element_burn", stacks independently of
+    │                               Immolate/bleeds), ICE = movement slow (reduces
+    │                               EnemyBase.movement_speed directly — there is NO
+    │                               movespeed StatType — restored on a timer), LIGHTNING
+    │                               = a bonus-damage follow-up scaled off the biggest
+    │                               landed hit. Applied by combat._execute_hit AFTER
+    │                               the damage loop, STRICTLY gated (ability != null +
+    │                               max_landed_damage > 0 + _is_wielding_staff()) so it
+    │                               can NEVER affect a sword/bow/dagger hit. DoT/bonus
+    │                               kills credit mastery XP + on_kill (mirrors
+    │                               AL_Immolate). Volatile (defaults FIRE on spawn);
+    │                               mirrored to the owning client via
+    │                               sync_element_to_client (bot-skipped).
     ├── Buff       buff.gd        - timed buffs/debuffs, stacking, custom logic
     ├── Class      class.gd       - current_class = STARTING weapon discipline
     │                               (does NOT change on weapon swap). Drives HP/MP
