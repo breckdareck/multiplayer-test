@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=24 format=3 uid="uid://bfrv6eglagdjb"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=25 format=3 uid="uid://bfrv6eglagdjb"]
 
 [ext_resource type="Texture2D" uid="uid://drobx0va8sphc" path="res://assets/sprites/Abilities/strafe.png" id="1_ln1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_ln1"]
@@ -14,6 +14,7 @@
 [ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_LAN_Overload.tres" id="13_ov"]
 [ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_LAN_Cascade.tres" id="14_ca"]
 [ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_LAN_Prismatic.tres" id="15_pr"]
+[ext_resource type="Script" uid="uid://alarcanelance1" path="res://scripts/Abilities/AL_ArcaneLance.gd" id="16_allan"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ln1"]
 size = Vector2(120, 46)
@@ -27,6 +28,7 @@ animation_name = "attack_2"
 is_projectile = true
 projectile_scene = ExtResource("2_ln3")
 projectile_speed = 280.0
+logic_script = ExtResource("16_allan")
 metadata/_custom_type_script = "uid://1raaatfhww5y"
 
 [sub_resource type="Resource" id="Resource_ln2"]

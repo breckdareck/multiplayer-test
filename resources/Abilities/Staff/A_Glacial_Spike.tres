@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=24 format=3 uid="uid://icestrik001x"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=25 format=3 uid="uid://icestrik001x"]
 
 [ext_resource type="Texture2D" uid="uid://cq7r2r0v4dc42" path="res://assets/sprites/Abilities/ice_strike.png" id="1_l2dqg"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_icst1"]
@@ -14,6 +14,7 @@
 [ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_GLA_Shatter.tres" id="13_sh"]
 [ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_GLA_Frostbite.tres" id="14_fb"]
 [ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_GLA_IceShards.tres" id="15_is"]
+[ext_resource type="Script" uid="uid://alglacialspike1" path="res://scripts/Abilities/AL_GlacialSpike.gd" id="16_algla"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_icst1"]
 size = Vector2(120, 46)
@@ -27,6 +28,7 @@ animation_name = "attack_2"
 is_projectile = true
 projectile_scene = ExtResource("2_icst3")
 projectile_speed = 250.0
+logic_script = ExtResource("16_algla")
 metadata/_custom_type_script = "uid://1raaatfhww5y"
 
 [sub_resource type="Resource" id="Resource_icst2"]
