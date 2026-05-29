@@ -147,6 +147,11 @@ Player (MultiplayerPlayerV2)
     │                               Needs NO new input — builds passively from hits
     │                               like the sword combo. reset() on death + on
     │                               swap-away-from-bow (multiplayer_controller_v2).
+    │                               ABILITY SYNERGIES: Snipe SPENDS all Momentum for a
+    │                               burst then reset() (combat.calculate_ability_damage,
+    │                               gated ability_name=="Snipe"); Hailstorm/Skyfall build
+    │                               2/attack via add_momentum(amount); Steady Aim freezes
+    │                               decay for its buff duration (pause_decay, AL_Focus).
     │                               Constants are STARTING values (tunable). Volatile
     │                               (never saved); mirrored to the owning client via
     │                               sync_momentum_to_client (bot-skipped).
@@ -185,6 +190,12 @@ Player (MultiplayerPlayerV2)
     │                               AL_Immolate). Volatile (defaults FIRE on spawn);
     │                               mirrored to the owning client via
     │                               sync_element_to_client (bot-skipped).
+    │                               PER-ABILITY ELEMENT REACTIONS (ALs read
+    │                               get_current_element()): Immolate+FIRE = 2 stacks/hit
+    │                               + bigger ticks + tick splash; Pyre Burst+FIRE = own
+    │                               burn DoT ("pyre_burst_burn"); Glacial Spike+ICE =
+    │                               hard freeze/root (movement_speed→0); Arcane Lance+
+    │                               LIGHTNING = bonus chain-shock. Off-element = baseline.
     ├── Shadowmeld shadowmeld.gd  - PR 7 dagger signature: SHADOWMELD stealth.
     │                               The WeaponSignature key (R) TOGGLES stealth
     │                               while wielding a DAGGER (toggle_shadowmeld,
@@ -210,6 +221,13 @@ Player (MultiplayerPlayerV2)
     │                               spawn); synced via sync_shadowmeld_to_client
     │                               (bot-skipped). Multi-TARGET swings ambush only the
     │                               first target then break (single-target rogue feel).
+    │                               AMBUSH SYNERGIES: the ambush GUARANTEES a crit
+    │                               (combat forces is_crit when ambush_mult>1.0); it
+    │                               also triggers from the Vanish buff (not just the
+    │                               Shadowmeld toggle) — the strike consumes Vanish
+    │                               (break_stealth then remove_buff("Vanish")). Eviscerate
+    │                               from stealth = execute bonus on targets ≤35% HP
+    │                               (AL_Eviscerate).
     ├── Buff       buff.gd        - timed buffs/debuffs, stacking, custom logic
     ├── Class      class.gd       - current_class = STARTING weapon discipline
     │                               (does NOT change on weapon swap). Drives HP/MP
