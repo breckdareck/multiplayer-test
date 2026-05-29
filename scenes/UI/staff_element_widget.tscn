@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://cstfelemscn001"]
+[gd_scene load_steps=3 format=3 uid="uid://bsf8l5e8v7rc7"]
 
 [ext_resource type="Script" uid="uid://cstfelemwidg01" path="res://scripts/UI/staff_element_widget.gd" id="1_widget"]
 
