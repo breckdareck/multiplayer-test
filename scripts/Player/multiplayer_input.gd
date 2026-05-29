@@ -82,9 +82,21 @@ func _process(_delta: float) -> void:
 		else:
 			PlayerManager.player_input.rpc_id(1, "jump")
 
-	if Input.is_action_just_pressed("Attack") or Input.is_action_pressed("Attack"):
-		PlayerManager.player_input.rpc_id(1, "attack")
-	
+	# PR 8 — Bow signature: hold-to-charge. While wielding a BOW the Attack key
+	# is press/release (the server times the hold and fires a charged Snap Shot
+	# on release); every OTHER weapon keeps the original every-frame-while-held
+	# behavior BYTE-FOR-BYTE. get_active_discipline() reads the wielded weapon,
+	# so a Tab-swap to/from a bow flips this branch live.
+	if is_instance_valid(player) and player.has_method("get_active_discipline") and player.get_active_discipline() == Constants.ClassType.BOW:
+		if Input.is_action_just_pressed("Attack"):
+			PlayerManager.player_input.rpc_id(1, "bow_charge_start")
+		elif Input.is_action_just_released("Attack"):
+			PlayerManager.player_input.rpc_id(1, "bow_release")
+		# send NOTHING while merely held — the server times the charge
+	else:
+		if Input.is_action_just_pressed("Attack") or Input.is_action_pressed("Attack"):
+			PlayerManager.player_input.rpc_id(1, "attack")
+
 	if Input.is_action_just_pressed("Pickup") or Input.is_action_pressed("Pickup"):
 		PlayerManager.player_input.rpc_id(1, "pickup", true)
 	else:
