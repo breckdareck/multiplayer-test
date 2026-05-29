@@ -1,0 +1,152 @@
+extends Control
+class_name ShadowmeldWidget
+
+## PR 7 — Dagger discipline's signature class widget (MapleStory style).
+##
+## Lives on the left edge of the screen, vertically centered (same anchor family
+## as the sword combo / bow charge / staff element widgets — only one is ever
+## visible at a time since they gate on mutually-exclusive disciplines). Shows the
+## Shadowmeld state as a colored label: STEALTHED (active), READY (off cooldown),
+## or a recharging countdown while on cooldown. Visible only when the active
+## discipline is DAGGER.
+##
+## Mirrors StaffElementWidget / SwordComboWidget / BowChargeWidget wiring:
+##   - Subscribe to the discipline's source-of-truth component signal
+##     (ShadowmeldComponent.shadowmeld_changed)
+##   - Gate visibility on player.get_active_discipline()
+##   - Refresh on equipment changes + active-weapon changes
+##   - Hidden for remote players (only the local player sees their own gauge)
+##
+## The server owns the stealth state; the client only ever paints what the
+## component's shadowmeld_changed signal hands it (driven on the host directly, on
+## a remote client via sync_shadowmeld_to_client). A light _process poll refreshes
+## the cooldown countdown text while recharging (the component owns the clock).
+
+#region #################### Constants ####################
+
+const STEALTHED_COLOR: Color = Color(0.65, 0.45, 0.95, 1.0)  # purple — cloaked
+const READY_COLOR: Color = Color(0.55, 0.85, 0.6, 1.0)       # green — ready
+const COOLDOWN_COLOR: Color = Color(0.55, 0.55, 0.6, 1.0)    # grey — recharging
+
+#endregion
+
+
+#region #################### State ####################
+
+var player: MultiplayerPlayerV2 = null
+var shadowmeld_component: ShadowmeldComponent = null
+var equipment_component: EquipmentComponent = null
+
+@onready var caption_label: Label = $Panel/VBox/CaptionLabel
+@onready var state_label: Label = $Panel/VBox/StateLabel
+
+var _is_stealthed: bool = false
+
+#endregion
+
+
+#region #################### Lifecycle ####################
+
+func _ready() -> void:
+	# Resolve player off the owner chain — instanced under CanvasLayer/PlayerHUD
+	# on the player root, mirroring staff_element_widget.gd / bow_charge_widget.gd.
+	var node: Node = self
+	while node and not (node is MultiplayerPlayerV2):
+		node = node.get_parent()
+	if node is MultiplayerPlayerV2:
+		player = node as MultiplayerPlayerV2
+
+	if not is_instance_valid(player):
+		visible = false
+		return
+
+	# Hide for remote players' widgets — only the local player sees their own
+	# class identity gauges (matches PlayerHUD gating + the other signature widgets).
+	if player.player_id != multiplayer.get_unique_id():
+		visible = false
+		return
+
+	shadowmeld_component = player.shadowmeld_component
+	equipment_component = player.equipment_component
+
+	# shadowmeld_changed fires on both server and client (via sync_shadowmeld_to_client).
+	if is_instance_valid(shadowmeld_component):
+		shadowmeld_component.shadowmeld_changed.connect(_on_shadowmeld_changed)
+
+	if is_instance_valid(equipment_component):
+		equipment_component.on_equipment_changed.connect(_refresh_visibility)
+		equipment_component.active_weapon_changed.connect(_on_active_weapon_changed)
+
+	# Defer the first refresh — equipment slots may not be populated yet at _ready.
+	call_deferred("_refresh_visibility")
+	call_deferred("_refresh_label")
+
+
+func _process(_delta: float) -> void:
+	# Only needed to tick the cooldown countdown while recharging; cheap no-op
+	# otherwise. Skips entirely when hidden or stealthed (no countdown to show).
+	if not visible or _is_stealthed:
+		return
+	if is_instance_valid(shadowmeld_component) and not shadowmeld_component.is_ready():
+		_refresh_label()
+
+#endregion
+
+
+#region #################### Signal handlers ####################
+
+func _on_shadowmeld_changed(stealthed: bool) -> void:
+	_is_stealthed = stealthed
+	_refresh_label()
+	if visible:
+		_pulse()
+
+
+func _on_active_weapon_changed(_active_weapon: String, _active_item: ItemData) -> void:
+	_refresh_visibility()
+
+#endregion
+
+
+#region #################### Visibility + paint ####################
+
+func _refresh_visibility() -> void:
+	if not is_instance_valid(player) or not player.has_method("get_active_discipline"):
+		visible = false
+		return
+	visible = player.get_active_discipline() == Constants.ClassType.DAGGER
+	if visible:
+		# Sync to current component state on (re)appearance.
+		if is_instance_valid(shadowmeld_component):
+			_is_stealthed = shadowmeld_component.is_stealthed()
+		_refresh_label()
+
+
+func _refresh_label() -> void:
+	if not is_instance_valid(state_label):
+		return
+	if _is_stealthed:
+		state_label.text = "STEALTHED"
+		state_label.add_theme_color_override("font_color", STEALTHED_COLOR)
+		return
+	if is_instance_valid(shadowmeld_component) and not shadowmeld_component.is_ready():
+		var remaining: float = shadowmeld_component.get_cooldown_remaining()
+		state_label.text = "%.1fs" % remaining
+		state_label.add_theme_color_override("font_color", COOLDOWN_COLOR)
+		return
+	state_label.text = "READY"
+	state_label.add_theme_color_override("font_color", READY_COLOR)
+
+#endregion
+
+
+#region #################### Animations ####################
+
+func _pulse() -> void:
+	# Quick scale pop on the whole widget when stealth toggles.
+	pivot_offset = size * 0.5
+	var tween: Tween = create_tween()
+	tween.tween_property(self, "scale", Vector2(1.18, 1.18), 0.08).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(self, "scale", Vector2(1.0, 1.0), 0.1).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+
+#endregion
