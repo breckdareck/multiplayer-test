@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://dgru_van5_swiftexit"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "van_t3_swift_exit"
+upgrade_name = "Swift Exit"
+description = "Vanish becomes nearly free, reducing its mana cost by 14."
+point_cost = 2
+tier = 3
+variant_group = "van_cloak_variant"
+effect_key = "mana_flat_reduction"
+magnitude = 14.0

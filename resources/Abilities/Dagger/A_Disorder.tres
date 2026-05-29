@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=20 format=3 uid="uid://disorder001x"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=25 format=3 uid="uid://disorder001x"]
 
 [ext_resource type="Texture2D" uid="uid://dliub1pvja86r" path="res://assets/sprites/Abilities/disorder.webp" id="1_kjmtn"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_diso1"]
@@ -9,6 +9,12 @@
 [ext_resource type="Resource" uid="uid://dxf1ejii6pw" path="res://resources/Abilities/Dagger/A_Double_Stab.tres" id="9_diso1"]
 [ext_resource type="Script" uid="uid://d2cev8mjlc0cj" path="res://scripts/Abilities/AL_Disorder.gd" id="10_diso1"]
 [ext_resource type="Resource" uid="uid://bdisorder0001" path="res://resources/Buffs/B_Disorder.tres" id="11_diso1"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="12_aud"]
+[ext_resource type="Resource" uid="uid://dgru_crp1_quickjab" path="res://resources/Abilities/Dagger/Upgrades/U_CRP_QuickJab.tres" id="13_crp1"]
+[ext_resource type="Resource" uid="uid://dgru_crp2_deepen" path="res://resources/Abilities/Dagger/Upgrades/U_CRP_Deepen.tres" id="14_crp2"]
+[ext_resource type="Resource" uid="uid://dgru_crp3_hamstring" path="res://resources/Abilities/Dagger/Upgrades/U_CRP_Hamstring.tres" id="15_crp3"]
+[ext_resource type="Resource" uid="uid://dgru_crp4_disarm" path="res://resources/Abilities/Dagger/Upgrades/U_CRP_Disarm.tres" id="16_crp4"]
+[ext_resource type="Resource" uid="uid://dgru_crp5_massmaim" path="res://resources/Abilities/Dagger/Upgrades/U_CRP_MassMaim.tres" id="17_crp5"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_diso1"]
 size = Vector2(30, 20)
@@ -45,7 +51,8 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_diso5"]
 script = ExtResource("5_diso1")
-base_value = 14.0
+base_value = 12.0
+per_level = 0.4
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_diso6"]
@@ -71,16 +78,16 @@ metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
 [resource]
 script = ExtResource("2_diso2")
 ability_id = "4915111511410410111-10180-17141116-8591-12491086711491467"
-ability_name = "Disorder"
-description = "Strikes $[target_count] enemy dealing $[damage_percent] damage and weakening their defenses."
+ability_name = "Cripple"
+description = "A vicious strike for $[damage_percent] damage that maims $[target_count] enemy, sapping their defense and attack power."
 ability_icon = ExtResource("1_kjmtn")
-max_level = 10
+max_level = 20
 required_class = Array[int]([3])
 required_weapon_types = Array[int]([3])
 prerequisite_abilities = Dictionary[ExtResource("2_diso2"), int]({
 ExtResource("9_diso1"): 5
 })
-upgrades = null
+upgrades = Array[ExtResource("12_aud")]([ExtResource("13_crp1"), ExtResource("14_crp2"), ExtResource("15_crp3"), ExtResource("16_crp4"), ExtResource("17_crp5")])
 active_behavior = SubResource("Resource_diso1")
 applies_target_debuff = ExtResource("11_diso1")
 debuff_duration_formula = SubResource("Resource_diso9")

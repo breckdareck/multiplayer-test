@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=16 format=3 uid="uid://dxf1ejii6pw"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=21 format=3 uid="uid://dxf1ejii6pw"]
 
 [ext_resource type="Texture2D" uid="uid://e4oglnq6rgd4" path="res://assets/sprites/Abilities/double_stab.png" id="1_2pao2"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_1ro77"]
@@ -6,6 +6,12 @@
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_2471p"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="6_v6e48"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="7_mx6oj"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
+[ext_resource type="Resource" uid="uid://dgru_tf1_quicken" path="res://resources/Abilities/Dagger/Upgrades/U_TF_Quicken.tres" id="9_tf1"]
+[ext_resource type="Resource" uid="uid://dgru_tf2_serrated" path="res://resources/Abilities/Dagger/Upgrades/U_TF_Serrated.tres" id="10_tf2"]
+[ext_resource type="Resource" uid="uid://dgru_tf3_flurry" path="res://resources/Abilities/Dagger/Upgrades/U_TF_Flurry.tres" id="11_tf3"]
+[ext_resource type="Resource" uid="uid://dgru_tf4_gutter" path="res://resources/Abilities/Dagger/Upgrades/U_TF_Gutter.tres" id="12_tf4"]
+[ext_resource type="Resource" uid="uid://dgru_tf5_dualedge" path="res://resources/Abilities/Dagger/Upgrades/U_TF_DualEdge.tres" id="13_tf5"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_i4okq"]
 size = Vector2(30, 20)
@@ -35,7 +41,7 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 [sub_resource type="Resource" id="Resource_1otjw"]
 script = ExtResource("5_2471p")
 base_value = 3.0
-per_level = 0.15
+per_level = 0.1
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_l2sl3"]
@@ -61,13 +67,13 @@ metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
 [resource]
 script = ExtResource("2_2pao2")
 ability_id = "1111528545-1012105-8599-3131-614101401211841167"
-ability_name = "Double Stab"
-description = "Quickly stabs $[target_count] enemy $[hit_count] times dealing $[damage_percent] damage."
+ability_name = "Twin Fang"
+description = "A lightning-fast pair of stabs to one enemy, hitting $[hit_count] times for $[damage_percent] damage."
 ability_icon = ExtResource("1_2pao2")
 max_level = 20
 required_class = Array[int]([3])
 required_weapon_types = Array[int]([3])
-upgrades = null
+upgrades = Array[ExtResource("8_aud")]([ExtResource("9_tf1"), ExtResource("10_tf2"), ExtResource("11_tf3"), ExtResource("12_tf4"), ExtResource("13_tf5")])
 active_behavior = SubResource("Resource_2g3a4")
 scaling_data = SubResource("Resource_wx6cs")
 metadata/_custom_type_script = "uid://b8y62rc8nb40j"

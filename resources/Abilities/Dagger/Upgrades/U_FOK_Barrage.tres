@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://dgru_fok4_barrage"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "fok_t3_barrage"
+upgrade_name = "Barrage"
+description = "Fan of Knives hurls +3 additional blades."
+point_cost = 2
+tier = 3
+variant_group = "fok_throw_variant"
+effect_key = "bonus_hits"
+magnitude = 3.0

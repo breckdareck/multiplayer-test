@@ -9,8 +9,8 @@
 resource_local_to_scene = true
 script = ExtResource("1_dkst2")
 buff_id = "4114118107105103-10410400-989905-7201-561201321019"
-buff_name = "Dark Sight"
-description = "Cloaks the player, making them untargetable by enemies."
+buff_name = "Vanish"
+description = "Hidden in shadow — untargetable by enemies."
 buff_icon = ExtResource("1_tfn6t")
 logic_script = ExtResource("2_tfn6t")
 metadata/_custom_type_script = "uid://bcuvemv85jprb"

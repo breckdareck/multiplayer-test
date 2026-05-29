@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=22 format=3 uid="uid://c37bseifhg1hl"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=27 format=3 uid="uid://c37bseifhg1hl"]
 
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_behav"]
 [ext_resource type="Texture2D" uid="uid://bqhw3o83totq5" path="res://assets/sprites/Abilities/haste.webp" id="1_t12uv"]
@@ -8,6 +8,12 @@
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="4_scale"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="5_sbf"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="7_formula"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
+[ext_resource type="Resource" uid="uid://dgru_bld1_invigorate" path="res://resources/Abilities/Dagger/Upgrades/U_BLD_Invigorate.tres" id="9_bld1"]
+[ext_resource type="Resource" uid="uid://dgru_bld2_frenzy" path="res://resources/Abilities/Dagger/Upgrades/U_BLD_Frenzy.tres" id="10_bld2"]
+[ext_resource type="Resource" uid="uid://dgru_bld3_bloodhunt" path="res://resources/Abilities/Dagger/Upgrades/U_BLD_Bloodhunt.tres" id="11_bld3"]
+[ext_resource type="Resource" uid="uid://dgru_bld4_rampage" path="res://resources/Abilities/Dagger/Upgrades/U_BLD_Rampage.tres" id="12_bld4"]
+[ext_resource type="Resource" uid="uid://dgru_bld5_efficient" path="res://resources/Abilities/Dagger/Upgrades/U_BLD_Efficient.tres" id="13_bld5"]
 
 [sub_resource type="Resource" id="Resource_behav"]
 resource_local_to_scene = true
@@ -17,7 +23,7 @@ logic_script = ExtResource("2_logic")
 [sub_resource type="Resource" id="Resource_buff_dur"]
 script = ExtResource("7_formula")
 base_value = 30.0
-per_level = 30.0
+per_level = 2.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_t12uv"]
@@ -26,7 +32,7 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_qpioc"]
 script = ExtResource("7_formula")
-base_value = 1.0
+base_value = 40.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_t3peo"]
@@ -35,7 +41,8 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_mana"]
 script = ExtResource("7_formula")
-base_value = 8.0
+base_value = 14.0
+per_level = 0.4
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_hhkhc"]
@@ -54,20 +61,20 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_sbf_dex"]
 script = ExtResource("5_sbf")
-stat_type = 2
-percent_bonus_formula = SubResource("Resource_dex_pct")
+stat_type = 10
+flat_bonus_formula = SubResource("Resource_dex_pct")
 metadata/_custom_type_script = "uid://bx4thfjsjclbw"
 
 [sub_resource type="Resource" id="Resource_luck_pct"]
 script = ExtResource("7_formula")
-scaling_type = 3
-custom_formula = "ceil(level / 3.0)"
+base_value = 1.0
+per_level = 1.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_sbf_luck"]
 script = ExtResource("5_sbf")
-stat_type = 3
-percent_bonus_formula = SubResource("Resource_luck_pct")
+stat_type = 11
+flat_bonus_formula = SubResource("Resource_luck_pct")
 metadata/_custom_type_script = "uid://bx4thfjsjclbw"
 
 [sub_resource type="Resource" id="Resource_scaling"]
@@ -84,13 +91,13 @@ stat_bonus_formulas = Array[ExtResource("5_sbf")]([SubResource("Resource_sbf_dex
 [resource]
 script = ExtResource("3_abil")
 ability_id = "7115611096-110147-37148-67110-808141342121414115"
-ability_name = "Haste"
-description = "Grants a temporary buff that increases dexterity by $[stat_bonus]% and luck for all party members for $[buff_duration]."
+ability_name = "Bloodlust"
+description = "Whips the party into a killing frenzy, granting +$[stat_bonus]% critical hit chance and bonus critical damage to all party members for $[buff_duration]."
 ability_icon = ExtResource("1_t12uv")
-max_level = 30
+max_level = 20
 required_class = Array[int]([3])
 required_weapon_types = Array[int]([3])
-upgrades = null
+upgrades = Array[ExtResource("8_aud")]([ExtResource("9_bld1"), ExtResource("10_bld2"), ExtResource("11_bld3"), ExtResource("12_bld4"), ExtResource("13_bld5")])
 active_behavior = SubResource("Resource_behav")
 applies_buff = ExtResource("4_buff")
 buff_duration_formula = SubResource("Resource_buff_dur")

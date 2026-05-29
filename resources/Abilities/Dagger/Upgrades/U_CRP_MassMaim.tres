@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://dgru_crp5_massmaim"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "crp_t3_mass_maim"
+upgrade_name = "Mass Maim"
+description = "Cripple strikes +2 additional enemies, spreading the debuff."
+point_cost = 2
+tier = 3
+variant_group = "crp_maim_variant"
+effect_key = "bonus_targets"
+magnitude = 2.0
