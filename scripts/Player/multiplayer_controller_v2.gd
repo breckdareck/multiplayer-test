@@ -31,6 +31,10 @@ const MAX_FALL_SPEED: float = 1200.0
 ## by basic-attack hits and consumed by Slash for amplified damage.
 ## See scripts/Components/sword_combo.gd.
 @export var sword_combo_component: SwordComboComponent
+## PR 8: Bow discipline's signature combat system — hold-to-charge basic
+## attack. Holding Attack builds a server-timed charge; releasing fires one
+## charged Snap Shot scaled by the charge tier. See scripts/Components/bow_charge.gd.
+@export var bow_charge_component: BowChargeComponent
 @export var player_inventory: PlayerInventory
 @export var inventory_component: InventoryComponent
 @export var equipment_component: EquipmentComponent
@@ -379,7 +383,12 @@ func _setup_signals() -> void:
 	
 	if health_component:
 		health_component.health_changed.connect(func(_c, _m): _data_changed("stats"))
-		
+		# PR 8 — Bow signature: a held charge should not survive death. died
+		# emits on the server (HealthComponent.die), so cancel there. Cheap
+		# no-op when not charging. cancel_charge guards is_server() itself.
+		if multiplayer.is_server() and is_instance_valid(bow_charge_component):
+			health_component.died.connect(func(_killer): bow_charge_component.cancel_charge())
+
 	if ability_component:
 		ability_component.ability_leveled_up.connect(func(_a, _l): _data_changed("abilities"))
 		ability_component.ability_points_changed.connect(func(_k, _p): _data_changed("abilities"))
@@ -1014,6 +1023,11 @@ func _on_equipment_changed_refresh_sprite() -> void:
 		return
 	if not multiplayer.is_server():
 		return
+	# PR 8 — Bow signature: an equipment edit that leaves the active slot
+	# non-bow (e.g. dragging a sword over the equipped bow mid-charge) cancels
+	# the charge, matching the Tab-swap-away cancel in _on_active_weapon_changed.
+	if is_instance_valid(bow_charge_component) and get_active_discipline() != Constants.ClassType.BOW:
+		bow_charge_component.cancel_charge()
 	# Cheap call — the rpc/sprite resolution is idempotent if the discipline
 	# didn't actually change. Don't try to gate this against the previous
 	# value here; just re-emit and let the client overwrite with the same
@@ -1024,6 +1038,13 @@ func _on_equipment_changed_refresh_sprite() -> void:
 func _on_active_weapon_changed(_active_weapon: String, _active_item: ItemData) -> void:
 	if _is_being_cleaned_up:
 		return
+
+	# PR 8 — Bow signature: swapping AWAY from a bow (Tab to the other slot)
+	# cancels any in-progress charge so it doesn't carry over to a non-bow
+	# weapon. Server-authoritative; cancel_charge no-ops on clients / when idle.
+	if multiplayer.is_server() and is_instance_valid(bow_charge_component):
+		if get_active_discipline() != Constants.ClassType.BOW:
+			bow_charge_component.cancel_charge()
 
 	# Persist the new active_weapon. The inventory bucket serializes equipment +
 	# active_weapon together (see InventoryComponent.save_inventory). A Tab-swap
