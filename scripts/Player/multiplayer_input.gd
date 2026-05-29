@@ -106,6 +106,16 @@ func _process(_delta: float) -> void:
 		if Input.is_action_just_pressed("WeaponSignature"):
 			PlayerManager.player_input.rpc_id(1, "staff_cycle_element")
 
+	# PR 7 — Dagger signature: the WeaponSignature key TOGGLES Shadowmeld stealth
+	# ONLY while wielding a DAGGER. A SEPARATE sibling branch from the staff one
+	# above (each discipline owns the WeaponSignature key in its own way), gated on
+	# the wielded discipline so it does nothing for any other weapon. The component
+	# is server-authoritative and decides enter-vs-exit; the client only sends the
+	# toggle intent.
+	if is_instance_valid(player) and player.has_method("get_active_discipline") and player.get_active_discipline() == Constants.ClassType.DAGGER:
+		if Input.is_action_just_pressed("WeaponSignature"):
+			PlayerManager.player_input.rpc_id(1, "dagger_shadowmeld")
+
 	if Input.is_action_just_pressed("Pickup") or Input.is_action_pressed("Pickup"):
 		PlayerManager.player_input.rpc_id(1, "pickup", true)
 	else:

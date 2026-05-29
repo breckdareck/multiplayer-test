@@ -791,6 +791,15 @@ func player_input(input_type: String, data: Variant = null):
 			var sec = player_node.get("staff_element_component")
 			if sec != null and is_instance_valid(sec):
 				sec.cycle_element()
+		"dagger_shadowmeld":
+			# PR 7 — Dagger signature: toggle Shadowmeld stealth on/off. The
+			# component is server-authoritative and decides enter-vs-exit (and
+			# enforces the enter cooldown). The input branch that sends this is
+			# already gated on the DAGGER discipline client-side; the component's
+			# own is_server guard is the authoritative gate.
+			var smc = player_node.get("shadowmeld_component")
+			if smc != null and is_instance_valid(smc):
+				smc.toggle_shadowmeld()
 		"weapon_swap":
 			# PR 3: route weapon-swap intent through the player node's
 			# request_weapon_swap_server RPC. The player node owns the
