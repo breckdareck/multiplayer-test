@@ -1,0 +1,86 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://dgrevisc001x"]
+
+[ext_resource type="Texture2D" uid="uid://e4oglnq6rgd4" path="res://assets/sprites/Abilities/double_stab.png" id="1_evi1"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_evi1"]
+[ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_evi2"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="6_evi1"]
+[ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_evi1"]
+[ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_evi1"]
+[ext_resource type="Resource" uid="uid://lky7abl001xx" path="res://resources/Abilities/Dagger/A_Lucky_Seven.tres" id="9_evi1"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="10_aud"]
+[ext_resource type="Resource" uid="uid://dgru_evi1_swiftkill" path="res://resources/Abilities/Dagger/Upgrades/U_EVI_SwiftKill.tres" id="11_evi1"]
+[ext_resource type="Resource" uid="uid://dgru_evi2_exposed" path="res://resources/Abilities/Dagger/Upgrades/U_EVI_Exposed.tres" id="12_evi2"]
+[ext_resource type="Resource" uid="uid://dgru_evi3_assassinate" path="res://resources/Abilities/Dagger/Upgrades/U_EVI_Assassinate.tres" id="13_evi3"]
+[ext_resource type="Resource" uid="uid://dgru_evi4_overkill" path="res://resources/Abilities/Dagger/Upgrades/U_EVI_Overkill.tres" id="14_evi4"]
+[ext_resource type="Resource" uid="uid://dgru_evi5_throatcut" path="res://resources/Abilities/Dagger/Upgrades/U_EVI_Throatcut.tres" id="15_evi5"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_evi1"]
+size = Vector2(40, 24)
+
+[sub_resource type="Resource" id="Resource_evi_behav"]
+script = ExtResource("2_evi2")
+target_type = 1
+hit_box_shape_data = SubResource("RectangleShape2D_evi1")
+hit_box_position_data = Vector2(20, -10)
+animation_name = "attack_1"
+sfx_path = "res://assets/sounds/tap.wav"
+metadata/_custom_type_script = "uid://1raaatfhww5y"
+
+[sub_resource type="Resource" id="Resource_evi_cast"]
+script = ExtResource("6_evi1")
+base_value = 0.3
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_evi_cd"]
+script = ExtResource("6_evi1")
+base_value = 6.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_evi_dmg"]
+script = ExtResource("6_evi1")
+base_value = 190.0
+per_level = 10.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_evi_mana"]
+script = ExtResource("6_evi1")
+base_value = 10.0
+per_level = 0.4
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_evi_hits"]
+script = ExtResource("6_evi1")
+base_value = 1.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_evi_targets"]
+script = ExtResource("6_evi1")
+base_value = 1.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_evi_scaling"]
+script = ExtResource("7_evi1")
+mana_cost_formula = SubResource("Resource_evi_mana")
+cooldown_formula = SubResource("Resource_evi_cd")
+damage_percent_formula = SubResource("Resource_evi_dmg")
+max_targets_formula = SubResource("Resource_evi_targets")
+max_hits_formula = SubResource("Resource_evi_hits")
+cast_time_formula = SubResource("Resource_evi_cast")
+metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
+
+[resource]
+script = ExtResource("2_evi1")
+ability_id = "5161181051159911451-9043-1410149-105135-1410158678120201"
+ability_name = "Eviscerate"
+description = "Drives both blades into one enemy's vitals for a devastating $[damage_percent] damage — the rogue's killing blow."
+ability_icon = ExtResource("1_evi1")
+max_level = 20
+required_class = Array[int]([3])
+required_weapon_types = Array[int]([3])
+prerequisite_abilities = Dictionary[ExtResource("2_evi1"), int]({
+ExtResource("9_evi1"): 3
+})
+upgrades = Array[ExtResource("10_aud")]([ExtResource("11_evi1"), ExtResource("12_evi2"), ExtResource("13_evi3"), ExtResource("14_evi4"), ExtResource("15_evi5")])
+active_behavior = SubResource("Resource_evi_behav")
+scaling_data = SubResource("Resource_evi_scaling")
+metadata/_custom_type_script = "uid://b8y62rc8nb40j"

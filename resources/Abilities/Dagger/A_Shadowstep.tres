@@ -1,0 +1,87 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://dgrshadowstep01x"]
+
+[ext_resource type="Texture2D" uid="uid://cp0i4hv10gcbt" path="res://assets/sprites/Abilities/shadow-partner.png" id="1_sst1"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_sst1"]
+[ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_sst2"]
+[ext_resource type="Script" uid="uid://alshadowstepdagger1" path="res://scripts/Abilities/AL_Shadowstep.gd" id="3_sst1"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="6_sst1"]
+[ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_sst1"]
+[ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_sst1"]
+[ext_resource type="Resource" uid="uid://dxf1ejii6pw" path="res://resources/Abilities/Dagger/A_Double_Stab.tres" id="9_sst1"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="10_aud"]
+[ext_resource type="Resource" uid="uid://dgru_sst1_fleet" path="res://resources/Abilities/Dagger/Upgrades/U_SST_Fleet.tres" id="11_sst1"]
+[ext_resource type="Resource" uid="uid://dgru_sst2_cutpurse" path="res://resources/Abilities/Dagger/Upgrades/U_SST_Cutpurse.tres" id="12_sst2"]
+[ext_resource type="Resource" uid="uid://dgru_sst3_ambush" path="res://resources/Abilities/Dagger/Upgrades/U_SST_Ambush.tres" id="13_sst3"]
+[ext_resource type="Resource" uid="uid://dgru_sst4_whirl" path="res://resources/Abilities/Dagger/Upgrades/U_SST_Whirl.tres" id="14_sst4"]
+[ext_resource type="Resource" uid="uid://dgru_sst5_doublecut" path="res://resources/Abilities/Dagger/Upgrades/U_SST_DoubleCut.tres" id="15_sst5"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sst1"]
+size = Vector2(90, 24)
+
+[sub_resource type="Resource" id="Resource_sst_behav"]
+script = ExtResource("2_sst2")
+target_type = 1
+hit_box_shape_data = SubResource("RectangleShape2D_sst1")
+hit_box_position_data = Vector2(45, -12)
+animation_name = "attack_1"
+sfx_path = "res://assets/sounds/tap.wav"
+logic_script = ExtResource("3_sst1")
+metadata/_custom_type_script = "uid://1raaatfhww5y"
+
+[sub_resource type="Resource" id="Resource_sst_cast"]
+script = ExtResource("6_sst1")
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_sst_cd"]
+script = ExtResource("6_sst1")
+base_value = 5.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_sst_dmg"]
+script = ExtResource("6_sst1")
+base_value = 100.0
+per_level = 5.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_sst_mana"]
+script = ExtResource("6_sst1")
+base_value = 7.0
+per_level = 0.3
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_sst_hits"]
+script = ExtResource("6_sst1")
+base_value = 1.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_sst_targets"]
+script = ExtResource("6_sst1")
+base_value = 1.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_sst_scaling"]
+script = ExtResource("7_sst1")
+mana_cost_formula = SubResource("Resource_sst_mana")
+cooldown_formula = SubResource("Resource_sst_cd")
+damage_percent_formula = SubResource("Resource_sst_dmg")
+max_targets_formula = SubResource("Resource_sst_targets")
+max_hits_formula = SubResource("Resource_sst_hits")
+cast_time_formula = SubResource("Resource_sst_cast")
+metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
+
+[resource]
+script = ExtResource("2_sst1")
+ability_id = "19104100111191161011160951-9043-1410149-105135-1410158678120203"
+ability_name = "Shadowstep"
+description = "Blink forward through the shadows and strike one enemy in your path for $[damage_percent] damage, briefly evading all harm."
+ability_icon = ExtResource("1_sst1")
+max_level = 20
+required_class = Array[int]([3])
+required_weapon_types = Array[int]([3])
+prerequisite_abilities = Dictionary[ExtResource("2_sst1"), int]({
+ExtResource("9_sst1"): 3
+})
+upgrades = Array[ExtResource("10_aud")]([ExtResource("11_sst1"), ExtResource("12_sst2"), ExtResource("13_sst3"), ExtResource("14_sst4"), ExtResource("15_sst5")])
+active_behavior = SubResource("Resource_sst_behav")
+scaling_data = SubResource("Resource_sst_scaling")
+metadata/_custom_type_script = "uid://b8y62rc8nb40j"
