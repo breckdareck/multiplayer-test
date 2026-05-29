@@ -1083,4 +1083,12 @@ def init_db():
 
 if __name__ == '__main__':
     init_db()
-    app.run(host='0.0.0.0', port=5000)
+    # threaded=True: the dev server is single-threaded by default, so under the
+    # game's heavy save traffic every request serializes — a portal map change
+    # (which does `await SaveManager.flush_save`) then waits behind the routine
+    # save flood, making transfers "extremely long" and starving the /health
+    # probe (container goes unhealthy). Threading lets each request run in its
+    # own thread; Flask-SQLAlchemy's session is already thread-local (scoped),
+    # so this is safe. The per-player in-flight guard still serializes a single
+    # player's saves for integrity.
+    app.run(host='0.0.0.0', port=5000, threaded=True)
