@@ -7,7 +7,7 @@
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="6_lk7a1"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_lk7a1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_lk7a1"]
-[ext_resource type="Resource" uid="uid://dxf1ejii6pw" path="res://resources/Abilities/Dagger/A_Double_Stab.tres" id="9_lk7a1"]
+[ext_resource type="Resource" uid="uid://dxf1ejii6pw" path="res://resources/Abilities/Dagger/A_Twin_Fang.tres" id="9_lk7a1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="10_aud"]
 [ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_FOK_SwiftHands.tres" id="11_fok1"]
 [ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_FOK_KeenBlades.tres" id="12_fok2"]

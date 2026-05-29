@@ -6,11 +6,11 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_le1"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_le1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_le1"]
-[ext_resource type="Resource" uid="uid://dexpasv0001x" path="res://resources/Abilities/Bow/A_DEX_Passive.tres" id="7_le1"]
+[ext_resource type="Resource" uid="uid://dexpasv0001x" path="res://resources/Abilities/Bow/A_Fleet_Fingers.tres" id="7_le1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
-[ext_resource type="Resource" uid="uid://bowu_let1_vicious" path="res://resources/Abilities/Bow/Upgrades/U_LET_Vicious.tres" id="9_vi"]
-[ext_resource type="Resource" uid="uid://bowu_let2_brutal" path="res://resources/Abilities/Bow/Upgrades/U_LET_Brutal.tres" id="10_br"]
-[ext_resource type="Resource" uid="uid://bowu_let3_merciless" path="res://resources/Abilities/Bow/Upgrades/U_LET_Merciless.tres" id="11_me"]
+[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_LET_Vicious.tres" id="9_vi"]
+[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_LET_Brutal.tres" id="10_br"]
+[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_LET_Merciless.tres" id="11_me"]
 
 [sub_resource type="Resource" id="Resource_le_behav"]
 resource_local_to_scene = true

@@ -7,7 +7,7 @@
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="6_strf1"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_strf1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_strf1"]
-[ext_resource type="Resource" uid="uid://rrwrain001x" path="res://resources/Abilities/Bow/A_Arrow_Rain.tres" id="9_strf1"]
+[ext_resource type="Resource" uid="uid://rrwrain001x" path="res://resources/Abilities/Bow/A_Skyfall.tres" id="9_strf1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="10_aud"]
 [ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_HAIL_RapidLoose.tres" id="11_rl"]
 [ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_HAIL_Splinter.tres" id="12_sp"]
@@ -15,18 +15,18 @@
 [ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_HAIL_Bloodletting.tres" id="14_bl"]
 [ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_HAIL_SuppressingFire.tres" id="15_sf"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_strf1"]
-size = Vector2(120, 46)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_aa4ap"]
+size = Vector2(160, 46)
 
-[sub_resource type="Resource" id="Resource_strf1"]
+[sub_resource type="Resource" id="Resource_vrq40"]
 script = ExtResource("2_strf2")
 target_type = 1
-hit_box_shape_data = SubResource("RectangleShape2D_strf1")
-hit_box_position_data = Vector2(60, -10)
+hit_box_shape_data = SubResource("RectangleShape2D_aa4ap")
+hit_box_position_data = Vector2(80, -10)
 animation_name = "attack_2"
 is_projectile = true
 projectile_scene = ExtResource("2_strf3")
-projectile_speed = 250.0
+projectile_speed = 200.0
 metadata/_custom_type_script = "uid://1raaatfhww5y"
 
 [sub_resource type="Resource" id="Resource_strf2"]
@@ -85,6 +85,6 @@ prerequisite_abilities = Dictionary[ExtResource("2_strf1"), int]({
 ExtResource("9_strf1"): 5
 })
 upgrades = Array[ExtResource("10_aud")]([ExtResource("11_rl"), ExtResource("12_sp"), ExtResource("13_fl"), ExtResource("14_bl"), ExtResource("15_sf")])
-active_behavior = SubResource("Resource_strf1")
+active_behavior = SubResource("Resource_vrq40")
 scaling_data = SubResource("Resource_strf8")
 metadata/_custom_type_script = "uid://b8y62rc8nb40j"

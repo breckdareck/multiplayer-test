@@ -7,26 +7,26 @@
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="6_snp1"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_snp1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_snp1"]
-[ext_resource type="Resource" uid="uid://strafearc01x" path="res://resources/Abilities/Bow/A_Strafe.tres" id="9_snp1"]
+[ext_resource type="Resource" uid="uid://strafearc01x" path="res://resources/Abilities/Bow/A_Hailstorm.tres" id="9_snp1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="10_aud"]
-[ext_resource type="Resource" uid="uid://bowu_snp1_steadyhand" path="res://resources/Abilities/Bow/Upgrades/U_SNP_SteadyHand.tres" id="11_sh"]
-[ext_resource type="Resource" uid="uid://bowu_snp2_armorpierce" path="res://resources/Abilities/Bow/Upgrades/U_SNP_ArmorPierce.tres" id="12_ap"]
-[ext_resource type="Resource" uid="uid://bowu_snp3_killshot" path="res://resources/Abilities/Bow/Upgrades/U_SNP_Killshot.tres" id="13_ks"]
-[ext_resource type="Resource" uid="uid://bowu_snp4_pinningshot" path="res://resources/Abilities/Bow/Upgrades/U_SNP_PinningShot.tres" id="14_pn"]
-[ext_resource type="Resource" uid="uid://bowu_snp5_doubletap" path="res://resources/Abilities/Bow/Upgrades/U_SNP_DoubleTap.tres" id="15_dt"]
+[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_SNP_SteadyHand.tres" id="11_sh"]
+[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_SNP_ArmorPierce.tres" id="12_ap"]
+[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_SNP_Killshot.tres" id="13_ks"]
+[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_SNP_PinningShot.tres" id="14_pn"]
+[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_SNP_DoubleTap.tres" id="15_dt"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_snp1"]
-size = Vector2(160, 40)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_aa4ap"]
+size = Vector2(160, 46)
 
-[sub_resource type="Resource" id="Resource_snp1"]
+[sub_resource type="Resource" id="Resource_vrq40"]
 script = ExtResource("2_snp2")
 target_type = 1
-hit_box_shape_data = SubResource("RectangleShape2D_snp1")
+hit_box_shape_data = SubResource("RectangleShape2D_aa4ap")
 hit_box_position_data = Vector2(80, -10)
 animation_name = "attack_2"
 is_projectile = true
 projectile_scene = ExtResource("2_snp3")
-projectile_speed = 320.0
+projectile_speed = 200.0
 metadata/_custom_type_script = "uid://1raaatfhww5y"
 
 [sub_resource type="Resource" id="Resource_snp_cast"]
@@ -84,6 +84,6 @@ prerequisite_abilities = Dictionary[ExtResource("2_snp1"), int]({
 ExtResource("9_snp1"): 3
 })
 upgrades = Array[ExtResource("10_aud")]([ExtResource("11_sh"), ExtResource("12_ap"), ExtResource("13_ks"), ExtResource("14_pn"), ExtResource("15_dt")])
-active_behavior = SubResource("Resource_snp1")
+active_behavior = SubResource("Resource_vrq40")
 scaling_data = SubResource("Resource_snp_scaling")
 metadata/_custom_type_script = "uid://b8y62rc8nb40j"

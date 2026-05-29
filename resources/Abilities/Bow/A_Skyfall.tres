@@ -7,7 +7,7 @@
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="6_arrn1"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_arrn1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_arrn1"]
-[ext_resource type="Resource" uid="uid://dblshot0001x" path="res://resources/Abilities/Bow/A_Double_Shot.tres" id="9_arrn1"]
+[ext_resource type="Resource" uid="uid://dblshot0001x" path="res://resources/Abilities/Bow/A_Split_Shot.tres" id="9_arrn1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="10_aud"]
 [ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_SKY_WideFall.tres" id="11_wf"]
 [ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_SKY_HeavyVolley.tres" id="12_hv"]
@@ -15,14 +15,14 @@
 [ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_SKY_MeteorShafts.tres" id="14_ms"]
 [ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_SKY_DoubleFall.tres" id="15_df"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_arrn1"]
-size = Vector2(120, 46)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_aa4ap"]
+size = Vector2(160, 46)
 
-[sub_resource type="Resource" id="Resource_arrn1"]
+[sub_resource type="Resource" id="Resource_vrq40"]
 script = ExtResource("2_arrn2")
 target_type = 1
-hit_box_shape_data = SubResource("RectangleShape2D_arrn1")
-hit_box_position_data = Vector2(60, -10)
+hit_box_shape_data = SubResource("RectangleShape2D_aa4ap")
+hit_box_position_data = Vector2(80, -10)
 animation_name = "attack_2"
 is_projectile = true
 projectile_scene = ExtResource("2_arrn3")
@@ -84,6 +84,6 @@ prerequisite_abilities = Dictionary[ExtResource("2_arrn1"), int]({
 ExtResource("9_arrn1"): 3
 })
 upgrades = Array[ExtResource("10_aud")]([ExtResource("11_wf"), ExtResource("12_hv"), ExtResource("13_to"), ExtResource("14_ms"), ExtResource("15_df")])
-active_behavior = SubResource("Resource_arrn1")
+active_behavior = SubResource("Resource_vrq40")
 scaling_data = SubResource("Resource_arrn8")
 metadata/_custom_type_script = "uid://b8y62rc8nb40j"

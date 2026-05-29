@@ -6,11 +6,11 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_bh1"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_bh1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_bh1"]
-[ext_resource type="Resource" uid="uid://dyl558pcmpdgf" path="res://resources/Abilities/Sword/A_STR_Passive.tres" id="7_bh1"]
+[ext_resource type="Resource" uid="uid://dyl558pcmpdgf" path="res://resources/Abilities/Sword/A_Iron_Sinews.tres" id="7_bh1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
-[ext_resource type="Resource" uid="uid://swu_bh1_seasoned" path="res://resources/Abilities/Sword/Upgrades/U_BH_Seasoned.tres" id="9_se"]
-[ext_resource type="Resource" uid="uid://swu_bh2_veteran" path="res://resources/Abilities/Sword/Upgrades/U_BH_Veteran.tres" id="10_ve"]
-[ext_resource type="Resource" uid="uid://swu_bh3_unbreakable" path="res://resources/Abilities/Sword/Upgrades/U_BH_Unbreakable.tres" id="11_un"]
+[ext_resource type="Resource" path="res://resources/Abilities/Sword/Upgrades/U_BH_Seasoned.tres" id="9_se"]
+[ext_resource type="Resource" path="res://resources/Abilities/Sword/Upgrades/U_BH_Veteran.tres" id="10_ve"]
+[ext_resource type="Resource" path="res://resources/Abilities/Sword/Upgrades/U_BH_Unbreakable.tres" id="11_un"]
 
 [sub_resource type="Resource" id="Resource_bh_behav"]
 resource_local_to_scene = true

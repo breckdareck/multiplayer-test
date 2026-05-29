@@ -6,11 +6,11 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_sb1"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_sb1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_sb1"]
-[ext_resource type="Resource" uid="uid://dyl558pcmpdgf" path="res://resources/Abilities/Sword/A_STR_Passive.tres" id="7_sb1"]
+[ext_resource type="Resource" uid="uid://dyl558pcmpdgf" path="res://resources/Abilities/Sword/A_Iron_Sinews.tres" id="7_sb1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
-[ext_resource type="Resource" uid="uid://swu_sb1_cruel" path="res://resources/Abilities/Sword/Upgrades/U_SB_Cruel.tres" id="9_cr"]
-[ext_resource type="Resource" uid="uid://swu_sb2_savage" path="res://resources/Abilities/Sword/Upgrades/U_SB_Savage.tres" id="10_sv"]
-[ext_resource type="Resource" uid="uid://swu_sb3_devastating" path="res://resources/Abilities/Sword/Upgrades/U_SB_Devastating.tres" id="11_de"]
+[ext_resource type="Resource" path="res://resources/Abilities/Sword/Upgrades/U_SB_Cruel.tres" id="9_cr"]
+[ext_resource type="Resource" path="res://resources/Abilities/Sword/Upgrades/U_SB_Savage.tres" id="10_sv"]
+[ext_resource type="Resource" path="res://resources/Abilities/Sword/Upgrades/U_SB_Devastating.tres" id="11_de"]
 
 [sub_resource type="Resource" id="Resource_sb_behav"]
 resource_local_to_scene = true

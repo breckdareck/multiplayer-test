@@ -8,7 +8,7 @@
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="6_jrmpn"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_b8raq"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_cm1ky"]
-[ext_resource type="Resource" uid="uid://ccxoh5fmx317x" path="res://resources/Abilities/Sword/A_Slash.tres" id="9_slash"]
+[ext_resource type="Resource" uid="uid://ccxoh5fmx317x" path="res://resources/Abilities/Sword/A_Crescent_Cleave.tres" id="9_slash"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="10_aud"]
 [ext_resource type="Resource" uid="uid://pgu1quickrec" path="res://resources/Abilities/Sword/Upgrades/U_PG_QuickRecovery.tres" id="11_qr"]
 [ext_resource type="Resource" uid="uid://pgu2lasting" path="res://resources/Abilities/Sword/Upgrades/U_PG_LastingGuard.tres" id="12_lg"]

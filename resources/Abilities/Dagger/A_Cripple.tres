@@ -6,7 +6,7 @@
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_diso1"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="6_diso1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="7_diso1"]
-[ext_resource type="Resource" uid="uid://dxf1ejii6pw" path="res://resources/Abilities/Dagger/A_Double_Stab.tres" id="9_diso1"]
+[ext_resource type="Resource" uid="uid://dxf1ejii6pw" path="res://resources/Abilities/Dagger/A_Twin_Fang.tres" id="9_diso1"]
 [ext_resource type="Script" uid="uid://d2cev8mjlc0cj" path="res://scripts/Abilities/AL_Disorder.gd" id="10_diso1"]
 [ext_resource type="Resource" uid="uid://bdisorder0001" path="res://resources/Buffs/B_Disorder.tres" id="11_diso1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="12_aud"]
