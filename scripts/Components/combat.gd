@@ -698,6 +698,18 @@ func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelDa
 	if is_instance_valid(_bow_momentum_component) and _is_wielding_bow():
 		damage = roundi(damage * (1.0 + _bow_momentum_component.get_damage_bonus()))
 
+		# Bow signature — SNIPE is the Momentum SPENDER. Snipe CONSUMES all built-up
+		# Momentum for a burst (+SNIPE_CONSUME_PCT_PER_STACK per stack on top of the
+		# passive ramp above), then resets the gauge to 0. This gives Momentum a
+		# "cash it in" finisher — mirrors how sword finishers spend combo points.
+		# Single-target single-hit projectile, so this consumes exactly once.
+		if _ability != null and _ability.ability_name == "Snipe":
+			var stacks: int = _bow_momentum_component.get_stacks()
+			if stacks > 0:
+				const SNIPE_CONSUME_PCT_PER_STACK: float = 0.12  # +120% at 10 stacks
+				damage = roundi(damage * (1.0 + stacks * SNIPE_CONSUME_PCT_PER_STACK))
+				_bow_momentum_component.reset()
+
 	return damage
 
 
