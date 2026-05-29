@@ -1,0 +1,52 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=16 format=3 uid="uid://dgrkillerinst01x"]
+
+[ext_resource type="Texture2D" uid="uid://cc18m1wu0h2vl" path="res://assets/sprites/Abilities/sharp_eyes.png" id="1_kin1"]
+[ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_kin1"]
+[ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_kin1"]
+[ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_kin1"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_kin1"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_kin1"]
+[ext_resource type="Resource" uid="uid://nimblstp001x" path="res://resources/Abilities/Dagger/A_Nimble_Step.tres" id="7_kin1"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
+[ext_resource type="Resource" uid="uid://dgru_kin1_sharp" path="res://resources/Abilities/Dagger/Upgrades/U_KIN_Sharp.tres" id="9_kin1"]
+[ext_resource type="Resource" uid="uid://dgru_kin2_deadly" path="res://resources/Abilities/Dagger/Upgrades/U_KIN_Deadly.tres" id="10_kin2"]
+[ext_resource type="Resource" uid="uid://dgru_kin3_lethal" path="res://resources/Abilities/Dagger/Upgrades/U_KIN_Lethal.tres" id="11_kin3"]
+
+[sub_resource type="Resource" id="Resource_kin_behav"]
+resource_local_to_scene = true
+script = ExtResource("2_kin1")
+
+[sub_resource type="Resource" id="Resource_kin_crit"]
+script = ExtResource("5_kin1")
+scaling_type = 3
+custom_formula = "ceil(level / 2.0)"
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_kin_sbf"]
+script = ExtResource("4_kin1")
+stat_type = 10
+flat_bonus_formula = SubResource("Resource_kin_crit")
+metadata/_custom_type_script = "uid://bx4thfjsjclbw"
+
+[sub_resource type="Resource" id="Resource_kin_scaling"]
+script = ExtResource("3_kin1")
+stat_bonus_formulas = Array[ExtResource("4_kin1")]([SubResource("Resource_kin_sbf")])
+metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
+
+[resource]
+script = ExtResource("6_kin1")
+ability_id = "9105108108101114951-9043-1410149-105135-1410158678120212"
+ability_name = "Killer Instinct"
+description = "Permanently increases critical hit chance by $[stat_bonus]%."
+ability_icon = ExtResource("1_kin1")
+max_level = 10
+ability_type = 1
+required_class = Array[int]([3])
+required_weapon_types = Array[int]([3])
+prerequisite_abilities = Dictionary[ExtResource("6_kin1"), int]({
+ExtResource("7_kin1"): 3
+})
+upgrades = Array[ExtResource("8_aud")]([ExtResource("9_kin1"), ExtResource("10_kin2"), ExtResource("11_kin3")])
+active_behavior = SubResource("Resource_kin_behav")
+scaling_data = SubResource("Resource_kin_scaling")
+metadata/_custom_type_script = "uid://b8y62rc8nb40j"
