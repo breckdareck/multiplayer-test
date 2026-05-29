@@ -156,13 +156,19 @@ Player (MultiplayerPlayerV2)
     │                               to STAFF in multiplayer_input.gd; routed via
     │                               player_manager "staff_cycle_element"). The active
     │                               element adds an on-hit rider to staff SPELL hits:
-    │                               FIRE = stacking burn DoT (own meta key
+    │                               FIRE = stacking burn DoT scaled off the
+    │                               TRIGGERING HIT's damage (BURN_HIT_PCT, floor
+    │                               BURN_MIN_PER_TICK — NOT raw MAGICATTACK, which
+    │                               rounded to 1/tick early; own meta key
     │                               "staff_element_burn", stacks independently of
     │                               Immolate/bleeds), ICE = movement slow (reduces
     │                               EnemyBase.movement_speed directly — there is NO
     │                               movespeed StatType — restored on a timer), LIGHTNING
-    │                               = a bonus-damage follow-up scaled off the biggest
-    │                               landed hit. Applied by combat._execute_hit AFTER
+    │                               = a bonus shock to the target AND a chain arc to
+    │                               up to LIGHTNING_CHAIN_MAX_TARGETS nearby same-map
+    │                               enemies (via _nearby_enemies, map-filtered through
+    │                               combat._is_on_same_map) — the crowd element.
+    │                               Applied by combat._execute_hit AFTER
     │                               the damage loop, STRICTLY gated (ability != null +
     │                               max_landed_damage > 0 + _is_wielding_staff()) so it
     │                               can NEVER affect a sword/bow/dagger hit. DoT/bonus

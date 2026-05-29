@@ -6,10 +6,11 @@ extends Node
 ## Staff identity: while wielding a STAFF, a key (WeaponSignature) cycles the
 ## active element FIRE -> ICE -> LIGHTNING -> FIRE. The active element adds an
 ## on-hit rider to EVERY staff SPELL hit (ability hits while a staff is wielded):
-##  - FIRE      -> stacking BURN damage-over-time on the target.
-##  - ICE       -> SLOW: a temporary movement-speed reduction on the target.
-##  - LIGHTNING -> bonus damage on the hit (flat % extra). Simplest v1; a
-##                 chain-to-nearby can be layered on later.
+##  - FIRE      -> stacking BURN DoT, scaled off the TRIGGERING HIT's damage (so
+##                 it stays meaningful at every level — the focused-damage element).
+##  - ICE       -> SLOW: a temporary movement-speed reduction (the control element).
+##  - LIGHTNING -> bonus shock on the hit AND a chain arc to nearby enemies (the
+##                 crowd/burst element — clears clusters before AoE is unlocked).
 ##
 ## This is the staff analogue of SwordComboComponent / BowMomentumComponent. Same
 ## structural rules:
@@ -48,9 +49,13 @@ const ELEMENT_COUNT: int = 3
 ## with a chained Timer, since enemies carry no BuffComponent) but uses its OWN
 ## meta key so an element-stance burn stacks INDEPENDENTLY of an Immolate burn,
 ## a bow bleed, or a sword bleed rather than overwriting them.
-## 12% of MAGICATTACK per tick per stack — under Immolate's 18% because this is
-## a "free" rider on every fire-stance spell, not a dedicated burn-setter.
-const BURN_PCT: float = 0.12
+## Per tick per stack = BURN_HIT_PCT of the TRIGGERING HIT's damage (NOT raw
+## MAGICATTACK). The old MATK-% version rounded to "1/tick" at low levels and felt
+## pointless; scaling off the actual hit keeps it proportional at every level. The
+## floor keeps a SINGLE stack worth applying, so you don't need to stack 3 (or have
+## AoE) to get value. (Tuning: raise BURN_HIT_PCT for a stronger DoT.)
+const BURN_HIT_PCT: float = 0.12
+const BURN_MIN_PER_TICK: int = 2
 const BURN_TICK_INTERVAL: float = 1.0
 const BURN_DURATION: float = 4.0
 const BURN_MAX_STACKS: int = 3
@@ -66,10 +71,16 @@ const SLOW_PCT: float = 0.4
 const SLOW_DURATION: float = 2.5
 const SLOW_META: String = "staff_element_chill"
 
-## LIGHTNING — bonus damage. The hit deals an extra (base * LIGHTNING_BONUS_MULT)
-## as a separate follow-up damage application, so it reads as a distinct shock
-## tick. 0.5 = +50% of the pre-modified base hit.
+## LIGHTNING — chain shock. The struck target takes an extra
+## (base * LIGHTNING_BONUS_MULT) as a separate shock tick, AND the bolt CHAINS to
+## up to LIGHTNING_CHAIN_MAX_TARGETS other enemies within LIGHTNING_CHAIN_RADIUS px
+## (same map), each taking (base * LIGHTNING_CHAIN_MULT). This is what makes
+## lightning the crowd/burst element and lets a single-target spell clear a cluster
+## before AoE abilities are unlocked. (Tuning: targets / radius / arc damage below.)
 const LIGHTNING_BONUS_MULT: float = 0.5
+const LIGHTNING_CHAIN_MAX_TARGETS: int = 2
+const LIGHTNING_CHAIN_RADIUS: float = 180.0
+const LIGHTNING_CHAIN_MULT: float = 0.4
 
 #endregion
 
@@ -131,7 +142,7 @@ func apply_element_on_hit(attacker: Node, target: Node, base_damage: int) -> voi
 
 	match _current_element:
 		Element.FIRE:
-			_apply_burn(attacker, target)
+			_apply_burn(attacker, target, base_damage)
 		Element.ICE:
 			_apply_slow(target)
 		Element.LIGHTNING:
@@ -144,9 +155,11 @@ func apply_element_on_hit(attacker: Node, target: Node, base_damage: int) -> voi
 
 ## Mirrors AL_Immolate.on_hit's meta-tracked stacking DOT, with this component's
 ## own BURN_META key so it stacks independently of Immolate / bleeds.
-func _apply_burn(attacker: Node, target: Node) -> void:
-	var magic_attack: int = _attacker_magic_attack(attacker)
-	var per_tick: int = maxi(1, roundi(magic_attack * BURN_PCT))
+func _apply_burn(attacker: Node, target: Node, base_damage: int) -> void:
+	# Scale per-tick off the TRIGGERING HIT (not raw MAGICATTACK) so it stays
+	# proportional to real damage at every level; the floor keeps one stack worth
+	# applying. Each (re)application refreshes per_tick to the latest hit's value.
+	var per_tick: int = maxi(BURN_MIN_PER_TICK, roundi(base_damage * BURN_HIT_PCT))
 
 	if target.has_meta(BURN_META):
 		var existing: Dictionary = target.get_meta(BURN_META)
@@ -271,20 +284,53 @@ func _apply_lightning_bonus(attacker: Node, target: Node, base_damage: int) -> v
 	if was_alive and health_comp.is_dead:
 		_credit_dot_kill(applier, target)
 
+	# Chain the shock to nearby enemies on the same map. Each arc deals
+	# LIGHTNING_CHAIN_MULT of the base hit. This is lightning's crowd identity and
+	# lets a single-target spell clear a cluster before AoE abilities are unlocked.
+	var chain_dmg: int = maxi(1, roundi(base_damage * LIGHTNING_CHAIN_MULT))
+	for chained in _nearby_enemies(attacker, target, LIGHTNING_CHAIN_RADIUS, LIGHTNING_CHAIN_MAX_TARGETS):
+		var c_health = chained.get("health_component")
+		if c_health == null or not is_instance_valid(c_health) or c_health.is_dead:
+			continue
+		var c_alive: bool = not c_health.is_dead
+		c_health.take_damage(chain_dmg, applier, true, false, true)
+		if c_alive and c_health.is_dead:
+			_credit_dot_kill(applier, chained)
+
 #endregion
 
 
 #region #################### Shared helpers ####################
 
-## Reads the attacker's MAGICATTACK total (staff spells scale on MAGICATTACK).
-## Returns 0 if unavailable — callers clamp to a 1-damage floor.
-func _attacker_magic_attack(attacker: Node) -> int:
-	if attacker == null or not is_instance_valid(attacker):
-		return 0
-	var stats_comp = attacker.get("stats_component")
-	if stats_comp == null or not stats_comp.stats.has(Constants.StatType.MAGICATTACK):
-		return 0
-	return int(stats_comp.stats[Constants.StatType.MAGICATTACK].total_value)
+## Finds up to `max_count` living enemies within `radius` of `origin`'s position,
+## scoped to the attacker's CURRENT MAP. The "Enemies" group is GLOBAL across all
+## maps (SubViewport-per-map architecture), so we MUST map-filter — otherwise a
+## coincidental coordinate overlap on another map would get zapped. Reuses the
+## CombatComponent's cached _is_on_same_map check (the attacker always has one — the
+## chain is invoked from combat._execute_hit). Nearest-first, excludes `origin`.
+func _nearby_enemies(attacker: Node, origin: Node, radius: float, max_count: int) -> Array:
+	var out: Array = []
+	if not is_instance_valid(origin):
+		return out
+	var combat = attacker.get("combat_component") if is_instance_valid(attacker) else null
+	var origin_pos: Vector2 = origin.global_position
+	for enemy in get_tree().get_nodes_in_group("Enemies"):
+		if enemy == origin or not is_instance_valid(enemy):
+			continue
+		if combat != null and combat.has_method("_is_on_same_map") and not combat._is_on_same_map(enemy):
+			continue
+		var hc = enemy.get("health_component")
+		if hc == null or not is_instance_valid(hc) or hc.is_dead:
+			continue
+		if enemy.global_position.distance_to(origin_pos) > radius:
+			continue
+		out.append(enemy)
+	out.sort_custom(func(a, b):
+		return a.global_position.distance_to(origin_pos) < b.global_position.distance_to(origin_pos)
+	)
+	if out.size() > max_count:
+		return out.slice(0, max_count)
+	return out
 
 
 ## When a DOT / bonus tick lands the killing blow, the normal combat-kill
