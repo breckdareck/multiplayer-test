@@ -885,6 +885,13 @@ func _data_changed(update_type: String = "all") -> void:
 		# Client: tell the server about the change via lightweight RPC
 		_notify_server_data_changed.rpc_id(SERVER_ID, update_type)
 		return
+	# Bots persist via SaveManager's 60s auto-save safety net ONLY — they don't
+	# need an event-driven save on every health tick. Without this guard, 4+ bots
+	# fighting each queue a "stats" save ~2x/sec (health_changed -> _data_changed),
+	# which floods the save pipeline and makes real players' saves / map transfers /
+	# spawns slow. Their earned state still persists every AUTO_SAVE_INTERVAL.
+	if BotManager.is_bot(player_id):
+		return
 	# Server: queue a debounced save through SaveManager
 	if username and SaveManager:
 		SaveManager.queue_save(username, update_type, self)
