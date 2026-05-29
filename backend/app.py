@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 import time
@@ -449,13 +449,18 @@ def load_player():
     if not username:
         return jsonify({"error": "Username required"}), 400
         
+    # selectinload (one IN-query per collection), NOT joinedload: joining several
+    # one-to-many collections in a single query is a CARTESIAN PRODUCT
+    # (items x abilities x equipment x hotbar x buffs), which exploded into tens of
+    # thousands of materialized rows as ability rosters grew this overhaul — making
+    # every load (and thus every spawn / map change) progressively slower.
     player = Player.query.options(
-        joinedload(Player.items),
-        joinedload(Player.equipment),
-        joinedload(Player.abilities),
-        joinedload(Player.hotbar),
-        joinedload(Player.buffs),
-        joinedload(Player.quest_entries),
+        selectinload(Player.items),
+        selectinload(Player.equipment),
+        selectinload(Player.abilities),
+        selectinload(Player.hotbar),
+        selectinload(Player.buffs),
+        selectinload(Player.quest_entries),
     ).filter_by(username=username).first()
 
     if player:
@@ -585,13 +590,14 @@ def save_player():
         return jsonify({"error": "Save in progress"}), 429
 
     try:
-        player = Player.query.options(
-            joinedload(Player.items),
-            joinedload(Player.equipment),
-            joinedload(Player.abilities),
-            joinedload(Player.hotbar),
-            joinedload(Player.buffs),
-        ).filter_by(username=username).first()
+        # No eager loading: a save only touches the child collections whose
+        # category is present in `data` (inventory / abilities / buffs), each
+        # guarded below. Lazy-loading fetches just those (one indexed query each)
+        # on access, so a frequent "stats" save does ZERO child queries. The old
+        # joinedload cartesian-joined ALL five collections on EVERY save (even a
+        # tiny stats save), which is what pegged the DB and slowed saves as the
+        # ability rosters grew.
+        player = Player.query.filter_by(username=username).first()
 
         if not player:
             # Real players already have a Player row from character creation;

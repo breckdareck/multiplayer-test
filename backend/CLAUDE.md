@@ -87,11 +87,26 @@ through `scripts/Networking/network_manager.gd`.
   columns diverge — catches a stale process running an older schema than `app.py`.
 - **Save concurrency**: `/api/player/save` takes a per-player lock
   (`get_player_lock`) so two saves for one character cannot interleave.
+- **Dev server runs threaded** (`app.run(threaded=True)`): the single-threaded
+  default serialized every request, so the game's heavy save traffic blocked the
+  portal map-change flush (`await SaveManager.flush_save`) and starved the
+  `/health` probe (container went unhealthy). Threaded handling fixes that —
+  Flask-SQLAlchemy's session is thread-local, and the per-player save lock above
+  still serializes one character's saves for integrity.
 - **Smart-sync**: the save endpoint diffs incoming vs. existing rows by key and
   insert/update/deletes — it does not blindly replace. All five child tables go
   through one `_sync_child_rows(model, existing_by_key, desired_by_key)` helper;
   build a `{key: {column: value}}` desired-dict and call it. Match that when
   extending it.
+- **Loader strategy — `selectinload`, NEVER `joinedload`, for the player's child
+  collections.** `joinedload` across multiple one-to-many collections is a
+  CARTESIAN PRODUCT (items × abilities × equipment × hotbar × buffs) — it exploded
+  into tens of thousands of materialized rows as the weapon-overhaul ability
+  rosters grew, pegging the DB and slowing every load/spawn/save. `load_player`
+  uses `selectinload` (one indexed IN-query per collection). `save_player` eager-
+  loads NOTHING — each category block (`if 'inventory'/'abilities'/'buffs' in
+  data`) lazy-loads only the collection it touches, so a frequent partial
+  ("stats") save does ZERO child queries.
 - **Bots**: bot characters have no account, so they are all owned by one shared
   `__bots__` account (`account_id` is `NOT NULL`). `save_player` accepts an `is_bot`
   flag to create a bot's `Player` row on the fly and stamp the `is_bot` column.
