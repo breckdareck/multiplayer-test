@@ -169,7 +169,10 @@ Player (MultiplayerPlayerV2)
     │                               re-centers on it, and hops again up to
     │                               LIGHTNING_CHAIN_MAX_HOPS times (_nearest_chain_target,
     │                               map-filtered via combat._is_on_same_map) — the
-    │                               crowd element. The
+    │                               crowd element. Fires even when the strike KILLS
+    │                               the primary (apply_element_on_hit no longer bails
+    │                               on a dead target — it arcs off the dying enemy;
+    │                               FIRE/ICE self-guard to no-op on a corpse). The
     │                               chain also fires a cosmetic bolt VFX threading
     │                               the struck+zapped enemies (MapManager.broadcast_
     │                               lightning_arc → scripts/VFX/lightning_arc.gd,

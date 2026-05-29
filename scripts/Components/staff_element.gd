@@ -140,10 +140,12 @@ func apply_element_on_hit(attacker: Node, target: Node, base_damage: int) -> voi
 		return
 	if not is_instance_valid(target):
 		return
-	var health_comp = target.get("health_component")
-	if health_comp == null or not is_instance_valid(health_comp) or health_comp.is_dead:
-		return
-
+	# Do NOT bail when the target is already dead. This runs AFTER _execute_hit's
+	# damage loop, so the spell's main hit may have just KILLED the target — but a
+	# LIGHTNING chain must still arc off the dying enemy to nearby living ones (the
+	# "shock doesn't work when the enemy dies" bug). Each element handles a dead
+	# primary itself: FIRE/ICE no-op on a corpse, LIGHTNING skips the
+	# bonus-to-target but still chains.
 	match _current_element:
 		Element.FIRE:
 			_apply_burn(attacker, target, base_damage)
@@ -160,6 +162,11 @@ func apply_element_on_hit(attacker: Node, target: Node, base_damage: int) -> voi
 ## Mirrors AL_Immolate.on_hit's meta-tracked stacking DOT, with this component's
 ## own BURN_META key so it stacks independently of Immolate / bleeds.
 func _apply_burn(attacker: Node, target: Node, base_damage: int) -> void:
+	# No point igniting a corpse — the spell's main hit may have already killed it
+	# (the top-level rider no longer guards on this so LIGHTNING can still chain).
+	var hc = target.get("health_component")
+	if hc == null or not is_instance_valid(hc) or hc.is_dead:
+		return
 	# Scale per-tick off the TRIGGERING HIT (not raw MAGICATTACK) so it stays
 	# proportional to real damage at every level; the floor keeps one stack worth
 	# applying. Each (re)application refreshes per_tick to the latest hit's value.
@@ -243,6 +250,11 @@ func _apply_slow(target: Node) -> void:
 	if not (target is EnemyBase):
 		return
 	var enemy := target as EnemyBase
+	# No point chilling a corpse — the strike may have already killed it (the
+	# top-level rider no longer guards on this so LIGHTNING can still chain).
+	var hc = enemy.get("health_component")
+	if hc != null and is_instance_valid(hc) and hc.is_dead:
+		return
 	# Already chilled — no-op (don't re-apply). Re-applying would compound the
 	# reduction off the already-reduced base and the restore would then write
 	# back a wrong value, so the existing slow simply runs out its own timer.
@@ -278,15 +290,17 @@ func _apply_slow(target: Node) -> void:
 ## it shows as its own number and bypasses i-frames (otherwise the just-landed
 ## hit's invuln would swallow it). Attributed to the attacker for aggro / XP.
 func _apply_lightning_bonus(attacker: Node, target: Node, base_damage: int) -> void:
-	var bonus: int = maxi(1, roundi(base_damage * LIGHTNING_BONUS_MULT))
-	var health_comp = target.get("health_component")
-	if health_comp == null or not is_instance_valid(health_comp) or health_comp.is_dead:
-		return
 	var applier = attacker if is_instance_valid(attacker) else null
-	var was_alive: bool = not health_comp.is_dead
-	health_comp.take_damage(bonus, applier, true, false, true)
-	if was_alive and health_comp.is_dead:
-		_credit_dot_kill(applier, target)
+
+	# Bonus shock to the struck target — ONLY if it's still alive. This rider runs
+	# after the spell's damage loop, which may have already killed it; in that case
+	# we skip the (impossible) bonus but STILL chain off it below to nearby enemies.
+	var health_comp = target.get("health_component")
+	if health_comp != null and is_instance_valid(health_comp) and not health_comp.is_dead:
+		var bonus: int = maxi(1, roundi(base_damage * LIGHTNING_BONUS_MULT))
+		health_comp.take_damage(bonus, applier, true, false, true)
+		if health_comp.is_dead:
+			_credit_dot_kill(applier, target)
 
 	# Chain the shock in SEQUENCE: hop to the nearest un-hit enemy within range,
 	# re-center on it, hop again — up to LIGHTNING_CHAIN_MAX_HOPS times. Re-centering
