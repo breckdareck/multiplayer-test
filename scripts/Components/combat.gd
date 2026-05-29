@@ -53,6 +53,9 @@ var _equipment_component: EquipmentComponent
 var _ability_component: AbilityComponent
 var _weapon_mastery_component: WeaponMasteryComponent
 var _sword_combo_component: SwordComboComponent
+## PR 7: Staff discipline's signature — the active element stance. Its on-hit
+## rider is applied from _execute_hit, strictly gated to staff ability hits.
+var _staff_element_component: StaffElementComponent
 
 ## PR 5: transient damage multiplier applied to the NEXT ability damage
 ## calculation. Used by AL_SlashBlast to scale damage by combo points spent
@@ -88,6 +91,7 @@ func _ready() -> void:
 	_ability_component = get_parent().get_node_or_null("Ability")
 	_weapon_mastery_component = get_parent().get_node_or_null("WeaponMastery")
 	_sword_combo_component = get_parent().get_node_or_null("SwordCombo")
+	_staff_element_component = get_parent().get_node_or_null("StaffElement")
 
 	hitbox_area.monitoring = false
 
@@ -406,6 +410,11 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 	
 	var damage_values: Array = []
 	var crit_values: Array = []
+	# PR 7 — Staff element: representative landed damage for scaling the
+	# LIGHTNING stance bonus. Tracks the largest non-miss hit this call so a
+	# multi-hit spell bases its shock off the biggest tick. Stays 0 if every
+	# hit missed (then the element hook after the loop is skipped).
+	var max_landed_damage: int = 0
 	
 	for i in range(max_hits):
 		var roll = randf() * 100
@@ -445,6 +454,8 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 
 		damage_values.append(damage_to_deal)
 		crit_values.append(is_crit)
+		if damage_to_deal > max_landed_damage:
+			max_landed_damage = damage_to_deal
 
 		var was_alive: bool = not health_comp.is_dead
 		health_comp.take_damage(damage_to_deal, self, true, is_crit, false)
@@ -562,6 +573,18 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 				"is_crit": is_crit
 			}
 			_ability_component.try_trigger_procs(event_type, target_enemy, context)
+
+	# PR 7 — Staff element stance on-hit rider. STRICTLY GATED so it can NEVER
+	# affect a sword / bow / dagger hit:
+	#   (a) the active weapon must be a STAFF (_is_wielding_staff()), AND
+	#   (b) this hit must be a staff ABILITY (ability != null) — a staff's basic
+	#       MELEE swing uses ability == null and is intentionally excluded; only
+	#       staff SPELL hits carry the element.
+	# Fires once per target after the hit loop. FIRE applies a stacking burn,
+	# ICE a movement slow, LIGHTNING a bonus-damage shock scaled off the biggest
+	# landed hit. Skipped if every hit missed (max_landed_damage == 0).
+	if ability != null and max_landed_damage > 0 and is_instance_valid(_staff_element_component) and _is_wielding_staff():
+		_staff_element_component.apply_element_on_hit(owner_node, target_enemy, max_landed_damage)
 
 	# Apply target debuff if the ability defines one
 	if ability and ability.applies_target_debuff and target_enemy is EnemyBase:
@@ -723,6 +746,20 @@ func _get_weapon_attack_stat() -> Constants.StatType:
 				Constants.WeaponType.STAFF:
 					return Constants.StatType.MAGICATTACK
 	return Constants.StatType.WEAPONATTACK
+
+
+## PR 7 — Staff element gate. True only when the ACTIVE weapon is a STAFF.
+## Read through active_weapon_data so a Tab-swap to/from a staff flips it live
+## and a carried-but-inactive staff in the secondary slot does NOT count. This
+## is the strict guard the _execute_hit element hook uses so the stance can
+## never affect a sword / bow / dagger hit (their active weapon isn't a staff).
+func _is_wielding_staff() -> bool:
+	if not _equipment_component:
+		return false
+	var weapon: WeaponData = _equipment_component.active_weapon_data
+	if weapon == null:
+		return false
+	return weapon.weapon_type == Constants.WeaponType.STAFF
 
 
 func _calculate_max_range(attack_stat_type: Constants.StatType = Constants.StatType.WEAPONATTACK) -> int:
