@@ -17,7 +17,7 @@
 [ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="14_e8txv"]
 [ext_resource type="Script" uid="uid://d71uplx14050" path="res://scripts/Components/ability.gd" id="14_ploos"]
 [ext_resource type="Script" uid="uid://byyxwyimf0dab" path="res://scripts/Components/sword_combo.gd" id="14_scombo"]
-[ext_resource type="Script" uid="uid://cucm1r8tu1wxy" path="res://scripts/Components/bow_charge.gd" id="14_bcharge"]
+[ext_resource type="Script" uid="uid://cbowmomtm0comp1" path="res://scripts/Components/bow_momentum.gd" id="14_bcharge"]
 [ext_resource type="Script" uid="uid://cstfelem0comp1" path="res://scripts/Components/staff_element.gd" id="14_stfelem"]
 [ext_resource type="Script" uid="uid://cshdwmld0comp1" path="res://scripts/Components/shadowmeld.gd" id="14_shdmld"]
 [ext_resource type="Script" uid="uid://bhkic0r61c4yf" path="res://scripts/Components/weapon_mastery.gd" id="14_wmast"]
@@ -27,7 +27,7 @@
 [ext_resource type="Script" uid="uid://d162wvxl3tos0" path="res://scripts/Player/StateMachine/attack.gd" id="17_e6s7e"]
 [ext_resource type="PackedScene" uid="uid://op5a1mqidavt" path="res://scenes/UI/hotbar.tscn" id="17_ploos"]
 [ext_resource type="PackedScene" uid="uid://bxi24t15fkgj6" path="res://scenes/UI/sword_combo_widget.tscn" id="17_swcmbo"]
-[ext_resource type="PackedScene" uid="uid://dbowchrgscn001" path="res://scenes/UI/bow_charge_widget.tscn" id="17_bcwdgt"]
+[ext_resource type="PackedScene" uid="uid://dbowmomtmscn001" path="res://scenes/UI/bow_momentum_widget.tscn" id="17_bcwdgt"]
 [ext_resource type="PackedScene" uid="uid://bsf8l5e8v7rc7" path="res://scenes/UI/staff_element_widget.tscn" id="17_stfwdgt"]
 [ext_resource type="PackedScene" uid="uid://cshdwmldscn001" path="res://scenes/UI/shadowmeld_widget.tscn" id="17_shdwdgt"]
 [ext_resource type="PackedScene" uid="uid://c2sweq4gkie70" path="res://scenes/UI/abilities_window.tscn" id="18_7iww4"]
@@ -437,7 +437,7 @@ size = Vector2(21, 21)
 [sub_resource type="CircleShape2D" id="CircleShape2D_h0wtf"]
 radius = 4.0
 
-[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "mana_component", "combat_component", "level_component", "stats_component", "class_component", "weapon_mastery_component", "sword_combo_component", "bow_charge_component", "staff_element_component", "shadowmeld_component", "player_inventory", "inventory_component", "equipment_component", "ability_component", "buff_component", "player_HUD", "player_name_label", "stats_window", "inventory_window", "quest_window") groups=["Players", "networked_entities"]]
+[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "mana_component", "combat_component", "level_component", "stats_component", "class_component", "weapon_mastery_component", "sword_combo_component", "bow_momentum_component", "staff_element_component", "shadowmeld_component", "player_inventory", "inventory_component", "equipment_component", "ability_component", "buff_component", "player_HUD", "player_name_label", "stats_window", "inventory_window", "quest_window") groups=["Players", "networked_entities"]]
 collision_layer = 2
 collision_mask = 5
 script = ExtResource("1_an8q1")
@@ -449,7 +449,7 @@ stats_component = NodePath("Components/Stats")
 class_component = NodePath("Components/Class")
 weapon_mastery_component = NodePath("Components/WeaponMastery")
 sword_combo_component = NodePath("Components/SwordCombo")
-bow_charge_component = NodePath("Components/BowCharge")
+bow_momentum_component = NodePath("Components/BowMomentum")
 staff_element_component = NodePath("Components/StaffElement")
 shadowmeld_component = NodePath("Components/Shadowmeld")
 player_inventory = NodePath("Components/PlayerInventory")
@@ -520,7 +520,7 @@ script = ExtResource("14_wmast")
 [node name="SwordCombo" type="Node" parent="Components"]
 script = ExtResource("14_scombo")
 
-[node name="BowCharge" type="Node" parent="Components"]
+[node name="BowMomentum" type="Node" parent="Components"]
 script = ExtResource("14_bcharge")
 
 [node name="StaffElement" type="Node" parent="Components"]
@@ -890,7 +890,7 @@ offset_bottom = -21.0
 [node name="SwordComboWidget" parent="CanvasLayer/PlayerHUD" instance=ExtResource("17_swcmbo")]
 layout_mode = 1
 
-[node name="BowChargeWidget" parent="CanvasLayer/PlayerHUD" instance=ExtResource("17_bcwdgt")]
+[node name="BowMomentumWidget" parent="CanvasLayer/PlayerHUD" instance=ExtResource("17_bcwdgt")]
 layout_mode = 1
 
 [node name="StaffElementWidget" parent="CanvasLayer/PlayerHUD" instance=ExtResource("17_stfwdgt")]

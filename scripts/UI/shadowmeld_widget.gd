@@ -4,13 +4,13 @@ class_name ShadowmeldWidget
 ## PR 7 — Dagger discipline's signature class widget (MapleStory style).
 ##
 ## Lives on the left edge of the screen, vertically centered (same anchor family
-## as the sword combo / bow charge / staff element widgets — only one is ever
+## as the sword combo / bow momentum / staff element widgets — only one is ever
 ## visible at a time since they gate on mutually-exclusive disciplines). Shows the
 ## Shadowmeld state as a colored label: STEALTHED (active), READY (off cooldown),
 ## or a recharging countdown while on cooldown. Visible only when the active
 ## discipline is DAGGER.
 ##
-## Mirrors StaffElementWidget / SwordComboWidget / BowChargeWidget wiring:
+## Mirrors StaffElementWidget / SwordComboWidget / BowMomentumWidget wiring:
 ##   - Subscribe to the discipline's source-of-truth component signal
 ##     (ShadowmeldComponent.shadowmeld_changed)
 ##   - Gate visibility on player.get_active_discipline()
@@ -49,7 +49,7 @@ var _is_stealthed: bool = false
 
 func _ready() -> void:
 	# Resolve player off the owner chain — instanced under CanvasLayer/PlayerHUD
-	# on the player root, mirroring staff_element_widget.gd / bow_charge_widget.gd.
+	# on the player root, mirroring staff_element_widget.gd / bow_momentum_widget.gd.
 	var node: Node = self
 	while node and not (node is MultiplayerPlayerV2):
 		node = node.get_parent()

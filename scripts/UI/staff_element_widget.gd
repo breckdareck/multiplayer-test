@@ -4,12 +4,12 @@ class_name StaffElementWidget
 ## PR 7 — Staff discipline's signature class widget (MapleStory style).
 ##
 ## Lives on the left edge of the screen, vertically centered (same anchor family
-## as the sword combo / bow charge widgets — only one is ever visible at a time
+## as the sword combo / bow momentum widgets — only one is ever visible at a time
 ## since they gate on mutually-exclusive disciplines). Shows the active element
 ## as a colored label (FIRE = red, ICE = blue, LIGHTNING = yellow) with a small
 ## "ELEMENT" caption. Visible only when the active discipline is STAFF.
 ##
-## Mirrors SwordComboWidget / BowChargeWidget wiring:
+## Mirrors SwordComboWidget / BowMomentumWidget wiring:
 ##   - Subscribe to the discipline's source-of-truth component signal
 ##     (StaffElementComponent.element_changed)
 ##   - Gate visibility on player.get_active_discipline()
@@ -51,7 +51,7 @@ var _current_element: int = 0
 
 func _ready() -> void:
 	# Resolve player off the owner chain — instanced under CanvasLayer/PlayerHUD
-	# on the player root, mirroring sword_combo_widget.gd / bow_charge_widget.gd.
+	# on the player root, mirroring sword_combo_widget.gd / bow_momentum_widget.gd.
 	var node: Node = self
 	while node and not (node is MultiplayerPlayerV2):
 		node = node.get_parent()

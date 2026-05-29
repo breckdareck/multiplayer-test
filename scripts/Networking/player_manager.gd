@@ -769,19 +769,6 @@ func player_input(input_type: String, data: Variant = null):
 		"attack": player_node.do_attack = true
 		"pickup": player_node.do_pickup = data
 		"portal": player_node.do_portal_interact = true
-		"bow_charge_start":
-			# PR 8 — Bow signature: begin the server-timed charge. The component
-			# owns the clock; the client only sends start/release intents.
-			var bcc = player_node.get("bow_charge_component")
-			if bcc != null and is_instance_valid(bcc):
-				bcc.start_charge()
-		"bow_release":
-			# PR 8 — Bow signature: release fires one charged Snap Shot (tier 0
-			# tap = an ordinary shot). The component stages the damage mult and
-			# triggers the shot via do_attack.
-			var bcc = player_node.get("bow_charge_component")
-			if bcc != null and is_instance_valid(bcc):
-				bcc.release_and_fire()
 		"staff_cycle_element":
 			# PR 7 — Staff signature: cycle the active element (FIRE -> ICE ->
 			# LIGHTNING). The component is server-authoritative and syncs the new

@@ -31,10 +31,11 @@ const MAX_FALL_SPEED: float = 1200.0
 ## by basic-attack hits and consumed by Slash for amplified damage.
 ## See scripts/Components/sword_combo.gd.
 @export var sword_combo_component: SwordComboComponent
-## PR 8: Bow discipline's signature combat system — hold-to-charge basic
-## attack. Holding Attack builds a server-timed charge; releasing fires one
-## charged Snap Shot scaled by the charge tier. See scripts/Components/bow_charge.gd.
-@export var bow_charge_component: BowChargeComponent
+## Bow discipline's signature combat system — MOMENTUM. A gauge that fills on
+## every landed bow hit and decays when you stop firing; while up it ramps ALL
+## bow damage (combat.calculate_ability_damage) and fire-rate (attack.gd).
+## See scripts/Components/bow_momentum.gd.
+@export var bow_momentum_component: BowMomentumComponent
 ## PR 7: Staff discipline's signature combat system — the active element stance
 ## (FIRE/ICE/LIGHTNING) cycled by WeaponSignature. See scripts/Components/staff_element.gd.
 ## (Export added alongside Shadowmeld: player.tscn already wired this NodePath but
@@ -393,11 +394,11 @@ func _setup_signals() -> void:
 	
 	if health_component:
 		health_component.health_changed.connect(func(_c, _m): _data_changed("stats"))
-		# PR 8 — Bow signature: a held charge should not survive death. died
-		# emits on the server (HealthComponent.die), so cancel there. Cheap
-		# no-op when not charging. cancel_charge guards is_server() itself.
-		if multiplayer.is_server() and is_instance_valid(bow_charge_component):
-			health_component.died.connect(func(_killer): bow_charge_component.cancel_charge())
+		# Bow signature: built-up Momentum should not survive death. died
+		# emits on the server (HealthComponent.die), so reset there. Cheap
+		# no-op when stacks are already 0. reset() guards is_server() itself.
+		if multiplayer.is_server() and is_instance_valid(bow_momentum_component):
+			health_component.died.connect(func(_killer): bow_momentum_component.reset())
 		# PR 7 — Dagger signature: stealth should not survive death either. Same
 		# server-side died hook. cancel_stealth no-ops when not stealthed / on
 		# clients, and its Vanish-coexistence guard preserves a still-active Vanish.
@@ -1038,11 +1039,11 @@ func _on_equipment_changed_refresh_sprite() -> void:
 		return
 	if not multiplayer.is_server():
 		return
-	# PR 8 — Bow signature: an equipment edit that leaves the active slot
-	# non-bow (e.g. dragging a sword over the equipped bow mid-charge) cancels
-	# the charge, matching the Tab-swap-away cancel in _on_active_weapon_changed.
-	if is_instance_valid(bow_charge_component) and get_active_discipline() != Constants.ClassType.BOW:
-		bow_charge_component.cancel_charge()
+	# Bow signature: an equipment edit that leaves the active slot non-bow
+	# (e.g. dragging a sword over the equipped bow) clears built-up Momentum,
+	# matching the Tab-swap-away reset in _on_active_weapon_changed.
+	if is_instance_valid(bow_momentum_component) and get_active_discipline() != Constants.ClassType.BOW:
+		bow_momentum_component.reset()
 	# PR 7 — Dagger signature: same idea — an equipment edit that leaves the
 	# active slot non-dagger cancels Shadowmeld so stealth doesn't carry onto a
 	# non-dagger weapon. cancel_stealth no-ops when not stealthed.
@@ -1059,12 +1060,12 @@ func _on_active_weapon_changed(_active_weapon: String, _active_item: ItemData) -
 	if _is_being_cleaned_up:
 		return
 
-	# PR 8 — Bow signature: swapping AWAY from a bow (Tab to the other slot)
-	# cancels any in-progress charge so it doesn't carry over to a non-bow
-	# weapon. Server-authoritative; cancel_charge no-ops on clients / when idle.
-	if multiplayer.is_server() and is_instance_valid(bow_charge_component):
+	# Bow signature: swapping AWAY from a bow (Tab to the other slot) clears
+	# built-up Momentum so it doesn't carry over to a non-bow weapon.
+	# Server-authoritative; reset() no-ops on clients / when stacks are 0.
+	if multiplayer.is_server() and is_instance_valid(bow_momentum_component):
 		if get_active_discipline() != Constants.ClassType.BOW:
-			bow_charge_component.cancel_charge()
+			bow_momentum_component.reset()
 
 	# PR 7 — Dagger signature: swapping AWAY from a dagger cancels Shadowmeld
 	# stealth so the cloak doesn't carry onto a non-dagger weapon. Mirrors the

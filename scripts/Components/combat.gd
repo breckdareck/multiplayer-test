@@ -67,16 +67,6 @@ var _shadowmeld_component: ShadowmeldComponent
 ## never lingers past one hit. Defaults to 1.0 (no effect).
 var pending_ability_damage_multiplier: float = 1.0
 
-## PR 8 — Bow signature: charge multiplier for the NEXT Snap Shot. Staged by
-## BowChargeComponent.release_and_fire() (×1.0 tap up to ×3.0 full charge) right
-## before it triggers the shot. Distinct from pending_ability_damage_multiplier
-## because Snap Shot is a PROJECTILE — its hit lands AFTER end_ability_attack
-## (which clears the sword multiplier) has already run, so the charge value must
-## survive projectile flight. It is therefore consumed-on-read inside
-## calculate_ability_damage (reset to 1.0 the moment it's applied) and gated to
-## the Snap Shot ability so it can never bleed into any other weapon's ability.
-var charge_damage_mult: float = 1.0
-
 @onready var owner_node: CharacterBody2D = get_owner()
 @onready var attack_hitbox_timer: Timer = $"../../AttackHitboxTimer"
 @onready var hitbox_area: Area2D = attack_hitbox.get_parent()
@@ -666,18 +656,6 @@ func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelDa
 	# multiplier never bleeds into the next cast.
 	if pending_ability_damage_multiplier != 1.0:
 		damage = roundi(damage * pending_ability_damage_multiplier)
-
-	# PR 8 — Bow signature: apply the staged charge multiplier, but ONLY to the
-	# basic-attack Snap Shot (the ability the bow's hold-to-charge fires). Gating
-	# on the ability name keeps the multiplier from ever bleeding into another
-	# weapon's ability if a charged shot is in flight when the player swaps and
-	# casts. Consumed-on-read (reset to 1.0 here) because the Snap Shot projectile
-	# resolves a single hit after end_ability_attack has already run — so we
-	# can't rely on end_ability_attack to clear it like the sword path does.
-	if charge_damage_mult != 1.0:
-		if _ability != null and _ability.ability_name == "Snap Shot":
-			damage = roundi(damage * charge_damage_mult)
-			charge_damage_mult = 1.0
 
 	# PR 6: generic "bonus_damage_mult" upgrade (additive %, e.g. +0.25).
 	# Applied here so ANY ability's damage upgrades work without per-AL code.

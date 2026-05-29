@@ -11,13 +11,13 @@ extends Node
 ##  - LIGHTNING -> bonus damage on the hit (flat % extra). Simplest v1; a
 ##                 chain-to-nearby can be layered on later.
 ##
-## This is the staff analogue of SwordComboComponent / BowChargeComponent. Same
+## This is the staff analogue of SwordComboComponent / BowMomentumComponent. Same
 ## structural rules:
 ## - Server-authoritative: every mutator early-returns unless multiplayer.is_server().
 ##   The owning client only learns the active element through the
 ##   sync_element_to_client RPC, which feeds its widget.
 ## - Bots have no client and no UI — the RPC is skipped for bot owners
-##   (BotManager.is_bot check, same as SwordCombo / BowCharge / WeaponMastery).
+##   (BotManager.is_bot check, same as SwordCombo / BowMomentum / WeaponMastery).
 ## - Volatile per-session: the active element is never saved or synced through
 ##   the backend. It resets to FIRE on each spawn.
 ##
@@ -318,7 +318,7 @@ func _credit_dot_kill(applier, target: Node) -> void:
 
 ## Server-side: emit locally for the host's UI, then push to the owning client.
 ## Skips the RPC for bot owners (no client, no UI) — same gate SwordCombo /
-## BowCharge use.
+## BowMomentum use.
 func _emit_and_sync() -> void:
 	element_changed.emit(_current_element)
 	if not multiplayer.is_server():

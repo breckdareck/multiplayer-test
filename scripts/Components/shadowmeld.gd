@@ -10,7 +10,7 @@ extends Node
 ## breaks exactly once. An entry cooldown stops it being spammed, and a max-stealth
 ## safety timer auto-exits if the player never attacks.
 ##
-## This is the dagger analogue of SwordComboComponent / BowChargeComponent /
+## This is the dagger analogue of SwordComboComponent / BowMomentumComponent /
 ## StaffElementComponent. Same structural rules:
 ## - Server-authoritative: every mutator early-returns unless multiplayer.is_server().
 ##   The owning client only learns the stealth state through the
@@ -18,7 +18,7 @@ extends Node
 ##   is pushed to ALL peers via the player node's existing sync_dark_sight_visual
 ##   RPC (reused from Vanish) so remote players see the dagger fade out too.
 ## - Bots have no client and no UI — the client-sync RPC is skipped for bot owners
-##   (BotManager.is_bot check, same gate SwordCombo / BowCharge / StaffElement use).
+##   (BotManager.is_bot check, same gate SwordCombo / BowMomentum / StaffElement use).
 ## - Volatile per-session: stealth state is never saved or synced through the
 ##   backend. It resets to NOT-stealthed on each spawn; a stealth in progress at
 ##   logout simply vanishes.
@@ -172,7 +172,7 @@ func break_stealth() -> void:
 ## Server-only. Clears stealth WITHOUT any ambush (functionally identical to
 ## break_stealth here — break grants no bonus itself, the combat hook does — but
 ## kept as a distinct entry point with intent-revealing name). Called on death and
-## on weapon-swap-away-from-dagger, mirroring BowChargeComponent.cancel_charge.
+## on weapon-swap-away-from-dagger, mirroring BowMomentumComponent.reset.
 ## Safe to call when not stealthed.
 func cancel_stealth() -> void:
 	if not multiplayer.is_server():
@@ -266,7 +266,7 @@ func _set_sprite_alpha(root: Node, alpha: float) -> void:
 
 ## Server-side: emit locally for the host's widget, then push to the owning
 ## client. Skips the RPC for bot owners (no client, no UI) — same gate SwordCombo
-## / BowCharge / StaffElement use.
+## / BowMomentum / StaffElement use.
 func _emit_and_sync() -> void:
 	shadowmeld_changed.emit(_is_stealthed)
 	if not multiplayer.is_server():
