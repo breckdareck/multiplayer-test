@@ -8,11 +8,11 @@
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_mgbt1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_mgbt1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="9_aud"]
-[ext_resource type="Resource" uid="uid://stfu_ab1_quickcast" path="res://resources/Abilities/Staff/Upgrades/U_AB_QuickCast.tres" id="10_qc"]
-[ext_resource type="Resource" uid="uid://stfu_ab2_forked" path="res://resources/Abilities/Staff/Upgrades/U_AB_Forked.tres" id="11_fk"]
-[ext_resource type="Resource" uid="uid://stfu_ab3_overcharge" path="res://resources/Abilities/Staff/Upgrades/U_AB_Overcharge.tres" id="12_oc"]
-[ext_resource type="Resource" uid="uid://stfu_ab4_chainbolt" path="res://resources/Abilities/Staff/Upgrades/U_AB_ChainBolt.tres" id="13_cb"]
-[ext_resource type="Resource" uid="uid://stfu_ab5_doublestrike" path="res://resources/Abilities/Staff/Upgrades/U_AB_DoubleStrike.tres" id="14_ds"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_AB_QuickCast.tres" id="10_qc"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_AB_Forked.tres" id="11_fk"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_AB_Overcharge.tres" id="12_oc"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_AB_ChainBolt.tres" id="13_cb"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_AB_DoubleStrike.tres" id="14_ds"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_mgbt1"]
 size = Vector2(120, 46)

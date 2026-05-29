@@ -10,7 +10,7 @@
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_8p7k7"]
 [ext_resource type="Resource" uid="uid://btu1vitality" path="res://resources/Abilities/Sword/Upgrades/U_BT_Vitality.tres" id="9_vi"]
 [ext_resource type="Resource" uid="uid://btu2sanguine" path="res://resources/Abilities/Sword/Upgrades/U_BT_Sanguine.tres" id="10_sa"]
-[ext_resource type="Resource" uid="uid://btu3bloodfeast" path="res://resources/Abilities/Sword/Upgrades/U_BT_Bloodfeast.tres" id="11_bf"]
+[ext_resource type="Resource" uid="uid://dmrywxp22qvxv" path="res://resources/Abilities/Sword/Upgrades/U_BT_Bloodfeast.tres" id="11_bf"]
 
 [sub_resource type="Resource" id="Resource_active"]
 resource_local_to_scene = true

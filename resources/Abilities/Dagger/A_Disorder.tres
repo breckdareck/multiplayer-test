@@ -10,11 +10,11 @@
 [ext_resource type="Script" uid="uid://d2cev8mjlc0cj" path="res://scripts/Abilities/AL_Disorder.gd" id="10_diso1"]
 [ext_resource type="Resource" uid="uid://bdisorder0001" path="res://resources/Buffs/B_Disorder.tres" id="11_diso1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="12_aud"]
-[ext_resource type="Resource" uid="uid://dgru_crp1_quickjab" path="res://resources/Abilities/Dagger/Upgrades/U_CRP_QuickJab.tres" id="13_crp1"]
-[ext_resource type="Resource" uid="uid://dgru_crp2_deepen" path="res://resources/Abilities/Dagger/Upgrades/U_CRP_Deepen.tres" id="14_crp2"]
-[ext_resource type="Resource" uid="uid://dgru_crp3_hamstring" path="res://resources/Abilities/Dagger/Upgrades/U_CRP_Hamstring.tres" id="15_crp3"]
-[ext_resource type="Resource" uid="uid://dgru_crp4_disarm" path="res://resources/Abilities/Dagger/Upgrades/U_CRP_Disarm.tres" id="16_crp4"]
-[ext_resource type="Resource" uid="uid://dgru_crp5_massmaim" path="res://resources/Abilities/Dagger/Upgrades/U_CRP_MassMaim.tres" id="17_crp5"]
+[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_CRP_QuickJab.tres" id="13_crp1"]
+[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_CRP_Deepen.tres" id="14_crp2"]
+[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_CRP_Hamstring.tres" id="15_crp3"]
+[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_CRP_Disarm.tres" id="16_crp4"]
+[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_CRP_MassMaim.tres" id="17_crp5"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_diso1"]
 size = Vector2(30, 20)

@@ -14,7 +14,7 @@
 [ext_resource type="Resource" uid="uid://pgu2lasting" path="res://resources/Abilities/Sword/Upgrades/U_PG_LastingGuard.tres" id="12_lg"]
 [ext_resource type="Resource" uid="uid://pgu3spiked" path="res://resources/Abilities/Sword/Upgrades/U_PG_SpikedBulwark.tres" id="13_sb"]
 [ext_resource type="Resource" uid="uid://pgu4eternal" path="res://resources/Abilities/Sword/Upgrades/U_PG_EternalGuard.tres" id="14_eg"]
-[ext_resource type="Resource" uid="uid://pgu5efficient" path="res://resources/Abilities/Sword/Upgrades/U_PG_EfficientGuard.tres" id="15_ef"]
+[ext_resource type="Resource" uid="uid://dunjl8nqmvrej" path="res://resources/Abilities/Sword/Upgrades/U_PG_EfficientGuard.tres" id="15_ef"]
 
 [sub_resource type="Resource" id="Resource_1gbs7"]
 script = ExtResource("2_rxk8e")

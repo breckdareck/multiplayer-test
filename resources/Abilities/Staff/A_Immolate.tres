@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=25 format=3 uid="uid://stfimmolate01x"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=25 format=3 uid="uid://bf0rhhq7rgdjb"]
 
 [ext_resource type="Texture2D" uid="uid://ctp4y4jwc3dkv" path="res://assets/sprites/Abilities/fireball.png" id="1_im1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_im1"]

@@ -9,11 +9,11 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="5_sbf"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="7_formula"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
-[ext_resource type="Resource" uid="uid://dgru_bld1_invigorate" path="res://resources/Abilities/Dagger/Upgrades/U_BLD_Invigorate.tres" id="9_bld1"]
-[ext_resource type="Resource" uid="uid://dgru_bld2_frenzy" path="res://resources/Abilities/Dagger/Upgrades/U_BLD_Frenzy.tres" id="10_bld2"]
-[ext_resource type="Resource" uid="uid://dgru_bld3_bloodhunt" path="res://resources/Abilities/Dagger/Upgrades/U_BLD_Bloodhunt.tres" id="11_bld3"]
-[ext_resource type="Resource" uid="uid://dgru_bld4_rampage" path="res://resources/Abilities/Dagger/Upgrades/U_BLD_Rampage.tres" id="12_bld4"]
-[ext_resource type="Resource" uid="uid://dgru_bld5_efficient" path="res://resources/Abilities/Dagger/Upgrades/U_BLD_Efficient.tres" id="13_bld5"]
+[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_BLD_Invigorate.tres" id="9_bld1"]
+[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_BLD_Frenzy.tres" id="10_bld2"]
+[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_BLD_Bloodhunt.tres" id="11_bld3"]
+[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_BLD_Rampage.tres" id="12_bld4"]
+[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_BLD_Efficient.tres" id="13_bld5"]
 
 [sub_resource type="Resource" id="Resource_behav"]
 resource_local_to_scene = true

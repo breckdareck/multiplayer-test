@@ -9,11 +9,11 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_arrn1"]
 [ext_resource type="Resource" uid="uid://dblshot0001x" path="res://resources/Abilities/Bow/A_Double_Shot.tres" id="9_arrn1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="10_aud"]
-[ext_resource type="Resource" uid="uid://bowu_sky1_widefall" path="res://resources/Abilities/Bow/Upgrades/U_SKY_WideFall.tres" id="11_wf"]
-[ext_resource type="Resource" uid="uid://bowu_sky2_heavyvolley" path="res://resources/Abilities/Bow/Upgrades/U_SKY_HeavyVolley.tres" id="12_hv"]
-[ext_resource type="Resource" uid="uid://bowu_sky3_torrent" path="res://resources/Abilities/Bow/Upgrades/U_SKY_Torrent.tres" id="13_to"]
-[ext_resource type="Resource" uid="uid://bowu_sky4_meteorshafts" path="res://resources/Abilities/Bow/Upgrades/U_SKY_MeteorShafts.tres" id="14_ms"]
-[ext_resource type="Resource" uid="uid://bowu_sky5_doublefall" path="res://resources/Abilities/Bow/Upgrades/U_SKY_DoubleFall.tres" id="15_df"]
+[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_SKY_WideFall.tres" id="11_wf"]
+[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_SKY_HeavyVolley.tres" id="12_hv"]
+[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_SKY_Torrent.tres" id="13_to"]
+[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_SKY_MeteorShafts.tres" id="14_ms"]
+[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_SKY_DoubleFall.tres" id="15_df"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_arrn1"]
 size = Vector2(120, 46)

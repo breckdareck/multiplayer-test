@@ -9,11 +9,11 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="9_jlg0d"]
 [ext_resource type="Resource" uid="uid://icestrik001x" path="res://resources/Abilities/Staff/A_Ice_Strike.tres" id="9_telp1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="10_aud"]
-[ext_resource type="Resource" uid="uid://stfu_pha1_flicker" path="res://resources/Abilities/Staff/Upgrades/U_PHA_Flicker.tres" id="11_fl"]
-[ext_resource type="Resource" uid="uid://stfu_pha2_efficient" path="res://resources/Abilities/Staff/Upgrades/U_PHA_Efficient.tres" id="12_ef"]
-[ext_resource type="Resource" uid="uid://stfu_pha3_blink" path="res://resources/Abilities/Staff/Upgrades/U_PHA_Blink.tres" id="13_bl"]
-[ext_resource type="Resource" uid="uid://stfu_pha4_phaseguard" path="res://resources/Abilities/Staff/Upgrades/U_PHA_Phaseguard.tres" id="14_pg"]
-[ext_resource type="Resource" uid="uid://stfu_pha5_freeshift" path="res://resources/Abilities/Staff/Upgrades/U_PHA_FreeShift.tres" id="15_fs"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_PHA_Flicker.tres" id="11_fl"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_PHA_Efficient.tres" id="12_ef"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_PHA_Blink.tres" id="13_bl"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_PHA_Phaseguard.tres" id="14_pg"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_PHA_FreeShift.tres" id="15_fs"]
 
 [sub_resource type="Resource" id="Resource_telp1"]
 resource_local_to_scene = true

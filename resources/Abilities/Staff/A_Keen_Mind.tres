@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=16 format=3 uid="uid://stfkeenmind01"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=16 format=3 uid="uid://ddr205yl8tuyy"]
 
 [ext_resource type="Texture2D" uid="uid://cc18m1wu0h2vl" path="res://assets/sprites/Abilities/sharp_eyes.png" id="1_km1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_km1"]

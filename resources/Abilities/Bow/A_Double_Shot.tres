@@ -8,11 +8,11 @@
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_dbsh1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_dbsh1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="9_aud"]
-[ext_resource type="Resource" uid="uid://bowu_sps1_swiftnock" path="res://resources/Abilities/Bow/Upgrades/U_SPS_SwiftNock.tres" id="10_sn"]
-[ext_resource type="Resource" uid="uid://bowu_sps2_widespread" path="res://resources/Abilities/Bow/Upgrades/U_SPS_WideSpread.tres" id="11_ws"]
-[ext_resource type="Resource" uid="uid://bowu_sps3_barbedtips" path="res://resources/Abilities/Bow/Upgrades/U_SPS_BarbedTips.tres" id="12_bt"]
-[ext_resource type="Resource" uid="uid://bowu_sps4_volley" path="res://resources/Abilities/Bow/Upgrades/U_SPS_Volley.tres" id="13_vo"]
-[ext_resource type="Resource" uid="uid://bowu_sps5_piercingshot" path="res://resources/Abilities/Bow/Upgrades/U_SPS_PiercingShot.tres" id="14_ps"]
+[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_SPS_SwiftNock.tres" id="10_sn"]
+[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_SPS_WideSpread.tres" id="11_ws"]
+[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_SPS_BarbedTips.tres" id="12_bt"]
+[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_SPS_Volley.tres" id="13_vo"]
+[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_SPS_PiercingShot.tres" id="14_ps"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_dbsh1"]
 size = Vector2(120, 46)

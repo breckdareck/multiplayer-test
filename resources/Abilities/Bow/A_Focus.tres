@@ -10,11 +10,11 @@
 [ext_resource type="Resource" uid="uid://dexpasv0001x" path="res://resources/Abilities/Bow/A_DEX_Passive.tres" id="9_focs1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="10_xyi1c"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="11_aud"]
-[ext_resource type="Resource" uid="uid://bowu_sa1_longdraw" path="res://resources/Abilities/Bow/Upgrades/U_SA_LongDraw.tres" id="12_ld"]
-[ext_resource type="Resource" uid="uid://bowu_sa2_conserve" path="res://resources/Abilities/Bow/Upgrades/U_SA_Conserve.tres" id="13_co"]
-[ext_resource type="Resource" uid="uid://bowu_sa3_deadeye" path="res://resources/Abilities/Bow/Upgrades/U_SA_Deadeye.tres" id="14_de"]
-[ext_resource type="Resource" uid="uid://bowu_sa4_perfectstance" path="res://resources/Abilities/Bow/Upgrades/U_SA_PerfectStance.tres" id="15_pst"]
-[ext_resource type="Resource" uid="uid://bowu_sa5_zen" path="res://resources/Abilities/Bow/Upgrades/U_SA_Zen.tres" id="16_zen"]
+[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_SA_LongDraw.tres" id="12_ld"]
+[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_SA_Conserve.tres" id="13_co"]
+[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_SA_Deadeye.tres" id="14_de"]
+[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_SA_PerfectStance.tres" id="15_pst"]
+[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_SA_Zen.tres" id="16_zen"]
 
 [sub_resource type="Resource" id="Resource_focs1"]
 resource_local_to_scene = true

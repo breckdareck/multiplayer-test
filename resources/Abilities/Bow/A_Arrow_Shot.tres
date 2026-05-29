@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=18 format=3 uid="uid://hhx8fc5iylxh"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=19 format=3 uid="uid://hhx8fc5iylxh"]
 
 [ext_resource type="Texture2D" uid="uid://b407mfrctd50w" path="res://assets/sprites/MinifolksHumans/HumansProjectiles.png" id="1_3p7m4"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_3p7m4"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://d0ig4oiimrnei" path="res://scenes/Gameplay/projectile_base.tscn" id="2_vrq40"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="6_aa4ap"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_kmtye"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_nqq7w"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_uynx4"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_22vhk"]
@@ -72,7 +73,6 @@ description = "Looses a quick arrow, hitting $[hit_count] time(s) on $[target_co
 ability_icon = SubResource("AtlasTexture_22vhk")
 max_level = 1
 required_weapon_types = Array[int]([1])
-upgrades = null
 active_behavior = SubResource("Resource_vrq40")
 scaling_data = SubResource("Resource_7cnym")
 metadata/_custom_type_script = "uid://b8y62rc8nb40j"

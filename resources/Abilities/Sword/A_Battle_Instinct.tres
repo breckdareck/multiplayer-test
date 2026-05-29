@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=16 format=3 uid="uid://swordbattleinst01x"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=16 format=3 uid="uid://mgj21bo08vcx"]
 
 [ext_resource type="Texture2D" uid="uid://cc18m1wu0h2vl" path="res://assets/sprites/Abilities/sharp_eyes.png" id="1_bi1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_bi1"]

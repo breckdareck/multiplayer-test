@@ -7,9 +7,9 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="5_u4dvk"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="6_3tmvc"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="7_aud"]
-[ext_resource type="Resource" uid="uid://hbu1toughness" path="res://resources/Abilities/Sword/Upgrades/U_HB_Toughness.tres" id="8_to"]
-[ext_resource type="Resource" uid="uid://hbu2resilience" path="res://resources/Abilities/Sword/Upgrades/U_HB_Resilience.tres" id="9_re"]
-[ext_resource type="Resource" uid="uid://hbu3fortitude" path="res://resources/Abilities/Sword/Upgrades/U_HB_Fortitude.tres" id="10_fo"]
+[ext_resource type="Resource" uid="uid://dgg58mw6wgi11" path="res://resources/Abilities/Sword/Upgrades/U_HB_Toughness.tres" id="8_to"]
+[ext_resource type="Resource" uid="uid://d36ofdf71183q" path="res://resources/Abilities/Sword/Upgrades/U_HB_Resilience.tres" id="9_re"]
+[ext_resource type="Resource" uid="uid://dgg7tmukxmylm" path="res://resources/Abilities/Sword/Upgrades/U_HB_Fortitude.tres" id="10_fo"]
 
 [sub_resource type="Resource" id="Resource_bwflg"]
 resource_local_to_scene = true

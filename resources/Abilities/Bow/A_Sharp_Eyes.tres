@@ -9,11 +9,11 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="5_sbf"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="7_formula"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
-[ext_resource type="Resource" uid="uid://bowu_ee1_farsight" path="res://resources/Abilities/Bow/Upgrades/U_EE_Farsight.tres" id="9_fs"]
-[ext_resource type="Resource" uid="uid://bowu_ee2_clarity" path="res://resources/Abilities/Bow/Upgrades/U_EE_Clarity.tres" id="10_cl"]
-[ext_resource type="Resource" uid="uid://bowu_ee3_hawkseye" path="res://resources/Abilities/Bow/Upgrades/U_EE_HawksEye.tres" id="11_he"]
-[ext_resource type="Resource" uid="uid://bowu_ee4_eternalvigil" path="res://resources/Abilities/Bow/Upgrades/U_EE_EternalVigil.tres" id="12_ev"]
-[ext_resource type="Resource" uid="uid://bowu_ee5_focusfire" path="res://resources/Abilities/Bow/Upgrades/U_EE_FocusFire.tres" id="13_ff"]
+[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_EE_Farsight.tres" id="9_fs"]
+[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_EE_Clarity.tres" id="10_cl"]
+[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_EE_HawksEye.tres" id="11_he"]
+[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_EE_EternalVigil.tres" id="12_ev"]
+[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_EE_FocusFire.tres" id="13_ff"]
 
 [sub_resource type="Resource" id="Resource_behav"]
 resource_local_to_scene = true

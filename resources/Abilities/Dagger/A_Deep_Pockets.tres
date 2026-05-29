@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=16 format=3 uid="uid://dgrdeeppockets1x"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=16 format=3 uid="uid://h65ttehvf0mx"]
 
 [ext_resource type="Texture2D" uid="uid://djx8um8tttwxa" path="res://assets/sprites/Abilities/mana_shield.png" id="1_dpk1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_dpk1"]

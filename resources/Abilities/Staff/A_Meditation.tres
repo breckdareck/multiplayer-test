@@ -10,11 +10,11 @@
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="7_formula"]
 [ext_resource type="Resource" uid="uid://magcbolt001x" path="res://resources/Abilities/Staff/A_Magic_Bolt.tres" id="8_prq"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="9_aud"]
-[ext_resource type="Resource" uid="uid://stfu_com1_extended" path="res://resources/Abilities/Staff/Upgrades/U_COM_Extended.tres" id="10_ex"]
-[ext_resource type="Resource" uid="uid://stfu_com2_frugal" path="res://resources/Abilities/Staff/Upgrades/U_COM_Frugal.tres" id="11_fr"]
-[ext_resource type="Resource" uid="uid://stfu_com3_empowered" path="res://resources/Abilities/Staff/Upgrades/U_COM_Empowered.tres" id="12_em"]
-[ext_resource type="Resource" uid="uid://stfu_com4_enduring" path="res://resources/Abilities/Staff/Upgrades/U_COM_Enduring.tres" id="13_en"]
-[ext_resource type="Resource" uid="uid://stfu_com5_swift" path="res://resources/Abilities/Staff/Upgrades/U_COM_Swift.tres" id="14_sw"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_COM_Extended.tres" id="10_ex"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_COM_Frugal.tres" id="11_fr"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_COM_Empowered.tres" id="12_em"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_COM_Enduring.tres" id="13_en"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_COM_Swift.tres" id="14_sw"]
 
 [sub_resource type="Resource" id="Resource_behav"]
 resource_local_to_scene = true

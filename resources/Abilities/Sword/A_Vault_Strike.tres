@@ -13,7 +13,7 @@
 [ext_resource type="Resource" uid="uid://vsu2widearc" path="res://resources/Abilities/Sword/Upgrades/U_VS_WideArc.tres" id="11_wa"]
 [ext_resource type="Resource" uid="uid://vsu3predator" path="res://resources/Abilities/Sword/Upgrades/U_VS_PredatorsBound.tres" id="12_pb"]
 [ext_resource type="Resource" uid="uid://vsu4sweeping" path="res://resources/Abilities/Sword/Upgrades/U_VS_SweepingStrike.tres" id="13_ss"]
-[ext_resource type="Resource" uid="uid://vsu5relentcharge" path="res://resources/Abilities/Sword/Upgrades/U_VS_RelentlessCharge.tres" id="14_rc"]
+[ext_resource type="Resource" uid="uid://bpsw4wsvlm3gy" path="res://resources/Abilities/Sword/Upgrades/U_VS_RelentlessCharge.tres" id="14_rc"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_vault"]
 size = Vector2(90, 24)

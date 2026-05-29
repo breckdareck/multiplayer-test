@@ -10,7 +10,7 @@
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="7_aud"]
 [ext_resource type="Resource" uid="uid://spu1mighty" path="res://resources/Abilities/Sword/Upgrades/U_SP_Mighty.tres" id="8_mi"]
 [ext_resource type="Resource" uid="uid://spu2powerful" path="res://resources/Abilities/Sword/Upgrades/U_SP_Powerful.tres" id="9_po"]
-[ext_resource type="Resource" uid="uid://spu3herculean" path="res://resources/Abilities/Sword/Upgrades/U_SP_Herculean.tres" id="10_he"]
+[ext_resource type="Resource" uid="uid://c88l353clru8l" path="res://resources/Abilities/Sword/Upgrades/U_SP_Herculean.tres" id="10_he"]
 
 [sub_resource type="Resource" id="Resource_dxlh0"]
 resource_local_to_scene = true

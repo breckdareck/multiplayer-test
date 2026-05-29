@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://hemu1serrated"]
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://di70gqhi62xml"]
 
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
 
@@ -7,8 +7,5 @@ script = ExtResource("1_aud")
 upgrade_id = "hem_t1_serrated_edge"
 upgrade_name = "Serrated Edge"
 description = "Hemorrhage's initial strike deals +25% damage."
-point_cost = 1
-tier = 1
-variant_group = ""
 effect_key = "bonus_damage_mult"
 magnitude = 0.25
