@@ -1,0 +1,62 @@
+[gd_scene load_steps=3 format=3 uid="uid://cstfelemscn001"]
+
+[ext_resource type="Script" uid="uid://cstfelemwidg01" path="res://scripts/UI/staff_element_widget.gd" id="1_widget"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_widget_panel"]
+content_margin_left = 8.0
+content_margin_top = 6.0
+content_margin_right = 8.0
+content_margin_bottom = 6.0
+bg_color = Color(0.047, 0.047, 0.047, 0.85)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.5, 0.35, 0.7, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="StaffElementWidget" type="Control"]
+layout_mode = 3
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 16.0
+offset_top = -40.0
+offset_right = 96.0
+offset_bottom = 40.0
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_widget")
+
+[node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_widget_panel")
+
+[node name="VBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="CaptionLabel" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0.8, 0.7, 0.95, 1)
+theme_override_font_sizes/font_size = 10
+text = "ELEMENT"
+horizontal_alignment = 1
+
+[node name="ElementLabel" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(1, 0.35, 0.2, 1)
+theme_override_font_sizes/font_size = 14
+text = "FIRE"
+horizontal_alignment = 1
