@@ -21,6 +21,28 @@ const DAMAGE_PER_STACK_PCT: float = 0.18
 
 const BURN_META: String = "immolate_burn"
 
+## FIRE-STANCE REACTION (signature synergy). When the player's StaffElement
+## signature is on FIRE while Immolate hits, the burn IGNITES — it ramps faster,
+## hits harder, builds higher, and its ticks SPLASH to nearby enemies. This is the
+## payoff for committing to the fire stance, and fixes the old feel where the fire
+## rider's burn and Immolate's burn were two separate weak DOTs that never reacted.
+const FIRE_STACKS_PER_HIT: int = 2       ## 2 stacks/hit under Fire (vs 1) — ramps fast
+const FIRE_POTENCY_MULT: float = 1.5     ## +50% per-tick damage under Fire
+const FIRE_BONUS_MAX_STACKS: int = 2     ## burn builds 2 stacks higher under Fire
+const FIRE_SPLASH_PCT: float = 0.5       ## splash tick = 50% of the main tick damage
+const FIRE_SPLASH_RADIUS: float = 140.0  ## px; same map only
+const FIRE_SPLASH_MAX_TARGETS: int = 3   ## nearby enemies the splash licks each tick
+
+
+## Returns true if the player is currently in the FIRE element stance (StaffElement
+## signature). Safe on a missing component — the reaction simply doesn't apply.
+func _is_fire_active(owner_node: Node) -> bool:
+	var sec = owner_node.get("staff_element_component")
+	if sec == null or not is_instance_valid(sec) or not sec.has_method("get_current_element"):
+		return false
+	# Element.FIRE == 0 in StaffElementComponent (stable enum).
+	return sec.get_current_element() == 0
+
 
 func on_hit(_owner_node: Node, _target: Node, _ability: AbilityData) -> void:
 	if not _owner_node.multiplayer.is_server():
@@ -46,25 +68,32 @@ func on_hit(_owner_node: Node, _target: Node, _ability: AbilityData) -> void:
 		stack_bonus = int(ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "burn_max_stack_bonus"))
 		duration_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "burn_duration_bonus")
 
-	var per_tick: int = maxi(1, roundi(magic_attack * DAMAGE_PER_STACK_PCT * (1.0 + potency_bonus)))
-	var max_stacks: int = MAX_STACKS + stack_bonus
+	# FIRE-stance reaction: ramp harder/faster/higher and flag the burn to splash.
+	var fire: bool = _is_fire_active(_owner_node)
+	var fire_mult: float = FIRE_POTENCY_MULT if fire else 1.0
+	var stacks_added: int = FIRE_STACKS_PER_HIT if fire else 1
+	var per_tick: int = maxi(1, roundi(magic_attack * DAMAGE_PER_STACK_PCT * (1.0 + potency_bonus) * fire_mult))
+	var max_stacks: int = MAX_STACKS + stack_bonus + (FIRE_BONUS_MAX_STACKS if fire else 0)
 	var duration: float = DURATION_SECONDS + duration_bonus
 
 	if _target.has_meta(BURN_META):
-		# Existing burn — increment stack count (capped) and refresh duration.
+		# Existing burn — add stacks (capped) and refresh duration. Under Fire this
+		# adds 2 stacks per hit, so the burn ramps to its (raised) cap fast.
 		var existing: Dictionary = _target.get_meta(BURN_META)
-		existing["stacks"] = mini(max_stacks, int(existing.get("stacks", 1)) + 1)
+		existing["stacks"] = mini(max_stacks, int(existing.get("stacks", 1)) + stacks_added)
 		existing["remaining"] = duration
 		existing["per_tick"] = per_tick  # refresh to latest applier's damage
+		existing["fire"] = fire          # latest application sets the splash flag
 		_target.set_meta(BURN_META, existing)
 		return
 
 	# Fresh burn — set up state and start the tick timer.
 	var fresh: Dictionary = {
-		"stacks": 1,
+		"stacks": mini(max_stacks, stacks_added),
 		"remaining": duration,
 		"per_tick": per_tick,
 		"applier": _owner_node,
+		"fire": fire,
 	}
 	_target.set_meta(BURN_META, fresh)
 	_schedule_burn_tick(_target)
@@ -101,6 +130,44 @@ func _credit_burn_kill(applier, target: Node) -> void:
 	var ability_comp = applier.get("ability_component")
 	if ability_comp and ability_comp.has_method("dispatch_passive_event_on_kill"):
 		ability_comp.dispatch_passive_event_on_kill(target)
+
+
+## Living enemies within `radius` of `origin`, ON THE SAME MAP, nearest-first,
+## excluding `origin`. Used by the FIRE-stance splash. The "Enemies" group is GLOBAL
+## across maps (SubViewport-per-map architecture), so we MUST map-filter — otherwise
+## a coordinate overlap on another map would get burned. We resolve `origin`'s map
+## via MapManager.active_maps (the map whose scene_instance is its ancestor) and
+## keep only enemies under that same map. Self-contained (no CombatComponent dep —
+## the burn tick can outlive the attacker).
+func _nearby_enemies(origin: Node, radius: float, max_count: int) -> Array:
+	var out: Array = []
+	if not is_instance_valid(origin) or origin.get_tree() == null:
+		return out
+	# Resolve the origin enemy's map node.
+	var origin_map: Node = null
+	for map_id in MapManager.active_maps.keys():
+		var inst = MapManager.active_maps[map_id].get("scene_instance")
+		if is_instance_valid(inst) and inst.is_ancestor_of(origin):
+			origin_map = inst
+			break
+	var origin_pos: Vector2 = origin.global_position
+	for enemy in origin.get_tree().get_nodes_in_group("Enemies"):
+		if enemy == origin or not is_instance_valid(enemy):
+			continue
+		if origin_map != null and not origin_map.is_ancestor_of(enemy):
+			continue  # different map — skip (global group)
+		var hc = enemy.get("health_component")
+		if hc == null or not is_instance_valid(hc) or hc.is_dead:
+			continue
+		if enemy.global_position.distance_to(origin_pos) > radius:
+			continue
+		out.append(enemy)
+	out.sort_custom(func(a, b):
+		return a.global_position.distance_to(origin_pos) < b.global_position.distance_to(origin_pos)
+	)
+	if out.size() > max_count:
+		return out.slice(0, max_count)
+	return out
 
 
 func _schedule_burn_tick(target: Node) -> void:
@@ -142,6 +209,20 @@ func _on_burn_tick(target: Node) -> void:
 		# combat.gd._execute_hit fires for normal hit kills.
 		if was_alive and health_comp.is_dead:
 			_credit_burn_kill(applier, target)
+
+		# FIRE-stance splash: a fire-enhanced burn licks nearby enemies each tick
+		# for a fraction of the main tick. This is the "splash AoE fire" reaction —
+		# under the fire stance a single Immolate spreads pressure to the pack.
+		if bool(state.get("fire", false)):
+			var splash: int = maxi(1, roundi(damage * FIRE_SPLASH_PCT))
+			for near in _nearby_enemies(target, FIRE_SPLASH_RADIUS, FIRE_SPLASH_MAX_TARGETS):
+				var nh = near.get("health_component")
+				if nh == null or not is_instance_valid(nh) or nh.is_dead:
+					continue
+				var n_alive: bool = not nh.is_dead
+				nh.take_damage(splash, applier, true, false, true)
+				if n_alive and nh.is_dead:
+					_credit_burn_kill(applier, near)
 
 	state["remaining"] = float(state.get("remaining", 0.0)) - TICK_INTERVAL
 	if state["remaining"] <= 0.0:
