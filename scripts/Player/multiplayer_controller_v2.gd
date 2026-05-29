@@ -35,6 +35,16 @@ const MAX_FALL_SPEED: float = 1200.0
 ## attack. Holding Attack builds a server-timed charge; releasing fires one
 ## charged Snap Shot scaled by the charge tier. See scripts/Components/bow_charge.gd.
 @export var bow_charge_component: BowChargeComponent
+## PR 7: Staff discipline's signature combat system — the active element stance
+## (FIRE/ICE/LIGHTNING) cycled by WeaponSignature. See scripts/Components/staff_element.gd.
+## (Export added alongside Shadowmeld: player.tscn already wired this NodePath but
+## the property declaration was missing, so player.staff_element_component / the
+## "staff_cycle_element" input path resolved to null.)
+@export var staff_element_component: StaffElementComponent
+## PR 7: Dagger discipline's signature combat system — Shadowmeld stealth toggled
+## by WeaponSignature; the next dagger hit from stealth is an ambush.
+## See scripts/Components/shadowmeld.gd.
+@export var shadowmeld_component: ShadowmeldComponent
 @export var player_inventory: PlayerInventory
 @export var inventory_component: InventoryComponent
 @export var equipment_component: EquipmentComponent
@@ -388,6 +398,11 @@ func _setup_signals() -> void:
 		# no-op when not charging. cancel_charge guards is_server() itself.
 		if multiplayer.is_server() and is_instance_valid(bow_charge_component):
 			health_component.died.connect(func(_killer): bow_charge_component.cancel_charge())
+		# PR 7 — Dagger signature: stealth should not survive death either. Same
+		# server-side died hook. cancel_stealth no-ops when not stealthed / on
+		# clients, and its Vanish-coexistence guard preserves a still-active Vanish.
+		if multiplayer.is_server() and is_instance_valid(shadowmeld_component):
+			health_component.died.connect(func(_killer): shadowmeld_component.cancel_stealth())
 
 	if ability_component:
 		ability_component.ability_leveled_up.connect(func(_a, _l): _data_changed("abilities"))
@@ -1028,6 +1043,11 @@ func _on_equipment_changed_refresh_sprite() -> void:
 	# the charge, matching the Tab-swap-away cancel in _on_active_weapon_changed.
 	if is_instance_valid(bow_charge_component) and get_active_discipline() != Constants.ClassType.BOW:
 		bow_charge_component.cancel_charge()
+	# PR 7 — Dagger signature: same idea — an equipment edit that leaves the
+	# active slot non-dagger cancels Shadowmeld so stealth doesn't carry onto a
+	# non-dagger weapon. cancel_stealth no-ops when not stealthed.
+	if is_instance_valid(shadowmeld_component) and get_active_discipline() != Constants.ClassType.DAGGER:
+		shadowmeld_component.cancel_stealth()
 	# Cheap call — the rpc/sprite resolution is idempotent if the discipline
 	# didn't actually change. Don't try to gate this against the previous
 	# value here; just re-emit and let the client overwrite with the same
@@ -1045,6 +1065,13 @@ func _on_active_weapon_changed(_active_weapon: String, _active_item: ItemData) -
 	if multiplayer.is_server() and is_instance_valid(bow_charge_component):
 		if get_active_discipline() != Constants.ClassType.BOW:
 			bow_charge_component.cancel_charge()
+
+	# PR 7 — Dagger signature: swapping AWAY from a dagger cancels Shadowmeld
+	# stealth so the cloak doesn't carry onto a non-dagger weapon. Mirrors the
+	# bow cancel; cancel_stealth no-ops on clients / when not stealthed.
+	if multiplayer.is_server() and is_instance_valid(shadowmeld_component):
+		if get_active_discipline() != Constants.ClassType.DAGGER:
+			shadowmeld_component.cancel_stealth()
 
 	# Persist the new active_weapon. The inventory bucket serializes equipment +
 	# active_weapon together (see InventoryComponent.save_inventory). A Tab-swap
