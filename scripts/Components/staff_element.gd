@@ -72,13 +72,17 @@ const SLOW_DURATION: float = 2.5
 const SLOW_META: String = "staff_element_chill"
 
 ## LIGHTNING — chain shock. The struck target takes an extra
-## (base * LIGHTNING_BONUS_MULT) as a separate shock tick, AND the bolt CHAINS to
-## up to LIGHTNING_CHAIN_MAX_TARGETS other enemies within LIGHTNING_CHAIN_RADIUS px
-## (same map), each taking (base * LIGHTNING_CHAIN_MULT). This is what makes
-## lightning the crowd/burst element and lets a single-target spell clear a cluster
-## before AoE abilities are unlocked. (Tuning: targets / radius / arc damage below.)
+## (base * LIGHTNING_BONUS_MULT) as a separate shock tick, AND the bolt CHAINS in
+## SEQUENCE: it hops to the nearest un-hit enemy within LIGHTNING_CHAIN_RADIUS px,
+## RE-CENTERS on that enemy and hops again, up to LIGHTNING_CHAIN_MAX_HOPS times
+## (each hop deals base * LIGHTNING_CHAIN_MULT). Re-centering each hop lets the bolt
+## thread down a line / across a cluster instead of being trapped in one radius
+## bubble around the first enemy — so it reliably clears packs even when you strike
+## one at the edge. This is lightning's crowd/burst identity, and lets a
+## single-target spell clear a group before AoE abilities are unlocked.
+## (Tuning: hops / per-hop radius / arc damage below.)
 const LIGHTNING_BONUS_MULT: float = 0.5
-const LIGHTNING_CHAIN_MAX_TARGETS: int = 2
+const LIGHTNING_CHAIN_MAX_HOPS: int = 3
 const LIGHTNING_CHAIN_RADIUS: float = 180.0
 const LIGHTNING_CHAIN_MULT: float = 0.4
 
@@ -284,20 +288,27 @@ func _apply_lightning_bonus(attacker: Node, target: Node, base_damage: int) -> v
 	if was_alive and health_comp.is_dead:
 		_credit_dot_kill(applier, target)
 
-	# Chain the shock to nearby enemies on the same map. Each arc deals
-	# LIGHTNING_CHAIN_MULT of the base hit. This is lightning's crowd identity and
-	# lets a single-target spell clear a cluster before AoE abilities are unlocked.
+	# Chain the shock in SEQUENCE: hop to the nearest un-hit enemy within range,
+	# re-center on it, hop again — up to LIGHTNING_CHAIN_MAX_HOPS times. Re-centering
+	# each hop lets the bolt thread a line/cluster rather than being stuck in one
+	# radius bubble around the first enemy. Each hop deals LIGHTNING_CHAIN_MULT of
+	# the base hit. zapped_positions records the hop order for the bolt VFX.
 	var chain_dmg: int = maxi(1, roundi(base_damage * LIGHTNING_CHAIN_MULT))
 	var zapped_positions: PackedVector2Array = PackedVector2Array()
-	for chained in _nearby_enemies(attacker, target, LIGHTNING_CHAIN_RADIUS, LIGHTNING_CHAIN_MAX_TARGETS):
-		var c_health = chained.get("health_component")
-		if c_health == null or not is_instance_valid(c_health) or c_health.is_dead:
-			continue
-		var c_alive: bool = not c_health.is_dead
-		c_health.take_damage(chain_dmg, applier, true, false, true)
-		if c_alive and c_health.is_dead:
-			_credit_dot_kill(applier, chained)
-		zapped_positions.append(chained.global_position)
+	var visited: Dictionary = {target.get_instance_id(): true}
+	var current: Node = target
+	for _hop in range(LIGHTNING_CHAIN_MAX_HOPS):
+		var next_enemy: Node = _nearest_chain_target(attacker, current, LIGHTNING_CHAIN_RADIUS, visited)
+		if next_enemy == null:
+			break  # no un-hit enemy in range of the current link — chain ends
+		visited[next_enemy.get_instance_id()] = true
+		var nh = next_enemy.get("health_component")
+		var n_alive: bool = not nh.is_dead
+		nh.take_damage(chain_dmg, applier, true, false, true)
+		if n_alive and nh.is_dead:
+			_credit_dot_kill(applier, next_enemy)
+		zapped_positions.append(next_enemy.global_position)
+		current = next_enemy  # re-center: the next hop searches from THIS enemy
 
 	# Cosmetic chain-bolt VFX: thread from the struck target through each enemy we
 	# actually zapped. Server-only trigger; MapManager broadcasts it to every
@@ -314,35 +325,34 @@ func _apply_lightning_bonus(attacker: Node, target: Node, base_damage: int) -> v
 
 #region #################### Shared helpers ####################
 
-## Finds up to `max_count` living enemies within `radius` of `origin`'s position,
-## scoped to the attacker's CURRENT MAP. The "Enemies" group is GLOBAL across all
-## maps (SubViewport-per-map architecture), so we MUST map-filter — otherwise a
-## coincidental coordinate overlap on another map would get zapped. Reuses the
-## CombatComponent's cached _is_on_same_map check (the attacker always has one — the
-## chain is invoked from combat._execute_hit). Nearest-first, excludes `origin`.
-func _nearby_enemies(attacker: Node, origin: Node, radius: float, max_count: int) -> Array:
-	var out: Array = []
-	if not is_instance_valid(origin):
-		return out
+## Returns the single NEAREST living enemy within `radius` of `from_node`'s
+## position that is NOT already in `visited` (a set of instance_ids), or null if
+## none qualifies. The chain calls this once per hop, re-centering `from_node` on
+## the last enemy, so the bolt threads enemy-to-enemy. Map-scoped: the "Enemies"
+## group is GLOBAL across maps (SubViewport-per-map architecture), so we filter via
+## the CombatComponent's cached _is_on_same_map (the attacker always has one — the
+## chain runs from combat._execute_hit) to avoid zapping a coordinate-overlapping
+## enemy on another map.
+func _nearest_chain_target(attacker: Node, from_node: Node, radius: float, visited: Dictionary) -> Node:
+	if not is_instance_valid(from_node):
+		return null
 	var combat = attacker.get("combat_component") if is_instance_valid(attacker) else null
-	var origin_pos: Vector2 = origin.global_position
+	var from_pos: Vector2 = from_node.global_position
+	var best: Node = null
+	var best_dist: float = radius  # only enemies within radius qualify
 	for enemy in get_tree().get_nodes_in_group("Enemies"):
-		if enemy == origin or not is_instance_valid(enemy):
+		if not is_instance_valid(enemy) or visited.has(enemy.get_instance_id()):
 			continue
 		if combat != null and combat.has_method("_is_on_same_map") and not combat._is_on_same_map(enemy):
 			continue
 		var hc = enemy.get("health_component")
 		if hc == null or not is_instance_valid(hc) or hc.is_dead:
 			continue
-		if enemy.global_position.distance_to(origin_pos) > radius:
-			continue
-		out.append(enemy)
-	out.sort_custom(func(a, b):
-		return a.global_position.distance_to(origin_pos) < b.global_position.distance_to(origin_pos)
-	)
-	if out.size() > max_count:
-		return out.slice(0, max_count)
-	return out
+		var d: float = enemy.global_position.distance_to(from_pos)
+		if d <= best_dist:
+			best_dist = d
+			best = enemy
+	return best
 
 
 ## When a DOT / bonus tick lands the killing blow, the normal combat-kill

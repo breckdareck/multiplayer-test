@@ -164,10 +164,12 @@ Player (MultiplayerPlayerV2)
     │                               Immolate/bleeds), ICE = movement slow (reduces
     │                               EnemyBase.movement_speed directly — there is NO
     │                               movespeed StatType — restored on a timer), LIGHTNING
-    │                               = a bonus shock to the target AND a chain arc to
-    │                               up to LIGHTNING_CHAIN_MAX_TARGETS nearby same-map
-    │                               enemies (via _nearby_enemies, map-filtered through
-    │                               combat._is_on_same_map) — the crowd element. The
+    │                               = a bonus shock to the target AND a SEQUENTIAL
+    │                               chain that hops to the nearest un-hit enemy,
+    │                               re-centers on it, and hops again up to
+    │                               LIGHTNING_CHAIN_MAX_HOPS times (_nearest_chain_target,
+    │                               map-filtered via combat._is_on_same_map) — the
+    │                               crowd element. The
     │                               chain also fires a cosmetic bolt VFX threading
     │                               the struck+zapped enemies (MapManager.broadcast_
     │                               lightning_arc → scripts/VFX/lightning_arc.gd,
