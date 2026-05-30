@@ -9,6 +9,10 @@ signal dealt_damage(target: Node, damage_values: Array, crit_values: Array)
 @export var weapon_multiplier: float = 1.2
 ## Mastery: min damage as a fraction of max (0.2 = 20%, 0.6 = 60%)
 @export var mastery: float = 0.2
+## SPELLBLADE: fraction of the wielder's best PHYSICAL stat (STR/DEX) that
+## supplements a STAFF's INT scaling, so a physical main's off-hand staff isn't
+## dead. 0.5 = half. Tunable. A dedicated caster is ~unaffected (low STR/DEX).
+const SPELLBLADE_PHYS_RATE: float = 0.5
 
 # Attack type tracking
 enum AttackMode {NONE, BASIC, ABILITY}
@@ -881,11 +885,32 @@ func _calculate_max_range(attack_stat_type: Constants.StatType = Constants.StatT
 
 	var attack_power = _stats_component.stats.get(attack_stat_type).total_value
 
-	var primary_stat_type = ResourceManager.get_primary_stat(_class_component.current_class)
-	var secondary_stat_type = ResourceManager.get_secondary_stat(_class_component.current_class)
+	# Scale off the ACTIVE weapon's discipline, not the fixed starting class —
+	# "only weapons matter": a Sword-starter wielding a staff should scale off the
+	# STAFF's stats (INT/LUCK), exactly like the sprite + abilities already follow
+	# the active weapon. (Was _class_component.current_class, the starting
+	# discipline, which never updates on weapon swap for real players — so an
+	# off-hand weapon wrongly rode the main's attributes.) Falls back to
+	# current_class when no weapon is equipped.
+	var disc: int = _class_component.current_class
+	if owner_node and owner_node.has_method("get_active_discipline"):
+		disc = owner_node.get_active_discipline()
+	var primary_stat_type = ResourceManager.get_primary_stat(disc)
+	var secondary_stat_type = ResourceManager.get_secondary_stat(disc)
 
 	var primary_stat_value = _stats_component.stats.get(primary_stat_type).total_value
 	var secondary_stat_value = _stats_component.stats.get(secondary_stat_type).total_value
+
+	# SPELLBLADE conversion: a STAFF wielded off a physical build would otherwise
+	# scale off near-base INT (dead off-hand). Supplement the staff's primary stat
+	# with SPELLBLADE_PHYS_RATE of the wielder's best PHYSICAL stat (STR/DEX), so a
+	# sword/bow main's investment partially funds staff damage. A dedicated INT
+	# caster is barely affected (their STR/DEX are ~base). Self-targets the hybrid.
+	if disc == Constants.ClassType.STAFF:
+		var phys: int = maxi(
+			int(_stats_component.stats.get(Constants.StatType.STRENGTH).total_value),
+			int(_stats_component.stats.get(Constants.StatType.DEXTERITY).total_value))
+		primary_stat_value += int(SPELLBLADE_PHYS_RATE * phys)
 
 	var stat_multiplier: float = (primary_stat_value * 4 + secondary_stat_value)
 

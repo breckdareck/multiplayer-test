@@ -212,6 +212,15 @@ def max_range(disc_name, attrs, attack_power):
     return round(WEAPON_MULTIPLIER * stat_mult * attack_power / 100.0)
 
 
+SPELLBLADE_PHYS_RATE = 0.5  # staff INT supplemented by this × best physical stat (combat.gd)
+
+def staff_spellblade_bonus(disc_name, attrs):
+    """Spellblade: a wielded STAFF adds SPELLBLADE_PHYS_RATE × best physical stat
+    to its INT primary (so a physical main's off-hand staff isn't dead)."""
+    if disc_name != "Staff":
+        return 0
+    return int(SPELLBLADE_PHYS_RATE * max(attrs["STR"], attrs["DEX"]))
+
 def maxhit_for_alloc(disc_name, level, alloc):
     """Basic-attack max-hit for an EXPLICIT raw-point allocation dict
     ({STR/DEX/INT/LUCK/CON: pts}). Applies the soft-cap + mastery + gear like
@@ -224,6 +233,10 @@ def maxhit_for_alloc(disc_name, level, alloc):
         attrs[k] += soft_cap(int(pts))
     for k, per in d["mastery_bonus"].items():
         attrs[k] += per * mast
+    # spellblade: staff borrows from physical stats
+    sb = staff_spellblade_bonus(disc_name, attrs)
+    attrs = dict(attrs)
+    attrs[d["primary"]] += sb
     return max_range(disc_name, attrs, gear_attack_power(level))
 
 def best_upgrade_config(name, base_hits, base_cd):
