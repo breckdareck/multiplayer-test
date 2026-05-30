@@ -46,4 +46,4 @@ upgrades = Array[ExtResource("7_aud")]([ExtResource("8_to"), ExtResource("9_re")
 active_behavior = SubResource("Resource_bwflg")
 scaling_data = SubResource("Resource_k06um")
 tree_path = 0
-tree_depth = 3
+tree_depth = 4
