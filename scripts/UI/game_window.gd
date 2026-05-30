@@ -1,31 +1,31 @@
 extends Panel
 
-## Unified game hub (ADR 0003). Reparents the existing standalone windows into a
-## tabbed hub at runtime:
-##   Character tab = Equipment | Stats | Inventory (3 columns; pet stays embedded
-##                   in the equipment window's own Equipment/Pets toggle)
-##   Abilities tab = the v2 skill tree window
-## Each absorbed window keeps its own script/logic + LIVE component references (the
-## components hold node-reference @exports that survive reparenting — no NodePath
-## edits needed). The hub suppresses each window's chrome (title/close/drag) and
-## stops its per-frame hotkey poll, providing ONE chrome + hotkey set + tabs.
+## Unified game hub (ADR 0003). Builds ONE clean window: a Character tab with 3
+## authored columns (Equipment | Stats | Inventory) and an Abilities tab. On load
+## it pulls the CONTENT out of the existing windows into those columns/hosts —
+## not the whole windows — so there is one frame + one set of column headers, not
+## three glued sub-windows. Each source window's shell is kept alive (hidden, its
+## per-frame input off) so its controller script keeps driving the moved content
+## via its node references (which survive reparenting — the components use
+## node-reference @exports, so gear/inventory/stats keep syncing, no NodePath edits).
 ## Non-modal: movable, never locks input. Path-resolved (no class_name).
 
 @onready var title_label: Label = %HubTitle
 @onready var tab_bar: TabBar = %HubTabBar
-@onready var character_page: HBoxContainer = %CharacterPage
+@onready var character_page: Control = %CharacterPage
 @onready var abilities_page: Control = %AbilitiesPage
+@onready var equip_host: Control = %EquipHost
+@onready var stats_host: Control = %StatsHost
+@onready var inv_host: Control = %InvHost
+@onready var abil_host: Control = %AbilHost
 @onready var close_button: Button = %HubCloseButton
 
 var player
 var _absorbed := false
 var _dragging := false
 var _drag_offset := Vector2()
+var _ability_shell: Node = null
 
-# Old window node name -> which page it joins.
-const CHAR_WINDOWS := ["EquipmentWindow", "StatsWindow", "InventoryWindow"]
-const ABIL_WINDOW := "AbilityWindow"
-# Hotkey -> tab index (0 = Character, 1 = Abilities).
 const HOTKEY_TAB := {
 	"OpenEquipmentWindow": 0, "OpenInventoryWindow": 0, "OpenStatsWindow": 0,
 	"OpenAbilityWindow": 1,
@@ -51,49 +51,67 @@ func _absorb_windows() -> void:
 	var src := get_parent()  # CanvasLayer/MoveableWindows
 	if src == null:
 		return
-	for wname in CHAR_WINDOWS:
-		_absorb(src.get_node_or_null(wname), character_page)
-	_absorb(src.get_node_or_null(ABIL_WINDOW), abilities_page)
+	_absorb(src.get_node_or_null("EquipmentWindow"), equip_host)
+	_absorb(src.get_node_or_null("StatsWindow"), stats_host)
+	_absorb(src.get_node_or_null("InventoryWindow"), inv_host)
+	_ability_shell = src.get_node_or_null("AbilityWindow")
+	_absorb(_ability_shell, abil_host)
 	_absorbed = true
 	_show_tab(0)
 
 
-## Reparents one window into `page`, stops its input, and flattens its chrome.
-func _absorb(w: Node, page: Node) -> void:
-	if w == null or page == null or not is_instance_valid(w):
+## Moves a window's CONTENT children into `host`, hides its chrome, keeps the
+## (now-empty) shell alive + input-off so its script still drives the content.
+func _absorb(w: Node, host: Node) -> void:
+	if w == null or host == null or not is_instance_valid(w):
 		return
-	# Stop the window's own hotkey poll + drag (its _process / input handlers).
 	w.set_process(false)
 	w.set_process_input(false)
 	w.set_process_unhandled_input(false)
-	# Flatten its outer panel so the hub's chrome is the only frame.
-	if w is Control:
-		(w as Control).add_theme_stylebox_override("panel", StyleBoxEmpty.new())
-	_hide_chrome(w)
-	# Reparent into the page; let the container size it.
-	if w.get_parent():
-		w.get_parent().remove_child(w)
-	page.add_child(w)
-	if w is Control:
-		var c := w as Control
-		c.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		c.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		c.position = Vector2.ZERO
-		c.visible = true
-
-
-## Hides a window's own title bar + close button (the hub provides them). The
-## title is the direct-child Label used as its drag handle; close is "CloseButton".
-func _hide_chrome(w: Node) -> void:
 	for child in w.get_children():
-		if child is Label and child.name == "Label":
-			child.visible = false
-		elif child.name == "CloseButton":
-			child.visible = false
-	# Some windows (Equipment) keep the close button deeper; hide any found.
-	var cb := w.find_child("CloseButton", true, false)
-	if cb is CanvasItem:
-		(cb as CanvasItem).visible = false
+		if child.name == "Label" or child.name == "CloseButton":
+			if child is CanvasItem:
+				(child as CanvasItem).visible = false
+			continue
+		w.remove_child(child)
+		host.add_child(child)
+		if child is Control:
+			var c := child as Control
+			_reset_anchors(c)
+			c.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			c.size_flags_vertical = Control.SIZE_EXPAND_FILL if _is_big(c) else Control.SIZE_FILL
+			c.visible = true
+	# Source content can carry its own nested title/close (e.g. the ability
+	# window's header) — hide those so only the hub chrome remains.
+	_hide_named(host, ["CloseButton", "TitleLabel"])
+	if w is CanvasItem:
+		(w as CanvasItem).visible = false
+
+
+func _is_big(c: Control) -> bool:
+	return c is TabContainer or c is MarginContainer or c is ScrollContainer \
+		or c is HSplitContainer or c is PanelContainer or c is VBoxContainer
+
+
+func _reset_anchors(c: Control) -> void:
+	c.anchor_left = 0.0
+	c.anchor_top = 0.0
+	c.anchor_right = 0.0
+	c.anchor_bottom = 0.0
+	c.offset_left = 0.0
+	c.offset_top = 0.0
+	c.offset_right = 0.0
+	c.offset_bottom = 0.0
+	c.position = Vector2.ZERO
+
+
+func _hide_named(node: Node, names: Array) -> void:
+	for c in node.get_children():
+		if c.name in names:
+			if c is CanvasItem:
+				(c as CanvasItem).visible = false
+		else:
+			_hide_named(c, names)
 
 
 func _on_tab_changed(idx: int) -> void:
@@ -105,11 +123,9 @@ func _show_tab(idx: int) -> void:
 		character_page.visible = idx == 0
 	if is_instance_valid(abilities_page):
 		abilities_page.visible = idx == 1
-	# The ability window refreshes its tree on its own open; trigger it on tab show.
-	if idx == 1 and is_instance_valid(abilities_page):
-		var aw := abilities_page.get_node_or_null(ABIL_WINDOW)
-		if aw and aw.has_method("load_ability_list"):
-			aw.call("load_ability_list")
+	# The ability window normally refreshes its tree on open; trigger it on tab show.
+	if idx == 1 and _ability_shell and _ability_shell.has_method("load_ability_list"):
+		_ability_shell.call("load_ability_list")
 
 
 func _open_to_tab(idx: int) -> void:
