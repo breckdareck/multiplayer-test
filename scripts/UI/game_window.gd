@@ -51,7 +51,16 @@ func _absorb_windows() -> void:
 	var src := get_parent()  # CanvasLayer/MoveableWindows
 	if src == null:
 		return
-	_absorb(src.get_node_or_null("EquipmentWindow"), equip_host)
+	var eqw := src.get_node_or_null("EquipmentWindow")
+	_absorb(eqw, equip_host)
+	# Default the embedded Equipment/Pets toggle to the gear view (the generic
+	# absorb force-shows every moved child, which would reveal both at once).
+	if eqw and eqw.has_method("_show_equipment_tab"):
+		eqw.call("_show_equipment_tab")
+	# Lay the 6 equipment slots out 2-wide (mock paperdoll) instead of a 1-col strip.
+	var grid := equip_host.find_child("GridContainer", true, false)
+	if grid is GridContainer:
+		(grid as GridContainer).columns = 2
 	_absorb(src.get_node_or_null("StatsWindow"), stats_host)
 	_absorb(src.get_node_or_null("InventoryWindow"), inv_host)
 	_ability_shell = src.get_node_or_null("AbilityWindow")
