@@ -106,6 +106,17 @@ Player (MultiplayerPlayerV2)
     │                               the post-load sync_all_abilities_to_client
     │                               carries the corrected pools to the client).
     │                               Server-authoritative; a no-op when matched.
+    │                               Skill-tree climb-gate (2026-05-29):
+    │                               can_level_up_ability also requires the
+    │                               same-discipline, same-path node directly
+    │                               above this one to be learned — AbilityData
+    │                               carries tree_path (0/1, -1=unplaced) +
+    │                               tree_depth (row); a node at depth D needs
+    │                               the depth-(D-1) node in its tree_path owned.
+    │                               is_tree_node_unlocked()/_get_path_parent();
+    │                               gates NEW level-ups only (reconcile-safe).
+    │                               Rendered by scripts/UI/skill_tree_canvas.gd
+    │                               as the 2-path Ability Window tree.
     ├── WeaponMastery weapon_mastery.gd - Per-discipline mastery levels + XP (PR 2)
     │                                     mastery_data: {sword/bow/staff/dagger →
     │                                     {level, xp}}. Drives STR/DEX/INT/LUK
