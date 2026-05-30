@@ -1917,14 +1917,17 @@ func can_level_up_ability(ability_id: String) -> bool:
 ## learned (level >= 1); a path's first active is a free root. Pure unlock
 ## condition — never changes points granted/spent, so the reconcile invariant
 ## holds. Used by can_level_up_ability + the tree UI.
-func is_tree_node_unlocked(ability_id: String) -> bool:
-	var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
-	if ability == null or ability.tree_path < 0:
-		return true
-	if ability.ability_type == Constants.AbilityType.PASSIVE:
-		return true
-	var parent: AbilityData = _get_active_chain_parent(ability)
-	return parent == null or get_ability_level(parent.ability_id) >= 1
+func is_tree_node_unlocked(_ability_id: String) -> bool:
+	# Active prerequisites REMOVED 2026-05-30 (user playtest call): the tree is
+	# fully free-pick — every placed node is buyable, limited only by (scarce)
+	# discipline points. To re-enable the active chain, restore:
+	#   var ability := ResourceManager.get_ability_data(_ability_id)
+	#   if ability == null or ability.tree_path < 0 or ability.ability_type == Constants.AbilityType.PASSIVE:
+	#       return true
+	#   var parent := _get_active_chain_parent(ability)
+	#   return parent == null or get_ability_level(parent.ability_id) >= 1
+	# (_get_active_chain_parent / active_chain_prereq_name are kept for that.)
+	return true
 
 
 ## The active directly before `ability` in its path's active chain — the active
