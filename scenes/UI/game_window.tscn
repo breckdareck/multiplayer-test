@@ -1,13 +1,17 @@
-[gd_scene load_steps=5 format=3 uid="uid://cgamewindowhub1"]
+[gd_scene load_steps=6 format=3 uid="uid://cgamewindowhub1"]
 
 [ext_resource type="StyleBox" uid="uid://dm8jxifs8rqrm" path="res://assets/UI/Themes/PanelStyleboxTheme.tres" id="1_pst"]
 [ext_resource type="Script" path="res://scripts/UI/game_window.gd" id="2_gw"]
 [ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="3_font"]
 
+[sub_resource type="Theme" id="hub_theme"]
+default_font = ExtResource("3_font")
+default_font_size = 11
+
 [sub_resource type="StyleBoxFlat" id="col_sb"]
-content_margin_left = 10.0
+content_margin_left = 12.0
 content_margin_top = 8.0
-content_margin_right = 10.0
+content_margin_right = 12.0
 content_margin_bottom = 10.0
 bg_color = Color(0.08, 0.08, 0.1, 1)
 border_width_left = 1
@@ -33,6 +37,7 @@ offset_right = 590.0
 offset_bottom = 360.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = SubResource("hub_theme")
 theme_override_styles/panel = ExtResource("1_pst")
 script = ExtResource("2_gw")
 
@@ -57,7 +62,6 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.905882, 0.890196, 0.34902, 1)
-theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 16
 text = "CHARACTER"
 
@@ -73,7 +77,6 @@ flat = true
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
-theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 14
 tab_count = 2
 tab_0/title = "Character"
@@ -104,9 +107,37 @@ theme_override_constants/separation = 6
 [node name="Hdr" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col1/V"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.905882, 0.890196, 0.34902, 1)
-theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 13
 text = "EQUIPMENT"
+
+[node name="CharHeader" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col1/V"]
+layout_mode = 2
+
+[node name="HB" type="HBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col1/V/CharHeader"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Portrait" type="Panel" parent="Margin/VBox/Pages/CharacterPage/Col1/V/CharHeader/HB"]
+custom_minimum_size = Vector2(38, 38)
+layout_mode = 2
+
+[node name="Names" type="VBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col1/V/CharHeader/HB"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+
+[node name="HdrName" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col1/V/CharHeader/HB/Names"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Name"
+
+[node name="HdrSub" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col1/V/CharHeader/HB/Names"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+theme_override_font_sizes/font_size = 10
+text = "Lv 1"
 
 [node name="EquipHost" type="VBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col1/V"]
 unique_name_in_owner = true
@@ -126,14 +157,267 @@ theme_override_constants/separation = 6
 [node name="Hdr" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.905882, 0.890196, 0.34902, 1)
-theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 13
 text = "STATS"
 
-[node name="StatsHost" type="VBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col2/V"]
+[node name="Stats" type="VBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col2/V"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_constants/separation = 4
+
+[node name="HpRow" type="HBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats"]
+layout_mode = 2
+
+[node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/HpRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+text = "HP"
+
+[node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/HpRow"]
+layout_mode = 2
+horizontal_alignment = 2
+text = "-"
+
+[node name="MpRow" type="HBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats"]
+layout_mode = 2
+
+[node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/MpRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+text = "MP"
+
+[node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/MpRow"]
+layout_mode = 2
+horizontal_alignment = 2
+text = "-"
+
+[node name="AtkRow" type="HBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats"]
+layout_mode = 2
+
+[node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/AtkRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+text = "Attack"
+
+[node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/AtkRow"]
+layout_mode = 2
+horizontal_alignment = 2
+text = "-"
+
+[node name="MAtkRow" type="HBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats"]
+layout_mode = 2
+
+[node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/MAtkRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+text = "Magic Atk"
+
+[node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/MAtkRow"]
+layout_mode = 2
+horizontal_alignment = 2
+text = "-"
+
+[node name="DefRow" type="HBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats"]
+layout_mode = 2
+
+[node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/DefRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+text = "Defense"
+
+[node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/DefRow"]
+layout_mode = 2
+horizontal_alignment = 2
+text = "-"
+
+[node name="MDefRow" type="HBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats"]
+layout_mode = 2
+
+[node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/MDefRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+text = "Mag Def"
+
+[node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/MDefRow"]
+layout_mode = 2
+horizontal_alignment = 2
+text = "-"
+
+[node name="CritRateRow" type="HBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats"]
+layout_mode = 2
+
+[node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/CritRateRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+text = "Crit Rate"
+
+[node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/CritRateRow"]
+layout_mode = 2
+horizontal_alignment = 2
+text = "-"
+
+[node name="CritDmgRow" type="HBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats"]
+layout_mode = 2
+
+[node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/CritDmgRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+text = "Crit Dmg"
+
+[node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/CritDmgRow"]
+layout_mode = 2
+horizontal_alignment = 2
+text = "-"
+
+[node name="DmgRangeRow" type="HBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats"]
+layout_mode = 2
+
+[node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/DmgRangeRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+text = "Dmg Range"
+
+[node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/DmgRangeRow"]
+layout_mode = 2
+horizontal_alignment = 2
+text = "-"
+
+[node name="Sep" type="HSeparator" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="UnspentLabel" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 0.9, 0.55, 1)
+theme_override_font_sizes/font_size = 12
+text = "ATTRIBUTES   —   Unspent: 0"
+
+[node name="StrRow" type="HBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats"]
+layout_mode = 2
+
+[node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/StrRow"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "STR"
+
+[node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/StrRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 12
+text = "0"
+
+[node name="Plus" type="Button" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/StrRow"]
+custom_minimum_size = Vector2(30, 24)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0.45, 0.9, 0.55, 1)
+text = "+"
+
+[node name="DexRow" type="HBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats"]
+layout_mode = 2
+
+[node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/DexRow"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "DEX"
+
+[node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/DexRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 12
+text = "0"
+
+[node name="Plus" type="Button" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/DexRow"]
+custom_minimum_size = Vector2(30, 24)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0.45, 0.9, 0.55, 1)
+text = "+"
+
+[node name="IntRow" type="HBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats"]
+layout_mode = 2
+
+[node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/IntRow"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "INT"
+
+[node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/IntRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 12
+text = "0"
+
+[node name="Plus" type="Button" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/IntRow"]
+custom_minimum_size = Vector2(30, 24)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0.45, 0.9, 0.55, 1)
+text = "+"
+
+[node name="LuckRow" type="HBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats"]
+layout_mode = 2
+
+[node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/LuckRow"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "LUCK"
+
+[node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/LuckRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 12
+text = "0"
+
+[node name="Plus" type="Button" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/LuckRow"]
+custom_minimum_size = Vector2(30, 24)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0.45, 0.9, 0.55, 1)
+text = "+"
+
+[node name="ConRow" type="HBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats"]
+layout_mode = 2
+
+[node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/ConRow"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "CON"
+
+[node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/ConRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 12
+text = "0"
+
+[node name="Plus" type="Button" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/ConRow"]
+custom_minimum_size = Vector2(30, 24)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0.45, 0.9, 0.55, 1)
+text = "+"
+
+[node name="RespecButton" type="Button" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 0
+text = "Respec Attrs"
 
 [node name="Col3" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage"]
 layout_mode = 2
@@ -148,7 +432,6 @@ theme_override_constants/separation = 6
 [node name="Hdr" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col3/V"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.905882, 0.890196, 0.34902, 1)
-theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 13
 text = "INVENTORY"
 
