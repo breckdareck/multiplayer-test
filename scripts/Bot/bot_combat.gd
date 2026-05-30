@@ -93,10 +93,16 @@ func party_focus_target() -> EnemyBase:
 	for member_id in members:
 		if member_id == brain.bot_id:
 			continue
+		var foe: EnemyBase = null
 		var mate = BotManager.get_bot_brain(member_id)
-		if mate == null:
-			continue  # human party members expose no target
-		var foe: EnemyBase = mate.target_enemy
+		if mate != null:
+			foe = mate.target_enemy
+		else:
+			# Human teammate: no explicit target lock, so focus their most
+			# recently-damaged enemy (get_recent_combat_target, stale-guarded).
+			var human = PlayerManager.get_player_node(member_id)
+			if is_instance_valid(human) and human.has_method("get_recent_combat_target"):
+				foe = human.get_recent_combat_target()
 		if not is_instance_valid(foe):
 			continue
 		if foe.health_component and foe.health_component.is_dead:

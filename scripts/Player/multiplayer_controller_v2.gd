@@ -75,6 +75,25 @@ var do_pickup: bool = false
 var do_portal_interact: bool = false
 var current_portal: Portal = null
 
+## The enemy this character most recently DAMAGED + when (ticks ms). Players have
+## no explicit target lock (they swing in a direction), so this is the proxy for
+## "what I'm fighting" — party bots read it via get_recent_combat_target() to
+## focus-fire a human teammate's target instead of scattering. Set in
+## combat._execute_hit; goes stale after RECENT_TARGET_WINDOW_MS.
+var recent_combat_target: Node = null
+var recent_combat_target_ms: int = 0
+const RECENT_TARGET_WINDOW_MS: int = 3000
+
+
+## Returns the enemy this character damaged within the last few seconds, or null
+## if none/stale. Used by party bots for focus-fire.
+func get_recent_combat_target() -> Node:
+	if not is_instance_valid(recent_combat_target):
+		return null
+	if Time.get_ticks_msec() - recent_combat_target_ms > RECENT_TARGET_WINDOW_MS:
+		return null
+	return recent_combat_target
+
 # Server-only list of Ladder Area2Ds the player currently overlaps. Ladders
 # call enter_ladder/exit_ladder on their body_entered/exited signals.
 var _ladder_zones: Array = []

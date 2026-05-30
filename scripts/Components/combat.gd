@@ -635,6 +635,12 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 	if ability != null and max_landed_damage > 0 and is_instance_valid(_staff_element_component) and _is_wielding_staff():
 		_staff_element_component.apply_element_on_hit(owner_node, target_enemy, max_landed_damage)
 
+	# Record the most-recently-damaged enemy on the attacker so party bots can
+	# focus-fire a human teammate's target (humans have no explicit target lock).
+	if max_landed_damage > 0 and "recent_combat_target" in owner_node:
+		owner_node.recent_combat_target = target_enemy
+		owner_node.recent_combat_target_ms = Time.get_ticks_msec()
+
 	# Bow Momentum: build ONE stack whenever this attack landed at least one hit
 	# while a bow is wielded. UNLIKE the staff rider, this is NOT gated on
 	# ability != null — Momentum should build off the basic Snap Shot (which
