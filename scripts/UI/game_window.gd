@@ -101,8 +101,10 @@ func _absorb(w: Node, host: Node) -> void:
 
 
 func _is_big(c: Control) -> bool:
+	# Panel (not just PanelContainer) covers the stats window's StatsPanel — without
+	# this it gets SIZE_FILL and collapses to zero height (blank STATS column).
 	return c is TabContainer or c is MarginContainer or c is ScrollContainer \
-		or c is HSplitContainer or c is PanelContainer or c is VBoxContainer
+		or c is HSplitContainer or c is PanelContainer or c is VBoxContainer or c is Panel
 
 
 func _reset_anchors(c: Control) -> void:
