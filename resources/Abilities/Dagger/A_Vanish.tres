@@ -68,9 +68,6 @@ description = "Melts into the shadows, becoming untargetable by enemies for $[bu
 ability_icon = ExtResource("1_8vb02")
 max_level = 20
 required_class = Array[int]([3])
-prerequisite_abilities = Dictionary[ExtResource("3_drks1"), int]({
-ExtResource("9_drks1"): 5
-})
 upgrades = Array[ExtResource("11_aud")]([ExtResource("12_van1"), ExtResource("13_van2"), ExtResource("14_van3"), ExtResource("15_van4"), ExtResource("16_van5")])
 active_behavior = SubResource("Resource_drks1")
 applies_buff = ExtResource("4_drks2")

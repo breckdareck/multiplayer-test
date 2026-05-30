@@ -68,9 +68,6 @@ description = "Summons a shadow copy that mimics your attacks at $[damage_percen
 ability_icon = ExtResource("1_kkjdo")
 max_level = 5
 required_class = Array[int]([3])
-prerequisite_abilities = Dictionary[ExtResource("2_shpn2"), int]({
-ExtResource("9_shpn1"): 3
-})
 active_behavior = SubResource("Resource_shpn1")
 applies_buff = ExtResource("11_shpn1")
 buff_duration_formula = SubResource("Resource_shpn5")

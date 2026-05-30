@@ -80,9 +80,6 @@ ability_icon = ExtResource("1_snp1")
 max_level = 20
 required_class = Array[int]([1])
 required_weapon_types = Array[int]([1])
-prerequisite_abilities = Dictionary[ExtResource("2_snp1"), int]({
-ExtResource("9_snp1"): 3
-})
 upgrades = Array[ExtResource("10_aud")]([ExtResource("11_sh"), ExtResource("12_ap"), ExtResource("13_ks"), ExtResource("14_pn"), ExtResource("15_dt")])
 active_behavior = SubResource("Resource_vrq40")
 scaling_data = SubResource("Resource_snp_scaling")

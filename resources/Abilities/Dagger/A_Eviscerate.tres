@@ -79,9 +79,6 @@ ability_icon = ExtResource("1_evi1")
 max_level = 20
 required_class = Array[int]([3])
 required_weapon_types = Array[int]([3])
-prerequisite_abilities = Dictionary[ExtResource("2_evi1"), int]({
-ExtResource("9_evi1"): 3
-})
 upgrades = Array[ExtResource("10_aud")]([ExtResource("11_evi1"), ExtResource("12_evi2"), ExtResource("13_evi3"), ExtResource("14_evi4"), ExtResource("15_evi5")])
 active_behavior = SubResource("Resource_evi_behav")
 scaling_data = SubResource("Resource_evi_scaling")

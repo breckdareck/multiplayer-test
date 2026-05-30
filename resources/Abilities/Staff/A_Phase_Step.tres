@@ -63,9 +63,6 @@ ability_icon = ExtResource("1_jlg0d")
 max_level = 20
 required_class = Array[int]([2])
 required_weapon_types = Array[int]([2])
-prerequisite_abilities = Dictionary[ExtResource("3_telp1"), int]({
-ExtResource("9_telp1"): 3
-})
 upgrades = Array[ExtResource("10_aud")]([ExtResource("11_fl"), ExtResource("12_ef"), ExtResource("13_bl"), ExtResource("14_pg"), ExtResource("15_fs")])
 active_behavior = SubResource("Resource_telp1")
 scaling_data = SubResource("Resource_telp7")

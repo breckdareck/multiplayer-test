@@ -82,9 +82,6 @@ ability_icon = ExtResource("1_wr37i")
 max_level = 20
 required_class = Array[int]([0])
 required_weapon_types = Array[int]([0])
-prerequisite_abilities = Dictionary[ExtResource("7_qsco8"), int]({
-ExtResource("8_slash"): 3
-})
 upgrades = Array[ExtResource("9_aud")]([ExtResource("10_ke"), ExtResource("11_ws"), ExtResource("12_dt"), ExtResource("13_rl"), ExtResource("14_ow")])
 active_behavior = SubResource("Resource_j17xh")
 scaling_data = SubResource("Resource_pyj0a")

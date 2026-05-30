@@ -67,9 +67,6 @@ description = "Steadies your draw, increasing weapon attack and critical hit cha
 ability_icon = ExtResource("1_xyi1c")
 max_level = 20
 required_class = Array[int]([1])
-prerequisite_abilities = Dictionary[ExtResource("3_focs1"), int]({
-ExtResource("9_focs1"): 5
-})
 upgrades = Array[ExtResource("11_aud")]([ExtResource("12_ld"), ExtResource("13_co"), ExtResource("14_de"), ExtResource("15_pst"), ExtResource("16_zen")])
 active_behavior = SubResource("Resource_focs1")
 applies_buff = ExtResource("4_focs2")

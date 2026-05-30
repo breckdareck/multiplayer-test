@@ -43,9 +43,6 @@ max_level = 10
 ability_type = 1
 required_class = Array[int]([2])
 required_weapon_types = Array[int]([2])
-prerequisite_abilities = Dictionary[ExtResource("6_vb1"), int]({
-ExtResource("7_vb1"): 3
-})
 upgrades = Array[ExtResource("8_aud")]([ExtResource("9_ha"), ExtResource("10_ro"), ExtResource("11_fl")])
 active_behavior = SubResource("Resource_vb_behav")
 scaling_data = SubResource("Resource_vb_scaling")
