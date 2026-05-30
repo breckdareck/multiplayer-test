@@ -29,6 +29,8 @@ td.note{color:var(--mut);white-space:normal;min-width:160px}
 .find h4{margin:0 0 4px;font-size:14.5px}
 .find p{margin:0;color:var(--mut)}
 code{background:#0b0d13;padding:1px 5px;border-radius:4px;color:#cdd6e4}
+.dim{color:#6b7280;font-size:11.5px}
+a{color:var(--acc)}
 </style></head><body>
 <div class="wrap">
 <h1>Ability Damage &amp; Balance Report</h1>
@@ -37,7 +39,7 @@ code{background:#0b0d13;padding:1px 5px;border-radius:4px;color:#cdd6e4}
 roll      = rand(max_range × 0.2 , max_range)        # 20%–100% of max
 ability   = roll × (damage_percent / 100)            # per hit
 per hit   ×= level_modifier(0.5–1.5) × defense_mult(1 − def/(def+500))
-if crit (rand% < CRITCHANCE):  × ( rand(1.2,1.5) + CRITDAMAGE/100 )</pre><ul class="notes"><li><b>ATTACK_POWER</b> = WEAPONATTACK (melee/bow) or MAGICATTACK (staff). Base <b>0</b> — <b>100% gear-driven</b>; it is the single biggest damage lever. Model assumes ≈ 2×level (anchored to the L100 benchmark ≈197).</li><li><b>primary/secondary</b> = base 4 + allocated attributes (5/level pool) + mastery (discipline bonus × mastery level). <b>No per-level auto scaling</b> — it is all manual now.</li><li><b>CRITDAMAGE base 0</b> with no gear source → a crit is only ×1.2–1.5. Crit rate is a near-dead stat.</li><li>Tables below are <b>raw, same-level, zero-defense</b> single-target to isolate ability balance (defense &amp; level-gap are flat multipliers that hit every ability equally).</li><li><b>Why Level 1 damage is tiny:</b> at L1 the attribute pool is 0 (5×(level−1)) and mastery is 0, so primary/secondary are just their base 4 → stat term = 4×4+4 = 20. With a starter weapon (~9 attack) that is 1.2×20×9/100 ≈ <b>2</b> per basic hit. Early damage is almost entirely <b>weapon-gated</b>; it climbs fast as the pool, mastery, and gear all grow together.</li></ul></div>
+if crit (rand% < CRITCHANCE):  × ( rand(1.2,1.5) + CRITDAMAGE/100 )</pre><ul class="notes"><li><b>ATTACK_POWER</b> = WEAPONATTACK (melee/bow) or MAGICATTACK (staff). Base <b>0</b> — <b>100% gear-driven</b>; it is the single biggest damage lever. Model assumes ≈ 2×level (anchored to the L100 benchmark ≈197).</li><li><b>primary/secondary</b> = base 4 + allocated attributes (5/level pool) + mastery (discipline bonus × mastery level). <b>No per-level auto scaling</b> — it is all manual now.</li><li><b>CRITDAMAGE base 0</b> with no gear source → a crit is only ×1.2–1.5. Crit rate is a near-dead stat.</li><li>Tables below are <b>raw, same-level, zero-defense</b> single-target to isolate ability balance (defense &amp; level-gap are flat multipliers that hit every ability equally).</li><li><b>Ability level &amp; upgrades:</b> each ability scales with character level capped at its own max (so the L100 tables show abilities at <b>max level 20</b>). The per-level tables are <b>base — no upgrades</b>. The <a href="#ceil">Fully-Upgraded Ceilings</a> section below adds the PR6 upgrade trees (best single-target tier-3 variant per ability) to show each ability's true endgame ceiling.</li><li><b>Why Level 1 damage is tiny:</b> at L1 the attribute pool is 0 (5×(level−1)) and mastery is 0, so primary/secondary are just their base 4 → stat term = 4×4+4 = 20. With a starter weapon (~9 attack) that is 1.2×20×9/100 ≈ <b>2</b> per basic hit. Early damage is almost entirely <b>weapon-gated</b>; it climbs fast as the pool, mastery, and gear all grow together.</li></ul></div>
 <div class="card"><h2>Attribute allocation archetypes</h2><p>The 5-points/level pool (= 5×(level−1); <b>495 at L100</b>) is spent manually. Three builds modelled:</p><ul class="notes"><li><b>default</b> — discipline ratio (what an un-respecced character auto-gets; e.g. Sword 3 STR : 2 DEX). Reproduces the old baseline.</li><li><b>pure</b> — every point into the primary stat. The damage-max build.</li><li><b>tank</b> — half primary, half CON (survivability at a damage cost).</li></ul></div>
 <h2 class="weap">Sword</h2>
 <h3>Level 1 <span class="meta">· STR 4 / DEX 4 · WEAPONATTACK 9 · mastery 0 · crit 5% · pool 0</span></h3>
@@ -191,6 +193,44 @@ if crit (rand% < CRITCHANCE):  × ( rand(1.2,1.5) + CRITDAMAGE/100 )</pre><ul cl
 <tr><td class="ab">Eviscerate</td><td>380%</td><td>1</td><td>1</td><td>6.0s</td><td>3,029–15,147</td><td>10,395</td><td>10,395</td><td style="background:rgba(76,137,70,0.35);"><b>1,733</b></td><td>1,733</td><td>17.6</td><td>590.6</td><td class="note">finisher; stealth = execute &lt;35% HP</td></tr>
 </tbody></table>
 <p class="spread"><b>Pure-primary vs default at L100:</b> +43% DPS on average from re-speccing all points into the primary stat. This is the "damage ceiling" lever (ADR 0002 Open #1).</p>
+<h2 class="weap" id="ceil">Fully-Upgraded Ceilings — L100, pure-primary</h2>
+<div class="card"><p>Each damage ability at <b>max level 20 + its best single-target upgrade path</b> (PR6 trees: the always-owned tier-1/2 upgrades plus the tier-3 variant that maximises single-target DPS — variants are mutually exclusive). Compare <b>base</b> (no upgrades) vs <b>upgraded</b> DPS. DoT-potency, combo-override and passive-stat upgrades are <i>not</i> in these numbers (noted per row), so true ceilings for DoT abilities are higher still.</p></div>
+<h3>Sword <span class="meta">· L100 pure-primary · ability lvl 20</span></h3>
+<table><thead><tr><th>Ability</th><th>base hit (max)</th><th>upg hit (max)</th><th>base DPS</th><th>upg DPS</th><th>gain</th><th>upg AoE DPS</th><th>upgrade path</th></tr></thead><tbody>
+<tr><td class="ab">Crescent Cleave (starter)</td><td>16,278</td><td>20,347</td><td>2,488</td><td><b>4,146</b></td><td style="background:rgba(139,98,70,0.35);"><b>1.67×</b></td><td>24,878</td><td class="note">+25% dmg, -1s CD <span class="dim">· +Razor Wind combo override (not modelled)</span></td></tr>
+<tr><td class="ab">Steel Flurry</td><td>7,384</td><td>8,861</td><td>9,029</td><td><b>16,252</b></td><td style="background:rgba(159,86,70,0.35);"><b>1.80×</b></td><td>48,755</td><td class="note">+20% dmg, +1h, +1t</td></tr>
+<tr><td class="ab">Sundering Blow</td><td>12,289</td><td>24,578</td><td>2,504</td><td><b>7,513</b></td><td style="background:rgba(220,50,70,0.35);"><b>3.00×</b></td><td>7,513</td><td class="note">+100% dmg, -1s CD <span class="dim">· +Executioner combo override</span></td></tr>
+<tr><td class="ab">Hemorrhage</td><td>12,128</td><td>15,159</td><td>3,707</td><td><b>4,634</b></td><td style="background:rgba(77,137,70,0.35);"><b>1.25×</b></td><td>9,268</td><td class="note">+25% dmg, +1t <span class="dim">· +bleed potency/duration upgrades boost the DoT</span></td></tr>
+<tr><td class="ab">Vault Strike</td><td>11,588</td><td>14,486</td><td>2,362</td><td><b>5,904</b></td><td style="background:rgba(220,50,70,0.35);"><b>2.50×</b></td><td>17,711</td><td class="note">+25% dmg, +1h, +1t</td></tr>
+<tr><td class="ab">Iron Riposte</td><td>2,695</td><td>2,695</td><td>66</td><td><b>66</b></td><td style="background:rgba(40,160,70,0.35);"><b>1.00×</b></td><td>66</td><td class="note"></td></tr>
+</tbody></table>
+<h3>Bow <span class="meta">· L100 pure-primary · ability lvl 20</span></h3>
+<table><thead><tr><th>Ability</th><th>base hit (max)</th><th>upg hit (max)</th><th>base DPS</th><th>upg DPS</th><th>gain</th><th>upg AoE DPS</th><th>upgrade path</th></tr></thead><tbody>
+<tr><td class="ab">Snap Shot (basic)</td><td>5,390</td><td>5,390</td><td>32,951</td><td><b>32,951</b></td><td style="background:rgba(40,160,70,0.35);"><b>1.00×</b></td><td>32,951</td><td class="note"></td></tr>
+<tr><td class="ab">Split Shot</td><td>7,223</td><td>7,223</td><td>5,887</td><td><b>13,246</b></td><td style="background:rgba(220,50,70,0.35);"><b>2.25×</b></td><td>26,493</td><td class="note">+0% dmg, +1h, +1t, -0.5s CD</td></tr>
+<tr><td class="ab">Hailstorm</td><td>4,204</td><td>5,886</td><td>7,068</td><td><b>10,795</b></td><td style="background:rgba(119,111,70,0.35);"><b>1.53×</b></td><td>43,179</td><td class="note">+40% dmg, +1h, +1t</td></tr>
+<tr><td class="ab">Skyfall</td><td>6,306</td><td>7,883</td><td>771</td><td><b>1,928</b></td><td style="background:rgba(220,50,70,0.35);"><b>2.50×</b></td><td>15,421</td><td class="note">+25% dmg, +1h, +2t</td></tr>
+<tr><td class="ab">Barbed Shot</td><td>10,025</td><td>12,532</td><td>2,043</td><td><b>2,554</b></td><td style="background:rgba(77,137,70,0.35);"><b>1.25×</b></td><td>5,107</td><td class="note">+25% dmg, +1t <span class="dim">· +bleed potency/duration boost the DoT</span></td></tr>
+<tr><td class="ab">Disengage</td><td>11,050</td><td>14,364</td><td>1,126</td><td><b>2,927</b></td><td style="background:rgba(220,50,70,0.35);"><b>2.60×</b></td><td>2,927</td><td class="note">+30% dmg, -3s CD</td></tr>
+<tr><td class="ab">Snipe</td><td>21,021</td><td>27,327</td><td>2,142</td><td><b>6,683</b></td><td style="background:rgba(220,50,70,0.35);"><b>3.12×</b></td><td>6,683</td><td class="note">+30% dmg, +1h, -1s CD</td></tr>
+</tbody></table>
+<h3>Staff <span class="meta">· L100 pure-primary · ability lvl 20</span></h3>
+<table><thead><tr><th>Ability</th><th>base hit (max)</th><th>upg hit (max)</th><th>base DPS</th><th>upg DPS</th><th>gain</th><th>upg AoE DPS</th><th>upgrade path</th></tr></thead><tbody>
+<tr><td class="ab">Arcane Bolt (starter)</td><td>10,510</td><td>10,510</td><td>5,428</td><td><b>16,284</b></td><td style="background:rgba(220,50,70,0.35);"><b>3.00×</b></td><td>32,569</td><td class="note">+0% dmg, +1h, +1t, -0.4s CD</td></tr>
+<tr><td class="ab">Glacial Spike</td><td>9,972</td><td>12,464</td><td>1,030</td><td><b>3,090</b></td><td style="background:rgba(220,50,70,0.35);"><b>3.00×</b></td><td>3,090</td><td class="note">+25% dmg, +1h, -1s CD</td></tr>
+<tr><td class="ab">Immolate</td><td>9,486</td><td>11,858</td><td>1,960</td><td><b>2,450</b></td><td style="background:rgba(77,137,70,0.35);"><b>1.25×</b></td><td>4,899</td><td class="note">+25% dmg, +1t <span class="dim">· +burn potency/duration boost the DoT; Fire stance ~doubles it</span></td></tr>
+<tr><td class="ab">Pyre Burst</td><td>6,306</td><td>7,883</td><td>782</td><td><b>1,954</b></td><td style="background:rgba(220,50,70,0.35);"><b>2.50×</b></td><td>15,633</td><td class="note">+25% dmg, +1h, +2t</td></tr>
+<tr><td class="ab">Arcane Lance</td><td>4,743</td><td>6,640</td><td>8,084</td><td><b>12,346</b></td><td style="background:rgba(119,111,70,0.35);"><b>1.53×</b></td><td>49,384</td><td class="note">+40% dmg, +1h, +1t</td></tr>
+</tbody></table>
+<h3>Dagger <span class="meta">· L100 pure-primary · ability lvl 20</span></h3>
+<table><thead><tr><th>Ability</th><th>base hit (max)</th><th>upg hit (max)</th><th>base DPS</th><th>upg DPS</th><th>gain</th><th>upg AoE DPS</th><th>upgrade path</th></tr></thead><tbody>
+<tr><td class="ab">Twin Fang (starter)</td><td>7,007</td><td>13,313</td><td>10,201</td><td><b>38,762</b></td><td style="background:rgba(220,50,70,0.35);"><b>3.80×</b></td><td>38,762</td><td class="note">+90% dmg, -0.5s CD</td></tr>
+<tr><td class="ab">Fan of Knives</td><td>2,318</td><td>4,635</td><td>3,936</td><td><b>11,809</b></td><td style="background:rgba(220,50,70,0.35);"><b>3.00×</b></td><td>35,428</td><td class="note">+100% dmg, -1s CD</td></tr>
+<tr><td class="ab">Envenom</td><td>8,947</td><td>11,184</td><td>1,628</td><td><b>2,035</b></td><td style="background:rgba(77,137,70,0.35);"><b>1.25×</b></td><td>2,035</td><td class="note">+25% dmg <span class="dim">· +poison potency/stacks/duration boost the DoT</span></td></tr>
+<tr><td class="ab">Cripple</td><td>6,845</td><td>8,899</td><td>498</td><td><b>1,619</b></td><td style="background:rgba(220,50,70,0.35);"><b>3.25×</b></td><td>1,619</td><td class="note">+30% dmg, -6s CD</td></tr>
+<tr><td class="ab">Shadowstep</td><td>10,510</td><td>13,138</td><td>1,530</td><td><b>4,782</b></td><td style="background:rgba(220,50,70,0.35);"><b>3.13×</b></td><td>4,782</td><td class="note">+25% dmg, +1h, -1s CD</td></tr>
+<tr><td class="ab">Eviscerate</td><td>20,482</td><td>26,627</td><td>2,485</td><td><b>7,752</b></td><td style="background:rgba(220,50,70,0.35);"><b>3.12×</b></td><td>7,752</td><td class="note">+30% dmg, +1h, -1s CD</td></tr>
+</tbody></table>
 
 <h2 class="weap">Balance findings &amp; recommendations</h2>
 
@@ -228,7 +268,27 @@ beyond the debuff utility.</p></div>
 (+35% dmg / +30% fire-rate at cap) and Dagger's ambush ×2 are multiplicative on top of these raw
 numbers, so signature uptime — not base % — is where real divergence will come from in play.</p></div>
 
-<div class="find"><h4>7 · Tune targets, not just numbers</h4>
+<div class="find bad"><h4>7 · Upgrades are a 2.5–3.8× power spike — the real endgame ceiling</h4>
+<p>Fully upgraded, most damage abilities <b>2.5–3.8× their base DPS</b> (Twin Fang 3.80×, Cripple 3.25×,
+Snipe/Eviscerate/Shadowstep ~3.1×). The trees stack three multipliers at once — bonus damage % ×
+extra hits/targets × cooldown reduction — so the "fully invested" ceiling sits far above the per-level
+tables. Balance the <i>ceiling</i>, not just the base %, or a maxed build trivialises content.</p></div>
+
+<div class="find bad"><h4>8 · The "+1 hit" tier-3 variant usually beats the "+90% damage" one (single-target)</h4>
+<p>On 1–2-hit abilities, adding a hit doubles per-cast damage, which beats even a +0.9 damage variant
+(e.g. Snipe/Eviscerate pick <b>Double Tap/Overkill (+1 hit)</b> over Killshot/Assassinate (+90%)).
+The flashy big-damage tier-3 variants are <b>traps</b> for single-target — they only win on already
+multi-hit abilities (Fan of Knives, Twin Fang). Consider rebalancing so the choice is genuinely close.</p></div>
+
+<div class="find"><h4>9 · Low-CD spammables dominate the raw DPS column — finishers are burst, not sustained</h4>
+<p>Twin Fang (0.5s CD upgraded), Snap Shot (no CD) and Arcane Bolt out-DPS the cooldown finishers on
+pure sustained single-target because DPS = per-cast ÷ cooldown ignores mana, animation lock, and the
+fact that finishers are <i>woven</i> into auto-attacks for burst + their signature payoff (Snipe spends
+Momentum, Eviscerate executes). Don't read the DPS column as "finishers are weak" — read it as "verify
+the spammables aren't mana-free infinite DPS." Cripple shows the opposite: a 10s CD made it the floor
+until CD-reduction upgrades (−6s) tripled it — long cooldowns are extremely upgrade-sensitive.</p></div>
+
+<div class="find"><h4>10 · Tune targets, not just numbers</h4>
 <p>Key starting-value knobs flagged this session: Immolate Fire splash %, Glacial Spike freeze
 duration, lightning chain hops, Snipe's +12%/stack, Eviscerate's 35% execute threshold, Momentum
 per-stack ramp. All are isolated constants — cheap to adjust from playtest feel.</p></div>

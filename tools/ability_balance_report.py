@@ -106,6 +106,44 @@ ABILITIES = {
 #   "tank"    = half primary / half CON.
 ARCHETYPES = ["default", "pure", "tank"]
 
+# ─────────────────────────────────────────────────────────────────────────────
+# UPGRADE TREES  (source: resources/Abilities/*/Upgrades/U_*.tres, 2026-05-29)
+# Per damage ability: fixed (always-owned tier-1+2) damage upgrades, then the
+# tier-3 VARIANT group (mutually exclusive — own exactly ONE). Only the four
+# damage-relevant effect_keys are modelled here (bonus_damage_mult / bonus_hits /
+# bonus_targets / cooldown_flat_reduction). DoT-potency, combo-override and
+# passive-stat upgrades are noted in the analysis, not folded into direct damage.
+#   fixed = (sum_dmg_mult, add_hits, add_targets, cd_reduction)
+#   variants = list of (dmg_mult, add_hits, add_targets, cd_reduction)  [pick best]
+UPG = {
+ # Sword
+ "Crescent Cleave (starter)": {"fixed": (0.25,0,0,1.0), "variants": [(0,0,0,0)], "extra":"+Razor Wind combo override (not modelled)"},
+ "Steel Flurry":              {"fixed": (0.20,0,1,0.0), "variants": [(0,1,0,0),(0.50,0,0,0)]},
+ "Sundering Blow":            {"fixed": (0.30,0,0,1.0), "variants": [(0,0,1,0),(0.70,0,0,0)], "extra":"+Executioner combo override"},
+ "Hemorrhage":                {"fixed": (0.25,0,0,0.0), "variants": [(0,0,1,0)], "extra":"+bleed potency/duration upgrades boost the DoT"},
+ "Vault Strike":              {"fixed": (0.25,0,1,0.0), "variants": [(0.60,0,0,0),(0,0,2,0),(0,1,0,0)]},
+ # Bow
+ "Split Shot":                {"fixed": (0,0,1,0.5),    "variants": [(0.45,0,0,0),(0,1,0,0),(0,0,2,0)]},
+ "Hailstorm":                 {"fixed": (0,1,1,0.0),    "variants": [(0,3,0,0),(0.40,0,0,0),(0,0,2,0)]},
+ "Skyfall":                   {"fixed": (0.25,0,2,0.0), "variants": [(0,0,4,0),(0.60,0,0,0),(0,1,0,0)]},
+ "Barbed Shot":               {"fixed": (0.25,0,0,0.0), "variants": [(0,0,1,0)], "extra":"+bleed potency/duration boost the DoT"},
+ "Disengage":                 {"fixed": (0.30,0,0,1.0), "variants": [(0.70,0,0,0),(0,0,2,0),(0,0,0,2.0)]},
+ "Snipe":                     {"fixed": (0.30,0,0,1.0), "variants": [(0.90,0,0,0),(0,0,1,0),(0,1,0,0)]},
+ # Staff
+ "Arcane Bolt (starter)":     {"fixed": (0,0,1,0.4),    "variants": [(0.45,0,0,0),(0,0,3,0),(0,1,0,0)]},
+ "Glacial Spike":             {"fixed": (0.25,0,0,1.0), "variants": [(0.70,0,0,0),(0,1,0,0),(0,0,2,0)]},
+ "Immolate":                  {"fixed": (0.25,0,0,0.0), "variants": [(0,0,1,0)], "extra":"+burn potency/duration boost the DoT; Fire stance ~doubles it"},
+ "Pyre Burst":                {"fixed": (0.25,0,2,0.0), "variants": [(0,0,4,0),(0.60,0,0,0),(0,1,0,0)]},
+ "Arcane Lance":              {"fixed": (0,1,1,0.0),    "variants": [(0.40,0,0,0),(0,3,0,0),(0,0,2,0)]},
+ # Dagger
+ "Twin Fang (starter)":       {"fixed": (0.25,0,0,0.5), "variants": [(0,1,0,0),(0.65,0,0,0),(0,0,1,0)]},
+ "Fan of Knives":             {"fixed": (0.30,0,0,1.0), "variants": [(0,0,2,0),(0,3,0,0),(0.70,0,0,0)]},
+ "Envenom":                   {"fixed": (0.25,0,0,0.0), "variants": [(0,0,0,0)], "extra":"+poison potency/stacks/duration boost the DoT"},
+ "Cripple":                   {"fixed": (0.30,0,0,2.0), "variants": [(0,0,0,4.0),(0.75,0,0,0),(0,0,2,0)]},
+ "Shadowstep":                {"fixed": (0.25,0,0,1.0), "variants": [(0.65,0,0,0),(0,0,2,0),(0,1,0,0)]},
+ "Eviscerate":                {"fixed": (0.30,0,0,1.0), "variants": [(0.90,0,0,0),(0,1,0,0),(0,0,1,0)]},
+}
+
 def linear(base, per, lvl):
     return base + per * (lvl - 1)
 
@@ -146,8 +184,31 @@ def max_range(disc_name, attrs, attack_power):
     stat_mult = primary * 4 + secondary
     return round(WEAPON_MULTIPLIER * stat_mult * attack_power / 100.0)
 
-def ability_numbers(ab, disc_name, level, archetype):
-    """Compute per-hit + per-cast + DPS for an ability at character `level`."""
+def best_upgrade_config(name, base_hits, base_cd):
+    """Pick the tier-3 variant that maximises single-target DPS, combined with the
+    always-owned fixed upgrades. Returns (dmg_mult_add, hits_add, targets_add,
+    cd_reduction, label) or None if the ability has no modelled damage upgrades."""
+    u = UPG.get(name)
+    if not u:
+        return None
+    fd, fh, ft, fc = u["fixed"]
+    best = None
+    for (vd, vh, vt, vc) in u["variants"]:
+        dmg_mult = fd + vd
+        hits_add = fh + vh
+        cd_red = fc + vc
+        eff_cd = max(0.1, base_cd - cd_red)
+        # single-target DPS proxy: (1+dmg) × (hits+add)/hits ÷ cd
+        st = (1.0 + dmg_mult) * ((base_hits + hits_add) / base_hits) / eff_cd
+        if best is None or st > best[0]:
+            best = (st, dmg_mult, hits_add, ft + vt, cd_red)
+    _, dmg_mult, hits_add, tgt_add, cd_red = best
+    return dmg_mult, hits_add, tgt_add, cd_red, u.get("extra", "")
+
+
+def ability_numbers(ab, disc_name, level, archetype, upgraded=False):
+    """Compute per-hit + per-cast + DPS for an ability at character `level`.
+    If upgraded=True, fold in the best single-target upgrade config."""
     (name, max_lvl, dmg_base, dmg_per, hits, hits_per, targets,
      mana_base, mana_per, cd_base, cd_per, magic, note) = ab
     if dmg_base <= 0:
@@ -157,12 +218,24 @@ def ability_numbers(ab, disc_name, level, archetype):
     dmg_pct = linear(dmg_base, dmg_per, ab_lvl)
     n_hits = round(linear(hits, hits_per, ab_lvl))
     cd = max(0.1, linear(cd_base, cd_per, ab_lvl))
+    dmg_mult_up = 1.0
+    upg_label = ""
+    if upgraded:
+        cfg = best_upgrade_config(name, max(1, n_hits), cd)
+        if cfg:
+            dmg_add, hits_add, tgt_add, cd_red, extra = cfg
+            dmg_mult_up = 1.0 + dmg_add
+            n_hits += hits_add
+            targets += tgt_add
+            cd = max(0.1, cd - cd_red)
+            upg_label = f"+{dmg_add*100:.0f}% dmg" + (f", +{hits_add}h" if hits_add else "") + \
+                        (f", +{tgt_add}t" if tgt_add else "") + (f", -{cd_red:g}s CD" if cd_red else "")
 
     attrs, crit, pool, mast = build_stats(disc_name, level, archetype)
     ap = gear_attack_power(level)
     mr = max_range(disc_name, attrs, ap)
 
-    hit_max = mr * dmg_pct / 100.0                  # top of the roll, one hit
+    hit_max = mr * dmg_pct / 100.0 * dmg_mult_up    # top of the roll, one hit
     hit_min = hit_max * MASTERY_FLOOR               # bottom of the roll
     hit_avg = (hit_min + hit_max) / 2.0
     # crit expectation (same-level even fight, no defense): CRITDAMAGE=0 → ×~1.35
@@ -180,7 +253,7 @@ def ability_numbers(ab, disc_name, level, archetype):
         "per_cast": round(per_cast_avg), "dps": round(dps_single),
         "dps_aoe": round(dps_aoe), "mana": round(linear(mana_base, mana_per, ab_lvl), 1),
         "dmg_per_mana": round(per_cast_avg / max(1, linear(mana_base, mana_per, ab_lvl)), 1),
-        "crit": round(crit, 1), "note": note,
+        "crit": round(crit, 1), "note": note, "upg_label": upg_label,
     }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -221,6 +294,10 @@ def render():
         '<li><b>CRITDAMAGE base 0</b> with no gear source → a crit is only ×1.2–1.5. Crit rate is a near-dead stat.</li>'
         '<li>Tables below are <b>raw, same-level, zero-defense</b> single-target to isolate ability balance '
         '(defense &amp; level-gap are flat multipliers that hit every ability equally).</li>'
+        '<li><b>Ability level &amp; upgrades:</b> each ability scales with character level capped at its own max '
+        '(so the L100 tables show abilities at <b>max level 20</b>). The per-level tables are <b>base — no '
+        'upgrades</b>. The <a href="#ceil">Fully-Upgraded Ceilings</a> section below adds the PR6 upgrade trees '
+        '(best single-target tier-3 variant per ability) to show each ability\'s true endgame ceiling.</li>'
         '<li><b>Why Level 1 damage is tiny:</b> at L1 the attribute pool is 0 (5×(level−1)) and mastery is 0, '
         'so primary/secondary are just their base 4 → stat term = 4×4+4 = 20. With a starter weapon (~9 attack) '
         'that is 1.2×20×9/100 ≈ <b>2</b> per basic hit. Early damage is almost entirely <b>weapon-gated</b>; it '
@@ -285,6 +362,44 @@ def render():
                 f'+{avg_gain:.0f}% DPS on average from re-speccing all points into the primary stat. '
                 f'This is the "damage ceiling" lever (ADR 0002 Open #1).</p>')
 
+    # ── Fully-upgraded ceilings (L100, pure-primary) ────────────────────────
+    parts.append('<h2 class="weap" id="ceil">Fully-Upgraded Ceilings — L100, pure-primary</h2>')
+    parts.append('<div class="card"><p>Each damage ability at <b>max level 20 + its best single-target upgrade '
+        'path</b> (PR6 trees: the always-owned tier-1/2 upgrades plus the tier-3 variant that maximises '
+        'single-target DPS — variants are mutually exclusive). Compare <b>base</b> (no upgrades) vs <b>upgraded</b> '
+        'DPS. DoT-potency, combo-override and passive-stat upgrades are <i>not</i> in these numbers (noted per row), '
+        'so true ceilings for DoT abilities are higher still.</p></div>')
+    for disc in DISCIPLINES:
+        rows = []
+        for ab in ABILITIES[disc]:
+            base = ability_numbers(ab, disc, 100, "pure", upgraded=False)
+            up = ability_numbers(ab, disc, 100, "pure", upgraded=True)
+            if base and up:
+                rows.append((base, up))
+        if not rows:
+            continue
+        parts.append(f'<h3>{disc} <span class="meta">· L100 pure-primary · ability lvl 20</span></h3>')
+        parts.append('<table><thead><tr>'
+            '<th>Ability</th><th>base hit (max)</th><th>upg hit (max)</th>'
+            '<th>base DPS</th><th>upg DPS</th><th>gain</th><th>upg AoE DPS</th>'
+            '<th>upgrade path</th></tr></thead><tbody>')
+        for base, up in rows:
+            gain = up["dps"] / base["dps"] if base["dps"] else 1.0
+            extra = up.get("upg_label", "")
+            note_extra = ""
+            u = UPG.get(base["name"], {})
+            if u.get("extra"):
+                note_extra = f' <span class="dim">· {esc(u["extra"])}</span>'
+            parts.append('<tr>'
+                f'<td class="ab">{esc(base["name"])}</td>'
+                f'<td>{base["hit_max"]:,}</td><td>{up["hit_max"]:,}</td>'
+                f'<td>{base["dps"]:,}</td><td><b>{up["dps"]:,}</b></td>'
+                f'<td style="{heat(gain,1.0,2.2)}"><b>{gain:.2f}×</b></td>'
+                f'<td>{up["dps_aoe"]:,}</td>'
+                f'<td class="note">{esc(extra)}{note_extra}</td>'
+                '</tr>')
+        parts.append('</tbody></table>')
+
     parts.append(ANALYSIS)
     parts.append('</div>')  # wrap
     parts.append('</body></html>')
@@ -321,6 +436,8 @@ td.note{color:var(--mut);white-space:normal;min-width:160px}
 .find h4{margin:0 0 4px;font-size:14.5px}
 .find p{margin:0;color:var(--mut)}
 code{background:#0b0d13;padding:1px 5px;border-radius:4px;color:#cdd6e4}
+.dim{color:#6b7280;font-size:11.5px}
+a{color:var(--acc)}
 </style></head><body>"""
 
 ANALYSIS = """
@@ -360,7 +477,27 @@ beyond the debuff utility.</p></div>
 (+35% dmg / +30% fire-rate at cap) and Dagger's ambush ×2 are multiplicative on top of these raw
 numbers, so signature uptime — not base % — is where real divergence will come from in play.</p></div>
 
-<div class="find"><h4>7 · Tune targets, not just numbers</h4>
+<div class="find bad"><h4>7 · Upgrades are a 2.5–3.8× power spike — the real endgame ceiling</h4>
+<p>Fully upgraded, most damage abilities <b>2.5–3.8× their base DPS</b> (Twin Fang 3.80×, Cripple 3.25×,
+Snipe/Eviscerate/Shadowstep ~3.1×). The trees stack three multipliers at once — bonus damage % ×
+extra hits/targets × cooldown reduction — so the "fully invested" ceiling sits far above the per-level
+tables. Balance the <i>ceiling</i>, not just the base %, or a maxed build trivialises content.</p></div>
+
+<div class="find bad"><h4>8 · The "+1 hit" tier-3 variant usually beats the "+90% damage" one (single-target)</h4>
+<p>On 1–2-hit abilities, adding a hit doubles per-cast damage, which beats even a +0.9 damage variant
+(e.g. Snipe/Eviscerate pick <b>Double Tap/Overkill (+1 hit)</b> over Killshot/Assassinate (+90%)).
+The flashy big-damage tier-3 variants are <b>traps</b> for single-target — they only win on already
+multi-hit abilities (Fan of Knives, Twin Fang). Consider rebalancing so the choice is genuinely close.</p></div>
+
+<div class="find"><h4>9 · Low-CD spammables dominate the raw DPS column — finishers are burst, not sustained</h4>
+<p>Twin Fang (0.5s CD upgraded), Snap Shot (no CD) and Arcane Bolt out-DPS the cooldown finishers on
+pure sustained single-target because DPS = per-cast ÷ cooldown ignores mana, animation lock, and the
+fact that finishers are <i>woven</i> into auto-attacks for burst + their signature payoff (Snipe spends
+Momentum, Eviscerate executes). Don't read the DPS column as "finishers are weak" — read it as "verify
+the spammables aren't mana-free infinite DPS." Cripple shows the opposite: a 10s CD made it the floor
+until CD-reduction upgrades (−6s) tripled it — long cooldowns are extremely upgrade-sensitive.</p></div>
+
+<div class="find"><h4>10 · Tune targets, not just numbers</h4>
 <p>Key starting-value knobs flagged this session: Immolate Fire splash %, Glacial Spike freeze
 duration, lightning chain hops, Snipe's +12%/stack, Eviscerate's 35% execute threshold, Momentum
 per-stack ramp. All are isolated constants — cheap to adjust from playtest feel.</p></div>
