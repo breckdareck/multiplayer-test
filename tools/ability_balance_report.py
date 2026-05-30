@@ -28,6 +28,11 @@ BASE_CRITDAMAGE   = 0.0     # %  (stats.gd) — the "crit trap": no gear source 
 ATTR_PTS_PER_LEVEL = 5      # stats.gd ATTRIBUTE_POINTS_PER_LEVEL
 MASTERY_CAP       = 20      # WeaponMasteryComponent cap
 LUCK_TO_CRIT      = 0.1     # % crit per LUCK point (stats.gd)
+ATTR_SOFT_CAP_KNEE  = 300   # diminishing returns on allocation above this (stats.gd)
+ATTR_SOFT_CAP_SLOPE = 0.4
+
+def soft_cap(raw):
+    return raw if raw <= ATTR_SOFT_CAP_KNEE else ATTR_SOFT_CAP_KNEE + int((raw - ATTR_SOFT_CAP_KNEE) * ATTR_SOFT_CAP_SLOPE)
 CRIT_MULT_AVG     = (1.2 + 1.5) / 2.0   # randf_range(1.2,1.5) average, + CRITDAMAGE/100
 
 # Discipline primary / secondary stat (resource_manager.get_primary/secondary_stat)
@@ -184,7 +189,13 @@ def build_stats(disc_name, level, archetype):
         attrs[d["primary"]] += pool // 2
         attrs["CON"] += pool - pool // 2
 
-    # 2) mastery scaling (auto, on the wielded discipline)
+    # apply the soft-cap to the ALLOCATED portion (per stat), before mastery/base
+    for k in attrs:
+        alloc = attrs[k] - BASE_ATTR
+        if alloc > 0:
+            attrs[k] = BASE_ATTR + soft_cap(alloc)
+
+    # 2) mastery scaling (auto, on the wielded discipline) — not soft-capped
     for k, per in d["mastery_bonus"].items():
         attrs[k] += per * mast
 

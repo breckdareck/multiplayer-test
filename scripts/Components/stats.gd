@@ -99,6 +99,26 @@ const CON_TO_HP: float = 8.0
 const CON_TO_HPREGEN: float = 0.2
 const DEX_TO_ACCURACY: float = 0.05  # % hit per DEX, consumed in combat.gd
 
+# PR 7 balance — attribute SOFT-CAP (diminishing returns on hard mono-stacking).
+# Allocated points into a SINGLE stat keep full value up to ATTR_SOFT_CAP_KNEE,
+# then each point beyond counts at ATTR_SOFT_CAP_SLOPE. This shrinks the
+# pure-primary advantage (was ~+43% damage, always-correct) so spreading into
+# the secondary / CON / utility is competitive — without nerfing the default
+# discipline-ratio build, whose L100 primary (~297) sits UNDER the knee. Applies
+# only to the manually-allocated pool, NOT base / mastery / gear. Point ACCOUNTING
+# (reconcile_ability_points / save) is unaffected — it tracks spent points, not
+# effective stat value. Tunable starting values.
+const ATTR_SOFT_CAP_KNEE: int = 300
+const ATTR_SOFT_CAP_SLOPE: float = 0.4
+
+
+## Diminishing-returns transform on the raw points allocated to one stat.
+## Full value up to the knee, then ATTR_SOFT_CAP_SLOPE beyond it.
+func _effective_allocation(raw: int) -> int:
+	if raw <= ATTR_SOFT_CAP_KNEE:
+		return raw
+	return ATTR_SOFT_CAP_KNEE + int((raw - ATTR_SOFT_CAP_KNEE) * ATTR_SOFT_CAP_SLOPE)
+
 ## {StatType: spent_points}. Server-authoritative; synced to the owning client.
 var _allocated_attributes: Dictionary = {}
 
@@ -200,9 +220,13 @@ func _recalculate_stats() -> void:
 	# mastery scaling (below) still auto-grants on top. Existing characters are
 	# default-allocated to their starting discipline's ratio on load (see
 	# reconcile_attribute_points), so nothing changes until they choose to respec.
+	# Soft-capped: diminishing returns above ATTR_SOFT_CAP_KNEE per stat, so hard
+	# mono-stacking (pure-primary) is reined in while split/default builds keep
+	# full value. The raw allocation is still what's stored/accounted; only the
+	# stat CONTRIBUTION is softened here.
 	for stat_type in _allocated_attributes:
 		if stats.has(stat_type):
-			stats[stat_type].base_value += int(_allocated_attributes[stat_type])
+			stats[stat_type].base_value += _effective_allocation(int(_allocated_attributes[stat_type]))
 
 	# Reset flat bonuses before recalculating
 	for stat_type in stats:
