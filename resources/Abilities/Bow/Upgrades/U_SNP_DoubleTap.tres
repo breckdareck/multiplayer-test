@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://bowu_snp5_doubletap"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "snp_t3_double_tap"
+upgrade_name = "Double Tap"
+description = "Snipe fires a second arrow at the target."
+point_cost = 2
+tier = 3
+variant_group = "snp_shot_variant"
+effect_key = "bonus_hits"
+magnitude = 1.0

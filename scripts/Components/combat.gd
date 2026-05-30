@@ -9,6 +9,10 @@ signal dealt_damage(target: Node, damage_values: Array, crit_values: Array)
 @export var weapon_multiplier: float = 1.2
 ## Mastery: min damage as a fraction of max (0.2 = 20%, 0.6 = 60%)
 @export var mastery: float = 0.2
+## SPELLBLADE: fraction of the wielder's best PHYSICAL stat (STR/DEX) that
+## supplements a STAFF's INT scaling, so a physical main's off-hand staff isn't
+## dead. 0.5 = half. Tunable. A dedicated caster is ~unaffected (low STR/DEX).
+const SPELLBLADE_PHYS_RATE: float = 0.5
 
 # Attack type tracking
 enum AttackMode {NONE, BASIC, ABILITY}
@@ -53,6 +57,18 @@ var _equipment_component: EquipmentComponent
 var _ability_component: AbilityComponent
 var _weapon_mastery_component: WeaponMasteryComponent
 var _sword_combo_component: SwordComboComponent
+## PR 7: Staff discipline's signature — the active element stance. Its on-hit
+## rider is applied from _execute_hit, strictly gated to staff ability hits.
+var _staff_element_component: StaffElementComponent
+## PR 7: Dagger discipline's signature — Shadowmeld stealth. While stealthed
+## (and wielding a dagger), _execute_hit multiplies every hit of the landing
+## attack by ShadowmeldComponent.AMBUSH_DAMAGE_MULT then breaks stealth once.
+var _shadowmeld_component: ShadowmeldComponent
+## Bow discipline's signature — MOMENTUM. _execute_hit builds a stack on every
+## landed bow hit; calculate_ability_damage ramps ALL bow damage by the gauge's
+## current bonus. Both gated to _is_wielding_bow() so they never touch another
+## weapon. Fire-rate ramp lives in attack.gd (reads get_speed_bonus()).
+var _bow_momentum_component: BowMomentumComponent
 
 ## PR 5: transient damage multiplier applied to the NEXT ability damage
 ## calculation. Used by AL_SlashBlast to scale damage by combo points spent
@@ -78,6 +94,9 @@ func _ready() -> void:
 	_ability_component = get_parent().get_node_or_null("Ability")
 	_weapon_mastery_component = get_parent().get_node_or_null("WeaponMastery")
 	_sword_combo_component = get_parent().get_node_or_null("SwordCombo")
+	_staff_element_component = get_parent().get_node_or_null("StaffElement")
+	_shadowmeld_component = get_parent().get_node_or_null("Shadowmeld")
+	_bow_momentum_component = get_parent().get_node_or_null("BowMomentum")
 
 	hitbox_area.monitoring = false
 
@@ -379,11 +398,20 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 
 	var attacker_level = owner_node.level_component.level
 	var target_level = target_enemy.monster_level
+	# Training dummies (invincible) read as the attacker's level, so damage and
+	# hit-chance reflect a true even-level hit instead of the level-gap modifier.
+	if health_comp.invincible:
+		target_level = attacker_level
 
 	# --- Hit Chance Calculation ---
 	var level_diff = attacker_level - target_level
 	# Base 95% chance to hit. Lose 2% chance for each level the monster is above you.
-	var hit_chance = clamp(95.0 + (level_diff * 2.0), 5.0, 100.0)
+	# PR 7: DEX adds accuracy (StatsComponent.DEX_TO_ACCURACY % per point) — mainly
+	# matters vs higher-level enemies where the base chance dips below the cap.
+	var dex_accuracy: float = 0.0
+	if _stats_component:
+		dex_accuracy = _stats_component.stats.get(Constants.StatType.DEXTERITY).total_value * StatsComponent.DEX_TO_ACCURACY
+	var hit_chance = clamp(95.0 + (level_diff * 2.0) + dex_accuracy, 5.0, 100.0)
 	
 	var max_hits = 1
 	if ability and level_stats:
@@ -391,7 +419,34 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 	
 	var damage_values: Array = []
 	var crit_values: Array = []
-	
+	# PR 7 — Staff element: representative landed damage for scaling the
+	# LIGHTNING stance bonus. Tracks the largest non-miss hit this call so a
+	# multi-hit spell bases its shock off the biggest tick. Stays 0 if every
+	# hit missed (then the element hook after the loop is skipped).
+	var max_landed_damage: int = 0
+
+	# PR 7 — Dagger Shadowmeld ambush. If the attacker is stealthed AND wielding a
+	# dagger, EVERY hit of this attack is multiplied by AMBUSH_DAMAGE_MULT, then
+	# stealth breaks ONCE after the loop. Computed once up front so a multi-hit
+	# ability ambushes uniformly. Unlike the staff element rider, this applies to a
+	# basic melee hit (ability == null) too — landing from stealth is the point.
+	# The _is_wielding_dagger() gate means it can never affect a sword / bow / staff
+	# hit (their active weapon isn't a dagger), even with a dagger in the off slot.
+	# Ambush fires from EITHER stealth source: the Shadowmeld signature toggle OR
+	# the Vanish ability's invisibility buff — "any hit from stealth" empowers the
+	# strike. Both are consumed after the loop (one ambush per cloak).
+	var ambush_mult: float = 1.0
+	var ambush_from_vanish: bool = false
+	if _is_wielding_dagger():
+		var stealthed: bool = is_instance_valid(_shadowmeld_component) and _shadowmeld_component.is_stealthed()
+		var vanished: bool = false
+		var bc = owner_node.get("buff_component")
+		if bc != null and is_instance_valid(bc) and bc.has_method("has_buff"):
+			vanished = bc.has_buff("Vanish")
+		if stealthed or vanished:
+			ambush_mult = ShadowmeldComponent.AMBUSH_DAMAGE_MULT
+			ambush_from_vanish = vanished
+
 	for i in range(max_hits):
 		var roll = randf() * 100
 		if roll > hit_chance:
@@ -420,16 +475,36 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 		
 		var crit_chance = _stats_component.stats.get(Constants.StatType.CRITCHANCE).total_value
 		var is_crit = (randf() * 100) < crit_chance
-		
+		# PR 7 — Dagger Shadowmeld ambush GUARANTEES a crit on the strike from
+		# stealth (the assassin payoff: a hit from the shadows always lands true),
+		# in addition to the AMBUSH_DAMAGE_MULT applied below. Only when an ambush
+		# is active this call, so normal dagger hits keep their rolled crit chance.
+		if ambush_mult > 1.0:
+			is_crit = true
+
 		if is_crit:
 			var crit_damage_bonus = _stats_component.stats.get(Constants.StatType.CRITDAMAGE).total_value
 			var crit_multiplier = randf_range(1.2, 1.5) + (crit_damage_bonus / 100.0)
 			modified_damage *= crit_multiplier
 
+		# Conditional-damage passives (Aggression/Execution/Killing Spree/Composure).
+		# Situational bonus based on the target's HP, the attacker's HP, or a recent
+		# kill — queried per hit here since the target is known. 1.0 when no
+		# conditional passive applies (or its condition is unmet).
+		if _ability_component and _ability_component.has_method("get_conditional_damage_modifier"):
+			modified_damage *= _ability_component.get_conditional_damage_modifier(target_enemy)
+
 		var damage_to_deal = roundi(modified_damage)
+
+		# PR 7 — Dagger Shadowmeld ambush: scale this hit if the attack landed
+		# from stealth (computed once before the loop). 1.0 = no-op otherwise.
+		if ambush_mult > 1.0:
+			damage_to_deal = roundi(damage_to_deal * ambush_mult)
 
 		damage_values.append(damage_to_deal)
 		crit_values.append(is_crit)
+		if damage_to_deal > max_landed_damage:
+			max_landed_damage = damage_to_deal
 
 		var was_alive: bool = not health_comp.is_dead
 		health_comp.take_damage(damage_to_deal, self, true, is_crit, false)
@@ -548,6 +623,54 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 			}
 			_ability_component.try_trigger_procs(event_type, target_enemy, context)
 
+	# PR 7 — Staff element stance on-hit rider. STRICTLY GATED so it can NEVER
+	# affect a sword / bow / dagger hit:
+	#   (a) the active weapon must be a STAFF (_is_wielding_staff()), AND
+	#   (b) this hit must be a staff ABILITY (ability != null) — a staff's basic
+	#       MELEE swing uses ability == null and is intentionally excluded; only
+	#       staff SPELL hits carry the element.
+	# Fires once per target after the hit loop. FIRE applies a stacking burn,
+	# ICE a movement slow, LIGHTNING a bonus-damage shock scaled off the biggest
+	# landed hit. Skipped if every hit missed (max_landed_damage == 0).
+	if ability != null and max_landed_damage > 0 and is_instance_valid(_staff_element_component) and _is_wielding_staff():
+		_staff_element_component.apply_element_on_hit(owner_node, target_enemy, max_landed_damage)
+
+	# Record the most-recently-damaged enemy on the attacker so party bots can
+	# focus-fire a human teammate's target (humans have no explicit target lock).
+	if max_landed_damage > 0 and "recent_combat_target" in owner_node:
+		owner_node.recent_combat_target = target_enemy
+		owner_node.recent_combat_target_ms = Time.get_ticks_msec()
+
+	# Bow Momentum: build ONE stack whenever this attack landed at least one hit
+	# while a bow is wielded. UNLIKE the staff rider, this is NOT gated on
+	# ability != null — Momentum should build off the basic Snap Shot (which
+	# routes through the Arrow Shot ability) AND every bow ability hit, so the
+	# whole bow kit feeds the gauge. Once per landed _execute_hit (per target),
+	# matching the sword-combo cadence. The cap, decay, and RPC sync are owned by
+	# the BowMomentumComponent itself. Skipped if every hit missed.
+	if max_landed_damage > 0 and is_instance_valid(_bow_momentum_component) and _is_wielding_bow():
+		# Multi-shot abilities (Hailstorm / Skyfall) build EXTRA Momentum per landed
+		# attack — saturating fire ramps the gauge faster than a single Snap Shot.
+		var momentum_gain: int = 1
+		if ability != null and (ability.ability_name == "Hailstorm" or ability.ability_name == "Skyfall"):
+			momentum_gain = 2
+		_bow_momentum_component.add_momentum(momentum_gain)
+
+	# PR 7 — Dagger ambush: this attack landed FROM stealth (ambush_mult raised
+	# before the loop), so the bonus + guaranteed crit already applied to every hit
+	# above. Consume the cloak now — one ambush per stealth. Break the Shadowmeld
+	# toggle, and if the ambush came from the Vanish buff, remove that too (striking
+	# reveals you). Order matters: break_stealth's coexistence guard leaves
+	# is_invisible alone while Vanish is active, then remove_buff("Vanish") ->
+	# BL_DarkSight.on_remove clears invisibility + restores the sprite.
+	if ambush_mult > 1.0:
+		if is_instance_valid(_shadowmeld_component):
+			_shadowmeld_component.break_stealth()
+		if ambush_from_vanish:
+			var bc2 = owner_node.get("buff_component")
+			if bc2 != null and is_instance_valid(bc2) and bc2.has_method("remove_buff"):
+				bc2.remove_buff("Vanish")
+
 	# Apply target debuff if the ability defines one
 	if ability and ability.applies_target_debuff and target_enemy is EnemyBase:
 		var debuff_duration := 10.0
@@ -606,6 +729,27 @@ func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelDa
 	var dmg_bonus: float = _upgrade_float(_ability, "bonus_damage_mult")
 	if dmg_bonus != 0.0:
 		damage = roundi(damage * (1.0 + dmg_bonus))
+
+	# Bow signature — MOMENTUM damage ramp. While a bow is wielded, scale damage
+	# by the gauge's current bonus (+DAMAGE_PER_STACK per stack). The
+	# _is_wielding_bow() gate means this applies to the basic Snap Shot AND every
+	# bow ability (so the signature pervades the whole kit), and NEVER to a
+	# sword / staff / dagger ability (their active weapon isn't a bow). Read-only
+	# here — building/decaying the gauge is owned by the component.
+	if is_instance_valid(_bow_momentum_component) and _is_wielding_bow():
+		damage = roundi(damage * (1.0 + _bow_momentum_component.get_damage_bonus()))
+
+		# Bow signature — SNIPE is the Momentum SPENDER. Snipe CONSUMES all built-up
+		# Momentum for a burst (+SNIPE_CONSUME_PCT_PER_STACK per stack on top of the
+		# passive ramp above), then resets the gauge to 0. This gives Momentum a
+		# "cash it in" finisher — mirrors how sword finishers spend combo points.
+		# Single-target single-hit projectile, so this consumes exactly once.
+		if _ability != null and _ability.ability_name == "Snipe":
+			var stacks: int = _bow_momentum_component.get_stacks()
+			if stacks > 0:
+				const SNIPE_CONSUME_PCT_PER_STACK: float = 0.12  # +120% at 10 stacks
+				damage = roundi(damage * (1.0 + stacks * SNIPE_CONSUME_PCT_PER_STACK))
+				_bow_momentum_component.reset()
 
 	return damage
 
@@ -698,17 +842,81 @@ func _get_weapon_attack_stat() -> Constants.StatType:
 	return Constants.StatType.WEAPONATTACK
 
 
+## PR 7 — Staff element gate. True only when the ACTIVE weapon is a STAFF.
+## Read through active_weapon_data so a Tab-swap to/from a staff flips it live
+## and a carried-but-inactive staff in the secondary slot does NOT count. This
+## is the strict guard the _execute_hit element hook uses so the stance can
+## never affect a sword / bow / dagger hit (their active weapon isn't a staff).
+func _is_wielding_staff() -> bool:
+	if not _equipment_component:
+		return false
+	var weapon: WeaponData = _equipment_component.active_weapon_data
+	if weapon == null:
+		return false
+	return weapon.weapon_type == Constants.WeaponType.STAFF
+
+
+## PR 7 — Dagger ambush gate. True only when the ACTIVE weapon is a DAGGER.
+## Read through active_weapon_data so a Tab-swap to/from a dagger flips it live
+## and a carried-but-inactive dagger in the secondary slot does NOT count. This is
+## the guard the _execute_hit Shadowmeld hook uses so the ambush multiplier can
+## never affect a sword / bow / staff hit. Mirrors _is_wielding_staff().
+func _is_wielding_dagger() -> bool:
+	if not _equipment_component:
+		return false
+	var weapon: WeaponData = _equipment_component.active_weapon_data
+	if weapon == null:
+		return false
+	return weapon.weapon_type == Constants.WeaponType.DAGGER
+
+
+## Bow Momentum gate. True only when the ACTIVE weapon is a BOW. Read through
+## active_weapon_data so a Tab-swap to/from a bow flips it live and a carried-but-
+## inactive bow in the secondary slot does NOT count. This is the strict guard the
+## _execute_hit build hook and the calculate_ability_damage ramp use so Momentum
+## can never build off — or amplify — a sword / staff / dagger hit. Mirrors
+## _is_wielding_staff() / _is_wielding_dagger().
+func _is_wielding_bow() -> bool:
+	if not _equipment_component:
+		return false
+	var weapon: WeaponData = _equipment_component.active_weapon_data
+	if weapon == null:
+		return false
+	return weapon.weapon_type == Constants.WeaponType.BOW
+
+
 func _calculate_max_range(attack_stat_type: Constants.StatType = Constants.StatType.WEAPONATTACK) -> int:
 	if not _stats_component or not _class_component:
 		return 0
 
 	var attack_power = _stats_component.stats.get(attack_stat_type).total_value
 
-	var primary_stat_type = ResourceManager.get_primary_stat(_class_component.current_class)
-	var secondary_stat_type = ResourceManager.get_secondary_stat(_class_component.current_class)
+	# Scale off the ACTIVE weapon's discipline, not the fixed starting class —
+	# "only weapons matter": a Sword-starter wielding a staff should scale off the
+	# STAFF's stats (INT/LUCK), exactly like the sprite + abilities already follow
+	# the active weapon. (Was _class_component.current_class, the starting
+	# discipline, which never updates on weapon swap for real players — so an
+	# off-hand weapon wrongly rode the main's attributes.) Falls back to
+	# current_class when no weapon is equipped.
+	var disc: int = _class_component.current_class
+	if owner_node and owner_node.has_method("get_active_discipline"):
+		disc = owner_node.get_active_discipline()
+	var primary_stat_type = ResourceManager.get_primary_stat(disc)
+	var secondary_stat_type = ResourceManager.get_secondary_stat(disc)
 
 	var primary_stat_value = _stats_component.stats.get(primary_stat_type).total_value
 	var secondary_stat_value = _stats_component.stats.get(secondary_stat_type).total_value
+
+	# SPELLBLADE conversion: a STAFF wielded off a physical build would otherwise
+	# scale off near-base INT (dead off-hand). Supplement the staff's primary stat
+	# with SPELLBLADE_PHYS_RATE of the wielder's best PHYSICAL stat (STR/DEX), so a
+	# sword/bow main's investment partially funds staff damage. A dedicated INT
+	# caster is barely affected (their STR/DEX are ~base). Self-targets the hybrid.
+	if disc == Constants.ClassType.STAFF:
+		var phys: int = maxi(
+			int(_stats_component.stats.get(Constants.StatType.STRENGTH).total_value),
+			int(_stats_component.stats.get(Constants.StatType.DEXTERITY).total_value))
+		primary_stat_value += int(SPELLBLADE_PHYS_RATE * phys)
 
 	var stat_multiplier: float = (primary_stat_value * 4 + secondary_stat_value)
 

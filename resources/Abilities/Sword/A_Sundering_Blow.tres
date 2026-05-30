@@ -1,0 +1,82 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://dq088g6civvd8"]
+
+[ext_resource type="Texture2D" uid="uid://bstguvwrql18p" path="res://assets/sprites/Abilities/power_strike.png" id="1_v0yfe"]
+[ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_vuhxl"]
+[ext_resource type="Script" uid="uid://dfxchnnli8wfh" path="res://scripts/Abilities/AL_PowerStrike.gd" id="3_pstrk"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_hhglo"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="6_pdrvi"]
+[ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_tn7bo"]
+[ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_t6bdd"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="9_aud"]
+[ext_resource type="Resource" uid="uid://2ijaftdicsop" path="res://resources/Abilities/Sword/Upgrades/U_PS_HeavyPommel.tres" id="10_hp"]
+[ext_resource type="Resource" uid="uid://3bwl7mdb3xmi" path="res://resources/Abilities/Sword/Upgrades/U_PS_ArmorPierce.tres" id="11_ap"]
+[ext_resource type="Resource" uid="uid://4f3duphcetov" path="res://resources/Abilities/Sword/Upgrades/U_PS_Executioner.tres" id="12_ex"]
+[ext_resource type="Resource" uid="uid://dbvaocpo62rik" path="res://resources/Abilities/Sword/Upgrades/U_PS_CleavingBlow.tres" id="13_cb"]
+[ext_resource type="Resource" uid="uid://6cwuc378exmi" path="res://resources/Abilities/Sword/Upgrades/U_PS_BrutalForce.tres" id="14_bf"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_i4okq"]
+size = Vector2(30, 20)
+
+[sub_resource type="Resource" id="Resource_pdrvi"]
+script = ExtResource("1_vuhxl")
+target_type = 1
+hit_box_shape_data = SubResource("RectangleShape2D_i4okq")
+hit_box_position_data = Vector2(15, -10)
+animation_name = "attack_1"
+sfx_path = "res://assets/sounds/tap.wav"
+logic_script = ExtResource("3_pstrk")
+
+[sub_resource type="Resource" id="Resource_lc80b"]
+script = ExtResource("6_pdrvi")
+
+[sub_resource type="Resource" id="Resource_j1pqa"]
+script = ExtResource("6_pdrvi")
+base_value = 3.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_rfic8"]
+script = ExtResource("6_pdrvi")
+base_value = 114.0
+per_level = 6.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_2i3s8"]
+script = ExtResource("6_pdrvi")
+base_value = 6.0
+per_level = 0.3
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_28uba"]
+script = ExtResource("6_pdrvi")
+base_value = 1.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_eni3s"]
+script = ExtResource("6_pdrvi")
+base_value = 1.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_4al8t"]
+script = ExtResource("7_tn7bo")
+mana_cost_formula = SubResource("Resource_2i3s8")
+cooldown_formula = SubResource("Resource_j1pqa")
+damage_percent_formula = SubResource("Resource_rfic8")
+max_targets_formula = SubResource("Resource_eni3s")
+max_hits_formula = SubResource("Resource_28uba")
+cast_time_formula = SubResource("Resource_lc80b")
+metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
+
+[resource]
+script = ExtResource("4_hhglo")
+ability_id = "1115614771-143510-91359-21514-0138181401501008"
+ability_name = "Sundering Blow"
+description = "Single-target finisher. Deliver a heavy blow to a single monster for $[damage_percent] damage. [color=#e6c95c]Consumes all combo points to amplify damage by +200% per point spent (max +600% at 3 combo).[/color]"
+ability_icon = ExtResource("1_v0yfe")
+max_level = 20
+required_class = Array[int]([0])
+required_weapon_types = Array[int]([0])
+tree_path = 1
+tree_depth = 1
+upgrades = Array[ExtResource("9_aud")]([ExtResource("10_hp"), ExtResource("11_ap"), ExtResource("12_ex"), ExtResource("13_cb"), ExtResource("14_bf")])
+active_behavior = SubResource("Resource_pdrvi")
+scaling_data = SubResource("Resource_4al8t")

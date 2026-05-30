@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://bowu_hail3_flurry"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "hail_t3_flurry"
+upgrade_name = "Flurry"
+description = "Hailstorm fires +3 additional arrows - a relentless barrage."
+point_cost = 2
+tier = 3
+variant_group = "hail_storm_variant"
+effect_key = "bonus_hits"
+magnitude = 3.0

@@ -38,6 +38,11 @@ const POTION_DROP_CHANCE := 0.05
 # Flat knockback resistance shared by all enemies, rolled against incoming hits.
 const BASE_KNOCKBACK_RESIST := 60
 
+# Health pool handed to is_invincible enemies (training dummies). The
+# HealthComponent floor-at-1 guard is the real never-die mechanism; this just
+# keeps the health bar reading full while you wail on it.
+const INVINCIBLE_MAX_HEALTH := 1_000_000_000
+
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var state_machine: StateMachine = $StateMachine
 @onready var attack_hitbox: Area2D = $AttackHitbox
@@ -167,7 +172,13 @@ func _ready() -> void:
 	if multiplayer.is_server():
 		# The server listens for the death signal from the component.
 		initial_position = global_position
-		health_component.max_health = int(health_curve.sample(monster_level))
+		if enemy_data.is_invincible:
+			# Training dummy: never dies. Floor-at-1 in HealthComponent is the
+			# real guard; the huge pool just keeps the bar visually full.
+			health_component.invincible = true
+			health_component.max_health = INVINCIBLE_MAX_HEALTH
+		else:
+			health_component.max_health = int(health_curve.sample(monster_level))
 		health_component.current_health = health_component.max_health
 		health_component.died.connect(_on_enemy_died)
 		health_component.damaged.connect(on_enemy_damaged)
@@ -177,7 +188,12 @@ func _ready() -> void:
 			animated_sprite.animation_finished.connect(_on_animation_finished)
 		await get_tree().process_frame
 
-	name_label.text = "Lv.%d %s" % [monster_level, monster_name]
+	# Invincible training dummies are level-neutral (combat reads them as the
+	# attacker's level), so a fixed "Lv.X" would be misleading — show just the name.
+	if enemy_data.is_invincible:
+		name_label.text = monster_name
+	else:
+		name_label.text = "Lv.%d %s" % [monster_level, monster_name]
 	# Inject the AI chase state, then initialize the state machine with the
 	# same pattern as the player.
 	_ensure_chase_state()
@@ -299,10 +315,6 @@ func _deferred_death_processing(_killer: Node) -> void:
 		if party_size > 1:
 			party_exp_bonus_multiplier = 1.0 + (0.1 * (party_size - 1))
 		#print("Party EXP bonus multiplier: ", party_exp_bonus_multiplier)
-		# Party XP bonus: 10% for 2 members, +5% per additional member (up to 25% at 5 members)
-		if players_to_reward.size() > 1:
-			party_exp_bonus_multiplier = 1.0 + (0.05 * players_to_reward.size())
-		 
 		var total_party_damage = 0
 		for member_id in players_to_reward:
 			if damage_by_player.has(member_id):
@@ -329,6 +341,20 @@ func _deferred_death_processing(_killer: Node) -> void:
 			player_node.gain_experience(exp_amount)
 			# Track kill for quest objectives
 			QuestManager.record_enemy_kill(player_node.username, monster_name)
+			# Share kill-mastery XP with party members who fought (the killer already
+			# got theirs in combat.gd). Otherwise grouping SLOWS mastery — you land
+			# fewer killing blows. Goes to each member's OWN equipped disciplines.
+			if member_id != killer_player_id and damage_by_player.has(member_id):
+				var _mc = player_node.get("weapon_mastery_component")
+				var _cc = player_node.get("combat_component")
+				if _mc and _cc and player_node.level_component:
+					var _kxp: int = WeaponMasteryComponent.compute_kill_xp(monster_level, player_node.level_component.level)
+					var _pd: int = _cc._active_weapon_discipline()
+					if _pd != -1:
+						_mc.grant_mastery_xp_server(_pd, _kxp)
+					var _sd: int = _cc._secondary_weapon_discipline()
+					if _sd != -1 and _sd != _pd:
+						_mc.grant_mastery_xp_server(_sd, _kxp)
 			#print("PID: %s (Party) gained %s exp from %s" % [str(member_id), str(exp_amount), name])
 	else:
 		# No party, distribute EXP only to damage dealers
@@ -616,6 +642,9 @@ func damage_on_overlap(body: Node):
 
 func apply_knockback(knockback: Vector2) -> void:
 	if _is_being_cleaned_up:
+		return
+	# Invincible training dummies stay rooted — ignore knockback impulses.
+	if health_component and health_component.invincible:
 		return
 		
 	velocity.x = knockback.x

@@ -357,7 +357,19 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 	if player_instance.stats_component:
 		player_instance.stats_component.set_loading_mode(false)
 		player_instance.stats_component.mark_stats_dirty()
-	
+
+	# Refresh equipment-driven UI now that the (carried/loaded or default) weapon
+	# is applied. load_player_inventory_silent above suppresses signals, AND
+	# _initialize_spawned_player runs deferred — AFTER the player node + its
+	# signature widgets already spawned. So each widget's initial visibility check
+	# (deferred in its _ready) ran BEFORE the weapon was restored and latched onto
+	# the wrong discipline, with no later signal to correct it. Re-emitting
+	# on_equipment_changed makes the signature widgets (and the stats-window class
+	# label) re-evaluate get_active_discipline() against the loaded weapon — fixes
+	# the wrong signature widget showing after a map change.
+	if is_instance_valid(player_instance.equipment_component):
+		player_instance.equipment_component.on_equipment_changed.emit()
+
 	# Reconnect signals
 	if player_instance.ability_component:
 		player_instance.ability_component.reconnect_level_signals()
@@ -379,6 +391,10 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 		if player_instance.ability_component:
 			await get_tree().process_frame
 			player_instance.ability_component.sync_all_abilities_to_client(id)
+
+		# PR 7: push the server's reconciled attribute allocation to the client.
+		if player_instance.stats_component:
+			player_instance.stats_component.sync_attributes_to_client(id)
 
 
 	if player_instance.health_component:
@@ -765,6 +781,24 @@ func player_input(input_type: String, data: Variant = null):
 		"attack": player_node.do_attack = true
 		"pickup": player_node.do_pickup = data
 		"portal": player_node.do_portal_interact = true
+		"staff_cycle_element":
+			# PR 7 — Staff signature: cycle the active element (FIRE -> ICE ->
+			# LIGHTNING). The component is server-authoritative and syncs the new
+			# element to the owning client. The input branch that sends this is
+			# already gated on the STAFF discipline client-side; the component's
+			# own is_server guard is the authoritative gate.
+			var sec = player_node.get("staff_element_component")
+			if sec != null and is_instance_valid(sec):
+				sec.cycle_element()
+		"dagger_shadowmeld":
+			# PR 7 — Dagger signature: toggle Shadowmeld stealth on/off. The
+			# component is server-authoritative and decides enter-vs-exit (and
+			# enforces the enter cooldown). The input branch that sends this is
+			# already gated on the DAGGER discipline client-side; the component's
+			# own is_server guard is the authoritative gate.
+			var smc = player_node.get("shadowmeld_component")
+			if smc != null and is_instance_valid(smc):
+				smc.toggle_shadowmeld()
 		"weapon_swap":
 			# PR 3: route weapon-swap intent through the player node's
 			# request_weapon_swap_server RPC. The player node owns the

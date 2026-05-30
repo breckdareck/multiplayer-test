@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 import time
@@ -77,6 +77,11 @@ class Player(db.Model):
     # the four disciplines on the Godot side (with the remainder going to the
     # character's starting discipline).
     ability_points_per_discipline = db.Column(JSONB, nullable=True)
+    # PR 7: manually-allocated attribute points (New World style). JSONB dict
+    # keyed by StatType int -> spent points {"0": STR, "2": DEX, "1": INT,
+    # "3": LUCK, "15": CON}. Absent/empty => the Godot side default-allocates to
+    # the starting weapon discipline's ratio on load (existing chars keep stats).
+    attribute_points = db.Column(JSONB, nullable=True)
     # Per-player onboarding flag (formerly part of the quests blob). Quest
     # progress itself now lives in the relational `player_quests` table, so a
     # quest tick rewrites one row instead of a growing wholesale blob.
@@ -444,13 +449,18 @@ def load_player():
     if not username:
         return jsonify({"error": "Username required"}), 400
         
+    # selectinload (one IN-query per collection), NOT joinedload: joining several
+    # one-to-many collections in a single query is a CARTESIAN PRODUCT
+    # (items x abilities x equipment x hotbar x buffs), which exploded into tens of
+    # thousands of materialized rows as ability rosters grew this overhaul — making
+    # every load (and thus every spawn / map change) progressively slower.
     player = Player.query.options(
-        joinedload(Player.items),
-        joinedload(Player.equipment),
-        joinedload(Player.abilities),
-        joinedload(Player.hotbar),
-        joinedload(Player.buffs),
-        joinedload(Player.quest_entries),
+        selectinload(Player.items),
+        selectinload(Player.equipment),
+        selectinload(Player.abilities),
+        selectinload(Player.hotbar),
+        selectinload(Player.buffs),
+        selectinload(Player.quest_entries),
     ).filter_by(username=username).first()
 
     if player:
@@ -459,6 +469,7 @@ def load_player():
             'username': player.username,
             'level': player.level,
             'character_type': player.character_class,
+            'attribute_points': player.attribute_points or {},
             'experience': player.experience,
             'current_health': player.current_health,
             'max_health': player.max_health,
@@ -579,13 +590,14 @@ def save_player():
         return jsonify({"error": "Save in progress"}), 429
 
     try:
-        player = Player.query.options(
-            joinedload(Player.items),
-            joinedload(Player.equipment),
-            joinedload(Player.abilities),
-            joinedload(Player.hotbar),
-            joinedload(Player.buffs),
-        ).filter_by(username=username).first()
+        # No eager loading: a save only touches the child collections whose
+        # category is present in `data` (inventory / abilities / buffs), each
+        # guarded below. Lazy-loading fetches just those (one indexed query each)
+        # on access, so a frequent "stats" save does ZERO child queries. The old
+        # joinedload cartesian-joined ALL five collections on EVERY save (even a
+        # tiny stats save), which is what pegged the DB and slowed saves as the
+        # ability rosters grew.
+        player = Player.query.filter_by(username=username).first()
 
         if not player:
             # Real players already have a Player row from character creation;
@@ -598,6 +610,7 @@ def save_player():
         # Update Core Stats
         if 'level' in data: player.level = data['level']
         if 'character_type' in data: player.character_class = data['character_type']
+        if 'attribute_points' in data: player.attribute_points = data['attribute_points']
         if 'experience' in data: player.experience = data['experience']
         if 'current_health' in data: player.current_health = data['current_health']
         if 'max_health' in data: player.max_health = data['max_health']
@@ -847,6 +860,10 @@ def _run_migrations():
         # which stays populated as a fallback for one release.
         ("players", "ability_points_per_discipline",
          "ALTER TABLE players ADD COLUMN ability_points_per_discipline JSONB"),
+        # PR 7: manually-allocated attribute points (New World style). JSONB dict
+        # keyed by StatType int -> spent points.
+        ("players", "attribute_points",
+         "ALTER TABLE players ADD COLUMN attribute_points JSONB"),
         # Persistence cleanup: per-ability upgrades column (replaces the
         # players.learned_ability_upgrades blob — backfilled + dropped below) and
         # the is_bot discriminator (backfilled from the __bots__ account below).
@@ -1072,4 +1089,12 @@ def init_db():
 
 if __name__ == '__main__':
     init_db()
-    app.run(host='0.0.0.0', port=5000)
+    # threaded=True: the dev server is single-threaded by default, so under the
+    # game's heavy save traffic every request serializes — a portal map change
+    # (which does `await SaveManager.flush_save`) then waits behind the routine
+    # save flood, making transfers "extremely long" and starving the /health
+    # probe (container goes unhealthy). Threading lets each request run in its
+    # own thread; Flask-SQLAlchemy's session is already thread-local (scoped),
+    # so this is safe. The per-player in-flight guard still serializes a single
+    # player's saves for integrity.
+    app.run(host='0.0.0.0', port=5000, threaded=True)

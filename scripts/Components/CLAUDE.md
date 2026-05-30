@@ -13,7 +13,32 @@ Player (MultiplayerPlayerV2)
 └── Components/
     ├── Health     health.gd      - HP, invuln frames, regen, death/respawn
     ├── Mana       mana.gd        - MP, regen, consumption
-    ├── Stats      stats.gd       - STR/DEX/INT/LUCK/... aggregates ALL bonuses
+    ├── Stats      stats.gd       - STR/DEX/INT/LUCK/CON aggregates ALL bonuses.
+    │                               PR 7 attribute allocation (New World style):
+    │                               a 5/level pool (ATTRIBUTE_POINTS_PER_LEVEL) is
+    │                               MANUALLY spent into STR/DEX/INT/LUCK/CON
+    │                               (_allocated_attributes), REPLACING the old auto
+    │                               per-level discipline scaling (mastery scaling
+    │                               stays auto). API: allocate_attribute(stat,n) /
+    │                               respec_attributes() (client→RPC, server-auth) +
+    │                               reconcile_attribute_points() on load (granted ==
+    │                               spent + unused; default-allocates un-migrated
+    │                               chars to the starting discipline's ratio so
+    │                               existing stats are preserved). Each attribute
+    │                               also feeds a secondary utility:
+    │                               STR→Defense, DEX→accuracy (combat.gd hit-chance),
+    │                               INT→Mana+MPregen, LUCK→CritChance, CON→HP+HPregen
+    │                               (tunable *_TO_* consts). SOFT-CAP: allocated
+    │                               points per stat keep full value up to
+    │                               ATTR_SOFT_CAP_KNEE (300) then ×ATTR_SOFT_CAP_SLOPE
+    │                               (0.4) beyond (_effective_allocation) — reins in
+    │                               pure-primary mono-stacking (was +27-43% DPS) while
+    │                               leaving default/split builds (primary ~297 < knee)
+    │                               untouched. Accounting tracks RAW spent, not
+    │                               effective. CON is StatType idx 15
+    │                               (appended). Round-trips via save_attributes /
+    │                               load_attributes (backend `attribute_points`
+    │                               JSONB); synced via sync_attributes RPC.
     ├── Combat     combat.gd      - hitboxes, damage calc, crit
     ├── Ability    ability.gd     - learn/level/use abilities, cooldowns, passives.
     │                               Ability points are PER-DISCIPLINE (PR 4 — see
@@ -81,6 +106,18 @@ Player (MultiplayerPlayerV2)
     │                               the post-load sync_all_abilities_to_client
     │                               carries the corrected pools to the client).
     │                               Server-authoritative; a no-op when matched.
+    │                               Skill-tree layout: AbilityData carries tree_path
+    │                               (0/1, -1=unplaced) + tree_depth (row). Gating
+    │                               history: points-in-path tier gate -> active
+    │                               prerequisite CHAIN -> (f2d69b8, 2026-05-30)
+    │                               REMOVED. is_tree_node_unlocked() now returns true
+    │                               for ALL nodes — fully FREE-PICK (scarcity = points
+    │                               only) for playtest. _get_active_chain_parent() /
+    │                               active_chain_prereq_name() kept (commented
+    │                               re-enable in is_tree_node_unlocked). Legacy
+    │                               prerequisite_abilities all stripped. Rendered by
+    │                               scripts/UI/skill_tree_canvas.gd as a one-path-at-a-
+    │                               time D4 tree (upgrades = branching nodes).
     ├── WeaponMastery weapon_mastery.gd - Per-discipline mastery levels + XP (PR 2)
     │                                     mastery_data: {sword/bow/staff/dagger →
     │                                     {level, xp}}. Drives STR/DEX/INT/LUK
@@ -107,11 +144,121 @@ Player (MultiplayerPlayerV2)
     │                               decays after 5s idle, resets if neither slot
     │                               is a sword. Server-authoritative; mirrored to
     │                               the owning client via sync_combo_to_client.
+    ├── BowMomentum bow_momentum.gd - bow signature: the MOMENTUM gauge.
+    │                               (Replaced the failed hold-to-charge Snap Shot.)
+    │                               Every LANDED bow hit — the basic Snap Shot AND
+    │                               any bow ability hit — builds 1 stack (cap 10,
+    │                               MAX_STACKS) via add_momentum(), called from
+    │                               combat._execute_hit once per landed hit while a
+    │                               bow is wielded (NOT gated on ability != null, so
+    │                               the whole kit feeds it). The gauge DECAYS to 0
+    │                               when you stop firing (DECAY_DELAY_SEC 2s grace,
+    │                               then -1 stack / DECAY_STEP_SEC 0.3s, on a
+    │                               server-side tick Timer). While up it ramps BOTH:
+    │                               (a) ALL bow damage by get_damage_bonus()
+    │                               (DAMAGE_PER_STACK 0.035 → +35% at cap), applied
+    │                               in combat.calculate_ability_damage gated on
+    │                               _is_wielding_bow() so it never touches a
+    │                               sword/staff/dagger ability; and (b) fire-rate /
+    │                               attack speed by get_speed_bonus() (SPEED_PER_STACK
+    │                               0.03 → +30% at cap), applied in attack.gd's
+    │                               attack_speed_percent getter (BOW-gated, null-safe).
+    │                               Needs NO new input — builds passively from hits
+    │                               like the sword combo. reset() on death + on
+    │                               swap-away-from-bow (multiplayer_controller_v2).
+    │                               ABILITY SYNERGIES: Snipe SPENDS all Momentum for a
+    │                               burst then reset() (combat.calculate_ability_damage,
+    │                               gated ability_name=="Snipe"); Hailstorm/Skyfall build
+    │                               2/attack via add_momentum(amount); Steady Aim freezes
+    │                               decay for its buff duration (pause_decay, AL_Focus).
+    │                               Constants are STARTING values (tunable). Volatile
+    │                               (never saved); mirrored to the owning client via
+    │                               sync_momentum_to_client (bot-skipped).
+    ├── StaffElement staff_element.gd - PR 7 staff signature: the ELEMENT STANCE.
+    │                               The WeaponSignature key (R) cycles the active
+    │                               element FIRE→ICE→LIGHTNING (cycle_element, gated
+    │                               to STAFF in multiplayer_input.gd; routed via
+    │                               player_manager "staff_cycle_element"). The active
+    │                               element adds an on-hit rider to staff SPELL hits:
+    │                               FIRE = stacking burn DoT scaled off the
+    │                               TRIGGERING HIT's damage (BURN_HIT_PCT, floor
+    │                               BURN_MIN_PER_TICK — NOT raw MAGICATTACK, which
+    │                               rounded to 1/tick early; own meta key
+    │                               "staff_element_burn", stacks independently of
+    │                               Immolate/bleeds), ICE = movement slow (reduces
+    │                               EnemyBase.movement_speed directly — there is NO
+    │                               movespeed StatType — restored on a timer), LIGHTNING
+    │                               = a bonus shock to the target AND a SEQUENTIAL
+    │                               chain that hops to the nearest un-hit enemy,
+    │                               re-centers on it, and hops again up to
+    │                               LIGHTNING_CHAIN_MAX_HOPS times (_nearest_chain_target,
+    │                               map-filtered via combat._is_on_same_map) — the
+    │                               crowd element. Fires even when the strike KILLS
+    │                               the primary (apply_element_on_hit no longer bails
+    │                               on a dead target — it arcs off the dying enemy;
+    │                               FIRE/ICE self-guard to no-op on a corpse). The
+    │                               chain also fires a cosmetic bolt VFX threading
+    │                               the struck+zapped enemies (MapManager.broadcast_
+    │                               lightning_arc → scripts/VFX/lightning_arc.gd,
+    │                               drawn per-peer under the visible map).
+    │                               Applied by combat._execute_hit AFTER
+    │                               the damage loop, STRICTLY gated (ability != null +
+    │                               max_landed_damage > 0 + _is_wielding_staff()) so it
+    │                               can NEVER affect a sword/bow/dagger hit. DoT/bonus
+    │                               kills credit mastery XP + on_kill (mirrors
+    │                               AL_Immolate). Volatile (defaults FIRE on spawn);
+    │                               mirrored to the owning client via
+    │                               sync_element_to_client (bot-skipped).
+    │                               PER-ABILITY ELEMENT REACTIONS (ALs read
+    │                               get_current_element()): Immolate+FIRE = 2 stacks/hit
+    │                               + bigger ticks + tick splash; Pyre Burst+FIRE = own
+    │                               burn DoT ("pyre_burst_burn"); Glacial Spike+ICE =
+    │                               hard freeze/root (movement_speed→0); Arcane Lance+
+    │                               LIGHTNING = bonus chain-shock. Off-element = baseline.
+    ├── Shadowmeld shadowmeld.gd  - PR 7 dagger signature: SHADOWMELD stealth.
+    │                               The WeaponSignature key (R) TOGGLES stealth
+    │                               while wielding a DAGGER (toggle_shadowmeld,
+    │                               gated to DAGGER in multiplayer_input.gd as its
+    │                               own sibling `if`; routed via player_manager
+    │                               "dagger_shadowmeld"). REUSES the existing
+    │                               `is_invisible` meta (enemy AI already respects it,
+    │                               set by Vanish/BL_DarkSight) + dims the sprite via
+    │                               the player's existing sync_dark_sight_visual RPC.
+    │                               The NEXT dagger hit from stealth is an AMBUSH:
+    │                               combat._execute_hit raises ambush_mult to
+    │                               AMBUSH_DAMAGE_MULT (×2) BEFORE the hit loop (gated
+    │                               valid-component + _is_wielding_dagger() +
+    │                               is_stealthed()), multiplies EVERY hit (incl. a
+    │                               basic melee, ability == null — unlike the staff
+    │                               rider), then calls break_stealth() ONCE after the
+    │                               loop. 6s enter cooldown + 8s safety auto-exit.
+    │                               COEXISTENCE GUARD: break/cancel only clears
+    │                               `is_invisible` if the "Vanish" buff isn't active
+    │                               (buff.has_buff), so it never strips a live Vanish.
+    │                               Cancelled on death + on swap-away-from-dagger
+    │                               (multiplayer_controller_v2). Volatile (resets on
+    │                               spawn); synced via sync_shadowmeld_to_client
+    │                               (bot-skipped). Multi-TARGET swings ambush only the
+    │                               first target then break (single-target rogue feel).
+    │                               AMBUSH SYNERGIES: the ambush GUARANTEES a crit
+    │                               (combat forces is_crit when ambush_mult>1.0); it
+    │                               also triggers from the Vanish buff (not just the
+    │                               Shadowmeld toggle) — the strike consumes Vanish
+    │                               (break_stealth then remove_buff("Vanish")). Eviscerate
+    │                               from stealth = execute bonus on targets ≤35% HP
+    │                               (AL_Eviscerate).
     ├── Buff       buff.gd        - timed buffs/debuffs, stacking, custom logic
-    ├── Class      class.gd       - current_class = STARTING discipline (does NOT
-    │                               change on weapon swap). Drives HP/MP curves.
-    │                               For "what am I wielding right now", use
+    ├── Class      class.gd       - current_class = STARTING weapon discipline
+    │                               (does NOT change on weapon swap). Drives HP/MP
+    │                               curves. For "what am I wielding right now", use
     │                               MultiplayerPlayerV2.get_active_discipline().
+    │                               PR 7: NO class advancement (classes don't
+    │                               exist, only weapons). The current_class setter
+    │                               normalizes any legacy advanced class
+    │                               (CRUSADER/RANGER/ARCHMAGE/ASSASSIN) back to its
+    │                               tier-1 weapon discipline, so current_class is
+    │                               ALWAYS one of SWORD/STAFF/BOW/DAGGER (+BEGINNER).
+    │                               stats.gd no longer has advanced-class HP arms.
     ├── Leveling   level.gd       - experience and level-ups
     ├── Equipment  equipment.gd   - 6 slots after PR 3: head/chest/legs/feet/weapon
     │                               + secondary_weapon. active_weapon tracks which
@@ -172,6 +319,19 @@ implements the hooks it needs:
   kill pathway). Used by AL_Bloodthirst (heal on kill; reads its heal_pct_bonus
   upgrade via ability_id).
 - **`on_proc(owner, target, context)`** — proc-effect handler (ProcEffectData).
+- **`conditional_damage_mult(owner, target, level) -> float`** — situational damage
+  passive hook. Returns the bonus FRACTION (e.g. 0.3) based on the target's HP/state,
+  the attacker's HP/mana, a recent kill, stealth, or momentum. `AbilityComponent.
+  get_conditional_damage_modifier` sums it across equipped-discipline passives;
+  `combat.gd._execute_hit` applies ×(1+total) per hit. When a passive's condition is
+  MET (returns >0), the modifier ALSO adds that passive's owned `conditional_damage_bonus`
+  upgrades (see vocabulary below), so its upgrade tree scales the bonus. Implemented by
+  the **9** conditional passives (bare `extends Node` ALs, path-resolved, MAX_LEVEL=10)
+  that replaced the old always-on stat auto-takes: Aggression (sword, vs >90% HP),
+  Last Stand (sword, owner <35% HP), Execution (bow, vs <30% HP), Tailwind (bow, scales
+  with Momentum stacks), Killing Spree (staff, 4s after a kill — its `on_kill` stamps an
+  owner meta deadline), Overload (staff, owner mana >50%), Composure (dagger, owner
+  >80% HP), Toxicology (dagger, target envenom-poisoned), Opportunist (dagger, stealthed).
 
 ### PR 6 upgrade effect_keys (the full vocabulary)
 Generic — consumed by Combat/Ability with NO per-AL code:
@@ -179,7 +339,14 @@ Generic — consumed by Combat/Ability with NO per-AL code:
   `mana_flat_reduction` (MP, _consume_ability_resources),
   `bonus_damage_mult` (additive %, calculate_ability_damage),
   `bonus_targets` / `bonus_hits` (int, combat target/hit loops),
-  `passive_stat_percent_bonus` (% on the passive's stat, get_passive_effect_modifiers).
+  `passive_stat_percent_bonus` (% on the passive's stat — for large-base stats
+  like HP/STR/Mana; get_passive_effect_modifiers),
+  `passive_stat_flat_bonus` (PR 8 — FLAT points on the passive's stat, for
+  percentage-style stats CritChance/CritDamage or base-0 Defense where a percent
+  bonus is meaningless; same function),
+  `conditional_damage_bonus` (FLAT fraction added to a conditional passive's bonus
+  while its condition is met; summed in get_conditional_damage_modifier — the upgrade
+  tree for every `conditional_damage_mult` passive points here).
 Ability-specific — read in the named AL via `ability_has_upgrade_effect` /
 `get_ability_upgrade_magnitude`:
   `combo_coefficient_override` (AL_Slash, AL_PowerStrike),

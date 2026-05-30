@@ -1,6 +1,6 @@
 extends Node
 
-## Ability logic for Rogue's Dark Sight.
+## Ability logic for the Dagger discipline's Vanish.
 ## Applies an invisibility buff that prevents enemies from targeting the player.
 
 func execute(owner_node: Node, ability: AbilityData, level_stats: AbilityLevelData):
@@ -10,11 +10,17 @@ func execute(owner_node: Node, ability: AbilityData, level_stats: AbilityLevelDa
 
 	var duration: float = ability.buff_duration_formula.calculate(level_stats.level)
 
-	buff_component.apply_buff("Dark Sight", owner_node, duration)
+	# PR 8 upgrade: buff_duration_bonus (+s). mana_flat_reduction is consumed
+	# generically in AbilityComponent._consume_ability_resources — no read here.
+	var ability_comp = owner_node.get("ability_component")
+	if ability_comp and ability_comp.has_method("get_ability_upgrade_magnitude"):
+		duration += ability_comp.get_ability_upgrade_magnitude(ability.ability_id, "buff_duration_bonus")
 
-	var active_buff = buff_component._active_buffs.get("Dark Sight")
+	buff_component.apply_buff("Vanish", owner_node, duration)
+
+	var active_buff = buff_component._active_buffs.get("Vanish")
 	if active_buff and active_buff.custom_logic_instance:
 		active_buff.custom_logic_instance.source_ability_level = level_stats.level
 
-	print("%s activated Dark Sight (Level %d) — invisible for %.0fs" % [
+	print("%s activated Vanish (Level %d) — invisible for %.0fs" % [
 		owner_node.name, level_stats.level, duration])

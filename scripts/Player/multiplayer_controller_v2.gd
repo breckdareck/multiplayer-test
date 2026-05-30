@@ -31,6 +31,21 @@ const MAX_FALL_SPEED: float = 1200.0
 ## by basic-attack hits and consumed by Slash for amplified damage.
 ## See scripts/Components/sword_combo.gd.
 @export var sword_combo_component: SwordComboComponent
+## Bow discipline's signature combat system — MOMENTUM. A gauge that fills on
+## every landed bow hit and decays when you stop firing; while up it ramps ALL
+## bow damage (combat.calculate_ability_damage) and fire-rate (attack.gd).
+## See scripts/Components/bow_momentum.gd.
+@export var bow_momentum_component: BowMomentumComponent
+## PR 7: Staff discipline's signature combat system — the active element stance
+## (FIRE/ICE/LIGHTNING) cycled by WeaponSignature. See scripts/Components/staff_element.gd.
+## (Export added alongside Shadowmeld: player.tscn already wired this NodePath but
+## the property declaration was missing, so player.staff_element_component / the
+## "staff_cycle_element" input path resolved to null.)
+@export var staff_element_component: StaffElementComponent
+## PR 7: Dagger discipline's signature combat system — Shadowmeld stealth toggled
+## by WeaponSignature; the next dagger hit from stealth is an ambush.
+## See scripts/Components/shadowmeld.gd.
+@export var shadowmeld_component: ShadowmeldComponent
 @export var player_inventory: PlayerInventory
 @export var inventory_component: InventoryComponent
 @export var equipment_component: EquipmentComponent
@@ -59,6 +74,25 @@ var do_drop: bool = false
 var do_pickup: bool = false
 var do_portal_interact: bool = false
 var current_portal: Portal = null
+
+## The enemy this character most recently DAMAGED + when (ticks ms). Players have
+## no explicit target lock (they swing in a direction), so this is the proxy for
+## "what I'm fighting" — party bots read it via get_recent_combat_target() to
+## focus-fire a human teammate's target instead of scattering. Set in
+## combat._execute_hit; goes stale after RECENT_TARGET_WINDOW_MS.
+var recent_combat_target: Node = null
+var recent_combat_target_ms: int = 0
+const RECENT_TARGET_WINDOW_MS: int = 3000
+
+
+## Returns the enemy this character damaged within the last few seconds, or null
+## if none/stale. Used by party bots for focus-fire.
+func get_recent_combat_target() -> Node:
+	if not is_instance_valid(recent_combat_target):
+		return null
+	if Time.get_ticks_msec() - recent_combat_target_ms > RECENT_TARGET_WINDOW_MS:
+		return null
+	return recent_combat_target
 
 # Server-only list of Ladder Area2Ds the player currently overlaps. Ladders
 # call enter_ladder/exit_ladder on their body_entered/exited signals.
@@ -373,15 +407,23 @@ func _setup_signals() -> void:
 		level_component.leveled_up.connect(func(new_level):
 			if multiplayer.is_server() and not _is_loading_data:
 				QuestManager.record_level_up(username, new_level)
-				if new_level == JobAdvancementManager.ADVANCEMENT_LEVEL:
-					QuestManager.notify_advancement_available(username)
 		)
 		if multiplayer.is_server():
 			level_component.leveled_up.connect(_handle_sprite_change_on_server.unbind(1))
 	
 	if health_component:
 		health_component.health_changed.connect(func(_c, _m): _data_changed("stats"))
-		
+		# Bow signature: built-up Momentum should not survive death. died
+		# emits on the server (HealthComponent.die), so reset there. Cheap
+		# no-op when stacks are already 0. reset() guards is_server() itself.
+		if multiplayer.is_server() and is_instance_valid(bow_momentum_component):
+			health_component.died.connect(func(_killer): bow_momentum_component.reset())
+		# PR 7 — Dagger signature: stealth should not survive death either. Same
+		# server-side died hook. cancel_stealth no-ops when not stealthed / on
+		# clients, and its Vanish-coexistence guard preserves a still-active Vanish.
+		if multiplayer.is_server() and is_instance_valid(shadowmeld_component):
+			health_component.died.connect(func(_killer): shadowmeld_component.cancel_stealth())
+
 	if ability_component:
 		ability_component.ability_leveled_up.connect(func(_a, _l): _data_changed("abilities"))
 		ability_component.ability_points_changed.connect(func(_k, _p): _data_changed("abilities"))
@@ -734,7 +776,8 @@ func _get_stats_data() -> Dictionary:
 		'level': level_component.level if is_instance_valid(level_component) else 1,
 		'experience': level_component.experience if is_instance_valid(level_component) else 0,
 		'last_map': MapManager.get_player_map(player_id) if multiplayer.is_server() else MapManager.current_map_id,
-		'character_type': class_component.current_class if is_instance_valid(class_component) else 0
+		'character_type': class_component.current_class if is_instance_valid(class_component) else 0,
+		'attribute_points': stats_component.save_attributes() if is_instance_valid(stats_component) else {}
 	}
 
 
@@ -796,6 +839,12 @@ func _load_data(data: Dictionary) -> void:
 		level_component.leveled_up.emit(level_component.level)
 		level_component.experience_changed.emit(level_component.experience, level_component.get_exp_to_next_level())
 
+	# PR 7: load allocated attribute points (or default-allocate to the starting
+	# discipline's ratio for un-migrated characters) before the final recalc.
+	if is_instance_valid(stats_component):
+		stats_component.load_attributes(data.get("attribute_points", {}))
+		stats_component.reconcile_attribute_points(true)
+
 	if is_instance_valid(stats_component):
 		stats_component.set_block_signals(false)
 		stats_component.stats_changed.emit()
@@ -854,6 +903,13 @@ func _data_changed(update_type: String = "all") -> void:
 	if not multiplayer.is_server():
 		# Client: tell the server about the change via lightweight RPC
 		_notify_server_data_changed.rpc_id(SERVER_ID, update_type)
+		return
+	# Bots persist via SaveManager's 60s auto-save safety net ONLY — they don't
+	# need an event-driven save on every health tick. Without this guard, 4+ bots
+	# fighting each queue a "stats" save ~2x/sec (health_changed -> _data_changed),
+	# which floods the save pipeline and makes real players' saves / map transfers /
+	# spawns slow. Their earned state still persists every AUTO_SAVE_INTERVAL.
+	if BotManager.is_bot(player_id):
 		return
 	# Server: queue a debounced save through SaveManager
 	if username and SaveManager:
@@ -1009,6 +1065,16 @@ func _on_equipment_changed_refresh_sprite() -> void:
 		return
 	if not multiplayer.is_server():
 		return
+	# Bow signature: an equipment edit that leaves the active slot non-bow
+	# (e.g. dragging a sword over the equipped bow) clears built-up Momentum,
+	# matching the Tab-swap-away reset in _on_active_weapon_changed.
+	if is_instance_valid(bow_momentum_component) and get_active_discipline() != Constants.ClassType.BOW:
+		bow_momentum_component.reset()
+	# PR 7 — Dagger signature: same idea — an equipment edit that leaves the
+	# active slot non-dagger cancels Shadowmeld so stealth doesn't carry onto a
+	# non-dagger weapon. cancel_stealth no-ops when not stealthed.
+	if is_instance_valid(shadowmeld_component) and get_active_discipline() != Constants.ClassType.DAGGER:
+		shadowmeld_component.cancel_stealth()
 	# Cheap call — the rpc/sprite resolution is idempotent if the discipline
 	# didn't actually change. Don't try to gate this against the previous
 	# value here; just re-emit and let the client overwrite with the same
@@ -1019,6 +1085,20 @@ func _on_equipment_changed_refresh_sprite() -> void:
 func _on_active_weapon_changed(_active_weapon: String, _active_item: ItemData) -> void:
 	if _is_being_cleaned_up:
 		return
+
+	# Bow signature: swapping AWAY from a bow (Tab to the other slot) clears
+	# built-up Momentum so it doesn't carry over to a non-bow weapon.
+	# Server-authoritative; reset() no-ops on clients / when stacks are 0.
+	if multiplayer.is_server() and is_instance_valid(bow_momentum_component):
+		if get_active_discipline() != Constants.ClassType.BOW:
+			bow_momentum_component.reset()
+
+	# PR 7 — Dagger signature: swapping AWAY from a dagger cancels Shadowmeld
+	# stealth so the cloak doesn't carry onto a non-dagger weapon. Mirrors the
+	# bow cancel; cancel_stealth no-ops on clients / when not stealthed.
+	if multiplayer.is_server() and is_instance_valid(shadowmeld_component):
+		if get_active_discipline() != Constants.ClassType.DAGGER:
+			shadowmeld_component.cancel_stealth()
 
 	# Persist the new active_weapon. The inventory bucket serializes equipment +
 	# active_weapon together (see InventoryComponent.save_inventory). A Tab-swap

@@ -2,14 +2,13 @@
 
 [ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_as7l3"]
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/VFX/damage_numbers.gd" id="2_bkv3e"]
-[ext_resource type="PackedScene" path="res://scenes/Gameplay/portal.tscn" id="3_knl1o"]
+[ext_resource type="PackedScene" uid="uid://brfb5t5im33fl" path="res://scenes/Gameplay/portal.tscn" id="3_knl1o"]
 [ext_resource type="PackedScene" path="res://scenes/Gameplay/secret_portal.tscn" id="4_7kjy5"]
 [ext_resource type="Texture2D" uid="uid://jorjvuc5wn72" path="res://assets/sprites/world_tileset.png" id="5_t0e5x"]
 [ext_resource type="Texture2D" uid="uid://cd28i3fo3v1m0" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/country village tileset.png" id="6_1faty"]
 [ext_resource type="Texture2D" uid="uid://b8r3ov605pnuj" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/Country_village_props.png" id="7_007j2"]
 [ext_resource type="PackedScene" uid="uid://bx2n3vrfxk75m" path="res://scenes/Gameplay/killzone.tscn" id="9_xqbjo"]
 [ext_resource type="PackedScene" uid="uid://f4gho8l6o1ld" path="res://scenes/NPC/merchant_npc.tscn" id="14_13ut6"]
-[ext_resource type="PackedScene" uid="uid://cn7wabf3pmwq2" path="res://scenes/NPC/job_advancement_npc.tscn" id="14_advance"]
 [ext_resource type="PackedScene" uid="uid://cqgvnpc7m3kxq" path="res://scenes/NPC/quest_giver_npc.tscn" id="14_questgiver"]
 [ext_resource type="Resource" uid="uid://cjl5ggbs3c237" path="res://resources/Items/Consumables/Grape_Potion.tres" id="15_273qs"]
 [ext_resource type="Resource" uid="uid://bwlru2cwcphdy" path="res://resources/Items/Consumables/Mana_Potion.tres" id="16_um1b1"]
@@ -24,6 +23,7 @@
 [ext_resource type="Resource" uid="uid://buoekv8unc18u" path="res://resources/Items/Consumables/Generated/Greater_Mana_Draught.tres" id="25_gmd00"]
 [ext_resource type="Resource" uid="uid://dhvpuopshjch7" path="res://resources/Items/Consumables/Generated/Grand_Healing_Draught.tres" id="26_grhd0"]
 [ext_resource type="Resource" uid="uid://6yjeaof3r55y" path="res://resources/Items/Consumables/Generated/Grand_Mana_Draught.tres" id="27_grmd0"]
+[ext_resource type="PackedScene" uid="uid://d238i6w4h1880" path="res://scenes/NPC/training_dummy.tscn" id="28_7kjy5"]
 [ext_resource type="Resource" uid="uid://dtoref1fhkeit" path="res://resources/Items/Consumables/Generated/Superior_Healing_Draught.tres" id="28_suhd0"]
 [ext_resource type="Resource" uid="uid://w62fp0tsjx7m" path="res://resources/Items/Consumables/Generated/Superior_Mana_Draught.tres" id="29_sumd0"]
 [ext_resource type="Resource" uid="uid://co2rco5i8u5to" path="res://resources/Items/Consumables/Generated/Supreme_Healing_Draught.tres" id="30_sphd0"]
@@ -657,12 +657,6 @@ offset_top = 254.0
 offset_right = 1313.0
 offset_bottom = 854.0
 
-[node name="JobAdvancementNPC" parent="." instance=ExtResource("14_advance")]
-position = Vector2(198, -674)
-
-[node name="Sprite" parent="JobAdvancementNPC" index="0"]
-scale = Vector2(-1.2, 1.2)
-
 [node name="VillageElderNPC" parent="." instance=ExtResource("14_questgiver")]
 z_index = 1
 position = Vector2(87, -610)
@@ -687,6 +681,8 @@ script = ExtResource("18_a3rpc")
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 
+[node name="Training_Dummy" parent="." instance=ExtResource("28_7kjy5")]
+position = Vector2(-152, -593)
+
 [editable path="MerchantNPC"]
-[editable path="JobAdvancementNPC"]
 [editable path="VillageElderNPC"]

@@ -302,16 +302,19 @@ func get_passive_effect_modifiers() -> Dictionary:
 	var modifiers = {}
 	
 	_foreach_learned_passive(func(_ability: AbilityData, level_stats: AbilityLevelData, _ability_id: String):
-		# PR 6: "passive_stat_percent_bonus" upgrade adds extra % to whatever
-		# stat(s) this passive boosts (e.g. Hardened Frame's +HP%, Iron
-		# Sinews' +STR%). Applied per modified stat.
+		# PR 6: "passive_stat_percent_bonus" adds extra % to whatever stat(s) this
+		# passive boosts — good for large-base stats (Hardened Frame +HP%, Iron
+		# Sinews +STR%, +Mana%). PR 8: "passive_stat_flat_bonus" adds FLAT points —
+		# required for percentage-style stats (CritChance/CritDamage) and base-0
+		# stats (Defense) where a percent bonus is meaningless.
 		var pct_bonus: float = get_ability_upgrade_magnitude(_ability_id, "passive_stat_percent_bonus")
+		var flat_bonus: float = get_ability_upgrade_magnitude(_ability_id, "passive_stat_flat_bonus")
 		# Use stat bonuses from the level data
 		for stat_name in level_stats.stat_bonuses:
 			if not modifiers.has(stat_name):
 				modifiers[stat_name] = StatData.new(stat_name, 0)
 			# Accumulate bonuses from multiple passives
-			modifiers[stat_name].flat_bonus_value += level_stats.stat_bonuses[stat_name].flat_bonus_value
+			modifiers[stat_name].flat_bonus_value += level_stats.stat_bonuses[stat_name].flat_bonus_value + flat_bonus
 			modifiers[stat_name].percent_bonus_value += level_stats.stat_bonuses[stat_name].percent_bonus_value + pct_bonus
 	)
 
@@ -320,6 +323,34 @@ func get_passive_effect_modifiers() -> Dictionary:
 
 func get_ability_damage_modifier(ability_id: String) -> float:
 	return _get_ability_modifier(ability_id, func(level_stats, id): return level_stats.get_ability_damage_modifier(id))
+
+
+## Sums CONDITIONAL-damage passive bonuses for a hit on `target`. Each learned,
+## equipped-discipline passive whose logic_script implements
+## conditional_damage_mult(owner, target, level) -> float (the bonus FRACTION,
+## e.g. 0.3) contributes; returns the combined multiplier (1.0 = no bonus).
+## These are the situational damage passives (Aggression / Execution / Killing
+## Spree / Composure) that replaced the old always-on primary-stat% passives, so
+## the passive slot is a real choice. Called per hit from combat._execute_hit
+## (server-side) where the target + its HP are known. Bonuses are ADDITIVE.
+func get_conditional_damage_modifier(target: Node) -> float:
+	var total_bonus: float = 0.0
+	_foreach_learned_passive(func(ability, level_stats, _ability_id):
+		if not ability.active_behavior or not ability.active_behavior.logic_script:
+			return
+		var logic = ability.active_behavior.logic_script.new()
+		if not logic.has_method("conditional_damage_mult"):
+			return
+		var b: float = float(logic.conditional_damage_mult(owner, target, level_stats.level))
+		# When the condition is MET (b > 0), the passive's upgrade tree adds to its
+		# bonus via the generic "conditional_damage_bonus" effect_key — so investing
+		# in a conditional passive's upgrades scales its damage (the trees were
+		# repurposed from the old stat-passive keys when these became conditionals).
+		if b > 0.0:
+			b += get_ability_upgrade_magnitude(_ability_id, "conditional_damage_bonus")
+		total_bonus += b
+	)
+	return 1.0 + total_bonus
 
 
 func get_ability_cooldown_modifier(ability_id: String) -> float:
@@ -1860,6 +1891,13 @@ func can_level_up_ability(ability_id: String) -> bool:
 			if get_ability_level(prereq_id.ability_id) < required_level:
 				return false
 
+	# Skill-tree climb-gate: a node at tree_depth > 0 requires the same-discipline,
+	# same-path node directly above it (depth - 1) to be learned. This makes each
+	# path a top-down climb. It only gates NEW level-ups (never strips owned
+	# levels), so it's safe for the points invariant and the reconcile guard.
+	if not is_tree_node_unlocked(ability_id):
+		return false
+
 	# PR 4: every ability belongs to exactly one weapon discipline (read off
 	# `required_class[0]`). An ability with no discipline mapping is
 	# unspendable; that's an authoring bug. Surface it but don't crash.
@@ -1871,6 +1909,57 @@ func can_level_up_ability(ability_id: String) -> bool:
 		return false
 
 	return true
+
+
+## Skill-tree gating (v2): PASSIVES are always unlocked — free to pick from the
+## start. ACTIVES form a prerequisite CHAIN: each active needs the previous active
+## in its path (the active with the highest tree_depth strictly below this one)
+## learned (level >= 1); a path's first active is a free root. Pure unlock
+## condition — never changes points granted/spent, so the reconcile invariant
+## holds. Used by can_level_up_ability + the tree UI.
+func is_tree_node_unlocked(_ability_id: String) -> bool:
+	# Active prerequisites REMOVED 2026-05-30 (user playtest call): the tree is
+	# fully free-pick — every placed node is buyable, limited only by (scarce)
+	# discipline points. To re-enable the active chain, restore:
+	#   var ability := ResourceManager.get_ability_data(_ability_id)
+	#   if ability == null or ability.tree_path < 0 or ability.ability_type == Constants.AbilityType.PASSIVE:
+	#       return true
+	#   var parent := _get_active_chain_parent(ability)
+	#   return parent == null or get_ability_level(parent.ability_id) >= 1
+	# (_get_active_chain_parent / active_chain_prereq_name are kept for that.)
+	return true
+
+
+## The active directly before `ability` in its path's active chain — the active
+## (same discipline + tree_path) with the greatest tree_depth strictly less than
+## this one's. Null if `ability` is the chain root or not an active.
+func _get_active_chain_parent(ability: AbilityData) -> AbilityData:
+	if ability == null or ability.tree_path < 0 or ability.ability_type == Constants.AbilityType.PASSIVE:
+		return null
+	var disc: String = _ability_primary_discipline(ability)
+	var best: AbilityData = null
+	for other_id in ResourceManager.ability_data:
+		var other: AbilityData = ResourceManager.ability_data[other_id]
+		if other == null or other == ability:
+			continue
+		if other.ability_type == Constants.AbilityType.PASSIVE:
+			continue
+		if other.tree_path != ability.tree_path or _ability_primary_discipline(other) != disc:
+			continue
+		if other.tree_depth < ability.tree_depth and (best == null or other.tree_depth > best.tree_depth):
+			best = other
+	return best
+
+
+## The active-chain prerequisite's display name for the UI lock hint, or "".
+func active_chain_prereq_name(ability_id: String) -> String:
+	var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
+	if ability == null:
+		return ""
+	var parent: AbilityData = _get_active_chain_parent(ability)
+	if parent != null and get_ability_level(parent.ability_id) < 1:
+		return parent.ability_name
+	return ""
 
 
 ## PR 4: applies the legacy-save migration logic for ability points.

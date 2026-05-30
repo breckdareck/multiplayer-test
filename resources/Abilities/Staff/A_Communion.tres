@@ -1,0 +1,105 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=28 format=3 uid="uid://bkdmqdujl55nf"]
+
+[ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_behav"]
+[ext_resource type="Texture2D" uid="uid://30u18vfwsa5i" path="res://assets/sprites/Abilities/meditation.png" id="1_h4exd"]
+[ext_resource type="Script" uid="uid://cgorujwyt5d3" path="res://scripts/Abilities/AL_Meditation.gd" id="2_logic"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="3_abil"]
+[ext_resource type="Resource" uid="uid://mphxpdgw4jyj" path="res://resources/Buffs/B_Meditation.tres" id="4_buff"]
+[ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="4_scale"]
+[ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="5_sbf"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="7_formula"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="9_aud"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_COM_Extended.tres" id="10_ex"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_COM_Frugal.tres" id="11_fr"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_COM_Empowered.tres" id="12_em"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_COM_Enduring.tres" id="13_en"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_COM_Swift.tres" id="14_sw"]
+
+[sub_resource type="Resource" id="Resource_behav"]
+resource_local_to_scene = true
+script = ExtResource("1_behav")
+logic_script = ExtResource("2_logic")
+
+[sub_resource type="Resource" id="Resource_buff_dur"]
+script = ExtResource("7_formula")
+base_value = 30.0
+per_level = 30.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_h4exd"]
+script = ExtResource("7_formula")
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_5vmv4"]
+script = ExtResource("7_formula")
+base_value = 40.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_ga1wd"]
+script = ExtResource("7_formula")
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_mana"]
+script = ExtResource("7_formula")
+base_value = 15.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_1p3ft"]
+script = ExtResource("7_formula")
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_exrxk"]
+script = ExtResource("7_formula")
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_mpregen_flat"]
+script = ExtResource("7_formula")
+base_value = 1.0
+per_level = 1.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_sbf_mpregen"]
+script = ExtResource("5_sbf")
+stat_type = 7
+flat_bonus_formula = SubResource("Resource_mpregen_flat")
+metadata/_custom_type_script = "uid://bx4thfjsjclbw"
+
+[sub_resource type="Resource" id="Resource_matk_pct"]
+script = ExtResource("7_formula")
+scaling_type = 3
+custom_formula = "ceil(level / 2.0)"
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_sbf_matk"]
+script = ExtResource("5_sbf")
+stat_type = 13
+percent_bonus_formula = SubResource("Resource_matk_pct")
+metadata/_custom_type_script = "uid://bx4thfjsjclbw"
+
+[sub_resource type="Resource" id="Resource_scaling"]
+resource_local_to_scene = true
+script = ExtResource("4_scale")
+mana_cost_formula = SubResource("Resource_mana")
+cooldown_formula = SubResource("Resource_5vmv4")
+damage_percent_formula = SubResource("Resource_ga1wd")
+max_targets_formula = SubResource("Resource_exrxk")
+max_hits_formula = SubResource("Resource_1p3ft")
+cast_time_formula = SubResource("Resource_h4exd")
+stat_bonus_formulas = Array[ExtResource("5_sbf")]([SubResource("Resource_sbf_mpregen"), SubResource("Resource_sbf_matk")])
+
+[resource]
+script = ExtResource("3_abil")
+ability_id = "9751111025-69115-100811-142130-111111471072141439"
+ability_name = "Communion"
+description = "Channel the aether for the whole party, raising MP regeneration and magic attack by $[stat_bonus]% for $[buff_duration]."
+ability_icon = ExtResource("1_h4exd")
+max_level = 20
+required_class = Array[int]([2])
+required_weapon_types = Array[int]([2])
+tree_path = 1
+tree_depth = 3
+upgrades = Array[ExtResource("9_aud")]([ExtResource("10_ex"), ExtResource("11_fr"), ExtResource("12_em"), ExtResource("13_en"), ExtResource("14_sw")])
+active_behavior = SubResource("Resource_behav")
+applies_buff = ExtResource("4_buff")
+buff_duration_formula = SubResource("Resource_buff_dur")
+scaling_data = SubResource("Resource_scaling")

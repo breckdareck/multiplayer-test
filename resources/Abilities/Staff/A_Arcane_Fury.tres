@@ -1,0 +1,50 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=15 format=3 uid="uid://bfrv52tcdv4he"]
+
+[ext_resource type="Texture2D" uid="uid://ky00whwbxbmx" path="res://assets/sprites/Abilities/power_guard.png" id="1_af1"]
+[ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_af1"]
+[ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_af1"]
+[ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_af1"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_af1"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_af1"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_AF_Vicious.tres" id="9_vi"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_AF_Cruel.tres" id="10_cr"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_AF_Annihilating.tres" id="11_an"]
+
+[sub_resource type="Resource" id="Resource_af_behav"]
+resource_local_to_scene = true
+script = ExtResource("2_af1")
+
+[sub_resource type="Resource" id="Resource_af_critdmg"]
+script = ExtResource("5_af1")
+base_value = 3.0
+per_level = 2.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_af_sbf"]
+script = ExtResource("4_af1")
+stat_type = 8
+flat_bonus_formula = SubResource("Resource_af_critdmg")
+metadata/_custom_type_script = "uid://bx4thfjsjclbw"
+
+[sub_resource type="Resource" id="Resource_af_scaling"]
+script = ExtResource("3_af1")
+stat_bonus_formulas = Array[ExtResource("4_af1")]([SubResource("Resource_af_sbf")])
+metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
+
+[resource]
+script = ExtResource("6_af1")
+ability_id = "1251510411081061-9043-1410149-105135-1410158678120291"
+ability_name = "Stoneskin"
+description = "Permanently increases Defense by $[stat_bonus] — arcane wards harden the body."
+ability_icon = ExtResource("1_af1")
+max_level = 10
+ability_type = 1
+required_class = Array[int]([2])
+required_weapon_types = Array[int]([2])
+tree_path = 0
+tree_depth = 6
+upgrades = Array[ExtResource("8_aud")]([ExtResource("9_vi"), ExtResource("10_cr"), ExtResource("11_an")])
+active_behavior = SubResource("Resource_af_behav")
+scaling_data = SubResource("Resource_af_scaling")
+metadata/_custom_type_script = "uid://b8y62rc8nb40j"

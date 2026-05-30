@@ -23,13 +23,19 @@ var _stats_component: StatsComponent
 
 var is_dead: bool = false
 var is_invulnerable: bool = false
+## Permanent never-die flag — distinct from the transient is_invulnerable combat
+## window. When true, current_health floors at 1 so die() can never fire. Set by
+## enemy_base from EnemyData.is_invincible (training dummies).
+var invincible: bool = false
 var _last_damage_source: Node = null
 
 # The setter automatically handles clamping and emitting signals.
 @onready var current_health: int = max_health:
 	set(value):
 		var previous_health: int = current_health
-		current_health = clamp(value, 0, max_health)
+		# invincible entities (training dummies) floor at 1, so the 0-HP death
+		# branch below can never fire.
+		current_health = clamp(value, 1 if invincible else 0, max_health)
 		if current_health != previous_health:
 			if current_health == 0 and not is_dead and multiplayer.is_server():
 				die()

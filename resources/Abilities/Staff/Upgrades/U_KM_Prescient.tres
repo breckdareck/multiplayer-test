@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://stfu_km3_prescient"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "km_t3_prescient"
+upgrade_name = "Prescient"
+description = "Increases Overload's bonus damage by +7% (while its condition is met)."
+point_cost = 2
+tier = 3
+variant_group = ""
+effect_key = "conditional_damage_bonus"
+magnitude = 0.07

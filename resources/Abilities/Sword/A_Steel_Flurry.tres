@@ -1,0 +1,88 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://ctuuha6kutnms"]
+
+[ext_resource type="Texture2D" uid="uid://blsf4bd1u7syc" path="res://assets/sprites/Abilities/Brandish.png" id="1_wr37i"]
+[ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_xjwtl"]
+[ext_resource type="Script" uid="uid://bfdta2tpg7iw6" path="res://scripts/Abilities/AL_Brandish.gd" id="3_brand"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="4_4i2r3"]
+[ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="5_8ypyu"]
+[ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="6_ox4m6"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="7_qsco8"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="9_aud"]
+[ext_resource type="Resource" uid="uid://sfu1keenedge" path="res://resources/Abilities/Sword/Upgrades/U_SF_KeenEdge.tres" id="10_ke"]
+[ext_resource type="Resource" uid="uid://cx8lkaoej3vdn" path="res://resources/Abilities/Sword/Upgrades/U_SF_WideSweep.tres" id="11_ws"]
+[ext_resource type="Resource" uid="uid://cx8l0g6bclb8n" path="res://resources/Abilities/Sword/Upgrades/U_SF_Doubletap.tres" id="12_dt"]
+[ext_resource type="Resource" uid="uid://ddaell8l1f8b7" path="res://resources/Abilities/Sword/Upgrades/U_SF_Relentless.tres" id="13_rl"]
+[ext_resource type="Resource" uid="uid://cx8ocnprnnvkk" path="res://resources/Abilities/Sword/Upgrades/U_SF_Overwhelm.tres" id="14_ow"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ajojy"]
+size = Vector2(66, 20)
+
+[sub_resource type="Resource" id="Resource_j17xh"]
+script = ExtResource("2_xjwtl")
+target_type = 1
+hit_box_shape_data = SubResource("RectangleShape2D_ajojy")
+hit_box_position_data = Vector2(33, -10)
+animation_name = "attack_1"
+sfx_path = "res://assets/sounds/tap.wav"
+logic_script = ExtResource("3_brand")
+
+[sub_resource type="Resource" id="Resource_wr37i"]
+resource_local_to_scene = true
+script = ExtResource("4_4i2r3")
+
+[sub_resource type="Resource" id="Resource_xjwtl"]
+resource_local_to_scene = true
+script = ExtResource("4_4i2r3")
+base_value = 1.0
+
+[sub_resource type="Resource" id="Resource_fwcyo"]
+resource_local_to_scene = true
+script = ExtResource("4_4i2r3")
+base_value = 80.0
+per_level = 3.0
+
+[sub_resource type="Resource" id="Resource_raao4"]
+resource_local_to_scene = true
+script = ExtResource("4_4i2r3")
+base_value = 5.0
+per_level = 0.3
+
+[sub_resource type="Resource" id="Resource_4i2r3"]
+resource_local_to_scene = true
+script = ExtResource("4_4i2r3")
+base_value = 2.0
+
+[sub_resource type="Resource" id="Resource_8ypyu"]
+resource_local_to_scene = true
+script = ExtResource("4_4i2r3")
+scaling_type = 2
+base_value = 1.0
+step_values = Dictionary[int, int]({
+8: 2,
+15: 3
+})
+
+[sub_resource type="Resource" id="Resource_pyj0a"]
+resource_local_to_scene = true
+script = ExtResource("5_8ypyu")
+mana_cost_formula = SubResource("Resource_raao4")
+cooldown_formula = SubResource("Resource_xjwtl")
+damage_percent_formula = SubResource("Resource_fwcyo")
+max_targets_formula = SubResource("Resource_8ypyu")
+max_hits_formula = SubResource("Resource_4i2r3")
+cast_time_formula = SubResource("Resource_wr37i")
+
+[resource]
+script = ExtResource("7_qsco8")
+ability_id = "15163791113-1041414-65159-111118-13745101011213381"
+ability_name = "Steel Flurry"
+description = "Combo builder. Thrusts $[hit_count] times hitting $[target_count] enemies dealing $[damage_percent] damage. [color=#e6c95c]Each hit landed builds 1 combo point (capped at 3).[/color]"
+ability_icon = ExtResource("1_wr37i")
+max_level = 20
+required_class = Array[int]([0])
+required_weapon_types = Array[int]([0])
+tree_path = 1
+tree_depth = 2
+upgrades = Array[ExtResource("9_aud")]([ExtResource("10_ke"), ExtResource("11_ws"), ExtResource("12_dt"), ExtResource("13_rl"), ExtResource("14_ow")])
+active_behavior = SubResource("Resource_j17xh")
+scaling_data = SubResource("Resource_pyj0a")

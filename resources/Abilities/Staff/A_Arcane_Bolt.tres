@@ -1,0 +1,87 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://magcbolt001x"]
+
+[ext_resource type="Texture2D" uid="uid://cu1y53548p0uf" path="res://assets/sprites/Abilities/magic_bolt.png" id="1_yj04x"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_mgbt1"]
+[ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_mgbt2"]
+[ext_resource type="PackedScene" uid="uid://d0ig4oiimrnei" path="res://scenes/Gameplay/projectile_base.tscn" id="2_mgbt3"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="6_mgbt1"]
+[ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_mgbt1"]
+[ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_mgbt1"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="9_aud"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_AB_QuickCast.tres" id="10_qc"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_AB_Forked.tres" id="11_fk"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_AB_Overcharge.tres" id="12_oc"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_AB_ChainBolt.tres" id="13_cb"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_AB_DoubleStrike.tres" id="14_ds"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_mgbt1"]
+size = Vector2(120, 46)
+
+[sub_resource type="Resource" id="Resource_mgbt1"]
+script = ExtResource("2_mgbt2")
+target_type = 1
+hit_box_shape_data = SubResource("RectangleShape2D_mgbt1")
+hit_box_position_data = Vector2(60, -10)
+animation_name = "attack_2"
+is_projectile = true
+projectile_scene = ExtResource("2_mgbt3")
+projectile_speed = 300.0
+metadata/_custom_type_script = "uid://1raaatfhww5y"
+
+[sub_resource type="Resource" id="Resource_mgbt2"]
+script = ExtResource("6_mgbt1")
+base_value = 0.4
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_mgbt3"]
+script = ExtResource("6_mgbt1")
+base_value = 1.2
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_mgbt4"]
+script = ExtResource("6_mgbt1")
+base_value = 100.0
+per_level = 5.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_mgbt5"]
+script = ExtResource("6_mgbt1")
+base_value = 4.0
+per_level = 0.2
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_mgbt6"]
+script = ExtResource("6_mgbt1")
+base_value = 1.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_mgbt7"]
+script = ExtResource("6_mgbt1")
+base_value = 1.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_mgbt8"]
+script = ExtResource("7_mgbt1")
+mana_cost_formula = SubResource("Resource_mgbt5")
+cooldown_formula = SubResource("Resource_mgbt3")
+damage_percent_formula = SubResource("Resource_mgbt4")
+max_targets_formula = SubResource("Resource_mgbt7")
+max_hits_formula = SubResource("Resource_mgbt6")
+cast_time_formula = SubResource("Resource_mgbt2")
+metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
+
+[resource]
+script = ExtResource("2_mgbt1")
+ability_id = "1397103679912-10180-12141116-8591-12491086711491461"
+ability_name = "Arcane Bolt"
+description = "Hurls a focused bolt of raw mana at $[target_count] enemy, dealing $[damage_percent] magic damage. The mage's bread and butter."
+ability_icon = ExtResource("1_yj04x")
+max_level = 20
+damage_stat = 13
+required_class = Array[int]([2])
+required_weapon_types = Array[int]([2])
+tree_path = 1
+upgrades = Array[ExtResource("9_aud")]([ExtResource("10_qc"), ExtResource("11_fk"), ExtResource("12_oc"), ExtResource("13_cb"), ExtResource("14_ds")])
+active_behavior = SubResource("Resource_mgbt1")
+scaling_data = SubResource("Resource_mgbt8")
+metadata/_custom_type_script = "uid://b8y62rc8nb40j"

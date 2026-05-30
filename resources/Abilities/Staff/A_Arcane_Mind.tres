@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=13 format=3 uid="uid://w0x3oyevmbgf"]
+
+[ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_intp1"]
+[ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_intp2"]
+[ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_intp1"]
+[ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_intp1"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_intp1"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="7_aud"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_AM_Studious.tres" id="8_st"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_AM_Erudite.tres" id="9_er"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_AM_Sage.tres" id="10_sa"]
+[ext_resource type="Script" uid="uid://dtoufou880ajf" path="res://scripts/Abilities/AL_KillingSpree.gd" id="11_alks"]
+
+[sub_resource type="Resource" id="Resource_intp1"]
+resource_local_to_scene = true
+script = ExtResource("1_intp2")
+logic_script = ExtResource("11_alks")
+
+[sub_resource type="Resource" id="Resource_intp4"]
+script = ExtResource("3_intp1")
+
+[resource]
+script = ExtResource("6_intp1")
+ability_id = "9140121551-15113-1011311-4101-1013111411105114"
+ability_name = "Killing Spree"
+description = "After a kill, deal up to +30% damage for 4s (scales with level). Snowballs through packs; does nothing on a lone target."
+ability_icon = ExtResource("1_intp1")
+max_level = 10
+ability_type = 1
+required_class = Array[int]([2])
+tree_path = 0
+tree_depth = 4
+upgrades = Array[ExtResource("7_aud")]([ExtResource("8_st"), ExtResource("9_er"), ExtResource("10_sa")])
+active_behavior = SubResource("Resource_intp1")
+scaling_data = SubResource("Resource_intp4")
+metadata/_custom_type_script = "uid://b8y62rc8nb40j"

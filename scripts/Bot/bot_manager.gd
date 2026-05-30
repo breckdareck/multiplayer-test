@@ -498,6 +498,10 @@ func get_enemies_on_map(map_id: String, map_node: Node) -> Array:
 				continue
 			if node.health_component and node.health_component.is_dead:
 				continue
+			# Invincible training dummies are excluded so bots never target,
+			# count, or path toward them — they're a player-only practice target.
+			if node.health_component and node.health_component.invincible:
+				continue
 			list.append(node)
 	_enemy_cache[map_id] = list
 	return list

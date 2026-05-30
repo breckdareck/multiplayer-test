@@ -1,0 +1,85 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://jybdswmtditj"]
+
+[ext_resource type="Texture2D" uid="uid://dliub1pvja86r" path="res://assets/sprites/Abilities/disorder.webp" id="1_env1"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_env1"]
+[ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_env2"]
+[ext_resource type="Script" uid="uid://ddqcircwvhmu3" path="res://scripts/Abilities/AL_Envenom.gd" id="3_env1"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="6_env1"]
+[ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_env1"]
+[ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_env1"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="10_aud"]
+[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_ENV_CoatedBlade.tres" id="11_env1"]
+[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_ENV_Virulent.tres" id="12_env2"]
+[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_ENV_Neurotoxin.tres" id="13_env3"]
+[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_ENV_Corrosive.tres" id="14_env4"]
+[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_ENV_Lingering.tres" id="15_env5"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_env1"]
+size = Vector2(34, 22)
+
+[sub_resource type="Resource" id="Resource_env_behav"]
+script = ExtResource("2_env2")
+target_type = 1
+hit_box_shape_data = SubResource("RectangleShape2D_env1")
+hit_box_position_data = Vector2(17, -10)
+animation_name = "attack_1"
+sfx_path = "res://assets/sounds/tap.wav"
+logic_script = ExtResource("3_env1")
+metadata/_custom_type_script = "uid://1raaatfhww5y"
+
+[sub_resource type="Resource" id="Resource_env_cast"]
+script = ExtResource("6_env1")
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_env_cd"]
+script = ExtResource("6_env1")
+base_value = 4.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_env_dmg"]
+script = ExtResource("6_env1")
+base_value = 90.0
+per_level = 4.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_env_mana"]
+script = ExtResource("6_env1")
+base_value = 6.0
+per_level = 0.3
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_env_hits"]
+script = ExtResource("6_env1")
+base_value = 1.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_env_targets"]
+script = ExtResource("6_env1")
+base_value = 1.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_env_scaling"]
+script = ExtResource("7_env1")
+mana_cost_formula = SubResource("Resource_env_mana")
+cooldown_formula = SubResource("Resource_env_cd")
+damage_percent_formula = SubResource("Resource_env_dmg")
+max_targets_formula = SubResource("Resource_env_targets")
+max_hits_formula = SubResource("Resource_env_hits")
+cast_time_formula = SubResource("Resource_env_cast")
+metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
+
+[resource]
+script = ExtResource("2_env1")
+ability_id = "5141181181011101110951-9043-1410149-105135-1410158678120202"
+ability_name = "Envenom"
+description = "Strikes one enemy with a poison-coated blade for $[damage_percent] damage. [color=#7ed957]Applies a stacking Poison (max 3 stacks) — each stack deals 20% Weapon Attack/s for 6 seconds.[/color]"
+ability_icon = ExtResource("1_env1")
+max_level = 20
+required_class = Array[int]([3])
+required_weapon_types = Array[int]([3])
+tree_path = 1
+tree_depth = 2
+upgrades = Array[ExtResource("10_aud")]([ExtResource("11_env1"), ExtResource("12_env2"), ExtResource("13_env3"), ExtResource("14_env4"), ExtResource("15_env5")])
+active_behavior = SubResource("Resource_env_behav")
+scaling_data = SubResource("Resource_env_scaling")
+metadata/_custom_type_script = "uid://b8y62rc8nb40j"

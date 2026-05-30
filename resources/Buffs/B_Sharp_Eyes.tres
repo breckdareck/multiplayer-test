@@ -9,7 +9,7 @@
 resource_local_to_scene = true
 script = ExtResource("1_script")
 buff_id = "12156113715-4150-21438-71311-14782111197300"
-buff_name = "Sharp Eyes"
+buff_name = "Eagle Eye"
 description = "Increases critical hit chance and critical damage of all party members."
 buff_icon = ExtResource("1_hn06s")
 duration = 30.0

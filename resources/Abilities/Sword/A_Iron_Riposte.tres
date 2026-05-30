@@ -1,0 +1,87 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=24 format=3 uid="uid://bj44mdaqov8t"]
+
+[ext_resource type="Texture2D" uid="uid://ky00whwbxbmx" path="res://assets/sprites/Abilities/power_guard.png" id="1_26017"]
+[ext_resource type="Script" uid="uid://doiljfws248yw" path="res://scripts/Abilities/AL_PowerGuard.gd" id="2_1gbs7"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_26017"]
+[ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_rxk8e"]
+[ext_resource type="Resource" uid="uid://exhase0djcpt" path="res://resources/Buffs/B_Power_Guard.tres" id="4_b8raq"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="6_jrmpn"]
+[ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_b8raq"]
+[ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_cm1ky"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="10_aud"]
+[ext_resource type="Resource" uid="uid://pgu1quickrec" path="res://resources/Abilities/Sword/Upgrades/U_PG_QuickRecovery.tres" id="11_qr"]
+[ext_resource type="Resource" uid="uid://pgu2lasting" path="res://resources/Abilities/Sword/Upgrades/U_PG_LastingGuard.tres" id="12_lg"]
+[ext_resource type="Resource" uid="uid://pgu3spiked" path="res://resources/Abilities/Sword/Upgrades/U_PG_SpikedBulwark.tres" id="13_sb"]
+[ext_resource type="Resource" uid="uid://pgu4eternal" path="res://resources/Abilities/Sword/Upgrades/U_PG_EternalGuard.tres" id="14_eg"]
+[ext_resource type="Resource" uid="uid://dunjl8nqmvrej" path="res://resources/Abilities/Sword/Upgrades/U_PG_EfficientGuard.tres" id="15_ef"]
+
+[sub_resource type="Resource" id="Resource_1gbs7"]
+script = ExtResource("2_rxk8e")
+logic_script = ExtResource("2_1gbs7")
+metadata/_custom_type_script = "uid://1raaatfhww5y"
+
+[sub_resource type="Resource" id="Resource_ddpfy"]
+script = ExtResource("6_jrmpn")
+base_value = 12.0
+per_level = 0.5
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_b2sp4"]
+script = ExtResource("6_jrmpn")
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_346sf"]
+script = ExtResource("6_jrmpn")
+base_value = 25.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_dgn0w"]
+script = ExtResource("6_jrmpn")
+base_value = 12.0
+per_level = 2.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_jojv8"]
+script = ExtResource("6_jrmpn")
+base_value = 18.0
+per_level = 1.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_rt43a"]
+script = ExtResource("6_jrmpn")
+base_value = 1.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_exyov"]
+script = ExtResource("6_jrmpn")
+base_value = 1.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_qc0ct"]
+script = ExtResource("7_b8raq")
+mana_cost_formula = SubResource("Resource_jojv8")
+cooldown_formula = SubResource("Resource_346sf")
+damage_percent_formula = SubResource("Resource_dgn0w")
+max_targets_formula = SubResource("Resource_exyov")
+max_hits_formula = SubResource("Resource_rt43a")
+cast_time_formula = SubResource("Resource_b2sp4")
+metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
+
+[resource]
+script = ExtResource("2_26017")
+ability_id = "32121111002-711613-1312210-11605-410115144314331013"
+ability_name = "Iron Riposte"
+description = "Reflects $[damage_percent] of damage taken back to attackers for $[buff_duration].
+Cannot reflect more than half of the enemy's Max HP at once."
+ability_icon = ExtResource("1_26017")
+max_level = 20
+required_class = Array[int]([0])
+required_weapon_types = Array[int]([0])
+tree_path = 0
+tree_depth = 1
+upgrades = Array[ExtResource("10_aud")]([ExtResource("11_qr"), ExtResource("12_lg"), ExtResource("13_sb"), ExtResource("14_eg"), ExtResource("15_ef")])
+active_behavior = SubResource("Resource_1gbs7")
+applies_buff = ExtResource("4_b8raq")
+buff_duration_formula = SubResource("Resource_ddpfy")
+scaling_data = SubResource("Resource_qc0ct")
+metadata/_custom_type_script = "uid://b8y62rc8nb40j"

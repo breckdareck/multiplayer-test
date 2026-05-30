@@ -36,6 +36,16 @@ var _ui_dirty: bool = false
 # update_stats_window. Keyed by Constants.ClassType int.
 var _mastery_labels: Dictionary = {}
 
+## PR 7 — attribute allocation rows (built dynamically; .tscn untouched).
+const _ALLOC_ATTRS: Array[int] = [
+	Constants.StatType.STRENGTH, Constants.StatType.DEXTERITY,
+	Constants.StatType.INTELLIGENCE, Constants.StatType.LUCK,
+	Constants.StatType.CONSTITUTION,
+]
+var _attr_value_labels: Dictionary = {}
+var _attr_plus_buttons: Dictionary = {}
+var _unspent_label: Label
+
 func _ready() -> void:
 	# Add to ui_window group for drop detection
 	add_to_group("ui_window")
@@ -59,6 +69,10 @@ func _ready() -> void:
 		if player.weapon_mastery_component:
 			player.weapon_mastery_component.mastery_level_changed.connect(_mark_ui_dirty.unbind(2))
 			player.weapon_mastery_component.mastery_xp_changed.connect(_mark_ui_dirty.unbind(3))
+
+		_build_attributes_section()
+		if player.stats_component:
+			player.stats_component.attribute_points_changed.connect(_mark_ui_dirty.unbind(1))
 
 		update_stats_window()
 
@@ -137,6 +151,7 @@ func update_stats_window():
 	magic_defense_amount_label.text = "%d" % player.stats_component.stats.get(Constants.StatType.MAGICDEFENSE).total_value
 
 	_update_mastery_labels()
+	_update_attribute_labels()
 
 
 # ─── Weapon Mastery section (built dynamically; .tscn untouched) ──────────────
@@ -196,3 +211,88 @@ func _update_mastery_labels() -> void:
 		else:
 			var xp_to_next: int = player.weapon_mastery_component._xp_to_next_level(level)
 			label.text = "Lv %d (%d / %d XP)" % [level, xp, xp_to_next]
+
+
+# ─── Attribute allocation section (PR 7; built dynamically, .tscn untouched) ──
+
+func _build_attributes_section() -> void:
+	var vbox: Node = get_node_or_null("StatsPanel/ScrollContainer/MarginContainer/VBoxContainer")
+	if vbox == null:
+		push_warning("StatsWindow: VBoxContainer not found; skipping attribute section.")
+		return
+
+	var separator := HSeparator.new()
+	separator.add_theme_constant_override("separation", 8)
+	vbox.add_child(separator)
+
+	var header := Label.new()
+	header.text = "Attributes"
+	header.add_theme_color_override("font_color", Color(0.6, 0.85, 1.0))  # soft blue
+	vbox.add_child(header)
+
+	_unspent_label = Label.new()
+	_unspent_label.text = "Unspent: 0"
+	_unspent_label.add_theme_color_override("font_color", Color(0.9, 0.85, 0.5))
+	vbox.add_child(_unspent_label)
+
+	for stat_type in _ALLOC_ATTRS:
+		var row := HBoxContainer.new()
+		row.name = "Attr_" + str(stat_type)
+
+		var name_label := Label.new()
+		name_label.text = "%s:" % _attr_display_name(stat_type)
+		name_label.custom_minimum_size = Vector2(80, 0)
+		row.add_child(name_label)
+
+		var value_label := Label.new()
+		value_label.text = "0"
+		value_label.custom_minimum_size = Vector2(50, 0)
+		row.add_child(value_label)
+
+		var plus := Button.new()
+		plus.text = "+"
+		plus.custom_minimum_size = Vector2(28, 0)
+		plus.pressed.connect(_on_attr_plus_pressed.bind(stat_type))
+		row.add_child(plus)
+
+		vbox.add_child(row)
+		_attr_value_labels[stat_type] = value_label
+		_attr_plus_buttons[stat_type] = plus
+
+	var respec := Button.new()
+	respec.text = "Respec Attributes"
+	respec.pressed.connect(_on_respec_attrs_pressed)
+	vbox.add_child(respec)
+
+
+func _attr_display_name(stat_type: int) -> String:
+	match stat_type:
+		Constants.StatType.STRENGTH: return "STR"
+		Constants.StatType.DEXTERITY: return "DEX"
+		Constants.StatType.INTELLIGENCE: return "INT"
+		Constants.StatType.LUCK: return "LUK"
+		Constants.StatType.CONSTITUTION: return "CON"
+	return "?"
+
+
+func _on_attr_plus_pressed(stat_type: int) -> void:
+	if player and player.stats_component:
+		player.stats_component.allocate_attribute(stat_type, 1)
+
+
+func _on_respec_attrs_pressed() -> void:
+	if player and player.stats_component:
+		player.stats_component.respec_attributes()
+
+
+func _update_attribute_labels() -> void:
+	if not player or not player.stats_component:
+		return
+	var unused: int = player.stats_component.get_attribute_points_unused()
+	if _unspent_label:
+		_unspent_label.text = "Unspent: %d" % unused
+	for stat_type in _ALLOC_ATTRS:
+		if _attr_value_labels.has(stat_type):
+			_attr_value_labels[stat_type].text = str(player.stats_component.get_allocated_attribute(stat_type))
+		if _attr_plus_buttons.has(stat_type):
+			_attr_plus_buttons[stat_type].disabled = (unused <= 0)

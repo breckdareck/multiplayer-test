@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=13 format=3 uid="uid://h65ttehvf0mx"]
+
+[ext_resource type="Texture2D" uid="uid://djx8um8tttwxa" path="res://assets/sprites/Abilities/mana_shield.png" id="1_dpk1"]
+[ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_dpk1"]
+[ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_dpk1"]
+[ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_dpk1"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_dpk1"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
+[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_DPK_Deep.tres" id="9_dpk1"]
+[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_DPK_Hidden.tres" id="10_dpk2"]
+[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_DPK_Bottomless.tres" id="11_dpk3"]
+[ext_resource type="Script" uid="uid://7py5ytqyvdox" path="res://scripts/Abilities/AL_Opportunist.gd" id="12_op"]
+
+[sub_resource type="Resource" id="Resource_dpk_behav"]
+resource_local_to_scene = true
+script = ExtResource("2_dpk1")
+logic_script = ExtResource("12_op")
+
+[sub_resource type="Resource" id="Resource_dpk_scaling"]
+script = ExtResource("3_dpk1")
+metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
+
+[resource]
+script = ExtResource("6_dpk1")
+ability_id = "5100101101112112111991-9043-1410149-105135-1410158678120215"
+ability_name = "Opportunist"
+description = "Deal up to +35% damage while in stealth (scales with level). Strike from the dark."
+ability_icon = ExtResource("1_dpk1")
+max_level = 10
+ability_type = 1
+required_class = Array[int]([3])
+required_weapon_types = Array[int]([3])
+tree_path = 0
+tree_depth = 6
+upgrades = Array[ExtResource("8_aud")]([ExtResource("9_dpk1"), ExtResource("10_dpk2"), ExtResource("11_dpk3")])
+active_behavior = SubResource("Resource_dpk_behav")
+scaling_data = SubResource("Resource_dpk_scaling")
+metadata/_custom_type_script = "uid://b8y62rc8nb40j"

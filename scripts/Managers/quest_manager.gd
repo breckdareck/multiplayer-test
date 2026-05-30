@@ -403,23 +403,6 @@ func start_onboarding(username: String) -> void:
 	_push_quest_ui_update(username)
 
 
-## Called on a genuine level-up when the player reaches the advancement level.
-## Nudges them toward the /advance command.
-func notify_advancement_available(username: String) -> void:
-	if not multiplayer.is_server():
-		return
-	var pid: int = PlayerManager.get_player_id_from_name(username)
-	if pid == -1 or BotManager.is_bot(pid):
-		return
-	var player_node: MultiplayerPlayerV2 = PlayerManager.get_player_node(pid)
-	if not is_instance_valid(player_node):
-		return
-	if not JobAdvancementManager.can_advance(player_node):
-		return
-	_send_message(pid, "You have reached Level 30 — you are ready for Job Advancement!", Color.GOLD)
-	_send_message(pid, "Type /advance to choose your specialized class.", Color.GOLD)
-
-
 func _advance_objectives(username: String, obj_type: int, target: String, amount: int) -> void:
 	var active: Dictionary = _active_quests.get(username, {})
 	if active.is_empty():

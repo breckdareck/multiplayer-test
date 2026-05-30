@@ -1,0 +1,80 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=22 format=3 uid="uid://dxf1ejii6pw"]
+
+[ext_resource type="Texture2D" uid="uid://e4oglnq6rgd4" path="res://assets/sprites/Abilities/double_stab.png" id="1_2pao2"]
+[ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_1ro77"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_2pao2"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_2471p"]
+[ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="6_v6e48"]
+[ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="7_mx6oj"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
+[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_TF_Quicken.tres" id="9_tf1"]
+[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_TF_Serrated.tres" id="10_tf2"]
+[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_TF_Flurry.tres" id="11_tf3"]
+[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_TF_Gutter.tres" id="12_tf4"]
+[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_TF_DualEdge.tres" id="13_tf5"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_i4okq"]
+size = Vector2(30, 20)
+
+[sub_resource type="Resource" id="Resource_2g3a4"]
+script = ExtResource("2_1ro77")
+target_type = 1
+hit_box_shape_data = SubResource("RectangleShape2D_i4okq")
+hit_box_position_data = Vector2(15, -10)
+animation_name = "attack_1"
+sfx_path = "res://assets/sounds/tap.wav"
+
+[sub_resource type="Resource" id="Resource_7emli"]
+script = ExtResource("5_2471p")
+
+[sub_resource type="Resource" id="Resource_qhxr3"]
+script = ExtResource("5_2471p")
+base_value = 1.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_o63la"]
+script = ExtResource("5_2471p")
+base_value = 73.0
+per_level = 3.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_1otjw"]
+script = ExtResource("5_2471p")
+base_value = 3.0
+per_level = 0.1
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_l2sl3"]
+script = ExtResource("5_2471p")
+base_value = 2.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_8dthd"]
+script = ExtResource("5_2471p")
+base_value = 1.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_wx6cs"]
+script = ExtResource("6_v6e48")
+mana_cost_formula = SubResource("Resource_1otjw")
+cooldown_formula = SubResource("Resource_qhxr3")
+damage_percent_formula = SubResource("Resource_o63la")
+max_targets_formula = SubResource("Resource_8dthd")
+max_hits_formula = SubResource("Resource_l2sl3")
+cast_time_formula = SubResource("Resource_7emli")
+metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
+
+[resource]
+script = ExtResource("2_2pao2")
+ability_id = "1111528545-1012105-8599-3131-614101401211841167"
+ability_name = "Twin Fang"
+description = "A lightning-fast pair of stabs to one enemy, hitting $[hit_count] times for $[damage_percent] damage."
+ability_icon = ExtResource("1_2pao2")
+max_level = 20
+required_class = Array[int]([3])
+required_weapon_types = Array[int]([3])
+tree_path = 1
+upgrades = Array[ExtResource("8_aud")]([ExtResource("9_tf1"), ExtResource("10_tf2"), ExtResource("11_tf3"), ExtResource("12_tf4"), ExtResource("13_tf5")])
+active_behavior = SubResource("Resource_2g3a4")
+scaling_data = SubResource("Resource_wx6cs")
+metadata/_custom_type_script = "uid://b8y62rc8nb40j"

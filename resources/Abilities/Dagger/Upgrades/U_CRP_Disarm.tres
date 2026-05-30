@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://dgru_crp4_disarm"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "crp_t3_disarm"
+upgrade_name = "Disarm"
+description = "Cripple deals +75% damage, driving the blade home as it maims."
+point_cost = 2
+tier = 3
+variant_group = "crp_maim_variant"
+effect_key = "bonus_damage_mult"
+magnitude = 0.75

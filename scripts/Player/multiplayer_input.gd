@@ -82,9 +82,31 @@ func _process(_delta: float) -> void:
 		else:
 			PlayerManager.player_input.rpc_id(1, "jump")
 
+	# Basic attack: every-frame-while-held for ALL weapons. The bow's signature
+	# (Momentum) builds passively from landed hits — it needs NO special input
+	# path, so the bow uses the same plain attack as every other weapon.
 	if Input.is_action_just_pressed("Attack") or Input.is_action_pressed("Attack"):
 		PlayerManager.player_input.rpc_id(1, "attack")
-	
+
+	# PR 7 — Staff signature: the WeaponSignature key cycles the active element
+	# (FIRE -> ICE -> LIGHTNING) ONLY while wielding a STAFF. Gated on the wielded
+	# discipline so it does nothing for any other weapon — and so the dagger can
+	# add its own WeaponSignature branch here later, gated on DAGGER. This is a
+	# SEPARATE action from Attack, so the basic-attack logic above is untouched.
+	if is_instance_valid(player) and player.has_method("get_active_discipline") and player.get_active_discipline() == Constants.ClassType.STAFF:
+		if Input.is_action_just_pressed("WeaponSignature"):
+			PlayerManager.player_input.rpc_id(1, "staff_cycle_element")
+
+	# PR 7 — Dagger signature: the WeaponSignature key TOGGLES Shadowmeld stealth
+	# ONLY while wielding a DAGGER. A SEPARATE sibling branch from the staff one
+	# above (each discipline owns the WeaponSignature key in its own way), gated on
+	# the wielded discipline so it does nothing for any other weapon. The component
+	# is server-authoritative and decides enter-vs-exit; the client only sends the
+	# toggle intent.
+	if is_instance_valid(player) and player.has_method("get_active_discipline") and player.get_active_discipline() == Constants.ClassType.DAGGER:
+		if Input.is_action_just_pressed("WeaponSignature"):
+			PlayerManager.player_input.rpc_id(1, "dagger_shadowmeld")
+
 	if Input.is_action_just_pressed("Pickup") or Input.is_action_pressed("Pickup"):
 		PlayerManager.player_input.rpc_id(1, "pickup", true)
 	else:

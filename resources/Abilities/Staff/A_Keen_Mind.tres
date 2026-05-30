@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=13 format=3 uid="uid://ddr205yl8tuyy"]
+
+[ext_resource type="Texture2D" uid="uid://cc18m1wu0h2vl" path="res://assets/sprites/Abilities/sharp_eyes.png" id="1_km1"]
+[ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_km1"]
+[ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_km1"]
+[ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_km1"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_km1"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_KM_Focused.tres" id="9_fo"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_KM_Incisive.tres" id="10_in"]
+[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_KM_Prescient.tres" id="11_pr"]
+[ext_resource type="Script" uid="uid://loverload01x" path="res://scripts/Abilities/AL_Overload.gd" id="12_ov"]
+
+[sub_resource type="Resource" id="Resource_km_behav"]
+resource_local_to_scene = true
+script = ExtResource("2_km1")
+logic_script = ExtResource("12_ov")
+
+[sub_resource type="Resource" id="Resource_km_scaling"]
+script = ExtResource("3_km1")
+metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
+
+[resource]
+script = ExtResource("6_km1")
+ability_id = "1115514051220-1442-91312-103145-15101498675120290"
+ability_name = "Overload"
+description = "Deal up to +25% damage while above 50% mana (scales with level). Channel your reserves."
+ability_icon = ExtResource("1_km1")
+max_level = 10
+ability_type = 1
+required_class = Array[int]([2])
+required_weapon_types = Array[int]([2])
+tree_path = 0
+tree_depth = 5
+upgrades = Array[ExtResource("8_aud")]([ExtResource("9_fo"), ExtResource("10_in"), ExtResource("11_pr")])
+active_behavior = SubResource("Resource_km_behav")
+scaling_data = SubResource("Resource_km_scaling")
+metadata/_custom_type_script = "uid://b8y62rc8nb40j"

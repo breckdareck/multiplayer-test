@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://dgru_luk2_fortunate"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "luk_t2_fortunate"
+upgrade_name = "Fortunate"
+description = "Increases Composure's bonus damage by +5% (while its condition is met)."
+point_cost = 1
+tier = 2
+variant_group = ""
+effect_key = "conditional_damage_bonus"
+magnitude = 0.05

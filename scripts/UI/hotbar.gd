@@ -13,7 +13,7 @@ var primary_weapon_slot: HotbarWeaponSlot = null
 var secondary_weapon_slot: HotbarWeaponSlot = null
 
 var hotbar_slots: Array[Node] = []
-var slot_count: int = 8
+var slot_count: int = 5
 var player: MultiplayerPlayerV2
 var ability_component: AbilityComponent
 var equipment_component: EquipmentComponent

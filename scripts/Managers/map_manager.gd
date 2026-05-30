@@ -756,6 +756,49 @@ func despawn_projectile_visual(proj_name: String) -> void:
 		projectile.queue_free()
 
 
+const _LightningArcVfx = preload("res://scripts/VFX/lightning_arc.gd")
+
+## [Server] Broadcasts a chain-lightning arc VFX to every real client viewing the
+## event's map (and draws it on the host if the host is on that map). Cosmetic
+## only — the chain DAMAGE is already applied server-side by StaffElementComponent.
+## `points` are GLOBAL positions: the struck target first, then each chained enemy
+## in order, so each peer draws one bolt threading through the shocked enemies.
+func broadcast_lightning_arc(map_id: String, points: PackedVector2Array) -> void:
+	if not multiplayer.is_server():
+		return
+	if points.size() < 2:
+		return
+	# The host is also a client — draw locally only if it is viewing this map
+	# (the call_remote RPC below never runs on the server).
+	if get_player_map(1) == map_id:
+		_spawn_lightning_arc_visual(points)
+	for peer_id in get_real_players_on_map(map_id):
+		if peer_id != 1:
+			client_show_lightning_arc.rpc_id(peer_id, points)
+
+
+## [Server -> Client] Draws the chain-lightning arc on this peer. Routed through
+## MapManager (an autoload that always resolves) rather than any per-entity node,
+## mirroring bot_ability_used / spawn_projectile_visual.
+@rpc("authority", "call_remote", "reliable")
+func client_show_lightning_arc(points: PackedVector2Array) -> void:
+	if multiplayer.is_server():
+		return
+	_spawn_lightning_arc_visual(points)
+
+
+## Spawns the transient bolt node under the visible map (so it renders in the
+## right SubViewport) and lets it self-free. No-op on a headless peer / when no
+## map is visible.
+func _spawn_lightning_arc_visual(points: PackedVector2Array) -> void:
+	var map_node = get_current_visible_map()
+	if not is_instance_valid(map_node):
+		return
+	var arc = _LightningArcVfx.new()
+	map_node.add_child(arc)
+	arc.setup(points)
+
+
 ## [Server -> Client] Plays a bot's ability-cast visual. Routed through
 ## MapManager (an autoload that always resolves) rather than the bot's
 ## AbilityComponent node, which a client may lack during a map transition.

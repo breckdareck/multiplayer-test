@@ -9,7 +9,7 @@
 resource_local_to_scene = true
 script = ExtResource("1_focus2")
 buff_id = "6636311513-1091051-514155-3601-82154121514511"
-buff_name = "Focus"
+buff_name = "Steady Aim"
 description = "Increases weapon attack and critical hit chance."
 buff_icon = ExtResource("1_mr78s")
 duration = 30.0

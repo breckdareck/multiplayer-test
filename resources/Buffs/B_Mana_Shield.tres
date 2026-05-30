@@ -9,7 +9,7 @@
 resource_local_to_scene = true
 script = ExtResource("1_mshld2")
 buff_id = "12141310581-109451-139051-7305-615121411431014"
-buff_name = "Mana Shield"
+buff_name = "Aether Ward"
 description = "Absorbs incoming damage by draining mana instead of HP."
 buff_icon = ExtResource("1_vxycp")
 duration = 30.0

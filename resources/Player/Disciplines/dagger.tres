@@ -1,16 +1,23 @@
-[gd_resource type="Resource" script_class="WeaponDisciplineData" load_steps=12 format=3 uid="uid://cd72f2m3bg0sh"]
+[gd_resource type="Resource" script_class="WeaponDisciplineData" load_steps=19 format=3 uid="uid://cd72f2m3bg0sh"]
 
 [ext_resource type="Texture2D" uid="uid://cgx33w5mdt6ar" path="res://assets/UI/rogue_portrait.tres" id="1_5hc5c"]
 [ext_resource type="Script" uid="uid://buwbui1bka8vl" path="res://scripts/Resources/DisciplineSystem/WeaponDisciplineData.gd" id="2_ynuw2"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="3_76b0u"]
-[ext_resource type="Resource" uid="uid://dxf1ejii6pw" path="res://resources/Abilities/Dagger/A_Double_Stab.tres" id="4_so2ya"]
 [ext_resource type="SpriteFrames" uid="uid://61bhtp5n4qmo" path="res://resources/Player/SpriteFrames/Rogue.tres" id="4_ynuw2"]
-[ext_resource type="Resource" uid="uid://nimblstp001x" path="res://resources/Abilities/Dagger/A_Nimble_Step.tres" id="5_so2ya"]
-[ext_resource type="Resource" uid="uid://lky7abl001xx" path="res://resources/Abilities/Dagger/A_Lucky_Seven.tres" id="6_so2ya"]
-[ext_resource type="Resource" uid="uid://drksghtabl01" path="res://resources/Abilities/Dagger/A_Dark_Sight.tres" id="7_so2ya"]
-[ext_resource type="Resource" uid="uid://disorder001x" path="res://resources/Abilities/Dagger/A_Disorder.tres" id="8_so2ya"]
-[ext_resource type="Resource" uid="uid://shdwpart001x" path="res://resources/Abilities/Dagger/A_Shadow_Partner.tres" id="9_so2ya"]
-[ext_resource type="Resource" uid="uid://c37bseifhg1hl" path="res://resources/Abilities/Dagger/A_Haste.tres" id="10_so2ya"]
+[ext_resource type="Resource" uid="uid://dxf1ejii6pw" path="res://resources/Abilities/Dagger/A_Twin_Fang.tres" id="5_twin"]
+[ext_resource type="Resource" uid="uid://lky7abl001xx" path="res://resources/Abilities/Dagger/A_Fan_Of_Knives.tres" id="6_fok"]
+[ext_resource type="Resource" uid="uid://dgrevisc001x" path="res://resources/Abilities/Dagger/A_Eviscerate.tres" id="7_evi"]
+[ext_resource type="Resource" uid="uid://dgrenvenom001x" path="res://resources/Abilities/Dagger/A_Envenom.tres" id="8_env"]
+[ext_resource type="Resource" uid="uid://dgrshadowstep01x" path="res://resources/Abilities/Dagger/A_Shadowstep.tres" id="9_sst"]
+[ext_resource type="Resource" uid="uid://drksghtabl01" path="res://resources/Abilities/Dagger/A_Vanish.tres" id="10_van"]
+[ext_resource type="Resource" uid="uid://disorder001x" path="res://resources/Abilities/Dagger/A_Cripple.tres" id="11_crp"]
+[ext_resource type="Resource" uid="uid://c37bseifhg1hl" path="res://resources/Abilities/Dagger/A_Bloodlust.tres" id="12_bld"]
+[ext_resource type="Resource" uid="uid://nimblstp001x" path="res://resources/Abilities/Dagger/A_Larcenous_Luck.tres" id="13_luk"]
+[ext_resource type="Resource" uid="uid://dgrvigor001x" path="res://resources/Abilities/Dagger/A_Vigor.tres" id="14_vig"]
+[ext_resource type="Resource" uid="uid://dgrkillerinst01x" path="res://resources/Abilities/Dagger/A_Killer_Instinct.tres" id="15_kin"]
+[ext_resource type="Resource" uid="uid://dgrexploitwk01x" path="res://resources/Abilities/Dagger/A_Exploit_Weakness.tres" id="16_exw"]
+[ext_resource type="Resource" uid="uid://dgrevasion001x" path="res://resources/Abilities/Dagger/A_Evasion.tres" id="17_eva"]
+[ext_resource type="Resource" uid="uid://dgrdeeppockets1x" path="res://resources/Abilities/Dagger/A_Deep_Pockets.tres" id="18_dpk"]
 
 [resource]
 script = ExtResource("2_ynuw2")
@@ -19,7 +26,7 @@ class_type = 3
 sprite_frames = Dictionary[int, SpriteFrames]({
 1: ExtResource("4_ynuw2")
 })
-skills = Array[ExtResource("3_76b0u")]([ExtResource("4_so2ya"), ExtResource("5_so2ya"), ExtResource("6_so2ya"), ExtResource("7_so2ya"), ExtResource("8_so2ya"), ExtResource("9_so2ya"), ExtResource("10_so2ya")])
+skills = Array[ExtResource("3_76b0u")]([ExtResource("5_twin"), ExtResource("6_fok"), ExtResource("7_evi"), ExtResource("8_env"), ExtResource("9_sst"), ExtResource("10_van"), ExtResource("11_crp"), ExtResource("12_bld"), ExtResource("13_luk"), ExtResource("14_vig"), ExtResource("15_kin"), ExtResource("16_exw"), ExtResource("17_eva"), ExtResource("18_dpk")])
 icon = ExtResource("1_5hc5c")
 primary_stat = 3
 secondary_stat = 2
@@ -27,5 +34,5 @@ stat_bonuses = Dictionary[int, int]({
 2: 2,
 3: 3
 })
-starter_ability = ExtResource("4_so2ya")
+starter_ability = ExtResource("5_twin")
 metadata/_custom_type_script = "uid://buwbui1bka8vl"

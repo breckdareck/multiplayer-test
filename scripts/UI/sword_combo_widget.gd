@@ -10,7 +10,7 @@ class_name SwordComboWidget
 ## Tab-swaps per the locked design).
 ##
 ## This widget is intentionally NOT inside the hotbar. The hotbar holds bindings
-## and weapon-loadout slots; signature gauges (combo, bow charge, staff modes,
+## and weapon-loadout slots; signature gauges (combo, bow momentum, staff modes,
 ## dagger stealth) belong to the class identity and get their own anchored
 ## widgets so the hotbar can stay compact across all disciplines.
 ##

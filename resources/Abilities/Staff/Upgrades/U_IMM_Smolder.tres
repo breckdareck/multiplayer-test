@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://stfu_imm3_smolder"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "imm_t3_smolder"
+upgrade_name = "Smoldering Embers"
+description = "Immolate's burn lasts an additional 4 seconds."
+point_cost = 2
+tier = 3
+variant_group = "imm_burn_variant"
+effect_key = "burn_duration_bonus"
+magnitude = 4.0

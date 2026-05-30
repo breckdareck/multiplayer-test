@@ -59,9 +59,6 @@ func send_chat_message(text: String) -> void:
 			_request_quest_command.rpc_id(1, text)
 			return
 
-		# /advance was removed — players must talk to the Job Master NPC in town
-		# to advance. The NPC dialog still calls JobAdvancementManager.request_advancement.
-
 		if command == "/bot":
 			_request_bot_command.rpc_id(1, text)
 			return

@@ -9,8 +9,8 @@
 resource_local_to_scene = true
 script = ExtResource("1_script")
 buff_id = "5061219149-11032-03135-7452-0129511410662512"
-buff_name = "Haste"
-description = "Increases dexterity and luck of all party members."
+buff_name = "Bloodlust"
+description = "Frenzied — increased critical hit chance and critical damage."
 buff_icon = ExtResource("1_i61w5")
 duration = 30.0
 logic_script = ExtResource("2_logic")
