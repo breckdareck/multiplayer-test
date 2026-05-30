@@ -53,19 +53,30 @@ func _absorb_windows() -> void:
 		return
 	var eqw := src.get_node_or_null("EquipmentWindow")
 	_absorb(eqw, equip_host)
-	# Default the embedded Equipment/Pets toggle to the gear view (the generic
-	# absorb force-shows every moved child, which would reveal both at once).
-	if eqw and eqw.has_method("_show_equipment_tab"):
-		eqw.call("_show_equipment_tab")
-	# Lay the 6 equipment slots out 2-wide (mock paperdoll) instead of a 1-col strip,
-	# and top-align the panel (don't let it expand-fill and float the slots centered).
+	if eqw:
+		# Mock = NO Equipment/Pets toggle: show gear AND the pet panel together,
+		# pet directly under the equipment slots. Hide the toggle bar; force both
+		# the gear panel and the pet content visible.
+		var toggle := equip_host.find_child("TabButtons", true, false)
+		if toggle is CanvasItem:
+			(toggle as CanvasItem).visible = false
+		if "equipment_panel" in eqw and is_instance_valid(eqw.equipment_panel):
+			var ep := eqw.equipment_panel as Control
+			ep.visible = true
+			ep.size_flags_vertical = Control.SIZE_SHRINK_BEGIN  # gear top, natural height
+		if "pet_tab_content" in eqw and is_instance_valid(eqw.pet_tab_content):
+			var pc := eqw.pet_tab_content as Control
+			pc.visible = true
+			pc.size_flags_vertical = Control.SIZE_EXPAND_FILL    # pet panel fills below
+	# Lay the 6 equipment slots out 2-wide (mock paperdoll).
 	var grid := equip_host.find_child("GridContainer", true, false)
 	if grid is GridContainer:
 		(grid as GridContainer).columns = 2
-	if eqw and "equipment_panel" in eqw and is_instance_valid(eqw.equipment_panel):
-		(eqw.equipment_panel as Control).size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	_absorb(src.get_node_or_null("StatsWindow"), stats_host)
 	_absorb(src.get_node_or_null("InventoryWindow"), inv_host)
+	# Densify the inventory grids toward the mock (6-wide); revert if they overflow.
+	for g in inv_host.find_children("", "GridContainer", true, false):
+		(g as GridContainer).columns = 6
 	_ability_shell = src.get_node_or_null("AbilityWindow")
 	_absorb(_ability_shell, abil_host)
 	_absorbed = true
