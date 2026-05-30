@@ -1,8 +1,19 @@
 extends Node
 
 ## Ability logic for the Staff discipline's Communion — a party-wide empower
-## buff that raises MP regeneration and magic attack. Mirrors AL_Maple_Warrior's
+## buff that raises MP regeneration and ATTACK POWER. Mirrors AL_Maple_Warrior's
 ## party-application pattern.
+##
+## PR-balance (2026-05-29): Communion now grants a FLAT buff to BOTH WEAPONATTACK
+## and MAGICATTACK, so a physical party member benefits as much as a caster —
+## this is what lets Staff be the universal SUPPORT off-hand (carry it alongside
+## any weapon for the group damage rite). FLAT, not percent: WEAPONATTACK/
+## MAGICATTACK have base 0 (gear-driven), so a percent bonus multiplies 0 = dead
+## (the old MAGICATTACK-percent buff did nothing). The MP-regen line stays as-is.
+
+## Flat attack power granted to BOTH attack stats, scaled by ability level.
+const COMMUNION_ATK_BASE: float = 12.0
+const COMMUNION_ATK_PER_LEVEL: float = 3.0
 
 func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevelData):
 	if not _owner_node.multiplayer.is_server():
@@ -65,6 +76,17 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 				"flat": stat_data.flat_bonus_value,
 				"percent": stat_data.percent_bonus_value
 			}
+
+		# Universal FLAT attack buff on BOTH stats (overwrites the dead MAGICATTACK
+		# percent from the .tres). matk_bonus (Empowered Communion upgrade) folds in
+		# as a flat add. This is the group damage rite that makes Staff a support
+		# off-hand for any loadout.
+		var atk_flat: int = int(COMMUNION_ATK_BASE + COMMUNION_ATK_PER_LEVEL * _level_stats.level + matk_bonus)
+		for atk_stat in [Constants.StatType.WEAPONATTACK, Constants.StatType.MAGICATTACK]:
+			var sd := StatData.new(atk_stat, 0)
+			sd.flat_bonus_value = atk_flat
+			active_buff.buff_data.stat_modifiers[atk_stat] = sd
+			modifier_data[atk_stat] = {"flat": atk_flat, "percent": 0.0}
 
 		buff_component._force_stat_recalc()
 		if not buff_component.is_bot_owned():

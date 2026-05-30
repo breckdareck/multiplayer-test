@@ -542,10 +542,12 @@ def render():
     # ── 2-weapon loadout synergy ────────────────────────────────────────────
     parts.append('<h2 class="weap" id="loadouts">Endgame 2-weapon loadouts — how they mesh</h2>')
     parts.append('<div class="card"><p>You carry TWO weapons; passives from both apply, but only the ACTIVE '
-        'weapon casts &amp; scales damage. Each weapon brings its OWN attack stat (a dagger gives WEAPONATTACK, a '
-        'staff gives MAGICATTACK), so both can hit hard — the real question is whether one <b>attribute allocation</b> '
-        'serves both weapons\' primary/secondary. Shared attributes = a focused build; disjoint = you split the pool '
-        '(the soft-cap now makes that viable).</p></div>')
+        'weapon casts &amp; scales damage. <b>Damage now scales off the ACTIVE weapon\'s discipline</b> (fixed bug: '
+        'it used your starting class), so a hybrid must either share attributes or split the pool (the soft-cap makes '
+        'that viable). Each weapon brings its own attack stat (dagger=WEAPONATTACK, staff=MAGICATTACK). <b>Staff is '
+        'the exception by design</b> — the SUPPORT off-hand: SPELLBLADE lets a physical main\'s STR/DEX fund staff '
+        'damage (~59% of main), and its shield/blink/freeze/Communion buff are all INT-free, so it pairs with anything '
+        'for survival + control + a group attack buff rather than raw DPS.</p></div>')
     PRIM = {d: DISCIPLINES[d]["primary"] for d in DISCIPLINES}
     SEC = {d: DISCIPLINES[d]["secondary"] for d in DISCIPLINES}
     pairs = [("Sword","Bow"),("Bow","Dagger"),("Sword","Dagger"),("Staff","Dagger"),("Sword","Staff"),("Bow","Staff")]
@@ -554,8 +556,8 @@ def render():
         ("Bow","Dagger"): "THE crit build — share DEX; both WEAPONATTACK. Dagger brings crit-CHANCE passives, Bow brings crit-DAMAGE → multiplicative crit (esp. post-B6). Allocate DEX+LUCK.",
         ("Sword","Dagger"): "Share DEX; both WEAPONATTACK. STR(sword) vs LUCK(dagger) split. Survivable assassin — Sword's HP/heal + Dagger's evasion/crit. Allocate DEX + split STR/LUCK.",
         ("Staff","Dagger"): "★ Share LUCK — Dagger PRIMARY (×4) = Staff SECONDARY (×1), and Dagger's crit-chance passives boost Staff crits too. INT(staff primary) is the odd stat. Soft-cap makes a LUCK+INT split viable. See deep-dive below.",
-        ("Sword","Staff"): "WEAKEST mesh — STR/DEX vs INT/LUCK share nothing, WEAPONATTACK vs MAGICATTACK. Two fully separate stat lines; the pool can't serve both. A true hybrid pays a big efficiency tax.",
-        ("Bow","Staff"): "Share nothing (DEX/STR vs INT/LUCK), WEAPONATTACK vs MAGICATTACK. Like Sword/Staff — disjoint; only LUCK (bow none / staff secondary) overlaps slightly. High split cost.",
+        ("Sword","Staff"): "Disjoint stat lines (STR/DEX vs INT/LUCK), but Staff is the SUPPORT off-hand: SPELLBLADE lets your STR fund staff damage (~59% of main), and its shield/blink/freeze/Communion buff all work INT-free. You carry Staff for survival+control+group-buff, not raw DPS. A real pick now, not a tax.",
+        ("Bow","Staff"): "Same as Sword/Staff — Staff as the utility/support off-hand (SPELLBLADE makes its damage viable off your DEX; shield/freeze/Communion are INT-free). Bow kites, Staff covers safety+control. Pick Staff for the toolkit, not DPS.",
     }
     parts.append('<table><thead><tr><th>Loadout</th><th>shared attribute(s)</th><th>attack stats</th>'
         '<th>mesh</th><th>how they combine</th></tr></thead><tbody>')
