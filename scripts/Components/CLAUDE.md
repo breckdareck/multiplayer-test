@@ -106,18 +106,19 @@ Player (MultiplayerPlayerV2)
     │                               the post-load sync_all_abilities_to_client
     │                               carries the corrected pools to the client).
     │                               Server-authoritative; a no-op when matched.
-    │                               Skill-tree points-in-path gate (2026-05-30):
-    │                               can_level_up_ability also enforces a tier gate
-    │                               — AbilityData carries tree_path (0/1, -1=unplaced)
-    │                               + tree_depth (row); a column's tier-2 nodes
-    │                               (depth 2-3) unlock after PATH_TIER2_POINTS (3)
-    │                               points invested anywhere in that column, tier-3
-    │                               (depth 4+) after PATH_TIER3_POINTS (7); depth 0-1
-    │                               always open. is_tree_node_unlocked() /
-    │                               _points_in_path() / path_points_to_unlock();
-    │                               pure unlock condition (reconcile-safe). Legacy
+    │                               Skill-tree gating v2 (2026-05-30):
+    │                               can_level_up_ability also gates tree nodes —
+    │                               AbilityData carries tree_path (0/1, -1=unplaced)
+    │                               + tree_depth (row). PASSIVES are always unlocked
+    │                               (free pick); ACTIVES form a prerequisite CHAIN —
+    │                               each needs the previous active in its path owned.
+    │                               is_tree_node_unlocked() / _get_active_chain_parent()
+    │                               / active_chain_prereq_name() (UI hint). Pure unlock
+    │                               condition (reconcile-safe). Replaced the earlier
+    │                               points-in-path tier gate; legacy
     │                               prerequisite_abilities all stripped. Rendered by
-    │                               scripts/UI/skill_tree_canvas.gd (2-path tree).
+    │                               scripts/UI/skill_tree_canvas.gd as a one-path-at-a-
+    │                               time D4 tree (upgrades = branching nodes).
     ├── WeaponMastery weapon_mastery.gd - Per-discipline mastery levels + XP (PR 2)
     │                                     mastery_data: {sword/bow/staff/dagger →
     │                                     {level, xp}}. Drives STR/DEX/INT/LUK
