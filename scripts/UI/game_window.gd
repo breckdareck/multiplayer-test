@@ -57,10 +57,13 @@ func _absorb_windows() -> void:
 	# absorb force-shows every moved child, which would reveal both at once).
 	if eqw and eqw.has_method("_show_equipment_tab"):
 		eqw.call("_show_equipment_tab")
-	# Lay the 6 equipment slots out 2-wide (mock paperdoll) instead of a 1-col strip.
+	# Lay the 6 equipment slots out 2-wide (mock paperdoll) instead of a 1-col strip,
+	# and top-align the panel (don't let it expand-fill and float the slots centered).
 	var grid := equip_host.find_child("GridContainer", true, false)
 	if grid is GridContainer:
 		(grid as GridContainer).columns = 2
+	if eqw and "equipment_panel" in eqw and is_instance_valid(eqw.equipment_panel):
+		(eqw.equipment_panel as Control).size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	_absorb(src.get_node_or_null("StatsWindow"), stats_host)
 	_absorb(src.get_node_or_null("InventoryWindow"), inv_host)
 	_ability_shell = src.get_node_or_null("AbilityWindow")
