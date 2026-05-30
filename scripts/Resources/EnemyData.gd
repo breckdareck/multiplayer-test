@@ -5,6 +5,10 @@ extends Resource
 @export var monster_name: String
 @export var monster_level: int = 1
 @export var movement_speed: float = 60.0
+## Training-dummy flag. When true the enemy can never die: enemy_base sets its
+## HealthComponent to floor at 1 HP and hands it a huge health pool so the bar
+## reads full. Damage numbers still show — it's a punching bag for testing.
+@export var is_invincible: bool = false
 
 @export_category("AI")
 ## When true the enemy chases any player/bot it spots; when false it ignores

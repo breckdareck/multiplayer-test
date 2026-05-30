@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://op5a1mqidavt"]
+[gd_scene load_steps=5 format=3 uid="uid://op5a1mqidavt"]
 
 [ext_resource type="Script" uid="uid://c0rkvuk20x8br" path="res://scripts/UI/hotbar.gd" id="1_hotbar"]
 [ext_resource type="PackedScene" path="res://scenes/UI/hotbar_weapon_slot.tscn" id="2_wslot"]
@@ -50,7 +50,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_hotbar")
 
 [node name="RootHBox" type="HBoxContainer" parent="Background"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 10
 
 [node name="WeaponSwapSection" type="HBoxContainer" parent="Background/RootHBox"]
 unique_name_in_owner = true
@@ -59,7 +59,6 @@ theme_override_constants/separation = 4
 
 [node name="PrimaryWeaponSlot" parent="Background/RootHBox/WeaponSwapSection" instance=ExtResource("2_wslot")]
 layout_mode = 2
-slot_kind = "primary"
 
 [node name="SecondaryWeaponSlot" parent="Background/RootHBox/WeaponSwapSection" instance=ExtResource("2_wslot")]
 layout_mode = 2
@@ -73,5 +72,6 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_separator")
 [node name="SlotsContainer" type="HBoxContainer" parent="Background/RootHBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 4
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
 alignment = 1
