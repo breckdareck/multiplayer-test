@@ -111,3 +111,5 @@ active_behavior = SubResource("Resource_7mrcw")
 applies_buff = ExtResource("4_r1jv8")
 buff_duration_formula = SubResource("Resource_ssh7q")
 scaling_data = SubResource("Resource_ktqjm")
+tree_path = 0
+tree_depth = 2

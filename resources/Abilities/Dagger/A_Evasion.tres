@@ -50,3 +50,5 @@ upgrades = Array[ExtResource("8_aud")]([ExtResource("9_eva1"), ExtResource("10_e
 active_behavior = SubResource("Resource_eva_behav")
 scaling_data = SubResource("Resource_eva_scaling")
 metadata/_custom_type_script = "uid://b8y62rc8nb40j"
+tree_path = 1
+tree_depth = 6

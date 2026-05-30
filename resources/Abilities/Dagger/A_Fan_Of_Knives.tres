@@ -87,3 +87,5 @@ upgrades = Array[ExtResource("10_aud")]([ExtResource("11_fok1"), ExtResource("12
 active_behavior = SubResource("Resource_lk7a1")
 scaling_data = SubResource("Resource_lk7a8")
 metadata/_custom_type_script = "uid://b8y62rc8nb40j"
+tree_path = 1
+tree_depth = 1

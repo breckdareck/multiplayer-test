@@ -1891,6 +1891,13 @@ func can_level_up_ability(ability_id: String) -> bool:
 			if get_ability_level(prereq_id.ability_id) < required_level:
 				return false
 
+	# Skill-tree climb-gate: a node at tree_depth > 0 requires the same-discipline,
+	# same-path node directly above it (depth - 1) to be learned. This makes each
+	# path a top-down climb. It only gates NEW level-ups (never strips owned
+	# levels), so it's safe for the points invariant and the reconcile guard.
+	if not is_tree_node_unlocked(ability_id):
+		return false
+
 	# PR 4: every ability belongs to exactly one weapon discipline (read off
 	# `required_class[0]`). An ability with no discipline mapping is
 	# unspendable; that's an authoring bug. Surface it but don't crash.
@@ -1902,6 +1909,34 @@ func can_level_up_ability(ability_id: String) -> bool:
 		return false
 
 	return true
+
+
+## Returns the same-discipline, same-path ability directly above `ability` in the
+## skill tree (one row up), or null if `ability` is a path root / unplaced.
+func _get_path_parent(ability: AbilityData) -> AbilityData:
+	if ability == null or ability.tree_path < 0 or ability.tree_depth <= 0:
+		return null
+	var disc: String = _ability_primary_discipline(ability)
+	for other_id in ResourceManager.ability_data:
+		var other: AbilityData = ResourceManager.ability_data[other_id]
+		if other == null:
+			continue
+		if other.tree_path == ability.tree_path \
+				and other.tree_depth == ability.tree_depth - 1 \
+				and _ability_primary_discipline(other) == disc:
+			return other
+	return null
+
+
+## True if the skill-tree climb-gate is satisfied for this ability — i.e. it is a
+## path root (depth 0 / unplaced) or its path-parent is learned (level >= 1).
+## Used by can_level_up_ability (enforcement) and the tree UI (lock visuals).
+func is_tree_node_unlocked(ability_id: String) -> bool:
+	var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
+	if ability == null or ability.tree_path < 0 or ability.tree_depth <= 0:
+		return true
+	var parent: AbilityData = _get_path_parent(ability)
+	return parent == null or get_ability_level(parent.ability_id) >= 1
 
 
 ## PR 4: applies the legacy-save migration logic for ability points.

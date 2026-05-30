@@ -19,6 +19,16 @@ extends Resource
 @export var required_weapon_types: Array[Constants.WeaponType]
 @export var prerequisite_abilities: Dictionary[AbilityData, int] = {}
 
+@export_group("Skill Tree Layout")
+## Which of the discipline's two paths this ability occupies in the skill-tree
+## window. 0 = Path A (left column), 1 = Path B (right column). -1 = not placed
+## in the tree (orphaned / utility abilities are hidden from the tree view).
+@export var tree_path: int = -1
+## Row within the path, 0 at the top (a path's depth-0 node is its root). Drives
+## both the visual layout AND the climb-gate: a node at depth D requires the
+## same-discipline, same-path node at depth D-1 to be learned (level >= 1).
+@export var tree_depth: int = 0
+
 ## PR 6 — per-ability upgrade tree. Each upgrade is its own .tres
 ## (AbilityUpgradeData) referenced here. Empty array = no upgrades available
 ## for this ability (the pre-PR-6 baseline behavior).

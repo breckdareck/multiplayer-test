@@ -49,3 +49,5 @@ required_weapon_types = Array[int]([0])
 upgrades = Array[ExtResource("8_8p7k7")]([ExtResource("9_vi"), ExtResource("10_sa"), ExtResource("11_bf")])
 active_behavior = SubResource("Resource_active")
 scaling_data = SubResource("Resource_scaling")
+tree_path = 0
+tree_depth = 5

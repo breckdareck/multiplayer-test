@@ -62,3 +62,5 @@ active_behavior = SubResource("Resource_active")
 applies_buff = ExtResource("4_buff")
 buff_duration_formula = SubResource("Resource_duration")
 scaling_data = SubResource("Resource_scaling")
+tree_path = 0
+tree_depth = 0

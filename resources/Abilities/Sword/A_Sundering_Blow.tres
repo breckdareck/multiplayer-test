@@ -82,3 +82,5 @@ ExtResource("6_v0yfe"): 5
 upgrades = Array[ExtResource("9_aud")]([ExtResource("10_hp"), ExtResource("11_ap"), ExtResource("12_ex"), ExtResource("13_cb"), ExtResource("14_bf")])
 active_behavior = SubResource("Resource_pdrvi")
 scaling_data = SubResource("Resource_4al8t")
+tree_path = 1
+tree_depth = 1

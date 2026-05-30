@@ -76,3 +76,5 @@ ExtResource("6_slash"): 3
 upgrades = Array[ExtResource("9_galpy")]([ExtResource("10_mo"), ExtResource("11_wa"), ExtResource("12_pb"), ExtResource("13_ss"), ExtResource("14_rc")])
 active_behavior = SubResource("Resource_active")
 scaling_data = SubResource("Resource_scaling")
+tree_path = 1
+tree_depth = 4

@@ -4,10 +4,11 @@ class_name AbilityWindow
 ## References to ability data classes
 const ABILITYDATA = preload("res://scripts/Resources/AbilitySystem/AbilityData.gd")
 const ABILITYLEVELDATA = preload("res://scripts/Resources/AbilitySystem/AbilityLevelData.gd")
-const ABILITYSLOT = preload("res://scenes/UI/ability_slot.tscn")
 
 ## Unique Names from ability_window.tscn
-@onready var ability_list_container: VBoxContainer = %AbilityListContainer
+## The branching skill-tree canvas (replaces the old flat AbilitySlot list).
+## Untyped on purpose so the script resolves by path without a global class entry.
+@onready var skill_tree_canvas: Control = %SkillTreeCanvas
 @onready var ability_icon: TextureRect = %AbilityIcon
 @onready var ability_name_label: Label = %AbilityName
 @onready var ability_level_label: Label = %AbilityLevel
@@ -75,6 +76,10 @@ func _ready():
 	if is_instance_valid(discipline_tab_bar):
 		discipline_tab_bar.tab_selected.connect(_on_discipline_tab_selected)
 
+	# Skill-tree canvas: a node click selects the ability (same path as the old list).
+	if is_instance_valid(skill_tree_canvas):
+		skill_tree_canvas.ability_selected.connect(select_ability)
+
 	# Connect to ability component signals
 	if ability_component:
 		ability_component.ability_leveled_up.connect(_on_ability_leveled_up)
@@ -115,8 +120,10 @@ func _process(_delta: float) -> void:
 		if Input.is_action_just_pressed("OpenAbilityWindow"):
 			if self.visible:
 				self.visible = false
+				InputManager.set_input_locked(false)
 			elif not InputManager.is_locked():
 				self.visible = true
+				InputManager.set_input_locked(true)
 				if self.visible:
 					# PR 4: re-default the tab to whichever discipline the
 					# player is currently wielding -- so swap-then-open keeps
@@ -157,54 +164,32 @@ func _gui_input(event: InputEvent) -> void:
 			is_dragging = false
 
 
-## Clears the list and generates AbilitySlot nodes for each ability.
-## PR 4: filters to the currently-selected discipline tab so each tab only
-## shows the abilities that belong to it (via AbilityData.required_class[0]).
-##
-## PR 4 fix (2026-05-27): iterate ALL abilities of the active discipline from
-## ResourceManager, not just the ones the player has LEARNED. Previously
-## (line `for ability_id in ability_component._ability_levels.keys()`) the
-## bow/staff/dagger tabs were empty for a Swordsman because they hadn't
-## learned any of those abilities yet. Now every tab shows the full discipline
-## tree, with unlearned abilities displaying as level 0 / max so the player
-## can preview what's available and spend a point to learn them when they
-## have mastery points in that discipline's pool.
+## Close (X) button: hide and release the input lock so movement/hotkeys resume.
+func _on_close_button_pressed() -> void:
+	self.visible = false
+	if is_instance_valid(InputManager):
+		InputManager.set_input_locked(false)
+
+
+## Rebuilds the skill-tree canvas for the active discipline tab. Collects every
+## ability mapped to the discipline (learned or not) and hands them to the
+## canvas, which buckets them into the two path columns by tree_path/tree_depth,
+## draws the connectors, and renders each node's locked/learnable/owned/maxed
+## state. Selection is driven by the callers (window open / tab change / respec).
 func load_ability_list():
-	if not ability_component:
+	if not ability_component or not is_instance_valid(skill_tree_canvas):
 		return
 
-	for child in ability_list_container.get_children():
-		child.queue_free()
-
-	# Collect & sort all abilities for the active discipline tab so display
-	# order is stable across reloads (alphabetical by id is fine for v1; can
-	# switch to sort_order later if AbilityData gains the field).
-	var matching_ids: Array[String] = []
+	var discipline_abilities: Array = []
 	for ability_id in ResourceManager.ability_data.keys():
 		var ability_data: AbilityData = ResourceManager.ability_data[ability_id]
 		if not ability_data:
 			continue
 		if _ability_discipline_key(ability_data) != _current_discipline_key:
 			continue
-		matching_ids.append(ability_id)
-	matching_ids.sort()
+		discipline_abilities.append(ability_data)
 
-	for ability_id in matching_ids:
-		var ability_data: AbilityData = ResourceManager.ability_data[ability_id]
-		# get_ability_level returns 0 for unlearned abilities — the slot UI
-		# already renders the level/max correctly at 0.
-		var current_level: int = ability_component.get_ability_level(ability_id)
-		var slot = ABILITYSLOT.instantiate()
-		# PR 6: pass owned/total upgrade counts for the slot's upgrade badge.
-		var total_ups: int = ability_data.upgrades.size() if ability_data.upgrades != null else 0
-		var owned_ups: int = ability_component.get_learned_upgrades(ability_id).size() if total_ups > 0 else 0
-		slot.setup(ability_data, current_level, owned_ups, total_ups)
-		slot.ability_selected.connect(select_ability)
-		ability_list_container.add_child(slot)
-
-		# Select first ability if none is selected.
-		if selected_ability_id.is_empty():
-			select_ability(ability_id)
+	skill_tree_canvas.populate(ability_component, discipline_abilities, _current_discipline_key, selected_ability_id)
 
 
 ## Selects an ability, updates the details panel, and highlights the slot
@@ -212,30 +197,21 @@ func select_ability(ability_id: String):
 	if not ability_component:
 		return
 		
-	# Deselect previous slot
-	if selected_ability_id:
-		for child in ability_list_container.get_children():
-			if child is AbilitySlot and child.ability_data and child.ability_data.ability_id == selected_ability_id:
-				child.set_selected(false)
-				break
-	
 	selected_ability_id = ability_id
-	
+
 	# Get ability data from ResourceManager
 	var selected_data: AbilityData = ResourceManager.get_ability_data(ability_id)
 	if not selected_data:
 		clear_details()
 		return
-	
+
 	# Get current level from ability component
 	var current_level: int = ability_component.get_ability_level(ability_id)
-	
-	# Select the new slot
-	for child in ability_list_container.get_children():
-		if child is AbilitySlot and child.ability_data and child.ability_data.ability_id == ability_id:
-			child.set_selected(true)
-			break
-	
+
+	# Highlight the selected node in the tree canvas.
+	if is_instance_valid(skill_tree_canvas):
+		skill_tree_canvas.set_selected(ability_id)
+
 	update_details(selected_data, current_level)
 
 
