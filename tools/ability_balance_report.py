@@ -55,6 +55,20 @@ def gear_attack_power(level: int) -> int:
 
 # Levels modelled.  (mastery assumption per tier: you can't out-level mastery cap.)
 LEVEL_TIERS = [1, 30, 60, 100]
+
+# Enemy stat curves (sampled from assets/curves/monster_*_curve.tres, 2026-05-29).
+# All enemy HP/defense is curve-driven off monster_level — these .tres ARE the
+# single balance lever for enemy difficulty. Even-level values at the tiers:
+ENEMY_HP   = {1: 15,  30: 1800, 60: 12400, 100: 130000}
+ENEMY_WDEF = {1: 0,   30: 75,   60: 215,   100: 513}   # weapon defense (melee/bow/dagger)
+ENEMY_MDEF = {1: 0,   30: 110,  60: 240,   100: 409}   # magic defense (staff)
+
+# Ability-point economy (ability.gd): 6 pts / mastery level, cap 20 = 120/discipline.
+PTS_PER_MASTERY = 6
+PTS_BUDGET = PTS_PER_MASTERY * MASTERY_CAP   # 120
+COST_ACTIVE_MAX = 20    # level 1→20 (starter 19)
+COST_PASSIVE_MAX = 10   # level 1→10 (starter 9)
+COST_FULL_UPGRADES = 4  # T1(1)+T2(1)+one T3(2)
 def mastery_at(level: int) -> int:
     # Reasonable assumption: mastery tracks early play then caps. L1 newbie=0,
     # L30≈10, L60≈18, L100=20 (capped). Mastery is kill-earned, cap 20.
@@ -400,6 +414,65 @@ def render():
                 '</tr>')
         parts.append('</tbody></table>')
 
+    # ── Player damage vs enemy curve (time-to-kill) ─────────────────────────
+    parts.append('<h2 class="weap" id="ttk">Player damage vs the enemy curve — Time-to-Kill</h2>')
+    parts.append('<div class="card"><p>For each weapon at each level (pure-primary build, ability maxed + best '
+        'single-target upgrades), this is the time to solo an <b>even-level enemy</b>: '
+        '<code>TTK = enemy_HP ÷ (best_DPS × defense_mult)</code>, where '
+        '<code>defense_mult = 1 − def/(def+500)</code> (weapon def for melee/bow/dagger, magic def for staff). '
+        'Optimistic (ignores mana, misses, movement) but consistent across weapons/levels — so the <b>trend</b> is '
+        'the signal. Enemy HP/def are curve-driven (assets/curves/monster_*_curve.tres).</p></div>')
+    parts.append('<table><thead><tr><th>Level</th><th>enemy HP</th><th>enemy def</th><th>def mult</th>'
+        '<th>Sword TTK</th><th>Bow TTK</th><th>Staff TTK</th><th>Dagger TTK</th></tr></thead><tbody>')
+    for lvl in LEVEL_TIERS:
+        cells = []
+        for disc in DISCIPLINES:
+            best = 0
+            for ab in ABILITIES[disc]:
+                r = ability_numbers(ab, disc, lvl, "pure", upgraded=True)
+                if r and r["dps"] > best:
+                    best = r["dps"]
+            mdef = ENEMY_MDEF[lvl] if disc == "Staff" else ENEMY_WDEF[lvl]
+            dmult = 1.0 - mdef / (mdef + 500.0)
+            ttk = ENEMY_HP[lvl] / (best * dmult) if best else 0
+            cells.append(ttk)
+        wdef = ENEMY_WDEF[lvl]
+        dmult_w = 1.0 - wdef / (wdef + 500.0)
+        ttklo, ttkhi = min(cells), max(cells)
+        parts.append(f'<tr><td class="ab">L{lvl}</td><td>{ENEMY_HP[lvl]:,}</td>'
+            f'<td>{wdef} / {ENEMY_MDEF[lvl]}m</td><td>{dmult_w:.2f}</td>' +
+            "".join(f'<td style="{heat(c, ttklo, ttkhi*1.2)}">{c:.1f}s</td>' for c in cells) + '</tr>')
+    parts.append('</tbody></table>')
+    parts.append('<p class="spread"><b>Read the trend down each column.</b> If TTK climbs sharply with level, '
+        'enemy HP/def out-scale player damage (enemies get spongier) — fix the curve before nerfing players. '
+        'If it falls, players out-scale and content trivialises.</p>')
+
+    # ── Build budget & what players take ────────────────────────────────────
+    parts.append('<h2 class="weap" id="builds">Builds — budget &amp; the dominant picks</h2>')
+    parts.append('<div class="card"><h2>The point budget</h2>'
+        f'<p>Each discipline grants <b>{PTS_PER_MASTERY}/mastery level</b> → <b>{PTS_BUDGET} points</b> at '
+        f'mastery cap ({MASTERY_CAP}). Costs: an active maxed (1→20) = <b>{COST_ACTIVE_MAX}</b>, a passive '
+        f'(1→10) = <b>{COST_PASSIVE_MAX}</b>, full upgrades on any ability = <b>{COST_FULL_UPGRADES}</b> '
+        '(T1+T2+one T3). So a maxed+upgraded active ≈ <b>24</b>, a maxed+upgraded passive ≈ <b>14</b>.</p>'
+        '<p>A 120-pt build is therefore roughly <b>3 core actives (72) + 2 maxed passives (28) + ~20 spare</b> '
+        '(a filler active or more upgrades). You <b>cannot</b> max a discipline — selective investment IS the '
+        'build identity. Two weapon slots = two 120-pt pools, but mastery must be earned on each.</p>'
+        '<ul class="notes">'
+        '<li><b>Attribute meta:</b> pure-primary is +27–43% damage over default with no cost but survivability, '
+        'so the dominant DPS build dumps all 5/level into the primary stat (STR sword / DEX bow / INT staff / '
+        'LUCK dagger). CON only for tanky/PvP. Until this is reined in, "what players take" = pure primary.</li>'
+        '<li><b>Core actives:</b> players take their highest-ceiling damage abilities — typically the spammable '
+        'starter (DPS floor) + a DoT-setter + the finisher (Snipe/Eviscerate/Sundering Blow). The big-cooldown '
+        'utility (dashes, buffs) competes for the 3rd slot.</li>'
+        '<li><b>Passives:</b> the primary-stat % passive (Iron Sinews / Fleet Fingers / Arcane Mind / Larcenous '
+        'Luck) is near-mandatory since it scales the whole kit; HP/defense passives fill the 2nd slot. The +6 '
+        'passive count means ~3-of-6 is a real choice (good).</li>'
+        '<li><b>Cross-weapon loadout:</b> Sword/Bow/Dagger all key off WEAPONATTACK + STR/DEX/LUCK, so a 2-melee '
+        '/ melee+bow pair shares gear &amp; attribute investment. Staff is isolated (INT + MAGICATTACK, separate '
+        'gear pool) — pairing a staff with a physical weapon splits your itemisation, a real cost. Expect '
+        'physical/physical loadouts to dominate unless staff offers something they can\'t.</li>'
+        '</ul></div>')
+
     parts.append(ANALYSIS)
     parts.append('</div>')  # wrap
     parts.append('</body></html>')
@@ -442,6 +515,24 @@ a{color:var(--acc)}
 
 ANALYSIS = """
 <h2 class="weap">Balance findings &amp; recommendations</h2>
+
+<div class="find bad"><h4>0 · FIX THE ENEMY CURVE FIRST — even-level TTK explodes at high level</h4>
+<p>Even-level time-to-kill should be roughly <b>constant</b> across levels (an even fight should feel similar at
+any level). Instead it swings 3.8s → 1.3s → 2.9s → <b>16.2s</b> (Sword) — enemies become massive sponges past
+L60. Cause: player damage scales ~<b>quadratically</b> (primary stat × weapon attack, both ~linear in level)
+while the enemy HP curve scales ~<b>cubically</b> (15 → 1,800 → 130,000), and the defense curve compounds it
+(def_mult 0.87 → <b>0.49</b>, so L100 enemies also halve your damage). <b>Recommendation: re-shape the enemy
+HP curve (and cap the defense curve) so even-level TTK lands ~2–4s at every level BEFORE touching ability
+numbers.</b> The curves are single .tres files — one lever reshapes all difficulty; far cheaper and safer than
+re-tuning 30+ abilities to chase a moving target. Early game (L1, 3.8–5s) is the secondary issue — weapon-gated
+low damage; consider a small base-stat floor or stronger starter weapons.</p></div>
+
+<div class="find"><h4>0b · Bow &amp; Dagger out-DPS Sword &amp; Staff ~2× (low-CD spammables)</h4>
+<p>Across the TTK table, Bow/Dagger kill roughly twice as fast as Sword/Staff (L100: 8.0s/6.8s vs 16.2s/14.5s).
+Their best sustained tools are near-zero-cooldown spammables (Snap Shot no CD, Twin Fang 0.5s upgraded) that the
+model rates very high, while Sword/Staff lean on cooldown-gated hits. Some of this is the DPS-ignores-mana
+caveat, but the gap is real — verify the spammables aren't free infinite DPS, and lift Sword/Staff sustained
+floors (or gate Bow/Dagger spam behind mana/Momentum) in the ability pass.</p></div>
 
 <div class="find bad"><h4>1 · Crit is a dead stat (CRITDAMAGE base 0, no gear source)</h4>
 <p>A crit only multiplies ×1.2–1.5. LUCK→crit-rate (Dagger primary, +0.1%/pt) therefore barely
