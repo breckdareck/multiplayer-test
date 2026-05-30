@@ -30,6 +30,14 @@ var _ability_shell: Node = null
 var _hdr_name: Label
 var _hdr_sub: Label
 
+# Fresh mock-styled stats panel (built in StatsHost; the old stats window is not
+# reparented — its rows are too verbose / differently labelled).
+const _DERIVED := ["HP", "MP", "Attack", "Magic Atk", "Defense", "Mag Def", "Crit Rate", "Crit Dmg", "Dmg Range"]
+var _stat_rows := {}
+var _attr_vals := {}
+var _unspent_lbl: Label
+var _stats_built := false
+
 const HOTKEY_TAB := {
 	"OpenEquipmentWindow": 0, "OpenInventoryWindow": 0, "OpenStatsWindow": 0,
 	"OpenAbilityWindow": 1,
@@ -87,7 +95,15 @@ func _absorb_windows() -> void:
 	equip_host.add_child(hdr)
 	equip_host.move_child(hdr, 0)
 	_refresh_header()
-	_absorb(src.get_node_or_null("StatsWindow"), stats_host)
+	# Stats: build a fresh mock-styled panel reading the same components; disable
+	# the old stats window shell (don't reparent its verbose rows).
+	var sw := src.get_node_or_null("StatsWindow")
+	if sw:
+		sw.set_process(false)
+		sw.set_process_input(false)
+		if sw is CanvasItem:
+			(sw as CanvasItem).visible = false
+	_build_stats_panel()
 	_absorb(src.get_node_or_null("InventoryWindow"), inv_host)
 	# Densify the inventory grids toward the mock (6-wide); revert if they overflow.
 	for g in inv_host.find_children("", "GridContainer", true, false):
@@ -168,6 +184,7 @@ func _show_tab(idx: int) -> void:
 		_ability_shell.call("load_ability_list")
 	if idx == 0:
 		_refresh_header()
+		_refresh_stats()
 
 
 ## A small "name / Lv N <Class>" card for the top of the equipment column.
@@ -222,6 +239,119 @@ func _refresh_header() -> void:
 	_hdr_sub.text = "Lv %d   %s" % [lvl, cls]
 	if is_instance_valid(title_label):
 		title_label.text = "CHARACTER   ·   %s   Lv %d   %s" % [_hdr_name.text, lvl, cls]
+
+
+## Mock-styled stats panel: a tight derived-stat list + a green ATTRIBUTES section
+## with per-attribute + buttons + Respec. Reads the same components the old stats
+## window did; refreshed on stat/attribute signals + on Character-tab show.
+func _build_stats_panel() -> void:
+	if _stats_built or not is_instance_valid(stats_host):
+		return
+	_stats_built = true
+	for k in _DERIVED:
+		_stat_rows[k] = _kv_row(stats_host, k)
+	var sep := HSeparator.new()
+	sep.add_theme_constant_override("separation", 12)
+	stats_host.add_child(sep)
+	_unspent_lbl = Label.new()
+	_unspent_lbl.add_theme_font_override("font", FONT)
+	_unspent_lbl.add_theme_font_size_override("font_size", 12)
+	_unspent_lbl.add_theme_color_override("font_color", Color(0.45, 0.9, 0.55))
+	stats_host.add_child(_unspent_lbl)
+	var attrs := [Constants.StatType.STRENGTH, Constants.StatType.DEXTERITY, Constants.StatType.INTELLIGENCE, Constants.StatType.LUCK, Constants.StatType.CONSTITUTION]
+	for a in attrs:
+		var row := HBoxContainer.new()
+		var nl := Label.new()
+		nl.text = _attr_name(a)
+		nl.add_theme_font_override("font", FONT)
+		nl.add_theme_font_size_override("font_size", 12)
+		nl.add_theme_color_override("font_color", Color(1, 1, 1))
+		nl.custom_minimum_size = Vector2(64, 0)
+		row.add_child(nl)
+		var vl := Label.new()
+		vl.text = "0"
+		vl.add_theme_font_override("font", FONT)
+		vl.add_theme_font_size_override("font_size", 12)
+		vl.add_theme_color_override("font_color", Color(1, 1, 1))
+		vl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(vl)
+		var btn := Button.new()
+		btn.text = "+"
+		btn.focus_mode = Control.FOCUS_NONE
+		btn.custom_minimum_size = Vector2(30, 24)
+		btn.add_theme_color_override("font_color", Color(0.45, 0.9, 0.55))
+		var at: int = a
+		btn.pressed.connect(func(): if player and player.stats_component: player.stats_component.allocate_attribute(at, 1))
+		row.add_child(btn)
+		stats_host.add_child(row)
+		_attr_vals[a] = vl
+	var respec := Button.new()
+	respec.text = "Respec Attrs"
+	respec.focus_mode = Control.FOCUS_NONE
+	respec.pressed.connect(func(): if player and player.stats_component: player.stats_component.respec_attributes())
+	stats_host.add_child(respec)
+	# Refresh on stat / attribute changes.
+	var sc = player.stats_component if player else null
+	if sc:
+		if sc.has_signal("stats_changed") and not sc.stats_changed.is_connected(_refresh_stats):
+			sc.stats_changed.connect(_refresh_stats)
+		if sc.has_signal("attribute_points_changed"):
+			sc.attribute_points_changed.connect(func(_u): _refresh_stats())
+	_refresh_stats()
+
+
+func _kv_row(parent: Node, key: String) -> Label:
+	var row := HBoxContainer.new()
+	var l := Label.new()
+	l.text = key
+	l.add_theme_font_override("font", FONT)
+	l.add_theme_font_size_override("font_size", 11)
+	l.add_theme_color_override("font_color", Color(0.62, 0.62, 0.68))
+	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(l)
+	var v := Label.new()
+	v.text = "-"
+	v.add_theme_font_override("font", FONT)
+	v.add_theme_font_size_override("font_size", 11)
+	v.add_theme_color_override("font_color", Color(1, 1, 1))
+	v.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	row.add_child(v)
+	parent.add_child(row)
+	return v
+
+
+func _attr_name(stat_type: int) -> String:
+	match stat_type:
+		Constants.StatType.STRENGTH: return "STR"
+		Constants.StatType.DEXTERITY: return "DEX"
+		Constants.StatType.INTELLIGENCE: return "INT"
+		Constants.StatType.LUCK: return "LUCK"
+		Constants.StatType.CONSTITUTION: return "CON"
+	return "?"
+
+
+func _refresh_stats() -> void:
+	if player == null or not is_instance_valid(_unspent_lbl):
+		return
+	var sc = player.stats_component
+	if sc == null:
+		return
+	var S = Constants.StatType
+	if "health_component" in player and player.health_component:
+		_stat_rows["HP"].text = "%d/%d" % [player.health_component.current_health, player.health_component.max_health]
+	if "mana_component" in player and player.mana_component:
+		_stat_rows["MP"].text = "%d/%d" % [player.mana_component.current_mana, player.mana_component.max_mana]
+	_stat_rows["Attack"].text = str(int(sc.stats.get(S.WEAPONATTACK).total_value))
+	_stat_rows["Magic Atk"].text = str(int(sc.stats.get(S.MAGICATTACK).total_value))
+	_stat_rows["Defense"].text = str(int(sc.stats.get(S.DEFENSE).total_value))
+	_stat_rows["Mag Def"].text = str(int(sc.stats.get(S.MAGICDEFENSE).total_value))
+	_stat_rows["Crit Rate"].text = "%d%%" % int(sc.stats.get(S.CRITCHANCE).total_value)
+	_stat_rows["Crit Dmg"].text = "%d%%" % int(sc.stats.get(S.CRITDAMAGE).total_value)
+	if "combat_component" in player and player.combat_component:
+		_stat_rows["Dmg Range"].text = "%d ~ %d" % [player.combat_component.display_min_damage, player.combat_component.display_max_damage]
+	_unspent_lbl.text = "ATTRIBUTES   —   Unspent: %d" % sc.get_attribute_points_unused()
+	for a in _attr_vals:
+		_attr_vals[a].text = str(sc.get_allocated_attribute(a))
 
 
 func _open_to_tab(idx: int) -> void:
