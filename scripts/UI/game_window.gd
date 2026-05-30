@@ -1,28 +1,28 @@
 extends Panel
 
-## Unified game hub (ADR 0003). The LAYOUT lives in game_window.tscn (editable in
-## the Godot editor): the tabbed frame, the 3 Character columns, the character
-## header card, and the full STATS panel (derived rows + ATTRIBUTES + buttons) are
-## all authored nodes. This script only:
-##   - fills those authored nodes with live values + wires their buttons, and
-##   - reparents the live component-bound content (equipment slots, inventory grid,
-##     pet panel, skill tree) from the existing windows into the column hosts at
-##     runtime (those can't be authored here — they belong to their own scenes:
-##     equipment_window / inventory_window / abilities_window).
-## Non-modal: movable, never locks input. Path-resolved (no class_name).
+## Unified game hub (ADR 0003). The ENTIRE layout lives in game_window.tscn and is
+## editable in the Godot editor: the tabbed frame, the 3 Character columns, the
+## header card, the full STATS panel, the equipment grid + pet panel, and the
+## inventory tabs/slots/monies are all NATIVE authored nodes. (The Abilities tab
+## hosts the skill tree as an instanced sub-scene — abilities_window.tscn — since
+## it builds its tree procedurally.)
+##
+## This script is a THIN controller (same shape as game_menu.gd): it only fills
+## authored nodes with live values and wires their signals. It does NOT build or
+## reparent any UI. The equipment slots / inventory grids / monies are driven by
+## the player's components via @export NodePaths (player.tscn) that point straight
+## at these native nodes. Non-modal: movable, never locks input.
 
 @onready var title_label: Label = %HubTitle
 @onready var tab_bar: TabBar = %HubTabBar
 @onready var character_page: Control = %CharacterPage
 @onready var abilities_page: Control = %AbilitiesPage
-@onready var equip_host: Control = %EquipHost
-@onready var inv_host: Control = %InvHost
-@onready var abil_host: Control = %AbilHost
 @onready var stats_root: Control = %Stats
 @onready var close_button: Button = %HubCloseButton
+@onready var abil_host: Control = %AbilHost
+@onready var equip_host: Control = %EquipHost
 
 var player
-var _absorbed := false
 var _dragging := false
 var _drag_offset := Vector2()
 var _ability_shell: Node = null
@@ -50,7 +50,14 @@ func _ready() -> void:
 	if is_instance_valid(close_button):
 		close_button.pressed.connect(func(): visible = false)
 	_wire_stats_buttons()
-	call_deferred("_absorb_windows")
+	# Skill tree (instanced sub-scene) — refreshed on the Abilities tab.
+	_ability_shell = abil_host.get_node_or_null("AbilityWindow") if is_instance_valid(abil_host) else null
+	# Pet panel is native here, but its controller wants the player ref (it can't
+	# resolve via `owner`, which is the hub). Inject it like equipment_window did.
+	var pet := equip_host.get_node_or_null("PetTabContent/PetTab") if is_instance_valid(equip_host) else null
+	if pet and pet.has_method("set_owner_player"):
+		pet.set_owner_player(player)
+	_show_tab(0)
 
 
 # ─── Wiring the authored stats/attribute controls ────────────────────────────
@@ -71,106 +78,6 @@ func _wire_stats_buttons() -> void:
 			sc.stats_changed.connect(_refresh_stats)
 		if sc.has_signal("attribute_points_changed"):
 			sc.attribute_points_changed.connect(func(_u): _refresh_stats())
-
-
-# ─── Reparent live content from the existing windows ─────────────────────────
-func _absorb_windows() -> void:
-	if _absorbed:
-		return
-	var src := get_parent()  # CanvasLayer/MoveableWindows (still holds StatsWindow)
-	if src == null:
-		return
-	# Equipment/Inventory/Ability windows are now instanced INSIDE this hub (in
-	# their column hosts — authored in game_window.tscn so they're editor-visible).
-	# _absorb lifts each window's content up into the host VBox so the columns lay
-	# out cleanly; the now-empty window shell is hidden. The component @export
-	# NodePaths (player.tscn) resolve to the slot/grid OBJECTS at load and survive
-	# this reparent (the linchpin).
-	var eqw := equip_host.get_node_or_null("EquipmentWindow")
-	_absorb(eqw, equip_host)
-	if eqw:
-		# Mock = no Equipment/Pets toggle: show gear AND pet together (pet under gear).
-		var toggle := equip_host.find_child("TabButtons", true, false)
-		if toggle is CanvasItem:
-			(toggle as CanvasItem).visible = false
-		if "equipment_panel" in eqw and is_instance_valid(eqw.equipment_panel):
-			var ep := eqw.equipment_panel as Control
-			ep.visible = true
-			ep.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-		if "pet_tab_content" in eqw and is_instance_valid(eqw.pet_tab_content):
-			var pc := eqw.pet_tab_content as Control
-			pc.visible = true
-			pc.size_flags_vertical = Control.SIZE_EXPAND_FILL
-			var roster := pc.find_child("ListPanel", true, false)
-			if roster is CanvasItem:
-				(roster as CanvasItem).visible = false
-	var grid := equip_host.find_child("GridContainer", true, false)
-	if grid is GridContainer:
-		(grid as GridContainer).columns = 2
-	# Stats: the panel is authored; just disable the old stats window shell.
-	var sw := src.get_node_or_null("StatsWindow")
-	if sw:
-		sw.set_process(false)
-		sw.set_process_input(false)
-		if sw is CanvasItem:
-			(sw as CanvasItem).visible = false
-	_absorb(inv_host.get_node_or_null("InventoryWindow"), inv_host)
-	for g in inv_host.find_children("", "GridContainer", true, false):
-		(g as GridContainer).columns = 6
-	_ability_shell = abil_host.get_node_or_null("AbilityWindow")
-	_absorb(_ability_shell, abil_host)
-	_absorbed = true
-	_show_tab(0)
-
-
-func _absorb(w: Node, host: Node) -> void:
-	if w == null or host == null or not is_instance_valid(w):
-		return
-	w.set_process(false)
-	w.set_process_input(false)
-	w.set_process_unhandled_input(false)
-	for child in w.get_children():
-		if child.name == "Label" or child.name == "CloseButton":
-			if child is CanvasItem:
-				(child as CanvasItem).visible = false
-			continue
-		w.remove_child(child)
-		host.add_child(child)
-		if child is Control:
-			var c := child as Control
-			_reset_anchors(c)
-			c.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			c.size_flags_vertical = Control.SIZE_EXPAND_FILL if _is_big(c) else Control.SIZE_FILL
-			c.visible = true
-	_hide_named(host, ["CloseButton", "TitleLabel"])
-	if w is CanvasItem:
-		(w as CanvasItem).visible = false
-
-
-func _is_big(c: Control) -> bool:
-	return c is TabContainer or c is MarginContainer or c is ScrollContainer \
-		or c is HSplitContainer or c is PanelContainer or c is VBoxContainer or c is Panel
-
-
-func _reset_anchors(c: Control) -> void:
-	c.anchor_left = 0.0
-	c.anchor_top = 0.0
-	c.anchor_right = 0.0
-	c.anchor_bottom = 0.0
-	c.offset_left = 0.0
-	c.offset_top = 0.0
-	c.offset_right = 0.0
-	c.offset_bottom = 0.0
-	c.position = Vector2.ZERO
-
-
-func _hide_named(node: Node, names: Array) -> void:
-	for c in node.get_children():
-		if c.name in names:
-			if c is CanvasItem:
-				(c as CanvasItem).visible = false
-		else:
-			_hide_named(c, names)
 
 
 # ─── Tabs ────────────────────────────────────────────────────────────────────

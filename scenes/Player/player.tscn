@@ -461,7 +461,6 @@ buff_component = NodePath("Components/Buff")
 player_HUD = NodePath("CanvasLayer/PlayerHUD")
 player_name_label = NodePath("PlayerWorldHUD/PlayerNameLabel")
 stats_window = NodePath("CanvasLayer/MoveableWindows/StatsWindow")
-inventory_window = NodePath("CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/InventoryWindow")
 quest_window = NodePath("CanvasLayer/MoveableWindows/QuestWindow")
 
 [node name="PlayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
@@ -491,22 +490,22 @@ replication_config = SubResource("SceneReplicationConfig_x5q00")
 script = ExtResource("3_pnj8v")
 inventory_component = NodePath("InventoryComponent")
 player = NodePath("../..")
-monies_label = NodePath("../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/InventoryWindow/HBoxContainer/Panel/MoniesCountLabel")
+monies_label = NodePath("../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/HBoxContainer/Panel/MoniesCountLabel")
 
 [node name="InventoryComponent" type="Node" parent="Components/PlayerInventory" node_paths=PackedStringArray("inventory_grids", "equipment_component", "stats_component")]
 script = ExtResource("15_cg2hl")
-inventory_grids = [NodePath("../../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/InventoryWindow/TabContainer/EQUIP/ScrollContainer/EquipmentGrid"), NodePath("../../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/InventoryWindow/TabContainer/USE/ScrollContainer/ConsumableGrid"), NodePath("../../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/InventoryWindow/TabContainer/ETC/ScrollContainer/MaterialGrid")]
+inventory_grids = [NodePath("../../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid"), NodePath("../../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid"), NodePath("../../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid")]
 equipment_component = NodePath("../../Equipment")
 stats_component = NodePath("../../Stats")
 
 [node name="Equipment" type="Node" parent="Components" node_paths=PackedStringArray("head_slot", "chest_slot", "legs_slot", "feet_slot", "weapon_slot", "secondary_weapon_slot")]
 script = ExtResource("13_ihqbe")
-head_slot = NodePath("../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/EquipmentWindow/PanelContainer/GridContainer/HeadSlot")
-chest_slot = NodePath("../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/EquipmentWindow/PanelContainer/GridContainer/ChestSlot")
-legs_slot = NodePath("../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/EquipmentWindow/PanelContainer/GridContainer/LegsSlot")
-feet_slot = NodePath("../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/EquipmentWindow/PanelContainer/GridContainer/FeetSlot")
-weapon_slot = NodePath("../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/EquipmentWindow/PanelContainer/GridContainer/WeaponSlot")
-secondary_weapon_slot = NodePath("../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/EquipmentWindow/PanelContainer/GridContainer/SecondaryWeaponSlot")
+head_slot = NodePath("../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PanelContainer/GridContainer/HeadSlot")
+chest_slot = NodePath("../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PanelContainer/GridContainer/ChestSlot")
+legs_slot = NodePath("../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PanelContainer/GridContainer/LegsSlot")
+feet_slot = NodePath("../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PanelContainer/GridContainer/FeetSlot")
+weapon_slot = NodePath("../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PanelContainer/GridContainer/WeaponSlot")
+secondary_weapon_slot = NodePath("../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PanelContainer/GridContainer/SecondaryWeaponSlot")
 
 [node name="Leveling" type="Node" parent="Components"]
 script = ExtResource("3_18ciy")
