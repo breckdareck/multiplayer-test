@@ -1,0 +1,237 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ability Balance Report</title>
+<style>
+:root{--bg:#0f1117;--card:#171a23;--ink:#e7e9ee;--mut:#9aa3b2;--line:#262b38;--acc:#6db1ff;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 -apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:32px 22px 80px}
+h1{font-size:30px;margin:0 0 4px}
+.sub{color:var(--mut);margin:0 0 24px}
+h2.weap{margin:38px 0 6px;font-size:24px;color:var(--acc);border-bottom:2px solid var(--line);padding-bottom:6px}
+h2{font-size:20px;margin:0 0 12px}
+h3{font-size:15px;margin:20px 0 8px;font-weight:600}
+h3 .meta{color:var(--mut);font-weight:400;font-size:12.5px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:14px 0}
+pre{background:#0b0d13;border:1px solid var(--line);border-radius:8px;padding:14px;overflow:auto;color:#cdd6e4;font-size:12.5px}
+ul.notes{margin:10px 0 0;padding-left:18px;color:var(--mut)}
+ul.notes li{margin:4px 0}
+ul.notes b{color:var(--ink)}
+table{width:100%;border-collapse:collapse;margin:4px 0 8px;font-size:12.5px}
+th,td{padding:6px 8px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--mut);font-weight:600;text-align:right;position:sticky;top:0;background:var(--bg)}
+td.ab,th:first-child,td.note{text-align:left}
+td.ab{font-weight:600;color:#fff}
+td.note{color:var(--mut);white-space:normal;min-width:160px}
+.spread{background:#1c2230;border-left:3px solid var(--acc);padding:10px 14px;border-radius:6px;margin:6px 0 10px;color:#cdd6e4}
+.find{background:var(--card);border:1px solid var(--line);border-left:4px solid #e0a800;border-radius:8px;padding:12px 16px;margin:10px 0}
+.find.good{border-left-color:#3fb950}.find.bad{border-left-color:#f85149}
+.find h4{margin:0 0 4px;font-size:14.5px}
+.find p{margin:0;color:var(--mut)}
+code{background:#0b0d13;padding:1px 5px;border-radius:4px;color:#cdd6e4}
+</style></head><body>
+<div class="wrap">
+<h1>Ability Damage &amp; Balance Report</h1>
+<p class="sub">Weapon-identity overhaul · branch <code>pr-7-attributes-class-removal</code> · model mirrors the verified <code>combat.gd</code> / <code>stats.gd</code> formula (2026-05-29)</p>
+<div class="card"><h2>The damage formula (verified)</h2><pre>max_range = 1.2 × (primary×4 + secondary) × ATTACK_POWER / 100
+roll      = rand(max_range × 0.2 , max_range)        # 20%–100% of max
+ability   = roll × (damage_percent / 100)            # per hit
+per hit   ×= level_modifier(0.5–1.5) × defense_mult(1 − def/(def+500))
+if crit (rand% < CRITCHANCE):  × ( rand(1.2,1.5) + CRITDAMAGE/100 )</pre><ul class="notes"><li><b>ATTACK_POWER</b> = WEAPONATTACK (melee/bow) or MAGICATTACK (staff). Base <b>0</b> — <b>100% gear-driven</b>; it is the single biggest damage lever. Model assumes ≈ 2×level (anchored to the L100 benchmark ≈197).</li><li><b>primary/secondary</b> = base 4 + allocated attributes (5/level pool) + mastery (discipline bonus × mastery level). <b>No per-level auto scaling</b> — it is all manual now.</li><li><b>CRITDAMAGE base 0</b> with no gear source → a crit is only ×1.2–1.5. Crit rate is a near-dead stat.</li><li>Tables below are <b>raw, same-level, zero-defense</b> single-target to isolate ability balance (defense &amp; level-gap are flat multipliers that hit every ability equally).</li></ul></div>
+<div class="card"><h2>Attribute allocation archetypes</h2><p>The 5-points/level pool (= 5×(level−1); <b>495 at L100</b>) is spent manually. Three builds modelled:</p><ul class="notes"><li><b>default</b> — discipline ratio (what an un-respecced character auto-gets; e.g. Sword 3 STR : 2 DEX). Reproduces the old baseline.</li><li><b>pure</b> — every point into the primary stat. The damage-max build.</li><li><b>tank</b> — half primary, half CON (survivability at a damage cost).</li></ul></div>
+<h2 class="weap">Sword</h2>
+<h3>Level 1 <span class="meta">· STR 4 / DEX 4 · WEAPONATTACK 2 · mastery 0 · crit 5% · pool 0</span></h3>
+<table><thead><tr><th>Ability</th><th>dmg%</th><th>hits</th><th>tgts</th><th>CD</th><th>hit (min–max)</th><th>eff/hit</th><th>per cast</th><th>DPS (1T)</th><th>DPS (AoE)</th><th>mana</th><th>dmg/mana</th><th>note</th></tr></thead><tbody>
+<tr><td class="ab">Crescent Cleave (starter)</td><td>150%</td><td>1</td><td>6</td><td>4.0s</td><td>0–0</td><td>0</td><td>0</td><td style=""><b>0</b></td><td>0</td><td>2</td><td>0.0</td><td class="note">AoE 6; combo builder</td></tr>
+<tr><td class="ab">Steel Flurry</td><td>80%</td><td>2</td><td>2</td><td>1.0s</td><td>0–0</td><td>0</td><td>0</td><td style=""><b>0</b></td><td>0</td><td>5</td><td>0.0</td><td class="note">2 hits; combo builder; 1.0s CD</td></tr>
+<tr><td class="ab">Sundering Blow</td><td>114%</td><td>1</td><td>1</td><td>3.0s</td><td>0–0</td><td>0</td><td>0</td><td style=""><b>0</b></td><td>0</td><td>6</td><td>0.0</td><td class="note">combo finisher</td></tr>
+<tr><td class="ab">Hemorrhage</td><td>130%</td><td>1</td><td>1</td><td>2.0s</td><td>0–0</td><td>0</td><td>0</td><td style=""><b>0</b></td><td>0</td><td>4</td><td>0.0</td><td class="note">+ bleed DoT</td></tr>
+<tr><td class="ab">Vault Strike</td><td>120%</td><td>1</td><td>2</td><td>3.0s</td><td>0–0</td><td>0</td><td>0</td><td style=""><b>0</b></td><td>0</td><td>6</td><td>0.0</td><td class="note">gap-closer dash</td></tr>
+<tr><td class="ab">Iron Riposte</td><td>12%</td><td>1</td><td>1</td><td>25.0s</td><td>0–0</td><td>0</td><td>0</td><td style=""><b>0</b></td><td>0</td><td>18</td><td>0.0</td><td class="note">BUFF (reflect); dmg negligible</td></tr>
+</tbody></table>
+<h3>Level 30 <span class="meta">· STR 112 / DEX 76 · WEAPONATTACK 60 · mastery 7 · crit 5% · pool 145</span></h3>
+<table><thead><tr><th>Ability</th><th>dmg%</th><th>hits</th><th>tgts</th><th>CD</th><th>hit (min–max)</th><th>eff/hit</th><th>per cast</th><th>DPS (1T)</th><th>DPS (AoE)</th><th>mana</th><th>dmg/mana</th><th>note</th></tr></thead><tbody>
+<tr><td class="ab">Crescent Cleave (starter)</td><td>302%</td><td>1</td><td>6</td><td>4.0s</td><td>228–1,139</td><td>696</td><td>696</td><td style="background:rgba(88,130,70,0.35);"><b>174</b></td><td>1,044</td><td>5.8</td><td>120.0</td><td class="note">AoE 6; combo builder</td></tr>
+<tr><td class="ab">Steel Flurry</td><td>137%</td><td>2</td><td>2</td><td>1.0s</td><td>103–516</td><td>316</td><td>632</td><td style="background:rgba(220,50,70,0.35);"><b>632</b></td><td>1,263</td><td>10.7</td><td>59.0</td><td class="note">2 hits; combo builder; 1.0s CD</td></tr>
+<tr><td class="ab">Sundering Blow</td><td>228%</td><td>1</td><td>1</td><td>3.0s</td><td>172–860</td><td>525</td><td>525</td><td style="background:rgba(88,130,70,0.35);"><b>175</b></td><td>175</td><td>11.7</td><td>44.9</td><td class="note">combo finisher</td></tr>
+<tr><td class="ab">Hemorrhage</td><td>225%</td><td>1</td><td>1</td><td>2.0s</td><td>170–848</td><td>519</td><td>519</td><td style="background:rgba(112,115,70,0.35);"><b>259</b></td><td>259</td><td>9.7</td><td>53.5</td><td class="note">+ bleed DoT</td></tr>
+<tr><td class="ab">Vault Strike</td><td>215%</td><td>1</td><td>2</td><td>3.0s</td><td>162–811</td><td>496</td><td>496</td><td style="background:rgba(85,131,70,0.35);"><b>165</b></td><td>330</td><td>13.6</td><td>36.4</td><td class="note">gap-closer dash</td></tr>
+<tr><td class="ab">Iron Riposte</td><td>50%</td><td>1</td><td>1</td><td>25.0s</td><td>38–188</td><td>115</td><td>115</td><td style="background:rgba(40,160,70,0.35);"><b>5</b></td><td>5</td><td>37</td><td>3.1</td><td class="note">BUFF (reflect); dmg negligible</td></tr>
+</tbody></table>
+<h3>Level 60 <span class="meta">· STR 220 / DEX 148 · WEAPONATTACK 120 · mastery 13 · crit 5% · pool 295</span></h3>
+<table><thead><tr><th>Ability</th><th>dmg%</th><th>hits</th><th>tgts</th><th>CD</th><th>hit (min–max)</th><th>eff/hit</th><th>per cast</th><th>DPS (1T)</th><th>DPS (AoE)</th><th>mana</th><th>dmg/mana</th><th>note</th></tr></thead><tbody>
+<tr><td class="ab">Crescent Cleave (starter)</td><td>302%</td><td>1</td><td>6</td><td>4.0s</td><td>894–4,470</td><td>2,732</td><td>2,732</td><td style="background:rgba(88,130,70,0.35);"><b>683</b></td><td>4,099</td><td>5.8</td><td>471.1</td><td class="note">AoE 6; combo builder</td></tr>
+<tr><td class="ab">Steel Flurry</td><td>137%</td><td>2</td><td>2</td><td>1.0s</td><td>406–2,028</td><td>1,240</td><td>2,479</td><td style="background:rgba(220,50,70,0.35);"><b>2,479</b></td><td>4,958</td><td>10.7</td><td>231.7</td><td class="note">2 hits; combo builder; 1.0s CD</td></tr>
+<tr><td class="ab">Sundering Blow</td><td>228%</td><td>1</td><td>1</td><td>3.0s</td><td>675–3,374</td><td>2,063</td><td>2,063</td><td style="background:rgba(89,130,70,0.35);"><b>688</b></td><td>688</td><td>11.7</td><td>176.3</td><td class="note">combo finisher</td></tr>
+<tr><td class="ab">Hemorrhage</td><td>225%</td><td>1</td><td>1</td><td>2.0s</td><td>666–3,330</td><td>2,036</td><td>2,036</td><td style="background:rgba(113,115,70,0.35);"><b>1,018</b></td><td>1,018</td><td>9.7</td><td>209.9</td><td class="note">+ bleed DoT</td></tr>
+<tr><td class="ab">Vault Strike</td><td>215%</td><td>1</td><td>2</td><td>3.0s</td><td>636–3,182</td><td>1,945</td><td>1,945</td><td style="background:rgba(86,131,70,0.35);"><b>648</b></td><td>1,297</td><td>13.6</td><td>143.0</td><td class="note">gap-closer dash</td></tr>
+<tr><td class="ab">Iron Riposte</td><td>50%</td><td>1</td><td>1</td><td>25.0s</td><td>148–740</td><td>452</td><td>452</td><td style="background:rgba(40,160,70,0.35);"><b>18</b></td><td>18</td><td>37</td><td>12.2</td><td class="note">BUFF (reflect); dmg negligible</td></tr>
+</tbody></table>
+<h3>Level 100 <span class="meta">· STR 361 / DEX 242 · WEAPONATTACK 200 · mastery 20 · crit 5% · pool 495</span></h3>
+<table><thead><tr><th>Ability</th><th>dmg%</th><th>hits</th><th>tgts</th><th>CD</th><th>hit (min–max)</th><th>eff/hit</th><th>per cast</th><th>DPS (1T)</th><th>DPS (AoE)</th><th>mana</th><th>dmg/mana</th><th>note</th></tr></thead><tbody>
+<tr><td class="ab">Crescent Cleave (starter)</td><td>302%</td><td>1</td><td>6</td><td>4.0s</td><td>2,444–12,219</td><td>7,470</td><td>7,470</td><td style="background:rgba(88,130,70,0.35);"><b>1,867</b></td><td>11,205</td><td>5.8</td><td>1,287.9</td><td class="note">AoE 6; combo builder</td></tr>
+<tr><td class="ab">Steel Flurry</td><td>137%</td><td>2</td><td>2</td><td>1.0s</td><td>1,109–5,543</td><td>3,389</td><td>6,777</td><td style="background:rgba(220,50,70,0.35);"><b>6,777</b></td><td>13,555</td><td>10.7</td><td>633.4</td><td class="note">2 hits; combo builder; 1.0s CD</td></tr>
+<tr><td class="ab">Sundering Blow</td><td>228%</td><td>1</td><td>1</td><td>3.0s</td><td>1,845–9,225</td><td>5,640</td><td>5,640</td><td style="background:rgba(88,130,70,0.35);"><b>1,880</b></td><td>1,880</td><td>11.7</td><td>482.0</td><td class="note">combo finisher</td></tr>
+<tr><td class="ab">Hemorrhage</td><td>225%</td><td>1</td><td>1</td><td>2.0s</td><td>1,821–9,104</td><td>5,565</td><td>5,565</td><td style="background:rgba(113,115,70,0.35);"><b>2,783</b></td><td>2,783</td><td>9.7</td><td>573.7</td><td class="note">+ bleed DoT</td></tr>
+<tr><td class="ab">Vault Strike</td><td>215%</td><td>1</td><td>2</td><td>3.0s</td><td>1,740–8,699</td><td>5,318</td><td>5,318</td><td style="background:rgba(86,131,70,0.35);"><b>1,773</b></td><td>3,545</td><td>13.6</td><td>391.0</td><td class="note">gap-closer dash</td></tr>
+<tr><td class="ab">Iron Riposte</td><td>50%</td><td>1</td><td>1</td><td>25.0s</td><td>405–2,023</td><td>1,237</td><td>1,237</td><td style="background:rgba(40,160,70,0.35);"><b>49</b></td><td>49</td><td>37</td><td>33.4</td><td class="note">BUFF (reflect); dmg negligible</td></tr>
+</tbody></table>
+<p class="spread"><b>Pure-primary vs default at L100:</b> +35% DPS on average from re-speccing all points into the primary stat. This is the "damage ceiling" lever (ADR 0002 Open #1).</p>
+<h2 class="weap">Bow</h2>
+<h3>Level 1 <span class="meta">· DEX 4 / STR 4 · WEAPONATTACK 2 · mastery 0 · crit 5% · pool 0</span></h3>
+<table><thead><tr><th>Ability</th><th>dmg%</th><th>hits</th><th>tgts</th><th>CD</th><th>hit (min–max)</th><th>eff/hit</th><th>per cast</th><th>DPS (1T)</th><th>DPS (AoE)</th><th>mana</th><th>dmg/mana</th><th>note</th></tr></thead><tbody>
+<tr><td class="ab">Snap Shot (basic)</td><td>100%</td><td>1</td><td>1</td><td>0.1s</td><td>0–0</td><td>0</td><td>0</td><td style=""><b>0</b></td><td>0</td><td>0</td><td>0.0</td><td class="note">basic attack; builds Momentum</td></tr>
+<tr><td class="ab">Split Shot</td><td>77%</td><td>2</td><td>1</td><td>1.5s</td><td>0–0</td><td>0</td><td>0</td><td style=""><b>0</b></td><td>0</td><td>4</td><td>0.0</td><td class="note">2 hits</td></tr>
+<tr><td class="ab">Hailstorm</td><td>40%</td><td>3</td><td>3</td><td>4.0s</td><td>0–0</td><td>0</td><td>0</td><td style=""><b>0</b></td><td>0</td><td>18</td><td>0.0</td><td class="note">multi-hit AoE; +2 Momentum/cast</td></tr>
+<tr><td class="ab">Skyfall</td><td>60%</td><td>1</td><td>6</td><td>5.0s</td><td>0–0</td><td>0</td><td>0</td><td style=""><b>0</b></td><td>0</td><td>20</td><td>0.0</td><td class="note">AoE 6; +2 Momentum/cast</td></tr>
+<tr><td class="ab">Barbed Shot</td><td>110%</td><td>1</td><td>1</td><td>3.0s</td><td>0–0</td><td>0</td><td>0</td><td style=""><b>0</b></td><td>0</td><td>5</td><td>0.0</td><td class="note">+ bleed DoT</td></tr>
+<tr><td class="ab">Disengage</td><td>110%</td><td>1</td><td>1</td><td>6.0s</td><td>0–0</td><td>0</td><td>0</td><td style=""><b>0</b></td><td>0</td><td>6</td><td>0.0</td><td class="note">kite dash + i-frames</td></tr>
+<tr><td class="ab">Snipe</td><td>200%</td><td>1</td><td>1</td><td>6.0s</td><td>0–0</td><td>0</td><td>0</td><td style=""><b>0</b></td><td>0</td><td>10</td><td>0.0</td><td class="note">Momentum SPENDER (+12%/stack)</td></tr>
+</tbody></table>
+<h3>Level 30 <span class="meta">· DEX 112 / STR 76 · WEAPONATTACK 60 · mastery 7 · crit 5% · pool 145</span></h3>
+<table><thead><tr><th>Ability</th><th>dmg%</th><th>hits</th><th>tgts</th><th>CD</th><th>hit (min–max)</th><th>eff/hit</th><th>per cast</th><th>DPS (1T)</th><th>DPS (AoE)</th><th>mana</th><th>dmg/mana</th><th>note</th></tr></thead><tbody>
+<tr><td class="ab">Snap Shot (basic)</td><td>100%</td><td>1</td><td>1</td><td>0.1s</td><td>75–377</td><td>230</td><td>230</td><td style="background:rgba(220,50,70,0.35);"><b>2,305</b></td><td>2,305</td><td>0</td><td>230.5</td><td class="note">basic attack; builds Momentum</td></tr>
+<tr><td class="ab">Split Shot</td><td>134%</td><td>2</td><td>1</td><td>1.5s</td><td>101–505</td><td>309</td><td>618</td><td style="background:rgba(68,142,70,0.35);"><b>412</b></td><td>412</td><td>7.8</td><td>79.2</td><td class="note">2 hits</td></tr>
+<tr><td class="ab">Hailstorm</td><td>78%</td><td>11</td><td>3</td><td>4.0s</td><td>59–294</td><td>180</td><td>1,977</td><td style="background:rgba(75,138,70,0.35);"><b>494</b></td><td>1,483</td><td>29.4</td><td>67.3</td><td class="note">multi-hit AoE; +2 Momentum/cast</td></tr>
+<tr><td class="ab">Skyfall</td><td>117%</td><td>1</td><td>6</td><td>5.0s</td><td>88–441</td><td>270</td><td>270</td><td style="background:rgba(40,160,70,0.35);"><b>54</b></td><td>324</td><td>39</td><td>6.9</td><td class="note">AoE 6; +2 Momentum/cast</td></tr>
+<tr><td class="ab">Barbed Shot</td><td>186%</td><td>1</td><td>1</td><td>3.0s</td><td>140–701</td><td>429</td><td>429</td><td style="background:rgba(47,155,70,0.35);"><b>143</b></td><td>143</td><td>10.7</td><td>40.1</td><td class="note">+ bleed DoT</td></tr>
+<tr><td class="ab">Disengage</td><td>205%</td><td>1</td><td>1</td><td>6.0s</td><td>155–773</td><td>472</td><td>472</td><td style="background:rgba(41,158,70,0.35);"><b>79</b></td><td>79</td><td>11.7</td><td>40.4</td><td class="note">kite dash + i-frames</td></tr>
+<tr><td class="ab">Snipe</td><td>390%</td><td>1</td><td>1</td><td>6.0s</td><td>294–1,470</td><td>899</td><td>899</td><td style="background:rgba(47,155,70,0.35);"><b>150</b></td><td>150</td><td>17.6</td><td>51.1</td><td class="note">Momentum SPENDER (+12%/stack)</td></tr>
+</tbody></table>
+<h3>Level 60 <span class="meta">· DEX 220 / STR 148 · WEAPONATTACK 120 · mastery 13 · crit 5% · pool 295</span></h3>
+<table><thead><tr><th>Ability</th><th>dmg%</th><th>hits</th><th>tgts</th><th>CD</th><th>hit (min–max)</th><th>eff/hit</th><th>per cast</th><th>DPS (1T)</th><th>DPS (AoE)</th><th>mana</th><th>dmg/mana</th><th>note</th></tr></thead><tbody>
+<tr><td class="ab">Snap Shot (basic)</td><td>100%</td><td>1</td><td>1</td><td>0.1s</td><td>296–1,480</td><td>905</td><td>905</td><td style="background:rgba(220,50,70,0.35);"><b>9,048</b></td><td>9,048</td><td>0</td><td>904.8</td><td class="note">basic attack; builds Momentum</td></tr>
+<tr><td class="ab">Split Shot</td><td>134%</td><td>2</td><td>1</td><td>1.5s</td><td>397–1,983</td><td>1,212</td><td>2,425</td><td style="background:rgba(68,142,70,0.35);"><b>1,617</b></td><td>1,617</td><td>7.8</td><td>310.9</td><td class="note">2 hits</td></tr>
+<tr><td class="ab">Hailstorm</td><td>78%</td><td>11</td><td>3</td><td>4.0s</td><td>231–1,154</td><td>706</td><td>7,763</td><td style="background:rgba(75,138,70,0.35);"><b>1,941</b></td><td>5,822</td><td>29.4</td><td>264.0</td><td class="note">multi-hit AoE; +2 Momentum/cast</td></tr>
+<tr><td class="ab">Skyfall</td><td>117%</td><td>1</td><td>6</td><td>5.0s</td><td>346–1,732</td><td>1,059</td><td>1,059</td><td style="background:rgba(40,160,70,0.35);"><b>212</b></td><td>1,270</td><td>39</td><td>27.1</td><td class="note">AoE 6; +2 Momentum/cast</td></tr>
+<tr><td class="ab">Barbed Shot</td><td>186%</td><td>1</td><td>1</td><td>3.0s</td><td>551–2,753</td><td>1,683</td><td>1,683</td><td style="background:rgba(47,155,70,0.35);"><b>561</b></td><td>561</td><td>10.7</td><td>157.3</td><td class="note">+ bleed DoT</td></tr>
+<tr><td class="ab">Disengage</td><td>205%</td><td>1</td><td>1</td><td>6.0s</td><td>607–3,034</td><td>1,855</td><td>1,855</td><td style="background:rgba(41,158,70,0.35);"><b>309</b></td><td>309</td><td>11.7</td><td>158.5</td><td class="note">kite dash + i-frames</td></tr>
+<tr><td class="ab">Snipe</td><td>390%</td><td>1</td><td>1</td><td>6.0s</td><td>1,154–5,772</td><td>3,529</td><td>3,529</td><td style="background:rgba(47,155,70,0.35);"><b>588</b></td><td>588</td><td>17.6</td><td>200.5</td><td class="note">Momentum SPENDER (+12%/stack)</td></tr>
+</tbody></table>
+<h3>Level 100 <span class="meta">· DEX 361 / STR 242 · WEAPONATTACK 200 · mastery 20 · crit 5% · pool 495</span></h3>
+<table><thead><tr><th>Ability</th><th>dmg%</th><th>hits</th><th>tgts</th><th>CD</th><th>hit (min–max)</th><th>eff/hit</th><th>per cast</th><th>DPS (1T)</th><th>DPS (AoE)</th><th>mana</th><th>dmg/mana</th><th>note</th></tr></thead><tbody>
+<tr><td class="ab">Snap Shot (basic)</td><td>100%</td><td>1</td><td>1</td><td>0.1s</td><td>809–4,046</td><td>2,473</td><td>2,473</td><td style="background:rgba(220,50,70,0.35);"><b>24,735</b></td><td>24,735</td><td>0</td><td>2,473.5</td><td class="note">basic attack; builds Momentum</td></tr>
+<tr><td class="ab">Split Shot</td><td>134%</td><td>2</td><td>1</td><td>1.5s</td><td>1,084–5,422</td><td>3,314</td><td>6,629</td><td style="background:rgba(68,142,70,0.35);"><b>4,419</b></td><td>4,419</td><td>7.8</td><td>849.9</td><td class="note">2 hits</td></tr>
+<tr><td class="ab">Hailstorm</td><td>78%</td><td>11</td><td>3</td><td>4.0s</td><td>631–3,156</td><td>1,929</td><td>21,222</td><td style="background:rgba(75,138,70,0.35);"><b>5,306</b></td><td>15,917</td><td>29.4</td><td>721.9</td><td class="note">multi-hit AoE; +2 Momentum/cast</td></tr>
+<tr><td class="ab">Skyfall</td><td>117%</td><td>1</td><td>6</td><td>5.0s</td><td>947–4,734</td><td>2,894</td><td>2,894</td><td style="background:rgba(40,160,70,0.35);"><b>579</b></td><td>3,473</td><td>39</td><td>74.2</td><td class="note">AoE 6; +2 Momentum/cast</td></tr>
+<tr><td class="ab">Barbed Shot</td><td>186%</td><td>1</td><td>1</td><td>3.0s</td><td>1,505–7,526</td><td>4,601</td><td>4,601</td><td style="background:rgba(47,155,70,0.35);"><b>1,534</b></td><td>1,534</td><td>10.7</td><td>430.0</td><td class="note">+ bleed DoT</td></tr>
+<tr><td class="ab">Disengage</td><td>205%</td><td>1</td><td>1</td><td>6.0s</td><td>1,659–8,294</td><td>5,071</td><td>5,071</td><td style="background:rgba(41,158,70,0.35);"><b>845</b></td><td>845</td><td>11.7</td><td>433.4</td><td class="note">kite dash + i-frames</td></tr>
+<tr><td class="ab">Snipe</td><td>390%</td><td>1</td><td>1</td><td>6.0s</td><td>3,156–15,779</td><td>9,647</td><td>9,647</td><td style="background:rgba(47,155,70,0.35);"><b>1,608</b></td><td>1,608</td><td>17.6</td><td>548.1</td><td class="note">Momentum SPENDER (+12%/stack)</td></tr>
+</tbody></table>
+<p class="spread"><b>Pure-primary vs default at L100:</b> +35% DPS on average from re-speccing all points into the primary stat. This is the "damage ceiling" lever (ADR 0002 Open #1).</p>
+<h2 class="weap">Staff</h2>
+<h3>Level 1 <span class="meta">· INT 4 / LUCK 4 · MAGICATTACK 2 · mastery 0 · crit 5% · pool 0</span></h3>
+<table><thead><tr><th>Ability</th><th>dmg%</th><th>hits</th><th>tgts</th><th>CD</th><th>hit (min–max)</th><th>eff/hit</th><th>per cast</th><th>DPS (1T)</th><th>DPS (AoE)</th><th>mana</th><th>dmg/mana</th><th>note</th></tr></thead><tbody>
+<tr><td class="ab">Arcane Bolt (starter)</td><td>100%</td><td>1</td><td>1</td><td>1.2s</td><td>0–0</td><td>0</td><td>0</td><td style=""><b>0</b></td><td>0</td><td>4</td><td>0.0</td><td class="note">spammable; 1.2s CD</td></tr>
+<tr><td class="ab">Glacial Spike</td><td>90%</td><td>1</td><td>1</td><td>6.0s</td><td>0–0</td><td>0</td><td>0</td><td style=""><b>0</b></td><td>0</td><td>16</td><td>0.0</td><td class="note">+Ice stance = freeze</td></tr>
+<tr><td class="ab">Immolate</td><td>100%</td><td>1</td><td>1</td><td>3.0s</td><td>0–0</td><td>0</td><td>0</td><td style=""><b>0</b></td><td>0</td><td>8</td><td>0.0</td><td class="note">+Fire stance = big burn + splash</td></tr>
+<tr><td class="ab">Pyre Burst</td><td>60%</td><td>1</td><td>6</td><td>5.0s</td><td>0–0</td><td>0</td><td>0</td><td style=""><b>0</b></td><td>0</td><td>18</td><td>0.0</td><td class="note">AoE 6; +Fire = burn</td></tr>
+<tr><td class="ab">Arcane Lance</td><td>50%</td><td>3</td><td>3</td><td>4.0s</td><td>0–0</td><td>0</td><td>0</td><td style=""><b>0</b></td><td>0</td><td>18</td><td>0.0</td><td class="note">channel; +Lightning = chain</td></tr>
+</tbody></table>
+<h3>Level 30 <span class="meta">· INT 112 / LUCK 76 · MAGICATTACK 60 · mastery 7 · crit 13% · pool 145</span></h3>
+<table><thead><tr><th>Ability</th><th>dmg%</th><th>hits</th><th>tgts</th><th>CD</th><th>hit (min–max)</th><th>eff/hit</th><th>per cast</th><th>DPS (1T)</th><th>DPS (AoE)</th><th>mana</th><th>dmg/mana</th><th>note</th></tr></thead><tbody>
+<tr><td class="ab">Arcane Bolt (starter)</td><td>195%</td><td>1</td><td>1</td><td>1.2s</td><td>147–735</td><td>461</td><td>461</td><td style="background:rgba(154,90,70,0.35);"><b>384</b></td><td>384</td><td>7.8</td><td>59.0</td><td class="note">spammable; 1.2s CD</td></tr>
+<tr><td class="ab">Glacial Spike</td><td>185%</td><td>1</td><td>1</td><td>6.0s</td><td>139–697</td><td>437</td><td>437</td><td style="background:rgba(46,156,70,0.35);"><b>73</b></td><td>73</td><td>27.4</td><td>15.9</td><td class="note">+Ice stance = freeze</td></tr>
+<tr><td class="ab">Immolate</td><td>176%</td><td>1</td><td>1</td><td>3.0s</td><td>133–664</td><td>416</td><td>416</td><td style="background:rgba(69,142,70,0.35);"><b>139</b></td><td>139</td><td>13.7</td><td>30.3</td><td class="note">+Fire stance = big burn + splash</td></tr>
+<tr><td class="ab">Pyre Burst</td><td>117%</td><td>1</td><td>6</td><td>5.0s</td><td>88–441</td><td>276</td><td>276</td><td style="background:rgba(40,160,70,0.35);"><b>55</b></td><td>332</td><td>33.2</td><td>8.3</td><td class="note">AoE 6; +Fire = burn</td></tr>
+<tr><td class="ab">Arcane Lance</td><td>88%</td><td>11</td><td>3</td><td>4.0s</td><td>66–332</td><td>208</td><td>2,286</td><td style="background:rgba(220,50,70,0.35);"><b>572</b></td><td>1,715</td><td>29.4</td><td>77.8</td><td class="note">channel; +Lightning = chain</td></tr>
+</tbody></table>
+<h3>Level 60 <span class="meta">· INT 220 / LUCK 148 · MAGICATTACK 120 · mastery 13 · crit 20% · pool 295</span></h3>
+<table><thead><tr><th>Ability</th><th>dmg%</th><th>hits</th><th>tgts</th><th>CD</th><th>hit (min–max)</th><th>eff/hit</th><th>per cast</th><th>DPS (1T)</th><th>DPS (AoE)</th><th>mana</th><th>dmg/mana</th><th>note</th></tr></thead><tbody>
+<tr><td class="ab">Arcane Bolt (starter)</td><td>195%</td><td>1</td><td>1</td><td>1.2s</td><td>577–2,886</td><td>1,852</td><td>1,852</td><td style="background:rgba(154,90,70,0.35);"><b>1,543</b></td><td>1,543</td><td>7.8</td><td>237.4</td><td class="note">spammable; 1.2s CD</td></tr>
+<tr><td class="ab">Glacial Spike</td><td>185%</td><td>1</td><td>1</td><td>6.0s</td><td>548–2,738</td><td>1,757</td><td>1,757</td><td style="background:rgba(46,156,70,0.35);"><b>293</b></td><td>293</td><td>27.4</td><td>64.1</td><td class="note">+Ice stance = freeze</td></tr>
+<tr><td class="ab">Immolate</td><td>176%</td><td>1</td><td>1</td><td>3.0s</td><td>521–2,605</td><td>1,671</td><td>1,671</td><td style="background:rgba(69,142,70,0.35);"><b>557</b></td><td>557</td><td>13.7</td><td>122.0</td><td class="note">+Fire stance = big burn + splash</td></tr>
+<tr><td class="ab">Pyre Burst</td><td>117%</td><td>1</td><td>6</td><td>5.0s</td><td>346–1,732</td><td>1,111</td><td>1,111</td><td style="background:rgba(40,160,70,0.35);"><b>222</b></td><td>1,333</td><td>33.2</td><td>33.5</td><td class="note">AoE 6; +Fire = burn</td></tr>
+<tr><td class="ab">Arcane Lance</td><td>88%</td><td>11</td><td>3</td><td>4.0s</td><td>260–1,302</td><td>836</td><td>9,192</td><td style="background:rgba(220,50,70,0.35);"><b>2,298</b></td><td>6,894</td><td>29.4</td><td>312.6</td><td class="note">channel; +Lightning = chain</td></tr>
+</tbody></table>
+<h3>Level 100 <span class="meta">· INT 361 / LUCK 242 · MAGICATTACK 200 · mastery 20 · crit 29% · pool 495</span></h3>
+<table><thead><tr><th>Ability</th><th>dmg%</th><th>hits</th><th>tgts</th><th>CD</th><th>hit (min–max)</th><th>eff/hit</th><th>per cast</th><th>DPS (1T)</th><th>DPS (AoE)</th><th>mana</th><th>dmg/mana</th><th>note</th></tr></thead><tbody>
+<tr><td class="ab">Arcane Bolt (starter)</td><td>195%</td><td>1</td><td>1</td><td>1.2s</td><td>1,578–7,890</td><td>5,218</td><td>5,218</td><td style="background:rgba(154,90,70,0.35);"><b>4,348</b></td><td>4,348</td><td>7.8</td><td>668.9</td><td class="note">spammable; 1.2s CD</td></tr>
+<tr><td class="ab">Glacial Spike</td><td>185%</td><td>1</td><td>1</td><td>6.0s</td><td>1,497–7,485</td><td>4,950</td><td>4,950</td><td style="background:rgba(46,156,70,0.35);"><b>825</b></td><td>825</td><td>27.4</td><td>180.7</td><td class="note">+Ice stance = freeze</td></tr>
+<tr><td class="ab">Immolate</td><td>176%</td><td>1</td><td>1</td><td>3.0s</td><td>1,424–7,121</td><td>4,709</td><td>4,709</td><td style="background:rgba(69,142,70,0.35);"><b>1,570</b></td><td>1,570</td><td>13.7</td><td>343.7</td><td class="note">+Fire stance = big burn + splash</td></tr>
+<tr><td class="ab">Pyre Burst</td><td>117%</td><td>1</td><td>6</td><td>5.0s</td><td>947–4,734</td><td>3,131</td><td>3,131</td><td style="background:rgba(40,160,70,0.35);"><b>626</b></td><td>3,757</td><td>33.2</td><td>94.3</td><td class="note">AoE 6; +Fire = burn</td></tr>
+<tr><td class="ab">Arcane Lance</td><td>88%</td><td>11</td><td>3</td><td>4.0s</td><td>712–3,560</td><td>2,355</td><td>25,901</td><td style="background:rgba(220,50,70,0.35);"><b>6,475</b></td><td>19,426</td><td>29.4</td><td>881.0</td><td class="note">channel; +Lightning = chain</td></tr>
+</tbody></table>
+<p class="spread"><b>Pure-primary vs default at L100:</b> +27% DPS on average from re-speccing all points into the primary stat. This is the "damage ceiling" lever (ADR 0002 Open #1).</p>
+<h2 class="weap">Dagger</h2>
+<h3>Level 1 <span class="meta">· LUCK 4 / DEX 4 · WEAPONATTACK 2 · mastery 0 · crit 5% · pool 0</span></h3>
+<table><thead><tr><th>Ability</th><th>dmg%</th><th>hits</th><th>tgts</th><th>CD</th><th>hit (min–max)</th><th>eff/hit</th><th>per cast</th><th>DPS (1T)</th><th>DPS (AoE)</th><th>mana</th><th>dmg/mana</th><th>note</th></tr></thead><tbody>
+<tr><td class="ab">Twin Fang (starter)</td><td>73%</td><td>2</td><td>1</td><td>1.0s</td><td>0–0</td><td>0</td><td>0</td><td style=""><b>0</b></td><td>0</td><td>3</td><td>0.0</td><td class="note">2 hits; 1.0s CD</td></tr>
+<tr><td class="ab">Fan of Knives</td><td>24%</td><td>7</td><td>3</td><td>3.0s</td><td>0–0</td><td>0</td><td>0</td><td style=""><b>0</b></td><td>0</td><td>10</td><td>0.0</td><td class="note">7 hits x3 targets</td></tr>
+<tr><td class="ab">Envenom</td><td>90%</td><td>1</td><td>1</td><td>4.0s</td><td>0–0</td><td>0</td><td>0</td><td style=""><b>0</b></td><td>0</td><td>6</td><td>0.0</td><td class="note">+ poison DoT</td></tr>
+<tr><td class="ab">Cripple</td><td>70%</td><td>1</td><td>1</td><td>10.0s</td><td>0–0</td><td>0</td><td>0</td><td style=""><b>0</b></td><td>0</td><td>12</td><td>0.0</td><td class="note">+ def/atk debuff</td></tr>
+<tr><td class="ab">Shadowstep</td><td>100%</td><td>1</td><td>1</td><td>5.0s</td><td>0–0</td><td>0</td><td>0</td><td style=""><b>0</b></td><td>0</td><td>7</td><td>0.0</td><td class="note">dash + i-frames</td></tr>
+<tr><td class="ab">Eviscerate</td><td>190%</td><td>1</td><td>1</td><td>6.0s</td><td>0–0</td><td>0</td><td>0</td><td style=""><b>0</b></td><td>0</td><td>10</td><td>0.0</td><td class="note">finisher; stealth = execute &lt;35% HP</td></tr>
+</tbody></table>
+<h3>Level 30 <span class="meta">· LUCK 112 / DEX 76 · WEAPONATTACK 60 · mastery 7 · crit 16% · pool 145</span></h3>
+<table><thead><tr><th>Ability</th><th>dmg%</th><th>hits</th><th>tgts</th><th>CD</th><th>hit (min–max)</th><th>eff/hit</th><th>per cast</th><th>DPS (1T)</th><th>DPS (AoE)</th><th>mana</th><th>dmg/mana</th><th>note</th></tr></thead><tbody>
+<tr><td class="ab">Twin Fang (starter)</td><td>130%</td><td>2</td><td>1</td><td>1.0s</td><td>98–490</td><td>311</td><td>621</td><td style="background:rgba(220,50,70,0.35);"><b>621</b></td><td>621</td><td>4.9</td><td>126.8</td><td class="note">2 hits; 1.0s CD</td></tr>
+<tr><td class="ab">Fan of Knives</td><td>43%</td><td>7</td><td>3</td><td>3.0s</td><td>32–162</td><td>103</td><td>719</td><td style="background:rgba(103,120,70,0.35);"><b>240</b></td><td>719</td><td>17.6</td><td>40.9</td><td class="note">7 hits x3 targets</td></tr>
+<tr><td class="ab">Envenom</td><td>166%</td><td>1</td><td>1</td><td>4.0s</td><td>125–626</td><td>397</td><td>397</td><td style="background:rgba(61,147,70,0.35);"><b>99</b></td><td>99</td><td>11.7</td><td>33.9</td><td class="note">+ poison DoT</td></tr>
+<tr><td class="ab">Cripple</td><td>127%</td><td>1</td><td>1</td><td>10.0s</td><td>96–479</td><td>304</td><td>304</td><td style="background:rgba(40,160,70,0.35);"><b>30</b></td><td>30</td><td>19.6</td><td>15.5</td><td class="note">+ def/atk debuff</td></tr>
+<tr><td class="ab">Shadowstep</td><td>195%</td><td>1</td><td>1</td><td>5.0s</td><td>147–735</td><td>466</td><td>466</td><td style="background:rgba(59,148,70,0.35);"><b>93</b></td><td>93</td><td>12.7</td><td>36.7</td><td class="note">dash + i-frames</td></tr>
+<tr><td class="ab">Eviscerate</td><td>380%</td><td>1</td><td>1</td><td>6.0s</td><td>287–1,433</td><td>908</td><td>908</td><td style="background:rgba(76,137,70,0.35);"><b>151</b></td><td>151</td><td>17.6</td><td>51.6</td><td class="note">finisher; stealth = execute &lt;35% HP</td></tr>
+</tbody></table>
+<h3>Level 60 <span class="meta">· LUCK 220 / DEX 148 · WEAPONATTACK 120 · mastery 13 · crit 27% · pool 295</span></h3>
+<table><thead><tr><th>Ability</th><th>dmg%</th><th>hits</th><th>tgts</th><th>CD</th><th>hit (min–max)</th><th>eff/hit</th><th>per cast</th><th>DPS (1T)</th><th>DPS (AoE)</th><th>mana</th><th>dmg/mana</th><th>note</th></tr></thead><tbody>
+<tr><td class="ab">Twin Fang (starter)</td><td>130%</td><td>2</td><td>1</td><td>1.0s</td><td>385–1,924</td><td>1,263</td><td>2,527</td><td style="background:rgba(220,50,70,0.35);"><b>2,527</b></td><td>2,527</td><td>4.9</td><td>515.7</td><td class="note">2 hits; 1.0s CD</td></tr>
+<tr><td class="ab">Fan of Knives</td><td>43%</td><td>7</td><td>3</td><td>3.0s</td><td>127–636</td><td>418</td><td>2,925</td><td style="background:rgba(103,121,70,0.35);"><b>975</b></td><td>2,925</td><td>17.6</td><td>166.2</td><td class="note">7 hits x3 targets</td></tr>
+<tr><td class="ab">Envenom</td><td>166%</td><td>1</td><td>1</td><td>4.0s</td><td>491–2,457</td><td>1,613</td><td>1,613</td><td style="background:rgba(60,147,70,0.35);"><b>403</b></td><td>403</td><td>11.7</td><td>137.9</td><td class="note">+ poison DoT</td></tr>
+<tr><td class="ab">Cripple</td><td>127%</td><td>1</td><td>1</td><td>10.0s</td><td>376–1,880</td><td>1,234</td><td>1,234</td><td style="background:rgba(40,160,70,0.35);"><b>123</b></td><td>123</td><td>19.6</td><td>63.0</td><td class="note">+ def/atk debuff</td></tr>
+<tr><td class="ab">Shadowstep</td><td>195%</td><td>1</td><td>1</td><td>5.0s</td><td>577–2,886</td><td>1,895</td><td>1,895</td><td style="background:rgba(59,148,70,0.35);"><b>379</b></td><td>379</td><td>12.7</td><td>149.2</td><td class="note">dash + i-frames</td></tr>
+<tr><td class="ab">Eviscerate</td><td>380%</td><td>1</td><td>1</td><td>6.0s</td><td>1,125–5,624</td><td>3,693</td><td>3,693</td><td style="background:rgba(76,137,70,0.35);"><b>616</b></td><td>616</td><td>17.6</td><td>209.8</td><td class="note">finisher; stealth = execute &lt;35% HP</td></tr>
+</tbody></table>
+<h3>Level 100 <span class="meta">· LUCK 361 / DEX 242 · WEAPONATTACK 200 · mastery 20 · crit 41% · pool 495</span></h3>
+<table><thead><tr><th>Ability</th><th>dmg%</th><th>hits</th><th>tgts</th><th>CD</th><th>hit (min–max)</th><th>eff/hit</th><th>per cast</th><th>DPS (1T)</th><th>DPS (AoE)</th><th>mana</th><th>dmg/mana</th><th>note</th></tr></thead><tbody>
+<tr><td class="ab">Twin Fang (starter)</td><td>130%</td><td>2</td><td>1</td><td>1.0s</td><td>1,052–5,260</td><td>3,610</td><td>7,220</td><td style="background:rgba(220,50,70,0.35);"><b>7,220</b></td><td>7,220</td><td>4.9</td><td>1,473.4</td><td class="note">2 hits; 1.0s CD</td></tr>
+<tr><td class="ab">Fan of Knives</td><td>43%</td><td>7</td><td>3</td><td>3.0s</td><td>348–1,740</td><td>1,194</td><td>8,358</td><td style="background:rgba(103,121,70,0.35);"><b>2,786</b></td><td>8,358</td><td>17.6</td><td>474.9</td><td class="note">7 hits x3 targets</td></tr>
+<tr><td class="ab">Envenom</td><td>166%</td><td>1</td><td>1</td><td>4.0s</td><td>1,343–6,716</td><td>4,610</td><td>4,610</td><td style="background:rgba(60,147,70,0.35);"><b>1,152</b></td><td>1,152</td><td>11.7</td><td>394.0</td><td class="note">+ poison DoT</td></tr>
+<tr><td class="ab">Cripple</td><td>127%</td><td>1</td><td>1</td><td>10.0s</td><td>1,028–5,138</td><td>3,527</td><td>3,527</td><td style="background:rgba(40,160,70,0.35);"><b>353</b></td><td>353</td><td>19.6</td><td>179.9</td><td class="note">+ def/atk debuff</td></tr>
+<tr><td class="ab">Shadowstep</td><td>195%</td><td>1</td><td>1</td><td>5.0s</td><td>1,578–7,890</td><td>5,415</td><td>5,415</td><td style="background:rgba(59,148,70,0.35);"><b>1,083</b></td><td>1,083</td><td>12.7</td><td>426.4</td><td class="note">dash + i-frames</td></tr>
+<tr><td class="ab">Eviscerate</td><td>380%</td><td>1</td><td>1</td><td>6.0s</td><td>3,075–15,375</td><td>10,552</td><td>10,552</td><td style="background:rgba(76,137,70,0.35);"><b>1,759</b></td><td>1,759</td><td>17.6</td><td>599.5</td><td class="note">finisher; stealth = execute &lt;35% HP</td></tr>
+</tbody></table>
+<p class="spread"><b>Pure-primary vs default at L100:</b> +43% DPS on average from re-speccing all points into the primary stat. This is the "damage ceiling" lever (ADR 0002 Open #1).</p>
+
+<h2 class="weap">Balance findings &amp; recommendations</h2>
+
+<div class="find bad"><h4>1 · Crit is a dead stat (CRITDAMAGE base 0, no gear source)</h4>
+<p>A crit only multiplies ×1.2–1.5. LUCK→crit-rate (Dagger primary, +0.1%/pt) therefore barely
+moves DPS, and the Dagger's Shadowmeld <b>guaranteed crit</b> is worth far less than it sounds.
+<b>Fix B6:</b> add CRITDAMAGE rolls to high-tier gear so crit builds (and the guaranteed-crit
+ambush) actually pay off. Until then Dagger's LUCK-primary identity is mostly a non-lever.</p></div>
+
+<div class="find"><h4>2 · Pure-primary allocation ≈ +40% damage over default</h4>
+<p>Re-speccing all points into the primary stat is a large, always-correct DPS gain with no
+opportunity cost but survivability. Either soft-cap primary scaling, give the secondary stat a
+real damage role, or make CON/utility compelling enough to tempt points away. (ADR 0002 Open #1.)</p></div>
+
+<div class="find good"><h4>3 · Finishers read correctly as finishers</h4>
+<p>Snipe (Bow, 200%+10/lvl, consumes Momentum), Eviscerate (Dagger, 190%+10/lvl, stealth execute)
+and Sundering Blow (Sword, combo spender) top their kits' single-hit damage, gated behind
+cooldown / a resource. Good shape — the payoff abilities hit hardest.</p></div>
+
+<div class="find"><h4>4 · DoT abilities under-represented in raw tables</h4>
+<p>Hemorrhage / Barbed Shot / Envenom / Immolate show only their <i>direct</i> hit here; their
+bleed/poison/burn DoT adds 20%-of-stat/sec ×stacks on top (and Immolate under Fire stance roughly
+doubles + splashes). Their effective DPS is higher than the table — keep that in mind before
+buffing their base %.</p></div>
+
+<div class="find"><h4>5 · Spammable starters are low-CD DPS floors — watch mana</h4>
+<p>Arcane Bolt (1.2s), Twin Fang (1.0s), Steel Flurry (1.0s) and Split Shot (1.5s) deliver high
+sustained DPS at trivial mana. They set each kit's floor; the cooldown abilities must clear that
+floor (per-cast) to be worth a button. Most do; verify Cripple (10s CD, 70% dmg) earns its slot
+beyond the debuff utility.</p></div>
+
+<div class="find"><h4>6 · Cross-weapon parity holds at the starter level, diverges by build</h4>
+<p>At default allocation the four kits land within a reasonable band. Staff scales on MAGICATTACK
+(separate gear pool) and leans on its element stance for effective output; Bow's Momentum ramp
+(+35% dmg / +30% fire-rate at cap) and Dagger's ambush ×2 are multiplicative on top of these raw
+numbers, so signature uptime — not base % — is where real divergence will come from in play.</p></div>
+
+<div class="find"><h4>7 · Tune targets, not just numbers</h4>
+<p>Key starting-value knobs flagged this session: Immolate Fire splash %, Glacial Spike freeze
+duration, lightning chain hops, Snipe's +12%/stack, Eviscerate's 35% execute threshold, Momentum
+per-stack ramp. All are isolated constants — cheap to adjust from playtest feel.</p></div>
+
+</div>
+</body></html>
