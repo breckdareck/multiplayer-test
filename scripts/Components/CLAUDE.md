@@ -28,7 +28,14 @@ Player (MultiplayerPlayerV2)
     │                               also feeds a secondary utility:
     │                               STR→Defense, DEX→accuracy (combat.gd hit-chance),
     │                               INT→Mana+MPregen, LUCK→CritChance, CON→HP+HPregen
-    │                               (tunable *_TO_* consts). CON is StatType idx 15
+    │                               (tunable *_TO_* consts). SOFT-CAP: allocated
+    │                               points per stat keep full value up to
+    │                               ATTR_SOFT_CAP_KNEE (300) then ×ATTR_SOFT_CAP_SLOPE
+    │                               (0.4) beyond (_effective_allocation) — reins in
+    │                               pure-primary mono-stacking (was +27-43% DPS) while
+    │                               leaving default/split builds (primary ~297 < knee)
+    │                               untouched. Accounting tracks RAW spent, not
+    │                               effective. CON is StatType idx 15
     │                               (appended). Round-trips via save_attributes /
     │                               load_attributes (backend `attribute_points`
     │                               JSONB); synced via sync_attributes RPC.
@@ -300,6 +307,14 @@ implements the hooks it needs:
   kill pathway). Used by AL_Bloodthirst (heal on kill; reads its heal_pct_bonus
   upgrade via ability_id).
 - **`on_proc(owner, target, context)`** — proc-effect handler (ProcEffectData).
+- **`conditional_damage_mult(owner, target, level) -> float`** — situational damage
+  passive hook. Returns the bonus FRACTION (e.g. 0.3) based on the target's HP, the
+  attacker's HP, or a recent kill. `AbilityComponent.get_conditional_damage_modifier`
+  sums it across equipped-discipline passives; `combat.gd._execute_hit` applies
+  ×(1+total) per hit. Implemented by the 4 conditional passives that replaced the
+  old always-on primary-stat% auto-takes — Aggression (sword, vs >90% HP),
+  Execution (bow, vs <30% HP), Killing Spree (staff, after a kill — its `on_kill`
+  stamps an owner meta deadline), Composure (dagger, while owner >80% HP).
 
 ### PR 6 upgrade effect_keys (the full vocabulary)
 Generic — consumed by Combat/Ability with NO per-AL code:
