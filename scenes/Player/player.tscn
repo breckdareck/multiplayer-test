@@ -1,6 +1,7 @@
-[gd_scene load_steps=98 format=3 uid="uid://bdtdpx0d05sy3"]
+[gd_scene load_steps=99 format=3 uid="uid://bdtdpx0d05sy3"]
 
 [ext_resource type="Script" uid="uid://yibpus3whwuj" path="res://scripts/Player/multiplayer_controller_v2.gd" id="1_an8q1"]
+[ext_resource type="PackedScene" uid="uid://cgamewindowhub1" path="res://scenes/UI/game_window.tscn" id="34_ghub"]
 [ext_resource type="Script" uid="uid://cy1j38lpy671e" path="res://scripts/Player/multiplayer_input.gd" id="2_hxkm2"]
 [ext_resource type="Script" uid="uid://ys6acovxq2iq" path="res://scripts/Components/level.gd" id="3_18ciy"]
 [ext_resource type="Script" uid="uid://dvo2fsw8a8ooj" path="res://scripts/Components/player_inventory.gd" id="3_pnj8v"]
@@ -934,6 +935,10 @@ offset_bottom = 826.0
 layout_mode = 1
 
 [node name="AbilityWindow" parent="CanvasLayer/MoveableWindows" instance=ExtResource("18_7iww4")]
+visible = false
+layout_mode = 1
+
+[node name="GameWindow" parent="CanvasLayer/MoveableWindows" instance=ExtResource("34_ghub")]
 visible = false
 layout_mode = 1
 
