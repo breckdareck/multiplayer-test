@@ -20,11 +20,15 @@ extends Panel
 @onready var abil_host: Control = %AbilHost
 @onready var close_button: Button = %HubCloseButton
 
+const FONT := preload("res://assets/fonts/PixelOperator8.ttf")
+
 var player
 var _absorbed := false
 var _dragging := false
 var _drag_offset := Vector2()
 var _ability_shell: Node = null
+var _hdr_name: Label
+var _hdr_sub: Label
 
 const HOTKEY_TAB := {
 	"OpenEquipmentWindow": 0, "OpenInventoryWindow": 0, "OpenStatsWindow": 0,
@@ -68,10 +72,21 @@ func _absorb_windows() -> void:
 			var pc := eqw.pet_tab_content as Control
 			pc.visible = true
 			pc.size_flags_vertical = Control.SIZE_EXPAND_FILL    # pet panel fills below
+			# The full pet_tab is a roster list + detail; in the narrow column the
+			# roster strip ("PETS" list) reads as broken. Hide it → compact pet box
+			# (portrait/name/hunger/summon/slots) like the mock.
+			var roster := pc.find_child("ListPanel", true, false)
+			if roster is CanvasItem:
+				(roster as CanvasItem).visible = false
 	# Lay the 6 equipment slots out 2-wide (mock paperdoll).
 	var grid := equip_host.find_child("GridContainer", true, false)
 	if grid is GridContainer:
 		(grid as GridContainer).columns = 2
+	# Character header card (name / Lv + class) at the top of the equipment column.
+	var hdr := _make_char_header()
+	equip_host.add_child(hdr)
+	equip_host.move_child(hdr, 0)
+	_refresh_header()
 	_absorb(src.get_node_or_null("StatsWindow"), stats_host)
 	_absorb(src.get_node_or_null("InventoryWindow"), inv_host)
 	# Densify the inventory grids toward the mock (6-wide); revert if they overflow.
@@ -151,6 +166,62 @@ func _show_tab(idx: int) -> void:
 	# The ability window normally refreshes its tree on open; trigger it on tab show.
 	if idx == 1 and _ability_shell and _ability_shell.has_method("load_ability_list"):
 		_ability_shell.call("load_ability_list")
+	if idx == 0:
+		_refresh_header()
+
+
+## A small "name / Lv N <Class>" card for the top of the equipment column.
+func _make_char_header() -> Control:
+	var p := PanelContainer.new()
+	p.custom_minimum_size = Vector2(0, 50)
+	p.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.1, 0.1, 0.13)
+	sb.border_color = Color(0.3, 0.3, 0.36)
+	sb.set_border_width_all(1)
+	sb.set_corner_radius_all(4)
+	sb.set_content_margin_all(6)
+	p.add_theme_stylebox_override("panel", sb)
+	var h := HBoxContainer.new()
+	h.add_theme_constant_override("separation", 8)
+	p.add_child(h)
+	var port := Panel.new()
+	port.custom_minimum_size = Vector2(38, 38)
+	h.add_child(port)
+	var v := VBoxContainer.new()
+	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	v.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	h.add_child(v)
+	_hdr_name = Label.new()
+	_hdr_name.add_theme_font_override("font", FONT)
+	_hdr_name.add_theme_font_size_override("font_size", 13)
+	_hdr_name.add_theme_color_override("font_color", Color(1, 1, 1))
+	v.add_child(_hdr_name)
+	_hdr_sub = Label.new()
+	_hdr_sub.add_theme_font_override("font", FONT)
+	_hdr_sub.add_theme_font_size_override("font_size", 10)
+	_hdr_sub.add_theme_color_override("font_color", Color(0.62, 0.62, 0.68))
+	v.add_child(_hdr_sub)
+	return p
+
+
+const _DISC_NAMES := ["Sword", "Bow", "Staff", "Dagger"]
+
+func _refresh_header() -> void:
+	if player == null or not is_instance_valid(_hdr_name):
+		return
+	_hdr_name.text = str(player.username) if "username" in player else "Player"
+	var lvl: int = 0
+	if "level_component" in player and player.level_component:
+		lvl = int(player.level_component.level)
+	var cls := ""
+	if player.has_method("get_active_discipline"):
+		var d: int = player.get_active_discipline()
+		if d >= 0 and d < _DISC_NAMES.size():
+			cls = _DISC_NAMES[d]
+	_hdr_sub.text = "Lv %d   %s" % [lvl, cls]
+	if is_instance_valid(title_label):
+		title_label.text = "CHARACTER   ·   %s   Lv %d   %s" % [_hdr_name.text, lvl, cls]
 
 
 func _open_to_tab(idx: int) -> void:
