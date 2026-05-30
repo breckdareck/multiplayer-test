@@ -17,9 +17,16 @@ func _ready() -> void:
 	
 	if owner is MultiplayerPlayerV2:
 		player = owner as MultiplayerPlayerV2
+	else:
+		# Nested inside the unified hub (game_window): owner is the hub, not the
+		# player. Walk ancestors to find the player root.
+		var n: Node = get_parent()
+		while n != null and not (n is MultiplayerPlayerV2):
+			n = n.get_parent()
+		player = n as MultiplayerPlayerV2
 
 func _process(_delta: float) -> void:
-	if multiplayer.get_unique_id() == player.player_id:
+	if player != null and multiplayer.get_unique_id() == player.player_id:
 		if Input.is_action_just_pressed("OpenInventoryWindow"):
 			if inventory_window.visible:
 				inventory_window.visible = false

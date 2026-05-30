@@ -21,6 +21,13 @@ func _ready() -> void:
 
 	if owner is MultiplayerPlayerV2:
 		player = owner as MultiplayerPlayerV2
+	else:
+		# Nested inside the unified hub (game_window): owner is the hub root, not
+		# the player. Walk ancestors to find the player so the pet wiring works.
+		var n: Node = get_parent()
+		while n != null and not (n is MultiplayerPlayerV2):
+			n = n.get_parent()
+		player = n as MultiplayerPlayerV2
 
 	# The pet tab is embedded in equipment_window.tscn — wire its owner ref.
 	if is_instance_valid(pet_tab) and pet_tab.has_method("set_owner_player"):
@@ -30,7 +37,7 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	if multiplayer.get_unique_id() == player.player_id:
+	if player != null and multiplayer.get_unique_id() == player.player_id:
 		if Input.is_action_just_pressed("OpenEquipmentWindow"):
 			if equipment_window.visible:
 				equipment_window.visible = false

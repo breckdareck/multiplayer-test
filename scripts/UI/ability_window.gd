@@ -59,10 +59,16 @@ func _ready():
 	# Add to ui_window group for drop detection
 	add_to_group("ui_window")
 	
-	if owner is MultiplayerPlayerV2:
-		player = owner as MultiplayerPlayerV2
+	player = owner as MultiplayerPlayerV2
+	if player == null:
+		# Nested inside the unified hub (game_window): owner is the hub, not the
+		# player. Walk ancestors to find the player root.
+		var n: Node = get_parent()
+		while n != null and not (n is MultiplayerPlayerV2):
+			n = n.get_parent()
+		player = n as MultiplayerPlayerV2
+	if player:
 		ability_component = player.ability_component
-		
 		if not ability_component:
 			push_error("AbilityWindow: Could not find AbilityComponent on player")
 			return

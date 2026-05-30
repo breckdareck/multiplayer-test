@@ -1,8 +1,11 @@
-[gd_scene load_steps=6 format=3 uid="uid://cgamewindowhub1"]
+[gd_scene load_steps=9 format=3 uid="uid://cgamewindowhub1"]
 
 [ext_resource type="StyleBox" uid="uid://dm8jxifs8rqrm" path="res://assets/UI/Themes/PanelStyleboxTheme.tres" id="1_pst"]
 [ext_resource type="Script" path="res://scripts/UI/game_window.gd" id="2_gw"]
 [ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="3_font"]
+[ext_resource type="PackedScene" uid="uid://cy54vn8lpmh2s" path="res://scenes/UI/equipment_window.tscn" id="4_eqw"]
+[ext_resource type="PackedScene" uid="uid://dh7yjshjnm377" path="res://scenes/UI/inventory_window.tscn" id="5_inv"]
+[ext_resource type="PackedScene" uid="uid://c2sweq4gkie70" path="res://scenes/UI/abilities_window.tscn" id="6_abil"]
 
 [sub_resource type="Theme" id="hub_theme"]
 default_font = ExtResource("3_font")
@@ -452,3 +455,17 @@ theme_override_styles/panel = SubResource("col_sb")
 [node name="AbilHost" type="VBoxContainer" parent="Margin/VBox/Pages/AbilitiesPage"]
 unique_name_in_owner = true
 layout_mode = 2
+
+[node name="EquipmentWindow" parent="Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost" instance=ExtResource("4_eqw")]
+layout_mode = 2
+size_flags_vertical = 3
+visible = true
+
+[node name="InventoryWindow" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost" instance=ExtResource("5_inv")]
+layout_mode = 2
+size_flags_vertical = 3
+visible = true
+
+[node name="AbilityWindow" parent="Margin/VBox/Pages/AbilitiesPage/AbilHost" instance=ExtResource("6_abil")]
+layout_mode = 2
+size_flags_vertical = 3

@@ -77,10 +77,16 @@ func _wire_stats_buttons() -> void:
 func _absorb_windows() -> void:
 	if _absorbed:
 		return
-	var src := get_parent()  # CanvasLayer/MoveableWindows
+	var src := get_parent()  # CanvasLayer/MoveableWindows (still holds StatsWindow)
 	if src == null:
 		return
-	var eqw := src.get_node_or_null("EquipmentWindow")
+	# Equipment/Inventory/Ability windows are now instanced INSIDE this hub (in
+	# their column hosts — authored in game_window.tscn so they're editor-visible).
+	# _absorb lifts each window's content up into the host VBox so the columns lay
+	# out cleanly; the now-empty window shell is hidden. The component @export
+	# NodePaths (player.tscn) resolve to the slot/grid OBJECTS at load and survive
+	# this reparent (the linchpin).
+	var eqw := equip_host.get_node_or_null("EquipmentWindow")
 	_absorb(eqw, equip_host)
 	if eqw:
 		# Mock = no Equipment/Pets toggle: show gear AND pet together (pet under gear).
@@ -108,10 +114,10 @@ func _absorb_windows() -> void:
 		sw.set_process_input(false)
 		if sw is CanvasItem:
 			(sw as CanvasItem).visible = false
-	_absorb(src.get_node_or_null("InventoryWindow"), inv_host)
+	_absorb(inv_host.get_node_or_null("InventoryWindow"), inv_host)
 	for g in inv_host.find_children("", "GridContainer", true, false):
 		(g as GridContainer).columns = 6
-	_ability_shell = src.get_node_or_null("AbilityWindow")
+	_ability_shell = abil_host.get_node_or_null("AbilityWindow")
 	_absorb(_ability_shell, abil_host)
 	_absorbed = true
 	_show_tab(0)
