@@ -308,13 +308,18 @@ implements the hooks it needs:
   upgrade via ability_id).
 - **`on_proc(owner, target, context)`** — proc-effect handler (ProcEffectData).
 - **`conditional_damage_mult(owner, target, level) -> float`** — situational damage
-  passive hook. Returns the bonus FRACTION (e.g. 0.3) based on the target's HP, the
-  attacker's HP, or a recent kill. `AbilityComponent.get_conditional_damage_modifier`
-  sums it across equipped-discipline passives; `combat.gd._execute_hit` applies
-  ×(1+total) per hit. Implemented by the 4 conditional passives that replaced the
-  old always-on primary-stat% auto-takes — Aggression (sword, vs >90% HP),
-  Execution (bow, vs <30% HP), Killing Spree (staff, after a kill — its `on_kill`
-  stamps an owner meta deadline), Composure (dagger, while owner >80% HP).
+  passive hook. Returns the bonus FRACTION (e.g. 0.3) based on the target's HP/state,
+  the attacker's HP/mana, a recent kill, stealth, or momentum. `AbilityComponent.
+  get_conditional_damage_modifier` sums it across equipped-discipline passives;
+  `combat.gd._execute_hit` applies ×(1+total) per hit. When a passive's condition is
+  MET (returns >0), the modifier ALSO adds that passive's owned `conditional_damage_bonus`
+  upgrades (see vocabulary below), so its upgrade tree scales the bonus. Implemented by
+  the **9** conditional passives (bare `extends Node` ALs, path-resolved, MAX_LEVEL=10)
+  that replaced the old always-on stat auto-takes: Aggression (sword, vs >90% HP),
+  Last Stand (sword, owner <35% HP), Execution (bow, vs <30% HP), Tailwind (bow, scales
+  with Momentum stacks), Killing Spree (staff, 4s after a kill — its `on_kill` stamps an
+  owner meta deadline), Overload (staff, owner mana >50%), Composure (dagger, owner
+  >80% HP), Toxicology (dagger, target envenom-poisoned), Opportunist (dagger, stealthed).
 
 ### PR 6 upgrade effect_keys (the full vocabulary)
 Generic — consumed by Combat/Ability with NO per-AL code:
@@ -326,7 +331,10 @@ Generic — consumed by Combat/Ability with NO per-AL code:
   like HP/STR/Mana; get_passive_effect_modifiers),
   `passive_stat_flat_bonus` (PR 8 — FLAT points on the passive's stat, for
   percentage-style stats CritChance/CritDamage or base-0 Defense where a percent
-  bonus is meaningless; same function).
+  bonus is meaningless; same function),
+  `conditional_damage_bonus` (FLAT fraction added to a conditional passive's bonus
+  while its condition is met; summed in get_conditional_damage_modifier — the upgrade
+  tree for every `conditional_damage_mult` passive points here).
 Ability-specific — read in the named AL via `ability_has_upgrade_effect` /
 `get_ability_upgrade_magnitude`:
   `combo_coefficient_override` (AL_Slash, AL_PowerStrike),
