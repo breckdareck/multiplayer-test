@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://x1pyuk0xt8k8" path="res://scripts/UI/ability_window.gd" id="2_e7278"]
 [ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="3_702f5"]
 [ext_resource type="Theme" uid="uid://bg5sc8rk63fi6" path="res://assets/UI/Themes/ScrollContainerTheme.tres" id="4_v72j5"]
-[ext_resource type="Script" path="res://scripts/UI/skill_tree_canvas.gd" id="5_stc"]
+[ext_resource type="Script" uid="uid://ci4vlncxk2w3" path="res://scripts/UI/skill_tree_canvas.gd" id="5_stc"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_w72g6"]
 content_margin_left = 10.0
@@ -66,10 +66,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -480.0
-offset_top = -300.0
-offset_right = 480.0
-offset_bottom = 300.0
+offset_left = -596.5
+offset_top = -475.0
+offset_right = 596.5
+offset_bottom = 282.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = ExtResource("1_45i2r")

@@ -110,14 +110,14 @@ func _rebuild() -> void:
 	pas.sort_custom(func(x, y): return x.tree_depth < y.tree_depth)
 
 	var y: int = TOP
-	_section_label(y, "PASSIVES  —  free, pick any", C_PASS)
+	_section_label(y, "PASSIVES", C_PASS)
 	y += 22
 	for p in pas:
 		_ability_row(p, y)
 		y += PASS_ROW
 	y += 10
 
-	_section_label(y, "ACTIVES  —  prerequisite chain", C_AVAIL)
+	_section_label(y, "ACTIVES", C_AVAIL)
 	y += 22
 	var prev_cy: int = -1
 	for i in act.size():

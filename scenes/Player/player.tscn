@@ -909,12 +909,6 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="AbilityWindow" parent="CanvasLayer/MoveableWindows" instance=ExtResource("18_7iww4")]
-visible = false
-layout_mode = 1
-offset_top = -378.125
-offset_bottom = 378.125
-
 [node name="StatsWindow" parent="CanvasLayer/MoveableWindows" instance=ExtResource("23_fqhit")]
 layout_mode = 0
 offset_left = 114.0
@@ -937,6 +931,10 @@ offset_right = 1506.0
 offset_bottom = 826.0
 
 [node name="QuestWindow" parent="CanvasLayer/MoveableWindows" instance=ExtResource("26_quest")]
+layout_mode = 1
+
+[node name="AbilityWindow" parent="CanvasLayer/MoveableWindows" instance=ExtResource("18_7iww4")]
+visible = false
 layout_mode = 1
 
 [node name="PlayerWorldHUD" type="Control" parent="."]

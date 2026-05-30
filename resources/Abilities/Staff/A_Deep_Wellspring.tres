@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=16 format=3 uid="uid://bgfjgeynpjyxe"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=15 format=3 uid="uid://bgfjgeynpjyxe"]
 
 [ext_resource type="Texture2D" uid="uid://djx8um8tttwxa" path="res://assets/sprites/Abilities/mana_shield.png" id="1_wel1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_wel1"]
@@ -6,7 +6,6 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_wel1"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_wel1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_wel1"]
-[ext_resource type="Resource" uid="uid://w0x3oyevmbgf" path="res://resources/Abilities/Staff/A_Arcane_Mind.tres" id="7_wel1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
 [ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_WEL_Brimming.tres" id="9_br"]
 [ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_WEL_Bottomless.tres" id="10_bo"]
@@ -43,9 +42,9 @@ max_level = 10
 ability_type = 1
 required_class = Array[int]([2])
 required_weapon_types = Array[int]([2])
+tree_path = 1
+tree_depth = 4
 upgrades = Array[ExtResource("8_aud")]([ExtResource("9_br"), ExtResource("10_bo"), ExtResource("11_oc")])
 active_behavior = SubResource("Resource_wel_behav")
 scaling_data = SubResource("Resource_wel_scaling")
 metadata/_custom_type_script = "uid://b8y62rc8nb40j"
-tree_path = 1
-tree_depth = 4

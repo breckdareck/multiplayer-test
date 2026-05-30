@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=16 format=3 uid="uid://escy36o4gfpn"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=15 format=3 uid="uid://escy36o4gfpn"]
 
 [ext_resource type="Texture2D" uid="uid://ky00whwbxbmx" path="res://assets/sprites/Abilities/power_guard.png" id="1_le1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_le1"]
@@ -6,7 +6,6 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_le1"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_le1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_le1"]
-[ext_resource type="Resource" uid="uid://dexpasv0001x" path="res://resources/Abilities/Bow/A_Fleet_Fingers.tres" id="7_le1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
 [ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_LET_Vicious.tres" id="9_vi"]
 [ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_LET_Brutal.tres" id="10_br"]
@@ -43,9 +42,9 @@ max_level = 10
 ability_type = 1
 required_class = Array[int]([1])
 required_weapon_types = Array[int]([1])
+tree_path = 0
+tree_depth = 4
 upgrades = Array[ExtResource("8_aud")]([ExtResource("9_vi"), ExtResource("10_br"), ExtResource("11_me")])
 active_behavior = SubResource("Resource_le_behav")
 scaling_data = SubResource("Resource_le_scaling")
 metadata/_custom_type_script = "uid://b8y62rc8nb40j"
-tree_path = 0
-tree_depth = 4

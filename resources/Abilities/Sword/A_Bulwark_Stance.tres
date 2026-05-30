@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=22 format=3 uid="uid://ccpjinaimna60"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=21 format=3 uid="uid://ccpjinaimna60"]
 
 [ext_resource type="Texture2D" uid="uid://ky00whwbxbmx" path="res://assets/sprites/Abilities/power_guard.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://dn1vvhfka7naa" path="res://scripts/Abilities/AL_BulwarkStance.gd" id="2b_albs"]
@@ -6,7 +6,6 @@
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="3_ad"]
 [ext_resource type="Resource" uid="uid://b7m6nox1s53pv" path="res://resources/Buffs/B_Bulwark_Stance.tres" id="4_buff"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_asf"]
-[ext_resource type="Resource" uid="uid://ccxoh5fmx317x" path="res://resources/Abilities/Sword/A_Crescent_Cleave.tres" id="6_slash"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_asd"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="9_nobye"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="10_qd3ji"]
@@ -54,10 +53,9 @@ ability_icon = ExtResource("1_icon")
 max_level = 20
 required_class = Array[int]([0])
 required_weapon_types = Array[int]([0])
+tree_path = 0
 upgrades = Array[ExtResource("10_qd3ji")]([ExtResource("11_ti"), ExtResource("12_st"), ExtResource("13_in"), ExtResource("14_qb"), ExtResource("15_iw")])
 active_behavior = SubResource("Resource_active")
 applies_buff = ExtResource("4_buff")
 buff_duration_formula = SubResource("Resource_duration")
 scaling_data = SubResource("Resource_scaling")
-tree_path = 0
-tree_depth = 0
