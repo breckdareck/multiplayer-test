@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "km_t1_focused"
 upgrade_name = "Focused"
-description = "Increases Keen Mind's critical hit chance bonus by +1%."
+description = "Increases Overload's bonus damage by +3% (while its condition is met)."
 point_cost = 1
 tier = 1
 variant_group = ""
-effect_key = "passive_stat_flat_bonus"
-magnitude = 1.0
+effect_key = "conditional_damage_bonus"
+magnitude = 0.03

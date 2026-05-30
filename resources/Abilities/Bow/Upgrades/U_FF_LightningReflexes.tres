@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "ff_t3_lightning_reflexes"
 upgrade_name = "Lightning Reflexes"
-description = "Increases Fleet Fingers' DEX bonus by +2%."
+description = "Increases Execution's bonus damage by +7% (while its condition is met)."
 point_cost = 2
 tier = 3
 variant_group = ""
-effect_key = "passive_stat_percent_bonus"
-magnitude = 2.0
+effect_key = "conditional_damage_bonus"
+magnitude = 0.07

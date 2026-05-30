@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "dpk_t1_deep"
 upgrade_name = "Deep"
-description = "Increases Deep Pockets' Max Mana bonus by +1%."
+description = "Increases Opportunist's bonus damage by +3% (while its condition is met)."
 point_cost = 1
 tier = 1
 variant_group = ""
-effect_key = "passive_stat_percent_bonus"
-magnitude = 1.0
+effect_key = "conditional_damage_bonus"
+magnitude = 0.03

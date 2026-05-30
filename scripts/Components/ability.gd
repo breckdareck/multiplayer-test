@@ -341,7 +341,14 @@ func get_conditional_damage_modifier(target: Node) -> float:
 		var logic = ability.active_behavior.logic_script.new()
 		if not logic.has_method("conditional_damage_mult"):
 			return
-		total_bonus += float(logic.conditional_damage_mult(owner, target, level_stats.level))
+		var b: float = float(logic.conditional_damage_mult(owner, target, level_stats.level))
+		# When the condition is MET (b > 0), the passive's upgrade tree adds to its
+		# bonus via the generic "conditional_damage_bonus" effect_key — so investing
+		# in a conditional passive's upgrades scales its damage (the trees were
+		# repurposed from the old stat-passive keys when these became conditionals).
+		if b > 0.0:
+			b += get_ability_upgrade_magnitude(_ability_id, "conditional_damage_bonus")
+		total_bonus += b
 	)
 	return 1.0 + total_bonus
 

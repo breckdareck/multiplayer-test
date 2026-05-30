@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "dr_t1_capacity"
 upgrade_name = "Capacity"
-description = "Increases Deep Reserves' Max Mana bonus by +1%."
+description = "Increases Tailwind's bonus damage by +3% (while its condition is met)."
 point_cost = 1
 tier = 1
 variant_group = ""
-effect_key = "passive_stat_percent_bonus"
-magnitude = 1.0
+effect_key = "conditional_damage_bonus"
+magnitude = 0.03

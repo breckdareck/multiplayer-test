@@ -6,7 +6,7 @@
 script = ExtResource("1_aud")
 upgrade_id = "sp_t2_powerful"
 upgrade_name = "Powerful"
-description = "Increases Iron Sinews' STR bonus by +2%."
+description = "Increases Aggression's bonus damage by +5% (while its condition is met)."
 tier = 2
-effect_key = "passive_stat_percent_bonus"
-magnitude = 2.0
+effect_key = "conditional_damage_bonus"
+magnitude = 0.05

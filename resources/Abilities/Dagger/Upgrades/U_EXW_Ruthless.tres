@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "exw_t3_ruthless"
 upgrade_name = "Ruthless"
-description = "Increases Exploit Weakness's critical damage bonus by +2%."
+description = "Increases Toxicology's bonus damage by +7% (while its condition is met)."
 point_cost = 2
 tier = 3
 variant_group = ""
-effect_key = "passive_stat_flat_bonus"
-magnitude = 2.0
+effect_key = "conditional_damage_bonus"
+magnitude = 0.07
