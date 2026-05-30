@@ -84,11 +84,16 @@ func populate(ability_component, abilities: Array, discipline_key: String, selec
 			_path_order[p].append(a.ability_id)
 			max_depth = max(max_depth, a.tree_depth)
 
-	# Path headers.
+	# Path headers — name + points invested in the column (drives the tier gates).
 	var names: Array = PATH_NAMES.get(discipline_key, ["Path A", "Path B"])
 	for p in [0, 1]:
+		var pts: int = 0
+		if by_path.has(p):
+			for a in by_path[p]:
+				pts += _ability_component.get_ability_level(a.ability_id)
+		var pname: String = str(names[p]) if p < names.size() else "Path %d" % (p + 1)
 		var hdr := Label.new()
-		hdr.text = str(names[p]) if p < names.size() else "Path %d" % (p + 1)
+		hdr.text = "%s  (%d)" % [pname, pts]
 		hdr.add_theme_font_override("font", FONT)
 		hdr.add_theme_font_size_override("font_size", 13)
 		hdr.add_theme_color_override("font_color", Color(0.91, 0.89, 0.35))
@@ -177,6 +182,11 @@ func _make_node(a) -> void:
 		ST_AVAIL:
 			txt = "Learn"
 			col = Color(0.45, 0.95, 0.45)
+		ST_LOCKED:
+			# Points-in-path gate: show how many more points this column needs.
+			var need: int = _ability_component.path_points_to_unlock(a.ability_id)
+			txt = "Need +%d" % need if need > 0 else "Locked"
+			col = Color(0.72, 0.6, 0.4)
 	status.text = txt
 	status.add_theme_color_override("font_color", col)
 	btn.add_child(status)
