@@ -44,11 +44,14 @@ DISCIPLINES = {
 }
 
 # Gear-driven attack power (WEAPONATTACK / MAGICATTACK are base 0 — gear only).
-# Anchored to the verified L100 benchmark (Eternal Dirk ≈ 197 WEAPONATTACK), so
-# we model attack_power ≈ 2 × level. ABSOLUTE damage scales linearly with this;
-# the RELATIVE ability balance is gear-independent.
+# Anchored to REAL gear at both ends: starter weapons give ~9 attack at L1
+# (Wooden Sword +10 / Bronze Dagger +9 / Worn Warbow +7 / Wooden Staff +10 MATK),
+# and the verified L100 benchmark (Eternal Dirk ≈ 197 WEAPONATTACK). Linear
+# interpolation between. ABSOLUTE damage scales with this curve; the RELATIVE
+# ability balance is gear-independent. NOTE: because base stats are only 4 and
+# the pool/mastery are 0 at L1, early damage is almost entirely weapon-gated.
 def gear_attack_power(level: int) -> int:
-    return max(2, round(2.0 * level))
+    return max(2, round(9.0 + (197.0 - 9.0) * (level - 1) / 99.0))
 
 # Levels modelled.  (mastery assumption per tier: you can't out-level mastery cap.)
 LEVEL_TIERS = [1, 30, 60, 100]
@@ -218,6 +221,10 @@ def render():
         '<li><b>CRITDAMAGE base 0</b> with no gear source → a crit is only ×1.2–1.5. Crit rate is a near-dead stat.</li>'
         '<li>Tables below are <b>raw, same-level, zero-defense</b> single-target to isolate ability balance '
         '(defense &amp; level-gap are flat multipliers that hit every ability equally).</li>'
+        '<li><b>Why Level 1 damage is tiny:</b> at L1 the attribute pool is 0 (5×(level−1)) and mastery is 0, '
+        'so primary/secondary are just their base 4 → stat term = 4×4+4 = 20. With a starter weapon (~9 attack) '
+        'that is 1.2×20×9/100 ≈ <b>2</b> per basic hit. Early damage is almost entirely <b>weapon-gated</b>; it '
+        'climbs fast as the pool, mastery, and gear all grow together.</li>'
         '</ul></div>')
 
     # Allocation archetype explainer
