@@ -1,126 +1,174 @@
 extends Control
 
-## Branching skill-tree renderer for the Ability Window. Lays a discipline's
-## abilities into two vertical "path" columns by AbilityData.tree_path /
-## tree_depth, draws connector lines between consecutive-depth nodes, and emits
-## ability_selected when a node is clicked. Node state (locked / learnable /
-## owned / maxed) is read from the AbilityComponent on each populate().
-##
-## The two paths per weapon are a display + climb-gate taxonomy authored on the
-## AbilityData resources (tree_path 0 = left column, 1 = right). Discipline
-## filtering happens in the window; this canvas only lays out what it's handed.
+## Skill-tree v2 canvas — Layout A (one path at a time). For the active path it
+## renders a free PASSIVES section (no gate) and a chained ACTIVES section, with
+## every ability's UPGRADE tree (T1 -> T2 -> T3 variant fan) branching off it as
+## D4-style nodes. A Vanguard|Berserker toggle swaps paths. Emits node_selected
+## (kind = "ability" | "upgrade") so the window's right panel drives detail + the
+## learn/level/buy action. Resolved by path (no class_name) to dodge cache staleness.
 
-signal ability_selected(ability_id: String)
+signal node_selected(kind: String, ability_id: String, upgrade_id: String)
 
 const FONT := preload("res://assets/fonts/PixelOperator8.ttf")
 const NODE_SCRIPT := preload("res://scripts/UI/skill_tree_node.gd")
 
-## Path display names per discipline key (Path A = index 0, Path B = index 1).
 const PATH_NAMES := {
-	"sword": ["Vanguard", "Berserker"],
-	"bow": ["Marksman", "Skirmisher"],
-	"staff": ["Elementalist", "Sage"],
-	"dagger": ["Assassin", "Venomancer"],
+	"sword": ["Vanguard", "Berserker"], "bow": ["Marksman", "Skirmisher"],
+	"staff": ["Elementalist", "Sage"], "dagger": ["Assassin", "Venomancer"],
 }
 
-# Layout (px).
-const NODE_W := 166
-const NODE_H := 54
-const COL_GAP := 24
-const SIDE_PAD := 12
-const NODES_TOP := 42
-const ROW_PITCH := 82
-const HEADER_Y := 10
+# Layout (px)
+const PAD := 14
+const NODE_W := 186
+const NODE_H := 48
+const UPG_W := 102
+const UPG_H := 28
+const UPG_VGAP := 7
+const X_T1 := 220   # PAD + NODE_W + 20
+const X_T2 := 338
+const X_T3 := 456
+const PASS_ROW := 52
+const ACT_ROW := 104
+const TOP := 44
 
-# Node states.
+# Node states
 const ST_LOCKED := 0
 const ST_AVAIL := 1
 const ST_OWNED := 2
 const ST_MAX := 3
 
-# State -> border color.
-const C_OWNED := Color(0.36, 0.74, 1.0)    # learned, not max
-const C_MAX := Color(0.95, 0.80, 0.30)     # maxed
-const C_AVAIL := Color(0.82, 0.85, 0.92)   # unlocked, learnable
-const C_LOCKED := Color(0.32, 0.32, 0.38)  # climb-locked
-const C_SELECT := Color(1.0, 0.95, 0.45)   # selection highlight
-const C_BG := Color(0.10, 0.10, 0.13, 0.96)
+const C_OWNED := Color(0.36, 0.74, 1.0)
+const C_MAX := Color(0.95, 0.80, 0.30)
+const C_AVAIL := Color(0.82, 0.85, 0.92)
+const C_LOCKED := Color(0.32, 0.32, 0.38)
+const C_SELECT := Color(1.0, 0.95, 0.45)
+const C_PASS := Color(0.42, 0.86, 0.62)
+const C_UPG := Color(0.86, 0.70, 0.34)
+const C_BG := Color(0.11, 0.11, 0.14, 0.97)
 const C_BG_LOCKED := Color(0.07, 0.07, 0.09, 0.92)
 
-var _ability_component
-var _discipline_key: String = ""
-var _selected_id: String = ""
-# ability_id -> { node: Button, path: int, depth: int, state: int }
-var _nodes: Dictionary = {}
-# path index -> Array of ability_id sorted by depth (drives connector drawing)
-var _path_order: Dictionary = {}
+var _comp
+var _disc := ""
+var _path := 0
+var _abilities: Array = []
+var _sel_ability := ""
+var _sel_upgrade := ""
+var _lines: Array = []   # [Vector2 from, Vector2 to, Color]
 
 
-## Rebuilds the whole tree for `abilities` (already filtered to one discipline).
-func populate(ability_component, abilities: Array, discipline_key: String, selected_id: String) -> void:
-	_ability_component = ability_component
-	_discipline_key = discipline_key
-	_selected_id = selected_id
+## abilities = ALL placed abilities for the discipline (both paths); the canvas
+## shows only the active _path.
+func populate(comp, abilities: Array, disc: String) -> void:
+	_comp = comp
+	_abilities = abilities
+	_disc = disc
+	_rebuild()
+
+
+func set_path(p: int) -> void:
+	if p == _path:
+		return
+	_path = clampi(p, 0, 1)
+	_rebuild()
+
+
+func get_active_path() -> int:
+	return _path
+
+
+## Called by the window to sync the highlight after it processes a selection.
+## Also switches to the selected ability's path so the node is on screen.
+func select_node(kind: String, ability_id: String, upgrade_id: String) -> void:
+	_sel_ability = ability_id
+	_sel_upgrade = upgrade_id if kind == "upgrade" else ""
+	for a in _abilities:
+		if a != null and a.ability_id == ability_id:
+			_path = a.tree_path
+			break
+	_rebuild()
+
+
+func _rebuild() -> void:
 	for c in get_children():
 		c.queue_free()
-	_nodes.clear()
-	_path_order.clear()
-	if _ability_component == null:
+	_lines.clear()
+	if _comp == null:
 		return
 
-	# Bucket by path, sort each by depth.
-	var by_path: Dictionary = {0: [], 1: []}
-	for a in abilities:
-		if a == null or a.tree_path < 0:
+	_build_toggle()
+
+	var act: Array = []
+	var pas: Array = []
+	for a in _abilities:
+		if a == null or a.tree_path != _path:
 			continue
-		if not by_path.has(a.tree_path):
-			by_path[a.tree_path] = []
-		by_path[a.tree_path].append(a)
-	var max_depth: int = 0
-	for p in by_path:
-		by_path[p].sort_custom(func(x, y): return x.tree_depth < y.tree_depth)
-		_path_order[p] = []
-		for a in by_path[p]:
-			_path_order[p].append(a.ability_id)
-			max_depth = max(max_depth, a.tree_depth)
+		if a.ability_type == Constants.AbilityType.PASSIVE:
+			pas.append(a)
+		else:
+			act.append(a)
+	act.sort_custom(func(x, y): return x.tree_depth < y.tree_depth)
+	pas.sort_custom(func(x, y): return x.tree_depth < y.tree_depth)
 
-	# Path headers — name + points invested in the column (drives the tier gates).
-	var names: Array = PATH_NAMES.get(discipline_key, ["Path A", "Path B"])
-	for p in [0, 1]:
-		var pts: int = 0
-		if by_path.has(p):
-			for a in by_path[p]:
-				pts += _ability_component.get_ability_level(a.ability_id)
-		var pname: String = str(names[p]) if p < names.size() else "Path %d" % (p + 1)
-		var hdr := Label.new()
-		hdr.text = "%s  (%d)" % [pname, pts]
-		hdr.add_theme_font_override("font", FONT)
-		hdr.add_theme_font_size_override("font_size", 13)
-		hdr.add_theme_color_override("font_color", Color(0.91, 0.89, 0.35))
-		hdr.position = Vector2(_col_x(p), HEADER_Y)
-		hdr.size = Vector2(NODE_W, 20)
-		hdr.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		hdr.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		add_child(hdr)
+	var y: int = TOP
+	_section_label(y, "PASSIVES  —  free, pick any", C_PASS)
+	y += 22
+	for p in pas:
+		_ability_row(p, y)
+		y += PASS_ROW
+	y += 10
 
-	# Nodes.
-	for p in by_path:
-		for a in by_path[p]:
-			_make_node(a)
+	_section_label(y, "ACTIVES  —  prerequisite chain", C_AVAIL)
+	y += 22
+	var prev_cy: int = -1
+	for i in act.size():
+		var cy: int = y + NODE_H / 2
+		if prev_cy >= 0:
+			var owned: bool = _comp.get_ability_level(act[i - 1].ability_id) >= 1
+			_lines.append([Vector2(PAD + 22, prev_cy + NODE_H / 2), Vector2(PAD + 22, cy - NODE_H / 2), C_OWNED if owned else C_LOCKED])
+		_ability_row(act[i], y)
+		prev_cy = cy
+		y += ACT_ROW
 
-	var total_h: int = NODES_TOP + (max_depth + 1) * ROW_PITCH + 8
-	var total_w: int = _col_x(1) + NODE_W + SIDE_PAD
-	custom_minimum_size = Vector2(total_w, total_h)
+	custom_minimum_size = Vector2(X_T3 + UPG_W + PAD + 6, y + 12)
 	queue_redraw()
 
 
-func _col_x(path_index: int) -> int:
-	return SIDE_PAD + path_index * (NODE_W + COL_GAP)
+func _build_toggle() -> void:
+	var names: Array = PATH_NAMES.get(_disc, ["Path A", "Path B"])
+	for p in [0, 1]:
+		var on: bool = (p == _path)
+		var btn := Button.new()
+		btn.position = Vector2(PAD + p * 128, 8)
+		btn.custom_minimum_size = Vector2(124, 26)
+		btn.size = Vector2(124, 26)
+		btn.focus_mode = Control.FOCUS_NONE
+		btn.text = str(names[p]) if p < names.size() else "Path %d" % (p + 1)
+		btn.add_theme_font_override("font", FONT)
+		btn.add_theme_font_size_override("font_size", 12)
+		var sb := _sbox(Color(0.2, 0.18, 0.08) if on else C_BG_LOCKED, C_MAX if on else C_LOCKED, 2)
+		for s in ["normal", "hover", "pressed", "focus"]:
+			btn.add_theme_stylebox_override(s, sb)
+		btn.add_theme_color_override("font_color", C_MAX if on else Color(0.6, 0.6, 0.65))
+		var pi: int = p
+		btn.pressed.connect(func(): set_path(pi))
+		add_child(btn)
 
 
-func _make_node(a) -> void:
-	var level: int = _ability_component.get_ability_level(a.ability_id)
-	var unlocked: bool = _ability_component.is_tree_node_unlocked(a.ability_id)
+func _section_label(y: int, txt: String, col: Color) -> void:
+	var l := Label.new()
+	l.position = Vector2(PAD, y)
+	l.size = Vector2(360, 20)
+	l.text = txt
+	l.add_theme_font_override("font", FONT)
+	l.add_theme_font_size_override("font_size", 12)
+	l.add_theme_color_override("font_color", col)
+	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(l)
+
+
+func _ability_row(a, y: int) -> void:
+	var level: int = _comp.get_ability_level(a.ability_id)
+	var unlocked: bool = _comp.is_tree_node_unlocked(a.ability_id)
 	var state: int = ST_LOCKED
 	if level >= a.max_level and level > 0:
 		state = ST_MAX
@@ -129,107 +177,104 @@ func _make_node(a) -> void:
 	elif unlocked:
 		state = ST_AVAIL
 
-	# Use the node script (extends Button) so the node can be dragged to the hotbar.
-	var btn: Button = NODE_SCRIPT.new()
-	btn.ability_data = a
-	btn.current_level = level
-	btn.position = Vector2(_col_x(a.tree_path), NODES_TOP + a.tree_depth * ROW_PITCH)
-	btn.custom_minimum_size = Vector2(NODE_W, NODE_H)
-	btn.size = Vector2(NODE_W, NODE_H)
-	btn.focus_mode = Control.FOCUS_NONE
-	btn.modulate = Color(1, 1, 1, 0.55) if state == ST_LOCKED else Color(1, 1, 1, 1)
-	_apply_node_style(btn, state, a.ability_id == _selected_id)
+	var node: Button = NODE_SCRIPT.new()
+	node.ability_data = a
+	node.current_level = level
+	node.position = Vector2(PAD, y)
+	node.custom_minimum_size = Vector2(NODE_W, NODE_H)
+	node.size = Vector2(NODE_W, NODE_H)
+	node.focus_mode = Control.FOCUS_NONE
+	node.modulate = Color(1, 1, 1, 0.6) if state == ST_LOCKED else Color(1, 1, 1, 1)
+	_style(node, _state_color(state), state == ST_LOCKED, _sel_ability == a.ability_id and _sel_upgrade == "")
 	var aid: String = a.ability_id
-	btn.pressed.connect(func(): ability_selected.emit(aid))
-	add_child(btn)
+	node.pressed.connect(func(): node_selected.emit("ability", aid, ""))
+	add_child(node)
 
 	var icon := TextureRect.new()
 	icon.texture = a.ability_icon
 	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.position = Vector2(6, 7)
-	icon.size = Vector2(40, 40)
+	icon.position = Vector2(6, 8)
+	icon.size = Vector2(32, 32)
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	btn.add_child(icon)
-
-	var name_lbl := Label.new()
-	name_lbl.text = a.ability_name
-	name_lbl.add_theme_font_override("font", FONT)
-	name_lbl.add_theme_font_size_override("font_size", 10)
-	name_lbl.add_theme_color_override("font_color", Color(1, 1, 1))
-	name_lbl.position = Vector2(48, 7)
-	name_lbl.size = Vector2(NODE_W - 54, 18)
-	name_lbl.clip_text = true
-	name_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	btn.add_child(name_lbl)
-
-	var status := Label.new()
-	status.add_theme_font_override("font", FONT)
-	status.add_theme_font_size_override("font_size", 10)
-	status.position = Vector2(48, 29)
-	status.size = Vector2(NODE_W - 54, 16)
-	status.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var txt: String = "Locked"
-	var col: Color = Color(0.6, 0.6, 0.65)
+	node.add_child(icon)
+	_text(node, 44, 5, NODE_W - 48, a.ability_name, 10, Color(1, 1, 1))
+	var sub := "Lv %d/%d" % [level, a.max_level]
+	var scol := _state_color(state)
 	match state:
-		ST_MAX:
-			txt = "MAX %d/%d" % [level, a.max_level]
-			col = C_MAX
-		ST_OWNED:
-			txt = "Lv %d/%d" % [level, a.max_level]
-			col = C_OWNED
-		ST_AVAIL:
-			txt = "Learn"
-			col = Color(0.45, 0.95, 0.45)
+		ST_MAX: sub = "MAX %d/%d" % [level, a.max_level]
+		ST_AVAIL: sub = "Learn"; scol = Color(0.45, 0.95, 0.45)
 		ST_LOCKED:
-			# Points-in-path gate: show how many more points this column needs.
-			var need: int = _ability_component.path_points_to_unlock(a.ability_id)
-			txt = "Need +%d" % need if need > 0 else "Locked"
-			col = Color(0.72, 0.6, 0.4)
-	status.text = txt
-	status.add_theme_color_override("font_color", col)
-	btn.add_child(status)
+			var pr: String = _comp.active_chain_prereq_name(a.ability_id) if _comp.has_method("active_chain_prereq_name") else ""
+			sub = "Needs %s" % pr if pr != "" else "Locked"
+			scol = Color(0.66, 0.6, 0.55)
+	_text(node, 44, NODE_H - 16, NODE_W - 48, sub, 9, scol)
 
-	var tag := Label.new()
-	tag.add_theme_font_override("font", FONT)
-	tag.add_theme_font_size_override("font_size", 9)
-	var is_passive: bool = a.ability_type == Constants.AbilityType.PASSIVE
-	tag.text = "P" if is_passive else "A"
-	tag.add_theme_color_override("font_color", Color(0.55, 0.7, 1.0) if is_passive else Color(1.0, 0.65, 0.4))
-	tag.position = Vector2(NODE_W - 16, 3)
-	tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	btn.add_child(tag)
-
-	var total_ups: int = a.upgrades.size() if a.upgrades != null else 0
-	if total_ups > 0:
-		var owned_ups: int = _ability_component.get_learned_upgrades(a.ability_id).size()
-		var ub := Label.new()
-		ub.add_theme_font_override("font", FONT)
-		ub.add_theme_font_size_override("font_size", 9)
-		ub.text = "◆%d/%d" % [owned_ups, total_ups]
-		ub.add_theme_color_override("font_color", Color(0.9, 0.75, 0.3))
-		ub.position = Vector2(NODE_W - 46, NODE_H - 16)
-		ub.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		btn.add_child(ub)
-
-	_nodes[a.ability_id] = {"node": btn, "path": a.tree_path, "depth": a.tree_depth, "state": state}
+	_upgrade_branch(a, y + NODE_H / 2, state == ST_MAX)
 
 
-func _apply_node_style(btn: Button, state: int, selected: bool) -> void:
-	var border: Color = C_SELECT if selected else _state_color(state)
-	var bw: int = 3 if selected else 2
-	var bg: Color = C_BG_LOCKED if state == ST_LOCKED else C_BG
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = bg
-	sb.border_color = border
-	sb.set_border_width_all(bw)
-	sb.set_corner_radius_all(6)
-	sb.set_content_margin_all(2)
-	for s in ["normal", "hover", "pressed", "focus"]:
-		btn.add_theme_stylebox_override(s, sb)
+func _upgrade_branch(a, cy: int, ability_maxed: bool) -> void:
+	if a.upgrades == null or a.upgrades.is_empty():
+		return
+	var t1: Array = []
+	var t2: Array = []
+	var t3: Array = []
+	for up in a.upgrades:
+		match up.tier:
+			1: t1.append(up)
+			2: t2.append(up)
+			_: t3.append(up)
+	var line_col := C_UPG if ability_maxed else C_LOCKED
+	# ability -> T1
+	_lines.append([Vector2(PAD + NODE_W, cy), Vector2(X_T1, cy), line_col])
+	_tier_single(a, t1, X_T1, cy)
+	if not t2.is_empty():
+		_lines.append([Vector2(X_T1 + UPG_W, cy), Vector2(X_T2, cy), line_col])
+		_tier_single(a, t2, X_T2, cy)
+	if not t3.is_empty():
+		var n: int = t3.size()
+		var total_h: int = n * UPG_H + (n - 1) * UPG_VGAP
+		var sy: int = cy - total_h / 2
+		_lines.append([Vector2(X_T2 + UPG_W, cy), Vector2(X_T3 - 8, cy), line_col])
+		_lines.append([Vector2(X_T3 - 8, sy + UPG_H / 2), Vector2(X_T3 - 8, sy + total_h - UPG_H / 2), line_col])
+		for i in n:
+			var uy: int = sy + i * (UPG_H + UPG_VGAP)
+			_lines.append([Vector2(X_T3 - 8, uy + UPG_H / 2), Vector2(X_T3, uy + UPG_H / 2), line_col])
+			_upg_node(a, t3[i], X_T3, uy)
 
 
+func _tier_single(a, ups: Array, x: int, cy: int) -> void:
+	for up in ups:
+		_upg_node(a, up, x, cy - UPG_H / 2)
+
+
+func _upg_node(a, up, x: int, y: int) -> void:
+	var owned: bool = _comp.has_upgrade(a.ability_id, up.upgrade_id)
+	var buyable: bool = false
+	if not owned:
+		var can = _comp.can_purchase_upgrade(a.ability_id, up.upgrade_id)
+		buyable = can is Dictionary and can.get("ok", false)
+	var border := C_UPG if owned else (C_AVAIL if buyable else C_LOCKED)
+	var dim: bool = not owned and not buyable
+	var btn := Button.new()
+	btn.position = Vector2(x, y)
+	btn.custom_minimum_size = Vector2(UPG_W, UPG_H)
+	btn.size = Vector2(UPG_W, UPG_H)
+	btn.focus_mode = Control.FOCUS_NONE
+	btn.modulate = Color(1, 1, 1, 0.7) if dim else Color(1, 1, 1, 1)
+	_style(btn, border, dim, _sel_upgrade == up.upgrade_id)
+	var aid: String = a.ability_id
+	var uid: String = up.upgrade_id
+	btn.pressed.connect(func(): node_selected.emit("upgrade", aid, uid))
+	add_child(btn)
+	var nm: String = up.upgrade_name
+	if owned:
+		nm = "✓ " + nm
+	_text_c(btn, 2, (UPG_H - 11) / 2, UPG_W - 4, nm, 9, Color(0.62, 0.62, 0.67) if dim else border)
+
+
+# ---- styling helpers ----
 func _state_color(state: int) -> Color:
 	match state:
 		ST_MAX: return C_MAX
@@ -238,33 +283,50 @@ func _state_color(state: int) -> Color:
 		_: return C_LOCKED
 
 
-## Re-highlights the selected node without a full rebuild.
-func set_selected(ability_id: String) -> void:
-	if ability_id == _selected_id:
-		return
-	_selected_id = ability_id
-	for id in _nodes:
-		var info: Dictionary = _nodes[id]
-		_apply_node_style(info.node, info.state, id == _selected_id)
+func _sbox(bg: Color, border: Color, bw: int) -> StyleBoxFlat:
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = bg
+	sb.border_color = border
+	sb.set_border_width_all(bw)
+	sb.set_corner_radius_all(6)
+	sb.set_content_margin_all(2)
+	return sb
+
+
+func _style(btn: Button, border: Color, locked: bool, selected: bool) -> void:
+	var b := C_SELECT if selected else border
+	var sb := _sbox(C_BG_LOCKED if locked else C_BG, b, 3 if selected else 2)
+	for s in ["normal", "hover", "pressed", "focus"]:
+		btn.add_theme_stylebox_override(s, sb)
+
+
+func _text(parent, x: int, y: int, w: int, txt: String, sz: int, col: Color) -> void:
+	var l := Label.new()
+	l.position = Vector2(x, y)
+	l.size = Vector2(w, sz + 6)
+	l.text = txt
+	l.clip_text = true
+	l.add_theme_font_override("font", FONT)
+	l.add_theme_font_size_override("font_size", sz)
+	l.add_theme_color_override("font_color", col)
+	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(l)
+
+
+func _text_c(parent, x: int, y: int, w: int, txt: String, sz: int, col: Color) -> void:
+	var l := Label.new()
+	l.position = Vector2(x, y)
+	l.size = Vector2(w, sz + 6)
+	l.text = txt
+	l.clip_text = true
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l.add_theme_font_override("font", FONT)
+	l.add_theme_font_size_override("font_size", sz)
+	l.add_theme_color_override("font_color", col)
+	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(l)
 
 
 func _draw() -> void:
-	for p in _path_order:
-		var ids: Array = _path_order[p]
-		var cx: float = _col_x(p) + NODE_W / 2.0
-		for i in range(ids.size() - 1):
-			var top_id: String = ids[i]
-			var bot_id: String = ids[i + 1]
-			if not _nodes.has(top_id) or not _nodes.has(bot_id):
-				continue
-			var top: Dictionary = _nodes[top_id]
-			var bot: Dictionary = _nodes[bot_id]
-			var y0: float = NODES_TOP + top.depth * ROW_PITCH + NODE_H
-			var y1: float = NODES_TOP + bot.depth * ROW_PITCH
-			var col: Color = Color(0.25, 0.25, 0.3)
-			match bot.state:
-				ST_MAX, ST_OWNED:
-					col = C_OWNED
-				ST_AVAIL:
-					col = Color(0.6, 0.6, 0.66)
-			draw_line(Vector2(cx, y0), Vector2(cx, y1), col, 3.0)
+	for seg in _lines:
+		draw_line(seg[0], seg[1], seg[2], 3.0)

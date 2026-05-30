@@ -40,6 +40,10 @@ const DISCIPLINE_TAB_TITLES: Array[String] = ["Sword", "Bow", "Staff", "Dagger"]
 var _current_discipline_key: String = "sword"
 
 var selected_ability_id: String = ""
+## Canvas v2: what kind of node is selected ("ability" or "upgrade") and, for an
+## upgrade, which one — drives the right panel's detail + the action button.
+var _selected_kind: String = "ability"
+var _selected_upgrade_id: String = ""
 var player: MultiplayerPlayerV2
 var ability_component: AbilityComponent
 
@@ -76,9 +80,12 @@ func _ready():
 	if is_instance_valid(discipline_tab_bar):
 		discipline_tab_bar.tab_selected.connect(_on_discipline_tab_selected)
 
-	# Skill-tree canvas: a node click selects the ability (same path as the old list).
+	# Skill-tree canvas v2: a node click selects an ability OR an upgrade node.
 	if is_instance_valid(skill_tree_canvas):
-		skill_tree_canvas.ability_selected.connect(select_ability)
+		skill_tree_canvas.node_selected.connect(_on_node_selected)
+	# v2: upgrades live in the canvas now — keep the legacy right-panel list hidden.
+	if is_instance_valid(upgrades_container):
+		upgrades_container.visible = false
 
 	# Connect to ability component signals
 	if ability_component:
@@ -180,14 +187,28 @@ func load_ability_list():
 			continue
 		discipline_abilities.append(ability_data)
 
-	skill_tree_canvas.populate(ability_component, discipline_abilities, _current_discipline_key, selected_ability_id)
+	skill_tree_canvas.populate(ability_component, discipline_abilities, _current_discipline_key)
+	# Restore the highlight after the rebuild.
+	if selected_ability_id != "":
+		skill_tree_canvas.select_node(_selected_kind, selected_ability_id, _selected_upgrade_id)
 
 
-## Selects an ability, updates the details panel, and highlights the slot
+## Canvas v2 click router: an ability node opens the ability detail; an upgrade
+## node opens the upgrade detail (with a BUY action).
+func _on_node_selected(kind: String, ability_id: String, upgrade_id: String) -> void:
+	if kind == "upgrade":
+		_select_upgrade(ability_id, upgrade_id)
+	else:
+		select_ability(ability_id)
+
+
+## Selects an ability and updates the right detail panel + highlights the node.
 func select_ability(ability_id: String):
 	if not ability_component:
 		return
-		
+
+	_selected_kind = "ability"
+	_selected_upgrade_id = ""
 	selected_ability_id = ability_id
 
 	# Get ability data from ResourceManager
@@ -201,7 +222,7 @@ func select_ability(ability_id: String):
 
 	# Highlight the selected node in the tree canvas.
 	if is_instance_valid(skill_tree_canvas):
-		skill_tree_canvas.set_selected(ability_id)
+		skill_tree_canvas.select_node("ability", ability_id, "")
 
 	update_details(selected_data, current_level)
 
@@ -633,14 +654,91 @@ func clear_details():
 		upgrades_container.visible = false
 
 
-## Handles the Level Up button press
+## Handles the action button — context-sensitive in v2: levels/learns the
+## selected ability, OR buys the selected upgrade node. UI refreshes via the
+## ability_leveled_up / ability_learned / ability_upgrade_purchased signals.
 func on_level_up_button_pressed():
-	if not ability_component or selected_ability_id.is_empty():
+	if not ability_component:
+		return
+	if _selected_kind == "upgrade":
+		if selected_ability_id != "" and _selected_upgrade_id != "":
+			ability_component.purchase_upgrade(selected_ability_id, _selected_upgrade_id)
+		return
+	if selected_ability_id.is_empty():
+		return
+	ability_component.level_up_ability(selected_ability_id)
+
+
+## Selects an upgrade NODE: fills the right detail panel with the upgrade's info
+## and turns the action button into BUY / OWNED / locked-reason.
+func _select_upgrade(ability_id: String, upgrade_id: String) -> void:
+	if not ability_component:
+		return
+	var data: AbilityData = ResourceManager.get_ability_data(ability_id)
+	if not data or data.upgrades == null:
+		return
+	var upgrade: AbilityUpgradeData = null
+	for up in data.upgrades:
+		if up != null and up.upgrade_id == upgrade_id:
+			upgrade = up
+			break
+	if upgrade == null:
 		return
 
-	# Level up (or learn, at level 0) the selected ability. The UI refreshes
-	# via the ability_leveled_up / ability_learned signal callbacks.
-	ability_component.level_up_ability(selected_ability_id)
+	_selected_kind = "upgrade"
+	selected_ability_id = ability_id
+	_selected_upgrade_id = upgrade_id
+
+	ability_icon.texture = data.ability_icon
+	ability_name_label.text = upgrade.upgrade_name
+	ability_level_label.text = "%s  ·  Tier %d upgrade" % [data.ability_name, upgrade.tier]
+	description_text.text = upgrade.description
+	mana_cost_label.text = "N/A"
+	cooldown_label.text = "N/A"
+
+	if ability_component.has_upgrade(ability_id, upgrade_id):
+		cost_label.text = "Owned"
+		cost_label.add_theme_color_override("font_color", Color(COLOR_UPGRADE))
+		level_up_button.text = "OWNED"
+		level_up_button.disabled = true
+	else:
+		var can = ability_component.can_purchase_upgrade(ability_id, upgrade_id)
+		var ok: bool = can is Dictionary and can.get("ok", false)
+		level_up_button.text = "BUY UPGRADE"
+		level_up_button.disabled = not ok
+		if ok:
+			cost_label.text = "Cost: %d SP" % upgrade.point_cost
+			cost_label.add_theme_color_override("font_color", Color(COLOR_UPGRADE))
+		else:
+			cost_label.text = _upgrade_reason_text(can.get("reason", "") if can is Dictionary else "")
+			cost_label.add_theme_color_override("font_color", Color(COLOR_DOWNGRADE))
+
+	if is_instance_valid(upgrades_container):
+		upgrades_container.visible = false
+	if is_instance_valid(skill_tree_canvas):
+		skill_tree_canvas.select_node("upgrade", ability_id, upgrade_id)
+
+
+## Human-readable reason for a blocked upgrade purchase.
+func _upgrade_reason_text(reason: String) -> String:
+	match reason:
+		"not_learned": return "Learn the ability first"
+		"not_maxed": return "Max the ability first"
+		"tier_locked": return "Buy the previous tier first"
+		"variant_taken": return "Another variant chosen"
+		"no_points": return "Not enough SP"
+		"already_owned": return "Owned"
+		_: return "Locked"
+
+
+## Re-applies the current selection (ability or upgrade) after a canvas rebuild.
+func _reselect() -> void:
+	if selected_ability_id == "":
+		return
+	if _selected_kind == "upgrade" and _selected_upgrade_id != "":
+		_select_upgrade(selected_ability_id, _selected_upgrade_id)
+	else:
+		select_ability(selected_ability_id)
 
 
 # ============================================================================
@@ -654,26 +752,11 @@ const UPGRADE_TIER_COLORS: Array[String] = ["#9fcaff", "#c9a0ff", "#e6c95c"]
 ## Rebuilds the upgrade tier rows for the selected ability. Hidden entirely
 ## for abilities that define no upgrades (pre-PR-6 abilities / passives
 ## without trees).
-func _refresh_upgrades(data: AbilityData, current_level: int) -> void:
-	if not is_instance_valid(upgrades_container):
-		return
-	# Clear existing rows.
-	for child in upgrades_list.get_children():
-		child.queue_free()
-
-	var has_upgrades: bool = data.upgrades != null and not data.upgrades.is_empty()
-	upgrades_container.visible = has_upgrades
-	if not has_upgrades:
-		return
-
-	# Sort by tier so the panel reads T1 → T2 → T3 top-to-bottom.
-	var sorted_upgrades: Array = data.upgrades.duplicate()
-	sorted_upgrades.sort_custom(func(a, b): return a.tier < b.tier)
-
-	for up in sorted_upgrades:
-		if up == null:
-			continue
-		upgrades_list.add_child(_make_upgrade_row(data, up, current_level))
+func _refresh_upgrades(_data: AbilityData, _current_level: int) -> void:
+	# Skill-tree v2: upgrades render as nodes in the canvas (branching off each
+	# ability), not as a right-panel list. Keep the legacy container hidden.
+	if is_instance_valid(upgrades_container):
+		upgrades_container.visible = false
 
 
 ## Builds one upgrade row: [Tn] Name ............ <Buy/Owned/Locked>.
@@ -737,11 +820,10 @@ func _on_upgrade_buy_pressed(ability_id: String, upgrade_id: String) -> void:
 
 
 ## Refresh the panel + list when an upgrade is purchased (or synced in).
-func _on_ability_upgrade_changed(ability_id: String, _upgrade_id: String) -> void:
+func _on_ability_upgrade_changed(_ability_id: String, _upgrade_id: String) -> void:
 	update_skill_points_display()
 	load_ability_list()
-	if selected_ability_id == ability_id and not selected_ability_id.is_empty():
-		select_ability(selected_ability_id)
+	_reselect()
 
 
 ## Top-header respec — opens a small popup offering a quick respec of either
@@ -786,8 +868,7 @@ func _on_respec_ability_pressed() -> void:
 func _refresh_after_respec() -> void:
 	update_skill_points_display()
 	load_ability_list()
-	if not selected_ability_id.is_empty():
-		select_ability(selected_ability_id)
+	_reselect()
 
 
 ## Updates the SP display in the header.
@@ -838,12 +919,8 @@ func _on_ability_points_changed(discipline_key: String, _new_total: int):
 	if discipline_key == _current_discipline_key:
 		update_skill_points_display()
 
-	# Refresh the details panel to update button state
-	if selected_ability_id:
-		var selected_data = ResourceManager.get_ability_data(selected_ability_id)
-		if selected_data:
-			var current_level = ability_component.get_ability_level(selected_ability_id)
-			update_details(selected_data, current_level)
+	# Refresh the detail panel (ability OR upgrade) so the action button updates.
+	_reselect()
 
 
 ## PR 4: surface a denial when the player tries to spend a point with an

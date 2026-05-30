@@ -108,12 +108,6 @@ var _loading_mode: bool = false
 ## next load (granted = mastery_level * 6 recomputed against spent).
 const ABILITY_POINTS_PER_MASTERY_LEVEL: int = 6
 
-## Skill-tree points-in-path tier gates: a column's tier-2 nodes (tree_depth 2-3)
-## unlock after this many points are invested in that column, tier-3 (depth 4+)
-## after the larger one. Tier 1 (depth 0-1) is always open. See is_tree_node_unlocked.
-const PATH_TIER2_POINTS: int = 3
-const PATH_TIER3_POINTS: int = 7
-
 ## PR 4: canonical lowercase discipline keys, in display order (the order
 ## the AbilityWindow renders tabs).
 const DISCIPLINE_KEYS: Array[String] = ["sword", "bow", "staff", "dagger"]
@@ -1917,58 +1911,52 @@ func can_level_up_ability(ability_id: String) -> bool:
 	return true
 
 
-## Points invested in a column = summed ability levels across every ability that
-## shares this one's discipline + tree_path. This is the "points-in-path" metric
-## the tier gate reads.
-func _points_in_path(ability: AbilityData) -> int:
-	if ability == null or ability.tree_path < 0:
-		return 0
-	var disc: String = _ability_primary_discipline(ability)
-	var total: int = 0
-	for other_id in ResourceManager.ability_data:
-		var other: AbilityData = ResourceManager.ability_data[other_id]
-		if other == null:
-			continue
-		if other.tree_path == ability.tree_path and _ability_primary_discipline(other) == disc:
-			total += get_ability_level(other_id)
-	return total
-
-
-## Points-in-path threshold a node's tier requires (0 for the always-open entry
-## tier). Depth -> tier: 0-1 = tier 1 (free), 2-3 = tier 2, 4+ = tier 3.
-func _path_tier_threshold(depth: int) -> int:
-	if depth >= 4:
-		return PATH_TIER3_POINTS
-	if depth >= 2:
-		return PATH_TIER2_POINTS
-	return 0
-
-
-## Skill-tree gating is "points-in-path" (New World model): a node's tier unlocks
-## once enough points are invested ANYWHERE in its column (same discipline +
-## tree_path). Within an unlocked tier the player picks freely and may invest both
-## columns. Pure unlock condition — never changes points granted/spent, so the
-## reconcile invariant holds. Used by can_level_up_ability + the tree UI.
+## Skill-tree gating (v2): PASSIVES are always unlocked — free to pick from the
+## start. ACTIVES form a prerequisite CHAIN: each active needs the previous active
+## in its path (the active with the highest tree_depth strictly below this one)
+## learned (level >= 1); a path's first active is a free root. Pure unlock
+## condition — never changes points granted/spent, so the reconcile invariant
+## holds. Used by can_level_up_ability + the tree UI.
 func is_tree_node_unlocked(ability_id: String) -> bool:
 	var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
 	if ability == null or ability.tree_path < 0:
 		return true
-	var threshold: int = _path_tier_threshold(ability.tree_depth)
-	if threshold <= 0:
+	if ability.ability_type == Constants.AbilityType.PASSIVE:
 		return true
-	return _points_in_path(ability) >= threshold
+	var parent: AbilityData = _get_active_chain_parent(ability)
+	return parent == null or get_ability_level(parent.ability_id) >= 1
 
 
-## How many more points must go into this node's column before its tier unlocks
-## (0 = already unlocked). Drives the locked-node hint in the tree UI.
-func path_points_to_unlock(ability_id: String) -> int:
+## The active directly before `ability` in its path's active chain — the active
+## (same discipline + tree_path) with the greatest tree_depth strictly less than
+## this one's. Null if `ability` is the chain root or not an active.
+func _get_active_chain_parent(ability: AbilityData) -> AbilityData:
+	if ability == null or ability.tree_path < 0 or ability.ability_type == Constants.AbilityType.PASSIVE:
+		return null
+	var disc: String = _ability_primary_discipline(ability)
+	var best: AbilityData = null
+	for other_id in ResourceManager.ability_data:
+		var other: AbilityData = ResourceManager.ability_data[other_id]
+		if other == null or other == ability:
+			continue
+		if other.ability_type == Constants.AbilityType.PASSIVE:
+			continue
+		if other.tree_path != ability.tree_path or _ability_primary_discipline(other) != disc:
+			continue
+		if other.tree_depth < ability.tree_depth and (best == null or other.tree_depth > best.tree_depth):
+			best = other
+	return best
+
+
+## The active-chain prerequisite's display name for the UI lock hint, or "".
+func active_chain_prereq_name(ability_id: String) -> String:
 	var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
-	if ability == null or ability.tree_path < 0:
-		return 0
-	var threshold: int = _path_tier_threshold(ability.tree_depth)
-	if threshold <= 0:
-		return 0
-	return max(0, threshold - _points_in_path(ability))
+	if ability == null:
+		return ""
+	var parent: AbilityData = _get_active_chain_parent(ability)
+	if parent != null and get_ability_level(parent.ability_id) < 1:
+		return parent.ability_name
+	return ""
 
 
 ## PR 4: applies the legacy-save migration logic for ability points.

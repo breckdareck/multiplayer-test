@@ -60,16 +60,16 @@ border_width_bottom = 1
 border_color = Color(0.25, 0.25, 0.3, 1)
 
 [node name="AbilityWindow" type="PanelContainer"]
-custom_minimum_size = Vector2(860, 560)
+custom_minimum_size = Vector2(960, 600)
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -430.0
-offset_top = -280.0
-offset_right = 430.0
-offset_bottom = 280.0
+offset_left = -480.0
+offset_top = -300.0
+offset_right = 480.0
+offset_bottom = 300.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = ExtResource("1_45i2r")
@@ -146,10 +146,10 @@ theme_override_constants/separation = 6
 dragging_enabled = false
 
 [node name="AbilityListPanel" type="PanelContainer" parent="MarginContainer/VBoxContainer/HSplitContainer"]
-custom_minimum_size = Vector2(400, 0)
+custom_minimum_size = Vector2(580, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 0.46
+size_flags_stretch_ratio = 0.62
 theme_override_styles/panel = SubResource("StyleBoxFlat_0k78i")
 
 [node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer/HSplitContainer/AbilityListPanel"]
