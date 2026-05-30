@@ -64,9 +64,11 @@ LEVEL_TIERS = [1, 30, 60, 100]
 # Enemy stat curves (sampled from assets/curves/monster_*_curve.tres, 2026-05-29).
 # All enemy HP/defense is curve-driven off monster_level — these .tres ARE the
 # single balance lever for enemy difficulty. Even-level values at the tiers:
-ENEMY_HP   = {1: 15,  30: 1800, 60: 12400, 100: 130000}
-ENEMY_WDEF = {1: 0,   30: 75,   60: 215,   100: 513}   # weapon defense (melee/bow/dagger)
-ENEMY_MDEF = {1: 0,   30: 110,  60: 240,   100: 409}   # magic defense (staff)
+# Rebalanced 2026-05-29: HP keeps the ≤L58 shape then grows quadratically (was
+# cubic — killed the L100 runaway); defense clamped at 260 so def_mult >= ~0.66.
+ENEMY_HP   = {1: 15,  30: 1800, 60: 10485, 100: 29132}
+ENEMY_WDEF = {1: 0,   30: 75,   60: 225,   100: 260}   # weapon defense (melee/bow/dagger)
+ENEMY_MDEF = {1: 0,   30: 110,  60: 240,   100: 260}   # magic defense (staff)
 
 # Ability-point economy (ability.gd): 6 pts / mastery level, cap 20 = 120/discipline.
 PTS_PER_MASTERY = 6
