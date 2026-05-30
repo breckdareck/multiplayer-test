@@ -19,13 +19,13 @@ script = ExtResource("2_vig1")
 [sub_resource type="Resource" id="Resource_vig_hp"]
 script = ExtResource("5_vig1")
 base_value = 2.0
-per_level = 2.0
+per_level = 1.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_vig_sbf"]
 script = ExtResource("4_vig1")
-stat_type = 4
-percent_bonus_formula = SubResource("Resource_vig_hp")
+stat_type = 10
+flat_bonus_formula = SubResource("Resource_vig_hp")
 metadata/_custom_type_script = "uid://bx4thfjsjclbw"
 
 [sub_resource type="Resource" id="Resource_vig_scaling"]
@@ -36,8 +36,8 @@ metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
 [resource]
 script = ExtResource("6_vig1")
 ability_id = "5118105103111114951-9043-1410149-105135-1410158678120211"
-ability_name = "Vigor"
-description = "Permanently increases Max HP by $[stat_bonus]%."
+ability_name = "Cutthroat"
+description = "Permanently increases critical hit chance by $[stat_bonus]%."
 ability_icon = ExtResource("1_vig1")
 max_level = 10
 ability_type = 1

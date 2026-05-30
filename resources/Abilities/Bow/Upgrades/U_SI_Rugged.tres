@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "si_t2_rugged"
 upgrade_name = "Rugged"
-description = "Increases Survival Instinct's Max HP bonus by +2%."
+description = "Increases Surefoot's knockback resistance bonus by +2."
 point_cost = 1
 tier = 2
 variant_group = ""
-effect_key = "passive_stat_percent_bonus"
+effect_key = "passive_stat_flat_bonus"
 magnitude = 2.0

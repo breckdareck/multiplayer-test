@@ -6,7 +6,7 @@
 script = ExtResource("1_aud")
 upgrade_id = "bi_t2_sharpened"
 upgrade_name = "Sharpened"
-description = "Increases Battle Instinct's critical hit chance bonus by +2%."
+description = "Increases Second Wind's HP regeneration bonus by +2."
 point_cost = 1
 tier = 2
 variant_group = ""

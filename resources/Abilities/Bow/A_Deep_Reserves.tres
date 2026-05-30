@@ -1,7 +1,8 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=16 format=3 uid="uid://bowdeepres01x"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=17 format=3 uid="uid://bowdeepres01x"]
 
 [ext_resource type="Texture2D" uid="uid://djx8um8tttwxa" path="res://assets/sprites/Abilities/mana_shield.png" id="1_dr1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_dr1"]
+[ext_resource type="Script" uid="uid://altailwind01x" path="res://scripts/Abilities/AL_Tailwind.gd" id="12_tw"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_dr1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_dr1"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_dr1"]
@@ -15,6 +16,7 @@
 [sub_resource type="Resource" id="Resource_dr_behav"]
 resource_local_to_scene = true
 script = ExtResource("2_dr1")
+logic_script = ExtResource("12_tw")
 
 [sub_resource type="Resource" id="Resource_dr_mana"]
 script = ExtResource("5_dr1")
@@ -30,14 +32,14 @@ metadata/_custom_type_script = "uid://bx4thfjsjclbw"
 
 [sub_resource type="Resource" id="Resource_dr_scaling"]
 script = ExtResource("3_dr1")
-stat_bonus_formulas = Array[ExtResource("4_dr1")]([SubResource("Resource_dr_sbf")])
+stat_bonus_formulas = Array[ExtResource("4_dr1")]([])
 metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
 
 [resource]
 script = ExtResource("6_dr1")
 ability_id = "451051120511851-9043-1410149-105135-1410158678120192"
-ability_name = "Deep Reserves"
-description = "Permanently increases Max Mana by $[stat_bonus]%."
+ability_name = "Tailwind"
+description = "Deal up to +30% damage at full Momentum (scales with stacks and level). Ride the rhythm."
 ability_icon = ExtResource("1_dr1")
 max_level = 10
 ability_type = 1

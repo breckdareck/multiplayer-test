@@ -6,7 +6,7 @@
 script = ExtResource("1_aud")
 upgrade_id = "bi_t3_predator"
 upgrade_name = "Predator's Eye"
-description = "Increases Battle Instinct's critical hit chance bonus by +2%."
+description = "Increases Second Wind's HP regeneration bonus by +2."
 point_cost = 2
 tier = 3
 variant_group = ""

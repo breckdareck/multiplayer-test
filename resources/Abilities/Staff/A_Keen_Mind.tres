@@ -1,7 +1,8 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=16 format=3 uid="uid://ddr205yl8tuyy"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=17 format=3 uid="uid://ddr205yl8tuyy"]
 
 [ext_resource type="Texture2D" uid="uid://cc18m1wu0h2vl" path="res://assets/sprites/Abilities/sharp_eyes.png" id="1_km1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_km1"]
+[ext_resource type="Script" uid="uid://aloverload01x" path="res://scripts/Abilities/AL_Overload.gd" id="12_ov"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_km1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_km1"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_km1"]
@@ -15,6 +16,7 @@
 [sub_resource type="Resource" id="Resource_km_behav"]
 resource_local_to_scene = true
 script = ExtResource("2_km1")
+logic_script = ExtResource("12_ov")
 
 [sub_resource type="Resource" id="Resource_km_crit"]
 script = ExtResource("5_km1")
@@ -30,14 +32,14 @@ metadata/_custom_type_script = "uid://bx4thfjsjclbw"
 
 [sub_resource type="Resource" id="Resource_km_scaling"]
 script = ExtResource("3_km1")
-stat_bonus_formulas = Array[ExtResource("4_km1")]([SubResource("Resource_km_sbf")])
+stat_bonus_formulas = Array[ExtResource("4_km1")]([])
 metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
 
 [resource]
 script = ExtResource("6_km1")
 ability_id = "1115514051220-1442-91312-103145-15101498675120290"
-ability_name = "Keen Mind"
-description = "Permanently increases critical hit chance by $[stat_bonus]%."
+ability_name = "Overload"
+description = "Deal up to +25% damage while above 50% mana (scales with level). Channel your reserves."
 ability_icon = ExtResource("1_km1")
 max_level = 10
 ability_type = 1

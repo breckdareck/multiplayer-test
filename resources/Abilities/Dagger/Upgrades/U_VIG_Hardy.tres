@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "vig_t1_hardy"
 upgrade_name = "Hardy"
-description = "Increases Vigor's Max HP bonus by +1%."
+description = "Increases Cutthroat's critical hit chance bonus by +1%."
 point_cost = 1
 tier = 1
 variant_group = ""
-effect_key = "passive_stat_percent_bonus"
+effect_key = "passive_stat_flat_bonus"
 magnitude = 1.0

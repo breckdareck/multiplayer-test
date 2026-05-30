@@ -18,14 +18,14 @@ script = ExtResource("2_si1")
 
 [sub_resource type="Resource" id="Resource_si_hp"]
 script = ExtResource("5_si1")
-base_value = 2.0
+base_value = 5.0
 per_level = 2.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_si_sbf"]
 script = ExtResource("4_si1")
-stat_type = 4
-percent_bonus_formula = SubResource("Resource_si_hp")
+stat_type = 14
+flat_bonus_formula = SubResource("Resource_si_hp")
 metadata/_custom_type_script = "uid://bx4thfjsjclbw"
 
 [sub_resource type="Resource" id="Resource_si_scaling"]
@@ -36,8 +36,8 @@ metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
 [resource]
 script = ExtResource("6_si1")
 ability_id = "1416151181051-9043-1410149-105135-1410158678120173"
-ability_name = "Survival Instinct"
-description = "Permanently increases Max HP by $[stat_bonus]%."
+ability_name = "Surefoot"
+description = "Permanently increases knockback resistance by $[stat_bonus] — the archer holds their ground."
 ability_icon = ExtResource("1_si1")
 max_level = 10
 ability_type = 1

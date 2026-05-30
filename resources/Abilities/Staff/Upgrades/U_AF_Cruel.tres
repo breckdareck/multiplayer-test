@@ -6,7 +6,7 @@
 script = ExtResource("1_aud")
 upgrade_id = "af_t2_cruel"
 upgrade_name = "Cruel"
-description = "Increases Arcane Fury's critical damage bonus by an additional +2%."
+description = "Increases Stoneskin's Defense bonus by an additional +2."
 point_cost = 1
 tier = 2
 variant_group = ""

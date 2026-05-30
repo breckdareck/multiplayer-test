@@ -18,13 +18,13 @@ script = ExtResource("2_bi1")
 
 [sub_resource type="Resource" id="Resource_bi_crit"]
 script = ExtResource("5_bi1")
-scaling_type = 3
-custom_formula = "ceil(level / 2.0)"
+base_value = 2.0
+per_level = 1.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_bi_sbf"]
 script = ExtResource("4_bi1")
-stat_type = 10
+stat_type = 6
 flat_bonus_formula = SubResource("Resource_bi_crit")
 metadata/_custom_type_script = "uid://bx4thfjsjclbw"
 
@@ -36,8 +36,8 @@ metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
 [resource]
 script = ExtResource("6_bi1")
 ability_id = "8197116108101105110115116105110116-2001-0801-1212-91312103145"
-ability_name = "Battle Instinct"
-description = "Permanently increases critical hit chance by $[stat_bonus]%."
+ability_name = "Second Wind"
+description = "Permanently increases HP regeneration by $[stat_bonus]."
 ability_icon = ExtResource("1_bi1")
 max_level = 10
 ability_type = 1

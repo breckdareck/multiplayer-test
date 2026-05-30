@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "vb_t2_robust"
 upgrade_name = "Robust"
-description = "Increases Vital Bloom's Max HP bonus by an additional +1%."
+description = "Increases Mana Flow's MP regeneration bonus by an additional +1."
 point_cost = 1
 tier = 2
 variant_group = ""
-effect_key = "passive_stat_percent_bonus"
+effect_key = "passive_stat_flat_bonus"
 magnitude = 1.0

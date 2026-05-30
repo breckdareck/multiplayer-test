@@ -6,7 +6,7 @@
 script = ExtResource("1_aud")
 upgrade_id = "af_t3_annihilating"
 upgrade_name = "Annihilating"
-description = "Increases Arcane Fury's critical damage bonus by an additional +4%."
+description = "Increases Stoneskin's Defense bonus by an additional +4."
 point_cost = 2
 tier = 3
 variant_group = ""
