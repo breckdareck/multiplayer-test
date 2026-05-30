@@ -13,6 +13,7 @@ extends Control
 signal ability_selected(ability_id: String)
 
 const FONT := preload("res://assets/fonts/PixelOperator8.ttf")
+const NODE_SCRIPT := preload("res://scripts/UI/skill_tree_node.gd")
 
 ## Path display names per discipline key (Path A = index 0, Path B = index 1).
 const PATH_NAMES := {
@@ -123,7 +124,10 @@ func _make_node(a) -> void:
 	elif unlocked:
 		state = ST_AVAIL
 
-	var btn := Button.new()
+	# Use the node script (extends Button) so the node can be dragged to the hotbar.
+	var btn: Button = NODE_SCRIPT.new()
+	btn.ability_data = a
+	btn.current_level = level
 	btn.position = Vector2(_col_x(a.tree_path), NODES_TOP + a.tree_depth * ROW_PITCH)
 	btn.custom_minimum_size = Vector2(NODE_W, NODE_H)
 	btn.size = Vector2(NODE_W, NODE_H)
