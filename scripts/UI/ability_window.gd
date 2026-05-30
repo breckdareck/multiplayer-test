@@ -120,10 +120,8 @@ func _process(_delta: float) -> void:
 		if Input.is_action_just_pressed("OpenAbilityWindow"):
 			if self.visible:
 				self.visible = false
-				InputManager.set_input_locked(false)
 			elif not InputManager.is_locked():
 				self.visible = true
-				InputManager.set_input_locked(true)
 				if self.visible:
 					# PR 4: re-default the tab to whichever discipline the
 					# player is currently wielding -- so swap-then-open keeps
@@ -162,13 +160,6 @@ func _gui_input(event: InputEvent) -> void:
 				self.move_to_front()
 		else:
 			is_dragging = false
-
-
-## Close (X) button: hide and release the input lock so movement/hotkeys resume.
-func _on_close_button_pressed() -> void:
-	self.visible = false
-	if is_instance_valid(InputManager):
-		InputManager.set_input_locked(false)
 
 
 ## Rebuilds the skill-tree canvas for the active discipline tab. Collects every
