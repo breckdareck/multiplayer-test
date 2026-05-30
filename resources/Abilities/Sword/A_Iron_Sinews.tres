@@ -1,7 +1,8 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=16 format=3 uid="uid://dyl558pcmpdgf"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=17 format=3 uid="uid://dyl558pcmpdgf"]
 
 [ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_c7kxc"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_yw5go"]
+[ext_resource type="Script" uid="uid://alaggression01" path="res://scripts/Abilities/AL_Aggression.gd" id="11_alag"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_8keoo"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_28yas"]
 [ext_resource type="Resource" uid="uid://c6er05pqmi5sn" path="res://resources/Abilities/Sword/A_Hardened_Frame.tres" id="5_ry25h"]
@@ -15,6 +16,7 @@
 [sub_resource type="Resource" id="Resource_dxlh0"]
 resource_local_to_scene = true
 script = ExtResource("1_yw5go")
+logic_script = ExtResource("11_alag")
 
 [sub_resource type="Resource" id="Resource_fkpjm"]
 script = ExtResource("5_xxtf5")
@@ -29,13 +31,13 @@ percent_bonus_formula = SubResource("Resource_fkpjm")
 
 [sub_resource type="Resource" id="Resource_7tyrs"]
 script = ExtResource("3_8keoo")
-stat_bonus_formulas = Array[ExtResource("4_28yas")]([SubResource("Resource_5vc5f")])
+stat_bonus_formulas = Array[ExtResource("4_28yas")]([])
 
 [resource]
 script = ExtResource("6_64xiq")
 ability_id = "413121311101411-157146-141212-013012-5357101513811514"
-ability_name = "Iron Sinews"
-description = "Permanently increases STR by $[stat_bonus]%."
+ability_name = "Aggression"
+description = "Deal up to +30% damage to enemies above 90% health (scales with level). Strong openers; fades as foes weaken."
 ability_icon = ExtResource("1_c7kxc")
 max_level = 10
 ability_type = 1

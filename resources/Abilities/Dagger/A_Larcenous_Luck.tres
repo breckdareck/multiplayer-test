@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=16 format=3 uid="uid://nimblstp001x"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=17 format=3 uid="uid://nimblstp001x"]
 
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_nmbs2"]
+[ext_resource type="Script" uid="uid://alcomposure01x" path="res://scripts/Abilities/AL_Composure.gd" id="11_alco"]
 [ext_resource type="Texture2D" uid="uid://diu2y84uc82ch" path="res://assets/sprites/Abilities/nimble_step.png" id="1_pvtcf"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_nmbs1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_nmbs1"]
@@ -15,6 +16,7 @@
 [sub_resource type="Resource" id="Resource_nmbs1"]
 resource_local_to_scene = true
 script = ExtResource("1_nmbs2")
+logic_script = ExtResource("11_alco")
 
 [sub_resource type="Resource" id="Resource_nmbs2"]
 script = ExtResource("5_nmbs2")
@@ -30,13 +32,13 @@ percent_bonus_formula = SubResource("Resource_nmbs2")
 
 [sub_resource type="Resource" id="Resource_nmbs4"]
 script = ExtResource("3_nmbs1")
-stat_bonus_formulas = Array[ExtResource("4_nmbs1")]([SubResource("Resource_nmbs3")])
+stat_bonus_formulas = Array[ExtResource("4_nmbs1")]([])
 
 [resource]
 script = ExtResource("6_nmbs1")
 ability_id = "1409135212154-15113-1011311-4101-1413111411105114"
-ability_name = "Larcenous Luck"
-description = "Permanently increases LUCK by $[stat_bonus]%."
+ability_name = "Composure"
+description = "While above 80% health, deal up to +25% damage (scales with level). Rewards staying untouched; falls off when you're hurt."
 ability_icon = ExtResource("1_pvtcf")
 max_level = 10
 ability_type = 1

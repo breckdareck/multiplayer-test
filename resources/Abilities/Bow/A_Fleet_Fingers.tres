@@ -1,7 +1,8 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=15 format=3 uid="uid://dexpasv0001x"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=16 format=3 uid="uid://dexpasv0001x"]
 
 [ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_dxpa1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_dxpa2"]
+[ext_resource type="Script" uid="uid://alexecution01x" path="res://scripts/Abilities/AL_Execution.gd" id="11_alex"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_dxpa1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_dxpa1"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_dxpa2"]
@@ -14,6 +15,7 @@
 [sub_resource type="Resource" id="Resource_dxpa1"]
 resource_local_to_scene = true
 script = ExtResource("1_dxpa2")
+logic_script = ExtResource("11_alex")
 
 [sub_resource type="Resource" id="Resource_dxpa2"]
 script = ExtResource("5_dxpa2")
@@ -29,13 +31,13 @@ percent_bonus_formula = SubResource("Resource_dxpa2")
 
 [sub_resource type="Resource" id="Resource_dxpa4"]
 script = ExtResource("3_dxpa1")
-stat_bonus_formulas = Array[ExtResource("4_dxpa1")]([SubResource("Resource_dxpa3")])
+stat_bonus_formulas = Array[ExtResource("4_dxpa1")]([])
 
 [resource]
 script = ExtResource("6_dxpa1")
 ability_id = "4456712011361-15113-1011311-4101-1413111411105114"
-ability_name = "Fleet Fingers"
-description = "Permanently increases DEX by $[stat_bonus]%."
+ability_name = "Execution"
+description = "Deal up to +45% damage to enemies below 30% health (scales with level). A finisher — useless on fresh foes, lethal on wounded ones."
 ability_icon = ExtResource("1_dxpa1")
 max_level = 10
 ability_type = 1

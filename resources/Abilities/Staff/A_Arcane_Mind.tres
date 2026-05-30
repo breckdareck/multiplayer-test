@@ -1,7 +1,8 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=15 format=3 uid="uid://w0x3oyevmbgf"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=16 format=3 uid="uid://w0x3oyevmbgf"]
 
 [ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_intp1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_intp2"]
+[ext_resource type="Script" uid="uid://alkillspree01x" path="res://scripts/Abilities/AL_KillingSpree.gd" id="11_alks"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_intp1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_intp1"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_intp2"]
@@ -14,6 +15,7 @@
 [sub_resource type="Resource" id="Resource_intp1"]
 resource_local_to_scene = true
 script = ExtResource("1_intp2")
+logic_script = ExtResource("11_alks")
 
 [sub_resource type="Resource" id="Resource_intp2"]
 script = ExtResource("5_intp2")
@@ -29,13 +31,13 @@ percent_bonus_formula = SubResource("Resource_intp2")
 
 [sub_resource type="Resource" id="Resource_intp4"]
 script = ExtResource("3_intp1")
-stat_bonus_formulas = Array[ExtResource("4_intp1")]([SubResource("Resource_intp3")])
+stat_bonus_formulas = Array[ExtResource("4_intp1")]([])
 
 [resource]
 script = ExtResource("6_intp1")
 ability_id = "9140121551-15113-1011311-4101-1013111411105114"
-ability_name = "Arcane Mind"
-description = "Permanently increases INT by $[stat_bonus]%."
+ability_name = "Killing Spree"
+description = "After a kill, deal up to +30% damage for 4s (scales with level). Snowballs through packs; does nothing on a lone target."
 ability_icon = ExtResource("1_intp1")
 max_level = 10
 ability_type = 1

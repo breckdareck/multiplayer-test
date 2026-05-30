@@ -325,6 +325,27 @@ func get_ability_damage_modifier(ability_id: String) -> float:
 	return _get_ability_modifier(ability_id, func(level_stats, id): return level_stats.get_ability_damage_modifier(id))
 
 
+## Sums CONDITIONAL-damage passive bonuses for a hit on `target`. Each learned,
+## equipped-discipline passive whose logic_script implements
+## conditional_damage_mult(owner, target, level) -> float (the bonus FRACTION,
+## e.g. 0.3) contributes; returns the combined multiplier (1.0 = no bonus).
+## These are the situational damage passives (Aggression / Execution / Killing
+## Spree / Composure) that replaced the old always-on primary-stat% passives, so
+## the passive slot is a real choice. Called per hit from combat._execute_hit
+## (server-side) where the target + its HP are known. Bonuses are ADDITIVE.
+func get_conditional_damage_modifier(target: Node) -> float:
+	var total_bonus: float = 0.0
+	_foreach_learned_passive(func(ability, level_stats, _ability_id):
+		if not ability.active_behavior or not ability.active_behavior.logic_script:
+			return
+		var logic = ability.active_behavior.logic_script.new()
+		if not logic.has_method("conditional_damage_mult"):
+			return
+		total_bonus += float(logic.conditional_damage_mult(owner, target, level_stats.level))
+	)
+	return 1.0 + total_bonus
+
+
 func get_ability_cooldown_modifier(ability_id: String) -> float:
 	return _get_ability_modifier(ability_id, func(level_stats, id): return level_stats.get_ability_cooldown_modifier(id))
 

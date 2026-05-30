@@ -483,6 +483,13 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 			var crit_multiplier = randf_range(1.2, 1.5) + (crit_damage_bonus / 100.0)
 			modified_damage *= crit_multiplier
 
+		# Conditional-damage passives (Aggression/Execution/Killing Spree/Composure).
+		# Situational bonus based on the target's HP, the attacker's HP, or a recent
+		# kill — queried per hit here since the target is known. 1.0 when no
+		# conditional passive applies (or its condition is unmet).
+		if _ability_component and _ability_component.has_method("get_conditional_damage_modifier"):
+			modified_damage *= _ability_component.get_conditional_damage_modifier(target_enemy)
+
 		var damage_to_deal = roundi(modified_damage)
 
 		# PR 7 — Dagger Shadowmeld ambush: scale this hit if the attack landed
