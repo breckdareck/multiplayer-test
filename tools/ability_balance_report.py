@@ -211,6 +211,21 @@ def max_range(disc_name, attrs, attack_power):
     stat_mult = primary * 4 + secondary
     return round(WEAPON_MULTIPLIER * stat_mult * attack_power / 100.0)
 
+
+def maxhit_for_alloc(disc_name, level, alloc):
+    """Basic-attack max-hit for an EXPLICIT raw-point allocation dict
+    ({STR/DEX/INT/LUCK/CON: pts}). Applies the soft-cap + mastery + gear like
+    build_stats, but with a custom split — used for the 2-weapon loadout analysis
+    where the allocation must serve two weapons' primary/secondary stats."""
+    d = DISCIPLINES[disc_name]
+    mast = mastery_at(level)
+    attrs = {k: BASE_ATTR for k in ("STR", "DEX", "INT", "LUCK", "CON")}
+    for k, pts in alloc.items():
+        attrs[k] += soft_cap(int(pts))
+    for k, per in d["mastery_bonus"].items():
+        attrs[k] += per * mast
+    return max_range(disc_name, attrs, gear_attack_power(level))
+
 def best_upgrade_config(name, base_hits, base_cd):
     """Pick the tier-3 variant that maximises single-target DPS, combined with the
     always-owned fixed upgrades. Returns (dmg_mult_add, hits_add, targets_add,
@@ -485,6 +500,95 @@ def render():
         'gear pool) — pairing a staff with a physical weapon splits your itemisation, a real cost. Expect '
         'physical/physical loadouts to dominate unless staff offers something they can\'t.</li>'
         '</ul></div>')
+
+    # ── Level 1 → 100 progression ───────────────────────────────────────────
+    parts.append('<h2 class="weap" id="prog">Level 1 → 100 progression — points &amp; damage</h2>')
+    parts.append('<div class="card"><p>How a build grows: the attribute pool (5/level), ability points '
+        '(6 × weapon mastery, cap 20 → 120/discipline), and the resulting basic-attack max-hit. Stats shown '
+        'for a Sword default build (soft-capped); other weapons track the same shape. Mastery is assumed to '
+        'climb with level (kill-earned) and cap at 20. Damage uses the model gear curve (≈2×level attack).</p></div>')
+    parts.append('<table><thead><tr><th>Level</th><th>attr pool</th><th>spent/unspent (5/lvl)</th>'
+        '<th>mastery</th><th>ability pts/disc</th><th>STR (primary)</th><th>gear ATK</th>'
+        '<th>basic max-hit</th><th>even-lvl enemy HP</th></tr></thead><tbody>')
+    for lvl in [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]:
+        attrs, crit, pool, mast = build_stats("Sword", lvl, "default")
+        ap = gear_attack_power(lvl)
+        mr = max_range("Sword", attrs, ap)
+        ability_pts = PTS_PER_MASTERY * mast
+        # nearest enemy-HP tier for context
+        hp = ENEMY_HP[min(ENEMY_HP, key=lambda k: abs(k - lvl))]
+        parts.append(f'<tr><td class="ab">L{lvl}</td><td>{pool}</td>'
+            f'<td>{pool} / 0</td><td>{mast}/20</td><td>{ability_pts}</td>'
+            f'<td>{attrs["STR"]}</td><td>{ap}</td><td>{mr:,}</td><td>{hp:,}</td></tr>')
+    parts.append('</tbody></table>')
+    parts.append('<p class="spread"><b>Point economy:</b> by L100 a build has <b>495 attribute points</b> '
+        '(one full mono-stat is soft-capped) and <b>120 ability points per mastered discipline</b> — enough for '
+        '~3 maxed+upgraded actives + 2 passives. Mastery is the gate: ability points only arrive as you master '
+        'the weapon, so early levels are attribute-led and weapon-gear-led, with the kit filling in as mastery climbs.</p>')
+
+    # ── 2-weapon loadout synergy ────────────────────────────────────────────
+    parts.append('<h2 class="weap" id="loadouts">Endgame 2-weapon loadouts — how they mesh</h2>')
+    parts.append('<div class="card"><p>You carry TWO weapons; passives from both apply, but only the ACTIVE '
+        'weapon casts &amp; scales damage. Each weapon brings its OWN attack stat (a dagger gives WEAPONATTACK, a '
+        'staff gives MAGICATTACK), so both can hit hard — the real question is whether one <b>attribute allocation</b> '
+        'serves both weapons\' primary/secondary. Shared attributes = a focused build; disjoint = you split the pool '
+        '(the soft-cap now makes that viable).</p></div>')
+    PRIM = {d: DISCIPLINES[d]["primary"] for d in DISCIPLINES}
+    SEC = {d: DISCIPLINES[d]["secondary"] for d in DISCIPLINES}
+    pairs = [("Sword","Bow"),("Bow","Dagger"),("Sword","Dagger"),("Staff","Dagger"),("Sword","Staff"),("Bow","Staff")]
+    notes = {
+        ("Sword","Bow"): "BEST mesh — both use STR+DEX (just swapped primary/secondary) &amp; WEAPONATTACK. One STR/DEX allocation maxes both; shared gear. Bruiser-archer.",
+        ("Bow","Dagger"): "THE crit build — share DEX; both WEAPONATTACK. Dagger brings crit-CHANCE passives, Bow brings crit-DAMAGE → multiplicative crit (esp. post-B6). Allocate DEX+LUCK.",
+        ("Sword","Dagger"): "Share DEX; both WEAPONATTACK. STR(sword) vs LUCK(dagger) split. Survivable assassin — Sword's HP/heal + Dagger's evasion/crit. Allocate DEX + split STR/LUCK.",
+        ("Staff","Dagger"): "★ Share LUCK — Dagger PRIMARY (×4) = Staff SECONDARY (×1), and Dagger's crit-chance passives boost Staff crits too. INT(staff primary) is the odd stat. Soft-cap makes a LUCK+INT split viable. See deep-dive below.",
+        ("Sword","Staff"): "WEAKEST mesh — STR/DEX vs INT/LUCK share nothing, WEAPONATTACK vs MAGICATTACK. Two fully separate stat lines; the pool can't serve both. A true hybrid pays a big efficiency tax.",
+        ("Bow","Staff"): "Share nothing (DEX/STR vs INT/LUCK), WEAPONATTACK vs MAGICATTACK. Like Sword/Staff — disjoint; only LUCK (bow none / staff secondary) overlaps slightly. High split cost.",
+    }
+    parts.append('<table><thead><tr><th>Loadout</th><th>shared attribute(s)</th><th>attack stats</th>'
+        '<th>mesh</th><th>how they combine</th></tr></thead><tbody>')
+    for a, b in pairs:
+        sa = set([PRIM[a], SEC[a]]) & set([PRIM[b], SEC[b]])
+        shared = ", ".join(sorted(sa)) if sa else "—"
+        atk_a = DISCIPLINES[a]["attack"].replace("ATTACK","")
+        atk_b = DISCIPLINES[b]["attack"].replace("ATTACK","")
+        atk = atk_a if atk_a == atk_b else f"{atk_a} / {atk_b}"
+        rating = "●●●" if len(sa) >= 2 else ("●●" if len(sa) == 1 else "●")
+        parts.append(f'<tr><td class="ab">{a} + {b}</td><td>{shared}</td><td>{atk}</td>'
+            f'<td>{rating}</td><td class="note">{notes[(a,b)]}</td></tr>')
+    parts.append('</tbody></table>')
+
+    # Dagger/Staff numeric deep-dive
+    parts.append('<h3>★ Dagger / Staff deep-dive (L100) — the LUCK-shared hybrid</h3>')
+    parts.append('<div class="card"><p>Both weapons want LUCK (Dagger primary / Staff secondary &amp; crit), but Staff '
+        'also wants INT (its primary). With 495 points, how you split LUCK vs INT trades the two weapons\' power. '
+        'Basic-attack max-hit for each weapon under three allocations (each weapon uses its own attack stat, '
+        '≈197 at L100):</p></div>')
+    P = 495
+    allocs = {
+        "All LUCK (dagger-main)":        {"LUCK": P},
+        "Balanced LUCK/INT":             {"LUCK": P // 2, "INT": P - P // 2},
+        "All INT (staff-main)":          {"INT": P},
+        "LUCK + INT + DEX (true hybrid)":{"LUCK": P // 3, "INT": P // 3, "DEX": P - 2 * (P // 3)},
+    }
+    parts.append('<table><thead><tr><th>Allocation</th><th>Dagger max-hit</th><th>Staff max-hit</th>'
+        '<th>read</th></tr></thead><tbody>')
+    reads = {
+        "All LUCK (dagger-main)": "Dagger peaks; Staff usable (LUCK is its secondary) but no INT primary — Staff is a weak off-hand.",
+        "Balanced LUCK/INT": "Both solid — the soft-cap means splitting costs little. The natural Dagger/Staff build.",
+        "All INT (staff-main)": "Staff peaks; Dagger gutted (LUCK is its primary, now base 4) — Dagger is a dead off-hand.",
+        "LUCK + INT + DEX (true hybrid)": "Spreads thin across 3 stats; both weapons fair but neither peaks. Over-diluted.",
+    }
+    for label, al in allocs.items():
+        dag = maxhit_for_alloc("Dagger", 100, al)
+        stf = maxhit_for_alloc("Staff", 100, al)
+        parts.append(f'<tr><td class="ab">{esc(label)}</td><td>{dag:,}</td><td>{stf:,}</td>'
+            f'<td class="note">{reads[label]}</td></tr>')
+    parts.append('</tbody></table>')
+    parts.append('<p class="spread"><b>Verdict:</b> Dagger/Staff works best as a <b>Balanced LUCK/INT</b> build — '
+        'the soft-cap makes the split nearly free, LUCK double-dips (Dagger primary + Staff secondary + crit), and '
+        'Dagger\'s crit-chance passives carry into Staff casts. INT is the only "wasted on Dagger" stat. It\'s a real '
+        'hybrid, not a trap — though it can\'t out-DPS a focused single-attribute build (Sword/Bow). The crit-chance '
+        'overlap is the glue; <b>B6 (CritDamage on gear) would make this pairing shine</b>.</p>')
 
     parts.append(ANALYSIS)
     parts.append('</div>')  # wrap
