@@ -18,7 +18,7 @@ script = ExtResource("2_sw1")
 [sub_resource type="Resource" id="Resource_sw_mdef"]
 script = ExtResource("5_sw1")
 base_value = 3.0
-per_level = 3.0
+per_level = 6
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_sw_sbf"]
@@ -38,7 +38,7 @@ ability_id = "9151514110410861-9043-1410149-105135-1410158678120293"
 ability_name = "Spell Ward"
 description = "Permanently increases Magic Defense by $[stat_bonus]."
 ability_icon = ExtResource("1_sw1")
-max_level = 10
+max_level = 5
 ability_type = 1
 required_class = Array[int]([2])
 required_weapon_types = Array[int]([2])

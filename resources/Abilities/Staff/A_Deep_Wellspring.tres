@@ -18,7 +18,7 @@ script = ExtResource("2_wel1")
 [sub_resource type="Resource" id="Resource_wel_mana"]
 script = ExtResource("5_wel1")
 base_value = 2.0
-per_level = 2.0
+per_level = 4
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_wel_sbf"]
@@ -38,7 +38,7 @@ ability_id = "451051120511861-9043-1410149-105135-1410158678120292"
 ability_name = "Deep Wellspring"
 description = "Permanently increases Max Mana by $[stat_bonus]%."
 ability_icon = ExtResource("1_wel1")
-max_level = 10
+max_level = 5
 ability_type = 1
 required_class = Array[int]([2])
 required_weapon_types = Array[int]([2])

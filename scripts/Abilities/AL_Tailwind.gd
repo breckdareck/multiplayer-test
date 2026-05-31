@@ -8,7 +8,7 @@ extends Node
 ## combat applies 1 + total).
 
 const BONUS_AT_MAX: float = 0.30   # +30% at full Momentum (10 stacks) + level 10
-const MAX_LEVEL: int = 10
+const MAX_LEVEL: int = 5
 const MAX_STACKS: float = 10.0     # mirrors BowMomentumComponent.MAX_STACKS
 
 

@@ -41,19 +41,19 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 [sub_resource type="Resource" id="Resource_strf4"]
 script = ExtResource("6_strf1")
 base_value = 40.0
-per_level = 2.0
+per_level = 4
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_strf5"]
 script = ExtResource("6_strf1")
 base_value = 18.0
-per_level = 0.6
+per_level = 1.2
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_strf6"]
 script = ExtResource("6_strf1")
 base_value = 3.0
-per_level = 0.4
+per_level = 0.8
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_strf7"]
@@ -77,7 +77,7 @@ ability_id = "19116981024514-10180-13141116-8591-12491086711491459"
 ability_name = "Hailstorm"
 description = "Unleashes a storm of $[hit_count] arrows at up to $[target_count] enemies, dealing $[damage_percent] damage each."
 ability_icon = ExtResource("1_py52j")
-max_level = 20
+max_level = 10
 required_class = Array[int]([1])
 required_weapon_types = Array[int]([1])
 tree_path = 1

@@ -36,14 +36,10 @@ base_value = 2.0
 [sub_resource type="Resource" id="Resource_damage"]
 script = ExtResource("5_asf")
 base_value = 130.0
-per_level = 5.0
-
-[sub_resource type="Resource" id="Resource_mana"]
+per_level = 10[sub_resource type="Resource" id="Resource_mana"]
 script = ExtResource("5_asf")
 base_value = 4.0
-per_level = 0.3
-
-[sub_resource type="Resource" id="Resource_hits"]
+per_level = 0.6[sub_resource type="Resource" id="Resource_hits"]
 script = ExtResource("5_asf")
 base_value = 1.0
 
@@ -66,7 +62,7 @@ ability_id = "1014011155210-5612-108511-15095-15115211570155513"
 ability_name = "Hemorrhage"
 description = "Cuts deeply for $[damage_percent] damage. [color=#e6c95c]Applies a stacking Bleed (max 3 stacks) — each stack deals 20% Weapon Attack/s for 6 seconds.[/color]"
 ability_icon = ExtResource("1_icon")
-max_level = 20
+max_level = 10
 required_class = Array[int]([0])
 required_weapon_types = Array[int]([0])
 tree_path = 1

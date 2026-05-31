@@ -7,9 +7,7 @@ extends Node
 ## contract (returns the bonus FRACTION; combat applies 1 + total).
 
 const BONUS_AT_MAX: float = 0.35   # +35% at passive level 10 (scales linearly)
-const MAX_LEVEL: int = 10
-
-
+const MAX_LEVEL: int = 5
 func conditional_damage_mult(owner_node: Node, _target: Node, level: int) -> float:
 	if owner_node == null or not is_instance_valid(owner_node):
 		return 0.0
