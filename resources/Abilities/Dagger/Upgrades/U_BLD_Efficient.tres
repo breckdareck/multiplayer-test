@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "bld_t3_efficient"
 upgrade_name = "Efficient Frenzy"
-description = "Reduces Bloodlust's mana cost by 12."
+description = "Bloodlust grants an additional +25% critical damage to the party."
 point_cost = 2
 tier = 3
 variant_group = "bld_frenzy_variant"
-effect_key = "mana_flat_reduction"
-magnitude = 12.0
+effect_key = "buff_critdamage_bonus"
+magnitude = 25

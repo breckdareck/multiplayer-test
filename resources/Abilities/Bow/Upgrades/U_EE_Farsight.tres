@@ -6,6 +6,6 @@
 script = ExtResource("1_aud")
 upgrade_id = "ee_t1_farsight"
 upgrade_name = "Farsight"
-description = "Eagle Eye lasts 20 seconds longer."
+description = "Eagle Eye lasts 5 seconds longer."
 effect_key = "buff_duration_bonus"
-magnitude = 20.0
+magnitude = 5

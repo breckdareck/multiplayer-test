@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "ee_t3_eternal_vigil"
 upgrade_name = "Eternal Vigil"
-description = "Eagle Eye lasts 60 seconds longer."
+description = "Eagle Eye grants an additional +25% critical damage."
 point_cost = 2
 tier = 3
 variant_group = "ee_vision_variant"
-effect_key = "buff_duration_bonus"
-magnitude = 60.0
+effect_key = "buff_critdamage_bonus"
+magnitude = 25

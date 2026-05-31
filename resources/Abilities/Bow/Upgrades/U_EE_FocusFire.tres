@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "ee_t3_focus_fire"
 upgrade_name = "Focus Fire"
-description = "Reduces Eagle Eye's mana cost by 8."
+description = "Eagle Eye grants an additional +30 weapon attack to the party."
 point_cost = 2
 tier = 3
 variant_group = "ee_vision_variant"
-effect_key = "mana_flat_reduction"
-magnitude = 8.0
+effect_key = "buff_attack_bonus"
+magnitude = 30

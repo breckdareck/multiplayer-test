@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "van_t3_swift_exit"
 upgrade_name = "Swift Exit"
-description = "Vanish becomes nearly free, reducing its mana cost by 14."
+description = "Vanish lasts 5 seconds longer."
 point_cost = 2
 tier = 3
 variant_group = "van_cloak_variant"
-effect_key = "mana_flat_reduction"
-magnitude = 14.0
+effect_key = "buff_duration_bonus"
+magnitude = 5

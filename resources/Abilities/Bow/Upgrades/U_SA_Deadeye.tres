@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "sa_t3_deadeye"
 upgrade_name = "Deadeye"
-description = "Steady Aim's cooldown is reduced by 8 seconds."
+description = "Steady Aim grants an additional +5% critical hit chance."
 point_cost = 2
 tier = 3
 variant_group = "sa_stance_variant"
-effect_key = "cooldown_flat_reduction"
-magnitude = 8.0
+effect_key = "buff_critchance_bonus"
+magnitude = 5

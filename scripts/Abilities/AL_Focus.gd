@@ -9,11 +9,15 @@ func execute(owner_node: Node, ability: AbilityData, level_stats: AbilityLevelDa
 		return
 
 	var duration: float = ability.buff_duration_formula.calculate(level_stats.level)
-	var attack_bonus: int = 10 + level_stats.level * 2       # 12–50 over 20 levels
-	var crit_bonus: float = 3.0 + level_stats.level * 0.5    # 3.5–13.0 over 20 levels
+	# PR 9 (2026-05-31): rescaled for max_level 10 (was 20). Endpoints preserved
+	# at L10: +50 ATK, +13% crit (same as old L20). Slightly stronger early.
+	var attack_bonus: int = 10 + level_stats.level * 4       # 14–50 over 10 levels
+	var crit_bonus: float = 3.0 + level_stats.level * 1.0    # 4–13% over 10 levels
 
 	# PR 8 upgrade: buff_duration_bonus (+s). mana_flat_reduction is consumed
 	# generically in AbilityComponent._consume_ability_resources — no read here.
+	# PR 10 upgrades: buff_attack_bonus, buff_critchance_bonus, buff_critdamage_bonus
+	# fold into the buff's stat_modifiers below (BuffStatBonuses helper).
 	var ability_comp = owner_node.get("ability_component")
 	if ability_comp and ability_comp.has_method("get_ability_upgrade_magnitude"):
 		duration += ability_comp.get_ability_upgrade_magnitude(ability.ability_id, "buff_duration_bonus")
@@ -38,13 +42,27 @@ func execute(owner_node: Node, ability: AbilityData, level_stats: AbilityLevelDa
 
 	active_buff.buff_data.stat_modifiers.clear()
 
+	# Base buff stats + upgrade-driven extras folded into the same modifier map.
+	var extra_atk: int = 0
+	var extra_critchance: float = 0.0
+	var extra_critdmg: float = 0.0
+	if ability_comp and ability_comp.has_method("get_ability_upgrade_magnitude"):
+		extra_atk = int(ability_comp.get_ability_upgrade_magnitude(ability.ability_id, "buff_attack_bonus"))
+		extra_critchance = ability_comp.get_ability_upgrade_magnitude(ability.ability_id, "buff_critchance_bonus")
+		extra_critdmg = ability_comp.get_ability_upgrade_magnitude(ability.ability_id, "buff_critdamage_bonus")
+
 	var atk_stat = StatData.new(Constants.StatType.WEAPONATTACK, 0)
-	atk_stat.flat_bonus_value = attack_bonus
+	atk_stat.flat_bonus_value = attack_bonus + extra_atk
 	active_buff.buff_data.stat_modifiers[Constants.StatType.WEAPONATTACK] = atk_stat
 
 	var crit_stat = StatData.new(Constants.StatType.CRITCHANCE, 0)
-	crit_stat.percent_bonus_value = crit_bonus
+	crit_stat.percent_bonus_value = crit_bonus + extra_critchance
 	active_buff.buff_data.stat_modifiers[Constants.StatType.CRITCHANCE] = crit_stat
 
+	if extra_critdmg > 0.0:
+		var critdmg_stat = StatData.new(Constants.StatType.CRITDAMAGE, 0)
+		critdmg_stat.percent_bonus_value = extra_critdmg
+		active_buff.buff_data.stat_modifiers[Constants.StatType.CRITDAMAGE] = critdmg_stat
+
 	buff_component._force_stat_recalc()
-	print("%s activated Steady Aim (Level %d) — +%d ATK, +%.1f%% CRIT for %.0fs" % [owner_node.name, level_stats.level, attack_bonus, crit_bonus, duration])
+	print("%s activated Steady Aim (Level %d) — +%d ATK, +%.1f%% CRIT for %.0fs" % [owner_node.name, level_stats.level, attack_bonus + extra_atk, crit_bonus + extra_critchance, duration])

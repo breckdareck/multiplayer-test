@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "sa_t3_zen"
 upgrade_name = "Zen"
-description = "Reduces Steady Aim's mana cost by 10."
+description = "Steady Aim grants an additional +30% critical damage."
 point_cost = 2
 tier = 3
 variant_group = "sa_stance_variant"
-effect_key = "mana_flat_reduction"
-magnitude = 10.0
+effect_key = "buff_critdamage_bonus"
+magnitude = 30
