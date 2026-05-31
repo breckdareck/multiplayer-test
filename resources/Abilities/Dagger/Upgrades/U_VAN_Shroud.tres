@@ -6,7 +6,7 @@
 script = ExtResource("1_aud")
 upgrade_id = "van_t3_shroud"
 upgrade_name = "Endless Shroud"
-description = "While invisible, gain +30% critical hit chance for the burst window."
+description = "While Killing Edge is active, gain an additional +30% critical hit chance."
 point_cost = 2
 tier = 3
 variant_group = "van_cloak_variant"

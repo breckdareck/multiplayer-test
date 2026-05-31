@@ -6,7 +6,7 @@
 script = ExtResource("1_aud")
 upgrade_id = "van_t2_silence"
 upgrade_name = "Silent Steps"
-description = "While invisible, gain +50% critical damage for the burst window."
+description = "While Killing Edge is active, gain an additional +50% critical damage."
 tier = 2
 effect_key = "buff_critdamage_bonus"
 magnitude = 50
