@@ -18,7 +18,7 @@ script = ExtResource("2_af1")
 [sub_resource type="Resource" id="Resource_af_critdmg"]
 script = ExtResource("5_af1")
 base_value = 2.0
-per_level = 4.0
+per_level = 2.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_af_sbf"]
