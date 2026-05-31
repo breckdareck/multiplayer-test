@@ -1,7 +1,7 @@
 extends Node
 
 ## Buff logic for the Bow discipline's Steady Aim ability.
-## Stat modifiers (WEAPONATTACK, CRITCHANCE) are set dynamically by AL_Focus.gd.
+## Stat modifiers (WEAPONATTACK, CRITCHANCE) are set dynamically by AL_Steady_Aim.gd.
 
 var attack_bonus: int = 15
 var crit_bonus: float = 5.0

@@ -23,12 +23,11 @@ extends Node
 ##   backend. It resets to NOT-stealthed on each spawn; a stealth in progress at
 ##   logout simply vanishes.
 ##
-## COEXISTENCE WITH VANISH (AL_DarkSight / BL_DarkSight): Vanish is a SEPARATE,
-## timed-invisibility escape ability that also sets the `is_invisible` meta and
-## dims the sprite. Shadowmeld REUSES the same `is_invisible` meta (enemy AI
-## already respects it) — but break_stealth() must never strip a still-active
-## Vanish. So break_stealth only clears the meta / restores the sprite when the
-## player does NOT currently have the "Vanish" buff active. See break_stealth().
+## PR 11 (2026-05-31): Vanish was REMOVED as a stealth ability — it duplicated
+## this signature. The slot is now Killing Edge, a non-stealth crit-burst buff.
+## Shadowmeld is the sole stealth provider for dagger. The `is_invisible` meta
+## is owned exclusively by this component; break_stealth() can clear it
+## unconditionally (no more cross-system coordination check).
 ##
 ## The ambush multiplier is applied by CombatComponent._execute_hit, which checks
 ## is_stealthed() (gated to a wielded dagger) BEFORE its damage loop, multiplies
@@ -165,7 +164,7 @@ func break_stealth() -> void:
 	if is_instance_valid(_max_stealth_timer):
 		_max_stealth_timer.stop()
 
-	_restore_visibility_unless_vanish()
+	_restore_visibility()
 	_emit_and_sync()
 
 
@@ -183,7 +182,7 @@ func cancel_stealth() -> void:
 	if is_instance_valid(_max_stealth_timer):
 		_max_stealth_timer.stop()
 
-	_restore_visibility_unless_vanish()
+	_restore_visibility()
 	_emit_and_sync()
 
 #endregion
@@ -228,25 +227,13 @@ func _on_max_stealth_timeout() -> void:
 	cancel_stealth()
 
 
-## Clears the invisibility meta + restores the sprite, BUT ONLY if the player is
-## not currently under the Vanish buff (which owns the same meta/alpha for its own
-## window). See the class header + break_stealth() docs.
-func _restore_visibility_unless_vanish() -> void:
+## Clears the invisibility meta + restores the sprite. PR 11: Vanish was
+## removed, so there's no longer a parallel buff owning `is_invisible` —
+## Shadowmeld can clear unconditionally.
+func _restore_visibility() -> void:
 	var root := get_owner()
 	if root == null:
 		return
-
-	var vanish_active: bool = false
-	var buff_comp = root.get("buff_component")
-	if buff_comp != null and is_instance_valid(buff_comp) and buff_comp.has_method("has_buff"):
-		vanish_active = buff_comp.has_buff("Vanish")
-
-	if vanish_active:
-		# Vanish still owns invisibility — leave the meta + dim untouched so we
-		# don't strip a live escape. Vanish's own BL_DarkSight.on_remove will
-		# clear them when its timer ends.
-		return
-
 	root.set_meta("is_invisible", false)
 	_set_sprite_alpha(root, 1.0)
 

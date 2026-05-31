@@ -58,14 +58,16 @@ Player (MultiplayerPlayerV2)
     │                                   ability discipline doesn't match the wielded
     │                                   weapon. Hotbar binding still exists, just
     │                                   fails to fire until matching weapon equipped.
-    │                               Character-creation init (PR 4 fix 2026-05-28):
-    │                               ALL four tier-1 disciplines' starter abilities
-    │                               are auto-leveled to 1 (Slash + Double Shot +
-    │                               Magic Bolt + Double Stab), so a fresh character
-    │                               has a usable basic ability the moment they
-    │                               equip any of the four weapons. Returning
-    │                               characters keep saved levels via the merge
-    │                               (not clear) in load_abilities.
+    │                               Character-creation init (PR 8 2026-05-31):
+    │                               no more free discipline starter abilities —
+    │                               all abilities start at level 0. Fresh chars
+    │                               are bootstrapped to mastery level 1 in their
+    │                               chosen discipline by
+    │                               AbilityComponent.bootstrap_fresh_character_if_needed
+    │                               so the player has 1 ability point to spend
+    │                               on their first pick. Returning characters
+    │                               keep saved levels via the merge (not clear)
+    │                               in load_abilities.
     │                               PR 6 ability upgrades: per-ability upgrade
     │                               purchases live in `_learned_upgrades`
     │                               ({ability_id: [upgrade_id,...]}). Public API:
@@ -221,7 +223,7 @@ Player (MultiplayerPlayerV2)
     │                               own sibling `if`; routed via player_manager
     │                               "dagger_shadowmeld"). REUSES the existing
     │                               `is_invisible` meta (enemy AI already respects it,
-    │                               set by Vanish/BL_DarkSight) + dims the sprite via
+    │                               set by (legacy — Vanish removed)) + dims the sprite via
     │                               the player's existing sync_dark_sight_visual RPC.
     │                               The NEXT dagger hit from stealth is an AMBUSH:
     │                               combat._execute_hit raises ambush_mult to
@@ -311,7 +313,7 @@ implements the hooks it needs:
   actual `buff_component.apply_buff()` call must be made here.
 - **`on_hit(owner, target, ability)`** — fires per landed ability hit in
   `combat.gd._execute_hit` (post-miss-check). Misses don't fire it. Used by
-  AL_Brandish (build combo per hit), AL_Hemorrhage (apply bleed), AL_VaultStrike.
+  AL_Steel_Flurry (build combo per hit), AL_Hemorrhage (apply bleed), AL_VaultStrike.
 - **`on_kill(owner, target, ability_level, ability_id)`** — fires for learned
   PASSIVES when an enemy dies, dispatched by
   `AbilityComponent.dispatch_passive_event_on_kill` (called from `combat.gd`'s
@@ -349,7 +351,7 @@ Generic — consumed by Combat/Ability with NO per-AL code:
 Ability-specific — read in the named AL via `ability_has_upgrade_effect` /
 `get_ability_upgrade_magnitude`:
   `combo_coefficient_override` (AL_Slash, AL_PowerStrike),
-  `combo_per_hit_bonus` (AL_Brandish),
+  `combo_per_hit_bonus` (AL_Steel_Flurry),
   `bleed_potency_bonus` / `bleed_max_stack_bonus` / `bleed_duration_bonus`
   (AL_Hemorrhage),
   `buff_duration_bonus` (AL_PowerGuard / AL_MapleWarrior / AL_BulwarkStance),

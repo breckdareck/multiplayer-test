@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://bqhw3o83totq5" path="res://assets/sprites/Abilities/haste.webp" id="1_i61w5"]
 [ext_resource type="Script" uid="uid://bcuvemv85jprb" path="res://scripts/Resources/BuffSystem/BuffData.gd" id="1_script"]
-[ext_resource type="Script" uid="uid://dj8xfaoxksopd" path="res://scripts/Buffs/BL_Haste.gd" id="2_logic"]
+[ext_resource type="Script" uid="uid://dj8xfaoxksopd" path="res://scripts/Buffs/BL_Bloodlust.gd" id="2_logic"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="4_gvq80"]
 
 [resource]

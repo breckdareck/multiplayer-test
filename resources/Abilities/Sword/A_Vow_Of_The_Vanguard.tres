@@ -2,10 +2,10 @@
 
 [ext_resource type="Texture2D" uid="uid://cflfc6h5gx3n2" path="res://assets/sprites/Abilities/Maple Warrior.png" id="1_32sv6"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_w0cvm"]
-[ext_resource type="Script" uid="uid://bf5sal6qksm37" path="res://scripts/Abilities/AL_Maple_Warrior.gd" id="2_00lf2"]
+[ext_resource type="Script" uid="uid://bf5sal6qksm37" path="res://scripts/Abilities/AL_Vow_Of_The_Vanguard.gd" id="2_00lf2"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="3_hkn54"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="4_mhx1f"]
-[ext_resource type="Resource" uid="uid://bqwujmpjl3huy" path="res://resources/Buffs/B_Maple_Warrior.tres" id="4_r1jv8"]
+[ext_resource type="Resource" uid="uid://bqwujmpjl3huy" path="res://resources/Buffs/B_Vow_Of_The_Vanguard.tres" id="4_r1jv8"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="5_dno0u"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="7_wemtw"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="9_aud"]

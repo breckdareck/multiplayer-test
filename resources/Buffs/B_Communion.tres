@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://30u18vfwsa5i" path="res://assets/sprites/Abilities/meditation.png" id="1_58es0"]
 [ext_resource type="Script" uid="uid://bcuvemv85jprb" path="res://scripts/Resources/BuffSystem/BuffData.gd" id="1_script"]
-[ext_resource type="Script" uid="uid://dpdrf8nthv53k" path="res://scripts/Buffs/BL_Meditation.gd" id="2_logic"]
+[ext_resource type="Script" uid="uid://dpdrf8nthv53k" path="res://scripts/Buffs/BL_Communion.gd" id="2_logic"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="4_v0jc3"]
 
 [resource]

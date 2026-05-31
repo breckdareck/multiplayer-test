@@ -3,7 +3,7 @@
 [ext_resource type="Texture2D" uid="uid://cflfc6h5gx3n2" path="res://assets/sprites/Abilities/Maple Warrior.png" id="1_17ssb"]
 [ext_resource type="Script" uid="uid://bcuvemv85jprb" path="res://scripts/Resources/BuffSystem/BuffData.gd" id="1_d5nlr"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="2_17ssb"]
-[ext_resource type="Script" uid="uid://cna72vf1sll7q" path="res://scripts/Buffs/BL_MapleWarrior.gd" id="2_tu3me"]
+[ext_resource type="Script" uid="uid://cna72vf1sll7q" path="res://scripts/Buffs/BL_Vow_Of_The_Vanguard.gd" id="2_tu3me"]
 
 [resource]
 resource_local_to_scene = true

@@ -2,9 +2,9 @@
 
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_behav"]
 [ext_resource type="Texture2D" uid="uid://cc18m1wu0h2vl" path="res://assets/sprites/Abilities/sharp_eyes.png" id="1_chef7"]
-[ext_resource type="Script" uid="uid://tcmlhlo7jekp" path="res://scripts/Abilities/AL_SharpEyes.gd" id="2_logic"]
+[ext_resource type="Script" uid="uid://tcmlhlo7jekp" path="res://scripts/Abilities/AL_Eagle_Eye.gd" id="2_logic"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="3_abil"]
-[ext_resource type="Resource" uid="uid://b7q0sg83d763q" path="res://resources/Buffs/B_Sharp_Eyes.tres" id="4_buff"]
+[ext_resource type="Resource" uid="uid://b7q0sg83d763q" path="res://resources/Buffs/B_Eagle_Eye.tres" id="4_buff"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="4_scale"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="5_sbf"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="7_formula"]

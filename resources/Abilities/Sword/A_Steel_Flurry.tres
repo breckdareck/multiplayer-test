@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://blsf4bd1u7syc" path="res://assets/sprites/Abilities/Brandish.png" id="1_wr37i"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_xjwtl"]
-[ext_resource type="Script" uid="uid://bfdta2tpg7iw6" path="res://scripts/Abilities/AL_Brandish.gd" id="3_brand"]
+[ext_resource type="Script" uid="uid://bfdta2tpg7iw6" path="res://scripts/Abilities/AL_Steel_Flurry.gd" id="3_brand"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="4_4i2r3"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="5_8ypyu"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="6_ox4m6"]
@@ -39,11 +39,15 @@ base_value = 1.0
 resource_local_to_scene = true
 script = ExtResource("4_4i2r3")
 base_value = 80.0
-per_level = 6[sub_resource type="Resource" id="Resource_raao4"]
+per_level = 6
+
+[sub_resource type="Resource" id="Resource_raao4"]
 resource_local_to_scene = true
 script = ExtResource("4_4i2r3")
 base_value = 5.0
-per_level = 0.6[sub_resource type="Resource" id="Resource_4i2r3"]
+per_level = 0.6
+
+[sub_resource type="Resource" id="Resource_4i2r3"]
 resource_local_to_scene = true
 script = ExtResource("4_4i2r3")
 base_value = 2.0
