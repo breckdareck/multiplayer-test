@@ -19,6 +19,7 @@ const COLOR_SEPARATOR := Color(0.32, 0.32, 0.38)
 const PANEL_MIN_WIDTH := 240
 const PADDING_H := 14
 const PADDING_V := 12
+const ICON_SIZE := 40
 
 # Title-cased stat names. The raw enum keys (`MAGICDEFENSE`, `HPREGEN`) read
 # badly in a tooltip — this maps them to display-friendly text.
@@ -90,13 +91,34 @@ static func _build_panel(item: ItemData, compare_to: ItemData, header: String) -
 		hdr.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		vbox.add_child(hdr)
 
-	# Item name — large, rarity-coloured.
+	# Item name (left, wraps) + icon (top-right). HBox so the icon hangs to
+	# the right of the name regardless of name length.
+	var name_row := HBoxContainer.new()
+	name_row.add_theme_constant_override("separation", 8)
+
 	var name_lbl := Label.new()
 	name_lbl.text = item.name
 	name_lbl.add_theme_font_size_override("font_size", 20)
+	name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	name_lbl.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	name_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	if rarity_color != null:
 		name_lbl.add_theme_color_override("font_color", rarity_color)
-	vbox.add_child(name_lbl)
+	name_row.add_child(name_lbl)
+
+	var icon_tex := _resolve_icon(item)
+	if icon_tex != null:
+		var icon := TextureRect.new()
+		icon.texture = icon_tex
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.custom_minimum_size = Vector2(ICON_SIZE, ICON_SIZE)
+		icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		# Pixel-art icons need NEAREST filtering or they blur at the rendered size.
+		icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		name_row.add_child(icon)
+
+	vbox.add_child(name_row)
 
 	# Subtitle — slot / weapon type. No "Type:" prefix; the placement is enough.
 	var subtitle := _subtitle_text(item)
@@ -128,6 +150,18 @@ static func _build_panel(item: ItemData, compare_to: ItemData, header: String) -
 		vbox.add_child(desc)
 
 	return panel
+
+
+## Mirrors slot.gd's canonical-vs-instance icon resolution: slim-saved items
+## may have a null instance icon, in which case fall back to the canonical
+## resource's icon. Returns null only if both are missing.
+static func _resolve_icon(item: ItemData) -> Texture2D:
+	if item == null:
+		return null
+	var canonical = ResourceManager.get_item_data(item.item_id)
+	if canonical and canonical.icon:
+		return canonical.icon
+	return item.icon
 
 
 static func _subtitle_text(item: ItemData) -> String:
