@@ -22,8 +22,8 @@ logic_script = ExtResource("2_drks1")
 
 [sub_resource type="Resource" id="Resource_drks2"]
 script = ExtResource("7_drks1")
-base_value = 10.0
-per_level = 2
+base_value = 5.0
+per_level = 1.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_drks5"]
@@ -62,8 +62,8 @@ metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
 [resource]
 script = ExtResource("3_drks1")
 ability_id = "4971141151039211-10180-16141116-8591-12491086711491465"
-ability_name = "Vanish"
-description = "Melts into the shadows, becoming untargetable by enemies for $[buff_duration]."
+ability_name = "Killing Edge"
+description = "Sharpens your blades to a killing edge — a short burst window granting +$[stat_bonus]% critical chance and critical damage for $[buff_duration]."
 ability_icon = ExtResource("1_8vb02")
 max_level = 10
 required_class = Array[int]([3])

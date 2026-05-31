@@ -6,7 +6,7 @@
 script = ExtResource("1_aud")
 upgrade_id = "van_t3_swift_exit"
 upgrade_name = "Swift Exit"
-description = "Vanish lasts 5 seconds longer."
+description = "Killing Edge lasts 5 seconds longer."
 point_cost = 2
 tier = 3
 variant_group = "van_cloak_variant"
