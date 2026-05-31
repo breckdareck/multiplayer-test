@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "ee_t3_hawks_eye"
 upgrade_name = "Hawk's Eye"
-description = "Eagle Eye's cooldown is reduced by 12 seconds."
+description = "Eagle Eye grants an additional +5% critical hit chance."
 point_cost = 2
 tier = 3
 variant_group = "ee_vision_variant"
-effect_key = "cooldown_flat_reduction"
-magnitude = 12.0
+effect_key = "buff_critchance_bonus"
+magnitude = 5

@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "van_t3_shroud"
 upgrade_name = "Endless Shroud"
-description = "Vanish lasts 20 seconds longer — vanish for an age."
+description = "While invisible, gain +30% critical hit chance for the burst window."
 point_cost = 2
 tier = 3
 variant_group = "van_cloak_variant"
-effect_key = "buff_duration_bonus"
-magnitude = 20.0
+effect_key = "buff_critchance_bonus"
+magnitude = 30

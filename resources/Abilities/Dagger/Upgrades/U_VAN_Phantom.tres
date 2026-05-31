@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "van_t3_phantom"
 upgrade_name = "Phantom Reflex"
-description = "Vanish's cooldown is reduced by 20 seconds — slip away far more often."
+description = "While invisible, gain +30 weapon attack."
 point_cost = 2
 tier = 3
 variant_group = "van_cloak_variant"
-effect_key = "cooldown_flat_reduction"
-magnitude = 20.0
+effect_key = "buff_attack_bonus"
+magnitude = 30

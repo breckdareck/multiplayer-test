@@ -6,6 +6,6 @@
 script = ExtResource("1_aud")
 upgrade_id = "van_t1_linger"
 upgrade_name = "Linger"
-description = "Vanish lasts 5 seconds longer."
+description = "Vanish lasts 3 seconds longer."
 effect_key = "buff_duration_bonus"
-magnitude = 5.0
+magnitude = 3

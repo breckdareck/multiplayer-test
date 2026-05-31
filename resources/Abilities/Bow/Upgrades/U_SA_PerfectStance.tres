@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "sa_t3_perfect_stance"
 upgrade_name = "Perfect Stance"
-description = "Steady Aim lasts 25 seconds longer."
+description = "Steady Aim grants an additional +20 weapon attack."
 point_cost = 2
 tier = 3
 variant_group = "sa_stance_variant"
-effect_key = "buff_duration_bonus"
-magnitude = 25.0
+effect_key = "buff_attack_bonus"
+magnitude = 20

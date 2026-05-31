@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "bld_t3_bloodhunt"
 upgrade_name = "Endless Bloodhunt"
-description = "Bloodlust lasts 30 seconds longer — keep the party in a frenzy."
+description = "Bloodlust grants an additional +6% critical hit chance."
 point_cost = 2
 tier = 3
 variant_group = "bld_frenzy_variant"
-effect_key = "buff_duration_bonus"
-magnitude = 30.0
+effect_key = "buff_critchance_bonus"
+magnitude = 6

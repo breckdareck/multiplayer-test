@@ -6,7 +6,7 @@
 script = ExtResource("1_aud")
 upgrade_id = "ee_t2_clarity"
 upgrade_name = "Clarity"
-description = "Reduces Eagle Eye's mana cost by 4."
+description = "Eagle Eye also grants +15 weapon attack to the party."
 tier = 2
-effect_key = "mana_flat_reduction"
-magnitude = 4.0
+effect_key = "buff_attack_bonus"
+magnitude = 15

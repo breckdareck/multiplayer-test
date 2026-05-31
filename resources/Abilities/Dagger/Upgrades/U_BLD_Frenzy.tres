@@ -6,7 +6,7 @@
 script = ExtResource("1_aud")
 upgrade_id = "bld_t2_frenzy"
 upgrade_name = "Frenzy"
-description = "Reduces Bloodlust's cooldown by 5 seconds."
+description = "Bloodlust also grants +20 weapon attack to the party."
 tier = 2
-effect_key = "cooldown_flat_reduction"
-magnitude = 5.0
+effect_key = "buff_attack_bonus"
+magnitude = 20

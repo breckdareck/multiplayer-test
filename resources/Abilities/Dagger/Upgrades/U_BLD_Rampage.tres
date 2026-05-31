@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "bld_t3_rampage"
 upgrade_name = "Rampage"
-description = "Bloodlust's cooldown is slashed by 18 seconds."
+description = "Bloodlust grants an additional +35 weapon attack to the party."
 point_cost = 2
 tier = 3
 variant_group = "bld_frenzy_variant"
-effect_key = "cooldown_flat_reduction"
-magnitude = 18.0
+effect_key = "buff_attack_bonus"
+magnitude = 35
