@@ -42,13 +42,13 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 [sub_resource type="Resource" id="Resource_bs_dmg"]
 script = ExtResource("6_bs1")
 base_value = 110.0
-per_level = 4.0
+per_level = 8
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_bs_mana"]
 script = ExtResource("6_bs1")
 base_value = 5.0
-per_level = 0.3
+per_level = 0.6
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_bs_hits"]
@@ -77,7 +77,7 @@ ability_id = "21851410120051-9143-1011311-4101-1413111411105170"
 ability_name = "Barbed Shot"
 description = "Looses a barbed arrow at one enemy for $[damage_percent] damage. [color=#e6c95c]Applies a stacking Bleed (max 3 stacks) — each stack deals 20% Weapon Attack/s for 6 seconds.[/color]"
 ability_icon = ExtResource("1_bs1")
-max_level = 20
+max_level = 10
 required_class = Array[int]([1])
 required_weapon_types = Array[int]([1])
 tree_path = 0

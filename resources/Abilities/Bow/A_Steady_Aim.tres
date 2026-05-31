@@ -23,7 +23,7 @@ logic_script = ExtResource("2_xyi1c")
 [sub_resource type="Resource" id="Resource_focs2"]
 script = ExtResource("7_focs1")
 base_value = 30.0
-per_level = 2.0
+per_level = 4
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_focs5"]
@@ -64,7 +64,7 @@ ability_id = "6111511712115-10180-14141116-8591-12491086711491463"
 ability_name = "Steady Aim"
 description = "Steadies your draw, increasing weapon attack and critical hit chance for $[buff_duration]."
 ability_icon = ExtResource("1_xyi1c")
-max_level = 20
+max_level = 10
 required_class = Array[int]([1])
 tree_path = 0
 tree_depth = 1

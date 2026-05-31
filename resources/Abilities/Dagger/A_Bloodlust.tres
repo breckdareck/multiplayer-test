@@ -23,7 +23,7 @@ logic_script = ExtResource("2_logic")
 [sub_resource type="Resource" id="Resource_buff_dur"]
 script = ExtResource("7_formula")
 base_value = 30.0
-per_level = 2.0
+per_level = 4
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_t12uv"]
@@ -42,7 +42,7 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 [sub_resource type="Resource" id="Resource_mana"]
 script = ExtResource("7_formula")
 base_value = 14.0
-per_level = 0.4
+per_level = 0.8
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_hhkhc"]
@@ -56,7 +56,7 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 [sub_resource type="Resource" id="Resource_dex_pct"]
 script = ExtResource("7_formula")
 scaling_type = 3
-custom_formula = "ceil(level / 2.0)"
+custom_formula = "level"
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_sbf_dex"]
@@ -68,7 +68,7 @@ metadata/_custom_type_script = "uid://bx4thfjsjclbw"
 [sub_resource type="Resource" id="Resource_luck_pct"]
 script = ExtResource("7_formula")
 base_value = 1.0
-per_level = 1.0
+per_level = 2
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_sbf_luck"]
@@ -94,7 +94,7 @@ ability_id = "7115611096-110147-37148-67110-808141342121414115"
 ability_name = "Bloodlust"
 description = "Whips the party into a killing frenzy, granting +$[stat_bonus]% critical hit chance and bonus critical damage to all party members for $[buff_duration]."
 ability_icon = ExtResource("1_t12uv")
-max_level = 20
+max_level = 10
 required_class = Array[int]([3])
 required_weapon_types = Array[int]([3])
 tree_path = 0

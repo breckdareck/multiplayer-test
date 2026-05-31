@@ -8,9 +8,7 @@ extends Node
 
 const HP_THRESHOLD: float = 0.30
 const BONUS_AT_MAX: float = 0.45   # +45% at passive level 10 (scales linearly)
-const MAX_LEVEL: int = 10
-
-
+const MAX_LEVEL: int = 5
 func conditional_damage_mult(_owner: Node, target: Node, level: int) -> float:
 	if not is_instance_valid(target):
 		return 0.0

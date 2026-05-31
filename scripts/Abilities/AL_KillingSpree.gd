@@ -12,7 +12,7 @@ extends Node
 
 const WINDOW_MS: int = 4000          # 4s of bonus after a kill
 const BONUS_AT_MAX: float = 0.30     # +30% at passive level 10 (scales linearly)
-const MAX_LEVEL: int = 10
+const MAX_LEVEL: int = 5
 const META_KEY: String = "killing_spree_until_ms"
 
 

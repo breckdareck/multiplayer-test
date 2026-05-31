@@ -8,9 +8,7 @@ extends Node
 
 const POISON_META: String = "envenom_poison"
 const BONUS_AT_MAX: float = 0.30   # +30% at passive level 10 (scales linearly)
-const MAX_LEVEL: int = 10
-
-
+const MAX_LEVEL: int = 5
 func conditional_damage_mult(_owner: Node, target: Node, level: int) -> float:
 	if not is_instance_valid(target):
 		return 0.0

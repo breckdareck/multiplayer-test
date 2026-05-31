@@ -325,7 +325,7 @@ implements the hooks it needs:
   `combat.gd._execute_hit` applies ×(1+total) per hit. When a passive's condition is
   MET (returns >0), the modifier ALSO adds that passive's owned `conditional_damage_bonus`
   upgrades (see vocabulary below), so its upgrade tree scales the bonus. Implemented by
-  the **9** conditional passives (bare `extends Node` ALs, path-resolved, MAX_LEVEL=10)
+  the **9** conditional passives (bare `extends Node` ALs, path-resolved, MAX_LEVEL=5 since PR 9)
   that replaced the old always-on stat auto-takes: Aggression (sword, vs >90% HP),
   Last Stand (sword, owner <35% HP), Execution (bow, vs <30% HP), Tailwind (bow, scales
   with Momentum stacks), Killing Spree (staff, 4s after a kill — its `on_kill` stamps an

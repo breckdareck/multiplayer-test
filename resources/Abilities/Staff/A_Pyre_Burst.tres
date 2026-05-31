@@ -47,13 +47,13 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 [sub_resource type="Resource" id="Resource_ixat0"]
 script = ExtResource("6_ojaxv")
 base_value = 60.0
-per_level = 3.0
+per_level = 6
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_hp2gm"]
 script = ExtResource("6_ojaxv")
 base_value = 18.0
-per_level = 0.8
+per_level = 1.6
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_yhooi"]
@@ -82,7 +82,7 @@ ability_id = "4516312154-211710-111228-8843-438125814071514"
 ability_name = "Pyre Burst"
 description = "Hurls a roaring fireball that erupts on impact, scorching up to $[target_count] enemies for $[damage_percent] magic damage each."
 ability_icon = SubResource("AtlasTexture_22vhk")
-max_level = 20
+max_level = 10
 damage_stat = 13
 required_class = Array[int]([2])
 required_weapon_types = Array[int]([2])

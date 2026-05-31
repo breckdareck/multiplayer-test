@@ -41,13 +41,13 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 [sub_resource type="Resource" id="Resource_arrn4"]
 script = ExtResource("6_arrn1")
 base_value = 60.0
-per_level = 3.0
+per_level = 6
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_arrn5"]
 script = ExtResource("6_arrn1")
 base_value = 20.0
-per_level = 1.0
+per_level = 2
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_arrn6"]
@@ -76,7 +76,7 @@ ability_id = "1015118151393-10180-12141197-8591-1249108671149117"
 ability_name = "Skyfall"
 description = "Calls a rain of arrows down on up to $[target_count] enemies, dealing $[damage_percent] damage each."
 ability_icon = ExtResource("1_r8vpe")
-max_level = 20
+max_level = 10
 required_class = Array[int]([1])
 required_weapon_types = Array[int]([1])
 tree_path = 1

@@ -36,13 +36,13 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 [sub_resource type="Resource" id="Resource_hlbev"]
 script = ExtResource("8_yntj7")
 base_value = 150.0
-per_level = 8.0
+per_level = 16
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_g21j2"]
 script = ExtResource("8_yntj7")
 base_value = 2.0
-per_level = 0.2
+per_level = 0.4
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_6s8at"]
@@ -71,7 +71,7 @@ ability_id = "04236384-15455-0589-12403-458981588111015"
 ability_name = "Crescent Cleave"
 description = "AOE finisher. Slashes $[target_count] enemies $[hit_count] time dealing $[damage_percent] damage. [color=#e6c95c]Consumes all combo points to amplify damage by +100% per point spent (max +300% at 3 combo).[/color]"
 ability_icon = ExtResource("1_ajojy")
-max_level = 20
+max_level = 10
 required_class = Array[int]([0])
 required_weapon_types = Array[int]([0])
 tree_path = 1

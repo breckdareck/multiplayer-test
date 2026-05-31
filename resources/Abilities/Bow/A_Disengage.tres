@@ -43,13 +43,13 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 [sub_resource type="Resource" id="Resource_dis_dmg"]
 script = ExtResource("6_dis1")
 base_value = 110.0
-per_level = 5.0
+per_level = 10
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_dis_mana"]
 script = ExtResource("6_dis1")
 base_value = 6.0
-per_level = 0.3
+per_level = 0.6
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_dis_hits"]
@@ -78,7 +78,7 @@ ability_id = "8113151051210-1442-91312-103145-15101498675120160"
 ability_name = "Disengage"
 description = "Hop backward and loose an arrow for $[damage_percent] damage, briefly evading all harm. The archer's escape."
 ability_icon = ExtResource("1_dis1")
-max_level = 20
+max_level = 10
 required_class = Array[int]([1])
 required_weapon_types = Array[int]([1])
 tree_path = 1

@@ -43,19 +43,19 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 [sub_resource type="Resource" id="Resource_ln4"]
 script = ExtResource("6_ln1")
 base_value = 50.0
-per_level = 2.0
+per_level = 4
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_ln5"]
 script = ExtResource("6_ln1")
 base_value = 18.0
-per_level = 0.6
+per_level = 1.2
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_ln6"]
 script = ExtResource("6_ln1")
 base_value = 3.0
-per_level = 0.4
+per_level = 0.8
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_ln7"]
@@ -79,7 +79,7 @@ ability_id = "19116981024515-10180-13141116-8591-12491086711491480"
 ability_name = "Arcane Lance"
 description = "Channels a searing lance of arcane force, pulsing $[hit_count] times across up to $[target_count] enemies for $[damage_percent] magic damage each."
 ability_icon = ExtResource("1_ln1")
-max_level = 20
+max_level = 10
 damage_stat = 13
 required_class = Array[int]([2])
 required_weapon_types = Array[int]([2])

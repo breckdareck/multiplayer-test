@@ -15,7 +15,7 @@ script = ExtResource("2_bi1")
 [sub_resource type="Resource" id="Resource_bi_crit"]
 script = ExtResource("5_bi1")
 base_value = 2.0
-per_level = 1.0
+per_level = 2
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_bi_sbf"]
@@ -35,7 +35,7 @@ ability_id = "8197116108101105110115116105110116-2001-0801-1212-91312103145"
 ability_name = "Second Wind"
 description = "Permanently increases HP regeneration by $[stat_bonus]."
 ability_icon = ExtResource("1_bi1")
-max_level = 10
+max_level = 5
 ability_type = 1
 required_class = Array[int]([0])
 required_weapon_types = Array[int]([0])

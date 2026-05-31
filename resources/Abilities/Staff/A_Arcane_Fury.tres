@@ -18,7 +18,7 @@ script = ExtResource("2_af1")
 [sub_resource type="Resource" id="Resource_af_critdmg"]
 script = ExtResource("5_af1")
 base_value = 3.0
-per_level = 2.0
+per_level = 4
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_af_sbf"]
@@ -38,7 +38,7 @@ ability_id = "1251510411081061-9043-1410149-105135-1410158678120291"
 ability_name = "Stoneskin"
 description = "Permanently increases Defense by $[stat_bonus] — arcane wards harden the body."
 ability_icon = ExtResource("1_af1")
-max_level = 10
+max_level = 5
 ability_type = 1
 required_class = Array[int]([2])
 required_weapon_types = Array[int]([2])

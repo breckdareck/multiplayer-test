@@ -41,13 +41,13 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 [sub_resource type="Resource" id="Resource_mgbt4"]
 script = ExtResource("6_mgbt1")
 base_value = 100.0
-per_level = 5.0
+per_level = 10
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_mgbt5"]
 script = ExtResource("6_mgbt1")
 base_value = 4.0
-per_level = 0.2
+per_level = 0.4
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_mgbt6"]
@@ -76,7 +76,7 @@ ability_id = "1397103679912-10180-12141116-8591-12491086711491461"
 ability_name = "Arcane Bolt"
 description = "Hurls a focused bolt of raw mana at $[target_count] enemy, dealing $[damage_percent] magic damage. The mage's bread and butter."
 ability_icon = ExtResource("1_yj04x")
-max_level = 20
+max_level = 10
 damage_stat = 13
 required_class = Array[int]([2])
 required_weapon_types = Array[int]([2])
