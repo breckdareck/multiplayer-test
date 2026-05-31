@@ -115,7 +115,31 @@ func _on_owner_dealt_damage(target: Node, damage_values: Array, crit_values: Arr
 	var attacker_level: int = _owner_ref.level_component.level
 	var target_level: int = target.monster_level
 	var level_diff: int = attacker_level - target_level
-	var hit_chance: float = clampf(95.0 + (level_diff * 2.0), 5.0, 100.0)
+	# PR 13: mirror combat.gd hit-chance — level scalar 3, DEX accuracy +
+	# ACCURACY stat + target EVASIONCHANCE subtractor. Without this, Shadow
+	# Partner's phantom hits would have higher hit% than the player's own
+	# strikes against high-evasion targets, and lower hit% than the player's
+	# strikes when the player has accuracy investment.
+	var dex_acc: float = 0.0
+	var stat_acc: float = 0.0
+	if stats_comp.stats.has(Constants.StatType.DEXTERITY):
+		dex_acc = stats_comp.stats[Constants.StatType.DEXTERITY].total_value * StatsComponent.DEX_TO_ACCURACY
+	if stats_comp.stats.has(Constants.StatType.ACCURACY):
+		stat_acc = float(stats_comp.stats[Constants.StatType.ACCURACY].total_value)
+	var tgt_evasion: float = 0.0
+	var tgt_stats = target.get("stats_component")
+	if tgt_stats != null and is_instance_valid(tgt_stats) and tgt_stats.stats.has(Constants.StatType.EVASIONCHANCE):
+		tgt_evasion = float(tgt_stats.stats[Constants.StatType.EVASIONCHANCE].total_value)
+	# PR 13 weapon-underlevel penalty — same shape as combat.gd. Phantoms use the
+	# player's wielded weapon, so an underleveled weapon also bites their hit-chance.
+	var weapon_underlevel: int = 0
+	var equip_comp = _owner_ref.get_node_or_null("Components/Equipment")
+	if equip_comp and equip_comp.active_weapon_data:
+		var wep_lvl: int = int(equip_comp.active_weapon_data.item_level)
+		if wep_lvl > 0:
+			weapon_underlevel = maxi(0, target_level - wep_lvl)
+	var weapon_penalty: float = weapon_underlevel * CombatComponent.WEAPON_UNDERLEVEL_PENALTY
+	var hit_chance: float = clampf(95.0 + (level_diff * 3.0) + dex_acc + stat_acc - tgt_evasion - weapon_penalty, 5.0, 100.0)
 
 	var shadow_damages: Array = []
 	var shadow_crits: Array = []

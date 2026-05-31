@@ -79,6 +79,8 @@ const BASE_KNOCKBACK_RESIST: int = 80
 	Constants.StatType.MAGICATTACK: StatData.new(Constants.StatType.MAGICATTACK, 0),
 	Constants.StatType.KNOCKBACKRESIST: StatData.new(Constants.StatType.KNOCKBACKRESIST, BASE_KNOCKBACK_RESIST),
 	Constants.StatType.CONSTITUTION: StatData.new(Constants.StatType.CONSTITUTION, 4),
+	Constants.StatType.ACCURACY: StatData.new(Constants.StatType.ACCURACY, 0),
+	Constants.StatType.EVASIONCHANCE: StatData.new(Constants.StatType.EVASIONCHANCE, 0),
 
 }
 

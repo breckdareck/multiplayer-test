@@ -16,7 +16,7 @@
 [ext_resource type="Resource" uid="uid://stfvitalbloom1" path="res://resources/Abilities/Staff/A_Mana_Flow.tres" id="14_vita"]
 [ext_resource type="Resource" uid="uid://stfwellspring1" path="res://resources/Abilities/Staff/A_Deep_Wellspring.tres" id="15_well"]
 [ext_resource type="Resource" uid="uid://stfkeenmind01" path="res://resources/Abilities/Staff/A_Overload.tres" id="16_keen"]
-[ext_resource type="Resource" uid="uid://stfarcanefury1" path="res://resources/Abilities/Staff/A_Stoneskin.tres" id="17_fury"]
+[ext_resource type="Resource" uid="uid://stfarcanefury1" path="res://resources/Abilities/Staff/A_Arcane_Resonance.tres" id="17_fury"]
 [ext_resource type="Resource" uid="uid://stfspellward1" path="res://resources/Abilities/Staff/A_Spell_Ward.tres" id="18_spwd"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_pq730"]

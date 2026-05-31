@@ -50,6 +50,8 @@ enum StatType {
 	MAGICATTACK,
 	KNOCKBACKRESIST,
 	CONSTITUTION, # PR 7 — appended (idx 15, NEVER insert): attribute → Max HP + HP regen
+	ACCURACY,     # PR 13 — appended (idx 16, NEVER insert): +% hit chance, additive in combat.gd
+	EVASIONCHANCE, # PR 13 — appended (idx 17, NEVER insert): -% hit chance on incoming attacks
 }
 
 enum EquipmentType {

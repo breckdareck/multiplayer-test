@@ -17,7 +17,7 @@
 [ext_resource type="Resource" uid="uid://bowbarbedshot01x" path="res://resources/Abilities/Bow/A_Barbed_Shot.tres" id="15_avqjs"]
 [ext_resource type="Resource" uid="uid://bowlethality01x" path="res://resources/Abilities/Bow/A_Lethality.tres" id="16_avqjs"]
 [ext_resource type="Resource" uid="uid://bowdeepres01x" path="res://resources/Abilities/Bow/A_Tailwind.tres" id="17_avqjs"]
-[ext_resource type="Resource" uid="uid://bowironhide01x" path="res://resources/Abilities/Bow/A_Iron_Hide.tres" id="18_avqjs"]
+[ext_resource type="Resource" uid="uid://bowironhide01x" path="res://resources/Abilities/Bow/A_Marksmans_Focus.tres" id="18_avqjs"]
 
 [resource]
 script = ExtResource("1_eu6w6")
