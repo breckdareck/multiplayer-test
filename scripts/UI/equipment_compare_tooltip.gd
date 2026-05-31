@@ -20,6 +20,11 @@ const PANEL_MIN_WIDTH := 240
 const PADDING_H := 14
 const PADDING_V := 12
 const ICON_SIZE := 40
+const NAME_ROW_SEPARATION := 8
+# Name label width is fixed so the panel stays at PANEL_MIN_WIDTH regardless
+# of the item name — long names autowrap within this column instead of
+# pushing the tooltip wider. = panel_inner − icon − separation.
+const NAME_LABEL_WIDTH := PANEL_MIN_WIDTH - PADDING_H * 2 - ICON_SIZE - NAME_ROW_SEPARATION
 
 # Title-cased stat names. The raw enum keys (`MAGICDEFENSE`, `HPREGEN`) read
 # badly in a tooltip — this maps them to display-friendly text.
@@ -91,17 +96,21 @@ static func _build_panel(item: ItemData, compare_to: ItemData, header: String) -
 		hdr.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		vbox.add_child(hdr)
 
-	# Item name (left, natural width) + spacer + icon (top-right, fixed size).
-	# The spacer is what pushes the icon to the right edge regardless of name
-	# length. Do NOT autowrap the name + expand-fill it inside this HBox —
-	# autowrap labels have a tiny minimum width, so the HBox would squeeze the
-	# name to one character per line and balloon the panel's height.
+	# Item name (left, fixed width, wraps) + icon (right, fixed size). The
+	# name's custom_minimum_size.x locks the column width — combined with the
+	# icon's fixed width, the HBox total = panel inner width, so the panel
+	# stays at PANEL_MIN_WIDTH regardless of name length. Long names autowrap
+	# inside the fixed column instead of pushing the panel wider.
+	# (autowrap + SIZE_EXPAND_FILL together is the broken combo to avoid — see
+	# project_autowrap_label_in_hbox_pathology.md.)
 	var name_row := HBoxContainer.new()
-	name_row.add_theme_constant_override("separation", 8)
+	name_row.add_theme_constant_override("separation", NAME_ROW_SEPARATION)
 
 	var name_lbl := Label.new()
 	name_lbl.text = item.name
 	name_lbl.add_theme_font_size_override("font_size", 20)
+	name_lbl.custom_minimum_size = Vector2(NAME_LABEL_WIDTH, 0)
+	name_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	name_lbl.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	if rarity_color != null:
 		name_lbl.add_theme_color_override("font_color", rarity_color)
@@ -109,11 +118,6 @@ static func _build_panel(item: ItemData, compare_to: ItemData, header: String) -
 
 	var icon_tex := _resolve_icon(item)
 	if icon_tex != null:
-		# Spacer eats the gap between name and icon so the icon hangs right.
-		var spacer := Control.new()
-		spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		name_row.add_child(spacer)
-
 		var icon := TextureRect.new()
 		icon.texture = icon_tex
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
