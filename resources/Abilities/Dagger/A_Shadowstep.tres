@@ -8,11 +8,11 @@
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_sst1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_sst1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="10_aud"]
-[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_SST_Fleet.tres" id="11_sst1"]
-[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_SST_Cutpurse.tres" id="12_sst2"]
-[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_SST_Ambush.tres" id="13_sst3"]
-[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_SST_Whirl.tres" id="14_sst4"]
-[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_SST_DoubleCut.tres" id="15_sst5"]
+[ext_resource type="Resource" uid="uid://cgddplhgbeuo2" path="res://resources/Abilities/Dagger/Upgrades/U_SST_Fleet.tres" id="11_sst1"]
+[ext_resource type="Resource" uid="uid://bradhw477wlpb" path="res://resources/Abilities/Dagger/Upgrades/U_SST_Cutpurse.tres" id="12_sst2"]
+[ext_resource type="Resource" uid="uid://rm7g0m2kvjc2" path="res://resources/Abilities/Dagger/Upgrades/U_SST_Ambush.tres" id="13_sst3"]
+[ext_resource type="Resource" uid="uid://dp001c5tb75fx" path="res://resources/Abilities/Dagger/Upgrades/U_SST_Whirl.tres" id="14_sst4"]
+[ext_resource type="Resource" uid="uid://b6yv7phm5rxrh" path="res://resources/Abilities/Dagger/Upgrades/U_SST_DoubleCut.tres" id="15_sst5"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_sst1"]
 size = Vector2(90, 24)

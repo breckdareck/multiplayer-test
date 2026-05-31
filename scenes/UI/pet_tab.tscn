@@ -1,7 +1,7 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=3 format=3 uid="uid://c43mtof11updf"]
 
-[ext_resource type="Script" path="res://scripts/UI/pet_tab.gd" id="1_pet_tab"]
-[ext_resource type="PackedScene" path="res://scenes/UI/pet_slot.tscn" id="2_pet_slot"]
+[ext_resource type="Script" uid="uid://cty0bfg1mhspa" path="res://scripts/UI/pet_tab.gd" id="1_pet_tab"]
+[ext_resource type="PackedScene" uid="uid://cxcj4uyi4rrh" path="res://scenes/UI/pet_slot.tscn" id="2_pet_slot"]
 
 [node name="PetTab" type="MarginContainer" node_paths=PackedStringArray("pet_list", "detail_container", "empty_state_label", "portrait", "name_edit", "summon_button", "release_button", "hunger_bar", "feed_button", "pots_grid", "commands_grid", "hp_threshold_slider", "hp_threshold_value_label", "mp_threshold_slider", "mp_threshold_value_label", "confirm_dialog", "slot_autopot_hp", "slot_autopot_mp", "slot_ability_buff", "slot_cmd_auto_pot", "slot_cmd_buff", "slot_cmd_magnet")]
 anchors_preset = 15
@@ -59,6 +59,7 @@ horizontal_alignment = 1
 [node name="PetList" type="ItemList" parent="RootHBox/ListPanel/ListVBox"]
 layout_mode = 2
 size_flags_vertical = 3
+focus_mode = 0
 allow_reselect = true
 
 [node name="DetailVBox" type="VBoxContainer" parent="RootHBox"]
@@ -109,7 +110,6 @@ text = "Hunger"
 [node name="HungerBar" type="ProgressBar" parent="RootHBox/DetailVBox/HungerRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-max_value = 100.0
 value = 100.0
 
 [node name="FeedButton" type="Button" parent="RootHBox/DetailVBox/HungerRow"]
@@ -118,46 +118,40 @@ text = "Feed"
 
 [node name="PotsGrid" type="HBoxContainer" parent="RootHBox/DetailVBox"]
 layout_mode = 2
-alignment = 1
 theme_override_constants/separation = 10
+alignment = 1
 
 [node name="SlotAutopotHP" parent="RootHBox/DetailVBox/PotsGrid" instance=ExtResource("2_pet_slot")]
-custom_minimum_size = Vector2(55, 55)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 
 [node name="SlotAutopotMP" parent="RootHBox/DetailVBox/PotsGrid" instance=ExtResource("2_pet_slot")]
-custom_minimum_size = Vector2(55, 55)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 
 [node name="SlotAbilityBuff" parent="RootHBox/DetailVBox/PotsGrid" instance=ExtResource("2_pet_slot")]
-custom_minimum_size = Vector2(55, 55)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 
 [node name="CommandsGrid" type="HBoxContainer" parent="RootHBox/DetailVBox"]
 layout_mode = 2
-alignment = 1
 theme_override_constants/separation = 10
+alignment = 1
 
 [node name="SlotCmdAutoPot" parent="RootHBox/DetailVBox/CommandsGrid" instance=ExtResource("2_pet_slot")]
-custom_minimum_size = Vector2(55, 55)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 
 [node name="SlotCmdBuff" parent="RootHBox/DetailVBox/CommandsGrid" instance=ExtResource("2_pet_slot")]
-custom_minimum_size = Vector2(55, 55)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 
 [node name="SlotCmdMagnet" parent="RootHBox/DetailVBox/CommandsGrid" instance=ExtResource("2_pet_slot")]
-custom_minimum_size = Vector2(55, 55)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
@@ -212,13 +206,13 @@ text = "Release Pet"
 [node name="ConfirmDialog" type="ConfirmationDialog" parent="."]
 
 [connection signal="item_selected" from="RootHBox/ListPanel/ListVBox/PetList" to="." method="_on_pet_list_selected"]
-[connection signal="text_submitted" from="RootHBox/DetailVBox/PortraitRow/NameEdit" to="." method="_on_name_submitted"]
 [connection signal="focus_exited" from="RootHBox/DetailVBox/PortraitRow/NameEdit" to="." method="_on_name_focus_exited"]
+[connection signal="text_submitted" from="RootHBox/DetailVBox/PortraitRow/NameEdit" to="." method="_on_name_submitted"]
 [connection signal="pressed" from="RootHBox/DetailVBox/PortraitRow/SummonButton" to="." method="_on_summon_pressed"]
 [connection signal="pressed" from="RootHBox/DetailVBox/HungerRow/FeedButton" to="." method="_on_feed_pressed"]
-[connection signal="value_changed" from="RootHBox/DetailVBox/HPRow/HPSlider" to="." method="_on_hp_threshold_value_changed"]
 [connection signal="drag_ended" from="RootHBox/DetailVBox/HPRow/HPSlider" to="." method="_on_hp_threshold_drag_ended"]
-[connection signal="value_changed" from="RootHBox/DetailVBox/MPRow/MPSlider" to="." method="_on_mp_threshold_value_changed"]
+[connection signal="value_changed" from="RootHBox/DetailVBox/HPRow/HPSlider" to="." method="_on_hp_threshold_value_changed"]
 [connection signal="drag_ended" from="RootHBox/DetailVBox/MPRow/MPSlider" to="." method="_on_mp_threshold_drag_ended"]
+[connection signal="value_changed" from="RootHBox/DetailVBox/MPRow/MPSlider" to="." method="_on_mp_threshold_value_changed"]
 [connection signal="pressed" from="RootHBox/DetailVBox/ReleaseButton" to="." method="_on_release_pressed"]
 [connection signal="confirmed" from="ConfirmDialog" to="." method="_on_release_confirmed"]

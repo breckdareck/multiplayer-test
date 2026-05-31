@@ -7,9 +7,9 @@
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_si1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_si1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
-[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_SI_Hardy.tres" id="9_ha"]
-[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_SI_Rugged.tres" id="10_ru"]
-[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_SI_Indomitable.tres" id="11_in"]
+[ext_resource type="Resource" uid="uid://cqov48bjhtc3q" path="res://resources/Abilities/Bow/Upgrades/U_SI_Hardy.tres" id="9_ha"]
+[ext_resource type="Resource" uid="uid://t6y6ujkh7amb" path="res://resources/Abilities/Bow/Upgrades/U_SI_Rugged.tres" id="10_ru"]
+[ext_resource type="Resource" uid="uid://dtsekk527u4j7" path="res://resources/Abilities/Bow/Upgrades/U_SI_Indomitable.tres" id="11_in"]
 
 [sub_resource type="Resource" id="Resource_si_behav"]
 resource_local_to_scene = true

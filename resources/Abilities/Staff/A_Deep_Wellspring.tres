@@ -7,9 +7,9 @@
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_wel1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_wel1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
-[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_WEL_Brimming.tres" id="9_br"]
-[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_WEL_Bottomless.tres" id="10_bo"]
-[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_WEL_Oceanic.tres" id="11_oc"]
+[ext_resource type="Resource" uid="uid://dcndaa60drwgu" path="res://resources/Abilities/Staff/Upgrades/U_WEL_Brimming.tres" id="9_br"]
+[ext_resource type="Resource" uid="uid://dbv71speebg2" path="res://resources/Abilities/Staff/Upgrades/U_WEL_Bottomless.tres" id="10_bo"]
+[ext_resource type="Resource" uid="uid://h45egogy136t" path="res://resources/Abilities/Staff/Upgrades/U_WEL_Oceanic.tres" id="11_oc"]
 
 [sub_resource type="Resource" id="Resource_wel_behav"]
 resource_local_to_scene = true

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://dgru_env2_virulent"]
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://cctwtc0o7tjg2"]
 
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
 
@@ -7,8 +7,6 @@ script = ExtResource("1_aud")
 upgrade_id = "env_t2_virulent"
 upgrade_name = "Virulent"
 description = "Envenom's Poison can stack 1 higher (max 4)."
-point_cost = 1
 tier = 2
-variant_group = ""
 effect_key = "poison_max_stack_bonus"
 magnitude = 1.0

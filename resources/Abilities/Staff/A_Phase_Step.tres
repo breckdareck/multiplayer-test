@@ -8,11 +8,11 @@
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="7_telp1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="9_jlg0d"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="10_aud"]
-[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_PHA_Flicker.tres" id="11_fl"]
-[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_PHA_Efficient.tres" id="12_ef"]
-[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_PHA_Blink.tres" id="13_bl"]
-[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_PHA_Phaseguard.tres" id="14_pg"]
-[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_PHA_FreeShift.tres" id="15_fs"]
+[ext_resource type="Resource" uid="uid://coxog8i7bq61k" path="res://resources/Abilities/Staff/Upgrades/U_PHA_Flicker.tres" id="11_fl"]
+[ext_resource type="Resource" uid="uid://d0uufbontjllg" path="res://resources/Abilities/Staff/Upgrades/U_PHA_Efficient.tres" id="12_ef"]
+[ext_resource type="Resource" uid="uid://lk657m5gtq0x" path="res://resources/Abilities/Staff/Upgrades/U_PHA_Blink.tres" id="13_bl"]
+[ext_resource type="Resource" uid="uid://n6ffqxys4jat" path="res://resources/Abilities/Staff/Upgrades/U_PHA_Phaseguard.tres" id="14_pg"]
+[ext_resource type="Resource" uid="uid://bpccy2hl68hfk" path="res://resources/Abilities/Staff/Upgrades/U_PHA_FreeShift.tres" id="15_fs"]
 
 [sub_resource type="Resource" id="Resource_telp1"]
 resource_local_to_scene = true

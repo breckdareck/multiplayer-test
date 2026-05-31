@@ -9,11 +9,11 @@
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_im1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_im1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="10_aud"]
-[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_IMM_Searing.tres" id="11_se"]
-[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_IMM_Stoked.tres" id="12_st"]
-[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_IMM_Smolder.tres" id="13_sm"]
-[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_IMM_WhiteHot.tres" id="14_wh"]
-[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_IMM_Wildfire.tres" id="15_wf"]
+[ext_resource type="Resource" uid="uid://3f1pknn48i4a" path="res://resources/Abilities/Staff/Upgrades/U_IMM_Searing.tres" id="11_se"]
+[ext_resource type="Resource" uid="uid://doluhgb3vwjrp" path="res://resources/Abilities/Staff/Upgrades/U_IMM_Stoked.tres" id="12_st"]
+[ext_resource type="Resource" uid="uid://dxpxvih6fw4e8" path="res://resources/Abilities/Staff/Upgrades/U_IMM_Smolder.tres" id="13_sm"]
+[ext_resource type="Resource" uid="uid://cwy3qgh8ushbt" path="res://resources/Abilities/Staff/Upgrades/U_IMM_WhiteHot.tres" id="14_wh"]
+[ext_resource type="Resource" uid="uid://c26camax5jam3" path="res://resources/Abilities/Staff/Upgrades/U_IMM_Wildfire.tres" id="15_wf"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_im1"]
 size = Vector2(120, 46)

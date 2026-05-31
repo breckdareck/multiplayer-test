@@ -8,11 +8,11 @@
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_lk7a1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_lk7a1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="10_aud"]
-[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_FOK_SwiftHands.tres" id="11_fok1"]
-[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_FOK_KeenBlades.tres" id="12_fok2"]
-[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_FOK_WideSpread.tres" id="13_fok3"]
-[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_FOK_Barrage.tres" id="14_fok4"]
-[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_FOK_RazorFan.tres" id="15_fok5"]
+[ext_resource type="Resource" uid="uid://bggkwnqcbqm4t" path="res://resources/Abilities/Dagger/Upgrades/U_FOK_SwiftHands.tres" id="11_fok1"]
+[ext_resource type="Resource" uid="uid://4naer8y6ay5f" path="res://resources/Abilities/Dagger/Upgrades/U_FOK_KeenBlades.tres" id="12_fok2"]
+[ext_resource type="Resource" uid="uid://c2nyy23ei00jc" path="res://resources/Abilities/Dagger/Upgrades/U_FOK_WideSpread.tres" id="13_fok3"]
+[ext_resource type="Resource" uid="uid://cuspl1ny1rci" path="res://resources/Abilities/Dagger/Upgrades/U_FOK_Barrage.tres" id="14_fok4"]
+[ext_resource type="Resource" uid="uid://c6my6s7pqv21q" path="res://resources/Abilities/Dagger/Upgrades/U_FOK_RazorFan.tres" id="15_fok5"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_lk7a1"]
 size = Vector2(120, 46)

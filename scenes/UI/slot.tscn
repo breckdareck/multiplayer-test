@@ -33,7 +33,7 @@ outline_size = 8
 outline_color = Color(0, 0, 0, 1)
 
 [node name="Slot" type="PanelContainer"]
-custom_minimum_size = Vector2(55, 55)
+custom_minimum_size = Vector2(65, 65)
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0

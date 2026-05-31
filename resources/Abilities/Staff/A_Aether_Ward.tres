@@ -9,11 +9,11 @@
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="7_mnsh1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="10_dpl8i"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="11_aud"]
-[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_AW_Lasting.tres" id="12_la"]
-[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_AW_Efficient.tres" id="13_ef"]
-[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_AW_Reinforced.tres" id="14_re"]
-[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_AW_Eternal.tres" id="15_et"]
-[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_AW_Recharge.tres" id="16_rc"]
+[ext_resource type="Resource" uid="uid://dk1q0j0e2y1i1" path="res://resources/Abilities/Staff/Upgrades/U_AW_Lasting.tres" id="12_la"]
+[ext_resource type="Resource" uid="uid://duq1ykceu6wn1" path="res://resources/Abilities/Staff/Upgrades/U_AW_Efficient.tres" id="13_ef"]
+[ext_resource type="Resource" uid="uid://7hhd415y4awn" path="res://resources/Abilities/Staff/Upgrades/U_AW_Reinforced.tres" id="14_re"]
+[ext_resource type="Resource" uid="uid://djjux7udhils2" path="res://resources/Abilities/Staff/Upgrades/U_AW_Eternal.tres" id="15_et"]
+[ext_resource type="Resource" uid="uid://cyj2vqu2dwjho" path="res://resources/Abilities/Staff/Upgrades/U_AW_Recharge.tres" id="16_rc"]
 
 [sub_resource type="Resource" id="Resource_mnsh1"]
 resource_local_to_scene = true

@@ -6,9 +6,9 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_sb1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_sb1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
-[ext_resource type="Resource" path="res://resources/Abilities/Sword/Upgrades/U_SB_Cruel.tres" id="9_cr"]
-[ext_resource type="Resource" path="res://resources/Abilities/Sword/Upgrades/U_SB_Savage.tres" id="10_sv"]
-[ext_resource type="Resource" path="res://resources/Abilities/Sword/Upgrades/U_SB_Devastating.tres" id="11_de"]
+[ext_resource type="Resource" uid="uid://damduam27wh7x" path="res://resources/Abilities/Sword/Upgrades/U_SB_Cruel.tres" id="9_cr"]
+[ext_resource type="Resource" uid="uid://cioqcjyey466h" path="res://resources/Abilities/Sword/Upgrades/U_SB_Savage.tres" id="10_sv"]
+[ext_resource type="Resource" uid="uid://b2yae64p7mgfj" path="res://resources/Abilities/Sword/Upgrades/U_SB_Devastating.tres" id="11_de"]
 [ext_resource type="Script" uid="uid://dug2noyriyajf" path="res://scripts/Abilities/AL_LastStand.gd" id="12_ls"]
 
 [sub_resource type="Resource" id="Resource_sb_behav"]

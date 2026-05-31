@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://bowu_bs2_jagged"]
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://ct1sjj7bd6mxw"]
 
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
 
@@ -7,8 +7,6 @@ script = ExtResource("1_aud")
 upgrade_id = "bs_t2_jagged_heads"
 upgrade_name = "Jagged Heads"
 description = "Barbed Shot's Bleed can stack 1 higher (max 4)."
-point_cost = 1
 tier = 2
-variant_group = ""
 effect_key = "bleed_max_stack_bonus"
 magnitude = 1.0

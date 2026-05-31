@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://dgru_kin2_deadly"]
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://b2y7324m7fgxg"]
 
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
 
@@ -7,8 +7,6 @@ script = ExtResource("1_aud")
 upgrade_id = "kin_t2_deadly"
 upgrade_name = "Deadly"
 description = "Increases Killer Instinct's critical hit chance bonus by +2%."
-point_cost = 1
 tier = 2
-variant_group = ""
 effect_key = "passive_stat_flat_bonus"
 magnitude = 2.0

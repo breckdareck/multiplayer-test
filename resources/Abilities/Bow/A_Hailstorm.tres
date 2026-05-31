@@ -8,11 +8,11 @@
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_strf1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_strf1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="10_aud"]
-[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_HAIL_RapidLoose.tres" id="11_rl"]
-[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_HAIL_Splinter.tres" id="12_sp"]
-[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_HAIL_Flurry.tres" id="13_fl"]
-[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_HAIL_Bloodletting.tres" id="14_bl"]
-[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_HAIL_SuppressingFire.tres" id="15_sf"]
+[ext_resource type="Resource" uid="uid://r4lg8tonxr5s" path="res://resources/Abilities/Bow/Upgrades/U_HAIL_RapidLoose.tres" id="11_rl"]
+[ext_resource type="Resource" uid="uid://ddo0whu2dfw31" path="res://resources/Abilities/Bow/Upgrades/U_HAIL_Splinter.tres" id="12_sp"]
+[ext_resource type="Resource" uid="uid://dmtnk4sc6xi77" path="res://resources/Abilities/Bow/Upgrades/U_HAIL_Flurry.tres" id="13_fl"]
+[ext_resource type="Resource" uid="uid://y3epx7mng13s" path="res://resources/Abilities/Bow/Upgrades/U_HAIL_Bloodletting.tres" id="14_bl"]
+[ext_resource type="Resource" uid="uid://dldwvu35db2e4" path="res://resources/Abilities/Bow/Upgrades/U_HAIL_SuppressingFire.tres" id="15_sf"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_aa4ap"]
 size = Vector2(160, 46)

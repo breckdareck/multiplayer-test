@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://dgru_evi1_swiftkill"]
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://b81bw1tjw22lm"]
 
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
 
@@ -7,8 +7,5 @@ script = ExtResource("1_aud")
 upgrade_id = "evi_t1_swift_kill"
 upgrade_name = "Swift Kill"
 description = "Reduces Eviscerate's cooldown by 1 second."
-point_cost = 1
-tier = 1
-variant_group = ""
 effect_key = "cooldown_flat_reduction"
 magnitude = 1.0

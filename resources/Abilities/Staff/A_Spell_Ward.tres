@@ -7,9 +7,9 @@
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_sw1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_sw1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
-[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_SW_Warded.tres" id="9_wa"]
-[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_SW_Bulwarked.tres" id="10_bu"]
-[ext_resource type="Resource" path="res://resources/Abilities/Staff/Upgrades/U_SW_Impervious.tres" id="11_im"]
+[ext_resource type="Resource" uid="uid://c1r4fc2gp0hwt" path="res://resources/Abilities/Staff/Upgrades/U_SW_Warded.tres" id="9_wa"]
+[ext_resource type="Resource" uid="uid://gk5r8uogiwgc" path="res://resources/Abilities/Staff/Upgrades/U_SW_Bulwarked.tres" id="10_bu"]
+[ext_resource type="Resource" uid="uid://c1fl1ti6xjwtn" path="res://resources/Abilities/Staff/Upgrades/U_SW_Impervious.tres" id="11_im"]
 
 [sub_resource type="Resource" id="Resource_sw_behav"]
 resource_local_to_scene = true

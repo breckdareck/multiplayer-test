@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://dgru_eva1_lithe"]
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://bsn0sq131byiy"]
 
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
 
@@ -7,8 +7,5 @@ script = ExtResource("1_aud")
 upgrade_id = "eva_t1_lithe"
 upgrade_name = "Lithe"
 description = "Increases Evasion's Defense bonus by +2."
-point_cost = 1
-tier = 1
-variant_group = ""
 effect_key = "passive_stat_flat_bonus"
 magnitude = 2.0

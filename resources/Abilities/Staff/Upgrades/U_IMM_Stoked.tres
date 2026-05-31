@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://stfu_imm2_stoked"]
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://doluhgb3vwjrp"]
 
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
 
@@ -7,8 +7,6 @@ script = ExtResource("1_aud")
 upgrade_id = "imm_t2_stoked"
 upgrade_name = "Stoked Flames"
 description = "Immolate's burn can stack +1 additional time."
-point_cost = 1
 tier = 2
-variant_group = ""
 effect_key = "burn_max_stack_bonus"
 magnitude = 1.0

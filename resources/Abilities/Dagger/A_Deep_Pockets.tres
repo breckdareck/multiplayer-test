@@ -6,9 +6,9 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_dpk1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_dpk1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
-[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_DPK_Deep.tres" id="9_dpk1"]
-[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_DPK_Hidden.tres" id="10_dpk2"]
-[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_DPK_Bottomless.tres" id="11_dpk3"]
+[ext_resource type="Resource" uid="uid://t8jwkgw3amlc" path="res://resources/Abilities/Dagger/Upgrades/U_DPK_Deep.tres" id="9_dpk1"]
+[ext_resource type="Resource" uid="uid://djhe4iqduvkfd" path="res://resources/Abilities/Dagger/Upgrades/U_DPK_Hidden.tres" id="10_dpk2"]
+[ext_resource type="Resource" uid="uid://bqk0p842mwltr" path="res://resources/Abilities/Dagger/Upgrades/U_DPK_Bottomless.tres" id="11_dpk3"]
 [ext_resource type="Script" uid="uid://7py5ytqyvdox" path="res://scripts/Abilities/AL_Opportunist.gd" id="12_op"]
 
 [sub_resource type="Resource" id="Resource_dpk_behav"]

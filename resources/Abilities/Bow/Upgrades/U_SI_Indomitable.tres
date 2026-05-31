@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://bowu_si3_indomitable"]
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://dtsekk527u4j7"]
 
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
 
@@ -9,6 +9,5 @@ upgrade_name = "Indomitable"
 description = "Increases Surefoot's knockback resistance bonus by +2."
 point_cost = 2
 tier = 3
-variant_group = ""
 effect_key = "passive_stat_flat_bonus"
 magnitude = 2.0

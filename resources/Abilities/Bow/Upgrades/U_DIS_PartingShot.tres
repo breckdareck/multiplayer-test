@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://bowu_dis2_partingshot"]
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://pfudfkiggoux"]
 
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
 
@@ -7,8 +7,6 @@ script = ExtResource("1_aud")
 upgrade_id = "dis_t2_parting_shot"
 upgrade_name = "Parting Shot"
 description = "Disengage's arrow deals +30% damage."
-point_cost = 1
 tier = 2
-variant_group = ""
 effect_key = "bonus_damage_mult"
 magnitude = 0.3

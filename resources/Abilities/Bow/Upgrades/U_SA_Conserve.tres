@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://bowu_sa2_conserve"]
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://dkd5ifr5p4snl"]
 
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
 
@@ -7,8 +7,6 @@ script = ExtResource("1_aud")
 upgrade_id = "sa_t2_conserve"
 upgrade_name = "Conserve"
 description = "Reduces Steady Aim's mana cost by 4."
-point_cost = 1
 tier = 2
-variant_group = ""
 effect_key = "mana_flat_reduction"
 magnitude = 4.0

@@ -7,9 +7,9 @@
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_ih1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_ih1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
-[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_IH_Thick.tres" id="9_th"]
-[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_IH_Calloused.tres" id="10_ca"]
-[ext_resource type="Resource" path="res://resources/Abilities/Bow/Upgrades/U_IH_Ironclad.tres" id="11_ir"]
+[ext_resource type="Resource" uid="uid://cqj0r3v3ura2n" path="res://resources/Abilities/Bow/Upgrades/U_IH_Thick.tres" id="9_th"]
+[ext_resource type="Resource" uid="uid://c15qqimiivpo5" path="res://resources/Abilities/Bow/Upgrades/U_IH_Calloused.tres" id="10_ca"]
+[ext_resource type="Resource" uid="uid://b0wey4tjbi2eu" path="res://resources/Abilities/Bow/Upgrades/U_IH_Ironclad.tres" id="11_ir"]
 
 [sub_resource type="Resource" id="Resource_ih_behav"]
 resource_local_to_scene = true

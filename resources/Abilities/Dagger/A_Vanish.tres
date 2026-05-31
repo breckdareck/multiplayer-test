@@ -9,11 +9,11 @@
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="7_drks1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="10_8vb02"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="11_aud"]
-[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_VAN_Linger.tres" id="12_van1"]
-[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_VAN_Silence.tres" id="13_van2"]
-[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_VAN_Shroud.tres" id="14_van3"]
-[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_VAN_Phantom.tres" id="15_van4"]
-[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_VAN_SwiftExit.tres" id="16_van5"]
+[ext_resource type="Resource" uid="uid://icmxfyofy5xh" path="res://resources/Abilities/Dagger/Upgrades/U_VAN_Linger.tres" id="12_van1"]
+[ext_resource type="Resource" uid="uid://bqbouq1j753tp" path="res://resources/Abilities/Dagger/Upgrades/U_VAN_Silence.tres" id="13_van2"]
+[ext_resource type="Resource" uid="uid://cebnu0p0yvwlj" path="res://resources/Abilities/Dagger/Upgrades/U_VAN_Shroud.tres" id="14_van3"]
+[ext_resource type="Resource" uid="uid://drl23o3eg6cwf" path="res://resources/Abilities/Dagger/Upgrades/U_VAN_Phantom.tres" id="15_van4"]
+[ext_resource type="Resource" uid="uid://dohrq76bk3p2n" path="res://resources/Abilities/Dagger/Upgrades/U_VAN_SwiftExit.tres" id="16_van5"]
 
 [sub_resource type="Resource" id="Resource_drks1"]
 resource_local_to_scene = true

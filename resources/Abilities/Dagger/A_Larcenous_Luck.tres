@@ -6,9 +6,9 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_nmbs1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_nmbs1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="7_aud"]
-[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_LUK_Lucky.tres" id="8_luk1"]
-[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_LUK_Fortunate.tres" id="9_luk2"]
-[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_LUK_Blessed.tres" id="10_luk3"]
+[ext_resource type="Resource" uid="uid://bplpu50mkhjo" path="res://resources/Abilities/Dagger/Upgrades/U_LUK_Lucky.tres" id="8_luk1"]
+[ext_resource type="Resource" uid="uid://cehtct5kcrc44" path="res://resources/Abilities/Dagger/Upgrades/U_LUK_Fortunate.tres" id="9_luk2"]
+[ext_resource type="Resource" uid="uid://b0chmridt8u3c" path="res://resources/Abilities/Dagger/Upgrades/U_LUK_Blessed.tres" id="10_luk3"]
 [ext_resource type="Script" uid="uid://dluvjkydm0ajf" path="res://scripts/Abilities/AL_Composure.gd" id="11_alco"]
 
 [sub_resource type="Resource" id="Resource_nmbs1"]

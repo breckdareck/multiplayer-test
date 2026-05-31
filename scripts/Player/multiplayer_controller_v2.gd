@@ -137,7 +137,8 @@ func _ready() -> void:
 	if not _is_bot and multiplayer.get_unique_id() == player_id:
 		ChatManager.register_local_player(self)
 		# Request the sprite states of all other players from the server.
-		stats_window.update_stats_window()
+		if(stats_window):
+			stats_window.update_stats_window()
 		request_all_sprite_states.rpc_id(SERVER_ID)
 
 	# Server-specific setup

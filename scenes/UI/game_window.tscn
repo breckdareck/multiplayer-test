@@ -1,18 +1,15 @@
-[gd_scene load_steps=29 format=3 uid="uid://cgamewindowhub1"]
+[gd_scene load_steps=31 format=3 uid="uid://jtdhvyo8t2y7"]
 
-[ext_resource type="StyleBox" path="res://assets/UI/Themes/PanelStyleboxTheme.tres" id="1_pst"]
-[ext_resource type="Script" path="res://scripts/UI/game_window.gd" id="2_gw"]
-[ext_resource type="FontFile" path="res://assets/fonts/PixelOperator8.ttf" id="3_font"]
-[ext_resource type="Script" path="res://scripts/UI/equipment_slot.gd" id="4_xhp0y"]
-[ext_resource type="PackedScene" path="res://scenes/UI/pet_tab.tscn" id="5_vam3o"]
-[ext_resource type="PackedScene" path="res://scenes/UI/abilities_window.tscn" id="6_abil"]
-[ext_resource type="Script" path="res://scripts/UI/pet_tab.gd" id="6_xpwyq"]
-[ext_resource type="Theme" path="res://assets/UI/Themes/ScrollContainerTheme.tres" id="7_vhdlr"]
-[ext_resource type="PackedScene" path="res://scenes/UI/slot.tscn" id="8_ftm0t"]
-[ext_resource type="Script" path="res://scripts/UI/slot.gd" id="9_6j21d"]
-[ext_resource type="Texture2D" path="res://assets/sprites/coin.png" id="10_vrb4e"]
-[ext_resource type="FontFile" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="11_x66lr"]
-[ext_resource type="Script" path="res://scripts/UI/ability_window.gd" id="13_avfno"]
+[ext_resource type="StyleBox" uid="uid://dm8jxifs8rqrm" path="res://assets/UI/Themes/PanelStyleboxTheme.tres" id="1_pst"]
+[ext_resource type="Script" uid="uid://bc6tjnwvjn85k" path="res://scripts/UI/game_window.gd" id="2_gw"]
+[ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="3_font"]
+[ext_resource type="Script" uid="uid://djwyi64hs6ufi" path="res://scripts/UI/equipment_slot.gd" id="4_xhp0y"]
+[ext_resource type="PackedScene" uid="uid://c43mtof11updf" path="res://scenes/UI/pet_tab.tscn" id="5_vam3o"]
+[ext_resource type="PackedScene" uid="uid://c2sweq4gkie70" path="res://scenes/UI/abilities_window.tscn" id="6_abil"]
+[ext_resource type="Theme" uid="uid://bg5sc8rk63fi6" path="res://assets/UI/Themes/ScrollContainerTheme.tres" id="7_vhdlr"]
+[ext_resource type="PackedScene" uid="uid://brcg2yc1x5qen" path="res://scenes/UI/slot.tscn" id="8_ftm0t"]
+[ext_resource type="Texture2D" uid="uid://u3tpikp1eegv" path="res://assets/sprites/coin.png" id="10_vrb4e"]
+[ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="11_x66lr"]
 
 [sub_resource type="Theme" id="hub_theme"]
 default_font = ExtResource("3_font")
@@ -71,6 +68,73 @@ font_size = 18
 outline_size = 8
 outline_color = Color(0, 0, 0, 1)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vam3o"]
+content_margin_top = 5.0
+bg_color = Color(0.12156863, 0.09803922, 0.16078432, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.49803922, 0.4, 0.69803923, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qhurc"]
+bg_color = Color(0.09019608, 0.09019608, 0.09803922, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.90588236, 0.8901961, 0.34901962, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xhp0y"]
+content_margin_top = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0.15640001, 0.15640001, 0.17, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.90588236, 0.8901961, 0.34901962, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mqlp0"]
+content_margin_top = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0.0368, 0.0368, 0.04, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.90588236, 0.8901961, 0.34901962, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qk6wm"]
+content_margin_top = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0.09019608, 0.09019608, 0.09803922, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.90588236, 0.8901961, 0.34901962, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4ni0x"]
 content_margin_top = 5.0
 bg_color = Color(0.08, 0.08, 0.1, 1)
@@ -84,22 +148,32 @@ corner_radius_top_right = 5
 expand_margin_top = 5.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_32uah"]
-content_margin_left = 10.0
-content_margin_right = 10.0
+content_margin_left = 20.0
+content_margin_right = 20.0
 bg_color = Color(0.1, 0.1, 0.12, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
 corner_radius_top_left = 5
 corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+expand_margin_top = 3.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_kp55c"]
-content_margin_left = 10.0
-content_margin_right = 10.0
+content_margin_left = 20.0
+content_margin_right = 20.0
 bg_color = Color(0.2, 0.2, 0.25, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
-border_color = Color(0.4, 0.4, 0.45, 1)
+border_width_bottom = 1
+border_color = Color(0.90588236, 0.8901961, 0.34901962, 1)
 corner_radius_top_left = 5
 corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
 expand_margin_top = 3.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_w2lun"]
@@ -133,14 +207,15 @@ region = Rect2(0, 0, 16, 16)
 
 [node name="GameWindow" type="Panel"]
 custom_minimum_size = Vector2(1180, 720)
+anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -590.0
-offset_top = -360.0
-offset_right = 590.0
-offset_bottom = 360.0
+offset_left = -714.1459
+offset_top = -486.0
+offset_right = 714.1459
+offset_bottom = 385.5
 grow_horizontal = 2
 grow_vertical = 2
 theme = SubResource("hub_theme")
@@ -167,8 +242,8 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 16
 theme_override_colors/font_color = Color(0.905882, 0.890196, 0.34902, 1)
+theme_override_font_sizes/font_size = 16
 text = "CHARACTER"
 
 [node name="HubCloseButton" type="Button" parent="Margin/VBox/Header"]
@@ -215,38 +290,9 @@ theme_override_constants/separation = 6
 
 [node name="Hdr" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col1/V"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 13
 theme_override_colors/font_color = Color(0.905882, 0.890196, 0.34902, 1)
+theme_override_font_sizes/font_size = 16
 text = "EQUIPMENT"
-
-[node name="CharHeader" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col1/V"]
-layout_mode = 2
-
-[node name="HB" type="HBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col1/V/CharHeader"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="Portrait" type="Panel" parent="Margin/VBox/Pages/CharacterPage/Col1/V/CharHeader/HB"]
-custom_minimum_size = Vector2(38, 38)
-layout_mode = 2
-
-[node name="Names" type="VBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col1/V/CharHeader/HB"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-
-[node name="HdrName" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col1/V/CharHeader/HB/Names"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 13
-text = "Name"
-
-[node name="HdrSub" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col1/V/CharHeader/HB/Names"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
-text = "Lv 1"
 
 [node name="EquipHost" type="VBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col1/V"]
 unique_name_in_owner = true
@@ -262,11 +308,12 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_ihqbe")
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
-theme_override_constants/v_separation = 6
+theme_override_constants/h_separation = 40
+theme_override_constants/v_separation = 16
 columns = 2
 
 [node name="HeadSlot" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PanelContainer/GridContainer"]
-custom_minimum_size = Vector2(55, 55)
+custom_minimum_size = Vector2(70, 70)
 layout_mode = 2
 mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_tuhj4")
@@ -287,9 +334,9 @@ stretch_mode = 5
 [node name="Label" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PanelContainer/GridContainer/HeadSlot"]
 layout_mode = 2
 size_flags_vertical = 1
+theme_override_constants/outline_size = 8
 theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 24
-theme_override_constants/outline_size = 8
 label_settings = SubResource("LabelSettings_tuhj4")
 vertical_alignment = 2
 
@@ -303,15 +350,15 @@ theme_override_constants/margin_bottom = 2
 [node name="SlotTextLabel" type="RichTextLabel" parent="Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PanelContainer/GridContainer/HeadSlot/MarginContainer"]
 layout_mode = 2
 mouse_filter = 1
-theme_override_font_sizes/normal_font_size = 10
 theme_override_colors/default_color = Color(1, 1, 1, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.28627452)
+theme_override_font_sizes/normal_font_size = 10
 text = "HEAD"
 scroll_active = false
 autowrap_mode = 2
 
 [node name="ChestSlot" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PanelContainer/GridContainer"]
-custom_minimum_size = Vector2(55, 55)
+custom_minimum_size = Vector2(70, 70)
 layout_mode = 2
 mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_tuhj4")
@@ -332,9 +379,9 @@ stretch_mode = 5
 [node name="Label" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PanelContainer/GridContainer/ChestSlot"]
 layout_mode = 2
 size_flags_vertical = 1
+theme_override_constants/outline_size = 8
 theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 24
-theme_override_constants/outline_size = 8
 label_settings = SubResource("LabelSettings_tuhj4")
 vertical_alignment = 2
 
@@ -348,15 +395,15 @@ theme_override_constants/margin_bottom = 2
 [node name="SlotTextLabel" type="RichTextLabel" parent="Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PanelContainer/GridContainer/ChestSlot/MarginContainer"]
 layout_mode = 2
 mouse_filter = 1
-theme_override_font_sizes/normal_font_size = 10
 theme_override_colors/default_color = Color(0.97227865, 0.9722778, 0.97227794, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.28627452)
+theme_override_font_sizes/normal_font_size = 10
 text = "CHEST"
 scroll_active = false
 autowrap_mode = 2
 
 [node name="LegsSlot" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PanelContainer/GridContainer"]
-custom_minimum_size = Vector2(55, 55)
+custom_minimum_size = Vector2(70, 70)
 layout_mode = 2
 mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_tuhj4")
@@ -377,9 +424,9 @@ stretch_mode = 5
 [node name="Label" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PanelContainer/GridContainer/LegsSlot"]
 layout_mode = 2
 size_flags_vertical = 1
+theme_override_constants/outline_size = 8
 theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 24
-theme_override_constants/outline_size = 8
 label_settings = SubResource("LabelSettings_tuhj4")
 vertical_alignment = 2
 
@@ -393,15 +440,15 @@ theme_override_constants/margin_bottom = 2
 [node name="SlotTextLabel" type="RichTextLabel" parent="Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PanelContainer/GridContainer/LegsSlot/MarginContainer"]
 layout_mode = 2
 mouse_filter = 1
-theme_override_font_sizes/normal_font_size = 10
 theme_override_colors/default_color = Color(0.97227865, 0.9722778, 0.97227794, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.28627452)
+theme_override_font_sizes/normal_font_size = 10
 text = "LEGS"
 scroll_active = false
 autowrap_mode = 2
 
 [node name="FeetSlot" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PanelContainer/GridContainer"]
-custom_minimum_size = Vector2(55, 55)
+custom_minimum_size = Vector2(70, 70)
 layout_mode = 2
 mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_tuhj4")
@@ -422,9 +469,9 @@ stretch_mode = 5
 [node name="Label" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PanelContainer/GridContainer/FeetSlot"]
 layout_mode = 2
 size_flags_vertical = 1
+theme_override_constants/outline_size = 8
 theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 24
-theme_override_constants/outline_size = 8
 label_settings = SubResource("LabelSettings_tuhj4")
 vertical_alignment = 2
 
@@ -438,15 +485,15 @@ theme_override_constants/margin_bottom = 2
 [node name="SlotTextLabel" type="RichTextLabel" parent="Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PanelContainer/GridContainer/FeetSlot/MarginContainer"]
 layout_mode = 2
 mouse_filter = 1
-theme_override_font_sizes/normal_font_size = 10
 theme_override_colors/default_color = Color(0.97227865, 0.9722778, 0.97227794, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.28627452)
+theme_override_font_sizes/normal_font_size = 10
 text = "FEET"
 scroll_active = false
 autowrap_mode = 2
 
 [node name="WeaponSlot" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PanelContainer/GridContainer"]
-custom_minimum_size = Vector2(55, 55)
+custom_minimum_size = Vector2(70, 70)
 layout_mode = 2
 mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_tuhj4")
@@ -466,9 +513,9 @@ stretch_mode = 5
 [node name="Label" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PanelContainer/GridContainer/WeaponSlot"]
 layout_mode = 2
 size_flags_vertical = 1
+theme_override_constants/outline_size = 8
 theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 24
-theme_override_constants/outline_size = 8
 label_settings = SubResource("LabelSettings_tuhj4")
 vertical_alignment = 2
 
@@ -482,15 +529,15 @@ theme_override_constants/margin_bottom = 2
 [node name="SlotTextLabel" type="RichTextLabel" parent="Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PanelContainer/GridContainer/WeaponSlot/MarginContainer"]
 layout_mode = 2
 mouse_filter = 1
-theme_override_font_sizes/normal_font_size = 10
 theme_override_colors/default_color = Color(0.97227865, 0.9722778, 0.97227794, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.28627452)
+theme_override_font_sizes/normal_font_size = 10
 text = "WEAPON"
 scroll_active = false
 autowrap_mode = 2
 
 [node name="SecondaryWeaponSlot" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PanelContainer/GridContainer"]
-custom_minimum_size = Vector2(55, 55)
+custom_minimum_size = Vector2(70, 70)
 layout_mode = 2
 mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_tuhj4")
@@ -510,9 +557,9 @@ stretch_mode = 5
 [node name="Label" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PanelContainer/GridContainer/SecondaryWeaponSlot"]
 layout_mode = 2
 size_flags_vertical = 1
+theme_override_constants/outline_size = 8
 theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 24
-theme_override_constants/outline_size = 8
 label_settings = SubResource("LabelSettings_tuhj4")
 vertical_alignment = 2
 
@@ -526,47 +573,24 @@ theme_override_constants/margin_bottom = 2
 [node name="SlotTextLabel" type="RichTextLabel" parent="Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PanelContainer/GridContainer/SecondaryWeaponSlot/MarginContainer"]
 layout_mode = 2
 mouse_filter = 1
-theme_override_font_sizes/normal_font_size = 10
 theme_override_colors/default_color = Color(0.97227865, 0.9722778, 0.97227794, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.28627452)
+theme_override_font_sizes/normal_font_size = 10
 text = "2ND WEAPON"
 scroll_active = false
 autowrap_mode = 2
 
+[node name="HSeparator" type="HSeparator" parent="Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
 [node name="PetTabContent" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_ihqbe")
+theme_override_styles/panel = SubResource("StyleBoxFlat_vam3o")
 
-[node name="PetTab" type="MarginContainer" parent="Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PetTabContent" node_paths=PackedStringArray("pet_list", "detail_container", "empty_state_label", "portrait", "name_edit", "summon_button", "release_button", "hunger_bar", "feed_button", "pots_grid", "commands_grid", "hp_threshold_slider", "hp_threshold_value_label", "mp_threshold_slider", "mp_threshold_value_label", "confirm_dialog", "slot_autopot_hp", "slot_autopot_mp", "slot_ability_buff", "slot_cmd_auto_pot", "slot_cmd_buff", "slot_cmd_magnet") instance=ExtResource("5_vam3o")]
+[node name="PetTab" parent="Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PetTabContent" instance=ExtResource("5_vam3o")]
 layout_mode = 2
-theme_override_constants/margin_left = 2
-theme_override_constants/margin_top = 2
-theme_override_constants/margin_right = 2
-theme_override_constants/margin_bottom = 2
-script = ExtResource("6_xpwyq")
-pet_list = NodePath("RootHBox/ListPanel/ListVBox/PetList")
-detail_container = NodePath("RootHBox/DetailVBox")
-empty_state_label = NodePath("RootHBox/DetailVBox/EmptyState")
-portrait = NodePath("RootHBox/DetailVBox/PortraitRow/Portrait")
-name_edit = NodePath("RootHBox/DetailVBox/PortraitRow/NameEdit")
-summon_button = NodePath("RootHBox/DetailVBox/PortraitRow/SummonButton")
-release_button = NodePath("RootHBox/DetailVBox/ReleaseButton")
-hunger_bar = NodePath("RootHBox/DetailVBox/HungerRow/HungerBar")
-feed_button = NodePath("RootHBox/DetailVBox/HungerRow/FeedButton")
-pots_grid = NodePath("RootHBox/DetailVBox/PotsGrid")
-commands_grid = NodePath("RootHBox/DetailVBox/CommandsGrid")
-hp_threshold_slider = NodePath("RootHBox/DetailVBox/HPRow/HPSlider")
-hp_threshold_value_label = NodePath("RootHBox/DetailVBox/HPRow/HPValueLabel")
-mp_threshold_slider = NodePath("RootHBox/DetailVBox/MPRow/MPSlider")
-mp_threshold_value_label = NodePath("RootHBox/DetailVBox/MPRow/MPValueLabel")
-confirm_dialog = NodePath("ConfirmDialog")
-slot_autopot_hp = NodePath("RootHBox/DetailVBox/PotsGrid/SlotAutopotHP")
-slot_autopot_mp = NodePath("RootHBox/DetailVBox/PotsGrid/SlotAutopotMP")
-slot_ability_buff = NodePath("RootHBox/DetailVBox/PotsGrid/SlotAbilityBuff")
-slot_cmd_auto_pot = NodePath("RootHBox/DetailVBox/CommandsGrid/SlotCmdAutoPot")
-slot_cmd_buff = NodePath("RootHBox/DetailVBox/CommandsGrid/SlotCmdBuff")
-slot_cmd_magnet = NodePath("RootHBox/DetailVBox/CommandsGrid/SlotCmdMagnet")
 
 [node name="Col2" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage"]
 layout_mode = 2
@@ -580,15 +604,15 @@ theme_override_constants/separation = 6
 
 [node name="Hdr" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 13
 theme_override_colors/font_color = Color(0.905882, 0.890196, 0.34902, 1)
+theme_override_font_sizes/font_size = 16
 text = "STATS"
 
 [node name="Stats" type="VBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col2/V"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 4
+theme_override_constants/separation = 6
 
 [node name="HpRow" type="HBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats"]
 layout_mode = 2
@@ -597,10 +621,12 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+theme_override_font_sizes/font_size = 16
 text = "HP"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/HpRow"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 16
 text = "-"
 horizontal_alignment = 2
 
@@ -611,10 +637,12 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+theme_override_font_sizes/font_size = 16
 text = "MP"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/MpRow"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 16
 text = "-"
 horizontal_alignment = 2
 
@@ -625,10 +653,12 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+theme_override_font_sizes/font_size = 16
 text = "Attack"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/AtkRow"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 16
 text = "-"
 horizontal_alignment = 2
 
@@ -639,10 +669,12 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+theme_override_font_sizes/font_size = 16
 text = "Magic Atk"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/MAtkRow"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 16
 text = "-"
 horizontal_alignment = 2
 
@@ -653,10 +685,12 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+theme_override_font_sizes/font_size = 16
 text = "Defense"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/DefRow"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 16
 text = "-"
 horizontal_alignment = 2
 
@@ -667,10 +701,12 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+theme_override_font_sizes/font_size = 16
 text = "Mag Def"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/MDefRow"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 16
 text = "-"
 horizontal_alignment = 2
 
@@ -681,10 +717,12 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+theme_override_font_sizes/font_size = 16
 text = "Crit Rate"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/CritRateRow"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 16
 text = "-"
 horizontal_alignment = 2
 
@@ -695,10 +733,12 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+theme_override_font_sizes/font_size = 16
 text = "Crit Dmg"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/CritDmgRow"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 16
 text = "-"
 horizontal_alignment = 2
 
@@ -709,23 +749,53 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+theme_override_font_sizes/font_size = 16
 text = "Dmg Range"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/DmgRangeRow"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 16
 text = "-"
 horizontal_alignment = 2
 
 [node name="Sep" type="HSeparator" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 32
 
 [node name="UnspentLabel" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.45, 0.9, 0.55, 1)
+theme_override_font_sizes/font_size = 16
 text = "ATTRIBUTES   —   Unspent: 0"
+
+[node name="ConRow" type="HBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats"]
+layout_mode = 2
+
+[node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/ConRow"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "CON"
+
+[node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/ConRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 16
+text = "0"
+
+[node name="Plus" type="Button" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/ConRow"]
+custom_minimum_size = Vector2(30, 24)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0.45, 0.9, 0.55, 1)
+theme_override_constants/outline_size = 0
+theme_override_fonts/font = ExtResource("11_x66lr")
+theme_override_font_sizes/font_size = 8
+theme_override_styles/normal = SubResource("StyleBoxFlat_qhurc")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_xhp0y")
+theme_override_styles/hover = SubResource("StyleBoxFlat_mqlp0")
+text = "+"
 
 [node name="StrRow" type="HBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats"]
 layout_mode = 2
@@ -733,13 +803,13 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/StrRow"]
 custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 16
 text = "STR"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/StrRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 16
 text = "0"
 
 [node name="Plus" type="Button" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/StrRow"]
@@ -747,6 +817,12 @@ custom_minimum_size = Vector2(30, 24)
 layout_mode = 2
 focus_mode = 0
 theme_override_colors/font_color = Color(0.45, 0.9, 0.55, 1)
+theme_override_constants/outline_size = 0
+theme_override_fonts/font = ExtResource("11_x66lr")
+theme_override_font_sizes/font_size = 8
+theme_override_styles/normal = SubResource("StyleBoxFlat_qhurc")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_xhp0y")
+theme_override_styles/hover = SubResource("StyleBoxFlat_mqlp0")
 text = "+"
 
 [node name="DexRow" type="HBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats"]
@@ -755,13 +831,13 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/DexRow"]
 custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 16
 text = "DEX"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/DexRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 16
 text = "0"
 
 [node name="Plus" type="Button" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/DexRow"]
@@ -769,6 +845,12 @@ custom_minimum_size = Vector2(30, 24)
 layout_mode = 2
 focus_mode = 0
 theme_override_colors/font_color = Color(0.45, 0.9, 0.55, 1)
+theme_override_constants/outline_size = 0
+theme_override_fonts/font = ExtResource("11_x66lr")
+theme_override_font_sizes/font_size = 8
+theme_override_styles/normal = SubResource("StyleBoxFlat_qhurc")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_xhp0y")
+theme_override_styles/hover = SubResource("StyleBoxFlat_mqlp0")
 text = "+"
 
 [node name="IntRow" type="HBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats"]
@@ -777,13 +859,13 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/IntRow"]
 custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 16
 text = "INT"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/IntRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 16
 text = "0"
 
 [node name="Plus" type="Button" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/IntRow"]
@@ -791,6 +873,12 @@ custom_minimum_size = Vector2(30, 24)
 layout_mode = 2
 focus_mode = 0
 theme_override_colors/font_color = Color(0.45, 0.9, 0.55, 1)
+theme_override_constants/outline_size = 0
+theme_override_fonts/font = ExtResource("11_x66lr")
+theme_override_font_sizes/font_size = 8
+theme_override_styles/normal = SubResource("StyleBoxFlat_qhurc")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_xhp0y")
+theme_override_styles/hover = SubResource("StyleBoxFlat_mqlp0")
 text = "+"
 
 [node name="LuckRow" type="HBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats"]
@@ -799,13 +887,13 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/LuckRow"]
 custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 16
 text = "LUCK"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/LuckRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 16
 text = "0"
 
 [node name="Plus" type="Button" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/LuckRow"]
@@ -813,34 +901,26 @@ custom_minimum_size = Vector2(30, 24)
 layout_mode = 2
 focus_mode = 0
 theme_override_colors/font_color = Color(0.45, 0.9, 0.55, 1)
+theme_override_constants/outline_size = 0
+theme_override_fonts/font = ExtResource("11_x66lr")
+theme_override_font_sizes/font_size = 8
+theme_override_styles/normal = SubResource("StyleBoxFlat_qhurc")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_xhp0y")
+theme_override_styles/hover = SubResource("StyleBoxFlat_mqlp0")
 text = "+"
 
-[node name="ConRow" type="HBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats"]
+[node name="Sep2" type="HSeparator" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats"]
 layout_mode = 2
-
-[node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/ConRow"]
-custom_minimum_size = Vector2(64, 0)
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-text = "CON"
-
-[node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/ConRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 12
-text = "0"
-
-[node name="Plus" type="Button" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/ConRow"]
-custom_minimum_size = Vector2(30, 24)
-layout_mode = 2
-focus_mode = 0
-theme_override_colors/font_color = Color(0.45, 0.9, 0.55, 1)
-text = "+"
+theme_override_constants/separation = 27
 
 [node name="RespecButton" type="Button" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats"]
 unique_name_in_owner = true
 layout_mode = 2
 focus_mode = 0
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_qk6wm")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_xhp0y")
+theme_override_styles/hover = SubResource("StyleBoxFlat_mqlp0")
 text = "Respec Attrs"
 
 [node name="Col3" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage"]
@@ -855,8 +935,8 @@ theme_override_constants/separation = 6
 
 [node name="Hdr" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col3/V"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 13
 theme_override_colors/font_color = Color(0.905882, 0.890196, 0.34902, 1)
+theme_override_font_sizes/font_size = 16
 text = "INVENTORY"
 
 [node name="InvHost" type="VBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V"]
@@ -867,21 +947,24 @@ size_flags_vertical = 3
 [node name="TabContainer" type="TabContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost"]
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_colors/font_selected_color = Color(0.90588236, 0.8901961, 0.34901962, 1)
+theme_override_colors/font_unselected_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/side_margin = 8
+theme_override_constants/tab_separation = 6
+theme_override_constants/outline_size = 6
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 16
 theme_override_styles/panel = SubResource("StyleBoxFlat_4ni0x")
 theme_override_styles/tabbar_background = SubResource("StyleBoxFlat_jn0uf")
 theme_override_styles/tab_unselected = SubResource("StyleBoxFlat_32uah")
 theme_override_styles/tab_hovered = SubResource("StyleBoxFlat_32uah")
 theme_override_styles/tab_selected = SubResource("StyleBoxFlat_kp55c")
-theme_override_colors/font_unselected_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_fonts/font = ExtResource("3_font")
-theme_override_constants/outline_size = 6
 current_tab = 0
 clip_tabs = false
 tab_focus_mode = 0
 
 [node name="EQUIP" type="Control" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer"]
-visible = false
 layout_mode = 2
 metadata/_tab_index = 0
 
@@ -902,456 +985,278 @@ vertical_scroll_mode = 2
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 6
-theme_override_constants/h_separation = 7
-theme_override_constants/v_separation = 7
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
 columns = 6
 
-[node name="Slot" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot2" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot2" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot3" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot3" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot4" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot4" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot5" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot5" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot6" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot6" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot7" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot7" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot8" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot8" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot9" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot9" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot10" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot10" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot11" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot11" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot12" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot12" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot13" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot13" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot14" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot14" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot15" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot15" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot16" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot16" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot17" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot17" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot18" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot18" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot19" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot19" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot20" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot20" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot21" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot21" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot22" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot22" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot23" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot23" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot24" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot24" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot25" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot25" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot26" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot26" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot27" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot27" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot28" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot28" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot29" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot29" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot30" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot30" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot31" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot31" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot32" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot32" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot33" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot33" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot34" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot34" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot35" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot35" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot36" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot36" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot37" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot37" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot38" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot38" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot39" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot39" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot40" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot40" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot41" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot41" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot42" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot42" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot43" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot43" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot44" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot44" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot45" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot45" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot46" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot46" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot47" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot47" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot48" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot48" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot49" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot49" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot50" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot50" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot51" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot51" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot52" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot52" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot53" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot53" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
-[node name="Slot54" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot54" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
-allowed_item_type = 1
-
-[node name="Slot55" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
-layout_mode = 2
-mouse_filter = 1
-theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
-allowed_item_type = 1
-
-[node name="Slot56" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
-layout_mode = 2
-mouse_filter = 1
-theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 1
 
 [node name="USE" type="Control" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer"]
@@ -1376,456 +1281,278 @@ vertical_scroll_mode = 2
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 6
-theme_override_constants/h_separation = 7
-theme_override_constants/v_separation = 7
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
 columns = 6
 
-[node name="Slot" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot2" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot2" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot3" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot3" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot4" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot4" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot5" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot5" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot6" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot6" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot7" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot7" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot8" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot8" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot9" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot9" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot10" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot10" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot11" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot11" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot12" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot12" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot13" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot13" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot14" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot14" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot15" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot15" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot16" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot16" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot17" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot17" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot18" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot18" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot19" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot19" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot20" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot20" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot21" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot21" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot22" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot22" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot23" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot23" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot24" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot24" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot25" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot25" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot26" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot26" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot27" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot27" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot28" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot28" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot29" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot29" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot30" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot30" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot31" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot31" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot32" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot32" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot33" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot33" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot34" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot34" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot35" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot35" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot36" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot36" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot37" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot37" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot38" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot38" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot39" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot39" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot40" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot40" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot41" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot41" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot42" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot42" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot43" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot43" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot44" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot44" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot45" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot45" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot46" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot46" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot47" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot47" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot48" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot48" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot49" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot49" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot50" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot50" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot51" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot51" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot52" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot52" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot53" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot53" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
-[node name="Slot54" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot54" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
-allowed_item_type = 2
-
-[node name="Slot55" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
-layout_mode = 2
-mouse_filter = 1
-theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
-allowed_item_type = 2
-
-[node name="Slot56" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
-layout_mode = 2
-mouse_filter = 1
-theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 2
 
 [node name="ETC" type="Control" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer"]
@@ -1850,456 +1577,278 @@ vertical_scroll_mode = 2
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 6
-theme_override_constants/h_separation = 7
-theme_override_constants/v_separation = 7
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
 columns = 6
 
-[node name="Slot" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot2" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot2" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot3" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot3" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot4" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot4" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot5" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot5" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot6" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot6" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot7" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot7" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot8" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot8" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot9" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot9" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot10" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot10" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot11" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot11" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot12" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot12" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot13" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot13" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot14" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot14" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot15" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot15" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot16" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot16" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot17" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot17" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot18" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot18" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot19" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot19" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot20" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot20" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot21" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot21" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot22" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot22" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot23" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot23" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot24" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot24" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot25" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot25" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot26" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot26" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot27" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot27" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot28" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot28" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot29" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot29" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot30" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot30" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot31" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot31" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot32" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot32" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot33" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot33" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot34" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot34" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot35" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot35" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot36" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot36" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot37" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot37" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot38" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot38" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot39" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot39" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot40" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot40" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot41" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot41" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot42" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot42" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot43" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot43" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot44" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot44" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot45" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot45" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot46" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot46" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot47" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot47" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot48" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot48" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot49" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot49" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot50" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot50" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot51" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot51" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot52" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot52" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot53" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot53" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
-[node name="Slot54" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
+[node name="Slot54" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
 layout_mode = 2
-mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
-allowed_item_type = 3
-
-[node name="Slot55" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
-layout_mode = 2
-mouse_filter = 1
-theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
-allowed_item_type = 3
-
-[node name="Slot56" type="PanelContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid" instance=ExtResource("8_ftm0t")]
-custom_minimum_size = Vector2(70, 70)
-layout_mode = 2
-mouse_filter = 1
-theme_override_styles/panel = SubResource("StyleBoxFlat_w2lun")
-script = ExtResource("9_6j21d")
 allowed_item_type = 3
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col3/V/InvHost"]
@@ -2343,8 +1892,8 @@ offset_right = -2.0
 offset_bottom = 13.0
 grow_horizontal = 0
 grow_vertical = 2
-theme_override_fonts/font = ExtResource("11_x66lr")
 theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("11_x66lr")
 text = "0"
 horizontal_alignment = 2
 vertical_alignment = 1
@@ -2374,9 +1923,6 @@ theme_override_styles/panel = SubResource("col_sb")
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="AbilityWindow" type="PanelContainer" parent="Margin/VBox/Pages/AbilitiesPage/AbilHost" instance=ExtResource("6_abil")]
-custom_minimum_size = Vector2(960, 600)
+[node name="AbilityWindow" parent="Margin/VBox/Pages/AbilitiesPage/AbilHost" instance=ExtResource("6_abil")]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_styles/panel = ExtResource("1_pst")
-script = ExtResource("13_avfno")

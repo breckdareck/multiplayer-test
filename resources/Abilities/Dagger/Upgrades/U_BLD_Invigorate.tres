@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://dgru_bld1_invigorate"]
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://ch1mpr6kawwtc"]
 
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
 
@@ -7,8 +7,5 @@ script = ExtResource("1_aud")
 upgrade_id = "bld_t1_invigorate"
 upgrade_name = "Invigorate"
 description = "Bloodlust lasts 10 seconds longer."
-point_cost = 1
-tier = 1
-variant_group = ""
 effect_key = "buff_duration_bonus"
 magnitude = 10.0

@@ -8,11 +8,11 @@
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_env1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_env1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="10_aud"]
-[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_ENV_CoatedBlade.tres" id="11_env1"]
-[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_ENV_Virulent.tres" id="12_env2"]
-[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_ENV_Neurotoxin.tres" id="13_env3"]
-[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_ENV_Corrosive.tres" id="14_env4"]
-[ext_resource type="Resource" path="res://resources/Abilities/Dagger/Upgrades/U_ENV_Lingering.tres" id="15_env5"]
+[ext_resource type="Resource" uid="uid://dxxkq20lfg4w2" path="res://resources/Abilities/Dagger/Upgrades/U_ENV_CoatedBlade.tres" id="11_env1"]
+[ext_resource type="Resource" uid="uid://cctwtc0o7tjg2" path="res://resources/Abilities/Dagger/Upgrades/U_ENV_Virulent.tres" id="12_env2"]
+[ext_resource type="Resource" uid="uid://h1duqdhsn4p8" path="res://resources/Abilities/Dagger/Upgrades/U_ENV_Neurotoxin.tres" id="13_env3"]
+[ext_resource type="Resource" uid="uid://d2wragd5xvtbj" path="res://resources/Abilities/Dagger/Upgrades/U_ENV_Corrosive.tres" id="14_env4"]
+[ext_resource type="Resource" uid="uid://bhpvox8hooqif" path="res://resources/Abilities/Dagger/Upgrades/U_ENV_Lingering.tres" id="15_env5"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_env1"]
 size = Vector2(34, 22)
