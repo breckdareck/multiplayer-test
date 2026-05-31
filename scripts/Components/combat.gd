@@ -434,9 +434,9 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 		if _stats_component.stats.has(Constants.StatType.ACCURACY):
 			stat_accuracy = float(_stats_component.stats[Constants.StatType.ACCURACY].total_value)
 	var target_evasion: float = 0.0
-	var target_stats = target_enemy.get("stats_component")
-	if target_stats != null and is_instance_valid(target_stats) and target_stats.stats.has(Constants.StatType.EVASIONCHANCE):
-		target_evasion = float(target_stats.stats[Constants.StatType.EVASIONCHANCE].total_value)
+	var target_stats_for_evasion = target_enemy.get("stats_component")
+	if target_stats_for_evasion != null and is_instance_valid(target_stats_for_evasion) and target_stats_for_evasion.stats.has(Constants.StatType.EVASIONCHANCE):
+		target_evasion = float(target_stats_for_evasion.stats[Constants.StatType.EVASIONCHANCE].total_value)
 	# Weapon-level underlevel penalty. Looks at the currently-active wielded weapon
 	# (so swapping to a higher-level off-hand mid-fight matters). NPCs / enemies
 	# with no equipment component skip the penalty (their attacks aren't expected
