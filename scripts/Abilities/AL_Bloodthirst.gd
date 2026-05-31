@@ -10,17 +10,18 @@ extends Node
 ## learned passive abilities and calls on_kill on those whose
 ## active_behavior.logic_script defines the method.
 
-## PR 6 follow-up: original 1% + 1%/lvl (10% at L10) was way too generous
-## per playtest — a maxed Bloodthirst made the character functionally
-## unkillable in a kill-chain. Tuned down to ~3.2% at L10, modeled after
-## MapleStory Demon Avenger's HP-recovery trickle (small per-kill, real
-## but not build-defining sustain).
+## PR 14 (2026-05-31): heal % now reads from A_Bloodthirst.tres's
+## damage_percent_formula directly, so future .tres tunings auto-propagate
+## without touching this script. The hardcoded BASE/PER_LEVEL constants
+## had drifted: PR 9 doubled .tres per_level (0.3 → 0.6) when max_level
+## halved (10 → 5), but this script's PER_LEVEL_HEAL_PCT stayed 0.3 —
+## Bloodthirst silently undertuned at L5 (1.7% instead of intended 2.9%).
+## Reading from the formula makes that whole class of bug impossible.
 ##
+## With the current .tres formula (base 0.5, per_level 0.6, max_level 5):
 ##   L1:   0.5% Max HP per kill
-##   L5:   1.7% Max HP per kill
-##   L10:  3.2% Max HP per kill   (was 10%)
-const BASE_HEAL_PCT: float = 0.5
-const PER_LEVEL_HEAL_PCT: float = 0.3
+##   L3:   1.7% Max HP per kill
+##   L5:   2.9% Max HP per kill
 
 
 func on_kill(_owner_node: Node, _target: Node, _ability_level: int, _ability_id: String = "") -> void:
@@ -33,7 +34,14 @@ func on_kill(_owner_node: Node, _target: Node, _ability_level: int, _ability_id:
 	if health_comp.is_dead:
 		return
 
-	var heal_pct: float = BASE_HEAL_PCT + PER_LEVEL_HEAL_PCT * float(_ability_level - 1)
+	# Read per-level heal % from the .tres formula (single source of truth).
+	# Fallback to a small fixed value if the ability data can't be resolved.
+	var heal_pct: float = 0.5
+	if _ability_id != "":
+		var ability: AbilityData = ResourceManager.get_ability_data(_ability_id)
+		if ability and ability.damage_percent_formula:
+			heal_pct = ability.damage_percent_formula.calculate(_ability_level)
+
 	# PR 6 upgrades: "heal_pct_bonus" (+flat % per kill) and "vampiric_basic"
 	# is handled elsewhere; here we only add the per-kill heal bonus.
 	var ability_comp = _owner_node.get("ability_component")

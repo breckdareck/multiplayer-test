@@ -19,11 +19,16 @@ const COMBAT_COLUMNS := ["Lv", "Stat", "Min", "Max", "Avg", "Hit%", "ExpAvg"]
 
 # Combat formula constants, mirrored from CombatComponent so the simulator
 # matches the game's damage calculation exactly.
-const HIT_CHANCE_PER_LEVEL_DIFF := 2.0
+# PR 14: raised HIT_CHANCE_PER_LEVEL_DIFF 2 -> 3 (combat.gd PR 13) and added
+# DEX_TO_ACCURACY + WEAPON_UNDERLEVEL_PENALTY constants so the Hit% column
+# reflects the new accuracy/evasion/weapon-level math.
+const HIT_CHANCE_PER_LEVEL_DIFF := 3.0
 const LEVEL_MOD_PER_LEVEL_DIFF := 0.05
 const LEVEL_MOD_MIN := 0.5
 const LEVEL_MOD_MAX := 1.5
 const DEFENSE_DENOM := 500.0
+const DEX_TO_ACCURACY := 0.05
+const WEAPON_UNDERLEVEL_PENALTY := 2.0
 
 var _editor_interface: EditorInterface = null
 
@@ -542,8 +547,11 @@ func _build_combat_section() -> void:
 	# Defaults: a fresh level-1 character — base WeaponDisciplineData stats (4 each),
 	# no equipment, no crit. Adjust upward to test gear / progression.
 	_add_spinbox(player_grid, "player_level",     "Level",      1,     999,     1, 1)
+	_add_spinbox(player_grid, "weapon_level",     "Wpn Level",  0,     999,     1, 1)
 	_add_spinbox(player_grid, "primary_stat",     "Primary",    0,    9999,     4, 1)
 	_add_spinbox(player_grid, "secondary_stat",   "Secondary",  0,    9999,     4, 1)
+	_add_spinbox(player_grid, "dex",              "DEX",        0,    9999,     0, 1)
+	_add_spinbox(player_grid, "accuracy",         "Accuracy %", 0.0, 200.0,   0.0, 1.0)
 	_add_spinbox(player_grid, "weapon_attack",    "WeaponAtk",  0,   99999,     0, 1)
 	_add_spinbox(player_grid, "magic_attack",     "MagicAtk",   0,   99999,     0, 1)
 	_add_spinbox(player_grid, "weapon_multiplier","Wpn Mult",   0.1,   3.0,   1.5, 0.05)
@@ -561,8 +569,9 @@ func _build_combat_section() -> void:
 	target_body.add_child(target_grid)
 
 	# Defaults: a level-1 enemy with no defense — the lowest-end matchup.
-	_add_spinbox(target_grid, "target_level",   "Level",   1,     999,     1, 1)
-	_add_spinbox(target_grid, "target_defense", "Defense", 0,  999999,     0, 1)
+	_add_spinbox(target_grid, "target_level",    "Level",    1,    999,    1, 1)
+	_add_spinbox(target_grid, "target_defense",  "Defense",  0, 999999,    0, 1)
+	_add_spinbox(target_grid, "target_evasion",  "Evasion %", 0.0, 100.0,  0.0, 1.0)
 
 	# A bit of context inside the target panel so the difference is obvious at
 	# a glance — these are the only two enemy-side inputs the combat formula
@@ -741,6 +750,10 @@ func _recompute_combat() -> void:
 	var crit_chance: float = _loadout_widgets.crit_chance.value
 	var crit_damage_pct: float = _loadout_widgets.crit_damage.value
 	var target_defense: int = int(_loadout_widgets.target_defense.value)
+	var target_evasion: float = float(_loadout_widgets.target_evasion.value)
+	var weapon_level: int = int(_loadout_widgets.weapon_level.value)
+	var dex: int = int(_loadout_widgets.dex.value)
+	var accuracy: float = float(_loadout_widgets.accuracy.value)
 
 	# Damage stat for THIS ability (Layer-1 value; CombatComponent uses this in
 	# _calculate_max_range for ability damage).
@@ -748,9 +761,18 @@ func _recompute_combat() -> void:
 	var attack_power: int = magic_attack if dmg_stat == _ConstantsScript.StatType.MAGICATTACK \
 		else weapon_attack
 
-	# Mirror the combat formula at each level.
+	# Mirror the combat formula at each level (CombatComponent._execute_hit, PR 13/14):
+	#   95 + char_diff*3 + DEX*0.05 + ACCURACY - target.EVASION
+	#      - max(0, target_lvl - weapon_lvl) * WEAPON_UNDERLEVEL_PENALTY
+	# floor 5, ceil 100.
 	var level_diff: int = player_level - target_level
-	var hit_chance: float = clampf(95.0 + (level_diff * HIT_CHANCE_PER_LEVEL_DIFF), 5.0, 100.0)
+	var dex_acc: float = float(dex) * DEX_TO_ACCURACY
+	var weapon_underlevel: int = maxi(0, target_level - weapon_level) if weapon_level > 0 else 0
+	var weapon_penalty: float = float(weapon_underlevel) * WEAPON_UNDERLEVEL_PENALTY
+	var hit_chance: float = clampf(
+		95.0 + (level_diff * HIT_CHANCE_PER_LEVEL_DIFF) + dex_acc + accuracy - target_evasion - weapon_penalty,
+		5.0, 100.0
+	)
 	var level_mod: float = clampf(1.0 + (level_diff * LEVEL_MOD_PER_LEVEL_DIFF), LEVEL_MOD_MIN, LEVEL_MOD_MAX)
 	var defense_mult: float = 1.0 - (float(target_defense) / (target_defense + DEFENSE_DENOM))
 	# Average crit multiplier = mid of randf_range(1.2, 1.5) + critDamage%/100.
