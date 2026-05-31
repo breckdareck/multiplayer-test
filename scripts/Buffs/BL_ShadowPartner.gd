@@ -130,7 +130,16 @@ func _on_owner_dealt_damage(target: Node, damage_values: Array, crit_values: Arr
 	var tgt_stats = target.get("stats_component")
 	if tgt_stats != null and is_instance_valid(tgt_stats) and tgt_stats.stats.has(Constants.StatType.EVASIONCHANCE):
 		tgt_evasion = float(tgt_stats.stats[Constants.StatType.EVASIONCHANCE].total_value)
-	var hit_chance: float = clampf(95.0 + (level_diff * 3.0) + dex_acc + stat_acc - tgt_evasion, 5.0, 100.0)
+	# PR 13 weapon-underlevel penalty — same shape as combat.gd. Phantoms use the
+	# player's wielded weapon, so an underleveled weapon also bites their hit-chance.
+	var weapon_underlevel: int = 0
+	var equip_comp = _owner_ref.get_node_or_null("Components/Equipment")
+	if equip_comp and equip_comp.active_weapon_data:
+		var wep_lvl: int = int(equip_comp.active_weapon_data.item_level)
+		if wep_lvl > 0:
+			weapon_underlevel = maxi(0, target_level - wep_lvl)
+	var weapon_penalty: float = weapon_underlevel * CombatComponent.WEAPON_UNDERLEVEL_PENALTY
+	var hit_chance: float = clampf(95.0 + (level_diff * 3.0) + dex_acc + stat_acc - tgt_evasion - weapon_penalty, 5.0, 100.0)
 
 	var shadow_damages: Array = []
 	var shadow_crits: Array = []

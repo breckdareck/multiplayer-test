@@ -14,6 +14,15 @@ signal dealt_damage(target: Node, damage_values: Array, crit_values: Array)
 ## dead. 0.5 = half. Tunable. A dedicated caster is ~unaffected (low STR/DEX).
 const SPELLBLADE_PHYS_RATE: float = 0.5
 
+## PR 13 — hidden weapon-level weight on hit chance (MapleStory-style). Per
+## level that the wielded weapon is BELOW the target monster's level, this
+## % is subtracted from hit chance. Equal- or over-level weapon = 0 penalty
+## (overlevel gives no bonus — level requirements gate equipping anyway).
+## At 2.0, a 20-level weapon gap is -40% hit chance, which is meant to be
+## noticeable but recoverable with accuracy investment (Marksman's Focus L5
+## = +10%, gear can stack more). Tune together with the level_diff scalar.
+const WEAPON_UNDERLEVEL_PENALTY: float = 2.0
+
 # Attack type tracking
 enum AttackMode {NONE, BASIC, ABILITY}
 var _current_attack_mode: AttackMode = AttackMode.NONE
@@ -405,18 +414,18 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 
 	# --- Hit Chance Calculation ---
 	var level_diff = attacker_level - target_level
-	# Base 95% chance to hit at even level. Lose 3% chance for each level the
-	# monster is above you (PR 13 — raised 2 → 3 so above-level fights actually
-	# demand accuracy investment; before, the level penalty was too soft for
-	# DEX/ACCURACY to feel meaningful).
-	#
-	# Accuracy sources stack additively into the hit-chance:
-	#   - DEX  -> + DEX_TO_ACCURACY % per point (PR 7 utility — invisible total)
-	#   - ACCURACY stat -> + flat_bonus_value (PR 13 — bow passive, equipment)
-	# Target-side reducer:
-	#   - EVASIONCHANCE stat on target -> -flat_bonus_value (PR 13 — dagger passive)
-	# Floor 5%, ceil 100% (so a fully-evasive target still has a 5% chance to
-	# be hit; a fully-blind attacker still hits 5% of the time).
+	# Base 95% at even character level vs the monster.
+	#   character-level diff:     × 3% per level above/below (PR 13).
+	#   DEX:                      + DEX_TO_ACCURACY % per point (PR 7 attribute utility).
+	#   ACCURACY stat:            + flat_bonus_value (PR 13 — bow passive, equipment).
+	#   target EVASIONCHANCE:     - flat_bonus_value (PR 13 — dagger passive).
+	#   weapon-level underlevel:  × WEAPON_UNDERLEVEL_PENALTY per level the wielded
+	#                             weapon is BELOW the monster (PR 13 follow-up,
+	#                             MapleStory-style). Equal or over-level weapon = 0.
+	#                             Makes the gear-upgrade loop matter for accuracy
+	#                             specifically — a lvl 10 weapon vs lvl 30 mob loses
+	#                             ~40% hit chance on top of whatever damage gap exists.
+	# Floor 5%, ceil 100%.
 	var dex_accuracy: float = 0.0
 	var stat_accuracy: float = 0.0
 	if _stats_component:
@@ -428,7 +437,17 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 	var target_stats = target_enemy.get("stats_component")
 	if target_stats != null and is_instance_valid(target_stats) and target_stats.stats.has(Constants.StatType.EVASIONCHANCE):
 		target_evasion = float(target_stats.stats[Constants.StatType.EVASIONCHANCE].total_value)
-	var hit_chance = clamp(95.0 + (level_diff * 3.0) + dex_accuracy + stat_accuracy - target_evasion, 5.0, 100.0)
+	# Weapon-level underlevel penalty. Looks at the currently-active wielded weapon
+	# (so swapping to a higher-level off-hand mid-fight matters). NPCs / enemies
+	# with no equipment component skip the penalty (their attacks aren't expected
+	# to scale off "their weapon level" — that's a player-side gear concern).
+	var weapon_underlevel: int = 0
+	if _equipment_component and _equipment_component.active_weapon_data:
+		var weapon_level: int = int(_equipment_component.active_weapon_data.item_level)
+		if weapon_level > 0:
+			weapon_underlevel = maxi(0, target_level - weapon_level)
+	var weapon_penalty: float = weapon_underlevel * WEAPON_UNDERLEVEL_PENALTY
+	var hit_chance = clamp(95.0 + (level_diff * 3.0) + dex_accuracy + stat_accuracy - target_evasion - weapon_penalty, 5.0, 100.0)
 	
 	var max_hits = 1
 	if ability and level_stats:

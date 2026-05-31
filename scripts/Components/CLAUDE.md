@@ -47,10 +47,21 @@ Player (MultiplayerPlayerV2)
     │                               `attribute_points` JSONB); synced via
     │                               sync_attributes RPC.
     ├── Combat     combat.gd      - hitboxes, damage calc, crit. PR 13 hit-
-    │                               chance formula: clamp(95 + level_diff*3 +
-    │                               (DEX * 0.05) + ACCURACY - target.EVASION,
-    │                               5, 100). Level-diff scalar raised 2→3 so
-    │                               above-level fights demand accuracy invest.
+    │                               chance formula:
+    │                                 clamp(95
+    │                                   + (char_lvl - mob_lvl) * 3
+    │                                   + DEX * DEX_TO_ACCURACY
+    │                                   + attacker.ACCURACY
+    │                                   - target.EVASION
+    │                                   - max(0, mob_lvl - weapon_lvl) * 2,
+    │                                   5, 100)
+    │                               Level-diff scalar raised 2→3 so above-level
+    │                               fights demand accuracy invest. Weapon
+    │                               underlevel: -2% per level the wielded weapon
+    │                               is below the target (MapleStory-style — the
+    │                               gear-upgrade loop matters; equal-or-overlevel
+    │                               weapon = 0 penalty). Equipment access for
+    │                               weapon_lvl via _equipment_component.
     │                               BL_ShadowPartner.gd mirrors the formula
     │                               (caught diverged in PR 12 audit).
     ├── Ability    ability.gd     - learn/level/use abilities, cooldowns, passives.
