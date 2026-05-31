@@ -9,8 +9,36 @@ const PANEL_STYLEBOX: StyleBoxFlat = preload("uid://dm8jxifs8rqrm")
 
 const COLOR_UPGRADE := Color(0.45, 0.85, 0.45)
 const COLOR_DOWNGRADE := Color(0.85, 0.45, 0.45)
-const COLOR_HEADER := Color(0.65, 0.65, 0.7)
-const COLOR_BODY := Color(0.92, 0.92, 0.92)
+const COLOR_COMPARE_HEADER := Color(0.6, 0.6, 0.68)
+const COLOR_SUBTITLE := Color(0.62, 0.62, 0.7)
+const COLOR_STAT_LABEL := Color(0.78, 0.78, 0.82)
+const COLOR_STAT_VALUE := Color(1, 1, 1)
+const COLOR_DESCRIPTION := Color(0.68, 0.68, 0.75)
+const COLOR_SEPARATOR := Color(0.32, 0.32, 0.38)
+
+const PANEL_MIN_WIDTH := 240
+const PADDING_H := 14
+const PADDING_V := 12
+
+# Title-cased stat names. The raw enum keys (`MAGICDEFENSE`, `HPREGEN`) read
+# badly in a tooltip — this maps them to display-friendly text.
+const STAT_NAMES := {
+	Constants.StatType.STRENGTH: "Strength",
+	Constants.StatType.INTELLIGENCE: "Intelligence",
+	Constants.StatType.DEXTERITY: "Dexterity",
+	Constants.StatType.LUCK: "Luck",
+	Constants.StatType.HEALTH: "Health",
+	Constants.StatType.MANA: "Mana",
+	Constants.StatType.HPREGEN: "HP Regen",
+	Constants.StatType.MPREGEN: "MP Regen",
+	Constants.StatType.DEFENSE: "Defense",
+	Constants.StatType.MAGICDEFENSE: "Magic Defense",
+	Constants.StatType.CRITCHANCE: "Crit Chance",
+	Constants.StatType.CRITDAMAGE: "Crit Damage",
+	Constants.StatType.WEAPONATTACK: "Weapon Attack",
+	Constants.StatType.MAGICATTACK: "Magic Attack",
+	Constants.StatType.KNOCKBACKRESIST: "Knockback Resist",
+}
 
 
 ## Returns a tooltip Control. If `equipped` is null (or matches `hovered`) only
@@ -42,88 +70,108 @@ static func _build_panel(item: ItemData, compare_to: ItemData, header: String) -
 	if rarity_color != null:
 		style.border_color = rarity_color
 		style.set_border_width_all(8)
+	style.content_margin_left = PADDING_H
+	style.content_margin_right = PADDING_H
+	style.content_margin_top = PADDING_V
+	style.content_margin_bottom = PADDING_V
 	panel.add_theme_stylebox_override("panel", style)
-	panel.custom_minimum_size = Vector2(220, 0)
+	panel.custom_minimum_size = Vector2(PANEL_MIN_WIDTH, 0)
 
 	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 2)
+	vbox.add_theme_constant_override("separation", 4)
 	panel.add_child(vbox)
 
-	# Section header ("Hovered" / "Currently Equipped").
+	# "Currently Equipped" / "Hovered" — only shown in compare mode.
 	if not header.is_empty():
 		var hdr := Label.new()
-		hdr.text = header
-		hdr.add_theme_color_override("font_color", COLOR_HEADER)
+		hdr.text = header.to_upper()
+		hdr.add_theme_color_override("font_color", COLOR_COMPARE_HEADER)
 		hdr.add_theme_font_size_override("font_size", 12)
+		hdr.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		vbox.add_child(hdr)
 
-	# Item name (rarity-coloured).
+	# Item name — large, rarity-coloured.
 	var name_lbl := Label.new()
 	name_lbl.text = item.name
+	name_lbl.add_theme_font_size_override("font_size", 20)
 	if rarity_color != null:
 		name_lbl.add_theme_color_override("font_color", rarity_color)
 	vbox.add_child(name_lbl)
 
-	# Description.
+	# Subtitle — slot / weapon type. No "Type:" prefix; the placement is enough.
+	var subtitle := _subtitle_text(item)
+	if not subtitle.is_empty():
+		var sub_lbl := Label.new()
+		sub_lbl.text = subtitle
+		sub_lbl.add_theme_color_override("font_color", COLOR_SUBTITLE)
+		vbox.add_child(sub_lbl)
+
+	# Stats block, divider above when there's a header to separate from.
+	var has_stats := false
+	var stat_rows: Array[HBoxContainer] = _stat_rows(item, compare_to)
+	if not stat_rows.is_empty():
+		vbox.add_child(_separator())
+		for row in stat_rows:
+			vbox.add_child(row)
+		has_stats = true
+
+	# Flavor description at the bottom, dimmed and separated from stats.
 	if item.description and not item.description.is_empty():
+		if has_stats or not subtitle.is_empty():
+			vbox.add_child(_separator())
 		var desc := Label.new()
 		desc.text = item.description
 		desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		desc.custom_minimum_size = Vector2(210, 0)
-		desc.add_theme_color_override("font_color", COLOR_BODY)
+		# Force width so autowrap actually wraps inside the panel.
+		desc.custom_minimum_size = Vector2(PANEL_MIN_WIDTH - PADDING_H * 2, 0)
+		desc.add_theme_color_override("font_color", COLOR_DESCRIPTION)
 		vbox.add_child(desc)
-
-	# Equipment type lines (weapon type + speed; armor type).
-	for line in _type_lines(item):
-		var lbl := Label.new()
-		lbl.text = line
-		lbl.add_theme_color_override("font_color", COLOR_BODY)
-		vbox.add_child(lbl)
-
-	# Bonus stats with diffs against compare_to (if provided).
-	var stats_bbcode := _stats_bbcode(item, compare_to)
-	if not stats_bbcode.is_empty():
-		var rt := RichTextLabel.new()
-		rt.bbcode_enabled = true
-		rt.fit_content = true
-		rt.scroll_active = false
-		rt.custom_minimum_size = Vector2(210, 0)
-		rt.text = stats_bbcode
-		vbox.add_child(rt)
 
 	return panel
 
 
-static func _type_lines(item: ItemData) -> Array[String]:
-	var lines: Array[String] = []
+static func _subtitle_text(item: ItemData) -> String:
 	if item.item_type != Constants.ItemType.EQUIPMENT:
-		return lines
+		return ""
 	if item.equipment_type == Constants.EquipmentType.WEAPON:
-		lines.append("Type: " + str(Constants.WeaponType.keys()[item.weapon_type]).capitalize())
+		var weapon_name := str(Constants.WeaponType.keys()[item.weapon_type]).capitalize()
 		if "attack_speed" in item:
-			lines.append("Attack Speed: " + str(item.attack_speed).to_upper())
+			return "%s  —  %s" % [weapon_name, str(item.attack_speed).capitalize()]
+		return weapon_name
 	elif item.equipment_type == Constants.EquipmentType.ARMOR:
-		lines.append("Type: " + str(Constants.ArmorType.keys()[item.armor_type]).capitalize())
-	return lines
+		return str(Constants.ArmorType.keys()[item.armor_type]).capitalize() + " Armor"
+	return ""
 
 
-static func _stats_bbcode(item: ItemData, compare_to: ItemData) -> String:
+static func _separator() -> HSeparator:
+	var sep := HSeparator.new()
+	var sep_style := StyleBoxFlat.new()
+	sep_style.bg_color = COLOR_SEPARATOR
+	sep_style.content_margin_top = 1
+	sep_style.content_margin_bottom = 1
+	sep.add_theme_stylebox_override("separator", sep_style)
+	return sep
+
+
+static func _stat_rows(item: ItemData, compare_to: ItemData) -> Array[HBoxContainer]:
+	var rows: Array[HBoxContainer] = []
 	var item_stats: Dictionary = item.bonus_stats if "bonus_stats" in item and item.bonus_stats else {}
 	var cmp_stats: Dictionary = {}
 	if compare_to != null and "bonus_stats" in compare_to and compare_to.bonus_stats:
 		cmp_stats = compare_to.bonus_stats
 
 	if item_stats.is_empty() and cmp_stats.is_empty():
-		return ""
+		return rows
 
-	# Union of stat types so missing-on-one-side shows up as a delta.
+	# Union of stat types — sorted by enum order so the same item always lists
+	# stats in the same order across hovers.
 	var all_types := {}
 	for k in item_stats: all_types[k] = true
 	for k in cmp_stats: all_types[k] = true
+	var sorted_types := all_types.keys()
+	sorted_types.sort()
 
-	var lines: Array[String] = []
-	for stat_type in all_types:
-		var stat_name := str(Constants.StatType.keys()[stat_type]).to_upper()
+	for stat_type in sorted_types:
 		var mine := 0
 		var theirs := 0
 		if stat_type in item_stats:
@@ -132,16 +180,37 @@ static func _stats_bbcode(item: ItemData, compare_to: ItemData) -> String:
 			theirs = cmp_stats[stat_type].flat_bonus_value
 		if mine == 0 and theirs == 0:
 			continue
+		rows.append(_stat_row(stat_type, mine, theirs, compare_to != null))
+	return rows
 
-		if compare_to == null:
-			lines.append("%s: +%d" % [stat_name, mine])
-		else:
-			var diff := mine - theirs
-			var diff_text := ""
-			if diff > 0:
-				diff_text = "  [color=#%s](+%d)[/color]" % [COLOR_UPGRADE.to_html(false), diff]
-			elif diff < 0:
-				diff_text = "  [color=#%s](%d)[/color]" % [COLOR_DOWNGRADE.to_html(false), diff]
-			lines.append("%s: +%d%s" % [stat_name, mine, diff_text])
 
-	return "\n".join(lines)
+static func _stat_row(stat_type: int, mine: int, theirs: int, comparing: bool) -> HBoxContainer:
+	var row := HBoxContainer.new()
+
+	var name_lbl := Label.new()
+	name_lbl.text = STAT_NAMES.get(
+		stat_type,
+		str(Constants.StatType.keys()[stat_type]).capitalize()
+	)
+	name_lbl.add_theme_color_override("font_color", COLOR_STAT_LABEL)
+	name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(name_lbl)
+
+	var value_lbl := Label.new()
+	value_lbl.text = "%+d" % mine
+	value_lbl.add_theme_color_override("font_color", COLOR_STAT_VALUE)
+	value_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	row.add_child(value_lbl)
+
+	if comparing:
+		var diff := mine - theirs
+		if diff != 0:
+			var diff_lbl := Label.new()
+			diff_lbl.text = "(%+d)" % diff
+			diff_lbl.add_theme_color_override(
+				"font_color",
+				COLOR_UPGRADE if diff > 0 else COLOR_DOWNGRADE
+			)
+			row.add_child(diff_lbl)
+
+	return row
