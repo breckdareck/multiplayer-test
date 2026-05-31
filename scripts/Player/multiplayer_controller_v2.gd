@@ -834,7 +834,13 @@ func _load_data(data: Dictionary) -> void:
 		var ability_data = data.get("abilities", {})
 		if not ability_data.is_empty():
 			ability_component.load_abilities(ability_data)
-			
+		# PR 8 (2026-05-31): fresh-character bootstrap. No-op for any returning
+		# character (guarded by "no mastery, no spent points" check inside).
+		# Bumps chosen discipline to mastery 1 so the player gets 1 ability
+		# point to spend at character creation — replaces the old free
+		# discipline starter ability.
+		ability_component.bootstrap_fresh_character_if_needed()
+
 	if is_instance_valid(level_component):
 		level_component.set_block_signals(false)
 		level_component.leveled_up.emit(level_component.level)

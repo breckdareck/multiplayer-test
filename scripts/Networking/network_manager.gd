@@ -354,27 +354,21 @@ func _on_delete_character_completed(result, response_code, _headers, body, http,
 	http.queue_free()
 
 
-## PR 4: builds the starter per-discipline ability-point pool dict for a
-## newly-created character. The character's starting `class_id` discipline
-## receives the full `(starting_level - 1) * 3` allotment; the other three
-## tier-1 disciplines start at zero. Advanced classes (Crusader / Ranger /
-## Archmage / Assassin) map to their parent tier-1 discipline.
-func _starter_ability_point_pools(class_id: int, starting_level: int) -> Dictionary:
-	var total: int = max(0, (starting_level - 1) * 3)
-	var pools := {
+## PR 8 (2026-05-31): seeds an empty per-discipline ability-point pool dict
+## for a newly-created character. All four tier-1 pools start at zero — the
+## starting point comes from AbilityComponent.bootstrap_fresh_character_if_needed
+## bumping the chosen discipline to mastery 1 (which grants 1 ability point
+## through the normal mastery_level_changed pathway). The legacy
+## (starting_level - 1) * 3 allotment is gone with the per-char-level grant.
+## class_id is kept for future use (e.g. advanced classes might bootstrap to
+## a higher mastery level), even though it's unused right now.
+func _starter_ability_point_pools(_class_id: int, _starting_level: int) -> Dictionary:
+	return {
 		"sword": 0,
 		"bow": 0,
 		"staff": 0,
 		"dagger": 0,
 	}
-	var key: String = _class_id_to_discipline_key(class_id)
-	if key == "":
-		# Beginner or unknown class -- credit the lump to sword so points
-		# never silently vanish. AbilityComponent's first-load migration
-		# will re-credit at the right discipline if it has better info.
-		key = "sword"
-	pools[key] = total
-	return pools
 
 
 ## PR 4: maps a `Constants.ClassType` int (tier-1 starting OR tier-2

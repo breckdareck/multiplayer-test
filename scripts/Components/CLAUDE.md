@@ -88,8 +88,7 @@ Player (MultiplayerPlayerV2)
     │                               keys are read by AL_*.gd. See hook section.
     │                               Respec: respec_ability(id) /
     │                               respec_discipline(disc_key) / respec_all()
-    │                               refund levels (above the free starter
-    │                               baseline) + upgrade costs back to the
+    │                               refund levels + upgrade costs back to the
     │                               pool(s), reset levels/upgrades. Shared
     │                               _refund_ability + _finalize_respec helpers.
     │                               Server-auth via respec_*_request RPCs.
@@ -97,9 +96,9 @@ Player (MultiplayerPlayerV2)
     │                               reconcile_ability_points() recomputes each
     │                               pool from first principles — granted
     │                               (mastery_level * ABILITY_POINTS_PER_MASTERY_LEVEL,
-    │                               6 since the 2026-05-28 balance pass) minus
-    │                               spent (levels above the free starter baseline
-    │                               + owned upgrade costs) = unused — and corrects
+    │                               1 since the PR 8 2026-05-31 redesign) minus
+    │                               spent (every level + owned upgrade costs)
+    │                               = unused — and corrects
     │                               any drift either way (so a grant-constant
     │                               change is retroactive on load). Called at end of
     │                               load_abilities (do_sync=false during load;
