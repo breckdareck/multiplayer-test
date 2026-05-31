@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Equipment Tooltip Redesign — Mockup</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=VT323&family=Inter:wght@400;600&display=swap');
+
+  :root {
+    --bg: #15151a;
+    --tooltip-bg: rgba(12, 12, 12, 0.94);
+    --separator: #525261;
+    --label: #9999ad;
+    --subtitle: #9e9eb3;
+    --stat-name: #c7c7d1;
+    --stat-value: #ffffff;
+    --description: #adadbf;
+    --upgrade: #73d973;
+    --downgrade: #d97373;
+
+    --rarity-common: #555555;
+    --rarity-uncommon: #ffffff;
+    --rarity-rare: #ffa500;
+    --rarity-epic: #b266ff;
+    --rarity-legendary: #ffd700;
+
+    --font-pixel: 'VT323', 'Courier New', monospace;
+  }
+
+  body {
+    background: var(--bg);
+    color: #ddd;
+    margin: 0;
+    padding: 40px;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  h1 { font-size: 18px; font-weight: 600; margin: 0 0 4px 0; color: #fff; }
+  h2 { font-size: 13px; font-weight: 600; margin: 0; color: #888; text-transform: uppercase; letter-spacing: 1.2px; }
+  .note { font-size: 12px; color: #666; margin-top: 6px; max-width: 540px; line-height: 1.4; }
+
+  .row { display: flex; gap: 56px; flex-wrap: wrap; align-items: flex-start; }
+  .col { display: flex; flex-direction: column; gap: 10px; }
+
+  /* ---------- Tooltip base ---------- */
+  .tooltip {
+    background: var(--tooltip-bg);
+    border-radius: 6px;
+    padding: 12px 14px;
+    min-width: 260px;
+    width: 260px;
+    font-family: var(--font-pixel);
+    color: var(--stat-value);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    line-height: 1.05;
+  }
+
+  .tooltip.rare      { border: 8px solid var(--rarity-rare); }
+  .tooltip.epic      { border: 8px solid var(--rarity-epic); }
+  .tooltip.legendary { border: 8px solid var(--rarity-legendary); }
+  .tooltip.uncommon  { border: 8px solid var(--rarity-uncommon); }
+
+  .compare-header {
+    color: var(--label);
+    font-size: 16px;
+    text-align: center;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  .item-name {
+    font-size: 28px;
+    line-height: 1;
+    letter-spacing: 0.5px;
+    flex: 1;
+  }
+  .item-name.rare      { color: var(--rarity-rare); }
+  .item-name.epic      { color: var(--rarity-epic); }
+  .item-name.legendary { color: var(--rarity-legendary); }
+  .item-name.uncommon  { color: var(--rarity-uncommon); }
+
+  /* Name + icon row: name fills left, icon hangs right */
+  .name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .item-icon {
+    width: 40px;
+    height: 40px;
+    background: #222;
+    border: 1px solid #444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: #888;
+    flex-shrink: 0;
+    image-rendering: pixelated;
+  }
+
+  .subtitle {
+    color: var(--subtitle);
+    font-size: 22px;
+  }
+
+  .separator {
+    height: 2px;
+    background: var(--separator);
+    margin: 4px 0;
+  }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 22px;
+  }
+  .stat-name { color: var(--stat-name); }
+  .stat-right { display: inline-flex; align-items: baseline; gap: 8px; }
+  .stat-value { color: var(--stat-value); }
+  .stat-diff.up   { color: var(--upgrade); }
+  .stat-diff.down { color: var(--downgrade); }
+
+  .description {
+    color: var(--description);
+    font-size: 22px;
+    line-height: 1.15;
+    font-style: italic;
+  }
+
+  .tooltip-pair { display: flex; gap: 8px; }
+
+  /* ---------- OLD design recreation ---------- */
+  .tooltip-old {
+    background: var(--tooltip-bg);
+    border: 8px solid var(--rarity-rare);
+    border-radius: 6px;
+    padding: 10px 20px;
+    width: 200px;
+    font-family: var(--font-pixel);
+    font-size: 22px;
+    line-height: 1.05;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .tooltip-old .name { color: var(--rarity-rare); }
+  .tooltip-old .body { color: #fff; }
+</style>
+</head>
+<body>
+
+<div>
+  <h1>Equipment Tooltip — Redesign Mockup</h1>
+  <div class="note">
+    Pixel font approximated via Google's VT323 (the actual game uses PixelOperator8 at the same scale). Colors, dividers, spacing, and the rarity border weights are taken directly from <code>scripts/UI/equipment_compare_tooltip.gd</code>.
+  </div>
+</div>
+
+<!-- ROW 1: before vs after (single hover) -->
+<div class="col">
+  <h2>Single hover — same item, before vs after</h2>
+  <div class="row">
+
+    <div class="col">
+      <h2 style="color:#555">Before</h2>
+      <div class="tooltip-old">
+        <div class="name">Worn Vanguard Mail</div>
+        <div class="body">Heavy plate forged for front-line Swordsmen.</div>
+        <div class="body">Type: Chest</div>
+        <div class="body">STRENGTH: +7</div>
+        <div class="body">HEALTH: +13</div>
+        <div class="body">DEFENSE: +5</div>
+        <div class="body">MAGICDEFENSE: +2</div>
+      </div>
+    </div>
+
+    <div class="col">
+      <h2 style="color:#888">After</h2>
+      <div class="tooltip rare">
+        <div class="name-row">
+          <div class="item-name rare">Worn Vanguard Mail</div>
+          <div class="item-icon">🛡</div>
+        </div>
+        <div class="subtitle">Chest Armor</div>
+        <div class="separator"></div>
+        <div class="stat-row"><span class="stat-name">Strength</span><span class="stat-value">+7</span></div>
+        <div class="stat-row"><span class="stat-name">Health</span><span class="stat-value">+13</span></div>
+        <div class="stat-row"><span class="stat-name">Defense</span><span class="stat-value">+5</span></div>
+        <div class="stat-row"><span class="stat-name">Magic Defense</span><span class="stat-value">+2</span></div>
+        <div class="separator"></div>
+        <div class="description">Heavy plate forged for front-line Swordsmen.</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="note">
+    What changed: larger rarity-coloured name, no "Type:" prefix, dividers between sections, title-cased stat names, right-aligned value column, description demoted to dim flavor text at the bottom.
+  </div>
+</div>
+
+<!-- ROW 2: compare mode -->
+<div class="col">
+  <h2>Compare mode — hovering an inventory item while another is equipped</h2>
+  <div class="tooltip-pair">
+
+    <div class="tooltip rare">
+      <div class="compare-header">Currently Equipped</div>
+      <div class="name-row">
+        <div class="item-name rare">Iron Plate</div>
+        <div class="item-icon">🛡</div>
+      </div>
+      <div class="subtitle">Chest Armor</div>
+      <div class="separator"></div>
+      <div class="stat-row"><span class="stat-name">Strength</span><span class="stat-value">+4</span></div>
+      <div class="stat-row"><span class="stat-name">Health</span><span class="stat-value">+15</span></div>
+      <div class="stat-row"><span class="stat-name">Defense</span><span class="stat-value">+7</span></div>
+      <div class="separator"></div>
+      <div class="description">Standard issue plate from the militia armory.</div>
+    </div>
+
+    <div class="tooltip rare">
+      <div class="compare-header">Hovered</div>
+      <div class="name-row">
+        <div class="item-name rare">Worn Vanguard Mail</div>
+        <div class="item-icon">🛡</div>
+      </div>
+      <div class="subtitle">Chest Armor</div>
+      <div class="separator"></div>
+      <div class="stat-row">
+        <span class="stat-name">Strength</span>
+        <span class="stat-right"><span class="stat-value">+7</span><span class="stat-diff up">(+3)</span></span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-name">Health</span>
+        <span class="stat-right"><span class="stat-value">+13</span><span class="stat-diff down">(-2)</span></span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-name">Defense</span>
+        <span class="stat-right"><span class="stat-value">+5</span><span class="stat-diff down">(-2)</span></span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-name">Magic Defense</span>
+        <span class="stat-right"><span class="stat-value">+2</span><span class="stat-diff up">(+2)</span></span>
+      </div>
+      <div class="separator"></div>
+      <div class="description">Heavy plate forged for front-line Swordsmen.</div>
+    </div>
+
+  </div>
+  <div class="note">
+    Green/red diff chips show how the hovered item changes each stat versus what's currently equipped. Stats with no change get no diff chip.
+  </div>
+</div>
+
+<!-- ROW 3: weapon + higher rarities -->
+<div class="col">
+  <h2>Other examples — weapon subtitle, epic, legendary</h2>
+  <div class="row">
+
+    <div class="col">
+      <h2 style="color:#555">Weapon</h2>
+      <div class="tooltip uncommon">
+        <div class="name-row">
+          <div class="item-name uncommon">Cracked Saber</div>
+          <div class="item-icon">⚔</div>
+        </div>
+        <div class="subtitle">Sword&nbsp;&nbsp;—&nbsp;&nbsp;Fast</div>
+        <div class="separator"></div>
+        <div class="stat-row"><span class="stat-name">Weapon Attack</span><span class="stat-value">+12</span></div>
+        <div class="stat-row"><span class="stat-name">Strength</span><span class="stat-value">+3</span></div>
+        <div class="stat-row"><span class="stat-name">Crit Chance</span><span class="stat-value">+2</span></div>
+        <div class="separator"></div>
+        <div class="description">A swift but brittle blade — sharper than its dents suggest.</div>
+      </div>
+    </div>
+
+    <div class="col">
+      <h2 style="color:#555">Epic</h2>
+      <div class="tooltip epic">
+        <div class="name-row">
+          <div class="item-name epic">Stormcaller's Cowl</div>
+          <div class="item-icon">⛑</div>
+        </div>
+        <div class="subtitle">Head Armor</div>
+        <div class="separator"></div>
+        <div class="stat-row"><span class="stat-name">Intelligence</span><span class="stat-value">+18</span></div>
+        <div class="stat-row"><span class="stat-name">Magic Attack</span><span class="stat-value">+22</span></div>
+        <div class="stat-row"><span class="stat-name">Mana</span><span class="stat-value">+45</span></div>
+        <div class="stat-row"><span class="stat-name">MP Regen</span><span class="stat-value">+3</span></div>
+        <div class="separator"></div>
+        <div class="description">Stitched from cloud-silk; thunder still hums in the seams.</div>
+      </div>
+    </div>
+
+    <div class="col">
+      <h2 style="color:#555">Legendary</h2>
+      <div class="tooltip legendary">
+        <div class="name-row">
+          <div class="item-name legendary">Sunforged Cuirass</div>
+          <div class="item-icon">🛡</div>
+        </div>
+        <div class="subtitle">Chest Armor</div>
+        <div class="separator"></div>
+        <div class="stat-row"><span class="stat-name">Strength</span><span class="stat-value">+24</span></div>
+        <div class="stat-row"><span class="stat-name">Health</span><span class="stat-value">+80</span></div>
+        <div class="stat-row"><span class="stat-name">Defense</span><span class="stat-value">+18</span></div>
+        <div class="stat-row"><span class="stat-name">Magic Defense</span><span class="stat-value">+12</span></div>
+        <div class="stat-row"><span class="stat-name">Knockback Resist</span><span class="stat-value">+10</span></div>
+        <div class="separator"></div>
+        <div class="description">Plate hammered from a meteor's heart, still warm.</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="note">
+    Long stat names like "Knockback Resist" fit comfortably at the 240px panel width; if you want it tighter we can drop a few px off the min width or shorten the rare offenders.
+  </div>
+</div>
+
+</body>
+</html>
