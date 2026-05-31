@@ -91,28 +91,35 @@ static func _build_panel(item: ItemData, compare_to: ItemData, header: String) -
 		hdr.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		vbox.add_child(hdr)
 
-	# Item name (left, wraps) + icon (top-right). HBox so the icon hangs to
-	# the right of the name regardless of name length.
+	# Item name (left, natural width) + spacer + icon (top-right, fixed size).
+	# The spacer is what pushes the icon to the right edge regardless of name
+	# length. Do NOT autowrap the name + expand-fill it inside this HBox —
+	# autowrap labels have a tiny minimum width, so the HBox would squeeze the
+	# name to one character per line and balloon the panel's height.
 	var name_row := HBoxContainer.new()
 	name_row.add_theme_constant_override("separation", 8)
 
 	var name_lbl := Label.new()
 	name_lbl.text = item.name
 	name_lbl.add_theme_font_size_override("font_size", 20)
-	name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	name_lbl.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	name_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	if rarity_color != null:
 		name_lbl.add_theme_color_override("font_color", rarity_color)
 	name_row.add_child(name_lbl)
 
 	var icon_tex := _resolve_icon(item)
 	if icon_tex != null:
+		# Spacer eats the gap between name and icon so the icon hangs right.
+		var spacer := Control.new()
+		spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		name_row.add_child(spacer)
+
 		var icon := TextureRect.new()
 		icon.texture = icon_tex
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		icon.custom_minimum_size = Vector2(ICON_SIZE, ICON_SIZE)
+		icon.size_flags_horizontal = Control.SIZE_SHRINK_END
 		icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		# Pixel-art icons need NEAREST filtering or they blur at the rendered size.
 		icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
