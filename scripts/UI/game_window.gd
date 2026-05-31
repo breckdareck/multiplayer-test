@@ -90,8 +90,11 @@ func _show_tab(idx: int) -> void:
 		character_page.visible = idx == 0
 	if is_instance_valid(abilities_page):
 		abilities_page.visible = idx == 1
-	if idx == 1 and _ability_shell and _ability_shell.has_method("load_ability_list"):
-		_ability_shell.call("load_ability_list")
+	if idx == 1 and _ability_shell:
+		if _ability_shell.has_method("on_shown"):
+			_ability_shell.call("on_shown")
+		elif _ability_shell.has_method("load_ability_list"):
+			_ability_shell.call("load_ability_list")
 	if idx == 0:
 		_refresh_header()
 		_refresh_stats()

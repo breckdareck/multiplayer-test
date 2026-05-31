@@ -47,9 +47,6 @@ var _selected_upgrade_id: String = ""
 var player: MultiplayerPlayerV2
 var ability_component: AbilityComponent
 
-var is_dragging = false
-var drag_offset = Vector2()
-
 const COLOR_NORMAL = "#FFFFFF"
 const COLOR_UPGRADE = "#00FF00" # Green for stat increases
 const COLOR_DOWNGRADE = "#FF0000" # Red for stat decreases (e.g., cooldown time)
@@ -125,54 +122,26 @@ func _ready():
 		clear_details()
 
 
-func _process(_delta: float) -> void:
+## Called by the unified hub (game_window) when the Abilities tab is shown. This
+## window is now ALWAYS embedded as a hub tab page — it is no longer a free-floating
+## window, so it has no drag handling and no self-owned open/close hotkey (the hub
+## owns that). Re-syncs the open discipline tab to the currently-wielded weapon and
+## refreshes the tree + points (the live signals keep it fresh while open).
+func on_shown() -> void:
 	if not ability_component:
 		return
-		
-	if multiplayer.get_unique_id() == player.player_id:
-		if Input.is_action_just_pressed("OpenAbilityWindow"):
-			if self.visible:
-				self.visible = false
-			elif not InputManager.is_locked():
-				self.visible = true
-				if self.visible:
-					# PR 4: re-default the tab to whichever discipline the
-					# player is currently wielding -- so swap-then-open keeps
-					# the open tab in sync with the visible weapon.
-					_select_initial_discipline()
-					# Refresh the display when opening
-					update_skill_points_display()
-					load_ability_list()
-					var first_id := _first_ability_id_in_current_tab()
-					if selected_ability_id != "" and _ability_in_current_tab(selected_ability_id):
-						select_ability(selected_ability_id)
-					elif first_id != "":
-						select_ability(first_id)
-					else:
-						clear_details()
-			
-	if is_dragging:
-		global_position = get_global_mouse_position() - drag_offset
-		var new_position = get_global_mouse_position() - drag_offset
-		var viewport_size = get_viewport_rect().size
-		var window_size = size
-		
-		new_position.x = clamp(new_position.x, 0, viewport_size.x - window_size.x)
-		new_position.y = clamp(new_position.y, 0, viewport_size.y - window_size.y)
-			
-		global_position = new_position
-
-func _gui_input(event: InputEvent) -> void:
-	# Check for a mouse button press (typically the left mouse button).
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-		if event.pressed:
-			if self.get_global_rect().has_point(get_global_mouse_position()):
-				is_dragging = true
-				# Calculate the offset from the node's origin to the mouse position.
-				drag_offset = get_global_mouse_position() - global_position
-				self.move_to_front()
-		else:
-			is_dragging = false
+	# Re-default the tab to whichever discipline the player is currently wielding,
+	# so swap-then-open keeps the open tab in sync with the visible weapon.
+	_select_initial_discipline()
+	update_skill_points_display()
+	load_ability_list()
+	var first_id := _first_ability_id_in_current_tab()
+	if selected_ability_id != "" and _ability_in_current_tab(selected_ability_id):
+		select_ability(selected_ability_id)
+	elif first_id != "":
+		select_ability(first_id)
+	else:
+		clear_details()
 
 
 ## Rebuilds the skill-tree canvas for the active discipline tab. Collects every
