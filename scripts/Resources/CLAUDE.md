@@ -121,12 +121,10 @@ the player save under `pets: []`, not as `.tres`. See
   `variant` rolls). All static fields are re-derived from the canonical `.tres` on
   load. Don't add a field expecting it to round-trip per-instance unless you also
   extend the variant serialization (`_append_variant_data` / `_apply_variant_data`).
-- `WeaponDisciplineData.starter_ability` is the ability auto-granted at **level 1** to a
-  brand-new character of that discipline. New discipline `.tres` files should set it so the
-  player has a castable skill from spawn — otherwise disciplines whose basic attack
-  is weak (Staff's basic attack scales off the +3 WEAPONATTACK staff) feel unplayable before
-  earning their first ability point. Returning characters keep their saved levels;
-  the auto-grant only matters on first creation.
+- `WeaponDisciplineData` no longer has a `starter_ability` field (PR 8 removed it).
+  New characters spawn with **1 ability point** in their chosen discipline's pool —
+  bootstrapped to mastery 1 at first login (see `AbilityComponent.bootstrap_fresh_character_if_needed`).
+  Players pick where that first point goes through the regular Ability Window.
 
 ## Creating content
 

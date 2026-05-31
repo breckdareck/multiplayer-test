@@ -15,7 +15,13 @@ extends Node
 #region #################### Constants ####################
 
 ## Maximum mastery level a single discipline can reach.
-const MASTERY_CAP: int = 20
+## PR 8 (2026-05-31): raised 20 → 100 to align with the character level cap.
+## Mastery climbs ~1.4× faster than character level via the recalibrated XP
+## curve, so a focused player reaches mastery 100 around character level 70.
+## Char 70-100 is the "refinement phase" — mastery already capped, char XP
+## continues for attribute points + gear. See
+## docs/adr/... and project_ability_point_economy_redesign memory note.
+const MASTERY_CAP: int = 100
 
 ## XP granted to the active weapon's discipline when its wielder lands a HIT
 ## with an ability. PR 4 fix (2026-05-28): the grant moved from cast-time
@@ -82,24 +88,27 @@ static func compute_kill_xp(enemy_level: int, player_level: int) -> int:
 	)
 	return max(KILL_XP_FLOOR, roundi(base_xp * modifier))
 
-## XP curve (PR 4 fix 2026-05-28 — replaced flat linear (N+1)*100):
-## `_xp_to_next_level(N) = XP_BASE + XP_LINEAR * N + XP_QUADRATIC * N * N`.
-## Quick early levels for instant gratification, then quadratic ramp so
-## maxing a weapon is a real commitment (New World-style mastery feel).
+## XP curve (PR 8 — recalibrated for MASTERY_CAP 100 alignment with char 70):
+## `_xp_to_next_level(N) = XP_BASE + XP_LINEAR*N + XP_QUADRATIC*N² + XP_CUBIC*N³`.
+## Front-loaded (cheap early levels for instant gratification) with a cubic
+## tail so late ranks are a real commitment. Target: cumulative XP to rank 100
+## ≈ 1.1M, which matches what a focused at-level grinder earns hitting char
+## level 70 (verified against leveling_curve.tres + monster_exp_curve.tres).
 ##
-##   level 0 -> 1:    30 XP    (~6 kills, ~30 seconds)
-##   level 4 -> 5:   550 XP    (~110 kills, ~10 minutes)
-##   level 9 -> 10: 2,325 XP   (~465 kills, ~30-45 minutes)
-##   level 14 -> 15: 5,350 XP  (~1,070 kills, ~1-2 hours)
-##   level 19 -> 20: 9,625 XP  (~1,925 kills, ~3+ hours)
-##   total 0 -> 20:  ~68,000 XP (~10-15 hours focused play per weapon)
+##   level 0 -> 1:        30 XP    (~3-6 kills, ~30 seconds — first pick immediately)
+##   level 9 -> 10:      580 XP    (~115 at-lvl-10 kills, ~5 minutes)
+##   level 29 -> 30:   4,080 XP    (~135 at-lvl-30 kills)
+##   level 49 -> 50:  12,780 XP    (~80 at-lvl-50 kills — char XP per kill grows faster)
+##   level 69 -> 70:  29,080 XP    (~80 at-lvl-70 kills)
+##   level 99 -> 100: 71,000 XP    (~50 at-lvl-99 kills)
+##   total 0 -> 100: ~1.1M XP — reached around character level 70
 ##
-## Tune these constants together — they trade off early gratification vs.
-## late-game commitment. Raising XP_QUADRATIC most steeply punishes late
-## levels; raising XP_BASE most slows the first few levels.
+## Tune these constants together. Raising XP_CUBIC most steeply punishes late
+## levels; raising XP_BASE slows the first few levels.
 const XP_BASE: int = 30
 const XP_LINEAR: int = 30
-const XP_QUADRATIC: int = 25
+const XP_QUADRATIC: int = 2
+const XP_CUBIC: float = 0.05
 
 #endregion
 
@@ -175,7 +184,7 @@ func get_mastery_xp(discipline: int) -> int:
 ## the cost-per-level table.
 func _xp_to_next_level(current_level: int) -> int:
 	var n: int = current_level
-	return XP_BASE + XP_LINEAR * n + XP_QUADRATIC * n * n
+	return XP_BASE + XP_LINEAR * n + XP_QUADRATIC * n * n + int(XP_CUBIC * n * n * n)
 
 
 ## Returns the XP cost to advance from a discipline's CURRENT level. Useful
@@ -238,6 +247,32 @@ func grant_mastery_xp_server(discipline: int, amount: int) -> void:
 
 	# Persist. The player root listens for this through the same _data_changed
 	# path the other stateful components use.
+	_mark_owner_save_dirty()
+
+
+## PR 8: Server-only. Bumps a discipline's mastery level from 0 to 1 without
+## requiring earned XP — used at character creation so the player has 1 ability
+## point to spend on their first ability of choice (replacing the old "free
+## starter ability" system). Idempotent: if the discipline is already past 0,
+## does nothing. Emits mastery_level_changed so AbilityComponent grants the
+## point through its normal pathway.
+func bootstrap_chosen_discipline(discipline: int) -> void:
+	if not multiplayer.is_server():
+		return
+	if not _is_tier1_discipline(discipline):
+		return
+	if not mastery_data.has(discipline):
+		mastery_data[discipline] = {"level": 0, "xp": 0}
+	var entry: Dictionary = mastery_data[discipline]
+	if int(entry.get("level", 0)) > 0:
+		return  # already bootstrapped
+	entry["level"] = 1
+	entry["xp"] = 0
+	mastery_data[discipline] = entry
+	if not BotManager.is_bot(owner.player_id):
+		sync_mastery_to_client.rpc_id(owner.player_id, discipline, 1, 0)
+	mastery_level_changed.emit(discipline, 1)
+	mastery_xp_changed.emit(discipline, 0, _xp_to_next_level(1))
 	_mark_owner_save_dirty()
 
 

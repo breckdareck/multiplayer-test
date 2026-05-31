@@ -99,14 +99,20 @@ var _loading_mode: bool = false
 ## level grant rule which leaked points evenly across the 4 trees and let a
 ## character earn points for trees they never touched.
 ##
-## PR 6 balance pass (2026-05-28): raised 3 -> 6 so a maxed-mastery discipline
-## (MASTERY_CAP 20) yields 120 points. Target endgame build at 120: MAX 3
-## actives + fully upgrade them (3 * 24) + 2 filler actives + MAX 2 passives +
-## passive upgrades. You still can't max all 8 actives, so build identity comes
-## from WHICH abilities + upgrades you pick. The reconcile_ability_points()
-## guard makes this retroactive — existing characters get the new total on
-## next load (granted = mastery_level * 6 recomputed against spent).
-const ABILITY_POINTS_PER_MASTERY_LEVEL: int = 6
+## PR 8 (2026-05-31): dropped 6 -> 1 alongside MASTERY_CAP 20 -> 100. Pool at
+## cap is now 100 points, reached around character level 70 (build phase ends,
+## refinement phase begins). One point per mastery rank = maximum reward
+## frequency — the player gets a meaningful pickup almost every char level.
+## The 100-pt budget is intentionally tight: Specialist build (~82 pts: 5
+## actives + 4 passives + 3 upgrade paths) fits, Deep Specialist (~105) does
+## not — every point is a forced trade-off. No "free discipline starter"
+## anymore: all abilities cost equally, and the player picks where their
+## first point lands at character creation (bootstrap_chosen_discipline
+## bumps mastery to 1 immediately so the grant pathway gives them that pt).
+## The reconcile_ability_points() guard makes this retroactive — existing
+## characters get the new total on next load (granted = mastery_level * 1
+## recomputed against spent).
+const ABILITY_POINTS_PER_MASTERY_LEVEL: int = 1
 
 ## PR 4: canonical lowercase discipline keys, in display order (the order
 ## the AbilityWindow renders tabs).
@@ -196,34 +202,21 @@ func _ready() -> void:
 	# Initialize class abilities on the server or in single-player.
 	# Clients will receive this data via an RPC sync when they connect.
 	#
-	# Each discipline's starter ability (configured on WeaponDisciplineData.starter_ability)
-	# is auto-leveled to 1 so a fresh character can cast something immediately.
-	# Without this, classes like Mage (whose basic attack uses the staff's
-	# tiny WEAPONATTACK while their kit is built around MAGICATTACK abilities)
-	# can't fight effectively until they earn their first ability point on
-	# level-up. Save data still overrides this — returning characters keep
-	# whatever level they had leveled the ability to.
-	#
-	# PR 4 fix (2026-05-28): all FOUR tier-1 disciplines' starter abilities
-	# are auto-leveled to 1, not just the player's starting class's starter.
-	# So when a Swordsman picks up a bow they immediately have Double Shot
-	# ready to fire instead of being stuck with a basic-attack swing of a
-	# weapon they have no abilities for. Each discipline's full ability list
-	# is also added at level 0 so the AbilityWindow can show them with a
-	# "Learn" / "+" affordance.
+	# PR 8 (2026-05-31): no more "discipline starter ability" auto-grant. All
+	# abilities are added at level 0 — including every tier-1 discipline's
+	# tree — so the AbilityWindow can show them with a "Learn" / "+"
+	# affordance. The player's first ability point comes from being
+	# bootstrapped to mastery 1 in their chosen discipline (handled by
+	# load_abilities's fresh-character check, or at character creation
+	# directly). They then choose which ability to spend it on.
 	if not multiplayer.has_multiplayer_peer() or multiplayer.is_server():
-		# Original class abilities first (keeps the existing per-class starter
-		# behavior intact for the player's chosen discipline).
-		var starter: AbilityData = _class_component.get_starter_ability() if _class_component else null
+		# Current class's abilities first.
 		for ability_data in _class_component.get_class_abilities():
 			if ability_data and not _ability_levels.has(ability_data.ability_id):
-				var initial_level: int = 1 if (starter and ability_data == starter) else 0
-				_learn_ability_local(ability_data.ability_id, initial_level, false)
+				_learn_ability_local(ability_data.ability_id, 0, false)
 
-		# Then iterate the OTHER three tier-1 disciplines and seed their
-		# starter abilities at level 1 + the rest of each tree at level 0.
-		# Skips the starting discipline (already handled above) and tier-2
-		# advancement classes (those live in their tier-1 parent's tree).
+		# Then the OTHER tier-1 disciplines' trees so they appear in the
+		# AbilityWindow tabs (at level 0 = locked/learnable).
 		var starting_class: int = _class_component.current_class if _class_component else -1
 		for tier1_disc in [
 			Constants.ClassType.SWORD,
@@ -236,12 +229,10 @@ func _ready() -> void:
 			var disc_data: WeaponDisciplineData = ResourceManager.get_class_data(tier1_disc)
 			if disc_data == null:
 				continue
-			var disc_starter: AbilityData = disc_data.starter_ability
 			for ability_data in disc_data.skills:
 				if ability_data == null or _ability_levels.has(ability_data.ability_id):
 					continue
-				var initial_level: int = 1 if (disc_starter and ability_data == disc_starter) else 0
-				_learn_ability_local(ability_data.ability_id, initial_level, false)
+				_learn_ability_local(ability_data.ability_id, 0, false)
 
 	##print("AbilityComponent ready. Loaded abilities: ", _ability_levels)
 
@@ -1140,33 +1131,23 @@ func _on_mastery_level_up(discipline: int, _new_level: int) -> void:
 
 
 func _on_class_changed(_new_class_name: String) -> void:
-	# On initial character creation the component pre-loaded the default
-	# class's abilities in _ready() (including its starter at level 1)
-	# before the real class was assigned, so anything not in the new class
-	# must be dropped — including a stale level-1 starter from the default
-	# class. Job advancement stays safe because the advanced class's skill
-	# list is a superset of the base class's, so any leveled ability is
-	# present in new_class_ids and survives.
+	# On class change, prune any ability that doesn't belong to a known
+	# tier-1 discipline's skill list, then ensure every tier-1 discipline's
+	# tree shows up at level 0 in the AbilityWindow. Job advancement stays
+	# safe because the advanced class's skill list is a superset of its
+	# parent tier-1's tree, so any leveled ability survives the prune.
 	#
-	# PR 4 fix (2026-05-28): "valid" abilities span ALL FOUR tier-1
-	# disciplines now, not just the new class's skills. Without this, the
-	# all-disciplines-starter init in _ready was getting wiped here — class
-	# change from default → BOW would prune Sword/Staff/Dagger starters
-	# because they weren't in Bow's skills list. With the broadened set,
-	# only stale non-tier-1 abilities (e.g. from a default BEGINNER class)
-	# get pruned, while cross-discipline starters persist.
+	# PR 8 (2026-05-31): no starter re-seed — abilities only enter
+	# _ability_levels at level 0 here, and only the player's purchases
+	# (or load_abilities) push them above 0.
 	#
 	# RPCs are not broadcast here because the class change itself is synced,
 	# so clients run this same logic locally.
 	if not multiplayer.has_multiplayer_peer() or multiplayer.is_server():
-		var new_class_ids: Dictionary = {}
-		# Include the current class's abilities (covers tier-2 advancements
-		# whose superset includes their tier-1 parent's tree).
+		var valid_ability_ids: Dictionary = {}
 		for ability_data in _class_component.get_class_abilities():
 			if ability_data:
-				new_class_ids[ability_data.ability_id] = true
-		# Also include every tier-1 discipline's abilities so cross-discipline
-		# starters aren't pruned.
+				valid_ability_ids[ability_data.ability_id] = true
 		for tier1_disc in [
 			Constants.ClassType.SWORD,
 			Constants.ClassType.BOW,
@@ -1178,16 +1159,14 @@ func _on_class_changed(_new_class_name: String) -> void:
 				continue
 			for ability_data in disc_data.skills:
 				if ability_data:
-					new_class_ids[ability_data.ability_id] = true
+					valid_ability_ids[ability_data.ability_id] = true
 
 		for ability_id in _ability_levels.keys():
-			if not new_class_ids.has(ability_id):
+			if not valid_ability_ids.has(ability_id):
 				_ability_levels.erase(ability_id)
 
-		# Re-seed each tier-1 discipline's starter ability at level 1 if it's
-		# missing from _ability_levels (defensive — the init in _ready does
-		# this, but the prune above could have removed it in edge cases).
-		# Other abilities get added at level 0 so they show in the UI.
+		# Seed any tier-1 discipline ability we don't yet know about at level 0
+		# so the AbilityWindow can show it as learnable.
 		for tier1_disc in [
 			Constants.ClassType.SWORD,
 			Constants.ClassType.BOW,
@@ -1197,20 +1176,16 @@ func _on_class_changed(_new_class_name: String) -> void:
 			var disc_data: WeaponDisciplineData = ResourceManager.get_class_data(tier1_disc)
 			if disc_data == null:
 				continue
-			var disc_starter: AbilityData = disc_data.starter_ability
 			for ability_data in disc_data.skills:
 				if ability_data == null or _ability_levels.has(ability_data.ability_id):
 					continue
-				var initial_level: int = 1 if (disc_starter and ability_data == disc_starter) else 0
-				_learn_ability_local(ability_data.ability_id, initial_level, false)
+				_learn_ability_local(ability_data.ability_id, 0, false)
 
-		# Re-seed the current class's starter too (covers tier-2 advancement
-		# starter abilities that aren't in any tier-1 tree).
-		var starter: AbilityData = _class_component.get_starter_ability()
+		# Cover any current-class abilities not in a tier-1 tree (tier-2
+		# advancement classes with abilities of their own).
 		for ability_data in _class_component.get_class_abilities():
 			if ability_data and not _ability_levels.has(ability_data.ability_id):
-				var initial_level: int = 1 if (starter and ability_data == starter) else 0
-				_learn_ability_local(ability_data.ability_id, initial_level, false)
+				_learn_ability_local(ability_data.ability_id, 0, false)
 
 #endregion
 
@@ -1338,6 +1313,44 @@ func load_abilities(data: Dictionary) -> void:
 	#else:
 		#for ability_id in _ability_levels:
 			#print("Loaded ability: %s at level %d" % [ability_id, _ability_levels[ability_id]])
+
+
+## PR 8 (2026-05-31): one-shot bootstrap for a fresh character. Replaces the
+## old free-discipline-starter system. If this character has never spent a
+## point AND has earned no mastery in any discipline, bump their chosen
+## class's mastery from 0 to 1 — the existing mastery_level_changed pathway
+## then grants them 1 ability point, which they spend at character creation
+## on whichever ability they want.
+##
+## Safe to call on every login: the guards make it a no-op for any returning
+## character (mastery > 0 in any discipline, or any ability above level 0).
+## Server-only — clients receive the resulting mastery + point sync via the
+## standard RPCs.
+func bootstrap_fresh_character_if_needed() -> void:
+	if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
+		return
+	if not is_instance_valid(_weapon_mastery_component) or not is_instance_valid(_class_component):
+		return
+	# Any spent point or earned mastery means this isn't a fresh char.
+	for ability_id in _ability_levels:
+		if int(_ability_levels[ability_id]) > 0:
+			return
+	for disc in [
+		Constants.ClassType.SWORD,
+		Constants.ClassType.BOW,
+		Constants.ClassType.STAFF,
+		Constants.ClassType.DAGGER,
+	]:
+		if _weapon_mastery_component.get_mastery_level(disc) > 0:
+			return
+	# Chosen class must be a tier-1 discipline (the only ones that earn mastery).
+	var chosen: int = _class_component.current_class
+	if chosen != Constants.ClassType.SWORD \
+		and chosen != Constants.ClassType.BOW \
+		and chosen != Constants.ClassType.STAFF \
+		and chosen != Constants.ClassType.DAGGER:
+		return
+	_weapon_mastery_component.bootstrap_chosen_discipline(chosen)
 
 
 ## PR 3 helper. Picks the currently-active weapon's binding dict for a load.
@@ -1658,14 +1671,13 @@ func respec_discipline(disc_key: String) -> bool:
 func _respec_discipline_local(disc_key: String) -> bool:
 	if not _available_points_per_discipline.has(disc_key):
 		return false
-	var starter_id: String = _discipline_starter_ability_id(disc_key)
 	var reset_ids: Array[String] = []
 	var refund: int = 0
 	for ability_id in _ability_levels.keys():
 		var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
 		if ability == null or _ability_primary_discipline(ability) != disc_key:
 			continue
-		refund += _refund_ability(ability_id, starter_id, reset_ids)
+		refund += _refund_ability(ability_id, reset_ids)
 	_available_points_per_discipline[disc_key] = int(_available_points_per_discipline.get(disc_key, 0)) + refund
 	_finalize_respec([disc_key], reset_ids)
 	return true
@@ -1696,9 +1708,8 @@ func _respec_ability_local(ability_id: String) -> bool:
 	var disc_key: String = _ability_primary_discipline(ability)
 	if disc_key == "" or not _available_points_per_discipline.has(disc_key):
 		return false
-	var starter_id: String = _discipline_starter_ability_id(disc_key)
 	var reset_ids: Array[String] = []
-	var refund: int = _refund_ability(ability_id, starter_id, reset_ids)
+	var refund: int = _refund_ability(ability_id, reset_ids)
 	_available_points_per_discipline[disc_key] = int(_available_points_per_discipline.get(disc_key, 0)) + refund
 	_finalize_respec([disc_key], reset_ids)
 	return true
@@ -1731,8 +1742,7 @@ func _respec_all_local() -> bool:
 		var disc_key: String = _ability_primary_discipline(ability)
 		if disc_key == "":
 			continue
-		var starter_id: String = _discipline_starter_ability_id(disc_key)
-		refund_by_disc[disc_key] = int(refund_by_disc.get(disc_key, 0)) + _refund_ability(ability_id, starter_id, reset_ids)
+		refund_by_disc[disc_key] = int(refund_by_disc.get(disc_key, 0)) + _refund_ability(ability_id, reset_ids)
 	for disc_key in refund_by_disc:
 		_available_points_per_discipline[disc_key] = int(_available_points_per_discipline.get(disc_key, 0)) + int(refund_by_disc[disc_key])
 	_finalize_respec(DISCIPLINE_KEYS, reset_ids)
@@ -1748,23 +1758,27 @@ func respec_all_request() -> void:
 	_respec_all_local()
 
 
-## Refund + reset ONE ability: points for levels above the free starter
-## baseline + all owned upgrade costs. Mutates _ability_levels /
-## _learned_upgrades, appends to reset_ids if the level changed. Returns the
-## refund. No emit/sync — callers batch that via _finalize_respec.
-func _refund_ability(ability_id: String, starter_id: String, reset_ids: Array) -> int:
+## Refund + reset ONE ability: points for current level + all owned upgrade
+## costs. Mutates _ability_levels / _learned_upgrades, appends to reset_ids
+## if the level changed. Returns the refund. No emit/sync — callers batch
+## that via _finalize_respec.
+##
+## PR 8 (2026-05-31): no more starter ability discount. All abilities reset
+## to level 0 and refund their full level + upgrade cost. The previous
+## "starter ability stays at L1 free" baseline went away with the starter
+## concept itself.
+func _refund_ability(ability_id: String, reset_ids: Array) -> int:
 	var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
 	if ability == null:
 		return 0
-	var baseline: int = 1 if ability_id == starter_id else 0
 	var current_level: int = int(_ability_levels.get(ability_id, 0))
-	var refund: int = maxi(0, current_level - baseline)
+	var refund: int = current_level
 	for owned_id in _learned_upgrades.get(ability_id, []):
 		var up: AbilityUpgradeData = _find_upgrade(ability, owned_id)
 		if up != null:
 			refund += up.point_cost
-	if current_level != baseline:
-		_ability_levels[ability_id] = baseline
+	if current_level != 0:
+		_ability_levels[ability_id] = 0
 		reset_ids.append(ability_id)
 	_learned_upgrades.erase(ability_id)
 	return refund
@@ -1783,23 +1797,6 @@ func _finalize_respec(disc_keys: Array, reset_ids: Array) -> void:
 			sync_ability_level.rpc(ability_id, int(_ability_levels.get(ability_id, 0)))
 		sync_ability_points_per_discipline.rpc(_available_points_per_discipline.duplicate())
 		sync_learned_upgrades.rpc(_learned_upgrades.duplicate(true))
-
-
-## Maps a discipline key to its starter ability's id (the one auto-leveled to
-## 1 at character creation), via the WeaponDisciplineData. "" if unknown.
-func _discipline_starter_ability_id(disc_key: String) -> String:
-	var class_type: int = -1
-	match disc_key:
-		"sword": class_type = Constants.ClassType.SWORD
-		"bow": class_type = Constants.ClassType.BOW
-		"staff": class_type = Constants.ClassType.STAFF
-		"dagger": class_type = Constants.ClassType.DAGGER
-	if class_type == -1:
-		return ""
-	var disc_data = ResourceManager.get_class_data(class_type)
-	if disc_data and disc_data.starter_ability:
-		return disc_data.starter_ability.ability_id
-	return ""
 
 
 ## Safety net (PR 6): recompute each discipline's UNUSED point pool from first
@@ -1838,19 +1835,17 @@ func reconcile_ability_points(do_sync: bool = true) -> void:
 		sync_ability_points_per_discipline.rpc(_available_points_per_discipline.duplicate())
 
 
-## Non-mutating sum of points SPENT in a discipline: levels above each ability's
-## free baseline (1 for the discipline starter, else 0) + the point_cost of
-## every owned upgrade. Mirrors what _refund_ability would hand back, without
-## resetting anything.
+## Non-mutating sum of points SPENT in a discipline: every ability's level
+## (no free baseline anymore — PR 8 removed the starter ability discount)
+## + the point_cost of every owned upgrade. Mirrors what _refund_ability
+## would hand back, without resetting anything.
 func _points_spent_in_discipline(disc_key: String) -> int:
-	var starter_id: String = _discipline_starter_ability_id(disc_key)
 	var spent: int = 0
 	for ability_id in _ability_levels:
 		var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
 		if ability == null or _ability_primary_discipline(ability) != disc_key:
 			continue
-		var baseline: int = 1 if ability_id == starter_id else 0
-		spent += maxi(0, int(_ability_levels[ability_id]) - baseline)
+		spent += int(_ability_levels[ability_id])
 		for owned_id in _learned_upgrades.get(ability_id, []):
 			var up: AbilityUpgradeData = _find_upgrade(ability, owned_id)
 			if up != null:

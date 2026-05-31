@@ -22,13 +22,6 @@ extends Resource
 	Constants.StatType.LUCK: 4
 }
 @export var stat_bonuses: Dictionary[Constants.StatType, int] = { }
-## Ability auto-granted at level 1 to a brand-new character of this discipline.
-## Learned at level 1 instead of the default level 0, so the player has a
-## castable skill from the moment they spawn (otherwise disciplines whose basic
-## attack scales off WEAPONATTACK — particularly Staff with its low-WEAPONATTACK
-## — would be unable to fight effectively before earning their first
-## ability point at level 2). Save data overrides this on subsequent logins.
-@export var starter_ability: AbilityData
 
 
 func get_sprite_for_level(level: int) -> SpriteFrames:
