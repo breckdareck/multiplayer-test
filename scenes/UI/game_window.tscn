@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=3 uid="uid://jtdhvyo8t2y7"]
+[gd_scene load_steps=32 format=3 uid="uid://jtdhvyo8t2y7"]
 
 [ext_resource type="StyleBox" uid="uid://dm8jxifs8rqrm" path="res://assets/UI/Themes/PanelStyleboxTheme.tres" id="1_pst"]
 [ext_resource type="Script" uid="uid://bc6tjnwvjn85k" path="res://scripts/UI/game_window.gd" id="2_gw"]
@@ -11,9 +11,28 @@
 [ext_resource type="Texture2D" uid="uid://u3tpikp1eegv" path="res://assets/sprites/coin.png" id="10_vrb4e"]
 [ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="11_x66lr"]
 
+[sub_resource type="StyleBoxFlat" id="tooltip_sb"]
+content_margin_left = 9.0
+content_margin_top = 7.0
+content_margin_right = 9.0
+content_margin_bottom = 7.0
+bg_color = Color(0.09, 0.09, 0.12, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.5, 0.5, 0.58, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
 [sub_resource type="Theme" id="hub_theme"]
 default_font = ExtResource("3_font")
 default_font_size = 11
+TooltipLabel/colors/font_color = Color(0.96, 0.96, 0.98, 1)
+TooltipLabel/font_sizes/font_size = 14
+TooltipPanel/styles/panel = SubResource("tooltip_sb")
 
 [sub_resource type="StyleBoxFlat" id="col_sb"]
 content_margin_left = 12.0
