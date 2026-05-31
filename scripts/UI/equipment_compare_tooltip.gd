@@ -16,7 +16,7 @@ const COLOR_STAT_VALUE := Color(1, 1, 1)
 const COLOR_DESCRIPTION := Color(0.68, 0.68, 0.75)
 const COLOR_SEPARATOR := Color(0.32, 0.32, 0.38)
 
-const PANEL_MIN_WIDTH := 240
+const PANEL_MIN_WIDTH := 260
 const PADDING_H := 14
 const PADDING_V := 12
 const ICON_SIZE := 40
