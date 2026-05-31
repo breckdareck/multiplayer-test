@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://buwbui1bka8vl" path="res://scripts/Resources/DisciplineSystem/WeaponDisciplineData.gd" id="2_ungre"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="3_aripf"]
 [ext_resource type="Resource" uid="uid://cgywubtniaon0" path="res://resources/Abilities/Staff/A_Pyre_Burst.tres" id="4_lwhha"]
-[ext_resource type="Resource" uid="uid://w0x3oyevmbgf" path="res://resources/Abilities/Staff/A_Arcane_Mind.tres" id="5_8h7ua"]
+[ext_resource type="Resource" uid="uid://w0x3oyevmbgf" path="res://resources/Abilities/Staff/A_Killing_Spree.tres" id="5_8h7ua"]
 [ext_resource type="Resource" uid="uid://magcbolt001x" path="res://resources/Abilities/Staff/A_Arcane_Bolt.tres" id="6_2m87f"]
 [ext_resource type="Resource" uid="uid://icestrik001x" path="res://resources/Abilities/Staff/A_Glacial_Spike.tres" id="7_sf8g1"]
 [ext_resource type="Resource" uid="uid://mshldabl001x" path="res://resources/Abilities/Staff/A_Aether_Ward.tres" id="8_texf7"]

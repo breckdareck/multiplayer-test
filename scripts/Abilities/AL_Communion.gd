@@ -1,7 +1,7 @@
 extends Node
 
 ## Ability logic for the Staff discipline's Communion — a party-wide empower
-## buff that raises MP regeneration and ATTACK POWER. Mirrors AL_Maple_Warrior's
+## buff that raises MP regeneration and ATTACK POWER. Mirrors AL_Vow_Of_The_Vanguard's
 ## party-application pattern.
 ##
 ## PR-balance (2026-05-29): Communion now grants a FLAT buff to BOTH WEAPONATTACK

@@ -662,7 +662,7 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 	# toggle, and if the ambush came from the Vanish buff, remove that too (striking
 	# reveals you). Order matters: break_stealth's coexistence guard leaves
 	# is_invisible alone while Vanish is active, then remove_buff("Vanish") ->
-	# BL_DarkSight.on_remove clears invisibility + restores the sprite.
+	# (no longer applicable — Vanish removed in PR 11) clears invisibility + restores the sprite.
 	if ambush_mult > 1.0:
 		if is_instance_valid(_shadowmeld_component):
 			_shadowmeld_component.break_stealth()

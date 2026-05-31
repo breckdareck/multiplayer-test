@@ -1,7 +1,7 @@
 extends Node
 
 ## Bulwark Stance — applies the B_Bulwark_Stance buff to the caster.
-## Following the codebase pattern (AL_PowerGuard / AL_Focus / AL_MapleWarrior):
+## Following the codebase pattern (AL_PowerGuard / AL_Steady_Aim / AL_Vow_Of_The_Vanguard):
 ## `applies_buff` on the AbilityData is metadata for UI/bots/pets, but the
 ## actual buff application is the AL script's job in execute().
 ##

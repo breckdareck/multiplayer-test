@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Mastery / Ability Point Budget — three paths compared</title>
+<style>
+  :root {
+    --bg: #14161c;
+    --panel: #1c1f28;
+    --panel-2: #232836;
+    --accent: #ffb347;
+    --accent-2: #6ec1e4;
+    --text: #e8eaf0;
+    --dim: #8a8f9c;
+    --good: #5acf6e;
+    --warn: #e0a040;
+    --bad: #ff6363;
+    --border: #2e3342;
+    --c-grant: #5acf6e;
+    --c-half: #6ec1e4;
+    --c-stat: #8a8f9c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 32px 48px;
+    background: var(--bg);
+    color: var(--text);
+    font: 14px/1.55 -apple-system, "Segoe UI", system-ui, sans-serif;
+    max-width: 1400px; margin-left: auto; margin-right: auto;
+  }
+  h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: 0.5px; }
+  h2 { font-size: 16px; margin: 32px 0 12px; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+  h3 { font-size: 13px; margin: 16px 0 6px; color: var(--accent-2); text-transform: uppercase; letter-spacing: 0.6px; }
+  .lede { color: var(--dim); margin: 0 0 24px; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; margin-bottom: 16px; }
+  .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .card {
+    background: var(--panel-2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 12px 14px;
+  }
+  .card.rec { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+  .card.bad { border-color: var(--bad); }
+  .card.warn { border-color: var(--warn); }
+  .rate { font-size: 18px; font-weight: 600; color: var(--accent); display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .rate small { font-size: 11px; color: var(--dim); font-weight: 400; }
+  .total { font-size: 24px; font-weight: 700; margin: 6px 0 2px; }
+  .total small { font-size: 11px; color: var(--dim); font-weight: 400; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  th { color: var(--dim); font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .tag { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .tag.good { background: rgba(90,207,110,0.15); color: var(--good); }
+  .tag.warn { background: rgba(224,160,64,0.18); color: var(--warn); }
+  .tag.bad { background: rgba(255,99,99,0.18); color: var(--bad); }
+  .tag.rec { background: rgba(255,179,71,0.18); color: var(--accent); }
+  .note { font-size: 12px; color: var(--dim); margin-top: 8px; line-height: 1.5; }
+  .recommend {
+    margin-top: 24px; padding: 14px 18px;
+    background: linear-gradient(135deg, rgba(255,179,71,0.10), rgba(110,193,228,0.06));
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+  }
+  .recommend strong { color: var(--accent); }
+  .footnote { color: var(--dim); font-size: 11px; margin-top: 4px; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; font-size: 13px; }
+  .kv dt { color: var(--dim); }
+  .kv dd { margin: 0; font-variant-numeric: tabular-nums; }
+  .diag {
+    background: linear-gradient(135deg, rgba(255,99,99,0.10), rgba(224,160,64,0.06));
+    border: 1px solid var(--bad);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+  }
+  .diag strong { color: var(--bad); }
+  .progress-row { display: flex; align-items: center; gap: 12px; padding: 4px 0; }
+  .progress-row .label { width: 90px; color: var(--dim); font-size: 12px; }
+  .progress-bar { flex: 1; height: 18px; background: var(--bg); border-radius: 3px; position: relative; overflow: hidden; border: 1px solid var(--border); }
+  .progress-bar .fill { position: absolute; top: 0; bottom: 0; left: 0; background: linear-gradient(90deg, var(--accent-2), var(--good)); }
+  .progress-bar .marker { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--accent); }
+  .progress-bar .marker-label {
+    position: absolute; top: 20px; font-size: 10px; color: var(--accent);
+    transform: translateX(-50%); white-space: nowrap;
+  }
+  .pulse {
+    display: inline-block; padding: 1px 6px; border-radius: 3px;
+    background: var(--bad); color: white; font-size: 10px;
+    font-weight: 600; letter-spacing: 0.5px;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+  .timeline {
+    display: grid; grid-template-columns: repeat(100, 1fr); gap: 1px;
+    height: 24px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    margin: 6px 0;
+  }
+  .timeline .tick { background: var(--bg); position: relative; }
+  .timeline .tick.g2 { background: var(--c-grant); }
+  .timeline .tick.g1 { background: var(--c-half); }
+  .timeline .tick.g0 { background: var(--c-stat); }
+  .timeline-legend { display: flex; gap: 12px; font-size: 11px; color: var(--dim); margin-top: 4px; }
+  .timeline-legend .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: middle; margin-right: 4px; }
+  .ruler {
+    display: grid; grid-template-columns: repeat(10, 1fr);
+    font-size: 10px; color: var(--dim); margin-top: -2px;
+  }
+  .ruler span { text-align: left; padding-left: 2px; }
+</style>
+</head>
+<body>
+
+<h1>Mastery / Ability Point Budget — three paths compared</h1>
+<p class="lede">
+The current 20-cap mastery is reached at player ~35, not 100. Three ways to fix it: patch the 20-cap, extend to 60, or align 1:1 with the char-level cap (100).
+</p>
+
+<!-- ============================================================ -->
+<h2>The diagnosis <span class="pulse">SCALES MISMATCHED</span></h2>
+<div class="diag">
+  <p style="margin:0 0 8px"><strong>Today: mastery 20 is reached at approximately player level 30–40, not 100.</strong></p>
+  <p style="margin:0 0 8px">
+    Cumulative mastery XP to hit mastery 20 = ~68,000.<br>
+    Cumulative mastery XP a focused player earns reaching player level 100 (at-level grinding) ≈ <strong>2–5 million</strong>.
+  </p>
+  <div class="progress-row">
+    <span class="label">Mastery cap</span>
+    <div class="progress-bar">
+      <div class="fill" style="width: 100%"></div>
+      <div class="marker" style="left: 35%"></div>
+      <div class="marker-label" style="left: 35%">mastery 20 here</div>
+      <div class="marker" style="right: 0; background: var(--accent)"></div>
+      <div class="marker-label" style="right: -10px;">player 100</div>
+    </div>
+  </div>
+  <p style="margin: 16px 0 0; font-size: 12px;">
+    Practical impact: after level ~35 a focused player has zero ability point growth for 65+ more character levels. The build "settles" two-thirds of the way through the journey.
+  </p>
+</div>
+
+<details class="panel"><summary style="cursor:pointer; color: var(--accent-2); font-size: 13px;">Show the per-level math &raquo;</summary>
+<table style="margin-top:12px">
+  <thead>
+    <tr>
+      <th>Player level</th>
+      <th>Char XP / level</th>
+      <th>Char XP / kill</th>
+      <th>Kills</th>
+      <th>Mastery XP / kill</th>
+      <th>Mastery XP earned</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>10</td><td class="num">1,242</td><td class="num">17</td><td class="num">~73</td><td class="num">10</td><td class="num">~730</td></tr>
+    <tr><td>20</td><td class="num">3,705</td><td class="num">35</td><td class="num">~106</td><td class="num">20</td><td class="num">~2,120</td></tr>
+    <tr><td>30</td><td class="num">19,112</td><td class="num">72</td><td class="num">~266</td><td class="num">30</td><td class="num">~7,980</td></tr>
+    <tr><td>50</td><td class="num">110,870</td><td class="num">156</td><td class="num">~711</td><td class="num">50</td><td class="num">~35,550</td></tr>
+    <tr><td>70</td><td class="num">342,029</td><td class="num">355</td><td class="num">~963</td><td class="num">70</td><td class="num">~67,410 <span class="tag bad">≈ entire cap</span></td></tr>
+    <tr><td>90</td><td class="num">1,342,136</td><td class="num">1,188</td><td class="num">~1,129</td><td class="num">90</td><td class="num">~101,610</td></tr>
+    <tr><td>99→100</td><td class="num">2,365,603</td><td class="num">1,399</td><td class="num">~1,691</td><td class="num">99</td><td class="num">~167,409</td></tr>
+  </tbody>
+</table>
+</details>
+
+<!-- ============================================================ -->
+<h2>Three paths forward</h2>
+
+<div class="grid3">
+
+  <div class="card warn">
+    <div class="rate" style="color:var(--warn)">Path A <small>Patch the 20-cap</small></div>
+    <p style="margin:8px 0;font-size:13px">Keep MASTERY_CAP=20. Scale XP curve so cap is reached at player 100. Pick a points-per-level (3–6).</p>
+    <div class="total">100 <small>pts at cap (5/lvl)</small></div>
+    <table>
+      <tr><td>Reward events</td><td class="num">20</td></tr>
+      <tr><td>Levels per grant</td><td class="num">~5</td></tr>
+      <tr><td>Per grant</td><td class="num">3–6 pts</td></tr>
+      <tr><td>Build complete</td><td class="num">~char 100</td></tr>
+    </table>
+    <div class="note">
+      <strong>Feel:</strong> rare chunky rewards. 5-level dead zones between grants. MapleStory job-advancement cadence.<br><br>
+      <strong>Risk:</strong> long stretches with nothing to spend. Player forgets what they were saving for.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="rate">Path B <small>60-cap, 2 pts/lvl</small></div>
+    <p style="margin:8px 0;font-size:13px">MASTERY_CAP=60, 2 pts/level, cubic XP curve. Mastery 60 = player 100.</p>
+    <div class="total">120 <small>pts at cap</small></div>
+    <table>
+      <tr><td>Reward events</td><td class="num">60</td></tr>
+      <tr><td>Levels per grant</td><td class="num">~1.7</td></tr>
+      <tr><td>Per grant</td><td class="num">2 pts (steady)</td></tr>
+      <tr><td>Build complete</td><td class="num">~char 100</td></tr>
+    </table>
+    <div class="note">
+      <strong>Feel:</strong> frequent small wins all the way to cap. New World mastery cadence.<br><br>
+      <strong>Risk:</strong> 2 pts feels small per grant. Mastery and char level finish together — no "endgame just for stats."
+    </div>
+  </div>
+
+  <div class="card rec">
+    <div class="rate">Path C <small>100-cap, 1:1 with char</small> <span class="tag rec">Your latest</span></div>
+    <p style="margin:8px 0;font-size:13px">MASTERY_CAP=100. XP curve mirrors char curve (1:1). Points front-loaded: build complete at mastery ~70, last 30 ranks are stat-only.</p>
+    <div class="total">120 <small>pts by mastery 70</small></div>
+    <table>
+      <tr><td>Reward events (pts)</td><td class="num">70</td></tr>
+      <tr><td>Levels per grant</td><td class="num">~1.0</td></tr>
+      <tr><td>Per grant</td><td class="num">2 → 1 → 0</td></tr>
+      <tr><td>Build complete</td><td class="num">~char 70</td></tr>
+    </table>
+    <div class="note">
+      <strong>Feel:</strong> mastery walks with char level the whole way. Build settles mid-game; last 30 levels are stat min-max grind. <em>MapleStory 4th-job-then-grind cadence.</em><br><br>
+      <strong>Bonus:</strong> mastery cap aligns visually with char cap. One bar, one journey.
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<h2>Path C in detail — point grant schedule</h2>
+<p class="lede" style="margin-bottom:8px">
+Three tiers of grants. Mastery levels 1–50 are the bulk of build-out, 51–70 are finishing touches, 71–100 are stat refinement.
+</p>
+
+<div class="panel">
+
+<h3>Grant tiers</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Mastery range</th>
+      <th>Pts / level</th>
+      <th>Range total</th>
+      <th>Cumulative pts</th>
+      <th>What you do here</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>1 – 50</td><td class="num">2</td><td class="num">100</td><td class="num">100</td><td>Build the kit. Pick actives, level passives, unlock T1/T2 upgrades.</td></tr>
+    <tr><td>51 – 70</td><td class="num">1</td><td class="num">20</td><td class="num">120</td><td>Finishing touches. T3 variant picks, mop up remaining levels.</td></tr>
+    <tr style="background:rgba(138,143,156,0.08)"><td>71 – 100</td><td class="num">0</td><td class="num">0</td><td class="num">120 (capped)</td><td>Stat-only. <code>get_summed_stat_bonus</code> keeps scaling (+30% more stat bonus than mastery 70).</td></tr>
+  </tbody>
+</table>
+
+<h3 style="margin-top: 20px">Visual timeline (each tick = 1 mastery level)</h3>
+<div class="timeline">
+  <!-- 50 green ticks (g2), 20 blue ticks (g1), 30 gray ticks (g0) -->
+  <div class="tick g2"></div><div class="tick g2"></div><div class="tick g2"></div><div class="tick g2"></div><div class="tick g2"></div>
+  <div class="tick g2"></div><div class="tick g2"></div><div class="tick g2"></div><div class="tick g2"></div><div class="tick g2"></div>
+  <div class="tick g2"></div><div class="tick g2"></div><div class="tick g2"></div><div class="tick g2"></div><div class="tick g2"></div>
+  <div class="tick g2"></div><div class="tick g2"></div><div class="tick g2"></div><div class="tick g2"></div><div class="tick g2"></div>
+  <div class="tick g2"></div><div class="tick g2"></div><div class="tick g2"></div><div class="tick g2"></div><div class="tick g2"></div>
+  <div class="tick g2"></div><div class="tick g2"></div><div class="tick g2"></div><div class="tick g2"></div><div class="tick g2"></div>
+  <div class="tick g2"></div><div class="tick g2"></div><div class="tick g2"></div><div class="tick g2"></div><div class="tick g2"></div>
+  <div class="tick g2"></div><div class="tick g2"></div><div class="tick g2"></div><div class="tick g2"></div><div class="tick g2"></div>
+  <div class="tick g2"></div><div class="tick g2"></div><div class="tick g2"></div><div class="tick g2"></div><div class="tick g2"></div>
+  <div class="tick g2"></div><div class="tick g2"></div><div class="tick g2"></div><div class="tick g2"></div><div class="tick g2"></div>
+  <div class="tick g1"></div><div class="tick g1"></div><div class="tick g1"></div><div class="tick g1"></div><div class="tick g1"></div>
+  <div class="tick g1"></div><div class="tick g1"></div><div class="tick g1"></div><div class="tick g1"></div><div class="tick g1"></div>
+  <div class="tick g1"></div><div class="tick g1"></div><div class="tick g1"></div><div class="tick g1"></div><div class="tick g1"></div>
+  <div class="tick g1"></div><div class="tick g1"></div><div class="tick g1"></div><div class="tick g1"></div><div class="tick g1"></div>
+  <div class="tick g0"></div><div class="tick g0"></div><div class="tick g0"></div><div class="tick g0"></div><div class="tick g0"></div>
+  <div class="tick g0"></div><div class="tick g0"></div><div class="tick g0"></div><div class="tick g0"></div><div class="tick g0"></div>
+  <div class="tick g0"></div><div class="tick g0"></div><div class="tick g0"></div><div class="tick g0"></div><div class="tick g0"></div>
+  <div class="tick g0"></div><div class="tick g0"></div><div class="tick g0"></div><div class="tick g0"></div><div class="tick g0"></div>
+  <div class="tick g0"></div><div class="tick g0"></div><div class="tick g0"></div><div class="tick g0"></div><div class="tick g0"></div>
+  <div class="tick g0"></div><div class="tick g0"></div><div class="tick g0"></div><div class="tick g0"></div><div class="tick g0"></div>
+</div>
+<div class="ruler">
+  <span>1</span><span>10</span><span>20</span><span>30</span><span>40</span>
+  <span>50</span><span>60</span><span>70</span><span>80</span><span>90</span>
+</div>
+<div class="timeline-legend" style="margin-top:8px">
+  <span><span class="sw" style="background:var(--c-grant)"></span> +2 ability pts</span>
+  <span><span class="sw" style="background:var(--c-half)"></span> +1 ability pt</span>
+  <span><span class="sw" style="background:var(--c-stat)"></span> stat-only (no pts)</span>
+</div>
+
+<h3 style="margin-top: 20px">Cumulative reach at key checkpoints (1:1 mastery↔char alignment)</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Char / mastery level</th>
+      <th>Cumulative pts</th>
+      <th>Coverage of Specialist build (81)</th>
+      <th>Coverage of Deep Specialist (104)</th>
+      <th>What's likely built</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>5</td><td class="num">10</td><td class="num">12%</td><td class="num">10%</td><td class="footnote">1 maxed passive or 1 active + 1 passive</td></tr>
+    <tr><td>10</td><td class="num">20</td><td class="num">25%</td><td class="num">19%</td><td class="footnote">2 actives or 4 passives</td></tr>
+    <tr><td>20</td><td class="num">40</td><td class="num">49%</td><td class="num">38%</td><td class="footnote">4 actives, hotbar starting to fill</td></tr>
+    <tr><td>30</td><td class="num">60</td><td class="num">74%</td><td class="num">58%</td><td class="footnote">Solid mid build, picking T1 upgrades</td></tr>
+    <tr><td>40</td><td class="num">80</td><td class="num">99%</td><td class="num">77%</td><td class="footnote">Specialist build complete — picking T2s</td></tr>
+    <tr><td>50</td><td class="num">100</td><td class="num">123%</td><td class="num">96%</td><td class="footnote">Deep Specialist nearly done</td></tr>
+    <tr><td>60</td><td class="num">110</td><td class="num">136%</td><td class="num">106%</td><td class="footnote">Deep Specialist done; T3 picks landing</td></tr>
+    <tr style="background:rgba(255,179,71,0.08)"><td><strong>70</strong></td><td class="num"><strong>120</strong></td><td class="num"><strong>148%</strong></td><td class="num"><strong>115%</strong></td><td class="footnote"><strong>Build complete.</strong> All planned points spent.</td></tr>
+    <tr style="background:rgba(138,143,156,0.06)"><td>80</td><td class="num">120</td><td class="num">—</td><td class="num">—</td><td class="footnote">Stat-only: +14% disc stat bonus vs mastery 70</td></tr>
+    <tr style="background:rgba(138,143,156,0.06)"><td>90</td><td class="num">120</td><td class="num">—</td><td class="num">—</td><td class="footnote">Stat-only: +29% disc stat bonus vs mastery 70</td></tr>
+    <tr style="background:rgba(138,143,156,0.06)"><td>100</td><td class="num">120</td><td class="num">—</td><td class="num">—</td><td class="footnote">Stat-only: +43% disc stat bonus vs mastery 70 (full cap)</td></tr>
+  </tbody>
+</table>
+<div class="note">
+  Mastery levels grant stats via <code>get_summed_stat_bonus(stat) → bonus × mastery_level</code>. So mastery 71–100 are still meaningfully rewarding — they're scaling your discipline stats by +43% over mastery 70. Just no NEW ability choices.
+</div>
+
+</div>
+
+<!-- ============================================================ -->
+<h2>Side-by-side rhythm comparison</h2>
+
+<div class="grid3">
+
+  <div class="card warn">
+    <h3>Path A — 20-cap, 5 pts/lvl</h3>
+    <div class="progress-row">
+      <span class="label">char 1–10</span>
+      <div class="progress-bar"><div class="fill" style="width:5%; background:var(--accent-2)"></div></div>
+    </div>
+    <div class="progress-row">
+      <span class="label">char 11–30</span>
+      <div class="progress-bar"><div class="fill" style="width:30%; background:var(--accent-2)"></div></div>
+    </div>
+    <div class="progress-row">
+      <span class="label">char 31–60</span>
+      <div class="progress-bar"><div class="fill" style="width:65%; background:var(--accent-2)"></div></div>
+    </div>
+    <div class="progress-row">
+      <span class="label">char 61–100</span>
+      <div class="progress-bar"><div class="fill" style="width:100%; background:var(--accent-2)"></div></div>
+    </div>
+    <div class="note" style="margin-top:12px">
+      <strong>20 grants</strong> × 5 pts spread thin.<br>
+      Buying anything substantial usually fits in one grant (a passive = 5 pts).<br>
+      Big anticipation each time, but long quiet stretches.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Path B — 60-cap, 2 pts/lvl</h3>
+    <div class="progress-row">
+      <span class="label">char 1–10</span>
+      <div class="progress-bar"><div class="fill" style="width:15%; background:var(--good)"></div></div>
+    </div>
+    <div class="progress-row">
+      <span class="label">char 11–30</span>
+      <div class="progress-bar"><div class="fill" style="width:45%; background:var(--good)"></div></div>
+    </div>
+    <div class="progress-row">
+      <span class="label">char 31–60</span>
+      <div class="progress-bar"><div class="fill" style="width:75%; background:var(--good)"></div></div>
+    </div>
+    <div class="progress-row">
+      <span class="label">char 61–100</span>
+      <div class="progress-bar"><div class="fill" style="width:100%; background:var(--good)"></div></div>
+    </div>
+    <div class="note" style="margin-top:12px">
+      <strong>60 grants</strong> × 2 pts steady.<br>
+      Mastery and char level finish together.<br>
+      Hits cap at level 100; nothing more to earn weapon-side.
+    </div>
+  </div>
+
+  <div class="card rec">
+    <h3>Path C — 100-cap, 1:1</h3>
+    <div class="progress-row">
+      <span class="label">char 1–10</span>
+      <div class="progress-bar"><div class="fill" style="width:17%"></div></div>
+    </div>
+    <div class="progress-row">
+      <span class="label">char 11–30</span>
+      <div class="progress-bar"><div class="fill" style="width:50%"></div></div>
+    </div>
+    <div class="progress-row">
+      <span class="label">char 31–60</span>
+      <div class="progress-bar"><div class="fill" style="width:92%"></div></div>
+    </div>
+    <div class="progress-row">
+      <span class="label">char 61–70</span>
+      <div class="progress-bar"><div class="fill" style="width:100%"></div></div>
+    </div>
+    <div class="progress-row">
+      <span class="label">char 71–100</span>
+      <div class="progress-bar"><div class="fill" style="width:100%; background:var(--c-stat)"></div></div>
+    </div>
+    <div class="note" style="margin-top:12px">
+      <strong>70 grants</strong> (50×2 + 20×1) then stat-only.<br>
+      Build settles by char 70 → 30 levels of stat-grind endgame.<br>
+      <em>Mastery bar matches char bar visually.</em>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<h2>Cost reference (unchanged)</h2>
+<div class="panel">
+  <div class="grid2">
+    <div>
+      <h3>To max one ability</h3>
+      <dl class="kv">
+        <dt>Active (non-starter)</dt><dd><strong>10 pts</strong></dd>
+        <dt>Active (discipline starter)</dt><dd><strong>9 pts</strong> (L1 free)</dd>
+        <dt>Passive</dt><dd><strong>5 pts</strong></dd>
+        <dt>Full upgrade path (T1+T2+1×T3)</dt><dd><strong>4 pts</strong></dd>
+      </dl>
+    </div>
+    <div>
+      <h3>Discipline targets (Sword: 8 actives + 6 passives)</h3>
+      <dl class="kv">
+        <dt>Specialist build</dt><dd>~81 pts</dd>
+        <dt>Deep Specialist</dt><dd>~104 pts</dd>
+        <dt>All levels (no upgrades)</dt><dd>109 pts</dd>
+        <dt>Fully kit out</dt><dd>~165 pts</dd>
+      </dl>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<h2>Recommendation</h2>
+<div class="recommend">
+  <p><strong>Path C — 100-cap, 1:1 char alignment, build complete by mastery 70.</strong></p>
+  <p>Versus Path B:</p>
+  <ul style="margin:8px 0">
+    <li><strong>One bar matches the other.</strong> Mastery 100 = char 100 visually. Player intuition: "this is the same journey."</li>
+    <li><strong>Grant frequency stays high (~1 per char level) but ends mid-game.</strong> Build choices concentrate in the early-mid where they matter most.</li>
+    <li><strong>Last 30 levels reframe as stat-grind endgame.</strong> Not "nothing happening" — mastery 71→100 is still +43% discipline stat bonus. Different KIND of reward.</li>
+    <li><strong>Variable grant rate (2→1→0) creates an arc.</strong> Not monotone like B. The "1 pt phase" feels like the "finishing touches" stage.</li>
+  </ul>
+  <p>Implementation:</p>
+  <ol style="margin:8px 0">
+    <li><code>MASTERY_CAP = 100</code> in <code>weapon_mastery.gd</code>.</li>
+    <li>Replace <code>const ABILITY_POINTS_PER_MASTERY_LEVEL</code> with a function:
+      <pre style="font-size:11px; background:var(--bg); padding:8px; border-radius:3px; margin:6px 0;">static func points_granted_at_mastery(level: int) -> int:
+    if level &lt;= 50: return 2
+    if level &lt;= 70: return 1
+    return 0</pre>
+    </li>
+    <li>Update <code>reconcile_ability_points()</code> granted-sum to use a cumulative-points helper (sum the function over [1, mastery_level]).</li>
+    <li>Calibrate <code>XP_BASE / XP_LINEAR / XP_QUADRATIC / XP_CUBIC</code> so mastery N's cumulative XP roughly tracks char N's cumulative XP. First-pass: <code>30 + 30N + 5N² + 0.1N³</code> — tune in playtest.</li>
+    <li>Existing saves: chars currently at mastery ≤20 get a refund for the granted-vs-spent delta (the new function grants 2/lvl from rank 1 vs old 6/lvl). Show a one-time "your mastery scale was rebalanced; you have X unspent points" notice.</li>
+  </ol>
+  <p style="margin-bottom:0">
+    <span class="tag warn">Caveat</span>
+    The 50/70 tier boundaries and the XP curve coefficients are first-pass. Playtest L1–L30 first; if 2 pts/level feels too slow early, bump to 3 pts/level for the first 20-30 mastery ranks (and shorten the 1-pt tier accordingly to keep 120 total).
+  </p>
+</div>
+
+<p class="footnote" style="margin-top:32px; text-align:center">
+  All numbers derived from current curve resources + memory invariants. Tier boundaries and XP coefficients are tunable.
+</p>
+
+</body>
+</html>
