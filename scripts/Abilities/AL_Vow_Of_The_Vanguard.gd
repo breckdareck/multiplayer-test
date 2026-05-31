@@ -11,7 +11,16 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 		party_members = [owner_id]
 
 	var duration = _ability.buff_duration_formula.calculate(_level_stats.level)
-	var stats_percent = ceil(_level_stats.level / 2.0)
+	# PR 15: read the display % from the .tres formula instead of hardcoded
+	# ceil(level/2.0) (which was tuned for old max_level 20 and would have
+	# halved the displayed number at the new max_level 10). The actual stat
+	# modifiers below already read from the .tres formula in the loop, so
+	# this just keeps the display + BL passthrough consistent.
+	var stats_percent: float = 0.0
+	if not _ability.scaling_data.stat_bonus_formulas.is_empty():
+		var first_pct_formula = _ability.scaling_data.stat_bonus_formulas[0].percent_bonus_formula
+		if first_pct_formula:
+			stats_percent = first_pct_formula.calculate(_level_stats.level)
 
 	# PR 6 upgrades: buff_duration_bonus (+s) and vow_stat_bonus (+% to the
 	# all-stats buff). Read once; applied to duration + stats_percent below.

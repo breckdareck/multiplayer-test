@@ -9,9 +9,10 @@ func execute(owner_node: Node, ability: AbilityData, level_stats: AbilityLevelDa
 		return
 
 	var duration: float = ability.buff_duration_formula.calculate(level_stats.level)
-	# Absorption rate: 30% base + 2% per level (capped at 70% at max level 20
-	# scaling, then upgrades can push it higher).
-	var absorption_rate: float = (0.30 + level_stats.level * 0.02)
+	# Absorption rate: 30% base + 4% per level (PR 15 rescaled for max_level 10
+	# — was 0.02 per level for old max_level 20; same L10/L20 endpoint of 70%).
+	# Upgrades (absorption_bonus) push it higher.
+	var absorption_rate: float = (0.30 + level_stats.level * 0.04)
 
 	# PR 6/8 upgrades:
 	#  buff_duration_bonus (+s) — Lasting / Eternal Ward
