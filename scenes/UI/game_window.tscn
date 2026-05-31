@@ -762,6 +762,58 @@ theme_override_font_sizes/font_size = 16
 text = "-"
 horizontal_alignment = 2
 
+[node name="AccRow" type="HBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats"]
+layout_mode = 2
+
+[node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/AccRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 1
+tooltip_text = "Accuracy
++% chance to land a hit. Stacks with the DEX bonus
+(0.05% per DEX). Compensates for above-level enemies
+and weapon underlevel penalties."
+theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+theme_override_font_sizes/font_size = 16
+text = "Accuracy"
+
+[node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/AccRow"]
+layout_mode = 2
+mouse_filter = 1
+tooltip_text = "Accuracy
++% chance to land a hit. Stacks with the DEX bonus
+(0.05% per DEX). Compensates for above-level enemies
+and weapon underlevel penalties."
+theme_override_font_sizes/font_size = 16
+text = "-"
+horizontal_alignment = 2
+
+[node name="EvaRow" type="HBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats"]
+layout_mode = 2
+
+[node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/EvaRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 1
+tooltip_text = "Evasion
+-% chance an incoming attack lands on you. Granted by
+the dagger Evasion passive and gear. Caps the
+attacker's hit chance no lower than 5%."
+theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+theme_override_font_sizes/font_size = 16
+text = "Evasion"
+
+[node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/EvaRow"]
+layout_mode = 2
+mouse_filter = 1
+tooltip_text = "Evasion
+-% chance an incoming attack lands on you. Granted by
+the dagger Evasion passive and gear. Caps the
+attacker's hit chance no lower than 5%."
+theme_override_font_sizes/font_size = 16
+text = "-"
+horizontal_alignment = 2
+
 [node name="DmgRangeRow" type="HBoxContainer" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats"]
 layout_mode = 2
 

@@ -2,12 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>All Passives Review — post weapon-identity-overhaul (PR 8a-e)</title>
+<title>Passives + Upgrades Review — post PR 167-176</title>
 <style>
   :root {
     --bg: #14161c;
     --panel: #1c1f28;
     --panel-2: #232836;
+    --panel-3: #2a3040;
     --accent: #ffb347;
     --accent-2: #6ec1e4;
     --text: #e8eaf0;
@@ -16,6 +17,10 @@
     --warn: #e0a040;
     --bad: #ff6363;
     --border: #2e3342;
+    --c-sword: #e0a040;
+    --c-bow: #5acf6e;
+    --c-staff: #6ec1e4;
+    --c-dagger: #b58df0;
     --c-direct: #6ec1e4;
     --c-percent: #b58df0;
     --c-regen: #5acf6e;
@@ -27,62 +32,50 @@
     margin: 0; padding: 32px 48px;
     background: var(--bg);
     color: var(--text);
-    font: 14px/1.55 -apple-system, "Segoe UI", system-ui, sans-serif;
+    font: 13px/1.5 -apple-system, "Segoe UI", system-ui, sans-serif;
     max-width: 1600px; margin-left: auto; margin-right: auto;
   }
   h1 { font-size: 22px; margin: 0 0 4px; }
   h2 { font-size: 16px; margin: 32px 0 12px; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 6px; }
-  .lede { color: var(--dim); margin: 0 0 24px; }
-  .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-  .disc-col {
+  .lede { color: var(--dim); margin: 0 0 16px; }
+  .discipline-head {
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 8px 14px;
+    border-radius: 6px 6px 0 0;
+    margin-top: 24px;
+    font-size: 14px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .discipline-head.sword  { background: rgba(224, 160, 64, 0.20); color: var(--c-sword); }
+  .discipline-head.bow    { background: rgba(90, 207, 110, 0.20); color: var(--c-bow); }
+  .discipline-head.staff  { background: rgba(110, 193, 228, 0.20); color: var(--c-staff); }
+  .discipline-head.dagger { background: rgba(181, 141, 240, 0.20); color: var(--c-dagger); }
+  .discipline-head small { font-size: 11px; color: var(--dim); font-weight: 400; letter-spacing: 0.5px; }
+  .disc-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
     background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 16px;
+    padding: 12px;
+    border-radius: 0 0 6px 6px;
   }
-  .disc-col h3 {
-    margin: 0 0 12px;
-    font-size: 14px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--accent);
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 8px;
-  }
-  .disc-col.sword h3   { color: #e0a040; }
-  .disc-col.bow h3     { color: #5acf6e; }
-  .disc-col.staff h3   { color: #6ec1e4; }
-  .disc-col.dagger h3  { color: #b58df0; }
-
   .passive {
     background: var(--panel-2);
-    border: 1px solid var(--border);
     border-left: 3px solid var(--border);
     border-radius: 4px;
     padding: 10px 12px;
-    margin-bottom: 8px;
   }
   .passive.direct      { border-left-color: var(--c-direct); }
   .passive.percent     { border-left-color: var(--c-percent); }
   .passive.regen       { border-left-color: var(--c-regen); }
   .passive.conditional { border-left-color: var(--c-conditional); }
   .passive.utility     { border-left-color: var(--c-utility); }
-  .passive.changed { box-shadow: 0 0 0 1px var(--accent) inset; }
   .passive.flagged { box-shadow: 0 0 0 1px var(--bad) inset; }
-
   .p-head {
     display: flex; justify-content: space-between; align-items: baseline;
     gap: 8px; margin-bottom: 4px;
   }
-  .p-name {
-    font-weight: 600; font-size: 14px;
-  }
-  .p-type {
-    font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.5px;
-  }
-  .p-stat {
-    font-size: 12px; color: var(--text); margin-bottom: 4px;
-  }
+  .p-name { font-weight: 600; font-size: 14px; }
+  .p-type { font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.5px; }
+  .p-stat { font-size: 12px; color: var(--text); margin-bottom: 4px; }
   .p-formula {
     font-size: 11px; color: var(--dim);
     font-family: ui-monospace, "SF Mono", Consolas, monospace;
@@ -90,16 +83,44 @@
   }
   .p-range {
     display: grid; grid-template-columns: 1fr 1fr; gap: 4px;
-    font-size: 12px; margin-bottom: 4px;
+    font-size: 12px; margin-bottom: 8px;
   }
   .p-range .lv {
     background: var(--bg); padding: 3px 6px; border-radius: 3px;
     display: flex; justify-content: space-between;
   }
   .p-range .lv b { color: var(--accent-2); font-variant-numeric: tabular-nums; }
-  .p-meta {
-    font-size: 11px; color: var(--dim); margin-top: 4px;
+  .p-meta { font-size: 11px; color: var(--dim); }
+  .upgrades {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--border);
   }
+  .u-title {
+    font-size: 10px; color: var(--dim); text-transform: uppercase;
+    letter-spacing: 0.6px; margin-bottom: 4px;
+  }
+  .u-row {
+    display: grid;
+    grid-template-columns: 14px 1fr 26px 50px;
+    gap: 4px; align-items: baseline;
+    padding: 2px 0;
+    font-size: 11px;
+    border-bottom: 1px dotted rgba(46, 51, 66, 0.5);
+  }
+  .u-row:last-child { border-bottom: none; }
+  .u-tier {
+    font-weight: 600; text-align: center;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+  .u-name { color: var(--text); }
+  .u-cost { color: var(--dim); text-align: center; font-variant-numeric: tabular-nums; }
+  .u-mag {
+    color: var(--accent-2); text-align: right; font-variant-numeric: tabular-nums;
+    font-family: ui-monospace, "SF Mono", Consolas, monospace; font-size: 10px;
+  }
+  .u-effect { grid-column: 1 / -1; color: var(--dim); font-size: 10px; padding-left: 18px; padding-bottom: 4px; font-family: ui-monospace, "SF Mono", Consolas, monospace; }
   .tag {
     display: inline-block; padding: 1px 5px; border-radius: 3px;
     font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px;
@@ -115,33 +136,38 @@
   }
   .legend span { display: flex; align-items: center; gap: 6px; color: var(--dim); }
   .legend .sw { width: 12px; height: 12px; border-radius: 2px; border-left: 3px solid; background: var(--panel-2); }
+  .summary-row {
+    display: grid; grid-template-columns: 80px 1fr 1fr 1fr;
+    gap: 12px; padding: 12px 16px;
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 8px; margin-bottom: 8px;
+    font-size: 12px;
+  }
+  .summary-row.head {
+    color: var(--dim); text-transform: uppercase; letter-spacing: 0.5px;
+    background: var(--panel-2);
+    font-size: 11px;
+  }
+  .summary-row > div { color: var(--text); }
+  .summary-row > div b { color: var(--accent); }
   .note-panel {
     background: linear-gradient(135deg, rgba(255,99,99,0.10), rgba(224,160,64,0.06));
     border: 1px solid var(--bad);
     border-radius: 8px;
-    padding: 14px 18px;
-    margin-bottom: 20px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    font-size: 12px;
   }
   .note-panel strong { color: var(--bad); }
   .footnote { color: var(--dim); font-size: 11px; }
-  table.summary {
-    width: 100%; border-collapse: collapse; margin-top: 8px;
-    font-size: 12px;
-  }
-  table.summary th, table.summary td {
-    text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border);
-  }
-  table.summary th { color: var(--dim); font-weight: 500; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
-  table.summary td.num { text-align: right; font-variant-numeric: tabular-nums; }
 </style>
 </head>
 <body>
 
-<h1>All Passives Review</h1>
+<h1>Passives + Upgrades Review</h1>
 <p class="lede">
-24 passives across 4 weapon disciplines after PRs #167–#171.
-Max level halved 10 → 5 (PR #168); per_level doubled to preserve endpoints.
-Weak passives buffed (PR #168). Cutthroat repointed to crit damage (PR #170).
+24 passives across 4 weapon disciplines · 69 upgrades · post merge of PRs #167–#176.
+ACCURACY (idx 16) + EVASIONCHANCE (idx 17) are the new stat types; Bow + Dagger reshape, Staff Stoneskin → Arcane Resonance, etc.
 </p>
 
 <div class="legend">
@@ -150,305 +176,409 @@ Weak passives buffed (PR #168). Cutthroat repointed to crit damage (PR #170).
   <span><span class="sw" style="border-left-color: var(--c-regen);"></span> regen / sustain</span>
   <span><span class="sw" style="border-left-color: var(--c-conditional);"></span> conditional damage</span>
   <span><span class="sw" style="border-left-color: var(--c-utility);"></span> utility / niche stat</span>
-  <span><span class="tag changed">CHANGED</span> tweaked in PR 8a–e stack</span>
-  <span><span class="tag flag">FLAG</span> needs followup attention</span>
+  <span><span class="tag changed">CHANGED</span> tweaked in PR 167–176</span>
+  <span><span class="tag flag">FLAG</span> followup attention</span>
 </div>
 
-<!-- ============================================================ -->
-<h2>Passive matrix — by discipline</h2>
+<!-- ============================== SWORD ============================== -->
+<div class="discipline-head sword">SWORD <small>· tank / sustain bruiser · 6 passives + 17 upgrades</small></div>
+<div class="disc-grid">
 
-<div class="grid4">
-
-  <!-- ============================== SWORD ============================== -->
-  <div class="disc-col sword">
-    <h3>Sword (6 passives)</h3>
-
-    <div class="passive direct">
-      <div class="p-head"><span class="p-name">Battle-Hardened</span><span class="p-type">Direct stat</span></div>
-      <div class="p-stat">+ Defense (flat)</div>
-      <div class="p-formula">FLAT · base 3 + per_level 6</div>
-      <div class="p-range"><div class="lv">L1 <b>+3 DEF</b></div><div class="lv">L5 <b>+27 DEF</b></div></div>
-      <div class="p-meta">3 upgrades · A_Battle_Hardened.tres</div>
-    </div>
-
-    <div class="passive regen">
-      <div class="p-head"><span class="p-name">Second Wind</span><span class="p-type">HP regen</span></div>
-      <div class="p-stat">+ HP regeneration (flat)</div>
-      <div class="p-formula">FLAT · base 2 + per_level 2</div>
-      <div class="p-range"><div class="lv">L1 <b>+2 HP/s</b></div><div class="lv">L5 <b>+10 HP/s</b></div></div>
-      <div class="p-meta">3 upgrades · A_Second_Wind.tres (was A_Battle_Instinct)</div>
-    </div>
-
-    <div class="passive percent">
-      <div class="p-head"><span class="p-name">Hardened Frame</span><span class="p-type">Percent stat</span></div>
-      <div class="p-stat">+% Max HP</div>
-      <div class="p-formula">PERCENT · base 2% + per_level 4%</div>
-      <div class="p-range"><div class="lv">L1 <b>+2% HP</b></div><div class="lv">L5 <b>+18% HP</b></div></div>
-      <div class="p-meta">3 upgrades · A_Hardened_Frame.tres</div>
-    </div>
-
-    <div class="passive regen flagged">
-      <div class="p-head"><span class="p-name">Bloodthirst <span class="tag flag">AL HARDCODE</span></span><span class="p-type">Heal on kill</span></div>
-      <div class="p-stat">Heal % Max HP per enemy kill</div>
-      <div class="p-formula">AL_Bloodthirst · 0.5 + 0.3·(L-1) <span style="color:var(--bad)">(stale — .tres says 0.6)</span></div>
-      <div class="p-range"><div class="lv">L1 <b>+0.5% HP</b></div><div class="lv">L5 <b>+1.7% HP</b></div></div>
-      <div class="p-meta"><span class="tag flag">FLAG</span> AL_Bloodthirst.gd hardcoded PER_LEVEL_HEAL_PCT=0.3 wasn't updated when PR 9 doubled the .tres per_level → 0.6. Should be L5=+2.9%. <br>3 upgrades · A_Bloodthirst.tres</div>
-    </div>
-
-    <div class="passive conditional changed">
-      <div class="p-head"><span class="p-name">Aggression <span class="tag changed">RENAMED</span></span><span class="p-type">Conditional dmg</span></div>
-      <div class="p-stat">Bonus dmg vs targets above 90% HP</div>
-      <div class="p-formula">AL_Aggression · 30% × (L / 5) — linear</div>
-      <div class="p-range"><div class="lv">L1 <b>+6%</b></div><div class="lv">L5 <b>+30%</b></div></div>
-      <div class="p-meta">3 upgrades · A_Aggression.tres (was A_Iron_Sinews)</div>
-    </div>
-
-    <div class="passive conditional changed">
-      <div class="p-head"><span class="p-name">Last Stand <span class="tag changed">RENAMED</span></span><span class="p-type">Conditional dmg</span></div>
-      <div class="p-stat">Bonus dmg while self below 35% HP</div>
-      <div class="p-formula">AL_LastStand · 35% × (L / 5)</div>
-      <div class="p-range"><div class="lv">L1 <b>+7%</b></div><div class="lv">L5 <b>+35%</b></div></div>
-      <div class="p-meta">3 upgrades · A_Last_Stand.tres (was A_Savage_Blows)</div>
+  <div class="passive direct">
+    <div class="p-head"><span class="p-name">Battle-Hardened</span><span class="p-type">Direct stat</span></div>
+    <div class="p-stat">+ Defense (flat)</div>
+    <div class="p-formula">FLAT · base 3 + per_level 6</div>
+    <div class="p-range"><div class="lv">L1 <b>+3 DEF</b></div><div class="lv">L5 <b>+27 DEF</b></div></div>
+    <div class="upgrades">
+      <div class="u-title">3 upgrades · passive_stat_flat_bonus</div>
+      <div class="u-row"><div class="u-tier">1</div><div class="u-name">Seasoned</div><div class="u-cost">1</div><div class="u-mag">+2</div></div>
+      <div class="u-row"><div class="u-tier">2</div><div class="u-name">Veteran</div><div class="u-cost">1</div><div class="u-mag">+3</div></div>
+      <div class="u-row"><div class="u-tier">3</div><div class="u-name">Unbreakable</div><div class="u-cost">2</div><div class="u-mag">+3</div></div>
     </div>
   </div>
 
-  <!-- ============================== BOW ============================== -->
-  <div class="disc-col bow">
-    <h3>Bow (6 passives)</h3>
+  <div class="passive regen flagged">
+    <div class="p-head"><span class="p-name">Second Wind <span class="tag flag">NO UPGRADES</span></span><span class="p-type">HP regen</span></div>
+    <div class="p-stat">+ HP regeneration (flat)</div>
+    <div class="p-formula">FLAT · base 2 + per_level 2</div>
+    <div class="p-range"><div class="lv">L1 <b>+2 HP/s</b></div><div class="lv">L5 <b>+10 HP/s</b></div></div>
+    <div class="p-meta"><span class="tag flag">FLAG</span> Only passive with no upgrade chain — every other passive has T1/T2/T3.</div>
+  </div>
 
-    <div class="passive direct">
-      <div class="p-head"><span class="p-name">Iron Hide</span><span class="p-type">Direct stat</span></div>
-      <div class="p-stat">+ Defense (flat)</div>
-      <div class="p-formula">FLAT · base 3 + per_level 6</div>
-      <div class="p-range"><div class="lv">L1 <b>+3 DEF</b></div><div class="lv">L5 <b>+27 DEF</b></div></div>
-      <div class="p-meta">3 upgrades · A_Iron_Hide.tres</div>
-    </div>
-
-    <div class="passive direct changed">
-      <div class="p-head"><span class="p-name">Keen Eye <span class="tag changed">BUFFED</span></span><span class="p-type">Direct stat</span></div>
-      <div class="p-stat">+ Critical Hit Chance</div>
-      <div class="p-formula">FLAT · base 2 + per_level 2 (was CUSTOM ceil(L/2.0))</div>
-      <div class="p-range"><div class="lv">L1 <b>+2%</b></div><div class="lv">L5 <b>+10%</b></div></div>
-      <div class="p-meta">3 upgrades · A_Keen_Eye.tres · was capped at +5% with CUSTOM formula → now linear/doubled</div>
-    </div>
-
-    <div class="passive direct">
-      <div class="p-head"><span class="p-name">Lethality</span><span class="p-type">Direct stat</span></div>
-      <div class="p-stat">+ Critical Damage</div>
-      <div class="p-formula">FLAT · base 2 + per_level 4</div>
-      <div class="p-range"><div class="lv">L1 <b>+2%</b></div><div class="lv">L5 <b>+18%</b></div></div>
-      <div class="p-meta">3 upgrades · A_Lethality.tres</div>
-    </div>
-
-    <div class="passive conditional changed">
-      <div class="p-head"><span class="p-name">Tailwind <span class="tag changed">RENAMED</span></span><span class="p-type">Conditional dmg</span></div>
-      <div class="p-stat">Bonus dmg scaled by Bow Momentum stacks</div>
-      <div class="p-formula">AL_Tailwind · 30% × (stacks / 10) × (L / 5)</div>
-      <div class="p-range"><div class="lv">L1 full <b>+6%</b></div><div class="lv">L5 full <b>+30%</b></div></div>
-      <div class="p-meta">3 upgrades · A_Tailwind.tres (was A_Deep_Reserves) · synergy with BowMomentum gauge</div>
-    </div>
-
-    <div class="passive conditional changed">
-      <div class="p-head"><span class="p-name">Execution <span class="tag changed">RENAMED</span></span><span class="p-type">Conditional dmg</span></div>
-      <div class="p-stat">Bonus dmg vs targets below 30% HP</div>
-      <div class="p-formula">AL_Execution · 45% × (L / 5)</div>
-      <div class="p-range"><div class="lv">L1 <b>+9%</b></div><div class="lv">L5 <b>+45%</b></div></div>
-      <div class="p-meta">3 upgrades · A_Execution.tres (was A_Fleet_Fingers) · highest conditional bonus of the set</div>
-    </div>
-
-    <div class="passive utility changed">
-      <div class="p-head"><span class="p-name">Surefoot <span class="tag changed">RENAMED</span></span><span class="p-type">Niche stat</span></div>
-      <div class="p-stat">+ Knockback Resistance</div>
-      <div class="p-formula">FLAT · base 5 + per_level 4</div>
-      <div class="p-range"><div class="lv">L1 <b>+5 KBR</b></div><div class="lv">L5 <b>+21 KBR</b></div></div>
-      <div class="p-meta">3 upgrades · A_Surefoot.tres (was A_Survival_Instinct) · stat used by stats.rolls_knockback</div>
+  <div class="passive percent">
+    <div class="p-head"><span class="p-name">Hardened Frame</span><span class="p-type">Percent stat</span></div>
+    <div class="p-stat">+% Max HP</div>
+    <div class="p-formula">PERCENT · base 2% + per_level 4%</div>
+    <div class="p-range"><div class="lv">L1 <b>+2% HP</b></div><div class="lv">L5 <b>+18% HP</b></div></div>
+    <div class="upgrades">
+      <div class="u-title">3 upgrades · passive_stat_percent_bonus</div>
+      <div class="u-row"><div class="u-tier">1</div><div class="u-name">Toughness</div><div class="u-cost">1</div><div class="u-mag">+1%</div></div>
+      <div class="u-row"><div class="u-tier">2</div><div class="u-name">Resilience</div><div class="u-cost">1</div><div class="u-mag">+2%</div></div>
+      <div class="u-row"><div class="u-tier">3</div><div class="u-name">Fortitude</div><div class="u-cost">2</div><div class="u-mag">+2%</div></div>
     </div>
   </div>
 
-  <!-- ============================== STAFF ============================== -->
-  <div class="disc-col staff">
-    <h3>Staff (6 passives)</h3>
-
-    <div class="passive direct changed">
-      <div class="p-head"><span class="p-name">Stoneskin <span class="tag changed">RENAMED</span></span><span class="p-type">Direct stat</span></div>
-      <div class="p-stat">+ Defense (flat)</div>
-      <div class="p-formula">FLAT · base 3 + per_level 4</div>
-      <div class="p-range"><div class="lv">L1 <b>+3 DEF</b></div><div class="lv">L5 <b>+19 DEF</b></div></div>
-      <div class="p-meta">3 upgrades · A_Stoneskin.tres (was A_Arcane_Fury)</div>
-    </div>
-
-    <div class="passive direct">
-      <div class="p-head"><span class="p-name">Spell Ward</span><span class="p-type">Direct stat</span></div>
-      <div class="p-stat">+ Magic Defense (flat)</div>
-      <div class="p-formula">FLAT · base 3 + per_level 6</div>
-      <div class="p-range"><div class="lv">L1 <b>+3 MDEF</b></div><div class="lv">L5 <b>+27 MDEF</b></div></div>
-      <div class="p-meta">3 upgrades · A_Spell_Ward.tres</div>
-    </div>
-
-    <div class="passive percent">
-      <div class="p-head"><span class="p-name">Deep Wellspring</span><span class="p-type">Percent stat</span></div>
-      <div class="p-stat">+% Max Mana</div>
-      <div class="p-formula">PERCENT · base 2% + per_level 4%</div>
-      <div class="p-range"><div class="lv">L1 <b>+2% MP</b></div><div class="lv">L5 <b>+18% MP</b></div></div>
-      <div class="p-meta">3 upgrades · A_Deep_Wellspring.tres</div>
-    </div>
-
-    <div class="passive regen changed">
-      <div class="p-head"><span class="p-name">Mana Flow <span class="tag changed">RENAMED + BUFFED</span></span><span class="p-type">MP regen</span></div>
-      <div class="p-stat">+ MP regeneration (flat)</div>
-      <div class="p-formula">FLAT · base 2 + per_level 3 (was per_level 1, then 2)</div>
-      <div class="p-range"><div class="lv">L1 <b>+2 MP/s</b></div><div class="lv">L5 <b>+14 MP/s</b></div></div>
-      <div class="p-meta">3 upgrades · A_Mana_Flow.tres (was A_Vital_Bloom) · bumped beyond PR 9 standard doubling</div>
-    </div>
-
-    <div class="passive conditional changed">
-      <div class="p-head"><span class="p-name">Killing Spree <span class="tag changed">RENAMED</span></span><span class="p-type">Conditional dmg</span></div>
-      <div class="p-stat">Bonus dmg for 4s after any kill</div>
-      <div class="p-formula">AL_KillingSpree · 30% × (L / 5)</div>
-      <div class="p-range"><div class="lv">L1 <b>+6%</b></div><div class="lv">L5 <b>+30%</b></div></div>
-      <div class="p-meta">3 upgrades · A_Killing_Spree.tres (was A_Arcane_Mind)</div>
-    </div>
-
-    <div class="passive conditional changed">
-      <div class="p-head"><span class="p-name">Overload <span class="tag changed">RENAMED</span></span><span class="p-type">Conditional dmg</span></div>
-      <div class="p-stat">Bonus dmg while above 50% mana</div>
-      <div class="p-formula">AL_Overload · 25% × (L / 5)</div>
-      <div class="p-range"><div class="lv">L1 <b>+5%</b></div><div class="lv">L5 <b>+25%</b></div></div>
-      <div class="p-meta">3 upgrades · A_Overload.tres (was A_Keen_Mind) · pairs with high-mana playstyle</div>
+  <div class="passive regen changed">
+    <div class="p-head"><span class="p-name">Bloodthirst <span class="tag changed">PR 14 FIXED</span></span><span class="p-type">Heal on kill</span></div>
+    <div class="p-stat">Heal % Max HP per enemy kill</div>
+    <div class="p-formula">AL_Bloodthirst reads .tres formula · base 0.5 + per_level 0.6</div>
+    <div class="p-range"><div class="lv">L1 <b>+0.5% HP</b></div><div class="lv">L5 <b>+2.9% HP</b></div></div>
+    <div class="upgrades">
+      <div class="u-title">3 upgrades · heal_pct_bonus</div>
+      <div class="u-row"><div class="u-tier">1</div><div class="u-name">Vitality</div><div class="u-cost">1</div><div class="u-mag">+0.5%</div></div>
+      <div class="u-row"><div class="u-tier">2</div><div class="u-name">Sanguine</div><div class="u-cost">1</div><div class="u-mag">+1.0%</div></div>
+      <div class="u-row"><div class="u-tier">3</div><div class="u-name">Bloodfeast</div><div class="u-cost">2</div><div class="u-mag">+2.0%</div></div>
     </div>
   </div>
 
-  <!-- ============================== DAGGER ============================== -->
-  <div class="disc-col dagger">
-    <h3>Dagger (6 passives)</h3>
-
-    <div class="passive direct">
-      <div class="p-head"><span class="p-name">Evasion</span><span class="p-type">Direct stat</span></div>
-      <div class="p-stat">+ Defense (flat)</div>
-      <div class="p-formula">FLAT · base 3 + per_level 6</div>
-      <div class="p-range"><div class="lv">L1 <b>+3 DEF</b></div><div class="lv">L5 <b>+27 DEF</b></div></div>
-      <div class="p-meta">3 upgrades · A_Evasion.tres</div>
+  <div class="passive conditional">
+    <div class="p-head"><span class="p-name">Aggression</span><span class="p-type">Conditional dmg</span></div>
+    <div class="p-stat">Bonus dmg vs targets above 90% HP</div>
+    <div class="p-formula">AL_Aggression · 30% × (L / 5) — linear</div>
+    <div class="p-range"><div class="lv">L1 <b>+6%</b></div><div class="lv">L5 <b>+30%</b></div></div>
+    <div class="upgrades">
+      <div class="u-title">3 upgrades · conditional_damage_bonus</div>
+      <div class="u-row"><div class="u-tier">1</div><div class="u-name">Mighty</div><div class="u-cost">1</div><div class="u-mag">+3%</div></div>
+      <div class="u-row"><div class="u-tier">2</div><div class="u-name">Powerful</div><div class="u-cost">1</div><div class="u-mag">+5%</div></div>
+      <div class="u-row"><div class="u-tier">3</div><div class="u-name">Herculean</div><div class="u-cost">2</div><div class="u-mag">+7%</div></div>
     </div>
+  </div>
 
-    <div class="passive direct changed">
-      <div class="p-head"><span class="p-name">Killer Instinct <span class="tag changed">BUFFED</span></span><span class="p-type">Direct stat</span></div>
-      <div class="p-stat">+ Critical Hit Chance</div>
-      <div class="p-formula">FLAT · base 3 + per_level 2 (was CUSTOM ceil(L/2.0))</div>
-      <div class="p-range"><div class="lv">L1 <b>+3%</b></div><div class="lv">L5 <b>+11%</b></div></div>
-      <div class="p-meta">3 upgrades · A_Killer_Instinct.tres · "land more crits"</div>
-    </div>
-
-    <div class="passive direct changed">
-      <div class="p-head"><span class="p-name">Cutthroat <span class="tag changed">REPOINTED</span></span><span class="p-type">Direct stat</span></div>
-      <div class="p-stat">+ Critical Damage <span style="color:var(--dim);font-size:11px">(was Crit Chance — duplicated Killer Instinct)</span></div>
-      <div class="p-formula">FLAT · base 4 + per_level 4</div>
-      <div class="p-range"><div class="lv">L1 <b>+4%</b></div><div class="lv">L5 <b>+20%</b></div></div>
-      <div class="p-meta">3 upgrades · A_Cutthroat.tres (was A_Vigor) · "crits hit harder"</div>
-    </div>
-
-    <div class="passive conditional changed">
-      <div class="p-head"><span class="p-name">Opportunist <span class="tag changed">RENAMED</span></span><span class="p-type">Conditional dmg</span></div>
-      <div class="p-stat">Bonus dmg while stealthed (Shadowmeld)</div>
-      <div class="p-formula">AL_Opportunist · 35% × (L / 5)</div>
-      <div class="p-range"><div class="lv">L1 <b>+7%</b></div><div class="lv">L5 <b>+35%</b></div></div>
-      <div class="p-meta">3 upgrades · A_Opportunist.tres (was A_Deep_Pockets) · stacks with Shadowmeld ambush ×2</div>
-    </div>
-
-    <div class="passive conditional changed">
-      <div class="p-head"><span class="p-name">Toxicology <span class="tag changed">RENAMED</span></span><span class="p-type">Conditional dmg</span></div>
-      <div class="p-stat">Bonus dmg vs POISONED targets</div>
-      <div class="p-formula">AL_Toxicology · 30% × (L / 5)</div>
-      <div class="p-range"><div class="lv">L1 <b>+6%</b></div><div class="lv">L5 <b>+30%</b></div></div>
-      <div class="p-meta">3 upgrades · A_Toxicology.tres (was A_Exploit_Weakness) · synergy with Envenom DoT</div>
-    </div>
-
-    <div class="passive conditional changed">
-      <div class="p-head"><span class="p-name">Composure <span class="tag changed">RENAMED</span></span><span class="p-type">Conditional dmg</span></div>
-      <div class="p-stat">Bonus dmg while above 80% HP</div>
-      <div class="p-formula">AL_Composure · 25% × (L / 5)</div>
-      <div class="p-range"><div class="lv">L1 <b>+5%</b></div><div class="lv">L5 <b>+25%</b></div></div>
-      <div class="p-meta">3 upgrades · A_Composure.tres (was A_Larcenous_Luck) · opposite of Sword's Last Stand</div>
+  <div class="passive conditional">
+    <div class="p-head"><span class="p-name">Last Stand</span><span class="p-type">Conditional dmg</span></div>
+    <div class="p-stat">Bonus dmg while self below 35% HP</div>
+    <div class="p-formula">AL_LastStand · 35% × (L / 5)</div>
+    <div class="p-range"><div class="lv">L1 <b>+7%</b></div><div class="lv">L5 <b>+35%</b></div></div>
+    <div class="upgrades">
+      <div class="u-title">3 upgrades · conditional_damage_bonus</div>
+      <div class="u-row"><div class="u-tier">1</div><div class="u-name">Cruel</div><div class="u-cost">1</div><div class="u-mag">+3%</div></div>
+      <div class="u-row"><div class="u-tier">2</div><div class="u-name">Savage</div><div class="u-cost">1</div><div class="u-mag">+5%</div></div>
+      <div class="u-row"><div class="u-tier">3</div><div class="u-name">Devastating</div><div class="u-cost">2</div><div class="u-mag">+7%</div></div>
     </div>
   </div>
 
 </div>
 
-<!-- ============================================================ -->
-<h2>Build identity per discipline</h2>
+<!-- ============================== BOW ============================== -->
+<div class="discipline-head bow">BOW <small>· sustained ranged DPS · 6 passives + 18 upgrades</small></div>
+<div class="disc-grid">
 
-<table class="summary">
-  <thead>
-    <tr>
-      <th>Discipline</th>
-      <th>Defense passive</th>
-      <th>Resource / regen</th>
-      <th>Damage / DPS</th>
-      <th>Conditional bonus (L5 max)</th>
-      <th>Theme</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><b>Sword</b></td>
-      <td>Battle-Hardened (+27 DEF), Hardened Frame (+18% HP)</td>
-      <td>Second Wind (+10/s), Bloodthirst heal-on-kill</td>
-      <td>—</td>
-      <td>Aggression (vs &gt;90% HP, +30%) · Last Stand (self &lt;35%, +35%)</td>
-      <td>Tank / sustain bruiser</td>
-    </tr>
-    <tr>
-      <td><b>Bow</b></td>
-      <td>Iron Hide (+27 DEF), Surefoot (KB resist)</td>
-      <td>—</td>
-      <td>Keen Eye (+10% crit), Lethality (+18% critdmg)</td>
-      <td>Tailwind (Momentum scaling, +30%) · Execution (&lt;30% HP, +45%)</td>
-      <td>Sustained ranged DPS</td>
-    </tr>
-    <tr>
-      <td><b>Staff</b></td>
-      <td>Stoneskin (+19 DEF), Spell Ward (+27 MDEF)</td>
-      <td>Deep Wellspring (+18% MP), Mana Flow (+14/s)</td>
-      <td>—</td>
-      <td>Killing Spree (post-kill 4s, +30%) · Overload (&gt;50% MP, +25%)</td>
-      <td>Mana-driven caster</td>
-    </tr>
-    <tr>
-      <td><b>Dagger</b></td>
-      <td>Evasion (+27 DEF)</td>
-      <td>—</td>
-      <td>Killer Instinct (+11% crit), <b>Cutthroat (+20% critdmg)</b></td>
-      <td>Opportunist (stealth, +35%) · Toxicology (vs poisoned, +30%) · Composure (&gt;80% HP, +25%)</td>
-      <td>Crit-burst / stealth-strike</td>
-    </tr>
-  </tbody>
-</table>
+  <div class="passive direct changed">
+    <div class="p-head"><span class="p-name">Marksman's Focus <span class="tag changed">PR 13 NEW</span></span><span class="p-type">Direct stat</span></div>
+    <div class="p-stat">+ Accuracy (% hit chance)</div>
+    <div class="p-formula">FLAT · base 2 + per_level 2 · stat_type 16 (was DEF)</div>
+    <div class="p-range"><div class="lv">L1 <b>+2% ACC</b></div><div class="lv">L5 <b>+10% ACC</b></div></div>
+    <div class="upgrades">
+      <div class="u-title">3 upgrades · passive_stat_flat_bonus</div>
+      <div class="u-row"><div class="u-tier">1</div><div class="u-name">Thick Skin</div><div class="u-cost">1</div><div class="u-mag">+2</div></div>
+      <div class="u-row"><div class="u-tier">2</div><div class="u-name">Calloused</div><div class="u-cost">1</div><div class="u-mag">+3</div></div>
+      <div class="u-row"><div class="u-tier">3</div><div class="u-name">Ironclad</div><div class="u-cost">2</div><div class="u-mag">+3</div></div>
+    </div>
+    <div class="p-meta"><span class="tag flag">FLAG</span> Upgrade names ("Thick Skin", "Ironclad") are stale from Iron Hide identity — they should be accuracy-themed (Eagle Sight / Steady Aim / etc).</div>
+  </div>
+
+  <div class="passive direct changed">
+    <div class="p-head"><span class="p-name">Keen Eye <span class="tag changed">BUFFED</span></span><span class="p-type">Direct stat</span></div>
+    <div class="p-stat">+ Critical Hit Chance</div>
+    <div class="p-formula">FLAT · base 2 + per_level 2 (was CUSTOM ceil(L/2.0))</div>
+    <div class="p-range"><div class="lv">L1 <b>+2% crit</b></div><div class="lv">L5 <b>+10% crit</b></div></div>
+    <div class="upgrades">
+      <div class="u-title">3 upgrades · passive_stat_flat_bonus</div>
+      <div class="u-row"><div class="u-tier">1</div><div class="u-name">Focused</div><div class="u-cost">1</div><div class="u-mag">+1%</div></div>
+      <div class="u-row"><div class="u-tier">2</div><div class="u-name">Precise</div><div class="u-cost">1</div><div class="u-mag">+2%</div></div>
+      <div class="u-row"><div class="u-tier">3</div><div class="u-name">Unerring</div><div class="u-cost">2</div><div class="u-mag">+2%</div></div>
+    </div>
+  </div>
+
+  <div class="passive direct">
+    <div class="p-head"><span class="p-name">Lethality</span><span class="p-type">Direct stat</span></div>
+    <div class="p-stat">+ Critical Damage</div>
+    <div class="p-formula">FLAT · base 2 + per_level 4</div>
+    <div class="p-range"><div class="lv">L1 <b>+2%</b></div><div class="lv">L5 <b>+18%</b></div></div>
+    <div class="upgrades">
+      <div class="u-title">3 upgrades · passive_stat_flat_bonus</div>
+      <div class="u-row"><div class="u-tier">1</div><div class="u-name">Vicious</div><div class="u-cost">1</div><div class="u-mag">+1%</div></div>
+      <div class="u-row"><div class="u-tier">2</div><div class="u-name">Brutal</div><div class="u-cost">1</div><div class="u-mag">+2%</div></div>
+      <div class="u-row"><div class="u-tier">3</div><div class="u-name">Merciless</div><div class="u-cost">2</div><div class="u-mag">+2%</div></div>
+    </div>
+  </div>
+
+  <div class="passive conditional">
+    <div class="p-head"><span class="p-name">Tailwind</span><span class="p-type">Conditional dmg</span></div>
+    <div class="p-stat">Bonus dmg scaled by Bow Momentum stacks</div>
+    <div class="p-formula">AL_Tailwind · 30% × (stacks / 10) × (L / 5)</div>
+    <div class="p-range"><div class="lv">L1 full <b>+6%</b></div><div class="lv">L5 full <b>+30%</b></div></div>
+    <div class="upgrades">
+      <div class="u-title">3 upgrades · conditional_damage_bonus</div>
+      <div class="u-row"><div class="u-tier">1</div><div class="u-name">Capacity</div><div class="u-cost">1</div><div class="u-mag">+3%</div></div>
+      <div class="u-row"><div class="u-tier">2</div><div class="u-name">Wellspring</div><div class="u-cost">1</div><div class="u-mag">+5%</div></div>
+      <div class="u-row"><div class="u-tier">3</div><div class="u-name">Boundless</div><div class="u-cost">2</div><div class="u-mag">+7%</div></div>
+    </div>
+    <div class="p-meta"><span class="tag flag">FLAG</span> Upgrade names ("Capacity", "Wellspring") are stale from Deep Reserves identity — they should reference Momentum (Tailwind, Crosswind, etc).</div>
+  </div>
+
+  <div class="passive conditional">
+    <div class="p-head"><span class="p-name">Execution</span><span class="p-type">Conditional dmg</span></div>
+    <div class="p-stat">Bonus dmg vs targets below 30% HP</div>
+    <div class="p-formula">AL_Execution · 45% × (L / 5)</div>
+    <div class="p-range"><div class="lv">L1 <b>+9%</b></div><div class="lv">L5 <b>+45%</b></div></div>
+    <div class="upgrades">
+      <div class="u-title">3 upgrades · conditional_damage_bonus</div>
+      <div class="u-row"><div class="u-tier">1</div><div class="u-name">Nimble</div><div class="u-cost">1</div><div class="u-mag">+3%</div></div>
+      <div class="u-row"><div class="u-tier">2</div><div class="u-name">Quick</div><div class="u-cost">1</div><div class="u-mag">+5%</div></div>
+      <div class="u-row"><div class="u-tier">3</div><div class="u-name">Lightning Reflexes</div><div class="u-cost">2</div><div class="u-mag">+7%</div></div>
+    </div>
+    <div class="p-meta"><span class="tag flag">FLAG</span> Upgrade names ("Nimble", "Quick", "Lightning Reflexes") are stale from Fleet Fingers identity — should be execution-themed.</div>
+  </div>
+
+  <div class="passive utility">
+    <div class="p-head"><span class="p-name">Surefoot</span><span class="p-type">Niche stat</span></div>
+    <div class="p-stat">+ Knockback Resistance</div>
+    <div class="p-formula">FLAT · base 5 + per_level 4</div>
+    <div class="p-range"><div class="lv">L1 <b>+5 KBR</b></div><div class="lv">L5 <b>+21 KBR</b></div></div>
+    <div class="upgrades">
+      <div class="u-title">3 upgrades · passive_stat_flat_bonus</div>
+      <div class="u-row"><div class="u-tier">1</div><div class="u-name">Hardy</div><div class="u-cost">1</div><div class="u-mag">+1</div></div>
+      <div class="u-row"><div class="u-tier">2</div><div class="u-name">Rugged</div><div class="u-cost">1</div><div class="u-mag">+2</div></div>
+      <div class="u-row"><div class="u-tier">3</div><div class="u-name">Indomitable</div><div class="u-cost">2</div><div class="u-mag">+2</div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================== STAFF ============================== -->
+<div class="discipline-head staff">STAFF <small>· mana-driven caster · 6 passives + 18 upgrades</small></div>
+<div class="disc-grid">
+
+  <div class="passive percent changed">
+    <div class="p-head"><span class="p-name">Arcane Resonance <span class="tag changed">PR 16 TUNED</span></span><span class="p-type">Percent stat</span></div>
+    <div class="p-stat">+% Magic Attack</div>
+    <div class="p-formula">PERCENT · base 2% + per_level 1% · stat_type 13 (was DEF, then per_level 4 → 1)</div>
+    <div class="p-range"><div class="lv">L1 <b>+2% MATK</b></div><div class="lv">L5 <b>+6% MATK</b></div></div>
+    <div class="upgrades">
+      <div class="u-title">3 upgrades · passive_stat_flat_bonus</div>
+      <div class="u-row"><div class="u-tier">1</div><div class="u-name">Vicious</div><div class="u-cost">1</div><div class="u-mag">+2</div></div>
+      <div class="u-row"><div class="u-tier">2</div><div class="u-name">Cruel</div><div class="u-cost">1</div><div class="u-mag">+2</div></div>
+      <div class="u-row"><div class="u-tier">3</div><div class="u-name">Annihilating</div><div class="u-cost">2</div><div class="u-mag">+4</div></div>
+    </div>
+    <div class="p-meta"><span class="tag flag">FLAG</span> Upgrades use <code>passive_stat_flat_bonus</code> but the base stat is <code>percent_bonus</code> — likely a mismatch; verify these upgrades actually add MATK% in-game.</div>
+  </div>
+
+  <div class="passive direct">
+    <div class="p-head"><span class="p-name">Spell Ward</span><span class="p-type">Direct stat</span></div>
+    <div class="p-stat">+ Magic Defense (flat)</div>
+    <div class="p-formula">FLAT · base 3 + per_level 6</div>
+    <div class="p-range"><div class="lv">L1 <b>+3 MDEF</b></div><div class="lv">L5 <b>+27 MDEF</b></div></div>
+    <div class="upgrades">
+      <div class="u-title">3 upgrades · passive_stat_flat_bonus</div>
+      <div class="u-row"><div class="u-tier">1</div><div class="u-name">Warded</div><div class="u-cost">1</div><div class="u-mag">+3</div></div>
+      <div class="u-row"><div class="u-tier">2</div><div class="u-name">Bulwarked</div><div class="u-cost">1</div><div class="u-mag">+3</div></div>
+      <div class="u-row"><div class="u-tier">3</div><div class="u-name">Impervious</div><div class="u-cost">2</div><div class="u-mag">+6</div></div>
+    </div>
+  </div>
+
+  <div class="passive percent">
+    <div class="p-head"><span class="p-name">Deep Wellspring</span><span class="p-type">Percent stat</span></div>
+    <div class="p-stat">+% Max Mana</div>
+    <div class="p-formula">PERCENT · base 2% + per_level 4%</div>
+    <div class="p-range"><div class="lv">L1 <b>+2% MP</b></div><div class="lv">L5 <b>+18% MP</b></div></div>
+    <div class="upgrades">
+      <div class="u-title">3 upgrades · passive_stat_percent_bonus</div>
+      <div class="u-row"><div class="u-tier">1</div><div class="u-name">Brimming</div><div class="u-cost">1</div><div class="u-mag">+1%</div></div>
+      <div class="u-row"><div class="u-tier">2</div><div class="u-name">Bottomless</div><div class="u-cost">1</div><div class="u-mag">+1%</div></div>
+      <div class="u-row"><div class="u-tier">3</div><div class="u-name">Oceanic</div><div class="u-cost">2</div><div class="u-mag">+2%</div></div>
+    </div>
+  </div>
+
+  <div class="passive regen changed">
+    <div class="p-head"><span class="p-name">Mana Flow <span class="tag changed">BUFFED</span></span><span class="p-type">MP regen</span></div>
+    <div class="p-stat">+ MP regeneration (flat)</div>
+    <div class="p-formula">FLAT · base 2 + per_level 3 (was per_level 1, then 2)</div>
+    <div class="p-range"><div class="lv">L1 <b>+2 MP/s</b></div><div class="lv">L5 <b>+14 MP/s</b></div></div>
+    <div class="upgrades">
+      <div class="u-title">3 upgrades · passive_stat_flat_bonus</div>
+      <div class="u-row"><div class="u-tier">1</div><div class="u-name">Hale</div><div class="u-cost">1</div><div class="u-mag">+1</div></div>
+      <div class="u-row"><div class="u-tier">2</div><div class="u-name">Robust</div><div class="u-cost">1</div><div class="u-mag">+1</div></div>
+      <div class="u-row"><div class="u-tier">3</div><div class="u-name">Flourishing</div><div class="u-cost">2</div><div class="u-mag">+2</div></div>
+    </div>
+  </div>
+
+  <div class="passive conditional">
+    <div class="p-head"><span class="p-name">Killing Spree</span><span class="p-type">Conditional dmg</span></div>
+    <div class="p-stat">Bonus dmg for 4s after any kill</div>
+    <div class="p-formula">AL_KillingSpree · 30% × (L / 5)</div>
+    <div class="p-range"><div class="lv">L1 <b>+6%</b></div><div class="lv">L5 <b>+30%</b></div></div>
+    <div class="upgrades">
+      <div class="u-title">3 upgrades · conditional_damage_bonus</div>
+      <div class="u-row"><div class="u-tier">1</div><div class="u-name">Studious</div><div class="u-cost">1</div><div class="u-mag">+3%</div></div>
+      <div class="u-row"><div class="u-tier">2</div><div class="u-name">Erudite</div><div class="u-cost">1</div><div class="u-mag">+5%</div></div>
+      <div class="u-row"><div class="u-tier">3</div><div class="u-name">Sage's Insight</div><div class="u-cost">2</div><div class="u-mag">+7%</div></div>
+    </div>
+    <div class="p-meta"><span class="tag flag">FLAG</span> Upgrade names ("Studious", "Sage's Insight") are stale from Arcane Mind identity — should be kill-spree themed.</div>
+  </div>
+
+  <div class="passive conditional">
+    <div class="p-head"><span class="p-name">Overload</span><span class="p-type">Conditional dmg</span></div>
+    <div class="p-stat">Bonus dmg while above 50% mana</div>
+    <div class="p-formula">AL_Overload · 25% × (L / 5)</div>
+    <div class="p-range"><div class="lv">L1 <b>+5%</b></div><div class="lv">L5 <b>+25%</b></div></div>
+    <div class="upgrades">
+      <div class="u-title">3 upgrades · conditional_damage_bonus</div>
+      <div class="u-row"><div class="u-tier">1</div><div class="u-name">Focused</div><div class="u-cost">1</div><div class="u-mag">+3%</div></div>
+      <div class="u-row"><div class="u-tier">2</div><div class="u-name">Incisive</div><div class="u-cost">1</div><div class="u-mag">+5%</div></div>
+      <div class="u-row"><div class="u-tier">3</div><div class="u-name">Prescient</div><div class="u-cost">2</div><div class="u-mag">+7%</div></div>
+    </div>
+    <div class="p-meta"><span class="tag flag">FLAG</span> Upgrade names stale from Keen Mind identity — should be mana-themed (Overload / Surge / etc).</div>
+  </div>
+
+</div>
+
+<!-- ============================== DAGGER ============================== -->
+<div class="discipline-head dagger">DAGGER <small>· crit-burst / stealth-strike · 6 passives + 18 upgrades</small></div>
+<div class="disc-grid">
+
+  <div class="passive direct changed">
+    <div class="p-head"><span class="p-name">Evasion <span class="tag changed">PR 13 NEW</span></span><span class="p-type">Direct stat</span></div>
+    <div class="p-stat">+ Evasion (% incoming hit reduction)</div>
+    <div class="p-formula">FLAT · base 2 + per_level 2 · stat_type 17 (was DEF)</div>
+    <div class="p-range"><div class="lv">L1 <b>+2% EVA</b></div><div class="lv">L5 <b>+10% EVA</b></div></div>
+    <div class="upgrades">
+      <div class="u-title">3 upgrades · passive_stat_flat_bonus</div>
+      <div class="u-row"><div class="u-tier">1</div><div class="u-name">Lithe</div><div class="u-cost">1</div><div class="u-mag">+2</div></div>
+      <div class="u-row"><div class="u-tier">2</div><div class="u-name">Slippery</div><div class="u-cost">1</div><div class="u-mag">+3</div></div>
+      <div class="u-row"><div class="u-tier">3</div><div class="u-name">Untouchable</div><div class="u-cost">2</div><div class="u-mag">+3</div></div>
+    </div>
+  </div>
+
+  <div class="passive direct changed">
+    <div class="p-head"><span class="p-name">Killer Instinct <span class="tag changed">BUFFED</span></span><span class="p-type">Direct stat</span></div>
+    <div class="p-stat">+ Critical Hit Chance</div>
+    <div class="p-formula">FLAT · base 3 + per_level 2 (was CUSTOM ceil(L/2.0))</div>
+    <div class="p-range"><div class="lv">L1 <b>+3% crit</b></div><div class="lv">L5 <b>+11% crit</b></div></div>
+    <div class="upgrades">
+      <div class="u-title">3 upgrades · passive_stat_flat_bonus</div>
+      <div class="u-row"><div class="u-tier">1</div><div class="u-name">Sharp</div><div class="u-cost">1</div><div class="u-mag">+1%</div></div>
+      <div class="u-row"><div class="u-tier">2</div><div class="u-name">Deadly</div><div class="u-cost">1</div><div class="u-mag">+2%</div></div>
+      <div class="u-row"><div class="u-tier">3</div><div class="u-name">Lethal</div><div class="u-cost">2</div><div class="u-mag">+2%</div></div>
+    </div>
+  </div>
+
+  <div class="passive direct changed">
+    <div class="p-head"><span class="p-name">Cutthroat <span class="tag changed">REPOINTED</span></span><span class="p-type">Direct stat</span></div>
+    <div class="p-stat">+ Critical Damage</div>
+    <div class="p-formula">FLAT · base 4 + per_level 4 (was crit chance, dup of KI)</div>
+    <div class="p-range"><div class="lv">L1 <b>+4%</b></div><div class="lv">L5 <b>+20%</b></div></div>
+    <div class="upgrades">
+      <div class="u-title">3 upgrades · passive_stat_flat_bonus</div>
+      <div class="u-row"><div class="u-tier">1</div><div class="u-name">Hardy</div><div class="u-cost">1</div><div class="u-mag">+1%</div></div>
+      <div class="u-row"><div class="u-tier">2</div><div class="u-name">Robust</div><div class="u-cost">1</div><div class="u-mag">+2%</div></div>
+      <div class="u-row"><div class="u-tier">3</div><div class="u-name">Stalwart</div><div class="u-cost">2</div><div class="u-mag">+2%</div></div>
+    </div>
+    <div class="p-meta"><span class="tag flag">FLAG</span> Upgrade names ("Hardy", "Robust", "Stalwart") are stale from Vigor identity — should be crit-damage themed.</div>
+  </div>
+
+  <div class="passive conditional">
+    <div class="p-head"><span class="p-name">Opportunist</span><span class="p-type">Conditional dmg</span></div>
+    <div class="p-stat">Bonus dmg while stealthed (Shadowmeld)</div>
+    <div class="p-formula">AL_Opportunist · 35% × (L / 5)</div>
+    <div class="p-range"><div class="lv">L1 <b>+7%</b></div><div class="lv">L5 <b>+35%</b></div></div>
+    <div class="upgrades">
+      <div class="u-title">3 upgrades · conditional_damage_bonus</div>
+      <div class="u-row"><div class="u-tier">1</div><div class="u-name">Deep</div><div class="u-cost">1</div><div class="u-mag">+3%</div></div>
+      <div class="u-row"><div class="u-tier">2</div><div class="u-name">Hidden Reserves</div><div class="u-cost">1</div><div class="u-mag">+5%</div></div>
+      <div class="u-row"><div class="u-tier">3</div><div class="u-name">Bottomless</div><div class="u-cost">2</div><div class="u-mag">+7%</div></div>
+    </div>
+    <div class="p-meta"><span class="tag flag">FLAG</span> Upgrade names stale from Deep Pockets identity — should be stealth-themed.</div>
+  </div>
+
+  <div class="passive conditional">
+    <div class="p-head"><span class="p-name">Toxicology</span><span class="p-type">Conditional dmg</span></div>
+    <div class="p-stat">Bonus dmg vs POISONED targets</div>
+    <div class="p-formula">AL_Toxicology · 30% × (L / 5)</div>
+    <div class="p-range"><div class="lv">L1 <b>+6%</b></div><div class="lv">L5 <b>+30%</b></div></div>
+    <div class="upgrades">
+      <div class="u-title">3 upgrades · conditional_damage_bonus</div>
+      <div class="u-row"><div class="u-tier">1</div><div class="u-name">Cruel</div><div class="u-cost">1</div><div class="u-mag">+3%</div></div>
+      <div class="u-row"><div class="u-tier">2</div><div class="u-name">Savage</div><div class="u-cost">1</div><div class="u-mag">+5%</div></div>
+      <div class="u-row"><div class="u-tier">3</div><div class="u-name">Ruthless</div><div class="u-cost">2</div><div class="u-mag">+7%</div></div>
+    </div>
+  </div>
+
+  <div class="passive conditional">
+    <div class="p-head"><span class="p-name">Composure</span><span class="p-type">Conditional dmg</span></div>
+    <div class="p-stat">Bonus dmg while above 80% HP</div>
+    <div class="p-formula">AL_Composure · 25% × (L / 5)</div>
+    <div class="p-range"><div class="lv">L1 <b>+5%</b></div><div class="lv">L5 <b>+25%</b></div></div>
+    <div class="upgrades">
+      <div class="u-title">3 upgrades · conditional_damage_bonus</div>
+      <div class="u-row"><div class="u-tier">1</div><div class="u-name">Lucky</div><div class="u-cost">1</div><div class="u-mag">+3%</div></div>
+      <div class="u-row"><div class="u-tier">2</div><div class="u-name">Fortunate</div><div class="u-cost">1</div><div class="u-mag">+5%</div></div>
+      <div class="u-row"><div class="u-tier">3</div><div class="u-name">Blessed</div><div class="u-cost">2</div><div class="u-mag">+7%</div></div>
+    </div>
+    <div class="p-meta"><span class="tag flag">FLAG</span> Upgrade names ("Lucky", "Fortunate", "Blessed") are stale from Larcenous Luck identity — should be high-HP / composed themed.</div>
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<h2>Stat-axis ownership (post PR 13)</h2>
+
+<div class="summary-row head">
+  <div>Weapon</div>
+  <div>Defensive identity</div>
+  <div>Offensive identity</div>
+  <div>Conditional damage</div>
+</div>
+<div class="summary-row">
+  <div><b style="color:var(--c-sword)">Sword</b></div>
+  <div>+Defense, +%HP</div>
+  <div>—</div>
+  <div>Aggression (vs &gt;90% HP) · Last Stand (self &lt;35%)</div>
+</div>
+<div class="summary-row">
+  <div><b style="color:var(--c-bow)">Bow</b></div>
+  <div>+Accuracy, +KB resist</div>
+  <div>+Crit chance, +Crit damage</div>
+  <div>Tailwind (Momentum) · Execution (target &lt;30% HP)</div>
+</div>
+<div class="summary-row">
+  <div><b style="color:var(--c-staff)">Staff</b></div>
+  <div>+Magic Defense</div>
+  <div>+%Magic Attack, +Mana sustain</div>
+  <div>Killing Spree (post-kill 4s) · Overload (&gt;50% mana)</div>
+</div>
+<div class="summary-row">
+  <div><b style="color:var(--c-dagger)">Dagger</b></div>
+  <div>+Evasion</div>
+  <div>+Crit chance, +Crit damage</div>
+  <div>Opportunist (stealth) · Toxicology (poisoned) · Composure (&gt;80% HP)</div>
+</div>
 
 <!-- ============================================================ -->
 <h2>Observations &amp; followup candidates</h2>
 
 <div class="note-panel">
-  <p style="margin:0 0 8px"><strong>Bloodthirst AL hardcode (Sword)</strong></p>
-  <p style="margin:0 0 6px"><code>AL_Bloodthirst.gd</code> has <code>PER_LEVEL_HEAL_PCT = 0.3</code> hardcoded — PR 9 doubled the <code>.tres</code> per_level to 0.6, but the AL script wasn't synced. Bloodthirst is currently giving <b>L5 = +1.7% Max HP per kill</b> instead of the intended <b>+2.9%</b>. Fix: bump <code>PER_LEVEL_HEAL_PCT</code> to 0.6, or move the scaling to read from <code>ability.damage_percent_formula.calculate(level)</code>. Same family of AL hardcode bugs as <code>AL_EnhancedBasics</code> / <code>AL_ManaShield</code> (now renamed) flagged in PR 10.</p>
+  <p style="margin:0 0 6px"><strong>Second Wind has no upgrades (sword)</strong></p>
+  <p style="margin:0">Every other passive has T1/T2/T3 chains. Second Wind is the only one missing — likely an oversight from the rename pass. Either add an upgrade chain or document why it's intentional.</p>
+</div>
+
+<div class="note-panel">
+  <p style="margin:0 0 6px"><strong>Stale upgrade names from pre-rename identities</strong></p>
+  <p style="margin:0">10+ passives have upgrade names that reference the OLD passive identity (e.g. Tailwind's "Capacity / Wellspring / Boundless" from Deep Reserves; Opportunist's "Deep / Hidden Reserves / Bottomless" from Deep Pockets; Composure's "Lucky / Fortunate / Blessed" from Larcenous Luck; Cutthroat's "Hardy / Robust / Stalwart" from Vigor; Killing Spree's "Studious / Sage's Insight" from Arcane Mind; Marksman's Focus's "Thick Skin / Ironclad" from Iron Hide). The rename PR (#171) renamed the parent ability but didn't sweep the upgrade .tres files. Cosmetic but confusing for players.</p>
 </div>
 
 <div class="note-panel" style="background: linear-gradient(135deg, rgba(224,160,64,0.10), rgba(110,193,228,0.06)); border-color: var(--warn);">
-  <p style="margin:0 0 8px; color: var(--warn);"><strong>Defense passive sameness</strong></p>
-  <p style="margin:0 0 6px">All four disciplines have a +Defense flat passive (Battle-Hardened, Iron Hide, Evasion, Stoneskin) with identical base=3, per_level=6 (Stoneskin is per_level=4). Functionally interchangeable. This is by-design baseline survival, but the per-discipline FLAVOR is missing — could differentiate by adding small secondary stat: Battle-Hardened could also give a small +HP, Iron Hide a small +KB resist, Evasion a small +crit avoidance (if implemented), Stoneskin a small +MDEF.</p>
+  <p style="margin:0 0 6px; color: var(--warn);"><strong>Arcane Resonance upgrade effect_key mismatch</strong></p>
+  <p style="margin:0">Base stat uses <code>percent_bonus_formula</code> (correctly adding +% MATK). But the 3 upgrades use <code>passive_stat_flat_bonus</code>, which adds FLAT not percent. Either the upgrades are silently broken (no effect) or they're actually adding +2 / +2 / +4 flat MATK instead of +2% / +2% / +4%. Quick verify in playtest or grep <code>passive_stat_flat_bonus</code> consumption in <code>ability.gd</code> to see how it's interpreted.</p>
 </div>
 
 <div class="note-panel" style="background: linear-gradient(135deg, rgba(110,193,228,0.10), rgba(255,179,71,0.06)); border-color: var(--accent-2);">
-  <p style="margin:0 0 8px; color: var(--accent-2);"><strong>Conditional passive coverage</strong></p>
-  <p style="margin:0 0 6px">Every discipline has 2–3 conditional damage passives that read like real build identity (Aggression / Execution / Killing Spree / Opportunist etc). These are the strongest design layer in the system — the player picks one based on playstyle. Worth keeping consistent: each new ability cycle should ship with a discipline-themed conditional.</p>
-</div>
-
-<div class="note-panel" style="background: linear-gradient(135deg, rgba(138,143,156,0.10), rgba(255,255,255,0.02)); border-color: var(--dim);">
-  <p style="margin:0 0 8px; color: var(--dim);"><strong>Per-discipline passive count is now even (6/6/6/6)</strong></p>
-  <p style="margin:0 0 6px">All four disciplines have 6 passives. With max_level 5 each, fully maxing every passive in a discipline costs 30 points — about a third of the new 100-pt budget. Investment in 4–5 passives + the rest spent on actives feels tight but workable per the budget model from #167.</p>
+  <p style="margin:0 0 6px; color: var(--accent-2);"><strong>Stat-axis ownership is clean</strong></p>
+  <p style="margin:0">Each discipline owns a unique defensive stat axis (Defense / Accuracy / Magic Defense / Evasion) and a unique offensive shape. The Bow vs Dagger crit-chance + crit-damage parallel is intentional — they're the two crit-spec disciplines but their conditionals diverge.</p>
 </div>
 
 <p class="footnote" style="margin-top:32px; text-align:center">
-  Generated 2026-05-31 after PR stack 8a–e merged into feat/weapon-identity-overhaul.
-  Numbers verified against the .tres / AL_*.gd source.
+  Generated post-PR #176 merge. Numbers verified against .tres files + AL_*.gd source.
 </p>
 
 </body>

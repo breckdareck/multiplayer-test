@@ -152,6 +152,17 @@ func _refresh_stats() -> void:
 	_set_row("MDefRow", str(int(sc.stats.get(S.MAGICDEFENSE).total_value)))
 	_set_row("CritRateRow", "%d%%" % int(sc.stats.get(S.CRITCHANCE).total_value))
 	_set_row("CritDmgRow", "%d%%" % int(sc.stats.get(S.CRITDAMAGE).total_value))
+	# PR 18: Accuracy = ACCURACY stat + DEX utility (StatsComponent.DEX_TO_ACCURACY
+	# % per DEX point — invisible until now). Evasion = EVASIONCHANCE stat raw.
+	var acc_stat: float = 0.0
+	if sc.stats.has(S.ACCURACY):
+		acc_stat = float(sc.stats[S.ACCURACY].total_value)
+	var dex_bonus: float = float(sc.stats.get(S.DEXTERITY).total_value) * StatsComponent.DEX_TO_ACCURACY
+	_set_row("AccRow", "%.1f%%" % (acc_stat + dex_bonus))
+	var eva_stat: float = 0.0
+	if sc.stats.has(S.EVASIONCHANCE):
+		eva_stat = float(sc.stats[S.EVASIONCHANCE].total_value)
+	_set_row("EvaRow", "%.1f%%" % eva_stat)
 	if "combat_component" in player and player.combat_component:
 		_set_row("DmgRangeRow", "%d ~ %d" % [player.combat_component.display_min_damage, player.combat_component.display_max_damage])
 	var unspent := get_node_or_null("%UnspentLabel") as Label
