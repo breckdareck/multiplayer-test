@@ -5,9 +5,9 @@
 [resource]
 script = ExtResource("1_aud")
 upgrade_id = "af_t3_annihilating"
-upgrade_name = "Annihilating"
-description = "Increases Stoneskin's Defense bonus by an additional +4."
+upgrade_name = "Overcharged"
+description = "Increases Arcane Resonance's Magic Attack bonus by an additional +4%."
 point_cost = 2
 tier = 3
-effect_key = "passive_stat_flat_bonus"
+effect_key = "passive_stat_percent_bonus"
 magnitude = 4.0
