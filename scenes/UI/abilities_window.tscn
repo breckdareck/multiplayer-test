@@ -83,54 +83,16 @@ theme_override_constants/margin_bottom = 10
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
 layout_mode = 2
 
-[node name="HeaderPanel" type="PanelContainer" parent="MarginContainer/VBoxContainer"]
+[node name="TabRow" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_w72g6")
+theme_override_constants/separation = 8
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/HeaderPanel"]
-layout_mode = 2
-
-[node name="TitleLabel" type="Label" parent="MarginContainer/VBoxContainer/HeaderPanel/HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.905882, 0.890196, 0.34902, 1)
-theme_override_fonts/font = ExtResource("3_702f5")
-theme_override_font_sizes/font_size = 16
-text = "ABILITIES"
-
-[node name="SkillPointsLabel" type="Label" parent="MarginContainer/VBoxContainer/HeaderPanel/HBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.298039, 0.941176, 0.247059, 1)
-theme_override_fonts/font = ExtResource("3_702f5")
-theme_override_font_sizes/font_size = 16
-text = "SP: 5"
-horizontal_alignment = 2
-vertical_alignment = 1
-metadata/_edit_use_anchors = true
-
-[node name="RespecMenuButton" type="Button" parent="MarginContainer/VBoxContainer/HeaderPanel/HBoxContainer"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(70, 28)
-layout_mode = 2
-tooltip_text = "Respec this weapon's whole tree, or all weapons."
-focus_mode = 0
-theme = SubResource("Theme_i6h8y")
-theme_override_font_sizes/font_size = 12
-text = "Respec ▾"
-
-[node name="CloseButton" type="Button" parent="MarginContainer/VBoxContainer/HeaderPanel/HBoxContainer"]
-visible = false
-custom_minimum_size = Vector2(30, 30)
-layout_mode = 2
-focus_mode = 0
-text = "X"
-flat = true
-
-[node name="DisciplineTabBar" type="TabBar" parent="MarginContainer/VBoxContainer"]
+[node name="DisciplineTabBar" type="TabBar" parent="MarginContainer/VBoxContainer/TabRow"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
 theme_override_fonts/font = ExtResource("3_702f5")
 theme_override_font_sizes/font_size = 14
 current_tab = 0
@@ -139,6 +101,28 @@ tab_0/title = "Sword"
 tab_1/title = "Bow"
 tab_2/title = "Staff"
 tab_3/title = "Dagger"
+
+[node name="SkillPointsLabel" type="Label" parent="MarginContainer/VBoxContainer/TabRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.298039, 0.941176, 0.247059, 1)
+theme_override_fonts/font = ExtResource("3_702f5")
+theme_override_font_sizes/font_size = 16
+text = "SP: 5"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="RespecMenuButton" type="Button" parent="MarginContainer/VBoxContainer/TabRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(70, 28)
+layout_mode = 2
+size_flags_vertical = 4
+tooltip_text = "Respec this weapon's whole tree, or all weapons."
+focus_mode = 0
+theme = SubResource("Theme_i6h8y")
+theme_override_font_sizes/font_size = 12
+text = "Respec ▾"
 
 [node name="HSplitContainer" type="HSplitContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -319,5 +303,3 @@ text = "Respec Ability"
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 2
-
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HeaderPanel/HBoxContainer/CloseButton" to="." method="hide"]
