@@ -91,6 +91,10 @@ const ALLOCATABLE_ATTRIBUTES: Array = [
 	Constants.StatType.INTELLIGENCE, Constants.StatType.LUCK,
 	Constants.StatType.CONSTITUTION,
 ]
+# Canonical starting value for a primary attribute (matches the `stats` dict init
+# and WeaponDisciplineData.base_stats). Used to reset allocatable attributes the
+# discipline's base_stats doesn't define — see the recompute note below.
+const BASE_ATTRIBUTE_VALUE: int = 4
 const STR_TO_DEFENSE: float = 1.0
 const INT_TO_MANA: float = 5.0
 const INT_TO_MPREGEN: float = 0.1
@@ -183,6 +187,15 @@ func _recalculate_stats() -> void:
 	var base_stats: Dictionary[Constants.StatType, int] = _class_component.get_base_stats()
 	for stat in base_stats:
 		stats[stat].base_value = base_stats[stat]
+
+	# CONSTITUTION (StatType 15) was appended AFTER WeaponDisciplineData.base_stats
+	# was authored, so base_stats omits it and the loop above never resets its
+	# base_value. Reset any allocatable attribute the discipline doesn't define to
+	# the canonical base — otherwise the `base_value += allocation` below COMPOUNDS
+	# every recompute (HP balloons on each allocate; respec never lowers it again).
+	for attr in ALLOCATABLE_ATTRIBUTES:
+		if not base_stats.has(attr):
+			stats[attr].base_value = BASE_ATTRIBUTE_VALUE
 
 	# Apply class-specific health/mana scaling
 	var level: int = _level_component.level
