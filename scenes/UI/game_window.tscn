@@ -776,6 +776,7 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/ConRow"]
 custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
+mouse_filter = 1
 tooltip_text = "Constitution
 Increases your Max HP and HP regeneration.
 Your core survivability stat."
@@ -784,6 +785,7 @@ text = "CON"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/ConRow"]
 layout_mode = 2
+mouse_filter = 1
 tooltip_text = "Constitution
 Increases your Max HP and HP regeneration.
 Your core survivability stat."
@@ -810,6 +812,7 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/StrRow"]
 custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
+mouse_filter = 1
 tooltip_text = "Strength
 Primary damage stat for Swords.
 Also increases your Defense."
@@ -818,6 +821,7 @@ text = "STR"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/StrRow"]
 layout_mode = 2
+mouse_filter = 1
 tooltip_text = "Strength
 Primary damage stat for Swords.
 Also increases your Defense."
@@ -844,6 +848,7 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/DexRow"]
 custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
+mouse_filter = 1
 tooltip_text = "Dexterity
 Primary damage for Bows & Daggers (secondary for Swords).
 Also increases your Accuracy (hit chance)."
@@ -852,6 +857,7 @@ text = "DEX"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/DexRow"]
 layout_mode = 2
+mouse_filter = 1
 tooltip_text = "Dexterity
 Primary damage for Bows & Daggers (secondary for Swords).
 Also increases your Accuracy (hit chance)."
@@ -878,6 +884,7 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/IntRow"]
 custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
+mouse_filter = 1
 tooltip_text = "Intelligence
 Primary damage stat for Staves.
 Also increases your Max MP and MP regeneration."
@@ -886,6 +893,7 @@ text = "INT"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/IntRow"]
 layout_mode = 2
+mouse_filter = 1
 tooltip_text = "Intelligence
 Primary damage stat for Staves.
 Also increases your Max MP and MP regeneration."
@@ -912,6 +920,7 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/LuckRow"]
 custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
+mouse_filter = 1
 tooltip_text = "Luck
 Primary damage stat for Daggers.
 Also increases your Crit Rate."
@@ -920,6 +929,7 @@ text = "LUCK"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/LuckRow"]
 layout_mode = 2
+mouse_filter = 1
 tooltip_text = "Luck
 Primary damage stat for Daggers.
 Also increases your Crit Rate."
