@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_aud")
 upgrade_id = "ff_t3_lightning_reflexes"
-upgrade_name = "Lightning Reflexes"
-description = "Increases Execution's bonus damage by +7% (while its condition is met)."
+upgrade_name = "Reaper's Mark"
+description = "Increases Execution's bonus damage vs low-HP targets by +7%."
 point_cost = 2
 tier = 3
 effect_key = "conditional_damage_bonus"

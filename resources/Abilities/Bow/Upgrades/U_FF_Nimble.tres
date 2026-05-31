@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_aud")
 upgrade_id = "ff_t1_nimble"
-upgrade_name = "Nimble"
-description = "Increases Execution's bonus damage by +3% (while its condition is met)."
+upgrade_name = "Coup de Grace"
+description = "Increases Execution's bonus damage vs low-HP targets by +3%."
 effect_key = "conditional_damage_bonus"
 magnitude = 0.03

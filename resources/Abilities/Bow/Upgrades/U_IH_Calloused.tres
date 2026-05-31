@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_aud")
 upgrade_id = "ih_t2_calloused"
-upgrade_name = "Calloused"
-description = "Increases Iron Hide's Defense bonus by +3."
+upgrade_name = "Sharpshooter's Eye"
+description = "Increases Marksman's Focus's Accuracy bonus by +3%."
 tier = 2
 effect_key = "passive_stat_flat_bonus"
 magnitude = 3.0

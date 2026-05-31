@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_aud")
 upgrade_id = "km_t3_prescient"
-upgrade_name = "Prescient"
-description = "Increases Overload's bonus damage by +7% (while its condition is met)."
+upgrade_name = "Overflowing"
+description = "Increases Overload's high-mana damage bonus by +7%."
 point_cost = 2
 tier = 3
 effect_key = "conditional_damage_bonus"

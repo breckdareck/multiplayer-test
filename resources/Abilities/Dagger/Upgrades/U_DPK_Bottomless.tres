@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_aud")
 upgrade_id = "dpk_t3_bottomless"
-upgrade_name = "Bottomless"
-description = "Increases Opportunist's bonus damage by +7% (while its condition is met)."
+upgrade_name = "Assassinate"
+description = "Increases Opportunist's stealth damage bonus by +7%."
 point_cost = 2
 tier = 3
 effect_key = "conditional_damage_bonus"

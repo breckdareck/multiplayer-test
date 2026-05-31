@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=12 format=3 uid="uid://mgj21bo08vcx"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=15 format=3 uid="uid://mgj21bo08vcx"]
 
 [ext_resource type="Texture2D" uid="uid://cc18m1wu0h2vl" path="res://assets/sprites/Abilities/sharp_eyes.png" id="1_bi1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_bi1"]
@@ -7,6 +7,9 @@
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_bi1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_bi1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
+[ext_resource type="Resource" uid="uid://swt1recover0001" path="res://resources/Abilities/Sword/Upgrades/U_SW_Recovery.tres" id="9_swrc"]
+[ext_resource type="Resource" uid="uid://swt2secheart002" path="res://resources/Abilities/Sword/Upgrades/U_SW_SecondHeart.tres" id="10_swsh"]
+[ext_resource type="Resource" uid="uid://swt3inexhaust03" path="res://resources/Abilities/Sword/Upgrades/U_SW_Inexhaustible.tres" id="11_swin"]
 
 [sub_resource type="Resource" id="Resource_bi_behav"]
 resource_local_to_scene = true
@@ -41,6 +44,7 @@ required_class = Array[int]([0])
 required_weapon_types = Array[int]([0])
 tree_path = 0
 tree_depth = 6
+upgrades = Array[ExtResource("8_aud")]([ExtResource("9_swrc"), ExtResource("10_swsh"), ExtResource("11_swin")])
 active_behavior = SubResource("Resource_bi_behav")
 scaling_data = SubResource("Resource_bi_scaling")
 metadata/_custom_type_script = "uid://b8y62rc8nb40j"

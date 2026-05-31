@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_aud")
 upgrade_id = "km_t2_incisive"
-upgrade_name = "Incisive"
-description = "Increases Overload's bonus damage by +5% (while its condition is met)."
+upgrade_name = "Surging"
+description = "Increases Overload's high-mana damage bonus by +5%."
 tier = 2
 effect_key = "conditional_damage_bonus"
 magnitude = 0.05

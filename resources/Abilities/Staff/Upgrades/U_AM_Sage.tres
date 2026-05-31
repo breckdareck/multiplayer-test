@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_aud")
 upgrade_id = "am_t3_sage"
-upgrade_name = "Sage's Insight"
-description = "Increases Killing Spree's bonus damage by +7% (while its condition is met)."
+upgrade_name = "Frenzy"
+description = "Increases Killing Spree's post-kill damage bonus by +7%."
 point_cost = 2
 tier = 3
 effect_key = "conditional_damage_bonus"

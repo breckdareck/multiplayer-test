@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_aud")
 upgrade_id = "dr_t3_boundless"
-upgrade_name = "Boundless"
-description = "Increases Tailwind's bonus damage by +7% (while its condition is met)."
+upgrade_name = "Hurricane"
+description = "Increases Tailwind's bonus damage at max Momentum by +7%."
 point_cost = 2
 tier = 3
 effect_key = "conditional_damage_bonus"

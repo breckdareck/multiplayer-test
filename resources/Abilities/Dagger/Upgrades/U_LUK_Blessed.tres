@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_aud")
 upgrade_id = "luk_t3_blessed"
-upgrade_name = "Blessed"
-description = "Increases Composure's bonus damage by +7% (while its condition is met)."
+upgrade_name = "Cold-Blooded"
+description = "Increases Composure's high-HP damage bonus by +7%."
 point_cost = 2
 tier = 3
 effect_key = "conditional_damage_bonus"
