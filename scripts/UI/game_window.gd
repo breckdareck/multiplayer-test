@@ -91,6 +91,12 @@ func _show_tab(idx: int) -> void:
 	if is_instance_valid(abilities_page):
 		abilities_page.visible = idx == 1
 	if idx == 1 and _ability_shell:
+		# The skill tree is in the `ui_window` group, so player_hud's ESC/death
+		# "close all windows" flips its OWN `visible` off (even while it sits on the
+		# hidden Character page). The hub owns the page, so re-assert its visibility
+		# here — otherwise switching back to Abilities shows a blank page.
+		if _ability_shell is CanvasItem:
+			(_ability_shell as CanvasItem).visible = true
 		if _ability_shell.has_method("on_shown"):
 			_ability_shell.call("on_shown")
 		elif _ability_shell.has_method("load_ability_list"):
