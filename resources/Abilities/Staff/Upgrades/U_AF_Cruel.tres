@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_aud")
 upgrade_id = "af_t2_cruel"
-upgrade_name = "Cruel"
-description = "Increases Stoneskin's Defense bonus by an additional +2."
+upgrade_name = "Resonant"
+description = "Increases Arcane Resonance's Magic Attack bonus by an additional +2%."
 tier = 2
-effect_key = "passive_stat_flat_bonus"
+effect_key = "passive_stat_percent_bonus"
 magnitude = 2.0
