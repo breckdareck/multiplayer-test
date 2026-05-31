@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_aud")
 upgrade_id = "dpk_t1_deep"
-upgrade_name = "Deep"
-description = "Increases Opportunist's bonus damage by +3% (while its condition is met)."
+upgrade_name = "Backstab"
+description = "Increases Opportunist's stealth damage bonus by +3%."
 effect_key = "conditional_damage_bonus"
 magnitude = 0.03

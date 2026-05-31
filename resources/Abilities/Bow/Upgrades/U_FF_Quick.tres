@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_aud")
 upgrade_id = "ff_t2_quick"
-upgrade_name = "Quick"
-description = "Increases Execution's bonus damage by +5% (while its condition is met)."
+upgrade_name = "Killing Blow"
+description = "Increases Execution's bonus damage vs low-HP targets by +5%."
 tier = 2
 effect_key = "conditional_damage_bonus"
 magnitude = 0.05

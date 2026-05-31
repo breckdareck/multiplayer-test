@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_aud")
 upgrade_id = "ih_t3_ironclad"
-upgrade_name = "Ironclad"
-description = "Increases Iron Hide's Defense bonus by +3."
+upgrade_name = "Dead-Eye"
+description = "Increases Marksman's Focus's Accuracy bonus by +3%."
 point_cost = 2
 tier = 3
 effect_key = "passive_stat_flat_bonus"

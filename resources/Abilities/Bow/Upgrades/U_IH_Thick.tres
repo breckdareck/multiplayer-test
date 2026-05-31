@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_aud")
 upgrade_id = "ih_t1_thick"
-upgrade_name = "Thick Skin"
-description = "Increases Iron Hide's Defense bonus by +2."
+upgrade_name = "Steady Hand"
+description = "Increases Marksman's Focus's Accuracy bonus by +2%."
 effect_key = "passive_stat_flat_bonus"
 magnitude = 2.0

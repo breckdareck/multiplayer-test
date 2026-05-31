@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_aud")
 upgrade_id = "dr_t1_capacity"
-upgrade_name = "Capacity"
-description = "Increases Tailwind's bonus damage by +3% (while its condition is met)."
+upgrade_name = "Crosswind"
+description = "Increases Tailwind's bonus damage at max Momentum by +3%."
 effect_key = "conditional_damage_bonus"
 magnitude = 0.03
