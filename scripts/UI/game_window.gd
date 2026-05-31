@@ -151,10 +151,15 @@ func _refresh_stats() -> void:
 	var unspent := get_node_or_null("%UnspentLabel") as Label
 	if unspent:
 		unspent.text = "ATTRIBUTES   —   Unspent: %d" % sc.get_attribute_points_unused()
+	# Show the OVERALL total (base + allocated + mastery + gear + buffs), with the
+	# points the player invested shown in parens so both are visible at a glance.
 	for row_name in _ATTR_ROWS:
 		var v := stats_root.get_node_or_null(row_name + "/V") as Label
 		if v:
-			v.text = str(sc.get_allocated_attribute(_ATTR_ROWS[row_name]))
+			var st: int = _ATTR_ROWS[row_name]
+			var total: int = int(sc.stats.get(st).total_value)
+			var alloc: int = sc.get_allocated_attribute(st)
+			v.text = "%d  (+%d)" % [total, alloc] if alloc > 0 else str(total)
 
 
 func _set_row(row_name: String, txt: String) -> void:

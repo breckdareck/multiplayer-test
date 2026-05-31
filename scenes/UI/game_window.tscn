@@ -258,6 +258,7 @@ flat = true
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
+focus_mode = 0
 theme_override_font_sizes/font_size = 14
 current_tab = 0
 tab_count = 2
@@ -775,11 +776,17 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/ConRow"]
 custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
+tooltip_text = "Constitution
+Increases your Max HP and HP regeneration.
+Your core survivability stat."
 theme_override_font_sizes/font_size = 16
 text = "CON"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/ConRow"]
 layout_mode = 2
+tooltip_text = "Constitution
+Increases your Max HP and HP regeneration.
+Your core survivability stat."
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "0"
@@ -803,11 +810,17 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/StrRow"]
 custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
+tooltip_text = "Strength
+Primary damage stat for Swords.
+Also increases your Defense."
 theme_override_font_sizes/font_size = 16
 text = "STR"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/StrRow"]
 layout_mode = 2
+tooltip_text = "Strength
+Primary damage stat for Swords.
+Also increases your Defense."
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "0"
@@ -831,11 +844,17 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/DexRow"]
 custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
+tooltip_text = "Dexterity
+Primary damage for Bows & Daggers (secondary for Swords).
+Also increases your Accuracy (hit chance)."
 theme_override_font_sizes/font_size = 16
 text = "DEX"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/DexRow"]
 layout_mode = 2
+tooltip_text = "Dexterity
+Primary damage for Bows & Daggers (secondary for Swords).
+Also increases your Accuracy (hit chance)."
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "0"
@@ -859,11 +878,17 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/IntRow"]
 custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
+tooltip_text = "Intelligence
+Primary damage stat for Staves.
+Also increases your Max MP and MP regeneration."
 theme_override_font_sizes/font_size = 16
 text = "INT"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/IntRow"]
 layout_mode = 2
+tooltip_text = "Intelligence
+Primary damage stat for Staves.
+Also increases your Max MP and MP regeneration."
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "0"
@@ -887,11 +912,17 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/LuckRow"]
 custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
+tooltip_text = "Luck
+Primary damage stat for Daggers.
+Also increases your Crit Rate."
 theme_override_font_sizes/font_size = 16
 text = "LUCK"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/LuckRow"]
 layout_mode = 2
+tooltip_text = "Luck
+Primary damage stat for Daggers.
+Also increases your Crit Rate."
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "0"
