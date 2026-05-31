@@ -405,13 +405,30 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 
 	# --- Hit Chance Calculation ---
 	var level_diff = attacker_level - target_level
-	# Base 95% chance to hit. Lose 2% chance for each level the monster is above you.
-	# PR 7: DEX adds accuracy (StatsComponent.DEX_TO_ACCURACY % per point) — mainly
-	# matters vs higher-level enemies where the base chance dips below the cap.
+	# Base 95% chance to hit at even level. Lose 3% chance for each level the
+	# monster is above you (PR 13 — raised 2 → 3 so above-level fights actually
+	# demand accuracy investment; before, the level penalty was too soft for
+	# DEX/ACCURACY to feel meaningful).
+	#
+	# Accuracy sources stack additively into the hit-chance:
+	#   - DEX  -> + DEX_TO_ACCURACY % per point (PR 7 utility — invisible total)
+	#   - ACCURACY stat -> + flat_bonus_value (PR 13 — bow passive, equipment)
+	# Target-side reducer:
+	#   - EVASIONCHANCE stat on target -> -flat_bonus_value (PR 13 — dagger passive)
+	# Floor 5%, ceil 100% (so a fully-evasive target still has a 5% chance to
+	# be hit; a fully-blind attacker still hits 5% of the time).
 	var dex_accuracy: float = 0.0
+	var stat_accuracy: float = 0.0
 	if _stats_component:
-		dex_accuracy = _stats_component.stats.get(Constants.StatType.DEXTERITY).total_value * StatsComponent.DEX_TO_ACCURACY
-	var hit_chance = clamp(95.0 + (level_diff * 2.0) + dex_accuracy, 5.0, 100.0)
+		if _stats_component.stats.has(Constants.StatType.DEXTERITY):
+			dex_accuracy = _stats_component.stats[Constants.StatType.DEXTERITY].total_value * StatsComponent.DEX_TO_ACCURACY
+		if _stats_component.stats.has(Constants.StatType.ACCURACY):
+			stat_accuracy = float(_stats_component.stats[Constants.StatType.ACCURACY].total_value)
+	var target_evasion: float = 0.0
+	var target_stats = target_enemy.get("stats_component")
+	if target_stats != null and is_instance_valid(target_stats) and target_stats.stats.has(Constants.StatType.EVASIONCHANCE):
+		target_evasion = float(target_stats.stats[Constants.StatType.EVASIONCHANCE].total_value)
+	var hit_chance = clamp(95.0 + (level_diff * 3.0) + dex_accuracy + stat_accuracy - target_evasion, 5.0, 100.0)
 	
 	var max_hits = 1
 	if ability and level_stats:

@@ -17,13 +17,13 @@ script = ExtResource("2_eva1")
 
 [sub_resource type="Resource" id="Resource_eva_def"]
 script = ExtResource("5_eva1")
-base_value = 3.0
-per_level = 6
+base_value = 2.0
+per_level = 2.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_eva_sbf"]
 script = ExtResource("4_eva1")
-stat_type = 8
+stat_type = 17
 flat_bonus_formula = SubResource("Resource_eva_def")
 metadata/_custom_type_script = "uid://bx4thfjsjclbw"
 
@@ -36,7 +36,7 @@ metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
 script = ExtResource("6_eva1")
 ability_id = "5101118971151051111109511-9043-1410149-105135-1410158678120214"
 ability_name = "Evasion"
-description = "Permanently increases Defense by $[stat_bonus]."
+description = "Permanently increases your Evasion by $[stat_bonus]%, reducing the chance that incoming attacks land."
 ability_icon = ExtResource("1_eva1")
 max_level = 5
 ability_type = 1

@@ -44,6 +44,9 @@ const STAT_NAMES := {
 	Constants.StatType.WEAPONATTACK: "Weapon Attack",
 	Constants.StatType.MAGICATTACK: "Magic Attack",
 	Constants.StatType.KNOCKBACKRESIST: "Knockback Resist",
+	Constants.StatType.CONSTITUTION: "Constitution",
+	Constants.StatType.ACCURACY: "Accuracy",
+	Constants.StatType.EVASIONCHANCE: "Evasion",
 }
 
 

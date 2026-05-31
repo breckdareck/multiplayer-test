@@ -36,10 +36,23 @@ Player (MultiplayerPlayerV2)
     │                               leaving default/split builds (primary ~297 < knee)
     │                               untouched. Accounting tracks RAW spent, not
     │                               effective. CON is StatType idx 15
-    │                               (appended). Round-trips via save_attributes /
-    │                               load_attributes (backend `attribute_points`
-    │                               JSONB); synced via sync_attributes RPC.
-    ├── Combat     combat.gd      - hitboxes, damage calc, crit
+    │                               (appended). PR 13 appended ACCURACY (idx 16)
+    │                               and EVASIONCHANCE (idx 17) — both new stat
+    │                               types are read in combat.gd's hit-chance
+    │                               formula (attacker ACCURACY adds, target
+    │                               EVASIONCHANCE subtracts). Bow's Marksman's
+    │                               Focus grants ACCURACY; dagger's Evasion
+    │                               grants EVASIONCHANCE. Round-trips via
+    │                               save_attributes / load_attributes (backend
+    │                               `attribute_points` JSONB); synced via
+    │                               sync_attributes RPC.
+    ├── Combat     combat.gd      - hitboxes, damage calc, crit. PR 13 hit-
+    │                               chance formula: clamp(95 + level_diff*3 +
+    │                               (DEX * 0.05) + ACCURACY - target.EVASION,
+    │                               5, 100). Level-diff scalar raised 2→3 so
+    │                               above-level fights demand accuracy invest.
+    │                               BL_ShadowPartner.gd mirrors the formula
+    │                               (caught diverged in PR 12 audit).
     ├── Ability    ability.gd     - learn/level/use abilities, cooldowns, passives.
     │                               Ability points are PER-DISCIPLINE (PR 4 — see
     │                               available_points_per_discipline dict). Points
