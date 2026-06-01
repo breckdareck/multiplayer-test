@@ -51,6 +51,49 @@ code{background:#0b0d13;padding:1px 6px;border-radius:4px;color:#cdd6e4;font-siz
   <p>Verify in-game with <code>/zone &lt;name&gt;</code> in the debug console (backtick to open).</p>
 </div>
 
+<div class="card">
+  <p><b>In-game visual indicators</b> — the fill alone reads ambiguously, so every zone gets three layered effects (implemented in <code>GroundZone._draw</code> / <code>_physics_process</code>, applied to every zone for free):</p>
+  <p><b>Spawn flash</b> — first ~0.3s after spawn the fill + outline brighten loudly so the zone's appearance is unmistakable at any distance.</p>
+  <p><b>Tick pulse</b> — on each damage tick the zone flashes brighter for ~0.25s (decays via <code>_TICK_PULSE_DECAY</code>). Player gets both the damage rhythm AND a re-emphasis of the area extent on the beat.</p>
+  <p><b>Persistent boundary markers</b> — drawn at ~95% alpha so the boundary stays unmistakable even when the fill fades toward end-of-life:</p>
+  <div style="display:flex;gap:24px;justify-content:center;margin-top:14px;align-items:center">
+    <div style="text-align:center">
+      <svg viewBox="-90 -50 180 100" width="200" height="110">
+        <rect x="-70" y="-30" width="140" height="60" fill="rgba(140,77,46,0.42)" stroke="rgba(140,77,46,0.95)" stroke-width="2.5"/>
+        <!-- TL bracket -->
+        <line x1="-70" y1="-30" x2="-56" y2="-30" stroke="rgba(140,77,46,0.95)" stroke-width="3"/>
+        <line x1="-70" y1="-30" x2="-70" y2="-16" stroke="rgba(140,77,46,0.95)" stroke-width="3"/>
+        <!-- TR bracket -->
+        <line x1="70" y1="-30" x2="56" y2="-30" stroke="rgba(140,77,46,0.95)" stroke-width="3"/>
+        <line x1="70" y1="-30" x2="70" y2="-16" stroke="rgba(140,77,46,0.95)" stroke-width="3"/>
+        <!-- BR bracket -->
+        <line x1="70" y1="30" x2="56" y2="30" stroke="rgba(140,77,46,0.95)" stroke-width="3"/>
+        <line x1="70" y1="30" x2="70" y2="16" stroke="rgba(140,77,46,0.95)" stroke-width="3"/>
+        <!-- BL bracket -->
+        <line x1="-70" y1="30" x2="-56" y2="30" stroke="rgba(140,77,46,0.95)" stroke-width="3"/>
+        <line x1="-70" y1="30" x2="-70" y2="16" stroke="rgba(140,77,46,0.95)" stroke-width="3"/>
+      </svg>
+      <p class="meta" style="margin:0">RECT: 14-px L-shapes at all 4 corners</p>
+    </div>
+    <div style="text-align:center">
+      <svg viewBox="-60 -60 120 120" width="120" height="120">
+        <circle cx="0" cy="0" r="50" fill="rgba(255,217,115,0.30)" stroke="rgba(255,217,115,0.95)" stroke-width="2.5"/>
+        <!-- 8 tick marks N/NE/E/SE/S/SW/W/NW -->
+        <line x1="0" y1="-50" x2="0" y2="-36" stroke="rgba(255,217,115,0.95)" stroke-width="3"/>
+        <line x1="35.4" y1="-35.4" x2="25.5" y2="-25.5" stroke="rgba(255,217,115,0.95)" stroke-width="3"/>
+        <line x1="50" y1="0" x2="36" y2="0" stroke="rgba(255,217,115,0.95)" stroke-width="3"/>
+        <line x1="35.4" y1="35.4" x2="25.5" y2="25.5" stroke="rgba(255,217,115,0.95)" stroke-width="3"/>
+        <line x1="0" y1="50" x2="0" y2="36" stroke="rgba(255,217,115,0.95)" stroke-width="3"/>
+        <line x1="-35.4" y1="35.4" x2="-25.5" y2="25.5" stroke="rgba(255,217,115,0.95)" stroke-width="3"/>
+        <line x1="-50" y1="0" x2="-36" y2="0" stroke="rgba(255,217,115,0.95)" stroke-width="3"/>
+        <line x1="-35.4" y1="-35.4" x2="-25.5" y2="-25.5" stroke="rgba(255,217,115,0.95)" stroke-width="3"/>
+      </svg>
+      <p class="meta" style="margin:0">CIRCLE: 8 radial ticks at compass points</p>
+    </div>
+  </div>
+  <p style="margin-top:14px">Tick-pulse cadence is synchronized on every peer (server + remote-mirror clones) because the tick countdown lives above the <code>is_server</code> gate in <code>_physics_process</code> — both peers init <code>_next_tick = tick_interval</code> in <code>_ready</code> and decrement at the same rate.</p>
+</div>
+
 <h2>Sword</h2>
 <div class="zone-grid">
 

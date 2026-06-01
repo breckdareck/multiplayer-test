@@ -452,8 +452,17 @@ func format_ability_description(data: AbilityData, level_data: AbilityLevelData,
 	
 	if data.ability_type == Constants.AbilityType.ACTIVE:
 		var damage_text = desc_template.replace("$[damage_percent]", "[color=%s]%s%%[/color]" % [color, AbilityData._smart_format_number(level_data.damage_percent)])
-		var target_text = damage_text.replace("$[target_count]", "[color=%s]%d[/color]" % [color, data.scaling_data.max_targets_formula.calculate(level_data.level)])
-		var hit_text = target_text.replace("$[hit_count]", "[color=%s]%d[/color]" % [color, data.scaling_data.max_hits_formula.calculate(level_data.level)])
+		# Null-guard the formula access: a utility ability (Smoke Bomb, Banner,
+		# Mana Surge, etc.) may have no hits/targets formulas at all. Only call
+		# .calculate() when the placeholder is actually present in the template
+		# AND the formula exists — skips wasted work and prevents the
+		# "Nonexistent function 'calculate' in base 'Nil'" crash.
+		var target_text = damage_text
+		if "$[target_count]" in target_text and data.scaling_data and data.scaling_data.max_targets_formula:
+			target_text = target_text.replace("$[target_count]", "[color=%s]%d[/color]" % [color, data.scaling_data.max_targets_formula.calculate(level_data.level)])
+		var hit_text = target_text
+		if "$[hit_count]" in hit_text and data.scaling_data and data.scaling_data.max_hits_formula:
+			hit_text = hit_text.replace("$[hit_count]", "[color=%s]%d[/color]" % [color, data.scaling_data.max_hits_formula.calculate(level_data.level)])
 
 		# NEW: Handle buff duration placeholder
 		if data.applies_buff and data.buff_duration_formula:
