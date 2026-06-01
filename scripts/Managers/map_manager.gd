@@ -805,26 +805,47 @@ func _spawn_lightning_arc_visual(points: PackedVector2Array) -> void:
 ## so the host (which is also a client) needs no extra mirror — its own zone
 ## renders for free. We only RPC to remote clients, where a parallel visual
 ## mirror is spawned via _spawn_ground_zone_visual.
+##
+## CIRCLE backward-compat path. New ground-rect callers should use
+## broadcast_ground_zone_shaped.
 func broadcast_ground_zone(map_id: String, pos: Vector2, radius: float, duration: float, color: Color) -> void:
+	broadcast_ground_zone_shaped(map_id, pos, 0, radius, Vector2.ZERO, duration, color)
+
+
+## [Server] Shape-aware ground-zone visual broadcast. shape_type matches the
+## GroundZone.Shape enum (0=CIRCLE, 1=RECT). For CIRCLE, only `radius` is read;
+## for RECT, `rect_size` is the full width × height (centered on `pos`).
+func broadcast_ground_zone_shaped(map_id: String, pos: Vector2, shape_type: int, radius: float, rect_size: Vector2, duration: float, color: Color) -> void:
 	if not multiplayer.is_server():
 		return
 	for peer_id in get_real_players_on_map(map_id):
 		if peer_id != 1:
-			client_show_ground_zone.rpc_id(peer_id, pos, radius, duration, color)
+			client_show_ground_zone_shaped.rpc_id(peer_id, pos, shape_type, radius, rect_size, duration, color)
 
 
 ## [Server -> Client] Spawns a visual-only GroundZone on this peer. Routed
 ## through MapManager (an autoload that always resolves) rather than addressing
 ## any per-entity node. call_remote because the server already owns the
 ## authoritative damage path — it must NOT also run this visual spawn.
+##
+## Backward-compat: old call sites that targeted client_show_ground_zone with
+## the 4-arg signature still get routed to a CIRCLE visual.
 @rpc("authority", "call_remote", "reliable")
 func client_show_ground_zone(pos: Vector2, radius: float, duration: float, color: Color) -> void:
 	if multiplayer.is_server():
 		return
-	_spawn_ground_zone_visual(pos, radius, duration, color)
+	_spawn_ground_zone_visual(pos, 0, radius, Vector2.ZERO, duration, color)
 
 
-## Spawns a damage-less GroundZone under the visible map so the circle renders
+## [Server -> Client] Shape-aware visual spawn — the canonical version.
+@rpc("authority", "call_remote", "reliable")
+func client_show_ground_zone_shaped(pos: Vector2, shape_type: int, radius: float, rect_size: Vector2, duration: float, color: Color) -> void:
+	if multiplayer.is_server():
+		return
+	_spawn_ground_zone_visual(pos, shape_type, radius, rect_size, duration, color)
+
+
+## Spawns a damage-less GroundZone under the visible map so the shape renders
 ## in the right SubViewport. damage_per_tick stays 0 + applier stays null on
 ## the visual mirror, so _do_tick early-returns and no gameplay state is
 ## touched. The zone self-frees via its own duration timer.
@@ -835,13 +856,15 @@ func client_show_ground_zone(pos: Vector2, radius: float, duration: float, color
 ## script load explicitly.
 const _GroundZoneScript = preload("res://scripts/Gameplay/ground_zone.gd")
 
-func _spawn_ground_zone_visual(pos: Vector2, radius: float, duration: float, color: Color) -> void:
+func _spawn_ground_zone_visual(pos: Vector2, shape_type: int, radius: float, rect_size: Vector2, duration: float, color: Color) -> void:
 	var map_node = get_current_visible_map()
 	if not is_instance_valid(map_node):
 		return
 	var zone = _GroundZoneScript.new()
 	zone.global_position = pos
+	zone.shape_type = shape_type
 	zone.radius = radius
+	zone.rect_size = rect_size
 	zone.duration = duration
 	zone.visual_color = color
 	map_node.add_child(zone)

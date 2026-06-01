@@ -16,7 +16,9 @@ extends Node
 ## tailored amplified payoff. Mismatch behavior: in NO stance (shouldn't
 ## happen — stance always defaults to FIRE), falls back to FIRE.
 
-const FIRE_POOL_RADIUS: float = 100.0
+## Amplified Fire-stance pool — ground rectangle matching Pyre Burst's pool
+## shape, but larger and longer-lived per the Spellweave amplification rule.
+const FIRE_POOL_RECT_SIZE: Vector2 = Vector2(220.0, 65.0)
 const FIRE_POOL_DURATION: float = 5.0
 const FIRE_POOL_TICK: float = 1.0
 const FIRE_POOL_DAMAGE_PCT: float = 0.15
@@ -66,10 +68,10 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 func _fire_pool(owner_node: Node, facing: int, magic_attack: int) -> void:
 	var spawn_pos: Vector2 = owner_node.global_position + Vector2(140.0 * float(facing), 0)
 	var tick_damage: int = maxi(1, roundi(magic_attack * FIRE_POOL_DAMAGE_PCT))
-	load("res://scripts/Gameplay/ground_zone.gd").spawn_server(
+	load("res://scripts/Gameplay/ground_zone.gd").spawn_server_rect(
 		owner_node,
 		spawn_pos,
-		FIRE_POOL_RADIUS,
+		FIRE_POOL_RECT_SIZE,
 		FIRE_POOL_DURATION,
 		FIRE_POOL_TICK,
 		tick_damage,

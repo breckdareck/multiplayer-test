@@ -17,7 +17,10 @@ extends Node
 ## saved meta on a Timer. Re-application while already slowed is a no-op so
 ## repeat ticks don't compound or write back a wrong base on restore.
 
-const ZONE_RADIUS: float = 70.0
+## Ground rectangle — caltrops literally scatter along the floor. Wide-x,
+## short-y rect hugging the ground reads correctly (a scatter patch) where a
+## circular zone would look like a sphere of spikes floating above the floor.
+const ZONE_RECT_SIZE: Vector2 = Vector2(160.0, 50.0)
 const ZONE_DURATION: float = 5.0
 const ZONE_TICK_INTERVAL: float = 1.0
 ## Tick damage is 8% of WEAPONATTACK per second. maxi(1, ...) keeps it
@@ -44,10 +47,11 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 	var tick_damage: int = maxi(1, roundi(wpn_attack * TICK_DAMAGE_PCT))
 
 	# Spawn at the caster's feet — drop-the-trap-where-you-stand feel.
-	load("res://scripts/Gameplay/ground_zone.gd").spawn_server(
+	# Ground-rect shape so the spikes scatter along the floor visibly.
+	load("res://scripts/Gameplay/ground_zone.gd").spawn_server_rect(
 		owner_node,
 		owner_node.global_position,
-		ZONE_RADIUS,
+		ZONE_RECT_SIZE,
 		ZONE_DURATION,
 		ZONE_TICK_INTERVAL,
 		tick_damage,

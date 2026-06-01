@@ -1,0 +1,194 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ground Zone Shape Preview</title>
+<style>
+:root{--bg:#0f1117;--card:#171a23;--ink:#e7e9ee;--mut:#9aa3b2;--line:#262b38;--acc:#6db1ff;--player:#7ec2ff;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 -apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:1280px;margin:0 auto;padding:32px 22px 80px}
+h1{font-size:30px;margin:0 0 6px}
+.sub{color:var(--mut);margin:0 0 24px;font-size:13.5px}
+h2{font-size:20px;margin:32px 0 10px;color:var(--acc);border-bottom:2px solid var(--line);padding-bottom:6px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:14px 0}
+.card p{margin:6px 0}
+.card p:first-child{margin-top:0}
+.card p:last-child{margin-bottom:0}
+.zone-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:16px;margin:16px 0}
+.zone-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.zone-card h3{margin:0 0 4px;font-size:17px;color:#fff;display:flex;justify-content:space-between;align-items:baseline}
+.zone-card h3 .weapon{font-size:12px;color:var(--mut);font-weight:400}
+.zone-card .meta{color:var(--mut);font-size:12.5px;margin:0 0 10px}
+.zone-card .desc{color:#cdd6e4;font-size:13px;margin:8px 0 12px}
+.zone-card .swatch{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:middle;margin-right:6px;border:1px solid #333}
+.tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;letter-spacing:0.2px;margin-left:6px}
+.tag.rect{background:#41121e;color:#ff8a9a}
+.tag.circle{background:#1a3050;color:#7ec2ff}
+.tag.weapon-Sword{background:#2a2a4a;color:#a0b8ff}
+.tag.weapon-Bow{background:#2a4a2a;color:#a0e0a0}
+.tag.weapon-Dagger{background:#4a2a2a;color:#e0a0a0}
+.tag.weapon-Staff{background:#4a3a2a;color:#e0c8a0}
+svg{display:block;background:#0a0b10;border:1px solid var(--line);border-radius:6px;margin:0 auto}
+.note{color:var(--mut);font-size:11.5px;margin-top:8px;font-style:italic}
+.legend{display:flex;gap:18px;margin:8px 0 20px;color:var(--mut);font-size:13px;align-items:center}
+.legend .swatch-pl{width:12px;height:24px;background:var(--player);border:1px solid #555;display:inline-block;vertical-align:middle;margin-right:6px}
+.legend .floor{width:30px;height:2px;background:#5a4a30;display:inline-block;vertical-align:middle;margin-right:6px}
+code{background:#0b0d13;padding:1px 6px;border-radius:4px;color:#cdd6e4;font-size:12.5px}
+</style></head><body>
+<div class="wrap">
+<h1>Ground Zone Shape Preview</h1>
+<p class="sub">Visual preview of every <code>GroundZone</code>-using ability at scale. All shapes drawn at 1:1 pixel scale (1 SVG unit = 1 game pixel). A blue 40×80 player silhouette is shown for size reference. Refresh after edits to <code>scripts/Abilities/AL_*.gd</code>'s zone constants — this preview is a manual mirror, not auto-generated.</p>
+
+<div class="legend">
+  <span><span class="swatch-pl"></span>Player (~40×80 px)</span>
+  <span><span class="floor"></span>Floor line (zone center)</span>
+  <span>1 SVG unit = 1 in-game pixel</span>
+</div>
+
+<div class="card">
+  <p><b>Shape choice rationale</b> — in this 2D platformer, a <b>ground-zone ability</b> should hug the floor and overlap with enemy hitboxes at their height, not tower above them.</p>
+  <p><b>Rectangle</b> (wide x, short y, ≈30–65 px tall) reads correctly for tremors, scatter patches, fire pools, rain strikes — anything bound to the ground plane.</p>
+  <p><b>Circle</b> reads correctly only when the effect is meant to be radial / volumetric — Banner of the Vanguard's aura halo, Smoke Bomb's billowing cloud.</p>
+  <p>Verify in-game with <code>/zone &lt;name&gt;</code> in the debug console (backtick to open).</p>
+</div>
+
+<h2>Sword</h2>
+<div class="zone-grid">
+
+  <div class="zone-card">
+    <h3>Earthsplitter <span class="weapon">combo-spender</span></h3>
+    <p class="meta"><span class="tag rect">RECT</span> 220×60 px · 4.0s lifetime · <span class="swatch" style="background:rgb(140,77,46)"></span>earth-brown</p>
+    <p class="desc">Heavy ground slam consumes all combo and leaves a tremor zone at the caster's feet. Ground-rect so the tremor reads as floor-bound, not a sphere of damage above the ground.</p>
+    <svg viewBox="-150 -60 300 90" width="100%" height="120">
+      <line x1="-150" y1="0" x2="150" y2="0" stroke="#5a4a30" stroke-width="1"/>
+      <rect x="-110" y="-30" width="220" height="60" fill="rgba(140,77,46,0.42)" stroke="rgba(140,77,46,0.95)" stroke-width="2"/>
+      <rect x="-20" y="-80" width="40" height="80" fill="#7ec2ff" opacity="0.7" stroke="#1a3050"/>
+      <text x="0" y="44" text-anchor="middle" fill="#cdd6e4" font-size="11" font-family="monospace">220 × 60</text>
+    </svg>
+  </div>
+
+  <div class="zone-card">
+    <h3>Banner of the Vanguard <span class="weapon">defensive aura</span></h3>
+    <p class="meta"><span class="tag circle">CIRCLE</span> r=110 px · 8.0s lifetime · <span class="swatch" style="background:rgb(255,217,115)"></span>golden glow</p>
+    <p class="desc">Plant banner; allies inside gain +Defense + HP regen. Circular because the aura reads as a radial halo around the banner, not a floor-bound effect.</p>
+    <svg viewBox="-130 -130 260 200" width="100%" height="160">
+      <line x1="-130" y1="0" x2="130" y2="0" stroke="#5a4a30" stroke-width="1"/>
+      <circle cx="0" cy="0" r="110" fill="rgba(255,217,115,0.30)" stroke="rgba(255,217,115,0.85)" stroke-width="2"/>
+      <rect x="-20" y="-80" width="40" height="80" fill="#7ec2ff" opacity="0.7" stroke="#1a3050"/>
+      <text x="0" y="60" text-anchor="middle" fill="#cdd6e4" font-size="11" font-family="monospace">r=110</text>
+    </svg>
+  </div>
+
+</div>
+
+<h2>Bow</h2>
+<div class="zone-grid">
+
+  <div class="zone-card">
+    <h3>Caltrops <span class="weapon">fire-and-forget</span></h3>
+    <p class="meta"><span class="tag rect">RECT</span> 160×50 px · 5.0s lifetime · <span class="swatch" style="background:rgb(140,107,46)"></span>rusty brown</p>
+    <p class="desc">Drops a scatter patch of caltrops at feet. Wide-x / short-y rect because caltrops literally scatter along the floor; circle would float as a sphere of spikes.</p>
+    <svg viewBox="-130 -60 260 90" width="100%" height="120">
+      <line x1="-130" y1="0" x2="130" y2="0" stroke="#5a4a30" stroke-width="1"/>
+      <rect x="-80" y="-25" width="160" height="50" fill="rgba(140,107,46,0.40)" stroke="rgba(140,107,46,1)" stroke-width="2"/>
+      <rect x="-20" y="-80" width="40" height="80" fill="#7ec2ff" opacity="0.7" stroke="#1a3050"/>
+      <text x="0" y="44" text-anchor="middle" fill="#cdd6e4" font-size="11" font-family="monospace">160 × 50</text>
+    </svg>
+  </div>
+
+  <div class="zone-card">
+    <h3>Sky Volley <span class="weapon">channel + zone</span></h3>
+    <p class="meta"><span class="tag rect">RECT</span> 240×60 px · 3.0s lifetime · <span class="swatch" style="background:rgb(217,199,140)"></span>sandy gold</p>
+    <p class="desc">Channel arrow rain at a target strip ahead of caster. Strike area is a strip of GROUND (where arrows land), not a sphere of arrows mid-air.</p>
+    <svg viewBox="-150 -60 300 90" width="100%" height="120">
+      <line x1="-150" y1="0" x2="150" y2="0" stroke="#5a4a30" stroke-width="1"/>
+      <rect x="-120" y="-30" width="240" height="60" fill="rgba(217,199,140,0.42)" stroke="rgba(217,199,140,0.95)" stroke-width="2"/>
+      <rect x="-20" y="-80" width="40" height="80" fill="#7ec2ff" opacity="0.7" stroke="#1a3050"/>
+      <text x="0" y="44" text-anchor="middle" fill="#cdd6e4" font-size="11" font-family="monospace">240 × 60</text>
+    </svg>
+  </div>
+
+</div>
+
+<h2>Dagger</h2>
+<div class="zone-grid">
+
+  <div class="zone-card">
+    <h3>Smoke Bomb <span class="weapon">defensive concealment</span></h3>
+    <p class="meta"><span class="tag circle">CIRCLE</span> r=90 px · 4.0s lifetime · <span class="swatch" style="background:rgb(64,64,77)"></span>smoky grey</p>
+    <p class="desc">Cloud of smoke at feet — enemies inside lose targeting, allies gain +Evasion. Circular because smoke billows in all directions; rect would read as a flat puddle.</p>
+    <svg viewBox="-110 -110 220 160" width="100%" height="140">
+      <line x1="-110" y1="0" x2="110" y2="0" stroke="#5a4a30" stroke-width="1"/>
+      <circle cx="0" cy="0" r="90" fill="rgba(64,64,77,0.55)" stroke="rgba(64,64,77,1)" stroke-width="2"/>
+      <rect x="-20" y="-80" width="40" height="80" fill="#7ec2ff" opacity="0.7" stroke="#1a3050"/>
+      <text x="0" y="48" text-anchor="middle" fill="#cdd6e4" font-size="11" font-family="monospace">r=90</text>
+    </svg>
+  </div>
+
+</div>
+
+<h2>Staff</h2>
+<div class="zone-grid">
+
+  <div class="zone-card">
+    <h3>Frost Patch <span class="weapon">Ice ground-zone</span></h3>
+    <p class="meta"><span class="tag rect">RECT</span> 180×50 px · 4.0s lifetime · <span class="swatch" style="background:rgb(140,204,255)"></span>icy blue</p>
+    <p class="desc">Frost patch hugs the floor — chill + damage zone. Ground-rect because frost forms ON surfaces, not as a sphere of cold in midair.</p>
+    <svg viewBox="-130 -60 260 90" width="100%" height="120">
+      <line x1="-130" y1="0" x2="130" y2="0" stroke="#5a4a30" stroke-width="1"/>
+      <rect x="-90" y="-25" width="180" height="50" fill="rgba(140,204,255,0.40)" stroke="rgba(140,204,255,0.95)" stroke-width="2"/>
+      <rect x="-20" y="-80" width="40" height="80" fill="#7ec2ff" opacity="0.7" stroke="#1a3050"/>
+      <text x="0" y="44" text-anchor="middle" fill="#cdd6e4" font-size="11" font-family="monospace">180 × 50</text>
+    </svg>
+  </div>
+
+  <div class="zone-card">
+    <h3>Pyre Burst (Fire-stance pool) <span class="weapon">Fire ground-zone</span></h3>
+    <p class="meta"><span class="tag rect">RECT</span> 180×55 px · 3.0s lifetime · <span class="swatch" style="background:rgb(242,77,26)"></span>fire orange</p>
+    <p class="desc">Fire pool at the explosion's epicenter. Ground-rect because fire pools ON the floor; circles read as fireballs hovering above it.</p>
+    <svg viewBox="-130 -60 260 90" width="100%" height="120">
+      <line x1="-130" y1="0" x2="130" y2="0" stroke="#5a4a30" stroke-width="1"/>
+      <rect x="-90" y="-27.5" width="180" height="55" fill="rgba(242,77,26,0.42)" stroke="rgba(242,77,26,1)" stroke-width="2"/>
+      <rect x="-20" y="-80" width="40" height="80" fill="#7ec2ff" opacity="0.7" stroke="#1a3050"/>
+      <text x="0" y="44" text-anchor="middle" fill="#cdd6e4" font-size="11" font-family="monospace">180 × 55</text>
+    </svg>
+  </div>
+
+  <div class="zone-card">
+    <h3>Stormcall <span class="weapon">Lightning channel + zone</span></h3>
+    <p class="meta"><span class="tag rect">RECT</span> 220×60 px · 3.0s lifetime · <span class="swatch" style="background:rgb(140,140,255)"></span>lightning blue-purple</p>
+    <p class="desc">Storm strikes the ground in a wide strip. Lightning hits the FLOOR; the strike area is a ground rectangle, not a sphere of storm above.</p>
+    <svg viewBox="-150 -60 300 90" width="100%" height="120">
+      <line x1="-150" y1="0" x2="150" y2="0" stroke="#5a4a30" stroke-width="1"/>
+      <rect x="-110" y="-30" width="220" height="60" fill="rgba(140,140,255,0.38)" stroke="rgba(140,140,255,1)" stroke-width="2"/>
+      <rect x="-20" y="-80" width="40" height="80" fill="#7ec2ff" opacity="0.7" stroke="#1a3050"/>
+      <text x="0" y="44" text-anchor="middle" fill="#cdd6e4" font-size="11" font-family="monospace">220 × 60</text>
+    </svg>
+  </div>
+
+  <div class="zone-card">
+    <h3>Spellweave (Fire-stance) <span class="weapon">amplified Pyre pool</span></h3>
+    <p class="meta"><span class="tag rect">RECT</span> 220×65 px · 5.0s lifetime · <span class="swatch" style="background:rgb(242,77,26)"></span>fire orange</p>
+    <p class="desc">Spellweave's amplified Fire release — larger + longer-lived than Pyre Burst's pool. Same ground-rect shape, wider footprint.</p>
+    <svg viewBox="-150 -60 300 90" width="100%" height="120">
+      <line x1="-150" y1="0" x2="150" y2="0" stroke="#5a4a30" stroke-width="1"/>
+      <rect x="-110" y="-32.5" width="220" height="65" fill="rgba(242,77,26,0.42)" stroke="rgba(242,77,26,1)" stroke-width="2"/>
+      <rect x="-20" y="-80" width="40" height="80" fill="#7ec2ff" opacity="0.7" stroke="#1a3050"/>
+      <text x="0" y="44" text-anchor="middle" fill="#cdd6e4" font-size="11" font-family="monospace">220 × 65</text>
+    </svg>
+  </div>
+
+</div>
+
+<h2 style="margin-top:42px">In-game verification</h2>
+<div class="card">
+  <p><b>Open the debug console</b> with backtick (<code>`</code>) and type:</p>
+  <p><code>zone</code> — lists every catalog entry with its shape + dimensions</p>
+  <p><code>zone earthsplitter</code> — spawns the Earthsplitter zone at your feet (no damage, just visual)</p>
+  <p>Available names: <code>caltrops</code> · <code>earthsplitter</code> · <code>sky_volley</code> · <code>frost_patch</code> · <code>stormcall</code> · <code>pyre_pool</code> · <code>spellweave_fire</code> · <code>banner</code> · <code>smoke_bomb</code></p>
+  <p>The catalog mirrors the constants in each <code>AL_*.gd</code>. If you edit a zone's size in an AL script, update <code>ZONE_CATALOG</code> in <code>scripts/UI/debug_panel.gd</code> too — this preview HTML follows the same source of truth (the AL constants).</p>
+</div>
+
+<p class="note" style="text-align:center;margin-top:32px">Generated 2026-05-31 from the locked v1 ground-zone shapes. Refresh after AL constant edits.</p>
+
+</div>
+</body></html>

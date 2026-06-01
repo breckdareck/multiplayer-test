@@ -30,7 +30,10 @@ const BURN_META: String = "pyre_burst_burn"
 ## 2026-05-31): a persistent fire patch at the explosion's epicenter that
 ## ticks damage on any enemy currently inside it. Uses the shared GroundZone
 ## helper from scripts/Gameplay/ground_zone.gd.
-const POOL_RADIUS: float = 80.0
+##
+## Ground rectangle — fire pools on the floor, not in midair. Wide-x /
+## short-y rect hugs the ground at the explosion impact point.
+const POOL_RECT_SIZE: Vector2 = Vector2(180.0, 55.0)
 const POOL_DURATION: float = 3.0
 const POOL_TICK_INTERVAL: float = 1.0
 ## 10% of MAGICATTACK per tick. Stacks with the dedicated burn DOT applied
@@ -117,10 +120,10 @@ func _try_spawn_fire_pool(owner_node: Node, first_target: Node, magic_attack: in
 	# load() rather than class_name reference for robustness against parse-order
 	# issues (Godot 4 can intermittently fail to resolve class_name globals from
 	# logic_scripts that are loaded lazily by ResourceManager).
-	load("res://scripts/Gameplay/ground_zone.gd").spawn_server(
+	load("res://scripts/Gameplay/ground_zone.gd").spawn_server_rect(
 		owner_node,
 		first_target.global_position,
-		POOL_RADIUS,
+		POOL_RECT_SIZE,
 		POOL_DURATION,
 		POOL_TICK_INTERVAL,
 		pool_damage,

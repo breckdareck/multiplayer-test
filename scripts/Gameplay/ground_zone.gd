@@ -28,9 +28,23 @@ extends Node2D
 
 #region #################### Configuration (filled at spawn) ####################
 
-## Hit-test radius in pixels. v1 supports circular zones only — the most common
-## shape across Caltrops / Pyre Burst pool / Earthsplitter / Smoke Bomb / etc.
+## Shape model. v1 supports two shapes:
+##   CIRCLE — symmetric radial zone (auras, smoke clouds, omni-direction)
+##   RECT   — axis-aligned rectangle, ideal for "ground zone" abilities in a 2D
+##            platformer where a wide-x / short-y rect hugs the floor and hits
+##            enemies standing on it without towering over the camera
+enum Shape { CIRCLE = 0, RECT = 1 }
+var shape_type: int = Shape.CIRCLE
+
+## Hit-test radius in pixels. Used when shape_type == CIRCLE.
 var radius: float = 50.0
+
+## Hit-test rect size (full width × height in pixels). Used when shape_type ==
+## RECT. The rectangle is centered on the zone's global_position; callers
+## that want a "ground rectangle" (hugging the floor, touching enemy hitboxes
+## but not stretching above their heads) should typically set y in the
+## 30–60 px range and x as the desired horizontal coverage.
+var rect_size: Vector2 = Vector2(120.0, 40.0)
 
 ## Total lifetime in seconds. Zone queue_frees itself after this many seconds
 ## have elapsed since spawn. Runs on all peers so remote-client visuals expire
@@ -96,12 +110,17 @@ func _ready() -> void:
 
 
 func _draw() -> void:
-	# Filled disc + thin outline. The outline is a slightly bolder version of
-	# the fill so different-element zones (fire-orange, ice-blue) read at a
-	# glance without per-zone art.
-	draw_circle(Vector2.ZERO, radius, visual_color)
+	# Filled shape + bolder outline (so different-element zones read at a
+	# glance without per-zone art). Branches on shape_type — CIRCLE draws a
+	# disc; RECT draws an axis-aligned rectangle centered on origin.
 	var outline := Color(visual_color.r, visual_color.g, visual_color.b, minf(1.0, visual_color.a * 2.5))
-	draw_arc(Vector2.ZERO, radius, 0.0, TAU, 48, outline, 2.0)
+	if shape_type == Shape.RECT:
+		var rect := Rect2(-rect_size * 0.5, rect_size)
+		draw_rect(rect, visual_color, true)
+		draw_rect(rect, outline, false, 2.0)
+	else:
+		draw_circle(Vector2.ZERO, radius, visual_color)
+		draw_arc(Vector2.ZERO, radius, 0.0, TAU, 48, outline, 2.0)
 
 
 func _physics_process(delta: float) -> void:
@@ -141,21 +160,18 @@ func _do_tick() -> void:
 		return
 
 	var center: Vector2 = global_position
-	var r2: float = radius * radius
 
 	# Ally tick — iterate the Players group (separate from Enemies) and fire
 	# the ally callback once per ally currently overlapping. Same map filter
-	# + circle overlap check as the enemy loop. Skipped when no ally
-	# callback is configured (the common case).
+	# + shape overlap test as the enemy loop. Skipped when no ally callback
+	# is configured (the common case).
 	if on_ally_tick_callback.is_valid():
 		for ally in get_tree().get_nodes_in_group("Players"):
 			if not is_instance_valid(ally):
 				continue
 			if _cached_map_root != null and not _cached_map_root.is_ancestor_of(ally):
 				continue
-			var ally_pos: Vector2 = ally.global_position
-			var dist_sq: float = (ally_pos - center).length_squared()
-			if dist_sq > r2:
+			if not _is_inside(ally.global_position, center):
 				continue
 			on_ally_tick_callback.call(ally)
 
@@ -166,12 +182,11 @@ func _do_tick() -> void:
 		# not under our spawn-time parent (which IS the map's scene_instance).
 		if _cached_map_root != null and not _cached_map_root.is_ancestor_of(enemy):
 			continue
-		# Circle overlap — center distance vs radius. Explicit types because
-		# `enemy` from `get_nodes_in_group` is loosely Variant and Godot's
-		# inference can't carry through to length_squared() without help.
+		# Shape overlap — circle radius² check OR axis-aligned rect bounds.
+		# Explicit types because `enemy` from `get_nodes_in_group` is loosely
+		# Variant and Godot's inference can't carry through without help.
 		var enemy_pos: Vector2 = enemy.global_position
-		var d2: float = (enemy_pos - center).length_squared()
-		if d2 > r2:
+		if not _is_inside(enemy_pos, center):
 			continue
 		var hc = enemy.get("health_component")
 		if hc == null or not is_instance_valid(hc) or hc.is_dead:
@@ -193,6 +208,20 @@ func _do_tick() -> void:
 		# Optional non-damage callback (Caltrops slow / Smoke Bomb cover / etc.)
 		if on_tick_callback.is_valid():
 			on_tick_callback.call(enemy)
+
+
+## Shape-aware point-in-zone test. Branches on shape_type so CIRCLE uses a
+## squared-distance comparison and RECT uses axis-aligned bounds. Both
+## operate in global coordinates against the zone's `center` (passed in by
+## the caller to avoid re-reading global_position twice per enemy).
+func _is_inside(world_pos: Vector2, center: Vector2) -> bool:
+	if shape_type == Shape.RECT:
+		var local := world_pos - center
+		var half := rect_size * 0.5
+		return absf(local.x) <= half.x and absf(local.y) <= half.y
+	# CIRCLE (default)
+	var d2: float = (world_pos - center).length_squared()
+	return d2 <= radius * radius
 
 #endregion
 
@@ -252,10 +281,59 @@ func _credit_dot_kill(applier_node, target: Node) -> void:
 ## can't resolve a class's own class_name inside its own static methods at
 ## load time. Callers receive the same object — only the static type is
 ## widened — and can still access the properties directly.
+##
+## CIRCLE-shaped convenience. Equivalent to `spawn_server_shaped` with
+## shape_type=CIRCLE and rect_size unused. All existing call sites use this
+## form; new ground-rect uses should call `spawn_server_rect` instead.
 static func spawn_server(
 	applier: Node,
 	pos: Vector2,
 	radius: float,
+	duration: float,
+	tick_interval: float,
+	damage_per_tick: int,
+	visual_color: Color = Color(0.9, 0.4, 0.15, 0.35),
+	on_tick_callback: Callable = Callable(),
+	on_ally_tick_callback: Callable = Callable(),
+) -> Node2D:
+	return spawn_server_shaped(
+		applier, pos, Shape.CIRCLE, radius, Vector2.ZERO,
+		duration, tick_interval, damage_per_tick,
+		visual_color, on_tick_callback, on_ally_tick_callback,
+	)
+
+
+## RECT-shaped convenience. Wraps `spawn_server_shaped` for the common
+## ground-rectangle pattern in this 2D platformer: a wide-x / short-y zone
+## that hugs the floor and hits enemies standing on it without towering
+## above their hitboxes. `rect_size` is full width × full height (centered
+## on `pos`).
+static func spawn_server_rect(
+	applier: Node,
+	pos: Vector2,
+	rect_size: Vector2,
+	duration: float,
+	tick_interval: float,
+	damage_per_tick: int,
+	visual_color: Color = Color(0.9, 0.4, 0.15, 0.35),
+	on_tick_callback: Callable = Callable(),
+	on_ally_tick_callback: Callable = Callable(),
+) -> Node2D:
+	return spawn_server_shaped(
+		applier, pos, Shape.RECT, 0.0, rect_size,
+		duration, tick_interval, damage_per_tick,
+		visual_color, on_tick_callback, on_ally_tick_callback,
+	)
+
+
+## Lowest-level spawn helper. Used by both convenience entry points above
+## so the actual zone construction lives in exactly one place.
+static func spawn_server_shaped(
+	applier: Node,
+	pos: Vector2,
+	shape_type_arg: int,
+	radius_arg: float,
+	rect_size_arg: Vector2,
 	duration: float,
 	tick_interval: float,
 	damage_per_tick: int,
@@ -282,7 +360,9 @@ static func spawn_server(
 	# load() at runtime sidesteps the same-script self-reference issue.
 	var zone = load("res://scripts/Gameplay/ground_zone.gd").new()
 	zone.global_position = pos
-	zone.radius = radius
+	zone.shape_type = shape_type_arg
+	zone.radius = radius_arg
+	zone.rect_size = rect_size_arg
 	zone.duration = duration
 	zone.tick_interval = tick_interval
 	zone.damage_per_tick = damage_per_tick
@@ -296,7 +376,7 @@ static func spawn_server(
 	# The host is also a client but its mirror is unnecessary — the
 	# authoritative zone above already renders on screen when the host is on
 	# this map (matches the lightning-arc broadcast pattern).
-	MapManager.broadcast_ground_zone(map_id, pos, radius, duration, visual_color)
+	MapManager.broadcast_ground_zone_shaped(map_id, pos, shape_type_arg, radius_arg, rect_size_arg, duration, visual_color)
 
 	return zone
 

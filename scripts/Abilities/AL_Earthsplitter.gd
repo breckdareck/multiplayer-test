@@ -20,7 +20,11 @@ extends Node
 ## the SwordComboComponent's existing spend API to keep accounting consistent
 ## with Crescent Cleave / Sundering Blow.
 
-const ZONE_RADIUS: float = 100.0
+## Ground rectangle (wide x, short y) — the tremor hugs the floor and hits
+## enemies standing on it without rising above their hitboxes. v1 redesign:
+## the original circle visualized as a sphere of damage above the floor,
+## which read wrong for an earth-tremor; rectangle hugs the ground.
+const ZONE_RECT_SIZE: Vector2 = Vector2(220.0, 60.0)
 const ZONE_DURATION: float = 4.0
 const ZONE_TICK_INTERVAL: float = 1.0
 
@@ -59,11 +63,13 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 	var combo_mult: float = 1.0 + (float(combo_consumed) * COMBO_AMP_PER_POINT)
 	var tick_damage: int = maxi(1, roundi(wpn_attack * BASE_TICK_DAMAGE_PCT * combo_mult))
 
-	# Spawn at the caster's feet — the slam epicenter.
-	load("res://scripts/Gameplay/ground_zone.gd").spawn_server(
+	# Spawn at the caster's feet — the slam epicenter. Ground-rect shape so
+	# the tremor reads as floor-bound rather than as a sphere of damage
+	# above the ground.
+	load("res://scripts/Gameplay/ground_zone.gd").spawn_server_rect(
 		owner_node,
 		owner_node.global_position,
-		ZONE_RADIUS,
+		ZONE_RECT_SIZE,
 		ZONE_DURATION,
 		ZONE_TICK_INTERVAL,
 		tick_damage,

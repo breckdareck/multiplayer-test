@@ -16,7 +16,9 @@ extends Node
 ## Damage scales on MAGICATTACK (StatType 13) — mages don't use WEAPONATTACK.
 ## Slow callback mirrors `StaffElementComponent._apply_slow`.
 
-const ZONE_RADIUS: float = 80.0
+## Ground rectangle — a frost patch hugs the floor where mages drop it,
+## not a sphere of cold radiating above the ground.
+const ZONE_RECT_SIZE: Vector2 = Vector2(180.0, 50.0)
 const ZONE_DURATION: float = 4.0
 const ZONE_TICK_INTERVAL: float = 1.0
 ## Tick damage = 8% of MAGICATTACK per second. Keeps the zone a sustain-
@@ -43,10 +45,10 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 	var magic_attack: int = int(stats_comp.stats[Constants.StatType.MAGICATTACK].total_value)
 	var tick_damage: int = maxi(1, roundi(magic_attack * TICK_DAMAGE_PCT))
 
-	load("res://scripts/Gameplay/ground_zone.gd").spawn_server(
+	load("res://scripts/Gameplay/ground_zone.gd").spawn_server_rect(
 		owner_node,
 		owner_node.global_position,
-		ZONE_RADIUS,
+		ZONE_RECT_SIZE,
 		ZONE_DURATION,
 		ZONE_TICK_INTERVAL,
 		tick_damage,

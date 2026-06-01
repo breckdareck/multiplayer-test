@@ -490,6 +490,7 @@ func _register_commands() -> void:
 	_register("navdraw", "Toggle the nav overlay; 'navdraw [graph|paths|info] [on|off]' for sub-layers.", _cmd_navdraw, _complete_navdraw)
 	_register("bot", "Bot subcommands (spawn, despawn, list, ...). Host-only.", _cmd_bot, _complete_bot_args)
 	_register("quest", "Quest subcommands. Host-only.", _cmd_quest)
+	_register("zone", "zone [name] — list/spawn a ground-zone for visual inspection (no damage). Host-only.", _cmd_zone, _complete_zone_args)
 
 
 func _register(cmd_name: String, desc: String, handler: Callable, completer: Callable = Callable()) -> void:
@@ -1394,3 +1395,94 @@ func _save_history() -> void:
 	if f == null: return
 	f.store_string(JSON.stringify(_history))
 	f.close()
+
+
+# --- /zone command ----------------------------------------------------------
+#
+# Debug command for visually inspecting ground-zone shapes at scale. Spawns
+# the configured zone (no damage) at the local player's position so the user
+# can eyeball whether the size/shape reads correctly in-game.
+#
+# The configs below MIRROR the constants in each AL_*.gd. If an AL changes
+# its zone shape/size, this dict needs the same edit — there's no central
+# source. Worth the duplication: this is a debug-only tool, and tightly
+# coupling it to the AL constants would pull every AL into the debug panel's
+# parse graph.
+
+const ZONE_CATALOG: Dictionary = {
+	"caltrops":      { "weapon": "Bow",    "shape": "rect",   "size": Vector2(160, 50), "duration": 5.0, "color": Color(0.55, 0.42, 0.18, 0.40), "desc": "Caltrops scatter — wide ground patch + slow." },
+	"earthsplitter": { "weapon": "Sword",  "shape": "rect",   "size": Vector2(220, 60), "duration": 4.0, "color": Color(0.55, 0.30, 0.18, 0.42), "desc": "Earthsplitter tremor — heavy ground rect, scales with combo." },
+	"sky_volley":    { "weapon": "Bow",    "shape": "rect",   "size": Vector2(240, 60), "duration": 3.0, "color": Color(0.85, 0.78, 0.55, 0.42), "desc": "Sky Volley rain — wide arrow strike strip." },
+	"frost_patch":   { "weapon": "Staff",  "shape": "rect",   "size": Vector2(180, 50), "duration": 4.0, "color": Color(0.55, 0.80, 1.00, 0.40), "desc": "Frost Patch — chill + damage zone hugging the floor." },
+	"stormcall":     { "weapon": "Staff",  "shape": "rect",   "size": Vector2(220, 60), "duration": 3.0, "color": Color(0.55, 0.55, 1.00, 0.38), "desc": "Stormcall — Lightning channel strip." },
+	"pyre_pool":     { "weapon": "Staff",  "shape": "rect",   "size": Vector2(180, 55), "duration": 3.0, "color": Color(0.95, 0.30, 0.10, 0.42), "desc": "Pyre Burst Fire-stance pool — fire on the floor." },
+	"spellweave_fire":{"weapon": "Staff",  "shape": "rect",   "size": Vector2(220, 65), "duration": 5.0, "color": Color(0.95, 0.30, 0.10, 0.42), "desc": "Spellweave (Fire) — amplified Pyre pool." },
+	"banner":        { "weapon": "Sword",  "shape": "circle", "radius": 110.0,         "duration": 8.0, "color": Color(1.00, 0.85, 0.45, 0.30), "desc": "Banner of the Vanguard — defensive aura (circle reads as a radial buff)." },
+	"smoke_bomb":    { "weapon": "Dagger", "shape": "circle", "radius": 90.0,          "duration": 4.0, "color": Color(0.25, 0.25, 0.30, 0.55), "desc": "Smoke Bomb — billowing cloud (circle reads as a 3D-shaped cloud)." },
+}
+
+
+func _cmd_zone(args: Array) -> String:
+	if args.is_empty():
+		# Listing mode — show every catalog entry with shape + dimensions.
+		var lines: PackedStringArray = ["[b]Ground-zone catalog[/b] (use [color=#9fd]zone <name>[/color] to spawn at your feet):"]
+		var names := ZONE_CATALOG.keys()
+		names.sort()
+		for n in names:
+			var cfg: Dictionary = ZONE_CATALOG[n]
+			var dim: String
+			if cfg["shape"] == "rect":
+				dim = "rect %dx%d px" % [int(cfg["size"].x), int(cfg["size"].y)]
+			else:
+				dim = "circle r=%d px" % int(cfg["radius"])
+			lines.append("  [color=#9fd]%-16s[/color] [color=#c79bff]%-6s[/color] %s  [color=#888]%.1fs[/color]  %s" %
+				[n, cfg["weapon"], dim, cfg["duration"], cfg["desc"]])
+		return "\n".join(lines)
+
+	# Spawn mode — name must be in the catalog.
+	if not multiplayer.is_server():
+		return "[color=#ff8888]zone spawn requires host (server).[/color]"
+	var name: String = String(args[0]).to_lower()
+	if not ZONE_CATALOG.has(name):
+		return "[color=#ff8888]Unknown zone '%s'. Run 'zone' for the catalog.[/color]" % name
+
+	var player: Node = _local_player()
+	if player == null or not is_instance_valid(player):
+		return "[color=#ff8888]No local player to anchor the zone on.[/color]"
+
+	var cfg: Dictionary = ZONE_CATALOG[name]
+	var GroundZoneScript = load("res://scripts/Gameplay/ground_zone.gd")
+	# damage_per_tick=0 so this is a pure visual / no-stat-modify zone. The
+	# spawn helper still does its overlap iteration on tick (cheap on the
+	# server) — verifies the shape ticking even without a real effect.
+	var zone
+	if cfg["shape"] == "rect":
+		zone = GroundZoneScript.spawn_server_rect(
+			player, player.global_position, cfg["size"],
+			float(cfg["duration"]), 1.0, 0, cfg["color"],
+		)
+	else:
+		zone = GroundZoneScript.spawn_server(
+			player, player.global_position, float(cfg["radius"]),
+			float(cfg["duration"]), 1.0, 0, cfg["color"],
+		)
+	if zone == null:
+		return "[color=#ff8888]GroundZone.spawn_server returned null (no map / no applier).[/color]"
+	var dim_label: String
+	if cfg["shape"] == "rect":
+		dim_label = "%dx%d rect" % [int(cfg["size"].x), int(cfg["size"].y)]
+	else:
+		dim_label = "r=%d circle" % int(cfg["radius"])
+	return "[color=#9fd]Spawned %s zone (%s, %.1fs)[/color] at your feet for inspection." % [name, dim_label, float(cfg["duration"])]
+
+
+func _complete_zone_args(line: String, _word: String) -> PackedStringArray:
+	# Suggest catalog names for the first arg, nothing past that.
+	var tokens := line.split(" ", false)
+	if tokens.size() > 2:
+		return PackedStringArray()
+	var out: PackedStringArray = PackedStringArray()
+	for n in ZONE_CATALOG.keys():
+		out.append(n)
+	out.sort()
+	return out

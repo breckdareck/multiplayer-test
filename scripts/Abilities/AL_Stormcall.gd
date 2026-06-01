@@ -16,7 +16,10 @@ extends Node
 ## ability's cast_time keeping the player rooted while the zone runs.
 ## Tick rate is fast (0.5s) so each enemy gets ~6 ticks across the channel.
 
-const ZONE_RADIUS: float = 100.0
+## Ground rectangle — lightning STRIKES the floor and the ground around the
+## impact arcs; the shape that reads correctly is a wide strip of ground, not
+## a sphere of storm above it.
+const ZONE_RECT_SIZE: Vector2 = Vector2(220.0, 60.0)
 const ZONE_DURATION: float = 3.0
 const ZONE_TICK_INTERVAL: float = 0.5
 const ZONE_SPAWN_OFFSET: float = 140.0  ## px ahead of caster in facing direction
@@ -47,10 +50,10 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 		facing = 1
 	var spawn_pos: Vector2 = owner_node.global_position + Vector2(ZONE_SPAWN_OFFSET * float(facing), 0)
 
-	load("res://scripts/Gameplay/ground_zone.gd").spawn_server(
+	load("res://scripts/Gameplay/ground_zone.gd").spawn_server_rect(
 		owner_node,
 		spawn_pos,
-		ZONE_RADIUS,
+		ZONE_RECT_SIZE,
 		ZONE_DURATION,
 		ZONE_TICK_INTERVAL,
 		tick_damage,

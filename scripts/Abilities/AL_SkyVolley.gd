@@ -17,7 +17,9 @@ extends Node
 ## "channel" feel comes from the ability's cast_time keeping the player
 ## animation-locked while the zone runs.
 
-const ZONE_RADIUS: float = 110.0
+## Ground rectangle — arrows rain DOWN onto the floor, so the strike area is
+## a strip of ground, not a sphere of arrows in midair.
+const ZONE_RECT_SIZE: Vector2 = Vector2(240.0, 60.0)
 const ZONE_DURATION: float = 3.0
 const ZONE_TICK_INTERVAL: float = 0.5
 const ZONE_SPAWN_OFFSET: float = 130.0  ## px ahead of caster in facing direction
@@ -56,10 +58,10 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 	# Reset the momentum-rate-limit meta for this cast.
 	owner_node.set_meta(MOMENTUM_TICK_META, 0)
 
-	load("res://scripts/Gameplay/ground_zone.gd").spawn_server(
+	load("res://scripts/Gameplay/ground_zone.gd").spawn_server_rect(
 		owner_node,
 		spawn_pos,
-		ZONE_RADIUS,
+		ZONE_RECT_SIZE,
 		ZONE_DURATION,
 		ZONE_TICK_INTERVAL,
 		tick_damage,
