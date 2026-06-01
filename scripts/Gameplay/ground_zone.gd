@@ -65,6 +65,13 @@ var visual_color: Color = Color(0.9, 0.4, 0.15, 0.35)
 ## Server-only — never set on visual-mirror clones.
 var on_tick_callback: Callable = Callable()
 
+## Optional per-tick ALLY callback. Signature: `func(ally: Node) -> void`.
+## Called once per ally per tick — iterates the "Players" group in addition
+## to the Enemies group. Use for defensive party-buff zones (Banner of the
+## Vanguard's +Defense + HP regen aura) where the zone is benevolent to
+## party members. Server-only — never set on visual-mirror clones.
+var on_ally_tick_callback: Callable = Callable()
+
 #endregion
 
 
@@ -128,13 +135,29 @@ func _physics_process(delta: float) -> void:
 #region #################### Server-side damage tick ####################
 
 func _do_tick() -> void:
-	# Skip entirely if neither damage nor a callback is configured — pure
-	# visual zones (the remote-client mirror) early-return here.
-	if damage_per_tick <= 0 and not on_tick_callback.is_valid():
+	# Skip entirely if no work is configured — pure visual zones (the remote-
+	# client mirror) early-return here.
+	if damage_per_tick <= 0 and not on_tick_callback.is_valid() and not on_ally_tick_callback.is_valid():
 		return
 
 	var center: Vector2 = global_position
 	var r2: float = radius * radius
+
+	# Ally tick — iterate the Players group (separate from Enemies) and fire
+	# the ally callback once per ally currently overlapping. Same map filter
+	# + circle overlap check as the enemy loop. Skipped when no ally
+	# callback is configured (the common case).
+	if on_ally_tick_callback.is_valid():
+		for ally in get_tree().get_nodes_in_group("Players"):
+			if not is_instance_valid(ally):
+				continue
+			if _cached_map_root != null and not _cached_map_root.is_ancestor_of(ally):
+				continue
+			var ally_pos: Vector2 = ally.global_position
+			var dist_sq: float = (ally_pos - center).length_squared()
+			if dist_sq > r2:
+				continue
+			on_ally_tick_callback.call(ally)
 
 	for enemy in get_tree().get_nodes_in_group("Enemies"):
 		if not is_instance_valid(enemy):
@@ -238,6 +261,7 @@ static func spawn_server(
 	damage_per_tick: int,
 	visual_color: Color = Color(0.9, 0.4, 0.15, 0.35),
 	on_tick_callback: Callable = Callable(),
+	on_ally_tick_callback: Callable = Callable(),
 ) -> Node2D:
 	if not is_instance_valid(applier):
 		return null
@@ -265,6 +289,7 @@ static func spawn_server(
 	zone.applier = applier
 	zone.visual_color = visual_color
 	zone.on_tick_callback = on_tick_callback
+	zone.on_ally_tick_callback = on_ally_tick_callback
 	map_inst.add_child(zone)
 
 	# Broadcast a visual-only mirror to remote clients viewing the same map.

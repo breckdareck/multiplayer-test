@@ -1,5 +1,17 @@
 extends Node
 
+## Combo-engaging augment locked in v1 design grilling 2026-05-31: Vow's
+## stat-buff potency scales with combo count consumed at cast.
+##   0 combo = COMBO_FLOOR × full potency (small baseline)
+##   3 combo = 1.0 × full potency (the original/current full Vow)
+## So Vow no longer ignores the combo gauge — it draws from it. Players
+## who cast at 0 combo still get a usable buff; players who hold combo
+## for Vow get the full payoff. The combo is CONSUMED on cast (same path
+## Crescent Cleave / Sundering Blow take).
+const COMBO_FLOOR: float = 0.50  ## potency at 0 combo (50% of the full value)
+const MAX_COMBO: float = 3.0
+
+
 func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevelData):
 	if not _owner_node.multiplayer.is_server():
 		return
@@ -28,6 +40,20 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 	if _ac and _ac.has_method("get_ability_upgrade_magnitude"):
 		duration += _ac.get_ability_upgrade_magnitude(_ability.ability_id, "buff_duration_bonus")
 		stats_percent += _ac.get_ability_upgrade_magnitude(_ability.ability_id, "vow_stat_bonus")
+
+	# Combo-engaging augment: read current combo, scale stats_percent in the
+	# range [COMBO_FLOOR, 1.0] by combo / MAX_COMBO, then CONSUME the combo
+	# via SwordComboComponent.spend_combo (same path the burst spenders take).
+	var combo_consumed: int = 0
+	var combo_comp = _owner_node.get("sword_combo_component")
+	if combo_comp != null and is_instance_valid(combo_comp) and combo_comp.has_method("get_combo") and combo_comp.has_method("spend_combo"):
+		combo_consumed = int(combo_comp.get_combo())
+		if combo_consumed > 0:
+			combo_comp.spend_combo(combo_consumed)
+	var combo_fraction: float = clampf(float(combo_consumed) / MAX_COMBO, 0.0, 1.0)
+	var combo_mult: float = COMBO_FLOOR + (1.0 - COMBO_FLOOR) * combo_fraction
+	stats_percent *= combo_mult
+	duration *= combo_mult
 
 	var caster_players_node := _owner_node.get_parent()
 
