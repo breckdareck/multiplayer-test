@@ -20,6 +20,33 @@ extends Node
 const DASH_SPEED: float = 270.0
 const DASH_DURATION: float = 0.3
 
+## Stealth-modified MP/CD (v1 design grilling 2026-05-31, medium dagger fix):
+## while in Shadowmeld stealth, Shadowstep costs 0 MP and has its cooldown
+## halved. Lets you reposition without burning the ambush window — gives
+## stealth one more meaningful in-window decision beyond "swing big once."
+const STEALTH_MP_MULT: float = 0.0
+const STEALTH_CD_MULT: float = 0.5
+
+
+## Pre-cast resource modifier hook. Called by AbilityComponent's
+## _consume_ability_resources before mana deduction and cooldown start.
+## Returns a Dictionary {"mp_mult": float, "cd_mult": float}; the consumer
+## multiplies the base mana_cost and cooldown_time by these. Returning
+## {"mp_mult": 1.0, "cd_mult": 1.0} (the default) is a no-op.
+##
+## For Shadowstep specifically, when the user is currently in Shadowmeld
+## stealth we return {0.0, 0.5} — free cast + half CD. Outside stealth we
+## return the no-op defaults so the normal cost applies.
+func modify_cast_resources(owner_node: Node) -> Dictionary:
+	if owner_node == null or not is_instance_valid(owner_node):
+		return {"mp_mult": 1.0, "cd_mult": 1.0}
+	var sm = owner_node.get("shadowmeld_component")
+	if sm == null or not is_instance_valid(sm) or not sm.has_method("is_stealthed"):
+		return {"mp_mult": 1.0, "cd_mult": 1.0}
+	if not sm.is_stealthed():
+		return {"mp_mult": 1.0, "cd_mult": 1.0}
+	return {"mp_mult": STEALTH_MP_MULT, "cd_mult": STEALTH_CD_MULT}
+
 
 func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevelData) -> void:
 	if not _owner_node.multiplayer.is_server():

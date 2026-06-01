@@ -674,17 +674,36 @@ func _active_weapon_discipline() -> int:
 
 ## Consumes resources and starts cooldown for an ability
 func _consume_ability_resources(ability_id: String, level_stats: AbilityLevelData) -> float:
+	# v1 pre-cast resource hook (Shadowstep stealth-modified): a logic_script
+	# can define `modify_cast_resources(owner) -> Dictionary` returning
+	# {"mp_mult": float, "cd_mult": float} to scale this cast's MP cost and
+	# cooldown before they're applied. Defaults to {1.0, 1.0} (no-op) when
+	# the script has no such method or returns an empty dict.
+	var mp_mult: float = 1.0
+	var cd_mult: float = 1.0
+	var ability_data = ResourceManager.get_ability_data(ability_id)
+	if ability_data and ability_data.active_behavior and ability_data.active_behavior.logic_script:
+		var logic = ability_data.active_behavior.logic_script.new()
+		if logic.has_method("modify_cast_resources"):
+			var d = logic.modify_cast_resources(owner)
+			if d is Dictionary:
+				if d.has("mp_mult"):
+					mp_mult = float(d["mp_mult"])
+				if d.has("cd_mult"):
+					cd_mult = float(d["cd_mult"])
+
 	# Consume mana
 	if _mana_component.current_mana:
-		var modified_mana_cost = roundi(level_stats.mana_cost * get_ability_mana_modifier(ability_id))
+		var modified_mana_cost = roundi(level_stats.mana_cost * get_ability_mana_modifier(ability_id) * mp_mult)
 		# PR 6: generic "mana_flat_reduction" upgrade (flat MP off, clamped >= 0).
 		modified_mana_cost = maxi(0, modified_mana_cost - int(get_ability_upgrade_magnitude(ability_id, "mana_flat_reduction")))
 		_mana_component.current_mana -= modified_mana_cost
-	
+
 	# Start cooldown. PR 6: subtract any flat cooldown reduction from owned
 	# upgrades (effect_key "cooldown_flat_reduction", magnitude = seconds)
-	# AFTER the multiplicative passive modifier, clamped to >= 0.
-	var modified_cooldown = level_stats.cooldown_time * get_ability_cooldown_modifier(ability_id)
+	# AFTER the multiplicative passive modifier, clamped to >= 0. v1: the
+	# logic_script's modify_cast_resources also scales this multiplicatively.
+	var modified_cooldown = level_stats.cooldown_time * get_ability_cooldown_modifier(ability_id) * cd_mult
 	modified_cooldown = maxf(0.0, modified_cooldown - get_ability_upgrade_magnitude(ability_id, "cooldown_flat_reduction"))
 	_cooldowns[ability_id] = modified_cooldown
 
