@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://ymc2bejzrhd4y"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "bnr_t3_inspiring_banner"
+upgrade_name = "Inspiring Banner"
+description = "Banner also grants allies +10% damage while inside."
+point_cost = 2
+tier = 3
+variant_group = "bnr_t3_variant"
+effect_key = "bonus_aura_damage"
+magnitude = 0.1

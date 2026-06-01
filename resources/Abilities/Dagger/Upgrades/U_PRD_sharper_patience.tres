@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://hkwavjook76an"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "prd_t1_sharper_patience"
+upgrade_name = "Sharper Patience"
+description = "Predator's Patience's per-stack bonus is increased."
+point_cost = 1
+tier = 1
+variant_group = "prd_t1"
+effect_key = "bonus_passive_potency"
+magnitude = 0.005

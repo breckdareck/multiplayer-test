@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://vfayuypf2yoyl"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "spw_t3_doubled_weave"
+upgrade_name = "Doubled Weave"
+description = "Spellweave's release happens twice (second after a 0.5s delay)."
+point_cost = 2
+tier = 3
+variant_group = "spw_t3_variant"
+effect_key = "bonus_double_release"
+magnitude = 1

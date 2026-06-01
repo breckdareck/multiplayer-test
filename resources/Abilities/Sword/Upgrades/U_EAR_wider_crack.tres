@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://254bmb6ju7kq7"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "ear_t1_wider_crack"
+upgrade_name = "Wider Crack"
+description = "Earthsplitter's zone radius is increased."
+point_cost = 1
+tier = 1
+variant_group = "ear_t1"
+effect_key = "bonus_zone_radius"
+magnitude = 20.0

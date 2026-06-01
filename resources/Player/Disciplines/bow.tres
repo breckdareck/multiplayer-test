@@ -18,6 +18,11 @@
 [ext_resource type="Resource" uid="uid://bowlethality01x" path="res://resources/Abilities/Bow/A_Lethality.tres" id="16_avqjs"]
 [ext_resource type="Resource" uid="uid://bowdeepres01x" path="res://resources/Abilities/Bow/A_Tailwind.tres" id="17_avqjs"]
 [ext_resource type="Resource" uid="uid://bowironhide01x" path="res://resources/Abilities/Bow/A_Marksmans_Focus.tres" id="18_avqjs"]
+[ext_resource type="Resource" uid="uid://ipp6am7smokzz" path="res://resources/Abilities/Bow/A_Caltrops.tres" id="19_caltro"]
+[ext_resource type="Resource" uid="uid://xkfbd53xz7jah" path="res://resources/Abilities/Bow/A_SkyVolley.tres" id="20_sky_vo"]
+[ext_resource type="Resource" uid="uid://z7xxbincbmnjs" path="res://resources/Abilities/Bow/A_MarkOfTheHunt.tres" id="21_mark_o"]
+[ext_resource type="Resource" uid="uid://teq6z57tqrjzb" path="res://resources/Abilities/Bow/A_SunderingArrow.tres" id="22_sunder"]
+[ext_resource type="Resource" uid="uid://x4nezp2waz4xm" path="res://resources/Abilities/Bow/A_WindRider.tres" id="23_wind_r"]
 
 [resource]
 script = ExtResource("1_eu6w6")
@@ -26,7 +31,7 @@ class_type = 1
 sprite_frames = Dictionary[int, SpriteFrames]({
 1: ExtResource("2_aqbok")
 })
-skills = Array[ExtResource("3_3scnm")]([ExtResource("5_avqjs"), ExtResource("6_avqjs"), ExtResource("7_avqjs"), ExtResource("8_avqjs"), ExtResource("9_avqjs"), ExtResource("10_avqjs"), ExtResource("11_avqjs"), ExtResource("12_avqjs"), ExtResource("13_avqjs"), ExtResource("14_avqjs"), ExtResource("15_avqjs"), ExtResource("16_avqjs"), ExtResource("17_avqjs"), ExtResource("18_avqjs")])
+skills = Array[ExtResource("3_3scnm")]([ExtResource("5_avqjs"), ExtResource("6_avqjs"), ExtResource("7_avqjs"), ExtResource("8_avqjs"), ExtResource("9_avqjs"), ExtResource("10_avqjs"), ExtResource("11_avqjs"), ExtResource("12_avqjs"), ExtResource("13_avqjs"), ExtResource("14_avqjs"), ExtResource("15_avqjs"), ExtResource("16_avqjs"), ExtResource("17_avqjs"), ExtResource("18_avqjs"), ExtResource("19_caltro"), ExtResource("20_sky_vo"), ExtResource("21_mark_o"), ExtResource("22_sunder"), ExtResource("23_wind_r")])
 description = "A ranged fighter with exceptional dexterity and precision."
 icon = ExtResource("1_v52w3")
 primary_stat = 2

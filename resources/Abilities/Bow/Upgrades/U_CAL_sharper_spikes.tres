@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://xkacsrihmgw7a"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "cal_t1_sharper_spikes"
+upgrade_name = "Sharper Spikes"
+description = "Caltrops' tick damage is increased by +25%."
+point_cost = 1
+tier = 1
+variant_group = "cal_t1"
+effect_key = "bonus_damage_mult"
+magnitude = 0.25

@@ -18,6 +18,12 @@
 [ext_resource type="Resource" uid="uid://stfkeenmind01" path="res://resources/Abilities/Staff/A_Overload.tres" id="16_keen"]
 [ext_resource type="Resource" uid="uid://stfarcanefury1" path="res://resources/Abilities/Staff/A_Arcane_Resonance.tres" id="17_fury"]
 [ext_resource type="Resource" uid="uid://stfspellward1" path="res://resources/Abilities/Staff/A_Spell_Ward.tres" id="18_spwd"]
+[ext_resource type="Resource" uid="uid://57c47n4ufdv6h" path="res://resources/Abilities/Staff/A_FrostPatch.tres" id="19_frost_"]
+[ext_resource type="Resource" uid="uid://muy3e57sck4e5" path="res://resources/Abilities/Staff/A_ArcaneFamiliar.tres" id="20_arcane"]
+[ext_resource type="Resource" uid="uid://ocjbts3zi5geg" path="res://resources/Abilities/Staff/A_Spellweave.tres" id="21_spellw"]
+[ext_resource type="Resource" uid="uid://3koeebcl5yqvk" path="res://resources/Abilities/Staff/A_ManaSurge.tres" id="22_mana_s"]
+[ext_resource type="Resource" uid="uid://ng3vpu3sm4uoh" path="res://resources/Abilities/Staff/A_Stormcall.tres" id="23_stormc"]
+[ext_resource type="Resource" uid="uid://xxdzs64za6exb" path="res://resources/Abilities/Staff/A_ElementalAffinity.tres" id="24_elemen"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_pq730"]
 atlas = ExtResource("1_lnmub")
@@ -30,7 +36,7 @@ class_type = 2
 sprite_frames = Dictionary[int, SpriteFrames]({
 1: ExtResource("3_uwn8l")
 })
-skills = Array[ExtResource("3_csbtv")]([ExtResource("5_bolt"), ExtResource("6_pyre"), ExtResource("7_glac"), ExtResource("8_immo"), ExtResource("9_lanc"), ExtResource("10_phas"), ExtResource("11_ward"), ExtResource("12_comm"), ExtResource("13_mind"), ExtResource("14_vita"), ExtResource("15_well"), ExtResource("16_keen"), ExtResource("17_fury"), ExtResource("18_spwd")])
+skills = Array[ExtResource("3_csbtv")]([ExtResource("5_bolt"), ExtResource("6_pyre"), ExtResource("7_glac"), ExtResource("8_immo"), ExtResource("9_lanc"), ExtResource("10_phas"), ExtResource("11_ward"), ExtResource("12_comm"), ExtResource("13_mind"), ExtResource("14_vita"), ExtResource("15_well"), ExtResource("16_keen"), ExtResource("17_fury"), ExtResource("18_spwd"), ExtResource("19_frost_"), ExtResource("20_arcane"), ExtResource("21_spellw"), ExtResource("22_mana_s"), ExtResource("23_stormc"), ExtResource("24_elemen")])
 description = "A spellcaster with powerful magic abilities."
 icon = SubResource("AtlasTexture_pq730")
 primary_stat = 1

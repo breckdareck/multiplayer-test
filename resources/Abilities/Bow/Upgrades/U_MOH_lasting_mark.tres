@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://plgexfixlpngh"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "moh_t1_lasting_mark"
+upgrade_name = "Lasting Mark"
+description = "Mark of the Hunt's duration is increased by 4 seconds."
+point_cost = 1
+tier = 1
+variant_group = "moh_t1"
+effect_key = "bonus_mark_duration"
+magnitude = 4.0

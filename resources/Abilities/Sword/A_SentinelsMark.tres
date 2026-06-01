@@ -1,0 +1,78 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=20 format=3 uid="uid://i4b7uzuqzlchy"]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/Abilities/power_strike.png" id="1_icon"]
+[ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
+[ext_resource type="Script" path="res://scripts/Abilities/AL_SentinelsMark.gd" id="3_al"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_ad"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_asf"]
+[ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_asd"]
+[ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_sbf"]
+[ext_resource type="Resource" uid="uid://pmgk5lf35efth" path="res://resources/Abilities/Sword/Upgrades/U_SNM_extended_mark.tres" id="9_upg"]
+[ext_resource type="Resource" uid="uid://a7amh4nceto2c" path="res://resources/Abilities/Sword/Upgrades/U_SNM_sharper_mark.tres" id="10_upg"]
+[ext_resource type="Resource" uid="uid://r5y6dcyqihz6c" path="res://resources/Abilities/Sword/Upgrades/U_SNM_generous_mark.tres" id="11_upg"]
+[ext_resource type="Resource" uid="uid://fl4sjs5obrwbr" path="res://resources/Abilities/Sword/Upgrades/U_SNM_punishing_mark.tres" id="12_upg"]
+[ext_resource type="Resource" uid="uid://4q7ih7wx3g4ce" path="res://resources/Abilities/Sword/Upgrades/U_SNM_echoing_mark.tres" id="13_upg"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="14_aud"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hit"]
+size = Vector2(30, 20)
+
+[sub_resource type="Resource" id="Resource_active"]
+script = ExtResource("2_abd")
+target_type = 1
+hit_box_shape_data = SubResource("RectangleShape2D_hit")
+hit_box_position_data = Vector2(15, -10)
+animation_name = "attack_1"
+sfx_path = "res://assets/sounds/tap.wav"
+logic_script = ExtResource("3_al")
+
+[sub_resource type="Resource" id="Resource_cast"]
+script = ExtResource("5_asf")
+base_value = 0.0
+
+[sub_resource type="Resource" id="Resource_cd"]
+script = ExtResource("5_asf")
+base_value = 6.0
+
+[sub_resource type="Resource" id="Resource_dmg"]
+script = ExtResource("5_asf")
+base_value = 60.0
+per_level = 2
+
+[sub_resource type="Resource" id="Resource_mana"]
+script = ExtResource("5_asf")
+base_value = 4.0
+per_level = 0.2
+
+[sub_resource type="Resource" id="Resource_hits"]
+script = ExtResource("5_asf")
+base_value = 1.0
+
+[sub_resource type="Resource" id="Resource_tgts"]
+script = ExtResource("5_asf")
+base_value = 1.0
+
+[sub_resource type="Resource" id="Resource_scaling"]
+script = ExtResource("7_asd")
+mana_cost_formula = SubResource("Resource_mana")
+cooldown_formula = SubResource("Resource_cd")
+damage_percent_formula = SubResource("Resource_dmg")
+max_targets_formula = SubResource("Resource_tgts")
+max_hits_formula = SubResource("Resource_hits")
+cast_time_formula = SubResource("Resource_cast")
+
+[resource]
+script = ExtResource("4_ad")
+ability_id = "sentinels_mark_v1"
+ability_name = "Sentinel's Mark"
+description = "Mark one enemy for 8 seconds. While marked, sword hits on this target deal +30% damage and have a 25% chance to refund 1 combo point."
+ability_icon = ExtResource("1_icon")
+max_level = 10
+ability_type = 0
+required_class = Array[int]([0])
+required_weapon_types = Array[int]([0])
+tree_path = 0
+tree_depth = 3
+upgrades = Array[ExtResource("14_aud")]([ExtResource("9_upg"), ExtResource("10_upg"), ExtResource("11_upg"), ExtResource("12_upg"), ExtResource("13_upg")])
+active_behavior = SubResource("Resource_active")
+scaling_data = SubResource("Resource_scaling")

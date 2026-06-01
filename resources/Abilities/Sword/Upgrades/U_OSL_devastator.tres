@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://54524if4udc47"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "osl_t3_devastator"
+upgrade_name = "Devastator"
+description = "Vanguard's Onslaught deals +60% damage at max charge."
+point_cost = 2
+tier = 3
+variant_group = "osl_t3_variant"
+effect_key = "bonus_damage_mult"
+magnitude = 0.6

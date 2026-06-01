@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://hgvjskfp5xaxs"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "stc_t2_heavy_storm"
+upgrade_name = "Heavy Storm"
+description = "Stormcall's per-tick damage is increased by +25%."
+point_cost = 1
+tier = 2
+variant_group = "stc_t2"
+effect_key = "bonus_damage_mult"
+magnitude = 0.25

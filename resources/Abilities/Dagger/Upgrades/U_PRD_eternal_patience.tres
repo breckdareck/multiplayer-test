@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://njhget3wzmv4j"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "prd_t3_eternal_patience"
+upgrade_name = "Eternal Patience"
+description = "Predator's Patience's bonus persists for 2 seconds after the ambush."
+point_cost = 2
+tier = 3
+variant_group = "prd_t3_variant"
+effect_key = "bonus_carryover"
+magnitude = 2.0

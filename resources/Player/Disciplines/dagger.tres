@@ -18,6 +18,11 @@
 [ext_resource type="Resource" uid="uid://dgrexploitwk01x" path="res://resources/Abilities/Dagger/A_Toxicology.tres" id="16_exw"]
 [ext_resource type="Resource" uid="uid://dgrevasion001x" path="res://resources/Abilities/Dagger/A_Evasion.tres" id="17_eva"]
 [ext_resource type="Resource" uid="uid://dgrdeeppockets1x" path="res://resources/Abilities/Dagger/A_Opportunist.tres" id="18_dpk"]
+[ext_resource type="Resource" uid="uid://dgu6nxayze6d5" path="res://resources/Abilities/Dagger/A_Backstab.tres" id="19_backst"]
+[ext_resource type="Resource" uid="uid://rbaiaw6g3q2gi" path="res://resources/Abilities/Dagger/A_DeathMark.tres" id="20_death_"]
+[ext_resource type="Resource" uid="uid://oflb7mrx3mx7i" path="res://resources/Abilities/Dagger/A_Vendetta.tres" id="21_vendet"]
+[ext_resource type="Resource" uid="uid://kcsnab2acn4vk" path="res://resources/Abilities/Dagger/A_SmokeBomb.tres" id="22_smoke_"]
+[ext_resource type="Resource" uid="uid://vaddyqf7oam36" path="res://resources/Abilities/Dagger/A_PredatorsPatience.tres" id="23_predat"]
 
 [resource]
 script = ExtResource("2_ynuw2")
@@ -26,7 +31,7 @@ class_type = 3
 sprite_frames = Dictionary[int, SpriteFrames]({
 1: ExtResource("4_ynuw2")
 })
-skills = Array[ExtResource("3_76b0u")]([ExtResource("5_twin"), ExtResource("6_fok"), ExtResource("7_evi"), ExtResource("8_env"), ExtResource("9_sst"), ExtResource("10_van"), ExtResource("11_crp"), ExtResource("12_bld"), ExtResource("13_luk"), ExtResource("14_vig"), ExtResource("15_kin"), ExtResource("16_exw"), ExtResource("17_eva"), ExtResource("18_dpk")])
+skills = Array[ExtResource("3_76b0u")]([ExtResource("5_twin"), ExtResource("6_fok"), ExtResource("7_evi"), ExtResource("8_env"), ExtResource("9_sst"), ExtResource("10_van"), ExtResource("11_crp"), ExtResource("12_bld"), ExtResource("13_luk"), ExtResource("14_vig"), ExtResource("15_kin"), ExtResource("16_exw"), ExtResource("17_eva"), ExtResource("18_dpk"), ExtResource("19_backst"), ExtResource("20_death_"), ExtResource("21_vendet"), ExtResource("22_smoke_"), ExtResource("23_predat")])
 icon = ExtResource("1_5hc5c")
 primary_stat = 3
 secondary_stat = 2

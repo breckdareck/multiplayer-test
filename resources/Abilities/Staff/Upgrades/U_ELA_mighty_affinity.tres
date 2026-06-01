@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://irgakw5qmo32w"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "ela_t3_mighty_affinity"
+upgrade_name = "Mighty Affinity"
+description = "Elemental Affinity's bonus is doubled when at full mana."
+point_cost = 2
+tier = 3
+variant_group = "ela_t3_variant"
+effect_key = "bonus_at_full_mp"
+magnitude = 1.0

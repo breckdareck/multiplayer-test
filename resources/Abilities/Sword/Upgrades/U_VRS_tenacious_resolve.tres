@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://yafsukn5k24jm"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "vrs_t3_tenacious_resolve"
+upgrade_name = "Tenacious Resolve"
+description = "Vanguard's Resolve cap is increased to 4 combo (effective -20%)."
+point_cost = 2
+tier = 3
+variant_group = "vrs_t3_variant"
+effect_key = "bonus_resolve_cap"
+magnitude = 1

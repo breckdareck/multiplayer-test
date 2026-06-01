@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://z5tuvlnev3mkn"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "spw_t2_heavy_weave"
+upgrade_name = "Heavy Weave"
+description = "Spellweave's released effect is amplified by +30%."
+point_cost = 1
+tier = 2
+variant_group = "spw_t2"
+effect_key = "bonus_damage_mult"
+magnitude = 0.3

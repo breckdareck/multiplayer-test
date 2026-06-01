@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://cqggymw57n4s3"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "vrs_t3_combat_resolve"
+upgrade_name = "Combat Resolve"
+description = "Vanguard's Resolve also grants +Defense while at full combo."
+point_cost = 2
+tier = 3
+variant_group = "vrs_t3_variant"
+effect_key = "bonus_defense_at_full"
+magnitude = 50

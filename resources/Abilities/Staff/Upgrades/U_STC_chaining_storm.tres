@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://6deqch3zkhut3"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "stc_t3_chaining_storm"
+upgrade_name = "Chaining Storm"
+description = "Stormcall's strikes chain to 1 nearby enemy."
+point_cost = 2
+tier = 3
+variant_group = "stc_t3_variant"
+effect_key = "bonus_chain_targets"
+magnitude = 1

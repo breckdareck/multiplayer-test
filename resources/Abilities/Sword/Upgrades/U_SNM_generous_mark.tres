@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://r5y6dcyqihz6c"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "snm_t3_generous_mark"
+upgrade_name = "Generous Mark"
+description = "Combo-refund chance against marked is increased to 50%."
+point_cost = 2
+tier = 3
+variant_group = "snm_t3_variant"
+effect_key = "bonus_refund_chance"
+magnitude = 0.25

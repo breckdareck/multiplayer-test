@@ -18,6 +18,12 @@
 [ext_resource type="Resource" uid="uid://swordbattleinst01x" path="res://resources/Abilities/Sword/A_Second_Wind.tres" id="16_bi"]
 [ext_resource type="Resource" uid="uid://swordsavage01x" path="res://resources/Abilities/Sword/A_Last_Stand.tres" id="17_sb"]
 [ext_resource type="Resource" uid="uid://swordhardened01x" path="res://resources/Abilities/Sword/A_Battle_Hardened.tres" id="18_bh"]
+[ext_resource type="Resource" uid="uid://crulsbi5bcphr" path="res://resources/Abilities/Sword/A_Charge.tres" id="19_charge"]
+[ext_resource type="Resource" uid="uid://kvgb3mqmkxvuh" path="res://resources/Abilities/Sword/A_Earthsplitter.tres" id="20_earths"]
+[ext_resource type="Resource" uid="uid://ttj2argkhksup" path="res://resources/Abilities/Sword/A_Onslaught.tres" id="21_onslau"]
+[ext_resource type="Resource" uid="uid://ebjq3egbalxan" path="res://resources/Abilities/Sword/A_Banner.tres" id="22_banner"]
+[ext_resource type="Resource" uid="uid://i4b7uzuqzlchy" path="res://resources/Abilities/Sword/A_SentinelsMark.tres" id="23_sentin"]
+[ext_resource type="Resource" uid="uid://37yecmkhci6x4" path="res://resources/Abilities/Sword/A_VanguardsResolve.tres" id="24_vangua"]
 
 [resource]
 script = ExtResource("1_ya5xj")
@@ -25,7 +31,7 @@ _discipline_name = "Swordsman"
 sprite_frames = Dictionary[int, SpriteFrames]({
 1: ExtResource("2_moyle")
 })
-skills = Array[ExtResource("3_lkye1")]([ExtResource("6_kdifu"), ExtResource("8_a26lb"), ExtResource("4_qbbda"), ExtResource("5_03no5"), ExtResource("7_ncog3"), ExtResource("9_6veq4"), ExtResource("11_0iftf"), ExtResource("12_hem"), ExtResource("13_bs"), ExtResource("14_bt"), ExtResource("15_vs"), ExtResource("16_bi"), ExtResource("17_sb"), ExtResource("18_bh")])
+skills = Array[ExtResource("3_lkye1")]([ExtResource("6_kdifu"), ExtResource("8_a26lb"), ExtResource("4_qbbda"), ExtResource("5_03no5"), ExtResource("7_ncog3"), ExtResource("9_6veq4"), ExtResource("11_0iftf"), ExtResource("12_hem"), ExtResource("13_bs"), ExtResource("14_bt"), ExtResource("15_vs"), ExtResource("16_bi"), ExtResource("17_sb"), ExtResource("18_bh"), ExtResource("19_charge"), ExtResource("20_earths"), ExtResource("21_onslau"), ExtResource("22_banner"), ExtResource("23_sentin"), ExtResource("24_vangua")])
 description = "A melee warrior with high strength and vitality."
 icon = ExtResource("1_6g1x3")
 secondary_stat = 2

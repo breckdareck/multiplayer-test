@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://vzotylnhgzern"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "fpt_t3_lingering_frost"
+upgrade_name = "Lingering Frost"
+description = "Frost Patch's duration is increased to 6 seconds."
+point_cost = 2
+tier = 3
+variant_group = "fpt_t3_variant"
+effect_key = "bonus_zone_duration"
+magnitude = 2.0

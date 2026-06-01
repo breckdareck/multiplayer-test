@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://njcygkdqwjco7"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "moh_t3_sundering_mark"
+upgrade_name = "Sundering Mark"
+description = "The auto-crit consume also pierces nearby enemies."
+point_cost = 2
+tier = 3
+variant_group = "moh_t3_variant"
+effect_key = "bonus_pierce_on_crit"
+magnitude = 1

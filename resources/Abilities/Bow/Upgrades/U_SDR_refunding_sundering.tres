@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://3bhe2jvoece3z"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "sdr_t3_refunding_sundering"
+upgrade_name = "Refunding Sundering"
+description = "Sundering Arrow refunds 4 Momentum if it kills any enemy."
+point_cost = 2
+tier = 3
+variant_group = "sdr_t3_variant"
+effect_key = "bonus_momentum_refund"
+magnitude = 4

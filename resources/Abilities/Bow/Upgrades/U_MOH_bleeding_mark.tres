@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://kvsqazn6s3ps4"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "moh_t3_bleeding_mark"
+upgrade_name = "Bleeding Mark"
+description = "Marked targets also bleed for 5% Weapon Attack per second."
+point_cost = 2
+tier = 3
+variant_group = "moh_t3_variant"
+effect_key = "bonus_bleed_dot"
+magnitude = 0.05

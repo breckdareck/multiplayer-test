@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://w2ht76ve7dsmt"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "fpt_t1_wider_frost"
+upgrade_name = "Wider Frost"
+description = "Frost Patch's radius is increased."
+point_cost = 1
+tier = 1
+variant_group = "fpt_t1"
+effect_key = "bonus_zone_radius"
+magnitude = 20.0

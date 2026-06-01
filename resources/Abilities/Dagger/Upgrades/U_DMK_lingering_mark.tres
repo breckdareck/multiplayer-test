@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://ju2gbykg3bnsv"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "dmk_t1_lingering_mark"
+upgrade_name = "Lingering Mark"
+description = "Death Mark's duration is increased by 4 seconds."
+point_cost = 1
+tier = 1
+variant_group = "dmk_t1"
+effect_key = "bonus_mark_duration"
+magnitude = 4.0

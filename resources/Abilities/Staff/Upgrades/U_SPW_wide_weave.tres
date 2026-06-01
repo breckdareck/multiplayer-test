@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://sgpjvem4pmo2e"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "spw_t3_wide_weave"
+upgrade_name = "Wide Weave"
+description = "Spellweave's affected area is increased by 50%."
+point_cost = 2
+tier = 3
+variant_group = "spw_t3_variant"
+effect_key = "bonus_zone_radius"
+magnitude = 50.0

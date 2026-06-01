@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://4q7ih7wx3g4ce"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "snm_t3_echoing_mark"
+upgrade_name = "Echoing Mark"
+description = "When the marked target dies, the mark spreads to a nearby enemy."
+point_cost = 2
+tier = 3
+variant_group = "snm_t3_variant"
+effect_key = "bonus_mark_spread"
+magnitude = 1

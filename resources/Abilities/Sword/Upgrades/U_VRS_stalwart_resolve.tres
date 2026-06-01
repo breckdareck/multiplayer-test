@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://3zxrbjpwcpat6"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "vrs_t1_stalwart_resolve"
+upgrade_name = "Stalwart Resolve"
+description = "Vanguard's Resolve grants an additional -2% damage reduction per combo."
+point_cost = 1
+tier = 1
+variant_group = "vrs_t1"
+effect_key = "bonus_passive_potency"
+magnitude = 0.02

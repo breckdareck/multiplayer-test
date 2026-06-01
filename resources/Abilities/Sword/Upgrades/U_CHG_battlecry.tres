@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://di77z5zokqsv4"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "chg_t3_battlecry"
+upgrade_name = "Battlecry"
+description = "Each enemy pierced builds +1 extra combo point."
+point_cost = 2
+tier = 3
+variant_group = "chg_t3_variant"
+effect_key = "bonus_combo_per_hit"
+magnitude = 1

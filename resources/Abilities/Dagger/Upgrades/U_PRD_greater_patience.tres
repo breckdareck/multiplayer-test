@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://5jzq65pznnpis"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "prd_t2_greater_patience"
+upgrade_name = "Greater Patience"
+description = "Predator's Patience's max stacks is increased to 12."
+point_cost = 1
+tier = 2
+variant_group = "prd_t2"
+effect_key = "bonus_passive_cap"
+magnitude = 2

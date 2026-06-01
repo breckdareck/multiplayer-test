@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://sl44qvst4d4bf"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "bks_t3_crippling_backstab"
+upgrade_name = "Crippling Backstab"
+description = "Backstab also slows the target by 30% for 2 seconds."
+point_cost = 2
+tier = 3
+variant_group = "bks_t3_variant"
+effect_key = "bonus_slow_apply"
+magnitude = 0.3

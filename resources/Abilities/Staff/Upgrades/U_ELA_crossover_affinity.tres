@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://4m6wwin3ek5fw"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "ela_t3_crossover_affinity"
+upgrade_name = "Crossover Affinity"
+description = "Elemental Affinity also grants +6% to spells of the previous-cycle element."
+point_cost = 2
+tier = 3
+variant_group = "ela_t3_variant"
+effect_key = "bonus_carryover"
+magnitude = 0.06

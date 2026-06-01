@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://mj3cf45mxleek"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "wnd_t3_steady_wind"
+upgrade_name = "Steady Wind"
+description = "Wind Rider's reduction is doubled at full Momentum."
+point_cost = 2
+tier = 3
+variant_group = "wnd_t3_variant"
+effect_key = "bonus_at_full_mult"
+magnitude = 1.0

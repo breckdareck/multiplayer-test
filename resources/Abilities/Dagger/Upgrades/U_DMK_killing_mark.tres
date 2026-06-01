@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://jphi743o6krci"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "dmk_t2_killing_mark"
+upgrade_name = "Killing Mark"
+description = "Death Mark's crit chance bonus is increased by +10%."
+point_cost = 1
+tier = 2
+variant_group = "dmk_t2"
+effect_key = "bonus_mark_potency"
+magnitude = 10.0
