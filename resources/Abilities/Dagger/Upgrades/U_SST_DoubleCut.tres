@@ -5,10 +5,10 @@
 [resource]
 script = ExtResource("1_aud")
 upgrade_id = "sst_t3_double_cut"
-upgrade_name = "Double Cut"
-description = "Shadowstep strikes each enemy in its path twice."
+upgrade_name = "Phantom Guard"
+description = "Extends Shadowstep's evade (invulnerability) window by 0.4s."
 point_cost = 2
 tier = 3
 variant_group = "sst_dash_variant"
-effect_key = "bonus_hits"
-magnitude = 1.0
+effect_key = "iframe_duration_bonus"
+magnitude = 0.4

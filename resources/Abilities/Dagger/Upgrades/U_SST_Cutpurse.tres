@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_aud")
 upgrade_id = "sst_t2_cutpurse"
-upgrade_name = "Cutpurse"
-description = "Shadowstep's strike deals +25% damage."
+upgrade_name = "Lengthened Shadow"
+description = "Increases Shadowstep's blink range, reaching further to slip behind a distant enemy."
 tier = 2
-effect_key = "bonus_damage_mult"
-magnitude = 0.25
+effect_key = "blink_range_bonus"
+magnitude = 60.0

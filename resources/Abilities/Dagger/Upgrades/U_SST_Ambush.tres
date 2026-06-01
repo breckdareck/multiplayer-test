@@ -5,10 +5,10 @@
 [resource]
 script = ExtResource("1_aud")
 upgrade_id = "sst_t3_ambush"
-upgrade_name = "Ambush"
-description = "Shadowstep's strike deals +65% damage — a lethal opener from the dark."
+upgrade_name = "Lingering Shadow"
+description = "Extends the from-behind window after Shadowstep by 1.5s — more time to line up the Backstab."
 point_cost = 2
 tier = 3
 variant_group = "sst_dash_variant"
-effect_key = "bonus_damage_mult"
-magnitude = 0.65
+effect_key = "backstab_window_bonus"
+magnitude = 1.5

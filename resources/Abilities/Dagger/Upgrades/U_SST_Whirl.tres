@@ -5,10 +5,10 @@
 [resource]
 script = ExtResource("1_aud")
 upgrade_id = "sst_t3_whirl"
-upgrade_name = "Whirling Exit"
-description = "Shadowstep carves +2 additional enemies along its path."
+upgrade_name = "Vanishing Step"
+description = "After Shadowstep, vanish from enemy sight for 1.5s — a clean disengage."
 point_cost = 2
 tier = 3
 variant_group = "sst_dash_variant"
-effect_key = "bonus_targets"
-magnitude = 2.0
+effect_key = "stealth_seconds"
+magnitude = 1.5
