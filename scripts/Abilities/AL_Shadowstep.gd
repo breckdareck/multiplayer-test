@@ -38,6 +38,12 @@ const NO_TARGET_BLINK: float = 120.0
 ## I-frame window after the blink (mirrors AL_VaultStrike / AL_Disengage).
 const IFRAME_DURATION: float = 0.3
 
+## How long (ms) after blinking behind a target a Backstab still counts as
+## "from behind" (the designed combo). Read by AL_Backstab. 1.5s is generous
+## enough to chain Shadowstep → Backstab without being so long it rewards a
+## stale window.
+const BACKSTAB_WINDOW_MS: int = 1500
+
 ## Stealth-modified MP/CD (v1 design grilling 2026-05-31, medium dagger fix):
 ## while in Shadowmeld stealth, Shadowstep costs 0 MP and has its cooldown
 ## halved. Lets you reposition without burning the ambush window — gives
@@ -92,6 +98,11 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 		# Flip to face back into the target — the shadow-strike from behind.
 		_owner_node.facing_direction = -facing
 		_repoint_hitbox(_owner_node)
+		# Grant a brief BACKSTAB window — Backstab cast within this window counts
+		# as "from behind" even though the enemy (facing tracks velocity) turns
+		# to face the player almost immediately after the blink. Makes the
+		# designed Shadowstep → Backstab combo reliably land its bonus.
+		_owner_node.set_meta("backstab_window_until_ms", Time.get_ticks_msec() + BACKSTAB_WINDOW_MS)
 	else:
 		# No target in range — short clean blink forward (still a mobility tool).
 		_owner_node.global_position += Vector2(float(facing) * NO_TARGET_BLINK, 0.0)

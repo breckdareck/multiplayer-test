@@ -30,6 +30,14 @@ const BACKSTAB_BONUS_PCT: float = 0.75
 const STRIKE_RANGE: float = 60.0
 const MAX_HEIGHT_DELTA: float = 50.0
 
+## Player meta written by AL_Shadowstep when it blinks BEHIND a target — a
+## brief grace window during which Backstab counts as "from behind" even
+## though the enemy (which faces its movement direction) has already turned
+## to face the player. This makes the designed Shadowstep → Backstab combo
+## reliably land the bonus, since enemies face their target almost instantly
+## (facing_direction tracks velocity.x). Consumed on a backstab.
+const SHADOWSTEP_WINDOW_META: String = "backstab_window_until_ms"
+
 
 func execute(owner_node: Node, ability: AbilityData, _level_stats: AbilityLevelData) -> void:
 	if not owner_node.multiplayer.is_server():
@@ -49,32 +57,48 @@ func execute(owner_node: Node, ability: AbilityData, _level_stats: AbilityLevelD
 	if target == null:
 		return  # nothing to backstab — the hit (if any) deals normal damage
 
-	# "From behind" = the player is on the side the enemy is facing AWAY from.
-	# enemy.facing_direction: +1 faces right, -1 faces left. The player's side
-	# relative to the enemy is +1 if to the right, -1 if to the left. Behind
-	# when those differ.
+	# "From behind" is satisfied by EITHER:
+	#  (a) the positional check — the player is on the side the enemy is facing
+	#      away from. enemy.facing_direction: +1 right, -1 left; player_side is
+	#      +1 if right of the enemy, -1 if left. Behind when those differ. (This
+	#      is unreliable against an aggroed enemy, which faces the player almost
+	#      instantly because facing tracks velocity — but works on a stationary
+	#      / fleeing / patrolling enemy.)
+	#  (b) a fresh Shadowstep window — the player just blinked behind the
+	#      target. This is the designed combo and the reliable trigger.
 	var enemy_facing: int = 1
 	if "facing_direction" in target:
 		enemy_facing = int(target.facing_direction)
 		if enemy_facing == 0:
 			enemy_facing = 1
 	var player_side: int = 1 if owner_node.global_position.x > target.global_position.x else -1
-	if player_side == enemy_facing:
+	var positional_behind: bool = (player_side != enemy_facing)
+
+	var window_behind: bool = false
+	if owner_node.has_meta(SHADOWSTEP_WINDOW_META):
+		if Time.get_ticks_msec() < int(owner_node.get_meta(SHADOWSTEP_WINDOW_META)):
+			window_behind = true
+		owner_node.remove_meta(SHADOWSTEP_WINDOW_META)  # one backstab per blink
+
+	if not positional_behind and not window_behind:
 		return  # striking the enemy's FRONT — no backstab bonus
 
 	# From behind — compute the bonus. Lethal Backstab (T3) doubles it against
 	# a full-health target (the assassin-opener payoff: hit the fresh, unaware
 	# target hardest).
 	var bonus: float = BACKSTAB_BONUS_PCT
+	var lethal_applied: bool = false
 	var ability_comp = owner_node.get("ability_component")
 	if ability_comp and ability != null and ability_comp.has_method("get_ability_upgrade_magnitude"):
 		var fullhp_mult: float = ability_comp.get_ability_upgrade_magnitude(ability.ability_id, "backstab_fullhp_mult")
 		if fullhp_mult > 0.0 and _is_full_health(target):
 			bonus *= fullhp_mult
+			lethal_applied = true
 
 	# Fold the bonus into the whole hit. combat resets this to 1.0 in
 	# end_ability_attack so it never bleeds into the next cast.
 	combat.pending_ability_damage_multiplier = 1.0 + bonus
+	print("Backstab from behind: +%.0f%% damage%s" % [bonus * 100.0, " (LETHAL — full-HP target)" if lethal_applied else ""])
 
 
 ## Nearest living enemy within STRIKE_RANGE in the facing direction, same map.
@@ -116,10 +140,15 @@ func _nearest_strike_target(owner_node: Node, facing: int) -> Node:
 	return best
 
 
+## "Full health" is >= 99% so a sliver of chip/rounding doesn't deny the
+## Lethal bonus on what is visually a fresh target.
 func _is_full_health(target: Node) -> bool:
 	var hc = target.get("health_component")
 	if hc == null or not is_instance_valid(hc):
 		return false
 	if not ("max_health" in hc) or not ("current_health" in hc):
 		return false
-	return int(hc.current_health) >= int(hc.max_health)
+	var maxh: float = float(hc.max_health)
+	if maxh <= 0.0:
+		return false
+	return float(hc.current_health) / maxh >= 0.99
