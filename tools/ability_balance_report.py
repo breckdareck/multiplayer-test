@@ -165,6 +165,161 @@ UPG = {
  "Eviscerate":                {"fixed": (0.30,0,0,1.0), "variants": [(0.90,0,0,0),(0,1,0,0),(0,0,1,0)]},
 }
 
+# ─────────────────────────────────────────────────────────────────────────────
+# FULL ROSTER  (every ability incl. passives/buffs/non-damage actives, tagged
+# by SHAPE for distribution analysis. The ABILITIES dict above only models
+# damage-dealing actives — this dict covers everything currently on disk.)
+# Source: A_*.tres descriptions, 2026-05-31.
+# fields: name, kind (active/passive), shape, description
+# ─────────────────────────────────────────────────────────────────────────────
+ROSTER = {
+"Sword": [
+    # Combo MESH (sword's resource gauge — fully wired)
+    ("Steel Flurry",         "active",  "combo-builder",              "2 thrusts on 2 enemies; each hit builds 1 combo point (cap 3)."),
+    ("Vault Strike",         "active",  "combo-builder + gap-closer", "Dash forward, strike up to 2 enemies; +2 combo per enemy hit."),
+    ("Crescent Cleave",      "active",  "combo-spender (AoE)",        "Consumes all combo to amplify AoE dmg +100%/point (max +300%)."),
+    ("Sundering Blow",       "active",  "combo-spender (ST)",         "Consumes all combo to amplify single-target +200%/point (max +600%)."),
+    # Other actives
+    ("Hemorrhage",           "active",  "dot-applier (bleed)",        "Cuts deeply + stacks Bleed (max 3, 20% WATK/s for 6s)."),
+    ("Iron Riposte",         "active",  "self-buff (reflect)",        "Reflects a % of damage taken back to attackers for buff duration."),
+    ("Bulwark Stance",       "active",  "self-buff (defense)",        "+250 Defense; drains 2 MP/s, auto-cancels at 0 MP."),
+    ("Vow of the Vanguard",  "active",  "self-buff (all stats)",      "+X% all stats for buff duration."),
+    # Passives — pure stats
+    ("Battle-Hardened",      "passive", "stat (Defense)",             "+Defense, permanent."),
+    ("Hardened Frame",       "passive", "stat (Max HP %)",            "+Max HP%, permanent."),
+    ("Second Wind",          "passive", "stat (HP regen)",            "+HP regen, permanent."),
+    # Passives — conditional %
+    ("Aggression",           "passive", "conditional (>90% HP)",      "+30% dmg to enemies above 90% HP."),
+    ("Last Stand",           "passive", "conditional (<35% HP)",      "+35% dmg while below 35% HP."),
+    ("Bloodthirst",          "passive", "conditional (on kill)",      "Restore X% of Max HP on kill."),
+],
+"Bow": [
+    # Momentum MESH (bow's resource gauge — fully wired)
+    ("Snap Shot",            "active",  "momentum-builder (basic)",   "Basic attack; builds Momentum."),
+    ("Hailstorm",            "active",  "momentum-builder (AoE)",     "3 arrows on 3 enemies; +2 Momentum/cast."),
+    ("Skyfall",              "active",  "momentum-builder (AoE)",     "Arrow rain on up to 6 enemies; +2 Momentum/cast."),
+    ("Snipe",                "active",  "momentum-spender (ST)",      "Single devastating shot; +12% dmg per Momentum stack."),
+    # Other actives
+    ("Split Shot",           "active",  "cooldown-damage",            "2 arrows on 1 enemy."),
+    ("Barbed Shot",          "active",  "dot-applier (bleed)",        "Stacking Bleed (max 3, 20% WATK/s for 6s)."),
+    ("Disengage",            "active",  "kite-escape",                "Hop back + i-frames; shoots on the way out."),
+    ("Steady Aim",           "active",  "self-buff (offensive)",      "+weapon atk, +crit chance for buff duration."),
+    ("Eagle Eye",            "active",  "party-buff",                 "+crit chance/dmg to whole party for buff duration."),
+    # Passives — pure stats
+    ("Marksman's Focus",     "passive", "stat (Accuracy %)",          "+Accuracy%, permanent."),
+    ("Lethality",            "passive", "stat (Crit Damage %)",       "+Crit Damage%, permanent."),
+    ("Keen Eye",             "passive", "stat (Crit Chance %)",       "+Crit Chance%, permanent."),
+    ("Surefoot",             "passive", "stat (knockback resist)",    "+knockback resist, permanent."),
+    # Passives — conditional %
+    ("Execution",            "passive", "conditional (<30% HP)",      "+45% dmg vs enemies below 30% HP."),
+    ("Tailwind",             "passive", "conditional (full Momentum)","+30% dmg at full Momentum — engages the gauge."),
+],
+"Dagger": [
+    # Actives — no resource gauge wired
+    ("Twin Fang",            "active",  "cooldown-damage (basic)",    "Quick 2-hit on 1 enemy; low CD spammable."),
+    ("Fan of Knives",        "active",  "cooldown-damage (AoE)",      "7 throwing blades on 3 enemies."),
+    ("Envenom",              "active",  "dot-applier (poison)",       "Stacking Poison (max 3) — feeds Toxicology synergy."),
+    ("Cripple",              "active",  "utility-debuff",             "-def/atk to one enemy."),
+    ("Shadowstep",           "active",  "gap-closer",                 "Blink + strike + brief i-frames."),
+    ("Eviscerate",           "active",  "ST burst (execute?)",        "Heavy single-target finisher. Modeled as 'stealth = execute <35% HP' but the .tres has no stealth gate."),
+    ("Killing Edge",         "active",  "self-buff (offensive)",      "+crit chance/dmg for a short window."),
+    ("Bloodlust",            "active",  "party-buff",                 "+crit chance/dmg to whole party for buff duration."),
+    ("Shadow Partner",       "active",  "summon (echo)",              "Shadow clone mimics attacks at X% dmg for buff duration."),
+    # Passives — pure stats
+    ("Killer Instinct",      "passive", "stat (Crit Chance %)",       "+Crit Chance%, permanent."),
+    ("Cutthroat",            "passive", "stat (Crit Damage %)",       "+Crit Damage%, permanent."),
+    ("Evasion",              "passive", "stat (Evasion %)",           "+Evasion%, permanent."),
+    # Passives — conditional %
+    ("Composure",            "passive", "conditional (>80% HP)",      "+25% dmg above 80% HP."),
+    ("Opportunist",          "passive", "conditional (stealth)",      "+35% dmg in stealth — but NO ability enters stealth."),
+    ("Toxicology",           "passive", "conditional (synergy)",      "+30% dmg vs Poisoned enemies (consumes Envenom mark)."),
+],
+"Staff": [
+    # Actives — no resource gauge wired
+    ("Arcane Bolt",          "active",  "cooldown-damage (basic)",    "Spammable single-target magic; low CD floor."),
+    ("Arcane Lance",         "active",  "cooldown-damage (channel)",  "Channel — multi-pulse line across enemies."),
+    ("Glacial Spike",        "active",  "cooldown-damage",            "Heavy ice strike. Notes claim 'Ice stance = freeze' — NO stance state on disk."),
+    ("Pyre Burst",           "active",  "cooldown-damage (AoE)",      "Fireball AoE. Notes claim 'Fire stance = burn splash' — NO stance state on disk."),
+    ("Immolate",             "active",  "dot-applier (burn)",         "Stacking Burn (max 3, 18% MATK/s for 6s)."),
+    ("Aether Ward",          "active",  "utility-defensive (shield)", "MP-drains-to-absorb-HP shield until MP runs out."),
+    ("Phase Step",           "active",  "gap-closer / escape",        "Blink in facing direction (or up/down); brief i-frames."),
+    ("Communion",            "active",  "party-buff",                 "+MP regen, +Magic Attack to whole party for buff duration."),
+    # Passives — pure stats
+    ("Mana Flow",            "passive", "stat (MP regen)",            "+MP regen, permanent."),
+    ("Deep Wellspring",      "passive", "stat (Max MP %)",            "+Max Mana%, permanent."),
+    ("Spell Ward",           "passive", "stat (Magic Defense)",       "+Magic Defense, permanent."),
+    ("Arcane Resonance",     "passive", "stat (Magic Attack %)",      "+Magic Attack%, permanent."),
+    # Passives — conditional %
+    ("Killing Spree",        "passive", "conditional (after kill 4s)","+30% dmg for 4s after a kill."),
+    ("Overload",             "passive", "conditional (>50% MP)",      "+25% dmg above 50% MP."),
+],
+}
+
+# Grouping of shapes into families, for the cross-weapon distribution view.
+SHAPE_FAMILIES = [
+    ("Pure damage button (cooldown-gated)", [
+        "cooldown-damage", "cooldown-damage (basic)", "cooldown-damage (AoE)", "cooldown-damage (channel)",
+    ]),
+    ("Resource mesh — BUILDER", [
+        "combo-builder", "combo-builder + gap-closer",
+        "momentum-builder (basic)", "momentum-builder (AoE)",
+    ]),
+    ("Resource mesh — SPENDER", [
+        "combo-spender (AoE)", "combo-spender (ST)", "momentum-spender (ST)",
+    ]),
+    ("DoT applier (sets a mark)", [
+        "dot-applier (bleed)", "dot-applier (poison)", "dot-applier (burn)",
+    ]),
+    ("Mobility / position", [
+        "gap-closer", "gap-closer / escape", "kite-escape", "combo-builder + gap-closer",
+    ]),
+    ("Self-buff (offensive/defensive)", [
+        "self-buff (reflect)", "self-buff (defense)", "self-buff (all stats)",
+        "self-buff (offensive)",
+    ]),
+    ("Party-buff / summon / shield / debuff", [
+        "party-buff", "summon (echo)", "utility-defensive (shield)", "utility-debuff",
+    ]),
+    ("Conditional damage (execute / opener / synergy)", [
+        "ST burst (execute?)",
+        "conditional (>90% HP)", "conditional (<35% HP)", "conditional (on kill)",
+        "conditional (<30% HP)", "conditional (full Momentum)", "conditional (>80% HP)",
+        "conditional (stealth)", "conditional (synergy)",
+        "conditional (after kill 4s)", "conditional (>50% MP)",
+    ]),
+    ("Pure stat passive", [
+        "stat (Defense)", "stat (Max HP %)", "stat (HP regen)",
+        "stat (Accuracy %)", "stat (Crit Damage %)", "stat (Crit Chance %)", "stat (knockback resist)",
+        "stat (Evasion %)", "stat (MP regen)", "stat (Max MP %)", "stat (Magic Defense)",
+        "stat (Magic Attack %)",
+    ]),
+]
+
+# Per-weapon resource/gauge state: designed (per the class-widget convention) vs built.
+GAUGES = {
+    "Sword":  {"gauge": "Combo (max 3)",
+               "built": True,
+               "builders": ["Steel Flurry", "Vault Strike"],
+               "spenders": ["Crescent Cleave", "Sundering Blow"],
+               "diagnosis": "MESH WIRED. Two builders feed two spenders (1 AoE / 1 ST). Distinct identity in play."},
+    "Bow":    {"gauge": "Momentum",
+               "built": True,
+               "builders": ["Snap Shot", "Hailstorm", "Skyfall"],
+               "spenders": ["Snipe"],
+               "diagnosis": "MESH WIRED. Three builders, one big spender, plus Tailwind passive engages the gauge. Identity present."},
+    "Dagger": {"gauge": "Stealth",
+               "built": False,
+               "builders": [],
+               "spenders": ["Eviscerate (?)", "Opportunist (passive)"],
+               "diagnosis": "HALF-BUILT. Opportunist passive grants +35% dmg in stealth; Eviscerate is modeled as a stealth execute. But NO ability enters stealth — the gauge has payoffs with no setup. Dagger plays as cooldown-button + DoT mark + crit-stack passives, no signature 'in stealth' moment."},
+    "Staff":  {"gauge": "Elemental Stance (Fire / Ice / Lightning)",
+               "built": False,
+               "builders": [],
+               "spenders": [],
+               "diagnosis": "NOT BUILT. No stance ability, no stance state. Glacial Spike / Pyre Burst / Arcane Lance are modeled with 'Ice freeze / Fire burn splash / Lightning chain' notes but the .tres files have none of it. ALL four damage actives behave the same: cast → hit → damage on cooldown. Worst shape-samey offender."},
+}
+
+
 def linear(base, per, lvl):
     return base + per * (lvl - 1)
 
@@ -367,6 +522,88 @@ def render():
         '<li><b>pure</b> — every point into the primary stat. The damage-max build.</li>'
         '<li><b>tank</b> — half primary, half CON (survivability at a damage cost).</li>'
         '</ul></div>')
+
+    # ── FULL ROSTER ────────────────────────────────────────────────────────
+    parts.append('<h2 class="weap" id="roster">Roster — every ability per weapon</h2>')
+    parts.append('<div class="card"><p>Every ability per weapon, including non-damage actives, '
+        'self-buffs, party-buffs, and passives that the damage tables below don\'t model. The '
+        '<b>shape</b> column tags each one by mechanical category — scan it to see how the '
+        'distribution of shapes inside a weapon does (and doesn\'t) vary.</p></div>')
+    for disc in DISCIPLINES:
+        parts.append(f'<h3>{disc} <span class="meta">· {len(ROSTER[disc])} abilities</span></h3>')
+        parts.append('<table><thead><tr>'
+            '<th>Name</th><th>kind</th><th>shape</th><th>what it does</th>'
+            '</tr></thead><tbody>')
+        for name, kind, shape, desc in ROSTER[disc]:
+            kind_color = "#7ec2ff" if kind == "active" else "#c79bff"
+            parts.append('<tr>'
+                f'<td class="ab">{esc(name)}</td>'
+                f'<td><span style="color:{kind_color};font-weight:600">{kind}</span></td>'
+                f'<td>{esc(shape)}</td>'
+                f'<td class="note">{esc(desc)}</td>'
+                '</tr>')
+        parts.append('</tbody></table>')
+
+    # ── SHAPE DISTRIBUTION ─────────────────────────────────────────────────
+    parts.append('<h2 class="weap" id="shape-dist">Shape distribution — where the samey-ness lives</h2>')
+    parts.append('<div class="card"><p>How many abilities each weapon has in each <b>shape family</b>. '
+        'If a row is overwhelmingly "Pure damage button" or "Pure stat passive," that\'s the '
+        'shape-samey diagnosis showing up visually. Green cells = ≥2 abilities cover the family; '
+        'yellow = exactly 1 (single point of failure); red = 0 (gap).</p></div>')
+    parts.append('<table><thead><tr><th>Shape family</th>')
+    for d in DISCIPLINES:
+        parts.append(f'<th>{d}</th>')
+    parts.append('</tr></thead><tbody>')
+    for family, shapes in SHAPE_FAMILIES:
+        parts.append(f'<tr><td class="ab">{esc(family)}</td>')
+        for d in DISCIPLINES:
+            count = sum(1 for _, _, sh, _ in ROSTER[d] if sh in shapes)
+            if count >= 2:
+                bg = "background:rgba(63,185,80,0.28);"
+            elif count == 1:
+                bg = "background:rgba(224,168,0,0.25);"
+            else:
+                bg = "background:rgba(248,81,73,0.22);"
+            parts.append(f'<td style="{bg}text-align:center"><b>{count}</b></td>')
+        parts.append('</tr>')
+    parts.append('</tbody></table>')
+
+    # ── MESH DIAGNOSIS (the gauge / resource shape per weapon) ─────────────
+    parts.append('<h2 class="weap" id="mesh">Mesh diagnosis — class gauges &amp; what feeds them</h2>')
+    parts.append('<div class="card"><p>The weapon-identity overhaul committed to four <b>class gauges</b> '
+        '(class-widget convention — each weapon\'s signature resource gets its own anchored UI). For '
+        'each weapon: is the gauge actually wired up in the .tres roster, and which abilities '
+        'feed (build) or consume (spend) it?</p></div>')
+    parts.append('<table><thead><tr><th>Weapon</th><th>Gauge</th><th>Built?</th>'
+        '<th>Builders</th><th>Spenders</th><th>Diagnosis</th></tr></thead><tbody>')
+    for d in DISCIPLINES:
+        g = GAUGES[d]
+        built_label = "yes" if g["built"] else "NO"
+        built_style = ("color:#3fb950;font-weight:700;" if g["built"]
+                       else "color:#f85149;font-weight:700;")
+        builders = ", ".join(g["builders"]) if g["builders"] else "—"
+        spenders = ", ".join(g["spenders"]) if g["spenders"] else "—"
+        parts.append('<tr>'
+            f'<td class="ab">{d}</td>'
+            f'<td>{esc(g["gauge"])}</td>'
+            f'<td style="{built_style}">{built_label}</td>'
+            f'<td>{esc(builders)}</td>'
+            f'<td>{esc(spenders)}</td>'
+            f'<td class="note">{esc(g["diagnosis"])}</td>'
+            '</tr>')
+    parts.append('</tbody></table>')
+
+    parts.append('<div class="find bad"><h4>Mesh finding · 2 of 4 weapons have no resource shape — everything is a cooldown button</h4>'
+        '<p>Sword (Combo) and Bow (Momentum) have a full <b>builder → spender</b> mesh and a clear '
+        'signature moment ("burn 3 combo for the AoE finisher" / "spend Momentum on a Snipe"). '
+        '<b>Dagger</b> has Stealth payoffs (Opportunist passive +35% dmg, Eviscerate execute) but '
+        'NO ability enters stealth — the gauge is a payoff with no setup. <b>Staff</b> has no '
+        'stance / mode / resource at all: Arcane Bolt, Arcane Lance, Glacial Spike, Pyre Burst all '
+        'behave identically (cast → damage on cooldown). The "+Ice freeze / Fire splash / Lightning '
+        'chain" tags in the existing model\'s notes describe an unbuilt design, not the current '
+        '.tres state. <b>This is where the shape-samey complaint actually lives.</b> Fix Dagger '
+        'and Staff\'s resource mesh BEFORE adding new abilities — or those new abilities will '
+        'inherit the same flatness.</p></div>')
 
     # Per-weapon, per-level tables (default archetype headline) + pure/default spread
     for disc in DISCIPLINES:

@@ -1,0 +1,396 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weapon Identity Overhaul — V1 Design Summary</title>
+<style>
+:root{--bg:#0f1117;--card:#171a23;--ink:#e7e9ee;--mut:#9aa3b2;--line:#262b38;--acc:#6db1ff;--good:#3fb950;--warn:#e0a800;--bad:#f85149;--shape:#c79bff;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 -apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:1280px;margin:0 auto;padding:32px 22px 80px}
+h1{font-size:32px;margin:0 0 6px}
+.sub{color:var(--mut);margin:0 0 24px;font-size:13.5px}
+h2.section{margin:42px 0 8px;font-size:24px;color:var(--acc);border-bottom:2px solid var(--line);padding-bottom:8px}
+h2.section .meta{color:var(--mut);font-weight:400;font-size:13px;margin-left:8px}
+h3{font-size:17px;margin:24px 0 8px;font-weight:600;color:#fff}
+h3 .meta{color:var(--mut);font-weight:400;font-size:12.5px}
+h4{font-size:14.5px;margin:14px 0 6px;font-weight:600;color:#cdd6e4}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:14px 0}
+.card p{margin:6px 0}
+.card p:first-child{margin-top:0}
+.card p:last-child{margin-bottom:0}
+pre{background:#0b0d13;border:1px solid var(--line);border-radius:8px;padding:14px;overflow:auto;color:#cdd6e4;font-size:12.5px}
+ul.notes{margin:10px 0 0;padding-left:20px;color:var(--mut)}
+ul.notes li{margin:4px 0}
+ul.notes b{color:var(--ink)}
+table{width:100%;border-collapse:collapse;margin:6px 0 8px;font-size:13px}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--mut);font-weight:600;background:#0c0f15;position:sticky;top:0}
+td.ab{font-weight:600;color:#fff}
+td.note{color:var(--mut);font-size:12.5px}
+td.center,th.center{text-align:center}
+.tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;letter-spacing:0.2px}
+.tag.active{background:#1a3050;color:#7ec2ff}
+.tag.passive{background:#321a45;color:#c79bff}
+.tag.augment{background:#3a2d12;color:#f0b95a}
+.tag.new{background:#16331e;color:#5fd175}
+.tag.transform{background:#41121e;color:#ff8a9a}
+.tag.locked{background:#16331e;color:#5fd175}
+.tag.proposed{background:#3a2d12;color:#f0b95a}
+.tag.deferred{background:#2a2a2a;color:#9aa3b2}
+.tag.shape{background:#221833;color:#c79bff;font-weight:400}
+.spread{background:#1c2230;border-left:3px solid var(--acc);padding:10px 14px;border-radius:6px;margin:10px 0;color:#cdd6e4}
+.find{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--warn);border-radius:8px;padding:12px 16px;margin:10px 0}
+.find.good{border-left-color:var(--good)}
+.find.bad{border-left-color:var(--bad)}
+.find h4{margin:0 0 6px;font-size:14.5px}
+.find p{margin:0;color:var(--mut)}
+.find p+p{margin-top:6px}
+.weapon-header{display:flex;align-items:center;gap:10px;margin:26px 0 10px;padding:10px 16px;background:linear-gradient(180deg,#1d2330 0%,#171a23 100%);border:1px solid var(--line);border-radius:10px}
+.weapon-header h2{margin:0;font-size:22px;color:#fff;border:none;padding:0}
+.weapon-header .gauge{color:var(--acc);font-size:13px;font-weight:600;background:#0c1a2d;padding:3px 10px;border-radius:6px}
+.weapon-header .stat{color:var(--mut);font-size:12.5px;margin-left:auto}
+code{background:#0b0d13;padding:1px 6px;border-radius:4px;color:#cdd6e4;font-size:12.5px}
+.toc{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 20px;margin:16px 0 30px}
+.toc h3{margin:0 0 8px;font-size:14px;color:var(--mut);text-transform:uppercase;letter-spacing:1px}
+.toc ol{margin:0;padding-left:20px;columns:2;column-gap:24px}
+.toc li{margin:3px 0}
+.toc a{color:var(--acc);text-decoration:none}
+.toc a:hover{text-decoration:underline}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.grid2{grid-template-columns:1fr}}
+.dim{color:var(--mut);font-size:12px}
+.kbd{background:#2a2f3d;border:1px solid #3a4053;padding:1px 6px;border-radius:4px;font-family:monospace;font-size:11.5px;color:#cdd6e4}
+</style></head><body>
+<div class="wrap">
+
+<h1>Weapon Identity Overhaul — V1 Design Summary</h1>
+<p class="sub">Captures every decision from the design-grilling session of <b>2026-05-31</b>. Branch <code>feat/weapon-identity-overhaul</code> · overhaul folder <code>multiplayer-test-overhaul/</code>. <b>All sections locked</b> — ready for implementation. Target: <b>13 actives + 7 passives = 20 abilities per weapon, equalized.</b></p>
+
+<h3 style="margin-top:14px">Final equalized counts</h3>
+<table style="max-width:520px">
+<thead><tr><th>Weapon</th><th class="center">Actives</th><th class="center">Passives</th><th class="center">Total</th></tr></thead>
+<tbody>
+<tr><td class="ab">Sword</td><td class="center">13 <span class="dim">(8 + 5 new)</span></td><td class="center">7 <span class="dim">(6 + 1 new)</span></td><td class="center"><b>20</b></td></tr>
+<tr><td class="ab">Bow</td><td class="center">13 <span class="dim">(9 + 4 new)</span></td><td class="center">7 <span class="dim">(6 + 1 new)</span></td><td class="center"><b>20</b></td></tr>
+<tr><td class="ab">Dagger</td><td class="center">13 <span class="dim">(9 + 4 new)</span></td><td class="center">7 <span class="dim">(6 + 1 new)</span></td><td class="center"><b>20</b></td></tr>
+<tr><td class="ab">Staff</td><td class="center">13 <span class="dim">(8 + 5 new)</span></td><td class="center">7 <span class="dim">(6 + 1 new)</span></td><td class="center"><b>20</b></td></tr>
+</tbody>
+</table>
+<p class="dim" style="margin-top:6px"><b>80 abilities total · 18 new actives + 4 new passives + 4 stance transformations + 4 dagger stealth-modified augments + 1 Vow augment</b></p>
+
+<div class="toc">
+<h3>Contents</h3>
+<ol>
+<li><a href="#diagnosis">Diagnosis — where the "samey" actually lives</a></li>
+<li><a href="#mesh">Mesh diagnosis CORRECTED — all four gauges are built</a></li>
+<li><a href="#staff">Staff — stance transformations</a></li>
+<li><a href="#sword">Sword — 4 new actives + 1 augment</a></li>
+<li><a href="#bow">Bow — 4 new actives</a></li>
+<li><a href="#dagger">Dagger — stealth-modified behaviors</a></li>
+<li><a href="#passives">Passives — gauge-engaging additions</a></li>
+<li><a href="#groundzone">Ground-zone infrastructure</a></li>
+<li><a href="#upgrades">Upgrade pattern + sample tree</a></li>
+<li><a href="#constraints">Design constraints learned this session</a></li>
+<li><a href="#impl">Implementation plan</a></li>
+</ol>
+</div>
+
+<h2 class="section" id="diagnosis">1 · Diagnosis</h2>
+<div class="card">
+<p>Player complaint: <i>"super limited in choices, everything feels extremely samey."</i></p>
+<p><b>Root cause locked through grilling:</b></p>
+<ul class="notes">
+<li><b>Shape-samey (primary)</b> — every existing weapon mechanic is "modify a hit." Combo += 1 on landed hit; Momentum += 1 on landed hit; element rider modifies on-hit outcome; ambush ×2 the next hit. None of the four meshes produce a persistent map presence, none introduce a temporal/positional pattern, none have a defensive/reactive shape. Different gauges, same shape family.</li>
+<li><b>Path-samey (symptom of shape-samey)</b> — Vanguard/Berserker, Marksman/Skirmisher etc. feel mechanically alike because the underlying ability shapes within each path are all "cooldown → hit + tag" variations.</li>
+<li><b>Sword specifically — too many self-buffs.</b> 3 self-buffs (Iron Riposte, Bulwark, Vow) reading "press button, gain timed buff." Other weapons have 1-2.</li>
+<li><b>Bow specifically — only one momentum-spender.</b> Most of the kit is build-build-build-Snipe.</li>
+<li><b>Dagger specifically — stealth is too binary.</b> ×2 ambush concentrates all value in one entry hit → either ignore stealth or chain-cycle for the one big hit. Neither plays well.</li>
+<li><b>Staff specifically — already designed; just lacked the (c) signature transformations on element-named spells.</b></li>
+</ul>
+<p><b>V1 fix surface:</b> introduce ground-zone shape category (cross-weapon infrastructure) + spread stealth value across a window (medium fix) + add per-weapon shape gaps via 4 new abilities each + 1 gauge-engaging passive each.</p>
+</div>
+
+<h2 class="section" id="mesh">2 · Mesh Diagnosis CORRECTED</h2>
+<div class="find bad">
+<h4>Earlier read was wrong on Dagger and Staff</h4>
+<p>The Mesh Diagnosis section of <code>docs/ability_balance_report.html</code> says Staff "NOT BUILT" and Dagger "HALF-BUILT." Reading the absence of <code>.tres</code> stealth-entry / stance ability files as "no implementation" was wrong — both meshes live in <code>scripts/Components/*.gd</code> + <code>UI/*_widget.gd</code> + <code>AL_*.gd</code> scripts, not in standalone ability resources.</p>
+<p><b>All four weapon gauges are fully built and shipped at PR 7 / PR 11 level.</b></p>
+</div>
+
+<table>
+<thead><tr><th>Weapon</th><th>Gauge</th><th>Entry</th><th>Built?</th><th>What it does in combat</th></tr></thead>
+<tbody>
+<tr><td class="ab">Sword</td><td>Combo (max 3)</td><td>Build from Steel Flurry / Vault Strike</td><td><b style="color:var(--good)">YES</b></td><td class="note">Spent by Crescent Cleave (+100%/pt AoE) / Sundering Blow (+200%/pt ST).</td></tr>
+<tr><td class="ab">Bow</td><td>Momentum</td><td>Build from any landed bow hit</td><td><b style="color:var(--good)">YES</b></td><td class="note">Spent by Snipe (+12%/stack). Tailwind passive engages at full stacks.</td></tr>
+<tr><td class="ab">Dagger</td><td>Shadowmeld (stealth toggle)</td><td><span class="kbd">R</span> while wielding dagger</td><td><b style="color:var(--good)">YES</b></td><td class="note">Full <code>ShadowmeldComponent</code>: 6s enter CD, 8s safety timeout, sprite-dim sync, widget. Next dagger hit out of stealth ×2.0 ambush, single break. PR 11 explicitly REMOVED a duplicate "Vanish" ability — Shadowmeld is canonical.</td></tr>
+<tr><td class="ab">Staff</td><td>Element stance (Fire/Ice/Lightning)</td><td><span class="kbd">R</span> while wielding staff cycles forward</td><td><b style="color:var(--good)">YES</b></td><td class="note">Full <code>StaffElementComponent</code>: Fire = stacking burn (3 stacks, 12% of trigger hit/tick, 4s); Ice = 40% slow for 2.5s; Lightning = +50% bonus on target + chain to 3 hops × 40% within 180px. Default Fire on spawn, volatile.</td></tr>
+</tbody>
+</table>
+
+<div class="spread"><b>Implication:</b> "samey" isn't about missing meshes. All four are built and structurally distinct. The complaint is one level deeper — every existing mesh produces "modify a hit" shape. <b>Adding ground-zone shape (persistent area, no hit needed) is the first genuinely new shape category and the load-bearing fix for the original complaint.</b></div>
+
+<h2 class="section" id="staff">3 · Staff — stance transformations + 5 new actives <span class="tag locked">locked</span></h2>
+
+<div class="weapon-header">
+<h2>Staff</h2>
+<span class="gauge">Gauge: Element Stance (Fire/Ice/Lightning)</span>
+<span class="stat">8 → 13 actives · 6 → 7 passives · stat axis: Magic Attack</span>
+</div>
+
+<div class="card">
+<p><b>Approach:</b> existing element rider stays (Fire burn / Ice slow / Lightning chain on every staff hit). Layer (c) <b>signature transformations</b> on the elemental-named spells when cast in their matched stance. Mismatched stance casts = base spell only (β bonus-not-requirement rule). R cycle direction = forward only (Fire → Ice → Lightning → Fire). Then add 5 new actives to equalize at 13.</p>
+</div>
+
+<h3>Transformations (augments to existing abilities)</h3>
+<table>
+<thead><tr><th>Spell</th><th>Stance</th><th>Stance-matched transformation</th><th>Mismatch behavior</th></tr></thead>
+<tbody>
+<tr><td class="ab">Glacial Spike</td><td><span class="tag shape">Ice</span></td><td>Target frozen 1.0–1.5s (hard CC, cannot act).</td><td class="note">Damage only, no freeze. Existing Ice rider's slow still applies via baseline.</td></tr>
+<tr><td class="ab">Pyre Burst</td><td><span class="tag shape">Fire</span></td><td>3-4s <b>ground-zone</b> fire pool at impact, ticking ~10% MATK/s on enemies inside. (Existing +1 Burn stack stays.)</td><td class="note">Burst AoE damage only. No pool.</td></tr>
+<tr><td class="ab">Arcane Lance</td><td><span class="tag shape">Lightning</span></td><td>Each pulse of the channel fires its OWN chain rider. 3 pulses × 3 hops = up to 9 secondary chain hits per cast.</td><td class="note">Single linear channel; existing Lightning rider still fires from the main hit.</td></tr>
+<tr><td class="ab">Immolate</td><td><span class="tag shape">Fire</span></td><td>Applies <b>2 Burn stacks/cast</b> instead of 1, AND spreads existing Burn to +1 nearby enemy.</td><td class="note">Normal 1-stack apply.</td></tr>
+</tbody>
+</table>
+
+<h3>Stance switching</h3>
+<ul class="notes">
+<li><b>Toggle cost:</b> ~10-15 MP per cycle, no CD. Small but real (≈half a Glacial Spike's mana). Stays in a stance for the right purpose; can flex mid-fight.</li>
+<li><b>Mismatch rule:</b> (β) — bonus-not-requirement. Stance-matched spells get their transformation; mismatched casts do base damage. No ability is locked out.</li>
+<li><b>Stance-agnostic spells:</b> Aether Ward, Phase Step, Communion. None deal damage on hit, so the baseline rider has nothing to attach to and there's no transformation. They cast identically in any stance — by design.</li>
+<li><b>L1 starting stance:</b> Fire (already default in code; volatile, resets to Fire on spawn).</li>
+</ul>
+
+<h3>New actives (equalize staff to 13 actives)</h3>
+<table>
+<thead><tr><th>Name</th><th>Shape</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td class="ab">Frost Patch <span class="tag new">new</span></td><td><span class="tag shape">ground-zone (Ice-flavored)</span></td><td>Cast at target location; 4s zone; enemies inside take 50% slow. Pairs with Glacial Spike's freeze for layered control (zone-slow softens entry, freeze locks down).</td></tr>
+<tr><td class="ab">Arcane Familiar <span class="tag new">new</span></td><td><span class="tag shape">summon (echo)</span></td><td>Summons a mini arcane wisp for 12s; auto-casts Arcane Bolt at nearby enemies. Staff analog to dagger's Shadow Partner.</td></tr>
+<tr><td class="ab">Spellweave <span class="tag new">new</span></td><td><span class="tag shape">channel + stance-augment</span></td><td>Channel up to 2s; release for an amplified version of your stance's signature (Ice = larger freeze radius, Fire = doubled pool duration, Lightning = +3 chain hops). Engages the stance gauge.</td></tr>
+<tr><td class="ab">Mana Surge <span class="tag new">new</span></td><td><span class="tag shape">mark + payoff (MP-themed)</span></td><td>Mark enemy with Mana Resonance for 8s. Next spell vs marked target consumes mark for +50% damage AND refunds 50% MP cost. Mana economy meets mark+payoff.</td></tr>
+<tr><td class="ab">Stormcall <span class="tag new">new</span></td><td><span class="tag shape">channel + ground-zone (Lightning)</span></td><td>Hold to channel; random lightning strikes nearby enemies every 0.5s during channel; MP drains during channel. Staff's sustained-AoE channel option.</td></tr>
+</tbody>
+</table>
+
+<h2 class="section" id="sword">4 · Sword — 5 new actives + 1 augment <span class="tag locked">locked</span></h2>
+
+<div class="weapon-header">
+<h2>Sword</h2>
+<span class="gauge">Gauge: Combo (max 3)</span>
+<span class="stat">8 → 13 actives · 6 → 7 passives · stat axis: Defense</span>
+</div>
+
+<div class="card">
+<p><b>Buff-count audit:</b> sword has 3 self-targeted buffs (Iron Riposte, Bulwark Stance, Vow) vs. 2 in every other weapon — the visible symptom of sword-samey. Fix is shape diversification (not buff removal — each keeps a distinct role after augments).</p>
+<p><b>Shape gaps filled:</b> ground-zone (Earthsplitter), defensive party-zone (Banner), mark+payoff (Sentinel's Mark), channel/build-up (Vanguard's Onslaught).</p>
+</div>
+
+<h3>Current actives — preserved</h3>
+<table>
+<thead><tr><th>Name</th><th>Status</th><th>Role</th></tr></thead>
+<tbody>
+<tr><td class="ab">Steel Flurry</td><td><span class="tag active">active</span></td><td>Combo builder (+1/hit, max 3)</td></tr>
+<tr><td class="ab">Vault Strike</td><td><span class="tag active">active</span></td><td>Combo builder + gap-closer (+2/enemy hit)</td></tr>
+<tr><td class="ab">Crescent Cleave</td><td><span class="tag active">active</span></td><td>Combo spender, AoE (+100%/point, max +300%)</td></tr>
+<tr><td class="ab">Sundering Blow</td><td><span class="tag active">active</span></td><td>Combo spender, single-target (+200%/point, max +600%)</td></tr>
+<tr><td class="ab">Hemorrhage</td><td><span class="tag active">active</span></td><td>Bleed DoT applier (3 stacks)</td></tr>
+<tr><td class="ab">Iron Riposte</td><td><span class="tag active">active</span></td><td>Passive reflect buff (UNCHANGED — reactive-parry conversion dropped, no telegraphed enemy attacks to react to)</td></tr>
+<tr><td class="ab">Bulwark Stance</td><td><span class="tag active">active</span></td><td>+250 Defense, drains 2 MP/s, auto-cancel at 0 MP</td></tr>
+<tr><td class="ab">Vow of the Vanguard</td><td><span class="tag augment">augment</span></td><td>Party stat buff. <b>AUGMENT:</b> stats scale with combo count consumed at cast (0 combo = small, 3 combo = full).</td></tr>
+</tbody>
+</table>
+
+<h3>New actives</h3>
+<table>
+<thead><tr><th>Name</th><th>Shape</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td class="ab">Earthsplitter <span class="tag new">new</span></td><td><span class="tag shape">combo-spender + ground-zone</span></td><td>Heavy ground slam, consumes all combo, creates a 3-4s tremor zone at impact that ticks damage on enemies inside. Combo count amplifies tick damage. Third spender option (AoE-zone vs. Crescent Cleave's burst-AoE vs. Sundering Blow's ST).</td></tr>
+<tr><td class="ab">Banner of the Vanguard <span class="tag new">new</span></td><td><span class="tag shape">positional defensive party-zone</span></td><td>Plant banner at feet; 8s; allies inside gain +Defense + HP regen tick. Fills the missing defensive-party-utility category (no weapon has one). Distinct from Vow — Vow is burst offensive party buff, Banner is sustained defensive zone.</td></tr>
+<tr><td class="ab">Sentinel's Mark <span class="tag new">new</span></td><td><span class="tag shape">mark + payoff</span></td><td>Tag one enemy for 8s; sword hits on marked target deal +30% damage AND have a 25% chance to refund 1 combo point. Adds the mark/payoff shape; refund weaves it into the combo mesh.</td></tr>
+<tr><td class="ab">Vanguard's Onslaught <span class="tag new">new</span></td><td><span class="tag shape">channel / build-up</span></td><td>Hold to channel up to ~2s; movement locked, brief i-frames on entry. Release for a forward thrust that PIERCES all enemies in a line. Damage scales 100%–250% with charge time. Each enemy pierced grants +1 combo.</td></tr>
+<tr><td class="ab">Charge! <span class="tag new">new</span></td><td><span class="tag shape">line-dash + combo-build</span></td><td>Rush forward 250px in your facing direction; damages all enemies in your path; +1 combo per enemy hit. Distinct from Vault Strike (Vault is a leap-arc landing on a single target; Charge is a horizontal-line dash hitting multiple enemies).</td></tr>
+</tbody>
+</table>
+
+<h2 class="section" id="bow">5 · Bow — 4 new actives <span class="tag locked">locked</span></h2>
+
+<div class="weapon-header">
+<h2>Bow</h2>
+<span class="gauge">Gauge: Momentum</span>
+<span class="stat">9 → 13 actives · 6 → 7 passives · stat axis: Accuracy</span>
+</div>
+
+<div class="card">
+<p><b>Diagnosis:</b> bow has the lowest active count (9 vs 14/14/15) and only one momentum-spender (Snipe), so the kit feels like "build-build-build-Snipe" by endgame. Filling 4 shape gaps gives Snipe a sibling and adds 3 missing categories.</p>
+</div>
+
+<h3>New actives</h3>
+<table>
+<thead><tr><th>Name</th><th>Shape</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td class="ab">Caltrops <span class="tag new">new</span></td><td><span class="tag shape">ground-zone (fire-and-forget)</span></td><td>Cast at feet; spawns 4-5s zone. Enemies inside take 30% slow for 1s and a damage tick every 1s. Momentum-neutral (pure utility/setup).</td></tr>
+<tr><td class="ab">Sky Volley <span class="tag new">new</span></td><td><span class="tag shape">channel + ground-zone</span></td><td>Hold to channel up to 3s (MP drains while held); arrows rain in target area, damage tick every 0.5s on enemies inside. Releasing ends rain. Builds +1 Momentum/sec held (capped).</td></tr>
+<tr><td class="ab">Mark of the Hunt <span class="tag new">new</span></td><td><span class="tag shape">mark + payoff</span></td><td>Tag one enemy for 8s. Next momentum-spender cast (Snipe or Sundering Arrow) against marked target is auto-crit. Mark consumed on crit. 12s CD.</td></tr>
+<tr><td class="ab">Sundering Arrow <span class="tag new">new</span></td><td><span class="tag shape">alt momentum-spender (pierce)</span></td><td>Consumes Momentum; fires one heavy arrow piercing all enemies in a line. Per-enemy damage falls 100% / 85% / 70% / 60%. Snipe stays ST king, Sundering Arrow handles pierce-line crowd.</td></tr>
+</tbody>
+</table>
+
+<h2 class="section" id="dagger">6 · Dagger — stealth-modified behaviors (medium fix) <span class="tag locked">locked</span></h2>
+
+<div class="weapon-header">
+<h2>Dagger</h2>
+<span class="gauge">Gauge: Shadowmeld (stealth toggle)</span>
+<span class="stat">9 → 13 actives · 6 → 7 passives · stat axis: Evasion</span>
+</div>
+
+<div class="card">
+<p><b>Failure modes addressed:</b> ×2 ambush concentrated all stealth value in one hit, so the loop felt binary — ignore stealth or chain-cycle for one big hit per 6s. Fix: spread stealth's value across a window of decisions by giving 4 abilities <b>stealth-modified behaviors</b>, so "what should I cast WHILE in stealth?" becomes a real question.</p>
+<p><b>Does not touch the Shadowmeld component</b> — only modifies AL_*.gd scripts. Existing ×2 entry-hit ambush stays.</p>
+</div>
+
+<h3>Stealth-modified behaviors (augments to existing abilities)</h3>
+<table>
+<thead><tr><th>Ability</th><th>Out of stealth</th><th>In stealth</th></tr></thead>
+<tbody>
+<tr><td class="ab">Envenom</td><td>Applies 1 Poison stack</td><td>Applies <b>2 Poison stacks</b> (faster Toxicology synergy ramp)</td></tr>
+<tr><td class="ab">Eviscerate</td><td>Heavy single-target finisher</td><td>"Execute" gate flips ON — bonus damage vs &lt;35% HP (matches existing notes)</td></tr>
+<tr><td class="ab">Shadowstep</td><td>Normal cost &amp; CD</td><td>Costs <b>0 mana</b>, <b>half CD</b> — reposition without burning the ambush</td></tr>
+<tr><td class="ab">Cripple</td><td>Debuff lasts 6s</td><td>Debuff lasts <b>12s</b> — set up bigger control</td></tr>
+</tbody>
+</table>
+
+<h3>New actives (equalize dagger to 13 actives)</h3>
+<table>
+<thead><tr><th>Name</th><th>Shape</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td class="ab">Smoke Bomb <span class="tag new">new</span></td><td><span class="tag shape">ground-zone (defensive concealment)</span></td><td>Drops a smoke cloud at feet; 4s lifetime. Allies inside gain +Evasion. Enemies inside lose targeting on you briefly (aggro drop). Dagger's first ground-zone + defensive utility.</td></tr>
+<tr><td class="ab">Death Mark <span class="tag new">new</span></td><td><span class="tag shape">mark + payoff (crit-themed)</span></td><td>Tag enemy with Death Mark for 8s. While marked, dagger crit chance vs target +30%. Pure crit-based — distinct from Envenom (poison mark) + Toxicology (poisoned synergy).</td></tr>
+<tr><td class="ab">Vendetta <span class="tag new">new</span></td><td><span class="tag shape">poison-spender (DoT consumer)</span></td><td>Consumes ALL Poison stacks on target for a single-target burst (~150% × stacks). Adds the missing Envenom-spender shape — currently Envenom builds but nothing consumes stacks.</td></tr>
+<tr><td class="ab">Backstab <span class="tag new">new</span></td><td><span class="tag shape">positional bonus</span></td><td>Attacking an enemy from behind (or facing-away) deals +50% damage. Adds positional-setup shape; rewards spatial awareness in melee.</td></tr>
+</tbody>
+</table>
+
+<h2 class="section" id="passives">7 · Passives — gauge-engaging additions <span class="tag locked">locked</span></h2>
+
+<div class="card">
+<p><b>Diagnosis:</b> only 3 of 24 existing passives engage the weapon's signature gauge (Tailwind/Bow, Opportunist/Dagger, Toxicology/Dagger synergy). Sword and Staff have ZERO gauge-engaging passives. Each weapon's actives commit hard to the mesh; passives ignore it.</p>
+<p><b>Fix:</b> 1 gauge-engaging passive per weapon (4 new total, 24 → 28).</p>
+</div>
+
+<table>
+<thead><tr><th>Weapon</th><th>New passive</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td class="ab">Sword</td><td>Vanguard's Resolve <span class="tag new">new</span></td><td>While at 1+ combo points, take damage reduction (−8% / −12% / −16% at 1 / 2 / 3 combo). Rewards building combo even before you can spend.</td></tr>
+<tr><td class="ab">Bow</td><td>Wind Rider <span class="tag new">new</span></td><td>Each Momentum stack reduces basic-attack delay by 2.5% (max −25% at 10 stacks). Different axis from Tailwind (Tailwind is damage at cap; this is fire-rate ramp throughout).</td></tr>
+<tr><td class="ab">Staff</td><td>Elemental Affinity <span class="tag new">new</span></td><td>While in a stance, +12% damage to spells whose element matches (Fire stance × Pyre Burst/Immolate/Arcane Bolt; Ice × Glacial Spike; Lightning × Arcane Lance). Rewards stance commitment.</td></tr>
+<tr><td class="ab">Dagger</td><td>Predator's Patience <span class="tag new">new</span></td><td>Each second out of stealth since your last ambush builds a Patience stack (max 10). Next ambush gains +3% damage per stack (max +30%). Directly fixes the kite-stealth-spam failure mode by rewarding combat-between-stealths.</td></tr>
+</tbody>
+</table>
+
+<h2 class="section" id="groundzone">8 · Ground-zone infrastructure <span class="tag locked">locked</span></h2>
+
+<div class="card">
+<p>Cross-weapon capability. Genuinely new shape category — abilities that persist in space and time, independent of a hit. Used by Pyre Burst (Fire transformation), Earthsplitter (sword), Banner of the Vanguard (sword), Caltrops (bow), Sky Volley (bow). Open for future use across any weapon.</p>
+</div>
+
+<h3>Design decisions</h3>
+<table>
+<thead><tr><th>Decision</th><th>Choice</th><th>Reasoning</th></tr></thead>
+<tbody>
+<tr><td class="ab">Data model</td><td><b>(b) Logic-script helper</b> — shared <code>GroundZone.spawn(...)</code> called from each AL_*.gd that wants a zone.</td><td class="note">Per <code>feedback_logic_script_not_schema_field</code>. Only 5-8 abilities need it; no need to bloat AbilityData schema with ground-zone-specific fields.</td></tr>
+<tr><td class="ab">Spatial shape</td><td><code>.tres</code>-declared <code>CollisionShape2D</code> on the GroundZone scene.</td><td class="note">Reuses existing <code>hit_box_shape_data</code> serialization pattern. Each ability picks circle / rect / capsule.</td></tr>
+<tr><td class="ab">Damage scaling</td><td>Each tick = fraction of the spawning ability's main hit damage.</td><td class="note">Matches existing burn pattern (<code>BURN_HIT_PCT = 0.12 × triggering hit</code>). Stays proportional at every level — no separate ground-zone-damage formula to balance.</td></tr>
+<tr><td class="ab">Friendly fire</td><td>Enemies only for v1.</td><td class="note">Configurable per-ability flag later, when a use case (e.g. party-buff pool) shows up.</td></tr>
+<tr><td class="ab">Stacking</td><td>Multiple overlapping zones each tick independently.</td><td class="note">Same per-meta-key independence as the three existing burn pools (<code>staff_element_burn</code>, <code>pyre_burst_burn</code>, Immolate's own).</td></tr>
+<tr><td class="ab">Tick cadence</td><td><b>(i) Zone-tick-aligned</b> — every <code>TICK_INTERVAL</code>, zone enumerates overlapping enemies and damages each. New entries wait until next tick.</td><td class="note">Simpler implementation, cleaner player mental model. (ii) per-enemy-from-entry adds bookkeeping; (iii) immediate-entry damage adds complexity for limited payoff.</td></tr>
+<tr><td class="ab">Visualization &amp; lifecycle</td><td>Spawned via <code>MapManager</code>; joins <code>networked_entities</code>; cleans up on disconnect / channel switch / map transition. Server owns tick + damage; clients see visual.</td><td class="note">Standard networked-entity pattern. Bots skip the widget gate but otherwise spawn zones normally.</td></tr>
+</tbody>
+</table>
+
+<h2 class="section" id="upgrades">9 · Upgrade pattern + sample tree <span class="tag locked">locked</span></h2>
+
+<div class="card">
+<p>Each new ability (and each existing one) follows the PR 6 upgrade shape:</p>
+<ul class="notes">
+<li><b>T1 (1pt, fixed-always-owned)</b> — small flat improvement on one axis.</li>
+<li><b>T2 (1pt, fixed-always-owned)</b> — medium flat improvement on a different axis.</li>
+<li><b>T3 (2pt, pick ONE of 3-5 mutually-exclusive variants)</b> — each variant <b>changes how the ability plays</b>, not just "+more damage." Variants must be genuinely close in power AND mechanically distinct (per balance report finding 8: "+1 hit beats +90% damage").</li>
+</ul>
+<p><b>Total surface:</b> ~60-65 new upgrade variants across the 12 new actives + 4 staff transformations.</p>
+</div>
+
+<h3>Sample — Earthsplitter upgrade tree</h3>
+<table>
+<thead><tr><th>Tier</th><th>Name</th><th>Effect</th><th>Shape-change</th></tr></thead>
+<tbody>
+<tr><td>T1 fixed</td><td class="ab">Wider Crack</td><td>Zone radius +20%</td><td class="note">flat numeric</td></tr>
+<tr><td>T2 fixed</td><td class="ab">Lingering Tremors</td><td>Zone duration +1.5s</td><td class="note">flat numeric</td></tr>
+<tr><td>T3 variant</td><td class="ab">Fissure Network</td><td>Splits into 2 smaller zones at impact (one ahead, one behind).</td><td class="note">covers more ground, less per-tile DPS</td></tr>
+<tr><td>T3 variant</td><td class="ab">Aftershock</td><td>1.5s after impact, a second pulse hits everything in zone for +50% damage.</td><td class="note">adds timing element; rewards holding enemies in zone</td></tr>
+<tr><td>T3 variant</td><td class="ab">Cataclysm</td><td>Consume zone duration into a single big impact (+200% damage, no ticks).</td><td class="note">spender-burst instead of zone-sustain</td></tr>
+<tr><td>T3 variant</td><td class="ab">Tremor Echo</td><td>Each enemy killed inside triggers a 1-target chain pulse to a nearby enemy.</td><td class="note">snowballs through packs</td></tr>
+<tr><td>T3 variant</td><td class="ab">Spiked Earth</td><td>First tick +100%, subsequent ticks 50%.</td><td class="note">front-loaded curve, rewards fast-dying enemies</td></tr>
+</tbody>
+</table>
+
+<div class="spread"><b>Pattern check:</b> none of the T3 variants are "+30% damage." Each variant is a different shape — area-split / time-delayed-burst / burst-instead-of-sustain / chain-on-kill / front-loaded-curve. Genuine build-defining choices, not stat sliders.</div>
+
+<h2 class="section" id="constraints">10 · Design constraints learned this session</h2>
+
+<div class="grid2">
+
+<div class="find">
+<h4>Enemy damage is collision-based, not telegraphed</h4>
+<p>Only Goblin has a telegraphed attack; the rest of the enemy roster deals damage by walking into the player. <b>Reactive parry / dodge-frame / perfect-block shapes do not fit this game's enemy design.</b> The whole "reactive timing window" shape category is off the table for ability proposals unless and until the enemy roster gains telegraphed attacks.</p>
+</div>
+
+<div class="find">
+<h4>Logic-script for behavior variation, not schema fields</h4>
+<p>Per-ability behavior variation rides on <code>logic_script</code> hooks (execute / on_hit / on_proc / on_tick). Don't add bools to shared schemas (<code>AbilityData</code>, <code>ActiveBehaviorData</code>) for behaviors that only apply to a subset of resources. Ground-zone follows this rule.</p>
+</div>
+
+<div class="find">
+<h4>Burn pools are per-ability, not unified</h4>
+<p>Existing convention: each Fire-stance Staff ability has its own meta-keyed burn pool (<code>staff_element_burn</code>, <code>pyre_burst_burn</code>, Immolate's own). Independence-by-meta is the project's stacking pattern — don't unify pools across abilities.</p>
+</div>
+
+<div class="find">
+<h4>Each weapon owns a stat axis</h4>
+<p>Sword = Defense, Bow = Accuracy, Dagger = Evasion, Staff = Magic Attack. Don't duplicate the same passive shape across weapons even with different names.</p>
+</div>
+
+<div class="find">
+<h4>Passives are class-neutral (stack from both weapons)</h4>
+<p>Passives from both equipped weapon slots stack — their effects must work without assuming which weapon is wielded. Class-locked behaviors belong on actives or per-ability upgrades, NOT on passives.</p>
+</div>
+
+<div class="find">
+<h4>Class gauges live on the screen edge, not in the hotbar</h4>
+<p>Sword combo, bow Momentum, staff stance, dagger stealth all get their own anchored class-widget. Don't try to fit gauge UI into the hotbar's horizontal budget.</p>
+</div>
+
+</div>
+
+<h2 class="section" id="impl">11 · Implementation plan</h2>
+
+<div class="card">
+<ol>
+<li><b>Build <code>ground_zone.gd</code> infrastructure</b> — the shared scene + spawn helper. Server tick, Enemies-overlap query, MapManager broadcast, networked_entities cleanup. Independent of any specific ability; used by 8+ new abilities (Pyre Burst pool, Earthsplitter, Banner, Caltrops, Sky Volley, Smoke Bomb, Frost Patch, Stormcall).</li>
+<li><b>Author the 4 Staff stance transformations</b> — Glacial Spike freeze, Pyre Burst pool (first ground-zone use), Immolate spread, Arcane Lance per-pulse chains. Touches <code>AL_GlacialSpike.gd</code>, <code>AL_PyreBurst.gd</code> (extends existing), <code>AL_Immolate.gd</code>, <code>AL_ArcaneLance.gd</code>.</li>
+<li><b>Author 5 new staff actives</b> — Frost Patch (Ice ground-zone), Arcane Familiar (summon), Spellweave (channel + stance-augment), Mana Surge (mark + MP-refund), Stormcall (Lightning channel + zone).</li>
+<li><b>Author 5 new sword actives</b> — Earthsplitter (ground-zone spender), Banner of the Vanguard (defensive party-zone), Sentinel's Mark (mark+payoff), Vanguard's Onslaught (channel pierce), Charge! (line-dash + combo build). Plus Vow combo-augment via <code>BL_Vow_Of_The_Vanguard.gd</code> update.</li>
+<li><b>Author 4 new bow actives</b> — Caltrops (fire-and-forget zone), Sky Volley (channel+zone), Mark of the Hunt (mark+payoff), Sundering Arrow (alt momentum-spender, pierce-line).</li>
+<li><b>Author 4 new dagger actives</b> — Smoke Bomb (defensive concealment zone), Death Mark (crit mark+payoff), Vendetta (poison-spender), Backstab (positional bonus).</li>
+<li><b>Apply 4 dagger stealth-modified behaviors</b> — Envenom (2 stacks in stealth), Eviscerate (execute gate in stealth), Shadowstep (free + half-CD in stealth), Cripple (12s in stealth). Edits to AL_*.gd only; ShadowmeldComponent untouched.</li>
+<li><b>Author 4 new gauge-engaging passives</b> — Vanguard's Resolve (Sword combo defense), Wind Rider (Bow Momentum fire-rate), Elemental Affinity (Staff stance-matched dmg), Predator's Patience (Dagger between-stealths ramp).</li>
+<li><b>Author ~376 upgrade .tres variants</b> — T1/T2 fixed + 3-5 T3 variants per ability. Sword's existing 8 actives keep their PR 6 trees; the 5 new sword actives + 1 new passive + 4 augmented existing dagger actives + all 13 bow + all 13 staff + all 13 dagger + 4 passives × 4 weapons each need trees. Follow the Earthsplitter sample.</li>
+<li><b>Update class-gauge widgets</b> as needed (Banner's banner sprite, ground-zone visuals, Spellweave channel UI).</li>
+<li><b>Update <code>ROSTER</code> + <code>GAUGES</code> + <code>ABILITIES</code> in <code>tools/ability_balance_report.py</code></b> with the new roster, then regenerate <code>ability_balance_report.html</code>. Mesh Diagnosis section gets the CORRECTED data; Shape Distribution reflects the new 80-ability roster.</li>
+</ol>
+</div>
+
+<div class="spread"><b>Total v1 scope:</b> 18 new active abilities + 4 stance transformations + 4 new gauge-engaging passives + 4 dagger stealth-modified augments + 1 Vow combo-augment + ground-zone infrastructure + ~376 upgrade .tres variants. <b>80 abilities total at 13 actives + 7 passives per weapon, fully equalized.</b> Each piece is independent and the design is locked — authoring can fan out across weapons.</div>
+
+<p class="dim" style="text-align:center;margin-top:40px">Generated 2026-05-31 from a single design grilling session. <b>All sections locked.</b> Ready for implementation per the plan in section 11.</p>
+
+</div>
+</body></html>
