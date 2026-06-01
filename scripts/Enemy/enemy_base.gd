@@ -72,6 +72,28 @@ var _attack_cooldown_until: int = 0
 const _CHASE_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_chase.gd")
 const _HIT_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_hit.gd")
 
+# --- Mark indicator (floating diamond over marked enemies) ---
+const _MARK_INDICATOR_SCRIPT := preload("res://scripts/Enemy/mark_indicator.gd")
+## Mark meta key → indicator color, in PRIORITY order (first active wins when an
+## enemy carries more than one mark). The metas are absolute server-clock expiry
+## timestamps (ms) written by the mark abilities' AL_*.gd on_hit. Dictionaries
+## preserve insertion order, so iterating gives the priority.
+const _MARK_META_COLORS := {
+	"death_mark_remaining": Color(1.0, 0.27, 0.27),     # Death Mark — red
+	"hunters_mark_remaining": Color(1.0, 0.84, 0.22),   # Mark of the Hunt — gold
+	"sentinels_mark_remaining": Color(0.42, 0.70, 1.0), # Sentinel's Mark — blue
+	"mana_resonance_remaining": Color(0.72, 0.42, 1.0), # Mana Surge — purple
+}
+## How often (seconds) the server re-evaluates an enemy's mark state. Cheap
+## (4 meta checks) so 0.2s is plenty responsive without per-frame cost.
+const _MARK_CHECK_INTERVAL := 0.2
+
+var mark_indicator: Node2D = null
+var _mark_check_accum: float = 0.0
+## Index of the currently-broadcast mark color (-1 = none). Only re-broadcast
+## the sync RPC when this changes, not every check.
+var _current_mark_idx: int = -1
+
 
 func _apply_enemy_data() -> void:
 	monster_name = enemy_data.monster_name
@@ -156,6 +178,16 @@ func _ready() -> void:
 	if not is_multiplayer_authority():
 		set_process(false)
 		set_physics_process(false)
+
+	# Create the mark indicator on EVERY peer (server + clients) so the
+	# sync_mark_indicator RPC has a node to toggle. It's a local child (not
+	# part of the replicated scene), positioned above the head — DmgNumOrigin
+	# sits at y=-47, so -60 floats just above it. Hidden until a mark applies.
+	mark_indicator = _MARK_INDICATOR_SCRIPT.new()
+	mark_indicator.name = "MarkIndicator"
+	mark_indicator.position = Vector2(0, -60)
+	add_child(mark_indicator)
+
 	if enemy_data:
 		_apply_enemy_data()
 	else:
@@ -213,13 +245,58 @@ func _process(delta: float) -> void:
 				if body is MultiplayerPlayerV2:
 					damage_on_overlap(body)
 
+		# Throttled mark-state check — broadcasts only on change.
+		_mark_check_accum += delta
+		if _mark_check_accum >= _MARK_CHECK_INTERVAL:
+			_mark_check_accum = 0.0
+			_refresh_mark_indicator()
+
 
 func _physics_process(delta: float) -> void:
 	if _is_being_cleaned_up:
 		return
-		
+
 	if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
 		state_machine.process_physics(delta)
+
+
+# --- Mark indicator -------------------------------------------------------
+
+## [Server] Scans the mark metas in priority order and broadcasts a change to
+## the floating indicator when the active mark differs from what's shown.
+## Reads absolute expiry timestamps so it transparently handles refresh (mark
+## re-applied), consume (Mark of the Hunt cleared on crit), and expiry — no
+## per-mark-site hooks needed.
+func _refresh_mark_indicator() -> void:
+	var now: int = Time.get_ticks_msec()
+	var found_idx: int = -1
+	var found_color: Color = Color.WHITE
+	var i: int = 0
+	for key in _MARK_META_COLORS:
+		if has_meta(key) and now < int(get_meta(key)):
+			found_idx = i
+			found_color = _MARK_META_COLORS[key]
+			break
+		i += 1
+
+	if found_idx == _current_mark_idx:
+		return  # no change — don't re-broadcast
+	_current_mark_idx = found_idx
+	# call_local so the host (also a client) updates its own indicator too.
+	sync_mark_indicator.rpc(found_idx >= 0, found_color)
+
+
+## [Server → all peers] Toggles + colors the floating mark indicator. Routed as
+## a node-addressed RPC because enemies are MultiplayerSpawner-replicated (same
+## path on every peer) — unlike bots, which need autoload routing.
+@rpc("authority", "call_local", "reliable")
+func sync_mark_indicator(active: bool, color: Color) -> void:
+	if mark_indicator == null or not is_instance_valid(mark_indicator):
+		return
+	if active:
+		mark_indicator.set_mark(color)
+	else:
+		mark_indicator.clear_mark()
 
 
 func on_enemy_damaged(amount: int, source: Node) -> void:
@@ -275,7 +352,18 @@ func _on_enemy_died(_killer: Node) -> void:
 func _deferred_death_processing(_killer: Node) -> void:
 	if _is_being_cleaned_up:
 		return
-	
+
+	# Clear any mark metas + hide the indicator immediately on death so a
+	# pooled-and-respawned enemy doesn't briefly show a stale mark. (The
+	# timestamps would expire on their own, but a respawn within the mark
+	# window could otherwise flash the old marker.)
+	for key in _MARK_META_COLORS:
+		if has_meta(key):
+			remove_meta(key)
+	if _current_mark_idx != -1:
+		_current_mark_idx = -1
+		sync_mark_indicator.rpc(false, Color.WHITE)
+
 	#print("Enemy died. Killer: ", _killer, " Type: ", typeof(_killer))
 
 	var total_damage = 0
