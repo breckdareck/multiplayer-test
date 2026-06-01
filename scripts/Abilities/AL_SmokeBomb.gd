@@ -52,6 +52,22 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 	if not is_instance_valid(owner_node):
 		return
 
+	# Upgrade reads: each PR 6 upgrade tree the abilitycomponent owns can add
+	# magnitude to a known effect_key on this ability. Smoke Bomb supports:
+	#   bonus_zone_duration  → +seconds to ZONE_DURATION (Lasting Smoke T1)
+	#   bonus_zone_radius    → +pixels to ZONE_RADIUS    (Wider Smoke T2)
+	# Reads default to 0.0 when no matching upgrade is owned, so the base
+	# numbers above are the floor — upgrades only ever ADD.
+	var duration_bonus: float = 0.0
+	var radius_bonus: float = 0.0
+	var ability_comp = owner_node.get("ability_component")
+	if ability_comp and _ability != null and ability_comp.has_method("get_ability_upgrade_magnitude"):
+		duration_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_zone_duration")
+		radius_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_zone_radius")
+
+	var duration: float = ZONE_DURATION + duration_bonus
+	var radius: float = ZONE_RADIUS + radius_bonus
+
 	# Damage-less zone — pure utility. We pass NO enemy tick callback (the
 	# enemy AI's existing aggro logic reads is_invisible on the player, so we
 	# don't need to touch enemies directly) and an ALLY tick callback that
@@ -59,8 +75,8 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 	load("res://scripts/Gameplay/ground_zone.gd").spawn_server(
 		owner_node,
 		owner_node.global_position,
-		ZONE_RADIUS,
-		ZONE_DURATION,
+		radius,
+		duration,
 		ZONE_TICK_INTERVAL,
 		0,
 		ZONE_COLOR,

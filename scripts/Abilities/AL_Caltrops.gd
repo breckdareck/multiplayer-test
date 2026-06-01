@@ -44,15 +44,29 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 	if stats_comp == null or not stats_comp.stats.has(Constants.StatType.WEAPONATTACK):
 		return
 	var wpn_attack: int = int(stats_comp.stats[Constants.StatType.WEAPONATTACK].total_value)
-	var tick_damage: int = maxi(1, roundi(wpn_attack * TICK_DAMAGE_PCT))
+
+	# PR 6 upgrade reads. bonus_damage_mult scales tick damage; bonus_zone_
+	# duration adds seconds; bonus_zone_radius adds px to the rect width (x).
+	var damage_bonus: float = 0.0
+	var duration_bonus: float = 0.0
+	var width_bonus: float = 0.0
+	var ability_comp = owner_node.get("ability_component")
+	if ability_comp and _ability != null and ability_comp.has_method("get_ability_upgrade_magnitude"):
+		damage_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_damage_mult")
+		duration_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_zone_duration")
+		width_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_zone_radius")
+
+	var tick_damage: int = maxi(1, roundi(wpn_attack * TICK_DAMAGE_PCT * (1.0 + damage_bonus)))
+	var duration: float = ZONE_DURATION + duration_bonus
+	var rect_size: Vector2 = ZONE_RECT_SIZE + Vector2(width_bonus, 0.0)
 
 	# Spawn at the caster's feet — drop-the-trap-where-you-stand feel.
 	# Ground-rect shape so the spikes scatter along the floor visibly.
 	load("res://scripts/Gameplay/ground_zone.gd").spawn_server_rect(
 		owner_node,
 		owner_node.global_position,
-		ZONE_RECT_SIZE,
-		ZONE_DURATION,
+		rect_size,
+		duration,
 		ZONE_TICK_INTERVAL,
 		tick_damage,
 		ZONE_COLOR,

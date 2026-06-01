@@ -42,7 +42,21 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 	if stats_comp == null or not stats_comp.stats.has(Constants.StatType.MAGICATTACK):
 		return
 	var magic_attack: int = int(stats_comp.stats[Constants.StatType.MAGICATTACK].total_value)
-	var tick_damage: int = maxi(1, roundi(magic_attack * TICK_DAMAGE_PCT))
+
+	# PR 6 upgrade reads — Heavy Storm (T2) adds damage; Wide Storm (T3)
+	# adds rect width; Sustained Storm (T1) adds channel duration.
+	var damage_bonus: float = 0.0
+	var width_bonus: float = 0.0
+	var duration_bonus: float = 0.0
+	var ability_comp = owner_node.get("ability_component")
+	if ability_comp and _ability != null and ability_comp.has_method("get_ability_upgrade_magnitude"):
+		damage_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_damage_mult")
+		width_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_zone_radius")
+		duration_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "channel_time_extension")
+
+	var tick_damage: int = maxi(1, roundi(magic_attack * TICK_DAMAGE_PCT * (1.0 + damage_bonus)))
+	var duration: float = ZONE_DURATION + duration_bonus
+	var rect_size: Vector2 = ZONE_RECT_SIZE + Vector2(width_bonus, 0.0)
 
 	# Spawn the storm area ahead of the caster.
 	var facing: int = int(owner_node.facing_direction) if "facing_direction" in owner_node else 1
@@ -53,8 +67,8 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 	load("res://scripts/Gameplay/ground_zone.gd").spawn_server_rect(
 		owner_node,
 		spawn_pos,
-		ZONE_RECT_SIZE,
-		ZONE_DURATION,
+		rect_size,
+		duration,
 		ZONE_TICK_INTERVAL,
 		tick_damage,
 		ZONE_COLOR,

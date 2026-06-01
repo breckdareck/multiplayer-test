@@ -42,11 +42,23 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 	if not is_instance_valid(owner_node):
 		return
 
+	# PR 6 upgrade reads — Wider Banner (T1) adds aura radius; Lasting
+	# Banner (T2) adds duration.
+	var radius_bonus: float = 0.0
+	var duration_bonus: float = 0.0
+	var ability_comp = owner_node.get("ability_component")
+	if ability_comp and _ability != null and ability_comp.has_method("get_ability_upgrade_magnitude"):
+		radius_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_zone_radius")
+		duration_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_zone_duration")
+
+	var radius: float = ZONE_RADIUS + radius_bonus
+	var duration: float = ZONE_DURATION + duration_bonus
+
 	load("res://scripts/Gameplay/ground_zone.gd").spawn_server(
 		owner_node,
 		owner_node.global_position,
-		ZONE_RADIUS,
-		ZONE_DURATION,
+		radius,
+		duration,
 		ZONE_TICK_INTERVAL,
 		0,  # no damage — purely benevolent
 		ZONE_COLOR,

@@ -61,7 +61,19 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 
 	# Combo amplification — multiplicative on the base tick.
 	var combo_mult: float = 1.0 + (float(combo_consumed) * COMBO_AMP_PER_POINT)
+
+	# PR 6 upgrade reads — Wider Crack (T1) adds rect width; Lingering
+	# Tremors (T2) adds duration.
+	var width_bonus: float = 0.0
+	var duration_bonus: float = 0.0
+	var ability_comp = owner_node.get("ability_component")
+	if ability_comp and _ability != null and ability_comp.has_method("get_ability_upgrade_magnitude"):
+		width_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_zone_radius")
+		duration_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_zone_duration")
+
 	var tick_damage: int = maxi(1, roundi(wpn_attack * BASE_TICK_DAMAGE_PCT * combo_mult))
+	var duration: float = ZONE_DURATION + duration_bonus
+	var rect_size: Vector2 = ZONE_RECT_SIZE + Vector2(width_bonus, 0.0)
 
 	# Spawn at the caster's feet — the slam epicenter. Ground-rect shape so
 	# the tremor reads as floor-bound rather than as a sphere of damage
@@ -69,8 +81,8 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 	load("res://scripts/Gameplay/ground_zone.gd").spawn_server_rect(
 		owner_node,
 		owner_node.global_position,
-		ZONE_RECT_SIZE,
-		ZONE_DURATION,
+		rect_size,
+		duration,
 		ZONE_TICK_INTERVAL,
 		tick_damage,
 		ZONE_COLOR,
