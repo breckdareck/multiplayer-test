@@ -23,7 +23,7 @@ extends Node
 
 ## Targeting range — how far in front the blink will reach for a target. Larger
 ## than the 90px damage hitbox so Shadowstep functions as a real gap-closer.
-const SEARCH_RANGE: float = 220.0
+const SEARCH_RANGE: float = 110.0
 ## Max vertical delta between player and target — keeps the blink from
 ## snapping to an enemy on a different platform / floor.
 const MAX_HEIGHT_DELTA: float = 60.0
@@ -82,10 +82,13 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 	_owner_node.velocity = Vector2.ZERO
 
 	if target != null:
-		# Land just BEHIND the target (on the far side relative to approach),
-		# keeping the player's current vertical plane.
+		# Land just BEHIND the target (on the far side relative to approach).
+		# Align the player's Y to the TARGET's Y so the blink keeps them on the
+		# same ground plane as the enemy (the player and a grounded enemy share
+		# a floor; using the player's old Y could leave them floating or clipped
+		# if they were mid-jump / on a different micro-elevation when casting).
 		var behind_x: float = target.global_position.x + float(facing) * BEHIND_OFFSET
-		_owner_node.global_position = Vector2(behind_x, _owner_node.global_position.y)
+		_owner_node.global_position = Vector2(behind_x, target.global_position.y)
 		# Flip to face back into the target — the shadow-strike from behind.
 		_owner_node.facing_direction = -facing
 		_repoint_hitbox(_owner_node)
