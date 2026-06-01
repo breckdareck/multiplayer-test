@@ -1,25 +1,25 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://cgkwip32ror20"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_o20o6"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_bnius"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_o20o6"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_bnius"]
+
+[sub_resource type="Resource" id="Resource_2vpkl"]
+script = ExtResource("1_o20o6")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_qk3ps"]
+script = ExtResource("1_o20o6")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 4
 
 [sub_resource type="Resource" id="Resource_624sb"]
 script = ExtResource("1_o20o6")
 stat_type = 3
 base_value = 0
 flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_2vpkl"]
-script = ExtResource("1_o20o6")
-stat_type = 8
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_qk3ps"]
-script = ExtResource("1_o20o6")
-stat_type = 9
-base_value = 0
-flat_bonus_value = 3
 
 [sub_resource type="Resource" id="Resource_xa3iu"]
 script = ExtResource("1_o20o6")
@@ -39,9 +39,11 @@ bonus_stats = Dictionary[int, ExtResource("1_o20o6")]({
 9: SubResource("Resource_qk3ps"),
 11: SubResource("Resource_xa3iu")
 })
-item_id = "131521519-1115413-1531315-0591-1461415341191391"
+item_id = "58013101310-3120-61475-121485-15712092634315"
 name = "Bronze Nightshade Boots"
+rarity = 0
 icon = SubResource("CompressedTexture2D_6l0n5")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 10
+custom_item_value = 0

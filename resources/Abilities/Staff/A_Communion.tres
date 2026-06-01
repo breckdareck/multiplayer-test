@@ -23,7 +23,7 @@ logic_script = ExtResource("2_logic")
 [sub_resource type="Resource" id="Resource_buff_dur"]
 script = ExtResource("7_formula")
 base_value = 30.0
-per_level = 60
+per_level = 60.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_h4exd"]
@@ -55,7 +55,7 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 [sub_resource type="Resource" id="Resource_mpregen_flat"]
 script = ExtResource("7_formula")
 base_value = 1.0
-per_level = 2
+per_level = 2.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_sbf_mpregen"]

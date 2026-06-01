@@ -325,7 +325,12 @@ func get_ability_damage_modifier(ability_id: String) -> float:
 ## the passive slot is a real choice. Called per hit from combat._execute_hit
 ## (server-side) where the target + its HP are known. Bonuses are ADDITIVE.
 func get_conditional_damage_modifier(target: Node, cast_ability: AbilityData = null) -> float:
-	var total_bonus: float = 0.0
+	# Accumulate into a single-element Array, NOT a plain float: GDScript lambdas
+	# capture primitives BY VALUE, so `total += b` inside the callback would mutate
+	# a throwaway copy and never escape. Arrays are reference types, so `acc[0] +=`
+	# is visible after the callbacks run. (This bug silently zeroed every passive
+	# damage modifier — Aggression / Last Stand / Vanguard's Resolve / Wind Rider.)
+	var acc: Array = [0.0]
 	_foreach_learned_passive(func(ability, level_stats, _ability_id):
 		if not ability.active_behavior or not ability.active_behavior.logic_script:
 			return
@@ -338,12 +343,17 @@ func get_conditional_damage_modifier(target: Node, cast_ability: AbilityData = n
 		# fall back to the original 3-arg call otherwise.
 		var b: float = 0.0
 		var ml: Array = logic.get_method_list()
-		var accepts_ability: bool = false
+		var arg_count: int = 3
 		for m in ml:
 			if m.get("name", "") == "conditional_damage_mult":
-				accepts_ability = int(m.get("args", []).size()) >= 4
+				arg_count = int(m.get("args", []).size())
 				break
-		if accepts_ability:
+		# 5-arg form also receives the passive's OWN ability_id so it can read its
+		# own upgrade tree (potency / carryover / at-full); 4-arg gets the cast
+		# ability (element matching); 3-arg is the original contract.
+		if arg_count >= 5:
+			b = float(logic.conditional_damage_mult(owner, target, level_stats.level, cast_ability, _ability_id))
+		elif arg_count >= 4:
 			b = float(logic.conditional_damage_mult(owner, target, level_stats.level, cast_ability))
 		else:
 			b = float(logic.conditional_damage_mult(owner, target, level_stats.level))
@@ -353,9 +363,9 @@ func get_conditional_damage_modifier(target: Node, cast_ability: AbilityData = n
 		# repurposed from the old stat-passive keys when these became conditionals).
 		if b > 0.0:
 			b += get_ability_upgrade_magnitude(_ability_id, "conditional_damage_bonus")
-		total_bonus += b
+		acc[0] += b
 	)
-	return 1.0 + total_bonus
+	return 1.0 + acc[0]
 
 
 ## Iterates learned passives looking for `conditional_damage_taken_mult`
@@ -367,17 +377,29 @@ func get_conditional_damage_modifier(target: Node, cast_ability: AbilityData = n
 ## Called from combat.gd's player-as-target path (only player nodes have an
 ## ability_component to dispatch from). Enemy-on-enemy hits never reach this.
 func get_incoming_damage_modifier(source: Node) -> float:
-	var total_bonus: float = 0.0
+	# Array accumulator — lambdas capture floats by value (see get_conditional_damage_modifier).
+	var acc: Array = [0.0]
 	_foreach_learned_passive(func(ability, level_stats, _ability_id):
 		if not ability.active_behavior or not ability.active_behavior.logic_script:
 			return
 		var logic = ability.active_behavior.logic_script.new()
 		if not logic.has_method("conditional_damage_taken_mult"):
 			return
-		var b: float = float(logic.conditional_damage_taken_mult(owner, source, level_stats.level))
-		total_bonus += b
+		# 4-arg form also receives the passive's OWN ability_id so it can read its
+		# own upgrade tree (potency / cap / carryover); 3-arg is the original.
+		var arg_count: int = 3
+		for m in logic.get_method_list():
+			if m.get("name", "") == "conditional_damage_taken_mult":
+				arg_count = int(m.get("args", []).size())
+				break
+		var b: float = 0.0
+		if arg_count >= 4:
+			b = float(logic.conditional_damage_taken_mult(owner, source, level_stats.level, _ability_id))
+		else:
+			b = float(logic.conditional_damage_taken_mult(owner, source, level_stats.level))
+		acc[0] += b
 	)
-	return 1.0 + total_bonus
+	return 1.0 + acc[0]
 
 
 ## Iterates learned passives looking for `attack_cooldown_mult` (Wind
@@ -388,17 +410,50 @@ func get_incoming_damage_modifier(source: Node) -> float:
 ## Called from attack.gd's `attack_speed_percent` getter so the basic-
 ## attack cycle reflects the current passive state every frame.
 func get_attack_cooldown_mult() -> float:
-	var total_bonus: float = 0.0
+	# Array accumulator — lambdas capture floats by value (see get_conditional_damage_modifier).
+	var acc: Array = [0.0]
 	_foreach_learned_passive(func(ability, level_stats, _ability_id):
 		if not ability.active_behavior or not ability.active_behavior.logic_script:
 			return
 		var logic = ability.active_behavior.logic_script.new()
 		if not logic.has_method("attack_cooldown_mult"):
 			return
-		var b: float = float(logic.attack_cooldown_mult(owner, level_stats.level))
-		total_bonus += b
+		# Pass the passive's OWN ability_id when its hook accepts it (3-arg form),
+		# so the passive can read its own upgrade tree (potency / cap / at-full).
+		# Falls back to the original 2-arg call for hooks that don't.
+		var accepts_id: bool = false
+		for m in logic.get_method_list():
+			if m.get("name", "") == "attack_cooldown_mult":
+				accepts_id = int(m.get("args", []).size()) >= 3
+				break
+		var b: float = 0.0
+		if accepts_id:
+			b = float(logic.attack_cooldown_mult(owner, level_stats.level, _ability_id))
+		else:
+			b = float(logic.attack_cooldown_mult(owner, level_stats.level))
+		acc[0] += b
 	)
-	return 1.0 + total_bonus
+	return 1.0 + acc[0]
+
+
+## Sums learned-passive ability-cooldown reductions (Wind Rider's Twin Wind T3
+## and any future cooldown-reduction passives). Each passive whose logic_script
+## defines `ability_cooldown_reduction(owner, level, ability_id) -> float`
+## contributes a FRACTION (e.g. 0.125 = -12.5%); returns the combined multiplier
+## `1.0 - sum`, clamped so cooldowns can't go negative. Read where ability
+## cooldowns are computed.
+func get_passive_ability_cooldown_mult() -> float:
+	# Array accumulator — lambdas capture floats by value (see get_conditional_damage_modifier).
+	var acc: Array = [0.0]
+	_foreach_learned_passive(func(ability, level_stats, _ability_id):
+		if not ability.active_behavior or not ability.active_behavior.logic_script:
+			return
+		var logic = ability.active_behavior.logic_script.new()
+		if not logic.has_method("ability_cooldown_reduction"):
+			return
+		acc[0] += float(logic.ability_cooldown_reduction(owner, level_stats.level, _ability_id))
+	)
+	return clampf(1.0 - acc[0], 0.1, 1.0)
 
 
 func get_ability_cooldown_modifier(ability_id: String) -> float:
@@ -697,6 +752,11 @@ func _consume_ability_resources(ability_id: String, level_stats: AbilityLevelDat
 		var modified_mana_cost = roundi(level_stats.mana_cost * get_ability_mana_modifier(ability_id) * mp_mult)
 		# PR 6: generic "mana_flat_reduction" upgrade (flat MP off, clamped >= 0).
 		modified_mana_cost = maxi(0, modified_mana_cost - int(get_ability_upgrade_magnitude(ability_id, "mana_flat_reduction")))
+		# v1 Elemental Affinity — Sustained Affinity (T3): % MP reduction on spells
+		# matching the current stance.
+		var ela_reduction: float = preload("res://scripts/Abilities/AL_ElementalAffinity.gd").get_mana_reduction(owner, ability_id)
+		if ela_reduction > 0.0:
+			modified_mana_cost = maxi(0, roundi(float(modified_mana_cost) * (1.0 - ela_reduction)))
 		_mana_component.current_mana -= modified_mana_cost
 
 	# Start cooldown. PR 6: subtract any flat cooldown reduction from owned
@@ -705,6 +765,8 @@ func _consume_ability_resources(ability_id: String, level_stats: AbilityLevelDat
 	# logic_script's modify_cast_resources also scales this multiplicatively.
 	var modified_cooldown = level_stats.cooldown_time * get_ability_cooldown_modifier(ability_id) * cd_mult
 	modified_cooldown = maxf(0.0, modified_cooldown - get_ability_upgrade_magnitude(ability_id, "cooldown_flat_reduction"))
+	# Passive ability-cooldown reduction (Wind Rider's Twin Wind T3 etc.).
+	modified_cooldown *= get_passive_ability_cooldown_mult()
 	_cooldowns[ability_id] = modified_cooldown
 
 	return modified_cooldown

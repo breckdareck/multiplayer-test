@@ -1,19 +1,19 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=7 format=3 uid="uid://d4hbm3n31qbun"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=7 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_m8cd0"]
-[ext_resource type="Texture2D" uid="uid://cj4kv8pk70aal" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_8e0e0"]
-[ext_resource type="Script" uid="uid://mysmonmct4jm" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_cj15m"]
-
-[sub_resource type="Resource" id="Resource_qq4gy"]
-script = ExtResource("1_m8cd0")
-base_value = 0
-flat_bonus_value = 23
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_m8cd0"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_8e0e0"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_cj15m"]
 
 [sub_resource type="Resource" id="Resource_obi8o"]
 script = ExtResource("1_m8cd0")
 stat_type = 12
 base_value = 0
 flat_bonus_value = 97
+
+[sub_resource type="Resource" id="Resource_qq4gy"]
+script = ExtResource("1_m8cd0")
+base_value = 0
+flat_bonus_value = 23
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_hnpsj"]
 atlas = ExtResource("2_8e0e0")
@@ -22,14 +22,18 @@ margin = Rect2(3.5, 0, 7, 0)
 
 [resource]
 script = ExtResource("3_cj15m")
+weapon_type = 0
+weapon_attack_speed = 4
 equipment_type = 1
 bonus_stats = Dictionary[int, ExtResource("1_m8cd0")]({
 0: SubResource("Resource_qq4gy"),
 12: SubResource("Resource_obi8o")
 })
-item_id = "1213126150015-61449-115136-1515913-121090131013312537"
+item_id = "51110671118-1521011-151324-144150-144771315491556"
 name = "Runic Longsword"
+rarity = 0
 icon = SubResource("AtlasTexture_hnpsj")
 description = "A balanced blade — the Swordsman's trusted companion."
 item_type = 1
 item_level = 60
+custom_item_value = 0

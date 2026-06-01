@@ -30,7 +30,7 @@ logic_script = ExtResource("10_diso1")
 [sub_resource type="Resource" id="Resource_diso9"]
 script = ExtResource("5_diso1")
 base_value = 10.0
-per_level = 2
+per_level = 2.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_diso2"]
@@ -45,7 +45,7 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 [sub_resource type="Resource" id="Resource_diso4"]
 script = ExtResource("5_diso1")
 base_value = 70.0
-per_level = 6
+per_level = 6.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_diso5"]

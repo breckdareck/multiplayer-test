@@ -108,15 +108,26 @@ func _generate_weapons() -> void:
 
 # --- Armor: 4 class-themed sets x 4 slots x 11 level tiers --------------------
 func _generate_armor() -> void:
+	# Defensive identity (MapleStory / Spirit Vale spirit): each family favours
+	# one defense type. `def` / `mdef` are [base, per_level] slopes — a STRONG
+	# defense uses [3.0, 0.7] (matches the old physical DEF curve), a WEAK one
+	# [2.0, 0.45], and BALANCED (light armour) [2.5, 0.55]. Magic defense is
+	# bumped across the board (old MDEF was a flat 0.4 slope, now 0.45-0.7) and
+	# Arcanist robes now give magic defense on par with Vanguard plate's armour,
+	# so the magic-defense axis actually matters and scales.
 	var sets := [
 		{"name": "Vanguard", "desc": "Heavy plate forged for front-line Swordsmen.",
-		 "theme": [[STR, 1.0, 0.25], [HEALTH, 8.0, 1.8]]},
+		 "theme": [[STR, 1.0, 0.25], [HEALTH, 8.0, 1.8]],
+		 "def": [3.0, 0.7], "mdef": [2.0, 0.45]},      # plate: high armour, low magic resist
 		{"name": "Pathfinder", "desc": "Light, flexible armour suited to an Archer's mobility.",
-		 "theme": [[DEX, 1.0, 0.3], [CRITCHANCE, 1.0, 0.05]]},
+		 "theme": [[DEX, 1.0, 0.3], [CRITCHANCE, 1.0, 0.05]],
+		 "def": [2.5, 0.55], "mdef": [2.5, 0.55]},      # leather: balanced
 		{"name": "Arcanist", "desc": "Enchanted vestments that channel a Mage's power.",
-		 "theme": [[INT, 1.0, 0.3], [MANA, 6.0, 1.5]]},
+		 "theme": [[INT, 1.0, 0.3], [MANA, 6.0, 1.5]],
+		 "def": [2.0, 0.45], "mdef": [3.0, 0.7]},       # robes: high magic resist, low armour
 		{"name": "Nightshade", "desc": "Shadowy garb tailored for a Rogue's deadly craft.",
-		 "theme": [[LUCK, 1.0, 0.3], [CRITDMG, 1.0, 0.08]]},
+		 "theme": [[LUCK, 1.0, 0.3], [CRITDMG, 1.0, 0.08]],
+		 "def": [2.5, 0.55], "mdef": [2.5, 0.55]},      # cloth/leather: balanced
 	]
 	var slots := [
 		{"atype": 0, "noun": "Helm", "weight": 0.6, "icon": "armor0"},
@@ -138,8 +149,8 @@ func _generate_armor() -> void:
 				a.rarity = Constants.ItemRarity.COMMON
 				a.description = s["desc"]
 				a.icon = _get_icon(slot["icon"])
-				a.bonus_stats[DEF] = _stat(DEF, maxi(1, roundi((3.0 + lv * 0.7) * wgt)))
-				a.bonus_stats[MDEF] = _stat(MDEF, maxi(1, roundi((2.0 + lv * 0.4) * wgt)))
+				a.bonus_stats[DEF] = _stat(DEF, maxi(1, roundi((s["def"][0] + lv * s["def"][1]) * wgt)))
+				a.bonus_stats[MDEF] = _stat(MDEF, maxi(1, roundi((s["mdef"][0] + lv * s["mdef"][1]) * wgt)))
 				for t in s["theme"]:
 					a.bonus_stats[t[0]] = _stat(t[0], maxi(1, roundi((t[1] + lv * t[2]) * wgt)))
 				_save(a, ARMOR_DIR + _fname(a.name) + ".tres")

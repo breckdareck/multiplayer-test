@@ -1,17 +1,17 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=20 format=3 uid="uid://ng3vpu3sm4uoh"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=21 format=3 uid="uid://buvaxpc1xi8e6"]
 
-[ext_resource type="Texture2D" path="res://assets/sprites/Abilities/magic_bolt.png" id="1_icon"]
+[ext_resource type="Texture2D" uid="uid://cu1y53548p0uf" path="res://assets/sprites/Abilities/magic_bolt.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
-[ext_resource type="Script" path="res://scripts/Abilities/AL_Stormcall.gd" id="3_al"]
+[ext_resource type="Script" uid="uid://cl3m76gf8fke1" path="res://scripts/Abilities/AL_Stormcall.gd" id="3_al"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_ad"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_asf"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_asd"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_sbf"]
-[ext_resource type="Resource" uid="uid://jnjwdwbqlp5io" path="res://resources/Abilities/Staff/Upgrades/U_STC_sustained_storm.tres" id="9_upg"]
-[ext_resource type="Resource" uid="uid://hgvjskfp5xaxs" path="res://resources/Abilities/Staff/Upgrades/U_STC_heavy_storm.tres" id="10_upg"]
+[ext_resource type="Resource" uid="uid://bwp56sg8hcey5" path="res://resources/Abilities/Staff/Upgrades/U_STC_sustained_storm.tres" id="9_upg"]
+[ext_resource type="Resource" uid="uid://dlhn7iihlqe61" path="res://resources/Abilities/Staff/Upgrades/U_STC_heavy_storm.tres" id="10_upg"]
 [ext_resource type="Resource" uid="uid://c35uyiyu6ysyc" path="res://resources/Abilities/Staff/Upgrades/U_STC_wide_storm.tres" id="11_upg"]
-[ext_resource type="Resource" uid="uid://onw5wztdiikss" path="res://resources/Abilities/Staff/Upgrades/U_STC_rapid_storm.tres" id="12_upg"]
-[ext_resource type="Resource" uid="uid://6deqch3zkhut3" path="res://resources/Abilities/Staff/Upgrades/U_STC_chaining_storm.tres" id="13_upg"]
+[ext_resource type="Resource" uid="uid://c2pj5t2lsvxji" path="res://resources/Abilities/Staff/Upgrades/U_STC_rapid_storm.tres" id="12_upg"]
+[ext_resource type="Resource" uid="uid://f4rl1qy1uury" path="res://resources/Abilities/Staff/Upgrades/U_STC_chaining_storm.tres" id="13_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="14_aud"]
 
 [sub_resource type="Resource" id="Resource_active"]
@@ -23,7 +23,6 @@ logic_script = ExtResource("3_al")
 
 [sub_resource type="Resource" id="Resource_cast"]
 script = ExtResource("5_asf")
-base_value = 0.0
 
 [sub_resource type="Resource" id="Resource_cd"]
 script = ExtResource("5_asf")
@@ -32,7 +31,7 @@ base_value = 12.0
 [sub_resource type="Resource" id="Resource_dmg"]
 script = ExtResource("5_asf")
 base_value = 55.0
-per_level = 3
+per_level = 3.0
 
 [sub_resource type="Resource" id="Resource_mana"]
 script = ExtResource("5_asf")
@@ -58,7 +57,6 @@ ability_name = "Stormcall"
 description = "Channel for 3 seconds. Lightning randomly strikes nearby enemies every half-second for $[damage_percent] magic damage. The staff's heaviest sustain."
 ability_icon = ExtResource("1_icon")
 max_level = 10
-ability_type = 0
 required_class = Array[int]([2])
 required_weapon_types = Array[int]([2])
 tree_path = 1

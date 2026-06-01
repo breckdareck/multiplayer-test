@@ -34,7 +34,7 @@ const LIGHTNING_CHAIN_RADIUS: float = 220.0
 const LIGHTNING_CHAIN_PCT: float = 0.60
 
 
-func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevelData) -> void:
+func execute(owner_node: Node, ability: AbilityData, level_stats: AbilityLevelData) -> void:
 	if not owner_node.multiplayer.is_server():
 		return
 	if not is_instance_valid(owner_node):
@@ -54,6 +54,40 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 		return
 	var magic_attack: int = int(stats_comp.stats[Constants.StatType.MAGICATTACK].total_value)
 
+	# Upgrade reads: Doubled Weave (T3) fires the release twice; Echoing Weave
+	# (T3) refunds MP if the release connects with an enemy.
+	var double_release: bool = false
+	var mp_refund: float = 0.0
+	var ability_comp = owner_node.get("ability_component")
+	if ability_comp and ability != null and ability_comp.has_method("get_ability_upgrade_magnitude"):
+		double_release = ability_comp.get_ability_upgrade_magnitude(ability.ability_id, "bonus_double_release") > 0.0
+		mp_refund = ability_comp.get_ability_upgrade_magnitude(ability.ability_id, "bonus_mp_refund")
+
+	_release(owner_node, element, facing, magic_attack)
+
+	# Echoing Weave: refund a fraction of the spell's MP cost if any enemy was in
+	# reach of the release (approximated by proximity to the release area).
+	if mp_refund > 0.0 and level_stats != null and _enemy_in_reach(owner_node, facing):
+		var mana_comp = owner_node.get("mana_component")
+		if mana_comp != null and is_instance_valid(mana_comp):
+			var refund: int = int(float(level_stats.mana_cost) * mp_refund)
+			if mana_comp.has_method("regain_mana"):
+				mana_comp.regain_mana(refund, owner_node)
+			elif "current_mana" in mana_comp:
+				mana_comp.current_mana += refund
+
+	# Doubled Weave: a second amplified release ~0.5s later.
+	if double_release:
+		owner_node.get_tree().create_timer(0.5).timeout.connect(
+			func():
+				if is_instance_valid(owner_node):
+					_release(owner_node, element, facing, magic_attack)
+		)
+
+
+## Dispatch the stance-appropriate amplified release. Factored out so Doubled
+## Weave can re-fire it without re-entering execute (no re-cast / re-cost).
+func _release(owner_node: Node, element: int, facing: int, magic_attack: int) -> void:
 	match element:
 		0:  # FIRE — spawn an amplified Pyre Burst-style pool
 			_fire_pool(owner_node, facing, magic_attack)
@@ -63,6 +97,21 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 			_lightning_chain(owner_node, magic_attack)
 		_:
 			_fire_pool(owner_node, facing, magic_attack)
+
+
+## True if any living enemy is within a generous reach of the release area —
+## the refund condition for Echoing Weave.
+func _enemy_in_reach(owner_node: Node, facing: int) -> bool:
+	var center: Vector2 = owner_node.global_position + Vector2(140.0 * float(facing), 0)
+	for enemy in owner_node.get_tree().get_nodes_in_group("Enemies"):
+		if not (enemy is EnemyBase) or not is_instance_valid(enemy):
+			continue
+		var hc = enemy.get("health_component")
+		if hc == null or not is_instance_valid(hc) or hc.is_dead:
+			continue
+		if enemy.global_position.distance_to(center) <= 240.0:
+			return true
+	return false
 
 
 func _fire_pool(owner_node: Node, facing: int, magic_attack: int) -> void:

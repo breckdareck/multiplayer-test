@@ -1,11 +1,11 @@
-[gd_resource type="Resource" script_class="ConsumableData" load_steps=5 format=3 uid="uid://r25iljcogvay"]
+[gd_resource type="Resource" script_class="ConsumableData" load_steps=5 format=3]
 
-[ext_resource type="Script" uid="uid://bwha778d03wb3" path="res://scripts/Resources/ItemSystem/Effects/Effect_RestoreHealth.gd" id="1_cov4o"]
-[ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="2_cov4o"]
-[ext_resource type="Script" uid="uid://ubv3mjjv4lvi" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="3_04x7s"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/Effects/Effect_RestoreHealth.gd" id="1_cov4o"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_2uu5y"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="3_04x7s"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_ba83o"]
-atlas = ExtResource("2_cov4o")
+[sub_resource type="AtlasTexture" id="AtlasTexture_0md6a"]
+atlas = ExtResource("2_2uu5y")
 region = Rect2(391, 634, 54, 54)
 
 [resource]
@@ -14,9 +14,9 @@ effect_script = ExtResource("1_cov4o")
 effect_properties = {
 "heal_amount": 320
 }
-item_id = "109111471344-123108-14835-711310-357783169625"
+item_id = "511121012400-71140-151610-3121113-77190152121112112"
 name = "Greater Healing Draught"
-icon = SubResource("AtlasTexture_ba83o")
+icon = SubResource("AtlasTexture_0md6a")
 description = "Restores 320 HP when consumed."
 item_type = 2
 item_level = -1

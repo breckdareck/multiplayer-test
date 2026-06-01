@@ -23,7 +23,7 @@ logic_script = ExtResource("2_00lf2")
 [sub_resource type="Resource" id="Resource_ssh7q"]
 script = ExtResource("7_wemtw")
 base_value = 20.0
-per_level = 2
+per_level = 2.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_wemtw"]
@@ -42,7 +42,7 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 [sub_resource type="Resource" id="Resource_03aqp"]
 script = ExtResource("7_wemtw")
 base_value = 28.0
-per_level = 4
+per_level = 4.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_om4rk"]

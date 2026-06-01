@@ -73,6 +73,12 @@ func _refresh_tooltip() -> void:
 	else:
 		tooltip_text = ""
 
+
+## Render the tooltip as BBCode so [color=...] tags in the description display
+## styled instead of raw (Godot's default tooltip is a plain Label).
+func _make_custom_tooltip(for_text: String) -> Object:
+	return AbilityTooltip.build(for_text)
+
 ## Handles mouse click to select the ability
 func _gui_input(event: InputEvent):
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:

@@ -1,18 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://dtc8o0f0h4uug"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_tpgnk"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_xn8uo"]
-
-[sub_resource type="Resource" id="Resource_u3j55"]
-script = ExtResource("1_tpgnk")
-base_value = 0
-flat_bonus_value = 9
-
-[sub_resource type="Resource" id="Resource_gk6s6"]
-script = ExtResource("1_tpgnk")
-stat_type = 4
-base_value = 0
-flat_bonus_value = 67
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_tpgnk"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_xn8uo"]
 
 [sub_resource type="Resource" id="Resource_b6tqa"]
 script = ExtResource("1_tpgnk")
@@ -24,7 +13,18 @@ flat_bonus_value = 26
 script = ExtResource("1_tpgnk")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 15
+flat_bonus_value = 17
+
+[sub_resource type="Resource" id="Resource_u3j55"]
+script = ExtResource("1_tpgnk")
+base_value = 0
+flat_bonus_value = 9
+
+[sub_resource type="Resource" id="Resource_gk6s6"]
+script = ExtResource("1_tpgnk")
+stat_type = 4
+base_value = 0
+flat_bonus_value = 67
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_3ekx2"]
 load_path = "res://.godot/imported/Eqp_Leather_Sandals.png-23f0cc5f3f25b855dccf580eeba0d806.ctex"
@@ -38,9 +38,11 @@ bonus_stats = Dictionary[int, ExtResource("1_tpgnk")]({
 8: SubResource("Resource_b6tqa"),
 9: SubResource("Resource_xbdgt")
 })
-item_id = "11261341351-141139-313410-98411-312151321015124283"
+item_id = "3614157141015-11346-611015-17913-476142254101585"
 name = "Dragonbone Vanguard Boots"
+rarity = 0
 icon = SubResource("CompressedTexture2D_3ekx2")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 70
+custom_item_value = 0

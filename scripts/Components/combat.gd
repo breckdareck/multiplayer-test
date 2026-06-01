@@ -226,6 +226,10 @@ func process_ability_hit(ability: AbilityData, level_stats: AbilityLevelData, du
 	turn_on_hitbox()
 
 	var attack_duration = duration_override if duration_override > 0.0 else level_stats.cast_time
+	# v1 channel_time_reduction upgrade (Onslaught's Swift Wind-up / Spellweave's
+	# Swift Weave): trim the channel/cast window by the owned magnitude (seconds).
+	if _ability_component and _ability_component.has_method("get_ability_upgrade_magnitude"):
+		attack_duration -= _ability_component.get_ability_upgrade_magnitude(ability.ability_id, "channel_time_reduction")
 	if attack_duration <= 0.0:
 		attack_duration = 0.05
 
@@ -512,10 +516,26 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 			var mana_surge_bonus: float = preload("res://scripts/Abilities/AL_ManaSurge.gd").get_damage_bonus(target_enemy)
 			if mana_surge_bonus > 0.0:
 				modified_damage *= (1.0 + mana_surge_bonus)
+		# v1 Wind Rider — Driving Wind (T3): +damage at full Bow Momentum. The
+		# passive's per-frame cooldown hook stashes the bonus on the owner.
+		var wind_full_bonus: float = preload("res://scripts/Abilities/AL_WindRider.gd").get_full_momentum_damage_bonus(owner_node)
+		if wind_full_bonus > 0.0:
+			modified_damage *= (1.0 + wind_full_bonus)
+		# v1 Banner — Inspiring Banner (T3): +damage while the attacker stands in
+		# a friendly banner. Meta refreshed each tick by AL_Banner.
+		var banner_dmg: float = preload("res://scripts/Abilities/AL_Banner.gd").get_aura_damage_bonus(owner_node)
+		if banner_dmg > 0.0:
+			modified_damage *= (1.0 + banner_dmg)
 
 		if target_enemy.has_node("Stats"):
 			var target_stats = target_enemy.get_node("Stats")
-			var target_defense = target_stats.stats.get(Constants.StatType.DEFENSE).total_value
+			# MAGIC abilities (damage_stat == MAGICATTACK — staff spells) mitigate
+			# against the enemy's MAGICDEFENSE; physical hits and basic attacks use
+			# DEFENSE. This makes the enemy MAGICDEFENSE curve matter and mirrors the
+			# enemy-side magic/physical split in enemy_base.damage_on_overlap.
+			var is_magic_hit: bool = ability != null and ability.damage_stat == Constants.StatType.MAGICATTACK
+			var def_stat: int = Constants.StatType.MAGICDEFENSE if is_magic_hit else Constants.StatType.DEFENSE
+			var target_defense = target_stats.stats.get(def_stat).total_value
 
 			var level_modifier = clamp(1.0 + (level_diff * 0.05), 0.5, 1.5)
 			var defense_multiplier = 1.0 - (float(target_defense) / (target_defense + 500.0))
@@ -526,6 +546,8 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 		# v1 DeathMark — flat additive crit chance on marked enemies (dagger).
 		# Static helper; safe on unmarked targets (returns 0.0).
 		crit_chance += preload("res://scripts/Abilities/AL_DeathMark.gd").get_crit_bonus(target_enemy)
+		# v1 Predator's Patience — Killer Patience (T3): +crit chance per stack.
+		crit_chance += preload("res://scripts/Abilities/AL_PredatorsPatience.gd").get_crit_bonus(owner_node)
 		var is_crit = (randf() * 100) < crit_chance
 		# v1 MarkOfTheHunt — momentum-spender hits on marked enemy are
 		# guaranteed crits. Match by ability_name so a renamed Snipe /
@@ -536,6 +558,10 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 			if (ability_name == "Snipe" or ability_name == "Sundering Arrow"):
 				if preload("res://scripts/Abilities/AL_MarkOfTheHunt.gd").is_marked(target_enemy):
 					is_crit = true
+					# Sundering Mark (T3): the consume pierces — spread the hunt to
+					# nearby enemies before clearing it off this target.
+					if preload("res://scripts/Abilities/AL_MarkOfTheHunt.gd").is_sundering(target_enemy):
+						preload("res://scripts/Abilities/AL_MarkOfTheHunt.gd").sunder_spread(owner_node, target_enemy)
 					preload("res://scripts/Abilities/AL_MarkOfTheHunt.gd").consume_mark(target_enemy)
 		# PR 7 — Dagger Shadowmeld ambush GUARANTEES a crit on the strike from
 		# stealth (the assassin payoff: a hit from the shadows always lands true),
@@ -585,6 +611,20 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 
 		var was_alive: bool = not health_comp.is_dead
 		health_comp.take_damage(damage_to_deal, self, true, is_crit, false)
+
+		# v1 lifesteal hooks (dagger). Vendetta's Regenerative Vendetta (T3) heals
+		# a fraction of THIS ability's damage; Predator's Lifesteal Patience (T3)
+		# heals on a full-Patience ambush. Both no-op when their upgrade is unowned.
+		if damage_to_deal > 0:
+			var heal_frac: float = 0.0
+			if ability != null:
+				heal_frac += _upgrade_float(ability, "bonus_lifesteal")
+			if ambush_mult > 1.0:
+				heal_frac += preload("res://scripts/Abilities/AL_PredatorsPatience.gd").get_lifesteal_at_max(owner_node)
+			if heal_frac > 0.0:
+				var hc_owner = owner_node.get("health_component")
+				if hc_owner and is_instance_valid(hc_owner) and not hc_owner.is_dead and hc_owner.has_method("heal_damage"):
+					hc_owner.heal_damage(maxi(1, roundi(damage_to_deal * heal_frac)), owner_node)
 
 		# v1 mark consume hooks — post-hit effects that fire after damage
 		# lands. SentinelsMark rolls a combo refund; ManaSurge refunds half
@@ -661,6 +701,14 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 		if was_alive and health_comp.is_dead and _ability_component:
 			if _ability_component.has_method("dispatch_passive_event_on_kill"):
 				_ability_component.dispatch_passive_event_on_kill(target_enemy)
+
+		# v1 mark-spread on death (T3 variants): Death Mark's Spreading Mark and
+		# Sentinel's Mark's Echoing Mark transfer the mark to a nearby enemy when
+		# the marked target dies. Each reads a meta the mark stamped, so no
+		# ability_id is needed here; both no-op when the meta is absent.
+		if was_alive and health_comp.is_dead:
+			preload("res://scripts/Abilities/AL_DeathMark.gd").spread_on_death(target_enemy)
+			preload("res://scripts/Abilities/AL_SentinelsMark.gd").spread_on_death(target_enemy)
 
 		# PR 5 — Sword signature: build a combo point on every BASIC-ATTACK
 		# HIT while wielding a sword. Conditions:

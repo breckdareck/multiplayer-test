@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://dx6oruxtzryss"]
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://dx6oruxt0ryss"]
 
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
 
@@ -11,4 +11,4 @@ point_cost = 2
 tier = 3
 variant_group = "ear_t3_variant"
 effect_key = "bonus_zone_split"
-magnitude = 1
+magnitude = 1.0

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://gjm4ht2rdtf72"]
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://cn78vr5ismkhb"]
 
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
 
@@ -7,8 +7,5 @@ script = ExtResource("1_aud")
 upgrade_id = "skv_t1_sustained_volley"
 upgrade_name = "Sustained Volley"
 description = "Sky Volley's max channel is increased by 1 second."
-point_cost = 1
-tier = 1
-variant_group = "skv_t1"
 effect_key = "channel_time_extension"
 magnitude = 1.0

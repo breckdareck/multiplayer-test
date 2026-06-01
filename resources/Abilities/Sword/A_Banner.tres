@@ -1,17 +1,17 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=20 format=3 uid="uid://ebjq3egbalxan"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=19 format=3 uid="uid://f4vici1pe2iv"]
 
-[ext_resource type="Texture2D" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_icon"]
+[ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
-[ext_resource type="Script" path="res://scripts/Abilities/AL_Banner.gd" id="3_al"]
+[ext_resource type="Script" uid="uid://ckxd82qkwpifs" path="res://scripts/Abilities/AL_Banner.gd" id="3_al"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_ad"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_asf"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_asd"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_sbf"]
-[ext_resource type="Resource" uid="uid://2jfelf247hsnq" path="res://resources/Abilities/Sword/Upgrades/U_BNR_wider_banner.tres" id="9_upg"]
-[ext_resource type="Resource" uid="uid://qamxr6telmsq3" path="res://resources/Abilities/Sword/Upgrades/U_BNR_lasting_banner.tres" id="10_upg"]
-[ext_resource type="Resource" uid="uid://ymc2bejzrhd4y" path="res://resources/Abilities/Sword/Upgrades/U_BNR_inspiring_banner.tres" id="11_upg"]
-[ext_resource type="Resource" uid="uid://lvtprifpwk4lk" path="res://resources/Abilities/Sword/Upgrades/U_BNR_healing_banner.tres" id="12_upg"]
-[ext_resource type="Resource" uid="uid://ajdsvcbra6lvu" path="res://resources/Abilities/Sword/Upgrades/U_BNR_bulwark_banner.tres" id="13_upg"]
+[ext_resource type="Resource" uid="uid://hkbg1nd82ode" path="res://resources/Abilities/Sword/Upgrades/U_BNR_wider_banner.tres" id="9_upg"]
+[ext_resource type="Resource" uid="uid://s0hfx5ectbp1" path="res://resources/Abilities/Sword/Upgrades/U_BNR_lasting_banner.tres" id="10_upg"]
+[ext_resource type="Resource" uid="uid://bfvtq11id84le" path="res://resources/Abilities/Sword/Upgrades/U_BNR_inspiring_banner.tres" id="11_upg"]
+[ext_resource type="Resource" uid="uid://bl30cnx7yica" path="res://resources/Abilities/Sword/Upgrades/U_BNR_healing_banner.tres" id="12_upg"]
+[ext_resource type="Resource" uid="uid://jdsvcbra6lvu" path="res://resources/Abilities/Sword/Upgrades/U_BNR_bulwark_banner.tres" id="13_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="14_aud"]
 
 [sub_resource type="Resource" id="Resource_active"]
@@ -23,7 +23,6 @@ logic_script = ExtResource("3_al")
 
 [sub_resource type="Resource" id="Resource_cast"]
 script = ExtResource("5_asf")
-base_value = 0.0
 
 [sub_resource type="Resource" id="Resource_cd"]
 script = ExtResource("5_asf")
@@ -34,20 +33,33 @@ script = ExtResource("5_asf")
 base_value = 15.0
 per_level = 0.6
 
+[sub_resource type="Resource" id="Resource_defense"]
+script = ExtResource("5_asf")
+base_value = 30.0
+per_level = 5.0
+
+[sub_resource type="Resource" id="Resource_hpregen"]
+script = ExtResource("5_asf")
+base_value = 5.0
+per_level = 1.0
+
 [sub_resource type="Resource" id="Resource_scaling"]
 script = ExtResource("7_asd")
 mana_cost_formula = SubResource("Resource_mana")
 cooldown_formula = SubResource("Resource_cd")
 cast_time_formula = SubResource("Resource_cast")
+custom_value_formulas = Dictionary[String, ExtResource("5_asf")]({
+"defense": SubResource("Resource_defense"),
+"hp_regen": SubResource("Resource_hpregen")
+})
 
 [resource]
 script = ExtResource("4_ad")
 ability_id = "banner_v1"
 ability_name = "Banner of the Vanguard"
-description = "Plant a banner at your feet for 8 seconds. Allies inside gain +Defense and HP regen each second. The vanguard's resolve."
+description = "Plant a banner at your feet for 8 seconds. Allies inside gain [color=#7ec2ff]+$[value:defense] Defense[/color] and [color=#7ec2ff]+$[value:hp_regen] HP[/color] regen each second. The vanguard's resolve."
 ability_icon = ExtResource("1_icon")
 max_level = 10
-ability_type = 0
 required_class = Array[int]([0])
 required_weapon_types = Array[int]([0])
 tree_path = 1

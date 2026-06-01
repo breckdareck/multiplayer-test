@@ -10,6 +10,25 @@ extends Resource
 ## reads full. Damage numbers still show — it's a punching bag for testing.
 @export var is_invincible: bool = false
 
+## When true, this enemy's attacks deal MAGIC damage — scaled by its MAGICATTACK
+## and mitigated by the target's MAGICDEFENSE — instead of the default physical
+## (WEAPONATTACK vs DEFENSE). Use for elemental / caster enemies so the magic-
+## defense axis (magic armor) actually matters. See enemy_base.damage_on_overlap.
+@export var is_magic_attacker: bool = false
+
+@export_category("Stat Tuning")
+## Per-enemy multipliers applied ON TOP of the shared monster_*_curves (1.0 = the
+## curve baseline for this monster_level). These let two same-level enemies feel
+## DIFFERENT without authoring separate curves — e.g. a slime with defense_mult
+## 1.5 and magic_defense_mult 0.4 is a physical wall that melts to magic, while a
+## wraith might invert it. Tune freely up or down; applied in enemy_base._ready.
+@export var defense_mult: float = 1.0
+@export var magic_defense_mult: float = 1.0
+@export var health_mult: float = 1.0
+## Scales BOTH the weapon- and magic-attack curve values (an enemy uses whichever
+## matches is_magic_attacker), so a heavy-hitter or a weakling reads off one knob.
+@export var attack_mult: float = 1.0
+
 @export_category("AI")
 ## When true the enemy chases any player/bot it spots; when false it ignores
 ## them until it is attacked, then fights back.

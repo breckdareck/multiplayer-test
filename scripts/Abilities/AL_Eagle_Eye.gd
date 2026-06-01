@@ -64,9 +64,11 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 				Constants.StatType.WEAPONATTACK:
 					stat_data.flat_bonus_value += extra_atk
 				Constants.StatType.CRITCHANCE:
-					stat_data.percent_bonus_value += extra_critchance
+					# Units already percent — add via flat (base=5 makes percent_bonus near-dead).
+					stat_data.flat_bonus_value += int(extra_critchance)
 				Constants.StatType.CRITDAMAGE:
-					stat_data.percent_bonus_value += extra_critdmg
+					# Units already percent — add via flat (base=0 makes percent_bonus fully dead).
+					stat_data.flat_bonus_value += int(extra_critdmg)
 			active_buff.buff_data.stat_modifiers[bonus.stat_type] = stat_data
 			modifier_data[bonus.stat_type] = {
 				"flat": stat_data.flat_bonus_value,
@@ -74,8 +76,8 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 			}
 		# Add upgrade-only stats that weren't in the base formulas.
 		_layer_upgrade_only_stat(active_buff, modifier_data, Constants.StatType.WEAPONATTACK, extra_atk, 0.0)
-		_layer_upgrade_only_stat(active_buff, modifier_data, Constants.StatType.CRITCHANCE, 0, extra_critchance)
-		_layer_upgrade_only_stat(active_buff, modifier_data, Constants.StatType.CRITDAMAGE, 0, extra_critdmg)
+		_layer_upgrade_only_stat(active_buff, modifier_data, Constants.StatType.CRITCHANCE, int(extra_critchance), 0.0)
+		_layer_upgrade_only_stat(active_buff, modifier_data, Constants.StatType.CRITDAMAGE, int(extra_critdmg), 0.0)
 
 		buff_component._force_stat_recalc()
 		if not buff_component.is_bot_owned():

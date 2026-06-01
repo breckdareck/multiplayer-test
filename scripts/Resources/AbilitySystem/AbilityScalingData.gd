@@ -31,6 +31,18 @@ extends Resource
 ## Key: StatType, Value: formula for bonus
 @export var stat_bonus_formulas: Array[StatBonusFormula] = []
 
+@export_group("Custom Display Values")
+## Named, level-scaled values surfaced in the description via $[value:KEY].
+## Use this for abilities whose effect numbers don't map onto the fixed
+## fields above (damage_percent / targets / hits / buff_duration / a single
+## stat_bonus) — e.g. Bulwark Stance's +Defense, Sentinel's Mark's damage
+## bonus AND refund chance, Banner's +Defense AND +HP regen. The matching
+## AL_*.gd script reads the SAME formula so the tooltip and gameplay can
+## never drift. Author the formula in DISPLAY units (e.g. 20 → "20"), and
+## write any unit ("%", " Defense") literally in the description text.
+## Key: placeholder name (the KEY in $[value:KEY]); Value: scaling formula.
+@export var custom_value_formulas: Dictionary[String, AbilityScalingFormula] = {}
+
 @export_group("Proc Effects")
 ## Instead of creating procs per level, define how proc stats scale
 @export var proc_chance_formula: AbilityScalingFormula

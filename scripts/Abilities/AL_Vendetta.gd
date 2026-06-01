@@ -24,8 +24,12 @@ const PER_STACK_PCT: float = 0.30
 const STRIKE_RANGE: float = 60.0
 const MAX_HEIGHT_DELTA: float = 50.0
 
+## Lethal Vendetta (T3): when the target is in execute range (below this HP
+## fraction) the burst is amplified by the bonus_execute_mult magnitude.
+const EXECUTE_HP_THRESHOLD: float = 0.30
 
-func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevelData) -> void:
+
+func execute(owner_node: Node, ability: AbilityData, _level_stats: AbilityLevelData) -> void:
 	if not owner_node.multiplayer.is_server():
 		return
 	if not is_instance_valid(owner_node):
@@ -51,10 +55,22 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 	# Consume the entire pool so the stacks can't be cashed twice.
 	target.remove_meta(POISON_META)
 
+	var burst: float = float(stacks) * PER_STACK_PCT
+
+	# Lethal Vendetta (T3): if the target is in execute range, amplify the burst.
+	var ability_comp = owner_node.get("ability_component")
+	if ability_comp and ability != null and ability_comp.has_method("get_ability_upgrade_magnitude"):
+		var execute_mult: float = ability_comp.get_ability_upgrade_magnitude(ability.ability_id, "bonus_execute_mult")
+		if execute_mult > 0.0:
+			var hc = target.get("health_component")
+			if hc and is_instance_valid(hc) and hc.max_health > 0:
+				if float(hc.current_health) / float(hc.max_health) < EXECUTE_HP_THRESHOLD:
+					burst += execute_mult
+
 	# Fold the burst into the whole hit (scales with the full damage formula,
 	# shows as one number, applies on a kill). combat resets the multiplier in
 	# end_ability_attack so it never bleeds into the next cast.
-	combat.pending_ability_damage_multiplier = 1.0 + (float(stacks) * PER_STACK_PCT)
+	combat.pending_ability_damage_multiplier = 1.0 + burst
 
 
 func _nearest_strike_target(owner_node: Node, facing: int) -> Node:

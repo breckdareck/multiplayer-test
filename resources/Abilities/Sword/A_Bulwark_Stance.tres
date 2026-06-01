@@ -22,7 +22,7 @@ logic_script = ExtResource("2b_albs")
 [sub_resource type="Resource" id="Resource_duration"]
 script = ExtResource("5_asf")
 base_value = 30.0
-per_level = 4
+per_level = 4.0
 
 [sub_resource type="Resource" id="Resource_zero"]
 script = ExtResource("5_asf")
@@ -35,6 +35,11 @@ base_value = 30.0
 script = ExtResource("5_asf")
 base_value = 15.0
 
+[sub_resource type="Resource" id="Resource_defense"]
+script = ExtResource("5_asf")
+base_value = 100.0
+per_level = 16.666667
+
 [sub_resource type="Resource" id="Resource_scaling"]
 script = ExtResource("7_asd")
 mana_cost_formula = SubResource("Resource_mana")
@@ -43,12 +48,15 @@ damage_percent_formula = SubResource("Resource_zero")
 max_targets_formula = SubResource("Resource_zero")
 max_hits_formula = SubResource("Resource_zero")
 cast_time_formula = SubResource("Resource_zero")
+custom_value_formulas = Dictionary[String, ExtResource("5_asf")]({
+"defense": SubResource("Resource_defense")
+})
 
 [resource]
 script = ExtResource("3_ad")
 ability_id = "41061514101-22013-11147-15836-1411810914148712106"
 ability_name = "Bulwark Stance"
-description = "Enter a defensive stance — gain [color=#7ec2ff]+250 Defense[/color] for $[buff_duration]. Drains 2 MP/s; auto-cancels when MP runs out."
+description = "Enter a defensive stance — gain [color=#7ec2ff]+$[value:defense] Defense[/color] for $[buff_duration]. Drains 2 MP/s; auto-cancels when MP runs out."
 ability_icon = ExtResource("1_icon")
 max_level = 10
 required_class = Array[int]([0])

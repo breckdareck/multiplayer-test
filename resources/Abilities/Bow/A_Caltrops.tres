@@ -1,17 +1,17 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=20 format=3 uid="uid://ipp6am7smokzz"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=21 format=3 uid="uid://ywf3jebiatih"]
 
-[ext_resource type="Texture2D" path="res://assets/sprites/Abilities/strafe.png" id="1_icon"]
+[ext_resource type="Texture2D" uid="uid://drobx0va8sphc" path="res://assets/sprites/Abilities/strafe.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
-[ext_resource type="Script" path="res://scripts/Abilities/AL_Caltrops.gd" id="3_al"]
+[ext_resource type="Script" uid="uid://w3x34ybdkevd" path="res://scripts/Abilities/AL_Caltrops.gd" id="3_al"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_ad"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_asf"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_asd"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_sbf"]
-[ext_resource type="Resource" uid="uid://xkacsrihmgw7a" path="res://resources/Abilities/Bow/Upgrades/U_CAL_sharper_spikes.tres" id="9_upg"]
-[ext_resource type="Resource" uid="uid://pqbraflem7q5j" path="res://resources/Abilities/Bow/Upgrades/U_CAL_wider_field.tres" id="10_upg"]
-[ext_resource type="Resource" uid="uid://kyuzepwplyjti" path="res://resources/Abilities/Bow/Upgrades/U_CAL_lingering_field.tres" id="11_upg"]
-[ext_resource type="Resource" uid="uid://pop7gxd7kj4pb" path="res://resources/Abilities/Bow/Upgrades/U_CAL_piercing_spikes.tres" id="12_upg"]
-[ext_resource type="Resource" uid="uid://xysq2mtqnv4tz" path="res://resources/Abilities/Bow/Upgrades/U_CAL_poisoned_spikes.tres" id="13_upg"]
+[ext_resource type="Resource" uid="uid://ds4afyx78ono" path="res://resources/Abilities/Bow/Upgrades/U_CAL_sharper_spikes.tres" id="9_upg"]
+[ext_resource type="Resource" uid="uid://oav6weee84h" path="res://resources/Abilities/Bow/Upgrades/U_CAL_wider_field.tres" id="10_upg"]
+[ext_resource type="Resource" uid="uid://c8187l27hksby" path="res://resources/Abilities/Bow/Upgrades/U_CAL_lingering_field.tres" id="11_upg"]
+[ext_resource type="Resource" uid="uid://d3ilormguxif0" path="res://resources/Abilities/Bow/Upgrades/U_CAL_piercing_spikes.tres" id="12_upg"]
+[ext_resource type="Resource" uid="uid://sdjjbb8aovbf" path="res://resources/Abilities/Bow/Upgrades/U_CAL_poisoned_spikes.tres" id="13_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="14_aud"]
 
 [sub_resource type="Resource" id="Resource_active"]
@@ -23,7 +23,6 @@ logic_script = ExtResource("3_al")
 
 [sub_resource type="Resource" id="Resource_cast"]
 script = ExtResource("5_asf")
-base_value = 0.0
 
 [sub_resource type="Resource" id="Resource_cd"]
 script = ExtResource("5_asf")
@@ -32,7 +31,7 @@ base_value = 10.0
 [sub_resource type="Resource" id="Resource_dmg"]
 script = ExtResource("5_asf")
 base_value = 50.0
-per_level = 2
+per_level = 2.0
 
 [sub_resource type="Resource" id="Resource_mana"]
 script = ExtResource("5_asf")
@@ -58,7 +57,6 @@ ability_name = "Caltrops"
 description = "Drop a patch of caltrops at your feet for 5 seconds. Enemies inside take $[damage_percent] damage per tick and are slowed by 30%."
 ability_icon = ExtResource("1_icon")
 max_level = 10
-ability_type = 0
 required_class = Array[int]([1])
 required_weapon_types = Array[int]([1])
 tree_path = 1

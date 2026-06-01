@@ -209,6 +209,16 @@ func _on_mouse_entered() -> void:
 		tooltip_text = ""
 
 
+## Render the tooltip as BBCode so [color=...] tags in ability descriptions
+## display styled instead of raw (Godot's default tooltip is a plain Label).
+## Consumables keep their rarity-colored border, matching the inventory tooltip.
+func _make_custom_tooltip(for_text: String) -> Object:
+	var border = null
+	if assigned_consumable and not assigned_ability:
+		border = TooltipTheme.rarity_color_for(assigned_consumable)
+	return AbilityTooltip.build(for_text, border)
+
+
 func _get_ability_level(ability_data: AbilityData) -> int:
 	# The HotbarSlot is `slots_container -> Hotbar`. Walk up to fetch the level
 	# from the player's ability component; fall back to 0 if the lookup fails

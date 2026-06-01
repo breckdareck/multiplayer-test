@@ -30,6 +30,13 @@ const ZONE_SPAWN_OFFSET: float = 140.0  ## px ahead of caster in facing directio
 const TICK_DAMAGE_PCT: float = 0.11
 
 const ZONE_COLOR: Color = Color(0.55, 0.55, 1.0, 0.38)  ## lightning blue-purple
+## Chaining Storm (T3): each strike arcs to nearby enemies within this radius.
+const CHAIN_RADIUS: float = 160.0
+
+# Per-cast chain state (Chaining Storm T3), read by the per-tick callback. The
+# zone holds this AL instance alive via the bound Callable.
+var _chain_targets: int = 0
+var _chain_damage: int = 0
 
 
 func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevelData) -> void:
@@ -53,8 +60,10 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 		damage_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_damage_mult")
 		width_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_zone_radius")
 		duration_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "channel_time_extension")
+		_chain_targets = int(ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_chain_targets"))
 
 	var tick_damage: int = maxi(1, roundi(magic_attack * TICK_DAMAGE_PCT * (1.0 + damage_bonus)))
+	_chain_damage = tick_damage
 	var duration: float = ZONE_DURATION + duration_bonus
 	var rect_size: Vector2 = ZONE_RECT_SIZE + Vector2(width_bonus, 0.0)
 
@@ -64,6 +73,9 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 		facing = 1
 	var spawn_pos: Vector2 = owner_node.global_position + Vector2(ZONE_SPAWN_OFFSET * float(facing), 0)
 
+	# Chaining Storm (T3) adds a per-enemy callback that arcs to nearby enemies.
+	var chain_cb := Callable(self, "_chain_strike").bind(owner_node) if _chain_targets > 0 else Callable()
+
 	load("res://scripts/Gameplay/ground_zone.gd").spawn_server_rect(
 		owner_node,
 		spawn_pos,
@@ -72,4 +84,29 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 		ZONE_TICK_INTERVAL,
 		tick_damage,
 		ZONE_COLOR,
+		chain_cb,
 	)
+
+
+## Per-tick callback for each enemy struck inside the storm: arc to the nearest
+## OTHER living enemies within CHAIN_RADIUS, dealing the same tick damage.
+func _chain_strike(struck: Node, owner_node: Node) -> void:
+	if _chain_targets <= 0 or not is_instance_valid(struck):
+		return
+	var origin: Vector2 = struck.global_position
+	var candidates: Array = []
+	for e in struck.get_tree().get_nodes_in_group("Enemies"):
+		if e == struck or not (e is EnemyBase) or not is_instance_valid(e):
+			continue
+		var hc = e.get("health_component")
+		if hc == null or not is_instance_valid(hc) or hc.is_dead:
+			continue
+		var d: float = origin.distance_to(e.global_position)
+		if d <= CHAIN_RADIUS:
+			candidates.append({"e": e, "d": d})
+	candidates.sort_custom(func(a, b): return a.d < b.d)
+	var applier = owner_node if is_instance_valid(owner_node) else null
+	for i in range(mini(_chain_targets, candidates.size())):
+		var hc2 = candidates[i].e.get("health_component")
+		if hc2 != null and is_instance_valid(hc2):
+			hc2.take_damage(_chain_damage, applier, true, false, true)

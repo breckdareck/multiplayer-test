@@ -48,12 +48,15 @@ func execute(owner_node: Node, ability: AbilityData, level_stats: AbilityLevelDa
 	active_buff.buff_data = active_buff.buff_data.duplicate()
 	active_buff.buff_data.stat_modifiers.clear()
 
+	# CRITCHANCE/CRITDAMAGE units are already percentages — buffs must add via
+	# flat_bonus_value. percent_bonus_value multiplies the stat's base (5 for
+	# CRITCHANCE, 0 for CRITDAMAGE), so 55% nominal yields ~2 actual / 0 actual.
 	var critchance_stat = StatData.new(Constants.StatType.CRITCHANCE, 0)
-	critchance_stat.percent_bonus_value = crit_chance_bonus + extra_critchance
+	critchance_stat.flat_bonus_value = int(crit_chance_bonus + extra_critchance)
 	active_buff.buff_data.stat_modifiers[Constants.StatType.CRITCHANCE] = critchance_stat
 
 	var critdmg_stat = StatData.new(Constants.StatType.CRITDAMAGE, 0)
-	critdmg_stat.percent_bonus_value = crit_damage_bonus + extra_critdmg
+	critdmg_stat.flat_bonus_value = int(crit_damage_bonus + extra_critdmg)
 	active_buff.buff_data.stat_modifiers[Constants.StatType.CRITDAMAGE] = critdmg_stat
 
 	if extra_atk > 0:

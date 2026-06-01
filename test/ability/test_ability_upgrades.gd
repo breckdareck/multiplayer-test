@@ -6,8 +6,10 @@
 extends "res://test/test_case.gd"
 
 const ABILITIES_ROOT := "res://resources/Abilities"
+const SCRIPTS_ROOT := "res://scripts"
 
 static var _ability_cache: Array = []
+static var _source_blob: String = ""
 
 
 func _all_abilities() -> Array:
@@ -169,3 +171,60 @@ func test_upgrade_tooltips_render() -> void:
 		var owned: String = up.get_tooltip_text(true)
 		assert_true(up.upgrade_name in unowned, "%s tooltip missing its name" % up.upgrade_id)
 		assert_true("Owned" in owned, "%s owned-tooltip missing 'Owned' marker" % up.upgrade_id)
+
+
+# ---- dead-upgrade detection (effect_key must be consumed by code) ----
+
+# Concatenated source text of every .gd under res://scripts/, cached across the
+# fresh-per-test instances the runner creates.
+func _all_source_text() -> String:
+	if _source_blob == "":
+		var paths: Array[String] = []
+		_scan_gd(SCRIPTS_ROOT, paths)
+		var parts: PackedStringArray = []
+		for p in paths:
+			var f := FileAccess.open(p, FileAccess.READ)
+			if f != null:
+				parts.append(f.get_as_text())
+		_source_blob = "\n".join(parts)
+	return _source_blob
+
+func _scan_gd(dir_path: String, out_paths: Array[String]) -> void:
+	var dir := DirAccess.open(dir_path)
+	if dir == null:
+		return
+	dir.list_dir_begin()
+	var entry := dir.get_next()
+	while entry != "":
+		var full := dir_path + "/" + entry
+		if dir.current_is_dir():
+			if not entry.begins_with("."):
+				_scan_gd(full, out_paths)
+		elif entry.ends_with(".gd"):
+			out_paths.append(full)
+		entry = dir.get_next()
+	dir.list_dir_end()
+
+func test_every_upgrade_effect_key_is_consumed_by_code() -> void:
+	# An upgrade whose effect_key NO code reads is a dead upgrade: the player
+	# spends scarce discipline points and nothing changes. Every consumer in this
+	# codebase reads its key as a string literal — generic keys in ability.gd /
+	# combat.gd (get_ability_upgrade_magnitude / _upgrade_int), ability-specific
+	# keys in that ability's AL_*.gd (ability_has_upgrade_effect /
+	# get_ability_upgrade_magnitude). So an effect_key that appears in NO .gd
+	# source (quoted) is wired to nothing. The failure lists each orphan grouped
+	# by its owning ability so wiring it up is a concrete to-do.
+	var src := _all_source_text()
+	assert_true(src.length() > 5000, "scripts/ source scan looks empty (%d chars)" % src.length())
+	var orphans: Array[String] = []
+	for ability in _all_abilities():
+		for up in ability.upgrades:
+			if up == null or up.effect_key.is_empty():
+				continue  # empty key is caught by test_upgrade_has_effect_key
+			var key: String = up.effect_key
+			var referenced: bool = ('"' + key + '"') in src or ("'" + key + "'") in src
+			if not referenced:
+				orphans.append("%s / %s -> '%s'" % [ability.ability_name, up.upgrade_id, key])
+	assert_true(orphans.is_empty(),
+		"%d upgrade effect_key(s) never read by any code (dead upgrades — buying them does nothing):\n  %s" \
+		% [orphans.size(), "\n  ".join(orphans)])

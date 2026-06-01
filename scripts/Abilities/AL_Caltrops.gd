@@ -31,7 +31,22 @@ const SLOW_PCT: float = 0.30
 const SLOW_DURATION: float = 1.0
 const SLOW_META: String = "caltrops_slow"
 
+## Poisoned Spikes (T3) bleed — % of WEAPONATTACK per tick per stack, stacking
+## up to MAX while the enemy stands in the field.
+const POISON_TICK_PCT: float = 0.05
+const POISON_MAX_STACKS: int = 5
+const POISON_DURATION: float = 3.0
+const POISON_META: String = "caltrops_poison"
+
 const ZONE_COLOR: Color = Color(0.55, 0.42, 0.18, 0.40)  # rusty brown
+
+# Per-cast upgrade state, read in execute() (where _ability + stats resolve) and
+# consumed by the per-tick slow/poison callback (which only receives the enemy).
+# The zone holds this AL instance alive via the bound Callable, so members persist
+# for the zone's lifetime.
+var _slow_pct: float = SLOW_PCT
+var _poison_per_tick: int = 0  # 0 = Poisoned Spikes not owned this cast
+var _poison_applier: Node = null
 
 
 func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevelData) -> void:
@@ -50,11 +65,24 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 	var damage_bonus: float = 0.0
 	var duration_bonus: float = 0.0
 	var width_bonus: float = 0.0
+	var slow_bonus: float = 0.0
+	var bleed_applies: float = 0.0
 	var ability_comp = owner_node.get("ability_component")
 	if ability_comp and _ability != null and ability_comp.has_method("get_ability_upgrade_magnitude"):
 		damage_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_damage_mult")
 		duration_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_zone_duration")
 		width_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_zone_radius")
+		# Piercing Spikes (T3) deepens the slow; Poisoned Spikes (T3) adds a bleed.
+		slow_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_slow_pct")
+		bleed_applies = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_bleed_applies")
+
+	_slow_pct = clampf(SLOW_PCT + slow_bonus, 0.0, 0.95)
+	if bleed_applies > 0.0:
+		_poison_per_tick = maxi(1, roundi(wpn_attack * POISON_TICK_PCT))
+		_poison_applier = owner_node
+	else:
+		_poison_per_tick = 0
+		_poison_applier = null
 
 	var tick_damage: int = maxi(1, roundi(wpn_attack * TICK_DAMAGE_PCT * (1.0 + damage_bonus)))
 	var duration: float = ZONE_DURATION + duration_bonus
@@ -80,6 +108,11 @@ func _apply_caltrops_slow(enemy: Node) -> void:
 	if not (enemy is EnemyBase):
 		return
 	var e := enemy as EnemyBase
+
+	# Poisoned Spikes (T3): stack a bleed each tick the enemy is inside the field.
+	if _poison_per_tick > 0:
+		BleedDot.apply(e, _poison_applier, _poison_per_tick, POISON_MAX_STACKS, POISON_DURATION, POISON_META)
+
 	# Already slowed by THIS effect — let the existing timer run out rather than
 	# re-applying (which would re-save the already-reduced speed as "original"
 	# and permanently slow them on restore).
@@ -87,7 +120,7 @@ func _apply_caltrops_slow(enemy: Node) -> void:
 		return
 
 	var original_speed: float = e.movement_speed
-	e.movement_speed = original_speed * (1.0 - SLOW_PCT)
+	e.movement_speed = original_speed * (1.0 - _slow_pct)
 	e.set_meta(SLOW_META, original_speed)
 
 	e.get_tree().create_timer(SLOW_DURATION).timeout.connect(

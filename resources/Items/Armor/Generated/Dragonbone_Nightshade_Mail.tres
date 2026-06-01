@@ -1,26 +1,26 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://clik7o5ewbesb"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_y2crb"]
-[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_85tw1"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_qonjy"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_y2crb"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_85tw1"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_qonjy"]
+
+[sub_resource type="Resource" id="Resource_tcppk"]
+script = ExtResource("1_y2crb")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 41
+
+[sub_resource type="Resource" id="Resource_1qsm7"]
+script = ExtResource("1_y2crb")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 41
 
 [sub_resource type="Resource" id="Resource_p7afg"]
 script = ExtResource("1_y2crb")
 stat_type = 3
 base_value = 0
 flat_bonus_value = 22
-
-[sub_resource type="Resource" id="Resource_tcppk"]
-script = ExtResource("1_y2crb")
-stat_type = 8
-base_value = 0
-flat_bonus_value = 52
-
-[sub_resource type="Resource" id="Resource_1qsm7"]
-script = ExtResource("1_y2crb")
-stat_type = 9
-base_value = 0
-flat_bonus_value = 30
 
 [sub_resource type="Resource" id="Resource_1pcge"]
 script = ExtResource("1_y2crb")
@@ -30,7 +30,7 @@ flat_bonus_value = 7
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_2a63r"]
 atlas = ExtResource("2_85tw1")
-region = Rect2(77, 91, 6, 3)
+region = Rect2(848, 142, 54, 54)
 
 [resource]
 script = ExtResource("3_qonjy")
@@ -41,9 +41,11 @@ bonus_stats = Dictionary[int, ExtResource("1_y2crb")]({
 9: SubResource("Resource_1qsm7"),
 11: SubResource("Resource_1pcge")
 })
-item_id = "116131211117-14610-4131512-91508-131441451412591521"
+item_id = "111597615415-4149-131250-0125-3151423141314153141"
 name = "Dragonbone Nightshade Mail"
+rarity = 0
 icon = SubResource("AtlasTexture_2a63r")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 70
+custom_item_value = 0

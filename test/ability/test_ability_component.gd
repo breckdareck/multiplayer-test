@@ -70,18 +70,21 @@ func _sword_root_active():
 			and a.max_level >= 2 \
 			and a.prerequisite_abilities.is_empty())
 
-## A placed tree CHILD (tree_depth == 1) plus its resolved path-parent. The
-## integration test satisfies the child's prerequisites explicitly so the
-## climb-gate (parent level) is the only variable. Returns {child, parent} or {}.
-func _tree_child_with_parent() -> Dictionary:
+## Every indexed ability that carries at least one non-null upgrade and maps to a
+## real discipline pool — drives the exhaustive upgrade-path walk.
+func _abilities_with_upgrades() -> Array:
 	var c = _comp()
+	var out: Array = []
 	for a in ResourceManager.ability_data.values():
-		if a == null or a.tree_path < 0 or a.tree_depth != 1:
+		if a == null or a.upgrades == null or a.upgrades.is_empty():
 			continue
-		var parent = c._get_path_parent(a)
-		if parent != null:
-			return {"child": a, "parent": parent}
-	return {}
+		if c._ability_primary_discipline(a) == "":
+			continue  # class-neutral/debug ability has no points pool to spend
+		for up in a.upgrades:
+			if up != null:
+				out.append(a)
+				break
+	return out
 
 ## An ability carrying a full upgrade tree: a tier-1, a tier-2, and a
 ## variant_group with >=2 tier-3 members — drives the purchase tests. Returns
@@ -237,52 +240,24 @@ func test_tree_root_is_always_unlocked() -> void:
 	if ability:
 		assert_true(_comp().is_tree_node_unlocked(ability.ability_id), "a path-root node is unlocked unconditionally")
 
-func test_tree_child_locked_until_parent_learned() -> void:
+func test_tree_is_free_pick_no_climb_gate() -> void:
+	# The active climb-gate was REMOVED 2026-05-30 (user playtest call): the tree
+	# is fully free-pick — is_tree_node_unlocked() returns true for every node, so
+	# a placed non-root node is buyable without learning its neighbors. This pins
+	# that decision; if a gate is reintroduced it must update this test on purpose,
+	# not break the playtest config silently. (Replaces the old climb-gate tests,
+	# whose fixture relied on a since-removed _get_path_parent helper.)
 	var c = _comp()
-	var pair := _tree_child_with_parent()
-	assert_false(pair.is_empty(), "found a tree child + parent fixture")
-	if pair.is_empty():
-		return
-	var child_id: String = pair.child.ability_id
-	var parent_id: String = pair.parent.ability_id
-	# Parent unlearned (level 0) -> gate closed.
-	c._ability_levels[parent_id] = 0
-	assert_false(c.is_tree_node_unlocked(child_id), "child gated while parent unlearned")
-	# Parent learned (level 1) -> gate open.
-	c._ability_levels[parent_id] = 1
-	assert_true(c.is_tree_node_unlocked(child_id), "child unlocked once parent is learned")
-
-func test_climb_gate_blocks_level_up() -> void:
-	var c = _comp()
-	var pair := _tree_child_with_parent()
-	assert_false(pair.is_empty(), "fixture present")
-	if pair.is_empty():
-		return
-	var child = pair.child
-	var parent = pair.parent
-	var child_id: String = child.ability_id
-	var disc: String = c._ability_primary_discipline(child)
-	c._ability_levels[child_id] = 1
-	c._available_points_per_discipline[disc] = 10
-	# Satisfy every prerequisite EXCEPT the path-parent (whose level we control).
-	# A child's prereq may also BE its path-parent but at a higher level (e.g.
-	# Sundering Blow needs Crescent Cleave 5; the gate only needs it >= 1) — take
-	# the max so the "allowed" case satisfies both. Match by ability_id, not
-	# object identity.
-	var parent_required: int = 1
-	for prereq in child.prerequisite_abilities:
-		var req: int = int(child.prerequisite_abilities[prereq])
-		if prereq.ability_id == parent.ability_id:
-			parent_required = max(parent_required, req)
-		else:
-			c._ability_levels[prereq.ability_id] = req
-	# Gate closed: path-parent unlearned.
-	c._ability_levels[parent.ability_id] = 0
-	assert_false(c.can_level_up_ability(child_id), "blocked while path-parent unlearned")
-	# Gate open + all prerequisites satisfied.
-	c._ability_levels[parent.ability_id] = parent_required
-	if child.max_level > 1:
-		assert_true(c.can_level_up_ability(child_id), "allowed once path-parent learned to required level")
+	var placed = _find_ability(func(a): return a.tree_path >= 0 and a.tree_depth >= 1)
+	assert_not_null(placed, "found a placed non-root tree node fixture")
+	if placed:
+		assert_true(c.is_tree_node_unlocked(placed.ability_id),
+			"non-root tree node is unlocked unconditionally (free-pick tree)")
+		# Leveling it is still gated only by points + max_level + explicit prereqs.
+		c._ability_levels = {placed.ability_id: 1}
+		c._available_points_per_discipline = {"sword": 0, "bow": 0, "staff": 0, "dagger": 0}
+		assert_false(c.can_level_up_ability(placed.ability_id),
+			"with zero points, even an unlocked node cannot be leveled")
 
 
 # ---- ability upgrades (PR 6 purchase API) ----
@@ -411,3 +386,55 @@ func test_upgrade_magnitude_helpers() -> void:
 	var player_wide: float = c.get_total_upgrade_magnitude(t1up.effect_key)
 	assert_almost_eq(per_ability, t1up.magnitude, 0.001, "per-ability magnitude reflects the owned upgrade")
 	assert_almost_eq(player_wide, t1up.magnitude, 0.001, "player-wide magnitude includes it too")
+
+
+# ---- EVERY upgrade path is reachable (walks all abilities, all upgrades) ----
+
+func test_every_upgrade_path_is_reachable() -> void:
+	# The purchase tests above prove the MECHANICS on a single fixture ability.
+	# This walks EVERY ability that has an upgrade tree and asserts each individual
+	# upgrade is purchasable once its tier prerequisites are owned — catching a
+	# mis-tiered, mis-grouped, or otherwise unreachable upgrade (a node the player
+	# can see in the tree but could never buy). Tier-3 variants are checked for
+	# purchasability WITHOUT committing the buy, so the same-group mutex doesn't
+	# hide a sibling that is individually unreachable.
+	var c = _comp()
+	var abilities := _abilities_with_upgrades()
+	assert_true(abilities.size() >= 4, "expected several abilities with upgrade trees, got %d" % abilities.size())
+	var unreachable: Array[String] = []
+	for ability in abilities:
+		var id: String = ability.ability_id
+		var disc: String = c._ability_primary_discipline(ability)
+		# Maxed + flush with discipline points, no upgrades owned yet.
+		c._ability_levels = {id: ability.max_level}
+		c._learned_upgrades = {}
+		c._available_points_per_discipline = {"sword": 0, "bow": 0, "staff": 0, "dagger": 0}
+		c._available_points_per_discipline[disc] = 99999
+		# Partition this ability's upgrades by tier (skip nulls).
+		var by_tier := {1: [], 2: [], 3: []}
+		for up in ability.upgrades:
+			if up != null and by_tier.has(up.tier):
+				by_tier[up.tier].append(up)
+		# Tier 1: purchasable from the maxed, un-upgraded state.
+		for up in by_tier[1]:
+			var r1: Dictionary = c.can_purchase_upgrade(id, up.upgrade_id)
+			if not r1.ok:
+				unreachable.append("%s / T1 %s (%s)" % [ability.ability_name, up.upgrade_id, r1.reason])
+		# Own every T1, opening the T2 gate.
+		for up in by_tier[1]:
+			c.purchase_upgrade(id, up.upgrade_id)
+		# Tier 2: purchasable once a T1 is owned.
+		for up in by_tier[2]:
+			var r2: Dictionary = c.can_purchase_upgrade(id, up.upgrade_id)
+			if not r2.ok:
+				unreachable.append("%s / T2 %s (%s)" % [ability.ability_name, up.upgrade_id, r2.reason])
+		# Own every T2, opening the T3 gate.
+		for up in by_tier[2]:
+			c.purchase_upgrade(id, up.upgrade_id)
+		# Tier 3: each must be purchasable. Check-only (no commit) so a variant
+		# mutex doesn't reject siblings — we're proving individual reachability.
+		for up in by_tier[3]:
+			var r3: Dictionary = c.can_purchase_upgrade(id, up.upgrade_id)
+			if not r3.ok:
+				unreachable.append("%s / T3 %s (%s)" % [ability.ability_name, up.upgrade_id, r3.reason])
+	assert_true(unreachable.is_empty(), "unreachable upgrade(s): %s" % str(unreachable))

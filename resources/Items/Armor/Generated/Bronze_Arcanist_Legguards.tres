@@ -1,8 +1,20 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://dkjpsaol3l0dm"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_xc6as"]
-[ext_resource type="Texture2D" uid="uid://bannlqdgbwmld" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_n1d5q"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_ltehg"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_xc6as"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_n1d5q"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_ltehg"]
+
+[sub_resource type="Resource" id="Resource_frurk"]
+script = ExtResource("1_xc6as")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="Resource" id="Resource_hljjs"]
+script = ExtResource("1_xc6as")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 8
 
 [sub_resource type="Resource" id="Resource_4d7rb"]
 script = ExtResource("1_xc6as")
@@ -15,18 +27,6 @@ script = ExtResource("1_xc6as")
 stat_type = 5
 base_value = 0
 flat_bonus_value = 17
-
-[sub_resource type="Resource" id="Resource_frurk"]
-script = ExtResource("1_xc6as")
-stat_type = 8
-base_value = 0
-flat_bonus_value = 8
-
-[sub_resource type="Resource" id="Resource_hljjs"]
-script = ExtResource("1_xc6as")
-stat_type = 9
-base_value = 0
-flat_bonus_value = 5
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_kd4eb"]
 atlas = ExtResource("2_n1d5q")
@@ -42,9 +42,11 @@ bonus_stats = Dictionary[int, ExtResource("1_xc6as")]({
 8: SubResource("Resource_frurk"),
 9: SubResource("Resource_hljjs")
 })
-item_id = "151443814915-1013137-31080-10523-73127121101613112"
+item_id = "25447024-2131111-105140-135101-3968211613541"
 name = "Bronze Arcanist Legguards"
+rarity = 0
 icon = SubResource("AtlasTexture_kd4eb")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
 item_level = 10
+custom_item_value = 0

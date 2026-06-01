@@ -1,11 +1,11 @@
-[gd_resource type="Resource" script_class="ConsumableData" load_steps=5 format=3 uid="uid://buoekv8unc18u"]
+[gd_resource type="Resource" script_class="ConsumableData" load_steps=5 format=3]
 
-[ext_resource type="Script" uid="uid://csghyfavie65m" path="res://scripts/Resources/ItemSystem/Effects/Effect_RestoreMana.gd" id="1_l302j"]
-[ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="2_l302j"]
-[ext_resource type="Script" uid="uid://ubv3mjjv4lvi" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="3_4ami8"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/Effects/Effect_RestoreMana.gd" id="1_l302j"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_t8eh6"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="3_4ami8"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_kv78n"]
-atlas = ExtResource("2_l302j")
+[sub_resource type="AtlasTexture" id="AtlasTexture_ee5c7"]
+atlas = ExtResource("2_t8eh6")
 region = Rect2(388, 704, 58, 58)
 
 [resource]
@@ -14,9 +14,9 @@ effect_script = ExtResource("1_l302j")
 effect_properties = {
 "regain_amount": 220
 }
-item_id = "1431521688-143107-6862-94814-5809131541503614"
+item_id = "111071494144-1015615-711911-2893-0592161261010130"
 name = "Greater Mana Draught"
-icon = SubResource("AtlasTexture_kv78n")
+icon = SubResource("AtlasTexture_ee5c7")
 description = "Restores 220 MP when consumed."
 item_type = 2
 item_level = -1

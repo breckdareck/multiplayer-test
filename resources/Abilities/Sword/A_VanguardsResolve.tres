@@ -1,31 +1,38 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=8 format=3 uid="uid://37yecmkhci6x4"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=17 format=3 uid="uid://b54a674pd32nr"]
 
-[ext_resource type="Texture2D" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_icon"]
+[ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_asd"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_sbf"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_ad"]
-[ext_resource type="Script" path="res://scripts/Abilities/AL_VanguardsResolve.gd" id="11_al"]
-[ext_resource type="Resource" uid="uid://3zxrbjpwcpat6" path="res://resources/Abilities/Sword/Upgrades/U_VRS_stalwart_resolve.tres" id="12_upg"]
-[ext_resource type="Resource" uid="uid://vj3povckovhln" path="res://resources/Abilities/Sword/Upgrades/U_VRS_iron_resolve.tres" id="13_upg"]
-[ext_resource type="Resource" uid="uid://qxpakm2idzrua" path="res://resources/Abilities/Sword/Upgrades/U_VRS_eternal_resolve.tres" id="14_upg"]
+[ext_resource type="Script" uid="uid://nlqxsdyrfvi7" path="res://scripts/Abilities/AL_VanguardsResolve.gd" id="11_al"]
+[ext_resource type="Resource" uid="uid://bx3n55a5ea5jt" path="res://resources/Abilities/Sword/Upgrades/U_VRS_stalwart_resolve.tres" id="12_upg"]
+[ext_resource type="Resource" uid="uid://b72dqlqbuu3st" path="res://resources/Abilities/Sword/Upgrades/U_VRS_iron_resolve.tres" id="13_upg"]
+[ext_resource type="Resource" uid="uid://bh2r7feh37as7" path="res://resources/Abilities/Sword/Upgrades/U_VRS_eternal_resolve.tres" id="14_upg"]
 [ext_resource type="Resource" uid="uid://cqggymw57n4s3" path="res://resources/Abilities/Sword/Upgrades/U_VRS_combat_resolve.tres" id="15_upg"]
-[ext_resource type="Resource" uid="uid://yafsukn5k24jm" path="res://resources/Abilities/Sword/Upgrades/U_VRS_tenacious_resolve.tres" id="16_upg"]
+[ext_resource type="Resource" uid="uid://2ylb75m6uuy1" path="res://resources/Abilities/Sword/Upgrades/U_VRS_tenacious_resolve.tres" id="16_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="17_aud"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="18_asf"]
 
 [sub_resource type="Resource" id="Resource_active"]
 resource_local_to_scene = true
 script = ExtResource("2_abd")
 logic_script = ExtResource("11_al")
 
+[sub_resource type="Resource" id="Resource_vrs_dmgpct"]
+script = ExtResource("18_asf")
+base_value = 4.8
+per_level = 4.8
+
 [sub_resource type="Resource" id="Resource_scaling"]
 script = ExtResource("3_asd")
+damage_percent_formula = SubResource("Resource_vrs_dmgpct")
 
 [resource]
 script = ExtResource("6_ad")
 ability_id = "vanguards_resolve_v1"
 ability_name = "Vanguard's Resolve"
-description = "While you carry 1 or more combo points, take $[stat_bonus] reduced damage (scales with combo: 1/2/3 combo = -8/-12/-16% at max level)."
+description = "While you carry combo points, reduce incoming damage — up to $[damage_percent] less at full combo (scales with combo and level)."
 ability_icon = ExtResource("1_icon")
 max_level = 5
 ability_type = 1

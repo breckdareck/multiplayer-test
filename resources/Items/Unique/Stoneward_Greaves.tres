@@ -1,50 +1,51 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://banpmyw5w4e0c"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_stat"]
-[ext_resource type="Texture2D" uid="uid://bannlqdgbwmld" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_icon"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_armor"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_frkfr"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_bnt1r"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_gdp5f"]
 
-[sub_resource type="Resource" id="Resource_str"]
-script = ExtResource("1_stat")
-base_value = 0
-flat_bonus_value = 20
-
-[sub_resource type="Resource" id="Resource_hp"]
-script = ExtResource("1_stat")
-stat_type = 4
-base_value = 0
-flat_bonus_value = 440
-
-[sub_resource type="Resource" id="Resource_def"]
-script = ExtResource("1_stat")
+[sub_resource type="Resource" id="Resource_81rcj"]
+script = ExtResource("1_frkfr")
 stat_type = 8
 base_value = 0
 flat_bonus_value = 52
 
-[sub_resource type="Resource" id="Resource_mdef"]
-script = ExtResource("1_stat")
+[sub_resource type="Resource" id="Resource_0cuxd"]
+script = ExtResource("1_frkfr")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 30
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_icon"]
-atlas = ExtResource("2_icon")
+[sub_resource type="Resource" id="Resource_f6i46"]
+script = ExtResource("1_frkfr")
+stat_type = 4
+base_value = 0
+flat_bonus_value = 440
+
+[sub_resource type="Resource" id="Resource_xheqo"]
+script = ExtResource("1_frkfr")
+base_value = 0
+flat_bonus_value = 20
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xofa7"]
+atlas = ExtResource("2_bnt1r")
 region = Rect2(0, 0, 25, 16)
 margin = Rect2(0.5, 5.5, 1, 10)
 
 [resource]
-script = ExtResource("3_armor")
+script = ExtResource("3_gdp5f")
 armor_type = 2
-bonus_stats = Dictionary[int, ExtResource("1_stat")]({
-0: SubResource("Resource_str"),
-4: SubResource("Resource_hp"),
-8: SubResource("Resource_def"),
-9: SubResource("Resource_mdef")
+bonus_stats = Dictionary[int, ExtResource("1_frkfr")]({
+0: SubResource("Resource_xheqo"),
+4: SubResource("Resource_f6i46"),
+8: SubResource("Resource_81rcj"),
+9: SubResource("Resource_0cuxd")
 })
-item_id = "55142970130-552914-553014-44052-201443559301"
+item_id = "54215411413-8111313-61287-0161-121251115129011983"
 name = "Stoneward Greaves"
 rarity = 4
-icon = SubResource("AtlasTexture_icon")
+icon = SubResource("AtlasTexture_xofa7")
 description = "Greaves so heavy the earth itself seems to anchor their wearer."
 item_type = 1
 item_level = 55
+custom_item_value = 0

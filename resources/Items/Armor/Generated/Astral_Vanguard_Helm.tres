@@ -1,8 +1,20 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://dhcu12tbbxpax"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_eu006"]
-[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_pwkvs"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_kbh4l"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_eu006"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_pwkvs"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_kbh4l"]
+
+[sub_resource type="Resource" id="Resource_0kf1c"]
+script = ExtResource("1_eu006")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 40
+
+[sub_resource type="Resource" id="Resource_y06lp"]
+script = ExtResource("1_eu006")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 26
 
 [sub_resource type="Resource" id="Resource_lngq8"]
 script = ExtResource("1_eu006")
@@ -15,22 +27,9 @@ stat_type = 4
 base_value = 0
 flat_bonus_value = 102
 
-[sub_resource type="Resource" id="Resource_0kf1c"]
-script = ExtResource("1_eu006")
-stat_type = 8
-base_value = 0
-flat_bonus_value = 40
-
-[sub_resource type="Resource" id="Resource_y06lp"]
-script = ExtResource("1_eu006")
-stat_type = 9
-base_value = 0
-flat_bonus_value = 23
-
 [sub_resource type="AtlasTexture" id="AtlasTexture_t72l4"]
 atlas = ExtResource("2_pwkvs")
-region = Rect2(108, 114, 10, 4)
-margin = Rect2(0, 3, 0, 6)
+region = Rect2(786, 60, 42, 42)
 
 [resource]
 script = ExtResource("3_kbh4l")
@@ -40,9 +39,11 @@ bonus_stats = Dictionary[int, ExtResource("1_eu006")]({
 8: SubResource("Resource_0kf1c"),
 9: SubResource("Resource_y06lp")
 })
-item_id = "1115861312159-147138-0502-8117-129111512133550912"
+item_id = "131414119159-41579-15459-35109-593715141031451114"
 name = "Astral Vanguard Helm"
+rarity = 0
 icon = SubResource("AtlasTexture_t72l4")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 90
+custom_item_value = 0

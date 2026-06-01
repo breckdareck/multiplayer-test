@@ -1,25 +1,25 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://e7sa2c4r6fti"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_8cqpk"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_3gjyi"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_8cqpk"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_3gjyi"]
+
+[sub_resource type="Resource" id="Resource_y07l5"]
+script = ExtResource("1_8cqpk")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 12
+
+[sub_resource type="Resource" id="Resource_6o0mv"]
+script = ExtResource("1_8cqpk")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 12
 
 [sub_resource type="Resource" id="Resource_g58vn"]
 script = ExtResource("1_8cqpk")
 stat_type = 2
 base_value = 0
 flat_bonus_value = 7
-
-[sub_resource type="Resource" id="Resource_y07l5"]
-script = ExtResource("1_8cqpk")
-stat_type = 8
-base_value = 0
-flat_bonus_value = 16
-
-[sub_resource type="Resource" id="Resource_6o0mv"]
-script = ExtResource("1_8cqpk")
-stat_type = 9
-base_value = 0
-flat_bonus_value = 9
 
 [sub_resource type="Resource" id="Resource_lxc3e"]
 script = ExtResource("1_8cqpk")
@@ -39,9 +39,11 @@ bonus_stats = Dictionary[int, ExtResource("1_8cqpk")]({
 9: SubResource("Resource_6o0mv"),
 10: SubResource("Resource_lxc3e")
 })
-item_id = "264151728-81114-815910-61340-82713129106906"
+item_id = "0131121510412-2788-113119-815815-310415101461401410"
 name = "Mithril Pathfinder Boots"
+rarity = 0
 icon = SubResource("CompressedTexture2D_nghyq")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 40
+custom_item_value = 0

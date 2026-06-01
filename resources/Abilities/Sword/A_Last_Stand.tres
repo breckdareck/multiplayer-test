@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=13 format=3 uid="uid://tum104xs8hrj"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=15 format=3 uid="uid://tum104xs8hrj"]
 
 [ext_resource type="Texture2D" uid="uid://ky00whwbxbmx" path="res://assets/sprites/Abilities/power_guard.png" id="1_sb1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_sb1"]
@@ -10,21 +10,28 @@
 [ext_resource type="Resource" uid="uid://cioqcjyey466h" path="res://resources/Abilities/Sword/Upgrades/U_SB_Savage.tres" id="10_sv"]
 [ext_resource type="Resource" uid="uid://b2yae64p7mgfj" path="res://resources/Abilities/Sword/Upgrades/U_SB_Devastating.tres" id="11_de"]
 [ext_resource type="Script" uid="uid://dug2noyriyajf" path="res://scripts/Abilities/AL_LastStand.gd" id="12_ls"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="13_asf"]
 
 [sub_resource type="Resource" id="Resource_sb_behav"]
 resource_local_to_scene = true
 script = ExtResource("2_sb1")
 logic_script = ExtResource("12_ls")
 
+[sub_resource type="Resource" id="Resource_sb_dmgpct"]
+script = ExtResource("13_asf")
+base_value = 7.0
+per_level = 7.0
+
 [sub_resource type="Resource" id="Resource_sb_scaling"]
 script = ExtResource("3_sb1")
+damage_percent_formula = SubResource("Resource_sb_dmgpct")
 metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
 
 [resource]
 script = ExtResource("6_sb1")
 ability_id = "831189710397101981081111191153-2002-0801-1212-91312103146"
 ability_name = "Last Stand"
-description = "Deal up to +35% damage while BELOW 35% health (scales with level). The cornered-warrior's resolve."
+description = "Deal +$[damage_percent] damage while BELOW 35% health. The cornered-warrior's resolve."
 ability_icon = ExtResource("1_sb1")
 max_level = 5
 ability_type = 1

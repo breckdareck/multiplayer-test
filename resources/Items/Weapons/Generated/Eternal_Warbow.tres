@@ -1,8 +1,14 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://dnaqep02gx8iu"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_vsuxm"]
-[ext_resource type="Texture2D" uid="uid://cj4kv8pk70aal" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_l0sc5"]
-[ext_resource type="Script" uid="uid://mysmonmct4jm" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_gbhq7"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_vsuxm"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_l0sc5"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_gbhq7"]
+
+[sub_resource type="Resource" id="Resource_6cx3d"]
+script = ExtResource("1_vsuxm")
+stat_type = 12
+base_value = 0
+flat_bonus_value = 141
 
 [sub_resource type="Resource" id="Resource_y1agp"]
 script = ExtResource("1_vsuxm")
@@ -15,12 +21,6 @@ script = ExtResource("1_vsuxm")
 stat_type = 10
 base_value = 0
 flat_bonus_value = 7
-
-[sub_resource type="Resource" id="Resource_6cx3d"]
-script = ExtResource("1_vsuxm")
-stat_type = 12
-base_value = 0
-flat_bonus_value = 141
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_1a05f"]
 atlas = ExtResource("2_l0sc5")
@@ -37,9 +37,11 @@ bonus_stats = Dictionary[int, ExtResource("1_vsuxm")]({
 10: SubResource("Resource_q1s31"),
 12: SubResource("Resource_6cx3d")
 })
-item_id = "01381614013-7749-1010012-118410-487762141513256"
+item_id = "1003151414157-20511-42101-22135-6910877131451245"
 name = "Eternal Warbow"
+rarity = 0
 icon = SubResource("AtlasTexture_1a05f")
 description = "A finely strung bow built for an Archer's precision."
 item_type = 1
 item_level = 100
+custom_item_value = 0

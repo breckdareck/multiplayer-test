@@ -1,17 +1,17 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=20 format=3 uid="uid://xkfbd53xz7jah"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=21 format=3 uid="uid://dx2ttlgm0apv"]
 
-[ext_resource type="Texture2D" path="res://assets/sprites/Abilities/strafe.png" id="1_icon"]
+[ext_resource type="Texture2D" uid="uid://drobx0va8sphc" path="res://assets/sprites/Abilities/strafe.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
-[ext_resource type="Script" path="res://scripts/Abilities/AL_SkyVolley.gd" id="3_al"]
+[ext_resource type="Script" uid="uid://cvvxwh8ke5gi8" path="res://scripts/Abilities/AL_SkyVolley.gd" id="3_al"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_ad"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_asf"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_asd"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_sbf"]
-[ext_resource type="Resource" uid="uid://gjm4ht2rdtf72" path="res://resources/Abilities/Bow/Upgrades/U_SKV_sustained_volley.tres" id="9_upg"]
-[ext_resource type="Resource" uid="uid://jbg6om5bmjpn7" path="res://resources/Abilities/Bow/Upgrades/U_SKV_heavy_volley.tres" id="10_upg"]
-[ext_resource type="Resource" uid="uid://onrqiuynrocjb" path="res://resources/Abilities/Bow/Upgrades/U_SKV_wide_volley.tres" id="11_upg"]
-[ext_resource type="Resource" uid="uid://zosk4pfsihdnp" path="res://resources/Abilities/Bow/Upgrades/U_SKV_rapid_volley.tres" id="12_upg"]
-[ext_resource type="Resource" uid="uid://6tydxjsnjqdpe" path="res://resources/Abilities/Bow/Upgrades/U_SKV_marking_volley.tres" id="13_upg"]
+[ext_resource type="Resource" uid="uid://cn78vr5ismkhb" path="res://resources/Abilities/Bow/Upgrades/U_SKV_sustained_volley.tres" id="9_upg"]
+[ext_resource type="Resource" uid="uid://bkngijbsh4x5o" path="res://resources/Abilities/Bow/Upgrades/U_SKV_heavy_volley.tres" id="10_upg"]
+[ext_resource type="Resource" uid="uid://c2j4qo7v22o80" path="res://resources/Abilities/Bow/Upgrades/U_SKV_wide_volley.tres" id="11_upg"]
+[ext_resource type="Resource" uid="uid://ciddldwa38334" path="res://resources/Abilities/Bow/Upgrades/U_SKV_rapid_volley.tres" id="12_upg"]
+[ext_resource type="Resource" uid="uid://wpe73gm04dna" path="res://resources/Abilities/Bow/Upgrades/U_SKV_marking_volley.tres" id="13_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="14_aud"]
 
 [sub_resource type="Resource" id="Resource_active"]
@@ -23,7 +23,6 @@ logic_script = ExtResource("3_al")
 
 [sub_resource type="Resource" id="Resource_cast"]
 script = ExtResource("5_asf")
-base_value = 0.0
 
 [sub_resource type="Resource" id="Resource_cd"]
 script = ExtResource("5_asf")
@@ -32,7 +31,7 @@ base_value = 8.0
 [sub_resource type="Resource" id="Resource_dmg"]
 script = ExtResource("5_asf")
 base_value = 45.0
-per_level = 2
+per_level = 2.0
 
 [sub_resource type="Resource" id="Resource_mana"]
 script = ExtResource("5_asf")
@@ -58,7 +57,6 @@ ability_name = "Sky Volley"
 description = "Channel for up to 3 seconds. Arrows rain in a wide area ahead of you, dealing $[damage_percent] damage every half-second. [color=#e6c95c]+1 Momentum per second held.[/color]"
 ability_icon = ExtResource("1_icon")
 max_level = 10
-ability_type = 0
 required_class = Array[int]([1])
 required_weapon_types = Array[int]([1])
 tree_path = 0

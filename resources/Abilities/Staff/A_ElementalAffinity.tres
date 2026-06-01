@@ -1,16 +1,17 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=8 format=3 uid="uid://xxdzs64za6exb"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=17 format=3 uid="uid://qwsaumhvx5ep"]
 
-[ext_resource type="Texture2D" path="res://assets/sprites/Abilities/magic_bolt.png" id="1_icon"]
+[ext_resource type="Texture2D" uid="uid://cu1y53548p0uf" path="res://assets/sprites/Abilities/magic_bolt.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_asd"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="18_asf"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_sbf"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_ad"]
-[ext_resource type="Script" path="res://scripts/Abilities/AL_ElementalAffinity.gd" id="11_al"]
-[ext_resource type="Resource" uid="uid://sdri4yqt3pzpe" path="res://resources/Abilities/Staff/Upgrades/U_ELA_greater_affinity.tres" id="12_upg"]
-[ext_resource type="Resource" uid="uid://2xxzgswtvclwo" path="res://resources/Abilities/Staff/Upgrades/U_ELA_mastery_affinity.tres" id="13_upg"]
-[ext_resource type="Resource" uid="uid://4m6wwin3ek5fw" path="res://resources/Abilities/Staff/Upgrades/U_ELA_crossover_affinity.tres" id="14_upg"]
-[ext_resource type="Resource" uid="uid://irgakw5qmo32w" path="res://resources/Abilities/Staff/Upgrades/U_ELA_mighty_affinity.tres" id="15_upg"]
-[ext_resource type="Resource" uid="uid://yhf52zylxcimr" path="res://resources/Abilities/Staff/Upgrades/U_ELA_sustained_affinity.tres" id="16_upg"]
+[ext_resource type="Script" uid="uid://ctmt7378aiv4g" path="res://scripts/Abilities/AL_ElementalAffinity.gd" id="11_al"]
+[ext_resource type="Resource" uid="uid://cv41rq2ttwioc" path="res://resources/Abilities/Staff/Upgrades/U_ELA_greater_affinity.tres" id="12_upg"]
+[ext_resource type="Resource" uid="uid://v3wcfh2wwhmc" path="res://resources/Abilities/Staff/Upgrades/U_ELA_mastery_affinity.tres" id="13_upg"]
+[ext_resource type="Resource" uid="uid://clctr38cf504k" path="res://resources/Abilities/Staff/Upgrades/U_ELA_crossover_affinity.tres" id="14_upg"]
+[ext_resource type="Resource" uid="uid://1mjetb8ibdke" path="res://resources/Abilities/Staff/Upgrades/U_ELA_mighty_affinity.tres" id="15_upg"]
+[ext_resource type="Resource" uid="uid://bayxjog3j3826" path="res://resources/Abilities/Staff/Upgrades/U_ELA_sustained_affinity.tres" id="16_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="17_aud"]
 
 [sub_resource type="Resource" id="Resource_active"]
@@ -18,14 +19,20 @@ resource_local_to_scene = true
 script = ExtResource("2_abd")
 logic_script = ExtResource("11_al")
 
+[sub_resource type="Resource" id="Resource_dmgpct"]
+script = ExtResource("18_asf")
+base_value = 2.4
+per_level = 2.4
+
 [sub_resource type="Resource" id="Resource_scaling"]
 script = ExtResource("3_asd")
+damage_percent_formula = SubResource("Resource_dmgpct")
 
 [resource]
 script = ExtResource("6_ad")
 ability_id = "elemental_affinity_v1"
 ability_name = "Elemental Affinity"
-description = "While in a stance, spells whose element matches gain +$[stat_bonus]% damage. Commit to a stance, reap the payoff."
+description = "While in a stance, spells whose element matches gain +$[damage_percent] damage. Commit to a stance, reap the payoff."
 ability_icon = ExtResource("1_icon")
 max_level = 5
 ability_type = 1

@@ -1,8 +1,8 @@
 [gd_resource type="Resource" script_class="ItemDropResource" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_lqta4"]
 
 [resource]
-script = ExtResource("1_drop")
+script = ExtResource("1_lqta4")
 item_name = "Trailblazer Leggings"
 drop_chance = 0.01

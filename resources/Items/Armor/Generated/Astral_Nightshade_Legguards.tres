@@ -1,26 +1,26 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://0tqdmesx21tx"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_qi64u"]
-[ext_resource type="Texture2D" uid="uid://bannlqdgbwmld" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_6e0ps"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_ewgrj"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_qi64u"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_6e0ps"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_ewgrj"]
+
+[sub_resource type="Resource" id="Resource_n8s3b"]
+script = ExtResource("1_qi64u")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 42
+
+[sub_resource type="Resource" id="Resource_1dwwo"]
+script = ExtResource("1_qi64u")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 42
 
 [sub_resource type="Resource" id="Resource_3q8d3"]
 script = ExtResource("1_qi64u")
 stat_type = 3
 base_value = 0
 flat_bonus_value = 22
-
-[sub_resource type="Resource" id="Resource_n8s3b"]
-script = ExtResource("1_qi64u")
-stat_type = 8
-base_value = 0
-flat_bonus_value = 53
-
-[sub_resource type="Resource" id="Resource_1dwwo"]
-script = ExtResource("1_qi64u")
-stat_type = 9
-base_value = 0
-flat_bonus_value = 30
 
 [sub_resource type="Resource" id="Resource_7yhbl"]
 script = ExtResource("1_qi64u")
@@ -42,9 +42,11 @@ bonus_stats = Dictionary[int, ExtResource("1_qi64u")]({
 9: SubResource("Resource_1dwwo"),
 11: SubResource("Resource_7yhbl")
 })
-item_id = "9313631215-8101213-81140-131085-630113412091123"
+item_id = "1114308315-1110512-104102-0436-285812121434101215"
 name = "Astral Nightshade Legguards"
+rarity = 0
 icon = SubResource("AtlasTexture_8yrmf")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 90
+custom_item_value = 0

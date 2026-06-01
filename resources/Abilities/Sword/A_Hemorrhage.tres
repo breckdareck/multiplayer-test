@@ -36,7 +36,7 @@ base_value = 2.0
 [sub_resource type="Resource" id="Resource_damage"]
 script = ExtResource("5_asf")
 base_value = 130.0
-per_level = 10
+per_level = 10.0
 
 [sub_resource type="Resource" id="Resource_mana"]
 script = ExtResource("5_asf")

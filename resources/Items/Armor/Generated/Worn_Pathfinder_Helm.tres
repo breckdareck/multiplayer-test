@@ -1,14 +1,8 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://ceuv3r1qkrl3y"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_4u1qq"]
-[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_madri"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_w62tt"]
-
-[sub_resource type="Resource" id="Resource_hd34u"]
-script = ExtResource("1_4u1qq")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 1
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_4u1qq"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_madri"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_w62tt"]
 
 [sub_resource type="Resource" id="Resource_125ki"]
 script = ExtResource("1_4u1qq")
@@ -20,6 +14,12 @@ flat_bonus_value = 2
 script = ExtResource("1_4u1qq")
 stat_type = 9
 base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_hd34u"]
+script = ExtResource("1_4u1qq")
+stat_type = 2
+base_value = 0
 flat_bonus_value = 1
 
 [sub_resource type="Resource" id="Resource_kpb04"]
@@ -30,8 +30,7 @@ flat_bonus_value = 1
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_pg230"]
 atlas = ExtResource("2_madri")
-region = Rect2(108, 114, 10, 4)
-margin = Rect2(0, 3, 0, 6)
+region = Rect2(786, 60, 42, 42)
 
 [resource]
 script = ExtResource("3_w62tt")
@@ -41,9 +40,11 @@ bonus_stats = Dictionary[int, ExtResource("1_4u1qq")]({
 9: SubResource("Resource_jsdso"),
 10: SubResource("Resource_kpb04")
 })
-item_id = "91212131460-131317-50713-061112-389101614116963"
+item_id = "15441356012-241210-71186-8044-15011511142121011"
 name = "Worn Pathfinder Helm"
+rarity = 0
 icon = SubResource("AtlasTexture_pg230")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 1
+custom_item_value = 0

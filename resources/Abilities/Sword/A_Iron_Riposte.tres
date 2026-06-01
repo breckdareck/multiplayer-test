@@ -23,7 +23,7 @@ metadata/_custom_type_script = "uid://1raaatfhww5y"
 [sub_resource type="Resource" id="Resource_ddpfy"]
 script = ExtResource("6_jrmpn")
 base_value = 12.0
-per_level = 1
+per_level = 1.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_b2sp4"]
@@ -38,13 +38,13 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 [sub_resource type="Resource" id="Resource_dgn0w"]
 script = ExtResource("6_jrmpn")
 base_value = 12.0
-per_level = 4
+per_level = 4.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_jojv8"]
 script = ExtResource("6_jrmpn")
 base_value = 18.0
-per_level = 2
+per_level = 2.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_rt43a"]

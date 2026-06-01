@@ -1,7 +1,19 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://sfiy45wd4qoy"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_4xd5b"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_r0oiv"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_4xd5b"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_r0oiv"]
+
+[sub_resource type="Resource" id="Resource_sofb0"]
+script = ExtResource("1_4xd5b")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 12
+
+[sub_resource type="Resource" id="Resource_p0l3u"]
+script = ExtResource("1_4xd5b")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 19
 
 [sub_resource type="Resource" id="Resource_h7yi0"]
 script = ExtResource("1_4xd5b")
@@ -15,18 +27,6 @@ stat_type = 5
 base_value = 0
 flat_bonus_value = 41
 
-[sub_resource type="Resource" id="Resource_sofb0"]
-script = ExtResource("1_4xd5b")
-stat_type = 8
-base_value = 0
-flat_bonus_value = 19
-
-[sub_resource type="Resource" id="Resource_p0l3u"]
-script = ExtResource("1_4xd5b")
-stat_type = 9
-base_value = 0
-flat_bonus_value = 11
-
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_wly7g"]
 load_path = "res://.godot/imported/Eqp_Leather_Sandals.png-23f0cc5f3f25b855dccf580eeba0d806.ctex"
 
@@ -39,9 +39,11 @@ bonus_stats = Dictionary[int, ExtResource("1_4xd5b")]({
 8: SubResource("Resource_sofb0"),
 9: SubResource("Resource_p0l3u")
 })
-item_id = "3661512431-691412-159104-56411-8744148120915101"
+item_id = "7151551031211-1361510-711411-315613-0125520101054713"
 name = "Adamant Arcanist Boots"
+rarity = 0
 icon = SubResource("CompressedTexture2D_wly7g")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
 item_level = 50
+custom_item_value = 0

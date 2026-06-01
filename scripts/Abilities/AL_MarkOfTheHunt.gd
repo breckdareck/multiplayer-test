@@ -18,6 +18,13 @@ extends Node
 
 const MARK_DURATION: float = 8.0
 const MARK_META: String = "hunters_mark_remaining"
+## Sundering Mark (T3): the marked target carries this flag so combat.gd, when it
+## consumes the mark for an auto-crit, spreads the hunt to nearby enemies.
+const SUNDER_META: String = "hunters_mark_sundering"
+const BLEEDING_MARK_META: String = "hunters_mark_bleed"
+## Radius for multi-target (Double Mark) and sundering spread.
+const SPREAD_RADIUS: float = 160.0
+## Bleeding Mark per-tick = magnitude (% of WEAPONATTACK) — read per cast.
 
 
 func on_hit(owner_node: Node, target: Node, _ability: AbilityData) -> void:
@@ -28,10 +35,68 @@ func on_hit(owner_node: Node, target: Node, _ability: AbilityData) -> void:
 	if not (target is EnemyBase):
 		return
 
-	# Apply (or refresh) the mark with an absolute expiry timestamp on the
-	# server clock. Lazy expiry on read avoids any per-mark Timer plumbing.
-	var expire_at_ms: int = Time.get_ticks_msec() + int(MARK_DURATION * 1000.0)
+	# Upgrade reads: Lasting Mark (+duration), Double Mark (+N targets), Sundering
+	# Mark (pierce-on-consume), Bleeding Mark (DOT on the marked target).
+	var duration: float = MARK_DURATION
+	var extra_targets: int = 0
+	var sundering: bool = false
+	var bleed_pct: float = 0.0
+	var ability_comp = owner_node.get("ability_component")
+	if ability_comp and _ability != null and ability_comp.has_method("get_ability_upgrade_magnitude"):
+		duration += ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_mark_duration")
+		extra_targets = int(ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_mark_targets"))
+		sundering = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_pierce_on_crit") > 0.0
+		bleed_pct = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_bleed_dot")
+
+	_apply_mark(owner_node, target, duration, sundering, bleed_pct)
+
+	# Double Mark: also mark the nearest `extra_targets` other enemies.
+	if extra_targets > 0:
+		for other in _nearby_enemies(target, SPREAD_RADIUS, extra_targets):
+			_apply_mark(owner_node, other, duration, sundering, bleed_pct)
+
+
+## Apply (or refresh) the mark + its T3 riders to one enemy.
+func _apply_mark(owner_node: Node, target: Node, duration: float, sundering: bool, bleed_pct: float) -> void:
+	if not is_instance_valid(target):
+		return
+	# Lazy expiry on read avoids any per-mark Timer plumbing.
+	var expire_at_ms: int = Time.get_ticks_msec() + int(duration * 1000.0)
 	target.set_meta(MARK_META, expire_at_ms)
+	if sundering:
+		target.set_meta(SUNDER_META, true)
+	# Bleeding Mark: a light bleed for the mark's lifetime (% WEAPONATTACK/sec).
+	if bleed_pct > 0.0 and not target.has_meta(BLEEDING_MARK_META):
+		var stats_comp = owner_node.get("stats_component")
+		if stats_comp and stats_comp.stats.has(Constants.StatType.WEAPONATTACK):
+			var wpn_attack: int = int(stats_comp.stats[Constants.StatType.WEAPONATTACK].total_value)
+			var per_tick: int = maxi(1, roundi(wpn_attack * bleed_pct))
+			target.set_meta(BLEEDING_MARK_META, true)
+			BleedDot.apply(target, owner_node, per_tick, 1, duration, "moh_bleeding_mark")
+
+
+## Up to `count` nearest valid living enemies within `radius` of `origin`
+## (excluding `origin`). Distance-filtered; matches the simple proximity model
+## the other v1 spread effects use.
+func _nearby_enemies(origin: Node, radius: float, count: int) -> Array:
+	var out: Array = []
+	if not is_instance_valid(origin):
+		return out
+	var origin_pos: Vector2 = origin.global_position
+	var candidates: Array = []
+	for e in origin.get_tree().get_nodes_in_group("Enemies"):
+		if e == origin or not (e is EnemyBase) or not is_instance_valid(e):
+			continue
+		var hc = e.get("health_component")
+		if hc != null and is_instance_valid(hc) and hc.is_dead:
+			continue
+		var d: float = origin_pos.distance_to(e.global_position)
+		if d <= radius:
+			candidates.append({"e": e, "d": d})
+	candidates.sort_custom(func(a, b): return a.d < b.d)
+	for i in range(mini(count, candidates.size())):
+		out.append(candidates[i].e)
+	return out
 
 
 ## Public helper for CombatComponent: returns true iff the target carries an
@@ -53,3 +118,37 @@ static func is_marked(target: Node) -> bool:
 static func consume_mark(target: Node) -> void:
 	if is_instance_valid(target) and target.has_meta(MARK_META):
 		target.remove_meta(MARK_META)
+
+
+## Public helper for CombatComponent: true if the marked target carries the
+## Sundering Mark (T3) flag, so the auto-crit consume should pierce outward.
+static func is_sundering(target: Node) -> bool:
+	return is_instance_valid(target) and target.has_meta(SUNDER_META)
+
+
+## Sundering Mark (T3): on the auto-crit consume, the hunt "pierces" to the two
+## nearest enemies — applies a fresh (non-sundering, so it can't chain forever)
+## Hunter's Mark to each. Clears the consumed target's sunder flag.
+static func sunder_spread(owner_node: Node, origin: Node) -> void:
+	if not is_instance_valid(origin):
+		return
+	origin.remove_meta(SUNDER_META)
+	var origin_pos: Vector2 = origin.global_position
+	var expire_at_ms: int = Time.get_ticks_msec() + int(MARK_DURATION * 1000.0)
+	var marked := 0
+	var candidates: Array = []
+	for e in origin.get_tree().get_nodes_in_group("Enemies"):
+		if e == origin or not (e is EnemyBase) or not is_instance_valid(e):
+			continue
+		var hc = e.get("health_component")
+		if hc != null and is_instance_valid(hc) and hc.is_dead:
+			continue
+		var d: float = origin_pos.distance_to(e.global_position)
+		if d <= SPREAD_RADIUS:
+			candidates.append({"e": e, "d": d})
+	candidates.sort_custom(func(a, b): return a.d < b.d)
+	for c in candidates:
+		if marked >= 2:
+			break
+		c.e.set_meta(MARK_META, expire_at_ms)
+		marked += 1

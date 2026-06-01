@@ -19,12 +19,17 @@ extends Node
 const COMBO_PER_PIERCE: int = 1
 
 
-func on_hit(owner_node: Node, _target: Node, _ability: AbilityData) -> void:
+func on_hit(owner_node: Node, _target: Node, ability: AbilityData) -> void:
 	if not owner_node.multiplayer.is_server():
 		return
 	var combo_comp = owner_node.get("sword_combo_component")
 	if combo_comp == null or not is_instance_valid(combo_comp) or not combo_comp.has_method("add_combo_point"):
 		return
-	# add_combo_point() adds exactly 1; loop for COMBO_PER_PIERCE > 1.
-	for _i in range(COMBO_PER_PIERCE):
+	# Unstoppable (T3): +combo per pierced enemy.
+	var extra: int = 0
+	var ability_comp = owner_node.get("ability_component")
+	if ability_comp and ability != null and ability_comp.has_method("get_ability_upgrade_magnitude"):
+		extra = int(ability_comp.get_ability_upgrade_magnitude(ability.ability_id, "bonus_combo_per_hit"))
+	# add_combo_point() adds exactly 1; loop for the total per-pierce count.
+	for _i in range(COMBO_PER_PIERCE + extra):
 		combo_comp.add_combo_point()

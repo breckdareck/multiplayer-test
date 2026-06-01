@@ -1,8 +1,9 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=13 format=3 uid="uid://ddr205yl8tuyy"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=15 format=3 uid="uid://ddr205yl8tuyy"]
 
 [ext_resource type="Texture2D" uid="uid://cc18m1wu0h2vl" path="res://assets/sprites/Abilities/sharp_eyes.png" id="1_km1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_km1"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_km1"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="ASF_dmgpct"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_km1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_km1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
@@ -16,15 +17,21 @@ resource_local_to_scene = true
 script = ExtResource("2_km1")
 logic_script = ExtResource("12_ov")
 
+[sub_resource type="Resource" id="Resource_dmgpct"]
+script = ExtResource("ASF_dmgpct")
+base_value = 5.0
+per_level = 5.0
+
 [sub_resource type="Resource" id="Resource_km_scaling"]
 script = ExtResource("3_km1")
+damage_percent_formula = SubResource("Resource_dmgpct")
 metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
 
 [resource]
 script = ExtResource("6_km1")
 ability_id = "1115514051220-1442-91312-103145-15101498675120290"
 ability_name = "Overload"
-description = "Deal up to +25% damage while above 50% mana (scales with level). Channel your reserves."
+description = "Deal +$[damage_percent] damage while above 50% mana. Channel your reserves."
 ability_icon = ExtResource("1_km1")
 max_level = 5
 ability_type = 1

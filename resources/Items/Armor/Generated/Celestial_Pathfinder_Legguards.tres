@@ -1,26 +1,26 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://d2xmaosdvh7rr"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_1dgrs"]
-[ext_resource type="Texture2D" uid="uid://bannlqdgbwmld" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_i60pm"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_cgd6c"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_1dgrs"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_i60pm"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_cgd6c"]
+
+[sub_resource type="Resource" id="Resource_a703j"]
+script = ExtResource("1_1dgrs")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 37
+
+[sub_resource type="Resource" id="Resource_vvrlf"]
+script = ExtResource("1_1dgrs")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 37
 
 [sub_resource type="Resource" id="Resource_djuuo"]
 script = ExtResource("1_1dgrs")
 stat_type = 2
 base_value = 0
 flat_bonus_value = 20
-
-[sub_resource type="Resource" id="Resource_a703j"]
-script = ExtResource("1_1dgrs")
-stat_type = 8
-base_value = 0
-flat_bonus_value = 47
-
-[sub_resource type="Resource" id="Resource_vvrlf"]
-script = ExtResource("1_1dgrs")
-stat_type = 9
-base_value = 0
-flat_bonus_value = 27
 
 [sub_resource type="Resource" id="Resource_5b7sn"]
 script = ExtResource("1_1dgrs")
@@ -42,9 +42,11 @@ bonus_stats = Dictionary[int, ExtResource("1_1dgrs")]({
 9: SubResource("Resource_vvrlf"),
 10: SubResource("Resource_5b7sn")
 })
-item_id = "2141446978-1291512-41356-7121110-13414710101052214"
+item_id = "913101110539-85414-21363-1510015-375120213131131111"
 name = "Celestial Pathfinder Legguards"
+rarity = 0
 icon = SubResource("AtlasTexture_r2l8x")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 80
+custom_item_value = 0

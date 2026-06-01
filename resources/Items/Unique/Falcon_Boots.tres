@@ -1,17 +1,17 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=7 format=3 uid="uid://b278ittmmq28g"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=7 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_2v5he"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_ld160"]
-
-[sub_resource type="Resource" id="Resource_oknfc"]
-script = ExtResource("1_2v5he")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 22
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_2v5he"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_ld160"]
 
 [sub_resource type="Resource" id="Resource_4icmw"]
 script = ExtResource("1_2v5he")
 stat_type = 8
+base_value = 0
+flat_bonus_value = 22
+
+[sub_resource type="Resource" id="Resource_oknfc"]
+script = ExtResource("1_2v5he")
+stat_type = 2
 base_value = 0
 flat_bonus_value = 22
 
@@ -32,10 +32,11 @@ bonus_stats = Dictionary[int, ExtResource("1_2v5he")]({
 8: SubResource("Resource_4icmw"),
 10: SubResource("Resource_p1evl")
 })
-item_id = "5713091556-01411-6121015-143013-5913210613284313"
+item_id = "15154106416-1515612-514815-141211-4754111029614130"
 name = "Falcon Boots"
 rarity = 4
 icon = SubResource("CompressedTexture2D_jpo30")
 description = "Boots that carry an Archer as swift as a stooping falcon."
 item_type = 1
 item_level = 45
+custom_item_value = 0

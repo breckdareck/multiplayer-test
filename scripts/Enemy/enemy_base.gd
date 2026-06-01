@@ -4,6 +4,24 @@ extends CharacterBody2D
 # Emitted after the death animation finishes, signaling it can be returned to the pool.
 signal ready_for_pooling
 
+## Enemy-damage defense mitigation curve (diminishing returns, in damage_on_overlap).
+## mitigation = eff_def / (eff_def + DEFENSE_SOFTNESS * monster_att), capped at
+## MAX_DEFENSE_MITIGATION.
+##
+## Tuned conservatively so DEFENSE (gear/armor, CON, STR, Bulwark Stance) is NOT
+## overpowered: at SOFTNESS 0.75 the curve is no more generous than the OLD
+## linear formula for any defense above ~0.25x the monster's attack (the normal
+## range), so stacking armor never beats the previous mitigation there — it just
+## REMOVES the old hard wall (the old min(b*def, 0.80*att) cap maxed out at low
+## defense, wasting everything beyond it). Diminishing returns mean each armor
+## point is worth less than the last, and the cap guarantees you always take
+## >=15% of the hit. Reaching the 0.85 cap needs eff_def ~= 4.25x the monster's
+## attack — i.e. heavy, deliberate investment, not incidental gear.
+## Tune SOFTNESS up to make armor weaker per point; tune the cap for peak
+## tankiness. The L100 benchmark assumes these values.
+const DEFENSE_SOFTNESS: float = 0.75
+const MAX_DEFENSE_MITIGATION: float = 0.85
+
 @export var enemy_data: EnemyData
 
 @export var respawnable: bool
@@ -119,11 +137,16 @@ func _apply_enemy_data() -> void:
 		animated_sprite.sprite_frames = enemy_data.sprite_frames
 	
 	if stats_component:
+		# Per-enemy multipliers off the shared curves (1.0 = curve baseline) so
+		# same-level mobs can vary — e.g. slimes: high DEFENSE, low MAGICDEFENSE.
+		var atk_m: float = enemy_data.attack_mult
+		var def_m: float = enemy_data.defense_mult
+		var mdef_m: float = enemy_data.magic_defense_mult
 		var curve_stats: Dictionary[Constants.StatType, StatData] = {}
-		curve_stats[Constants.StatType.WEAPONATTACK] = StatData.new(Constants.StatType.WEAPONATTACK, roundi(wep_att_curve.sample(monster_level)))
-		curve_stats[Constants.StatType.MAGICATTACK] = StatData.new(Constants.StatType.MAGICATTACK, roundi(magic_att_curve.sample(monster_level)))
-		curve_stats[Constants.StatType.DEFENSE] = StatData.new(Constants.StatType.DEFENSE, roundi(wep_def_curve.sample(monster_level)))
-		curve_stats[Constants.StatType.MAGICDEFENSE] = StatData.new(Constants.StatType.MAGICDEFENSE, roundi(magic_def_curve.sample(monster_level)))
+		curve_stats[Constants.StatType.WEAPONATTACK] = StatData.new(Constants.StatType.WEAPONATTACK, roundi(wep_att_curve.sample(monster_level) * atk_m))
+		curve_stats[Constants.StatType.MAGICATTACK] = StatData.new(Constants.StatType.MAGICATTACK, roundi(magic_att_curve.sample(monster_level) * atk_m))
+		curve_stats[Constants.StatType.DEFENSE] = StatData.new(Constants.StatType.DEFENSE, roundi(wep_def_curve.sample(monster_level) * def_m))
+		curve_stats[Constants.StatType.MAGICDEFENSE] = StatData.new(Constants.StatType.MAGICDEFENSE, roundi(magic_def_curve.sample(monster_level) * mdef_m))
 		curve_stats[Constants.StatType.KNOCKBACKRESIST] = StatData.new(Constants.StatType.KNOCKBACKRESIST, BASE_KNOCKBACK_RESIST)
 
 		stats_component.stats = curve_stats
@@ -210,7 +233,7 @@ func _ready() -> void:
 			health_component.invincible = true
 			health_component.max_health = INVINCIBLE_MAX_HEALTH
 		else:
-			health_component.max_health = int(health_curve.sample(monster_level))
+			health_component.max_health = maxi(1, int(health_curve.sample(monster_level) * enemy_data.health_mult))
 		health_component.current_health = health_component.max_health
 		health_component.died.connect(_on_enemy_died)
 		health_component.damaged.connect(on_enemy_damaged)
@@ -696,26 +719,37 @@ func damage_on_overlap(body: Node):
 			return
 
 		# --- New Monster Damage Calculation ---
-		var monster_att = stats_component.stats.get(Constants.StatType.WEAPONATTACK).total_value
-		var player_def = player_stats.stats.get(Constants.StatType.DEFENSE).total_value
+		# Magic attackers (is_magic_attacker) scale on MAGICATTACK and are mitigated
+		# by the target's MAGICDEFENSE; everyone else uses WEAPONATTACK vs DEFENSE.
+		# This is what makes "magic armor" (MAGICDEFENSE) matter on the player side.
+		var is_magic: bool = enemy_data != null and enemy_data.is_magic_attacker
+		var att_stat: int = Constants.StatType.MAGICATTACK if is_magic else Constants.StatType.WEAPONATTACK
+		var def_stat: int = Constants.StatType.MAGICDEFENSE if is_magic else Constants.StatType.DEFENSE
+		var monster_att = stats_component.stats.get(att_stat).total_value
+		var player_def = player_stats.stats.get(def_stat).total_value
 		var level_diff = player_level_comp.level - monster_level
 
 		var a = _get_a_coefficient(level_diff)
 		var b = _get_b_coefficient(level_diff)
 
-		# Calculate Min Damage
-		var b_def_min = b * player_def
-		b_def_min = min(b_def_min, 0.68 * monster_att)
-		var min_damage = a * (0.85 * monster_att - b_def_min)
-		min_damage = max(1, min_damage)
+		# Defense mitigation — DIMINISHING RETURNS on effective defense.
+		# (Reworked 2026-06-02.) The old model subtracted a defense term that was
+		# hard-capped at 0.68-0.80 x monster_att, so mitigation maxed out at very
+		# low defense and any extra (gear, CON, Bulwark Stance) was wasted. The
+		# ratio model def/(def+attack) means MORE defense always reduces damage,
+		# with strong diminishing returns, asymptotically approaching MAX_DEFENSE_
+		# MITIGATION (you always take at least 1 - cap of the hit). `b` keeps
+		# scaling defense DOWN when the player is under-levelled vs the monster.
+		var eff_def: float = maxf(0.0, b * float(player_def))
+		var mitigation: float = eff_def / (eff_def + maxf(1.0, DEFENSE_SOFTNESS * float(monster_att)))
+		mitigation = minf(mitigation, MAX_DEFENSE_MITIGATION)
 
-		# Calculate Max Damage
-		var b_def_max = b * player_def
-		b_def_max = min(b_def_max, 0.80 * monster_att)
-		var max_damage = a * (monster_att - b_def_max)
-		max_damage = max(min_damage, max_damage)
+		# Base hit varies 85%-100% of monster attack, then level modifier `a` and
+		# the defense mitigation apply.
+		var min_damage: int = maxi(1, roundi(a * 0.85 * float(monster_att) * (1.0 - mitigation)))
+		var max_damage: int = maxi(min_damage, roundi(a * float(monster_att) * (1.0 - mitigation)))
 
-		var final_damage = randi_range(roundi(min_damage), roundi(max_damage))
+		var final_damage = randi_range(min_damage, max_damage)
 
 		health.take_damage(final_damage, self)
 

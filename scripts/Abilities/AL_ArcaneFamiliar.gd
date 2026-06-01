@@ -44,26 +44,42 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 	if not is_instance_valid(map_inst):
 		return
 
-	# Spawn the familiar as a plain Node2D under the map. It joins
-	# `networked_entities` so MultiplayerManager's cleanup sweep frees it on
-	# disconnect / channel switch.
+	# Upgrade reads: Lasting (+duration), Quick (+fire rate), Twin (+familiar),
+	# Chaining (bolts hit an extra nearby enemy).
+	var duration: float = DURATION_SECONDS
+	var fire_rate: float = FIRE_RATE
+	var extra_count: int = 0
+	var chain: int = 0
+	var ability_comp = owner_node.get("ability_component")
+	if ability_comp and _ability != null and ability_comp.has_method("get_ability_upgrade_magnitude"):
+		duration += ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_summon_duration")
+		var fr_bonus: float = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_fire_rate")
+		fire_rate = FIRE_RATE / (1.0 + maxf(0.0, fr_bonus))
+		extra_count = int(ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_summon_count"))
+		chain = int(ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_chain_targets"))
+
+	for i in range(1 + extra_count):
+		var offset := Vector2(40.0, -20.0) if i == 0 else Vector2(-40.0, -20.0 - 10.0 * i)
+		_spawn_familiar(owner_node, map_inst, offset, duration, fire_rate, chain)
+
+
+## Spawn one familiar with the resolved duration / fire rate / chain count.
+func _spawn_familiar(owner_node: Node, map_inst: Node, offset: Vector2, duration: float, fire_rate: float, chain: int) -> void:
 	var familiar := Node2D.new()
 	familiar.name = "ArcaneFamiliar"
-	familiar.global_position = owner_node.global_position + Vector2(40.0, -20.0)
+	familiar.global_position = owner_node.global_position + offset
 	familiar.add_to_group("networked_entities")
+	familiar.set_meta("chain_targets", chain)
 	map_inst.add_child(familiar)
 
-	# Drive ticking via a Timer child so the familiar's lifecycle is
-	# self-contained — when the duration timer expires, the familiar
-	# queue_frees and the tick timer goes with it.
 	var fire_timer := Timer.new()
-	fire_timer.wait_time = FIRE_RATE
+	fire_timer.wait_time = maxf(0.1, fire_rate)
 	fire_timer.autostart = true
 	fire_timer.timeout.connect(_on_familiar_tick.bind(familiar, owner_node))
 	familiar.add_child(fire_timer)
 
-	# Self-destruct after DURATION_SECONDS.
-	familiar.get_tree().create_timer(DURATION_SECONDS).timeout.connect(
+	# Self-destruct after the (possibly extended) duration.
+	familiar.get_tree().create_timer(duration).timeout.connect(
 		func():
 			if is_instance_valid(familiar):
 				familiar.queue_free()
@@ -86,11 +102,11 @@ func _on_familiar_tick(familiar: Node2D, caster: Node) -> void:
 	var magic_attack: int = int(stats.stats[Constants.StatType.MAGICATTACK].total_value)
 	var damage: int = maxi(1, roundi(magic_attack * BOLT_DAMAGE_PCT))
 
-	# Find nearest living enemy on the same map (familiar's parent = map).
+	# Gather living enemies on the same map within range, nearest first. Chaining
+	# Familiar (T3) lets each bolt strike 1 + chain_targets enemies.
 	var familiar_pos: Vector2 = familiar.global_position
-	var nearest: Node = null
-	var best_dist: float = BOLT_RANGE
 	var map_root: Node = familiar.get_parent()
+	var candidates: Array = []
 	for enemy in familiar.get_tree().get_nodes_in_group("Enemies"):
 		if not is_instance_valid(enemy):
 			continue
@@ -100,12 +116,15 @@ func _on_familiar_tick(familiar: Node2D, caster: Node) -> void:
 		if hc == null or not is_instance_valid(hc) or hc.is_dead:
 			continue
 		var d: float = enemy.global_position.distance_to(familiar_pos)
-		if d < best_dist:
-			best_dist = d
-			nearest = enemy
-	if nearest == null:
+		if d <= BOLT_RANGE:
+			candidates.append({"e": enemy, "d": d})
+	if candidates.is_empty():
 		return
-	var hc2 = nearest.get("health_component")
-	if hc2 == null or not is_instance_valid(hc2):
-		return
-	hc2.take_damage(damage, caster if is_instance_valid(caster) else null, true, false, true)
+	candidates.sort_custom(func(a, b): return a.d < b.d)
+
+	var hits: int = 1 + int(familiar.get_meta("chain_targets", 0))
+	var applier = caster if is_instance_valid(caster) else null
+	for i in range(mini(hits, candidates.size())):
+		var hc2 = candidates[i].e.get("health_component")
+		if hc2 != null and is_instance_valid(hc2):
+			hc2.take_damage(damage, applier, true, false, true)

@@ -90,6 +90,8 @@ func execute(owner_node: Node, ability: AbilityData, _level_stats: AbilityLevelD
 	var lethal_applied: bool = false
 	var ability_comp = owner_node.get("ability_component")
 	if ability_comp and ability != null and ability_comp.has_method("get_ability_upgrade_magnitude"):
+		# Sharper Backstab (T1): flat increase to the from-behind bonus fraction.
+		bonus += ability_comp.get_ability_upgrade_magnitude(ability.ability_id, "bonus_positional_dmg")
 		var fullhp_mult: float = ability_comp.get_ability_upgrade_magnitude(ability.ability_id, "backstab_fullhp_mult")
 		if fullhp_mult > 0.0 and _is_full_health(target):
 			bonus *= fullhp_mult
@@ -99,6 +101,39 @@ func execute(owner_node: Node, ability: AbilityData, _level_stats: AbilityLevelD
 	# end_ability_attack so it never bleeds into the next cast.
 	combat.pending_ability_damage_multiplier = 1.0 + bonus
 	print("Backstab from behind: +%.0f%% damage%s" % [bonus * 100.0, " (LETHAL — full-HP target)" if lethal_applied else ""])
+
+
+## Crippling Backstab (T3): the hit also slows the target. Fires per landed hit
+## (combat.gd dispatches on_hit). Mirrors AL_Caltrops' save/restore/meta slow.
+const SLOW_META: String = "backstab_slow"
+const SLOW_DURATION: float = 2.0
+
+func on_hit(owner_node: Node, target: Node, ability: AbilityData) -> void:
+	if not owner_node.multiplayer.is_server():
+		return
+	if not (target is EnemyBase) or not is_instance_valid(target):
+		return
+	var ability_comp = owner_node.get("ability_component")
+	if ability_comp == null or ability == null or not ability_comp.has_method("get_ability_upgrade_magnitude"):
+		return
+	var slow_pct: float = ability_comp.get_ability_upgrade_magnitude(ability.ability_id, "bonus_slow_apply")
+	if slow_pct <= 0.0:
+		return
+
+	var e := target as EnemyBase
+	if e.has_meta(SLOW_META):
+		return  # already slowed by this effect — let the timer run out
+	var original_speed: float = e.movement_speed
+	e.movement_speed = original_speed * (1.0 - clampf(slow_pct, 0.0, 0.95))
+	e.set_meta(SLOW_META, original_speed)
+	e.get_tree().create_timer(SLOW_DURATION).timeout.connect(
+		func():
+			if not is_instance_valid(e):
+				return
+			if e.has_meta(SLOW_META):
+				e.movement_speed = e.get_meta(SLOW_META)
+				e.remove_meta(SLOW_META)
+	)
 
 
 ## Nearest living enemy within STRIKE_RANGE in the facing direction, same map.

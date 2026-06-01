@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://sdri4yqt3pzpe"]
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://cv41rq2ttwioc"]
 
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
 
@@ -7,8 +7,5 @@ script = ExtResource("1_aud")
 upgrade_id = "ela_t1_greater_affinity"
 upgrade_name = "Greater Affinity"
 description = "Elemental Affinity's bonus is increased by +3%."
-point_cost = 1
-tier = 1
-variant_group = "ela_t1"
 effect_key = "bonus_passive_potency"
 magnitude = 0.03

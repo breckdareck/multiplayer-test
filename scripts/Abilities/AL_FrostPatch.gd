@@ -29,8 +29,15 @@ const TICK_DAMAGE_PCT: float = 0.08
 const SLOW_PCT: float = 0.50
 const SLOW_DURATION: float = 1.25  # slightly longer than tick interval so it overlaps
 const SLOW_META: String = "frost_patch_chill"
+const FREEZE_META: String = "frost_patch_freeze"
 
 const ZONE_COLOR: Color = Color(0.55, 0.80, 1.0, 0.40)  # icy blue
+
+# Glacial Frost (T3): freeze (full stop) duration applied the first time an enemy
+# enters this patch. Set per cast in execute(); _seen dedupes per AL instance so
+# an enemy is frozen on entry, not every tick. The zone keeps this instance alive.
+var _freeze_on_enter: float = 0.0
+var _seen: Dictionary = {}
 
 
 func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevelData) -> void:
@@ -54,6 +61,8 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 		damage_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_damage_mult")
 		width_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_zone_radius")
 		duration_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_zone_duration")
+		_freeze_on_enter = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_freeze_on_enter")
+	_seen.clear()
 
 	var tick_damage: int = maxi(1, roundi(magic_attack * TICK_DAMAGE_PCT * (1.0 + damage_bonus)))
 	var duration: float = ZONE_DURATION + duration_bonus
@@ -80,6 +89,15 @@ func _apply_chill(enemy: Node) -> void:
 	if not (enemy is EnemyBase):
 		return
 	var e := enemy as EnemyBase
+
+	# Glacial Frost (T3): hard-freeze an enemy the first time it's seen in the
+	# patch (full stop for _freeze_on_enter seconds), then chill as normal.
+	if _freeze_on_enter > 0.0:
+		var id: int = e.get_instance_id()
+		if not _seen.has(id):
+			_seen[id] = true
+			_freeze_enemy(e, _freeze_on_enter)
+
 	# Already chilled by THIS effect — let the existing timer run out rather
 	# than re-applying, which would re-save the (already-reduced) speed and
 	# permanently slow them on restore. A subsequent tick that finds them
@@ -98,4 +116,21 @@ func _apply_chill(enemy: Node) -> void:
 			if e.has_meta(SLOW_META):
 				e.movement_speed = e.get_meta(SLOW_META)
 				e.remove_meta(SLOW_META)
+	)
+
+
+## Hard-freeze: stop the enemy fully for `duration`, restoring its saved speed
+## after. Uses its own meta so it doesn't clobber the chill's saved base speed.
+func _freeze_enemy(e: EnemyBase, duration: float) -> void:
+	if e.has_meta(FREEZE_META):
+		return
+	e.set_meta(FREEZE_META, e.movement_speed)
+	e.movement_speed = 0.0
+	e.get_tree().create_timer(duration).timeout.connect(
+		func():
+			if not is_instance_valid(e):
+				return
+			if e.has_meta(FREEZE_META):
+				e.movement_speed = e.get_meta(FREEZE_META)
+				e.remove_meta(FREEZE_META)
 	)

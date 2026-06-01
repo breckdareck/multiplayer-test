@@ -1,26 +1,26 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bfm6nekjmavvp"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_786ri"]
-[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_uy6yt"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_nixlu"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_786ri"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_uy6yt"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_nixlu"]
+
+[sub_resource type="Resource" id="Resource_nrhhk"]
+script = ExtResource("1_786ri")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 47
+
+[sub_resource type="Resource" id="Resource_56bwh"]
+script = ExtResource("1_786ri")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 47
 
 [sub_resource type="Resource" id="Resource_34yl7"]
 script = ExtResource("1_786ri")
 stat_type = 3
 base_value = 0
 flat_bonus_value = 25
-
-[sub_resource type="Resource" id="Resource_nrhhk"]
-script = ExtResource("1_786ri")
-stat_type = 8
-base_value = 0
-flat_bonus_value = 59
-
-[sub_resource type="Resource" id="Resource_56bwh"]
-script = ExtResource("1_786ri")
-stat_type = 9
-base_value = 0
-flat_bonus_value = 34
 
 [sub_resource type="Resource" id="Resource_0ym4r"]
 script = ExtResource("1_786ri")
@@ -30,7 +30,7 @@ flat_bonus_value = 7
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ooslm"]
 atlas = ExtResource("2_uy6yt")
-region = Rect2(77, 91, 6, 3)
+region = Rect2(848, 142, 54, 54)
 
 [resource]
 script = ExtResource("3_nixlu")
@@ -41,9 +41,11 @@ bonus_stats = Dictionary[int, ExtResource("1_786ri")]({
 9: SubResource("Resource_56bwh"),
 11: SubResource("Resource_0ym4r")
 })
-item_id = "1271314156414-1621-103215-18414-31012846916214"
+item_id = "611972141213-41415-1314142-121247-1010721103012061"
 name = "Celestial Nightshade Mail"
+rarity = 0
 icon = SubResource("AtlasTexture_ooslm")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 80
+custom_item_value = 0

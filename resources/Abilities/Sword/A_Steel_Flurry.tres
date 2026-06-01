@@ -39,7 +39,7 @@ base_value = 1.0
 resource_local_to_scene = true
 script = ExtResource("4_4i2r3")
 base_value = 80.0
-per_level = 6
+per_level = 6.0
 
 [sub_resource type="Resource" id="Resource_raao4"]
 resource_local_to_scene = true

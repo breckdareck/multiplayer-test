@@ -110,8 +110,11 @@ func get_tooltip_text(current_level: int = 0) -> String:
 
 
 ## Substitutes the description template's placeholders ($[damage_percent],
-## $[target_count], $[hit_count], $[buff_duration], $[stat_bonus]) for the given
-## level. Returns plain text — no BBCode.
+## $[target_count], $[hit_count], $[buff_duration], $[stat_bonus], and named
+## $[value:KEY] custom values) for the given level. The text may still contain
+## hand-authored BBCode ([color=...]) from the description — callers that show
+## the result must render it with a BBCode-enabled control (see the hotbar /
+## skill-tree slot custom tooltips), otherwise the tags display raw.
 ##
 ## Note ($[damage_percent] gating): the placeholder is also evaluated for
 ## PASSIVE abilities now. Passives may use `scaling_data.damage_percent_formula`
@@ -138,6 +141,17 @@ func _format_plain_description(level_data: AbilityLevelData) -> String:
 		if applies_buff and buff_duration_formula:
 			output = output.replace("$[buff_duration]", "%.0fs" % buff_duration_formula.calculate(level_data.level))
 
+		# Named custom values ($[value:KEY]) — for abilities whose effect numbers
+		# live in their AL script rather than a fixed scaling field (Bulwark's
+		# Defense, Sentinel's damage + refund, Banner's Defense + HP regen).
+		# The AL reads the same formula via get_custom_value(), so the displayed
+		# number always equals the gameplay number.
+		if scaling_data:
+			for key in scaling_data.custom_value_formulas:
+				var f: AbilityScalingFormula = scaling_data.custom_value_formulas[key]
+				if f:
+					output = output.replace("$[value:%s]" % key, _smart_format_number(f.calculate(level_data.level)))
+
 	if level_data and not level_data.stat_bonuses.is_empty():
 		var stat_key = level_data.stat_bonuses.keys()[0]
 		var stat_data: StatData = level_data.stat_bonuses[stat_key]
@@ -147,11 +161,39 @@ func _format_plain_description(level_data: AbilityLevelData) -> String:
 	return output
 
 
+## Single source of truth for a named, level-scaled custom value (see
+## scaling_data.custom_value_formulas). Both the description formatter and the
+## ability's AL_*.gd script call this, so the tooltip number and the gameplay
+## number are always identical. Returns `default` if the key has no formula.
+func get_custom_value(key: String, level: int, default: float = 0.0) -> float:
+	if not scaling_data:
+		return default
+	var f: AbilityScalingFormula = scaling_data.custom_value_formulas.get(key)
+	if f == null:
+		return default
+	return f.calculate(level)
+
+
+## Single source of truth for conditional-damage passives (Execution, Tailwind,
+## Composure, Opportunist, Toxicology, Killing Spree, Overload). The bonus is
+## authored in display percent on `damage_percent_formula` so $[damage_percent]
+## shows the live value; the AL_*.gd reads the FRACTION here so the tooltip and
+## gameplay can't drift. Returns `fallback` if the formula is missing.
+func get_damage_percent_fraction(level: int, fallback: float = 0.0) -> float:
+	if scaling_data and scaling_data.damage_percent_formula:
+		return scaling_data.damage_percent_formula.calculate(level) / 100.0
+	return fallback
+
+
 ## Formats a numeric value for description display. Whole numbers show as
 ## integers ("4"), fractional values show with one decimal place ("0.5",
 ## "3.2"). Used by both the plain-text formatter here and the BBCode
 ## formatter in ability_window.gd — keep them in sync if the rule changes.
 static func _smart_format_number(value: float) -> String:
-	if value == floor(value):
-		return "%d" % int(value)
-	return "%.1f" % value
+	# Snap to one decimal first so float fuzz from per-level division
+	# (e.g. 100 + 9 * (150.0/9) = 250.0000003) renders as a clean "250"
+	# rather than "250.0".
+	var v := snappedf(value, 0.1)
+	if v == floor(v):
+		return "%d" % int(v)
+	return "%.1f" % v

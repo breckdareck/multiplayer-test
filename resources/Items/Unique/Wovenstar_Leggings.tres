@@ -1,51 +1,52 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://8ohb5soixqf7"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_stat"]
-[ext_resource type="Texture2D" uid="uid://bannlqdgbwmld" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_icon"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_armor"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_ae1dq"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_gj6xh"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_14242"]
 
-[sub_resource type="Resource" id="Resource_int"]
-script = ExtResource("1_stat")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 28
-
-[sub_resource type="Resource" id="Resource_mana"]
-script = ExtResource("1_stat")
-stat_type = 5
-base_value = 0
-flat_bonus_value = 380
-
-[sub_resource type="Resource" id="Resource_def"]
-script = ExtResource("1_stat")
+[sub_resource type="Resource" id="Resource_17r5a"]
+script = ExtResource("1_ae1dq")
 stat_type = 8
 base_value = 0
 flat_bonus_value = 26
 
-[sub_resource type="Resource" id="Resource_mdef"]
-script = ExtResource("1_stat")
+[sub_resource type="Resource" id="Resource_82k8t"]
+script = ExtResource("1_ae1dq")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 42
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_icon"]
-atlas = ExtResource("2_icon")
+[sub_resource type="Resource" id="Resource_k454m"]
+script = ExtResource("1_ae1dq")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 28
+
+[sub_resource type="Resource" id="Resource_vmpvy"]
+script = ExtResource("1_ae1dq")
+stat_type = 5
+base_value = 0
+flat_bonus_value = 380
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v3vg1"]
+atlas = ExtResource("2_gj6xh")
 region = Rect2(0, 0, 25, 16)
 margin = Rect2(0.5, 5.5, 1, 10)
 
 [resource]
-script = ExtResource("3_armor")
+script = ExtResource("3_14242")
 armor_type = 2
-bonus_stats = Dictionary[int, ExtResource("1_stat")]({
-1: SubResource("Resource_int"),
-5: SubResource("Resource_mana"),
-8: SubResource("Resource_def"),
-9: SubResource("Resource_mdef")
+bonus_stats = Dictionary[int, ExtResource("1_ae1dq")]({
+1: SubResource("Resource_k454m"),
+5: SubResource("Resource_vmpvy"),
+8: SubResource("Resource_17r5a"),
+9: SubResource("Resource_82k8t")
 })
-item_id = "52280142130-522801-280152-42052-422805228014"
+item_id = "45012413132-91053-114013-134910-011701121310134123"
 name = "Wovenstar Leggings"
 rarity = 4
-icon = SubResource("AtlasTexture_icon")
+icon = SubResource("AtlasTexture_v3vg1")
 description = "Leggings woven from threads of captured starlight."
 item_type = 1
 item_level = 52
+custom_item_value = 0

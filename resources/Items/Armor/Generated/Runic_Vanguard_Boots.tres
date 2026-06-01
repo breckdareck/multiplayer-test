@@ -1,18 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://c5gwak1qqevuy"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_rj38y"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_vq58s"]
-
-[sub_resource type="Resource" id="Resource_c5hwc"]
-script = ExtResource("1_rj38y")
-base_value = 0
-flat_bonus_value = 8
-
-[sub_resource type="Resource" id="Resource_etrm1"]
-script = ExtResource("1_rj38y")
-stat_type = 4
-base_value = 0
-flat_bonus_value = 58
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_rj38y"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_vq58s"]
 
 [sub_resource type="Resource" id="Resource_fuysr"]
 script = ExtResource("1_rj38y")
@@ -24,7 +13,18 @@ flat_bonus_value = 23
 script = ExtResource("1_rj38y")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 13
+flat_bonus_value = 15
+
+[sub_resource type="Resource" id="Resource_c5hwc"]
+script = ExtResource("1_rj38y")
+base_value = 0
+flat_bonus_value = 8
+
+[sub_resource type="Resource" id="Resource_etrm1"]
+script = ExtResource("1_rj38y")
+stat_type = 4
+base_value = 0
+flat_bonus_value = 58
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_myf2j"]
 load_path = "res://.godot/imported/Eqp_Leather_Sandals.png-23f0cc5f3f25b855dccf580eeba0d806.ctex"
@@ -38,9 +38,11 @@ bonus_stats = Dictionary[int, ExtResource("1_rj38y")]({
 8: SubResource("Resource_fuysr"),
 9: SubResource("Resource_f52if")
 })
-item_id = "14112511989-3072-8465-131254-14101321515138511713"
+item_id = "1211131113719-38411-61154-111214-730312715441198"
 name = "Runic Vanguard Boots"
+rarity = 0
 icon = SubResource("CompressedTexture2D_myf2j")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 60
+custom_item_value = 0

@@ -1,8 +1,8 @@
 [gd_resource type="Resource" script_class="ItemDropResource" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_ip145"]
 
 [resource]
-script = ExtResource("1_drop")
+script = ExtResource("1_ip145")
 item_name = "Stoneward Greaves"
-drop_chance = 0.01
+drop_chance = 0.009000000000000001

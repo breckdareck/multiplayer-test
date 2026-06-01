@@ -7,4 +7,4 @@ script = ExtResource("1_ouwnv")
 item_name = "Astral Dirk"
 randomize_stats = true
 possible_stats = Array[int]([12, 3, 10])
-drop_chance = 0.013
+drop_chance = 0.013000000000000001

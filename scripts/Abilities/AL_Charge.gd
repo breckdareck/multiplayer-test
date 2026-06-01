@@ -53,11 +53,16 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 ## Steel Flurry / Vault Strike builds. The component's add adds exactly 1
 ## per call (no count param); for COMBO_PER_ENEMY_HIT > 1 we loop, but v1
 ## ships with COMBO_PER_ENEMY_HIT == 1 so it's a single call.
-func on_hit(owner_node: Node, _target: Node, _ability: AbilityData) -> void:
+func on_hit(owner_node: Node, _target: Node, ability: AbilityData) -> void:
 	if not owner_node.multiplayer.is_server():
 		return
 	var combo_comp = owner_node.get("sword_combo_component")
 	if combo_comp == null or not is_instance_valid(combo_comp) or not combo_comp.has_method("add_combo_point"):
 		return
-	for _i in range(COMBO_PER_ENEMY_HIT):
+	# Battlecry (T3): each pierced enemy builds extra combo points.
+	var extra: int = 0
+	var ability_comp = owner_node.get("ability_component")
+	if ability_comp and ability != null and ability_comp.has_method("get_ability_upgrade_magnitude"):
+		extra = int(ability_comp.get_ability_upgrade_magnitude(ability.ability_id, "bonus_combo_per_hit"))
+	for _i in range(COMBO_PER_ENEMY_HIT + extra):
 		combo_comp.add_combo_point()

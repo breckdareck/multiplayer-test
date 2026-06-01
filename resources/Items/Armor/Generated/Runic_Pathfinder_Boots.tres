@@ -1,25 +1,25 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://5dot6bv7e2id"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_001oy"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_upjcm"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_001oy"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_upjcm"]
+
+[sub_resource type="Resource" id="Resource_7bmov"]
+script = ExtResource("1_001oy")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 18
+
+[sub_resource type="Resource" id="Resource_uws5d"]
+script = ExtResource("1_001oy")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 18
 
 [sub_resource type="Resource" id="Resource_tdy3t"]
 script = ExtResource("1_001oy")
 stat_type = 2
 base_value = 0
 flat_bonus_value = 10
-
-[sub_resource type="Resource" id="Resource_7bmov"]
-script = ExtResource("1_001oy")
-stat_type = 8
-base_value = 0
-flat_bonus_value = 23
-
-[sub_resource type="Resource" id="Resource_uws5d"]
-script = ExtResource("1_001oy")
-stat_type = 9
-base_value = 0
-flat_bonus_value = 13
 
 [sub_resource type="Resource" id="Resource_o5kql"]
 script = ExtResource("1_001oy")
@@ -39,9 +39,11 @@ bonus_stats = Dictionary[int, ExtResource("1_001oy")]({
 9: SubResource("Resource_uws5d"),
 10: SubResource("Resource_o5kql")
 })
-item_id = "3111314151088-6840-76148-1804-5112512111431011"
+item_id = "12104214800-1014413-112013-15526-1514322991571189"
 name = "Runic Pathfinder Boots"
+rarity = 0
 icon = SubResource("CompressedTexture2D_ca7e0")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 60
+custom_item_value = 0

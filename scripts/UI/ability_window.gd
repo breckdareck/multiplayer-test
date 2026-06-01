@@ -469,10 +469,12 @@ func format_ability_description(data: AbilityData, level_data: AbilityLevelData,
 			var duration = data.buff_duration_formula.calculate(level_data.level)
 			hit_text = hit_text.replace("$[buff_duration]", "[color=%s]%.0fs[/color]" % [color, duration])
 
-			var stat_key = level_data.stat_bonuses.keys()[0] if not level_data.stat_bonuses.is_empty() else null
-			if stat_key != null:
-				var stat_value = level_data.stat_bonuses.get(stat_key).total_value if level_data.stat_bonuses.get(stat_key).total_value > 0 else level_data.stat_bonuses.get(stat_key).percent_bonus_value
-				hit_text = hit_text.replace("$[stat_bonus]", "[color=%s]%s[/color]" % [color, AbilityData._smart_format_number(stat_value)])
+		# Stat-bonus placeholder — replaced regardless of whether the ability also
+		# applies a buff (an active can grant a stat bonus without a duration).
+		var stat_key = level_data.stat_bonuses.keys()[0] if not level_data.stat_bonuses.is_empty() else null
+		if stat_key != null:
+			var stat_value = level_data.stat_bonuses.get(stat_key).total_value if level_data.stat_bonuses.get(stat_key).total_value > 0 else level_data.stat_bonuses.get(stat_key).percent_bonus_value
+			hit_text = hit_text.replace("$[stat_bonus]", "[color=%s]%s[/color]" % [color, AbilityData._smart_format_number(stat_value)])
 
 		output += hit_text
 	elif data.ability_type == Constants.AbilityType.PASSIVE:
@@ -492,7 +494,16 @@ func format_ability_description(data: AbilityData, level_data: AbilityLevelData,
 		output += passive_text
 	else:
 		output += desc_template
-		
+
+	# Named custom values ($[value:KEY]) — applies to active AND passive. Mirrors
+	# AbilityData._format_plain_description; the value comes from the SAME formula
+	# the ability's AL script reads, so display and gameplay stay in lockstep.
+	if data.scaling_data:
+		for key in data.scaling_data.custom_value_formulas:
+			var f: AbilityScalingFormula = data.scaling_data.custom_value_formulas[key]
+			if f:
+				output = output.replace("$[value:%s]" % key, "[color=%s]%s[/color]" % [color, AbilityData._smart_format_number(f.calculate(level_data.level))])
+
 	return output
 
 

@@ -1,19 +1,19 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=7 format=3 uid="uid://bvcmje0iidgsw"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=7 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_bvgbh"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_l76df"]
-
-[sub_resource type="Resource" id="Resource_wig84"]
-script = ExtResource("1_bvgbh")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 22
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_bvgbh"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_l76df"]
 
 [sub_resource type="Resource" id="Resource_v17ss"]
 script = ExtResource("1_bvgbh")
 stat_type = 8
 base_value = 0
 flat_bonus_value = 20
+
+[sub_resource type="Resource" id="Resource_wig84"]
+script = ExtResource("1_bvgbh")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 22
 
 [sub_resource type="Resource" id="Resource_u53io"]
 script = ExtResource("1_bvgbh")
@@ -32,10 +32,11 @@ bonus_stats = Dictionary[int, ExtResource("1_bvgbh")]({
 8: SubResource("Resource_v17ss"),
 10: SubResource("Resource_u53io")
 })
-item_id = "452862711-07012-115112-3373-68121420181014215"
+item_id = "92910121312-106117-611128-42109-12757814211311911"
 name = "Whisperstep Boots"
 rarity = 4
 icon = SubResource("CompressedTexture2D_87w3h")
 description = "Not even stone remembers the tread of these boots."
 item_type = 1
 item_level = 45
+custom_item_value = 0

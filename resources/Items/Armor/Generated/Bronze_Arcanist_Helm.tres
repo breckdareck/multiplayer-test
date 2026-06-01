@@ -1,8 +1,20 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://dhg8pm5wd71sh"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_bvwk1"]
-[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_q5sr6"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_uhd66"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_bvwk1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_q5sr6"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_uhd66"]
+
+[sub_resource type="Resource" id="Resource_dfw08"]
+script = ExtResource("1_bvwk1")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_baxep"]
+script = ExtResource("1_bvwk1")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 6
 
 [sub_resource type="Resource" id="Resource_jk3rp"]
 script = ExtResource("1_bvwk1")
@@ -16,22 +28,9 @@ stat_type = 5
 base_value = 0
 flat_bonus_value = 13
 
-[sub_resource type="Resource" id="Resource_dfw08"]
-script = ExtResource("1_bvwk1")
-stat_type = 8
-base_value = 0
-flat_bonus_value = 6
-
-[sub_resource type="Resource" id="Resource_baxep"]
-script = ExtResource("1_bvwk1")
-stat_type = 9
-base_value = 0
-flat_bonus_value = 4
-
 [sub_resource type="AtlasTexture" id="AtlasTexture_jgxd0"]
 atlas = ExtResource("2_q5sr6")
-region = Rect2(108, 114, 10, 4)
-margin = Rect2(0, 3, 0, 6)
+region = Rect2(786, 60, 42, 42)
 
 [resource]
 script = ExtResource("3_uhd66")
@@ -41,9 +40,11 @@ bonus_stats = Dictionary[int, ExtResource("1_bvwk1")]({
 8: SubResource("Resource_dfw08"),
 9: SubResource("Resource_baxep")
 })
-item_id = "8514114828-4693-117912-24410-101548511021013122"
+item_id = "513602263-22144-131435-58109-102718641215848"
 name = "Bronze Arcanist Helm"
+rarity = 0
 icon = SubResource("AtlasTexture_jgxd0")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
 item_level = 10
+custom_item_value = 0

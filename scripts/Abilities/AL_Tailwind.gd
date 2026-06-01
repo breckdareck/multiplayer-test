@@ -12,11 +12,21 @@ const MAX_LEVEL: int = 5
 const MAX_STACKS: float = 10.0     # mirrors BowMomentumComponent.MAX_STACKS
 
 
-func conditional_damage_mult(owner_node: Node, _target: Node, level: int) -> float:
+func conditional_damage_mult(owner_node: Node, _target: Node, level: int, _cast_ability: AbilityData = null, passive_id: String = "") -> float:
 	if owner_node == null or not is_instance_valid(owner_node):
 		return 0.0
 	var bm = owner_node.get("bow_momentum_component")
 	if bm == null or not is_instance_valid(bm) or not bm.has_method("get_stacks"):
 		return 0.0
 	var stacks: float = float(bm.get_stacks())
-	return BONUS_AT_MAX * (stacks / MAX_STACKS) * (float(level) / float(MAX_LEVEL))
+	return _level_bonus(passive_id, level) * (stacks / MAX_STACKS)
+
+
+## Per-level bonus FRACTION read from this passive's damage_percent_formula
+## (single source of truth with the $[damage_percent] tooltip). Falls back to
+## the constant ramp only if the ability/formula can't be resolved.
+func _level_bonus(passive_id: String, level: int) -> float:
+	var data: AbilityData = ResourceManager.get_ability_data(passive_id) if passive_id != "" else null
+	if data:
+		return data.get_damage_percent_fraction(level, BONUS_AT_MAX * float(level) / float(MAX_LEVEL))
+	return BONUS_AT_MAX * float(level) / float(MAX_LEVEL)

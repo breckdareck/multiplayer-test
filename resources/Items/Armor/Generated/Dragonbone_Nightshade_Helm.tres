@@ -1,26 +1,26 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://d4f7rovuy7rar"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_5ju7f"]
-[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_cg0rx"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_7pc2c"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_5ju7f"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_cg0rx"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_7pc2c"]
+
+[sub_resource type="Resource" id="Resource_fyqm2"]
+script = ExtResource("1_5ju7f")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 25
+
+[sub_resource type="Resource" id="Resource_uqar2"]
+script = ExtResource("1_5ju7f")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 25
 
 [sub_resource type="Resource" id="Resource_ogwd8"]
 script = ExtResource("1_5ju7f")
 stat_type = 3
 base_value = 0
 flat_bonus_value = 13
-
-[sub_resource type="Resource" id="Resource_fyqm2"]
-script = ExtResource("1_5ju7f")
-stat_type = 8
-base_value = 0
-flat_bonus_value = 31
-
-[sub_resource type="Resource" id="Resource_uqar2"]
-script = ExtResource("1_5ju7f")
-stat_type = 9
-base_value = 0
-flat_bonus_value = 18
 
 [sub_resource type="Resource" id="Resource_i6odn"]
 script = ExtResource("1_5ju7f")
@@ -30,8 +30,7 @@ flat_bonus_value = 4
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ucm3v"]
 atlas = ExtResource("2_cg0rx")
-region = Rect2(108, 114, 10, 4)
-margin = Rect2(0, 3, 0, 6)
+region = Rect2(786, 60, 42, 42)
 
 [resource]
 script = ExtResource("3_7pc2c")
@@ -41,9 +40,11 @@ bonus_stats = Dictionary[int, ExtResource("1_5ju7f")]({
 9: SubResource("Resource_uqar2"),
 11: SubResource("Resource_i6odn")
 })
-item_id = "151511501308-141188-10653-51354-4110211141211131289"
+item_id = "15303211136-91446-05126-38512-1287127352121494"
 name = "Dragonbone Nightshade Helm"
+rarity = 0
 icon = SubResource("AtlasTexture_ucm3v")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 70
+custom_item_value = 0

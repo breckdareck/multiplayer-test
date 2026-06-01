@@ -1,8 +1,14 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://e7y7tuoqs7jn"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_a7mnn"]
-[ext_resource type="Texture2D" uid="uid://cj4kv8pk70aal" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_u1k44"]
-[ext_resource type="Script" uid="uid://mysmonmct4jm" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_tylis"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_a7mnn"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_u1k44"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_tylis"]
+
+[sub_resource type="Resource" id="Resource_rpg4a"]
+script = ExtResource("1_a7mnn")
+stat_type = 12
+base_value = 0
+flat_bonus_value = 99
 
 [sub_resource type="Resource" id="Resource_p0o2k"]
 script = ExtResource("1_a7mnn")
@@ -15,12 +21,6 @@ script = ExtResource("1_a7mnn")
 stat_type = 10
 base_value = 0
 flat_bonus_value = 14
-
-[sub_resource type="Resource" id="Resource_rpg4a"]
-script = ExtResource("1_a7mnn")
-stat_type = 12
-base_value = 0
-flat_bonus_value = 99
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ttcm4"]
 atlas = ExtResource("2_u1k44")
@@ -37,9 +37,11 @@ bonus_stats = Dictionary[int, ExtResource("1_a7mnn")]({
 10: SubResource("Resource_0ra2o"),
 12: SubResource("Resource_rpg4a")
 })
-item_id = "0414418104-6141113-130135-4917-11341311511113620"
+item_id = "145872694-015615-13983-14947-211111581559114315"
 name = "Eternal Dirk"
+rarity = 0
 icon = SubResource("AtlasTexture_ttcm4")
 description = "A swift, wickedly sharp blade prized by Rogues."
 item_type = 1
 item_level = 100
+custom_item_value = 0

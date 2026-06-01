@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=13 format=3 uid="uid://dyl558pcmpdgf"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=15 format=3 uid="uid://dyl558pcmpdgf"]
 
 [ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_c7kxc"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_yw5go"]
@@ -10,20 +10,27 @@
 [ext_resource type="Resource" uid="uid://spu2powerful" path="res://resources/Abilities/Sword/Upgrades/U_SP_Powerful.tres" id="9_po"]
 [ext_resource type="Resource" uid="uid://c88l353clru8l" path="res://resources/Abilities/Sword/Upgrades/U_SP_Herculean.tres" id="10_he"]
 [ext_resource type="Script" uid="uid://djmplaybeawii" path="res://scripts/Abilities/AL_Aggression.gd" id="11_alag"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="12_asf"]
 
 [sub_resource type="Resource" id="Resource_dxlh0"]
 resource_local_to_scene = true
 script = ExtResource("1_yw5go")
 logic_script = ExtResource("11_alag")
 
+[sub_resource type="Resource" id="Resource_dmgpct"]
+script = ExtResource("12_asf")
+base_value = 6.0
+per_level = 6.0
+
 [sub_resource type="Resource" id="Resource_7tyrs"]
 script = ExtResource("3_8keoo")
+damage_percent_formula = SubResource("Resource_dmgpct")
 
 [resource]
 script = ExtResource("6_64xiq")
 ability_id = "413121311101411-157146-141212-013012-5357101513811514"
 ability_name = "Aggression"
-description = "Deal up to +30% damage to enemies above 90% health (scales with level). Strong openers; fades as foes weaken."
+description = "Deal +$[damage_percent] damage to enemies above 90% health. Strong openers; fades as foes weaken."
 ability_icon = ExtResource("1_c7kxc")
 max_level = 5
 ability_type = 1

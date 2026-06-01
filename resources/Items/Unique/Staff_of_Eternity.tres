@@ -1,8 +1,14 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://sctgdnup7rms"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_dms1g"]
-[ext_resource type="Texture2D" uid="uid://cj4kv8pk70aal" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_1sq0n"]
-[ext_resource type="Script" uid="uid://mysmonmct4jm" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_5pn12"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_dms1g"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_1sq0n"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_5pn12"]
+
+[sub_resource type="Resource" id="Resource_mk3bg"]
+script = ExtResource("1_dms1g")
+stat_type = 13
+base_value = 0
+flat_bonus_value = 110
 
 [sub_resource type="Resource" id="Resource_ta6fk"]
 script = ExtResource("1_dms1g")
@@ -22,12 +28,6 @@ stat_type = 7
 base_value = 0
 flat_bonus_value = 20
 
-[sub_resource type="Resource" id="Resource_mk3bg"]
-script = ExtResource("1_dms1g")
-stat_type = 13
-base_value = 0
-flat_bonus_value = 110
-
 [sub_resource type="AtlasTexture" id="AtlasTexture_omud0"]
 atlas = ExtResource("2_1sq0n")
 region = Rect2(10, 17, 4, 11)
@@ -36,6 +36,7 @@ margin = Rect2(3.5, 0, 7, 0)
 [resource]
 script = ExtResource("3_5pn12")
 weapon_type = 2
+weapon_attack_speed = 4
 equipment_type = 1
 bonus_stats = Dictionary[int, ExtResource("1_dms1g")]({
 1: SubResource("Resource_ta6fk"),
@@ -43,10 +44,11 @@ bonus_stats = Dictionary[int, ExtResource("1_dms1g")]({
 7: SubResource("Resource_4wkig"),
 13: SubResource("Resource_mk3bg")
 })
-item_id = "02789205-111416-92102-315139-84615988101274"
+item_id = "181341186-32510-78015-123915-710111521399212113"
 name = "Staff of Eternity"
 rarity = 4
 icon = SubResource("AtlasTexture_omud0")
 description = "An ancient staff humming with limitless arcane reserves."
 item_type = 1
 item_level = 60
+custom_item_value = 0

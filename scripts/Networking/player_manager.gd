@@ -180,6 +180,20 @@ static func _starter_weapon_for(class_type: int) -> String:
 			return "Wooden Sword"
 
 
+## Returns the generated-armour FAMILY name for a discipline, used to pick the
+## level-1 "Worn <family> <slot>" starter set. Mirrors _starter_weapon_for.
+static func _starter_armor_family(class_type: int) -> String:
+	match class_type:
+		Constants.ClassType.STAFF, Constants.ClassType.ARCHMAGE:
+			return "Arcanist"
+		Constants.ClassType.BOW, Constants.ClassType.RANGER:
+			return "Pathfinder"
+		Constants.ClassType.DAGGER, Constants.ClassType.ASSASSIN:
+			return "Nightshade"
+		Constants.ClassType.SWORD, Constants.ClassType.CRUSADER, Constants.ClassType.BEGINNER, _:
+			return "Vanguard"
+
+
 func cleanup():
 	"""Remove all networked entities and reset player tracking"""
 	#print("Cleaning up all players and entities")
@@ -341,11 +355,18 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 	
 	if not player_data or not player_data.has("inventory") or (not has_items and not has_equipment):
 		#print("PlayerManager: Adding default items for player %d (class %d)" % [id, character_type])
+		var ec = player_instance.equipment_component
 		var starter_weapon := _starter_weapon_for(character_type)
-		player_instance.equipment_component.weapon_slot.item = ResourceManager.get_item_by_name(starter_weapon)
-		player_instance.equipment_component.chest_slot.item = ResourceManager.get_item_by_name("White Shirt")
-		player_instance.equipment_component.legs_slot.item = ResourceManager.get_item_by_name("Blue Jean Shorts")
-		player_instance.equipment_component.feet_slot.item = ResourceManager.get_item_by_name("Leather Sandals")
+		ec.weapon_slot.item = ResourceManager.get_item_by_name(starter_weapon)
+		# Class-appropriate starter armour: the level-1 "Worn" set of the
+		# discipline's family (Vanguard plate / Pathfinder leather / Arcanist robes
+		# / Nightshade cloth), so new characters spawn fully kitted (incl. a head
+		# slot) with the right defensive identity (plate=armour, robes=magic resist).
+		var fam := _starter_armor_family(character_type)
+		ec.head_slot.item = ResourceManager.get_item_by_name("Worn %s Helm" % fam)
+		ec.chest_slot.item = ResourceManager.get_item_by_name("Worn %s Mail" % fam)
+		ec.legs_slot.item = ResourceManager.get_item_by_name("Worn %s Legguards" % fam)
+		ec.feet_slot.item = ResourceManager.get_item_by_name("Worn %s Boots" % fam)
 	
 	# Set health and mana
 	if player_instance.health_component:

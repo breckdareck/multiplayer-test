@@ -36,6 +36,11 @@ const MOMENTUM_TICK_META: String = "sky_volley_last_momentum_ms"
 
 const ZONE_COLOR: Color = Color(0.85, 0.78, 0.55, 0.42)  ## sandy gold
 
+## Marking Volley (T3) — whether this cast tags enemies inside with Hunter's
+## Mark. Set per cast in execute(); read by the per-tick callback (the zone keeps
+## this AL instance alive via the bound Callable).
+var _applies_mark: bool = false
+
 
 func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevelData) -> void:
 	if not owner_node.multiplayer.is_server():
@@ -53,15 +58,22 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 	var damage_bonus: float = 0.0
 	var width_bonus: float = 0.0
 	var duration_bonus: float = 0.0
+	var tick_rate_bonus: float = 0.0
+	_applies_mark = false
 	var ability_comp = owner_node.get("ability_component")
 	if ability_comp and _ability != null and ability_comp.has_method("get_ability_upgrade_magnitude"):
 		damage_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_damage_mult")
 		width_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_zone_radius")
 		duration_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "channel_time_extension")
+		# Rapid Volley (T3) shortens the tick interval; Marking Volley (T3) tags
+		# enemies inside with Hunter's Mark.
+		tick_rate_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_tick_rate")
+		_applies_mark = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_marks_applied") > 0.0
 
 	var tick_damage: int = maxi(1, roundi(wpn_attack * TICK_DAMAGE_PCT * (1.0 + damage_bonus)))
 	var duration: float = ZONE_DURATION + duration_bonus
 	var rect_size: Vector2 = ZONE_RECT_SIZE + Vector2(width_bonus, 0.0)
+	var tick_interval: float = ZONE_TICK_INTERVAL * clampf(1.0 - tick_rate_bonus, 0.1, 1.0)
 
 	# Spawn the rain area ahead of the caster in their facing direction.
 	var facing: int = int(owner_node.facing_direction) if "facing_direction" in owner_node else 1
@@ -77,7 +89,7 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 		spawn_pos,
 		rect_size,
 		duration,
-		ZONE_TICK_INTERVAL,
+		tick_interval,
 		tick_damage,
 		ZONE_COLOR,
 		Callable(self, "_build_momentum").bind(owner_node),
@@ -91,6 +103,14 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 func _build_momentum(owner_node: Node, _enemy: Node) -> void:
 	if not is_instance_valid(owner_node):
 		return
+
+	# Marking Volley (T3): tag each enemy hit with a short Hunter's Mark so the
+	# next momentum-spender (Snipe / Sundering Arrow) auto-crits it.
+	if _applies_mark and is_instance_valid(_enemy) and _enemy is EnemyBase:
+		# Matches AL_MarkOfTheHunt.MARK_META / MARK_DURATION (8s).
+		var expire_at_ms: int = Time.get_ticks_msec() + 8000
+		_enemy.set_meta("hunters_mark_remaining", expire_at_ms)
+
 	# Rate limit: at most 1 momentum build per second of held channel.
 	var now: int = Time.get_ticks_msec()
 	var last: int = int(owner_node.get_meta(MOMENTUM_TICK_META, 0))

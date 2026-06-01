@@ -7,9 +7,9 @@
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_bi1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_bi1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
-[ext_resource type="Resource" uid="uid://swt1recover0001" path="res://resources/Abilities/Sword/Upgrades/U_SW_Recovery.tres" id="9_swrc"]
-[ext_resource type="Resource" uid="uid://swt2secheart002" path="res://resources/Abilities/Sword/Upgrades/U_SW_SecondHeart.tres" id="10_swsh"]
-[ext_resource type="Resource" uid="uid://swt3inexhaust03" path="res://resources/Abilities/Sword/Upgrades/U_SW_Inexhaustible.tres" id="11_swin"]
+[ext_resource type="Resource" uid="uid://bxlfjl188ah2g" path="res://resources/Abilities/Sword/Upgrades/U_SW_Recovery.tres" id="9_swrc"]
+[ext_resource type="Resource" uid="uid://bymfjej473h2h" path="res://resources/Abilities/Sword/Upgrades/U_SW_SecondHeart.tres" id="10_swsh"]
+[ext_resource type="Resource" uid="uid://b0colum5b2b2i" path="res://resources/Abilities/Sword/Upgrades/U_SW_Inexhaustible.tres" id="11_swin"]
 
 [sub_resource type="Resource" id="Resource_bi_behav"]
 resource_local_to_scene = true
@@ -18,7 +18,7 @@ script = ExtResource("2_bi1")
 [sub_resource type="Resource" id="Resource_bi_crit"]
 script = ExtResource("5_bi1")
 base_value = 2.0
-per_level = 2
+per_level = 2.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_bi_sbf"]

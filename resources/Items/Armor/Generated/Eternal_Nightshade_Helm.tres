@@ -1,26 +1,26 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://cfrcrol5w3cqq"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_agvmg"]
-[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_gihnr"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_e8eem"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_agvmg"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_gihnr"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_e8eem"]
+
+[sub_resource type="Resource" id="Resource_8xxha"]
+script = ExtResource("1_agvmg")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 35
+
+[sub_resource type="Resource" id="Resource_f14lx"]
+script = ExtResource("1_agvmg")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 35
 
 [sub_resource type="Resource" id="Resource_uq5m5"]
 script = ExtResource("1_agvmg")
 stat_type = 3
 base_value = 0
 flat_bonus_value = 19
-
-[sub_resource type="Resource" id="Resource_8xxha"]
-script = ExtResource("1_agvmg")
-stat_type = 8
-base_value = 0
-flat_bonus_value = 44
-
-[sub_resource type="Resource" id="Resource_f14lx"]
-script = ExtResource("1_agvmg")
-stat_type = 9
-base_value = 0
-flat_bonus_value = 25
 
 [sub_resource type="Resource" id="Resource_gy2kt"]
 script = ExtResource("1_agvmg")
@@ -30,8 +30,7 @@ flat_bonus_value = 5
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ldwf2"]
 atlas = ExtResource("2_gihnr")
-region = Rect2(108, 114, 10, 4)
-margin = Rect2(0, 3, 0, 6)
+region = Rect2(786, 60, 42, 42)
 
 [resource]
 script = ExtResource("3_e8eem")
@@ -41,9 +40,11 @@ bonus_stats = Dictionary[int, ExtResource("1_agvmg")]({
 9: SubResource("Resource_f14lx"),
 11: SubResource("Resource_gy2kt")
 })
-item_id = "11811215307-151286-13454-15994-035126151253607"
+item_id = "151318080-7141110-681412-00142-6210671315111305"
 name = "Eternal Nightshade Helm"
+rarity = 0
 icon = SubResource("AtlasTexture_ldwf2")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 100
+custom_item_value = 0

@@ -1,8 +1,20 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://cxcuijvh0qudn"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_hllt4"]
-[ext_resource type="Texture2D" uid="uid://bannlqdgbwmld" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_hpowr"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_tfe5d"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_hllt4"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_hpowr"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_tfe5d"]
+
+[sub_resource type="Resource" id="Resource_njnqf"]
+script = ExtResource("1_hllt4")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 16
+
+[sub_resource type="Resource" id="Resource_eada1"]
+script = ExtResource("1_hllt4")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 25
 
 [sub_resource type="Resource" id="Resource_s4xej"]
 script = ExtResource("1_hllt4")
@@ -15,18 +27,6 @@ script = ExtResource("1_hllt4")
 stat_type = 5
 base_value = 0
 flat_bonus_value = 53
-
-[sub_resource type="Resource" id="Resource_njnqf"]
-script = ExtResource("1_hllt4")
-stat_type = 8
-base_value = 0
-flat_bonus_value = 25
-
-[sub_resource type="Resource" id="Resource_eada1"]
-script = ExtResource("1_hllt4")
-stat_type = 9
-base_value = 0
-flat_bonus_value = 14
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_sy1a7"]
 atlas = ExtResource("2_hpowr")
@@ -42,9 +42,11 @@ bonus_stats = Dictionary[int, ExtResource("1_hllt4")]({
 8: SubResource("Resource_njnqf"),
 9: SubResource("Resource_eada1")
 })
-item_id = "613011413714-1511511-13339-1785-15326148120311116"
+item_id = "121029891115-121546-89314-1210110-111510134142914611"
 name = "Mithril Arcanist Legguards"
+rarity = 0
 icon = SubResource("AtlasTexture_sy1a7")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
 item_level = 40
+custom_item_value = 0

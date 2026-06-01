@@ -1,8 +1,20 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bwn31gq8ac162"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_33mqg"]
-[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_ca8f4"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_8gnc4"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_33mqg"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_ca8f4"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_8gnc4"]
+
+[sub_resource type="Resource" id="Resource_cb0en"]
+script = ExtResource("1_33mqg")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 11
+
+[sub_resource type="Resource" id="Resource_rjyc5"]
+script = ExtResource("1_33mqg")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 17
 
 [sub_resource type="Resource" id="Resource_lyls2"]
 script = ExtResource("1_33mqg")
@@ -16,21 +28,9 @@ stat_type = 5
 base_value = 0
 flat_bonus_value = 36
 
-[sub_resource type="Resource" id="Resource_cb0en"]
-script = ExtResource("1_33mqg")
-stat_type = 8
-base_value = 0
-flat_bonus_value = 17
-
-[sub_resource type="Resource" id="Resource_rjyc5"]
-script = ExtResource("1_33mqg")
-stat_type = 9
-base_value = 0
-flat_bonus_value = 10
-
 [sub_resource type="AtlasTexture" id="AtlasTexture_yx4hh"]
 atlas = ExtResource("2_ca8f4")
-region = Rect2(77, 91, 6, 3)
+region = Rect2(848, 142, 54, 54)
 
 [resource]
 script = ExtResource("3_8gnc4")
@@ -41,9 +41,11 @@ bonus_stats = Dictionary[int, ExtResource("1_33mqg")]({
 8: SubResource("Resource_cb0en"),
 9: SubResource("Resource_rjyc5")
 })
-item_id = "498711414-141512-43215-61036-121110110561192312"
+item_id = "1312110621010-513120-614313-111211-113762410571304"
 name = "Iron Arcanist Mail"
+rarity = 0
 icon = SubResource("AtlasTexture_yx4hh")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
 item_level = 20
+custom_item_value = 0

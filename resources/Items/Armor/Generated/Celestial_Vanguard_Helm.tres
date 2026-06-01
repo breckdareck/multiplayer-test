@@ -1,8 +1,20 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://c2u4xs2f8etvv"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_3uion"]
-[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_bm2xj"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_gxytb"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_3uion"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_bm2xj"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_gxytb"]
+
+[sub_resource type="Resource" id="Resource_x11wm"]
+script = ExtResource("1_3uion")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 35
+
+[sub_resource type="Resource" id="Resource_hghn6"]
+script = ExtResource("1_3uion")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 23
 
 [sub_resource type="Resource" id="Resource_h5p41"]
 script = ExtResource("1_3uion")
@@ -15,22 +27,9 @@ stat_type = 4
 base_value = 0
 flat_bonus_value = 91
 
-[sub_resource type="Resource" id="Resource_x11wm"]
-script = ExtResource("1_3uion")
-stat_type = 8
-base_value = 0
-flat_bonus_value = 35
-
-[sub_resource type="Resource" id="Resource_hghn6"]
-script = ExtResource("1_3uion")
-stat_type = 9
-base_value = 0
-flat_bonus_value = 20
-
 [sub_resource type="AtlasTexture" id="AtlasTexture_3mbfy"]
 atlas = ExtResource("2_bm2xj")
-region = Rect2(108, 114, 10, 4)
-margin = Rect2(0, 3, 0, 6)
+region = Rect2(786, 60, 42, 42)
 
 [resource]
 script = ExtResource("3_gxytb")
@@ -40,9 +39,11 @@ bonus_stats = Dictionary[int, ExtResource("1_3uion")]({
 8: SubResource("Resource_x11wm"),
 9: SubResource("Resource_hghn6")
 })
-item_id = "71128121456-119106-0121014-60614-1551514010814415712"
+item_id = "1014111203-515122-310411-8151411-1109612315711873"
 name = "Celestial Vanguard Helm"
+rarity = 0
 icon = SubResource("AtlasTexture_3mbfy")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 80
+custom_item_value = 0

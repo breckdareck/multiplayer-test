@@ -1,17 +1,17 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=20 format=3 uid="uid://57c47n4ufdv6h"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=21 format=3 uid="uid://26h7rtvqv4d"]
 
-[ext_resource type="Texture2D" path="res://assets/sprites/Abilities/ice_strike.png" id="1_icon"]
+[ext_resource type="Texture2D" uid="uid://cq7r2r0v4dc42" path="res://assets/sprites/Abilities/ice_strike.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
-[ext_resource type="Script" path="res://scripts/Abilities/AL_FrostPatch.gd" id="3_al"]
+[ext_resource type="Script" uid="uid://dt2rbyro77ydi" path="res://scripts/Abilities/AL_FrostPatch.gd" id="3_al"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_ad"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_asf"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_asd"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_sbf"]
-[ext_resource type="Resource" uid="uid://w2ht76ve7dsmt" path="res://resources/Abilities/Staff/Upgrades/U_FPT_wider_frost.tres" id="9_upg"]
-[ext_resource type="Resource" uid="uid://gddf6fuf7o54i" path="res://resources/Abilities/Staff/Upgrades/U_FPT_deep_frost.tres" id="10_upg"]
-[ext_resource type="Resource" uid="uid://tmmkk5qxil7ht" path="res://resources/Abilities/Staff/Upgrades/U_FPT_glacial_frost.tres" id="11_upg"]
-[ext_resource type="Resource" uid="uid://vzotylnhgzern" path="res://resources/Abilities/Staff/Upgrades/U_FPT_lingering_frost.tres" id="12_upg"]
-[ext_resource type="Resource" uid="uid://6bl4lu4am2lqw" path="res://resources/Abilities/Staff/Upgrades/U_FPT_shattering_frost.tres" id="13_upg"]
+[ext_resource type="Resource" uid="uid://dqgiawa5edft0" path="res://resources/Abilities/Staff/Upgrades/U_FPT_wider_frost.tres" id="9_upg"]
+[ext_resource type="Resource" uid="uid://chxkldw6nibdq" path="res://resources/Abilities/Staff/Upgrades/U_FPT_deep_frost.tres" id="10_upg"]
+[ext_resource type="Resource" uid="uid://bk7mu5oolto0" path="res://resources/Abilities/Staff/Upgrades/U_FPT_glacial_frost.tres" id="11_upg"]
+[ext_resource type="Resource" uid="uid://conh1b17my0yt" path="res://resources/Abilities/Staff/Upgrades/U_FPT_lingering_frost.tres" id="12_upg"]
+[ext_resource type="Resource" uid="uid://ec5vfq84glos" path="res://resources/Abilities/Staff/Upgrades/U_FPT_shattering_frost.tres" id="13_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="14_aud"]
 
 [sub_resource type="Resource" id="Resource_active"]
@@ -23,7 +23,6 @@ logic_script = ExtResource("3_al")
 
 [sub_resource type="Resource" id="Resource_cast"]
 script = ExtResource("5_asf")
-base_value = 0.0
 
 [sub_resource type="Resource" id="Resource_cd"]
 script = ExtResource("5_asf")
@@ -32,7 +31,7 @@ base_value = 8.0
 [sub_resource type="Resource" id="Resource_dmg"]
 script = ExtResource("5_asf")
 base_value = 45.0
-per_level = 2
+per_level = 2.0
 
 [sub_resource type="Resource" id="Resource_mana"]
 script = ExtResource("5_asf")
@@ -58,7 +57,6 @@ ability_name = "Frost Patch"
 description = "Cast a patch of frost at your feet for 4 seconds. Enemies inside take $[damage_percent] magic damage per tick and are chilled for 50% slow."
 ability_icon = ExtResource("1_icon")
 max_level = 10
-ability_type = 0
 required_class = Array[int]([2])
 required_weapon_types = Array[int]([2])
 tree_path = 0

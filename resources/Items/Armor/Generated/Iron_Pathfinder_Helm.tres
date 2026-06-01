@@ -1,26 +1,26 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://c52n5x1qi3jyg"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_l8ds0"]
-[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_a5dp2"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_tc1bv"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_l8ds0"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_a5dp2"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_tc1bv"]
+
+[sub_resource type="Resource" id="Resource_5vi26"]
+script = ExtResource("1_l8ds0")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 8
+
+[sub_resource type="Resource" id="Resource_po2mb"]
+script = ExtResource("1_l8ds0")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 8
 
 [sub_resource type="Resource" id="Resource_40xw2"]
 script = ExtResource("1_l8ds0")
 stat_type = 2
 base_value = 0
 flat_bonus_value = 4
-
-[sub_resource type="Resource" id="Resource_5vi26"]
-script = ExtResource("1_l8ds0")
-stat_type = 8
-base_value = 0
-flat_bonus_value = 10
-
-[sub_resource type="Resource" id="Resource_po2mb"]
-script = ExtResource("1_l8ds0")
-stat_type = 9
-base_value = 0
-flat_bonus_value = 6
 
 [sub_resource type="Resource" id="Resource_3om2f"]
 script = ExtResource("1_l8ds0")
@@ -30,8 +30,7 @@ flat_bonus_value = 1
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ybjxt"]
 atlas = ExtResource("2_a5dp2")
-region = Rect2(108, 114, 10, 4)
-margin = Rect2(0, 3, 0, 6)
+region = Rect2(786, 60, 42, 42)
 
 [resource]
 script = ExtResource("3_tc1bv")
@@ -41,9 +40,11 @@ bonus_stats = Dictionary[int, ExtResource("1_l8ds0")]({
 9: SubResource("Resource_po2mb"),
 10: SubResource("Resource_3om2f")
 })
-item_id = "22713103911-2690-91047-41545-1093388313125139"
+item_id = "92712111123-14526-1510112-1984-152521314918913"
 name = "Iron Pathfinder Helm"
+rarity = 0
 icon = SubResource("AtlasTexture_ybjxt")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 20
+custom_item_value = 0

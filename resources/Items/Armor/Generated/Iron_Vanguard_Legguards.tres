@@ -1,19 +1,8 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://cbj7ncqbernli"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_dpnob"]
-[ext_resource type="Texture2D" uid="uid://bannlqdgbwmld" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_r27ua"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_c7m4x"]
-
-[sub_resource type="Resource" id="Resource_gneyx"]
-script = ExtResource("1_dpnob")
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_n5dw0"]
-script = ExtResource("1_dpnob")
-stat_type = 4
-base_value = 0
-flat_bonus_value = 35
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_dpnob"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_r27ua"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_c7m4x"]
 
 [sub_resource type="Resource" id="Resource_kmxii"]
 script = ExtResource("1_dpnob")
@@ -25,7 +14,18 @@ flat_bonus_value = 14
 script = ExtResource("1_dpnob")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 8
+flat_bonus_value = 9
+
+[sub_resource type="Resource" id="Resource_gneyx"]
+script = ExtResource("1_dpnob")
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="Resource" id="Resource_n5dw0"]
+script = ExtResource("1_dpnob")
+stat_type = 4
+base_value = 0
+flat_bonus_value = 35
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_bk4yv"]
 atlas = ExtResource("2_r27ua")
@@ -41,9 +41,11 @@ bonus_stats = Dictionary[int, ExtResource("1_dpnob")]({
 8: SubResource("Resource_kmxii"),
 9: SubResource("Resource_pjqgj")
 })
-item_id = "12385710411-5913-71444-61434-056763159131598"
+item_id = "859789111-512106-12937-12039-570006414113711"
 name = "Iron Vanguard Legguards"
+rarity = 0
 icon = SubResource("AtlasTexture_bk4yv")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 20
+custom_item_value = 0

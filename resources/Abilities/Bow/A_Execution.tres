@@ -1,8 +1,9 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=13 format=3 uid="uid://dexpasv0001x"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=15 format=3 uid="uid://dexpasv0001x"]
 
 [ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_dxpa1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_dxpa2"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_dxpa1"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="ASF_dmgpct"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_dxpa1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_dxpa1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="7_aud"]
@@ -16,14 +17,20 @@ resource_local_to_scene = true
 script = ExtResource("1_dxpa2")
 logic_script = ExtResource("11_alex")
 
+[sub_resource type="Resource" id="Resource_dmgpct"]
+script = ExtResource("ASF_dmgpct")
+base_value = 9.0
+per_level = 9.0
+
 [sub_resource type="Resource" id="Resource_dxpa4"]
 script = ExtResource("3_dxpa1")
+damage_percent_formula = SubResource("Resource_dmgpct")
 
 [resource]
 script = ExtResource("6_dxpa1")
 ability_id = "4456712011361-15113-1011311-4101-1413111411105114"
 ability_name = "Execution"
-description = "Deal up to +45% damage to enemies below 30% health (scales with level). A finisher — useless on fresh foes, lethal on wounded ones."
+description = "Deal +$[damage_percent] damage to enemies below 30% health. A finisher — useless on fresh foes, lethal on wounded ones."
 ability_icon = ExtResource("1_dxpa1")
 max_level = 5
 ability_type = 1

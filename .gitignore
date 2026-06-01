@@ -40,3 +40,6 @@ README - COPY.md
 GEMINI.md
 /assets/references
 /.claude/worktrees
+
+# Python bytecode cache (tools/)
+__pycache__/

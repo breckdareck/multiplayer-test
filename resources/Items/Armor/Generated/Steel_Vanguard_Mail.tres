@@ -1,8 +1,20 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://cqbe28o5pn563"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_wuvre"]
-[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_37d14"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_wiptc"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_wuvre"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_37d14"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_wiptc"]
+
+[sub_resource type="Resource" id="Resource_j6o7c"]
+script = ExtResource("1_wuvre")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 24
+
+[sub_resource type="Resource" id="Resource_f2snm"]
+script = ExtResource("1_wuvre")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 16
 
 [sub_resource type="Resource" id="Resource_bnmo7"]
 script = ExtResource("1_wuvre")
@@ -15,21 +27,9 @@ stat_type = 4
 base_value = 0
 flat_bonus_value = 62
 
-[sub_resource type="Resource" id="Resource_j6o7c"]
-script = ExtResource("1_wuvre")
-stat_type = 8
-base_value = 0
-flat_bonus_value = 24
-
-[sub_resource type="Resource" id="Resource_f2snm"]
-script = ExtResource("1_wuvre")
-stat_type = 9
-base_value = 0
-flat_bonus_value = 14
-
 [sub_resource type="AtlasTexture" id="AtlasTexture_8hjfg"]
 atlas = ExtResource("2_37d14")
-region = Rect2(77, 91, 6, 3)
+region = Rect2(848, 142, 54, 54)
 
 [resource]
 script = ExtResource("3_wiptc")
@@ -40,9 +40,11 @@ bonus_stats = Dictionary[int, ExtResource("1_wuvre")]({
 8: SubResource("Resource_j6o7c"),
 9: SubResource("Resource_f2snm")
 })
-item_id = "1421548845-01376-61073-7121210-812881512261112010"
+item_id = "1579748811-15153-801210-10114-5131510311351515146"
 name = "Steel Vanguard Mail"
+rarity = 0
 icon = SubResource("AtlasTexture_8hjfg")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 30
+custom_item_value = 0

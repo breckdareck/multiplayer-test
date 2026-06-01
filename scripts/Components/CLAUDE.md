@@ -334,7 +334,13 @@ implements the hooks it needs:
   Used for buff application (AL_PowerGuard, AL_BulwarkStance), combo spend
   (AL_Slash, AL_PowerStrike), dash velocity (AL_VaultStrike). Note:
   `AbilityData.applies_buff` is **metadata only** (UI/bots/pets read it) — the
-  actual `buff_component.apply_buff()` call must be made here.
+  actual `buff_component.apply_buff()` call must be made here. To make a buff's
+  flat stat scale with ability level (apply_buff has no magnitude param), call
+  `BuffComponent.scale_buff_stat(buff_id, stat_type, flat)` (server-side) right
+  after apply — it deep-duplicates the active buff's buff_data, overrides the
+  modifier, recalcs, and broadcasts to clients via `sync_buff_stat_modifiers`.
+  Used by AL_BulwarkStance (Defense 100→250) and AL_Banner (aura Defense, once
+  per ally — REFRESH keeps the scaled data across ticks). Added 2026-06-02.
 - **`on_hit(owner, target, ability)`** — fires per landed ability hit in
   `combat.gd._execute_hit` (post-miss-check). Misses don't fire it. Used by
   AL_Steel_Flurry (build combo per hit), AL_Hemorrhage (apply bleed), AL_VaultStrike.
@@ -358,22 +364,33 @@ implements the hooks it needs:
   owner meta deadline), Overload (staff, owner mana >50%), Composure (dagger, owner
   >80% HP), Toxicology (dagger, target envenom-poisoned), Opportunist (dagger, stealthed),
   **Predator's Patience** (dagger, ambush damage scales with time-since-last-ambush; v1).
-  v1 NOTE: the dispatcher now probes each AL's `conditional_damage_mult` arg count and
-  passes the cast `ability` as a 4th param when the AL accepts it (Elemental Affinity
-  uses this for per-stance ability_id matching). Existing 3-arg ALs are unaffected.
-- **`conditional_damage_taken_mult(owner, source, level) -> float`** — v1 incoming-damage
-  passive hook (Vanguard's Resolve). Returns a NEGATIVE fraction (e.g. -0.16 = -16%)
-  representing damage REDUCTION. `AbilityComponent.get_incoming_damage_modifier` sums
-  across equipped-discipline passives; `health.gd.take_damage` (on a player target)
-  applies the resulting `(1.0 + total)` BEFORE HP deduction. Enemy-on-player damage
-  doesn't route through `combat.gd._execute_hit` so this is the only integration site.
-- **`attack_cooldown_mult(owner, level) -> float`** — v1 basic-attack speed passive
-  hook (Wind Rider). Returns a NEGATIVE fraction (e.g. -0.25 = -25% delay) representing
+  v1 NOTE: the dispatcher probes each AL's `conditional_damage_mult` arg count and passes
+  extra params when the AL accepts them: a **4th** param = the cast `ability` (Elemental
+  Affinity uses it for per-stance ability_id matching); a **5th** param = the passive's
+  OWN ability_id (so the passive can read its own upgrade tree — potency/carryover/
+  at-full — for shared effect_keys that get_total would double-count). Existing 3-arg ALs
+  are unaffected. (Wired 2026-06-02 for ELA + Predator's Patience.)
+- **`conditional_damage_taken_mult(owner, source, level [, passive_id]) -> float`** — v1
+  incoming-damage passive hook (Vanguard's Resolve). Returns a NEGATIVE fraction (e.g.
+  -0.16 = -16%) representing damage REDUCTION. `AbilityComponent.get_incoming_damage_modifier`
+  sums across equipped-discipline passives; `health.gd.take_damage` (on a player target)
+  applies the resulting `(1.0 + total)` BEFORE HP deduction. Enemy-on-player damage doesn't
+  route through `combat.gd._execute_hit` so this is the only integration site. The dispatcher
+  passes the passive's OWN ability_id as a **4th** param when the AL accepts it (same
+  arg-count probe) so it can read its own potency/cap/carryover upgrades (wired 2026-06-02).
+- **`attack_cooldown_mult(owner, level [, ability_id]) -> float`** — v1 basic-attack speed
+  passive hook (Wind Rider). Returns a NEGATIVE fraction (e.g. -0.25 = -25% delay) representing
   cooldown REDUCTION. `AbilityComponent.get_attack_cooldown_mult` sums across equipped-
   discipline passives; `scripts/Player/StateMachine/attack.gd`'s `attack_speed_percent`
   getter divides `base` by the resulting mult so a negative bonus speeds up the
   basic-attack cycle. Layered on top of `BowMomentumComponent.get_speed_bonus` (Momentum
-  speed ramp) so they stack distinctly.
+  speed ramp) so they stack distinctly. The dispatcher passes the passive's OWN ability_id
+  as a **3rd** param when accepted (arg-count probe) for its upgrade reads (2026-06-02).
+- **`ability_cooldown_reduction(owner, level, ability_id) -> float`** — v1 passive
+  ability-cooldown hook (Wind Rider's Twin Wind T3). Returns a positive FRACTION;
+  `AbilityComponent.get_passive_ability_cooldown_mult` sums across passives and returns
+  `clamp(1.0 - sum, 0.1, 1.0)`, applied to every ability cooldown in
+  `_consume_ability_resources` (2026-06-02).
 - **`modify_cast_resources(owner) -> Dictionary`** — v1 pre-cast resource hook
   (AL_Shadowstep). Returns `{"mp_mult": float, "cd_mult": float}` to scale this cast's
   MP cost and cooldown BEFORE the existing flat-reduction / per-ability-modifier paths

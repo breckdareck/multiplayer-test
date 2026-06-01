@@ -152,7 +152,14 @@ func _on_regen_timer_timeout() -> void:
 func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, is_crit: bool = false, show_number: bool = true) -> void:
 	
 	var is_player = (owner is MultiplayerPlayerV2)
-	
+
+	# Compute the post-reduction amount UP FRONT so the floating damage number
+	# matches the HP actually lost. Server-authoritative player passives (Vanguard's
+	# Resolve), Banner DR, and the smoke-choke debuff reduce incoming damage; before
+	# this, the number always showed the full pre-reduction hit, making those effects
+	# look like they did nothing. Returns `amount` unchanged off-server / non-player.
+	var final_amount: int = _compute_incoming_amount(amount, source) if is_player else amount
+
 	##print("HealthComponent.take_damage: amount=%d, show_number=%s, is_player=%s, is_server=%s" % [amount, show_number, is_player, multiplayer.is_server()])
 	
 	# --- Visual/Audio Effects ---
@@ -193,7 +200,7 @@ func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, 
 
 		if dmg_spawner:
 			##print("HealthComponent: Calling display_number on spawner")
-			dmg_spawner.display_number(amount, damage_number_origin.global_position, is_crit, is_player)
+			dmg_spawner.display_number(final_amount, damage_number_origin.global_position, is_crit, is_player)
 
 	
 	if is_player:
@@ -229,32 +236,8 @@ func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, 
 				if ev_chance > 0.0 and randf() < ev_chance:
 					return  # dodged — no damage applied
 
-		# v1 Vanguard's Resolve — incoming damage modifier from player passives.
-		# Enemy-on-player damage doesn't route through CombatComponent._execute_hit
-		# (enemies call take_damage directly), so the player's own ability_component
-		# dispatch lives here. Multiplies amount by (1.0 + sum of negative bonuses),
-		# scaling damage DOWN when the passive is active.
-		var final_amount: int = amount
-		if is_player:
-			var ac = owner.get("ability_component")
-			if ac != null and is_instance_valid(ac) and ac.has_method("get_incoming_damage_modifier"):
-				var mult: float = float(ac.get_incoming_damage_modifier(source))
-				if mult != 1.0:
-					final_amount = maxi(0, roundi(float(amount) * mult))
-
-			# v1 Choking Smoke (Smoke Bomb T3) — enemies tagged by AL_SmokeBomb
-			# while inside the cloud have an outgoing-damage debuff for a
-			# couple seconds after leaving (refreshed every tick via the
-			# expire-timestamp pattern). Reduces THIS hit's amount by the
-			# stored fraction. Source must be the attacking enemy node —
-			# the meta is set on EnemyBase directly by AL_SmokeBomb.
-			if source != null and is_instance_valid(source) and source.has_meta("smoke_choke_expire_at_ms"):
-				var debuff_expire: int = int(source.get_meta("smoke_choke_expire_at_ms"))
-				if Time.get_ticks_msec() < debuff_expire:
-					var debuff_pct: float = float(source.get_meta("smoke_choke_pct", 0.0))
-					if debuff_pct > 0.0:
-						final_amount = maxi(0, roundi(float(final_amount) * (1.0 - debuff_pct)))
-
+		# final_amount (the post-reduction value) was computed up front so the
+		# displayed number matches; deduct it here.
 		self.current_health -= final_amount
 		if not ignore_invuln:
 			is_invulnerable = true
@@ -270,6 +253,34 @@ func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, 
 			# Also shake on the owning client
 			if player_owner.player_id != 1 and not BotManager.is_bot(player_owner.player_id):
 				_trigger_screen_shake.rpc_id(player_owner.player_id, shake_intensity)
+
+
+## Server-side player incoming-damage reductions, computed up front so the damage
+## NUMBER and the HP deduction agree. Returns `amount` unchanged when not on the
+## server or the owner isn't a player. This is the dispatch combat.gd can't run for
+## enemy-on-player hits (enemies call take_damage directly, not _execute_hit).
+func _compute_incoming_amount(amount: int, source: Node) -> int:
+	if not multiplayer.is_server() or not (owner is MultiplayerPlayerV2):
+		return amount
+	var result: int = amount
+	# Vanguard's Resolve (and any incoming-damage passive): ×(1.0 + sum of bonuses).
+	var ac = owner.get("ability_component")
+	var vr_mult: float = 1.0
+	if ac != null and is_instance_valid(ac) and ac.has_method("get_incoming_damage_modifier"):
+		vr_mult = float(ac.get_incoming_damage_modifier(source))
+		if vr_mult != 1.0:
+			result = maxi(0, roundi(float(result) * vr_mult))
+	# Bulwark Banner (T3): flat % reduction while standing in a friendly banner.
+	var banner_dr: float = preload("res://scripts/Abilities/AL_Banner.gd").get_incoming_damage_reduction(owner)
+	if banner_dr > 0.0:
+		result = maxi(0, roundi(float(result) * (1.0 - banner_dr)))
+	# Choking Smoke (Smoke Bomb T3): the attacking enemy's outgoing-damage debuff.
+	if source != null and is_instance_valid(source) and source.has_meta("smoke_choke_expire_at_ms"):
+		if Time.get_ticks_msec() < int(source.get_meta("smoke_choke_expire_at_ms")):
+			var debuff_pct: float = float(source.get_meta("smoke_choke_pct", 0.0))
+			if debuff_pct > 0.0:
+				result = maxi(0, roundi(float(result) * (1.0 - debuff_pct)))
+	return result
 
 
 @rpc("authority", "call_local", "reliable")

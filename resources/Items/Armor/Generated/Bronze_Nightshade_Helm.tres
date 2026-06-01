@@ -1,26 +1,26 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://cg5xavetydsu6"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_85lv4"]
-[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_i0gg2"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_ergpi"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_85lv4"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_i0gg2"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_ergpi"]
+
+[sub_resource type="Resource" id="Resource_c3qw3"]
+script = ExtResource("1_85lv4")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="Resource" id="Resource_cmhua"]
+script = ExtResource("1_85lv4")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 5
 
 [sub_resource type="Resource" id="Resource_sjffg"]
 script = ExtResource("1_85lv4")
 stat_type = 3
 base_value = 0
 flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_c3qw3"]
-script = ExtResource("1_85lv4")
-stat_type = 8
-base_value = 0
-flat_bonus_value = 6
-
-[sub_resource type="Resource" id="Resource_cmhua"]
-script = ExtResource("1_85lv4")
-stat_type = 9
-base_value = 0
-flat_bonus_value = 4
 
 [sub_resource type="Resource" id="Resource_ym35j"]
 script = ExtResource("1_85lv4")
@@ -30,8 +30,7 @@ flat_bonus_value = 1
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_8cxju"]
 atlas = ExtResource("2_i0gg2")
-region = Rect2(108, 114, 10, 4)
-margin = Rect2(0, 3, 0, 6)
+region = Rect2(786, 60, 42, 42)
 
 [resource]
 script = ExtResource("3_ergpi")
@@ -41,9 +40,11 @@ bonus_stats = Dictionary[int, ExtResource("1_85lv4")]({
 9: SubResource("Resource_cmhua"),
 11: SubResource("Resource_ym35j")
 })
-item_id = "121421410835-51371-11594-1027-413151619211815"
+item_id = "3640106125-9950-1313151-44148-3359021515512142"
 name = "Bronze Nightshade Helm"
+rarity = 0
 icon = SubResource("AtlasTexture_8cxju")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 10
+custom_item_value = 0

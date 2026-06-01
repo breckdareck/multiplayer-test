@@ -379,6 +379,33 @@ func sync_buff_stat_modifiers(buff_id: String, modifier_data: Dictionary) -> voi
 		stat_data.percent_bonus_value = mod.get("percent", 0.0)
 		active_buff.buff_data.stat_modifiers[stat_type] = stat_data
 
+	# Recalc so the synced override takes effect on the client immediately.
+	_force_stat_recalc()
+
+
+## [Server] Override an active buff's flat stat modifier to a level-scaled value
+## and broadcast it to clients (the .tres value is the unscaled default). Lets an
+## ability whose buff stat scales with ability level — e.g. Bulwark Stance's
+## +Defense — set the real value at cast time. The active buff's buff_data is
+## deep-duplicated first so the shared ResourceManager resource isn't mutated.
+func scale_buff_stat(buff_id: String, stat_type: int, flat_value: float) -> void:
+	if not multiplayer.is_server():
+		return
+	if not _active_buffs.has(buff_id):
+		return
+	var active_buff: ActiveBuff = _active_buffs[buff_id]
+	active_buff.buff_data = active_buff.buff_data.duplicate(true)
+	var sd := StatData.new(stat_type as Constants.StatType, 0)
+	sd.flat_bonus_value = flat_value
+	active_buff.buff_data.stat_modifiers[stat_type] = sd
+	_force_stat_recalc()
+	if not is_bot_owned():
+		var mod_data := {}
+		for st in active_buff.buff_data.stat_modifiers:
+			var s: StatData = active_buff.buff_data.stat_modifiers[st]
+			mod_data[int(st)] = {"flat": s.flat_bonus_value, "percent": s.percent_bonus_value}
+		sync_buff_stat_modifiers.rpc(buff_id, mod_data)
+
 
 ## [Server->Client] Sends all buff data to a newly connected client in a single RPC.
 func sync_all_buffs_to_client(peer_id: int) -> void:

@@ -7,4 +7,4 @@ script = ExtResource("1_ay15b")
 item_name = "Dragonbone Dirk"
 randomize_stats = true
 possible_stats = Array[int]([12, 3, 10])
-drop_chance = 0.018
+drop_chance = 0.018000000000000002

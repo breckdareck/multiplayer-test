@@ -116,6 +116,57 @@ func test_active_abilities_have_active_behavior() -> void:
 		if ability.ability_type == Constants.AbilityType.ACTIVE:
 			assert_not_null(ability.active_behavior, "active ability %s has no active_behavior" % ability.ability_name)
 
+func test_active_logic_scripts_instantiate() -> void:
+	# Components do `active_behavior.logic_script.new()` then call into it at cast
+	# time. A logic_script that fails to instantiate (parse error / wrong base
+	# class) crashes the cast in-game; instantiating each here surfaces it in CI.
+	var abilities := _all_abilities()
+	assert_false(abilities.is_empty(), "no abilities loaded")
+	var checked := 0
+	for ability in abilities:
+		var beh = ability.active_behavior
+		if beh == null or beh.logic_script == null:
+			continue
+		checked += 1
+		var inst = beh.logic_script.new()
+		assert_not_null(inst, "%s logic_script failed to instantiate" % ability.ability_name)
+		if inst is Node:
+			inst.queue_free()
+	assert_true(checked >= 1, "expected at least one ability with a logic_script")
+
+func test_buff_granting_abilities_apply_their_buff() -> void:
+	# AbilityData.applies_buff is METADATA ONLY — it does not auto-apply on cast.
+	# A buff-granting ability needs a logic_script (AL_*.gd) that explicitly calls
+	# buff_component.apply_buff(...). An applies_buff with no logic_script, or one
+	# whose script never calls apply_buff, is a dead buff: the player casts and
+	# gets nothing. Reference: AL_PowerGuard.gd.
+	var abilities := _all_abilities()
+	assert_false(abilities.is_empty(), "no abilities loaded")
+	var found := 0
+	var broken: Array[String] = []
+	for ability in abilities:
+		if ability.applies_buff == null:
+			continue
+		found += 1
+		var beh = ability.active_behavior
+		var script: Script = beh.logic_script if beh != null else null
+		if script == null:
+			broken.append("%s declares applies_buff but has no logic_script to apply it" % ability.ability_name)
+			continue
+		if not ("apply_buff" in _read_script_source(script)):
+			broken.append("%s logic_script (%s) never calls apply_buff" % [ability.ability_name, script.resource_path])
+	assert_true(found >= 1, "expected buff-granting abilities to exist")
+	assert_true(broken.is_empty(), "buff-granting abilities not wired to apply their buff:\n  %s" % "\n  ".join(broken))
+
+## Source text of a GDScript, from its in-memory source or its file on disk.
+func _read_script_source(script: Script) -> String:
+	if script == null:
+		return ""
+	if script is GDScript and not (script as GDScript).source_code.is_empty():
+		return (script as GDScript).source_code
+	var f := FileAccess.open(script.resource_path, FileAccess.READ)
+	return f.get_as_text() if f != null else ""
+
 func test_required_class_maps_to_a_discipline() -> void:
 	# PR-4 invariant: an ability's class must map to a weapon discipline pool.
 	# Class-neutral debug abilities (empty required_class, e.g. FMA) are exempt.
@@ -146,7 +197,14 @@ func test_tooltips_render_at_min_and_max_level() -> void:
 		var high: String = ability.get_tooltip_text(ability.max_level)
 		assert_true(ability.ability_name in low, "%s level-1 tooltip missing its name" % ability.ability_name)
 		assert_true(ability.ability_name in high, "%s max-level tooltip missing its name" % ability.ability_name)
-		assert_false("$[damage_percent]" in low, "%s left a raw $[damage_percent] placeholder" % ability.ability_name)
+		# No description placeholder may survive formatting — any leftover "$[...]"
+		# ($[damage_percent], $[stat_bonus], $[buff_duration], $[value:KEY], ...)
+		# means the value won't show live in the tooltip. Catches a description
+		# whose backing formula (scaling_data field / custom_value_formulas entry)
+		# is missing. (Bulwark/Sentinel/Banner/Elemental Affinity/Wind Rider/
+		# Predator's Patience all regressed this way before the live-value pass.)
+		assert_false("$[" in low, "%s left a raw placeholder at level 1: %s" % [ability.ability_name, low])
+		assert_false("$[" in high, "%s left a raw placeholder at max level: %s" % [ability.ability_name, high])
 
 
 # ---- skill-tree layout (PR ~7: tree_path / tree_depth + climb-gate) ----

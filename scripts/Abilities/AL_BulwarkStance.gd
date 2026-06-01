@@ -12,6 +12,14 @@ extends Node
 ##
 ## A true on/off toggle (cancel via re-cast) is held for a T3 variant.
 
+## +Defense granted by the stance — fallback only. The live value comes from the
+## .tres custom_value_formulas["defense"] (100 at L1 → 250 at max_level), the same
+## formula the $[value:defense] description placeholder reads, so the tooltip and
+## the applied buff can never drift.
+const DEFENSE_AT_MIN: float = 100.0   # at level 1
+const DEFENSE_AT_MAX: float = 250.0   # at max_level
+
+
 func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevelData) -> void:
 	var buff_component = _owner_node.get_node_or_null("Components/Buff")
 	if not buff_component:
@@ -27,3 +35,9 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 		duration += ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "buff_duration_bonus")
 
 	buff_component.apply_buff("Bulwark Stance", _owner_node, duration)
+
+	# Scale the +Defense with the ability's level (the buff .tres carries only the
+	# unscaled default). Read from the shared formula so it matches the tooltip.
+	var defense: float = _ability.get_custom_value("defense", _level_stats.level, DEFENSE_AT_MAX)
+	if buff_component.has_method("scale_buff_stat"):
+		buff_component.scale_buff_stat("Bulwark Stance", Constants.StatType.DEFENSE, defense)

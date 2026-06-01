@@ -1,19 +1,8 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://dres67tpb7i8o"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_2f8yg"]
-[ext_resource type="Texture2D" uid="uid://bannlqdgbwmld" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_61i5x"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_ffh60"]
-
-[sub_resource type="Resource" id="Resource_lpngw"]
-script = ExtResource("1_2f8yg")
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_40m8q"]
-script = ExtResource("1_2f8yg")
-stat_type = 4
-base_value = 0
-flat_bonus_value = 8
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_2f8yg"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_61i5x"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_ffh60"]
 
 [sub_resource type="Resource" id="Resource_017lb"]
 script = ExtResource("1_2f8yg")
@@ -26,6 +15,17 @@ script = ExtResource("1_2f8yg")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_lpngw"]
+script = ExtResource("1_2f8yg")
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_40m8q"]
+script = ExtResource("1_2f8yg")
+stat_type = 4
+base_value = 0
+flat_bonus_value = 8
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_lmkka"]
 atlas = ExtResource("2_61i5x")
@@ -41,9 +41,11 @@ bonus_stats = Dictionary[int, ExtResource("1_2f8yg")]({
 8: SubResource("Resource_017lb"),
 9: SubResource("Resource_qwoma")
 })
-item_id = "31912012315-14117-214117-124912-178311015115493"
+item_id = "2135135912-92117-07310-581013-5951811641010142"
 name = "Worn Vanguard Legguards"
+rarity = 0
 icon = SubResource("AtlasTexture_lmkka")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 1
+custom_item_value = 0

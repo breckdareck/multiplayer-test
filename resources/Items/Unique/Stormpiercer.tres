@@ -1,8 +1,14 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://bft3hw4bqhw8y"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_33bm3"]
-[ext_resource type="Texture2D" uid="uid://cj4kv8pk70aal" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_kqs2s"]
-[ext_resource type="Script" uid="uid://mysmonmct4jm" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_a6pec"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_33bm3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_kqs2s"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_a6pec"]
+
+[sub_resource type="Resource" id="Resource_w0dof"]
+script = ExtResource("1_33bm3")
+stat_type = 12
+base_value = 0
+flat_bonus_value = 88
 
 [sub_resource type="Resource" id="Resource_a46vb"]
 script = ExtResource("1_33bm3")
@@ -22,12 +28,6 @@ stat_type = 11
 base_value = 0
 flat_bonus_value = 30
 
-[sub_resource type="Resource" id="Resource_w0dof"]
-script = ExtResource("1_33bm3")
-stat_type = 12
-base_value = 0
-flat_bonus_value = 88
-
 [sub_resource type="AtlasTexture" id="AtlasTexture_wqg87"]
 atlas = ExtResource("2_kqs2s")
 region = Rect2(10, 17, 4, 11)
@@ -44,10 +44,11 @@ bonus_stats = Dictionary[int, ExtResource("1_33bm3")]({
 11: SubResource("Resource_nk1pr"),
 12: SubResource("Resource_w0dof")
 })
-item_id = "661310911136-7622-415110-141271-5921312761313100"
+item_id = "381214614615-212133-910153-4012-121571561114112210"
 name = "Stormpiercer"
 rarity = 4
 icon = SubResource("AtlasTexture_wqg87")
 description = "A bow that looses arrows wreathed in crackling wind."
 item_type = 1
 item_level = 55
+custom_item_value = 0
