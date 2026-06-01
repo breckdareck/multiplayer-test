@@ -199,7 +199,7 @@ UPGRADES = {
         "t1": ("Lasting Smoke", "Smoke Bomb's duration is increased by 2 seconds.", "bonus_zone_duration", 2.0),
         "t2": ("Wider Smoke", "Smoke Bomb's radius is increased.", "bonus_zone_radius", 30.0),
         "t3": [
-            ("Choking Smoke", "Enemies inside Smoke Bomb take 30% reduced damage for 2s after leaving.", "bonus_damage_debuff", 0.30),
+            ("Choking Smoke", "Enemies inside Smoke Bomb deal 30% less damage for 2s after leaving.", "bonus_enemy_damage_debuff", 0.30),
             ("Restorative Smoke", "Allies inside Smoke Bomb regenerate HP every second.", "bonus_ally_heal", 8.0),
             ("Shadow Smoke", "Allies inside Smoke Bomb enter stealth briefly when leaving.", "bonus_exit_stealth", 1.0),
         ],

@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "smk_t3_choking_smoke"
 upgrade_name = "Choking Smoke"
-description = "Enemies inside Smoke Bomb take 30% reduced damage for 2s after leaving."
+description = "Enemies inside Smoke Bomb deal 30% less damage for 2s after leaving."
 point_cost = 2
 tier = 3
 variant_group = "smk_t3_variant"
-effect_key = "bonus_damage_debuff"
+effect_key = "bonus_enemy_damage_debuff"
 magnitude = 0.3
