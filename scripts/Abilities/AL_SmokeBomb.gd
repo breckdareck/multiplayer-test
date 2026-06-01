@@ -26,11 +26,22 @@ const ZONE_RADIUS: float = 90.0
 const ZONE_DURATION: float = 4.0
 const ZONE_TICK_INTERVAL: float = 0.5  ## half-second tick — keeps the hidden meta fresh
 
-const BLIND_DURATION: float = 0.75  ## slightly longer than tick interval so it overlaps
-## Our own marker meta — distinct from `is_invisible` so the clear-on-timer
-## path can identify whether WE set is_invisible (vs Shadowmeld doing it)
-## and only clear in the former case.
+## How long after the LAST refresh tick is_invisible stays set before the
+## clear-timer is allowed to drop it. Must be > ZONE_TICK_INTERVAL so
+## consecutive ticks always overlap (no flicker while continuously inside);
+## the buffer past tick_interval determines how long after the player walks
+## OUT of the cloud the cover persists. 1.0s = 0.5s linger after leaving.
+const HIDDEN_LINGER_SEC: float = 1.0
+
+## Our marker meta — distinct from `is_invisible` so the clear path can
+## identify whether WE set is_invisible (vs Shadowmeld doing it) and only
+## clear in that case.
 const SMOKE_OWNS_INVISIBLE_META: String = "smoke_bomb_owns_invisible"
+## Absolute server-clock timestamp (ms) of "when is_invisible should expire
+## if no further tick refreshes it." Each tick updates this; the clear
+## timers only fire if the meta has not been refreshed since they were
+## scheduled (their fire time >= the stored timestamp).
+const SMOKE_EXPIRE_AT_META: String = "smoke_bomb_expire_at_ms"
 
 const ZONE_COLOR: Color = Color(0.25, 0.25, 0.30, 0.55)  # smoky grey
 
@@ -61,32 +72,52 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 ## Per-tick callback fired by the zone for each ALLY currently inside.
 ## Sets the same `is_invisible` meta Shadowmeld + EnemyBase already respect,
 ## so enemies targeting this ally drop aggro the next time their target
-## search runs. Refreshed each tick to handle continuous occupancy.
+## search runs.
+##
+## ANTI-FLICKER: each tick fires while the ally is inside the cloud, and
+## every tick schedules a NEW clear-timer for HIDDEN_LINGER_SEC later. If
+## these timers were unconditional clearers, the first one to fire would
+## strip is_invisible even though later ticks have refreshed it — producing
+## a continuous on/off flicker every ~0.25s. The fix: store an absolute
+## expire_at_ms timestamp on the ally; each tick pushes it forward. Each
+## clear-timer's body checks whether the timestamp is still in the future
+## (still being refreshed by ongoing ticks) before clearing. Only the timer
+## that fires AFTER the last refresh actually drops is_invisible.
 func _apply_hidden(ally: Node) -> void:
 	if not is_instance_valid(ally):
 		return
 
-	# Set both metas: is_invisible drives the actual AI behavior, and the
-	# owns-invisible marker lets the clear-on-timer below identify that WE
-	# set it (so we don't accidentally clear a parallel Shadowmeld stealth).
+	# Refresh: bump the expire timestamp forward to "now + linger". Set
+	# is_invisible and our owner marker. is_invisible may already be true
+	# (continuously inside the cloud, or a parallel Shadowmeld setter);
+	# either way setting it to true is idempotent.
 	ally.set_meta("is_invisible", true)
 	ally.set_meta(SMOKE_OWNS_INVISIBLE_META, true)
+	var expire_at: int = Time.get_ticks_msec() + int(HIDDEN_LINGER_SEC * 1000.0)
+	ally.set_meta(SMOKE_EXPIRE_AT_META, expire_at)
 
-	ally.get_tree().create_timer(BLIND_DURATION).timeout.connect(
+	# Schedule a clear-attempt timer for HIDDEN_LINGER_SEC. The timer's body
+	# is guarded — only fires the clear when no subsequent tick has bumped
+	# the timestamp past it. Multiple overlapping timers (one per tick) all
+	# read the same shared expire timestamp; only the one whose fire time
+	# is at-or-past the latest timestamp actually drops is_invisible.
+	ally.get_tree().create_timer(HIDDEN_LINGER_SEC).timeout.connect(
 		func():
 			if not is_instance_valid(ally):
 				return
-			# Only clear if our marker is still set (a re-tick within the
-			# BLIND_DURATION window may have already passed; in that case
-			# THIS timer was the one that started it and the next one is
-			# pending). Use the marker to determine ownership.
-			if not ally.has_meta(SMOKE_OWNS_INVISIBLE_META):
+			if not ally.has_meta(SMOKE_EXPIRE_AT_META):
+				return  # another clear already ran
+			var stored_expire: int = int(ally.get_meta(SMOKE_EXPIRE_AT_META))
+			# If a later tick has pushed the timestamp into the future, a
+			# fresher timer will handle the eventual clear — skip.
+			if Time.get_ticks_msec() < stored_expire:
 				return
+			# No refresh has happened in HIDDEN_LINGER_SEC. Safe to clear.
+			ally.remove_meta(SMOKE_EXPIRE_AT_META)
 			ally.remove_meta(SMOKE_OWNS_INVISIBLE_META)
 			# Coexistence guard — if Shadowmeld is actively stealthed on
 			# this ally, leave is_invisible alone (Shadowmeld owns it).
-			# Otherwise clear so enemies can re-acquire the ally after
-			# they leave the smoke.
+			# Otherwise clear so enemies can re-acquire the ally.
 			var sm = ally.get("shadowmeld_component")
 			var still_stealthed: bool = false
 			if sm != null and is_instance_valid(sm) and sm.has_method("is_stealthed"):
