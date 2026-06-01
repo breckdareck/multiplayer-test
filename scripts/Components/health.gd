@@ -209,14 +209,27 @@ func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, 
 	# --- Server-side game logic ---
 	if multiplayer.is_server():
 		_last_damage_source = source
-		
+
 		##print("HealthComponent: Owner '%s' took %s damage from '%s'." % [get_owner().name, amount, source_str])
 		damaged.emit(amount, source)
-		
+
 		if is_invulnerable and not ignore_invuln or is_dead:
 			return
-		
-		self.current_health -= amount
+
+		# v1 Vanguard's Resolve — incoming damage modifier from player passives.
+		# Enemy-on-player damage doesn't route through CombatComponent._execute_hit
+		# (enemies call take_damage directly), so the player's own ability_component
+		# dispatch lives here. Multiplies amount by (1.0 + sum of negative bonuses),
+		# scaling damage DOWN when the passive is active.
+		var final_amount: int = amount
+		if is_player:
+			var ac = owner.get("ability_component")
+			if ac != null and is_instance_valid(ac) and ac.has_method("get_incoming_damage_modifier"):
+				var mult: float = float(ac.get_incoming_damage_modifier(source))
+				if mult != 1.0:
+					final_amount = maxi(0, roundi(float(amount) * mult))
+
+		self.current_health -= final_amount
 		if not ignore_invuln:
 			is_invulnerable = true
 			invulnerability_timer.start()

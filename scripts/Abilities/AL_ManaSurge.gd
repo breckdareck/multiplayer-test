@@ -71,8 +71,11 @@ static func consume_and_refund(caster: Node, target: Node, spell_mp_cost: float)
 	var mana_comp = caster.get("mana_component")
 	if mana_comp == null or not is_instance_valid(mana_comp):
 		return
-	var refund: float = spell_mp_cost * REFUND_PCT
-	if mana_comp.has_method("restore"):
-		mana_comp.restore(refund)
-	elif mana_comp.has_method("add_mana"):
-		mana_comp.add_mana(refund)
+	var refund: int = int(spell_mp_cost * REFUND_PCT)
+	# ManaComponent's current_mana setter clamps to [0, max_mana] and emits
+	# the changed signal; regain_mana wraps the same behavior with
+	# attribution. Prefer regain_mana when present, fall back to direct set.
+	if mana_comp.has_method("regain_mana"):
+		mana_comp.regain_mana(refund, caster)
+	elif "current_mana" in mana_comp:
+		mana_comp.current_mana += refund

@@ -23,15 +23,11 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 	if not owner_node.multiplayer.is_server():
 		return
 
-	# Consume Momentum via the existing BowMomentumComponent API. The base
-	# hit's damage scaling lives on the projectile / ability's formulas
-	# (mirrors Snipe), so this script just clears the gauge.
+	# Consume Momentum via the existing BowMomentumComponent.reset() — drops
+	# stacks to zero, same effect as Snipe's gauge clear. The base hit's
+	# damage scaling lives on the projectile / ability's formulas (mirrors
+	# Snipe), so this script just clears the gauge.
 	var bm = owner_node.get("bow_momentum_component")
-	if bm == null or not is_instance_valid(bm):
+	if bm == null or not is_instance_valid(bm) or not bm.has_method("reset"):
 		return
-	if bm.has_method("spend_all"):
-		bm.spend_all()
-	elif bm.has_method("get_stacks") and bm.has_method("spend"):
-		var s: int = int(bm.get_stacks())
-		if s > 0:
-			bm.spend(s)
+	bm.reset()

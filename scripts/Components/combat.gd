@@ -500,6 +500,19 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 
 		var modified_damage = float(base_damage)
 
+		# v1 mark+payoff bonuses — both SentinelsMark (sword) and ManaSurge
+		# (staff) apply additive damage on the hit that consumes the mark.
+		# ManaSurge gates on `ability != null` so it only fires on staff
+		# spells, not basic attacks. Static helpers; safe on unmarked
+		# targets (return 0.0).
+		var sentinel_bonus: float = preload("res://scripts/Abilities/AL_SentinelsMark.gd").get_damage_bonus(target_enemy)
+		if sentinel_bonus > 0.0:
+			modified_damage *= (1.0 + sentinel_bonus)
+		if ability != null:
+			var mana_surge_bonus: float = preload("res://scripts/Abilities/AL_ManaSurge.gd").get_damage_bonus(target_enemy)
+			if mana_surge_bonus > 0.0:
+				modified_damage *= (1.0 + mana_surge_bonus)
+
 		if target_enemy.has_node("Stats"):
 			var target_stats = target_enemy.get_node("Stats")
 			var target_defense = target_stats.stats.get(Constants.StatType.DEFENSE).total_value
@@ -508,9 +521,22 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 			var defense_multiplier = 1.0 - (float(target_defense) / (target_defense + 500.0))
 
 			modified_damage *= level_modifier * defense_multiplier
-		
+
 		var crit_chance = _stats_component.stats.get(Constants.StatType.CRITCHANCE).total_value
+		# v1 DeathMark — flat additive crit chance on marked enemies (dagger).
+		# Static helper; safe on unmarked targets (returns 0.0).
+		crit_chance += preload("res://scripts/Abilities/AL_DeathMark.gd").get_crit_bonus(target_enemy)
 		var is_crit = (randf() * 100) < crit_chance
+		# v1 MarkOfTheHunt — momentum-spender hits on marked enemy are
+		# guaranteed crits. Match by ability_name so a renamed Snipe /
+		# Sundering Arrow can still be reached without touching combat.gd.
+		# Consume the mark on the auto-crit so re-applying is required.
+		if ability != null and not is_crit:
+			var ability_name: String = ability.ability_name if "ability_name" in ability else ""
+			if (ability_name == "Snipe" or ability_name == "Sundering Arrow"):
+				if preload("res://scripts/Abilities/AL_MarkOfTheHunt.gd").is_marked(target_enemy):
+					is_crit = true
+					preload("res://scripts/Abilities/AL_MarkOfTheHunt.gd").consume_mark(target_enemy)
 		# PR 7 — Dagger Shadowmeld ambush GUARANTEES a crit on the strike from
 		# stealth (the assassin payoff: a hit from the shadows always lands true),
 		# in addition to the AMBUSH_DAMAGE_MULT applied below. Only when an ambush
@@ -523,12 +549,14 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 			var crit_multiplier = randf_range(1.2, 1.5) + (crit_damage_bonus / 100.0)
 			modified_damage *= crit_multiplier
 
-		# Conditional-damage passives (Aggression/Execution/Killing Spree/Composure).
-		# Situational bonus based on the target's HP, the attacker's HP, or a recent
-		# kill — queried per hit here since the target is known. 1.0 when no
-		# conditional passive applies (or its condition is unmet).
+		# Conditional-damage passives (Aggression/Execution/Killing Spree/Composure/
+		# ElementalAffinity/PredatorsPatience/Tailwind/Opportunist). Situational
+		# bonus based on target HP / attacker HP / kill / stance / momentum.
+		# 1.0 when no conditional passive applies (or its condition is unmet).
+		# Pass `ability` so element-aware passives (Elemental Affinity) can match
+		# the cast spell against per-stance ability_id allowlists.
 		if _ability_component and _ability_component.has_method("get_conditional_damage_modifier"):
-			modified_damage *= _ability_component.get_conditional_damage_modifier(target_enemy)
+			modified_damage *= _ability_component.get_conditional_damage_modifier(target_enemy, ability)
 
 		var damage_to_deal = roundi(modified_damage)
 
@@ -544,6 +572,14 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 
 		var was_alive: bool = not health_comp.is_dead
 		health_comp.take_damage(damage_to_deal, self, true, is_crit, false)
+
+		# v1 mark consume hooks — post-hit effects that fire after damage
+		# lands. SentinelsMark rolls a combo refund; ManaSurge refunds half
+		# the spell's MP cost to the caster. Both no-op on unmarked targets.
+		preload("res://scripts/Abilities/AL_SentinelsMark.gd").roll_refund(owner_node, target_enemy)
+		if ability != null and level_stats != null:
+			var mp_cost: float = float(level_stats.mana_cost) if "mana_cost" in level_stats else 0.0
+			preload("res://scripts/Abilities/AL_ManaSurge.gd").consume_and_refund(owner_node, target_enemy, mp_cost)
 
 		# PR 4 fix (2026-05-28): cast XP, formerly granted unconditionally in
 		# ability.gd at cast time, now requires the ability to actually LAND
@@ -706,6 +742,12 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 			var bc2 = owner_node.get("buff_component")
 			if bc2 != null and is_instance_valid(bc2) and bc2.has_method("remove_buff"):
 				bc2.remove_buff("Vanish")
+		# v1 PredatorsPatience — stamp the ambush time so the next ambush
+		# reads "time since last ambush" as its Patience stack count. The
+		# passive's conditional_damage_mult reads this meta on the next
+		# stealth hit; calling record_ambush here keeps the stamp aligned
+		# with when the ambush actually fired.
+		preload("res://scripts/Abilities/AL_PredatorsPatience.gd").record_ambush(owner_node)
 
 	# Apply target debuff if the ability defines one
 	if ability and ability.applies_target_debuff and target_enemy is EnemyBase:

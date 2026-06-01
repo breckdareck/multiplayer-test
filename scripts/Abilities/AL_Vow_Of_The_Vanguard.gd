@@ -41,15 +41,14 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 		duration += _ac.get_ability_upgrade_magnitude(_ability.ability_id, "buff_duration_bonus")
 		stats_percent += _ac.get_ability_upgrade_magnitude(_ability.ability_id, "vow_stat_bonus")
 
-	# Combo-engaging augment: read current combo, scale stats_percent in the
-	# range [COMBO_FLOOR, 1.0] by combo / MAX_COMBO, then CONSUME the combo
-	# via SwordComboComponent.spend_combo (same path the burst spenders take).
+	# Combo-engaging augment: spend the current combo via SwordComboComponent's
+	# spend_combo (returns the actual count consumed), then scale stats_percent
+	# in the range [COMBO_FLOOR, 1.0] by combo / MAX_COMBO. Same spend path
+	# Crescent Cleave / Sundering Blow / Earthsplitter take.
 	var combo_consumed: int = 0
 	var combo_comp = _owner_node.get("sword_combo_component")
-	if combo_comp != null and is_instance_valid(combo_comp) and combo_comp.has_method("get_combo") and combo_comp.has_method("spend_combo"):
-		combo_consumed = int(combo_comp.get_combo())
-		if combo_consumed > 0:
-			combo_comp.spend_combo(combo_consumed)
+	if combo_comp != null and is_instance_valid(combo_comp) and combo_comp.has_method("spend_combo"):
+		combo_consumed = int(combo_comp.spend_combo())
 	var combo_fraction: float = clampf(float(combo_consumed) / MAX_COMBO, 0.0, 1.0)
 	var combo_mult: float = COMBO_FLOOR + (1.0 - COMBO_FLOOR) * combo_fraction
 	stats_percent *= combo_mult

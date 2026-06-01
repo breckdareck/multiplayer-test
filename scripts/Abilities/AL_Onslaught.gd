@@ -23,6 +23,8 @@ func on_hit(owner_node: Node, _target: Node, _ability: AbilityData) -> void:
 	if not owner_node.multiplayer.is_server():
 		return
 	var combo_comp = owner_node.get("sword_combo_component")
-	if combo_comp == null or not is_instance_valid(combo_comp) or not combo_comp.has_method("add_combo"):
+	if combo_comp == null or not is_instance_valid(combo_comp) or not combo_comp.has_method("add_combo_point"):
 		return
-	combo_comp.add_combo(COMBO_PER_PIERCE)
+	# add_combo_point() adds exactly 1; loop for COMBO_PER_PIERCE > 1.
+	for _i in range(COMBO_PER_PIERCE):
+		combo_comp.add_combo_point()

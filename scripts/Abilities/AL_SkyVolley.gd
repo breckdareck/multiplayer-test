@@ -83,9 +83,6 @@ func _build_momentum(owner_node: Node, _enemy: Node) -> void:
 	owner_node.set_meta(MOMENTUM_TICK_META, now)
 
 	var bm = owner_node.get("bow_momentum_component")
-	if bm == null or not is_instance_valid(bm):
+	if bm == null or not is_instance_valid(bm) or not bm.has_method("add_momentum"):
 		return
-	if bm.has_method("add_stacks"):
-		bm.add_stacks(MOMENTUM_PER_TICK)
-	elif bm.has_method("add_momentum"):
-		bm.add_momentum(MOMENTUM_PER_TICK)
+	bm.add_momentum(MOMENTUM_PER_TICK)

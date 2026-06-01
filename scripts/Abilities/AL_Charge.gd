@@ -49,12 +49,15 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 
 ## Combo-build payoff per enemy struck. The dash's hitbox sweeps multiple
 ## enemies — each landed hit grants +1 combo via the canonical
-## SwordComboComponent.add_combo path so it's accounted the same as
-## Steel Flurry / Vault Strike builds.
+## SwordComboComponent.add_combo_point path so it's accounted the same as
+## Steel Flurry / Vault Strike builds. The component's add adds exactly 1
+## per call (no count param); for COMBO_PER_ENEMY_HIT > 1 we loop, but v1
+## ships with COMBO_PER_ENEMY_HIT == 1 so it's a single call.
 func on_hit(owner_node: Node, _target: Node, _ability: AbilityData) -> void:
 	if not owner_node.multiplayer.is_server():
 		return
 	var combo_comp = owner_node.get("sword_combo_component")
-	if combo_comp == null or not is_instance_valid(combo_comp) or not combo_comp.has_method("add_combo"):
+	if combo_comp == null or not is_instance_valid(combo_comp) or not combo_comp.has_method("add_combo_point"):
 		return
-	combo_comp.add_combo(COMBO_PER_ENEMY_HIT)
+	for _i in range(COMBO_PER_ENEMY_HIT):
+		combo_comp.add_combo_point()

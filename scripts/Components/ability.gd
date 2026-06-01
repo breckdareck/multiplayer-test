@@ -324,7 +324,7 @@ func get_ability_damage_modifier(ability_id: String) -> float:
 ## Spree / Composure) that replaced the old always-on primary-stat% passives, so
 ## the passive slot is a real choice. Called per hit from combat._execute_hit
 ## (server-side) where the target + its HP are known. Bonuses are ADDITIVE.
-func get_conditional_damage_modifier(target: Node) -> float:
+func get_conditional_damage_modifier(target: Node, cast_ability: AbilityData = null) -> float:
 	var total_bonus: float = 0.0
 	_foreach_learned_passive(func(ability, level_stats, _ability_id):
 		if not ability.active_behavior or not ability.active_behavior.logic_script:
@@ -332,13 +332,70 @@ func get_conditional_damage_modifier(target: Node) -> float:
 		var logic = ability.active_behavior.logic_script.new()
 		if not logic.has_method("conditional_damage_mult"):
 			return
-		var b: float = float(logic.conditional_damage_mult(owner, target, level_stats.level))
+		# Some passives (e.g. Elemental Affinity) accept an additional
+		# `ability` parameter for ability-id-aware checks (per-stance element
+		# matching). Pass it through when the logic's signature allows it;
+		# fall back to the original 3-arg call otherwise.
+		var b: float = 0.0
+		var ml: Array = logic.get_method_list()
+		var accepts_ability: bool = false
+		for m in ml:
+			if m.get("name", "") == "conditional_damage_mult":
+				accepts_ability = int(m.get("args", []).size()) >= 4
+				break
+		if accepts_ability:
+			b = float(logic.conditional_damage_mult(owner, target, level_stats.level, cast_ability))
+		else:
+			b = float(logic.conditional_damage_mult(owner, target, level_stats.level))
 		# When the condition is MET (b > 0), the passive's upgrade tree adds to its
 		# bonus via the generic "conditional_damage_bonus" effect_key — so investing
 		# in a conditional passive's upgrades scales its damage (the trees were
 		# repurposed from the old stat-passive keys when these became conditionals).
 		if b > 0.0:
 			b += get_ability_upgrade_magnitude(_ability_id, "conditional_damage_bonus")
+		total_bonus += b
+	)
+	return 1.0 + total_bonus
+
+
+## Iterates learned passives looking for `conditional_damage_taken_mult`
+## (Vanguard's Resolve and any future incoming-damage passives). Returns
+## the combined multiplier `1.0 + sum(bonus_fractions)` — when a passive
+## returns a NEGATIVE fraction (e.g. -0.16 for -16% incoming) it reduces
+## the multiplier below 1.0, scaling the inbound damage down.
+##
+## Called from combat.gd's player-as-target path (only player nodes have an
+## ability_component to dispatch from). Enemy-on-enemy hits never reach this.
+func get_incoming_damage_modifier(source: Node) -> float:
+	var total_bonus: float = 0.0
+	_foreach_learned_passive(func(ability, level_stats, _ability_id):
+		if not ability.active_behavior or not ability.active_behavior.logic_script:
+			return
+		var logic = ability.active_behavior.logic_script.new()
+		if not logic.has_method("conditional_damage_taken_mult"):
+			return
+		var b: float = float(logic.conditional_damage_taken_mult(owner, source, level_stats.level))
+		total_bonus += b
+	)
+	return 1.0 + total_bonus
+
+
+## Iterates learned passives looking for `attack_cooldown_mult` (Wind
+## Rider and any future basic-attack-speed passives). Returns the combined
+## multiplier `1.0 + sum(bonus_fractions)`. A passive returning a NEGATIVE
+## fraction (e.g. -0.25 for -25% delay) scales the cooldown DOWN.
+##
+## Called from attack.gd's `attack_speed_percent` getter so the basic-
+## attack cycle reflects the current passive state every frame.
+func get_attack_cooldown_mult() -> float:
+	var total_bonus: float = 0.0
+	_foreach_learned_passive(func(ability, level_stats, _ability_id):
+		if not ability.active_behavior or not ability.active_behavior.logic_script:
+			return
+		var logic = ability.active_behavior.logic_script.new()
+		if not logic.has_method("attack_cooldown_mult"):
+			return
+		var b: float = float(logic.attack_cooldown_mult(owner, level_stats.level))
 		total_bonus += b
 	)
 	return 1.0 + total_bonus

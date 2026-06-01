@@ -33,9 +33,9 @@ func conditional_damage_taken_mult(owner_node: Node, _source: Node, level: int) 
 	if owner_node == null or not is_instance_valid(owner_node):
 		return 0.0
 	var combo_comp = owner_node.get("sword_combo_component")
-	if combo_comp == null or not is_instance_valid(combo_comp) or not combo_comp.has_method("get_combo"):
+	if combo_comp == null or not is_instance_valid(combo_comp) or not combo_comp.has_method("get_combo_count"):
 		return 0.0
-	var combo: float = clampf(float(combo_comp.get_combo()), 0.0, MAX_COMBO)
+	var combo: float = clampf(float(combo_comp.get_combo_count()), 0.0, MAX_COMBO)
 	if combo <= 0.0:
 		return 0.0
 	# Linear scaling with combo AND with passive level.

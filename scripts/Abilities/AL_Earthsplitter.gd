@@ -49,13 +49,11 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 
 	# Consume combo via the SwordComboComponent's existing spend API. Same path
 	# Crescent Cleave / Sundering Blow take so combo accounting stays canonical.
-	# Read current combo, spend all, scale damage by the consumed count.
+	# `spend_combo()` returns the count it actually consumed.
 	var combo_consumed: int = 0
 	var combo_comp = owner_node.get("sword_combo_component")
-	if combo_comp != null and is_instance_valid(combo_comp) and combo_comp.has_method("get_combo") and combo_comp.has_method("spend_combo"):
-		combo_consumed = int(combo_comp.get_combo())
-		if combo_consumed > 0:
-			combo_comp.spend_combo(combo_consumed)
+	if combo_comp != null and is_instance_valid(combo_comp) and combo_comp.has_method("spend_combo"):
+		combo_consumed = int(combo_comp.spend_combo())
 
 	# Combo amplification — multiplicative on the base tick.
 	var combo_mult: float = 1.0 + (float(combo_consumed) * COMBO_AMP_PER_POINT)

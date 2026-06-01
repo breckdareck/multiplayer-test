@@ -25,6 +25,21 @@ var attack_speed_percent: float:
 				and parent.bow_momentum_component != null \
 				and is_instance_valid(parent.bow_momentum_component):
 			base *= (1.0 + parent.bow_momentum_component.get_speed_bonus())
+		# v1 Wind Rider (bow passive) — attack-cooldown reduction scaling with
+		# Momentum stacks. Returns 1.0 + sum(negative bonuses); when the passive
+		# is active and Momentum is built, this multiplies `base` by < 1.0,
+		# reducing the cooldown between basic attacks (= faster effective fire
+		# rate). 1.0 when no Wind Rider passive is learned.
+		var ac = parent.get("ability_component") if is_instance_valid(parent) else null
+		if ac != null and is_instance_valid(ac) and ac.has_method("get_attack_cooldown_mult"):
+			var cd_mult: float = float(ac.get_attack_cooldown_mult())
+			if cd_mult != 1.0:
+				# Negative bonuses (-0.25) → cd_mult = 0.75 → faster attacks.
+				# We divide rather than multiply so a negative mult scales the
+				# cycle DOWN: `base` is roughly "attacks per second-ish" already
+				# from the formula above, so dividing by cd_mult inverts the
+				# reduction into a speed-up.
+				base /= cd_mult
 		return base
 
 var _was_on_floor: bool = false

@@ -74,6 +74,6 @@ static func roll_refund(attacker: Node, target: Node) -> void:
 	if randf() > REFUND_CHANCE:
 		return
 	var combo_comp = attacker.get("sword_combo_component")
-	if combo_comp == null or not is_instance_valid(combo_comp) or not combo_comp.has_method("add_combo"):
+	if combo_comp == null or not is_instance_valid(combo_comp) or not combo_comp.has_method("add_combo_point"):
 		return
-	combo_comp.add_combo(1)
+	combo_comp.add_combo_point()
