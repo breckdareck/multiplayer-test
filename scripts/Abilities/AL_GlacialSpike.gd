@@ -63,7 +63,12 @@ func on_hit(_owner_node: Node, _target: Node, _ability: AbilityData) -> void:
 	if enemy.animated_sprite and is_instance_valid(enemy.animated_sprite):
 		enemy.animated_sprite.modulate = Color(0.4, 0.6, 1.0, 1.0)
 
-	get_tree().create_timer(FREEZE_DURATION).timeout.connect(
+	# `enemy.get_tree()` not `get_tree()` — logic_scripts are instantiated via
+	# `ability.active_behavior.logic_script.new()` in combat.gd and are NOT
+	# added to the scene tree, so `self.get_tree()` returns null. The enemy
+	# IS in the tree, so use its tree to schedule the restore. (Same pattern
+	# every other AL_*.gd uses for create_timer.)
+	enemy.get_tree().create_timer(FREEZE_DURATION).timeout.connect(
 		func():
 			if not is_instance_valid(enemy):
 				return
