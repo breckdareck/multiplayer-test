@@ -436,6 +436,17 @@ formula, get_crit_bonus before the crit roll, consume helpers after take_damage.
 Marks are applied by the casting ability's `on_hit` (each AL writes its own meta
 key, e.g. `death_mark_remaining`, with `Time.get_ticks_msec() + duration_ms`).
 
+A lighter-weight variant — **direct per-target meta reads without static helpers**
+— is used by Smoke Bomb T3 upgrades. AL_SmokeBomb writes per-target metas in its
+ground-zone tick callbacks (`smoke_choke_expire_at_ms` + `smoke_choke_pct` on
+enemies inside; `smoke_exit_crit_until_ms` on allies who left the cloud). The
+readers are inline meta checks in `health.gd.take_damage` (enemy-on-player path,
+scales incoming amount by `1 - smoke_choke_pct` while active) and
+`combat.gd._execute_hit`'s crit-roll site (forces `is_crit=true` and consumes
+the meta one-shot). Use this lighter pattern when the effect doesn't need an
+attacker-side static helper or a dispatch loop — a one-line meta check is
+enough.
+
 ### Cross-ability infrastructure: GroundZone (v1)
 
 `scripts/Gameplay/ground_zone.gd` is a shared persistent-area helper used by 9 v1
