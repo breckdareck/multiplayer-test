@@ -41,6 +41,10 @@ var equipment_component: EquipmentComponent = null
 @onready var state_label: Label = $Panel/VBox/StateLabel
 
 var _is_stealthed: bool = false
+## True while the cooldown countdown is ticking. Lets _process fire ONE final
+## _refresh_label() on the recharging→ready transition so the label flips to
+## "READY" instead of freezing on the last "0.0s" countdown value.
+var _was_recharging: bool = false
 
 #endregion
 
@@ -83,11 +87,19 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	# Only needed to tick the cooldown countdown while recharging; cheap no-op
-	# otherwise. Skips entirely when hidden or stealthed (no countdown to show).
+	# Ticks the cooldown countdown while recharging, then fires one final
+	# refresh on the recharging→ready transition so the label flips to "READY"
+	# instead of freezing on the last countdown value. Cheap no-op otherwise.
 	if not visible or _is_stealthed:
 		return
-	if is_instance_valid(shadowmeld_component) and not shadowmeld_component.is_ready():
+	if not is_instance_valid(shadowmeld_component):
+		return
+	if not shadowmeld_component.is_ready():
+		_refresh_label()
+		_was_recharging = true
+	elif _was_recharging:
+		# Just finished recharging — repaint once to show READY, then stop.
+		_was_recharging = false
 		_refresh_label()
 
 #endregion
