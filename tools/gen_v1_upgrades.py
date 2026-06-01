@@ -199,9 +199,9 @@ UPGRADES = {
         "t1": ("Lasting Smoke", "Smoke Bomb's duration is increased by 2 seconds.", "bonus_zone_duration", 2.0),
         "t2": ("Wider Smoke", "Smoke Bomb's radius is increased.", "bonus_zone_radius", 30.0),
         "t3": [
-            ("Choking Smoke", "Enemies inside Smoke Bomb deal 30% less damage for 2s after leaving.", "bonus_enemy_damage_debuff", 0.30),
+            ("Choking Smoke", "Enemies inside Smoke Bomb deal 30% less damage while inside AND for 2 seconds after leaving.", "bonus_enemy_damage_debuff", 0.30),
             ("Restorative Smoke", "Allies inside Smoke Bomb regenerate 8 HP every second.", "bonus_ally_heal_per_tick", 8.0),
-            ("Shadow Smoke", "Allies leaving the cloud have a guaranteed critical hit on their next attack (within 3 seconds).", "bonus_exit_crit_window_sec", 3.0),
+            ("Shadow Smoke", "Allies inside Smoke Bomb deal guaranteed critical hits on every attack.", "bonus_inside_crit", 1.0),
         ],
     },
     "predators_patience_v1": {

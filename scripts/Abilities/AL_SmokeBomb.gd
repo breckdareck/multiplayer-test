@@ -1,9 +1,12 @@
 extends Node
 
 ## Smoke Bomb — the Dagger discipline's defensive ground-zone. Drops a smoke
-## cloud at the caster's feet for 4 seconds. Allies inside become invisible
-## to enemy AI (their `is_invisible` meta is set — the same meta Shadowmeld
-## uses), so any enemy currently targeting them drops aggro.
+## cloud at the caster's feet for 4 seconds. Allies inside gain +Evasion —
+## a per-hit % chance to dodge any incoming damage. The base ability does
+## NOT make allies invisible (the earlier is_invisible implementation was
+## too strong; enemies didn't target you at all and the cloud read as 100%
+## immunity rather than concealment). Evasion is a real partial defense:
+## enemies still attack, but lots of hits miss while you're in the smoke.
 ##
 ## Adds the missing "ground-zone" and "defensive utility" shape categories
 ## to dagger's kit. Pairs with Shadowmeld (drop bomb → keep re-stealthing
@@ -16,47 +19,53 @@ extends Node
 ## [[feedback_ground_zones_are_floor_rectangles]]).
 ##
 ## Implementation: spawns a damage-less GroundZone whose ALLY tick callback
-## refreshes `is_invisible = true` on each ally inside. A short-lived
-## per-ally timer clears the meta after BLIND_DURATION; the next tick
-## re-applies it if they're still in the zone. The clear path defers to
-## the Shadowmeld component — if the ally is still actively stealthed via
-## Shadowmeld, we leave is_invisible alone so we don't strip their cover.
+## refreshes `smoke_evasion_expire_at_ms` + `smoke_evasion_chance` on each
+## ally inside. health.gd reads these in its take_damage path and, while
+## active and unexpired, rolls `randf() < chance` to dodge — if dodged, no
+## damage is applied. The expire-timestamp pattern (refresh per tick + linger
+## past the last refresh) means evasion stays continuous while inside and
+## fades cleanly after exit (per [[feedback_refresh_effects_use_expire_timestamp]]).
 
 const ZONE_RADIUS: float = 90.0
 const ZONE_DURATION: float = 4.0
-const ZONE_TICK_INTERVAL: float = 0.5  ## half-second tick — keeps the hidden meta fresh
+const ZONE_TICK_INTERVAL: float = 0.5  ## half-second tick — keeps the evasion meta fresh
 
-## How long after the LAST refresh tick is_invisible stays set before the
-## clear-timer is allowed to drop it. Must be > ZONE_TICK_INTERVAL so
-## consecutive ticks always overlap (no flicker while continuously inside);
-## the buffer past tick_interval determines how long after the player walks
-## OUT of the cloud the cover persists. 1.0s = 0.5s linger after leaving.
-const HIDDEN_LINGER_SEC: float = 1.0
+## Per-hit evasion chance allies inside the cloud get. 0.40 = 40% chance to
+## dodge any incoming damage. health.gd rolls randf() against this on the
+## server when a player target with the smoke_evasion_* meta takes damage.
+const SMOKE_EVASION_CHANCE: float = 0.40
 
-## Our marker meta — distinct from `is_invisible` so the clear path can
-## identify whether WE set is_invisible (vs Shadowmeld doing it) and only
-## clear in that case.
-const SMOKE_OWNS_INVISIBLE_META: String = "smoke_bomb_owns_invisible"
-## Absolute server-clock timestamp (ms) of "when is_invisible should expire
-## if no further tick refreshes it." Each tick updates this; the clear
-## timers only fire if the meta has not been refreshed since they were
-## scheduled (their fire time >= the stored timestamp).
-const SMOKE_EXPIRE_AT_META: String = "smoke_bomb_expire_at_ms"
+## How long after the LAST refresh tick the evasion meta stays set before
+## naturally expiring. Must be > ZONE_TICK_INTERVAL so consecutive ticks
+## always overlap (no flicker while continuously inside); the buffer past
+## tick_interval determines how long after the player walks OUT of the
+## cloud the cover persists. 1.0s = 0.5s linger after leaving.
+const EVASION_LINGER_SEC: float = 1.0
+
+## Per-ally evasion metas. The reader (health.gd take_damage) checks
+## smoke_evasion_expire_at_ms first; if still in the future, rolls
+## randf() < smoke_evasion_chance and skips damage on a dodge. Both metas
+## are refreshed every ally tick so as long as the ally stays in the cloud
+## they always have evasion.
+const SMOKE_EVASION_EXPIRE_META: String = "smoke_evasion_expire_at_ms"
+const SMOKE_EVASION_CHANCE_META: String = "smoke_evasion_chance"
 
 ## T3 upgrade metas:
 ##   - smoke_choke_*: on enemies inside the cloud. health.gd checks both and
 ##     scales incoming-from-this-enemy damage down by smoke_choke_pct while
 ##     the expiry is in the future. Refreshed every enemy tick + lingers 2s
-##     after the enemy leaves so Choking Smoke's "for 2s after leaving"
-##     promise holds.
-##   - smoke_exit_crit_until_ms: on the ally who left the cloud. combat.gd
-##     forces is_crit on the FIRST player attack while the timestamp is in
-##     the future, then clears the meta (one-shot, mirrors MarkOfTheHunt
-##     consume_mark).
+##     after the enemy leaves so Choking Smoke's "while inside AND 2s after
+##     leaving" promise holds (per-tick refresh covers the "inside" case;
+##     SMOKE_CHOKE_LINGER_SEC covers the "after leaving" case).
+##   - smoke_inside_crit_until_ms: on each ally inside the cloud. combat.gd
+##     forces is_crit while the timestamp is in the future. Refreshed every
+##     ally tick — natural ramp-down past the linger after exit. NOT a
+##     one-shot consume (unlike MarkOfTheHunt), so every attack from inside
+##     the cloud crits as long as the meta is fresh.
 const SMOKE_CHOKE_EXPIRE_META: String = "smoke_choke_expire_at_ms"
 const SMOKE_CHOKE_PCT_META: String = "smoke_choke_pct"
-const SMOKE_CHOKE_LINGER_SEC: float = 2.0  ## "for 2s after leaving" per description
-const SMOKE_EXIT_CRIT_UNTIL_META: String = "smoke_exit_crit_until_ms"
+const SMOKE_CHOKE_LINGER_SEC: float = 2.0
+const SMOKE_INSIDE_CRIT_UNTIL_META: String = "smoke_inside_crit_until_ms"
 
 ## Per-cast config populated by execute() from PR 6 upgrade reads. The
 ## logic_script instance is constructed via `.new()` once per cast and held
@@ -64,7 +73,7 @@ const SMOKE_EXIT_CRIT_UNTIL_META: String = "smoke_exit_crit_until_ms"
 ## vars persist for the cast's lifetime.
 var _enemy_debuff_pct: float = 0.0
 var _ally_heal_per_tick: int = 0
-var _exit_crit_window_sec: float = 0.0
+var _inside_crit_active: bool = false
 
 const ZONE_COLOR: Color = Color(0.25, 0.25, 0.30, 0.55)  # smoky grey
 
@@ -95,7 +104,10 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 		# stays alive for the cast's duration and these values stay readable.
 		_enemy_debuff_pct = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_enemy_damage_debuff")
 		_ally_heal_per_tick = int(ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_ally_heal_per_tick"))
-		_exit_crit_window_sec = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_exit_crit_window_sec")
+		# Shadow Smoke is a binary "owned / not owned" upgrade — guaranteed
+		# crit while inside the cloud, no scaling. The generator stores
+		# magnitude > 0 when owned; treat any positive read as "active."
+		_inside_crit_active = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_inside_crit") > 0.0
 
 	var duration: float = ZONE_DURATION + duration_bonus
 	var radius: float = ZONE_RADIUS + radius_bonus
@@ -121,31 +133,26 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 
 
 ## Per-tick callback fired by the zone for each ALLY currently inside.
-## Sets the same `is_invisible` meta Shadowmeld + EnemyBase already respect,
-## so enemies targeting this ally drop aggro the next time their target
-## search runs.
+## Refreshes the evasion meta — the actual dodge roll happens in health.gd's
+## take_damage path on incoming damage. The expire-timestamp pattern (each
+## tick pushes the timestamp forward by EVASION_LINGER_SEC) means evasion
+## stays continuous while the ally is inside the cloud and naturally fades
+## ~1s after they leave — no per-ally clear timer needed because the meta
+## just stops being refreshed.
 ##
-## ANTI-FLICKER: each tick fires while the ally is inside the cloud, and
-## every tick schedules a NEW clear-timer for HIDDEN_LINGER_SEC later. If
-## these timers were unconditional clearers, the first one to fire would
-## strip is_invisible even though later ticks have refreshed it — producing
-## a continuous on/off flicker every ~0.25s. The fix: store an absolute
-## expire_at_ms timestamp on the ally; each tick pushes it forward. Each
-## clear-timer's body checks whether the timestamp is still in the future
-## (still being refreshed by ongoing ticks) before clearing. Only the timer
-## that fires AFTER the last refresh actually drops is_invisible.
+## Also drives the two ally-side T3 effects when owned: per-tick heal
+## (Restorative Smoke) and an inside-the-cloud guaranteed-crit meta
+## (Shadow Smoke) — combat.gd reads the latter to force is_crit=true on
+## attacks while the ally is in the smoke.
 func _apply_hidden(ally: Node) -> void:
 	if not is_instance_valid(ally):
 		return
 
-	# Refresh: bump the expire timestamp forward to "now + linger". Set
-	# is_invisible and our owner marker. is_invisible may already be true
-	# (continuously inside the cloud, or a parallel Shadowmeld setter);
-	# either way setting it to true is idempotent.
-	ally.set_meta("is_invisible", true)
-	ally.set_meta(SMOKE_OWNS_INVISIBLE_META, true)
-	var expire_at: int = Time.get_ticks_msec() + int(HIDDEN_LINGER_SEC * 1000.0)
-	ally.set_meta(SMOKE_EXPIRE_AT_META, expire_at)
+	# Refresh evasion: bump the expire timestamp forward to "now + linger"
+	# and (re-)write the chance. The base ability's defensive effect.
+	var expire_at: int = Time.get_ticks_msec() + int(EVASION_LINGER_SEC * 1000.0)
+	ally.set_meta(SMOKE_EVASION_EXPIRE_META, expire_at)
+	ally.set_meta(SMOKE_EVASION_CHANCE_META, SMOKE_EVASION_CHANCE)
 
 	# Restorative Smoke (T3) — per-tick heal while inside. Direct HealthComponent
 	# heal; safe to call every tick because heal clamps at max_health.
@@ -157,42 +164,12 @@ func _apply_hidden(ally: Node) -> void:
 			elif "current_health" in hc and "max_health" in hc:
 				hc.current_health = mini(int(hc.max_health), int(hc.current_health) + _ally_heal_per_tick)
 
-	# Schedule a clear-attempt timer for HIDDEN_LINGER_SEC. The timer's body
-	# is guarded — only fires the clear when no subsequent tick has bumped
-	# the timestamp past it. Multiple overlapping timers (one per tick) all
-	# read the same shared expire timestamp; only the one whose fire time
-	# is at-or-past the latest timestamp actually drops is_invisible.
-	ally.get_tree().create_timer(HIDDEN_LINGER_SEC).timeout.connect(
-		func():
-			if not is_instance_valid(ally):
-				return
-			if not ally.has_meta(SMOKE_EXPIRE_AT_META):
-				return  # another clear already ran
-			var stored_expire: int = int(ally.get_meta(SMOKE_EXPIRE_AT_META))
-			# If a later tick has pushed the timestamp into the future, a
-			# fresher timer will handle the eventual clear — skip.
-			if Time.get_ticks_msec() < stored_expire:
-				return
-			# No refresh has happened in HIDDEN_LINGER_SEC. Safe to clear.
-			ally.remove_meta(SMOKE_EXPIRE_AT_META)
-			ally.remove_meta(SMOKE_OWNS_INVISIBLE_META)
-			# Coexistence guard — if Shadowmeld is actively stealthed on
-			# this ally, leave is_invisible alone (Shadowmeld owns it).
-			# Otherwise clear so enemies can re-acquire the ally.
-			var sm = ally.get("shadowmeld_component")
-			var still_stealthed: bool = false
-			if sm != null and is_instance_valid(sm) and sm.has_method("is_stealthed"):
-				still_stealthed = sm.is_stealthed()
-			if not still_stealthed:
-				ally.set_meta("is_invisible", false)
-			# Shadow Smoke (T3) — leaving the cloud grants a guaranteed-crit
-			# window on the next attack. Read from the per-cast instance var
-			# captured in execute(); a one-shot meta combat.gd consumes on
-			# the first crit hit (mirrors MarkOfTheHunt.consume_mark).
-			if _exit_crit_window_sec > 0.0:
-				var crit_until: int = Time.get_ticks_msec() + int(_exit_crit_window_sec * 1000.0)
-				ally.set_meta(SMOKE_EXIT_CRIT_UNTIL_META, crit_until)
-	)
+	# Shadow Smoke (T3) — guaranteed crit while INSIDE the cloud. Uses the
+	# same expire timestamp as evasion so the crit window stays active as
+	# long as the ally is in the cloud and decays cleanly after exit (no
+	# "go-in-then-out" requirement; the user can strike directly from cover).
+	if _inside_crit_active:
+		ally.set_meta(SMOKE_INSIDE_CRIT_UNTIL_META, expire_at)
 
 
 ## Per-tick callback for enemies inside the cloud. Choking Smoke (T3):

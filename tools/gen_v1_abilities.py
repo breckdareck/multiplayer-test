@@ -229,7 +229,7 @@ SPECS = [
     dict(id="smoke_bomb_v1", name="Smoke Bomb", weapon="Dagger", filename="A_SmokeBomb",
          al_script="res://scripts/Abilities/AL_SmokeBomb.gd",
          icon_path="res://assets/sprites/Abilities/disorder.webp",
-         description="Drops a smoke cloud at your feet for 4 seconds. Allies inside gain +Evasion; enemies inside lose targeting on you (aggro drops briefly).",
+         description="Drops a smoke cloud at your feet for 4 seconds. Allies inside gain +40% Evasion (a chance to dodge each incoming attack).",
          kind="active", max_level=10,
          damage_pct=None, mana=(10.0, 0.4), cooldown=(15.0, 0),
          hits=None, targets=None,

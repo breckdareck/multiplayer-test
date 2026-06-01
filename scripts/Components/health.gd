@@ -216,6 +216,19 @@ func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, 
 		if is_invulnerable and not ignore_invuln or is_dead:
 			return
 
+		# v1 Smoke Bomb evasion — players inside the cloud have a per-hit
+		# chance to dodge any incoming damage. Server-only randf() roll so
+		# only one peer decides the outcome. Early-return on a dodge skips
+		# health-deduction, invuln-start, and screen-shake; the show_number
+		# display above already ran with the pre-dodge amount (a small UX
+		# inconsistency: the number flashes on screen but no HP is lost).
+		if is_player and owner.has_meta("smoke_evasion_expire_at_ms"):
+			var ev_expire: int = int(owner.get_meta("smoke_evasion_expire_at_ms"))
+			if Time.get_ticks_msec() < ev_expire:
+				var ev_chance: float = float(owner.get_meta("smoke_evasion_chance", 0.0))
+				if ev_chance > 0.0 and randf() < ev_chance:
+					return  # dodged — no damage applied
+
 		# v1 Vanguard's Resolve — incoming damage modifier from player passives.
 		# Enemy-on-player damage doesn't route through CombatComponent._execute_hit
 		# (enemies call take_damage directly), so the player's own ability_component
