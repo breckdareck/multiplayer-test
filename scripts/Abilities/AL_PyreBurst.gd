@@ -26,6 +26,26 @@ const DAMAGE_PER_STACK_PCT: float = 0.12
 ## "staff_element_burn" so all three burns stack separately.
 const BURN_META: String = "pyre_burst_burn"
 
+## Fire-stance ground-pool (transformation locked in v1 design grilling
+## 2026-05-31): a persistent fire patch at the explosion's epicenter that
+## ticks damage on any enemy currently inside it. Uses the shared GroundZone
+## helper from scripts/Gameplay/ground_zone.gd.
+const POOL_RADIUS: float = 80.0
+const POOL_DURATION: float = 3.0
+const POOL_TICK_INTERVAL: float = 1.0
+## 10% of MAGICATTACK per tick. Stacks with the dedicated burn DOT applied
+## per-enemy by the on_hit block above (independent meta keys).
+const POOL_DAMAGE_PCT: float = 0.10
+const POOL_COLOR: Color = Color(0.95, 0.3, 0.1, 0.42)
+
+## Per-cast dedupe: on_hit fires once per struck enemy, but the ground pool
+## should spawn only ONCE per cast — at the first enemy hit's position
+## (a reasonable proxy for the explosion's epicenter). Tracking the spawn
+## frame on the owner lets us identify "same cast" without threading a cast
+## ID through combat.gd: all hits from one Pyre Burst land in the same
+## physics frame.
+const POOL_FRAME_META: String = "pyre_burst_pool_spawned_frame"
+
 
 ## Returns true if the player's StaffElement signature is currently FIRE.
 ## Element.FIRE == 0 in StaffElementComponent (stable enum). Safe on a missing
@@ -52,6 +72,13 @@ func on_hit(_owner_node: Node, _target: Node, _ability: AbilityData) -> void:
 
 	var per_tick: int = maxi(1, roundi(magic_attack * DAMAGE_PER_STACK_PCT))
 
+	# Fire-stance ground pool — spawn ONCE per cast at the first struck
+	# enemy's position. The dedupe lives inside _try_spawn_fire_pool so this
+	# fires for every on_hit call without spawning extra zones per enemy.
+	# Placed BEFORE the burn-refresh early-return so a cast that hits an
+	# already-burning enemy still drops its pool.
+	_try_spawn_fire_pool(_owner_node, _target, magic_attack)
+
 	if _target.has_meta(BURN_META):
 		# Existing pyre burn — add a stack (capped) and refresh duration.
 		var existing: Dictionary = _target.get_meta(BURN_META)
@@ -71,6 +98,34 @@ func on_hit(_owner_node: Node, _target: Node, _ability: AbilityData) -> void:
 	}
 	_target.set_meta(BURN_META, fresh)
 	_schedule_burn_tick(_target)
+
+
+## Fire-stance transformation: spawn a ground pool at the explosion epicenter
+## ONCE per cast. on_hit fires per struck enemy, so we dedupe via a per-frame
+## meta on the caster (all hits from one Pyre Burst land in the same physics
+## frame). The first struck enemy's position is the spawn point — a reasonable
+## proxy for the explosion's epicenter without threading the projectile's
+## impact location through combat.gd.
+func _try_spawn_fire_pool(owner_node: Node, first_target: Node, magic_attack: int) -> void:
+	var cur_frame: int = Engine.get_physics_frames()
+	var last_spawn: int = int(owner_node.get_meta(POOL_FRAME_META, -1))
+	if last_spawn == cur_frame:
+		return  # already spawned this physics frame (same cast)
+	owner_node.set_meta(POOL_FRAME_META, cur_frame)
+
+	var pool_damage: int = maxi(1, roundi(magic_attack * POOL_DAMAGE_PCT))
+	# load() rather than class_name reference for robustness against parse-order
+	# issues (Godot 4 can intermittently fail to resolve class_name globals from
+	# logic_scripts that are loaded lazily by ResourceManager).
+	load("res://scripts/Gameplay/ground_zone.gd").spawn_server(
+		owner_node,
+		first_target.global_position,
+		POOL_RADIUS,
+		POOL_DURATION,
+		POOL_TICK_INTERVAL,
+		pool_damage,
+		POOL_COLOR,
+	)
 
 
 ## When a burn tick downs an enemy, the regular combat-kill pathway
