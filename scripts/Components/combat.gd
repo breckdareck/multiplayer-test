@@ -712,6 +712,12 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 		var debuff_duration := 10.0
 		if ability.debuff_duration_formula:
 			debuff_duration = ability.debuff_duration_formula.calculate(level_stats.level)
+		# Stealth-modified (v1 design 2026-05-31): dagger debuffs (Cripple)
+		# double their duration when cast from Shadowmeld stealth. Only daggers
+		# can enter stealth so this implicitly scopes to dagger debuffs without
+		# a wielded-weapon check.
+		if is_instance_valid(_shadowmeld_component) and _shadowmeld_component.is_stealthed():
+			debuff_duration *= 2.0
 		_apply_enemy_debuff(target_enemy, ability.applies_target_debuff, debuff_duration)
 
 	# After the loop, emit signal first so listeners (e.g. Shadow Partner) can append hits

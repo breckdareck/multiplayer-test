@@ -23,6 +23,22 @@ const DAMAGE_PER_STACK_PCT: float = 0.20
 
 const POISON_META: String = "envenom_poison"
 
+## Stealth-modified behavior (v1 design grilling 2026-05-31, medium fix for
+## dagger's binary-stealth failure mode): when cast in Shadowmeld stealth,
+## Envenom applies 2 Poison stacks per hit instead of 1. Ramps the
+## Toxicology synergy faster and makes "what should I cast WHILE in stealth"
+## a real decision rather than just "swing once for the ambush ×2."
+const STEALTH_STACKS_PER_HIT: int = 2
+
+
+## Returns true if the dagger user is currently in Shadowmeld stealth.
+## Safe on a missing component — the modifier simply doesn't apply.
+func _is_stealthed(owner_node: Node) -> bool:
+	var sm = owner_node.get("shadowmeld_component")
+	if sm == null or not is_instance_valid(sm) or not sm.has_method("is_stealthed"):
+		return false
+	return sm.is_stealthed()
+
 
 func on_hit(_owner_node: Node, _target: Node, _ability: AbilityData) -> void:
 	if not _owner_node.multiplayer.is_server():
@@ -52,10 +68,13 @@ func on_hit(_owner_node: Node, _target: Node, _ability: AbilityData) -> void:
 	var max_stacks: int = MAX_STACKS + stack_bonus
 	var duration: float = DURATION_SECONDS + duration_bonus
 
+	# Stealth-modified: in Shadowmeld, apply 2 stacks per hit instead of 1.
+	var stacks_added: int = STEALTH_STACKS_PER_HIT if _is_stealthed(_owner_node) else 1
+
 	if _target.has_meta(POISON_META):
 		# Existing poison — increment stack count (capped) and refresh duration.
 		var existing: Dictionary = _target.get_meta(POISON_META)
-		existing["stacks"] = mini(max_stacks, int(existing.get("stacks", 1)) + 1)
+		existing["stacks"] = mini(max_stacks, int(existing.get("stacks", 1)) + stacks_added)
 		existing["remaining"] = duration
 		existing["per_tick"] = per_tick  # refresh to latest applier's damage
 		_target.set_meta(POISON_META, existing)
@@ -63,7 +82,7 @@ func on_hit(_owner_node: Node, _target: Node, _ability: AbilityData) -> void:
 
 	# Fresh poison — set up state and start the tick timer.
 	var fresh: Dictionary = {
-		"stacks": 1,
+		"stacks": mini(max_stacks, stacks_added),
 		"remaining": duration,
 		"per_tick": per_tick,
 		"applier": _owner_node,
