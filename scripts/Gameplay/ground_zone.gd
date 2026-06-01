@@ -96,6 +96,24 @@ var _next_tick: float = 0.0
 var _cached_map_root: Node = null
 var _initial_alpha: float = 0.35
 
+## Tick-pulse intensity in [0, 1]. Set to 1.0 each time _next_tick wraps; decays
+## continuously so each tick produces a brief visible flash. Synchronized on
+## every peer because the tick countdown is decremented in _physics_process
+## above the server gate (deterministic timing).
+var _tick_pulse: float = 0.0
+const _TICK_PULSE_DECAY: float = 4.5  ## intensity drops by ~4.5/s (visible flash ~0.25s)
+
+## Spawn flash — full intensity at spawn, decays over the first ~0.3s so the
+## zone's appearance is unmistakable on every peer.
+var _spawn_pulse: float = 1.0
+const _SPAWN_PULSE_DECAY: float = 3.5
+
+## Bracket length (px) for the corner L-shapes (RECT) and the radial tick
+## marks (CIRCLE). Tuned so the boundary indicators read clearly without
+## visually competing with the filled body.
+const _BRACKET_LEN: float = 14.0
+const _BRACKET_WIDTH: float = 3.0
+
 #endregion
 
 
@@ -110,17 +128,73 @@ func _ready() -> void:
 
 
 func _draw() -> void:
-	# Filled shape + bolder outline (so different-element zones read at a
-	# glance without per-zone art). Branches on shape_type — CIRCLE draws a
-	# disc; RECT draws an axis-aligned rectangle centered on origin.
+	# Fill + bolder outline, then the temporary spawn/tick flash overlays + the
+	# corner brackets (RECT) or radial tick marks (CIRCLE) that always
+	# telegraph the zone's extent regardless of fade state.
+	#
+	# pulse_boost combines the spawn flash and per-tick flash so the zone
+	# noticeably brightens on appearance and on every damage tick — together
+	# the player gets the area's EXTENT (from brackets) and its CADENCE
+	# (from the tick pulse).
+	var pulse_boost: float = _spawn_pulse * 0.45 + _tick_pulse * 0.35
+
+	var fill := visual_color
+	fill.a = minf(1.0, visual_color.a + pulse_boost * 0.35)
+
 	var outline := Color(visual_color.r, visual_color.g, visual_color.b, minf(1.0, visual_color.a * 2.5))
+	outline.a = minf(1.0, outline.a + pulse_boost * 0.45)
+
+	# Bracket / tick-mark color is always near full alpha so the boundary
+	# stays unmistakable even after the fill has faded toward the end of the
+	# zone's lifetime.
+	var bracket := Color(visual_color.r, visual_color.g, visual_color.b, 0.95)
+
 	if shape_type == Shape.RECT:
 		var rect := Rect2(-rect_size * 0.5, rect_size)
-		draw_rect(rect, visual_color, true)
-		draw_rect(rect, outline, false, 2.0)
+		draw_rect(rect, fill, true)
+		draw_rect(rect, outline, false, 2.5)
+		_draw_rect_corner_brackets(bracket)
 	else:
-		draw_circle(Vector2.ZERO, radius, visual_color)
-		draw_arc(Vector2.ZERO, radius, 0.0, TAU, 48, outline, 2.0)
+		draw_circle(Vector2.ZERO, radius, fill)
+		draw_arc(Vector2.ZERO, radius, 0.0, TAU, 48, outline, 2.5)
+		_draw_circle_tick_marks(bracket)
+
+
+## L-shaped brackets at each rect corner. Each bracket is two short lines
+## pointing INWARD along the rectangle's edges. The brackets are sized for
+## visual clarity at the smallest expected zone (~140 px wide) and look fine
+## scaled up — no per-zone tuning needed.
+func _draw_rect_corner_brackets(color: Color) -> void:
+	var half := rect_size * 0.5
+	# Each entry: (corner position, x-direction inward, y-direction inward).
+	# x/y dirs point AWAY from the corner along the adjacent edges so the
+	# bracket sits inside the rectangle.
+	var brackets: Array = [
+		[Vector2(-half.x, -half.y), Vector2(1, 0), Vector2(0, 1)],   # TL
+		[Vector2( half.x, -half.y), Vector2(-1, 0), Vector2(0, 1)],  # TR
+		[Vector2( half.x,  half.y), Vector2(-1, 0), Vector2(0, -1)], # BR
+		[Vector2(-half.x,  half.y), Vector2(1, 0), Vector2(0, -1)],  # BL
+	]
+	var L: float = _BRACKET_LEN
+	for b in brackets:
+		var c: Vector2 = b[0]
+		var d1: Vector2 = b[1] * L
+		var d2: Vector2 = b[2] * L
+		draw_line(c, c + d1, color, _BRACKET_WIDTH)
+		draw_line(c, c + d2, color, _BRACKET_WIDTH)
+
+
+## Eight radial tick marks at compass points around the circle (N/NE/E/SE/
+## S/SW/W/NW). Each tick is a short line from just inside the radius to
+## exactly on the radius, drawn over the outline so the boundary reads at
+## any fade level.
+func _draw_circle_tick_marks(color: Color) -> void:
+	var L: float = minf(_BRACKET_LEN, radius * 0.4)
+	for i in range(8):
+		var angle: float = float(i) * (TAU / 8.0)
+		var outer := Vector2(cos(angle), sin(angle)) * radius
+		var inner := Vector2(cos(angle), sin(angle)) * (radius - L)
+		draw_line(inner, outer, color, _BRACKET_WIDTH)
 
 
 func _physics_process(delta: float) -> void:
@@ -130,22 +204,30 @@ func _physics_process(delta: float) -> void:
 	# 50% alpha at expiration so the zone visibly fades rather than vanishing.
 	var t := clampf(_elapsed / duration, 0.0, 1.0)
 	visual_color.a = _initial_alpha * (1.0 - 0.5 * t)
+
+	# Decay the temporary-flash intensities. Runs on every peer because the
+	# visual flash applies to both server and remote-mirror clones — the
+	# server is also a client on a listen-server setup.
+	_tick_pulse = maxf(0.0, _tick_pulse - delta * _TICK_PULSE_DECAY)
+	_spawn_pulse = maxf(0.0, _spawn_pulse - delta * _SPAWN_PULSE_DECAY)
 	queue_redraw()
 
 	if _elapsed >= duration:
 		queue_free()
 		return
 
-	# Server-only damage tick. Visual-mirror clones on remote clients have
-	# damage_per_tick == 0, so even if this passed it would no-op — but
-	# gating on is_server is the canonical pattern for any state mutator.
-	if not multiplayer.is_server():
-		return
-
+	# Tick countdown runs on ALL peers (above the is_server gate) so the
+	# visual pulse fires simultaneously on server + remote-mirror clones.
+	# The cadence is deterministic — both peers initialise _next_tick =
+	# tick_interval in _ready, then decrement at the same rate. Damage
+	# application stays server-only via _do_tick below.
 	_next_tick -= delta
 	if _next_tick > 0.0:
 		return
 	_next_tick = tick_interval
+	_tick_pulse = 1.0  # visible flash on every peer
+	if not multiplayer.is_server():
+		return
 	_do_tick()
 
 #endregion
