@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "bks_t3_lethal_backstab"
 upgrade_name = "Lethal Backstab"
-description = "Backstab's bonus damage is doubled at full health."
+description = "Backstab's from-behind bonus damage is DOUBLED against enemies that are at full health."
 point_cost = 2
 tier = 3
 variant_group = "bks_t3_variant"
-effect_key = "bonus_at_full_hp"
-magnitude = 0.5
+effect_key = "backstab_fullhp_mult"
+magnitude = 2.0

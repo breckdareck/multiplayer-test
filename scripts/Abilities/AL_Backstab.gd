@@ -1,55 +1,125 @@
 extends Node
 
-## Backstab (dagger active) — POSITIONAL BONUS: when struck from behind (i.e.
-## the attacker is on the side the enemy is NOT facing), the hit deals an
-## additional flat percentage of WEAPONATTACK. Rewards spatial awareness
-## without needing telegraphed enemy attacks — only the enemy's facing
-## direction is read.
+## Backstab (dagger active) — POSITIONAL BONUS. When the player strikes an enemy
+## from BEHIND (the side the enemy is facing away from), Backstab deals
+## bonus damage. Rewards getting behind a target — pairs perfectly with the
+## reworked Shadowstep, which blinks the player behind the furthest enemy.
 ##
-## Fires per landed hit via on_hit. The bonus is gated on the attacker
-## standing on the enemy's back side; EnemyBase carries a `facing_direction`
-## field set by enemy_chase / enemy_patrol (positive = facing right). If the
-## attacker is on the opposite side, the bonus fires. If the enemy is
-## facing the attacker (chasing them, for instance), no bonus.
+## SCALING (fixed 2026-06-02): the from-behind bonus is folded into the main
+## hit via `combat.pending_ability_damage_multiplier` (the same mechanism the
+## sword combo finisher uses) instead of a separate flat-WEAPONATTACK
+## take_damage. This means:
+##   - the bonus scales with the FULL damage formula (primary×4 + secondary)
+##     × attack — a flat `WEAPONATTACK × 0.5` was negligible at scale because
+##     it ignored the primary-stat term that dominates real hits.
+##   - the bonus shows as ONE damage number (no awkward second hit), and
+##   - it applies even on a KILLING blow (it's part of the hit that kills),
+##     fixing the "only shows if the enemy survives" complaint.
 ##
-## Off-back this does nothing. Pairs with Shadowstep (blink THROUGH the
-## enemy, land facing-away from it for a guaranteed Backstab on the next
-## hit) and Smoke Bomb (enemy aggro dropped → enemy stops facing you).
+## The positional check + multiplier are set in execute() (before the hit is
+## rolled). Backstab is single-target, so we resolve the one enemy the strike
+## will land on by scanning the small forward strike range.
 
-const BONUS_PCT: float = 0.50   ## +50% of WEAPONATTACK on a from-behind hit
+## From-behind damage bonus (fraction added to the whole hit). 0.75 = +75%.
+## Strong because it requires positioning (the player must be behind the
+## target), which is real setup cost.
+const BACKSTAB_BONUS_PCT: float = 0.75
+
+## How far in front to look for the strike target (matches the melee hitbox
+## reach so we resolve the enemy the hitbox will actually hit).
+const STRIKE_RANGE: float = 60.0
+const MAX_HEIGHT_DELTA: float = 50.0
 
 
-func on_hit(owner_node: Node, target: Node, _ability: AbilityData) -> void:
+func execute(owner_node: Node, ability: AbilityData, _level_stats: AbilityLevelData) -> void:
 	if not owner_node.multiplayer.is_server():
 		return
-	if not is_instance_valid(target):
-		return
-	if not (target is EnemyBase):
+	if not is_instance_valid(owner_node):
 		return
 
-	var enemy := target as EnemyBase
-	var hc = enemy.get("health_component")
-	if hc == null or not is_instance_valid(hc) or hc.is_dead:
+	var combat = owner_node.get("combat_component")
+	if combat == null or not is_instance_valid(combat):
 		return
 
-	# Determine which side the attacker is on relative to the enemy.
-	# enemy.facing_direction: +1 facing right, -1 facing left (read from EnemyBase).
+	var facing: int = int(owner_node.facing_direction) if "facing_direction" in owner_node else 1
+	if facing == 0:
+		facing = 1
+
+	var target: Node = _nearest_strike_target(owner_node, facing)
+	if target == null:
+		return  # nothing to backstab — the hit (if any) deals normal damage
+
+	# "From behind" = the player is on the side the enemy is facing AWAY from.
+	# enemy.facing_direction: +1 faces right, -1 faces left. The player's side
+	# relative to the enemy is +1 if to the right, -1 if to the left. Behind
+	# when those differ.
 	var enemy_facing: int = 1
-	if "facing_direction" in enemy:
-		enemy_facing = int(enemy.facing_direction)
+	if "facing_direction" in target:
+		enemy_facing = int(target.facing_direction)
 		if enemy_facing == 0:
 			enemy_facing = 1
-	# Attacker side: +1 if attacker is to the right of the enemy, -1 if left.
-	var attacker_side: int = 1 if owner_node.global_position.x > enemy.global_position.x else -1
-	# "From behind" = attacker is on the side opposite to the enemy's facing.
-	if attacker_side == enemy_facing:
-		return  # enemy is facing the attacker — no bonus
+	var player_side: int = 1 if owner_node.global_position.x > target.global_position.x else -1
+	if player_side == enemy_facing:
+		return  # striking the enemy's FRONT — no backstab bonus
 
-	# Bonus strike, scaled off WEAPONATTACK. Bypasses i-frames so it lands
-	# alongside the main hit (mirrors AL_Eviscerate's execute strike).
-	var stats = owner_node.get("stats_component")
-	if stats == null or not stats.stats.has(Constants.StatType.WEAPONATTACK):
-		return
-	var wpn: int = int(stats.stats[Constants.StatType.WEAPONATTACK].total_value)
-	var bonus: int = maxi(1, roundi(wpn * BONUS_PCT))
-	hc.take_damage(bonus, owner_node, true, false, true)
+	# From behind — compute the bonus. Lethal Backstab (T3) doubles it against
+	# a full-health target (the assassin-opener payoff: hit the fresh, unaware
+	# target hardest).
+	var bonus: float = BACKSTAB_BONUS_PCT
+	var ability_comp = owner_node.get("ability_component")
+	if ability_comp and ability != null and ability_comp.has_method("get_ability_upgrade_magnitude"):
+		var fullhp_mult: float = ability_comp.get_ability_upgrade_magnitude(ability.ability_id, "backstab_fullhp_mult")
+		if fullhp_mult > 0.0 and _is_full_health(target):
+			bonus *= fullhp_mult
+
+	# Fold the bonus into the whole hit. combat resets this to 1.0 in
+	# end_ability_attack so it never bleeds into the next cast.
+	combat.pending_ability_damage_multiplier = 1.0 + bonus
+
+
+## Nearest living enemy within STRIKE_RANGE in the facing direction, same map.
+## Backstab is single-target, so we only need the closest one the hitbox lands on.
+func _nearest_strike_target(owner_node: Node, facing: int) -> Node:
+	if owner_node.get_tree() == null:
+		return null
+	var origin: Vector2 = owner_node.global_position
+	var owner_map: Node = null
+	for map_id in MapManager.active_maps.keys():
+		var inst = MapManager.active_maps[map_id].get("scene_instance")
+		if is_instance_valid(inst) and inst.is_ancestor_of(owner_node):
+			owner_map = inst
+			break
+
+	var best: Node = null
+	var best_dist: float = STRIKE_RANGE + 1.0
+	for enemy in owner_node.get_tree().get_nodes_in_group("Enemies"):
+		if not is_instance_valid(enemy):
+			continue
+		if owner_map != null and not owner_map.is_ancestor_of(enemy):
+			continue
+		var hc = enemy.get("health_component")
+		if hc == null or not is_instance_valid(hc) or hc.is_dead:
+			continue
+		var dx: float = enemy.global_position.x - origin.x
+		if facing > 0 and dx <= 0.0:
+			continue
+		if facing < 0 and dx >= 0.0:
+			continue
+		var dist: float = absf(dx)
+		if dist > STRIKE_RANGE:
+			continue
+		if absf(enemy.global_position.y - origin.y) > MAX_HEIGHT_DELTA:
+			continue
+		if dist < best_dist:
+			best_dist = dist
+			best = enemy
+	return best
+
+
+func _is_full_health(target: Node) -> bool:
+	var hc = target.get("health_component")
+	if hc == null or not is_instance_valid(hc):
+		return false
+	if not ("max_health" in hc) or not ("current_health" in hc):
+		return false
+	return int(hc.current_health) >= int(hc.max_health)

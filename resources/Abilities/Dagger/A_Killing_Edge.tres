@@ -49,6 +49,18 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 script = ExtResource("7_drks1")
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
+[sub_resource type="Resource" id="Resource_ke_critformula"]
+script = ExtResource("7_drks1")
+base_value = 7.0
+per_level = 2.0
+metadata/_custom_type_script = "uid://dnsex6fyou07d"
+
+[sub_resource type="Resource" id="Resource_ke_critbonus"]
+script = ExtResource("10_8vb02")
+stat_type = 10
+percent_bonus_formula = SubResource("Resource_ke_critformula")
+metadata/_custom_type_script = "uid://bx4thfjsjclbw"
+
 [sub_resource type="Resource" id="Resource_drks8"]
 script = ExtResource("4_drks1")
 mana_cost_formula = SubResource("Resource_drks4")
@@ -57,13 +69,14 @@ damage_percent_formula = SubResource("Resource_drks5")
 max_targets_formula = SubResource("Resource_drks6")
 max_hits_formula = SubResource("Resource_drks7")
 cast_time_formula = SubResource("Resource_drks5")
+stat_bonus_formulas = Array[ExtResource("10_8vb02")]([SubResource("Resource_ke_critbonus")])
 metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
 
 [resource]
 script = ExtResource("3_drks1")
 ability_id = "4971141151039211-10180-16141116-8591-12491086711491465"
 ability_name = "Killing Edge"
-description = "Sharpens your blades to a killing edge — a short burst window granting +$[stat_bonus]% critical chance and critical damage for $[buff_duration]."
+description = "Sharpens your blades to a killing edge — for $[buff_duration], gain [color=#e6c95c]+$[stat_bonus]% Critical Hit Chance[/color] and bonus Critical Damage."
 ability_icon = ExtResource("1_8vb02")
 max_level = 10
 required_class = Array[int]([3])

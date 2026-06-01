@@ -13,7 +13,12 @@ extends Node
 ## immediately finishes them.
 
 const EXECUTE_HP_PCT: float = 0.35    ## target at/under 35% max HP = execute window
-const EXECUTE_BONUS_PCT: float = 1.0  ## bonus strike = 100% of WEAPONATTACK
+## Bonus strike = this fraction of a full basic-hit's max_range (the WHOLE
+## damage formula: 1.2 × (primary×4 + secondary) × WEAPONATTACK). Was a flat
+## fraction of WEAPONATTACK alone (2026-06-02 fix) — negligible at scale
+## because it ignored the primary-stat term. 1.0 = a full extra hit's worth,
+## fitting for a stealth-gated execute finisher.
+const EXECUTE_BONUS_PCT: float = 1.0
 
 
 func on_hit(owner_node: Node, target: Node, _ability: AbilityData) -> void:
@@ -44,11 +49,14 @@ func on_hit(owner_node: Node, target: Node, _ability: AbilityData) -> void:
 	if float(cur_hp) / float(max_hp) > EXECUTE_HP_PCT:
 		return  # above the execute window — no bonus
 
-	# Execute strike, scaled off WEAPONATTACK (daggers scale WEAPONATTACK).
-	var stats = owner_node.get("stats_component")
-	if stats == null or not stats.stats.has(Constants.StatType.WEAPONATTACK):
+	# Execute strike scaled off the FULL damage formula (max_range), not a flat
+	# fraction of WEAPONATTACK — so the finisher's payoff scales with the
+	# player's primary stat + gear like every real hit does. max_range is the
+	# pre-damage-percent top of a basic hit's roll for the active weapon's stat.
+	var combat = owner_node.get("combat_component")
+	if combat == null or not is_instance_valid(combat) or not combat.has_method("_calculate_max_range"):
 		return
-	var wpn: int = int(stats.stats[Constants.StatType.WEAPONATTACK].total_value)
-	var bonus: int = maxi(1, roundi(wpn * EXECUTE_BONUS_PCT))
+	var max_range: int = int(combat._calculate_max_range(Constants.StatType.WEAPONATTACK))
+	var bonus: int = maxi(1, roundi(max_range * EXECUTE_BONUS_PCT))
 	# crit visual on (it's a finisher), bypass i-frames so it lands alongside the hit.
 	hc.take_damage(bonus, owner_node, true, true, true)

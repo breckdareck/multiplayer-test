@@ -171,7 +171,7 @@ UPGRADES = {
         "t3": [
             ("Twin Backstab", "Backstab hits 2 times instead of 1.", "bonus_hits", 1),
             ("Crippling Backstab", "Backstab also slows the target by 30% for 2 seconds.", "bonus_slow_apply", 0.30),
-            ("Lethal Backstab", "Backstab's bonus damage is doubled at full health.", "bonus_at_full_hp", 0.50),
+            ("Lethal Backstab", "Backstab's from-behind bonus damage is DOUBLED against enemies that are at full health.", "backstab_fullhp_mult", 2.0),
         ],
     },
     "death_mark_v1": {
