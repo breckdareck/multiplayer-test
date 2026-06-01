@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "smk_t3_restorative_smoke"
 upgrade_name = "Restorative Smoke"
-description = "Allies inside Smoke Bomb regenerate HP every second."
+description = "Allies inside Smoke Bomb regenerate 8 HP every second."
 point_cost = 2
 tier = 3
 variant_group = "smk_t3_variant"
-effect_key = "bonus_ally_heal"
+effect_key = "bonus_ally_heal_per_tick"
 magnitude = 8.0

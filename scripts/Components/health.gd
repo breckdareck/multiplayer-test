@@ -229,6 +229,19 @@ func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, 
 				if mult != 1.0:
 					final_amount = maxi(0, roundi(float(amount) * mult))
 
+			# v1 Choking Smoke (Smoke Bomb T3) — enemies tagged by AL_SmokeBomb
+			# while inside the cloud have an outgoing-damage debuff for a
+			# couple seconds after leaving (refreshed every tick via the
+			# expire-timestamp pattern). Reduces THIS hit's amount by the
+			# stored fraction. Source must be the attacking enemy node —
+			# the meta is set on EnemyBase directly by AL_SmokeBomb.
+			if source != null and is_instance_valid(source) and source.has_meta("smoke_choke_expire_at_ms"):
+				var debuff_expire: int = int(source.get_meta("smoke_choke_expire_at_ms"))
+				if Time.get_ticks_msec() < debuff_expire:
+					var debuff_pct: float = float(source.get_meta("smoke_choke_pct", 0.0))
+					if debuff_pct > 0.0:
+						final_amount = maxi(0, roundi(float(final_amount) * (1.0 - debuff_pct)))
+
 		self.current_health -= final_amount
 		if not ignore_invuln:
 			is_invulnerable = true

@@ -544,6 +544,18 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 		if ambush_mult > 1.0:
 			is_crit = true
 
+		# v1 Shadow Smoke (Smoke Bomb T3) — the FIRST player attack within
+		# the exit-crit-window after leaving the cloud is guaranteed a crit.
+		# One-shot: consume the meta on the crit so successive hits roll
+		# normally (mirrors MarkOfTheHunt.consume_mark).
+		if not is_crit and owner_node.has_meta("smoke_exit_crit_until_ms"):
+			var smoke_crit_until: int = int(owner_node.get_meta("smoke_exit_crit_until_ms"))
+			if Time.get_ticks_msec() < smoke_crit_until:
+				is_crit = true
+				owner_node.remove_meta("smoke_exit_crit_until_ms")
+			else:
+				owner_node.remove_meta("smoke_exit_crit_until_ms")  # stale, clean up
+
 		if is_crit:
 			var crit_damage_bonus = _stats_component.stats.get(Constants.StatType.CRITDAMAGE).total_value
 			var crit_multiplier = randf_range(1.2, 1.5) + (crit_damage_bonus / 100.0)

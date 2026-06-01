@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "smk_t3_shadow_smoke"
 upgrade_name = "Shadow Smoke"
-description = "Allies inside Smoke Bomb enter stealth briefly when leaving."
+description = "Allies leaving the cloud have a guaranteed critical hit on their next attack (within 3 seconds)."
 point_cost = 2
 tier = 3
 variant_group = "smk_t3_variant"
-effect_key = "bonus_exit_stealth"
-magnitude = 1.0
+effect_key = "bonus_exit_crit_window_sec"
+magnitude = 3.0
