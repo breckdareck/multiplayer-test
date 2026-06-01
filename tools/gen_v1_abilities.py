@@ -214,7 +214,8 @@ SPECS = [
          damage_pct=None, mana=(6.0, 0.2), cooldown=(10.0, 0),
          hits=(1.0, 0), targets=(1.0, 0),
          hitbox_size=(34, 22), hitbox_pos=(17, -10),
-         tree_path=1, tree_depth=3),
+         # Assassin tree (crit-themed mark, sits with Cutthroat / Killer Instinct).
+         tree_path=0, tree_depth=5),
 
     dict(id="vendetta_v1", name="Vendetta", weapon="Dagger", filename="A_Vendetta",
          al_script="res://scripts/Abilities/AL_Vendetta.gd",
@@ -224,7 +225,9 @@ SPECS = [
          damage_pct=(120.0, 6), mana=(8.0, 0.4), cooldown=(6.0, 0),
          hits=(1.0, 0), targets=(1.0, 0),
          hitbox_size=(34, 22), hitbox_pos=(17, -10),
-         tree_path=0, tree_depth=5),
+         # Venomancer tree (poison-spender — sits after Envenom for the
+         # build→spend poison loop).
+         tree_path=1, tree_depth=3),
 
     dict(id="smoke_bomb_v1", name="Smoke Bomb", weapon="Dagger", filename="A_SmokeBomb",
          al_script="res://scripts/Abilities/AL_SmokeBomb.gd",
