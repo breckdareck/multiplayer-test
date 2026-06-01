@@ -799,6 +799,54 @@ func _spawn_lightning_arc_visual(points: PackedVector2Array) -> void:
 	arc.setup(points)
 
 
+## [Server] Broadcasts a cosmetic ground-zone visual to every real CLIENT
+## viewing the event's map. The authoritative GroundZone (with damage logic) is
+## already added under the map's scene_instance by `GroundZone.spawn_server`,
+## so the host (which is also a client) needs no extra mirror — its own zone
+## renders for free. We only RPC to remote clients, where a parallel visual
+## mirror is spawned via _spawn_ground_zone_visual.
+func broadcast_ground_zone(map_id: String, pos: Vector2, radius: float, duration: float, color: Color) -> void:
+	if not multiplayer.is_server():
+		return
+	for peer_id in get_real_players_on_map(map_id):
+		if peer_id != 1:
+			client_show_ground_zone.rpc_id(peer_id, pos, radius, duration, color)
+
+
+## [Server -> Client] Spawns a visual-only GroundZone on this peer. Routed
+## through MapManager (an autoload that always resolves) rather than addressing
+## any per-entity node. call_remote because the server already owns the
+## authoritative damage path — it must NOT also run this visual spawn.
+@rpc("authority", "call_remote", "reliable")
+func client_show_ground_zone(pos: Vector2, radius: float, duration: float, color: Color) -> void:
+	if multiplayer.is_server():
+		return
+	_spawn_ground_zone_visual(pos, radius, duration, color)
+
+
+## Spawns a damage-less GroundZone under the visible map so the circle renders
+## in the right SubViewport. damage_per_tick stays 0 + applier stays null on
+## the visual mirror, so _do_tick early-returns and no gameplay state is
+## touched. The zone self-frees via its own duration timer.
+##
+## NOTE: preload rather than class_name reference — MapManager is an autoload
+## and its parse order may run before ground_zone.gd registers its class_name,
+## causing a "GroundZone not declared" parse error. The preload locks the
+## script load explicitly.
+const _GroundZoneScript = preload("res://scripts/Gameplay/ground_zone.gd")
+
+func _spawn_ground_zone_visual(pos: Vector2, radius: float, duration: float, color: Color) -> void:
+	var map_node = get_current_visible_map()
+	if not is_instance_valid(map_node):
+		return
+	var zone = _GroundZoneScript.new()
+	zone.global_position = pos
+	zone.radius = radius
+	zone.duration = duration
+	zone.visual_color = color
+	map_node.add_child(zone)
+
+
 ## [Server -> Client] Plays a bot's ability-cast visual. Routed through
 ## MapManager (an autoload that always resolves) rather than the bot's
 ## AbilityComponent node, which a client may lack during a map transition.
