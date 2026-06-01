@@ -351,12 +351,36 @@ implements the hooks it needs:
   `combat.gd._execute_hit` applies ×(1+total) per hit. When a passive's condition is
   MET (returns >0), the modifier ALSO adds that passive's owned `conditional_damage_bonus`
   upgrades (see vocabulary below), so its upgrade tree scales the bonus. Implemented by
-  the **9** conditional passives (bare `extends Node` ALs, path-resolved, MAX_LEVEL=5 since PR 9)
+  the **10** conditional passives (bare `extends Node` ALs, path-resolved, MAX_LEVEL=5 since PR 9)
   that replaced the old always-on stat auto-takes: Aggression (sword, vs >90% HP),
   Last Stand (sword, owner <35% HP), Execution (bow, vs <30% HP), Tailwind (bow, scales
   with Momentum stacks), Killing Spree (staff, 4s after a kill — its `on_kill` stamps an
   owner meta deadline), Overload (staff, owner mana >50%), Composure (dagger, owner
-  >80% HP), Toxicology (dagger, target envenom-poisoned), Opportunist (dagger, stealthed).
+  >80% HP), Toxicology (dagger, target envenom-poisoned), Opportunist (dagger, stealthed),
+  **Predator's Patience** (dagger, ambush damage scales with time-since-last-ambush; v1).
+  v1 NOTE: the dispatcher now probes each AL's `conditional_damage_mult` arg count and
+  passes the cast `ability` as a 4th param when the AL accepts it (Elemental Affinity
+  uses this for per-stance ability_id matching). Existing 3-arg ALs are unaffected.
+- **`conditional_damage_taken_mult(owner, source, level) -> float`** — v1 incoming-damage
+  passive hook (Vanguard's Resolve). Returns a NEGATIVE fraction (e.g. -0.16 = -16%)
+  representing damage REDUCTION. `AbilityComponent.get_incoming_damage_modifier` sums
+  across equipped-discipline passives; `health.gd.take_damage` (on a player target)
+  applies the resulting `(1.0 + total)` BEFORE HP deduction. Enemy-on-player damage
+  doesn't route through `combat.gd._execute_hit` so this is the only integration site.
+- **`attack_cooldown_mult(owner, level) -> float`** — v1 basic-attack speed passive
+  hook (Wind Rider). Returns a NEGATIVE fraction (e.g. -0.25 = -25% delay) representing
+  cooldown REDUCTION. `AbilityComponent.get_attack_cooldown_mult` sums across equipped-
+  discipline passives; `scripts/Player/StateMachine/attack.gd`'s `attack_speed_percent`
+  getter divides `base` by the resulting mult so a negative bonus speeds up the
+  basic-attack cycle. Layered on top of `BowMomentumComponent.get_speed_bonus` (Momentum
+  speed ramp) so they stack distinctly.
+- **`modify_cast_resources(owner) -> Dictionary`** — v1 pre-cast resource hook
+  (AL_Shadowstep). Returns `{"mp_mult": float, "cd_mult": float}` to scale this cast's
+  MP cost and cooldown BEFORE the existing flat-reduction / per-ability-modifier paths
+  run. Called in `AbilityComponent._consume_ability_resources` after probing the ability's
+  `active_behavior.logic_script` for the method; defaults to `{1.0, 1.0}` (no-op) when
+  absent. AL_Shadowstep returns `{0.0, 0.5}` when the caster is in Shadowmeld stealth
+  so a stealthed reposition doesn't burn the ambush slot.
 
 ### PR 6 upgrade effect_keys (the full vocabulary)
 Generic — consumed by Combat/Ability with NO per-AL code:
@@ -389,3 +413,44 @@ must replicate the kill side-effects itself (mastery XP + `on_kill` dispatch) �
 see `AL_Hemorrhage._credit_bleed_kill`. Character XP / quest credit come free via
 the enemy's own death handler reading `damage_by_player`, **provided the damage
 source is attributed** (pass the applier, not `null`, to `take_damage`).
+
+### Mark + payoff static-helper pattern (v1)
+
+The four v1 mark abilities (DeathMark, MarkOfTheHunt, SentinelsMark, ManaSurge)
+use a different dispatch shape from the conditional-damage passives above. A mark
+is per-TARGET state (a meta on the enemy with an absolute server-clock expiry)
+rather than per-PASSIVE-LEVEL, so combat invokes them as static methods rather
+than iterating learned passives:
+
+- `is_marked(target) -> bool` — lazy-expiry check. Each AL clears its own expired
+  meta on read, so no per-mark Timer is needed.
+- `get_crit_bonus(target) -> float` — DeathMark (additive crit chance).
+- `get_damage_bonus(target) -> float` — SentinelsMark / ManaSurge (multiplicative).
+- `consume_mark(target) -> void` — MarkOfTheHunt (clears on auto-crit consume).
+- `roll_refund(attacker, target) -> void` — SentinelsMark (combo refund chance).
+- `consume_and_refund(caster, target, mp_cost) -> void` — ManaSurge (clears + MP refund).
+
+`combat.gd._execute_hit` invokes these via `preload(...).method()` at the
+appropriate point in the per-hit pipeline: get_damage_bonus before the defense
+formula, get_crit_bonus before the crit roll, consume helpers after take_damage.
+Marks are applied by the casting ability's `on_hit` (each AL writes its own meta
+key, e.g. `death_mark_remaining`, with `Time.get_ticks_msec() + duration_ms`).
+
+### Cross-ability infrastructure: GroundZone (v1)
+
+`scripts/Gameplay/ground_zone.gd` is a shared persistent-area helper used by 9 v1
+abilities (Earthsplitter, Banner, Caltrops, Sky Volley, Smoke Bomb, Frost Patch,
+Stormcall, Pyre Burst Fire pool, Spellweave Fire). Each spawning AL calls
+`load("res://scripts/Gameplay/ground_zone.gd").spawn_server(...)` (CIRCLE) or
+`spawn_server_rect(...)` (RECT) — backward-compat circle and explicit-rect entry
+points wrap a common `spawn_server_shaped` lowest-level helper. The zone joins
+`networked_entities`, runs a server-only tick that iterates Enemies (and
+optionally Players via `on_ally_tick_callback`) with shape-aware overlap
+testing, and broadcasts a damage-less visual mirror to remote clients via
+`MapManager.broadcast_ground_zone_shaped` / `client_show_ground_zone_shaped`.
+Shape is `GroundZone.Shape` enum (`CIRCLE` = 0, `RECT` = 1). For ground-rect
+abilities in the 2D platformer, prefer the wide-x / short-y rect (~30–65 px tall)
+that hugs the floor and overlaps enemy hitboxes without towering above them —
+the `/zone <name>` debug command spawns each configured zone at the player's
+feet for visual inspection, and `docs/ground_zone_preview.html` shows every
+shape at 1:1 scale.
