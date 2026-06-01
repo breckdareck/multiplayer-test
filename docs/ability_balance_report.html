@@ -43,32 +43,42 @@ if crit (rand% < CRITCHANCE):  × ( rand(1.2,1.5) + CRITDAMAGE/100 )</pre><ul cl
 <div class="card"><h2>Attribute allocation archetypes</h2><p>The 5-points/level pool (= 5×(level−1); <b>495 at L100</b>) is spent manually. Three builds modelled:</p><ul class="notes"><li><b>default</b> — discipline ratio (what an un-respecced character auto-gets; e.g. Sword 3 STR : 2 DEX). Reproduces the old baseline.</li><li><b>pure</b> — every point into the primary stat. The damage-max build.</li><li><b>tank</b> — half primary, half CON (survivability at a damage cost).</li></ul></div>
 <h2 class="weap" id="roster">Roster — every ability per weapon</h2>
 <div class="card"><p>Every ability per weapon, including non-damage actives, self-buffs, party-buffs, and passives that the damage tables below don't model. The <b>shape</b> column tags each one by mechanical category — scan it to see how the distribution of shapes inside a weapon does (and doesn't) vary.</p></div>
-<h3>Sword <span class="meta">· 14 abilities</span></h3>
+<h3>Sword <span class="meta">· 20 abilities</span></h3>
 <table><thead><tr><th>Name</th><th>kind</th><th>shape</th><th>what it does</th></tr></thead><tbody>
 <tr><td class="ab">Steel Flurry</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>combo-builder</td><td class="note">2 thrusts on 2 enemies; each hit builds 1 combo point (cap 3).</td></tr>
 <tr><td class="ab">Vault Strike</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>combo-builder + gap-closer</td><td class="note">Dash forward, strike up to 2 enemies; +2 combo per enemy hit.</td></tr>
+<tr><td class="ab">Charge!</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>combo-builder (line-dash)</td><td class="note">v1: line-dash 250px in facing direction; +1 combo per enemy pierced.</td></tr>
 <tr><td class="ab">Crescent Cleave</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>combo-spender (AoE)</td><td class="note">Consumes all combo to amplify AoE dmg +100%/point (max +300%).</td></tr>
 <tr><td class="ab">Sundering Blow</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>combo-spender (ST)</td><td class="note">Consumes all combo to amplify single-target +200%/point (max +600%).</td></tr>
+<tr><td class="ab">Earthsplitter</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>combo-spender + ground-zone</td><td class="note">v1: heavy slam, consumes all combo, 4s tremor zone +75%/pt amp.</td></tr>
+<tr><td class="ab">Vanguard's Onslaught</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>channel + pierce</td><td class="note">v1: ~2s channel wind-up, release pierces a line; +1 combo/pierce.</td></tr>
 <tr><td class="ab">Hemorrhage</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>dot-applier (bleed)</td><td class="note">Cuts deeply + stacks Bleed (max 3, 20% WATK/s for 6s).</td></tr>
 <tr><td class="ab">Iron Riposte</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>self-buff (reflect)</td><td class="note">Reflects a % of damage taken back to attackers for buff duration.</td></tr>
 <tr><td class="ab">Bulwark Stance</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>self-buff (defense)</td><td class="note">+250 Defense; drains 2 MP/s, auto-cancels at 0 MP.</td></tr>
-<tr><td class="ab">Vow of the Vanguard</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>self-buff (all stats)</td><td class="note">+X% all stats for buff duration.</td></tr>
+<tr><td class="ab">Vow of the Vanguard</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>party-buff (combo-scaled)</td><td class="note">v1 AUGMENT: party +all stats; potency/duration scale with combo consumed.</td></tr>
+<tr><td class="ab">Banner of the Vanguard</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>defensive party-zone</td><td class="note">v1: 8s zone at feet; allies inside gain +Defense + HP regen tick.</td></tr>
+<tr><td class="ab">Sentinel's Mark</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>mark + payoff (combo-refund)</td><td class="note">v1: tag enemy 8s; sword hits +30%, 25% chance to refund 1 combo.</td></tr>
 <tr><td class="ab">Battle-Hardened</td><td><span style="color:#c79bff;font-weight:600">passive</span></td><td>stat (Defense)</td><td class="note">+Defense, permanent.</td></tr>
 <tr><td class="ab">Hardened Frame</td><td><span style="color:#c79bff;font-weight:600">passive</span></td><td>stat (Max HP %)</td><td class="note">+Max HP%, permanent.</td></tr>
 <tr><td class="ab">Second Wind</td><td><span style="color:#c79bff;font-weight:600">passive</span></td><td>stat (HP regen)</td><td class="note">+HP regen, permanent.</td></tr>
 <tr><td class="ab">Aggression</td><td><span style="color:#c79bff;font-weight:600">passive</span></td><td>conditional (&gt;90% HP)</td><td class="note">+30% dmg to enemies above 90% HP.</td></tr>
 <tr><td class="ab">Last Stand</td><td><span style="color:#c79bff;font-weight:600">passive</span></td><td>conditional (&lt;35% HP)</td><td class="note">+35% dmg while below 35% HP.</td></tr>
 <tr><td class="ab">Bloodthirst</td><td><span style="color:#c79bff;font-weight:600">passive</span></td><td>conditional (on kill)</td><td class="note">Restore X% of Max HP on kill.</td></tr>
+<tr><td class="ab">Vanguard's Resolve</td><td><span style="color:#c79bff;font-weight:600">passive</span></td><td>conditional (combo defense)</td><td class="note">v1: -8/-12/-16% incoming damage at 1/2/3 combo. First sword gauge-engaging passive.</td></tr>
 </tbody></table>
-<h3>Bow <span class="meta">· 15 abilities</span></h3>
+<h3>Bow <span class="meta">· 20 abilities</span></h3>
 <table><thead><tr><th>Name</th><th>kind</th><th>shape</th><th>what it does</th></tr></thead><tbody>
 <tr><td class="ab">Snap Shot</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>momentum-builder (basic)</td><td class="note">Basic attack; builds Momentum.</td></tr>
 <tr><td class="ab">Hailstorm</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>momentum-builder (AoE)</td><td class="note">3 arrows on 3 enemies; +2 Momentum/cast.</td></tr>
 <tr><td class="ab">Skyfall</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>momentum-builder (AoE)</td><td class="note">Arrow rain on up to 6 enemies; +2 Momentum/cast.</td></tr>
+<tr><td class="ab">Sky Volley</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>momentum-builder + ground-zone</td><td class="note">v1: channel + arrow-rain zone 3s; +1 Momentum/sec held.</td></tr>
 <tr><td class="ab">Snipe</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>momentum-spender (ST)</td><td class="note">Single devastating shot; +12% dmg per Momentum stack.</td></tr>
+<tr><td class="ab">Sundering Arrow</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>momentum-spender (pierce)</td><td class="note">v1: 2nd spender; consumes Momentum, pierces line of enemies.</td></tr>
 <tr><td class="ab">Split Shot</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>cooldown-damage</td><td class="note">2 arrows on 1 enemy.</td></tr>
 <tr><td class="ab">Barbed Shot</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>dot-applier (bleed)</td><td class="note">Stacking Bleed (max 3, 20% WATK/s for 6s).</td></tr>
 <tr><td class="ab">Disengage</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>kite-escape</td><td class="note">Hop back + i-frames; shoots on the way out.</td></tr>
+<tr><td class="ab">Caltrops</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>ground-zone (fire-forget)</td><td class="note">v1: 5s zone at feet; 30% slow + 8% WATK/s tick. Utility setup.</td></tr>
+<tr><td class="ab">Mark of the Hunt</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>mark + payoff (auto-crit)</td><td class="note">v1: tag enemy 8s; next momentum-spender vs marked = auto-crit.</td></tr>
 <tr><td class="ab">Steady Aim</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>self-buff (offensive)</td><td class="note">+weapon atk, +crit chance for buff duration.</td></tr>
 <tr><td class="ab">Eagle Eye</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>party-buff</td><td class="note">+crit chance/dmg to whole party for buff duration.</td></tr>
 <tr><td class="ab">Marksman's Focus</td><td><span style="color:#c79bff;font-weight:600">passive</span></td><td>stat (Accuracy %)</td><td class="note">+Accuracy%, permanent.</td></tr>
@@ -77,14 +87,20 @@ if crit (rand% < CRITCHANCE):  × ( rand(1.2,1.5) + CRITDAMAGE/100 )</pre><ul cl
 <tr><td class="ab">Surefoot</td><td><span style="color:#c79bff;font-weight:600">passive</span></td><td>stat (knockback resist)</td><td class="note">+knockback resist, permanent.</td></tr>
 <tr><td class="ab">Execution</td><td><span style="color:#c79bff;font-weight:600">passive</span></td><td>conditional (&lt;30% HP)</td><td class="note">+45% dmg vs enemies below 30% HP.</td></tr>
 <tr><td class="ab">Tailwind</td><td><span style="color:#c79bff;font-weight:600">passive</span></td><td>conditional (full Momentum)</td><td class="note">+30% dmg at full Momentum — engages the gauge.</td></tr>
+<tr><td class="ab">Wind Rider</td><td><span style="color:#c79bff;font-weight:600">passive</span></td><td>conditional (momentum speed)</td><td class="note">v1: -2.5% per Momentum stack to basic-attack delay (max -25% @ 10 stacks).</td></tr>
 </tbody></table>
-<h3>Staff <span class="meta">· 14 abilities</span></h3>
+<h3>Staff <span class="meta">· 20 abilities</span></h3>
 <table><thead><tr><th>Name</th><th>kind</th><th>shape</th><th>what it does</th></tr></thead><tbody>
-<tr><td class="ab">Arcane Bolt</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>cooldown-damage (basic)</td><td class="note">Spammable single-target magic; low CD floor.</td></tr>
-<tr><td class="ab">Arcane Lance</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>cooldown-damage (channel)</td><td class="note">Channel — multi-pulse line across enemies.</td></tr>
-<tr><td class="ab">Glacial Spike</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>cooldown-damage</td><td class="note">Heavy ice strike. Notes claim 'Ice stance = freeze' — NO stance state on disk.</td></tr>
-<tr><td class="ab">Pyre Burst</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>cooldown-damage (AoE)</td><td class="note">Fireball AoE. Notes claim 'Fire stance = burn splash' — NO stance state on disk.</td></tr>
-<tr><td class="ab">Immolate</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>dot-applier (burn)</td><td class="note">Stacking Burn (max 3, 18% MATK/s for 6s).</td></tr>
+<tr><td class="ab">Arcane Bolt</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>cooldown-damage (basic)</td><td class="note">Spammable single-target magic; low CD floor. Inherits stance rider.</td></tr>
+<tr><td class="ab">Arcane Lance</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>channel + chain (lightning)</td><td class="note">Multi-pulse beam. Lightning stance: each pulse fires own chain rider.</td></tr>
+<tr><td class="ab">Glacial Spike</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>ST damage + freeze (ice)</td><td class="note">Heavy ice strike. Ice stance: target frozen 1.5s (hard CC).</td></tr>
+<tr><td class="ab">Pyre Burst</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>AoE + ground-pool (fire)</td><td class="note">Fireball AoE. Fire stance: 3s fire pool at impact (10% MATK/s).</td></tr>
+<tr><td class="ab">Immolate</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>dot-applier + spread (fire)</td><td class="note">Stacking Burn. Fire stance: 2 stacks/cast + splash to nearby per tick.</td></tr>
+<tr><td class="ab">Frost Patch</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>ground-zone (ice)</td><td class="note">v1: 4s zone; 50% chill + 8% MATK/s tick. Pairs with Glacial Spike freeze.</td></tr>
+<tr><td class="ab">Stormcall</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>channel + ground-zone (lightning)</td><td class="note">v1: sustained Lightning zone; 11% MATK/0.5s tick × 3s.</td></tr>
+<tr><td class="ab">Spellweave</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>channel + stance-augment</td><td class="note">v1: channel up to 2s; release amplified stance signature (pool/freeze-area/chain-6).</td></tr>
+<tr><td class="ab">Mana Surge</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>mark + payoff (MP-refund)</td><td class="note">v1: mark enemy 8s; next spell vs marked +50% dmg + 50% MP refund.</td></tr>
+<tr><td class="ab">Arcane Familiar</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>summon (auto-bolt)</td><td class="note">v1: 12s wisp auto-fires Arcane Bolt at nearby enemies; 22% MATK/shot.</td></tr>
 <tr><td class="ab">Aether Ward</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>utility-defensive (shield)</td><td class="note">MP-drains-to-absorb-HP shield until MP runs out.</td></tr>
 <tr><td class="ab">Phase Step</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>gap-closer / escape</td><td class="note">Blink in facing direction (or up/down); brief i-frames.</td></tr>
 <tr><td class="ab">Communion</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>party-buff</td><td class="note">+MP regen, +Magic Attack to whole party for buff duration.</td></tr>
@@ -94,15 +110,20 @@ if crit (rand% < CRITCHANCE):  × ( rand(1.2,1.5) + CRITDAMAGE/100 )</pre><ul cl
 <tr><td class="ab">Arcane Resonance</td><td><span style="color:#c79bff;font-weight:600">passive</span></td><td>stat (Magic Attack %)</td><td class="note">+Magic Attack%, permanent.</td></tr>
 <tr><td class="ab">Killing Spree</td><td><span style="color:#c79bff;font-weight:600">passive</span></td><td>conditional (after kill 4s)</td><td class="note">+30% dmg for 4s after a kill.</td></tr>
 <tr><td class="ab">Overload</td><td><span style="color:#c79bff;font-weight:600">passive</span></td><td>conditional (&gt;50% MP)</td><td class="note">+25% dmg above 50% MP.</td></tr>
+<tr><td class="ab">Elemental Affinity</td><td><span style="color:#c79bff;font-weight:600">passive</span></td><td>conditional (stance-matched)</td><td class="note">v1: +12% dmg to spells whose element matches current stance.</td></tr>
 </tbody></table>
-<h3>Dagger <span class="meta">· 15 abilities</span></h3>
+<h3>Dagger <span class="meta">· 20 abilities</span></h3>
 <table><thead><tr><th>Name</th><th>kind</th><th>shape</th><th>what it does</th></tr></thead><tbody>
 <tr><td class="ab">Twin Fang</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>cooldown-damage (basic)</td><td class="note">Quick 2-hit on 1 enemy; low CD spammable.</td></tr>
 <tr><td class="ab">Fan of Knives</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>cooldown-damage (AoE)</td><td class="note">7 throwing blades on 3 enemies.</td></tr>
-<tr><td class="ab">Envenom</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>dot-applier (poison)</td><td class="note">Stacking Poison (max 3) — feeds Toxicology synergy.</td></tr>
-<tr><td class="ab">Cripple</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>utility-debuff</td><td class="note">-def/atk to one enemy.</td></tr>
-<tr><td class="ab">Shadowstep</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>gap-closer</td><td class="note">Blink + strike + brief i-frames.</td></tr>
-<tr><td class="ab">Eviscerate</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>ST burst (execute?)</td><td class="note">Heavy single-target finisher. Modeled as 'stealth = execute &lt;35% HP' but the .tres has no stealth gate.</td></tr>
+<tr><td class="ab">Envenom</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>dot-applier (poison) [stealth: 2 stacks]</td><td class="note">Stacking Poison (max 3) → feeds Toxicology. v1: 2 stacks/hit in stealth.</td></tr>
+<tr><td class="ab">Vendetta</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>poison-spender</td><td class="note">v1: consumes ALL Envenom stacks for burst (60% WATK/stack).</td></tr>
+<tr><td class="ab">Cripple</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>utility-debuff [stealth: ×2]</td><td class="note">-def/atk debuff. v1: ×2 duration when cast from stealth.</td></tr>
+<tr><td class="ab">Shadowstep</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>gap-closer [stealth: 0 MP + ½ CD]</td><td class="note">Blink+strike+i-frames. v1: free + half-CD when cast from stealth.</td></tr>
+<tr><td class="ab">Eviscerate</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>ST burst (stealth: execute)</td><td class="note">Heavy finisher. From stealth: +100% WATK bonus vs &lt;35% HP target (execute).</td></tr>
+<tr><td class="ab">Backstab</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>positional bonus</td><td class="note">v1: +50% WATK on a hit from behind (enemy facing away).</td></tr>
+<tr><td class="ab">Death Mark</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>mark + payoff (crit)</td><td class="note">v1: tag enemy 8s; dagger hits +25% crit chance vs marked.</td></tr>
+<tr><td class="ab">Smoke Bomb</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>ground-zone (defensive)</td><td class="note">v1: 4s smoke cloud at feet; enemies inside lose targeting on you.</td></tr>
 <tr><td class="ab">Killing Edge</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>self-buff (offensive)</td><td class="note">+crit chance/dmg for a short window.</td></tr>
 <tr><td class="ab">Bloodlust</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>party-buff</td><td class="note">+crit chance/dmg to whole party for buff duration.</td></tr>
 <tr><td class="ab">Shadow Partner</td><td><span style="color:#7ec2ff;font-weight:600">active</span></td><td>summon (echo)</td><td class="note">Shadow clone mimics attacks at X% dmg for buff duration.</td></tr>
@@ -110,8 +131,9 @@ if crit (rand% < CRITCHANCE):  × ( rand(1.2,1.5) + CRITDAMAGE/100 )</pre><ul cl
 <tr><td class="ab">Cutthroat</td><td><span style="color:#c79bff;font-weight:600">passive</span></td><td>stat (Crit Damage %)</td><td class="note">+Crit Damage%, permanent.</td></tr>
 <tr><td class="ab">Evasion</td><td><span style="color:#c79bff;font-weight:600">passive</span></td><td>stat (Evasion %)</td><td class="note">+Evasion%, permanent.</td></tr>
 <tr><td class="ab">Composure</td><td><span style="color:#c79bff;font-weight:600">passive</span></td><td>conditional (&gt;80% HP)</td><td class="note">+25% dmg above 80% HP.</td></tr>
-<tr><td class="ab">Opportunist</td><td><span style="color:#c79bff;font-weight:600">passive</span></td><td>conditional (stealth)</td><td class="note">+35% dmg in stealth — but NO ability enters stealth.</td></tr>
+<tr><td class="ab">Opportunist</td><td><span style="color:#c79bff;font-weight:600">passive</span></td><td>conditional (stealth)</td><td class="note">+35% dmg in stealth (Shadowmeld toggle or Vanish buff).</td></tr>
 <tr><td class="ab">Toxicology</td><td><span style="color:#c79bff;font-weight:600">passive</span></td><td>conditional (synergy)</td><td class="note">+30% dmg vs Poisoned enemies (consumes Envenom mark).</td></tr>
+<tr><td class="ab">Predator's Patience</td><td><span style="color:#c79bff;font-weight:600">passive</span></td><td>conditional (between-stealths)</td><td class="note">v1: ambush hit +3% per sec out of stealth (max +30% @ 10s). Counters kite-stealth-spam.</td></tr>
 </tbody></table>
 <h2 class="weap" id="shape-dist">Shape distribution — where the samey-ness lives</h2>
 <div class="card"><p>How many abilities each weapon has in each <b>shape family</b>. If a row is overwhelmingly "Pure damage button" or "Pure stat passive," that's the shape-samey diagnosis showing up visually. Green cells = ≥2 abilities cover the family; yellow = exactly 1 (single point of failure); red = 0 (gap).</p></div>
@@ -124,20 +146,20 @@ if crit (rand% < CRITCHANCE):  × ( rand(1.2,1.5) + CRITDAMAGE/100 )</pre><ul cl
 <tr><td class="ab">Pure damage button (cooldown-gated)</td>
 <td style="background:rgba(248,81,73,0.22);text-align:center"><b>0</b></td>
 <td style="background:rgba(224,168,0,0.25);text-align:center"><b>1</b></td>
-<td style="background:rgba(63,185,80,0.28);text-align:center"><b>4</b></td>
+<td style="background:rgba(224,168,0,0.25);text-align:center"><b>1</b></td>
 <td style="background:rgba(63,185,80,0.28);text-align:center"><b>2</b></td>
 </tr>
 <tr><td class="ab">Resource mesh — BUILDER</td>
-<td style="background:rgba(63,185,80,0.28);text-align:center"><b>2</b></td>
 <td style="background:rgba(63,185,80,0.28);text-align:center"><b>3</b></td>
+<td style="background:rgba(63,185,80,0.28);text-align:center"><b>4</b></td>
 <td style="background:rgba(248,81,73,0.22);text-align:center"><b>0</b></td>
 <td style="background:rgba(248,81,73,0.22);text-align:center"><b>0</b></td>
 </tr>
 <tr><td class="ab">Resource mesh — SPENDER</td>
+<td style="background:rgba(63,185,80,0.28);text-align:center"><b>3</b></td>
 <td style="background:rgba(63,185,80,0.28);text-align:center"><b>2</b></td>
+<td style="background:rgba(248,81,73,0.22);text-align:center"><b>0</b></td>
 <td style="background:rgba(224,168,0,0.25);text-align:center"><b>1</b></td>
-<td style="background:rgba(248,81,73,0.22);text-align:center"><b>0</b></td>
-<td style="background:rgba(248,81,73,0.22);text-align:center"><b>0</b></td>
 </tr>
 <tr><td class="ab">DoT applier (sets a mark)</td>
 <td style="background:rgba(224,168,0,0.25);text-align:center"><b>1</b></td>
@@ -149,25 +171,49 @@ if crit (rand% < CRITCHANCE):  × ( rand(1.2,1.5) + CRITDAMAGE/100 )</pre><ul cl
 <td style="background:rgba(224,168,0,0.25);text-align:center"><b>1</b></td>
 <td style="background:rgba(224,168,0,0.25);text-align:center"><b>1</b></td>
 <td style="background:rgba(224,168,0,0.25);text-align:center"><b>1</b></td>
-<td style="background:rgba(224,168,0,0.25);text-align:center"><b>1</b></td>
+<td style="background:rgba(63,185,80,0.28);text-align:center"><b>2</b></td>
 </tr>
 <tr><td class="ab">Self-buff (offensive/defensive)</td>
-<td style="background:rgba(63,185,80,0.28);text-align:center"><b>3</b></td>
+<td style="background:rgba(63,185,80,0.28);text-align:center"><b>2</b></td>
 <td style="background:rgba(224,168,0,0.25);text-align:center"><b>1</b></td>
 <td style="background:rgba(248,81,73,0.22);text-align:center"><b>0</b></td>
 <td style="background:rgba(224,168,0,0.25);text-align:center"><b>1</b></td>
 </tr>
 <tr><td class="ab">Party-buff / summon / shield / debuff</td>
-<td style="background:rgba(248,81,73,0.22);text-align:center"><b>0</b></td>
 <td style="background:rgba(224,168,0,0.25);text-align:center"><b>1</b></td>
-<td style="background:rgba(63,185,80,0.28);text-align:center"><b>2</b></td>
+<td style="background:rgba(224,168,0,0.25);text-align:center"><b>1</b></td>
+<td style="background:rgba(63,185,80,0.28);text-align:center"><b>3</b></td>
 <td style="background:rgba(63,185,80,0.28);text-align:center"><b>3</b></td>
 </tr>
-<tr><td class="ab">Conditional damage (execute / opener / synergy)</td>
+<tr><td class="ab">Ground-zone (persistent area) [NEW v1]</td>
+<td style="background:rgba(224,168,0,0.25);text-align:center"><b>1</b></td>
+<td style="background:rgba(224,168,0,0.25);text-align:center"><b>1</b></td>
 <td style="background:rgba(63,185,80,0.28);text-align:center"><b>3</b></td>
+<td style="background:rgba(224,168,0,0.25);text-align:center"><b>1</b></td>
+</tr>
+<tr><td class="ab">Channel / build-up [NEW v1]</td>
+<td style="background:rgba(224,168,0,0.25);text-align:center"><b>1</b></td>
+<td style="background:rgba(248,81,73,0.22);text-align:center"><b>0</b></td>
 <td style="background:rgba(63,185,80,0.28);text-align:center"><b>2</b></td>
-<td style="background:rgba(63,185,80,0.28);text-align:center"><b>2</b></td>
+<td style="background:rgba(248,81,73,0.22);text-align:center"><b>0</b></td>
+</tr>
+<tr><td class="ab">Mark + payoff [NEW v1]</td>
+<td style="background:rgba(224,168,0,0.25);text-align:center"><b>1</b></td>
+<td style="background:rgba(224,168,0,0.25);text-align:center"><b>1</b></td>
+<td style="background:rgba(224,168,0,0.25);text-align:center"><b>1</b></td>
+<td style="background:rgba(224,168,0,0.25);text-align:center"><b>1</b></td>
+</tr>
+<tr><td class="ab">Stance-matched signature (staff transformations)</td>
+<td style="background:rgba(248,81,73,0.22);text-align:center"><b>0</b></td>
+<td style="background:rgba(248,81,73,0.22);text-align:center"><b>0</b></td>
+<td style="background:rgba(224,168,0,0.25);text-align:center"><b>1</b></td>
+<td style="background:rgba(248,81,73,0.22);text-align:center"><b>0</b></td>
+</tr>
+<tr><td class="ab">Conditional damage (execute / opener / synergy)</td>
 <td style="background:rgba(63,185,80,0.28);text-align:center"><b>4</b></td>
+<td style="background:rgba(63,185,80,0.28);text-align:center"><b>3</b></td>
+<td style="background:rgba(63,185,80,0.28);text-align:center"><b>3</b></td>
+<td style="background:rgba(63,185,80,0.28);text-align:center"><b>5</b></td>
 </tr>
 <tr><td class="ab">Pure stat passive</td>
 <td style="background:rgba(63,185,80,0.28);text-align:center"><b>3</b></td>
@@ -179,12 +225,12 @@ if crit (rand% < CRITCHANCE):  × ( rand(1.2,1.5) + CRITDAMAGE/100 )</pre><ul cl
 <h2 class="weap" id="mesh">Mesh diagnosis — class gauges &amp; what feeds them</h2>
 <div class="card"><p>The weapon-identity overhaul committed to four <b>class gauges</b> (class-widget convention — each weapon's signature resource gets its own anchored UI). For each weapon: is the gauge actually wired up in the .tres roster, and which abilities feed (build) or consume (spend) it?</p></div>
 <table><thead><tr><th>Weapon</th><th>Gauge</th><th>Built?</th><th>Builders</th><th>Spenders</th><th>Diagnosis</th></tr></thead><tbody>
-<tr><td class="ab">Sword</td><td>Combo (max 3)</td><td style="color:#3fb950;font-weight:700;">yes</td><td>Steel Flurry, Vault Strike</td><td>Crescent Cleave, Sundering Blow</td><td class="note">MESH WIRED. Two builders feed two spenders (1 AoE / 1 ST). Distinct identity in play.</td></tr>
-<tr><td class="ab">Bow</td><td>Momentum</td><td style="color:#3fb950;font-weight:700;">yes</td><td>Snap Shot, Hailstorm, Skyfall</td><td>Snipe</td><td class="note">MESH WIRED. Three builders, one big spender, plus Tailwind passive engages the gauge. Identity present.</td></tr>
-<tr><td class="ab">Staff</td><td>Elemental Stance (Fire / Ice / Lightning)</td><td style="color:#f85149;font-weight:700;">NO</td><td>—</td><td>—</td><td class="note">NOT BUILT. No stance ability, no stance state. Glacial Spike / Pyre Burst / Arcane Lance are modeled with 'Ice freeze / Fire burn splash / Lightning chain' notes but the .tres files have none of it. ALL four damage actives behave the same: cast → hit → damage on cooldown. Worst shape-samey offender.</td></tr>
-<tr><td class="ab">Dagger</td><td>Stealth</td><td style="color:#f85149;font-weight:700;">NO</td><td>—</td><td>Eviscerate (?), Opportunist (passive)</td><td class="note">HALF-BUILT. Opportunist passive grants +35% dmg in stealth; Eviscerate is modeled as a stealth execute. But NO ability enters stealth — the gauge has payoffs with no setup. Dagger plays as cooldown-button + DoT mark + crit-stack passives, no signature 'in stealth' moment.</td></tr>
+<tr><td class="ab">Sword</td><td>Combo (max 3)</td><td style="color:#3fb950;font-weight:700;">yes</td><td>Steel Flurry, Vault Strike, Charge! (v1)</td><td>Crescent Cleave, Sundering Blow, Earthsplitter (v1), Vanguard's Onslaught (v1), Vow of the Vanguard (v1 augment)</td><td class="note">MESH WIRED in SwordComboComponent. v1 expands the builder/spender count and weaves Vow + Vanguard's Resolve (passive damage reduction) into the gauge so it has both offensive and defensive uses.</td></tr>
+<tr><td class="ab">Bow</td><td>Momentum</td><td style="color:#3fb950;font-weight:700;">yes</td><td>Snap Shot, Hailstorm, Skyfall, Sky Volley (v1)</td><td>Snipe, Sundering Arrow (v1)</td><td class="note">MESH WIRED in BowMomentumComponent. v1 adds a 2nd spender (Sundering Arrow pierce) so the rotation is no longer mono-Snipe, plus Wind Rider passive engages stacks for fire-rate ramp distinct from Tailwind's at-cap damage.</td></tr>
+<tr><td class="ab">Staff</td><td>Elemental Stance (Fire / Ice / Lightning)</td><td style="color:#3fb950;font-weight:700;">yes</td><td>WeaponSignature (R) cycles forward</td><td>Glacial Spike (Ice freeze), Pyre Burst (Fire pool), Immolate (Fire 2-stack + splash), Arcane Lance (Lightning per-pulse chain), Spellweave (v1 amplified per stance)</td><td class="note">MESH WIRED in StaffElementComponent (PR 7) — Fire/Ice/Lightning cycle + on-hit rider (burn / slow / chain) applied per staff hit. v1 (c) transformations layer on signature spells: Glacial freeze, Pyre pool, Immolate splash, Arcane Lance per-pulse chain. Elemental Affinity passive +12% to stance-matched spells.</td></tr>
+<tr><td class="ab">Dagger</td><td>Shadowmeld (toggle)</td><td style="color:#3fb950;font-weight:700;">yes</td><td>WeaponSignature (R) toggle</td><td>First dagger hit (×2 ambush), Eviscerate (stealth execute), Opportunist (passive)</td><td class="note">MESH WIRED in ShadowmeldComponent (PR 7/11). v1 medium fix: Envenom (+1 stack in stealth), Cripple (×2 duration), Shadowstep (free + ½ CD), Eviscerate execute already there. Predator's Patience passive ramps the ambush damage with time out of stealth — fixes kite-stealth-spam failure mode.</td></tr>
 </tbody></table>
-<div class="find bad"><h4>Mesh finding · 2 of 4 weapons have no resource shape — everything is a cooldown button</h4><p>Sword (Combo) and Bow (Momentum) have a full <b>builder → spender</b> mesh and a clear signature moment ("burn 3 combo for the AoE finisher" / "spend Momentum on a Snipe"). <b>Dagger</b> has Stealth payoffs (Opportunist passive +35% dmg, Eviscerate execute) but NO ability enters stealth — the gauge is a payoff with no setup. <b>Staff</b> has no stance / mode / resource at all: Arcane Bolt, Arcane Lance, Glacial Spike, Pyre Burst all behave identically (cast → damage on cooldown). The "+Ice freeze / Fire splash / Lightning chain" tags in the existing model's notes describe an unbuilt design, not the current .tres state. <b>This is where the shape-samey complaint actually lives.</b> Fix Dagger and Staff's resource mesh BEFORE adding new abilities — or those new abilities will inherit the same flatness.</p></div>
+<div class="find good"><h4>Mesh finding (CORRECTED 2026-05-31) · All 4 gauges are fully wired</h4><p>An earlier draft of this report claimed Staff and Dagger meshes were not built — that was wrong. Reading the absence of standalone <code>.tres</code> stealth-entry / stance ability files as "no implementation" missed that the meshes live in <b>components + AL_*.gd scripts</b>, not in standalone .tres resources. The actual state: <b>SwordComboComponent</b>, <b>BowMomentumComponent</b>, <b>ShadowmeldComponent</b>, and <b>StaffElementComponent</b> are all fully shipped at PR 7/11 with widgets, R-key dispatch, and on-hit riders.</p><p>The actual diagnosis was higher-order: every existing mesh produces <b>"modify a hit"</b> shape (combo += 1 on landed hit, Momentum += 1, element rider on outcome, ambush ×2 next hit). None produced a persistent map-zone, channel, mark+payoff, or positional-setup shape. <b>v1 fills exactly those gaps</b> — see the new shape families above (Ground-zone, Channel, Mark + payoff) that the v1 expansion populates. Each weapon now has ≥1 ability in each category instead of the old "all cooldown buttons" distribution.</p></div>
 <h2 class="weap">Sword</h2>
 <h3>Level 1 <span class="meta">· STR 4 / DEX 4 · WEAPONATTACK 9 · mastery 0 · crit 5% · pool 0</span></h3>
 <table><thead><tr><th>Ability</th><th>dmg%</th><th>hits</th><th>tgts</th><th>CD</th><th>hit (min–max)</th><th>eff/hit</th><th>per cast</th><th>DPS (1T)</th><th>DPS (AoE)</th><th>mana</th><th>dmg/mana</th><th>note</th></tr></thead><tbody>

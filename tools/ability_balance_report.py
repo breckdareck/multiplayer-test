@@ -177,13 +177,18 @@ ROSTER = {
     # Combo MESH (sword's resource gauge — fully wired)
     ("Steel Flurry",         "active",  "combo-builder",              "2 thrusts on 2 enemies; each hit builds 1 combo point (cap 3)."),
     ("Vault Strike",         "active",  "combo-builder + gap-closer", "Dash forward, strike up to 2 enemies; +2 combo per enemy hit."),
+    ("Charge!",              "active",  "combo-builder (line-dash)",  "v1: line-dash 250px in facing direction; +1 combo per enemy pierced."),
     ("Crescent Cleave",      "active",  "combo-spender (AoE)",        "Consumes all combo to amplify AoE dmg +100%/point (max +300%)."),
     ("Sundering Blow",       "active",  "combo-spender (ST)",         "Consumes all combo to amplify single-target +200%/point (max +600%)."),
+    ("Earthsplitter",        "active",  "combo-spender + ground-zone","v1: heavy slam, consumes all combo, 4s tremor zone +75%/pt amp."),
+    ("Vanguard's Onslaught", "active",  "channel + pierce",           "v1: ~2s channel wind-up, release pierces a line; +1 combo/pierce."),
     # Other actives
     ("Hemorrhage",           "active",  "dot-applier (bleed)",        "Cuts deeply + stacks Bleed (max 3, 20% WATK/s for 6s)."),
     ("Iron Riposte",         "active",  "self-buff (reflect)",        "Reflects a % of damage taken back to attackers for buff duration."),
     ("Bulwark Stance",       "active",  "self-buff (defense)",        "+250 Defense; drains 2 MP/s, auto-cancels at 0 MP."),
-    ("Vow of the Vanguard",  "active",  "self-buff (all stats)",      "+X% all stats for buff duration."),
+    ("Vow of the Vanguard",  "active",  "party-buff (combo-scaled)",  "v1 AUGMENT: party +all stats; potency/duration scale with combo consumed."),
+    ("Banner of the Vanguard","active", "defensive party-zone",       "v1: 8s zone at feet; allies inside gain +Defense + HP regen tick."),
+    ("Sentinel's Mark",      "active",  "mark + payoff (combo-refund)","v1: tag enemy 8s; sword hits +30%, 25% chance to refund 1 combo."),
     # Passives — pure stats
     ("Battle-Hardened",      "passive", "stat (Defense)",             "+Defense, permanent."),
     ("Hardened Frame",       "passive", "stat (Max HP %)",            "+Max HP%, permanent."),
@@ -192,17 +197,22 @@ ROSTER = {
     ("Aggression",           "passive", "conditional (>90% HP)",      "+30% dmg to enemies above 90% HP."),
     ("Last Stand",           "passive", "conditional (<35% HP)",      "+35% dmg while below 35% HP."),
     ("Bloodthirst",          "passive", "conditional (on kill)",      "Restore X% of Max HP on kill."),
+    ("Vanguard's Resolve",   "passive", "conditional (combo defense)","v1: -8/-12/-16% incoming damage at 1/2/3 combo. First sword gauge-engaging passive."),
 ],
 "Bow": [
     # Momentum MESH (bow's resource gauge — fully wired)
     ("Snap Shot",            "active",  "momentum-builder (basic)",   "Basic attack; builds Momentum."),
     ("Hailstorm",            "active",  "momentum-builder (AoE)",     "3 arrows on 3 enemies; +2 Momentum/cast."),
     ("Skyfall",              "active",  "momentum-builder (AoE)",     "Arrow rain on up to 6 enemies; +2 Momentum/cast."),
+    ("Sky Volley",           "active",  "momentum-builder + ground-zone","v1: channel + arrow-rain zone 3s; +1 Momentum/sec held."),
     ("Snipe",                "active",  "momentum-spender (ST)",      "Single devastating shot; +12% dmg per Momentum stack."),
+    ("Sundering Arrow",      "active",  "momentum-spender (pierce)",  "v1: 2nd spender; consumes Momentum, pierces line of enemies."),
     # Other actives
     ("Split Shot",           "active",  "cooldown-damage",            "2 arrows on 1 enemy."),
     ("Barbed Shot",          "active",  "dot-applier (bleed)",        "Stacking Bleed (max 3, 20% WATK/s for 6s)."),
     ("Disengage",            "active",  "kite-escape",                "Hop back + i-frames; shoots on the way out."),
+    ("Caltrops",             "active",  "ground-zone (fire-forget)",  "v1: 5s zone at feet; 30% slow + 8% WATK/s tick. Utility setup."),
+    ("Mark of the Hunt",     "active",  "mark + payoff (auto-crit)",  "v1: tag enemy 8s; next momentum-spender vs marked = auto-crit."),
     ("Steady Aim",           "active",  "self-buff (offensive)",      "+weapon atk, +crit chance for buff duration."),
     ("Eagle Eye",            "active",  "party-buff",                 "+crit chance/dmg to whole party for buff duration."),
     # Passives — pure stats
@@ -213,15 +223,20 @@ ROSTER = {
     # Passives — conditional %
     ("Execution",            "passive", "conditional (<30% HP)",      "+45% dmg vs enemies below 30% HP."),
     ("Tailwind",             "passive", "conditional (full Momentum)","+30% dmg at full Momentum — engages the gauge."),
+    ("Wind Rider",           "passive", "conditional (momentum speed)","v1: -2.5% per Momentum stack to basic-attack delay (max -25% @ 10 stacks)."),
 ],
 "Dagger": [
-    # Actives — no resource gauge wired
+    # Shadowmeld MESH (dagger's resource gauge — fully wired via ShadowmeldComponent)
     ("Twin Fang",            "active",  "cooldown-damage (basic)",    "Quick 2-hit on 1 enemy; low CD spammable."),
     ("Fan of Knives",        "active",  "cooldown-damage (AoE)",      "7 throwing blades on 3 enemies."),
-    ("Envenom",              "active",  "dot-applier (poison)",       "Stacking Poison (max 3) — feeds Toxicology synergy."),
-    ("Cripple",              "active",  "utility-debuff",             "-def/atk to one enemy."),
-    ("Shadowstep",           "active",  "gap-closer",                 "Blink + strike + brief i-frames."),
-    ("Eviscerate",           "active",  "ST burst (execute?)",        "Heavy single-target finisher. Modeled as 'stealth = execute <35% HP' but the .tres has no stealth gate."),
+    ("Envenom",              "active",  "dot-applier (poison) [stealth: 2 stacks]","Stacking Poison (max 3) → feeds Toxicology. v1: 2 stacks/hit in stealth."),
+    ("Vendetta",             "active",  "poison-spender",             "v1: consumes ALL Envenom stacks for burst (60% WATK/stack)."),
+    ("Cripple",              "active",  "utility-debuff [stealth: ×2]","-def/atk debuff. v1: ×2 duration when cast from stealth."),
+    ("Shadowstep",           "active",  "gap-closer [stealth: 0 MP + ½ CD]","Blink+strike+i-frames. v1: free + half-CD when cast from stealth."),
+    ("Eviscerate",           "active",  "ST burst (stealth: execute)","Heavy finisher. From stealth: +100% WATK bonus vs <35% HP target (execute)."),
+    ("Backstab",             "active",  "positional bonus",           "v1: +50% WATK on a hit from behind (enemy facing away)."),
+    ("Death Mark",           "active",  "mark + payoff (crit)",       "v1: tag enemy 8s; dagger hits +25% crit chance vs marked."),
+    ("Smoke Bomb",           "active",  "ground-zone (defensive)",    "v1: 4s smoke cloud at feet; enemies inside lose targeting on you."),
     ("Killing Edge",         "active",  "self-buff (offensive)",      "+crit chance/dmg for a short window."),
     ("Bloodlust",            "active",  "party-buff",                 "+crit chance/dmg to whole party for buff duration."),
     ("Shadow Partner",       "active",  "summon (echo)",              "Shadow clone mimics attacks at X% dmg for buff duration."),
@@ -231,16 +246,22 @@ ROSTER = {
     ("Evasion",              "passive", "stat (Evasion %)",           "+Evasion%, permanent."),
     # Passives — conditional %
     ("Composure",            "passive", "conditional (>80% HP)",      "+25% dmg above 80% HP."),
-    ("Opportunist",          "passive", "conditional (stealth)",      "+35% dmg in stealth — but NO ability enters stealth."),
+    ("Opportunist",          "passive", "conditional (stealth)",      "+35% dmg in stealth (Shadowmeld toggle or Vanish buff)."),
     ("Toxicology",           "passive", "conditional (synergy)",      "+30% dmg vs Poisoned enemies (consumes Envenom mark)."),
+    ("Predator's Patience",  "passive", "conditional (between-stealths)","v1: ambush hit +3% per sec out of stealth (max +30% @ 10s). Counters kite-stealth-spam."),
 ],
 "Staff": [
-    # Actives — no resource gauge wired
-    ("Arcane Bolt",          "active",  "cooldown-damage (basic)",    "Spammable single-target magic; low CD floor."),
-    ("Arcane Lance",         "active",  "cooldown-damage (channel)",  "Channel — multi-pulse line across enemies."),
-    ("Glacial Spike",        "active",  "cooldown-damage",            "Heavy ice strike. Notes claim 'Ice stance = freeze' — NO stance state on disk."),
-    ("Pyre Burst",           "active",  "cooldown-damage (AoE)",      "Fireball AoE. Notes claim 'Fire stance = burn splash' — NO stance state on disk."),
-    ("Immolate",             "active",  "dot-applier (burn)",         "Stacking Burn (max 3, 18% MATK/s for 6s)."),
+    # Element Stance MESH (staff's resource gauge — fully wired via StaffElementComponent)
+    ("Arcane Bolt",          "active",  "cooldown-damage (basic)",    "Spammable single-target magic; low CD floor. Inherits stance rider."),
+    ("Arcane Lance",         "active",  "channel + chain (lightning)","Multi-pulse beam. Lightning stance: each pulse fires own chain rider."),
+    ("Glacial Spike",        "active",  "ST damage + freeze (ice)",   "Heavy ice strike. Ice stance: target frozen 1.5s (hard CC)."),
+    ("Pyre Burst",           "active",  "AoE + ground-pool (fire)",   "Fireball AoE. Fire stance: 3s fire pool at impact (10% MATK/s)."),
+    ("Immolate",             "active",  "dot-applier + spread (fire)","Stacking Burn. Fire stance: 2 stacks/cast + splash to nearby per tick."),
+    ("Frost Patch",          "active",  "ground-zone (ice)",          "v1: 4s zone; 50% chill + 8% MATK/s tick. Pairs with Glacial Spike freeze."),
+    ("Stormcall",            "active",  "channel + ground-zone (lightning)","v1: sustained Lightning zone; 11% MATK/0.5s tick × 3s."),
+    ("Spellweave",           "active",  "channel + stance-augment",   "v1: channel up to 2s; release amplified stance signature (pool/freeze-area/chain-6)."),
+    ("Mana Surge",           "active",  "mark + payoff (MP-refund)",  "v1: mark enemy 8s; next spell vs marked +50% dmg + 50% MP refund."),
+    ("Arcane Familiar",      "active",  "summon (auto-bolt)",         "v1: 12s wisp auto-fires Arcane Bolt at nearby enemies; 22% MATK/shot."),
     ("Aether Ward",          "active",  "utility-defensive (shield)", "MP-drains-to-absorb-HP shield until MP runs out."),
     ("Phase Step",           "active",  "gap-closer / escape",        "Blink in facing direction (or up/down); brief i-frames."),
     ("Communion",            "active",  "party-buff",                 "+MP regen, +Magic Attack to whole party for buff duration."),
@@ -252,40 +273,69 @@ ROSTER = {
     # Passives — conditional %
     ("Killing Spree",        "passive", "conditional (after kill 4s)","+30% dmg for 4s after a kill."),
     ("Overload",             "passive", "conditional (>50% MP)",      "+25% dmg above 50% MP."),
+    ("Elemental Affinity",   "passive", "conditional (stance-matched)","v1: +12% dmg to spells whose element matches current stance."),
 ],
 }
 
 # Grouping of shapes into families, for the cross-weapon distribution view.
+# Updated 2026-05-31 v1 — adds ground-zone / channel / mark-payoff / positional
+# families that didn't exist in the earlier roster but are the new shape
+# categories the v1 expansion fills.
 SHAPE_FAMILIES = [
     ("Pure damage button (cooldown-gated)", [
         "cooldown-damage", "cooldown-damage (basic)", "cooldown-damage (AoE)", "cooldown-damage (channel)",
     ]),
     ("Resource mesh — BUILDER", [
-        "combo-builder", "combo-builder + gap-closer",
-        "momentum-builder (basic)", "momentum-builder (AoE)",
+        "combo-builder", "combo-builder + gap-closer", "combo-builder (line-dash)",
+        "momentum-builder (basic)", "momentum-builder (AoE)", "momentum-builder + ground-zone",
     ]),
     ("Resource mesh — SPENDER", [
-        "combo-spender (AoE)", "combo-spender (ST)", "momentum-spender (ST)",
+        "combo-spender (AoE)", "combo-spender (ST)", "combo-spender + ground-zone",
+        "momentum-spender (ST)", "momentum-spender (pierce)",
+        "poison-spender",
     ]),
     ("DoT applier (sets a mark)", [
         "dot-applier (bleed)", "dot-applier (poison)", "dot-applier (burn)",
+        "dot-applier (poison) [stealth: 2 stacks]", "dot-applier + spread (fire)",
     ]),
     ("Mobility / position", [
         "gap-closer", "gap-closer / escape", "kite-escape", "combo-builder + gap-closer",
+        "gap-closer [stealth: 0 MP + ½ CD]", "positional bonus",
     ]),
     ("Self-buff (offensive/defensive)", [
         "self-buff (reflect)", "self-buff (defense)", "self-buff (all stats)",
         "self-buff (offensive)",
     ]),
     ("Party-buff / summon / shield / debuff", [
-        "party-buff", "summon (echo)", "utility-defensive (shield)", "utility-debuff",
+        "party-buff", "summon (echo)", "summon (auto-bolt)",
+        "utility-defensive (shield)", "utility-debuff", "utility-debuff [stealth: ×2]",
+        "party-buff (combo-scaled)",
+    ]),
+    ("Ground-zone (persistent area) [NEW v1]", [
+        "ground-zone (fire-forget)", "ground-zone (defensive)", "ground-zone (ice)",
+        "defensive party-zone",
+        "AoE + ground-pool (fire)",
+        "channel + ground-zone (lightning)",
+    ]),
+    ("Channel / build-up [NEW v1]", [
+        "channel + pierce", "channel + stance-augment",
+        "channel + chain (lightning)",
+    ]),
+    ("Mark + payoff [NEW v1]", [
+        "mark + payoff (combo-refund)", "mark + payoff (auto-crit)",
+        "mark + payoff (crit)", "mark + payoff (MP-refund)",
+    ]),
+    ("Stance-matched signature (staff transformations)", [
+        "ST damage + freeze (ice)",
     ]),
     ("Conditional damage (execute / opener / synergy)", [
-        "ST burst (execute?)",
+        "ST burst (execute?)", "ST burst (stealth: execute)",
         "conditional (>90% HP)", "conditional (<35% HP)", "conditional (on kill)",
         "conditional (<30% HP)", "conditional (full Momentum)", "conditional (>80% HP)",
         "conditional (stealth)", "conditional (synergy)",
         "conditional (after kill 4s)", "conditional (>50% MP)",
+        "conditional (combo defense)", "conditional (momentum speed)",
+        "conditional (between-stealths)", "conditional (stance-matched)",
     ]),
     ("Pure stat passive", [
         "stat (Defense)", "stat (Max HP %)", "stat (HP regen)",
@@ -295,28 +345,32 @@ SHAPE_FAMILIES = [
     ]),
 ]
 
-# Per-weapon resource/gauge state: designed (per the class-widget convention) vs built.
+# Per-weapon resource/gauge state — CORRECTED 2026-05-31 after reading the
+# actual component sources (the original "NOT BUILT" diagnoses for Staff and
+# Dagger were wrong — I read absence of standalone .tres entry abilities as
+# absence of implementation, but the meshes live in components + AL_*.gd
+# scripts, not in standalone .tres files). ALL FOUR gauges are fully wired.
 GAUGES = {
     "Sword":  {"gauge": "Combo (max 3)",
                "built": True,
-               "builders": ["Steel Flurry", "Vault Strike"],
-               "spenders": ["Crescent Cleave", "Sundering Blow"],
-               "diagnosis": "MESH WIRED. Two builders feed two spenders (1 AoE / 1 ST). Distinct identity in play."},
+               "builders": ["Steel Flurry", "Vault Strike", "Charge! (v1)"],
+               "spenders": ["Crescent Cleave", "Sundering Blow", "Earthsplitter (v1)", "Vanguard's Onslaught (v1)", "Vow of the Vanguard (v1 augment)"],
+               "diagnosis": "MESH WIRED in SwordComboComponent. v1 expands the builder/spender count and weaves Vow + Vanguard's Resolve (passive damage reduction) into the gauge so it has both offensive and defensive uses."},
     "Bow":    {"gauge": "Momentum",
                "built": True,
-               "builders": ["Snap Shot", "Hailstorm", "Skyfall"],
-               "spenders": ["Snipe"],
-               "diagnosis": "MESH WIRED. Three builders, one big spender, plus Tailwind passive engages the gauge. Identity present."},
-    "Dagger": {"gauge": "Stealth",
-               "built": False,
-               "builders": [],
-               "spenders": ["Eviscerate (?)", "Opportunist (passive)"],
-               "diagnosis": "HALF-BUILT. Opportunist passive grants +35% dmg in stealth; Eviscerate is modeled as a stealth execute. But NO ability enters stealth — the gauge has payoffs with no setup. Dagger plays as cooldown-button + DoT mark + crit-stack passives, no signature 'in stealth' moment."},
+               "builders": ["Snap Shot", "Hailstorm", "Skyfall", "Sky Volley (v1)"],
+               "spenders": ["Snipe", "Sundering Arrow (v1)"],
+               "diagnosis": "MESH WIRED in BowMomentumComponent. v1 adds a 2nd spender (Sundering Arrow pierce) so the rotation is no longer mono-Snipe, plus Wind Rider passive engages stacks for fire-rate ramp distinct from Tailwind's at-cap damage."},
+    "Dagger": {"gauge": "Shadowmeld (toggle)",
+               "built": True,
+               "builders": ["WeaponSignature (R) toggle"],
+               "spenders": ["First dagger hit (×2 ambush)", "Eviscerate (stealth execute)", "Opportunist (passive)"],
+               "diagnosis": "MESH WIRED in ShadowmeldComponent (PR 7/11). v1 medium fix: Envenom (+1 stack in stealth), Cripple (×2 duration), Shadowstep (free + ½ CD), Eviscerate execute already there. Predator's Patience passive ramps the ambush damage with time out of stealth — fixes kite-stealth-spam failure mode."},
     "Staff":  {"gauge": "Elemental Stance (Fire / Ice / Lightning)",
-               "built": False,
-               "builders": [],
-               "spenders": [],
-               "diagnosis": "NOT BUILT. No stance ability, no stance state. Glacial Spike / Pyre Burst / Arcane Lance are modeled with 'Ice freeze / Fire burn splash / Lightning chain' notes but the .tres files have none of it. ALL four damage actives behave the same: cast → hit → damage on cooldown. Worst shape-samey offender."},
+               "built": True,
+               "builders": ["WeaponSignature (R) cycles forward"],
+               "spenders": ["Glacial Spike (Ice freeze)", "Pyre Burst (Fire pool)", "Immolate (Fire 2-stack + splash)", "Arcane Lance (Lightning per-pulse chain)", "Spellweave (v1 amplified per stance)"],
+               "diagnosis": "MESH WIRED in StaffElementComponent (PR 7) — Fire/Ice/Lightning cycle + on-hit rider (burn / slow / chain) applied per staff hit. v1 (c) transformations layer on signature spells: Glacial freeze, Pyre pool, Immolate splash, Arcane Lance per-pulse chain. Elemental Affinity passive +12% to stance-matched spells."},
 }
 
 
@@ -593,17 +647,19 @@ def render():
             '</tr>')
     parts.append('</tbody></table>')
 
-    parts.append('<div class="find bad"><h4>Mesh finding · 2 of 4 weapons have no resource shape — everything is a cooldown button</h4>'
-        '<p>Sword (Combo) and Bow (Momentum) have a full <b>builder → spender</b> mesh and a clear '
-        'signature moment ("burn 3 combo for the AoE finisher" / "spend Momentum on a Snipe"). '
-        '<b>Dagger</b> has Stealth payoffs (Opportunist passive +35% dmg, Eviscerate execute) but '
-        'NO ability enters stealth — the gauge is a payoff with no setup. <b>Staff</b> has no '
-        'stance / mode / resource at all: Arcane Bolt, Arcane Lance, Glacial Spike, Pyre Burst all '
-        'behave identically (cast → damage on cooldown). The "+Ice freeze / Fire splash / Lightning '
-        'chain" tags in the existing model\'s notes describe an unbuilt design, not the current '
-        '.tres state. <b>This is where the shape-samey complaint actually lives.</b> Fix Dagger '
-        'and Staff\'s resource mesh BEFORE adding new abilities — or those new abilities will '
-        'inherit the same flatness.</p></div>')
+    parts.append('<div class="find good"><h4>Mesh finding (CORRECTED 2026-05-31) · All 4 gauges are fully wired</h4>'
+        '<p>An earlier draft of this report claimed Staff and Dagger meshes were not built — that '
+        'was wrong. Reading the absence of standalone <code>.tres</code> stealth-entry / stance ability files '
+        'as "no implementation" missed that the meshes live in <b>components + AL_*.gd scripts</b>, not in '
+        'standalone .tres resources. The actual state: <b>SwordComboComponent</b>, '
+        '<b>BowMomentumComponent</b>, <b>ShadowmeldComponent</b>, and <b>StaffElementComponent</b> are all '
+        'fully shipped at PR 7/11 with widgets, R-key dispatch, and on-hit riders.</p>'
+        '<p>The actual diagnosis was higher-order: every existing mesh produces <b>"modify a hit"</b> '
+        'shape (combo += 1 on landed hit, Momentum += 1, element rider on outcome, ambush ×2 next hit). '
+        'None produced a persistent map-zone, channel, mark+payoff, or positional-setup shape. '
+        '<b>v1 fills exactly those gaps</b> — see the new shape families above (Ground-zone, Channel, '
+        'Mark + payoff) that the v1 expansion populates. Each weapon now has ≥1 ability in each '
+        'category instead of the old "all cooldown buttons" distribution.</p></div>')
 
     # Per-weapon, per-level tables (default archetype headline) + pure/default spread
     for disc in DISCIPLINES:
