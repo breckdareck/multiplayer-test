@@ -187,7 +187,10 @@ func create_dropped_item(item_data: ItemData, amount: int, world_position: Vecto
 		var players_on_map = MapManager.get_real_players_on_map(map_name)
 
 		#print("GlobalDropHandler: Spawning item %s on map %s for players: %s" % [item_data.item_id, map_name, players_on_map])
-		MapManager.broadcast_to_map(map_name, func(peer_id): spawn_item_client.rpc_id(peer_id, item_data.item_id, amount, world_position, eligible_player_ids, item_unique_name, scene_to_add_to.name), true, true)
+		for peer_id in players_on_map:
+			if peer_id != 1: # Server already has it
+				#print("GlobalDropHandler: Sending spawn_item_client RPC to peer %d" % peer_id)
+				spawn_item_client.rpc_id(peer_id, item_data.item_id, amount, world_position, eligible_player_ids, item_unique_name, scene_to_add_to.name)
 
 				# Update synchronizer visibility for this peer
 				if synchronizer:
