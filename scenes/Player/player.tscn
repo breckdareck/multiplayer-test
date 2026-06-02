@@ -1,4 +1,4 @@
-[gd_scene load_steps=95 format=3 uid="uid://bdtdpx0d05sy3"]
+[gd_scene load_steps=96 format=3 uid="uid://bdtdpx0d05sy3"]
 
 [ext_resource type="Script" uid="uid://yibpus3whwuj" path="res://scripts/Player/multiplayer_controller_v2.gd" id="1_an8q1"]
 [ext_resource type="Script" uid="uid://cy1j38lpy671e" path="res://scripts/Player/multiplayer_input.gd" id="2_hxkm2"]
@@ -20,6 +20,7 @@
 [ext_resource type="Script" uid="uid://bgernc5gv8d17" path="res://scripts/Components/shadowmeld.gd" id="14_shdmld"]
 [ext_resource type="Script" uid="uid://bsf8l5fgv8d17" path="res://scripts/Components/staff_element.gd" id="14_stfelem"]
 [ext_resource type="Script" uid="uid://bhkic0r61c4yf" path="res://scripts/Components/weapon_mastery.gd" id="14_wmast"]
+[ext_resource type="Script" uid="uid://srjlm7co8m0l" path="res://scripts/Components/appearance.gd" id="14_apprnc"]
 [ext_resource type="Texture2D" uid="uid://b41h3nwnk7ghm" path="res://assets/UI/Left_button.png" id="15_32uah"]
 [ext_resource type="Script" uid="uid://c8fllkah6qfdg" path="res://scripts/Components/inventory.gd" id="15_cg2hl"]
 [ext_resource type="Texture2D" uid="uid://7wc85wst4rwd" path="res://assets/UI/Right_button.png" id="16_ihqbe"]
@@ -96,7 +97,7 @@ properties/0/replication_mode = 2
 properties/1/path = NodePath("Health:current_health")
 properties/1/spawn = true
 properties/1/replication_mode = 2
-properties/2/path = NodePath("Class:current_class")
+properties/2/path = NodePath("WeaponMastery:primary_discipline")
 properties/2/spawn = true
 properties/2/replication_mode = 2
 properties/3/path = NodePath("Leveling:level")
@@ -433,7 +434,7 @@ size = Vector2(21, 21)
 [sub_resource type="CircleShape2D" id="CircleShape2D_h0wtf"]
 radius = 4.0
 
-[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "mana_component", "combat_component", "level_component", "stats_component", "weapon_mastery_component", "sword_combo_component", "bow_momentum_component", "staff_element_component", "shadowmeld_component", "player_inventory", "inventory_component", "equipment_component", "ability_component", "buff_component", "player_HUD", "player_name_label", "stats_window", "quest_window") groups=["Players", "networked_entities"]]
+[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "mana_component", "combat_component", "level_component", "stats_component", "weapon_mastery_component", "sword_combo_component", "bow_momentum_component", "staff_element_component", "shadowmeld_component", "appearance_component", "player_inventory", "inventory_component", "equipment_component", "ability_component", "buff_component", "player_HUD", "player_name_label", "stats_window", "quest_window") groups=["Players", "networked_entities"]]
 collision_layer = 2
 collision_mask = 5
 script = ExtResource("1_an8q1")
@@ -447,6 +448,7 @@ sword_combo_component = NodePath("Components/SwordCombo")
 bow_momentum_component = NodePath("Components/BowMomentum")
 staff_element_component = NodePath("Components/StaffElement")
 shadowmeld_component = NodePath("Components/Shadowmeld")
+appearance_component = NodePath("Components/Appearance")
 player_inventory = NodePath("Components/PlayerInventory")
 inventory_component = NodePath("Components/PlayerInventory/InventoryComponent")
 equipment_component = NodePath("Components/Equipment")
@@ -519,6 +521,9 @@ script = ExtResource("14_stfelem")
 
 [node name="Shadowmeld" type="Node" parent="Components"]
 script = ExtResource("14_shdmld")
+
+[node name="Appearance" type="Node" parent="Components"]
+script = ExtResource("14_apprnc")
 
 [node name="Stats" type="Node" parent="Components"]
 script = ExtResource("4_cg2hl")

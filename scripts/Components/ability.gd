@@ -701,7 +701,7 @@ func _can_afford_ability(ability_id: String, level_stats: AbilityLevelData) -> b
 
 ## Returns the `Constants.ClassType` discipline of the ACTIVE weapon (PR 3),
 ## or -1 if there's no tier-1 weapon equipped in the active slot. Used by the
-## mastery-XP-on-cast grant. Falls back to the character's current_class when
+## mastery-XP-on-cast grant. Falls back to the character's primary_discipline when
 ## the active slot is empty (a Beginner casting their starter ability with no
 ## weapon still credits the chosen discipline if it's tier-1).
 ## Mirrors CombatComponent._active_weapon_discipline — kept duplicated

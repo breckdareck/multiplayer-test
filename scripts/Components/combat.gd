@@ -930,7 +930,7 @@ func calculate_attack_damage() -> int:
 ## or -1 if there's no weapon equipped in the active slot (or the equipped
 ## weapon is not one of the four tier-1 disciplines). Used by the mastery-XP
 ## grant path so kills only feed mastery to weapons the system actually
-## tracks. Falls back to the character's `current_class` when the active slot
+## tracks. Falls back to the character's `primary_discipline` when the active slot
 ## is empty but the character's discipline is a tier-1 weapon, so a
 ## bare-fisted kill still credits the player's chosen discipline. Routes
 ## through `active_weapon_data` instead of the raw `weapon_slot.item` so the
