@@ -3,7 +3,6 @@
 [ext_resource type="Texture2D" uid="uid://ky00whwbxbmx" path="res://assets/sprites/Abilities/power_guard.png" id="1_exw1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_exw1"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_exw1"]
-[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="ASF_dmgpct"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_exw1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_exw1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
@@ -11,6 +10,7 @@
 [ext_resource type="Resource" uid="uid://gusvtrpsbsp8" path="res://resources/Abilities/Dagger/Upgrades/U_EXW_Savage.tres" id="10_exw2"]
 [ext_resource type="Resource" uid="uid://cxcnj1hmf3tpa" path="res://resources/Abilities/Dagger/Upgrades/U_EXW_Ruthless.tres" id="11_exw3"]
 [ext_resource type="Script" uid="uid://dcqlqyq8fkmip" path="res://scripts/Abilities/AL_Toxicology.gd" id="12_tx"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="ASF_dmgpct"]
 
 [sub_resource type="Resource" id="Resource_exw_behav"]
 resource_local_to_scene = true

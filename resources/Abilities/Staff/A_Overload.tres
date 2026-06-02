@@ -3,7 +3,6 @@
 [ext_resource type="Texture2D" uid="uid://cc18m1wu0h2vl" path="res://assets/sprites/Abilities/sharp_eyes.png" id="1_km1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_km1"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_km1"]
-[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="ASF_dmgpct"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_km1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_km1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
@@ -11,6 +10,7 @@
 [ext_resource type="Resource" uid="uid://c7ej7bwnxoepp" path="res://resources/Abilities/Staff/Upgrades/U_KM_Incisive.tres" id="10_in"]
 [ext_resource type="Resource" uid="uid://cm0p51eh0bywk" path="res://resources/Abilities/Staff/Upgrades/U_KM_Prescient.tres" id="11_pr"]
 [ext_resource type="Script" uid="uid://loverload01x" path="res://scripts/Abilities/AL_Overload.gd" id="12_ov"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="ASF_dmgpct"]
 
 [sub_resource type="Resource" id="Resource_km_behav"]
 resource_local_to_scene = true

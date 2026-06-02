@@ -3,7 +3,6 @@
 [ext_resource type="Texture2D" uid="uid://dliub1pvja86r" path="res://assets/sprites/Abilities/disorder.webp" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_asd"]
-[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="18_asf"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_sbf"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_ad"]
 [ext_resource type="Script" uid="uid://dkyfslpcfp4x3" path="res://scripts/Abilities/AL_PredatorsPatience.gd" id="11_al"]
@@ -13,6 +12,7 @@
 [ext_resource type="Resource" uid="uid://dsl2xrkd73rms" path="res://resources/Abilities/Dagger/Upgrades/U_PRD_killer_patience.tres" id="15_upg"]
 [ext_resource type="Resource" uid="uid://cr44y4kaswlfq" path="res://resources/Abilities/Dagger/Upgrades/U_PRD_lifesteal_patience.tres" id="16_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="17_aud"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="18_asf"]
 
 [sub_resource type="Resource" id="Resource_active"]
 resource_local_to_scene = true

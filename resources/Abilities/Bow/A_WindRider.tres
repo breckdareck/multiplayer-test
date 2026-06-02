@@ -3,7 +3,6 @@
 [ext_resource type="Texture2D" uid="uid://drobx0va8sphc" path="res://assets/sprites/Abilities/strafe.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_asd"]
-[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="18_asf"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_sbf"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_ad"]
 [ext_resource type="Script" uid="uid://d2g6h8tr42pis" path="res://scripts/Abilities/AL_WindRider.gd" id="11_al"]
@@ -13,6 +12,7 @@
 [ext_resource type="Resource" uid="uid://xupnyeu8yq4a" path="res://resources/Abilities/Bow/Upgrades/U_WND_steady_wind.tres" id="15_upg"]
 [ext_resource type="Resource" uid="uid://cc6fq2mivypsb" path="res://resources/Abilities/Bow/Upgrades/U_WND_driving_wind.tres" id="16_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="17_aud"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="18_asf"]
 
 [sub_resource type="Resource" id="Resource_active"]
 resource_local_to_scene = true

@@ -96,10 +96,10 @@ func _on_preset_selected(preset_name: String):
 		status_label.add_theme_color_override("font_color", Color.YELLOW)
 		return
 	
-	# Apply the preset
+	# Apply the preset. NetworkManager.api_url is a computed getter that reads
+	# from UserConfig, so updating UserConfig is what makes the change take effect.
 	UserConfig.set_backend_api_url(preset_url)
 	api_url_input.text = preset_url
-	NetworkManager.api_url = preset_url
 	_check_backend_health()
 
 	status_label.text = "Switched to %s backend" % preset_name
@@ -120,10 +120,10 @@ func _on_apply_api_url():
 		status_label.add_theme_color_override("font_color", Color.RED)
 		return
 	
+	# NetworkManager.api_url is a computed getter that reads from UserConfig,
+	# so updating UserConfig is what makes the change take effect.
 	UserConfig.set_backend_api_url(new_url)
 	api_presets["Cloud"] = new_url  # Save as Cloud preset
-	# Reconnect NetworkManager to use new URL
-	NetworkManager.api_url = UserConfig.get_backend_api_url()
 	_check_backend_health()
 
 	status_label.text = "Backend API URL updated!"

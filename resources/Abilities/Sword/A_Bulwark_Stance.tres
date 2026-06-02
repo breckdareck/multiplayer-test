@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=21 format=3 uid="uid://ccpjinaimna60"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=22 format=3 uid="uid://ccpjinaimna60"]
 
 [ext_resource type="Texture2D" uid="uid://ky00whwbxbmx" path="res://assets/sprites/Abilities/power_guard.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://dn1vvhfka7naa" path="res://scripts/Abilities/AL_BulwarkStance.gd" id="2b_albs"]
@@ -31,14 +31,14 @@ script = ExtResource("5_asf")
 script = ExtResource("5_asf")
 base_value = 30.0
 
-[sub_resource type="Resource" id="Resource_mana"]
-script = ExtResource("5_asf")
-base_value = 15.0
-
 [sub_resource type="Resource" id="Resource_defense"]
 script = ExtResource("5_asf")
 base_value = 100.0
 per_level = 16.666667
+
+[sub_resource type="Resource" id="Resource_mana"]
+script = ExtResource("5_asf")
+base_value = 15.0
 
 [sub_resource type="Resource" id="Resource_scaling"]
 script = ExtResource("7_asd")

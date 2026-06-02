@@ -668,7 +668,7 @@ func request_feed_pet_server(pet_uuid: String, inventory_slot_index: int) -> voi
 		return
 	if not _active_pets.has(pet_uuid):
 		return  # Must be summoned to feed (MapleStory parity)
-	var inventory := player.inventory_component
+	var inventory = player.inventory_component
 	if not inventory or inventory_slot_index < 0 or inventory_slot_index >= inventory.slots_data.size():
 		return
 	var slot = inventory.slots_data[inventory_slot_index]

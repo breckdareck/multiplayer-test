@@ -3,7 +3,6 @@
 [ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_dxpa1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_dxpa2"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_dxpa1"]
-[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="ASF_dmgpct"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_dxpa1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_dxpa1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="7_aud"]
@@ -11,6 +10,7 @@
 [ext_resource type="Resource" uid="uid://b1d0rmy7y0jrs" path="res://resources/Abilities/Bow/Upgrades/U_FF_Quick.tres" id="9_qu"]
 [ext_resource type="Resource" uid="uid://1dv7wobwy1bv" path="res://resources/Abilities/Bow/Upgrades/U_FF_LightningReflexes.tres" id="10_lr"]
 [ext_resource type="Script" uid="uid://dn4m5qy0kaajf" path="res://scripts/Abilities/AL_Execution.gd" id="11_alex"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="ASF_dmgpct"]
 
 [sub_resource type="Resource" id="Resource_dxpa1"]
 resource_local_to_scene = true
