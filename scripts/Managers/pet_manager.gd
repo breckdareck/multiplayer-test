@@ -281,13 +281,10 @@ func hatch_pet_server(username: String, pet_data_id: String, default_name: Strin
 func request_summon_pet_server(pet_uuid: String) -> void:
 	if not multiplayer.is_server():
 		return
-	var caller := multiplayer.get_remote_sender_id()
-	if caller == 0:
-		caller = 1
-	var player := PlayerManager.get_player_node(caller)
-	if not is_instance_valid(player):
+	var resolved := PlayerManager.resolve_intent()
+	if resolved.is_empty():
 		return
-	var username: String = player.username
+	var username: String = resolved.username
 	if not _rosters.has(username):
 		return
 	if find_pet(username, pet_uuid).is_empty():
@@ -309,13 +306,10 @@ func request_summon_pet_server(pet_uuid: String) -> void:
 func request_unsummon_pet_server(pet_uuid: String) -> void:
 	if not multiplayer.is_server():
 		return
-	var caller := multiplayer.get_remote_sender_id()
-	if caller == 0:
-		caller = 1
-	var player := PlayerManager.get_player_node(caller)
-	if not is_instance_valid(player):
+	var resolved := PlayerManager.resolve_intent()
+	if resolved.is_empty():
 		return
-	var username: String = player.username
+	var username: String = resolved.username
 	if not _rosters.has(username):
 		return
 	if find_pet(username, pet_uuid).is_empty():
@@ -331,13 +325,11 @@ func request_unsummon_pet_server(pet_uuid: String) -> void:
 func request_release_pet_server(pet_uuid: String) -> void:
 	if not multiplayer.is_server():
 		return
-	var caller := multiplayer.get_remote_sender_id()
-	if caller == 0:
-		caller = 1
-	var player := PlayerManager.get_player_node(caller)
-	if not is_instance_valid(player):
+	var resolved := PlayerManager.resolve_intent()
+	if resolved.is_empty():
 		return
-	var username: String = player.username
+	var player = resolved.node
+	var username: String = resolved.username
 	if not _rosters.has(username):
 		return
 	var record := find_pet(username, pet_uuid)
@@ -391,13 +383,10 @@ func _return_one_pet_slot(slot_data: Dictionary, inv) -> void:
 func request_rename_pet_server(pet_uuid: String, new_name: String) -> void:
 	if not multiplayer.is_server():
 		return
-	var caller := multiplayer.get_remote_sender_id()
-	if caller == 0:
-		caller = 1
-	var player := PlayerManager.get_player_node(caller)
-	if not is_instance_valid(player):
+	var resolved := PlayerManager.resolve_intent()
+	if resolved.is_empty():
 		return
-	var username: String = player.username
+	var username: String = resolved.username
 	if not _rosters.has(username):
 		return
 	var record := find_pet(username, pet_uuid)
@@ -667,13 +656,11 @@ func _pet_event_visual_rpc(pet_uuid: String, event_type: String) -> void:
 func request_feed_pet_server(pet_uuid: String, inventory_slot_index: int) -> void:
 	if not multiplayer.is_server():
 		return
-	var caller := multiplayer.get_remote_sender_id()
-	if caller == 0:
-		caller = 1
-	var player := PlayerManager.get_player_node(caller)
-	if not is_instance_valid(player):
+	var resolved := PlayerManager.resolve_intent()
+	if resolved.is_empty():
 		return
-	var username: String = player.username
+	var player = resolved.node
+	var username: String = resolved.username
 	if not _rosters.has(username):
 		return
 	var record := find_pet(username, pet_uuid)
@@ -1016,14 +1003,11 @@ func request_autopot_server(pet_uuid: String, slot_type: String) -> void:
 func request_set_autopot_threshold_server(pet_uuid: String, slot_type: String, threshold: float) -> void:
 	if not multiplayer.is_server():
 		return
-	var caller := multiplayer.get_remote_sender_id()
-	if caller == 0:
-		caller = 1
 	# Configuring thresholds doesn't require the pet to be currently summoned.
-	var player := PlayerManager.get_player_node(caller)
-	if not is_instance_valid(player):
+	var resolved := PlayerManager.resolve_intent()
+	if resolved.is_empty():
 		return
-	var owner_username: String = player.username
+	var owner_username: String = resolved.username
 	var record := find_pet(owner_username, pet_uuid)
 	if record.is_empty():
 		return
@@ -1050,12 +1034,14 @@ func request_transfer_to_pet_slot_server(pet_uuid: String, slot_key: String, sou
 	if not multiplayer.is_server():
 		print("[PetMgr.transfer_to] not server — early return")
 		return
-	var caller := multiplayer.get_remote_sender_id()
-	if caller == 0:
-		caller = 1
+	var resolved := PlayerManager.resolve_intent()
+	if resolved.is_empty():
+		print("[PetMgr.transfer_to] REJECT: player or inventory_component invalid")
+		return
+	var caller: int = resolved.peer_id
+	var player = resolved.node
 	print("[PetMgr.transfer_to] caller=%d" % caller)
-	var player := PlayerManager.get_player_node(caller)
-	if not is_instance_valid(player) or not is_instance_valid(player.inventory_component):
+	if not is_instance_valid(player.inventory_component):
 		print("[PetMgr.transfer_to] REJECT: player or inventory_component invalid")
 		return
 	var owner_username: String = player.username
@@ -1123,12 +1109,12 @@ func request_transfer_to_pet_slot_server(pet_uuid: String, slot_key: String, sou
 func request_transfer_from_pet_slot_server(pet_uuid: String, slot_key: String) -> void:
 	if not multiplayer.is_server():
 		return
-	var caller := multiplayer.get_remote_sender_id()
-	if caller == 0:
-		caller = 1
 	# Unequipping a pet item doesn't require the pet to be currently summoned.
-	var player := PlayerManager.get_player_node(caller)
-	if not is_instance_valid(player) or not is_instance_valid(player.inventory_component):
+	var resolved := PlayerManager.resolve_intent()
+	if resolved.is_empty():
+		return
+	var player = resolved.node
+	if not is_instance_valid(player.inventory_component):
 		return
 	var owner_username: String = player.username
 	var record := find_pet(owner_username, pet_uuid)
@@ -1266,13 +1252,11 @@ func _tick_autobuff() -> void:
 func request_set_active_buff_ability_server(pet_uuid: String, ability_id: String) -> void:
 	if not multiplayer.is_server():
 		return
-	var caller := multiplayer.get_remote_sender_id()
-	if caller == 0:
-		caller = 1
 	# Setting the active buff ability doesn't require the pet to be currently summoned.
-	var player := PlayerManager.get_player_node(caller)
-	if not is_instance_valid(player):
+	var resolved := PlayerManager.resolve_intent()
+	if resolved.is_empty():
 		return
+	var player = resolved.node
 	var owner_username: String = player.username
 	var record := find_pet(owner_username, pet_uuid)
 	if record.is_empty():

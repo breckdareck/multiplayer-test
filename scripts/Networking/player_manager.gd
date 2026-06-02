@@ -641,6 +641,57 @@ func get_player_id_from_name(username: String) -> int:
 	return -1
 
 
+## Resolves the calling peer of a client-intent RPC to its player node + name.
+## MUST be called from inside the RPC handler body — it reads
+## `multiplayer.get_remote_sender_id()`, which only returns the real sender
+## while the RPC stack is live (same constraint as TradeManager._sender()).
+##
+## Folds the copy-pasted server-intent prelude into one place: the sender-id
+## read, the host `0 → 1` normalization (a host call has sender id 0 and is
+## the server, peer 1), the player-node lookup, the validity guard, and the
+## username read. Returns an empty Dictionary `{}` when the caller has no
+## valid player node, so callers guard with `if resolved.is_empty(): return`.
+## On success returns `{ "peer_id": int, "node": MultiplayerPlayerV2,
+## "username": String }`.
+func resolve_intent() -> Dictionary:
+	var caller := multiplayer.get_remote_sender_id()
+	if caller == 0:
+		caller = 1
+	var node := get_player_node(caller)
+	if not is_instance_valid(node):
+		return {}
+	return {
+		"peer_id": caller,
+		"node": node,
+		"username": node.username,
+	}
+
+
+## Resolves a name (case-insensitive for bots, exact for players) to a peer id,
+## consulting BotManager for bots. Returns -1 if no player OR bot matches.
+## Used by party/trade name-based intents that accept either a player or a bot.
+func resolve_by_name(name: String) -> int:
+	var pid := get_player_id_from_name(name)
+	if pid != -1:
+		return pid
+	# Delegate the bot name/id lookup to BotManager rather than re-scanning
+	# active_bots here. _find_bot_by_name_or_id returns 0 when not found.
+	var bot_id := BotManager._find_bot_by_name_or_id(name)
+	if bot_id != 0:
+		return bot_id
+	return -1
+
+
+## Player-ONLY name resolution (excludes bots). Returns the peer id, or -1.
+## QuestManager uses this — quests are never granted to bots. `active_players`
+## holds bots too (negative ids), so filter them out explicitly.
+func resolve_player_only(name: String) -> int:
+	var pid := get_player_id_from_name(name)
+	if pid != -1 and BotManager.is_bot(pid):
+		return -1
+	return pid
+
+
 ## Stores a player's live state, captured at map-change time, so the imminent
 ## respawn can restore it without a save-backend round-trip. Called by
 ## MapManager.request_map_change just before the old character node is freed.
