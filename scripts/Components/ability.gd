@@ -820,9 +820,7 @@ func _handle_authoritative_use(ability_id: String, ability: AbilityData, level_s
 ## may lack mid map-transition.
 func _broadcast_bot_ability_visual(ability_id: String, level: int) -> void:
 	var map_name: String = MapManager.get_player_map(owner.player_id)
-	for peer_id in MapManager.get_real_players_on_map(map_name):
-		if peer_id != 1:
-			MapManager.bot_ability_used.rpc_id(peer_id, owner.player_id, ability_id, level)
+	MapManager.broadcast_to_map(map_name, func(peer_id): MapManager.bot_ability_used.rpc_id(peer_id, owner.player_id, ability_id, level), true, true)
 
 
 ## Triggers the state machine transition and custom logic for an active ability.
@@ -1074,9 +1072,7 @@ func spawn_projectile(ability: AbilityData, level_stats: AbilityLevelData, targe
 	if current_map and current_map.is_in_group("map_base"):
 		var map_name = current_map.name.replace("Map_", "")
 		var scene_path: String = active_behavior.projectile_scene.resource_path
-		for peer_id in MapManager.get_real_players_on_map(map_name):
-			if peer_id != 1: # Server already has it
-				MapManager.spawn_projectile_visual.rpc_id(peer_id, proj_name, scene_path, spawn_pos, initial_direction, active_behavior.projectile_speed, target_path)
+		MapManager.broadcast_to_map(map_name, func(peer_id): MapManager.spawn_projectile_visual.rpc_id(peer_id, proj_name, scene_path, spawn_pos, initial_direction, active_behavior.projectile_speed, target_path), true, true)
 
 
 ## [Client] Plays an ability's cast visual without the cooldown/UI bookkeeping

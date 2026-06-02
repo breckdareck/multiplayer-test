@@ -103,7 +103,5 @@ func _server_destroy() -> void:
 		var map_node := container.get_parent()
 		if is_instance_valid(map_node) and map_node.is_in_group("map_base"):
 			var map_name: String = map_node.name.replace("Map_", "")
-			for peer_id in MapManager.get_real_players_on_map(map_name):
-				if peer_id != 1:
-					MapManager.despawn_projectile_visual.rpc_id(peer_id, name)
+			MapManager.broadcast_to_map(map_name, func(peer_id): MapManager.despawn_projectile_visual.rpc_id(peer_id, name), true, true)
 	queue_free()

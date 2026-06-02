@@ -180,9 +180,7 @@ func perform_ranged_attack(_attack_name: String, _duration: float) -> void:
 	# movement locally; the server's copy stays authoritative for any hit.
 	if current_map and current_map.is_in_group("map_base"):
 		var map_name: String = current_map.name.replace("Map_", "")
-		for peer_id in MapManager.get_real_players_on_map(map_name):
-			if peer_id != 1:
-				MapManager.spawn_projectile_visual.rpc_id(peer_id, proj_name, BASIC_ARROW_SCENE.resource_path, spawn_pos, direction, BASIC_ARROW_SPEED, NodePath(""))
+		MapManager.broadcast_to_map(map_name, func(peer_id): MapManager.spawn_projectile_visual.rpc_id(peer_id, proj_name, BASIC_ARROW_SCENE.resource_path, spawn_pos, direction, BASIC_ARROW_SPEED, NodePath("")), true, true)
 
 	get_tree().create_timer(0.1).timeout.connect(func(): current_attack_data = "")
 
