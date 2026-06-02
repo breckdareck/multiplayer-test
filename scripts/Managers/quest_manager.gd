@@ -487,7 +487,7 @@ func _complete_quest(username: String, quest_id: String) -> void:
 
 	# Grant coins via inventory
 	if quest.reward_coins > 0 and is_instance_valid(player_node.inventory_component):
-		player_node.player_inventory.monies_amount += quest.reward_coins
+		player_node.player_inventory.grant_coins(quest.reward_coins)
 
 	# Grant items. InventoryComponent.add_item takes an item id/name string and
 	# resolves + duplicates internally via ResourceManager.get_item_data.
@@ -645,12 +645,8 @@ func _save_quest_data(username: String) -> void:
 # ═══════════════════════════════════════════════════════════════════════════
 
 func _send_message(peer_id: int, text: String, color: Color) -> void:
-	_client_receive_quest_message.rpc_id(peer_id, text, color)
-
-
-@rpc("authority", "call_local", "reliable")
-func _client_receive_quest_message(text: String, color: Color) -> void:
-	ChatManager.add_system_message(text, color)
+	# Delegates to the canonical server->peer seam; quest messages land on CHAT.
+	ChatManager.notify_peer(peer_id, text, color, ChatManager.NotifySurface.CHAT)
 
 
 ## Server-triggered, client-rendered: spawn a QuestRewardPopup on the local

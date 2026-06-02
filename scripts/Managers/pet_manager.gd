@@ -1229,7 +1229,7 @@ func _tick_autobuff() -> void:
 			continue
 
 		# Validate the owner actually has this ability learned.
-		if int(owner_player.ability_component._ability_levels.get(ability_id, 0)) <= 0:
+		if owner_player.ability_component.get_ability_level(ability_id) <= 0:
 			continue
 
 		# Skip if owner already has plenty of the buff remaining (avoids wasting
@@ -1267,7 +1267,7 @@ func request_set_active_buff_ability_server(pet_uuid: String, ability_id: String
 	if not ability_id.is_empty():
 		if not is_instance_valid(player.ability_component):
 			return
-		if int(player.ability_component._ability_levels.get(ability_id, 0)) <= 0:
+		if player.ability_component.get_ability_level(ability_id) <= 0:
 			return
 		var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
 		if not ability or not ability.applies_buff:
@@ -1304,20 +1304,9 @@ func notify_book_use_failed(username: String, reason: String) -> void:
 
 
 func _show_message_to_owner(peer: int, message: String) -> void:
-	if peer == 0:
-		return
-	if peer == 1:
-		# Host has the LogManager locally.
-		LogManager.add_scrolling_log(message, Color.GOLD)
-		return
-	_log_to_client_rpc.rpc_id(peer, message)
-
-
-@rpc("authority", "call_remote", "reliable")
-func _log_to_client_rpc(message: String) -> void:
-	if multiplayer.is_server():
-		return
-	LogManager.add_scrolling_log(message, Color.GOLD)
+	# Delegates to the canonical server->peer seam; pet messages land on the
+	# scrolling LOG surface (a different UI surface than chat) in GOLD.
+	ChatManager.notify_peer(peer, message, Color.GOLD, ChatManager.NotifySurface.LOG)
 
 
 # ═══════════════════════════════════════════════════════════════════════════

@@ -173,6 +173,51 @@ func add_system_message(text: String, color: Color = Color.WHITE) -> void:
 	message_received.emit(text, color)
 
 
+## Which client-side surface a server->peer notification lands on.
+enum NotifySurface { CHAT, LOG }
+
+
+## Canonical server->one-player notification seam. Routes a single message to a
+## specific peer's CHAT (system message) or LOG (scrolling log) surface,
+## reproducing the host-local-vs-rpc_id branch and the bot-peer skip in ONE
+## place. Other managers (QuestManager, TradeManager, PetManager) delegate here
+## so the routing rules live once.
+##
+## Must be called server-side. Bots have no client, so they are skipped.
+func notify_peer(peer_id: int, text: String, color: Color = Color.WHITE, surface: NotifySurface = NotifySurface.CHAT) -> void:
+	if peer_id == 0:
+		return
+	# Bots have no client/UI — nothing to deliver to.
+	if BotManager.is_bot(peer_id):
+		return
+	if peer_id == multiplayer.get_unique_id():
+		# Host is also a client — deliver locally.
+		_notify_peer_local(text, color, surface)
+	else:
+		match surface:
+			NotifySurface.LOG:
+				_notify_peer_log_rpc.rpc_id(peer_id, text, color)
+			_:
+				add_system_message.rpc_id(peer_id, text, color)
+
+
+## Local (host) side of notify_peer — emit on the chosen surface directly.
+func _notify_peer_local(text: String, color: Color, surface: NotifySurface) -> void:
+	match surface:
+		NotifySurface.LOG:
+			LogManager.add_scrolling_log(text, color)
+		_:
+			add_system_message(text, color)
+
+
+## Server -> Client: deliver a notification to the LOG (scrolling log) surface.
+@rpc("authority", "call_remote", "reliable")
+func _notify_peer_log_rpc(text: String, color: Color) -> void:
+	if multiplayer.is_server():
+		return
+	LogManager.add_scrolling_log(text, color)
+
+
 ## Client -> Server: quest command passthrough
 @rpc("any_peer", "call_local", "reliable")
 func _request_quest_command(args: String) -> void:
