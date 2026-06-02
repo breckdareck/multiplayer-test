@@ -384,8 +384,8 @@ func _send_party_data_to_members(party_id: int):
 		var player_node = PlayerManager.get_player_node(member_id) # Get player node on server
 		
 		var player_class = "N/A"
-		if player_node and player_node.class_component:
-			player_class = player_node.class_component.get_class_name()
+		if player_node and player_node.weapon_mastery_component:
+			player_class = player_node.weapon_mastery_component.get_discipline_name()
 		var level = 1
 		if player_node and player_node.level_component:
 			level = player_node.level_component.level

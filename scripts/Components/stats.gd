@@ -53,9 +53,9 @@ const ARCHER_HEALTH_SCALING_MULTIPLIER: int = 22
 const ARCHER_MANA_SCALING_MULTIPLIER: int = 16
 
 # (Advanced-class HP/MP constants removed in PR 7 — Job Advancement is gone;
-# only the four weapon disciplines exist. current_class can never be an advanced
-# class: ClassComponent's setter normalizes any legacy CRUSADER/RANGER/ARCHMAGE/
-# ASSASSIN save back to its tier-1 weapon discipline on load.)
+# only the four weapon disciplines exist. primary_discipline can never be an
+# advanced class: WeaponMasteryComponent's setter normalizes any legacy
+# CRUSADER/RANGER/ARCHMAGE/ASSASSIN save back to its tier-1 discipline on load.)
 
 # Flat knockback resistance every class starts with. Equipment and buffs add
 # flat bonuses on top through the normal stat aggregation.
@@ -131,7 +131,6 @@ var _allocated_attributes: Dictionary = {}
 signal attribute_points_changed(unused: int)
 
 var _level_component: LevelingComponent
-var _class_component: ClassComponent
 var _equipment_component: EquipmentComponent
 var _weapon_mastery_component: WeaponMasteryComponent
 
@@ -140,7 +139,6 @@ var _loading_mode: bool = false
 
 func _ready() -> void:
 	_level_component = get_parent().get_node_or_null("Leveling")
-	_class_component = get_parent().get_node_or_null("Class")
 	_equipment_component = get_parent().get_node_or_null("Equipment")
 	_weapon_mastery_component = get_parent().get_node_or_null("WeaponMastery")
 
@@ -152,17 +150,16 @@ func _ready() -> void:
 	if _level_component:
 		_level_component.leveled_up.connect(_on_leveled_up)
 
-	# Find the class component on the same node
-	if _class_component:
-		_class_component.class_changed.connect(_on_class_changed)
-
 	if _equipment_component:
 		_equipment_component.on_equipment_changed.connect(_on_equipment_changed)
 
 	# Mastery levels drive per-mastery-level STR/DEX/INT/LUK scaling (PR 2):
-	# whenever a discipline gains a level, stats need a recalc.
+	# whenever a discipline gains a level, stats need a recalc. The primary
+	# discipline (base stats + HP/MP curve) is also owned here now — recalc when
+	# it's set at spawn (replaces the old ClassComponent.class_changed hookup).
 	if _weapon_mastery_component:
 		_weapon_mastery_component.mastery_level_changed.connect(_on_mastery_level_changed)
+		_weapon_mastery_component.primary_discipline_changed.connect(_on_primary_discipline_changed)
 
 
 
@@ -185,8 +182,8 @@ func _flush_recalculate() -> void:
 
 
 func _recalculate_stats() -> void:
-	# Get base stats from class
-	var base_stats: Dictionary[Constants.StatType, int] = _class_component.get_base_stats()
+	# Get base stats from the primary weapon discipline
+	var base_stats: Dictionary[Constants.StatType, int] = _weapon_mastery_component.get_base_stats()
 	for stat in base_stats:
 		stats[stat].base_value = base_stats[stat]
 
@@ -199,9 +196,10 @@ func _recalculate_stats() -> void:
 		if not base_stats.has(attr):
 			stats[attr].base_value = BASE_ATTRIBUTE_VALUE
 
-	# Apply class-specific health/mana scaling
+	# Apply discipline-specific health/mana scaling. Anchored to the PRIMARY
+	# discipline (not the wielded weapon) — HP/MP doesn't shift on weapon swap.
 	var level: int = _level_component.level
-	match _class_component.current_class:
+	match _weapon_mastery_component.primary_discipline:
 		Constants.ClassType.BEGINNER:
 			stats[Constants.StatType.HEALTH].base_value = int(BEGINNER_BASE_MAX_HEALTH + (BEGINNER_HEALTH_SCALING_MULTIPLIER * (level - 1)))
 			stats[Constants.StatType.MANA].base_value = int(BEGINNER_BASE_MAX_MANA + (BEGINNER_MANA_SCALING_MULTIPLIER * (level - 1)))
@@ -399,9 +397,9 @@ func reconcile_attribute_points(default_allocate_if_empty: bool = true) -> void:
 
 
 func _default_allocate_to_discipline() -> void:
-	if not (_class_component and _level_component):
+	if not (_weapon_mastery_component and _level_component):
 		return
-	var disc: WeaponDisciplineData = ResourceManager.get_class_data(_class_component.current_class)
+	var disc: WeaponDisciplineData = ResourceManager.get_class_data(_weapon_mastery_component.primary_discipline)
 	if disc == null:
 		return
 	var lvls: int = maxi(0, _level_component.level - 1)
@@ -462,7 +460,7 @@ func _on_leveled_up(_new_level: int) -> void:
 	mark_stats_dirty()
 
 
-func _on_class_changed(_new_class: String) -> void:
+func _on_primary_discipline_changed(_discipline: int) -> void:
 	mark_stats_dirty()
 
 

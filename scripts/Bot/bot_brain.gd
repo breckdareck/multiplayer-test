@@ -1051,8 +1051,8 @@ func _evaluate_and_equip() -> void:
 		return
 
 	var class_type: Constants.ClassType = Constants.ClassType.BEGINNER
-	if is_instance_valid(player.class_component):
-		class_type = player.class_component.current_class
+	if is_instance_valid(player.weapon_mastery_component):
+		class_type = player.weapon_mastery_component.primary_discipline
 
 	for slot in player.inventory_component.get_slots():
 		if slot.item == null:

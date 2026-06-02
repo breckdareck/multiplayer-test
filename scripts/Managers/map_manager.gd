@@ -280,9 +280,9 @@ func _finalize_player_spawn(player_id: int, map_id: String, spawn_point_name: St
 				client_spawn_player.rpc_id(player_id, existing_id, existing_node.global_position, _player_username(existing_id))
 				# A bot's sprite isn't streamed via the node-addressed sprite
 				# RPC, so send the joiner the bot's class/level appearance.
-				if BotManager.is_bot(existing_id) and is_instance_valid(existing_node.class_component) \
+				if BotManager.is_bot(existing_id) and is_instance_valid(existing_node.weapon_mastery_component) \
 						and is_instance_valid(existing_node.level_component):
-					var bot_class: int = existing_node.class_component.current_class
+					var bot_class: int = existing_node.weapon_mastery_component.primary_discipline
 					var bot_level: int = existing_node.level_component.level
 					if player_id == 1:
 						# The host is the server — client_apply_appearance is a
@@ -890,10 +890,10 @@ func broadcast_player_appearance(player_id: int) -> void:
 	if not multiplayer.is_server():
 		return
 	var node = PlayerManager.get_player_node(player_id)
-	if not is_instance_valid(node) or not is_instance_valid(node.class_component) \
+	if not is_instance_valid(node) or not is_instance_valid(node.weapon_mastery_component) \
 			or not is_instance_valid(node.level_component):
 		return
-	var class_type: int = node.class_component.current_class
+	var class_type: int = node.weapon_mastery_component.primary_discipline
 	var level: int = node.level_component.level
 	# Apply on the host directly — client_apply_appearance early-returns on the
 	# server, but the host is also a client and must render the bot.

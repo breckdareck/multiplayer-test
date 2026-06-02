@@ -231,8 +231,8 @@ func _update_party_display():
 				if player_node:
 					if player_node.level_component:
 						level = player_node.level_component.level
-					if player_node.class_component:
-						player_class = player_node.class_component.get_class_name()
+					if player_node.weapon_mastery_component:
+						player_class = player_node.weapon_mastery_component.get_discipline_name()
 			else: # CLIENT PATH
 				# Client gets data from the cache
 				var member_info = PartyManager.get_party_member_info(member_id)

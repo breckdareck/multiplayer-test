@@ -61,7 +61,6 @@ var _cached_map_node: Node = null
 var _cached_map_id: String = ""
 
 var _stats_component: StatsComponent
-var _class_component: ClassComponent
 var _equipment_component: EquipmentComponent
 var _ability_component: AbilityComponent
 var _weapon_mastery_component: WeaponMasteryComponent
@@ -98,7 +97,6 @@ func _ready() -> void:
 	original_attack_transform = attack_hitbox.position
 		
 	_stats_component = get_parent().get_node_or_null("Stats")
-	_class_component = get_parent().get_node_or_null("Class")
 	_equipment_component = get_parent().get_node_or_null("Equipment")
 	_ability_component = get_parent().get_node_or_null("Ability")
 	_weapon_mastery_component = get_parent().get_node_or_null("WeaponMastery")
@@ -946,13 +944,13 @@ func _active_weapon_discipline() -> int:
 			if discipline != -1:
 				return discipline
 
-	# Fallback: the character's current discipline (relevant for unarmed kills
-	# on a Beginner whose only tier-1 lineage is the picked starter).
-	if _class_component:
-		match _class_component.current_class:
+	# Fallback: the character's primary discipline (relevant for unarmed kills
+	# on a character whose only tier-1 lineage is the picked starter).
+	if _weapon_mastery_component:
+		match _weapon_mastery_component.primary_discipline:
 			Constants.ClassType.SWORD, Constants.ClassType.BOW, \
 			Constants.ClassType.STAFF, Constants.ClassType.DAGGER:
-				return _class_component.current_class
+				return _weapon_mastery_component.primary_discipline
 	return -1
 
 
@@ -1031,7 +1029,7 @@ func _is_wielding_bow() -> bool:
 
 
 func _calculate_max_range(attack_stat_type: Constants.StatType = Constants.StatType.WEAPONATTACK) -> int:
-	if not _stats_component or not _class_component:
+	if not _stats_component or not _weapon_mastery_component:
 		return 0
 
 	var attack_power = _stats_component.stats.get(attack_stat_type).total_value
@@ -1039,11 +1037,11 @@ func _calculate_max_range(attack_stat_type: Constants.StatType = Constants.StatT
 	# Scale off the ACTIVE weapon's discipline, not the fixed starting class —
 	# "only weapons matter": a Sword-starter wielding a staff should scale off the
 	# STAFF's stats (INT/LUCK), exactly like the sprite + abilities already follow
-	# the active weapon. (Was _class_component.current_class, the starting
+	# the active weapon. (Was the fixed starting
 	# discipline, which never updates on weapon swap for real players — so an
-	# off-hand weapon wrongly rode the main's attributes.) Falls back to
-	# current_class when no weapon is equipped.
-	var disc: int = _class_component.current_class
+	# off-hand weapon wrongly rode the main's attributes.) Falls back to the
+	# primary discipline when no weapon is equipped.
+	var disc: int = _weapon_mastery_component.primary_discipline
 	if owner_node and owner_node.has_method("get_active_discipline"):
 		disc = owner_node.get_active_discipline()
 	var primary_stat_type = ResourceManager.get_primary_stat(disc)

@@ -4,10 +4,10 @@
 #
 # AbilityComponent is a Node that needs to live in the SceneTree (so its
 # `multiplayer` resolves) and reads `owner.player_id`. We mount one bare
-# component under a stub owner WITHOUT Class/Stats siblings, so
+# component under a stub owner WITHOUT WeaponMastery/Stats siblings, so
 # AbilityComponent._ready() early-returns before its auto-seeding block, leaving
 # clean, deterministic state we reset between tests. The two expected error
-# lines at mount ("requires ClassComponent and StatsComponent" + missing hotbar
+# lines at mount ("requires WeaponMasteryComponent and StatsComponent" + missing hotbar
 # node path) are benign — the component is fully usable for the direct-API
 # behavior we exercise here.
 #

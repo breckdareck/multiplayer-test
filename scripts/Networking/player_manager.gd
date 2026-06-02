@@ -303,10 +303,10 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 	player_instance.username = username
 
 	# Set up player
-	if not player_instance.class_component:
-		push_error("Player %d missing class_component!" % id)
-	elif player_instance.class_component:
-		player_instance.class_component.change_class(character_type)
+	if not player_instance.weapon_mastery_component:
+		push_error("Player %d missing weapon_mastery_component!" % id)
+	elif player_instance.weapon_mastery_component:
+		player_instance.weapon_mastery_component.set_primary_discipline(character_type)
 	
 	if not player_instance.stats_component:
 		push_error("Player %d missing stats_component!" % id)
@@ -397,12 +397,12 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 	
 	var _is_bot: bool = BotManager.is_bot(id)
 
-	# Set username and class over network
+	# Set username and primary discipline over network
 	if _is_bot:
 		player_instance.set_username(username)
 	else:
 		player_instance.set_username.rpc(username)
-	player_instance.class_component.change_class_rpc(character_type)
+	player_instance.weapon_mastery_component.set_primary_discipline_rpc(character_type)
 
 	# Sync to client (skip for bots — they have no client)
 	if not _is_bot and id != 1:

@@ -1034,8 +1034,8 @@ func _resolve_active_discipline_key() -> String:
 			var key: String = _class_type_to_discipline_key(disc)
 			if key != "":
 				return key
-		if is_instance_valid(player.class_component):
-			var key2: String = _class_type_to_discipline_key(player.class_component.current_class)
+		if is_instance_valid(player.weapon_mastery_component):
+			var key2: String = _class_type_to_discipline_key(player.weapon_mastery_component.primary_discipline)
 			if key2 != "":
 				return key2
 	return "sword"

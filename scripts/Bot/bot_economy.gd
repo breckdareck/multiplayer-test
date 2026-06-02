@@ -94,8 +94,8 @@ func _collect_items_to_sell(force: bool) -> Array[ItemData]:
 		return items_to_sell
 
 	var class_type: Constants.ClassType = Constants.ClassType.BEGINNER
-	if is_instance_valid(player.class_component):
-		class_type = player.class_component.current_class
+	if is_instance_valid(player.weapon_mastery_component):
+		class_type = player.weapon_mastery_component.primary_discipline
 
 	var equipped_scores: Dictionary = {}
 	if is_instance_valid(player.equipment_component):

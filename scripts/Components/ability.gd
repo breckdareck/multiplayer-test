@@ -3,7 +3,7 @@ extends Node
 
 ## Manages a character's abilities, including learning, leveling, usage, cooldowns,
 ## passive effects, and multiplayer synchronization.
-## Requires ClassComponent and StatsComponent as siblings to function correctly.
+## Requires WeaponMasteryComponent and StatsComponent as siblings to function correctly.
 
 
 #region #################### Signals ####################
@@ -60,7 +60,6 @@ signal ability_points_spend_denied(ability_id: String, reason: String)
 
 #region #################### Member Variables ####################
 # Component references
-var _class_component: ClassComponent
 var _stats_component: StatsComponent
 var _level_component: LevelingComponent
 var _mana_component: ManaComponent
@@ -149,21 +148,20 @@ var _projectiles_container: Node
 #region #################### Godot Engine Callbacks ####################
 func _ready() -> void:
 	# Fetch required sibling components
-	_class_component = get_parent().get_node_or_null("Class")
 	_stats_component = get_parent().get_node_or_null("Stats")
 	_level_component = get_parent().get_node_or_null("Leveling")
 	_mana_component = get_parent().get_node_or_null("Mana")
 	_equipment_component = get_parent().get_node_or_null("Equipment")
 	_weapon_mastery_component = get_parent().get_node_or_null("WeaponMastery")
-	
-	if not _class_component or not _stats_component:
-		push_error("AbilityComponent requires ClassComponent and StatsComponent siblings.")
+
+	if not _weapon_mastery_component or not _stats_component:
+		push_error("AbilityComponent requires WeaponMasteryComponent and StatsComponent siblings.")
 		set_process(false)
 		return
 
-	# Connect to ClassComponent to handle class changes
-	if _class_component:
-		_class_component.class_changed.connect(_on_class_changed)
+	# React to the primary discipline being set (at spawn) so the ability set
+	# re-seeds. Replaces the old ClassComponent.class_changed hookup.
+	_weapon_mastery_component.primary_discipline_changed.connect(_on_primary_discipline_changed)
 
 	# PR 3: react to active-weapon flips by swapping the live hotbar to the
 	# becoming-active weapon's bindings. Runs on both server and client so the
@@ -211,13 +209,13 @@ func _ready() -> void:
 	# directly). They then choose which ability to spend it on.
 	if not multiplayer.has_multiplayer_peer() or multiplayer.is_server():
 		# Current class's abilities first.
-		for ability_data in _class_component.get_class_abilities():
+		for ability_data in _weapon_mastery_component.get_primary_abilities():
 			if ability_data and not _ability_levels.has(ability_data.ability_id):
 				_learn_ability_local(ability_data.ability_id, 0, false)
 
 		# Then the OTHER tier-1 disciplines' trees so they appear in the
 		# AbilityWindow tabs (at level 0 = locked/learnable).
-		var starting_class: int = _class_component.current_class if _class_component else -1
+		var starting_class: int = _weapon_mastery_component.primary_discipline if _weapon_mastery_component else -1
 		for tier1_disc in [
 			Constants.ClassType.SWORD,
 			Constants.ClassType.BOW,
@@ -550,8 +548,8 @@ func _ability_matches_active_discipline(ability: AbilityData) -> bool:
 ## first level-up after creation) and as the "remainder" target for the
 ## legacy-save even-distribute migration.
 func _starting_discipline_key() -> String:
-	if is_instance_valid(_class_component):
-		return _class_type_to_discipline_key(_class_component.current_class)
+	if is_instance_valid(_weapon_mastery_component):
+		return _class_type_to_discipline_key(_weapon_mastery_component.primary_discipline)
 	return ""
 
 
@@ -719,11 +717,11 @@ func _active_weapon_discipline() -> int:
 			if discipline != -1:
 				return discipline
 
-	if _class_component:
-		match _class_component.current_class:
+	if _weapon_mastery_component:
+		match _weapon_mastery_component.primary_discipline:
 			Constants.ClassType.SWORD, Constants.ClassType.BOW, \
 			Constants.ClassType.STAFF, Constants.ClassType.DAGGER:
-				return _class_component.current_class
+				return _weapon_mastery_component.primary_discipline
 	return -1
 
 
@@ -1268,10 +1266,10 @@ func _on_mastery_level_up(discipline: int, _new_level: int) -> void:
 	_add_ability_points(ABILITY_POINTS_PER_MASTERY_LEVEL, key)
 
 
-func _on_class_changed(_new_class_name: String) -> void:
-	# On class change, prune any ability that doesn't belong to a known
+func _on_primary_discipline_changed(_discipline: int) -> void:
+	# On primary-discipline set, prune any ability that doesn't belong to a known
 	# tier-1 discipline's skill list, then ensure every tier-1 discipline's
-	# tree shows up at level 0 in the AbilityWindow. Job advancement stays
+	# tree shows up at level 0 in the AbilityWindow. Advanced lineage stays
 	# safe because the advanced class's skill list is a superset of its
 	# parent tier-1's tree, so any leveled ability survives the prune.
 	#
@@ -1279,11 +1277,11 @@ func _on_class_changed(_new_class_name: String) -> void:
 	# _ability_levels at level 0 here, and only the player's purchases
 	# (or load_abilities) push them above 0.
 	#
-	# RPCs are not broadcast here because the class change itself is synced,
+	# RPCs are not broadcast here because the discipline set itself is synced,
 	# so clients run this same logic locally.
 	if not multiplayer.has_multiplayer_peer() or multiplayer.is_server():
 		var valid_ability_ids: Dictionary = {}
-		for ability_data in _class_component.get_class_abilities():
+		for ability_data in _weapon_mastery_component.get_primary_abilities():
 			if ability_data:
 				valid_ability_ids[ability_data.ability_id] = true
 		for tier1_disc in [
@@ -1319,9 +1317,9 @@ func _on_class_changed(_new_class_name: String) -> void:
 					continue
 				_learn_ability_local(ability_data.ability_id, 0, false)
 
-		# Cover any current-class abilities not in a tier-1 tree (tier-2
-		# advancement classes with abilities of their own).
-		for ability_data in _class_component.get_class_abilities():
+		# Cover any primary-discipline abilities not in a tier-1 tree (legacy
+		# advanced lineage with abilities of their own).
+		for ability_data in _weapon_mastery_component.get_primary_abilities():
 			if ability_data and not _ability_levels.has(ability_data.ability_id):
 				_learn_ability_local(ability_data.ability_id, 0, false)
 
@@ -1373,11 +1371,11 @@ func save_abilities() -> Dictionary:
 func load_abilities(data: Dictionary) -> void:
 	if data.is_empty(): return
 
-	# First, ensure all current class abilities are initialized
-	for ability_data in _class_component.get_class_abilities():
+	# First, ensure all primary-discipline abilities are initialized
+	for ability_data in _weapon_mastery_component.get_primary_abilities():
 		if ability_data != null and not _ability_levels.has(ability_data.ability_id):
 			_ability_levels[ability_data.ability_id] = 0
-			#print("Added new ability from class: %s at level 0" % ability_data.ability_id)
+			#print("Added new ability from discipline: %s at level 0" % ability_data.ability_id)
 
 	# Load saved data by merging (not replacing) to preserve new abilities
 	var saved_levels = data.get("ability_levels", {})
@@ -1467,7 +1465,7 @@ func load_abilities(data: Dictionary) -> void:
 func bootstrap_fresh_character_if_needed() -> void:
 	if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
 		return
-	if not is_instance_valid(_weapon_mastery_component) or not is_instance_valid(_class_component):
+	if not is_instance_valid(_weapon_mastery_component):
 		return
 	# Any spent point or earned mastery means this isn't a fresh char.
 	for ability_id in _ability_levels:
@@ -1481,8 +1479,8 @@ func bootstrap_fresh_character_if_needed() -> void:
 	]:
 		if _weapon_mastery_component.get_mastery_level(disc) > 0:
 			return
-	# Chosen class must be a tier-1 discipline (the only ones that earn mastery).
-	var chosen: int = _class_component.current_class
+	# Chosen discipline must be a tier-1 discipline (the only ones that earn mastery).
+	var chosen: int = _weapon_mastery_component.primary_discipline
 	if chosen != Constants.ClassType.SWORD \
 		and chosen != Constants.ClassType.BOW \
 		and chosen != Constants.ClassType.STAFF \

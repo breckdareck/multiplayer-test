@@ -7,7 +7,6 @@
 [ext_resource type="Curve" uid="uid://ck1du2i5bxyya" path="res://assets/curves/leveling_curve.tres" id="4_4ni0x"]
 [ext_resource type="Script" uid="uid://71v08yv5tjrt" path="res://scripts/Components/stats.gd" id="4_cg2hl"]
 [ext_resource type="Script" uid="uid://dhhn4ks2uixk8" path="res://scripts/Components/health.gd" id="5_o05ft"]
-[ext_resource type="Script" uid="uid://dulwlk4wjgot3" path="res://scripts/Components/class.gd" id="6_nbg44"]
 [ext_resource type="Script" uid="uid://4rpdmxp15xwq" path="res://scripts/Components/combat.gd" id="7_jn0uf"]
 [ext_resource type="Script" uid="uid://boxv5npw3xeg3" path="res://scripts/Player/player_hud.gd" id="11_ihqbe"]
 [ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="12_cgmen"]
@@ -434,7 +433,7 @@ size = Vector2(21, 21)
 [sub_resource type="CircleShape2D" id="CircleShape2D_h0wtf"]
 radius = 4.0
 
-[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "mana_component", "combat_component", "level_component", "stats_component", "class_component", "weapon_mastery_component", "sword_combo_component", "bow_momentum_component", "staff_element_component", "shadowmeld_component", "player_inventory", "inventory_component", "equipment_component", "ability_component", "buff_component", "player_HUD", "player_name_label", "stats_window", "quest_window") groups=["Players", "networked_entities"]]
+[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "mana_component", "combat_component", "level_component", "stats_component", "weapon_mastery_component", "sword_combo_component", "bow_momentum_component", "staff_element_component", "shadowmeld_component", "player_inventory", "inventory_component", "equipment_component", "ability_component", "buff_component", "player_HUD", "player_name_label", "stats_window", "quest_window") groups=["Players", "networked_entities"]]
 collision_layer = 2
 collision_mask = 5
 script = ExtResource("1_an8q1")
@@ -443,7 +442,6 @@ mana_component = NodePath("Components/Mana")
 combat_component = NodePath("Components/Combat")
 level_component = NodePath("Components/Leveling")
 stats_component = NodePath("Components/Stats")
-class_component = NodePath("Components/Class")
 weapon_mastery_component = NodePath("Components/WeaponMastery")
 sword_combo_component = NodePath("Components/SwordCombo")
 bow_momentum_component = NodePath("Components/BowMomentum")
@@ -506,9 +504,6 @@ secondary_weapon_slot = NodePath("../../CanvasLayer/MoveableWindows/GameWindow/M
 [node name="Leveling" type="Node" parent="Components"]
 script = ExtResource("3_18ciy")
 level_curve = ExtResource("4_4ni0x")
-
-[node name="Class" type="Node" parent="Components"]
-script = ExtResource("6_nbg44")
 
 [node name="WeaponMastery" type="Node" parent="Components"]
 script = ExtResource("14_wmast")

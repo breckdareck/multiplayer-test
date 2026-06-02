@@ -124,6 +124,12 @@ signal mastery_level_changed(discipline: int, new_level: int)
 ## progress bars; not used by stat scaling.
 signal mastery_xp_changed(discipline: int, current_xp: int, xp_to_next: int)
 
+## Emitted when the character's PRIMARY discipline changes (set once at spawn
+## from the saved character_type; never changes mid-session now that job
+## advancement is removed). Stats/Ability/UI listeners recalc or re-seed.
+## Replaces the old ClassComponent.class_changed signal.
+signal primary_discipline_changed(discipline: int)
+
 #endregion
 
 
@@ -137,6 +143,28 @@ signal mastery_xp_changed(discipline: int, current_xp: int, xp_to_next: int)
 var mastery_data: Dictionary = {}
 
 var _loading_mode: bool = false
+
+## The character's PRIMARY weapon discipline — the "default identity" pointer
+## that answers: which discipline am I when no weapon decides it? Drives the
+## unarmed/sprite fallback, base-stat baseline, HP/MP curve, and the
+## starting-ability seed. Persisted via the existing `character_type` save
+## field (→ backend `character_class` column); NOT round-tripped in
+## save_mastery. Set once at spawn from character_type via set_primary_discipline.
+##
+## Absorbs the legacy ClassComponent role. The setter normalizes any legacy
+## advanced class (CRUSADER/RANGER/ARCHMAGE/ASSASSIN) back to its tier-1 weapon
+## discipline so existing advanced characters revert to weapon-pure on load —
+## no backend migration needed; the setter catches every assignment.
+var primary_discipline: int = Constants.ClassType.SWORD:
+	set(value):
+		primary_discipline = _ADVANCED_TO_BASE.get(value, value)
+
+const _ADVANCED_TO_BASE: Dictionary = {
+	Constants.ClassType.CRUSADER: Constants.ClassType.SWORD,
+	Constants.ClassType.RANGER: Constants.ClassType.BOW,
+	Constants.ClassType.ARCHMAGE: Constants.ClassType.STAFF,
+	Constants.ClassType.ASSASSIN: Constants.ClassType.DAGGER,
+}
 
 #endregion
 
@@ -163,6 +191,60 @@ func _ensure_default_disciplines() -> void:
 
 
 #region #################### Public API ####################
+
+#region ---- Primary discipline (absorbed ClassComponent role) ----
+
+## Returns the character's primary weapon discipline (Constants.ClassType int).
+func get_primary_discipline() -> int:
+	return primary_discipline
+
+
+## Sets the primary discipline, normalizing legacy advanced classes to tier-1.
+## Emits primary_discipline_changed on a real change (drives stat recalc +
+## ability re-seed) and notifies PartyManager on the server. Mirrors the old
+## ClassComponent.change_class. Safe to call on server and on the client mirror
+## (the RPC variant routes here on every peer).
+func set_primary_discipline(new_discipline: int) -> void:
+	var normalized: int = _ADVANCED_TO_BASE.get(new_discipline, new_discipline)
+	if normalized == primary_discipline:
+		return
+	primary_discipline = normalized
+	primary_discipline_changed.emit(primary_discipline)
+	if multiplayer and multiplayer.is_server():
+		PartyManager.notify_player_data_changed(get_owner().player_id)
+
+
+## Server -> all peers. Authoritative primary-discipline set; call_local so the
+## host (server + client in one tree) runs it too. Replaces
+## ClassComponent.change_class_rpc.
+@rpc("authority", "call_local", "reliable")
+func set_primary_discipline_rpc(new_discipline: int) -> void:
+	set_primary_discipline(new_discipline)
+
+
+## The abilities belonging to the primary discipline's tree. Replaces
+## ClassComponent.get_class_abilities (computed fresh — no cache needed).
+func get_primary_abilities() -> Array[AbilityData]:
+	return ResourceManager.get_class_skills(primary_discipline)
+
+
+## Base stat dictionary for the primary discipline. Replaces
+## ClassComponent.get_base_stats.
+func get_base_stats() -> Dictionary:
+	return ResourceManager.get_base_stats(primary_discipline)
+
+
+## Primary discipline's class bonuses. Replaces ClassComponent.get_class_bonuses.
+func get_class_bonuses() -> Dictionary:
+	return ResourceManager.get_class_bonuses(primary_discipline)
+
+
+## Display name of the primary discipline. Replaces ClassComponent.get_class_name.
+func get_discipline_name() -> String:
+	return ResourceManager.get_class_name(primary_discipline)
+
+#endregion
+
 
 ## Returns the mastery level for a given discipline. Disciplines without a
 ## record return 0 — they behave as if mastery were never started.

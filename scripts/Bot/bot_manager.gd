@@ -273,7 +273,7 @@ func _gather_bot_snapshot(bot_id: int) -> Dictionary:
 
 	var snap: Dictionary = {
 		"name": node.username,
-		"class": node.class_component.current_class if is_instance_valid(node.class_component) else 0,
+		"class": node.weapon_mastery_component.primary_discipline if is_instance_valid(node.weapon_mastery_component) else 0,
 		"level": node.level_component.level if is_instance_valid(node.level_component) else 1,
 		"hp": node.health_component.current_health if is_instance_valid(node.health_component) else 0,
 		"max_hp": node.health_component.max_health if is_instance_valid(node.health_component) else 0,

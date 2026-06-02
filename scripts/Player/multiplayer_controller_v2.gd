@@ -25,7 +25,6 @@ const MAX_FALL_SPEED: float = 1200.0
 @export var combat_component: CombatComponent
 @export var level_component: LevelingComponent
 @export var stats_component: StatsComponent
-@export var class_component: ClassComponent
 @export var weapon_mastery_component: WeaponMasteryComponent
 ## PR 5: Sword discipline's signature combat system — combo points built
 ## by basic-attack hits and consumed by Slash for amplified damage.
@@ -454,11 +453,11 @@ func _setup_signals() -> void:
 		if multiplayer.is_server():
 			equipment_component.on_equipment_changed.connect(_on_equipment_changed_refresh_sprite)
 
-	if class_component:
-		# Persist class changes (job advancement) so the new class survives the
-		# next spawn / login. character_type rides in the "stats" save bucket,
-		# which the backend maps onto the Player.character_class column.
-		class_component.class_changed.connect(func(_new_class): _data_changed("stats"))
+	if weapon_mastery_component:
+		# Persist the primary discipline (set at spawn) so it survives the next
+		# spawn / login. character_type rides in the "stats" save bucket, which
+		# the backend maps onto the Player.character_class column.
+		weapon_mastery_component.primary_discipline_changed.connect(func(_d): _data_changed("stats"))
 
 	# Server-only logic
 	if multiplayer.is_server():
@@ -632,12 +631,13 @@ func _change_sprite() -> void:
 		
 ## Returns the discipline (Constants.ClassType) the player is CURRENTLY
 ## wielding — i.e. the discipline of the active weapon. Falls back to the
-## starting class (class_component.current_class) when no weapon is equipped.
+## primary discipline (weapon_mastery_component.primary_discipline) when no
+## weapon is equipped.
 ##
 ## This is the "I am my weapon" identity lookup. Use it for sprite picking,
 ## attack-state branches, and anything else whose behavior should follow the
-## equipped weapon rather than the character's chosen starting class. HP/MP
-## curves intentionally stay anchored to class_component.current_class
+## equipped weapon rather than the character's chosen primary discipline. HP/MP
+## curves intentionally stay anchored to weapon_mastery_component.primary_discipline
 ## (per the locked design — HP/MP doesn't shift on weapon swap).
 func get_active_discipline() -> int:
 	if is_instance_valid(equipment_component):
@@ -646,8 +646,8 @@ func get_active_discipline() -> int:
 			var disc: int = _weapon_type_to_class_type(weapon.weapon_type)
 			if disc != -1:
 				return disc
-	if is_instance_valid(class_component):
-		return class_component.current_class
+	if is_instance_valid(weapon_mastery_component):
+		return weapon_mastery_component.primary_discipline
 	return Constants.ClassType.SWORD
 
 
@@ -677,8 +677,8 @@ func get_equipped_disciplines() -> Array[int]:
 				var disc: int = _weapon_type_to_class_type(secondary_weapon.weapon_type)
 				if disc != -1 and not disciplines.has(disc):
 					disciplines.append(disc)
-	if disciplines.is_empty() and is_instance_valid(class_component):
-		disciplines.append(class_component.current_class)
+	if disciplines.is_empty() and is_instance_valid(weapon_mastery_component):
+		disciplines.append(weapon_mastery_component.primary_discipline)
 	return disciplines
 
 
@@ -777,7 +777,7 @@ func _get_stats_data() -> Dictionary:
 		'level': level_component.level if is_instance_valid(level_component) else 1,
 		'experience': level_component.experience if is_instance_valid(level_component) else 0,
 		'last_map': MapManager.get_player_map(player_id) if multiplayer.is_server() else MapManager.current_map_id,
-		'character_type': class_component.current_class if is_instance_valid(class_component) else 0,
+		'character_type': weapon_mastery_component.primary_discipline if is_instance_valid(weapon_mastery_component) else 0,
 		'attribute_points': stats_component.save_attributes() if is_instance_valid(stats_component) else {}
 	}
 
@@ -818,7 +818,7 @@ func _load_data(data: Dictionary) -> void:
 		if not inventory_data.is_empty():
 			inventory_component.load_inventory(inventory_data)
 		elif multiplayer.is_server() and data.get("level", 1) == 1:
-			var disc := class_component.current_class if is_instance_valid(class_component) else Constants.ClassType.SWORD
+			var disc := weapon_mastery_component.primary_discipline if is_instance_valid(weapon_mastery_component) else Constants.ClassType.SWORD
 			inventory_component.server_add_item(PlayerManager._starter_weapon_for(disc))
 
 	if is_instance_valid(health_component):
@@ -1064,8 +1064,8 @@ func request_weapon_swap_server() -> void:
 ## broadcast through the standard server pathway IF the wielded discipline
 ## actually changed. No transition FX / input lock — those are reserved for
 ## explicit swaps. Bare-hands fallback (no weapon equipped) reads through
-## get_active_discipline()'s class_component fallback so the sprite never
-## ends up "empty" — the player visually reverts to their starting-class
+## get_active_discipline()'s primary-discipline fallback so the sprite never
+## ends up "empty" — the player visually reverts to their primary-discipline
 ## sprite, which is the intended guard for the "no weapon equipped" case.
 func _on_equipment_changed_refresh_sprite() -> void:
 	if _is_being_cleaned_up:
@@ -1168,8 +1168,8 @@ func _apply_active_weapon_sprite() -> void:
 	var discipline_class: int = -1
 	if weapon != null:
 		discipline_class = _weapon_type_to_class_type(weapon.weapon_type)
-	if discipline_class == -1 and is_instance_valid(class_component):
-		discipline_class = class_component.current_class
+	if discipline_class == -1 and is_instance_valid(weapon_mastery_component):
+		discipline_class = weapon_mastery_component.primary_discipline
 
 	if discipline_class == -1:
 		return
@@ -1252,22 +1252,22 @@ func change_sprite_rpc(_class_name: String, level: int) -> void:
 # whose appearance is delivered via MapManager rather than the node-addressed
 # change_sprite_rpc (a bot's node may be missing on a client mid-transition).
 func apply_appearance(class_type: int, level: int) -> void:
-	if is_instance_valid(class_component):
-		class_component.current_class = class_type as Constants.ClassType
+	if is_instance_valid(weapon_mastery_component):
+		weapon_mastery_component.primary_discipline = class_type as Constants.ClassType
 	var frames: SpriteFrames = ResourceManager.get_sprite_for_level(class_type, level)
 	if frames and is_instance_valid(animated_sprite):
 		animated_sprite.sprite_frames = frames
 		animated_sprite.play("idle")
 
 
-# [CLIENT -> SERVER] Client requests to change their class.
+# [CLIENT -> SERVER] Client requests to change their primary discipline.
 @rpc("any_peer", "call_local", "reliable")
 func change_class_request(new_class: int) -> void:
 	if not multiplayer.is_server():
 		return
-	#print("Change Class Request")
-	if is_instance_valid(class_component):
-		class_component.change_class_rpc.rpc(new_class)
+	#print("Change Discipline Request")
+	if is_instance_valid(weapon_mastery_component):
+		weapon_mastery_component.set_primary_discipline_rpc.rpc(new_class)
 		_handle_sprite_change_on_server()
 
 
