@@ -11,20 +11,21 @@ extends RefCounted
 
 ## POSTs `payload` as JSON to `url` using the given HTTPRequest node and awaits
 ## the response. Returns:
-##   { "started": bool, "code": int, "json": Variant }
-## - started == false → http.request() never dispatched (connection-layer error);
-##   `code` is 0 and `json` is null. Caller should treat this as offline.
-## - started == true  → `code` is the HTTP status; `json` is the parsed body
+##   { "started": bool, "result": int, "code": int, "body": String, "json": Variant }
+## - started == false → http.request() never dispatched (connection-layer error
+##   at send time); other fields are zero/empty. Caller should treat as offline.
+## - started == true  → `result` is the HTTPRequest.Result (RESULT_SUCCESS on a
+##   completed round-trip, else a transport failure like a timeout); `code` is the
+##   HTTP status; `body` is the raw response text; `json` is the parsed body
 ##   (Dictionary / Array) or null if the body was empty / not valid JSON.
 static func post_json(http: HTTPRequest, url: String, payload: Dictionary) -> Dictionary:
 	var headers: PackedStringArray = ["Content-Type: application/json"]
-	var body: String = JSON.stringify(payload)
-	var err: int = http.request(url, headers, HTTPClient.METHOD_POST, body)
+	var request_body: String = JSON.stringify(payload)
+	var err: int = http.request(url, headers, HTTPClient.METHOD_POST, request_body)
 	if err != OK:
-		return {"started": false, "code": 0, "json": null}
+		return {"started": false, "result": -1, "code": 0, "body": "", "json": null}
 
 	var result: Array = await http.request_completed
-	var code: int = result[1]
-	var response_body: PackedByteArray = result[3]
-	var parsed: Variant = JSON.parse_string(response_body.get_string_from_utf8())
-	return {"started": true, "code": code, "json": parsed}
+	var text: String = result[3].get_string_from_utf8()
+	var parsed: Variant = JSON.parse_string(text)
+	return {"started": true, "result": result[0], "code": result[1], "body": text, "json": parsed}

@@ -25,40 +25,21 @@ func _ready():
 	pass  # api_url is now computed on demand from UserConfig.
 
 func register(username, password):
-	var http = HTTPRequest.new()
+	var http := HTTPRequest.new()
 	add_child(http)
-	http.request_completed.connect(_on_register_completed.bind(http))
-	
-	var body = JSON.stringify({"username": username, "password": password})
-	var headers = ["Content-Type: application/json"]
-	var error = http.request(api_url + "/account/register", headers, HTTPClient.METHOD_POST, body)
-	
-	if error != OK:
-		registration_failed.emit("Connection error")
-		http.queue_free()
-
-func _on_register_completed(_result, response_code, _headers, body, http):
-	var response_text = body.get_string_from_utf8()
-	#print("Register Response Code: ", response_code)
-	#print("Register Response Body: ", response_text)
-	
-	var json = JSON.new()
-	var error = json.parse(response_text)
-	
-	if error != OK:
-		#print("JSON Parse Error: ", error)
-		registration_failed.emit("Failed to parse server response")
-		http.queue_free()
-		return
-	
-	var response = json.get_data()
-	
-	if response_code == 201:
-		registration_success.emit(response.get("account_id"))
-	else:
-		registration_failed.emit(response.get("error", "Unknown error"))
-	
+	var r: Dictionary = await BackendHttp.post_json(http, api_url + "/account/register", {"username": username, "password": password})
 	http.queue_free()
+
+	if not r.started:
+		registration_failed.emit("Connection error")
+		return
+	if r.json == null:
+		registration_failed.emit("Failed to parse server response")
+		return
+	if r.code == 201:
+		registration_success.emit(r.json.get("account_id"))
+	else:
+		registration_failed.emit(r.json.get("error", "Unknown error"))
 
 func login(username, password):
 	if use_local_save:
@@ -67,48 +48,29 @@ func login(username, password):
 		login_success.emit(account_id, account_username)
 		return
 
-	var http = HTTPRequest.new()
+	var http := HTTPRequest.new()
 	add_child(http)
-	http.request_completed.connect(_on_login_completed.bind(http))
+	var r: Dictionary = await BackendHttp.post_json(http, api_url + "/account/login", {"username": username, "password": password})
+	http.queue_free()
 
-	var body = JSON.stringify({"username": username, "password": password})
-	var headers = ["Content-Type: application/json"]
-	var error = http.request(api_url + "/account/login", headers, HTTPClient.METHOD_POST, body)
-
-	if error != OK:
+	if not r.started:
 		login_failed.emit("Connection error")
-		http.queue_free()
+		return
+	if r.json == null:
+		login_failed.emit("Failed to parse server response")
+		return
+	if r.code == 200:
+		account_id = r.json.get("account_id")
+		account_username = r.json.get("username")
+		login_success.emit(account_id, account_username)
+	else:
+		login_failed.emit(r.json.get("error", "Unknown error"))
 
 func dev_login():
 	is_dev_mode = true
 	account_id = 9999
 	account_username = "DevUser"
 	login_success.emit(account_id, account_username)
-
-func _on_login_completed(_result, response_code, _headers, body, http):
-	var response_text = body.get_string_from_utf8()
-	#print("Login Response Code: ", response_code)
-	#print("Login Response Body: ", response_text)
-	
-	var json = JSON.new()
-	var error = json.parse(response_text)
-	
-	if error != OK:
-		#print("JSON Parse Error: ", error)
-		login_failed.emit("Failed to parse server response")
-		http.queue_free()
-		return
-	
-	var response = json.get_data()
-	
-	if response_code == 200:
-		account_id = response.get("account_id")
-		account_username = response.get("username")
-		login_success.emit(account_id, account_username)
-	else:
-		login_failed.emit(response.get("error", "Unknown error"))
-	
-	http.queue_free()
 
 func get_characters():
 	if is_dev_mode or use_local_save:
@@ -172,26 +134,16 @@ func get_characters():
 
 	if account_id == -1:
 		return
-		
-	var http = HTTPRequest.new()
-	add_child(http)
-	http.request_completed.connect(_on_get_characters_completed.bind(http))
-	
-	var body = JSON.stringify({"account_id": account_id})
-	var headers = ["Content-Type: application/json"]
-	var error = http.request(api_url + "/account/characters", headers, HTTPClient.METHOD_POST, body)
-	
-	if error != OK:
-		http.queue_free()
 
-func _on_get_characters_completed(_result, response_code, _headers, body, http):
-	if response_code == 200:
-		var response = JSON.parse_string(body.get_string_from_utf8())
-		
-		if response != null:
-			characters_received.emit(response.get("characters", []))
-	
+	var http := HTTPRequest.new()
+	add_child(http)
+	var r: Dictionary = await BackendHttp.post_json(http, api_url + "/account/characters", {"account_id": account_id})
 	http.queue_free()
+
+	# Matches the prior behaviour: emit only on a 200 with a parseable body;
+	# stay silent on transport/parse failure (the select screen handles that).
+	if r.started and r.code == 200 and r.json != null:
+		characters_received.emit(r.json.get("characters", []))
 
 func create_character(char_name, class_id):
 	if account_id == -1:
@@ -218,47 +170,31 @@ func create_character(char_name, class_id):
 		character_created.emit(char_name)
 		return
 
-	var http = HTTPRequest.new()
+	var http := HTTPRequest.new()
 	add_child(http)
-	http.request_completed.connect(_on_create_character_completed.bind(http))
-
-	var body = JSON.stringify({
+	var r: Dictionary = await BackendHttp.post_json(http, api_url + "/character/create", {
 		"account_id": account_id,
 		"name": char_name,
-		"class_id": class_id
+		"class_id": class_id,
 	})
-	var headers = ["Content-Type: application/json"]
-	var error = http.request(api_url + "/character/create", headers, HTTPClient.METHOD_POST, body)
-
-	if error != OK:
-		character_creation_failed.emit("Connection error")
-		http.queue_free()
-
-func _on_create_character_completed(result, response_code, _headers, body, http):
-	if result != HTTPRequest.RESULT_SUCCESS:
-		character_creation_failed.emit("Connection failed (result: %d)" % result)
-		http.queue_free()
-		return
-
-	var response_text = body.get_string_from_utf8()
-	if response_text.is_empty():
-		character_creation_failed.emit("Empty response from server (HTTP %d)" % response_code)
-		http.queue_free()
-		return
-
-	var response = JSON.parse_string(response_text)
-
-	if response == null:
-		character_creation_failed.emit("Failed to parse server response")
-		http.queue_free()
-		return
-	
-	if response_code == 201:
-		character_created.emit(response.get("name"))
-	else:
-		character_creation_failed.emit(response.get("error", "Unknown error"))
-
 	http.queue_free()
+
+	if not r.started:
+		character_creation_failed.emit("Connection error")
+		return
+	if r.result != HTTPRequest.RESULT_SUCCESS:
+		character_creation_failed.emit("Connection failed (result: %d)" % r.result)
+		return
+	if r.body.is_empty():
+		character_creation_failed.emit("Empty response from server (HTTP %d)" % r.code)
+		return
+	if r.json == null:
+		character_creation_failed.emit("Failed to parse server response")
+		return
+	if r.code == 201:
+		character_created.emit(r.json.get("name"))
+	else:
+		character_creation_failed.emit(r.json.get("error", "Unknown error"))
 
 func delete_character(char_name: String):
 	if account_id == -1:
@@ -277,42 +213,30 @@ func delete_character(char_name: String):
 		character_deleted.emit(char_name)
 		return
 
-	var http = HTTPRequest.new()
+	var http := HTTPRequest.new()
 	add_child(http)
-	http.request_completed.connect(_on_delete_character_completed.bind(http, char_name))
-
-	var body = JSON.stringify({
+	var r: Dictionary = await BackendHttp.post_json(http, api_url + "/character/delete", {
 		"account_id": account_id,
-		"name": char_name
+		"name": char_name,
 	})
-	var headers = ["Content-Type: application/json"]
-	var error = http.request(api_url + "/character/delete", headers, HTTPClient.METHOD_POST, body)
+	http.queue_free()
 
-	if error != OK:
+	if not r.started:
 		character_deletion_failed.emit("Connection error")
-		http.queue_free()
-
-func _on_delete_character_completed(result, response_code, _headers, body, http, char_name):
-	if result != HTTPRequest.RESULT_SUCCESS:
-		character_deletion_failed.emit("Connection failed (result: %d)" % result)
-		http.queue_free()
 		return
-
-	var response_text = body.get_string_from_utf8()
-	var response = JSON.parse_string(response_text) if not response_text.is_empty() else null
-
-	if response_code == 200:
+	if r.result != HTTPRequest.RESULT_SUCCESS:
+		character_deletion_failed.emit("Connection failed (result: %d)" % r.result)
+		return
+	if r.code == 200:
 		var deleted_name = char_name
-		if response != null and response.has("name"):
-			deleted_name = response.get("name")
+		if r.json != null and r.json.has("name"):
+			deleted_name = r.json.get("name")
 		character_deleted.emit(deleted_name)
 	else:
-		var err_msg = "Delete failed (HTTP %d)" % response_code
-		if response != null and response.has("error"):
-			err_msg = response.get("error")
+		var err_msg = "Delete failed (HTTP %d)" % r.code
+		if r.json != null and r.json.has("error"):
+			err_msg = r.json.get("error")
 		character_deletion_failed.emit(err_msg)
-
-	http.queue_free()
 
 
 # The new-character save template now lives in PlayerSaveSchema.new_character()
