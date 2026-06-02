@@ -772,9 +772,7 @@ func broadcast_lightning_arc(map_id: String, points: PackedVector2Array) -> void
 	# (the call_remote RPC below never runs on the server).
 	if get_player_map(1) == map_id:
 		_spawn_lightning_arc_visual(points)
-	for peer_id in get_real_players_on_map(map_id):
-		if peer_id != 1:
-			client_show_lightning_arc.rpc_id(peer_id, points)
+	broadcast_to_map(map_id, func(peer_id): client_show_lightning_arc.rpc_id(peer_id, points), true, true)
 
 
 ## [Server -> Client] Draws the chain-lightning arc on this peer. Routed through
@@ -818,9 +816,7 @@ func broadcast_ground_zone(map_id: String, pos: Vector2, radius: float, duration
 func broadcast_ground_zone_shaped(map_id: String, pos: Vector2, shape_type: int, radius: float, rect_size: Vector2, duration: float, color: Color) -> void:
 	if not multiplayer.is_server():
 		return
-	for peer_id in get_real_players_on_map(map_id):
-		if peer_id != 1:
-			client_show_ground_zone_shaped.rpc_id(peer_id, pos, shape_type, radius, rect_size, duration, color)
+	broadcast_to_map(map_id, func(peer_id): client_show_ground_zone_shaped.rpc_id(peer_id, pos, shape_type, radius, rect_size, duration, color), true, true)
 
 
 ## [Server -> Client] Spawns a visual-only GroundZone on this peer. Routed
@@ -898,9 +894,7 @@ func broadcast_player_appearance(player_id: int) -> void:
 	# Apply on the host directly — client_apply_appearance early-returns on the
 	# server, but the host is also a client and must render the bot.
 	node.apply_appearance(class_type, level)
-	for peer_id in get_real_players_on_map(get_player_map(player_id)):
-		if peer_id != 1:
-			client_apply_appearance.rpc_id(peer_id, player_id, class_type, level)
+	broadcast_to_map(get_player_map(player_id), func(peer_id): client_apply_appearance.rpc_id(peer_id, player_id, class_type, level), true, true)
 
 
 ## [Server -> Client] Applies a player/bot's sprite frames for its class/level.
@@ -1055,6 +1049,23 @@ func get_players_on_map(map_id: String) -> Array:
 func get_real_players_on_map(map_id: String) -> Array:
 	var all_players := get_players_on_map(map_id)
 	return all_players.filter(func(id): return not BotManager.is_bot(id))
+
+
+## Server-only. Invokes `fn(peer_id)` for each client on `map_id`. The single
+## seam for "send this to everyone on a map": it owns the player lookup, the
+## bot exclusion (bots are clientless, so excluded by default — never
+## node-address a bot), and the optional host skip (peer 1, for call_remote-style
+## RPCs the server already applied locally). Replaces the
+## get_real_players_on_map(...) + for-loop + `if peer_id != 1` boilerplate that
+## was re-derived (inconsistently) across many broadcast sites.
+func broadcast_to_map(map_id: String, fn: Callable, exclude_bots: bool = true, skip_host: bool = false) -> void:
+	if not multiplayer.is_server():
+		return
+	var peers: Array = get_real_players_on_map(map_id) if exclude_bots else get_players_on_map(map_id)
+	for peer_id in peers:
+		if skip_host and peer_id == 1:
+			continue
+		fn.call(peer_id)
 
 func get_player_map(player_id: int) -> String:
 	if not multiplayer.is_server(): return ""

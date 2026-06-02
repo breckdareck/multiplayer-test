@@ -51,5 +51,4 @@ func play_sfx_rpc(sfx_path: String, global_position: Vector2 = Vector2.ZERO, vol
 func play_sfx_for_map(map_id: String, sfx_path: String, global_position: Vector2 = Vector2.ZERO, volume_db: float = 0.0):
 	if not multiplayer.is_server():
 		return
-	for peer_id in MapManager.get_real_players_on_map(map_id):
-		play_sfx_rpc.rpc_id(peer_id, sfx_path, global_position, volume_db)
+	MapManager.broadcast_to_map(map_id, func(peer_id): play_sfx_rpc.rpc_id(peer_id, sfx_path, global_position, volume_db))
