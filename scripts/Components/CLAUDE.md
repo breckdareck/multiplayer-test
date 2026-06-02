@@ -146,7 +146,19 @@ Player (MultiplayerPlayerV2)
     ├── WeaponMastery weapon_mastery.gd - Per-discipline mastery levels + XP (PR 2)
     │                                     mastery_data: {sword/bow/staff/dagger →
     │                                     {level, xp}}. Drives STR/DEX/INT/LUK
-    │                                     scaling additively on top of class-level.
+    │                                     scaling (weapon-pure: attribute pool +
+    │                                     mastery, no class-level STR).
+    │                                     ADR 0004 (2026-06-02): ALSO owns the
+    │                                     character's primary_discipline pointer —
+    │                                     the absorbed ClassComponent role. Set once
+    │                                     at spawn via set_primary_discipline()
+    │                                     (+_rpc, emits primary_discipline_changed);
+    │                                     persisted via the existing character_type
+    │                                     save field. Provides get_primary_discipline/
+    │                                     get_primary_abilities/get_base_stats/
+    │                                     get_class_bonuses/get_discipline_name. The
+    │                                     setter normalizes legacy advanced classes
+    │                                     (CRUSADER/RANGER/ARCHMAGE/ASSASSIN) → tier-1.
     │                                     Kill XP credits BOTH primary AND secondary
     │                                     equipped weapons (PR 4 fix 2026-05-28);
     │                                     cast XP only credits the ACTIVE weapon.
@@ -273,17 +285,11 @@ Player (MultiplayerPlayerV2)
     │                               from stealth = execute bonus on targets ≤35% HP
     │                               (AL_Eviscerate).
     ├── Buff       buff.gd        - timed buffs/debuffs, stacking, custom logic
-    ├── Class      class.gd       - current_class = STARTING weapon discipline
-    │                               (does NOT change on weapon swap). Drives HP/MP
-    │                               curves. For "what am I wielding right now", use
-    │                               MultiplayerPlayerV2.get_active_discipline().
-    │                               PR 7: NO class advancement (classes don't
-    │                               exist, only weapons). The current_class setter
-    │                               normalizes any legacy advanced class
-    │                               (CRUSADER/RANGER/ARCHMAGE/ASSASSIN) back to its
-    │                               tier-1 weapon discipline, so current_class is
-    │                               ALWAYS one of SWORD/STAFF/BOW/DAGGER (+BEGINNER).
-    │                               stats.gd no longer has advanced-class HP arms.
+    │  (Class/class.gd REMOVED — ADR 0004, 2026-06-02. The "starting/primary
+    │   discipline" pointer it owned is now WeaponMastery.primary_discipline; it
+    │   still drives HP/MP curves + base stats, does NOT change on weapon swap, and
+    │   is ALWAYS one of SWORD/STAFF/BOW/DAGGER (+BEGINNER) after the advanced-class
+    │   normalization. For "what am I wielding right now", use get_active_discipline().)
     ├── Leveling   level.gd       - experience and level-ups
     ├── Equipment  equipment.gd   - 6 slots after PR 3: head/chest/legs/feet/weapon
     │                               + secondary_weapon. active_weapon tracks which
