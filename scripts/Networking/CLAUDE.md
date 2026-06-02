@@ -12,7 +12,8 @@ these scripts are autoloads (see the root `CLAUDE.md` autoload table).
 | `player_manager.gd` | Spawns/despawns player & bot characters; `get_player_node(id)` lookup |
 | `channel_manager.gd` | Switches server channels (ports) without a full restart |
 | `network_utils.gd` | IP/port validation and scene-path helpers |
-| `network_manager.gd` | HTTP bridge to the Flask backend (login, character CRUD, save/load) |
+| `network_manager.gd` | HTTP bridge to the Flask backend (login, character CRUD, character load) |
+| `player_persistence.gd` | `PlayerPersistence` — shared local-file fallback (canonical `res://saves` path + read-merge-write) used by the three HTTP autoloads |
 | `PartyData.gd` | Plain data class for a party (members, leader, invites) |
 
 ## Server-authoritative model
@@ -58,5 +59,12 @@ to disconnect signals before `queue_free()`.
 
 ## Backend bridge
 
-`network_manager.gd` is the only script that talks HTTP to Flask, via `HTTPRequest`
-against `http://localhost:5000`. Endpoints and payloads: [backend/CLAUDE.md](../../backend/CLAUDE.md).
+Three autoloads talk HTTP to Flask via `HTTPRequest` (against `http://localhost:5000`):
+`network_manager.gd` (account / character CRUD, login), `player_manager.gd`
+(character *load* on spawn), and `save_manager.gd` (debounced *saves*). They each
+own their own `HTTPRequest` lifecycle and retry, but share one local-file fallback:
+`player_persistence.gd` (`PlayerPersistence`) owns the canonical `res://saves`
+path and the read-merge-write helpers, so the offline fallback behaves identically
+across all three. The backend URL is resolved on demand from `UserConfig` in every
+HTTP caller, so a runtime `set_backend_api_url()` takes effect without a restart.
+Endpoints and payloads: [backend/CLAUDE.md](../../backend/CLAUDE.md).

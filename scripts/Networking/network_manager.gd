@@ -126,27 +126,7 @@ func get_characters():
 				var dev_char_name = "Dev" + class_name_str
 				var dev_file_path = saves_path.path_join("player_%s.json" % dev_char_name)
 				if not FileAccess.file_exists(dev_file_path):
-					var is_advanced = class_enum >= Constants.ClassType.CRUSADER
-					var starting_level = 30 if is_advanced else 1
-					var save_data = {
-							"username": dev_char_name,
-							"level": starting_level,
-							"experience": 0,
-							"character_class": class_enum,
-							"current_health": 100,
-							"max_health": 100,
-							"current_mana": 100,
-							"max_mana": 100,
-							"monies": 0,
-							"inventory": {},
-							"equipment": {},
-							# PR 4: per-discipline ability-point pools. New chars get the
-						# full level-1->starting-level allotment in their starting
-						# discipline's pool; the other three start at zero.
-						"abilities": {"available_points_per_discipline": _starter_ability_point_pools(class_enum, starting_level)},
-							"buffs": {},
-							"quests": {}
-						}
+					var save_data = _default_new_character_save(dev_char_name, class_enum)
 					var file = FileAccess.open(dev_file_path, FileAccess.WRITE)
 					if file:
 						file.store_string(JSON.stringify(save_data, "\t"))
@@ -232,26 +212,7 @@ func create_character(char_name, class_id):
 			#print("Create character: FileAccess.open failed, error: ", FileAccess.get_open_error())
 			character_creation_failed.emit("Failed to create save file")
 			return
-		var is_advanced = class_id >= Constants.ClassType.CRUSADER
-		var starting_level = 30 if is_advanced else 1
-		var save_data = {
-			"username": char_name,
-			"level": starting_level,
-			"experience": 0,
-			"character_class": class_id,
-			"current_health": 100,
-			"max_health": 100,
-			"current_mana": 100,
-			"max_mana": 100,
-			"monies": 0,
-			"inventory": {},
-			"equipment": {},
-			# PR 4: per-discipline ability-point pools. See dev-mode site for
-			# the helper that fills the starting discipline and zeros the rest.
-			"abilities": {"available_points_per_discipline": _starter_ability_point_pools(class_id, starting_level)},
-			"buffs": {},
-			"quests": {}
-		}
+		var save_data = _default_new_character_save(char_name, class_id)
 		file.store_string(JSON.stringify(save_data, "\t"))
 		file.close()
 		character_created.emit(char_name)
@@ -354,6 +315,35 @@ func _on_delete_character_completed(result, response_code, _headers, body, http,
 	http.queue_free()
 
 
+## Builds the default save blob for a brand-new character. Used by both the
+## local create-character path and the dev-mode per-class seeding in
+## get_characters() — previously two byte-for-byte copies that drifted apart.
+## Advanced (tier-2) classes start at level 30; everyone else at level 1.
+func _default_new_character_save(char_name: String, class_id: int) -> Dictionary:
+	var is_advanced := class_id >= Constants.ClassType.CRUSADER
+	var starting_level := 30 if is_advanced else 1
+	return {
+		"username": char_name,
+		"level": starting_level,
+		"experience": 0,
+		"character_class": class_id,
+		"current_health": 100,
+		"max_health": 100,
+		"current_mana": 100,
+		"max_mana": 100,
+		"monies": 0,
+		"inventory": {},
+		"equipment": {},
+		# PR 4: per-discipline ability-point pools. All four tier-1 pools start
+		# at zero — the starting point comes from
+		# AbilityComponent.bootstrap_fresh_character_if_needed bumping the chosen
+		# discipline to mastery 1 (which grants 1 point via mastery_level_changed).
+		"abilities": {"available_points_per_discipline": _starter_ability_point_pools(class_id, starting_level)},
+		"buffs": {},
+		"quests": {}
+	}
+
+
 ## PR 8 (2026-05-31): seeds an empty per-discipline ability-point pool dict
 ## for a newly-created character. All four tier-1 pools start at zero — the
 ## starting point comes from AbilityComponent.bootstrap_fresh_character_if_needed
@@ -369,20 +359,3 @@ func _starter_ability_point_pools(_class_id: int, _starting_level: int) -> Dicti
 		"staff": 0,
 		"dagger": 0,
 	}
-
-
-## PR 4: maps a `Constants.ClassType` int (tier-1 starting OR tier-2
-## advancement) to the lowercase discipline key. Mirrors the helper in
-## `AbilityComponent` (kept duplicated here so this autoload doesn't have
-## to reach into a sibling node before the player exists).
-func _class_id_to_discipline_key(class_id: int) -> String:
-	match class_id:
-		Constants.ClassType.SWORD, Constants.ClassType.CRUSADER:
-			return "sword"
-		Constants.ClassType.BOW, Constants.ClassType.RANGER:
-			return "bow"
-		Constants.ClassType.STAFF, Constants.ClassType.ARCHMAGE:
-			return "staff"
-		Constants.ClassType.DAGGER, Constants.ClassType.ASSASSIN:
-			return "dagger"
-	return ""
