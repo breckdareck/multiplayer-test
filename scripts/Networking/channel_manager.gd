@@ -21,13 +21,6 @@ func switch_channel(new_port: int):
 func is_switching() -> bool:
 	return _is_switching
 
-func get_switch_progress() -> Dictionary:
-	return {
-		"switching": _is_switching,
-		"start_time": _switch_start_time,
-		"elapsed": Time.get_time_dict_from_system().hour * 3600 + Time.get_time_dict_from_system().minute * 60 + Time.get_time_dict_from_system().second - _switch_start_time if _is_switching else 0.0
-	}
-
 func _can_switch_channels(new_port: int) -> bool:
 	"""Check if channel switching is possible"""
 	if multiplayer.is_server():
@@ -191,31 +184,3 @@ func _handle_switch_failure():
 	
 	# Return to login screen
 	get_tree().change_scene_to_file("res://scenes/UI/LoginScreen.tscn")
-
-# === UTILITY FUNCTIONS ===
-func get_available_channels() -> Array:
-	"""Get list of potentially available channels (for UI)"""
-	var base_port = ClientManager.current_server_port
-	if base_port == 0:
-		base_port = 8080
-	
-	var channels = []
-	for i in range(-2, 3): # Show 5 channels around current
-		var port = base_port + i
-		if port > 0 and port <= 65535 and port != ClientManager.current_server_port:
-			channels.append({
-				"port": port,
-				"name": "Channel %d" % port,
-				"current": false
-			})
-	
-	return channels
-
-func quick_test_channel(port: int) -> bool:
-	"""Quick test if a channel is reachable (non-blocking, for UI)"""
-	if port == ClientManager.current_server_port:
-		return true
-	
-	# This would need to be implemented as a very quick, non-blocking test
-	# For now, return true to indicate "potentially available"
-	return NetworkUtils.is_valid_port(port)

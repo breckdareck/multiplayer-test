@@ -39,31 +39,6 @@ func cleanup():
 	_disconnect()
 	multiplayer.multiplayer_peer = null
 
-func get_connection_info() -> Dictionary:
-	return {
-		"ip": current_server_ip,
-		"port": current_server_port,
-		"connected": _is_connected(),
-		"connection_time": _connection_attempt_time
-	}
-
-func _is_connected() -> bool:
-	return _client_peer != null and _client_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED
-
-func get_connection_status() -> String:
-	if not _client_peer:
-		return "Not Connected"
-	
-	match _client_peer.get_connection_status():
-		MultiplayerPeer.CONNECTION_DISCONNECTED:
-			return "Disconnected"
-		MultiplayerPeer.CONNECTION_CONNECTING:
-			return "Connecting"
-		MultiplayerPeer.CONNECTION_CONNECTED:
-			return "Connected"
-		_:
-			return "Unknown"
-
 # Called by multiplayer manager when connection signals are received
 func _on_connection_succeeded():
 	#print("Client connection succeeded to %s:%d" % [current_server_ip, current_server_port])
