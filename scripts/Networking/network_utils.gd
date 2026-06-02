@@ -65,50 +65,6 @@ func get_players_spawn_node(scene_tree: SceneTree) -> Node:
 		return scene.find_child("Players", true, false)
 	return null
 
-func get_node_safe(node: Node, path: String) -> Node:
-	if not node:
-		return null
-	return node.get_node_or_null(path)
-
-# === CLEANUP UTILITIES ===
-func clear_networked_entities(scene_tree: SceneTree) -> void:
-	var scene_root = scene_tree.get_current_scene()
-	if not scene_root:
-		return
-	
-	for entity in scene_root.get_tree().get_nodes_in_group("networked_entities"):
-		if is_instance_valid(entity):
-			entity.queue_free()
-
-func safe_disconnect_signal(signal_obj: Signal, callable_obj: Callable):
-	if signal_obj.is_connected(callable_obj):
-		signal_obj.disconnect(callable_obj)
-
-# === CONNECTION TESTING ===
-func test_tcp_connection(ip: String, port: int, timeout: float = 2.0) -> bool:
-	var tcp = StreamPeerTCP.new()
-	var error = tcp.connect_to_host(ip, port)
-	
-	if error != OK:
-		return false
-	
-	var time_waited = 0.0
-	while time_waited < timeout:
-		tcp.poll()
-		var status = tcp.get_status()
-		
-		if status == StreamPeerTCP.STATUS_CONNECTED:
-			tcp.disconnect_from_host()
-			return true
-		elif status == StreamPeerTCP.STATUS_ERROR:
-			return false
-		
-		await Engine.get_main_loop().process_frame
-		time_waited += get_process_delta_time()
-	
-	tcp.disconnect_from_host()
-	return false
-
 # === LOGGING UTILITIES ===
 func log_network_event(event_type: String, details: String = ""):
 	var timestamp = Time.get_datetime_string_from_system()
@@ -129,18 +85,3 @@ func is_valid_port(port: int) -> bool:
 
 func is_port_in_range(port: int, min_port: int, max_port: int) -> bool:
 	return port >= min_port and port <= max_port
-
-# === MULTIPLAYER UTILITIES ===
-func get_multiplayer_info() -> Dictionary:
-	return {
-		"is_server": multiplayer.is_server(),
-		"unique_id": multiplayer.get_unique_id(),
-		"has_peer": multiplayer.multiplayer_peer != null,
-		"connected": multiplayer.multiplayer_peer != null and multiplayer.multiplayer_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED
-	}
-
-func format_player_id(id: int) -> String:
-	if id == 1:
-		return "Host"
-	else:
-		return "Player_%d" % id

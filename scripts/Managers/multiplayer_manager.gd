@@ -236,25 +236,6 @@ func _ping_response():
 			_ping_display.add_theme_color_override("font_color", Color.RED)
 
 # === UTILITY METHODS ===
-# These methods are deprecated - kept for backward compatibility with main_menu
-func _setup_menu_container():
-	# Try to get menu_container if it exists (for backward compatibility)
-	var scene = get_tree().get_current_scene()
-	if scene.has_node("%MenuContainer"):
-		menu_container = scene.get_node("%MenuContainer")
-		if menu_container and menu_container.has_method("get_node") and menu_container.has_node("connection_status_label"):
-			menu_container.connection_status_label.text = ""
-
-func _update_ui_for_host():
-	if not menu_container or not is_instance_valid(menu_container):
-		#print("MultiplayerManager: No menu container, skipping UI update")
-		return
-	menu_container.hide()
-	if menu_container.has_method("setup_PID_label"):
-		menu_container.setup_PID_label(true, multiplayer.get_unique_id())
-	if menu_container.has_node("connection_panel"):
-		menu_container.connection_panel.show()
-
 func _update_ui_for_client():
 	if not menu_container or not is_instance_valid(menu_container):
 		#print("MultiplayerManager: No menu container, skipping UI update")

@@ -1073,13 +1073,3 @@ func get_player_map_node(player_id: int) -> Node:
 	if map_id and active_maps.has(map_id):
 		return active_maps[map_id].scene_instance
 	return null
-
-func _find_all_nodes_of_type(root: Node, type_name: String) -> Array:
-	var nodes = []
-	if root.is_class(type_name):
-		nodes.append(root)
-	
-	for child in root.get_children():
-		nodes.append_array(_find_all_nodes_of_type(child, type_name))
-		
-	return nodes

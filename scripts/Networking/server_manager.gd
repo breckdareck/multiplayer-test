@@ -62,22 +62,8 @@ func stop_server():
 	_current_port = 0
 	_is_dedicated = false
 
-func get_current_port() -> int:
-	return _current_port
-
 func is_server_running() -> bool:
 	return _server_peer != null and _current_port > 0
-
-func is_dedicated_server() -> bool:
-	return _is_dedicated
-
-func get_server_info() -> Dictionary:
-	return {
-		"running": is_server_running(),
-		"dedicated": _is_dedicated,
-		"port": _current_port,
-		"ip": NetworkUtils.get_public_ip_address() if is_server_running() else ""
-	}
 
 func _finalize_server_setup(port: int):
 	_current_port = port
