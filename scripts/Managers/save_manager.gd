@@ -334,7 +334,6 @@ func _send_via_slot(slot: int, job: SaveJob) -> void:
 		return
 
 	var req: HTTPRequest = _http_pool[slot]
-	var headers: PackedStringArray = ["Content-Type: application/json"]
 	var payload := {
 		"username": job.username,
 		"data": job.data,
@@ -342,19 +341,18 @@ func _send_via_slot(slot: int, job: SaveJob) -> void:
 		# bot account so their Player row satisfies the NOT NULL account FK.
 		"is_bot": BotManager.is_bot_username(job.username),
 	}
-	var json_body: String = JSON.stringify(payload)
 
-	var error := req.request(_api_url + "/save", headers, HTTPClient.METHOD_POST, json_body)
-	if error != OK:
-		push_error("SaveManager: HTTP request failed to start for '%s'. Error: %d" % [job.username, error])
+	# First attempt. BackendHttp owns the wire protocol; SaveManager keeps its
+	# pool + retry-then-local-file policy. The /save response body is unused —
+	# only the status code matters.
+	var resp: Dictionary = await BackendHttp.post_json(req, _api_url + "/save", payload)
+	if not resp.started:
+		push_error("SaveManager: HTTP request failed to start for '%s'." % job.username)
 		_save_to_file(job.data)
-		_release_slot(slot, job, false, "HTTP request failed to start (error %d)" % error)
+		_release_slot(slot, job, false, "HTTP request failed to start")
 		return
 
-	var result: Array = await req.request_completed
-	var response_code: int = result[1]
-
-	if response_code == 200:
+	if resp.code == 200:
 		_release_slot(slot, job, true, "")
 		return
 
@@ -362,22 +360,19 @@ func _send_via_slot(slot: int, job: SaveJob) -> void:
 	if not job.is_flush:
 		await get_tree().create_timer(RETRY_DELAY).timeout
 
-	var retry_error := req.request(_api_url + "/save", headers, HTTPClient.METHOD_POST, json_body)
-	if retry_error != OK:
+	var retry: Dictionary = await BackendHttp.post_json(req, _api_url + "/save", payload)
+	if not retry.started:
 		push_error("SaveManager: Retry request failed to start for '%s'." % job.username)
 		_save_to_file(job.data)
 		_release_slot(slot, job, false, "Retry request failed to start")
 		return
 
-	var retry_result: Array = await req.request_completed
-	var retry_response_code: int = retry_result[1]
-
-	if retry_response_code == 200:
+	if retry.code == 200:
 		_release_slot(slot, job, true, "")
 	else:
-		push_error("SaveManager: Retry failed for '%s' (HTTP %d). Falling back to file." % [job.username, retry_response_code])
+		push_error("SaveManager: Retry failed for '%s' (HTTP %d). Falling back to file." % [job.username, retry.code])
 		_save_to_file(job.data)
-		_release_slot(slot, job, false, "HTTP save failed after retry (code %d)" % retry_response_code)
+		_release_slot(slot, job, false, "HTTP save failed after retry (code %d)" % retry.code)
 
 
 ## Frees the pool slot and unblocks anyone awaiting this job. If new dirty data

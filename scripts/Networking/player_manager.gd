@@ -315,59 +315,30 @@ func _load_player_data_async(username: String) -> Dictionary:
 		await get_tree().process_frame
 
 	_load_in_progress = true
-	#print("PlayerManager: Attempting to load data for %s from API..." % username)
 
-	var json = JSON.stringify({"username": username})
-	var headers = ["Content-Type: application/json"]
-	var error = _load_http_request.request(_api_url + "/load", headers, HTTPClient.METHOD_POST, json)
-
-	if error != OK:
-		#print("PlayerManager: HTTP load request failed to start for %s. Error: %d" % [username, error])
+	# First attempt. BackendHttp owns the wire protocol (headers / JSON / parse);
+	# this function keeps its own single-flight policy (_load_in_progress) + the
+	# retry-then-local-file fallback.
+	var resp: Dictionary = await BackendHttp.post_json(_load_http_request, _api_url + "/load", {"username": username})
+	if not resp.started:
 		_load_in_progress = false
-		#print("PlayerManager: WARNING - Loading %s from LOCAL FILE (API unavailable)" % username)
 		return _load_player_data_from_file(username)
+	if resp.code == 200 and resp.json != null:
+		_load_in_progress = false
+		if resp.json.is_empty():
+			return {}  # API reached, no existing save → brand-new character
+		return PlayerSaveSchema.normalize_loaded(resp.json)
 
-	var result = await _load_http_request.request_completed
-	var response_code = result[1]
-	var body = result[3]
-
-	if response_code == 200:
-		var json_result = JSON.parse_string(body.get_string_from_utf8())
-		if json_result != null:
-			_load_in_progress = false
-			if json_result.is_empty():
-				#print("PlayerManager: Loaded %s via API (no existing save data)" % username)
-				return {}
-
-			#print("PlayerManager: Loaded %s via API" % username)
-			return PlayerSaveSchema.normalize_loaded(json_result)
-
-	#print("PlayerManager: API load failed for %s (code: %d). Retrying..." % [username, response_code])
+	# Retry once after a short delay.
 	await get_tree().create_timer(1.0).timeout
-
-	# Retry once
-	error = _load_http_request.request(_api_url + "/load", headers, HTTPClient.METHOD_POST, json)
-	if error != OK:
-		_load_in_progress = false
-		#print("PlayerManager: WARNING - Loading %s from LOCAL FILE (API unavailable)" % username)
-		return _load_player_data_from_file(username)
-
-	result = await _load_http_request.request_completed
-	response_code = result[1]
-	body = result[3]
+	var retry: Dictionary = await BackendHttp.post_json(_load_http_request, _api_url + "/load", {"username": username})
 	_load_in_progress = false
+	if retry.started and retry.code == 200 and retry.json != null:
+		if retry.json.is_empty():
+			return {}
+		return PlayerSaveSchema.normalize_loaded(retry.json)
 
-	if response_code == 200:
-		var json_result = JSON.parse_string(body.get_string_from_utf8())
-		if json_result != null:
-			if json_result.is_empty():
-				#print("PlayerManager: Retry succeeded for %s (no existing save data)" % username)
-				return {}
-
-			#print("PlayerManager: Retry succeeded for %s" % username)
-			return PlayerSaveSchema.normalize_loaded(json_result)
-
-	#print("PlayerManager: WARNING - Loading %s from LOCAL FILE (API unavailable after retry)" % username)
+	# API unavailable after retry — fall back to the local save file.
 	return _load_player_data_from_file(username)
 
 

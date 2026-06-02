@@ -14,6 +14,7 @@ these scripts are autoloads (see the root `CLAUDE.md` autoload table).
 | `channel_manager.gd` | Switches server channels (ports) without a full restart |
 | `network_utils.gd` | IP/port validation and scene-path helpers |
 | `network_manager.gd` | HTTP bridge to the Flask backend (login, character CRUD, character load) |
+| `backend_http.gd` | `BackendHttp` — the wire protocol (headers / JSON / request / await / parse) in one place. `post_json(http, url, payload)` → `{started, code, json}`. Callers supply their own HTTPRequest node + retry policy |
 | `player_persistence.gd` | `PlayerPersistence` — shared local-file fallback (canonical `res://saves` path + read-merge-write) used by the three HTTP autoloads |
 | `player_save_schema.gd` | `PlayerSaveSchema` — single source of truth for the Player-save SHAPE: `normalize_loaded()` (default-field fill on every load path) + `new_character()` (the new-character template). Owns the shape, not the per-component value reads |
 | `PartyData.gd` | Plain data class for a party (members, leader, invites) |
@@ -64,7 +65,10 @@ to disconnect signals before `queue_free()`.
 Three autoloads talk HTTP to Flask via `HTTPRequest` (against `http://localhost:5000`):
 `network_manager.gd` (account / character CRUD, login), `player_manager.gd`
 (character *load* on spawn), and `save_manager.gd` (debounced *saves*). They each
-own their own `HTTPRequest` lifecycle and retry, but share one local-file fallback:
+own their own `HTTPRequest` lifecycle and retry policy, but the **wire protocol**
+(headers, JSON serialize/parse, await completion) lives once in `BackendHttp`
+(`backend_http.gd`) — the `await`-based callers (loader + saver) route through
+`BackendHttp.post_json`. They also share one local-file fallback:
 `player_persistence.gd` (`PlayerPersistence`) owns the canonical `res://saves`
 path and the read-merge-write helpers, so the offline fallback behaves identically
 across all three. The backend URL is resolved on demand from `UserConfig` in every
