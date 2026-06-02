@@ -667,13 +667,9 @@ func _get_player_name(player_id: int) -> String:
 
 
 ## Sends a system message to a player — directly if it is the host, else by RPC.
+## Delegates to the canonical server->peer seam (CHAT surface).
 func _notify_player(player_id: int, message: String, color: Color) -> void:
-	if BotManager.is_bot(player_id):
-		return
-	if player_id == multiplayer.get_unique_id():
-		ChatManager.add_system_message(message, color)
-	else:
-		ChatManager.add_system_message.rpc_id(player_id, message, color)
+	ChatManager.notify_peer(player_id, message, color, ChatManager.NotifySurface.CHAT)
 
 
 #=============================================================================

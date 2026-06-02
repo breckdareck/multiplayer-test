@@ -85,6 +85,14 @@ func add_item(item_id: String):
 	inventory_component.add_item(item_id)
 
 
+## Grants `amount` coins to this player. Goes through the `monies_amount`
+## setter, so the clamp to [0, MAX_MONIES_AMOUNT], the label refresh, and the
+## save-notify side effect all run exactly as a direct `monies_amount += amount`
+## would. A public verb so callers don't reach through the field.
+func grant_coins(amount: int) -> void:
+	monies_amount += amount
+
+
 func add_item_instance(item_data: ItemData):
 	if multiplayer.is_server():
 		inventory_component.server_add_item_instance(item_data.to_dictionary())
