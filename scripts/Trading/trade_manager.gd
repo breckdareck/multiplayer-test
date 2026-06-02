@@ -706,12 +706,7 @@ func _sender() -> int:
 func rpc_request_trade(target_name: String) -> void:
 	if not multiplayer.is_server():
 		return
-	var target_id := PlayerManager.get_player_id_from_name(target_name)
-	if target_id == -1:
-		for bot_id in BotManager.active_bots:
-			if BotManager.active_bots[bot_id].username.to_lower() == target_name.to_lower():
-				target_id = bot_id
-				break
+	var target_id := PlayerManager.resolve_by_name(target_name)
 	if target_id == -1:
 		_notify_player(_sender(), "No player named '%s' found." % target_name, Color.ORANGE)
 		return

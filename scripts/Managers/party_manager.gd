@@ -228,12 +228,7 @@ func rpc_send_invite(invitee_name: String):
 	if sender_id == 0:
 		sender_id = multiplayer.get_unique_id()
 	
-	var invitee_id = PlayerManager.get_player_id_from_name(invitee_name)
-	if invitee_id == -1:
-		for bot_id in BotManager.active_bots:
-			if BotManager.active_bots[bot_id].username.to_lower() == invitee_name.to_lower():
-				invitee_id = bot_id
-				break
+	var invitee_id = PlayerManager.resolve_by_name(invitee_name)
 	if invitee_id == -1:
 		#print("Server: Player not found by name: ", invitee_name)
 		return
@@ -433,37 +428,6 @@ func _client_clear_my_party_status():
 func _on_player_disconnected(player_id: int):
 	if _player_party_map.has(player_id):
 		leave_party(player_id)
-
-# Placeholder for Quest System integration
-func add_quest_to_party(party_id: int, quest_id: String):
-	if not multiplayer.is_server():
-		return
-
-	if not _parties.has(party_id):
-		#print("Party %d does not exist." % party_id)
-		return
-
-	var party: PartyData = _parties[party_id]
-	if not party.has("active_quests"): # PartyData does not directly have active_quests. Need to add this to PartyData or handle differently.
-		party["active_quests"] = [] # This line will cause an error on PartyData
-	if not quest_id in party["active_quests"]:
-		party["active_quests"].append(quest_id)
-		_send_party_data_to_members(party_id)
-		#print("Quest %s added to party %d." % [quest_id, party_id])
-
-func remove_quest_from_party(party_id: int, quest_id: String):
-	if not multiplayer.is_server():
-		return
-
-	if not _parties.has(party_id):
-		#print("Party %d does not exist." % party_id)
-		return
-
-	var party: PartyData = _parties[party_id]
-	if party.has("active_quests") and quest_id in party["active_quests"]:
-		party["active_quests"].erase(quest_id)
-		_send_party_data_to_members(party_id)
-		#print("Quest %s removed from party %d." % [quest_id, party_id])
 
 func notify_player_data_changed(player_id: int):
 	if not multiplayer.is_server():

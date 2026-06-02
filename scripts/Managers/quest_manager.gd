@@ -358,8 +358,8 @@ func record_level_up(username: String, new_level: int) -> void:
 func start_onboarding(username: String) -> void:
 	if not multiplayer.is_server():
 		return
-	var pid: int = PlayerManager.get_player_id_from_name(username)
-	if pid == -1 or BotManager.is_bot(pid):
+	var pid: int = PlayerManager.resolve_player_only(username)
+	if pid == -1:
 		return
 	var player_node: MultiplayerPlayerV2 = PlayerManager.get_player_node(pid)
 	if not is_instance_valid(player_node):
