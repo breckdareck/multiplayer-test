@@ -459,20 +459,15 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 
 
 func _load_player_data_from_file(username: String) -> Dictionary:
-	var file_path = "res://saves/player_%s.json" % username
-	if FileAccess.file_exists(file_path):
-		var file = FileAccess.open(file_path, FileAccess.READ)
-		var data = JSON.parse_string(file.get_as_text())
-		file.close()
-		if data:
-			data["party_id"] = data.get("party_id", -1)
-			data["last_map"] = data.get("last_map", "")
-			# weapon_mastery (PR 2) — legacy saves without the key load with
-			# an empty dict so the component picks up four zero-state
-			# disciplines on _ensure_default_disciplines.
-			data["weapon_mastery"] = data.get("weapon_mastery", {})
-			return data
-	return {}
+	var data := PlayerPersistence.read_save_file(username)
+	if not data.is_empty():
+		data["party_id"] = data.get("party_id", -1)
+		data["last_map"] = data.get("last_map", "")
+		# weapon_mastery (PR 2) — legacy saves without the key load with
+		# an empty dict so the component picks up four zero-state
+		# disciplines on _ensure_default_disciplines.
+		data["weapon_mastery"] = data.get("weapon_mastery", {})
+	return data
 
 
 func _load_player_data_async(username: String) -> Dictionary:
@@ -549,92 +544,12 @@ func _load_player_data_async(username: String) -> Dictionary:
 
 
 func _save_player_data_to_file(data: Dictionary):
-	"""Save player data to file (Fallback) - Merges partial updates"""
-	var username = data.get("username", "")
-	if username.is_empty():
-		return
-	
-	var file_path = "player_%s.json" % username
-	var existing_data = {}
-	
-	# Read existing data first to merge
-	if FileAccess.file_exists(file_path):
-		var file_read = FileAccess.open(file_path, FileAccess.READ)
-		if file_read:
-			existing_data = JSON.parse_string(file_read.get_as_text())
-			file_read.close()
-			if existing_data == null: existing_data = {}
-	
-	# Merge new data into existing data
-	existing_data.merge(data, true) # true = overwrite existing keys
-	
-	var file = FileAccess.open(file_path, FileAccess.WRITE)
-	if file:
-		file.store_string(JSON.stringify(existing_data))
-		file.close()
-		#print("PlayerManager: Saved to local file for ", username)
-
-
-func _save_player_data_async(data: Dictionary) -> void:
-	var username = data.get("username", "")
-	if username.is_empty():
-		return
-
-	if NetworkManager.use_local_save:
-		#print("PlayerManager: Local Save enabled. Saving to file for ", username)
-		_save_player_data_to_file(data)
-		return
-
-	#print("PlayerManager: Attempting to save data for %s to API..." % username)
-
-	var request = HTTPRequest.new()
-	add_child(request)
-	request.timeout = 5.0
-
-	var payload = {
-		"username": username,
-		"data": data
-	}
-
-	var json = JSON.stringify(payload)
-	var headers = ["Content-Type: application/json"]
-	var error = request.request(_api_url + "/save", headers, HTTPClient.METHOD_POST, json)
-
-	if error != OK:
-		#print("PlayerManager: HTTP save request failed to start for %s. Error: %d" % [username, error])
-		request.queue_free()
-		#print("PlayerManager: WARNING - Saved %s to LOCAL FILE (API unavailable)" % username)
-		_save_player_data_to_file(data)
-		return
-
-	var result = await request.request_completed
-	var response_code = result[1]
-
-	if response_code == 200:
-		#print("PlayerManager: Saved %s via API" % username)
-		request.queue_free()
-		return
-
-	# First attempt failed — retry once after 1 second
-	#print("PlayerManager: API save failed for %s (code: %d), retrying..." % [username, response_code])
-	await get_tree().create_timer(1.0).timeout
-
-	error = request.request(_api_url + "/save", headers, HTTPClient.METHOD_POST, json)
-	if error != OK:
-		request.queue_free()
-		#print("PlayerManager: WARNING - Saved %s to LOCAL FILE (API unavailable)" % username)
-		_save_player_data_to_file(data)
-		return
-
-	result = await request.request_completed
-	response_code = result[1]
-	request.queue_free()
-
-	if response_code == 200:
-		print("PlayerManager: Retry succeeded for %s" % username)
-	else:
-		print("PlayerManager: WARNING - Saved %s to LOCAL FILE (API unavailable after retry, code: %d)" % [username, response_code])
-		_save_player_data_to_file(data)
+	"""Save player data to file (fallback) — read-merge-write to the canonical
+	res://saves path. Delegates to the shared PlayerPersistence helper so the
+	path and merge semantics match NetworkManager / SaveManager exactly. (This
+	previously wrote a bare `player_%s.json` to the process CWD — a stray,
+	wrong-directory save that never lined up with the real saves folder.)"""
+	PlayerPersistence.write_save_file_merged(data)
 
 
 func _get_quick_save_data(player_id: int) -> Dictionary:

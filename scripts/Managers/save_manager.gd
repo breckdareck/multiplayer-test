@@ -36,7 +36,12 @@ const VALID_CATEGORIES: PackedStringArray = [
 	"stats", "inventory", "abilities", "buffs", "pets", "quests"
 ]
 
-var _api_url: String = ""  # Will be loaded from UserConfig
+# Computed so a runtime change via UserConfig.set_backend_api_url(...) takes
+# effect immediately on the next request. Previously this was cached at _ready,
+# so switching the backend URL in-game left SaveManager pointed at the old one
+# (NetworkManager/PlayerManager already resolve theirs on demand).
+var _api_url: String:
+	get: return UserConfig.get_backend_api_url() + "/player"
 
 # ── Per-player tracking ───────────────────────────────────────────────────
 ## Registered players: username -> { node, dirty_categories, timer }
@@ -66,9 +71,6 @@ class SaveJob extends RefCounted:
 
 
 func _ready() -> void:
-	# Load API URL from config (supports environment variable override)
-	_api_url = UserConfig.get_backend_api_url() + "/player"
-
 	# SaveManager only does work on the server
 	if not _is_server():
 		return
@@ -405,38 +407,8 @@ func _release_slot(slot: int, job: SaveJob, success: bool, err: String) -> void:
 # ═══════════════════════════════════════════════════════════════════════════
 
 func _save_to_file(data: Dictionary) -> void:
-	var uname: String = data.get("username", "")
-	if uname.is_empty():
-		push_error("SaveManager: Cannot save to file — no username in data.")
-		return
-
-	var file_path: String = "res://saves/player_%s.json" % uname
-
-	# Create saves directory if it doesn't exist
-	var dir = DirAccess.open("res://")
-	if dir:
-		if not dir.dir_exists("saves"):
-			dir.make_dir("saves")
-
-	var existing_data: Dictionary = {}
-
-	if FileAccess.file_exists(file_path):
-		var file_read := FileAccess.open(file_path, FileAccess.READ)
-		if file_read:
-			var parsed = JSON.parse_string(file_read.get_as_text())
-			file_read.close()
-			if parsed is Dictionary:
-				existing_data = parsed
-
-	# Merge new data into existing (overwrite matching keys)
-	existing_data.merge(data, true)
-
-	var file_write := FileAccess.open(file_path, FileAccess.WRITE)
-	if file_write:
-		file_write.store_string(JSON.stringify(existing_data))
-		file_write.close()
-	else:
-		push_error("SaveManager: Failed to open file for writing: %s" % file_path)
+	# Shared read-merge-write fallback (canonical res://saves path).
+	PlayerPersistence.write_save_file_merged(data)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
