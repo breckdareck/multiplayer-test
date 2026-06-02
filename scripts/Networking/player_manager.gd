@@ -302,14 +302,7 @@ func _initialize_spawned_player(id: int, character_type: int, username: String, 
 
 func _load_player_data_from_file(username: String) -> Dictionary:
 	var data := PlayerPersistence.read_save_file(username)
-	if not data.is_empty():
-		data["party_id"] = data.get("party_id", -1)
-		data["last_map"] = data.get("last_map", "")
-		# weapon_mastery (PR 2) — legacy saves without the key load with
-		# an empty dict so the component picks up four zero-state
-		# disciplines on _ensure_default_disciplines.
-		data["weapon_mastery"] = data.get("weapon_mastery", {})
-	return data
+	return PlayerSaveSchema.normalize_loaded(data)
 
 
 func _load_player_data_async(username: String) -> Dictionary:
@@ -347,11 +340,7 @@ func _load_player_data_async(username: String) -> Dictionary:
 				return {}
 
 			#print("PlayerManager: Loaded %s via API" % username)
-			# Ensure default fields exist
-			json_result["party_id"] = json_result.get("party_id", -1)
-			json_result["last_map"] = json_result.get("last_map", "")
-			json_result["weapon_mastery"] = json_result.get("weapon_mastery", {})
-			return json_result
+			return PlayerSaveSchema.normalize_loaded(json_result)
 
 	#print("PlayerManager: API load failed for %s (code: %d). Retrying..." % [username, response_code])
 	await get_tree().create_timer(1.0).timeout
@@ -376,10 +365,7 @@ func _load_player_data_async(username: String) -> Dictionary:
 				return {}
 
 			#print("PlayerManager: Retry succeeded for %s" % username)
-			json_result["party_id"] = json_result.get("party_id", -1)
-			json_result["last_map"] = json_result.get("last_map", "")
-			json_result["weapon_mastery"] = json_result.get("weapon_mastery", {})
-			return json_result
+			return PlayerSaveSchema.normalize_loaded(json_result)
 
 	#print("PlayerManager: WARNING - Loading %s from LOCAL FILE (API unavailable after retry)" % username)
 	return _load_player_data_from_file(username)

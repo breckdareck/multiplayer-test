@@ -15,6 +15,7 @@ these scripts are autoloads (see the root `CLAUDE.md` autoload table).
 | `network_utils.gd` | IP/port validation and scene-path helpers |
 | `network_manager.gd` | HTTP bridge to the Flask backend (login, character CRUD, character load) |
 | `player_persistence.gd` | `PlayerPersistence` — shared local-file fallback (canonical `res://saves` path + read-merge-write) used by the three HTTP autoloads |
+| `player_save_schema.gd` | `PlayerSaveSchema` — single source of truth for the Player-save SHAPE: `normalize_loaded()` (default-field fill on every load path) + `new_character()` (the new-character template). Owns the shape, not the per-component value reads |
 | `PartyData.gd` | Plain data class for a party (members, leader, invites) |
 
 ## Server-authoritative model
