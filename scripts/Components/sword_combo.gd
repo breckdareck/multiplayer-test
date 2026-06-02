@@ -1,5 +1,5 @@
 class_name SwordComboComponent
-extends Node
+extends WeaponSignatureComponent
 
 ## PR 5 — Sword discipline's signature combat system: combo points.
 ##
@@ -137,6 +137,27 @@ func reset_combo() -> void:
 ## client — the client's mirror is updated via sync_combo_to_client.
 func get_combo_count() -> int:
 	return _combo_points
+
+#endregion
+
+
+#region #################### WeaponSignature interface ####################
+
+func signature_discipline() -> int:
+	return Constants.ClassType.SWORD
+
+
+## Combo PERSISTS across a Tab-swap (build with a sword, swap to bow, swap back —
+## the combo is still there). It only clears when NEITHER weapon slot holds a
+## sword, since you can't stockpile combo without a sword in your loadout. This
+## rule moved here from EquipmentComponent._reset_combo_if_sword_unequipped in
+## the WeaponSignature unification — same condition, now owned by the signature.
+func on_weapon_state_changed(_active_discipline: int, equipped_disciplines: Array) -> void:
+	if not equipped_disciplines.has(Constants.ClassType.SWORD):
+		reset_combo()
+
+# on_owner_died is intentionally NOT overridden — combo is left to decay on its
+# own timer rather than wiped on death (preserves the pre-unification behavior).
 
 #endregion
 

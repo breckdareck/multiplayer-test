@@ -246,6 +246,63 @@ func get_discipline_name() -> String:
 #endregion
 
 
+#region ---- Wielded identity (the "I am my weapon" lookups) ----
+
+## Returns the discipline the character is CURRENTLY WIELDING — the discipline of
+## the active weapon — falling back to `primary_discipline` when no weapon is
+## equipped. This is the "I am my weapon" identity lookup: use it for sprite
+## picking, attack-state branches, ability gating, signature activation, and any
+## behavior that should follow the equipped weapon rather than the chosen primary
+## discipline. (HP/MP curves intentionally stay anchored to primary_discipline —
+## they do NOT shift on weapon swap.)
+##
+## Moved here from the player root (multiplayer_controller_v2) in the candidate-1
+## deepening: WeaponMastery is the single owner of weapon identity (ADR-0004), so
+## it owns BOTH the primary pointer and the active/wielded lookup. The player root
+## keeps a thin forwarder for its many duck-typed callers.
+func get_active_discipline() -> int:
+	var equip = owner.get("equipment_component") if owner != null else null
+	if is_instance_valid(equip):
+		var weapon: WeaponData = equip.active_weapon_data
+		if weapon != null:
+			var disc: int = weapon_type_to_discipline(weapon.weapon_type)
+			if disc != -1:
+				return disc
+	return primary_discipline
+
+
+## Returns the disciplines of ALL equipped weapons — both the primary AND the
+## secondary slot — de-duplicated. Used by AbilityComponent's passive-application
+## rule: a passive from discipline X applies if X has a weapon in EITHER slot (not
+## just the active one). Trees you've invested but not equipped contribute nothing.
+##
+## If neither slot is equipped (bare-handed), falls back to [primary_discipline]
+## so passives still work in the un-equipped baseline case.
+func get_equipped_disciplines() -> Array[int]:
+	var disciplines: Array[int] = []
+	var equip = owner.get("equipment_component") if owner != null else null
+	if is_instance_valid(equip):
+		var primary_sd: SlotData = equip.weapon_slot_data
+		if primary_sd != null and primary_sd.item != null:
+			var primary_weapon: WeaponData = primary_sd.item as WeaponData
+			if primary_weapon != null:
+				var disc: int = weapon_type_to_discipline(primary_weapon.weapon_type)
+				if disc != -1:
+					disciplines.append(disc)
+		var secondary_sd: SlotData = equip.secondary_weapon_slot_data
+		if secondary_sd != null and secondary_sd.item != null:
+			var secondary_weapon: WeaponData = secondary_sd.item as WeaponData
+			if secondary_weapon != null:
+				var disc2: int = weapon_type_to_discipline(secondary_weapon.weapon_type)
+				if disc2 != -1 and not disciplines.has(disc2):
+					disciplines.append(disc2)
+	if disciplines.is_empty():
+		disciplines.append(primary_discipline)
+	return disciplines
+
+#endregion
+
+
 ## Returns the mastery level for a given discipline. Disciplines without a
 ## record return 0 — they behave as if mastery were never started.
 func get_mastery_level(discipline: int) -> int:

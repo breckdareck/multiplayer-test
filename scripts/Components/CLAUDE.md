@@ -174,6 +174,22 @@ Player (MultiplayerPlayerV2)
     │                                     cast time. Spam-cast in empty area =
     │                                     0 XP. Self-targeted buffs/heals that
     │                                     never reach _execute_hit also = 0 XP.
+    │                                     WIELDED IDENTITY (moved off the player
+    │                                     root): get_active_discipline() (active
+    │                                     weapon's discipline, falls back to
+    │                                     primary_discipline) + get_equipped_
+    │                                     disciplines() (both slots, de-duped).
+    │                                     WeaponMastery is the single owner of
+    │                                     weapon identity; the player root keeps
+    │                                     thin forwarders for its duck-typed callers.
+    │   The four signature components below (SwordCombo / BowMomentum /
+    │   StaffElement / Shadowmeld) share the WeaponSignatureComponent base
+    │   (weapon_signature.gd): a single interface — signature_discipline() /
+    │   on_weapon_state_changed(active, equipped) / on_owner_died() — the player
+    │   root notifies on every weapon swap, equip edit, and death. Each signature
+    │   owns its OWN deactivation rule (sword combo clears when no sword is in
+    │   either slot; bow Momentum / dagger Shadowmeld clear when no longer wielded;
+    │   staff element persists). Adding a fifth signature needs no player-root edits.
     ├── SwordCombo sword_combo.gd - PR 5 sword signature: combo points (0-3).
     │                               Basic-attack HITS build 1; finishers
     │                               (Crescent Cleave / Sundering Blow) spend ALL
@@ -294,7 +310,21 @@ Player (MultiplayerPlayerV2)
     ├── Equipment  equipment.gd   - 6 slots after PR 3: head/chest/legs/feet/weapon
     │                               + secondary_weapon. active_weapon tracks which
     │                               weapon is current. Swap via request_weapon_swap_server.
-    └── Inventory  inventory.gd   - item slots, stacking, drag-and-drop
+    ├── Inventory  inventory.gd   - item slots, stacking, drag-and-drop
+    └── Appearance appearance.gd  - owns ALL sprite/appearance application: the
+                                    single apply path (discipline+level ->
+                                    AnimatedSprite2D frames), the weapon-swap
+                                    transition FX, and the sprite-state RPCs
+                                    (change_sprite_rpc / request_sprite_change /
+                                    request_all_sprite_states). Server decides the
+                                    discipline+level and broadcasts; clients apply;
+                                    bots route through MapManager. Asks the player
+                                    root (-> WeaponMastery) for the wielded
+                                    discipline rather than re-deriving it. The
+                                    player root keeps an apply_appearance forwarder
+                                    so MapManager's bot-appearance calls still land,
+                                    and the swap INPUT lock stays on the root (an
+                                    input concern); only the swap VISUALS moved here.
 ```
 
 (Dev-only `heal`, `damage`, `revive`, `level`, `give`, `gold`, `tp` actions

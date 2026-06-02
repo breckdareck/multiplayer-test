@@ -1,5 +1,5 @@
 class_name ShadowmeldComponent
-extends Node
+extends WeaponSignatureComponent
 
 ## PR 7 — Dagger discipline's signature combat system: SHADOWMELD.
 ##
@@ -184,6 +184,27 @@ func cancel_stealth() -> void:
 
 	_restore_visibility()
 	_emit_and_sync()
+
+#endregion
+
+
+#region #################### WeaponSignature interface ####################
+
+func signature_discipline() -> int:
+	return Constants.ClassType.DAGGER
+
+
+## Stealth is dagger-only: swapping (or re-equipping) away from a dagger cancels
+## it so the cloak never carries onto a non-dagger weapon. (Was hand-coded twice
+## on the player root before the WeaponSignature unification.)
+func on_weapon_state_changed(active_discipline: int, _equipped_disciplines: Array) -> void:
+	if active_discipline != Constants.ClassType.DAGGER:
+		cancel_stealth()
+
+
+## Stealth shouldn't survive death.
+func on_owner_died() -> void:
+	cancel_stealth()
 
 #endregion
 

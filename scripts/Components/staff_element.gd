@@ -1,5 +1,5 @@
 class_name StaffElementComponent
-extends Node
+extends WeaponSignatureComponent
 
 ## PR 7 — Staff discipline's signature combat system: the ELEMENT STANCE.
 ##
@@ -125,6 +125,14 @@ func cycle_element() -> void:
 ## client's mirror is kept in step via sync_element_to_client.
 func get_current_element() -> int:
 	return _current_element
+
+
+# --- WeaponSignature interface ---
+# The element stance is intentionally PERSISTENT: it survives weapon swaps and
+# death (it only resets to FIRE on a fresh spawn). So this signature overrides
+# only signature_discipline() and inherits the no-op weapon-state / death hooks.
+func signature_discipline() -> int:
+	return Constants.ClassType.STAFF
 
 
 ## Server-only. Applies the active element's on-hit rider to `target`. Called by

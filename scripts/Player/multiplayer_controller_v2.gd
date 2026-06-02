@@ -45,6 +45,10 @@ const MAX_FALL_SPEED: float = 1200.0
 ## by WeaponSignature; the next dagger hit from stealth is an ambush.
 ## See scripts/Components/shadowmeld.gd.
 @export var shadowmeld_component: ShadowmeldComponent
+## PR (candidate 3): owns ALL sprite/appearance application — the single apply
+## path, the swap-transition FX, and the sprite-state RPCs. See
+## scripts/Components/appearance.gd.
+@export var appearance_component: AppearanceComponent
 @export var player_inventory: PlayerInventory
 @export var inventory_component: InventoryComponent
 @export var equipment_component: EquipmentComponent
@@ -112,6 +116,13 @@ var _is_loading_data: bool = false
 var _swap_input_locked: bool = false
 var _context_menu: PlayerContextMenu
 
+## The weapon-signature components (sword combo / bow momentum / staff element /
+## dagger shadowmeld), collected once at _ready by scanning the Components node
+## for WeaponSignatureComponent children. Notified as a group on weapon-state
+## changes and on death — adding a fifth signature needs no edits here. See
+## scripts/Components/weapon_signature.gd.
+var _weapon_signatures: Array = []
+
 @onready var camera: Camera2D = $Camera2D
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var state_machine = $StateMachine
@@ -133,18 +144,24 @@ const GAME_MENU_SCENE = preload("res://scenes/UI/game_menu.tscn")
 func _ready() -> void:
 	var _is_bot := BotManager.is_bot(player_id)
 
+	# Collect the weapon-signature components before signal wiring, so the death
+	# hook and weapon-state notifications have the full set in hand.
+	_collect_weapon_signatures()
+
 	if not _is_bot and multiplayer.get_unique_id() == player_id:
 		ChatManager.register_local_player(self)
 		# Request the sprite states of all other players from the server.
 		if(stats_window):
 			stats_window.update_stats_window()
-		request_all_sprite_states.rpc_id(SERVER_ID)
+		if is_instance_valid(appearance_component):
+			appearance_component.request_all_sprite_states.rpc_id(SERVER_ID)
 
 	# Server-specific setup
 	if multiplayer.is_server():
 		# Handle sprite change on initial spawn
 		await get_tree().process_frame
-		_handle_sprite_change_on_server()
+		if is_instance_valid(appearance_component):
+			appearance_component.refresh_on_server()
 
 	# Setup signals for both client and server (for data saving)
 	_setup_signals()
@@ -394,6 +411,45 @@ func cleanup_before_removal():
 # PRIVATE HELPER METHODS
 #=============================================================================
 
+## Scans the Components node for every WeaponSignatureComponent child and caches
+## them. Detection is duck-typed (has_method) as well as type-checked so it works
+## even before the editor has registered the base class globally. A fifth
+## signature dropped under Components is picked up automatically — no edits here.
+func _collect_weapon_signatures() -> void:
+	_weapon_signatures.clear()
+	var comps := get_node_or_null("Components")
+	if comps == null:
+		return
+	for child in comps.get_children():
+		if child is WeaponSignatureComponent or child.has_method("signature_discipline"):
+			_weapon_signatures.append(child)
+
+
+## Server-only. Tells every weapon signature the wielded-weapon state changed so
+## each can apply its own deactivation rule (sword combo clears when no sword is
+## equipped, bow Momentum / dagger Shadowmeld clear when no longer wielded).
+## Called on Tab-swap and on any equipment edit.
+func _notify_signatures_weapon_state_changed() -> void:
+	if not multiplayer.is_server():
+		return
+	var active: int = get_active_discipline()
+	var equipped: Array = get_equipped_disciplines()
+	for sig in _weapon_signatures:
+		if is_instance_valid(sig):
+			sig.on_weapon_state_changed(active, equipped)
+
+
+## Server-only. Tells every weapon signature the owner died so each can clear
+## volatile state that shouldn't survive death (bow Momentum, dagger Shadowmeld;
+## sword combo and staff element deliberately persist).
+func _notify_signatures_owner_died() -> void:
+	if not multiplayer.is_server():
+		return
+	for sig in _weapon_signatures:
+		if is_instance_valid(sig):
+			sig.on_owner_died()
+
+
 func _setup_signals() -> void:
 	# Connect component signals to handle game logic and data saving.
 	# These should run on both Client (to trigger RPC save) and Server (to save directly).
@@ -408,21 +464,17 @@ func _setup_signals() -> void:
 			if multiplayer.is_server() and not _is_loading_data:
 				QuestManager.record_level_up(username, new_level)
 		)
-		if multiplayer.is_server():
-			level_component.leveled_up.connect(_handle_sprite_change_on_server.unbind(1))
+		if multiplayer.is_server() and is_instance_valid(appearance_component):
+			level_component.leveled_up.connect(appearance_component.refresh_on_server.unbind(1))
 	
 	if health_component:
 		health_component.health_changed.connect(func(_c, _m): _data_changed("stats"))
-		# Bow signature: built-up Momentum should not survive death. died
-		# emits on the server (HealthComponent.die), so reset there. Cheap
-		# no-op when stacks are already 0. reset() guards is_server() itself.
-		if multiplayer.is_server() and is_instance_valid(bow_momentum_component):
-			health_component.died.connect(func(_killer): bow_momentum_component.reset())
-		# PR 7 — Dagger signature: stealth should not survive death either. Same
-		# server-side died hook. cancel_stealth no-ops when not stealthed / on
-		# clients, and its Vanish-coexistence guard preserves a still-active Vanish.
-		if multiplayer.is_server() and is_instance_valid(shadowmeld_component):
-			health_component.died.connect(func(_killer): shadowmeld_component.cancel_stealth())
+		# Weapon signatures that shouldn't survive death (bow Momentum, dagger
+		# Shadowmeld) reset through the unified WeaponSignature interface — each
+		# signature decides for itself in on_owner_died(). died emits on the
+		# server (HealthComponent.die). See scripts/Components/weapon_signature.gd.
+		if multiplayer.is_server():
+			health_component.died.connect(func(_killer): _notify_signatures_owner_died())
 
 	if ability_component:
 		ability_component.ability_leveled_up.connect(func(_a, _l): _data_changed("abilities"))
@@ -619,88 +671,23 @@ func _update_sprite_facing_direction() -> void:
 				shadow_sprite.play(animated_sprite.animation)
 
 
-func _change_sprite() -> void:
-	if player_id != multiplayer.get_unique_id():
-		return
-
-	if multiplayer.is_server():
-		_handle_sprite_change_on_server() # Host client can call directly.
-	else:
-		request_sprite_change.rpc_id(SERVER_ID) # Remote clients must ask server.
-
-		
-## Returns the discipline (Constants.ClassType) the player is CURRENTLY
-## wielding — i.e. the discipline of the active weapon. Falls back to the
-## primary discipline (weapon_mastery_component.primary_discipline) when no
-## weapon is equipped.
-##
-## This is the "I am my weapon" identity lookup. Use it for sprite picking,
-## attack-state branches, and anything else whose behavior should follow the
-## equipped weapon rather than the character's chosen primary discipline. HP/MP
-## curves intentionally stay anchored to weapon_mastery_component.primary_discipline
-## (per the locked design — HP/MP doesn't shift on weapon swap).
+## The "I am my weapon" identity lookups now LIVE on WeaponMasteryComponent —
+## the single owner of weapon identity (ADR-0004). These two methods are thin
+## forwarders kept so the many duck-typed callers (UI widgets, combat, ability,
+## state machine, MapManager-driven refresh) that ask `player.get_active_discipline()`
+## keep working unchanged. New code may call `weapon_mastery_component` directly.
 func get_active_discipline() -> int:
-	if is_instance_valid(equipment_component):
-		var weapon: WeaponData = equipment_component.active_weapon_data
-		if weapon != null:
-			var disc: int = _weapon_type_to_class_type(weapon.weapon_type)
-			if disc != -1:
-				return disc
 	if is_instance_valid(weapon_mastery_component):
-		return weapon_mastery_component.primary_discipline
+		return weapon_mastery_component.get_active_discipline()
 	return Constants.ClassType.SWORD
 
 
-## Returns the disciplines of ALL equipped weapons — both the primary AND
-## the secondary slot. Used by AbilityComponent for the passive-application
-## rule: a passive from discipline X applies if discipline X has a weapon
-## in EITHER slot (not just the active one). Trees you've put points into
-## but haven't equipped contribute nothing.
-##
-## De-duplicates (two swords in both slots → one SWORD entry). If neither
-## slot is equipped (bare-handed), falls back to the starting class's
-## discipline so passives still work in the un-equipped baseline case.
 func get_equipped_disciplines() -> Array[int]:
-	var disciplines: Array[int] = []
-	if is_instance_valid(equipment_component):
-		var primary_sd: SlotData = equipment_component.weapon_slot_data
-		if primary_sd != null and primary_sd.item != null:
-			var primary_weapon: WeaponData = primary_sd.item as WeaponData
-			if primary_weapon != null:
-				var disc: int = _weapon_type_to_class_type(primary_weapon.weapon_type)
-				if disc != -1:
-					disciplines.append(disc)
-		var secondary_sd: SlotData = equipment_component.secondary_weapon_slot_data
-		if secondary_sd != null and secondary_sd.item != null:
-			var secondary_weapon: WeaponData = secondary_sd.item as WeaponData
-			if secondary_weapon != null:
-				var disc: int = _weapon_type_to_class_type(secondary_weapon.weapon_type)
-				if disc != -1 and not disciplines.has(disc):
-					disciplines.append(disc)
-	if disciplines.is_empty() and is_instance_valid(weapon_mastery_component):
-		disciplines.append(weapon_mastery_component.primary_discipline)
-	return disciplines
+	if is_instance_valid(weapon_mastery_component):
+		return weapon_mastery_component.get_equipped_disciplines()
+	var fallback: Array[int] = [Constants.ClassType.SWORD]
+	return fallback
 
-
-func _handle_sprite_change_on_server() -> void:
-	if not is_instance_valid(level_component):
-		return
-
-	# Use the currently-wielded discipline, not the starting class — so a
-	# Swordsman who's swapped to a bow stays an Archer sprite on level-up.
-	var discipline: int = get_active_discipline()
-	var current_level: int = level_component.level
-
-	var sprite_frames: SpriteFrames = ResourceManager.get_sprite_for_level(discipline, current_level)
-	if sprite_frames:
-		if BotManager.is_bot(player_id):
-			# A bot's node may be missing on a client mid map-transition, so
-			# route its sprite updates through MapManager (an autoload).
-			MapManager.broadcast_player_appearance(player_id)
-		else:
-			# Pass the enum-key string so change_sprite_rpc resolves the same
-			# way on every peer via ResourceManager.get_class_type_from_string.
-			change_sprite_rpc.rpc(Constants.ClassType.find_key(discipline), current_level)
 
 func change_to_map(new_map_id: String, spawn_point_name: String = ""):
 	if not multiplayer.is_server():
@@ -923,25 +910,6 @@ func _data_changed(update_type: String = "all") -> void:
 		SaveManager.queue_save(username, update_type, self)
 
 
-func _on_peer_connected(peer_id: int) -> void:
-	if not multiplayer.is_server() or peer_id == player_id:
-		return
-	if BotManager.is_bot(peer_id):
-		return
-
-	# Wait a frame to ensure the new peer is ready.
-	await get_tree().process_frame
-
-	#print("Sending sprite data for player %d to new peer %d" % [player_id, peer_id])
-	if is_instance_valid(level_component):
-		# Use the currently-wielded discipline (NOT class_component.current_class)
-		# so a newly-joining peer sees the player with whichever weapon they're
-		# actually holding right now, not their starting-class default.
-		var discipline: int = get_active_discipline()
-		var current_level: int = level_component.level
-		change_sprite_rpc.rpc_id(peer_id, Constants.ClassType.find_key(discipline), current_level)
-
-
 #=============================================================================
 # RPC (REMOTE PROCEDURE CALL) METHODS
 #=============================================================================
@@ -1010,24 +978,13 @@ func save_on_server(data_string: String) -> void:
 		SaveManager.queue_save(user_name, "all", self)
 
 
-# [CLIENT -> SERVER] Asks the server to initiate a sprite change for this player.
-@rpc("any_peer", "call_local", "reliable")
-func request_sprite_change() -> void:
-	if not multiplayer.is_server():
-		return
-	_handle_sprite_change_on_server()
-
-
 # ============================================================================
 # Weapon Swap (PR 3) — server-authoritative
 # ============================================================================
 
+## Swap-transition window. Drives the server-side input lock here AND is passed
+## to AppearanceComponent.play_swap_transition for the FX + sprite-swap timing.
 const SWAP_TRANSITION_DURATION: float = 0.25
-const SWAP_FX_PATH: String = "res://assets/sprites/MiniDarkElves/MiniDarkElves/Starfall-Sheet.png"
-const SWAP_FX_FRAME_COUNT: int = 11
-const SWAP_FX_FRAME_SIZE: int = 32
-# Frame at which the sprite swap happens (visual peak of the flash).
-const SWAP_FX_SPRITE_SWAP_FRAME: int = 3
 
 ## [CLIENT -> SERVER] Local player presses Tab. Forwarded by multiplayer_input.
 ## Validates and applies the swap; on success, the EquipmentComponent's
@@ -1072,40 +1029,25 @@ func _on_equipment_changed_refresh_sprite() -> void:
 		return
 	if not multiplayer.is_server():
 		return
-	# Bow signature: an equipment edit that leaves the active slot non-bow
-	# (e.g. dragging a sword over the equipped bow) clears built-up Momentum,
-	# matching the Tab-swap-away reset in _on_active_weapon_changed.
-	if is_instance_valid(bow_momentum_component) and get_active_discipline() != Constants.ClassType.BOW:
-		bow_momentum_component.reset()
-	# PR 7 — Dagger signature: same idea — an equipment edit that leaves the
-	# active slot non-dagger cancels Shadowmeld so stealth doesn't carry onto a
-	# non-dagger weapon. cancel_stealth no-ops when not stealthed.
-	if is_instance_valid(shadowmeld_component) and get_active_discipline() != Constants.ClassType.DAGGER:
-		shadowmeld_component.cancel_stealth()
-	# Cheap call — the rpc/sprite resolution is idempotent if the discipline
-	# didn't actually change. Don't try to gate this against the previous
-	# value here; just re-emit and let the client overwrite with the same
-	# sprite frames where appropriate.
-	_handle_sprite_change_on_server()
+	# Notify every weapon signature of the equipment change — sword combo (resets
+	# when neither slot is a sword), bow Momentum, and dagger Shadowmeld each apply
+	# their own deactivation rule via on_weapon_state_changed.
+	_notify_signatures_weapon_state_changed()
+	# Cheap call — the sprite resolution is idempotent if the discipline didn't
+	# actually change. Don't try to gate this against the previous value here;
+	# just re-broadcast and let the client overwrite with the same frames.
+	if is_instance_valid(appearance_component):
+		appearance_component.refresh_on_server()
 
 
 func _on_active_weapon_changed(_active_weapon: String, _active_item: ItemData) -> void:
 	if _is_being_cleaned_up:
 		return
 
-	# Bow signature: swapping AWAY from a bow (Tab to the other slot) clears
-	# built-up Momentum so it doesn't carry over to a non-bow weapon.
-	# Server-authoritative; reset() no-ops on clients / when stacks are 0.
-	if multiplayer.is_server() and is_instance_valid(bow_momentum_component):
-		if get_active_discipline() != Constants.ClassType.BOW:
-			bow_momentum_component.reset()
-
-	# PR 7 — Dagger signature: swapping AWAY from a dagger cancels Shadowmeld
-	# stealth so the cloak doesn't carry onto a non-dagger weapon. Mirrors the
-	# bow cancel; cancel_stealth no-ops on clients / when not stealthed.
-	if multiplayer.is_server() and is_instance_valid(shadowmeld_component):
-		if get_active_discipline() != Constants.ClassType.DAGGER:
-			shadowmeld_component.cancel_stealth()
+	# Notify every weapon signature that the wielded weapon changed; each one
+	# resets its own volatile state if its discipline just went inactive (bow
+	# Momentum, dagger Shadowmeld). Server-guarded inside the helper.
+	_notify_signatures_weapon_state_changed()
 
 	# Persist the new active_weapon. The inventory bucket serializes equipment +
 	# active_weapon together (see InventoryComponent.save_inventory). A Tab-swap
@@ -1114,19 +1056,17 @@ func _on_active_weapon_changed(_active_weapon: String, _active_item: ItemData) -
 	if multiplayer.is_server() and not _is_loading_data:
 		_data_changed("inventory")
 
-	# Spawn the transition FX on every peer that has this player node.
-	_spawn_swap_transition_fx()
-
-	# Schedule the sprite swap to land at the FX's visual peak.
-	# Frame 3 of 11 frames at ~44fps (0.25s total) = ~0.068s.
-	var swap_delay: float = SWAP_TRANSITION_DURATION * (float(SWAP_FX_SPRITE_SWAP_FRAME) / float(SWAP_FX_FRAME_COUNT))
-
 	# Lock input for the full transition duration on the SERVER side only — the
-	# server is authoritative over movement; the client mirrors anyway.
+	# server is authoritative over movement; the client mirrors anyway. The input
+	# lock stays on the body (it's an input concern); the swap VISUALS belong to
+	# AppearanceComponent.
 	if multiplayer.is_server():
 		_lock_input_for_swap()
 
-	get_tree().create_timer(swap_delay).timeout.connect(_apply_active_weapon_sprite)
+	# Appearance owns the swap visuals: spawn the transition FX on every peer that
+	# has this player node and swap the sprite at the FX's visual peak.
+	if is_instance_valid(appearance_component):
+		appearance_component.play_swap_transition(SWAP_TRANSITION_DURATION)
 
 
 ## Locks input for the swap transition window on the server. Sets
@@ -1151,113 +1091,11 @@ func _lock_input_for_swap() -> void:
 	)
 
 
-## Resolves the active weapon's discipline and updates the AnimatedSprite2D
-## frames. Runs on the same peers that see the FX. Reads through
-## `active_weapon_data.weapon_type` and maps to the matching tier-1 sprite.
-func _apply_active_weapon_sprite() -> void:
-	if _is_being_cleaned_up:
-		return
-	if not is_instance_valid(equipment_component) or not is_instance_valid(animated_sprite):
-		return
-	if not is_instance_valid(level_component):
-		return
-
-	var weapon: WeaponData = equipment_component.active_weapon_data
-	# If the active slot is empty (bare hands), fall back to the character's
-	# current discipline so the sprite stays sensible.
-	var discipline_class: int = -1
-	if weapon != null:
-		discipline_class = _weapon_type_to_class_type(weapon.weapon_type)
-	if discipline_class == -1 and is_instance_valid(weapon_mastery_component):
-		discipline_class = weapon_mastery_component.primary_discipline
-
-	if discipline_class == -1:
-		return
-
-	var frames: SpriteFrames = ResourceManager.get_sprite_for_level(discipline_class, level_component.level)
-	if frames:
-		animated_sprite.sprite_frames = frames
-		animated_sprite.play("idle")
-
-
-static func _weapon_type_to_class_type(weapon_type: int) -> int:
-	match weapon_type:
-		Constants.WeaponType.SWORD:
-			return Constants.ClassType.SWORD
-		Constants.WeaponType.BOW:
-			return Constants.ClassType.BOW
-		Constants.WeaponType.STAFF:
-			return Constants.ClassType.STAFF
-		Constants.WeaponType.DAGGER:
-			return Constants.ClassType.DAGGER
-	return -1
-
-
-## Spawns the one-shot transition FX at the player's chest position. Runs on
-## every peer that has this player node (server included). Auto-frees when
-## the animation finishes.
-func _spawn_swap_transition_fx() -> void:
-	# Skip for headless dedicated server, and skip for bots whose UI subtree
-	# is freed — but DO render on the host (server + client in one tree) and
-	# on every remote client that sees this player.
-	if OS.has_feature("dedicated_server"):
-		return
-
-	if not is_instance_valid(animated_sprite):
-		return
-
-	var fx_texture: Texture2D = load(SWAP_FX_PATH)
-	if fx_texture == null:
-		return
-
-	var fx_frames := SpriteFrames.new()
-	fx_frames.add_animation("swap")
-	fx_frames.set_animation_loop("swap", false)
-	# 11 frames over 0.25s = 44 fps.
-	fx_frames.set_animation_speed("swap", float(SWAP_FX_FRAME_COUNT) / SWAP_TRANSITION_DURATION)
-
-	for i in range(SWAP_FX_FRAME_COUNT):
-		var atlas := AtlasTexture.new()
-		atlas.atlas = fx_texture
-		atlas.region = Rect2(i * SWAP_FX_FRAME_SIZE, 0, SWAP_FX_FRAME_SIZE, SWAP_FX_FRAME_SIZE)
-		fx_frames.add_frame("swap", atlas)
-
-	var fx_sprite := AnimatedSprite2D.new()
-	fx_sprite.name = "WeaponSwapFX"
-	fx_sprite.sprite_frames = fx_frames
-	fx_sprite.position = Vector2(0, -16) # Roughly the player's chest.
-	fx_sprite.z_index = 5
-	add_child(fx_sprite)
-	fx_sprite.play("swap")
-
-	# Auto-free when the animation finishes. animation_finished is one-shot
-	# per non-looping animation, so this fires exactly once.
-	fx_sprite.animation_finished.connect(fx_sprite.queue_free)
-
-
-# [SERVER -> CLIENTS] Broadcasts the sprite change to all clients.
-@rpc("authority", "call_local", "reliable")
-func change_sprite_rpc(_class_name: String, level: int) -> void:
-	var class_type: int = ResourceManager.get_class_type_from_string(_class_name)
-	var sprite_frames: SpriteFrames = ResourceManager.get_sprite_for_level(class_type, level)
-	#print("Sprite Frames:" + sprite_frames.resource_path)
-	if sprite_frames:
-		animated_sprite.sprite_frames = sprite_frames
-		animated_sprite.play("idle")
-	else:
-		push_warning("Could not find sprite for %s level %d" % [_class_name, level])
-
-
-# [CLIENT] Applies sprite frames for the given class/level. Used for bots,
-# whose appearance is delivered via MapManager rather than the node-addressed
-# change_sprite_rpc (a bot's node may be missing on a client mid-transition).
+# [CLIENT] Forwarder: appearance application lives on AppearanceComponent. Kept
+# so MapManager (bot appearance delivery) can keep calling node.apply_appearance.
 func apply_appearance(class_type: int, level: int) -> void:
-	if is_instance_valid(weapon_mastery_component):
-		weapon_mastery_component.primary_discipline = class_type as Constants.ClassType
-	var frames: SpriteFrames = ResourceManager.get_sprite_for_level(class_type, level)
-	if frames and is_instance_valid(animated_sprite):
-		animated_sprite.sprite_frames = frames
-		animated_sprite.play("idle")
+	if is_instance_valid(appearance_component):
+		appearance_component.apply_appearance(class_type, level)
 
 
 # [CLIENT -> SERVER] Client requests to change their primary discipline.
@@ -1268,35 +1106,8 @@ func change_class_request(new_class: int) -> void:
 	#print("Change Discipline Request")
 	if is_instance_valid(weapon_mastery_component):
 		weapon_mastery_component.set_primary_discipline_rpc.rpc(new_class)
-		_handle_sprite_change_on_server()
-
-
-# [CLIENT -> SERVER] A new client requests the sprite states of all existing players.
-@rpc("any_peer", "call_local", "reliable")
-func request_all_sprite_states() -> void:
-	if not multiplayer.is_server():
-		return
-	
-	var requester_id: int = multiplayer.get_remote_sender_id()
-	#print("Player %d requesting all sprite states" % requester_id)
-	
-	# Get the map this player is on
-	var requester_map = MapManager.get_player_map(requester_id)
-	if requester_map.is_empty():
-		push_warning("Player %d not assigned to a map yet" % requester_id)
-		return
-	
-	# Only sync sprites of players on the SAME map
-	var players_on_map = MapManager.get_players_on_map(requester_map)
-	
-	for other_player_id in players_on_map:
-		if other_player_id == requester_id:
-			continue # Skip self
-		
-		var other_player = PlayerManager.get_player_node(other_player_id)
-		if other_player and other_player is MultiplayerPlayerV2:
-			#print("  Syncing sprite for player %d to requester %d" % [other_player_id, requester_id])
-			other_player._on_peer_connected(requester_id)
+		if is_instance_valid(appearance_component):
+			appearance_component.refresh_on_server()
 
 
 # [ALL PEERS] Sets the username for this player instance across all clients.

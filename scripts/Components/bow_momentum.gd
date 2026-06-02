@@ -1,5 +1,5 @@
 class_name BowMomentumComponent
-extends Node
+extends WeaponSignatureComponent
 
 ## Bow discipline's signature combat system: MOMENTUM.
 ##
@@ -193,6 +193,27 @@ func get_speed_bonus() -> float:
 ## 0-1 fill fraction for the widget bar. Safe on both peers.
 func get_fill_fraction() -> float:
 	return float(_stacks) / float(MAX_STACKS)
+
+#endregion
+
+
+#region #################### WeaponSignature interface ####################
+
+func signature_discipline() -> int:
+	return Constants.ClassType.BOW
+
+
+## Momentum is a bow-only ramp: swapping (or re-equipping) away from a bow drops
+## it so it never carries onto a non-bow weapon. (Was hand-coded twice on the
+## player root before the WeaponSignature unification.)
+func on_weapon_state_changed(active_discipline: int, _equipped_disciplines: Array) -> void:
+	if active_discipline != Constants.ClassType.BOW:
+		reset()
+
+
+## A ramp shouldn't survive death.
+func on_owner_died() -> void:
+	reset()
 
 #endregion
 
