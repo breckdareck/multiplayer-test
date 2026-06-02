@@ -47,6 +47,13 @@ var _selected_upgrade_id: String = ""
 var player: MultiplayerPlayerV2
 var ability_component: AbilityComponent
 
+## Coalesces skill-tree rebuilds. The join/map-transfer ability sync emits
+## `ability_learned` once per ability (~80 after the weapon overhaul); routing
+## every emit straight into the full `load_ability_list()` rebuild was an
+## O(n²) storm that froze the client ~4s on each spawn. Instead, mark a flag
+## and rebuild ONCE at end of frame via `_flush_ability_list_rebuild`.
+var _ability_list_rebuild_queued: bool = false
+
 const COLOR_NORMAL = "#FFFFFF"
 const COLOR_UPGRADE = "#00FF00" # Green for stat increases
 const COLOR_DOWNGRADE = "#FF0000" # Red for stat decreases (e.g., cooldown time)
@@ -166,6 +173,24 @@ func load_ability_list():
 	# Restore the highlight after the rebuild.
 	if selected_ability_id != "":
 		skill_tree_canvas.select_node(_selected_kind, selected_ability_id, _selected_upgrade_id)
+
+
+## Request a skill-tree rebuild that coalesces with any other request made in
+## the same frame (see `_ability_list_rebuild_queued`). Use this instead of
+## calling `load_ability_list()` directly from per-item signal handlers that can
+## fire in bulk (e.g. the join/map-transfer ability sync).
+func _queue_load_ability_list() -> void:
+	if _ability_list_rebuild_queued:
+		return
+	_ability_list_rebuild_queued = true
+	call_deferred("_flush_ability_list_rebuild")
+
+
+func _flush_ability_list_rebuild() -> void:
+	if not _ability_list_rebuild_queued:
+		return
+	_ability_list_rebuild_queued = false
+	load_ability_list()
 
 
 ## Canvas v2 click router: an ability node opens the ability detail; an upgrade
@@ -885,8 +910,8 @@ func _on_ability_leveled_up(ability_id: String, _new_level: int):
 	
 	# Update UI
 	update_skill_points_display()
-	load_ability_list()
-	
+	_queue_load_ability_list()
+
 	# Re-select if this was the selected ability
 	if selected_ability_id == ability_id:
 		select_ability(ability_id)
@@ -895,10 +920,10 @@ func _on_ability_leveled_up(ability_id: String, _new_level: int):
 ## Signal callback when ability is learned
 func _on_ability_learned(ability_id: String):
 	##print("AbilityWindow: Ability %s learned" % ability_id)
-	
-	# Update UI
-	load_ability_list()
-	
+
+	# Update UI (coalesced — the join/map-transfer sync fires this ~80×/frame)
+	_queue_load_ability_list()
+
 	# Auto-select if no ability is selected
 	if selected_ability_id.is_empty():
 		select_ability(ability_id)
