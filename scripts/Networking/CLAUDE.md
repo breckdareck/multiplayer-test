@@ -9,7 +9,8 @@ these scripts are autoloads (see the root `CLAUDE.md` autoload table).
 |---|---|
 | `server_manager.gd` | ENet server lifecycle — create/close the listen socket |
 | `client_manager.gd` | ENet client connection, peer-id assignment, disconnect handling |
-| `player_manager.gd` | Spawns/despawns player & bot characters; `get_player_node(id)` lookup |
+| `player_manager.gd` | Spawns/despawns player & bot characters; `get_player_node(id)` lookup. Owns the spawn LIFECYCLE; delegates per-character bring-up to `JoinHandshake` |
+| `join_handshake.gd` | `JoinHandshake` — the per-character spawn CONTRACT: load Player save → init components → sync to owning client → notify systems. Phased; server-only; SYNC phase skipped for bots/host |
 | `channel_manager.gd` | Switches server channels (ports) without a full restart |
 | `network_utils.gd` | IP/port validation and scene-path helpers |
 | `network_manager.gd` | HTTP bridge to the Flask backend (login, character CRUD, character load) |
