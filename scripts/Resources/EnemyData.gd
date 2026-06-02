@@ -17,17 +17,45 @@ extends Resource
 @export var is_magic_attacker: bool = false
 
 @export_category("Stat Tuning")
-## Per-enemy multipliers applied ON TOP of the shared monster_*_curves (1.0 = the
-## curve baseline for this monster_level). These let two same-level enemies feel
-## DIFFERENT without authoring separate curves — e.g. a slime with defense_mult
-## 1.5 and magic_defense_mult 0.4 is a physical wall that melts to magic, while a
-## wraith might invert it. Tune freely up or down; applied in enemy_base._ready.
+## Archetype preset — pick a "feel" and the enemy gets a defensive/offensive
+## multiplier profile automatically (see _ARCHETYPE_PRESETS below). NONE = pure
+## curve baseline. The per-enemy multipliers further down STACK multiplicatively
+## on top (so leave them 1.0 unless fine-tuning a single mob beyond its archetype).
+@export var archetype: Constants.MonsterArchetype = Constants.MonsterArchetype.NONE
+
+## Per-enemy multipliers applied ON TOP of the archetype + shared monster_*_curves
+## (1.0 = no change). Effective = curve x archetype x this. Use the archetype for
+## the broad feel; use these only to nudge one specific mob.
 @export var defense_mult: float = 1.0
 @export var magic_defense_mult: float = 1.0
 @export var health_mult: float = 1.0
 ## Scales BOTH the weapon- and magic-attack curve values (an enemy uses whichever
 ## matches is_magic_attacker), so a heavy-hitter or a weakling reads off one knob.
 @export var attack_mult: float = 1.0
+
+## Archetype -> {def, mdef, hp, atk} multiplier profiles. Keyed by
+## Constants.MonsterArchetype. Tune the feels here in one place.
+const _ARCHETYPE_PRESETS := {
+	Constants.MonsterArchetype.NONE:       {"def": 1.0, "mdef": 1.0, "hp": 1.0, "atk": 1.0},
+	Constants.MonsterArchetype.OOZE:       {"def": 1.5, "mdef": 0.4, "hp": 1.0, "atk": 0.8},
+	Constants.MonsterArchetype.ARMORED:    {"def": 1.7, "mdef": 0.7, "hp": 1.2, "atk": 1.0},
+	Constants.MonsterArchetype.SPECTRAL:   {"def": 0.5, "mdef": 1.7, "hp": 0.85, "atk": 1.0},
+	Constants.MonsterArchetype.BRUTE:      {"def": 1.0, "mdef": 0.6, "hp": 1.6, "atk": 1.4},
+	Constants.MonsterArchetype.GLASS:      {"def": 0.5, "mdef": 0.5, "hp": 0.6, "atk": 1.5},
+	Constants.MonsterArchetype.JUGGERNAUT: {"def": 1.5, "mdef": 1.5, "hp": 2.2, "atk": 1.2},
+}
+
+
+## Effective stat multipliers = archetype preset x per-enemy fine-tune mults.
+## Returns {def, mdef, hp, atk}. enemy_base applies these over the level curves.
+func effective_stat_mults() -> Dictionary:
+	var p: Dictionary = _ARCHETYPE_PRESETS.get(archetype, _ARCHETYPE_PRESETS[Constants.MonsterArchetype.NONE])
+	return {
+		"def": p["def"] * defense_mult,
+		"mdef": p["mdef"] * magic_defense_mult,
+		"hp": p["hp"] * health_mult,
+		"atk": p["atk"] * attack_mult,
+	}
 
 @export_category("AI")
 ## When true the enemy chases any player/bot it spots; when false it ignores

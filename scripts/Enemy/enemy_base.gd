@@ -137,11 +137,13 @@ func _apply_enemy_data() -> void:
 		animated_sprite.sprite_frames = enemy_data.sprite_frames
 	
 	if stats_component:
-		# Per-enemy multipliers off the shared curves (1.0 = curve baseline) so
-		# same-level mobs can vary — e.g. slimes: high DEFENSE, low MAGICDEFENSE.
-		var atk_m: float = enemy_data.attack_mult
-		var def_m: float = enemy_data.defense_mult
-		var mdef_m: float = enemy_data.magic_defense_mult
+		# Effective multipliers off the shared curves = archetype preset x per-enemy
+		# fine-tune (1.0 = curve baseline). Lets same-level mobs vary by "feel" —
+		# e.g. an OOZE slime: high DEFENSE, low MAGICDEFENSE.
+		var mults: Dictionary = enemy_data.effective_stat_mults()
+		var atk_m: float = mults["atk"]
+		var def_m: float = mults["def"]
+		var mdef_m: float = mults["mdef"]
 		var curve_stats: Dictionary[Constants.StatType, StatData] = {}
 		curve_stats[Constants.StatType.WEAPONATTACK] = StatData.new(Constants.StatType.WEAPONATTACK, roundi(wep_att_curve.sample(monster_level) * atk_m))
 		curve_stats[Constants.StatType.MAGICATTACK] = StatData.new(Constants.StatType.MAGICATTACK, roundi(magic_att_curve.sample(monster_level) * atk_m))
@@ -233,7 +235,7 @@ func _ready() -> void:
 			health_component.invincible = true
 			health_component.max_health = INVINCIBLE_MAX_HEALTH
 		else:
-			health_component.max_health = maxi(1, int(health_curve.sample(monster_level) * enemy_data.health_mult))
+			health_component.max_health = maxi(1, int(health_curve.sample(monster_level) * enemy_data.effective_stat_mults()["hp"]))
 		health_component.current_health = health_component.max_health
 		health_component.died.connect(_on_enemy_died)
 		health_component.damaged.connect(on_enemy_damaged)

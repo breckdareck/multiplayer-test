@@ -73,6 +73,20 @@ enum WeaponType {
 	DAGGER,
 }
 
+## Monster "feel" presets (MapleStory-style). Tags an enemy to a defensive/
+## offensive archetype so designers pick one value instead of hand-tuning each
+## stat multiplier. The actual multipliers live in EnemyData._ARCHETYPE_PRESETS;
+## NONE = pure curve baseline. Per-enemy mults still stack on top for fine-tuning.
+enum MonsterArchetype {
+	NONE,        # curve baseline (1x everything)
+	OOZE,        # slime/gel: high phys def, low magic def, soft hits
+	ARMORED,     # golem/knight/stone: phys wall, decent magic resist, tanky
+	SPECTRAL,    # ghost/wisp/elemental: magic wall, melts to physical
+	BRUTE,       # ogre/beast: big HP, hits hard, weak to magic
+	GLASS,       # imp/assassin/swarm: fragile, high damage
+	JUGGERNAUT,  # elite/miniboss: tanky vs both, huge HP
+}
+
 enum AttackType {
 	MELEE,
 	RANGED,
