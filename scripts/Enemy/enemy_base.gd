@@ -94,6 +94,7 @@ var _attack_cooldown_until: int = 0
 
 const _CHASE_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_chase.gd")
 const _HIT_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_hit.gd")
+const _BOSS_SPECIAL_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_boss_special.gd")
 
 # --- Boss state (server-authoritative; only used when enemy_data.is_boss) -----
 ## Pure phase/enrage crossing math, kept in a dependency-free helper so it's
@@ -298,6 +299,11 @@ func _ready() -> void:
 	# same pattern as the player.
 	_ensure_chase_state()
 	_ensure_hit_state()
+	# [Boss] Inject the telegraphed-special state. Created on every peer (gated by
+	# the data flag, identical everywhere) so the state-name sync resolves on
+	# clients; its windup/damage only advances on the server.
+	if enemy_data != null and enemy_data.is_boss:
+		_ensure_boss_special_state()
 	state_machine.init(self, animated_sprite)
 
 
@@ -427,6 +433,11 @@ func _try_enter_hit_state() -> void:
 	if hit_state == null or state_machine.current_state == hit_state:
 		return
 	if state_machine.current_state is EnemyAttackState:
+		return
+	# A telegraphed boss special is committed — chip damage must not cancel the
+	# windup (else focus fire would stop the special ever landing).
+	var boss_special_state: Node = state_machine.get_node_or_null("boss_special")
+	if boss_special_state != null and state_machine.current_state == boss_special_state:
 		return
 	if enemy_data == null or enemy_data.sprite_frames == null:
 		return
@@ -998,6 +1009,20 @@ func _ensure_hit_state() -> void:
 	state_machine.add_child(hit)
 
 
+## [Boss] Creates and attaches the runtime "boss_special" state — the telegraphed
+## AoE windup. Only injected for bosses (gated by the caller). animation_name is
+## left empty: bosses reuse a base enemy's SpriteFrames, which has no dedicated
+## windup clip, so the sprite holds its current pose during the telegraph.
+func _ensure_boss_special_state() -> void:
+	if state_machine == null or state_machine.has_node("boss_special"):
+		return
+	var s := Node.new()
+	s.set_script(_BOSS_SPECIAL_STATE_SCRIPT)
+	s.name = "boss_special"
+	s.animation_name = ""
+	state_machine.add_child(s)
+
+
 ## Resolves a damage source (a player/bot node, or an ability/projectile owned
 ## by one) down to the player or bot character node behind it.
 func _resolve_character(source: Node) -> Node2D:
@@ -1144,23 +1169,27 @@ func _enter_boss_phase(idx: int) -> void:
 	_broadcast_boss_roar(Color(1.0, 0.6, 0.1))
 
 
-## [Server] Cosmetic, all-peer "roar" flash on a phase/enrage transition. Reuses
-## the existing MapManager ground-zone broadcast (a brief expanding ring at the
-## boss's feet) so no new autoload or RPC is invented. No-op if the boss isn't on
-## a resolvable map.
-func _broadcast_boss_roar(color: Color) -> void:
+## [Server] Cosmetic, all-peer expanding ring at the boss's feet — the roar flash
+## (phase/enrage) and the special's telegraph both use it. show_ground_zone_everywhere
+## (not broadcast_ground_zone) so the HOST sees it too: the boss has no
+## authoritative GroundZone node to render locally. No-op off a resolvable map.
+func broadcast_telegraph_ring(pos: Vector2, radius: float, duration: float, color: Color) -> void:
 	var map_id: String = _get_map_id()
 	if map_id == "":
 		return
+	MapManager.show_ground_zone_everywhere(map_id, pos, radius, duration, color)
+
+
+func _broadcast_boss_roar(color: Color) -> void:
 	var radius: float = enemy_data.special_attack_radius if enemy_data != null else 120.0
-	# show_ground_zone_everywhere (not broadcast_ground_zone) so the HOST sees the
-	# flash too — the boss has no authoritative GroundZone node to render locally.
-	MapManager.show_ground_zone_everywhere(map_id, global_position, radius, 0.5, color)
+	broadcast_telegraph_ring(global_position, radius, 0.5, color)
 
 
-## [Server] Per-frame special-attack scheduler. When off cooldown and a player is
-## within aggro range, broadcasts a growing telegraph ring to all peers and
-## schedules the AoE hit to land after special_telegraph_time.
+## [Server] Readiness GATE for the telegraphed special — the only boss code left
+## in _process. When off cooldown with a player in range, it hands control to the
+## "boss_special" state, which owns the telegraph + windup + AoE (see
+## enemy_boss_special.gd). Kept tiny on purpose: the behavior is a state, not a
+## scheduler buried in _process.
 func _boss_special_tick() -> void:
 	if enemy_data.special_attack_cooldown <= 0.0:
 		return
@@ -1170,42 +1199,43 @@ func _boss_special_tick() -> void:
 		return
 	if Time.get_ticks_msec() < _boss_special_ready_at:
 		return
+	if state_machine == null:
+		return
+	var special_state: Node = state_machine.get_node_or_null("boss_special")
+	if special_state == null or state_machine.current_state == special_state:
+		return
+	# Don't open a windup mid-stagger; only from an active combat/idle pose.
+	var hit_state: Node = state_machine.get_node_or_null("hit")
+	if hit_state != null and state_machine.current_state == hit_state:
+		return
 	# Only wind up when there's actually a player in range to threaten.
 	if acquire_target() == null:
 		return
 
 	_boss_special_pending = true
-	var telegraph_pos: Vector2 = global_position
-	var radius: float = enemy_data.special_attack_radius
-	var telegraph_time: float = maxf(0.05, enemy_data.special_telegraph_time)
+	state_machine.change_state(special_state)
 
-	# Show the growing/flashing telegraph ring on EVERY peer incl. the host
-	# (cosmetic only). show_ground_zone_everywhere (not broadcast_ground_zone)
-	# because the boss has no authoritative GroundZone node, so the host must
-	# render its own copy or it sees no telegraph at all. Routed through MapManager
-	# so bot hosts (no client) also render it.
-	var map_id: String = _get_map_id()
-	if map_id != "":
-		MapManager.show_ground_zone_everywhere(map_id, telegraph_pos, radius, telegraph_time, Color(1.0, 0.2, 0.2, 0.55))
 
-	# Land the authoritative AoE after the telegraph window. The damage is
-	# independent of whether any client rendered the telegraph.
-	get_tree().create_timer(telegraph_time).timeout.connect(
-		func(): _resolve_boss_special(telegraph_pos, radius)
-	)
+## [Server] Re-arms the special's cooldown and clears the in-windup flag. Called
+## by the boss_special state on exit, whether the windup completed or was
+## interrupted (e.g. by death/stagger), so an interrupted windup can't instantly
+## re-telegraph.
+func arm_boss_special_cooldown() -> void:
+	_boss_special_pending = false
+	if enemy_data != null:
+		_boss_special_ready_at = Time.get_ticks_msec() + int(enemy_data.special_attack_cooldown * 1000.0)
 
 
 ## [Server] Deals the special's AoE damage to every player within `radius` of the
-## telegraphed position, then re-arms the cooldown. Reuses the player
-## HealthComponent.take_damage path the normal enemy attack uses.
-func _resolve_boss_special(center: Vector2, radius: float) -> void:
-	_boss_special_pending = false
-	_boss_special_ready_at = Time.get_ticks_msec() + int(enemy_data.special_attack_cooldown * 1000.0)
+## telegraphed `center`. Called by the boss_special state when its windup lands.
+## Reuses the player HealthComponent.take_damage path the normal enemy attack uses;
+## the damage carries the boss's phase/enrage outgoing multiplier.
+func deal_boss_special_damage(center: Vector2, radius: float) -> void:
 	if not multiplayer.is_server() or _is_being_cleaned_up:
 		return
 	if health_component == null or health_component.is_dead:
 		return
-	if stats_component == null:
+	if stats_component == null or enemy_data == null:
 		return
 
 	var is_magic: bool = enemy_data.is_magic_attacker

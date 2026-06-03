@@ -100,6 +100,16 @@ bot host, with zero networking added.
   designer-editable `.tres` layer. We chose data flags for reuse and
   `.tres`-authorability, accepting that `enemy_base.gd` carries a (well-guarded)
   boss section.
+- **The telegraphed special is an AI state, not a `_process` scheduler.** The
+  windup/telegraph/AoE lives in `enemy_boss_special.gd` (`extends EnemyState`),
+  injected at runtime only for bosses via `_ensure_boss_special_state()` —
+  mirroring `_ensure_chase_state()`, so generic enemies never carry it. All that
+  remains in `_process` is a tiny readiness gate (`_boss_special_tick`) that hands
+  control to the state. This makes the windup frame-driven and interruptible
+  (death cancels it via the base `State.process_physics` death check), and it is
+  hit-stagger-immune (the special is committed once telegraphed). It is the
+  established seam for any *future bespoke* boss mechanic: a new AI state and/or a
+  component, never an inheritance fork.
 - Pooled/respawned bosses reset their phase/enrage/special state in `pool_reset`
   so a re-spawn starts the fight clean.
 - **Not yet verified in a live multiplayer session.** The phase/enrage logic and
