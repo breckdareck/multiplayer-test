@@ -11,7 +11,9 @@ signal respec_denied(reason: String)
 ## coin faucet is thin (mob drops + quests). L100 -> 3,000. The cost gate lives
 ## in `_respec_attributes_local`, the single server-side mutation point both the
 ## host-direct call and the `respec_attributes_request` RPC funnel through.
-const ATTRIBUTE_RESPEC_COST_PER_LEVEL: int = 30
+# Respec cost scales with the NUMBER of points refunded, not character level —
+# early (few points) is cheap, late (many points) costs more, matching income.
+const ATTR_RESPEC_COST_PER_POINT: int = 5
 
 # All classes scale from level 1 (base classes are created at level 1;
 # advanced classes at level 30). The BASE_MAX_* constants are the level-1
@@ -390,7 +392,7 @@ func _player_inventory() -> PlayerInventory:
 ## Monies cost to respec all attributes at the current level. UI reads this to
 ## label the button without duplicating the formula.
 func get_attribute_respec_cost() -> int:
-	return _current_level() * ATTRIBUTE_RESPEC_COST_PER_LEVEL
+	return get_attribute_points_spent() * ATTR_RESPEC_COST_PER_POINT
 
 
 ## [Client→Server] Refund ALL allocated attribute points (costs monies).

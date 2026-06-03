@@ -81,21 +81,26 @@ func _mount_ability(ctx: Dictionary) -> AbilityComponent:
 # ── Cost formula ──────────────────────────────────────────────────────────────
 
 func test_attribute_respec_cost_formula() -> void:
+	# Cost = allocated points * ATTR_RESPEC_COST_PER_POINT (5) — scales with points,
+	# NOT character level.
 	var ctx := _make_owner(1, 0)
 	var s := _mount_stats(ctx)
-	assert_eq(s.get_attribute_respec_cost(), 30, "L1 = 1 * 30")
-	ctx.leveling.level = 100
-	assert_eq(s.get_attribute_respec_cost(), 3000, "L100 = 100 * 30")
+	assert_eq(s.get_attribute_respec_cost(), 0, "nothing allocated = free")
+	s._allocated_attributes = {Constants.StatType.STRENGTH: 10}
+	assert_eq(s.get_attribute_respec_cost(), 50, "10 points * 5")
+	s._allocated_attributes = {Constants.StatType.STRENGTH: 10, Constants.StatType.LUCK: 20}
+	assert_eq(s.get_attribute_respec_cost(), 150, "30 points * 5")
 
 func test_ability_respec_cost_formula() -> void:
+	# Cost = points-in-scope * ABILITY_RESPEC_COST_PER_POINT (20).
 	var ctx := _make_owner(100, 0)
 	var a := _mount_ability(ctx)
-	assert_eq(a.get_respec_cost("ability"), 500, "per-ability L100 = 100 * 5")
-	assert_eq(a.get_respec_cost("discipline"), 2000, "per-discipline L100 = 100 * 20")
-	assert_eq(a.get_respec_cost("all"), 6000, "all L100 = 100 * 60")
-	ctx.leveling.level = 10
-	assert_eq(a.get_respec_cost("ability"), 50, "per-ability L10 = 10 * 5")
-	assert_eq(a.get_respec_cost("all"), 600, "all L10 = 10 * 60")
+	assert_eq(a.get_respec_cost("all"), 0, "nothing spent = free")
+	var sid := _sword_ability_id(a)
+	a._ability_levels = {sid: 4}        # 4 points in the sword tree
+	assert_eq(a.get_respec_cost("ability", sid), 80, "4 points * 20")
+	assert_eq(a.get_respec_cost("discipline", "sword"), 80, "4 sword points * 20")
+	assert_eq(a.get_respec_cost("all"), 80, "4 total points * 20")
 
 func test_ability_respec_cost_unknown_scope_is_zero() -> void:
 	var ctx := _make_owner(50, 0)
@@ -106,7 +111,7 @@ func test_ability_respec_cost_unknown_scope_is_zero() -> void:
 # ── Attribute respec gate ─────────────────────────────────────────────────────
 
 func test_attribute_respec_blocked_when_poor() -> void:
-	var ctx := _make_owner(10, 0)       # cost = 300, monies = 0
+	var ctx := _make_owner(10, 0)       # 5 points -> cost = 25, monies = 0
 	var s := _mount_stats(ctx)
 	s._allocated_attributes = {Constants.StatType.STRENGTH: 5}
 	s._respec_attributes_local()
@@ -114,12 +119,12 @@ func test_attribute_respec_blocked_when_poor() -> void:
 	assert_eq(ctx.inv.monies_amount, 0, "monies unchanged when respec blocked")
 
 func test_attribute_respec_succeeds_and_deducts_exact_cost() -> void:
-	var ctx := _make_owner(10, 1000)    # cost = 300
+	var ctx := _make_owner(10, 1000)
 	var s := _mount_stats(ctx)
-	s._allocated_attributes = {Constants.StatType.STRENGTH: 5, Constants.StatType.LUCK: 3}
+	s._allocated_attributes = {Constants.StatType.STRENGTH: 5, Constants.StatType.LUCK: 3}  # 8 pts -> 40
 	s._respec_attributes_local()
 	assert_true(s._allocated_attributes.is_empty(), "all attributes refunded on success")
-	assert_eq(ctx.inv.monies_amount, 700, "exactly 300 (cost) deducted from 1000")
+	assert_eq(ctx.inv.monies_amount, 960, "exactly 40 (8 points * 5) deducted from 1000")
 
 func test_attribute_respec_noop_when_nothing_allocated_does_not_charge() -> void:
 	var ctx := _make_owner(10, 1000)
@@ -129,7 +134,7 @@ func test_attribute_respec_noop_when_nothing_allocated_does_not_charge() -> void
 	assert_eq(ctx.inv.monies_amount, 1000, "no charge when there is nothing to refund")
 
 func test_attribute_respec_exact_funds_succeeds() -> void:
-	var ctx := _make_owner(10, 300)     # cost == monies
+	var ctx := _make_owner(10, 5)       # 1 point -> cost 5 == monies
 	var s := _mount_stats(ctx)
 	s._allocated_attributes = {Constants.StatType.STRENGTH: 1}
 	s._respec_attributes_local()
@@ -140,13 +145,15 @@ func test_attribute_respec_exact_funds_succeeds() -> void:
 # ── Ability "all" respec gate ─────────────────────────────────────────────────
 
 func test_ability_respec_all_blocked_when_poor() -> void:
-	var ctx := _make_owner(10, 100)     # all cost = 600, monies = 100
+	var ctx := _make_owner(10, 50)      # 5 points -> all cost = 100, monies = 50
 	var a := _mount_ability(ctx)
-	a._available_points_per_discipline = {"sword": 3, "bow": 0, "staff": 0, "dagger": 0}
+	a._available_points_per_discipline = {"sword": 0, "bow": 0, "staff": 0, "dagger": 0}
+	var sid := _sword_ability_id(a)
+	a._ability_levels = {sid: 5}
 	var ok: bool = a._respec_all_local()
 	assert_false(ok, "respec_all denied when too poor")
-	assert_eq(ctx.inv.monies_amount, 100, "monies unchanged when blocked")
-	assert_eq(a.get_available_points_for_discipline("sword"), 3, "pools unchanged when blocked")
+	assert_eq(ctx.inv.monies_amount, 50, "monies unchanged when blocked")
+	assert_eq(int(a._ability_levels.get(sid, 0)), 5, "levels untouched when blocked")
 
 ## A real ability id that maps to the "sword" discipline (resolved dynamically).
 func _sword_ability_id(a) -> String:
@@ -159,10 +166,10 @@ func test_ability_respec_all_succeeds_and_deducts_exact_cost() -> void:
 	var ctx := _make_owner(10, 1000)    # all cost = 600
 	var a := _mount_ability(ctx)
 	a._available_points_per_discipline = {"sword": 0, "bow": 0, "staff": 0, "dagger": 0}
-	a._ability_levels = {_sword_ability_id(a): 3}   # something actually spent to refund
+	a._ability_levels = {_sword_ability_id(a): 3}   # 3 points -> all cost = 60
 	var ok: bool = a._respec_all_local()
 	assert_true(ok, "respec_all succeeds with funds + spent points")
-	assert_eq(ctx.inv.monies_amount, 400, "exactly 600 (cost) deducted from 1000")
+	assert_eq(ctx.inv.monies_amount, 940, "exactly 60 (3 points * 20) deducted from 1000")
 
 func test_ability_respec_all_noop_when_nothing_spent_does_not_charge() -> void:
 	var ctx := _make_owner(10, 1000)
@@ -177,21 +184,22 @@ func test_ability_respec_all_noop_when_nothing_spent_does_not_charge() -> void:
 # ── Ability per-discipline respec gate ────────────────────────────────────────
 
 func test_ability_respec_discipline_blocked_when_poor() -> void:
-	var ctx := _make_owner(10, 50)      # discipline cost = 200
+	var ctx := _make_owner(10, 50)      # 5 points -> discipline cost = 100, monies = 50
 	var a := _mount_ability(ctx)
-	a._available_points_per_discipline = {"sword": 2, "bow": 0, "staff": 0, "dagger": 0}
+	a._available_points_per_discipline = {"sword": 0, "bow": 0, "staff": 0, "dagger": 0}
+	a._ability_levels = {_sword_ability_id(a): 5}
 	var ok: bool = a._respec_discipline_local("sword")
 	assert_false(ok, "discipline respec denied when too poor")
 	assert_eq(ctx.inv.monies_amount, 50, "monies unchanged when blocked")
 
 func test_ability_respec_discipline_succeeds_and_deducts() -> void:
-	var ctx := _make_owner(10, 1000)    # discipline cost = 200
+	var ctx := _make_owner(10, 1000)
 	var a := _mount_ability(ctx)
 	a._available_points_per_discipline = {"sword": 0, "bow": 0, "staff": 0, "dagger": 0}
-	a._ability_levels = {_sword_ability_id(a): 3}   # something spent in the sword tree
+	a._ability_levels = {_sword_ability_id(a): 3}   # 3 points -> discipline cost = 60
 	var ok: bool = a._respec_discipline_local("sword")
 	assert_true(ok, "discipline respec succeeds with funds + spent points")
-	assert_eq(ctx.inv.monies_amount, 800, "exactly 200 (cost) deducted from 1000")
+	assert_eq(ctx.inv.monies_amount, 940, "exactly 60 (3 points * 20) deducted from 1000")
 
 func test_ability_respec_discipline_noop_when_nothing_spent_does_not_charge() -> void:
 	var ctx := _make_owner(10, 1000)

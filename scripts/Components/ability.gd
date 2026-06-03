@@ -1795,9 +1795,12 @@ func sync_learned_upgrades(upgrades: Dictionary) -> void:
 ## the coin faucet (mob drops + quests) is thin. The cost gate lives at the top
 ## of each `_respec_*_local`, the single server-side mutation point both the
 ## host-direct call and the matching `*_request` RPC funnel through.
-const ABILITY_RESPEC_COST_PER_LEVEL: int = 5            # per-ability  (L100 -> 500)
-const DISCIPLINE_RESPEC_COST_PER_LEVEL: int = 20        # one weapon   (L100 -> 2,000)
-const ALL_RESPEC_COST_PER_LEVEL: int = 60              # everything   (L100 -> 6,000)
+# Respec cost scales with the NUMBER of ability points actually refunded (level +
+# owned-upgrade costs), not character level. So respeccing one barely-invested
+# ability is cheap, while undoing a fully-built weapon costs much more — and the
+# scope cost is simply (points in that scope) × this rate. Ability points are
+# scarcer than attribute points, so the per-point rate is higher.
+const ABILITY_RESPEC_COST_PER_POINT: int = 20
 
 
 ## Current character level (1 if the LevelingComponent is unavailable).
@@ -1814,16 +1817,14 @@ func _player_inventory() -> PlayerInventory:
 	return null
 
 
-## Monies cost for a respec of the given scope at the current level. The UI reads
-## this to label the respec buttons without duplicating the formula.
-## scope ∈ {"ability", "discipline", "all"}. ability_id is unused today (the cost
-## is flat per scope) but accepted so a future per-ability weighting can slot in.
-func get_respec_cost(scope: String, _ability_id: String = "") -> int:
-	var lvl: int = _current_level()
+## Monies cost for a respec of the given scope = (points refunded) × per-point rate.
+## `key` is the ability_id for "ability" scope and the discipline key for
+## "discipline" scope (ignored for "all"). The UI reads this to label the buttons.
+func get_respec_cost(scope: String, key: String = "") -> int:
 	match scope:
-		"ability": return lvl * ABILITY_RESPEC_COST_PER_LEVEL
-		"discipline": return lvl * DISCIPLINE_RESPEC_COST_PER_LEVEL
-		"all": return lvl * ALL_RESPEC_COST_PER_LEVEL
+		"ability": return _points_spent_in_ability(key) * ABILITY_RESPEC_COST_PER_POINT
+		"discipline": return _points_spent_in_discipline(key) * ABILITY_RESPEC_COST_PER_POINT
+		"all": return get_total_points_spent() * ABILITY_RESPEC_COST_PER_POINT
 	return 0
 
 
@@ -1832,10 +1833,10 @@ func get_respec_cost(scope: String, _ability_id: String = "") -> int:
 ## Returns true if the respec may proceed (charged), false if it must abort.
 ## On a non-server peer this never runs (the public respec_*() early-returns into
 ## the *_request RPC), but the is_server() guard keeps the deduction explicit.
-func _charge_respec(scope: String) -> bool:
+func _charge_respec(scope: String, key: String = "") -> bool:
 	if not multiplayer.is_server():
 		return true
-	var cost: int = get_respec_cost(scope)
+	var cost: int = get_respec_cost(scope, key)
 	var inv: PlayerInventory = _player_inventory()
 	var monies: int = inv.monies_amount if inv else 0
 	if monies < cost:
@@ -1868,7 +1869,7 @@ func _respec_discipline_local(disc_key: String) -> bool:
 	if _points_spent_in_discipline(disc_key) <= 0:
 		respec_denied.emit("discipline", "nothing_to_refund")
 		return false
-	if not _charge_respec("discipline"):
+	if not _charge_respec("discipline", disc_key):
 		return false
 	var reset_ids: Array[String] = []
 	var refund: int = 0
@@ -1911,7 +1912,7 @@ func _respec_ability_local(ability_id: String) -> bool:
 	if _points_spent_in_ability(ability_id) <= 0:
 		respec_denied.emit("ability", "nothing_to_refund")
 		return false
-	if not _charge_respec("ability"):
+	if not _charge_respec("ability", ability_id):
 		return false
 	var reset_ids: Array[String] = []
 	var refund: int = _refund_ability(ability_id, reset_ids)

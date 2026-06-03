@@ -880,7 +880,7 @@ func _on_respec_button_pressed() -> void:
 	if not ability_component:
 		return
 	var menu := PopupMenu.new()
-	var disc_cost: int = ability_component.get_respec_cost("discipline")
+	var disc_cost: int = ability_component.get_respec_cost("discipline", _current_discipline_key)
 	var all_cost: int = ability_component.get_respec_cost("all")
 	var monies: int = _current_monies()
 	menu.add_item("Respec %s Tree (%s)" % [_current_discipline_tab_title(), _format_monies(disc_cost)], 0)
@@ -905,7 +905,7 @@ func _on_respec_menu_selected(id: int) -> void:
 		return
 	var have: String = _format_monies(_current_monies())
 	if id == 0:
-		var cost: int = ability_component.get_respec_cost("discipline")
+		var cost: int = ability_component.get_respec_cost("discipline", _current_discipline_key)
 		_confirm_respec("Respec the %s tree for %s monies?\nYou have %s." % [_current_discipline_tab_title(), _format_monies(cost), have],
 			func(): ability_component.respec_discipline(_current_discipline_key))
 	elif id == 1:
