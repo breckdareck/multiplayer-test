@@ -169,28 +169,42 @@ def mail(m, arch):
     cv.outline(OL); return cv
 
 def legs(m, arch):
+    # All read as PANTS: flat waistband at top, two legs split by a center gap,
+    # cuffs at the bottom. (Chest pieces are top-heavy with shoulders/neck.)
     cv = new(); b, h, s, t = m
-    if arch == "Arcanist":                                   # robe skirt
-        cv.poly([(11,8),(21,8),(25,28),(7,28)], b)
-        cv.vline(16,8,28, t); cv.hline(8,24,25, t)           # seam + hem
+    if arch == "Arcanist":                                   # cloth robe-trousers
+        cv.rect(11,8,21,10, b, fill=b)                       # waistband
+        cv.poly([(11,11),(15,11),(16,28),(11,28)], b)        # left flared leg
+        cv.poly([(17,11),(21,11),(21,28),(16,28)], b)        # right flared leg
+        cv.vline(16,11,27, t)                                # center seam
+        cv.hline(11,16,27, t); cv.hline(16,21,27, t)         # gold hem cuffs
+        cv.disc(13,14,1.2, GOLD); cv.disc(19,14,1.2, GOLD)   # rune studs
         cv.outline(OL); return cv
-    if arch == "Pathfinder":                                 # leather pants + knee patches
-        cv.poly([(11,8),(21,8),(20,27),(17,27),(16,16),(15,27),(12,27)], b)
-        cv.hline(11,21,10, t)                                # belt
-        cv.rect(12,17,15,21, s); cv.rect(17,17,20,21, s)     # knee patches
-        cv.hline(12,15,26, t); cv.hline(17,20,26, t)         # cuffs
+    if arch == "Pathfinder":                                 # leather trousers + knee patches
+        cv.rect(10,8,22,10, b, fill=b)                       # waistband
+        cv.rect(11,10,15,28, b, fill=b); cv.rect(17,10,21,28, b, fill=b)  # two legs
+        cv.vline(16,11,28, OL)                               # gap
+        cv.rect(11,16,15,20, s); cv.rect(17,16,21,20, s)     # knee patches
+        cv.px(13,18,h); cv.px(19,18,h)                       # patch studs
+        cv.hline(11,15,27, t); cv.hline(17,21,27, t)         # laced cuffs
+        cv.hline(10,22,9, t); cv.disc(16,9,1.2, GOLD)        # belt + buckle
         cv.outline(OL); return cv
-    if arch == "Nightshade":                                 # slim leggings + thigh strap
-        cv.poly([(12,8),(20,8),(19,27),(17,27),(16,15),(15,27),(13,27)], b)
-        cv.hline(12,20,9, s); cv.line(12,12,19,15, t)        # waist + strap
+    if arch == "Nightshade":                                 # slim tapered leggings + wraps
+        cv.rect(11,8,21,10, b, fill=b)                       # waistband
+        cv.poly([(11,10),(15,10),(14,28),(12,28)], b)        # slim left leg
+        cv.poly([(17,10),(21,10),(20,28),(18,28)], b)        # slim right leg
+        cv.line(11,12,15,15, t)                              # thigh strap
+        cv.hline(12,14,18, s); cv.hline(18,20,18, s)         # knee wraps
+        cv.hline(12,14,24, t); cv.hline(18,20,24, t)         # ankle wraps
         cv.outline(OL); return cv
-    # Vanguard plate greaves (segmented tassets + knee discs)
+    # Vanguard plate greaves (segmented tassets + knee discs + rivets)
     cv.rect(10,8,22,11, b, fill=b)                           # belt plate
-    cv.rect(11,11,15,27, b, fill=b); cv.rect(17,11,21,27, b, fill=b)
-    cv.vline(16,12,27, OL)                                   # gap
-    for y in (16,20,24): cv.hline(11,15,y, s); cv.hline(17,21,y, s)
-    cv.disc(13,18,1.5, h); cv.disc(19,18,1.5, h)             # knee discs
-    cv.hline(10,22,9, t)
+    cv.rect(10,11,15,28, b, fill=b); cv.rect(17,11,22,28, b, fill=b)
+    cv.vline(16,12,28, OL)                                   # gap
+    for y in (15,19,23): cv.hline(10,15,y, s); cv.hline(17,22,y, s)
+    cv.disc(12,17,1.6, h); cv.disc(20,17,1.6, h)             # knee discs
+    cv.hline(10,22,9, t); cv.disc(16,9,1.4, GOLD)            # belt + buckle
+    _rivets(cv, [(11,13),(21,13),(11,25),(21,25)], h)
     cv.outline(OL); return cv
 
 def boots(m, arch):
