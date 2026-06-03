@@ -28,6 +28,9 @@ const ABILITYLEVELDATA = preload("res://scripts/Resources/AbilitySystem/AbilityL
 @onready var respec_button: Button = %RespecButton
 ## Top-header respec (tree / all weapons) — opens a popup.
 @onready var respec_menu_button: Button = %RespecMenuButton
+## Economy sink: a confirmation that warns of the monies cost before respeccing.
+var _confirm_dialog: ConfirmationDialog = null
+var _pending_respec: Callable = Callable()
 ## PR 4: TabBar above the list, one tab per weapon discipline. Selecting a
 ## tab filters the ability list and switches the SP label to the matching
 ## discipline pool.
@@ -900,18 +903,43 @@ func _on_respec_button_pressed() -> void:
 func _on_respec_menu_selected(id: int) -> void:
 	if not ability_component:
 		return
+	var have: String = _format_monies(_current_monies())
 	if id == 0:
-		ability_component.respec_discipline(_current_discipline_key)
+		var cost: int = ability_component.get_respec_cost("discipline")
+		_confirm_respec("Respec the %s tree for %s monies?\nYou have %s." % [_current_discipline_tab_title(), _format_monies(cost), have],
+			func(): ability_component.respec_discipline(_current_discipline_key))
 	elif id == 1:
-		ability_component.respec_all()
-	_refresh_after_respec()
+		var cost: int = ability_component.get_respec_cost("all")
+		_confirm_respec("Respec ALL weapon trees for %s monies?\nYou have %s." % [_format_monies(cost), have],
+			func(): ability_component.respec_all())
 
 
 ## Per-ability respec — refunds just the selected ability's levels + upgrades.
 func _on_respec_ability_pressed() -> void:
 	if not ability_component or selected_ability_id.is_empty():
 		return
-	ability_component.respec_ability(selected_ability_id)
+	var cost: int = ability_component.get_respec_cost("ability", selected_ability_id)
+	_confirm_respec("Respec this ability for %s monies?\nYou have %s." % [_format_monies(cost), _format_monies(_current_monies())],
+		func(): ability_component.respec_ability(selected_ability_id))
+
+
+## Economy sink: warn (with the cost) before running a respec action.
+func _confirm_respec(text: String, on_confirm: Callable) -> void:
+	_pending_respec = on_confirm
+	if not is_instance_valid(_confirm_dialog):
+		_confirm_dialog = ConfirmationDialog.new()
+		_confirm_dialog.title = "Confirm Respec"
+		_confirm_dialog.ok_button_text = "Respec"
+		add_child(_confirm_dialog)
+		_confirm_dialog.confirmed.connect(_on_respec_confirmed)
+	_confirm_dialog.dialog_text = text
+	_confirm_dialog.popup_centered()
+
+
+func _on_respec_confirmed() -> void:
+	if _pending_respec.is_valid():
+		_pending_respec.call()
+	_pending_respec = Callable()
 	_refresh_after_respec()
 
 

@@ -26,6 +26,11 @@ var player
 var _dragging := false
 var _drag_offset := Vector2()
 var _ability_shell: Node = null
+# Economy sink: the attribute Respec button (cost label + affordability) and a
+# shared confirmation dialog that warns the player of the monies cost first.
+var _respec_button: Button = null
+var _confirm_dialog: ConfirmationDialog = null
+var _pending_respec: Callable = Callable()
 
 const _DISC_NAMES := ["Sword", "Bow", "Staff", "Dagger"]
 # Attribute row name (in %Stats) -> StatType.
@@ -69,15 +74,72 @@ func _wire_stats_buttons() -> void:
 		if btn:
 			var st: int = _ATTR_ROWS[row_name]
 			btn.pressed.connect(func(): if player and player.stats_component: player.stats_component.allocate_attribute(st, 1))
-	var respec := get_node_or_null("%RespecButton")
-	if respec:
-		respec.pressed.connect(func(): if player and player.stats_component: player.stats_component.respec_attributes())
+	_respec_button = get_node_or_null("%RespecButton")
+	if _respec_button:
+		# Economy sink: warn (with the monies cost) before respeccing — don't just
+		# silently spend on click.
+		_respec_button.pressed.connect(_on_attr_respec_pressed)
 	var sc = player.stats_component if player else null
 	if sc:
 		if sc.has_signal("stats_changed") and not sc.stats_changed.is_connected(_refresh_stats):
 			sc.stats_changed.connect(_refresh_stats)
 		if sc.has_signal("attribute_points_changed"):
 			sc.attribute_points_changed.connect(func(_u): _refresh_stats())
+	# Re-evaluate the respec cost/affordability when monies change.
+	if player and is_instance_valid(player.player_inventory) and player.player_inventory.has_signal("monies_changed"):
+		player.player_inventory.monies_changed.connect(func(_m): _update_attr_respec_button())
+	_update_attr_respec_button()
+
+
+# ─── Economy: attribute respec cost label + warning dialog ───────────────────
+func _update_attr_respec_button() -> void:
+	if not is_instance_valid(_respec_button) or player == null or player.stats_component == null:
+		return
+	var sc = player.stats_component
+	var cost: int = sc.get_attribute_respec_cost() if sc.has_method("get_attribute_respec_cost") else 0
+	_respec_button.text = "Respec Attributes (%s)" % _fmt_monies(cost)
+	var spent: int = sc.get_attribute_points_spent() if sc.has_method("get_attribute_points_spent") else 1
+	_respec_button.disabled = (spent <= 0) or (_player_monies() < cost)
+
+
+func _on_attr_respec_pressed() -> void:
+	if player == null or player.stats_component == null:
+		return
+	var sc = player.stats_component
+	var cost: int = sc.get_attribute_respec_cost() if sc.has_method("get_attribute_respec_cost") else 0
+	_confirm_respec("Respec ALL attributes for %s monies?\nYou have %s." % [_fmt_monies(cost), _fmt_monies(_player_monies())],
+		func(): if player and player.stats_component: player.stats_component.respec_attributes())
+
+
+## Shared confirmation: shows `text` (incl. the cost) and runs `on_confirm` on OK.
+func _confirm_respec(text: String, on_confirm: Callable) -> void:
+	_pending_respec = on_confirm
+	if not is_instance_valid(_confirm_dialog):
+		_confirm_dialog = ConfirmationDialog.new()
+		_confirm_dialog.title = "Confirm Respec"
+		_confirm_dialog.ok_button_text = "Respec"
+		add_child(_confirm_dialog)
+		_confirm_dialog.confirmed.connect(_on_respec_confirmed)
+	_confirm_dialog.dialog_text = text
+	_confirm_dialog.popup_centered()
+
+
+func _on_respec_confirmed() -> void:
+	if _pending_respec.is_valid():
+		_pending_respec.call()
+	_pending_respec = Callable()
+
+
+func _player_monies() -> int:
+	if player and is_instance_valid(player.player_inventory):
+		return player.player_inventory.monies_amount
+	return 0
+
+
+func _fmt_monies(amount: int) -> String:
+	if player and is_instance_valid(player.player_inventory) and player.player_inventory.inventory_component:
+		return player.player_inventory.inventory_component.format_number_with_commas(amount)
+	return str(amount)
 
 
 # ─── Tabs ────────────────────────────────────────────────────────────────────
@@ -141,6 +203,7 @@ func _refresh_stats() -> void:
 	var sc = player.stats_component
 	if sc == null:
 		return
+	_update_attr_respec_button()
 	var S = Constants.StatType
 	if "health_component" in player and player.health_component:
 		_set_row("HpRow", "%d/%d" % [player.health_component.current_health, player.health_component.max_health])
