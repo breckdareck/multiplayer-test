@@ -1059,9 +1059,10 @@ func _update_info() -> void:
 	if atk.anim_mode == BossAttackData.AnimMode.HOLD:
 		var frame_count: int = sf.get_frame_count(resolved_anim) if (sf != null and sf.has_animation(resolved_anim)) else 0
 		if atk.hold_frame < 0 or atk.hold_frame >= frame_count - 1:
-			lines.append("  hold_frame: [color=#fa6]%d → no hold (plays like STRETCH; set a MID frame to hold then strike)[/color]" % atk.hold_frame)
+			var eff: int = clampi(int(frame_count / 2), 0, maxi(0, frame_count - 2))
+			lines.append("  hold_frame: %d → auto mid [b]%d[/b]  (freeze through the windup, then play %d→%d as the strike)" % [atk.hold_frame, eff, eff, maxi(0, frame_count - 1)])
 		else:
-			lines.append("  hold_frame: %d  (freeze here until the hit, then play %d→%d as the strike)" % [atk.hold_frame, atk.hold_frame, maxi(0, frame_count - 1)])
+			lines.append("  hold_frame: %d  (freeze through the windup, then play %d→%d as the strike)" % [atk.hold_frame, atk.hold_frame, maxi(0, frame_count - 1)])
 	if sf == null:
 		lines.append("  [color=#fa6]No SpriteFrames on this EnemyData — sprite not drawn.[/color]")
 
@@ -1260,16 +1261,15 @@ class _PreviewControl extends Control:
 				# frame = floor(frac * count), clamped to last.
 				return clampi(int(floor(frac * count)), 0, count - 1)
 			BossAttackData.AnimMode.HOLD:
-				# Mirrors the runtime: a hold frame must leave STRIKE frames after it.
-				# If unset (-1) or at/past the last frame, there's no hold — fall back to
-				# STRETCH. Otherwise native-pace 0 -> hold_frame, freeze, then on the hit
-				# play hold_frame -> end (the strike) at native speed.
+				# Mirrors the runtime: FREEZE on the hold frame for the whole windup,
+				# then at the hit play hold_frame -> end (the strike) at native speed.
+				# Unset (-1) / out-of-range defaults to a MID frame so there's a strike.
 				var fps_h: float = sf.get_animation_speed(anim)
 				var hold_f: int = atk.hold_frame
-				if hold_f < 0 or hold_f >= count - 1 or fps_h <= 0.0:
-					return clampi(int(floor(frac * count)), 0, count - 1)
-				if t < hit_time:
-					return clampi(int(floor(t * fps_h)), 0, hold_f)
+				if hold_f < 0 or hold_f >= count - 1:
+					hold_f = clampi(int(count / 2), 0, maxi(0, count - 2))
+				if t < hit_time or fps_h <= 0.0:
+					return hold_f
 				return clampi(hold_f + int(floor((t - hit_time) * fps_h)), hold_f, count - 1)
 			BossAttackData.AnimMode.FREE:
 				# frame = floor(t * fps) wrapped by count.

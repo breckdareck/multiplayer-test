@@ -26,9 +26,7 @@ var _dash_speed: float = 0.0
 # Cosmetic.
 var _flash_tween: Tween = null
 # HOLD anim mode.
-var _hold_connected: bool = false
 var _hold_target_frame: int = 0
-var _hold_released: bool = false
 # Bespoke logic.
 var _logic: Object = null
 
@@ -40,7 +38,6 @@ func enter() -> void:
 	_fired = false
 	_dashing = false
 	_dash_elapsed = 0.0
-	_hold_released = false
 	var enemy := parent as EnemyBase
 	if enemy == null:
 		return
@@ -126,9 +123,8 @@ func physics_update(delta: float) -> State:
 func exit() -> void:
 	super.exit()
 	_stop_flash()
-	_clear_hold()
 	if animations != null:
-		animations.speed_scale = 1.0
+		animations.speed_scale = 1.0  # undo a HOLD freeze if we left mid-windup
 	var enemy := parent as EnemyBase
 	if enemy:
 		_call_logic("on_recover", [enemy, _attack])
@@ -163,19 +159,18 @@ func _play_windup(enemy: EnemyBase) -> void:
 		BossAttackData.AnimMode.HOLD:
 			var fc: int = sf.get_frame_count(anim) if sf != null else 0
 			_hold_target_frame = _attack.hold_frame
-			# A hold frame must leave STRIKE frames after it. If it's unset (-1) or at/
-			# past the last frame, there's nothing to play after the hold — fall back to
-			# STRETCH (pace the whole clip to land on the hit) instead of freezing on the
-			# final frame (which looked like "it skips to the end").
+			# A hold frame must leave STRIKE frames after it. Unset (-1) or at/past the
+			# last frame defaults to a MID frame so there's always a strike to play.
 			if _hold_target_frame < 0 or _hold_target_frame >= fc - 1:
-				animations.speed_scale = _stretch_scale(sf, anim, _hit_time)
+				_hold_target_frame = clampi(int(fc / 2), 0, maxi(0, fc - 2))
+			if fc <= 1:
+				animations.speed_scale = 1.0
 			else:
-				_hold_released = false
-				animations.speed_scale = 1.0  # play 0 -> hold_frame at native speed
-				if not _hold_connected:
-					animations.frame_changed.connect(_on_hold_frame)
-					_hold_connected = true
-				# Resume out of the hold exactly at the hit, then play hold_frame -> end.
+				# Jump to the hold pose and FREEZE it for the whole windup; at the hit,
+				# resume to play hold_frame -> end (the strike). Deterministic — no
+				# frame_changed race, holds regardless of clip fps / windup length.
+				animations.frame = _hold_target_frame
+				animations.speed_scale = 0.0
 				get_tree().create_timer(_hit_time).timeout.connect(_resume_from_hold)
 		BossAttackData.AnimMode.FREE:
 			animations.speed_scale = 1.0
@@ -202,26 +197,12 @@ func _stretch_scale(sf: SpriteFrames, anim: String, target: float) -> float:
 	return clampf(native / target, 0.05, 20.0)
 
 
-func _on_hold_frame() -> void:
-	# Freeze ONCE on the hold pose. The _hold_released latch stops this from
-	# re-freezing every frame after the resume (which would strand the strike).
-	if _hold_released or animations == null:
-		return
-	if animations.frame >= _hold_target_frame:
-		animations.frame = _hold_target_frame  # don't overshoot the pose
-		animations.speed_scale = 0.0
-
-
 func _resume_from_hold() -> void:
-	_hold_released = true
+	# Out of the hold at the hit: resume native playback from the frozen hold frame,
+	# so the remaining frames (the strike) play. Don't call play() — that would reset
+	# to frame 0.
 	if animations != null:
-		animations.speed_scale = 1.0  # play hold_frame -> end (the strike)
-
-
-func _clear_hold() -> void:
-	if _hold_connected and animations != null and animations.frame_changed.is_connected(_on_hold_frame):
-		animations.frame_changed.disconnect(_on_hold_frame)
-	_hold_connected = false
+		animations.speed_scale = 1.0
 
 
 # --- Red charge-up tint -----------------------------------------------------
