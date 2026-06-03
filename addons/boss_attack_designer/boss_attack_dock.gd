@@ -1039,9 +1039,13 @@ func _update_info() -> void:
 		lines.append("  dash distance: %.0f px  (from %s)   dash_time: %.2fs" % [dist, src, atk.dash_time])
 
 	# Timing.
-	lines.append("[color=#9fd]timing:[/color] windup_time %.2fs   hit_time %.2fs   cooldown %.1fs" % [
-		atk.windup_time, atk.hit_time, atk.cooldown,
+	var eff_windup: float = clampf(atk.windup_time, 0.05, maxf(0.05, atk.hit_time))
+	var strike_lead: float = maxf(0.0, atk.hit_time - eff_windup)
+	lines.append("[color=#9fd]timing:[/color] hold %.2fs → strike %.2fs → [b]IMPACT[/b] @ %.2fs (damage+dash)   cooldown %.1fs" % [
+		eff_windup, strike_lead, atk.hit_time, atk.cooldown,
 	])
+	if atk.anim_mode == BossAttackData.AnimMode.HOLD and strike_lead < 0.01:
+		lines.append("  [color=#fa6]windup_time == hit_time → no strike lead; the strike plays during the dash. Set windup_time < hit_time for a strike-before-impact gap.[/color]")
 	lines.append("[color=#9fd]total preview timeline:[/color] %.2fs" % _total_time())
 
 	# Animation.
@@ -1261,16 +1265,17 @@ class _PreviewControl extends Control:
 				# frame = floor(frac * count), clamped to last.
 				return clampi(int(floor(frac * count)), 0, count - 1)
 			BossAttackData.AnimMode.HOLD:
-				# Mirrors the runtime: FREEZE on the hold frame for the whole windup,
-				# then at the hit play hold_frame -> end (the strike) at native speed.
-				# Unset (-1) / out-of-range defaults to a MID frame so there's a strike.
+				# Mirrors the runtime: FREEZE on the hold frame until windup_time, then
+				# play hold_frame -> end (the strike) at native speed over the lead-in to
+				# the hit. Unset (-1)/out-of-range hold_frame defaults to a MID frame.
 				var fps_h: float = sf.get_animation_speed(anim)
 				var hold_f: int = atk.hold_frame
 				if hold_f < 0 or hold_f >= count - 1:
 					hold_f = clampi(int(count / 2), 0, maxi(0, count - 2))
-				if t < hit_time or fps_h <= 0.0:
+				var windup: float = clampf(atk.windup_time, 0.05, hit_time)
+				if t < windup or fps_h <= 0.0:
 					return hold_f
-				return clampi(hold_f + int(floor((t - hit_time) * fps_h)), hold_f, count - 1)
+				return clampi(hold_f + int(floor((t - windup) * fps_h)), hold_f, count - 1)
 			BossAttackData.AnimMode.FREE:
 				# frame = floor(t * fps) wrapped by count.
 				var fps: float = sf.get_animation_speed(anim)

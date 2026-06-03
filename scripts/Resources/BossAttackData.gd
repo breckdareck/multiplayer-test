@@ -31,11 +31,14 @@ enum Movement { NONE, DASH }
 @export var attack_name: String = "Special"
 
 @export_category("Timing")
-## Telegraph window before the hit lands (seconds). The ground telegraph shows for
-## this long.
+## HOLD mode: how long (seconds from the start) the wind-up pose is FROZEN before
+## the strike animation begins. The [windup_time, hit_time] gap is the strike's
+## anticipation lead-in before impact (e.g. windup 1.3, hit 1.5 = freeze 1.3s, then
+## 0.2s of strike animation, then the hit). Clamped to <= hit_time. Ignored by
+## STRETCH/FREE (which pace the clip to hit_time).
 @export var windup_time: float = 1.2
-## When the damage actually resolves, in seconds from windup start. Usually equals
-## windup_time; set lower to land the hit before the windup visual fully completes.
+## IMPACT: when damage + dash resolve and the ground telegraph ends (seconds from
+## start). This is THE hit. Should be >= windup_time.
 @export var hit_time: float = 1.2
 ## Seconds between uses of THIS attack (its own cooldown).
 @export var cooldown: float = 8.0

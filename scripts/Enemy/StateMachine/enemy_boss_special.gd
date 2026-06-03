@@ -16,7 +16,8 @@ var _elapsed: float = 0.0
 var _fired: bool = false
 var _center: Vector2 = Vector2.ZERO
 var _dir: int = 1
-var _hit_time: float = 1.0
+var _hit_time: float = 1.0     # impact: damage + dash happen here
+var _windup_time: float = 1.0  # HOLD freezes the pose until here, then the strike plays
 # Dash phase.
 var _dashing: bool = false
 var _dash_elapsed: float = 0.0
@@ -46,6 +47,9 @@ func enter() -> void:
 		return
 
 	_hit_time = maxf(0.05, _attack.hit_time)
+	# Hold/anticipation ends here; the strike animation then plays over the
+	# remaining [windup_time, hit_time] gap before impact. Clamp <= hit_time.
+	_windup_time = clampf(_attack.windup_time, 0.05, _hit_time)
 	_dash_time = maxf(0.05, _attack.dash_time)
 
 	# Lock facing toward the target (fallback: current facing).
@@ -166,12 +170,14 @@ func _play_windup(enemy: EnemyBase) -> void:
 			if fc <= 1:
 				animations.speed_scale = 1.0
 			else:
-				# Jump to the hold pose and FREEZE it for the whole windup; at the hit,
-				# resume to play hold_frame -> end (the strike). Deterministic — no
-				# frame_changed race, holds regardless of clip fps / windup length.
+				# Jump to the hold pose and FREEZE it until windup_time; then resume to
+				# play hold_frame -> end (the strike) over the [windup_time, hit_time]
+				# lead-in to impact. Deterministic — no frame_changed race; holds
+				# regardless of clip fps. If windup_time == hit_time there's no lead and
+				# the strike plays during the dash instead.
 				animations.frame = _hold_target_frame
 				animations.speed_scale = 0.0
-				get_tree().create_timer(_hit_time).timeout.connect(_resume_from_hold)
+				get_tree().create_timer(_windup_time).timeout.connect(_resume_from_hold)
 		BossAttackData.AnimMode.FREE:
 			animations.speed_scale = 1.0
 
