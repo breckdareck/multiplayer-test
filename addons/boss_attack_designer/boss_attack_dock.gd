@@ -93,6 +93,11 @@ var _scrubbing: bool = false    # user is dragging the slider; don't fight it
 var _speed_opt: OptionButton = null
 var _play_speed: float = 1.0
 const _SPEEDS: Array[float] = [1.0, 0.5, 0.25, 0.1]
+# While playing we force the editor to redraw continuously (it otherwise idles at a
+# low fps, sampling playback coarsely). Saved + restored so we don't leave it on.
+const _UPDATE_KEY: String = "interface/editor/update_continuously"
+var _continuous_active: bool = false
+var _prev_update_continuous: bool = false
 
 
 func _ready() -> void:
@@ -872,12 +877,38 @@ func _on_play_pressed() -> void:
 		if _time >= _total_time() - 0.0001:
 			_time = 0.0
 		_play_btn.text = "⏸ Pause"
+		_set_continuous_redraw(true)
 	else:
 		_play_btn.text = "▶ Play"
+		_set_continuous_redraw(false)
+
+
+## Force the editor to render continuously (full fps) while playing, so playback
+## isn't sampled at the editor's coarse idle redraw rate. Saved + restored.
+func _set_continuous_redraw(on: bool) -> void:
+	if _editor_interface == null:
+		return
+	var settings := _editor_interface.get_editor_settings()
+	if settings == null or not settings.has_setting(_UPDATE_KEY):
+		return
+	if on:
+		if not _continuous_active:
+			_prev_update_continuous = bool(settings.get_setting(_UPDATE_KEY))
+			settings.set_setting(_UPDATE_KEY, true)
+			_continuous_active = true
+	elif _continuous_active:
+		settings.set_setting(_UPDATE_KEY, _prev_update_continuous)
+		_continuous_active = false
+
+
+func _exit_tree() -> void:
+	# Don't leave the editor stuck in continuous-redraw if the dock goes away mid-play.
+	_set_continuous_redraw(false)
 
 
 func _reset_playback() -> void:
 	_playing = false
+	_set_continuous_redraw(false)
 	_time = 0.0
 	if _play_btn != null:
 		_play_btn.text = "▶ Play"
