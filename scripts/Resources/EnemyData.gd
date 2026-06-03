@@ -74,5 +74,35 @@ func effective_stat_mults() -> Dictionary:
 @export var body_hitbox_shape: Shape2D
 @export var attack_hitbox_shape: Shape2D
 
+@export_category("Boss")
+## Master switch. When false (the default) NONE of the boss machinery below runs —
+## every boss branch in enemy_base.gd is guarded by enemy_data.is_boss, so plain
+## enemies are completely unaffected. When true the enemy gains phase transitions,
+## an optional enrage, a telegraphed AoE special, and announces itself to the
+## boss HP bar HUD widget.
+@export var is_boss: bool = false
+## Shown on the boss HP bar. Falls back to monster_name when empty.
+@export var boss_title: String = ""
+## HP fractions (0..1) that trigger a phase change as the boss's health crosses
+## DOWN through them, e.g. [0.66, 0.33]. Each fires exactly once; the enemy_base
+## tracker remembers the highest already-passed threshold so re-crossing (heal
+## then re-damage) never re-fires a phase.
+@export var phase_health_thresholds: Array[float] = []
+## Below this HP fraction the boss enrages once (0 = no enrage). Independent of
+## phases — both can be active simultaneously.
+@export var enrage_health_threshold: float = 0.0
+## Damage multiplier applied while enraged.
+@export var enrage_damage_mult: float = 1.5
+## Attack-cooldown DIVISOR while enraged (>1 = faster swings).
+@export var enrage_attack_speed_mult: float = 1.5
+## Seconds between telegraphed specials (0 = no special attack).
+@export var special_attack_cooldown: float = 8.0
+## Windup seconds before the telegraphed special lands (the dodge window).
+@export var special_telegraph_time: float = 1.2
+## AoE radius (px) of the special attack.
+@export var special_attack_radius: float = 120.0
+## Special damage multiplier vs the boss's normal hit.
+@export var special_attack_damage_mult: float = 2.0
+
 @export_category("Drops")
 @export var item_drops: Array[ItemDropResource] = []

@@ -1,4 +1,4 @@
-[gd_scene load_steps=98 format=3 uid="uid://bdtdpx0d05sy3"]
+[gd_scene load_steps=99 format=3 uid="uid://bdtdpx0d05sy3"]
 
 [ext_resource type="Script" uid="uid://yibpus3whwuj" path="res://scripts/Player/multiplayer_controller_v2.gd" id="1_an8q1"]
 [ext_resource type="Script" uid="uid://cy1j38lpy671e" path="res://scripts/Player/multiplayer_input.gd" id="2_hxkm2"]
@@ -32,6 +32,7 @@
 [ext_resource type="PackedScene" uid="uid://bsf8l5e8v7rc7" path="res://scenes/UI/staff_element_widget.tscn" id="17_stfwdgt"]
 [ext_resource type="PackedScene" uid="uid://bxi24t15fkgj6" path="res://scenes/UI/sword_combo_widget.tscn" id="17_swcmbo"]
 [ext_resource type="PackedScene" uid="uid://bxomhqoxw0rc7" path="res://scenes/UI/synergy_widget.tscn" id="18_synrg"]
+[ext_resource type="PackedScene" uid="uid://dbosshpbarscn1" path="res://scenes/UI/boss_hp_bar.tscn" id="40_bosshp"]
 [ext_resource type="Script" uid="uid://cqx4rs6bafi4b" path="res://scripts/Player/StateMachine/idle.gd" id="18_gb22u"]
 [ext_resource type="PackedScene" uid="uid://e3niuw0f1y4f" path="res://scenes/UI/buffbar.tscn" id="19_gb22u"]
 [ext_resource type="Script" uid="uid://vfoesgffonwy" path="res://scripts/Player/StateMachine/fall.gd" id="19_pnj8v"]
@@ -910,6 +911,9 @@ offset_bottom = 160.0
 layout_mode = 1
 offset_top = 172.0
 offset_bottom = 252.0
+
+[node name="BossHpBar" parent="CanvasLayer/PlayerHUD" instance=ExtResource("40_bosshp")]
+layout_mode = 1
 
 [node name="MoveableWindows" type="Control" parent="CanvasLayer"]
 unique_name_in_owner = true
