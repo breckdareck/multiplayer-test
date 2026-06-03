@@ -394,16 +394,15 @@ def pv_flask(liq, emblem=None):
 
 def pv_conical(liq):
     cv=new(); b,h,s=liq
-    cv.poly([(13,10),(18,10),(18,15),(24,27),(7,27)],GLASS)
-    cv.poly([(11,20),(20,20),(23,26),(8,26)],b); cv.line(11,21,9,25,h)
-    cv.poly([(13,10),(18,10),(18,15),(24,27),(7,27)],GLASSL); _cork(cv,15,7); cv.outline(OL); return cv
+    cv.poly([(13,10),(18,10),(18,15),(24,27),(7,27)],GLASS)   # glass body
+    cv.poly([(11,20),(20,20),(23,26),(8,26)],b); cv.line(11,21,9,25,h)  # liquid + shine
+    _cork(cv,15,7); cv.outline(OL); return cv
 
 def pv_shouldered(liq):
     cv=new(); b,h,s=liq
-    cv.poly([(12,10),(19,10),(19,13),(22,16),(22,27),(9,27),(9,16),(12,13)],GLASS)
-    cv.rect(10,17,21,26,None,fill=b)
-    cv.rect(9,19,22,23,GLASSL,fill=hexc("#f3ead2")); cv.hline(11,20,21,b)
-    cv.poly([(12,10),(19,10),(19,13),(22,16),(22,27),(9,27),(9,16),(12,13)],GLASSL)
+    cv.poly([(12,10),(19,10),(19,13),(22,16),(22,27),(9,27),(9,16),(12,13)],GLASS)  # glass body
+    cv.rect(10,17,21,26,None,fill=b)                         # liquid
+    cv.rect(9,19,22,23,GLASSL,fill=hexc("#f3ead2")); cv.hline(11,20,21,b)  # label band
     _cork(cv,15,7); cv.outline(OL); return cv
 
 def pv_handled(liq):
