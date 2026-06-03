@@ -9,9 +9,9 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_sbf"]
 [ext_resource type="Resource" uid="uid://b12e8uf2a6a2o" path="res://resources/Abilities/Dagger/Upgrades/U_VEN_sharp_vendetta.tres" id="9_upg"]
 [ext_resource type="Resource" uid="uid://dwuwqk0k46gp1" path="res://resources/Abilities/Dagger/Upgrades/U_VEN_quick_vendetta.tres" id="10_upg"]
-[ext_resource type="Resource" uid="uid://ywll2gws1uoo" path="res://resources/Abilities/Dagger/Upgrades/U_VEN_spreading_vendetta.tres" id="11_upg"]
-[ext_resource type="Resource" uid="uid://yvqy8on2tlmr" path="res://resources/Abilities/Dagger/Upgrades/U_VEN_lethal_vendetta.tres" id="12_upg"]
-[ext_resource type="Resource" uid="uid://dqghttn3ufl63" path="res://resources/Abilities/Dagger/Upgrades/U_VEN_regenerative_vendetta.tres" id="13_upg"]
+[ext_resource type="Resource" uid="uid://6v6kcisxcnuqs" path="res://resources/Abilities/Dagger/Upgrades/U_VEN_spreading_vendetta.tres" id="11_upg"]
+[ext_resource type="Resource" uid="uid://ubw3xjawvtyfl" path="res://resources/Abilities/Dagger/Upgrades/U_VEN_lethal_vendetta.tres" id="12_upg"]
+[ext_resource type="Resource" uid="uid://s62x62c337375" path="res://resources/Abilities/Dagger/Upgrades/U_VEN_regenerative_vendetta.tres" id="13_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="14_aud"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hit"]

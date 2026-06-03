@@ -93,7 +93,7 @@ func _pair_key(discs: Array) -> String:
 	return "%d_%d" % [w[0], w[1]]
 
 
-func _on_synergy_proc(_pair_key: String) -> void:
+func _on_synergy_proc(_key: String) -> void:
 	if not visible:
 		return
 	if is_instance_valid(pair_label):

@@ -22,7 +22,7 @@ const ICON_OFFSET := Vector2(5.0, -50.0)
 const PARTICLE_POS := Vector2(0.0, -20.0)
 ## How long the icon / poison tint linger after the last tick (> the 1s tick cadence
 ## so a still-ticking DoT reads as continuous).
-const HOLD_SEC := 1.6C
+const HOLD_SEC := 1.6
 
 const BLEED_COLOR := Color(0.72, 0.06, 0.06)
 const SKULL_COLOR := Color(0.80, 0.93, 0.72)

@@ -106,8 +106,8 @@ func _rebuild() -> void:
 			pas.append(a)
 		else:
 			act.append(a)
-	act.sort_custom(func(x, y): return x.tree_depth < y.tree_depth)
-	pas.sort_custom(func(x, y): return x.tree_depth < y.tree_depth)
+	act.sort_custom(func(x, b): return x.tree_depth < b.tree_depth)
+	pas.sort_custom(func(x, b): return x.tree_depth < b.tree_depth)
 
 	var y: int = TOP
 	_section_label(y, "PASSIVES", C_PASS)
@@ -121,9 +121,11 @@ func _rebuild() -> void:
 	y += 22
 	var prev_cy: int = -1
 	for i in act.size():
+		@warning_ignore("integer_division")
 		var cy: int = y + NODE_H / 2
 		if prev_cy >= 0:
 			var owned: bool = _comp.get_ability_level(act[i - 1].ability_id) >= 1
+			@warning_ignore("integer_division")
 			_lines.append([Vector2(PAD + 22, prev_cy + NODE_H / 2), Vector2(PAD + 22, cy - NODE_H / 2), C_OWNED if owned else C_LOCKED])
 		_ability_row(act[i], y)
 		prev_cy = cy
@@ -211,6 +213,7 @@ func _ability_row(a, y: int) -> void:
 			scol = Color(0.66, 0.6, 0.55)
 	_text(node, 44, NODE_H - 16, NODE_W - 48, sub, 9, scol)
 
+	@warning_ignore("integer_division")
 	_upgrade_branch(a, y + NODE_H / 2, state == ST_MAX)
 
 
@@ -235,17 +238,21 @@ func _upgrade_branch(a, cy: int, ability_maxed: bool) -> void:
 	if not t3.is_empty():
 		var n: int = t3.size()
 		var total_h: int = n * UPG_H + (n - 1) * UPG_VGAP
+		@warning_ignore("integer_division")
 		var sy: int = cy - total_h / 2
 		_lines.append([Vector2(X_T2 + UPG_W, cy), Vector2(X_T3 - 8, cy), line_col])
+		@warning_ignore("integer_division")
 		_lines.append([Vector2(X_T3 - 8, sy + UPG_H / 2), Vector2(X_T3 - 8, sy + total_h - UPG_H / 2), line_col])
 		for i in n:
 			var uy: int = sy + i * (UPG_H + UPG_VGAP)
+			@warning_ignore("integer_division")
 			_lines.append([Vector2(X_T3 - 8, uy + UPG_H / 2), Vector2(X_T3, uy + UPG_H / 2), line_col])
 			_upg_node(a, t3[i], X_T3, uy)
 
 
 func _tier_single(a, ups: Array, x: int, cy: int) -> void:
 	for up in ups:
+		@warning_ignore("integer_division")
 		_upg_node(a, up, x, cy - UPG_H / 2)
 
 
@@ -271,6 +278,7 @@ func _upg_node(a, up, x: int, y: int) -> void:
 	var nm: String = up.upgrade_name
 	if owned:
 		nm = "✓ " + nm
+	@warning_ignore("integer_division")
 	_text_c(btn, 2, (UPG_H - 11) / 2, UPG_W - 4, nm, 9, Color(0.62, 0.62, 0.67) if dim else border)
 
 

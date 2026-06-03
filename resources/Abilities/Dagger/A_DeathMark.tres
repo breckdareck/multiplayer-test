@@ -9,9 +9,9 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_sbf"]
 [ext_resource type="Resource" uid="uid://b48o4upxxvwbd" path="res://resources/Abilities/Dagger/Upgrades/U_DMK_lingering_mark.tres" id="9_upg"]
 [ext_resource type="Resource" uid="uid://bynr1086150sy" path="res://resources/Abilities/Dagger/Upgrades/U_DMK_killing_mark.tres" id="10_upg"]
-[ext_resource type="Resource" uid="uid://dr7kftfgcais4" path="res://resources/Abilities/Dagger/Upgrades/U_DMK_spreading_mark.tres" id="11_upg"]
-[ext_resource type="Resource" uid="uid://resah04jycmq" path="res://resources/Abilities/Dagger/Upgrades/U_DMK_bleeding_mark.tres" id="12_upg"]
-[ext_resource type="Resource" uid="uid://bktbwt332uwpf" path="res://resources/Abilities/Dagger/Upgrades/U_DMK_double_mark.tres" id="13_upg"]
+[ext_resource type="Resource" uid="uid://pef56y56zu43f" path="res://resources/Abilities/Dagger/Upgrades/U_DMK_spreading_mark.tres" id="11_upg"]
+[ext_resource type="Resource" uid="uid://t3f47rmedypfk" path="res://resources/Abilities/Dagger/Upgrades/U_DMK_bleeding_mark.tres" id="12_upg"]
+[ext_resource type="Resource" uid="uid://7h3anbg4lhwrj" path="res://resources/Abilities/Dagger/Upgrades/U_DMK_double_mark.tres" id="13_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="14_aud"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hit"]

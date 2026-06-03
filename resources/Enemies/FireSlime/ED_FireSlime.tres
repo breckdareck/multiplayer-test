@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=13 format=3]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=13 format=3 uid="uid://cl5qh8b4i0rxp"]
 
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]

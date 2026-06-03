@@ -1429,28 +1429,28 @@ func _cmd_zone(args: Array) -> String:
 		var names := ZONE_CATALOG.keys()
 		names.sort()
 		for n in names:
-			var cfg: Dictionary = ZONE_CATALOG[n]
+			var entry: Dictionary = ZONE_CATALOG[n]
 			var dim: String
-			if cfg["shape"] == "rect":
-				dim = "rect %dx%d px" % [int(cfg["size"].x), int(cfg["size"].y)]
+			if entry["shape"] == "rect":
+				dim = "rect %dx%d px" % [int(entry["size"].x), int(entry["size"].y)]
 			else:
-				dim = "circle r=%d px" % int(cfg["radius"])
+				dim = "circle r=%d px" % int(entry["radius"])
 			lines.append("  [color=#9fd]%-16s[/color] [color=#c79bff]%-6s[/color] %s  [color=#888]%.1fs[/color]  %s" %
-				[n, cfg["weapon"], dim, cfg["duration"], cfg["desc"]])
+				[n, entry["weapon"], dim, entry["duration"], entry["desc"]])
 		return "\n".join(lines)
 
 	# Spawn mode — name must be in the catalog.
 	if not multiplayer.is_server():
 		return "[color=#ff8888]zone spawn requires host (server).[/color]"
-	var name: String = String(args[0]).to_lower()
-	if not ZONE_CATALOG.has(name):
-		return "[color=#ff8888]Unknown zone '%s'. Run 'zone' for the catalog.[/color]" % name
+	var zone_name: String = String(args[0]).to_lower()
+	if not ZONE_CATALOG.has(zone_name):
+		return "[color=#ff8888]Unknown zone '%s'. Run 'zone' for the catalog.[/color]" % zone_name
 
 	var player: Node = _local_player()
 	if player == null or not is_instance_valid(player):
 		return "[color=#ff8888]No local player to anchor the zone on.[/color]"
 
-	var cfg: Dictionary = ZONE_CATALOG[name]
+	var cfg: Dictionary = ZONE_CATALOG[zone_name]
 	var GroundZoneScript = load("res://scripts/Gameplay/ground_zone.gd")
 	# damage_per_tick=0 so this is a pure visual / no-stat-modify zone. The
 	# spawn helper still does its overlap iteration on tick (cheap on the
@@ -1473,7 +1473,7 @@ func _cmd_zone(args: Array) -> String:
 		dim_label = "%dx%d rect" % [int(cfg["size"].x), int(cfg["size"].y)]
 	else:
 		dim_label = "r=%d circle" % int(cfg["radius"])
-	return "[color=#9fd]Spawned %s zone (%s, %.1fs)[/color] at your feet for inspection." % [name, dim_label, float(cfg["duration"])]
+	return "[color=#9fd]Spawned %s zone (%s, %.1fs)[/color] at your feet for inspection." % [zone_name, dim_label, float(cfg["duration"])]
 
 
 func _complete_zone_args(line: String, _word: String) -> PackedStringArray:

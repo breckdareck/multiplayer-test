@@ -9,9 +9,9 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_sbf"]
 [ext_resource type="Resource" uid="uid://6y5u8vcfp2t4" path="res://resources/Abilities/Staff/Upgrades/U_AFM_lasting_familiar.tres" id="9_upg"]
 [ext_resource type="Resource" uid="uid://c8hf6sbbuxn5r" path="res://resources/Abilities/Staff/Upgrades/U_AFM_quick_familiar.tres" id="10_upg"]
-[ext_resource type="Resource" uid="uid://c2t4onrh0lknn" path="res://resources/Abilities/Staff/Upgrades/U_AFM_heavy_familiar.tres" id="11_upg"]
-[ext_resource type="Resource" uid="uid://nkhqachvf4bc" path="res://resources/Abilities/Staff/Upgrades/U_AFM_chaining_familiar.tres" id="12_upg"]
-[ext_resource type="Resource" uid="uid://cpwj1vrb7a66g" path="res://resources/Abilities/Staff/Upgrades/U_AFM_twin_familiar.tres" id="13_upg"]
+[ext_resource type="Resource" uid="uid://wevhmxdqtlxgh" path="res://resources/Abilities/Staff/Upgrades/U_AFM_heavy_familiar.tres" id="11_upg"]
+[ext_resource type="Resource" uid="uid://ankhqachvf4bc" path="res://resources/Abilities/Staff/Upgrades/U_AFM_chaining_familiar.tres" id="12_upg"]
+[ext_resource type="Resource" uid="uid://kgqa7zltcoxoy" path="res://resources/Abilities/Staff/Upgrades/U_AFM_twin_familiar.tres" id="13_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="14_aud"]
 
 [sub_resource type="Resource" id="Resource_active"]

@@ -9,9 +9,9 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_sbf"]
 [ext_resource type="Resource" uid="uid://dqgiawa5edft0" path="res://resources/Abilities/Staff/Upgrades/U_FPT_wider_frost.tres" id="9_upg"]
 [ext_resource type="Resource" uid="uid://chxkldw6nibdq" path="res://resources/Abilities/Staff/Upgrades/U_FPT_deep_frost.tres" id="10_upg"]
-[ext_resource type="Resource" uid="uid://bk7mu5oolto0" path="res://resources/Abilities/Staff/Upgrades/U_FPT_glacial_frost.tres" id="11_upg"]
-[ext_resource type="Resource" uid="uid://conh1b17my0yt" path="res://resources/Abilities/Staff/Upgrades/U_FPT_lingering_frost.tres" id="12_upg"]
-[ext_resource type="Resource" uid="uid://ec5vfq84glos" path="res://resources/Abilities/Staff/Upgrades/U_FPT_shattering_frost.tres" id="13_upg"]
+[ext_resource type="Resource" uid="uid://tmmkk5qxil7ht" path="res://resources/Abilities/Staff/Upgrades/U_FPT_glacial_frost.tres" id="11_upg"]
+[ext_resource type="Resource" uid="uid://vzotylnhgzern" path="res://resources/Abilities/Staff/Upgrades/U_FPT_lingering_frost.tres" id="12_upg"]
+[ext_resource type="Resource" uid="uid://6bl4lu4am2lqw" path="res://resources/Abilities/Staff/Upgrades/U_FPT_shattering_frost.tres" id="13_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="14_aud"]
 
 [sub_resource type="Resource" id="Resource_active"]

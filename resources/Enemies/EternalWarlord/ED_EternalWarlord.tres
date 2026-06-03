@@ -1,28 +1,29 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=18 format=3]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=20 format=3 uid="uid://dmr25eig7wwau"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
 [ext_resource type="SpriteFrames" uid="uid://ckcbsuhp72f5i" path="res://resources/Enemies/Goblin/SF_Goblin.tres" id="3_sf"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Eternal_Longsword.tres" id="d_1"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Eternal_Spellstaff.tres" id="d_2"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Eternal_Warbow.tres" id="d_3"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Eternal_Dirk.tres" id="d_4"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Eternal_Vanguard_Mail.tres" id="d_5"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Eternal_Arcanist_Mail.tres" id="d_6"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Eternal_Nightshade_Mail.tres" id="d_7"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Eternal_Pathfinder_Mail.tres" id="d_8"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Dawnbreaker.tres" id="d_9"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Staff_of_Eternity.tres" id="d_10"]
+[ext_resource type="Script" uid="uid://cdsbcru4b1hr8" path="res://scripts/Resources/BossAttackData.gd" id="13_wiq80"]
+[ext_resource type="Resource" uid="uid://baxdtndtctnx8" path="res://resources/DropTables/Generated/Eternal_Longsword.tres" id="d_1"]
+[ext_resource type="Resource" uid="uid://b5iwkyv6dnb2w" path="res://resources/DropTables/Generated/Eternal_Spellstaff.tres" id="d_2"]
+[ext_resource type="Resource" uid="uid://vks747udvtpp" path="res://resources/DropTables/Generated/Eternal_Warbow.tres" id="d_3"]
+[ext_resource type="Resource" uid="uid://ddeml01ld462o" path="res://resources/DropTables/Generated/Eternal_Dirk.tres" id="d_4"]
+[ext_resource type="Resource" uid="uid://b3i5hayrpe3s7" path="res://resources/DropTables/Generated/Eternal_Vanguard_Mail.tres" id="d_5"]
+[ext_resource type="Resource" uid="uid://37rnkljcl6ix" path="res://resources/DropTables/Generated/Eternal_Arcanist_Mail.tres" id="d_6"]
+[ext_resource type="Resource" uid="uid://deymw84u70nak" path="res://resources/DropTables/Generated/Eternal_Nightshade_Mail.tres" id="d_7"]
+[ext_resource type="Resource" uid="uid://bjclxscn01aml" path="res://resources/DropTables/Generated/Eternal_Pathfinder_Mail.tres" id="d_8"]
+[ext_resource type="Resource" uid="uid://d26ci26nnsll7" path="res://resources/DropTables/Generated/Dawnbreaker.tres" id="d_9"]
+[ext_resource type="Resource" uid="uid://bntk6hgy3jxuc" path="res://resources/DropTables/Generated/Staff_of_Eternity.tres" id="d_10"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)
 
-[sub_resource type="CircleShape2D" id="Shape_col"]
-radius = 6.0
-
 [sub_resource type="CapsuleShape2D" id="Shape_body"]
 radius = 13.0
 height = 34.0
+
+[sub_resource type="CircleShape2D" id="Shape_col"]
+radius = 6.0
 
 [sub_resource type="Resource" id="Resource_coin"]
 script = ExtResource("1_drop")
@@ -32,15 +33,37 @@ min_amount = 10
 max_amount = 16
 metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 
+[sub_resource type="Resource" id="Resource_wiq80"]
+script = ExtResource("13_wiq80")
+attack_name = "Dash Slash"
+windup_time = 1.3
+hit_time = 1.5
+anim_mode = 1
+windup_anim = "dash_attack"
+hold_frame = 4
+reach = 180.0
+band_height = 60.0
+movement = 1
+dash_time = 0.3
+damage_mult = 2.5
+
 [resource]
 script = ExtResource("2_ed")
 monster_name = "Eternal Warlord"
 monster_level = 100
-movement_speed = 42
+movement_speed = 42.0
 is_aggressive = true
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")
 body_hitbox_shape = SubResource("Shape_body")
 attack_hitbox_shape = SubResource("Shape_atk")
+is_boss = true
+boss_title = "Eternal Warlord"
+phase_health_thresholds = Array[float]([0.66, 0.33])
+enrage_health_threshold = 0.2
+special_telegraph_time = 1.3
+special_attack_radius = 140.0
+special_attack_damage_mult = 2.5
+special_attacks = Array[ExtResource("13_wiq80")]([SubResource("Resource_wiq80")])
 item_drops = Array[ExtResource("1_drop")]([SubResource("Resource_coin"), ExtResource("d_1"), ExtResource("d_2"), ExtResource("d_3"), ExtResource("d_4"), ExtResource("d_5"), ExtResource("d_6"), ExtResource("d_7"), ExtResource("d_8"), ExtResource("d_9"), ExtResource("d_10")])
 metadata/_custom_type_script = "uid://dv7aj5x3e50cg"

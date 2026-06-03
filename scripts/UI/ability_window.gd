@@ -871,7 +871,9 @@ func _on_respec_button_pressed() -> void:
 	# Free the popup once it closes (covers both selection and dismissal).
 	menu.popup_hide.connect(menu.queue_free)
 	# Anchor just below the top Respec button.
-	var anchor: Control = respec_menu_button if is_instance_valid(respec_menu_button) else self
+	var anchor: Control = self
+	if is_instance_valid(respec_menu_button):
+		anchor = respec_menu_button
 	menu.position = anchor.get_screen_position() + Vector2(0, anchor.size.y)
 	menu.popup()
 

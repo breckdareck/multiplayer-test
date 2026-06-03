@@ -10,8 +10,8 @@
 [ext_resource type="Resource" uid="uid://387hwqrwsggu" path="res://resources/Abilities/Sword/Upgrades/U_EAR_wider_crack.tres" id="9_upg"]
 [ext_resource type="Resource" uid="uid://cag0j6xnbsc16" path="res://resources/Abilities/Sword/Upgrades/U_EAR_lingering_tremors.tres" id="10_upg"]
 [ext_resource type="Resource" uid="uid://dx6oruxt0ryss" path="res://resources/Abilities/Sword/Upgrades/U_EAR_fissure_network.tres" id="11_upg"]
-[ext_resource type="Resource" uid="uid://ca34s0xsr6alk" path="res://resources/Abilities/Sword/Upgrades/U_EAR_aftershock.tres" id="12_upg"]
-[ext_resource type="Resource" uid="uid://b6joxq6hj00u2" path="res://resources/Abilities/Sword/Upgrades/U_EAR_cataclysm.tres" id="13_upg"]
+[ext_resource type="Resource" uid="uid://4cx7xfekqlevw" path="res://resources/Abilities/Sword/Upgrades/U_EAR_aftershock.tres" id="12_upg"]
+[ext_resource type="Resource" uid="uid://jwdf4uzyofrel" path="res://resources/Abilities/Sword/Upgrades/U_EAR_cataclysm.tres" id="13_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="14_aud"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hit"]

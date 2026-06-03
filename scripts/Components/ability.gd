@@ -2129,6 +2129,7 @@ func _load_ability_points_with_migration(data: Dictionary) -> void:
 	if data.has("available_points"):
 		var legacy_total: int = int(data["available_points"])
 		if legacy_total > 0:
+			@warning_ignore("integer_division")
 			var base: int = legacy_total / 4
 			var remainder: int = legacy_total - (base * 4)
 			for key in DISCIPLINE_KEYS:
@@ -2154,6 +2155,7 @@ func _apply_per_discipline_payload(payload) -> void:
 	elif payload is int or payload is float:
 		var legacy_total: int = int(payload)
 		if legacy_total > 0:
+			@warning_ignore("integer_division")
 			var base: int = legacy_total / 4
 			var remainder: int = legacy_total - (base * 4)
 			for key in DISCIPLINE_KEYS:

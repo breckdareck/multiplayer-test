@@ -1,6 +1,6 @@
 extends Node
 
-## Custom logic for Power Guard buff
+## Custom logic for Iron Riposte buff
 ## Reflects a percentage of damage back to attackers
 ## Cannot reflect more than half of the attacker's max HP
 
@@ -8,12 +8,12 @@ var reflect_percentage: float = 12.0  # Can be set dynamically
 var source_ability_level: int = 1     # Track what level cast it
 
 func on_apply(_owner_node: Node, _active_buff) -> void:
-	print("Power Guard (Level %d) activated on %s! Reflects %.0f%% damage" % 
+	print("Iron Riposte (Level %d) activated on %s! Reflects %.0f%% damage" % 
 		[source_ability_level, _owner_node.name, reflect_percentage])
 		
 
 func on_remove(_owner_node: Node, _active_buff) -> void:
-	print("Power Guard expired on %s" % _owner_node.name)
+	print("Iron Riposte expired on %s" % _owner_node.name)
 
 
 func on_tick(_owner_node: Node, _active_buff, _delta: float) -> void:
@@ -27,7 +27,7 @@ func on_damaged(owner_node: Node, active_buff, damage_amount: int, source: Node)
 	
 	
 	#print("Recieved Dmg Amount: %d" % damage_amount)
-	#print("Power Guard: On Damaged %d%% " % round(reflect_percentage))
+	#print("Iron Riposte: On Damaged %d%% " % round(reflect_percentage))
 	
 	
 	# Calculate reflected damage
@@ -43,5 +43,5 @@ func on_damaged(owner_node: Node, active_buff, damage_amount: int, source: Node)
 	
 	# Apply reflected damage back to the attacker
 	if reflected_damage > 0 and attacker_health_comp:
-		#print("Power Guard reflects %d damage back to %s!" % [reflected_damage, source.name])
+		#print("Iron Riposte reflects %d damage back to %s!" % [reflected_damage, source.name])
 		attacker_health_comp.take_damage(reflected_damage, owner_node, true)

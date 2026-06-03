@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=13 format=3]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=13 format=3 uid="uid://bqcc5oesuxx6u"]
 
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Resource" path="res://resources/DropTables/Generated/Iron_Longsword.tres" id="2_di870"]

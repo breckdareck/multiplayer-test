@@ -4,6 +4,11 @@ extends CharacterBody2D
 # Emitted after the death animation finishes, signaling it can be returned to the pool.
 signal ready_for_pooling
 
+## [Boss] Emitted on the SERVER each time the boss crosses into a new phase.
+## `phase_index` is 0-based (the index into enemy_data.phase_health_thresholds
+## that was just crossed). Phase 0 is the starting state and is never emitted.
+signal boss_phase_changed(phase_index: int)
+
 ## Enemy-damage defense mitigation curve (diminishing returns, in damage_on_overlap).
 ## mitigation = eff_def / (eff_def + DEFENSE_SOFTNESS * monster_att), capped at
 ## MAX_DEFENSE_MITIGATION.
@@ -89,6 +94,37 @@ var _attack_cooldown_until: int = 0
 
 const _CHASE_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_chase.gd")
 const _HIT_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_hit.gd")
+const _BOSS_SPECIAL_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_boss_special.gd")
+
+# --- Boss state (server-authoritative; only used when enemy_data.is_boss) -----
+## Pure phase/enrage crossing math, kept in a dependency-free helper so it's
+## unit-testable in isolation and has one canonical home.
+const _BOSS_PHASE_LOGIC := preload("res://scripts/Enemy/boss_phase_logic.gd")
+## Per-phase damage multiplier, bumped +15% each phase transition. Multiplies the
+## boss's normal attack AND its special. 1.0 outside boss fights.
+var _boss_damage_mult: float = 1.0
+## Per-phase attack-speed divisor (shrinks the attack cooldown). 1.0 = unmodified.
+var _boss_attack_speed_mult: float = 1.0
+## Highest phase index already entered (-1 = still in the opening phase). The
+## threshold check only fires phases with an index ABOVE this, so a heal-then-
+## re-damage never re-triggers a passed phase.
+var _boss_phase_idx: int = -1
+## True once the enrage threshold has been crossed; enrage applies exactly once.
+var _boss_enraged: bool = false
+## Per-phase damage bump applied on each phase transition (+15% of base).
+const _BOSS_PHASE_DAMAGE_STEP: float = 0.15
+## Per-phase attack-speed bump (cooldown divisor) applied on each transition.
+const _BOSS_PHASE_ATTACK_SPEED_STEP: float = 0.10
+## True while a telegraphed special is mid-windup (suppresses re-scheduling).
+var _boss_special_pending: bool = false
+## Cached BossAttackData list (authored or legacy-synthesised), built once per spawn.
+var _special_attacks_cache: Array[BossAttackData] = []
+var _attacks_cached: bool = false
+## Per-attack next-ready server clock (ms), keyed by index into the attack list.
+var _attack_ready_at: Dictionary = {}
+## The attack the readiness gate picked for the in-progress windup, + its index.
+var _pending_special_attack: BossAttackData = null
+var _pending_special_idx: int = -1
 
 # --- Mark indicator (floating diamond over marked enemies) ---
 const _MARK_INDICATOR_SCRIPT := preload("res://scripts/Enemy/mark_indicator.gd")
@@ -247,6 +283,12 @@ func _ready() -> void:
 		health_component.current_health = health_component.max_health
 		health_component.died.connect(_on_enemy_died)
 		health_component.damaged.connect(on_enemy_damaged)
+		# [Boss] Watch HP crossings for phase/enrage triggers (server-only).
+		# health_changed fires on every health mutation; _on_boss_health_changed
+		# is gated to is_boss so non-boss enemies that somehow reach it no-op.
+		if enemy_data.is_boss:
+			health_component.health_changed.connect(_on_boss_health_changed)
+			_init_boss_attacks()
 		body_hitbox.body_entered.connect(_on_body_hitbox_body_entered)
 		# Only connect animation_finished if AnimatedSprite2D exists (not on dedicated server)
 		if animated_sprite:
@@ -263,6 +305,11 @@ func _ready() -> void:
 	# same pattern as the player.
 	_ensure_chase_state()
 	_ensure_hit_state()
+	# [Boss] Inject the telegraphed-special state. Created on every peer (gated by
+	# the data flag, identical everywhere) so the state-name sync resolves on
+	# clients; its windup/damage only advances on the server.
+	if enemy_data != null and enemy_data.is_boss:
+		_ensure_boss_special_state()
 	state_machine.init(self, animated_sprite)
 
 
@@ -283,6 +330,10 @@ func _process(delta: float) -> void:
 		if _mark_check_accum >= _MARK_CHECK_INTERVAL:
 			_mark_check_accum = 0.0
 			_refresh_mark_indicator()
+
+		# [Boss] Telegraphed special-attack scheduler (server-only, gated to bosses).
+		if enemy_data != null and enemy_data.is_boss:
+			_boss_special_tick()
 
 
 func _physics_process(delta: float) -> void:
@@ -388,6 +439,11 @@ func _try_enter_hit_state() -> void:
 	if hit_state == null or state_machine.current_state == hit_state:
 		return
 	if state_machine.current_state is EnemyAttackState:
+		return
+	# A telegraphed boss special is committed — chip damage must not cancel the
+	# windup (else focus fire would stop the special ever landing).
+	var boss_special_state: Node = state_machine.get_node_or_null("boss_special")
+	if boss_special_state != null and state_machine.current_state == boss_special_state:
 		return
 	if enemy_data == null or enemy_data.sprite_frames == null:
 		return
@@ -647,6 +703,18 @@ func pool_reset() -> void:
 	current_target = null
 	_attack_cooldown_until = 0
 
+	# [Boss] Reset phase/enrage/special state so a pooled-and-respawned boss
+	# starts the fight clean instead of inheriting the previous run's buffs.
+	_boss_damage_mult = 1.0
+	_boss_attack_speed_mult = 1.0
+	_boss_phase_idx = -1
+	_boss_enraged = false
+	_boss_special_pending = false
+	_pending_special_attack = null
+	_pending_special_idx = -1
+	if enemy_data != null and enemy_data.is_boss:
+		_init_boss_attacks()
+
 	if respawnable:
 		global_position = initial_position
 	
@@ -755,6 +823,9 @@ func damage_on_overlap(body: Node):
 		var att_stat: int = Constants.StatType.MAGICATTACK if is_magic else Constants.StatType.WEAPONATTACK
 		var def_stat: int = Constants.StatType.MAGICDEFENSE if is_magic else Constants.StatType.DEFENSE
 		var monster_att = stats_component.stats.get(att_stat).total_value
+		# [Boss] Phase + enrage damage scaling on the boss's normal attack. Returns
+		# 1.0 for every non-boss enemy (and an un-phased, un-enraged boss).
+		monster_att = int(round(float(monster_att) * _boss_outgoing_mult()))
 		var player_def = player_stats.stats.get(def_stat).total_value
 		var level_diff = player_level_comp.level - monster_level
 
@@ -946,6 +1017,20 @@ func _ensure_hit_state() -> void:
 	state_machine.add_child(hit)
 
 
+## [Boss] Creates and attaches the runtime "boss_special" state — the telegraphed
+## AoE windup. Only injected for bosses (gated by the caller). animation_name is
+## left empty: bosses reuse a base enemy's SpriteFrames, which has no dedicated
+## windup clip, so the sprite holds its current pose during the telegraph.
+func _ensure_boss_special_state() -> void:
+	if state_machine == null or state_machine.has_node("boss_special"):
+		return
+	var s := Node.new()
+	s.set_script(_BOSS_SPECIAL_STATE_SCRIPT)
+	s.name = "boss_special"
+	s.animation_name = ""
+	state_machine.add_child(s)
+
+
 ## Resolves a damage source (a player/bot node, or an ability/projectile owned
 ## by one) down to the player or bot character node behind it.
 func _resolve_character(source: Node) -> Node2D:
@@ -1012,6 +1097,12 @@ func can_attack() -> bool:
 
 func start_attack_cooldown() -> void:
 	var cd: float = enemy_data.attack_cooldown if enemy_data else 1.4
+	# [Boss] Phase + enrage attack-speed divisor (>1 = faster). 1.0 otherwise.
+	var speed_mult: float = _boss_attack_speed_mult
+	if enemy_data != null and enemy_data.is_boss and _boss_enraged:
+		speed_mult *= maxf(0.01, enemy_data.enrage_attack_speed_mult)
+	if speed_mult > 0.0:
+		cd /= speed_mult
 	_attack_cooldown_until = Time.get_ticks_msec() + int(cd * 1000.0)
 
 
@@ -1031,3 +1122,237 @@ func face_toward(pos: Vector2) -> void:
 	if absf(dx) < 1.0:
 		return
 	face_direction(1 if dx > 0 else -1)
+
+
+# --- Boss encounter logic -------------------------------------------------
+# All of the following only runs when enemy_data.is_boss is true and only on the
+# server. Phase transitions, enrage, and special-attack scheduling are
+# server-authoritative; the telegraph + roar flash are cosmetic broadcasts routed
+# through MapManager (an autoload that resolves on every peer — including bot
+# hosts, which have no client and can't be node-addressed by RPC).
+
+## The combined outgoing-damage multiplier for the boss's normal + special hits.
+## 1.0 for non-bosses and an un-phased, un-enraged boss.
+func _boss_outgoing_mult() -> float:
+	if enemy_data == null or not enemy_data.is_boss:
+		return 1.0
+	var m: float = _boss_damage_mult
+	if _boss_enraged:
+		m *= maxf(0.0, enemy_data.enrage_damage_mult)
+	return m
+
+
+## [Server] Reacts to every HP change on a boss: fires any newly-crossed phase
+## thresholds (in order, once each) and the enrage trigger (once).
+func _on_boss_health_changed(current: int, maximum: int) -> void:
+	if not multiplayer.is_server():
+		return
+	if enemy_data == null or not enemy_data.is_boss:
+		return
+	if health_component == null or health_component.is_dead:
+		return
+	if maximum <= 0:
+		return
+	var frac: float = float(current) / float(maximum)
+
+	# Phase transitions — fire each newly-passed index in order.
+	var new_idx: int = _BOSS_PHASE_LOGIC.compute_phase_index(_boss_phase_idx, frac, enemy_data.phase_health_thresholds)
+	while new_idx > _boss_phase_idx:
+		_boss_phase_idx += 1
+		_enter_boss_phase(_boss_phase_idx)
+
+	# Enrage — independent, once.
+	if not _boss_enraged and _BOSS_PHASE_LOGIC.should_enrage(frac, enemy_data.enrage_health_threshold):
+		_boss_enraged = true
+		boss_phase_changed.emit(-2)  # sentinel: an enrage "phase" for listeners
+		_broadcast_boss_roar(Color(1.0, 0.25, 0.2))
+
+
+## [Server] Applies a phase's effects: bumps the boss's damage + attack speed,
+## emits boss_phase_changed, and broadcasts a cosmetic roar flash to every peer.
+func _enter_boss_phase(idx: int) -> void:
+	_boss_damage_mult += _BOSS_PHASE_DAMAGE_STEP
+	_boss_attack_speed_mult += _BOSS_PHASE_ATTACK_SPEED_STEP
+	boss_phase_changed.emit(idx)
+	_broadcast_boss_roar(Color(1.0, 0.6, 0.1))
+
+
+## [Server] Cosmetic, all-peer expanding ring at the boss's feet — the roar flash
+## (phase/enrage) and the special's telegraph both use it. show_ground_zone_everywhere
+## (not broadcast_ground_zone) so the HOST sees it too: the boss has no
+## authoritative GroundZone node to render locally. No-op off a resolvable map.
+func broadcast_telegraph_ring(pos: Vector2, radius: float, duration: float, color: Color) -> void:
+	var map_id: String = _get_map_id()
+	if map_id == "":
+		return
+	MapManager.show_ground_zone_everywhere(map_id, pos, radius, duration, color)
+
+
+## [Server] All-peer (incl. host) RECTANGULAR ground telegraph — the boss slam
+## band. Centered on `pos`, `rect_size` is full width × height. Reads correctly on
+## the 2D platformer plane where a circle does not.
+func broadcast_telegraph_rect(pos: Vector2, rect_size: Vector2, duration: float, color: Color) -> void:
+	var map_id: String = _get_map_id()
+	if map_id == "":
+		return
+	MapManager.show_ground_zone_shaped_everywhere(map_id, pos, 1, 0.0, rect_size, duration, color)
+
+
+func _broadcast_boss_roar(color: Color) -> void:
+	var radius: float = enemy_data.special_attack_radius if enemy_data != null else 120.0
+	broadcast_telegraph_ring(global_position, radius, 0.5, color)
+
+
+## [Server] Builds + caches the boss's attack list (authored or legacy-synthesised)
+## and seeds each attack's cooldown so the boss doesn't special the instant it spawns.
+func _init_boss_attacks() -> void:
+	var list: Array[BossAttackData] = []
+	if enemy_data != null:
+		list = enemy_data.get_special_attacks()
+	_special_attacks_cache = list
+	_attacks_cached = true
+	_attack_ready_at.clear()
+	var now: int = Time.get_ticks_msec()
+	for i in _special_attacks_cache.size():
+		var atk: BossAttackData = _special_attacks_cache[i]
+		_attack_ready_at[i] = now + int(maxf(0.0, atk.cooldown) * 1000.0)
+
+
+func _get_boss_attacks() -> Array[BossAttackData]:
+	if not _attacks_cached:
+		_init_boss_attacks()
+	return _special_attacks_cache
+
+
+## The attack the readiness gate picked for the current windup — read by the
+## boss_special state on enter.
+func get_pending_special_attack() -> BossAttackData:
+	return _pending_special_attack
+
+
+## [Server] Readiness GATE for the telegraphed special — the only boss code left in
+## _process. Picks the first off-cooldown, in-range attack and hands control to the
+## "boss_special" state, which owns the telegraph + windup + AoE/dash (see
+## enemy_boss_special.gd). Kept tiny on purpose: the behaviour is a state + data.
+func _boss_special_tick() -> void:
+	if _boss_special_pending:
+		return
+	if health_component == null or health_component.is_dead:
+		return
+	if state_machine == null:
+		return
+	var special_state: Node = state_machine.get_node_or_null("boss_special")
+	if special_state == null or state_machine.current_state == special_state:
+		return
+	# Don't open a windup mid-stagger; only from an active combat/idle pose.
+	var hit_state: Node = state_machine.get_node_or_null("hit")
+	if hit_state != null and state_machine.current_state == hit_state:
+		return
+	var target: Node2D = acquire_target()
+	if target == null:
+		return
+
+	var now: int = Time.get_ticks_msec()
+	var attacks: Array[BossAttackData] = _get_boss_attacks()
+	for i in attacks.size():
+		var atk: BossAttackData = attacks[i]
+		if atk == null or atk.cooldown <= 0.0:
+			continue
+		if now < int(_attack_ready_at.get(i, 0)):
+			continue
+		if not _attack_target_in_range(atk, target):
+			continue
+		_pending_special_attack = atk
+		_pending_special_idx = i
+		_boss_special_pending = true
+		state_machine.change_state(special_state)
+		return
+
+
+## Whether `target` is close enough to be worth opening this attack's windup.
+func _attack_target_in_range(atk: BossAttackData, target: Node2D) -> bool:
+	var d: float = global_position.distance_to(target.global_position)
+	return d <= atk.reach + 48.0  # small grace so the dash can close the gap
+
+
+## [Server] Re-arms the in-windup flag + the just-used attack's own cooldown.
+## Called by the boss_special state on exit, whether the windup completed or was
+## interrupted (death/stagger), so an interrupted windup can't instantly re-fire.
+func arm_boss_special_cooldown() -> void:
+	_boss_special_pending = false
+	if _pending_special_attack != null and _pending_special_idx >= 0:
+		_attack_ready_at[_pending_special_idx] = Time.get_ticks_msec() + int(maxf(0.0, _pending_special_attack.cooldown) * 1000.0)
+	_pending_special_attack = null
+	_pending_special_idx = -1
+
+
+## [Server] Shape-aware ground telegraph for `attack`, centered on `center`, facing
+## `facing` (-1/+1). RECT = slam band, CIRCLE = nova, CONE = forward fan (approx as a
+## band until a cone GroundZone visual lands). All-peer incl. host.
+func broadcast_attack_telegraph(attack: BossAttackData, center: Vector2, _facing: int, duration: float, color: Color) -> void:
+	match attack.shape:
+		BossAttackData.Shape.CIRCLE:
+			broadcast_telegraph_ring(center, attack.reach, duration, color)
+		_:  # RECT and (for now) CONE
+			broadcast_telegraph_rect(center, Vector2(attack.reach, attack.band_height), duration, color)
+
+
+## [Server] Deals `attack`'s AoE damage to every player inside its shape, centered
+## on the telegraphed `center` with the boss facing `facing` (-1/+1). RECT = AABB
+## band, CIRCLE = radius, CONE = forward fan within cone_angle. Reuses the player
+## HealthComponent.take_damage path; carries the boss's phase/enrage multiplier.
+func deal_boss_special_damage(attack: BossAttackData, center: Vector2, facing: int) -> void:
+	if not multiplayer.is_server() or _is_being_cleaned_up:
+		return
+	if health_component == null or health_component.is_dead:
+		return
+	if stats_component == null or enemy_data == null:
+		return
+
+	var is_magic: bool = enemy_data.is_magic_attacker
+	var att_stat: int = Constants.StatType.MAGICATTACK if is_magic else Constants.StatType.WEAPONATTACK
+	if not stats_component.stats.has(att_stat):
+		return
+	var base_att: float = float(stats_component.stats.get(att_stat).total_value)
+	var special_damage: int = maxi(1, roundi(base_att * _boss_outgoing_mult() * attack.damage_mult))
+
+	for pid in _get_players_on_same_map():
+		var node: Node2D = PlayerManager.get_player_node(pid)
+		if not is_valid_target(node):
+			continue
+		if not _point_in_attack(attack, center, facing, node.global_position):
+			continue
+		var health: HealthComponent = node.get_node_or_null("Components/Health")
+		if health == null or health.is_dead or health.is_invulnerable:
+			continue
+		health.take_damage(special_damage, self)
+
+
+## Shape hit-test: is `point` inside `attack`'s zone? RECT uses the telegraphed
+## centre + band (AABB); CIRCLE uses radius from the boss; CONE is a forward fan
+## from the boss apex within cone_angle_deg and `reach`.
+func _point_in_attack(attack: BossAttackData, center: Vector2, facing: int, point: Vector2) -> bool:
+	match attack.shape:
+		BossAttackData.Shape.CIRCLE:
+			return global_position.distance_to(point) <= attack.reach
+		BossAttackData.Shape.CONE:
+			var to_p: Vector2 = point - global_position
+			var fwd: float = to_p.x * float(facing)
+			if fwd <= 0.0 or to_p.length() > attack.reach:
+				return false
+			var ang: float = rad_to_deg(absf(to_p.angle_to(Vector2(float(facing), 0.0))))
+			return ang <= attack.cone_angle_deg * 0.5
+		_:  # RECT
+			var off: Vector2 = point - center
+			return absf(off.x) <= attack.reach * 0.5 and absf(off.y) <= attack.band_height * 0.5
+
+
+## Returns this enemy's map id (the name after the "Map_" prefix), or "" when it
+## isn't parented under a Map_ container.
+func _get_map_id() -> String:
+	var parent = get_parent()
+	while parent:
+		if parent.name.begins_with("Map_"):
+			return parent.name.replace("Map_", "")
+		parent = parent.get_parent()
+	return ""

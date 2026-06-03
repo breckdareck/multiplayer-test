@@ -9,9 +9,9 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_sbf"]
 [ext_resource type="Resource" uid="uid://d07yefodgrsj6" path="res://resources/Abilities/Sword/Upgrades/U_SNM_extended_mark.tres" id="9_upg"]
 [ext_resource type="Resource" uid="uid://7amh4nceto2c" path="res://resources/Abilities/Sword/Upgrades/U_SNM_sharper_mark.tres" id="10_upg"]
-[ext_resource type="Resource" uid="uid://cpdoy4bp8oi5a" path="res://resources/Abilities/Sword/Upgrades/U_SNM_generous_mark.tres" id="11_upg"]
-[ext_resource type="Resource" uid="uid://bqpwxq8fqk1j0" path="res://resources/Abilities/Sword/Upgrades/U_SNM_punishing_mark.tres" id="12_upg"]
-[ext_resource type="Resource" uid="uid://cpdfdth641y01" path="res://resources/Abilities/Sword/Upgrades/U_SNM_echoing_mark.tres" id="13_upg"]
+[ext_resource type="Resource" uid="uid://r5y6dcyqihz6c" path="res://resources/Abilities/Sword/Upgrades/U_SNM_generous_mark.tres" id="11_upg"]
+[ext_resource type="Resource" uid="uid://fl4sjs5obrwbr" path="res://resources/Abilities/Sword/Upgrades/U_SNM_punishing_mark.tres" id="12_upg"]
+[ext_resource type="Resource" uid="uid://4q7ih7wx3g4ce" path="res://resources/Abilities/Sword/Upgrades/U_SNM_echoing_mark.tres" id="13_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="14_aud"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hit"]

@@ -469,13 +469,13 @@ func resolve_intent() -> Dictionary:
 ## Resolves a name (case-insensitive for bots, exact for players) to a peer id,
 ## consulting BotManager for bots. Returns -1 if no player OR bot matches.
 ## Used by party/trade name-based intents that accept either a player or a bot.
-func resolve_by_name(name: String) -> int:
-	var pid := get_player_id_from_name(name)
+func resolve_by_name(player_name: String) -> int:
+	var pid := get_player_id_from_name(player_name)
 	if pid != -1:
 		return pid
 	# Delegate the bot name/id lookup to BotManager rather than re-scanning
 	# active_bots here. _find_bot_by_name_or_id returns 0 when not found.
-	var bot_id := BotManager._find_bot_by_name_or_id(name)
+	var bot_id := BotManager._find_bot_by_name_or_id(player_name)
 	if bot_id != 0:
 		return bot_id
 	return -1
@@ -484,8 +484,8 @@ func resolve_by_name(name: String) -> int:
 ## Player-ONLY name resolution (excludes bots). Returns the peer id, or -1.
 ## QuestManager uses this — quests are never granted to bots. `active_players`
 ## holds bots too (negative ids), so filter them out explicitly.
-func resolve_player_only(name: String) -> int:
-	var pid := get_player_id_from_name(name)
+func resolve_player_only(player_name: String) -> int:
+	var pid := get_player_id_from_name(player_name)
 	if pid != -1 and BotManager.is_bot(pid):
 		return -1
 	return pid

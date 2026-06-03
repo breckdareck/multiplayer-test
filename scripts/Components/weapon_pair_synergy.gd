@@ -72,15 +72,15 @@ func on_owner_died() -> void:
 ## when the attack landed (max_landed_damage > 0). Server-side. Dispatches the
 ## active weapon's synergy with whatever ELSE is equipped (you have exactly two
 ## weapon slots, so the equipped set is at most a single pair).
-func on_hit_landed(owner: Node, target: Node, hit_damage: int, ability, did_ambush: bool) -> void:
+func on_hit_landed(owner_node: Node, target: Node, hit_damage: int, ability, did_ambush: bool) -> void:
 	if not multiplayer.is_server():
 		return
-	if not is_instance_valid(owner) or not is_instance_valid(target):
+	if not is_instance_valid(owner_node) or not is_instance_valid(target):
 		return
-	var equipped: Array = owner.get_equipped_disciplines()
+	var equipped: Array = owner_node.get_equipped_disciplines()
 	if equipped.size() < 2:
 		return  # need a genuine two-weapon pair (matched pairs de-dup to size 1)
-	var active: int = owner.get_active_discipline()
+	var active: int = owner_node.get_active_discipline()
 
 	match active:
 		SWORD:
@@ -88,76 +88,76 @@ func on_hit_landed(owner: Node, target: Node, hit_damage: int, ability, did_ambu
 			# rider (the persistent Stance feeds the wielded sword). Ability-gated
 			# to bound uptime, mirroring the staff rider's `ability != null` gate.
 			if ability != null and equipped.has(STAFF):
-				_imbue_with_stance(owner, target, hit_damage, "sword_staff")
+				_imbue_with_stance(owner_node, target, hit_damage, "sword_staff")
 			# Sword+Dagger (reciprocal) — sword ability hits apply Poison.
 			if ability != null and equipped.has(DAGGER):
-				_imbue_with_poison(owner, target, hit_damage, "sword_dagger")
+				_imbue_with_poison(owner_node, target, hit_damage, "sword_dagger")
 		BOW:
 			# Bow+Staff — arrows carry the stance rider.
 			if equipped.has(STAFF):
-				_imbue_with_stance(owner, target, hit_damage, "bow_staff")
+				_imbue_with_stance(owner_node, target, hit_damage, "bow_staff")
 			# Sword+Bow — bow hits BANK a combo point (Combo persists; swap to the
 			# sword and spend the stockpile on a finisher).
 			if equipped.has(SWORD):
-				_bank_combo(owner)
+				_bank_combo(owner_node)
 			# Bow+Dagger — charge the swap-buffer for the next ambush AND (reciprocal)
 			# apply Poison on the bow hit.
 			if equipped.has(DAGGER):
 				_bd_charge = mini(BD_CHARGE_CAP, _bd_charge + 1)
-				_imbue_with_poison(owner, target, hit_damage, "bow_dagger")
+				_imbue_with_poison(owner_node, target, hit_damage, "bow_dagger")
 		DAGGER:
 			if did_ambush:
 				# Staff+Dagger — the ambush carries the stance element.
 				if equipped.has(STAFF):
-					_imbue_with_stance(owner, target, hit_damage, "staff_dagger")
+					_imbue_with_stance(owner_node, target, hit_damage, "staff_dagger")
 				# Sword+Dagger — spend banked Combo for ambush bonus damage.
 				if equipped.has(SWORD):
-					_spend_combo_for_bonus(owner, target, hit_damage, SWORD_DAGGER_COMBO_MULT, "sword_dagger")
+					_spend_combo_for_bonus(owner_node, target, hit_damage, SWORD_DAGGER_COMBO_MULT, "sword_dagger")
 				# Bow+Dagger — spend the bow charge for ambush bonus damage.
 				if equipped.has(BOW):
-					_ambush_spend_bd_charge(owner, target, hit_damage)
+					_ambush_spend_bd_charge(owner_node, target, hit_damage)
 		STAFF:
 			# Staff-main RECIPROCALS (spell hits only) — the off-hand gives back, so a
 			# staff main isn't a pure GIVER. Each uses the off-hand's identity.
 			if ability != null:
 				# Staff+Sword — the spell spends banked Combo for a magic burst.
 				if equipped.has(SWORD):
-					_spend_combo_for_bonus(owner, target, hit_damage, STAFF_SWORD_COMBO_MULT, "staff_sword")
+					_spend_combo_for_bonus(owner_node, target, hit_damage, STAFF_SWORD_COMBO_MULT, "staff_sword")
 				# Staff+Bow — the spell rides your Momentum ramp (persists across swap).
 				if equipped.has(BOW):
-					_spell_ride_momentum(owner, target, hit_damage)
+					_spell_ride_momentum(owner_node, target, hit_damage)
 				# Staff+Dagger — the spell applies Poison (venom-mage; mirror of the
 				# dagger ambush carrying the staff's element).
 				if equipped.has(DAGGER):
-					_imbue_with_poison(owner, target, hit_damage, "staff_dagger")
+					_imbue_with_poison(owner_node, target, hit_damage, "staff_dagger")
 
 
 ## Apply the equipped staff's current stance rider (burn / slow / chain) to a hit
 ## from a NON-staff weapon. Reuses the staff component's own rider so the element
 ## numbers stay identical to a real staff cast.
-func _imbue_with_stance(owner: Node, target: Node, hit_damage: int, pair_key: String) -> void:
-	var staff = owner.get("staff_element_component")
+func _imbue_with_stance(owner_node: Node, target: Node, hit_damage: int, pair_key: String) -> void:
+	var staff = owner_node.get("staff_element_component")
 	if staff == null or not is_instance_valid(staff) or not staff.has_method("apply_element_on_hit"):
 		return
-	staff.apply_element_on_hit(owner, target, hit_damage)
-	_proc(owner, pair_key)
+	staff.apply_element_on_hit(owner_node, target, hit_damage)
+	_proc(owner_node, pair_key)
 
 
 ## Bow+Sword: a bow hit banks a sword Combo point (Combo persists across the swap).
-func _bank_combo(owner: Node) -> void:
-	var combo = owner.get("sword_combo_component")
+func _bank_combo(owner_node: Node) -> void:
+	var combo = owner_node.get("sword_combo_component")
 	if combo == null or not is_instance_valid(combo) or not combo.has_method("add_combo_point"):
 		return
 	combo.add_combo_point()
-	_proc(owner, "sword_bow")
+	_proc(owner_node, "sword_bow")
 
 
 ## Spend banked sword Combo for a bonus-damage burst on the victim. Shared by
 ## Sword+Dagger (dagger ambush spends combo) and Staff+Sword (a spell spends combo).
 ## `mult` scales the per-point bonus; combo is consumed once (so on a multi-target
 ## hit only the first target gets the burst — the resource is spent).
-func _spend_combo_for_bonus(owner: Node, target: Node, hit_damage: int, mult: float, pair_key: String) -> void:
-	var combo = owner.get("sword_combo_component")
+func _spend_combo_for_bonus(owner_node: Node, target: Node, hit_damage: int, mult: float, pair_key: String) -> void:
+	var combo = owner_node.get("sword_combo_component")
 	if combo == null or not is_instance_valid(combo) or not combo.has_method("get_combo_count"):
 		return
 	var n: int = int(combo.get_combo_count())
@@ -165,8 +165,8 @@ func _spend_combo_for_bonus(owner: Node, target: Node, hit_damage: int, mult: fl
 		return
 	if combo.has_method("spend_combo"):
 		combo.spend_combo()
-	_deal_bonus(owner, target, maxi(1, roundi(hit_damage * n * mult)))
-	_proc(owner, pair_key)
+	_deal_bonus(owner_node, target, maxi(1, roundi(hit_damage * n * mult)))
+	_proc(owner_node, pair_key)
 
 
 ## Dagger-poison imbue (reciprocal): the active weapon's hit applies a poison DoT,
@@ -174,53 +174,53 @@ func _spend_combo_for_bonus(owner: Node, target: Node, hit_damage: int, mult: fl
 ## applying hit so it keeps pace with stats/mastery/gear (project_dot_scaling_divergence).
 ## BleedDot is the shared DoT helper; safe to ref directly here (combat does NOT
 ## hard-preload this component — it resolves it by node path — so no compile cycle).
-func _imbue_with_poison(owner: Node, target: Node, hit_damage: int, pair_key: String) -> void:
+func _imbue_with_poison(owner_node: Node, target: Node, hit_damage: int, pair_key: String) -> void:
 	if not is_instance_valid(target):
 		return
 	var per_tick: int = maxi(1, roundi(hit_damage * POISON_PER_TICK_FRAC))
-	BleedDot.apply(target, owner, per_tick, POISON_MAX_STACKS, POISON_DURATION, "synergy_poison", "poison")
-	_proc(owner, pair_key)
+	BleedDot.apply(target, owner_node, per_tick, POISON_MAX_STACKS, POISON_DURATION, "synergy_poison", "poison")
+	_proc(owner_node, pair_key)
 
 
 ## Staff+Bow (staff active): the spell rides your Bow Momentum ramp — bonus damage =
 ## hit × the momentum damage fraction (stacks × DAMAGE_PER_STACK). Momentum now
 ## persists across the swap (+ the sheathe hold), so a mage can build it on the bow
 ## and unload empowered spells.
-func _spell_ride_momentum(owner: Node, target: Node, hit_damage: int) -> void:
-	var bm = owner.get("bow_momentum_component")
+func _spell_ride_momentum(owner_node: Node, target: Node, hit_damage: int) -> void:
+	var bm = owner_node.get("bow_momentum_component")
 	if bm == null or not is_instance_valid(bm) or not bm.has_method("get_damage_bonus"):
 		return
 	var bonus_frac: float = bm.get_damage_bonus()
 	if bonus_frac <= 0.0:
 		return
-	_deal_bonus(owner, target, maxi(1, roundi(hit_damage * bonus_frac)))
-	_proc(owner, "staff_bow")
+	_deal_bonus(owner_node, target, maxi(1, roundi(hit_damage * bonus_frac)))
+	_proc(owner_node, "staff_bow")
 
 
 ## Bow+Dagger: the ambush spends the bow swap-buffer for bonus damage.
-func _ambush_spend_bd_charge(owner: Node, target: Node, hit_damage: int) -> void:
+func _ambush_spend_bd_charge(owner_node: Node, target: Node, hit_damage: int) -> void:
 	if _bd_charge <= 0:
 		return
 	var bonus: int = maxi(1, roundi(hit_damage * _bd_charge * BOW_DAGGER_CHARGE_MULT))
 	_bd_charge = 0
-	_deal_bonus(owner, target, bonus)
-	_proc(owner, "bow_dagger")
+	_deal_bonus(owner_node, target, bonus)
+	_proc(owner_node, "bow_dagger")
 
 
 ## Deal a discrete synergy "spark" of bonus damage. Bypasses i-frames + shows the
 ## number; never crits (it's a flat synergy bonus, not a rolled hit).
-func _deal_bonus(owner: Node, target: Node, bonus: int) -> void:
+func _deal_bonus(owner_node: Node, target: Node, bonus: int) -> void:
 	var hc = target.get("health_component")
 	if hc == null or not is_instance_valid(hc) or hc.is_dead:
 		return
-	hc.take_damage(bonus, owner, true, false, true)
+	hc.take_damage(bonus, owner_node, true, false, true)
 
 
 ## Emit the proc signal on the server and the owning client (widget flash). Mirrors
 ## the gauge sync pattern: call_local RPC to the owning player id; bots (no client,
 ## non-positive id) just emit locally for any server-side listener.
-func _proc(owner: Node, pair_key: String) -> void:
-	var pid: int = int(owner.player_id) if "player_id" in owner else 0
+func _proc(owner_node: Node, pair_key: String) -> void:
+	var pid: int = int(owner_node.player_id) if "player_id" in owner_node else 0
 	if pid <= 0:
 		synergy_proc.emit(pair_key)
 		return

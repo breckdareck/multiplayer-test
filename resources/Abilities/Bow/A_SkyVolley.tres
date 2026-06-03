@@ -9,9 +9,9 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_sbf"]
 [ext_resource type="Resource" uid="uid://cn78vr5ismkhb" path="res://resources/Abilities/Bow/Upgrades/U_SKV_sustained_volley.tres" id="9_upg"]
 [ext_resource type="Resource" uid="uid://bkngijbsh4x5o" path="res://resources/Abilities/Bow/Upgrades/U_SKV_heavy_volley.tres" id="10_upg"]
-[ext_resource type="Resource" uid="uid://c2j4qo7v22o80" path="res://resources/Abilities/Bow/Upgrades/U_SKV_wide_volley.tres" id="11_upg"]
-[ext_resource type="Resource" uid="uid://ciddldwa38334" path="res://resources/Abilities/Bow/Upgrades/U_SKV_rapid_volley.tres" id="12_upg"]
-[ext_resource type="Resource" uid="uid://wpe73gm04dna" path="res://resources/Abilities/Bow/Upgrades/U_SKV_marking_volley.tres" id="13_upg"]
+[ext_resource type="Resource" uid="uid://onrqiuynrocjb" path="res://resources/Abilities/Bow/Upgrades/U_SKV_wide_volley.tres" id="11_upg"]
+[ext_resource type="Resource" uid="uid://zosk4pfsihdnp" path="res://resources/Abilities/Bow/Upgrades/U_SKV_rapid_volley.tres" id="12_upg"]
+[ext_resource type="Resource" uid="uid://6tydxjsnjqdpe" path="res://resources/Abilities/Bow/Upgrades/U_SKV_marking_volley.tres" id="13_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="14_aud"]
 
 [sub_resource type="Resource" id="Resource_active"]
