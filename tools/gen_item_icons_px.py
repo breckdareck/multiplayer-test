@@ -420,6 +420,37 @@ def pv_crystal(liq):
     _cork(cv,15,7,gold=True); cv.poly([(16,2),(18,4),(16,6),(14,4)],GOLD)
     _spark(cv,24,11); _spark(cv,9,12); _spark(cv,22,25); cv.outline(OL); return cv
 
+def pv_exp():                                                # gold flask + floating wisps
+    cv=new(); b,h,s=GOLDLIQ
+    cv.disc(16,21,7,GLASS); cv.rect(13,11,18,14,None,fill=GLASS)
+    cv.disc(16,22,6,b); cv.disc(14,20,2,h); cv.ring(16,21,7,GLASSL)
+    _cork(cv,15,8)
+    cv.outline(OL)                                           # outline flask only...
+    GW=hexc("#fff3b0"); GT=hexc("#ffce5c")                   # ...then wisps glow on top
+    wisps=[(5,9,[(7,11),(9,12)]),(27,8,[(25,10),(24,12)]),
+           (28,21,[(26,21),(25,22)]),(6,25,[(8,24),(10,23)])]
+    for hx,hy,tail in wisps:
+        for tx,ty in tail: cv.px(tx,ty,GT)
+        cv.disc(hx,hy,1.5,GW); cv.px(hx,hy,WHITE)
+    return cv
+
+def pv_town():                                               # cosmic purple/blue galaxy swirl
+    import math
+    cv=new()
+    PUR=hexc("#8a4fe0"); BLU=hexc("#3f8fe8"); SPACE=hexc("#15123a"); STAR=hexc("#eaf0ff")
+    cv.disc(16,21,7,GLASS); cv.rect(13,11,18,14,None,fill=GLASS)
+    cv.rect(14,15,18,21,None,fill=SPACE); cv.disc(16,22,6,SPACE)   # deep-space fill
+    cx,cy=16,22
+    for arm,col in ((0.0,PUR),(math.pi,BLU)):                # two spiral arms
+        for i in range(9):
+            t=arm+i*0.55; r=0.5+i*0.55
+            for dr in (0.0,0.9):
+                cv.px(cx+(r+dr)*math.cos(t), cy+(r+dr)*math.sin(t), col)
+    cv.disc(cx,cy,1.4,STAR)                                  # galactic core
+    for (x,y) in [(12,20),(20,24),(19,18),(13,24)]: cv.px(x,y,STAR)  # stars
+    cv.ring(16,21,7,GLASSL); _cork(cv,15,8); cv.outline(OL)
+    return cv
+
 PSHAPE=[pv_vial,pv_flask,pv_conical,pv_shouldered,pv_handled,pv_crystal]
 TIERS=["lesser","","greater","superior","grand","supreme"]
 
@@ -442,8 +473,11 @@ def emblem_of(name):
     return {"heal":"heart","mana":"drop","town":"swirl","exp":"star"}.get(k)
 
 def potion(name):
+    low=name.lower()
+    if "exp" in low: return pv_exp()
+    if "town" in low: return pv_town()
     kind=liquid_kind(name); tier=tier_of(name)
-    if "draught" in name.lower():
+    if "draught" in low:
         return PSHAPE[max(0,min(5,tier))](LIQ[kind])
     return pv_flask(LIQ[kind], emblem_of(name))
 
