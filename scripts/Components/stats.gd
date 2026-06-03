@@ -2,6 +2,16 @@ class_name StatsComponent
 extends Node
 
 signal stats_changed
+## Economy sink (2026-06-02): emitted server-side when a respec is rejected for
+## insufficient monies. The owning client's StatsWindow surfaces a brief ping.
+signal respec_denied(reason: String)
+
+## Economy sink: attribute respec costs monies, scaling with character level
+## (a proxy for how much progression is being undone). Kept modest because the
+## coin faucet is thin (mob drops + quests). L100 -> 3,000. The cost gate lives
+## in `_respec_attributes_local`, the single server-side mutation point both the
+## host-direct call and the `respec_attributes_request` RPC funnel through.
+const ATTRIBUTE_RESPEC_COST_PER_LEVEL: int = 30
 
 # All classes scale from level 1 (base classes are created at level 1;
 # advanced classes at level 30). The BASE_MAX_* constants are the level-1
@@ -361,7 +371,29 @@ func allocate_attribute_request(stat_type: int, amount: int) -> void:
 	_allocate_attribute_local(stat_type, amount)
 
 
-## [Client→Server] Refund ALL allocated attribute points (free respec).
+## Current character level (1 if the LevelingComponent is unavailable). Used by
+## the respec cost formula.
+func _current_level() -> int:
+	if _level_component:
+		return maxi(1, int(_level_component.level))
+	return 1
+
+
+## Resolves the owning player's PlayerInventory (where monies live). Null-safe;
+## bots/headless owners may not carry one.
+func _player_inventory() -> PlayerInventory:
+	if owner and "player_inventory" in owner and is_instance_valid(owner.player_inventory):
+		return owner.player_inventory
+	return null
+
+
+## Monies cost to respec all attributes at the current level. UI reads this to
+## label the button without duplicating the formula.
+func get_attribute_respec_cost() -> int:
+	return _current_level() * ATTRIBUTE_RESPEC_COST_PER_LEVEL
+
+
+## [Client→Server] Refund ALL allocated attribute points (costs monies).
 func respec_attributes() -> void:
 	if _is_multiplayer_client():
 		respec_attributes_request.rpc_id(1)
@@ -372,6 +404,19 @@ func respec_attributes() -> void:
 func _respec_attributes_local() -> void:
 	if _allocated_attributes.is_empty():
 		return
+	# Economy sink: charge monies before mutating. Deduction is server-authoritative
+	# (set_monies_rpc broadcasts the new total). _respec_attributes_local only runs
+	# on the server — the client path early-returns into respec_attributes_request —
+	# but we guard the deduction on is_server() to be explicit and safe.
+	if multiplayer.is_server():
+		var inv: PlayerInventory = _player_inventory()
+		var cost: int = get_attribute_respec_cost()
+		var monies: int = inv.monies_amount if inv else 0
+		if monies < cost:
+			respec_denied.emit("not_enough_monies")
+			return
+		if inv:
+			inv.set_monies_rpc(monies - cost)
 	_allocated_attributes.clear()
 	mark_stats_dirty()
 	_sync_attributes_and_notify()

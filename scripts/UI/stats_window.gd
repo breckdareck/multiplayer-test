@@ -45,6 +45,9 @@ const _ALLOC_ATTRS: Array[int] = [
 var _attr_value_labels: Dictionary = {}
 var _attr_plus_buttons: Dictionary = {}
 var _unspent_label: Label
+## Economy sink: the "Respec Attributes (cost)" button. Label + disabled state
+## refresh on attribute change AND monies change.
+var _respec_attrs_button: Button
 
 func _ready() -> void:
 	# Add to ui_window group for drop detection
@@ -73,6 +76,12 @@ func _ready() -> void:
 		_build_attributes_section()
 		if player.stats_component:
 			player.stats_component.attribute_points_changed.connect(_mark_ui_dirty.unbind(1))
+			# Economy sink: re-evaluate the respec button affordability when monies
+			# change, and surface a brief ping if a respec was denied.
+			if player.stats_component.has_signal("respec_denied"):
+				player.stats_component.respec_denied.connect(_on_respec_denied)
+		if is_instance_valid(player.player_inventory):
+			player.player_inventory.monies_changed.connect(_mark_ui_dirty.unbind(1))
 
 		update_stats_window()
 
@@ -263,6 +272,7 @@ func _build_attributes_section() -> void:
 	respec.text = "Respec Attributes"
 	respec.pressed.connect(_on_respec_attrs_pressed)
 	vbox.add_child(respec)
+	_respec_attrs_button = respec
 
 
 func _attr_display_name(stat_type: int) -> String:
@@ -296,3 +306,35 @@ func _update_attribute_labels() -> void:
 			_attr_value_labels[stat_type].text = str(player.stats_component.get_allocated_attribute(stat_type))
 		if _attr_plus_buttons.has(stat_type):
 			_attr_plus_buttons[stat_type].disabled = (unused <= 0)
+	_update_respec_button()
+
+
+## Economy sink: paint the respec button with its monies cost and gate it on
+## affordability + having something allocated to refund.
+func _update_respec_button() -> void:
+	if not is_instance_valid(_respec_attrs_button) or not player or not player.stats_component:
+		return
+	var cost: int = player.stats_component.get_attribute_respec_cost()
+	_respec_attrs_button.text = "Respec Attributes (%s)" % _format_monies(cost)
+	var spent: int = player.stats_component.get_attribute_points_spent()
+	var monies: int = player.player_inventory.monies_amount if is_instance_valid(player.player_inventory) else 0
+	_respec_attrs_button.disabled = (spent <= 0) or (monies < cost)
+
+
+## Comma-formats a monies amount, reusing the inventory helper when available.
+func _format_monies(amount: int) -> String:
+	if is_instance_valid(player.player_inventory) and player.player_inventory.inventory_component:
+		return player.player_inventory.inventory_component.format_number_with_commas(amount)
+	return str(amount)
+
+
+## Economy sink: a respec was rejected server-side (host path). Brief flash on
+## the button so the player notices the action didn't take.
+func _on_respec_denied(_reason: String) -> void:
+	if not is_instance_valid(_respec_attrs_button):
+		return
+	var prior: Color = _respec_attrs_button.get_theme_color("font_color")
+	_respec_attrs_button.add_theme_color_override("font_color", Color(1, 0.3, 0.3))
+	await get_tree().create_timer(0.4).timeout
+	if is_instance_valid(_respec_attrs_button):
+		_respec_attrs_button.add_theme_color_override("font_color", prior)

@@ -8,12 +8,18 @@ extends Node
 const MAX_MONIES_AMOUNT: int = 999999999
 var _loading_mode: bool = false
 
+## Emitted whenever the monies total changes (set, granted, spent, or synced).
+## UI that prices actions in monies (e.g. the respec buttons) connects here to
+## re-evaluate affordability. Carries the new clamped total.
+signal monies_changed(new_amount: int)
+
 var monies_amount: int = 0:
 	set(value):
 		monies_amount = clampi(value, 0, MAX_MONIES_AMOUNT)
 		# monies_label is a UI node; a bot frees its UI subtree, so validate it.
 		if is_instance_valid(monies_label):
-			monies_label.text = inventory_component.format_number_with_commas(value)
+			monies_label.text = inventory_component.format_number_with_commas(monies_amount)
+		monies_changed.emit(monies_amount)
 		if not _loading_mode:
 			_notify_player_data_changed()
 
