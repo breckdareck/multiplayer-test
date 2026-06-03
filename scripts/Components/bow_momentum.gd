@@ -66,6 +66,11 @@ const DECAY_STEP_SEC: float = 0.3
 ## DECAY_DELAY_SEC has elapsed, and stops itself when stacks hit 0).
 const TICK_INTERVAL: float = 0.1
 
+## When the bow is SHEATHED (equipped but swapped off), hold the full ramp for this
+## long before it starts decaying — long enough to swap to the off-hand and actually
+## USE the Momentum (e.g. Staff+Bow spells riding the ramp) without it being permanent.
+const SHEATHE_HOLD_SEC: float = 3.0
+
 #endregion
 
 
@@ -97,6 +102,11 @@ var _last_decay_ms: int = 0
 ## Server clock anchor — decay is suspended until this Time.get_ticks_msec() value
 ## (Steady Aim). 0 = not paused. While paused the tick refreshes the no-hit clock.
 var _decay_paused_until_ms: int = 0
+
+## Server clock anchor — Time.get_ticks_msec() the bow was last SHEATHED (swapped off
+## while still equipped). 0 = the bow is the wielded weapon. Drives the SHEATHE_HOLD_SEC
+## grace before a sheathed ramp begins decaying. Set/cleared in on_weapon_state_changed.
+var _sheathed_at_ms: int = 0
 
 ## Server-side decay tick. A child Node Timer (freed with this component), not a
 ## tree-rooted one. Runs only while there are stacks to bleed; stopped at 0.
@@ -156,9 +166,10 @@ func pause_decay(duration: float) -> void:
 		_decay_timer.start()
 
 
-## Server-only. Wipes Momentum to zero. Called on death and on swap-away from a
-## bow (multiplayer_controller_v2) so a ramp doesn't survive a context where it
-## no longer makes sense. Safe to call when already at zero (no-op).
+## Server-only. Wipes Momentum to zero. Called on death and when a bow leaves BOTH
+## weapon slots (on_weapon_state_changed) so a ramp doesn't survive a context where
+## it no longer makes sense. A mere weapon SWAP no longer resets it (the ramp
+## persists + freezes while the bow is sheathed). Safe to call at zero (no-op).
 func reset() -> void:
 	if not multiplayer.is_server():
 		return
@@ -203,12 +214,25 @@ func signature_discipline() -> int:
 	return Constants.ClassType.BOW
 
 
-## Momentum is a bow-only ramp: swapping (or re-equipping) away from a bow drops
-## it so it never carries onto a non-bow weapon. (Was hand-coded twice on the
-## player root before the WeaponSignature unification.)
-func on_weapon_state_changed(active_discipline: int, _equipped_disciplines: Array) -> void:
-	if active_discipline != Constants.ClassType.BOW:
+## Momentum PERSISTS while a bow is equipped in EITHER slot (slot-gated, like Sword
+## Combo) — swapping to your off-hand weapon no longer wipes the ramp. Only a bow
+## leaving BOTH slots drops it. While the bow is sheathed (equipped but not the
+## wielded weapon) the ramp FREEZES rather than bleeding (see _on_decay_tick), so a
+## quick dip into the off-hand — e.g. a bow/sword build spending banked combo — keeps
+## your Momentum waiting for you. (Was active-weapon-gated: any swap zeroed it.)
+func on_weapon_state_changed(active_discipline: int, equipped_disciplines: Array) -> void:
+	if not equipped_disciplines.has(Constants.ClassType.BOW):
 		reset()
+		return
+	# Bow still equipped. Track the sheathe moment so the ramp gets a SHEATHE_HOLD_SEC
+	# grace (then decays) when the bow isn't the wielded weapon — long enough to use
+	# the Momentum on the off-hand, but not permanent.
+	if active_discipline == Constants.ClassType.BOW:
+		_sheathed_at_ms = 0  # wielding the bow — normal decay rules apply
+	elif _sheathed_at_ms == 0:
+		_sheathed_at_ms = Time.get_ticks_msec()
+		if _stacks > 0 and is_instance_valid(_decay_timer) and _decay_timer.is_stopped():
+			_decay_timer.start()
 
 
 ## A ramp shouldn't survive death.
@@ -233,6 +257,12 @@ func _on_decay_tick() -> void:
 		return
 
 	var now: int = Time.get_ticks_msec()
+	# Sheathed hold: while the bow isn't the wielded weapon, hold the full ramp for
+	# SHEATHE_HOLD_SEC, THEN let it decay normally (the last bow hit is now old, so it
+	# bleeds). Lets the player swap to the off-hand and use the Momentum for a few
+	# seconds without it being permanent.
+	if _sheathed_at_ms > 0 and now - _sheathed_at_ms < int(SHEATHE_HOLD_SEC * 1000.0):
+		return
 	# Steady Aim pause: while active, keep pushing the no-hit clock forward so the
 	# grace window never elapses — the ramp is held frozen until the pause expires.
 	if now < _decay_paused_until_ms:

@@ -55,15 +55,19 @@ func execute(owner_node: Node, ability: AbilityData, level_stats: AbilityLevelDa
 	var magic_attack: int = int(stats_comp.stats[Constants.StatType.MAGICATTACK].total_value)
 
 	# Upgrade reads: Doubled Weave (T3) fires the release twice; Echoing Weave
-	# (T3) refunds MP if the release connects with an enemy.
+	# (T3) refunds MP if the release connects with an enemy; Wide Weave (T3)
+	# widens the release reach in EVERY stance (Fire pool / Ice freeze /
+	# Lightning chain) — stance-agnostic so it works whatever element you hold.
 	var double_release: bool = false
 	var mp_refund: float = 0.0
+	var reach_bonus: float = 0.0
 	var ability_comp = owner_node.get("ability_component")
 	if ability_comp and ability != null and ability_comp.has_method("get_ability_upgrade_magnitude"):
 		double_release = ability_comp.get_ability_upgrade_magnitude(ability.ability_id, "bonus_double_release") > 0.0
 		mp_refund = ability_comp.get_ability_upgrade_magnitude(ability.ability_id, "bonus_mp_refund")
+		reach_bonus = ability_comp.get_ability_upgrade_magnitude(ability.ability_id, "bonus_zone_radius")
 
-	_release(owner_node, element, facing, magic_attack)
+	_release(owner_node, element, facing, magic_attack, reach_bonus)
 
 	# Echoing Weave: refund a fraction of the spell's MP cost if any enemy was in
 	# reach of the release (approximated by proximity to the release area).
@@ -81,22 +85,23 @@ func execute(owner_node: Node, ability: AbilityData, level_stats: AbilityLevelDa
 		owner_node.get_tree().create_timer(0.5).timeout.connect(
 			func():
 				if is_instance_valid(owner_node):
-					_release(owner_node, element, facing, magic_attack)
+					_release(owner_node, element, facing, magic_attack, reach_bonus)
 		)
 
 
 ## Dispatch the stance-appropriate amplified release. Factored out so Doubled
 ## Weave can re-fire it without re-entering execute (no re-cast / re-cost).
-func _release(owner_node: Node, element: int, facing: int, magic_attack: int) -> void:
+## `reach_bonus` (Wide Weave T3) widens whichever stance effect fires.
+func _release(owner_node: Node, element: int, facing: int, magic_attack: int, reach_bonus: float = 0.0) -> void:
 	match element:
 		0:  # FIRE — spawn an amplified Pyre Burst-style pool
-			_fire_pool(owner_node, facing, magic_attack)
+			_fire_pool(owner_node, facing, magic_attack, reach_bonus)
 		1:  # ICE — area freeze
-			_ice_freeze(owner_node, facing)
+			_ice_freeze(owner_node, facing, reach_bonus)
 		2:  # LIGHTNING — extended chain blast
-			_lightning_chain(owner_node, magic_attack)
+			_lightning_chain(owner_node, magic_attack, reach_bonus)
 		_:
-			_fire_pool(owner_node, facing, magic_attack)
+			_fire_pool(owner_node, facing, magic_attack, reach_bonus)
 
 
 ## True if any living enemy is within a generous reach of the release area —
@@ -114,13 +119,15 @@ func _enemy_in_reach(owner_node: Node, facing: int) -> bool:
 	return false
 
 
-func _fire_pool(owner_node: Node, facing: int, magic_attack: int) -> void:
+func _fire_pool(owner_node: Node, facing: int, magic_attack: int, reach_bonus: float = 0.0) -> void:
 	var spawn_pos: Vector2 = owner_node.global_position + Vector2(140.0 * float(facing), 0)
 	var tick_damage: int = maxi(1, roundi(magic_attack * FIRE_POOL_DAMAGE_PCT))
+	# Wide Weave widens the pool: full reach_bonus on width, a third on height.
+	var rect_size: Vector2 = FIRE_POOL_RECT_SIZE + Vector2(reach_bonus, reach_bonus * 0.3)
 	load("res://scripts/Gameplay/ground_zone.gd").spawn_server_rect(
 		owner_node,
 		spawn_pos,
-		FIRE_POOL_RECT_SIZE,
+		rect_size,
 		FIRE_POOL_DURATION,
 		FIRE_POOL_TICK,
 		tick_damage,
@@ -128,9 +135,11 @@ func _fire_pool(owner_node: Node, facing: int, magic_attack: int) -> void:
 	)
 
 
-func _ice_freeze(owner_node: Node, facing: int) -> void:
+func _ice_freeze(owner_node: Node, facing: int, reach_bonus: float = 0.0) -> void:
 	var center: Vector2 = owner_node.global_position + Vector2(ICE_SPAWN_OFFSET * float(facing), 0)
-	var r2: float = ICE_FREEZE_RADIUS * ICE_FREEZE_RADIUS
+	# Wide Weave widens the freeze radius.
+	var freeze_radius: float = ICE_FREEZE_RADIUS + reach_bonus
+	var r2: float = freeze_radius * freeze_radius
 	for enemy in owner_node.get_tree().get_nodes_in_group("Enemies"):
 		if not is_instance_valid(enemy):
 			continue
@@ -161,8 +170,10 @@ func _ice_freeze(owner_node: Node, facing: int) -> void:
 		)
 
 
-func _lightning_chain(owner_node: Node, magic_attack: int) -> void:
+func _lightning_chain(owner_node: Node, magic_attack: int, reach_bonus: float = 0.0) -> void:
 	# Find the nearest enemy as the initial target, then chain.
+	# Wide Weave extends the per-hop reach so the chain travels further.
+	var chain_radius: float = LIGHTNING_CHAIN_RADIUS + reach_bonus
 	var origin: Vector2 = owner_node.global_position
 	var first_target: Node = null
 	var best_dist: float = INF
@@ -188,7 +199,7 @@ func _lightning_chain(owner_node: Node, magic_attack: int) -> void:
 			hc.take_damage(chain_dmg, owner_node, true, false, true)
 		# Next hop
 		var next_enemy: Node = null
-		var best: float = LIGHTNING_CHAIN_RADIUS
+		var best: float = chain_radius
 		for e2 in owner_node.get_tree().get_nodes_in_group("Enemies"):
 			if not is_instance_valid(e2) or visited.has(e2.get_instance_id()):
 				continue

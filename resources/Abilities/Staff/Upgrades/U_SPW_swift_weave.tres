@@ -6,6 +6,6 @@
 script = ExtResource("1_aud")
 upgrade_id = "spw_t1_swift_weave"
 upgrade_name = "Swift Weave"
-description = "Spellweave's max channel is reduced by 0.5 seconds."
-effect_key = "channel_time_reduction"
-magnitude = 0.5
+description = "Reduces Spellweave's cooldown by 2 seconds."
+effect_key = "cooldown_flat_reduction"
+magnitude = 2.0

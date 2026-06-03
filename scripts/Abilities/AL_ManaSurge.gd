@@ -39,19 +39,54 @@ func on_hit(owner_node: Node, target: Node, _ability: AbilityData) -> void:
 	var duration: float = MARK_DURATION
 	var dmg_bonus: float = DAMAGE_BONUS_PCT
 	var spread: int = 0
+	var extra_targets: int = 0
 	var ability_comp = owner_node.get("ability_component")
 	if ability_comp and _ability != null and ability_comp.has_method("get_ability_upgrade_magnitude"):
 		duration += ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_mark_duration")
 		dmg_bonus += ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_damage_bonus")
 		spread = int(ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_mark_spread"))
+		extra_targets = int(ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_mark_targets"))
 
-	# Apply (or refresh) the mark with an absolute expiry timestamp on the
-	# server clock. Lazy expiry on read.
+	# Mark the primary target, then (Multiplying Surge) the nearest extra enemies
+	# on cast — distinct from Cascading Surge, which spreads on CONSUME.
+	_apply_mark(target, duration, dmg_bonus, spread)
+	if extra_targets > 0:
+		for other in _nearby_enemies(target, SPREAD_RADIUS, extra_targets):
+			_apply_mark(other, duration, dmg_bonus, spread)
+
+
+## Stamp the Mana Resonance mark onto one enemy with an absolute server-clock
+## expiry (lazy expiry on read — no per-mark Timer).
+func _apply_mark(target: Node, duration: float, dmg_bonus: float, spread: int) -> void:
+	if not is_instance_valid(target):
+		return
 	var expire_at_ms: int = Time.get_ticks_msec() + int(duration * 1000.0)
 	target.set_meta(MARK_META, expire_at_ms)
 	target.set_meta(DMG_BONUS_META, dmg_bonus)
 	if spread > 0:
 		target.set_meta(SPREAD_META, spread)
+
+
+## Up to `count` nearest valid living enemies within `radius` of `origin`.
+func _nearby_enemies(origin: Node, radius: float, count: int) -> Array:
+	var out: Array = []
+	if not is_instance_valid(origin):
+		return out
+	var origin_pos: Vector2 = origin.global_position
+	var candidates: Array = []
+	for e in origin.get_tree().get_nodes_in_group("Enemies"):
+		if e == origin or not (e is EnemyBase) or not is_instance_valid(e):
+			continue
+		var hc = e.get("health_component")
+		if hc != null and is_instance_valid(hc) and hc.is_dead:
+			continue
+		var d: float = origin_pos.distance_to(e.global_position)
+		if d <= radius:
+			candidates.append({"e": e, "d": d})
+	candidates.sort_custom(func(a, b): return a.d < b.d)
+	for i in range(mini(count, candidates.size())):
+		out.append(candidates[i].e)
+	return out
 
 
 ## Public helper for CombatComponent: returns true iff the target carries an

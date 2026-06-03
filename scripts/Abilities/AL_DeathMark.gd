@@ -38,25 +38,78 @@ func on_hit(owner_node: Node, target: Node, _ability: AbilityData) -> void:
 		return
 
 	# Upgrade reads (Lingering Mark +duration, Killing Mark +crit potency,
-	# Spreading Mark = on-death spread). Stamped into per-enemy metas so the
-	# static helpers + combat.gd kill path read them id-free.
+	# Spreading Mark = on-death spread, Double Mark = +N marks on cast,
+	# Bleeding Mark = bleed DOT on the marked target). Stamped into per-enemy
+	# metas so the static helpers + combat.gd kill path read them id-free.
 	var duration: float = MARK_DURATION
 	var crit_bonus: float = CRIT_CHANCE_BONUS
 	var spread: int = 0
+	var extra_targets: int = 0
+	var bleed_pct: float = 0.0
 	var ability_comp = owner_node.get("ability_component")
 	if ability_comp and _ability != null and ability_comp.has_method("get_ability_upgrade_magnitude"):
 		duration += ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_mark_duration")
 		crit_bonus += ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_mark_potency")
 		spread = int(ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_mark_spread"))
+		extra_targets = int(ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_mark_targets"))
+		bleed_pct = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_bleed_dot")
 
-	# Apply (or refresh) the mark with an absolute expiry timestamp on the
-	# server clock. Reading the absolute deadline is simpler than a separate
-	# Timer per mark and survives the enemy being engaged by other players.
+	# Bleeding Mark (T3) scales its bleed off the ability's max hit (stat-scaled,
+	# like the other DoTs — project_dot_scaling_divergence). Death Mark authors no
+	# damage formula, so dot_scaling_base falls back to max_range. Computed once.
+	var dot_base: int = 0
+	if bleed_pct > 0.0:
+		var combat = owner_node.get("combat_component")
+		if combat != null and combat.has_method("dot_scaling_base"):
+			dot_base = combat.dot_scaling_base(_ability)
+
+	# Mark the primary target, then (Double Mark) the nearest extra enemies.
+	_apply_mark(owner_node, target, duration, crit_bonus, spread, bleed_pct, dot_base)
+	if extra_targets > 0:
+		for other in _nearby_enemies(target, SPREAD_RADIUS, extra_targets):
+			_apply_mark(owner_node, other, duration, crit_bonus, spread, bleed_pct, dot_base)
+
+
+## Stamp the Death Mark (+ its T3 riders) onto one enemy. Reading an absolute
+## server-clock deadline is simpler than a per-mark Timer and survives the enemy
+## being engaged by other players. Bleeding Mark adds a light bleed (% of
+## WEAPONATTACK/sec) for the mark's lifetime.
+func _apply_mark(owner_node: Node, target: Node, duration: float, crit_bonus: float, spread: int, bleed_pct: float, dot_base: int = 0) -> void:
+	if not is_instance_valid(target):
+		return
 	var expire_at_ms: int = Time.get_ticks_msec() + int(duration * 1000.0)
 	target.set_meta(MARK_META, expire_at_ms)
 	target.set_meta(CRIT_BONUS_META, crit_bonus)
 	if spread > 0:
 		target.set_meta(SPREAD_META, spread)
+	if bleed_pct > 0.0 and dot_base > 0:
+		var per_tick: int = maxi(1, roundi(dot_base * bleed_pct))
+		# Runtime load() (not the BleedDot global) — combat.gd hard-preloads
+		# AL_DeathMark, so a compile-time class ref here would form a cycle.
+		load("res://scripts/Gameplay/bleed_dot.gd").apply(target, owner_node, per_tick, 1, duration, "death_mark_bleed", "bleed")
+
+
+## Up to `count` nearest valid living enemies within `radius` of `origin`
+## (excluding `origin`). Mirrors the proximity model the other mark spreads use.
+func _nearby_enemies(origin: Node, radius: float, count: int) -> Array:
+	var out: Array = []
+	if not is_instance_valid(origin):
+		return out
+	var origin_pos: Vector2 = origin.global_position
+	var candidates: Array = []
+	for e in origin.get_tree().get_nodes_in_group("Enemies"):
+		if e == origin or not (e is EnemyBase) or not is_instance_valid(e):
+			continue
+		var hc = e.get("health_component")
+		if hc != null and is_instance_valid(hc) and hc.is_dead:
+			continue
+		var d: float = origin_pos.distance_to(e.global_position)
+		if d <= radius:
+			candidates.append({"e": e, "d": d})
+	candidates.sort_custom(func(a, b): return a.d < b.d)
+	for i in range(mini(count, candidates.size())):
+		out.append(candidates[i].e)
+	return out
 
 
 ## Public helper for CombatComponent: returns true iff the target currently

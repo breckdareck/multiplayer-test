@@ -55,14 +55,23 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 	var damage_bonus: float = 0.0
 	var width_bonus: float = 0.0
 	var duration_bonus: float = 0.0
+	var tick_rate_bonus: float = 0.0
 	var ability_comp = owner_node.get("ability_component")
 	if ability_comp and _ability != null and ability_comp.has_method("get_ability_upgrade_magnitude"):
 		damage_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_damage_mult")
 		width_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_zone_radius")
 		duration_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "channel_time_extension")
 		_chain_targets = int(ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_chain_targets"))
+		tick_rate_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_tick_rate")
 
 	var tick_damage: int = maxi(1, roundi(magic_attack * TICK_DAMAGE_PCT * (1.0 + damage_bonus)))
+	# Rapid Storm (T3): the storm strikes more often (shorter interval) with
+	# lighter per-strike hits — a snappier, modestly higher sustained DPS that
+	# catches transient enemies, distinct from Wide (area) / Chaining (spread).
+	var tick_interval: float = ZONE_TICK_INTERVAL
+	if tick_rate_bonus > 0.0:
+		tick_interval = maxf(0.15, ZONE_TICK_INTERVAL * (1.0 - tick_rate_bonus))
+		tick_damage = maxi(1, roundi(tick_damage * 0.7))
 	_chain_damage = tick_damage
 	var duration: float = ZONE_DURATION + duration_bonus
 	var rect_size: Vector2 = ZONE_RECT_SIZE + Vector2(width_bonus, 0.0)
@@ -81,7 +90,7 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 		spawn_pos,
 		rect_size,
 		duration,
-		ZONE_TICK_INTERVAL,
+		tick_interval,
 		tick_damage,
 		ZONE_COLOR,
 		chain_cb,

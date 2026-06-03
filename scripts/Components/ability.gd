@@ -1001,7 +1001,7 @@ func _execute_proc(proc: ProcEffectData, target: Node, context: Dictionary) -> v
 
 
 #region #################### Multiplayer & RPCs ####################
-func spawn_projectile(ability: AbilityData, level_stats: AbilityLevelData, target: Node2D):
+func spawn_projectile(ability: AbilityData, level_stats: AbilityLevelData, target: Node2D, is_ambush: bool = false):
 	if not multiplayer.is_server():
 		return
 
@@ -1026,7 +1026,7 @@ func spawn_projectile(ability: AbilityData, level_stats: AbilityLevelData, targe
 	projectile_instance.name = proj_name
 
 	# The projectile will now store the ability data and call back to the CombatComponent to process the hit.
-	projectile_instance.initialize(owner, target, ability, level_stats, active_behavior.projectile_speed, initial_direction)
+	projectile_instance.initialize(owner, target, ability, level_stats, active_behavior.projectile_speed, initial_direction, is_ambush)
 	
 	# Find the correct container based on the player's current map
 	# Player structure: Map -> Players -> Player -> AbilityComponent

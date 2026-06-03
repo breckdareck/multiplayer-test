@@ -148,8 +148,10 @@ func _refresh_visibility() -> void:
 	if not is_instance_valid(player) or not player.has_method("get_active_discipline"):
 		visible = false
 		return
-	visible = player.get_active_discipline() == Constants.ClassType.BOW
+	visible = player.get_equipped_disciplines().has(Constants.ClassType.BOW)
 	if visible:
+		var is_active: bool = player.get_active_discipline() == Constants.ClassType.BOW
+		modulate.a = 1.0 if is_active else 0.5
 		# Sync to current component state on (re)appearance.
 		if is_instance_valid(bow_momentum_component):
 			_stacks = bow_momentum_component.get_stacks()

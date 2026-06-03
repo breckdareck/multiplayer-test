@@ -15,9 +15,12 @@ extends Node
 const MAX_STACKS: int = 3
 const TICK_INTERVAL: float = 1.0
 const DURATION_SECONDS: float = 6.0
-## 18% of MAGICATTACK per tick per stack. Slightly under Barbed Shot's 20% since
-## mage MAGICATTACK pools run higher; maxi(1, ...) keeps it visible at low gear.
-const DAMAGE_PER_STACK_PCT: float = 0.18
+## Per tick per stack = this fraction of the ability's MAX hit (max_range × dmg%),
+## via CombatComponent.dot_scaling_base — so the burn scales with mastery +
+## attributes + ability level + gear like direct damage (project_dot_scaling_divergence).
+## Lower than the bleeds' fraction because Immolate's Fire reaction multiplies
+## per_tick (fire_mult) and adds stacks. Was 0.18 × raw MAGICATTACK.
+const DAMAGE_PER_STACK_FRAC: float = 0.10
 
 const BURN_META: String = "immolate_burn"
 
@@ -72,7 +75,9 @@ func on_hit(_owner_node: Node, _target: Node, _ability: AbilityData) -> void:
 	var fire: bool = _is_fire_active(_owner_node)
 	var fire_mult: float = FIRE_POTENCY_MULT if fire else 1.0
 	var stacks_added: int = FIRE_STACKS_PER_HIT if fire else 1
-	var per_tick: int = maxi(1, roundi(magic_attack * DAMAGE_PER_STACK_PCT * (1.0 + potency_bonus) * fire_mult))
+	var combat = _owner_node.get("combat_component")
+	var dot_base: int = combat.dot_scaling_base(_ability) if combat != null and combat.has_method("dot_scaling_base") else maxi(1, magic_attack)
+	var per_tick: int = maxi(1, roundi(dot_base * DAMAGE_PER_STACK_FRAC * (1.0 + potency_bonus) * fire_mult))
 	var max_stacks: int = MAX_STACKS + stack_bonus + (FIRE_BONUS_MAX_STACKS if fire else 0)
 	var duration: float = DURATION_SECONDS + duration_bonus
 
@@ -204,6 +209,8 @@ func _on_burn_tick(target: Node) -> void:
 		# show_number=true so the DOT is visible.
 		var was_alive: bool = not health_comp.is_dead
 		health_comp.take_damage(damage, applier, true, false, true)
+		if target.has_method("play_dot"):
+			target.play_dot("burn")
 
 		# If the burn tick downed the enemy, fire the same kill events
 		# combat.gd._execute_hit fires for normal hit kills.

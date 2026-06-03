@@ -21,7 +21,7 @@ const TICK_INTERVAL: float = 1.0
 ## Apply (or refresh + stack) a bleed on `target`. `per_tick` is the absolute
 ## damage per stack per tick; `max_stacks` caps stacking; `duration` is refreshed
 ## on every re-application. `applier` is credited for ticks and DOT kills.
-static func apply(target: Node, applier: Node, per_tick: int, max_stacks: int, duration: float, meta_key: String) -> void:
+static func apply(target: Node, applier: Node, per_tick: int, max_stacks: int, duration: float, meta_key: String, dot_type: String = "bleed") -> void:
 	if target == null or not is_instance_valid(target):
 		return
 	per_tick = maxi(1, per_tick)
@@ -33,6 +33,7 @@ static func apply(target: Node, applier: Node, per_tick: int, max_stacks: int, d
 		existing["remaining"] = duration
 		existing["per_tick"] = per_tick  # refresh to the latest applier's damage
 		existing["applier"] = applier
+		existing["dot_type"] = dot_type
 		target.set_meta(meta_key, existing)
 		return
 
@@ -41,6 +42,7 @@ static func apply(target: Node, applier: Node, per_tick: int, max_stacks: int, d
 		"remaining": duration,
 		"per_tick": per_tick,
 		"applier": applier,
+		"dot_type": dot_type,  # "bleed" / "poison" — drives the enemy DoT visual
 	})
 	_schedule_tick(target, meta_key)
 
@@ -75,6 +77,10 @@ static func _on_tick(target: Node, meta_key: String) -> void:
 		health_comp.take_damage(damage, applier, true, false, true)
 		if was_alive and health_comp.is_dead:
 			_credit_kill(applier, target)
+
+	# Per-tick visual (blood spurt / green gas + tint), synced to all peers.
+	if target.has_method("play_dot"):
+		target.play_dot(str(state.get("dot_type", "bleed")))
 
 	state["remaining"] = float(state.get("remaining", 0.0)) - TICK_INTERVAL
 	if state["remaining"] <= 0.0:

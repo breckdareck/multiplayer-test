@@ -10,6 +10,10 @@ var initial_direction: Vector2 = Vector2.RIGHT
 # Data for the ability that fired this projectile
 var ability: AbilityData
 var level_stats: AbilityLevelData
+## Captured at SPAWN time: was the caster stealthed (dagger ambush) when this
+## projectile was thrown? Carried per-projectile so every knife of a stealth-cast
+## ambushes, even though they land across different frames after stealth has broken.
+var is_ambush: bool = false
 
 @onready var sprite_2d: Node2D = $Sprite2D
 
@@ -24,13 +28,14 @@ func _ready() -> void:
 	get_tree().create_timer(1.0).timeout.connect(queue_free)
 
 # Server-side initialization.
-func initialize(p_caster: Node2D, p_target: Node2D, p_ability: AbilityData, p_level_stats: AbilityLevelData, p_speed: float, p_initial_direction: Vector2 = Vector2.RIGHT):
+func initialize(p_caster: Node2D, p_target: Node2D, p_ability: AbilityData, p_level_stats: AbilityLevelData, p_speed: float, p_initial_direction: Vector2 = Vector2.RIGHT, p_is_ambush: bool = false):
 	caster = p_caster
 	target = p_target
 	ability = p_ability
 	level_stats = p_level_stats
 	speed = p_speed
 	initial_direction = p_initial_direction
+	is_ambush = p_is_ambush
 	#sprite_2d.texture = p_ability.ability_icon #TESTING
 
 func _physics_process(delta: float) -> void:
@@ -86,7 +91,7 @@ func _on_area_entered(area: Area2D) -> void:
 	# Instead of dealing damage directly, we tell the caster's CombatComponent to process the hit.
 	if is_instance_valid(caster) and caster.combat_component:
 		##print("Projectile: Valid hit on %s. Telling caster to process damage." % area.owner.name)
-		caster.combat_component.process_projectile_hit(area.owner, ability, level_stats)
+		caster.combat_component.process_projectile_hit(area.owner, ability, level_stats, is_ambush)
 	else:
 		printerr("Projectile: Caster or its CombatComponent is invalid.")
 

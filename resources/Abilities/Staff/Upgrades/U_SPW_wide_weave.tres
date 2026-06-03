@@ -6,7 +6,7 @@
 script = ExtResource("1_aud")
 upgrade_id = "spw_t3_wide_weave"
 upgrade_name = "Wide Weave"
-description = "Spellweave's affected area is increased by 50%."
+description = "Widens Spellweave's release in every stance — a larger Fire pool, a wider Ice freeze, and a longer Lightning chain reach."
 point_cost = 2
 tier = 3
 variant_group = "spw_t3_variant"

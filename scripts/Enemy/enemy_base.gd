@@ -92,6 +92,7 @@ const _HIT_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_hit.g
 
 # --- Mark indicator (floating diamond over marked enemies) ---
 const _MARK_INDICATOR_SCRIPT := preload("res://scripts/Enemy/mark_indicator.gd")
+const _DOT_VISUALS_SCRIPT := preload("res://scripts/Enemy/dot_visuals.gd")
 ## Mark meta key → indicator color, in PRIORITY order (first active wins when an
 ## enemy carries more than one mark). The metas are absolute server-clock expiry
 ## timestamps (ms) written by the mark abilities' AL_*.gd on_hit. Dictionaries
@@ -107,6 +108,7 @@ const _MARK_META_COLORS := {
 const _MARK_CHECK_INTERVAL := 0.2
 
 var mark_indicator: Node2D = null
+var dot_visuals: Node2D = null
 var _mark_check_accum: float = 0.0
 ## Index of the currently-broadcast mark color (-1 = none). Only re-broadcast
 ## the sync RPC when this changes, not every check.
@@ -212,6 +214,12 @@ func _ready() -> void:
 	mark_indicator.name = "MarkIndicator"
 	mark_indicator.position = Vector2(0, -60)
 	add_child(mark_indicator)
+
+	# DoT visual feedback (bleed / poison / burn icons + particles + poison tint) on
+	# EVERY peer, driven by play_dot() → _sync_dot_tick RPC, like the mark indicator.
+	dot_visuals = _DOT_VISUALS_SCRIPT.new()
+	dot_visuals.name = "DotVisuals"
+	add_child(dot_visuals)
 
 	if enemy_data:
 		_apply_enemy_data()
@@ -322,6 +330,24 @@ func sync_mark_indicator(active: bool, color: Color) -> void:
 		mark_indicator.set_mark(color)
 	else:
 		mark_indicator.clear_mark()
+
+
+## [Server] Play the DoT tick visual (icon + particle burst + poison tint) on EVERY
+## peer. Each DoT loop (BleedDot, the burn loops, Envenom/Hemorrhage/Barbed Shot)
+## calls this once per tick with `dot_type` = "bleed" / "poison" / "burn". Cosmetic;
+## the actual damage is the loop's own take_damage. Safe to call on a dead/despawning
+## enemy (the RPC just toggles a local child).
+func play_dot(dot_type: String) -> void:
+	if not multiplayer.is_server():
+		return
+	_sync_dot_tick.rpc(dot_type)
+
+
+## [Server → all peers] Plays the DoT tick visual locally on each peer.
+@rpc("authority", "call_local", "unreliable")
+func _sync_dot_tick(dot_type: String) -> void:
+	if dot_visuals != null and is_instance_valid(dot_visuals):
+		dot_visuals.tick(dot_type, animated_sprite)
 
 
 func on_enemy_damaged(amount: int, source: Node) -> void:

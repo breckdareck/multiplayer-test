@@ -136,8 +136,10 @@ func _refresh_visibility() -> void:
 	if not is_instance_valid(player) or not player.has_method("get_active_discipline"):
 		visible = false
 		return
-	visible = player.get_active_discipline() == Constants.ClassType.SWORD
+	visible = player.get_equipped_disciplines().has(Constants.ClassType.SWORD)
 	if visible:
+		var is_active: bool = player.get_active_discipline() == Constants.ClassType.SWORD
+		modulate.a = 1.0 if is_active else 0.5
 		_refresh_pips()
 
 

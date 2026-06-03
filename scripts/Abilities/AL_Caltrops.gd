@@ -23,17 +23,19 @@ extends Node
 const ZONE_RECT_SIZE: Vector2 = Vector2(160.0, 50.0)
 const ZONE_DURATION: float = 5.0
 const ZONE_TICK_INTERVAL: float = 1.0
-## Tick damage is 8% of WEAPONATTACK per second. maxi(1, ...) keeps it
-## visible at low gear. Bow damages scale on WEAPONATTACK.
-const TICK_DAMAGE_PCT: float = 0.08
+## Zone tick = this fraction of the ability's MAX hit (max_range × dmg%), via
+## CombatComponent.dot_scaling_base — so the field scales with attributes +
+## mastery + ability level + gear like direct damage (project_dot_scaling_divergence).
+## Was 0.08 × raw WEAPONATTACK, which omitted the (primary×4+sec) multiplier.
+const TICK_DAMAGE_FRAC: float = 0.08
 
 const SLOW_PCT: float = 0.30
 const SLOW_DURATION: float = 1.0
 const SLOW_META: String = "caltrops_slow"
 
-## Poisoned Spikes (T3) bleed — % of WEAPONATTACK per tick per stack, stacking
-## up to MAX while the enemy stands in the field.
-const POISON_TICK_PCT: float = 0.05
+## Poisoned Spikes (T3) bleed — fraction of the ability's MAX hit per tick per
+## stack (via dot_scaling_base), stacking up to MAX while inside the field.
+const POISON_TICK_FRAC: float = 0.05
 const POISON_MAX_STACKS: int = 5
 const POISON_DURATION: float = 3.0
 const POISON_META: String = "caltrops_poison"
@@ -76,15 +78,18 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 		slow_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_slow_pct")
 		bleed_applies = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_bleed_applies")
 
+	var combat = owner_node.get("combat_component")
+	var dot_base: int = combat.dot_scaling_base(_ability) if combat != null and combat.has_method("dot_scaling_base") else maxi(1, wpn_attack)
+
 	_slow_pct = clampf(SLOW_PCT + slow_bonus, 0.0, 0.95)
 	if bleed_applies > 0.0:
-		_poison_per_tick = maxi(1, roundi(wpn_attack * POISON_TICK_PCT))
+		_poison_per_tick = maxi(1, roundi(dot_base * POISON_TICK_FRAC))
 		_poison_applier = owner_node
 	else:
 		_poison_per_tick = 0
 		_poison_applier = null
 
-	var tick_damage: int = maxi(1, roundi(wpn_attack * TICK_DAMAGE_PCT * (1.0 + damage_bonus)))
+	var tick_damage: int = maxi(1, roundi(dot_base * TICK_DAMAGE_FRAC * (1.0 + damage_bonus)))
 	var duration: float = ZONE_DURATION + duration_bonus
 	var rect_size: Vector2 = ZONE_RECT_SIZE + Vector2(width_bonus, 0.0)
 
@@ -111,7 +116,7 @@ func _apply_caltrops_slow(enemy: Node) -> void:
 
 	# Poisoned Spikes (T3): stack a bleed each tick the enemy is inside the field.
 	if _poison_per_tick > 0:
-		BleedDot.apply(e, _poison_applier, _poison_per_tick, POISON_MAX_STACKS, POISON_DURATION, POISON_META)
+		BleedDot.apply(e, _poison_applier, _poison_per_tick, POISON_MAX_STACKS, POISON_DURATION, POISON_META, "poison")
 
 	# Already slowed by THIS effect — let the existing timer run out rather than
 	# re-applying (which would re-save the already-reduced speed as "original"

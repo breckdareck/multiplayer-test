@@ -37,6 +37,10 @@ const ZONE_COLOR: Color = Color(0.55, 0.80, 1.0, 0.40)  # icy blue
 # enters this patch. Set per cast in execute(); _seen dedupes per AL instance so
 # an enemy is frozen on entry, not every tick. The zone keeps this instance alive.
 var _freeze_on_enter: float = 0.0
+
+# Shattering Frost (T3): extra movement-slow fraction added on top of SLOW_PCT.
+# Set per cast in execute(); read by the _apply_chill tick callback.
+var _slow_bonus: float = 0.0
 var _seen: Dictionary = {}
 
 
@@ -62,6 +66,7 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 		width_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_zone_radius")
 		duration_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_zone_duration")
 		_freeze_on_enter = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_freeze_on_enter")
+		_slow_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_slow_pct")
 	_seen.clear()
 
 	var tick_damage: int = maxi(1, roundi(magic_attack * TICK_DAMAGE_PCT * (1.0 + damage_bonus)))
@@ -106,7 +111,8 @@ func _apply_chill(enemy: Node) -> void:
 		return
 
 	var original_speed: float = e.movement_speed
-	e.movement_speed = original_speed * (1.0 - SLOW_PCT)
+	var slow: float = clampf(SLOW_PCT + _slow_bonus, 0.0, 0.95)
+	e.movement_speed = original_speed * (1.0 - slow)
 	e.set_meta(SLOW_META, original_speed)
 
 	e.get_tree().create_timer(SLOW_DURATION).timeout.connect(

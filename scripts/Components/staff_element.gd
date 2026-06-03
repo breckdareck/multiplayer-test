@@ -229,6 +229,8 @@ func _on_burn_tick(target: Node) -> void:
 		# the 1s invuln from each hit and lose half its ticks). show_number=true.
 		var was_alive: bool = not health_comp.is_dead
 		health_comp.take_damage(damage, applier, true, false, true)
+		if target.has_method("play_dot"):
+			target.play_dot("burn")
 
 		# If the burn tick downed the enemy, credit the same kill events a direct
 		# hit would — mastery XP + on_kill passives. Mirrors AL_Immolate's

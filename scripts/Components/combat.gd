@@ -77,6 +77,17 @@ var _shadowmeld_component: ShadowmeldComponent
 ## current bonus. Both gated to _is_wielding_bow() so they never touch another
 ## weapon. Fire-rate ramp lives in attack.gd (reads get_speed_bonus()).
 var _bow_momentum_component: BowMomentumComponent
+## Weapon-pair synergy layer (cross-gauge effects when a specific pair is equipped).
+## Duck-typed (no class_name) — resolved by node path, methods called dynamically.
+var _weapon_pair_synergy_component: Node
+
+## Ambush spans a WHOLE multi-target attack: stealth is broken ONCE after every
+## target is processed (not inside the first target's _execute_hit), so each enemy
+## a multi-target dagger ability hits from stealth gets the ambush ×2 + guaranteed
+## crit + the Staff+Dagger element. Set per-target in _execute_hit, consumed once by
+## _consume_ambush() after the melee target loop / projectile hit.
+var _attack_ambushed: bool = false
+var _attack_ambush_from_vanish: bool = false
 
 ## PR 5: transient damage multiplier applied to the NEXT ability damage
 ## calculation. Used by AL_SlashBlast to scale damage by combo points spent
@@ -104,6 +115,7 @@ func _ready() -> void:
 	_staff_element_component = get_parent().get_node_or_null("StaffElement")
 	_shadowmeld_component = get_parent().get_node_or_null("Shadowmeld")
 	_bow_momentum_component = get_parent().get_node_or_null("BowMomentum")
+	_weapon_pair_synergy_component = get_parent().get_node_or_null("WeaponPairSynergy")
 
 	hitbox_area.monitoring = false
 
@@ -332,6 +344,12 @@ func _process_collected_bodies() -> void:
 
 		var proj_max_targets = current_level_stats.max_targets + _upgrade_int(current_ability_data, "bonus_targets")
 		var proj_targets_processed = 0
+		# Capture the dagger ambush ONCE at cast. Projectiles (e.g. Fan of Knives)
+		# land across multiple frames, so we can't read live stealth at hit time —
+		# instead every projectile of this cast carries the ambush flag, and stealth
+		# breaks now (the throw reveals you). Mirrors the melee path's "one ambush,
+		# every target" but resolved at spawn instead of after the loop.
+		var proj_amb: Dictionary = _compute_dagger_ambush()
 
 		for body_area in _pending_bodies:
 			if proj_targets_processed >= proj_max_targets:
@@ -341,13 +359,24 @@ func _process_collected_bodies() -> void:
 			if health_comp and not health_comp.is_dead:
 				if _ability_component:
 					# Spawn one projectile for each valid target
-					_ability_component.spawn_projectile(current_ability_data, current_level_stats, body_area.owner)
+					_ability_component.spawn_projectile(current_ability_data, current_level_stats, body_area.owner, proj_amb["active"])
 				proj_targets_processed += 1
 
 		# If no targets were in the hitbox, spawn one projectile straight ahead
 		if proj_targets_processed == 0:
 			if _ability_component:
-				_ability_component.spawn_projectile(current_ability_data, current_level_stats, null)
+				_ability_component.spawn_projectile(current_ability_data, current_level_stats, null, proj_amb["active"])
+
+		# Break the cloak ONCE for the whole volley (the throw reveals you), so a
+		# later-landing knife doesn't see stealth already gone and skip its ambush.
+		if proj_amb["active"]:
+			if is_instance_valid(_shadowmeld_component):
+				_shadowmeld_component.break_stealth()
+			if proj_amb["from_vanish"]:
+				var bc3 = owner_node.get("buff_component")
+				if bc3 != null and is_instance_valid(bc3) and bc3.has_method("remove_buff"):
+					bc3.remove_buff("Vanish")
+			preload("res://scripts/Abilities/AL_PredatorsPatience.gd").record_ambush(owner_node)
 
 		_pending_bodies.clear()
 		return # We are done for projectiles
@@ -370,37 +399,80 @@ func _process_collected_bodies() -> void:
 		return owner_node.global_position.distance_to(a.global_position) < owner_node.global_position.distance_to(b.global_position)
 	)
 	
+	# Reset the attack-level ambush flag before iterating targets. _execute_hit sets
+	# it per stealthed hit; _consume_ambush() breaks stealth ONCE after the whole
+	# multi-target swing so every target gets the ambush, not just the first.
+	_attack_ambushed = false
+	_attack_ambush_from_vanish = false
 	var targets_processed = 0
 	for body in _pending_bodies:
 		if targets_processed >= max_targets:
 			break
-		
+
 		var health_comp = body.owner.get("health_component")
 		if not health_comp or health_comp.is_dead:
 			continue
-		
+
 		_unique_targets_for_attack[body] = true
-		
+
 		# Execute the full hit logic for this target
 		_execute_hit(body.owner, current_ability_data, current_level_stats, current_attack_data)
-		
+
 		targets_processed += 1
-	
+
+	_consume_ambush()
 	_pending_bodies.clear()
 
 
-func process_projectile_hit(target_enemy: Node, ability: AbilityData, level_stats: AbilityLevelData) -> void:
-	"""Public function for projectiles to call when they hit a target."""
+func process_projectile_hit(target_enemy: Node, ability: AbilityData, level_stats: AbilityLevelData, forced_ambush: bool = false) -> void:
+	"""Public function for projectiles to call when they hit a target. `forced_ambush`
+	is the projectile's cast-time stealth flag — stealth was already broken at the
+	throw, so the ambush is carried in rather than read from live stealth here."""
 	if not multiplayer.is_server():
 		return
 
 	#print("CombatComponent: Processing projectile hit on %s" % target_enemy.name)
 	var attack_name := "basic_arrow" if ability == null else ""
-	_execute_hit(target_enemy, ability, level_stats, attack_name)
+	_execute_hit(target_enemy, ability, level_stats, attack_name, 1 if forced_ambush else 0)
 
 
-func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: AbilityLevelData, attack_name: String) -> void:
-	"""Runs the full, authoritative damage calculation for a single hit on a single target."""
+## Is THIS attack a dagger ambush right now? `{active, from_vanish}`. Shared by the
+## melee live-read (in _execute_hit) and the projectile cast-time capture (in the
+## projectile-spawn branch). Only a wielded dagger can ambush; either the Shadowmeld
+## toggle OR the Vanish buff counts as stealth.
+func _compute_dagger_ambush() -> Dictionary:
+	if not _is_wielding_dagger():
+		return {"active": false, "from_vanish": false}
+	var stealthed: bool = is_instance_valid(_shadowmeld_component) and _shadowmeld_component.is_stealthed()
+	var vanished: bool = false
+	var bc = owner_node.get("buff_component")
+	if bc != null and is_instance_valid(bc) and bc.has_method("has_buff"):
+		vanished = bc.has_buff("Vanish")
+	return {"active": stealthed or vanished, "from_vanish": vanished}
+
+
+## Break stealth + remove Vanish + stamp Predator's Patience ONCE per MELEE attack,
+## after every target of a (possibly multi-target) swing has been ambushed. No-op
+## when the attack didn't land from stealth. (Projectiles break at the throw instead.)
+func _consume_ambush() -> void:
+	if not _attack_ambushed:
+		return
+	_attack_ambushed = false
+	if is_instance_valid(_shadowmeld_component):
+		_shadowmeld_component.break_stealth()
+	if _attack_ambush_from_vanish:
+		var bc2 = owner_node.get("buff_component")
+		if bc2 != null and is_instance_valid(bc2) and bc2.has_method("remove_buff"):
+			bc2.remove_buff("Vanish")
+	_attack_ambush_from_vanish = false
+	preload("res://scripts/Abilities/AL_PredatorsPatience.gd").record_ambush(owner_node)
+
+
+func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: AbilityLevelData, attack_name: String, projectile_ambush: int = -1) -> void:
+	"""Runs the full, authoritative damage calculation for a single hit on a single
+	target. `projectile_ambush`: -1 = melee (read live stealth here, break after the
+	loop); 0/1 = projectile carrying its cast-time ambush flag (stealth already broke
+	at the throw)."""
 	var health_comp = target_enemy.get("health_component")
 	if not health_comp or health_comp.is_dead:
 		return
@@ -461,27 +533,27 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 	# hit missed (then the element hook after the loop is skipped).
 	var max_landed_damage: int = 0
 
-	# PR 7 — Dagger Shadowmeld ambush. If the attacker is stealthed AND wielding a
-	# dagger, EVERY hit of this attack is multiplied by AMBUSH_DAMAGE_MULT, then
-	# stealth breaks ONCE after the loop. Computed once up front so a multi-hit
-	# ability ambushes uniformly. Unlike the staff element rider, this applies to a
-	# basic melee hit (ability == null) too — landing from stealth is the point.
-	# The _is_wielding_dagger() gate means it can never affect a sword / bow / staff
-	# hit (their active weapon isn't a dagger), even with a dagger in the off slot.
-	# Ambush fires from EITHER stealth source: the Shadowmeld signature toggle OR
-	# the Vanish ability's invisibility buff — "any hit from stealth" empowers the
-	# strike. Both are consumed after the loop (one ambush per cloak).
+	# PR 7 — Dagger Shadowmeld ambush. A stealthed dagger hit is multiplied by
+	# AMBUSH_DAMAGE_MULT (and forced-crit below), then stealth breaks ONCE per attack.
+	# TWO sources, by attack type:
+	#   - MELEE (projectile_ambush < 0): read LIVE stealth here. Stealth stays alive
+	#     across the synchronous multi-target loop; _consume_ambush() breaks it once
+	#     after the loop, so EVERY target of a multi-hit swing ambushes.
+	#   - PROJECTILE (projectile_ambush 0/1): the ambush was captured at the THROW
+	#     (stealth already broke there) and threaded in per-projectile, so each knife
+	#     of a Fan-of-Knives volley ambushes regardless of which frame it lands on.
+	# The _is_wielding_dagger() gate (live path) means it can never affect a
+	# sword/bow/staff hit. Fires from the Shadowmeld toggle OR the Vanish buff.
 	var ambush_mult: float = 1.0
 	var ambush_from_vanish: bool = false
-	if _is_wielding_dagger():
-		var stealthed: bool = is_instance_valid(_shadowmeld_component) and _shadowmeld_component.is_stealthed()
-		var vanished: bool = false
-		var bc = owner_node.get("buff_component")
-		if bc != null and is_instance_valid(bc) and bc.has_method("has_buff"):
-			vanished = bc.has_buff("Vanish")
-		if stealthed or vanished:
+	if projectile_ambush >= 0:
+		if projectile_ambush == 1:
 			ambush_mult = ShadowmeldComponent.AMBUSH_DAMAGE_MULT
-			ambush_from_vanish = vanished
+	else:
+		var amb: Dictionary = _compute_dagger_ambush()
+		if amb["active"]:
+			ambush_mult = ShadowmeldComponent.AMBUSH_DAMAGE_MULT
+			ambush_from_vanish = amb["from_vanish"]
 
 	for i in range(max_hits):
 		var roll = randf() * 100
@@ -785,26 +857,27 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 			momentum_gain = 2
 		_bow_momentum_component.add_momentum(momentum_gain)
 
-	# PR 7 — Dagger ambush: this attack landed FROM stealth (ambush_mult raised
-	# before the loop), so the bonus + guaranteed crit already applied to every hit
-	# above. Consume the cloak now — one ambush per stealth. Break the Shadowmeld
-	# toggle, and if the ambush came from the Vanish buff, remove that too (striking
-	# reveals you). Order matters: break_stealth's coexistence guard leaves
-	# is_invisible alone while Vanish is active, then remove_buff("Vanish") ->
-	# (no longer applicable — Vanish removed in PR 11) clears invisibility + restores the sprite.
-	if ambush_mult > 1.0:
-		if is_instance_valid(_shadowmeld_component):
-			_shadowmeld_component.break_stealth()
-		if ambush_from_vanish:
-			var bc2 = owner_node.get("buff_component")
-			if bc2 != null and is_instance_valid(bc2) and bc2.has_method("remove_buff"):
-				bc2.remove_buff("Vanish")
-		# v1 PredatorsPatience — stamp the ambush time so the next ambush
-		# reads "time since last ambush" as its Patience stack count. The
-		# passive's conditional_damage_mult reads this meta on the next
-		# stealth hit; calling record_ambush here keeps the stamp aligned
-		# with when the ambush actually fired.
-		preload("res://scripts/Abilities/AL_PredatorsPatience.gd").record_ambush(owner_node)
+	# PR 7 — Dagger ambush: this hit landed FROM stealth (ambush_mult raised before
+	# the loop), so the ×2 bonus + guaranteed crit already applied to every hit above.
+	# Do NOT break stealth here — that would end the cloak after the FIRST target and
+	# leave the rest of a multi-target swing un-ambushed (and skip the Staff+Dagger
+	# element on them). Instead flag the attack as ambushing; _consume_ambush() breaks
+	# stealth ONCE after every target is processed.
+	# Melee only: flag the attack so _consume_ambush() breaks stealth after the whole
+	# multi-target loop. Projectiles already broke stealth at the throw, so skip.
+	if ambush_mult > 1.0 and projectile_ambush < 0:
+		_attack_ambushed = true
+		_attack_ambush_from_vanish = _attack_ambush_from_vanish or ambush_from_vanish
+
+	# Weapon-pair synergy — automatic cross-gauge effects when a specific PAIR of
+	# weapon disciplines is equipped (Sword+Staff imbue, bow-banks-combo, ambush
+	# spenders, …). Server-side; the component reads the equipped pair + the
+	# persistent gauges and applies the active weapon's synergy. `ambush_mult > 1.0`
+	# tells it this landed from stealth. Skipped if every hit missed. Sits beside
+	# the staff-element + bow-momentum riders by design. See project_farever_reference.
+	if max_landed_damage > 0 and is_instance_valid(_weapon_pair_synergy_component):
+		_weapon_pair_synergy_component.on_hit_landed(
+			owner_node, target_enemy, max_landed_damage, ability, ambush_mult > 1.0)
 
 	# Apply target debuff if the ability defines one
 	if ability and ability.applies_target_debuff and target_enemy is EnemyBase:
@@ -1069,6 +1142,27 @@ func _calculate_max_range(attack_stat_type: Constants.StatType = Constants.StatT
 	# max_range *= (1.0 + final_damage_percent / 100.0)
 
 	return roundi(max_range)
+
+
+## Stat-scaled base for a DoT tick — the ability's MAX hit for its current level
+## (`max_range × damage_percent/100`). Bleed/poison/burn per-tick should be a
+## FRACTION of this instead of a flat % of the raw attack stat, so DoT ticks scale
+## with attributes + mastery + ability level + gear exactly like direct damage.
+## Fixes the endgame DoT collapse documented in project_dot_scaling_divergence
+## (a flat `% × WEAPONATTACK` tick omits the whole (primary×4+secondary) multiplier).
+## Resolves the learned ability level via the sibling AbilityComponent; falls back
+## to damage_percent 100 for mark/utility abilities that author no damage formula.
+func dot_scaling_base(ability: AbilityData) -> int:
+	if ability == null:
+		return 1
+	var lvl: int = 1
+	if _ability_component and _ability_component.has_method("get_ability_level"):
+		lvl = maxi(1, _ability_component.get_ability_level(ability.ability_id))
+	var dmg_pct: float = 100.0
+	var level_stats: AbilityLevelData = ability.get_level_stats(lvl)
+	if level_stats != null and level_stats.damage_percent > 0:
+		dmg_pct = float(level_stats.damage_percent)
+	return maxi(1, roundi(_calculate_max_range(ability.damage_stat) * dmg_pct / 100.0))
 
 
 func _apply_enemy_debuff(enemy: EnemyBase, debuff: BuffData, duration: float) -> void:

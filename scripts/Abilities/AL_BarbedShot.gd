@@ -14,9 +14,11 @@ extends Node
 const MAX_STACKS: int = 3
 const TICK_INTERVAL: float = 1.0
 const DURATION_SECONDS: float = 6.0
-## 20% of WEAPONATTACK per tick per stack — matches Hemorrhage so the DOT is
-## visible against enemy HP pools (low WPN_ATK otherwise rounds to 1/tick).
-const DAMAGE_PER_STACK_PCT: float = 0.20
+## Per tick per stack = this fraction of the ability's MAX hit (max_range × dmg%),
+## via CombatComponent.dot_scaling_base — so the bleed scales with attributes +
+## mastery + ability level + gear like direct damage (project_dot_scaling_divergence).
+## Was 0.20 × raw WEAPONATTACK, which collapsed to ~0 relative damage at endgame.
+const DAMAGE_PER_STACK_FRAC: float = 0.10
 
 const BLEED_META: String = "barbed_shot_bleed"
 
@@ -45,7 +47,9 @@ func on_hit(_owner_node: Node, _target: Node, _ability: AbilityData) -> void:
 		stack_bonus = int(ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bleed_max_stack_bonus"))
 		duration_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bleed_duration_bonus")
 
-	var per_tick: int = maxi(1, roundi(wpn_attack * DAMAGE_PER_STACK_PCT * (1.0 + potency_bonus)))
+	var combat = _owner_node.get("combat_component")
+	var dot_base: int = combat.dot_scaling_base(_ability) if combat != null and combat.has_method("dot_scaling_base") else maxi(1, wpn_attack)
+	var per_tick: int = maxi(1, roundi(dot_base * DAMAGE_PER_STACK_FRAC * (1.0 + potency_bonus)))
 	var max_stacks: int = MAX_STACKS + stack_bonus
 	var duration: float = DURATION_SECONDS + duration_bonus
 
@@ -135,6 +139,8 @@ func _on_bleed_tick(target: Node) -> void:
 		# show_number=true so the DOT is visible.
 		var was_alive: bool = not health_comp.is_dead
 		health_comp.take_damage(damage, applier, true, false, true)
+		if target.has_method("play_dot"):
+			target.play_dot("bleed")
 
 		# If the bleed tick downed the enemy, fire the same kill events
 		# combat.gd._execute_hit fires for normal hit kills.

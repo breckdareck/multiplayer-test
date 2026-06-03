@@ -19,8 +19,11 @@ extends Node
 const MAX_STACKS: int = 2
 const TICK_INTERVAL: float = 1.0
 const DURATION_SECONDS: float = 4.0
-## 12% of MAGICATTACK per tick per stack. maxi(1, ...) keeps it visible at low gear.
-const DAMAGE_PER_STACK_PCT: float = 0.12
+## Per tick per stack = this fraction of the ability's MAX hit (max_range × dmg%),
+## via CombatComponent.dot_scaling_base — so the burn scales with mastery +
+## attributes + ability level + gear like direct damage (project_dot_scaling_divergence).
+## Was 0.12 × raw MAGICATTACK, which omitted the (primary×4+sec) multiplier.
+const DAMAGE_PER_STACK_FRAC: float = 0.12
 
 ## Own meta key — independent of Immolate's "immolate_burn" and the rider's
 ## "staff_element_burn" so all three burns stack separately.
@@ -36,9 +39,10 @@ const BURN_META: String = "pyre_burst_burn"
 const POOL_RECT_SIZE: Vector2 = Vector2(180.0, 55.0)
 const POOL_DURATION: float = 3.0
 const POOL_TICK_INTERVAL: float = 1.0
-## 10% of MAGICATTACK per tick. Stacks with the dedicated burn DOT applied
-## per-enemy by the on_hit block above (independent meta keys).
-const POOL_DAMAGE_PCT: float = 0.10
+## Pool tick = this fraction of the ability's MAX hit (same dot_scaling_base as the
+## burn DOT). Stacks with the dedicated burn DOT applied per-enemy by the on_hit
+## block above (independent meta keys).
+const POOL_DAMAGE_FRAC: float = 0.10
 const POOL_COLOR: Color = Color(0.95, 0.3, 0.1, 0.42)
 
 ## Per-cast dedupe: on_hit fires once per struck enemy, but the ground pool
@@ -73,14 +77,16 @@ func on_hit(_owner_node: Node, _target: Node, _ability: AbilityData) -> void:
 		return
 	var magic_attack: int = int(stats_comp.stats[Constants.StatType.MAGICATTACK].total_value)
 
-	var per_tick: int = maxi(1, roundi(magic_attack * DAMAGE_PER_STACK_PCT))
+	var combat = _owner_node.get("combat_component")
+	var dot_base: int = combat.dot_scaling_base(_ability) if combat != null and combat.has_method("dot_scaling_base") else maxi(1, magic_attack)
+	var per_tick: int = maxi(1, roundi(dot_base * DAMAGE_PER_STACK_FRAC))
 
 	# Fire-stance ground pool — spawn ONCE per cast at the first struck
 	# enemy's position. The dedupe lives inside _try_spawn_fire_pool so this
 	# fires for every on_hit call without spawning extra zones per enemy.
 	# Placed BEFORE the burn-refresh early-return so a cast that hits an
 	# already-burning enemy still drops its pool.
-	_try_spawn_fire_pool(_owner_node, _target, magic_attack)
+	_try_spawn_fire_pool(_owner_node, _target, dot_base)
 
 	if _target.has_meta(BURN_META):
 		# Existing pyre burn — add a stack (capped) and refresh duration.
@@ -109,14 +115,14 @@ func on_hit(_owner_node: Node, _target: Node, _ability: AbilityData) -> void:
 ## frame). The first struck enemy's position is the spawn point — a reasonable
 ## proxy for the explosion's epicenter without threading the projectile's
 ## impact location through combat.gd.
-func _try_spawn_fire_pool(owner_node: Node, first_target: Node, magic_attack: int) -> void:
+func _try_spawn_fire_pool(owner_node: Node, first_target: Node, dot_base: int) -> void:
 	var cur_frame: int = Engine.get_physics_frames()
 	var last_spawn: int = int(owner_node.get_meta(POOL_FRAME_META, -1))
 	if last_spawn == cur_frame:
 		return  # already spawned this physics frame (same cast)
 	owner_node.set_meta(POOL_FRAME_META, cur_frame)
 
-	var pool_damage: int = maxi(1, roundi(magic_attack * POOL_DAMAGE_PCT))
+	var pool_damage: int = maxi(1, roundi(dot_base * POOL_DAMAGE_FRAC))
 	# load() rather than class_name reference for robustness against parse-order
 	# issues (Godot 4 can intermittently fail to resolve class_name globals from
 	# logic_scripts that are loaded lazily by ResourceManager).
@@ -191,6 +197,8 @@ func _on_burn_tick(target: Node) -> void:
 		# 1s invuln from each hit and half the ticks get absorbed).
 		var was_alive: bool = not health_comp.is_dead
 		health_comp.take_damage(damage, applier, true, false, true)
+		if target.has_method("play_dot"):
+			target.play_dot("burn")
 
 		if was_alive and health_comp.is_dead:
 			_credit_burn_kill(applier, target)

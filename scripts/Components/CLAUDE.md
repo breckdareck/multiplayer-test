@@ -217,8 +217,14 @@ Player (MultiplayerPlayerV2)
     │                               0.03 → +30% at cap), applied in attack.gd's
     │                               attack_speed_percent getter (BOW-gated, null-safe).
     │                               Needs NO new input — builds passively from hits
-    │                               like the sword combo. reset() on death + on
-    │                               swap-away-from-bow (multiplayer_controller_v2).
+    │                               like the sword combo. PERSISTS across weapon swaps:
+    │                               slot-gated like Sword Combo (reset() only on death +
+    │                               when a bow leaves BOTH weapon slots). While the bow is
+    │                               SHEATHED (equipped but not wielded) the ramp HOLDS for
+    │                               SHEATHE_HOLD_SEC (3s, _sheathed_at_ms) then decays
+    │                               normally — long enough to swap to the off-hand and use
+    │                               the Momentum (e.g. Staff+Bow spells) without being
+    │                               permanent. (Was active-gated: any swap zeroed it.)
     │                               ABILITY SYNERGIES: Snipe SPENDS all Momentum for a
     │                               burst then reset() (combat.calculate_ability_damage,
     │                               gated ability_name=="Snipe"); Hailstorm/Skyfall build
@@ -238,7 +244,15 @@ Player (MultiplayerPlayerV2)
     │                               BURN_MIN_PER_TICK — NOT raw MAGICATTACK, which
     │                               rounded to 1/tick early; own meta key
     │                               "staff_element_burn", stacks independently of
-    │                               Immolate/bleeds), ICE = movement slow (reduces
+    │                               Immolate/bleeds). NOTE: bleed/poison/burn-pool
+    │                               DoTs (Hemorrhage, Barbed Shot, Envenom, Pyre
+    │                               Burst, Immolate) follow the same principle via
+    │                               CombatComponent.dot_scaling_base(ability) — per-
+    │                               tick = FRAC × the ability's max hit (max_range ×
+    │                               damage%/100), NOT a flat % of WEAPONATTACK/
+    │                               MAGICATTACK, so DoTs scale with attributes +
+    │                               mastery + ability level + gear like direct
+    │                               damage (was a ~146× endgame shortfall). ICE = movement slow (reduces
     │                               EnemyBase.movement_speed directly — there is NO
     │                               movespeed StatType — restored on a timer), LIGHTNING
     │                               = a bonus shock to the target AND a SEQUENTIAL
@@ -291,8 +305,23 @@ Player (MultiplayerPlayerV2)
     │                               Cancelled on death + on swap-away-from-dagger
     │                               (multiplayer_controller_v2). Volatile (resets on
     │                               spawn); synced via sync_shadowmeld_to_client
-    │                               (bot-skipped). Multi-TARGET swings ambush only the
-    │                               first target then break (single-target rogue feel).
+    │                               (bot-skipped). Multi-TARGET swings now ambush EVERY
+    │                               target (×2 + crit + Staff+Dagger element on all):
+    │                               _execute_hit only FLAGS the attack (_attack_ambushed),
+    │                               and _consume_ambush() breaks stealth ONCE after the
+    │                               whole melee target loop — so stealth persists across
+    │                               all of a multi-target swing's targets (was: broke
+    │                               inside the first target's hit, leaving the rest
+    │                               un-ambushed). PROJECTILE abilities (Fan of Knives,
+    │                               is_projectile) land across multiple frames, so the
+    │                               ambush is captured at the THROW (_compute_dagger_ambush
+    │                               in the projectile-spawn branch), stealth breaks there
+    │                               ONCE, and each projectile carries an is_ambush flag
+    │                               (projectile.gd → process_projectile_hit forced_ambush →
+    │                               _execute_hit projectile_ambush 0/1) so every knife
+    │                               ambushes regardless of land frame. Still one ambush per
+    │                               cloak. Both paths feed the Staff+Dagger synergy element
+    │                               to ALL targets (it gates on ambush_mult>1.0).
     │                               AMBUSH SYNERGIES: the ambush GUARANTEES a crit
     │                               (combat forces is_crit when ambush_mult>1.0); it
     │                               also triggers from the Vanish buff (not just the
@@ -300,6 +329,36 @@ Player (MultiplayerPlayerV2)
     │                               (break_stealth then remove_buff("Vanish")). Eviscerate
     │                               from stealth = execute bonus on targets ≤35% HP
     │                               (AL_Eviscerate).
+    ├── WeaponPairSynergy weapon_pair_synergy.gd - CROSS-GAUGE synergy layer.
+    │                               Extends WeaponSignatureComponent (auto-discovered;
+    │                               signature_discipline() returns -1 — it's the PAIR
+    │                               layer, not a single gauge). AUTOMATIC-on-equip like
+    │                               spellblade: when a specific PAIR of weapon
+    │                               disciplines is equipped, a cross-gauge effect fires.
+    │                               combat._execute_hit calls on_hit_landed(owner,
+    │                               target, hit_dmg, ability, did_ambush) once per
+    │                               target after the loop (beside the staff/bow riders;
+    │                               did_ambush = ambush_mult>1.0). GIVER/RECEIVER model
+    │                               from the gauge gating: persistent Combo/Stance feed
+    │                               the wielded weapon. Now SYMMETRIC (every weapon
+    │                               benefits from every pairing). Staff OFF-HAND → active
+    │                               weapon's hit carries the stance element (Sword/Bow
+    │                               active, Dagger ambush). Dagger OFF-HAND → active
+    │                               weapon's hit applies POISON (_imbue_with_poison via
+    │                               BleedDot "synergy_poison"; Sword/Bow/Staff active) —
+    │                               the mirror of the element imbue. STAFF-MAIN reciprocals
+    │                               (spell hits): Staff+Sword spell SPENDS Combo for a magic
+    │                               burst (hit×combo×0.5); Staff+Bow spell rides Momentum
+    │                               (hit×get_damage_bonus). Sword+Bow = bow hits
+    │                               add_combo_point (Combo persists, spend on sword);
+    │                               Sword+Dagger/Staff+Sword spend Combo; Bow+Dagger = bow
+    │                               hits charge `_bd_charge` (cap 10, swap-surviving) AND
+    │                               poison, dagger ambush spends it ×0.15. Reads other gauges via
+    │                               owner.get("<x>_component") (both-peer-safe read API);
+    │                               server-only mutators. Emits synergy_proc(pair_key)
+    │                               on server + owning client (call_local RPC, bot/no-id
+    │                               skip) for the (pending) synergy widget. Volatile,
+    │                               no save. Tuning = the *_MULT consts.
     ├── Buff       buff.gd        - timed buffs/debuffs, stacking, custom logic
     │  (Class/class.gd REMOVED — ADR 0004, 2026-06-02. The "starting/primary
     │   discipline" pointer it owned is now WeaponMastery.primary_discipline; it

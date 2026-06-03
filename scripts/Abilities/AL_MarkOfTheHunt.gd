@@ -48,16 +48,24 @@ func on_hit(owner_node: Node, target: Node, _ability: AbilityData) -> void:
 		sundering = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_pierce_on_crit") > 0.0
 		bleed_pct = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_bleed_dot")
 
-	_apply_mark(owner_node, target, duration, sundering, bleed_pct)
+	# Bleeding Mark (T3) scales its bleed off the ability's max hit (stat-scaled,
+	# like the other DoTs — project_dot_scaling_divergence). Computed once here.
+	var dot_base: int = 0
+	if bleed_pct > 0.0:
+		var combat = owner_node.get("combat_component")
+		if combat != null and combat.has_method("dot_scaling_base"):
+			dot_base = combat.dot_scaling_base(_ability)
+
+	_apply_mark(owner_node, target, duration, sundering, bleed_pct, dot_base)
 
 	# Double Mark: also mark the nearest `extra_targets` other enemies.
 	if extra_targets > 0:
 		for other in _nearby_enemies(target, SPREAD_RADIUS, extra_targets):
-			_apply_mark(owner_node, other, duration, sundering, bleed_pct)
+			_apply_mark(owner_node, other, duration, sundering, bleed_pct, dot_base)
 
 
 ## Apply (or refresh) the mark + its T3 riders to one enemy.
-func _apply_mark(owner_node: Node, target: Node, duration: float, sundering: bool, bleed_pct: float) -> void:
+func _apply_mark(owner_node: Node, target: Node, duration: float, sundering: bool, bleed_pct: float, dot_base: int = 0) -> void:
 	if not is_instance_valid(target):
 		return
 	# Lazy expiry on read avoids any per-mark Timer plumbing.
@@ -65,14 +73,12 @@ func _apply_mark(owner_node: Node, target: Node, duration: float, sundering: boo
 	target.set_meta(MARK_META, expire_at_ms)
 	if sundering:
 		target.set_meta(SUNDER_META, true)
-	# Bleeding Mark: a light bleed for the mark's lifetime (% WEAPONATTACK/sec).
-	if bleed_pct > 0.0 and not target.has_meta(BLEEDING_MARK_META):
-		var stats_comp = owner_node.get("stats_component")
-		if stats_comp and stats_comp.stats.has(Constants.StatType.WEAPONATTACK):
-			var wpn_attack: int = int(stats_comp.stats[Constants.StatType.WEAPONATTACK].total_value)
-			var per_tick: int = maxi(1, roundi(wpn_attack * bleed_pct))
-			target.set_meta(BLEEDING_MARK_META, true)
-			BleedDot.apply(target, owner_node, per_tick, 1, duration, "moh_bleeding_mark")
+	# Bleeding Mark: a light bleed for the mark's lifetime, scaled off the ability's
+	# max hit (stat/mastery/level/gear) rather than raw WEAPONATTACK.
+	if bleed_pct > 0.0 and dot_base > 0 and not target.has_meta(BLEEDING_MARK_META):
+		var per_tick: int = maxi(1, roundi(dot_base * bleed_pct))
+		target.set_meta(BLEEDING_MARK_META, true)
+		BleedDot.apply(target, owner_node, per_tick, 1, duration, "moh_bleeding_mark")
 
 
 ## Up to `count` nearest valid living enemies within `radius` of `origin`
