@@ -846,6 +846,17 @@ func _load_data(data: Dictionary) -> void:
 	if is_instance_valid(ability_component):
 		ability_component.reconnect_level_signals()
 		ability_component.set_loading_mode(false)
+		# PR 8 fix: bootstrap_fresh_character_if_needed() above emits
+		# mastery_level_changed while the point-grant signal was disconnected
+		# (disconnect_level_signals ran at the top of this load), so the fresh
+		# character's first ability point never lands via the live pathway. And
+		# reconcile_ability_points() normally only runs inside load_abilities,
+		# which is skipped for fresh characters (empty ability data). Run the
+		# reconcile here unconditionally: it recomputes each discipline's pool as
+		# granted(mastery_level) - spent, granting the bootstrap point and
+		# self-healing any save that drifted (incl. characters already saved in
+		# the broken 0-point state).
+		ability_component.reconcile_ability_points()
 
 	if is_instance_valid(health_component):
 		health_component.set_loading_mode(false)

@@ -1,8 +1,14 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://dbfrbj8cwleni"]
 
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_4u1qq"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_madri"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_w62tt"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_4u1qq"]
+[ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="2_madri"]
+[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_w62tt"]
+
+[sub_resource type="Resource" id="Resource_hd34u"]
+script = ExtResource("1_4u1qq")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 1
 
 [sub_resource type="Resource" id="Resource_125ki"]
 script = ExtResource("1_4u1qq")
@@ -15,12 +21,6 @@ script = ExtResource("1_4u1qq")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_hd34u"]
-script = ExtResource("1_4u1qq")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 1
 
 [sub_resource type="Resource" id="Resource_kpb04"]
 script = ExtResource("1_4u1qq")
@@ -42,9 +42,7 @@ bonus_stats = Dictionary[int, ExtResource("1_4u1qq")]({
 })
 item_id = "962114360-912137-1014410-91469-131111711212109267"
 name = "Worn Pathfinder Helm"
-rarity = 0
 icon = SubResource("AtlasTexture_pg230")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 1
-custom_item_value = 0

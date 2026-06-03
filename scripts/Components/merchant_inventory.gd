@@ -158,10 +158,14 @@ func get_buy_price(item_id: String) -> int:
 	var item = ResourceManager.get_item_data(item_id)
 	return int(item.base_value * buy_price_multiplier) if item else 0
 
-func get_sell_price(item_id: String) -> int:
-	var item = ResourceManager.get_item_data(item_id)
-	var new_value = item.base_value * sell_price_multiplier
-	return clampi(new_value, 1, 999999999) if item else 0
+func get_sell_price(item: ItemData) -> int:
+	# Price comes from the item the caller already holds — base_value derives
+	# purely from item_level, so there is no need to round-trip through
+	# ResourceManager (a stale/unindexed item_id would crash that lookup).
+	if not item:
+		return 0
+	var new_value := int(item.base_value * sell_price_multiplier)
+	return clampi(new_value, 1, 999999999)
 
 func get_stock_data(player_id: int) -> Array:
 	var data: Array = []
@@ -333,7 +337,7 @@ func request_sell_item(slot_index: int):
 		item_to_sell.current_stack_amount = 1 # Explicitly set to 1 for single item sale
 		
 		# Price is for one item
-		price_for_transaction = get_sell_price(item.item_id)
+		price_for_transaction = get_sell_price(item)
 		
 		# Remove one item from the player's stack
 		player.inventory_component.remove_item_from_stack(item, 1, "sold")
@@ -342,7 +346,7 @@ func request_sell_item(slot_index: int):
 		item_to_sell = item # Use the existing item object
 		
 		# Price is for the whole item/stack
-		price_for_transaction = get_sell_price(item.item_id) * item.current_stack_amount
+		price_for_transaction = get_sell_price(item) * item.current_stack_amount
 		
 		# Remove the whole item from the player's inventory
 		player.inventory_component.remove_item(item, "sold")

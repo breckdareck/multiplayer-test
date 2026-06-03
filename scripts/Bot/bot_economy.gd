@@ -155,7 +155,7 @@ func _sell_unwanted_items(merchant: MerchantInventory, force: bool) -> void:
 		return
 	var player = brain.player
 	for item in _collect_items_to_sell(force):
-		var sell_price: int = merchant.get_sell_price(item.item_id)
+		var sell_price: int = merchant.get_sell_price(item)
 		player.player_inventory.monies_amount += sell_price
 		brain._metrics.gold_from_sales += sell_price
 		player.inventory_component.remove_item(item, "sold")

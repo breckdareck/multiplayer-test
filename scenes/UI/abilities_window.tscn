@@ -89,6 +89,16 @@ tab_1/title = "Bow"
 tab_2/title = "Staff"
 tab_3/title = "Dagger"
 
+[node name="MasteryLabel" type="Label" parent="MarginContainer/VBoxContainer/TabRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.905882, 0.890196, 0.34902, 1)
+theme_override_fonts/font = ExtResource("3_702f5")
+theme_override_font_sizes/font_size = 14
+text = "Mastery Lv 0 (0 / 30 XP)"
+horizontal_alignment = 2
+vertical_alignment = 1
+
 [node name="SkillPointsLabel" type="Label" parent="MarginContainer/VBoxContainer/TabRow"]
 unique_name_in_owner = true
 layout_mode = 2
