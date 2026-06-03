@@ -90,6 +90,9 @@ var _is_placeholder: bool = false   # true when EnemyData is a placeholder (no @
 var _playing: bool = false
 var _time: float = 0.0          # seconds into the timeline
 var _scrubbing: bool = false    # user is dragging the slider; don't fight it
+var _speed_opt: OptionButton = null
+var _play_speed: float = 1.0
+const _SPEEDS: Array[float] = [1.0, 0.5, 0.25, 0.1]
 
 
 func _ready() -> void:
@@ -243,6 +246,16 @@ func _build_ui() -> void:
 	_play_btn.custom_minimum_size = Vector2(70, 0)
 	_play_btn.pressed.connect(_on_play_pressed)
 	play_row.add_child(_play_btn)
+
+	# Playback speed — slow it down to watch a transition land on its exact time
+	# (editor idle-fps samples live playback coarsely; lower speed = finer sampling).
+	_speed_opt = OptionButton.new()
+	for s in _SPEEDS:
+		_speed_opt.add_item("%g×" % s)
+	_speed_opt.select(0)
+	_speed_opt.tooltip_text = "Playback speed (lower = inspect transitions precisely)"
+	_speed_opt.item_selected.connect(func(idx: int): _play_speed = _SPEEDS[idx])
+	play_row.add_child(_speed_opt)
 
 	_scrub = HSlider.new()
 	_scrub.min_value = 0.0
@@ -902,7 +915,7 @@ func _process(delta: float) -> void:
 		_playing = false
 		_play_btn.text = "▶ Play"
 		return
-	_time += delta
+	_time += delta * _play_speed
 	if _time >= t_total:
 		# Loop.
 		_time = fmod(_time, t_total)
