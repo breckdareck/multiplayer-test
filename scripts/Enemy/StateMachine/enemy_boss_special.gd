@@ -1,10 +1,11 @@
 extends EnemyState
-## Boss telegraphed special-attack state. The boss roots in place, rears into a
-## windup animation while flashing red, broadcasts a growing RECTANGULAR ground
-## telegraph to every peer (a horizontal slam band — reads correctly on the 2D
-## platformer plane, unlike a circle), winds up for special_telegraph_time, then
-## lands one authoritative AoE before handing back to chase. Entered from
-## EnemyBase._boss_special_tick() (the readiness gate); all of the special's
+## Boss telegraphed special-attack state — a forward dash-slam. The boss faces the
+## target, rears into a windup animation while flashing red, and broadcasts a
+## RECTANGULAR ground telegraph that extends FORWARD from its centre (near edge at
+## the boss, far edge a full reach ahead — reads correctly on the 2D platformer
+## plane, unlike a circle). After special_telegraph_time it lands one authoritative
+## AoE over that box and DASHES to the far end, then hands back to chase. Entered
+## from EnemyBase._boss_special_tick() (the readiness gate); all of the special's
 ## BEHAVIOR lives here rather than in EnemyBase._process.
 ##
 ## Injected at runtime by EnemyBase._ensure_boss_special_state() — only for
@@ -21,16 +22,27 @@ const _WINDUP_ANIMS: Array[String] = ["dash_attack", "slash_attack", "bomb_attac
 const _BAND_HEIGHT_FACTOR: float = 0.55
 const _BAND_HEIGHT_MIN: float = 48.0
 const _BAND_HEIGHT_MAX: float = 110.0
+## Duration of the forward dash that resolves the slam (boss lunges across the box).
+const _DASH_TIME: float = 0.18
 
 ## Seconds elapsed since the windup began (server-driven).
 var _elapsed: float = 0.0
-## True once this windup has dealt its damage, so a single entry fires once.
+## True once this windup has dealt its damage + started the dash, so it fires once.
 var _fired: bool = false
 ## Snapshot of the slam centre + full rect size, taken on enter so the AoE lands
 ## where the telegraph was shown even if the boss is nudged mid-windup.
 var _center: Vector2 = Vector2.ZERO
 var _rect: Vector2 = Vector2(240.0, 64.0)
 var _windup: float = 1.0
+## Facing (-1/+1) locked at windup start: the box extends this way and the boss
+## dashes this way.
+var _dir: int = 1
+## Full horizontal length of the slam box = the dash distance.
+var _reach: float = 240.0
+## Dash phase (after the window): boss lunges to the far end of the box.
+var _dashing: bool = false
+var _dash_elapsed: float = 0.0
+var _dash_target_x: float = 0.0
 ## The red charge-up tint tween, killed + reset on exit.
 var _flash_tween: Tween = null
 
@@ -40,22 +52,31 @@ func enter() -> void:
 	allow_flip = false
 	_elapsed = 0.0
 	_fired = false
+	_dashing = false
+	_dash_elapsed = 0.0
 	var enemy := parent as EnemyBase
 	if enemy == null:
 		return
 
 	var radius: float = enemy.enemy_data.special_attack_radius if enemy.enemy_data else 120.0
-	_center = enemy.global_position
 	_windup = maxf(0.05, enemy.enemy_data.special_telegraph_time if enemy.enemy_data else 1.0)
-	# Horizontal slam band: full width = reach to each side, short vertical band.
+	_reach = radius * 2.0
+	# Horizontal slam band: full length forward, short vertical band.
 	var band_h: float = clampf(radius * _BAND_HEIGHT_FACTOR, _BAND_HEIGHT_MIN, _BAND_HEIGHT_MAX)
-	_rect = Vector2(radius * 2.0, band_h)
+	_rect = Vector2(_reach, band_h)
 
-	# Face the threatened target so the windup reads as deliberate.
+	# Lock facing toward the threatened target (fallback: current facing).
+	_dir = enemy.facing_direction
 	if enemy.current_target != null and is_instance_valid(enemy.current_target):
 		var dx: float = enemy.current_target.global_position.x - enemy.global_position.x
 		if absf(dx) > 1.0:
-			enemy.face_direction(1 if dx > 0.0 else -1)
+			_dir = 1 if dx > 0.0 else -1
+			enemy.face_direction(_dir)
+
+	# The box extends FORWARD from the boss: its near edge sits at the boss's
+	# centre, its far edge a full reach ahead. So the centre is offset half the
+	# length in the facing direction. The boss later dashes to that far edge.
+	_center = enemy.global_position + Vector2(_dir * _reach * 0.5, 0.0)
 
 	# Cosmetic windup — runs on every visual peer (enter() fires via state sync).
 	_play_windup_anim(enemy)
@@ -75,20 +96,39 @@ func process_frame(delta: float) -> State:
 	if enemy.health_component == null or enemy.health_component.is_dead:
 		return null
 
-	_elapsed += delta
-	if not _fired and _elapsed >= _windup:
-		_fired = true
-		enemy.deal_boss_special_damage(_center, _rect)
+	# Windup: hold, then on completion deal the slam and START the forward dash.
+	if not _fired:
+		_elapsed += delta
+		if _elapsed >= _windup:
+			_fired = true
+			enemy.deal_boss_special_damage(_center, _rect)
+			_dashing = true
+			_dash_elapsed = 0.0
+			_dash_target_x = enemy.global_position.x + _dir * _reach
+		return null
+
+	# Dash phase: lunge across the box, then recover.
+	_dash_elapsed += delta
+	if _dash_elapsed >= _DASH_TIME:
 		return _recover_state()
 	return null
 
 
 func physics_update(delta: float) -> State:
-	# Commit: hold position through the windup (the telegraph is the player's tell;
-	# the special can't be walked off by the boss itself).
 	if parent == null:
 		return null
-	parent.velocity.x = move_toward(parent.velocity.x, 0.0, 600.0 * delta)
+	if _dashing:
+		# Lunge to the far end of the box over _DASH_TIME (the slam follow-through).
+		var reached: bool = (_dir > 0 and parent.global_position.x >= _dash_target_x) \
+			or (_dir < 0 and parent.global_position.x <= _dash_target_x)
+		if reached:
+			parent.velocity.x = 0.0
+		else:
+			parent.velocity.x = _dir * (_reach / _DASH_TIME)
+	else:
+		# Commit: hold position through the windup (the telegraph is the player's
+		# tell; the special can't be walked off by the boss itself).
+		parent.velocity.x = move_toward(parent.velocity.x, 0.0, 600.0 * delta)
 	parent.velocity.y += gravity * delta
 	parent.move_and_slide()
 	return null
