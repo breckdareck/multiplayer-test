@@ -483,11 +483,14 @@ def potion(name):
 
 # ================================================== MISC
 def egg(name):
-    cv=new()
-    col=hexc("#bfe0ff") if "bird" in name.lower() else hexc("#ffe1c2")
-    spot=hexc("#7fb6e8") if "bird" in name.lower() else hexc("#e0a878")
-    cv.ellipse(16,20,7,9,col); cv.vline(12,18,24,hexc("#ffffff"))
-    for (x,y) in [(18,16),(14,21),(19,23),(15,17)]: cv.disc(x,y,1.4,spot)
+    cv=new(); bird="bird" in name.lower()
+    col=hexc("#bfe0ff") if bird else hexc("#ffe1c2")
+    hi=hexc("#eaf6ff") if bird else hexc("#fff4e6")
+    spot=hexc("#6aa6e0") if bird else hexc("#e0a878")
+    cv.ellipse(16,18,8,11,col)                               # bigger egg
+    cv.ellipse(13,13,2,3,hi)                                 # clean highlight
+    for (x,y) in [(18,14),(13,20),(19,22),(15,17),(16,25)]:  # tidy speckles
+        cv.disc(x,y,1.5,spot)
     cv.outline(OL); return cv
 
 def petfood(name):
@@ -500,14 +503,37 @@ def petfood(name):
     if prem: _spark(cv,16,9); _spark(cv,23,12)
     cv.outline(OL); return cv
 
+def _emblem_potion(cv):                                      # mini potion (AutoPot)
+    g=hexc("#f0e6d0"); liq=hexc("#ff8a7a"); ck=hexc("#7a4a22")
+    cv.rect(16,11,18,13,None,fill=ck)                        # cork
+    cv.rect(16,13,18,15,None,fill=g)                         # neck
+    cv.disc(17,18,3,g); cv.disc(17,19,2,liq)                 # bulb + liquid
+    cv.px(15,17,hexc("#ffffff"))                             # shine
+
+def _emblem_buff(cv):                                        # upward boost arrow (Buff)
+    c=hexc("#eaffd0")
+    cv.poly([(17,10),(12,17),(22,17)], c)                    # arrowhead
+    cv.rect(15,17,19,22,None,fill=c)                         # stem
+    cv.px(12,12,hexc("#ffffff")); cv.px(22,20,hexc("#ffffff"))  # sparkles
+
+def _emblem_magnet(cv):                                      # horseshoe magnet (Magnet)
+    r=hexc("#e8413f"); g=hexc("#cdd6e2")
+    cv.rect(13,11,21,14,None,fill=r)                         # top bar
+    cv.rect(13,14,15,19,None,fill=r); cv.rect(19,14,21,19,None,fill=r)  # arms
+    cv.rect(13,19,15,22,None,fill=g); cv.rect(19,19,21,22,None,fill=g)  # silver poles
+
 def skillbook(name):
     cv=new(); low=name.lower()
-    cover=hexc("#3f9f5a"); rune=hexc("#bff0c8")
-    if "pot" in low or "auto" in low: cover=hexc("#c0392b"); rune=hexc("#ffc6bd")
-    elif "magnet" in low: cover=hexc("#3f6fe8"); rune=hexc("#bcd2ff")
-    cv.rect(9,7,23,26,None,fill=cover); cv.rect(9,7,12,26,None,fill=hexc("#1e2a20"))
-    cv.rect(11,24,24,27,None,fill=hexc("#efe6cf"))
-    cv.ring(18,16,4,rune); cv.line(18,13,18,19,rune); cv.line(15,16,21,16,rune)
+    if "pot" in low or "auto" in low:
+        cover=hexc("#c0392b"); spine=hexc("#7a1c14"); emblem=_emblem_potion
+    elif "magnet" in low:
+        cover=hexc("#3f6fe8"); spine=hexc("#1f3a8a"); emblem=_emblem_magnet
+    else:
+        cover=hexc("#3f9f5a"); spine=hexc("#1f5e32"); emblem=_emblem_buff
+    cv.rect(10,6,24,27,None,fill=cover)                      # cover face
+    cv.rect(8,6,11,27,None,fill=spine)                       # spine (left)
+    cv.vline(24,7,26,hexc("#efe6cf")); cv.hline(11,24,27,hexc("#d8cfb4"))  # page edges
+    emblem(cv)
     cv.outline(OL); return cv
 
 def coin():
