@@ -3,7 +3,7 @@
 [ext_resource type="StyleBox" uid="uid://dm8jxifs8rqrm" path="res://assets/UI/Themes/PanelStyleboxTheme.tres" id="1_qmw2t"]
 [ext_resource type="Script" uid="uid://ycltftf5rwxt" path="res://scripts/UI/shop_window.gd" id="2_shop"]
 [ext_resource type="Theme" uid="uid://bg5sc8rk63fi6" path="res://assets/UI/Themes/ScrollContainerTheme.tres" id="4_5kvlq"]
-[ext_resource type="Texture2D" uid="uid://u3tpikp1eegv" path="res://assets/sprites/coin.png" id="6_wr21r"]
+[ext_resource type="Texture2D" uid="uid://svlag70ygije" path="res://assets/sprites/Items/generated_px/Coin.png" id="5_figoh"]
 [ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="7_5kvlq"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_header"]
@@ -13,28 +13,19 @@ border_color = Color(0.55, 0.45, 0.2, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
-content_margin_left = 8.0
-content_margin_top = 8.0
-content_margin_right = 8.0
-content_margin_bottom = 8.0
-bg_color = Color(0.06, 0.06, 0.08, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_footer"]
-content_margin_left = 12.0
-content_margin_top = 8.0
-content_margin_right = 12.0
-content_margin_bottom = 8.0
-bg_color = Color(0.07, 0.07, 0.09, 1)
-border_width_top = 2
-border_color = Color(0.55, 0.45, 0.2, 1)
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_close_hover"]
 bg_color = Color(0.5, 0.15, 0.15, 0.55)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+content_margin_left = 8.0
+content_margin_top = 8.0
+content_margin_right = 8.0
+content_margin_bottom = 8.0
+bg_color = Color(0.06, 0.06, 0.08, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tab_panel"]
 content_margin_left = 4.0
@@ -43,7 +34,6 @@ content_margin_right = 4.0
 content_margin_bottom = 4.0
 bg_color = Color(0.09, 0.09, 0.12, 1)
 border_width_left = 1
-border_width_top = 0
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.3, 0.28, 0.22, 1)
@@ -78,9 +68,14 @@ corner_radius_top_left = 4
 corner_radius_top_right = 4
 expand_margin_top = 2.0
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_fcv6u"]
-atlas = ExtResource("6_wr21r")
-region = Rect2(0, 0, 16, 16)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_footer"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+bg_color = Color(0.07, 0.07, 0.09, 1)
+border_width_top = 2
+border_color = Color(0.55, 0.45, 0.2, 1)
 
 [node name="ShopWindow" type="Panel"]
 offset_left = 632.0
@@ -128,8 +123,8 @@ offset_bottom = 37.0
 grow_horizontal = 0
 focus_mode = 0
 theme_override_colors/font_color = Color(0.9, 0.9, 0.95, 1)
-theme_override_colors/font_hover_color = Color(1, 0.95, 0.95, 1)
 theme_override_colors/font_pressed_color = Color(1, 0.7, 0.7, 1)
+theme_override_colors/font_hover_color = Color(1, 0.95, 0.95, 1)
 theme_override_font_sizes/font_size = 20
 theme_override_styles/hover = SubResource("StyleBoxFlat_close_hover")
 text = "×"
@@ -177,9 +172,9 @@ horizontal_alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_colors/font_unselected_color = Color(0.7, 0.7, 0.75, 1)
 theme_override_colors/font_selected_color = Color(1, 0.9, 0.65, 1)
 theme_override_colors/font_hovered_color = Color(1, 0.95, 0.85, 1)
+theme_override_colors/font_unselected_color = Color(0.7, 0.7, 0.75, 1)
 theme_override_fonts/font = ExtResource("7_5kvlq")
 theme_override_font_sizes/font_size = 11
 theme_override_styles/panel = SubResource("StyleBoxFlat_tab_panel")
@@ -193,6 +188,7 @@ tab_focus_mode = 0
 
 [node name="EQUIP" type="Control" parent="ContentPanel/HBoxContainer/SellSection/SellTabs"]
 layout_mode = 2
+metadata/_tab_index = 0
 
 [node name="ScrollContainer" type="ScrollContainer" parent="ContentPanel/HBoxContainer/SellSection/SellTabs/EQUIP"]
 layout_mode = 1
@@ -214,6 +210,7 @@ theme_override_constants/separation = 3
 [node name="USE" type="Control" parent="ContentPanel/HBoxContainer/SellSection/SellTabs"]
 visible = false
 layout_mode = 2
+metadata/_tab_index = 1
 
 [node name="ScrollContainer" type="ScrollContainer" parent="ContentPanel/HBoxContainer/SellSection/SellTabs/USE"]
 layout_mode = 1
@@ -235,6 +232,7 @@ theme_override_constants/separation = 3
 [node name="ETC" type="Control" parent="ContentPanel/HBoxContainer/SellSection/SellTabs"]
 visible = false
 layout_mode = 2
+metadata/_tab_index = 2
 
 [node name="ScrollContainer" type="ScrollContainer" parent="ContentPanel/HBoxContainer/SellSection/SellTabs/ETC"]
 layout_mode = 1
@@ -273,9 +271,9 @@ horizontal_alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_colors/font_unselected_color = Color(0.7, 0.7, 0.75, 1)
 theme_override_colors/font_selected_color = Color(1, 0.9, 0.65, 1)
 theme_override_colors/font_hovered_color = Color(1, 0.95, 0.85, 1)
+theme_override_colors/font_unselected_color = Color(0.7, 0.7, 0.75, 1)
 theme_override_fonts/font = ExtResource("7_5kvlq")
 theme_override_font_sizes/font_size = 11
 theme_override_styles/panel = SubResource("StyleBoxFlat_tab_panel")
@@ -289,6 +287,7 @@ tab_focus_mode = 0
 
 [node name="EQUIP" type="Control" parent="ContentPanel/HBoxContainer/BuySection/BuyTabs"]
 layout_mode = 2
+metadata/_tab_index = 0
 
 [node name="ScrollContainer" type="ScrollContainer" parent="ContentPanel/HBoxContainer/BuySection/BuyTabs/EQUIP"]
 layout_mode = 1
@@ -310,6 +309,7 @@ theme_override_constants/separation = 3
 [node name="USE" type="Control" parent="ContentPanel/HBoxContainer/BuySection/BuyTabs"]
 visible = false
 layout_mode = 2
+metadata/_tab_index = 1
 
 [node name="ScrollContainer" type="ScrollContainer" parent="ContentPanel/HBoxContainer/BuySection/BuyTabs/USE"]
 layout_mode = 1
@@ -331,6 +331,7 @@ theme_override_constants/separation = 3
 [node name="ETC" type="Control" parent="ContentPanel/HBoxContainer/BuySection/BuyTabs"]
 visible = false
 layout_mode = 2
+metadata/_tab_index = 2
 
 [node name="ScrollContainer" type="ScrollContainer" parent="ContentPanel/HBoxContainer/BuySection/BuyTabs/ETC"]
 layout_mode = 1
@@ -352,6 +353,7 @@ theme_override_constants/separation = 3
 [node name="BUYBACK" type="Control" parent="ContentPanel/HBoxContainer/BuySection/BuyTabs"]
 visible = false
 layout_mode = 2
+metadata/_tab_index = 3
 
 [node name="ScrollContainer" type="ScrollContainer" parent="ContentPanel/HBoxContainer/BuySection/BuyTabs/BUYBACK"]
 layout_mode = 1
@@ -398,7 +400,7 @@ alignment = 2
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_vertical = 4
-texture = SubResource("AtlasTexture_fcv6u")
+texture = ExtResource("5_figoh")
 expand_mode = 1
 stretch_mode = 5
 

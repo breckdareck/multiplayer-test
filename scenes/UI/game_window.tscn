@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=3 uid="uid://jtdhvyo8t2y7"]
+[gd_scene load_steps=31 format=3 uid="uid://jtdhvyo8t2y7"]
 
 [ext_resource type="StyleBox" uid="uid://dm8jxifs8rqrm" path="res://assets/UI/Themes/PanelStyleboxTheme.tres" id="1_pst"]
 [ext_resource type="Script" uid="uid://bc6tjnwvjn85k" path="res://scripts/UI/game_window.gd" id="2_gw"]
@@ -8,7 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://c2sweq4gkie70" path="res://scenes/UI/abilities_window.tscn" id="6_abil"]
 [ext_resource type="Theme" uid="uid://bg5sc8rk63fi6" path="res://assets/UI/Themes/ScrollContainerTheme.tres" id="7_vhdlr"]
 [ext_resource type="PackedScene" uid="uid://brcg2yc1x5qen" path="res://scenes/UI/slot.tscn" id="8_ftm0t"]
-[ext_resource type="Texture2D" uid="uid://u3tpikp1eegv" path="res://assets/sprites/coin.png" id="10_vrb4e"]
+[ext_resource type="Texture2D" uid="uid://svlag70ygije" path="res://assets/sprites/Items/generated_px/Coin.png" id="9_qhurc"]
 [ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="11_x66lr"]
 
 [sub_resource type="StyleBoxFlat" id="tooltip_sb"]
@@ -219,10 +219,6 @@ corner_radius_top_right = 2
 corner_radius_bottom_right = 2
 corner_radius_bottom_left = 2
 anti_aliasing = false
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_fcv6u"]
-atlas = ExtResource("10_vrb4e")
-region = Rect2(0, 0, 16, 16)
 
 [node name="GameWindow" type="Panel"]
 custom_minimum_size = Vector2(1180, 720)
@@ -1980,7 +1976,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = SubResource("AtlasTexture_fcv6u")
+texture = ExtResource("9_qhurc")
 expand_mode = 2
 stretch_mode = 4
 
