@@ -59,41 +59,132 @@ LIQ = {
 }
 GLASS_LINE = "#5a626c"
 
-def potion(kind, tier=1, maxtier=5):
-    p = LIQ[kind]
-    cx = 32
-    body = []
-    # bulb
-    body.append(circle(cx, 38, 12, p["glass"], stroke=GLASS_LINE, stroke_width=1.3,
-                       opacity=".55"))
-    # neck
-    body.append(P("M27 27 L27 19 L37 19 L37 27 Z", p["glass"], stroke=GLASS_LINE,
-                 stroke_width=1.2, opacity=".55"))
-    # liquid (clip to bulb via a path that fills lower portion)
-    frac = 0.45 + 0.5 * (tier / max(1, maxtier))  # fuller with tier
-    top = 50 - 24 * frac
-    body.append(P(f"M20.5 {max(top,30)} "
-                  f"A12 12 0 0 0 43.5 {max(top,30)} "
-                  f"A12 12 0 0 0 20.5 {max(top,30)} Z", p["liq"], opacity=".95"))
-    body.append(circle(cx, 38, 12, "none", stroke=GLASS_LINE, stroke_width=1.3))
-    # neck liquid
-    body.append(rect(28, max(top, 22), 8, 27 - max(top, 22) + 2, p["liq"], opacity=".9"))
-    # glass highlight
-    body.append(P("M24 34 Q22 40 25 45", "none", stroke="#ffffff", stroke_width=2,
-                 stroke_linecap="round", opacity=".5"))
-    # bubbles
-    for bx, by, br in [(34, 40, 1.6), (30, 44, 1.1), (36, 35, 1.0)][:1 + tier // 2]:
-        body.append(circle(bx, by, br, p["hi"], opacity=".8"))
-    # cork
-    body.append(rect(27.5, 14, 9, 6, "#a9744a", rx=1.5, stroke="#5a3a20", stroke_width=1))
-    body.append(rect(28.5, 12.5, 7, 2.5, "#caa46a", rx=1))
-    if tier >= maxtier - 1:  # top-tier shimmer
-        body.append(sparkle(43, 22, 2.6))
-        body.append(sparkle(22, 28, 1.8))
-    if kind == "town":  # return swirl marker
-        body.append(P("M28 38 q4 -5 8 0 q-2 4 -6 2", "none", stroke="#ffffff",
-                     stroke_width=1.4, stroke_linecap="round", opacity=".7"))
-    return "".join(body)
+def cork(cx, topy, w=9, gold=False):
+    b = [rect(cx - w / 2, topy, w, 6, "#a9744a", rx=1.5, stroke="#5a3a20", stroke_width=1),
+         rect(cx - w / 2 + 1, topy - 1.8, w - 2, 2.6, "#caa46a", rx=1)]
+    if gold:  # ornate gold collar for high tiers
+        b.append(rect(cx - w / 2 - 1, topy + 5, w + 2, 2.4, "#ffce5c", rx=1,
+                     stroke="#7a5600", stroke_width=0.6))
+    return "".join(b)
+
+def hl(d):  # glass highlight streak
+    return P(d, "none", stroke="#ffffff", stroke_width=2, stroke_linecap="round", opacity=".5")
+
+# --- 6 distinct bottle silhouettes; index = tier 0..5 ---
+def s_vial(p, **k):  # 0 Lesser: slim test-tube
+    b = [P("M27 23 L27 43 Q27 48 32 48 Q37 48 37 43 L37 23 Z", p["glass"],
+           stroke=GLASS_LINE, stroke_width=1.3, opacity=".55")]
+    b.append(P("M27.6 33 L36.4 33 L36.4 43 Q36.4 47.3 32 47.3 Q27.6 47.3 27.6 43 Z",
+              p["liq"], opacity=".95"))
+    b.append(P("M27 23 L27 43 Q27 48 32 48 Q37 48 37 43 L37 23", "none",
+              stroke=GLASS_LINE, stroke_width=1.3))
+    b.append(hl("M29 28 Q28 36 30 43"))
+    b.append(circle(33, 40, 1.3, p["hi"], opacity=".8"))
+    b.append(cork(32, 18))
+    return "".join(b)
+
+def s_flask(p, **k):  # 1 base: round-bottom flask
+    b = [circle(32, 38, 12, p["glass"], stroke=GLASS_LINE, stroke_width=1.3, opacity=".55"),
+         P("M27 27 L27 20 L37 20 L37 27 Z", p["glass"], stroke=GLASS_LINE,
+           stroke_width=1.2, opacity=".55")]
+    b.append(P("M21.5 34 A12 12 0 0 0 42.5 34 A12 12 0 0 0 21.5 34 Z", p["liq"], opacity=".95"))
+    b.append(rect(28, 24, 8, 4, p["liq"], opacity=".9"))
+    b.append(circle(32, 38, 12, "none", stroke=GLASS_LINE, stroke_width=1.3))
+    b.append(hl("M24 34 Q22 40 25 45"))
+    b.append(circle(35, 40, 1.5, p["hi"], opacity=".8"))
+    b.append(cork(32, 15))
+    return "".join(b)
+
+def s_conical(p, **k):  # 2 Greater: erlenmeyer
+    b = [P("M29 20 L35 20 L35 28 L44 47 Q45 49 42 49 L22 49 Q19 49 20 47 L29 28 Z",
+           p["glass"], stroke=GLASS_LINE, stroke_width=1.3, opacity=".55")]
+    b.append(P("M26 38 L38 38 L43.5 47 Q44 49 41.5 49 L22.5 49 Q20 49 20.5 47 Z",
+              p["liq"], opacity=".95"))
+    b.append(P("M29 20 L35 20 L35 28 L44 47 Q45 49 42 49 L22 49 Q19 49 20 47 L29 28 Z",
+              "none", stroke=GLASS_LINE, stroke_width=1.3))
+    b.append(hl("M27 34 Q24 42 27 47"))
+    b.append(circle(35, 44, 1.6, p["hi"], opacity=".8"))
+    b.append(circle(29, 46, 1.1, p["hi"], opacity=".7"))
+    b.append(cork(32, 15, w=8))
+    return "".join(b)
+
+def s_shouldered(p, **k):  # 3 Superior: shouldered bottle w/ label
+    b = [P("M28 21 L36 21 L36 25 Q41 27 41 32 L41 46 Q41 49 38 49 L26 49 Q23 49 23 46 "
+           "L23 32 Q23 27 28 25 Z", p["glass"], stroke=GLASS_LINE, stroke_width=1.3, opacity=".55")]
+    b.append(P("M23.5 33 L40.5 33 L40.5 46 Q40.5 48.5 38 48.5 L26 48.5 Q23.5 48.5 23.5 46 Z",
+              p["liq"], opacity=".95"))
+    b.append(P("M28 21 L36 21 L36 25 Q41 27 41 32 L41 46 Q41 49 38 49 L26 49 Q23 49 23 46 "
+              "L23 32 Q23 27 28 25 Z", "none", stroke=GLASS_LINE, stroke_width=1.3))
+    b.append(rect(24, 35, 16, 6, "#f3ead2", rx=1, opacity=".9"))  # label
+    b.append(line(27, 38, 37, 38, p["liq"], 1, opacity=".6"))
+    b.append(hl("M26 28 Q25 32 26 36"))
+    b.append(cork(32, 16, w=8))
+    return "".join(b)
+
+def s_handled(p, **k):  # 4 Grand: round flask w/ side handles + gem cork
+    b = [f'<path d="M22 30 Q15 32 19 40" fill="none" stroke="{GLASS_LINE}" stroke-width="2"/>',
+         f'<path d="M42 30 Q49 32 45 40" fill="none" stroke="{GLASS_LINE}" stroke-width="2"/>']
+    b.append(circle(32, 37, 12, p["glass"], stroke=GLASS_LINE, stroke_width=1.3, opacity=".55"))
+    b.append(P("M27 26 L27 20 L37 20 L37 26 Z", p["glass"], stroke=GLASS_LINE,
+              stroke_width=1.2, opacity=".55"))
+    b.append(P("M20.8 31 A12 12 0 0 0 43.2 31 A12 12 0 0 0 20.8 31 Z", p["liq"], opacity=".95"))
+    b.append(rect(28, 24, 8, 4, p["liq"], opacity=".9"))
+    b.append(circle(32, 37, 12, "none", stroke=GLASS_LINE, stroke_width=1.3))
+    b.append(hl("M24 33 Q22 39 25 44"))
+    b.append(circle(35, 39, 1.6, p["hi"], opacity=".8"))
+    b.append(cork(32, 13, gold=True))
+    b.append(gem_small(32, 11, p["hi"]))
+    b.append(sparkle(45, 20, 2.2))
+    return "".join(b)
+
+def s_crystal(p, **k):  # 5 Supreme: faceted crystal flask, glowing
+    b = [circle(32, 36, 15, p["liq"], opacity=".18")]  # aura (still transparent bg, just object glow)
+    b.append(poly([(32, 22), (43, 32), (39, 48), (25, 48), (21, 32)], p["glass"],
+                  stroke=GLASS_LINE, stroke_width=1.3, opacity=".55"))
+    b.append(poly([(32, 33), (40.5, 36), (38, 47.5), (26, 47.5), (23.5, 36)], p["liq"], opacity=".95"))
+    b.append(poly([(32, 22), (43, 32), (39, 48), (25, 48), (21, 32)], "none",
+                  stroke=GLASS_LINE, stroke_width=1.3))
+    # facets
+    b.append(P("M32 22 L32 48 M21 32 L43 32 M25 48 L32 33 L39 48", "none",
+              stroke="#ffffff", stroke_width=0.7, opacity=".4"))
+    b.append(P("M27 26 L37 26 L37 21 L27 21 Z", p["glass"], stroke=GLASS_LINE,
+              stroke_width=1, opacity=".55"))
+    b.append(cork(32, 15, gold=True))
+    b.append(gem_small(32, 13, p["hi"]))
+    b.append(sparkle(44, 24, 3))
+    b.append(sparkle(21, 26, 2))
+    b.append(sparkle(40, 44, 1.8))
+    return "".join(b)
+
+def gem_small(cx, cy, hi):
+    return (poly([(cx, cy - 3), (cx + 3, cy), (cx, cy + 3), (cx - 3, cy)], "#ffce5c",
+                 stroke="#7a5600", stroke_width=0.7) +
+            poly([(cx, cy - 3), (cx + 1.6, cy - 1), (cx, cy)], "#fff0b0"))
+
+POTION_SHAPES = [s_vial, s_flask, s_conical, s_shouldered, s_handled, s_crystal]
+
+# emblem stamped on the base/simple potions so heal/mana/exp/town differ
+def emblem(kind):
+    cx, cy = 32, 39
+    if kind == "heal":   # heart
+        return P(f"M{cx} {cy+3} C{cx-5} {cy-2} {cx-2} {cy-5} {cx} {cy-2} "
+                 f"C{cx+2} {cy-5} {cx+5} {cy-2} {cx} {cy+3} Z", "#ffffff", opacity=".85")
+    if kind == "mana":   # droplet
+        return P(f"M{cx} {cy-5} C{cx+4} {cy-1} {cx+3} {cy+4} {cx} {cy+4} "
+                 f"C{cx-3} {cy+4} {cx-4} {cy-1} {cx} {cy-5} Z", "#ffffff", opacity=".85")
+    if kind == "exp":    # star
+        return sparkle(cx, cy, 5, "#ffffff")
+    if kind == "town":   # return swirl
+        return P(f"M{cx-4} {cy} q4 -6 8 -1 q-1 5 -6 3", "none", stroke="#ffffff",
+                 stroke_width=1.8, stroke_linecap="round", opacity=".9")
+    return ""
+
+def potion(kind, tier=1, simple=False):
+    shape = POTION_SHAPES[max(0, min(5, tier))]
+    svg = shape(LIQ[kind])
+    if simple:
+        svg += emblem(kind)
+    return svg
 
 # ---------------------------------------------------------------- pet / misc
 def egg(name):
@@ -183,7 +274,8 @@ def build(info):
     # ConsumableData: egg vs potion
     if "egg" in name.lower():
         return egg(name)
-    return potion(liquid_kind(name), tier_of(name), maxtier=5)
+    is_draught = "draught" in name.lower()
+    return potion(liquid_kind(name), tier_of(name), simple=not is_draught)
 
 def wrap(body):
     df = ('<defs><filter id="s" x="-20%" y="-20%" width="140%" height="140%">'
