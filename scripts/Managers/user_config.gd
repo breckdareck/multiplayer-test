@@ -10,6 +10,9 @@ const DEFAULT_API_URL = "http://127.0.0.1:5000/api"
 var custom_keybinds: Dictionary = {}
 var default_hotbar_actions: Array[String] = []
 var _all_managed_actions: Array[String] = []
+## Set when load backfills a newly-added managed action from its InputMap default,
+## so the resolved binding gets persisted back to the config file.
+var _keybinds_need_resave: bool = false
 
 # Sound settings
 var master_volume_db: float = 1
@@ -31,7 +34,7 @@ func _init():
 	# Combine all actions to be managed
 	_all_managed_actions = default_hotbar_actions.duplicate() # Start with hotbar actions
 	_all_managed_actions.append_array([
-		"Jump", "Attack", "Move Left", "Move Right", "Move Down", "Pickup",
+		"Jump", "Attack", "Move Left", "Move Right", "Move Down", "Slide", "Pickup",
 		"OpenStatsWindow", "OpenInventoryWindow", "OpenEquipmentWindow", "OpenAbilityWindow"
 	])
 
@@ -114,11 +117,26 @@ func _load_keybinds_from_config(config: ConfigFile):
 				custom_keybinds[action_name] = key_events
 				#print("Loaded custom keybinds for '%s': %s" % [action_name, get_keybind_text(action_name, -1)])
 			else:
-				# If action not in config, prefill with unset events
-				var key_events: Array[int] = [_create_unset_key_event(), _create_unset_key_event()]
+				# Action not in an existing config (e.g. a newly-added managed action
+				# like "Slide"/Dodge on an older save). Backfill from its project.godot
+				# InputMap DEFAULT so the player keeps a working default binding instead
+				# of an unbound key — then persist it.
+				var key_events: Array[int] = []
+				for event in InputMap.action_get_events(action_name):
+					if event is InputEventKey:
+						key_events.append(event.physical_keycode)
+						if key_events.size() >= 2:
+							break
+				while key_events.size() < 2:
+					key_events.append(_create_unset_key_event())
 				custom_keybinds[action_name] = key_events
-				push_warning("Action '%s' not found in config. Prefilling with [Unset]." % action_name)
+				_keybinds_need_resave = true
+				push_warning("Action '%s' not in config — backfilled from InputMap default." % action_name)
 		KeybindManager.apply_keybinds_to_input_map()
+		# Persist any defaults we just backfilled for newly-added managed actions.
+		if _keybinds_need_resave:
+			_keybinds_need_resave = false
+			save_config()
 	else:
 		# If the Keybinds section doesn't exist, prefill with defaults and save
 		push_warning("Keybinds section not found in config file. Prefilling with default keybinds.")

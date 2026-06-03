@@ -54,6 +54,7 @@ func _populate_keybinds():
 	_add_keybind_entry("Move Left", "Move Left")
 	_add_keybind_entry("Move Right", "Move Right")
 	_add_keybind_entry("Move Down", "Move Down")
+	_add_keybind_entry("Slide", "Dodge")
 	_add_keybind_entry("Pickup", "Pickup")
 	_add_keybind_entry("OpenStatsWindow", "Open Stats")
 	_add_keybind_entry("OpenInventoryWindow", "Open Inventory")

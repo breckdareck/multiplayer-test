@@ -807,6 +807,11 @@ func damage_on_overlap(body: Node):
 	if body.has_meta("is_invisible") and body.get_meta("is_invisible"):
 		return
 
+	# Mid-dodge i-frames: the player rolls cleanly THROUGH the enemy — no damage,
+	# no hit roll, and (the bit the take_damage guard missed) no knockback shove.
+	if body.has_method("is_invulnerable") and body.is_invulnerable():
+		return
+
 	if body.has_node("Components/Health"):
 		var health: HealthComponent = body.get_node("Components/Health")
 		var player_stats: StatsComponent = body.get_node("Components/Stats")
