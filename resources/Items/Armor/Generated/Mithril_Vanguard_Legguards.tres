@@ -8,13 +8,13 @@
 script = ExtResource("1_adv66")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 25
+flat_bonus_value = 26
 
 [sub_resource type="Resource" id="Resource_1pbv3"]
 script = ExtResource("1_adv66")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 16
+flat_bonus_value = 17
 
 [sub_resource type="Resource" id="Resource_i4e6b"]
 script = ExtResource("1_adv66")
@@ -25,7 +25,7 @@ flat_bonus_value = 9
 script = ExtResource("1_adv66")
 stat_type = 4
 base_value = 0
-flat_bonus_value = 64
+flat_bonus_value = 68
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_2m5hb"]
 atlas = ExtResource("2_nb78d")
@@ -41,11 +41,11 @@ bonus_stats = Dictionary[int, ExtResource("1_adv66")]({
 8: SubResource("Resource_gf0g6"),
 9: SubResource("Resource_1pbv3")
 })
-item_id = "119212151057-2250-2494-12065-126107879710714"
+item_id = "38138148411-111336-21423-83130-41212912046130011"
 name = "Mithril Vanguard Legguards"
 rarity = 0
 icon = SubResource("AtlasTexture_2m5hb")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
-item_level = 40
+item_level = 43
 custom_item_value = 0

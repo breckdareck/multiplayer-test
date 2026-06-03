@@ -8,24 +8,24 @@
 script = ExtResource("1_vmp4j")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 52
+flat_bonus_value = 57
 
 [sub_resource type="Resource" id="Resource_jlvts"]
 script = ExtResource("1_vmp4j")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 34
+flat_bonus_value = 37
 
 [sub_resource type="Resource" id="Resource_ckjsf"]
 script = ExtResource("1_vmp4j")
 base_value = 0
-flat_bonus_value = 19
+flat_bonus_value = 20
 
 [sub_resource type="Resource" id="Resource_66wv8"]
 script = ExtResource("1_vmp4j")
 stat_type = 4
 base_value = 0
-flat_bonus_value = 134
+flat_bonus_value = 147
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_7ctss"]
 atlas = ExtResource("2_7exel")
@@ -40,11 +40,11 @@ bonus_stats = Dictionary[int, ExtResource("1_vmp4j")]({
 8: SubResource("Resource_u07ka"),
 9: SubResource("Resource_jlvts")
 })
-item_id = "139744606-16112-211714-01269-0511524861001013"
+item_id = "11412116952-914128-715110-1008-5101381814810217"
 name = "Dragonbone Vanguard Mail"
 rarity = 0
 icon = SubResource("AtlasTexture_7ctss")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
-item_level = 70
+item_level = 77
 custom_item_value = 0

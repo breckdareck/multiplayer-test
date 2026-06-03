@@ -1,0 +1,50 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_6pw7u"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_nqgel"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_dlj54"]
+
+[sub_resource type="Resource" id="Resource_wg5c8"]
+script = ExtResource("1_6pw7u")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_tk1gr"]
+script = ExtResource("1_6pw7u")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="Resource" id="Resource_gomqm"]
+script = ExtResource("1_6pw7u")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_86st5"]
+script = ExtResource("1_6pw7u")
+stat_type = 5
+base_value = 0
+flat_bonus_value = 11
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_65cm4"]
+atlas = ExtResource("2_nqgel")
+region = Rect2(786, 60, 42, 42)
+
+[resource]
+script = ExtResource("3_dlj54")
+bonus_stats = Dictionary[int, ExtResource("1_6pw7u")]({
+1: SubResource("Resource_gomqm"),
+5: SubResource("Resource_86st5"),
+8: SubResource("Resource_wg5c8"),
+9: SubResource("Resource_tk1gr")
+})
+item_id = "4093614126-140212-1952-91564-2138014127321454"
+name = "Rough Arcanist Helm"
+rarity = 0
+icon = SubResource("AtlasTexture_65cm4")
+description = "Enchanted vestments that channel a Mage's power."
+item_type = 1
+item_level = 8
+custom_item_value = 0

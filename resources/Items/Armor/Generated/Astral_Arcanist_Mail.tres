@@ -8,25 +8,25 @@
 script = ExtResource("1_j6qo6")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 43
+flat_bonus_value = 44
 
 [sub_resource type="Resource" id="Resource_0a7wu"]
 script = ExtResource("1_j6qo6")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 66
+flat_bonus_value = 68
 
 [sub_resource type="Resource" id="Resource_on5w8"]
 script = ExtResource("1_j6qo6")
 stat_type = 1
 base_value = 0
-flat_bonus_value = 28
+flat_bonus_value = 29
 
 [sub_resource type="Resource" id="Resource_efw55"]
 script = ExtResource("1_j6qo6")
 stat_type = 5
 base_value = 0
-flat_bonus_value = 141
+flat_bonus_value = 146
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_av50d"]
 atlas = ExtResource("2_m3wa3")
@@ -41,11 +41,11 @@ bonus_stats = Dictionary[int, ExtResource("1_j6qo6")]({
 8: SubResource("Resource_j47lp"),
 9: SubResource("Resource_0a7wu")
 })
-item_id = "7107473013-01410-81334-81180-81015059141001515"
+item_id = "2146613805-131166-08114-30611-6123481513237139"
 name = "Astral Arcanist Mail"
 rarity = 0
 icon = SubResource("AtlasTexture_av50d")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
-item_level = 90
+item_level = 93
 custom_item_value = 0

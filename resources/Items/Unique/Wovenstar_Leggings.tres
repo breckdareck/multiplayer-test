@@ -42,7 +42,7 @@ bonus_stats = Dictionary[int, ExtResource("1_ae1dq")]({
 8: SubResource("Resource_17r5a"),
 9: SubResource("Resource_82k8t")
 })
-item_id = "45012413132-91053-114013-134910-011701121310134123"
+item_id = "41511106515-01292-1410146-13917-310101231311246150"
 name = "Wovenstar Leggings"
 rarity = 4
 icon = SubResource("AtlasTexture_v3vg1")

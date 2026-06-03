@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_x1r03"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_1dgn8"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_er2xt"]
+
+[sub_resource type="Resource" id="Resource_stddi"]
+script = ExtResource("1_x1r03")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 36
+
+[sub_resource type="Resource" id="Resource_w22mu"]
+script = ExtResource("1_x1r03")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 23
+
+[sub_resource type="Resource" id="Resource_0sc6o"]
+script = ExtResource("1_x1r03")
+base_value = 0
+flat_bonus_value = 13
+
+[sub_resource type="Resource" id="Resource_aeai3"]
+script = ExtResource("1_x1r03")
+stat_type = 4
+base_value = 0
+flat_bonus_value = 93
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_m0nsx"]
+atlas = ExtResource("2_1dgn8")
+region = Rect2(0, 0, 25, 16)
+margin = Rect2(0.5, 5.5, 1, 10)
+
+[resource]
+script = ExtResource("3_er2xt")
+armor_type = 2
+bonus_stats = Dictionary[int, ExtResource("1_x1r03")]({
+0: SubResource("Resource_0sc6o"),
+4: SubResource("Resource_aeai3"),
+8: SubResource("Resource_stddi"),
+9: SubResource("Resource_w22mu")
+})
+item_id = "134121092134-5173-104116-112103-6131714118137114"
+name = "Pristine Vanguard Legguards"
+rarity = 0
+icon = SubResource("AtlasTexture_m0nsx")
+description = "Heavy plate forged for front-line Swordsmen."
+item_type = 1
+item_level = 60
+custom_item_value = 0

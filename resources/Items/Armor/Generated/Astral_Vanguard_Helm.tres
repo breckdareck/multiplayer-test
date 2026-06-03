@@ -8,7 +8,7 @@
 script = ExtResource("1_eu006")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 40
+flat_bonus_value = 41
 
 [sub_resource type="Resource" id="Resource_y06lp"]
 script = ExtResource("1_eu006")
@@ -19,13 +19,13 @@ flat_bonus_value = 26
 [sub_resource type="Resource" id="Resource_lngq8"]
 script = ExtResource("1_eu006")
 base_value = 0
-flat_bonus_value = 14
+flat_bonus_value = 15
 
 [sub_resource type="Resource" id="Resource_kckma"]
 script = ExtResource("1_eu006")
 stat_type = 4
 base_value = 0
-flat_bonus_value = 102
+flat_bonus_value = 105
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_t72l4"]
 atlas = ExtResource("2_pwkvs")
@@ -39,11 +39,11 @@ bonus_stats = Dictionary[int, ExtResource("1_eu006")]({
 8: SubResource("Resource_0kf1c"),
 9: SubResource("Resource_y06lp")
 })
-item_id = "131414119159-41579-15459-35109-593715141031451114"
+item_id = "101310515101010-1011120-111614-6130-7410113134145165"
 name = "Astral Vanguard Helm"
 rarity = 0
 icon = SubResource("AtlasTexture_t72l4")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
-item_level = 90
+item_level = 93
 custom_item_value = 0

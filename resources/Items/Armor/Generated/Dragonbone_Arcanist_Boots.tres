@@ -7,25 +7,25 @@
 script = ExtResource("1_8nh6o")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 17
+flat_bonus_value = 18
 
 [sub_resource type="Resource" id="Resource_0ir75"]
 script = ExtResource("1_8nh6o")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 26
+flat_bonus_value = 28
 
 [sub_resource type="Resource" id="Resource_5w63x"]
 script = ExtResource("1_8nh6o")
 stat_type = 1
 base_value = 0
-flat_bonus_value = 11
+flat_bonus_value = 12
 
 [sub_resource type="Resource" id="Resource_5xupn"]
 script = ExtResource("1_8nh6o")
 stat_type = 5
 base_value = 0
-flat_bonus_value = 56
+flat_bonus_value = 61
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_a20sy"]
 load_path = "res://.godot/imported/Eqp_Leather_Sandals.png-23f0cc5f3f25b855dccf580eeba0d806.ctex"
@@ -39,11 +39,11 @@ bonus_stats = Dictionary[int, ExtResource("1_8nh6o")]({
 8: SubResource("Resource_rano4"),
 9: SubResource("Resource_0ir75")
 })
-item_id = "121110101149-23513-121565-101111-952731513118600"
+item_id = "1314514331311-23810-12056-41066-913511211461310915"
 name = "Dragonbone Arcanist Boots"
 rarity = 0
 icon = SubResource("CompressedTexture2D_a20sy")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
-item_level = 70
+item_level = 77
 custom_item_value = 0

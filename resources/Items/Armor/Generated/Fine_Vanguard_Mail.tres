@@ -1,0 +1,50 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_bgor8"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_tv0ka"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_fqqjb"]
+
+[sub_resource type="Resource" id="Resource_l4oa7"]
+script = ExtResource("1_bgor8")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 17
+
+[sub_resource type="Resource" id="Resource_xgxke"]
+script = ExtResource("1_bgor8")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 11
+
+[sub_resource type="Resource" id="Resource_fb62r"]
+script = ExtResource("1_bgor8")
+base_value = 0
+flat_bonus_value = 6
+
+[sub_resource type="Resource" id="Resource_nyr8q"]
+script = ExtResource("1_bgor8")
+stat_type = 4
+base_value = 0
+flat_bonus_value = 44
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4tfx1"]
+atlas = ExtResource("2_tv0ka")
+region = Rect2(848, 142, 54, 54)
+
+[resource]
+script = ExtResource("3_fqqjb")
+armor_type = 1
+bonus_stats = Dictionary[int, ExtResource("1_bgor8")]({
+0: SubResource("Resource_fb62r"),
+4: SubResource("Resource_nyr8q"),
+8: SubResource("Resource_l4oa7"),
+9: SubResource("Resource_xgxke")
+})
+item_id = "10360261410-33101-00110-3141314-14813935551312211"
+name = "Fine Vanguard Mail"
+rarity = 0
+icon = SubResource("AtlasTexture_4tfx1")
+description = "Heavy plate forged for front-line Swordsmen."
+item_type = 1
+item_level = 20
+custom_item_value = 0

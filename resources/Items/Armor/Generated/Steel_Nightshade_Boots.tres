@@ -7,19 +7,19 @@
 script = ExtResource("1_5t1xd")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 10
+flat_bonus_value = 11
 
 [sub_resource type="Resource" id="Resource_yf6rl"]
 script = ExtResource("1_5t1xd")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 10
+flat_bonus_value = 11
 
 [sub_resource type="Resource" id="Resource_o78dv"]
 script = ExtResource("1_5t1xd")
 stat_type = 3
 base_value = 0
-flat_bonus_value = 5
+flat_bonus_value = 6
 
 [sub_resource type="Resource" id="Resource_ubyfq"]
 script = ExtResource("1_5t1xd")
@@ -39,11 +39,11 @@ bonus_stats = Dictionary[int, ExtResource("1_5t1xd")]({
 9: SubResource("Resource_yf6rl"),
 11: SubResource("Resource_ubyfq")
 })
-item_id = "61580126152-4679-14281-07711-971011102755138"
+item_id = "14137140368-81292-351511-156125-1482915211461141"
 name = "Steel Nightshade Boots"
 rarity = 0
 icon = SubResource("CompressedTexture2D_hmtwg")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
-item_level = 30
+item_level = 35
 custom_item_value = 0

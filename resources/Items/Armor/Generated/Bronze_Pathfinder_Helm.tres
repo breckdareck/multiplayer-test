@@ -8,19 +8,19 @@
 script = ExtResource("1_uai2l")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 5
+flat_bonus_value = 6
 
 [sub_resource type="Resource" id="Resource_so83b"]
 script = ExtResource("1_uai2l")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 5
+flat_bonus_value = 6
 
 [sub_resource type="Resource" id="Resource_56bml"]
 script = ExtResource("1_uai2l")
 stat_type = 2
 base_value = 0
-flat_bonus_value = 2
+flat_bonus_value = 3
 
 [sub_resource type="Resource" id="Resource_xn270"]
 script = ExtResource("1_uai2l")
@@ -40,11 +40,11 @@ bonus_stats = Dictionary[int, ExtResource("1_uai2l")]({
 9: SubResource("Resource_so83b"),
 10: SubResource("Resource_xn270")
 })
-item_id = "3131311909-151369-212118-121173-513741359801333"
+item_id = "0118121314613-1012108-157159-16011-49676781315850"
 name = "Bronze Pathfinder Helm"
 rarity = 0
 icon = SubResource("AtlasTexture_4e3ji")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
-item_level = 10
+item_level = 13
 custom_item_value = 0

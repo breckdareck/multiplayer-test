@@ -8,19 +8,19 @@
 script = ExtResource("1_snhdn")
 stat_type = 12
 base_value = 0
-flat_bonus_value = 61
+flat_bonus_value = 69
 
 [sub_resource type="Resource" id="Resource_xd34q"]
 script = ExtResource("1_snhdn")
 stat_type = 3
 base_value = 0
-flat_bonus_value = 23
+flat_bonus_value = 26
 
 [sub_resource type="Resource" id="Resource_rocrr"]
 script = ExtResource("1_snhdn")
 stat_type = 10
 base_value = 0
-flat_bonus_value = 9
+flat_bonus_value = 10
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_5cjmf"]
 atlas = ExtResource("2_rtl8k")
@@ -37,11 +37,11 @@ bonus_stats = Dictionary[int, ExtResource("1_snhdn")]({
 10: SubResource("Resource_rocrr"),
 12: SubResource("Resource_wks5r")
 })
-item_id = "3694514156-55910-1481112-415315-1513107910914121510"
+item_id = "5156215237-60410-2409-139113-912133211321431010"
 name = "Runic Dirk"
 rarity = 0
 icon = SubResource("AtlasTexture_5cjmf")
 description = "A swift, wickedly sharp blade prized by Rogues."
 item_type = 1
-item_level = 60
+item_level = 68
 custom_item_value = 0

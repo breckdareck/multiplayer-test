@@ -8,19 +8,19 @@
 script = ExtResource("1_1dgrs")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 37
+flat_bonus_value = 39
 
 [sub_resource type="Resource" id="Resource_vvrlf"]
 script = ExtResource("1_1dgrs")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 37
+flat_bonus_value = 39
 
 [sub_resource type="Resource" id="Resource_djuuo"]
 script = ExtResource("1_1dgrs")
 stat_type = 2
 base_value = 0
-flat_bonus_value = 20
+flat_bonus_value = 21
 
 [sub_resource type="Resource" id="Resource_5b7sn"]
 script = ExtResource("1_1dgrs")
@@ -42,11 +42,11 @@ bonus_stats = Dictionary[int, ExtResource("1_1dgrs")]({
 9: SubResource("Resource_vvrlf"),
 10: SubResource("Resource_5b7sn")
 })
-item_id = "913101110539-85414-21363-1510015-375120213131131111"
+item_id = "31112701176-94145-111145-126015-1313131921384959"
 name = "Celestial Pathfinder Legguards"
 rarity = 0
 icon = SubResource("AtlasTexture_r2l8x")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
-item_level = 80
+item_level = 85
 custom_item_value = 0

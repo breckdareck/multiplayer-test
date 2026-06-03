@@ -7,13 +7,13 @@
 script = ExtResource("1_widkk")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 26
+flat_bonus_value = 27
 
 [sub_resource type="Resource" id="Resource_kcpfl"]
 script = ExtResource("1_widkk")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 26
+flat_bonus_value = 27
 
 [sub_resource type="Resource" id="Resource_roxwh"]
 script = ExtResource("1_widkk")
@@ -39,11 +39,11 @@ bonus_stats = Dictionary[int, ExtResource("1_widkk")]({
 9: SubResource("Resource_kcpfl"),
 11: SubResource("Resource_bsirg")
 })
-item_id = "41351495610-314013-15439-148310-14351213574554"
+item_id = "456347415-31179-1415148-113511-130410810501311612"
 name = "Astral Nightshade Boots"
 rarity = 0
 icon = SubResource("CompressedTexture2D_5ol8l")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
-item_level = 90
+item_level = 93
 custom_item_value = 0

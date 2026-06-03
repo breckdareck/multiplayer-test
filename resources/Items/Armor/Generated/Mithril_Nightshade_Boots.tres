@@ -7,13 +7,13 @@
 script = ExtResource("1_i0vp1")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 12
+flat_bonus_value = 13
 
 [sub_resource type="Resource" id="Resource_27ty7"]
 script = ExtResource("1_i0vp1")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 12
+flat_bonus_value = 13
 
 [sub_resource type="Resource" id="Resource_07ajt"]
 script = ExtResource("1_i0vp1")
@@ -39,11 +39,11 @@ bonus_stats = Dictionary[int, ExtResource("1_i0vp1")]({
 9: SubResource("Resource_27ty7"),
 11: SubResource("Resource_4hswr")
 })
-item_id = "1491291660-9415-1421510-128615-55141210878154143"
+item_id = "10410151131115-91402-912117-251013-27381211110113"
 name = "Mithril Nightshade Boots"
 rarity = 0
 icon = SubResource("CompressedTexture2D_ipaht")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
-item_level = 40
+item_level = 43
 custom_item_value = 0

@@ -8,25 +8,25 @@
 script = ExtResource("1_2dpb4")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 28
+flat_bonus_value = 32
 
 [sub_resource type="Resource" id="Resource_ijt44"]
 script = ExtResource("1_2dpb4")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 28
+flat_bonus_value = 32
 
 [sub_resource type="Resource" id="Resource_0ps33"]
 script = ExtResource("1_2dpb4")
 stat_type = 2
 base_value = 0
-flat_bonus_value = 15
+flat_bonus_value = 17
 
 [sub_resource type="Resource" id="Resource_jtpmw"]
 script = ExtResource("1_2dpb4")
 stat_type = 10
 base_value = 0
-flat_bonus_value = 3
+flat_bonus_value = 4
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_bpa55"]
 atlas = ExtResource("2_qpcow")
@@ -42,11 +42,11 @@ bonus_stats = Dictionary[int, ExtResource("1_2dpb4")]({
 9: SubResource("Resource_ijt44"),
 10: SubResource("Resource_jtpmw")
 })
-item_id = "12652108143-21294-914158-13253-151511191111414140"
+item_id = "2212614508-81312-11514-241214-114781111151310105"
 name = "Runic Pathfinder Legguards"
 rarity = 0
 icon = SubResource("AtlasTexture_bpa55")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
-item_level = 60
+item_level = 68
 custom_item_value = 0

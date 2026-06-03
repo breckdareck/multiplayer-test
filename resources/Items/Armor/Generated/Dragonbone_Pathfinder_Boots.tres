@@ -7,19 +7,19 @@
 script = ExtResource("1_fvlwm")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 21
+flat_bonus_value = 22
 
 [sub_resource type="Resource" id="Resource_kqfg2"]
 script = ExtResource("1_fvlwm")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 21
+flat_bonus_value = 22
 
 [sub_resource type="Resource" id="Resource_chh7y"]
 script = ExtResource("1_fvlwm")
 stat_type = 2
 base_value = 0
-flat_bonus_value = 11
+flat_bonus_value = 12
 
 [sub_resource type="Resource" id="Resource_jhc3g"]
 script = ExtResource("1_fvlwm")
@@ -39,11 +39,11 @@ bonus_stats = Dictionary[int, ExtResource("1_fvlwm")]({
 9: SubResource("Resource_kqfg2"),
 10: SubResource("Resource_jhc3g")
 })
-item_id = "89149131137-915012-5306-01447-115351381412513013"
+item_id = "9117151430-2927-0961-1101510-111363681267995"
 name = "Dragonbone Pathfinder Boots"
 rarity = 0
 icon = SubResource("CompressedTexture2D_3pf6w")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
-item_level = 70
+item_level = 77
 custom_item_value = 0

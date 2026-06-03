@@ -1,24 +1,24 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=14 format=3 uid="uid://dk20l057rdbnt"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=14 format=3]
 
-[ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
-[ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
-[ext_resource type="SpriteFrames" uid="uid://c28y4uyabwctv" path="res://resources/Enemies/Boar/SF_Boar.tres" id="3_sf"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Celestial_Warbow.tres" id="d_1"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Celestial_Spellstaff.tres" id="d_2"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Celestial_Pathfinder_Mail.tres" id="d_3"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Celestial_Arcanist_Mail.tres" id="d_4"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Celestial_Vanguard_Legguards.tres" id="d_5"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Celestial_Nightshade_Boots.tres" id="d_6"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
+[ext_resource type="Script" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Dragonbone_Warbow.tres" id="2_pvxix"]
+[ext_resource type="SpriteFrames" path="res://resources/Enemies/Boar/SF_Boar.tres" id="3_sf"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Dragonbone_Spellstaff.tres" id="3_xn25c"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Dragonbone_Pathfinder_Mail.tres" id="4_iecfa"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Dragonbone_Arcanist_Mail.tres" id="5_46rby"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Dragonbone_Vanguard_Legguards.tres" id="6_1frvp"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Dragonbone_Nightshade_Boots.tres" id="7_ldc2q"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)
 
-[sub_resource type="CircleShape2D" id="Shape_col"]
-radius = 5.09902
-
 [sub_resource type="CapsuleShape2D" id="Shape_body"]
 radius = 3.0
 height = 12.0
+
+[sub_resource type="CircleShape2D" id="Shape_col"]
+radius = 5.09902
 
 [sub_resource type="Resource" id="Resource_coin"]
 script = ExtResource("1_drop")
@@ -32,11 +32,21 @@ metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 script = ExtResource("2_ed")
 monster_name = "Wild Boar"
 monster_level = 83
-movement_speed = 45
+movement_speed = 45.0
+is_invincible = false
+is_magic_attacker = false
+archetype = 0
+defense_mult = 1.0
+magic_defense_mult = 1.0
+health_mult = 1.0
+attack_mult = 1.0
 is_aggressive = true
+detection_radius = 160.0
+attack_range = 36.0
+attack_cooldown = 1.4
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")
 body_hitbox_shape = SubResource("Shape_body")
 attack_hitbox_shape = SubResource("Shape_atk")
-item_drops = Array[ExtResource("1_drop")]([SubResource("Resource_coin"), ExtResource("d_1"), ExtResource("d_2"), ExtResource("d_3"), ExtResource("d_4"), ExtResource("d_5"), ExtResource("d_6")])
+item_drops = Array[ExtResource("1_drop")]([SubResource("Resource_coin"), ExtResource("2_pvxix"), ExtResource("3_xn25c"), ExtResource("4_iecfa"), ExtResource("5_46rby"), ExtResource("6_1frvp"), ExtResource("7_ldc2q")])
 metadata/_custom_type_script = "uid://dv7aj5x3e50cg"

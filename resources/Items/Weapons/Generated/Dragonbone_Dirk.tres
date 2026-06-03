@@ -8,19 +8,19 @@
 script = ExtResource("1_18yy6")
 stat_type = 12
 base_value = 0
-flat_bonus_value = 71
+flat_bonus_value = 77
 
 [sub_resource type="Resource" id="Resource_0t4w2"]
 script = ExtResource("1_18yy6")
 stat_type = 3
 base_value = 0
-flat_bonus_value = 27
+flat_bonus_value = 29
 
 [sub_resource type="Resource" id="Resource_i2wcf"]
 script = ExtResource("1_18yy6")
 stat_type = 10
 base_value = 0
-flat_bonus_value = 10
+flat_bonus_value = 11
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_g1alw"]
 atlas = ExtResource("2_dwy0r")
@@ -37,11 +37,11 @@ bonus_stats = Dictionary[int, ExtResource("1_18yy6")]({
 10: SubResource("Resource_i2wcf"),
 12: SubResource("Resource_pva8r")
 })
-item_id = "121110010108-4925-412210-10667-7101013210099217"
+item_id = "1131311314140-76310-014150-1212012-14313630952676"
 name = "Dragonbone Dirk"
 rarity = 0
 icon = SubResource("AtlasTexture_g1alw")
 description = "A swift, wickedly sharp blade prized by Rogues."
 item_type = 1
-item_level = 70
+item_level = 77
 custom_item_value = 0

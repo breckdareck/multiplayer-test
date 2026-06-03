@@ -7,4 +7,4 @@ script = ExtResource("1_garpy")
 item_name = "Celestial Longsword"
 randomize_stats = true
 possible_stats = Array[int]([12, 0])
-drop_chance = 0.016
+drop_chance = 0.015

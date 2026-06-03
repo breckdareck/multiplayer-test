@@ -8,13 +8,13 @@
 script = ExtResource("1_flfpj")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 31
+flat_bonus_value = 32
 
 [sub_resource type="Resource" id="Resource_fnn8t"]
 script = ExtResource("1_flfpj")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 31
+flat_bonus_value = 32
 
 [sub_resource type="Resource" id="Resource_avx2o"]
 script = ExtResource("1_flfpj")
@@ -40,11 +40,11 @@ bonus_stats = Dictionary[int, ExtResource("1_flfpj")]({
 9: SubResource("Resource_fnn8t"),
 10: SubResource("Resource_pny7d")
 })
-item_id = "931071310142-1608-38414-61271-1211215910831112913"
+item_id = "157258125-1293-121141-10620-113210048145132"
 name = "Astral Pathfinder Helm"
 rarity = 0
 icon = SubResource("AtlasTexture_7kbon")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
-item_level = 90
+item_level = 93
 custom_item_value = 0

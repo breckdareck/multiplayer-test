@@ -8,19 +8,19 @@
 script = ExtResource("1_w3yyk")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 19
+flat_bonus_value = 22
 
 [sub_resource type="Resource" id="Resource_t4csx"]
 script = ExtResource("1_w3yyk")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 19
+flat_bonus_value = 22
 
 [sub_resource type="Resource" id="Resource_xch6x"]
 script = ExtResource("1_w3yyk")
 stat_type = 2
 base_value = 0
-flat_bonus_value = 10
+flat_bonus_value = 12
 
 [sub_resource type="Resource" id="Resource_yf400"]
 script = ExtResource("1_w3yyk")
@@ -41,11 +41,11 @@ bonus_stats = Dictionary[int, ExtResource("1_w3yyk")]({
 9: SubResource("Resource_t4csx"),
 10: SubResource("Resource_yf400")
 })
-item_id = "1328232134-951315-1212158-59815-142141331256119147"
+item_id = "41440913118-15098-141522-132210-101111115101481131111"
 name = "Steel Pathfinder Mail"
 rarity = 0
 icon = SubResource("AtlasTexture_ks2p8")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
-item_level = 30
+item_level = 35
 custom_item_value = 0

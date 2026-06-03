@@ -8,13 +8,13 @@
 script = ExtResource("1_3uion")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 35
+flat_bonus_value = 37
 
 [sub_resource type="Resource" id="Resource_hghn6"]
 script = ExtResource("1_3uion")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 23
+flat_bonus_value = 24
 
 [sub_resource type="Resource" id="Resource_h5p41"]
 script = ExtResource("1_3uion")
@@ -25,7 +25,7 @@ flat_bonus_value = 13
 script = ExtResource("1_3uion")
 stat_type = 4
 base_value = 0
-flat_bonus_value = 91
+flat_bonus_value = 97
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_3mbfy"]
 atlas = ExtResource("2_bm2xj")
@@ -39,11 +39,11 @@ bonus_stats = Dictionary[int, ExtResource("1_3uion")]({
 8: SubResource("Resource_x11wm"),
 9: SubResource("Resource_hghn6")
 })
-item_id = "1014111203-515122-310411-8151411-1109612315711873"
+item_id = "148112771-101125-61313-861310-56322714689133"
 name = "Celestial Vanguard Helm"
 rarity = 0
 icon = SubResource("AtlasTexture_3mbfy")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
-item_level = 80
+item_level = 85
 custom_item_value = 0

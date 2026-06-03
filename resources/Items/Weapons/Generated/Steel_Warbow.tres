@@ -8,13 +8,13 @@
 script = ExtResource("1_mv8p4")
 stat_type = 12
 base_value = 0
-flat_bonus_value = 47
+flat_bonus_value = 53
 
 [sub_resource type="Resource" id="Resource_ul6hi"]
 script = ExtResource("1_mv8p4")
 stat_type = 2
 base_value = 0
-flat_bonus_value = 14
+flat_bonus_value = 16
 
 [sub_resource type="Resource" id="Resource_tpf4i"]
 script = ExtResource("1_mv8p4")
@@ -37,11 +37,11 @@ bonus_stats = Dictionary[int, ExtResource("1_mv8p4")]({
 10: SubResource("Resource_tpf4i"),
 12: SubResource("Resource_3fsn4")
 })
-item_id = "49913111302-58115-612141-213154-156357281412762"
+item_id = "1414714467-151441-61014-14101314-61214680301114613"
 name = "Steel Warbow"
 rarity = 0
 icon = SubResource("AtlasTexture_7i4py")
 description = "A finely strung bow built for an Archer's precision."
 item_type = 1
-item_level = 30
+item_level = 35
 custom_item_value = 0

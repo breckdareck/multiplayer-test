@@ -8,19 +8,19 @@
 script = ExtResource("1_5ju7f")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 25
+flat_bonus_value = 27
 
 [sub_resource type="Resource" id="Resource_uqar2"]
 script = ExtResource("1_5ju7f")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 25
+flat_bonus_value = 27
 
 [sub_resource type="Resource" id="Resource_ogwd8"]
 script = ExtResource("1_5ju7f")
 stat_type = 3
 base_value = 0
-flat_bonus_value = 13
+flat_bonus_value = 14
 
 [sub_resource type="Resource" id="Resource_i6odn"]
 script = ExtResource("1_5ju7f")
@@ -40,11 +40,11 @@ bonus_stats = Dictionary[int, ExtResource("1_5ju7f")]({
 9: SubResource("Resource_uqar2"),
 11: SubResource("Resource_i6odn")
 })
-item_id = "15303211136-91446-05126-38512-1287127352121494"
+item_id = "132102143714-3131310-8524-25159-1013363471013913"
 name = "Dragonbone Nightshade Helm"
 rarity = 0
 icon = SubResource("AtlasTexture_ucm3v")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
-item_level = 70
+item_level = 77
 custom_item_value = 0

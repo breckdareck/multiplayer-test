@@ -8,19 +8,19 @@
 script = ExtResource("1_wu7ia")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 36
+flat_bonus_value = 40
 
 [sub_resource type="Resource" id="Resource_j58jb"]
 script = ExtResource("1_wu7ia")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 36
+flat_bonus_value = 40
 
 [sub_resource type="Resource" id="Resource_6dqhs"]
 script = ExtResource("1_wu7ia")
 stat_type = 3
 base_value = 0
-flat_bonus_value = 19
+flat_bonus_value = 21
 
 [sub_resource type="Resource" id="Resource_llfmh"]
 script = ExtResource("1_wu7ia")
@@ -41,11 +41,11 @@ bonus_stats = Dictionary[int, ExtResource("1_wu7ia")]({
 9: SubResource("Resource_j58jb"),
 11: SubResource("Resource_llfmh")
 })
-item_id = "131355121283-142015-131465-90159-4610131484074117"
+item_id = "45479295-99315-3498-914213-125152121251376912"
 name = "Runic Nightshade Mail"
 rarity = 0
 icon = SubResource("AtlasTexture_r24rb")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
-item_level = 60
+item_level = 68
 custom_item_value = 0

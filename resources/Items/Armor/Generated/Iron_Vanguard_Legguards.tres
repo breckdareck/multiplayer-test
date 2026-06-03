@@ -8,24 +8,24 @@
 script = ExtResource("1_dpnob")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 14
+flat_bonus_value = 18
 
 [sub_resource type="Resource" id="Resource_pjqgj"]
 script = ExtResource("1_dpnob")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 9
+flat_bonus_value = 11
 
 [sub_resource type="Resource" id="Resource_gneyx"]
 script = ExtResource("1_dpnob")
 base_value = 0
-flat_bonus_value = 5
+flat_bonus_value = 6
 
 [sub_resource type="Resource" id="Resource_n5dw0"]
 script = ExtResource("1_dpnob")
 stat_type = 4
 base_value = 0
-flat_bonus_value = 35
+flat_bonus_value = 45
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_bk4yv"]
 atlas = ExtResource("2_r27ua")
@@ -41,11 +41,11 @@ bonus_stats = Dictionary[int, ExtResource("1_dpnob")]({
 8: SubResource("Resource_kmxii"),
 9: SubResource("Resource_pjqgj")
 })
-item_id = "859789111-512106-12937-12039-570006414113711"
+item_id = "1413126014115-1211610-6852-92159-25331412212147611"
 name = "Iron Vanguard Legguards"
 rarity = 0
 icon = SubResource("AtlasTexture_bk4yv")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
-item_level = 20
+item_level = 27
 custom_item_value = 0

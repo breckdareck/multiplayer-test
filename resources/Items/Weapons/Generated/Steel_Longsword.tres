@@ -8,12 +8,12 @@
 script = ExtResource("1_x6ja5")
 stat_type = 12
 base_value = 0
-flat_bonus_value = 52
+flat_bonus_value = 60
 
 [sub_resource type="Resource" id="Resource_qc1s3"]
 script = ExtResource("1_x6ja5")
 base_value = 0
-flat_bonus_value = 13
+flat_bonus_value = 14
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_yjvo5"]
 atlas = ExtResource("2_1r7wy")
@@ -29,11 +29,11 @@ bonus_stats = Dictionary[int, ExtResource("1_x6ja5")]({
 0: SubResource("Resource_qc1s3"),
 12: SubResource("Resource_w0483")
 })
-item_id = "109148101178-114134-411015-133108-31222061289713"
+item_id = "5201201559-721011-56614-0043-9134114937103313"
 name = "Steel Longsword"
 rarity = 0
 icon = SubResource("AtlasTexture_yjvo5")
 description = "A balanced blade — the Swordsman's trusted companion."
 item_type = 1
-item_level = 30
+item_level = 35
 custom_item_value = 0

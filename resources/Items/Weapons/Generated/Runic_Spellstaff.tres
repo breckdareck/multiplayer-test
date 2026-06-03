@@ -8,19 +8,19 @@
 script = ExtResource("1_cs06l")
 stat_type = 13
 base_value = 0
-flat_bonus_value = 97
+flat_bonus_value = 109
 
 [sub_resource type="Resource" id="Resource_1g54s"]
 script = ExtResource("1_cs06l")
 stat_type = 1
 base_value = 0
-flat_bonus_value = 26
+flat_bonus_value = 29
 
 [sub_resource type="Resource" id="Resource_2vlux"]
 script = ExtResource("1_cs06l")
 stat_type = 5
 base_value = 0
-flat_bonus_value = 78
+flat_bonus_value = 88
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_hglhm"]
 atlas = ExtResource("2_wfhup")
@@ -37,11 +37,11 @@ bonus_stats = Dictionary[int, ExtResource("1_cs06l")]({
 5: SubResource("Resource_2vlux"),
 13: SubResource("Resource_qfm5r")
 })
-item_id = "94151199415-2480-51503-150010-414410195133151213"
+item_id = "24914131350-14711-815134-11111010-130117113231312714"
 name = "Runic Spellstaff"
 rarity = 0
 icon = SubResource("AtlasTexture_hglhm")
 description = "A conduit of arcane power wielded by Mages."
 item_type = 1
-item_level = 60
+item_level = 68
 custom_item_value = 0

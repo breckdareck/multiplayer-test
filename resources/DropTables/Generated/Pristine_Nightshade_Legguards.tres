@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ItemDropResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_51eus"]
+
+[resource]
+script = ExtResource("1_51eus")
+item_name = "Pristine Nightshade Legguards"
+randomize_stats = true
+possible_stats = Array[int]([8, 9, 3, 11])
+drop_chance = 0.021

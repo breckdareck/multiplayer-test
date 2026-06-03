@@ -8,13 +8,13 @@
 script = ExtResource("1_266ta")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 31
+flat_bonus_value = 32
 
 [sub_resource type="Resource" id="Resource_ymlog"]
 script = ExtResource("1_266ta")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 31
+flat_bonus_value = 32
 
 [sub_resource type="Resource" id="Resource_wmc2o"]
 script = ExtResource("1_266ta")
@@ -40,11 +40,11 @@ bonus_stats = Dictionary[int, ExtResource("1_266ta")]({
 9: SubResource("Resource_ymlog"),
 11: SubResource("Resource_iv16f")
 })
-item_id = "171015151067-4141414-62138-145714-6141510119122110512"
+item_id = "42677743-311710-132156-71915-111515213398714214"
 name = "Astral Nightshade Helm"
 rarity = 0
 icon = SubResource("AtlasTexture_42cl3")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
-item_level = 90
+item_level = 93
 custom_item_value = 0

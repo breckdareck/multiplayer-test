@@ -8,13 +8,13 @@
 script = ExtResource("1_5qh34")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 66
+flat_bonus_value = 68
 
 [sub_resource type="Resource" id="Resource_x7vmo"]
 script = ExtResource("1_5qh34")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 43
+flat_bonus_value = 44
 
 [sub_resource type="Resource" id="Resource_mrr6q"]
 script = ExtResource("1_5qh34")
@@ -25,7 +25,7 @@ flat_bonus_value = 24
 script = ExtResource("1_5qh34")
 stat_type = 4
 base_value = 0
-flat_bonus_value = 170
+flat_bonus_value = 175
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_yshgp"]
 atlas = ExtResource("2_nqj0y")
@@ -40,11 +40,11 @@ bonus_stats = Dictionary[int, ExtResource("1_5qh34")]({
 8: SubResource("Resource_grb5i"),
 9: SubResource("Resource_x7vmo")
 })
-item_id = "413510138311-1112155-6141414-51191-131358151314671270"
+item_id = "60010101215-5501-11312-13383-9101511913131461414"
 name = "Astral Vanguard Mail"
 rarity = 0
 icon = SubResource("AtlasTexture_yshgp")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
-item_level = 90
+item_level = 93
 custom_item_value = 0

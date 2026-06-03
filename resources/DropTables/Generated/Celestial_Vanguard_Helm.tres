@@ -7,4 +7,4 @@ script = ExtResource("1_2jntw")
 item_name = "Celestial Vanguard Helm"
 randomize_stats = true
 possible_stats = Array[int]([8, 9, 0, 4])
-drop_chance = 0.016
+drop_chance = 0.015

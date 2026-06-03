@@ -4,18 +4,28 @@ extends Resource
 
 ## Base stat budgets at item level 1. Scaled up by the item's level via
 ## BUDGET_GROWTH_PER_LEVEL so higher-level gear rolls more total stats.
+## Raised 2026-06-02 (~2x) so dropped gear is a felt upgrade over the roll-less
+## starter set — the old Common budget (1-3 split across ~4 stats) left armor
+## with ~0 extra DEFENSE, so loot never improved defense in the early game.
 const RARITY_BUDGETS = {
-	Constants.ItemRarity.COMMON: {"min": 1, "max": 3},
-	Constants.ItemRarity.UNCOMMON: {"min": 3, "max": 6},
-	Constants.ItemRarity.RARE: {"min": 6, "max": 10},
-	Constants.ItemRarity.EPIC: {"min": 10, "max": 15},
-	Constants.ItemRarity.LEGENDARY: {"min": 15, "max": 22},
+	Constants.ItemRarity.COMMON: {"min": 3, "max": 6},
+	Constants.ItemRarity.UNCOMMON: {"min": 6, "max": 10},
+	Constants.ItemRarity.RARE: {"min": 10, "max": 16},
+	Constants.ItemRarity.EPIC: {"min": 16, "max": 24},
+	Constants.ItemRarity.LEGENDARY: {"min": 24, "max": 36},
 }
 
 ## Each item level above 1 grows the stat budget multiplicatively. At 0.035 a
 ## level-50 item rolls ~2.7x and a level-90 item ~4.1x the base budget, while
 ## the rarity tiers stay proportional to one another.
 const BUDGET_GROWTH_PER_LEVEL := 0.035
+
+## Fraction of every roll reserved for the gear's DEFINING stats (armor →
+## DEFENSE/MAGICDEFENSE, weapon → its attack stat), split evenly among them
+## before the rest scatters across the full pool. Guarantees a drop improves its
+## core role instead of dumping all points into incidental theme stats — the
+## fix for "armor drops never raise my defense". (Added 2026-06-02.)
+const PRIMARY_BUDGET_SHARE := 0.6
 
 ## The item that can drop (reference by name for easy setup)
 @export var item_name: String = ""
@@ -109,25 +119,59 @@ func _apply_random_stats(item: EquipmentData) -> void:
 	
 	# 3. Allocate Stats
 	var remaining_budget = stat_budget
-	
-	# Shuffle possible_stats to ensure random distribution order
-	possible_stats.shuffle()
-	
-	for stat_type in possible_stats:
+
+	# 3a. Reserve a share for the gear's DEFINING stats (armor: DEF/MDEF; weapon:
+	# its attack stat), split EVENLY among them so a dropped piece reliably
+	# improves its core role. Without this the old greedy shuffle let an
+	# incidental theme stat eat the whole (small) budget, so armor drops almost
+	# never raised defense.
+	var primary := _primary_roll_stats(item)
+	if not primary.is_empty():
+		var primary_budget: int = mini(remaining_budget, roundi(stat_budget * PRIMARY_BUDGET_SHARE))
+		var per: int = primary_budget / primary.size()
+		var extra: int = primary_budget % primary.size()
+		for i in primary.size():
+			var amt: int = per + (1 if i < extra else 0)
+			if amt > 0:
+				_add_rolled_stat(item, primary[i], amt)
+				remaining_budget -= amt
+
+	# 3b. Scatter the remainder across the full pool (greedy, for stat variety).
+	var pool: Array = possible_stats.duplicate()
+	pool.shuffle()
+	for stat_type in pool:
 		if remaining_budget <= 0:
 			break
-		
 		# Assign a random amount for this stat, at least 1
 		var amount_to_assign = randi_range(1, remaining_budget)
-		
-		# Ensure a StatData object exists for this type in the item's bonus_stats
-		if not item.bonus_stats.has(stat_type):
-			item.bonus_stats[stat_type] = StatData.new()
-			(item.bonus_stats[stat_type] as StatData).stat_type = stat_type
-
-		var stat_data_instance: StatData = item.bonus_stats[stat_type]
-		stat_data_instance.flat_bonus_value += amount_to_assign
+		_add_rolled_stat(item, stat_type, amount_to_assign)
 		remaining_budget -= amount_to_assign
+
+
+## Adds `amount` to an item's flat bonus for `stat_type`, creating the StatData
+## entry if the piece doesn't already carry that stat.
+func _add_rolled_stat(item: EquipmentData, stat_type, amount: int) -> void:
+	if not item.bonus_stats.has(stat_type):
+		var sd := StatData.new()
+		sd.stat_type = stat_type
+		item.bonus_stats[stat_type] = sd
+	(item.bonus_stats[stat_type] as StatData).flat_bonus_value += amount
+
+
+## The stats that define a piece's core role and so get a guaranteed budget
+## share: armor → DEFENSE + MAGICDEFENSE; weapon → whichever attack stat it
+## already scales on. Anything else returns empty (no reservation).
+func _primary_roll_stats(item: EquipmentData) -> Array:
+	if item is ArmorData:
+		return [Constants.StatType.DEFENSE, Constants.StatType.MAGICDEFENSE]
+	if item is WeaponData:
+		var out: Array = []
+		if item.bonus_stats.has(Constants.StatType.WEAPONATTACK):
+			out.append(Constants.StatType.WEAPONATTACK)
+		if item.bonus_stats.has(Constants.StatType.MAGICATTACK):
+			out.append(Constants.StatType.MAGICATTACK)
+		return out
+	return []
 
 ## Multiplier applied to the base rarity budget based on the item's level.
 ## Level 1 (or lower / unset) leaves the budget unchanged.

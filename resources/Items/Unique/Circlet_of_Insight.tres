@@ -40,7 +40,7 @@ bonus_stats = Dictionary[int, ExtResource("1_jwtfm")]({
 7: SubResource("Resource_0yi8r"),
 9: SubResource("Resource_4v3wa")
 })
-item_id = "8711150949-341514-11883-110130-6521047811410812"
+item_id = "136717144-910413-1410132-03214-4101511111011815014"
 name = "Circlet of Insight"
 rarity = 4
 icon = SubResource("AtlasTexture_awmmj")

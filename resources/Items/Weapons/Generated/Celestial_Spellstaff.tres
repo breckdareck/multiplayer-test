@@ -8,19 +8,19 @@
 script = ExtResource("1_7xvao")
 stat_type = 13
 base_value = 0
-flat_bonus_value = 127
+flat_bonus_value = 135
 
 [sub_resource type="Resource" id="Resource_nl68i"]
 script = ExtResource("1_7xvao")
 stat_type = 1
 base_value = 0
-flat_bonus_value = 34
+flat_bonus_value = 36
 
 [sub_resource type="Resource" id="Resource_md02w"]
 script = ExtResource("1_7xvao")
 stat_type = 5
 base_value = 0
-flat_bonus_value = 102
+flat_bonus_value = 108
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_db5nn"]
 atlas = ExtResource("2_p2m3p")
@@ -37,11 +37,11 @@ bonus_stats = Dictionary[int, ExtResource("1_7xvao")]({
 5: SubResource("Resource_md02w"),
 13: SubResource("Resource_6pryk")
 })
-item_id = "1213116861313-341013-141291-13478-14159701061413116"
+item_id = "8412215733-8141515-0465-815110-868491061410479"
 name = "Celestial Spellstaff"
 rarity = 0
 icon = SubResource("AtlasTexture_db5nn")
 description = "A conduit of arcane power wielded by Mages."
 item_type = 1
-item_level = 80
+item_level = 85
 custom_item_value = 0

@@ -8,19 +8,19 @@
 script = ExtResource("1_6itvo")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 28
+flat_bonus_value = 32
 
 [sub_resource type="Resource" id="Resource_fwfs5"]
 script = ExtResource("1_6itvo")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 28
+flat_bonus_value = 32
 
 [sub_resource type="Resource" id="Resource_sjqmo"]
 script = ExtResource("1_6itvo")
 stat_type = 3
 base_value = 0
-flat_bonus_value = 15
+flat_bonus_value = 17
 
 [sub_resource type="Resource" id="Resource_wpsdr"]
 script = ExtResource("1_6itvo")
@@ -42,11 +42,11 @@ bonus_stats = Dictionary[int, ExtResource("1_6itvo")]({
 9: SubResource("Resource_fwfs5"),
 11: SubResource("Resource_wpsdr")
 })
-item_id = "148141515797-36415-101314-15259-43915415413741312"
+item_id = "910010716-71016-7683-101362-091441048659810"
 name = "Runic Nightshade Legguards"
 rarity = 0
 icon = SubResource("AtlasTexture_ss84q")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
-item_level = 60
+item_level = 68
 custom_item_value = 0

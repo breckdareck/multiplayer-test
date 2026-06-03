@@ -8,25 +8,25 @@
 script = ExtResource("1_o6s7t")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 27
+flat_bonus_value = 29
 
 [sub_resource type="Resource" id="Resource_586jx"]
 script = ExtResource("1_o6s7t")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 42
+flat_bonus_value = 46
 
 [sub_resource type="Resource" id="Resource_tf0cy"]
 script = ExtResource("1_o6s7t")
 stat_type = 1
 base_value = 0
-flat_bonus_value = 18
+flat_bonus_value = 19
 
 [sub_resource type="Resource" id="Resource_lyji5"]
 script = ExtResource("1_o6s7t")
 stat_type = 5
 base_value = 0
-flat_bonus_value = 89
+flat_bonus_value = 97
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_4s7ln"]
 atlas = ExtResource("2_plik8")
@@ -42,11 +42,11 @@ bonus_stats = Dictionary[int, ExtResource("1_o6s7t")]({
 8: SubResource("Resource_pgnon"),
 9: SubResource("Resource_586jx")
 })
-item_id = "9309153124-1513715-015107-111016-529789721571310"
+item_id = "11881031102-30713-1271012-4921-390430101212030"
 name = "Dragonbone Arcanist Legguards"
 rarity = 0
 icon = SubResource("AtlasTexture_4s7ln")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
-item_level = 70
+item_level = 77
 custom_item_value = 0

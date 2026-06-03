@@ -8,19 +8,19 @@
 script = ExtResource("1_dgwri")
 stat_type = 12
 base_value = 0
-flat_bonus_value = 14
+flat_bonus_value = 16
 
 [sub_resource type="Resource" id="Resource_gscfl"]
 script = ExtResource("1_dgwri")
 stat_type = 3
 base_value = 0
-flat_bonus_value = 6
+flat_bonus_value = 7
 
 [sub_resource type="Resource" id="Resource_mxkb7"]
 script = ExtResource("1_dgwri")
 stat_type = 10
 base_value = 0
-flat_bonus_value = 3
+flat_bonus_value = 4
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_43otc"]
 atlas = ExtResource("2_5d6pp")
@@ -37,11 +37,11 @@ bonus_stats = Dictionary[int, ExtResource("1_dgwri")]({
 10: SubResource("Resource_mxkb7"),
 12: SubResource("Resource_oba7l")
 })
-item_id = "01471471481-1014010-41138-08915-43011611867553"
+item_id = "1218835210-15224-10141414-45713-920121401011155714"
 name = "Bronze Dirk"
 rarity = 0
 icon = SubResource("AtlasTexture_43otc")
 description = "A swift, wickedly sharp blade prized by Rogues."
 item_type = 1
-item_level = 10
+item_level = 13
 custom_item_value = 0

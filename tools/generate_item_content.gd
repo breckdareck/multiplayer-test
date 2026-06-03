@@ -9,9 +9,19 @@
 # tables below and re-running fully rebalances the item set.
 extends SceneTree
 
-const LEVELS: Array = [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-const TIERS: Array = ["Worn", "Bronze", "Iron", "Steel", "Mithril", "Adamant",
-	"Runic", "Dragonbone", "Celestial", "Astral", "Eternal"]
+# Gear tiers on an IRREGULAR, MapleStory-style ladder — NOT a clean every-5/10
+# grid. Real equip req-levels are organic: denser early (fast leveling = frequent
+# upgrades), wider and varied gaps later, never a tidy multiple. 14 tiers = 11
+# material names + 3 quality interleaves (Rough/Fine/Pristine). Per-tier stats are
+# smooth (def = base + item_level * slope), so irregular item_levels just produce
+# irregular-but-monotone steps. tools/assign_enemy_drops.gd snaps every enemy's
+# drops to the tier at-or-below its monster_level, so ANY breakpoints work — tune
+# LEVELS freely. Re-run BOTH tools (generator then assigner) after editing this.
+# LEVELS and TIERS must stay index-aligned and mirror assign_enemy_drops.gd.
+const LEVELS: Array = [1, 8, 13, 20, 27, 35, 43, 50, 60, 68, 77, 85, 93, 100]
+const TIERS: Array = ["Worn", "Rough", "Bronze", "Fine", "Iron", "Steel",
+	"Mithril", "Adamant", "Pristine", "Runic", "Dragonbone", "Celestial",
+	"Astral", "Eternal"]
 
 # StatType ids — mirror of Constants.StatType, kept local for terse tables.
 const STR := 0

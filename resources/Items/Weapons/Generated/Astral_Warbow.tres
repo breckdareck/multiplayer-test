@@ -8,19 +8,19 @@
 script = ExtResource("1_2p0o2")
 stat_type = 12
 base_value = 0
-flat_bonus_value = 128
+flat_bonus_value = 132
 
 [sub_resource type="Resource" id="Resource_g5ygq"]
 script = ExtResource("1_2p0o2")
 stat_type = 2
 base_value = 0
-flat_bonus_value = 38
+flat_bonus_value = 39
 
 [sub_resource type="Resource" id="Resource_ves1u"]
 script = ExtResource("1_2p0o2")
 stat_type = 10
 base_value = 0
-flat_bonus_value = 6
+flat_bonus_value = 7
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_p3dkk"]
 atlas = ExtResource("2_inn4e")
@@ -37,11 +37,11 @@ bonus_stats = Dictionary[int, ExtResource("1_2p0o2")]({
 10: SubResource("Resource_ves1u"),
 12: SubResource("Resource_r8b8f")
 })
-item_id = "6121536362-131184-91143-30148-2051502615144913"
+item_id = "41461171047-1011411-4461-1441012-67141448589632"
 name = "Astral Warbow"
 rarity = 0
 icon = SubResource("AtlasTexture_p3dkk")
 description = "A finely strung bow built for an Archer's precision."
 item_type = 1
-item_level = 90
+item_level = 93
 custom_item_value = 0

@@ -8,25 +8,25 @@
 script = ExtResource("1_260fo")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 42
+flat_bonus_value = 43
 
 [sub_resource type="Resource" id="Resource_b52dc"]
 script = ExtResource("1_260fo")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 42
+flat_bonus_value = 43
 
 [sub_resource type="Resource" id="Resource_03sim"]
 script = ExtResource("1_260fo")
 stat_type = 2
 base_value = 0
-flat_bonus_value = 22
+flat_bonus_value = 23
 
 [sub_resource type="Resource" id="Resource_ug0lr"]
 script = ExtResource("1_260fo")
 stat_type = 10
 base_value = 0
-flat_bonus_value = 4
+flat_bonus_value = 5
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_5uyro"]
 atlas = ExtResource("2_w802k")
@@ -42,11 +42,11 @@ bonus_stats = Dictionary[int, ExtResource("1_260fo")]({
 9: SubResource("Resource_b52dc"),
 10: SubResource("Resource_ug0lr")
 })
-item_id = "1314124210612-3101111-9097-91194-154111191442351112"
+item_id = "81114814101014-7128-7172-37159-593510911034010"
 name = "Astral Pathfinder Legguards"
 rarity = 0
 icon = SubResource("AtlasTexture_5uyro")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
-item_level = 90
+item_level = 93
 custom_item_value = 0

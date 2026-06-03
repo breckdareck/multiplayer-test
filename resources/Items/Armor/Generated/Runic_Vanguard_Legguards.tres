@@ -8,24 +8,24 @@
 script = ExtResource("1_f5h4e")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 36
+flat_bonus_value = 40
 
 [sub_resource type="Resource" id="Resource_j7huc"]
 script = ExtResource("1_f5h4e")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 23
+flat_bonus_value = 26
 
 [sub_resource type="Resource" id="Resource_1uq2q"]
 script = ExtResource("1_f5h4e")
 base_value = 0
-flat_bonus_value = 13
+flat_bonus_value = 14
 
 [sub_resource type="Resource" id="Resource_rqrcw"]
 script = ExtResource("1_f5h4e")
 stat_type = 4
 base_value = 0
-flat_bonus_value = 93
+flat_bonus_value = 104
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_o00lw"]
 atlas = ExtResource("2_gsmu2")
@@ -41,11 +41,11 @@ bonus_stats = Dictionary[int, ExtResource("1_f5h4e")]({
 8: SubResource("Resource_1kcmn"),
 9: SubResource("Resource_j7huc")
 })
-item_id = "10143111112132-10754-7231-91033-0061211138910158"
+item_id = "980132047-137011-71055-110110-93115121267100711"
 name = "Runic Vanguard Legguards"
 rarity = 0
 icon = SubResource("AtlasTexture_o00lw")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
-item_level = 60
+item_level = 68
 custom_item_value = 0

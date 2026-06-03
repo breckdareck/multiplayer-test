@@ -1,0 +1,47 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_vgkg4"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_4ieam"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_jdpmq"]
+
+[sub_resource type="Resource" id="Resource_2l5eb"]
+script = ExtResource("1_vgkg4")
+stat_type = 12
+base_value = 0
+flat_bonus_value = 61
+
+[sub_resource type="Resource" id="Resource_lkjd1"]
+script = ExtResource("1_vgkg4")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 23
+
+[sub_resource type="Resource" id="Resource_loo4y"]
+script = ExtResource("1_vgkg4")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 9
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xxk0y"]
+atlas = ExtResource("2_4ieam")
+region = Rect2(10, 17, 4, 11)
+margin = Rect2(3.5, 0, 7, 0)
+
+[resource]
+script = ExtResource("3_jdpmq")
+weapon_type = 3
+weapon_attack_speed = 8
+equipment_type = 1
+bonus_stats = Dictionary[int, ExtResource("1_vgkg4")]({
+3: SubResource("Resource_lkjd1"),
+10: SubResource("Resource_loo4y"),
+12: SubResource("Resource_2l5eb")
+})
+item_id = "15102723613-86127-10141214-10481-621411131241312111215"
+name = "Pristine Dirk"
+rarity = 0
+icon = SubResource("AtlasTexture_xxk0y")
+description = "A swift, wickedly sharp blade prized by Rogues."
+item_type = 1
+item_level = 60
+custom_item_value = 0

@@ -1,0 +1,50 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_plrkt"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_qp7ct"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_s0a2a"]
+
+[sub_resource type="Resource" id="Resource_k0oab"]
+script = ExtResource("1_plrkt")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 17
+
+[sub_resource type="Resource" id="Resource_27si6"]
+script = ExtResource("1_plrkt")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 27
+
+[sub_resource type="Resource" id="Resource_c36xs"]
+script = ExtResource("1_plrkt")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 11
+
+[sub_resource type="Resource" id="Resource_b50ps"]
+script = ExtResource("1_plrkt")
+stat_type = 5
+base_value = 0
+flat_bonus_value = 58
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gloc4"]
+atlas = ExtResource("2_qp7ct")
+region = Rect2(786, 60, 42, 42)
+
+[resource]
+script = ExtResource("3_s0a2a")
+bonus_stats = Dictionary[int, ExtResource("1_plrkt")]({
+1: SubResource("Resource_c36xs"),
+5: SubResource("Resource_b50ps"),
+8: SubResource("Resource_k0oab"),
+9: SubResource("Resource_27si6")
+})
+item_id = "507149425-63125-50011-9059-63131195391114813"
+name = "Pristine Arcanist Helm"
+rarity = 0
+icon = SubResource("AtlasTexture_gloc4")
+description = "Enchanted vestments that channel a Mage's power."
+item_type = 1
+item_level = 60
+custom_item_value = 0

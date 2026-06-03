@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_hfb17"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_3ummj"]
+
+[sub_resource type="Resource" id="Resource_jp84l"]
+script = ExtResource("1_hfb17")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_gc3or"]
+script = ExtResource("1_hfb17")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_bas0b"]
+script = ExtResource("1_hfb17")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_tbho7"]
+script = ExtResource("1_hfb17")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_6y5hh"]
+load_path = "res://.godot/imported/Eqp_Leather_Sandals.png-23f0cc5f3f25b855dccf580eeba0d806.ctex"
+
+[resource]
+script = ExtResource("2_3ummj")
+armor_type = 3
+bonus_stats = Dictionary[int, ExtResource("1_hfb17")]({
+3: SubResource("Resource_bas0b"),
+8: SubResource("Resource_jp84l"),
+9: SubResource("Resource_gc3or"),
+11: SubResource("Resource_tbho7")
+})
+item_id = "1515633141412-21551-11004-112156-4621010212152141"
+name = "Rough Nightshade Boots"
+rarity = 0
+icon = SubResource("CompressedTexture2D_6y5hh")
+description = "Shadowy garb tailored for a Rogue's deadly craft."
+item_type = 1
+item_level = 8
+custom_item_value = 0

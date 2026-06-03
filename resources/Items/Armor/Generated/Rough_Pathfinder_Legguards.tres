@@ -1,0 +1,52 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_73wba"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_yywnc"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_3dl1k"]
+
+[sub_resource type="Resource" id="Resource_xte75"]
+script = ExtResource("1_73wba")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 6
+
+[sub_resource type="Resource" id="Resource_s441i"]
+script = ExtResource("1_73wba")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 6
+
+[sub_resource type="Resource" id="Resource_ypt33"]
+script = ExtResource("1_73wba")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_4bqf1"]
+script = ExtResource("1_73wba")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v62mi"]
+atlas = ExtResource("2_yywnc")
+region = Rect2(0, 0, 25, 16)
+margin = Rect2(0.5, 5.5, 1, 10)
+
+[resource]
+script = ExtResource("3_3dl1k")
+armor_type = 2
+bonus_stats = Dictionary[int, ExtResource("1_73wba")]({
+2: SubResource("Resource_ypt33"),
+8: SubResource("Resource_xte75"),
+9: SubResource("Resource_s441i"),
+10: SubResource("Resource_4bqf1")
+})
+item_id = "012413147115-76711-9755-810013-312118728121211511"
+name = "Rough Pathfinder Legguards"
+rarity = 0
+icon = SubResource("AtlasTexture_v62mi")
+description = "Light, flexible armour suited to an Archer's mobility."
+item_type = 1
+item_level = 8
+custom_item_value = 0

@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_0l0o8"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_t4npm"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_p7j52"]
+
+[sub_resource type="Resource" id="Resource_rt5ak"]
+script = ExtResource("1_0l0o8")
+stat_type = 12
+base_value = 0
+flat_bonus_value = 37
+
+[sub_resource type="Resource" id="Resource_kdjpo"]
+script = ExtResource("1_0l0o8")
+base_value = 0
+flat_bonus_value = 9
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tt8sn"]
+atlas = ExtResource("2_t4npm")
+region = Rect2(10, 17, 4, 11)
+margin = Rect2(3.5, 0, 7, 0)
+
+[resource]
+script = ExtResource("3_p7j52")
+weapon_type = 0
+weapon_attack_speed = 4
+equipment_type = 1
+bonus_stats = Dictionary[int, ExtResource("1_0l0o8")]({
+0: SubResource("Resource_kdjpo"),
+12: SubResource("Resource_rt5ak")
+})
+item_id = "14261313121210-62124-1311145-8857-2629742141114141"
+name = "Fine Longsword"
+rarity = 0
+icon = SubResource("AtlasTexture_tt8sn")
+description = "A balanced blade — the Swordsman's trusted companion."
+item_type = 1
+item_level = 20
+custom_item_value = 0

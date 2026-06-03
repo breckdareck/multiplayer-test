@@ -8,13 +8,13 @@
 script = ExtResource("1_7uxwq")
 stat_type = 12
 base_value = 0
-flat_bonus_value = 114
+flat_bonus_value = 121
 
 [sub_resource type="Resource" id="Resource_jk1q5"]
 script = ExtResource("1_7uxwq")
 stat_type = 2
 base_value = 0
-flat_bonus_value = 34
+flat_bonus_value = 36
 
 [sub_resource type="Resource" id="Resource_pxvkn"]
 script = ExtResource("1_7uxwq")
@@ -37,11 +37,11 @@ bonus_stats = Dictionary[int, ExtResource("1_7uxwq")]({
 10: SubResource("Resource_pxvkn"),
 12: SubResource("Resource_gm2ug")
 })
-item_id = "0811133063-113159-1121513-81151-09511415133171310"
+item_id = "3515255011-1291515-571315-156151-610148111104311812"
 name = "Celestial Warbow"
 rarity = 0
 icon = SubResource("AtlasTexture_170jv")
 description = "A finely strung bow built for an Archer's precision."
 item_type = 1
-item_level = 80
+item_level = 85
 custom_item_value = 0

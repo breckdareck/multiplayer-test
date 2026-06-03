@@ -8,19 +8,19 @@
 script = ExtResource("1_ys3v6")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 41
+flat_bonus_value = 45
 
 [sub_resource type="Resource" id="Resource_2dw8p"]
 script = ExtResource("1_ys3v6")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 41
+flat_bonus_value = 45
 
 [sub_resource type="Resource" id="Resource_xkcgp"]
 script = ExtResource("1_ys3v6")
 stat_type = 2
 base_value = 0
-flat_bonus_value = 22
+flat_bonus_value = 24
 
 [sub_resource type="Resource" id="Resource_ul6al"]
 script = ExtResource("1_ys3v6")
@@ -41,11 +41,11 @@ bonus_stats = Dictionary[int, ExtResource("1_ys3v6")]({
 9: SubResource("Resource_2dw8p"),
 10: SubResource("Resource_ul6al")
 })
-item_id = "1411141154133-9602-4216-23112-21212141011431104"
+item_id = "11361200715-71461-11502-31511-119715061331214013"
 name = "Dragonbone Pathfinder Mail"
 rarity = 0
 icon = SubResource("AtlasTexture_aj8wt")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
-item_level = 70
+item_level = 77
 custom_item_value = 0

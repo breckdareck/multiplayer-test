@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_mebsi"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_5jak5"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_6yspd"]
+
+[sub_resource type="Resource" id="Resource_rikd2"]
+script = ExtResource("1_mebsi")
+stat_type = 12
+base_value = 0
+flat_bonus_value = 19
+
+[sub_resource type="Resource" id="Resource_5tvkm"]
+script = ExtResource("1_mebsi")
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_st5vx"]
+atlas = ExtResource("2_5jak5")
+region = Rect2(10, 17, 4, 11)
+margin = Rect2(3.5, 0, 7, 0)
+
+[resource]
+script = ExtResource("3_6yspd")
+weapon_type = 0
+weapon_attack_speed = 4
+equipment_type = 1
+bonus_stats = Dictionary[int, ExtResource("1_mebsi")]({
+0: SubResource("Resource_5tvkm"),
+12: SubResource("Resource_rikd2")
+})
+item_id = "3110112816-21054-48715-151399-8110143312635110"
+name = "Rough Longsword"
+rarity = 0
+icon = SubResource("AtlasTexture_st5vx")
+description = "A balanced blade — the Swordsman's trusted companion."
+item_type = 1
+item_level = 8
+custom_item_value = 0

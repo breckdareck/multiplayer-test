@@ -7,25 +7,25 @@
 script = ExtResource("1_j631d")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 21
+flat_bonus_value = 22
 
 [sub_resource type="Resource" id="Resource_vcetk"]
 script = ExtResource("1_j631d")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 21
+flat_bonus_value = 22
 
 [sub_resource type="Resource" id="Resource_k2hi8"]
 script = ExtResource("1_j631d")
 stat_type = 3
 base_value = 0
-flat_bonus_value = 11
+flat_bonus_value = 12
 
 [sub_resource type="Resource" id="Resource_ked80"]
 script = ExtResource("1_j631d")
 stat_type = 11
 base_value = 0
-flat_bonus_value = 3
+flat_bonus_value = 4
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_uejma"]
 load_path = "res://.godot/imported/Eqp_Leather_Sandals.png-23f0cc5f3f25b855dccf580eeba0d806.ctex"
@@ -39,11 +39,11 @@ bonus_stats = Dictionary[int, ExtResource("1_j631d")]({
 9: SubResource("Resource_vcetk"),
 11: SubResource("Resource_ked80")
 })
-item_id = "131431112439-5576-21139-77108-12035141696434"
+item_id = "1498312611-1461512-55129-5354-12901315152485101"
 name = "Dragonbone Nightshade Boots"
 rarity = 0
 icon = SubResource("CompressedTexture2D_uejma")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
-item_level = 70
+item_level = 77
 custom_item_value = 0

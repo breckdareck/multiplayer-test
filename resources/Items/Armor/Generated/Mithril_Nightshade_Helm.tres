@@ -8,13 +8,13 @@
 script = ExtResource("1_rqvjn")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 15
+flat_bonus_value = 16
 
 [sub_resource type="Resource" id="Resource_fraqd"]
 script = ExtResource("1_rqvjn")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 15
+flat_bonus_value = 16
 
 [sub_resource type="Resource" id="Resource_2qa1g"]
 script = ExtResource("1_rqvjn")
@@ -40,11 +40,11 @@ bonus_stats = Dictionary[int, ExtResource("1_rqvjn")]({
 9: SubResource("Resource_fraqd"),
 11: SubResource("Resource_umxs8")
 })
-item_id = "5111001012152-1491112-11100-135713-1110810150151110213"
+item_id = "7124134782-114413-7970-100310-251015150145808"
 name = "Mithril Nightshade Helm"
 rarity = 0
 icon = SubResource("AtlasTexture_6c5d0")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
-item_level = 40
+item_level = 43
 custom_item_value = 0

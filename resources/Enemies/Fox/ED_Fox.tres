@@ -1,12 +1,12 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=12 format=3 uid="uid://b6cwvujcw345t"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=12 format=3]
 
-[ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
-[ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
-[ext_resource type="SpriteFrames" uid="uid://baqtyjguyoxo2" path="res://resources/Enemies/Fox/SF_Fox.tres" id="3_sf"]
-[ext_resource type="Resource" uid="uid://dby5bnuowg2ti" path="res://resources/DropTables/Generated/Worn_Dirk.tres" id="d_1"]
-[ext_resource type="Resource" uid="uid://d2xxrjwc2ls6d" path="res://resources/DropTables/Generated/Worn_Nightshade_Helm.tres" id="d_2"]
-[ext_resource type="Resource" uid="uid://3b2qenjevomy" path="res://resources/DropTables/Generated/Worn_Nightshade_Boots.tres" id="d_3"]
-[ext_resource type="Resource" uid="uid://ds5410vlc1gf" path="res://resources/DropTables/Generated/Worn_Pathfinder_Helm.tres" id="d_4"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Rough_Dirk.tres" id="2_62g8u"]
+[ext_resource type="Script" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Rough_Nightshade_Helm.tres" id="3_iq6c1"]
+[ext_resource type="SpriteFrames" path="res://resources/Enemies/Fox/SF_Fox.tres" id="3_sf"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Rough_Nightshade_Boots.tres" id="4_wgikh"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Rough_Pathfinder_Helm.tres" id="5_jqwuj"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)
@@ -30,11 +30,21 @@ metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 script = ExtResource("2_ed")
 monster_name = "Fox"
 monster_level = 9
-movement_speed = 40
+movement_speed = 40.0
+is_invincible = false
+is_magic_attacker = false
+archetype = 0
+defense_mult = 1.0
+magic_defense_mult = 1.0
+health_mult = 1.0
+attack_mult = 1.0
 is_aggressive = true
+detection_radius = 160.0
+attack_range = 36.0
+attack_cooldown = 1.4
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")
 body_hitbox_shape = SubResource("Shape_body")
 attack_hitbox_shape = SubResource("Shape_atk")
-item_drops = Array[ExtResource("1_drop")]([SubResource("Resource_coin"), ExtResource("d_1"), ExtResource("d_2"), ExtResource("d_3"), ExtResource("d_4")])
+item_drops = Array[ExtResource("1_drop")]([SubResource("Resource_coin"), ExtResource("2_62g8u"), ExtResource("3_iq6c1"), ExtResource("4_wgikh"), ExtResource("5_jqwuj")])
 metadata/_custom_type_script = "uid://dv7aj5x3e50cg"

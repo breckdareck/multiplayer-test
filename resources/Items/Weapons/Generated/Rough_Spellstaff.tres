@@ -1,0 +1,47 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_eag3j"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_v3db4"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_qog84"]
+
+[sub_resource type="Resource" id="Resource_7ltwl"]
+script = ExtResource("1_eag3j")
+stat_type = 13
+base_value = 0
+flat_bonus_value = 19
+
+[sub_resource type="Resource" id="Resource_tlu64"]
+script = ExtResource("1_eag3j")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="Resource" id="Resource_5dogm"]
+script = ExtResource("1_eag3j")
+stat_type = 5
+base_value = 0
+flat_bonus_value = 16
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7ot0k"]
+atlas = ExtResource("2_v3db4")
+region = Rect2(10, 17, 4, 11)
+margin = Rect2(3.5, 0, 7, 0)
+
+[resource]
+script = ExtResource("3_qog84")
+weapon_type = 2
+weapon_attack_speed = 3
+equipment_type = 1
+bonus_stats = Dictionary[int, ExtResource("1_eag3j")]({
+1: SubResource("Resource_tlu64"),
+5: SubResource("Resource_5dogm"),
+13: SubResource("Resource_7ltwl")
+})
+item_id = "11078741115-7121111-6324-010812-151942143141316"
+name = "Rough Spellstaff"
+rarity = 0
+icon = SubResource("AtlasTexture_7ot0k")
+description = "A conduit of arcane power wielded by Mages."
+item_type = 1
+item_level = 8
+custom_item_value = 0

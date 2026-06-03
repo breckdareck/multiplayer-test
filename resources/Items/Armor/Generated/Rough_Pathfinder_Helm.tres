@@ -1,0 +1,50 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_5jtpo"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_vkwbk"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_uc4l3"]
+
+[sub_resource type="Resource" id="Resource_q44y1"]
+script = ExtResource("1_5jtpo")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_jio1p"]
+script = ExtResource("1_5jtpo")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_cmjus"]
+script = ExtResource("1_5jtpo")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_e0c7m"]
+script = ExtResource("1_5jtpo")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qtxne"]
+atlas = ExtResource("2_vkwbk")
+region = Rect2(786, 60, 42, 42)
+
+[resource]
+script = ExtResource("3_uc4l3")
+bonus_stats = Dictionary[int, ExtResource("1_5jtpo")]({
+2: SubResource("Resource_cmjus"),
+8: SubResource("Resource_q44y1"),
+9: SubResource("Resource_jio1p"),
+10: SubResource("Resource_e0c7m")
+})
+item_id = "2851423151-5911-71465-01095-512791012745897"
+name = "Rough Pathfinder Helm"
+rarity = 0
+icon = SubResource("AtlasTexture_qtxne")
+description = "Light, flexible armour suited to an Archer's mobility."
+item_type = 1
+item_level = 8
+custom_item_value = 0

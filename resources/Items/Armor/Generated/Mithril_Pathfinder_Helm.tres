@@ -8,13 +8,13 @@
 script = ExtResource("1_22etv")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 15
+flat_bonus_value = 16
 
 [sub_resource type="Resource" id="Resource_ofaof"]
 script = ExtResource("1_22etv")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 15
+flat_bonus_value = 16
 
 [sub_resource type="Resource" id="Resource_4ool3"]
 script = ExtResource("1_22etv")
@@ -40,11 +40,11 @@ bonus_stats = Dictionary[int, ExtResource("1_22etv")]({
 9: SubResource("Resource_ofaof"),
 10: SubResource("Resource_fbgok")
 })
-item_id = "1308141412915-98132-102011-21164-1184313115480611"
+item_id = "01431205129-12613-21407-2186-12101311153131051012"
 name = "Mithril Pathfinder Helm"
 rarity = 0
 icon = SubResource("AtlasTexture_ic2nn")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
-item_level = 40
+item_level = 43
 custom_item_value = 0

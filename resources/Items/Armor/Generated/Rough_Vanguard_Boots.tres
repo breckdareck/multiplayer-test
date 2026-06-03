@@ -1,0 +1,48 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_7k1w6"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_axmnf"]
+
+[sub_resource type="Resource" id="Resource_mqrk2"]
+script = ExtResource("1_7k1w6")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_s54v0"]
+script = ExtResource("1_7k1w6")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_bmvgi"]
+script = ExtResource("1_7k1w6")
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_vycyo"]
+script = ExtResource("1_7k1w6")
+stat_type = 4
+base_value = 0
+flat_bonus_value = 11
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_hbabu"]
+load_path = "res://.godot/imported/Eqp_Leather_Sandals.png-23f0cc5f3f25b855dccf580eeba0d806.ctex"
+
+[resource]
+script = ExtResource("2_axmnf")
+armor_type = 3
+bonus_stats = Dictionary[int, ExtResource("1_7k1w6")]({
+0: SubResource("Resource_bmvgi"),
+4: SubResource("Resource_vycyo"),
+8: SubResource("Resource_mqrk2"),
+9: SubResource("Resource_s54v0")
+})
+item_id = "802391519-1513215-82110-134111-111141101528141003"
+name = "Rough Vanguard Boots"
+rarity = 0
+icon = SubResource("CompressedTexture2D_hbabu")
+description = "Heavy plate forged for front-line Swordsmen."
+item_type = 1
+item_level = 8
+custom_item_value = 0

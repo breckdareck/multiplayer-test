@@ -8,19 +8,19 @@
 script = ExtResource("1_43fnw")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 25
+flat_bonus_value = 26
 
 [sub_resource type="Resource" id="Resource_t8vgk"]
 script = ExtResource("1_43fnw")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 25
+flat_bonus_value = 26
 
 [sub_resource type="Resource" id="Resource_ry51c"]
 script = ExtResource("1_43fnw")
 stat_type = 2
 base_value = 0
-flat_bonus_value = 13
+flat_bonus_value = 14
 
 [sub_resource type="Resource" id="Resource_vin4s"]
 script = ExtResource("1_43fnw")
@@ -41,11 +41,11 @@ bonus_stats = Dictionary[int, ExtResource("1_43fnw")]({
 9: SubResource("Resource_t8vgk"),
 10: SubResource("Resource_vin4s")
 })
-item_id = "8421491001-30150-05103-59106-14412111142101441012"
+item_id = "9478214414-50158-1705-611115-312101504911137311"
 name = "Mithril Pathfinder Mail"
 rarity = 0
 icon = SubResource("AtlasTexture_amyla")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
-item_level = 40
+item_level = 43
 custom_item_value = 0

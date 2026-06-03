@@ -8,25 +8,25 @@
 script = ExtResource("1_c830n")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 30
+flat_bonus_value = 32
 
 [sub_resource type="Resource" id="Resource_2xpy4"]
 script = ExtResource("1_c830n")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 47
+flat_bonus_value = 50
 
 [sub_resource type="Resource" id="Resource_5tlnv"]
 script = ExtResource("1_c830n")
 stat_type = 1
 base_value = 0
-flat_bonus_value = 20
+flat_bonus_value = 21
 
 [sub_resource type="Resource" id="Resource_kqqkd"]
 script = ExtResource("1_c830n")
 stat_type = 5
 base_value = 0
-flat_bonus_value = 101
+flat_bonus_value = 107
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_bdgxw"]
 atlas = ExtResource("2_2u3rl")
@@ -42,11 +42,11 @@ bonus_stats = Dictionary[int, ExtResource("1_c830n")]({
 8: SubResource("Resource_imf4i"),
 9: SubResource("Resource_2xpy4")
 })
-item_id = "5312512155-89104-1512410-611113-128131291112156662"
+item_id = "1105109767-3123-61130-913115-40092951415711"
 name = "Celestial Arcanist Legguards"
 rarity = 0
 icon = SubResource("AtlasTexture_bdgxw")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
-item_level = 80
+item_level = 85
 custom_item_value = 0

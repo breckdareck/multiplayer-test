@@ -8,19 +8,19 @@
 script = ExtResource("1_agmpi")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 37
+flat_bonus_value = 39
 
 [sub_resource type="Resource" id="Resource_w16eb"]
 script = ExtResource("1_agmpi")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 37
+flat_bonus_value = 39
 
 [sub_resource type="Resource" id="Resource_tr4j8"]
 script = ExtResource("1_agmpi")
 stat_type = 3
 base_value = 0
-flat_bonus_value = 20
+flat_bonus_value = 21
 
 [sub_resource type="Resource" id="Resource_vd87t"]
 script = ExtResource("1_agmpi")
@@ -42,11 +42,11 @@ bonus_stats = Dictionary[int, ExtResource("1_agmpi")]({
 9: SubResource("Resource_w16eb"),
 11: SubResource("Resource_vd87t")
 })
-item_id = "461335091-6102-1311158-5923-813730156869139"
+item_id = "101151613138-67011-312137-15101315-611110369106137"
 name = "Celestial Nightshade Legguards"
 rarity = 0
 icon = SubResource("AtlasTexture_20sjq")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
-item_level = 80
+item_level = 85
 custom_item_value = 0

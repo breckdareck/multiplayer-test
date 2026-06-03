@@ -7,4 +7,4 @@ script = ExtResource("1_1m2us")
 item_name = "Celestial Arcanist Legguards"
 randomize_stats = true
 possible_stats = Array[int]([8, 9, 1, 5])
-drop_chance = 0.016
+drop_chance = 0.015

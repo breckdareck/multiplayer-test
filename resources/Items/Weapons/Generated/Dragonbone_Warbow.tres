@@ -8,19 +8,19 @@
 script = ExtResource("1_xg4r5")
 stat_type = 12
 base_value = 0
-flat_bonus_value = 101
+flat_bonus_value = 110
 
 [sub_resource type="Resource" id="Resource_55gap"]
 script = ExtResource("1_xg4r5")
 stat_type = 2
 base_value = 0
-flat_bonus_value = 30
+flat_bonus_value = 33
 
 [sub_resource type="Resource" id="Resource_wgl7c"]
 script = ExtResource("1_xg4r5")
 stat_type = 10
 base_value = 0
-flat_bonus_value = 5
+flat_bonus_value = 6
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_vddrw"]
 atlas = ExtResource("2_8dcb2")
@@ -37,11 +37,11 @@ bonus_stats = Dictionary[int, ExtResource("1_xg4r5")]({
 10: SubResource("Resource_wgl7c"),
 12: SubResource("Resource_fjuef")
 })
-item_id = "481115112011-8111513-06514-711120-151212122146610151410"
+item_id = "8135155539-15022-1310811-12815-928911397121324"
 name = "Dragonbone Warbow"
 rarity = 0
 icon = SubResource("AtlasTexture_vddrw")
 description = "A finely strung bow built for an Archer's precision."
 item_type = 1
-item_level = 70
+item_level = 77
 custom_item_value = 0

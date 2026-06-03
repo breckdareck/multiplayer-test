@@ -8,24 +8,24 @@
 script = ExtResource("1_0dmg1")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 31
+flat_bonus_value = 33
 
 [sub_resource type="Resource" id="Resource_4fpju"]
 script = ExtResource("1_0dmg1")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 20
+flat_bonus_value = 21
 
 [sub_resource type="Resource" id="Resource_s3sur"]
 script = ExtResource("1_0dmg1")
 base_value = 0
-flat_bonus_value = 11
+flat_bonus_value = 12
 
 [sub_resource type="Resource" id="Resource_b8ieb"]
 script = ExtResource("1_0dmg1")
 stat_type = 4
 base_value = 0
-flat_bonus_value = 80
+flat_bonus_value = 85
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_aj8gs"]
 atlas = ExtResource("2_vmhjw")
@@ -40,11 +40,11 @@ bonus_stats = Dictionary[int, ExtResource("1_0dmg1")]({
 8: SubResource("Resource_ea6rp"),
 9: SubResource("Resource_4fpju")
 })
-item_id = "6111010675-100133-114102-141225-011831037821597"
+item_id = "8611151214156-9885-613313-121057-8134746433012"
 name = "Mithril Vanguard Mail"
 rarity = 0
 icon = SubResource("AtlasTexture_aj8gs")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
-item_level = 40
+item_level = 43
 custom_item_value = 0

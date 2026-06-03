@@ -8,19 +8,19 @@
 script = ExtResource("1_ceo8l")
 stat_type = 13
 base_value = 0
-flat_bonus_value = 112
+flat_bonus_value = 123
 
 [sub_resource type="Resource" id="Resource_0cxry"]
 script = ExtResource("1_ceo8l")
 stat_type = 1
 base_value = 0
-flat_bonus_value = 30
+flat_bonus_value = 33
 
 [sub_resource type="Resource" id="Resource_apa2c"]
 script = ExtResource("1_ceo8l")
 stat_type = 5
 base_value = 0
-flat_bonus_value = 90
+flat_bonus_value = 98
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_qkbq1"]
 atlas = ExtResource("2_hvveu")
@@ -37,11 +37,11 @@ bonus_stats = Dictionary[int, ExtResource("1_ceo8l")]({
 5: SubResource("Resource_apa2c"),
 13: SubResource("Resource_ny1n2")
 })
-item_id = "5111413411311-15127-4672-117110-4141221421512131020"
+item_id = "610139521310-1171513-159013-8886-1331427997121100"
 name = "Dragonbone Spellstaff"
 rarity = 0
 icon = SubResource("AtlasTexture_qkbq1")
 description = "A conduit of arcane power wielded by Mages."
 item_type = 1
-item_level = 70
+item_level = 77
 custom_item_value = 0

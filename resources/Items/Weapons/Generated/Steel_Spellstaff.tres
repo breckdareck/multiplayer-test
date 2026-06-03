@@ -8,19 +8,19 @@
 script = ExtResource("1_gf0i1")
 stat_type = 13
 base_value = 0
-flat_bonus_value = 52
+flat_bonus_value = 60
 
 [sub_resource type="Resource" id="Resource_grysk"]
 script = ExtResource("1_gf0i1")
 stat_type = 1
 base_value = 0
-flat_bonus_value = 14
+flat_bonus_value = 16
 
 [sub_resource type="Resource" id="Resource_ieivc"]
 script = ExtResource("1_gf0i1")
 stat_type = 5
 base_value = 0
-flat_bonus_value = 42
+flat_bonus_value = 48
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_uj7ro"]
 atlas = ExtResource("2_isab3")
@@ -37,11 +37,11 @@ bonus_stats = Dictionary[int, ExtResource("1_gf0i1")]({
 5: SubResource("Resource_ieivc"),
 13: SubResource("Resource_0m5we")
 })
-item_id = "51412151110213-121209-9121215-141029-15111047128107111311"
+item_id = "1185111611-148140-112914-7586-142845971771313"
 name = "Steel Spellstaff"
 rarity = 0
 icon = SubResource("AtlasTexture_uj7ro")
 description = "A conduit of arcane power wielded by Mages."
 item_type = 1
-item_level = 30
+item_level = 35
 custom_item_value = 0

@@ -7,13 +7,13 @@
 script = ExtResource("1_lbuu8")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 5
+flat_bonus_value = 6
 
 [sub_resource type="Resource" id="Resource_rtv0h"]
 script = ExtResource("1_lbuu8")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 3
+flat_bonus_value = 4
 
 [sub_resource type="Resource" id="Resource_mu5o8"]
 script = ExtResource("1_lbuu8")
@@ -24,7 +24,7 @@ flat_bonus_value = 2
 script = ExtResource("1_lbuu8")
 stat_type = 4
 base_value = 0
-flat_bonus_value = 13
+flat_bonus_value = 16
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_d5f5o"]
 load_path = "res://.godot/imported/Eqp_Leather_Sandals.png-23f0cc5f3f25b855dccf580eeba0d806.ctex"
@@ -38,11 +38,11 @@ bonus_stats = Dictionary[int, ExtResource("1_lbuu8")]({
 8: SubResource("Resource_us5db"),
 9: SubResource("Resource_rtv0h")
 })
-item_id = "1466111511115-61013-101325-101039-1436314111111119"
+item_id = "1474431111-1541313-1171013-271414-138391915145665"
 name = "Bronze Vanguard Boots"
 rarity = 0
 icon = SubResource("CompressedTexture2D_d5f5o")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
-item_level = 10
+item_level = 13
 custom_item_value = 0

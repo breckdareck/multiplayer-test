@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_two4p"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_fe3jv"]
+
+[sub_resource type="Resource" id="Resource_my8gu"]
+script = ExtResource("1_two4p")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 6
+
+[sub_resource type="Resource" id="Resource_4cqie"]
+script = ExtResource("1_two4p")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 9
+
+[sub_resource type="Resource" id="Resource_00hyl"]
+script = ExtResource("1_two4p")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_mqm0y"]
+script = ExtResource("1_two4p")
+stat_type = 5
+base_value = 0
+flat_bonus_value = 18
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_egfuo"]
+load_path = "res://.godot/imported/Eqp_Leather_Sandals.png-23f0cc5f3f25b855dccf580eeba0d806.ctex"
+
+[resource]
+script = ExtResource("2_fe3jv")
+armor_type = 3
+bonus_stats = Dictionary[int, ExtResource("1_two4p")]({
+1: SubResource("Resource_00hyl"),
+5: SubResource("Resource_mqm0y"),
+8: SubResource("Resource_my8gu"),
+9: SubResource("Resource_4cqie")
+})
+item_id = "827741270-281211-12619-9701-015613341312121262"
+name = "Fine Arcanist Boots"
+rarity = 0
+icon = SubResource("CompressedTexture2D_egfuo")
+description = "Enchanted vestments that channel a Mage's power."
+item_type = 1
+item_level = 20
+custom_item_value = 0

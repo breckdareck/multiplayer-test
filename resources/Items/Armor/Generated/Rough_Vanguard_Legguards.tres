@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_irxyf"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_jt40f"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_23u64"]
+
+[sub_resource type="Resource" id="Resource_b2f33"]
+script = ExtResource("1_irxyf")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 7
+
+[sub_resource type="Resource" id="Resource_0ga6q"]
+script = ExtResource("1_irxyf")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_vde6f"]
+script = ExtResource("1_irxyf")
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_d46ia"]
+script = ExtResource("1_irxyf")
+stat_type = 4
+base_value = 0
+flat_bonus_value = 18
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_auuhb"]
+atlas = ExtResource("2_jt40f")
+region = Rect2(0, 0, 25, 16)
+margin = Rect2(0.5, 5.5, 1, 10)
+
+[resource]
+script = ExtResource("3_23u64")
+armor_type = 2
+bonus_stats = Dictionary[int, ExtResource("1_irxyf")]({
+0: SubResource("Resource_vde6f"),
+4: SubResource("Resource_d46ia"),
+8: SubResource("Resource_b2f33"),
+9: SubResource("Resource_0ga6q")
+})
+item_id = "1351013145101-341412-3863-11214-551051294612310"
+name = "Rough Vanguard Legguards"
+rarity = 0
+icon = SubResource("AtlasTexture_auuhb")
+description = "Heavy plate forged for front-line Swordsmen."
+item_type = 1
+item_level = 8
+custom_item_value = 0

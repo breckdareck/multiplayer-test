@@ -8,19 +8,19 @@
 script = ExtResource("1_w3uds")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 25
+flat_bonus_value = 26
 
 [sub_resource type="Resource" id="Resource_08nk5"]
 script = ExtResource("1_w3uds")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 25
+flat_bonus_value = 26
 
 [sub_resource type="Resource" id="Resource_480x8"]
 script = ExtResource("1_w3uds")
 stat_type = 3
 base_value = 0
-flat_bonus_value = 13
+flat_bonus_value = 14
 
 [sub_resource type="Resource" id="Resource_33njl"]
 script = ExtResource("1_w3uds")
@@ -41,11 +41,11 @@ bonus_stats = Dictionary[int, ExtResource("1_w3uds")]({
 9: SubResource("Resource_08nk5"),
 11: SubResource("Resource_33njl")
 })
-item_id = "2261514141114-109113-28100-23157-13047151013351310"
+item_id = "1131430335-012515-201114-212122-7015814415156649"
 name = "Mithril Nightshade Mail"
 rarity = 0
 icon = SubResource("AtlasTexture_cv0kl")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
-item_level = 40
+item_level = 43
 custom_item_value = 0

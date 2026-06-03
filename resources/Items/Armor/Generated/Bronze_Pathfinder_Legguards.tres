@@ -8,19 +8,19 @@
 script = ExtResource("1_4golj")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 6
+flat_bonus_value = 8
 
 [sub_resource type="Resource" id="Resource_nbw0q"]
 script = ExtResource("1_4golj")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 6
+flat_bonus_value = 8
 
 [sub_resource type="Resource" id="Resource_613l5"]
 script = ExtResource("1_4golj")
 stat_type = 2
 base_value = 0
-flat_bonus_value = 3
+flat_bonus_value = 4
 
 [sub_resource type="Resource" id="Resource_7kw4l"]
 script = ExtResource("1_4golj")
@@ -42,11 +42,11 @@ bonus_stats = Dictionary[int, ExtResource("1_4golj")]({
 9: SubResource("Resource_nbw0q"),
 10: SubResource("Resource_7kw4l")
 })
-item_id = "04141563143-21145-1451511-76410-1096121112771388"
+item_id = "10915151014148-78154-1039-13800-01313133913911126"
 name = "Bronze Pathfinder Legguards"
 rarity = 0
 icon = SubResource("AtlasTexture_ac672")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
-item_level = 10
+item_level = 13
 custom_item_value = 0

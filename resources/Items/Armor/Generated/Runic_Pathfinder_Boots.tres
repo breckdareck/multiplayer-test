@@ -7,19 +7,19 @@
 script = ExtResource("1_001oy")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 18
+flat_bonus_value = 20
 
 [sub_resource type="Resource" id="Resource_uws5d"]
 script = ExtResource("1_001oy")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 18
+flat_bonus_value = 20
 
 [sub_resource type="Resource" id="Resource_tdy3t"]
 script = ExtResource("1_001oy")
 stat_type = 2
 base_value = 0
-flat_bonus_value = 10
+flat_bonus_value = 11
 
 [sub_resource type="Resource" id="Resource_o5kql"]
 script = ExtResource("1_001oy")
@@ -39,11 +39,11 @@ bonus_stats = Dictionary[int, ExtResource("1_001oy")]({
 9: SubResource("Resource_uws5d"),
 10: SubResource("Resource_o5kql")
 })
-item_id = "12104214800-1014413-112013-15526-1514322991571189"
+item_id = "2407112120-013132-128119-961212-571510001131411413"
 name = "Runic Pathfinder Boots"
 rarity = 0
 icon = SubResource("CompressedTexture2D_ca7e0")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
-item_level = 60
+item_level = 68
 custom_item_value = 0

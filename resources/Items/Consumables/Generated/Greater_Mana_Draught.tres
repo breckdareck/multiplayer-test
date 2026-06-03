@@ -14,7 +14,7 @@ effect_script = ExtResource("1_l302j")
 effect_properties = {
 "regain_amount": 220
 }
-item_id = "111071494144-1015615-711911-2893-0592161261010130"
+item_id = "9121142397-82157-3440-3079-53151112052291010"
 name = "Greater Mana Draught"
 icon = SubResource("AtlasTexture_ee5c7")
 description = "Restores 220 MP when consumed."

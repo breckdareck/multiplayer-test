@@ -8,12 +8,12 @@
 script = ExtResource("1_wwi0a")
 stat_type = 12
 base_value = 0
-flat_bonus_value = 67
+flat_bonus_value = 72
 
 [sub_resource type="Resource" id="Resource_qfkwt"]
 script = ExtResource("1_wwi0a")
 base_value = 0
-flat_bonus_value = 16
+flat_bonus_value = 17
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_kwee4"]
 atlas = ExtResource("2_n2rjw")
@@ -29,11 +29,11 @@ bonus_stats = Dictionary[int, ExtResource("1_wwi0a")]({
 0: SubResource("Resource_qfkwt"),
 12: SubResource("Resource_fkbu0")
 })
-item_id = "3000131612-91151-9375-121248-38987513121491"
+item_id = "1502106614-6836-22412-156513-9131014371121461"
 name = "Mithril Longsword"
 rarity = 0
 icon = SubResource("AtlasTexture_kwee4")
 description = "A balanced blade — the Swordsman's trusted companion."
 item_type = 1
-item_level = 40
+item_level = 43
 custom_item_value = 0

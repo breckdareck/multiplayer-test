@@ -8,24 +8,24 @@
 script = ExtResource("1_ck6rn")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 17
+flat_bonus_value = 22
 
 [sub_resource type="Resource" id="Resource_iu47j"]
 script = ExtResource("1_ck6rn")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 11
+flat_bonus_value = 14
 
 [sub_resource type="Resource" id="Resource_cwb5s"]
 script = ExtResource("1_ck6rn")
 base_value = 0
-flat_bonus_value = 6
+flat_bonus_value = 8
 
 [sub_resource type="Resource" id="Resource_phhe4"]
 script = ExtResource("1_ck6rn")
 stat_type = 4
 base_value = 0
-flat_bonus_value = 44
+flat_bonus_value = 57
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_1c3wf"]
 atlas = ExtResource("2_rtden")
@@ -40,11 +40,11 @@ bonus_stats = Dictionary[int, ExtResource("1_ck6rn")]({
 8: SubResource("Resource_0crvd"),
 9: SubResource("Resource_iu47j")
 })
-item_id = "131011101211215-4653-4288-1011013-13111024185111515"
+item_id = "8128171548-147813-16125-111496-914125613531141110"
 name = "Iron Vanguard Mail"
 rarity = 0
 icon = SubResource("AtlasTexture_1c3wf")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
-item_level = 20
+item_level = 27
 custom_item_value = 0

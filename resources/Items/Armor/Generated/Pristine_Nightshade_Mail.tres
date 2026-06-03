@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_qbsnq"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_1sgvm"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_fb72f"]
+
+[sub_resource type="Resource" id="Resource_vcaim"]
+script = ExtResource("1_qbsnq")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 36
+
+[sub_resource type="Resource" id="Resource_756q6"]
+script = ExtResource("1_qbsnq")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 36
+
+[sub_resource type="Resource" id="Resource_ymf4m"]
+script = ExtResource("1_qbsnq")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 19
+
+[sub_resource type="Resource" id="Resource_5bv18"]
+script = ExtResource("1_qbsnq")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 6
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1v6ta"]
+atlas = ExtResource("2_1sgvm")
+region = Rect2(848, 142, 54, 54)
+
+[resource]
+script = ExtResource("3_fb72f")
+armor_type = 1
+bonus_stats = Dictionary[int, ExtResource("1_qbsnq")]({
+3: SubResource("Resource_ymf4m"),
+8: SubResource("Resource_vcaim"),
+9: SubResource("Resource_756q6"),
+11: SubResource("Resource_5bv18")
+})
+item_id = "14312594158-1510111-710119-14781-11151435514450110"
+name = "Pristine Nightshade Mail"
+rarity = 0
+icon = SubResource("AtlasTexture_1v6ta")
+description = "Shadowy garb tailored for a Rogue's deadly craft."
+item_type = 1
+item_level = 60
+custom_item_value = 0

@@ -7,4 +7,4 @@ script = ExtResource("1_4xmf1")
 item_name = "Dragonbone Arcanist Helm"
 randomize_stats = true
 possible_stats = Array[int]([8, 9, 1, 5])
-drop_chance = 0.018000000000000002
+drop_chance = 0.017

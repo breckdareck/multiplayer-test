@@ -1,0 +1,52 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_yy08c"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_pv1g4"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_jsll5"]
+
+[sub_resource type="Resource" id="Resource_u7qdr"]
+script = ExtResource("1_yy08c")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 23
+
+[sub_resource type="Resource" id="Resource_sy4yl"]
+script = ExtResource("1_yy08c")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 36
+
+[sub_resource type="Resource" id="Resource_cqv3v"]
+script = ExtResource("1_yy08c")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 15
+
+[sub_resource type="Resource" id="Resource_a8pr1"]
+script = ExtResource("1_yy08c")
+stat_type = 5
+base_value = 0
+flat_bonus_value = 77
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8vmw3"]
+atlas = ExtResource("2_pv1g4")
+region = Rect2(0, 0, 25, 16)
+margin = Rect2(0.5, 5.5, 1, 10)
+
+[resource]
+script = ExtResource("3_jsll5")
+armor_type = 2
+bonus_stats = Dictionary[int, ExtResource("1_yy08c")]({
+1: SubResource("Resource_cqv3v"),
+5: SubResource("Resource_a8pr1"),
+8: SubResource("Resource_u7qdr"),
+9: SubResource("Resource_sy4yl")
+})
+item_id = "07136131130-4278-4148-9805-81581141410129648"
+name = "Pristine Arcanist Legguards"
+rarity = 0
+icon = SubResource("AtlasTexture_8vmw3")
+description = "Enchanted vestments that channel a Mage's power."
+item_type = 1
+item_level = 60
+custom_item_value = 0

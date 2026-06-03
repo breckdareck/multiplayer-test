@@ -8,25 +8,25 @@
 script = ExtResource("1_bvwk1")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 4
+flat_bonus_value = 5
 
 [sub_resource type="Resource" id="Resource_baxep"]
 script = ExtResource("1_bvwk1")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 6
+flat_bonus_value = 7
 
 [sub_resource type="Resource" id="Resource_jk3rp"]
 script = ExtResource("1_bvwk1")
 stat_type = 1
 base_value = 0
-flat_bonus_value = 2
+flat_bonus_value = 3
 
 [sub_resource type="Resource" id="Resource_exlli"]
 script = ExtResource("1_bvwk1")
 stat_type = 5
 base_value = 0
-flat_bonus_value = 13
+flat_bonus_value = 15
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_jgxd0"]
 atlas = ExtResource("2_q5sr6")
@@ -40,11 +40,11 @@ bonus_stats = Dictionary[int, ExtResource("1_bvwk1")]({
 8: SubResource("Resource_dfw08"),
 9: SubResource("Resource_baxep")
 })
-item_id = "513602263-22144-131435-58109-102718641215848"
+item_id = "3111214915115-215135-11549-3887-3151453111011515156"
 name = "Bronze Arcanist Helm"
 rarity = 0
 icon = SubResource("AtlasTexture_jgxd0")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
-item_level = 10
+item_level = 13
 custom_item_value = 0

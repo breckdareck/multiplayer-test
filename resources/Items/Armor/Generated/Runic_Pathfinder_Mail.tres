@@ -8,19 +8,19 @@
 script = ExtResource("1_5c3ds")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 36
+flat_bonus_value = 40
 
 [sub_resource type="Resource" id="Resource_rsj5q"]
 script = ExtResource("1_5c3ds")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 36
+flat_bonus_value = 40
 
 [sub_resource type="Resource" id="Resource_wad3w"]
 script = ExtResource("1_5c3ds")
 stat_type = 2
 base_value = 0
-flat_bonus_value = 19
+flat_bonus_value = 21
 
 [sub_resource type="Resource" id="Resource_cxh20"]
 script = ExtResource("1_5c3ds")
@@ -41,11 +41,11 @@ bonus_stats = Dictionary[int, ExtResource("1_5c3ds")]({
 9: SubResource("Resource_rsj5q"),
 10: SubResource("Resource_cxh20")
 })
-item_id = "4144101215710-7725-38511-2852-816356739564"
+item_id = "11949331314-71312-141397-13141110-41131493146311714"
 name = "Runic Pathfinder Mail"
 rarity = 0
 icon = SubResource("AtlasTexture_htfec")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
-item_level = 60
+item_level = 68
 custom_item_value = 0

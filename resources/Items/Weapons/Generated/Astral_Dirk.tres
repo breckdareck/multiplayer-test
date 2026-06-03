@@ -8,13 +8,13 @@
 script = ExtResource("1_enu8n")
 stat_type = 12
 base_value = 0
-flat_bonus_value = 90
+flat_bonus_value = 92
 
 [sub_resource type="Resource" id="Resource_uis6e"]
 script = ExtResource("1_enu8n")
 stat_type = 3
 base_value = 0
-flat_bonus_value = 34
+flat_bonus_value = 35
 
 [sub_resource type="Resource" id="Resource_7jyil"]
 script = ExtResource("1_enu8n")
@@ -37,11 +37,11 @@ bonus_stats = Dictionary[int, ExtResource("1_enu8n")]({
 10: SubResource("Resource_7jyil"),
 12: SubResource("Resource_m35qm")
 })
-item_id = "69292713-11034-78130-1241314-141116121158109713"
+item_id = "1102671100-02615-1415114-951110-71201342413104611"
 name = "Astral Dirk"
 rarity = 0
 icon = SubResource("AtlasTexture_bx08p")
 description = "A swift, wickedly sharp blade prized by Rogues."
 item_type = 1
-item_level = 90
+item_level = 93
 custom_item_value = 0

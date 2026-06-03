@@ -40,7 +40,7 @@ bonus_stats = Dictionary[int, ExtResource("1_kajqj")]({
 8: SubResource("Resource_e72qd"),
 9: SubResource("Resource_g6186")
 })
-item_id = "99511915101-91414-11810-131495-862114410951566"
+item_id = "612715821012-71245-251112-1141512-1413531501411151612"
 name = "Eternal Arcanist Helm"
 rarity = 0
 icon = SubResource("AtlasTexture_7pyse")

@@ -7,13 +7,13 @@
 script = ExtResource("1_ciph5")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 4
+flat_bonus_value = 5
 
 [sub_resource type="Resource" id="Resource_sdo86"]
 script = ExtResource("1_ciph5")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 4
+flat_bonus_value = 5
 
 [sub_resource type="Resource" id="Resource_crico"]
 script = ExtResource("1_ciph5")
@@ -39,11 +39,11 @@ bonus_stats = Dictionary[int, ExtResource("1_ciph5")]({
 9: SubResource("Resource_sdo86"),
 10: SubResource("Resource_tr8tk")
 })
-item_id = "81424141204-0238-68142-1331415-8103106155101551513"
+item_id = "1014104111077-121443-131089-2111511-631351081178559"
 name = "Bronze Pathfinder Boots"
 rarity = 0
 icon = SubResource("CompressedTexture2D_cjgpj")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
-item_level = 10
+item_level = 13
 custom_item_value = 0

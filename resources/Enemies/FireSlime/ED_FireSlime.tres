@@ -1,14 +1,14 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=13 format=3 uid="uid://bdp6un27d174w"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=13 format=3]
 
-[ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
-[ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
-[ext_resource type="SpriteFrames" uid="uid://b2ohgim61o1bm" path="res://resources/Enemies/Slime/SF_Slime.tres" id="3_sf"]
-[ext_resource type="Resource" uid="uid://334keepv8nuk" path="res://resources/DropTables/Generated/Dragonbone_Longsword.tres" id="d_1"]
-[ext_resource type="Resource" uid="uid://bqym3la47g07k" path="res://resources/DropTables/Generated/Dragonbone_Spellstaff.tres" id="d_2"]
-[ext_resource type="Resource" uid="uid://duycpv670ibgr" path="res://resources/DropTables/Generated/Dragonbone_Vanguard_Mail.tres" id="d_3"]
-[ext_resource type="Resource" uid="uid://db15mw470wlgu" path="res://resources/DropTables/Generated/Dragonbone_Arcanist_Mail.tres" id="d_4"]
-[ext_resource type="Resource" uid="uid://brwp8swqp4l1k" path="res://resources/DropTables/Generated/Dragonbone_Arcanist_Helm.tres" id="d_5"]
-[ext_resource type="Resource" uid="uid://by12xufidcyvx" path="res://resources/DropTables/Generated/Dragonbone_Vanguard_Helm.tres" id="d_6"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
+[ext_resource type="Script" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Runic_Longsword.tres" id="2_vd8iw"]
+[ext_resource type="SpriteFrames" path="res://resources/Enemies/Slime/SF_Slime.tres" id="3_sf"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Runic_Spellstaff.tres" id="3_x3egt"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Runic_Vanguard_Mail.tres" id="4_0uptd"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Runic_Arcanist_Mail.tres" id="5_dcard"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Runic_Arcanist_Helm.tres" id="6_xmjsa"]
+[ext_resource type="Resource" path="res://resources/DropTables/Generated/Runic_Vanguard_Helm.tres" id="7_nuj7u"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)
@@ -28,12 +28,21 @@ metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 script = ExtResource("2_ed")
 monster_name = "Fire Slime"
 monster_level = 73
-movement_speed = 55
+movement_speed = 55.0
+is_invincible = false
 is_magic_attacker = true
 archetype = 1
+defense_mult = 1.0
+magic_defense_mult = 1.0
+health_mult = 1.0
+attack_mult = 1.0
+is_aggressive = false
+detection_radius = 160.0
+attack_range = 36.0
+attack_cooldown = 1.4
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")
 body_hitbox_shape = SubResource("Shape_col")
 attack_hitbox_shape = SubResource("Shape_atk")
-item_drops = Array[ExtResource("1_drop")]([SubResource("Resource_coin"), ExtResource("d_1"), ExtResource("d_2"), ExtResource("d_3"), ExtResource("d_4"), ExtResource("d_5"), ExtResource("d_6")])
+item_drops = Array[ExtResource("1_drop")]([SubResource("Resource_coin"), ExtResource("2_vd8iw"), ExtResource("3_x3egt"), ExtResource("4_0uptd"), ExtResource("5_dcard"), ExtResource("6_xmjsa"), ExtResource("7_nuj7u")])
 metadata/_custom_type_script = "uid://dv7aj5x3e50cg"

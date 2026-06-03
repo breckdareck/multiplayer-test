@@ -8,19 +8,19 @@
 script = ExtResource("1_2duid")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 47
+flat_bonus_value = 49
 
 [sub_resource type="Resource" id="Resource_if3t5"]
 script = ExtResource("1_2duid")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 47
+flat_bonus_value = 49
 
 [sub_resource type="Resource" id="Resource_7kurf"]
 script = ExtResource("1_2duid")
 stat_type = 2
 base_value = 0
-flat_bonus_value = 25
+flat_bonus_value = 27
 
 [sub_resource type="Resource" id="Resource_ldc7s"]
 script = ExtResource("1_2duid")
@@ -41,11 +41,11 @@ bonus_stats = Dictionary[int, ExtResource("1_2duid")]({
 9: SubResource("Resource_if3t5"),
 10: SubResource("Resource_ldc7s")
 })
-item_id = "272851020-115211-75136-615214-56597585341014"
+item_id = "1113010159514-215150-01345-7601-631271151012100140"
 name = "Celestial Pathfinder Mail"
 rarity = 0
 icon = SubResource("AtlasTexture_y8a6j")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
-item_level = 80
+item_level = 85
 custom_item_value = 0

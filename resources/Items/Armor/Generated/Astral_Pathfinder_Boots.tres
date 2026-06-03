@@ -7,13 +7,13 @@
 script = ExtResource("1_q7q8u")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 26
+flat_bonus_value = 27
 
 [sub_resource type="Resource" id="Resource_mhkht"]
 script = ExtResource("1_q7q8u")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 26
+flat_bonus_value = 27
 
 [sub_resource type="Resource" id="Resource_aqjc3"]
 script = ExtResource("1_q7q8u")
@@ -39,11 +39,11 @@ bonus_stats = Dictionary[int, ExtResource("1_q7q8u")]({
 9: SubResource("Resource_mhkht"),
 10: SubResource("Resource_rjm7s")
 })
-item_id = "026149731-158157-11121013-9189-983131347131121110"
+item_id = "130178949-123713-91405-11265-37581014150491512"
 name = "Astral Pathfinder Boots"
 rarity = 0
 icon = SubResource("CompressedTexture2D_3ljxr")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
-item_level = 90
+item_level = 93
 custom_item_value = 0

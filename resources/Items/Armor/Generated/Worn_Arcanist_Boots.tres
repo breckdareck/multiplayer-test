@@ -39,7 +39,7 @@ bonus_stats = Dictionary[int, ExtResource("1_7cruu")]({
 8: SubResource("Resource_l5xa5"),
 9: SubResource("Resource_k31hf")
 })
-item_id = "11121410615147-11164-21040-11935-1300114783101491"
+item_id = "214441414715-113148-11665-151812-76167412141412123"
 name = "Worn Arcanist Boots"
 rarity = 0
 icon = SubResource("CompressedTexture2D_7c0h8")

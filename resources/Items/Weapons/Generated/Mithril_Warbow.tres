@@ -8,19 +8,19 @@
 script = ExtResource("1_unkgg")
 stat_type = 12
 base_value = 0
-flat_bonus_value = 60
+flat_bonus_value = 64
 
 [sub_resource type="Resource" id="Resource_2slg0"]
 script = ExtResource("1_unkgg")
 stat_type = 2
 base_value = 0
-flat_bonus_value = 18
+flat_bonus_value = 19
 
 [sub_resource type="Resource" id="Resource_fmbt6"]
 script = ExtResource("1_unkgg")
 stat_type = 10
 base_value = 0
-flat_bonus_value = 3
+flat_bonus_value = 4
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_lg8pp"]
 atlas = ExtResource("2_l0wsj")
@@ -37,11 +37,11 @@ bonus_stats = Dictionary[int, ExtResource("1_unkgg")]({
 10: SubResource("Resource_fmbt6"),
 12: SubResource("Resource_3vc7n")
 })
-item_id = "1591144241-66411-1541410-3286-6126831312101321413"
+item_id = "433645114-351512-61913-1111610-21423101181681"
 name = "Mithril Warbow"
 rarity = 0
 icon = SubResource("AtlasTexture_lg8pp")
 description = "A finely strung bow built for an Archer's precision."
 item_type = 1
-item_level = 40
+item_level = 43
 custom_item_value = 0

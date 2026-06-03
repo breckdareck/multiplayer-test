@@ -40,7 +40,7 @@ bonus_stats = Dictionary[int, ExtResource("1_uskr8")]({
 9: SubResource("Resource_0yd2j"),
 11: SubResource("Resource_wwsuc")
 })
-item_id = "1313927546-13232-156111-91152-1312115609714121311"
+item_id = "3740614114-109107-126714-015013-0113140591514298"
 name = "Adamant Nightshade Helm"
 rarity = 0
 icon = SubResource("AtlasTexture_78nfb")

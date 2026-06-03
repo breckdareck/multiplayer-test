@@ -14,7 +14,7 @@ effect_script = ExtResource("1_cov4o")
 effect_properties = {
 "heal_amount": 320
 }
-item_id = "511121012400-71140-151610-3121113-77190152121112112"
+item_id = "71121138812-9417-9993-4600-151113158242211145"
 name = "Greater Healing Draught"
 icon = SubResource("AtlasTexture_0md6a")
 description = "Restores 320 HP when consumed."

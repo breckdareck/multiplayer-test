@@ -8,12 +8,12 @@
 script = ExtResource("1_m8cd0")
 stat_type = 12
 base_value = 0
-flat_bonus_value = 97
+flat_bonus_value = 109
 
 [sub_resource type="Resource" id="Resource_qq4gy"]
 script = ExtResource("1_m8cd0")
 base_value = 0
-flat_bonus_value = 23
+flat_bonus_value = 26
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_hnpsj"]
 atlas = ExtResource("2_8e0e0")
@@ -29,11 +29,11 @@ bonus_stats = Dictionary[int, ExtResource("1_m8cd0")]({
 0: SubResource("Resource_qq4gy"),
 12: SubResource("Resource_obi8o")
 })
-item_id = "51110671118-1521011-151324-144150-144771315491556"
+item_id = "01281514099-541210-2396-010117-09214261081213130"
 name = "Runic Longsword"
 rarity = 0
 icon = SubResource("AtlasTexture_hnpsj")
 description = "A balanced blade — the Swordsman's trusted companion."
 item_type = 1
-item_level = 60
+item_level = 68
 custom_item_value = 0

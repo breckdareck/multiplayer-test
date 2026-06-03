@@ -14,7 +14,7 @@ flat_bonus_value = 26
 script = ExtResource("1_e5wui")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 40
+flat_bonus_value = 41
 
 [sub_resource type="Resource" id="Resource_lu1b2"]
 script = ExtResource("1_e5wui")
@@ -26,7 +26,7 @@ flat_bonus_value = 17
 script = ExtResource("1_e5wui")
 stat_type = 5
 base_value = 0
-flat_bonus_value = 85
+flat_bonus_value = 87
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_py8qw"]
 atlas = ExtResource("2_2hyh8")
@@ -40,11 +40,11 @@ bonus_stats = Dictionary[int, ExtResource("1_e5wui")]({
 8: SubResource("Resource_qmhb6"),
 9: SubResource("Resource_mbkyo")
 })
-item_id = "123512141033-93118-58311-210411-3315322981413614"
+item_id = "1191310115-0992-2532-610131-0151201512811111435"
 name = "Astral Arcanist Helm"
 rarity = 0
 icon = SubResource("AtlasTexture_py8qw")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
-item_level = 90
+item_level = 93
 custom_item_value = 0

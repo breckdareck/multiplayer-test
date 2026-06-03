@@ -7,13 +7,13 @@
 script = ExtResource("1_a310i")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 16
+flat_bonus_value = 17
 
 [sub_resource type="Resource" id="Resource_dvet8"]
 script = ExtResource("1_a310i")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 10
+flat_bonus_value = 11
 
 [sub_resource type="Resource" id="Resource_5140k"]
 script = ExtResource("1_a310i")
@@ -24,7 +24,7 @@ flat_bonus_value = 6
 script = ExtResource("1_a310i")
 stat_type = 4
 base_value = 0
-flat_bonus_value = 40
+flat_bonus_value = 43
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_c0uar"]
 load_path = "res://.godot/imported/Eqp_Leather_Sandals.png-23f0cc5f3f25b855dccf580eeba0d806.ctex"
@@ -38,11 +38,11 @@ bonus_stats = Dictionary[int, ExtResource("1_a310i")]({
 8: SubResource("Resource_sk3ad"),
 9: SubResource("Resource_dvet8")
 })
-item_id = "6641372137-7101215-801110-214110-12611516714882"
+item_id = "13621051247-31129-3141514-71245-1221023713011468"
 name = "Mithril Vanguard Boots"
 rarity = 0
 icon = SubResource("CompressedTexture2D_c0uar")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
-item_level = 40
+item_level = 43
 custom_item_value = 0

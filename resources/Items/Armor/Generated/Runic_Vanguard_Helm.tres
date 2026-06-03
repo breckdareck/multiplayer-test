@@ -8,24 +8,24 @@
 script = ExtResource("1_p3rll")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 27
+flat_bonus_value = 30
 
 [sub_resource type="Resource" id="Resource_7q57r"]
 script = ExtResource("1_p3rll")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 17
+flat_bonus_value = 20
 
 [sub_resource type="Resource" id="Resource_3hps3"]
 script = ExtResource("1_p3rll")
 base_value = 0
-flat_bonus_value = 10
+flat_bonus_value = 11
 
 [sub_resource type="Resource" id="Resource_w03uj"]
 script = ExtResource("1_p3rll")
 stat_type = 4
 base_value = 0
-flat_bonus_value = 70
+flat_bonus_value = 78
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_q7p8o"]
 atlas = ExtResource("2_rutqs")
@@ -39,11 +39,11 @@ bonus_stats = Dictionary[int, ExtResource("1_p3rll")]({
 8: SubResource("Resource_uqeob"),
 9: SubResource("Resource_7q57r")
 })
-item_id = "588391565-01345-149612-84014-71214505111355142"
+item_id = "4111395151313-106215-1514612-0215-1211120468151415"
 name = "Runic Vanguard Helm"
 rarity = 0
 icon = SubResource("AtlasTexture_q7p8o")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
-item_level = 60
+item_level = 68
 custom_item_value = 0

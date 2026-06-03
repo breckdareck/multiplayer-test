@@ -41,7 +41,7 @@ bonus_stats = Dictionary[int, ExtResource("1_umptg")]({
 8: SubResource("Resource_k1c6x"),
 9: SubResource("Resource_ax152")
 })
-item_id = "109131069139-41030-611148-8480-101631581141151514"
+item_id = "688809013-615134-213119-24154-4706131115613112"
 name = "Adamant Vanguard Legguards"
 rarity = 0
 icon = SubResource("AtlasTexture_p03je")

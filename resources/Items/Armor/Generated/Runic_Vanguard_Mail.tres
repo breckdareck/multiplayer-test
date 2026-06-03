@@ -8,24 +8,24 @@
 script = ExtResource("1_dhak0")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 45
+flat_bonus_value = 51
 
 [sub_resource type="Resource" id="Resource_53krv"]
 script = ExtResource("1_dhak0")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 29
+flat_bonus_value = 33
 
 [sub_resource type="Resource" id="Resource_m8bvs"]
 script = ExtResource("1_dhak0")
 base_value = 0
-flat_bonus_value = 16
+flat_bonus_value = 18
 
 [sub_resource type="Resource" id="Resource_gycwh"]
 script = ExtResource("1_dhak0")
 stat_type = 4
 base_value = 0
-flat_bonus_value = 116
+flat_bonus_value = 130
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_halbl"]
 atlas = ExtResource("2_onf0x")
@@ -40,11 +40,11 @@ bonus_stats = Dictionary[int, ExtResource("1_dhak0")]({
 8: SubResource("Resource_44bjw"),
 9: SubResource("Resource_53krv")
 })
-item_id = "8481111215-21455-0777-124159-141515931381551412"
+item_id = "12613362120-117127-1210515-14084-112101561544141513"
 name = "Runic Vanguard Mail"
 rarity = 0
 icon = SubResource("AtlasTexture_halbl")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
-item_level = 60
+item_level = 68
 custom_item_value = 0

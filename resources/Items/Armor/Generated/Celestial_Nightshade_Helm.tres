@@ -8,25 +8,25 @@
 script = ExtResource("1_5hu1q")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 28
+flat_bonus_value = 30
 
 [sub_resource type="Resource" id="Resource_v1tkk"]
 script = ExtResource("1_5hu1q")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 28
+flat_bonus_value = 30
 
 [sub_resource type="Resource" id="Resource_v6fcb"]
 script = ExtResource("1_5hu1q")
 stat_type = 3
 base_value = 0
-flat_bonus_value = 15
+flat_bonus_value = 16
 
 [sub_resource type="Resource" id="Resource_tlhxx"]
 script = ExtResource("1_5hu1q")
 stat_type = 11
 base_value = 0
-flat_bonus_value = 4
+flat_bonus_value = 5
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_1hv1o"]
 atlas = ExtResource("2_s4ks1")
@@ -40,11 +40,11 @@ bonus_stats = Dictionary[int, ExtResource("1_5hu1q")]({
 9: SubResource("Resource_v1tkk"),
 11: SubResource("Resource_tlhxx")
 })
-item_id = "714111154015-912104-015410-134910-911378015125353"
+item_id = "118140106115-125915-1312311-9087-21527831561010105"
 name = "Celestial Nightshade Helm"
 rarity = 0
 icon = SubResource("AtlasTexture_1hv1o")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
-item_level = 80
+item_level = 85
 custom_item_value = 0

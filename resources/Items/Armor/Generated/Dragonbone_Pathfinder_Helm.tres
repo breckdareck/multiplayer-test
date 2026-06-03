@@ -8,19 +8,19 @@
 script = ExtResource("1_fpgf8")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 25
+flat_bonus_value = 27
 
 [sub_resource type="Resource" id="Resource_i2iuy"]
 script = ExtResource("1_fpgf8")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 25
+flat_bonus_value = 27
 
 [sub_resource type="Resource" id="Resource_cx1uk"]
 script = ExtResource("1_fpgf8")
 stat_type = 2
 base_value = 0
-flat_bonus_value = 13
+flat_bonus_value = 14
 
 [sub_resource type="Resource" id="Resource_auw28"]
 script = ExtResource("1_fpgf8")
@@ -40,11 +40,11 @@ bonus_stats = Dictionary[int, ExtResource("1_fpgf8")]({
 9: SubResource("Resource_i2iuy"),
 10: SubResource("Resource_auw28")
 })
-item_id = "141091127157-141614-12716-91221-15221531010150151514"
+item_id = "911131211656-116714-152122-2121512-111415152721413930"
 name = "Dragonbone Pathfinder Helm"
 rarity = 0
 icon = SubResource("AtlasTexture_wmcpi")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
-item_level = 70
+item_level = 77
 custom_item_value = 0

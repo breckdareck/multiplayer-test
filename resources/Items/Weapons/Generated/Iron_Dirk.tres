@@ -8,19 +8,19 @@
 script = ExtResource("1_xxiir")
 stat_type = 12
 base_value = 0
-flat_bonus_value = 23
+flat_bonus_value = 30
 
 [sub_resource type="Resource" id="Resource_yn28q"]
 script = ExtResource("1_xxiir")
 stat_type = 3
 base_value = 0
-flat_bonus_value = 9
+flat_bonus_value = 11
 
 [sub_resource type="Resource" id="Resource_77ysl"]
 script = ExtResource("1_xxiir")
 stat_type = 10
 base_value = 0
-flat_bonus_value = 4
+flat_bonus_value = 5
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_32t3g"]
 atlas = ExtResource("2_2d68a")
@@ -37,11 +37,11 @@ bonus_stats = Dictionary[int, ExtResource("1_xxiir")]({
 10: SubResource("Resource_77ysl"),
 12: SubResource("Resource_yysnw")
 })
-item_id = "934912131413-131211-814115-1696-1116710126415150"
+item_id = "4911314200-0945-109113-4369-4114157924151310"
 name = "Iron Dirk"
 rarity = 0
 icon = SubResource("AtlasTexture_32t3g")
 description = "A swift, wickedly sharp blade prized by Rogues."
 item_type = 1
-item_level = 20
+item_level = 27
 custom_item_value = 0

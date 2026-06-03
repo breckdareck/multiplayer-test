@@ -8,12 +8,12 @@
 script = ExtResource("1_3psyx")
 stat_type = 12
 base_value = 0
-flat_bonus_value = 142
+flat_bonus_value = 147
 
 [sub_resource type="Resource" id="Resource_q614r"]
 script = ExtResource("1_3psyx")
 base_value = 0
-flat_bonus_value = 34
+flat_bonus_value = 35
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_vx4hv"]
 atlas = ExtResource("2_cayum")
@@ -29,11 +29,11 @@ bonus_stats = Dictionary[int, ExtResource("1_3psyx")]({
 0: SubResource("Resource_q614r"),
 12: SubResource("Resource_hgilf")
 })
-item_id = "1066138122-127910-146108-1521112-314153868127801"
+item_id = "1193243712-56310-1510158-811134-711012115139310815"
 name = "Astral Longsword"
 rarity = 0
 icon = SubResource("AtlasTexture_vx4hv")
 description = "A balanced blade — the Swordsman's trusted companion."
 item_type = 1
-item_level = 90
+item_level = 93
 custom_item_value = 0

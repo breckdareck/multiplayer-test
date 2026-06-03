@@ -8,24 +8,24 @@
 script = ExtResource("1_fy5dq")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 31
+flat_bonus_value = 34
 
 [sub_resource type="Resource" id="Resource_u8wnw"]
 script = ExtResource("1_fy5dq")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 20
+flat_bonus_value = 22
 
 [sub_resource type="Resource" id="Resource_gsycs"]
 script = ExtResource("1_fy5dq")
 base_value = 0
-flat_bonus_value = 11
+flat_bonus_value = 12
 
 [sub_resource type="Resource" id="Resource_kjx2d"]
 script = ExtResource("1_fy5dq")
 stat_type = 4
 base_value = 0
-flat_bonus_value = 80
+flat_bonus_value = 88
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_738dg"]
 atlas = ExtResource("2_637c4")
@@ -39,11 +39,11 @@ bonus_stats = Dictionary[int, ExtResource("1_fy5dq")]({
 8: SubResource("Resource_bve88"),
 9: SubResource("Resource_u8wnw")
 })
-item_id = "83284015-6411-7245-113314-611021471310105513"
+item_id = "899063111-51388-8141410-48115-10106815013451343"
 name = "Dragonbone Vanguard Helm"
 rarity = 0
 icon = SubResource("AtlasTexture_738dg")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
-item_level = 70
+item_level = 77
 custom_item_value = 0

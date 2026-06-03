@@ -14,7 +14,7 @@ effect_script = ExtResource("1_6kohk")
 effect_properties = {
 "regain_amount": 100
 }
-item_id = "0127101115112-60156-1412150-14420-4103701110931212"
+item_id = "148965978-53712-1514814-61136-714812841310141215"
 name = "Mana Draught"
 icon = SubResource("AtlasTexture_rnsxo")
 description = "Restores 100 MP when consumed."

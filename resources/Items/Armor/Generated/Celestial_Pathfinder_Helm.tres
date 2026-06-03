@@ -8,19 +8,19 @@
 script = ExtResource("1_3smb2")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 28
+flat_bonus_value = 30
 
 [sub_resource type="Resource" id="Resource_efugv"]
 script = ExtResource("1_3smb2")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 28
+flat_bonus_value = 30
 
 [sub_resource type="Resource" id="Resource_m3jd8"]
 script = ExtResource("1_3smb2")
 stat_type = 2
 base_value = 0
-flat_bonus_value = 15
+flat_bonus_value = 16
 
 [sub_resource type="Resource" id="Resource_cj40r"]
 script = ExtResource("1_3smb2")
@@ -40,11 +40,11 @@ bonus_stats = Dictionary[int, ExtResource("1_3smb2")]({
 9: SubResource("Resource_efugv"),
 10: SubResource("Resource_cj40r")
 })
-item_id = "128555653-48122-11020-1141513-44154310486600"
+item_id = "51039913154-412150-410115-121080-841595155802014"
 name = "Celestial Pathfinder Helm"
 rarity = 0
 icon = SubResource("AtlasTexture_15tk7")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
-item_level = 80
+item_level = 85
 custom_item_value = 0

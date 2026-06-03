@@ -14,7 +14,7 @@ effect_script = ExtResource("1_l2cag")
 effect_properties = {
 "heal_amount": 150
 }
-item_id = "1251668145-130612-14534-1215214-11471171512421413"
+item_id = "11214145113-1114122-138915-5630-1224699540292"
 name = "Healing Draught"
 icon = SubResource("AtlasTexture_qkebl")
 description = "Restores 150 HP when consumed."

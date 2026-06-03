@@ -7,13 +7,13 @@
 script = ExtResource("1_q4dsw")
 stat_type = 8
 base_value = 0
-flat_bonus_value = 21
+flat_bonus_value = 22
 
 [sub_resource type="Resource" id="Resource_dbsx8"]
 script = ExtResource("1_q4dsw")
 stat_type = 9
 base_value = 0
-flat_bonus_value = 33
+flat_bonus_value = 34
 
 [sub_resource type="Resource" id="Resource_icw6p"]
 script = ExtResource("1_q4dsw")
@@ -25,7 +25,7 @@ flat_bonus_value = 14
 script = ExtResource("1_q4dsw")
 stat_type = 5
 base_value = 0
-flat_bonus_value = 71
+flat_bonus_value = 73
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_gta0n"]
 load_path = "res://.godot/imported/Eqp_Leather_Sandals.png-23f0cc5f3f25b855dccf580eeba0d806.ctex"
@@ -39,11 +39,11 @@ bonus_stats = Dictionary[int, ExtResource("1_q4dsw")]({
 8: SubResource("Resource_uchr1"),
 9: SubResource("Resource_dbsx8")
 })
-item_id = "12101412131057-151371-815145-741211-4081021131121200"
+item_id = "11213811851-149211-111514-63110-55101515429850"
 name = "Astral Arcanist Boots"
 rarity = 0
 icon = SubResource("CompressedTexture2D_gta0n")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
-item_level = 90
+item_level = 93
 custom_item_value = 0

@@ -7,4 +7,4 @@ script = ExtResource("1_6fc6x")
 item_name = "Dragonbone Vanguard Mail"
 randomize_stats = true
 possible_stats = Array[int]([8, 9, 0, 4])
-drop_chance = 0.018000000000000002
+drop_chance = 0.017

@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_nod6j"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_3xyk4"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_68evk"]
+
+[sub_resource type="Resource" id="Resource_if2i1"]
+script = ExtResource("1_nod6j")
+stat_type = 8
+base_value = 0
+flat_bonus_value = 29
+
+[sub_resource type="Resource" id="Resource_l63yx"]
+script = ExtResource("1_nod6j")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 45
+
+[sub_resource type="Resource" id="Resource_wp80b"]
+script = ExtResource("1_nod6j")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 19
+
+[sub_resource type="Resource" id="Resource_x5jyi"]
+script = ExtResource("1_nod6j")
+stat_type = 5
+base_value = 0
+flat_bonus_value = 96
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_m2xfq"]
+atlas = ExtResource("2_3xyk4")
+region = Rect2(848, 142, 54, 54)
+
+[resource]
+script = ExtResource("3_68evk")
+armor_type = 1
+bonus_stats = Dictionary[int, ExtResource("1_nod6j")]({
+1: SubResource("Resource_wp80b"),
+5: SubResource("Resource_x5jyi"),
+8: SubResource("Resource_if2i1"),
+9: SubResource("Resource_l63yx")
+})
+item_id = "3381501013-115130-03125-91187-121314125129111129"
+name = "Pristine Arcanist Mail"
+rarity = 0
+icon = SubResource("AtlasTexture_m2xfq")
+description = "Enchanted vestments that channel a Mage's power."
+item_type = 1
+item_level = 60
+custom_item_value = 0
