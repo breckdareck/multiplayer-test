@@ -31,14 +31,17 @@ enum Movement { NONE, DASH }
 @export var attack_name: String = "Special"
 
 @export_category("Timing")
-## HOLD mode: how long (seconds from the start) the wind-up pose is FROZEN before
-## the strike animation begins. The [windup_time, hit_time] gap is the strike's
-## anticipation lead-in before impact (e.g. windup 1.3, hit 1.5 = freeze 1.3s, then
-## 0.2s of strike animation, then the hit). Clamped to <= hit_time. Ignored by
-## STRETCH/FREE (which pace the clip to hit_time).
+## RELEASE point (seconds from start): the wind-up/hold ends here, and the strike
+## animation resumes AND the dash begins — the boss lunges in. (HOLD mode plays
+## frame 0 -> hold_frame, freezes until here, then plays hold_frame -> end.) The
+## [windup_time, hit_time] gap is the lead-in during which the dash carries the boss
+## toward the target before the hit connects (e.g. windup 1.3, hit 1.5 = hold to
+## 1.3s, dash+strike over 0.2s, damage at 1.5s). Clamped <= hit_time. STRETCH/FREE
+## ignore the freeze but the dash still starts here.
 @export var windup_time: float = 1.2
-## IMPACT: when damage + dash resolve and the ground telegraph ends (seconds from
-## start). This is THE hit. Should be >= windup_time.
+## DAMAGE point (seconds from start): when the hit connects + the ground telegraph
+## ends. The dash has been carrying the boss in since windup_time. Should be >=
+## windup_time.
 @export var hit_time: float = 1.2
 ## Seconds between uses of THIS attack (its own cooldown).
 @export var cooldown: float = 8.0

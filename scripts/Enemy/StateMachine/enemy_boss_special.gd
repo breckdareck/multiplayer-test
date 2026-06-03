@@ -18,8 +18,10 @@ var _center: Vector2 = Vector2.ZERO
 var _dir: int = 1
 var _hit_time: float = 1.0     # impact: damage + dash happen here
 var _windup_time: float = 1.0  # HOLD freezes the pose until here, then the strike plays
-# Dash phase.
+# Dash phase. The dash + strike begin at windup_time (when the hold releases);
+# damage lands later at hit_time.
 var _dashing: bool = false
+var _dash_started: bool = false
 var _dash_elapsed: float = 0.0
 var _dash_time: float = 0.18
 var _dash_target_x: float = 0.0
@@ -28,6 +30,8 @@ var _dash_speed: float = 0.0
 var _flash_tween: Tween = null
 # HOLD anim mode.
 var _hold_target_frame: int = 0
+var _hold_connected: bool = false
+var _hold_released: bool = false
 # Bespoke logic.
 var _logic: Object = null
 
@@ -38,7 +42,9 @@ func enter() -> void:
 	_elapsed = 0.0
 	_fired = false
 	_dashing = false
+	_dash_started = false
 	_dash_elapsed = 0.0
+	_hold_released = false
 	var enemy := parent as EnemyBase
 	if enemy == null:
 		return
@@ -86,25 +92,32 @@ func process_frame(delta: float) -> State:
 	if _attack == null:
 		return _recover_state()
 
-	# Windup → hit.
-	if not _fired:
-		_elapsed += delta
-		if _elapsed >= _hit_time:
-			_fired = true
-			_resolve_hit(enemy)
-			if _attack.movement == BossAttackData.Movement.DASH:
-				var dist: float = _attack.dash_distance if _attack.dash_distance > 0.0 else _attack.reach
-				_dashing = true
-				_dash_elapsed = 0.0
-				_dash_speed = dist / _dash_time
-				_dash_target_x = enemy.global_position.x + _dir * dist
-			else:
-				return _recover_state()
-		return null
+	_elapsed += delta
 
-	# Dash phase.
-	_dash_elapsed += delta
-	if _dash_elapsed >= _dash_time:
+	# At windup_time the hold releases: the strike animation resumes (via the
+	# per-peer resume timer) AND the dash begins — the boss lunges in.
+	if not _dash_started and _attack.movement == BossAttackData.Movement.DASH and _elapsed >= _windup_time:
+		_dash_started = true
+		_dashing = true
+		_dash_elapsed = 0.0
+		var dist: float = _attack.dash_distance if _attack.dash_distance > 0.0 else _attack.reach
+		_dash_speed = dist / _dash_time
+		_dash_target_x = enemy.global_position.x + _dir * dist
+
+	# Damage lands at hit_time (after the dash has carried the boss in).
+	if not _fired and _elapsed >= _hit_time:
+		_fired = true
+		_resolve_hit(enemy)
+
+	# Track the dash duration.
+	if _dashing:
+		_dash_elapsed += delta
+		if _dash_elapsed >= _dash_time:
+			_dashing = false
+
+	# Recover once the hit has fired AND any dash has finished.
+	var dash_done: bool = (_attack.movement != BossAttackData.Movement.DASH) or (_dash_started and not _dashing)
+	if _fired and dash_done:
 		return _recover_state()
 	return null
 
@@ -127,6 +140,7 @@ func physics_update(delta: float) -> State:
 func exit() -> void:
 	super.exit()
 	_stop_flash()
+	_clear_hold()
 	if animations != null:
 		animations.speed_scale = 1.0  # undo a HOLD freeze if we left mid-windup
 	var enemy := parent as EnemyBase
@@ -170,13 +184,16 @@ func _play_windup(enemy: EnemyBase) -> void:
 			if fc <= 1:
 				animations.speed_scale = 1.0
 			else:
-				# Jump to the hold pose and FREEZE it until windup_time; then resume to
-				# play hold_frame -> end (the strike) over the [windup_time, hit_time]
-				# lead-in to impact. Deterministic — no frame_changed race; holds
-				# regardless of clip fps. If windup_time == hit_time there's no lead and
-				# the strike plays during the dash instead.
-				animations.frame = _hold_target_frame
-				animations.speed_scale = 0.0
+				# Play the wind-up (frame 0 -> hold_frame) at native speed, FREEZE on
+				# hold_frame, then at windup_time resume to play hold_frame -> end (the
+				# strike). The _hold_released latch stops the frame_changed handler from
+				# re-freezing after the resume.
+				_hold_released = false
+				animations.frame = 0
+				animations.speed_scale = 1.0
+				if not _hold_connected:
+					animations.frame_changed.connect(_on_hold_frame)
+					_hold_connected = true
 				get_tree().create_timer(_windup_time).timeout.connect(_resume_from_hold)
 		BossAttackData.AnimMode.FREE:
 			animations.speed_scale = 1.0
@@ -203,12 +220,28 @@ func _stretch_scale(sf: SpriteFrames, anim: String, target: float) -> float:
 	return clampf(native / target, 0.05, 20.0)
 
 
+func _on_hold_frame() -> void:
+	# Freeze ONCE on the hold pose after the wind-up frames have played. The
+	# _hold_released latch stops this re-freezing every frame after the resume.
+	if _hold_released or animations == null:
+		return
+	if animations.frame >= _hold_target_frame:
+		animations.frame = _hold_target_frame  # don't overshoot the pose
+		animations.speed_scale = 0.0
+
+
 func _resume_from_hold() -> void:
-	# Out of the hold at the hit: resume native playback from the frozen hold frame,
-	# so the remaining frames (the strike) play. Don't call play() — that would reset
-	# to frame 0.
+	# At windup_time: release the hold so the remaining frames (the strike) play
+	# from the hold pose onward. Don't call play() — that would reset to frame 0.
+	_hold_released = true
 	if animations != null:
 		animations.speed_scale = 1.0
+
+
+func _clear_hold() -> void:
+	if _hold_connected and animations != null and animations.frame_changed.is_connected(_on_hold_frame):
+		animations.frame_changed.disconnect(_on_hold_frame)
+	_hold_connected = false
 
 
 # --- Red charge-up tint -----------------------------------------------------

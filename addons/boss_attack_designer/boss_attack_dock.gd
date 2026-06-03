@@ -917,7 +917,10 @@ func _total_time() -> float:
 	var hit: float = maxf(0.0, _selected_attack.hit_time)
 	var t: float = hit
 	if _selected_attack.movement == BossAttackData.Movement.DASH:
-		t += maxf(0.0, _selected_attack.dash_time)
+		# The dash starts at windup_time and lasts dash_time; recover when both the
+		# hit has fired and the dash has finished.
+		var windup: float = clampf(_selected_attack.windup_time, 0.05, maxf(0.05, hit))
+		t = maxf(hit, windup + maxf(0.0, _selected_attack.dash_time))
 	return maxf(0.0001, t)
 
 
@@ -1041,11 +1044,11 @@ func _update_info() -> void:
 	# Timing.
 	var eff_windup: float = clampf(atk.windup_time, 0.05, maxf(0.05, atk.hit_time))
 	var strike_lead: float = maxf(0.0, atk.hit_time - eff_windup)
-	lines.append("[color=#9fd]timing:[/color] hold %.2fs → strike %.2fs → [b]IMPACT[/b] @ %.2fs (damage+dash)   cooldown %.1fs" % [
+	lines.append("[color=#9fd]timing:[/color] wind-up+hold %.2fs → [b]release[/b] (strike + dash begin) → %.2fs lead → [b]DAMAGE[/b] @ %.2fs   cooldown %.1fs" % [
 		eff_windup, strike_lead, atk.hit_time, atk.cooldown,
 	])
-	if atk.anim_mode == BossAttackData.AnimMode.HOLD and strike_lead < 0.01:
-		lines.append("  [color=#fa6]windup_time == hit_time → no strike lead; the strike plays during the dash. Set windup_time < hit_time for a strike-before-impact gap.[/color]")
+	if strike_lead < 0.01:
+		lines.append("  [color=#fa6]windup_time == hit_time → strike + dash begin at the same instant damage lands (no lead-in). Set windup_time < hit_time so the dash carries in before the hit.[/color]")
 	lines.append("[color=#9fd]total preview timeline:[/color] %.2fs" % _total_time())
 
 	# Animation.
@@ -1165,10 +1168,12 @@ class _PreviewControl extends Control:
 		# Boss world x-offset (0 during windup; slides during dash).
 		var boss_dx_units: float = 0.0
 		var dashing: bool = false
-		if atk.movement == BossAttackData.Movement.DASH and t > hit_time:
+		# The dash begins at windup_time (when the hold releases), not at the hit.
+		var windup_d: float = clampf(atk.windup_time, 0.05, hit_time)
+		if atk.movement == BossAttackData.Movement.DASH and t > windup_d:
 			dashing = true
 			var dash_time: float = maxf(0.0001, atk.dash_time)
-			var dash_prog: float = clampf((t - hit_time) / dash_time, 0.0, 1.0)
+			var dash_prog: float = clampf((t - windup_d) / dash_time, 0.0, 1.0)
 			boss_dx_units = dir * dock._dash_dist(atk) * dash_prog
 		var boss_origin := origin + Vector2(boss_dx_units * scl, 0.0)
 
@@ -1265,16 +1270,20 @@ class _PreviewControl extends Control:
 				# frame = floor(frac * count), clamped to last.
 				return clampi(int(floor(frac * count)), 0, count - 1)
 			BossAttackData.AnimMode.HOLD:
-				# Mirrors the runtime: FREEZE on the hold frame until windup_time, then
-				# play hold_frame -> end (the strike) at native speed over the lead-in to
-				# the hit. Unset (-1)/out-of-range hold_frame defaults to a MID frame.
+				# Mirrors the runtime: play the wind-up (0 -> hold_frame) at native speed,
+				# FREEZE on hold_frame until windup_time, then play hold_frame -> end (the
+				# strike). Unset (-1)/out-of-range hold_frame defaults to a MID frame.
 				var fps_h: float = sf.get_animation_speed(anim)
 				var hold_f: int = atk.hold_frame
 				if hold_f < 0 or hold_f >= count - 1:
 					hold_f = clampi(int(count / 2), 0, maxi(0, count - 2))
-				var windup: float = clampf(atk.windup_time, 0.05, hit_time)
-				if t < windup or fps_h <= 0.0:
+				if fps_h <= 0.0:
 					return hold_f
+				var windup: float = clampf(atk.windup_time, 0.05, hit_time)
+				if t < windup:
+					# Wind-up: advance 0 -> hold_f at native speed, then sit on hold_f.
+					return clampi(int(floor(t * fps_h)), 0, hold_f)
+				# Strike: hold_f -> end.
 				return clampi(hold_f + int(floor((t - windup) * fps_h)), hold_f, count - 1)
 			BossAttackData.AnimMode.FREE:
 				# frame = floor(t * fps) wrapped by count.
