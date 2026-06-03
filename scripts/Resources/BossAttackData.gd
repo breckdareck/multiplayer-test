@@ -1,3 +1,4 @@
+@tool
 class_name BossAttackData
 extends Resource
 ## One authored boss special attack. A boss's EnemyData carries an Array of these
