@@ -50,6 +50,42 @@ var _scrub: HSlider = null
 var _time_label: Label = null
 var _info_label: RichTextLabel = null
 
+# --- Edit-fields UI refs ---
+var _toolbar: HBoxContainer = null
+var _add_btn: Button = null
+var _dup_btn: Button = null
+var _del_btn: Button = null
+var _save_btn: Button = null
+var _status_label: Label = null
+var _placeholder_banner: Label = null
+var _legacy_hint: Label = null
+var _fields_container: GridContainer = null
+
+# Field controls (filled by _populate_fields, read by their change handlers).
+var _f_attack_name: LineEdit = null
+var _f_shape: OptionButton = null
+var _f_reach: SpinBox = null
+var _f_band_height: SpinBox = null
+var _f_cone_angle_deg: SpinBox = null
+var _f_forward_offset_frac: SpinBox = null
+var _f_windup_time: SpinBox = null
+var _f_hit_time: SpinBox = null
+var _f_cooldown: SpinBox = null
+var _f_anim_mode: OptionButton = null
+var _f_windup_anim: OptionButton = null
+var _f_hold_frame: SpinBox = null
+var _f_movement: OptionButton = null
+var _f_dash_distance: SpinBox = null
+var _f_dash_time: SpinBox = null
+var _f_damage_mult: SpinBox = null
+var _f_logic_script: EditorResourcePicker = null
+
+# --- Edit / save state ---
+var _applying_field: bool = false   # true while we write a field -> selected_attack
+var _loading_fields: bool = false   # true while we programmatically set field controls
+var _unsaved: bool = false          # true once any unpersisted edit has been made
+var _is_placeholder: bool = false   # true when EnemyData is a placeholder (no @tool)
+
 # --- Playback state (owned by the dock, read by the preview) ---
 var _playing: bool = false
 var _time: float = 0.0          # seconds into the timeline
@@ -121,6 +157,73 @@ func _build_ui() -> void:
 	_face_left_check.toggled.connect(func(_p): _redraw_preview())
 	attack_row.add_child(_face_left_check)
 
+	# Toolbar: Add / Duplicate / Delete / Save + status.
+	_toolbar = HBoxContainer.new()
+	_toolbar.add_theme_constant_override("separation", 4)
+	vb.add_child(_toolbar)
+
+	_add_btn = Button.new()
+	_add_btn.text = "+ Add"
+	_add_btn.tooltip_text = "Add a new attack to this boss's special_attacks."
+	_add_btn.pressed.connect(_on_add_attack)
+	_toolbar.add_child(_add_btn)
+
+	_dup_btn = Button.new()
+	_dup_btn.text = "Duplicate"
+	_dup_btn.tooltip_text = "Deep-copy the selected attack."
+	_dup_btn.pressed.connect(_on_duplicate_attack)
+	_toolbar.add_child(_dup_btn)
+
+	_del_btn = Button.new()
+	_del_btn.text = "Delete"
+	_del_btn.tooltip_text = "Remove the selected attack."
+	_del_btn.pressed.connect(_on_delete_attack)
+	_toolbar.add_child(_del_btn)
+
+	_save_btn = Button.new()
+	_save_btn.text = "Save"
+	_save_btn.tooltip_text = "Persist this boss's attacks to disk."
+	_save_btn.pressed.connect(_on_save)
+	_toolbar.add_child(_save_btn)
+
+	_status_label = Label.new()
+	_status_label.text = ""
+	_status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_toolbar.add_child(_status_label)
+
+	# Placeholder banner (hidden unless EnemyData loads as a placeholder).
+	_placeholder_banner = Label.new()
+	_placeholder_banner.text = "Restart the Godot editor to enable editing — EnemyData is loaded as a placeholder until its new @tool mode takes effect."
+	_placeholder_banner.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_placeholder_banner.add_theme_color_override("font_color", Color(1.0, 0.7, 0.35))
+	_placeholder_banner.visible = false
+	vb.add_child(_placeholder_banner)
+
+	# Legacy-synth hint (hidden unless the current attack is a legacy synth).
+	_legacy_hint = Label.new()
+	_legacy_hint.text = "Legacy synth (from special_attack_* fields). Editing will save it as a new authored attack."
+	_legacy_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_legacy_hint.add_theme_color_override("font_color", Color(0.98, 0.6, 0.4))
+	_legacy_hint.visible = false
+	vb.add_child(_legacy_hint)
+
+	# Edit Fields panel (scrollable grid of label + control rows).
+	var fields_scroll := ScrollContainer.new()
+	fields_scroll.custom_minimum_size = Vector2(0, 230)
+	fields_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	fields_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	vb.add_child(fields_scroll)
+
+	_fields_container = GridContainer.new()
+	_fields_container.columns = 2
+	_fields_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_fields_container.add_theme_constant_override("h_separation", 6)
+	_fields_container.add_theme_constant_override("v_separation", 3)
+	fields_scroll.add_child(_fields_container)
+
+	_build_field_controls()
+
 	# Preview control (expands to fill).
 	_preview = _PreviewControl.new()
 	(_preview as _PreviewControl).dock = self
@@ -173,10 +276,452 @@ func _build_ui() -> void:
 	info_scroll.add_child(_info_label)
 
 
+# --- Edit Fields construction -----------------------------------------------
+
+## Builds every field control once and adds it (with a label) to the grid. The
+## values are filled later by _populate_fields() whenever the selected attack
+## changes. Each control's change handler writes back to _selected_attack.
+func _build_field_controls() -> void:
+	_f_attack_name = _make_line_edit()
+	_f_attack_name.text_changed.connect(func(v: String): _apply_field("attack_name", v))
+	_add_field_row("attack_name", _f_attack_name)
+
+	_f_shape = _make_option(["RECT", "CIRCLE", "CONE"])
+	_f_shape.item_selected.connect(func(i: int): _apply_field("shape", i); _refresh_field_relevance())
+	_add_field_row("shape", _f_shape)
+
+	_f_reach = _make_spin(0.0, 4000.0, 1.0, true)
+	_f_reach.value_changed.connect(func(v: float): _apply_field("reach", v))
+	_add_field_row("reach (px)", _f_reach)
+
+	_f_band_height = _make_spin(0.0, 2000.0, 1.0, true)
+	_f_band_height.value_changed.connect(func(v: float): _apply_field("band_height", v))
+	_add_field_row("band_height (px)", _f_band_height)
+
+	_f_cone_angle_deg = _make_spin(0.0, 360.0, 1.0, false)
+	_f_cone_angle_deg.value_changed.connect(func(v: float): _apply_field("cone_angle_deg", v))
+	_add_field_row("cone_angle_deg", _f_cone_angle_deg)
+
+	_f_forward_offset_frac = _make_spin(0.0, 1.0, 0.05, false)
+	_f_forward_offset_frac.value_changed.connect(func(v: float): _apply_field("forward_offset_frac", v))
+	_add_field_row("forward_offset_frac", _f_forward_offset_frac)
+
+	_f_windup_time = _make_spin(0.0, 60.0, 0.1, true)
+	_f_windup_time.value_changed.connect(func(v: float): _apply_field("windup_time", v))
+	_add_field_row("windup_time (s)", _f_windup_time)
+
+	_f_hit_time = _make_spin(0.0, 60.0, 0.1, true)
+	_f_hit_time.value_changed.connect(func(v: float): _apply_field("hit_time", v))
+	_add_field_row("hit_time (s)", _f_hit_time)
+
+	_f_cooldown = _make_spin(0.0, 600.0, 0.1, true)
+	_f_cooldown.value_changed.connect(func(v: float): _apply_field("cooldown", v))
+	_add_field_row("cooldown (s)", _f_cooldown)
+
+	_f_anim_mode = _make_option(["STRETCH", "HOLD", "FREE"])
+	_f_anim_mode.item_selected.connect(func(i: int): _apply_field("anim_mode", i))
+	_add_field_row("anim_mode", _f_anim_mode)
+
+	# windup_anim is populated dynamically from the boss SpriteFrames clips; its
+	# item metadata holds the actual string value ("" for "(none)").
+	_f_windup_anim = OptionButton.new()
+	_f_windup_anim.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_f_windup_anim.item_selected.connect(_on_windup_anim_selected)
+	_add_field_row("windup_anim", _f_windup_anim)
+
+	_f_hold_frame = _make_spin(-1.0, 4096.0, 1.0, true)
+	_f_hold_frame.rounded = true
+	_f_hold_frame.value_changed.connect(func(v: float): _apply_field("hold_frame", int(v)))
+	_add_field_row("hold_frame", _f_hold_frame)
+
+	_f_movement = _make_option(["NONE", "DASH"])
+	_f_movement.item_selected.connect(func(i: int): _apply_field("movement", i); _refresh_field_relevance())
+	_add_field_row("movement", _f_movement)
+
+	_f_dash_distance = _make_spin(0.0, 4000.0, 1.0, true)
+	_f_dash_distance.value_changed.connect(func(v: float): _apply_field("dash_distance", v))
+	_add_field_row("dash_distance (px)", _f_dash_distance)
+
+	_f_dash_time = _make_spin(0.0, 10.0, 0.1, true)
+	_f_dash_time.value_changed.connect(func(v: float): _apply_field("dash_time", v))
+	_add_field_row("dash_time (s)", _f_dash_time)
+
+	_f_damage_mult = _make_spin(0.0, 100.0, 0.1, true)
+	_f_damage_mult.value_changed.connect(func(v: float): _apply_field("damage_mult", v))
+	_add_field_row("damage_mult (×)", _f_damage_mult)
+
+	_f_logic_script = EditorResourcePicker.new()
+	_f_logic_script.base_type = "Script"
+	_f_logic_script.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_f_logic_script.resource_changed.connect(_on_logic_script_changed)
+	_add_field_row("logic_script", _f_logic_script)
+
+
+func _add_field_row(label_text: String, control: Control) -> void:
+	var lab := Label.new()
+	lab.text = label_text
+	lab.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	lab.custom_minimum_size = Vector2(140, 0)
+	_fields_container.add_child(lab)
+	control.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_fields_container.add_child(control)
+
+
+func _make_line_edit() -> LineEdit:
+	var le := LineEdit.new()
+	le.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	return le
+
+
+func _make_option(items: Array) -> OptionButton:
+	var ob := OptionButton.new()
+	ob.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	for i in items.size():
+		ob.add_item(items[i], i)
+	return ob
+
+
+func _make_spin(min_v: float, max_v: float, step: float, allow_greater: bool) -> SpinBox:
+	var sb := SpinBox.new()
+	sb.min_value = min_v
+	sb.max_value = max_v
+	sb.step = step
+	sb.allow_greater = allow_greater
+	sb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	return sb
+
+
+# --- Field write-back (selected_attack <- control) --------------------------
+
+## Writes a property on the selected attack, refreshing the preview/info but NOT
+## the field controls. Guarded so the resource's `changed` signal (which we also
+## listen to) doesn't trigger a control repopulate. Skips programmatic sets done
+## while loading. Promotes a legacy synth on the first real edit.
+func _apply_field(prop: String, value) -> void:
+	if _loading_fields:
+		return
+	if _selected_attack == null or _is_placeholder:
+		return
+	# A legacy synth must be promoted to an authored attack before edits persist.
+	if _is_legacy_synth:
+		_promote_legacy_synth()
+	_applying_field = true
+	_selected_attack.set(prop, value)
+	_selected_attack.emit_changed()
+	_applying_field = false
+	_mark_unsaved()
+	_update_info()
+	_redraw_preview()
+
+
+func _on_windup_anim_selected(idx: int) -> void:
+	if _f_windup_anim == null:
+		return
+	var v: String = str(_f_windup_anim.get_item_metadata(idx))
+	_apply_field("windup_anim", v)
+
+
+func _on_logic_script_changed(res: Resource) -> void:
+	_apply_field("logic_script", res as Script)
+
+
+# --- Field read (control <- selected_attack) --------------------------------
+
+## Fills every field control from the selected attack. Wrapped in _loading_fields
+## so the programmatic sets don't re-fire the change handlers. Called only when
+## the SELECTED ATTACK changes (in _select_attack), never from the change loop.
+func _populate_fields() -> void:
+	_loading_fields = true
+	var atk: BossAttackData = _selected_attack
+	if atk != null:
+		_f_attack_name.text = atk.attack_name
+		_f_shape.select(clampi(atk.shape, 0, _f_shape.item_count - 1))
+		_f_reach.set_value_no_signal(atk.reach)
+		_f_band_height.set_value_no_signal(atk.band_height)
+		_f_cone_angle_deg.set_value_no_signal(atk.cone_angle_deg)
+		_f_forward_offset_frac.set_value_no_signal(atk.forward_offset_frac)
+		_f_windup_time.set_value_no_signal(atk.windup_time)
+		_f_hit_time.set_value_no_signal(atk.hit_time)
+		_f_cooldown.set_value_no_signal(atk.cooldown)
+		_f_anim_mode.select(clampi(atk.anim_mode, 0, _f_anim_mode.item_count - 1))
+		_populate_windup_anim_options(atk.windup_anim)
+		_f_hold_frame.set_value_no_signal(float(atk.hold_frame))
+		_f_movement.select(clampi(atk.movement, 0, _f_movement.item_count - 1))
+		_f_dash_distance.set_value_no_signal(atk.dash_distance)
+		_f_dash_time.set_value_no_signal(atk.dash_time)
+		_f_damage_mult.set_value_no_signal(atk.damage_mult)
+		_f_logic_script.edited_resource = atk.logic_script
+	_loading_fields = false
+	_refresh_field_relevance()
+
+
+## Rebuilds the windup_anim dropdown from the boss SpriteFrames clips. The first
+## entry is "(none)" -> "". The current value is selected; if it isn't a known
+## clip, it's added as "(missing) <name>" so editing doesn't silently drop it.
+func _populate_windup_anim_options(current: String) -> void:
+	_f_windup_anim.clear()
+	_f_windup_anim.add_item("(none)")
+	_f_windup_anim.set_item_metadata(0, "")
+	var sel_idx: int = 0
+	var sf: SpriteFrames = _sprite_frames()
+	var names: PackedStringArray = []
+	if sf != null:
+		names = sf.get_animation_names()
+	var found_current: bool = current.is_empty()
+	for n in names:
+		var idx: int = _f_windup_anim.item_count
+		_f_windup_anim.add_item(n)
+		_f_windup_anim.set_item_metadata(idx, n)
+		if n == current:
+			sel_idx = idx
+			found_current = true
+	if not found_current:
+		# The stored clip isn't on this SpriteFrames — keep it so it's not lost.
+		var idx: int = _f_windup_anim.item_count
+		_f_windup_anim.add_item("(missing) %s" % current)
+		_f_windup_anim.set_item_metadata(idx, current)
+		sel_idx = idx
+	_f_windup_anim.select(sel_idx)
+
+
+## Optionally disables irrelevant rows for the current shape/movement. Visual aid
+## only — leaves them visible. Never disables when placeholder/empty (those paths
+## disable everything via _set_edit_enabled).
+func _refresh_field_relevance() -> void:
+	if _selected_attack == null or _is_placeholder:
+		return
+	var atk: BossAttackData = _selected_attack
+	_f_band_height.editable = (atk.shape == BossAttackData.Shape.RECT)
+	_f_cone_angle_deg.editable = (atk.shape == BossAttackData.Shape.CONE)
+	var is_dash: bool = (atk.movement == BossAttackData.Movement.DASH)
+	_f_dash_distance.editable = is_dash
+	_f_dash_time.editable = is_dash
+	_f_hold_frame.editable = (atk.anim_mode == BossAttackData.AnimMode.HOLD)
+
+
+# --- Toolbar actions --------------------------------------------------------
+
+func _on_add_attack() -> void:
+	if _enemy_data == null or _is_placeholder:
+		return
+	var a := BossAttackData.new()
+	a.attack_name = "New Attack"
+	a.shape = BossAttackData.Shape.RECT
+	a.reach = 140.0
+	a.band_height = 64.0
+	a.forward_offset_frac = 0.5
+	a.windup_time = 1.0
+	a.hit_time = 1.0
+	a.cooldown = 6.0
+	a.anim_mode = BossAttackData.AnimMode.STRETCH
+	a.movement = BossAttackData.Movement.NONE
+	a.damage_mult = 2.0
+	_append_attack(a)
+
+
+func _on_duplicate_attack() -> void:
+	if _enemy_data == null or _is_placeholder or _selected_attack == null:
+		return
+	# Promote a legacy synth first so the duplicate has an authored sibling too.
+	if _is_legacy_synth:
+		_promote_legacy_synth()
+	var a: BossAttackData = _selected_attack.duplicate(true)
+	_append_attack(a)
+
+
+## Appends an attack to the boss array, rebuilds the dropdown, selects the new
+## one, and marks unsaved. Writes back the whole array property so the change
+## sticks even if `special_attacks` returned a copy.
+func _append_attack(a: BossAttackData) -> void:
+	var arr: Array[BossAttackData] = _enemy_data.special_attacks.duplicate()
+	arr.append(a)
+	_enemy_data.special_attacks = arr
+	_is_legacy_synth = false
+	_mark_unsaved()
+	_rebuild_dropdown(arr.size() - 1)
+
+
+func _on_delete_attack() -> void:
+	if _enemy_data == null or _is_placeholder or _selected_attack == null:
+		return
+	if _is_legacy_synth:
+		# A synth isn't in the array; "deleting" it just clears the preview.
+		_is_legacy_synth = false
+		_attacks = []
+		_disconnect_attack()
+		_selected_attack = null
+		_reset_playback()
+		_update_info()
+		_redraw_preview()
+		_update_edit_ui_state()
+		return
+	var idx: int = _attacks.find(_selected_attack)
+	var arr: Array[BossAttackData] = _enemy_data.special_attacks.duplicate()
+	if idx >= 0 and idx < arr.size():
+		arr.remove_at(idx)
+	_enemy_data.special_attacks = arr
+	_mark_unsaved()
+	var new_idx: int = clampi(idx, 0, arr.size() - 1)
+	_rebuild_dropdown(new_idx)
+
+
+## Re-reads the boss array into _attacks, rebuilds the dropdown labels, and
+## selects `select_idx` (clamped). Shared by Add/Duplicate/Delete.
+func _rebuild_dropdown(select_idx: int) -> void:
+	_attacks = []
+	for a in _enemy_data.special_attacks:
+		_attacks.append(a)
+	_attack_dropdown.clear()
+	for i in _attacks.size():
+		var atk: BossAttackData = _attacks[i]
+		var shape_name: String = _shape_name(atk.shape) if atk != null else "?"
+		var atk_name: String = atk.attack_name if (atk != null and not atk.attack_name.is_empty()) else "(unnamed)"
+		_attack_dropdown.add_item("%s  [%s]" % [atk_name, shape_name], i)
+	if _attacks.is_empty():
+		_disconnect_attack()
+		_selected_attack = null
+		_reset_playback()
+		_update_info()
+		_redraw_preview()
+		_update_edit_ui_state()
+		return
+	var sel: int = clampi(select_idx, 0, _attacks.size() - 1)
+	_attack_dropdown.select(sel)
+	_select_attack(sel)
+
+
+# --- Legacy-synth promotion -------------------------------------------------
+
+## Appends the transient legacy-synth attack to the boss's authored array so
+## edits/saves persist. Clears the synth flag and rebuilds the dropdown selecting
+## the now-authored attack. Safe to call when not a synth (no-op).
+func _promote_legacy_synth() -> void:
+	if not _is_legacy_synth or _selected_attack == null or _enemy_data == null:
+		return
+	var promoted: BossAttackData = _selected_attack
+	var arr: Array[BossAttackData] = _enemy_data.special_attacks.duplicate()
+	arr.append(promoted)
+	_enemy_data.special_attacks = arr
+	_is_legacy_synth = false
+	_attacks = []
+	for a in arr:
+		_attacks.append(a)
+	# Rebuild dropdown labels (drop the "(synth)" wording) and reselect.
+	var sel: int = arr.size() - 1
+	_attack_dropdown.clear()
+	for i in _attacks.size():
+		var atk: BossAttackData = _attacks[i]
+		var shape_name: String = _shape_name(atk.shape) if atk != null else "?"
+		var atk_name: String = atk.attack_name if (atk != null and not atk.attack_name.is_empty()) else "(unnamed)"
+		_attack_dropdown.add_item("%s  [%s]" % [atk_name, shape_name], i)
+	_attack_dropdown.select(sel)
+	# Keep our `changed` connection on this same instance; just refresh chrome.
+	if _legacy_hint != null:
+		_legacy_hint.visible = false
+	_mark_unsaved()
+
+
+# --- Save -------------------------------------------------------------------
+
+func _on_save() -> void:
+	if _enemy_data == null or _is_placeholder:
+		return
+	# Promote a legacy synth so there's something authored to persist.
+	if _is_legacy_synth:
+		_promote_legacy_synth()
+	var ok: bool = true
+	# Standalone-attack .tres (embedded sub-resources have no resource_path).
+	if _selected_attack != null and _selected_attack.resource_path != "":
+		var err := ResourceSaver.save(_selected_attack, _selected_attack.resource_path)
+		ok = ok and (err == OK)
+	# The EnemyData itself — persists the array + embedded sub-resource attacks.
+	if _enemy_data.resource_path != "":
+		var err2 := ResourceSaver.save(_enemy_data, _enemy_data.resource_path)
+		ok = ok and (err2 == OK)
+	else:
+		ok = false  # nothing to save to
+	if _editor_interface != null:
+		var fs := _editor_interface.get_resource_filesystem()
+		if fs != null:
+			fs.scan()
+	if ok:
+		_unsaved = false
+		_set_status("Saved ✓", Color(0.5, 0.85, 0.5))
+	else:
+		_set_status("Save failed ✗", Color(1.0, 0.4, 0.4))
+
+
+# --- Status / edit-UI state -------------------------------------------------
+
+func _mark_unsaved() -> void:
+	_unsaved = true
+	_set_status("● Unsaved changes", Color(1.0, 0.8, 0.4))
+
+
+func _set_status(text: String, col: Color) -> void:
+	if _status_label == null:
+		return
+	_status_label.text = text
+	_status_label.add_theme_color_override("font_color", col)
+
+
+## Detects whether the picked EnemyData is a real @tool instance or a placeholder.
+## A placeholder doesn't expose script methods, so get_special_attacks() is absent;
+## a real instance has it. Writing properties / saving only works on a real one.
+func _refresh_placeholder_state() -> void:
+	if _enemy_data == null:
+		_is_placeholder = false
+		return
+	_is_placeholder = not _enemy_data.has_method("get_special_attacks")
+
+
+## Enables/disables the edit controls + toolbar based on placeholder state and
+## whether an attack is selected, and toggles the banner/legacy hint. Call after
+## any change to _enemy_data, _selected_attack, or _is_legacy_synth.
+func _update_edit_ui_state() -> void:
+	if _placeholder_banner != null:
+		_placeholder_banner.visible = (_enemy_data != null and _is_placeholder)
+	if _legacy_hint != null:
+		_legacy_hint.visible = (_is_legacy_synth and not _is_placeholder)
+
+	var can_edit: bool = (_enemy_data != null and not _is_placeholder)
+	var has_attack: bool = (_selected_attack != null)
+	if _add_btn != null:
+		_add_btn.disabled = not can_edit
+	if _dup_btn != null:
+		_dup_btn.disabled = not (can_edit and has_attack)
+	if _del_btn != null:
+		_del_btn.disabled = not (can_edit and has_attack)
+	if _save_btn != null:
+		_save_btn.disabled = not can_edit
+	_set_fields_enabled(can_edit and has_attack)
+
+
+func _set_fields_enabled(enabled: bool) -> void:
+	if _fields_container == null:
+		return
+	if _f_attack_name != null:
+		_f_attack_name.editable = enabled
+	for sb in [_f_reach, _f_band_height, _f_cone_angle_deg, _f_forward_offset_frac,
+			_f_windup_time, _f_hit_time, _f_cooldown, _f_hold_frame,
+			_f_dash_distance, _f_dash_time, _f_damage_mult]:
+		if sb != null:
+			sb.editable = enabled
+	for ob in [_f_shape, _f_anim_mode, _f_windup_anim, _f_movement]:
+		if ob != null:
+			ob.disabled = not enabled
+	if _f_logic_script != null:
+		_f_logic_script.editable = enabled
+	# When enabling, re-apply shape/movement-based relevance greying.
+	if enabled:
+		_refresh_field_relevance()
+
+
 # --- EnemyData / attack selection -------------------------------------------
 
 func _on_enemy_data_changed(res: Resource) -> void:
 	_enemy_data = res as EnemyData
+	_refresh_placeholder_state()
 	_reload_attacks()
 
 
@@ -197,6 +742,7 @@ func _reload_attacks() -> void:
 		_reset_playback()
 		_update_info()
 		_redraw_preview()
+		_update_edit_ui_state()
 		return
 
 	# Resolve via PROPERTY reads + an inline synth rather than calling
@@ -230,6 +776,7 @@ func _reload_attacks() -> void:
 		_reset_playback()
 		_update_info()
 		_redraw_preview()
+		_update_edit_ui_state()
 		return
 
 	_attack_dropdown.select(0)
@@ -272,12 +819,24 @@ func _select_attack(idx: int) -> void:
 		_selected_attack.changed.connect(_on_attack_resource_changed)
 		_connected_attack = _selected_attack
 	_reset_playback()
+	# Repopulate the edit-field controls ONLY here (selected attack changed),
+	# never from the resource `changed` handler — that would fight live typing.
+	_populate_fields()
+	_update_edit_ui_state()
 	_update_info()
 	_redraw_preview()
 
 
 func _on_attack_resource_changed() -> void:
-	# A field on the selected BossAttackData changed in the Inspector.
+	# The selected BossAttackData's `changed` fired. If WE caused it (a field
+	# write from this dock), only refresh the preview — do NOT repopulate the
+	# field controls, or we'd clobber the control the user is editing. If it came
+	# from elsewhere (the Inspector), refresh the controls too.
+	if _applying_field:
+		_update_info()
+		_redraw_preview()
+		return
+	_populate_fields()
 	_update_info()
 	_redraw_preview()
 
