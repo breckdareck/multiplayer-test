@@ -93,6 +93,7 @@ var _scrubbing: bool = false    # user is dragging the slider; don't fight it
 var _speed_opt: OptionButton = null
 var _play_speed: float = 1.0
 const _SPEEDS: Array[float] = [1.0, 0.5, 0.25, 0.1]
+const _SPEED_LABELS: Array[String] = ["1×", "0.5×", "0.25×", "0.1×"]
 # While playing we force the editor to redraw continuously (it otherwise idles at a
 # low fps, sampling playback coarsely). Saved + restored so we don't leave it on.
 const _UPDATE_KEY: String = "interface/editor/update_continuously"
@@ -255,8 +256,8 @@ func _build_ui() -> void:
 	# Playback speed — slow it down to watch a transition land on its exact time
 	# (editor idle-fps samples live playback coarsely; lower speed = finer sampling).
 	_speed_opt = OptionButton.new()
-	for s in _SPEEDS:
-		_speed_opt.add_item("%g×" % s)
+	for lbl in _SPEED_LABELS:
+		_speed_opt.add_item(lbl)
 	_speed_opt.select(0)
 	_speed_opt.tooltip_text = "Playback speed (lower = inspect transitions precisely)"
 	_speed_opt.item_selected.connect(func(idx: int): _play_speed = _SPEEDS[idx])
