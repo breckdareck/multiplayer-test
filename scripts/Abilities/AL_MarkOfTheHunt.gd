@@ -135,7 +135,7 @@ static func is_sundering(target: Node) -> bool:
 ## Sundering Mark (T3): on the auto-crit consume, the hunt "pierces" to the two
 ## nearest enemies — applies a fresh (non-sundering, so it can't chain forever)
 ## Hunter's Mark to each. Clears the consumed target's sunder flag.
-static func sunder_spread(owner_node: Node, origin: Node) -> void:
+static func sunder_spread(_owner_node: Node, origin: Node) -> void:
 	if not is_instance_valid(origin):
 		return
 	origin.remove_meta(SUNDER_META)

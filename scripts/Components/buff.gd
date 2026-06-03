@@ -396,7 +396,7 @@ func scale_buff_stat(buff_id: String, stat_type: int, flat_value: float) -> void
 	var active_buff: ActiveBuff = _active_buffs[buff_id]
 	active_buff.buff_data = active_buff.buff_data.duplicate(true)
 	var sd := StatData.new(stat_type as Constants.StatType, 0)
-	sd.flat_bonus_value = flat_value
+	sd.flat_bonus_value = int(flat_value)
 	active_buff.buff_data.stat_modifiers[stat_type] = sd
 	_force_stat_recalc()
 	if not is_bot_owned():

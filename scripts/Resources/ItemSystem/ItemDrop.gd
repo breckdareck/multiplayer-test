@@ -128,6 +128,7 @@ func _apply_random_stats(item: EquipmentData) -> void:
 	var primary := _primary_roll_stats(item)
 	if not primary.is_empty():
 		var primary_budget: int = mini(remaining_budget, roundi(stat_budget * PRIMARY_BUDGET_SHARE))
+		@warning_ignore("integer_division")
 		var per: int = primary_budget / primary.size()
 		var extra: int = primary_budget % primary.size()
 		for i in primary.size():

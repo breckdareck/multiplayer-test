@@ -367,6 +367,7 @@ func _credit_dot_kill(applier_node, target: Node) -> void:
 ## CIRCLE-shaped convenience. Equivalent to `spawn_server_shaped` with
 ## shape_type=CIRCLE and rect_size unused. All existing call sites use this
 ## form; new ground-rect uses should call `spawn_server_rect` instead.
+@warning_ignore("shadowed_variable")
 static func spawn_server(
 	applier: Node,
 	pos: Vector2,
@@ -390,6 +391,7 @@ static func spawn_server(
 ## that hugs the floor and hits enemies standing on it without towering
 ## above their hitboxes. `rect_size` is full width × full height (centered
 ## on `pos`).
+@warning_ignore("shadowed_variable")
 static func spawn_server_rect(
 	applier: Node,
 	pos: Vector2,
@@ -410,6 +412,7 @@ static func spawn_server_rect(
 
 ## Lowest-level spawn helper. Used by both convenience entry points above
 ## so the actual zone construction lives in exactly one place.
+@warning_ignore("shadowed_variable")
 static func spawn_server_shaped(
 	applier: Node,
 	pos: Vector2,

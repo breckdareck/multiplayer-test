@@ -806,6 +806,7 @@ func _load_data(data: Dictionary) -> void:
 			inventory_component.load_inventory(inventory_data)
 		elif multiplayer.is_server() and data.get("level", 1) == 1:
 			var disc := weapon_mastery_component.primary_discipline if is_instance_valid(weapon_mastery_component) else Constants.ClassType.SWORD
+			@warning_ignore("static_called_on_instance")
 			inventory_component.server_add_item(PlayerManager._starter_weapon_for(disc))
 
 	if is_instance_valid(health_component):
