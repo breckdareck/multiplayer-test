@@ -114,6 +114,22 @@ class Canvas:
         for x, y in add:
             self.px(x, y, c)
 
+    def halo(self, c):
+        """Like outline() but accepts an RGBA color (alpha kept) — for soft glow
+        rings stacked outside the silhouette. Call repeatedly for a gradient."""
+        nbrs = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (1, -1), (-1, 1), (1, 1)]
+        add = []
+        for y in range(self.h):
+            for x in range(self.w):
+                if self.get(x, y)[3] != 0:
+                    continue
+                for dx, dy in nbrs:
+                    if self.get(x + dx, y + dy)[3] != 0:
+                        add.append((x, y))
+                        break
+        for x, y in add:
+            self.px(x, y, c)
+
     def to_png(self, path, scale=1):
         w, h = self.w * scale, self.h * scale
         raw = bytearray()

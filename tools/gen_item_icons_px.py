@@ -506,7 +506,17 @@ def parse(tres):
     name=re.search(r'^name\s*=\s*"([^"]+)"',txt,re.M); name=name.group(1) if name else os.path.basename(tres)
     def num(f):
         mm=re.search(rf'^{f}\s*=\s*(\d+)',txt,re.M); return int(mm.group(1)) if mm else 0
-    return dict(cls=cls,name=name,armor_type=num("armor_type"),weapon_type=num("weapon_type"))
+    return dict(cls=cls,name=name,armor_type=num("armor_type"),weapon_type=num("weapon_type"),
+                rarity=num("rarity"))
+
+def legendary(cv):
+    """Mark a unique/legendary item: soft gold aura + corner sparkles. A magic
+    shimmer (not a frame) so uniques stand out from common gear at a glance."""
+    cv.halo((255, 206, 92, 150))                 # inner gold glow
+    cv.halo((255, 206, 92, 70))                  # softer outer glow
+    for (x, y) in [(4, 5), (27, 6), (28, 27), (4, 28)]:
+        _spark(cv, x, y)                         # corner sparkles
+    return cv
 
 def build(info):
     c=info["cls"]; n=info["name"]
@@ -533,7 +543,10 @@ def main():
             continue
         rel=os.path.relpath(tres,ITEMS); outp=os.path.join(OUT,os.path.splitext(rel)[0]+".png")
         os.makedirs(os.path.dirname(outp),exist_ok=True)
-        build(info).to_png(outp)
+        cv=build(info)
+        if "Unique" in rel.replace("\\","/").split("/") or info["rarity"]>=4:
+            legendary(cv)
+        cv.to_png(outp)
         rows.append((rel.replace("\\","/"), info["name"]))
     # contact sheet (sampled: every item, but file list can be long)
     cells="".join(f'<figure><img src="{r.rsplit(".",1)[0]}.png"><figcaption>{n}</figcaption></figure>' for r,n in rows)
