@@ -1057,7 +1057,11 @@ func _update_info() -> void:
 			atk.windup_anim, (resolved_anim if not resolved_anim.is_empty() else "(none)"),
 		])
 	if atk.anim_mode == BossAttackData.AnimMode.HOLD:
-		lines.append("  hold_frame: %s" % ("last frame (-1)" if atk.hold_frame < 0 else str(atk.hold_frame)))
+		var frame_count: int = sf.get_frame_count(resolved_anim) if (sf != null and sf.has_animation(resolved_anim)) else 0
+		if atk.hold_frame < 0 or atk.hold_frame >= frame_count - 1:
+			lines.append("  hold_frame: [color=#fa6]%d → no hold (plays like STRETCH; set a MID frame to hold then strike)[/color]" % atk.hold_frame)
+		else:
+			lines.append("  hold_frame: %d  (freeze here until the hit, then play %d→%d as the strike)" % [atk.hold_frame, atk.hold_frame, maxi(0, frame_count - 1)])
 	if sf == null:
 		lines.append("  [color=#fa6]No SpriteFrames on this EnemyData — sprite not drawn.[/color]")
 
@@ -1256,21 +1260,17 @@ class _PreviewControl extends Control:
 				# frame = floor(frac * count), clamped to last.
 				return clampi(int(floor(frac * count)), 0, count - 1)
 			BossAttackData.AnimMode.HOLD:
-				# Advance toward hold_frame, freeze there until hit_time, then
-				# play out. Approximate the runtime: before hit_time, march to
-				# hold_frame; after, play to the end.
+				# Mirrors the runtime: a hold frame must leave STRIKE frames after it.
+				# If unset (-1) or at/past the last frame, there's no hold — fall back to
+				# STRETCH. Otherwise native-pace 0 -> hold_frame, freeze, then on the hit
+				# play hold_frame -> end (the strike) at native speed.
+				var fps_h: float = sf.get_animation_speed(anim)
 				var hold_f: int = atk.hold_frame
-				if hold_f < 0:
-					hold_f = count - 1
-				hold_f = clampi(hold_f, 0, count - 1)
+				if hold_f < 0 or hold_f >= count - 1 or fps_h <= 0.0:
+					return clampi(int(floor(frac * count)), 0, count - 1)
 				if t < hit_time:
-					# Reach hold_f partway through the windup, then sit on it.
-					var to_hold: int = maxi(1, hold_f)
-					var f: int = int(floor(clampf(t / hit_time, 0.0, 1.0) * (to_hold + 1)))
-					return clampi(f, 0, hold_f)
-				else:
-					# Play remaining frames over the dash window (or instantly).
-					return count - 1
+					return clampi(int(floor(t * fps_h)), 0, hold_f)
+				return clampi(hold_f + int(floor((t - hit_time) * fps_h)), hold_f, count - 1)
 			BossAttackData.AnimMode.FREE:
 				# frame = floor(t * fps) wrapped by count.
 				var fps: float = sf.get_animation_speed(anim)
