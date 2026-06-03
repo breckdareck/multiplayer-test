@@ -32,6 +32,8 @@ var _flash_tween: Tween = null
 var _hold_target_frame: int = 0
 var _hold_connected: bool = false
 var _hold_released: bool = false
+var _strike_last_frame: int = 0     # last clip frame (the strike end)
+var _strike_speed_scale: float = 1.0  # paces hold_frame+1 -> last across [windup, hit]
 # Bespoke logic.
 var _logic: Object = null
 
@@ -181,6 +183,16 @@ func _play_windup(enemy: EnemyBase) -> void:
 			# last frame defaults to a MID frame so there's always a strike to play.
 			if _hold_target_frame < 0 or _hold_target_frame >= fc - 1:
 				_hold_target_frame = clampi(int(fc / 2), 0, maxi(0, fc - 2))
+			# Pace the strike (hold_frame+1 -> last) to land on the LAST frame exactly at
+			# hit_time, so the strike animation stretches across the [windup, hit] gap.
+			_strike_last_frame = maxi(0, fc - 1)
+			var fps_h: float = sf.get_animation_speed(anim) if sf != null else 0.0
+			var gap: float = _hit_time - _windup_time
+			var strike_steps: int = _strike_last_frame - (_hold_target_frame + 1)
+			if strike_steps > 0 and gap > 0.001 and fps_h > 0.0:
+				_strike_speed_scale = (float(strike_steps) / fps_h) / gap
+			else:
+				_strike_speed_scale = 1.0
 			if fc <= 1:
 				animations.speed_scale = 1.0
 			else:
@@ -231,11 +243,13 @@ func _on_hold_frame() -> void:
 
 
 func _resume_from_hold() -> void:
-	# At windup_time: release the hold so the remaining frames (the strike) play
-	# from the hold pose onward. Don't call play() — that would reset to frame 0.
+	# At windup_time: release the hold. Swap to the NEXT frame this instant, then
+	# play the rest stretched so the last frame lands at hit_time. Don't call play()
+	# — that would reset to frame 0.
 	_hold_released = true
 	if animations != null:
-		animations.speed_scale = 1.0
+		animations.frame = mini(_hold_target_frame + 1, _strike_last_frame)
+		animations.speed_scale = _strike_speed_scale
 
 
 func _clear_hold() -> void:

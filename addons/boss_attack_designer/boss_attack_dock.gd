@@ -1283,8 +1283,15 @@ class _PreviewControl extends Control:
 				if t < windup:
 					# Wind-up: advance 0 -> hold_f at native speed, then sit on hold_f.
 					return clampi(int(floor(t * fps_h)), 0, hold_f)
-				# Strike: hold_f -> end.
-				return clampi(hold_f + int(floor((t - windup) * fps_h)), hold_f, count - 1)
+				# Strike: swap to hold_f+1 at release, then stretch hold_f+1 -> last so
+				# the last frame lands at hit_time.
+				var last: int = count - 1
+				var nxt: int = mini(hold_f + 1, last)
+				var gap: float = hit_time - windup
+				if gap <= 0.001:
+					return last
+				var sfrac: float = clampf((t - windup) / gap, 0.0, 1.0)
+				return clampi(nxt + int(floor(sfrac * float(last - nxt))), nxt, last)
 			BossAttackData.AnimMode.FREE:
 				# frame = floor(t * fps) wrapped by count.
 				var fps: float = sf.get_animation_speed(anim)
