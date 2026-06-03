@@ -28,6 +28,9 @@ const ABILITYLEVELDATA = preload("res://scripts/Resources/AbilitySystem/AbilityL
 @onready var respec_button: Button = %RespecButton
 ## Top-header respec (tree / all weapons) — opens a popup.
 @onready var respec_menu_button: Button = %RespecMenuButton
+## Economy sink: a confirmation that warns of the monies cost before respeccing.
+var _confirm_dialog: ConfirmationDialog = null
+var _pending_respec: Callable = Callable()
 ## PR 4: TabBar above the list, one tab per weapon discipline. Selecting a
 ## tab filters the ability list and switches the SP label to the matching
 ## discipline pool.
@@ -117,6 +120,13 @@ func _ready():
 		if ability_component.has_signal("ability_upgrade_purchased"):
 			ability_component.ability_upgrade_purchased.connect(_on_ability_upgrade_changed)
 		##print("AbilityWindow: Connected to ability component signals")
+		# Economy sink: surface a ping when a respec is denied (insufficient monies).
+		if ability_component.has_signal("respec_denied"):
+			ability_component.respec_denied.connect(_on_respec_denied)
+
+	# Economy sink: re-evaluate respec button affordability when monies change.
+	if player and is_instance_valid(player.player_inventory):
+		player.player_inventory.monies_changed.connect(_on_monies_changed)
 
 	# PR 8: keep the header mastery readout (level + XP to next = next SP) live.
 	if is_instance_valid(weapon_mastery_component):
@@ -375,6 +385,10 @@ func update_details(data: AbilityData, current_level: int):
 
 	# PR 6: rebuild the upgrade tier panel for this ability.
 	_refresh_upgrades(data, current_level)
+
+	# Economy sink: the per-ability respec button affordability depends on the
+	# current selection, so refresh it whenever the detail panel updates.
+	_update_respec_buttons()
 
 
 ## Builds a BBCode "ACTIVE UPGRADES" block listing owned upgrades for an
@@ -683,6 +697,8 @@ func clear_details():
 	# PR 6: hide the upgrade panel when nothing is selected.
 	if is_instance_valid(upgrades_container):
 		upgrades_container.visible = false
+	# Economy sink: no selection -> disable the per-ability respec button.
+	_update_respec_buttons()
 
 
 ## Handles the action button — context-sensitive in v2: levels/learns the
@@ -864,8 +880,14 @@ func _on_respec_button_pressed() -> void:
 	if not ability_component:
 		return
 	var menu := PopupMenu.new()
-	menu.add_item("Respec %s Tree" % _current_discipline_tab_title(), 0)
-	menu.add_item("Respec All Weapons", 1)
+	var disc_cost: int = ability_component.get_respec_cost("discipline", _current_discipline_key)
+	var all_cost: int = ability_component.get_respec_cost("all")
+	var monies: int = _current_monies()
+	menu.add_item("Respec %s Tree (%s)" % [_current_discipline_tab_title(), _format_monies(disc_cost)], 0)
+	menu.add_item("Respec All Weapons (%s)" % _format_monies(all_cost), 1)
+	# Grey out options the player can't afford OR that would refund nothing.
+	menu.set_item_disabled(0, monies < disc_cost or ability_component.get_points_spent_in_discipline(_current_discipline_key) <= 0)
+	menu.set_item_disabled(1, monies < all_cost or ability_component.get_total_points_spent() <= 0)
 	add_child(menu)
 	menu.id_pressed.connect(_on_respec_menu_selected)
 	# Free the popup once it closes (covers both selection and dismissal).
@@ -881,18 +903,43 @@ func _on_respec_button_pressed() -> void:
 func _on_respec_menu_selected(id: int) -> void:
 	if not ability_component:
 		return
+	var have: String = _format_monies(_current_monies())
 	if id == 0:
-		ability_component.respec_discipline(_current_discipline_key)
+		var cost: int = ability_component.get_respec_cost("discipline", _current_discipline_key)
+		_confirm_respec("Respec the %s tree for %s monies?\nYou have %s." % [_current_discipline_tab_title(), _format_monies(cost), have],
+			func(): ability_component.respec_discipline(_current_discipline_key))
 	elif id == 1:
-		ability_component.respec_all()
-	_refresh_after_respec()
+		var cost: int = ability_component.get_respec_cost("all")
+		_confirm_respec("Respec ALL weapon trees for %s monies?\nYou have %s." % [_format_monies(cost), have],
+			func(): ability_component.respec_all())
 
 
 ## Per-ability respec — refunds just the selected ability's levels + upgrades.
 func _on_respec_ability_pressed() -> void:
 	if not ability_component or selected_ability_id.is_empty():
 		return
-	ability_component.respec_ability(selected_ability_id)
+	var cost: int = ability_component.get_respec_cost("ability", selected_ability_id)
+	_confirm_respec("Respec this ability for %s monies?\nYou have %s." % [_format_monies(cost), _format_monies(_current_monies())],
+		func(): ability_component.respec_ability(selected_ability_id))
+
+
+## Economy sink: warn (with the cost) before running a respec action.
+func _confirm_respec(text: String, on_confirm: Callable) -> void:
+	_pending_respec = on_confirm
+	if not is_instance_valid(_confirm_dialog):
+		_confirm_dialog = ConfirmationDialog.new()
+		_confirm_dialog.title = "Confirm Respec"
+		_confirm_dialog.ok_button_text = "Respec"
+		add_child(_confirm_dialog)
+		_confirm_dialog.confirmed.connect(_on_respec_confirmed)
+	_confirm_dialog.dialog_text = text
+	_confirm_dialog.popup_centered()
+
+
+func _on_respec_confirmed() -> void:
+	if _pending_respec.is_valid():
+		_pending_respec.call()
+	_pending_respec = Callable()
 	_refresh_after_respec()
 
 
@@ -916,6 +963,7 @@ func update_skill_points_display():
 	var points = ability_component.get_available_points_for_discipline(_current_discipline_key)
 	skill_points_label.text = "%s SP: %d" % [tab_label, points]
 	update_mastery_display()
+	_update_respec_buttons()
 
 
 ## PR 8: header readout of the active tab's weapon-mastery level + XP progress.
@@ -945,6 +993,52 @@ func update_mastery_display() -> void:
 ## discipline (cheap; only re-renders the single header label).
 func _on_mastery_changed() -> void:
 	update_mastery_display()
+
+
+## Economy sink: label the respec buttons with their monies cost and gate the
+## per-ability button on affordability + a real ability being selected. The
+## tree/all options carry their costs in the popup (see _on_respec_button_pressed).
+func _update_respec_buttons() -> void:
+	if not ability_component:
+		return
+	var monies: int = _current_monies()
+	if is_instance_valid(respec_button):
+		var cost: int = ability_component.get_respec_cost("ability", selected_ability_id)
+		respec_button.text = "Respec Ability (%s)" % _format_monies(cost)
+		# Gate on: an ability selected, affordable, AND something actually spent on it.
+		var spent: int = ability_component.get_points_spent_in_ability(selected_ability_id) if not selected_ability_id.is_empty() else 0
+		respec_button.disabled = selected_ability_id.is_empty() or monies < cost or spent <= 0
+
+
+## Comma-formats a monies amount, reusing the inventory helper when available.
+func _format_monies(amount: int) -> String:
+	if player and is_instance_valid(player.player_inventory) and player.player_inventory.inventory_component:
+		return player.player_inventory.inventory_component.format_number_with_commas(amount)
+	return str(amount)
+
+
+## Current monies on the owning player (0 if the inventory isn't resolvable).
+func _current_monies() -> int:
+	if player and is_instance_valid(player.player_inventory):
+		return player.player_inventory.monies_amount
+	return 0
+
+
+## Economy sink: monies changed — re-evaluate respec affordability.
+func _on_monies_changed(_new_amount: int) -> void:
+	_update_respec_buttons()
+
+
+## Economy sink: a respec was denied server-side (host path). Brief flash on the
+## skill-points label so the player notices the action didn't take.
+func _on_respec_denied(_scope: String, _reason: String) -> void:
+	if not is_instance_valid(skill_points_label):
+		return
+	var prior: Color = skill_points_label.get_theme_color("font_color")
+	skill_points_label.add_theme_color_override("font_color", Color(1, 0.3, 0.3))
+	await get_tree().create_timer(0.4).timeout
+	if is_instance_valid(skill_points_label):
+		skill_points_label.add_theme_color_override("font_color", prior)
 
 
 ## Signal callback when ability levels up

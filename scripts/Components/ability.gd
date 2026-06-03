@@ -28,6 +28,10 @@ signal ability_upgrade_denied(ability_id: String, upgrade_id: String, reason: St
 ## empty (or the ability is not bound to any tier-1 discipline). The
 ## AbilityWindow uses this to surface a UI ping.
 signal ability_points_spend_denied(ability_id: String, reason: String)
+## Economy sink (2026-06-02): fired server-side when an ability respec is
+## rejected for insufficient monies. Carries the scope that was attempted
+## ("ability" / "discipline" / "all"). The AbilityWindow surfaces a ping.
+signal respec_denied(scope: String, reason: String)
 #endregion
 
 
@@ -1785,6 +1789,64 @@ func sync_learned_upgrades(upgrades: Dictionary) -> void:
 
 #region #################### PR 6: Respec ####################
 
+## Economy sink (2026-06-02): respecs cost monies, scaling with character level
+## (a proxy for invested progression). Tiered by blast radius — a single ability
+## is cheap, redoing every discipline is the premium option. Kept modest because
+## the coin faucet (mob drops + quests) is thin. The cost gate lives at the top
+## of each `_respec_*_local`, the single server-side mutation point both the
+## host-direct call and the matching `*_request` RPC funnel through.
+# Respec cost scales with the NUMBER of ability points actually refunded (level +
+# owned-upgrade costs), not character level. So respeccing one barely-invested
+# ability is cheap, while undoing a fully-built weapon costs much more — and the
+# scope cost is simply (points in that scope) × this rate. Ability points are
+# scarcer than attribute points, so the per-point rate is higher.
+const ABILITY_RESPEC_COST_PER_POINT: int = 20
+
+
+## Current character level (1 if the LevelingComponent is unavailable).
+func _current_level() -> int:
+	if _level_component:
+		return maxi(1, int(_level_component.level))
+	return 1
+
+
+## Resolves the owning player's PlayerInventory (where monies live). Null-safe.
+func _player_inventory() -> PlayerInventory:
+	if owner and "player_inventory" in owner and is_instance_valid(owner.player_inventory):
+		return owner.player_inventory
+	return null
+
+
+## Monies cost for a respec of the given scope = (points refunded) × per-point rate.
+## `key` is the ability_id for "ability" scope and the discipline key for
+## "discipline" scope (ignored for "all"). The UI reads this to label the buttons.
+func get_respec_cost(scope: String, key: String = "") -> int:
+	match scope:
+		"ability": return _points_spent_in_ability(key) * ABILITY_RESPEC_COST_PER_POINT
+		"discipline": return _points_spent_in_discipline(key) * ABILITY_RESPEC_COST_PER_POINT
+		"all": return get_total_points_spent() * ABILITY_RESPEC_COST_PER_POINT
+	return 0
+
+
+## Shared cost gate for ability respecs. Server-authoritative: reads monies off
+## the owning PlayerInventory and deducts via set_monies_rpc (which broadcasts).
+## Returns true if the respec may proceed (charged), false if it must abort.
+## On a non-server peer this never runs (the public respec_*() early-returns into
+## the *_request RPC), but the is_server() guard keeps the deduction explicit.
+func _charge_respec(scope: String, key: String = "") -> bool:
+	if not multiplayer.is_server():
+		return true
+	var cost: int = get_respec_cost(scope, key)
+	var inv: PlayerInventory = _player_inventory()
+	var monies: int = inv.monies_amount if inv else 0
+	if monies < cost:
+		respec_denied.emit(scope, "not_enough_monies")
+		return false
+	if inv:
+		inv.set_monies_rpc(monies - cost)
+	return true
+
+
 ## Refunds every point spent in a discipline (ability levels above the free
 ## starter baseline + all purchased upgrade costs), resets those abilities
 ## and upgrades, and returns the points to that discipline's pool. Free —
@@ -1802,6 +1864,12 @@ func respec_discipline(disc_key: String) -> bool:
 
 func _respec_discipline_local(disc_key: String) -> bool:
 	if not _available_points_per_discipline.has(disc_key):
+		return false
+	# Nothing spent in this tree → nothing to refund; never charge for a no-op.
+	if _points_spent_in_discipline(disc_key) <= 0:
+		respec_denied.emit("discipline", "nothing_to_refund")
+		return false
+	if not _charge_respec("discipline", disc_key):
 		return false
 	var reset_ids: Array[String] = []
 	var refund: int = 0
@@ -1840,6 +1908,12 @@ func _respec_ability_local(ability_id: String) -> bool:
 	var disc_key: String = _ability_primary_discipline(ability)
 	if disc_key == "" or not _available_points_per_discipline.has(disc_key):
 		return false
+	# No levels/upgrades on this ability → nothing to refund; never charge.
+	if _points_spent_in_ability(ability_id) <= 0:
+		respec_denied.emit("ability", "nothing_to_refund")
+		return false
+	if not _charge_respec("ability", ability_id):
+		return false
 	var reset_ids: Array[String] = []
 	var refund: int = _refund_ability(ability_id, reset_ids)
 	_available_points_per_discipline[disc_key] = int(_available_points_per_discipline.get(disc_key, 0)) + refund
@@ -1865,6 +1939,12 @@ func respec_all() -> bool:
 
 
 func _respec_all_local() -> bool:
+	# No points spent anywhere → nothing to refund; never charge for a no-op.
+	if get_total_points_spent() <= 0:
+		respec_denied.emit("all", "nothing_to_refund")
+		return false
+	if not _charge_respec("all"):
+		return false
 	var reset_ids: Array[String] = []
 	var refund_by_disc: Dictionary = {}
 	for ability_id in _ability_levels.keys():
@@ -1983,6 +2063,34 @@ func _points_spent_in_discipline(disc_key: String) -> int:
 			if up != null:
 				spent += up.point_cost
 	return spent
+
+
+## Points spent on ONE ability (its level + owned upgrade costs). Non-mutating.
+func _points_spent_in_ability(ability_id: String) -> int:
+	var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
+	if ability == null:
+		return 0
+	var spent: int = int(_ability_levels.get(ability_id, 0))
+	for owned_id in _learned_upgrades.get(ability_id, []):
+		var up: AbilityUpgradeData = _find_upgrade(ability, owned_id)
+		if up != null:
+			spent += up.point_cost
+	return spent
+
+
+## Public spent-point queries — the respec UI uses these to grey out options that
+## would refund nothing (so the player can't pay for a no-op respec).
+func get_points_spent_in_ability(ability_id: String) -> int:
+	return _points_spent_in_ability(ability_id)
+
+func get_points_spent_in_discipline(disc_key: String) -> int:
+	return _points_spent_in_discipline(disc_key)
+
+func get_total_points_spent() -> int:
+	var total: int = 0
+	for dk in DISCIPLINE_KEYS:
+		total += _points_spent_in_discipline(dk)
+	return total
 
 
 ## Inverse of _class_type_to_discipline_key, restricted to the four tier-1
