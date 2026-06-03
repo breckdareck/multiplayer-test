@@ -1,0 +1,1444 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Untitled Weapon-Identity RPG — Game Design Document</title>
+<style>
+/* ---------------------------------------------------------------
+   GDD rendered preview — stylesheet
+   Inlined by render_html.py into the standalone HTML output.
+   Uses CSS variables for light/dark themes (toggle in the header).
+--------------------------------------------------------------- */
+
+:root {
+  /* Light theme (default) */
+  --bg:           #fafaf7;
+  --bg-elevated:  #ffffff;
+  --bg-code:      #f4f3ef;
+  --bg-callout-q: #fff9e6;
+  --bg-callout-i: #eef4ff;
+  --bg-callout-w: #fdecec;
+
+  --fg:           #1d1d1f;
+  --fg-muted:     #555;
+  --fg-faint:     #888;
+
+  --accent:       #5f5fff;
+  --accent-soft:  #b7b7ff;
+  --pillar:       #c75d2f;
+  --rule:         #e6e3dc;
+
+  --shadow:       0 1px 2px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04);
+
+  --font-sans:    "Inter", "SF Pro Text", -apple-system, BlinkMacSystemFont,
+                  "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-serif:   "Charter", "Iowan Old Style", "Georgia", serif;
+  --font-mono:    "JetBrains Mono", "SF Mono", "Menlo", Consolas, monospace;
+
+  --max-w:        780px;
+  --toc-w:        260px;
+}
+
+html[data-theme="dark"] {
+  --bg:           #15161a;
+  --bg-elevated:  #1d1f24;
+  --bg-code:      #24262c;
+  --bg-callout-q: #3a2e16;
+  --bg-callout-i: #16243a;
+  --bg-callout-w: #3a1818;
+
+  --fg:           #ececec;
+  --fg-muted:     #aaa;
+  --fg-faint:     #7a7a7a;
+
+  --accent:       #8f8fff;
+  --accent-soft:  #4a4a8c;
+  --pillar:       #f08a5c;
+  --rule:         #2c2e34;
+
+  --shadow:       0 1px 2px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.25);
+}
+
+/* -------- Base -------- */
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  display: grid;
+  grid-template-columns: var(--toc-w) minmax(0, 1fr);
+  gap: 0;
+  min-height: 100vh;
+}
+
+/* -------- Header bar -------- */
+.gdd-header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 28px;
+  border-bottom: 1px solid var(--rule);
+  background: var(--bg-elevated);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.gdd-header .brand {
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  color: var(--fg-muted);
+  text-transform: uppercase;
+}
+
+.gdd-header .theme-toggle {
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--fg-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.gdd-header .theme-toggle:hover {
+  color: var(--fg);
+  border-color: var(--accent-soft);
+}
+
+/* -------- TOC (left rail) -------- */
+.gdd-toc {
+  position: sticky;
+  top: 56px;
+  align-self: start;
+  max-height: calc(100vh - 56px);
+  overflow-y: auto;
+  padding: 28px 18px 28px 28px;
+  border-right: 1px solid var(--rule);
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+.gdd-toc h2 {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  margin: 0 0 10px 0;
+  font-weight: 600;
+}
+
+.gdd-toc ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.gdd-toc ul ul {
+  padding-left: 14px;
+  margin-top: 2px;
+  margin-bottom: 6px;
+}
+.gdd-toc a {
+  display: block;
+  color: var(--fg-muted);
+  text-decoration: none;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border-left: 2px solid transparent;
+  transition: all 0.1s ease;
+}
+.gdd-toc a:hover {
+  color: var(--fg);
+  background: var(--bg-code);
+}
+.gdd-toc a.active {
+  color: var(--accent);
+  border-left-color: var(--accent);
+  background: var(--bg-code);
+}
+
+/* -------- Main content -------- */
+.gdd-main {
+  padding: 36px 48px 96px 48px;
+  max-width: calc(var(--max-w) + 96px);
+}
+
+.gdd-content {
+  max-width: var(--max-w);
+}
+
+/* -------- Typography -------- */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--fg);
+  scroll-margin-top: 80px;
+}
+
+h1 {
+  font-size: 36px;
+  margin: 12px 0 8px;
+  letter-spacing: -0.02em;
+}
+h2 {
+  font-size: 26px;
+  margin: 48px 0 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--rule);
+  letter-spacing: -0.01em;
+}
+h3 {
+  font-size: 20px;
+  margin: 32px 0 10px;
+}
+h4 {
+  font-size: 16px;
+  margin: 22px 0 8px;
+  color: var(--fg-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+p {
+  margin: 0 0 14px 0;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid var(--accent-soft);
+  transition: border-color 0.1s ease;
+}
+a:hover { border-bottom-color: var(--accent); }
+
+strong { color: var(--fg); font-weight: 600; }
+
+hr {
+  border: 0;
+  height: 1px;
+  background: var(--rule);
+  margin: 32px 0;
+}
+
+/* -------- Meta block (the first blockquote under H1) -------- */
+.gdd-content > blockquote:first-of-type {
+  background: var(--bg-elevated);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 12px 18px;
+  margin: 16px 0 28px;
+  color: var(--fg-muted);
+  font-size: 14px;
+}
+.gdd-content > blockquote:first-of-type p { margin: 4px 0; }
+
+/* -------- Callouts -------- */
+blockquote {
+  margin: 18px 0;
+  padding: 12px 18px;
+  border-left: 3px solid var(--accent-soft);
+  background: var(--bg-callout-i);
+  border-radius: 0 6px 6px 0;
+  color: var(--fg);
+}
+
+/* Open-question callout — starts with ⚠ */
+blockquote p:first-child:where(
+  :first-letter
+) { /* no-op selector to keep specificity but avoid weird first-letter mods */ }
+
+blockquote.callout-question {
+  border-left-color: var(--pillar);
+  background: var(--bg-callout-q);
+}
+blockquote.callout-warning {
+  border-left-color: #d34646;
+  background: var(--bg-callout-w);
+}
+
+/* -------- Tables -------- */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 18px 0 24px;
+  font-size: 14.5px;
+  background: var(--bg-elevated);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+thead { background: var(--bg-code); }
+th, td {
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+th {
+  font-weight: 600;
+  font-size: 12.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--fg-muted);
+}
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover { background: var(--bg-code); }
+
+/* -------- Code -------- */
+code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background: var(--bg-code);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--fg);
+}
+pre {
+  background: var(--bg-code);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 16px 18px;
+  overflow-x: auto;
+  margin: 18px 0;
+  line-height: 1.5;
+}
+pre code {
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  font-size: 13.5px;
+}
+
+/* -------- Mermaid -------- */
+.mermaid {
+  background: var(--bg-elevated);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  text-align: center;
+  overflow-x: auto;
+}
+
+/* -------- Lists -------- */
+ul, ol {
+  padding-left: 24px;
+  margin: 8px 0 16px;
+}
+li { margin: 4px 0; }
+li > p { margin: 4px 0; }
+
+/* -------- Pillar list (ordered list under H2 "Design pillars") -------- */
+.pillars-list li::marker {
+  color: var(--pillar);
+  font-weight: 600;
+}
+
+/* -------- Responsive -------- */
+@media (max-width: 900px) {
+  body {
+    grid-template-columns: 1fr;
+  }
+  .gdd-toc {
+    position: static;
+    max-height: none;
+    border-right: 0;
+    border-bottom: 1px solid var(--rule);
+    padding: 20px 24px;
+  }
+  .gdd-main {
+    padding: 24px 24px 64px;
+  }
+}
+
+/* -------- Print -------- */
+@media print {
+  body { grid-template-columns: 1fr; background: white; color: black; }
+  .gdd-header, .gdd-toc { display: none; }
+  .gdd-main { padding: 0; max-width: none; }
+  a { color: black; border-bottom: 0; }
+  h2 { page-break-before: auto; break-before: auto; }
+  pre, table, .mermaid { page-break-inside: avoid; break-inside: avoid; }
+}
+
+pre { line-height: 125%; }
+td.linenos .normal { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #ffffcc }
+.highlight { background: #f0f0f0; }
+.highlight .c { color: #60A0B0; font-style: italic } /* Comment */
+.highlight .err { border: 1px solid #F00 } /* Error */
+.highlight .k { color: #007020; font-weight: bold } /* Keyword */
+.highlight .o { color: #666 } /* Operator */
+.highlight .ch { color: #60A0B0; font-style: italic } /* Comment.Hashbang */
+.highlight .cm { color: #60A0B0; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #007020 } /* Comment.Preproc */
+.highlight .cpf { color: #60A0B0; font-style: italic } /* Comment.PreprocFile */
+.highlight .c1 { color: #60A0B0; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #60A0B0; background-color: #FFF0F0 } /* Comment.Special */
+.highlight .gd { color: #A00000 } /* Generic.Deleted */
+.highlight .ge { font-style: italic } /* Generic.Emph */
+.highlight .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.highlight .gr { color: #F00 } /* Generic.Error */
+.highlight .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.highlight .gi { color: #00A000 } /* Generic.Inserted */
+.highlight .go { color: #888 } /* Generic.Output */
+.highlight .gp { color: #C65D09; font-weight: bold } /* Generic.Prompt */
+.highlight .gs { font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.highlight .gt { color: #04D } /* Generic.Traceback */
+.highlight .kc { color: #007020; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #007020; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #007020; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #007020 } /* Keyword.Pseudo */
+.highlight .kr { color: #007020; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #902000 } /* Keyword.Type */
+.highlight .m { color: #40A070 } /* Literal.Number */
+.highlight .s { color: #4070A0 } /* Literal.String */
+.highlight .na { color: #4070A0 } /* Name.Attribute */
+.highlight .nb { color: #007020 } /* Name.Builtin */
+.highlight .nc { color: #0E84B5; font-weight: bold } /* Name.Class */
+.highlight .no { color: #60ADD5 } /* Name.Constant */
+.highlight .nd { color: #555; font-weight: bold } /* Name.Decorator */
+.highlight .ni { color: #D55537; font-weight: bold } /* Name.Entity */
+.highlight .ne { color: #007020 } /* Name.Exception */
+.highlight .nf { color: #06287E } /* Name.Function */
+.highlight .nl { color: #002070; font-weight: bold } /* Name.Label */
+.highlight .nn { color: #0E84B5; font-weight: bold } /* Name.Namespace */
+.highlight .nt { color: #062873; font-weight: bold } /* Name.Tag */
+.highlight .nv { color: #BB60D5 } /* Name.Variable */
+.highlight .ow { color: #007020; font-weight: bold } /* Operator.Word */
+.highlight .w { color: #BBB } /* Text.Whitespace */
+.highlight .mb { color: #40A070 } /* Literal.Number.Bin */
+.highlight .mf { color: #40A070 } /* Literal.Number.Float */
+.highlight .mh { color: #40A070 } /* Literal.Number.Hex */
+.highlight .mi { color: #40A070 } /* Literal.Number.Integer */
+.highlight .mo { color: #40A070 } /* Literal.Number.Oct */
+.highlight .sa { color: #4070A0 } /* Literal.String.Affix */
+.highlight .sb { color: #4070A0 } /* Literal.String.Backtick */
+.highlight .sc { color: #4070A0 } /* Literal.String.Char */
+.highlight .dl { color: #4070A0 } /* Literal.String.Delimiter */
+.highlight .sd { color: #4070A0; font-style: italic } /* Literal.String.Doc */
+.highlight .s2 { color: #4070A0 } /* Literal.String.Double */
+.highlight .se { color: #4070A0; font-weight: bold } /* Literal.String.Escape */
+.highlight .sh { color: #4070A0 } /* Literal.String.Heredoc */
+.highlight .si { color: #70A0D0; font-style: italic } /* Literal.String.Interpol */
+.highlight .sx { color: #C65D09 } /* Literal.String.Other */
+.highlight .sr { color: #235388 } /* Literal.String.Regex */
+.highlight .s1 { color: #4070A0 } /* Literal.String.Single */
+.highlight .ss { color: #517918 } /* Literal.String.Symbol */
+.highlight .bp { color: #007020 } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #06287E } /* Name.Function.Magic */
+.highlight .vc { color: #BB60D5 } /* Name.Variable.Class */
+.highlight .vg { color: #BB60D5 } /* Name.Variable.Global */
+.highlight .vi { color: #BB60D5 } /* Name.Variable.Instance */
+.highlight .vm { color: #BB60D5 } /* Name.Variable.Magic */
+.highlight .il { color: #40A070 } /* Literal.Number.Integer.Long */
+</style>
+</head>
+<body>
+<header class="gdd-header">
+  <span class="brand">Game Design Document</span>
+  <button class="theme-toggle" id="themeToggle" type="button">Theme: light</button>
+</header>
+<nav class="gdd-toc"><h2>Contents</h2><ul><li><a href="#1-executive-summary">1. Executive summary</a></li><li><a href="#2-design-pillars">2. Design pillars</a></li><li><a href="#3-game-overview">3. Game overview</a></li><li><a href="#4-player-experience-goals">4. Player experience goals</a></li><li><a href="#5-core-loops">5. Core loops</a><ul><li><a href="#51-30-second-loop">5.1 30-second loop</a></li><li><a href="#52-session-loop">5.2 Session loop</a></li><li><a href="#53-meta-loop-week-over-week">5.3 Meta loop (week-over-week)</a></li></ul></li><li><a href="#6-story-setting-world">6. Story, setting &amp; world</a><ul><li><a href="#61-setting">6.1 Setting</a></li><li><a href="#62-tone">6.2 Tone</a></li><li><a href="#63-plot-beats-high-level">6.3 Plot beats (high level)</a></li><li><a href="#64-regions">6.4 Regions</a></li></ul></li><li><a href="#7-characters-disciplines">7. Characters &amp; disciplines</a><ul><li><a href="#71-player-character">7.1 Player character</a></li><li><a href="#72-weapon-disciplines-there-are-no-classes">7.2 Weapon disciplines (there are no classes)</a></li><li><a href="#73-npcs">7.3 NPCs</a></li></ul></li><li><a href="#8-combat-system">8. Combat system</a><ul><li><a href="#81-core-combat-verbs">8.1 Core combat verbs</a></li><li><a href="#82-damage-formula">8.2 Damage formula</a></li><li><a href="#83-hit-miss-crit">8.3 Hit / miss &amp; crit</a></li><li><a href="#84-threat-aggro">8.4 Threat / aggro</a></li><li><a href="#85-death-respawn">8.5 Death &amp; respawn</a></li></ul></li><li><a href="#9-progression-systems">9. Progression systems</a><ul><li><a href="#91-levels-xp">9.1 Levels &amp; XP</a></li><li><a href="#92-attribute-points-manual-allocation-adr-0002-shipped">9.2 Attribute points (manual allocation — ADR 0002, shipped)</a></li><li><a href="#93-abilities-three-behavior-layers">9.3 Abilities — three behavior layers</a></li><li><a href="#94-ability-points-upgrade-trees">9.4 Ability points &amp; upgrade trees</a></li><li><a href="#95-weapon-mastery">9.5 Weapon mastery</a></li></ul></li><li><a href="#10-items-equipment-economy">10. Items, equipment &amp; economy</a><ul><li><a href="#101-item-categories">10.1 Item categories</a></li><li><a href="#102-rarity-affixes">10.2 Rarity &amp; affixes</a></li><li><a href="#103-equipment-slots">10.3 Equipment slots</a></li><li><a href="#104-crafting-enchanting">10.4 Crafting &amp; enchanting</a></li><li><a href="#105-economy">10.5 Economy</a></li></ul></li><li><a href="#11-enemies-ai">11. Enemies &amp; AI</a><ul><li><a href="#111-enemy-ladder">11.1 Enemy ladder</a></li><li><a href="#112-enemy-ai">11.2 Enemy AI</a></li><li><a href="#113-bots-server-side-ai-participants">11.3 Bots (server-side AI participants)</a></li><li><a href="#114-pets-owner-bound-companions">11.4 Pets (owner-bound companions)</a></li></ul></li><li><a href="#12-levels-maps-world-topology">12. Levels, maps &amp; world topology</a><ul><li><a href="#121-map-structure">12.1 Map structure</a></li><li><a href="#122-channels">12.2 Channels</a></li><li><a href="#123-map-roster-v1">12.3 Map roster (v1)</a></li></ul></li><li><a href="#13-multiplayer-social-systems">13. Multiplayer &amp; social systems</a><ul><li><a href="#131-topology">13.1 Topology</a></li><li><a href="#132-parties">13.2 Parties</a></li><li><a href="#133-trading">13.3 Trading</a></li><li><a href="#134-chat-commands">13.4 Chat &amp; commands</a></li><li><a href="#135-friends-guilds">13.5 Friends &amp; guilds</a></li></ul></li><li><a href="#14-quests-onboarding">14. Quests &amp; onboarding</a><ul><li><a href="#141-quest-philosophy">14.1 Quest philosophy</a></li><li><a href="#142-onboarding-lvl-15">14.2 Onboarding (lvl 1–5)</a></li><li><a href="#143-quest-roster-22-quests-across-6-chains">14.3 Quest roster (22 quests across 6 chains)</a></li></ul></li><li><a href="#15-user-interface-ux">15. User interface &amp; UX</a><ul><li><a href="#151-screen-flow">15.1 Screen flow</a></li><li><a href="#152-hud">15.2 HUD</a></li><li><a href="#153-windows-the-unified-game-window-adr-0003-shipped">15.3 Windows — the unified game window (ADR 0003, shipped)</a></li><li><a href="#154-accessibility">15.4 Accessibility</a></li></ul></li><li><a href="#16-art-direction">16. Art direction</a><ul><li><a href="#161-visual-pillars">16.1 Visual pillars</a></li><li><a href="#162-style-references">16.2 Style references</a></li><li><a href="#163-asset-pipeline">16.3 Asset pipeline</a></li></ul></li><li><a href="#17-audio-design">17. Audio design</a></li><li><a href="#18-technical-architecture">18. Technical architecture</a><ul><li><a href="#181-server-authority">18.1 Server authority</a></li><li><a href="#182-autoload-singletons-player-facing-roles">18.2 Autoload singletons (player-facing roles)</a></li><li><a href="#183-component-based-characters">18.3 Component-based characters</a></li><li><a href="#184-data-driven-content">18.4 Data-driven content</a></li><li><a href="#185-persistence">18.5 Persistence</a></li><li><a href="#186-performance-targets">18.6 Performance targets</a></li></ul></li><li><a href="#19-production-roadmap">19. Production roadmap</a><ul><li><a href="#191-current-state">19.1 Current state</a></li><li><a href="#192-milestones">19.2 Milestones</a></li><li><a href="#193-out-of-scope-v1">19.3 Out of scope (v1)</a></li></ul></li><li><a href="#20-risks-open-questions-appendix">20. Risks, open questions &amp; appendix</a><ul><li><a href="#201-top-risks">20.1 Top risks</a></li><li><a href="#202-open-questions">20.2 Open questions</a></li><li><a href="#203-glossary">20.3 Glossary</a></li><li><a href="#204-references">20.4 References</a></li></ul></li></ul></nav>
+<main class="gdd-main">
+  <article class="gdd-content">
+    <h1>Untitled Weapon-Identity RPG — Game Design Document</h1>
+<blockquote>
+<p><strong>Version:</strong> v0.9 — systems-complete draft
+<strong>Last updated:</strong> 2026-06-02
+<strong>Owner:</strong> Breck Palmateer
+<strong>Status:</strong> Vertical slice — core systems implemented in code (<code>feat/weapon-identity-overhaul</code>, overhaul folder), live end-to-end validation pending.</p>
+</blockquote>
+<hr />
+<blockquote>
+<p><strong>Reading note.</strong> This GDD documents the <strong>weapon-identity overhaul</strong> as it
+actually exists in code today (folder <code>multiplayer-test-overhaul/</code>), not the
+abandoned PR-4 WIP in the base repo. Where this supersedes the older
+<a href="v1_design_summary.html"><code>docs/v1_design_summary.html</code></a>, it does so because
+that plan has now largely <strong>shipped</strong> — 80 abilities, four weapon gauges, the
+manual attribute pool, and the unified game window are all in the build.</p>
+</blockquote>
+<h2 id="1-executive-summary">1. Executive summary</h2>
+<p>A <strong>server-authoritative 2D side-scrolling co-op RPG</strong> where your <strong>weapon is
+your class</strong>. There are no job classes to pick — you wield a Sword, Bow, Staff,
+or Dagger, level that weapon's <em>mastery</em>, and spend freely-allocated attribute
+points to shape a STR tank, a DEX marksman, an INT mage, a LUCK assassin, or any
+hybrid in between. Equip <strong>two</strong> weapons at once and your build is the
+intersection of their two ability trees.</p>
+<p>The fantasy is <strong>MapleStory's chunky 2D hunting</strong> crossed with <strong>New World's
+weapon-driven identity</strong> and <strong>Diablo-style branching ability upgrades</strong>. You
+hunt packs of mobs through portal-connected maps, watch numbers pop, fill a
+signature weapon gauge (sword Combo, bow Momentum, staff Element Stance, dagger
+Shadowmeld), and cash it into a payoff. Friends host a lobby and drop in; bots
+fill out the party and the world.</p>
+<ul>
+<li><strong>One-line pitch:</strong> A 2D co-op hunting RPG where your <em>weapon</em> is your class — master it, dual-wield it, and rebuild it through branching upgrade trees.</li>
+<li><strong>High concept:</strong> Pick up a sword and you <em>are</em> a vanguard; swap to a dagger and you're an assassin — identity flows from the weapon in your hand and the attribute points you pour into it, not from a class you chose at character creation. Two weapon slots, four signature gauges, and 80 abilities with 343 upgrade variants make every build feel hand-assembled.</li>
+<li><strong>Reference points:</strong> MapleStory (2D hunting feel, silhouette-legible sprites), New World (weapon-driven identity + freely-allocated attributes with utility breakpoints), Ragnarok Online (card-style gear identity, target audience), Diablo 4 (3-tier ability upgrade trees with mutually-exclusive variants), Last Epoch (ability transformation depth), Erenshor (bots-as-population).</li>
+</ul>
+<h2 id="2-design-pillars">2. Design pillars</h2>
+<ol>
+<li><strong>The weapon is the class.</strong> Every identity decision routes through <em>which weapon you wield</em> and <em>how you've mastered it</em>. A feature that reintroduces fixed job-classes, or that makes the weapon cosmetic, violates this pillar. (Enforced in code: <code>ClassComponent</code> was deleted — <a href="adr/0004-classcomponent-removal-weapon-discipline.md">ADR 0004</a>.)</li>
+<li><strong>Build it yourself.</strong> Attributes are freely allocated (5 points/level), abilities are freely leveled, and every ability has a branching upgrade tree whose Tier-3 variants <em>change how it plays</em> — never just "+30% damage." If a choice is a stat slider, it's the wrong choice.</li>
+<li><strong>Distinct shapes, not reskins.</strong> Each weapon owns a different <em>mechanical shape</em> (build-and-spend combo, ramp-and-snipe momentum, element stances, stealth windows) and a different stat axis (Defense / Accuracy / Magic Attack / Evasion). Two abilities that play identically with different names are a bug.</li>
+<li><strong>Server owns the truth.</strong> Clients send intent; the server validates, mutates, and broadcasts. Health, stats, drops, abilities, and progression never trust a client. This is the multiplayer moat.</li>
+<li><strong>Co-op is "farm faster together," not "fill a trinity."</strong> Parties hunt faster and roles emerge from weapon identity — there is no enforced tank/healer holy trinity, no ally-targeted heals, no enemy party-scaling.</li>
+</ol>
+<blockquote class="callout-question"><p>⚠ Open question: Pillars 2 and 5 are in tension at endgame — a 495-point attribute pool plus 100 ability points plus 343 upgrades is a <em>lot</em> of build freedom, but the co-op loop currently has no content that <em>demands</em> a coordinated build (no boss mechanics, no role gates). See §11 and §19.</p></blockquote>
+<h2 id="3-game-overview">3. Game overview</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Genre</td>
+<td>2D side-scrolling co-op MMORPG-lite</td>
+</tr>
+<tr>
+<td>Sub-genre</td>
+<td>Server-authoritative weapon-driven action RPG + grind</td>
+</tr>
+<tr>
+<td>Engine</td>
+<td>Godot 4.5+ (Forward Plus)</td>
+</tr>
+<tr>
+<td>Platforms</td>
+<td>Windows first; Linux/Mac feasible (Godot export)</td>
+</tr>
+<tr>
+<td>Network model</td>
+<td>Server-authoritative; clients send intent via RPC; server is always peer ID 1</td>
+</tr>
+<tr>
+<td>Topology</td>
+<td>Steam-lobby co-op is the north star; <strong>ENet + Flask/PostgreSQL is the current dev/test topology</strong>; a Breck-hosted official server is a later opt-in</td>
+</tr>
+<tr>
+<td>Players per session</td>
+<td>Host + friends, party size effectively uncapped; <strong>Bots</strong> fill out party and population</td>
+</tr>
+<tr>
+<td>Session length</td>
+<td>~20–45 min hunting sessions; come back for the next mastery rank / gear upgrade</td>
+</tr>
+<tr>
+<td>Target audience</td>
+<td>Players who loved MapleStory/Ragnarok hunting and want New-World build freedom in 2D co-op</td>
+</tr>
+<tr>
+<td>Rating target</td>
+<td>T — fantasy violence, no gore</td>
+</tr>
+<tr>
+<td>Monetisation</td>
+<td>None planned for v1 (passion/portfolio project); cosmetic-only if ever</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4-player-experience-goals">4. Player experience goals</h2>
+<ul>
+<li><strong>Moment-to-moment (seconds):</strong> every hit lands with a clear number pop and a mastery-floored damage roll (min damage = 20% of max, so even low rolls feel like progress); the weapon gauge visibly fills on the screen edge, building toward a payoff cast.</li>
+<li><strong>Session (minutes):</strong> "one more rank" — I left the hunt with my Sword mastery ticking toward the next ability point, a new attribute point or two, and maybe a rarer drop with a <code>CRITDAMAGE</code> roll I want to slot.</li>
+<li><strong>Long-term (hours/days):</strong> my Sword/Staff spellblade plays nothing like my friend's pure Dagger crit-assassin, because we spent attributes, ability points, and Tier-3 upgrade variants in completely different directions — and respeccing is free, so I can rebuild around a new weapon without re-grinding.</li>
+</ul>
+<h2 id="5-core-loops">5. Core loops</h2>
+<h3 id="51-30-second-loop">5.1 30-second loop</h3>
+<div class="mermaid">
+flowchart LR
+    A[Spot a pack of mobs] --&gt; B[Basic-attack / cast to build gauge]
+    B --&gt; C[Gauge fills: Combo / Momentum / Stance / Shadowmeld]
+    C --&gt; D[Spend gauge on a payoff cast]
+    D --&gt; E[Kill: number pop + loot drop + EXP + mastery XP]
+    E --&gt; A
+</div>
+
+<p>The decision beat is <strong>build vs. spend the gauge</strong>: hold combo for a bigger
+Sundering Blow, or dump now for AoE? Snipe at 10 Momentum stacks or keep firing?
+The payoff beat is the kill — EXP toward character level, mastery XP toward the
+wielded weapon's next ability point, and a FFA drop.</p>
+<h3 id="52-session-loop">5.2 Session loop</h3>
+<div class="mermaid">
+flowchart LR
+    Login --&gt; Town[Town hub]
+    Town --&gt; Goal[Pick a goal: quest / hunt a level band / spend points]
+    Goal --&gt; Map[Portal to a field map: game .. game4]
+    Map --&gt; Loop30s[30s combat loop x N]
+    Loop30s --&gt; Spend[Spend attribute + ability points, slot new gear]
+    Spend --&gt; Town
+</div>
+
+<h3 id="53-meta-loop-week-over-week">5.3 Meta loop (week-over-week)</h3>
+<p>Push a weapon's <strong>mastery toward 100</strong> (≈ character level 70) to finish its
+ability tree → respec <strong>attributes</strong> and <strong>upgrade variants</strong> around a new
+playstyle → pick up a <strong>second weapon discipline</strong> (a sword main dipping Staff
+for spellblade) → chase higher-level-band gear with better <code>CRITDAMAGE</code> /
+<code>WEAPONATTACK</code> rolls up the enemy ladder toward the <strong>Eternal Warlord (L100)</strong>.</p>
+<h2 id="6-story-setting-world">6. Story, setting &amp; world</h2>
+<h3 id="61-setting">6.1 Setting</h3>
+<p>A bright fantasy frontier of pastoral fields, goblin-held woods, and increasingly
+arcane high-level zones, capped by a singular endgame threat (the <strong>Eternal
+Warlord</strong>). The world is a hub town ringed by portal-connected hunting maps.</p>
+<h3 id="62-tone">6.2 Tone</h3>
+<p>MapleStory's readable, cheerful 2D silhouettes with a muted-palette
+high-fantasy drift as you climb the level ladder. Combat is energetic and
+number-forward, not grim.</p>
+<h3 id="63-plot-beats-high-level">6.3 Plot beats (high level)</h3>
+<blockquote class="callout-question"><p>⚠ Open question: There is <strong>no authored narrative yet</strong> — the story layer is
+carried entirely by the quest chains (§14). The beats below describe the
+<em>guided journey</em> the quests already implement, not a written plot.</p></blockquote>
+<ul>
+<li><strong>Act 1 — onboarding (lvl 1–10):</strong> auto-granted <code>q_first_blood</code> (kill 1 Slime) → a WelcomeOverlay → the Slime/Boar beginner chains. You learn your starting weapon's gauge.</li>
+<li><strong>Act 2 — the climb (lvl 10–30):</strong> the Deep Woods / goblin chains open; the Advancement chain (<code>q_call_to_advance</code>) points you at level 30, where more weapons unlock.</li>
+<li><strong>Act 3 — refinement (lvl 30–100):</strong> mastery caps (~L70), then character levels 70–100 are pure attribute/gear refinement; the EndlessHunt repeatable chain and the high-level enemy ladder carry the grind to the Warlord.</li>
+</ul>
+<h3 id="64-regions">6.4 Regions</h3>
+<table>
+<thead>
+<tr>
+<th>Region (map_id)</th>
+<th>Level band</th>
+<th>Vibe</th>
+<th>Notable mobs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>town</code></td>
+<td>—</td>
+<td>Safe hub</td>
+<td>Quest-giver NPCs, no combat</td>
+</tr>
+<tr>
+<td><code>game</code></td>
+<td>~1–3</td>
+<td>Starter field</td>
+<td>Slime (1), Bunny (1), Bird (3)</td>
+</tr>
+<tr>
+<td><code>game2</code></td>
+<td>~6–9</td>
+<td>Meadow</td>
+<td>Boar (6), Deer (7), Fox (9)</td>
+</tr>
+<tr>
+<td><code>game3</code></td>
+<td>~10–23</td>
+<td>Goblin woods</td>
+<td>Goblin Warrior (13), Goblin (18), Cave Goblin (23)</td>
+</tr>
+<tr>
+<td><code>game4</code></td>
+<td>~28+</td>
+<td>Higher tier</td>
+<td>Tusk Brute (28) and upward</td>
+</tr>
+</tbody>
+</table>
+<h2 id="7-characters-disciplines">7. Characters &amp; disciplines</h2>
+<h3 id="71-player-character">7.1 Player character</h3>
+<ul>
+<li><strong>Identity surface:</strong> at character creation the player picks a <strong>starting weapon discipline</strong> (Sword/Bow/Staff/Dagger), which seeds the sprite, the HP/MP curve, the base stats, and the first ability point (via <code>WeaponMasteryComponent.bootstrap_chosen_discipline()</code> bumping that discipline's mastery 0→1). Everything after is earned and freely re-allocated.</li>
+<li><strong>Visual constraint (load-bearing):</strong> there are <strong>four static sprites</strong> (swordsman / archer / mage / rogue), no paperdoll, no art budget for more. This constraint is <em>why</em> identity is weapon-and-build-driven rather than visual — build variety is expressed through ability FX, the gauge widgets, and numbers, not character art.</li>
+</ul>
+<h3 id="72-weapon-disciplines-there-are-no-classes">7.2 Weapon disciplines (there are no classes)</h3>
+<p><code>Constants.ClassType</code> is renamed to the four disciplines (<code>SWORD=0, BOW=1,
+STAFF=2, DAGGER=3</code>; legacy advanced classes 5–8 are normalized back to tier-1 on
+load). <code>WeaponMasteryComponent</code> owns the <code>primary_discipline</code> pointer and the
+per-discipline mastery levels. The <strong>active</strong> discipline (the weapon currently
+wielded) drives damage scaling — <em>"I am my weapon."</em></p>
+<table>
+<thead>
+<tr>
+<th>Discipline</th>
+<th>Primary stat (×4)</th>
+<th>Secondary (×1)</th>
+<th>Stat axis (utility)</th>
+<th>Signature gauge</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Sword</strong></td>
+<td>STR</td>
+<td>DEX</td>
+<td>Defense</td>
+<td><strong>Combo</strong> (build to 3, spend)</td>
+</tr>
+<tr>
+<td><strong>Bow</strong></td>
+<td>DEX</td>
+<td>STR</td>
+<td>Accuracy</td>
+<td><strong>Momentum</strong> (ramp to 10 stacks)</td>
+</tr>
+<tr>
+<td><strong>Staff</strong></td>
+<td>INT</td>
+<td>LUCK</td>
+<td>Magic Attack</td>
+<td><strong>Element Stance</strong> (Fire/Ice/Lightning)</td>
+</tr>
+<tr>
+<td><strong>Dagger</strong></td>
+<td>LUCK</td>
+<td>DEX</td>
+<td>Evasion</td>
+<td><strong>Shadowmeld</strong> (stealth windows)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Spellblade:</strong> when a Staff is the active weapon, the primary stat gets
+<code>+0.5 × max(STR, DEX)</code> folded in — the deliberate sword/staff hybrid lever.</p>
+<blockquote class="callout-question"><p>⚠ Resolved (was open): the "weapon-driven identity vs. 9-class structure"
+tension noted in older memory is <strong>resolved in code</strong> — classes are gone
+(<a href="adr/0004-classcomponent-removal-weapon-discipline.md">ADR 0004</a>), job
+advancement removed (<a href="adr/0002-attribute-allocation-system.md">ADR 0002</a> §8).</p></blockquote>
+<h3 id="73-npcs">7.3 NPCs</h3>
+<p>Quest-giver NPCs (<code>scripts/NPC/quest_giver_npc.gd</code>) live in <code>town</code>. Job/class
+advancement NPCs from the legacy design are deprecated (no class advancement).</p>
+<h2 id="8-combat-system">8. Combat system</h2>
+<h3 id="81-core-combat-verbs">8.1 Core combat verbs</h3>
+<ul>
+<li><strong>Basic attack</strong> (CTRL) — always rolls off <code>WEAPONATTACK</code>; per-weapon input affordance is allowed (e.g. hold-to-spam vs. charge feels) as part of weapon identity.</li>
+<li><strong>Ability</strong> (hotbar) — mana-cost, cooldown-gated; 13 actives per weapon, server-resolved.</li>
+<li><strong>Weapon gauge</strong> — the signature mechanic per weapon (combo/momentum/stance/stealth), shown on an anchored screen-edge widget (never inside the hotbar).</li>
+<li><strong>No dodge i-frames as a core verb</strong> — most enemies deal <strong>contact damage</strong> (walk into you), so the design deliberately <em>excludes</em> reactive parry/dodge-window shapes. Brief i-frames exist only on specific ability entries (e.g. Vanguard's Onslaught) and on respawn.</li>
+<li><strong>Status effects:</strong> bleed/poison DoT stacks, burn (staff Fire), slow (staff Ice), knockback (<code>power/(power+resist)</code>), stealth, marks.</li>
+</ul>
+<h3 id="82-damage-formula">8.2 Damage formula</h3>
+<p>The real math from <code>scripts/Components/combat.gd</code>:</p>
+<div class="highlight"><pre><span></span><code># Damage range, scaled off the ACTIVE weapon&#39;s discipline:
+max_range   = weapon_multiplier * (primary_stat*4 + secondary_stat) * attack_power / 100
+# attack_power = WEAPONATTACK (basics &amp; physical) or MAGICATTACK (staff spells)
+# weapon_multiplier default 1.2 (design range 1.2–1.75)
+# Spellblade (Staff active): primary_stat += int(0.5 * max(STR, DEX))
+
+basic_damage = round( randf_range(max_range * 0.2, max_range) )   # 0.2 = mastery floor
+
+# Per-hit pipeline (_execute_hit):
+hit_chance  = clamp(95 + level_diff*3 + DEX*0.05 + ACCURACY - target_evasion - weapon_penalty, 5, 100)
+level_mod   = clamp(1 + level_diff*0.05, 0.5, 1.5)            # ±5%/level
+def_mult    = 1 - target_defense / (target_defense + 500)     # diminishing-returns curve
+crit_mult   = randf_range(1.2, 1.5) + CRITDAMAGE/100          # crit only worthwhile with gear CRITDAMAGE
+final       = base_roll * level_mod * def_mult * (crit_mult if crit else 1)
+</code></pre></div>
+
+<p>Magic hits (staff spells, <code>damage_stat == MAGICATTACK</code>) mitigate against
+<strong>MAGICDEFENSE</strong> instead of DEFENSE — a real second damage axis.</p>
+<p><strong>Worked example (level-matched, no crit):</strong> a Sword main with STR 200, DEX 100,
+WEAPONATTACK 150, <code>weapon_multiplier</code> 1.2 vs. a target with DEFENSE 250:
+<code>max_range = 1.2 × (200×4 + 100) × 150 / 100 = 1.2 × 900 × 1.5 = 1,620</code>; against
+DEF 250, <code>def_mult = 1 − 250/750 = 0.667</code> → ~1,080 top-end, ~216 floor.</p>
+<h3 id="83-hit-miss-crit">8.3 Hit / miss &amp; crit</h3>
+<p>Hit chance starts at 95%, ±3% per attacker/target level difference, +0.05% per
+DEX, minus target Evasion and an under-leveled-weapon penalty (<code>2.0 ×
+levels_under</code>), clamped [5, 100]. Crit <strong>rate</strong> comes from <code>CRITCHANCE</code>
+(LUCK gives +0.1%/point); crit <strong>damage</strong> is <code>randf(1.2–1.5) + CRITDAMAGE/100</code>,
+and <code>CRITDAMAGE</code> is <strong>gear-only</strong> — so crit is a trap stat until you find
+<code>CRITDAMAGE</code> gear (a deliberate roll on high-tier armor; <a href="adr/0002-attribute-allocation-system.md">ADR 0002</a> §7 fast-follow, <strong>shipped</strong>).</p>
+<h3 id="84-threat-aggro">8.4 Threat / aggro</h3>
+<p>Enemies use nearest-target aggro via a state machine (idle → patrol → chase →
+attack → leash). No tank-threat system — co-op roles are emergent (§13.2). Bots
+focus the player's target.</p>
+<h3 id="85-death-respawn">8.5 Death &amp; respawn</h3>
+<p>On 0 HP the player enters a Death state, a <strong>2-second</strong> RespawnTimer runs, then
+the server respawns them at the current map's spawn point with <strong>full HP/MP</strong> and
+brief invulnerability. <strong>No death penalty</strong> — no EXP loss, no item/durability
+loss. (MMO-lite, friendly to co-op hunting.)</p>
+<h2 id="9-progression-systems">9. Progression systems</h2>
+<p>Three parallel, independently-reconciled economies: <strong>character level</strong>,
+<strong>attribute points</strong>, and <strong>per-discipline ability points + upgrades</strong>.</p>
+<h3 id="91-levels-xp">9.1 Levels &amp; XP</h3>
+<ul>
+<li><strong>Level cap: 100</strong> (<code>LevelingComponent.max_level</code>).</li>
+<li>XP-to-next is a <code>Curve</code> resource (<code>assets/curves/leveling_curve.tres</code>): L1→2 = 15, L29 ≈ 19k, L70 ≈ 342k, <strong>L99→100 ≈ 2.37M</strong>.</li>
+<li>Character level and weapon mastery are <strong>decoupled</strong> systems; the curves are <em>calibrated</em> so mastery 100 lands around character level ~70, after which levels 70–100 are the "refinement phase" (attribute points + gear, mastery already capped).</li>
+</ul>
+<h3 id="92-attribute-points-manual-allocation-adr-0002-shipped">9.2 Attribute points (manual allocation — <a href="adr/0002-attribute-allocation-system.md">ADR 0002</a>, shipped)</h3>
+<ul>
+<li><strong>5 attribute points per level</strong>, pool = <code>5 × (level − 1)</code> = <strong>495 at L100</strong>.</li>
+<li>Five dual-role attributes, each a weapon-damage stat <strong>and</strong> a utility:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Damage role</th>
+<th>Utility (rate in code)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>STR</strong></td>
+<td>Sword primary; Bow secondary</td>
+<td>+Defense (<code>STR_TO_DEFENSE = 1.0</code>)</td>
+</tr>
+<tr>
+<td><strong>DEX</strong></td>
+<td>Bow &amp; Dagger primary; Sword secondary</td>
+<td>+Hit chance (<code>DEX_TO_ACCURACY = 0.05</code>)</td>
+</tr>
+<tr>
+<td><strong>INT</strong></td>
+<td>Staff primary</td>
+<td>+Max Mana (<code>5</code>) &amp; MP regen (<code>0.1</code>)</td>
+</tr>
+<tr>
+<td><strong>LUCK</strong></td>
+<td>Dagger primary; Staff secondary</td>
+<td>+Crit <strong>rate</strong> (<code>0.1%</code>/pt)</td>
+</tr>
+<tr>
+<td><strong>CON</strong> <em>(new, enum idx 15)</em></td>
+<td>none</td>
+<td>+Max HP (<code>8</code>/pt) &amp; HP regen (<code>0.2</code>/pt)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Soft cap</strong> (a balance addition beyond the ADR): allocations into one attribute count full up to <strong>300</strong>, then <strong>40%</strong> per point (<code>ATTR_SOFT_CAP_KNEE = 300</code>, <code>ATTR_SOFT_CAP_SLOPE = 0.4</code>).</li>
+<li><strong>Free respec</strong>, server-authoritative; <code>reconcile_attribute_points()</code> enforces <code>granted == spent + unused</code> on load (and default-allocates un-migrated characters to their discipline ratio, loss-free).</li>
+<li><strong>HP/MP base curves stay discipline-anchored</strong> (the one surviving auto-derivation) — they don't shift when you swap weapons; CON is purely additive on top, the deliberate tank lever.</li>
+</ul>
+<h3 id="93-abilities-three-behavior-layers">9.3 Abilities — three behavior layers</h3>
+<p>Abilities are <strong>formula-only</strong> <code>AbilityData</code> <code>.tres</code> (no hand-authored level
+tables). Behavior rides three layers:</p>
+<ol>
+<li><strong>Layer 1 — scaling formulas:</strong> per-level MP/CD/damage%/targets/hits.</li>
+<li><strong>Layer 2 — <code>ActiveBehaviorData.logic_script</code>:</strong> custom <code>AL_*.gd</code> per ability (58 in the build) — execute/on-hit logic, gauge interaction, ground-zone spawns.</li>
+<li><strong>Layer 3 — procs / buff logic:</strong> <code>BL_*.gd</code> buff scripts (10 in the build) and inline proc hooks.</li>
+</ol>
+<p><code>ResourceManager</code> auto-loads all abilities, items, buffs, and disciplines
+recursively; enemies are the exception (referenced directly).</p>
+<h3 id="94-ability-points-upgrade-trees">9.4 Ability points &amp; upgrade trees</h3>
+<ul>
+<li><strong>1 ability point per mastery level</strong> (<code>ABILITY_POINTS_PER_MASTERY_LEVEL = 1</code>) → <strong>100 points per discipline</strong> at <code>MASTERY_CAP = 100</code>. Points are granted only to the discipline you actually wield.</li>
+<li><strong>No free starter</strong> — the first point comes from the creation bootstrap (mastery 0→1).</li>
+<li><strong>Per-ability 3-tier upgrade trees</strong> (<code>AbilityUpgradeData</code>, Diablo-4 shape): <strong>T1</strong> (1pt, broad modifier) → <strong>T2</strong> (1pt, mechanical augment) → <strong>T3</strong> (2pt, pick <strong>one of 3</strong> mutually-exclusive variants that <em>change how the ability plays</em>). <strong>343 upgrade <code>.tres</code></strong> exist (Sword 89 / Bow 83 / Staff 88 / Dagger 83).</li>
+<li><strong>Respec</strong> at four granularities (per-ability / per-tree / per-discipline / all), free. <code>reconcile_ability_points()</code> enforces <code>granted == spent + unused</code>.</li>
+<li><strong>Invariant (hard rule):</strong> a player must never randomly gain or lose points; both reconcile passes run on load and correct drift.</li>
+</ul>
+<h3 id="95-weapon-mastery">9.5 Weapon mastery</h3>
+<p>Each discipline masters <strong>independently</strong> (cap 100). Mastery XP comes from kills
+(<code>enemy_level</code>-scaled, ±15%/level-diff) and landed casts (<code>XP_PER_CAST = 1</code>).
+Mastery grants (a) <strong>stat bonuses</strong> per level (e.g. Sword +3 STR/+2 DEX), summed
+across <em>all</em> owned disciplines, and (b) the <strong>ability point</strong> for that discipline.
+Wielding a weapon always reinforces its identity even for an off-stat build.</p>
+<h2 id="10-items-equipment-economy">10. Items, equipment &amp; economy</h2>
+<h3 id="101-item-categories">10.1 Item categories</h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Class</th>
+<th>Stack?</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Weapon</td>
+<td><code>WeaponData</code></td>
+<td>No</td>
+<td>WeaponType: SWORD / BOW / STAFF / DAGGER. <strong>Two weapon slots</strong> equipped at once.</td>
+</tr>
+<tr>
+<td>Armor</td>
+<td><code>ArmorData</code></td>
+<td>No</td>
+<td>ArmorType slots: HEAD / CHEST / LEGS / FEET</td>
+</tr>
+<tr>
+<td>Consumable (potion)</td>
+<td><code>ConsumableData</code></td>
+<td>Yes</td>
+<td>HP / MP</td>
+</tr>
+<tr>
+<td>Consumable (pet food)</td>
+<td><code>PetFoodData</code></td>
+<td>Yes</td>
+<td>Feeds pet hunger only</td>
+</tr>
+<tr>
+<td>Consumable (pet skill book)</td>
+<td><code>PetSkillBookData</code></td>
+<td>Yes</td>
+<td>Teaches a Pet command</td>
+</tr>
+<tr>
+<td>Currency</td>
+<td><code>Coin.tres</code></td>
+<td>Yes</td>
+<td>"monies"</td>
+</tr>
+</tbody>
+</table>
+<p>~281 item <code>.tres</code> exist (54 weapons, 188 armor — largely procedurally generated
+— plus consumables, pet items, unique).</p>
+<h3 id="102-rarity-affixes">10.2 Rarity &amp; affixes</h3>
+<p><code>ItemRarity</code> = COMMON / UNCOMMON / RARE / EPIC / LEGENDARY. Drops roll stats from
+an <code>ItemDrop.possible_stats</code> pool, shuffled and assigned at drop time. <strong><code>CRITDAMAGE</code>
+is a rollable gear stat</strong> (StatType idx 11) — the multiplicative partner to
+LUCK's crit-rate, and the thing that makes crit builds viable.</p>
+<h3 id="103-equipment-slots">10.3 Equipment slots</h3>
+<p>Four armor slots (HEAD/CHEST/LEGS/FEET) + <strong>two weapon slots</strong>. Two equipped
+weapons mean the player's kit is the <strong>union of two ability trees</strong> — and
+<strong>passives stack from both slots</strong>, which is why passives must be class-neutral
+(heal-on-kill, +dmg-vs-bleeding, stat %), never weapon-locked.</p>
+<h3 id="104-crafting-enchanting">10.4 Crafting &amp; enchanting</h3>
+<blockquote class="callout-question"><p>⚠ Open question: Crafting/enchanting/scrolling is <strong>roadmap only</strong> (see
+<code>project_crafting_roadmap</code> memory) — the slim item-save design (saves only
+<code>item_path</code>/<code>id</code>/<code>variant</code>, re-deriving static fields from <code>.tres</code>) is built to
+accommodate it, but no crafting system ships in v1.</p></blockquote>
+<h3 id="105-economy">10.5 Economy</h3>
+<ul>
+<li><strong>Currency:</strong> "monies" (coins), dropped by mobs and rewarded by quests.</li>
+<li><strong>Faucets:</strong> mob drops (FFA in parties), quest rewards.</li>
+<li><strong>Sinks:</strong> currently thin — respec is free, no repair, no gacha. <strong>An intentional design gap</strong> (see §19/§20).</li>
+</ul>
+<h2 id="11-enemies-ai">11. Enemies &amp; AI</h2>
+<h3 id="111-enemy-ladder">11.1 Enemy ladder</h3>
+<p>24 <code>EnemyData</code> (<code>.tres</code>, <strong>not</strong> auto-loaded — referenced from each enemy scene),
+forming a clean ~5-level-spaced ladder from 1 to 100 across four creature families
+(slime / hare-bunny / fox / boar) plus a goblin sub-line:</p>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Enemy</th>
+<th>Level</th>
+<th>Enemy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Slime, Bunny</td>
+<td>53</td>
+<td>Dark Bunny</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Bird</td>
+<td>58</td>
+<td>Adamant Crawler</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Boar</td>
+<td>63</td>
+<td>Shadow Fox</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Deer</td>
+<td>68</td>
+<td>Runed Boar</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Fox</td>
+<td>73</td>
+<td>Fire Slime</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Goblin Warrior</td>
+<td>78</td>
+<td>Ember Fox</td>
+</tr>
+<tr>
+<td>18</td>
+<td>Goblin</td>
+<td>83</td>
+<td>Wild Boar</td>
+</tr>
+<tr>
+<td>23</td>
+<td>Cave Goblin</td>
+<td>88</td>
+<td>Celestial Hare</td>
+</tr>
+<tr>
+<td>28</td>
+<td>Tusk Brute</td>
+<td>93</td>
+<td>Astral Slime</td>
+</tr>
+<tr>
+<td>33</td>
+<td>Stone Slime</td>
+<td><strong>100</strong></td>
+<td><strong>Eternal Warlord</strong> (capstone)</td>
+</tr>
+<tr>
+<td>38–48</td>
+<td>Dust Fox, Mithril Hare, War Goblin</td>
+<td></td>
+<td>+ <code>training_dummy</code> (no level)</td>
+</tr>
+</tbody>
+</table>
+<p><code>monster_level</code> cascades through six stat curves <strong>and</strong> the combat hit-chance /
+damage modifiers — small level gaps compound, so mob levels are anchored to the
+lowest player level expected to fight them.</p>
+<blockquote class="callout-question"><p>⚠ Open question: there is <strong>no <code>is_boss</code>/<code>is_elite</code> schema flag</strong> — "elite"
+status is implied by level/family only. The Eternal Warlord is the lone
+capstone; there are <strong>no authored boss encounters with mechanics</strong> yet (§19).</p></blockquote>
+<h3 id="112-enemy-ai">11.2 Enemy AI</h3>
+<p>State machine (<code>scripts/Enemy/StateMachine/</code>): idle → patrol → chase → attack →
+leash, with two damage models:</p>
+<ul>
+<li><strong>Contact damage</strong> (default) — body-hitbox overlap; the player must read spacing, not timing.</li>
+<li><strong>Telegraphed slash</strong> — a wind-up animation that only connects on swing frames, used by the <strong>whole goblin family + Eternal Warlord</strong> (5 scenes). <em>(Corrects older memory that said "only Goblin telegraphs.")</em></li>
+</ul>
+<p>Because most of the roster is collision-based, <strong>reactive parry/dodge-window
+ability shapes are off the table</strong> until the telegraphed roster grows.</p>
+<h3 id="113-bots-server-side-ai-participants">11.3 Bots (server-side AI participants)</h3>
+<p>A <strong>Bot</strong> is a server-side AI with a negative peer id and no client, driving the
+same <code>MultiplayerPlayerV2</code> character a human would (input via <code>bot_brain.gd</code>).
+Bots join parties, fight enemies, cast abilities, deal real damage, and focus the
+player's target — Erenshor-style population + party-fill. Managed by <code>BotManager</code>
+via <code>/bot spawn|despawn|list</code> commands. <strong>Bots cannot own a Pet.</strong> Never send a
+node-addressed RPC to a bot — route bot visuals through an autoload.</p>
+<h3 id="114-pets-owner-bound-companions">11.4 Pets (owner-bound companions)</h3>
+<p>A <strong>Pet</strong> is an owner-bound companion spawned by <code>PetManager</code> — <strong>no peer id, no
+Health/Stats/Combat components, cannot take damage</strong>. It survives map/channel
+changes and performs taught <strong>Pet commands</strong> (auto-pot, item/coin pickup,
+auto-buff). <strong>1 active pet per owner in v1</strong> (save format supports N). Hunger
+ticks; a <strong>hungry</strong> pet (0 hunger) stops following and auto-actions until fed
+<strong>pet food</strong>. Auto-buff routes through the owner's <code>AbilityComponent</code> and spends
+the owner's MP. Full architecture: <a href="adr/0001-pet-system-architecture.md">ADR 0001</a>.</p>
+<h2 id="12-levels-maps-world-topology">12. Levels, maps &amp; world topology</h2>
+<h3 id="121-map-structure">12.1 Map structure</h3>
+<p>2D side-scrolling maps connected by portals. <code>MapManager</code> owns a registry of 5
+playable maps (<code>town</code>, <code>game</code>, <code>game2</code>–<code>game4</code>; <code>DEFAULT_MAP = "town"</code>). Each map
+runs in its <strong>own <code>SubViewport</code> with a fresh <code>World2D</code></strong> (isolated physics / nav /
+audio), composited under <code>/root/Maps</code>. The server keeps every active map loaded;
+a client loads only its current map; empty maps unload. A portal-adjacency graph
+is built server-side at startup for bot cross-map routing.</p>
+<h3 id="122-channels">12.2 Channels</h3>
+<p>A <strong>Channel</strong> is a port-switched server instance (<code>ChannelManager</code>). Players
+switch channels to balance population without a full restart (client-only,
+2s switch timeout). Same world content, separate population — there is no fixed
+named-channel roster, it's a port-switch mechanism.</p>
+<h3 id="123-map-roster-v1">12.3 Map roster (v1)</h3>
+<table>
+<thead>
+<tr>
+<th>Map</th>
+<th>Level band</th>
+<th>Theme</th>
+<th>Notable mobs / NPCs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>town</code></td>
+<td>—</td>
+<td>Hub</td>
+<td>Quest-giver NPCs</td>
+</tr>
+<tr>
+<td><code>game</code></td>
+<td>1–3</td>
+<td>Starter field</td>
+<td>Slime, Bunny, Bird</td>
+</tr>
+<tr>
+<td><code>game2</code></td>
+<td>6–9</td>
+<td>Meadow</td>
+<td>Boar, Deer, Fox</td>
+</tr>
+<tr>
+<td><code>game3</code></td>
+<td>10–23</td>
+<td>Goblin woods</td>
+<td>Goblin Warrior, Goblin, Cave Goblin</td>
+</tr>
+<tr>
+<td><code>game4</code></td>
+<td>28+</td>
+<td>Higher tier</td>
+<td>Tusk Brute +</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout-question"><p>⚠ Open question: the enemy <strong>ladder reaches level 100</strong> but there are only <strong>5
+maps topping out around the high-20s/30s band</strong>. The ~33–100 enemies exist as
+data without dedicated maps to host them — a major content gap (§19).</p></blockquote>
+<h2 id="13-multiplayer-social-systems">13. Multiplayer &amp; social systems</h2>
+<h3 id="131-topology">13.1 Topology</h3>
+<p>Server-authoritative ENet today, Flask/PostgreSQL for persistence. The intended
+shipping topology is <strong>Steam-lobby co-op</strong> (host-and-friends), with the current
+ENet+Postgres stack as the dev/test harness and a Breck-hosted official server as
+a later opt-in.</p>
+<h3 id="132-parties">13.2 Parties</h3>
+<p><code>PartyManager</code> — invite/accept/leave/leader-transfer, server-authoritative,
+<strong>no hard member cap</strong> in code. Co-op model: <strong>groups farm faster</strong>, roles are
+emergent (no trinity).</p>
+<ul>
+<li><strong>XP:</strong> same-map members share kill EXP by <strong>damage-share</strong>; non-damage members get 25% of base; <strong>+10% party bonus per additional member</strong> (2p ×1.1, 4p ×1.3).</li>
+<li><strong>Mastery XP</strong> is shared to fighting members' equipped disciplines.</li>
+<li><strong>Loot:</strong> FFA among eligible same-map members.</li>
+<li>No enemy party-scaling, no ally-targeted heals, no tank-threat — by design.</li>
+</ul>
+<h3 id="133-trading">13.3 Trading</h3>
+<p><code>TradeManager</code> — dual-confirmation player↔player swap, <strong>proximity-gated</strong>
+(<code>TRADE_RANGE = 120</code>, re-checked every 0.5s), up to 8 slots, atomic server swap.
+Plus an instant player↔bot give/take (no confirm, no proximity).</p>
+<h3 id="134-chat-commands">13.4 Chat &amp; commands</h3>
+<p><code>ChatManager</code> — rate-limited (3 msgs/2s, 200-char cap), emotes (<code>/sit /wave
+/laugh /cry</code>), and slash-command routing (<code>/quest</code>, <code>/bot</code>, <code>/advance</code>, …). The
+backtick-toggled <code>DebugPanel</code> console adds typed dev commands with autocomplete.</p>
+<h3 id="135-friends-guilds">13.5 Friends &amp; guilds</h3>
+<blockquote class="callout-question"><p>⚠ Open question: no friends list or guild system exists; both are post-v1
+(and partly subsumed by the Steam-lobby direction).</p></blockquote>
+<h2 id="14-quests-onboarding">14. Quests &amp; onboarding</h2>
+<h3 id="141-quest-philosophy">14.1 Quest philosophy</h3>
+<p>Quests are <strong>server-authoritative</strong> and now <strong><code>.tres</code>-driven</strong> (<code>QuestData</code>
+auto-loaded recursively from <code>resources/Quests/</code>, sorted by <code>sort_order</code>).
+<em>(Corrects older memory that said quests are defined in code.)</em> Progress is
+persisted per-character. The arc is a <strong>level 1→30 guided journey + onboarding</strong>.</p>
+<h3 id="142-onboarding-lvl-15">14.2 Onboarding (lvl 1–5)</h3>
+<p><code>start_onboarding</code> auto-accepts <code>q_first_blood</code> (kill 1 Slime) and shows a
+WelcomeOverlay. Early chains are level-gated via <code>required_level</code> +
+<code>prerequisite_quest_id</code>, teaching combat, the gauge, and progression.</p>
+<h3 id="143-quest-roster-22-quests-across-6-chains">14.3 Quest roster (22 quests across 6 chains)</h3>
+<table>
+<thead>
+<tr>
+<th>Objective type</th>
+<th>Example quest</th>
+<th>Reward</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>KILL</strong></td>
+<td><code>q_first_blood</code> (1 Slime), <code>q_slime_slayer</code>, <code>q_boar_patrol</code></td>
+<td>EXP / coins</td>
+</tr>
+<tr>
+<td><strong>COLLECT</strong> (fetch)</td>
+<td><code>q_collector</code></td>
+<td>EXP / item</td>
+</tr>
+<tr>
+<td><strong>REACH_LEVEL</strong></td>
+<td><code>q_level_up</code> (lvl 5), <code>q_call_to_advance</code> (lvl 30 → <code>/advance</code>)</td>
+<td>EXP / progression</td>
+</tr>
+</tbody>
+</table>
+<p>Chains: Beginner, Early, Mid, Advancement, EndlessHunt (repeatable culls),
+SlimeThreat. Quests are pinnable (max 5 tracked). <strong>No talk-to-NPC objective
+type</strong> yet (quests carry an <code>npc_only</code> flag + there are quest-giver NPCs).</p>
+<h2 id="15-user-interface-ux">15. User interface &amp; UX</h2>
+<h3 id="151-screen-flow">15.1 Screen flow</h3>
+<div class="mermaid">
+flowchart LR
+    Login --&gt; CharSelect[Character Select]
+    CharSelect --&gt; Town[Town hub]
+    Town --&gt; GW[Unified Game Window]
+    GW --&gt; CharTab[Tab 0: Character — Stats + Equipment + Pet + Inventory]
+    GW --&gt; AbilTab[Tab 1: Abilities skill tree]
+    Town --&gt; Hotbar &amp; Party &amp; Trade &amp; Quest
+</div>
+
+<h3 id="152-hud">15.2 HUD</h3>
+<p>Always-on: health/mana bars, hotbar, the <strong>four screen-edge weapon-gauge
+widgets</strong> (sword combo, bow momentum, staff element, dagger shadowmeld — each its
+own anchored widget, never crammed into the hotbar), target frame, party frames,
+quest tracker. Chat is toggleable.</p>
+<h3 id="153-windows-the-unified-game-window-adr-0003-shipped">15.3 Windows — the unified game window (<a href="adr/0003-unified-game-window.md">ADR 0003</a>, shipped)</h3>
+<p>Equipment, inventory, stats, abilities, and pet are folded into <strong>one tabbed
+hub</strong> (<code>game_window.tscn</code>):</p>
+<ul>
+<li><strong>Tab 0 — Character:</strong> three columns — <strong>Stats</strong> (5 attribute rows STR/DEX/INT/LUCK/CON each with a <code>+</code> allocation button + a free Respec), <strong>Equipment</strong> grid + embedded <strong>Pet</strong> panel, and <strong>Inventory</strong>.</li>
+<li><strong>Tab 1 — Abilities:</strong> the branching skill tree as an instanced sub-scene.</li>
+</ul>
+<p>The hub is a thin controller (fills editor-authored nodes + wires signals) and is
+<strong>non-modal</strong> (movable, never locks input). Separate windows remain for chat,
+hotbar, party, trade, shop, and quests. New modal overlays must call
+<code>InputManager.set_input_locked(true/false)</code> on open/close.</p>
+<h3 id="154-accessibility">15.4 Accessibility</h3>
+<blockquote class="callout-question"><p>⚠ Open question: rebindable keys exist (<code>KeybindManager</code>); colorblind palette,
+font scaling, and motion options are unspecified — a v1 gap to scope.</p></blockquote>
+<h2 id="16-art-direction">16. Art direction</h2>
+<h3 id="161-visual-pillars">16.1 Visual pillars</h3>
+<p><strong>Four static sprites</strong> (swordsman / archer / mage / rogue), no paperdoll, asset
+packs for environment/enemies — <em>no budget for custom art</em>. This is the
+load-bearing constraint behind weapon-driven identity: differentiation is carried
+by ability FX, gauge widgets, and numbers, not character art.</p>
+<h3 id="162-style-references">16.2 Style references</h3>
+<p>MapleStory (silhouette legibility), Ragnarok / Wonderking / Spirit Vale (vibe and
+palette). Pull environment and enemy art from packs; keep silhouettes readable at
+2D hunting distances.</p>
+<h3 id="163-asset-pipeline">16.3 Asset pipeline</h3>
+<p>Sprites and tiles from asset packs imported as Godot resources; enemy scenes carry
+their own <code>EnemyData</code>. No custom-art pipeline.</p>
+<h2 id="17-audio-design">17. Audio design</h2>
+<p><code>AudioManager</code> drives per-map music and combat/UI SFX (hit, crit, level-up,
+button). Mood map: town = warm, fields = light, high-level zones = tense.</p>
+<blockquote>
+<p>Technical rule: with the SubViewport-per-map setup, hiding a map's render tree
+does <strong>not</strong> gate its audio — positional audio must check <code>is_visible_in_tree()</code>
+to avoid cross-map bleed.</p>
+</blockquote>
+<h2 id="18-technical-architecture">18. Technical architecture</h2>
+<p>A compressed view; full detail lives in the CLAUDE.md hierarchy.</p>
+<h3 id="181-server-authority">18.1 Server authority</h3>
+<p>The server (always peer ID 1) owns all critical state. Clients send <strong>intent</strong>
+via RPCs; the server validates, mutates, and broadcasts authoritative results.
+Bots have <strong>negative</strong> peer ids and no client.</p>
+<h3 id="182-autoload-singletons-player-facing-roles">18.2 Autoload singletons (player-facing roles)</h3>
+<p><code>MultiplayerManager</code> (host/join, level load), <code>PlayerManager</code> (spawn/cleanup),
+<code>BotManager</code> (AI participants), <code>PetManager</code> (companions), <code>MapManager</code>
+(maps/transitions/broadcast), <code>ResourceManager</code> (loads ability/item/buff/
+discipline <code>.tres</code>), <code>SaveManager</code> (debounced persistence), <code>NetworkManager</code>
+(backend HTTP), plus Party/Trade/Quest/Channel/Chat/Keybind managers.</p>
+<h3 id="183-component-based-characters">18.3 Component-based characters</h3>
+<p>Players and enemies are a root node + single-concern <code>Node</code> components:
+<strong>Health, Stats, Combat, Ability, Buff, Equipment, Inventory</strong>, plus the
+overhaul's <strong>WeaponMastery</strong> and the four signature-gauge components
+(<code>SwordCombo</code>, <code>BowMomentum</code>, <code>StaffElement</code>, <code>Shadowmeld</code>, all extending
+<code>WeaponSignatureComponent</code>). <strong>Pets deliberately use none of this</strong> — they have
+no components and can't take damage.</p>
+<h3 id="184-data-driven-content">18.4 Data-driven content</h3>
+<p><code>.tres</code> resources auto-loaded by <code>ResourceManager</code> (<code>resources/Abilities/</code>,
+<code>Items/</code>, <code>Buffs/</code>, <code>Player/Disciplines/</code>, <code>Quests/</code>). <strong>Enemies are referenced
+directly</strong> via an exported <code>enemy_data</code>, not auto-loaded. Ground-zone abilities
+spawn a shared <code>GroundZone</code> networked entity (server-ticked, used by 9 abilities).</p>
+<h3 id="185-persistence">18.5 Persistence</h3>
+<ul>
+<li><strong>Account / character records:</strong> PostgreSQL via Flask. Tables: <code>accounts</code>, <code>players</code>, + child tables <code>player_items</code>, <code>player_equipment</code>, <code>player_abilities</code>, <code>player_hotbar</code>, <code>player_buffs</code>, <code>player_quests</code>.</li>
+<li><strong><code>players</code> game-state columns</strong> include <code>level</code>, <code>experience</code>, <code>character_class</code>, HP/MP, <code>monies</code>, <code>ability_points_per_discipline</code> (JSONB), <strong><code>attribute_points</code></strong> (JSONB, StatType-int → spent, incl. CON="15"), <code>weapon_mastery</code> (JSONB per-discipline {level,xp}), <code>pets</code> (JSONB), <code>onboarded</code>. <code>learned_ability_upgrades</code> now lives per-ability on <code>player_abilities.upgrades</code>.</li>
+<li><strong>MMO-lite saving:</strong> targeted per-category saves, slim inventory rows (static fields re-derived from <code>.tres</code>), debounced by <code>SaveManager</code>.</li>
+</ul>
+<h3 id="186-performance-targets">18.6 Performance targets</h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Target</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Frame rate</td>
+<td>60 fps on mid-tier hardware</td>
+</tr>
+<tr>
+<td>Concurrent players per server</td>
+<td>host + small co-op group (lobby-scale)</td>
+</tr>
+<tr>
+<td>Save model</td>
+<td>debounced, per-category, server-authoritative</td>
+</tr>
+</tbody>
+</table>
+<h2 id="19-production-roadmap">19. Production roadmap</h2>
+<h3 id="191-current-state">19.1 Current state</h3>
+<p>The <strong>weapon-identity overhaul is systems-complete in code</strong>: four disciplines,
+the manual 495-point attribute pool with CON and a soft-cap, mastery to 100, <strong>80
+abilities (13 active + 7 passive/weapon)</strong> backed by 58 ability-logic scripts,
+<strong>343 upgrade variants</strong>, four signature gauges with widgets, ground-zone
+infrastructure, the unified game window, <code>.tres</code>-driven quests, and a normalized
+backend with the <code>attribute_points</code> column live. <strong>What it lacks is validation
+and surrounding content</strong> — much of this landed compile/unit-validated only (84/84
+unit tests pass), without a live end-to-end multiplayer playtest, and the world
+(5 maps, no boss mechanics, thin endgame) hasn't caught up to the systems.</p>
+<h3 id="192-milestones">19.2 Milestones</h3>
+<table>
+<thead>
+<tr>
+<th>Milestone</th>
+<th>Scope</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>V1 systems</strong></td>
+<td>4 disciplines, attributes, 80 abilities + upgrades, gauges, unified window, quests 1→30, backend</td>
+<td>✅ in code, <strong>validation pending</strong></td>
+</tr>
+<tr>
+<td><strong>V1 validation + balance</strong></td>
+<td>Live multiplayer playtest; regenerate the ability balance report against the 80-ability roster; tune soft-cap / crit / specialization spike</td>
+<td>▶ next</td>
+</tr>
+<tr>
+<td><strong>V1 content depth</strong></td>
+<td>Maps for the 33–100 enemy band; authored boss encounter(s) with mechanics; economy sinks; endgame loop</td>
+<td>Planned</td>
+</tr>
+<tr>
+<td><strong>V2 — converge &amp; lobby</strong></td>
+<td>Make the overhaul the canonical main line (retire base-repo PR-4 WIP); Steam-lobby topology</td>
+<td>Planned</td>
+</tr>
+<tr>
+<td><strong>V3 — official server</strong></td>
+<td>Breck-hosted opt-in server, friends/guild</td>
+<td>Planned</td>
+</tr>
+</tbody>
+</table>
+<h3 id="193-out-of-scope-v1">19.3 Out of scope (v1)</h3>
+<p>Crafting/enchanting, friends list, guilds, gacha/cards (despite the Ragnarok-card
+reference — not built), PvP, the official hosted server, talk-to-NPC quest
+objectives, and any custom character art beyond the four sprites.</p>
+<h2 id="20-risks-open-questions-appendix">20. Risks, open questions &amp; appendix</h2>
+<h3 id="201-top-risks">20.1 Top risks</h3>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Likelihood</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Systems built but never live-playtested end-to-end</strong> — the whole overhaul is compile/unit-validated only</td>
+<td>High</td>
+<td>High</td>
+<td>Make a live host+client+bot playtest of spawn→stats→combat→sprite→gauge→save the immediate next step (ADR 0004 already flags this)</td>
+</tr>
+<tr>
+<td><strong>Balance drift on the new 80-ability roster</strong> — 495 AP pool, +43% pure-primary spike, crit dead without gear CRITDAMAGE</td>
+<td>High</td>
+<td>Med</td>
+<td>Regenerate <code>ability_balance_report.html</code> against the live roster; keep the soft-cap + add diminishing returns / caps if playtest shows runaway</td>
+</tr>
+<tr>
+<td><strong>Content lags systems</strong> — enemy ladder to L100 but maps stop ~L30, no boss mechanics, no economy sinks</td>
+<td>High</td>
+<td>Med</td>
+<td>Add high-band maps + at least one authored boss; add a gold sink (respec cost / repair / vendor)</td>
+</tr>
+<tr>
+<td><strong>4-sprite art constraint limits perceived variety</strong></td>
+<td>Med</td>
+<td>Med</td>
+<td>Lean on ability FX, gauge widgets, and numbers; this is already the design's load-bearing bet</td>
+</tr>
+<tr>
+<td><strong>Two-repo split</strong> — canonical overhaul vs. abandoned base-repo WIP</td>
+<td>Med</td>
+<td>Med</td>
+<td>Converge: promote the overhaul to main, retire base PR-4 WIP</td>
+</tr>
+</tbody>
+</table>
+<h3 id="202-open-questions">20.2 Open questions</h3>
+<ul>
+<li>⚠ <strong>Damage ceiling tuning</strong> — ship the ×4 primary multiplier as-is, or pre-emptively soft-cap further? (ADR 0002 resolved: ship as-is, add diminishing returns as fast-follow only if playtest shows runaway.)</li>
+<li>⚠ <strong>Endgame loop (L70–100)</strong> — currently attribute/gear refinement + EndlessHunt repeatables only; needs a real chase (boss, set gear, or card system).</li>
+<li>⚠ <strong>Economy sinks</strong> — free respec + no repair leaves coins almost sink-less; what absorbs currency?</li>
+<li>⚠ <strong>Boss design</strong> — no <code>is_boss</code> flag, no mechanics; what does the Eternal Warlord encounter actually do, and does it demand a coordinated party (testing Pillar 5)?</li>
+<li>⚠ <strong>Narrative</strong> — is there an authored story, or do quest chains carry it indefinitely?</li>
+</ul>
+<h3 id="203-glossary">20.3 Glossary</h3>
+<p>See <a href="../CONTEXT.md">CONTEXT.md</a> — use those terms exactly (<strong>Pet</strong>, <strong>Bot</strong>,
+<strong>Enemy</strong>, <strong>Pet command</strong>, <strong>Ability</strong>, <strong>Channel</strong>, <strong>Map</strong>, <strong>Player save</strong>,
+<strong>Character record</strong>). Don't invent synonyms.</p>
+<h3 id="204-references">20.4 References</h3>
+<ul>
+<li><a href="../CLAUDE.md">CLAUDE.md</a> — repo-wide truths</li>
+<li><a href="../CONTEXT.md">CONTEXT.md</a> — domain glossary</li>
+<li><a href="adr/">docs/adr/</a> — 0001 Pets · 0002 Attributes · 0003 Unified window · 0004 Class removal</li>
+<li><a href="v1_design_summary.html">docs/v1_design_summary.html</a> — the 2026-05-31 ability-design grilling this GDD supersedes</li>
+<li><a href="ability_balance_report.html">docs/ability_balance_report.html</a> — per-ability balance numbers (regenerate against the 80-ability roster)</li>
+<li>External: MapleStory, New World, Ragnarok Online, Diablo 4, Last Epoch, Erenshor</li>
+</ul>
+  </article>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  (function () {
+    const root = document.documentElement;
+    const button = document.getElementById('themeToggle');
+    const saved = localStorage.getItem('gdd-theme');
+    const initial = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    setTheme(initial);
+    button.addEventListener('click', () => {
+      const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+      setTheme(next);
+    });
+    function setTheme(t) {
+      root.dataset.theme = t;
+      localStorage.setItem('gdd-theme', t);
+      button.textContent = 'Theme: ' + t;
+      if (window.mermaid) {
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: t === 'dark' ? 'dark' : 'default',
+          securityLevel: 'loose',
+        });
+        // Re-render mermaid diagrams on theme change
+        document.querySelectorAll('.mermaid').forEach((el) => {
+          if (el.dataset.original) {
+            el.innerHTML = el.dataset.original;
+          } else {
+            el.dataset.original = el.innerHTML;
+          }
+          el.removeAttribute('data-processed');
+        });
+        mermaid.run();
+      }
+    }
+  })();
+
+  // TOC scrollspy
+  (function () {
+    const links = Array.from(document.querySelectorAll('.gdd-toc a'));
+    const targets = links
+      .map(a => document.getElementById(a.getAttribute('href').slice(1)))
+      .filter(Boolean);
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          links.forEach(l => l.classList.remove('active'));
+          const active = links.find(l => l.getAttribute('href') === '#' + entry.target.id);
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-100px 0px -70% 0px' });
+    targets.forEach(t => observer.observe(t));
+  })();
+</script>
+</body>
+</html>
