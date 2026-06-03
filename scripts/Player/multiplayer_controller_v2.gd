@@ -815,6 +815,7 @@ func _load_data(data: Dictionary) -> void:
 		health_component.current_health = data.get("current_health", health_component.max_health)
 
 	if is_instance_valid(mana_component):
+		mana_component.set_loading_mode(true)
 		mana_component.max_mana = data.get("max_mana", mana_component.max_mana)
 		mana_component.current_mana = data.get("current_mana", mana_component.max_mana)
 
@@ -862,6 +863,10 @@ func _load_data(data: Dictionary) -> void:
 	if is_instance_valid(health_component):
 		health_component.set_loading_mode(false)
 		health_component.health_changed.emit(health_component.current_health, health_component.max_health)
+
+	if is_instance_valid(mana_component):
+		mana_component.set_loading_mode(false)
+		mana_component.mana_changed.emit(mana_component.current_mana, mana_component.max_mana)
 		
 	if is_instance_valid(buff_component):
 		var buff_data = data.get("buffs", {})

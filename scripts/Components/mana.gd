@@ -5,6 +5,7 @@ signal mana_changed(current_mana, max_mana)
 
 var _stats_component: StatsComponent
 var _health_component: HealthComponent
+var _loading_mode: bool = false
 
 @export var max_mana: int = 100:
 	set(value):
@@ -34,6 +35,12 @@ func _ready() -> void:
 
 
 func _on_stats_changed():
+	# Ignore stats_changed while a save is loading (mirrors HealthComponent): the
+	# stats dict still holds level-1 spawn values (e.g. 50 MP) when _load_data
+	# emits this, and acting on it overwrites the just-loaded max_mana and clamps
+	# current_mana down. max_mana is set directly from the save during load.
+	if _loading_mode:
+		return
 	max_mana = _stats_component.stats.get(Constants.StatType.MANA).total_value
 	#print("HealthComponent: StatsChanged, new max health: %d" % max_mana)
 	if current_mana > max_mana:
@@ -41,6 +48,12 @@ func _on_stats_changed():
 
 
 func _on_leveled_up(_new_level: int):
+	# Skip the level-up full-heal while a save is loading (mirrors HealthComponent).
+	# _load_data replays leveled_up to refresh UI before attribute points rebuild
+	# max MP, so the saved current_mana must survive — otherwise a map transfer
+	# resets the player to base mana (50). _on_stats_changed sets the real max.
+	if _loading_mode:
+		return
 	max_mana = _stats_component.stats.get(Constants.StatType.MANA).total_value
 	#print("HealthComponent: StatsChanged, new max health: %d" % max_mana)
 	current_mana = max_mana
@@ -56,6 +69,10 @@ func _on_regen_timer_timeout() -> void:
 		if _stats_component:
 			regen = _stats_component.stats[Constants.StatType.MPREGEN].total_value
 		regain_mana(regen, self.owner)
+
+
+func set_loading_mode(enabled: bool) -> void:
+	_loading_mode = enabled
 
 
 @rpc("any_peer", "call_local", "reliable")

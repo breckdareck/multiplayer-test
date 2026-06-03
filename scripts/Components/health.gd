@@ -85,7 +85,7 @@ func _ready() -> void:
 	# Invulnerability timer setup
 	invulnerability_timer.name = "InvulnTimer"
 	invulnerability_timer.one_shot = true
-	invulnerability_timer.wait_time = 1
+	invulnerability_timer.wait_time = 2
 	add_child(invulnerability_timer)
 
 	# Regeneration timer setup
@@ -114,6 +114,14 @@ func _ready() -> void:
 
 
 func _on_stats_changed():
+	# Ignore stats_changed while a save is loading. _load_data emits stats_changed
+	# to notify UI BEFORE the real (deferred) recalc has run, so the stats dict
+	# still holds the level-1 spawn values (e.g. 152 HP). Acting on that would
+	# overwrite the just-loaded max_health and clamp current_health down — the
+	# "spawn at 152 HP on map transfer" bug. max_health is set directly from the
+	# save during load; the post-load recalc re-fires this with loading off.
+	if _loading_mode:
+		return
 	max_health = _stats_component.stats.get(Constants.StatType.HEALTH).total_value
 	##print("HealthComponent: StatsChanged, new max health: %d" % max_health)
 	if current_health > max_health:
@@ -121,6 +129,14 @@ func _on_stats_changed():
 
 
 func _on_leveled_up(_new_level: int):
+	# Skip the level-up full-heal while a save is loading. _load_data replays
+	# leveled_up to refresh the level UI, but it does so BEFORE attribute points
+	# are applied (so stats here are only base values) and the saved
+	# current_health is authoritative — full-healing here would clobber it with a
+	# half-baked max (the "spawn at 152 HP on map transfer" bug). _on_stats_changed
+	# sets the real max afterwards.
+	if _loading_mode:
+		return
 	max_health = _stats_component.stats.get(Constants.StatType.HEALTH).total_value
 	##print("HealthComponent: StatsChanged, new max health: %d" % max_health)
 	current_health = max_health
