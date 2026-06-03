@@ -28,12 +28,15 @@ var _dash_target_x: float = 0.0
 var _dash_speed: float = 0.0
 # Cosmetic.
 var _flash_tween: Tween = null
-# HOLD anim mode.
-var _hold_target_frame: int = 0
-var _hold_connected: bool = false
-var _hold_released: bool = false
-var _strike_last_frame: int = 0     # last clip frame (the strike end)
-var _strike_speed_scale: float = 1.0  # paces hold_frame+1 -> last across [windup, hit]
+# HOLD anim mode — driven deterministically per visual frame in _process (so the
+# release lands on the exact frame the clock crosses windup_time, with no
+# SceneTreeTimer jitter). Set up by _play_windup.
+var _hold_drive: bool = false          # true while _process should drive HOLD frames
+var _anim_elapsed: float = 0.0         # per-peer seconds since the windup started
+var _hold_target_frame: int = 0        # the wind-up pose; frozen until windup_time
+var _strike_last_frame: int = 0        # last clip frame (strike end)
+var _hold_fps: float = 0.0
+var _hold_frame_count: int = 0
 # Bespoke logic.
 var _logic: Object = null
 
@@ -46,7 +49,9 @@ func enter() -> void:
 	_dashing = false
 	_dash_started = false
 	_dash_elapsed = 0.0
-	_hold_released = false
+	_hold_drive = false
+	_anim_elapsed = 0.0
+	set_process(true)  # drives the HOLD animation frame-accurately on every peer
 	var enemy := parent as EnemyBase
 	if enemy == null:
 		return
@@ -83,6 +88,28 @@ func enter() -> void:
 		enemy.broadcast_attack_telegraph(_attack, _center, _dir, _hit_time, Color(1.0, 0.2, 0.2, 0.5))
 		_spawn_logic()
 		_call_logic("on_windup_start", [enemy, _attack])
+
+
+## Per-peer, per-visual-frame HOLD animation driver — frame-accurate, no resume
+## timer. 0 -> hold_frame during the wind-up, frozen on hold_frame until
+## windup_time, then hold_frame+1 -> last stretched to land on hit_time.
+func _process(delta: float) -> void:
+	if not _hold_drive or animations == null:
+		return
+	_anim_elapsed += delta
+	var f: int
+	if _anim_elapsed < _windup_time:
+		f = clampi(int(floor(_anim_elapsed * _hold_fps)), 0, _hold_target_frame)
+	else:
+		var nxt: int = mini(_hold_target_frame + 1, _strike_last_frame)
+		var gap: float = _hit_time - _windup_time
+		if gap <= 0.001:
+			f = _strike_last_frame
+		else:
+			var sfrac: float = clampf((_anim_elapsed - _windup_time) / gap, 0.0, 1.0)
+			f = clampi(nxt + int(floor(sfrac * float(_strike_last_frame - nxt))), nxt, _strike_last_frame)
+	animations.frame = f
+	animations.speed_scale = 0.0  # frame is set manually; no auto-advance
 
 
 func process_frame(delta: float) -> State:
@@ -142,9 +169,10 @@ func physics_update(delta: float) -> State:
 func exit() -> void:
 	super.exit()
 	_stop_flash()
-	_clear_hold()
+	_hold_drive = false
+	set_process(false)
 	if animations != null:
-		animations.speed_scale = 1.0  # undo a HOLD freeze if we left mid-windup
+		animations.speed_scale = 1.0  # restore normal playback for the next state
 	var enemy := parent as EnemyBase
 	if enemy:
 		_call_logic("on_recover", [enemy, _attack])
@@ -183,30 +211,18 @@ func _play_windup(enemy: EnemyBase) -> void:
 			# last frame defaults to a MID frame so there's always a strike to play.
 			if _hold_target_frame < 0 or _hold_target_frame >= fc - 1:
 				_hold_target_frame = clampi(int(fc / 2), 0, maxi(0, fc - 2))
-			# Pace the strike (hold_frame+1 -> last) to land on the LAST frame exactly at
-			# hit_time, so the strike animation stretches across the [windup, hit] gap.
 			_strike_last_frame = maxi(0, fc - 1)
-			var fps_h: float = sf.get_animation_speed(anim) if sf != null else 0.0
-			var gap: float = _hit_time - _windup_time
-			var strike_steps: int = _strike_last_frame - (_hold_target_frame + 1)
-			if strike_steps > 0 and gap > 0.001 and fps_h > 0.0:
-				_strike_speed_scale = (float(strike_steps) / fps_h) / gap
+			_hold_fps = sf.get_animation_speed(anim) if sf != null else 0.0
+			_hold_frame_count = fc
+			if fc <= 1 or _hold_fps <= 0.0:
+				animations.speed_scale = 1.0  # nothing to drive; just play
 			else:
-				_strike_speed_scale = 1.0
-			if fc <= 1:
-				animations.speed_scale = 1.0
-			else:
-				# Play the wind-up (frame 0 -> hold_frame) at native speed, FREEZE on
-				# hold_frame, then at windup_time resume to play hold_frame -> end (the
-				# strike). The _hold_released latch stops the frame_changed handler from
-				# re-freezing after the resume.
-				_hold_released = false
+				# _process drives the frame each visual peer-frame: 0->hold during the
+				# wind-up, hold until windup_time, then hold+1->last stretched to land on
+				# hit_time. Frame-accurate; no resume-timer jitter.
+				_hold_drive = true
 				animations.frame = 0
-				animations.speed_scale = 1.0
-				if not _hold_connected:
-					animations.frame_changed.connect(_on_hold_frame)
-					_hold_connected = true
-				get_tree().create_timer(_windup_time).timeout.connect(_resume_from_hold)
+				animations.speed_scale = 0.0
 		BossAttackData.AnimMode.FREE:
 			animations.speed_scale = 1.0
 
@@ -230,32 +246,6 @@ func _stretch_scale(sf: SpriteFrames, anim: String, target: float) -> float:
 		return 1.0
 	var native: float = float(frames) / fps
 	return clampf(native / target, 0.05, 20.0)
-
-
-func _on_hold_frame() -> void:
-	# Freeze ONCE on the hold pose after the wind-up frames have played. The
-	# _hold_released latch stops this re-freezing every frame after the resume.
-	if _hold_released or animations == null:
-		return
-	if animations.frame >= _hold_target_frame:
-		animations.frame = _hold_target_frame  # don't overshoot the pose
-		animations.speed_scale = 0.0
-
-
-func _resume_from_hold() -> void:
-	# At windup_time: release the hold. Swap to the NEXT frame this instant, then
-	# play the rest stretched so the last frame lands at hit_time. Don't call play()
-	# — that would reset to frame 0.
-	_hold_released = true
-	if animations != null:
-		animations.frame = mini(_hold_target_frame + 1, _strike_last_frame)
-		animations.speed_scale = _strike_speed_scale
-
-
-func _clear_hold() -> void:
-	if _hold_connected and animations != null and animations.frame_changed.is_connected(_on_hold_frame):
-		animations.frame_changed.disconnect(_on_hold_frame)
-	_hold_connected = false
 
 
 # --- Red charge-up tint -----------------------------------------------------
