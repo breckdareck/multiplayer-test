@@ -827,15 +827,21 @@ func broadcast_ground_zone_shaped(map_id: String, pos: Vector2, shape_type: int,
 ## nothing: the client RPC is call_remote and broadcast_to_map skips peer 1, so
 ## we spawn the host's visual copy directly. Remotes still get it via the RPC.
 func show_ground_zone_everywhere(map_id: String, pos: Vector2, radius: float, duration: float, color: Color) -> void:
+	show_ground_zone_shaped_everywhere(map_id, pos, 0, radius, Vector2.ZERO, duration, color)
+
+
+## [Server] Shape-aware host-inclusive variant. shape_type 0=CIRCLE (reads radius),
+## 1=RECT (reads rect_size = full width × height, centered on pos).
+func show_ground_zone_shaped_everywhere(map_id: String, pos: Vector2, shape_type: int, radius: float, rect_size: Vector2, duration: float, color: Color) -> void:
 	if not multiplayer.is_server():
 		return
 	# Remote clients (bots excluded; host skipped — its RPC is call_remote anyway).
-	broadcast_to_map(map_id, func(peer_id): client_show_ground_zone_shaped.rpc_id(peer_id, pos, 0, radius, Vector2.ZERO, duration, color), true, true)
+	broadcast_to_map(map_id, func(peer_id): client_show_ground_zone_shaped.rpc_id(peer_id, pos, shape_type, radius, rect_size, duration, color), true, true)
 	# Host renders its own copy, but only when the host is actually on this map
 	# (get_current_visible_map is the host's map; spawning otherwise would render
 	# a telegraph for a fight the host can't see).
 	if get_players_on_map(map_id).has(1):
-		_spawn_ground_zone_visual(pos, 0, radius, Vector2.ZERO, duration, color)
+		_spawn_ground_zone_visual(pos, shape_type, radius, rect_size, duration, color)
 
 
 ## [Server -> Client] Spawns a visual-only GroundZone on this peer. Routed

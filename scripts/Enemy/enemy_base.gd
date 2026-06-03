@@ -1180,6 +1180,16 @@ func broadcast_telegraph_ring(pos: Vector2, radius: float, duration: float, colo
 	MapManager.show_ground_zone_everywhere(map_id, pos, radius, duration, color)
 
 
+## [Server] All-peer (incl. host) RECTANGULAR ground telegraph — the boss slam
+## band. Centered on `pos`, `rect_size` is full width × height. Reads correctly on
+## the 2D platformer plane where a circle does not.
+func broadcast_telegraph_rect(pos: Vector2, rect_size: Vector2, duration: float, color: Color) -> void:
+	var map_id: String = _get_map_id()
+	if map_id == "":
+		return
+	MapManager.show_ground_zone_shaped_everywhere(map_id, pos, 1, 0.0, rect_size, duration, color)
+
+
 func _broadcast_boss_roar(color: Color) -> void:
 	var radius: float = enemy_data.special_attack_radius if enemy_data != null else 120.0
 	broadcast_telegraph_ring(global_position, radius, 0.5, color)
@@ -1226,11 +1236,13 @@ func arm_boss_special_cooldown() -> void:
 		_boss_special_ready_at = Time.get_ticks_msec() + int(enemy_data.special_attack_cooldown * 1000.0)
 
 
-## [Server] Deals the special's AoE damage to every player within `radius` of the
+## [Server] Deals the special's AoE damage to every player inside the slam band —
+## an axis-aligned rectangle of `rect_size` (full width × height) centered on the
 ## telegraphed `center`. Called by the boss_special state when its windup lands.
 ## Reuses the player HealthComponent.take_damage path the normal enemy attack uses;
-## the damage carries the boss's phase/enrage outgoing multiplier.
-func deal_boss_special_damage(center: Vector2, radius: float) -> void:
+## the damage carries the boss's phase/enrage outgoing multiplier. The short
+## vertical band means an airborne (jumped/dodged) player clears it.
+func deal_boss_special_damage(center: Vector2, rect_size: Vector2) -> void:
 	if not multiplayer.is_server() or _is_being_cleaned_up:
 		return
 	if health_component == null or health_component.is_dead:
@@ -1246,11 +1258,14 @@ func deal_boss_special_damage(center: Vector2, radius: float) -> void:
 	# Boss outgoing mult (phase + enrage) × the special's own multiplier.
 	var special_damage: int = maxi(1, roundi(base_att * _boss_outgoing_mult() * enemy_data.special_attack_damage_mult))
 
+	var half_w: float = rect_size.x * 0.5
+	var half_h: float = rect_size.y * 0.5
 	for pid in _get_players_on_same_map():
 		var node: Node2D = PlayerManager.get_player_node(pid)
 		if not is_valid_target(node):
 			continue
-		if node.global_position.distance_to(center) > radius:
+		var off: Vector2 = node.global_position - center
+		if absf(off.x) > half_w or absf(off.y) > half_h:
 			continue
 		var health: HealthComponent = node.get_node_or_null("Components/Health")
 		if health == null or health.is_dead or health.is_invulnerable:
