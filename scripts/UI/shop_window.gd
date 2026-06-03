@@ -196,7 +196,7 @@ func add_shop_item(container: VBoxContainer, data: Dictionary, is_sell: bool) ->
 	if is_sell:
 		# Player is selling their item to merchant
 		item = data["item"]
-		price = merchant_inventory.get_sell_price(item.item_id)
+		price = merchant_inventory.get_sell_price(item)
 		count = item.current_stack_amount
 	else:
 		# Player is buying from merchant (either base stock or buyback)

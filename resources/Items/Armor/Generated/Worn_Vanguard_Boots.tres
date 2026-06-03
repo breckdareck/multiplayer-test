@@ -1,7 +1,18 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://bclup8uylwcjt"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://yldayyowilqf"]
 
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_4ul7e"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_wqlw4"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_4ul7e"]
+[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_wqlw4"]
+
+[sub_resource type="Resource" id="Resource_v24kl"]
+script = ExtResource("1_4ul7e")
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_2w7vj"]
+script = ExtResource("1_4ul7e")
+stat_type = 4
+base_value = 0
+flat_bonus_value = 5
 
 [sub_resource type="Resource" id="Resource_6hgxg"]
 script = ExtResource("1_4ul7e")
@@ -15,17 +26,6 @@ stat_type = 9
 base_value = 0
 flat_bonus_value = 1
 
-[sub_resource type="Resource" id="Resource_v24kl"]
-script = ExtResource("1_4ul7e")
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_2w7vj"]
-script = ExtResource("1_4ul7e")
-stat_type = 4
-base_value = 0
-flat_bonus_value = 5
-
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_aprmr"]
 load_path = "res://.godot/imported/Eqp_Leather_Sandals.png-23f0cc5f3f25b855dccf580eeba0d806.ctex"
 
@@ -38,11 +38,9 @@ bonus_stats = Dictionary[int, ExtResource("1_4ul7e")]({
 8: SubResource("Resource_6hgxg"),
 9: SubResource("Resource_s4tp7")
 })
-item_id = "95307131214-25119-7176-5653-157130143304803"
+item_id = "61515231131-78412-121194-610710-111261007101215120"
 name = "Worn Vanguard Boots"
-rarity = 0
 icon = SubResource("CompressedTexture2D_aprmr")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 1
-custom_item_value = 0

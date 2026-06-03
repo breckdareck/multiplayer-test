@@ -18,6 +18,9 @@ const ABILITYLEVELDATA = preload("res://scripts/Resources/AbilitySystem/AbilityL
 @onready var cost_label: Label = %CostLabel
 @onready var level_up_button: Button = %LevelUpButton
 @onready var skill_points_label: Label = %SkillPointsLabel
+## Weapon-mastery readout for the active discipline tab: the level that grants
+## the SP shown beside it, plus XP progress to the next level (= next SP).
+@onready var mastery_label: Label = %MasteryLabel
 ## PR 6: upgrade panel — tier rows with buy buttons + a per-discipline respec.
 @onready var upgrades_container: VBoxContainer = %UpgradesContainer
 @onready var upgrades_list: VBoxContainer = %UpgradesList
@@ -46,6 +49,8 @@ var _selected_kind: String = "ability"
 var _selected_upgrade_id: String = ""
 var player: MultiplayerPlayerV2
 var ability_component: AbilityComponent
+## PR 8: drives the header mastery readout (level + XP to next = next SP).
+var weapon_mastery_component: WeaponMasteryComponent
 
 ## Coalesces skill-tree rebuilds. The join/map-transfer ability sync emits
 ## `ability_learned` once per ability (~80 after the weapon overhaul); routing
@@ -76,6 +81,7 @@ func _ready():
 		if not ability_component:
 			push_error("AbilityWindow: Could not find AbilityComponent on player")
 			return
+		weapon_mastery_component = player.weapon_mastery_component
 	
 	# Connect signals
 	level_up_button.pressed.connect(on_level_up_button_pressed)
@@ -111,6 +117,11 @@ func _ready():
 		if ability_component.has_signal("ability_upgrade_purchased"):
 			ability_component.ability_upgrade_purchased.connect(_on_ability_upgrade_changed)
 		##print("AbilityWindow: Connected to ability component signals")
+
+	# PR 8: keep the header mastery readout (level + XP to next = next SP) live.
+	if is_instance_valid(weapon_mastery_component):
+		weapon_mastery_component.mastery_level_changed.connect(_on_mastery_changed.unbind(2))
+		weapon_mastery_component.mastery_xp_changed.connect(_on_mastery_changed.unbind(3))
 
 	# PR 4: default the tab to the player's currently-active discipline so
 	# someone who just swapped to a bow opens the window directly on the Bow
@@ -904,6 +915,36 @@ func update_skill_points_display():
 	var tab_label: String = _current_discipline_tab_title()
 	var points = ability_component.get_available_points_for_discipline(_current_discipline_key)
 	skill_points_label.text = "%s SP: %d" % [tab_label, points]
+	update_mastery_display()
+
+
+## PR 8: header readout of the active tab's weapon-mastery level + XP progress.
+## Each mastery level grants one SP, so this shows the player how close they are
+## to their next point. Reads the discipline matching the open tab (not the
+## wielded weapon) so it stays consistent with the SP label beside it.
+func update_mastery_display() -> void:
+	if not is_instance_valid(mastery_label):
+		return
+	if not is_instance_valid(weapon_mastery_component):
+		mastery_label.text = ""
+		return
+	var discipline: int = _discipline_key_to_class_type(_current_discipline_key)
+	if discipline == -1:
+		mastery_label.text = ""
+		return
+	var level: int = weapon_mastery_component.get_mastery_level(discipline)
+	if level >= weapon_mastery_component.MASTERY_CAP:
+		mastery_label.text = "Mastery Lv %d (MAX)" % level
+		return
+	var xp: int = weapon_mastery_component.get_mastery_xp(discipline)
+	var xp_to_next: int = weapon_mastery_component._xp_to_next_level(level)
+	mastery_label.text = "Mastery Lv %d (%d / %d XP)" % [level, xp, xp_to_next]
+
+
+## PR 8: refresh the mastery readout when mastery level/XP changes for any
+## discipline (cheap; only re-renders the single header label).
+func _on_mastery_changed() -> void:
+	update_mastery_display()
 
 
 ## Signal callback when ability levels up
@@ -1002,6 +1043,22 @@ func _class_type_to_discipline_key(class_type: int) -> String:
 		Constants.ClassType.DAGGER, Constants.ClassType.ASSASSIN:
 			return "dagger"
 	return ""
+
+
+## PR 8: inverse of _class_type_to_discipline_key — maps a lowercase discipline
+## key back to its tier-1 `Constants.ClassType` int. Returns -1 on an unknown
+## key. Used by the header mastery readout to look up the open tab's discipline.
+func _discipline_key_to_class_type(key: String) -> int:
+	match key:
+		"sword":
+			return Constants.ClassType.SWORD
+		"bow":
+			return Constants.ClassType.BOW
+		"staff":
+			return Constants.ClassType.STAFF
+		"dagger":
+			return Constants.ClassType.DAGGER
+	return -1
 
 
 ## PR 4: returns true if the given ability ID belongs to the active tab.
