@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://dmpogtcwvlecc"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://dmpogtcwvlecc"]
 
+[ext_resource type="Texture2D" uid="uid://bdq5im1mak0cc" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Runic_Nightshade_Mail.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_wu7ia"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_7qd5j"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_1n6gj"]
@@ -44,7 +45,7 @@ bonus_stats = Dictionary[int, ExtResource("1_wu7ia")]({
 item_id = "45479295-99315-3498-914213-125152121251376912"
 name = "Runic Nightshade Mail"
 rarity = 0
-icon = SubResource("AtlasTexture_r24rb")
+icon = ExtResource("99_svgicon")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 68

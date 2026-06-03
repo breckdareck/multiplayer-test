@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=7 format=3 uid="uid://8hwy65isjyp4"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://8hwy65isjyp4"]
 
+[ext_resource type="Texture2D" uid="uid://rmtjx0cwnf8k" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Adamant_Longsword.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_y7228"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_ur860"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_vsyj6"]
@@ -32,7 +33,7 @@ bonus_stats = Dictionary[int, ExtResource("1_y7228")]({
 item_id = "1571010140011-213414-8101112-701515-91514241506210612"
 name = "Adamant Longsword"
 rarity = 0
-icon = SubResource("AtlasTexture_lctfp")
+icon = ExtResource("99_svgicon")
 description = "A balanced blade — the Swordsman's trusted companion."
 item_type = 1
 item_level = 50

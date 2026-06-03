@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://c33lylj5yhvww"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://c33lylj5yhvww"]
 
+[ext_resource type="Texture2D" uid="uid://bww1i74tuutsk" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Runic_Vanguard_Legguards.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_f5h4e"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_gsmu2"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_nt7u0"]
@@ -44,7 +45,7 @@ bonus_stats = Dictionary[int, ExtResource("1_f5h4e")]({
 item_id = "980132047-137011-71055-110110-93115121267100711"
 name = "Runic Vanguard Legguards"
 rarity = 0
-icon = SubResource("AtlasTexture_o00lw")
+icon = ExtResource("99_svgicon")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 68

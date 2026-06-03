@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=6 format=3 uid="uid://bhbdmqn63iqfw"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=7 format=3 uid="uid://bhbdmqn63iqfw"]
 
+[ext_resource type="Texture2D" uid="uid://ci0duup8qgswr" path="res://assets/sprites/Items/generated_svg/Armor/Leather_Vest.svg" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_lv001"]
 [ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="2_j5448"]
 [ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_lv001"]
@@ -23,7 +24,7 @@ bonus_stats = Dictionary[int, ExtResource("1_lv001")]({
 })
 item_id = "20260517006-600606-080106-60006-660600800060600606"
 name = "Leather Vest"
-icon = SubResource("AtlasTexture_lh71a")
+icon = ExtResource("99_svgicon")
 description = "A tough leather vest."
 item_type = 1
 item_level = 5

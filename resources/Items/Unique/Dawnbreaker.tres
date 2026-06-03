@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://cqb3s2ktmsdje"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=10 format=3 uid="uid://cqb3s2ktmsdje"]
 
+[ext_resource type="Texture2D" uid="uid://be4kahpk6dbsy" path="res://assets/sprites/Items/generated_svg/Unique/Dawnbreaker.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_qd551"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_88xbu"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_dawi1"]
@@ -46,7 +47,7 @@ bonus_stats = Dictionary[int, ExtResource("1_qd551")]({
 item_id = "7001319127-1647-21114-95110-1511431213150418"
 name = "Dawnbreaker"
 rarity = 4
-icon = SubResource("AtlasTexture_i2moc")
+icon = ExtResource("99_svgicon")
 description = "A radiant greatsword said to have been quenched in dawnlight."
 item_type = 1
 item_level = 50

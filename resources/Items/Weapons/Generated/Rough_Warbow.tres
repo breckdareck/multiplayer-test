@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://beanlarr8gh7a"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://beanlarr8gh7a"]
 
+[ext_resource type="Texture2D" uid="uid://brddunff20h43" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Rough_Warbow.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_1jegl"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_qp43t"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_8m1h6"]
@@ -40,7 +41,7 @@ bonus_stats = Dictionary[int, ExtResource("1_1jegl")]({
 item_id = "14124112042-0295-213910-1213154-4611011113161413"
 name = "Rough Warbow"
 rarity = 0
-icon = SubResource("AtlasTexture_nwua3")
+icon = ExtResource("99_svgicon")
 description = "A finely strung bow built for an Archer's precision."
 item_type = 1
 item_level = 8

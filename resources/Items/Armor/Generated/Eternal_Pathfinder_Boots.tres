@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://buiqmb6wi3v8r"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://buiqmb6wi3v8r"]
 
+[ext_resource type="Texture2D" uid="uid://1cfq15ru6idv" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Eternal_Pathfinder_Boots.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_swvht"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_j5g5w"]
 
@@ -42,7 +43,7 @@ bonus_stats = Dictionary[int, ExtResource("1_swvht")]({
 item_id = "13310121564-15913-1514157-57110-0161311118291490"
 name = "Eternal Pathfinder Boots"
 rarity = 0
-icon = SubResource("CompressedTexture2D_ovifc")
+icon = ExtResource("99_svgicon")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 100

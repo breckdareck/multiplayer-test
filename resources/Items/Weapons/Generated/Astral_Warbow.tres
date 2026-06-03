@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://dyew58mixmd7q"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://dyew58mixmd7q"]
 
+[ext_resource type="Texture2D" uid="uid://pqpf36agesge" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Astral_Warbow.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_2p0o2"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_inn4e"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_rugbv"]
@@ -40,7 +41,7 @@ bonus_stats = Dictionary[int, ExtResource("1_2p0o2")]({
 item_id = "41461171047-1011411-4461-1441012-67141448589632"
 name = "Astral Warbow"
 rarity = 0
-icon = SubResource("AtlasTexture_p3dkk")
+icon = ExtResource("99_svgicon")
 description = "A finely strung bow built for an Archer's precision."
 item_type = 1
 item_level = 93

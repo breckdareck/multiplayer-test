@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bl5oqshqb6f1j"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://bl5oqshqb6f1j"]
 
+[ext_resource type="Texture2D" uid="uid://cgh4xm0mqioa0" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Worn_Pathfinder_Legguards.svg" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_va0uj"]
 [ext_resource type="Texture2D" uid="uid://bannlqdgbwmld" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_57kau"]
 [ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_yc5ov"]
@@ -44,7 +45,7 @@ bonus_stats = Dictionary[int, ExtResource("1_va0uj")]({
 })
 item_id = "105121311562-1180-01186-611151-15145143411131410214"
 name = "Worn Pathfinder Legguards"
-icon = SubResource("AtlasTexture_qjnrw")
+icon = ExtResource("99_svgicon")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 1

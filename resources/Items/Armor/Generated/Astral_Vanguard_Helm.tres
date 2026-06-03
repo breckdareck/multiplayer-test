@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://dpbmw434rclny"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://dpbmw434rclny"]
 
+[ext_resource type="Texture2D" uid="uid://cf6ctd1yqlw8e" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Astral_Vanguard_Helm.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_eu006"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_pwkvs"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_kbh4l"]
@@ -42,7 +43,7 @@ bonus_stats = Dictionary[int, ExtResource("1_eu006")]({
 item_id = "101310515101010-1011120-111614-6130-7410113134145165"
 name = "Astral Vanguard Helm"
 rarity = 0
-icon = SubResource("AtlasTexture_t72l4")
+icon = ExtResource("99_svgicon")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 93

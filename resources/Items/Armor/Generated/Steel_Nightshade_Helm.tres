@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bk44el43sgk8v"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://bk44el43sgk8v"]
 
+[ext_resource type="Texture2D" uid="uid://5gimsv5ehvj8" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Steel_Nightshade_Helm.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_k7q8b"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_t7m0c"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_k12nc"]
@@ -43,7 +44,7 @@ bonus_stats = Dictionary[int, ExtResource("1_k7q8b")]({
 item_id = "5289361012-101575-1015312-5346-12139705614013155"
 name = "Steel Nightshade Helm"
 rarity = 0
-icon = SubResource("AtlasTexture_fqehb")
+icon = ExtResource("99_svgicon")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 35

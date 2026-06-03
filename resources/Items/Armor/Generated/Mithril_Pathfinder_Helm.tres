@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://drouamtt2u1yh"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://drouamtt2u1yh"]
 
+[ext_resource type="Texture2D" uid="uid://b3f7lgwh4goky" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Mithril_Pathfinder_Helm.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_22etv"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_fj5bo"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_r7u70"]
@@ -43,7 +44,7 @@ bonus_stats = Dictionary[int, ExtResource("1_22etv")]({
 item_id = "01431205129-12613-21407-2186-12101311153131051012"
 name = "Mithril Pathfinder Helm"
 rarity = 0
-icon = SubResource("AtlasTexture_ic2nn")
+icon = ExtResource("99_svgicon")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 43

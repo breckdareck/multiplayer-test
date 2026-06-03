@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://c6voi0d1g2w5y"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://c6voi0d1g2w5y"]
 
+[ext_resource type="Texture2D" uid="uid://2jxoy8c5hx1e" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Iron_Warbow.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_j3pk0"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_ss52m"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_a571u"]
@@ -40,7 +41,7 @@ bonus_stats = Dictionary[int, ExtResource("1_j3pk0")]({
 item_id = "214654374-79014-813315-1212118-141713501512801210"
 name = "Iron Warbow"
 rarity = 0
-icon = SubResource("AtlasTexture_vvcn2")
+icon = ExtResource("99_svgicon")
 description = "A finely strung bow built for an Archer's precision."
 item_type = 1
 item_level = 27

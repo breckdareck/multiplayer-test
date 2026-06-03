@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://b14n42ecpfs6"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://b14n42ecpfs6"]
 
+[ext_resource type="Texture2D" uid="uid://dn0dcx8blmja3" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Celestial_Dirk.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_0akek"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_7yn5h"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_pv7p1"]
@@ -40,7 +41,7 @@ bonus_stats = Dictionary[int, ExtResource("1_0akek")]({
 item_id = "6111411541210-1015154-13677-81504-2351413105311392"
 name = "Celestial Dirk"
 rarity = 0
-icon = SubResource("AtlasTexture_8x00w")
+icon = ExtResource("99_svgicon")
 description = "A swift, wickedly sharp blade prized by Rogues."
 item_type = 1
 item_level = 85

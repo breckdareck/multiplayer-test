@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://1o1xtlf7cfc8"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://1o1xtlf7cfc8"]
 
+[ext_resource type="Texture2D" uid="uid://bkbdxioc61riq" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Dragonbone_Arcanist_Boots.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_8nh6o"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_2nyew"]
 
@@ -42,7 +43,7 @@ bonus_stats = Dictionary[int, ExtResource("1_8nh6o")]({
 item_id = "1314514331311-23810-12056-41066-913511211461310915"
 name = "Dragonbone Arcanist Boots"
 rarity = 0
-icon = SubResource("CompressedTexture2D_a20sy")
+icon = ExtResource("99_svgicon")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
 item_level = 77

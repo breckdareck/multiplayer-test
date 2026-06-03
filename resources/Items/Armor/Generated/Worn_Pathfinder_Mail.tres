@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bmpt7l2gredjo"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://bmpt7l2gredjo"]
 
+[ext_resource type="Texture2D" uid="uid://bv77v73hkqwed" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Worn_Pathfinder_Mail.svg" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_oihvn"]
 [ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="2_krwaw"]
 [ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_ikjbd"]
@@ -43,7 +44,7 @@ bonus_stats = Dictionary[int, ExtResource("1_oihvn")]({
 })
 item_id = "136129010148-45111-00139-213813-0144151151411214105"
 name = "Worn Pathfinder Mail"
-icon = SubResource("AtlasTexture_68njm")
+icon = ExtResource("99_svgicon")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 1

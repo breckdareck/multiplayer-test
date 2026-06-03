@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://upl8mulpf51w"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://upl8mulpf51w"]
 
+[ext_resource type="Texture2D" uid="uid://dbx2se2o6co3l" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Eternal_Dirk.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_a7mnn"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_u1k44"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_tylis"]
@@ -40,7 +41,7 @@ bonus_stats = Dictionary[int, ExtResource("1_a7mnn")]({
 item_id = "1147997513-1081014-154154-2892-10138128911144152"
 name = "Eternal Dirk"
 rarity = 0
-icon = SubResource("AtlasTexture_ttcm4")
+icon = ExtResource("99_svgicon")
 description = "A swift, wickedly sharp blade prized by Rogues."
 item_type = 1
 item_level = 100

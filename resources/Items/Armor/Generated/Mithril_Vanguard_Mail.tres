@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bp1tnuug84cxq"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://bp1tnuug84cxq"]
 
+[ext_resource type="Texture2D" uid="uid://cax0jf4lvtdp3" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Mithril_Vanguard_Mail.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_0dmg1"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_vmhjw"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_ohixy"]
@@ -43,7 +44,7 @@ bonus_stats = Dictionary[int, ExtResource("1_0dmg1")]({
 item_id = "8611151214156-9885-613313-121057-8134746433012"
 name = "Mithril Vanguard Mail"
 rarity = 0
-icon = SubResource("AtlasTexture_aj8gs")
+icon = ExtResource("99_svgicon")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 43

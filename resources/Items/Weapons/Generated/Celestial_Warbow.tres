@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://cfeq7m8wy0nmk"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://cfeq7m8wy0nmk"]
 
+[ext_resource type="Texture2D" uid="uid://bmaxiytn75mn7" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Celestial_Warbow.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_7uxwq"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_kwhxl"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_5l7rl"]
@@ -40,7 +41,7 @@ bonus_stats = Dictionary[int, ExtResource("1_7uxwq")]({
 item_id = "3515255011-1291515-571315-156151-610148111104311812"
 name = "Celestial Warbow"
 rarity = 0
-icon = SubResource("AtlasTexture_170jv")
+icon = ExtResource("99_svgicon")
 description = "A finely strung bow built for an Archer's precision."
 item_type = 1
 item_level = 85

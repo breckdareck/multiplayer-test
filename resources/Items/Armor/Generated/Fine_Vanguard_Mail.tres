@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://dsdeyvylk0qs6"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://dsdeyvylk0qs6"]
 
+[ext_resource type="Texture2D" uid="uid://dr66suoks78d6" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Fine_Vanguard_Mail.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_bgor8"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_tv0ka"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_fqqjb"]
@@ -43,7 +44,7 @@ bonus_stats = Dictionary[int, ExtResource("1_bgor8")]({
 item_id = "10360261410-33101-00110-3141314-14813935551312211"
 name = "Fine Vanguard Mail"
 rarity = 0
-icon = SubResource("AtlasTexture_4tfx1")
+icon = ExtResource("99_svgicon")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 20

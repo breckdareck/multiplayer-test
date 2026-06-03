@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://byjvvupxbyt7j"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://byjvvupxbyt7j"]
 
+[ext_resource type="Texture2D" uid="uid://ilioteqaspw2" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Celestial_Pathfinder_Legguards.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_1dgrs"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_i60pm"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_cgd6c"]
@@ -45,7 +46,7 @@ bonus_stats = Dictionary[int, ExtResource("1_1dgrs")]({
 item_id = "31112701176-94145-111145-126015-1313131921384959"
 name = "Celestial Pathfinder Legguards"
 rarity = 0
-icon = SubResource("AtlasTexture_r2l8x")
+icon = ExtResource("99_svgicon")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 85

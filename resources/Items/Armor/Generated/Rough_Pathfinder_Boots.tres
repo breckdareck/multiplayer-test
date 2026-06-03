@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://bi518kd2slijg"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bi518kd2slijg"]
 
+[ext_resource type="Texture2D" uid="uid://b8qvq1bgdp5i3" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Rough_Pathfinder_Boots.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_kc1vo"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_2yg7w"]
 
@@ -42,7 +43,7 @@ bonus_stats = Dictionary[int, ExtResource("1_kc1vo")]({
 item_id = "13215837139-101242-0562-013111-91148121011615151314"
 name = "Rough Pathfinder Boots"
 rarity = 0
-icon = SubResource("CompressedTexture2D_c1su2")
+icon = ExtResource("99_svgicon")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 8

@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://capljkog5qdum"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://capljkog5qdum"]
 
+[ext_resource type="Texture2D" uid="uid://bwmhefupj3drw" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Adamant_Pathfinder_Mail.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_akwef"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_gd8yy"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_ydwqh"]
@@ -44,7 +45,7 @@ bonus_stats = Dictionary[int, ExtResource("1_akwef")]({
 item_id = "10102851333-1131215-7302-131112-5141231213810375"
 name = "Adamant Pathfinder Mail"
 rarity = 0
-icon = SubResource("AtlasTexture_ahfkl")
+icon = ExtResource("99_svgicon")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 50

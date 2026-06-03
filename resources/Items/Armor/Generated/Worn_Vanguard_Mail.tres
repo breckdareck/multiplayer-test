@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://4elfj0gqvpcc"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://4elfj0gqvpcc"]
 
+[ext_resource type="Texture2D" uid="uid://ytf5thkt144w" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Worn_Vanguard_Mail.svg" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_md5cp"]
 [ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="2_wslm4"]
 [ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_6jhbi"]
@@ -42,7 +43,7 @@ bonus_stats = Dictionary[int, ExtResource("1_md5cp")]({
 })
 item_id = "14141568131210-51164-1513113-82910-1361344002134134"
 name = "Worn Vanguard Mail"
-icon = SubResource("AtlasTexture_15pix")
+icon = ExtResource("99_svgicon")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 1

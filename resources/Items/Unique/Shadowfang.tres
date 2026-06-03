@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://ivjcydwbpunj"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=10 format=3 uid="uid://ivjcydwbpunj"]
 
+[ext_resource type="Texture2D" uid="uid://c7la3nla1qyva" path="res://assets/sprites/Items/generated_svg/Unique/Shadowfang.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_ah0cb"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_np07y"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_nxotr"]
@@ -47,7 +48,7 @@ bonus_stats = Dictionary[int, ExtResource("1_ah0cb")]({
 item_id = "9136131561212-214143-11546-21127-981326811655311"
 name = "Shadowfang"
 rarity = 4
-icon = SubResource("AtlasTexture_i1ikh")
+icon = ExtResource("99_svgicon")
 description = "A blackened fang that seems to drink the light around it."
 item_type = 1
 item_level = 55

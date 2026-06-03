@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://fhxojwipvfwo"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://fhxojwipvfwo"]
 
+[ext_resource type="Texture2D" uid="uid://dnvta6bmlll65" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Eternal_Vanguard_Helm.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_8wid6"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_vhrc3"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_hltfh"]
@@ -42,7 +43,7 @@ bonus_stats = Dictionary[int, ExtResource("1_8wid6")]({
 item_id = "967102574-1014010-35127-210614-61412908148133109"
 name = "Eternal Vanguard Helm"
 rarity = 0
-icon = SubResource("AtlasTexture_xm1d2")
+icon = ExtResource("99_svgicon")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 100

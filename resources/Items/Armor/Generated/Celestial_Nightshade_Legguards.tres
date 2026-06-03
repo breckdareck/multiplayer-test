@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://cofkopd342w18"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://cofkopd342w18"]
 
+[ext_resource type="Texture2D" uid="uid://cavtttqddd8xx" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Celestial_Nightshade_Legguards.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_agmpi"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_mny7k"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_t4b28"]
@@ -45,7 +46,7 @@ bonus_stats = Dictionary[int, ExtResource("1_agmpi")]({
 item_id = "101151613138-67011-312137-15101315-611110369106137"
 name = "Celestial Nightshade Legguards"
 rarity = 0
-icon = SubResource("AtlasTexture_20sjq")
+icon = ExtResource("99_svgicon")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 85

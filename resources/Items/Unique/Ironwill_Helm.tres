@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://chc3swc718ltw"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://chc3swc718ltw"]
 
+[ext_resource type="Texture2D" uid="uid://bkjbpns0tev5" path="res://assets/sprites/Items/generated_svg/Unique/Ironwill_Helm.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_k8o1f"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_8hqg8"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_41pyc"]
@@ -42,7 +43,7 @@ bonus_stats = Dictionary[int, ExtResource("1_k8o1f")]({
 item_id = "128311871214-103158-912210-81311-1261250401091010"
 name = "Ironwill Helm"
 rarity = 4
-icon = SubResource("AtlasTexture_r6iqb")
+icon = ExtResource("99_svgicon")
 description = "A battered helm that has never once been split."
 item_type = 1
 item_level = 40

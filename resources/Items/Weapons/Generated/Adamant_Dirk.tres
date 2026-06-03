@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://sqodtcu14jp3"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://sqodtcu14jp3"]
 
+[ext_resource type="Texture2D" uid="uid://ctqp5vomrsaak" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Adamant_Dirk.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_jex1y"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_37wpn"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_ec1kx"]
@@ -40,7 +41,7 @@ bonus_stats = Dictionary[int, ExtResource("1_jex1y")]({
 item_id = "33138301010-1765-612315-5934-11241521512121478"
 name = "Adamant Dirk"
 rarity = 0
-icon = SubResource("AtlasTexture_erxws")
+icon = ExtResource("99_svgicon")
 description = "A swift, wickedly sharp blade prized by Rogues."
 item_type = 1
 item_level = 50

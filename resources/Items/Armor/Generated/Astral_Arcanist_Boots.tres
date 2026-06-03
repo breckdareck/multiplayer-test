@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://kt2ocurqcnvf"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://kt2ocurqcnvf"]
 
+[ext_resource type="Texture2D" uid="uid://cr4abd58jxdyt" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Astral_Arcanist_Boots.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_q4dsw"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_pe0qi"]
 
@@ -42,7 +43,7 @@ bonus_stats = Dictionary[int, ExtResource("1_q4dsw")]({
 item_id = "11213811851-149211-111514-63110-55101515429850"
 name = "Astral Arcanist Boots"
 rarity = 0
-icon = SubResource("CompressedTexture2D_gta0n")
+icon = ExtResource("99_svgicon")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
 item_level = 93

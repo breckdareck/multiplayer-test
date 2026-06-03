@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://bd60ab048a7gc"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bd60ab048a7gc"]
 
+[ext_resource type="Texture2D" uid="uid://bmrvmsc353nrx" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Mithril_Nightshade_Boots.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_i0vp1"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_eimid"]
 
@@ -42,7 +43,7 @@ bonus_stats = Dictionary[int, ExtResource("1_i0vp1")]({
 item_id = "10410151131115-91402-912117-251013-27381211110113"
 name = "Mithril Nightshade Boots"
 rarity = 0
-icon = SubResource("CompressedTexture2D_ipaht")
+icon = ExtResource("99_svgicon")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 43

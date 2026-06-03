@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://bb18ix6ujn37a"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://bb18ix6ujn37a"]
 
+[ext_resource type="Texture2D" uid="uid://c5du4njp7gdw" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Runic_Dirk.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_snhdn"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_rtl8k"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_8nqgo"]
@@ -40,7 +41,7 @@ bonus_stats = Dictionary[int, ExtResource("1_snhdn")]({
 item_id = "5156215237-60410-2409-139113-912133211321431010"
 name = "Runic Dirk"
 rarity = 0
-icon = SubResource("AtlasTexture_5cjmf")
+icon = ExtResource("99_svgicon")
 description = "A swift, wickedly sharp blade prized by Rogues."
 item_type = 1
 item_level = 68

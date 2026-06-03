@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://dkfblewmoepgg"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://dkfblewmoepgg"]
 
+[ext_resource type="Texture2D" uid="uid://br3iqdj6062gj" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Eternal_Spellstaff.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_wm5qn"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_js4gj"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_t1mgh"]
@@ -40,7 +41,7 @@ bonus_stats = Dictionary[int, ExtResource("1_wm5qn")]({
 item_id = "7240127112-14417-491313-47815-131161170851112100"
 name = "Eternal Spellstaff"
 rarity = 0
-icon = SubResource("AtlasTexture_nv3fu")
+icon = ExtResource("99_svgicon")
 description = "A conduit of arcane power wielded by Mages."
 item_type = 1
 item_level = 100

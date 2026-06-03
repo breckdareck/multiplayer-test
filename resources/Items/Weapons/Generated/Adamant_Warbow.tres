@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://hcrgs0c8umx3"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://hcrgs0c8umx3"]
 
+[ext_resource type="Texture2D" uid="uid://3xofhss8ibq5" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Adamant_Warbow.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_g156e"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_6ovos"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_8jf1s"]
@@ -40,7 +41,7 @@ bonus_stats = Dictionary[int, ExtResource("1_g156e")]({
 item_id = "10052411123-15908-102150-130155-15412201191351112"
 name = "Adamant Warbow"
 rarity = 0
-icon = SubResource("AtlasTexture_1aq7h")
+icon = ExtResource("99_svgicon")
 description = "A finely strung bow built for an Archer's precision."
 item_type = 1
 item_level = 50

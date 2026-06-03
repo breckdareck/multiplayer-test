@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://bt6tac51nv30m"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bt6tac51nv30m"]
 
+[ext_resource type="Texture2D" uid="uid://dj1cjyldxesc2" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Mithril_Arcanist_Boots.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_rw28r"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_gjme0"]
 
@@ -42,7 +43,7 @@ bonus_stats = Dictionary[int, ExtResource("1_rw28r")]({
 item_id = "101131129109-610713-311107-3111311-3101174515123805"
 name = "Mithril Arcanist Boots"
 rarity = 0
-icon = SubResource("CompressedTexture2D_ocvoa")
+icon = ExtResource("99_svgicon")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
 item_level = 43

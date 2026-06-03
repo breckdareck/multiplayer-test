@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://dslqx7nlebxqf"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://dslqx7nlebxqf"]
 
+[ext_resource type="Texture2D" uid="uid://c31qrtbp0w1x" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Mithril_Pathfinder_Mail.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_43fnw"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_cvghq"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_mvm6h"]
@@ -44,7 +45,7 @@ bonus_stats = Dictionary[int, ExtResource("1_43fnw")]({
 item_id = "9478214414-50158-1705-611115-312101504911137311"
 name = "Mithril Pathfinder Mail"
 rarity = 0
-icon = SubResource("AtlasTexture_amyla")
+icon = ExtResource("99_svgicon")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 43

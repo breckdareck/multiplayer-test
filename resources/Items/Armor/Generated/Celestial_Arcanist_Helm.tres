@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://d1okrnfphic0r"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://d1okrnfphic0r"]
 
+[ext_resource type="Texture2D" uid="uid://sw65akpc4kid" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Celestial_Arcanist_Helm.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_pvnvy"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_474kr"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_6tjp6"]
@@ -43,7 +44,7 @@ bonus_stats = Dictionary[int, ExtResource("1_pvnvy")]({
 item_id = "13151271014815-89910-8089-2556-14100411710120993"
 name = "Celestial Arcanist Helm"
 rarity = 0
-icon = SubResource("AtlasTexture_i2nr2")
+icon = ExtResource("99_svgicon")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
 item_level = 85

@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://b5ole3s2ltpdi"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://b5ole3s2ltpdi"]
 
+[ext_resource type="Texture2D" uid="uid://c6miyrke4i4yx" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Fine_Dirk.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_e0eax"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_pajmy"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_pd563"]
@@ -40,7 +41,7 @@ bonus_stats = Dictionary[int, ExtResource("1_e0eax")]({
 item_id = "1568613155-15885-105150-51121-11211881514141051211"
 name = "Fine Dirk"
 rarity = 0
-icon = SubResource("AtlasTexture_me3jg")
+icon = ExtResource("99_svgicon")
 description = "A swift, wickedly sharp blade prized by Rogues."
 item_type = 1
 item_level = 20

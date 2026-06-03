@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=6 format=3 uid="uid://m3qm2vpq8c53"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=7 format=3 uid="uid://m3qm2vpq8c53"]
 
+[ext_resource type="Texture2D" uid="uid://c1xgmcpn6ha17" path="res://assets/sprites/Items/generated_svg/Weapons/Gladius.svg" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_mwur8"]
 [ext_resource type="Texture2D" uid="uid://cj4kv8pk70aal" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_wrtgt"]
 [ext_resource type="Script" uid="uid://mysmonmct4jm" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="2_xmdq5"]
@@ -25,7 +26,7 @@ bonus_stats = Dictionary[int, ExtResource("1_mwur8")]({
 })
 item_id = "014194109-128510-1191114-912111-14125857119013"
 name = "Gladius"
-icon = SubResource("AtlasTexture_0opnw")
+icon = ExtResource("99_svgicon")
 item_type = 1
 item_level = 30
 metadata/_custom_type_script = "uid://mysmonmct4jm"

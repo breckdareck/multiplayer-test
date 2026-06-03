@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=6 format=3 uid="uid://bveirljifc7x5"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=7 format=3 uid="uid://bveirljifc7x5"]
 
+[ext_resource type="Texture2D" uid="uid://ca6w2kep8jvto" path="res://assets/sprites/Items/generated_svg/Armor/Wizard_Hat.svg" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_wh01"]
 [ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_wh01"]
 [ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_wh01"]
@@ -23,7 +24,7 @@ bonus_stats = Dictionary[int, ExtResource("1_wh01")]({
 })
 item_id = "20260517014-500514-030214-50014-550500300050500514"
 name = "Wizard Hat"
-icon = SubResource("AtlasTexture_wh01")
+icon = ExtResource("99_svgicon")
 description = "A pointy hat worn by apprentice wizards."
 item_type = 1
 item_level = 2

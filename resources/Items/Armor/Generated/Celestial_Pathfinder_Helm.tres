@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://djfduamclucjj"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://djfduamclucjj"]
 
+[ext_resource type="Texture2D" uid="uid://hbr55sh62ka6" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Celestial_Pathfinder_Helm.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_3smb2"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_e4cdl"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_kbjf8"]
@@ -43,7 +44,7 @@ bonus_stats = Dictionary[int, ExtResource("1_3smb2")]({
 item_id = "51039913154-412150-410115-121080-841595155802014"
 name = "Celestial Pathfinder Helm"
 rarity = 0
-icon = SubResource("AtlasTexture_15tk7")
+icon = ExtResource("99_svgicon")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 85

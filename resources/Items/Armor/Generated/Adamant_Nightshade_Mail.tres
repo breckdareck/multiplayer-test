@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://lbr6a55ypm0r"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://lbr6a55ypm0r"]
 
+[ext_resource type="Texture2D" uid="uid://bumx1dm5kg6no" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Adamant_Nightshade_Mail.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_rwvro"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_5rc2y"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_v3e08"]
@@ -44,7 +45,7 @@ bonus_stats = Dictionary[int, ExtResource("1_rwvro")]({
 item_id = "00123121409-159144-145215-151446-13102612417151173"
 name = "Adamant Nightshade Mail"
 rarity = 0
-icon = SubResource("AtlasTexture_j5lc3")
+icon = ExtResource("99_svgicon")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 50

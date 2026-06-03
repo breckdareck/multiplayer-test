@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bnmtgd4wf5tdx"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://bnmtgd4wf5tdx"]
 
+[ext_resource type="Texture2D" uid="uid://darnchpbh2j76" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Pristine_Nightshade_Legguards.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_joliw"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_vjr8y"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_v8mcp"]
@@ -45,7 +46,7 @@ bonus_stats = Dictionary[int, ExtResource("1_joliw")]({
 item_id = "92515781115-610132-121463-121513-61413104132022010"
 name = "Pristine Nightshade Legguards"
 rarity = 0
-icon = SubResource("AtlasTexture_1d02c")
+icon = ExtResource("99_svgicon")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 60

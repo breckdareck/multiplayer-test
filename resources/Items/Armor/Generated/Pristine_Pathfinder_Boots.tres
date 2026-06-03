@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://dsu0itc80ivah"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://dsu0itc80ivah"]
 
+[ext_resource type="Texture2D" uid="uid://ca54uu3x5wjht" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Pristine_Pathfinder_Boots.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_oqee6"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_y6gvu"]
 
@@ -42,7 +43,7 @@ bonus_stats = Dictionary[int, ExtResource("1_oqee6")]({
 item_id = "1315119910116-7526-120128-15111515-15104111541512113110"
 name = "Pristine Pathfinder Boots"
 rarity = 0
-icon = SubResource("CompressedTexture2D_3j4kf")
+icon = ExtResource("99_svgicon")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 60

@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://brtx2a77gseky"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://brtx2a77gseky"]
 
+[ext_resource type="Texture2D" uid="uid://mvk01mw6obav" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Fine_Pathfinder_Helm.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_o4lwn"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_slb82"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_wfev5"]
@@ -43,7 +44,7 @@ bonus_stats = Dictionary[int, ExtResource("1_o4lwn")]({
 item_id = "11106084143-39914-13121011-491515-5661116089987"
 name = "Fine Pathfinder Helm"
 rarity = 0
-icon = SubResource("AtlasTexture_msgwj")
+icon = ExtResource("99_svgicon")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 20

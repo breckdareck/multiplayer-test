@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://di5xro7njjpx1"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://di5xro7njjpx1"]
 
+[ext_resource type="Texture2D" uid="uid://d3tgc4m347uvu" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Rough_Pathfinder_Mail.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_ui3hn"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_hwxn4"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_d1ore"]
@@ -44,7 +45,7 @@ bonus_stats = Dictionary[int, ExtResource("1_ui3hn")]({
 item_id = "214121439103-101150-8101214-1213104-151481121214172128"
 name = "Rough Pathfinder Mail"
 rarity = 0
-icon = SubResource("AtlasTexture_hvd4s")
+icon = ExtResource("99_svgicon")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 8

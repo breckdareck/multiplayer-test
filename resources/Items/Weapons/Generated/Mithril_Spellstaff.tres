@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://b0mqto5eh0yut"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://b0mqto5eh0yut"]
 
+[ext_resource type="Texture2D" uid="uid://ct7hine82svyt" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Mithril_Spellstaff.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_m7u3w"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_4m0ny"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_4a8l3"]
@@ -40,7 +41,7 @@ bonus_stats = Dictionary[int, ExtResource("1_m7u3w")]({
 item_id = "315311214115-1110815-37615-50100-0106111256141313514"
 name = "Mithril Spellstaff"
 rarity = 0
-icon = SubResource("AtlasTexture_2blsl")
+icon = ExtResource("99_svgicon")
 description = "A conduit of arcane power wielded by Mages."
 item_type = 1
 item_level = 43

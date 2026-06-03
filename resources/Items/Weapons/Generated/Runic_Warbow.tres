@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://crsk4k0o3g8dl"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://crsk4k0o3g8dl"]
 
+[ext_resource type="Texture2D" uid="uid://dtmub26m171lo" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Runic_Warbow.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_j8hvw"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_f0iv5"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_nxyqr"]
@@ -40,7 +41,7 @@ bonus_stats = Dictionary[int, ExtResource("1_j8hvw")]({
 item_id = "6914047613-711215-9131314-12815-1561056542813411"
 name = "Runic Warbow"
 rarity = 0
-icon = SubResource("AtlasTexture_wjulw")
+icon = ExtResource("99_svgicon")
 description = "A finely strung bow built for an Archer's precision."
 item_type = 1
 item_level = 68

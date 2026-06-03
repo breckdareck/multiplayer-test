@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=7 format=3 uid="uid://dyq152qra7wg2"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://dyq152qra7wg2"]
 
+[ext_resource type="Texture2D" uid="uid://8bw2dsgfpkis" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Rough_Longsword.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_mebsi"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_5jak5"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_6yspd"]
@@ -32,7 +33,7 @@ bonus_stats = Dictionary[int, ExtResource("1_mebsi")]({
 item_id = "3110112816-21054-48715-151399-8110143312635110"
 name = "Rough Longsword"
 rarity = 0
-icon = SubResource("AtlasTexture_st5vx")
+icon = ExtResource("99_svgicon")
 description = "A balanced blade — the Swordsman's trusted companion."
 item_type = 1
 item_level = 8

@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://ri83qpqse0c"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://ri83qpqse0c"]
 
+[ext_resource type="Texture2D" uid="uid://bynw3tfi6eba4" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Mithril_Dirk.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_gljwd"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_1k8y2"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_k2cjh"]
@@ -40,7 +41,7 @@ bonus_stats = Dictionary[int, ExtResource("1_gljwd")]({
 item_id = "11123694415-8141510-136128-35103-01000712129915146"
 name = "Mithril Dirk"
 rarity = 0
-icon = SubResource("AtlasTexture_h63gr")
+icon = ExtResource("99_svgicon")
 description = "A swift, wickedly sharp blade prized by Rogues."
 item_type = 1
 item_level = 43

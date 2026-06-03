@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=7 format=3 uid="uid://bkjy2cic3sry5"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://bkjy2cic3sry5"]
 
+[ext_resource type="Texture2D" uid="uid://c3tgrfsbvp3k7" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Mithril_Longsword.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_wwi0a"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_n2rjw"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_6a8m1"]
@@ -32,7 +33,7 @@ bonus_stats = Dictionary[int, ExtResource("1_wwi0a")]({
 item_id = "1502106614-6836-22412-156513-9131014371121461"
 name = "Mithril Longsword"
 rarity = 0
-icon = SubResource("AtlasTexture_kwee4")
+icon = ExtResource("99_svgicon")
 description = "A balanced blade — the Swordsman's trusted companion."
 item_type = 1
 item_level = 43

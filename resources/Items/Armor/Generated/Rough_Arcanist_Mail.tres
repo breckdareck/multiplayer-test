@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://docyp526tj41b"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://docyp526tj41b"]
 
+[ext_resource type="Texture2D" uid="uid://db2akqm6m8bak" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Rough_Arcanist_Mail.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_5fx1a"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_fr60w"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_2sbk0"]
@@ -44,7 +45,7 @@ bonus_stats = Dictionary[int, ExtResource("1_5fx1a")]({
 item_id = "1529972115-8747-10141015-14393-461081321297912"
 name = "Rough Arcanist Mail"
 rarity = 0
-icon = SubResource("AtlasTexture_f8wjx")
+icon = ExtResource("99_svgicon")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
 item_level = 8

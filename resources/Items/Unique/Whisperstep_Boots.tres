@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=7 format=3 uid="uid://fgd4t0ud6thc"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://fgd4t0ud6thc"]
 
+[ext_resource type="Texture2D" uid="uid://q032fwp3021q" path="res://assets/sprites/Items/generated_svg/Unique/Whisperstep_Boots.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_bvgbh"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_l76df"]
 
@@ -35,7 +36,7 @@ bonus_stats = Dictionary[int, ExtResource("1_bvgbh")]({
 item_id = "135912511118-87158-9545-65115-994631060140411"
 name = "Whisperstep Boots"
 rarity = 4
-icon = SubResource("CompressedTexture2D_87w3h")
+icon = ExtResource("99_svgicon")
 description = "Not even stone remembers the tread of these boots."
 item_type = 1
 item_level = 45

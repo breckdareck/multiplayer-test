@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bsvmdwfjf17wh"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://bsvmdwfjf17wh"]
 
+[ext_resource type="Texture2D" uid="uid://cb3drfv3uabjw" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Pristine_Nightshade_Mail.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_qbsnq"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_1sgvm"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_fb72f"]
@@ -44,7 +45,7 @@ bonus_stats = Dictionary[int, ExtResource("1_qbsnq")]({
 item_id = "14312594158-1510111-710119-14781-11151435514450110"
 name = "Pristine Nightshade Mail"
 rarity = 0
-icon = SubResource("AtlasTexture_1v6ta")
+icon = ExtResource("99_svgicon")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 60

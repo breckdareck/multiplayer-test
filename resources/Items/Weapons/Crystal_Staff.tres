@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=7 format=3 uid="uid://c063aupqay4hj"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://c063aupqay4hj"]
 
+[ext_resource type="Texture2D" uid="uid://bl5o7snwc8h8n" path="res://assets/sprites/Items/generated_svg/Weapons/Crystal_Staff.svg" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_cst01"]
 [ext_resource type="Texture2D" uid="uid://cj4kv8pk70aal" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_cst01"]
 [ext_resource type="Script" uid="uid://mysmonmct4jm" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_cst01"]
@@ -33,7 +34,7 @@ bonus_stats = Dictionary[int, ExtResource("1_cst01")]({
 })
 item_id = "20260517013-400413-150113-40013-440401500040400413"
 name = "Crystal Staff"
-icon = SubResource("AtlasTexture_cst01")
+icon = ExtResource("99_svgicon")
 description = "A crystal-tipped staff that amplifies magical energy."
 item_type = 1
 item_level = 10

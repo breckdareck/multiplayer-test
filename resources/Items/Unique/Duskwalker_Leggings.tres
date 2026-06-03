@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bycsaocwy7e0a"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://bycsaocwy7e0a"]
 
+[ext_resource type="Texture2D" uid="uid://dyara6so0iskn" path="res://assets/sprites/Items/generated_svg/Unique/Duskwalker_Leggings.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_jpnuc"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_niqmn"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_fgacn"]
@@ -45,7 +46,7 @@ bonus_stats = Dictionary[int, ExtResource("1_jpnuc")]({
 item_id = "15513501138-71303-91197-149211-1110354938910112"
 name = "Duskwalker Leggings"
 rarity = 4
-icon = SubResource("AtlasTexture_c4ojk")
+icon = ExtResource("99_svgicon")
 description = "Leggings that fall silent the moment dusk takes the sky."
 item_type = 1
 item_level = 47

@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://ddh7tb3hp06bg"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://ddh7tb3hp06bg"]
 
+[ext_resource type="Texture2D" uid="uid://bde2rlmr28gap" path="res://assets/sprites/Items/generated_svg/Unique/Circlet_of_Insight.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_jwtfm"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_lbrn4"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_r1yuf"]
@@ -43,7 +44,7 @@ bonus_stats = Dictionary[int, ExtResource("1_jwtfm")]({
 item_id = "136717144-910413-1410132-03214-4101511111011815014"
 name = "Circlet of Insight"
 rarity = 4
-icon = SubResource("AtlasTexture_awmmj")
+icon = ExtResource("99_svgicon")
 description = "A silver circlet that sharpens every arcane thought."
 item_type = 1
 item_level = 40

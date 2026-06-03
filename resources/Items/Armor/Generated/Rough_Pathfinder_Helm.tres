@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://8uhd2tl3w1x4"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://8uhd2tl3w1x4"]
 
+[ext_resource type="Texture2D" uid="uid://deenkbluaowwr" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Rough_Pathfinder_Helm.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_5jtpo"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_vkwbk"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_uc4l3"]
@@ -43,7 +44,7 @@ bonus_stats = Dictionary[int, ExtResource("1_5jtpo")]({
 item_id = "2851423151-5911-71465-01095-512791012745897"
 name = "Rough Pathfinder Helm"
 rarity = 0
-icon = SubResource("AtlasTexture_qtxne")
+icon = ExtResource("99_svgicon")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 8

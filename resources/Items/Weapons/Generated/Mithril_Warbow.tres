@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://os8vdf6dgejv"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://os8vdf6dgejv"]
 
+[ext_resource type="Texture2D" uid="uid://lwiwy6kgdkjr" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Mithril_Warbow.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_unkgg"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_l0wsj"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_42e2f"]
@@ -40,7 +41,7 @@ bonus_stats = Dictionary[int, ExtResource("1_unkgg")]({
 item_id = "433645114-351512-61913-1111610-21423101181681"
 name = "Mithril Warbow"
 rarity = 0
-icon = SubResource("AtlasTexture_lg8pp")
+icon = ExtResource("99_svgicon")
 description = "A finely strung bow built for an Archer's precision."
 item_type = 1
 item_level = 43

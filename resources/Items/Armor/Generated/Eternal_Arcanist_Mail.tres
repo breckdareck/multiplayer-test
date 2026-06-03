@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://cck27vn4xu3hf"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://cck27vn4xu3hf"]
 
+[ext_resource type="Texture2D" uid="uid://dc603yql1a8cu" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Eternal_Arcanist_Mail.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_nrvld"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_ej8ik"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_yknod"]
@@ -44,7 +45,7 @@ bonus_stats = Dictionary[int, ExtResource("1_nrvld")]({
 item_id = "00063427-51467-712111-251310-115384315849614"
 name = "Eternal Arcanist Mail"
 rarity = 0
-icon = SubResource("AtlasTexture_nkxy2")
+icon = ExtResource("99_svgicon")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
 item_level = 100

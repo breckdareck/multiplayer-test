@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://b5vu7nstoh5ua"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://b5vu7nstoh5ua"]
 
+[ext_resource type="Texture2D" uid="uid://b3di8b03fp8bp" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Worn_Arcanist_Legguards.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_sm0gi"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_k1itk"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_hqns8"]
@@ -45,7 +46,7 @@ bonus_stats = Dictionary[int, ExtResource("1_sm0gi")]({
 item_id = "121220014143-213014-910128-03814-21565314715112147"
 name = "Worn Arcanist Legguards"
 rarity = 0
-icon = SubResource("AtlasTexture_wth2y")
+icon = ExtResource("99_svgicon")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
 item_level = 1

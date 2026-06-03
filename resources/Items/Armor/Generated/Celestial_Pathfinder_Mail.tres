@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://cakxj73jgfcdo"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://cakxj73jgfcdo"]
 
+[ext_resource type="Texture2D" uid="uid://3wd3bi4sbrv7" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Celestial_Pathfinder_Mail.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_2duid"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_xini0"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_2awsx"]
@@ -44,7 +45,7 @@ bonus_stats = Dictionary[int, ExtResource("1_2duid")]({
 item_id = "1113010159514-215150-01345-7601-631271151012100140"
 name = "Celestial Pathfinder Mail"
 rarity = 0
-icon = SubResource("AtlasTexture_y8a6j")
+icon = ExtResource("99_svgicon")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 85

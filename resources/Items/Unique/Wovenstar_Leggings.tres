@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://w4uprhs276bk"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://w4uprhs276bk"]
 
+[ext_resource type="Texture2D" uid="uid://cy5fnq5rai2ah" path="res://assets/sprites/Items/generated_svg/Unique/Wovenstar_Leggings.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_ae1dq"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_gj6xh"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_14242"]
@@ -45,7 +46,7 @@ bonus_stats = Dictionary[int, ExtResource("1_ae1dq")]({
 item_id = "41511106515-01292-1410146-13917-310101231311246150"
 name = "Wovenstar Leggings"
 rarity = 4
-icon = SubResource("AtlasTexture_v3vg1")
+icon = ExtResource("99_svgicon")
 description = "Leggings woven from threads of captured starlight."
 item_type = 1
 item_level = 52

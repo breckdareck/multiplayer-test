@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://dvjgc0mtbsijh"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://dvjgc0mtbsijh"]
 
+[ext_resource type="Texture2D" uid="uid://dctw85vsu5aal" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Runic_Spellstaff.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_cs06l"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_wfhup"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_q1dff"]
@@ -40,7 +41,7 @@ bonus_stats = Dictionary[int, ExtResource("1_cs06l")]({
 item_id = "24914131350-14711-815134-11111010-130117113231312714"
 name = "Runic Spellstaff"
 rarity = 0
-icon = SubResource("AtlasTexture_hglhm")
+icon = ExtResource("99_svgicon")
 description = "A conduit of arcane power wielded by Mages."
 item_type = 1
 item_level = 68

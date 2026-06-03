@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bpbc7ldve83l3"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://bpbc7ldve83l3"]
 
+[ext_resource type="Texture2D" uid="uid://cjmff3nyggnm7" path="res://assets/sprites/Items/generated_svg/Unique/Windrunners_Garb.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_d1s5j"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_x7ovx"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_70t8g"]
@@ -44,7 +45,7 @@ bonus_stats = Dictionary[int, ExtResource("1_d1s5j")]({
 item_id = "0151001009-315135-2170-2869-15514610147106931"
 name = "Windrunner's Garb"
 rarity = 4
-icon = SubResource("AtlasTexture_alm5x")
+icon = ExtResource("99_svgicon")
 description = "Featherlight armour that never slows its wearer."
 item_type = 1
 item_level = 50

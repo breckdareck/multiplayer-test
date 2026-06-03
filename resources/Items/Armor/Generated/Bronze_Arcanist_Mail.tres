@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://ccvpolgyp0erg"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://ccvpolgyp0erg"]
 
+[ext_resource type="Texture2D" uid="uid://c5ga0wcn7gi7s" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Bronze_Arcanist_Mail.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_1j21m"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_gbok5"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_wn62m"]
@@ -44,7 +45,7 @@ bonus_stats = Dictionary[int, ExtResource("1_1j21m")]({
 item_id = "1210148141432-1514112-157715-109158-1371332111612436"
 name = "Bronze Arcanist Mail"
 rarity = 0
-icon = SubResource("AtlasTexture_gj033")
+icon = ExtResource("99_svgicon")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
 item_level = 13

@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://b8jtdcd6027mg"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://b8jtdcd6027mg"]
 
+[ext_resource type="Texture2D" uid="uid://cs6nv2mh7wead" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Celestial_Spellstaff.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_7xvao"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_p2m3p"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_xtkm0"]
@@ -40,7 +41,7 @@ bonus_stats = Dictionary[int, ExtResource("1_7xvao")]({
 item_id = "8412215733-8141515-0465-815110-868491061410479"
 name = "Celestial Spellstaff"
 rarity = 0
-icon = SubResource("AtlasTexture_db5nn")
+icon = ExtResource("99_svgicon")
 description = "A conduit of arcane power wielded by Mages."
 item_type = 1
 item_level = 85

@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://ylnur60j6qen"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://ylnur60j6qen"]
 
+[ext_resource type="Texture2D" uid="uid://cwy7sihfwracw" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Worn_Warbow.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_xwl3g"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_p52t4"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_0lljd"]
@@ -40,7 +41,7 @@ bonus_stats = Dictionary[int, ExtResource("1_xwl3g")]({
 item_id = "855729212-1213010-4837-0430-141382531461211115"
 name = "Worn Warbow"
 rarity = 0
-icon = SubResource("AtlasTexture_flmjr")
+icon = ExtResource("99_svgicon")
 description = "A finely strung bow built for an Archer's precision."
 item_type = 1
 item_level = 1

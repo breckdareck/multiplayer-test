@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://w2ujv0djadiv"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://w2ujv0djadiv"]
 
+[ext_resource type="Texture2D" uid="uid://b5onhgkiiov18" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Runic_Arcanist_Legguards.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_xtwf3"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_u6bpo"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_081sj"]
@@ -45,7 +46,7 @@ bonus_stats = Dictionary[int, ExtResource("1_xtwf3")]({
 item_id = "1001010151315-261214-15541-4495-415871484126393"
 name = "Runic Arcanist Legguards"
 rarity = 0
-icon = SubResource("AtlasTexture_mquc6")
+icon = ExtResource("99_svgicon")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
 item_level = 68

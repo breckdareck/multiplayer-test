@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://bed733l2gnykm"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bed733l2gnykm"]
 
+[ext_resource type="Texture2D" uid="uid://biuj8nasr2kjk" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Astral_Vanguard_Boots.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_c3tv7"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_lvkt2"]
 
@@ -41,7 +42,7 @@ bonus_stats = Dictionary[int, ExtResource("1_c3tv7")]({
 item_id = "348497113-45112-06134-28121-1151141056121353"
 name = "Astral Vanguard Boots"
 rarity = 0
-icon = SubResource("CompressedTexture2D_xoqof")
+icon = ExtResource("99_svgicon")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 93

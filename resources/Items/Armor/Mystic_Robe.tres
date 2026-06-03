@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=6 format=3 uid="uid://do0m6107vwbor"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=7 format=3 uid="uid://do0m6107vwbor"]
 
+[ext_resource type="Texture2D" uid="uid://by3fpuxy7eo33" path="res://assets/sprites/Items/generated_svg/Armor/Mystic_Robe.svg" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_mr01"]
 [ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="2_pw4qg"]
 [ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_mr01"]
@@ -23,7 +24,7 @@ bonus_stats = Dictionary[int, ExtResource("1_mr01")]({
 })
 item_id = "20260517017-800817-150117-80017-880801500080800817"
 name = "Mystic Robe"
-icon = SubResource("AtlasTexture_pw4qg")
+icon = ExtResource("99_svgicon")
 description = "A robe woven with protective enchantments."
 item_type = 1
 item_level = 10

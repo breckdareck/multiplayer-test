@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://cgx6txcprkqky"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://cgx6txcprkqky"]
 
+[ext_resource type="Texture2D" uid="uid://c16kmaqq7b7rc" path="res://assets/sprites/Items/generated_svg/Unique/Cloak_of_the_Nightshade.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_usxl4"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_tubgu"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_70x40"]
@@ -44,7 +45,7 @@ bonus_stats = Dictionary[int, ExtResource("1_usxl4")]({
 item_id = "74110128812-00911-06147-9347-2014504212151532"
 name = "Cloak of the Nightshade"
 rarity = 4
-icon = SubResource("AtlasTexture_02i0o")
+icon = ExtResource("99_svgicon")
 description = "A living shadow worn as a cloak."
 item_type = 1
 item_level = 50

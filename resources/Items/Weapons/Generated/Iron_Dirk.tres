@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://cqw6b2643qiim"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://cqw6b2643qiim"]
 
+[ext_resource type="Texture2D" uid="uid://ddmk6cuqbwfwd" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Iron_Dirk.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_xxiir"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_2d68a"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_jcrdx"]
@@ -40,7 +41,7 @@ bonus_stats = Dictionary[int, ExtResource("1_xxiir")]({
 item_id = "4911314200-0945-109113-4369-4114157924151310"
 name = "Iron Dirk"
 rarity = 0
-icon = SubResource("AtlasTexture_32t3g")
+icon = ExtResource("99_svgicon")
 description = "A swift, wickedly sharp blade prized by Rogues."
 item_type = 1
 item_level = 27

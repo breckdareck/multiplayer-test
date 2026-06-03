@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://cao2cytte4bbq"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://cao2cytte4bbq"]
 
+[ext_resource type="Texture2D" uid="uid://6x3bhbhu77wh" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Dragonbone_Nightshade_Boots.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_j631d"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_jrvgh"]
 
@@ -42,7 +43,7 @@ bonus_stats = Dictionary[int, ExtResource("1_j631d")]({
 item_id = "1498312611-1461512-55129-5354-12901315152485101"
 name = "Dragonbone Nightshade Boots"
 rarity = 0
-icon = SubResource("CompressedTexture2D_uejma")
+icon = ExtResource("99_svgicon")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 77

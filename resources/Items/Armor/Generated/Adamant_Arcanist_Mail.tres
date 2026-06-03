@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bmvpm87d13ms5"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://bmvpm87d13ms5"]
 
+[ext_resource type="Texture2D" uid="uid://dwwmahymsyqp5" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Adamant_Arcanist_Mail.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_8gwgu"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_f4gpo"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_ufy56"]
@@ -44,7 +45,7 @@ bonus_stats = Dictionary[int, ExtResource("1_8gwgu")]({
 item_id = "6812157815-1341315-31215-991313-1371341313111312151413"
 name = "Adamant Arcanist Mail"
 rarity = 0
-icon = SubResource("AtlasTexture_y47xm")
+icon = ExtResource("99_svgicon")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
 item_level = 50

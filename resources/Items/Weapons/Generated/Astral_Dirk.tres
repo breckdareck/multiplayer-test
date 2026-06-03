@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://b85iykvguv1j1"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://b85iykvguv1j1"]
 
+[ext_resource type="Texture2D" uid="uid://be548jwjpf3mi" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Astral_Dirk.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_enu8n"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_ajm1p"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_dvywn"]
@@ -40,7 +41,7 @@ bonus_stats = Dictionary[int, ExtResource("1_enu8n")]({
 item_id = "1102671100-02615-1415114-951110-71201342413104611"
 name = "Astral Dirk"
 rarity = 0
-icon = SubResource("AtlasTexture_bx08p")
+icon = ExtResource("99_svgicon")
 description = "A swift, wickedly sharp blade prized by Rogues."
 item_type = 1
 item_level = 93

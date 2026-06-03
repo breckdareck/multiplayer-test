@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://bxa4r58jacqk4"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://bxa4r58jacqk4"]
 
+[ext_resource type="Texture2D" uid="uid://b03y7rsrplf2i" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Bronze_Dirk.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_dgwri"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_5d6pp"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_sd1sb"]
@@ -40,7 +41,7 @@ bonus_stats = Dictionary[int, ExtResource("1_dgwri")]({
 item_id = "1218835210-15224-10141414-45713-920121401011155714"
 name = "Bronze Dirk"
 rarity = 0
-icon = SubResource("AtlasTexture_43otc")
+icon = ExtResource("99_svgicon")
 description = "A swift, wickedly sharp blade prized by Rogues."
 item_type = 1
 item_level = 13

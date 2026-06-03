@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://dcb8jb0rdsdf4"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://dcb8jb0rdsdf4"]
 
+[ext_resource type="Texture2D" uid="uid://ct2flmdtgmotf" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Fine_Spellstaff.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_ihqxl"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_qq8pw"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_jbvrs"]
@@ -40,7 +41,7 @@ bonus_stats = Dictionary[int, ExtResource("1_ihqxl")]({
 item_id = "423125101310-91500-04125-111514-10101010121467999"
 name = "Fine Spellstaff"
 rarity = 0
-icon = SubResource("AtlasTexture_n5ki6")
+icon = ExtResource("99_svgicon")
 description = "A conduit of arcane power wielded by Mages."
 item_type = 1
 item_level = 20

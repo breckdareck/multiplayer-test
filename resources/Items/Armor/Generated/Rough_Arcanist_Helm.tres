@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bstqemk8a5coc"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://bstqemk8a5coc"]
 
+[ext_resource type="Texture2D" uid="uid://be5f8s5yjiabe" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Rough_Arcanist_Helm.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_6pw7u"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_nqgel"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_dlj54"]
@@ -43,7 +44,7 @@ bonus_stats = Dictionary[int, ExtResource("1_6pw7u")]({
 item_id = "4093614126-140212-1952-91564-2138014127321454"
 name = "Rough Arcanist Helm"
 rarity = 0
-icon = SubResource("AtlasTexture_65cm4")
+icon = ExtResource("99_svgicon")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
 item_level = 8

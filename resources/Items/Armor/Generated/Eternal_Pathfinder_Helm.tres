@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://xr7oiuydpfbs"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://xr7oiuydpfbs"]
 
+[ext_resource type="Texture2D" uid="uid://d4cqsmwiv8jxg" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Eternal_Pathfinder_Helm.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_6mnhy"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_k7641"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_ys250"]
@@ -43,7 +44,7 @@ bonus_stats = Dictionary[int, ExtResource("1_6mnhy")]({
 item_id = "111515151412315-11503-1413211-140315-1591141131487842"
 name = "Eternal Pathfinder Helm"
 rarity = 0
-icon = SubResource("AtlasTexture_g3wdd")
+icon = ExtResource("99_svgicon")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 100

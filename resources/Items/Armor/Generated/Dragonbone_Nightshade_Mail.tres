@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://f5oys7hbm6xs"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://f5oys7hbm6xs"]
 
+[ext_resource type="Texture2D" uid="uid://lp6slddc45sl" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Dragonbone_Nightshade_Mail.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_y2crb"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_85tw1"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_qonjy"]
@@ -44,7 +45,7 @@ bonus_stats = Dictionary[int, ExtResource("1_y2crb")]({
 item_id = "1110012101224-11533-151104-215115-46133121115413101115"
 name = "Dragonbone Nightshade Mail"
 rarity = 0
-icon = SubResource("AtlasTexture_2a63r")
+icon = ExtResource("99_svgicon")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 77

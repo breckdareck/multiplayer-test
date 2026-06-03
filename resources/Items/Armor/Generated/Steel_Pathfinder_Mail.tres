@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://co8p1yqhj81dl"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://co8p1yqhj81dl"]
 
+[ext_resource type="Texture2D" uid="uid://d05hkjyqypmuw" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Steel_Pathfinder_Mail.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_w3yyk"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_gb8a1"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_sgxb7"]
@@ -44,7 +45,7 @@ bonus_stats = Dictionary[int, ExtResource("1_w3yyk")]({
 item_id = "41440913118-15098-141522-132210-101111115101481131111"
 name = "Steel Pathfinder Mail"
 rarity = 0
-icon = SubResource("AtlasTexture_ks2p8")
+icon = ExtResource("99_svgicon")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 35

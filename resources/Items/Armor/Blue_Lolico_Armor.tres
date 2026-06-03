@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=6 format=3 uid="uid://bdgp1aag6ak44"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=7 format=3 uid="uid://bdgp1aag6ak44"]
 
+[ext_resource type="Texture2D" uid="uid://cptqkcaj0qie2" path="res://assets/sprites/Items/generated_svg/Armor/Blue_Lolico_Armor.svg" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_umika"]
 [ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="2_d23in"]
 [ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_rwekt"]
@@ -22,7 +23,7 @@ bonus_stats = Dictionary[int, ExtResource("1_umika")]({
 })
 item_id = "114404121315-6958-061515-3319-121412107760451412"
 name = "Blue Lolico Armor"
-icon = SubResource("AtlasTexture_3ujlu")
+icon = ExtResource("99_svgicon")
 item_type = 1
 item_level = 10
 metadata/_custom_type_script = "uid://c2fkjsnluarqk"

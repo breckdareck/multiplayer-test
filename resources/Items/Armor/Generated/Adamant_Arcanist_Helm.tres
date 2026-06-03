@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bhcl0oe6us71"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://bhcl0oe6us71"]
 
+[ext_resource type="Texture2D" uid="uid://c7u5r1486he45" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Adamant_Arcanist_Helm.svg" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_x28rw"]
 [ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="2_s0n44"]
 [ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_wdruj"]
@@ -42,7 +43,7 @@ bonus_stats = Dictionary[int, ExtResource("1_x28rw")]({
 })
 item_id = "131339314108-104132-15318-2484-7213581408121107"
 name = "Adamant Arcanist Helm"
-icon = SubResource("AtlasTexture_74vjy")
+icon = ExtResource("99_svgicon")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
 item_level = 50

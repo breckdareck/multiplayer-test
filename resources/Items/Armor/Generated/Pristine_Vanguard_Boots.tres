@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://dc40odn527gy3"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://dc40odn527gy3"]
 
+[ext_resource type="Texture2D" uid="uid://cnll2sl7dortx" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Pristine_Vanguard_Boots.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_quxpr"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_u51hr"]
 
@@ -41,7 +42,7 @@ bonus_stats = Dictionary[int, ExtResource("1_quxpr")]({
 item_id = "6131541451012-118810-11332-1201110-7600570615862"
 name = "Pristine Vanguard Boots"
 rarity = 0
-icon = SubResource("CompressedTexture2D_abc3q")
+icon = ExtResource("99_svgicon")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 60

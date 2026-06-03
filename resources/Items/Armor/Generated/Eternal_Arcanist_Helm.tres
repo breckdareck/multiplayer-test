@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://qqe4gvwm03ia"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://qqe4gvwm03ia"]
 
+[ext_resource type="Texture2D" uid="uid://dq0agqv0cypb6" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Eternal_Arcanist_Helm.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_kajqj"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_o6h3k"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_r77cj"]
@@ -43,7 +44,7 @@ bonus_stats = Dictionary[int, ExtResource("1_kajqj")]({
 item_id = "612715821012-71245-251112-1141512-1413531501411151612"
 name = "Eternal Arcanist Helm"
 rarity = 0
-icon = SubResource("AtlasTexture_7pyse")
+icon = ExtResource("99_svgicon")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
 item_level = 100

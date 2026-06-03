@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://c54b320xmrwq8"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://c54b320xmrwq8"]
 
+[ext_resource type="Texture2D" uid="uid://chm8ncclm0o4c" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Pristine_Pathfinder_Mail.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_y28f8"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_t0diq"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_3r6yk"]
@@ -44,7 +45,7 @@ bonus_stats = Dictionary[int, ExtResource("1_y28f8")]({
 item_id = "11113315813-151145-710141-01202-091311014367389"
 name = "Pristine Pathfinder Mail"
 rarity = 0
-icon = SubResource("AtlasTexture_ahmqq")
+icon = ExtResource("99_svgicon")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 60

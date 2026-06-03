@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://chmroxvv7xpvo"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://chmroxvv7xpvo"]
 
+[ext_resource type="Texture2D" uid="uid://bhx80yybdy2i6" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Pristine_Warbow.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_0ecrg"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_yj7cp"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_nae4h"]
@@ -40,7 +41,7 @@ bonus_stats = Dictionary[int, ExtResource("1_0ecrg")]({
 item_id = "3151290131411-73512-14151311-72154-151292713333131513"
 name = "Pristine Warbow"
 rarity = 0
-icon = SubResource("AtlasTexture_cm8vm")
+icon = ExtResource("99_svgicon")
 description = "A finely strung bow built for an Archer's precision."
 item_type = 1
 item_level = 60

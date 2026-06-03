@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://d1lchd7uem6cm"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://d1lchd7uem6cm"]
 
+[ext_resource type="Texture2D" uid="uid://d4ia88x70syo0" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Pristine_Dirk.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_vgkg4"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_4ieam"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_jdpmq"]
@@ -40,7 +41,7 @@ bonus_stats = Dictionary[int, ExtResource("1_vgkg4")]({
 item_id = "15102723613-86127-10141214-10481-621411131241312111215"
 name = "Pristine Dirk"
 rarity = 0
-icon = SubResource("AtlasTexture_xxk0y")
+icon = ExtResource("99_svgicon")
 description = "A swift, wickedly sharp blade prized by Rogues."
 item_type = 1
 item_level = 60

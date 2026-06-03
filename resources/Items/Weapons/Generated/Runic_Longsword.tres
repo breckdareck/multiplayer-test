@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=7 format=3 uid="uid://sfpfbpryubrf"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://sfpfbpryubrf"]
 
+[ext_resource type="Texture2D" uid="uid://h4tlw3ltfhnh" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Runic_Longsword.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_m8cd0"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_8e0e0"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_cj15m"]
@@ -32,7 +33,7 @@ bonus_stats = Dictionary[int, ExtResource("1_m8cd0")]({
 item_id = "01281514099-541210-2396-010117-09214261081213130"
 name = "Runic Longsword"
 rarity = 0
-icon = SubResource("AtlasTexture_hnpsj")
+icon = ExtResource("99_svgicon")
 description = "A balanced blade — the Swordsman's trusted companion."
 item_type = 1
 item_level = 68

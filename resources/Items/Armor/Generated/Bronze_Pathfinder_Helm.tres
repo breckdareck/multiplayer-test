@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://ca2xrw574xxf5"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://ca2xrw574xxf5"]
 
+[ext_resource type="Texture2D" uid="uid://bkx1ck6hp6ui8" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Bronze_Pathfinder_Helm.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_uai2l"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_g18rj"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_0jcka"]
@@ -43,7 +44,7 @@ bonus_stats = Dictionary[int, ExtResource("1_uai2l")]({
 item_id = "0118121314613-1012108-157159-16011-49676781315850"
 name = "Bronze Pathfinder Helm"
 rarity = 0
-icon = SubResource("AtlasTexture_4e3ji")
+icon = ExtResource("99_svgicon")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 13

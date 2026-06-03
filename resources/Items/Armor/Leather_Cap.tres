@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=6 format=3 uid="uid://btbl7rcodnd22"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=7 format=3 uid="uid://btbl7rcodnd22"]
 
+[ext_resource type="Texture2D" uid="uid://b7bh823fjqli8" path="res://assets/sprites/Items/generated_svg/Armor/Leather_Cap.svg" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_lc001"]
 [ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="2_askfu"]
 [ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_lc001"]
@@ -22,7 +23,7 @@ bonus_stats = Dictionary[int, ExtResource("1_lc001")]({
 })
 item_id = "20260517005-500505-060505-50005-550500600050500505"
 name = "Leather Cap"
-icon = SubResource("AtlasTexture_82wnh")
+icon = ExtResource("99_svgicon")
 description = "A sturdy leather cap."
 item_type = 1
 item_level = 5

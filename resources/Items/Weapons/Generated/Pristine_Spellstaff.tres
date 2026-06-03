@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://ctjop8jwt1qvi"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://ctjop8jwt1qvi"]
 
+[ext_resource type="Texture2D" uid="uid://dns8x4vr61oi1" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Pristine_Spellstaff.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_5kijx"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_i3hub"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_po23y"]
@@ -40,7 +41,7 @@ bonus_stats = Dictionary[int, ExtResource("1_5kijx")]({
 item_id = "156101015715-15273-68514-1115913-80731311610435"
 name = "Pristine Spellstaff"
 rarity = 0
-icon = SubResource("AtlasTexture_n2kul")
+icon = ExtResource("99_svgicon")
 description = "A conduit of arcane power wielded by Mages."
 item_type = 1
 item_level = 60

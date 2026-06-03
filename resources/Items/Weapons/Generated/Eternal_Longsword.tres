@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=7 format=3 uid="uid://van2kysroraf"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://van2kysroraf"]
 
+[ext_resource type="Texture2D" uid="uid://b0j2314sfvayc" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Eternal_Longsword.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_vt2f5"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_q8jj5"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_4l0di"]
@@ -32,7 +33,7 @@ bonus_stats = Dictionary[int, ExtResource("1_vt2f5")]({
 item_id = "1815785117-97514-71029-144129-3213119481010643"
 name = "Eternal Longsword"
 rarity = 0
-icon = SubResource("AtlasTexture_4781a")
+icon = ExtResource("99_svgicon")
 description = "A balanced blade — the Swordsman's trusted companion."
 item_type = 1
 item_level = 100

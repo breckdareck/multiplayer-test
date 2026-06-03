@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=6 format=3 uid="uid://cf1vea7348tsp"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=7 format=3 uid="uid://cf1vea7348tsp"]
 
+[ext_resource type="Texture2D" uid="uid://bpp2ev48bcyjm" path="res://assets/sprites/Items/generated_svg/Armor/Blue_Jean_Shorts.svg" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_tr1jo"]
 [ext_resource type="Texture2D" uid="uid://bannlqdgbwmld" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_tr1jo"]
 [ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_2ii83"]
@@ -24,7 +25,7 @@ bonus_stats = Dictionary[int, ExtResource("1_tr1jo")]({
 })
 item_id = "0131000010-11502-8242-4653-7120151224113463"
 name = "Blue Jean Shorts"
-icon = SubResource("AtlasTexture_tr1jo")
+icon = ExtResource("99_svgicon")
 item_type = 1
 custom_item_value = -1
 metadata/_custom_type_script = "uid://c2fkjsnluarqk"

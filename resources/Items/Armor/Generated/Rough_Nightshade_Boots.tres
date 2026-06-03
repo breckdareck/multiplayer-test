@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://bbcica8pxsyak"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bbcica8pxsyak"]
 
+[ext_resource type="Texture2D" uid="uid://dppamxwvcoiaa" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Rough_Nightshade_Boots.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_hfb17"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_3ummj"]
 
@@ -42,7 +43,7 @@ bonus_stats = Dictionary[int, ExtResource("1_hfb17")]({
 item_id = "1515633141412-21551-11004-112156-4621010212152141"
 name = "Rough Nightshade Boots"
 rarity = 0
-icon = SubResource("CompressedTexture2D_6y5hh")
+icon = ExtResource("99_svgicon")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 8

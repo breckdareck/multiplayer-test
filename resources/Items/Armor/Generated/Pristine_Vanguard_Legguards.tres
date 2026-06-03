@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bxfroahh323q0"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://bxfroahh323q0"]
 
+[ext_resource type="Texture2D" uid="uid://dpfvjxt4ryc8v" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Pristine_Vanguard_Legguards.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_x1r03"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_1dgn8"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_er2xt"]
@@ -44,7 +45,7 @@ bonus_stats = Dictionary[int, ExtResource("1_x1r03")]({
 item_id = "134121092134-5173-104116-112103-6131714118137114"
 name = "Pristine Vanguard Legguards"
 rarity = 0
-icon = SubResource("AtlasTexture_m0nsx")
+icon = ExtResource("99_svgicon")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 60

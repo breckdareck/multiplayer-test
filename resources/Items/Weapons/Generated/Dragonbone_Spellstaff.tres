@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://c3vlo1pn338q3"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://c3vlo1pn338q3"]
 
+[ext_resource type="Texture2D" uid="uid://cvesoww0qvha2" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Dragonbone_Spellstaff.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_ceo8l"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_hvveu"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_q6bao"]
@@ -40,7 +41,7 @@ bonus_stats = Dictionary[int, ExtResource("1_ceo8l")]({
 item_id = "610139521310-1171513-159013-8886-1331427997121100"
 name = "Dragonbone Spellstaff"
 rarity = 0
-icon = SubResource("AtlasTexture_qkbq1")
+icon = ExtResource("99_svgicon")
 description = "A conduit of arcane power wielded by Mages."
 item_type = 1
 item_level = 77

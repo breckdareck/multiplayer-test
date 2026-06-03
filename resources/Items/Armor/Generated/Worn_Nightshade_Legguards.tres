@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bs4wwohupvlaw"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://bs4wwohupvlaw"]
 
+[ext_resource type="Texture2D" uid="uid://ffsjxsdcoarl" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Worn_Nightshade_Legguards.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_kqb1w"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_3xklr"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_1cjiv"]
@@ -45,7 +46,7 @@ bonus_stats = Dictionary[int, ExtResource("1_kqb1w")]({
 item_id = "0214144113-32101-11111513-42414-8362014121478712"
 name = "Worn Nightshade Legguards"
 rarity = 0
-icon = SubResource("AtlasTexture_1tjfe")
+icon = ExtResource("99_svgicon")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 1

@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://bjv3bsjpcfjg"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=10 format=3 uid="uid://bjv3bsjpcfjg"]
 
+[ext_resource type="Texture2D" uid="uid://dk44x64jpgqh6" path="res://assets/sprites/Items/generated_svg/Unique/Staff_of_Eternity.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_dms1g"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_1sq0n"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_5pn12"]
@@ -47,7 +48,7 @@ bonus_stats = Dictionary[int, ExtResource("1_dms1g")]({
 item_id = "14131014613815-8111311-83139-215712-3914141161315713114"
 name = "Staff of Eternity"
 rarity = 4
-icon = SubResource("AtlasTexture_omud0")
+icon = ExtResource("99_svgicon")
 description = "An ancient staff humming with limitless arcane reserves."
 item_type = 1
 item_level = 60

@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://bocksg68swcqh"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bocksg68swcqh"]
 
+[ext_resource type="Texture2D" uid="uid://dbdpw72ouh3fs" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Dragonbone_Pathfinder_Boots.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_fvlwm"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_8vo65"]
 
@@ -42,7 +43,7 @@ bonus_stats = Dictionary[int, ExtResource("1_fvlwm")]({
 item_id = "9117151430-2927-0961-1101510-111363681267995"
 name = "Dragonbone Pathfinder Boots"
 rarity = 0
-icon = SubResource("CompressedTexture2D_3pf6w")
+icon = ExtResource("99_svgicon")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 77

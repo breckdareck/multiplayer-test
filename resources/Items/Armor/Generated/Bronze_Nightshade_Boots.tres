@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://ch3qcp0floggb"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://ch3qcp0floggb"]
 
+[ext_resource type="Texture2D" uid="uid://bpe528evgl1nv" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Bronze_Nightshade_Boots.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_o20o6"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_bnius"]
 
@@ -42,7 +43,7 @@ bonus_stats = Dictionary[int, ExtResource("1_o20o6")]({
 item_id = "4781314151115-1221415-15100-01490-17325151271513127"
 name = "Bronze Nightshade Boots"
 rarity = 0
-icon = SubResource("CompressedTexture2D_6l0n5")
+icon = ExtResource("99_svgicon")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 13

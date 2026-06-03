@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bew502wcec1of"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://bew502wcec1of"]
 
+[ext_resource type="Texture2D" uid="uid://b8kdvlyqupfm8" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Bronze_Nightshade_Helm.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_85lv4"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_i0gg2"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_ergpi"]
@@ -43,7 +44,7 @@ bonus_stats = Dictionary[int, ExtResource("1_85lv4")]({
 item_id = "12021389102-8461-21536-9584-612141509151511433"
 name = "Bronze Nightshade Helm"
 rarity = 0
-icon = SubResource("AtlasTexture_8cxju")
+icon = ExtResource("99_svgicon")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 13

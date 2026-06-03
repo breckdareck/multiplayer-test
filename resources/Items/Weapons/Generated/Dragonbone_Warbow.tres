@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://b41dkyke16fhs"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://b41dkyke16fhs"]
 
+[ext_resource type="Texture2D" uid="uid://cuasn5fyb7owb" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Dragonbone_Warbow.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_xg4r5"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_8dcb2"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_qx572"]
@@ -40,7 +41,7 @@ bonus_stats = Dictionary[int, ExtResource("1_xg4r5")]({
 item_id = "8135155539-15022-1310811-12815-928911397121324"
 name = "Dragonbone Warbow"
 rarity = 0
-icon = SubResource("AtlasTexture_vddrw")
+icon = ExtResource("99_svgicon")
 description = "A finely strung bow built for an Archer's precision."
 item_type = 1
 item_level = 77

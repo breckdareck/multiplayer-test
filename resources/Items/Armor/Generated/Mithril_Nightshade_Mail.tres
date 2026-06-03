@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://db20k1pcbc68p"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://db20k1pcbc68p"]
 
+[ext_resource type="Texture2D" uid="uid://b8bjksjxm587g" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Mithril_Nightshade_Mail.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_w3uds"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_3gy13"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_3cfto"]
@@ -44,7 +45,7 @@ bonus_stats = Dictionary[int, ExtResource("1_w3uds")]({
 item_id = "1131430335-012515-201114-212122-7015814415156649"
 name = "Mithril Nightshade Mail"
 rarity = 0
-icon = SubResource("AtlasTexture_cv0kl")
+icon = ExtResource("99_svgicon")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 43

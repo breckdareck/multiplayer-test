@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://snnxwug6vvlb"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://snnxwug6vvlb"]
 
+[ext_resource type="Texture2D" uid="uid://c6i5t3wnfyru1" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Dragonbone_Dirk.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_18yy6"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_dwy0r"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_373k1"]
@@ -40,7 +41,7 @@ bonus_stats = Dictionary[int, ExtResource("1_18yy6")]({
 item_id = "1131311314140-76310-014150-1212012-14313630952676"
 name = "Dragonbone Dirk"
 rarity = 0
-icon = SubResource("AtlasTexture_g1alw")
+icon = ExtResource("99_svgicon")
 description = "A swift, wickedly sharp blade prized by Rogues."
 item_type = 1
 item_level = 77

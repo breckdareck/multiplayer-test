@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://b1np2fm1pxyg8"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://b1np2fm1pxyg8"]
 
+[ext_resource type="Texture2D" uid="uid://kfg7xrmm18q" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Runic_Vanguard_Mail.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_dhak0"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_onf0x"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_cqvll"]
@@ -43,7 +44,7 @@ bonus_stats = Dictionary[int, ExtResource("1_dhak0")]({
 item_id = "12613362120-117127-1210515-14084-112101561544141513"
 name = "Runic Vanguard Mail"
 rarity = 0
-icon = SubResource("AtlasTexture_halbl")
+icon = ExtResource("99_svgicon")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 68
