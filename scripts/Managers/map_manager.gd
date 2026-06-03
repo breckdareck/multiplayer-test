@@ -819,6 +819,25 @@ func broadcast_ground_zone_shaped(map_id: String, pos: Vector2, shape_type: int,
 	broadcast_to_map(map_id, func(peer_id): client_show_ground_zone_shaped.rpc_id(peer_id, pos, shape_type, radius, rect_size, duration, color), true, true)
 
 
+## [Server] Like broadcast_ground_zone, but ALSO renders on the host. Use this
+## for server-only effects (boss telegraphs / phase roars) that have NO
+## authoritative GroundZone node — unlike ability casters, which already render
+## their own zone locally on the host, so for those broadcast_ground_zone
+## (call_remote, host-skipped) is correct. Here the host would otherwise see
+## nothing: the client RPC is call_remote and broadcast_to_map skips peer 1, so
+## we spawn the host's visual copy directly. Remotes still get it via the RPC.
+func show_ground_zone_everywhere(map_id: String, pos: Vector2, radius: float, duration: float, color: Color) -> void:
+	if not multiplayer.is_server():
+		return
+	# Remote clients (bots excluded; host skipped — its RPC is call_remote anyway).
+	broadcast_to_map(map_id, func(peer_id): client_show_ground_zone_shaped.rpc_id(peer_id, pos, 0, radius, Vector2.ZERO, duration, color), true, true)
+	# Host renders its own copy, but only when the host is actually on this map
+	# (get_current_visible_map is the host's map; spawning otherwise would render
+	# a telegraph for a fight the host can't see).
+	if get_players_on_map(map_id).has(1):
+		_spawn_ground_zone_visual(pos, 0, radius, Vector2.ZERO, duration, color)
+
+
 ## [Server -> Client] Spawns a visual-only GroundZone on this peer. Routed
 ## through MapManager (an autoload that always resolves) rather than addressing
 ## any per-entity node. call_remote because the server already owns the

@@ -1153,7 +1153,9 @@ func _broadcast_boss_roar(color: Color) -> void:
 	if map_id == "":
 		return
 	var radius: float = enemy_data.special_attack_radius if enemy_data != null else 120.0
-	MapManager.broadcast_ground_zone(map_id, global_position, radius, 0.5, color)
+	# show_ground_zone_everywhere (not broadcast_ground_zone) so the HOST sees the
+	# flash too — the boss has no authoritative GroundZone node to render locally.
+	MapManager.show_ground_zone_everywhere(map_id, global_position, radius, 0.5, color)
 
 
 ## [Server] Per-frame special-attack scheduler. When off cooldown and a player is
@@ -1177,11 +1179,14 @@ func _boss_special_tick() -> void:
 	var radius: float = enemy_data.special_attack_radius
 	var telegraph_time: float = maxf(0.05, enemy_data.special_telegraph_time)
 
-	# Broadcast the growing/flashing telegraph ring to every peer (cosmetic only).
-	# Routed through MapManager so bot hosts (no client) also render it.
+	# Show the growing/flashing telegraph ring on EVERY peer incl. the host
+	# (cosmetic only). show_ground_zone_everywhere (not broadcast_ground_zone)
+	# because the boss has no authoritative GroundZone node, so the host must
+	# render its own copy or it sees no telegraph at all. Routed through MapManager
+	# so bot hosts (no client) also render it.
 	var map_id: String = _get_map_id()
 	if map_id != "":
-		MapManager.broadcast_ground_zone(map_id, telegraph_pos, radius, telegraph_time, Color(1.0, 0.2, 0.2, 0.55))
+		MapManager.show_ground_zone_everywhere(map_id, telegraph_pos, radius, telegraph_time, Color(1.0, 0.2, 0.2, 0.55))
 
 	# Land the authoritative AoE after the telegraph window. The damage is
 	# independent of whether any client rendered the telegraph.
