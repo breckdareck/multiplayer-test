@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="PetSkillBookData" load_steps=4 format=3 uid="uid://bbamwgjgjq64s"]
+[gd_resource type="Resource" script_class="PetSkillBookData" load_steps=5 format=3 uid="uid://bbamwgjgjq64s"]
 
+[ext_resource type="Texture2D" uid="uid://po58hs1bmqcc" path="res://assets/sprites/Items/generated_svg/PetItems/PetSkillBook_Magnet.svg" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://cio054l2yk8vc" path="res://scripts/Resources/PetSystem/PetSkillBookData.gd" id="1_book"]
 [ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="1_o4wn0"]
 
@@ -13,7 +14,7 @@ command_id = "magnet"
 item_id = "1169111171-512314-80107-11356-32574116381311"
 name = "Pet Magnet Command"
 rarity = 2
-icon = SubResource("AtlasTexture_i4v22")
+icon = ExtResource("99_svgicon")
 description = "Equip in your pet's Magnet slot to enable auto-pickup of items and coins on the same platform."
 item_type = 2
 item_level = 5

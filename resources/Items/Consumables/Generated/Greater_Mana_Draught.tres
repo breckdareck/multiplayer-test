@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ConsumableData" load_steps=5 format=3 uid="uid://buoekv8unc18u"]
+[gd_resource type="Resource" script_class="ConsumableData" load_steps=6 format=3 uid="uid://buoekv8unc18u"]
 
+[ext_resource type="Texture2D" uid="uid://dsfy5yc27ayr2" path="res://assets/sprites/Items/generated_svg/Consumables/Generated/Greater_Mana_Draught.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/Effects/Effect_RestoreMana.gd" id="1_l302j"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_t8eh6"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="3_4ami8"]
@@ -16,7 +17,7 @@ effect_properties = {
 }
 item_id = "9121142397-82157-3440-3079-53151112052291010"
 name = "Greater Mana Draught"
-icon = SubResource("AtlasTexture_ee5c7")
+icon = ExtResource("99_svgicon")
 description = "Restores 220 MP when consumed."
 item_type = 2
 item_level = -1

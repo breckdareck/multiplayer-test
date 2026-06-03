@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ConsumableData" load_steps=5 format=3 uid="uid://w62fp0tsjx7m"]
+[gd_resource type="Resource" script_class="ConsumableData" load_steps=6 format=3 uid="uid://w62fp0tsjx7m"]
 
+[ext_resource type="Texture2D" uid="uid://dbnyakuxby71p" path="res://assets/sprites/Items/generated_svg/Consumables/Generated/Superior_Mana_Draught.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/Effects/Effect_RestoreMana.gd" id="1_mm5fc"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_2gipl"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="3_0u248"]
@@ -16,7 +17,7 @@ effect_properties = {
 }
 item_id = "11015130792-1512133-3131410-46312-010911710815716"
 name = "Superior Mana Draught"
-icon = SubResource("AtlasTexture_pikgg")
+icon = ExtResource("99_svgicon")
 description = "Restores 720 MP when consumed."
 item_type = 2
 item_level = -1

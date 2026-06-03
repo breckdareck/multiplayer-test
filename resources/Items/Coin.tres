@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ItemData" load_steps=4 format=3 uid="uid://dm8sow65og8ec"]
+[gd_resource type="Resource" script_class="ItemData" load_steps=5 format=3 uid="uid://dm8sow65og8ec"]
 
+[ext_resource type="Texture2D" uid="uid://bta2b1fuwlmmd" path="res://assets/sprites/Items/generated_svg/Coin.svg" id="99_svgicon"]
 [ext_resource type="Texture2D" uid="uid://u3tpikp1eegv" path="res://assets/sprites/coin.png" id="1_fcv6u"]
 [ext_resource type="Script" uid="uid://ob3kriis8m08" path="res://scripts/Resources/ItemSystem/ItemData.gd" id="1_kolov"]
 
@@ -11,7 +12,7 @@ region = Rect2(0, 0, 16, 16)
 script = ExtResource("1_kolov")
 item_id = "1311311521-115105-52149-107154-11261210425103010"
 name = "Coin"
-icon = SubResource("AtlasTexture_fcv6u")
+icon = ExtResource("99_svgicon")
 description = "Monies"
 can_stack = true
 max_stack_amount = 999999999

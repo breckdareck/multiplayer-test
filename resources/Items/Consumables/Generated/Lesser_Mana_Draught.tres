@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ConsumableData" load_steps=5 format=3 uid="uid://ic87qn8144l7"]
+[gd_resource type="Resource" script_class="ConsumableData" load_steps=6 format=3 uid="uid://ic87qn8144l7"]
 
+[ext_resource type="Texture2D" uid="uid://cxeub5cplvq2y" path="res://assets/sprites/Items/generated_svg/Consumables/Generated/Lesser_Mana_Draught.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/Effects/Effect_RestoreMana.gd" id="1_qibw0"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_lqv41"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="3_to2qi"]
@@ -16,7 +17,7 @@ effect_properties = {
 }
 item_id = "51254132610-51233-131008-0471-11327971412910100"
 name = "Lesser Mana Draught"
-icon = SubResource("AtlasTexture_oqg4q")
+icon = ExtResource("99_svgicon")
 description = "Restores 40 MP when consumed."
 item_type = 2
 item_level = -1

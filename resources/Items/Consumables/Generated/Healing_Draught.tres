@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ConsumableData" load_steps=5 format=3 uid="uid://jcdx6xjdvlag"]
+[gd_resource type="Resource" script_class="ConsumableData" load_steps=6 format=3 uid="uid://jcdx6xjdvlag"]
 
+[ext_resource type="Texture2D" uid="uid://d0tihhyw5bxud" path="res://assets/sprites/Items/generated_svg/Consumables/Generated/Healing_Draught.svg" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/Effects/Effect_RestoreHealth.gd" id="1_l2cag"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_aeqam"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="3_aw5bc"]
@@ -16,7 +17,7 @@ effect_properties = {
 }
 item_id = "11214145113-1114122-138915-5630-1224699540292"
 name = "Healing Draught"
-icon = SubResource("AtlasTexture_qkebl")
+icon = ExtResource("99_svgicon")
 description = "Restores 150 HP when consumed."
 item_type = 2
 item_level = -1

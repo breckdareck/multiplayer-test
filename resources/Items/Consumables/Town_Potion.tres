@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ConsumableData" load_steps=5 format=3 uid="uid://cpjl8touji5vt"]
+[gd_resource type="Resource" script_class="ConsumableData" load_steps=6 format=3 uid="uid://cpjl8touji5vt"]
 
+[ext_resource type="Texture2D" uid="uid://bxlthn72g1gme" path="res://assets/sprites/Items/generated_svg/Consumables/Town_Potion.svg" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://ubv3mjjv4lvi" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="2_co4r6"]
 [ext_resource type="Script" uid="uid://04d0vey05pky" path="res://scripts/Resources/ItemSystem/Effects/Effect_TownPotion.gd" id="2_effect"]
@@ -13,7 +14,7 @@ script = ExtResource("1_script")
 effect_script = ExtResource("2_effect")
 item_id = "241241113113-11543-151297-56135-5582151997498"
 name = "Town Potion"
-icon = SubResource("AtlasTexture_kb1w3")
+icon = ExtResource("99_svgicon")
 description = "A magical potion that teleports you back to town."
 item_type = 2
 item_level = -1

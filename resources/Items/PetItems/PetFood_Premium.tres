@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="PetFoodData" load_steps=4 format=3 uid="uid://b7rmmqttojnk5"]
+[gd_resource type="Resource" script_class="PetFoodData" load_steps=5 format=3 uid="uid://b7rmmqttojnk5"]
 
+[ext_resource type="Texture2D" uid="uid://mehx0t8eh25p" path="res://assets/sprites/Items/generated_svg/PetItems/PetFood_Premium.svg" id="99_svgicon"]
 [ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="1_5dnw4"]
 [ext_resource type="Script" uid="uid://efkwonvx6blb" path="res://scripts/Resources/PetSystem/PetFoodData.gd" id="1_petfood"]
 
@@ -13,7 +14,7 @@ fullness_restore = 75.0
 item_id = "61464131444-41078-451413-7655-36143104263596"
 name = "Pet Food (Premium)"
 rarity = 2
-icon = SubResource("AtlasTexture_rpilj")
+icon = ExtResource("99_svgicon")
 description = "A gourmet meal for the discerning pet. Restores 75 fullness."
 item_type = 2
 item_level = 10

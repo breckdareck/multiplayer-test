@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="ConsumableData" load_steps=5 format=3 uid="uid://bwlru2cwcphdy"]
+[gd_resource type="Resource" script_class="ConsumableData" load_steps=6 format=3 uid="uid://bwlru2cwcphdy"]
 
+[ext_resource type="Texture2D" uid="uid://cpte0qnqnonpq" path="res://assets/sprites/Items/generated_svg/Consumables/Mana_Potion.svg" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://csghyfavie65m" path="res://scripts/Resources/ItemSystem/Effects/Effect_RestoreMana.gd" id="1_2vog4"]
 [ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="2_2vog4"]
 [ext_resource type="Script" uid="uid://ubv3mjjv4lvi" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="2_61u5h"]
@@ -16,7 +17,7 @@ effect_properties = {
 }
 item_id = "141461068712-0146-161214-1013213-15301351592513105"
 name = "Mana Potion"
-icon = SubResource("AtlasTexture_kv78n")
+icon = ExtResource("99_svgicon")
 description = "A mystical grape that restores 50 MP."
 item_type = 2
 item_level = -1
