@@ -663,10 +663,11 @@ func _on_body_hitbox_body_entered(body: Node) -> void:
 
 
 func _get_a_coefficient(level_diff: int) -> float:
-	# New formula: Damage is modified by 5% for every level of difference.
-	# If player is 10 levels lower (diff = -10), monster deals 50% more damage (A = 1.5).
-	# If player is 10 levels higher (diff = 10), monster deals 50% less damage (A = 0.5).
-	var modifier = 1.0 - (level_diff * 0.05)
+	# Damage is modified by 3% for every level of difference (softened from 5% on
+	# 2026-06-02 so a player a few levels ABOVE a mob isn't over-rewarded — a
+	# near-level mob should still bite). If player is 10 levels lower (diff = -10),
+	# monster deals 30% more damage (A = 1.3); 10 levels higher → 30% less (A = 0.7).
+	var modifier = 1.0 - (level_diff * 0.03)
 	return clamp(modifier, 0.1, 5.0) # Clamp damage from 10% to 500%
 
 
@@ -733,6 +734,30 @@ func damage_on_overlap(body: Node):
 
 		var a = _get_a_coefficient(level_diff)
 		var b = _get_b_coefficient(level_diff)
+
+		# --- Hit / Evasion roll (added 2026-06-02) ---
+		# Mirrors CombatComponent._execute_hit's hit-chance so the player's
+		# defensive stats apply to INCOMING hits too, not just outgoing ones.
+		# Previously the enemy dealt damage unconditionally — it ignored the
+		# player's EVASIONCHANCE (dagger passive / gear) entirely. Now:
+		#   base 95% at even level, ±3% per level of gap (enemy is the attacker,
+		#   so its accuracy improves when IT is higher level, i.e. -level_diff),
+		#   + the enemy's ACCURACY stat (0 by default — enemies have none),
+		#   − the player's EVASIONCHANCE. Floor 5%, ceil 100%.
+		# On a dodge: no damage, no knockback, and the player's on_dodge passive
+		# procs fire (the proc hook existed but nothing triggered it before).
+		var enemy_accuracy: float = 0.0
+		if stats_component.stats.has(Constants.StatType.ACCURACY):
+			enemy_accuracy = float(stats_component.stats[Constants.StatType.ACCURACY].total_value)
+		var player_evasion: float = 0.0
+		if player_stats.stats.has(Constants.StatType.EVASIONCHANCE):
+			player_evasion = float(player_stats.stats[Constants.StatType.EVASIONCHANCE].total_value)
+		var hit_chance: float = clampf(95.0 + (-level_diff * 3.0) + enemy_accuracy - player_evasion, 5.0, 100.0)
+		if randf() * 100.0 > hit_chance:
+			var dodger_ability = body.get_node_or_null("Components/Ability")
+			if dodger_ability and dodger_ability.has_method("try_trigger_procs"):
+				dodger_ability.try_trigger_procs("on_dodge", self, {"attacker": self})
+			return
 
 		# Defense mitigation — DIMINISHING RETURNS on effective defense.
 		# (Reworked 2026-06-02.) The old model subtracted a defense term that was

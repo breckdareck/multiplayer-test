@@ -17,13 +17,40 @@ import os
 BASE = os.path.join(os.path.dirname(__file__), "..", "assets", "curves")
 LEVELS = [1] + list(range(5, 101, 5))   # 1, 5, 10, ... 100 (linear interp between)
 
+# Early-game attack bump (added 2026-06-02). The bare L^1.5 ramp makes low-level
+# monster ATTACK tiny (L6~15), and because defense mitigation is attack-scaled
+# (def/(def+0.75*att) in enemy_base.damage_on_overlap), a small attack is heavily
+# mitigated AND further cut by the level-gap modifier — so a near-level low-level
+# mob felt toothless (a L6 Boar hit a L10 player for ~4). This adds a TENT-shaped
+# bonus that fades IN from L1, peaks at LOW_ATK_PEAK_LEVEL (so the very-first-mob
+# newbie experience stays gentle), then fades OUT to 0 by LOW_ATK_FADE_END — the
+# early "real combat" band hits meaningfully harder while L1-3 stay soft and L30+
+# endgame is untouched (the L100=1000 benchmark is preserved). Tune LOW_ATK_BONUS
+# up for more early-game lethality, down for less; re-run; done.
+LOW_ATK_BONUS = 20.0
+LOW_ATK_PEAK_LEVEL = 5.0
+LOW_ATK_FADE_END = 30.0
+
+
+def _atk_bonus(L):
+    if L <= LOW_ATK_PEAK_LEVEL:
+        frac = L / LOW_ATK_PEAK_LEVEL
+    else:
+        frac = max(0.0, 1.0 - (L - LOW_ATK_PEAK_LEVEL) / (LOW_ATK_FADE_END - LOW_ATK_PEAK_LEVEL))
+    return LOW_ATK_BONUS * frac
+
+
+def _attack(L):
+    return max(2, round(L ** 1.5 + _atk_bonus(L)))
+
+
 # (filename, uid, value_fn) -- uids preserved so enemy .tscn refs don't break.
 CURVES = [
-    # Attack ramps L^1.5: clear accelerating steps (L10~32, L30~164, L100=1000).
-    ("monster_wep_att_curve.tres",   "uid://c20efdba57fc", lambda L: max(2, round(L ** 1.5))),
+    # Attack: L^1.5 ramp + early-game tent bump (see _attack). L6~34, L30~164, L100=1000.
+    ("monster_wep_att_curve.tres",   "uid://c20efdba57fc", _attack),
     # Magic attack mirrors physical; magic already hits harder (player MAGICDEFENSE
     # is gear-only) so no extra multiplier here.
-    ("monster_magic_att_curve.tres", "uid://cf67a4a36687", lambda L: max(2, round(L ** 1.5))),
+    ("monster_magic_att_curve.tres", "uid://cf67a4a36687", _attack),
     # Enemy defense L^1.2 to ~452 at L100 (was hard-capped 260) so player attack /
     # better weapons stay meaningful at endgame and high mobs are real walls.
     ("monster_wep_def_curve.tres",   "uid://e847666d08f4", lambda L: round(1.8 * L ** 1.2)),
