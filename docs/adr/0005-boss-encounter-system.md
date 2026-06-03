@@ -110,6 +110,26 @@ bot host, with zero networking added.
   hit-stagger-immune (the special is committed once telegraphed). It is the
   established seam for any *future bespoke* boss mechanic: a new AI state and/or a
   component, never an inheritance fork.
+- **Special attacks are authored as `BossAttackData` resources** (`.tres`),
+  carried on `EnemyData.special_attacks: Array[BossAttackData]`. Each holds shape
+  (RECT/CIRCLE/CONE), forward offset, reach/band, **windup + hit timing**, an
+  **animation mode** (STRETCH the clip to the hit / HOLD a frame until the hit /
+  FREE), movement (NONE/DASH), damage mult, cooldown, and an optional
+  `logic_script: Script` hook (`on_windup_start`/`on_hit`/`on_recover`, mirroring
+  `ActiveBehaviorData.logic_script`) for fully bespoke attacks (a dragon's fire
+  breath = a CONE attack + a small logic script, *no new state code*). The
+  `enemy_boss_special` state is a **generic executor** that runs any
+  `BossAttackData`; bosses differ purely by editing resources in the inspector,
+  and a boss can have several distinct attacks (each with its own cooldown), the
+  gate picking the first off-cooldown, in-range one. **Back-compat:** when
+  `special_attacks` is empty, `EnemyData.get_special_attacks()` synthesises one
+  dash-slam from the legacy `special_attack_*` fields, so bosses that predate the
+  resource (the Eternal Warlord) keep working unchanged — and gain the STRETCH
+  anim-sync for free. **Decision:** chose a data resource + `logic_script` hook
+  (not a hardcoded per-boss state, nor an `AnimationPlayer` timeline) to stay
+  consistent with the `.tres`-driven content + `logic_script` patterns already in
+  the codebase; the inspector is the authoring surface, with a resource_editor
+  custom GUI as a possible follow-up.
 - Pooled/respawned bosses reset their phase/enrage/special state in `pool_reset`
   so a re-spawn starts the fight clean.
 - **Not yet verified in a live multiplayer session.** The phase/enrage logic and

@@ -115,10 +115,16 @@ var _boss_enraged: bool = false
 const _BOSS_PHASE_DAMAGE_STEP: float = 0.15
 ## Per-phase attack-speed bump (cooldown divisor) applied on each transition.
 const _BOSS_PHASE_ATTACK_SPEED_STEP: float = 0.10
-## Server clock (ms) at which the next telegraphed special may begin.
-var _boss_special_ready_at: int = 0
 ## True while a telegraphed special is mid-windup (suppresses re-scheduling).
 var _boss_special_pending: bool = false
+## Cached BossAttackData list (authored or legacy-synthesised), built once per spawn.
+var _special_attacks_cache: Array[BossAttackData] = []
+var _attacks_cached: bool = false
+## Per-attack next-ready server clock (ms), keyed by index into the attack list.
+var _attack_ready_at: Dictionary = {}
+## The attack the readiness gate picked for the in-progress windup, + its index.
+var _pending_special_attack: BossAttackData = null
+var _pending_special_idx: int = -1
 
 # --- Mark indicator (floating diamond over marked enemies) ---
 const _MARK_INDICATOR_SCRIPT := preload("res://scripts/Enemy/mark_indicator.gd")
@@ -282,7 +288,7 @@ func _ready() -> void:
 		# is gated to is_boss so non-boss enemies that somehow reach it no-op.
 		if enemy_data.is_boss:
 			health_component.health_changed.connect(_on_boss_health_changed)
-			_boss_special_ready_at = Time.get_ticks_msec() + int(enemy_data.special_attack_cooldown * 1000.0)
+			_init_boss_attacks()
 		body_hitbox.body_entered.connect(_on_body_hitbox_body_entered)
 		# Only connect animation_finished if AnimatedSprite2D exists (not on dedicated server)
 		if animated_sprite:
@@ -704,8 +710,10 @@ func pool_reset() -> void:
 	_boss_phase_idx = -1
 	_boss_enraged = false
 	_boss_special_pending = false
+	_pending_special_attack = null
+	_pending_special_idx = -1
 	if enemy_data != null and enemy_data.is_boss:
-		_boss_special_ready_at = Time.get_ticks_msec() + int(enemy_data.special_attack_cooldown * 1000.0)
+		_init_boss_attacks()
 
 	if respawnable:
 		global_position = initial_position
@@ -1195,19 +1203,41 @@ func _broadcast_boss_roar(color: Color) -> void:
 	broadcast_telegraph_ring(global_position, radius, 0.5, color)
 
 
-## [Server] Readiness GATE for the telegraphed special — the only boss code left
-## in _process. When off cooldown with a player in range, it hands control to the
-## "boss_special" state, which owns the telegraph + windup + AoE (see
-## enemy_boss_special.gd). Kept tiny on purpose: the behavior is a state, not a
-## scheduler buried in _process.
+## [Server] Builds + caches the boss's attack list (authored or legacy-synthesised)
+## and seeds each attack's cooldown so the boss doesn't special the instant it spawns.
+func _init_boss_attacks() -> void:
+	var list: Array[BossAttackData] = []
+	if enemy_data != null:
+		list = enemy_data.get_special_attacks()
+	_special_attacks_cache = list
+	_attacks_cached = true
+	_attack_ready_at.clear()
+	var now: int = Time.get_ticks_msec()
+	for i in _special_attacks_cache.size():
+		var atk: BossAttackData = _special_attacks_cache[i]
+		_attack_ready_at[i] = now + int(maxf(0.0, atk.cooldown) * 1000.0)
+
+
+func _get_boss_attacks() -> Array[BossAttackData]:
+	if not _attacks_cached:
+		_init_boss_attacks()
+	return _special_attacks_cache
+
+
+## The attack the readiness gate picked for the current windup — read by the
+## boss_special state on enter.
+func get_pending_special_attack() -> BossAttackData:
+	return _pending_special_attack
+
+
+## [Server] Readiness GATE for the telegraphed special — the only boss code left in
+## _process. Picks the first off-cooldown, in-range attack and hands control to the
+## "boss_special" state, which owns the telegraph + windup + AoE/dash (see
+## enemy_boss_special.gd). Kept tiny on purpose: the behaviour is a state + data.
 func _boss_special_tick() -> void:
-	if enemy_data.special_attack_cooldown <= 0.0:
-		return
 	if _boss_special_pending:
 		return
 	if health_component == null or health_component.is_dead:
-		return
-	if Time.get_ticks_msec() < _boss_special_ready_at:
 		return
 	if state_machine == null:
 		return
@@ -1218,31 +1248,60 @@ func _boss_special_tick() -> void:
 	var hit_state: Node = state_machine.get_node_or_null("hit")
 	if hit_state != null and state_machine.current_state == hit_state:
 		return
-	# Only wind up when there's actually a player in range to threaten.
-	if acquire_target() == null:
+	var target: Node2D = acquire_target()
+	if target == null:
 		return
 
-	_boss_special_pending = true
-	state_machine.change_state(special_state)
+	var now: int = Time.get_ticks_msec()
+	var attacks: Array[BossAttackData] = _get_boss_attacks()
+	for i in attacks.size():
+		var atk: BossAttackData = attacks[i]
+		if atk == null or atk.cooldown <= 0.0:
+			continue
+		if now < int(_attack_ready_at.get(i, 0)):
+			continue
+		if not _attack_target_in_range(atk, target):
+			continue
+		_pending_special_attack = atk
+		_pending_special_idx = i
+		_boss_special_pending = true
+		state_machine.change_state(special_state)
+		return
 
 
-## [Server] Re-arms the special's cooldown and clears the in-windup flag. Called
-## by the boss_special state on exit, whether the windup completed or was
-## interrupted (e.g. by death/stagger), so an interrupted windup can't instantly
-## re-telegraph.
+## Whether `target` is close enough to be worth opening this attack's windup.
+func _attack_target_in_range(atk: BossAttackData, target: Node2D) -> bool:
+	var d: float = global_position.distance_to(target.global_position)
+	return d <= atk.reach + 48.0  # small grace so the dash can close the gap
+
+
+## [Server] Re-arms the in-windup flag + the just-used attack's own cooldown.
+## Called by the boss_special state on exit, whether the windup completed or was
+## interrupted (death/stagger), so an interrupted windup can't instantly re-fire.
 func arm_boss_special_cooldown() -> void:
 	_boss_special_pending = false
-	if enemy_data != null:
-		_boss_special_ready_at = Time.get_ticks_msec() + int(enemy_data.special_attack_cooldown * 1000.0)
+	if _pending_special_attack != null and _pending_special_idx >= 0:
+		_attack_ready_at[_pending_special_idx] = Time.get_ticks_msec() + int(maxf(0.0, _pending_special_attack.cooldown) * 1000.0)
+	_pending_special_attack = null
+	_pending_special_idx = -1
 
 
-## [Server] Deals the special's AoE damage to every player inside the slam band —
-## an axis-aligned rectangle of `rect_size` (full width × height) centered on the
-## telegraphed `center`. Called by the boss_special state when its windup lands.
-## Reuses the player HealthComponent.take_damage path the normal enemy attack uses;
-## the damage carries the boss's phase/enrage outgoing multiplier. The short
-## vertical band means an airborne (jumped/dodged) player clears it.
-func deal_boss_special_damage(center: Vector2, rect_size: Vector2) -> void:
+## [Server] Shape-aware ground telegraph for `attack`, centered on `center`, facing
+## `facing` (-1/+1). RECT = slam band, CIRCLE = nova, CONE = forward fan (approx as a
+## band until a cone GroundZone visual lands). All-peer incl. host.
+func broadcast_attack_telegraph(attack: BossAttackData, center: Vector2, _facing: int, duration: float, color: Color) -> void:
+	match attack.shape:
+		BossAttackData.Shape.CIRCLE:
+			broadcast_telegraph_ring(center, attack.reach, duration, color)
+		_:  # RECT and (for now) CONE
+			broadcast_telegraph_rect(center, Vector2(attack.reach, attack.band_height), duration, color)
+
+
+## [Server] Deals `attack`'s AoE damage to every player inside its shape, centered
+## on the telegraphed `center` with the boss facing `facing` (-1/+1). RECT = AABB
+## band, CIRCLE = radius, CONE = forward fan within cone_angle. Reuses the player
+## HealthComponent.take_damage path; carries the boss's phase/enrage multiplier.
+func deal_boss_special_damage(attack: BossAttackData, center: Vector2, facing: int) -> void:
 	if not multiplayer.is_server() or _is_being_cleaned_up:
 		return
 	if health_component == null or health_component.is_dead:
@@ -1255,22 +1314,37 @@ func deal_boss_special_damage(center: Vector2, rect_size: Vector2) -> void:
 	if not stats_component.stats.has(att_stat):
 		return
 	var base_att: float = float(stats_component.stats.get(att_stat).total_value)
-	# Boss outgoing mult (phase + enrage) × the special's own multiplier.
-	var special_damage: int = maxi(1, roundi(base_att * _boss_outgoing_mult() * enemy_data.special_attack_damage_mult))
+	var special_damage: int = maxi(1, roundi(base_att * _boss_outgoing_mult() * attack.damage_mult))
 
-	var half_w: float = rect_size.x * 0.5
-	var half_h: float = rect_size.y * 0.5
 	for pid in _get_players_on_same_map():
 		var node: Node2D = PlayerManager.get_player_node(pid)
 		if not is_valid_target(node):
 			continue
-		var off: Vector2 = node.global_position - center
-		if absf(off.x) > half_w or absf(off.y) > half_h:
+		if not _point_in_attack(attack, center, facing, node.global_position):
 			continue
 		var health: HealthComponent = node.get_node_or_null("Components/Health")
 		if health == null or health.is_dead or health.is_invulnerable:
 			continue
 		health.take_damage(special_damage, self)
+
+
+## Shape hit-test: is `point` inside `attack`'s zone? RECT uses the telegraphed
+## centre + band (AABB); CIRCLE uses radius from the boss; CONE is a forward fan
+## from the boss apex within cone_angle_deg and `reach`.
+func _point_in_attack(attack: BossAttackData, center: Vector2, facing: int, point: Vector2) -> bool:
+	match attack.shape:
+		BossAttackData.Shape.CIRCLE:
+			return global_position.distance_to(point) <= attack.reach
+		BossAttackData.Shape.CONE:
+			var to_p: Vector2 = point - global_position
+			var fwd: float = to_p.x * float(facing)
+			if fwd <= 0.0 or to_p.length() > attack.reach:
+				return false
+			var ang: float = rad_to_deg(absf(to_p.angle_to(Vector2(float(facing), 0.0))))
+			return ang <= attack.cone_angle_deg * 0.5
+		_:  # RECT
+			var off: Vector2 = point - center
+			return absf(off.x) <= attack.reach * 0.5 and absf(off.y) <= attack.band_height * 0.5
 
 
 ## Returns this enemy's map id (the name after the "Map_" prefix), or "" when it
