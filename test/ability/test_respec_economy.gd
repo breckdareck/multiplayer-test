@@ -148,13 +148,30 @@ func test_ability_respec_all_blocked_when_poor() -> void:
 	assert_eq(ctx.inv.monies_amount, 100, "monies unchanged when blocked")
 	assert_eq(a.get_available_points_for_discipline("sword"), 3, "pools unchanged when blocked")
 
+## A real ability id that maps to the "sword" discipline (resolved dynamically).
+func _sword_ability_id(a) -> String:
+	for ability in ResourceManager.ability_data.values():
+		if a._ability_primary_discipline(ability) == "sword":
+			return ability.ability_id
+	return ""
+
 func test_ability_respec_all_succeeds_and_deducts_exact_cost() -> void:
 	var ctx := _make_owner(10, 1000)    # all cost = 600
 	var a := _mount_ability(ctx)
 	a._available_points_per_discipline = {"sword": 0, "bow": 0, "staff": 0, "dagger": 0}
+	a._ability_levels = {_sword_ability_id(a): 3}   # something actually spent to refund
 	var ok: bool = a._respec_all_local()
-	assert_true(ok, "respec_all succeeds with funds")
+	assert_true(ok, "respec_all succeeds with funds + spent points")
 	assert_eq(ctx.inv.monies_amount, 400, "exactly 600 (cost) deducted from 1000")
+
+func test_ability_respec_all_noop_when_nothing_spent_does_not_charge() -> void:
+	var ctx := _make_owner(10, 1000)
+	var a := _mount_ability(ctx)
+	a._available_points_per_discipline = {"sword": 0, "bow": 0, "staff": 0, "dagger": 0}
+	a._ability_levels = {}              # nothing spent anywhere
+	var ok: bool = a._respec_all_local()
+	assert_false(ok, "respec_all is a no-op when nothing is spent")
+	assert_eq(ctx.inv.monies_amount, 1000, "no charge for a no-op respec")
 
 
 # ── Ability per-discipline respec gate ────────────────────────────────────────
@@ -171,9 +188,19 @@ func test_ability_respec_discipline_succeeds_and_deducts() -> void:
 	var ctx := _make_owner(10, 1000)    # discipline cost = 200
 	var a := _mount_ability(ctx)
 	a._available_points_per_discipline = {"sword": 0, "bow": 0, "staff": 0, "dagger": 0}
+	a._ability_levels = {_sword_ability_id(a): 3}   # something spent in the sword tree
 	var ok: bool = a._respec_discipline_local("sword")
-	assert_true(ok, "discipline respec succeeds with funds")
+	assert_true(ok, "discipline respec succeeds with funds + spent points")
 	assert_eq(ctx.inv.monies_amount, 800, "exactly 200 (cost) deducted from 1000")
+
+func test_ability_respec_discipline_noop_when_nothing_spent_does_not_charge() -> void:
+	var ctx := _make_owner(10, 1000)
+	var a := _mount_ability(ctx)
+	a._available_points_per_discipline = {"sword": 0, "bow": 0, "staff": 0, "dagger": 0}
+	a._ability_levels = {}              # nothing spent in the sword tree
+	var ok: bool = a._respec_discipline_local("sword")
+	assert_false(ok, "discipline respec is a no-op when nothing is spent")
+	assert_eq(ctx.inv.monies_amount, 1000, "no charge for a no-op respec")
 
 func test_ability_respec_discipline_unknown_key_does_not_charge() -> void:
 	var ctx := _make_owner(10, 1000)

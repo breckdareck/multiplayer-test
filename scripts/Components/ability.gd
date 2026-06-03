@@ -1864,6 +1864,10 @@ func respec_discipline(disc_key: String) -> bool:
 func _respec_discipline_local(disc_key: String) -> bool:
 	if not _available_points_per_discipline.has(disc_key):
 		return false
+	# Nothing spent in this tree → nothing to refund; never charge for a no-op.
+	if _points_spent_in_discipline(disc_key) <= 0:
+		respec_denied.emit("discipline", "nothing_to_refund")
+		return false
 	if not _charge_respec("discipline"):
 		return false
 	var reset_ids: Array[String] = []
@@ -1903,6 +1907,10 @@ func _respec_ability_local(ability_id: String) -> bool:
 	var disc_key: String = _ability_primary_discipline(ability)
 	if disc_key == "" or not _available_points_per_discipline.has(disc_key):
 		return false
+	# No levels/upgrades on this ability → nothing to refund; never charge.
+	if _points_spent_in_ability(ability_id) <= 0:
+		respec_denied.emit("ability", "nothing_to_refund")
+		return false
 	if not _charge_respec("ability"):
 		return false
 	var reset_ids: Array[String] = []
@@ -1930,6 +1938,10 @@ func respec_all() -> bool:
 
 
 func _respec_all_local() -> bool:
+	# No points spent anywhere → nothing to refund; never charge for a no-op.
+	if get_total_points_spent() <= 0:
+		respec_denied.emit("all", "nothing_to_refund")
+		return false
 	if not _charge_respec("all"):
 		return false
 	var reset_ids: Array[String] = []
@@ -2050,6 +2062,34 @@ func _points_spent_in_discipline(disc_key: String) -> int:
 			if up != null:
 				spent += up.point_cost
 	return spent
+
+
+## Points spent on ONE ability (its level + owned upgrade costs). Non-mutating.
+func _points_spent_in_ability(ability_id: String) -> int:
+	var ability: AbilityData = ResourceManager.get_ability_data(ability_id)
+	if ability == null:
+		return 0
+	var spent: int = int(_ability_levels.get(ability_id, 0))
+	for owned_id in _learned_upgrades.get(ability_id, []):
+		var up: AbilityUpgradeData = _find_upgrade(ability, owned_id)
+		if up != null:
+			spent += up.point_cost
+	return spent
+
+
+## Public spent-point queries — the respec UI uses these to grey out options that
+## would refund nothing (so the player can't pay for a no-op respec).
+func get_points_spent_in_ability(ability_id: String) -> int:
+	return _points_spent_in_ability(ability_id)
+
+func get_points_spent_in_discipline(disc_key: String) -> int:
+	return _points_spent_in_discipline(disc_key)
+
+func get_total_points_spent() -> int:
+	var total: int = 0
+	for dk in DISCIPLINE_KEYS:
+		total += _points_spent_in_discipline(dk)
+	return total
 
 
 ## Inverse of _class_type_to_discipline_key, restricted to the four tier-1

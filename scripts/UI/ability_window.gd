@@ -885,9 +885,9 @@ func _on_respec_button_pressed() -> void:
 	var monies: int = _current_monies()
 	menu.add_item("Respec %s Tree (%s)" % [_current_discipline_tab_title(), _format_monies(disc_cost)], 0)
 	menu.add_item("Respec All Weapons (%s)" % _format_monies(all_cost), 1)
-	# Grey out options the player can't afford (kept selectable-looking but disabled).
-	menu.set_item_disabled(0, monies < disc_cost)
-	menu.set_item_disabled(1, monies < all_cost)
+	# Grey out options the player can't afford OR that would refund nothing.
+	menu.set_item_disabled(0, monies < disc_cost or ability_component.get_points_spent_in_discipline(_current_discipline_key) <= 0)
+	menu.set_item_disabled(1, monies < all_cost or ability_component.get_total_points_spent() <= 0)
 	add_child(menu)
 	menu.id_pressed.connect(_on_respec_menu_selected)
 	# Free the popup once it closes (covers both selection and dismissal).
@@ -1005,7 +1005,9 @@ func _update_respec_buttons() -> void:
 	if is_instance_valid(respec_button):
 		var cost: int = ability_component.get_respec_cost("ability", selected_ability_id)
 		respec_button.text = "Respec Ability (%s)" % _format_monies(cost)
-		respec_button.disabled = selected_ability_id.is_empty() or monies < cost
+		# Gate on: an ability selected, affordable, AND something actually spent on it.
+		var spent: int = ability_component.get_points_spent_in_ability(selected_ability_id) if not selected_ability_id.is_empty() else 0
+		respec_button.disabled = selected_ability_id.is_empty() or monies < cost or spent <= 0
 
 
 ## Comma-formats a monies amount, reusing the inventory helper when available.
