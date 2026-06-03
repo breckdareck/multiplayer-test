@@ -47,7 +47,7 @@ window/stretch/mode="canvas_items"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/alignment-tool/plugin.cfg", "res://addons/balance_simulator/plugin.cfg", "res://addons/copy_all_errors/plugin.cfg", "res://addons/resource_editor/plugin.cfg", "res://addons/script-ide/plugin.cfg")
+enabled=PackedStringArray("res://addons/alignment-tool/plugin.cfg", "res://addons/balance_simulator/plugin.cfg", "res://addons/boss_attack_designer/plugin.cfg", "res://addons/copy_all_errors/plugin.cfg", "res://addons/resource_editor/plugin.cfg", "res://addons/script-ide/plugin.cfg")
 
 [file_customization]
 
