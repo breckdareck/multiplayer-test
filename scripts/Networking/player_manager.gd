@@ -565,6 +565,13 @@ func player_input(input_type: String, data: Variant = null):
 		"jump": player_node.do_jump = true
 		"drop": player_node.do_drop = true
 		"attack": player_node.do_attack = true
+		"dodge":
+			# ACTIVE DODGE intent. Route to the player node's request_dodge, which is
+			# the server-authoritative gate: it validates the dodge cooldown and (if
+			# off cooldown) arms the i-frame window + enters the roll. The client only
+			# sends intent; immunity is decided here on the server.
+			if player_node.has_method("request_dodge"):
+				player_node.request_dodge()
 		"pickup": player_node.do_pickup = data
 		"portal": player_node.do_portal_interact = true
 		"staff_cycle_element":

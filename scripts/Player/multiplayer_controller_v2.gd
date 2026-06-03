@@ -78,6 +78,22 @@ var do_pickup: bool = false
 var do_portal_interact: bool = false
 var current_portal: Portal = null
 
+## ACTIVE DODGE (the deepened roll). do_slide is the server-side one-shot intent
+## flag the slide state consumes on enter (set by request_dodge, the dodge intent
+## RPC). slide_speed_boost is the roll lunge speed; coming_from_slide lets the next
+## state preserve a little exit momentum. These plumb the existing
+## scripts/Player/StateMachine/slide.gd, which the overhaul branch had left
+## referencing members that didn't exist on the controller yet.
+var do_slide: bool = false
+const slide_speed_boost: float = 260.0
+var coming_from_slide: bool = false
+
+## i-frame/cooldown gate for the dodge. SERVER-ONLY mutation (request_dodge). The
+## logic lives in scripts/Player/dodge_gate.gd so it's unit-testable headless; the
+## player just holds the instance and forwards is_invulnerable() for health.gd.
+var _dodge_gate: DodgeGate = DodgeGate.new()
+@onready var slide_timer: Timer = $SlideTimer
+
 ## The enemy this character most recently DAMAGED + when (ticks ms). Players have
 ## no explicit target lock (they swing in a direction), so this is the proxy for
 ## "what I'm fighting" — party bots read it via get_recent_combat_target() to
@@ -384,6 +400,92 @@ func _check_drop_through_complete() -> void:
 		_drop_through_active = false
 		if is_instance_valid(drop_timer):
 			drop_timer.stop()
+
+
+#=============================================================================
+# ACTIVE DODGE (server-authoritative i-frames + cooldown on the roll)
+#=============================================================================
+
+## True while the dodge i-frame window is open. Read by HealthComponent.take_damage
+## (via owner) to no-op incoming damage. ALWAYS server-authoritative: the window is
+## only ever armed by request_dodge on the server, so a client that enters the roll
+## state without the server's blessing gets no immunity. Bots (and any non-dodging
+## entity) just return false — the gate's anchors stay 0.
+func is_invulnerable() -> bool:
+	if _dodge_gate == null:
+		return false
+	return _dodge_gate.is_invulnerable(Time.get_ticks_msec())
+
+
+## CLIENT -> SERVER dodge intent. The owning client fires this when it presses the
+## dodge (Slide) key; the server validates and, if allowed, arms the i-frame +
+## cooldown windows and enters the roll authoritatively. Mirrors the guarded
+## any_peer -> server request pattern used across the codebase (e.g.
+## ShadowmeldComponent.toggle_shadowmeld via PlayerManager.player_input).
+@rpc("any_peer", "call_local", "reliable")
+func request_dodge() -> void:
+	if not multiplayer.is_server():
+		return
+	# Dead players can't dodge.
+	if is_instance_valid(health_component) and health_component.is_dead:
+		return
+	# Don't dodge mid weapon-swap flash (same gate as other inputs).
+	if _swap_input_locked:
+		return
+	# The roll is a grounded evade — require floor, matching the existing roll's
+	# jump-cancel "no airborne exploit" intent.
+	if not is_on_floor():
+		return
+	if _dodge_gate == null:
+		_dodge_gate = DodgeGate.new()
+	# Server is the SOLE writer of the i-frame + cooldown windows. If on cooldown,
+	# do nothing — the client may still visually roll but gains NO immunity.
+	if not _dodge_gate.try_start_dodge(Time.get_ticks_msec()):
+		return
+	# Blessed: drive the roll state on the server. do_slide is consumed on slide
+	# enter; the state change broadcasts to remote peers so they animate the roll.
+	do_slide = true
+	if is_instance_valid(state_machine) and state_machine.current_state:
+		# Only kick the roll from a grounded, interruptible state.
+		var sname: String = state_machine.current_state.name
+		if sname in ["idle", "move", "crouch", "fall"]:
+			var slide_state := state_machine.get_node_or_null("slide")
+			if slide_state:
+				state_machine.change_state(slide_state)
+	# Tell every peer the dodge was blessed (for an optional flash). call_local so
+	# the host (also a client) flashes too.
+	confirm_dodge.rpc()
+
+
+## SERVER -> ALL PEERS. The dodge was authorized server-side; peers may play a brief
+## i-frame flash. Purely cosmetic — authority over immunity stays on the server's
+## _dodge_gate. Bots have no client; the visual is a no-op for them.
+@rpc("authority", "call_local", "reliable")
+func confirm_dodge() -> void:
+	# Optional visual feedback hook. Kept intentionally light so it can't desync
+	# anything: a quick sprite flash if a sprite exists. Immunity itself is NOT
+	# decided here — only on the server's _dodge_gate.
+	if is_instance_valid(animated_sprite):
+		var tween := create_tween()
+		tween.tween_property(animated_sprite, "modulate:a", 0.5, 0.05)
+		tween.tween_property(animated_sprite, "modulate:a", 1.0, 0.3)
+
+
+## Roll begin: the existing slide state calls this on enter. The overhaul branch's
+## standing collision is a small circle; a slide-specific shrink adds little and
+## risks getting stuck, so the "collision-shape swap" is a deliberate no-op here —
+## the function exists so slide.gd's contract holds and a real swap can drop in
+## later. We DO (re)start the roll duration timer that slide.gd polls.
+func start_slide_effects() -> void:
+	if is_instance_valid(slide_timer):
+		slide_timer.start()
+
+
+## Roll end: counterpart to start_slide_effects. No-op shape restore (see above);
+## stop the timer if it's still running.
+func end_slide_effects() -> void:
+	if is_instance_valid(slide_timer) and not slide_timer.is_stopped():
+		slide_timer.stop()
 
 
 func cleanup_before_removal():
@@ -955,6 +1057,10 @@ func respawn() -> void:
 	do_attack = false
 	do_jump = false
 	do_drop = false
+	do_slide = false
+	# Clear any pending dodge i-frame/cooldown so immunity can't carry across a life.
+	if _dodge_gate != null:
+		_dodge_gate.reset()
 	# Reset drop-through state so a death mid-drop doesn't leave the next
 	# life with a stale target_y far above the respawn point.
 	_drop_through_active = false

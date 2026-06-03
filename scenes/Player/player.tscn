@@ -1,4 +1,4 @@
-[gd_scene load_steps=98 format=3 uid="uid://bdtdpx0d05sy3"]
+[gd_scene load_steps=99 format=3 uid="uid://bdtdpx0d05sy3"]
 
 [ext_resource type="Script" uid="uid://yibpus3whwuj" path="res://scripts/Player/multiplayer_controller_v2.gd" id="1_an8q1"]
 [ext_resource type="Script" uid="uid://cy1j38lpy671e" path="res://scripts/Player/multiplayer_input.gd" id="2_hxkm2"]
@@ -40,6 +40,7 @@
 [ext_resource type="Script" uid="uid://bfh8yeyv2wu0g" path="res://scripts/Player/StateMachine/death.gd" id="22_eiysd"]
 [ext_resource type="Script" uid="uid://bvunkdne8wduc" path="res://scripts/Player/StateMachine/hit.gd" id="23_03slv"]
 [ext_resource type="Script" uid="uid://tnuxo6lbsuxq" path="res://scripts/Player/StateMachine/climb.gd" id="23_climb_gd"]
+[ext_resource type="Script" uid="uid://dawpj0867b6xh" path="res://scripts/Player/StateMachine/slide.gd" id="24_slide_gd"]
 [ext_resource type="PackedScene" uid="uid://1ufb4svp8iwu" path="res://scenes/UI/quest_window.tscn" id="26_quest"]
 [ext_resource type="FontVariation" uid="uid://bpwl38ly8lvyj" path="res://assets/fonts/DamageNumbersFontVariation.tres" id="27_7iww4"]
 [ext_resource type="SpriteFrames" uid="uid://c05dyrlp5i5bj" path="res://resources/Player/SpriteFrames/Swordsman.tres" id="27_e8txv"]
@@ -1069,6 +1070,10 @@ one_shot = true
 wait_time = 0.8
 one_shot = true
 
+[node name="SlideTimer" type="Timer" parent="."]
+wait_time = 0.35
+one_shot = true
+
 [node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("starting_state", "state_label")]
 script = ExtResource("33_gb22u")
 starting_state = NodePath("idle")
@@ -1135,6 +1140,16 @@ script = ExtResource("23_climb_gd")
 idle_state = NodePath("../idle")
 fall_state = NodePath("../fall")
 animation_name = "idle"
+move_speed = 100.0
+
+[node name="slide" type="Node" parent="StateMachine" node_paths=PackedStringArray("idle_state", "move_state", "fall_state", "jump_state", "attack_state")]
+script = ExtResource("24_slide_gd")
+idle_state = NodePath("../idle")
+move_state = NodePath("../move")
+fall_state = NodePath("../fall")
+jump_state = NodePath("../jump")
+attack_state = NodePath("../attack")
+animation_name = "move"
 move_speed = 100.0
 
 [connection signal="button_down" from="CanvasLayer/PlayerHUD/MobileButtons/LeftButton" to="InputSynchronizer" method="_on_left_button_button_down"]

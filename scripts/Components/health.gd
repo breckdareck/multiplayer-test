@@ -166,8 +166,18 @@ func _on_regen_timer_timeout() -> void:
 	
 @rpc("any_peer", "call_local", "reliable")
 func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, is_crit: bool = false, show_number: bool = true) -> void:
-	
+
 	var is_player = (owner is MultiplayerPlayerV2)
+
+	# ACTIVE DODGE i-frames (server-authoritative). If the SERVER says this player is
+	# mid-dodge, the hit is fully ignored — no HP loss, no damage number, no combat
+	# invuln start, no SFX. Authority lives on the player's _dodge_gate (armed only by
+	# request_dodge on the server), so a hacked client that merely enters the roll
+	# state can't grant itself immunity. Only gates real dodge i-frames, NOT the
+	# `ignore_invuln` channel reserved for DoTs/true damage that must always land.
+	if multiplayer.is_server() and is_player and not ignore_invuln:
+		if owner.has_method("is_invulnerable") and owner.is_invulnerable():
+			return
 
 	# Compute the post-reduction amount UP FRONT so the floating damage number
 	# matches the HP actually lost. Server-authoritative player passives (Vanguard's

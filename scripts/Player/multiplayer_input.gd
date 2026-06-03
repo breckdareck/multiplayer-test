@@ -82,6 +82,14 @@ func _process(_delta: float) -> void:
 		else:
 			PlayerManager.player_input.rpc_id(1, "jump")
 
+	# ACTIVE DODGE: the existing "Slide" action (bound to Shift in project.godot)
+	# is the deliberate defensive button. just_pressed only — a single deliberate
+	# tap, not hold-to-spam (the server cooldown is the real gate regardless). Routes
+	# through player_input -> the player node's request_dodge RPC, which validates
+	# the server-side cooldown and arms the i-frame window authoritatively.
+	if Input.is_action_just_pressed("Slide"):
+		PlayerManager.player_input.rpc_id(1, "dodge")
+
 	# Basic attack: every-frame-while-held for ALL weapons. The bow's signature
 	# (Momentum) builds passively from landed hits — it needs NO special input
 	# path, so the bow uses the same plain attack as every other weapon.
