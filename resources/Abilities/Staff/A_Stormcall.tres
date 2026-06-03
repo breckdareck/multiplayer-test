@@ -10,8 +10,8 @@
 [ext_resource type="Resource" uid="uid://bwp56sg8hcey5" path="res://resources/Abilities/Staff/Upgrades/U_STC_sustained_storm.tres" id="9_upg"]
 [ext_resource type="Resource" uid="uid://dlhn7iihlqe61" path="res://resources/Abilities/Staff/Upgrades/U_STC_heavy_storm.tres" id="10_upg"]
 [ext_resource type="Resource" uid="uid://c35uyiyu6ysyc" path="res://resources/Abilities/Staff/Upgrades/U_STC_wide_storm.tres" id="11_upg"]
-[ext_resource type="Resource" uid="uid://c2pj5t2lsvxji" path="res://resources/Abilities/Staff/Upgrades/U_STC_rapid_storm.tres" id="12_upg"]
-[ext_resource type="Resource" uid="uid://f4rl1qy1uury" path="res://resources/Abilities/Staff/Upgrades/U_STC_chaining_storm.tres" id="13_upg"]
+[ext_resource type="Resource" uid="uid://onw5wztdiikss" path="res://resources/Abilities/Staff/Upgrades/U_STC_rapid_storm.tres" id="12_upg"]
+[ext_resource type="Resource" uid="uid://6deqch3zkhut3" path="res://resources/Abilities/Staff/Upgrades/U_STC_chaining_storm.tres" id="13_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="14_aud"]
 
 [sub_resource type="Resource" id="Resource_active"]

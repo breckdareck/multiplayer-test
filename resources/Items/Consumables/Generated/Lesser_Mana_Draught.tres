@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ConsumableData" load_steps=5 format=3]
+[gd_resource type="Resource" script_class="ConsumableData" load_steps=5 format=3 uid="uid://ic87qn8144l7"]
 
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/Effects/Effect_RestoreMana.gd" id="1_qibw0"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_lqv41"]

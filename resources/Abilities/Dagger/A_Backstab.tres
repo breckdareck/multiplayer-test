@@ -9,8 +9,8 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_sbf"]
 [ext_resource type="Resource" uid="uid://ce7waf52tqjpw" path="res://resources/Abilities/Dagger/Upgrades/U_BKS_sharper_backstab.tres" id="9_upg"]
 [ext_resource type="Resource" uid="uid://tptqq4wk1d20" path="res://resources/Abilities/Dagger/Upgrades/U_BKS_quick_backstab.tres" id="10_upg"]
-[ext_resource type="Resource" uid="uid://dpnhngvspqjco" path="res://resources/Abilities/Dagger/Upgrades/U_BKS_twin_backstab.tres" id="11_upg"]
-[ext_resource type="Resource" uid="uid://c5inen4tukmad" path="res://resources/Abilities/Dagger/Upgrades/U_BKS_crippling_backstab.tres" id="12_upg"]
+[ext_resource type="Resource" uid="uid://pbu3fmnkfc5ly" path="res://resources/Abilities/Dagger/Upgrades/U_BKS_twin_backstab.tres" id="11_upg"]
+[ext_resource type="Resource" uid="uid://sl44qvst4d4bf" path="res://resources/Abilities/Dagger/Upgrades/U_BKS_crippling_backstab.tres" id="12_upg"]
 [ext_resource type="Resource" uid="uid://bx718dh40w1wm" path="res://resources/Abilities/Dagger/Upgrades/U_BKS_lethal_backstab.tres" id="13_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="14_aud"]
 

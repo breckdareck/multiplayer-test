@@ -57,6 +57,31 @@ func effective_stat_mults() -> Dictionary:
 		"atk": p["atk"] * attack_mult,
 	}
 
+
+## The boss's special attacks. Authored `special_attacks` win; otherwise one is
+## synthesised from the legacy special_attack_* fields (a forward RECT dash-slam),
+## so bosses that predate BossAttackData keep working unchanged.
+func get_special_attacks() -> Array[BossAttackData]:
+	if not special_attacks.is_empty():
+		return special_attacks
+	if special_attack_cooldown <= 0.0:
+		return []
+	var a := BossAttackData.new()
+	a.attack_name = "Dash Slam"
+	a.shape = BossAttackData.Shape.RECT
+	a.reach = special_attack_radius * 2.0
+	a.band_height = clampf(special_attack_radius * 0.55, 48.0, 110.0)
+	a.forward_offset_frac = 0.5
+	a.windup_time = special_telegraph_time
+	a.hit_time = special_telegraph_time
+	a.cooldown = special_attack_cooldown
+	a.damage_mult = special_attack_damage_mult
+	a.anim_mode = BossAttackData.AnimMode.STRETCH
+	a.movement = BossAttackData.Movement.DASH
+	a.dash_distance = 0.0  # 0 = use reach
+	a.dash_time = 0.18
+	return [a]
+
 @export_category("AI")
 ## When true the enemy chases any player/bot it spots; when false it ignores
 ## them until it is attacked, then fights back.
@@ -103,6 +128,13 @@ func effective_stat_mults() -> Dictionary:
 @export var special_attack_radius: float = 120.0
 ## Special damage multiplier vs the boss's normal hit.
 @export var special_attack_damage_mult: float = 2.0
+
+## Authored special attacks. When non-empty, these REPLACE the four legacy
+## special_attack_* fields above and the boss can have several distinct attacks
+## (each with its own shape/timing/cooldown). When empty, the executor synthesises
+## one BossAttackData from the legacy fields (a forward dash-slam), so existing
+## bosses keep working unchanged. Author new attacks here in the inspector.
+@export var special_attacks: Array[BossAttackData] = []
 
 @export_category("Drops")
 @export var item_drops: Array[ItemDropResource] = []

@@ -9,9 +9,9 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_sbf"]
 [ext_resource type="Resource" uid="uid://hjwekhphohot" path="res://resources/Abilities/Bow/Upgrades/U_SDR_swift_sundering.tres" id="9_upg"]
 [ext_resource type="Resource" uid="uid://cibq8h5v4npc2" path="res://resources/Abilities/Bow/Upgrades/U_SDR_heavy_sundering.tres" id="10_upg"]
-[ext_resource type="Resource" uid="uid://cvm5c6lpoolcg" path="res://resources/Abilities/Bow/Upgrades/U_SDR_far_sundering.tres" id="11_upg"]
-[ext_resource type="Resource" uid="uid://vjccrkdgk62k" path="res://resources/Abilities/Bow/Upgrades/U_SDR_crushing_sundering.tres" id="12_upg"]
-[ext_resource type="Resource" uid="uid://8mbw5gwfwasn" path="res://resources/Abilities/Bow/Upgrades/U_SDR_refunding_sundering.tres" id="13_upg"]
+[ext_resource type="Resource" uid="uid://v7oibg6yiox4a" path="res://resources/Abilities/Bow/Upgrades/U_SDR_far_sundering.tres" id="11_upg"]
+[ext_resource type="Resource" uid="uid://eqw6wthlzr2tc" path="res://resources/Abilities/Bow/Upgrades/U_SDR_crushing_sundering.tres" id="12_upg"]
+[ext_resource type="Resource" uid="uid://3bhe2jvoece3z" path="res://resources/Abilities/Bow/Upgrades/U_SDR_refunding_sundering.tres" id="13_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="14_aud"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hit"]

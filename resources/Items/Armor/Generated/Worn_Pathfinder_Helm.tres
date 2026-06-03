@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://casx7g0nl1rk0"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_4u1qq"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_madri"]

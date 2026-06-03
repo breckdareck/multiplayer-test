@@ -9,9 +9,9 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_sbf"]
 [ext_resource type="Resource" uid="uid://c23qpmsg5f540" path="res://resources/Abilities/Staff/Upgrades/U_SPW_swift_weave.tres" id="9_upg"]
 [ext_resource type="Resource" uid="uid://cyenc84vivd02" path="res://resources/Abilities/Staff/Upgrades/U_SPW_heavy_weave.tres" id="10_upg"]
-[ext_resource type="Resource" uid="uid://b28mwo358yb6r" path="res://resources/Abilities/Staff/Upgrades/U_SPW_doubled_weave.tres" id="11_upg"]
-[ext_resource type="Resource" uid="uid://cy22i5x4gs61c" path="res://resources/Abilities/Staff/Upgrades/U_SPW_wide_weave.tres" id="12_upg"]
-[ext_resource type="Resource" uid="uid://itlj2hdpv0fx" path="res://resources/Abilities/Staff/Upgrades/U_SPW_echoing_weave.tres" id="13_upg"]
+[ext_resource type="Resource" uid="uid://vfayuypf2yoyl" path="res://resources/Abilities/Staff/Upgrades/U_SPW_doubled_weave.tres" id="11_upg"]
+[ext_resource type="Resource" uid="uid://sgpjvem4pmo2e" path="res://resources/Abilities/Staff/Upgrades/U_SPW_wide_weave.tres" id="12_upg"]
+[ext_resource type="Resource" uid="uid://aitlj2hdpvzfx" path="res://resources/Abilities/Staff/Upgrades/U_SPW_echoing_weave.tres" id="13_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="14_aud"]
 
 [sub_resource type="Resource" id="Resource_active"]

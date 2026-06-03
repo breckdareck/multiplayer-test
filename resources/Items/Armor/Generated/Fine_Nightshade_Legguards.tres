@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://cbpcidj5ejmor"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_yvoys"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_4mo6l"]

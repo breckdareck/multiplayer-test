@@ -10,6 +10,8 @@
 # below must mirror generate_item_content.gd.
 extends SceneTree
 
+const UidHeader = preload("res://tools/uid_header.gd")
+
 const LEVELS: Array = [1, 8, 13, 20, 27, 35, 43, 50, 60, 68, 77, 85, 93, 100]
 const TIERS: Array = ["Worn", "Rough", "Bronze", "Fine", "Iron", "Steel",
 	"Mithril", "Adamant", "Pristine", "Runic", "Dragonbone", "Celestial",
@@ -82,10 +84,14 @@ func _retier_enemy(path: String, tier_set: Dictionary) -> bool:
 
 	if changed:
 		ed.item_drops = new_drops
+		# Preserve the enemy file's own header uid — ResourceSaver headless drops
+		# it on re-save, which would break scenes that reference the enemy by uid.
+		var prev_uid := UidHeader.read_header_uid(path)
 		var err := ResourceSaver.save(ed, path)
 		if err != OK:
 			printerr("Failed to save %s (err %d)" % [path, err])
 			return false
+		UidHeader.ensure_header_uid(path, prev_uid)
 		print("  %-18s L%-3d -> %s" % [ed.monster_name, level, target_tier])
 	return changed
 

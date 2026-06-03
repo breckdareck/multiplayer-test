@@ -9,9 +9,9 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_sbf"]
 [ext_resource type="Resource" uid="uid://d3bage0khifyb" path="res://resources/Abilities/Sword/Upgrades/U_CHG_swift_foot.tres" id="9_upg"]
 [ext_resource type="Resource" uid="uid://dfhqorsxkk1sx" path="res://resources/Abilities/Sword/Upgrades/U_CHG_wider_cleave.tres" id="10_upg"]
-[ext_resource type="Resource" uid="uid://ch3p2jke12yym" path="res://resources/Abilities/Sword/Upgrades/U_CHG_trampling_charge.tres" id="11_upg"]
-[ext_resource type="Resource" uid="uid://ih2ybykvljyt" path="res://resources/Abilities/Sword/Upgrades/U_CHG_crushing_charge.tres" id="12_upg"]
-[ext_resource type="Resource" uid="uid://di77050okqsv4" path="res://resources/Abilities/Sword/Upgrades/U_CHG_battlecry.tres" id="13_upg"]
+[ext_resource type="Resource" uid="uid://4jxs6wy5zh4ay" path="res://resources/Abilities/Sword/Upgrades/U_CHG_trampling_charge.tres" id="11_upg"]
+[ext_resource type="Resource" uid="uid://aih2ybykvljyt" path="res://resources/Abilities/Sword/Upgrades/U_CHG_crushing_charge.tres" id="12_upg"]
+[ext_resource type="Resource" uid="uid://di77z5zokqsv4" path="res://resources/Abilities/Sword/Upgrades/U_CHG_battlecry.tres" id="13_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="14_aud"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hit"]

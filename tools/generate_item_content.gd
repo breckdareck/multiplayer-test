@@ -61,14 +61,20 @@ const ICON_SOURCES := {
 	"mp": "res://resources/Items/Consumables/Mana_Potion.tres",
 }
 
+const UidHeader = preload("res://tools/uid_header.gd")
+
 var _icon_cache: Dictionary = {}
 var _counts: Dictionary = {"weapons": 0, "armor": 0, "consumables": 0, "uniques": 0, "drops": 0}
+# res://path -> the uid it had before this run, so re-running the generator keeps
+# uids stable (consumers that reference generated content by uid don't break).
+var _existing_uids: Dictionary = {}
 
 
 func _initialize() -> void:
 	print("=== Item content generator ===")
 	for d in [WEAPON_DIR, ARMOR_DIR, CONSUMABLE_DIR, UNIQUE_DIR, DROP_DIR]:
 		DirAccess.make_dir_recursive_absolute(d)
+		_harvest_uids(d)
 		_clear_dir(d)
 	_generate_weapons()
 	_generate_armor()
@@ -353,6 +359,22 @@ func _save(res: Resource, path: String) -> void:
 	var err := ResourceSaver.save(res, path)
 	if err != OK:
 		printerr("Failed to save %s (error %d)" % [path, err])
+		return
+	# ResourceSaver headless doesn't write a uid header — add one (reusing the
+	# file's previous uid if it had one) so uid references stay resolvable.
+	UidHeader.ensure_header_uid(path, _existing_uids.get(path, ""))
+
+
+func _harvest_uids(dir: String) -> void:
+	var d := DirAccess.open(dir)
+	if d == null:
+		return
+	for f in d.get_files():
+		if f.ends_with(".tres") or f.ends_with(".res"):
+			var p := dir + f
+			var u := UidHeader.read_header_uid(p)
+			if u != "":
+				_existing_uids[p] = u
 
 
 func _clear_dir(path: String) -> void:

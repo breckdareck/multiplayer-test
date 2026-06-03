@@ -17,12 +17,12 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 		reflect_percent += ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "reflect_bonus")
 
 	# Apply the buff
-	buff_component.apply_buff("Power Guard", _owner_node, duration)
+	buff_component.apply_buff("Iron Riposte", _owner_node, duration)
 	
 	# Customize the buff's logic parameters
-	var active_buff = buff_component._active_buffs.get("Power Guard")
+	var active_buff = buff_component._active_buffs.get("Iron Riposte")
 	if active_buff and active_buff.custom_logic_instance:
 		active_buff.custom_logic_instance.reflect_percentage = reflect_percent
 		active_buff.custom_logic_instance.source_ability_level = _level_stats.level
 	
-	print("%s activated Power Guard (Level %d)!" % [_owner_node.name, _level_stats.level])
+	print("%s activated Iron Riposte (Level %d)!" % [_owner_node.name, _level_stats.level])

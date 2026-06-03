@@ -39,8 +39,8 @@ func on_kill(_owner_node: Node, _target: Node, _ability_level: int, _ability_id:
 	var heal_pct: float = 0.5
 	if _ability_id != "":
 		var ability: AbilityData = ResourceManager.get_ability_data(_ability_id)
-		if ability and ability.damage_percent_formula:
-			heal_pct = ability.damage_percent_formula.calculate(_ability_level)
+		if ability and ability.scaling_data.damage_percent_formula:
+			heal_pct = ability.scaling_data.damage_percent_formula.calculate(_ability_level)
 
 	# PR 6 upgrades: "heal_pct_bonus" (+flat % per kill) and "vampiric_basic"
 	# is handled elsewhere; here we only add the per-kill heal bonus.

@@ -9,9 +9,9 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_sbf"]
 [ext_resource type="Resource" uid="uid://6u5eho2rmkmy" path="res://resources/Abilities/Sword/Upgrades/U_OSL_swift_wind-up.tres" id="9_upg"]
 [ext_resource type="Resource" uid="uid://cynlqu8xyrmyo" path="res://resources/Abilities/Sword/Upgrades/U_OSL_strong_arm.tres" id="10_upg"]
-[ext_resource type="Resource" uid="uid://bk4k050roytvg" path="res://resources/Abilities/Sword/Upgrades/U_OSL_earthshaker.tres" id="11_upg"]
-[ext_resource type="Resource" uid="uid://d3byy30dvw7tu" path="res://resources/Abilities/Sword/Upgrades/U_OSL_devastator.tres" id="12_upg"]
-[ext_resource type="Resource" uid="uid://du5lfv2oquti4" path="res://resources/Abilities/Sword/Upgrades/U_OSL_unstoppable.tres" id="13_upg"]
+[ext_resource type="Resource" uid="uid://bk4kz5zroytvg" path="res://resources/Abilities/Sword/Upgrades/U_OSL_earthshaker.tres" id="11_upg"]
+[ext_resource type="Resource" uid="uid://54524if4udc47" path="res://resources/Abilities/Sword/Upgrades/U_OSL_devastator.tres" id="12_upg"]
+[ext_resource type="Resource" uid="uid://phd662tgghgsf" path="res://resources/Abilities/Sword/Upgrades/U_OSL_unstoppable.tres" id="13_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="14_aud"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hit"]

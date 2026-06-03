@@ -9,9 +9,9 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_sbf"]
 [ext_resource type="Resource" uid="uid://ds4afyx78ono" path="res://resources/Abilities/Bow/Upgrades/U_CAL_sharper_spikes.tres" id="9_upg"]
 [ext_resource type="Resource" uid="uid://oav6weee84h" path="res://resources/Abilities/Bow/Upgrades/U_CAL_wider_field.tres" id="10_upg"]
-[ext_resource type="Resource" uid="uid://c8187l27hksby" path="res://resources/Abilities/Bow/Upgrades/U_CAL_lingering_field.tres" id="11_upg"]
-[ext_resource type="Resource" uid="uid://d3ilormguxif0" path="res://resources/Abilities/Bow/Upgrades/U_CAL_piercing_spikes.tres" id="12_upg"]
-[ext_resource type="Resource" uid="uid://sdjjbb8aovbf" path="res://resources/Abilities/Bow/Upgrades/U_CAL_poisoned_spikes.tres" id="13_upg"]
+[ext_resource type="Resource" uid="uid://kyuzepwplyjti" path="res://resources/Abilities/Bow/Upgrades/U_CAL_lingering_field.tres" id="11_upg"]
+[ext_resource type="Resource" uid="uid://pop7gxd7kj4pb" path="res://resources/Abilities/Bow/Upgrades/U_CAL_piercing_spikes.tres" id="12_upg"]
+[ext_resource type="Resource" uid="uid://xysq2mtqnv4tz" path="res://resources/Abilities/Bow/Upgrades/U_CAL_poisoned_spikes.tres" id="13_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="14_aud"]
 
 [sub_resource type="Resource" id="Resource_active"]

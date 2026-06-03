@@ -8,9 +8,9 @@
 [ext_resource type="Script" uid="uid://ctmt7378aiv4g" path="res://scripts/Abilities/AL_ElementalAffinity.gd" id="11_al"]
 [ext_resource type="Resource" uid="uid://cv41rq2ttwioc" path="res://resources/Abilities/Staff/Upgrades/U_ELA_greater_affinity.tres" id="12_upg"]
 [ext_resource type="Resource" uid="uid://v3wcfh2wwhmc" path="res://resources/Abilities/Staff/Upgrades/U_ELA_mastery_affinity.tres" id="13_upg"]
-[ext_resource type="Resource" uid="uid://clctr38cf504k" path="res://resources/Abilities/Staff/Upgrades/U_ELA_crossover_affinity.tres" id="14_upg"]
-[ext_resource type="Resource" uid="uid://1mjetb8ibdke" path="res://resources/Abilities/Staff/Upgrades/U_ELA_mighty_affinity.tres" id="15_upg"]
-[ext_resource type="Resource" uid="uid://bayxjog3j3826" path="res://resources/Abilities/Staff/Upgrades/U_ELA_sustained_affinity.tres" id="16_upg"]
+[ext_resource type="Resource" uid="uid://4m6wwin3ek5fw" path="res://resources/Abilities/Staff/Upgrades/U_ELA_crossover_affinity.tres" id="14_upg"]
+[ext_resource type="Resource" uid="uid://irgakw5qmo32w" path="res://resources/Abilities/Staff/Upgrades/U_ELA_mighty_affinity.tres" id="15_upg"]
+[ext_resource type="Resource" uid="uid://yhf52zylxcimr" path="res://resources/Abilities/Staff/Upgrades/U_ELA_sustained_affinity.tres" id="16_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="17_aud"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="18_asf"]
 

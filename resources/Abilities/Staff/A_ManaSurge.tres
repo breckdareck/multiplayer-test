@@ -9,9 +9,9 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_sbf"]
 [ext_resource type="Resource" uid="uid://dcjhjle4iacjb" path="res://resources/Abilities/Staff/Upgrades/U_MNS_lingering_surge.tres" id="9_upg"]
 [ext_resource type="Resource" uid="uid://cidtvqgq8qos6" path="res://resources/Abilities/Staff/Upgrades/U_MNS_surging_refund.tres" id="10_upg"]
-[ext_resource type="Resource" uid="uid://brfii223d2hb2" path="res://resources/Abilities/Staff/Upgrades/U_MNS_multiplying_surge.tres" id="11_upg"]
-[ext_resource type="Resource" uid="uid://bh26ucld7ugrn" path="res://resources/Abilities/Staff/Upgrades/U_MNS_heavy_surge.tres" id="12_upg"]
-[ext_resource type="Resource" uid="uid://c05c7ryannk0b" path="res://resources/Abilities/Staff/Upgrades/U_MNS_cascading_surge.tres" id="13_upg"]
+[ext_resource type="Resource" uid="uid://yxup2fllrapun" path="res://resources/Abilities/Staff/Upgrades/U_MNS_multiplying_surge.tres" id="11_upg"]
+[ext_resource type="Resource" uid="uid://7fc5krxeqhgtr" path="res://resources/Abilities/Staff/Upgrades/U_MNS_heavy_surge.tres" id="12_upg"]
+[ext_resource type="Resource" uid="uid://kqx3evsrr2cit" path="res://resources/Abilities/Staff/Upgrades/U_MNS_cascading_surge.tres" id="13_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="14_aud"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hit"]
