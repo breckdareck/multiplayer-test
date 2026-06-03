@@ -50,8 +50,10 @@ KW_MAT = [("crystal","Mithril"),("dragon","Dragonbone"),("celestial","Celestial"
 ARCHES = ["Vanguard","Pathfinder","Nightshade","Arcanist"]
 KW_ARCH = [("vanguard","Vanguard"),("aegis","Vanguard"),("sentinel","Vanguard"),
  ("pathfinder","Pathfinder"),("falcon","Pathfinder"),("ranger","Pathfinder"),
+ ("trailblazer","Pathfinder"),("windrunner","Pathfinder"),
  ("nightshade","Nightshade"),("dusk","Nightshade"),("shadow","Nightshade"),
- ("cloak","Nightshade"),("pathf","Pathfinder"),
+ ("cloak","Nightshade"),("pathf","Pathfinder"),("whisper","Nightshade"),
+ ("wovenstar","Arcanist"),
  ("arcanist","Arcanist"),("insight","Arcanist"),("robe","Arcanist"),
  ("apprentice","Arcanist"),("mage","Arcanist"),("circlet","Arcanist")]
 
@@ -239,6 +241,123 @@ ARMOR_FN = {0: helm, 1: mail, 2: legs, 3: boots}
 def armor(m, atype, arch):
     return ARMOR_FN.get(atype, mail)(m, arch)
 
+# -------------------------------------------------- bespoke named armor
+# Hand-authored pieces whose name implies a specific look the generic
+# archetype shapes can't convey. Each uses its own colors (ignores material).
+def na_bandana():
+    cv = new(); r = hexc("#d0473a"); rh = hexc("#ef7a6a"); rs = hexc("#7a160e"); k = hexc("#b5392c")
+    cv.poly([(9,19),(10,13),(16,10),(22,13),(23,19)], r)     # cloth over scalp
+    cv.hline(9,23,19, rs)                                    # tied band edge
+    cv.hline(10,22,13, rh); cv.line(12,13,12,18, rs); cv.line(19,12,19,18, rs)  # folds
+    cv.disc(23,18,2, k)                                      # side knot
+    cv.line(23,19,28,23, r); cv.line(24,20,27,26, r)         # trailing tails
+    cv.px(28,23,rs); cv.px(27,26,rs)
+    cv.outline(OL); return cv
+
+def na_jean_shorts():
+    cv = new(); d = hexc("#5277b0"); dh = hexc("#7c9fd6"); ds = hexc("#2f4a72"); st = hexc("#e0c070")
+    cv.rect(10,10,22,13, ds, fill=d)                         # waistband
+    cv.rect(10,13,15,23, None, fill=d); cv.rect(17,13,22,23, None, fill=d)  # two SHORT legs
+    cv.vline(16,13,21, ds)                                   # fly gap
+    cv.hline(10,15,20, dh); cv.hline(17,22,20, dh)           # rolled cuffs
+    for x in (11,13,15,18,20): cv.px(x,12,st)                # waist stitching
+    cv.line(11,14,11,21, st); cv.line(21,14,21,21, st)       # outer-seam stitch
+    cv.disc(16,12,1, st)                                     # button
+    cv.poly([(11,14),(14,14),(11,17)], ds)                   # front pocket
+    cv.outline(OL); return cv
+
+def na_apprentice_robe():
+    cv = new(); b = hexc("#b89a6a"); h = hexc("#d8c191"); s = hexc("#6e5a36"); t = hexc("#caa46a")
+    cv.poly([(11,9),(21,9),(24,28),(8,28)], b)
+    cv.poly([(11,9),(7,18),(9,28)], b); cv.poly([(21,9),(25,18),(23,28)], b)  # sleeves
+    cv.poly([(13,9),(16,14),(19,9)], h); cv.vline(16,14,28, s); cv.hline(9,23,23, t)
+    cv.outline(OL); return cv
+
+def na_blue_lolico():
+    cv = new(); b = hexc("#3f7fd0"); h = hexc("#8fb6ef"); w = hexc("#eef4ff")
+    cv.poly([(10,9),(22,9),(24,28),(8,28)], b)               # dress
+    cv.poly([(11,9),(16,14),(21,9)], w)                      # white collar
+    cv.vline(16,14,28, w); cv.hline(9,23,23, w)              # white trim + hem
+    cv.disc(16,17,1.4, hexc("#ffce5c"))                      # gold brooch
+    cv.disc(10,11,2, h); cv.disc(22,11,2, h)                 # puff sleeves
+    cv.outline(OL); return cv
+
+def na_leather_cap():
+    cv = new(); b = hexc("#9c6b3f"); h = hexc("#c89a63"); s = hexc("#5a3a1e"); t = hexc("#caa46a")
+    cv.poly([(9,21),(10,14),(16,11),(22,14),(23,21)], b)     # rounded cap
+    cv.hline(8,24,21, t); cv.hline(8,24,22, s)               # brim
+    cv.hline(11,21,15, h); cv.line(16,12,16,20, s)           # seam
+    cv.outline(OL); return cv
+
+def na_leather_sandals():
+    cv = new(); b = hexc("#9c6b3f"); s = hexc("#5a3a1e"); t = hexc("#caa46a")
+    cv.poly([(8,23),(24,23),(24,27),(8,27)], b)              # sole
+    cv.hline(8,24,27, s)
+    cv.line(10,23,15,17, t); cv.line(15,17,20,23, t)         # V strap
+    cv.line(11,20,19,20, t)                                  # ankle strap
+    cv.outline(OL); return cv
+
+def na_leather_vest():
+    cv = new(); b = hexc("#9c6b3f"); s = hexc("#5a3a1e"); t = hexc("#caa46a")
+    cv.poly([(11,9),(21,9),(22,28),(10,28)], b)              # sleeveless torso
+    cv.poly([(16,8),(11,11),(16,21),(21,11)], s)             # open-front V (dark)
+    cv.poly([(11,9),(14,7),(18,7),(21,9)], s)                # collar
+    cv.line(16,12,16,26, t)
+    for y in (14,18,22): cv.px(15,y,t); cv.px(17,y,t)        # laces
+    cv.outline(OL); return cv
+
+def na_metal_koif():
+    cv = new(); b = hexc("#8b94a3"); h = hexc("#c7cfdb")
+    cv.poly([(16,7),(24,15),(24,24),(20,27),(12,27),(8,24),(8,15)], b)  # mail coif + neck drape
+    cv.poly([(16,12),(20,16),(19,25),(13,25),(12,16)], hexc("#5a626c"))  # face opening
+    for y in range(13,26,2):                                 # mail-ring texture
+        for x in range(9,24,2):
+            if 12 <= x <= 19 and 16 <= y <= 25:
+                continue
+            cv.px(x, y, h)
+    cv.outline(OL); return cv
+
+def na_mystic_cap():
+    cv = new(); b = hexc("#7d6fb0"); h = hexc("#b3a6e0"); g = hexc("#ffce5c")
+    cv.poly([(10,22),(11,14),(16,9),(20,12),(18,16),(22,22)], b)  # soft drooping cap
+    cv.hline(9,23,22, g); cv.hline(11,21,16, h); cv.disc(20,12,1.2, g)
+    cv.outline(OL); return cv
+
+def na_mystic_robe():
+    cv = new(); b = hexc("#7d6fb0"); h = hexc("#b3a6e0"); g = hexc("#ffce5c")
+    cv.poly([(11,9),(21,9),(24,28),(8,28)], b)
+    cv.poly([(11,9),(7,18),(9,28)], b); cv.poly([(21,9),(25,18),(23,28)], b)
+    cv.poly([(13,9),(16,14),(19,9)], h); cv.vline(16,14,28, g); cv.hline(9,23,23, g)
+    cv.disc(13,12,0.8, g); cv.disc(19,12,0.8, g); cv.disc(16,18,1, g)  # stars
+    cv.outline(OL); return cv
+
+def na_white_shirt():
+    cv = new(); b = hexc("#eef1f6"); h = hexc("#ffffff"); s = hexc("#b9c2cd")
+    cv.poly([(10,10),(22,10),(23,28),(9,28)], b)             # shirt body
+    cv.disc(8,12,2, b); cv.disc(24,12,2, b)                  # short sleeves
+    cv.poly([(13,10),(16,15),(19,10)], s)                    # collar gap
+    cv.poly([(13,10),(11,9),(15,13)], h); cv.poly([(19,10),(21,9),(17,13)], h)  # collar flaps
+    cv.vline(16,15,27, s)
+    for y in (17,20,23,26): cv.px(16,y, hexc("#9aa6b4"))     # buttons
+    cv.outline(OL); return cv
+
+def na_wizard_hat():
+    cv = new(); b = hexc("#4a5bd0"); h = hexc("#8a96e8"); s = hexc("#26306a"); g = hexc("#ffce5c")
+    cv.poly([(16,4),(21,22),(11,22)], b); cv.px(17,7,b); cv.px(18,11,b)  # bent cone
+    cv.hline(6,26,23, b); cv.hline(6,26,24, s); cv.hline(8,24,22, h)     # brim
+    cv.hline(11,21,20, g); cv.disc(16,5,1.3, g)                          # band + tip
+    cv.disc(14,15,0.8, g); cv.disc(18,17,0.8, g)                         # stars
+    cv.outline(OL); return cv
+
+NAMED_ARMOR = [
+    ("bandana", na_bandana), ("blue jean", na_jean_shorts),
+    ("apprentice robe", na_apprentice_robe), ("lolico", na_blue_lolico),
+    ("leather cap", na_leather_cap), ("leather sandals", na_leather_sandals),
+    ("leather vest", na_leather_vest), ("koif", na_metal_koif),
+    ("mystic cap", na_mystic_cap), ("mystic robe", na_mystic_robe),
+    ("white shirt", na_white_shirt), ("wizard hat", na_wizard_hat),
+]
+
 # ================================================== POTIONS
 RED=(hexc("#e8413f"),hexc("#ff9a8a"),hexc("#7a1410"))
 BLUE=(hexc("#3f7fe8"),hexc("#9ec2ff"),hexc("#163a78"))
@@ -392,7 +511,12 @@ def parse(tres):
 def build(info):
     c=info["cls"]; n=info["name"]
     if c=="WeaponData": return weapon(material_of(n), info["weapon_type"], n)
-    if c=="ArmorData": return armor(material_of(n), info["armor_type"], arch_of(n))
+    if c=="ArmorData":
+        low = n.lower()
+        for kw, fn in NAMED_ARMOR:
+            if kw in low:
+                return fn()
+        return armor(material_of(n), info["armor_type"], arch_of(n))
     if c=="PetFoodData": return petfood(n)
     if c=="PetSkillBookData": return skillbook(n)
     if c=="ItemData": return coin()
