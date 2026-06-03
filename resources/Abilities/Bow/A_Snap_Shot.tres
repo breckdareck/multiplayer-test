@@ -1,7 +1,5 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=19 format=3 uid="uid://hhx8fc5iylxh"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=18 format=3 uid="uid://hhx8fc5iylxh"]
 
-[ext_resource type="Texture2D" uid="uid://bcpwmiqyblf42" path="res://assets/sprites/Abilities/generated_px/Bow/A_Snap_Shot.png" id="99_svgicon"]
-[ext_resource type="Texture2D" uid="uid://b407mfrctd50w" path="res://assets/sprites/MinifolksHumans/HumansProjectiles.png" id="1_3p7m4"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_3p7m4"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_6h1s2"]
 [ext_resource type="PackedScene" uid="uid://d0ig4oiimrnei" path="res://scenes/Gameplay/projectile_base.tscn" id="2_vrq40"]
@@ -9,10 +7,7 @@
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_kmtye"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_nqq7w"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_uynx4"]
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_22vhk"]
-atlas = ExtResource("1_3p7m4")
-region = Rect2(16, 0, 16, 16)
+[ext_resource type="Texture2D" uid="uid://bcpwmiqyblf42" path="res://assets/sprites/Abilities/generated_px/Bow/A_Snap_Shot.png" id="99_svgicon"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_aa4ap"]
 size = Vector2(160, 46)
