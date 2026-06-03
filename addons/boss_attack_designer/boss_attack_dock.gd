@@ -199,10 +199,17 @@ func _reload_attacks() -> void:
 		_redraw_preview()
 		return
 
-	var list: Array[BossAttackData] = _enemy_data.get_special_attacks()
-	# Detect a legacy synth: special_attacks is empty but get_special_attacks()
-	# returned one (the synthesised dash-slam from the legacy fields).
-	if _enemy_data.special_attacks.is_empty() and not list.is_empty():
+	# Resolve via PROPERTY reads + an inline synth rather than calling
+	# EnemyData.get_special_attacks(): the editor may hold the picked EnemyData as a
+	# placeholder instance (e.g. before a full editor restart picks up @tool), and
+	# methods can't be called on a placeholder — but @export properties are readable.
+	var authored: Array = _enemy_data.special_attacks
+	var list: Array[BossAttackData] = []
+	if not authored.is_empty():
+		for a in authored:
+			list.append(a)
+	elif _enemy_data.special_attack_cooldown > 0.0:
+		list.append(_synth_legacy_attack(_enemy_data))
 		_is_legacy_synth = true
 
 	_attacks = list
@@ -227,6 +234,28 @@ func _reload_attacks() -> void:
 
 	_attack_dropdown.select(0)
 	_select_attack(0)
+
+
+## Builds the legacy dash-slam — mirrors EnemyData.get_special_attacks() exactly.
+## Duplicated here (rather than calling the method) because the editor may load the
+## picked EnemyData as a placeholder instance where methods can't be called; the
+## legacy @export fields it reads ARE available on a placeholder. Keep in sync.
+func _synth_legacy_attack(enemy: EnemyData) -> BossAttackData:
+	var a := BossAttackData.new()
+	a.attack_name = "Dash Slam"
+	a.shape = BossAttackData.Shape.RECT
+	a.reach = enemy.special_attack_radius * 2.0
+	a.band_height = clampf(enemy.special_attack_radius * 0.55, 48.0, 110.0)
+	a.forward_offset_frac = 0.5
+	a.windup_time = enemy.special_telegraph_time
+	a.hit_time = enemy.special_telegraph_time
+	a.cooldown = enemy.special_attack_cooldown
+	a.damage_mult = enemy.special_attack_damage_mult
+	a.anim_mode = BossAttackData.AnimMode.STRETCH
+	a.movement = BossAttackData.Movement.DASH
+	a.dash_distance = 0.0
+	a.dash_time = 0.18
+	return a
 
 
 func _on_attack_selected(idx: int) -> void:
