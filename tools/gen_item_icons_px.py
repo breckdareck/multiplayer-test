@@ -96,69 +96,128 @@ def weapon(m, wtype, name):
     return longsword(m)
 
 # ================================================== ARMOR
-def _shade(cv, m):
-    b, h, s, t = m
+# Archetype identity (silhouette reads the weapon class; material = color/tier):
+#   Vanguard  = warrior / heavy PLATE (bulky, riveted, visored, segmented)
+#   Pathfinder= archer  / LEATHER + feather (jerkin, quiver strap, cuffed boots)
+#   Nightshade= rogue   / dark HOOD + wrapped leather (cowl, crossed straps, slim)
+#   Arcanist  = mage    / cloth ROBE + wizard hat (flowing, runes, slippers)
+def _rivets(cv, pts, c):
+    for (x, y) in pts:
+        cv.px(x, y, c)
 
 def helm(m, arch):
     cv = new(); b, h, s, t = m
-    if arch == "Arcanist":  # wizard hat
-        cv.poly([(16,5),(20,24),(12,24)], b); cv.hline(8,24,25, b); cv.hline(8,24,26, s)
-        cv.px(16,5,t); cv.line(13,16,18,16, h); cv.outline(OL); return cv
-    if arch == "Pathfinder":  # cap + feather
-        cv.poly([(8,24),(10,12),(22,12),(24,24)], b); cv.hline(8,24,23, t)
-        cv.poly([(22,12),(28,7),(24,16)], t); cv.line(11,15,21,15, h)
+    if arch == "Arcanist":                                   # wide-brim wizard hat
+        cv.poly([(16,4),(21,22),(11,22)], b)                 # cone
+        cv.px(17,7,b); cv.px(18,11,b)                        # slight bend
+        cv.hline(6,26,23, b); cv.hline(6,26,24, s); cv.hline(8,24,22, h)  # wide brim
+        cv.hline(11,21,20, t)                                # band
+        cv.disc(16,5,1.3, GOLD); cv.disc(16,16,1.2, GOLD)    # tip + star stud
         cv.outline(OL); return cv
-    if arch == "Nightshade":  # hood
-        cv.poly([(16,7),(24,15),(22,26),(10,26),(8,15)], b)
-        cv.poly([(16,12),(20,16),(19,25),(13,25),(12,16)], s)
-        cv.px(14,18,t); cv.outline(OL); return cv
-    # Vanguard great helm
-    cv.poly([(9,16),(9,11),(12,8),(20,8),(23,11),(23,16),(23,23),(20,26),(12,26),(9,23)], b)
-    cv.vline(15,12,24, hexc("#11151c")); cv.vline(16,12,24, hexc("#11151c"))
-    cv.hline(11,21,9, h); cv.line(13,7,19,7, t); cv.px(16,5,GOLD)
+    if arch == "Pathfinder":                                 # leather cap + feather
+        cv.poly([(9,22),(10,14),(13,11),(19,11),(22,14),(23,22)], b)
+        cv.hline(8,24,22, t); cv.hline(8,24,23, s)           # brim
+        cv.hline(11,21,15, h)
+        cv.poly([(22,12),(29,4),(27,13),(23,15)], t)         # feather
+        cv.line(25,7,24,14, s)
+        cv.outline(OL); return cv
+    if arch == "Nightshade":                                 # rogue hood + dark cowl
+        cv.poly([(16,6),(24,16),(23,27),(9,27),(8,16)], b)   # hood outer
+        cv.poly([(16,11),(21,17),(20,26),(12,26),(11,17)], OL)  # shadowed face
+        cv.px(13,20,t); cv.px(14,20,t)                       # eye glint
+        cv.line(8,16,10,27, s); cv.line(24,16,22,27, s)      # drape
+        cv.outline(OL); return cv
+    # Vanguard great helm (visor + crest, riveted)
+    cv.poly([(9,15),(9,11),(12,8),(20,8),(23,11),(23,15),(23,24),(20,27),(12,27),(9,24)], b)
+    cv.rect(12,14,20,18, OL, fill=OL)                        # visor opening
+    cv.vline(14,14,18, b); cv.vline(17,14,18, b)             # visor bars
+    cv.hline(10,22,11, h)                                    # brow
+    cv.line(16,8,16,4, t); cv.poly([(16,4),(19,3),(16,6)], t)  # crest plume
+    _rivets(cv, [(11,12),(21,12),(11,23),(21,23)], h)
     cv.outline(OL); return cv
 
 def mail(m, arch):
     cv = new(); b, h, s, t = m
-    if arch == "Arcanist":
-        cv.poly([(11,8),(21,8),(25,27),(16,29),(7,27)], b)
-        cv.poly([(13,8),(16,14),(19,8)], h); cv.vline(16,14,28, t); cv.hline(9,23,22, t)
+    if arch == "Arcanist":                                   # flowing robe + rune
+        cv.poly([(11,8),(21,8),(25,28),(7,28)], b)
+        cv.poly([(11,8),(6,18),(9,28)], b); cv.poly([(21,8),(26,18),(23,28)], b)  # sleeves
+        cv.poly([(13,8),(16,14),(19,8)], h)                  # V-neck
+        cv.vline(16,14,28, t); cv.hline(9,23,23, t)          # seam + sash
+        cv.disc(16,18,1.3, GOLD)                             # rune gem
         cv.outline(OL); return cv
-    if arch == "Pathfinder":
-        cv.poly([(10,9),(22,9),(24,28),(8,28)], b)
-        cv.poly([(10,9),(13,6),(19,6),(22,9)], s)
-        cv.line(16,9,14,26, t); cv.line(16,9,18,26, t)
-        for y in (14,18,22): cv.hline(14,18,y, t)
+    if arch == "Pathfinder":                                 # leather jerkin + quiver strap
+        cv.poly([(11,9),(21,9),(23,15),(22,28),(10,28),(9,15)], b)
+        cv.poly([(11,9),(14,7),(18,7),(21,9)], s)            # collar
+        cv.line(11,10,21,26, t); cv.line(12,10,22,26, s)     # diagonal strap
+        cv.hline(11,21,24, t)                                # belt
+        for y in (14,17,20): cv.px(15,y,t); cv.px(17,y,t)    # laces
         cv.outline(OL); return cv
-    if arch == "Nightshade":
-        cv.poly([(11,8),(21,8),(23,28),(9,28)], b)
-        cv.poly([(16,8),(11,12),(16,28),(21,12)], s); cv.poly([(11,8),(15,6),(21,8)], t)
+    if arch == "Nightshade":                                 # slim wrap + crossed straps + cowl
+        cv.poly([(11,11),(21,11),(22,28),(10,28)], b)
+        cv.poly([(11,11),(16,7),(21,11),(16,14)], s)         # collar
+        cv.poly([(16,8),(12,11),(16,14),(20,11)], OL)        # cowl shadow
+        cv.line(11,13,21,25, t); cv.line(21,13,11,25, t)     # crossed straps
+        cv.disc(16,19,1.2, s)                                # buckle
         cv.outline(OL); return cv
-    # Vanguard plate
-    cv.poly([(10,11),(22,11),(24,15),(21,17),(21,28),(11,28),(11,17),(8,15)], b)
-    cv.disc(8,13,3, h); cv.disc(24,13,3, h); cv.vline(16,12,27, s)
-    cv.hline(13,19,21, t); cv.outline(OL); return cv
+    # Vanguard plate (pauldrons + ridge + rivets)
+    cv.disc(9,13,3, b); cv.disc(23,13,3, b)                  # pauldrons
+    cv.disc(9,12,1.3, h); cv.disc(23,12,1.3, h)
+    cv.poly([(11,12),(21,12),(23,16),(20,18),(20,28),(12,28),(12,18),(9,16)], b)
+    cv.vline(16,13,27, s); cv.hline(13,19,20, s)             # ridge + ab line
+    cv.hline(12,20,27, t)                                    # belt
+    _rivets(cv, [(13,14),(19,14),(13,24),(19,24)], h)
+    cv.outline(OL); return cv
 
 def legs(m, arch):
     cv = new(); b, h, s, t = m
-    if arch == "Arcanist":  # robe skirt
-        cv.poly([(11,8),(21,8),(25,28),(7,28)], b); cv.vline(16,8,28, t)
-        cv.hline(8,24,25, t); cv.outline(OL); return cv
-    cv.poly([(11,8),(21,8),(21,13),(19,28),(17,28),(16,16),(15,28),(13,28),(11,13)], b)
-    cv.hline(11,21,10, t)  # belt
-    if arch == "Vanguard":
-        cv.hline(12,15,20, h); cv.hline(17,20,20, h)
+    if arch == "Arcanist":                                   # robe skirt
+        cv.poly([(11,8),(21,8),(25,28),(7,28)], b)
+        cv.vline(16,8,28, t); cv.hline(8,24,25, t)           # seam + hem
+        cv.outline(OL); return cv
+    if arch == "Pathfinder":                                 # leather pants + knee patches
+        cv.poly([(11,8),(21,8),(20,27),(17,27),(16,16),(15,27),(12,27)], b)
+        cv.hline(11,21,10, t)                                # belt
+        cv.rect(12,17,15,21, s); cv.rect(17,17,20,21, s)     # knee patches
+        cv.hline(12,15,26, t); cv.hline(17,20,26, t)         # cuffs
+        cv.outline(OL); return cv
+    if arch == "Nightshade":                                 # slim leggings + thigh strap
+        cv.poly([(12,8),(20,8),(19,27),(17,27),(16,15),(15,27),(13,27)], b)
+        cv.hline(12,20,9, s); cv.line(12,12,19,15, t)        # waist + strap
+        cv.outline(OL); return cv
+    # Vanguard plate greaves (segmented tassets + knee discs)
+    cv.rect(10,8,22,11, b, fill=b)                           # belt plate
+    cv.rect(11,11,15,27, b, fill=b); cv.rect(17,11,21,27, b, fill=b)
+    cv.vline(16,12,27, OL)                                   # gap
+    for y in (16,20,24): cv.hline(11,15,y, s); cv.hline(17,21,y, s)
+    cv.disc(13,18,1.5, h); cv.disc(19,18,1.5, h)             # knee discs
+    cv.hline(10,22,9, t)
     cv.outline(OL); return cv
 
 def boots(m, arch):
     cv = new(); b, h, s, t = m
-    cv.poly([(11,9),(17,9),(17,22),(24,22),(24,27),(11,27)], b)
-    cv.hline(11,24,27, s)  # sole
-    cv.hline(11,17,11, t)  # cuff
-    if arch == "Vanguard":
-        cv.rect(17,22,22,26, h)
-    if arch == "Arcanist":  # curled toe
-        cv.px(25,23,b); cv.px(26,24,b); cv.px(25,25,b)
+    if arch == "Arcanist":                                   # curled cloth slipper
+        cv.poly([(12,15),(16,15),(16,23),(24,23),(26,20),(25,26),(12,26)], b)
+        cv.hline(12,25,26, s); cv.hline(12,16,16, t)         # sole + ankle band
+        cv.px(26,19,b); cv.px(27,20,b); cv.px(26,21,b)       # curl tip
+        cv.outline(OL); return cv
+    if arch == "Pathfinder":                                 # ranger boot, folded cuff + laces
+        cv.poly([(11,11),(17,11),(17,22),(24,22),(24,27),(11,27)], b)
+        cv.hline(11,24,27, s)                                # sole
+        cv.rect(10,9,18,13, h)                               # folded cuff
+        cv.vline(13,15,21, t); cv.vline(15,15,21, t)         # laces
+        cv.outline(OL); return cv
+    if arch == "Nightshade":                                 # slim pointed boot + wraps
+        cv.poly([(12,12),(16,12),(16,22),(26,24),(24,27),(12,27)], b)
+        cv.hline(12,24,27, s)                                # sole
+        cv.hline(12,16,15, t); cv.hline(12,16,18, t)         # wrap straps
+        cv.outline(OL); return cv
+    # Vanguard sabaton (plated armored boot)
+    cv.poly([(11,9),(17,9),(17,21),(25,21),(25,27),(11,27)], b)
+    cv.hline(11,25,27, s); cv.hline(11,25,26, OL)            # heavy sole
+    cv.rect(18,21,24,25, h)                                  # plated toe
+    cv.hline(12,16,14, s); cv.hline(12,16,18, s)             # shin segments
+    cv.hline(11,17,10, t)                                    # cuff
+    _rivets(cv, [(13,12),(20,23)], h)
     cv.outline(OL); return cv
 
 ARMOR_FN = {0: helm, 1: mail, 2: legs, 3: boots}
