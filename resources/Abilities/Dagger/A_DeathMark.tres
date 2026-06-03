@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=22 format=3 uid="uid://btm0wpigtxkfg"]
 
-[ext_resource type="Texture2D" uid="uid://dg53gbs7gvktx" path="res://assets/sprites/Abilities/generated_svg/Dagger/A_DeathMark.svg" id="1_icon"]
+[ext_resource type="Texture2D" uid="uid://ch27pj71wcmmd" path="res://assets/sprites/Abilities/generated_px/Dagger/A_DeathMark.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
 [ext_resource type="Script" uid="uid://sne1jr0poahe" path="res://scripts/Abilities/AL_DeathMark.gd" id="3_al"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_ad"]

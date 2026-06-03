@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=20 format=3 uid="uid://barhm0g1myh4u"]
 
-[ext_resource type="Texture2D" uid="uid://bhxpi0uhh651t" path="res://assets/sprites/Abilities/generated_svg/Staff/A_ArcaneFamiliar.svg" id="1_icon"]
+[ext_resource type="Texture2D" uid="uid://bqugxtap0budk" path="res://assets/sprites/Abilities/generated_px/Staff/A_ArcaneFamiliar.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
 [ext_resource type="Script" uid="uid://bvvqxv48duy5e" path="res://scripts/Abilities/AL_ArcaneFamiliar.gd" id="3_al"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_ad"]

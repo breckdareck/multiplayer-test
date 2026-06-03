@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://btm76n6tymgd5"]
 
-[ext_resource type="Texture2D" uid="uid://03iex2327m7t" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Steel_Vanguard_Legguards.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://dw28h53xcc0ga" path="res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Vanguard_Legguards.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_xi6ip"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_ksuu6"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_6bb3d"]

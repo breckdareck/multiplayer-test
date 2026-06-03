@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=16 format=3 uid="uid://brh2j8b7l6sfn"]
 
-[ext_resource type="Texture2D" uid="uid://bnf5bjakx2nl8" path="res://assets/sprites/Abilities/generated_svg/Sword/A_Bloodthirst.svg" id="1_icon"]
+[ext_resource type="Texture2D" uid="uid://bucitsqj4jju" path="res://assets/sprites/Abilities/generated_px/Sword/A_Bloodthirst.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
 [ext_resource type="Script" uid="uid://s0t2cijqvey0" path="res://scripts/Abilities/AL_Bloodthirst.gd" id="3_albt"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_ad"]

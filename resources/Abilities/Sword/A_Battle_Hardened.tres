@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=15 format=3 uid="uid://bukckcn5pb2pf"]
 
-[ext_resource type="Texture2D" uid="uid://cg07lo2ascx0a" path="res://assets/sprites/Abilities/generated_svg/Sword/A_Battle_Hardened.svg" id="1_bh1"]
+[ext_resource type="Texture2D" uid="uid://b2b0gkncxfayw" path="res://assets/sprites/Abilities/generated_px/Sword/A_Battle_Hardened.png" id="1_bh1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_bh1"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_bh1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_bh1"]

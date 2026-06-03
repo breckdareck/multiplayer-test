@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=21 format=3 uid="uid://dyt61v3y6pldn"]
 
-[ext_resource type="Texture2D" uid="uid://cuho25h2enxnl" path="res://assets/sprites/Abilities/generated_svg/Dagger/A_Shadowstep.svg" id="1_sst1"]
+[ext_resource type="Texture2D" uid="uid://dor0567gppf3y" path="res://assets/sprites/Abilities/generated_px/Dagger/A_Shadowstep.png" id="1_sst1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_sst1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_sst2"]
 [ext_resource type="Script" uid="uid://dlk6unj346npc" path="res://scripts/Abilities/AL_Shadowstep.gd" id="3_sst1"]

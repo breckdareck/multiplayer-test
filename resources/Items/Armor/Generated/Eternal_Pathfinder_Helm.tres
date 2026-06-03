@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://xr7oiuydpfbs"]
 
-[ext_resource type="Texture2D" uid="uid://d4cqsmwiv8jxg" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Eternal_Pathfinder_Helm.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://6bgo8jrsaikb" path="res://assets/sprites/Items/generated_px/Armor/Generated/Eternal_Pathfinder_Helm.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_6mnhy"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_k7641"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_ys250"]

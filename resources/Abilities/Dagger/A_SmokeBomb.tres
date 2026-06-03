@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=19 format=3 uid="uid://clyv267q7aed1"]
 
-[ext_resource type="Texture2D" uid="uid://dllpyev82sqju" path="res://assets/sprites/Abilities/generated_svg/Dagger/A_SmokeBomb.svg" id="1_icon"]
+[ext_resource type="Texture2D" uid="uid://4wqxwiq08113" path="res://assets/sprites/Abilities/generated_px/Dagger/A_SmokeBomb.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
 [ext_resource type="Script" uid="uid://cjvd7g4qvvkt1" path="res://scripts/Abilities/AL_SmokeBomb.gd" id="3_al"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_ad"]

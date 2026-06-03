@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://kw22mt7r7kx7"]
 
-[ext_resource type="Texture2D" uid="uid://co8wbtlifpebt" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Iron_Arcanist_Mail.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://i7qhbj1n4rln" path="res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Arcanist_Mail.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_33mqg"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_ca8f4"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_8gnc4"]

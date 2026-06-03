@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=22 format=3 uid="uid://ccpjinaimna60"]
 
-[ext_resource type="Texture2D" uid="uid://bkbkk1uowq2xy" path="res://assets/sprites/Abilities/generated_svg/Sword/A_Bulwark_Stance.svg" id="1_icon"]
+[ext_resource type="Texture2D" uid="uid://bis40ucxomeym" path="res://assets/sprites/Abilities/generated_px/Sword/A_Bulwark_Stance.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://dn1vvhfka7naa" path="res://scripts/Abilities/AL_BulwarkStance.gd" id="2b_albs"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="3_ad"]

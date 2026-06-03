@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://focusabl001x"]
 
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_focs2"]
-[ext_resource type="Texture2D" uid="uid://dimbxmbktb4gq" path="res://assets/sprites/Abilities/generated_svg/Bow/A_Steady_Aim.svg" id="1_xyi1c"]
+[ext_resource type="Texture2D" uid="uid://kib3sb4anygh" path="res://assets/sprites/Abilities/generated_px/Bow/A_Steady_Aim.png" id="1_xyi1c"]
 [ext_resource type="Script" uid="uid://lfocusgd001x" path="res://scripts/Abilities/AL_Steady_Aim.gd" id="2_xyi1c"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="3_focs1"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="4_focs1"]

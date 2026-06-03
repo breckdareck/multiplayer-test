@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=24 format=3 uid="uid://bfrv6eglagdjb"]
 
-[ext_resource type="Texture2D" uid="uid://y4xdm8rafmo2" path="res://assets/sprites/Abilities/generated_svg/Staff/A_Arcane_Lance.svg" id="1_ln1"]
+[ext_resource type="Texture2D" uid="uid://rgaxvawoffuj" path="res://assets/sprites/Abilities/generated_px/Staff/A_Arcane_Lance.png" id="1_ln1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_ln1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_ln2"]
 [ext_resource type="PackedScene" uid="uid://d0ig4oiimrnei" path="res://scenes/Gameplay/projectile_base.tscn" id="2_ln3"]

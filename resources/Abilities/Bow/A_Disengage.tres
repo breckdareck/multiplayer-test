@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=24 format=3 uid="uid://bowdiseng001x"]
 
-[ext_resource type="Texture2D" uid="uid://bp7x5e7ka1a3w" path="res://assets/sprites/Abilities/generated_svg/Bow/A_Disengage.svg" id="1_dis1"]
+[ext_resource type="Texture2D" uid="uid://feeig30c2ov5" path="res://assets/sprites/Abilities/generated_px/Bow/A_Disengage.png" id="1_dis1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_dis1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_dis2"]
 [ext_resource type="PackedScene" uid="uid://d0ig4oiimrnei" path="res://scenes/Gameplay/projectile_base.tscn" id="2_dis3"]

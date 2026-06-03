@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://ctuuha6kutnms"]
 
-[ext_resource type="Texture2D" uid="uid://bg6cv2sc2jc8c" path="res://assets/sprites/Abilities/generated_svg/Sword/A_Steel_Flurry.svg" id="1_wr37i"]
+[ext_resource type="Texture2D" uid="uid://cofavhwfjicjb" path="res://assets/sprites/Abilities/generated_px/Sword/A_Steel_Flurry.png" id="1_wr37i"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_xjwtl"]
 [ext_resource type="Script" uid="uid://bfdta2tpg7iw6" path="res://scripts/Abilities/AL_Steel_Flurry.gd" id="3_brand"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="4_4i2r3"]

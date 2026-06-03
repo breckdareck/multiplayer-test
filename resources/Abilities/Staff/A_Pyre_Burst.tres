@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=25 format=3 uid="uid://cgywubtniaon0"]
 
-[ext_resource type="Texture2D" uid="uid://bvqcht2buceh3" path="res://assets/sprites/Abilities/generated_svg/Staff/A_Pyre_Burst.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://mvgci1i55lsc" path="res://assets/sprites/Abilities/generated_px/Staff/A_Pyre_Burst.png" id="99_svgicon"]
 [ext_resource type="Texture2D" uid="uid://b407mfrctd50w" path="res://assets/sprites/MinifolksHumans/HumansProjectiles.png" id="1_k2vp6"]
 [ext_resource type="PackedScene" uid="uid://7v8f1uwug0qe" path="res://scenes/Gameplay/fireball.tscn" id="2_xltx3"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="3_hkoui"]

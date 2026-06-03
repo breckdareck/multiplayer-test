@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="PetSkillBookData" load_steps=5 format=3 uid="uid://c1ndnojic5s6x"]
 
-[ext_resource type="Texture2D" uid="uid://chd8q8hu4hjti" path="res://assets/sprites/Items/generated_svg/PetItems/PetSkillBook_Buff.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://b06apy1rwqulj" path="res://assets/sprites/Items/generated_px/PetItems/PetSkillBook_Buff.png" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://cio054l2yk8vc" path="res://scripts/Resources/PetSystem/PetSkillBookData.gd" id="1_book"]
 [ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="1_prmhf"]
 

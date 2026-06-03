@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=17 format=3 uid="uid://b54a674pd32nr"]
 
-[ext_resource type="Texture2D" uid="uid://dr765mk0ddne6" path="res://assets/sprites/Abilities/generated_svg/Sword/A_VanguardsResolve.svg" id="1_icon"]
+[ext_resource type="Texture2D" uid="uid://b8ewxt828lfa6" path="res://assets/sprites/Abilities/generated_px/Sword/A_VanguardsResolve.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_asd"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_sbf"]

@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=25 format=3 uid="uid://drksghtabl01"]
 
-[ext_resource type="Texture2D" uid="uid://bt13svh8mi0d7" path="res://assets/sprites/Abilities/generated_svg/Dagger/A_Killing_Edge.svg" id="1_8vb02"]
+[ext_resource type="Texture2D" uid="uid://bblnpt0d2a5pl" path="res://assets/sprites/Abilities/generated_px/Dagger/A_Killing_Edge.png" id="1_8vb02"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_drks2"]
 [ext_resource type="Script" uid="uid://ldrksght001x" path="res://scripts/Abilities/AL_Killing_Edge.gd" id="2_drks1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="3_drks1"]

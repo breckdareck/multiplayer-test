@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bt6tac51nv30m"]
 
-[ext_resource type="Texture2D" uid="uid://dj1cjyldxesc2" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Mithril_Arcanist_Boots.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://do5bbb0xy77nf" path="res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Boots.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_rw28r"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_gjme0"]
 

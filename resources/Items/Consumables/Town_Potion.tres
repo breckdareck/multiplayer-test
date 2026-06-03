@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ConsumableData" load_steps=6 format=3 uid="uid://cpjl8touji5vt"]
 
-[ext_resource type="Texture2D" uid="uid://bxlthn72g1gme" path="res://assets/sprites/Items/generated_svg/Consumables/Town_Potion.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://nwbl5xw5m3qu" path="res://assets/sprites/Items/generated_px/Consumables/Town_Potion.png" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://ubv3mjjv4lvi" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="2_co4r6"]
 [ext_resource type="Script" uid="uid://04d0vey05pky" path="res://scripts/Resources/ItemSystem/Effects/Effect_TownPotion.gd" id="2_effect"]

@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://cx3yco3tlsu3p"]
 
-[ext_resource type="Texture2D" uid="uid://b7fgxy24opspd" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Dragonbone_Nightshade_Helm.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://cnic8pgdry2p6" path="res://assets/sprites/Items/generated_px/Armor/Generated/Dragonbone_Nightshade_Helm.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_5ju7f"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_cg0rx"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_7pc2c"]

@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="WeaponData" load_steps=10 format=3 uid="uid://bjv3bsjpcfjg"]
 
-[ext_resource type="Texture2D" uid="uid://dk44x64jpgqh6" path="res://assets/sprites/Items/generated_svg/Unique/Staff_of_Eternity.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://dwyl7rrl2bxhd" path="res://assets/sprites/Items/generated_px/Unique/Staff_of_Eternity.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_dms1g"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_1sq0n"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_5pn12"]

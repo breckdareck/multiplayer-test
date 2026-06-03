@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ArmorData" load_steps=7 format=3 uid="uid://do0m6107vwbor"]
 
-[ext_resource type="Texture2D" uid="uid://by3fpuxy7eo33" path="res://assets/sprites/Items/generated_svg/Armor/Mystic_Robe.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://dbru0lbi15p0f" path="res://assets/sprites/Items/generated_px/Armor/Mystic_Robe.png" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_mr01"]
 [ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="2_pw4qg"]
 [ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_mr01"]

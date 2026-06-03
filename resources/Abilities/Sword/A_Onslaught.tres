@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://iipchubnkf2v"]
 
-[ext_resource type="Texture2D" uid="uid://c3676o7125qh0" path="res://assets/sprites/Abilities/generated_svg/Sword/A_Onslaught.svg" id="1_icon"]
+[ext_resource type="Texture2D" uid="uid://bp0bq0p2apijm" path="res://assets/sprites/Abilities/generated_px/Sword/A_Onslaught.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
 [ext_resource type="Script" uid="uid://c3coephlwhylf" path="res://scripts/Abilities/AL_Onslaught.gd" id="3_al"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_ad"]

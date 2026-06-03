@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://1o1xtlf7cfc8"]
 
-[ext_resource type="Texture2D" uid="uid://bkbdxioc61riq" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Dragonbone_Arcanist_Boots.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://cmwiv48nh83hu" path="res://assets/sprites/Items/generated_px/Armor/Generated/Dragonbone_Arcanist_Boots.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_8nh6o"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_2nyew"]
 

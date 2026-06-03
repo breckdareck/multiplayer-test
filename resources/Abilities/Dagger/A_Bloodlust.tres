@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=28 format=3 uid="uid://c37bseifhg1hl"]
 
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_behav"]
-[ext_resource type="Texture2D" uid="uid://da27m244yoehv" path="res://assets/sprites/Abilities/generated_svg/Dagger/A_Bloodlust.svg" id="1_t12uv"]
+[ext_resource type="Texture2D" uid="uid://bdd8je8j6u3gc" path="res://assets/sprites/Abilities/generated_px/Dagger/A_Bloodlust.png" id="1_t12uv"]
 [ext_resource type="Script" uid="uid://btljx6d0d4ayu" path="res://scripts/Abilities/AL_Bloodlust.gd" id="2_logic"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="3_abil"]
 [ext_resource type="Resource" uid="uid://cif2v0bysv5tc" path="res://resources/Buffs/B_Bloodlust.tres" id="4_buff"]

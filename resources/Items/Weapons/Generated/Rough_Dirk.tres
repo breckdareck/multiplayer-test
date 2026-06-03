@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://ypv6hfgg7mkr"]
 
-[ext_resource type="Texture2D" uid="uid://cqm7rlbu7340o" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Rough_Dirk.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://c2y3lpgu62asi" path="res://assets/sprites/Items/generated_px/Weapons/Generated/Rough_Dirk.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_2ngc5"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_y4ata"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_sjedc"]

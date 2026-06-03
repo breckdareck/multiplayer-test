@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://b46ytuowuqds"]
 
-[ext_resource type="Texture2D" uid="uid://clyv85m6m057" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Astral_Longsword.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://vjbo6cjfpsae" path="res://assets/sprites/Items/generated_px/Weapons/Generated/Astral_Longsword.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_3psyx"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_cayum"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_crbe7"]

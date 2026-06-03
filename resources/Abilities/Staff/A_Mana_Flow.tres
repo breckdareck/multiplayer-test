@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=15 format=3 uid="uid://bgenn2q8jp04e"]
 
-[ext_resource type="Texture2D" uid="uid://c8icyjoava4jt" path="res://assets/sprites/Abilities/generated_svg/Staff/A_Mana_Flow.svg" id="1_vb1"]
+[ext_resource type="Texture2D" uid="uid://c7klosfddnptr" path="res://assets/sprites/Abilities/generated_px/Staff/A_Mana_Flow.png" id="1_vb1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_vb1"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_vb1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_vb1"]

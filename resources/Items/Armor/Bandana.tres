@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ArmorData" load_steps=7 format=3 uid="uid://bjlfoop0xqx1y"]
 
-[ext_resource type="Texture2D" uid="uid://ck4thmsfv40qx" path="res://assets/sprites/Items/generated_svg/Armor/Bandana.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://d01admr1x8vr7" path="res://assets/sprites/Items/generated_px/Armor/Bandana.png" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_ba001"]
 [ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="2_68t1n"]
 [ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_ba001"]

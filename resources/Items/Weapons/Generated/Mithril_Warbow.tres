@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://os8vdf6dgejv"]
 
-[ext_resource type="Texture2D" uid="uid://lwiwy6kgdkjr" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Mithril_Warbow.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://c060w7cbklt61" path="res://assets/sprites/Items/generated_px/Weapons/Generated/Mithril_Warbow.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_unkgg"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_l0wsj"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_42e2f"]

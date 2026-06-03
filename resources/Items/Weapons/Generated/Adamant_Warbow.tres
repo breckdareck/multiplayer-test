@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://hcrgs0c8umx3"]
 
-[ext_resource type="Texture2D" uid="uid://3xofhss8ibq5" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Adamant_Warbow.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://uk8yd8j53t1p" path="res://assets/sprites/Items/generated_px/Weapons/Generated/Adamant_Warbow.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_g156e"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_6ovos"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_8jf1s"]

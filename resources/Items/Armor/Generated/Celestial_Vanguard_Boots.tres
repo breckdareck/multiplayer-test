@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://b15t57xwlb2un"]
 
-[ext_resource type="Texture2D" uid="uid://dg5jumm8x0lbw" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Celestial_Vanguard_Boots.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://yp6k2sf5uip0" path="res://assets/sprites/Items/generated_px/Armor/Generated/Celestial_Vanguard_Boots.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_6jhxn"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_hbrde"]
 

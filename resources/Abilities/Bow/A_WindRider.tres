@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=17 format=3 uid="uid://w66hekevsve1"]
 
-[ext_resource type="Texture2D" uid="uid://ckmtgg2xd1px3" path="res://assets/sprites/Abilities/generated_svg/Bow/A_WindRider.svg" id="1_icon"]
+[ext_resource type="Texture2D" uid="uid://bi6x884vmxshb" path="res://assets/sprites/Abilities/generated_px/Bow/A_WindRider.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_asd"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_sbf"]

@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="WeaponData" load_steps=10 format=3 uid="uid://cnuav2bxo7hkn"]
 
-[ext_resource type="Texture2D" uid="uid://b46us5t52un4o" path="res://assets/sprites/Items/generated_svg/Unique/Stormpiercer.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://k3bnrqjdv5lf" path="res://assets/sprites/Items/generated_px/Unique/Stormpiercer.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_33bm3"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_kqs2s"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_a6pec"]

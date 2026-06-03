@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="WeaponData" load_steps=7 format=3 uid="uid://nbfh0u6nd1vy"]
 
-[ext_resource type="Texture2D" uid="uid://b2f2sd577kjel" path="res://assets/sprites/Items/generated_svg/Weapons/Machete.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://b8vwbl6nrggl5" path="res://assets/sprites/Items/generated_px/Weapons/Machete.png" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_omroi"]
 [ext_resource type="Texture2D" uid="uid://cj4kv8pk70aal" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_56abt"]
 [ext_resource type="Script" uid="uid://mysmonmct4jm" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="2_ganye"]

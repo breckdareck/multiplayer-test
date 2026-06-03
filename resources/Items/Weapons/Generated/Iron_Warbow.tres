@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://c6voi0d1g2w5y"]
 
-[ext_resource type="Texture2D" uid="uid://2jxoy8c5hx1e" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Iron_Warbow.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://dm2rr66xxy83o" path="res://assets/sprites/Items/generated_px/Weapons/Generated/Iron_Warbow.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_j3pk0"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_ss52m"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_a571u"]

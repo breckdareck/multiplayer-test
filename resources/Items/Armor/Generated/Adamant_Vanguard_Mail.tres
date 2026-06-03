@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://dl23rs545y6t7"]
 
-[ext_resource type="Texture2D" uid="uid://c6ev5t63l78d" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Adamant_Vanguard_Mail.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://c4gg1x3x4h62p" path="res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Vanguard_Mail.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_bugd6"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_8l101"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_5ko4k"]

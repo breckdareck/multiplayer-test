@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://c063aupqay4hj"]
 
-[ext_resource type="Texture2D" uid="uid://bl5o7snwc8h8n" path="res://assets/sprites/Items/generated_svg/Weapons/Crystal_Staff.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://dxaom6irfhjlr" path="res://assets/sprites/Items/generated_px/Weapons/Crystal_Staff.png" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_cst01"]
 [ext_resource type="Texture2D" uid="uid://cj4kv8pk70aal" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_cst01"]
 [ext_resource type="Script" uid="uid://mysmonmct4jm" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_cst01"]

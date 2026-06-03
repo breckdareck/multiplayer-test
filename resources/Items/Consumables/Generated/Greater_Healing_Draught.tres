@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ConsumableData" load_steps=6 format=3 uid="uid://r25iljcogvay"]
 
-[ext_resource type="Texture2D" uid="uid://bs1iiyuxaoubo" path="res://assets/sprites/Items/generated_svg/Consumables/Generated/Greater_Healing_Draught.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://bxqifgnqia3if" path="res://assets/sprites/Items/generated_px/Consumables/Generated/Greater_Healing_Draught.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/Effects/Effect_RestoreHealth.gd" id="1_cov4o"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_2uu5y"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="3_04x7s"]

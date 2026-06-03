@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bn6msftq53uim"]
 
-[ext_resource type="Texture2D" uid="uid://00r161tvfdmp" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Pristine_Nightshade_Boots.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://d2gx5mgck8nx0" path="res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Nightshade_Boots.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_j5lir"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_byhru"]
 

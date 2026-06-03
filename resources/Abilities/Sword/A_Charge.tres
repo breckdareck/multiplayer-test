@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://crulsbi5bcphr"]
 
-[ext_resource type="Texture2D" uid="uid://c1ir5lyca5ri8" path="res://assets/sprites/Abilities/generated_svg/Sword/A_Charge.svg" id="1_icon"]
+[ext_resource type="Texture2D" uid="uid://qwuagsee3yeq" path="res://assets/sprites/Abilities/generated_px/Sword/A_Charge.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
 [ext_resource type="Script" uid="uid://hy51o4uy4dt5" path="res://scripts/Abilities/AL_Charge.gd" id="3_al"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_ad"]

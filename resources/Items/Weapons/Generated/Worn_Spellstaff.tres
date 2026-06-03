@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://dsq6sgepcauiy"]
 
-[ext_resource type="Texture2D" uid="uid://bnmuilsqqevox" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Worn_Spellstaff.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://bb1ljjfi47tja" path="res://assets/sprites/Items/generated_px/Weapons/Generated/Worn_Spellstaff.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_wrot8"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_i8kb3"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_vespr"]

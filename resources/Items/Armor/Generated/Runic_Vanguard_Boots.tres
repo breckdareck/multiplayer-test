@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://dgwf8hisx2ikj"]
 
-[ext_resource type="Texture2D" uid="uid://0bqg8w8jlj15" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Runic_Vanguard_Boots.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://mhxn0s845l1v" path="res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Vanguard_Boots.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_rj38y"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_vq58s"]
 

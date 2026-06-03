@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://cp2kgnc7loqw3"]
 
-[ext_resource type="Texture2D" uid="uid://t1k7kk5ucij4" path="res://assets/sprites/Items/generated_svg/Unique/Falcon_Boots.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://bcvl8ndqwqhu2" path="res://assets/sprites/Items/generated_px/Unique/Falcon_Boots.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_2v5he"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_ld160"]
 

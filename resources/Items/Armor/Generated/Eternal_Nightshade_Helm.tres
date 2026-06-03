@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://dcpc5diurh58u"]
 
-[ext_resource type="Texture2D" uid="uid://c0i3fmigb7sg8" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Eternal_Nightshade_Helm.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://b6xhyrbxkjhbw" path="res://assets/sprites/Items/generated_px/Armor/Generated/Eternal_Nightshade_Helm.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_agvmg"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_gihnr"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_e8eem"]

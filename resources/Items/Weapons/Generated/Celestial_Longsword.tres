@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://djlqld6pnpqlh"]
 
-[ext_resource type="Texture2D" uid="uid://dasq8633hv4kw" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Celestial_Longsword.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://doqe40kpgxo8b" path="res://assets/sprites/Items/generated_px/Weapons/Generated/Celestial_Longsword.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_4f7xg"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_rxbdo"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_wyb3t"]

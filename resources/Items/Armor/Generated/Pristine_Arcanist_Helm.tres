@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://bh6mhnwoks7md"]
 
-[ext_resource type="Texture2D" uid="uid://d1u1xf83f108n" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Pristine_Arcanist_Helm.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://1nhi5opde1w" path="res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Arcanist_Helm.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_plrkt"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_qp7ct"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_s0a2a"]

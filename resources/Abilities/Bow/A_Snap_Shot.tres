@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=19 format=3 uid="uid://hhx8fc5iylxh"]
 
-[ext_resource type="Texture2D" uid="uid://brpn37xurwx1h" path="res://assets/sprites/Abilities/generated_svg/Bow/A_Snap_Shot.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://bcpwmiqyblf42" path="res://assets/sprites/Abilities/generated_px/Bow/A_Snap_Shot.png" id="99_svgicon"]
 [ext_resource type="Texture2D" uid="uid://b407mfrctd50w" path="res://assets/sprites/MinifolksHumans/HumansProjectiles.png" id="1_3p7m4"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_3p7m4"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_6h1s2"]

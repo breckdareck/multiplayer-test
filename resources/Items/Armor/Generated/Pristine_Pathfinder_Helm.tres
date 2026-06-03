@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://c3amx1crvj6fr"]
 
-[ext_resource type="Texture2D" uid="uid://dhkn16n4ljqh4" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Pristine_Pathfinder_Helm.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://bk4f77l7gh3l3" path="res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Pathfinder_Helm.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_lohus"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_x7cwt"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_2isy1"]

@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=15 format=3 uid="uid://b8rgttmi4n14f"]
 
-[ext_resource type="Texture2D" uid="uid://b32gjnndwo1r1" path="res://assets/sprites/Abilities/generated_svg/Dagger/A_Toxicology.svg" id="1_exw1"]
+[ext_resource type="Texture2D" uid="uid://ulcnmb52vscd" path="res://assets/sprites/Abilities/generated_px/Dagger/A_Toxicology.png" id="1_exw1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_exw1"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_exw1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_exw1"]

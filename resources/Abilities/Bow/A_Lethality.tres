@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=15 format=3 uid="uid://escy36o4gfpn"]
 
-[ext_resource type="Texture2D" uid="uid://ceb18yjg0owvm" path="res://assets/sprites/Abilities/generated_svg/Bow/A_Lethality.svg" id="1_le1"]
+[ext_resource type="Texture2D" uid="uid://b8oibpdaqscts" path="res://assets/sprites/Abilities/generated_px/Bow/A_Lethality.png" id="1_le1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_le1"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_le1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_le1"]

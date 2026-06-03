@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://ceaul4ktillv4"]
 
-[ext_resource type="Texture2D" uid="uid://cobvmkjgl6yk3" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Steel_Arcanist_Legguards.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://dil7yksddbfua" path="res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Arcanist_Legguards.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_whepr"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_7ses6"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_i2yj2"]

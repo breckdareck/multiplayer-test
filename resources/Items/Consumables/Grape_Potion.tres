@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ConsumableData" load_steps=6 format=3 uid="uid://cjl5ggbs3c237"]
 
-[ext_resource type="Texture2D" uid="uid://8ns5jg046kaw" path="res://assets/sprites/Items/generated_svg/Consumables/Grape_Potion.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://k1yh24d2bcfa" path="res://assets/sprites/Items/generated_px/Consumables/Grape_Potion.png" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://ubv3mjjv4lvi" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="1_zod2q"]
 [ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="2_xf8nk"]
 [ext_resource type="Script" uid="uid://bwha778d03wb3" path="res://scripts/Resources/ItemSystem/Effects/Effect_RestoreHealth.gd" id="3_q2y5w"]

@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://c7vpnq0w3tb6w"]
 
-[ext_resource type="Texture2D" uid="uid://bv125dxygin2k" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Runic_Nightshade_Helm.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://dv2qdamtvo880" path="res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Nightshade_Helm.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_1wtsn"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_oerkc"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_nx7ea"]

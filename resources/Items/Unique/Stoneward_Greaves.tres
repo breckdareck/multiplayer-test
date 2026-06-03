@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://c3b0f5lgmte1h"]
 
-[ext_resource type="Texture2D" uid="uid://bccs5237anpgy" path="res://assets/sprites/Items/generated_svg/Unique/Stoneward_Greaves.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://btxbbio6rb5me" path="res://assets/sprites/Items/generated_px/Unique/Stoneward_Greaves.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_frkfr"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_bnt1r"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_gdp5f"]

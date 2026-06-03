@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://pcqu2m8016q6"]
 
-[ext_resource type="Texture2D" uid="uid://hy7rnj6nawdh" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Astral_Nightshade_Mail.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://x8qunsl6p3xn" path="res://assets/sprites/Items/generated_px/Armor/Generated/Astral_Nightshade_Mail.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_yelr0"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_ih5si"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_jij58"]

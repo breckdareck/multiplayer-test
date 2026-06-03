@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=28 format=3 uid="uid://shrpeyes001x"]
 
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_behav"]
-[ext_resource type="Texture2D" uid="uid://cibifavwb8nn7" path="res://assets/sprites/Abilities/generated_svg/Bow/A_Eagle_Eye.svg" id="1_chef7"]
+[ext_resource type="Texture2D" uid="uid://ctc0nyf4lder5" path="res://assets/sprites/Abilities/generated_px/Bow/A_Eagle_Eye.png" id="1_chef7"]
 [ext_resource type="Script" uid="uid://tcmlhlo7jekp" path="res://scripts/Abilities/AL_Eagle_Eye.gd" id="2_logic"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="3_abil"]
 [ext_resource type="Resource" uid="uid://b7q0sg83d763q" path="res://resources/Buffs/B_Eagle_Eye.tres" id="4_buff"]

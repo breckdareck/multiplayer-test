@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://bl5oqshqb6f1j"]
 
-[ext_resource type="Texture2D" uid="uid://cgh4xm0mqioa0" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Worn_Pathfinder_Legguards.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://cim8qv2jygcaw" path="res://assets/sprites/Items/generated_px/Armor/Generated/Worn_Pathfinder_Legguards.png" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_va0uj"]
 [ext_resource type="Texture2D" uid="uid://bannlqdgbwmld" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_57kau"]
 [ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_yc5ov"]

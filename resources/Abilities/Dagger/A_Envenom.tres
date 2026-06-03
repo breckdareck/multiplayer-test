@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://jybdswmtditj"]
 
-[ext_resource type="Texture2D" uid="uid://dvwifldgpb2j7" path="res://assets/sprites/Abilities/generated_svg/Dagger/A_Envenom.svg" id="1_env1"]
+[ext_resource type="Texture2D" uid="uid://bq3hdbicv14kt" path="res://assets/sprites/Abilities/generated_px/Dagger/A_Envenom.png" id="1_env1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_env1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_env2"]
 [ext_resource type="Script" uid="uid://ddqcircwvhmu3" path="res://scripts/Abilities/AL_Envenom.gd" id="3_env1"]

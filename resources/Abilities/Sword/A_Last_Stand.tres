@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=15 format=3 uid="uid://tum104xs8hrj"]
 
-[ext_resource type="Texture2D" uid="uid://oo24iagcg6hg" path="res://assets/sprites/Abilities/generated_svg/Sword/A_Last_Stand.svg" id="1_sb1"]
+[ext_resource type="Texture2D" uid="uid://dcopfipcnv624" path="res://assets/sprites/Abilities/generated_px/Sword/A_Last_Stand.png" id="1_sb1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_sb1"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_sb1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_sb1"]

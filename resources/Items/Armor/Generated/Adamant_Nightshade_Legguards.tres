@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://cvcetxnbeywo0"]
 
-[ext_resource type="Texture2D" uid="uid://bl8hp1ei416n4" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Adamant_Nightshade_Legguards.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://bubw6pul5yx4k" path="res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Nightshade_Legguards.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_c1qu7"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_0a51e"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_32kp1"]

@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://d1lchd7uem6cm"]
 
-[ext_resource type="Texture2D" uid="uid://d4ia88x70syo0" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Pristine_Dirk.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://c45l0ne6j2yq5" path="res://assets/sprites/Items/generated_px/Weapons/Generated/Pristine_Dirk.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_vgkg4"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_4ieam"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_jdpmq"]

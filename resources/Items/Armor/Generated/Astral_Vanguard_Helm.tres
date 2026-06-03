@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://dpbmw434rclny"]
 
-[ext_resource type="Texture2D" uid="uid://cf6ctd1yqlw8e" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Astral_Vanguard_Helm.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://iunameiy33gq" path="res://assets/sprites/Items/generated_px/Armor/Generated/Astral_Vanguard_Helm.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_eu006"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_pwkvs"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_kbh4l"]

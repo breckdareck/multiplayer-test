@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://dc40odn527gy3"]
 
-[ext_resource type="Texture2D" uid="uid://cnll2sl7dortx" path="res://assets/sprites/Items/generated_svg/Armor/Generated/Pristine_Vanguard_Boots.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://dgpl0hioifacf" path="res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Vanguard_Boots.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_quxpr"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_u51hr"]
 

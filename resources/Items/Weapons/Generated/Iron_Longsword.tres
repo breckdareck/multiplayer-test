@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://d1orbekvbtuoc"]
 
-[ext_resource type="Texture2D" uid="uid://cesyclx0d363d" path="res://assets/sprites/Items/generated_svg/Weapons/Generated/Iron_Longsword.svg" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://bxvwcrlj0kl0q" path="res://assets/sprites/Items/generated_px/Weapons/Generated/Iron_Longsword.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_yuwm5"]
 [ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_tyn5i"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_uwmsx"]

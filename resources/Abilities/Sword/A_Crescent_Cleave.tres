@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=21 format=3 uid="uid://ccxoh5fmx317x"]
 
-[ext_resource type="Texture2D" uid="uid://cpkgoylx80oko" path="res://assets/sprites/Abilities/generated_svg/Sword/A_Crescent_Cleave.svg" id="1_ajojy"]
+[ext_resource type="Texture2D" uid="uid://cuohboi1t011w" path="res://assets/sprites/Abilities/generated_px/Sword/A_Crescent_Cleave.png" id="1_ajojy"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_7svtf"]
 [ext_resource type="Script" uid="uid://bo7smgjmw6ptb" path="res://scripts/Abilities/AL_Slash.gd" id="3_slcombo"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_7e1xr"]
