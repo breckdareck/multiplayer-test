@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://4gnvgffwdh4w"]
 
-[ext_resource type="Texture2D" uid="uid://bstguvwrql18p" path="res://assets/sprites/Abilities/power_strike.png" id="1_icon"]
+[ext_resource type="Texture2D" uid="uid://cf6owh5080xuj" path="res://assets/sprites/Abilities/generated_svg/Sword/A_Hemorrhage.svg" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
 [ext_resource type="Script" uid="uid://dl632twao5qdv" path="res://scripts/Abilities/AL_Hemorrhage.gd" id="3_alhem"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_ad"]

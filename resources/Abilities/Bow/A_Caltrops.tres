@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=21 format=3 uid="uid://ywf3jebiatih"]
 
-[ext_resource type="Texture2D" uid="uid://drobx0va8sphc" path="res://assets/sprites/Abilities/strafe.png" id="1_icon"]
+[ext_resource type="Texture2D" uid="uid://d4l2cfahk2j7u" path="res://assets/sprites/Abilities/generated_svg/Bow/A_Caltrops.svg" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
 [ext_resource type="Script" uid="uid://w3x34ybdkevd" path="res://scripts/Abilities/AL_Caltrops.gd" id="3_al"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_ad"]
@@ -9,9 +9,9 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_sbf"]
 [ext_resource type="Resource" uid="uid://ds4afyx78ono" path="res://resources/Abilities/Bow/Upgrades/U_CAL_sharper_spikes.tres" id="9_upg"]
 [ext_resource type="Resource" uid="uid://oav6weee84h" path="res://resources/Abilities/Bow/Upgrades/U_CAL_wider_field.tres" id="10_upg"]
-[ext_resource type="Resource" uid="uid://kyuzepwplyjti" path="res://resources/Abilities/Bow/Upgrades/U_CAL_lingering_field.tres" id="11_upg"]
-[ext_resource type="Resource" uid="uid://pop7gxd7kj4pb" path="res://resources/Abilities/Bow/Upgrades/U_CAL_piercing_spikes.tres" id="12_upg"]
-[ext_resource type="Resource" uid="uid://xysq2mtqnv4tz" path="res://resources/Abilities/Bow/Upgrades/U_CAL_poisoned_spikes.tres" id="13_upg"]
+[ext_resource type="Resource" uid="uid://c8187l27hksby" path="res://resources/Abilities/Bow/Upgrades/U_CAL_lingering_field.tres" id="11_upg"]
+[ext_resource type="Resource" uid="uid://d3ilormguxif0" path="res://resources/Abilities/Bow/Upgrades/U_CAL_piercing_spikes.tres" id="12_upg"]
+[ext_resource type="Resource" uid="uid://sdjjbb8aovbf" path="res://resources/Abilities/Bow/Upgrades/U_CAL_poisoned_spikes.tres" id="13_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="14_aud"]
 
 [sub_resource type="Resource" id="Resource_active"]

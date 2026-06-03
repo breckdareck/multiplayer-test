@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://dw4pnxjthx1x8"]
 
-[ext_resource type="Texture2D" uid="uid://vctf0t1xc33c" path="res://assets/sprites/Abilities/double_shot.webp" id="1_icon"]
+[ext_resource type="Texture2D" uid="uid://cwhjn1bwri7ad" path="res://assets/sprites/Abilities/generated_svg/Bow/A_SunderingArrow.svg" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
 [ext_resource type="Script" uid="uid://bi7ye1sswjc40" path="res://scripts/Abilities/AL_SunderingArrow.gd" id="3_al"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_ad"]
@@ -9,9 +9,9 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_sbf"]
 [ext_resource type="Resource" uid="uid://hjwekhphohot" path="res://resources/Abilities/Bow/Upgrades/U_SDR_swift_sundering.tres" id="9_upg"]
 [ext_resource type="Resource" uid="uid://cibq8h5v4npc2" path="res://resources/Abilities/Bow/Upgrades/U_SDR_heavy_sundering.tres" id="10_upg"]
-[ext_resource type="Resource" uid="uid://v7oibg6yiox4a" path="res://resources/Abilities/Bow/Upgrades/U_SDR_far_sundering.tres" id="11_upg"]
-[ext_resource type="Resource" uid="uid://eqw6wthlzr2tc" path="res://resources/Abilities/Bow/Upgrades/U_SDR_crushing_sundering.tres" id="12_upg"]
-[ext_resource type="Resource" uid="uid://3bhe2jvoece3z" path="res://resources/Abilities/Bow/Upgrades/U_SDR_refunding_sundering.tres" id="13_upg"]
+[ext_resource type="Resource" uid="uid://cvm5c6lpoolcg" path="res://resources/Abilities/Bow/Upgrades/U_SDR_far_sundering.tres" id="11_upg"]
+[ext_resource type="Resource" uid="uid://vjccrkdgk62k" path="res://resources/Abilities/Bow/Upgrades/U_SDR_crushing_sundering.tres" id="12_upg"]
+[ext_resource type="Resource" uid="uid://8mbw5gwfwasn" path="res://resources/Abilities/Bow/Upgrades/U_SDR_refunding_sundering.tres" id="13_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="14_aud"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hit"]

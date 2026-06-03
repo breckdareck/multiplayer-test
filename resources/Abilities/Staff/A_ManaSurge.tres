@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=22 format=3 uid="uid://bita8vvt7kmk7"]
 
-[ext_resource type="Texture2D" uid="uid://cu1y53548p0uf" path="res://assets/sprites/Abilities/magic_bolt.png" id="1_icon"]
+[ext_resource type="Texture2D" uid="uid://3i4uxdda1a1u" path="res://assets/sprites/Abilities/generated_svg/Staff/A_ManaSurge.svg" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
 [ext_resource type="Script" uid="uid://ba54x5o0ahpbw" path="res://scripts/Abilities/AL_ManaSurge.gd" id="3_al"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_ad"]
@@ -9,9 +9,9 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_sbf"]
 [ext_resource type="Resource" uid="uid://dcjhjle4iacjb" path="res://resources/Abilities/Staff/Upgrades/U_MNS_lingering_surge.tres" id="9_upg"]
 [ext_resource type="Resource" uid="uid://cidtvqgq8qos6" path="res://resources/Abilities/Staff/Upgrades/U_MNS_surging_refund.tres" id="10_upg"]
-[ext_resource type="Resource" uid="uid://yxup2fllrapun" path="res://resources/Abilities/Staff/Upgrades/U_MNS_multiplying_surge.tres" id="11_upg"]
-[ext_resource type="Resource" uid="uid://7fc5krxeqhgtr" path="res://resources/Abilities/Staff/Upgrades/U_MNS_heavy_surge.tres" id="12_upg"]
-[ext_resource type="Resource" uid="uid://kqx3evsrr2cit" path="res://resources/Abilities/Staff/Upgrades/U_MNS_cascading_surge.tres" id="13_upg"]
+[ext_resource type="Resource" uid="uid://brfii223d2hb2" path="res://resources/Abilities/Staff/Upgrades/U_MNS_multiplying_surge.tres" id="11_upg"]
+[ext_resource type="Resource" uid="uid://bh26ucld7ugrn" path="res://resources/Abilities/Staff/Upgrades/U_MNS_heavy_surge.tres" id="12_upg"]
+[ext_resource type="Resource" uid="uid://c05c7ryannk0b" path="res://resources/Abilities/Staff/Upgrades/U_MNS_cascading_surge.tres" id="13_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="14_aud"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hit"]

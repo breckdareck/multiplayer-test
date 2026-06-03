@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=28 format=3 uid="uid://bkdmqdujl55nf"]
 
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_behav"]
-[ext_resource type="Texture2D" uid="uid://30u18vfwsa5i" path="res://assets/sprites/Abilities/meditation.png" id="1_h4exd"]
+[ext_resource type="Texture2D" uid="uid://8cuc8aeggg6q" path="res://assets/sprites/Abilities/generated_svg/Staff/A_Communion.svg" id="1_h4exd"]
 [ext_resource type="Script" uid="uid://cgorujwyt5d3" path="res://scripts/Abilities/AL_Communion.gd" id="2_logic"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="3_abil"]
 [ext_resource type="Resource" uid="uid://mphxpdgw4jyj" path="res://resources/Buffs/B_Communion.tres" id="4_buff"]

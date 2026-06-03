@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://c5mkwiv4gj5cx"]
 
-[ext_resource type="Texture2D" uid="uid://bstguvwrql18p" path="res://assets/sprites/Abilities/power_strike.png" id="1_icon"]
+[ext_resource type="Texture2D" uid="uid://cmpv8m8e0ab6o" path="res://assets/sprites/Abilities/generated_svg/Sword/A_Earthsplitter.svg" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
 [ext_resource type="Script" uid="uid://b3kfq1yeex12" path="res://scripts/Abilities/AL_Earthsplitter.gd" id="3_al"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_ad"]
@@ -10,8 +10,8 @@
 [ext_resource type="Resource" uid="uid://387hwqrwsggu" path="res://resources/Abilities/Sword/Upgrades/U_EAR_wider_crack.tres" id="9_upg"]
 [ext_resource type="Resource" uid="uid://cag0j6xnbsc16" path="res://resources/Abilities/Sword/Upgrades/U_EAR_lingering_tremors.tres" id="10_upg"]
 [ext_resource type="Resource" uid="uid://dx6oruxt0ryss" path="res://resources/Abilities/Sword/Upgrades/U_EAR_fissure_network.tres" id="11_upg"]
-[ext_resource type="Resource" uid="uid://4cx7xfekqlevw" path="res://resources/Abilities/Sword/Upgrades/U_EAR_aftershock.tres" id="12_upg"]
-[ext_resource type="Resource" uid="uid://jwdf4uzyofrel" path="res://resources/Abilities/Sword/Upgrades/U_EAR_cataclysm.tres" id="13_upg"]
+[ext_resource type="Resource" uid="uid://ca34s0xsr6alk" path="res://resources/Abilities/Sword/Upgrades/U_EAR_aftershock.tres" id="12_upg"]
+[ext_resource type="Resource" uid="uid://b6joxq6hj00u2" path="res://resources/Abilities/Sword/Upgrades/U_EAR_cataclysm.tres" id="13_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="14_aud"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hit"]

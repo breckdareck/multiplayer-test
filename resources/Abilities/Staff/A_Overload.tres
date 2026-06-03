@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=15 format=3 uid="uid://ddr205yl8tuyy"]
 
-[ext_resource type="Texture2D" uid="uid://cc18m1wu0h2vl" path="res://assets/sprites/Abilities/sharp_eyes.png" id="1_km1"]
+[ext_resource type="Texture2D" uid="uid://pbfod02f7xyl" path="res://assets/sprites/Abilities/generated_svg/Staff/A_Overload.svg" id="1_km1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_km1"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_km1"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_km1"]

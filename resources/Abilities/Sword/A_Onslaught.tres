@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://iipchubnkf2v"]
 
-[ext_resource type="Texture2D" uid="uid://blsf4bd1u7syc" path="res://assets/sprites/Abilities/Brandish.png" id="1_icon"]
+[ext_resource type="Texture2D" uid="uid://c3676o7125qh0" path="res://assets/sprites/Abilities/generated_svg/Sword/A_Onslaught.svg" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
 [ext_resource type="Script" uid="uid://c3coephlwhylf" path="res://scripts/Abilities/AL_Onslaught.gd" id="3_al"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_ad"]
@@ -9,9 +9,9 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_sbf"]
 [ext_resource type="Resource" uid="uid://6u5eho2rmkmy" path="res://resources/Abilities/Sword/Upgrades/U_OSL_swift_wind-up.tres" id="9_upg"]
 [ext_resource type="Resource" uid="uid://cynlqu8xyrmyo" path="res://resources/Abilities/Sword/Upgrades/U_OSL_strong_arm.tres" id="10_upg"]
-[ext_resource type="Resource" uid="uid://bk4kz5zroytvg" path="res://resources/Abilities/Sword/Upgrades/U_OSL_earthshaker.tres" id="11_upg"]
-[ext_resource type="Resource" uid="uid://54524if4udc47" path="res://resources/Abilities/Sword/Upgrades/U_OSL_devastator.tres" id="12_upg"]
-[ext_resource type="Resource" uid="uid://phd662tgghgsf" path="res://resources/Abilities/Sword/Upgrades/U_OSL_unstoppable.tres" id="13_upg"]
+[ext_resource type="Resource" uid="uid://bk4k050roytvg" path="res://resources/Abilities/Sword/Upgrades/U_OSL_earthshaker.tres" id="11_upg"]
+[ext_resource type="Resource" uid="uid://d3byy30dvw7tu" path="res://resources/Abilities/Sword/Upgrades/U_OSL_devastator.tres" id="12_upg"]
+[ext_resource type="Resource" uid="uid://du5lfv2oquti4" path="res://resources/Abilities/Sword/Upgrades/U_OSL_unstoppable.tres" id="13_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="14_aud"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hit"]

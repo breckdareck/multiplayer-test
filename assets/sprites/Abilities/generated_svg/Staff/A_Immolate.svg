@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="geometricPrecision"><defs>
+<linearGradient id="metal" x1="0" y1="0" x2="1" y2="1">
+ <stop offset="0" stop-color="#9aa3ad"/><stop offset=".45" stop-color="#5b636d"/>
+ <stop offset=".55" stop-color="#454c55"/><stop offset="1" stop-color="#1d2127"/>
+</linearGradient>
+<radialGradient id="bg" cx=".42" cy=".36" r=".75">
+ <stop offset="0" stop-color="#222d63"/><stop offset="1" stop-color="#0c0f2e"/>
+</radialGradient>
+<radialGradient id="glow" cx=".5" cy=".42" r=".55">
+ <stop offset="0" stop-color="#8aa6ff" stop-opacity=".55"/>
+ <stop offset="1" stop-color="#8aa6ff" stop-opacity="0"/>
+</radialGradient>
+<filter id="sh" x="-30%" y="-30%" width="160%" height="160%">
+ <feDropShadow dx="0" dy="1.2" stdDeviation="1" flood-color="#000" flood-opacity=".55"/>
+</filter>
+</defs>
+<rect x="1.5" y="1.5" width="61" height="61" rx="11" fill="url(#metal)" stroke="#10131a" stroke-width="1.5"/>
+<rect x="5.5" y="5.5" width="53" height="53" rx="8" fill="url(#bg)" stroke="#5b6dd6" stroke-width="1.4"/>
+<rect x="5.5" y="5.5" width="53" height="53" rx="8" fill="url(#glow)"/>
+<rect x="6.5" y="6.5" width="51" height="51" rx="7" fill="none" stroke="#ffffff" stroke-width="0.7" opacity="0.10"/><g filter="url(#sh)"><path d="M32 16.25 C42.5 27.8 40.4 42.5 32 44.6 C23.6 42.5 21.5 29.9 29.9 25.7 C28.85 32 32 35.15 34.1 32 C36.2 25.7 32 22.549999999999997 32 16.25 Z" fill="#ff8a3c" stroke="#7a2c08" stroke-width="1" stroke-linejoin="round"/><path d="M32 25.7 C36.2 32 34.1 39.35 32 40.4 C28.85 38.3 28.85 32 32 25.7 Z" fill="#ffd27a" opacity="0.85"/></g><circle cx="47" cy="47" r="8.5" fill="#11151c" opacity=".55"/><circle cx="47" cy="47" r="8.5" fill="none" stroke="#ffffff" stroke-width="0.6" opacity=".25"/><path d="M47 39.5 C52.0 45.0 51.0 52.0 47 53.0 C43.0 52.0 42.0 46.0 46.0 44.0 C45.5 47 47 48.5 48.0 47 C49.0 44.0 47 42.5 47 39.5 Z" fill="#ff8a3c" stroke="#7a2c08" stroke-width="1" stroke-linejoin="round"/><path d="M47 44.0 C49.0 47 48.0 50.5 47 51.0 C45.5 50.0 45.5 47 47 44.0 Z" fill="#ffd27a" opacity="0.85"/></svg>

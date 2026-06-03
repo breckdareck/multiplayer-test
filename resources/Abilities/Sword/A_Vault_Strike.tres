@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://y8fe0fckidd0"]
 
-[ext_resource type="Texture2D" uid="uid://blsf4bd1u7syc" path="res://assets/sprites/Abilities/Brandish.png" id="1_icon"]
+[ext_resource type="Texture2D" uid="uid://cbpoxus7sm5fl" path="res://assets/sprites/Abilities/generated_svg/Sword/A_Vault_Strike.svg" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
 [ext_resource type="Script" uid="uid://bh4mkyotdx7nl" path="res://scripts/Abilities/AL_VaultStrike.gd" id="3_alvs"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_ad"]

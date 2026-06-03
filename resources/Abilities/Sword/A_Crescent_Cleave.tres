@@ -1,15 +1,15 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=21 format=3 uid="uid://ccxoh5fmx317x"]
 
-[ext_resource type="Texture2D" uid="uid://cg8rq8kjvxwi7" path="res://assets/sprites/Abilities/slash_blast.png" id="1_ajojy"]
+[ext_resource type="Texture2D" uid="uid://cpkgoylx80oko" path="res://assets/sprites/Abilities/generated_svg/Sword/A_Crescent_Cleave.svg" id="1_ajojy"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_7svtf"]
 [ext_resource type="Script" uid="uid://bo7smgjmw6ptb" path="res://scripts/Abilities/AL_Slash.gd" id="3_slcombo"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_7e1xr"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="8_yntj7"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="9_hscra"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="9_n4786"]
-[ext_resource type="Resource" uid="uid://ccu1razoredge" path="res://resources/Abilities/Sword/Upgrades/U_CC_RazorEdge.tres" id="10_re"]
+[ext_resource type="Resource" uid="uid://ccu1ra0oredge" path="res://resources/Abilities/Sword/Upgrades/U_CC_RazorEdge.tres" id="10_re"]
 [ext_resource type="Resource" uid="uid://ccu2deepcuts" path="res://resources/Abilities/Sword/Upgrades/U_CC_DeepCuts.tres" id="11_dc"]
-[ext_resource type="Resource" uid="uid://ccu3razorwind" path="res://resources/Abilities/Sword/Upgrades/U_CC_RazorWind.tres" id="12_rw"]
+[ext_resource type="Resource" uid="uid://ccu3ra0orwind" path="res://resources/Abilities/Sword/Upgrades/U_CC_RazorWind.tres" id="12_rw"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="13_aud"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ajojy"]

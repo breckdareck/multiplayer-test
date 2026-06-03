@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=24 format=3 uid="uid://bf0rhhq7rgdjb"]
 
-[ext_resource type="Texture2D" uid="uid://ctp4y4jwc3dkv" path="res://assets/sprites/Abilities/fireball.png" id="1_im1"]
+[ext_resource type="Texture2D" uid="uid://t80g52x4m4uy" path="res://assets/sprites/Abilities/generated_svg/Staff/A_Immolate.svg" id="1_im1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_im1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_im2"]
 [ext_resource type="PackedScene" uid="uid://d0ig4oiimrnei" path="res://scenes/Gameplay/projectile_base.tscn" id="2_im3"]

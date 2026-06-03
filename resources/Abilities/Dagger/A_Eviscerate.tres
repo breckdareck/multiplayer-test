@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://dgrevisc001x"]
 
-[ext_resource type="Texture2D" uid="uid://e4oglnq6rgd4" path="res://assets/sprites/Abilities/double_stab.png" id="1_evi1"]
+[ext_resource type="Texture2D" uid="uid://8s6ou472uupe" path="res://assets/sprites/Abilities/generated_svg/Dagger/A_Eviscerate.svg" id="1_evi1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_evi1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_evi2"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="6_evi1"]

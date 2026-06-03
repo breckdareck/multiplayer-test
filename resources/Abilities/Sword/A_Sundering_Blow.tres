@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://dq088g6civvd8"]
 
-[ext_resource type="Texture2D" uid="uid://bstguvwrql18p" path="res://assets/sprites/Abilities/power_strike.png" id="1_v0yfe"]
+[ext_resource type="Texture2D" uid="uid://bcwtg1mn8lwau" path="res://assets/sprites/Abilities/generated_svg/Sword/A_Sundering_Blow.svg" id="1_v0yfe"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_vuhxl"]
 [ext_resource type="Script" uid="uid://dfxchnnli8wfh" path="res://scripts/Abilities/AL_PowerStrike.gd" id="3_pstrk"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_hhglo"]

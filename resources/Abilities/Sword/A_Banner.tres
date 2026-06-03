@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=21 format=3 uid="uid://f4vici1pe2iv"]
 
-[ext_resource type="Texture2D" uid="uid://r5s1f68lrr7w" path="res://assets/sprites/Abilities/HP_Boost.png" id="1_icon"]
+[ext_resource type="Texture2D" uid="uid://bbbrfb013ki3x" path="res://assets/sprites/Abilities/generated_svg/Sword/A_Banner.svg" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
 [ext_resource type="Script" uid="uid://ckxd82qkwpifs" path="res://scripts/Abilities/AL_Banner.gd" id="3_al"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_ad"]
@@ -9,9 +9,9 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_sbf"]
 [ext_resource type="Resource" uid="uid://hkbg1nd82ode" path="res://resources/Abilities/Sword/Upgrades/U_BNR_wider_banner.tres" id="9_upg"]
 [ext_resource type="Resource" uid="uid://s0hfx5ectbp1" path="res://resources/Abilities/Sword/Upgrades/U_BNR_lasting_banner.tres" id="10_upg"]
-[ext_resource type="Resource" uid="uid://ymc2bejzrhd4y" path="res://resources/Abilities/Sword/Upgrades/U_BNR_inspiring_banner.tres" id="11_upg"]
-[ext_resource type="Resource" uid="uid://lvtprifpwk4lk" path="res://resources/Abilities/Sword/Upgrades/U_BNR_healing_banner.tres" id="12_upg"]
-[ext_resource type="Resource" uid="uid://ajdsvcbra6lvu" path="res://resources/Abilities/Sword/Upgrades/U_BNR_bulwark_banner.tres" id="13_upg"]
+[ext_resource type="Resource" uid="uid://bfvtq11id84le" path="res://resources/Abilities/Sword/Upgrades/U_BNR_inspiring_banner.tres" id="11_upg"]
+[ext_resource type="Resource" uid="uid://bl30cnx7yica" path="res://resources/Abilities/Sword/Upgrades/U_BNR_healing_banner.tres" id="12_upg"]
+[ext_resource type="Resource" uid="uid://jdsvcbra6lvu" path="res://resources/Abilities/Sword/Upgrades/U_BNR_bulwark_banner.tres" id="13_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="14_aud"]
 
 [sub_resource type="Resource" id="Resource_active"]

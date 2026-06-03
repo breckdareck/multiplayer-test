@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=19 format=3 uid="uid://shdwpart001x"]
 
-[ext_resource type="Texture2D" uid="uid://cp0i4hv10gcbt" path="res://assets/sprites/Abilities/shadow-partner.png" id="1_kkjdo"]
+[ext_resource type="Texture2D" uid="uid://d8lqgmvvmgvv" path="res://assets/sprites/Abilities/generated_svg/Dagger/A_Shadow_Partner.svg" id="1_kkjdo"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_shpn2"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_shpn2"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="4_shpn1"]

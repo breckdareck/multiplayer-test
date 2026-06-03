@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AbilityData" load_steps=22 format=3 uid="uid://c1ipq54swfey7"]
 
-[ext_resource type="Texture2D" uid="uid://vctf0t1xc33c" path="res://assets/sprites/Abilities/double_shot.webp" id="1_icon"]
+[ext_resource type="Texture2D" uid="uid://dqgo6obqjydpl" path="res://assets/sprites/Abilities/generated_svg/Bow/A_MarkOfTheHunt.svg" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
 [ext_resource type="Script" uid="uid://bu4pxk3b5koh2" path="res://scripts/Abilities/AL_MarkOfTheHunt.gd" id="3_al"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_ad"]
@@ -9,9 +9,9 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_sbf"]
 [ext_resource type="Resource" uid="uid://dy7r58q6v3056" path="res://resources/Abilities/Bow/Upgrades/U_MOH_lasting_mark.tres" id="9_upg"]
 [ext_resource type="Resource" uid="uid://cx4aw03fivj1x" path="res://resources/Abilities/Bow/Upgrades/U_MOH_quick_mark.tres" id="10_upg"]
-[ext_resource type="Resource" uid="uid://x3zykni2ua7ij" path="res://resources/Abilities/Bow/Upgrades/U_MOH_double_mark.tres" id="11_upg"]
-[ext_resource type="Resource" uid="uid://njcygkdqwjco7" path="res://resources/Abilities/Bow/Upgrades/U_MOH_sundering_mark.tres" id="12_upg"]
-[ext_resource type="Resource" uid="uid://kvsqazn6s3ps4" path="res://resources/Abilities/Bow/Upgrades/U_MOH_bleeding_mark.tres" id="13_upg"]
+[ext_resource type="Resource" uid="uid://wkq1b0kg2xxx" path="res://resources/Abilities/Bow/Upgrades/U_MOH_double_mark.tres" id="11_upg"]
+[ext_resource type="Resource" uid="uid://bw4doely7wpfw" path="res://resources/Abilities/Bow/Upgrades/U_MOH_sundering_mark.tres" id="12_upg"]
+[ext_resource type="Resource" uid="uid://c5yy3vtoooybl" path="res://resources/Abilities/Bow/Upgrades/U_MOH_bleeding_mark.tres" id="13_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="14_aud"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hit"]
