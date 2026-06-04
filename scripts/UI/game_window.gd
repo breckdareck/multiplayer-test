@@ -85,10 +85,14 @@ func _wire_stats_buttons() -> void:
 			sc.stats_changed.connect(_refresh_stats)
 		if sc.has_signal("attribute_points_changed"):
 			sc.attribute_points_changed.connect(func(_u): _refresh_stats())
-	# Re-evaluate the respec cost/affordability when monies change.
+	# Render the monies total + re-evaluate respec affordability when it changes.
+	# (ADR 0009: the component emits monies_changed; the UI owns its own label
+	# instead of the component writing into a UI NodePath.)
 	if player and is_instance_valid(player.player_inventory) and player.player_inventory.has_signal("monies_changed"):
-		player.player_inventory.monies_changed.connect(func(_m): _update_attr_respec_button())
+		if not player.player_inventory.monies_changed.is_connected(_on_monies_changed):
+			player.player_inventory.monies_changed.connect(_on_monies_changed)
 	_update_attr_respec_button()
+	_refresh_monies()
 
 
 # ─── Economy: attribute respec cost label + warning dialog ───────────────────
@@ -128,6 +132,19 @@ func _on_respec_confirmed() -> void:
 	if _pending_respec.is_valid():
 		_pending_respec.call()
 	_pending_respec = Callable()
+
+
+## Monies changed on the component → repaint the count label + respec affordability.
+func _on_monies_changed(_new_amount: int) -> void:
+	_refresh_monies()
+	_update_attr_respec_button()
+
+
+## Paint the authored MoniesCountLabel from the component's current total.
+func _refresh_monies() -> void:
+	var lbl: Label = get_node_or_null("%MoniesCountLabel")
+	if is_instance_valid(lbl):
+		lbl.text = _fmt_monies(_player_monies())
 
 
 func _player_monies() -> int:

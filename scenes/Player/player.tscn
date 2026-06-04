@@ -484,11 +484,10 @@ position = Vector2(8, -8)
 delta_interval = 0.05
 replication_config = SubResource("SceneReplicationConfig_x5q00")
 
-[node name="PlayerInventory" type="Node" parent="Components" node_paths=PackedStringArray("inventory_component", "player", "monies_label")]
+[node name="PlayerInventory" type="Node" parent="Components" node_paths=PackedStringArray("inventory_component", "player")]
 script = ExtResource("3_pnj8v")
 inventory_component = NodePath("InventoryComponent")
 player = NodePath("../..")
-monies_label = NodePath("../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/HBoxContainer/Panel/MoniesCountLabel")
 
 [node name="InventoryComponent" type="Node" parent="Components/PlayerInventory" node_paths=PackedStringArray("inventory_grids", "equipment_component", "stats_component")]
 script = ExtResource("15_cg2hl")
