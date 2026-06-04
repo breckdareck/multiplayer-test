@@ -488,6 +488,9 @@ func _setup_signals() -> void:
 		ability_component.ability_leveled_up.connect(func(_a, _l): _data_changed("abilities"))
 		ability_component.ability_points_changed.connect(func(_k, _p): _data_changed("abilities"))
 		ability_component.ability_learned.connect(func(_a): _data_changed("abilities"))
+		# ADR 0009 Stage B: per-weapon hotbar edits/swaps persist via this signal
+		# (the hotbar left the body, so the server can't read it directly).
+		ability_component.hotbar_bindings_changed.connect(func(): _data_changed("abilities"))
 
 	if inventory_component:
 		inventory_component.inventory_saved.connect(func(_inv): _data_changed("inventory"))

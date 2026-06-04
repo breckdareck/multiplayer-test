@@ -98,6 +98,15 @@ func create_hotbar_slots():
 		hotbar_slots.append(slot)
 
 
+## A hotbar slot's binding was edited by the player (drop / right-click clear).
+## Forward the new layout to the AbilityComponent, which captures it into the
+## active weapon's binding set and pushes it to the authoritative server copy
+## (ADR 0009 Stage B). No-op for programmatic loads (those use the slot setters).
+func on_binding_edited() -> void:
+	if is_instance_valid(ability_component) and ability_component.has_method("client_hotbar_edited"):
+		ability_component.client_hotbar_edited()
+
+
 func get_slot_at_index(index: int) -> Node:
 	if index >= 0 and index < hotbar_slots.size():
 		return hotbar_slots[index]

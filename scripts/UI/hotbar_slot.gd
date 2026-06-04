@@ -100,30 +100,15 @@ func _drop_data(_at_position: Vector2, data) -> void:
 	is_drag_hovering = false
 	update_visual()
 
-@rpc("any_peer", "call_remote", "reliable")
-func request_assign_ability(ability_id: String):
-	_set_ability(ResourceManager.get_ability_data(ability_id))
-
-@rpc("authority", "call_local", "reliable")
-func recieve_assign_ability(ability_id: String):
-	_set_ability(ResourceManager.get_ability_data(ability_id))
-
 func assign_ability(ability_data: AbilityData):
 	if not ability_data:
 		return
 	_set_ability(ability_data)
-	if not multiplayer.is_server():
-		rpc_id(1, "request_assign_ability", ability_data.ability_id)
-	else:
-		rpc_id(multiplayer.get_remote_sender_id(), "recieve_assign_ability", ability_data.ability_id)
-
-@rpc("any_peer", "call_remote", "reliable")
-func request_assign_consumable(item_id: String):
-	_set_consumable(ResourceManager.get_item_data(item_id))
-
-@rpc("authority", "call_local", "reliable")
-func recieve_assign_consumable(item_id: String):
-	_set_consumable(ResourceManager.get_item_data(item_id))
+	# ADR 0009 Stage B: the binding is persisted by pushing the whole hotbar config
+	# through the player's AbilityComponent (under the body → correct per-player
+	# routing). The old per-slot RPC was node-addressed into the persistent UI,
+	# which cross-resolved to the HOST's hotbar slot on the server (the "overlap").
+	_notify_binding_changed()
 
 func assign_consumable(consumable: ConsumableData):
 	# Resolve to the canonical resource so the icon and item_id are reliable
@@ -132,10 +117,7 @@ func assign_consumable(consumable: ConsumableData):
 	if not canonical is ConsumableData:
 		return
 	_set_consumable(canonical)
-	if not multiplayer.is_server():
-		rpc_id(1, "request_assign_consumable", canonical.item_id)
-	else:
-		rpc_id(multiplayer.get_remote_sender_id(), "recieve_assign_consumable", canonical.item_id)
+	_notify_binding_changed()
 
 ## Sets this slot to hold an ability (local state only — no RPC).
 func _set_ability(ability_data: AbilityData) -> void:
@@ -157,14 +139,19 @@ func _set_consumable(consumable) -> void:
 		ability_icon.visible = true
 	update_visual()
 
-@rpc("any_peer", "call_remote", "reliable")
-func request_clear_slot():
-	_clear_slot()
-
 func clear_slot():
 	_clear_slot()
-	if not multiplayer.is_server():
-		rpc_id(1, "request_clear_slot")
+	_notify_binding_changed()
+
+
+## Pushes the (changed) live hotbar layout to the player's AbilityComponent so it
+## persists for the active weapon. Routed through the component, not a per-slot
+## node RPC (ADR 0009 Stage B). No-op during programmatic load (the local setters
+## _set_ability/_set_consumable/_clear_slot don't call this).
+func _notify_binding_changed() -> void:
+	var hb := _get_hotbar()
+	if hb and hb.has_method("on_binding_edited"):
+		hb.on_binding_edited()
 
 func _clear_slot() -> void:
 	assigned_ability = null
