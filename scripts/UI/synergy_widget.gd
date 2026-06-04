@@ -33,18 +33,17 @@ var synergy_component: Node = null
 
 
 func _ready() -> void:
-	# Resolve the player off the owner chain (instanced under CanvasLayer/PlayerHUD),
-	# mirroring the gauge widgets.
-	var node: Node = self
-	while node and not (node is MultiplayerPlayerV2):
-		node = node.get_parent()
-	if node is MultiplayerPlayerV2:
-		player = node as MultiplayerPlayerV2
-	if not is_instance_valid(player):
-		visible = false
+	# Lifted into the persistent UI layer (ADR 0009 Stage B): the body is injected
+	# via bind_player() on every spawn / map change, not resolved off `owner`.
+	visible = false
+
+
+## Binds this widget to the local player body. Called by LocalPlayerUI.
+func bind_player(body) -> void:
+	if player == body:
 		return
-	# Local player only.
-	if player.player_id != multiplayer.get_unique_id():
+	player = body
+	if not is_instance_valid(player):
 		visible = false
 		return
 
@@ -58,6 +57,16 @@ func _ready() -> void:
 		equipment_component.active_weapon_changed.connect(_on_active_weapon_changed)
 
 	call_deferred("_refresh")
+
+
+## Drops the binding (teardown). The old body's signal connections die with it
+## when it is freed, so this just clears refs. Stage C (live-body reparent) will
+## need explicit disconnects here.
+func unbind_player() -> void:
+	player = null
+	equipment_component = null
+	synergy_component = null
+	visible = false
 
 
 func _on_active_weapon_changed(_active_weapon, _active_item) -> void:

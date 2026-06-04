@@ -70,23 +70,10 @@ const COLOR_BASE = "#B0B0B0" # Gray for base stats
 func _ready():
 	# Add to ui_window group for drop detection
 	add_to_group("ui_window")
-	
-	player = owner as MultiplayerPlayerV2
-	if player == null:
-		# Nested inside the unified hub (game_window): owner is the hub, not the
-		# player. Walk ancestors to find the player root.
-		var n: Node = get_parent()
-		while n != null and not (n is MultiplayerPlayerV2):
-			n = n.get_parent()
-		player = n as MultiplayerPlayerV2
-	if player:
-		ability_component = player.ability_component
-		if not ability_component:
-			push_error("AbilityWindow: Could not find AbilityComponent on player")
-			return
-		weapon_mastery_component = player.weapon_mastery_component
-	
-	# Connect signals
+
+	# One-time persistent-UI button/canvas wiring (handlers read the current
+	# `player` / `ability_component` at call time). The body is injected via
+	# bind_player() per spawn / map change (ADR 0009 Stage B).
 	level_up_button.pressed.connect(on_level_up_button_pressed)
 
 	# PR 6: per-ability respec (details panel) + tree/all respec (top header).
@@ -106,26 +93,39 @@ func _ready():
 	if is_instance_valid(upgrades_container):
 		upgrades_container.visible = false
 
+
+## Binds to the local player body — called by LocalPlayerUI per spawn / map change.
+## Component-signal connections are auto-cleaned when the body frees.
+func bind_player(body) -> void:
+	if player == body:
+		return
+	player = body
+	if not is_instance_valid(player):
+		return
+	ability_component = player.ability_component
+	if not ability_component:
+		push_error("AbilityWindow: Could not find AbilityComponent on player")
+		return
+	weapon_mastery_component = player.weapon_mastery_component
+
 	# Connect to ability component signals
-	if ability_component:
-		ability_component.ability_leveled_up.connect(_on_ability_leveled_up)
-		ability_component.ability_learned.connect(_on_ability_learned)
-		# PR 4: signal now carries (discipline_key, new_total). The handler
-		# only refreshes the UI when the changed key matches the open tab.
-		ability_component.ability_points_changed.connect(_on_ability_points_changed)
-		# PR 4: surface a UI ping when a spend is denied (empty pool, etc).
-		if ability_component.has_signal("ability_points_spend_denied"):
-			ability_component.ability_points_spend_denied.connect(_on_ability_points_spend_denied)
-		# PR 6: refresh the upgrade panel + list badges when upgrades change.
-		if ability_component.has_signal("ability_upgrade_purchased"):
-			ability_component.ability_upgrade_purchased.connect(_on_ability_upgrade_changed)
-		##print("AbilityWindow: Connected to ability component signals")
-		# Economy sink: surface a ping when a respec is denied (insufficient monies).
-		if ability_component.has_signal("respec_denied"):
-			ability_component.respec_denied.connect(_on_respec_denied)
+	ability_component.ability_leveled_up.connect(_on_ability_leveled_up)
+	ability_component.ability_learned.connect(_on_ability_learned)
+	# PR 4: signal now carries (discipline_key, new_total). The handler
+	# only refreshes the UI when the changed key matches the open tab.
+	ability_component.ability_points_changed.connect(_on_ability_points_changed)
+	# PR 4: surface a UI ping when a spend is denied (empty pool, etc).
+	if ability_component.has_signal("ability_points_spend_denied"):
+		ability_component.ability_points_spend_denied.connect(_on_ability_points_spend_denied)
+	# PR 6: refresh the upgrade panel + list badges when upgrades change.
+	if ability_component.has_signal("ability_upgrade_purchased"):
+		ability_component.ability_upgrade_purchased.connect(_on_ability_upgrade_changed)
+	# Economy sink: surface a ping when a respec is denied (insufficient monies).
+	if ability_component.has_signal("respec_denied"):
+		ability_component.respec_denied.connect(_on_respec_denied)
 
 	# Economy sink: re-evaluate respec button affordability when monies change.
-	if player and is_instance_valid(player.player_inventory):
+	if is_instance_valid(player.player_inventory):
 		player.player_inventory.monies_changed.connect(_on_monies_changed)
 
 	# PR 8: keep the header mastery readout (level + XP to next = next SP) live.
@@ -133,14 +133,18 @@ func _ready():
 		weapon_mastery_component.mastery_level_changed.connect(_on_mastery_changed.unbind(2))
 		weapon_mastery_component.mastery_xp_changed.connect(_on_mastery_changed.unbind(3))
 
-	# PR 4: default the tab to the player's currently-active discipline so
-	# someone who just swapped to a bow opens the window directly on the Bow
-	# tab. Falls back to Sword on lookup failure.
+	# PR 4: default the tab to the player's currently-active discipline.
 	_select_initial_discipline()
 
 	# Load UI
 	update_skill_points_display()
 	load_ability_list()
+
+
+func unbind_player() -> void:
+	player = null
+	ability_component = null
+	weapon_mastery_component = null
 
 	# Select first ability if any exist
 	var first_id_in_tab: String = _first_ability_id_in_current_tab()

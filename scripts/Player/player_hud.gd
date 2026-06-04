@@ -31,12 +31,11 @@ var _trade_request_popup: TradeRequestPopup = null
 @onready var moveable_windows_container: Node = %MoveableWindows
 
 func _ready() -> void:
-	if owner is MultiplayerPlayerV2:
-		player = owner
-		
-	if player.player_id != multiplayer.get_unique_id():
-		return
-	
+	# ADR 0009 Stage B: this HUD now lives in the persistent local-player UI layer,
+	# which only ever exists for the LOCAL player — so the old remote-player gate
+	# is gone. The session-scoped UI below is built ONCE here; the body's bars +
+	# component signals are (re)wired per spawn / map change in bind_player().
+
 	# Instantiate and add PartyWindow
 	party_window_instance = party_window_scene.instantiate()
 	if moveable_windows_container:
@@ -45,7 +44,7 @@ func _ready() -> void:
 		add_child(party_window_instance) # Fallback
 		push_error("MoveableWindows node not found. Adding PartyWindow as child of player_HUD.")
 	party_window_instance.hide()
-	
+
 	# Connect to PartyManager invite signal
 	PartyManager.party_invite_received.connect(_on_party_invite_received)
 
@@ -73,25 +72,41 @@ func _ready() -> void:
 	ping_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	add_child(ping_label)
 
+
+## Binds the HUD bars to the local player body — called by LocalPlayerUI on every
+## spawn / map change. The body's component signals are auto-cleaned when it is
+## freed, so connecting the new body each bind is safe.
+func bind_player(body) -> void:
+	if player == body:
+		return
+	player = body
+	if not is_instance_valid(player):
+		return
+
 	health_bar.max_value = player.health_component.max_health
 	health_bar.value = player.health_component.current_health
 	hp_value_label.text = str(player.health_component.current_health) + "/" + str(player.health_component.max_health)
-	
+
 	mana_bar.max_value = player.mana_component.max_mana
 	mana_bar.value = player.mana_component.current_mana
 	mp_value_label.text = str(player.mana_component.current_mana) + "/" + str(player.mana_component.max_mana)
-	
+
 	experience_bar.max_value = player.level_component.get_exp_to_next_level()
 	experience_bar.value = player.level_component.experience
 	exp_percent_label.text = "%0.2f" % (float(player.level_component.experience)/player.level_component.get_exp_to_next_level()*100) + "%"
-	
+
 	level_label.text = "LV.[color=yellow]%s[/color]" % str(player.level_component.level)
-	
+
 	player.health_component.health_changed.connect(_on_health_changed)
 	player.health_component.died.connect(_on_player_died)
 	player.mana_component.mana_changed.connect(_on_mana_changed)
 	player.level_component.experience_changed.connect(_on_experience_changed)
 	player.level_component.leveled_up.connect(_on_level_changed)
+
+
+func unbind_player() -> void:
+	# Body component connections die with the freed body; just clear the ref.
+	player = null
 
 func _on_party_invite_received(inviter_id: int, inviter_username: String, party_id: int):
 	var invite_popup = party_invite_popup_scene.instantiate()
@@ -123,6 +138,8 @@ func _on_trade_session_opened(partner_id: int, partner_name: String) -> void:
 	_trade_window.open_session(partner_id, partner_name)
 
 func _input(event: InputEvent) -> void:
+	if not is_instance_valid(player):
+		return
 	if player.player_id != multiplayer.get_unique_id():
 		return
 

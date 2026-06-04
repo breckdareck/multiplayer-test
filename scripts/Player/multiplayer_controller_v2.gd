@@ -56,10 +56,9 @@ const MAX_FALL_SPEED: float = 1200.0
 @export var buff_component: BuffComponent
 
 @export_category("UI")
-# player_HUD stays on the body: _setup_client_visuals() parents the GameMenu,
-# QuestTracker and ZoneBanner under it. player_name_label is the world-space
-# overhead name (PlayerWorldHUD), not part of the lifted UI layer.
-@export var player_HUD: Control
+# ADR 0009 Stage B: the HUD (PlayerHUD subtree) was lifted into the persistent
+# LocalPlayerUI layer, so the body no longer holds a ref to it. player_name_label
+# is the world-space overhead name (PlayerWorldHUD), which STAYS on the body.
 @export var player_name_label: RichTextLabel
 
 
@@ -290,11 +289,13 @@ func _handle_right_click(event: InputEventMouseButton) -> bool:
 
 	if not is_instance_valid(_context_menu):
 		_context_menu = PlayerContextMenu.create()
-		var moveable_container = get_node_or_null("CanvasLayer/MoveableWindows")
-		if moveable_container:
+		# Mount in the persistent LocalPlayerUI (ADR 0009 Stage B) — falls back to
+		# /root if it isn't up yet.
+		var moveable_container = MapManager.get_local_ui_moveable_windows()
+		if is_instance_valid(moveable_container):
 			moveable_container.add_child(_context_menu)
 		else:
-			get_node("CanvasLayer").add_child(_context_menu)
+			get_tree().root.add_child(_context_menu)
 
 	_context_menu.show_for_target(best_target.player_id, event.global_position)
 	return true
@@ -544,36 +545,15 @@ func _apply_map_camera_bounds(cam: Camera2D) -> void:
 
 
 func _setup_client_visuals() -> void:
+	# ADR 0009 Stage B: the HUD (PlayerHUD + GameMenu/QuestTracker/ZoneBanner +
+	# mobile controls) moved to the persistent LocalPlayerUI layer, which binds
+	# itself on MapManager.local_player_changed. The body keeps ONLY its world
+	# camera here.
 	var cam: Camera2D = $Camera2D
 
 	if multiplayer.get_unique_id() == player_id:
 		cam.make_current()
 		_apply_map_camera_bounds(cam)
-		if is_instance_valid(player_HUD):
-			player_HUD.show()
-			# Show mobile controls on Android
-			if OS.get_name() == "Android":
-				var mobile_controls = player_HUD.get_child(1)
-				if is_instance_valid(mobile_controls):
-					mobile_controls.show()
-			
-			# Instantiate and add GameMenu
-			game_menu = GAME_MENU_SCENE.instantiate()
-			player_HUD.add_child(game_menu)
-
-			# Instantiate and add the always-on quest tracker overlay
-			var quest_tracker := QuestTracker.new()
-			quest_tracker.setup(self)
-			player_HUD.add_child(quest_tracker)
-
-			# Zone-entry banner — shown briefly when the local player spawns
-			# into a new map. Reads the themed name from MapBase.display_name.
-			var parent_node := get_parent()
-			var map_root := parent_node.get_parent() if parent_node else null
-			if map_root and map_root is MapBase and not (map_root as MapBase).display_name.is_empty():
-				var banner := ZoneBanner.new()
-				player_HUD.add_child(banner)
-				banner.show_zone((map_root as MapBase).display_name)
 	else:
 		camera.enabled = false
 

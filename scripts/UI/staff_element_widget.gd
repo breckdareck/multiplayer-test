@@ -50,21 +50,17 @@ var _current_element: int = 0
 #region #################### Lifecycle ####################
 
 func _ready() -> void:
-	# Resolve player off the owner chain — instanced under CanvasLayer/PlayerHUD
-	# on the player root, mirroring sword_combo_widget.gd / bow_momentum_widget.gd.
-	var node: Node = self
-	while node and not (node is MultiplayerPlayerV2):
-		node = node.get_parent()
-	if node is MultiplayerPlayerV2:
-		player = node as MultiplayerPlayerV2
+	# Player-dependent wiring happens in bind_player() — persistent UI layer,
+	# (re)bound per spawn / map change (ADR 0009 Stage B).
+	visible = false
 
-	if not is_instance_valid(player):
-		visible = false
+
+## Binds this widget to the local player body. Called by LocalPlayerUI.
+func bind_player(body) -> void:
+	if player == body:
 		return
-
-	# Hide for remote players' widgets — only the local player sees their own
-	# class identity gauges (matches PlayerHUD gating + the other signature widgets).
-	if player.player_id != multiplayer.get_unique_id():
+	player = body
+	if not is_instance_valid(player):
 		visible = false
 		return
 
@@ -79,9 +75,17 @@ func _ready() -> void:
 		equipment_component.on_equipment_changed.connect(_refresh_visibility)
 		equipment_component.active_weapon_changed.connect(_on_active_weapon_changed)
 
-	# Defer the first refresh — equipment slots may not be populated yet at _ready.
+	# Defer the first refresh — equipment slots may not be populated yet at bind.
 	call_deferred("_refresh_visibility")
 	call_deferred("_refresh_label")
+
+
+## Drops the binding (teardown). Old-body connections die with the freed body.
+func unbind_player() -> void:
+	player = null
+	staff_element_component = null
+	equipment_component = null
+	visible = false
 
 #endregion
 

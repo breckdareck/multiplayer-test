@@ -144,8 +144,22 @@ var _ability_request_times: Array[float] = []
 # Projectile container
 var _projectiles_container: Node
 
-# UI references
-@onready var hotbar: Hotbar = $"../../CanvasLayer/PlayerHUD/Hotbar"
+# UI references. The hotbar lives in the persistent local-player UI layer
+# (ADR 0009 Stage B), not under the body — it is injected via set_hotbar() by
+# LocalPlayerUI on bind, instead of resolved by a body-relative @onready path.
+# Null on a bot / dedicated server / remote-player body (all guarded with
+# is_instance_valid before use).
+var hotbar: Hotbar = null
+
+
+## Injects the live hotbar from the persistent UI layer. Binding happens AFTER
+## the save load (_load_data runs during JoinHandshake, set_hotbar after the
+## local body is identified), so the hotbar starts empty — push the already-loaded
+## active bindings into it now so a returning character's bar is populated.
+func set_hotbar(h: Hotbar) -> void:
+	hotbar = h
+	if is_instance_valid(hotbar):
+		hotbar.load_hotbar_config(_active_bindings_for_load())
 #endregion
 
 

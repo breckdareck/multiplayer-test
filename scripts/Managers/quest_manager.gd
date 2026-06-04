@@ -654,16 +654,14 @@ func _send_message(peer_id: int, text: String, color: Color) -> void:
 ## own popup when its character completes a quest.
 @rpc("authority", "call_local", "reliable")
 func _show_quest_reward_popup(quest_name: String, exp_amount: int, coins_amount: int, items: Array) -> void:
-	var local_id: int = multiplayer.get_unique_id()
-	for p in get_tree().get_nodes_in_group("Players"):
-		if p.player_id != local_id:
-			continue
-		if not is_instance_valid(p.player_HUD):
-			return
-		var popup := QuestRewardPopup.new()
-		popup.setup(quest_name, exp_amount, coins_amount, items)
-		p.player_HUD.add_child(popup)
+	# ADR 0009 Stage B: the HUD lives in the persistent LocalPlayerUI layer, not on
+	# the player body — mount the popup there.
+	var hud := MapManager.get_local_ui_hud()
+	if not is_instance_valid(hud):
 		return
+	var popup := QuestRewardPopup.new()
+	popup.setup(quest_name, exp_amount, coins_amount, items)
+	hud.add_child(popup)
 
 
 ## Server-triggered, client-rendered: show the first-login WelcomeOverlay
@@ -671,19 +669,16 @@ func _show_quest_reward_popup(quest_name: String, exp_amount: int, coins_amount:
 ## is both server and a client) sees its own overlay too.
 @rpc("authority", "call_local", "reliable")
 func _show_welcome_overlay() -> void:
-	var local_id: int = multiplayer.get_unique_id()
-	for p in get_tree().get_nodes_in_group("Players"):
-		if p.player_id != local_id:
-			continue
-		if not is_instance_valid(p.player_HUD):
-			return
-		# Avoid stacking duplicates if the RPC somehow fires twice.
-		for child in p.player_HUD.get_children():
-			if child is WelcomeOverlay:
-				return
-		var overlay := WelcomeOverlay.new()
-		p.player_HUD.add_child(overlay)
+	# ADR 0009 Stage B: mount on the persistent LocalPlayerUI HUD.
+	var hud := MapManager.get_local_ui_hud()
+	if not is_instance_valid(hud):
 		return
+	# Avoid stacking duplicates if the RPC somehow fires twice.
+	for child in hud.get_children():
+		if child is WelcomeOverlay:
+			return
+	var overlay := WelcomeOverlay.new()
+	hud.add_child(overlay)
 
 
 func _objective_type_string(type: int) -> String:

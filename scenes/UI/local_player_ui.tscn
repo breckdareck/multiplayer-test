@@ -1,0 +1,452 @@
+[gd_scene load_steps=65 format=3 uid="uid://blocalplayerui0009"]
+
+[ext_resource type="Script" path="res://scripts/UI/local_player_ui.gd" id="ctrl_lpui"]
+[ext_resource type="Script" uid="uid://boxv5npw3xeg3" path="res://scripts/Player/player_hud.gd" id="11_ihqbe"]
+[ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="12_cgmen"]
+[ext_resource type="Texture2D" uid="uid://b41h3nwnk7ghm" path="res://assets/UI/Left_button.png" id="15_32uah"]
+[ext_resource type="Texture2D" uid="uid://7wc85wst4rwd" path="res://assets/UI/Right_button.png" id="16_ihqbe"]
+[ext_resource type="PackedScene" uid="uid://c7b0c5w232wb5" path="res://scenes/UI/bow_momentum_widget.tscn" id="17_bcwdgt"]
+[ext_resource type="PackedScene" uid="uid://op5a1mqidavt" path="res://scenes/UI/hotbar.tscn" id="17_ploos"]
+[ext_resource type="PackedScene" uid="uid://bgernc48v7rc7" path="res://scenes/UI/shadowmeld_widget.tscn" id="17_shdwdgt"]
+[ext_resource type="PackedScene" uid="uid://bsf8l5e8v7rc7" path="res://scenes/UI/staff_element_widget.tscn" id="17_stfwdgt"]
+[ext_resource type="PackedScene" uid="uid://bxi24t15fkgj6" path="res://scenes/UI/sword_combo_widget.tscn" id="17_swcmbo"]
+[ext_resource type="PackedScene" uid="uid://dg24jyeogxij1" path="res://scenes/UI/synergy_widget.tscn" id="18_synrg"]
+[ext_resource type="PackedScene" uid="uid://e3niuw0f1y4f" path="res://scenes/UI/buffbar.tscn" id="19_gb22u"]
+[ext_resource type="PackedScene" uid="uid://1ufb4svp8iwu" path="res://scenes/UI/quest_window.tscn" id="26_quest"]
+[ext_resource type="PackedScene" uid="uid://jtdhvyo8t2y7" path="res://scenes/UI/game_window.tscn" id="34_ghub"]
+[ext_resource type="PackedScene" uid="uid://c66548ep3jkx5" path="res://scenes/UI/boss_hp_bar.tscn" id="40_bosshp"]
+
+[sub_resource type="Gradient" id="Gradient_2qjlr"]
+colors = PackedColorArray(0.15, 0.15, 0.15, 1, 0.14902, 0.14902, 0.14902, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_7vu7v"]
+gradient = SubResource("Gradient_2qjlr")
+use_hdr = true
+
+[sub_resource type="Gradient" id="Gradient_7vu7v"]
+offsets = PackedFloat32Array(0)
+colors = PackedColorArray(1, 0, 0, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_0r45a"]
+gradient = SubResource("Gradient_7vu7v")
+use_hdr = true
+
+[sub_resource type="Gradient" id="Gradient_x6dh1"]
+offsets = PackedFloat32Array(0)
+colors = PackedColorArray(0, 0, 1, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_3myi5"]
+gradient = SubResource("Gradient_x6dh1")
+use_hdr = true
+
+[sub_resource type="Gradient" id="Gradient_x5q00"]
+offsets = PackedFloat32Array(0)
+colors = PackedColorArray(1, 1, 0, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_2qjlr"]
+gradient = SubResource("Gradient_x5q00")
+use_hdr = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2qjlr"]
+bg_color = Color(0.0748453, 0.0748453, 0.0748452, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7vu7v"]
+bg_color = Color(0.113049, 0.113049, 0.113049, 0.666667)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0r45a"]
+bg_color = Color(0, 0, 0, 0.666667)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_cgmen"]
+size = Vector2(275, 275)
+
+[node name="LocalPlayerUI" type="CanvasLayer"]
+script = ExtResource("ctrl_lpui")
+
+[node name="PlayerHUD" type="Control" parent="."]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("11_ihqbe")
+
+[node name="BottomStatsContainer" type="Control" parent="PlayerHUD"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="HealthBar" type="TextureProgressBar" parent="PlayerHUD/BottomStatsContainer"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -400.0
+offset_top = -143.0
+offset_right = -5.0
+offset_bottom = -103.0
+grow_horizontal = 2
+grow_vertical = 0
+value = 38.0
+nine_patch_stretch = true
+texture_under = SubResource("GradientTexture1D_7vu7v")
+texture_progress = SubResource("GradientTexture1D_0r45a")
+
+[node name="HPLabel" type="Label" parent="PlayerHUD/BottomStatsContainer/HealthBar"]
+layout_mode = 0
+offset_left = 9.0
+offset_top = -14.0
+offset_right = 73.0
+offset_bottom = 18.0
+theme_override_constants/outline_size = 16
+theme_override_fonts/font = ExtResource("12_cgmen")
+theme_override_font_sizes/font_size = 32
+text = "HP"
+
+[node name="HPValueLabel" type="Label" parent="PlayerHUD/BottomStatsContainer/HealthBar"]
+layout_mode = 0
+offset_left = 136.0
+offset_top = -13.0
+offset_right = 386.0
+offset_bottom = 19.0
+theme_override_constants/outline_size = 16
+theme_override_fonts/font = ExtResource("12_cgmen")
+theme_override_font_sizes/font_size = 24
+text = "100/100"
+horizontal_alignment = 2
+
+[node name="ManaBar" type="TextureProgressBar" parent="PlayerHUD/BottomStatsContainer"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = 5.0
+offset_top = -143.0
+offset_right = 400.0
+offset_bottom = -103.0
+grow_horizontal = 2
+grow_vertical = 0
+value = 38.0
+nine_patch_stretch = true
+texture_under = SubResource("GradientTexture1D_7vu7v")
+texture_progress = SubResource("GradientTexture1D_3myi5")
+
+[node name="MPLabel" type="Label" parent="PlayerHUD/BottomStatsContainer/ManaBar"]
+layout_mode = 0
+offset_left = 9.0
+offset_top = -14.0
+offset_right = 73.0
+offset_bottom = 18.0
+theme_override_constants/outline_size = 16
+theme_override_fonts/font = ExtResource("12_cgmen")
+theme_override_font_sizes/font_size = 32
+text = "MP"
+
+[node name="MPValueLabel" type="Label" parent="PlayerHUD/BottomStatsContainer/ManaBar"]
+layout_mode = 0
+offset_left = 136.0
+offset_top = -13.0
+offset_right = 386.0
+offset_bottom = 19.0
+theme_override_constants/outline_size = 16
+theme_override_fonts/font = ExtResource("12_cgmen")
+theme_override_font_sizes/font_size = 24
+text = "100/100"
+horizontal_alignment = 2
+
+[node name="ExperienceBar" type="TextureProgressBar" parent="PlayerHUD/BottomStatsContainer"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -300.0
+offset_top = -84.0
+offset_right = 400.0
+offset_bottom = -59.0
+grow_horizontal = 2
+grow_vertical = 0
+value = 38.0
+nine_patch_stretch = true
+texture_under = SubResource("GradientTexture1D_7vu7v")
+texture_progress = SubResource("GradientTexture1D_2qjlr")
+
+[node name="LevelPanel" type="Panel" parent="PlayerHUD/BottomStatsContainer/ExperienceBar"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = -12.5
+offset_bottom = 37.5
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_2qjlr")
+
+[node name="LevelLabel" type="RichTextLabel" parent="PlayerHUD/BottomStatsContainer/ExperienceBar/LevelPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(50, 25)
+theme_override_fonts/normal_font = ExtResource("12_cgmen")
+theme_override_font_sizes/normal_font_size = 16
+bbcode_enabled = true
+text = "LV. [color=yellow]1[/color]"
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EXPLabel" type="Label" parent="PlayerHUD/BottomStatsContainer/ExperienceBar"]
+layout_mode = 0
+offset_left = 9.0
+offset_top = -13.0
+offset_right = 81.0
+offset_bottom = 19.0
+theme_override_constants/outline_size = 16
+theme_override_fonts/font = ExtResource("12_cgmen")
+theme_override_font_sizes/font_size = 24
+text = "EXP"
+
+[node name="EXPPercentLabel" type="RichTextLabel" parent="PlayerHUD/BottomStatsContainer/ExperienceBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/outline_size = 8
+theme_override_fonts/normal_font = ExtResource("12_cgmen")
+theme_override_font_sizes/normal_font_size = 16
+text = "38%"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MobileButtons" type="Control" parent="PlayerHUD"]
+visible = false
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="LeftButton" type="Button" parent="PlayerHUD/MobileButtons"]
+layout_mode = 0
+offset_left = 89.0
+offset_top = -165.0
+offset_right = 233.0
+offset_bottom = -21.0
+focus_mode = 0
+theme_override_styles/normal = SubResource("StyleBoxFlat_7vu7v")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_0r45a")
+theme_override_styles/hover = SubResource("StyleBoxFlat_7vu7v")
+
+[node name="Label" type="Label" parent="PlayerHUD/MobileButtons/LeftButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 100
+text = "<"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LeftTouchButton" type="TouchScreenButton" parent="PlayerHUD/MobileButtons/LeftButton"]
+position = Vector2(-1, -4)
+scale = Vector2(0.5154639, 0.51546395)
+texture_normal = ExtResource("15_32uah")
+texture_pressed = ExtResource("15_32uah")
+passby_press = true
+action = "Move Left"
+
+[node name="RightButton" type="Button" parent="PlayerHUD/MobileButtons"]
+layout_mode = 0
+offset_left = 324.0
+offset_top = -165.0
+offset_right = 468.0
+offset_bottom = -21.0
+focus_mode = 0
+theme_override_styles/normal = SubResource("StyleBoxFlat_7vu7v")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_0r45a")
+theme_override_styles/hover = SubResource("StyleBoxFlat_7vu7v")
+
+[node name="Label" type="Label" parent="PlayerHUD/MobileButtons/RightButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 100
+text = ">"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="RightTouchButton" type="TouchScreenButton" parent="PlayerHUD/MobileButtons/RightButton"]
+position = Vector2(-4, -4)
+scale = Vector2(0.5154639, 0.51546395)
+texture_normal = ExtResource("16_ihqbe")
+texture_pressed = ExtResource("16_ihqbe")
+passby_press = true
+action = "Move Right"
+
+[node name="AttackButton" type="Button" parent="PlayerHUD/MobileButtons"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -340.0
+offset_top = -165.0
+offset_right = -196.0
+offset_bottom = -21.0
+grow_horizontal = 0
+grow_vertical = 0
+focus_mode = 0
+theme_override_styles/normal = SubResource("StyleBoxFlat_7vu7v")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_0r45a")
+theme_override_styles/hover = SubResource("StyleBoxFlat_7vu7v")
+disabled = true
+
+[node name="Label" type="Label" parent="PlayerHUD/MobileButtons/AttackButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 40
+text = "Attack"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AttackTouchButton" type="TouchScreenButton" parent="PlayerHUD/MobileButtons/AttackButton"]
+position = Vector2(72, 72)
+scale = Vector2(0.5154639, 0.51546395)
+shape = SubResource("RectangleShape2D_cgmen")
+action = "Attack"
+
+[node name="JumpButton" type="Button" parent="PlayerHUD/MobileButtons"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -180.0
+offset_top = -165.0
+offset_right = -36.0
+offset_bottom = -21.0
+grow_horizontal = 0
+grow_vertical = 0
+focus_mode = 0
+theme_override_styles/normal = SubResource("StyleBoxFlat_7vu7v")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_0r45a")
+theme_override_styles/hover = SubResource("StyleBoxFlat_7vu7v")
+disabled = true
+
+[node name="Label" type="Label" parent="PlayerHUD/MobileButtons/JumpButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 40
+text = "Jump"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="JumpTouchButton" type="TouchScreenButton" parent="PlayerHUD/MobileButtons/JumpButton"]
+position = Vector2(72, 72)
+scale = Vector2(0.5154639, 0.51546395)
+shape = SubResource("RectangleShape2D_cgmen")
+action = "Jump"
+
+[node name="Buffbar" parent="PlayerHUD" instance=ExtResource("19_gb22u")]
+layout_mode = 1
+offset_left = -520.0
+mouse_filter = 2
+
+[node name="Hotbar" parent="PlayerHUD" instance=ExtResource("17_ploos")]
+layout_mode = 1
+offset_left = 420.0
+offset_top = -91.0
+offset_right = 940.0
+offset_bottom = -21.0
+
+[node name="SynergyWidget" parent="PlayerHUD" instance=ExtResource("18_synrg")]
+layout_mode = 1
+
+[node name="SwordComboWidget" parent="PlayerHUD" instance=ExtResource("17_swcmbo")]
+layout_mode = 1
+offset_top = -200.0
+offset_bottom = -72.0
+
+[node name="BowMomentumWidget" parent="PlayerHUD" instance=ExtResource("17_bcwdgt")]
+layout_mode = 1
+offset_top = -60.0
+offset_bottom = 68.0
+
+[node name="StaffElementWidget" parent="PlayerHUD" instance=ExtResource("17_stfwdgt")]
+layout_mode = 1
+offset_top = 80.0
+offset_bottom = 160.0
+
+[node name="ShadowmeldWidget" parent="PlayerHUD" instance=ExtResource("17_shdwdgt")]
+layout_mode = 1
+offset_top = 172.0
+offset_bottom = 252.0
+
+[node name="BossHpBar" parent="PlayerHUD" instance=ExtResource("40_bosshp")]
+layout_mode = 1
+
+[node name="MoveableWindows" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="QuestWindow" parent="MoveableWindows" instance=ExtResource("26_quest")]
+layout_mode = 1
+
+[node name="GameWindow" parent="MoveableWindows" instance=ExtResource("34_ghub")]
+visible = false
+layout_mode = 1

@@ -60,6 +60,38 @@ var _synchronizer_cache: Dictionary = {} ## {node_instance_id: Array[Multiplayer
 var _loading_overlay_scene = preload("res://scenes/UI/loading_overlay.tscn")
 var _loading_overlay: CanvasLayer = null
 
+# ADR 0009 Stage B: the persistent local-player UI layer. One instance per client,
+# created lazily on the local player's first identify, freed on client reset.
+var _local_player_ui_scene = preload("res://scenes/UI/local_player_ui.tscn")
+var _local_ui: CanvasLayer = null
+
+
+## Creates the persistent local-player UI under /root once per client (host
+## included). The caller emits local_player_changed right after, which binds it.
+func _ensure_local_ui() -> void:
+	if is_instance_valid(_local_ui):
+		return
+	_local_ui = _local_player_ui_scene.instantiate()
+	get_tree().root.add_child(_local_ui)
+
+
+## The persistent local-player UI layer, or null before first spawn / after reset.
+func get_local_ui() -> CanvasLayer:
+	return _local_ui
+
+
+## The persistent layer's MoveableWindows container — where transient windows
+## (trade, bot-inspect, context menu, debug) mount. Null when no local UI exists.
+## Replaces the old `<body>/CanvasLayer/MoveableWindows` lookups (ADR 0009 Stage B).
+func get_local_ui_moveable_windows() -> Node:
+	return _local_ui.get_node_or_null("MoveableWindows") if is_instance_valid(_local_ui) else null
+
+
+## The persistent layer's PlayerHUD — where always-on overlays (quest popups,
+## welcome overlay) mount. Null when no local UI exists.
+func get_local_ui_hud() -> Node:
+	return _local_ui.get_node_or_null("PlayerHUD") if is_instance_valid(_local_ui) else null
+
 func _get_loading_overlay() -> CanvasLayer:
 	if not _loading_overlay or not is_instance_valid(_loading_overlay):
 		_loading_overlay = _loading_overlay_scene.instantiate()
@@ -690,8 +722,11 @@ func reset_client_state():
 	current_map_instance = null
 	my_player_node = null
 	_warned_missing_paths.clear()
-	# ADR 0009 Stage B: drop the persistent UI's binding on disconnect / main-menu.
+	# ADR 0009 Stage B: unbind then free the persistent UI on disconnect / main-menu.
 	local_player_changed.emit(null)
+	if is_instance_valid(_local_ui):
+		_local_ui.queue_free()
+		_local_ui = null
 
 
 # === VISIBILITY LOGIC ===
@@ -903,9 +938,13 @@ func client_identify_player(player_node_path: String):
 	my_player_node = node
 	if _loading_overlay and is_instance_valid(_loading_overlay):
 		_loading_overlay.hide_loading()
-	# ADR 0009 Stage B: tell the persistent local-player UI layer to (re)bind to
-	# this body. Fires for the host too (call_local), on every spawn + map change.
-	local_player_changed.emit(my_player_node)
+	# ADR 0009 Stage B: (re)bind the persistent local-player UI to THIS body — but
+	# only when it is our OWN body. On the host this method also runs (call_local)
+	# for every remote player's identify; the player_id guard stops us binding the
+	# host's UI to a remote body. Fires on every spawn + map change for our body.
+	if is_instance_valid(node) and node.player_id == multiplayer.get_unique_id():
+		_ensure_local_ui()
+		local_player_changed.emit(node)
 	#print("Client: Found my player node. Notifying server.")
 	rpc_id(1, "client_player_spawned", current_map_id)
 

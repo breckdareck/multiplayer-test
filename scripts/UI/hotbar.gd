@@ -31,32 +31,36 @@ func _ready():
 		primary_weapon_slot = weapon_swap_section.get_node_or_null("PrimaryWeaponSlot") as HotbarWeaponSlot
 		secondary_weapon_slot = weapon_swap_section.get_node_or_null("SecondaryWeaponSlot") as HotbarWeaponSlot
 
-	# Get reference to player (adjust based on your scene structure)
-	if owner is MultiplayerPlayerV2:
-		player = owner as MultiplayerPlayerV2
-	elif get_parent() is MultiplayerPlayerV2:
-		player = get_parent() as MultiplayerPlayerV2
-
-	# Get ability component
-	if player:
-		ability_component = player.ability_component
-		equipment_component = player.equipment_component
-
-	if not ability_component:
-		push_error("Hotbar: Could not find AbilityComponent")
-
 	create_hotbar_slots()
 
-	if ability_component:
-		ability_component.cooldown_started.connect(_on_cooldown_started)
-
-	# PR 3: wire the weapon-swap section. The widgets exist on every client
-	# that has the hotbar scene; bots free their UI subtree so this never runs
-	# for them.
+	# One-time: the weapon-slot click affordance. These slots are PERSISTENT
+	# (this UI layer outlives the body), so connect once here — not in
+	# bind_player, or every rebind would double-connect. _on_weapon_slot_click
+	# guards on `player`. (ADR 0009 Stage B.)
 	if is_instance_valid(primary_weapon_slot):
 		primary_weapon_slot.click_to_swap_requested.connect(_on_weapon_slot_click)
 	if is_instance_valid(secondary_weapon_slot):
 		secondary_weapon_slot.click_to_swap_requested.connect(_on_weapon_slot_click)
+
+
+## Binds the hotbar to the local player body — called by LocalPlayerUI on every
+## spawn / map change. Component-signal connections live here (the body's
+## components are freed + recreated per map change, so their connections are
+## auto-cleaned — unlike the one-time persistent-node wiring in _ready).
+func bind_player(body) -> void:
+	if player == body:
+		return
+	player = body
+	if not is_instance_valid(player):
+		return
+
+	ability_component = player.ability_component
+	equipment_component = player.equipment_component
+	if not ability_component:
+		push_error("Hotbar: Could not find AbilityComponent")
+
+	if ability_component:
+		ability_component.cooldown_started.connect(_on_cooldown_started)
 
 	if equipment_component:
 		equipment_component.on_equipment_changed.connect(_refresh_weapon_section)
@@ -65,9 +69,17 @@ func _ready():
 		equipment_component.swap_denied.connect(_on_swap_denied)
 
 	# Defer the first refresh by a frame — the equipment component's slots
-	# may not be populated yet when _ready fires (loaded asynchronously).
+	# may not be populated yet when bind fires (loaded asynchronously).
 	call_deferred("_refresh_weapon_section")
 	call_deferred("_refresh_active_highlight")
+
+
+## Drops the binding (teardown). Old-body component connections die with the
+## freed body; this clears refs.
+func unbind_player() -> void:
+	player = null
+	ability_component = null
+	equipment_component = null
 
 
 func _process(delta: float) -> void:
@@ -120,6 +132,8 @@ func _on_cooldown_started(ability_id: String, duration: float) -> void:
 ## Optional: Handle keybind inputs
 func _input(event: InputEvent):
 	if InputManager.is_locked():
+		return
+	if not is_instance_valid(player):
 		return
 	if multiplayer.get_unique_id() == player.player_id:
 		for i in range(slot_count):

@@ -48,23 +48,44 @@ const HOTKEY_TAB := {
 func _ready() -> void:
 	add_to_group("ui_window")
 	visible = false
-	if owner is MultiplayerPlayerV2:
-		player = owner
 	if is_instance_valid(tab_bar):
 		tab_bar.tab_changed.connect(_on_tab_changed)
 	if is_instance_valid(close_button):
 		close_button.pressed.connect(func(): visible = false)
-	_wire_stats_buttons()
 	# Skill tree (instanced sub-scene) — refreshed on the Abilities tab.
 	_ability_shell = abil_host.get_node_or_null("AbilityWindow") if is_instance_valid(abil_host) else null
+	# One-time: the attribute "+" / respec BUTTONS are persistent UI; their
+	# handlers read the current `player` at click time, so connect them once
+	# here — not per bind, or rebinds would double-connect (ADR 0009 Stage B).
+	_wire_persistent_buttons()
+	_show_tab(0)
+
+
+## Binds the hub to the local player body — called by LocalPlayerUI on every
+## spawn / map change. The body (and its components) is reached only from here on.
+func bind_player(body) -> void:
+	if player == body:
+		return
+	player = body
+	if not is_instance_valid(player):
+		return
 	# Pet panel is native here, but its controller wants the player ref (it can't
-	# resolve via `owner`, which is the hub). Inject it like equipment_window did.
+	# resolve via `owner`, which is the hub).
 	var pet := equip_host.get_node_or_null("PetTabContent/PetTab") if is_instance_valid(equip_host) else null
 	if pet and pet.has_method("set_owner_player"):
 		pet.set_owner_player(player)
+	_wire_player_signals()
 	_bind_equipment_views()
 	_bind_inventory_grids()
-	_show_tab(0)
+	_update_attr_respec_button()
+	_refresh_monies()
+	_refresh_header()
+	_refresh_stats()
+
+
+func unbind_player() -> void:
+	# Body component connections die with the freed body; just clear the ref.
+	player = null
 
 
 # ─── Equipment slots (ADR 0009 Stage A) ──────────────────────────────────────
@@ -117,7 +138,10 @@ func _bind_inventory_grids() -> void:
 
 
 # ─── Wiring the authored stats/attribute controls ────────────────────────────
-func _wire_stats_buttons() -> void:
+## One-time: the attribute "+" buttons and the respec button. Their handlers read
+## the CURRENT `player` at click time (member access through self), so a single
+## connection is correct across rebinds.
+func _wire_persistent_buttons() -> void:
 	if not is_instance_valid(stats_root):
 		return
 	for row_name in _ATTR_ROWS:
@@ -130,20 +154,28 @@ func _wire_stats_buttons() -> void:
 		# Economy sink: warn (with the monies cost) before respeccing — don't just
 		# silently spend on click.
 		_respec_button.pressed.connect(_on_attr_respec_pressed)
+
+
+## Per-body: connect the live player's component change signals. The body's
+## components are freed + recreated each map change, so their connections are
+## auto-cleaned; the is_connected guards make a double-bind on the same body safe.
+func _wire_player_signals() -> void:
 	var sc = player.stats_component if player else null
 	if sc:
 		if sc.has_signal("stats_changed") and not sc.stats_changed.is_connected(_refresh_stats):
 			sc.stats_changed.connect(_refresh_stats)
-		if sc.has_signal("attribute_points_changed"):
-			sc.attribute_points_changed.connect(func(_u): _refresh_stats())
+		if sc.has_signal("attribute_points_changed") and not sc.attribute_points_changed.is_connected(_on_attr_points_changed):
+			sc.attribute_points_changed.connect(_on_attr_points_changed)
 	# Render the monies total + re-evaluate respec affordability when it changes.
 	# (ADR 0009: the component emits monies_changed; the UI owns its own label
 	# instead of the component writing into a UI NodePath.)
 	if player and is_instance_valid(player.player_inventory) and player.player_inventory.has_signal("monies_changed"):
 		if not player.player_inventory.monies_changed.is_connected(_on_monies_changed):
 			player.player_inventory.monies_changed.connect(_on_monies_changed)
-	_update_attr_respec_button()
-	_refresh_monies()
+
+
+func _on_attr_points_changed(_u) -> void:
+	_refresh_stats()
 
 
 # ─── Economy: attribute respec cost label + warning dialog ───────────────────

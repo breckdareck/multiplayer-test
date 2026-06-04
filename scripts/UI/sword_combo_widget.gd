@@ -62,25 +62,17 @@ func _ready() -> void:
 		if pip:
 			combo_pips.append(pip)
 			pip.add_theme_stylebox_override("panel", _pip_style_empty)
+	# Player-dependent wiring happens in bind_player() — this widget lives in the
+	# persistent UI layer and is (re)bound per spawn / map change (ADR 0009 Stage B).
+	visible = false
 
-	# Resolve player off the owner chain — the widget is instanced under
-	# CanvasLayer/PlayerHUD on the player root, mirroring how hotbar.gd
-	# resolves its player ref.
-	var node: Node = self
-	while node and not (node is MultiplayerPlayerV2):
-		node = node.get_parent()
-	if node is MultiplayerPlayerV2:
-		player = node as MultiplayerPlayerV2
 
-	if not is_instance_valid(player):
-		# No player root — keep the widget hidden, nothing to wire.
-		visible = false
+## Binds this widget to the local player body. Called by LocalPlayerUI.
+func bind_player(body) -> void:
+	if player == body:
 		return
-
-	# Hide for remote players' widgets — only the local player sees their own
-	# class identity gauges. Remote players' nodes still instantiate this
-	# scene but should never render it (matches PlayerHUD's gating).
-	if player.player_id != multiplayer.get_unique_id():
+	player = body
+	if not is_instance_valid(player):
 		visible = false
 		return
 
@@ -100,9 +92,18 @@ func _ready() -> void:
 		equipment_component.active_weapon_changed.connect(_on_active_weapon_changed)
 
 	# Defer the first refresh — equipment slots may not be populated yet
-	# when _ready fires (loaded asynchronously after spawn).
+	# when bind fires (loaded asynchronously after spawn).
 	call_deferred("_refresh_visibility")
 	call_deferred("_refresh_pips")
+
+
+## Drops the binding (teardown). Old-body signal connections die with the freed
+## body; this clears refs. Stage C (live-body reparent) will need disconnects.
+func unbind_player() -> void:
+	player = null
+	sword_combo_component = null
+	equipment_component = null
+	visible = false
 
 #endregion
 
