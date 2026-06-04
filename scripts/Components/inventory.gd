@@ -58,68 +58,81 @@ func _notify_changed() -> void:
 func _ready() -> void:
 	if not multiplayer.is_server():
 		return
-	await _ensure_slots_initialized()
-	
+	# Build the SlotData model up front — MODEL-FIRST and view-independent
+	# (ADR 0009 Stage B). The server's copy of a REMOTE client's body has no UI
+	# grids (those live in the per-client persistent UI, which on the server only
+	# exists for the host), so the model must NOT be derived from views or it
+	# would be empty and the client's inventory would never persist.
+	_ensure_slots_data()
 	_rebuild_item_tracking()
-	
+
 	if not pending_inventory_data.is_empty():
-		#print("Applying pending inventory data")
 		_apply_inventory_data(pending_inventory_data)
 		pending_inventory_data.clear()
 
 
+## The bag layout: 3 sections in tab order, each gating one item type. The single
+## source of truth for the model, so it builds without the view grids.
+const INVENTORY_LAYOUT := [
+	{"type": Constants.ItemType.EQUIPMENT, "count": 54},
+	{"type": Constants.ItemType.CONSUMABLE, "count": 54},
+	{"type": Constants.ItemType.MATERIAL, "count": 54},
+]
+
+
+## Builds the component-owned SlotData model from INVENTORY_LAYOUT (idempotent,
+## UI-independent). The Slot view nodes bind to these entries by index in
+## bind_grids(); a headless / remote-on-server body simply has no views.
+func _ensure_slots_data() -> void:
+	if not slots_data.is_empty():
+		return
+	var idx := 0
+	for section in INVENTORY_LAYOUT:
+		for _j in section["count"]:
+			var data := SlotData.new()
+			data.container_kind = SlotData.CONTAINER_INVENTORY
+			data.index = idx
+			data.key = idx
+			data.allowed_item_type = section["type"]
+			slots_data.append(data)
+			idx += 1
+
+
+## Back-compat shim for the few callers that `await` it; the model is now built
+## synchronously and view-independently.
 func _ensure_slots_initialized() -> void:
-	if not is_inside_tree():
-		await tree_entered
-	await get_tree().process_frame
-	if slots.is_empty() and not inventory_grids.is_empty():
-		for grid in inventory_grids:
-			for child in grid.get_children():
-				if child is Slot:
-					slots.append(child)
-
-	for slot in slots:
-		if slot.has_method("set_inventory"):
-			slot.set_inventory(self)
-		slot.add_to_group("inventory_slots")
-
-	_build_slot_data()
+	_ensure_slots_data()
 
 
-## Hands the bag's GridContainers to the component (push-from-UI), replacing the
-## old @export inventory_grids NodePath. Called by the local UI layer
-## (game_window) at instantiation, before the deferred slot discovery in
-## _ensure_slots_initialized reads them. ADR 0009 Stage A.
+## Hands the bag's GridContainers to the component (push-from-UI). Ensures the
+## model exists, then registers + binds each authored Slot view to its model
+## entry by index. Grids arrive as [EQUIP, USE, ETC], matching the model's
+## section order. ADR 0009.
 func bind_grids(grids: Array) -> void:
+	_ensure_slots_data()
 	inventory_grids.clear()
+	slots.clear()
 	for g in grids:
 		if g is GridContainer:
 			inventory_grids.append(g)
-
-
-func setup_slots(slot_array: Array[Slot]):
-	slots = slot_array
-	for slot in slots:
-		if slot.has_method("set_inventory"):
-			slot.set_inventory(self)
-		slot.add_to_group("inventory_slots")
-	_build_slot_data()
+			for child in g.get_children():
+				if child is Slot:
+					slots.append(child)
+	for i in range(min(slots.size(), slots_data.size())):
+		slots[i].set_inventory(self)
+		slots[i].add_to_group("inventory_slots")
+		slots[i].bind_slot_data(slots_data[i])
 	_rebuild_item_tracking()
 
 
-## Creates one SlotData per UI slot (in index order) and binds them. After this
-## the data model lives in the component; the Slot nodes are pure views.
-func _build_slot_data() -> void:
-	if not slots_data.is_empty():
-		return
-	for i in slots.size():
-		var data := SlotData.new()
-		data.container_kind = SlotData.CONTAINER_INVENTORY
-		data.index = i
-		data.key = i
-		data.allowed_item_type = slots[i].allowed_item_type
-		slots_data.append(data)
-		slots[i].bind_slot_data(data)
+func setup_slots(slot_array: Array[Slot]):
+	_ensure_slots_data()
+	slots = slot_array
+	for i in range(min(slots.size(), slots_data.size())):
+		slots[i].set_inventory(self)
+		slots[i].add_to_group("inventory_slots")
+		slots[i].bind_slot_data(slots_data[i])
+	_rebuild_item_tracking()
 
 
 func _rebuild_item_tracking():
