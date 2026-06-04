@@ -55,7 +55,7 @@ Registered in `project.godot`; globally accessible by name from any script.
 | `NetworkManager` | `scripts/Networking/network_manager.gd` | Backend HTTP API (login, characters, save/load) |
 | `ResourceManager` | `scripts/Managers/resource_manager.gd` | Loads & caches ability/item/buff/class `.tres` |
 | `SaveManager` | `scripts/Managers/save_manager.gd` | Debounced player-data persistence |
-| `MapManager` | `scripts/Managers/map_manager.gd` | Map registry, transitions, visibility, spawning |
+| `MapManager` | `scripts/Managers/map_manager.gd` | Map registry, transitions, visibility, spawning; map residency (all maps pre-instantiated at boot, kept resident) + proximity enemy activation — see [docs/adr/0007-map-residency-and-enemy-activation.md](docs/adr/0007-map-residency-and-enemy-activation.md) |
 | `PartyManager` | `scripts/Managers/party_manager.gd` | Party creation/joining |
 | `BotManager` | `scripts/Bot/bot_manager.gd` | Server-side AI bot lifecycle, `/bot` commands |
 | `TradeManager` | `scripts/Trading/trade_manager.gd` | Player-to-player trading |
