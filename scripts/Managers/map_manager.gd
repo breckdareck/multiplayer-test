@@ -5,6 +5,13 @@ extends Node
 signal map_loaded(map_id: String)
 signal map_unloaded(map_id: String)
 signal player_spawned(player_id: int)
+## Fires on THIS client (host included, via client_identify_player's call_local)
+## whenever the local player's body is (re)identified — every spawn and every map
+## change — carrying the live body, or null on teardown (disconnect / main menu).
+## The persistent local-player UI layer (ADR 0009 Stage B) binds its widgets to
+## the body here, replacing the body's one-shot _ready (which does not re-run
+## after a reparent — a latent ADR 0008 bug).
+signal local_player_changed(body: Node)
 
 # Map configuration - add your map scenes here
 const MAP_SCENES = {
@@ -683,6 +690,8 @@ func reset_client_state():
 	current_map_instance = null
 	my_player_node = null
 	_warned_missing_paths.clear()
+	# ADR 0009 Stage B: drop the persistent UI's binding on disconnect / main-menu.
+	local_player_changed.emit(null)
 
 
 # === VISIBILITY LOGIC ===
@@ -894,6 +903,9 @@ func client_identify_player(player_node_path: String):
 	my_player_node = node
 	if _loading_overlay and is_instance_valid(_loading_overlay):
 		_loading_overlay.hide_loading()
+	# ADR 0009 Stage B: tell the persistent local-player UI layer to (re)bind to
+	# this body. Fires for the host too (call_local), on every spawn + map change.
+	local_player_changed.emit(my_player_node)
 	#print("Client: Found my player node. Notifying server.")
 	rpc_id(1, "client_player_spawned", current_map_id)
 
