@@ -109,6 +109,14 @@ func apply_appearance(class_type: int, level: int) -> void:
 func apply_active_weapon_sprite() -> void:
 	if not is_instance_valid(owner) or owner._is_being_cleaned_up:
 		return
+	# Only the LOCAL player resolves its sprite from its own equipment. A remote
+	# player's equipment items are synced only to their owner, so resolving here
+	# for someone else's body falls back to their primary discipline (always
+	# "sword") and — running on the swap-FX timer — overwrites the authoritative
+	# change_sprite_rpc the server broadcast. Remote bodies get their sprite from
+	# refresh_on_server's broadcast exclusively. (Multiplayer weapon-swap sprite fix.)
+	if multiplayer.has_multiplayer_peer() and multiplayer.get_unique_id() != owner.player_id:
+		return
 	var equip = owner.equipment_component
 	var level_comp = owner.level_component
 	if not is_instance_valid(equip) or not is_instance_valid(level_comp):
