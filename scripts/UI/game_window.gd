@@ -63,6 +63,7 @@ func _ready() -> void:
 	if pet and pet.has_method("set_owner_player"):
 		pet.set_owner_player(player)
 	_bind_equipment_views()
+	_bind_inventory_grids()
 	_show_tab(0)
 
 
@@ -89,6 +90,30 @@ func _bind_equipment_views() -> void:
 		var view := grid.get_node_or_null(slot_name)
 		if view is EquipmentSlot:
 			ec.bind_slot_view(_EQUIP_SLOT_KEYS[slot_name], view)
+
+
+# The bag's three GridContainers are authored here under the Inventory tabs.
+# Hand them to the InventoryComponent (push-from-UI) instead of the component
+# reaching up via @export. Done at _ready, before the component's deferred slot
+# discovery (_ensure_slots_initialized) reads them. ADR 0009 Stage A.
+const _INV_GRID_PATHS := [
+	"Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid",
+	"Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid",
+	"Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid",
+]
+
+
+func _bind_inventory_grids() -> void:
+	if player == null or not is_instance_valid(player.inventory_component) \
+			or not is_instance_valid(character_page):
+		return
+	var grids: Array[GridContainer] = []
+	for grid_path in _INV_GRID_PATHS:
+		var g := character_page.get_node_or_null(grid_path)
+		if g is GridContainer:
+			grids.append(g)
+	if not grids.is_empty():
+		player.inventory_component.bind_grids(grids)
 
 
 # ─── Wiring the authored stats/attribute controls ────────────────────────────

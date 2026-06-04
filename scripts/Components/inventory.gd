@@ -7,7 +7,12 @@ signal item_added(item: ItemData)
 signal item_removed(item: ItemData, reason: String)
 signal inventory_saved(inventory: InventoryComponent)
 
-@export var inventory_grids: Array[GridContainer]
+# The bag's GridContainers. Handed in by the local UI layer via bind_grids()
+# (ADR 0009 Stage A) — the component no longer holds an @export NodePath up
+# into the UI. Slot discovery + the SlotData model build read these in
+# _ensure_slots_initialized (server _ready / client load path). Empty on a
+# headless scene that never binds.
+var inventory_grids: Array[GridContainer] = []
 @export var equipment_component: EquipmentComponent
 @export var stats_component: StatsComponent
 
@@ -79,6 +84,17 @@ func _ensure_slots_initialized() -> void:
 		slot.add_to_group("inventory_slots")
 
 	_build_slot_data()
+
+
+## Hands the bag's GridContainers to the component (push-from-UI), replacing the
+## old @export inventory_grids NodePath. Called by the local UI layer
+## (game_window) at instantiation, before the deferred slot discovery in
+## _ensure_slots_initialized reads them. ADR 0009 Stage A.
+func bind_grids(grids: Array) -> void:
+	inventory_grids.clear()
+	for g in grids:
+		if g is GridContainer:
+			inventory_grids.append(g)
 
 
 func setup_slots(slot_array: Array[Slot]):

@@ -488,9 +488,8 @@ script = ExtResource("3_pnj8v")
 inventory_component = NodePath("InventoryComponent")
 player = NodePath("../..")
 
-[node name="InventoryComponent" type="Node" parent="Components/PlayerInventory" node_paths=PackedStringArray("inventory_grids", "equipment_component", "stats_component")]
+[node name="InventoryComponent" type="Node" parent="Components/PlayerInventory" node_paths=PackedStringArray("equipment_component", "stats_component")]
 script = ExtResource("15_cg2hl")
-inventory_grids = [NodePath("../../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid"), NodePath("../../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid"), NodePath("../../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid")]
 equipment_component = NodePath("../../Equipment")
 stats_component = NodePath("../../Stats")
 
