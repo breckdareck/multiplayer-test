@@ -33,15 +33,17 @@ func can_accept_item(item_to_check: ItemData) -> bool:
 	# disciplines, and passives/mastery would otherwise double-stack one weapon).
 	# If this is a weapon slot and the OTHER weapon slot already holds the same
 	# weapon_type, reject. item_container on an equipment slot is the
-	# EquipmentComponent (set via set_inventory(self)).
+	# EquipmentComponent (set via set_inventory(self)). We identify which weapon
+	# slot we are by our bound SlotData's key, not a view ref — ADR 0009 Stage A
+	# removed the component's @export weapon_slot / secondary_weapon_slot paths.
 	if allowed_equipment_type == Constants.EquipmentType.WEAPON and item_to_check is WeaponData:
 		var eq = item_container
-		if eq != null and "weapon_slot" in eq and "secondary_weapon_slot" in eq:
-			var other_data = null
-			if self == eq.weapon_slot:
-				other_data = eq.secondary_weapon_slot_data
-			elif self == eq.secondary_weapon_slot:
-				other_data = eq.weapon_slot_data
+		if eq != null and eq.has_method("get_slot_data") and slot_data != null:
+			var other_data: SlotData = null
+			if slot_data.key == "WEAPON":
+				other_data = eq.get_slot_data("SECONDARY_WEAPON")
+			elif slot_data.key == "SECONDARY_WEAPON":
+				other_data = eq.get_slot_data("WEAPON")
 			if other_data != null and other_data.item is WeaponData \
 					and other_data.item.weapon_type == item_to_check.weapon_type:
 				return false

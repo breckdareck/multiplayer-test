@@ -20,13 +20,9 @@ const ACTIVE_SECONDARY: String = "secondary"
 ## Swap cooldown in seconds. Tunable.
 const SWAP_COOLDOWN: float = 1.5
 
-@export var head_slot: EquipmentSlot
-@export var chest_slot: EquipmentSlot
-@export var legs_slot: EquipmentSlot
-@export var feet_slot: EquipmentSlot
-@export var weapon_slot: EquipmentSlot
-@export var secondary_weapon_slot: EquipmentSlot
-
+# key -> EquipmentSlot view. Populated by the local UI layer via bind_slot_view()
+# (ADR 0009 Stage A) — the component no longer holds @export NodePaths up into
+# the UI. Empty on a headless bot scene.
 var equipment: Dictionary = {}
 # The component-owned data model: equipment key -> SlotData. This is the real
 # storage; the EquipmentSlot UI nodes are views bound to these.
@@ -44,18 +40,26 @@ var active_weapon: String = ACTIVE_PRIMARY
 var _swap_cooldown_remaining: float = 0.0
 
 func _ready():
-	# Configure the slots with their specific types and set their container to this component.
-	var armor_slots = {
-		Constants.ArmorType.HEAD: head_slot,
-		Constants.ArmorType.CHEST: chest_slot,
-		Constants.ArmorType.LEGS: legs_slot,
-		Constants.ArmorType.FEET: feet_slot,
-	}
+	# Build the component-owned SlotData model. The EquipmentSlot UI nodes are
+	# bound to these by the local UI layer (game_window) via bind_slot_view() —
+	# the component no longer reaches up into the UI via @export NodePaths
+	# (ADR 0009 Stage A).
+	_ensure_slots_data()
 
-	for armor_type in armor_slots:
-		var slot = armor_slots[armor_type]
-		# The component owns a SlotData for every equipment key, even when the
-		# matching UI slot is absent (e.g. a headless bot scene).
+	# When equipment changes on the server, persist the player's data
+	# Logic moved to multiplayer_controller_v2.gd to handle both client and server
+
+
+## Builds the component-owned SlotData model: one entry per equipment key
+## ("WEAPON" / "SECONDARY_WEAPON" strings + the four ArmorType ints). Idempotent
+## and UI-independent, so it is safe on a headless bot scene and may run before
+## the UI binds its views.
+func _ensure_slots_data() -> void:
+	if not slots_data.is_empty():
+		return
+
+	for armor_type in [Constants.ArmorType.HEAD, Constants.ArmorType.CHEST,
+			Constants.ArmorType.LEGS, Constants.ArmorType.FEET]:
 		var data := SlotData.new()
 		data.container_kind = SlotData.CONTAINER_EQUIPMENT
 		data.key = armor_type
@@ -64,48 +68,34 @@ func _ready():
 		data.allowed_armor_type = armor_type
 		slots_data[armor_type] = data
 
-		if is_instance_valid(slot):
-			equipment[armor_type] = slot
-			slot.set_inventory(self)
-			slot.allowed_item_type = Constants.ItemType.EQUIPMENT
-			slot.allowed_equipment_type = Constants.EquipmentType.ARMOR
-			slot.allowed_armor_type = armor_type
-			slot.bind_slot_data(data)
+	# PR 3: primary + secondary weapon slots. Both are always present in the
+	# model even when the UI slot is missing (bot has no UI; a remote client may
+	# not expose the slot mid-transition).
+	for weapon_key in ["WEAPON", "SECONDARY_WEAPON"]:
+		var weapon_data := SlotData.new()
+		weapon_data.container_kind = SlotData.CONTAINER_EQUIPMENT
+		weapon_data.key = weapon_key
+		weapon_data.allowed_item_type = Constants.ItemType.EQUIPMENT
+		weapon_data.allowed_equipment_type = Constants.EquipmentType.WEAPON
+		slots_data[weapon_key] = weapon_data
 
-	var weapon_data := SlotData.new()
-	weapon_data.container_kind = SlotData.CONTAINER_EQUIPMENT
-	weapon_data.key = "WEAPON"
-	weapon_data.allowed_item_type = Constants.ItemType.EQUIPMENT
-	weapon_data.allowed_equipment_type = Constants.EquipmentType.WEAPON
-	slots_data["WEAPON"] = weapon_data
 
-	if weapon_slot:
-		equipment["WEAPON"] = weapon_slot
-		weapon_slot.set_inventory(self)
-		weapon_slot.allowed_item_type = Constants.ItemType.EQUIPMENT
-		weapon_slot.allowed_equipment_type = Constants.EquipmentType.WEAPON
-		weapon_slot.bind_slot_data(weapon_data)
-
-	# PR 3: secondary weapon slot. Same allow-rules as the primary weapon slot.
-	# `slots_data["SECONDARY_WEAPON"]` is always present even when the UI slot
-	# is missing (bot has no UI, and the equipment-window scene may not yet
-	# expose the slot on a remote client mid-transition).
-	var secondary_weapon_data := SlotData.new()
-	secondary_weapon_data.container_kind = SlotData.CONTAINER_EQUIPMENT
-	secondary_weapon_data.key = "SECONDARY_WEAPON"
-	secondary_weapon_data.allowed_item_type = Constants.ItemType.EQUIPMENT
-	secondary_weapon_data.allowed_equipment_type = Constants.EquipmentType.WEAPON
-	slots_data["SECONDARY_WEAPON"] = secondary_weapon_data
-
-	if secondary_weapon_slot:
-		equipment["SECONDARY_WEAPON"] = secondary_weapon_slot
-		secondary_weapon_slot.set_inventory(self)
-		secondary_weapon_slot.allowed_item_type = Constants.ItemType.EQUIPMENT
-		secondary_weapon_slot.allowed_equipment_type = Constants.EquipmentType.WEAPON
-		secondary_weapon_slot.bind_slot_data(secondary_weapon_data)
-
-	# When equipment changes on the server, persist the player's data
-	# Logic moved to multiplayer_controller_v2.gd to handle both client and server
+## Binds an EquipmentSlot view to this component's SlotData for `key`, mirroring
+## its acceptance rules onto the view. Called by the local UI layer (game_window)
+## for the body that owns the views; a headless/bot scene simply never calls it.
+## ADR 0009 Stage A inverts the old component->UI @export NodePaths into this
+## push-from-UI API.
+func bind_slot_view(key, view: EquipmentSlot) -> void:
+	_ensure_slots_data()
+	var data: SlotData = slots_data.get(key)
+	if data == null or not is_instance_valid(view):
+		return
+	equipment[key] = view
+	view.set_inventory(self)
+	view.allowed_item_type = data.allowed_item_type
+	view.allowed_equipment_type = data.allowed_equipment_type
+	view.allowed_armor_type = data.allowed_armor_type
+	view.bind_slot_data(data)
 
 
 func _process(delta: float) -> void:
@@ -152,14 +142,13 @@ func mark_changed() -> void:
 	_update_item_tracking(null, null, null)
 
 
+## The EquipmentSlot views currently bound to this component (i.e. the local UI
+## layer is present). Empty on a headless bot scene. Order is not guaranteed.
 func get_slots() -> Array[EquipmentSlot]:
 	var slots_array: Array[EquipmentSlot] = []
-	if head_slot: slots_array.append(head_slot)
-	if chest_slot: slots_array.append(chest_slot)
-	if legs_slot: slots_array.append(legs_slot)
-	if feet_slot: slots_array.append(feet_slot)
-	if weapon_slot: slots_array.append(weapon_slot)
-	if secondary_weapon_slot: slots_array.append(secondary_weapon_slot)
+	for view in equipment.values():
+		if is_instance_valid(view):
+			slots_array.append(view)
 	return slots_array
 
 

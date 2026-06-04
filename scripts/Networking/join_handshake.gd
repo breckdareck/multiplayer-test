@@ -123,15 +123,15 @@ func _phase_init() -> void:
 	if not _save or not _save.has("inventory") or (not has_items and not has_equipment):
 		var ec = _player.equipment_component
 		var starter_weapon: String = _pm._starter_weapon_for(_character_type)
-		ec.weapon_slot.item = ResourceManager.get_item_by_name(starter_weapon)
+		_grant_starter_equip(ec, "WEAPON", starter_weapon)
 		# Class-appropriate starter armour: the level-1 "Worn" set of the
 		# discipline's family (Vanguard plate / Pathfinder leather / Arcanist robes
 		# / Nightshade cloth), so new characters spawn fully kitted.
 		var fam: String = _pm._starter_armor_family(_character_type)
-		ec.head_slot.item = ResourceManager.get_item_by_name("Worn %s Helm" % fam)
-		ec.chest_slot.item = ResourceManager.get_item_by_name("Worn %s Mail" % fam)
-		ec.legs_slot.item = ResourceManager.get_item_by_name("Worn %s Legguards" % fam)
-		ec.feet_slot.item = ResourceManager.get_item_by_name("Worn %s Boots" % fam)
+		_grant_starter_equip(ec, Constants.ArmorType.HEAD, "Worn %s Helm" % fam)
+		_grant_starter_equip(ec, Constants.ArmorType.CHEST, "Worn %s Mail" % fam)
+		_grant_starter_equip(ec, Constants.ArmorType.LEGS, "Worn %s Legguards" % fam)
+		_grant_starter_equip(ec, Constants.ArmorType.FEET, "Worn %s Boots" % fam)
 
 	# Set health and mana (PRE-recalc). mark_stats_dirty() below defers a stats
 	# recalc that fires during the SYNC phase's await; that recalc can change
@@ -164,6 +164,21 @@ func _phase_init() -> void:
 	else:
 		_player.set_username.rpc(_username)
 	_player.weapon_mastery_component.set_primary_discipline_rpc(_character_type)
+
+
+## Writes a starter item into the equipment SlotData model (the source of truth)
+## and refreshes whatever view is bound, if any. Unlike the old `ec.weapon_slot.item`
+## view write, this works on the host, a dedicated server, AND a bot — the model
+## is always present even when no UI slot is (ADR 0009 Stage A). The client
+## receives the items through the normal inventory sync, which reads slots_data.
+func _grant_starter_equip(ec, key, item_name: String) -> void:
+	if not is_instance_valid(ec):
+		return
+	var sd: SlotData = ec.get_slot_data(key)
+	if sd == null:
+		return
+	sd.item = ResourceManager.get_item_by_name(item_name)
+	ec.refresh_view(key)
 
 
 # ── SYNC ──────────────────────────────────────────────────────────────────────

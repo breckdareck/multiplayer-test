@@ -62,7 +62,33 @@ func _ready() -> void:
 	var pet := equip_host.get_node_or_null("PetTabContent/PetTab") if is_instance_valid(equip_host) else null
 	if pet and pet.has_method("set_owner_player"):
 		pet.set_owner_player(player)
+	_bind_equipment_views()
 	_show_tab(0)
+
+
+# ─── Equipment slots (ADR 0009 Stage A) ──────────────────────────────────────
+# The six equipment slots are authored here in game_window.tscn. Bind each to
+# the player's EquipmentComponent SlotData model (push-from-UI) instead of the
+# component reaching up into this scene via @export NodePaths.
+const _EQUIP_SLOT_KEYS := {
+	"HeadSlot": Constants.ArmorType.HEAD, "ChestSlot": Constants.ArmorType.CHEST,
+	"LegsSlot": Constants.ArmorType.LEGS, "FeetSlot": Constants.ArmorType.FEET,
+	"WeaponSlot": "WEAPON", "SecondaryWeaponSlot": "SECONDARY_WEAPON",
+}
+
+
+func _bind_equipment_views() -> void:
+	if player == null or not is_instance_valid(player.equipment_component) \
+			or not is_instance_valid(equip_host):
+		return
+	var grid := equip_host.get_node_or_null("PanelContainer/GridContainer")
+	if grid == null:
+		return
+	var ec = player.equipment_component
+	for slot_name in _EQUIP_SLOT_KEYS:
+		var view := grid.get_node_or_null(slot_name)
+		if view is EquipmentSlot:
+			ec.bind_slot_view(_EQUIP_SLOT_KEYS[slot_name], view)
 
 
 # ─── Wiring the authored stats/attribute controls ────────────────────────────
