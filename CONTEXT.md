@@ -144,6 +144,17 @@ zero `velocity`, reposition to the spawn point, reset the state machine to
 neutral, reset per-weapon gauges (combo / charge / stealth). Persistent buffs
 survive. Bots only hop while travelling, so there is no combat target to clear.
 
+**Local player UI layer**:
+(Proposed — ADR 0009.) A single persistent client-side `CanvasLayer` scene that
+holds the local player's presentation — HUD (bars/hotbar/buffbar/widgets),
+`MoveableWindows` (GameWindow, QuestWindow), keybinds/game menus — instantiated
+once per client and **rebound** to the local character body on each spawn/map
+change via a `MapManager.local_player_changed` signal. Distinct from the
+**character body** (the in-map avatar: sprite/collision/components/camera/overhead
+`PlayerWorldHUD`). Lifting the UI off the body is what lets the body reparent
+(ADR 0008) without the UI's tree-notification cleanup breaking it.
+_Avoid_: HUD node (when it lived under the player), player UI subtree.
+
 ## Persistence
 
 **Player save**:
