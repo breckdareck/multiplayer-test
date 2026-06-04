@@ -245,6 +245,22 @@ func _on_bot_spawned(bot_id: int) -> void:
 	#print("BotManager: Bot %d brain attached and running." % bot_id)
 
 
+## [Server] Re-point a bot's brain at its character after a map-change REPARENT
+## (ADR 0008). The body is the SAME live node (never freed), so this only resets
+## the brain's transient targets / nav path for the new map while preserving
+## travel, patrol and cooldown progress. Unlike _on_bot_spawned, there is no UI
+## or camera to free — the node persisted intact.
+func handle_bot_reparented(bot_id: int) -> void:
+	var node := PlayerManager.get_player_node(bot_id)
+	var brain: BotBrain = active_bots.get(bot_id, {}).get("brain")
+	if is_instance_valid(brain) and is_instance_valid(node):
+		brain.attach_to_player(node)
+	if bot_id in active_bots:
+		var current_map := MapManager.get_player_map(bot_id)
+		if not current_map.is_empty():
+			active_bots[bot_id]["map_id"] = current_map
+
+
 # --- Client-side bot data sync (on-demand snapshots) ---
 
 ## [Client -> Server] Request a full data snapshot of a bot. The server

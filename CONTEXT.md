@@ -126,6 +126,24 @@ asleep — this is the only "paused map" state; there is no separate per-map
 slow-tick.
 _Avoid_: Map attention level, HOT/WARM/IDLE, slow-tick, tick-divisor.
 
+**Reparent handoff**:
+The bot-only map-change path that moves the *live* character node from the old
+map's `Players` container to the new map's (across per-map SubViewport
+World2Ds) instead of freeing it and re-instantiating `player.tscn` +
+re-running `JoinHandshake`. Preserves all live component state; reuses the
+recreate path's client-facing RPCs (`client_despawn_player` /
+`client_spawn_player` / visibility / appearance). Gated on `is_bot` + already-
+on-a-map, with a recreate fallback; a bot's first spawn still rebuilds. See
+[docs/adr/0008-bot-map-change-reparent.md](docs/adr/0008-bot-map-change-reparent.md).
+_Avoid_: Warm-body pool, fast-spawn, node recycling.
+
+**Arrival reset**:
+The small set of transient state the reparent handoff must explicitly clear
+because the live node carries it across a hop (which free+recreate discarded):
+zero `velocity`, reposition to the spawn point, reset the state machine to
+neutral, reset per-weapon gauges (combo / charge / stealth). Persistent buffs
+survive. Bots only hop while travelling, so there is no combat target to clear.
+
 ## Persistence
 
 **Player save**:

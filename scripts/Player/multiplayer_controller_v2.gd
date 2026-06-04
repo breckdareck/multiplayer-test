@@ -109,6 +109,9 @@ var _drop_through_target_y: float = 0.0
 
 var _sprite_base_offset_x: float
 var _is_being_cleaned_up: bool = false
+## Set by MapManager around a map-change reparent (ADR 0008) so _exit_tree skips
+## cleanup while the live node is moved between map subtrees.
+var _reparenting: bool = false
 var _is_loading_data: bool = false
 ## PR 3: server-side gate for the weapon-swap transition window. While true,
 ## input flags are zeroed in _update_input_from_synchronizer so the player
@@ -300,6 +303,12 @@ func _handle_right_click(event: InputEventMouseButton) -> bool:
 
 
 func _exit_tree():
+	# During a map-change REPARENT (ADR 0008) the node leaves the old map's tree
+	# and re-enters the new map's tree without being freed — skip cleanup, which
+	# would brick the live node (disconnect signals, halt processing). MapManager
+	# sets/clears this flag around the reparent.
+	if _reparenting:
+		return
 	cleanup_before_removal()
 
 #=============================================================================
