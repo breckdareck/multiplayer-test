@@ -437,7 +437,7 @@ size = Vector2(21, 21)
 [sub_resource type="CircleShape2D" id="CircleShape2D_h0wtf"]
 radius = 4.0
 
-[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "mana_component", "combat_component", "level_component", "stats_component", "weapon_mastery_component", "sword_combo_component", "bow_momentum_component", "staff_element_component", "shadowmeld_component", "appearance_component", "player_inventory", "inventory_component", "equipment_component", "ability_component", "buff_component", "player_HUD", "player_name_label", "quest_window") groups=["Players", "networked_entities"]]
+[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "mana_component", "combat_component", "level_component", "stats_component", "weapon_mastery_component", "sword_combo_component", "bow_momentum_component", "staff_element_component", "shadowmeld_component", "appearance_component", "player_inventory", "inventory_component", "equipment_component", "ability_component", "buff_component", "player_HUD", "player_name_label") groups=["Players", "networked_entities"]]
 collision_layer = 2
 collision_mask = 5
 script = ExtResource("1_an8q1")
@@ -459,7 +459,6 @@ ability_component = NodePath("Components/Ability")
 buff_component = NodePath("Components/Buff")
 player_HUD = NodePath("CanvasLayer/PlayerHUD")
 player_name_label = NodePath("PlayerWorldHUD/PlayerNameLabel")
-quest_window = NodePath("CanvasLayer/MoveableWindows/QuestWindow")
 
 [node name="PlayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_2d20i")

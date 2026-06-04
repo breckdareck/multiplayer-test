@@ -56,11 +56,11 @@ const MAX_FALL_SPEED: float = 1200.0
 @export var buff_component: BuffComponent
 
 @export_category("UI")
+# player_HUD stays on the body: _setup_client_visuals() parents the GameMenu,
+# QuestTracker and ZoneBanner under it. player_name_label is the world-space
+# overhead name (PlayerWorldHUD), not part of the lifted UI layer.
 @export var player_HUD: Control
 @export var player_name_label: RichTextLabel
-@export var stats_window: StatsWindow
-@export var inventory_window: InventoryWindow
-@export var quest_window: QuestWindow
 
 
 var username: String = ""
@@ -154,8 +154,6 @@ func _ready() -> void:
 	if not _is_bot and multiplayer.get_unique_id() == player_id:
 		ChatManager.register_local_player(self)
 		# Request the sprite states of all other players from the server.
-		if(stats_window):
-			stats_window.update_stats_window()
 		if is_instance_valid(appearance_component):
 			appearance_component.request_all_sprite_states.rpc_id(SERVER_ID)
 
