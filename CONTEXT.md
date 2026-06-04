@@ -103,6 +103,29 @@ that must be cleaned up on disconnect or channel switch. Added to the
 global `networked_entities` group.
 _Avoid_: Actor, networked actor, replicated node.
 
+## Map residency & simulation
+
+**Warm pool**:
+The set of map scene instances the server keeps resident even when they hold
+no occupants. A vacated map is not freed immediately; it enters a deferred-
+unload grace period (TTL) and is only torn down if still empty when the timer
+fires, or when an LRU cap forces eviction of the least-recently-vacated empty
+map. Maps with any occupant — human **or bot** — are pinned and never evicted.
+Exists to eliminate the cold-`instantiate()` hiccup on re-entry to a recently-
+left map.
+_Avoid_: Map cache, preload pool, pinned set.
+
+**Enemy activation (awake / asleep)**:
+A per-enemy simulation state. An **awake** enemy runs its full state-machine
+tick; an **asleep** enemy has `_process`/`_physics_process` disabled and costs
+≈0. State is driven externally by a per-map **proximity scanner**, not by the
+enemy itself (an asleep enemy cannot self-detect). Wake when within
+`detection_radius + margin` of any agent; sleep past a larger radius
+(hysteresis). A map with zero agents runs no scanner, so all its enemies are
+asleep — this is the only "paused map" state; there is no separate per-map
+slow-tick.
+_Avoid_: Map attention level, HOT/WARM/IDLE, slow-tick, tick-divisor.
+
 ## Persistence
 
 **Player save**:

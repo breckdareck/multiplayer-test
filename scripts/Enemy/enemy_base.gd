@@ -91,6 +91,12 @@ var current_target: Node2D = null
 var leash_anchor: Vector2
 ## Time.get_ticks_msec() at which the next attack becomes available.
 var _attack_cooldown_until: int = 0
+## Proximity-activation sleep (ADR 0007). Distinct from pool-deactivate (death):
+## an asleep enemy keeps its visible body, collision, and synchronizer but pauses
+## AI processing. The MapManager scanner toggles this so enemies far from every
+## agent — and every enemy on a resident-but-empty map — cost ~0. Pooled/dead
+## enemies are skipped so waking never revives a corpse.
+var _activation_asleep: bool = false
 
 const _CHASE_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_chase.gd")
 const _HIT_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_hit.gd")
@@ -676,6 +682,9 @@ func pool_deactivate() -> void:
 
 	damage_by_player.clear()
 	current_target = null
+	# Clear any proximity-sleep bookkeeping so a respawn starts from a clean,
+	# awake state (the scanner re-sleeps it if still agentless).
+	_activation_asleep = false
 	visible = false
 	set_process(false)
 	set_physics_process(false)
@@ -702,6 +711,8 @@ func pool_reset() -> void:
 
 	current_target = null
 	_attack_cooldown_until = 0
+	# A freshly respawned enemy is awake; the scanner decides on the next tick.
+	_activation_asleep = false
 
 	# [Boss] Reset phase/enrage/special state so a pooled-and-respawned boss
 	# starts the fight clean instead of inheriting the previous run's buffs.
@@ -736,10 +747,55 @@ func pool_reset() -> void:
 		sync.set_process_mode(Node.PROCESS_MODE_INHERIT)
 
 
+# === PROXIMITY ACTIVATION (ADR 0007) ============================================
+# Driven by the MapManager scanner, server-side only. Lets resident maps stay
+# loaded without paying for AI ticks on enemies no agent is near.
+
+## True when the activation scanner may toggle this enemy — a live, visible,
+## non-pooled, non-cleanup body on the server. Pooled/dead enemies (visible ==
+## false, parked offscreen) are excluded so a wake never revives a corpse.
+func is_activation_eligible() -> bool:
+	if _is_being_cleaned_up:
+		return false
+	if not visible:
+		return false # pool-deactivated (dead / awaiting respawn)
+	if health_component and health_component.current_health <= 0:
+		return false
+	return true
+
+
+## True while the enemy is hunting a target. Engaged enemies are kept awake
+## regardless of distance, so a kited or DoT-bleeding target never freezes
+## mid-fight even if it slips past the activation radius.
+func is_engaged() -> bool:
+	return is_valid_target(current_target)
+
+
+## [Server] Pause AI while no agent is near. Idempotent. Does NOT touch
+## visibility, collision, or the synchronizer — a sleeping enemy is still a
+## valid, visible, static body; it just stops thinking until woken.
+func activation_sleep() -> void:
+	if _activation_asleep or not is_activation_eligible():
+		return
+	_activation_asleep = true
+	set_process(false)
+	set_physics_process(false)
+
+
+## [Server] Resume AI when an agent comes near. Idempotent. Only re-activates
+## enemies THIS system put to sleep, never a pooled corpse.
+func activation_wake() -> void:
+	if not _activation_asleep:
+		return
+	_activation_asleep = false
+	set_process(true)
+	set_physics_process(true)
+
+
 func _update_facing() -> void:
 	if _is_being_cleaned_up:
 		return
-		
+
 	if velocity.x != 0:
 		facing_direction = 1 if velocity.x > 0 else -1
 		if animated_sprite and is_instance_valid(animated_sprite):

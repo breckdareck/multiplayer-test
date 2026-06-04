@@ -17,6 +17,24 @@ const MAP_SCENES = {
 
 const DEFAULT_MAP = "town"
 
+# --- Map residency & enemy activation (ADR 0007) ---
+## v1: every map is instantiated once at server start and kept resident for the
+## server's lifetime — entering a map never pays a cold instantiate. The
+## activation scanner below keeps resident-but-empty maps ≈free. Revisit as a
+## bounded warm pool (TTL + LRU eviction) when the roster reaches ~10-15 maps.
+const KEEP_MAPS_RESIDENT := true
+## How often (seconds) the server re-evaluates which enemies are awake.
+const ACTIVATION_SCAN_INTERVAL := 0.1
+## Wake an enemy when an agent (player OR bot) is within this distance; sleep it
+## only past the larger radius (hysteresis prevents boundary flapping). The wake
+## radius comfortably exceeds aggro (detection_radius ~160), chase leash (480),
+## and the on-screen view, so enemies in combat or visible to a player are never
+## asleep — only those every agent has left far behind, plus every enemy on a
+## zero-agent map.
+const ACTIVATION_WAKE_RADIUS := 960.0
+const ACTIVATION_SLEEP_RADIUS := 1280.0
+var _activation_scan_accum := 0.0
+
 # Server-side tracking
 var active_maps: Dictionary = {} ## {map_id: {scene_instance, player_ids: []}}
 var player_current_maps: Dictionary = {} ## {player_id: map_id}
@@ -58,8 +76,90 @@ func _exit_tree():
 
 
 func _on_server_started():
-	# Build the portal connectivity graph once, before bots start pathfinding.
+	# Pre-instantiate every map up front and keep them resident for the server's
+	# lifetime (ADR 0007), so travelling to a map never pays a cold instantiate.
+	# The activation scanner keeps these resident maps cheap when empty.
+	_preinstantiate_all_maps()
+	# Build the portal connectivity graph from the now-resident instances (no
+	# throwaway instantiate pass). Done before bots start pathfinding.
 	_build_map_connections()
+
+
+## [Server] Instantiate and keep every configured map. Reuses _load_map_on_server,
+## which is idempotent (skips maps already in active_maps).
+func _preinstantiate_all_maps() -> void:
+	if not multiplayer.is_server():
+		return
+	for map_id in MAP_SCENES:
+		_load_map_on_server(map_id)
+
+
+# === ENEMY PROXIMITY ACTIVATION (ADR 0007) ===
+# Server-side only. Each tick, enemies near any agent (player or bot) are woken
+# and the rest are put to sleep, so resident maps with no nearby agents — and
+# every enemy on a zero-agent map — cost ≈0 without ever unloading the map.
+
+func _process(delta: float) -> void:
+	if not multiplayer.is_server() or active_maps.is_empty():
+		return
+	_activation_scan_accum += delta
+	if _activation_scan_accum < ACTIVATION_SCAN_INTERVAL:
+		return
+	_activation_scan_accum = 0.0
+	for map_id in active_maps.keys():
+		_scan_map_activation(map_id)
+
+
+## Evaluate wake/sleep for every eligible enemy on one map.
+func _scan_map_activation(map_id: String) -> void:
+	var data: Dictionary = active_maps.get(map_id, {})
+	var map_instance = data.get("scene_instance")
+	if not is_instance_valid(map_instance):
+		return
+	var enemies_node: Node = map_instance.get_node_or_null("Enemies")
+	if enemies_node == null:
+		return # e.g. town — nothing to manage
+
+	# Collect valid agent positions (players AND bots) currently on this map.
+	var agent_positions: Array[Vector2] = []
+	for pid in data.get("player_ids", []):
+		var node = PlayerManager.get_player_node(pid)
+		if is_instance_valid(node):
+			agent_positions.append(node.global_position)
+
+	var no_agents: bool = agent_positions.is_empty()
+	var wake_sq := ACTIVATION_WAKE_RADIUS * ACTIVATION_WAKE_RADIUS
+	var sleep_sq := ACTIVATION_SLEEP_RADIUS * ACTIVATION_SLEEP_RADIUS
+	for enemy in _collect_enemies(enemies_node, []):
+		if not enemy.is_activation_eligible():
+			continue
+		if no_agents:
+			enemy.activation_sleep()
+			continue
+		if enemy.is_engaged():
+			enemy.activation_wake()
+			continue
+		var nearest_sq := INF
+		var epos: Vector2 = enemy.global_position
+		for apos in agent_positions:
+			nearest_sq = minf(nearest_sq, epos.distance_squared_to(apos))
+		if nearest_sq <= wake_sq:
+			enemy.activation_wake()
+		elif nearest_sq > sleep_sq:
+			enemy.activation_sleep()
+		# else: in the hysteresis band — leave the current state unchanged.
+
+
+## Gather enemy nodes under a map's Enemies container. Matched by the "Enemies"
+## group (added in EnemyBase._ready) rather than a class reference, so MapManager
+## needn't depend on EnemyBase's class-load order.
+func _collect_enemies(node: Node, out: Array) -> Array:
+	for child in node.get_children():
+		if child.is_in_group("Enemies") and child.has_method("activation_sleep"):
+			out.append(child)
+		else:
+			_collect_enemies(child, out)
+	return out
 
 
 # === MAP CONTAINER + SUBVIEWPORT WRAPPING ===
@@ -298,6 +398,10 @@ func _finalize_player_spawn(player_id: int, map_id: String, spawn_point_name: St
 	# Sync existing players' buff visuals (e.g. Shadow Partner) to the new joiner (skip for bots)
 	if not _joiner_is_bot:
 		await get_tree().process_frame
+		# The map (or this player) may have been torn down during the awaited
+		# frame — a disconnect mid-spawn would leave active_maps[map_id] gone.
+		if not map_id in active_maps:
+			return
 		for existing_id in active_maps[map_id].player_ids:
 			if existing_id == player_id: continue
 			var existing_player = map_instance.get_node_or_null("Players/" + str(existing_id))
@@ -314,6 +418,11 @@ func _finalize_player_spawn(player_id: int, map_id: String, spawn_point_name: St
 			drop_handler.sync_items_to_player(player_id)
 		else:
 			push_warning("MapManager: Could not find GlobalDropHandler to sync items for player %d on map %s" % [player_id, map_id])
+
+	# A new agent just arrived — wake enemies near its spawn immediately rather
+	# than waiting up to ACTIVATION_SCAN_INTERVAL, so spawning in next to a mob
+	# never shows a frozen enemy.
+	_scan_map_activation(map_id)
 
 
 func _spawn_player_on_server_map(player_id: int, map_id: String, spawn_point_name: String = ""):
@@ -398,7 +507,12 @@ func _remove_player_from_map(player_id: int, map_id: String):
 		current_map_id = ""
 	
 	if active_maps[map_id].player_ids.is_empty():
-		_unload_map_on_server(map_id)
+		if KEEP_MAPS_RESIDENT:
+			# Keep the map resident (ADR 0007); put its now-agentless enemies to
+			# sleep immediately so it costs ≈0 until someone returns.
+			_scan_map_activation(map_id)
+		else:
+			_unload_map_on_server(map_id)
 
 
 func _unload_map_on_server(map_id: String):
@@ -969,14 +1083,21 @@ func _build_map_connections() -> void:
 	map_connections.clear()
 	for map_id in MAP_SCENES:
 		var connections: Array[String] = []
-		var scene: PackedScene = load(MAP_SCENES[map_id])
-		if is_instance_valid(scene):
-			# Instantiate (without entering the tree, so no _ready runs) and
-			# walk the live nodes — property overrides on instanced portals are
-			# only reliably readable off a real node, not the PackedScene state.
-			var root := scene.instantiate()
-			_collect_portal_targets(root, map_id, connections)
-			root.free()
+		# Prefer the resident instance (maps are pre-instantiated at server start,
+		# ADR 0007) so we don't instantiate a throwaway copy just to read portals.
+		var inst: Node = active_maps.get(map_id, {}).get("scene_instance")
+		if is_instance_valid(inst):
+			_collect_portal_targets(inst, map_id, connections)
+		else:
+			# Fallback for callers that run before pre-instantiation (e.g. a lazy
+			# get_map_connections on a peer with no resident maps): instantiate
+			# off-tree (no _ready) and free immediately. Property overrides on
+			# instanced portals are only reliably readable off a real node.
+			var scene: PackedScene = load(MAP_SCENES[map_id])
+			if is_instance_valid(scene):
+				var root := scene.instantiate()
+				_collect_portal_targets(root, map_id, connections)
+				root.free()
 		map_connections[map_id] = connections
 	print("MapManager: Map connectivity graph: %s" % map_connections)
 
