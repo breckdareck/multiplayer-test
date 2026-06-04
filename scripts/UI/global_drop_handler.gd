@@ -49,7 +49,7 @@ func _drop_data(at_position: Vector2, data: Variant) -> void:
 	source_slot.cancel_drag()
 
 @rpc("any_peer", "call_local", "reliable")
-func server_request_item_drop(item_id: String, amount: int, world_position: Vector2, player_id: int, source_slot_path: NodePath):
+func server_request_item_drop(item_id: String, amount: int, world_position: Vector2, player_id: int, source_slot_addr: String):
 	if not multiplayer.is_server():
 		return
 
@@ -63,49 +63,42 @@ func server_request_item_drop(item_id: String, amount: int, world_position: Vect
 	if not player_node:
 		printerr("Drop failed: Could not find player node for ID: ", player_id)
 		return
-	
+
 	var inventory_component = player_node.get_node("Components/PlayerInventory/InventoryComponent")
 	if not inventory_component:
 		printerr("Drop failed: Could not find inventory component for player: ", player_id)
 		return
 
 	# --- Server-side Validation ---
-	# Locate the source slot using the provided NodePath
-	var slot_node = get_node_or_null(source_slot_path)
-	if not slot_node or not slot_node is Slot:
-		printerr("Drop failed: Invalid source slot path '%s' from player %d" % [str(source_slot_path), player_id])
+	# Resolve the source slot from THIS player's own model by address (not a view
+	# NodePath, which would cross-resolve to the host's UI — ADR 0009 Stage B).
+	# Drops are inventory-only (equipment drops were always a no-op).
+	var sd: SlotData = inventory_component.resolve_slot_data(source_slot_addr)
+	if sd == null or sd.container_kind != SlotData.CONTAINER_INVENTORY:
+		printerr("Drop failed: Invalid source slot '%s' from player %d" % [source_slot_addr, player_id])
 		inventory_component.send_inventory_correction.rpc_id(player_id)
 		return
-	
-	# Check if the slot belongs to the correct inventory
-	if slot_node.item_container != inventory_component:
-		printerr("Drop failed: Player %d attempted to drop from a slot not in their inventory." % player_id)
-		inventory_component.send_inventory_correction.rpc_id(player_id)
-		return
-		
+
 	# Check if the item in the slot matches what the client claims to be dropping
-	if not slot_node.item or slot_node.item.item_id != item_id or slot_node.item.current_stack_amount < amount:
+	if not sd.item or sd.item.item_id != item_id or sd.item.current_stack_amount < amount:
 		printerr("Drop failed: Player %d item drop validation failed. Client claimed to drop %dx '%s'." % [player_id, amount, item_id])
 		inventory_component.send_inventory_correction.rpc_id(player_id)
 		return
 
 	# --- Execution ---
 	# 1. Create the dropped item in the world.
-	# The original item data from the slot is used to preserve its unique properties.
-	# We need to find the correct map instance for this player to drop the item into.
 	var target_map = MapManager.get_player_map_node(player_id)
 	if not target_map:
 		printerr("Drop failed: Could not find map node for player %d" % player_id)
 		return
 
-	create_dropped_item(slot_node.item, amount, world_position, [], target_map)
+	create_dropped_item(sd.item, amount, world_position, [], target_map)
 
-	# 2. Remove the item from the player's inventory.
-	# This will sync the change back to the client automatically.
-	if amount >= slot_node.item.current_stack_amount:
-		inventory_component.clear_slot(slot_node, "dropped")
+	# 2. Remove the item from the player's inventory (syncs back to the client).
+	if amount >= sd.item.current_stack_amount:
+		inventory_component.clear_slot_data(sd, "dropped")
 	else:
-		inventory_component.remove_item_from_stack(slot_node.item, amount, "dropped")
+		inventory_component.remove_item_from_stack(sd.item, amount, "dropped")
 
 func _screen_to_world_position(screen_position: Vector2) -> Vector2:
 	# Convert screen coordinates to world coordinates

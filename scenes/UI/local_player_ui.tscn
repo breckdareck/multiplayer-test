@@ -1,4 +1,4 @@
-[gd_scene load_steps=65 format=3 uid="uid://blocalplayerui0009"]
+[gd_scene load_steps=65 format=3 uid="uid://c0561sc5huujo"]
 
 [ext_resource type="Script" path="res://scripts/UI/local_player_ui.gd" id="ctrl_lpui"]
 [ext_resource type="Script" uid="uid://boxv5npw3xeg3" path="res://scripts/Player/player_hud.gd" id="11_ihqbe"]
