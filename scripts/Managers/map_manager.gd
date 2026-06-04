@@ -259,12 +259,18 @@ func request_map_change(player_id: int, target_map_id: String, target_spawn_poin
 	# the old map's SubViewport composited on top of the new one.
 	var old_map_id: String = player_current_maps.get(player_id, "")
 
-	# Fast path (ADR 0008): reparent a server-tree peer's LIVE node instead of
-	# free+recreate. Bots and the host (peer 1) share the server tree and skip the
-	# JoinHandshake SYNC phase, so the live node can simply move between maps. A
-	# first spawn (not is_map_change) still uses the full flow below; a precondition
-	# miss (e.g. target map not resident) returns false and falls through to it.
-	if is_map_change and (player_id == 1 or BotManager.is_bot(player_id)):
+	# Fast path (ADR 0008): reparent a BOT's LIVE node instead of free+recreate.
+	# Bots have no client and their UI subtree is already freed, so moving the node
+	# between maps is clean. A first spawn (not is_map_change) still uses the full
+	# flow below; a precondition miss (e.g. target map not resident) falls through.
+	#
+	# The HOST (peer 1) is deliberately NOT reparented: its character carries the
+	# whole live CanvasLayer UI subtree, and reparenting fires NOTIFICATION_EXIT_TREE
+	# on every UI child (KeybindsMenu signal disconnects, etc.), which breaks the
+	# host's input/camera. The host's travel is occasional (not the constant bot
+	# churn), so it stays on the recreate path. Reviving host reparent needs the UI
+	# detached from the reparented subtree (or per-child suppression) — see ADR 0008.
+	if is_map_change and BotManager.is_bot(player_id):
 		if _reparent_peer_to_map(player_id, old_map_id, target_map_id, target_spawn_point_name):
 			return
 
@@ -326,6 +332,11 @@ func request_map_change(player_id: int, target_map_id: String, target_spawn_poin
 
 ## Returns true on success; false (with NO mutation performed) if a precondition
 ## fails, so request_map_change can fall back to the full recreate flow.
+##
+## NOTE: currently only reached for BOTS — the caller excludes the host (peer 1).
+## The is_host branch below is retained for a future host-reparent revival once
+## the host's UI subtree is decoupled from the reparented node (see ADR 0008); it
+## is intentionally unreachable today.
 func _reparent_peer_to_map(peer_id: int, old_map_id: String, new_map_id: String, spawn_point_name: String) -> bool:
 	if not multiplayer.is_server():
 		return false

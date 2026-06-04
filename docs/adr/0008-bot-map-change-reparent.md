@@ -1,7 +1,8 @@
 # Map-change via live-node reparent (no rebuild)
 
-Phased: **Phase 1** = server-tree peers (bots + host); **Phase 2** = remote
-clients via a portal-neighbor-prefetch client residency model. See Scope below.
+Phased: **Phase 1** = **bots** (a host attempt was reverted — see Scope);
+**Phase 2** = remote clients via a portal-neighbor-prefetch client residency
+model. See Scope below.
 
 ## Context
 
@@ -22,13 +23,11 @@ frame-spike tunneling, not crowd-shoving).
 
 ## Decision
 
-For a **server-tree peer** changing maps (a **bot**, or the **host** / peer 1) —
-not its first spawn — **reparent the live character node** from the old map's
-`Players` container to the new map's `Players` container instead of free +
-recreate. No `_ready` re-run, no `JoinHandshake`, no serialize/deserialize — all
-live component state is preserved in place. The bullets below describe the bot
-case; the host follows the same mechanism with the UI/camera/visibility
-differences noted under Scope → Phase 1.
+For a **bot** changing maps (not its first spawn) **reparent the live character
+node** from the old map's `Players` container to the new map's `Players`
+container instead of free + recreate. No `_ready` re-run, no `JoinHandshake`, no
+serialize/deserialize — all live component state is preserved in place. (A host
+attempt followed the same mechanism but was reverted — see Scope → Phase 1.)
 
 - **Triggered inside `request_map_change`** (one entry point, so portals,
   `/bot travel`, and `/bot teleport` all benefit), gated on `BotManager.is_bot`
@@ -70,20 +69,25 @@ Reparent is trivial for peers whose character lives **in the server tree and
 needs no client-side map rebuild**, and hard for peers whose client rebuilds its
 map every hop. That splits cleanly:
 
-### Phase 1 (this ADR): bots + host
+### Phase 1 (this ADR): bots only
 
-- **Bots** (negative peer id, no client, UI already freed) and the **host**
-  (peer 1) both live in the server tree and their `JoinHandshake` **skips SYNC**
-  (`_has_client` is false for both). The host, post-ADR-0007, doesn't even
-  rebuild its map on a change — it just flips local map visibility
-  (`_set_local_map_visible`) and re-spawns its character. So the host's *only*
-  per-hop cost is the same free+recreate reparent eliminates.
-- The host **keeps** its CanvasLayer UI + Camera2D (we don't free them, unlike
-  bots); reparenting the **whole** Player subtree preserves every internal
-  NodePath (`../../CanvasLayer/...` resolves the same — the subtree moves as a
-  unit), and the camera stays current. The host path additionally does the
-  local-visibility flip + BGM; bot appearance is pushed via
-  `broadcast_player_appearance`, host appearance via the normal appearance sync.
+- **Bots** (negative peer id, no client, UI already freed) live in the server
+  tree and their `JoinHandshake` **skips SYNC** (`_has_client` is false), so the
+  live node simply moves between maps. This is the constant-churn case (bots
+  auto-roam) and the one that was tunnelling the host's physics via frame spikes.
+
+**Host (peer 1) — attempted and REVERTED.** The host is also a server-tree peer
+that skips SYNC and only flips visibility on a map change, so it *looked* like a
+free win. But the host's character carries its whole live **CanvasLayer UI
+subtree**, and `reparent()` fires `NOTIFICATION_EXIT_TREE` on every UI child;
+nodes like `KeybindsMenu` run disconnect-on-exit cleanup (and the tree churn left
+the host's input + camera dead — "stuck, can't move"). The `_reparenting` guard
+only covers the controller's `_exit_tree`, not the dozens of tree-sensitive UI
+children — whack-a-mole not worth fighting. Since the host's travel is occasional
+(not the constant bot churn), it stays on the **recreate path**. The generic
+`_reparent_peer_to_map` keeps its (now-unreachable) host branch for a future
+revival that first **decouples the UI from the reparented subtree** (e.g. parent
+the CanvasLayer UI elsewhere, or reparent only the gameplay body).
 
 ### Phase 2 (next, separate PR — needs 2-instance validation): remote clients
 
