@@ -1,8 +1,9 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=10 format=3 uid="uid://b1bird7yyma0k"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://b1bird7yyma0k"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
 [ext_resource type="SpriteFrames" uid="uid://b0bird1mfa01o" path="res://resources/Enemies/Bird/SF_Bird.tres" id="3_sf"]
+[ext_resource type="Script" uid="uid://cdsbcru4b1hr8" path="res://scripts/Resources/BossAttackData.gd" id="5_l5q7j"]
 [ext_resource type="Resource" uid="uid://cm3gs1mqm8k7b" path="res://resources/DropTables/Generated/Worn_Warbow.tres" id="d_1"]
 [ext_resource type="Resource" uid="uid://ds5410vlc1gf" path="res://resources/DropTables/Generated/Worn_Pathfinder_Helm.tres" id="d_2"]
 
@@ -28,7 +29,7 @@ metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 script = ExtResource("2_ed")
 monster_name = "Bird"
 monster_level = 3
-movement_speed = 55
+movement_speed = 55.0
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")
 body_hitbox_shape = SubResource("Shape_body")

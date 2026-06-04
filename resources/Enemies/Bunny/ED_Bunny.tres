@@ -1,8 +1,9 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=12 format=3 uid="uid://dhemo6klgxfve"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=13 format=3 uid="uid://dhemo6klgxfve"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
 [ext_resource type="SpriteFrames" uid="uid://bujet2eddxc5l" path="res://resources/Enemies/Bunny/SF_Bunny.tres" id="3_sf"]
+[ext_resource type="Script" uid="uid://cdsbcru4b1hr8" path="res://scripts/Resources/BossAttackData.gd" id="7_1quok"]
 [ext_resource type="Resource" uid="uid://dktndkeqg1sgg" path="res://resources/DropTables/Generated/Worn_Longsword.tres" id="d_1"]
 [ext_resource type="Resource" uid="uid://bvsh3woek8eg7" path="res://resources/DropTables/Generated/Worn_Vanguard_Helm.tres" id="d_2"]
 [ext_resource type="Resource" uid="uid://cfofrvdvq7kfp" path="res://resources/DropTables/Generated/Worn_Vanguard_Mail.tres" id="d_3"]
@@ -29,7 +30,7 @@ metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 [resource]
 script = ExtResource("2_ed")
 monster_name = "Bunny"
-movement_speed = 40
+movement_speed = 40.0
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")
 body_hitbox_shape = SubResource("Shape_body")
