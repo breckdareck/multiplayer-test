@@ -1,9 +1,8 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=7 format=3 uid="uid://btbl7rcodnd22"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=5 format=3 uid="uid://btbl7rcodnd22"]
 
-[ext_resource type="Texture2D" uid="uid://dm6avr748nspy" path="res://assets/sprites/Items/generated_px/Armor/Leather_Cap.png" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_lc001"]
-[ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="2_askfu"]
 [ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_lc001"]
+[ext_resource type="Texture2D" uid="uid://dm6avr748nspy" path="res://assets/sprites/Items/generated_px/Armor/Leather_Cap.png" id="99_svgicon"]
 
 [sub_resource type="Resource" id="Resource_lc001"]
 script = ExtResource("1_lc001")
@@ -11,10 +10,6 @@ stat_type = 8
 base_value = 0
 flat_bonus_value = 6
 metadata/_custom_type_script = "uid://cptesvvlfbytw"
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_82wnh"]
-atlas = ExtResource("2_askfu")
-region = Rect2(786, 60, 42, 42)
 
 [resource]
 script = ExtResource("3_lc001")

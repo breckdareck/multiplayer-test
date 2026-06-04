@@ -1,13 +1,8 @@
-[gd_resource type="Resource" script_class="ConsumableData" load_steps=6 format=3 uid="uid://c77oseqvltmkk"]
+[gd_resource type="Resource" script_class="ConsumableData" load_steps=4 format=3 uid="uid://c77oseqvltmkk"]
 
 [ext_resource type="Texture2D" uid="uid://v10tlykfuf2u" path="res://assets/sprites/Items/generated_px/PetItems/PetEgg_Bird.png" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://ubv3mjjv4lvi" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="1_consumable"]
-[ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="2_2g307"]
 [ext_resource type="Script" uid="uid://ctrsc6b2wgtji" path="res://scripts/Resources/ItemSystem/Effects/Effect_HatchPet.gd" id="2_effect"]
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_qjgj3"]
-atlas = ExtResource("2_2g307")
-region = Rect2(786, 705, 35, 42)
 
 [resource]
 script = ExtResource("1_consumable")

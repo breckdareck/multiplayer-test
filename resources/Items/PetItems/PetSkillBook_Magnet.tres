@@ -1,12 +1,7 @@
-[gd_resource type="Resource" script_class="PetSkillBookData" load_steps=5 format=3 uid="uid://bbamwgjgjq64s"]
+[gd_resource type="Resource" script_class="PetSkillBookData" load_steps=3 format=3 uid="uid://bbamwgjgjq64s"]
 
 [ext_resource type="Texture2D" uid="uid://bm31nt8qmijtl" path="res://assets/sprites/Items/generated_px/PetItems/PetSkillBook_Magnet.png" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://cio054l2yk8vc" path="res://scripts/Resources/PetSystem/PetSkillBookData.gd" id="1_book"]
-[ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="1_o4wn0"]
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_i4v22"]
-atlas = ExtResource("1_o4wn0")
-region = Rect2(1052, 698, 48, 57)
 
 [resource]
 script = ExtResource("1_book")

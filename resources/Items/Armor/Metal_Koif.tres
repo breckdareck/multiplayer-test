@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=7 format=3 uid="uid://sg07uuvj52wv"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=5 format=3 uid="uid://sg07uuvj52wv"]
 
 [ext_resource type="Texture2D" uid="uid://b1ytrt2upnf08" path="res://assets/sprites/Items/generated_px/Armor/Metal_Koif.png" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_1b7il"]
@@ -10,13 +10,6 @@ stat_type = 8
 base_value = 0
 flat_bonus_value = 12
 metadata/_custom_type_script = "uid://cptesvvlfbytw"
-
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_jpfoh"]
-load_path = "res://.godot/imported/Items.png-00c1f5b5ac7591379f437f33a0898d74.ctex"
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_vhi6t"]
-atlas = SubResource("CompressedTexture2D_jpfoh")
-region = Rect2(852, 57, 46, 47)
 
 [resource]
 script = ExtResource("1_6hwkf")

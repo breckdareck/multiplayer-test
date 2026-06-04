@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=7 format=3 uid="uid://do0m6107vwbor"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=5 format=3 uid="uid://do0m6107vwbor"]
 
 [ext_resource type="Texture2D" uid="uid://dbru0lbi15p0f" path="res://assets/sprites/Items/generated_px/Armor/Mystic_Robe.png" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_mr01"]
-[ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="2_pw4qg"]
 [ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_mr01"]
 
 [sub_resource type="Resource" id="Resource_mr01"]
@@ -11,10 +10,6 @@ stat_type = 9
 base_value = 0
 flat_bonus_value = 15
 metadata/_custom_type_script = "uid://cptesvvlfbytw"
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_pw4qg"]
-atlas = ExtResource("2_pw4qg")
-region = Rect2(980, 213, 58, 59)
 
 [resource]
 script = ExtResource("3_mr01")

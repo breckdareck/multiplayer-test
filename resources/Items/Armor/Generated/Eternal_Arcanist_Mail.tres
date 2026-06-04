@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://cck27vn4xu3hf"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://cck27vn4xu3hf"]
 
 [ext_resource type="Texture2D" uid="uid://ds0o54aa2myd" path="res://assets/sprites/Items/generated_px/Armor/Generated/Eternal_Arcanist_Mail.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_nrvld"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_ej8ik"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_yknod"]
 
 [sub_resource type="Resource" id="Resource_sai2v"]
@@ -28,10 +27,6 @@ script = ExtResource("1_nrvld")
 stat_type = 5
 base_value = 0
 flat_bonus_value = 156
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_nkxy2"]
-atlas = ExtResource("2_ej8ik")
-region = Rect2(848, 142, 54, 54)
 
 [resource]
 script = ExtResource("3_yknod")

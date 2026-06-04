@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=7 format=3 uid="uid://bdgp1aag6ak44"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=5 format=3 uid="uid://bdgp1aag6ak44"]
 
 [ext_resource type="Texture2D" uid="uid://c0qaotwajv650" path="res://assets/sprites/Items/generated_px/Armor/Blue_Lolico_Armor.png" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_umika"]
-[ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="2_d23in"]
 [ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_rwekt"]
 
 [sub_resource type="Resource" id="Resource_i8y8o"]
@@ -10,10 +9,6 @@ script = ExtResource("1_umika")
 stat_type = 8
 base_value = 0
 flat_bonus_value = 15
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_3ujlu"]
-atlas = ExtResource("2_d23in")
-region = Rect2(983, 55, 54, 55)
 
 [resource]
 script = ExtResource("3_rwekt")

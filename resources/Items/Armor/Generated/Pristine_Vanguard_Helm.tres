@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://bthx8s4q4yx28"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://bthx8s4q4yx28"]
 
 [ext_resource type="Texture2D" uid="uid://d288skpdbwylg" path="res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Vanguard_Helm.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_igi4y"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_w0ry5"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_k737d"]
 
 [sub_resource type="Resource" id="Resource_u2qbp"]
@@ -27,10 +26,6 @@ script = ExtResource("1_igi4y")
 stat_type = 4
 base_value = 0
 flat_bonus_value = 70
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_yrdwp"]
-atlas = ExtResource("2_w0ry5")
-region = Rect2(786, 60, 42, 42)
 
 [resource]
 script = ExtResource("3_k737d")

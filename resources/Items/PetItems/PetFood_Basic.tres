@@ -1,12 +1,7 @@
-[gd_resource type="Resource" script_class="PetFoodData" load_steps=5 format=3 uid="uid://dslpve16tifxd"]
+[gd_resource type="Resource" script_class="PetFoodData" load_steps=3 format=3 uid="uid://dslpve16tifxd"]
 
 [ext_resource type="Texture2D" uid="uid://bfdwguca07h0l" path="res://assets/sprites/Items/generated_px/PetItems/PetFood_Basic.png" id="99_svgicon"]
-[ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="1_0chqr"]
 [ext_resource type="Script" uid="uid://efkwonvx6blb" path="res://scripts/Resources/PetSystem/PetFoodData.gd" id="1_petfood"]
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_e5v7s"]
-atlas = ExtResource("1_0chqr")
-region = Rect2(852, 698, 47, 57)
 
 [resource]
 script = ExtResource("1_petfood")

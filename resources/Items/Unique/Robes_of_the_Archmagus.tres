@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://hjcm8gxh0xcj"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://hjcm8gxh0xcj"]
 
 [ext_resource type="Texture2D" uid="uid://dcx5bf0caxixj" path="res://assets/sprites/Items/generated_px/Unique/Robes_of_the_Archmagus.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_fv1l4"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_bq85f"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_6qykc"]
 
 [sub_resource type="Resource" id="Resource_msx5m"]
@@ -28,10 +27,6 @@ script = ExtResource("1_fv1l4")
 stat_type = 5
 base_value = 0
 flat_bonus_value = 450
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_jyffg"]
-atlas = ExtResource("2_bq85f")
-region = Rect2(848, 142, 54, 54)
 
 [resource]
 script = ExtResource("3_6qykc")

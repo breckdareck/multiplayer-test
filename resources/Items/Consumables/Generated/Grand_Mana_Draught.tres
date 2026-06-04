@@ -1,13 +1,8 @@
-[gd_resource type="Resource" script_class="ConsumableData" load_steps=6 format=3 uid="uid://6yjeaof3r55y"]
+[gd_resource type="Resource" script_class="ConsumableData" load_steps=4 format=3 uid="uid://6yjeaof3r55y"]
 
 [ext_resource type="Texture2D" uid="uid://bvx04wnfdk6e0" path="res://assets/sprites/Items/generated_px/Consumables/Generated/Grand_Mana_Draught.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/Effects/Effect_RestoreMana.gd" id="1_5exfs"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_a110x"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="3_dpe61"]
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_2ohe4"]
-atlas = ExtResource("2_a110x")
-region = Rect2(388, 704, 58, 58)
 
 [resource]
 script = ExtResource("3_dpe61")

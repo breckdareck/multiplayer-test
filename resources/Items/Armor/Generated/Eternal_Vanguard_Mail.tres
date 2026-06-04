@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://dvjh1kllpw0rp"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://dvjh1kllpw0rp"]
 
 [ext_resource type="Texture2D" uid="uid://btwwj87kkj4uk" path="res://assets/sprites/Items/generated_px/Armor/Generated/Eternal_Vanguard_Mail.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_tpond"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_qpxnd"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_7ko2o"]
 
 [sub_resource type="Resource" id="Resource_ekmf3"]
@@ -27,10 +26,6 @@ script = ExtResource("1_tpond")
 stat_type = 4
 base_value = 0
 flat_bonus_value = 188
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_7wye0"]
-atlas = ExtResource("2_qpxnd")
-region = Rect2(848, 142, 54, 54)
 
 [resource]
 script = ExtResource("3_7ko2o")

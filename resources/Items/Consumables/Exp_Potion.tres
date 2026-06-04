@@ -1,13 +1,8 @@
-[gd_resource type="Resource" script_class="ConsumableData" load_steps=6 format=3 uid="uid://jwwtuktlssm4"]
+[gd_resource type="Resource" script_class="ConsumableData" load_steps=4 format=3 uid="uid://jwwtuktlssm4"]
 
 [ext_resource type="Texture2D" uid="uid://cjqhc0saydef5" path="res://assets/sprites/Items/generated_px/Consumables/Exp_Potion.png" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://ubv3mjjv4lvi" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="1_s8vj8"]
-[ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="2_81bxv"]
 [ext_resource type="Script" uid="uid://ced0f4dshsg8v" path="res://scripts/Resources/ItemSystem/Effects/Effect_GrantExperience.gd" id="3_y1d6w"]
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_d53d0"]
-atlas = ExtResource("2_81bxv")
-region = Rect2(90, 634, 40, 54)
 
 [resource]
 script = ExtResource("1_s8vj8")

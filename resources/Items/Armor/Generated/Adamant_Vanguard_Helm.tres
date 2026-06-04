@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://j2fkaabdoxma"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://j2fkaabdoxma"]
 
 [ext_resource type="Texture2D" uid="uid://lh3b28vrropa" path="res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Vanguard_Helm.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_61d5j"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_a2isc"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_lansu"]
 
 [sub_resource type="Resource" id="Resource_gnf6o"]
@@ -27,10 +26,6 @@ script = ExtResource("1_61d5j")
 stat_type = 4
 base_value = 0
 flat_bonus_value = 59
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_if6e5"]
-atlas = ExtResource("2_a2isc")
-region = Rect2(786, 60, 42, 42)
 
 [resource]
 script = ExtResource("3_lansu")

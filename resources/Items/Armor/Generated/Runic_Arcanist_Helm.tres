@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://bngjqgqo5kxui"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://bngjqgqo5kxui"]
 
 [ext_resource type="Texture2D" uid="uid://buoqyjsdd6br1" path="res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Arcanist_Helm.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_b70en"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_3fkar"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_nulwv"]
 
 [sub_resource type="Resource" id="Resource_xjsba"]
@@ -28,10 +27,6 @@ script = ExtResource("1_b70en")
 stat_type = 5
 base_value = 0
 flat_bonus_value = 65
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_tk41v"]
-atlas = ExtResource("2_3fkar")
-region = Rect2(786, 60, 42, 42)
 
 [resource]
 script = ExtResource("3_nulwv")

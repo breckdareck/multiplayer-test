@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://028tu0wfa18n"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://028tu0wfa18n"]
 
 [ext_resource type="Texture2D" uid="uid://4jbtjv8xrhkc" path="res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Pathfinder_Helm.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_3hmht"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_jrfbd"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_wjfwv"]
 
 [sub_resource type="Resource" id="Resource_61vwe"]
@@ -28,10 +27,6 @@ script = ExtResource("1_3hmht")
 stat_type = 10
 base_value = 0
 flat_bonus_value = 2
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_ows1x"]
-atlas = ExtResource("2_jrfbd")
-region = Rect2(786, 60, 42, 42)
 
 [resource]
 script = ExtResource("3_wjfwv")

@@ -1,13 +1,8 @@
-[gd_resource type="Resource" script_class="ConsumableData" load_steps=6 format=3 uid="uid://dtoref1fhkeit"]
+[gd_resource type="Resource" script_class="ConsumableData" load_steps=4 format=3 uid="uid://dtoref1fhkeit"]
 
 [ext_resource type="Texture2D" uid="uid://btkwwbbedelao" path="res://assets/sprites/Items/generated_px/Consumables/Generated/Superior_Healing_Draught.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/Effects/Effect_RestoreHealth.gd" id="1_x0iup"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_bycy2"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="3_001h7"]
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_fjbac"]
-atlas = ExtResource("2_bycy2")
-region = Rect2(391, 634, 54, 54)
 
 [resource]
 script = ExtResource("3_001h7")

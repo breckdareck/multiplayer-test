@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://cxanhvcce2k8r"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://cxanhvcce2k8r"]
 
 [ext_resource type="Texture2D" uid="uid://cuqt3ac2xxd1n" path="res://assets/sprites/Items/generated_px/Armor/Generated/Celestial_Nightshade_Mail.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_786ri"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_uy6yt"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_nixlu"]
 
 [sub_resource type="Resource" id="Resource_nrhhk"]
@@ -28,10 +27,6 @@ script = ExtResource("1_786ri")
 stat_type = 11
 base_value = 0
 flat_bonus_value = 8
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_ooslm"]
-atlas = ExtResource("2_uy6yt")
-region = Rect2(848, 142, 54, 54)
 
 [resource]
 script = ExtResource("3_nixlu")

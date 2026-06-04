@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://b1np2fm1pxyg8"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://b1np2fm1pxyg8"]
 
 [ext_resource type="Texture2D" uid="uid://rddrdpui53gr" path="res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Vanguard_Mail.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_dhak0"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_onf0x"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_cqvll"]
 
 [sub_resource type="Resource" id="Resource_44bjw"]
@@ -27,10 +26,6 @@ script = ExtResource("1_dhak0")
 stat_type = 4
 base_value = 0
 flat_bonus_value = 130
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_halbl"]
-atlas = ExtResource("2_onf0x")
-region = Rect2(848, 142, 54, 54)
 
 [resource]
 script = ExtResource("3_cqvll")

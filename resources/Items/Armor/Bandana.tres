@@ -1,8 +1,6 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=7 format=3 uid="uid://bjlfoop0xqx1y"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=5 format=3 uid="uid://bjlfoop0xqx1y"]
 
-[ext_resource type="Texture2D" uid="uid://d01admr1x8vr7" path="res://assets/sprites/Items/generated_px/Armor/Bandana.png" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_ba001"]
-[ext_resource type="Texture2D" uid="uid://cgdp8kslk3pvs" path="res://assets/sprites/Items/Items.png" id="2_68t1n"]
 [ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_ba001"]
 
 [sub_resource type="Resource" id="Resource_ba001"]
@@ -12,9 +10,8 @@ base_value = 0
 flat_bonus_value = 3
 metadata/_custom_type_script = "uid://cptesvvlfbytw"
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_uu7ye"]
-atlas = ExtResource("2_68t1n")
-region = Rect2(710, 59, 62, 37)
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_oei3a"]
+load_path = "res://.godot/imported/Bandana.png-582c33e012c3e08f88bf601939c43493.ctex"
 
 [resource]
 script = ExtResource("3_ba001")
@@ -23,7 +20,7 @@ bonus_stats = Dictionary[int, ExtResource("1_ba001")]({
 })
 item_id = "20260517004-400404-030204-40004-440400300040400404"
 name = "Bandana"
-icon = ExtResource("99_svgicon")
+icon = SubResource("CompressedTexture2D_oei3a")
 description = "A simple cloth bandana."
 item_type = 1
 item_level = 2

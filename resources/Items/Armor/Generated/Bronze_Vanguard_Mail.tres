@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://co0yog8absorx"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://co0yog8absorx"]
 
 [ext_resource type="Texture2D" uid="uid://dytsee4js1kbi" path="res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Vanguard_Mail.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_g6r51"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Items/Items.png" id="2_v6xte"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_fhldc"]
 
 [sub_resource type="Resource" id="Resource_1sfmg"]
@@ -27,10 +26,6 @@ script = ExtResource("1_g6r51")
 stat_type = 4
 base_value = 0
 flat_bonus_value = 31
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_bu1aa"]
-atlas = ExtResource("2_v6xte")
-region = Rect2(848, 142, 54, 54)
 
 [resource]
 script = ExtResource("3_fhldc")
