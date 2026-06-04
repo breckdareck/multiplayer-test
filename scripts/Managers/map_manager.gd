@@ -259,6 +259,15 @@ func request_map_change(player_id: int, target_map_id: String, target_spawn_poin
 	# the old map's SubViewport composited on top of the new one.
 	var old_map_id: String = player_current_maps.get(player_id, "")
 
+	# Fast path (ADR 0008): reparent a server-tree peer's LIVE node instead of
+	# free+recreate. Bots and the host (peer 1) share the server tree and skip the
+	# JoinHandshake SYNC phase, so the live node can simply move between maps. A
+	# first spawn (not is_map_change) still uses the full flow below; a precondition
+	# miss (e.g. target map not resident) returns false and falls through to it.
+	if is_map_change and (player_id == 1 or BotManager.is_bot(player_id)):
+		if _reparent_peer_to_map(player_id, old_map_id, target_map_id, target_spawn_point_name):
+			return
+
 	# Remove player from current map
 	if is_map_change:
 		# Snapshot live state before the old body is freed so the respawn can
@@ -307,7 +316,119 @@ func request_map_change(player_id: int, target_map_id: String, target_spawn_poin
 		return
 
 	client_set_current_map.rpc_id(player_id, target_map_id, target_spawn_point_name)
-	
+
+
+# === REPARENT MAP-CHANGE FAST PATH (ADR 0008) ===
+# Move a server-tree peer's LIVE character node between maps without freeing and
+# rebuilding it. Applies to bots and the host (peer 1) — both live in the server
+# tree and skip the JoinHandshake SYNC phase. Remote clients are NOT handled here
+# (their client rebuilds its own single map); that is a future phase.
+
+## Returns true on success; false (with NO mutation performed) if a precondition
+## fails, so request_map_change can fall back to the full recreate flow.
+func _reparent_peer_to_map(peer_id: int, old_map_id: String, new_map_id: String, spawn_point_name: String) -> bool:
+	if not multiplayer.is_server():
+		return false
+	# Preconditions — both maps resident, character node present, target has Players.
+	var old_data: Dictionary = active_maps.get(old_map_id, {})
+	var new_data: Dictionary = active_maps.get(new_map_id, {})
+	var old_map: Node = old_data.get("scene_instance")
+	var new_map: Node = new_data.get("scene_instance")
+	if not is_instance_valid(old_map) or not is_instance_valid(new_map):
+		return false
+	var char_node: Node = old_map.get_node_or_null("Players/" + str(peer_id))
+	if not is_instance_valid(char_node):
+		return false
+	var new_players: Node = new_map.get_node_or_null("Players")
+	if not is_instance_valid(new_players):
+		return false
+
+	var is_host: bool = peer_id == 1
+
+	# 1. Remove the arriver from OTHER real players' view of the OLD map.
+	for p in old_data.get("player_ids", []):
+		if p == peer_id or BotManager.is_bot(p):
+			continue
+		client_despawn_player.rpc_id(p, peer_id)
+
+	# 2. Reparent the LIVE node (carries every component, synchronizer, and — for
+	#    the host — the CanvasLayer UI + Camera2D, all live). The _reparenting flag
+	#    makes the controller's _exit_tree skip cleanup_before_removal so the move
+	#    doesn't brick the node.
+	char_node._reparenting = true
+	char_node.reparent(new_players, false)
+	char_node._reparenting = false
+
+	# 3. Arrival reset — the live node carried transient state across the hop.
+	_reset_character_on_arrival(char_node, new_map_id, spawn_point_name)
+
+	# 4. Bookkeeping — move the id between maps and update the current-map index so
+	#    combat's self-healing map cache + every get_player_map lookup resolve to
+	#    the new map. (old_data/new_data are the live dicts in active_maps.)
+	old_data.get("player_ids", []).erase(peer_id)
+	if not peer_id in new_data["player_ids"]:
+		new_data["player_ids"].append(peer_id)
+	player_current_maps[peer_id] = new_map_id
+	invalidate_synchronizer_cache(old_map)
+	invalidate_synchronizer_cache(new_map)
+
+	# 5. Host-local view — flip which map the host renders, re-make its camera
+	#    current in the new SubViewport, and play the new map's BGM. Mirrors the
+	#    peer-1 branch of request_map_change (which _ready would otherwise do).
+	if is_host:
+		if old_map_id != new_map_id:
+			_set_local_map_visible(old_map_id, false)
+		_set_local_map_visible(new_map_id, true)
+		current_map_instance = new_map
+		current_map_id = new_map_id
+		var cam := char_node.get_node_or_null("Camera2D")
+		if cam and cam.has_method("make_current"):
+			cam.make_current()
+		if new_map is MapBase and not new_map.bgm_path.is_empty():
+			AudioManager.play_song(new_map.bgm_path)
+
+	# 6. Spawn the arriver into OTHER real players' view of the NEW map.
+	for p in new_data["player_ids"]:
+		if p == peer_id or BotManager.is_bot(p):
+			continue
+		client_spawn_player.rpc_id(p, peer_id, char_node.global_position, _player_username(peer_id))
+
+	# 7. Per-peer synchronizer visibility, recomputed off the now-updated
+	#    player_current_maps (sets every real player's view of the arriver).
+	update_visibility_for_player(peer_id)
+
+	# 8. Appearance + brain. A bot's sprite isn't streamed, so push it; the host's
+	#    propagates via the normal appearance sync. Re-point the bot brain (resets
+	#    its transient targets/nav for the new map, keeps travel/patrol progress).
+	if BotManager.is_bot(peer_id):
+		broadcast_player_appearance(peer_id)
+		BotManager.handle_bot_reparented(peer_id)
+
+	# 9. Wake enemies near the arriver now; re-sleep the lighter old map (ADR 0007).
+	_scan_map_activation(new_map_id)
+	_scan_map_activation(old_map_id)
+	return true
+
+
+## Clear the transient state the reparented live node carried across the hop that
+## free+recreate used to discard. Persistent buffs (and the staff stance) survive.
+func _reset_character_on_arrival(char_node: Node, map_id: String, spawn_point_name: String) -> void:
+	char_node.global_position = get_spawn_position_for_map(map_id, spawn_point_name)
+	if "velocity" in char_node:
+		char_node.velocity = Vector2.ZERO
+	# Drop any mid-attack / chase state — back to the neutral starting state.
+	var sm = char_node.state_machine
+	if is_instance_valid(sm) and is_instance_valid(sm.starting_state) and sm.current_state != sm.starting_state:
+		sm.change_state(sm.starting_state)
+	# Reset transient per-weapon gauges (combo / charge / stealth).
+	if is_instance_valid(char_node.sword_combo_component):
+		char_node.sword_combo_component.reset_combo()
+	if is_instance_valid(char_node.bow_momentum_component):
+		char_node.bow_momentum_component.reset()
+	if is_instance_valid(char_node.shadowmeld_component):
+		char_node.shadowmeld_component.cancel_stealth()
+
+
 func _load_map_on_server(map_id: String):
 	"""Server-only: Manually instantiate map scene and add to scene tree"""
 	if not multiplayer.is_server(): return

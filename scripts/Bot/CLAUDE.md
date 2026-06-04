@@ -26,9 +26,11 @@ each piece stays small.
 - **A bot has no client.** On spawn it frees its whole `CanvasLayer` UI subtree.
   Never send a bot a node-addressed RPC; never assume a bot has buff/hotbar UI.
 - **The brain outlives the body.** `BotBrain` is parented to `BotManager`, not the
-  character. A map change frees and recreates the character node; the brain is then
-  re-pointed at the new body via `attach_to_player()`, preserving travel timers,
-  patrol progress, and cooldowns.
+  character. As of ADR 0008 a bot map change **reparents the SAME live body** between
+  maps (no free/recreate); `MapManager` then calls `BotManager.handle_bot_reparented()`
+  → `attach_to_player()` to reset the brain's transient targets/nav for the new map
+  while preserving travel timers, patrol progress, and cooldowns. (A bot's *first*
+  spawn — and the recreate fallback — still build a fresh body.)
 - **Bots are server-only.** All bot logic is gated behind `multiplayer.is_server()`.
 
 ## The think loop
