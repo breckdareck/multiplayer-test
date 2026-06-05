@@ -749,6 +749,13 @@ func _set_visibility_for_node(node: Node, peer_id: int, visible: bool):
 	"""Sets the visibility for all synchronizers within a node for a specific peer."""
 	if not is_instance_valid(node): return
 	if BotManager.is_bot(peer_id): return
+	# The peer may already be gone — on disconnect, peer_disconnected fires AFTER
+	# the peer leaves the multiplayer list, then _remove_player_from_map calls
+	# here to hide the map from it. set_visibility_for errors ("peers_info has no
+	# p_peer") for an absent peer, and there's nothing to hide from someone who's
+	# already disconnected. The host (peer 1) is always valid.
+	if peer_id != 1 and peer_id not in multiplayer.get_peers():
+		return
 	var synchronizers = _get_cached_synchronizers(node)
 	for s in synchronizers:
 		if not is_instance_valid(s): continue
