@@ -96,6 +96,9 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 		chain_cb,
 	)
 
+	# Ground "juice" — a tiled crackling-lightning strip across the storm area.
+	MapManager.broadcast_ground_vfx_everywhere(MapManager.get_player_map(owner_node.player_id), "lightning_ground", spawn_pos, rect_size.x, duration)
+
 
 ## Per-tick callback for each enemy struck inside the storm: arc to the nearest
 ## OTHER living enemies within CHAIN_RADIUS, dealing the same tick damage.

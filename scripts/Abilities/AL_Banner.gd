@@ -108,6 +108,9 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 		Callable(self, "_apply_banner_aura")
 	)
 
+	# Ground "juice" — a tiled golden glow across the banner's aura radius.
+	MapManager.broadcast_ground_vfx_everywhere(MapManager.get_player_map(owner_node.player_id), "holy_ground", owner_node.global_position, radius * 2.0, duration)
+
 
 ## Per-tick callback fired by the zone for each ally currently inside.
 ## Heals a small amount and refreshes the Banner Aura buff (which carries

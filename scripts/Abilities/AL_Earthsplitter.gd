@@ -93,6 +93,11 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 	var gz = load("res://scripts/Gameplay/ground_zone.gd")
 	var origin: Vector2 = owner_node.global_position
 
+	# Ground "juice" — a tiled earth-spike strip filling the tremor zone on
+	# every peer, living for the zone's duration. Fired at the slam epicenter
+	# regardless of which T3 branch runs below (all slam at `origin`).
+	MapManager.broadcast_ground_vfx_everywhere(MapManager.get_player_map(owner_node.player_id), "earth_ground", origin, rect_size.x, duration)
+
 	# Cataclysm (T3): collapse the whole zone duration into one big impact —
 	# a single short-lived, high-damage tick instead of a sustained zone.
 	if burst > 0.0:

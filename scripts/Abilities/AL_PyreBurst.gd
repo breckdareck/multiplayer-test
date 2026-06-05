@@ -136,6 +136,9 @@ func _try_spawn_fire_pool(owner_node: Node, first_target: Node, dot_base: int) -
 		POOL_COLOR,
 	)
 
+	# Ground "juice" — a tiled fire band burning across the pool.
+	MapManager.broadcast_ground_vfx_everywhere(MapManager.get_player_map(owner_node.player_id), "fire_ground", first_target.global_position, POOL_RECT_SIZE.x, POOL_DURATION)
+
 
 ## When a burn tick downs an enemy, the regular combat-kill pathway
 ## (combat.gd._execute_hit) never runs — so mastery XP and on_kill passive

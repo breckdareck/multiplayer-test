@@ -95,6 +95,9 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 		Callable(self, "_build_momentum").bind(owner_node),
 	)
 
+	# Ground "juice" — a tiled dust/impact strip kicked up where arrows rain down.
+	MapManager.broadcast_ground_vfx_everywhere(MapManager.get_player_map(owner_node.player_id), "dust_ground", spawn_pos, rect_size.x, duration)
+
 
 ## Per-tick callback — builds Momentum on the caster, rate-limited to once
 ## per second even when the tick interval is faster. The `enemy` arg is

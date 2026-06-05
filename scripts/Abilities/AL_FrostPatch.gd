@@ -84,6 +84,9 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 		Callable(self, "_apply_chill")
 	)
 
+	# Ground "juice" — a tiled frost-spike strip filling the chilled patch.
+	MapManager.broadcast_ground_vfx_everywhere(MapManager.get_player_map(owner_node.player_id), "ice_ground", owner_node.global_position, rect_size.x, duration)
+
 
 ## Per-tick callback: applies / refreshes a movement-speed reduction on
 ## enemies in the patch. Same save/restore/meta idiom as the stance Ice

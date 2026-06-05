@@ -917,6 +917,16 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 		if dmg_spawner:
 			dmg_spawner.display_number_combo(damage_values, crit_values, spawn_pos)
 
+		# Hit "juice" — a one-shot impact VFX at the struck enemy. Ability hits
+		# only (basic attacks are too frequent to spark every swing); the key
+		# auto-resolves from the ability's identity (VfxCatalog), overridable on
+		# its ActiveBehaviorData. We're already server-side here; broadcast_vfx_
+		# everywhere shows it on every peer (host inclusive) and bots route fine.
+		if ability != null and "player_id" in owner_node:
+			var hit_key: String = VfxCatalog.resolve_hit(ability)
+			if hit_key != "":
+				MapManager.broadcast_vfx_everywhere(MapManager.get_player_map(owner_node.player_id), hit_key, spawn_pos)
+
 
 func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelData) -> int:
 	var max_range = _calculate_max_range(_ability.damage_stat)

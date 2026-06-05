@@ -1170,6 +1170,86 @@ func _spawn_lightning_arc_visual(points: PackedVector2Array) -> void:
 	arc.setup(points)
 
 
+const _SpriteEffectVfx = preload("res://scripts/VFX/sprite_effect.gd")
+
+## [Server] Plays a catalog sprite-VFX (see VfxCatalog) on EVERY peer viewing
+## `map_id`, host INCLUSIVE. Use for ability cast/hit juice and looping ground
+## effects — all of which the server spawns with no authoritative visual node of
+## their own, so (unlike GroundZone, whose host copy renders for free) the host
+## must be drawn explicitly here.
+##
+## `key` is a VfxCatalog.CATALOG key; `pos` is global; `scale_mult` multiplies
+## the catalog's base scale; `rot` (radians) + `flip_h` orient directional
+## effects; `duration` > 0 keeps a LOOPING effect alive that long (match it to a
+## GroundZone's lifetime), <= 0 plays a one-shot burst that frees on finish.
+func broadcast_vfx_everywhere(map_id: String, key: String, pos: Vector2, scale_mult: float = 1.0, rot: float = 0.0, flip_h: bool = false, duration: float = 0.0) -> void:
+	if not multiplayer.is_server():
+		return
+	if key == "":
+		return
+	# Remote clients (bots excluded — no client; host skipped — call_remote).
+	broadcast_to_map(map_id, func(peer_id): client_show_vfx.rpc_id(peer_id, key, pos, scale_mult, rot, flip_h, duration), true, true)
+	# Host draws its own copy, but only when actually viewing this map (the
+	# call_remote RPC above never runs on peer 1).
+	if get_player_map(1) == map_id:
+		_spawn_vfx_visual(key, pos, scale_mult, rot, flip_h, duration)
+
+
+## [Server -> Client] Spawns the sprite-VFX on this peer. Routed through
+## MapManager (an autoload that always resolves) rather than any per-entity node,
+## mirroring spawn_projectile_visual / client_show_lightning_arc.
+@rpc("authority", "call_remote", "reliable")
+func client_show_vfx(key: String, pos: Vector2, scale_mult: float, rot: float, flip_h: bool, duration: float) -> void:
+	if multiplayer.is_server():
+		return
+	_spawn_vfx_visual(key, pos, scale_mult, rot, flip_h, duration)
+
+
+## Spawns the transient effect node under the visible map (right SubViewport)
+## and lets it self-free. No-op on a headless peer / when no map is visible.
+func _spawn_vfx_visual(key: String, pos: Vector2, scale_mult: float, rot: float, flip_h: bool, duration: float) -> void:
+	var map_node = get_current_visible_map()
+	if not is_instance_valid(map_node):
+		return
+	var fx = _SpriteEffectVfx.new()
+	map_node.add_child(fx)
+	fx.global_position = pos
+	fx.setup(key, scale_mult, rot, flip_h, duration)
+
+
+## [Server] Plays a LOOPING ground-strip VFX (tiled across `width` px, centered
+## on `center`) on every peer viewing `map_id`, host inclusive — the animated
+## flourish that fills a GroundZone. Call it right after spawning the zone with
+## the SAME center/duration so the sprites live and die with the hazard. `width`
+## should be the zone's full pixel width (rect_size.x, or 2×radius for a circle).
+func broadcast_ground_vfx_everywhere(map_id: String, key: String, center: Vector2, width: float, duration: float) -> void:
+	if not multiplayer.is_server():
+		return
+	if key == "":
+		return
+	broadcast_to_map(map_id, func(peer_id): client_show_ground_vfx.rpc_id(peer_id, key, center, width, duration), true, true)
+	if get_player_map(1) == map_id:
+		_spawn_ground_vfx_visual(key, center, width, duration)
+
+
+## [Server -> Client] Spawns the tiled ground strip on this peer.
+@rpc("authority", "call_remote", "reliable")
+func client_show_ground_vfx(key: String, center: Vector2, width: float, duration: float) -> void:
+	if multiplayer.is_server():
+		return
+	_spawn_ground_vfx_visual(key, center, width, duration)
+
+
+func _spawn_ground_vfx_visual(key: String, center: Vector2, width: float, duration: float) -> void:
+	var map_node = get_current_visible_map()
+	if not is_instance_valid(map_node):
+		return
+	var fx = _SpriteEffectVfx.new()
+	map_node.add_child(fx)
+	fx.global_position = center
+	fx.setup_ground_strip(key, width, duration)
+
+
 ## [Server] Broadcasts a cosmetic ground-zone visual to every real CLIENT
 ## viewing the event's map. The authoritative GroundZone (with damage logic) is
 ## already added under the map's scene_instance by `GroundZone.spawn_server`,

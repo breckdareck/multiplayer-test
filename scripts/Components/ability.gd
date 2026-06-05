@@ -907,6 +907,15 @@ func _trigger_ability_state_change(ability: AbilityData, level_stats: AbilityLev
 		if active_behavior.sfx_path:
 			AudioManager.play_sfx_for_map(MapManager.get_player_map(owner.player_id), active_behavior.sfx_path, owner.global_position)
 
+	# Cast "juice" — a one-shot VFX at the caster when the ability fires. The
+	# broadcast self-guards `is_server`, so only the authoritative cast (server /
+	# host / bot-on-server) emits; the client copies of this call no-op and
+	# instead receive the effect via the RPC. Key auto-resolves from the
+	# ability's identity (VfxCatalog) unless overridden on its ActiveBehaviorData.
+	var cast_key: String = VfxCatalog.resolve_cast(ability)
+	if cast_key != "":
+		MapManager.broadcast_vfx_everywhere(MapManager.get_player_map(owner.player_id), cast_key, owner.global_position)
+
 	# Execute optional custom logic from the ability's script resource
 	if active_behavior.logic_script:
 		var custom_logic = active_behavior.logic_script.new()

@@ -134,6 +134,9 @@ func _fire_pool(owner_node: Node, facing: int, magic_attack: int, reach_bonus: f
 		FIRE_POOL_COLOR,
 	)
 
+	# Ground "juice" — a tiled fire band across the amplified Fire-stance pool.
+	MapManager.broadcast_ground_vfx_everywhere(MapManager.get_player_map(owner_node.player_id), "fire_ground", spawn_pos, rect_size.x, FIRE_POOL_DURATION)
+
 
 func _ice_freeze(owner_node: Node, facing: int, reach_bonus: float = 0.0) -> void:
 	var center: Vector2 = owner_node.global_position + Vector2(ICE_SPAWN_OFFSET * float(facing), 0)

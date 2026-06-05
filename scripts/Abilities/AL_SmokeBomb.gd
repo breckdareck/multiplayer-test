@@ -131,6 +131,10 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 		Callable(self, "_apply_hidden")
 	)
 
+	# Ground "juice" — a tiled smoke band billowing across the cloud (circle:
+	# width = diameter = 2×radius).
+	MapManager.broadcast_ground_vfx_everywhere(MapManager.get_player_map(owner_node.player_id), "smoke_ground", owner_node.global_position, radius * 2.0, duration)
+
 
 ## Per-tick callback fired by the zone for each ALLY currently inside.
 ## Refreshes the evasion meta — the actual dodge roll happens in health.gd's
