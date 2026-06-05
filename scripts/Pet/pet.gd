@@ -560,7 +560,7 @@ func _owner_is_climbing(owner_node: Node) -> bool:
 # AUTO-LOOT (owner client picks targets, server validates the actual pickup)
 # ═══════════════════════════════════════════════════════════════════════════
 
-func _refresh_loot_target(_owner_node: Node) -> void:
+func _refresh_loot_target(owner_node: Node) -> void:
 	if not pet_data:
 		return
 	var record := PetManager.client_find_pet(pet_uuid)
@@ -578,10 +578,10 @@ func _refresh_loot_target(_owner_node: Node) -> void:
 	var map_node := get_parent()
 	if not map_node:
 		return
-	var best: Node = _scan_drops(map_node)
+	var best: Node = _scan_drops(map_node, owner_node)
 	var drops_container := map_node.get_node_or_null("ItemDrops")
 	if drops_container:
-		var alt: Node = _scan_drops(drops_container)
+		var alt: Node = _scan_drops(drops_container, owner_node)
 		if alt and (not best or global_position.distance_to(alt.global_position) > global_position.distance_to(best.global_position)):
 			best = alt
 	if best:
@@ -605,13 +605,14 @@ func _vacuum_pickup_pass() -> void:
 	var map_node := get_parent()
 	if not map_node:
 		return
+	var owner_node := PlayerManager.get_player_node(owner_peer_id)
 	# Pick the closest in-radius drop and fire ONE RPC. Throttling here keeps
 	# the wire quiet and lets the server's rate limit do its job without
 	# rejecting and burning the per-drop retry cooldown.
-	var target: Node = _find_vacuum_target(map_node, now)
+	var target: Node = _find_vacuum_target(map_node, now, owner_node)
 	var drops_container := map_node.get_node_or_null("ItemDrops")
 	if drops_container:
-		var alt: Node = _find_vacuum_target(drops_container, now)
+		var alt: Node = _find_vacuum_target(drops_container, now, owner_node)
 		if alt and (not target or global_position.distance_to(alt.global_position) < global_position.distance_to(target.global_position)):
 			target = alt
 	if target == null:
@@ -626,7 +627,7 @@ func _vacuum_pickup_pass() -> void:
 		_pickup_dwell_target = null
 
 
-func _find_vacuum_target(container: Node, now: int) -> Node:
+func _find_vacuum_target(container: Node, now: int, owner_node: Node) -> Node:
 	var best: Node = null
 	var best_dist: float = PICKUP_VACUUM_RADIUS
 	for child in container.get_children():
@@ -636,6 +637,8 @@ func _find_vacuum_target(container: Node, now: int) -> Node:
 		if drop.current_state != DroppedItem.ItemState.SETTLED:
 			continue
 		if not drop.item_data:
+			continue
+		if not _owner_can_pickup(drop, owner_node):
 			continue
 		var tried: int = int(_recently_tried_drops.get(drop.name, 0))
 		if tried > 0 and now - tried < PICKUP_RETRY_COOLDOWN_MS:
@@ -649,7 +652,21 @@ func _find_vacuum_target(container: Node, now: int) -> Node:
 	return best
 
 
-func _scan_drops(container: Node) -> Node:
+## Mirror the server's pickup eligibility on the client so the pet only pursues
+## loot the owner can actually take — public, or owned by the player/party.
+## Without this the pet walks toward other players' loot and the server simply
+## rejects the pickup RPC, leaving the pet endlessly chasing items it can never
+## grab. _can_player_pickup reads is_public_pickup + _eligible_player_ids, both
+## replicated to / set on the client.
+func _owner_can_pickup(drop: DroppedItem, owner_node: Node) -> bool:
+	if not is_instance_valid(owner_node):
+		return false
+	if drop.has_method("_can_player_pickup"):
+		return drop._can_player_pickup(owner_node)
+	return true
+
+
+func _scan_drops(container: Node, owner_node: Node) -> Node:
 	# Returns the FURTHEST same-level drop within autoloot_radius. Walking
 	# toward it lets the vacuum sweep every closer drop in passing.
 	var best: Node = null
@@ -667,12 +684,15 @@ func _scan_drops(container: Node) -> Node:
 			continue
 		if not drop.item_data:
 			continue
+		# Only pursue loot the owner is eligible to take (public / player / party).
+		# Magnet covers both items and coins — no type gate beyond eligibility.
+		if not _owner_can_pickup(drop, owner_node):
+			continue
 		# Skip drops we recently tried to pick up — gives the server time to
 		# respond and prevents ping-pong when a rejection happens.
 		var tried: int = int(_recently_tried_drops.get(drop.name, 0))
 		if tried > 0 and now - tried < PICKUP_RETRY_COOLDOWN_MS:
 			continue
-		# Magnet covers both items and coins — no type gate.
 		if absf(drop.global_position.y - global_position.y) > SAME_LEVEL_Y_DELTA:
 			continue
 		var d: float = global_position.distance_to(drop.global_position)
