@@ -233,7 +233,9 @@ func _ensure_maps_container() -> SubViewportContainer:
 		old_backdrop.free()
 	var backdrop := ColorRect.new()
 	backdrop.name = "MapsBackdrop"
-	backdrop.color = Color.BLACK
+	# Match the window's default clear color (the grey that showed through before),
+	# so the backdrop is indistinguishable from the engine's default background.
+	backdrop.color = RenderingServer.get_default_clear_color()
 	backdrop.anchor_right = 1.0
 	backdrop.anchor_bottom = 1.0
 	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
