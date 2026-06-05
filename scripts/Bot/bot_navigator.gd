@@ -14,8 +14,12 @@ var brain                       ## The owning BotBrain node.
 const JUMP_COOLDOWN: float = 0.8
 var _jump_cooldown_timer: float = 0.0
 ## Horizontal slack (px) within which the bot counts as aligned with a ladder
-## column for mounting (hop-up assist + dismount).
+## column for the commit check (is_on_climb_segment) and dismount.
 const LADDER_MOUNT_X_TOL: float = 14.0
+## Tight slack (px) for being directly UNDER/OVER the column before mounting. The
+## zone is only ~14px wide, so the hop/drop-in must start from near its center or
+## it lands beside the rope and the climb never engages.
+const LADDER_UNDER_X_TOL: float = 6.0
 ## When ASCENDING, dismount once the bot has climbed to within this many px below
 ## the top platform (or above it) — ropes stick out above the platform, so the bot
 ## must hop off sideways onto it rather than ride past.
@@ -268,27 +272,20 @@ func _ride_ladder(target: Vector2, ascending: bool) -> void:
 	var dx: float = target.x - player.global_position.x
 	var dy: float = target.y - player.global_position.y   # < 0 = target above
 	if not player.is_in_ladder_zone():
+		# Walk to directly UNDER/OVER the column before acting. The ladder zone is
+		# narrow (~14px), so jumping or pressing-down from the looser "aligned"
+		# distance lands beside it and misses — the bot then bounces around hunting
+		# for the rope. A tight tolerance puts it on the column so the hop goes
+		# straight up into the rope (ascent) or it's inside the zone to ride down.
+		var under: bool = absf(dx) <= LADDER_UNDER_X_TOL
+		player.direction = 0 if under else (1 if dx > 0.0 else -1)
+		if player.direction != 0:
+			player.facing_direction = player.direction
 		if ascending:
-			# Get under the column, then hop straight up into the rope (the hop
-			# drifts the bot onto the narrow column); input_up held so the climb
-			# engages at the top of the hop. STOP once aligned so it doesn't sail
-			# past in a moving jump.
-			var aligned: bool = absf(dx) <= LADDER_MOUNT_X_TOL
-			player.direction = 0 if aligned else (1 if dx > 0.0 else -1)
-			if player.direction != 0:
-				player.facing_direction = player.direction
-			player.input_up = true
-			if aligned and player.is_on_floor():
+			player.input_up = true   # held so the climb engages at the top of the hop
+			if under and player.is_on_floor():
 				try_jump()
 		else:
-			# Descending from the top there is NO hop to drift the bot in, and the
-			# ladder zone is narrow (~14px): stopping at the wide "aligned" distance
-			# can leave it just outside the zone, holding input_down with the climb
-			# never engaging — the "won't go down" bug. Walk ALL the way onto the
-			# column (tight tolerance) so it's inside the zone, then hold down.
-			player.direction = 0 if absf(dx) <= 2.0 else (1 if dx > 0.0 else -1)
-			if player.direction != 0:
-				player.facing_direction = player.direction
 			player.input_down = true
 		return
 	# On the ladder. Direction depends on which way the CLIMB edge goes:
