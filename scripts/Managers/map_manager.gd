@@ -300,18 +300,17 @@ func request_map_change(player_id: int, target_map_id: String, target_spawn_poin
 	# the old map's SubViewport composited on top of the new one.
 	var old_map_id: String = player_current_maps.get(player_id, "")
 
-	# Fast path (ADR 0008): reparent a BOT's LIVE node instead of free+recreate.
-	# Bots have no client and their UI subtree is already freed, so moving the node
-	# between maps is clean. A first spawn (not is_map_change) still uses the full
-	# flow below; a precondition miss (e.g. target map not resident) falls through.
-	#
-	# The HOST (peer 1) is deliberately NOT reparented: its character carries the
-	# whole live CanvasLayer UI subtree, and reparenting fires NOTIFICATION_EXIT_TREE
-	# on every UI child (KeybindsMenu signal disconnects, etc.), which breaks the
-	# host's input/camera. The host's travel is occasional (not the constant bot
-	# churn), so it stays on the recreate path. Reviving host reparent needs the UI
-	# detached from the reparented subtree (or per-child suppression) — see ADR 0008.
-	if is_map_change and BotManager.is_bot(player_id):
+	# Fast path (ADR 0008 + ADR 0009 Stage C): reparent a server-tree peer's LIVE
+	# node — a BOT or the HOST (peer 1) — between maps instead of free+recreate.
+	# Preserves all live component state in place: no JoinHandshake, no serialize
+	# round-trip, no _ready re-run. The HOST is now eligible because ADR 0009
+	# lifted its UI off the body (the old revert cause — reparent fired
+	# NOTIFICATION_EXIT_TREE on the CanvasLayer UI children) and the
+	# InputSynchronizer's _exit_tree is now reparent-guarded. Remote clients still
+	# recreate (they rebuild their own single map — a future client-residency
+	# phase). A first spawn (not is_map_change) uses the full flow below; a
+	# precondition miss (target not resident, node missing) falls through to it.
+	if is_map_change and (BotManager.is_bot(player_id) or player_id == 1):
 		if _reparent_peer_to_map(player_id, old_map_id, target_map_id, target_spawn_point_name):
 			return
 
@@ -433,11 +432,26 @@ func _reparent_peer_to_map(peer_id: int, old_map_id: String, new_map_id: String,
 		_set_local_map_visible(new_map_id, true)
 		current_map_instance = new_map
 		current_map_id = new_map_id
-		var cam := char_node.get_node_or_null("Camera2D")
-		if cam and cam.has_method("make_current"):
+		var cam := char_node.get_node_or_null("Camera2D") as Camera2D
+		if is_instance_valid(cam):
 			cam.make_current()
+			# Re-apply the new map's camera limits (recreate did this via
+			# _setup_client_visuals; the reparent must too or the bounds stay on
+			# the old map).
+			if char_node.has_method("_apply_map_camera_bounds"):
+				char_node._apply_map_camera_bounds(cam)
 		if new_map is MapBase and not new_map.bgm_path.is_empty():
 			AudioManager.play_song(new_map.bgm_path)
+		# Pets followed the player on the recreate path (via load_pets); the
+		# reparent preserves the player + roster but the pet ENTITIES were on the
+		# old map, so migrate them now (player_current_maps already points new).
+		if "username" in char_node and not char_node.username.is_empty():
+			PetManager.respawn_owner_pets(char_node.username)
+		# Show the new map's zone banner. local_player_changed does NOT fire on a
+		# reparent (the body persists), so the persistent UI's bind() — which shows
+		# the banner on a recreate — is skipped; nudge it here.
+		if is_instance_valid(_local_ui) and _local_ui.has_method("notify_map_arrival"):
+			_local_ui.notify_map_arrival()
 
 	# 6. Spawn the arriver into OTHER real players' view of the NEW map.
 	for p in new_data["player_ids"]:

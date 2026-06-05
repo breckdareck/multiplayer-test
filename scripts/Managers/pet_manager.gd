@@ -199,6 +199,28 @@ func load_pets(username: String, data: Dictionary) -> void:
 			_spawn_pet_internal(username, pet_uuid)
 
 
+## Re-spawns an owner's summoned pets on their CURRENT map, using the roster
+## already in memory (no save reload). For a live-node map REPARENT (ADR 0009
+## Stage C / ADR 0008): the player node + roster survive the hop, but the pet
+## ENTITIES were parented to the OLD map and must move. Mirrors the server-side
+## spawn block of load_pets. Call AFTER player_current_maps points at the new map.
+func respawn_owner_pets(username: String) -> void:
+	if not multiplayer.is_server() or username.is_empty():
+		return
+	var roster: Dictionary = _rosters.get(username, {})
+	var summoned: Array = roster.get(KEY_SUMMONED, [])
+	# Despawn this owner's existing entities (still on the old map).
+	var to_despawn: Array = []
+	for pet_uuid in _active_pets:
+		if _active_pets[pet_uuid].get("owner_username", "") == username:
+			to_despawn.append(pet_uuid)
+	for pet_uuid in to_despawn:
+		_despawn_pet_entity(pet_uuid)
+	# Re-spawn the summoned pets on the owner's (now-new) current map.
+	for pet_uuid in summoned:
+		_spawn_pet_internal(username, pet_uuid)
+
+
 func clear_player(username: String) -> void:
 	_rosters.erase(username)
 

@@ -110,6 +110,14 @@ func unbind() -> void:
 	_body = null
 
 
+## The local body changed maps WITHOUT being recreated (a live-node reparent —
+## ADR 0009 Stage C). The widget bindings are unchanged (same body), so only the
+## per-map UI needs refreshing: show the new map's zone banner.
+func notify_map_arrival() -> void:
+	if is_instance_valid(_body):
+		_show_zone_banner(_body)
+
+
 func _show_zone_banner(body: Node) -> void:
 	var players_node := body.get_parent()
 	var map_root := players_node.get_parent() if is_instance_valid(players_node) else null

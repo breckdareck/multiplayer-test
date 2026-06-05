@@ -176,6 +176,15 @@ func cleanup_before_removal():
 
 # Override _exit_tree to handle cleanup
 func _exit_tree():
+	# During a map-change reparent (ADR 0008/0009 Stage C) the body — and this
+	# InputSynchronizer with it — moves between maps but is NOT being removed.
+	# Cleanup here would stop input processing and null the player ref, leaving
+	# the host "stuck, can't move" (the original host-reparent revert cause). The
+	# controller sets `_reparenting` on the body around the move; skip cleanup
+	# while it's set.
+	var body := get_parent()
+	if is_instance_valid(body) and "_reparenting" in body and body._reparenting:
+		return
 	cleanup_before_removal()
 
 
