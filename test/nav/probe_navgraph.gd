@@ -103,6 +103,18 @@ func _run() -> void:
 	print("[probe] path HIGH->LOW (descend): %d waypoints" % down_path.size())
 
 	_report_components(g)
+	# Sample bottom, middle, top points of the largest component and report how
+	# many points each can REACH (go to, directed) and is REACHED-BY (can come from
+	# it). Big gaps reveal one-way connectivity (can drop but not climb back, etc.).
+	var mid_i := 0
+	var by_y := []
+	for i in g.points.size():
+		by_y.append(i)
+	by_y.sort_custom(func(a, b): return g.points[a].y < g.points[b].y)
+	if by_y.size() > 0:
+		mid_i = by_y[by_y.size() / 2]
+	_report_directed(g, highest_i, "TOP   ")
+	_report_directed(g, mid_i, "MIDDLE")
 	_report_directed(g, lowest_i, "BOTTOM")
 	_report_traps(g)
 	_diagnose_ladders(g)
@@ -273,12 +285,16 @@ func _report_components(g) -> void:
 ## point: how many points can the bot actually travel to, and back.
 func _report_directed(g, start_i: int, label: String) -> void:
 	var fwd := {}    # from -> [to,...]
-	var rev := {}
+	var rev := {}    # to -> [from,...]
 	for key in g.edges:
 		if not fwd.has(key.x): fwd[key.x] = []
 		fwd[key.x].append(key.y)
+		if not rev.has(key.y): rev[key.y] = []
+		rev[key.y].append(key.x)
 	var reach_fwd := _bfs(fwd, start_i)
-	print("[probe] from %s point: can REACH %d / %d points (directed)" % [label, reach_fwd.size(), g.points.size()])
+	var reach_rev := _bfs(rev, start_i)
+	print("[probe] from %s point %s: can REACH %d, can BE-REACHED-BY %d / %d" % [
+		label, str(g.points[start_i]), reach_fwd.size(), reach_rev.size(), g.points.size()])
 
 
 func _bfs(adj: Dictionary, start: int) -> Dictionary:

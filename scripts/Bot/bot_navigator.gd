@@ -527,6 +527,22 @@ func is_on_climb_segment() -> bool:
 	return near_column and (not player.is_on_floor() or player.is_in_ladder_zone())
 
 
+## True if the bot can actually PATH to a world position — a near, same-elevation
+## spot (direct heuristics handle it) or a graph point with a route from where the
+## bot stands. Lets target selection skip enemies/loot stranded in a disconnected
+## part of the map, so the bot stops sitting there "trying to fight/loot" something
+## it can never reach. Returns true when the graph isn't built yet (degrade safe).
+func is_target_reachable(target: Vector2) -> bool:
+	var player: MultiplayerPlayerV2 = brain.player
+	if player.global_position.distance_to(target) < NAV_DIRECT_RANGE \
+			and absf(player.global_position.y - target.y) < _max_jump_height:
+		return true
+	var graph := _get_nav_graph()
+	if graph == null or not graph.built:
+		return true
+	return not graph.find_id_path(player.global_position, target).is_empty()
+
+
 ## True while the bot is in the player's climb state (actively on a ladder/rope).
 ## Callers use this to keep the bot on its planned climb instead of re-planning or
 ## fighting mid-rope.

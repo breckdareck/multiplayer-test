@@ -709,9 +709,10 @@ func _find_best_loot() -> DroppedItem:
 	if not drops_node:
 		return null
 
-	var best: DroppedItem = null
-	var best_dist_sq := loot_range * loot_range
-
+	# Collect eligible drops in range, nearest first, then take the closest one the
+	# bot can actually PATH to — don't target loot stranded on an unreachable
+	# platform (it would sit there trying to grab it without ever pathing over).
+	var candidates: Array = []
 	for child in drops_node.get_children():
 		if child is not DroppedItem:
 			continue
@@ -725,11 +726,15 @@ func _find_best_loot() -> DroppedItem:
 			continue
 
 		var dist_sq := player.global_position.distance_squared_to(child.global_position)
-		if dist_sq < best_dist_sq:
-			best_dist_sq = dist_sq
-			best = child
+		if dist_sq < loot_range * loot_range:
+			candidates.append([dist_sq, child])
 
-	return best
+	candidates.sort_custom(func(a, b): return a[0] < b[0])
+	for c in candidates:
+		var drop: DroppedItem = c[1]
+		if _navigator.is_target_reachable(drop.global_position):
+			return drop
+	return null
 
 
 func _start_idle() -> void:

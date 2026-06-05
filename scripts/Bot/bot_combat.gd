@@ -82,18 +82,22 @@ func find_best_enemy() -> EnemyBase:
 	if not is_instance_valid(map_node):
 		return null
 
-	var best: EnemyBase = null
-	var best_dist_sq := aggro_range * aggro_range
-
+	# Gather in-range, non-blacklisted enemies, nearest first, then return the
+	# closest one the bot can actually PATH to — never aggro something stranded on
+	# an unreachable part of the map (it would just stand there "fighting" it).
+	var candidates: Array = []
 	for node: EnemyBase in BotManager.get_enemies_on_map(MapManager.get_player_map(brain.bot_id), map_node):
 		if node in _blacklisted_enemies:
 			continue
 		var dist_sq := player.global_position.distance_squared_to(node.global_position)
-		if dist_sq < best_dist_sq:
-			best_dist_sq = dist_sq
-			best = node
-
-	return best
+		if dist_sq < aggro_range * aggro_range:
+			candidates.append([dist_sq, node])
+	candidates.sort_custom(func(a, b): return a[0] < b[0])
+	for c in candidates:
+		var enemy: EnemyBase = c[1]
+		if brain._navigator.is_target_reachable(enemy.global_position):
+			return enemy
+	return null
 
 
 ## Sets the combat target and resets the per-fight disengage tracking.
