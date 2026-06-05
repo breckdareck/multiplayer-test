@@ -338,15 +338,9 @@ func request_map_change(player_id: int, target_map_id: String, target_spawn_poin
 	# server-side rebuild a remote client pays per portal (see /bot stress recreate).
 	if BotManager.is_bot(player_id) and BotManager.stress_force_recreate:
 		_try_reparent = false
-	if BotManager.is_bot(player_id) or player_id == 1:
-		print("[MAPDIAG] map-change req id=%d  %s -> %s  is_map_change=%s try_reparent=%s" % [
-			player_id, old_map_id, target_map_id, is_map_change, _try_reparent])
 	if _try_reparent:
-		var _rp_ok := _reparent_peer_to_map(player_id, old_map_id, target_map_id, target_spawn_point_name)
-		print("[MAPDIAG] reparent id=%d result=%s" % [player_id, _rp_ok])
-		if _rp_ok:
+		if _reparent_peer_to_map(player_id, old_map_id, target_map_id, target_spawn_point_name):
 			return
-		print("[MAPDIAG] id=%d FELL THROUGH to recreate path" % player_id)
 
 	# Remove player from current map
 	if is_map_change:
@@ -420,23 +414,25 @@ func _reparent_peer_to_map(peer_id: int, old_map_id: String, new_map_id: String,
 	var old_map: Node = old_data.get("scene_instance")
 	var new_map: Node = new_data.get("scene_instance")
 	if not is_instance_valid(old_map) or not is_instance_valid(new_map):
-		print("[MAPDIAG]   FAIL precondition: maps resident? old=%s new=%s (old_id=%s new_id=%s)" % [
-			is_instance_valid(old_map), is_instance_valid(new_map), old_map_id, new_map_id])
 		return false
 	var char_node: Node = old_map.get_node_or_null("Players/" + str(peer_id))
 	if not is_instance_valid(char_node):
-		print("[MAPDIAG]   FAIL precondition: 'Players/%d' not found under old map '%s'" % [peer_id, old_map_id])
 		return false
 	var new_players: Node = new_map.get_node_or_null("Players")
 	if not is_instance_valid(new_players):
-		print("[MAPDIAG]   FAIL precondition: new map '%s' has no Players node" % new_map_id)
 		return false
 
 	var is_host: bool = peer_id == 1
 
-	# 1. Remove the arriver from OTHER real players' view of the OLD map.
+	# 1. Remove the arriver from OTHER real players' view of the OLD map. Skip the
+	#    HOST (peer 1): it shares the SERVER tree, so the arriver's node MOVES via
+	#    the reparent below — it must not be despawned. client_despawn_player on
+	#    the host queue_frees the live shared node, and queue_free is deferred, so
+	#    it fires AFTER the reparent and destroys the just-moved character (this is
+	#    why bots vanished on a map a host occupied). The host's view updates on
+	#    its own: the arriver moves into a hidden SubViewport / out of the visible one.
 	for p in old_data.get("player_ids", []):
-		if p == peer_id or BotManager.is_bot(p):
+		if p == peer_id or p == 1 or BotManager.is_bot(p):
 			continue
 		client_despawn_player.rpc_id(p, peer_id)
 
@@ -491,9 +487,11 @@ func _reparent_peer_to_map(peer_id: int, old_map_id: String, new_map_id: String,
 		if is_instance_valid(_local_ui) and _local_ui.has_method("notify_map_arrival"):
 			_local_ui.notify_map_arrival()
 
-	# 6. Spawn the arriver into OTHER real players' view of the NEW map.
+	# 6. Spawn the arriver into OTHER real players' view of the NEW map. Skip the
+	#    HOST (peer 1): it already has the live node in the shared server tree
+	#    (client_spawn_player would no-op anyway), symmetric with step 1.
 	for p in new_data["player_ids"]:
-		if p == peer_id or BotManager.is_bot(p):
+		if p == peer_id or p == 1 or BotManager.is_bot(p):
 			continue
 		client_spawn_player.rpc_id(p, peer_id, char_node.global_position, _player_username(peer_id))
 
@@ -518,9 +516,6 @@ func _reparent_peer_to_map(peer_id: int, old_map_id: String, new_map_id: String,
 	# 9. Wake enemies near the arriver now; re-sleep the lighter old map (ADR 0007).
 	_scan_map_activation(new_map_id)
 	_scan_map_activation(old_map_id)
-	print("[MAPDIAG]   OK id=%d now under %s  pos=%s  visible=%s  map_vis=%s  new_players_children=%d" % [
-		peer_id, char_node.get_parent().get_path(), char_node.global_position, char_node.visible,
-		(new_map.visible if "visible" in new_map else "?"), new_players.get_child_count()])
 	return true
 
 
