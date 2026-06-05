@@ -118,7 +118,28 @@ func _run() -> void:
 	_report_directed(g, lowest_i, "BOTTOM")
 	_report_traps(g)
 	_diagnose_ladders(g)
+	_dump_climb_edges(g)
 	_dump_surfaces(g)
+
+
+## Every CLIMB edge with its vertical span — a span far bigger than the bot's
+## climb/jump reach is a phantom connector the bot can't actually traverse.
+func _dump_climb_edges(g) -> void:
+	var spans: Array = []
+	var seen := {}
+	for key in g.edges:
+		if g.edges[key] != 4:   # EdgeKind.CLIMB
+			continue
+		var a: int = mini(key.x, key.y)
+		var b: int = maxi(key.x, key.y)
+		var k := "%d-%d" % [a, b]
+		if seen.has(k):
+			continue
+		seen[k] = true
+		spans.append(absf(g.points[key.x].y - g.points[key.y].y))
+	spans.sort()
+	spans.reverse()
+	print("[probe] CLIMB edges: %d  vertical spans (largest first): %s" % [spans.size(), str(spans.slice(0, 12))])
 
 
 ## For each ladder: its column + vertical extent, and which surfaces it spans —

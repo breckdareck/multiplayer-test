@@ -42,11 +42,15 @@ enum EdgeKind { WALK, JUMP, DROP, GAP, CLIMB }
 ## and to a graph point — a ladder connects a surface if its x falls within the
 ## surface's extent (plus this slack) and there's a point near that column.
 const LADDER_X_TOL: float = 24.0
-## Vertical reach (px) added beyond each end of a ladder's collision zone when
-## matching surfaces. The authored zones are short (~20-50px) and sit at one
-## platform, but the climb carries the bot off the zone end onto the next
-## platform; this lets the column connect those adjacent staircase platforms.
-const LADDER_CLIMB_REACH: float = 96.0
+## Vertical reach (px) added when matching surfaces to a ladder column. ASYMMETRIC
+## on purpose: the bot can MOUNT from a platform up to ~a jump below the zone
+## bottom (it hops up into the zone), but it can NOT climb past the zone TOP — the
+## climb ends there — so only a platform flush at/just above the top counts.
+## A symmetric reach connected platforms far ABOVE the rope's top that the bot
+## could never reach, leaving it jumping at a phantom connector forever.
+const LADDER_ABOVE_REACH: float = 16.0   ## ~one tile: a platform flush at the zone top.
+## Below-the-zone reach (the mount hop) is jump-height + a tile of body overlap,
+## computed per build from the bot's real jump in _build_ladder_edges.
 
 var bounds: Rect2
 var segments: Array[Dictionary] = []         ## Each: {y, x_min, x_max, last_col, one_way}
@@ -445,6 +449,9 @@ func _build_ladder_edges() -> void:
 		return
 	var ladders: Array = []
 	_collect_ladders(_build_map_node, ladders)
+	# How far below the zone bottom a platform can be and still be mounted: the bot
+	# hops up _max_jump_height and its body (~one tile) overlaps into the zone.
+	var below_reach: float = _max_jump_height + CELL
 	for ladder in ladders:
 		var ext: Dictionary = _ladder_extent(ladder)
 		if ext.is_empty():
@@ -453,10 +460,11 @@ func _build_ladder_edges() -> void:
 		var level_points: Array = []   # [{y, id}]
 		for seg_i in range(segments.size()):
 			var seg: Dictionary = segments[seg_i]
-			# Surface must sit within the ladder's vertical span (extended by the
-			# climb reach, since the climb carries the bot off the short zone onto
-			# the adjacent platform) and its x-extent must include the column.
-			if seg.y < ext.top - LADDER_CLIMB_REACH or seg.y > ext.bottom + LADDER_CLIMB_REACH:
+			# Asymmetric: a platform up to `below_reach` BELOW the zone bottom can be
+			# mounted (hop into the zone); ABOVE the zone top only a flush platform
+			# counts (the climb can't go past the top). x-extent must include the
+			# column. (y grows downward: ext.top is the higher edge.)
+			if seg.y < ext.top - LADDER_ABOVE_REACH or seg.y > ext.bottom + below_reach:
 				continue
 			if lx < seg.x_min - LADDER_X_TOL or lx > seg.x_max + LADDER_X_TOL:
 				continue
