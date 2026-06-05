@@ -7,7 +7,12 @@ signal item_added(item: ItemData)
 signal item_removed(item: ItemData, reason: String)
 signal inventory_saved(inventory: InventoryComponent)
 
-@export var inventory_grids: Array[GridContainer]
+# The bag's GridContainers. Handed in by the local UI layer via bind_grids()
+# (ADR 0009 Stage A) — the component no longer holds an @export NodePath up
+# into the UI. Slot discovery + the SlotData model build read these in
+# _ensure_slots_initialized (server _ready / client load path). Empty on a
+# headless scene that never binds.
+var inventory_grids: Array[GridContainer] = []
 @export var equipment_component: EquipmentComponent
 @export var stats_component: StatsComponent
 
@@ -53,57 +58,81 @@ func _notify_changed() -> void:
 func _ready() -> void:
 	if not multiplayer.is_server():
 		return
-	await _ensure_slots_initialized()
-	
+	# Build the SlotData model up front — MODEL-FIRST and view-independent
+	# (ADR 0009 Stage B). The server's copy of a REMOTE client's body has no UI
+	# grids (those live in the per-client persistent UI, which on the server only
+	# exists for the host), so the model must NOT be derived from views or it
+	# would be empty and the client's inventory would never persist.
+	_ensure_slots_data()
 	_rebuild_item_tracking()
-	
+
 	if not pending_inventory_data.is_empty():
-		#print("Applying pending inventory data")
 		_apply_inventory_data(pending_inventory_data)
 		pending_inventory_data.clear()
 
 
+## The bag layout: 3 sections in tab order, each gating one item type. The single
+## source of truth for the model, so it builds without the view grids.
+const INVENTORY_LAYOUT := [
+	{"type": Constants.ItemType.EQUIPMENT, "count": 54},
+	{"type": Constants.ItemType.CONSUMABLE, "count": 54},
+	{"type": Constants.ItemType.MATERIAL, "count": 54},
+]
+
+
+## Builds the component-owned SlotData model from INVENTORY_LAYOUT (idempotent,
+## UI-independent). The Slot view nodes bind to these entries by index in
+## bind_grids(); a headless / remote-on-server body simply has no views.
+func _ensure_slots_data() -> void:
+	if not slots_data.is_empty():
+		return
+	var idx := 0
+	for section in INVENTORY_LAYOUT:
+		for _j in section["count"]:
+			var data := SlotData.new()
+			data.container_kind = SlotData.CONTAINER_INVENTORY
+			data.index = idx
+			data.key = idx
+			data.allowed_item_type = section["type"]
+			slots_data.append(data)
+			idx += 1
+
+
+## Back-compat shim for the few callers that `await` it; the model is now built
+## synchronously and view-independently.
 func _ensure_slots_initialized() -> void:
-	if not is_inside_tree():
-		await tree_entered
-	await get_tree().process_frame
-	if slots.is_empty() and not inventory_grids.is_empty():
-		for grid in inventory_grids:
-			for child in grid.get_children():
+	_ensure_slots_data()
+
+
+## Hands the bag's GridContainers to the component (push-from-UI). Ensures the
+## model exists, then registers + binds each authored Slot view to its model
+## entry by index. Grids arrive as [EQUIP, USE, ETC], matching the model's
+## section order. ADR 0009.
+func bind_grids(grids: Array) -> void:
+	_ensure_slots_data()
+	inventory_grids.clear()
+	slots.clear()
+	for g in grids:
+		if g is GridContainer:
+			inventory_grids.append(g)
+			for child in g.get_children():
 				if child is Slot:
 					slots.append(child)
-
-	for slot in slots:
-		if slot.has_method("set_inventory"):
-			slot.set_inventory(self)
-		slot.add_to_group("inventory_slots")
-
-	_build_slot_data()
-
-
-func setup_slots(slot_array: Array[Slot]):
-	slots = slot_array
-	for slot in slots:
-		if slot.has_method("set_inventory"):
-			slot.set_inventory(self)
-		slot.add_to_group("inventory_slots")
-	_build_slot_data()
+	for i in range(min(slots.size(), slots_data.size())):
+		slots[i].set_inventory(self)
+		slots[i].add_to_group("inventory_slots")
+		slots[i].bind_slot_data(slots_data[i])
 	_rebuild_item_tracking()
 
 
-## Creates one SlotData per UI slot (in index order) and binds them. After this
-## the data model lives in the component; the Slot nodes are pure views.
-func _build_slot_data() -> void:
-	if not slots_data.is_empty():
-		return
-	for i in slots.size():
-		var data := SlotData.new()
-		data.container_kind = SlotData.CONTAINER_INVENTORY
-		data.index = i
-		data.key = i
-		data.allowed_item_type = slots[i].allowed_item_type
-		slots_data.append(data)
-		slots[i].bind_slot_data(data)
+func setup_slots(slot_array: Array[Slot]):
+	_ensure_slots_data()
+	slots = slot_array
+	for i in range(min(slots.size(), slots_data.size())):
+		slots[i].set_inventory(self)
+		slots[i].add_to_group("inventory_slots")
+		slots[i].bind_slot_data(slots_data[i])
+	_rebuild_item_tracking()
 
 
 func _rebuild_item_tracking():
@@ -455,6 +484,20 @@ func clear_slot(slot: Slot, reason: String = "removed"):
 		print("Slot not found in inventory")
 
 
+## Clears a slot by its SlotData (model-based; UI-location-independent). Used by
+## the drop handler, which addresses slots by index/key, not view path
+## (ADR 0009 Stage B).
+func clear_slot_data(sd: SlotData, reason: String = "removed") -> void:
+	if sd == null:
+		return
+	var old_item = sd.item
+	_apply_item(sd, null)
+	if old_item:
+		item_removed.emit(old_item, reason)
+	_sync_slot_to_client(sd)
+	_notify_changed()
+
+
 func get_item_count(item_id: String) -> int:
 	return item_counts.get(item_id, 0)
 
@@ -663,38 +706,63 @@ func load_inventory_rpc(inventory_data: Dictionary):
 			stats_component._recalculate_stats_client()
 
 func transfer_item_clientside(from_slot: Slot, to_slot: Slot) -> bool:
-	var from_path: NodePath = get_path_to(from_slot)
-	var to_path: NodePath = get_path_to(to_slot)
-
 	# 1. Always run client-side validation for instant feedback.
 	if not _is_move_valid(from_slot, to_slot):
 		#print("[CLIENT] Move invalid.")
 		return false
 
-	# 2. Set up the backup state for rollbacks
-	var backup_state = {
-		"from_item": from_slot.item.duplicate_with_path() if from_slot.item else null,
-		"to_item": to_slot.item.duplicate_with_path() if to_slot.item else null,
-		"from_slot_path": from_path,
-		"to_slot_path": to_path
-	}
-	pending_transfers[from_path] = backup_state
+	# 2. Address the slots by their MODEL position (container kind + index/key),
+	# NOT by view NodePath. The persistent UI layer (ADR 0009 Stage B) lives at
+	# /root, so a view path would cross-resolve to the HOST's UI on the server.
+	# The server resolves these against ITS OWN copy of this player's components.
+	var from_addr := _slot_address(from_slot)
+	var to_addr := _slot_address(to_slot)
+	if from_addr.is_empty() or to_addr.is_empty():
+		return false
 
+	# 3. Optimistic client-side prediction on our OWN views for instant feedback;
+	# the server's authoritative swap syncs back (and corrects on rejection).
 	if not multiplayer.is_server():
 		_execute_swap_local(from_slot, to_slot)
 
-	# 4. Handle network or local execution
+	# 4. Hand the swap to the server (the host runs it locally via call_local).
 	if multiplayer.has_multiplayer_peer():
-		var my_id = multiplayer.get_unique_id()
-		request_transfer_item.rpc_id(1, from_path, to_path, my_id)
-	else:
-		if multiplayer.is_server():
-			_execute_swap_local(from_slot, to_slot)
-		
-		# No RPC was sent, so clear the pending transfer.
-		pending_transfers.erase(from_path)
-	
+		request_transfer_item.rpc_id(1, from_addr, to_addr, multiplayer.get_unique_id())
+	elif multiplayer.is_server():
+		_execute_swap_local(from_slot, to_slot)
+
 	return true
+
+
+## Model address for a slot: "i:<index>" for an inventory slot, "e:<key>" for an
+## equipment slot (key = ArmorType int or "WEAPON"/"SECONDARY_WEAPON"). "" if the
+## slot has no bound SlotData. UI-location-independent (ADR 0009 Stage B).
+func _slot_address(slot) -> String:
+	if slot == null or slot.slot_data == null:
+		return ""
+	var sd: SlotData = slot.slot_data
+	if sd.container_kind == SlotData.CONTAINER_EQUIPMENT:
+		return "e:" + str(sd.key)
+	return "i:" + str(sd.index)
+
+
+## Resolves a model address (see _slot_address) to a SlotData on THIS player's
+## own components. Used server-side so a transfer/drop never touches another
+## player's (e.g. the host's) slots.
+func resolve_slot_data(addr: String) -> SlotData:
+	if addr.begins_with("e:"):
+		if not is_instance_valid(equipment_component):
+			return null
+		var key_str := addr.substr(2)
+		var key: Variant = key_str
+		if key_str != "WEAPON" and key_str != "SECONDARY_WEAPON":
+			key = int(key_str)
+		return equipment_component.get_slot_data(key)
+	elif addr.begins_with("i:"):
+		var idx := int(addr.substr(2))
+		if idx >= 0 and idx < slots_data.size():
+			return slots_data[idx]
+	return null
 
 
 func _execute_swap_local(from_slot: Slot, to_slot: Slot):
@@ -750,7 +818,7 @@ func _is_equipment_slot(slot: Slot) -> bool:
 
 
 @rpc("any_peer", "call_local", "reliable")
-func request_transfer_item(from_slot_path: NodePath, to_slot_path: NodePath, requesting_owner_id: int):
+func request_transfer_item(from_addr: String, to_addr: String, requesting_owner_id: int):
 	if not multiplayer.is_server():
 		return
 
@@ -758,56 +826,61 @@ func request_transfer_item(from_slot_path: NodePath, to_slot_path: NodePath, req
 		send_inventory_correction.rpc_id(requesting_owner_id)
 		return
 
-	if slots.is_empty():
+	if slots_data.is_empty():
 		await _ensure_slots_initialized()
 
-	var from_slot = get_node_or_null(from_slot_path)
-	var to_slot = get_node_or_null(to_slot_path)
+	# Resolve against OUR OWN model — never another player's views/slots.
+	var from_sd := resolve_slot_data(from_addr)
+	var to_sd := resolve_slot_data(to_addr)
 
-	if not from_slot or not to_slot:
+	if from_sd == null or to_sd == null or not _is_move_valid_sd(from_sd, to_sd):
 		send_inventory_correction.rpc_id(requesting_owner_id)
 		return
 
-	if not _is_move_valid(from_slot, to_slot):
-		send_inventory_correction.rpc_id(requesting_owner_id)
-		return
+	# Authoritative model swap. swap_slot_data refreshes the server's own views,
+	# syncs the changed slots to the owning client (by index/key), drives the
+	# stats-recalc / save signal chain, and notifies. The requesting client's
+	# optimistic prediction converges with that sync.
+	swap_slot_data(from_sd, to_sd)
 
 
-	# Check if this involves equipment slots (needs stats recalc)
-	var from_is_equipment = _is_equipment_slot(from_slot)
-	var to_is_equipment = _is_equipment_slot(to_slot)
+## SlotData-level move validation (model-side; mirrors the EquipmentSlot view
+## checks so the server stays authoritative without resolving any view).
+func _is_move_valid_sd(from_sd: SlotData, to_sd: SlotData) -> bool:
+	if from_sd == null or to_sd == null or from_sd.item == null:
+		return false
+	if not to_sd.can_accept_item(from_sd.item):
+		return false
+	# Swap leg: the displaced item must fit back into the source slot.
+	if to_sd.item != null and not from_sd.can_accept_item(to_sd.item):
+		return false
+	# Dual-wield: the two weapon slots can't hold the same weapon type.
+	if not _dual_wield_ok(to_sd, from_sd.item):
+		return false
+	if to_sd.item != null and not _dual_wield_ok(from_sd, to_sd.item):
+		return false
+	return true
 
-	_execute_swap_local(from_slot, to_slot)
-	_notify_changed()
 
-	# Send individual slot updates instead of full inventory
-	confirm_transfer_item.rpc_id(requesting_owner_id, from_slot_path, to_slot_path, true, from_is_equipment, to_is_equipment)
-
-	for peer_id in multiplayer.get_peers():
-		if peer_id != requesting_owner_id:
-			confirm_transfer_item.rpc_id(peer_id, from_slot_path, to_slot_path, false, from_is_equipment, to_is_equipment)
-
-
-@rpc("authority", "call_local", "reliable")
-func confirm_transfer_item(from_slot_path: NodePath, to_slot_path: NodePath, was_requesting_client: bool, _from_is_equipment: bool, to_is_equipment: bool):
-	if multiplayer.is_server():
-		return
-
-	var from_slot = get_node_or_null(from_slot_path)
-	var to_slot = get_node_or_null(to_slot_path)
-	
-	if not from_slot or not to_slot:
-		return
-
-	if was_requesting_client:
-		pending_transfers.erase(from_slot_path)
+func _dual_wield_ok(target_sd: SlotData, incoming_item: ItemData) -> bool:
+	if not is_instance_valid(equipment_component):
+		return true
+	if target_sd.container_kind != SlotData.CONTAINER_EQUIPMENT:
+		return true
+	if not (incoming_item is WeaponData):
+		return true
+	var other_key = null
+	if target_sd.key == "WEAPON":
+		other_key = "SECONDARY_WEAPON"
+	elif target_sd.key == "SECONDARY_WEAPON":
+		other_key = "WEAPON"
 	else:
-		_execute_swap_local(from_slot, to_slot)
-	
-	# Trigger stats recalc if the TO slot is an equipment slot
-	if to_is_equipment:
-		if is_instance_valid(stats_component):
-			stats_component._recalculate_stats_client()
+		return true  # an armor slot — no dual-wield rule
+	var other_sd: SlotData = equipment_component.get_slot_data(other_key)
+	if other_sd != null and other_sd.item is WeaponData \
+			and other_sd.item.weapon_type == incoming_item.weapon_type:
+		return false
+	return true
 
 
 @rpc("authority", "call_local", "reliable")

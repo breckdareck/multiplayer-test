@@ -76,7 +76,16 @@ func refresh_on_server() -> void:
 		else:
 			# Pass the enum-key string so change_sprite_rpc resolves the same way
 			# on every peer via ResourceManager.get_class_type_from_string.
-			change_sprite_rpc.rpc(Constants.ClassType.find_key(discipline), current_level)
+			var key: String = Constants.ClassType.find_key(discipline)
+			# Apply on the host (server) directly...
+			change_sprite_rpc(key, current_level)
+			# ...and send the node-addressed RPC ONLY to real peers on THIS player's
+			# map. A blanket .rpc() also hits peers who don't have this node (off-map
+			# or mid map-transition), spamming "node not found" RPC errors — the same
+			# hazard the bot branch above avoids by routing through MapManager.
+			var map_id: String = MapManager.get_player_map(owner.player_id)
+			if not map_id.is_empty():
+				MapManager.broadcast_to_map(map_id, func(pid: int): change_sprite_rpc.rpc_id(pid, key, current_level), true, true)
 
 
 ## [CLIENT] Applies sprite frames for the given class/level and records the
@@ -99,6 +108,14 @@ func apply_appearance(class_type: int, level: int) -> void:
 ## sensible. Was multiplayer_controller_v2._apply_active_weapon_sprite.
 func apply_active_weapon_sprite() -> void:
 	if not is_instance_valid(owner) or owner._is_being_cleaned_up:
+		return
+	# Only the LOCAL player resolves its sprite from its own equipment. A remote
+	# player's equipment items are synced only to their owner, so resolving here
+	# for someone else's body falls back to their primary discipline (always
+	# "sword") and — running on the swap-FX timer — overwrites the authoritative
+	# change_sprite_rpc the server broadcast. Remote bodies get their sprite from
+	# refresh_on_server's broadcast exclusively. (Multiplayer weapon-swap sprite fix.)
+	if multiplayer.has_multiplayer_peer() and multiplayer.get_unique_id() != owner.player_id:
 		return
 	var equip = owner.equipment_component
 	var level_comp = owner.level_component

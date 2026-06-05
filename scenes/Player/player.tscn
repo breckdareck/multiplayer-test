@@ -437,7 +437,7 @@ size = Vector2(21, 21)
 [sub_resource type="CircleShape2D" id="CircleShape2D_h0wtf"]
 radius = 4.0
 
-[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "mana_component", "combat_component", "level_component", "stats_component", "weapon_mastery_component", "sword_combo_component", "bow_momentum_component", "staff_element_component", "shadowmeld_component", "appearance_component", "player_inventory", "inventory_component", "equipment_component", "ability_component", "buff_component", "player_HUD", "player_name_label", "quest_window") groups=["Players", "networked_entities"]]
+[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "mana_component", "combat_component", "level_component", "stats_component", "weapon_mastery_component", "sword_combo_component", "bow_momentum_component", "staff_element_component", "shadowmeld_component", "appearance_component", "player_inventory", "inventory_component", "equipment_component", "ability_component", "buff_component", "player_name_label") groups=["Players", "networked_entities"]]
 collision_layer = 2
 collision_mask = 5
 script = ExtResource("1_an8q1")
@@ -457,9 +457,7 @@ inventory_component = NodePath("Components/PlayerInventory/InventoryComponent")
 equipment_component = NodePath("Components/Equipment")
 ability_component = NodePath("Components/Ability")
 buff_component = NodePath("Components/Buff")
-player_HUD = NodePath("CanvasLayer/PlayerHUD")
 player_name_label = NodePath("PlayerWorldHUD/PlayerNameLabel")
-quest_window = NodePath("CanvasLayer/MoveableWindows/QuestWindow")
 
 [node name="PlayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_2d20i")
@@ -484,26 +482,18 @@ position = Vector2(8, -8)
 delta_interval = 0.05
 replication_config = SubResource("SceneReplicationConfig_x5q00")
 
-[node name="PlayerInventory" type="Node" parent="Components" node_paths=PackedStringArray("inventory_component", "player", "monies_label")]
+[node name="PlayerInventory" type="Node" parent="Components" node_paths=PackedStringArray("inventory_component", "player")]
 script = ExtResource("3_pnj8v")
 inventory_component = NodePath("InventoryComponent")
 player = NodePath("../..")
-monies_label = NodePath("../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/HBoxContainer/Panel/MoniesCountLabel")
 
-[node name="InventoryComponent" type="Node" parent="Components/PlayerInventory" node_paths=PackedStringArray("inventory_grids", "equipment_component", "stats_component")]
+[node name="InventoryComponent" type="Node" parent="Components/PlayerInventory" node_paths=PackedStringArray("equipment_component", "stats_component")]
 script = ExtResource("15_cg2hl")
-inventory_grids = [NodePath("../../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid"), NodePath("../../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid"), NodePath("../../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid")]
 equipment_component = NodePath("../../Equipment")
 stats_component = NodePath("../../Stats")
 
-[node name="Equipment" type="Node" parent="Components" node_paths=PackedStringArray("head_slot", "chest_slot", "legs_slot", "feet_slot", "weapon_slot", "secondary_weapon_slot")]
+[node name="Equipment" type="Node" parent="Components"]
 script = ExtResource("13_ihqbe")
-head_slot = NodePath("../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PanelContainer/GridContainer/HeadSlot")
-chest_slot = NodePath("../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PanelContainer/GridContainer/ChestSlot")
-legs_slot = NodePath("../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PanelContainer/GridContainer/LegsSlot")
-feet_slot = NodePath("../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PanelContainer/GridContainer/FeetSlot")
-weapon_slot = NodePath("../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PanelContainer/GridContainer/WeaponSlot")
-secondary_weapon_slot = NodePath("../../CanvasLayer/MoveableWindows/GameWindow/Margin/VBox/Pages/CharacterPage/Col1/V/EquipHost/PanelContainer/GridContainer/SecondaryWeaponSlot")
 
 [node name="Leveling" type="Node" parent="Components"]
 script = ExtResource("3_18ciy")
@@ -551,385 +541,6 @@ script = ExtResource("13_e6s7e")
 
 [node name="Mana" type="Node" parent="Components"]
 script = ExtResource("14_7iww4")
-
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
-
-[node name="PlayerHUD" type="Control" parent="CanvasLayer"]
-visible = false
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-script = ExtResource("11_ihqbe")
-
-[node name="BottomStatsContainer" type="Control" parent="CanvasLayer/PlayerHUD"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="HealthBar" type="TextureProgressBar" parent="CanvasLayer/PlayerHUD/BottomStatsContainer"]
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -400.0
-offset_top = -143.0
-offset_right = -5.0
-offset_bottom = -103.0
-grow_horizontal = 2
-grow_vertical = 0
-value = 38.0
-nine_patch_stretch = true
-texture_under = SubResource("GradientTexture1D_7vu7v")
-texture_progress = SubResource("GradientTexture1D_0r45a")
-
-[node name="HPLabel" type="Label" parent="CanvasLayer/PlayerHUD/BottomStatsContainer/HealthBar"]
-layout_mode = 0
-offset_left = 9.0
-offset_top = -14.0
-offset_right = 73.0
-offset_bottom = 18.0
-theme_override_constants/outline_size = 16
-theme_override_fonts/font = ExtResource("12_cgmen")
-theme_override_font_sizes/font_size = 32
-text = "HP"
-
-[node name="HPValueLabel" type="Label" parent="CanvasLayer/PlayerHUD/BottomStatsContainer/HealthBar"]
-layout_mode = 0
-offset_left = 136.0
-offset_top = -13.0
-offset_right = 386.0
-offset_bottom = 19.0
-theme_override_constants/outline_size = 16
-theme_override_fonts/font = ExtResource("12_cgmen")
-theme_override_font_sizes/font_size = 24
-text = "100/100"
-horizontal_alignment = 2
-
-[node name="ManaBar" type="TextureProgressBar" parent="CanvasLayer/PlayerHUD/BottomStatsContainer"]
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = 5.0
-offset_top = -143.0
-offset_right = 400.0
-offset_bottom = -103.0
-grow_horizontal = 2
-grow_vertical = 0
-value = 38.0
-nine_patch_stretch = true
-texture_under = SubResource("GradientTexture1D_7vu7v")
-texture_progress = SubResource("GradientTexture1D_3myi5")
-
-[node name="MPLabel" type="Label" parent="CanvasLayer/PlayerHUD/BottomStatsContainer/ManaBar"]
-layout_mode = 0
-offset_left = 9.0
-offset_top = -14.0
-offset_right = 73.0
-offset_bottom = 18.0
-theme_override_constants/outline_size = 16
-theme_override_fonts/font = ExtResource("12_cgmen")
-theme_override_font_sizes/font_size = 32
-text = "MP"
-
-[node name="MPValueLabel" type="Label" parent="CanvasLayer/PlayerHUD/BottomStatsContainer/ManaBar"]
-layout_mode = 0
-offset_left = 136.0
-offset_top = -13.0
-offset_right = 386.0
-offset_bottom = 19.0
-theme_override_constants/outline_size = 16
-theme_override_fonts/font = ExtResource("12_cgmen")
-theme_override_font_sizes/font_size = 24
-text = "100/100"
-horizontal_alignment = 2
-
-[node name="ExperienceBar" type="TextureProgressBar" parent="CanvasLayer/PlayerHUD/BottomStatsContainer"]
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -300.0
-offset_top = -84.0
-offset_right = 400.0
-offset_bottom = -59.0
-grow_horizontal = 2
-grow_vertical = 0
-value = 38.0
-nine_patch_stretch = true
-texture_under = SubResource("GradientTexture1D_7vu7v")
-texture_progress = SubResource("GradientTexture1D_2qjlr")
-
-[node name="LevelPanel" type="Panel" parent="CanvasLayer/PlayerHUD/BottomStatsContainer/ExperienceBar"]
-layout_mode = 1
-anchors_preset = 4
-anchor_top = 0.5
-anchor_bottom = 0.5
-offset_left = -100.0
-offset_top = -12.5
-offset_bottom = 37.5
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_2qjlr")
-
-[node name="LevelLabel" type="RichTextLabel" parent="CanvasLayer/PlayerHUD/BottomStatsContainer/ExperienceBar/LevelPanel"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-pivot_offset = Vector2(50, 25)
-theme_override_fonts/normal_font = ExtResource("12_cgmen")
-theme_override_font_sizes/normal_font_size = 16
-bbcode_enabled = true
-text = "LV. [color=yellow]1[/color]"
-scroll_active = false
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="EXPLabel" type="Label" parent="CanvasLayer/PlayerHUD/BottomStatsContainer/ExperienceBar"]
-layout_mode = 0
-offset_left = 9.0
-offset_top = -13.0
-offset_right = 81.0
-offset_bottom = 19.0
-theme_override_constants/outline_size = 16
-theme_override_fonts/font = ExtResource("12_cgmen")
-theme_override_font_sizes/font_size = 24
-text = "EXP"
-
-[node name="EXPPercentLabel" type="RichTextLabel" parent="CanvasLayer/PlayerHUD/BottomStatsContainer/ExperienceBar"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/outline_size = 8
-theme_override_fonts/normal_font = ExtResource("12_cgmen")
-theme_override_font_sizes/normal_font_size = 16
-text = "38%"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="MobileButtons" type="Control" parent="CanvasLayer/PlayerHUD"]
-visible = false
-layout_mode = 1
-anchors_preset = 12
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 0
-
-[node name="LeftButton" type="Button" parent="CanvasLayer/PlayerHUD/MobileButtons"]
-layout_mode = 0
-offset_left = 89.0
-offset_top = -165.0
-offset_right = 233.0
-offset_bottom = -21.0
-focus_mode = 0
-theme_override_styles/normal = SubResource("StyleBoxFlat_7vu7v")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_0r45a")
-theme_override_styles/hover = SubResource("StyleBoxFlat_7vu7v")
-
-[node name="Label" type="Label" parent="CanvasLayer/PlayerHUD/MobileButtons/LeftButton"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/outline_size = 10
-theme_override_font_sizes/font_size = 100
-text = "<"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="LeftTouchButton" type="TouchScreenButton" parent="CanvasLayer/PlayerHUD/MobileButtons/LeftButton"]
-position = Vector2(-1, -4)
-scale = Vector2(0.5154639, 0.51546395)
-texture_normal = ExtResource("15_32uah")
-texture_pressed = ExtResource("15_32uah")
-passby_press = true
-action = "Move Left"
-
-[node name="RightButton" type="Button" parent="CanvasLayer/PlayerHUD/MobileButtons"]
-layout_mode = 0
-offset_left = 324.0
-offset_top = -165.0
-offset_right = 468.0
-offset_bottom = -21.0
-focus_mode = 0
-theme_override_styles/normal = SubResource("StyleBoxFlat_7vu7v")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_0r45a")
-theme_override_styles/hover = SubResource("StyleBoxFlat_7vu7v")
-
-[node name="Label" type="Label" parent="CanvasLayer/PlayerHUD/MobileButtons/RightButton"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/outline_size = 10
-theme_override_font_sizes/font_size = 100
-text = ">"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="RightTouchButton" type="TouchScreenButton" parent="CanvasLayer/PlayerHUD/MobileButtons/RightButton"]
-position = Vector2(-4, -4)
-scale = Vector2(0.5154639, 0.51546395)
-texture_normal = ExtResource("16_ihqbe")
-texture_pressed = ExtResource("16_ihqbe")
-passby_press = true
-action = "Move Right"
-
-[node name="AttackButton" type="Button" parent="CanvasLayer/PlayerHUD/MobileButtons"]
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -340.0
-offset_top = -165.0
-offset_right = -196.0
-offset_bottom = -21.0
-grow_horizontal = 0
-grow_vertical = 0
-focus_mode = 0
-theme_override_styles/normal = SubResource("StyleBoxFlat_7vu7v")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_0r45a")
-theme_override_styles/hover = SubResource("StyleBoxFlat_7vu7v")
-disabled = true
-
-[node name="Label" type="Label" parent="CanvasLayer/PlayerHUD/MobileButtons/AttackButton"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/outline_size = 10
-theme_override_font_sizes/font_size = 40
-text = "Attack"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="AttackTouchButton" type="TouchScreenButton" parent="CanvasLayer/PlayerHUD/MobileButtons/AttackButton"]
-position = Vector2(72, 72)
-scale = Vector2(0.5154639, 0.51546395)
-shape = SubResource("RectangleShape2D_cgmen")
-action = "Attack"
-
-[node name="JumpButton" type="Button" parent="CanvasLayer/PlayerHUD/MobileButtons"]
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -180.0
-offset_top = -165.0
-offset_right = -36.0
-offset_bottom = -21.0
-grow_horizontal = 0
-grow_vertical = 0
-focus_mode = 0
-theme_override_styles/normal = SubResource("StyleBoxFlat_7vu7v")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_0r45a")
-theme_override_styles/hover = SubResource("StyleBoxFlat_7vu7v")
-disabled = true
-
-[node name="Label" type="Label" parent="CanvasLayer/PlayerHUD/MobileButtons/JumpButton"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/outline_size = 10
-theme_override_font_sizes/font_size = 40
-text = "Jump"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="JumpTouchButton" type="TouchScreenButton" parent="CanvasLayer/PlayerHUD/MobileButtons/JumpButton"]
-position = Vector2(72, 72)
-scale = Vector2(0.5154639, 0.51546395)
-shape = SubResource("RectangleShape2D_cgmen")
-action = "Jump"
-
-[node name="Buffbar" parent="CanvasLayer/PlayerHUD" instance=ExtResource("19_gb22u")]
-layout_mode = 1
-offset_left = -520.0
-mouse_filter = 2
-
-[node name="Hotbar" parent="CanvasLayer/PlayerHUD" instance=ExtResource("17_ploos")]
-layout_mode = 1
-offset_left = 420.0
-offset_top = -91.0
-offset_right = 940.0
-offset_bottom = -21.0
-
-[node name="SynergyWidget" parent="CanvasLayer/PlayerHUD" instance=ExtResource("18_synrg")]
-layout_mode = 1
-
-[node name="SwordComboWidget" parent="CanvasLayer/PlayerHUD" instance=ExtResource("17_swcmbo")]
-layout_mode = 1
-offset_top = -200.0
-offset_bottom = -72.0
-
-[node name="BowMomentumWidget" parent="CanvasLayer/PlayerHUD" instance=ExtResource("17_bcwdgt")]
-layout_mode = 1
-offset_top = -60.0
-offset_bottom = 68.0
-
-[node name="StaffElementWidget" parent="CanvasLayer/PlayerHUD" instance=ExtResource("17_stfwdgt")]
-layout_mode = 1
-offset_top = 80.0
-offset_bottom = 160.0
-
-[node name="ShadowmeldWidget" parent="CanvasLayer/PlayerHUD" instance=ExtResource("17_shdwdgt")]
-layout_mode = 1
-offset_top = 172.0
-offset_bottom = 252.0
-
-[node name="BossHpBar" parent="CanvasLayer/PlayerHUD" instance=ExtResource("40_bosshp")]
-layout_mode = 1
-
-[node name="MoveableWindows" type="Control" parent="CanvasLayer"]
-unique_name_in_owner = true
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="QuestWindow" parent="CanvasLayer/MoveableWindows" instance=ExtResource("26_quest")]
-layout_mode = 1
-
-[node name="GameWindow" parent="CanvasLayer/MoveableWindows" instance=ExtResource("34_ghub")]
-visible = false
-layout_mode = 1
 
 [node name="PlayerWorldHUD" type="Control" parent="."]
 layout_mode = 3
@@ -1137,10 +748,4 @@ fall_state = NodePath("../fall")
 animation_name = "idle"
 move_speed = 100.0
 
-[connection signal="button_down" from="CanvasLayer/PlayerHUD/MobileButtons/LeftButton" to="InputSynchronizer" method="_on_left_button_button_down"]
-[connection signal="button_up" from="CanvasLayer/PlayerHUD/MobileButtons/LeftButton" to="InputSynchronizer" method="_on_left_button_button_up"]
-[connection signal="button_down" from="CanvasLayer/PlayerHUD/MobileButtons/RightButton" to="InputSynchronizer" method="_on_right_button_button_down"]
-[connection signal="button_up" from="CanvasLayer/PlayerHUD/MobileButtons/RightButton" to="InputSynchronizer" method="_on_right_button_button_up"]
-[connection signal="pressed" from="CanvasLayer/PlayerHUD/MobileButtons/AttackButton" to="InputSynchronizer" method="_on_attack_button_pressed"]
-[connection signal="pressed" from="CanvasLayer/PlayerHUD/MobileButtons/JumpButton" to="InputSynchronizer" method="_on_jump_button_pressed"]
 [connection signal="area_entered" from="Hitbox" to="Components/Combat" method="_on_hitbox_area_entered"]

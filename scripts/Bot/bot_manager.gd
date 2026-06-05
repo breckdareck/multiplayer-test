@@ -190,16 +190,10 @@ func _on_bot_spawned(bot_id: int) -> void:
 	# appearance is never streamed via the node-addressed sprite RPC.
 	MapManager.broadcast_player_appearance(bot_id)
 
-	# A bot has no client and never opens a window — drop the entire UI subtree
-	# (HUD, mobile buttons, debug panel, hotbar, buffbar, and the draggable
-	# windows). Safe because inventory/equipment data lives in the components
-	# (SlotData), not the windows. Only free once the inventory's SlotData has
-	# been built (it is, by this point — load_player_inventory ran during spawn);
-	# the guard is belt-and-braces against an unexpected spawn ordering.
-	var inv = player_node.inventory_component
-	var canvas_layer := player_node.get_node_or_null("CanvasLayer")
-	if is_instance_valid(canvas_layer) and is_instance_valid(inv) and not inv.slots_data.is_empty():
-		canvas_layer.queue_free()
+	# ADR 0009 Stage B: the body no longer carries a CanvasLayer UI subtree (it was
+	# lifted into the persistent per-client LocalPlayerUI layer, which is never
+	# created for a bot). So the old "free the bot's CanvasLayer" hack is gone — a
+	# bot body spawns lean, with no UI to drop.
 
 	# A bot has no display — free its Camera2D so it can't compete with the
 	# host's camera inside the map's shared SubViewport (the host is server+
@@ -243,6 +237,22 @@ func _on_bot_spawned(bot_id: int) -> void:
 			active_bots[bot_id]["map_id"] = current_map
 
 	#print("BotManager: Bot %d brain attached and running." % bot_id)
+
+
+## [Server] Re-point a bot's brain at its character after a map-change REPARENT
+## (ADR 0008). The body is the SAME live node (never freed), so this only resets
+## the brain's transient targets / nav path for the new map while preserving
+## travel, patrol and cooldown progress. Unlike _on_bot_spawned, there is no UI
+## or camera to free — the node persisted intact.
+func handle_bot_reparented(bot_id: int) -> void:
+	var node := PlayerManager.get_player_node(bot_id)
+	var brain: BotBrain = active_bots.get(bot_id, {}).get("brain")
+	if is_instance_valid(brain) and is_instance_valid(node):
+		brain.attach_to_player(node)
+	if bot_id in active_bots:
+		var current_map := MapManager.get_player_map(bot_id)
+		if not current_map.is_empty():
+			active_bots[bot_id]["map_id"] = current_map
 
 
 # --- Client-side bot data sync (on-demand snapshots) ---
@@ -381,7 +391,9 @@ func get_nav_graph(map_id: String, map_node: Node2D, max_jump: float, jump_reach
 
 
 func _process(_delta: float) -> void:
-	if not multiplayer.is_server():
+	# has_multiplayer_peer() first: post-disconnect the peer is null and
+	# is_server() calls get_unique_id() internally, which errors with no peer.
+	if not multiplayer.has_multiplayer_peer() or not multiplayer.is_server():
 		return
 	_step_nav_graph_builds()
 	_update_watch_camera()
@@ -890,15 +902,11 @@ func open_bot_inspect_window(bot_id: int) -> void:
 func open_inspect_window(bot_id: int) -> void:
 	if not is_instance_valid(_inspect_window):
 		_inspect_window = BotInspectWindow.create()
-		# Add to the host player's MoveableWindows container
-		var host_id := multiplayer.get_unique_id()
-		var host_node := PlayerManager.get_player_node(host_id)
-		if is_instance_valid(host_node):
-			var moveable_container = host_node.get_node_or_null("CanvasLayer/MoveableWindows")
-			if moveable_container:
-				moveable_container.add_child(_inspect_window)
-			else:
-				host_node.get_node("CanvasLayer").add_child(_inspect_window)
+		# Mount in the host's persistent LocalPlayerUI MoveableWindows (ADR 0009
+		# Stage B) — falls back to /root if the UI layer isn't up yet.
+		var moveable_container = MapManager.get_local_ui_moveable_windows()
+		if is_instance_valid(moveable_container):
+			moveable_container.add_child(_inspect_window)
 		else:
 			get_tree().root.add_child(_inspect_window)
 	_inspect_window.show_bot(bot_id)

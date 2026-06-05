@@ -1004,11 +1004,11 @@ func _cmd_botdock(_args: Array) -> String:
 		return "[color=#ff8888]botdock: host-only (bots are server-side).[/color]"
 	if not is_instance_valid(_bot_dock):
 		_bot_dock = BotDock.create()
-		var host := _local_player()
+		# Mount in the persistent LocalPlayerUI (ADR 0009 Stage B); fall back to /root.
 		var parent: Node = get_tree().root
-		if is_instance_valid(host):
-			var movable = host.get_node_or_null("CanvasLayer/MoveableWindows")
-			if movable: parent = movable
+		var movable = MapManager.get_local_ui_moveable_windows()
+		if is_instance_valid(movable):
+			parent = movable
 		parent.add_child(_bot_dock)
 		# Center-ish on first open.
 		var vp_size := get_viewport().get_visible_rect().size

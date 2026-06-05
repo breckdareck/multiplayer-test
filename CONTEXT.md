@@ -103,6 +103,58 @@ that must be cleaned up on disconnect or channel switch. Added to the
 global `networked_entities` group.
 _Avoid_: Actor, networked actor, replicated node.
 
+## Map residency & simulation
+
+**Warm pool**:
+The set of map scene instances the server keeps resident even when they hold
+no occupants. A vacated map is not freed immediately; it enters a deferred-
+unload grace period (TTL) and is only torn down if still empty when the timer
+fires, or when an LRU cap forces eviction of the least-recently-vacated empty
+map. Maps with any occupant — human **or bot** — are pinned and never evicted.
+Exists to eliminate the cold-`instantiate()` hiccup on re-entry to a recently-
+left map.
+_Avoid_: Map cache, preload pool, pinned set.
+
+**Enemy activation (awake / asleep)**:
+A per-enemy simulation state. An **awake** enemy runs its full state-machine
+tick; an **asleep** enemy has `_process`/`_physics_process` disabled and costs
+≈0. State is driven externally by a per-map **proximity scanner**, not by the
+enemy itself (an asleep enemy cannot self-detect). Wake when within
+`detection_radius + margin` of any agent; sleep past a larger radius
+(hysteresis). A map with zero agents runs no scanner, so all its enemies are
+asleep — this is the only "paused map" state; there is no separate per-map
+slow-tick.
+_Avoid_: Map attention level, HOT/WARM/IDLE, slow-tick, tick-divisor.
+
+**Reparent handoff**:
+The bot-only map-change path that moves the *live* character node from the old
+map's `Players` container to the new map's (across per-map SubViewport
+World2Ds) instead of freeing it and re-instantiating `player.tscn` +
+re-running `JoinHandshake`. Preserves all live component state; reuses the
+recreate path's client-facing RPCs (`client_despawn_player` /
+`client_spawn_player` / visibility / appearance). Gated on `is_bot` + already-
+on-a-map, with a recreate fallback; a bot's first spawn still rebuilds. See
+[docs/adr/0008-bot-map-change-reparent.md](docs/adr/0008-bot-map-change-reparent.md).
+_Avoid_: Warm-body pool, fast-spawn, node recycling.
+
+**Arrival reset**:
+The small set of transient state the reparent handoff must explicitly clear
+because the live node carries it across a hop (which free+recreate discarded):
+zero `velocity`, reposition to the spawn point, reset the state machine to
+neutral, reset per-weapon gauges (combo / charge / stealth). Persistent buffs
+survive. Bots only hop while travelling, so there is no combat target to clear.
+
+**Local player UI layer**:
+(Proposed — ADR 0009.) A single persistent client-side `CanvasLayer` scene that
+holds the local player's presentation — HUD (bars/hotbar/buffbar/widgets),
+`MoveableWindows` (GameWindow, QuestWindow), keybinds/game menus — instantiated
+once per client and **rebound** to the local character body on each spawn/map
+change via a `MapManager.local_player_changed` signal. Distinct from the
+**character body** (the in-map avatar: sprite/collision/components/camera/overhead
+`PlayerWorldHUD`). Lifting the UI off the body is what lets the body reparent
+(ADR 0008) without the UI's tree-notification cleanup breaking it.
+_Avoid_: HUD node (when it lived under the player), player UI subtree.
+
 ## Persistence
 
 **Player save**:

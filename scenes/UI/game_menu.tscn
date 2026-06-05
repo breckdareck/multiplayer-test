@@ -78,6 +78,11 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Show Tutorial"
 
+[node name="DisconnectButton" type="Button" parent="BackgroundPanel/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Disconnect to Menu"
+
 [node name="ExitButton" type="Button" parent="BackgroundPanel/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2

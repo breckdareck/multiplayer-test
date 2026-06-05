@@ -214,13 +214,20 @@ func _ready() -> void:
 	_container.add_theme_constant_override("separation", spacing)
 	_container.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(_container)
-	
-	# Find BuffComponent in parent hierarchy
-	_find_buff_component()
-	
-	if _buff_component:
-		_connect_buff_signals()
-		_initialize_existing_buffs()
+	# The BuffComponent is injected via bind_player() on each spawn / map change
+	# (persistent UI layer, ADR 0009 Stage B) — not resolved off `owner`.
+
+
+## Binds the buffbar to the local player body. Called by LocalPlayerUI.
+func bind_player(body) -> void:
+	if is_instance_valid(body) and "buff_component" in body:
+		set_buff_component(body.buff_component)
+	else:
+		set_buff_component(null)
+
+
+func unbind_player() -> void:
+	set_buff_component(null)
 
 
 func _process(delta: float) -> void:
@@ -253,11 +260,18 @@ func _find_buff_component() -> void:
 
 
 func set_buff_component(component: BuffComponent) -> void:
-	if _buff_component:
+	# Guard is_instance_valid: on a map change the previous body's BuffComponent
+	# is freed before the rebind, so don't touch its signals (ADR 0009 Stage B).
+	if is_instance_valid(_buff_component):
 		_disconnect_buff_signals()
-	
+	elif _buff_component != null:
+		# Previous component was freed — drop stale icons without touching it.
+		for buff_id in _buff_icons.keys():
+			_buff_icons[buff_id].queue_free()
+		_buff_icons.clear()
+
 	_buff_component = component
-	
+
 	if _buff_component:
 		_connect_buff_signals()
 		_initialize_existing_buffs()

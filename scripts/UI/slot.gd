@@ -465,13 +465,19 @@ func _create_dropped_item():
 		var player = _get_local_player()
 		if player:
 			var world_pos = player.global_position
-			
-			# Get the NodePath of the slot being dragged from.
-			var slot_path = get_path()
+
+			# Address the source slot by its MODEL position, not a view NodePath:
+			# the persistent UI layer lives at /root, so a path would cross-resolve
+			# to the host's UI on the server (ADR 0009 Stage B).
+			var slot_addr := ""
+			if slot_data != null:
+				if slot_data.container_kind == SlotData.CONTAINER_EQUIPMENT:
+					slot_addr = "e:" + str(slot_data.key)
+				else:
+					slot_addr = "i:" + str(slot_data.index)
 
 			# Make an RPC to the server to handle the drop.
-			# Pass the item details, amount, position, player ID, and the original slot path.
-			drop_handler.server_request_item_drop.rpc_id(1, drag_item.item_id, drag_amount, world_pos, multiplayer.get_unique_id(), slot_path)
+			drop_handler.server_request_item_drop.rpc_id(1, drag_item.item_id, drag_amount, world_pos, multiplayer.get_unique_id(), slot_addr)
 
 			# The item is NOT removed locally. The server will process the drop,
 			# remove the item from the inventory, and the change will be synced back.

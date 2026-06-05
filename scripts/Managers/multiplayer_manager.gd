@@ -103,6 +103,32 @@ func reset_data():
 		multiplayer.multiplayer_peer.close()
 		multiplayer.multiplayer_peer = null
 
+
+## User-initiated "leave the game" (the Game Menu's Disconnect button): saves
+## (the host flushes all players; a client's data is saved server-side when its
+## peer drops), tears down the session AND the game world, then returns to the
+## login screen. Distinct from _handle_server_disconnect (an UNEXPECTED drop,
+## which shows the connection-lost popup) — this is a clean, intentional exit.
+func leave_to_main_menu() -> void:
+	if _handling_disconnect:
+		return
+	AudioManager.stop_song()
+	# reset_data: save (host) -> stop server -> disconnect client -> cleanup ->
+	# close peer. It does NOT free the world, so we do that below.
+	await reset_data()
+	# Free the live game world (maps + networked entities) — mirrors the cleanup
+	# in _handle_server_disconnect, which reset_data omits.
+	for node in get_tree().get_nodes_in_group("networked_entities"):
+		if is_instance_valid(node):
+			node.queue_free()
+	# Frees the persistent local-player UI layer too (ADR 0009 Stage B).
+	MapManager.reset_client_state()
+	var maps_container = get_tree().root.get_node_or_null("Maps")
+	if is_instance_valid(maps_container):
+		get_tree().root.remove_child(maps_container)
+		maps_container.free()
+	get_tree().change_scene_to_file("res://scenes/UI/LoginScreen.tscn")
+
 # === EVENT HANDLERS ===
 func _on_server_started():
 	server_has_started.emit()

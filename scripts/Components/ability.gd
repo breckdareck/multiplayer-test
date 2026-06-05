@@ -32,6 +32,10 @@ signal ability_points_spend_denied(ability_id: String, reason: String)
 ## rejected for insufficient monies. Carries the scope that was attempted
 ## ("ability" / "discipline" / "all"). The AbilityWindow surfaces a ping.
 signal respec_denied(scope: String, reason: String)
+## Emitted server-side when the per-weapon hotbar bindings change (the player
+## edited a slot or swapped weapons). The player root connects this to a
+## debounced "abilities" save. ADR 0009 Stage B.
+signal hotbar_bindings_changed
 #endregion
 
 
@@ -144,8 +148,53 @@ var _ability_request_times: Array[float] = []
 # Projectile container
 var _projectiles_container: Node
 
-# UI references
-@onready var hotbar: Hotbar = $"../../CanvasLayer/PlayerHUD/Hotbar"
+# UI references. The hotbar lives in the persistent local-player UI layer
+# (ADR 0009 Stage B), not under the body — it is injected via set_hotbar() by
+# LocalPlayerUI on bind, instead of resolved by a body-relative @onready path.
+# Null on a bot / dedicated server / remote-player body (all guarded with
+# is_instance_valid before use).
+var hotbar: Hotbar = null
+
+
+## Injects the live hotbar from the persistent UI layer. Binding happens AFTER
+## the save load (_load_data runs during JoinHandshake, set_hotbar after the
+## local body is identified), so the hotbar starts empty — push the already-loaded
+## active bindings into it now so a returning character's bar is populated.
+func set_hotbar(h: Hotbar) -> void:
+	hotbar = h
+	if is_instance_valid(hotbar):
+		hotbar.load_hotbar_config(_active_bindings_for_load())
+
+
+## Called by the local hotbar when the player edits a slot. Snapshots the live
+## layout into the active weapon's stored bindings, then persists to the server's
+## authoritative copy. Routed through this component (under the body) so it never
+## cross-resolves into the host's UI like the old per-slot RPC did (ADR 0009 B).
+func client_hotbar_edited() -> void:
+	if is_instance_valid(hotbar):
+		_capture_active_bindings(hotbar.save_hotbar_config())
+	_push_bindings_to_server()
+
+
+## Sends both per-weapon binding sets to the server-authoritative component, or
+## persists directly when already on the server (host). Triggers an abilities save.
+func _push_bindings_to_server() -> void:
+	if multiplayer.is_server():
+		hotbar_bindings_changed.emit()
+	else:
+		request_sync_hotbar.rpc_id(1, _primary_hotbar_bindings.duplicate(), _secondary_hotbar_bindings.duplicate())
+
+
+## Client -> server: store this player's per-weapon hotbar bindings. Node-routed
+## to THIS player's component (it lives under the body), so it never touches
+## another player's bindings.
+@rpc("any_peer", "call_remote", "reliable")
+func request_sync_hotbar(primary: Dictionary, secondary: Dictionary) -> void:
+	if not multiplayer.is_server():
+		return
+	_primary_hotbar_bindings = primary.duplicate()
+	_secondary_hotbar_bindings = secondary.duplicate()
+	hotbar_bindings_changed.emit()
 #endregion
 
 
@@ -1102,8 +1151,12 @@ func sync_all_abilities_to_client(peer_id: int) -> void:
 	# before sending so the dirty in-memory state lines up with the persisted
 	# pair. The client receives both arrays + the active flag (via the
 	# equipment sync RPC), so it can re-hydrate and swap freely.
-	var live_config: Dictionary = hotbar.save_hotbar_config() if is_instance_valid(hotbar) else {}
-	_capture_active_bindings(live_config)
+	# Only capture from a live hotbar (host). For a remote client's component on
+	# the server there is NO hotbar — its bindings already live in _primary/_
+	# secondary (pushed via request_sync_hotbar); capturing {} would wipe them.
+	if is_instance_valid(hotbar):
+		_capture_active_bindings(hotbar.save_hotbar_config())
+	var live_config: Dictionary = _active_bindings_for_load()
 	sync_all_abilities_batch.rpc_id(
 		peer_id,
 		_ability_levels.duplicate(),
@@ -1331,11 +1384,13 @@ func _on_primary_discipline_changed(_discipline: int) -> void:
 ## binding arrays — the live hotbar reflects whichever weapon is currently
 ## active, so before serializing we snapshot it into the matching slot.
 func save_abilities() -> Dictionary:
-	# `hotbar` is a UI node; a bot frees its UI subtree, so guard the access.
-	var live_config: Dictionary = hotbar.save_hotbar_config() if is_instance_valid(hotbar) else {}
-	# Sync the live binding back into the per-weapon dict so the save reflects
-	# any edits the player made since the last swap.
-	_capture_active_bindings(live_config)
+	# Only the HOST has a live hotbar on the server. For a remote client's
+	# component the bindings already live in _primary/_secondary (pushed via
+	# request_sync_hotbar) — reading the (null) hotbar would capture {} and WIPE
+	# the active bar on every save. This was the long-standing "front/back hotbar
+	# not saving" bug, surfaced by ADR 0009 Stage B (the hotbar left the body).
+	if is_instance_valid(hotbar):
+		_capture_active_bindings(hotbar.save_hotbar_config())
 	# PR 4: defensively normalize int values (in case a level-up's max(0, ...)
 	# or similar accidentally stored a float). Sum the pools for the legacy
 	# fallback column on the backend.
@@ -1360,7 +1415,7 @@ func save_abilities() -> Dictionary:
 		"available_points_per_discipline": per_disc_copy,
 		# Legacy compatibility: keep `hotbar_config` writing the active set so
 		# older clients / tools that read it still see a coherent layout.
-		"hotbar_config": live_config,
+		"hotbar_config": _active_bindings_for_load(),
 		"primary_hotbar_bindings": _primary_hotbar_bindings.duplicate(),
 		"secondary_hotbar_bindings": _secondary_hotbar_bindings.duplicate(),
 		"cooldowns": _cooldowns.duplicate()
@@ -1536,6 +1591,10 @@ func _on_active_weapon_changed(_active_weapon: String, _active_item: ItemData) -
 
 	# Push the new active set into the live hotbar.
 	hotbar.load_hotbar_config(_active_bindings_for_load())
+
+	# Persist the swap's snapshot (the outgoing weapon's captured layout) to the
+	# server-authoritative copy so it survives relog / map change (ADR 0009 B).
+	_push_bindings_to_server()
 
 	# Visual ping: flash the hotbar to draw the eye to the changed bindings.
 	if hotbar.has_method("flash_swap_indicator"):

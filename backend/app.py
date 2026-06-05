@@ -163,11 +163,16 @@ class PlayerHotbar(db.Model):
     __tablename__ = 'player_hotbar'
     __table_args__ = (
         db.Index('idx_playerhotbar_username', 'player_username'),
-        db.UniqueConstraint('player_username', 'slot_index', name='uq_playerhotbar_slot'),
+        # Per-weapon hotbar: the same slot_index exists once for the primary bar
+        # and once for the secondary bar, so the uniqueness key includes `weapon`.
+        db.UniqueConstraint('player_username', 'slot_index', 'weapon', name='uq_playerhotbar_slot_weapon'),
     )
     id = db.Column(db.Integer, primary_key=True)
     player_username = db.Column(db.String(255), db.ForeignKey('players.username', ondelete='CASCADE'))
     slot_index = db.Column(db.Integer)
+    # Which weapon loadout this binding belongs to: 'primary' (front) or
+    # 'secondary' (back). The game keeps an independent 5-slot bar per weapon.
+    weapon = db.Column(db.String(16), nullable=False, default='primary')
     ability_id = db.Column(db.String(255))
 
 class PlayerBuff(db.Model):
@@ -500,7 +505,13 @@ def load_player():
         
         # Reconstruct Abilities
         ability_levels = {ab.ability_id: ab.level for ab in player.abilities}
-        hotbar_config = {str(hb.slot_index): hb.ability_id for hb in player.hotbar}
+        # Per-weapon hotbar: split the rows by `weapon`. hotbar_config keeps the
+        # primary bar for legacy/active fallback; the game restores both bars from
+        # primary_hotbar_bindings / secondary_hotbar_bindings.
+        primary_hotbar = {str(hb.slot_index): hb.ability_id
+                          for hb in player.hotbar if (hb.weapon or 'primary') == 'primary'}
+        secondary_hotbar = {str(hb.slot_index): hb.ability_id
+                            for hb in player.hotbar if (hb.weapon or 'primary') == 'secondary'}
         
         # PR 4: emit the per-discipline pool dict. Godot's load_abilities
         # migrates an empty/missing dict by evenly distributing the legacy
@@ -514,7 +525,9 @@ def load_player():
             # players.learned_ability_upgrades blob keyed by ability_id). The wire
             # shape {ability_id: [upgrade_id,...]} is unchanged, so Godot is unaffected.
             'learned_ability_upgrades': {ab.ability_id: ab.upgrades for ab in player.abilities if ab.upgrades},
-            'hotbar_config': hotbar_config
+            'hotbar_config': primary_hotbar,
+            'primary_hotbar_bindings': primary_hotbar,
+            'secondary_hotbar_bindings': secondary_hotbar,
         }
         
         # Reconstruct Buffs
@@ -703,15 +716,26 @@ def save_player():
                 desired_abilities[ab_id] = fields
             _sync_child_rows(PlayerAbility, {a.ability_id: a for a in player.abilities}, desired_abilities)
 
-            # Hotbar, keyed by str(slot_index).
+            # Hotbar, keyed by "{weapon}:{slot_index}" so the primary (front) and
+            # secondary (back) bars each persist their own 5 slots. Falls back to
+            # the legacy single hotbar_config for the primary bar if an older
+            # client omits the per-weapon dicts.
             desired_hotbar = {}
-            for slot, ab_id in ab_data.get('hotbar_config', {}).items():
-                desired_hotbar[str(slot)] = dict(
-                    player_username=username,
-                    slot_index=int(slot),
-                    ability_id=ab_id,
-                )
-            _sync_child_rows(PlayerHotbar, {str(hb.slot_index): hb for hb in player.hotbar}, desired_hotbar)
+            _hotbar_sources = (
+                ('primary', ab_data.get('primary_hotbar_bindings', ab_data.get('hotbar_config', {}))),
+                ('secondary', ab_data.get('secondary_hotbar_bindings', {})),
+            )
+            for weapon_key, bindings in _hotbar_sources:
+                for slot, ab_id in bindings.items():
+                    desired_hotbar["%s:%s" % (weapon_key, slot)] = dict(
+                        player_username=username,
+                        slot_index=int(slot),
+                        weapon=weapon_key,
+                        ability_id=ab_id,
+                    )
+            existing_hotbar = {"%s:%s" % ((hb.weapon or 'primary'), hb.slot_index): hb
+                               for hb in player.hotbar}
+            _sync_child_rows(PlayerHotbar, existing_hotbar, desired_hotbar)
 
         # --- UPSERT for Buffs (keyed by buff_id; uq_playerbuff_id enforces it) ---
         if 'buffs' in data:
@@ -875,6 +899,11 @@ def _run_migrations():
         # per-player quest field that stays on the players row.
         ("players", "onboarded",
          "ALTER TABLE players ADD COLUMN onboarded BOOLEAN NOT NULL DEFAULT FALSE"),
+        # Per-weapon hotbar: tag each binding row with the weapon bar it belongs
+        # to ('primary'/'secondary'). Existing rows default to 'primary' (the
+        # active bar saved before the split existed). ADR 0009 follow-up.
+        ("player_hotbar", "weapon",
+         "ALTER TABLE player_hotbar ADD COLUMN weapon VARCHAR(16) NOT NULL DEFAULT 'primary'"),
     ]
     for table, column, sql in migrations:
         try:
@@ -886,6 +915,27 @@ def _run_migrations():
             print(f"Migration: adding {table}.{column}")
             db.session.execute(db.text(sql))
             db.session.commit()
+
+    # Per-weapon hotbar: the uniqueness key gained `weapon`, so swap the old
+    # (username, slot_index) unique constraint for (username, slot_index, weapon).
+    # Must run AFTER the `weapon` column add above. Idempotent.
+    try:
+        db.session.execute(db.text(
+            "ALTER TABLE player_hotbar DROP CONSTRAINT IF EXISTS uq_playerhotbar_slot"
+        ))
+        has_new = db.session.execute(db.text(
+            "SELECT 1 FROM pg_constraint WHERE conname = 'uq_playerhotbar_slot_weapon'"
+        )).fetchone()
+        if has_new is None:
+            db.session.execute(db.text(
+                "ALTER TABLE player_hotbar ADD CONSTRAINT uq_playerhotbar_slot_weapon "
+                "UNIQUE (player_username, slot_index, weapon)"
+            ))
+        db.session.commit()
+        print("Migration: player_hotbar unique key -> (player_username, slot_index, weapon)")
+    except Exception as e:
+        db.session.rollback()
+        print(f"Migration: hotbar weapon constraint failed: {e}")
 
     # Backfill `variant` from the legacy normalized columns before they are
     # dropped, so existing modified items (random rolls) keep their stats.

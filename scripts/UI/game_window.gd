@@ -48,25 +48,100 @@ const HOTKEY_TAB := {
 func _ready() -> void:
 	add_to_group("ui_window")
 	visible = false
-	if owner is MultiplayerPlayerV2:
-		player = owner
 	if is_instance_valid(tab_bar):
 		tab_bar.tab_changed.connect(_on_tab_changed)
 	if is_instance_valid(close_button):
 		close_button.pressed.connect(func(): visible = false)
-	_wire_stats_buttons()
 	# Skill tree (instanced sub-scene) — refreshed on the Abilities tab.
 	_ability_shell = abil_host.get_node_or_null("AbilityWindow") if is_instance_valid(abil_host) else null
-	# Pet panel is native here, but its controller wants the player ref (it can't
-	# resolve via `owner`, which is the hub). Inject it like equipment_window did.
-	var pet := equip_host.get_node_or_null("PetTabContent/PetTab") if is_instance_valid(equip_host) else null
-	if pet and pet.has_method("set_owner_player"):
-		pet.set_owner_player(player)
+	# One-time: the attribute "+" / respec BUTTONS are persistent UI; their
+	# handlers read the current `player` at click time, so connect them once
+	# here — not per bind, or rebinds would double-connect (ADR 0009 Stage B).
+	_wire_persistent_buttons()
 	_show_tab(0)
 
 
+## Binds the hub to the local player body — called by LocalPlayerUI on every
+## spawn / map change. The body (and its components) is reached only from here on.
+func bind_player(body) -> void:
+	if player == body:
+		return
+	player = body
+	if not is_instance_valid(player):
+		return
+	# Pet panel is native here, but its controller wants the player ref (it can't
+	# resolve via `owner`, which is the hub).
+	var pet := equip_host.get_node_or_null("PetTabContent/PetTab") if is_instance_valid(equip_host) else null
+	if pet and pet.has_method("set_owner_player"):
+		pet.set_owner_player(player)
+	_wire_player_signals()
+	_bind_equipment_views()
+	_bind_inventory_grids()
+	_update_attr_respec_button()
+	_refresh_monies()
+	_refresh_header()
+	_refresh_stats()
+
+
+func unbind_player() -> void:
+	# Body component connections die with the freed body; just clear the ref.
+	player = null
+
+
+# ─── Equipment slots (ADR 0009 Stage A) ──────────────────────────────────────
+# The six equipment slots are authored here in game_window.tscn. Bind each to
+# the player's EquipmentComponent SlotData model (push-from-UI) instead of the
+# component reaching up into this scene via @export NodePaths.
+const _EQUIP_SLOT_KEYS := {
+	"HeadSlot": Constants.ArmorType.HEAD, "ChestSlot": Constants.ArmorType.CHEST,
+	"LegsSlot": Constants.ArmorType.LEGS, "FeetSlot": Constants.ArmorType.FEET,
+	"WeaponSlot": "WEAPON", "SecondaryWeaponSlot": "SECONDARY_WEAPON",
+}
+
+
+func _bind_equipment_views() -> void:
+	if player == null or not is_instance_valid(player.equipment_component) \
+			or not is_instance_valid(equip_host):
+		return
+	var grid := equip_host.get_node_or_null("PanelContainer/GridContainer")
+	if grid == null:
+		return
+	var ec = player.equipment_component
+	for slot_name in _EQUIP_SLOT_KEYS:
+		var view := grid.get_node_or_null(slot_name)
+		if view is EquipmentSlot:
+			ec.bind_slot_view(_EQUIP_SLOT_KEYS[slot_name], view)
+
+
+# The bag's three GridContainers are authored here under the Inventory tabs.
+# Hand them to the InventoryComponent (push-from-UI) instead of the component
+# reaching up via @export. Done at _ready, before the component's deferred slot
+# discovery (_ensure_slots_initialized) reads them. ADR 0009 Stage A.
+const _INV_GRID_PATHS := [
+	"Col3/V/InvHost/TabContainer/EQUIP/ScrollContainer/EquipmentGrid",
+	"Col3/V/InvHost/TabContainer/USE/ScrollContainer/ConsumableGrid",
+	"Col3/V/InvHost/TabContainer/ETC/ScrollContainer/MaterialGrid",
+]
+
+
+func _bind_inventory_grids() -> void:
+	if player == null or not is_instance_valid(player.inventory_component) \
+			or not is_instance_valid(character_page):
+		return
+	var grids: Array[GridContainer] = []
+	for grid_path in _INV_GRID_PATHS:
+		var g := character_page.get_node_or_null(grid_path)
+		if g is GridContainer:
+			grids.append(g)
+	if not grids.is_empty():
+		player.inventory_component.bind_grids(grids)
+
+
 # ─── Wiring the authored stats/attribute controls ────────────────────────────
-func _wire_stats_buttons() -> void:
+## One-time: the attribute "+" buttons and the respec button. Their handlers read
+## the CURRENT `player` at click time (member access through self), so a single
+## connection is correct across rebinds.
+func _wire_persistent_buttons() -> void:
 	if not is_instance_valid(stats_root):
 		return
 	for row_name in _ATTR_ROWS:
@@ -79,16 +154,28 @@ func _wire_stats_buttons() -> void:
 		# Economy sink: warn (with the monies cost) before respeccing — don't just
 		# silently spend on click.
 		_respec_button.pressed.connect(_on_attr_respec_pressed)
+
+
+## Per-body: connect the live player's component change signals. The body's
+## components are freed + recreated each map change, so their connections are
+## auto-cleaned; the is_connected guards make a double-bind on the same body safe.
+func _wire_player_signals() -> void:
 	var sc = player.stats_component if player else null
 	if sc:
 		if sc.has_signal("stats_changed") and not sc.stats_changed.is_connected(_refresh_stats):
 			sc.stats_changed.connect(_refresh_stats)
-		if sc.has_signal("attribute_points_changed"):
-			sc.attribute_points_changed.connect(func(_u): _refresh_stats())
-	# Re-evaluate the respec cost/affordability when monies change.
+		if sc.has_signal("attribute_points_changed") and not sc.attribute_points_changed.is_connected(_on_attr_points_changed):
+			sc.attribute_points_changed.connect(_on_attr_points_changed)
+	# Render the monies total + re-evaluate respec affordability when it changes.
+	# (ADR 0009: the component emits monies_changed; the UI owns its own label
+	# instead of the component writing into a UI NodePath.)
 	if player and is_instance_valid(player.player_inventory) and player.player_inventory.has_signal("monies_changed"):
-		player.player_inventory.monies_changed.connect(func(_m): _update_attr_respec_button())
-	_update_attr_respec_button()
+		if not player.player_inventory.monies_changed.is_connected(_on_monies_changed):
+			player.player_inventory.monies_changed.connect(_on_monies_changed)
+
+
+func _on_attr_points_changed(_u) -> void:
+	_refresh_stats()
 
 
 # ─── Economy: attribute respec cost label + warning dialog ───────────────────
@@ -128,6 +215,19 @@ func _on_respec_confirmed() -> void:
 	if _pending_respec.is_valid():
 		_pending_respec.call()
 	_pending_respec = Callable()
+
+
+## Monies changed on the component → repaint the count label + respec affordability.
+func _on_monies_changed(_new_amount: int) -> void:
+	_refresh_monies()
+	_update_attr_respec_button()
+
+
+## Paint the authored MoniesCountLabel from the component's current total.
+func _refresh_monies() -> void:
+	var lbl: Label = get_node_or_null("%MoniesCountLabel")
+	if is_instance_valid(lbl):
+		lbl.text = _fmt_monies(_player_monies())
 
 
 func _player_monies() -> int:

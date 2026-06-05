@@ -42,7 +42,10 @@ var _proximity_timer: float = 0.0
 
 
 func _process(delta: float) -> void:
-	if not multiplayer.is_server() or _active_trades.is_empty():
+	# has_multiplayer_peer() first: after a disconnect the peer is null and
+	# multiplayer.is_server() calls get_unique_id() internally, which errors with
+	# no peer. Guard the whole chain.
+	if not multiplayer.has_multiplayer_peer() or not multiplayer.is_server() or _active_trades.is_empty():
 		return
 	_proximity_timer += delta
 	if _proximity_timer < PROXIMITY_CHECK_INTERVAL:
@@ -825,11 +828,11 @@ func _get_or_create_bot_trade_window() -> TradeWindow:
 	if is_instance_valid(_bot_trade_window):
 		return _bot_trade_window
 	_bot_trade_window = TradeWindow.create_bot_window()
-	var local_player := PlayerManager.get_player_node(multiplayer.get_unique_id())
-	if is_instance_valid(local_player):
-		var container = local_player.get_node_or_null("CanvasLayer/MoveableWindows")
-		if container:
-			container.add_child(_bot_trade_window)
-			return _bot_trade_window
+	# Mount in the persistent LocalPlayerUI (ADR 0009 Stage B); fall back to the
+	# current scene if it isn't up yet.
+	var container = MapManager.get_local_ui_moveable_windows()
+	if is_instance_valid(container):
+		container.add_child(_bot_trade_window)
+		return _bot_trade_window
 	get_tree().current_scene.add_child(_bot_trade_window)
 	return _bot_trade_window

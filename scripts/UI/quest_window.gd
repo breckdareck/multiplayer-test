@@ -32,10 +32,9 @@ var selected_quest_id: String = ""
 
 func _ready() -> void:
 	add_to_group("ui_window")
-
-	if owner is MultiplayerPlayerV2:
-		player = owner as MultiplayerPlayerV2
-
+	# The body is injected via bind_player() per spawn / map change (persistent UI
+	# layer, ADR 0009 Stage B). The button/QuestManager wiring below is one-time;
+	# the handlers read the current `player` at call time.
 	close_button.pressed.connect(func(): self.visible = false)
 	available_tab_btn.pressed.connect(func(): _switch_tab(TabMode.AVAILABLE))
 	active_tab_btn.pressed.connect(func(): _switch_tab(TabMode.ACTIVE))
@@ -47,6 +46,16 @@ func _ready() -> void:
 
 	_clear_detail_panel()
 	_update_tab_buttons()
+
+
+## Binds to the local player body. Called by LocalPlayerUI per spawn / map change.
+func bind_player(body) -> void:
+	player = body
+
+
+func unbind_player() -> void:
+	player = null
+	self.visible = false
 
 
 func _process(_delta: float) -> void:
