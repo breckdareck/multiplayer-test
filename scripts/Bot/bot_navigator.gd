@@ -113,12 +113,15 @@ func navigate_smart(goal: Vector2) -> void:
 	_committed_to_drop = false
 	# Close in — the graph adds nothing, and its waypoints are coarser than the
 	# direct heuristics for the final approach (e.g. entering a portal Area2D).
-	# But only when the goal is on roughly the same elevation: a goal more than a
-	# single jump above can't be reached by the direct climb alone (one jump won't
-	# clear it), so fall through to the graph, which ascends via intermediate
-	# platforms instead of leaving the bot jumping uselessly below the target.
-	var rise := player.global_position.y - goal.y  # positive = goal above the bot
-	if player.global_position.distance_to(goal) < NAV_DIRECT_RANGE and rise < _max_jump_height:
+	# But only when the goal is on roughly the same elevation. A goal well ABOVE
+	# can't be reached by a single direct climb (fall through to the graph for
+	# multi-jump ascent). A goal well BELOW needs the graph too: direct descent
+	# just walks to the target's X and stalls above a solid platform with no ledge
+	# under it — and since loot is always inside NAV_DIRECT_RANGE, without this it
+	# never consults the graph and never drops to lower loot. The graph knows which
+	# ledge to leave from via its DROP edges.
+	var rise := player.global_position.y - goal.y  # +above / -below the bot
+	if player.global_position.distance_to(goal) < NAV_DIRECT_RANGE and absf(rise) < _max_jump_height:
 		_nav_path = PackedInt64Array()
 		_navigate_toward_or_climb(goal)
 		return
