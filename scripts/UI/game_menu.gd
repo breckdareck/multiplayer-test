@@ -5,6 +5,7 @@ class_name GameMenu
 @onready var keybinds_button: Button = %KeybindsButton
 @onready var options_button: Button = %OptionsButton
 @onready var show_tutorial_button: Button = %ShowTutorialButton
+@onready var disconnect_button: Button = %DisconnectButton
 @onready var exit_button: Button = %ExitButton
 @onready var sub_menu_container: Control = %SubMenuContainer
 @onready var keybinds_menu: KeybindsMenu = %KeybindsMenu
@@ -15,12 +16,13 @@ var _main_menu_buttons: Array[Button]
 func _ready():
 	visible = false # Start hidden
 
-	_main_menu_buttons = [resume_button, keybinds_button, options_button, show_tutorial_button, exit_button]
+	_main_menu_buttons = [resume_button, keybinds_button, options_button, show_tutorial_button, disconnect_button, exit_button]
 
 	resume_button.pressed.connect(_on_resume_button_pressed)
 	keybinds_button.pressed.connect(_on_keybinds_button_pressed)
 	options_button.pressed.connect(_on_options_button_pressed)
 	show_tutorial_button.pressed.connect(_on_show_tutorial_pressed)
+	disconnect_button.pressed.connect(_on_disconnect_button_pressed)
 	exit_button.pressed.connect(_on_exit_button_pressed)
 
 	keybinds_menu.back_pressed.connect(_on_keybinds_menu_back_pressed)
@@ -69,6 +71,15 @@ func _on_options_button_pressed():
 
 func _on_options_menu_back_pressed():
 	_show_main_menu()
+
+## Leave the current session and return to the login screen (keeps the game
+## running). The host saves all players first; a client's data is saved
+## server-side when its peer drops. Closing the menu first so it isn't mid-teardown.
+func _on_disconnect_button_pressed():
+	disconnect_button.disabled = true  # guard against a double-press during the await
+	close_menu()
+	MultiplayerManager.leave_to_main_menu()
+
 
 func _on_exit_button_pressed():
 	get_tree().quit()
