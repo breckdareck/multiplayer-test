@@ -1626,6 +1626,14 @@ func get_ability_level(ability_id: String) -> int:
 	return _ability_levels.get(ability_id, 0)
 
 
+## Returns the ids of every ability this component tracks (all four discipline
+## trees are seeded at level 0 in _ready, so this is the full catalogue, not just
+## learned ones). Lets callers — bots in particular — enumerate without reaching
+## into the private `_ability_levels` dictionary.
+func get_all_ability_ids() -> Array:
+	return _ability_levels.keys()
+
+
 ## PR 4: returns the sum of all per-discipline pools. Preserved for bot
 ## auto-spend logic and any caller that just needs "do I have any points at
 ## all?". UI consumers should prefer `get_available_points_for_discipline`.

@@ -22,6 +22,7 @@ const SUITES: Array[String] = [
 	"res://test/boss/test_boss_phases.gd",
 	"res://test/boss/test_boss_attack_data.gd",
 	"res://test/ability/test_respec_economy.gd",
+	"res://test/bot/test_bot_spending.gd",
 ]
 
 var _ran := false

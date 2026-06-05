@@ -35,8 +35,31 @@ const AOE_CLUSTER_RADIUS: float = 72.0
 ## every Slash and attacks at roughly twice the intended rate.
 const GCD: float = 1.0
 
+## Attributes a bot is allowed to pour points into — mirrors
+## StatsComponent.ALLOCATABLE_ATTRIBUTES (kept local so the bot doesn't couple to
+## that component's private const). Used to filter a discipline's stat_bonuses.
+const BOT_ALLOCATABLE_ATTRIBUTES: Array = [
+	Constants.StatType.STRENGTH, Constants.StatType.DEXTERITY,
+	Constants.StatType.INTELLIGENCE, Constants.StatType.LUCK,
+	Constants.StatType.CONSTITUTION,
+]
+## Baseline CONSTITUTION weight folded into every bot's attribute build on top of
+## its weapon's stat_bonuses ratio, so bots bank enough HP to survive the potion
+## loop instead of being glass cannons.
+const CON_SURVIVAL_WEIGHT: float = 2.0
+## Role weights for the ability-point greedy: passives are flat-valued (they're
+## class-neutral and always useful), buffs rank lowest, attack actives are
+## damage-weighted between ATTACK_WEIGHT_FLOOR and ATTACK_WEIGHT_FLOOR+ATTACK_WEIGHT_SPAN.
+const ROLE_WEIGHT_PASSIVE: float = 0.85
+const ROLE_WEIGHT_BUFF: float = 0.55
+const ATTACK_WEIGHT_FLOOR: float = 0.6
+const ATTACK_WEIGHT_SPAN: float = 0.4
+
 var _buff_abilities: Array[String] = []
 var _attack_abilities: Array[String] = []
+## Highest attack-ability damage potential in the bot's catalogue, refreshed each
+## spend pass — the denominator that normalises attack role weights.
+var _max_attack_potential: float = 1.0
 # Combat profile, refreshed in build_ability_lists. A bot kites only when it
 # is a ranged class AND actually has a projectile attack ability.
 var _combat_range: float = 25.0       ## Longest attack reach (abilities or melee).
@@ -243,9 +266,10 @@ func build_ability_lists() -> void:
 		return
 
 	_auto_spend_ability_points(ability_comp)
+	_auto_spend_attribute_points(player)
 
-	for ability_id in ability_comp._ability_levels:
-		var level: int = ability_comp._ability_levels[ability_id]
+	for ability_id in ability_comp.get_all_ability_ids():
+		var level: int = ability_comp.get_ability_level(ability_id)
 		if level <= 0:
 			continue
 		var ability_data: AbilityData = ResourceManager.get_ability_data(ability_id)
@@ -270,24 +294,172 @@ func _refresh_combat_profile() -> void:
 		if adata and adata.active_behavior and adata.active_behavior.is_projectile:
 			_has_ranged_ability = true
 
+	# primary_discipline is normalised to a tier-1 weapon discipline by
+	# WeaponMasteryComponent, so only SWORD/BOW/STAFF/DAGGER ever appear here.
 	_is_ranged_class = false
 	if is_instance_valid(player) and is_instance_valid(player.weapon_mastery_component):
 		match player.weapon_mastery_component.primary_discipline:
-			Constants.ClassType.BOW, Constants.ClassType.STAFF, \
-			Constants.ClassType.RANGER, Constants.ClassType.ARCHMAGE:
+			Constants.ClassType.BOW, Constants.ClassType.STAFF:
 				_is_ranged_class = true
 
 
+## Spends the bot's earned ability points with a build in mind rather than at
+## random. Each point goes to the highest value/point ability the bot can level
+## (value = role weight × marginal gain, so early points spread into a usable
+## kit and later points deepen the signature attack skills); once an ability is
+## maxed, leftover points reinvest into its upgrades. AbilityComponent's per-
+## discipline pool gating guarantees a discipline's points only ever buy that
+## discipline's content, so the bot naturally builds the weapon it wields.
 func _auto_spend_ability_points(ability_comp: AbilityComponent) -> void:
-	while ability_comp.get_available_ability_points() > 0:
-		var leveled_any := false
-		for ability_id in ability_comp._ability_levels:
-			if ability_comp.can_level_up_ability(ability_id):
-				ability_comp.level_up_ability(ability_id)
-				leveled_any = true
-				break
-		if not leveled_any:
+	# Refresh the attack-potential normaliser for this spend pass.
+	_max_attack_potential = 1.0
+	for ability_id in ability_comp.get_all_ability_ids():
+		var data: AbilityData = ResourceManager.get_ability_data(ability_id)
+		if data and data.ability_type == Constants.AbilityType.ACTIVE and not data.applies_buff:
+			_max_attack_potential = maxf(_max_attack_potential, _ability_damage_potential(data))
+
+	var guard := 0
+	while ability_comp.get_available_ability_points() > 0 and guard < 1000:
+		guard += 1
+		var target := _choose_level_target(ability_comp)
+		if not target.is_empty():
+			ability_comp.level_up_ability(target)
+			continue
+		var upgrade := _choose_upgrade(ability_comp)
+		if not upgrade.is_empty():
+			ability_comp.purchase_upgrade(upgrade.ability_id, upgrade.upgrade_id)
+			continue
+		# Points remain but nothing is legally buyable (e.g. an empty pool in a
+		# discipline the bot has no abilities to spend on) — stop rather than spin.
+		break
+
+
+## Picks the next ability to level: the highest value/point among everything the
+## bot can currently level. Returns "" when nothing is levelable.
+func _choose_level_target(ability_comp: AbilityComponent) -> String:
+	var best_id := ""
+	var best_value := 0.0
+	for ability_id in ability_comp.get_all_ability_ids():
+		if not ability_comp.can_level_up_ability(ability_id):
+			continue
+		var data: AbilityData = ResourceManager.get_ability_data(ability_id)
+		if not data:
+			continue
+		var value := _level_value(ability_comp, ability_id, data)
+		# Deterministic tie-break on id so identical bots build identically.
+		if value > best_value or (value == best_value and (best_id.is_empty() or ability_id < best_id)):
+			best_value = value
+			best_id = ability_id
+	return best_id
+
+
+## Value-per-point of putting the next point into an ability: role weight ×
+## marginal gain. marginal = 1/(level+1) front-loads the first point in any
+## skill; attack actives are damage-weighted, passives flat, buffs lowest.
+func _level_value(ability_comp: AbilityComponent, ability_id: String, data: AbilityData) -> float:
+	var lvl := ability_comp.get_ability_level(ability_id)
+	var marginal := 1.0 / float(lvl + 1)
+	var role_weight := ROLE_WEIGHT_PASSIVE
+	if data.ability_type == Constants.AbilityType.ACTIVE:
+		if data.applies_buff:
+			role_weight = ROLE_WEIGHT_BUFF
+		else:
+			var dmg_norm := clampf(_ability_damage_potential(data) / _max_attack_potential, 0.0, 1.0)
+			role_weight = ATTACK_WEIGHT_FLOOR + ATTACK_WEIGHT_SPAN * dmg_norm
+	return role_weight * marginal
+
+
+## An ability's full damage potential (evaluated at its max level), used to rank
+## attack actives. Passives / buffs / non-damaging abilities return 0.
+func _ability_damage_potential(data: AbilityData) -> float:
+	if not data:
+		return 0.0
+	var stats: AbilityLevelData = data.get_level_stats(maxi(1, data.max_level))
+	if not stats:
+		return 0.0
+	return float(stats.damage_percent) * float(maxi(stats.max_hits, 1))
+
+
+## When every levelable ability is exhausted but points remain, reinvest into
+## upgrades: lower tiers first (foundation before variants), biggest magnitude,
+## nudged toward the highest-damage maxed ability. Returns {} when nothing is
+## purchasable. can_purchase_upgrade enforces level/tier/variant/pool rules.
+func _choose_upgrade(ability_comp: AbilityComponent) -> Dictionary:
+	var best: Dictionary = {}
+	var best_score := -1.0
+	for ability_id in ability_comp.get_all_ability_ids():
+		var data: AbilityData = ResourceManager.get_ability_data(ability_id)
+		if not data or data.upgrades == null:
+			continue
+		for up in data.upgrades:
+			if up == null:
+				continue
+			var check: Dictionary = ability_comp.can_purchase_upgrade(ability_id, up.upgrade_id)
+			if not check.ok:
+				continue
+			var score := (4.0 - float(up.tier)) * 1000.0 + up.magnitude + _ability_damage_potential(data) * 0.0001
+			if score > best_score:
+				best_score = score
+				best = {"ability_id": ability_id, "upgrade_id": up.upgrade_id}
+	return best
+
+
+## Spends the bot's attribute points to reinforce its weapon identity: it mirrors
+## the discipline's own stat_bonuses ratio (the canonical primary/secondary for
+## that weapon) plus a CONSTITUTION survival bias, allocating only the shortfall
+## vs what's already spent so it never fights the migration default-allocation
+## and never unallocates. allocate_attribute() runs server-side immediately for
+## bots (no client to RPC).
+## (player left untyped so the spend logic is unit-testable with a lightweight
+## stub; callers always pass a MultiplayerPlayerV2.)
+func _auto_spend_attribute_points(player) -> void:
+	var stats_comp = player.stats_component
+	if not is_instance_valid(stats_comp):
+		return
+	var remaining: int = stats_comp.get_attribute_points_unused()
+	if remaining <= 0:
+		return
+
+	var weights := _attribute_weights(player)
+	var total_weight := 0.0
+	for w in weights.values():
+		total_weight += float(w)
+	if total_weight <= 0.0:
+		return
+
+	# Desired allocation across the FULL granted pool, on the weapon ratio. Top up
+	# each stat's shortfall vs current, bounded by the points actually available.
+	var granted: int = stats_comp.get_attribute_points_granted()
+	var stat_list: Array = weights.keys()
+	stat_list.sort_custom(func(a, b): return float(weights[a]) > float(weights[b]))
+	for stat_type in stat_list:
+		if remaining <= 0:
 			break
+		var desired := int(round(float(weights[stat_type]) / total_weight * float(granted)))
+		var add := mini(maxi(0, desired - stats_comp.get_allocated_attribute(stat_type)), remaining)
+		if add > 0:
+			stats_comp.allocate_attribute(stat_type, add)
+			remaining -= add
+	# Rounding can leave a few points unspent — dump them into the top-weight stat.
+	if remaining > 0 and not stat_list.is_empty():
+		stats_comp.allocate_attribute(stat_list[0], remaining)
+
+
+## The bot's attribute-point target ratio: its discipline's stat_bonuses (filtered
+## to allocatable attributes) with a baseline CONSTITUTION survival weight added.
+func _attribute_weights(player) -> Dictionary:
+	var weights: Dictionary = {}
+	var wm = player.weapon_mastery_component
+	if is_instance_valid(wm):
+		var disc: WeaponDisciplineData = ResourceManager.get_class_data(wm.primary_discipline)
+		if disc:
+			for stat_type in disc.stat_bonuses:
+				if stat_type in BOT_ALLOCATABLE_ATTRIBUTES:
+					weights[stat_type] = float(disc.stat_bonuses[stat_type])
+	# Always bank some CONSTITUTION for survivability, on top of the weapon ratio.
+	var con: int = Constants.StatType.CONSTITUTION
+	weights[con] = float(weights.get(con, 0.0)) + CON_SURVIVAL_WEIGHT
+	return weights
 
 
 func _try_use_buff() -> bool:
@@ -366,7 +538,7 @@ func _score_attack_ability(ability_id: String, cluster: int) -> float:
 	var player: MultiplayerPlayerV2 = brain.player
 	var level := 1
 	if is_instance_valid(player.ability_component):
-		level = player.ability_component._ability_levels.get(ability_id, 1)
+		level = maxi(1, player.ability_component.get_ability_level(ability_id))
 	var stats: AbilityLevelData = data.get_level_stats(level)
 	if not stats:
 		return 1.0
