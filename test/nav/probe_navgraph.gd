@@ -119,16 +119,23 @@ func _diagnose_ladders(g) -> void:
 		if ext.is_empty():
 			print("          x=%.0f: NO RectangleShape2D" % (L as Node2D).global_position.x)
 			continue
-		var matched: Array = []
+		var in_zone: Array = []
+		var below_gap := INF   # nearest surface BELOW the zone bottom (mount-from-below)
+		var above_gap := INF   # nearest surface ABOVE the zone top
 		for seg_i in range(g.segments.size()):
 			var seg = g.segments[seg_i]
-			if seg.y < ext.top - 16.0 or seg.y > ext.bottom + 16.0:
-				continue
 			if ext.x < seg.x_min - 24.0 or ext.x > seg.x_max + 24.0:
 				continue
-			matched.append(int(seg.y))
-		print("          x=%.0f extent[%.0f..%.0f] h=%.0f: surfaces y=%s" % [
-			ext.x, ext.top, ext.bottom, ext.bottom - ext.top, str(matched)])
+			if seg.y >= ext.top and seg.y <= ext.bottom:
+				in_zone.append(int(seg.y))
+			elif seg.y > ext.bottom:
+				below_gap = minf(below_gap, seg.y - ext.bottom)
+			elif seg.y < ext.top:
+				above_gap = minf(above_gap, ext.top - seg.y)
+		print("          x=%.0f zone[%.0f..%.0f] h=%.0f: in-zone y=%s  nearest-below-gap=%s  nearest-above-gap=%s" % [
+			ext.x, ext.top, ext.bottom, ext.bottom - ext.top, str(in_zone),
+			("%.0f" % below_gap) if below_gap < INF else "none",
+			("%.0f" % above_gap) if above_gap < INF else "none"])
 
 
 ## Lists every surface (y, x-extent, solid/one-way) sorted top-to-bottom so the

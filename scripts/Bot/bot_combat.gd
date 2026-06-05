@@ -261,6 +261,10 @@ func disengage() -> void:
 	_combat_last_enemy_hp = -1
 	brain.current_action = "idle"
 	brain.action_timer = 2.0
+	# Drop the planned path too: if the bot gave up mid-traversal (e.g. couldn't
+	# mount a rope within the disengage window), a lingering CLIMB segment would
+	# keep is_on_climb_segment() true and block the think loop from re-routing.
+	brain._navigator._nav_path = PackedInt64Array()
 
 
 func build_ability_lists() -> void:

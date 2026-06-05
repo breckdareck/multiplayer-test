@@ -263,11 +263,12 @@ func _process(delta: float) -> void:
 
 	if think_timer <= 0.0:
 		think_timer = think_interval
-		# Don't re-pick the action while the bot is on a ladder/rope: switching to
-		# (or re-pathing toward) a wandering enemy mid-climb strands it on the rope.
-		# Keep the current action so the in-progress climb finishes onto a platform;
-		# normal thinking resumes the moment the bot is back on solid ground.
-		if not _navigator.is_climbing():
+		# Don't re-pick the action while the bot is traversing a ladder/rope (the
+		# whole CLIMB hop — mounting, riding, dismounting — not just the climb
+		# state, since the mount jump is briefly airborne). Switching to or
+		# re-pathing toward a wandering enemy mid-traversal strands it on the rope.
+		# Normal thinking resumes the moment the bot is off the climb segment.
+		if not _navigator.is_climbing() and not _navigator.is_on_climb_segment():
 			_think()
 
 	_equip_check_timer -= delta

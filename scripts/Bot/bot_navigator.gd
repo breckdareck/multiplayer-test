@@ -268,17 +268,18 @@ func _ride_ladder(target: Vector2, ascending: bool) -> void:
 	var dx: float = target.x - player.global_position.x
 	var dy: float = target.y - player.global_position.y   # < 0 = target above
 	if not player.is_in_ladder_zone():
-		# Walk onto the column; pre-press toward the target so climb engages the
-		# instant we enter the ladder area.
-		player.direction = 0 if absf(dx) <= 2.0 else (1 if dx > 0.0 else -1)
+		# Get under the column first; STOP once aligned so the mount hop goes
+		# straight up into the rope instead of a moving jump that sails past it.
+		var aligned: bool = absf(dx) <= LADDER_MOUNT_X_TOL
+		player.direction = 0 if aligned else (1 if dx > 0.0 else -1)
 		if player.direction != 0:
 			player.facing_direction = player.direction
 		if ascending:
+			# input_up is held so the climb engages at the top of the hop (the fall
+			# state checks the ladder); hop up only when stopped under the column so
+			# a rope whose zone starts just above the platform can be grabbed.
 			player.input_up = true
-			# The ladder zone can start above a platform standing flush below it;
-			# aligned with the column and grounded, hop up to reach the zone so the
-			# climb (with input_up already held) engages on the way up.
-			if absf(dx) <= LADDER_MOUNT_X_TOL and player.is_on_floor():
+			if aligned and player.is_on_floor():
 				try_jump()
 		else:
 			player.input_down = true
@@ -498,6 +499,23 @@ func try_jump() -> void:
 	if _jump_cooldown_timer <= 0.0 and player.is_on_floor():
 		player.do_jump = true
 		_jump_cooldown_timer = JUMP_COOLDOWN
+
+
+## True when the bot's current path hop is a CLIMB edge — i.e. it is mounting,
+## riding, or dismounting a ladder. Used (alongside is_climbing) to keep the bot
+## committed through the WHOLE ladder traversal, including the mount hop, when it
+## is briefly airborne and not yet in the climb state.
+func is_on_climb_segment() -> bool:
+	if _nav_path.size() < 2 or _nav_index < 1 or _nav_index >= _nav_path.size():
+		return false
+	var graph := _get_nav_graph()
+	if graph == null:
+		return false
+	var prev: int = _nav_path[_nav_index - 1]
+	var cur: int = _nav_path[_nav_index]
+	if not (graph.has_point(prev) and graph.has_point(cur)):
+		return false
+	return graph.edge_kind(prev, cur) == BotNavGraph.EdgeKind.CLIMB
 
 
 ## True while the bot is in the player's climb state (actively on a ladder/rope).
