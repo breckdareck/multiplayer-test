@@ -14,8 +14,8 @@ each piece stays small.
 | `bot_manager.gd` | Autoload. Spawns/despawns bots, owns `/bot` chat commands, loads `config/bot_config.json`, caches per-map nav graphs |
 | `bot_brain.gd` | Per-bot think-loop FSM (idle / wander / fight / retreat / loot / travel); routes the decision through priority "considerations" and writes input flags onto the character |
 | `bot_combat.gd` | Combat sub-module: target selection, attack timing, ability use; also spends ability + attribute points (see [Progression](#progression--spending-points-under-the-weapon-system)) |
-| `bot_navigator.gd` | Per-bot navigation: queries `bot_nav_graph` for waypoint paths and steers the bot via input flags, with a periodic repath |
-| `bot_nav_graph.gd` | Runtime-built nav graph from the map's tilemap (WALK / JUMP / DROP / GAP edges across `TileMapLayer.get_used_rect()`); built incrementally a few columns per frame; cached per `map_id` on `BotManager` |
+| `bot_navigator.gd` | Per-bot navigation: queries `bot_nav_graph` for waypoint paths and steers the bot via input flags (incl. `_ride_ladder` for CLIMB edges), with a periodic repath. `compute_jump_profile` SIMULATES the real jump arc (jump.gd skips gravity one frame) — don't use the textbook v²/2g |
+| `bot_nav_graph.gd` | Runtime-built nav graph from the map's tilemap (WALK / JUMP / DROP / GAP / **CLIMB** edges across `TileMapLayer.get_used_rect()`); CLIMB edges model ladders/ropes (the maps' vertical traversal — platforms are spaced beyond the ~29px jump); built incrementally a few columns per frame; cached per `map_id` on `BotManager`. **Build with `BotManager._bot_jump_params()` so every caller uses the same profile (the graph is cached by whoever builds first).** Inspect headlessly with `test/nav/probe_navgraph.gd` (edge counts, connected components, ladder spans) |
 | `bot_economy.gd` | Inventory pickup, gold management, sell decisions |
 | `bot_equipment_logic.gd` | Scores gear and decides equip/sell swaps |
 | `bot_debug_draw.gd` | Debug-overlay rendering for `/bot watch` and the backtick `DebugPanel` bot view (targets, HP bars, nav-graph sub-layers) |
