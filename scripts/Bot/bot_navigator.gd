@@ -501,10 +501,15 @@ func try_jump() -> void:
 		_jump_cooldown_timer = JUMP_COOLDOWN
 
 
-## True when the bot's current path hop is a CLIMB edge — i.e. it is mounting,
-## riding, or dismounting a ladder. Used (alongside is_climbing) to keep the bot
-## committed through the WHOLE ladder traversal, including the mount hop, when it
-## is briefly airborne and not yet in the climb state.
+## True ONLY while the bot is actually engaging a ladder on a CLIMB path hop —
+## airborne at the mount (the brief window before the climb state takes over) or
+## inside the ladder zone, AND near the column. Used alongside is_climbing to hold
+## the bot committed through the mount hop without re-planning mid-jump.
+##
+## Deliberately NOT true while the bot is merely walking toward a distant ladder
+## on the ground: a travel path that routes through a far ladder must not freeze
+## the think loop (and the bot's earlier drops/walks) just because a CLIMB edge
+## sits later in the path — that stranded bots on ledges that should drop.
 func is_on_climb_segment() -> bool:
 	if _nav_path.size() < 2 or _nav_index < 1 or _nav_index >= _nav_path.size():
 		return false
@@ -515,7 +520,11 @@ func is_on_climb_segment() -> bool:
 	var cur: int = _nav_path[_nav_index]
 	if not (graph.has_point(prev) and graph.has_point(cur)):
 		return false
-	return graph.edge_kind(prev, cur) == BotNavGraph.EdgeKind.CLIMB
+	if graph.edge_kind(prev, cur) != BotNavGraph.EdgeKind.CLIMB:
+		return false
+	var player: MultiplayerPlayerV2 = brain.player
+	var near_column: bool = absf(player.global_position.x - graph.point_position(cur).x) <= LADDER_MOUNT_X_TOL + 16.0
+	return near_column and (not player.is_on_floor() or player.is_in_ladder_zone())
 
 
 ## True while the bot is in the player's climb state (actively on a ladder/rope).

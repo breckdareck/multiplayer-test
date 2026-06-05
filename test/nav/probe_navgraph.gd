@@ -104,6 +104,7 @@ func _run() -> void:
 
 	_report_components(g)
 	_report_directed(g, lowest_i, "BOTTOM")
+	_report_traps(g)
 	_diagnose_ladders(g)
 	_dump_surfaces(g)
 
@@ -148,6 +149,34 @@ func _dump_surfaces(g) -> void:
 		print("          y=%5.0f  x=[%5.0f..%5.0f] w=%4.0f  %s" % [
 			seg.y, seg.x_min, seg.x_max, seg.x_max - seg.x_min,
 			"ONE-WAY" if seg.one_way else "solid"])
+
+
+## Surfaces a bot can STAND on but has no edge to LEAVE (only WALK edges within
+## the same surface) — a bot that lands there is stranded. The likely cause of a
+## "won't drop / stuck on a ledge" report.
+func _report_traps(g) -> void:
+	# Build set of surfaces that have at least one outgoing inter-surface edge
+	# (JUMP/DROP/GAP/CLIMB) from any of their points.
+	var seg_has_exit := {}
+	for key in g.edges:
+		var kind: int = g.edges[key]
+		if kind == 0:   # WALK — same-surface, doesn't count as leaving
+			continue
+		var from_seg: int = g.point_segment[key.x]
+		var to_seg: int = g.point_segment[key.y]
+		if from_seg != to_seg:
+			seg_has_exit[from_seg] = true
+	var traps := []
+	for si in range(g.segments.size()):
+		if not seg_has_exit.has(si):
+			var seg = g.segments[si]
+			traps.append("y=%d x=[%d..%d] w=%d" % [int(seg.y), int(seg.x_min), int(seg.x_max), int(seg.x_max - seg.x_min)])
+	if traps.is_empty():
+		print("[probe] trap surfaces (can't leave): none ✓")
+	else:
+		print("[probe] trap surfaces (can stand, NO exit edge): %d" % traps.size())
+		for t in traps:
+			print("          %s" % t)
 
 
 ## All ladder/rope Area2Ds in the level (the `Ladder`-scripted Area2Ds).
