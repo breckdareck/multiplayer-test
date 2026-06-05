@@ -268,20 +268,27 @@ func _ride_ladder(target: Vector2, ascending: bool) -> void:
 	var dx: float = target.x - player.global_position.x
 	var dy: float = target.y - player.global_position.y   # < 0 = target above
 	if not player.is_in_ladder_zone():
-		# Get under the column first; STOP once aligned so the mount hop goes
-		# straight up into the rope instead of a moving jump that sails past it.
-		var aligned: bool = absf(dx) <= LADDER_MOUNT_X_TOL
-		player.direction = 0 if aligned else (1 if dx > 0.0 else -1)
-		if player.direction != 0:
-			player.facing_direction = player.direction
 		if ascending:
-			# input_up is held so the climb engages at the top of the hop (the fall
-			# state checks the ladder); hop up only when stopped under the column so
-			# a rope whose zone starts just above the platform can be grabbed.
+			# Get under the column, then hop straight up into the rope (the hop
+			# drifts the bot onto the narrow column); input_up held so the climb
+			# engages at the top of the hop. STOP once aligned so it doesn't sail
+			# past in a moving jump.
+			var aligned: bool = absf(dx) <= LADDER_MOUNT_X_TOL
+			player.direction = 0 if aligned else (1 if dx > 0.0 else -1)
+			if player.direction != 0:
+				player.facing_direction = player.direction
 			player.input_up = true
 			if aligned and player.is_on_floor():
 				try_jump()
 		else:
+			# Descending from the top there is NO hop to drift the bot in, and the
+			# ladder zone is narrow (~14px): stopping at the wide "aligned" distance
+			# can leave it just outside the zone, holding input_down with the climb
+			# never engaging — the "won't go down" bug. Walk ALL the way onto the
+			# column (tight tolerance) so it's inside the zone, then hold down.
+			player.direction = 0 if absf(dx) <= 2.0 else (1 if dx > 0.0 else -1)
+			if player.direction != 0:
+				player.facing_direction = player.direction
 			player.input_down = true
 		return
 	# On the ladder. Direction depends on which way the CLIMB edge goes:
