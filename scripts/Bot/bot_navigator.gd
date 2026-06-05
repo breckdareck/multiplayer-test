@@ -13,6 +13,11 @@ var brain                       ## The owning BotBrain node.
 
 const JUMP_COOLDOWN: float = 0.8
 var _jump_cooldown_timer: float = 0.0
+## Max horizontal speed (px/s) the bot may carry when launching an UPWARD jump.
+## Above this it holds to bleed off landing momentum first, so it settles on an
+## intermediate platform and launches cleanly instead of sliding off the far edge
+## mid-stride while chaining jumps up a staircase.
+const SETTLE_SPEED: float = 25.0
 
 # Jump reachability — derived from the player's real jump_velocity, move_speed
 # and project gravity in compute_jump_profile(). Defaults match the stock
@@ -357,15 +362,17 @@ func _navigate_toward(target_pos: Vector2) -> void:
 	# --- Target is above us ---
 	if dy < -10.0:
 		if abs(dy) <= _max_jump_height:
-			if _jump_cooldown_timer <= 0.0:
+			# Settle before launching upward: only jump once off cooldown AND no
+			# longer sliding from the last landing. JUMP_COOLDOWN is 0.8 s but a
+			# jump's airtime is only ~0.5 s, so the bot lands with cooldown
+			# remaining — and a running jump from wherever it touched down on a
+			# small intermediate platform carries it off the far edge, resetting
+			# the climb. Holding still bleeds off that horizontal momentum so the
+			# next jump launches cleanly from a stable spot, letting it actually
+			# chain up a staircase.
+			if _jump_cooldown_timer <= 0.0 and absf(player.velocity.x) <= SETTLE_SPEED:
 				try_jump()
 			else:
-				# Hold position until the cooldown clears. JUMP_COOLDOWN is 0.8 s
-				# but a jump's airtime is only ~0.5 s, so the bot lands with
-				# cooldown remaining; walking forward in that window crosses a
-				# narrow step in <0.25 s and drops the bot off the far edge,
-				# resetting the climb. Standing still until we can jump again
-				# is what lets a staircase actually be ascended.
 				player.direction = 0
 			return
 		if is_near_ledge():
