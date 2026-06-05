@@ -700,7 +700,23 @@ func handle_command(args: Array, requester_id: int = 0) -> String:
 			var current := player_node.level_component.level
 			while player_node.level_component.level < level:
 				player_node.level_component.add_exp(player_node.level_component.get_exp_to_next_level())
-			return "Bot %d leveled from %d to %d." % [bot_id, current, player_node.level_component.level]
+			# Character EXP only grants attribute points; ability points come
+			# from WEAPON MASTERY (mastery_level_changed -> ability-point grant),
+			# which set_level would otherwise never raise — leaving a high-level
+			# test bot with a full attribute build but no skills. Raise the bot's
+			# primary-discipline mastery to match so it has a usable kit. One
+			# level's XP per call: grant_mastery_xp_server emits once per call, so
+			# a single lump would jump levels but grant only one ability point.
+			var mastery_msg := ""
+			var wm = player_node.weapon_mastery_component
+			if is_instance_valid(wm):
+				var disc: int = wm.primary_discipline
+				var target_mastery: int = mini(level, WeaponMasteryComponent.MASTERY_CAP)
+				var start_mastery: int = wm.get_mastery_level(disc)
+				while wm.get_mastery_level(disc) < target_mastery:
+					wm.grant_mastery_xp_server(disc, wm.get_xp_to_next_level(disc))
+				mastery_msg = " (mastery %d -> %d)" % [start_mastery, wm.get_mastery_level(disc)]
+			return "Bot %d leveled from %d to %d.%s" % [bot_id, current, player_node.level_component.level, mastery_msg]
 
 		"party":
 			return _handle_party_command(args.slice(1))
