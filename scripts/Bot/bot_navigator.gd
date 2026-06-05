@@ -258,15 +258,14 @@ func _ride_ladder(target: Vector2) -> void:
 		elif dy > 2.0:
 			player.input_down = true
 		return
-	# On the ladder: climb toward the target level.
+	# On the ladder: drive the climb toward the target level and let it run off the
+	# end of the zone (climb.gd transitions to fall when it leaves the ladder area,
+	# then lands on the platform). Do NOT stop/dismount on dy proximity: the target
+	# platform usually sits just past the zone end, so the bot is still in the zone
+	# when it gets near it — a sideways jump-dismount there hops UPWARD (climb.gd
+	# dismount_velocity_y is negative), throwing a descending bot back up the ladder
+	# and stranding it. Climbing straight through to the zone exit lands cleanly.
 	player.direction = 0
-	if absf(dy) <= NAV_WAYPOINT_Y_TOL:
-		# Reached the level but still inside the zone (mid-column) — dismount
-		# sideways (jump + direction) to step off onto the platform.
-		var off: int = player.facing_direction if player.facing_direction != 0 else 1
-		player.direction = off
-		player.do_jump = true
-		return
 	if dy < 0.0:
 		player.input_up = true
 	else:
