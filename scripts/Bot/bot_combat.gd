@@ -34,6 +34,10 @@ const AOE_CLUSTER_RADIUS: float = 72.0
 ## ability. Without it the bot chains a free, cooldown-less basic attack onto
 ## every Slash and attacks at roughly twice the intended rate.
 const GCD: float = 1.0
+## Vertical band (px) within which the bot counts as standing on the SAME ground
+## as its target. Beyond it — or while airborne — the bot paths toward the enemy
+## instead of attacking, so it climbs fully onto the enemy's platform first.
+const SAME_GROUND_Y_BAND: float = 12.0
 
 ## Attributes a bot is allowed to pour points into — mirrors
 ## StatsComponent.ALLOCATABLE_ATTRIBUTES (kept local so the bot doesn't couple to
@@ -161,7 +165,12 @@ func do_fight() -> void:
 	var dy := to_enemy.y
 	var dir := 1 if to_enemy.x > 0 else -1
 
-	if abs(dy) > 12.0:
+	# Only fight once the bot is standing on the SAME ground as the enemy: on the
+	# floor and within a small vertical band. Otherwise keep pathing toward it.
+	# The floor check matters because a mid-jump tick can momentarily align Y while
+	# the bot is still climbing — without it the bot swings in the air a platform
+	# short instead of landing on the enemy's level.
+	if not player.is_on_floor() or absf(dy) > SAME_GROUND_Y_BAND:
 		# Enemy on another level — route across terrain via the nav graph.
 		brain._navigator.navigate_smart(target_enemy.global_position)
 		return

@@ -104,7 +104,12 @@ func navigate_smart(goal: Vector2) -> void:
 	_committed_to_drop = false
 	# Close in — the graph adds nothing, and its waypoints are coarser than the
 	# direct heuristics for the final approach (e.g. entering a portal Area2D).
-	if player.global_position.distance_to(goal) < NAV_DIRECT_RANGE:
+	# But only when the goal is on roughly the same elevation: a goal more than a
+	# single jump above can't be reached by the direct climb alone (one jump won't
+	# clear it), so fall through to the graph, which ascends via intermediate
+	# platforms instead of leaving the bot jumping uselessly below the target.
+	var rise := player.global_position.y - goal.y  # positive = goal above the bot
+	if player.global_position.distance_to(goal) < NAV_DIRECT_RANGE and rise < _max_jump_height:
 		_nav_path = PackedInt64Array()
 		_navigate_toward_or_climb(goal)
 		return
@@ -219,11 +224,23 @@ func _resolve_waypoint_target(graph: BotNavGraph) -> Vector2:
 	return target_pos
 
 
+## Min rise (px) above which a near-underneath target is mounted via the side-arc
+## climb rather than a straight-up jump. Slightly above the combat same-ground
+## band so the bot only arc-climbs for a genuine platform, not a minor step.
+const CLIMB_NEAR_RISE: float = 14.0
+
+
 ## Single-hop movement toward a target: climb logic if it sits above jump range,
 ## otherwise the standard ground/jump heuristic.
 func _navigate_toward_or_climb(target: Vector2) -> void:
 	var player: MultiplayerPlayerV2 = brain.player
-	if target.y - player.global_position.y < -_max_jump_height:
+	var rise := player.global_position.y - target.y       # positive = target above
+	var dx := absf(target.x - player.global_position.x)
+	# Climb (walk to a side launch point and arc up) when the target is above and
+	# either beyond a plain jump's reach OR the bot is nearly underneath it: a
+	# straight-up in-place jump can't mount a platform from directly below — it
+	# bounces off the underside — so _navigate_toward would loop there forever.
+	if rise > _max_jump_height or (rise > CLIMB_NEAR_RISE and dx < _jump_launch_offset):
 		_climb_toward(target)
 	else:
 		_navigate_toward(target)
