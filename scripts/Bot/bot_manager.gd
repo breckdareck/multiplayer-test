@@ -154,6 +154,8 @@ func despawn_bot(bot_id: int) -> void:
 
 
 func despawn_all_bots() -> void:
+	_stress_active = false
+	_stress_bot_ids.clear()
 	for bot_id in active_bots.keys():
 		despawn_bot(bot_id)
 
@@ -390,13 +392,48 @@ func get_nav_graph(map_id: String, map_node: Node2D, max_jump: float, jump_reach
 	return null
 
 
-func _process(_delta: float) -> void:
+# --- /bot stress: cycle N bots through a portal to load-test the map-change path ---
+var _stress_active: bool = false
+var _stress_bot_ids: Array[int] = []
+var _stress_map_a: String = ""
+var _stress_map_b: String = ""
+var _stress_idx: int = 0
+var _stress_accum: float = 0.0
+var _stress_interval: float = 0.15  # seconds between one bot's hop
+
+
+func _process(delta: float) -> void:
 	# has_multiplayer_peer() first: post-disconnect the peer is null and
 	# is_server() calls get_unique_id() internally, which errors with no peer.
 	if not multiplayer.has_multiplayer_peer() or not multiplayer.is_server():
 		return
 	_step_nav_graph_builds()
 	_update_watch_camera()
+	if _stress_active:
+		_step_stress(delta)
+
+
+## One bot hops to the opposite stress map per _stress_interval (round-robin), so
+## the portal/map-change machinery gets a steady "one after another" stream.
+func _step_stress(delta: float) -> void:
+	if _stress_bot_ids.is_empty():
+		_stress_active = false
+		return
+	_stress_accum += delta
+	if _stress_accum < _stress_interval:
+		return
+	_stress_accum = 0.0
+	var tries := 0
+	while tries < _stress_bot_ids.size():
+		var bot_id: int = _stress_bot_ids[_stress_idx % _stress_bot_ids.size()]
+		_stress_idx += 1
+		tries += 1
+		if not is_instance_valid(PlayerManager.get_player_node(bot_id)):
+			continue  # still spawning / despawned — try the next
+		var cur: String = MapManager.get_player_map(bot_id)
+		var dest: String = _stress_map_b if cur == _stress_map_a else _stress_map_a
+		MapManager.request_map_change(bot_id, dest)
+		return
 
 
 ## Drives in-progress nav-graph builds a slice at a time, and cleans up builds
@@ -580,7 +617,7 @@ func _class_string_to_type(class_str: String) -> int:
 ## route UI back to the requesting client rather than always the host.
 func handle_command(args: Array, requester_id: int = 0) -> String:
 	if args.is_empty():
-		return "Usage: /bot <spawn|despawn|despawn_all|list|teleport|set_level|party|travel|inspect|trade|navgraph|navpath|debugdraw|stats|watch|reload_config>"
+		return "Usage: /bot <spawn|despawn|despawn_all|list|teleport|set_level|party|travel|stress|inspect|trade|navgraph|navpath|debugdraw|stats|watch|reload_config>"
 
 	var sub_command: String = args[0].to_lower()
 	match sub_command:
@@ -665,6 +702,9 @@ func handle_command(args: Array, requester_id: int = 0) -> String:
 
 		"travel":
 			return _handle_travel_command(args.slice(1))
+
+		"stress":
+			return _handle_stress_command(args.slice(1), requester_id)
 
 		"inspect":
 			return _handle_inspect_command(args.slice(1), requester_id)
@@ -924,6 +964,48 @@ func _handle_trade_command(args: Array) -> String:
 	# For now, return instructions since the actual trade needs to be initiated
 	# through the TradeManager RPC from the client
 	return "To trade with bot '%s', use: /trade %s" % [active_bots[bot_id_val].username, active_bots[bot_id_val].username]
+
+
+## /bot stress <count> [interval] | /bot stress off
+## Spawns <count> bots on the requester's current map and cycles them, one per
+## `interval` seconds (round-robin), through the portal to an adjacent map and
+## back — a continuous "one after another through a portal" load test of the
+## server-side map-change path (reparent, visibility recompute, spawn/despawn
+## broadcasts, enemy activation). NOTE: bots take the REPARENT path (like the
+## host), not the remote-client recreate path — see /bot stress notes.
+func _handle_stress_command(args: Array, requester_id: int) -> String:
+	if not multiplayer.is_server():
+		return "host-only."
+	if not args.is_empty() and args[0].to_lower() == "off":
+		_stress_active = false
+		var n := _stress_bot_ids.size()
+		return "Stress stopped. %d bots still active — '/bot despawn_all' to clear." % n
+	var count: int = int(args[0]) if not args.is_empty() else 50
+	count = clampi(count, 1, 200)
+	if args.size() > 1:
+		_stress_interval = clampf(float(args[1]), 0.02, 5.0)
+	# Cycle between the requester's current map and a portal-adjacent map.
+	var map_a: String = MapManager.get_player_map(requester_id)
+	if map_a.is_empty():
+		map_a = MapManager.DEFAULT_MAP
+	var neighbors: Array = MapManager.get_map_connections(map_a)
+	if neighbors.is_empty():
+		return "Map '%s' has no portal-adjacent map to cycle through." % map_a
+	_stress_map_a = map_a
+	_stress_map_b = neighbors[0]
+	var classes := [Constants.ClassType.SWORD, Constants.ClassType.BOW,
+			Constants.ClassType.STAFF, Constants.ClassType.DAGGER]
+	_stress_bot_ids.clear()
+	for i in count:
+		var cls: int = classes[randi() % classes.size()]
+		var id: int = spawn_bot(generate_bot_name(), cls, map_a)
+		if id != 0:
+			_stress_bot_ids.append(id)
+	_stress_idx = 0
+	_stress_accum = 0.0
+	_stress_active = true
+	return "Stress: spawned %d bots, cycling %s <-> %s every %.2fs. '/bot stress off' to stop, '/bot despawn_all' to clear." % [
+		_stress_bot_ids.size(), _stress_map_a, _stress_map_b, _stress_interval]
 
 
 func _handle_travel_command(args: Array) -> String:
