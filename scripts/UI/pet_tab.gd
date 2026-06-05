@@ -170,15 +170,16 @@ func _refresh_detail() -> void:
 	if is_instance_valid(summon_button):
 		summon_button.text = "Unsummon" if is_summoned else "Summon"
 
-	# Feed button. Feeding works whether or not the pet is summoned (the server
-	# updates the record either way), so gate only on having food — never on
-	# summon state. This also dodges a client-login race where is_summoned read
-	# stale before the roster's summoned list synced, which used to leave the
-	# button disabled until an unsummon/resummon.
+	# Feed button is ALWAYS pressable — feeding works summoned or not, and the
+	# food check is deferred to press time (see _on_feed_pressed). Gating
+	# `disabled` on _find_first_pet_food_slot() here was fragile on the client:
+	# this refresh can run before the player ref / inventory finish wiring (the
+	# child's _ready beats the parent's set_owner_player, and inventory can lag
+	# the roster sync at login), which left the button stuck disabled until an
+	# unsummon/resummon.
 	if is_instance_valid(feed_button):
-		var has_food := _find_first_pet_food_slot() != -1
-		feed_button.disabled = not has_food
-		feed_button.tooltip_text = "Feed your pet a Pet Food item." if has_food else "No Pet Food in inventory."
+		feed_button.disabled = false
+		feed_button.tooltip_text = "Feed your pet a Pet Food item."
 
 	# Autopot thresholds.
 	var ap_cfg: Dictionary = record.get(PetManager.KEY_AUTOPOT_CONFIG, {})
@@ -267,6 +268,8 @@ func _on_feed_pressed() -> void:
 		return
 	var slot_idx := _find_first_pet_food_slot()
 	if slot_idx == -1:
+		if LogManager:
+			LogManager.add_scrolling_log("No Pet Food in inventory.", Color(1.0, 0.85, 0.3))
 		return
 	PetManager.request_feed_pet_server.rpc_id(1, _selected_pet_uuid, slot_idx)
 
