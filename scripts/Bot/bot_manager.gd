@@ -392,6 +392,20 @@ func get_nav_graph(map_id: String, map_node: Node2D, max_jump: float, jump_reach
 	return null
 
 
+## The (max jump height, full jump reach) the bots on this server navigate with —
+## the single source of truth for building a nav graph that matches their real
+## reach. Reads any active bot's computed jump profile; falls back to the
+## navigator's own defaults when no bot exists yet. ALL graph-build triggers must
+## use this so the per-map cached graph is identical regardless of which caller
+## (a bot, the debug overlay, the navgraph command) builds it first.
+func _bot_jump_params() -> Vector2:
+	for bid in active_bots:
+		var b = get_bot_brain(bid)
+		if b and is_instance_valid(b._navigator):
+			return Vector2(b._navigator._max_jump_height, b._navigator._jump_reach)
+	return Vector2(40.0, 80.0)
+
+
 # --- /bot stress: cycle N bots through a portal to load-test the map-change path ---
 var _stress_active: bool = false
 var _stress_bot_ids: Array[int] = []
@@ -808,7 +822,12 @@ func _handle_debugdraw_command(args: Array) -> String:
 		var map_node := MapManager.get_player_map_node(1)
 		var map_id: String = MapManager.get_player_map(1)
 		if is_instance_valid(map_node) and not map_id.is_empty():
-			get_nav_graph(map_id, map_node, 45.0, 40.0)
+			# Build with the SAME jump profile the bots use, not hardcoded values:
+			# the graph is cached by whichever caller builds it first, so a mismatch
+			# here (e.g. a too-small jump_reach) would prune valid jump edges and
+			# degrade the very graph the bots then navigate on.
+			var jp := _bot_jump_params()
+			get_nav_graph(map_id, map_node, jp.x, jp.y)
 	elif is_instance_valid(_debug_draw):
 		_debug_draw.enabled = false
 
@@ -871,14 +890,14 @@ func _handle_navgraph_command(args: Array) -> String:
 	if not is_instance_valid(map_node):
 		return "Bot %d has no live map node." % bot_id_val
 
-	var max_jump := 45.0
-	var jump_reach := 80.0
+	# Build the diagnostic graph with the SAME jump profile the live gameplay
+	# graph uses, so the reported jump-edge count matches what bots navigate on.
+	var jp := _bot_jump_params()
+	var max_jump := jp.x
+	var jump_reach := jp.y
 	var brain := get_bot_brain(bot_id_val)
-	if brain:
+	if brain and is_instance_valid(brain._navigator):
 		max_jump = brain._navigator._max_jump_height
-		# Use the SAME full-jump reach the live gameplay graph builds with
-		# (_get_nav_graph passes _jump_reach), not the rise-only launch offset, so
-		# the reported jump-edge count matches what the bots actually navigate on.
 		jump_reach = brain._navigator._jump_reach
 
 	var graph := BotNavGraph.new()
