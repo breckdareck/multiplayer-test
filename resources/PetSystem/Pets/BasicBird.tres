@@ -14,5 +14,5 @@ leash_radius = 150.0
 follow_offset = Vector2(-2, 0)
 jump_velocity = -230.0
 jump_threshold_y = 12.0
-autoloot_radius = 70.0
+autoloot_radius = 95.0
 hunger_decay_per_sec = 0.0333

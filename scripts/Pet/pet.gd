@@ -49,6 +49,10 @@ var _mode: PetMode = PetMode.FOLLOW
 var _loot_target_node: Node = null  # DroppedItem we're pursuing
 var _facing_right: bool = true
 var _is_following: bool = false  # FOLLOW-mode hysteresis state
+# Set while the pet is pursuing/grabbing loot. When looting ends (cluster
+# cleared), it tells _refresh_loot_target to force a walk back to the player
+# instead of parking at the last drop's spot.
+var _was_looting: bool = false
 var _leash_breach_timer: float = 0.0
 var _has_pending_jump: bool = false
 # Previous-frame owner state tracking so we can fire edge-triggered behaviors
@@ -443,6 +447,7 @@ func _physics_process(delta: float) -> void:
 				var drop_name: String = _loot_target_node.name
 				_recently_tried_drops[drop_name] = now_ms
 				PetManager.request_autoloot_server.rpc_id(1, pet_uuid, drop_name)
+				_was_looting = true  # arm the return-to-player once loot is cleared
 				_mode = PetMode.FOLLOW
 				_loot_target_node = null
 				_pickup_dwell_target = null
@@ -484,6 +489,7 @@ func _teleport_to_owner(owner_node: Node) -> void:
 	_leash_breach_timer = 0.0
 	_mode = PetMode.FOLLOW
 	_loot_target_node = null
+	_was_looting = false
 	_has_pending_jump = false
 	# Cancel any in-flight drop-through — the teleport already put us where
 	# we need to be, and leaving the mask off would let us fall through the
@@ -588,9 +594,17 @@ func _refresh_loot_target(owner_node: Node) -> void:
 	if best:
 		_loot_target_node = best
 		_mode = PetMode.LOOT
+		_was_looting = true
 	else:
 		_loot_target_node = null
 		_mode = PetMode.FOLLOW
+		# Finished looting — head back to the player rather than loitering at the
+		# last drop. Force the FOLLOW hysteresis ON so it returns to the standoff
+		# even when the gap is under FOLLOW_START_X (which would otherwise leave
+		# it parked there until the player wandered off).
+		if _was_looting:
+			_is_following = true
+			_was_looting = false
 
 
 func _vacuum_pickup_pass() -> void:
@@ -621,6 +635,7 @@ func _vacuum_pickup_pass() -> void:
 	_last_vacuum_fire_ms = now
 	_recently_tried_drops[target.name] = now
 	PetManager.request_autoloot_server.rpc_id(1, pet_uuid, target.name)
+	_was_looting = true  # arm the return-to-player once the cluster is cleared
 	# If we just fired on our LOOT target, clear it so the next scan retargets.
 	if target == _loot_target_node:
 		_mode = PetMode.FOLLOW
