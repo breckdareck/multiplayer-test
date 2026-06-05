@@ -218,6 +218,27 @@ func _ensure_maps_container() -> SubViewportContainer:
 		push_warning("MapManager: /root/Maps exists but is not a SubViewportContainer; replacing.")
 		get_tree().root.remove_child(existing)
 		existing.queue_free()
+	# Opaque backdrop directly BEHIND the maps. The map SubViewports render with
+	# transparent_bg (so hidden maps don't stack on the host's screen), which means
+	# anything sitting further back in /root shows through during the spawn frame
+	# before the map paints — notably the login/character scene ("remnants ... for
+	# a very brief moment"). This black ColorRect is the immediate sibling behind
+	# the Maps container, so transparent areas reveal black instead. Re-created here
+	# right before the container so it's always positioned correctly: a backdrop
+	# that persisted across a disconnect would otherwise end up BEHIND a freshly
+	# re-added login scene. Mouse-ignore; harmless at the login screen (the current
+	# scene is appended after it, so it draws in front).
+	var old_backdrop := get_tree().root.get_node_or_null("MapsBackdrop")
+	if is_instance_valid(old_backdrop):
+		old_backdrop.free()
+	var backdrop := ColorRect.new()
+	backdrop.name = "MapsBackdrop"
+	backdrop.color = Color.BLACK
+	backdrop.anchor_right = 1.0
+	backdrop.anchor_bottom = 1.0
+	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	get_tree().root.add_child(backdrop)
+
 	var container := SubViewportContainer.new()
 	container.name = "Maps"
 	container.anchor_right = 1.0
