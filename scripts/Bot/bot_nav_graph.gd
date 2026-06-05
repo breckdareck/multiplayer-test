@@ -29,6 +29,11 @@ const MAX_LINK_DIST: float = 220.0  ## Point pairs farther apart than this are n
 ## directly under a ledge — bots ended up trying to land on shelf platforms
 ## they couldn't physically reach.
 const DROP_DX: float = 80.0
+## Max vertical fall (px) a DROP edge may span. Unlike jumps/gaps (bounded by
+## MAX_LINK_DIST), a bot can fall an arbitrary height, so drops get a far larger
+## cap — without it, MAX_LINK_DIST (220) split maps into disconnected islands the
+## bot couldn't descend between (lower platforms 250-700px below were unreachable).
+const DROP_MAX_FALL: float = 800.0
 const MAX_COLUMN_ITERS: int = 400   ## Defensive cap on the per-column probe loop.
 
 enum EdgeKind { WALK, JUMP, DROP, GAP }
@@ -364,12 +369,18 @@ func _build_edges() -> void:
 			if i == j or point_segment[i] == point_segment[j]:
 				continue
 			var pb: Vector2 = points[j]
-			if pa.distance_to(pb) > MAX_LINK_DIST:
+			# Coarse cap = the largest any edge can be (a long fall). JUMP/GAP are
+			# bound far tighter by their own dx/dy limits below; only DROP uses the
+			# full range, so the old blanket MAX_LINK_DIST here was really a drop cap
+			# that wrongly islanded the map.
+			if pa.distance_to(pb) > DROP_MAX_FALL:
 				continue
 			var raw_dx: float = pb.x - pa.x
 			var dx: float = absf(raw_dx)
 			var dy: float = pa.y - pb.y      # > 0 => b is above a
 			if dy > 2.0:
+				if pa.distance_to(pb) > MAX_LINK_DIST:
+					continue
 				# Horizontal reach of a jump shrinks as it gains height (you trade
 				# distance for altitude): full _jump_reach for a low step, down to
 				# the rise-only half near max height. A flat reach would claim
