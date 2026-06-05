@@ -839,13 +839,14 @@ func _do_loot() -> void:
 	var dx = abs(to_loot.x)
 	var dy = abs(to_loot.y)
 
-	# "On top of" the item needs BOTH axes: horizontal alignment AND the same
-	# vertical level. Pickup fires at <=15px euclidean (DroppedItem.pickup_distance),
-	# so when the bot is on the loot's own platform dy is tiny; a platform away it's
-	# 40px+. Without the Y gate, loot one level below (or above) but horizontally
-	# aligned makes the bot stop and spam pickup forever instead of pathing down/up
-	# to the item's level.
-	if dx <= 10.0 and dy <= LOOT_SAME_LEVEL_Y:
+	# "On top of" the item needs the bot GROUNDED on the same level, BOTH axes
+	# aligned. Pickup fires at <=15px euclidean (DroppedItem.pickup_distance), so on
+	# the loot's own platform dy is tiny; a platform away it's 40px+. The floor
+	# check matters when the loot sits beside a ladder: without it, climbing past
+	# the item's x/y trips this "on top" branch and the bot stops dead on the rope
+	# trying to grab loot it can't reach. Off the floor (climbing/jumping) it keeps
+	# pathing instead.
+	if player.is_on_floor() and dx <= 10.0 and dy <= LOOT_SAME_LEVEL_Y:
 		player.direction = 0
 		player.do_pickup = true
 	else:
