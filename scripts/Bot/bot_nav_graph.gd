@@ -58,6 +58,9 @@ var points: PackedVector2Array = PackedVector2Array()
 var point_segment: PackedInt32Array = PackedInt32Array()
 var point_is_ledge: PackedByteArray = PackedByteArray()  ## 1 at a segment's end points.
 var edges: Dictionary = {}                   ## Vector2i(from_id, to_id) -> EdgeKind
+## Each detected ladder/rope column: {x, top, bottom} world coords. Stored so the
+## debug overlay can show that the graph actually picked up the ladders.
+var ladder_zones: Array[Dictionary] = []
 var astar: AStar2D = AStar2D.new()
 var built: bool = false
 
@@ -85,6 +88,7 @@ func begin_build(map_node: Node2D, max_jump_height: float, jump_reach: float) ->
 	point_segment = PackedInt32Array()
 	point_is_ledge = PackedByteArray()
 	edges.clear()
+	ladder_zones.clear()
 	_build_columns = []
 	_build_col_index = 0
 
@@ -456,6 +460,7 @@ func _build_ladder_edges() -> void:
 		var ext: Dictionary = _ladder_extent(ladder)
 		if ext.is_empty():
 			continue
+		ladder_zones.append(ext)   # record for the debug overlay
 		var lx: float = ext.x
 		var level_points: Array = []   # [{y, id}]
 		for seg_i in range(segments.size()):

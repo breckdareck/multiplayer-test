@@ -27,7 +27,7 @@ var show_graph: bool = true
 var show_paths: bool = true
 var show_bot_info: bool = true
 
-## Indexed by BotNavGraph.EdgeKind (WALK, JUMP, DROP, GAP).
+## Indexed by BotNavGraph.EdgeKind (WALK, JUMP, DROP, GAP, CLIMB).
 const EDGE_COLORS: Array[Color] = [
 	Color(0.4, 0.9, 0.4, 0.35),   # WALK  — green (mostly redundant with surfaces)
 	Color(0.3, 0.8, 1.0, 0.75),   # JUMP  — cyan
@@ -35,8 +35,11 @@ const EDGE_COLORS: Array[Color] = [
 	Color(1.0, 0.9, 0.2, 0.75),   # GAP   — yellow
 	Color(0.8, 0.4, 1.0, 0.9),    # CLIMB — purple (ladders/ropes)
 ]
+const EDGE_LABELS: Array[String] = ["WALK", "JUMP up", "DROP down", "GAP", "CLIMB ladder"]
 const SURFACE_COLOR := Color(1, 1, 1, 0.55)
 const ONEWAY_SURFACE_COLOR := Color(0.5, 1.0, 0.7, 0.7)  ## One-way platforms.
+## Detected ladder/rope columns — bright magenta bar over the climbable zone.
+const LADDER_ZONE_COLOR := Color(1.0, 0.2, 0.9, 0.85)
 const POINT_COLOR := Color(1, 1, 1, 0.9)
 const PATH_COLOR := Color(1.0, 0.25, 0.85, 0.95)
 const GOAL_COLOR := Color(1.0, 0.25, 0.85, 0.4)
@@ -69,6 +72,7 @@ func _draw() -> void:
 		return
 	if show_graph:
 		_draw_graph(graph)
+		_draw_legend(graph)
 	_draw_bots(map_id, graph)
 
 
@@ -84,8 +88,42 @@ func _draw_graph(graph: BotNavGraph) -> void:
 		draw_line(graph.point_position(key.x), graph.point_position(key.y),
 			EDGE_COLORS[kind], 1.0)
 
+	# Ladder/rope zones the graph detected — a bright vertical bar with end caps
+	# over each climbable column, so it's obvious the bot "sees" the ladders.
+	for zone in graph.ladder_zones:
+		var x: float = zone.x
+		var top := Vector2(x, zone.top)
+		var bottom := Vector2(x, zone.bottom)
+		draw_line(top, bottom, LADDER_ZONE_COLOR, 3.0)
+		draw_line(top + Vector2(-6, 0), top + Vector2(6, 0), LADDER_ZONE_COLOR, 2.0)
+		draw_line(bottom + Vector2(-6, 0), bottom + Vector2(6, 0), LADDER_ZONE_COLOR, 2.0)
+
 	for i in graph.points.size():
 		draw_circle(graph.points[i], 2.0, POINT_COLOR)
+
+
+## A small colour key + counts, anchored near the host so it stays in view.
+func _draw_legend(graph: BotNavGraph) -> void:
+	var host = PlayerManager.get_player_node(1)
+	if not is_instance_valid(host):
+		return
+	var s: Dictionary = graph.get_stats()
+	var origin: Vector2 = host.global_position + Vector2(56, -132)
+	var rows := [
+		["surfaces", SURFACE_COLOR, int(s.segments)],
+		["one-way platforms", ONEWAY_SURFACE_COLOR, int(s.get("one_way_segments", 0))],
+		[EDGE_LABELS[1], EDGE_COLORS[1], int(s.jump)],
+		[EDGE_LABELS[2], EDGE_COLORS[2], int(s.drop)],
+		[EDGE_LABELS[3], EDGE_COLORS[3], int(s.gap)],
+		[EDGE_LABELS[4], EDGE_COLORS[4], int(s.get("climb", 0))],
+		["ladders/ropes seen", LADDER_ZONE_COLOR, graph.ladder_zones.size()],
+	]
+	var y := 0.0
+	draw_rect(Rect2(origin + Vector2(-4, -10), Vector2(120, rows.size() * 11 + 12)), Color(0, 0, 0, 0.55))
+	for row in rows:
+		draw_rect(Rect2(origin + Vector2(0, y), Vector2(8, 8)), row[1])
+		_label(origin + Vector2(13, y + 8), "%s: %d" % [row[0], row[2]], Color(1, 1, 1, 0.95))
+		y += 11.0
 
 
 func _draw_bots(map_id: String, graph: BotNavGraph) -> void:
