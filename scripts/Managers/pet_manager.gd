@@ -745,8 +745,10 @@ func request_feed_pet_server(pet_uuid: String, inventory_slot_index: int) -> voi
 	var record := find_pet(username, pet_uuid)
 	if record.is_empty():
 		return
-	if not _active_pets.has(pet_uuid):
-		return  # Must be summoned to feed (MapleStory parity)
+	# Feeding does NOT require the pet to be summoned — it just updates the
+	# record's hunger (the broadcast/visual RPCs below no-op harmlessly when no
+	# entity exists). This lets the owner feed a stabled pet, and avoids a
+	# client-login race where the feed UI was blocked until a resummon.
 	var inventory = player.inventory_component
 	if not inventory or inventory_slot_index < 0 or inventory_slot_index >= inventory.slots_data.size():
 		return

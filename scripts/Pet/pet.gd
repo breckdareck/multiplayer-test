@@ -110,10 +110,11 @@ var _pickup_dwell_start_ms: int = 0
 const PICKUP_DWELL_MS: int = 200
 
 # Vacuum: drops within this radius are picked up immediately on any frame,
-# without changing mode or stopping. Lets the pet sweep through an item
-# cluster in one pass instead of stopping at each drop. Tuned wider than
-# PICKUP_X_DISTANCE so the pet "sucks up" items while walking past them.
-const PICKUP_VACUUM_RADIUS: float = 36.0
+# without changing mode or stopping. Kept tight (a hair past PICKUP_X_DISTANCE)
+# so the pet must actually reach the item — it grabs only when its body is on
+# top of the drop, not while still walking up to it. The LOOT-mode dwell below
+# is the fallback for the "stopped at the item" case.
+const PICKUP_VACUUM_RADIUS: float = 5.0
 
 # ── Auto-pot (owner-client only) ──────────────────────────────────────────
 var _autopot_accumulator: float = 0.0

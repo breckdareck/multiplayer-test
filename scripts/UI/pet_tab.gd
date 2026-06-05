@@ -170,15 +170,15 @@ func _refresh_detail() -> void:
 	if is_instance_valid(summon_button):
 		summon_button.text = "Unsummon" if is_summoned else "Summon"
 
-	# Feed button.
+	# Feed button. Feeding works whether or not the pet is summoned (the server
+	# updates the record either way), so gate only on having food — never on
+	# summon state. This also dodges a client-login race where is_summoned read
+	# stale before the roster's summoned list synced, which used to leave the
+	# button disabled until an unsummon/resummon.
 	if is_instance_valid(feed_button):
-		feed_button.disabled = not is_summoned or _find_first_pet_food_slot() == -1
-		if not is_summoned:
-			feed_button.tooltip_text = "Summon the pet first."
-		elif feed_button.disabled:
-			feed_button.tooltip_text = "No Pet Food in inventory."
-		else:
-			feed_button.tooltip_text = "Feed your pet a Pet Food item."
+		var has_food := _find_first_pet_food_slot() != -1
+		feed_button.disabled = not has_food
+		feed_button.tooltip_text = "Feed your pet a Pet Food item." if has_food else "No Pet Food in inventory."
 
 	# Autopot thresholds.
 	var ap_cfg: Dictionary = record.get(PetManager.KEY_AUTOPOT_CONFIG, {})
