@@ -492,8 +492,11 @@ func _build_ladder_edges() -> void:
 				continue
 			if lx < seg.x_min - LADDER_X_TOL or lx > seg.x_max + LADDER_X_TOL:
 				continue
-			var pid: int = _nearest_point_on_segment(seg_i, lx)
-			if pid >= 0 and absf(points[pid].x - lx) <= POINT_SPACING:
+			# Put a graph point exactly ON the column (above/below the rope) so the
+			# bot paths straight to it and walks on, instead of routing to the nearest
+			# 40px-offset point and shuffling/jumping to find the rope.
+			var pid: int = _ensure_column_point(seg_i, lx)
+			if pid >= 0:
 				level_points.append({"y": seg.y, "id": pid})
 		level_points.sort_custom(func(a, b): return a.y < b.y)
 		for k in range(1, level_points.size()):
@@ -535,6 +538,53 @@ func _nearest_point_on_segment(seg_i: int, x: float) -> int:
 			best_dx = d
 			best = i
 	return best
+
+
+## Snap distance: an existing point this close to the column is reused instead of
+## adding a duplicate dot.
+const LADDER_COLUMN_SNAP: float = 8.0
+
+
+## Returns a graph point sitting exactly on the ladder column (x clamped to the
+## surface), creating one and stitching it into the surface's WALK chain if none
+## is already there. This gives bots a waypoint right under/over the rope so they
+## walk straight onto it. Returns -1 if the segment has no points to anchor to.
+func _ensure_column_point(seg_i: int, column_x: float) -> int:
+	var seg: Dictionary = segments[seg_i]
+	var x: float = clampf(column_x, seg.x_min, seg.x_max)
+	var nearest: int = _nearest_point_on_segment(seg_i, x)
+	if nearest < 0:
+		return -1
+	if absf(points[nearest].x - x) <= LADDER_COLUMN_SNAP:
+		return nearest   # close enough — reuse
+	var new_id := points.size()
+	_add_point(Vector2(x, seg.y), seg_i)
+	_walk_connect_into_segment(new_id, seg_i)
+	return new_id
+
+
+## Stitches a freshly-added point into its segment's walkable chain by WALK-linking
+## it to the nearest point on each side, so the bot can walk to/from it.
+func _walk_connect_into_segment(new_id: int, seg_i: int) -> void:
+	var nx: float = points[new_id].x
+	var left := -1
+	var left_dx := INF
+	var right := -1
+	var right_dx := INF
+	for i in range(points.size()):
+		if i == new_id or point_segment[i] != seg_i:
+			continue
+		var dx: float = points[i].x - nx
+		if dx < 0.0 and -dx < left_dx:
+			left_dx = -dx
+			left = i
+		elif dx > 0.0 and dx < right_dx:
+			right_dx = dx
+			right = i
+	if left >= 0:
+		_connect(new_id, left, EdgeKind.WALK, true)
+	if right >= 0:
+		_connect(new_id, right, EdgeKind.WALK, true)
 
 
 ## Whether a jump/gap edge between two points is unobstructed. Rejects an edge
