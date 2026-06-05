@@ -935,16 +935,34 @@ func _handle_navpath_command(args: Array) -> String:
 	if brain == null:
 		return "Bot %d has no active brain." % bot_id_val
 
+	var nav = brain._navigator
+	var p = brain.player
 	var lines: PackedStringArray = []
 	lines.append("Bot %d nav state:" % bot_id_val)
-	lines.append("  action: %s" % brain.current_action)
-	lines.append("  nav goal: %s" % str(brain._navigator._nav_goal))
-	var path: PackedInt64Array = brain._navigator._nav_path
+	lines.append("  action: %s   pos: %s" % [brain.current_action, str(Vector2i(p.global_position)) if is_instance_valid(p) else "?"])
+	if is_instance_valid(brain.target_enemy):
+		lines.append("  target enemy at %s" % str(Vector2i(brain.target_enemy.global_position)))
+	if is_instance_valid(brain.target_loot):
+		lines.append("  target loot at %s" % str(Vector2i(brain.target_loot.global_position)))
+	lines.append("  nav goal: %s" % str(Vector2i(nav._nav_goal)) if nav._nav_goal.is_finite() else "  nav goal: none")
+	lines.append("  on_floor: %s  in_ladder: %s  climbing: %s" % [
+		p.is_on_floor() if is_instance_valid(p) else "?", p.is_in_ladder_zone() if is_instance_valid(p) else "?", nav.is_climbing()])
+	var path: PackedInt64Array = nav._nav_path
 	if path.is_empty():
 		lines.append("  waypoint path: none (direct navigation / no route)")
 	else:
-		lines.append("  waypoint path: %d points, currently at index %d" % [
-			path.size(), brain._navigator._nav_index])
+		lines.append("  waypoint path: %d points, at index %d" % [path.size(), nav._nav_index])
+		# Show the current hop's edge kind + target so we can see what it's trying.
+		var graph := nav._get_nav_graph()
+		if graph != null and nav._nav_index >= 1 and nav._nav_index < path.size():
+			var prev: int = path[nav._nav_index - 1]
+			var cur: int = path[nav._nav_index]
+			if graph.has_point(prev) and graph.has_point(cur):
+				var kinds := ["WALK", "JUMP", "DROP", "GAP", "CLIMB"]
+				var k: int = graph.edge_kind(prev, cur)
+				lines.append("  current hop: %s -> %s  edge=%s" % [
+					str(Vector2i(graph.point_position(prev))), str(Vector2i(graph.point_position(cur))),
+					kinds[k] if k >= 0 and k < kinds.size() else "?(%d)" % k])
 	return "\n".join(lines)
 
 

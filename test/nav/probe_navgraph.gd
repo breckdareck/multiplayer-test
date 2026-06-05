@@ -140,6 +140,38 @@ func _dump_climb_edges(g) -> void:
 	spans.sort()
 	spans.reverse()
 	print("[probe] CLIMB edges: %d  vertical spans (largest first): %s" % [spans.size(), str(spans.slice(0, 12))])
+	# Unique CLIMB edges as from_y<->to_y at their column x.
+	var seen2 := {}
+	var lines := []
+	for key in g.edges:
+		if g.edges[key] != 4:
+			continue
+		var a: int = mini(key.x, key.y)
+		var b: int = maxi(key.x, key.y)
+		var k := "%d-%d" % [a, b]
+		if seen2.has(k):
+			continue
+		seen2[k] = true
+		var pa: Vector2 = g.points[a]
+		var pb: Vector2 = g.points[b]
+		lines.append("y %d<->%d  x~%d" % [int(pa.y), int(pb.y), int(pa.x)])
+	lines.sort()
+	for l in lines:
+		print("          CLIMB %s" % l)
+	# DROP edges leaving the 2nd layer (y≈-221) — a competing route to the bottom.
+	var drops := []
+	for key in g.edges:
+		if g.edges[key] != 2:   # DROP
+			continue
+		var pa: Vector2 = g.points[key.x]
+		var pb: Vector2 = g.points[key.y]
+		if absf(pa.y - (-221.0)) <= 4.0:
+			drops.append("y %d -> %d  x %d->%d (fall %d, dx %d)" % [
+				int(pa.y), int(pb.y), int(pa.x), int(pb.x), int(pb.y - pa.y), int(absf(pb.x - pa.x))])
+	drops.sort()
+	print("[probe] DROP edges leaving the 2nd layer (y=-221): %d" % drops.size())
+	for d in drops:
+		print("          DROP %s" % d)
 
 
 ## For each ladder: its column + vertical extent, and which surfaces it spans —
