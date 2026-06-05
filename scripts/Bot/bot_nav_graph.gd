@@ -38,6 +38,24 @@ const MAX_COLUMN_ITERS: int = 400   ## Defensive cap on the per-column probe loo
 
 enum EdgeKind { WALK, JUMP, DROP, GAP, CLIMB }
 
+## A* that PENALISES drop edges so the bot prefers ladders/ropes (and walking) for
+## descent over jumping down — dropping has been the less reliable path and is
+## where bots wedge. Drops are still used when no cheaper route exists; the penalty
+## multiplies the edge's length, so a long fall is avoided much more strongly than
+## a one-tile step-down (for which no ladder ever competes anyway).
+class _NavAStar extends AStar2D:
+	const DROP_KIND: int = 2          ## EdgeKind.DROP
+	const DROP_PENALTY: float = 4.0
+	var edges_ref: Dictionary = {}    ## shares BotNavGraph.edges (kept admissible).
+	func _compute_cost(from_id: int, to_id: int) -> float:
+		var d: float = get_point_position(from_id).distance_to(get_point_position(to_id))
+		if int(edges_ref.get(Vector2i(from_id, to_id), -1)) == DROP_KIND:
+			return d * DROP_PENALTY
+		return d
+	func _estimate_cost(from_id: int, to_id: int) -> float:
+		# Straight-line heuristic stays admissible (penalised edges only cost MORE).
+		return get_point_position(from_id).distance_to(get_point_position(to_id))
+
 ## Horizontal tolerance (px) for matching a ladder's column to a surface's x-span
 ## and to a graph point — a ladder connects a surface if its x falls within the
 ## surface's extent (plus this slack) and there's a point near that column.
@@ -61,7 +79,7 @@ var edges: Dictionary = {}                   ## Vector2i(from_id, to_id) -> Edge
 ## Each detected ladder/rope column: {x, top, bottom} world coords. Stored so the
 ## debug overlay can show that the graph actually picked up the ladders.
 var ladder_zones: Array[Dictionary] = []
-var astar: AStar2D = AStar2D.new()
+var astar: _NavAStar = _NavAStar.new()
 var built: bool = false
 
 var _max_jump_height: float = 40.0
@@ -88,6 +106,7 @@ func begin_build(map_node: Node2D, max_jump_height: float, jump_reach: float) ->
 	point_segment = PackedInt32Array()
 	point_is_ledge = PackedByteArray()
 	edges.clear()
+	astar.edges_ref = edges   ## let the cost function read edge kinds (drop penalty)
 	ladder_zones.clear()
 	_build_columns = []
 	_build_col_index = 0

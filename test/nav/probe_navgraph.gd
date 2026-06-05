@@ -117,6 +117,28 @@ func _run() -> void:
 	_report_directed(g, mid_i, "MIDDLE")
 	_report_directed(g, lowest_i, "BOTTOM")
 	_report_traps(g)
+	_trace_descent(g, mid_i, lowest_i)
+
+
+## Trace the chosen path from a high point to a low one and tally edge kinds, to
+## confirm the drop-penalty steers descents through ladders rather than drops.
+func _trace_descent(g, from_i: int, to_i: int) -> void:
+	var path: PackedInt64Array = g.find_id_path(g.points[from_i], g.points[to_i])
+	if path.size() < 2:
+		print("[probe] descent trace: no path")
+		return
+	var names := ["WALK", "JUMP", "DROP", "GAP", "CLIMB"]
+	var tally := {0: 0, 1: 0, 2: 0, 3: 0, 4: 0}
+	var seq := []
+	for i in range(1, path.size()):
+		var k: int = g.edge_kind(path[i - 1], path[i])
+		if tally.has(k):
+			tally[k] += 1
+		seq.append(names[k] if k >= 0 and k < names.size() else "?")
+	print("[probe] descent %s -> %s: %d hops  CLIMB=%d DROP=%d WALK=%d JUMP=%d GAP=%d" % [
+		str(g.points[from_i]), str(g.points[to_i]), path.size() - 1,
+		tally[4], tally[2], tally[0], tally[1], tally[3]])
+	print("          seq: %s" % str(seq))
 	_diagnose_ladders(g)
 	_dump_climb_edges(g)
 	_dump_surfaces(g)
