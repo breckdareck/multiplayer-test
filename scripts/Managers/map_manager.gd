@@ -139,7 +139,9 @@ func _preinstantiate_all_maps() -> void:
 # every enemy on a zero-agent map — cost ≈0 without ever unloading the map.
 
 func _process(delta: float) -> void:
-	if not multiplayer.is_server() or active_maps.is_empty():
+	# has_multiplayer_peer() first: post-disconnect the peer is null and
+	# is_server() calls get_unique_id() internally, which errors with no peer.
+	if not multiplayer.has_multiplayer_peer() or not multiplayer.is_server() or active_maps.is_empty():
 		return
 	_activation_scan_accum += delta
 	if _activation_scan_accum < ACTIVATION_SCAN_INTERVAL:

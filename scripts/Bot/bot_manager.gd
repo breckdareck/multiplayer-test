@@ -391,7 +391,9 @@ func get_nav_graph(map_id: String, map_node: Node2D, max_jump: float, jump_reach
 
 
 func _process(_delta: float) -> void:
-	if not multiplayer.is_server():
+	# has_multiplayer_peer() first: post-disconnect the peer is null and
+	# is_server() calls get_unique_id() internally, which errors with no peer.
+	if not multiplayer.has_multiplayer_peer() or not multiplayer.is_server():
 		return
 	_step_nav_graph_builds()
 	_update_watch_camera()
