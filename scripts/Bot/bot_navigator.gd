@@ -17,9 +17,10 @@ var _jump_cooldown_timer: float = 0.0
 ## column for the commit check (is_on_climb_segment) and dismount.
 const LADDER_MOUNT_X_TOL: float = 14.0
 ## Tight slack (px) for being directly UNDER/OVER the column before mounting. The
-## zone is only ~14px wide, so the hop/drop-in must start from near its center or
-## it lands beside the rope and the climb never engages.
-const LADDER_UNDER_X_TOL: float = 6.0
+## zone is only ~14px wide AND the bot must stop INSIDE it for descent to engage,
+## so this has to be small — 6px left the bot just outside the zone and it
+## wouldn't go down. Centered (~2px) the body is reliably within the zone.
+const LADDER_UNDER_X_TOL: float = 2.0
 ## When ASCENDING, dismount once the bot has climbed to within this many px below
 ## the top platform (or above it) — ropes stick out above the platform, so the bot
 ## must hop off sideways onto it rather than ride past.
