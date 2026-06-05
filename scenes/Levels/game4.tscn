@@ -1129,12 +1129,11 @@ debug_color = Color(0.9764706, 0, 0, 0.75686276)
 [node name="Platforms" type="Node2D" parent="."]
 position = Vector2(-119, -269)
 
-[node name="CratePlatform" type="AnimatableBody2D" parent="Platforms"]
+[node name="CratePlatform" type="StaticBody2D" parent="Platforms"]
 position = Vector2(203, 120)
 collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
-script = ExtResource("8_u8wq7")
 
 [node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform"]
 replication_config = SubResource("SceneReplicationConfig_w3ioj")
@@ -1153,12 +1152,11 @@ one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
-[node name="CratePlatform2" type="AnimatableBody2D" parent="Platforms"]
+[node name="CratePlatform2" type="StaticBody2D" parent="Platforms"]
 position = Vector2(225, 120)
 collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
-script = ExtResource("8_u8wq7")
 
 [node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform2"]
 replication_config = SubResource("SceneReplicationConfig_w3ioj")
@@ -1177,12 +1175,11 @@ one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
-[node name="CratePlatform3" type="AnimatableBody2D" parent="Platforms"]
+[node name="CratePlatform3" type="StaticBody2D" parent="Platforms"]
 position = Vector2(213, 102)
 collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
-script = ExtResource("8_u8wq7")
 
 [node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform3"]
 replication_config = SubResource("SceneReplicationConfig_w3ioj")
@@ -1201,12 +1198,11 @@ one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
-[node name="CratePlatform5" type="AnimatableBody2D" parent="Platforms"]
+[node name="CratePlatform5" type="StaticBody2D" parent="Platforms"]
 position = Vector2(184, 40)
 collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
-script = ExtResource("8_u8wq7")
 
 [node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform5"]
 replication_config = SubResource("SceneReplicationConfig_w3ioj")
@@ -1225,12 +1221,11 @@ one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
-[node name="CratePlatform6" type="AnimatableBody2D" parent="Platforms"]
+[node name="CratePlatform6" type="StaticBody2D" parent="Platforms"]
 position = Vector2(206, 40)
 collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
-script = ExtResource("8_u8wq7")
 
 [node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform6"]
 replication_config = SubResource("SceneReplicationConfig_w3ioj")
@@ -1249,12 +1244,11 @@ one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
-[node name="CratePlatform7" type="AnimatableBody2D" parent="Platforms"]
+[node name="CratePlatform7" type="StaticBody2D" parent="Platforms"]
 position = Vector2(194, 22)
 collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
-script = ExtResource("8_u8wq7")
 
 [node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform7"]
 replication_config = SubResource("SceneReplicationConfig_w3ioj")
@@ -1273,12 +1267,11 @@ one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
-[node name="CratePlatform8" type="AnimatableBody2D" parent="Platforms"]
+[node name="CratePlatform8" type="StaticBody2D" parent="Platforms"]
 position = Vector2(154, -40)
 collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
-script = ExtResource("8_u8wq7")
 
 [node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform8"]
 replication_config = SubResource("SceneReplicationConfig_w3ioj")
@@ -1297,12 +1290,11 @@ one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
-[node name="CratePlatform9" type="AnimatableBody2D" parent="Platforms"]
+[node name="CratePlatform9" type="StaticBody2D" parent="Platforms"]
 position = Vector2(176, -40)
 collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
-script = ExtResource("8_u8wq7")
 
 [node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform9"]
 replication_config = SubResource("SceneReplicationConfig_w3ioj")
@@ -1321,12 +1313,11 @@ one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
-[node name="CratePlatform10" type="AnimatableBody2D" parent="Platforms"]
+[node name="CratePlatform10" type="StaticBody2D" parent="Platforms"]
 position = Vector2(164, -58)
 collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
-script = ExtResource("8_u8wq7")
 
 [node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform10"]
 replication_config = SubResource("SceneReplicationConfig_w3ioj")
@@ -1345,12 +1336,11 @@ one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
-[node name="CratePlatform11" type="AnimatableBody2D" parent="Platforms"]
+[node name="CratePlatform11" type="StaticBody2D" parent="Platforms"]
 position = Vector2(120, -120)
 collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
-script = ExtResource("8_u8wq7")
 
 [node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform11"]
 replication_config = SubResource("SceneReplicationConfig_w3ioj")
@@ -1369,12 +1359,11 @@ one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
-[node name="CratePlatform12" type="AnimatableBody2D" parent="Platforms"]
+[node name="CratePlatform12" type="StaticBody2D" parent="Platforms"]
 position = Vector2(142, -120)
 collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
-script = ExtResource("8_u8wq7")
 
 [node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform12"]
 replication_config = SubResource("SceneReplicationConfig_w3ioj")
@@ -1393,12 +1382,11 @@ one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
-[node name="CratePlatform13" type="AnimatableBody2D" parent="Platforms"]
+[node name="CratePlatform13" type="StaticBody2D" parent="Platforms"]
 position = Vector2(130, -138)
 collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
-script = ExtResource("8_u8wq7")
 
 [node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform13"]
 replication_config = SubResource("SceneReplicationConfig_w3ioj")
@@ -1417,12 +1405,11 @@ one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
-[node name="CratePlatform4" type="AnimatableBody2D" parent="Platforms"]
+[node name="CratePlatform4" type="StaticBody2D" parent="Platforms"]
 position = Vector2(-223, 119)
 collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
-script = ExtResource("8_u8wq7")
 
 [node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform4"]
 replication_config = SubResource("SceneReplicationConfig_w3ioj")
@@ -1441,12 +1428,11 @@ one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
-[node name="CratePlatform14" type="AnimatableBody2D" parent="Platforms"]
+[node name="CratePlatform14" type="StaticBody2D" parent="Platforms"]
 position = Vector2(-194, 40)
 collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
-script = ExtResource("8_u8wq7")
 
 [node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform14"]
 replication_config = SubResource("SceneReplicationConfig_w3ioj")
@@ -1465,12 +1451,11 @@ one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
-[node name="CratePlatform15" type="AnimatableBody2D" parent="Platforms"]
+[node name="CratePlatform15" type="StaticBody2D" parent="Platforms"]
 position = Vector2(-163, -40)
 collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
-script = ExtResource("8_u8wq7")
 
 [node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform15"]
 replication_config = SubResource("SceneReplicationConfig_w3ioj")
@@ -1489,12 +1474,11 @@ one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
-[node name="CratePlatform16" type="AnimatableBody2D" parent="Platforms"]
+[node name="CratePlatform16" type="StaticBody2D" parent="Platforms"]
 position = Vector2(-143, -120)
 collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
-script = ExtResource("8_u8wq7")
 
 [node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform16"]
 replication_config = SubResource("SceneReplicationConfig_w3ioj")
@@ -1513,13 +1497,12 @@ one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
-[node name="Platform" type="AnimatableBody2D" parent="Platforms"]
+[node name="Platform" type="StaticBody2D" parent="Platforms"]
 position = Vector2(-232, 10)
 scale = Vector2(0.7, 0.7)
 collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
-script = ExtResource("8_u8wq7")
 
 [node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/Platform"]
 replication_config = SubResource("SceneReplicationConfig_nlgqw")
@@ -1538,13 +1521,12 @@ one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
-[node name="Platform2" type="AnimatableBody2D" parent="Platforms"]
+[node name="Platform2" type="StaticBody2D" parent="Platforms"]
 position = Vector2(-231.99998, -6.999998)
 scale = Vector2(0.7, 0.7)
 collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
-script = ExtResource("8_u8wq7")
 
 [node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/Platform2"]
 replication_config = SubResource("SceneReplicationConfig_nlgqw")
@@ -1563,13 +1545,12 @@ one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
-[node name="Platform3" type="AnimatableBody2D" parent="Platforms"]
+[node name="Platform3" type="StaticBody2D" parent="Platforms"]
 position = Vector2(-199, -71.99999)
 scale = Vector2(0.7, 0.7)
 collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
-script = ExtResource("8_u8wq7")
 
 [node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/Platform3"]
 replication_config = SubResource("SceneReplicationConfig_nlgqw")
@@ -1588,13 +1569,12 @@ one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
-[node name="Platform4" type="AnimatableBody2D" parent="Platforms"]
+[node name="Platform4" type="StaticBody2D" parent="Platforms"]
 position = Vector2(-198.99998, -88.99999)
 scale = Vector2(0.7, 0.7)
 collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
-script = ExtResource("8_u8wq7")
 
 [node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/Platform4"]
 replication_config = SubResource("SceneReplicationConfig_nlgqw")
@@ -1613,13 +1593,12 @@ one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
-[node name="Platform5" type="AnimatableBody2D" parent="Platforms"]
+[node name="Platform5" type="StaticBody2D" parent="Platforms"]
 position = Vector2(-181, -142)
 scale = Vector2(0.7, 0.7)
 collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
-script = ExtResource("8_u8wq7")
 
 [node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/Platform5"]
 replication_config = SubResource("SceneReplicationConfig_nlgqw")
@@ -1638,13 +1617,12 @@ one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
-[node name="StallRoof" type="AnimatableBody2D" parent="Platforms"]
+[node name="StallRoof" type="StaticBody2D" parent="Platforms"]
 position = Vector2(129, 87)
 scale = Vector2(0.7, 0.7)
 collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
-script = ExtResource("8_u8wq7")
 
 [node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/StallRoof"]
 replication_config = SubResource("SceneReplicationConfig_nlgqw")
