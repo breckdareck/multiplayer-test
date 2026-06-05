@@ -183,7 +183,7 @@ func create_dropped_item(item_data: ItemData, amount: int, world_position: Vecto
 		for peer_id in players_on_map:
 			if peer_id != 1: # Server already has it
 				#print("GlobalDropHandler: Sending spawn_item_client RPC to peer %d" % peer_id)
-				spawn_item_client.rpc_id(peer_id, item_data.item_id, amount, world_position, eligible_player_ids, item_unique_name, scene_to_add_to.name)
+				spawn_item_client.rpc_id(peer_id, item_data.item_id, amount, world_position, eligible_player_ids, item_unique_name, scene_to_add_to.name, dropped_item.current_state)
 
 				# Update synchronizer visibility for this peer
 				if synchronizer:
@@ -197,7 +197,7 @@ func create_dropped_item(item_data: ItemData, amount: int, world_position: Vecto
 
 
 @rpc("authority", "call_local", "reliable")
-func spawn_item_client(item_id: String, amount: int, world_position: Vector2, eligible_player_ids: Array = [], item_name: String = "", _map_name: String = ""):
+func spawn_item_client(item_id: String, amount: int, world_position: Vector2, eligible_player_ids: Array = [], item_name: String = "", _map_name: String = "", state: int = DroppedItem.ItemState.POPPING):
 	#print("GlobalDropHandler.spawn_item_client called: item=%s, name=%s, is_server=%s" % [item_id, item_name, multiplayer.is_server()])
 	if multiplayer.is_server():
 		#print("GlobalDropHandler.spawn_item_client: Exiting on server")
@@ -233,6 +233,11 @@ func spawn_item_client(item_id: String, amount: int, world_position: Vector2, el
 	dropped_item.global_position = world_position
 	dropped_item.setup(item_data, amount, eligible_player_ids)
 	dropped_item.sprite.texture = item_data.icon
+	# Seed the replicated state so a client joining a map with already-settled
+	# drops sees them as SETTLED immediately (client physics is disabled, so it
+	# can't advance the state itself, and the pet's loot scan only targets
+	# SETTLED drops). The synchronizer keeps it current after this.
+	dropped_item.current_state = state
 
 
 func sync_items_to_player(player_id: int) -> void:
@@ -265,7 +270,8 @@ func sync_items_to_player(player_id: int) -> void:
 				item.global_position,
 				item._eligible_player_ids,
 				item.name,
-				map_instance.name
+				map_instance.name,
+				item.current_state
 			)
 			
 			# Update visibility for this player
