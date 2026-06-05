@@ -336,14 +336,15 @@ func _navigate_toward(target_pos: Vector2) -> void:
 		player.direction = _descend_dir
 		player.facing_direction = _descend_dir
 		# At a ledge — walk off it only when there is ground below to land on.
-		# When _committed_to_drop, trust A*'s validated DROP edge instead: the
-		# safety raycast probes 18 px forward and misses any landing offset
-		# more than that from the ledge, halting the bot at the very edge.
+		# When _committed_to_drop, trust A*'s validated DROP edge instead. Either
+		# way the landing can sit well forward of the ledge, so scan a window out
+		# to the drop range rather than a single 18 px probe (which halts the bot
+		# at the very edge whenever the landing is offset — the "walks to the edge
+		# but never drops" bug).
 		if is_near_ledge():
 			_descend_dir = 0
-			if not _committed_to_drop \
-					and not raycast_down(player.global_position + Vector2(player.direction * 18.0, 0), DROP_SCAN_DEPTH):
-				player.direction = 0  # ledge over a pit / map edge — hold
+			if not _committed_to_drop and not _has_drop_landing(player.direction):
+				player.direction = 0  # genuine pit / map edge — hold
 		return
 	_descend_dir = 0
 
@@ -414,6 +415,20 @@ func _has_ground_across_gap(dir: int) -> bool:
 		query.exclude = [player.get_rid()]
 		var result := _get_space_state().intersect_ray(query)
 		if not result.is_empty():
+			return true
+	return false
+
+
+## True if there is ground to land on below, at ANY forward offset out to the
+## drop range. A descending bot drifts horizontally in free-fall, so the landing
+## for a valid drop can sit well forward of the ledge (the nav graph's DROP edges
+## tolerate up to ~80 px). A single narrow probe misses those and strands the bot
+## at the edge; scanning the window lets it commit to offset drops while still
+## holding at a genuine pit / map edge (no ground at any offset).
+func _has_drop_landing(dir: int) -> bool:
+	var player: MultiplayerPlayerV2 = brain.player
+	for off in [18.0, 40.0, 64.0, 88.0]:
+		if raycast_down(player.global_position + Vector2(dir * off, 0.0), DROP_SCAN_DEPTH):
 			return true
 	return false
 
