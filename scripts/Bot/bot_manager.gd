@@ -403,7 +403,10 @@ func _bot_jump_params() -> Vector2:
 		var b = get_bot_brain(bid)
 		if b and is_instance_valid(b._navigator):
 			return Vector2(b._navigator._max_jump_height, b._navigator._jump_reach)
-	return Vector2(40.0, 80.0)
+	# Fallback when no bot exists yet — match the navigator's computed profile for
+	# the real player tuning (jump_velocity -230, move_speed 100) so a graph built
+	# before any bot spawns isn't seeded with too-generous jump limits.
+	return Vector2(28.0, 47.0)
 
 
 # --- /bot stress: cycle N bots through a portal to load-test the map-change path ---

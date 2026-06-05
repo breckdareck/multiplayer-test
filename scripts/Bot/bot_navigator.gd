@@ -20,22 +20,24 @@ var _jump_cooldown_timer: float = 0.0
 const SETTLE_SPEED: float = 25.0
 
 # Jump reachability — derived from the player's real jump_velocity, move_speed
-# and project gravity in compute_jump_profile(). Defaults match the stock
-# player tuning so navigation still behaves sanely if derivation fails.
-## Safety margin on the raw physics peak so the bot only commits to jumps it
-## can comfortably clear.
-const JUMP_HEIGHT_SAFETY: float = 0.88
+# and project gravity in compute_jump_profile(). Defaults match the real player
+# tuning (jump_velocity -230, move_speed 100) so navigation still behaves sanely
+# if derivation fails.
+## Fraction of the simulated jump apex the bot will commit to reaching — a small
+## landing buffer below the true peak (which _simulate_jump_apex already computes
+## accurately), not the large under-estimate the old textbook-formula path needed.
+const JUMP_HEIGHT_SAFETY: float = 0.95
 ## Max vertical distance (px) the bot will attempt to jump to reach a target.
-var _max_jump_height: float = 40.0
+var _max_jump_height: float = 28.0
 ## Horizontal stand-off (px) used when launching up to an elevated portal —
 ## roughly the bot's horizontal travel during a jump's rise, so the arc carries
 ## it from the launch point onto the portal.
-var _jump_launch_offset: float = 40.0
+var _jump_launch_offset: float = 23.0
 ## Full horizontal reach (px) of a jump — rise + fall back to the launch height,
 ## so ~2x the rise-only launch offset. Passed to the nav graph as the JUMP/GAP
 ## horizontal limit: the launch offset alone underestimates how far a jump
 ## actually carries the bot, pruning the diagonal up-edges a staircase needs.
-var _jump_reach: float = 80.0
+var _jump_reach: float = 47.0
 
 var _wall_stuck_timer: float = 0.0
 const WALL_STUCK_JUMP_TIME: float = 0.4
@@ -84,8 +86,8 @@ func compute_jump_profile() -> void:
 	if grav <= 0.0:
 		return
 
-	var jump_velocity: float = -300.0
-	var move_speed: float = 130.0
+	var jump_velocity: float = -230.0
+	var move_speed: float = 100.0
 	var player: MultiplayerPlayerV2 = brain.player
 	if is_instance_valid(player) and is_instance_valid(player.state_machine):
 		var jump_state: Node = player.state_machine.get_node_or_null("jump")
@@ -95,9 +97,11 @@ func compute_jump_profile() -> void:
 		if move_state and "move_speed" in move_state:
 			move_speed = move_state.move_speed
 
-	# Peak height of a jump is v^2 / 2g; keep a safety margin so the bot only
-	# commits to jumps it can comfortably clear.
-	var raw_height: float = (jump_velocity * jump_velocity) / (2.0 * grav)
+	# Peak height: NOT the textbook v^2/2g. jump.gd skips gravity on the first
+	# physics frame (its "full-power" frame), so the real jump clears noticeably
+	# more than the formula — using the formula made the graph prune platforms the
+	# player jumps normally. Simulate the actual arc at the physics tick instead.
+	var raw_height: float = _simulate_jump_apex(jump_velocity, grav)
 	_max_jump_height = raw_height * JUMP_HEIGHT_SAFETY
 	# Horizontal travel during the jump's rise = move_speed * time-to-apex.
 	_jump_launch_offset = move_speed * (absf(jump_velocity) / grav)
@@ -105,6 +109,28 @@ func compute_jump_profile() -> void:
 	# travel). The nav graph's JUMP/GAP edges use this so the bot's true jump
 	# distance isn't underestimated.
 	_jump_reach = _jump_launch_offset * 2.0
+
+
+## Peak rise (px) of a real jump, integrated at the 60 Hz physics tick to mirror
+## jump.gd: the first frame moves at full launch velocity with gravity skipped,
+## then gravity accumulates each frame until upward momentum is spent. Matches the
+## in-game arc (which exceeds the continuous v^2/2g apex), so the graph's jump
+## edges line up with what the player/bot can actually clear.
+func _simulate_jump_apex(jump_velocity: float, grav: float) -> float:
+	var dt := 1.0 / 60.0
+	var vy := jump_velocity      # negative = upward
+	var h := 0.0
+	var peak := 0.0
+	var first := true
+	var iters := 0
+	while vy < 0.0 and iters < 1000:
+		iters += 1
+		if not first:
+			vy += grav * dt      # gravity skipped on the launch frame (jump.gd)
+		first = false
+		h += vy * dt
+		peak = minf(peak, h)
+	return absf(peak)
 
 
 ## Routes the bot toward a distant goal using the map's platform-nav graph,
