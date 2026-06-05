@@ -13,6 +13,9 @@ var brain                       ## The owning BotBrain node.
 
 const JUMP_COOLDOWN: float = 0.8
 var _jump_cooldown_timer: float = 0.0
+## Horizontal slack (px) within which the bot counts as aligned with a ladder
+## column for mounting (hop-up assist + dismount).
+const LADDER_MOUNT_X_TOL: float = 14.0
 ## Max horizontal speed (px/s) the bot may carry when launching an UPWARD jump.
 ## Above this it holds to bleed off landing momentum first, so it settles on an
 ## intermediate platform and launches cleanly instead of sliding off the far edge
@@ -142,6 +145,14 @@ func navigate_smart(goal: Vector2) -> void:
 	# Re-evaluated each frame inside _steer_along_nav_path; clear here so a
 	# direct-navigation fallback doesn't inherit a stale "I'm dropping" flag.
 	_committed_to_drop = false
+
+	# While riding a ladder/rope, stay on the planned path and finish the climb.
+	# Re-planning from a mid-rope position snaps to the wrong surface, and the
+	# direct-nav shortcut below would abandon the ladder to jump at the goal — both
+	# strand the bot on the rope. Just keep steering the existing waypoints.
+	if is_climbing() and not _nav_path.is_empty():
+		_steer_along_nav_path(goal)
+		return
 	# Close in — the graph adds nothing, and its waypoints are coarser than the
 	# direct heuristics for the final approach (e.g. entering a portal Area2D).
 	# But only when the goal is on roughly the same elevation. A goal well ABOVE
@@ -169,6 +180,10 @@ func navigate_smart(goal: Vector2) -> void:
 ## repath interval has elapsed.
 func _ensure_nav_path(goal: Vector2) -> void:
 	var player: MultiplayerPlayerV2 = brain.player
+	# Never re-plan mid-climb — a fresh path from a point on the rope snaps to the
+	# wrong surface and breaks the ascent/descent in progress.
+	if is_climbing() and not _nav_path.is_empty():
+		return
 	var need := _nav_path.is_empty()
 	if not need and _nav_goal.distance_to(goal) > NAV_GOAL_MOVED:
 		need = true
@@ -255,6 +270,11 @@ func _ride_ladder(target: Vector2) -> void:
 			player.facing_direction = player.direction
 		if dy < -2.0:
 			player.input_up = true
+			# The ladder zone can start above a platform standing flush below it;
+			# aligned with the column and grounded, hop up to reach the zone so the
+			# climb (with input_up already held) engages on the way up.
+			if absf(dx) <= LADDER_MOUNT_X_TOL and player.is_on_floor():
+				try_jump()
 		elif dy > 2.0:
 			player.input_down = true
 		return
@@ -462,6 +482,18 @@ func try_jump() -> void:
 	if _jump_cooldown_timer <= 0.0 and player.is_on_floor():
 		player.do_jump = true
 		_jump_cooldown_timer = JUMP_COOLDOWN
+
+
+## True while the bot is in the player's climb state (actively on a ladder/rope).
+## Callers use this to keep the bot on its planned climb instead of re-planning or
+## fighting mid-rope.
+func is_climbing() -> bool:
+	var player: MultiplayerPlayerV2 = brain.player
+	var sm = player.get_node_or_null("StateMachine")
+	if sm == null or not "current_state" in sm:
+		return false
+	var climb_state = sm.get_node_or_null("climb")
+	return climb_state != null and sm.current_state == climb_state
 
 
 # --- Raycast helpers ---

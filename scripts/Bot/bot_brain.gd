@@ -263,7 +263,12 @@ func _process(delta: float) -> void:
 
 	if think_timer <= 0.0:
 		think_timer = think_interval
-		_think()
+		# Don't re-pick the action while the bot is on a ladder/rope: switching to
+		# (or re-pathing toward) a wandering enemy mid-climb strands it on the rope.
+		# Keep the current action so the in-progress climb finishes onto a platform;
+		# normal thinking resumes the moment the bot is back on solid ground.
+		if not _navigator.is_climbing():
+			_think()
 
 	_equip_check_timer -= delta
 	if _equip_check_timer <= 0.0:
