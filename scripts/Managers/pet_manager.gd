@@ -468,10 +468,22 @@ func _spawn_pet_internal(username: String, pet_uuid: String) -> void:
 		sync.public_visibility = false
 
 	var map_id: String = MapManager.get_player_map(owner_peer)
-	for peer_id in MapManager.get_real_players_on_map(map_id):
+	var map_peers: Array = MapManager.get_real_players_on_map(map_id)
+	# The owner's client is the synchronizer authority, so IT must declare which
+	# peers receive the pet's position (set_visibility_for on the server below is
+	# a no-op for a remote-owned pet — the server isn't the authority). Build the
+	# same-map recipient list for the owner; peer 1/host is added client-side
+	# since it's always a recipient.
+	var owner_targets := PackedInt32Array()
+	for peer_id in map_peers:
+		if peer_id == owner_peer or peer_id == 1:
+			continue
+		owner_targets.append(peer_id)
+	for peer_id in map_peers:
 		if peer_id == 1:
 			continue
-		spawn_pet_client.rpc_id(peer_id, pet_uuid, pet_data_id, owner_peer, username, map_node.name, pet_node.global_position)
+		var targets_for_peer: PackedInt32Array = owner_targets if peer_id == owner_peer else PackedInt32Array()
+		spawn_pet_client.rpc_id(peer_id, pet_uuid, pet_data_id, owner_peer, username, map_node.name, pet_node.global_position, targets_for_peer)
 		if sync:
 			sync.set_visibility_for(peer_id, true)
 
@@ -509,7 +521,7 @@ func _despawn_pet_entity(pet_uuid: String) -> void:
 
 
 @rpc("authority", "call_remote", "reliable")
-func spawn_pet_client(pet_uuid: String, pet_data_id: String, owner_peer: int, owner_username: String, map_node_name: String, initial_pos: Vector2) -> void:
+func spawn_pet_client(pet_uuid: String, pet_data_id: String, owner_peer: int, owner_username: String, map_node_name: String, initial_pos: Vector2, sync_target_peers: PackedInt32Array = PackedInt32Array()) -> void:
 	if multiplayer.is_server():
 		return
 	var pet_data := get_pet_data(pet_data_id)
@@ -535,6 +547,12 @@ func spawn_pet_client(pet_uuid: String, pet_data_id: String, owner_peer: int, ow
 	map_node.add_child(pet_node, true)
 	pet_node.global_position = initial_pos
 
+	# If this client owns the pet, it's the synchronizer authority — configure
+	# which peers receive its position (host + same-map peers). Without this the
+	# pet follows locally but is frozen on every other peer.
+	if multiplayer.get_unique_id() == owner_peer:
+		pet_node.configure_owner_sync_visibility(sync_target_peers)
+
 
 @rpc("authority", "call_remote", "reliable")
 func despawn_pet_client(pet_uuid: String) -> void:
@@ -546,6 +564,45 @@ func despawn_pet_client(pet_uuid: String) -> void:
 		if pet:
 			pet.queue_free()
 			return
+
+
+## Server -> owner client. Re-pushes the position-sync recipient list for an
+## already-spawned, remote-owned pet (the owner's client is the synchronizer
+## authority, so only it can change who receives the pet's position). Used when
+## the owner's map roster changes — a new player arrives or one leaves.
+@rpc("authority", "call_remote", "reliable")
+func refresh_pet_sync_targets_client(pet_uuid: String, target_peers: PackedInt32Array) -> void:
+	if multiplayer.is_server():
+		return
+	var node_name := _pet_node_name(pet_uuid)
+	for map_node in get_tree().get_nodes_in_group("map_base"):
+		var pet := map_node.get_node_or_null(node_name)
+		if pet and pet.has_method("configure_owner_sync_visibility"):
+			pet.configure_owner_sync_visibility(target_peers)
+			return
+
+
+## Server-only. Recompute a pet's position-sync recipients against the CURRENT
+## map roster and re-push them. Host-owned pets are skipped: the server is their
+## synchronizer authority and MapManager's per-map visibility pass already keeps
+## their server-side instance correct. Only remote-owned pets need this, because
+## their authority is a client that MapManager's server-side machinery can't reach.
+func _refresh_owner_sync_targets(pet_uuid: String) -> void:
+	if not multiplayer.is_server() or not _active_pets.has(pet_uuid):
+		return
+	var info: Dictionary = _active_pets[pet_uuid]
+	var owner_peer: int = info.get("owner_peer_id", 0)
+	if owner_peer <= 1:
+		return  # host-owned (or invalid) — handled by MapManager visibility.
+	var map_id: String = info.get("map_id", "")
+	if map_id.is_empty():
+		return
+	var targets := PackedInt32Array()
+	for peer_id in MapManager.get_real_players_on_map(map_id):
+		if peer_id == owner_peer or peer_id == 1:
+			continue
+		targets.append(peer_id)
+	refresh_pet_sync_targets_client.rpc_id(owner_peer, pet_uuid, targets)
 
 
 ## Client-side notification fired right after the player's own egg hatches.
@@ -1423,6 +1480,25 @@ func _on_player_spawned_on_map(player_id: int) -> void:
 			to_despawn.append(pet_uuid)
 	for pet_uuid in to_despawn:
 		_despawn_pet_entity(pet_uuid)
+
+	# A player just (re)spawned, so the map rosters changed. The pet spawn RPC is
+	# otherwise only sent at a pet's own creation time, and remote-owned pets sync
+	# only to the peers their owner was told about. Reconcile both here:
+	#   1. Spawn any FOREIGN pets already on the entrant's map onto their client.
+	#   2. Refresh every remote-owned pet's recipient list so owners pick up the
+	#      newcomer and drop anyone who left their map.
+	var entrant_map: String = MapManager.get_player_map(player_id)
+	for pet_uuid in _active_pets.keys():
+		var info: Dictionary = _active_pets[pet_uuid]
+		if info.get("owner_username", "") != username \
+				and not entrant_map.is_empty() \
+				and info.get("map_id", "") == entrant_map:
+			var pet_node: Node = info.get("pet_node")
+			if is_instance_valid(pet_node) and is_instance_valid(pet_node.get_parent()):
+				spawn_pet_client.rpc_id(player_id, pet_uuid, info.get("pet_data_id", ""), \
+					info.get("owner_peer_id", 0), info.get("owner_username", ""), \
+					pet_node.get_parent().name, pet_node.global_position, PackedInt32Array())
+		_refresh_owner_sync_targets(pet_uuid)
 
 
 func _on_peer_disconnected(peer_id: int) -> void:

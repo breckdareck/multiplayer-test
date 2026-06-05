@@ -24,6 +24,13 @@ var pet_uuid: String = ""
 var pet_data: PetData = null
 var owner_username: String = ""
 
+# Peers (excluding the always-on host, peer 1) this client is currently
+# replicating the pet's position TO. The pet's MultiplayerSynchronizer is
+# owner-client authoritative (ADR 0001), so THIS client decides who receives
+# its position. Tracked so configure_owner_sync_visibility() can diff and
+# hide the pet from peers that have left the owner's map.
+var _sync_visible_peers: Dictionary = {}
+
 # ── Movement state ────────────────────────────────────────────────────────
 # FOLLOW mode uses hysteresis: don't start walking until the owner is more
 # than FOLLOW_START_X away on X, don't stop until the gap shrinks below
@@ -142,6 +149,47 @@ func setup(pet_data_in: PetData, peer_owner: int, uuid: String, owner_name: Stri
 	if is_inside_tree():
 		_apply_pet_data()
 		_refresh_bubble()
+
+
+## Owner-client only. The pet's MultiplayerSynchronizer is owner-client
+## authoritative (see docs/adr/0001-pet-system-architecture.md), so THIS client
+## — not the server — is the one that has to declare who receives the pet's
+## position. The scene defaults public_visibility=false, so without this call
+## the owner broadcasts to nobody: the pet still follows here (motion is
+## computed locally) but looks frozen to the host and every other peer.
+##
+## Mirrors multiplayer_input.gd's set_visibility_for(1, ...) pattern: always
+## feed the host (peer 1 — it renders the host's view and runs server-side pet
+## logic), plus every same-map peer the server hands us in `target_peers`.
+func configure_owner_sync_visibility(target_peers: PackedInt32Array) -> void:
+	if multiplayer.get_unique_id() != owner_peer_id:
+		return
+	var sync := get_node_or_null("MultiplayerSynchronizer") as MultiplayerSynchronizer
+	if not sync:
+		return
+	sync.public_visibility = false
+	# Host (peer 1) is always a recipient.
+	_apply_sync_visibility(sync, 1, true)
+	var new_set: Dictionary = {}
+	for p in target_peers:
+		if p == 1 or p == owner_peer_id:
+			continue
+		new_set[p] = true
+		_apply_sync_visibility(sync, p, true)
+	# Hide from peers that have left the owner's map since the last update.
+	for p in _sync_visible_peers.keys():
+		if not new_set.has(p):
+			_apply_sync_visibility(sync, p, false)
+	_sync_visible_peers = new_set
+
+
+func _apply_sync_visibility(sync: MultiplayerSynchronizer, peer_id: int, visible: bool) -> void:
+	# set_visibility_for errors ("peers_info has no p_peer") for an absent peer;
+	# the host (peer 1) is always valid. Mirrors MapManager._set_visibility_for_node.
+	if peer_id != 1 and peer_id not in multiplayer.get_peers():
+		return
+	sync.set_visibility_for(peer_id, visible)
+	sync.update_visibility(peer_id)
 
 
 func _apply_pet_data() -> void:
