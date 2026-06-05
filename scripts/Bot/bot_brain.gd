@@ -37,6 +37,11 @@ var _recover_hp_mark: float = 0.0
 var _recover_stall_timer: float = 0.0
 var loot_range: float = 80.0
 var loot_priority_range: float = 50.0
+## Max vertical gap (px) at which the bot counts as standing on the loot's own
+## level. Above it the bot keeps pathing toward the item (down or up) rather than
+## freezing in place — comfortably below a platform gap, above the same-platform
+## origin/item Y offset that still lets pickup fire (<=15px euclidean).
+const LOOT_SAME_LEVEL_Y: float = 20.0
 ## Periodic loot sweep: when this elapses the bot collects every reachable
 ## drop in range even mid-combat, so forever-spawning enemies don't starve it
 ## of loot before drops despawn (~2m10s). Reset once no loot remains in range.
@@ -822,10 +827,15 @@ func _do_loot() -> void:
 
 	var to_loot := target_loot.global_position - player.global_position
 	var dx = abs(to_loot.x)
+	var dy = abs(to_loot.y)
 
-	# Use horizontal distance for "am I on top of the item" since Y can differ
-	# due to player origin vs item ground position
-	if dx <= 10.0:
+	# "On top of" the item needs BOTH axes: horizontal alignment AND the same
+	# vertical level. Pickup fires at <=15px euclidean (DroppedItem.pickup_distance),
+	# so when the bot is on the loot's own platform dy is tiny; a platform away it's
+	# 40px+. Without the Y gate, loot one level below (or above) but horizontally
+	# aligned makes the bot stop and spam pickup forever instead of pathing down/up
+	# to the item's level.
+	if dx <= 10.0 and dy <= LOOT_SAME_LEVEL_Y:
 		player.direction = 0
 		player.do_pickup = true
 	else:
