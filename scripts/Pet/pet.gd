@@ -109,12 +109,12 @@ var _pickup_dwell_target: Node = null
 var _pickup_dwell_start_ms: int = 0
 const PICKUP_DWELL_MS: int = 200
 
-# Vacuum: drops within this radius are picked up immediately on any frame,
-# without changing mode or stopping. Kept tight (a hair past PICKUP_X_DISTANCE)
-# so the pet must actually reach the item — it grabs only when its body is on
-# top of the drop, not while still walking up to it. The LOOT-mode dwell below
-# is the fallback for the "stopped at the item" case.
-const PICKUP_VACUUM_RADIUS: float = 5.0
+# Vacuum: the bird grabs a drop only when its body is on top of it — within
+# this many px (left/right + a thin vertical band, a RECTANGLE, not a circle)
+# of the drop center. Kept tight so it must actually reach the item rather than
+# sucking it in while still walking up. The LOOT-mode dwell below is the
+# fallback for the "stopped at the item" case.
+const PICKUP_VACUUM_RADIUS: float = 7.0
 
 # ── Auto-pot (owner-client only) ──────────────────────────────────────────
 var _autopot_accumulator: float = 0.0
@@ -629,8 +629,12 @@ func _vacuum_pickup_pass() -> void:
 
 
 func _find_vacuum_target(container: Node, now: int, owner_node: Node) -> Node:
+	# The actual pickup trigger: grab the closest drop the BIRD's body is on top
+	# of, tested as a small RECTANGLE around the pet (|dx| and |dy| within the
+	# grab radius) — never a circular radius. Reach/eligibility were gated in
+	# _scan_drops; this only fires on contact.
 	var best: Node = null
-	var best_dist: float = PICKUP_VACUUM_RADIUS
+	var best_dx: float = PICKUP_VACUUM_RADIUS
 	for child in container.get_children():
 		if not (child is DroppedItem):
 			continue
@@ -644,11 +648,12 @@ func _find_vacuum_target(container: Node, now: int, owner_node: Node) -> Node:
 		var tried: int = int(_recently_tried_drops.get(drop.name, 0))
 		if tried > 0 and now - tried < PICKUP_RETRY_COOLDOWN_MS:
 			continue
-		if absf(drop.global_position.y - global_position.y) > SAME_LEVEL_Y_DELTA:
+		var dx: float = absf(drop.global_position.x - global_position.x)
+		var dy: float = absf(drop.global_position.y - global_position.y)
+		if dx > PICKUP_VACUUM_RADIUS or dy > PICKUP_VACUUM_RADIUS:
 			continue
-		var d: float = global_position.distance_to(drop.global_position)
-		if d < best_dist:
-			best_dist = d
+		if dx < best_dx:
+			best_dx = dx
 			best = drop
 	return best
 
@@ -668,11 +673,17 @@ func _owner_can_pickup(drop: DroppedItem, owner_node: Node) -> bool:
 
 
 func _scan_drops(container: Node, owner_node: Node) -> Node:
-	# Returns the FURTHEST same-level drop within autoloot_radius. Walking
-	# toward it lets the vacuum sweep every closer drop in passing.
+	# Returns the FURTHEST eligible drop inside the loot RECTANGLE. The reach is
+	# horizontal (left/right) and measured from the OWNER (player), not the bird,
+	# so loot is fetched relative to where the player stands no matter where the
+	# bird is trailing. The vertical extent is the same-level band, so the box is
+	# wide-and-short — never a circular radius. Walking to the furthest one lets
+	# the vacuum sweep closer drops in passing.
+	if not is_instance_valid(owner_node):
+		return null
 	var best: Node = null
-	var best_dist: float = 0.0
-	var scan_radius: float = pet_data.autoloot_radius
+	var best_dx: float = -1.0
+	var reach_x: float = pet_data.autoloot_radius   # horizontal half-width, from the player
 	var now: int = Time.get_ticks_msec()
 	for child in container.get_children():
 		if not (child is DroppedItem):
@@ -694,13 +705,15 @@ func _scan_drops(container: Node, owner_node: Node) -> Node:
 		var tried: int = int(_recently_tried_drops.get(drop.name, 0))
 		if tried > 0 and now - tried < PICKUP_RETRY_COOLDOWN_MS:
 			continue
-		if absf(drop.global_position.y - global_position.y) > SAME_LEVEL_Y_DELTA:
+		# Rectangle gate: horizontal reach from the PLAYER + same-level band.
+		if absf(drop.global_position.x - owner_node.global_position.x) > reach_x:
 			continue
-		var d: float = global_position.distance_to(drop.global_position)
-		if d > scan_radius:
+		if absf(drop.global_position.y - owner_node.global_position.y) > SAME_LEVEL_Y_DELTA:
 			continue
-		if d > best_dist:
-			best_dist = d
+		# Furthest from the bird horizontally → walking there sweeps closer drops.
+		var dx: float = absf(drop.global_position.x - global_position.x)
+		if dx > best_dx:
+			best_dx = dx
 			best = drop
 	return best
 

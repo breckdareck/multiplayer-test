@@ -38,7 +38,9 @@ extends Resource
 @export var leash_teleport_grace_sec: float = 1.5
 
 @export_group("Auto-loot")
-## Range around the pet body within which it will auto-loot drops (px).
+## Horizontal reach (px) the pet will travel to fetch loot, measured LEFT/RIGHT
+## from the OWNER (player), not the pet — a rectangle on the same level, not a
+## circular radius. The bird only grabs a drop once its body is on top of it.
 @export var autoloot_radius: float = 100.0
 
 @export_group("Hunger")
