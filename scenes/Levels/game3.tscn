@@ -1,18 +1,18 @@
-[gd_scene load_steps=23 format=4 uid="uid://wkfowd2qg5dn"]
+[gd_scene load_steps=24 format=4 uid="uid://wkfowd2qg5dn"]
 
 [ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_gfksk"]
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/VFX/damage_numbers.gd" id="1_l73hv"]
-[ext_resource type="PackedScene" path="res://scenes/Gameplay/portal.tscn" id="2_nb0i1"]
+[ext_resource type="PackedScene" uid="uid://brfb5t5im33fl" path="res://scenes/Gameplay/portal.tscn" id="2_nb0i1"]
 [ext_resource type="Texture2D" uid="uid://jorjvuc5wn72" path="res://assets/sprites/world_tileset.png" id="3_m5hrh"]
 [ext_resource type="Texture2D" uid="uid://cd28i3fo3v1m0" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/country village tileset.png" id="4_br3j8"]
 [ext_resource type="Texture2D" uid="uid://b8r3ov605pnuj" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/Country_village_props.png" id="5_s57hd"]
 [ext_resource type="PackedScene" uid="uid://bx2n3vrfxk75m" path="res://scenes/Gameplay/killzone.tscn" id="6_5y0l1"]
-[ext_resource type="PackedScene" uid="uid://dprr4d0kjfbgn" path="res://scenes/Gameplay/platform.tscn" id="7_e6cox"]
-[ext_resource type="PackedScene" path="res://scenes/NPC/Minifolks/dark_bunny.tscn" id="9_j2jkv"]
-[ext_resource type="PackedScene" path="res://scenes/NPC/fire_slime.tscn" id="10_e6cox"]
-[ext_resource type="PackedScene" path="res://scenes/NPC/Minifolks/shadow_fox.tscn" id="10_obygc"]
+[ext_resource type="PackedScene" uid="uid://ce1gj48yfxtud" path="res://scenes/NPC/Minifolks/dark_bunny.tscn" id="9_j2jkv"]
+[ext_resource type="Texture2D" uid="uid://ci2ydn2sxaxpp" path="res://assets/sprites/platforms.png" id="9_q3qox"]
+[ext_resource type="PackedScene" uid="uid://bvjs3vxpdjkfj" path="res://scenes/NPC/fire_slime.tscn" id="10_e6cox"]
+[ext_resource type="PackedScene" uid="uid://c6qy8yi07kf2x" path="res://scenes/NPC/Minifolks/shadow_fox.tscn" id="10_obygc"]
 [ext_resource type="Script" uid="uid://igk1rxt26f2i" path="res://scripts/UI/global_drop_handler.gd" id="12_1vulb"]
-[ext_resource type="PackedScene" uid="uid://dshadow7vbgdrk" path="res://scenes/Levels/village_background_dark.tscn" id="bg_village"]
+[ext_resource type="PackedScene" uid="uid://nmee6p2r58au" path="res://scenes/Levels/village_background_dark.tscn" id="bg_village"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_m14ue"]
 texture = ExtResource("3_m5hrh")
@@ -1004,6 +1004,9 @@ sources/2 = SubResource("TileSetAtlasSource_3kdb4")
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_pyfba"]
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_nlgqw"]
+size = Vector2(32, 9)
+
 [node name="Game3" type="Node2D"]
 modulate = Color(0.75, 0.7, 0.85, 1)
 script = ExtResource("1_gfksk")
@@ -1071,11 +1074,39 @@ shape = SubResource("WorldBoundaryShape2D_pyfba")
 
 [node name="Platforms" type="Node2D" parent="."]
 
-[node name="Platform" parent="Platforms" instance=ExtResource("7_e6cox")]
+[node name="Platform" type="StaticBody2D" parent="Platforms"]
 position = Vector2(-1979, -58)
+collision_layer = 4
+collision_mask = 2
+collision_priority = 5.0
 
-[node name="Platform2" parent="Platforms" instance=ExtResource("7_e6cox")]
+[node name="Sprite2D" type="Sprite2D" parent="Platforms/Platform"]
+texture = ExtResource("9_q3qox")
+region_enabled = true
+region_rect = Rect2(16, 0, 32, 9)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/Platform"]
+shape = SubResource("RectangleShape2D_nlgqw")
+one_way_collision = true
+one_way_collision_margin = 32.0
+debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
+
+[node name="Platform2" type="StaticBody2D" parent="Platforms"]
 position = Vector2(-1811, -57)
+collision_layer = 4
+collision_mask = 2
+collision_priority = 5.0
+
+[node name="Sprite2D" type="Sprite2D" parent="Platforms/Platform2"]
+texture = ExtResource("9_q3qox")
+region_enabled = true
+region_rect = Rect2(16, 0, 32, 9)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/Platform2"]
+shape = SubResource("RectangleShape2D_nlgqw")
+one_way_collision = true
+one_way_collision_margin = 32.0
+debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
 [node name="Players" type="Node2D" parent="."]
 

@@ -1,8 +1,9 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://c6pskfllhxxrd"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=12 format=3 uid="uid://c6pskfllhxxrd"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
 [ext_resource type="SpriteFrames" uid="uid://b2ohgim61o1bm" path="res://resources/Enemies/Slime/SF_Slime.tres" id="3_sf"]
+[ext_resource type="Script" uid="uid://cdsbcru4b1hr8" path="res://scripts/Resources/BossAttackData.gd" id="7_nlfh3"]
 [ext_resource type="Resource" uid="uid://dbcdfbcl40hge" path="res://resources/DropTables/Generated/Worn_Spellstaff.tres" id="d_1"]
 [ext_resource type="Resource" uid="uid://d33g60wb8lvyt" path="res://resources/DropTables/Generated/Worn_Arcanist_Helm.tres" id="d_2"]
 [ext_resource type="Resource" uid="uid://bd37enxmu75at" path="res://resources/DropTables/Generated/Worn_Arcanist_Mail.tres" id="d_3"]
@@ -25,7 +26,7 @@ metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 [resource]
 script = ExtResource("2_ed")
 monster_name = "Slime"
-movement_speed = 50
+movement_speed = 50.0
 archetype = 1
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")

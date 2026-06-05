@@ -1,17 +1,16 @@
-[gd_scene load_steps=32 format=4 uid="uid://d1hwvomjwdrjv"]
+[gd_scene load_steps=30 format=4 uid="uid://d1hwvomjwdrjv"]
 
 [ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_e24jv"]
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/VFX/damage_numbers.gd" id="1_ryi0r"]
 [ext_resource type="Texture2D" uid="uid://jorjvuc5wn72" path="res://assets/sprites/world_tileset.png" id="2_l25cu"]
 [ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="3_j167y"]
-[ext_resource type="PackedScene" path="res://scenes/Gameplay/portal.tscn" id="3_jq5g6"]
+[ext_resource type="PackedScene" uid="uid://brfb5t5im33fl" path="res://scenes/Gameplay/portal.tscn" id="3_jq5g6"]
 [ext_resource type="Texture2D" uid="uid://cd28i3fo3v1m0" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/country village tileset.png" id="3_l25cu"]
 [ext_resource type="Texture2D" uid="uid://b8r3ov605pnuj" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/Country_village_props.png" id="4_j167y"]
 [ext_resource type="PackedScene" uid="uid://bx2n3vrfxk75m" path="res://scenes/Gameplay/killzone.tscn" id="4_kgokg"]
-[ext_resource type="PackedScene" uid="uid://dprr4d0kjfbgn" path="res://scenes/Gameplay/platform.tscn" id="6_ryi0r"]
 [ext_resource type="PackedScene" uid="uid://q6iqwsi8meq4" path="res://scenes/NPC/slime.tscn" id="7_ukxhe"]
 [ext_resource type="PackedScene" uid="uid://betkg72vd7iav" path="res://scenes/NPC/Minifolks/boar.tscn" id="8_pd7st"]
-[ext_resource type="Script" uid="uid://bu07farg11vu3" path="res://scripts/Gameplay/platform.gd" id="11_kgokg"]
+[ext_resource type="Texture2D" uid="uid://ci2ydn2sxaxpp" path="res://assets/sprites/platforms.png" id="10_l25cu"]
 [ext_resource type="Script" uid="uid://cvqlmxlnxa5ab" path="res://scripts/NPC/quest_giver_npc.gd" id="15_j167y"]
 [ext_resource type="Script" uid="uid://be1clobtt03tr" path="res://scripts/UI/quest_giver_dialog.gd" id="16_kgokg"]
 [ext_resource type="PackedScene" path="res://scenes/Gameplay/secret_portal.tscn" id="17_j167y"]
@@ -1012,10 +1011,8 @@ sources/2 = SubResource("TileSetAtlasSource_gma0m")
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_p57ef"]
 
-[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_nlgqw"]
-properties/0/path = NodePath(".:position")
-properties/0/spawn = true
-properties/0/replication_mode = 2
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_nlgqw"]
+size = Vector2(32, 9)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_gma0m"]
 size = Vector2(30, 2)
@@ -1122,18 +1119,28 @@ debug_color = Color(0.9764706, 0, 0, 0.75686276)
 
 [node name="Platforms" type="Node2D" parent="."]
 
-[node name="Platform" parent="Platforms" instance=ExtResource("6_ryi0r")]
+[node name="Platform" type="StaticBody2D" parent="Platforms"]
 position = Vector2(-816, -27)
+collision_layer = 4
+collision_mask = 2
+collision_priority = 5.0
+
+[node name="Sprite2D" type="Sprite2D" parent="Platforms/Platform"]
+texture = ExtResource("10_l25cu")
+region_enabled = true
+region_rect = Rect2(16, 0, 32, 9)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/Platform"]
+shape = SubResource("RectangleShape2D_nlgqw")
+one_way_collision = true
+one_way_collision_margin = 32.0
+debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
 [node name="Platform2" type="StaticBody2D" parent="Platforms"]
 position = Vector2(-899, 7)
 collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
-
-[node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/Platform2"]
-replication_config = SubResource("SceneReplicationConfig_nlgqw")
-visibility_update_mode = 1
 
 [node name="Sprite2D" type="Sprite2D" parent="Platforms/Platform2"]
 scale = Vector2(1.3, 1.3)

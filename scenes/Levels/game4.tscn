@@ -1,4 +1,4 @@
-[gd_scene load_steps=38 format=4 uid="uid://vvrj3firh470"]
+[gd_scene load_steps=39 format=4 uid="uid://vvrj3firh470"]
 
 [ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_p8yym"]
 [ext_resource type="PackedScene" uid="uid://cvbk0n8a7q2x1" path="res://scenes/Levels/village_background.tscn" id="2_fik1o"]
@@ -8,7 +8,6 @@
 [ext_resource type="Texture2D" uid="uid://cd28i3fo3v1m0" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/country village tileset.png" id="5_1le8d"]
 [ext_resource type="Texture2D" uid="uid://b8r3ov605pnuj" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/Country_village_props.png" id="6_bx66n"]
 [ext_resource type="PackedScene" uid="uid://bx2n3vrfxk75m" path="res://scenes/Gameplay/killzone.tscn" id="7_r5cd5"]
-[ext_resource type="Script" uid="uid://bu07farg11vu3" path="res://scripts/Gameplay/platform.gd" id="8_u8wq7"]
 [ext_resource type="Script" uid="uid://igk1rxt26f2i" path="res://scripts/UI/global_drop_handler.gd" id="9_pjyxy"]
 [ext_resource type="Script" uid="uid://br1domvn1uea5" path="res://scripts/Gameplay/ladder.gd" id="9_rrhmt"]
 [ext_resource type="PackedScene" uid="uid://p1gtmn7fct13" path="res://scenes/NPC/Minifolks/bird.tscn" id="10_bird4"]
@@ -1013,18 +1012,11 @@ sources/2 = SubResource("TileSetAtlasSource_gma0m")
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_p57ef"]
 
-[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_w3ioj"]
-properties/0/path = NodePath(".:position")
-properties/0/spawn = true
-properties/0/replication_mode = 2
-
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fik1o"]
 size = Vector2(30, 4)
 
-[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_nlgqw"]
-properties/0/path = NodePath(".:position")
-properties/0/spawn = true
-properties/0/replication_mode = 2
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ylsnt"]
+size = Vector2(30, 4)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_nlgqw"]
 size = Vector2(48.571487, 5.714283)
@@ -1057,6 +1049,16 @@ load_path = "res://.godot/imported/world_tileset.png-61a32465f33c3d9d3bfecb75b64
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_p47w5"]
 atlas = SubResource("CompressedTexture2D_fik1o")
+region = Rect2(145, 52, 4, 12)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bke2l"]
+size = Vector2(4, 54)
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_4opky"]
+load_path = "res://.godot/imported/world_tileset.png-61a32465f33c3d9d3bfecb75b6485009.ctex"
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8us8u"]
+atlas = SubResource("CompressedTexture2D_4opky")
 region = Rect2(145, 52, 4, 12)
 
 [node name="Game4" type="Node2D"]
@@ -1135,10 +1137,6 @@ collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
 
-[node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform"]
-replication_config = SubResource("SceneReplicationConfig_w3ioj")
-visibility_update_mode = 1
-
 [node name="Sprite2D" type="Sprite2D" parent="Platforms/CratePlatform"]
 scale = Vector2(1.3, 1.3)
 texture = ExtResource("6_bx66n")
@@ -1158,10 +1156,6 @@ collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
 
-[node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform2"]
-replication_config = SubResource("SceneReplicationConfig_w3ioj")
-visibility_update_mode = 1
-
 [node name="Sprite2D" type="Sprite2D" parent="Platforms/CratePlatform2"]
 scale = Vector2(1.3, 1.3)
 texture = ExtResource("6_bx66n")
@@ -1170,7 +1164,7 @@ region_rect = Rect2(160, 179, 23, 13)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/CratePlatform2"]
 position = Vector2(0, -8)
-shape = SubResource("RectangleShape2D_fik1o")
+shape = SubResource("RectangleShape2D_ylsnt")
 one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
@@ -1181,10 +1175,6 @@ collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
 
-[node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform3"]
-replication_config = SubResource("SceneReplicationConfig_w3ioj")
-visibility_update_mode = 1
-
 [node name="Sprite2D" type="Sprite2D" parent="Platforms/CratePlatform3"]
 scale = Vector2(1.3, 1.3)
 texture = ExtResource("6_bx66n")
@@ -1193,7 +1183,7 @@ region_rect = Rect2(160, 179, 23, 13)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/CratePlatform3"]
 position = Vector2(0, -8)
-shape = SubResource("RectangleShape2D_fik1o")
+shape = SubResource("RectangleShape2D_ylsnt")
 one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
@@ -1204,10 +1194,6 @@ collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
 
-[node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform5"]
-replication_config = SubResource("SceneReplicationConfig_w3ioj")
-visibility_update_mode = 1
-
 [node name="Sprite2D" type="Sprite2D" parent="Platforms/CratePlatform5"]
 scale = Vector2(1.3, 1.3)
 texture = ExtResource("6_bx66n")
@@ -1216,7 +1202,7 @@ region_rect = Rect2(160, 179, 23, 13)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/CratePlatform5"]
 position = Vector2(0, -8)
-shape = SubResource("RectangleShape2D_fik1o")
+shape = SubResource("RectangleShape2D_ylsnt")
 one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
@@ -1227,10 +1213,6 @@ collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
 
-[node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform6"]
-replication_config = SubResource("SceneReplicationConfig_w3ioj")
-visibility_update_mode = 1
-
 [node name="Sprite2D" type="Sprite2D" parent="Platforms/CratePlatform6"]
 scale = Vector2(1.3, 1.3)
 texture = ExtResource("6_bx66n")
@@ -1239,7 +1221,7 @@ region_rect = Rect2(160, 179, 23, 13)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/CratePlatform6"]
 position = Vector2(0, -8)
-shape = SubResource("RectangleShape2D_fik1o")
+shape = SubResource("RectangleShape2D_ylsnt")
 one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
@@ -1250,10 +1232,6 @@ collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
 
-[node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform7"]
-replication_config = SubResource("SceneReplicationConfig_w3ioj")
-visibility_update_mode = 1
-
 [node name="Sprite2D" type="Sprite2D" parent="Platforms/CratePlatform7"]
 scale = Vector2(1.3, 1.3)
 texture = ExtResource("6_bx66n")
@@ -1262,7 +1240,7 @@ region_rect = Rect2(160, 179, 23, 13)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/CratePlatform7"]
 position = Vector2(0, -8)
-shape = SubResource("RectangleShape2D_fik1o")
+shape = SubResource("RectangleShape2D_ylsnt")
 one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
@@ -1273,10 +1251,6 @@ collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
 
-[node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform8"]
-replication_config = SubResource("SceneReplicationConfig_w3ioj")
-visibility_update_mode = 1
-
 [node name="Sprite2D" type="Sprite2D" parent="Platforms/CratePlatform8"]
 scale = Vector2(1.3, 1.3)
 texture = ExtResource("6_bx66n")
@@ -1285,7 +1259,7 @@ region_rect = Rect2(160, 179, 23, 13)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/CratePlatform8"]
 position = Vector2(0, -8)
-shape = SubResource("RectangleShape2D_fik1o")
+shape = SubResource("RectangleShape2D_ylsnt")
 one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
@@ -1296,10 +1270,6 @@ collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
 
-[node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform9"]
-replication_config = SubResource("SceneReplicationConfig_w3ioj")
-visibility_update_mode = 1
-
 [node name="Sprite2D" type="Sprite2D" parent="Platforms/CratePlatform9"]
 scale = Vector2(1.3, 1.3)
 texture = ExtResource("6_bx66n")
@@ -1308,7 +1278,7 @@ region_rect = Rect2(160, 179, 23, 13)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/CratePlatform9"]
 position = Vector2(0, -8)
-shape = SubResource("RectangleShape2D_fik1o")
+shape = SubResource("RectangleShape2D_ylsnt")
 one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
@@ -1319,10 +1289,6 @@ collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
 
-[node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform10"]
-replication_config = SubResource("SceneReplicationConfig_w3ioj")
-visibility_update_mode = 1
-
 [node name="Sprite2D" type="Sprite2D" parent="Platforms/CratePlatform10"]
 scale = Vector2(1.3, 1.3)
 texture = ExtResource("6_bx66n")
@@ -1331,7 +1297,7 @@ region_rect = Rect2(160, 179, 23, 13)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/CratePlatform10"]
 position = Vector2(0, -8)
-shape = SubResource("RectangleShape2D_fik1o")
+shape = SubResource("RectangleShape2D_ylsnt")
 one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
@@ -1342,10 +1308,6 @@ collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
 
-[node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform11"]
-replication_config = SubResource("SceneReplicationConfig_w3ioj")
-visibility_update_mode = 1
-
 [node name="Sprite2D" type="Sprite2D" parent="Platforms/CratePlatform11"]
 scale = Vector2(1.3, 1.3)
 texture = ExtResource("6_bx66n")
@@ -1354,7 +1316,7 @@ region_rect = Rect2(160, 179, 23, 13)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/CratePlatform11"]
 position = Vector2(0, -8)
-shape = SubResource("RectangleShape2D_fik1o")
+shape = SubResource("RectangleShape2D_ylsnt")
 one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
@@ -1365,10 +1327,6 @@ collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
 
-[node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform12"]
-replication_config = SubResource("SceneReplicationConfig_w3ioj")
-visibility_update_mode = 1
-
 [node name="Sprite2D" type="Sprite2D" parent="Platforms/CratePlatform12"]
 scale = Vector2(1.3, 1.3)
 texture = ExtResource("6_bx66n")
@@ -1377,7 +1335,7 @@ region_rect = Rect2(160, 179, 23, 13)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/CratePlatform12"]
 position = Vector2(0, -8)
-shape = SubResource("RectangleShape2D_fik1o")
+shape = SubResource("RectangleShape2D_ylsnt")
 one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
@@ -1388,10 +1346,6 @@ collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
 
-[node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform13"]
-replication_config = SubResource("SceneReplicationConfig_w3ioj")
-visibility_update_mode = 1
-
 [node name="Sprite2D" type="Sprite2D" parent="Platforms/CratePlatform13"]
 scale = Vector2(1.3, 1.3)
 texture = ExtResource("6_bx66n")
@@ -1400,7 +1354,7 @@ region_rect = Rect2(160, 179, 23, 13)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/CratePlatform13"]
 position = Vector2(0, -8)
-shape = SubResource("RectangleShape2D_fik1o")
+shape = SubResource("RectangleShape2D_ylsnt")
 one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
@@ -1411,10 +1365,6 @@ collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
 
-[node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform4"]
-replication_config = SubResource("SceneReplicationConfig_w3ioj")
-visibility_update_mode = 1
-
 [node name="Sprite2D" type="Sprite2D" parent="Platforms/CratePlatform4"]
 scale = Vector2(1.3, 1.3)
 texture = ExtResource("6_bx66n")
@@ -1423,7 +1373,7 @@ region_rect = Rect2(160, 179, 23, 13)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/CratePlatform4"]
 position = Vector2(0, -8)
-shape = SubResource("RectangleShape2D_fik1o")
+shape = SubResource("RectangleShape2D_ylsnt")
 one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
@@ -1434,10 +1384,6 @@ collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
 
-[node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform14"]
-replication_config = SubResource("SceneReplicationConfig_w3ioj")
-visibility_update_mode = 1
-
 [node name="Sprite2D" type="Sprite2D" parent="Platforms/CratePlatform14"]
 scale = Vector2(1.3, 1.3)
 texture = ExtResource("6_bx66n")
@@ -1446,7 +1392,7 @@ region_rect = Rect2(160, 179, 23, 13)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/CratePlatform14"]
 position = Vector2(0, -8)
-shape = SubResource("RectangleShape2D_fik1o")
+shape = SubResource("RectangleShape2D_ylsnt")
 one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
@@ -1457,10 +1403,6 @@ collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
 
-[node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform15"]
-replication_config = SubResource("SceneReplicationConfig_w3ioj")
-visibility_update_mode = 1
-
 [node name="Sprite2D" type="Sprite2D" parent="Platforms/CratePlatform15"]
 scale = Vector2(1.3, 1.3)
 texture = ExtResource("6_bx66n")
@@ -1469,7 +1411,7 @@ region_rect = Rect2(160, 179, 23, 13)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/CratePlatform15"]
 position = Vector2(0, -8)
-shape = SubResource("RectangleShape2D_fik1o")
+shape = SubResource("RectangleShape2D_ylsnt")
 one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
@@ -1480,10 +1422,6 @@ collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
 
-[node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/CratePlatform16"]
-replication_config = SubResource("SceneReplicationConfig_w3ioj")
-visibility_update_mode = 1
-
 [node name="Sprite2D" type="Sprite2D" parent="Platforms/CratePlatform16"]
 scale = Vector2(1.3, 1.3)
 texture = ExtResource("6_bx66n")
@@ -1492,7 +1430,7 @@ region_rect = Rect2(160, 179, 23, 13)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/CratePlatform16"]
 position = Vector2(0, -7)
-shape = SubResource("RectangleShape2D_fik1o")
+shape = SubResource("RectangleShape2D_ylsnt")
 one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
@@ -1503,10 +1441,6 @@ scale = Vector2(0.7, 0.7)
 collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
-
-[node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/Platform"]
-replication_config = SubResource("SceneReplicationConfig_nlgqw")
-visibility_update_mode = 1
 
 [node name="Sprite2D" type="Sprite2D" parent="Platforms/Platform"]
 texture = ExtResource("5_1le8d")
@@ -1528,10 +1462,6 @@ collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
 
-[node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/Platform2"]
-replication_config = SubResource("SceneReplicationConfig_nlgqw")
-visibility_update_mode = 1
-
 [node name="Sprite2D" type="Sprite2D" parent="Platforms/Platform2"]
 texture = ExtResource("5_1le8d")
 region_enabled = true
@@ -1551,10 +1481,6 @@ scale = Vector2(0.7, 0.7)
 collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
-
-[node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/Platform3"]
-replication_config = SubResource("SceneReplicationConfig_nlgqw")
-visibility_update_mode = 1
 
 [node name="Sprite2D" type="Sprite2D" parent="Platforms/Platform3"]
 texture = ExtResource("5_1le8d")
@@ -1576,10 +1502,6 @@ collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
 
-[node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/Platform4"]
-replication_config = SubResource("SceneReplicationConfig_nlgqw")
-visibility_update_mode = 1
-
 [node name="Sprite2D" type="Sprite2D" parent="Platforms/Platform4"]
 texture = ExtResource("5_1le8d")
 region_enabled = true
@@ -1600,10 +1522,6 @@ collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
 
-[node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/Platform5"]
-replication_config = SubResource("SceneReplicationConfig_nlgqw")
-visibility_update_mode = 1
-
 [node name="Sprite2D" type="Sprite2D" parent="Platforms/Platform5"]
 texture = ExtResource("5_1le8d")
 region_enabled = true
@@ -1623,10 +1541,6 @@ scale = Vector2(0.7, 0.7)
 collision_layer = 4
 collision_mask = 2
 collision_priority = 5.0
-
-[node name="PlatformSynchronizer" type="MultiplayerSynchronizer" parent="Platforms/StallRoof"]
-replication_config = SubResource("SceneReplicationConfig_nlgqw")
-visibility_update_mode = 1
 
 [node name="Sprite2D" type="Sprite2D" parent="Platforms/StallRoof"]
 region_enabled = true
@@ -1753,14 +1667,14 @@ script = ExtResource("9_rrhmt")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Ropes/Rope2"]
 position = Vector2(0, -5)
-shape = SubResource("RectangleShape2D_ladder")
+shape = SubResource("RectangleShape2D_bke2l")
 
 [node name="NinePatchRect" type="NinePatchRect" parent="Ropes/Rope2"]
 offset_left = -2.0
 offset_top = -32.0
 offset_right = 2.0
 offset_bottom = 22.0
-texture = SubResource("AtlasTexture_p47w5")
+texture = SubResource("AtlasTexture_8us8u")
 patch_margin_top = 1
 patch_margin_bottom = 1
 axis_stretch_vertical = 1
@@ -1774,14 +1688,14 @@ script = ExtResource("9_rrhmt")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Ropes/Rope3"]
 position = Vector2(0, -5)
-shape = SubResource("RectangleShape2D_ladder")
+shape = SubResource("RectangleShape2D_bke2l")
 
 [node name="NinePatchRect" type="NinePatchRect" parent="Ropes/Rope3"]
 offset_left = -2.0
 offset_top = -32.0
 offset_right = 2.0
 offset_bottom = 22.0
-texture = SubResource("AtlasTexture_p47w5")
+texture = SubResource("AtlasTexture_8us8u")
 patch_margin_top = 1
 patch_margin_bottom = 1
 axis_stretch_vertical = 1

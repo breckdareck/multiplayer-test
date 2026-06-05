@@ -1,14 +1,15 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=14 format=3 uid="uid://cuugvevam6urw"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=15 format=3 uid="uid://cuugvevam6urw"]
 
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Pristine_Dirk.tres" id="2_c5fop"]
-[ext_resource type="Script" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Pristine_Warbow.tres" id="3_pj28k"]
-[ext_resource type="SpriteFrames" path="res://resources/Enemies/Fox/SF_Fox.tres" id="3_sf"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Pristine_Nightshade_Mail.tres" id="4_5645v"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Pristine_Nightshade_Helm.tres" id="5_ct5ua"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Pristine_Pathfinder_Mail.tres" id="6_hxqp1"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Pristine_Arcanist_Mail.tres" id="7_rutg8"]
+[ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
+[ext_resource type="Resource" uid="uid://cqrkuvha0rcys" path="res://resources/DropTables/Generated/Pristine_Dirk.tres" id="2_c5fop"]
+[ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
+[ext_resource type="Resource" uid="uid://32hm5ilks87w" path="res://resources/DropTables/Generated/Pristine_Warbow.tres" id="3_pj28k"]
+[ext_resource type="SpriteFrames" uid="uid://baqtyjguyoxo2" path="res://resources/Enemies/Fox/SF_Fox.tres" id="3_sf"]
+[ext_resource type="Resource" uid="uid://8qtkqndu4a5u" path="res://resources/DropTables/Generated/Pristine_Nightshade_Mail.tres" id="4_5645v"]
+[ext_resource type="Resource" uid="uid://dsfa5ph1h2es3" path="res://resources/DropTables/Generated/Pristine_Nightshade_Helm.tres" id="5_ct5ua"]
+[ext_resource type="Resource" uid="uid://dh1ptukko8v23" path="res://resources/DropTables/Generated/Pristine_Pathfinder_Mail.tres" id="6_hxqp1"]
+[ext_resource type="Resource" uid="uid://cdgxbtucyof00" path="res://resources/DropTables/Generated/Pristine_Arcanist_Mail.tres" id="7_rutg8"]
+[ext_resource type="Script" uid="uid://cdsbcru4b1hr8" path="res://scripts/Resources/BossAttackData.gd" id="9_pj28k"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)
@@ -33,17 +34,7 @@ script = ExtResource("2_ed")
 monster_name = "Shadow Fox"
 monster_level = 63
 movement_speed = 50.0
-is_invincible = false
-is_magic_attacker = false
-archetype = 0
-defense_mult = 1.0
-magic_defense_mult = 1.0
-health_mult = 1.0
-attack_mult = 1.0
 is_aggressive = true
-detection_radius = 160.0
-attack_range = 36.0
-attack_cooldown = 1.4
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")
 body_hitbox_shape = SubResource("Shape_body")
