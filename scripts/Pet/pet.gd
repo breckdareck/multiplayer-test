@@ -73,6 +73,16 @@ const VERTICAL_STUCK_GIVEUP_JUMP_SEC: float = 0.25  # stop height-jumping after 
 var _vertical_stuck_timer: float = 0.0
 var _vertical_stuck_y_anchor: float = 0.0
 
+# LOOT-mode hop: the pet will jump up to ~1 platform to reach loot resting on a
+# box/ledge. If it can't reach the target within this grace (too high, or loot
+# with no platform under it), it gives up, marks the drop unreachable for a
+# cooldown, and heads back to the player instead of pogo-ing forever.
+const LOOT_JUMP_GIVEUP_SEC: float = 1.5
+const LOOT_UNREACHABLE_COOLDOWN_MS: int = 5000
+var _loot_jump_timer: float = 0.0
+var _loot_jump_target: Node = null  # which target the timer is tracking
+var _unreachable_drops: Dictionary = {}  # drop.name -> give-up Time.get_ticks_msec()
+
 # Position-based drop-through (mirrors MultiplayerPlayerV2's approach). Once
 # fired, the platform-layer mask is off until the pet's Y crosses
 # _drop_through_target_y — that's the bottom of the platform we dropped
@@ -383,12 +393,39 @@ func _physics_process(delta: float) -> void:
 	# horizontally toward the owner instead of bouncing in place.
 	var jump_off_ladder: bool = climb_exited_now and owner_jumping_now
 
-	if _mode == PetMode.FOLLOW and is_on_floor() and not _has_pending_jump:
-		var owner_grounded: bool = owner_node.has_method("is_on_floor") and owner_node.is_on_floor()
-		var jump_for_height: bool = owner_grounded and owner_above
-		if _vertical_stuck_timer >= VERTICAL_STUCK_GIVEUP_JUMP_SEC:
-			jump_for_height = false
+	# LOOT-mode hop give-up: time-box trying to reach loot that sits above us so
+	# we don't pogo forever at an unreachable box. Resets when the target changes
+	# or the loot is no longer above (we got up onto its level).
+	if _mode == PetMode.LOOT and owner_above and is_instance_valid(_loot_target_node):
+		if _loot_target_node != _loot_jump_target:
+			_loot_jump_target = _loot_target_node
+			_loot_jump_timer = 0.0
+		_loot_jump_timer += delta
+		if _loot_jump_timer >= LOOT_JUMP_GIVEUP_SEC:
+			_unreachable_drops[_loot_target_node.name] = Time.get_ticks_msec()
+			_loot_target_node = null
+			_loot_jump_target = null
+			_loot_jump_timer = 0.0
+			_mode = PetMode.FOLLOW
+			_is_following = true  # walk back to the player
+	else:
+		_loot_jump_timer = 0.0
+		_loot_jump_target = null
+
+	if is_on_floor() and not _has_pending_jump:
+		var jump_for_height: bool = false
 		var jump_for_wall: bool = should_walk and is_on_wall()
+		if _mode == PetMode.FOLLOW:
+			var owner_grounded: bool = owner_node.has_method("is_on_floor") and owner_node.is_on_floor()
+			jump_for_height = owner_grounded and owner_above
+			if _vertical_stuck_timer >= VERTICAL_STUCK_GIVEUP_JUMP_SEC:
+				jump_for_height = false
+		elif _mode == PetMode.LOOT:
+			# Hop up one platform toward loot resting on a box/ledge. Wait until
+			# we're roughly under it before hopping (so we rise through a one-way
+			# platform and land on top); for a solid-sided box jump_for_wall below
+			# fires first when we bump the side. Loot is static, so no grounded check.
+			jump_for_height = owner_above and absf(to_target_x) <= FOLLOW_STOP_X
 		if jump_for_height or jump_for_wall or jump_off_ladder:
 			velocity.y = pet_data.jump_velocity if pet_data else -360.0
 			# For a height-jump (player on a box / platform above) make sure
@@ -490,6 +527,8 @@ func _teleport_to_owner(owner_node: Node) -> void:
 	_mode = PetMode.FOLLOW
 	_loot_target_node = null
 	_was_looting = false
+	_loot_jump_timer = 0.0
+	_loot_jump_target = null
 	_has_pending_jump = false
 	# Cancel any in-flight drop-through — the teleport already put us where
 	# we need to be, and leaving the mask off would let us fall through the
@@ -719,6 +758,11 @@ func _scan_drops(container: Node, owner_node: Node) -> Node:
 		# respond and prevents ping-pong when a rejection happens.
 		var tried: int = int(_recently_tried_drops.get(drop.name, 0))
 		if tried > 0 and now - tried < PICKUP_RETRY_COOLDOWN_MS:
+			continue
+		# Skip drops we just gave up on as unreachable (couldn't hop to them),
+		# so we don't immediately re-pursue and pogo again.
+		var unreach: int = int(_unreachable_drops.get(drop.name, 0))
+		if unreach > 0 and now - unreach < LOOT_UNREACHABLE_COOLDOWN_MS:
 			continue
 		# Rectangle gate: horizontal reach from the PLAYER + same-level band.
 		if absf(drop.global_position.x - owner_node.global_position.x) > reach_x:
