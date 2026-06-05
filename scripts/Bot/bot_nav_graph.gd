@@ -370,7 +370,14 @@ func _build_edges() -> void:
 			var dx: float = absf(raw_dx)
 			var dy: float = pa.y - pb.y      # > 0 => b is above a
 			if dy > 2.0:
-				if dy <= _max_jump_height and dx <= _jump_reach and _jump_path_clear(pa, pb):
+				# Horizontal reach of a jump shrinks as it gains height (you trade
+				# distance for altitude): full _jump_reach for a low step, down to
+				# the rise-only half near max height. A flat reach would claim
+				# impossible far-and-high hops; this scaled bound still admits the
+				# diagonal up-edges a zigzag staircase needs.
+				var height_frac: float = clampf(dy / maxf(_max_jump_height, 1.0), 0.0, 1.0)
+				var horiz_limit: float = lerpf(_jump_reach, _jump_reach * 0.5, height_frac)
+				if dy <= _max_jump_height and dx <= horiz_limit and _jump_path_clear(pa, pb):
 					_connect(i, j, EdgeKind.JUMP, false)
 			elif dy < -2.0:
 				# A drop is only valid where the bot can actually leave the
@@ -391,7 +398,10 @@ func _build_edges() -> void:
 					drop_left_dy = -dy
 					drop_left = j
 			else:
-				if dx > CELL and dx <= _jump_reach * 2.0 and _jump_path_clear(pa, pb):
+				# GAP = same-level hop across a pit. _jump_reach is now the FULL
+				# flat-jump distance, so cap at it directly (the old *2.0 doubled a
+				# rise-only under-estimate that happened to land near one flat jump).
+				if dx > CELL and dx <= _jump_reach and _jump_path_clear(pa, pb):
 					_connect(i, j, EdgeKind.GAP, true)
 		if drop_left >= 0:
 			_connect(i, drop_left, EdgeKind.DROP, false)

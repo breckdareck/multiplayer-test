@@ -26,6 +26,11 @@ var _max_jump_height: float = 40.0
 ## roughly the bot's horizontal travel during a jump's rise, so the arc carries
 ## it from the launch point onto the portal.
 var _jump_launch_offset: float = 40.0
+## Full horizontal reach (px) of a jump — rise + fall back to the launch height,
+## so ~2x the rise-only launch offset. Passed to the nav graph as the JUMP/GAP
+## horizontal limit: the launch offset alone underestimates how far a jump
+## actually carries the bot, pruning the diagonal up-edges a staircase needs.
+var _jump_reach: float = 80.0
 
 var _wall_stuck_timer: float = 0.0
 const WALL_STUCK_JUMP_TIME: float = 0.4
@@ -91,6 +96,10 @@ func compute_jump_profile() -> void:
 	_max_jump_height = raw_height * JUMP_HEIGHT_SAFETY
 	# Horizontal travel during the jump's rise = move_speed * time-to-apex.
 	_jump_launch_offset = move_speed * (absf(jump_velocity) / grav)
+	# Full-jump horizontal reach = rise + fall back to launch height (~2x rise
+	# travel). The nav graph's JUMP/GAP edges use this so the bot's true jump
+	# distance isn't underestimated.
+	_jump_reach = _jump_launch_offset * 2.0
 
 
 ## Routes the bot toward a distant goal using the map's platform-nav graph,
@@ -149,7 +158,7 @@ func _get_nav_graph() -> BotNavGraph:
 	if not is_instance_valid(map_node):
 		return null
 	var map_id: String = MapManager.get_player_map(brain.bot_id)
-	return BotManager.get_nav_graph(map_id, map_node, _max_jump_height, _jump_launch_offset)
+	return BotManager.get_nav_graph(map_id, map_node, _max_jump_height, _jump_reach)
 
 
 ## Advances past reached waypoints and steers toward the next one. When the path
