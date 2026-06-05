@@ -482,6 +482,13 @@ func _reparent_peer_to_map(peer_id: int, old_map_id: String, new_map_id: String,
 			continue
 		client_spawn_player.rpc_id(p, peer_id, char_node.global_position, _player_username(peer_id))
 
+	# 6b. Reset the state machine to neutral NOW — after the spawn above, so the
+	#     change_state RPC reaches the destination clients only once they have the
+	#     arriver's node (reliable+ordered RPCs guarantee spawn-before-state).
+	#     Doing this in the pre-spawn arrival reset raced the spawn and threw
+	#     "Players/<id>/StateMachine not found" on every client.
+	_reset_state_machine_on_arrival(char_node)
+
 	# 7. Per-peer synchronizer visibility, recomputed off the now-updated
 	#    player_current_maps (sets every real player's view of the arriver).
 	update_visibility_for_player(peer_id)
@@ -505,10 +512,11 @@ func _reset_character_on_arrival(char_node: Node, map_id: String, spawn_point_na
 	char_node.global_position = get_spawn_position_for_map(map_id, spawn_point_name)
 	if "velocity" in char_node:
 		char_node.velocity = Vector2.ZERO
-	# Drop any mid-attack / chase state — back to the neutral starting state.
-	var sm = char_node.state_machine
-	if is_instance_valid(sm) and is_instance_valid(sm.starting_state) and sm.current_state != sm.starting_state:
-		sm.change_state(sm.starting_state)
+	# NOTE: the state-machine reset is deliberately NOT here. change_state RPCs the
+	# new state to the destination map's remote clients, and at this point (before
+	# step 6) the arriver isn't spawned on those clients yet — the RPC would target
+	# a missing node ("Players/<id>/StateMachine" not found). It runs in
+	# _reset_state_machine_on_arrival() AFTER the spawn instead.
 	# Reset transient per-weapon gauges (combo / charge / stealth).
 	if is_instance_valid(char_node.sword_combo_component):
 		char_node.sword_combo_component.reset_combo()
@@ -516,6 +524,15 @@ func _reset_character_on_arrival(char_node: Node, map_id: String, spawn_point_na
 		char_node.bow_momentum_component.reset()
 	if is_instance_valid(char_node.shadowmeld_component):
 		char_node.shadowmeld_component.cancel_stealth()
+
+
+## Drop any mid-attack / chase state back to the neutral starting state. Split
+## from _reset_character_on_arrival and run AFTER the arriver is spawned on the
+## destination clients (change_state RPCs them, so the node must exist first).
+func _reset_state_machine_on_arrival(char_node: Node) -> void:
+	var sm = char_node.state_machine
+	if is_instance_valid(sm) and is_instance_valid(sm.starting_state) and sm.current_state != sm.starting_state:
+		sm.change_state(sm.starting_state)
 
 
 func _load_map_on_server(map_id: String):
