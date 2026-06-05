@@ -1146,6 +1146,7 @@ region_rect = Rect2(160, 179, 23, 13)
 position = Vector2(0, -8)
 shape = SubResource("RectangleShape2D_gma0m")
 one_way_collision = true
+one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
 [node name="Players" type="Node2D" parent="."]
