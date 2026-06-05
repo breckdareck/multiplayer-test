@@ -16,6 +16,10 @@ var _jump_cooldown_timer: float = 0.0
 ## Horizontal slack (px) within which the bot counts as aligned with a ladder
 ## column for mounting (hop-up assist + dismount).
 const LADDER_MOUNT_X_TOL: float = 14.0
+## When ASCENDING, dismount once the bot has climbed to within this many px below
+## the top platform (or above it) — ropes stick out above the platform, so the bot
+## must hop off sideways onto it rather than ride past.
+const LADDER_DISMOUNT_Y_TOL: float = 6.0
 ## Max horizontal speed (px/s) the bot may carry when launching an UPWARD jump.
 ## Above this it holds to bleed off landing momentum first, so it settles on an
 ## intermediate platform and launches cleanly instead of sliding off the far edge
@@ -246,7 +250,8 @@ func _steer_along_nav_path(goal: Vector2) -> void:
 	if _nav_index >= 1:
 		var prev_id: int = _nav_path[_nav_index - 1]
 		if graph.has_point(prev_id) and graph.edge_kind(prev_id, cur_id) == BotNavGraph.EdgeKind.CLIMB:
-			_ride_ladder(graph.point_position(cur_id))
+			var ascending: bool = graph.point_position(cur_id).y < graph.point_position(prev_id).y
+			_ride_ladder(graph.point_position(cur_id), ascending)
 			return
 
 	_navigate_toward_or_climb(_resolve_waypoint_target(graph))
@@ -258,7 +263,7 @@ func _steer_along_nav_path(goal: Vector2) -> void:
 ## when the bot climbs off the end of the ladder zone; if it reaches the target
 ## level while still inside the zone (a mid-column platform), it hops sideways off
 ## to dismount onto it.
-func _ride_ladder(target: Vector2) -> void:
+func _ride_ladder(target: Vector2, ascending: bool) -> void:
 	var player: MultiplayerPlayerV2 = brain.player
 	var dx: float = target.x - player.global_position.x
 	var dy: float = target.y - player.global_position.y   # < 0 = target above
@@ -268,27 +273,38 @@ func _ride_ladder(target: Vector2) -> void:
 		player.direction = 0 if absf(dx) <= 2.0 else (1 if dx > 0.0 else -1)
 		if player.direction != 0:
 			player.facing_direction = player.direction
-		if dy < -2.0:
+		if ascending:
 			player.input_up = true
 			# The ladder zone can start above a platform standing flush below it;
 			# aligned with the column and grounded, hop up to reach the zone so the
 			# climb (with input_up already held) engages on the way up.
 			if absf(dx) <= LADDER_MOUNT_X_TOL and player.is_on_floor():
 				try_jump()
-		elif dy > 2.0:
+		else:
 			player.input_down = true
 		return
-	# On the ladder: drive the climb toward the target level and let it run off the
-	# end of the zone (climb.gd transitions to fall when it leaves the ladder area,
-	# then lands on the platform). Do NOT stop/dismount on dy proximity: the target
-	# platform usually sits just past the zone end, so the bot is still in the zone
-	# when it gets near it — a sideways jump-dismount there hops UPWARD (climb.gd
-	# dismount_velocity_y is negative), throwing a descending bot back up the ladder
-	# and stranding it. Climbing straight through to the zone exit lands cleanly.
+	# On the ladder. Direction depends on which way the CLIMB edge goes:
 	player.direction = 0
-	if dy < 0.0:
+	if ascending:
+		# Ropes stick out ABOVE the platform, so the climb carries the bot up past
+		# the platform's level. Once level with it (or just above), hop OFF sideways
+		# onto the platform — climb.gd's jump-dismount is up+sideways, exactly right
+		# here. Aim the hop toward the goal (which sits on/beyond that platform).
+		if dy >= -LADDER_DISMOUNT_Y_TOL:
+			var goal_dx: float = _nav_goal.x - player.global_position.x
+			var off: int = player.facing_direction if player.facing_direction != 0 else 1
+			if absf(goal_dx) > 2.0:
+				off = 1 if goal_dx > 0.0 else -1
+			player.direction = off
+			player.facing_direction = off
+			player.do_jump = true
+			return
 		player.input_up = true
 	else:
+		# Descending: ride straight off the BOTTOM of the zone and fall onto the
+		# lower platform. Do NOT dismount on dy proximity here — climb.gd's dismount
+		# hops UPWARD (dismount_velocity_y negative), which would throw a descending
+		# bot back up the rope and strand it.
 		player.input_down = true
 
 
