@@ -872,11 +872,14 @@ func _handle_navgraph_command(args: Array) -> String:
 		return "Bot %d has no live map node." % bot_id_val
 
 	var max_jump := 45.0
-	var jump_reach := 40.0
+	var jump_reach := 80.0
 	var brain := get_bot_brain(bot_id_val)
 	if brain:
 		max_jump = brain._navigator._max_jump_height
-		jump_reach = brain._navigator._jump_launch_offset
+		# Use the SAME full-jump reach the live gameplay graph builds with
+		# (_get_nav_graph passes _jump_reach), not the rise-only launch offset, so
+		# the reported jump-edge count matches what the bots actually navigate on.
+		jump_reach = brain._navigator._jump_reach
 
 	var graph := BotNavGraph.new()
 	if not graph.build(map_node, max_jump, jump_reach):
