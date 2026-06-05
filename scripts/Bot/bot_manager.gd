@@ -400,6 +400,11 @@ var _stress_map_b: String = ""
 var _stress_idx: int = 0
 var _stress_accum: float = 0.0
 var _stress_interval: float = 0.15  # seconds between one bot's hop
+## When true, the stress bots take the RECREATE path (free + re-instantiate +
+## JoinHandshake) instead of the reparent fast path — read by
+## MapManager.request_map_change. Lets the stress test measure the server-side
+## rebuild cost a REMOTE CLIENT incurs per portal, which compounds at 50x.
+var stress_force_recreate: bool = false
 
 
 func _process(delta: float) -> void:
@@ -978,12 +983,23 @@ func _handle_stress_command(args: Array, requester_id: int) -> String:
 		return "host-only."
 	if not args.is_empty() and args[0].to_lower() == "off":
 		_stress_active = false
+		stress_force_recreate = false
 		var n := _stress_bot_ids.size()
 		return "Stress stopped. %d bots still active — '/bot despawn_all' to clear." % n
-	var count: int = int(args[0]) if not args.is_empty() else 50
+	# Parse: numeric tokens are count then interval; "recreate" forces the
+	# server-side rebuild path (a remote client's per-portal cost) instead of
+	# reparent, so you can A/B the two at scale.
+	stress_force_recreate = false
+	var nums: Array = []
+	for a in args:
+		if a.to_lower() == "recreate":
+			stress_force_recreate = true
+		elif a.is_valid_float():
+			nums.append(float(a))
+	var count: int = int(nums[0]) if nums.size() > 0 else 50
 	count = clampi(count, 1, 200)
-	if args.size() > 1:
-		_stress_interval = clampf(float(args[1]), 0.02, 5.0)
+	if nums.size() > 1:
+		_stress_interval = clampf(nums[1], 0.02, 5.0)
 	# Cycle between the requester's current map and a portal-adjacent map.
 	var map_a: String = MapManager.get_player_map(requester_id)
 	if map_a.is_empty():
@@ -1004,8 +1020,9 @@ func _handle_stress_command(args: Array, requester_id: int) -> String:
 	_stress_idx = 0
 	_stress_accum = 0.0
 	_stress_active = true
-	return "Stress: spawned %d bots, cycling %s <-> %s every %.2fs. '/bot stress off' to stop, '/bot despawn_all' to clear." % [
-		_stress_bot_ids.size(), _stress_map_a, _stress_map_b, _stress_interval]
+	var mode := "RECREATE (server rebuild — remote-client cost)" if stress_force_recreate else "reparent (host/bot fast path)"
+	return "Stress: %d bots, %s <-> %s every %.2fs, path=%s. '/bot stress off' to stop, '/bot despawn_all' to clear." % [
+		_stress_bot_ids.size(), _stress_map_a, _stress_map_b, _stress_interval, mode]
 
 
 func _handle_travel_command(args: Array) -> String:

@@ -333,7 +333,12 @@ func request_map_change(player_id: int, target_map_id: String, target_spawn_poin
 	# recreate (they rebuild their own single map — a future client-residency
 	# phase). A first spawn (not is_map_change) uses the full flow below; a
 	# precondition miss (target not resident, node missing) falls through to it.
-	if is_map_change and (BotManager.is_bot(player_id) or player_id == 1):
+	var _try_reparent := is_map_change and (BotManager.is_bot(player_id) or player_id == 1)
+	# Stress-test toggle: force the bots down the RECREATE path so it measures the
+	# server-side rebuild a remote client pays per portal (see /bot stress recreate).
+	if BotManager.is_bot(player_id) and BotManager.stress_force_recreate:
+		_try_reparent = false
+	if _try_reparent:
 		if _reparent_peer_to_map(player_id, old_map_id, target_map_id, target_spawn_point_name):
 			return
 
