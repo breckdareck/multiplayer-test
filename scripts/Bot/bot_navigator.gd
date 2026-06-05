@@ -226,7 +226,51 @@ func _steer_along_nav_path(goal: Vector2) -> void:
 		_navigate_toward_or_climb(goal)
 		return
 
+	# A CLIMB edge into the current waypoint means ride a ladder/rope, not jump.
+	var cur_id: int = _nav_path[_nav_index]
+	if _nav_index >= 1:
+		var prev_id: int = _nav_path[_nav_index - 1]
+		if graph.has_point(prev_id) and graph.edge_kind(prev_id, cur_id) == BotNavGraph.EdgeKind.CLIMB:
+			_ride_ladder(graph.point_position(cur_id))
+			return
+
 	_navigate_toward_or_climb(_resolve_waypoint_target(graph))
+
+
+## Rides a ladder/rope toward a CLIMB waypoint: first walk onto the ladder column
+## (the waypoint sits on it), then hold input_up / input_down to drive the
+## player's climb state to the target level. The climb auto-exits (to fall+land)
+## when the bot climbs off the end of the ladder zone; if it reaches the target
+## level while still inside the zone (a mid-column platform), it hops sideways off
+## to dismount onto it.
+func _ride_ladder(target: Vector2) -> void:
+	var player: MultiplayerPlayerV2 = brain.player
+	var dx: float = target.x - player.global_position.x
+	var dy: float = target.y - player.global_position.y   # < 0 = target above
+	if not player.is_in_ladder_zone():
+		# Walk onto the column; pre-press toward the target so climb engages the
+		# instant we enter the ladder area.
+		player.direction = 0 if absf(dx) <= 2.0 else (1 if dx > 0.0 else -1)
+		if player.direction != 0:
+			player.facing_direction = player.direction
+		if dy < -2.0:
+			player.input_up = true
+		elif dy > 2.0:
+			player.input_down = true
+		return
+	# On the ladder: climb toward the target level.
+	player.direction = 0
+	if absf(dy) <= NAV_WAYPOINT_Y_TOL:
+		# Reached the level but still inside the zone (mid-column) — dismount
+		# sideways (jump + direction) to step off onto the platform.
+		var off: int = player.facing_direction if player.facing_direction != 0 else 1
+		player.direction = off
+		player.do_jump = true
+		return
+	if dy < 0.0:
+		player.input_up = true
+	else:
+		player.input_down = true
 
 
 ## The position the navigator should steer toward this frame, derived from the

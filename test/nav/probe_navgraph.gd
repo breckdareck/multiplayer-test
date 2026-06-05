@@ -77,8 +77,8 @@ func _run() -> void:
 		print("[probe] graph build failed — no live physics world?")
 		return
 	var s = g.get_stats()
-	print("[probe] surfaces=%d points=%d  edges=%d  walk=%d jump=%d drop=%d gap=%d" % [
-		s.segments, s.points, s.edges, s.walk, s.jump, s.drop, s.gap])
+	print("[probe] surfaces=%d points=%d  edges=%d  walk=%d jump=%d drop=%d gap=%d climb=%d" % [
+		s.segments, s.points, s.edges, s.walk, s.jump, s.drop, s.gap, s.climb])
 	print("[probe] bounds=", s.bounds)
 
 	if g.points.size() == 0:
@@ -104,7 +104,31 @@ func _run() -> void:
 
 	_report_components(g)
 	_report_directed(g, lowest_i, "BOTTOM")
+	_diagnose_ladders(g)
 	_dump_surfaces(g)
+
+
+## For each ladder: its column + vertical extent, and which surfaces it spans —
+## reveals why a ladder produced (or didn't produce) CLIMB edges.
+func _diagnose_ladders(g) -> void:
+	var ladders: Array = []
+	g._collect_ladders(_level, ladders)
+	print("[probe] ladder diagnostics (%d ladders):" % ladders.size())
+	for L in ladders:
+		var ext = g._ladder_extent(L)
+		if ext.is_empty():
+			print("          x=%.0f: NO RectangleShape2D" % (L as Node2D).global_position.x)
+			continue
+		var matched: Array = []
+		for seg_i in range(g.segments.size()):
+			var seg = g.segments[seg_i]
+			if seg.y < ext.top - 16.0 or seg.y > ext.bottom + 16.0:
+				continue
+			if ext.x < seg.x_min - 24.0 or ext.x > seg.x_max + 24.0:
+				continue
+			matched.append(int(seg.y))
+		print("          x=%.0f extent[%.0f..%.0f] h=%.0f: surfaces y=%s" % [
+			ext.x, ext.top, ext.bottom, ext.bottom - ext.top, str(matched)])
 
 
 ## Lists every surface (y, x-extent, solid/one-way) sorted top-to-bottom so the

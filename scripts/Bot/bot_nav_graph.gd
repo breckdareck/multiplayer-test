@@ -36,7 +36,17 @@ const DROP_DX: float = 80.0
 const DROP_MAX_FALL: float = 800.0
 const MAX_COLUMN_ITERS: int = 400   ## Defensive cap on the per-column probe loop.
 
-enum EdgeKind { WALK, JUMP, DROP, GAP }
+enum EdgeKind { WALK, JUMP, DROP, GAP, CLIMB }
+
+## Horizontal tolerance (px) for matching a ladder's column to a surface's x-span
+## and to a graph point — a ladder connects a surface if its x falls within the
+## surface's extent (plus this slack) and there's a point near that column.
+const LADDER_X_TOL: float = 24.0
+## Vertical reach (px) added beyond each end of a ladder's collision zone when
+## matching surfaces. The authored zones are short (~20-50px) and sit at one
+## platform, but the climb carries the bot off the zone end onto the next
+## platform; this lets the column connect those adjacent staircase platforms.
+const LADDER_CLIMB_REACH: float = 96.0
 
 var bounds: Rect2
 var segments: Array[Dictionary] = []         ## Each: {y, x_min, x_max, last_col, one_way}
@@ -173,7 +183,7 @@ func edge_kind(from_id: int, to_id: int) -> int:
 
 ## Summary counts for debug inspection.
 func get_stats() -> Dictionary:
-	var kinds := {EdgeKind.WALK: 0, EdgeKind.JUMP: 0, EdgeKind.DROP: 0, EdgeKind.GAP: 0}
+	var kinds := {EdgeKind.WALK: 0, EdgeKind.JUMP: 0, EdgeKind.DROP: 0, EdgeKind.GAP: 0, EdgeKind.CLIMB: 0}
 	for k in edges.values():
 		kinds[k] += 1
 	var one_way_segs := 0
@@ -191,6 +201,7 @@ func get_stats() -> Dictionary:
 		"jump": kinds[EdgeKind.JUMP],
 		"drop": kinds[EdgeKind.DROP],
 		"gap": kinds[EdgeKind.GAP],
+		"climb": kinds[EdgeKind.CLIMB],
 	}
 
 
@@ -418,6 +429,80 @@ func _build_edges() -> void:
 			_connect(i, drop_left, EdgeKind.DROP, false)
 		if drop_right >= 0 and drop_right != drop_left:
 			_connect(i, drop_right, EdgeKind.DROP, false)
+
+	# Vertical CLIMB edges along ladders/ropes — the maps' intended way up/down
+	# between platforms too far apart to jump.
+	_build_ladder_edges()
+
+
+## Connects the surfaces a ladder/rope spans with bidirectional CLIMB edges, so
+## A* can route a bot up or down it. For each ladder we take the graph point
+## nearest the ladder's column on every surface that falls within its vertical
+## extent, sort them by height, and link adjacent levels — climbing one gap per
+## edge (which is how these maps stack their ladders).
+func _build_ladder_edges() -> void:
+	if not is_instance_valid(_build_map_node):
+		return
+	var ladders: Array = []
+	_collect_ladders(_build_map_node, ladders)
+	for ladder in ladders:
+		var ext: Dictionary = _ladder_extent(ladder)
+		if ext.is_empty():
+			continue
+		var lx: float = ext.x
+		var level_points: Array = []   # [{y, id}]
+		for seg_i in range(segments.size()):
+			var seg: Dictionary = segments[seg_i]
+			# Surface must sit within the ladder's vertical span (extended by the
+			# climb reach, since the climb carries the bot off the short zone onto
+			# the adjacent platform) and its x-extent must include the column.
+			if seg.y < ext.top - LADDER_CLIMB_REACH or seg.y > ext.bottom + LADDER_CLIMB_REACH:
+				continue
+			if lx < seg.x_min - LADDER_X_TOL or lx > seg.x_max + LADDER_X_TOL:
+				continue
+			var pid: int = _nearest_point_on_segment(seg_i, lx)
+			if pid >= 0 and absf(points[pid].x - lx) <= POINT_SPACING:
+				level_points.append({"y": seg.y, "id": pid})
+		level_points.sort_custom(func(a, b): return a.y < b.y)
+		for k in range(1, level_points.size()):
+			_connect(level_points[k - 1].id, level_points[k].id, EdgeKind.CLIMB, true)
+
+
+## Recursively gathers Ladder-scripted Area2Ds (ladders and ropes share ladder.gd)
+## under a map node.
+func _collect_ladders(node: Node, out: Array) -> void:
+	if node is Area2D and node.get_script() != null \
+			and String(node.get_script().resource_path).ends_with("ladder.gd"):
+		out.append(node)
+	for c in node.get_children():
+		_collect_ladders(c, out)
+
+
+## A ladder's column x and vertical world extent, from its RectangleShape2D.
+## Returns {} if it has no usable collision shape.
+func _ladder_extent(ladder: Node) -> Dictionary:
+	for c in ladder.get_children():
+		if c is CollisionShape2D and (c as CollisionShape2D).shape is RectangleShape2D:
+			var cs := c as CollisionShape2D
+			var half_h: float = (cs.shape as RectangleShape2D).size.y * 0.5 * absf(cs.global_scale.y)
+			var cy: float = cs.global_position.y
+			return {"x": (ladder as Node2D).global_position.x, "top": cy - half_h, "bottom": cy + half_h}
+	return {}
+
+
+## Graph point on a given segment closest to a column x, or -1 if the segment has
+## no points.
+func _nearest_point_on_segment(seg_i: int, x: float) -> int:
+	var best := -1
+	var best_dx := INF
+	for i in range(points.size()):
+		if point_segment[i] != seg_i:
+			continue
+		var d: float = absf(points[i].x - x)
+		if d < best_dx:
+			best_dx = d
+			best = i
+	return best
 
 
 ## Whether a jump/gap edge between two points is unobstructed. Rejects an edge

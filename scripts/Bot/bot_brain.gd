@@ -291,6 +291,10 @@ func _process(delta: float) -> void:
 	else:
 		_navigator._wall_stuck_timer = 0.0
 
+	# Climb inputs are re-asserted each frame by the navigator only while riding a
+	# ladder; clear them first so they never stick once the bot is off the ladder.
+	player.input_up = false
+	player.input_down = false
 	if _should_apply_action():
 		_apply_current_action()
 
@@ -1124,3 +1128,5 @@ func _clear_input() -> void:
 	player.do_drop = false
 	player.do_pickup = false
 	player.do_portal_interact = false
+	player.input_up = false
+	player.input_down = false

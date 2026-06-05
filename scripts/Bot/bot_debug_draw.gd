@@ -33,6 +33,7 @@ const EDGE_COLORS: Array[Color] = [
 	Color(0.3, 0.8, 1.0, 0.75),   # JUMP  — cyan
 	Color(1.0, 0.6, 0.2, 0.75),   # DROP  — orange
 	Color(1.0, 0.9, 0.2, 0.75),   # GAP   — yellow
+	Color(0.8, 0.4, 1.0, 0.9),    # CLIMB — purple (ladders/ropes)
 ]
 const SURFACE_COLOR := Color(1, 1, 1, 0.55)
 const ONEWAY_SURFACE_COLOR := Color(0.5, 1.0, 0.7, 0.7)  ## One-way platforms.
