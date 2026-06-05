@@ -301,7 +301,13 @@ func _process(delta: float) -> void:
 	# ladder; clear them first so they never stick once the bot is off the ladder.
 	player.input_up = false
 	player.input_down = false
-	if _should_apply_action():
+	if _navigator.is_climbing() and current_action in ["idle", "wander"]:
+		# Recovery: the bot is in the climb state but its task ended mid-rope (e.g.
+		# loot auto-collected while climbing past it set the action to idle). Idle
+		# drives no input AND is_climbing() blocks the think loop, so it would hover
+		# on the rope forever. Ride up and off so it lands and can think again.
+		player.input_up = true
+	elif _should_apply_action():
 		_apply_current_action()
 
 	# Stuck detection runs after the action set player.direction this frame.
