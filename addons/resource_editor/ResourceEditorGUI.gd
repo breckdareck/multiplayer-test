@@ -1963,9 +1963,13 @@ func _make_vfx_row(label_text: String) -> OptionButton:
 	var ob = OptionButton.new()
 	ob.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_style_option_button(ob)
+	# "(auto)" → "" (resolve from ABILITY_MAP/fallback); "None" → NONE_KEY
+	# (explicitly suppress the effect); then every concrete catalog key.
 	ob.add_item("(auto)", 0)
 	ob.set_item_metadata(0, "")
-	var idx := 1
+	ob.add_item("None (no effect)", 1)
+	ob.set_item_metadata(1, VfxCatalog.NONE_KEY)
+	var idx := 2
 	for key in VfxCatalog.CATALOG:
 		ob.add_item(key, idx)
 		ob.set_item_metadata(idx, key)

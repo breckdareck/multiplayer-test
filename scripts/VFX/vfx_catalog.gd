@@ -28,6 +28,12 @@ extends RefCounted
 ##   scale    : base sprite scale (callers multiply by their own scale_mult)
 ##   modulate : tint applied to recolor a shared sheet (e.g. green poison from
 ##              the purple DarkFire sheet)
+
+## Sentinel stored in ActiveBehaviorData.cast_vfx/hit_vfx to mean "explicitly NO
+## effect" — distinct from "" (auto: resolve from ABILITY_MAP / fallback). The
+## resolver returns "" for it, so the broadcast spawns nothing.
+const NONE_KEY: String = "none"
+
 const CATALOG: Dictionary = {
 	# ---- One-shot impacts (spawned at the struck enemy) ----
 	"phys_impact": {
@@ -278,6 +284,8 @@ static func resolve_cast(ability: AbilityData) -> String:
 	# .get() + String guard: a placeholder/stale resource instance in the editor
 	# can return Nil for an exported property, which must NOT propagate as a key.
 	var ov: String = _override_key(ability, "cast_vfx")
+	if ov == NONE_KEY:
+		return ""  # explicitly suppressed by the designer
 	if ov != "":
 		return ov
 	var entry: Dictionary = ABILITY_MAP.get(ability.ability_name, {})
@@ -293,6 +301,8 @@ static func resolve_hit(ability: AbilityData) -> String:
 	if ability == null:
 		return ""
 	var ov: String = _override_key(ability, "hit_vfx")
+	if ov == NONE_KEY:
+		return ""  # explicitly suppressed by the designer
 	if ov != "":
 		return ov
 	var entry: Dictionary = ABILITY_MAP.get(ability.ability_name, {})
