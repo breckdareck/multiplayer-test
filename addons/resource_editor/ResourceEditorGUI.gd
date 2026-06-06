@@ -101,6 +101,17 @@ var is_updating_ui: bool = false
 var selected_formula_key: String = ""
 var current_editing_formula: AbilityScalingFormula = null
 
+# VFX override section (built programmatically below the ActiveBehavior inspector).
+# Lets the user see which cast/hit effect an ability resolves to (VfxCatalog) and
+# override it per ability via ActiveBehaviorData.cast_vfx / hit_vfx, with a live
+# looping preview of each.
+var _vfx_section: VBoxContainer = null
+var _vfx_cast_option: OptionButton = null
+var _vfx_hit_option: OptionButton = null
+var _vfx_resolved_label: Label = null
+var _vfx_cast_preview: AnimatedSprite2D = null
+var _vfx_hit_preview: AnimatedSprite2D = null
+
 # Theme state – kept as refs so _update_accent() can mutate them in place
 var _title_label:       Label          = null
 var _status_label:      Label          = null
@@ -1865,6 +1876,8 @@ func _update_active_behavior_ui() -> void:
 	if ability.ability_type == Constants.AbilityType.ACTIVE:
 		_set_section_visible(active_behavior_panel, true)
 		active_behavior_inspector.edit(ability.active_behavior)
+		_build_vfx_section()
+		_update_vfx_ui(ability)
 		if ability.active_behavior:
 			if not ability.active_behavior.changed.is_connected(_on_active_behavior_changed):
 				ability.active_behavior.changed.connect(_on_active_behavior_changed)
@@ -1877,6 +1890,198 @@ func _update_active_behavior_ui() -> void:
 	else:
 		_set_section_visible(active_behavior_panel, false)
 		active_behavior_inspector.edit(null)
+
+
+# ========================================
+# VFX OVERRIDE SECTION (cast / hit effect picker + preview)
+# ========================================
+
+## Builds the VFX picker once, inserted directly under the ActiveBehavior
+## inspector and above the hitbox visualizer. Two dropdowns (cast / hit) listing
+## every VfxCatalog key plus "(auto)", a label showing what the ability actually
+## resolves to, and two looping preview sprites.
+func _build_vfx_section() -> void:
+	if is_instance_valid(_vfx_section):
+		return
+	var content_vbox = active_behavior_inspector.get_parent()
+	if not is_instance_valid(content_vbox):
+		return
+
+	_vfx_section = VBoxContainer.new()
+	_vfx_section.name = "VfxOverrideSection"
+	_vfx_section.add_theme_constant_override("separation", 6)
+
+	# Header.
+	var header = Label.new()
+	header.text = "✦ Ability VFX"
+	header.add_theme_color_override("font_color", C_TEXT)
+	header.add_theme_font_size_override("font_size", 13)
+	_vfx_section.add_child(header)
+
+	var hint = Label.new()
+	hint.text = "Pick an effect, or leave (auto) to use the per-ability default. Cast plays at the caster; Hit plays on each struck enemy."
+	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	hint.add_theme_color_override("font_color", C_DIM)
+	hint.add_theme_font_size_override("font_size", 11)
+	_vfx_section.add_child(hint)
+
+	_vfx_cast_option = _make_vfx_row("Cast VFX:")
+	_vfx_hit_option = _make_vfx_row("Hit VFX:")
+
+	# Resolved-effect readout (what the ability will actually use).
+	_vfx_resolved_label = Label.new()
+	_vfx_resolved_label.add_theme_color_override("font_color", C_OK)
+	_vfx_resolved_label.add_theme_font_size_override("font_size", 11)
+	_vfx_section.add_child(_vfx_resolved_label)
+
+	# Preview row — two looping tiles, cast on the left, hit on the right.
+	var preview_row = HBoxContainer.new()
+	preview_row.add_theme_constant_override("separation", 14)
+	preview_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	_vfx_cast_preview = _make_vfx_preview_tile(preview_row, "Cast")
+	_vfx_hit_preview = _make_vfx_preview_tile(preview_row, "Hit")
+	_vfx_section.add_child(preview_row)
+
+	content_vbox.add_child(_vfx_section)
+	# Place right after the inspector, before the visualizer.
+	content_vbox.move_child(_vfx_section, active_behavior_inspector.get_index() + 1)
+
+
+## Builds one labeled OptionButton row populated with every VfxCatalog key plus a
+## leading "(auto)" entry, appends it to _vfx_section, wires its change signal,
+## and returns the OptionButton.
+func _make_vfx_row(label_text: String) -> OptionButton:
+	var row = HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	var lbl = Label.new()
+	lbl.text = label_text
+	lbl.custom_minimum_size = Vector2(90, 0)
+	lbl.add_theme_color_override("font_color", C_TEXT)
+	lbl.add_theme_font_size_override("font_size", 12)
+	row.add_child(lbl)
+
+	var ob = OptionButton.new()
+	ob.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_style_option_button(ob)
+	ob.add_item("(auto)", 0)
+	ob.set_item_metadata(0, "")
+	var idx := 1
+	for key in VfxCatalog.CATALOG:
+		ob.add_item(key, idx)
+		ob.set_item_metadata(idx, key)
+		idx += 1
+	row.add_child(ob)
+	_vfx_section.add_child(row)
+	ob.item_selected.connect(func(_i): _on_vfx_override_changed())
+	return ob
+
+
+## Builds a captioned preview tile (a dark panel holding a looping
+## AnimatedSprite2D) and appends it to `parent`. Returns the AnimatedSprite2D.
+func _make_vfx_preview_tile(parent: Control, caption: String) -> AnimatedSprite2D:
+	var col = VBoxContainer.new()
+	col.add_theme_constant_override("separation", 2)
+	col.alignment = BoxContainer.ALIGNMENT_CENTER
+
+	var cap = Label.new()
+	cap.text = caption
+	cap.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	cap.add_theme_color_override("font_color", C_DIM)
+	cap.add_theme_font_size_override("font_size", 11)
+	col.add_child(cap)
+
+	var pc = PanelContainer.new()
+	var sb = StyleBoxFlat.new()
+	sb.bg_color = C_DARK.darkened(0.10)
+	sb.border_color = C_BORDER
+	sb.set_border_width_all(1)
+	sb.set_corner_radius_all(4)
+	pc.add_theme_stylebox_override("panel", sb)
+
+	var holder = Control.new()
+	holder.custom_minimum_size = Vector2(96, 96)
+	var spr = AnimatedSprite2D.new()
+	spr.position = Vector2(48, 48)  # center of the 96×96 tile
+	holder.add_child(spr)
+	pc.add_child(holder)
+	col.add_child(pc)
+	parent.add_child(col)
+	return spr
+
+
+## Syncs the dropdowns, resolved-effect label, and previews to the given ability.
+func _update_vfx_ui(ability: AbilityData) -> void:
+	if not is_instance_valid(_vfx_cast_option):
+		return
+	var ab := ability.active_behavior
+	var cast_override := ab.cast_vfx if ab else ""
+	var hit_override := ab.hit_vfx if ab else ""
+	_select_vfx_option(_vfx_cast_option, cast_override)
+	_select_vfx_option(_vfx_hit_option, hit_override)
+
+	# Resolved keys = what the ability ACTUALLY uses (override → ABILITY_MAP →
+	# weapon/element fallback). Shows the user the effective effect even on (auto).
+	var resolved_cast := VfxCatalog.resolve_cast(ability)
+	var resolved_hit := VfxCatalog.resolve_hit(ability)
+	_vfx_resolved_label.text = "Resolves to →  Cast: %s    Hit: %s" % [
+		resolved_cast if resolved_cast != "" else "(none)",
+		resolved_hit if resolved_hit != "" else "(none)"]
+
+	_play_vfx_preview(_vfx_cast_preview, resolved_cast)
+	_play_vfx_preview(_vfx_hit_preview, resolved_hit)
+
+
+## Selects the OptionButton item whose metadata equals `key` (falls back to the
+## leading "(auto)" entry).
+func _select_vfx_option(ob: OptionButton, key: String) -> void:
+	for i in range(ob.item_count):
+		if str(ob.get_item_metadata(i)) == key:
+			ob.select(i)
+			return
+	ob.select(0)
+
+
+## Plays a catalog effect on a preview sprite, looping regardless of the recipe's
+## one-shot flag (a duplicated SpriteFrames so the shared gameplay cache stays
+## one-shot), scaled to fit the 96×96 tile. Empty key clears the tile.
+func _play_vfx_preview(spr: AnimatedSprite2D, key: String) -> void:
+	if not is_instance_valid(spr):
+		return
+	if key == "":
+		spr.sprite_frames = null
+		return
+	var src := VfxCatalog.get_frames(key)
+	if src == null:
+		spr.sprite_frames = null
+		return
+	var sf: SpriteFrames = src.duplicate(true)
+	sf.set_animation_loop("play", true)
+	spr.sprite_frames = sf
+	spr.animation = "play"
+	var def: Dictionary = VfxCatalog.CATALOG[key]
+	# Fit the largest frame dimension into ~72px so big sheets don't overflow.
+	var frame_dim: float = float(maxi(int(def.get("fw", 32)), int(def.get("fh", 32))))
+	var fit: float = 72.0 / maxf(1.0, frame_dim)
+	spr.scale = Vector2.ONE * fit
+	spr.modulate = def.get("modulate", Color.WHITE)
+	spr.play("play")
+
+
+## Writes the dropdown selections back to the ActiveBehaviorData and refreshes.
+func _on_vfx_override_changed() -> void:
+	if is_updating_ui or not current_resource or not current_resource is AbilityData:
+		return
+	var ability := current_resource as AbilityData
+	var ab := ability.active_behavior
+	if not ab:
+		return
+	var cast_meta = _vfx_cast_option.get_item_metadata(_vfx_cast_option.selected)
+	var hit_meta = _vfx_hit_option.get_item_metadata(_vfx_hit_option.selected)
+	ab.cast_vfx = str(cast_meta) if cast_meta != null else ""
+	ab.hit_vfx = str(hit_meta) if hit_meta != null else ""
+	ab.emit_changed()  # marks the inspector + dirty tracking
+	_set_dirty(true)
+	_update_vfx_ui(ability)  # refresh resolved label + previews
 
 
 # ========================================

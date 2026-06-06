@@ -9,15 +9,15 @@ extends Resource
 @export var sfx_path: String = ""
 @export var logic_script: Script
 
-@export_group("VFX")
-## Optional override of the auto-resolved cast-VFX key (see VfxCatalog.CATALOG).
-## Empty = let VfxCatalog.resolve_cast pick from the ability's identity. The cast
-## effect plays once at the caster when the ability fires.
-@export var cast_vfx: String = ""
-## Optional override of the auto-resolved hit-VFX key (see VfxCatalog.CATALOG).
-## Empty = let VfxCatalog.resolve_hit pick from the ability's identity. The hit
-## effect plays once at each enemy struck.
-@export var hit_vfx: String = ""
+# VFX override keys (see VfxCatalog.CATALOG). Empty = let VfxCatalog.resolve_*
+# pick from the ability's identity. Edited via the Resources editor plugin's
+# "Ability VFX" dropdowns (with live preview), so they use @export_storage:
+# persisted to the .tres but hidden from the generic inspector to avoid a
+# confusing duplicate text field beside the plugin's dropdown.
+## Cast effect, plays once at the caster when the ability fires.
+@export_storage var cast_vfx: String = ""
+## Hit effect, plays once at each enemy struck.
+@export_storage var hit_vfx: String = ""
 
 @export_group("Projectile")
 @export var is_projectile: bool = false
