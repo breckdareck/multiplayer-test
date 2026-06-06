@@ -121,6 +121,7 @@ var _vfx_effect_sprite: AnimatedSprite2D = null
 var _vfx_effect_info: Label = null
 var _vfx_effect_stage: Control = null
 var _vfx_effect_char: Sprite2D = null  # faint character reference in the preview
+var _vfx_dragging: bool = false  # dragging the preview effect to set its offset
 
 # VFX overlay inside the ability hitbox visualizer: the resolved CAST effect on
 # the player body and the HIT effect at the hitbox center, so placement/offset
@@ -2201,6 +2202,9 @@ func _build_vfx_effect_preview() -> void:
 	stage.custom_minimum_size = Vector2(0, 140)
 	stage.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	stage.clip_contents = true
+	stage.mouse_filter = Control.MOUSE_FILTER_STOP
+	stage.tooltip_text = "Drag the effect to set its offset (relative to the character anchor)"
+	stage.gui_input.connect(_on_vfx_preview_gui_input)
 	_vfx_effect_stage = stage
 	# Draw the anchor marker — a faint crosshair at the character/enemy point so
 	# the effect's offset is visible relative to it.
@@ -2302,6 +2306,37 @@ func _on_vfx_effect_changed() -> void:
 		return
 	VfxCatalog.invalidate()
 	_refresh_vfx_effect_preview(current_resource as VfxEffectData)
+
+
+## Drag the effect around the preview to set its offset directly (faster than
+## typing numbers). offset = drag position relative to the character anchor.
+## Live-updates while dragging; commits (dirty + cache invalidate) on release.
+func _on_vfx_preview_gui_input(event: InputEvent) -> void:
+	if not (current_resource is VfxEffectData) or not is_instance_valid(_vfx_effect_stage):
+		return
+	var vfx := current_resource as VfxEffectData
+	var mb := event as InputEventMouseButton
+	if mb != null and mb.button_index == MOUSE_BUTTON_LEFT:
+		if mb.pressed:
+			_vfx_dragging = true
+			_set_vfx_offset_from_pos(vfx, mb.position)
+		elif _vfx_dragging:
+			_vfx_dragging = false
+			vfx.emit_changed()  # commit: marks inspector dirty + invalidates cache
+			_set_dirty(true)
+		return
+	var mm := event as InputEventMouseMotion
+	if mm != null and _vfx_dragging:
+		_set_vfx_offset_from_pos(vfx, mm.position)
+
+
+## Sets the effect's offset from a preview-local mouse position (relative to the
+## anchor marker), rounded to whole px, and live-refreshes the preview without
+## committing (the commit happens on mouse release).
+func _set_vfx_offset_from_pos(vfx: VfxEffectData, local_pos: Vector2) -> void:
+	var anchor := Vector2(_vfx_effect_stage.size.x * 0.5, _VFX_PREVIEW_ANCHOR_Y)
+	vfx.offset = (local_pos - anchor).round()
+	_refresh_vfx_effect_preview(vfx)
 
 
 # ========================================
