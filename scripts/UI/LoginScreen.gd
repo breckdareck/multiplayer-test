@@ -43,6 +43,7 @@ func _ready():
 	NetworkManager.registration_failed.connect(_on_registration_failed)
 	
 	_setup_backend_display()
+	_add_dev_skip_ui()
 
 	if MultiplayerManager.disconnect_reason != "":
 		status_label.text = MultiplayerManager.disconnect_reason
@@ -184,3 +185,140 @@ func _on_registration_success(_account_id):
 func _on_registration_failed(error):
 	status_label.text = "Registration Failed: " + error
 	status_label.add_theme_color_override("font_color", Color.RED)
+
+
+# ============================================================================
+# DEV FAST-PATH — skip login + character select, host offline with a max-level
+# character straight into the combat map. Debug builds only.
+# ============================================================================
+
+const _DEV_USERNAME := "DevMax"
+const _DEV_DISCIPLINES := [
+	[Constants.ClassType.SWORD, "Sword"],
+	[Constants.ClassType.BOW, "Bow"],
+	[Constants.ClassType.STAFF, "Staff"],
+	[Constants.ClassType.DAGGER, "Dagger"],
+]
+
+## Adds a "DEV — skip to combat" row (one button per weapon) to the login VBox.
+## Only in debug builds so it never ships in a release.
+func _add_dev_skip_ui() -> void:
+	if not OS.is_debug_build():
+		return
+	var vbox := $Panel/VBoxContainer
+	if not is_instance_valid(vbox):
+		return
+
+	var sep := HSeparator.new()
+	vbox.add_child(sep)
+
+	var label := Label.new()
+	label.text = "⚡ DEV — skip to combat (max char):"
+	label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.4))
+	vbox.add_child(label)
+
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 4)
+	for entry in _DEV_DISCIPLINES:
+		var btn := Button.new()
+		btn.text = entry[1]
+		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		btn.pressed.connect(_on_dev_skip_pressed.bind(int(entry[0])))
+		row.add_child(btn)
+	vbox.add_child(row)
+
+
+## Fabricates + writes a max-level save for `disc`, then hosts straight into the
+## combat map (reusing the normal dev-login offline flow).
+func _on_dev_skip_pressed(disc: int) -> void:
+	status_label.text = "Dev: launching max %s…" % _DEV_DISCIPLINES[disc][1]
+	status_label.add_theme_color_override("font_color", Color.YELLOW)
+
+	NetworkManager.is_dev_mode = true
+	NetworkManager.use_local_save = true  # offline: load/save from res://saves/
+	NetworkManager.account_id = 9999
+	NetworkManager.account_username = _DEV_USERNAME
+
+	_write_dev_save(_DEV_USERNAME, _build_dev_max_save(_DEV_USERNAME, disc))
+
+	# These metas are what PlayerManager._client_send_initial_info reads to pick
+	# the character (normally set by the character-select screen).
+	NetworkManager.set_meta("selected_character_name", _DEV_USERNAME)
+	NetworkManager.set_meta("selected_character_class", disc)
+
+	# Tear down the login screen once the server is up — same gate the
+	# character-select screen uses.
+	if not MultiplayerManager.server_has_started.is_connected(_on_dev_server_started):
+		MultiplayerManager.server_has_started.connect(_on_dev_server_started)
+	MultiplayerManager.host_game()
+
+
+func _on_dev_server_started() -> void:
+	queue_free()
+
+
+## Builds a max-level save dict (level 100, all four masteries capped, every active
+## ability of `disc` learned at level 1 with the first 8 bound to the primary
+## hotbar). Empty inventory → JoinHandshake grants the starter weapon/armor.
+## Spawns in "game" (the combat map) so there are enemies to hit immediately.
+func _build_dev_max_save(username: String, disc: int) -> Dictionary:
+	var weapon_type: int = disc  # ClassType 0-3 aligns 1:1 with WeaponType 0-3
+	var ability_levels: Dictionary = {}
+	var primary: Dictionary = {}
+	var secondary: Dictionary = {}
+	for i in range(8):
+		primary[str(i)] = ""
+		secondary[str(i)] = ""
+
+	var slot: int = 0
+	for ab in ResourceManager.ability_data.values():
+		if ab.ability_type != Constants.AbilityType.ACTIVE:
+			continue
+		if not ab.required_weapon_types.has(weapon_type):
+			continue
+		ability_levels[ab.ability_id] = 1
+		if slot < 8:
+			primary[str(slot)] = ab.ability_id
+			slot += 1
+
+	var mastery: Dictionary = {}
+	for k in ["sword", "bow", "staff", "dagger"]:
+		mastery[k] = {"level": WeaponMasteryComponent.MASTERY_CAP, "xp": 0}
+
+	return {
+		"username": username,
+		"level": 100,
+		"experience": 0,
+		"character_type": disc,
+		"current_health": 999999, "max_health": 999999,
+		"current_mana": 999999, "max_mana": 999999,
+		"monies": 999999,
+		"inventory": {},  # empty → starter kit (weapon + armor) granted on spawn
+		"equipment": {},
+		"weapon_mastery": mastery,
+		"abilities": {
+			"ability_levels": ability_levels,
+			# reconcile_ability_points() recomputes these from mastery vs spent.
+			"available_points_per_discipline": {"sword": 0, "bow": 0, "staff": 0, "dagger": 0},
+			"learned_ability_upgrades": {},
+			"primary_hotbar_bindings": primary,
+			"secondary_hotbar_bindings": secondary,
+		},
+		"buffs": {},
+		"quests": {},
+		"attribute_points": {},
+		"last_map": "game",
+		"party_id": -1,
+		"pets": [],
+		"summoned_pet_ids": [],
+	}
+
+
+func _write_dev_save(username: String, data: Dictionary) -> void:
+	var dir_abs := ProjectSettings.globalize_path("res://saves")
+	if not DirAccess.dir_exists_absolute(dir_abs):
+		DirAccess.make_dir_recursive_absolute(dir_abs)
+	var f := FileAccess.open("res://saves/player_%s.json" % username, FileAccess.WRITE)
+	if f:
+		f.store_string(JSON.stringify(data))
+		f.close()
