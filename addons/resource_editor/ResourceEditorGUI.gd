@@ -1974,8 +1974,20 @@ func _make_vfx_row(label_text: String) -> OptionButton:
 	var ob = OptionButton.new()
 	ob.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_style_option_button(ob)
-	# "(auto)" → "" (resolve from ABILITY_MAP/fallback); "None" → NONE_KEY
-	# (explicitly suppress the effect); then every concrete catalog key.
+	_populate_vfx_option_items(ob)
+	row.add_child(ob)
+	_vfx_section.add_child(row)
+	ob.item_selected.connect(func(_i): _on_vfx_override_changed())
+	return ob
+
+
+## (Re)fills a VFX dropdown with the current catalog keys: "(auto)" → "" (resolve
+## from ABILITY_MAP/fallback), "None" → NONE_KEY (explicitly suppress), then every
+## concrete catalog key. Called on first build AND each time the picker is shown,
+## so a VfxEffectData .tres you just added/renamed appears without an editor
+## restart. Selection is restored by the caller via _select_vfx_option.
+func _populate_vfx_option_items(ob: OptionButton) -> void:
+	ob.clear()
 	ob.add_item("(auto)", 0)
 	ob.set_item_metadata(0, "")
 	ob.add_item("None (no effect)", 1)
@@ -1985,10 +1997,6 @@ func _make_vfx_row(label_text: String) -> OptionButton:
 		ob.add_item(key, idx)
 		ob.set_item_metadata(idx, key)
 		idx += 1
-	row.add_child(ob)
-	_vfx_section.add_child(row)
-	ob.item_selected.connect(func(_i): _on_vfx_override_changed())
-	return ob
 
 
 ## Builds a captioned preview tile (a dark panel holding a looping
@@ -2028,6 +2036,12 @@ func _make_vfx_preview_tile(parent: Control, caption: String) -> AnimatedSprite2
 func _update_vfx_ui(ability: AbilityData) -> void:
 	if not is_instance_valid(_vfx_cast_option):
 		return
+	# Re-scan resources/VFX/ and rebuild the option lists so a VfxEffectData you
+	# just created/renamed shows up immediately (the catalog caches its folder
+	# scan; invalidate forces a fresh read).
+	VfxCatalog.invalidate()
+	_populate_vfx_option_items(_vfx_cast_option)
+	_populate_vfx_option_items(_vfx_hit_option)
 	var ab = ability.active_behavior
 	# .get() + String coercion: a placeholder/stale resource instance can hand
 	# back Nil for an exported property, which the typed helpers below reject.
