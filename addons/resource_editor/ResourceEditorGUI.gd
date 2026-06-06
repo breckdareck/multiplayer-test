@@ -119,6 +119,11 @@ var _vfx_hit_preview: AnimatedSprite2D = null
 var _vfx_effect_panel: PanelContainer = null
 var _vfx_effect_sprite: AnimatedSprite2D = null
 var _vfx_effect_info: Label = null
+var _vfx_effect_stage: Control = null
+## Y of the preview "anchor" marker (the character/enemy point); the effect is
+## drawn at anchor + offset so the offset field is visible. Low in the 140px
+## stage so a typical negative offset.y (effect above the body) reads upward.
+const _VFX_PREVIEW_ANCHOR_Y: float = 100.0
 
 # Theme state – kept as refs so _update_accent() can mutate them in place
 var _title_label:       Label          = null
@@ -2170,12 +2175,22 @@ func _build_vfx_effect_preview() -> void:
 	var stage = Control.new()
 	stage.custom_minimum_size = Vector2(0, 140)
 	stage.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_vfx_effect_sprite = AnimatedSprite2D.new()
-	# Centered horizontally; y set when the stage resizes.
+	stage.clip_contents = true
+	_vfx_effect_stage = stage
+	# Draw the anchor marker — a faint crosshair at the character/enemy point so
+	# the effect's offset is visible relative to it.
+	stage.draw.connect(func():
+		var c := Vector2(stage.size.x * 0.5, _VFX_PREVIEW_ANCHOR_Y)
+		var mc := Color(0.5, 0.55, 0.65, 0.6)
+		stage.draw_line(c - Vector2(8, 0), c + Vector2(8, 0), mc, 1.0)
+		stage.draw_line(c - Vector2(0, 8), c + Vector2(0, 8), mc, 1.0)
+		stage.draw_circle(c, 2.0, mc))
 	stage.resized.connect(func():
-		if is_instance_valid(_vfx_effect_sprite):
-			_vfx_effect_sprite.position = Vector2(stage.size.x * 0.5, 70))
-	_vfx_effect_sprite.position = Vector2(120, 70)
+		stage.queue_redraw()
+		if current_resource is VfxEffectData:
+			_refresh_vfx_effect_preview(current_resource))
+	_vfx_effect_sprite = AnimatedSprite2D.new()
+	_vfx_effect_sprite.position = Vector2(120, _VFX_PREVIEW_ANCHOR_Y)
 	stage.add_child(_vfx_effect_sprite)
 	col.add_child(stage)
 
@@ -2226,11 +2241,18 @@ func _refresh_vfx_effect_preview(vfx: VfxEffectData) -> void:
 	var fit: float = (96.0 / maxf(1.0, frame_dim)) * maxf(0.1, vfx.scale)
 	_vfx_effect_sprite.scale = Vector2.ONE * fit
 	_vfx_effect_sprite.modulate = vfx.modulate
+	# Place at the anchor marker + the effect's offset so offset edits are
+	# visible. offset is read null-safe (a stale editor save can persist null).
+	var off: Vector2 = vfx.offset if vfx.offset is Vector2 else Vector2.ZERO
+	var anchor_x: float = (_vfx_effect_stage.size.x * 0.5) if is_instance_valid(_vfx_effect_stage) else 120.0
+	_vfx_effect_sprite.position = Vector2(anchor_x, _VFX_PREVIEW_ANCHOR_Y) + off
 	_vfx_effect_sprite.play("play")
 	var n: int = sf.get_frame_count("play")
-	_vfx_effect_info.text = "%s  •  %d frames @ %.0f fps  •  %s" % [
+	var faces: bool = vfx.face_direction if vfx.face_direction is bool else true
+	_vfx_effect_info.text = "%s  •  %d frames @ %.0f fps  •  %s  •  offset (%.0f, %.0f)  •  %s" % [
 		vfx.effect_key if vfx.effect_key != "" else "(no key)",
-		n, vfx.fps, "loop" if vfx.loop else "one-shot"]
+		n, vfx.fps, "loop" if vfx.loop else "one-shot",
+		off.x, off.y, "faces dir" if faces else "no flip"]
 
 
 ## Live-update on any inspector edit; also drop the runtime cache so a saved
