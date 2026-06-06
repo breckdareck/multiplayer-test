@@ -288,4 +288,18 @@ static func _fallback_hit(ability: AbilityData) -> String:
 		return "arcane_impact"
 	return "phys_impact"
 
+
+## Hit key for a BASIC attack (no ability), by the equipped weapon type — staff
+## reads its active element (0 fire / 1 ice / 2 lightning, else arcane), every
+## other weapon a physical impact. `weapon_type` is a Constants.WeaponType (-1 =
+## unarmed). Keeps basic-swing sparks consistent with the weapon's identity.
+static func resolve_basic_hit(weapon_type: int, staff_element: int = -1) -> String:
+	if weapon_type == Constants.WeaponType.STAFF:
+		match staff_element:
+			0: return "fire_impact"
+			1: return "ice_impact"
+			2: return "lightning_impact"
+			_: return "arcane_impact"
+	return "phys_impact"
+
 #endregion

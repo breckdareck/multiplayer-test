@@ -917,19 +917,32 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 		if dmg_spawner:
 			dmg_spawner.display_number_combo(damage_values, crit_values, spawn_pos)
 
-		# Hit "juice" — a one-shot impact VFX at the struck enemy. Ability hits
-		# only (basic attacks are too frequent to spark every swing); the key
-		# auto-resolves from the ability's identity (VfxCatalog), overridable on
-		# its ActiveBehaviorData. We're already server-side here; broadcast_vfx_
-		# everywhere shows it on every peer (host inclusive) and bots route fine.
-		if ability != null and "player_id" in owner_node:
-			var hit_key: String = VfxCatalog.resolve_hit(ability)
+		# Hit "juice" — a one-shot impact VFX at the struck enemy, on every hit.
+		# Ability hits resolve from the ability's identity (VfxCatalog, overridable
+		# on its ActiveBehaviorData); basic attacks resolve from the equipped
+		# weapon (+ staff element) and spark a touch smaller so abilities still
+		# read bigger. We're already server-side; broadcast_vfx_everywhere shows it
+		# on every peer (host inclusive) and bots route fine.
+		if "player_id" in owner_node:
+			var hit_key: String = ""
+			if ability != null:
+				hit_key = VfxCatalog.resolve_hit(ability)
+			else:
+				var wtype: int = -1
+				if _equipment_component and _equipment_component.active_weapon_data != null:
+					wtype = _equipment_component.active_weapon_data.weapon_type
+				var elem: int = -1
+				var sec = owner_node.get("staff_element_component")
+				if sec != null and is_instance_valid(sec) and sec.has_method("get_current_element"):
+					elem = int(sec.get_current_element())
+				hit_key = VfxCatalog.resolve_basic_hit(wtype, elem)
 			if hit_key != "":
 				# spawn_pos is the enemy's damage-number origin (body height); the
 				# effect's own offset places it precisely. flip_h tracks the
 				# ATTACKER's facing so a directional impact reads as coming from them.
+				var hit_scale: float = 1.0 if ability != null else 0.8
 				var atk_face_left: bool = ("facing_direction" in owner_node) and int(owner_node.facing_direction) < 0
-				MapManager.broadcast_vfx_everywhere(MapManager.get_player_map(owner_node.player_id), hit_key, spawn_pos, 1.0, 0.0, atk_face_left)
+				MapManager.broadcast_vfx_everywhere(MapManager.get_player_map(owner_node.player_id), hit_key, spawn_pos, hit_scale, 0.0, atk_face_left)
 
 
 func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelData) -> int:
