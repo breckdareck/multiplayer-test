@@ -937,12 +937,19 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 					elem = int(sec.get_current_element())
 				hit_key = VfxCatalog.resolve_basic_hit(wtype, elem)
 			if hit_key != "":
-				# spawn_pos is the enemy's damage-number origin (body height); the
-				# effect's own offset places it precisely. flip_h tracks the
-				# ATTACKER's facing so a directional impact reads as coming from them.
+				# Anchor the spark on the BODY (the enemy's AimTarget marker — the
+				# authored hit point, ~chest height) rather than spawn_pos, which is
+				# the damage-number origin floating ABOVE the head. Falls back to
+				# spawn_pos for any enemy without the marker. The effect's own offset
+				# fine-tunes from here; flip_h tracks the ATTACKER's facing so a
+				# directional impact reads as coming from them.
+				var hit_pos: Vector2 = spawn_pos
+				var aim_marker = target_enemy.get_node_or_null("AimTarget")
+				if aim_marker is Node2D:
+					hit_pos = aim_marker.global_position
 				var hit_scale: float = 1.0 if ability != null else 0.8
 				var atk_face_left: bool = ("facing_direction" in owner_node) and int(owner_node.facing_direction) < 0
-				MapManager.broadcast_vfx_everywhere(MapManager.get_player_map(owner_node.player_id), hit_key, spawn_pos, hit_scale, 0.0, atk_face_left)
+				MapManager.broadcast_vfx_everywhere(MapManager.get_player_map(owner_node.player_id), hit_key, hit_pos, hit_scale, 0.0, atk_face_left)
 
 
 func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelData) -> int:
