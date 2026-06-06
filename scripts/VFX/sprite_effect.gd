@@ -32,7 +32,7 @@ func setup(key: String, scale_mult: float = 1.0, rot: float = 0.0, flip_h: bool 
 	# Directional effects flip to the caster's facing (flip_h passed by the
 	# server); symmetric ones ignore it. The per-effect offset places the sprite
 	# on the body/enemy, mirrored on x when flipped so it stays "in front".
-	var face: bool = bool(def.get("face_direction", false))
+	var face: bool = bool(def.get("face_direction", true))
 	var flip: bool = flip_h and face
 	var off: Vector2 = def.get("offset", Vector2.ZERO)
 	if flip:

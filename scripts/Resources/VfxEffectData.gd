@@ -45,10 +45,11 @@ extends Resource
 ## left, the x is mirrored so the offset stays "in front".
 @export var offset: Vector2 = Vector2.ZERO
 
-## If true, the sprite flips horizontally (and its offset.x mirrors) to match the
-## caster's facing — for directional effects (a slash, a forward gust). Leave off
-## for symmetric effects (explosions, auras) that read the same both ways.
-@export var face_direction: bool = false
+## When true (the default), the sprite flips horizontally (and its offset.x
+## mirrors) to follow the caster's facing — so the effect turns with the
+## character automatically. Turn it OFF only for an effect that should never
+## flip (e.g. a fixed UI-ish flourish).
+@export var face_direction: bool = true
 
 ## Tint applied to the sprite — recolors a shared sheet (e.g. green poison from
 ## the purple DarkFire sheet).

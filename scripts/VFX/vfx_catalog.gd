@@ -61,16 +61,21 @@ static func _ensure_loaded() -> void:
 
 ## Flattens a VfxEffectData into the recipe dict consumers read.
 static func _def_from_resource(r: VfxEffectData) -> Dictionary:
+	# Coerce types defensively: a resource saved by a stale/placeholder editor
+	# instance can persist null for a typed export (e.g. face_direction = null),
+	# which would otherwise silently disable flipping or crash a consumer.
+	var fd = r.face_direction
+	var ofs = r.offset
 	return {
 		"texture": r.sheet,
 		"fw": r.frame_width,
 		"fh": r.frame_height,
 		"row": r.row,
 		"fps": r.fps,
-		"loop": r.loop,
+		"loop": bool(r.loop) if r.loop != null else false,
 		"scale": r.scale,
-		"offset": r.offset,
-		"face_direction": r.face_direction,
+		"offset": ofs if ofs is Vector2 else Vector2.ZERO,
+		"face_direction": fd if fd is bool else true,
 		"modulate": r.modulate,
 		"category": r.category,
 	}
