@@ -5,6 +5,11 @@ extends Node
 ## passive effects, and multiplayer synchronization.
 ## Requires WeaponMasteryComponent and StatsComponent as siblings to function correctly.
 
+## Default anchor for cast VFX, relative to the player's origin. The origin sits
+## at the feet (the head marker is at y=-30), so casts default to roughly
+## body-center; a VfxEffectData's own `offset` fine-tunes from here.
+const _VFX_CAST_BODY_OFFSET := Vector2(0, -18)
+
 
 #region #################### Signals ####################
 signal ability_used(ability_id: String)
@@ -914,7 +919,12 @@ func _trigger_ability_state_change(ability: AbilityData, level_stats: AbilityLev
 	# ability's identity (VfxCatalog) unless overridden on its ActiveBehaviorData.
 	var cast_key: String = VfxCatalog.resolve_cast(ability)
 	if cast_key != "":
-		MapManager.broadcast_vfx_everywhere(MapManager.get_player_map(owner.player_id), cast_key, owner.global_position)
+		# Anchor at the caster's BODY-center (the origin is at the feet, which put
+		# casts below the character); the effect's own offset fine-tunes from here.
+		# flip_h tracks facing so directional cast effects mirror correctly.
+		var cast_anchor: Vector2 = owner.global_position + _VFX_CAST_BODY_OFFSET
+		var face_left: bool = ("facing_direction" in owner) and int(owner.facing_direction) < 0
+		MapManager.broadcast_vfx_everywhere(MapManager.get_player_map(owner.player_id), cast_key, cast_anchor, 1.0, 0.0, face_left)
 
 	# Execute optional custom logic from the ability's script resource
 	if active_behavior.logic_script:

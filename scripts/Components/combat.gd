@@ -925,7 +925,11 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 		if ability != null and "player_id" in owner_node:
 			var hit_key: String = VfxCatalog.resolve_hit(ability)
 			if hit_key != "":
-				MapManager.broadcast_vfx_everywhere(MapManager.get_player_map(owner_node.player_id), hit_key, spawn_pos)
+				# spawn_pos is the enemy's damage-number origin (body height); the
+				# effect's own offset places it precisely. flip_h tracks the
+				# ATTACKER's facing so a directional impact reads as coming from them.
+				var atk_face_left: bool = ("facing_direction" in owner_node) and int(owner_node.facing_direction) < 0
+				MapManager.broadcast_vfx_everywhere(MapManager.get_player_map(owner_node.player_id), hit_key, spawn_pos, 1.0, 0.0, atk_face_left)
 
 
 func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelData) -> int:

@@ -38,6 +38,18 @@ extends Resource
 ## Base sprite scale (callers may multiply by their own factor).
 @export var scale: float = 1.5
 
+## Spawn offset in px from the anchor point — for a CAST that anchor is the
+## caster's body-center, for a HIT it is the struck enemy's damage-number origin.
+## Use this to place the effect on the character/enemy (e.g. (0, -8) to raise it,
+## (16, 0) to push it forward). When face_direction is on and the caster faces
+## left, the x is mirrored so the offset stays "in front".
+@export var offset: Vector2 = Vector2.ZERO
+
+## If true, the sprite flips horizontally (and its offset.x mirrors) to match the
+## caster's facing — for directional effects (a slash, a forward gust). Leave off
+## for symmetric effects (explosions, auras) that read the same both ways.
+@export var face_direction: bool = false
+
 ## Tint applied to the sprite — recolors a shared sheet (e.g. green poison from
 ## the purple DarkFire sheet).
 @export var modulate: Color = Color.WHITE

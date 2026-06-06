@@ -69,6 +69,8 @@ static func _def_from_resource(r: VfxEffectData) -> Dictionary:
 		"fps": r.fps,
 		"loop": r.loop,
 		"scale": r.scale,
+		"offset": r.offset,
+		"face_direction": r.face_direction,
 		"modulate": r.modulate,
 		"category": r.category,
 	}

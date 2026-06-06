@@ -29,7 +29,16 @@ func setup(key: String, scale_mult: float = 1.0, rot: float = 0.0, flip_h: bool 
 		return
 	var def: Dictionary = VfxCatalog.get_def(key)
 	_ttl = duration
-	var spr := _make_sprite(frames, def, scale_mult, rot, flip_h)
+	# Directional effects flip to the caster's facing (flip_h passed by the
+	# server); symmetric ones ignore it. The per-effect offset places the sprite
+	# on the body/enemy, mirrored on x when flipped so it stays "in front".
+	var face: bool = bool(def.get("face_direction", false))
+	var flip: bool = flip_h and face
+	var off: Vector2 = def.get("offset", Vector2.ZERO)
+	if flip:
+		off.x = -off.x
+	var spr := _make_sprite(frames, def, scale_mult, rot, flip)
+	spr.position = off
 	add_child(spr)
 	# One-shot bursts free when the animation ends; loops rely on the _ttl
 	# countdown in _process.
@@ -56,12 +65,15 @@ func setup_ground_strip(key: String, width: float, duration: float) -> void:
 	# At least one tile; enough to span the width with a touch of overlap.
 	var count: int = maxi(1, int(ceil(width / maxf(8.0, tile_px * 0.85))))
 	var frame_count: int = frames.get_frame_count("play")
-	var start_x: float = -width * 0.5 + (width - (count - 1) * (width / float(maxi(1, count)))) * 0.0
 	var step: float = width / float(count)
+	# The per-effect offset.y raises/lowers the whole band (e.g. to sit on the
+	# floor line); x is ignored here since tiles are spread across the width.
+	var off_y: float = float(def.get("offset", Vector2.ZERO).y)
 	for i in count:
+		# Alternate the tile flip for visual variety (independent of facing).
 		var spr := _make_sprite(frames, def, 1.0, 0.0, (i % 2) == 1)
 		# Spread tiles evenly across the band, centered.
-		spr.position.x = -width * 0.5 + step * (float(i) + 0.5)
+		spr.position = Vector2(-width * 0.5 + step * (float(i) + 0.5), off_y)
 		# Random-ish starting frame (per tile, deterministic-free is fine for a
 		# cosmetic) so the row shimmers instead of flashing as one.
 		if frame_count > 1:
