@@ -34,6 +34,7 @@ const TYPE_ICONS: Dictionary = {
 	"Classes":     "★",
 	"Enemies":     "☠",
 	"Quests":      "📜",
+	"VFX Effects": "✨",
 }
 
 # ── @onready refs (paths must match ResourceEditorGUI.tscn exactly) ────────────
@@ -111,6 +112,13 @@ var _vfx_hit_option: OptionButton = null
 var _vfx_resolved_label: Label = null
 var _vfx_cast_preview: AnimatedSprite2D = null
 var _vfx_hit_preview: AnimatedSprite2D = null
+
+# Live preview for the VFX Effects resource type (a VfxEffectData .tres). Built
+# once, shown only while editing that type; rebuilds as the inspector fields
+# change so tuning fps/scale/tint/sheet is visible immediately.
+var _vfx_effect_panel: PanelContainer = null
+var _vfx_effect_sprite: AnimatedSprite2D = null
+var _vfx_effect_info: Label = null
 
 # Theme state – kept as refs so _update_accent() can mutate them in place
 var _title_label:       Label          = null
@@ -1819,6 +1827,9 @@ func _update_ui() -> void:
 		if generic_resource_inspector:
 			generic_resource_inspector.edit(current_resource)
 
+	# VFX Effects type gets a live animated preview below its inspector.
+	_update_vfx_effect_ui()
+
 	is_updating_ui = false
 
 
@@ -1970,7 +1981,7 @@ func _make_vfx_row(label_text: String) -> OptionButton:
 	ob.add_item("None (no effect)", 1)
 	ob.set_item_metadata(1, VfxCatalog.NONE_KEY)
 	var idx := 2
-	for key in VfxCatalog.CATALOG:
+	for key in VfxCatalog.all_keys():
 		ob.add_item(key, idx)
 		ob.set_item_metadata(idx, key)
 		idx += 1
@@ -2074,7 +2085,7 @@ func _play_vfx_preview(spr: AnimatedSprite2D, key: String) -> void:
 	sf.set_animation_loop("play", true)
 	spr.sprite_frames = sf
 	spr.animation = "play"
-	var def: Dictionary = VfxCatalog.CATALOG[key]
+	var def: Dictionary = VfxCatalog.get_def(key)
 	# Fit the largest frame dimension into ~72px so big sheets don't overflow.
 	var frame_dim: float = float(maxi(int(def.get("fw", 32)), int(def.get("fh", 32))))
 	var fit: float = 72.0 / maxf(1.0, frame_dim)
@@ -2098,6 +2109,123 @@ func _on_vfx_override_changed() -> void:
 	ab.emit_changed()  # marks the inspector + dirty tracking
 	_set_dirty(true)
 	_update_vfx_ui(ability)  # refresh resolved label + previews
+
+
+# ========================================
+# VFX EFFECTS TYPE — live animated preview
+# ========================================
+
+## Builds the preview panel once (a captioned dark tile holding an
+## AnimatedSprite2D) directly under the generic inspector.
+func _build_vfx_effect_preview() -> void:
+	if is_instance_valid(_vfx_effect_panel):
+		return
+	if not is_instance_valid(generic_resource_inspector):
+		return
+	# The inspector is wrapped in a single-child "…Card" PanelContainer, so the
+	# preview must be a sibling of that card (under EditorContent), not a second
+	# child of the card. Fall back to the direct parent if unwrapped.
+	var anchor: Control = generic_resource_inspector
+	var parent = anchor.get_parent()
+	if is_instance_valid(parent) and str(parent.name).ends_with("Card"):
+		anchor = parent
+		parent = parent.get_parent()
+	if not is_instance_valid(parent):
+		return
+
+	_vfx_effect_panel = PanelContainer.new()
+	_vfx_effect_panel.name = "VfxEffectPreview"
+	var sb = StyleBoxFlat.new()
+	sb.bg_color = C_DARK.darkened(0.10)
+	sb.border_color = C_BORDER
+	sb.set_border_width_all(1)
+	sb.set_corner_radius_all(4)
+	sb.set_content_margin_all(8)
+	_vfx_effect_panel.add_theme_stylebox_override("panel", sb)
+
+	var col = VBoxContainer.new()
+	col.add_theme_constant_override("separation", 4)
+	col.alignment = BoxContainer.ALIGNMENT_CENTER
+
+	var title = Label.new()
+	title.text = "✨ Live Preview"
+	title.add_theme_color_override("font_color", C_TEXT)
+	title.add_theme_font_size_override("font_size", 13)
+	col.add_child(title)
+
+	var stage = Control.new()
+	stage.custom_minimum_size = Vector2(0, 140)
+	stage.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_vfx_effect_sprite = AnimatedSprite2D.new()
+	# Centered horizontally; y set when the stage resizes.
+	stage.resized.connect(func():
+		if is_instance_valid(_vfx_effect_sprite):
+			_vfx_effect_sprite.position = Vector2(stage.size.x * 0.5, 70))
+	_vfx_effect_sprite.position = Vector2(120, 70)
+	stage.add_child(_vfx_effect_sprite)
+	col.add_child(stage)
+
+	_vfx_effect_info = Label.new()
+	_vfx_effect_info.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_vfx_effect_info.add_theme_color_override("font_color", C_DIM)
+	_vfx_effect_info.add_theme_font_size_override("font_size", 11)
+	col.add_child(_vfx_effect_info)
+
+	_vfx_effect_panel.add_child(col)
+	parent.add_child(_vfx_effect_panel)
+	parent.move_child(_vfx_effect_panel, anchor.get_index() + 1)
+
+
+## Shows + drives the preview while a VfxEffectData is the current resource;
+## hides it for any other type. Connects the resource's `changed` signal so
+## editing fps/scale/tint/sheet/frames updates the animation immediately and
+## invalidates the runtime catalog cache so live gameplay reloads on next use.
+func _update_vfx_effect_ui() -> void:
+	var is_vfx: bool = current_resource is VfxEffectData
+	_build_vfx_effect_preview()
+	if not is_instance_valid(_vfx_effect_panel):
+		return
+	_vfx_effect_panel.visible = is_vfx
+	if not is_vfx:
+		return
+
+	var vfx := current_resource as VfxEffectData
+	if not vfx.changed.is_connected(_on_vfx_effect_changed):
+		vfx.changed.connect(_on_vfx_effect_changed)
+	_refresh_vfx_effect_preview(vfx)
+
+
+## Rebuilds the preview animation from the (possibly unsaved) resource, looping
+## regardless of the recipe's one-shot flag, scaled to fit the stage.
+func _refresh_vfx_effect_preview(vfx: VfxEffectData) -> void:
+	if not is_instance_valid(_vfx_effect_sprite):
+		return
+	var sf: SpriteFrames = VfxCatalog.build_frames_from_resource(vfx)
+	if sf == null:
+		_vfx_effect_sprite.sprite_frames = null
+		_vfx_effect_info.text = "(no sheet assigned)"
+		return
+	sf.set_animation_loop("play", true)  # always loop in the editor
+	_vfx_effect_sprite.sprite_frames = sf
+	_vfx_effect_sprite.animation = "play"
+	var frame_dim: float = float(maxi(vfx.frame_width, vfx.frame_height))
+	var fit: float = (96.0 / maxf(1.0, frame_dim)) * maxf(0.1, vfx.scale)
+	_vfx_effect_sprite.scale = Vector2.ONE * fit
+	_vfx_effect_sprite.modulate = vfx.modulate
+	_vfx_effect_sprite.play("play")
+	var n: int = sf.get_frame_count("play")
+	_vfx_effect_info.text = "%s  •  %d frames @ %.0f fps  •  %s" % [
+		vfx.effect_key if vfx.effect_key != "" else "(no key)",
+		n, vfx.fps, "loop" if vfx.loop else "one-shot"]
+
+
+## Live-update on any inspector edit; also drop the runtime cache so a saved
+## change is picked up in-game without an editor restart.
+func _on_vfx_effect_changed() -> void:
+	if not (current_resource is VfxEffectData):
+		return
+	VfxCatalog.invalidate()
+	_refresh_vfx_effect_preview(current_resource as VfxEffectData)
 
 
 # ========================================

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/VfxEffectData.gd" id="1_dj6t2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MiniElementsHeroes/LightningEffect-Sheet.png" id="2_11gry"]
+
+[resource]
+script = ExtResource("1_dj6t2")
+effect_key = "lightning_impact"
+sheet = ExtResource("2_11gry")
+fps = 18.0
+scale = 1.6

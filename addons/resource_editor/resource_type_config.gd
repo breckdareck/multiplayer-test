@@ -129,6 +129,19 @@ static func get_all_resource_types() -> Array[ResourceType]:
 	quest_type.icon_name = "Script"
 	types.append(quest_type)
 
+	# VFX Effect Resources — ability cast/hit/ground effect recipes. Generic
+	# inspector edits the fields (sheet, frame size, fps, scale, tint, loop); the
+	# resource_editor adds a live animated preview for this type.
+	var vfx_type = ResourceType.new(
+		"VFX Effects",
+		"res://scripts/Resources/VfxEffectData.gd",
+		"res://resources/VFX",
+		"VFX System",
+		false
+	)
+	vfx_type.icon_name = "AnimatedSprite2D"
+	types.append(vfx_type)
+
 	return types
 
 

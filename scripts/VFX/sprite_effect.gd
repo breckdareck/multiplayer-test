@@ -27,7 +27,7 @@ func setup(key: String, scale_mult: float = 1.0, rot: float = 0.0, flip_h: bool 
 	if frames == null:
 		queue_free()
 		return
-	var def: Dictionary = VfxCatalog.CATALOG[key]
+	var def: Dictionary = VfxCatalog.get_def(key)
 	_ttl = duration
 	var spr := _make_sprite(frames, def, scale_mult, rot, flip_h)
 	add_child(spr)
@@ -47,7 +47,7 @@ func setup_ground_strip(key: String, width: float, duration: float) -> void:
 	if frames == null:
 		queue_free()
 		return
-	var def: Dictionary = VfxCatalog.CATALOG[key]
+	var def: Dictionary = VfxCatalog.get_def(key)
 	_ttl = maxf(0.1, duration)
 
 	var base_scale: float = float(def.get("scale", 1.0))

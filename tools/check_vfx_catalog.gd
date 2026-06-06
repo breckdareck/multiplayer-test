@@ -7,12 +7,12 @@ extends SceneTree
 func _initialize() -> void:
 	var fail := 0
 	var total := 0
-	for key in VfxCatalog.CATALOG.keys():
+	for key in VfxCatalog.all_keys():
 		total += 1
-		var def: Dictionary = VfxCatalog.CATALOG[key]
-		var tex: Texture2D = load(def["path"])
+		var def: Dictionary = VfxCatalog.get_def(key)
+		var tex: Texture2D = def.get("texture")
 		if tex == null:
-			print("  [FAIL] %-16s : texture failed to load (%s)" % [key, def["path"]])
+			print("  [FAIL] %-16s : sheet texture missing" % key)
 			fail += 1
 			continue
 		var sf: SpriteFrames = VfxCatalog.get_frames(key)

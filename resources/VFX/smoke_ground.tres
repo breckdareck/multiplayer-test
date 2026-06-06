@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/VfxEffectData.gd" id="1_rvny1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MiniBigMonsters/MiniBigMonsters/DarkFire-Sheet.png" id="2_w4ej5"]
+
+[resource]
+script = ExtResource("1_rvny1")
+effect_key = "smoke_ground"
+category = "ground"
+sheet = ExtResource("2_w4ej5")
+fps = 10.0
+loop = true
+scale = 2.6
+modulate = Color(0.62, 0.62, 0.68, 0.85)

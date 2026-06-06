@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/VfxEffectData.gd" id="1_tw1x5"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MiniMonsters/MiniMonsters/Fire.png" id="2_8m8p2"]
+
+[resource]
+script = ExtResource("1_tw1x5")
+effect_key = "fire_impact"
+sheet = ExtResource("2_8m8p2")
+fps = 26.0

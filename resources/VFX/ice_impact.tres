@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/VfxEffectData.gd" id="1_4wjir"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MiniElementsHeroes/IceEffect-Sheet.png" id="2_nr11l"]
+
+[resource]
+script = ExtResource("1_4wjir")
+effect_key = "ice_impact"
+sheet = ExtResource("2_nr11l")

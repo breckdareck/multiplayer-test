@@ -2,10 +2,12 @@ class_name VfxCatalog
 extends RefCounted
 
 ## Central catalog of ability "juice" VFX — one-shot impact/cast bursts and
-## looping ground effects sliced at runtime from the Mini-collection effect
-## sprite sheets (assets/sprites/Mini*). Each CATALOG entry is a recipe; the
-## SpriteFrames are built lazily on first use and cached so every spawn after
-## the first is a dictionary lookup.
+## looping ground effects sliced at runtime from sprite sheets.
+##
+## DATA-DRIVEN: every effect is a VfxEffectData .tres under resources/VFX/, edited
+## in the Resources plugin (VFX Effects type). This catalog scans that folder
+## lazily on first use, builds a key -> recipe dict, and caches the SpriteFrames
+## it slices so every spawn after the first is a lookup.
 ##
 ## Used by:
 ##   - sprite_effect.gd        — builds the AnimatedSprite2D from get_frames(key)
@@ -15,177 +17,113 @@ extends RefCounted
 ##     gets an effect with no per-.tres authoring; ActiveBehaviorData.cast_vfx /
 ##     hit_vfx can override the auto-pick per ability.
 ##
-## Geometry was verified against the actual sheets with
-## tools/gen_enemy_spriteframes.gd (report mode) — frame width/height and the
-## chosen row are exact, never assumed.
+## Note: resolve_cast/resolve_hit do NOT touch the loaded recipes (they only read
+## ABILITY_MAP + the ability's override), so a headless server never scans the
+## VFX folder — only the client/host that actually renders an effect does.
 
-## key -> recipe. Fields:
-##   path     : res:// sheet path
-##   fw, fh   : frame width/height in px (a sheet may pack 2 rows of fh=32)
-##   row      : which row to slice (0-based; multi-row sheets stack animations)
-##   fps      : playback speed
-##   loop     : true for persistent ground effects, false for one-shot bursts
-##   scale    : base sprite scale (callers multiply by their own scale_mult)
-##   modulate : tint applied to recolor a shared sheet (e.g. green poison from
-##              the purple DarkFire sheet)
+## Folder scanned for VfxEffectData .tres files.
+const VFX_DIR: String = "res://resources/VFX"
 
 ## Sentinel stored in ActiveBehaviorData.cast_vfx/hit_vfx to mean "explicitly NO
 ## effect" — distinct from "" (auto: resolve from ABILITY_MAP / fallback). The
 ## resolver returns "" for it, so the broadcast spawns nothing.
 const NONE_KEY: String = "none"
 
-const CATALOG: Dictionary = {
-	# ---- One-shot impacts (spawned at the struck enemy) ----
-	"phys_impact": {
-		"path": "res://assets/sprites/MiniBigMonsters/MiniBigMonsters/Explosion-Sheet.png",
-		"fw": 48, "fh": 32, "row": 0, "fps": 20.0, "loop": false, "scale": 1.1,
-		"modulate": Color(0.96, 0.93, 0.85, 1.0),
-	},
-	"explosion": {
-		"path": "res://assets/sprites/MiniBigMonsters/MiniBigMonsters/Explosion-Sheet.png",
-		"fw": 48, "fh": 32, "row": 0, "fps": 18.0, "loop": false, "scale": 1.6,
-		"modulate": Color(1.0, 0.95, 0.85, 1.0),
-	},
-	"blood_impact": {
-		"path": "res://assets/sprites/MiniBigMonsters/MiniBigMonsters/Explosion-Sheet.png",
-		"fw": 48, "fh": 32, "row": 0, "fps": 20.0, "loop": false, "scale": 1.2,
-		"modulate": Color(1.0, 0.25, 0.2, 1.0),
-	},
-	"fire_impact": {
-		"path": "res://assets/sprites/MiniMonsters/MiniMonsters/Fire.png",
-		"fw": 32, "fh": 32, "row": 0, "fps": 26.0, "loop": false, "scale": 1.5,
-		"modulate": Color(1.0, 1.0, 1.0, 1.0),
-	},
-	"ice_impact": {
-		"path": "res://assets/sprites/MiniElementsHeroes/IceEffect-Sheet.png",
-		"fw": 32, "fh": 32, "row": 0, "fps": 20.0, "loop": false, "scale": 1.5,
-		"modulate": Color(1.0, 1.0, 1.0, 1.0),
-	},
-	"lightning_impact": {
-		"path": "res://assets/sprites/MiniElementsHeroes/LightningEffect-Sheet.png",
-		"fw": 32, "fh": 32, "row": 0, "fps": 18.0, "loop": false, "scale": 1.6,
-		"modulate": Color(1.0, 1.0, 1.0, 1.0),
-	},
-	"arcane_impact": {
-		"path": "res://assets/sprites/MiniDarkElves/MiniDarkElves/Starfall-Sheet.png",
-		"fw": 32, "fh": 32, "row": 0, "fps": 20.0, "loop": false, "scale": 1.6,
-		"modulate": Color(0.78, 0.6, 1.0, 1.0),
-	},
-	"dark_impact": {
-		"path": "res://assets/sprites/MiniBigMonsters/MiniBigMonsters/DarkFire-Sheet.png",
-		"fw": 32, "fh": 32, "row": 0, "fps": 16.0, "loop": false, "scale": 1.6,
-		"modulate": Color(0.8, 0.5, 1.0, 1.0),
-	},
-	"poison_impact": {
-		"path": "res://assets/sprites/MiniBigMonsters/MiniBigMonsters/DarkFire-Sheet.png",
-		"fw": 32, "fh": 32, "row": 0, "fps": 16.0, "loop": false, "scale": 1.4,
-		"modulate": Color(0.5, 1.0, 0.35, 1.0),
-	},
+## key -> recipe Dictionary {texture, fw, fh, row, fps, loop, scale, modulate,
+## category}. Built from the .tres on first access; static so it survives for the
+## life of the process.
+static var _defs: Dictionary = {}
+static var _loaded: bool = false
 
-	# ---- One-shot casts (spawned at the caster's feet/body) ----
-	"buff_cast": {
-		"path": "res://assets/sprites/MiniDarkElves/MiniDarkElves/Starfall-Sheet.png",
-		"fw": 32, "fh": 32, "row": 0, "fps": 16.0, "loop": false, "scale": 1.8,
-		"modulate": Color(1.0, 0.88, 0.45, 1.0),
-	},
-	"arcane_cast": {
-		"path": "res://assets/sprites/MiniDarkElves/MiniDarkElves/Starfall-Sheet.png",
-		"fw": 32, "fh": 32, "row": 0, "fps": 18.0, "loop": false, "scale": 1.7,
-		"modulate": Color(0.7, 0.7, 1.0, 1.0),
-	},
-	"fire_cast": {
-		"path": "res://assets/sprites/MiniMonsters/MiniMonsters/Fire.png",
-		"fw": 32, "fh": 32, "row": 0, "fps": 24.0, "loop": false, "scale": 1.6,
-		"modulate": Color(1.0, 0.85, 0.6, 1.0),
-	},
-	"ice_cast": {
-		"path": "res://assets/sprites/MiniElementsHeroes/IceEffect-Sheet.png",
-		"fw": 32, "fh": 32, "row": 0, "fps": 18.0, "loop": false, "scale": 1.6,
-		"modulate": Color(0.8, 0.95, 1.0, 1.0),
-	},
-	"dark_cast": {
-		"path": "res://assets/sprites/MiniBigMonsters/MiniBigMonsters/DarkFire-Sheet.png",
-		"fw": 32, "fh": 32, "row": 0, "fps": 16.0, "loop": false, "scale": 1.8,
-		"modulate": Color(0.55, 0.35, 0.8, 1.0),
-	},
-	"wind_cast": {
-		"path": "res://assets/sprites/MiniElementsHeroes/WindEffect-Sheet.png",
-		"fw": 40, "fh": 32, "row": 0, "fps": 18.0, "loop": false, "scale": 1.6,
-		"modulate": Color(0.85, 1.0, 0.92, 1.0),
-	},
-
-	# ---- Looping ground effects (live for the GroundZone's duration) ----
-	"fire_ground": {
-		"path": "res://assets/sprites/MiniMonsters/MiniMonsters/Fire.png",
-		"fw": 32, "fh": 32, "row": 0, "fps": 18.0, "loop": true, "scale": 2.4,
-		"modulate": Color(1.0, 0.95, 0.8, 0.95),
-	},
-	"ice_ground": {
-		"path": "res://assets/sprites/MiniBigMonsters/MiniBigMonsters/Ice spikes 1-Sheet.png",
-		"fw": 32, "fh": 32, "row": 0, "fps": 10.0, "loop": true, "scale": 2.2,
-		"modulate": Color(0.85, 0.95, 1.0, 0.95),
-	},
-	"earth_ground": {
-		"path": "res://assets/sprites/MiniElementsHeroes/EarthEffect-Sheet.png",
-		"fw": 48, "fh": 32, "row": 1, "fps": 12.0, "loop": true, "scale": 2.0,
-		"modulate": Color(1.0, 0.95, 0.85, 0.95),
-	},
-	"poison_ground": {
-		"path": "res://assets/sprites/MiniBigMonsters/MiniBigMonsters/DarkFire-Sheet.png",
-		"fw": 32, "fh": 32, "row": 0, "fps": 12.0, "loop": true, "scale": 2.4,
-		"modulate": Color(0.5, 1.0, 0.4, 0.9),
-	},
-	"smoke_ground": {
-		"path": "res://assets/sprites/MiniBigMonsters/MiniBigMonsters/DarkFire-Sheet.png",
-		"fw": 32, "fh": 32, "row": 0, "fps": 10.0, "loop": true, "scale": 2.6,
-		"modulate": Color(0.62, 0.62, 0.68, 0.85),
-	},
-	"holy_ground": {
-		"path": "res://assets/sprites/MiniDarkElves/MiniDarkElves/Starfall-Sheet.png",
-		"fw": 32, "fh": 32, "row": 0, "fps": 12.0, "loop": true, "scale": 2.2,
-		"modulate": Color(1.0, 0.9, 0.5, 0.9),
-	},
-	"lightning_ground": {
-		"path": "res://assets/sprites/MiniElementsHeroes/LightningEffect-Sheet.png",
-		"fw": 32, "fh": 32, "row": 0, "fps": 14.0, "loop": true, "scale": 2.2,
-		"modulate": Color(0.7, 0.75, 1.0, 0.95),
-	},
-	"dust_ground": {
-		"path": "res://assets/sprites/MiniElementsHeroes/EarthEffect-Sheet.png",
-		"fw": 48, "fh": 32, "row": 0, "fps": 12.0, "loop": true, "scale": 1.9,
-		"modulate": Color(0.92, 0.85, 0.6, 0.9),
-	},
-}
-
-## Built SpriteFrames cache, key -> SpriteFrames. Static so it survives across
-## every spawn for the life of the process (these recipes never change).
+## Built SpriteFrames cache, key -> SpriteFrames.
 static var _frames_cache: Dictionary = {}
 
 
-## Returns true if `key` names a real catalog entry (empty string = "no effect").
+## Scans VFX_DIR once, loading every VfxEffectData into the recipe dict. Idempotent.
+static func _ensure_loaded() -> void:
+	if _loaded:
+		return
+	_loaded = true
+	var dir := DirAccess.open(VFX_DIR)
+	if dir == null:
+		push_warning("VfxCatalog: VFX folder not found (%s) — run tools/gen_vfx_effects.gd" % VFX_DIR)
+		return
+	dir.list_dir_begin()
+	var fname := dir.get_next()
+	while fname != "":
+		if not dir.current_is_dir() and fname.get_extension() == "tres":
+			var res = load("%s/%s" % [VFX_DIR, fname])
+			if res is VfxEffectData and res.effect_key != "":
+				_defs[res.effect_key] = _def_from_resource(res)
+		fname = dir.get_next()
+	dir.list_dir_end()
+
+
+## Flattens a VfxEffectData into the recipe dict consumers read.
+static func _def_from_resource(r: VfxEffectData) -> Dictionary:
+	return {
+		"texture": r.sheet,
+		"fw": r.frame_width,
+		"fh": r.frame_height,
+		"row": r.row,
+		"fps": r.fps,
+		"loop": r.loop,
+		"scale": r.scale,
+		"modulate": r.modulate,
+		"category": r.category,
+	}
+
+
+## All catalog keys (sorted for stable dropdown order). Triggers the lazy load.
+static func all_keys() -> Array:
+	_ensure_loaded()
+	var keys: Array = _defs.keys()
+	keys.sort()
+	return keys
+
+
+## Recipe dict for `key` (empty dict if unknown). Triggers the lazy load.
+static func get_def(key: String) -> Dictionary:
+	_ensure_loaded()
+	return _defs.get(key, {})
+
+
+## Returns true if `key` names a real catalog entry ("" / NONE_KEY = no effect).
 static func has(key: String) -> bool:
-	return key != "" and CATALOG.has(key)
+	if key == "" or key == NONE_KEY:
+		return false
+	_ensure_loaded()
+	return _defs.has(key)
 
 
-## Builds (or returns the cached) SpriteFrames for `key`. The sheet is sliced
-## into `fw x fh` cells along the chosen row; frame count is derived from the
-## texture width so trailing geometry is never guessed. Returns null if the key
-## is unknown or the texture fails to load (a headless server never calls this —
-## it only broadcasts keys).
+## Builds (or returns the cached) SpriteFrames for `key`. Returns null if the key
+## is unknown or its sheet is missing (a headless server never calls this — it
+## only broadcasts keys).
 static func get_frames(key: String) -> SpriteFrames:
 	if _frames_cache.has(key):
 		return _frames_cache[key]
-	if not CATALOG.has(key):
+	_ensure_loaded()
+	if not _defs.has(key):
 		return null
-	var def: Dictionary = CATALOG[key]
-	var tex: Texture2D = load(def["path"])
-	if tex == null:
-		push_warning("VfxCatalog: could not load sheet for '%s' (%s)" % [key, def["path"]])
-		return null
+	var sf := build_frames(_defs[key])
+	if sf != null:
+		_frames_cache[key] = sf
+	return sf
 
-	var fw: int = int(def["fw"])
-	var fh: int = int(def["fh"])
+
+## Slices a recipe dict into an uncached SpriteFrames: `fw x fh` cells along the
+## chosen row, frame count derived from the texture width so trailing geometry is
+## never guessed. Public so the editor can preview a LIVE (unsaved) recipe without
+## polluting the runtime cache.
+static func build_frames(def: Dictionary) -> SpriteFrames:
+	var tex: Texture2D = def.get("texture")
+	if tex == null:
+		return null
+	var fw: int = int(def.get("fw", 32))
+	var fh: int = int(def.get("fh", 32))
 	var row: int = int(def.get("row", 0))
+	if fw <= 0 or fh <= 0:
+		return null
 	var cols: int = int(tex.get_width() / fw)
 	if cols <= 0:
 		return null
@@ -194,16 +132,30 @@ static func get_frames(key: String) -> SpriteFrames:
 	if sf.has_animation("default"):
 		sf.remove_animation("default")
 	sf.add_animation("play")
-	sf.set_animation_speed("play", float(def["fps"]))
-	sf.set_animation_loop("play", bool(def["loop"]))
+	sf.set_animation_speed("play", float(def.get("fps", 20.0)))
+	sf.set_animation_loop("play", bool(def.get("loop", false)))
 	for c in cols:
 		var at := AtlasTexture.new()
 		at.atlas = tex
 		at.region = Rect2(c * fw, row * fh, fw, fh)
 		sf.add_frame("play", at)
-
-	_frames_cache[key] = sf
 	return sf
+
+
+## Builds an uncached SpriteFrames straight from a VfxEffectData — the editor
+## preview path (reflects unsaved edits live).
+static func build_frames_from_resource(r: VfxEffectData) -> SpriteFrames:
+	if r == null:
+		return null
+	return build_frames(_def_from_resource(r))
+
+
+## Drops the cached recipes + SpriteFrames so the next access reloads from disk —
+## call after editing a VfxEffectData so live gameplay picks up the change.
+static func invalidate() -> void:
+	_loaded = false
+	_defs.clear()
+	_frames_cache.clear()
 
 
 #region #################### Per-ability auto-resolution ####################

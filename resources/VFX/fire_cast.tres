@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/VfxEffectData.gd" id="1_oy4kj"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MiniMonsters/MiniMonsters/Fire.png" id="2_uaaog"]
+
+[resource]
+script = ExtResource("1_oy4kj")
+effect_key = "fire_cast"
+category = "cast"
+sheet = ExtResource("2_uaaog")
+fps = 24.0
+scale = 1.6
+modulate = Color(1, 0.85, 0.6, 1)

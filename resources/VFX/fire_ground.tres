@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/VfxEffectData.gd" id="1_ongtq"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MiniMonsters/MiniMonsters/Fire.png" id="2_bbt4d"]
+
+[resource]
+script = ExtResource("1_ongtq")
+effect_key = "fire_ground"
+category = "ground"
+sheet = ExtResource("2_bbt4d")
+fps = 18.0
+loop = true
+scale = 2.4
+modulate = Color(1, 0.95, 0.8, 0.95)

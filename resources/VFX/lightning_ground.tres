@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/VfxEffectData.gd" id="1_llkmf"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MiniElementsHeroes/LightningEffect-Sheet.png" id="2_upg33"]
+
+[resource]
+script = ExtResource("1_llkmf")
+effect_key = "lightning_ground"
+category = "ground"
+sheet = ExtResource("2_upg33")
+fps = 14.0
+loop = true
+scale = 2.2
+modulate = Color(0.7, 0.75, 1, 0.95)

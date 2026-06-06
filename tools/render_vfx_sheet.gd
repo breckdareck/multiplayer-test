@@ -12,7 +12,7 @@ const MARGIN := Vector2(20, 20)
 const FRAME_AT := 0.55  ## sample each anim at ~55% through its frames
 
 func _initialize() -> void:
-	var keys: Array = VfxCatalog.CATALOG.keys()
+	var keys: Array = VfxCatalog.all_keys()
 	var rows: int = int(ceil(float(keys.size()) / float(COLS)))
 	var win := get_root()
 	win.size = Vector2i(
@@ -27,7 +27,7 @@ func _initialize() -> void:
 
 	for i in keys.size():
 		var key: String = keys[i]
-		var def: Dictionary = VfxCatalog.CATALOG[key]
+		var def: Dictionary = VfxCatalog.get_def(key)
 		var col: int = i % COLS
 		var row: int = i / COLS
 		var cell_origin := MARGIN + Vector2(col * CELL.x, row * CELL.y)

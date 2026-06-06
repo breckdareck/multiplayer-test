@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/VfxEffectData.gd" id="1_2vr1l"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MiniBigMonsters/MiniBigMonsters/DarkFire-Sheet.png" id="2_pj7uv"]
+
+[resource]
+script = ExtResource("1_2vr1l")
+effect_key = "dark_impact"
+sheet = ExtResource("2_pj7uv")
+fps = 16.0
+scale = 1.6
+modulate = Color(0.8, 0.5, 1, 1)

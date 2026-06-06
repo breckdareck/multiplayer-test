@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/VfxEffectData.gd" id="1_s6ij0"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MiniDarkElves/MiniDarkElves/Starfall-Sheet.png" id="2_x5wqn"]
+
+[resource]
+script = ExtResource("1_s6ij0")
+effect_key = "arcane_cast"
+category = "cast"
+sheet = ExtResource("2_x5wqn")
+fps = 18.0
+scale = 1.7
+modulate = Color(0.7, 0.7, 1, 1)

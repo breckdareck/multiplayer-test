@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/VfxEffectData.gd" id="1_lxuol"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MiniBigMonsters/MiniBigMonsters/DarkFire-Sheet.png" id="2_7ik85"]
+
+[resource]
+script = ExtResource("1_lxuol")
+effect_key = "poison_ground"
+category = "ground"
+sheet = ExtResource("2_7ik85")
+fps = 12.0
+loop = true
+scale = 2.4
+modulate = Color(0.5, 1, 0.4, 0.9)

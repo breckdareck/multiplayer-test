@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/Resources/VfxEffectData.gd" id="1_e4p1t"]
+[ext_resource type="Texture2D" path="res://assets/sprites/MiniElementsHeroes/WindEffect-Sheet.png" id="2_plgo5"]
+
+[resource]
+script = ExtResource("1_e4p1t")
+effect_key = "wind_cast"
+category = "cast"
+sheet = ExtResource("2_plgo5")
+frame_width = 40
+fps = 18.0
+scale = 1.6
+modulate = Color(0.85, 1, 0.92, 1)
