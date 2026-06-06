@@ -2013,22 +2013,34 @@ func _make_vfx_preview_tile(parent: Control, caption: String) -> AnimatedSprite2
 func _update_vfx_ui(ability: AbilityData) -> void:
 	if not is_instance_valid(_vfx_cast_option):
 		return
-	var ab := ability.active_behavior
-	var cast_override := ab.cast_vfx if ab else ""
-	var hit_override := ab.hit_vfx if ab else ""
+	var ab = ability.active_behavior
+	# .get() + String coercion: a placeholder/stale resource instance can hand
+	# back Nil for an exported property, which the typed helpers below reject.
+	var cast_override: String = _vfx_key_str(ab, "cast_vfx")
+	var hit_override: String = _vfx_key_str(ab, "hit_vfx")
 	_select_vfx_option(_vfx_cast_option, cast_override)
 	_select_vfx_option(_vfx_hit_option, hit_override)
 
 	# Resolved keys = what the ability ACTUALLY uses (override → ABILITY_MAP →
 	# weapon/element fallback). Shows the user the effective effect even on (auto).
-	var resolved_cast := VfxCatalog.resolve_cast(ability)
-	var resolved_hit := VfxCatalog.resolve_hit(ability)
+	var resolved_cast: String = VfxCatalog.resolve_cast(ability)
+	var resolved_hit: String = VfxCatalog.resolve_hit(ability)
 	_vfx_resolved_label.text = "Resolves to →  Cast: %s    Hit: %s" % [
 		resolved_cast if resolved_cast != "" else "(none)",
 		resolved_hit if resolved_hit != "" else "(none)"]
 
 	_play_vfx_preview(_vfx_cast_preview, resolved_cast)
 	_play_vfx_preview(_vfx_hit_preview, resolved_hit)
+
+
+## Null-safe read of a String override property off an ActiveBehaviorData. .get()
+## avoids an "invalid index" error on a stale/placeholder instance; non-String
+## (including Nil) coerces to "" so the typed pickers never receive Nil.
+func _vfx_key_str(ab, prop: String) -> String:
+	if ab == null:
+		return ""
+	var v = ab.get(prop)
+	return v if v is String else ""
 
 
 ## Selects the OptionButton item whose metadata equals `key` (falls back to the

@@ -275,9 +275,11 @@ const ABILITY_MAP: Dictionary = {
 static func resolve_cast(ability: AbilityData) -> String:
 	if ability == null:
 		return ""
-	var ab := ability.active_behavior
-	if ab != null and ab.cast_vfx != "":
-		return ab.cast_vfx
+	# .get() + String guard: a placeholder/stale resource instance in the editor
+	# can return Nil for an exported property, which must NOT propagate as a key.
+	var ov: String = _override_key(ability, "cast_vfx")
+	if ov != "":
+		return ov
 	var entry: Dictionary = ABILITY_MAP.get(ability.ability_name, {})
 	if entry.has("cast"):
 		return entry["cast"]
@@ -290,13 +292,24 @@ static func resolve_cast(ability: AbilityData) -> String:
 static func resolve_hit(ability: AbilityData) -> String:
 	if ability == null:
 		return ""
-	var ab := ability.active_behavior
-	if ab != null and ab.hit_vfx != "":
-		return ab.hit_vfx
+	var ov: String = _override_key(ability, "hit_vfx")
+	if ov != "":
+		return ov
 	var entry: Dictionary = ABILITY_MAP.get(ability.ability_name, {})
 	if entry.has("hit"):
 		return entry["hit"]
 	return _fallback_hit(ability)
+
+
+## Reads an ActiveBehaviorData override property as a String, null-safe. Uses
+## .get() so a missing property yields null rather than erroring, and coerces any
+## non-String (null included) to "" so callers always receive a real key.
+static func _override_key(ability: AbilityData, prop: String) -> String:
+	var ab = ability.active_behavior
+	if ab == null:
+		return ""
+	var v = ab.get(prop)
+	return v if v is String else ""
 
 
 ## Weapon/element default so an ability NOT in ABILITY_MAP still gets a sensible
