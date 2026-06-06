@@ -1190,9 +1190,23 @@ func broadcast_vfx_everywhere(map_id: String, key: String, pos: Vector2, scale_m
 	# Remote clients (bots excluded — no client; host skipped — call_remote).
 	broadcast_to_map(map_id, func(peer_id): client_show_vfx.rpc_id(peer_id, key, pos, scale_mult, rot, flip_h, duration), true, true)
 	# Host draws its own copy, but only when actually viewing this map (the
-	# call_remote RPC above never runs on peer 1).
+	# call_remote RPC above never runs on peer 1). Spawn it into THAT map's
+	# scene_instance — the same node the enemies + damage numbers live in — rather
+	# than current_map_instance, which can be a different node/SubViewport on the
+	# host and would put the effect in the wrong coordinate space (pos is a global
+	# position in the event map's World2D).
 	if get_player_map(1) == map_id:
-		_spawn_vfx_visual(key, pos, scale_mult, rot, flip_h, duration)
+		_spawn_vfx_visual(key, pos, scale_mult, rot, flip_h, duration, _map_scene_instance(map_id))
+
+
+## Resolves a map_id to its scene_instance Node (the world root inside the map's
+## SubViewport), or null. The authoritative node enemies/projectiles/damage
+## numbers share — use it to anchor host-side visuals so they land in the right
+## World2D.
+func _map_scene_instance(map_id: String) -> Node:
+	if active_maps.has(map_id):
+		return active_maps[map_id].get("scene_instance")
+	return null
 
 
 ## [Server -> Client] Spawns the sprite-VFX on this peer. Routed through
@@ -1205,10 +1219,11 @@ func client_show_vfx(key: String, pos: Vector2, scale_mult: float, rot: float, f
 	_spawn_vfx_visual(key, pos, scale_mult, rot, flip_h, duration)
 
 
-## Spawns the transient effect node under the visible map (right SubViewport)
-## and lets it self-free. No-op on a headless peer / when no map is visible.
-func _spawn_vfx_visual(key: String, pos: Vector2, scale_mult: float, rot: float, flip_h: bool, duration: float) -> void:
-	var map_node = get_current_visible_map()
+## Spawns the transient effect node under `map_override` (the event map's
+## scene_instance, passed by the host path) or the locally-visible map (clients),
+## then lets it self-free. No-op on a headless peer / when no map is available.
+func _spawn_vfx_visual(key: String, pos: Vector2, scale_mult: float, rot: float, flip_h: bool, duration: float, map_override: Node = null) -> void:
+	var map_node = map_override if is_instance_valid(map_override) else get_current_visible_map()
 	if not is_instance_valid(map_node):
 		return
 	var fx = _SpriteEffectVfx.new()
@@ -1228,8 +1243,10 @@ func broadcast_ground_vfx_everywhere(map_id: String, key: String, center: Vector
 	if key == "":
 		return
 	broadcast_to_map(map_id, func(peer_id): client_show_ground_vfx.rpc_id(peer_id, key, center, width, duration), true, true)
+	# Host spawns into the event map's scene_instance (same World2D as the zone),
+	# not current_map_instance — see broadcast_vfx_everywhere.
 	if get_player_map(1) == map_id:
-		_spawn_ground_vfx_visual(key, center, width, duration)
+		_spawn_ground_vfx_visual(key, center, width, duration, _map_scene_instance(map_id))
 
 
 ## [Server -> Client] Spawns the tiled ground strip on this peer.
@@ -1240,8 +1257,8 @@ func client_show_ground_vfx(key: String, center: Vector2, width: float, duration
 	_spawn_ground_vfx_visual(key, center, width, duration)
 
 
-func _spawn_ground_vfx_visual(key: String, center: Vector2, width: float, duration: float) -> void:
-	var map_node = get_current_visible_map()
+func _spawn_ground_vfx_visual(key: String, center: Vector2, width: float, duration: float, map_override: Node = null) -> void:
+	var map_node = map_override if is_instance_valid(map_override) else get_current_visible_map()
 	if not is_instance_valid(map_node):
 		return
 	var fx = _SpriteEffectVfx.new()
