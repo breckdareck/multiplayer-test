@@ -120,6 +120,17 @@ var _vfx_effect_panel: PanelContainer = null
 var _vfx_effect_sprite: AnimatedSprite2D = null
 var _vfx_effect_info: Label = null
 var _vfx_effect_stage: Control = null
+var _vfx_effect_char: Sprite2D = null  # faint character reference in the preview
+
+# VFX overlay inside the ability hitbox visualizer: the resolved CAST effect on
+# the player body and the HIT effect at the hitbox center, so placement/offset
+# can be judged against the character + hitbox.
+var _vis_cast_vfx: AnimatedSprite2D = null
+var _vis_hit_vfx: AnimatedSprite2D = null
+var _vis_show_vfx: bool = true
+## Player body-center anchor for cast VFX in the visualizer, in world units
+## relative to the player origin (feet). Mirrors ability.gd's _VFX_CAST_BODY_OFFSET.
+const _VIS_CAST_BODY_OFFSET := Vector2(0, -18)
 ## Y of the preview "anchor" marker (the character/enemy point); the effect is
 ## drawn at anchor + offset so the offset field is visible. Low in the 140px
 ## stage so a typical negative offset.y (effect above the body) reads upward.
@@ -811,6 +822,17 @@ func _polish_visualizer_panel() -> void:
 		reset.pressed.connect(func(): _set_visualizer_zoom(_VISUALIZER_DEFAULT_ZOOM))
 		_style_btn(reset, C_DIM, false)
 		row.add_child(reset)
+
+		# Toggle the cast/hit VFX overlay so it doesn't obscure the hitbox.
+		var vfx_toggle = CheckBox.new()
+		vfx_toggle.text = "VFX"
+		vfx_toggle.tooltip_text = "Show the resolved cast (on the body) and hit (at the hitbox) VFX"
+		vfx_toggle.button_pressed = _vis_show_vfx
+		_style_check_box(vfx_toggle)
+		vfx_toggle.toggled.connect(func(on: bool):
+			_vis_show_vfx = on
+			_update_visualizer_vfx())
+		row.add_child(vfx_toggle)
 
 
 # ── Editor icons (best-effort: returns null when the editor theme isn't ready) ──
@@ -1902,10 +1924,12 @@ func _update_active_behavior_ui() -> void:
 				if t:
 					visualizer_player_sprite.texture = t
 			_update_visualizer_sprite_pos()
+			_update_visualizer_vfx()
 			visualizer_control.queue_redraw()
 	else:
 		_set_section_visible(active_behavior_panel, false)
 		active_behavior_inspector.edit(null)
+		_update_visualizer_vfx()  # hides the overlay for passives
 
 
 # ========================================
@@ -2128,6 +2152,7 @@ func _on_vfx_override_changed() -> void:
 	ab.emit_changed()  # marks the inspector + dirty tracking
 	_set_dirty(true)
 	_update_vfx_ui(ability)  # refresh resolved label + previews
+	_update_visualizer_vfx()  # refresh the overlay on the character/hitbox
 
 
 # ========================================
@@ -2189,6 +2214,18 @@ func _build_vfx_effect_preview() -> void:
 		stage.queue_redraw()
 		if current_resource is VfxEffectData:
 			_refresh_vfx_effect_preview(current_resource))
+	# Faint character reference at the anchor so the offset can be judged against
+	# a body (same portrait the ability hitbox visualizer uses).
+	_vfx_effect_char = Sprite2D.new()
+	_vfx_effect_char.modulate = Color(1, 1, 1, 0.4)
+	var portrait = load("res://assets/UI/beginner_portrait.tres")
+	if portrait:
+		_vfx_effect_char.texture = portrait
+		var h: float = float(portrait.get_height())
+		if h > 0.0:
+			_vfx_effect_char.scale = Vector2.ONE * (96.0 / h)
+	_vfx_effect_char.position = Vector2(120, _VFX_PREVIEW_ANCHOR_Y)
+	stage.add_child(_vfx_effect_char)
 	_vfx_effect_sprite = AnimatedSprite2D.new()
 	_vfx_effect_sprite.position = Vector2(120, _VFX_PREVIEW_ANCHOR_Y)
 	stage.add_child(_vfx_effect_sprite)
@@ -2245,7 +2282,10 @@ func _refresh_vfx_effect_preview(vfx: VfxEffectData) -> void:
 	# visible. offset is read null-safe (a stale editor save can persist null).
 	var off: Vector2 = vfx.offset if vfx.offset is Vector2 else Vector2.ZERO
 	var anchor_x: float = (_vfx_effect_stage.size.x * 0.5) if is_instance_valid(_vfx_effect_stage) else 120.0
-	_vfx_effect_sprite.position = Vector2(anchor_x, _VFX_PREVIEW_ANCHOR_Y) + off
+	var anchor := Vector2(anchor_x, _VFX_PREVIEW_ANCHOR_Y)
+	if is_instance_valid(_vfx_effect_char):
+		_vfx_effect_char.position = anchor
+	_vfx_effect_sprite.position = anchor + off
 	_vfx_effect_sprite.play("play")
 	var n: int = sf.get_frame_count("play")
 	var faces: bool = vfx.face_direction if vfx.face_direction is bool else true
@@ -2864,6 +2904,8 @@ var _zoom_label: Label = null
 
 func _on_active_behavior_changed() -> void:
 	visualizer_control.queue_redraw()
+	# The hitbox position or the resolved VFX may have changed — refresh overlay.
+	_update_visualizer_vfx()
 
 
 func _update_visualizer_sprite_pos() -> void:
@@ -2872,6 +2914,87 @@ func _update_visualizer_sprite_pos() -> void:
 	visualizer_player_sprite.scale = Vector2.ONE * GAME_PLAYER_SCALE * _visualizer_zoom
 	var center = visualizer_control.size / 2
 	visualizer_player_sprite.position = center + Vector2(0, (GAME_PLAYER_OFFSET_Y * _visualizer_zoom) / GAME_PLAYER_SCALE)
+	_position_visualizer_vfx()
+
+
+# ── VFX overlay in the ability hitbox visualizer ─────────────────────────────
+## Creates the two overlay sprites once, parented to the visualizer Control so
+## they share its coordinate space (and z above the hitbox draw).
+func _build_visualizer_vfx() -> void:
+	if is_instance_valid(_vis_cast_vfx):
+		return
+	if not is_instance_valid(visualizer_control):
+		return
+	_vis_cast_vfx = AnimatedSprite2D.new()
+	_vis_cast_vfx.z_index = 20
+	visualizer_control.add_child(_vis_cast_vfx)
+	_vis_hit_vfx = AnimatedSprite2D.new()
+	_vis_hit_vfx.z_index = 20
+	visualizer_control.add_child(_vis_hit_vfx)
+
+
+## Resolves the current ability's cast + hit VFX and assigns them to the overlay
+## sprites (hidden when the type isn't an ability or the overlay is toggled off).
+func _update_visualizer_vfx() -> void:
+	_build_visualizer_vfx()
+	if not is_instance_valid(_vis_cast_vfx):
+		return
+	var show: bool = _vis_show_vfx and (current_resource is AbilityData)
+	if not show:
+		_vis_cast_vfx.visible = false
+		_vis_hit_vfx.visible = false
+		return
+	var ability := current_resource as AbilityData
+	_assign_vis_vfx(_vis_cast_vfx, VfxCatalog.resolve_cast(ability))
+	_assign_vis_vfx(_vis_hit_vfx, VfxCatalog.resolve_hit(ability))
+	_position_visualizer_vfx()
+
+
+## Loads (a looped copy of) the effect's frames onto an overlay sprite, or hides
+## it when the key is empty/unknown.
+func _assign_vis_vfx(spr: AnimatedSprite2D, key: String) -> void:
+	if not is_instance_valid(spr):
+		return
+	if key == "" or not VfxCatalog.has(key):
+		spr.visible = false
+		spr.sprite_frames = null
+		return
+	var sf: SpriteFrames = VfxCatalog.get_frames(key)
+	if sf == null:
+		spr.visible = false
+		return
+	sf = sf.duplicate(true)  # don't mutate the shared runtime cache
+	sf.set_animation_loop("play", true)
+	spr.sprite_frames = sf
+	spr.animation = "play"
+	var def: Dictionary = VfxCatalog.get_def(key)
+	spr.modulate = def.get("modulate", Color.WHITE)
+	spr.set_meta("vfx_key", key)
+	spr.visible = true
+	spr.play("play")
+
+
+## Positions/scales the overlay sprites in visualizer space: cast at the player
+## body-center + its offset, hit at the hitbox center + its offset, all × zoom.
+func _position_visualizer_vfx() -> void:
+	if not is_instance_valid(_vis_cast_vfx) or not (current_resource is AbilityData):
+		return
+	var center: Vector2 = visualizer_control.size / 2
+	var z: float = _visualizer_zoom
+
+	if _vis_cast_vfx.visible:
+		var cdef: Dictionary = VfxCatalog.get_def(str(_vis_cast_vfx.get_meta("vfx_key", "")))
+		var coff: Vector2 = cdef.get("offset", Vector2.ZERO)
+		_vis_cast_vfx.position = center + (_VIS_CAST_BODY_OFFSET + coff) * z
+		_vis_cast_vfx.scale = Vector2.ONE * float(cdef.get("scale", 1.0)) * z
+
+	if _vis_hit_vfx.visible:
+		var ability := current_resource as AbilityData
+		var hb: Vector2 = ability.active_behavior.hit_box_position_data if ability.active_behavior else Vector2.ZERO
+		var hdef: Dictionary = VfxCatalog.get_def(str(_vis_hit_vfx.get_meta("vfx_key", "")))
+		var hoff: Vector2 = hdef.get("offset", Vector2.ZERO)
+		_vis_hit_vfx.position = center + (hb + hoff) * z
+		_vis_hit_vfx.scale = Vector2.ONE * float(hdef.get("scale", 1.0)) * z
 
 
 func _set_visualizer_zoom(value: float) -> void:
