@@ -21,11 +21,6 @@ extends VBoxContainer
 signal dirty_changed   ## a field edit happened — host should show the ● marker
 signal structure_changed  ## an upgrade was added/removed — host should rescan/refresh
 
-## When true (Inspector use), field edits auto-save the external upgrade .tres
-## after a short debounce — there's no host "Save" button in the Inspector.
-var auto_save: bool = false
-var _flush_timer: Timer = null
-
 const C_CARD   = Color(0.15, 0.16, 0.19)
 const C_BORDER = Color(0.22, 0.24, 0.30)
 const C_DIM    = Color(0.50, 0.53, 0.60)
@@ -48,11 +43,6 @@ var _empty_note: Label
 func _init() -> void:
 	add_theme_constant_override("separation", 8)
 	_build_static_chrome()
-	_flush_timer = Timer.new()
-	_flush_timer.one_shot = true
-	_flush_timer.wait_time = 0.5
-	_flush_timer.timeout.connect(save_all)
-	add_child(_flush_timer)
 
 
 func _build_static_chrome() -> void:
@@ -522,8 +512,6 @@ func _validate_into_summary(upgrades: Array) -> void:
 func _mark(up: AbilityUpgradeData) -> void:
 	_dirty_upgrades[up] = true
 	dirty_changed.emit()
-	if auto_save and is_instance_valid(_flush_timer):
-		_flush_timer.start()  # debounced auto-save (Inspector use)
 
 
 func _abbr(ability_name: String) -> String:
