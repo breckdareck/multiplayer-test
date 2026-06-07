@@ -175,8 +175,8 @@ the edges.
 | Region (map_id) | Level band | Vibe (Emberwilds) | Notable mobs |
 |---|---|---|---|
 | `town` | — | **Lantern's Rest** — the starting Hearth, safe hub ringed by ember-lanterns | Quest-giver Hearthfolk, no combat |
-| `game` | ~1–3 | The **near-wilds** — overgrown fields just past the lantern-line | Slime (1), Bunny (1), Bird (3) |
-| `game2` | ~6–9 | Wilder **ember-meadows** | Boar (6), Deer (7), Fox (9) |
+| `game` | ~1–3 | **The Near-Wilds** — overgrown fields just past the lantern-line | Slime (1), Bunny (1), Bird (3) |
+| `game2` | ~6–9 | **Ember-Meadows** — wilder pastoral country | Boar (6), Deer (7), Fox (9) |
 | `game3` | ~10–23 | The **Deep Woods** — goblin-held, ember-thick | Goblin Warrior (13), Goblin (18), Cave Goblin (23) |
 | `game4` | ~28+ | The **Ruins** — the broken old world, toward the Warlord | Tusk Brute (28) and upward |
 

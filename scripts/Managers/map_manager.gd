@@ -22,7 +22,24 @@ const MAP_SCENES = {
 	"town": "res://scenes/Levels/town.tscn",
 }
 
+## Themed display names for the loading screen (the in-world zone banner reads the
+## scene's MapBase.display_name directly). Keep these in sync with each level
+## scene's display_name. A client shows this BEFORE the target map is loaded, so
+## it can't read the instance — hence the lookup table.
+const MAP_DISPLAY_NAMES = {
+	"town": "Lantern's Rest",
+	"game": "The Near-Wilds",
+	"game2": "Ember-Meadows",
+	"game3": "The Deep Woods",
+	"game4": "The Ruins",
+}
+
 const DEFAULT_MAP = "town"
+
+
+## Themed name for a map_id (falls back to the raw id for unknown maps).
+func _map_display_name(map_id: String) -> String:
+	return MAP_DISPLAY_NAMES.get(map_id, map_id)
 
 # --- Map residency & enemy activation (ADR 0007) ---
 ## v1: every map is instantiated once at server start and kept resident for the
@@ -919,7 +936,7 @@ func client_set_current_map(map_id: String, spawn_point_name: String = ""):
 	Client manually instantiates ONLY this map.
 	"""
 	if not multiplayer.is_server():
-		_get_loading_overlay().show_loading(map_id)
+		_get_loading_overlay().show_loading(_map_display_name(map_id))
 
 	#print("Client %d: Server requesting map '%s'" % [multiplayer.get_unique_id(), map_id])
 

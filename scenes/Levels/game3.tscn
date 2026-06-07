@@ -1011,7 +1011,7 @@ size = Vector2(32, 9)
 modulate = Color(0.75, 0.7, 0.85, 1)
 script = ExtResource("1_gfksk")
 bgm_path = "res://assets/music/gameplay.mp3"
-display_name = "Shadowfell"
+display_name = "The Deep Woods"
 
 [node name="VillageBackground" parent="." instance=ExtResource("bg_village")]
 

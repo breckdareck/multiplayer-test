@@ -531,7 +531,7 @@ sources/2 = SubResource("TileSetAtlasSource_kgokg")
 [node name="Town" type="Node2D"]
 script = ExtResource("1_as7l3")
 bgm_path = "uid://1ib7gi5y7uov"
-display_name = "Maple Town"
+display_name = "Lantern's Rest"
 camera_top_padding = 200
 
 [node name="DmgNumberSpawner" type="MultiplayerSpawner" parent="."]

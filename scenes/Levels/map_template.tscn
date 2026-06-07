@@ -1006,7 +1006,7 @@ sources/2 = SubResource("TileSetAtlasSource_gma0m")
 [node name="Game" type="Node2D"]
 script = ExtResource("1_vhnxn")
 bgm_path = "uid://1ib7gi5y7uov"
-display_name = "Slime Meadow"
+display_name = "New Wild"
 camera_top_padding = 180
 
 [node name="DmgNumberSpawner" type="MultiplayerSpawner" parent="."]
