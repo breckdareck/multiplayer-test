@@ -254,16 +254,14 @@ def na_bandana():
     cv.px(28,23,rs); cv.px(27,26,rs)
     cv.outline(OL); return cv
 
-def na_jean_shorts():
-    cv = new(); d = hexc("#5277b0"); dh = hexc("#7c9fd6"); ds = hexc("#2f4a72"); st = hexc("#e0c070")
-    cv.rect(10,10,22,13, ds, fill=d)                         # waistband
-    cv.rect(10,13,15,23, None, fill=d); cv.rect(17,13,22,23, None, fill=d)  # two SHORT legs
-    cv.vline(16,13,21, ds)                                   # fly gap
-    cv.hline(10,15,20, dh); cv.hline(17,22,20, dh)           # rolled cuffs
-    for x in (11,13,15,18,20): cv.px(x,12,st)                # waist stitching
-    cv.line(11,14,11,21, st); cv.line(21,14,21,21, st)       # outer-seam stitch
-    cv.disc(16,12,1, st)                                     # button
-    cv.poly([(11,14),(14,14),(11,17)], ds)                   # front pocket
+def na_traveler_breeches():                                  # Traveler's Breeches (cloth trail pants)
+    cv = new(); b = hexc("#b89a6a"); s = hexc("#6e5a36"); t = hexc("#8a6e3a"); bk = hexc("#caa46a")
+    cv.rect(10,8,22,10, None, fill=b)                        # waistband
+    cv.rect(11,10,15,28, None, fill=b); cv.rect(17,10,21,28, None, fill=b)  # two legs
+    cv.vline(16,11,28, OL)                                   # gap
+    cv.rect(11,16,15,20, s); cv.rect(17,16,21,20, s)         # knee patches
+    cv.hline(11,15,27, t); cv.hline(17,21,27, t)             # cuffs
+    cv.hline(10,22,9, t); cv.disc(16,9,1, bk)                # belt + buckle
     cv.outline(OL); return cv
 
 def na_apprentice_robe():
@@ -273,13 +271,14 @@ def na_apprentice_robe():
     cv.poly([(13,9),(16,14),(19,9)], h); cv.vline(16,14,28, s); cv.hline(9,23,23, t)
     cv.outline(OL); return cv
 
-def na_blue_lolico():
-    cv = new(); b = hexc("#3f7fd0"); h = hexc("#8fb6ef"); w = hexc("#eef4ff")
-    cv.poly([(10,9),(22,9),(24,28),(8,28)], b)               # dress
-    cv.poly([(11,9),(16,14),(21,9)], w)                      # white collar
-    cv.vline(16,14,28, w); cv.hline(9,23,23, w)              # white trim + hem
-    cv.disc(16,17,1.4, hexc("#ffce5c"))                      # gold brooch
-    cv.disc(10,11,2, h); cv.disc(22,11,2, h)                 # puff sleeves
+def na_lanternweave_garb():                                  # Lanternweave Garb (blue cloth + ember lantern)
+    cv = new(); b = hexc("#3f6fb0"); h = hexc("#6f9fd6"); w = hexc("#dce8f4"); frame = hexc("#7a5600")
+    cv.poly([(10,9),(22,9),(24,28),(8,28)], b)               # garb
+    cv.poly([(11,9),(16,14),(21,9)], w)                      # collar
+    cv.vline(16,14,28, w); cv.hline(9,23,23, w)              # center + hem
+    cv.disc(10,11,2, h); cv.disc(22,11,2, h)                 # shoulders
+    cv.rect(14,16,18,21, frame, fill=hexc("#ffce5c"))        # hanging ember-lantern
+    cv.disc(16,18,1.4, hexc("#ff8a3c")); cv.vline(16,13,15, frame)  # ember + hook
     cv.outline(OL); return cv
 
 def na_leather_cap():
@@ -289,19 +288,21 @@ def na_leather_cap():
     cv.hline(11,21,15, h); cv.line(16,12,16,20, s)           # seam
     cv.outline(OL); return cv
 
-def na_leather_sandals():
+def na_trailworn_sandals():                                  # Trailworn Sandals
     cv = new(); b = hexc("#9c6b3f"); s = hexc("#5a3a1e"); t = hexc("#caa46a")
     cv.poly([(8,23),(24,23),(24,27),(8,27)], b)              # sole
     cv.hline(8,24,27, s)
     cv.line(10,23,15,17, t); cv.line(15,17,20,23, t)         # V strap
     cv.line(11,20,19,20, t)                                  # ankle strap
+    cv.px(13,25, s); cv.px(18,26, s)                         # trail wear
     cv.outline(OL); return cv
 
-def na_leather_vest():
-    cv = new(); b = hexc("#9c6b3f"); s = hexc("#5a3a1e"); t = hexc("#caa46a")
+def na_trapper_vest():                                       # Trapper's Vest (leather + fur collar)
+    cv = new(); b = hexc("#9c6b3f"); s = hexc("#5a3a1e"); t = hexc("#caa46a"); fur = hexc("#d8c8a8")
     cv.poly([(11,9),(21,9),(22,28),(10,28)], b)              # sleeveless torso
     cv.poly([(16,8),(11,11),(16,21),(21,11)], s)             # open-front V (dark)
-    cv.poly([(11,9),(14,7),(18,7),(21,9)], s)                # collar
+    cv.poly([(11,9),(14,7),(18,7),(21,9)], fur)              # fur collar
+    for x in (12,14,16,18,20): cv.px(x,8, fur)               # fur tufts
     cv.line(16,12,16,26, t)
     for y in (14,18,22): cv.px(15,y,t); cv.px(17,y,t)        # laces
     cv.outline(OL); return cv
@@ -323,39 +324,41 @@ def na_mystic_cap():
     cv.hline(9,23,22, g); cv.hline(11,21,16, h); cv.disc(20,12,1.2, g)
     cv.outline(OL); return cv
 
-def na_mystic_robe():
-    cv = new(); b = hexc("#7d6fb0"); h = hexc("#b3a6e0"); g = hexc("#ffce5c")
+def na_emberweave_robe():                                    # Emberweave Robe (wine robe, ember runes)
+    cv = new(); b = hexc("#5a2438"); h = hexc("#8a3a56"); g = hexc("#ff8a3c"); em = hexc("#ffce5c")
     cv.poly([(11,9),(21,9),(24,28),(8,28)], b)
-    cv.poly([(11,9),(7,18),(9,28)], b); cv.poly([(21,9),(25,18),(23,28)], b)
-    cv.poly([(13,9),(16,14),(19,9)], h); cv.vline(16,14,28, g); cv.hline(9,23,23, g)
-    cv.disc(13,12,0.8, g); cv.disc(19,12,0.8, g); cv.disc(16,18,1, g)  # stars
+    cv.poly([(11,9),(7,18),(9,28)], b); cv.poly([(21,9),(25,18),(23,28)], b)  # sleeves
+    cv.poly([(13,9),(16,14),(19,9)], h)                      # V-neck
+    cv.vline(16,14,28, g); cv.hline(9,23,23, g)              # glowing ember seam + sash
+    cv.disc(13,12,0.8, em); cv.disc(19,12,0.8, em); cv.disc(16,18,1, em)  # ember motes
     cv.outline(OL); return cv
 
-def na_white_shirt():
-    cv = new(); b = hexc("#eef1f6"); h = hexc("#ffffff"); s = hexc("#b9c2cd")
-    cv.poly([(10,10),(22,10),(23,28),(9,28)], b)             # shirt body
+def na_homespun_tunic():                                     # Homespun Tunic (rustic linen)
+    cv = new(); b = hexc("#e6dcc0"); s = hexc("#9c8e66"); t = hexc("#b89a6a")
+    cv.poly([(10,10),(22,10),(23,28),(9,28)], b)             # tunic body
     cv.disc(8,12,2, b); cv.disc(24,12,2, b)                  # short sleeves
-    cv.poly([(13,10),(16,15),(19,10)], s)                    # collar gap
-    cv.poly([(13,10),(11,9),(15,13)], h); cv.poly([(19,10),(21,9),(17,13)], h)  # collar flaps
-    cv.vline(16,15,27, s)
-    for y in (17,20,23,26): cv.px(16,y, hexc("#9aa6b4"))     # buttons
+    cv.poly([(13,10),(16,16),(19,10)], s)                    # neck V
+    cv.line(16,16,16,22, t)                                  # lace
+    for y in (17,19,21): cv.px(15,y,t); cv.px(17,y,t)        # lacing
+    cv.hline(11,21,25, t)                                    # waist tie
     cv.outline(OL); return cv
 
-def na_wizard_hat():
-    cv = new(); b = hexc("#4a5bd0"); h = hexc("#8a96e8"); s = hexc("#26306a"); g = hexc("#ffce5c")
-    cv.poly([(16,4),(21,22),(11,22)], b); cv.px(17,7,b); cv.px(18,11,b)  # bent cone
+def na_attuner_hat():                                        # Attuner's Hat (ember-banded mage hat)
+    cv = new(); b = hexc("#7a2d1e"); h = hexc("#b3543a"); s = hexc("#3a140c"); g = hexc("#ffce5c"); em = hexc("#ff8a3c")
+    cv.poly([(16,4),(21,22),(11,22)], b); cv.px(17,7,b); cv.px(18,11,b)  # warm bent cone
     cv.hline(6,26,23, b); cv.hline(6,26,24, s); cv.hline(8,24,22, h)     # brim
-    cv.hline(11,21,20, g); cv.disc(16,5,1.3, g)                          # band + tip
-    cv.disc(14,15,0.8, g); cv.disc(18,17,0.8, g)                         # stars
+    cv.hline(11,21,20, g)                                                # amber band
+    cv.disc(16,5,1.5, em); cv.disc(16,5,0.8, hexc("#ffe9a8"))            # glowing ember tip
+    cv.disc(14,15,0.7, em); cv.disc(18,17,0.7, em)                       # ember motes
     cv.outline(OL); return cv
 
 NAMED_ARMOR = [
-    ("bandana", na_bandana), ("blue jean", na_jean_shorts),
-    ("apprentice robe", na_apprentice_robe), ("lolico", na_blue_lolico),
-    ("leather cap", na_leather_cap), ("leather sandals", na_leather_sandals),
-    ("leather vest", na_leather_vest), ("koif", na_metal_koif),
-    ("mystic cap", na_mystic_cap), ("mystic robe", na_mystic_robe),
-    ("white shirt", na_white_shirt), ("wizard hat", na_wizard_hat),
+    ("bandana", na_bandana), ("breeches", na_traveler_breeches),
+    ("apprentice robe", na_apprentice_robe), ("lanternweave", na_lanternweave_garb),
+    ("leather cap", na_leather_cap), ("trailworn", na_trailworn_sandals),
+    ("trapper", na_trapper_vest), ("koif", na_metal_koif),
+    ("mystic cap", na_mystic_cap), ("emberweave", na_emberweave_robe),
+    ("homespun", na_homespun_tunic), ("attuner", na_attuner_hat),
 ]
 
 # ================================================== POTIONS
@@ -434,21 +437,17 @@ def pv_exp():                                                # gold flask + floa
         cv.disc(hx,hy,1.5,GW); cv.px(hx,hy,WHITE)
     return cv
 
-def pv_town():                                               # cosmic purple/blue galaxy swirl
-    import math
+def pv_hearthstone():                                        # warm ember/Hearth recall shard
     cv=new()
-    PUR=hexc("#8a4fe0"); BLU=hexc("#3f8fe8"); SPACE=hexc("#15123a"); STAR=hexc("#eaf0ff")
-    cv.disc(16,21,7,GLASS); cv.rect(13,11,18,14,None,fill=GLASS)
-    cv.rect(14,15,18,21,None,fill=SPACE); cv.disc(16,22,6,SPACE)   # deep-space fill
-    cx,cy=16,22
-    for arm,col in ((0.0,PUR),(math.pi,BLU)):                # two spiral arms
-        for i in range(9):
-            t=arm+i*0.55; r=0.5+i*0.55
-            for dr in (0.0,0.9):
-                cv.px(cx+(r+dr)*math.cos(t), cy+(r+dr)*math.sin(t), col)
-    cv.disc(cx,cy,1.4,STAR)                                  # galactic core
-    for (x,y) in [(12,20),(20,24),(19,18),(13,24)]: cv.px(x,y,STAR)  # stars
-    cv.ring(16,21,7,GLASSL); _cork(cv,15,8); cv.outline(OL)
+    b=hexc("#e08a2e"); h=hexc("#ffd27a"); core=hexc("#fff0c0"); dk=hexc("#7a3a08"); fl=hexc("#ff8a3c")
+    cv.poly([(16,5),(23,13),(21,26),(11,26),(9,13)], b)      # faceted shard
+    cv.line(16,5,16,26, dk); cv.line(9,13,23,13, dk)         # facet seams
+    cv.line(10,13,16,6, h)                                   # bright edge
+    cv.disc(16,16,3, core)                                   # inner glow
+    cv.poly([(16,11),(18,16),(16,20),(14,16)], fl)           # hearth-flame
+    cv.disc(16,16,1, hexc("#fff7e0"))
+    cv.outline(OL)
+    _spark(cv,24,9); _spark(cv,9,23)                         # warm sparkles (after outline)
     return cv
 
 PSHAPE=[pv_vial,pv_flask,pv_conical,pv_shouldered,pv_handled,pv_crystal]
@@ -475,7 +474,7 @@ def emblem_of(name):
 def potion(name):
     low=name.lower()
     if "exp" in low: return pv_exp()
-    if "town" in low: return pv_town()
+    if "hearth" in low: return pv_hearthstone()
     kind=liquid_kind(name); tier=tier_of(name)
     if "draught" in low:
         return PSHAPE[max(0,min(5,tier))](LIQ[kind])

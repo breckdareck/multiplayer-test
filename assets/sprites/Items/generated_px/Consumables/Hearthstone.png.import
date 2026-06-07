@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://nwbl5xw5m3qu"
-path="res://.godot/imported/Town_Potion.png-2043becc96b165697af3668949a1c095.ctex"
+uid="uid://b0f14l1auyf4r"
+path="res://.godot/imported/Hearthstone.png-86972b9533ba63e0fa3cf76bc6d9507c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/Items/generated_px/Consumables/Town_Potion.png"
-dest_files=["res://.godot/imported/Town_Potion.png-2043becc96b165697af3668949a1c095.ctex"]
+source_file="res://assets/sprites/Items/generated_px/Consumables/Hearthstone.png"
+dest_files=["res://.godot/imported/Hearthstone.png-86972b9533ba63e0fa3cf76bc6d9507c.ctex"]
 
 [params]
 

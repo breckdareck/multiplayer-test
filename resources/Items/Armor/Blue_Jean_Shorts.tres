@@ -1,9 +1,8 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=7 format=3 uid="uid://cf1vea7348tsp"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=5 format=3 uid="uid://cf1vea7348tsp"]
 
-[ext_resource type="Texture2D" uid="uid://fis5sdnrqe5w" path="res://assets/sprites/Items/generated_px/Armor/Blue_Jean_Shorts.png" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_tr1jo"]
-[ext_resource type="Texture2D" uid="uid://bannlqdgbwmld" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_tr1jo"]
 [ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_2ii83"]
+[ext_resource type="Texture2D" uid="uid://fis5sdnrqe5w" path="res://assets/sprites/Items/generated_px/Armor/Blue_Jean_Shorts.png" id="99_svgicon"]
 
 [sub_resource type="Resource" id="Resource_tr1jo"]
 script = ExtResource("1_tr1jo")
@@ -12,11 +11,6 @@ base_value = 0
 flat_bonus_value = 2
 metadata/_custom_type_script = "uid://cptesvvlfbytw"
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_tr1jo"]
-atlas = ExtResource("2_tr1jo")
-region = Rect2(0, 0, 25, 16)
-margin = Rect2(0.5, 5.5, 1, 10)
-
 [resource]
 script = ExtResource("3_2ii83")
 armor_type = 2
@@ -24,7 +18,7 @@ bonus_stats = Dictionary[int, ExtResource("1_tr1jo")]({
 8: SubResource("Resource_tr1jo")
 })
 item_id = "0131000010-11502-8242-4653-7120151224113463"
-name = "Blue Jean Shorts"
+name = "Traveler's Breeches"
 icon = ExtResource("99_svgicon")
 item_type = 1
 custom_item_value = -1

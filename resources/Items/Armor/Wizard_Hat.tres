@@ -1,9 +1,8 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=7 format=3 uid="uid://bveirljifc7x5"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=5 format=3 uid="uid://bveirljifc7x5"]
 
-[ext_resource type="Texture2D" uid="uid://curd8m76wokuq" path="res://assets/sprites/Items/generated_px/Armor/Wizard_Hat.png" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_wh01"]
-[ext_resource type="Texture2D" uid="uid://cich4x2g2jd51" path="res://assets/sprites/MinifolksHumans/Outline/MiniSwordMan.png" id="2_wh01"]
 [ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_wh01"]
+[ext_resource type="Texture2D" uid="uid://curd8m76wokuq" path="res://assets/sprites/Items/generated_px/Armor/Wizard_Hat.png" id="99_svgicon"]
 
 [sub_resource type="Resource" id="Resource_wh01"]
 script = ExtResource("1_wh01")
@@ -12,20 +11,15 @@ base_value = 0
 flat_bonus_value = 3
 metadata/_custom_type_script = "uid://cptesvvlfbytw"
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_wh01"]
-atlas = ExtResource("2_wh01")
-region = Rect2(108, 114, 10, 4)
-margin = Rect2(0, 3, 0, 6)
-
 [resource]
 script = ExtResource("3_wh01")
 bonus_stats = Dictionary[int, ExtResource("1_wh01")]({
 9: SubResource("Resource_wh01")
 })
 item_id = "20260517014-500514-030214-50014-550500300050500514"
-name = "Wizard Hat"
+name = "Attuner's Hat"
 icon = ExtResource("99_svgicon")
-description = "A pointy hat worn by apprentice wizards."
+description = "A peaked hat banded with cooled ember-thread, worn by those learning to channel the wilds."
 item_type = 1
 item_level = 2
 metadata/_custom_type_script = "uid://c2fkjsnluarqk"

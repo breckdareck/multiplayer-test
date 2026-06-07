@@ -1,9 +1,8 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=6 format=3 uid="uid://c6f4hwdxeaekd"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=5 format=3 uid="uid://c6f4hwdxeaekd"]
 
-[ext_resource type="Texture2D" uid="uid://cs8xympr1lhwn" path="res://assets/sprites/Items/generated_px/Armor/Leather_Sandals.png" id="99_svgicon"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_huyix"]
-[ext_resource type="Texture2D" uid="uid://bp4adv1r3u16u" path="res://assets/sprites/Items/Equipment/Eqp_Leather_Sandals.png" id="2_huyix"]
 [ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_i5etc"]
+[ext_resource type="Texture2D" uid="uid://cs8xympr1lhwn" path="res://assets/sprites/Items/generated_px/Armor/Leather_Sandals.png" id="99_svgicon"]
 
 [sub_resource type="Resource" id="Resource_huyix"]
 script = ExtResource("1_huyix")
@@ -19,7 +18,7 @@ bonus_stats = Dictionary[int, ExtResource("1_huyix")]({
 8: SubResource("Resource_huyix")
 })
 item_id = "01183152131-6993-101158-1112116-461241101432075"
-name = "Leather Sandals"
+name = "Trailworn Sandals"
 icon = ExtResource("99_svgicon")
 item_type = 1
 custom_item_value = -1
