@@ -1,0 +1,42 @@
+{
+  "meadow_path": {
+    "display_name": "Slime Meadow",
+    "bgm_path": "",
+    "tile": 16,
+    "platforms": [
+      { "x": 0, "y": 14, "w": 44, "depth": 4 }
+    ],
+    "spawn": { "x": 2, "y": 13 },
+    "portals": [
+      { "x": 42, "y": 12, "target_map_id": "lanterns_rest", "target_spawn_point_name": "Meadow_Return_Spawn", "arrival_name": "Hub_Meadow_Spawn" }
+    ],
+    "enemies": [
+      { "x": 10, "y": 13 }, { "x": 18, "y": 13 }, { "x": 26, "y": 13 }, { "x": 32, "y": 13 }
+    ],
+    "killzone_y": 19,
+    "camera_top_padding": 400,
+    "camera_bottom_padding": 80
+  },
+  "three_terraces": {
+    "display_name": "Windmill Terraces",
+    "bgm_path": "",
+    "tile": 16,
+    "platforms": [
+      { "x": 0, "y": 15, "w": 40, "depth": 3 },
+      { "x": 5, "y": 11, "w": 30, "depth": 1 },
+      { "x": 10, "y": 7, "w": 22, "depth": 1 }
+    ],
+    "spawn": { "x": 2, "y": 14 },
+    "portals": [
+      { "x": 37, "y": 13, "target_map_id": "lanterns_rest", "target_spawn_point_name": "Terraces_Return_Spawn", "arrival_name": "Hub_Terraces_Spawn" }
+    ],
+    "enemies": [
+      { "x": 12, "y": 14 }, { "x": 24, "y": 14 },
+      { "x": 14, "y": 10 }, { "x": 26, "y": 10 },
+      { "x": 18, "y": 6 }
+    ],
+    "killzone_y": 20,
+    "camera_top_padding": 400,
+    "camera_bottom_padding": 80
+  }
+}

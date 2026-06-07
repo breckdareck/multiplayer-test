@@ -71,6 +71,10 @@ func _setup_server_info_display():
 	_server_info_label.add_theme_color_override("font_color", Color.YELLOW)
 	_server_info_label.text = "Share this IP with friends: (waiting...)"
 	_server_info_label.visible = false
+	# Wrap + center so a long IP/string can't force the panel column wider than
+	# the panel (the API-URL overflow class of bug).
+	_server_info_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_server_info_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	$Panel/VBoxContainer.add_child(_server_info_label)
 
 
@@ -79,6 +83,8 @@ func _setup_backend_info_display():
 	_backend_status_label = Label.new()
 	_backend_status_label.add_theme_color_override("font_color", Color.GRAY)
 	_backend_status_label.text = "Backend: %s (checking...)" % backend_url
+	_backend_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_backend_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	$Panel/VBoxContainer.add_child(_backend_status_label)
 
 	_status_request = HTTPRequest.new()
