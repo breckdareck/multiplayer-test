@@ -1,8 +1,55 @@
-[gd_scene load_steps=4 format=3 uid="uid://b7qrh8ay4r2t1"]
+[gd_scene load_steps=14 format=3 uid="uid://b7qrh8ay4r2t1"]
 
 [ext_resource type="Script" uid="uid://6vdhssgw83n" path="res://scripts/UI/CharacterCreationScreen.gd" id="1_script"]
 [ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="2_font"]
 [ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="3_font_bold"]
+[ext_resource type="Theme" uid="uid://dumv2cfji0owj" path="res://assets/themes/UI_Theme.tres" id="4_theme"]
+[ext_resource type="Texture2D" uid="uid://b0idp2sbo05qp" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Country.png" id="5_village"]
+[ext_resource type="Texture2D" uid="uid://bcoeao6eds8lo" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/background.png" id="6_sky"]
+[ext_resource type="Texture2D" uid="uid://cgjqecy2i25oj" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Cloud_1.png" id="7_cloud1"]
+[ext_resource type="Texture2D" uid="uid://dgn0sn4ddie7p" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Cloud_2.png" id="8_cloud2"]
+[ext_resource type="FontFile" uid="uid://dxbqcm3ww0xmj" path="res://assets/fonts/Starbim.ttf" id="9_title_font"]
+
+[sub_resource type="Gradient" id="Gradient_ember"]
+offsets = PackedFloat32Array(0, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_ember"]
+gradient = SubResource("Gradient_ember")
+width = 12
+height = 12
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_ember"]
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(960, 600, 1)
+direction = Vector3(0, -1, 0)
+spread = 18.0
+initial_velocity_min = 3.0
+initial_velocity_max = 12.0
+gravity = Vector3(0, -6, 0)
+scale_min = 0.3
+scale_max = 1.1
+color = Color(1, 0.82, 0.45, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+content_margin_left = 8.0
+content_margin_top = 8.0
+content_margin_right = 8.0
+content_margin_bottom = 8.0
+bg_color = Color(0.078431, 0.078431, 0.101961, 0.93)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25, 0.25, 0.3, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
 [node name="CharacterCreationScreen" type="Control"]
 layout_mode = 3
@@ -11,7 +58,119 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("4_theme")
 script = ExtResource("1_script")
+
+[node name="Sky" type="TextureRect" parent="."]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("6_sky")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Cloud1" type="TextureRect" parent="."]
+texture_filter = 1
+modulate = Color(1, 1, 1, 0.85)
+layout_mode = 1
+offset_left = 220.0
+offset_top = 120.0
+offset_right = 412.0
+offset_bottom = 216.0
+scale = Vector2(4, 4)
+texture = ExtResource("7_cloud1")
+
+[node name="Cloud2" type="TextureRect" parent="."]
+texture_filter = 1
+modulate = Color(1, 1, 1, 0.7)
+layout_mode = 1
+offset_left = 1360.0
+offset_top = 250.0
+offset_right = 1552.0
+offset_bottom = 346.0
+scale = Vector2(5, 5)
+texture = ExtResource("8_cloud2")
+
+[node name="Village" type="TextureRect" parent="."]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -1200.0
+grow_horizontal = 2
+grow_vertical = 0
+texture = ExtResource("5_village")
+expand_mode = 1
+
+[node name="Darken" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05, 0.06, 0.11, 0.5)
+
+[node name="Embers" type="GPUParticles2D" parent="."]
+modulate = Color(1, 1, 1, 0.55)
+position = Vector2(960, 560)
+amount = 36
+texture = SubResource("GradientTexture2D_ember")
+lifetime = 7.0
+preprocess = 7.0
+process_material = SubResource("ParticleProcessMaterial_ember")
+
+[node name="Flavor" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -54.0
+offset_bottom = -22.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.86, 0.8, 0.68, 0.55)
+theme_override_font_sizes/font_size = 15
+text = "“What you wield is who you become. Choose well.”"
+horizontal_alignment = 1
+
+[node name="TitleBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -500.0
+offset_top = 22.0
+offset_right = 500.0
+offset_bottom = 132.0
+grow_horizontal = 2
+theme_override_constants/separation = 2
+
+[node name="Title" type="Label" parent="TitleBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.42, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.65)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 4
+theme_override_constants/shadow_outline_size = 2
+theme_override_fonts/font = ExtResource("9_title_font")
+theme_override_font_sizes/font_size = 44
+text = "Forge Your Legend"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="TitleBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.86, 0.95, 0.85)
+theme_override_font_sizes/font_size = 16
+text = "Bind your first ember and name yourself."
+horizontal_alignment = 1
 
 [node name="ClassSelectPanel" type="Panel" parent="."]
 layout_mode = 1
@@ -21,11 +180,12 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -349.5
-offset_top = -350.0
+offset_top = -340.0
 offset_right = 349.5
-offset_bottom = -50.0
+offset_bottom = -40.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
 [node name="LeftButton" type="Button" parent="ClassSelectPanel"]
 layout_mode = 1
@@ -42,6 +202,7 @@ theme_override_font_sizes/font_size = 51
 text = "<"
 
 [node name="ClassIcon" type="TextureRect" parent="ClassSelectPanel"]
+texture_filter = 1
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -81,11 +242,12 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -300.0
-offset_top = 50.0
+offset_top = 40.0
 offset_right = 300.0
-offset_bottom = 350.0
+offset_bottom = 360.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
 layout_mode = 1
@@ -102,6 +264,8 @@ theme_override_constants/separation = 10
 
 [node name="Label" type="Label" parent="Panel/VBoxContainer"]
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.42, 1)
+theme_override_fonts/font = ExtResource("3_font_bold")
 theme_override_font_sizes/font_size = 24
 text = "Create Character"
 horizontal_alignment = 1
