@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://c78xmv3587kv2"]
+[gd_scene load_steps=13 format=3 uid="uid://c78xmv3587kv2"]
 
 [ext_resource type="Script" uid="uid://bdaw424g73ylw" path="res://scripts/UI/LoginScreen.gd" id="1_script"]
 [ext_resource type="Theme" uid="uid://dumv2cfji0owj" path="res://assets/themes/UI_Theme.tres" id="2_theme"]
@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://cgjqecy2i25oj" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Cloud_1.png" id="5_cloud1"]
 [ext_resource type="Texture2D" uid="uid://dgn0sn4ddie7p" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Cloud_2.png" id="6_cloud2"]
 [ext_resource type="FontFile" uid="uid://dxbqcm3ww0xmj" path="res://assets/fonts/Starbim.ttf" id="7_title_font"]
+[ext_resource type="Script" path="res://scripts/UI/menu_parallax.gd" id="p_parallax"]
 
 [sub_resource type="Gradient" id="Gradient_ember"]
 colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
@@ -136,8 +137,12 @@ offset_top = -54.0
 offset_bottom = -22.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_colors/font_color = Color(0.86, 0.8, 0.68, 0.55)
-theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.85882354, 0.8, 0.6784314, 0.7411765)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = -1
+theme_override_constants/shadow_offset_y = 1
+theme_override_constants/shadow_outline_size = 2
+theme_override_font_sizes/font_size = 16
 text = "“The Weave broke, and the world caught fire. Light your lantern — the frontier won't tame itself.”"
 horizontal_alignment = 1
 
@@ -159,7 +164,7 @@ theme_override_colors/font_color = Color(1, 0.85, 0.42, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.65)
 theme_override_constants/shadow_offset_x = 3
 theme_override_constants/shadow_offset_y = 4
-theme_override_constants/shadow_outline_size = 2
+theme_override_constants/shadow_outline_size = 4
 theme_override_fonts/font = ExtResource("7_title_font")
 theme_override_font_sizes/font_size = 72
 text = "Emberwilds"
@@ -168,6 +173,7 @@ horizontal_alignment = 1
 [node name="Subtitle" type="Label" parent="TitleBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.86, 0.95, 0.85)
+theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 16
 text = "Rekindle the Wilds"
 horizontal_alignment = 1
@@ -204,7 +210,9 @@ alignment = 1
 [node name="Label" type="Label" parent="Panel/VBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.85, 0.42, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 24
 text = "Account Login"
 horizontal_alignment = 1
 
@@ -227,6 +235,7 @@ text = "Register"
 
 [node name="LocalSaveCheckbox" type="CheckBox" parent="Panel/VBoxContainer"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 12
 text = "Use Local Save"
 alignment = 1
 
@@ -365,3 +374,6 @@ offset_bottom = -12.0
 grow_vertical = 0
 theme_override_font_sizes/font_size = 12
 text = "⚙ dev"
+
+[node name="Parallax" type="Node" parent="."]
+script = ExtResource("p_parallax")

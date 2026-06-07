@@ -240,8 +240,9 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
-## Light entrance polish: fade the screen in, slide/settle the title + panel, and
-## drift the clouds. Purely cosmetic — no gameplay effect.
+## Light entrance polish: fade the screen in and settle the title. Cloud drift +
+## mouse parallax are handled by the scene's Parallax node (menu_parallax.gd).
+## Purely cosmetic — no gameplay effect.
 func _play_intro() -> void:
 	modulate.a = 0.0
 	var tw := create_tween()
@@ -252,19 +253,6 @@ func _play_intro() -> void:
 		title_box.position.y -= 14
 		var t2 := create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 		t2.tween_property(title_box, "position:y", title_box.position.y + 14, 0.6)
-
-	_drift_cloud($Cloud1 if has_node("Cloud1") else null, 26.0)
-	_drift_cloud($Cloud2 if has_node("Cloud2") else null, -34.0)
-
-
-## Slowly slides a cloud back and forth forever.
-func _drift_cloud(cloud: Control, dist: float) -> void:
-	if not is_instance_valid(cloud):
-		return
-	var x0: float = cloud.position.x
-	var tw := create_tween().set_loops().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	tw.tween_property(cloud, "position:x", x0 + dist, 9.0)
-	tw.tween_property(cloud, "position:x", x0, 9.0)
 
 
 ## Fabricates + writes a max-level save for `disc`, then hosts straight into the

@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://b7qrh8ay4r2t1"]
+[gd_scene load_steps=15 format=3 uid="uid://b7qrh8ay4r2t1"]
 
 [ext_resource type="Script" uid="uid://6vdhssgw83n" path="res://scripts/UI/CharacterCreationScreen.gd" id="1_script"]
 [ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="2_font"]
@@ -9,6 +9,7 @@
 [ext_resource type="Texture2D" uid="uid://cgjqecy2i25oj" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Cloud_1.png" id="7_cloud1"]
 [ext_resource type="Texture2D" uid="uid://dgn0sn4ddie7p" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Cloud_2.png" id="8_cloud2"]
 [ext_resource type="FontFile" uid="uid://dxbqcm3ww0xmj" path="res://assets/fonts/Starbim.ttf" id="9_title_font"]
+[ext_resource type="Script" path="res://scripts/UI/menu_parallax.gd" id="p_parallax"]
 
 [sub_resource type="Gradient" id="Gradient_ember"]
 offsets = PackedFloat32Array(0, 1)
@@ -317,3 +318,6 @@ theme_override_colors/font_color = Color(1, 0.2, 0.2, 1)
 theme_override_font_sizes/font_size = 18
 horizontal_alignment = 1
 autowrap_mode = 2
+
+[node name="Parallax" type="Node" parent="."]
+script = ExtResource("p_parallax")

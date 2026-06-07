@@ -20,6 +20,25 @@ const STARTER_DISCIPLINES: Array[Constants.ClassType] = [
 var _starter_index: int = 0
 var selected_class: Constants.ClassType = Constants.ClassType.SWORD
 
+# Idle bob for the class portrait (cosmetic). Base captured on the first frame so
+# the anchored layout has resolved.
+const _BOB_AMPLITUDE := 6.0
+const _BOB_SPEED := 2.2
+var _bob_t := 0.0
+var _bob_base_y := 0.0
+var _bob_primed := false
+
+
+func _process(delta: float) -> void:
+	if not is_instance_valid(class_icon):
+		return
+	if not _bob_primed:
+		_bob_base_y = class_icon.position.y
+		_bob_primed = true
+	_bob_t += delta
+	class_icon.position.y = _bob_base_y + sin(_bob_t * _BOB_SPEED) * _BOB_AMPLITUDE
+
+
 func _ready():
 	create_button.pressed.connect(_on_create_pressed)
 	back_button.pressed.connect(_on_back_pressed)
