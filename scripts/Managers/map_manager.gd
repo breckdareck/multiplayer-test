@@ -52,11 +52,18 @@ func _map_display_name(map_id: String) -> String:
 	return MAP_DISPLAY_NAMES.get(map_id, map_id)
 
 # --- Map residency & enemy activation (ADR 0007) ---
-## v1: every map is instantiated once at server start and kept resident for the
-## server's lifetime — entering a map never pays a cold instantiate. The
-## activation scanner below keeps resident-but-empty maps ≈free. Revisit as a
-## bounded warm pool (TTL + LRU eviction) when the roster reaches ~10-15 maps.
+## Bounded WARM POOL (ADR 0007 revisit — triggered at 10 maps). Instead of
+## pre-instantiating EVERY map at boot, the server warms only the starting Hearth
+## and its portal-neighbours, lazily loads maps as agents travel into them, and a
+## periodic evictor frees maps that are empty AND outside the warm set (the town +
+## every populated map + each populated map's neighbours). Boot stays cheap and
+## steady-state memory is bounded, while adjacent travel keeps the no-hitch
+## fast-reparent path (a populated map's neighbours are always resident).
+## On empty, a map's enemies are put to sleep immediately (≈free); the evictor
+## unloads it later only if it's also cold (outside the warm set).
 const KEEP_MAPS_RESIDENT := true
+## How often (seconds) the warm-pool evictor frees cold, empty, non-warm maps.
+const WARM_EVICT_INTERVAL := 20.0
 ## How often (seconds) the server re-evaluates which enemies are awake.
 const ACTIVATION_SCAN_INTERVAL := 0.1
 ## Wake an enemy when an agent (player OR bot) is within this distance; sleep it
@@ -68,6 +75,7 @@ const ACTIVATION_SCAN_INTERVAL := 0.1
 const ACTIVATION_WAKE_RADIUS := 960.0
 const ACTIVATION_SLEEP_RADIUS := 1280.0
 var _activation_scan_accum := 0.0
+var _warm_evict_accum := 0.0
 
 # Server-side tracking
 var active_maps: Dictionary = {} ## {map_id: {scene_instance, player_ids: []}}
@@ -142,22 +150,61 @@ func _exit_tree():
 
 
 func _on_server_started():
-	# Pre-instantiate every map up front and keep them resident for the server's
-	# lifetime (ADR 0007), so travelling to a map never pays a cold instantiate.
-	# The activation scanner keeps these resident maps cheap when empty.
-	_preinstantiate_all_maps()
-	# Build the portal connectivity graph from the now-resident instances (no
-	# throwaway instantiate pass). Done before bots start pathfinding.
+	# WARM POOL (revised ADR 0007). Build the portal graph first — its off-tree
+	# scan reads portals from non-resident maps, so it no longer needs every map
+	# instantiated. Then warm ONLY the starting Hearth + its neighbours; the rest
+	# load lazily on travel and the evictor frees cold ones. Keeps boot cheap as
+	# the map roster grows.
 	_build_map_connections()
+	_warm_around(DEFAULT_MAP)
 
 
-## [Server] Instantiate and keep every configured map. Reuses _load_map_on_server,
-## which is idempotent (skips maps already in active_maps).
+## [Server] Instantiate every configured map at once. No longer called at boot
+## (the warm pool replaced it); kept as a debug "warm everything" helper.
 func _preinstantiate_all_maps() -> void:
 	if not multiplayer.is_server():
 		return
 	for map_id in MAP_SCENES:
 		_load_map_on_server(map_id)
+
+
+## [Server] Ensure a map and its portal-neighbours are resident (idempotent).
+## Called at boot for the town and on every spawn, so the next hop is already
+## warm and adjacent travel uses the no-hitch fast-reparent path.
+func _warm_around(center_map_id: String) -> void:
+	if not multiplayer.is_server():
+		return
+	_load_map_on_server(center_map_id)
+	for neighbor in get_map_connections(center_map_id):
+		_load_map_on_server(neighbor)
+
+
+## Maps that must stay resident: the town hub, every map with players, and every
+## map one portal-hop from a populated map.
+func _compute_warm_set() -> Dictionary:
+	var warm := {DEFAULT_MAP: true}
+	for map_id in active_maps:
+		if active_maps[map_id].get("player_ids", []).is_empty():
+			continue
+		warm[map_id] = true
+		for neighbor in get_map_connections(map_id):
+			warm[neighbor] = true
+	return warm
+
+
+## [Server] Free resident maps that are empty AND outside the warm set. Runs on a
+## slow timer (never inside a transition), so it can't free a map mid-handoff.
+## active_maps.keys() snapshots, so unloading during iteration is safe.
+func _evict_cold_maps() -> void:
+	if not multiplayer.is_server():
+		return
+	var warm := _compute_warm_set()
+	for map_id in active_maps.keys():
+		if map_id in warm:
+			continue
+		if not active_maps[map_id].get("player_ids", []).is_empty():
+			continue
+		_unload_map_on_server(map_id)
 
 
 # === ENEMY PROXIMITY ACTIVATION (ADR 0007) ===
@@ -170,6 +217,11 @@ func _process(delta: float) -> void:
 	# is_server() calls get_unique_id() internally, which errors with no peer.
 	if not multiplayer.has_multiplayer_peer() or not multiplayer.is_server() or active_maps.is_empty():
 		return
+	# Warm-pool eviction (slow tick): free cold, empty, non-warm maps.
+	_warm_evict_accum += delta
+	if _warm_evict_accum >= WARM_EVICT_INTERVAL:
+		_warm_evict_accum = 0.0
+		_evict_cold_maps()
 	_activation_scan_accum += delta
 	if _activation_scan_accum < ACTIVATION_SCAN_INTERVAL:
 		return
@@ -661,6 +713,10 @@ func _finalize_player_spawn(player_id: int, map_id: String, spawn_point_name: St
 			update_visibility_for_player(existing_id)
 
 	_spawn_player_on_server_map(player_id, map_id, spawn_point_name)
+
+	# Warm pool: now that an agent is on this map, make sure its neighbours are
+	# resident too, so the next portal hop uses the no-hitch fast-reparent path.
+	_warm_around(map_id)
 
 	# Sync existing players' buff visuals (e.g. Shadow Partner) to the new joiner (skip for bots)
 	if not _joiner_is_bot:
