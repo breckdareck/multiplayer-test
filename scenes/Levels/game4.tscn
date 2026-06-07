@@ -1838,3 +1838,11 @@ mouse_filter = 1
 script = ExtResource("9_pjyxy")
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+
+[node name="PortalToMines" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(300, -157)
+target_map_id = "mines"
+target_spawn_point_name = "Mines_Game4_Portal_Spawn"
+
+[node name="Game4_Mines_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(280, -157)

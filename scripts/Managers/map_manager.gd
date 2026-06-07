@@ -19,6 +19,11 @@ const MAP_SCENES = {
 	"game2": "res://scenes/Levels/game2.tscn",
 	"game3": "res://scenes/Levels/game3.tscn",
 	"game4": "res://scenes/Levels/game4.tscn",
+	"mines": "res://scenes/Levels/mines.tscn",
+	"keep": "res://scenes/Levels/keep.tscn",
+	"emberscar": "res://scenes/Levels/emberscar.tscn",
+	"weave": "res://scenes/Levels/weave.tscn",
+	"warlord": "res://scenes/Levels/warlord.tscn",
 	"town": "res://scenes/Levels/town.tscn",
 }
 
@@ -32,6 +37,11 @@ const MAP_DISPLAY_NAMES = {
 	"game2": "Ember-Meadows",
 	"game3": "The Deep Woods",
 	"game4": "The Ruins",
+	"mines": "The Drowned Mines",
+	"keep": "The Warded Keep",
+	"emberscar": "The Ember-Scar",
+	"weave": "The Weave's Edge",
+	"warlord": "The Sundered Heart",
 }
 
 const DEFAULT_MAP = "town"
