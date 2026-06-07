@@ -122,6 +122,7 @@ var _vfx_effect_info: Label = null
 var _vfx_effect_stage: Control = null
 var _vfx_effect_char: Sprite2D = null  # faint character reference in the preview
 var _vfx_dragging: bool = false  # dragging the preview effect to set its offset
+var _vfx_anchor_screen: Vector2 = Vector2.ZERO  # screen pos of the offset=0 anchor
 
 # VFX overlay inside the ability hitbox visualizer: the resolved CAST effect on
 # the player body and the HIT effect at the hitbox center, so placement/offset
@@ -132,10 +133,13 @@ var _vis_show_vfx: bool = true
 ## Player body-center anchor for cast VFX in the visualizer, in world units
 ## relative to the player origin (feet). Mirrors ability.gd's _VFX_CAST_BODY_OFFSET.
 const _VIS_CAST_BODY_OFFSET := Vector2(0, -18)
-## Y of the preview "anchor" marker (the character/enemy point); the effect is
-## drawn at anchor + offset so the offset field is visible. Low in the 140px
-## stage so a typical negative offset.y (effect above the body) reads upward.
-const _VFX_PREVIEW_ANCHOR_Y: float = 100.0
+## Preview zoom (world px -> preview px). The preview mirrors the in-game cast
+## frame: character FEET are the origin, the cast anchor is feet +
+## _VIS_CAST_BODY_OFFSET, and the effect sits at (anchor + offset) * zoom — so an
+## offset dialled in here equals the in-game offset exactly, just magnified.
+const _VFX_PREVIEW_ZOOM: float = 2.2
+## How far above the stage bottom the character's FEET sit.
+const _VFX_PREVIEW_FEET_MARGIN: float = 30.0
 
 # Theme state – kept as refs so _update_accent() can mutate them in place
 var _title_label:       Label          = null
@@ -2199,39 +2203,36 @@ func _build_vfx_effect_preview() -> void:
 	col.add_child(title)
 
 	var stage = Control.new()
-	stage.custom_minimum_size = Vector2(0, 140)
+	stage.custom_minimum_size = Vector2(0, 190)
 	stage.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	stage.clip_contents = true
 	stage.mouse_filter = Control.MOUSE_FILTER_STOP
-	stage.tooltip_text = "Drag the effect to set its offset (relative to the character anchor)"
+	stage.tooltip_text = "Drag the effect to set its offset. The crosshair is offset (0,0); the line is the floor."
 	stage.gui_input.connect(_on_vfx_preview_gui_input)
 	_vfx_effect_stage = stage
-	# Draw the anchor marker — a faint crosshair at the character/enemy point so
-	# the effect's offset is visible relative to it.
+	# Floor line at the feet + the offset=0 anchor crosshair (positions computed
+	# in _refresh and cached in _vfx_anchor_screen so the draw stays cheap).
 	stage.draw.connect(func():
-		var c := Vector2(stage.size.x * 0.5, _VFX_PREVIEW_ANCHOR_Y)
-		var mc := Color(0.5, 0.55, 0.65, 0.6)
-		stage.draw_line(c - Vector2(8, 0), c + Vector2(8, 0), mc, 1.0)
-		stage.draw_line(c - Vector2(0, 8), c + Vector2(0, 8), mc, 1.0)
-		stage.draw_circle(c, 2.0, mc))
+		var fy: float = stage.size.y - _VFX_PREVIEW_FEET_MARGIN
+		stage.draw_line(Vector2(0, fy), Vector2(stage.size.x, fy), Color(0.4, 0.45, 0.5, 0.4), 1.0)
+		var a := _vfx_anchor_screen
+		var mc := Color(0.5, 0.6, 0.75, 0.7)
+		stage.draw_line(a - Vector2(8, 0), a + Vector2(8, 0), mc, 1.0)
+		stage.draw_line(a - Vector2(0, 8), a + Vector2(0, 8), mc, 1.0)
+		stage.draw_circle(a, 2.0, mc))
 	stage.resized.connect(func():
 		stage.queue_redraw()
 		if current_resource is VfxEffectData:
 			_refresh_vfx_effect_preview(current_resource))
-	# Faint character reference at the anchor so the offset can be judged against
-	# a body (same portrait the ability hitbox visualizer uses).
+	# Faint character reference (the same portrait the ability hitbox visualizer
+	# uses, positioned/scaled the same way) so the offset is judged against a body.
 	_vfx_effect_char = Sprite2D.new()
 	_vfx_effect_char.modulate = Color(1, 1, 1, 0.4)
 	var portrait = load("res://assets/UI/beginner_portrait.tres")
 	if portrait:
 		_vfx_effect_char.texture = portrait
-		var h: float = float(portrait.get_height())
-		if h > 0.0:
-			_vfx_effect_char.scale = Vector2.ONE * (96.0 / h)
-	_vfx_effect_char.position = Vector2(120, _VFX_PREVIEW_ANCHOR_Y)
 	stage.add_child(_vfx_effect_char)
 	_vfx_effect_sprite = AnimatedSprite2D.new()
-	_vfx_effect_sprite.position = Vector2(120, _VFX_PREVIEW_ANCHOR_Y)
 	stage.add_child(_vfx_effect_sprite)
 	col.add_child(stage)
 
@@ -2278,25 +2279,49 @@ func _refresh_vfx_effect_preview(vfx: VfxEffectData) -> void:
 	sf.set_animation_loop("play", true)  # always loop in the editor
 	_vfx_effect_sprite.sprite_frames = sf
 	_vfx_effect_sprite.animation = "play"
-	var frame_dim: float = float(maxi(vfx.frame_width, vfx.frame_height))
-	var fit: float = (96.0 / maxf(1.0, frame_dim)) * maxf(0.1, vfx.scale)
-	_vfx_effect_sprite.scale = Vector2.ONE * fit
 	_vfx_effect_sprite.modulate = vfx.modulate
-	# Place at the anchor marker + the effect's offset so offset edits are
-	# visible. offset is read null-safe (a stale editor save can persist null).
+
+	# Faithful in-game frame: feet = origin, zoom magnifies. The effect's real
+	# scale (vfx.scale) and the offset are BOTH multiplied by the same zoom, so
+	# what you place here is exactly what spawns in game (just larger on screen).
+	var z: float = _VFX_PREVIEW_ZOOM
+	var feet := _vfx_preview_feet()
+	var aoff := _vfx_anchor_world(vfx)            # world anchor (cast=body, ground=feet)
 	var off: Vector2 = vfx.offset if vfx.offset is Vector2 else Vector2.ZERO
-	var anchor_x: float = (_vfx_effect_stage.size.x * 0.5) if is_instance_valid(_vfx_effect_stage) else 120.0
-	var anchor := Vector2(anchor_x, _VFX_PREVIEW_ANCHOR_Y)
-	if is_instance_valid(_vfx_effect_char):
-		_vfx_effect_char.position = anchor
-	_vfx_effect_sprite.position = anchor + off
+	_vfx_anchor_screen = feet + aoff * z
+
+	# Character ref: same placement/scale convention as the hitbox visualizer.
+	if is_instance_valid(_vfx_effect_char) and _vfx_effect_char.texture != null:
+		_vfx_effect_char.scale = Vector2.ONE * GAME_PLAYER_SCALE * z
+		_vfx_effect_char.position = feet + Vector2(0, (GAME_PLAYER_OFFSET_Y * z) / GAME_PLAYER_SCALE)
+
+	_vfx_effect_sprite.scale = Vector2.ONE * maxf(0.05, vfx.scale) * z
+	_vfx_effect_sprite.position = feet + (aoff + off) * z
 	_vfx_effect_sprite.play("play")
+	if is_instance_valid(_vfx_effect_stage):
+		_vfx_effect_stage.queue_redraw()  # move the crosshair/floor markers
+
 	var n: int = sf.get_frame_count("play")
 	var faces: bool = vfx.face_direction if vfx.face_direction is bool else true
 	_vfx_effect_info.text = "%s  •  %d frames @ %.0f fps  •  %s  •  offset (%.0f, %.0f)  •  %s" % [
 		vfx.effect_key if vfx.effect_key != "" else "(no key)",
 		n, vfx.fps, "loop" if vfx.loop else "one-shot",
 		off.x, off.y, "faces dir" if faces else "no flip"]
+
+
+## Character FEET point in the preview (the in-game cast origin).
+func _vfx_preview_feet() -> Vector2:
+	var sw: float = _vfx_effect_stage.size.x if is_instance_valid(_vfx_effect_stage) else 240.0
+	var sh: float = _vfx_effect_stage.size.y if is_instance_valid(_vfx_effect_stage) else 190.0
+	return Vector2(sw * 0.5, sh - _VFX_PREVIEW_FEET_MARGIN)
+
+
+## World-space anchor (offset=0 point) for an effect by its category, matching
+## in-game: ground effects sit at the feet; cast/impact at body-center.
+func _vfx_anchor_world(vfx: VfxEffectData) -> Vector2:
+	if vfx != null and vfx.category == "ground":
+		return Vector2.ZERO
+	return _VIS_CAST_BODY_OFFSET
 
 
 ## Live-update on any inspector edit; also drop the runtime cache so a saved
@@ -2330,12 +2355,15 @@ func _on_vfx_preview_gui_input(event: InputEvent) -> void:
 		_set_vfx_offset_from_pos(vfx, mm.position)
 
 
-## Sets the effect's offset from a preview-local mouse position (relative to the
-## anchor marker), rounded to whole px, and live-refreshes the preview without
-## committing (the commit happens on mouse release).
+## Sets the effect's offset from a preview-local mouse position, inverting the
+## same feet/anchor/zoom transform used to draw it — so the resulting offset is
+## in WORLD px and equals what spawns in game. Rounded to whole px; live-refreshes
+## without committing (the commit happens on mouse release).
 func _set_vfx_offset_from_pos(vfx: VfxEffectData, local_pos: Vector2) -> void:
-	var anchor := Vector2(_vfx_effect_stage.size.x * 0.5, _VFX_PREVIEW_ANCHOR_Y)
-	vfx.offset = (local_pos - anchor).round()
+	var z: float = _VFX_PREVIEW_ZOOM
+	var feet := _vfx_preview_feet()
+	var aoff := _vfx_anchor_world(vfx)
+	vfx.offset = (((local_pos - feet) / z) - aoff).round()
 	_refresh_vfx_effect_preview(vfx)
 
 
