@@ -123,6 +123,10 @@ var _vfx_effect_stage: Control = null
 var _vfx_effect_char: Sprite2D = null  # faint character reference in the preview
 var _vfx_dragging: bool = false  # dragging the preview effect to set its offset
 var _vfx_anchor_screen: Vector2 = Vector2.ZERO  # screen pos of the offset=0 anchor
+var _vfx_preview_zoom: float = 2.2              # world px -> preview px (wheel/buttons)
+var _vfx_preview_pan: Vector2 = Vector2.ZERO    # middle-drag pan of the view
+var _vfx_panning: bool = false
+var _vfx_zoom_label: Label = null
 
 # VFX overlay inside the ability hitbox visualizer: the resolved CAST effect on
 # the player body and the HIT effect at the hitbox center, so placement/offset
@@ -133,12 +137,14 @@ var _vis_show_vfx: bool = true
 ## Player body-center anchor for cast VFX in the visualizer, in world units
 ## relative to the player origin (feet). Mirrors ability.gd's _VFX_CAST_BODY_OFFSET.
 const _VIS_CAST_BODY_OFFSET := Vector2(0, -18)
-## Preview zoom (world px -> preview px). The preview mirrors the in-game cast
-## frame: character FEET are the origin, the cast anchor is feet +
+## Default/min/max preview zoom (world px -> preview px). The preview mirrors the
+## in-game cast frame: character FEET are the origin, the cast anchor is feet +
 ## _VIS_CAST_BODY_OFFSET, and the effect sits at (anchor + offset) * zoom — so an
 ## offset dialled in here equals the in-game offset exactly, just magnified.
-const _VFX_PREVIEW_ZOOM: float = 2.2
-## How far above the stage bottom the character's FEET sit.
+const _VFX_PREVIEW_DEFAULT_ZOOM: float = 2.2
+const _VFX_PREVIEW_MIN_ZOOM: float = 0.5
+const _VFX_PREVIEW_MAX_ZOOM: float = 16.0
+## How far above the stage bottom the character's FEET sit (before pan).
 const _VFX_PREVIEW_FEET_MARGIN: float = 30.0
 
 # Theme state – kept as refs so _update_accent() can mutate them in place
@@ -2207,7 +2213,7 @@ func _build_vfx_effect_preview() -> void:
 	stage.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	stage.clip_contents = true
 	stage.mouse_filter = Control.MOUSE_FILTER_STOP
-	stage.tooltip_text = "Drag the effect to set its offset. The crosshair is offset (0,0); the line is the floor."
+	stage.tooltip_text = "Left-drag: set offset  •  Middle-drag: pan  •  Wheel: zoom.\nCrosshair = offset (0,0); line = floor."
 	stage.gui_input.connect(_on_vfx_preview_gui_input)
 	_vfx_effect_stage = stage
 	# Floor line at the feet + the offset=0 anchor crosshair (positions computed
@@ -2235,6 +2241,37 @@ func _build_vfx_effect_preview() -> void:
 	_vfx_effect_sprite = AnimatedSprite2D.new()
 	stage.add_child(_vfx_effect_sprite)
 	col.add_child(stage)
+
+	# Zoom controls (mirrors the hitbox visualizer).
+	var zrow := HBoxContainer.new()
+	zrow.alignment = BoxContainer.ALIGNMENT_CENTER
+	zrow.add_theme_constant_override("separation", 6)
+	var zout := Button.new()
+	zout.text = " − "
+	zout.tooltip_text = "Zoom out"
+	zout.pressed.connect(func(): _vfx_set_zoom(_vfx_preview_zoom / 1.25))
+	_style_btn(zout, C_DIM, false)
+	zrow.add_child(zout)
+	_vfx_zoom_label = Label.new()
+	_vfx_zoom_label.text = "%.1f×" % _vfx_preview_zoom
+	_vfx_zoom_label.custom_minimum_size = Vector2(50, 0)
+	_vfx_zoom_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_vfx_zoom_label.add_theme_color_override("font_color", C_DIM)
+	_vfx_zoom_label.add_theme_font_size_override("font_size", 11)
+	zrow.add_child(_vfx_zoom_label)
+	var zin := Button.new()
+	zin.text = " + "
+	zin.tooltip_text = "Zoom in"
+	zin.pressed.connect(func(): _vfx_set_zoom(_vfx_preview_zoom * 1.25))
+	_style_btn(zin, C_DIM, false)
+	zrow.add_child(zin)
+	var zreset := Button.new()
+	zreset.text = " Reset "
+	zreset.tooltip_text = "Reset zoom + pan"
+	zreset.pressed.connect(_vfx_reset_view)
+	_style_btn(zreset, C_DIM, false)
+	zrow.add_child(zreset)
+	col.add_child(zrow)
 
 	_vfx_effect_info = Label.new()
 	_vfx_effect_info.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -2284,7 +2321,7 @@ func _refresh_vfx_effect_preview(vfx: VfxEffectData) -> void:
 	# Faithful in-game frame: feet = origin, zoom magnifies. The effect's real
 	# scale (vfx.scale) and the offset are BOTH multiplied by the same zoom, so
 	# what you place here is exactly what spawns in game (just larger on screen).
-	var z: float = _VFX_PREVIEW_ZOOM
+	var z: float = _vfx_preview_zoom
 	var feet := _vfx_preview_feet()
 	var aoff := _vfx_anchor_world(vfx)            # world anchor (cast=body, ground=feet)
 	var off: Vector2 = vfx.offset if vfx.offset is Vector2 else Vector2.ZERO
@@ -2309,11 +2346,11 @@ func _refresh_vfx_effect_preview(vfx: VfxEffectData) -> void:
 		off.x, off.y, "faces dir" if faces else "no flip"]
 
 
-## Character FEET point in the preview (the in-game cast origin).
+## Character FEET point in the preview (the in-game cast origin), including pan.
 func _vfx_preview_feet() -> Vector2:
 	var sw: float = _vfx_effect_stage.size.x if is_instance_valid(_vfx_effect_stage) else 240.0
 	var sh: float = _vfx_effect_stage.size.y if is_instance_valid(_vfx_effect_stage) else 190.0
-	return Vector2(sw * 0.5, sh - _VFX_PREVIEW_FEET_MARGIN)
+	return Vector2(sw * 0.5, sh - _VFX_PREVIEW_FEET_MARGIN) + _vfx_preview_pan
 
 
 ## World-space anchor (offset=0 point) for an effect by its category, matching
@@ -2333,26 +2370,80 @@ func _on_vfx_effect_changed() -> void:
 	_refresh_vfx_effect_preview(current_resource as VfxEffectData)
 
 
-## Drag the effect around the preview to set its offset directly (faster than
-## typing numbers). offset = drag position relative to the character anchor.
-## Live-updates while dragging; commits (dirty + cache invalidate) on release.
+## Preview interaction: LEFT-drag sets the effect's offset; MIDDLE-drag pans the
+## view; mouse WHEEL zooms (around the cursor). Pan/zoom are view-only and never
+## change the saved offset.
 func _on_vfx_preview_gui_input(event: InputEvent) -> void:
 	if not (current_resource is VfxEffectData) or not is_instance_valid(_vfx_effect_stage):
 		return
 	var vfx := current_resource as VfxEffectData
 	var mb := event as InputEventMouseButton
-	if mb != null and mb.button_index == MOUSE_BUTTON_LEFT:
-		if mb.pressed:
-			_vfx_dragging = true
-			_set_vfx_offset_from_pos(vfx, mb.position)
-		elif _vfx_dragging:
-			_vfx_dragging = false
-			vfx.emit_changed()  # commit: marks inspector dirty + invalidates cache
-			_set_dirty(true)
-		return
+	if mb != null:
+		match mb.button_index:
+			MOUSE_BUTTON_LEFT:
+				if mb.pressed:
+					_vfx_dragging = true
+					_set_vfx_offset_from_pos(vfx, mb.position)
+				elif _vfx_dragging:
+					_vfx_dragging = false
+					vfx.emit_changed()  # commit: dirty + cache invalidate
+					_set_dirty(true)
+				return
+			MOUSE_BUTTON_MIDDLE:
+				_vfx_panning = mb.pressed
+				return
+			MOUSE_BUTTON_WHEEL_UP:
+				if mb.pressed:
+					_vfx_zoom_at(mb.position, 1.15)
+				return
+			MOUSE_BUTTON_WHEEL_DOWN:
+				if mb.pressed:
+					_vfx_zoom_at(mb.position, 1.0 / 1.15)
+				return
 	var mm := event as InputEventMouseMotion
-	if mm != null and _vfx_dragging:
-		_set_vfx_offset_from_pos(vfx, mm.position)
+	if mm != null:
+		if _vfx_dragging:
+			_set_vfx_offset_from_pos(vfx, mm.position)
+		elif _vfx_panning:
+			_vfx_preview_pan += mm.relative
+			_refresh_vfx_effect_preview(vfx)
+
+
+## Zooms by `factor` while keeping the world point under `pivot` fixed on screen,
+## then refreshes. Pan is adjusted so the cursor stays anchored (intuitive zoom).
+func _vfx_zoom_at(pivot: Vector2, factor: float) -> void:
+	var old_z: float = _vfx_preview_zoom
+	var new_z: float = clampf(old_z * factor, _VFX_PREVIEW_MIN_ZOOM, _VFX_PREVIEW_MAX_ZOOM)
+	if is_equal_approx(new_z, old_z):
+		return
+	# Keep the world point under the cursor put: world = (pivot - feet)/old_z,
+	# and we want feet' so pivot = feet' + world*new_z. feet includes pan, so the
+	# pan delta is the feet delta.
+	var feet := _vfx_preview_feet()
+	var world := (pivot - feet) / old_z
+	var new_feet := pivot - world * new_z
+	_vfx_preview_pan += (new_feet - feet)
+	_vfx_preview_zoom = new_z
+	if is_instance_valid(_vfx_zoom_label):
+		_vfx_zoom_label.text = "%.1f×" % _vfx_preview_zoom
+	if current_resource is VfxEffectData:
+		_refresh_vfx_effect_preview(current_resource as VfxEffectData)
+
+
+## Sets zoom directly (buttons), zooming around the stage center.
+func _vfx_set_zoom(value: float) -> void:
+	if is_instance_valid(_vfx_effect_stage):
+		_vfx_zoom_at(_vfx_effect_stage.size * 0.5, value / maxf(0.01, _vfx_preview_zoom))
+
+
+## Resets zoom + pan to the default framing.
+func _vfx_reset_view() -> void:
+	_vfx_preview_zoom = _VFX_PREVIEW_DEFAULT_ZOOM
+	_vfx_preview_pan = Vector2.ZERO
+	if is_instance_valid(_vfx_zoom_label):
+		_vfx_zoom_label.text = "%.1f×" % _vfx_preview_zoom
+	if current_resource is VfxEffectData:
+		_refresh_vfx_effect_preview(current_resource as VfxEffectData)
 
 
 ## Sets the effect's offset from a preview-local mouse position, inverting the
@@ -2360,7 +2451,7 @@ func _on_vfx_preview_gui_input(event: InputEvent) -> void:
 ## in WORLD px and equals what spawns in game. Rounded to whole px; live-refreshes
 ## without committing (the commit happens on mouse release).
 func _set_vfx_offset_from_pos(vfx: VfxEffectData, local_pos: Vector2) -> void:
-	var z: float = _VFX_PREVIEW_ZOOM
+	var z: float = _vfx_preview_zoom
 	var feet := _vfx_preview_feet()
 	var aoff := _vfx_anchor_world(vfx)
 	vfx.offset = (((local_pos - feet) / z) - aoff).round()
