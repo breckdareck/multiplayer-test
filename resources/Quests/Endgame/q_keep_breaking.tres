@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://cpw7x68b3o353" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
+
+[resource]
+script = ExtResource("1_quest_data")
+quest_id = "q_keep_breaking"
+quest_name = "The Warded Keep"
+description = "The Warlord's old garrison still musters in the Warded Keep. Break the bear-warriors before they march on the deeper Hearths."
+required_level = 52
+prerequisite_quest_id = "q_mines_culling"
+objectives = Array[Dictionary]([{
+"amount": 25,
+"target": "Bear Warrior",
+"type": 0
+}])
+reward_exp = 15000
+reward_coins = 3000
+sort_order = 1010

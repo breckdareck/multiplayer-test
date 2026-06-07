@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://cpw7x68b3o353" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
+
+[resource]
+script = ExtResource("1_quest_data")
+quest_id = "q_weave_vigil"
+quest_name = "The Weave's Edge"
+description = "At the Weave's Edge the slimes drink raw arcana and shimmer. Put down the astral slimes before the Weave's wound widens."
+required_level = 88
+prerequisite_quest_id = "q_emberscar_purge"
+objectives = Array[Dictionary]([{
+"amount": 20,
+"target": "Astral Slime",
+"type": 0
+}])
+reward_exp = 90000
+reward_coins = 18000
+sort_order = 1030
