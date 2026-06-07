@@ -1,6 +1,37 @@
-[gd_scene load_steps=2 format=3 uid="uid://c78xmv3587kv2"]
+[gd_scene load_steps=11 format=3 uid="uid://c78xmv3587kv2"]
 
 [ext_resource type="Script" uid="uid://bdaw424g73ylw" path="res://scripts/UI/LoginScreen.gd" id="1_script"]
+[ext_resource type="Theme" uid="uid://dumv2cfji0owj" path="res://assets/themes/UI_Theme.tres" id="2_theme"]
+[ext_resource type="Texture2D" uid="uid://b0idp2sbo05qp" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Country.png" id="3_village"]
+[ext_resource type="Texture2D" uid="uid://bcoeao6eds8lo" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/background.png" id="4_sky"]
+[ext_resource type="Texture2D" uid="uid://cgjqecy2i25oj" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Cloud_1.png" id="5_cloud1"]
+[ext_resource type="Texture2D" uid="uid://dgn0sn4ddie7p" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Cloud_2.png" id="6_cloud2"]
+[ext_resource type="FontFile" uid="uid://dxbqcm3ww0xmj" path="res://assets/fonts/Starbim.ttf" id="7_title_font"]
+
+[sub_resource type="Gradient" id="Gradient_ember"]
+offsets = PackedFloat32Array(0, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_ember"]
+gradient = SubResource("Gradient_ember")
+width = 12
+height = 12
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_ember"]
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(960, 600, 1)
+direction = Vector3(0, -1, 0)
+spread = 18.0
+gravity = Vector3(0, -6, 0)
+initial_velocity_min = 3.0
+initial_velocity_max = 12.0
+scale_min = 0.3
+scale_max = 1.1
+color = Color(1, 0.82, 0.45, 1)
 
 [node name="LoginScreen" type="Control"]
 layout_mode = 3
@@ -9,7 +40,104 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("2_theme")
 script = ExtResource("1_script")
+
+[node name="Sky" type="TextureRect" parent="."]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_sky")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Cloud1" type="TextureRect" parent="."]
+texture_filter = 1
+modulate = Color(1, 1, 1, 0.85)
+layout_mode = 1
+offset_left = 180.0
+offset_top = 130.0
+offset_right = 372.0
+offset_bottom = 226.0
+scale = Vector2(4, 4)
+texture = ExtResource("5_cloud1")
+
+[node name="Cloud2" type="TextureRect" parent="."]
+texture_filter = 1
+modulate = Color(1, 1, 1, 0.7)
+layout_mode = 1
+offset_left = 1320.0
+offset_top = 230.0
+offset_right = 1512.0
+offset_bottom = 326.0
+scale = Vector2(5, 5)
+texture = ExtResource("6_cloud2")
+
+[node name="Village" type="TextureRect" parent="."]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -1200.0
+grow_horizontal = 2
+grow_vertical = 0
+texture = ExtResource("3_village")
+expand_mode = 1
+
+[node name="Darken" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05, 0.06, 0.11, 0.5)
+
+[node name="Embers" type="GPUParticles2D" parent="."]
+position = Vector2(960, 560)
+amount = 36
+lifetime = 7.0
+preprocess = 7.0
+texture = SubResource("GradientTexture2D_ember")
+process_material = SubResource("ParticleProcessMaterial_ember")
+modulate = Color(1, 1, 1, 0.55)
+
+[node name="TitleBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -360.0
+offset_top = 56.0
+offset_right = 360.0
+offset_bottom = 180.0
+grow_horizontal = 2
+theme_override_constants/separation = 2
+
+[node name="Title" type="Label" parent="TitleBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.42, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.65)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 4
+theme_override_constants/shadow_outline_size = 2
+theme_override_fonts/font = ExtResource("7_title_font")
+theme_override_font_sizes/font_size = 72
+text = "OVERHAUL"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="TitleBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.86, 0.95, 0.85)
+theme_override_font_sizes/font_size = 16
+text = "A Multiplayer RPG"
+horizontal_alignment = 1
 
 [node name="Panel" type="Panel" parent="."]
 layout_mode = 1
@@ -18,10 +146,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -200.0
-offset_top = -272.0
-offset_right = 200.0
-offset_bottom = 272.0
+offset_left = -220.0
+offset_top = -288.0
+offset_right = 220.0
+offset_bottom = 332.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -30,17 +158,18 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 20.0
-offset_top = 20.0
-offset_right = -20.0
-offset_bottom = -20.0
+offset_left = 22.0
+offset_top = 22.0
+offset_right = -22.0
+offset_bottom = -22.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 15
+theme_override_constants/separation = 11
 
 [node name="Label" type="Label" parent="Panel/VBoxContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(1, 0.85, 0.42, 1)
+theme_override_font_sizes/font_size = 22
 text = "Account Login"
 horizontal_alignment = 1
 
@@ -107,6 +236,7 @@ text = "Apply"
 [node name="APIStatusLabel" type="Label" parent="Panel/VBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 1, 1, 1)
+theme_override_font_sizes/font_size = 12
 horizontal_alignment = 1
 
 [node name="StatusLabel" type="Label" parent="Panel/VBoxContainer"]
@@ -114,3 +244,37 @@ layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.2, 0.2, 1)
 horizontal_alignment = 1
 autowrap_mode = 2
+
+[node name="DevSeparator" type="HSeparator" parent="Panel/VBoxContainer"]
+layout_mode = 2
+
+[node name="DevLabel" type="Label" parent="Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
+theme_override_font_sizes/font_size = 12
+text = "⚡ DEV — skip to combat (max char):"
+horizontal_alignment = 1
+
+[node name="DevRow" type="HBoxContainer" parent="Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="DevSwordButton" type="Button" parent="Panel/VBoxContainer/DevRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Sword"
+
+[node name="DevBowButton" type="Button" parent="Panel/VBoxContainer/DevRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Bow"
+
+[node name="DevStaffButton" type="Button" parent="Panel/VBoxContainer/DevRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Staff"
+
+[node name="DevDaggerButton" type="Button" parent="Panel/VBoxContainer/DevRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Dagger"

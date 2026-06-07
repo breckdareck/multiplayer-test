@@ -18,6 +18,17 @@ extends Control
 @onready var apply_button = $Panel/VBoxContainer/ApplyButton
 @onready var api_status_label = $Panel/VBoxContainer/APIStatusLabel
 
+# Dev fast-path UI (authored in the scene; debug-only — hidden in release).
+@onready var _dev_nodes := [
+	$Panel/VBoxContainer/DevSeparator,
+	$Panel/VBoxContainer/DevLabel,
+	$Panel/VBoxContainer/DevRow,
+]
+@onready var dev_sword_button = $Panel/VBoxContainer/DevRow/DevSwordButton
+@onready var dev_bow_button = $Panel/VBoxContainer/DevRow/DevBowButton
+@onready var dev_staff_button = $Panel/VBoxContainer/DevRow/DevStaffButton
+@onready var dev_dagger_button = $Panel/VBoxContainer/DevRow/DevDaggerButton
+
 var settings_expanded: bool = false
 
 # Presets for quick switching
@@ -43,7 +54,8 @@ func _ready():
 	NetworkManager.registration_failed.connect(_on_registration_failed)
 	
 	_setup_backend_display()
-	_add_dev_skip_ui()
+	_setup_dev_ui()
+	_play_intro()
 
 	if MultiplayerManager.disconnect_reason != "":
 		status_label.text = MultiplayerManager.disconnect_reason
@@ -200,32 +212,46 @@ const _DEV_DISCIPLINES := [
 	[Constants.ClassType.DAGGER, "Dagger"],
 ]
 
-## Adds a "DEV — skip to combat" row (one button per weapon) to the login VBox.
-## Only in debug builds so it never ships in a release.
-func _add_dev_skip_ui() -> void:
-	if not OS.is_debug_build():
+## Wires the scene-authored dev "skip to combat" buttons and hides the whole
+## section in non-debug builds so it never ships in a release.
+func _setup_dev_ui() -> void:
+	var dbg := OS.is_debug_build()
+	for n in _dev_nodes:
+		if is_instance_valid(n):
+			n.visible = dbg
+	if not dbg:
 		return
-	var vbox := $Panel/VBoxContainer
-	if not is_instance_valid(vbox):
+	dev_sword_button.pressed.connect(_on_dev_skip_pressed.bind(Constants.ClassType.SWORD))
+	dev_bow_button.pressed.connect(_on_dev_skip_pressed.bind(Constants.ClassType.BOW))
+	dev_staff_button.pressed.connect(_on_dev_skip_pressed.bind(Constants.ClassType.STAFF))
+	dev_dagger_button.pressed.connect(_on_dev_skip_pressed.bind(Constants.ClassType.DAGGER))
+
+
+## Light entrance polish: fade the screen in, slide/settle the title + panel, and
+## drift the clouds. Purely cosmetic — no gameplay effect.
+func _play_intro() -> void:
+	modulate.a = 0.0
+	var tw := create_tween()
+	tw.tween_property(self, "modulate:a", 1.0, 0.4)
+
+	var title_box := get_node_or_null("TitleBox")
+	if title_box:
+		title_box.position.y -= 14
+		var t2 := create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		t2.tween_property(title_box, "position:y", title_box.position.y + 14, 0.6)
+
+	_drift_cloud($Cloud1 if has_node("Cloud1") else null, 26.0)
+	_drift_cloud($Cloud2 if has_node("Cloud2") else null, -34.0)
+
+
+## Slowly slides a cloud back and forth forever.
+func _drift_cloud(cloud: Control, dist: float) -> void:
+	if not is_instance_valid(cloud):
 		return
-
-	var sep := HSeparator.new()
-	vbox.add_child(sep)
-
-	var label := Label.new()
-	label.text = "⚡ DEV — skip to combat (max char):"
-	label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.4))
-	vbox.add_child(label)
-
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 4)
-	for entry in _DEV_DISCIPLINES:
-		var btn := Button.new()
-		btn.text = entry[1]
-		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		btn.pressed.connect(_on_dev_skip_pressed.bind(int(entry[0])))
-		row.add_child(btn)
-	vbox.add_child(row)
+	var x0: float = cloud.position.x
+	var tw := create_tween().set_loops().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_property(cloud, "position:x", x0 + dist, 9.0)
+	tw.tween_property(cloud, "position:x", x0, 9.0)
 
 
 ## Fabricates + writes a max-level save for `disc`, then hosts straight into the
