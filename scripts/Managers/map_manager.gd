@@ -1178,7 +1178,7 @@ const _SpriteEffectVfx = preload("res://scripts/VFX/sprite_effect.gd")
 ## their own, so (unlike GroundZone, whose host copy renders for free) the host
 ## must be drawn explicitly here.
 ##
-## `key` is a VfxCatalog.CATALOG key; `pos` is global; `scale_mult` multiplies
+## `key` is a VfxEffectData effect_key (resources/VFX); `pos` is global; `scale_mult` multiplies
 ## the catalog's base scale; `rot` (radians) + `flip_h` orient directional
 ## effects; `duration` > 0 keeps a LOOPING effect alive that long (match it to a
 ## GroundZone's lifetime), <= 0 plays a one-shot burst that frees on finish.

@@ -9,7 +9,7 @@ extends Resource
 @export var sfx_path: String = ""
 @export var logic_script: Script
 
-# VFX override keys (see VfxCatalog.CATALOG). Empty = let VfxCatalog.resolve_*
+# VFX override keys (a VfxEffectData effect_key under resources/VFX). Empty = let VfxCatalog.resolve_*
 # pick from the ability's identity. Edited via the Resources editor plugin's
 # "Ability VFX" dropdowns (with live preview), so they use @export_storage:
 # persisted to the .tres but hidden from the generic inspector to avoid a
