@@ -178,7 +178,12 @@ the edges.
 | `game` | ~1–3 | **The Near-Wilds** — overgrown fields just past the lantern-line | Slime (1), Bunny (1), Bird (3) |
 | `game2` | ~6–9 | **Ember-Meadows** — wilder pastoral country | Boar (6), Deer (7), Fox (9) |
 | `game3` | ~10–23 | The **Deep Woods** — goblin-held, ember-thick | Goblin Warrior (13), Goblin (18), Cave Goblin (23) |
-| `game4` | ~28+ | The **Ruins** — the broken old world, toward the Warlord | Tusk Brute (28) and upward |
+| `game4` | ~28–39 | **The Ruins** — the broken old world's edge | Tusk Brute (28), Fox Swordsman (33), Stone Slime (33), Cat Robber (36), Dust Fox (38) |
+| `mines` | ~40–50 | **The Drowned Mines** — flooded old workings | Wolf Pathfinder (40), Mithril Hare (43), Deer Druid (44), Rabbit Wizard (48), War Goblin (48) |
+| `keep` | ~52–63 | **The Warded Keep** — the Warlord's old garrison | Bear Warrior (52), Lion Knight (57), Adamant Crawler (58), Panda Warrior (62), Shadow Fox (63) |
+| `emberscar` | ~68–83 | **The Ember-Scar** — where the embers fell thickest | Runed Boar (68), Fire Slime (73), Ember Fox (78), Wild Boar (83) |
+| `weave` | ~88–93 | **The Weave's Edge** — arcane, near the Weave's heart | Celestial Hare (88), Astral Slime (93) |
+| `warlord` | 100 | **The Sundered Heart** — the deepest ruin | Eternal Warlord (100, boss) |
 
 ## 7. Characters & disciplines
 
