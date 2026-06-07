@@ -41,7 +41,21 @@ static func get_all_resource_types() -> Array[ResourceType]:
 	)
 	ability_type.icon_name = "NodeWarning" # Use Godot built-in icon
 	types.append(ability_type)
-	
+
+	# Per-ability upgrade resources (PR 6). Authored primarily via the inline
+	# upgrade-tree card on the Ability editor; exposed here as a browsable type
+	# for auditing / bulk review. Scanned recursively under resources/Abilities,
+	# script-matched to AbilityUpgradeData (so it won't collide with AbilityData).
+	var upgrade_type = ResourceType.new(
+		"Ability Upgrades",
+		"res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd",
+		"res://resources/Abilities",
+		"Ability System",
+		false
+	)
+	upgrade_type.icon_name = "ArrowUp"
+	types.append(upgrade_type)
+
 	# Item System Resources
 	var item_type = ResourceType.new(
 		"Items",
@@ -95,10 +109,8 @@ static func get_all_resource_types() -> Array[ResourceType]:
 	types.append(buff_type)
 	
 	# Weapon Discipline System Resources
-	# (Label kept as "Classes" so the resource_editor dock doesn't reflow until
-	# the broader UI gets a polish pass.)
 	var class_type = ResourceType.new(
-		"Classes",
+		"Disciplines",
 		"res://scripts/Resources/DisciplineSystem/WeaponDisciplineData.gd",
 		"res://resources/Player/Disciplines",
 		"Class System",

@@ -31,10 +31,11 @@ const TYPE_ICONS: Dictionary = {
 	"Armor":       "🛡",
 	"Consumables": "🧪",
 	"Buffs":       "✦",
-	"Classes":     "★",
+	"Disciplines": "★",
 	"Enemies":     "☠",
 	"Quests":      "📜",
 	"VFX Effects": "✨",
+	"Ability Upgrades": "⬆",
 }
 
 # ── @onready refs (paths must match ResourceEditorGUI.tscn exactly) ────────────
@@ -112,6 +113,51 @@ var _vfx_hit_option: OptionButton = null
 var _vfx_resolved_label: Label = null
 var _vfx_cast_preview: AnimatedSprite2D = null
 var _vfx_hit_preview: AnimatedSprite2D = null
+
+# Upgrade-tree editor (built programmatically, inserted after the Formula card).
+# Shown for AbilityData of either type; manages the ability's external upgrade
+# .tres files + ext_resource refs. See upgrade_tree_editor.gd + ADR 0010.
+var _upgrade_editor: UpgradeTreeEditor = null
+var _upgrade_card: PanelContainer = null
+
+# Multi-select replacements for the required_class / required_weapon dropdowns.
+# AbilityData stores these as Array[...]; the old single OptionButtons silently
+# truncated to index 0 on save. These MenuButtons edit the FULL arrays.
+var _req_class_menu: MenuButton = null
+var _req_weapon_menu: MenuButton = null
+
+# ability_id -> ability_name, lazily filled by _scan_all_abilities() (used to
+# label ability-damage-modifier formula rows by the ability they target).
+var _ability_name_cache: Dictionary = {}
+
+# Advanced ability fields (built programmatically; previously only reachable via
+# the generic inspector, which the dock hides for abilities). damage_stat,
+# skill-tree placement, applies_buff / applies_target_debuff, prerequisites.
+var _adv_card: PanelContainer = null
+var _adv_damage_stat: OptionButton = null
+var _adv_tree_path: OptionButton = null
+var _adv_tree_depth: SpinBox = null
+var _adv_buff_picker: EditorResourcePicker = null
+var _adv_debuff_picker: EditorResourcePicker = null
+var _adv_prereq_host: VBoxContainer = null
+
+# Discipline skill-tree placement board (separate Window, opened from a header
+# button). See discipline_board.gd.
+var _board_window: DisciplineBoard = null
+var _board_button: Button = null
+
+# Validation dashboard (separate Window). See validation_dashboard.gd.
+var _validation_window: ValidationDashboard = null
+# Batch edit (separate Window). See batch_edit.gd.
+var _batch_window: BatchEditWindow = null
+
+# Cross-resource "Related" panel + lazily-built reverse-reference index.
+var _related_card: PanelContainer = null
+var _related_host: VBoxContainer = null
+var _rel_index_built: bool = false
+var _rel_upgrade_to_ability: Dictionary = {}   # upgrade .tres path -> ability path
+var _rel_weapon_to_abilities: Dictionary = {}  # WeaponType int -> [ability path]
+var _rel_buff_to_abilities: Dictionary = {}    # buff .tres path -> [ability path]
 
 # Live preview for the VFX Effects resource type (a VfxEffectData .tres). Built
 # once, shown only while editing that type; rebuilds as the inspector fields
@@ -209,6 +255,7 @@ func _ready() -> void:
 	_add_status_bar()
 	_load_resource_types()
 	_populate_option_buttons()
+	_build_required_multiselects()
 	_populate_formula_presets()
 	_connect_signals()
 	if resource_types.size() > 0:
@@ -270,6 +317,13 @@ func _apply_base_theme() -> void:
 
 	# Card-wrap each major section in the editor panel
 	_wrap_sections_in_cards()
+
+	# Build the advanced-fields card (after GeneralSettings) and the upgrade-tree
+	# editor card (after the Formula card).
+	_build_advanced_section()
+	_build_upgrade_section()
+	_build_related_section()
+	_build_board_button()
 
 	# Style all input controls with accent focus borders
 	_polish_inputs()
@@ -353,6 +407,511 @@ func _wrap_in_card(section: Control) -> void:
 	_accent_appliers.append(func(c: Color):
 		sb.border_color = Color(c, 0.40)
 	)
+
+
+# ── Upgrade-tree editor card ────────────────────────────────────────────────────
+func _build_upgrade_section() -> void:
+	if is_instance_valid(_upgrade_editor):
+		return
+	var content = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent
+
+	_upgrade_editor = UpgradeTreeEditor.new()
+	_upgrade_editor.name = "UpgradeTreeEditor"
+	_upgrade_editor.dirty_changed.connect(func(): _set_dirty(true))
+	_upgrade_editor.structure_changed.connect(_on_upgrade_structure_changed)
+
+	_upgrade_card = PanelContainer.new()
+	_upgrade_card.name = "UpgradeTreeCard"
+	_upgrade_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var sb = StyleBoxFlat.new()
+	sb.bg_color = C_CARD
+	sb.border_color = Color(_current_accent, 0.40)
+	sb.border_width_top = 1
+	sb.border_width_right = 1
+	sb.border_width_bottom = 1
+	sb.border_width_left = 3
+	sb.corner_radius_top_left = 8
+	sb.corner_radius_top_right = 8
+	sb.corner_radius_bottom_left = 8
+	sb.corner_radius_bottom_right = 8
+	sb.content_margin_left = 16
+	sb.content_margin_right = 16
+	sb.content_margin_top = 12
+	sb.content_margin_bottom = 14
+	sb.shadow_size = 3
+	sb.shadow_color = Color(0, 0, 0, 0.30)
+	sb.shadow_offset = Vector2(0, 1)
+	_upgrade_card.add_theme_stylebox_override("panel", sb)
+	_upgrade_card.add_child(_upgrade_editor)
+	content.add_child(_upgrade_card)
+
+	var fcard = content.get_node_or_null("FormulaEditorCard")
+	if fcard:
+		content.move_child(_upgrade_card, fcard.get_index() + 1)
+
+	_accent_appliers.append(func(c: Color):
+		sb.border_color = Color(c, 0.40))
+	_upgrade_card.visible = false
+
+
+func _set_upgrade_card_visible(vis: bool) -> void:
+	if is_instance_valid(_upgrade_card):
+		_upgrade_card.visible = vis
+
+
+# ── Discipline board (opened from the header button) ────────────────────────────
+func _build_board_button() -> void:
+	if is_instance_valid(_board_button):
+		return
+	var fb = new_button.get_parent()
+	if not is_instance_valid(fb):
+		return
+	_board_button = Button.new()
+	_board_button.text = "🌲 Tree"
+	_board_button.tooltip_text = "Open the discipline skill-tree placement board"
+	_board_button.pressed.connect(_open_board)
+	_style_btn(_board_button, C_DIM, false)
+	fb.add_child(_board_button)
+
+	var problems_btn := Button.new()
+	problems_btn.text = "⚠ Problems"
+	problems_btn.tooltip_text = "Scan all resources for authoring problems"
+	problems_btn.pressed.connect(_open_problems)
+	_style_btn(problems_btn, C_DIM, false)
+	fb.add_child(problems_btn)
+
+	var batch_btn := Button.new()
+	batch_btn.text = "≣ Batch"
+	batch_btn.tooltip_text = "Batch-edit a field across many resources of the current type"
+	batch_btn.pressed.connect(_open_batch)
+	_style_btn(batch_btn, C_DIM, false)
+	fb.add_child(batch_btn)
+
+
+func _open_board() -> void:
+	if not is_instance_valid(_board_window):
+		_board_window = DisciplineBoard.new()
+		add_child(_board_window)
+	_board_window.open()
+
+
+# ── Related / cross-resource navigation panel ───────────────────────────────────
+func _build_related_section() -> void:
+	if is_instance_valid(_related_card):
+		return
+	var content = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent
+	_related_card = _new_accent_card("RelatedCard")
+	var col := VBoxContainer.new()
+	col.add_theme_constant_override("separation", 6)
+	_related_card.add_child(col)
+	var title := Label.new()
+	title.text = "🔗  RELATED"
+	title.add_theme_font_size_override("font_size", 12)
+	title.add_theme_color_override("font_color", _current_accent)
+	col.add_child(title)
+	_accent_appliers.append(func(c: Color): title.add_theme_color_override("font_color", c))
+	_related_host = VBoxContainer.new()
+	_related_host.add_theme_constant_override("separation", 3)
+	col.add_child(_related_host)
+	content.add_child(_related_card)
+	_related_card.visible = false
+
+
+func _invalidate_related_index() -> void:
+	_rel_index_built = false
+
+
+func _ensure_related_index() -> void:
+	if _rel_index_built:
+		return
+	_rel_index_built = true
+	_rel_upgrade_to_ability.clear()
+	_rel_weapon_to_abilities.clear()
+	_rel_buff_to_abilities.clear()
+	_index_ability_dir("res://resources/Abilities")
+
+
+func _index_ability_dir(path: String) -> void:
+	var dir := DirAccess.open(path)
+	if dir == null:
+		return
+	dir.list_dir_begin()
+	var f := dir.get_next()
+	while f != "":
+		var full := path.path_join(f)
+		if dir.current_is_dir():
+			if not f.begins_with("."):
+				_index_ability_dir(full)
+		elif f.ends_with(".tres"):
+			var res = load(full)
+			if res is AbilityData:
+				var a := res as AbilityData
+				if a.upgrades != null:
+					for u in a.upgrades:
+						if u is AbilityUpgradeData and not u.resource_path.is_empty():
+							_rel_upgrade_to_ability[u.resource_path] = full
+				if a.required_weapon_types != null:
+					for wt in a.required_weapon_types:
+						if not _rel_weapon_to_abilities.has(wt):
+							_rel_weapon_to_abilities[wt] = []
+						_rel_weapon_to_abilities[wt].append(full)
+				for buff_field in [a.applies_buff, a.applies_target_debuff]:
+					if buff_field is Resource and not buff_field.resource_path.is_empty():
+						if not _rel_buff_to_abilities.has(buff_field.resource_path):
+							_rel_buff_to_abilities[buff_field.resource_path] = []
+						_rel_buff_to_abilities[buff_field.resource_path].append(full)
+		f = dir.get_next()
+	dir.list_dir_end()
+
+
+func _update_related_ui(res: Resource) -> void:
+	if not is_instance_valid(_related_card):
+		return
+	for c in _related_host.get_children():
+		c.queue_free()
+	var added := 0
+
+	if res is AbilityData:
+		var a := res as AbilityData
+		if a.applies_buff is Resource and not a.applies_buff.resource_path.is_empty():
+			added += _add_related_link("Applies buff", a.applies_buff.resource_path)
+		if a.applies_target_debuff is Resource and not a.applies_target_debuff.resource_path.is_empty():
+			added += _add_related_link("Applies debuff", a.applies_target_debuff.resource_path)
+		if a.upgrades != null:
+			for u in a.upgrades:
+				if u is AbilityUpgradeData and not u.resource_path.is_empty():
+					added += _add_related_link("Upgrade: " + (u.upgrade_name if not u.upgrade_name.is_empty() else u.upgrade_id), u.resource_path)
+		if a.prerequisite_abilities != null:
+			for k in a.prerequisite_abilities:
+				if k is Resource and not k.resource_path.is_empty():
+					added += _add_related_link("Requires (Lv %d)" % int(a.prerequisite_abilities[k]), k.resource_path)
+	elif res is AbilityUpgradeData:
+		_ensure_related_index()
+		var parent = _rel_upgrade_to_ability.get(res.resource_path, "")
+		if parent != "":
+			added += _add_related_link("Parent ability", parent)
+	elif res is WeaponData:
+		_ensure_related_index()
+		var list: Array = _rel_weapon_to_abilities.get((res as WeaponData).weapon_type, [])
+		for ap in list:
+			added += _add_related_link("Ability for this weapon", ap)
+	elif res is BuffData:
+		_ensure_related_index()
+		var blist: Array = _rel_buff_to_abilities.get(res.resource_path, [])
+		for ap in blist:
+			added += _add_related_link("Applied by ability", ap)
+	elif res is EnemyData:
+		# Drops reference items by NAME (not a resource ref), so show as text.
+		var e := res as EnemyData
+		if e.item_drops != null:
+			for d in e.item_drops:
+				if d != null and "item_name" in d and not str(d.item_name).is_empty():
+					var lbl := Label.new()
+					lbl.text = "💧 Drops: %s (%.0f%%)" % [d.item_name, float(d.drop_chance) * 100.0]
+					lbl.add_theme_font_size_override("font_size", 11)
+					lbl.add_theme_color_override("font_color", C_DIM)
+					_related_host.add_child(lbl)
+					added += 1
+
+	_related_card.visible = added > 0
+
+
+func _add_related_link(label: String, path: String) -> int:
+	var btn := Button.new()
+	btn.text = "→ %s  ·  %s" % [label, path.get_file()]
+	btn.tooltip_text = path
+	btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	btn.flat = true
+	btn.add_theme_color_override("font_color", _current_accent)
+	btn.pressed.connect(func(): _jump_to_resource(path))
+	_related_host.add_child(btn)
+	return 1
+
+
+func _open_problems() -> void:
+	if not is_instance_valid(_validation_window):
+		_validation_window = ValidationDashboard.new()
+		_validation_window.jump_requested.connect(_jump_to_resource)
+		add_child(_validation_window)
+	_validation_window.open()
+
+
+func _open_batch() -> void:
+	if not current_resource_type:
+		return
+	if not is_instance_valid(_batch_window):
+		_batch_window = BatchEditWindow.new()
+		_batch_window.applied.connect(func():
+			_invalidate_related_index()
+			_scan_for_resources())
+		add_child(_batch_window)
+	_batch_window.open_for(current_resource_type.display_name, current_resource_type.script_path, current_resource_type.base_folder)
+
+
+# Jump to a resource by path: switch to its type, scan, load it, select in tree.
+func _jump_to_resource(path: String) -> void:
+	if path.is_empty():
+		return
+	var res = load(path)
+	if res == null:
+		return
+	var idx := _type_index_for_resource(res)
+	_guard_unsaved(func():
+		if idx >= 0:
+			resource_type_selector.select(idx)
+			current_resource_type = resource_types[idx]
+			_update_accent(CATEGORY_COLORS.get(current_resource_type.category, C_DIM))
+			_scan_for_resources()
+		_load_resource(path)
+		var item = _path_to_tree_item.get(path, null)
+		if item:
+			item.select(0)
+		_save_dock_state()
+	)
+
+
+func _type_index_for_resource(res: Resource) -> int:
+	var rs := res.get_script()
+	if rs == null:
+		return -1
+	var inherit := -1
+	for i in resource_types.size():
+		var ts = load(resource_types[i].script_path)
+		if ts == null:
+			continue
+		if rs == ts:
+			return i  # exact match wins (e.g. WeaponData -> "Weapons", not "Items")
+		if inherit == -1 and _script_matches_or_inherits(rs, ts):
+			inherit = i
+	return inherit
+
+
+# Add/remove already wrote the upgrade files + re-saved the parent ability; just
+# refresh the browser so new/removed upgrade .tres show under the browsable type.
+func _on_upgrade_structure_changed() -> void:
+	_scan_for_resources()
+
+
+# ── Shared accent-card builder (used by the programmatic sections) ───────────────
+func _new_accent_card(card_name: String) -> PanelContainer:
+	var card := PanelContainer.new()
+	card.name = card_name
+	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = C_CARD
+	sb.border_color = Color(_current_accent, 0.40)
+	sb.border_width_top = 1
+	sb.border_width_right = 1
+	sb.border_width_bottom = 1
+	sb.border_width_left = 3
+	sb.corner_radius_top_left = 8
+	sb.corner_radius_top_right = 8
+	sb.corner_radius_bottom_left = 8
+	sb.corner_radius_bottom_right = 8
+	sb.content_margin_left = 16
+	sb.content_margin_right = 16
+	sb.content_margin_top = 12
+	sb.content_margin_bottom = 14
+	sb.shadow_size = 3
+	sb.shadow_color = Color(0, 0, 0, 0.30)
+	sb.shadow_offset = Vector2(0, 1)
+	card.add_theme_stylebox_override("panel", sb)
+	_accent_appliers.append(func(c: Color): sb.border_color = Color(c, 0.40))
+	return card
+
+
+# ── Advanced ability fields card ────────────────────────────────────────────────
+var _prereq_rows: Array = []  # [{picker, spin}] for the prerequisite editor
+
+func _build_advanced_section() -> void:
+	if is_instance_valid(_adv_card):
+		return
+	var content = $Panel/MainHSplit/EditorPanel/ScrollContainer/EditorContent
+	_adv_card = _new_accent_card("AdvancedFieldsCard")
+	var col := VBoxContainer.new()
+	col.add_theme_constant_override("separation", 8)
+	_adv_card.add_child(col)
+
+	var title := Label.new()
+	title.text = "✚  ADVANCED"
+	title.add_theme_font_size_override("font_size", 12)
+	title.add_theme_color_override("font_color", _current_accent)
+	col.add_child(title)
+	_accent_appliers.append(func(c: Color): title.add_theme_color_override("font_color", c))
+
+	# damage_stat
+	_adv_damage_stat = OptionButton.new()
+	for key in Constants.StatType:
+		_adv_damage_stat.add_item(key, Constants.StatType[key])
+	_adv_damage_stat.item_selected.connect(func(_i):
+		if _editing_ability():
+			(current_resource as AbilityData).damage_stat = _adv_damage_stat.get_selected_id()
+			_set_dirty(true))
+	col.add_child(_adv_labeled_row("Damage Stat", _adv_damage_stat,
+		"Stat the ability's damage scales from (WEAPONATTACK / MAGICATTACK / …)."))
+
+	# Skill-tree placement (also editable on the discipline board).
+	var tree_row := HBoxContainer.new()
+	tree_row.add_theme_constant_override("separation", 6)
+	var tp_lbl := Label.new(); tp_lbl.text = "Tree Path"; tp_lbl.add_theme_color_override("font_color", C_DIM)
+	tree_row.add_child(tp_lbl)
+	_adv_tree_path = OptionButton.new()
+	_adv_tree_path.add_item("None", -1)
+	_adv_tree_path.add_item("Path A", 0)
+	_adv_tree_path.add_item("Path B", 1)
+	_adv_tree_path.item_selected.connect(func(_i):
+		if _editing_ability():
+			(current_resource as AbilityData).tree_path = _adv_tree_path.get_selected_id()
+			_set_dirty(true))
+	tree_row.add_child(_adv_tree_path)
+	var td_lbl := Label.new(); td_lbl.text = "Depth"; td_lbl.add_theme_color_override("font_color", C_DIM)
+	tree_row.add_child(td_lbl)
+	_adv_tree_depth = SpinBox.new()
+	_adv_tree_depth.min_value = 0
+	_adv_tree_depth.max_value = 20
+	_adv_tree_depth.value_changed.connect(func(v):
+		if _editing_ability():
+			(current_resource as AbilityData).tree_depth = int(v)
+			_set_dirty(true))
+	tree_row.add_child(_adv_tree_depth)
+	col.add_child(tree_row)
+
+	# applies_buff / applies_target_debuff (duration formulas show in the Formula tree).
+	_adv_buff_picker = EditorResourcePicker.new()
+	_adv_buff_picker.base_type = "BuffData"
+	_adv_buff_picker.resource_changed.connect(func(_r):
+		if _editing_ability():
+			(current_resource as AbilityData).applies_buff = _adv_buff_picker.get_edited_resource()
+			_set_dirty(true)
+			_update_formula_tree())
+	col.add_child(_adv_labeled_row("Applies Buff (self)", _adv_buff_picker,
+		"BuffData applied to the caster. Duration formula appears in the Formula tree."))
+
+	_adv_debuff_picker = EditorResourcePicker.new()
+	_adv_debuff_picker.base_type = "BuffData"
+	_adv_debuff_picker.resource_changed.connect(func(_r):
+		if _editing_ability():
+			(current_resource as AbilityData).applies_target_debuff = _adv_debuff_picker.get_edited_resource()
+			_set_dirty(true)
+			_update_formula_tree())
+	col.add_child(_adv_labeled_row("Applies Debuff (target)", _adv_debuff_picker,
+		"BuffData applied to each enemy hit. Duration formula appears in the Formula tree."))
+
+	# prerequisite_abilities
+	var prereq_header := HBoxContainer.new()
+	var ph_lbl := Label.new()
+	ph_lbl.text = "Prerequisites"
+	ph_lbl.add_theme_color_override("font_color", C_DIM)
+	ph_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	ph_lbl.tooltip_text = "Abilities that must reach a level before this one can be learned."
+	prereq_header.add_child(ph_lbl)
+	var add_prereq := Button.new()
+	add_prereq.text = "+ Prereq"
+	add_prereq.pressed.connect(_on_add_prereq_pressed)
+	prereq_header.add_child(add_prereq)
+	col.add_child(prereq_header)
+	_adv_prereq_host = VBoxContainer.new()
+	_adv_prereq_host.add_theme_constant_override("separation", 4)
+	col.add_child(_adv_prereq_host)
+
+	content.add_child(_adv_card)
+	var gcard = content.get_node_or_null("GeneralSettingsCard")
+	if gcard:
+		content.move_child(_adv_card, gcard.get_index() + 1)
+	_adv_card.visible = false
+
+
+func _adv_labeled_row(label_text: String, control: Control, tip: String = "") -> Control:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 6)
+	var lbl := Label.new()
+	lbl.text = label_text
+	lbl.custom_minimum_size = Vector2(150, 0)
+	lbl.add_theme_color_override("font_color", C_DIM)
+	if not tip.is_empty():
+		lbl.tooltip_text = tip
+	row.add_child(lbl)
+	control.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(control)
+	return row
+
+
+func _editing_ability() -> bool:
+	return not is_updating_ui and current_resource is AbilityData
+
+
+func _set_advanced_card_visible(vis: bool) -> void:
+	if is_instance_valid(_adv_card):
+		_adv_card.visible = vis
+
+
+func _update_advanced_ui(ability: AbilityData) -> void:
+	if not is_instance_valid(_adv_card):
+		return
+	_adv_damage_stat.selected = _adv_damage_stat.get_item_index(ability.damage_stat)
+	_adv_tree_path.selected = _adv_tree_path.get_item_index(ability.tree_path) if _adv_tree_path.get_item_index(ability.tree_path) >= 0 else 0
+	_adv_tree_depth.value = ability.tree_depth
+	_adv_buff_picker.set_edited_resource(ability.applies_buff)
+	_adv_debuff_picker.set_edited_resource(ability.applies_target_debuff)
+	_rebuild_prereq_rows(ability)
+
+
+func _rebuild_prereq_rows(ability: AbilityData) -> void:
+	_prereq_rows.clear()
+	for c in _adv_prereq_host.get_children():
+		c.queue_free()
+	for prereq in ability.prerequisite_abilities:
+		_add_prereq_row(ability, prereq, int(ability.prerequisite_abilities[prereq]))
+
+
+func _add_prereq_row(ability: AbilityData, prereq_ability: Resource, level: int) -> void:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 6)
+	var picker := EditorResourcePicker.new()
+	picker.base_type = "AbilityData"
+	picker.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	if prereq_ability:
+		picker.set_edited_resource(prereq_ability)
+	picker.resource_changed.connect(func(_r): _commit_prereqs(ability))
+	row.add_child(picker)
+	var lvl_lbl := Label.new(); lvl_lbl.text = "Lv"; lvl_lbl.add_theme_color_override("font_color", C_DIM)
+	row.add_child(lvl_lbl)
+	var spin := SpinBox.new()
+	spin.min_value = 1
+	spin.max_value = 100
+	spin.value = level
+	spin.value_changed.connect(func(_v): _commit_prereqs(ability))
+	row.add_child(spin)
+	var rm := Button.new()
+	rm.text = "✕"
+	rm.add_theme_color_override("font_color", C_ERR)
+	rm.pressed.connect(func():
+		_prereq_rows = _prereq_rows.filter(func(e): return e.row != row)
+		row.queue_free()
+		_commit_prereqs.call_deferred(ability))
+	row.add_child(rm)
+	_adv_prereq_host.add_child(row)
+	_prereq_rows.append({"row": row, "picker": picker, "spin": spin})
+
+
+func _on_add_prereq_pressed() -> void:
+	if not _editing_ability():
+		return
+	_add_prereq_row(current_resource as AbilityData, null, 1)
+
+
+# Rewrite the typed Dictionary[AbilityData,int] in place from the current rows.
+func _commit_prereqs(ability: AbilityData) -> void:
+	if not is_instance_valid(_adv_card):
+		return
+	ability.prerequisite_abilities.clear()
+	for e in _prereq_rows:
+		if not is_instance_valid(e.row):
+			continue
+		var res = e.picker.get_edited_resource()
+		if res is AbilityData:
+			ability.prerequisite_abilities[res] = int(e.spin.value)
+	_set_dirty(true)
 
 
 # ── Section label cache + restyle ──────────────────────────────────────────────
@@ -1061,6 +1620,68 @@ func _populate_option_button(button: OptionButton, enum_dict: Dictionary) -> voi
 		button.add_item(key, enum_dict[key])
 
 
+# ── Multi-select dropdowns (required_class / required_weapon_types) ─────────────
+func _build_required_multiselects() -> void:
+	_req_class_menu = _replace_option_with_multiselect(required_class_option, Constants.ClassType)
+	_req_weapon_menu = _replace_option_with_multiselect(required_weapon_option, Constants.WeaponType)
+
+
+func _replace_option_with_multiselect(opt: OptionButton, enum_dict: Dictionary) -> MenuButton:
+	var mb := MenuButton.new()
+	mb.name = opt.name + "Multi"
+	mb.flat = false
+	mb.size_flags_horizontal = opt.size_flags_horizontal
+	mb.custom_minimum_size = opt.custom_minimum_size
+	mb.text = "(none)"
+	var pop := mb.get_popup()
+	pop.hide_on_checkable_item_selection = false  # stay open while ticking
+	for key in enum_dict:
+		pop.add_check_item(key, enum_dict[key])
+	pop.id_pressed.connect(func(id: int):
+		var i := pop.get_item_index(id)
+		pop.set_item_checked(i, not pop.is_item_checked(i))
+		_update_multiselect_text(mb)
+		_on_general_info_changed())
+	_style_btn(mb, C_DIM, false)
+	var parent := opt.get_parent()
+	var idx := opt.get_index()
+	opt.visible = false
+	parent.add_child(mb)
+	parent.move_child(mb, idx)
+	return mb
+
+
+func _multiselect_ids(mb: MenuButton) -> Array:
+	var out: Array = []
+	if not is_instance_valid(mb):
+		return out
+	var pop := mb.get_popup()
+	for i in pop.item_count:
+		if pop.is_item_checkable(i) and pop.is_item_checked(i):
+			out.append(pop.get_item_id(i))
+	return out
+
+
+func _set_multiselect_ids(mb: MenuButton, ids) -> void:
+	if not is_instance_valid(mb):
+		return
+	var pop := mb.get_popup()
+	for i in pop.item_count:
+		pop.set_item_checked(i, ids != null and ids.has(pop.get_item_id(i)))
+	_update_multiselect_text(mb)
+
+
+func _update_multiselect_text(mb: MenuButton) -> void:
+	if not is_instance_valid(mb):
+		return
+	var pop := mb.get_popup()
+	var names: Array = []
+	for i in pop.item_count:
+		if pop.is_item_checked(i):
+			names.append(pop.get_item_text(i))
+	mb.text = ", ".join(names) if not names.is_empty() else "(none)"
+
+
 func _populate_formula_presets() -> void:
 	formula_preset_option.clear()
 	formula_preset_option.add_item("-- Select Preset --", -1)
@@ -1090,8 +1711,8 @@ func _connect_signals() -> void:
 	icon_path_picker.resource_changed.connect(_on_general_info_changed)
 	max_level_spinbox.value_changed.connect(_on_general_info_changed)
 	ability_type_option.item_selected.connect(_on_ability_type_changed)
-	required_class_option.item_selected.connect(_on_general_info_changed)
-	required_weapon_option.item_selected.connect(_on_general_info_changed)
+	# required_class / required_weapon are handled by the multi-select MenuButtons
+	# (_build_required_multiselects); the original OptionButtons are hidden.
 
 	formula_help_button.pressed.connect(_show_formula_help)
 
@@ -1601,7 +2222,13 @@ func _save_resource(path: String) -> void:
 		return
 	var err = ResourceSaver.save(current_resource, path)
 	if err == OK:
+		# Persist any pending upgrade-field edits, then re-point the editor at the
+		# (possibly newly-assigned) ability path.
+		if current_resource is AbilityData and is_instance_valid(_upgrade_editor):
+			_upgrade_editor.save_all()
+			_upgrade_editor.set_ability(current_resource, current_resource.resource_path)
 		_set_dirty(false)
+		_invalidate_related_index()  # refs may have changed
 		_set_status("Saved → " + path.get_file())
 		_scan_for_resources()
 		var item = _path_to_tree_item.get(current_resource.resource_path, null)
@@ -1844,10 +2471,8 @@ func _update_ui() -> void:
 		max_level_spinbox.value = ability.max_level
 		ability_type_option.selected = ability.ability_type
 
-		if not ability.required_class.is_empty():
-			required_class_option.selected = ability.required_class[0]
-		if not ability.required_weapon_types.is_empty():
-			required_weapon_option.selected = ability.required_weapon_types[0]
+		_set_multiselect_ids(_req_class_menu, ability.required_class)
+		_set_multiselect_ids(_req_weapon_menu, ability.required_weapon_types)
 
 		# Ensure scaling_data exists, then refresh the formula tree
 		if not ability.scaling_data:
@@ -1856,6 +2481,9 @@ func _update_ui() -> void:
 			current_scaling_data = ability.scaling_data
 		_update_formula_tree()
 		_update_active_behavior_ui()
+		_update_advanced_ui(ability)
+		if is_instance_valid(_upgrade_editor):
+			_upgrade_editor.set_ability(ability, ability.resource_path)
 	elif current_resource is QuestData:
 		_show_quest_ui()
 		_update_quest_ui()
@@ -1868,6 +2496,9 @@ func _update_ui() -> void:
 	# VFX Effects type gets a live animated preview below its inspector.
 	_update_vfx_effect_ui()
 
+	# Cross-resource "Related" links (shown for any type that has relations).
+	_update_related_ui(current_resource)
+
 	is_updating_ui = false
 
 
@@ -1876,6 +2507,8 @@ func _show_ability_ui() -> void:
 	_set_section_visible(formula_editor_panel, true)
 	_set_section_visible(active_behavior_panel, true)
 	_set_section_visible(quest_editor_panel, false)
+	_set_advanced_card_visible(true)
+	_set_upgrade_card_visible(true)
 	if generic_resource_inspector:
 		_set_section_visible(generic_resource_inspector, false)
 		generic_resource_inspector.edit(null)
@@ -1885,6 +2518,8 @@ func _hide_ability_ui() -> void:
 	_set_section_visible(general_settings_panel, false)
 	_set_section_visible(formula_editor_panel, false)
 	_set_section_visible(active_behavior_panel, false)
+	_set_advanced_card_visible(false)
+	_set_upgrade_card_visible(false)
 	if generic_resource_inspector:
 		_set_section_visible(generic_resource_inspector, true)
 
@@ -1895,6 +2530,8 @@ func _show_quest_ui() -> void:
 	_set_section_visible(formula_editor_panel, false)
 	_set_section_visible(active_behavior_panel, false)
 	_set_section_visible(quest_editor_panel, true)
+	_set_advanced_card_visible(false)
+	_set_upgrade_card_visible(false)
 	if generic_resource_inspector:
 		_set_section_visible(generic_resource_inspector, false)
 		generic_resource_inspector.edit(null)
@@ -2471,10 +3108,13 @@ func _on_general_info_changed(value = null) -> void:
 	ability.max_level = int(max_level_spinbox.value)
 	ability.ability_icon = icon_path_picker.get_edited_resource()
 	ability.ability_type = ability_type_option.get_selected_id()
+	# Write the FULL selection sets (multi-select) — no more index-0 truncation.
 	ability.required_class.clear()
-	ability.required_class.append(required_class_option.get_selected_id())
+	for cid in _multiselect_ids(_req_class_menu):
+		ability.required_class.append(cid)
 	ability.required_weapon_types.clear()
-	ability.required_weapon_types.append(required_weapon_option.get_selected_id())
+	for wid in _multiselect_ids(_req_weapon_menu):
+		ability.required_weapon_types.append(wid)
 	_set_dirty(true)
 	# Live-update tree label as the user types
 	if not ability.resource_path.is_empty():
@@ -2825,6 +3465,18 @@ func _update_formula_tree() -> void:
 	_add_formula_item(basic_stats, "Max Hits",    "max_hits_formula",        current_scaling_data.max_hits_formula)
 	_add_formula_item(basic_stats, "Cast Time",   "cast_time_formula",       current_scaling_data.cast_time_formula)
 
+	# Buff/debuff duration formulas (live on AbilityData, shown only when a
+	# buff/debuff is assigned in the Advanced card).
+	if ability.applies_buff or ability.applies_target_debuff:
+		var durations = formula_tree.create_item(root)
+		durations.set_text(0, "⏱ Durations")
+		durations.set_selectable(0, false)
+		durations.set_custom_color(0, C_DIM)
+		if ability.applies_buff:
+			_add_formula_item(durations, "Buff Duration", "buff_duration_formula", ability.buff_duration_formula)
+		if ability.applies_target_debuff:
+			_add_formula_item(durations, "Debuff Duration", "debuff_duration_formula", ability.debuff_duration_formula)
+
 	if ability.ability_type == Constants.AbilityType.PASSIVE:
 		var stat_bonuses = formula_tree.create_item(root)
 		stat_bonuses.set_text(0, "💪 Stat Bonuses")
@@ -2836,12 +3488,15 @@ func _update_formula_tree() -> void:
 				_add_stat_bonus_item(stat_bonuses, stat_name, stat_formula)
 
 	if current_scaling_data.ability_damage_modifier_formulas.size() > 0:
+		if _ability_name_cache.is_empty():
+			_scan_all_abilities()  # warm names so rows read by target ability
 		var modifiers = formula_tree.create_item(root)
 		modifiers.set_text(0, "⚔️ Ability Modifiers")
 		modifiers.set_selectable(0, false)
 		modifiers.set_custom_color(0, C_DIM)
 		for ability_id in current_scaling_data.ability_damage_modifier_formulas:
-			_add_formula_item(modifiers, "Dmg Mod", "damage_mod_" + ability_id,
+			var disp: String = _ability_name_cache.get(ability_id, ability_id)
+			_add_formula_item(modifiers, "→ " + disp, "damage_mod_" + ability_id,
 				current_scaling_data.ability_damage_modifier_formulas[ability_id])
 
 	if current_scaling_data.proc_chance_formula or current_scaling_data.proc_damage_formula:
@@ -2930,6 +3585,10 @@ func _get_formula_by_key(key: String) -> AbilityScalingFormula:
 		"cast_time_formula":      return current_scaling_data.cast_time_formula
 		"proc_chance_formula":    return current_scaling_data.proc_chance_formula
 		"proc_damage_formula":    return current_scaling_data.proc_damage_formula
+		"buff_duration_formula":
+			return (current_resource as AbilityData).buff_duration_formula if current_resource is AbilityData else null
+		"debuff_duration_formula":
+			return (current_resource as AbilityData).debuff_duration_formula if current_resource is AbilityData else null
 	if key.begins_with("damage_mod_"):
 		return current_scaling_data.ability_damage_modifier_formulas.get(key.replace("damage_mod_", ""), null)
 	return null
@@ -2945,6 +3604,14 @@ func _assign_formula_to_key(key: String, formula: AbilityScalingFormula) -> void
 		"cast_time_formula":      current_scaling_data.cast_time_formula = formula
 		"proc_chance_formula":    current_scaling_data.proc_chance_formula = formula
 		"proc_damage_formula":    current_scaling_data.proc_damage_formula = formula
+		"buff_duration_formula":
+			if current_resource is AbilityData:
+				(current_resource as AbilityData).buff_duration_formula = formula
+		"debuff_duration_formula":
+			if current_resource is AbilityData:
+				(current_resource as AbilityData).debuff_duration_formula = formula
+	if key.begins_with("damage_mod_"):
+		current_scaling_data.ability_damage_modifier_formulas[key.replace("damage_mod_", "")] = formula
 
 
 # ========================================
@@ -2974,8 +3641,72 @@ func _add_stat_bonus() -> void:
 	_set_dirty(true)
 
 
+## Adds an ability-damage-modifier formula keyed by another ability's id (this
+## ability scales that ability's damage at runtime — see combat.gd
+## get_ability_damage_modifier). Pops a menu of eligible abilities.
 func _add_ability_modifier() -> void:
-	_set_status("Ability damage modifiers aren't editable from this dock yet.", true)
+	if not current_scaling_data:
+		_set_status("Select an ability first.", true)
+		return
+	var entries := _scan_all_abilities()
+	if entries.is_empty():
+		_set_status("No abilities found to modify.", true)
+		return
+	var self_id := (current_resource as AbilityData).ability_id if current_resource is AbilityData else ""
+	var popup := PopupMenu.new()
+	var ids: Array = []
+	for e in entries:
+		if e.id == self_id or e.id.is_empty():
+			continue
+		if current_scaling_data.ability_damage_modifier_formulas.has(e.id):
+			continue
+		popup.add_item(e.name if not e.name.is_empty() else e.id, ids.size())
+		ids.append(e.id)
+	if ids.is_empty():
+		_set_status("Every other ability already has a damage modifier.", true)
+		popup.queue_free()
+		return
+	popup.id_pressed.connect(func(idx: int):
+		var target_id: String = ids[idx]
+		var f := AbilityScalingFormula.new()
+		f.resource_local_to_scene = true
+		f.base_value = 1.0  # multiplier baseline (1.0 = no change)
+		current_scaling_data.ability_damage_modifier_formulas[target_id] = f
+		_update_formula_tree()
+		_set_dirty(true)
+		popup.queue_free())
+	add_child(popup)
+	popup.position = add_formula_button.global_position + Vector2(0, add_formula_button.size.y)
+	popup.popup()
+
+
+## Recursively load every AbilityData .tres, returning [{id, name}] and warming
+## _ability_name_cache. Used by the ability-modifier picker + its tree labels.
+func _scan_all_abilities() -> Array:
+	var out: Array = []
+	_ability_name_cache.clear()
+	_scan_abilities_recursive("res://resources/Abilities", out)
+	return out
+
+
+func _scan_abilities_recursive(path: String, out: Array) -> void:
+	var dir := DirAccess.open(path)
+	if dir == null:
+		return
+	dir.list_dir_begin()
+	var fname := dir.get_next()
+	while fname != "":
+		var full := path.path_join(fname)
+		if dir.current_is_dir():
+			if not fname.begins_with("."):
+				_scan_abilities_recursive(full, out)
+		elif fname.ends_with(".tres"):
+			var res = load(full)
+			if res is AbilityData:
+				out.append({"id": res.ability_id, "name": res.ability_name})
+				_ability_name_cache[res.ability_id] = res.ability_name
+		fname = dir.get_next()
+	dir.list_dir_end()
 
 
 func _on_preset_selected(index: int) -> void:
