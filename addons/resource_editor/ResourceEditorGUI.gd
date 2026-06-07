@@ -123,7 +123,7 @@ var _vfx_effect_stage: Control = null
 var _vfx_effect_char: Sprite2D = null  # faint character reference in the preview
 var _vfx_dragging: bool = false  # dragging the preview effect to set its offset
 var _vfx_anchor_screen: Vector2 = Vector2.ZERO  # screen pos of the offset=0 anchor
-var _vfx_preview_zoom: float = 2.2              # world px -> preview px (wheel/buttons)
+var _vfx_preview_zoom: float = 3.5              # world px -> preview px (wheel/buttons)
 var _vfx_preview_pan: Vector2 = Vector2.ZERO    # middle-drag pan of the view
 var _vfx_panning: bool = false
 var _vfx_zoom_label: Label = null
@@ -141,7 +141,7 @@ const _VIS_CAST_BODY_OFFSET := Vector2(0, -18)
 ## in-game cast frame: character FEET are the origin, the cast anchor is feet +
 ## _VIS_CAST_BODY_OFFSET, and the effect sits at (anchor + offset) * zoom — so an
 ## offset dialled in here equals the in-game offset exactly, just magnified.
-const _VFX_PREVIEW_DEFAULT_ZOOM: float = 2.2
+const _VFX_PREVIEW_DEFAULT_ZOOM: float = 3.5
 const _VFX_PREVIEW_MIN_ZOOM: float = 0.5
 const _VFX_PREVIEW_MAX_ZOOM: float = 16.0
 ## How far above the stage bottom the character's FEET sit (before pan).
@@ -2209,8 +2209,9 @@ func _build_vfx_effect_preview() -> void:
 	col.add_child(title)
 
 	var stage = Control.new()
-	stage.custom_minimum_size = Vector2(0, 190)
+	stage.custom_minimum_size = Vector2(0, 520)
 	stage.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	stage.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	stage.clip_contents = true
 	stage.mouse_filter = Control.MOUSE_FILTER_STOP
 	stage.tooltip_text = "Left-drag: set offset  •  Middle-drag: pan  •  Wheel: zoom.\nCrosshair = offset (0,0); line = floor."
