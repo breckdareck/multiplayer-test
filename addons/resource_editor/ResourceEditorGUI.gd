@@ -2021,8 +2021,8 @@ func _make_vfx_row(label_text: String) -> OptionButton:
 	return ob
 
 
-## (Re)fills a VFX dropdown with the current catalog keys: "(auto)" → "" (resolve
-## from ABILITY_MAP/fallback), "None" → NONE_KEY (explicitly suppress), then every
+## (Re)fills a VFX dropdown with the current catalog keys: "(auto)" → "" (unset:
+## cast = none, hit = weapon fallback), "None" → NONE_KEY (explicitly suppress), then every
 ## concrete catalog key. Called on first build AND each time the picker is shown,
 ## so a VfxEffectData .tres you just added/renamed appears without an editor
 ## restart. Selection is restored by the caller via _select_vfx_option.
@@ -2090,8 +2090,8 @@ func _update_vfx_ui(ability: AbilityData) -> void:
 	_select_vfx_option(_vfx_cast_option, cast_override)
 	_select_vfx_option(_vfx_hit_option, hit_override)
 
-	# Resolved keys = what the ability ACTUALLY uses (override → ABILITY_MAP →
-	# weapon/element fallback). Shows the user the effective effect even on (auto).
+	# Resolved keys = what the ability ACTUALLY uses (explicit cast_vfx/hit_vfx,
+	# else "" for cast / weapon-element fallback for hit). Shown even on (auto).
 	var resolved_cast: String = VfxCatalog.resolve_cast(ability)
 	var resolved_hit: String = VfxCatalog.resolve_hit(ability)
 	_vfx_resolved_label.text = "Resolves to →  Cast: %s    Hit: %s" % [

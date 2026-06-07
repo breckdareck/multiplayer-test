@@ -18,14 +18,14 @@ extends RefCounted
 ##     hit_vfx can override the auto-pick per ability.
 ##
 ## Note: resolve_cast/resolve_hit do NOT touch the loaded recipes (they only read
-## ABILITY_MAP + the ability's override), so a headless server never scans the
-## VFX folder — only the client/host that actually renders an effect does.
+## the ability's cast_vfx/hit_vfx override + a weapon fallback), so a headless
+## server never scans the VFX folder — only the client/host that renders does.
 
 ## Folder scanned for VfxEffectData .tres files.
 const VFX_DIR: String = "res://resources/VFX"
 
 ## Sentinel stored in ActiveBehaviorData.cast_vfx/hit_vfx to mean "explicitly NO
-## effect" — distinct from "" (auto: resolve from ABILITY_MAP / fallback). The
+## effect" — distinct from "" (unset: cast = none, hit = weapon fallback). The
 ## resolver returns "" for it, so the broadcast spawns nothing.
 const NONE_KEY: String = "none"
 
@@ -167,76 +167,9 @@ static func invalidate() -> void:
 
 #region #################### Per-ability auto-resolution ####################
 
-## Authored cast/hit effect map, keyed by AbilityData.ability_name. Each value
-## is {cast, hit} (omit a field for "none"). This is the deliberate, per-ability
-## layer; anything not listed falls through to _fallback_* below using the
-## ability's weapon + damage stat. Designers can still override either side per
-## ability via ActiveBehaviorData.cast_vfx / hit_vfx.
-const ABILITY_MAP: Dictionary = {
-	# ---------------- Sword (physical) ----------------
-	"FMA": {"hit": "phys_impact"},
-	"Crescent Cleave": {"hit": "phys_impact"},
-	"Steel Flurry": {"hit": "phys_impact"},
-	"Sundering Blow": {"hit": "phys_impact"},
-	"Vanguard's Onslaught": {"hit": "phys_impact"},
-	"Sentinel's Mark": {"hit": "phys_impact"},
-	"Hemorrhage": {"hit": "blood_impact"},
-	"Earthsplitter": {"hit": "explosion"},
-	"Vault Strike": {"cast": "wind_cast", "hit": "explosion"},
-	"Charge!": {"cast": "wind_cast", "hit": "phys_impact"},
-	"Iron Riposte": {"cast": "buff_cast"},
-	"Vow of the Vanguard": {"cast": "buff_cast"},
-	"Bulwark Stance": {"cast": "buff_cast"},
-	"Banner of the Vanguard": {"cast": "buff_cast"},
-
-	# ---------------- Bow (physical / wind / ice) ----------------
-	"Snipe": {"hit": "explosion"},
-	"Snap Shot": {"hit": "phys_impact"},
-	"Split Shot": {"hit": "phys_impact"},
-	"Skyfall": {"hit": "phys_impact"},
-	"Sky Volley": {"hit": "phys_impact"},
-	"Sundering Arrow": {"hit": "phys_impact"},
-	"Barbed Shot": {"hit": "blood_impact"},
-	"Hailstorm": {"hit": "ice_impact"},
-	"Mark of the Hunt": {"hit": "dark_impact"},
-	"Caltrops": {},
-	"Disengage": {"cast": "wind_cast"},
-	"Eagle Eye": {"cast": "buff_cast"},
-
-	# ---------------- Dagger (physical / poison / shadow) ----------------
-	"Twin Fang": {"hit": "phys_impact"},
-	"Killing Edge": {"hit": "phys_impact"},
-	"Cripple": {"hit": "phys_impact"},
-	"Fan of Knives": {"hit": "phys_impact"},
-	"Eviscerate": {"hit": "blood_impact"},
-	"Backstab": {"hit": "dark_impact"},
-	"Vendetta": {"hit": "dark_impact"},
-	"Death Mark": {"hit": "dark_impact"},
-	"Envenom": {"hit": "poison_impact"},
-	"Shadowstep": {"cast": "dark_cast"},
-	"Shadow Partner": {"cast": "dark_cast"},
-	"Smoke Bomb": {"cast": "dark_cast"},
-
-	# ---------------- Staff (elemental / arcane) ----------------
-	"Arcane Bolt": {"cast": "arcane_cast", "hit": "arcane_impact"},
-	"Arcane Lance": {"cast": "arcane_cast", "hit": "arcane_impact"},
-	"Glacial Spike": {"cast": "ice_cast", "hit": "ice_impact"},
-	"Immolate": {"cast": "fire_cast", "hit": "fire_impact"},
-	"Pyre Burst": {"cast": "fire_cast", "hit": "explosion"},
-	"Stormcall": {"cast": "arcane_cast", "hit": "lightning_impact"},
-	"Frost Patch": {"cast": "ice_cast"},
-	"Communion": {"cast": "buff_cast"},
-	"Aether Ward": {"cast": "arcane_cast"},
-	"Mana Surge": {"cast": "arcane_cast"},
-	"Phase Step": {"cast": "arcane_cast"},
-	"Spellweave": {"cast": "arcane_cast"},
-	"Arcane Familiar": {"cast": "arcane_cast"},
-}
-
-
-## Server-side. Returns the cast-VFX key for an ability (or "" for none).
-## Priority: explicit ActiveBehaviorData.cast_vfx -> authored ABILITY_MAP ->
-## weapon/element fallback.
+## Server-side. Returns the cast-VFX key for an ability — the explicit
+## ActiveBehaviorData.cast_vfx you set in the editor, or "" if unset/None. There
+## is no hardcoded per-ability map: casts are authored per ability.
 static func resolve_cast(ability: AbilityData) -> String:
 	if ability == null:
 		return ""
@@ -244,29 +177,21 @@ static func resolve_cast(ability: AbilityData) -> String:
 	# can return Nil for an exported property, which must NOT propagate as a key.
 	var ov: String = _override_key(ability, "cast_vfx")
 	if ov == NONE_KEY:
-		return ""  # explicitly suppressed by the designer
-	if ov != "":
-		return ov
-	var entry: Dictionary = ABILITY_MAP.get(ability.ability_name, {})
-	if entry.has("cast"):
-		return entry["cast"]
-	return ""  # most physical actives carry their juice in the HIT, not the cast
+		return ""  # explicitly suppressed
+	return ov  # the chosen key, or "" when unset
 
 
-## Server-side. Returns the hit-VFX key for an ability (or "" for none).
-## Priority: explicit ActiveBehaviorData.hit_vfx -> authored ABILITY_MAP ->
-## weapon/element fallback.
+## Server-side. Returns the hit-VFX key for an ability: the explicit
+## ActiveBehaviorData.hit_vfx you set, else a weapon/element default so an unset
+## ability still sparks on hit (set hit_vfx to None to suppress it).
 static func resolve_hit(ability: AbilityData) -> String:
 	if ability == null:
 		return ""
 	var ov: String = _override_key(ability, "hit_vfx")
 	if ov == NONE_KEY:
-		return ""  # explicitly suppressed by the designer
+		return ""  # explicitly suppressed
 	if ov != "":
 		return ov
-	var entry: Dictionary = ABILITY_MAP.get(ability.ability_name, {})
-	if entry.has("hit"):
-		return entry["hit"]
 	return _fallback_hit(ability)
 
 
@@ -281,8 +206,8 @@ static func _override_key(ability: AbilityData, prop: String) -> String:
 	return v if v is String else ""
 
 
-## Weapon/element default so an ability NOT in ABILITY_MAP still gets a sensible
-## impact. Magic abilities read arcane; everything else reads a physical impact.
+## Weapon/element default so an ability with no explicit hit_vfx still sparks on
+## hit. Magic abilities read arcane; everything else reads a physical impact.
 static func _fallback_hit(ability: AbilityData) -> String:
 	if ability.damage_stat == Constants.StatType.MAGICATTACK:
 		return "arcane_impact"
