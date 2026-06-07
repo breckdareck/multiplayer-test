@@ -1,11 +1,12 @@
-[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3 uid="uid://b0hw4eiqryjts"]
 
-[ext_resource type="Script" path="res://scripts/Resources/VfxEffectData.gd" id="1_dj6t2"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MiniElementsHeroes/LightningEffect-Sheet.png" id="2_11gry"]
+[ext_resource type="Script" uid="uid://nblkvwf7wtfw" path="res://scripts/Resources/VfxEffectData.gd" id="1_dj6t2"]
+[ext_resource type="Texture2D" uid="uid://kty25gahq6fl" path="res://assets/sprites/MiniFolksPlusAbyssArmy/MiniFolksPlusAbyssArmy/Lightning-Sheet.png" id="2_dj6t2"]
 
 [resource]
 script = ExtResource("1_dj6t2")
 effect_key = "lightning_impact"
-sheet = ExtResource("2_11gry")
-fps = 18.0
+sheet = ExtResource("2_dj6t2")
+fps = 10.0
 scale = 1.6
+offset = Vector2(1, -24)

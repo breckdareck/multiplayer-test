@@ -20,6 +20,7 @@ target_type = 1
 animation_name = "attack_1"
 sfx_path = "res://assets/sounds/tap.wav"
 logic_script = ExtResource("3_al")
+hit_vfx = "none"
 
 [sub_resource type="Resource" id="Resource_cast"]
 script = ExtResource("5_asf")

@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3 uid="uid://dcdo2u2gpkc2o"]
 
-[ext_resource type="Script" path="res://scripts/Resources/VfxEffectData.gd" id="1_h2jxs"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MiniElementsHeroes/IceEffect-Sheet.png" id="2_3svju"]
+[ext_resource type="Script" uid="uid://nblkvwf7wtfw" path="res://scripts/Resources/VfxEffectData.gd" id="1_h2jxs"]
+[ext_resource type="Texture2D" uid="uid://doo3kagnrmhqy" path="res://assets/sprites/MiniElementsHeroes/IceEffect-Sheet.png" id="2_3svju"]
 
 [resource]
 script = ExtResource("1_h2jxs")
@@ -10,4 +10,5 @@ category = "cast"
 sheet = ExtResource("2_3svju")
 fps = 18.0
 scale = 1.6
+offset = Vector2(0, -5)
 modulate = Color(0.8, 0.95, 1, 1)

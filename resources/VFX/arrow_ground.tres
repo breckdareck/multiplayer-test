@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3 uid="uid://dmdps2olr2128"]
+
+[ext_resource type="Script" uid="uid://nblkvwf7wtfw" path="res://scripts/Resources/VfxEffectData.gd" id="1_s6h2t"]
+[ext_resource type="Texture2D" uid="uid://cqpup1qfdd6x1" path="res://assets/sprites/MiniFolksPlusAbyssArmy/MiniFolksPlusAbyssArmy/Arrow2-Sheet.png" id="2_2ka7h"]
+
+[resource]
+script = ExtResource("1_s6h2t")
+effect_key = "arrow_ground"
+category = "ground"
+sheet = ExtResource("2_2ka7h")
+loop = true
+offset = Vector2(-1, -22)

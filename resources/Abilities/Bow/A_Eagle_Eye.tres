@@ -19,6 +19,7 @@
 resource_local_to_scene = true
 script = ExtResource("1_behav")
 logic_script = ExtResource("2_logic")
+hit_vfx = "none"
 
 [sub_resource type="Resource" id="Resource_buff_dur"]
 script = ExtResource("7_formula")

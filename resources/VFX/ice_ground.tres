@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3 uid="uid://crv7a2b7mjtvv"]
 
-[ext_resource type="Script" path="res://scripts/Resources/VfxEffectData.gd" id="1_dthgq"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MiniBigMonsters/MiniBigMonsters/Ice spikes 1-Sheet.png" id="2_1cbhk"]
+[ext_resource type="Script" uid="uid://nblkvwf7wtfw" path="res://scripts/Resources/VfxEffectData.gd" id="1_dthgq"]
+[ext_resource type="Texture2D" uid="uid://c5xn74rebag2w" path="res://assets/sprites/MiniBigMonsters/MiniBigMonsters/Ice spikes 1-Sheet.png" id="2_1cbhk"]
 
 [resource]
 script = ExtResource("1_dthgq")
@@ -11,4 +11,5 @@ sheet = ExtResource("2_1cbhk")
 fps = 10.0
 loop = true
 scale = 2.2
+offset = Vector2(2, -32)
 modulate = Color(0.85, 0.95, 1, 0.95)

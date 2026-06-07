@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3 uid="uid://4ingcrxl85ox"]
+
+[ext_resource type="Script" uid="uid://nblkvwf7wtfw" path="res://scripts/Resources/VfxEffectData.gd" id="1_58c8q"]
+[ext_resource type="Texture2D" uid="uid://be25wvo0jbiq3" path="res://assets/sprites/MiniHalloweenMonsters/MiniHalloweenMonsters/Effect-1-Sheet.png" id="2_6senc"]
+
+[resource]
+script = ExtResource("1_58c8q")
+effect_key = "crescent_cleave"
+category = "cast"
+sheet = ExtResource("2_6senc")
+fps = 10.0
+scale = 1.7
+offset = Vector2(40, 0)

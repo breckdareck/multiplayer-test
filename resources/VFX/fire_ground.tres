@@ -1,14 +1,16 @@
-[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3 uid="uid://dxnvswvjdfmld"]
 
-[ext_resource type="Script" path="res://scripts/Resources/VfxEffectData.gd" id="1_ongtq"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MiniMonsters/MiniMonsters/Fire.png" id="2_bbt4d"]
+[ext_resource type="Script" uid="uid://nblkvwf7wtfw" path="res://scripts/Resources/VfxEffectData.gd" id="1_ongtq"]
+[ext_resource type="Texture2D" uid="uid://4u14w8u7bbmp" path="res://assets/sprites/MiniOrderOfTheFire/MiniOrderOfTheFire/FireCone-Sheet.png" id="2_ongtq"]
 
 [resource]
 script = ExtResource("1_ongtq")
 effect_key = "fire_ground"
 category = "ground"
-sheet = ExtResource("2_bbt4d")
-fps = 18.0
+sheet = ExtResource("2_ongtq")
+frame_width = 64
+fps = 12.0
 loop = true
 scale = 2.4
+offset = Vector2(2, -34)
 modulate = Color(1, 0.95, 0.8, 0.95)

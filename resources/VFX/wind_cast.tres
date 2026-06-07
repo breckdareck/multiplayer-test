@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3 uid="uid://c06byaysjt1w7"]
 
-[ext_resource type="Script" path="res://scripts/Resources/VfxEffectData.gd" id="1_e4p1t"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MiniElementsHeroes/WindEffect-Sheet.png" id="2_plgo5"]
+[ext_resource type="Script" uid="uid://nblkvwf7wtfw" path="res://scripts/Resources/VfxEffectData.gd" id="1_e4p1t"]
+[ext_resource type="Texture2D" uid="uid://cslymto51tm6v" path="res://assets/sprites/MiniElementsHeroes/WindEffect-Sheet.png" id="2_plgo5"]
 
 [resource]
 script = ExtResource("1_e4p1t")
@@ -11,4 +11,5 @@ sheet = ExtResource("2_plgo5")
 frame_width = 40
 fps = 18.0
 scale = 1.6
+offset = Vector2(-2, -5)
 modulate = Color(0.85, 1, 0.92, 1)

@@ -13,16 +13,17 @@
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="13_aud"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ajojy"]
-size = Vector2(66, 20)
+size = Vector2(56, 20)
 
 [sub_resource type="Resource" id="Resource_7e1xr"]
 script = ExtResource("2_7svtf")
 target_type = 1
 hit_box_shape_data = SubResource("RectangleShape2D_ajojy")
-hit_box_position_data = Vector2(33, -10)
+hit_box_position_data = Vector2(28, -10)
 animation_name = "attack_1"
 sfx_path = "res://assets/sounds/tap.wav"
 logic_script = ExtResource("3_slcombo")
+cast_vfx = "crescent_cleave"
 
 [sub_resource type="Resource" id="Resource_qud4a"]
 script = ExtResource("8_yntj7")

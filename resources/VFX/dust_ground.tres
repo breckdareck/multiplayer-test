@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3 uid="uid://c547vmdneaf3b"]
 
-[ext_resource type="Script" path="res://scripts/Resources/VfxEffectData.gd" id="1_mbiyt"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MiniElementsHeroes/EarthEffect-Sheet.png" id="2_nsfw0"]
+[ext_resource type="Script" uid="uid://nblkvwf7wtfw" path="res://scripts/Resources/VfxEffectData.gd" id="1_mbiyt"]
+[ext_resource type="Texture2D" uid="uid://w232a34cd7lp" path="res://assets/sprites/MiniElementsHeroes/EarthEffect-Sheet.png" id="2_nsfw0"]
 
 [resource]
 script = ExtResource("1_mbiyt")
@@ -12,4 +12,5 @@ frame_width = 48
 fps = 12.0
 loop = true
 scale = 1.9
+offset = Vector2(0, -28)
 modulate = Color(0.92, 0.85, 0.6, 0.9)

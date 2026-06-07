@@ -1,12 +1,14 @@
-[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3 uid="uid://dm72qrqdb4g8j"]
 
-[ext_resource type="Script" path="res://scripts/Resources/VfxEffectData.gd" id="1_r1ki6"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MiniBigMonsters/MiniBigMonsters/Explosion-Sheet.png" id="2_8wn4a"]
+[ext_resource type="Script" uid="uid://nblkvwf7wtfw" path="res://scripts/Resources/VfxEffectData.gd" id="1_r1ki6"]
+[ext_resource type="Texture2D" uid="uid://cyftii4tauqj4" path="res://assets/sprites/MiniBigMonsters/MiniBigMonsters/Explosion-Sheet.png" id="2_8wn4a"]
 
 [resource]
 script = ExtResource("1_r1ki6")
 effect_key = "blood_impact"
 sheet = ExtResource("2_8wn4a")
 frame_width = 48
+fps = 10.0
 scale = 1.2
+offset = Vector2(10, -17)
 modulate = Color(1, 0.25, 0.2, 1)

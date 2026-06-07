@@ -1,13 +1,13 @@
-[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3 uid="uid://h6qkqevp5gox"]
 
-[ext_resource type="Script" path="res://scripts/Resources/VfxEffectData.gd" id="1_bthac"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MiniBigMonsters/MiniBigMonsters/Explosion-Sheet.png" id="2_e0lap"]
+[ext_resource type="Script" uid="uid://nblkvwf7wtfw" path="res://scripts/Resources/VfxEffectData.gd" id="1_bthac"]
+[ext_resource type="Texture2D" uid="uid://cyftii4tauqj4" path="res://assets/sprites/MiniBigMonsters/MiniBigMonsters/Explosion-Sheet.png" id="2_e0lap"]
 
 [resource]
 script = ExtResource("1_bthac")
 effect_key = "explosion"
 sheet = ExtResource("2_e0lap")
 frame_width = 48
-fps = 18.0
 scale = 1.6
+offset = Vector2(13, -8)
 modulate = Color(1, 0.95, 0.85, 1)

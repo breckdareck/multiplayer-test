@@ -1,12 +1,13 @@
-[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3 uid="uid://cityy80lc8q8s"]
 
 [ext_resource type="Script" path="res://scripts/Resources/VfxEffectData.gd" id="1_myt3y"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MiniBigMonsters/MiniBigMonsters/Explosion-Sheet.png" id="2_jinag"]
+[ext_resource type="Texture2D" uid="uid://ca0n5d1qc7v6e" path="res://assets/sprites/MiniStarWanderers/MiniStarWanderers/Arrow-Sheet.png" id="2_myt3y"]
 
 [resource]
 script = ExtResource("1_myt3y")
 effect_key = "phys_impact"
-sheet = ExtResource("2_jinag")
-frame_width = 48
-scale = 1.1
+sheet = ExtResource("2_myt3y")
+row = 1
+fps = 10.0
+scale = 1.8
 modulate = Color(0.96, 0.93, 0.85, 1)

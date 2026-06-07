@@ -1,13 +1,15 @@
-[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3 uid="uid://cbwoebyq2lxgt"]
 
-[ext_resource type="Script" path="res://scripts/Resources/VfxEffectData.gd" id="1_xtyd7"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MiniDarkElves/MiniDarkElves/Starfall-Sheet.png" id="2_ornno"]
+[ext_resource type="Script" uid="uid://nblkvwf7wtfw" path="res://scripts/Resources/VfxEffectData.gd" id="1_xtyd7"]
+[ext_resource type="Texture2D" uid="uid://btfwy84k407u3" path="res://assets/sprites/MiniBigMonsters/MiniBigMonsters/Effect-Sheet.png" id="2_xtyd7"]
 
 [resource]
 script = ExtResource("1_xtyd7")
 effect_key = "buff_cast"
 category = "cast"
-sheet = ExtResource("2_ornno")
-fps = 16.0
-scale = 1.8
-modulate = Color(1, 0.88, 0.45, 1)
+sheet = ExtResource("2_xtyd7")
+row = 2
+fps = 8.0
+scale = 5.0
+offset = Vector2(-1, -58)
+modulate = Color(0.9181408, 0.90728885, 0, 1)

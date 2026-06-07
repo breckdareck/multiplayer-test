@@ -1,14 +1,15 @@
-[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3 uid="uid://dy2xxghii0r5g"]
 
-[ext_resource type="Script" path="res://scripts/Resources/VfxEffectData.gd" id="1_llkmf"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MiniElementsHeroes/LightningEffect-Sheet.png" id="2_upg33"]
+[ext_resource type="Script" uid="uid://nblkvwf7wtfw" path="res://scripts/Resources/VfxEffectData.gd" id="1_llkmf"]
+[ext_resource type="Texture2D" uid="uid://kty25gahq6fl" path="res://assets/sprites/MiniFolksPlusAbyssArmy/MiniFolksPlusAbyssArmy/Lightning-Sheet.png" id="2_llkmf"]
 
 [resource]
 script = ExtResource("1_llkmf")
 effect_key = "lightning_ground"
 category = "ground"
-sheet = ExtResource("2_upg33")
-fps = 14.0
+sheet = ExtResource("2_llkmf")
+fps = 18.0
 loop = true
 scale = 2.2
+offset = Vector2(1, -32)
 modulate = Color(0.7, 0.75, 1, 0.95)

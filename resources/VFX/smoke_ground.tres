@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3 uid="uid://ibq07mytlgfl"]
 
-[ext_resource type="Script" path="res://scripts/Resources/VfxEffectData.gd" id="1_rvny1"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MiniBigMonsters/MiniBigMonsters/DarkFire-Sheet.png" id="2_w4ej5"]
+[ext_resource type="Script" uid="uid://nblkvwf7wtfw" path="res://scripts/Resources/VfxEffectData.gd" id="1_rvny1"]
+[ext_resource type="Texture2D" uid="uid://dhlxwg0aq3hn0" path="res://assets/sprites/MiniBigMonsters/MiniBigMonsters/DarkFire-Sheet.png" id="2_w4ej5"]
 
 [resource]
 script = ExtResource("1_rvny1")
@@ -11,4 +11,5 @@ sheet = ExtResource("2_w4ej5")
 fps = 10.0
 loop = true
 scale = 2.6
-modulate = Color(0.62, 0.62, 0.68, 0.85)
+offset = Vector2(0, -38)
+modulate = Color(0.23255411, 0.23226762, 0.27155623, 0.8509804)

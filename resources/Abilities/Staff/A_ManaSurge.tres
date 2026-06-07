@@ -25,6 +25,8 @@ hit_box_position_data = Vector2(30, -15)
 animation_name = "attack_1"
 sfx_path = "res://assets/sounds/tap.wav"
 logic_script = ExtResource("3_al")
+cast_vfx = "none"
+hit_vfx = "dark_impact"
 
 [sub_resource type="Resource" id="Resource_cast"]
 script = ExtResource("5_asf")

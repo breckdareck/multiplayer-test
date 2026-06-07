@@ -1,13 +1,14 @@
-[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3 uid="uid://d38x8ukjeoog3"]
 
-[ext_resource type="Script" path="res://scripts/Resources/VfxEffectData.gd" id="1_1uxag"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MiniBigMonsters/MiniBigMonsters/DarkFire-Sheet.png" id="2_6ylbr"]
+[ext_resource type="Script" uid="uid://nblkvwf7wtfw" path="res://scripts/Resources/VfxEffectData.gd" id="1_1uxag"]
+[ext_resource type="Texture2D" uid="uid://dhlxwg0aq3hn0" path="res://assets/sprites/MiniBigMonsters/MiniBigMonsters/DarkFire-Sheet.png" id="2_6ylbr"]
 
 [resource]
 script = ExtResource("1_1uxag")
 effect_key = "dark_cast"
 category = "cast"
 sheet = ExtResource("2_6ylbr")
-fps = 16.0
+fps = 10.0
 scale = 1.8
+offset = Vector2(0, -16)
 modulate = Color(0.55, 0.35, 0.8, 1)

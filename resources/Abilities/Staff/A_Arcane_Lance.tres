@@ -25,6 +25,7 @@ hit_box_shape_data = SubResource("RectangleShape2D_ln1")
 hit_box_position_data = Vector2(60, -10)
 animation_name = "attack_2"
 logic_script = ExtResource("16_allan")
+cast_vfx = "none"
 is_projectile = true
 projectile_scene = ExtResource("2_ln3")
 projectile_speed = 280.0

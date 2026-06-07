@@ -1,14 +1,16 @@
-[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3 uid="uid://dihaco3lj0bwv"]
 
-[ext_resource type="Script" path="res://scripts/Resources/VfxEffectData.gd" id="1_2dgo0"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MiniDarkElves/MiniDarkElves/Starfall-Sheet.png" id="2_ovttj"]
+[ext_resource type="Script" uid="uid://nblkvwf7wtfw" path="res://scripts/Resources/VfxEffectData.gd" id="1_2dgo0"]
+[ext_resource type="Texture2D" uid="uid://cghiaax4paic5" path="res://assets/sprites/MiniStarWanderers/MiniStarWanderers/Ball of light-Sheet.png" id="2_2dgo0"]
 
 [resource]
 script = ExtResource("1_2dgo0")
 effect_key = "holy_ground"
 category = "ground"
-sheet = ExtResource("2_ovttj")
-fps = 12.0
+sheet = ExtResource("2_2dgo0")
+row = 1
+fps = 8.0
 loop = true
 scale = 2.2
+offset = Vector2(0, -16)
 modulate = Color(1, 0.9, 0.5, 0.9)

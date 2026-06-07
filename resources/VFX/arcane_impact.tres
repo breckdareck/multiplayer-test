@@ -1,11 +1,13 @@
-[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3 uid="uid://cx224yocnn4a5"]
 
-[ext_resource type="Script" path="res://scripts/Resources/VfxEffectData.gd" id="1_wj86v"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MiniDarkElves/MiniDarkElves/Starfall-Sheet.png" id="2_5fuhc"]
+[ext_resource type="Script" uid="uid://nblkvwf7wtfw" path="res://scripts/Resources/VfxEffectData.gd" id="1_wj86v"]
+[ext_resource type="Texture2D" uid="uid://dad5nlm0fiw2a" path="res://assets/sprites/MiniDarkElves/MiniDarkElves/Starfall-Sheet.png" id="2_5fuhc"]
 
 [resource]
 script = ExtResource("1_wj86v")
 effect_key = "arcane_impact"
 sheet = ExtResource("2_5fuhc")
+fps = 12.0
 scale = 1.6
+offset = Vector2(2, -24)
 modulate = Color(0.78, 0.6, 1, 1)
