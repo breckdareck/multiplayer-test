@@ -4,7 +4,6 @@ extends Control
 @onready var password_input = $Panel/VBoxContainer/PasswordInput
 @onready var login_button = $Panel/VBoxContainer/LoginButton
 @onready var register_button = $Panel/VBoxContainer/RegisterButton
-@onready var dev_login_button = $Panel/VBoxContainer/DevLoginButton
 @onready var local_save_checkbox = $Panel/VBoxContainer/LocalSaveCheckbox
 @onready var status_label = $Panel/VBoxContainer/StatusLabel
 
@@ -18,16 +17,15 @@ extends Control
 @onready var apply_button = $Panel/VBoxContainer/ApplyButton
 @onready var api_status_label = $Panel/VBoxContainer/APIStatusLabel
 
-# Dev fast-path UI (authored in the scene; debug-only — hidden in release).
-@onready var _dev_nodes := [
-	$Panel/VBoxContainer/DevSeparator,
-	$Panel/VBoxContainer/DevLabel,
-	$Panel/VBoxContainer/DevRow,
-]
-@onready var dev_sword_button = $Panel/VBoxContainer/DevRow/DevSwordButton
-@onready var dev_bow_button = $Panel/VBoxContainer/DevRow/DevBowButton
-@onready var dev_staff_button = $Panel/VBoxContainer/DevRow/DevStaffButton
-@onready var dev_dagger_button = $Panel/VBoxContainer/DevRow/DevDaggerButton
+# Dev tools live in a hidden side panel (authored in the scene), toggled by F9 or
+# the small ⚙ button — and only in debug builds, so users never reach them.
+@onready var dev_sidebar = $DevSidebar
+@onready var dev_toggle = $DevToggle
+@onready var dev_login_button = $DevSidebar/VBox/DevLoginButton
+@onready var dev_sword_button = $DevSidebar/VBox/DevRow/DevSwordButton
+@onready var dev_bow_button = $DevSidebar/VBox/DevRow/DevBowButton
+@onready var dev_staff_button = $DevSidebar/VBox/DevRow/DevStaffButton
+@onready var dev_dagger_button = $DevSidebar/VBox/DevRow/DevDaggerButton
 
 var settings_expanded: bool = false
 
@@ -40,7 +38,6 @@ var api_presets = {
 func _ready():
 	login_button.pressed.connect(_on_login_pressed)
 	register_button.pressed.connect(_on_register_pressed)
-	dev_login_button.pressed.connect(_on_dev_login_pressed)
 	local_save_checkbox.toggled.connect(_on_local_save_toggled)
 	
 	backend_settings_button.pressed.connect(_toggle_backend_settings)
@@ -212,19 +209,35 @@ const _DEV_DISCIPLINES := [
 	[Constants.ClassType.DAGGER, "Dagger"],
 ]
 
-## Wires the scene-authored dev "skip to combat" buttons and hides the whole
-## section in non-debug builds so it never ships in a release.
+## Wires the hidden dev side panel. The panel + its ⚙ toggle only exist in debug
+## builds; in a release build nothing is shown or wired, so users can't reach the
+## dev login or the skip-to-combat buttons. Toggle with the ⚙ button or F9.
 func _setup_dev_ui() -> void:
+	dev_sidebar.visible = false
 	var dbg := OS.is_debug_build()
-	for n in _dev_nodes:
-		if is_instance_valid(n):
-			n.visible = dbg
+	dev_toggle.visible = dbg
 	if not dbg:
 		return
+	dev_toggle.pressed.connect(_toggle_dev_sidebar)
+	dev_login_button.pressed.connect(_on_dev_login_pressed)
 	dev_sword_button.pressed.connect(_on_dev_skip_pressed.bind(Constants.ClassType.SWORD))
 	dev_bow_button.pressed.connect(_on_dev_skip_pressed.bind(Constants.ClassType.BOW))
 	dev_staff_button.pressed.connect(_on_dev_skip_pressed.bind(Constants.ClassType.STAFF))
 	dev_dagger_button.pressed.connect(_on_dev_skip_pressed.bind(Constants.ClassType.DAGGER))
+
+
+func _toggle_dev_sidebar() -> void:
+	if is_instance_valid(dev_sidebar):
+		dev_sidebar.visible = not dev_sidebar.visible
+
+
+## F9 toggles the dev panel (debug builds only).
+func _unhandled_key_input(event: InputEvent) -> void:
+	if not OS.is_debug_build():
+		return
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F9:
+		_toggle_dev_sidebar()
+		get_viewport().set_input_as_handled()
 
 
 ## Light entrance polish: fade the screen in, slide/settle the title + panel, and

@@ -9,7 +9,6 @@
 [ext_resource type="FontFile" uid="uid://dxbqcm3ww0xmj" path="res://assets/fonts/Starbim.ttf" id="7_title_font"]
 
 [sub_resource type="Gradient" id="Gradient_ember"]
-offsets = PackedFloat32Array(0, 1)
 colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_ember"]
@@ -26,9 +25,9 @@ emission_shape = 3
 emission_box_extents = Vector3(960, 600, 1)
 direction = Vector3(0, -1, 0)
 spread = 18.0
-gravity = Vector3(0, -6, 0)
 initial_velocity_min = 3.0
 initial_velocity_max = 12.0
+gravity = Vector3(0, -6, 0)
 scale_min = 0.3
 scale_max = 1.1
 color = Color(1, 0.82, 0.45, 1)
@@ -56,24 +55,24 @@ expand_mode = 1
 stretch_mode = 6
 
 [node name="Cloud1" type="TextureRect" parent="."]
-texture_filter = 1
 modulate = Color(1, 1, 1, 0.85)
+texture_filter = 1
 layout_mode = 1
-offset_left = 180.0
-offset_top = 130.0
-offset_right = 372.0
-offset_bottom = 226.0
+offset_left = 4.0
+offset_top = -112.0
+offset_right = 484.8
+offset_bottom = 188.5
 scale = Vector2(4, 4)
 texture = ExtResource("5_cloud1")
 
 [node name="Cloud2" type="TextureRect" parent="."]
-texture_filter = 1
 modulate = Color(1, 1, 1, 0.7)
+texture_filter = 1
 layout_mode = 1
-offset_left = 1320.0
-offset_top = 230.0
-offset_right = 1512.0
-offset_bottom = 326.0
+offset_left = -5.999878
+offset_top = -115.99997
+offset_right = 378.00012
+offset_bottom = 124.00003
 scale = Vector2(5, 5)
 texture = ExtResource("6_cloud2")
 
@@ -100,16 +99,17 @@ grow_vertical = 2
 color = Color(0.05, 0.06, 0.11, 0.5)
 
 [node name="Embers" type="GPUParticles2D" parent="."]
+modulate = Color(1, 1, 1, 0.55)
 position = Vector2(960, 560)
 amount = 36
+texture = SubResource("GradientTexture2D_ember")
 lifetime = 7.0
 preprocess = 7.0
-texture = SubResource("GradientTexture2D_ember")
 process_material = SubResource("ParticleProcessMaterial_ember")
-modulate = Color(1, 1, 1, 0.55)
 
 [node name="Flavor" type="Label" parent="."]
 layout_mode = 1
+anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -160,10 +160,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -220.0
-offset_top = -288.0
-offset_right = 220.0
-offset_bottom = 332.0
+offset_left = -248.03223
+offset_top = -309.0
+offset_right = 248.03223
+offset_bottom = 390.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -172,13 +172,14 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 22.0
+offset_left = 27.0
 offset_top = 22.0
-offset_right = -22.0
+offset_right = -29.064453
 offset_bottom = -22.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 11
+theme_override_constants/separation = 14
+alignment = 1
 
 [node name="Label" type="Label" parent="Panel/VBoxContainer"]
 layout_mode = 2
@@ -204,13 +205,10 @@ text = "Login"
 layout_mode = 2
 text = "Register"
 
-[node name="DevLoginButton" type="Button" parent="Panel/VBoxContainer"]
-layout_mode = 2
-text = "Dev Login"
-
 [node name="LocalSaveCheckbox" type="CheckBox" parent="Panel/VBoxContainer"]
 layout_mode = 2
 text = "Use Local Save"
+alignment = 1
 
 [node name="BackendSettingsButton" type="Button" parent="Panel/VBoxContainer"]
 layout_mode = 2
@@ -259,36 +257,88 @@ theme_override_colors/font_color = Color(1, 0.2, 0.2, 1)
 horizontal_alignment = 1
 autowrap_mode = 2
 
-[node name="DevSeparator" type="HSeparator" parent="Panel/VBoxContainer"]
+[node name="DevSidebar" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 1
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -316.0
+offset_top = -200.0
+offset_right = -16.0
+offset_bottom = 200.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="DevSidebar"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Header" type="Label" parent="DevSidebar/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
+theme_override_font_sizes/font_size = 16
+text = "⚙  Dev Tools"
+horizontal_alignment = 1
+
+[node name="Hint" type="Label" parent="DevSidebar/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.74, 0.8, 0.8)
+theme_override_font_sizes/font_size = 11
+text = "F9 toggles this panel"
+horizontal_alignment = 1
+
+[node name="Sep1" type="HSeparator" parent="DevSidebar/VBox"]
 layout_mode = 2
 
-[node name="DevLabel" type="Label" parent="Panel/VBoxContainer"]
+[node name="DevLoginButton" type="Button" parent="DevSidebar/VBox"]
+layout_mode = 2
+text = "Dev Login (offline)"
+
+[node name="Sep2" type="HSeparator" parent="DevSidebar/VBox"]
+layout_mode = 2
+
+[node name="DevLabel" type="Label" parent="DevSidebar/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
 theme_override_font_sizes/font_size = 12
-text = "⚡ DEV — skip to combat (max char):"
+text = "⚡ Skip to combat (max char):"
 horizontal_alignment = 1
 
-[node name="DevRow" type="HBoxContainer" parent="Panel/VBoxContainer"]
+[node name="DevRow" type="HBoxContainer" parent="DevSidebar/VBox"]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="DevSwordButton" type="Button" parent="Panel/VBoxContainer/DevRow"]
+[node name="DevSwordButton" type="Button" parent="DevSidebar/VBox/DevRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Sword"
 
-[node name="DevBowButton" type="Button" parent="Panel/VBoxContainer/DevRow"]
+[node name="DevBowButton" type="Button" parent="DevSidebar/VBox/DevRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Bow"
 
-[node name="DevStaffButton" type="Button" parent="Panel/VBoxContainer/DevRow"]
+[node name="DevStaffButton" type="Button" parent="DevSidebar/VBox/DevRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Staff"
 
-[node name="DevDaggerButton" type="Button" parent="Panel/VBoxContainer/DevRow"]
+[node name="DevDaggerButton" type="Button" parent="DevSidebar/VBox/DevRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Dagger"
+
+[node name="DevToggle" type="Button" parent="."]
+modulate = Color(1, 1, 1, 0.4)
+layout_mode = 1
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = -40.0
+offset_right = 70.0
+offset_bottom = -12.0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 12
+text = "⚙ dev"
