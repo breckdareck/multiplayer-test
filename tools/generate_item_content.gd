@@ -54,9 +54,9 @@ const ICON_SOURCES := {
 	"staff": "res://resources/Items/Weapons/Oak_Staff.tres",
 	"dagger": "res://resources/Items/Weapons/Bronze_Dagger.tres",
 	"armor0": "res://resources/Items/Armor/Leather_Cap.tres",
-	"armor1": "res://resources/Items/Armor/Leather_Vest.tres",
-	"armor2": "res://resources/Items/Armor/Blue_Jean_Shorts.tres",
-	"armor3": "res://resources/Items/Armor/Leather_Sandals.tres",
+	"armor1": "res://resources/Items/Armor/Trappers_Vest.tres",
+	"armor2": "res://resources/Items/Armor/Travelers_Breeches.tres",
+	"armor3": "res://resources/Items/Armor/Trailworn_Sandals.tres",
 	"hp": "res://resources/Items/Consumables/Grape_Potion.tres",
 	"mp": "res://resources/Items/Consumables/Mana_Potion.tres",
 }

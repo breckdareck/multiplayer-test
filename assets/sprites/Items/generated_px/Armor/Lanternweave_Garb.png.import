@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cylbm55kscufn"
-path="res://.godot/imported/White_Shirt.png-337a53f4a0600141a306482e56a3ab18.ctex"
+uid="uid://c0qaotwajv650"
+path="res://.godot/imported/Lanternweave_Garb.png-49afb57b037d7f226de3999263365aa6.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/Items/generated_px/Armor/White_Shirt.png"
-dest_files=["res://.godot/imported/White_Shirt.png-337a53f4a0600141a306482e56a3ab18.ctex"]
+source_file="res://assets/sprites/Items/generated_px/Armor/Lanternweave_Garb.png"
+dest_files=["res://.godot/imported/Lanternweave_Garb.png-49afb57b037d7f226de3999263365aa6.ctex"]
 
 [params]
 

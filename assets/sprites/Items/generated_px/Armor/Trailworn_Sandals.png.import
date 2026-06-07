@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://lwisn86j3ckh"
-path="res://.godot/imported/Leather_Vest.png-86b0cd65e48c8fc73816af262ff2dc2d.ctex"
+uid="uid://cs8xympr1lhwn"
+path="res://.godot/imported/Trailworn_Sandals.png-13c06141751bd042631c590fc62a4c71.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/Items/generated_px/Armor/Leather_Vest.png"
-dest_files=["res://.godot/imported/Leather_Vest.png-86b0cd65e48c8fc73816af262ff2dc2d.ctex"]
+source_file="res://assets/sprites/Items/generated_px/Armor/Trailworn_Sandals.png"
+dest_files=["res://.godot/imported/Trailworn_Sandals.png-13c06141751bd042631c590fc62a4c71.ctex"]
 
 [params]
 

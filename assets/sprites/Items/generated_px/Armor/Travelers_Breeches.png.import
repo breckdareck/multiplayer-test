@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://curd8m76wokuq"
-path="res://.godot/imported/Wizard_Hat.png-c7df92908b310e99256ce1f0c1373e69.ctex"
+uid="uid://fis5sdnrqe5w"
+path="res://.godot/imported/Travelers_Breeches.png-0b04ede6878afee965ca91500378d96d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/Items/generated_px/Armor/Wizard_Hat.png"
-dest_files=["res://.godot/imported/Wizard_Hat.png-c7df92908b310e99256ce1f0c1373e69.ctex"]
+source_file="res://assets/sprites/Items/generated_px/Armor/Travelers_Breeches.png"
+dest_files=["res://.godot/imported/Travelers_Breeches.png-0b04ede6878afee965ca91500378d96d.ctex"]
 
 [params]
 

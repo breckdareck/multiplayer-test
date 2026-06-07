@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c0qaotwajv650"
-path="res://.godot/imported/Blue_Lolico_Armor.png-cb82f0e8aeb1e4369370f5be0dbf342e.ctex"
+uid="uid://dbru0lbi15p0f"
+path="res://.godot/imported/Emberweave_Robe.png-1b9c791eec9379bb10b53681ab584ee7.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/Items/generated_px/Armor/Blue_Lolico_Armor.png"
-dest_files=["res://.godot/imported/Blue_Lolico_Armor.png-cb82f0e8aeb1e4369370f5be0dbf342e.ctex"]
+source_file="res://assets/sprites/Items/generated_px/Armor/Emberweave_Robe.png"
+dest_files=["res://.godot/imported/Emberweave_Robe.png-1b9c791eec9379bb10b53681ab584ee7.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://fis5sdnrqe5w"
-path="res://.godot/imported/Blue_Jean_Shorts.png-80adaef379b76c5e68bf196193cc4095.ctex"
+uid="uid://curd8m76wokuq"
+path="res://.godot/imported/Attuners_Hat.png-8b4694672a7486284a9407397267c4d1.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/Items/generated_px/Armor/Blue_Jean_Shorts.png"
-dest_files=["res://.godot/imported/Blue_Jean_Shorts.png-80adaef379b76c5e68bf196193cc4095.ctex"]
+source_file="res://assets/sprites/Items/generated_px/Armor/Attuners_Hat.png"
+dest_files=["res://.godot/imported/Attuners_Hat.png-8b4694672a7486284a9407397267c4d1.ctex"]
 
 [params]
 

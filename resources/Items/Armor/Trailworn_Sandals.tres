@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_huyix"]
 [ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_i5etc"]
-[ext_resource type="Texture2D" uid="uid://cs8xympr1lhwn" path="res://assets/sprites/Items/generated_px/Armor/Leather_Sandals.png" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://cs8xympr1lhwn" path="res://assets/sprites/Items/generated_px/Armor/Trailworn_Sandals.png" id="99_svgicon"]
 
 [sub_resource type="Resource" id="Resource_huyix"]
 script = ExtResource("1_huyix")

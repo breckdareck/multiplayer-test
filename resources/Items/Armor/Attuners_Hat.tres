@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_wh01"]
 [ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_wh01"]
-[ext_resource type="Texture2D" uid="uid://curd8m76wokuq" path="res://assets/sprites/Items/generated_px/Armor/Wizard_Hat.png" id="99_svgicon"]
+[ext_resource type="Texture2D" uid="uid://curd8m76wokuq" path="res://assets/sprites/Items/generated_px/Armor/Attuners_Hat.png" id="99_svgicon"]
 
 [sub_resource type="Resource" id="Resource_wh01"]
 script = ExtResource("1_wh01")
