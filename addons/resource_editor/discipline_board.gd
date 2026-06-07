@@ -1,6 +1,6 @@
 @tool
 class_name DisciplineBoard
-extends Window
+extends Control
 
 ## Discipline-wide skill-tree placement board (grilled 2026-06-06). Shows every
 ## ability of one weapon discipline arranged on a 2-path grid (Path A / Path B)
@@ -55,10 +55,8 @@ const DISC_KEYS := ["sword", "bow", "staff", "dagger"]
 
 
 func _init() -> void:
-	title = "Discipline Tree Board"
-	size = Vector2i(900, 680)
-	min_size = Vector2i(640, 480)
-	close_requested.connect(hide)
+	size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_build_chrome()
 
 
@@ -148,12 +146,11 @@ func _build_chrome() -> void:
 
 
 # ── Public ───────────────────────────────────────────────────────────────────
-func open() -> void:
+func refresh() -> void:
 	_scan()
 	if _disc_option.selected < 0:
 		_disc_option.selected = 0
 	_populate()
-	popup_centered()
 
 
 # ── Scan ─────────────────────────────────────────────────────────────────────

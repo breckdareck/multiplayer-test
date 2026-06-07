@@ -1,6 +1,6 @@
 @tool
 class_name ValidationDashboard
-extends Window
+extends Control
 
 ## Live, in-editor "Problems" panel (grilled 2026-06-06). Scans every resource and
 ## surfaces authoring errors that otherwise only show up at runtime or in the
@@ -27,10 +27,8 @@ var _problems: Array = []  # [{sev, msg, path}]
 
 
 func _init() -> void:
-	title = "Resource Problems"
-	size = Vector2i(720, 620)
-	min_size = Vector2i(480, 360)
-	close_requested.connect(hide)
+	size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_build_chrome()
 
 
@@ -72,9 +70,8 @@ func _build_chrome() -> void:
 	col.add_child(hint)
 
 
-func open() -> void:
+func refresh() -> void:
 	rescan_and_show()
-	popup_centered()
 
 
 func rescan_and_show() -> void:

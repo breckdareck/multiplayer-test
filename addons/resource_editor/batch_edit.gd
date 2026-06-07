@@ -1,6 +1,8 @@
 @tool
 class_name BatchEditWindow
-extends Window
+extends Control
+
+const ResourceTypeConfig = preload("res://addons/resource_editor/resource_type_config.gd")
 
 ## Batch / bulk field editor (grilled 2026-06-06). Multi-select resources of one
 ## type and set a scalar field across all of them at once, with a mandatory
@@ -29,6 +31,8 @@ var _entries: Array = []   # [{res, path, check}]
 var _fields: Array = []    # [{name, type}]
 
 var _header: Label
+var _type_option: OptionButton
+var _types: Array = []  # ResourceTypeConfig.ResourceType
 var _list_host: VBoxContainer
 var _field_option: OptionButton
 var _value_edit: LineEdit
@@ -38,10 +42,8 @@ var _confirm: ConfirmationDialog
 
 
 func _init() -> void:
-	title = "Batch Edit"
-	size = Vector2i(760, 640)
-	min_size = Vector2i(520, 420)
-	close_requested.connect(hide)
+	size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_build_chrome()
 
 
@@ -61,7 +63,19 @@ func _build_chrome() -> void:
 	_header = Label.new()
 	_header.add_theme_font_size_override("font_size", 12)
 	_header.add_theme_color_override("font_color", C_ACCENT)
+	_header.text = "⚙  BATCH EDIT"
 	col.add_child(_header)
+
+	# Resource-type picker (self-contained — no dock dependency).
+	var type_row := HBoxContainer.new()
+	type_row.add_theme_constant_override("separation", 6)
+	col.add_child(type_row)
+	var tl := Label.new(); tl.text = "Type"; tl.add_theme_color_override("font_color", C_DIM)
+	type_row.add_child(tl)
+	_type_option = OptionButton.new()
+	_type_option.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_type_option.item_selected.connect(_on_type_selected)
+	type_row.add_child(_type_option)
 
 	# Selection list
 	var sel_bar := HBoxContainer.new()
@@ -140,14 +154,36 @@ func _build_chrome() -> void:
 
 
 # ── Public ───────────────────────────────────────────────────────────────────
-func open_for(type_name: String, script_path: String, base_folder: String) -> void:
-	_type_name = type_name
-	_header.text = "⚙  BATCH EDIT — %s" % type_name
-	_scan(script_path, base_folder)
+## Populate the type picker (called once when the panel is built).
+func setup() -> void:
+	_types = ResourceTypeConfig.get_all_resource_types()
+	_type_option.clear()
+	for i in _types.size():
+		_type_option.add_item(_types[i].display_name, i)
+	if _types.size() > 0:
+		_type_option.selected = 0
+		_select_type(0)
+
+
+func refresh() -> void:
+	if _type_option.selected >= 0:
+		_select_type(_type_option.selected)
+
+
+func _on_type_selected(idx: int) -> void:
+	_select_type(idx)
+
+
+func _select_type(idx: int) -> void:
+	if idx < 0 or idx >= _types.size():
+		return
+	var rt = _types[idx]
+	_type_name = rt.display_name
+	_header.text = "⚙  BATCH EDIT — %s" % rt.display_name
+	_scan(rt.script_path, rt.base_folder)
 	_build_list()
 	_build_field_options()
 	_refresh_preview()
-	popup_centered()
 
 
 # ── Scan / list ──────────────────────────────────────────────────────────────

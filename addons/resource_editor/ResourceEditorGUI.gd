@@ -141,16 +141,6 @@ var _adv_buff_picker: EditorResourcePicker = null
 var _adv_debuff_picker: EditorResourcePicker = null
 var _adv_prereq_host: VBoxContainer = null
 
-# Discipline skill-tree placement board (separate Window, opened from a header
-# button). See discipline_board.gd.
-var _board_window: DisciplineBoard = null
-var _board_button: Button = null
-
-# Validation dashboard (separate Window). See validation_dashboard.gd.
-var _validation_window: ValidationDashboard = null
-# Batch edit (separate Window). See batch_edit.gd.
-var _batch_window: BatchEditWindow = null
-
 # Cross-resource "Related" panel + lazily-built reverse-reference index.
 var _related_card: PanelContainer = null
 var _related_host: VBoxContainer = null
@@ -323,7 +313,8 @@ func _apply_base_theme() -> void:
 	_build_advanced_section()
 	_build_upgrade_section()
 	_build_related_section()
-	_build_board_button()
+	# Cross-cutting tools (board / problems / batch) now live in the bottom
+	# "Weapon Tooling" panel — see weapon_tooling_panel.gd. No dock buttons.
 
 	# Style all input controls with accent focus borders
 	_polish_inputs()
@@ -459,42 +450,6 @@ func _set_upgrade_card_visible(vis: bool) -> void:
 		_upgrade_card.visible = vis
 
 
-# ── Discipline board (opened from the header button) ────────────────────────────
-func _build_board_button() -> void:
-	if is_instance_valid(_board_button):
-		return
-	var fb = new_button.get_parent()
-	if not is_instance_valid(fb):
-		return
-	_board_button = Button.new()
-	_board_button.text = "🌲 Tree"
-	_board_button.tooltip_text = "Open the discipline skill-tree placement board"
-	_board_button.pressed.connect(_open_board)
-	_style_btn(_board_button, C_DIM, false)
-	fb.add_child(_board_button)
-
-	var problems_btn := Button.new()
-	problems_btn.text = "⚠ Problems"
-	problems_btn.tooltip_text = "Scan all resources for authoring problems"
-	problems_btn.pressed.connect(_open_problems)
-	_style_btn(problems_btn, C_DIM, false)
-	fb.add_child(problems_btn)
-
-	var batch_btn := Button.new()
-	batch_btn.text = "≣ Batch"
-	batch_btn.tooltip_text = "Batch-edit a field across many resources of the current type"
-	batch_btn.pressed.connect(_open_batch)
-	_style_btn(batch_btn, C_DIM, false)
-	fb.add_child(batch_btn)
-
-
-func _open_board() -> void:
-	if not is_instance_valid(_board_window):
-		_board_window = DisciplineBoard.new()
-		add_child(_board_window)
-	_board_window.open()
-
-
 # ── Related / cross-resource navigation panel ───────────────────────────────────
 func _build_related_section() -> void:
 	if is_instance_valid(_related_card):
@@ -626,26 +581,6 @@ func _add_related_link(label: String, path: String) -> int:
 	btn.pressed.connect(func(): _jump_to_resource(path))
 	_related_host.add_child(btn)
 	return 1
-
-
-func _open_problems() -> void:
-	if not is_instance_valid(_validation_window):
-		_validation_window = ValidationDashboard.new()
-		_validation_window.jump_requested.connect(_jump_to_resource)
-		add_child(_validation_window)
-	_validation_window.open()
-
-
-func _open_batch() -> void:
-	if not current_resource_type:
-		return
-	if not is_instance_valid(_batch_window):
-		_batch_window = BatchEditWindow.new()
-		_batch_window.applied.connect(func():
-			_invalidate_related_index()
-			_scan_for_resources())
-		add_child(_batch_window)
-	_batch_window.open_for(current_resource_type.display_name, current_resource_type.script_path, current_resource_type.base_folder)
 
 
 # Jump to a resource by path: switch to its type, scan, load it, select in tree.
