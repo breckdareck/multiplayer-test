@@ -1,4 +1,4 @@
-# Untitled Weapon-Identity RPG — Game Design Document
+# Emberwilds — Game Design Document
 
 > **Version:** v0.9 — systems-complete draft
 > **Last updated:** 2026-06-02
@@ -16,8 +16,8 @@
 
 ## 1. Executive summary
 
-A **server-authoritative 2D side-scrolling co-op RPG** where your **weapon is
-your class**. There are no job classes to pick — you wield a Sword, Bow, Staff,
+**Emberwilds** is a **server-authoritative 2D side-scrolling co-op RPG** where
+your **weapon is your class**. There are no job classes to pick — you wield a Sword, Bow, Staff,
 or Dagger, level that weapon's *mastery*, and spend freely-allocated attribute
 points to shape a STR tank, a DEX marksman, an INT mage, a LUCK assassin, or any
 hybrid in between. Equip **two** weapons at once and your build is the
@@ -106,37 +106,79 @@ for spellblade) → chase higher-level-band gear with better `CRITDAMAGE` /
 
 ## 6. Story, setting & world
 
-### 6.1 Setting
+> Full world bible: [`docs/LORE.md`](LORE.md). This section is the GDD-level
+> summary and how the fiction maps onto the systems.
 
-A bright fantasy frontier of pastoral fields, goblin-held woods, and increasingly
-arcane high-level zones, capped by a singular endgame threat (the **Eternal
-Warlord**). The world is a hub town ringed by portal-connected hunting maps.
+### 6.1 Setting — the Emberwilds
 
-### 6.2 Tone
+Generations ago the **Weave** — the lattice that held all magic — **shattered**.
+That night, remembered as **the Emberfall** (scholars call it *the Sundering*),
+its power rained down as **embers**: glowing, elemental shards of broken magic.
+The old kingdoms fell with the Weave, and raw embers warped the beasts of the
+deep woods into monsters.
 
-MapleStory's readable, cheerful 2D silhouettes with a muted-palette
-high-fantasy drift as you climb the level ladder. Combat is energetic and
-number-forward, not grim.
+The survivors rebuilt. They raised **Hearths** — warm frontier towns ringed by
+**ember-lanterns** that hold the wild at bay (the safe hubs / `town`) — and
+learned the one art the old world never needed: an ember can't be wielded
+barehanded, but **bound into a weapon, it can be channelled**. Past the
+lantern-light lie **the Emberwilds**: overgrown fields, goblin-held woods,
+drowned mines, and the ruins of the world that broke — still saturated with
+embers to harvest and the monsters they keep warping. That is the loop:
+**venture out, gather embers, deepen your attunement, push the wild back.**
+
+The world is a **Hearth ringed by portal-connected wild maps** (§12), capped by
+the deepest ruin and its keeper, the **Eternal Warlord** (§6.3).
+
+**Fiction → systems:**
+
+| Fiction | System |
+|---|---|
+| Magic only channels **through an attuned weapon** | The weapon *is* the class (§7.2) |
+| **Embers** come in elements | Fire/Ice/Lightning/Earth/Wind/Shadow/Arcane (staff stances, §8) |
+| **Attunement** deepens with use | Weapon mastery (§9.5) |
+| **Sigils** — crystallised Weave-fragments you slot | Card/rune-style gear identity (§10) |
+| **Wilders** run the deep wilds together | Co-op parties (§13) |
+| The wilds are still ember-saturated | Endless respawns / the grind (§5.3) |
+| **Hearthfolk** — a lived-in frontier | Bots-as-population (§11.3) |
+
+### 6.2 Tone — cozy catastrophe
+
+The apocalypse already happened, and the world *survived it*. **Hopeful, not
+grim:** days are spent in a warm town among people who know your name; danger
+lives at the edges and in the deep. MapleStory's readable, cheerful 2D
+silhouettes drift to a muted high-fantasy palette as you climb toward the ruins.
+Combat stays energetic and number-forward — campfire at the center, monsters at
+the edges.
 
 ### 6.3 Plot beats (high level)
 
-> ⚠ Open question: There is **no authored narrative yet** — the story layer is
-> carried entirely by the quest chains (§14). The beats below describe the
-> *guided journey* the quests already implement, not a written plot.
+> The narrative is delivered by the quest chains (§14); below is that guided
+> journey told in Emberwilds fiction. The plot is intentionally light — the
+> *world* is authored; the *epic* is still optional.
 
-- **Act 1 — onboarding (lvl 1–10):** auto-granted `q_first_blood` (kill 1 Slime) → a WelcomeOverlay → the Slime/Boar beginner chains. You learn your starting weapon's gauge.
-- **Act 2 — the climb (lvl 10–30):** the Deep Woods / goblin chains open; the Advancement chain (`q_call_to_advance`) points you at level 30, where more weapons unlock.
-- **Act 3 — refinement (lvl 30–100):** mastery caps (~L70), then character levels 70–100 are pure attribute/gear refinement; the EndlessHunt repeatable chain and the high-level enemy ladder carry the grind to the Warlord.
+- **Act 1 — past the lantern-line (lvl 1–10):** a Hearth elder sends you out —
+  auto-granted `q_first_blood` (your first kill) → a WelcomeOverlay → the
+  Slime/Bunny near-wilds chains. You **attune** to your starting weapon and learn
+  its gauge.
+- **Act 2 — into the deep (lvl 10–30):** the **Deep Woods** / goblin chains open;
+  the Advancement chain (`q_call_to_advance`) points you toward the old ruins,
+  where embers run richer and a **second attunement** becomes worth the risk.
+- **Act 3 — the heart of the Sundering (lvl 30–100):** mastery caps (~L70); the
+  climb to 100 is refinement of attributes, sigils, and gear as you delve the
+  oldest ruins. At the bottom waits the **Eternal Warlord** — an old-world general
+  who bound so many embers he became deathless and warped, and who will not let
+  the Weave's heart be touched. *(Whether to mend the Weave or leave it broken is
+  the question the Hearths still argue over.)*
 
 ### 6.4 Regions
 
-| Region (map_id) | Level band | Vibe | Notable mobs |
+| Region (map_id) | Level band | Vibe (Emberwilds) | Notable mobs |
 |---|---|---|---|
-| `town` | — | Safe hub | Quest-giver NPCs, no combat |
-| `game` | ~1–3 | Starter field | Slime (1), Bunny (1), Bird (3) |
-| `game2` | ~6–9 | Meadow | Boar (6), Deer (7), Fox (9) |
-| `game3` | ~10–23 | Goblin woods | Goblin Warrior (13), Goblin (18), Cave Goblin (23) |
-| `game4` | ~28+ | Higher tier | Tusk Brute (28) and upward |
+| `town` | — | A **Hearth** — safe hub ringed by ember-lanterns | Quest-giver Hearthfolk, no combat |
+| `game` | ~1–3 | The **near-wilds** — overgrown fields just past the lantern-line | Slime (1), Bunny (1), Bird (3) |
+| `game2` | ~6–9 | Wilder **ember-meadows** | Boar (6), Deer (7), Fox (9) |
+| `game3` | ~10–23 | The **Deep Woods** — goblin-held, ember-thick | Goblin Warrior (13), Goblin (18), Cave Goblin (23) |
+| `game4` | ~28+ | The **Ruins** — the broken old world, toward the Warlord | Tusk Brute (28) and upward |
 
 ## 7. Characters & disciplines
 

@@ -6,8 +6,10 @@ additively when you work in that directory; see [Subsystem guides](#subsystem-gu
 
 ## What this is
 
-A **server-authoritative multiplayer RPG** built in Godot 4, with a Flask +
-PostgreSQL backend for account and character persistence.
+**Emberwilds** — a **server-authoritative multiplayer RPG** built in Godot 4,
+with a Flask + PostgreSQL backend for account and character persistence. Cozy
+co-op weapon-identity action on a rebuilt frontier of a world the **Emberfall**
+shattered; world bible in [docs/LORE.md](docs/LORE.md).
 
 **The rule that governs everything:** the server owns all critical state. Clients
 send *intent* via RPCs; the server validates it, mutates state, and broadcasts the

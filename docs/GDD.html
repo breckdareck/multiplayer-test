@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Untitled Weapon-Identity RPG — Game Design Document</title>
+<title>Emberwilds — Game Design Document</title>
 <style>
 /* ---------------------------------------------------------------
    GDD rendered preview — stylesheet
@@ -459,10 +459,10 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
   <span class="brand">Game Design Document</span>
   <button class="theme-toggle" id="themeToggle" type="button">Theme: light</button>
 </header>
-<nav class="gdd-toc"><h2>Contents</h2><ul><li><a href="#1-executive-summary">1. Executive summary</a></li><li><a href="#2-design-pillars">2. Design pillars</a></li><li><a href="#3-game-overview">3. Game overview</a></li><li><a href="#4-player-experience-goals">4. Player experience goals</a></li><li><a href="#5-core-loops">5. Core loops</a><ul><li><a href="#51-30-second-loop">5.1 30-second loop</a></li><li><a href="#52-session-loop">5.2 Session loop</a></li><li><a href="#53-meta-loop-week-over-week">5.3 Meta loop (week-over-week)</a></li></ul></li><li><a href="#6-story-setting-world">6. Story, setting &amp; world</a><ul><li><a href="#61-setting">6.1 Setting</a></li><li><a href="#62-tone">6.2 Tone</a></li><li><a href="#63-plot-beats-high-level">6.3 Plot beats (high level)</a></li><li><a href="#64-regions">6.4 Regions</a></li></ul></li><li><a href="#7-characters-disciplines">7. Characters &amp; disciplines</a><ul><li><a href="#71-player-character">7.1 Player character</a></li><li><a href="#72-weapon-disciplines-there-are-no-classes">7.2 Weapon disciplines (there are no classes)</a></li><li><a href="#73-npcs">7.3 NPCs</a></li></ul></li><li><a href="#8-combat-system">8. Combat system</a><ul><li><a href="#81-core-combat-verbs">8.1 Core combat verbs</a></li><li><a href="#82-damage-formula">8.2 Damage formula</a></li><li><a href="#83-hit-miss-crit">8.3 Hit / miss &amp; crit</a></li><li><a href="#84-threat-aggro">8.4 Threat / aggro</a></li><li><a href="#85-death-respawn">8.5 Death &amp; respawn</a></li></ul></li><li><a href="#9-progression-systems">9. Progression systems</a><ul><li><a href="#91-levels-xp">9.1 Levels &amp; XP</a></li><li><a href="#92-attribute-points-manual-allocation-adr-0002-shipped">9.2 Attribute points (manual allocation — ADR 0002, shipped)</a></li><li><a href="#93-abilities-three-behavior-layers">9.3 Abilities — three behavior layers</a></li><li><a href="#94-ability-points-upgrade-trees">9.4 Ability points &amp; upgrade trees</a></li><li><a href="#95-weapon-mastery">9.5 Weapon mastery</a></li></ul></li><li><a href="#10-items-equipment-economy">10. Items, equipment &amp; economy</a><ul><li><a href="#101-item-categories">10.1 Item categories</a></li><li><a href="#102-rarity-affixes">10.2 Rarity &amp; affixes</a></li><li><a href="#103-equipment-slots">10.3 Equipment slots</a></li><li><a href="#104-crafting-enchanting">10.4 Crafting &amp; enchanting</a></li><li><a href="#105-economy">10.5 Economy</a></li></ul></li><li><a href="#11-enemies-ai">11. Enemies &amp; AI</a><ul><li><a href="#111-enemy-ladder">11.1 Enemy ladder</a></li><li><a href="#112-enemy-ai">11.2 Enemy AI</a></li><li><a href="#113-bots-server-side-ai-participants">11.3 Bots (server-side AI participants)</a></li><li><a href="#114-pets-owner-bound-companions">11.4 Pets (owner-bound companions)</a></li></ul></li><li><a href="#12-levels-maps-world-topology">12. Levels, maps &amp; world topology</a><ul><li><a href="#121-map-structure">12.1 Map structure</a></li><li><a href="#122-channels">12.2 Channels</a></li><li><a href="#123-map-roster-v1">12.3 Map roster (v1)</a></li></ul></li><li><a href="#13-multiplayer-social-systems">13. Multiplayer &amp; social systems</a><ul><li><a href="#131-topology">13.1 Topology</a></li><li><a href="#132-parties">13.2 Parties</a></li><li><a href="#133-trading">13.3 Trading</a></li><li><a href="#134-chat-commands">13.4 Chat &amp; commands</a></li><li><a href="#135-friends-guilds">13.5 Friends &amp; guilds</a></li></ul></li><li><a href="#14-quests-onboarding">14. Quests &amp; onboarding</a><ul><li><a href="#141-quest-philosophy">14.1 Quest philosophy</a></li><li><a href="#142-onboarding-lvl-15">14.2 Onboarding (lvl 1–5)</a></li><li><a href="#143-quest-roster-22-quests-across-6-chains">14.3 Quest roster (22 quests across 6 chains)</a></li></ul></li><li><a href="#15-user-interface-ux">15. User interface &amp; UX</a><ul><li><a href="#151-screen-flow">15.1 Screen flow</a></li><li><a href="#152-hud">15.2 HUD</a></li><li><a href="#153-windows-the-unified-game-window-adr-0003-shipped">15.3 Windows — the unified game window (ADR 0003, shipped)</a></li><li><a href="#154-accessibility">15.4 Accessibility</a></li></ul></li><li><a href="#16-art-direction">16. Art direction</a><ul><li><a href="#161-visual-pillars">16.1 Visual pillars</a></li><li><a href="#162-style-references">16.2 Style references</a></li><li><a href="#163-asset-pipeline">16.3 Asset pipeline</a></li></ul></li><li><a href="#17-audio-design">17. Audio design</a></li><li><a href="#18-technical-architecture">18. Technical architecture</a><ul><li><a href="#181-server-authority">18.1 Server authority</a></li><li><a href="#182-autoload-singletons-player-facing-roles">18.2 Autoload singletons (player-facing roles)</a></li><li><a href="#183-component-based-characters">18.3 Component-based characters</a></li><li><a href="#184-data-driven-content">18.4 Data-driven content</a></li><li><a href="#185-persistence">18.5 Persistence</a></li><li><a href="#186-performance-targets">18.6 Performance targets</a></li></ul></li><li><a href="#19-production-roadmap">19. Production roadmap</a><ul><li><a href="#191-current-state">19.1 Current state</a></li><li><a href="#192-milestones">19.2 Milestones</a></li><li><a href="#193-out-of-scope-v1">19.3 Out of scope (v1)</a></li></ul></li><li><a href="#20-risks-open-questions-appendix">20. Risks, open questions &amp; appendix</a><ul><li><a href="#201-top-risks">20.1 Top risks</a></li><li><a href="#202-open-questions">20.2 Open questions</a></li><li><a href="#203-glossary">20.3 Glossary</a></li><li><a href="#204-references">20.4 References</a></li></ul></li></ul></nav>
+<nav class="gdd-toc"><h2>Contents</h2><ul><li><a href="#1-executive-summary">1. Executive summary</a></li><li><a href="#2-design-pillars">2. Design pillars</a></li><li><a href="#3-game-overview">3. Game overview</a></li><li><a href="#4-player-experience-goals">4. Player experience goals</a></li><li><a href="#5-core-loops">5. Core loops</a><ul><li><a href="#51-30-second-loop">5.1 30-second loop</a></li><li><a href="#52-session-loop">5.2 Session loop</a></li><li><a href="#53-meta-loop-week-over-week">5.3 Meta loop (week-over-week)</a></li></ul></li><li><a href="#6-story-setting-world">6. Story, setting &amp; world</a><ul><li><a href="#61-setting-the-emberwilds">6.1 Setting — the Emberwilds</a></li><li><a href="#62-tone-cozy-catastrophe">6.2 Tone — cozy catastrophe</a></li><li><a href="#63-plot-beats-high-level">6.3 Plot beats (high level)</a></li><li><a href="#64-regions">6.4 Regions</a></li></ul></li><li><a href="#7-characters-disciplines">7. Characters &amp; disciplines</a><ul><li><a href="#71-player-character">7.1 Player character</a></li><li><a href="#72-weapon-disciplines-there-are-no-classes">7.2 Weapon disciplines (there are no classes)</a></li><li><a href="#73-npcs">7.3 NPCs</a></li></ul></li><li><a href="#8-combat-system">8. Combat system</a><ul><li><a href="#81-core-combat-verbs">8.1 Core combat verbs</a></li><li><a href="#82-damage-formula">8.2 Damage formula</a></li><li><a href="#83-hit-miss-crit">8.3 Hit / miss &amp; crit</a></li><li><a href="#84-threat-aggro">8.4 Threat / aggro</a></li><li><a href="#85-death-respawn">8.5 Death &amp; respawn</a></li></ul></li><li><a href="#9-progression-systems">9. Progression systems</a><ul><li><a href="#91-levels-xp">9.1 Levels &amp; XP</a></li><li><a href="#92-attribute-points-manual-allocation-adr-0002-shipped">9.2 Attribute points (manual allocation — ADR 0002, shipped)</a></li><li><a href="#93-abilities-three-behavior-layers">9.3 Abilities — three behavior layers</a></li><li><a href="#94-ability-points-upgrade-trees">9.4 Ability points &amp; upgrade trees</a></li><li><a href="#95-weapon-mastery">9.5 Weapon mastery</a></li></ul></li><li><a href="#10-items-equipment-economy">10. Items, equipment &amp; economy</a><ul><li><a href="#101-item-categories">10.1 Item categories</a></li><li><a href="#102-rarity-affixes">10.2 Rarity &amp; affixes</a></li><li><a href="#103-equipment-slots">10.3 Equipment slots</a></li><li><a href="#104-crafting-enchanting">10.4 Crafting &amp; enchanting</a></li><li><a href="#105-economy">10.5 Economy</a></li></ul></li><li><a href="#11-enemies-ai">11. Enemies &amp; AI</a><ul><li><a href="#111-enemy-ladder">11.1 Enemy ladder</a></li><li><a href="#112-enemy-ai">11.2 Enemy AI</a></li><li><a href="#113-bots-server-side-ai-participants">11.3 Bots (server-side AI participants)</a></li><li><a href="#114-pets-owner-bound-companions">11.4 Pets (owner-bound companions)</a></li></ul></li><li><a href="#12-levels-maps-world-topology">12. Levels, maps &amp; world topology</a><ul><li><a href="#121-map-structure">12.1 Map structure</a></li><li><a href="#122-channels">12.2 Channels</a></li><li><a href="#123-map-roster-v1">12.3 Map roster (v1)</a></li></ul></li><li><a href="#13-multiplayer-social-systems">13. Multiplayer &amp; social systems</a><ul><li><a href="#131-topology">13.1 Topology</a></li><li><a href="#132-parties">13.2 Parties</a></li><li><a href="#133-trading">13.3 Trading</a></li><li><a href="#134-chat-commands">13.4 Chat &amp; commands</a></li><li><a href="#135-friends-guilds">13.5 Friends &amp; guilds</a></li></ul></li><li><a href="#14-quests-onboarding">14. Quests &amp; onboarding</a><ul><li><a href="#141-quest-philosophy">14.1 Quest philosophy</a></li><li><a href="#142-onboarding-lvl-15">14.2 Onboarding (lvl 1–5)</a></li><li><a href="#143-quest-roster-22-quests-across-6-chains">14.3 Quest roster (22 quests across 6 chains)</a></li></ul></li><li><a href="#15-user-interface-ux">15. User interface &amp; UX</a><ul><li><a href="#151-screen-flow">15.1 Screen flow</a></li><li><a href="#152-hud">15.2 HUD</a></li><li><a href="#153-windows-the-unified-game-window-adr-0003-shipped">15.3 Windows — the unified game window (ADR 0003, shipped)</a></li><li><a href="#154-accessibility">15.4 Accessibility</a></li></ul></li><li><a href="#16-art-direction">16. Art direction</a><ul><li><a href="#161-visual-pillars">16.1 Visual pillars</a></li><li><a href="#162-style-references">16.2 Style references</a></li><li><a href="#163-asset-pipeline">16.3 Asset pipeline</a></li></ul></li><li><a href="#17-audio-design">17. Audio design</a></li><li><a href="#18-technical-architecture">18. Technical architecture</a><ul><li><a href="#181-server-authority">18.1 Server authority</a></li><li><a href="#182-autoload-singletons-player-facing-roles">18.2 Autoload singletons (player-facing roles)</a></li><li><a href="#183-component-based-characters">18.3 Component-based characters</a></li><li><a href="#184-data-driven-content">18.4 Data-driven content</a></li><li><a href="#185-persistence">18.5 Persistence</a></li><li><a href="#186-performance-targets">18.6 Performance targets</a></li></ul></li><li><a href="#19-production-roadmap">19. Production roadmap</a><ul><li><a href="#191-current-state">19.1 Current state</a></li><li><a href="#192-milestones">19.2 Milestones</a></li><li><a href="#193-out-of-scope-v1">19.3 Out of scope (v1)</a></li></ul></li><li><a href="#20-risks-open-questions-appendix">20. Risks, open questions &amp; appendix</a><ul><li><a href="#201-top-risks">20.1 Top risks</a></li><li><a href="#202-open-questions">20.2 Open questions</a></li><li><a href="#203-glossary">20.3 Glossary</a></li><li><a href="#204-references">20.4 References</a></li></ul></li></ul></nav>
 <main class="gdd-main">
   <article class="gdd-content">
-    <h1>Untitled Weapon-Identity RPG — Game Design Document</h1>
+    <h1>Emberwilds — Game Design Document</h1>
 <blockquote>
 <p><strong>Version:</strong> v0.9 — systems-complete draft
 <strong>Last updated:</strong> 2026-06-02
@@ -479,8 +479,8 @@ that plan has now largely <strong>shipped</strong> — 80 abilities, four weapon
 manual attribute pool, and the unified game window are all in the build.</p>
 </blockquote>
 <h2 id="1-executive-summary">1. Executive summary</h2>
-<p>A <strong>server-authoritative 2D side-scrolling co-op RPG</strong> where your <strong>weapon is
-your class</strong>. There are no job classes to pick — you wield a Sword, Bow, Staff,
+<p><strong>Emberwilds</strong> is a <strong>server-authoritative 2D side-scrolling co-op RPG</strong> where
+your <strong>weapon is your class</strong>. There are no job classes to pick — you wield a Sword, Bow, Staff,
 or Dagger, level that weapon's <em>mastery</em>, and spend freely-allocated attribute
 points to shape a STR tank, a DEX marksman, an INT mage, a LUCK assassin, or any
 hybrid in between. Equip <strong>two</strong> weapons at once and your build is the
@@ -599,22 +599,92 @@ playstyle → pick up a <strong>second weapon discipline</strong> (a sword main 
 for spellblade) → chase higher-level-band gear with better <code>CRITDAMAGE</code> /
 <code>WEAPONATTACK</code> rolls up the enemy ladder toward the <strong>Eternal Warlord (L100)</strong>.</p>
 <h2 id="6-story-setting-world">6. Story, setting &amp; world</h2>
-<h3 id="61-setting">6.1 Setting</h3>
-<p>A bright fantasy frontier of pastoral fields, goblin-held woods, and increasingly
-arcane high-level zones, capped by a singular endgame threat (the <strong>Eternal
-Warlord</strong>). The world is a hub town ringed by portal-connected hunting maps.</p>
-<h3 id="62-tone">6.2 Tone</h3>
-<p>MapleStory's readable, cheerful 2D silhouettes with a muted-palette
-high-fantasy drift as you climb the level ladder. Combat is energetic and
-number-forward, not grim.</p>
+<blockquote>
+<p>Full world bible: <a href="LORE.md"><code>docs/LORE.md</code></a>. This section is the GDD-level
+summary and how the fiction maps onto the systems.</p>
+</blockquote>
+<h3 id="61-setting-the-emberwilds">6.1 Setting — the Emberwilds</h3>
+<p>Generations ago the <strong>Weave</strong> — the lattice that held all magic — <strong>shattered</strong>.
+That night, remembered as <strong>the Emberfall</strong> (scholars call it <em>the Sundering</em>),
+its power rained down as <strong>embers</strong>: glowing, elemental shards of broken magic.
+The old kingdoms fell with the Weave, and raw embers warped the beasts of the
+deep woods into monsters.</p>
+<p>The survivors rebuilt. They raised <strong>Hearths</strong> — warm frontier towns ringed by
+<strong>ember-lanterns</strong> that hold the wild at bay (the safe hubs / <code>town</code>) — and
+learned the one art the old world never needed: an ember can't be wielded
+barehanded, but <strong>bound into a weapon, it can be channelled</strong>. Past the
+lantern-light lie <strong>the Emberwilds</strong>: overgrown fields, goblin-held woods,
+drowned mines, and the ruins of the world that broke — still saturated with
+embers to harvest and the monsters they keep warping. That is the loop:
+<strong>venture out, gather embers, deepen your attunement, push the wild back.</strong></p>
+<p>The world is a <strong>Hearth ringed by portal-connected wild maps</strong> (§12), capped by
+the deepest ruin and its keeper, the <strong>Eternal Warlord</strong> (§6.3).</p>
+<p><strong>Fiction → systems:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Fiction</th>
+<th>System</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Magic only channels <strong>through an attuned weapon</strong></td>
+<td>The weapon <em>is</em> the class (§7.2)</td>
+</tr>
+<tr>
+<td><strong>Embers</strong> come in elements</td>
+<td>Fire/Ice/Lightning/Earth/Wind/Shadow/Arcane (staff stances, §8)</td>
+</tr>
+<tr>
+<td><strong>Attunement</strong> deepens with use</td>
+<td>Weapon mastery (§9.5)</td>
+</tr>
+<tr>
+<td><strong>Sigils</strong> — crystallised Weave-fragments you slot</td>
+<td>Card/rune-style gear identity (§10)</td>
+</tr>
+<tr>
+<td><strong>Wilders</strong> run the deep wilds together</td>
+<td>Co-op parties (§13)</td>
+</tr>
+<tr>
+<td>The wilds are still ember-saturated</td>
+<td>Endless respawns / the grind (§5.3)</td>
+</tr>
+<tr>
+<td><strong>Hearthfolk</strong> — a lived-in frontier</td>
+<td>Bots-as-population (§11.3)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="62-tone-cozy-catastrophe">6.2 Tone — cozy catastrophe</h3>
+<p>The apocalypse already happened, and the world <em>survived it</em>. <strong>Hopeful, not
+grim:</strong> days are spent in a warm town among people who know your name; danger
+lives at the edges and in the deep. MapleStory's readable, cheerful 2D
+silhouettes drift to a muted high-fantasy palette as you climb toward the ruins.
+Combat stays energetic and number-forward — campfire at the center, monsters at
+the edges.</p>
 <h3 id="63-plot-beats-high-level">6.3 Plot beats (high level)</h3>
-<blockquote class="callout-question"><p>⚠ Open question: There is <strong>no authored narrative yet</strong> — the story layer is
-carried entirely by the quest chains (§14). The beats below describe the
-<em>guided journey</em> the quests already implement, not a written plot.</p></blockquote>
+<blockquote>
+<p>The narrative is delivered by the quest chains (§14); below is that guided
+journey told in Emberwilds fiction. The plot is intentionally light — the
+<em>world</em> is authored; the <em>epic</em> is still optional.</p>
+</blockquote>
 <ul>
-<li><strong>Act 1 — onboarding (lvl 1–10):</strong> auto-granted <code>q_first_blood</code> (kill 1 Slime) → a WelcomeOverlay → the Slime/Boar beginner chains. You learn your starting weapon's gauge.</li>
-<li><strong>Act 2 — the climb (lvl 10–30):</strong> the Deep Woods / goblin chains open; the Advancement chain (<code>q_call_to_advance</code>) points you at level 30, where more weapons unlock.</li>
-<li><strong>Act 3 — refinement (lvl 30–100):</strong> mastery caps (~L70), then character levels 70–100 are pure attribute/gear refinement; the EndlessHunt repeatable chain and the high-level enemy ladder carry the grind to the Warlord.</li>
+<li><strong>Act 1 — past the lantern-line (lvl 1–10):</strong> a Hearth elder sends you out —
+  auto-granted <code>q_first_blood</code> (your first kill) → a WelcomeOverlay → the
+  Slime/Bunny near-wilds chains. You <strong>attune</strong> to your starting weapon and learn
+  its gauge.</li>
+<li><strong>Act 2 — into the deep (lvl 10–30):</strong> the <strong>Deep Woods</strong> / goblin chains open;
+  the Advancement chain (<code>q_call_to_advance</code>) points you toward the old ruins,
+  where embers run richer and a <strong>second attunement</strong> becomes worth the risk.</li>
+<li><strong>Act 3 — the heart of the Sundering (lvl 30–100):</strong> mastery caps (~L70); the
+  climb to 100 is refinement of attributes, sigils, and gear as you delve the
+  oldest ruins. At the bottom waits the <strong>Eternal Warlord</strong> — an old-world general
+  who bound so many embers he became deathless and warped, and who will not let
+  the Weave's heart be touched. <em>(Whether to mend the Weave or leave it broken is
+  the question the Hearths still argue over.)</em></li>
 </ul>
 <h3 id="64-regions">6.4 Regions</h3>
 <table>
@@ -622,7 +692,7 @@ carried entirely by the quest chains (§14). The beats below describe the
 <tr>
 <th>Region (map_id)</th>
 <th>Level band</th>
-<th>Vibe</th>
+<th>Vibe (Emberwilds)</th>
 <th>Notable mobs</th>
 </tr>
 </thead>
@@ -630,31 +700,31 @@ carried entirely by the quest chains (§14). The beats below describe the
 <tr>
 <td><code>town</code></td>
 <td>—</td>
-<td>Safe hub</td>
-<td>Quest-giver NPCs, no combat</td>
+<td>A <strong>Hearth</strong> — safe hub ringed by ember-lanterns</td>
+<td>Quest-giver Hearthfolk, no combat</td>
 </tr>
 <tr>
 <td><code>game</code></td>
 <td>~1–3</td>
-<td>Starter field</td>
+<td>The <strong>near-wilds</strong> — overgrown fields just past the lantern-line</td>
 <td>Slime (1), Bunny (1), Bird (3)</td>
 </tr>
 <tr>
 <td><code>game2</code></td>
 <td>~6–9</td>
-<td>Meadow</td>
+<td>Wilder <strong>ember-meadows</strong></td>
 <td>Boar (6), Deer (7), Fox (9)</td>
 </tr>
 <tr>
 <td><code>game3</code></td>
 <td>~10–23</td>
-<td>Goblin woods</td>
+<td>The <strong>Deep Woods</strong> — goblin-held, ember-thick</td>
 <td>Goblin Warrior (13), Goblin (18), Cave Goblin (23)</td>
 </tr>
 <tr>
 <td><code>game4</code></td>
 <td>~28+</td>
-<td>Higher tier</td>
+<td>The <strong>Ruins</strong> — the broken old world, toward the Warlord</td>
 <td>Tusk Brute (28) and upward</td>
 </tr>
 </tbody>
