@@ -6,7 +6,7 @@
 script = ExtResource("1_quest_data")
 quest_id = "q_slime_threat_1"
 quest_name = "Slime Threat: Level 1"
-description = "Slimes have been spotted in this area. The local authority asks that travelers cull 15 of them."
+description = "Ember-slimes have crept near the lantern-line. The Hearth-watch asks travelers to cull 15."
 objectives = Array[Dictionary]([{
 "amount": 15,
 "target": "Slime",

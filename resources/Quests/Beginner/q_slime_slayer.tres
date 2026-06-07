@@ -6,7 +6,7 @@
 script = ExtResource("1_quest_data")
 quest_id = "q_slime_slayer"
 quest_name = "Slime Slayer"
-description = "The slimes are multiplying! Thin the herd."
+description = "Slimes breed fast where embers pool. Thin the herd before they reach the Hearth."
 required_level = 2
 prerequisite_quest_id = "q_first_blood"
 objectives = Array[Dictionary]([{

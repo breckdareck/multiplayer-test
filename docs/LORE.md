@@ -96,7 +96,7 @@ a place worth protecting.**
 - **Attunement** — binding an ember-element to a weapon; deepened via mastery
 - **Sigils** — slottable Weave-fragments (cards/runes)
 - **Wilder / Embersworn** — adventurer
-- **Hearth / Hearthhold** — safe frontier town (hub)
+- **Hearth / Hearthhold** — safe frontier town (hub). The starting Hearth is **Lantern's Rest**.
 - **The Emberwilds** — the dangerous lands (and the game's name)
 
 ---

@@ -6,7 +6,7 @@
 script = ExtResource("1_quest_data")
 quest_id = "q_endless_hunt_3"
 quest_name = "Endless Hunt III"
-description = "Truly endless. The boars seem infinite. Slay 99 more to prove your dedication."
+description = "Truly endless — the embers warp them as fast as you can fell them. Slay 99 more."
 required_level = 8
 prerequisite_quest_id = "q_endless_hunt_2"
 objectives = Array[Dictionary]([{

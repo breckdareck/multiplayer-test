@@ -117,14 +117,14 @@ func _build_ui() -> void:
 
 	# Title.
 	var title := Label.new()
-	title.text = "Welcome, Adventurer!"
+	title.text = "Welcome, Wilder!"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_color_override("font_color", GOLD)
 	title.add_theme_font_size_override("font_size", 22)
 	col.add_child(title)
 
 	var intro := Label.new()
-	intro.text = "You've arrived in Maple Town. Here's how to get started:"
+	intro.text = "You've reached Lantern's Rest, the last Hearth before the Emberwilds. Bind an ember to your weapon and step past the lantern-line — here's how to get started:"
 	intro.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	intro.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	intro.add_theme_font_size_override("font_size", 13)

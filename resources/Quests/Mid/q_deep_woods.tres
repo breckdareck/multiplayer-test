@@ -6,7 +6,7 @@
 script = ExtResource("1_quest_data")
 quest_id = "q_deep_woods"
 quest_name = "Into the Deep Woods"
-description = "Venture past the meadow into goblin territory and prove you can handle the deep woods."
+description = "Venture past the ember-meadows into the Deep Woods, where the embers run thick and the goblins thicker."
 required_level = 10
 prerequisite_quest_id = "q_pest_control"
 objectives = Array[Dictionary]([{

@@ -6,7 +6,7 @@
 script = ExtResource("1_quest_data")
 quest_id = "q_call_to_advance"
 quest_name = "Answer the Call"
-description = "You have mastered the fundamentals. At level 30 a warrior may choose a specialized path. Reach level 30, return to town, and type /advance to claim your advanced class."
+description = "You've learned the fundamentals of your weapon. At level 30 a Wilder may take up a second attunement — return to the Hearth and type /advance to claim it."
 required_level = 25
 prerequisite_quest_id = "q_veterans_path"
 objectives = Array[Dictionary]([{

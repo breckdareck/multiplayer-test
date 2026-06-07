@@ -8,9 +8,9 @@
 script = ExtResource("1_script")
 effect_script = ExtResource("2_effect")
 item_id = "241241113113-11543-151297-56135-5582151997498"
-name = "Town Potion"
+name = "Hearthstone"
 icon = ExtResource("99_svgicon")
-description = "A magical potion that teleports you back to town."
+description = "A warm shard that carries you back to the nearest Hearth."
 item_type = 2
 item_level = -1
 custom_item_value = 200

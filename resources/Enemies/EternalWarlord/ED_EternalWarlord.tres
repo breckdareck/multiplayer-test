@@ -59,6 +59,7 @@ body_hitbox_shape = SubResource("Shape_body")
 attack_hitbox_shape = SubResource("Shape_atk")
 is_boss = true
 boss_title = "Eternal Warlord"
+boss_subtitle = "He bound a hundred embers and forgot how to die."
 phase_health_thresholds = Array[float]([0.66, 0.33])
 enrage_health_threshold = 0.2
 special_telegraph_time = 1.3

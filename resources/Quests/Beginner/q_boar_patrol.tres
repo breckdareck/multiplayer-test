@@ -6,7 +6,7 @@
 script = ExtResource("1_quest_data")
 quest_id = "q_boar_patrol"
 quest_name = "Boar Patrol"
-description = "The boars near the village have grown bold and trample the crops. Cull a few of them."
+description = "The boars near Lantern's Rest have grown bold, trampling the Hearth's crops. Cull a few of them."
 required_level = 3
 objectives = Array[Dictionary]([{
 "amount": 5,

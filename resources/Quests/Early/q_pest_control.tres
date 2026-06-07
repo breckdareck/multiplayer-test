@@ -6,7 +6,7 @@
 script = ExtResource("1_quest_data")
 quest_id = "q_pest_control"
 quest_name = "Pest Control"
-description = "Multiple monster species threaten the village. Eliminate them."
+description = "Ember-warped beasts are pressing against the lantern-line. Drive them back from the Hearth."
 required_level = 5
 prerequisite_quest_id = "q_slime_slayer"
 objectives = Array[Dictionary]([{

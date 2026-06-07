@@ -37,6 +37,7 @@ const RESCAN_INTERVAL: float = 0.5
 #region #################### State ####################
 
 @onready var title_label: Label = $Panel/VBox/TitleLabel
+@onready var subtitle_label: Label = $Panel/VBox/SubtitleLabel
 @onready var health_bar: ProgressBar = $Panel/VBox/HealthBar
 @onready var value_label: Label = $Panel/VBox/HealthBar/ValueLabel
 
@@ -130,10 +131,15 @@ func _bind(boss: Node) -> void:
 		return
 	var ed = boss.get("enemy_data")
 	var title: String = ""
+	var subtitle: String = ""
 	if ed != null:
 		title = ed.boss_title if ed.boss_title != "" else ed.monster_name
+		subtitle = ed.get("boss_subtitle") if ed.get("boss_subtitle") is String else ""
 	if is_instance_valid(title_label):
 		title_label.text = title
+	if is_instance_valid(subtitle_label):
+		subtitle_label.text = subtitle
+		subtitle_label.visible = subtitle != ""
 	visible = true
 	_refresh_bar()
 

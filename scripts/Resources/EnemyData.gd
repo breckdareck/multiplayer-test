@@ -109,6 +109,9 @@ func get_special_attacks() -> Array[BossAttackData]:
 @export var is_boss: bool = false
 ## Shown on the boss HP bar. Falls back to monster_name when empty.
 @export var boss_title: String = ""
+## Optional flavor line shown small under the boss title (a one-sentence "intro"
+## for the encounter). Hidden when empty.
+@export var boss_subtitle: String = ""
 ## HP fractions (0..1) that trigger a phase change as the boss's health crosses
 ## DOWN through them, e.g. [0.66, 0.33]. Each fires exactly once; the enemy_base
 ## tracker remembers the highest already-passed threshold so re-crossing (heal

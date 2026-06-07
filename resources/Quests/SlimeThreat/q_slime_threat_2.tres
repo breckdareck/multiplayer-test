@@ -6,7 +6,7 @@
 script = ExtResource("1_quest_data")
 quest_id = "q_slime_threat_2"
 quest_name = "Slime Threat: Level 2"
-description = "The slime population is growing. Take down 50 more to contain the threat."
+description = "The bloom spreads. Take down 50 more to contain it."
 required_level = 3
 prerequisite_quest_id = "q_slime_threat_1"
 objectives = Array[Dictionary]([{

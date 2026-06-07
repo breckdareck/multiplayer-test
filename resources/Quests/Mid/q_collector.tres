@@ -6,7 +6,7 @@
 script = ExtResource("1_quest_data")
 quest_id = "q_collector"
 quest_name = "The Collector"
-description = "Gather coins from fallen monsters to fund the village defense."
+description = "Gather coin from fallen beasts to keep Lantern's Rest lit and defended."
 required_level = 5
 objectives = Array[Dictionary]([{
 "amount": 100,

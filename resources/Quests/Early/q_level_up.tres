@@ -6,7 +6,7 @@
 script = ExtResource("1_quest_data")
 quest_id = "q_level_up"
 quest_name = "Getting Stronger"
-description = "Reach level 5 to unlock new abilities."
+description = "Your bond with the ember grows. Reach level 5 to unlock new abilities."
 objectives = Array[Dictionary]([{
 "amount": 5,
 "target": "",

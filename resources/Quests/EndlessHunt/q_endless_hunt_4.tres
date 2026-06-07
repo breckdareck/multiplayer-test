@@ -6,7 +6,7 @@
 script = ExtResource("1_quest_data")
 quest_id = "q_endless_hunt_4"
 quest_name = "Endless Hunt IV: The Final Tide"
-description = "Legend speaks of a warrior who would cull 999. The village will sing of the boar-slayer for generations. Are you that warrior?"
+description = "The Hearths still sing of a Wilder who culled 999. Do it, and Lantern's Rest will remember your name for generations."
 required_level = 12
 prerequisite_quest_id = "q_endless_hunt_3"
 objectives = Array[Dictionary]([{

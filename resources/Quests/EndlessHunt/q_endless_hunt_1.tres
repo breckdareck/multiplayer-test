@@ -6,7 +6,7 @@
 script = ExtResource("1_quest_data")
 quest_id = "q_endless_hunt_1"
 quest_name = "Endless Hunt I"
-description = "The boars keep coming back to trample the crops. Cull 15 of them — that should give us some peace."
+description = "The wilds keep sending boars against the Hearth's fields. Cull 15 — that should buy a little peace."
 required_level = 3
 objectives = Array[Dictionary]([{
 "amount": 15,

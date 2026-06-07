@@ -6,7 +6,7 @@
 script = ExtResource("1_quest_data")
 quest_id = "q_slime_threat_4"
 quest_name = "Slime Threat: Level 4 — Total Eradication"
-description = "EXTREME SLIME EMERGENCY. The legendary hunter who slays 999 will be honored forever."
+description = "EMBER-BLOOM EMERGENCY. The Wilder who slays 999 will be honored in every Hearth from here to the Ruins."
 required_level = 10
 prerequisite_quest_id = "q_slime_threat_3"
 objectives = Array[Dictionary]([{

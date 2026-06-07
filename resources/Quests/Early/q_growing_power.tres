@@ -6,7 +6,7 @@
 script = ExtResource("1_quest_data")
 quest_id = "q_growing_power"
 quest_name = "Growing Power"
-description = "Continue your training and reach level 10."
+description = "Deepen your attunement out in the wilds — reach level 10."
 required_level = 5
 prerequisite_quest_id = "q_level_up"
 objectives = Array[Dictionary]([{

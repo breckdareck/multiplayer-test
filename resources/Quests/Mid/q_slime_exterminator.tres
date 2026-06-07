@@ -6,7 +6,7 @@
 script = ExtResource("1_quest_data")
 quest_id = "q_slime_exterminator"
 quest_name = "Slime Exterminator"
-description = "The slime population is out of control. A massive cull is needed."
+description = "Ember-bloom has the slimes out of control. A massive cull is needed."
 required_level = 8
 prerequisite_quest_id = "q_slime_slayer"
 objectives = Array[Dictionary]([{

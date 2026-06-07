@@ -6,7 +6,7 @@
 script = ExtResource("1_quest_data")
 quest_id = "q_seasoned_warrior"
 quest_name = "Seasoned Warrior"
-description = "Prove your dedication by reaching level 20."
+description = "Prove yourself in the deep wilds — reach level 20."
 required_level = 10
 prerequisite_quest_id = "q_growing_power"
 objectives = Array[Dictionary]([{

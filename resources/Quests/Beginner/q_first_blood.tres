@@ -6,7 +6,7 @@
 script = ExtResource("1_quest_data")
 quest_id = "q_first_blood"
 quest_name = "First Blood"
-description = "Defeat your first Slime to prove your mettle."
+description = "Step past the lantern-line and fell your first slime — an ember-touched pest, and every Wilder's first test."
 objectives = Array[Dictionary]([{
 "amount": 3,
 "target": "Slime",

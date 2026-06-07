@@ -6,7 +6,7 @@
 script = ExtResource("1_quest_data")
 quest_id = "q_goblin_trouble"
 quest_name = "Goblin Trouble"
-description = "The goblin warbands are growing. Break their numbers before they march on the village."
+description = "The goblin warbands swell in the ember-thick woods. Break their numbers before they march on the Hearth."
 required_level = 13
 prerequisite_quest_id = "q_deep_woods"
 objectives = Array[Dictionary]([{
