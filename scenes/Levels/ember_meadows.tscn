@@ -1024,7 +1024,7 @@ script = ExtResource("2_cfook")
 
 [node name="PortalToGame" parent="." instance=ExtResource("3_wye8b")]
 position = Vector2(1336, -32)
-target_map_id = "game"
+target_map_id = "near_wilds"
 target_spawn_point_name = "Game_Game2_Portal_Spawn"
 
 [node name="Game2_Game_Portal_Spawn" type="Marker2D" parent="."]
@@ -1032,7 +1032,7 @@ position = Vector2(1357, -25)
 
 [node name="SecretPortal" parent="." instance=ExtResource("4_giv6l")]
 position = Vector2(1331, -144)
-target_map_id = "game"
+target_map_id = "near_wilds"
 target_spawn_point_name = "GameSecret_Game2Secret_Portal_Spawn"
 
 [node name="Game2Secret_GameSecret_Portal_Spawn" type="Marker2D" parent="."]

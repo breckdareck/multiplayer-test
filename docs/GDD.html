@@ -586,7 +586,7 @@ wielded weapon's next ability point, and a FFA drop.</p>
 flowchart LR
     Login --&gt; Town[Town hub]
     Town --&gt; Goal[Pick a goal: quest / hunt a level band / spend points]
-    Goal --&gt; Map[Portal to a field map: game .. game4]
+    Goal --&gt; Map[Portal to a field map: near_wilds .. warlord]
     Map --&gt; Loop30s[30s combat loop x N]
     Loop30s --&gt; Spend[Spend attribute + ability points, slot new gear]
     Spend --&gt; Town
@@ -610,7 +610,7 @@ its power rained down as <strong>embers</strong>: glowing, elemental shards of b
 The old kingdoms fell with the Weave, and raw embers warped the beasts of the
 deep woods into monsters.</p>
 <p>The survivors rebuilt. They raised <strong>Hearths</strong> — warm frontier towns ringed by
-<strong>ember-lanterns</strong> that hold the wild at bay (the safe hubs / <code>town</code>) — and
+<strong>ember-lanterns</strong> that hold the wild at bay (the safe hubs / <code>lanterns_rest</code>) — and
 learned the one art the old world never needed: an ember can't be wielded
 barehanded, but <strong>bound into a weapon, it can be channelled</strong>. Past the
 lantern-light lie <strong>the Emberwilds</strong>: overgrown fields, goblin-held woods,
@@ -698,31 +698,31 @@ journey told in Emberwilds fiction. The plot is intentionally light — the
 </thead>
 <tbody>
 <tr>
-<td><code>town</code></td>
+<td><code>lanterns_rest</code></td>
 <td>—</td>
 <td><strong>Lantern's Rest</strong> — the starting Hearth, safe hub ringed by ember-lanterns</td>
 <td>Quest-giver Hearthfolk, no combat</td>
 </tr>
 <tr>
-<td><code>game</code></td>
+<td><code>near_wilds</code></td>
 <td>~1–3</td>
 <td><strong>The Near-Wilds</strong> — overgrown fields just past the lantern-line</td>
 <td>Slime (1), Bunny (1), Bird (3)</td>
 </tr>
 <tr>
-<td><code>game2</code></td>
+<td><code>ember_meadows</code></td>
 <td>~6–9</td>
 <td><strong>Ember-Meadows</strong> — wilder pastoral country</td>
 <td>Boar (6), Deer (7), Fox (9)</td>
 </tr>
 <tr>
-<td><code>game3</code></td>
+<td><code>deep_woods</code></td>
 <td>~10–23</td>
 <td>The <strong>Deep Woods</strong> — goblin-held, ember-thick</td>
 <td>Goblin Warrior (13), Goblin (18), Cave Goblin (23)</td>
 </tr>
 <tr>
-<td><code>game4</code></td>
+<td><code>ruins</code></td>
 <td>~28–39</td>
 <td><strong>The Ruins</strong> — the broken old world's edge</td>
 <td>Tusk Brute (28), Fox Swordsman (33), Stone Slime (33), Cat Robber (36), Dust Fox (38)</td>
@@ -819,7 +819,7 @@ tension noted in older memory is <strong>resolved in code</strong> — classes a
 (<a href="adr/0004-classcomponent-removal-weapon-discipline.md">ADR 0004</a>), job
 advancement removed (<a href="adr/0002-attribute-allocation-system.md">ADR 0002</a> §8).</p></blockquote>
 <h3 id="73-npcs">7.3 NPCs</h3>
-<p>Quest-giver NPCs (<code>scripts/NPC/quest_giver_npc.gd</code>) live in <code>town</code>. Job/class
+<p>Quest-giver NPCs (<code>scripts/NPC/quest_giver_npc.gd</code>) live in <code>lanterns_rest</code>. Job/class
 advancement NPCs from the legacy design are deprecated (no class advancement).</p>
 <h2 id="8-combat-system">8. Combat system</h2>
 <h3 id="81-core-combat-verbs">8.1 Core combat verbs</h3>
@@ -1138,7 +1138,7 @@ the owner's MP. Full architecture: <a href="adr/0001-pet-system-architecture.md"
 <h2 id="12-levels-maps-world-topology">12. Levels, maps &amp; world topology</h2>
 <h3 id="121-map-structure">12.1 Map structure</h3>
 <p>2D side-scrolling maps connected by portals. <code>MapManager</code> owns a registry of 5
-playable maps (<code>town</code>, <code>game</code>, <code>game2</code>–<code>game4</code>; <code>DEFAULT_MAP = "town"</code>). Each map
+playable maps (<code>lanterns_rest</code>, <code>near_wilds</code>, <code>ember_meadows</code>–<code>ruins</code>; <code>DEFAULT_MAP = "town"</code>). Each map
 runs in its <strong>own <code>SubViewport</code> with a fresh <code>World2D</code></strong> (isolated physics / nav /
 audio), composited under <code>/root/Maps</code>. The server keeps every active map loaded;
 a client loads only its current map; empty maps unload. A portal-adjacency graph
@@ -1160,31 +1160,31 @@ named-channel roster, it's a port-switch mechanism.</p>
 </thead>
 <tbody>
 <tr>
-<td><code>town</code></td>
+<td><code>lanterns_rest</code></td>
 <td>—</td>
 <td>Hub</td>
 <td>Quest-giver NPCs</td>
 </tr>
 <tr>
-<td><code>game</code></td>
+<td><code>near_wilds</code></td>
 <td>1–3</td>
 <td>Starter field</td>
 <td>Slime, Bunny, Bird</td>
 </tr>
 <tr>
-<td><code>game2</code></td>
+<td><code>ember_meadows</code></td>
 <td>6–9</td>
 <td>Meadow</td>
 <td>Boar, Deer, Fox</td>
 </tr>
 <tr>
-<td><code>game3</code></td>
+<td><code>deep_woods</code></td>
 <td>10–23</td>
 <td>Goblin woods</td>
 <td>Goblin Warrior, Goblin, Cave Goblin</td>
 </tr>
 <tr>
-<td><code>game4</code></td>
+<td><code>ruins</code></td>
 <td>28+</td>
 <td>Higher tier</td>
 <td>Tusk Brute +</td>

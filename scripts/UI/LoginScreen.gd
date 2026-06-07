@@ -299,7 +299,7 @@ func _on_dev_server_started() -> void:
 ## Builds a max-level save dict (level 100, all four masteries capped, every active
 ## ability of `disc` learned at level 1 with the first 8 bound to the primary
 ## hotbar). Empty inventory → JoinHandshake grants the starter weapon/armor.
-## Spawns in "game" (the combat map) so there are enemies to hit immediately.
+## Spawns in "near_wilds" (the combat map) so there are enemies to hit immediately.
 func _build_dev_max_save(username: String, disc: int) -> Dictionary:
 	var weapon_type: int = disc  # ClassType 0-3 aligns 1:1 with WeaponType 0-3
 	var ability_levels: Dictionary = {}
@@ -346,7 +346,7 @@ func _build_dev_max_save(username: String, disc: int) -> Dictionary:
 		"buffs": {},
 		"quests": {},
 		"attribute_points": {},
-		"last_map": "game",
+		"last_map": "near_wilds",
 		"party_id": -1,
 		"pets": [],
 		"summoned_pet_ids": [],

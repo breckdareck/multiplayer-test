@@ -1051,7 +1051,7 @@ script = ExtResource("1_ryi0r")
 
 [node name="PortalToGame2" parent="." instance=ExtResource("3_jq5g6")]
 position = Vector2(504, 0)
-target_map_id = "game2"
+target_map_id = "ember_meadows"
 target_spawn_point_name = "Game2_Game_Portal_Spawn"
 
 [node name="Game_Game2_Portal_Spawn" type="Marker2D" parent="."]
@@ -1059,7 +1059,7 @@ position = Vector2(480, 6)
 
 [node name="PortalToTown" parent="." instance=ExtResource("3_jq5g6")]
 position = Vector2(-952, 0)
-target_map_id = "town"
+target_map_id = "lanterns_rest"
 target_spawn_point_name = "Town_Game_Portal_Spawn"
 
 [node name="Game_Town_Portal_Spawn" type="Marker2D" parent="."]
@@ -1067,7 +1067,7 @@ position = Vector2(-928, 7)
 
 [node name="SecretPortalToGame3" parent="." instance=ExtResource("17_j167y")]
 position = Vector2(-72, -64)
-target_map_id = "game3"
+target_map_id = "deep_woods"
 target_spawn_point_name = "Game3_Game_Portal_Spawn"
 
 [node name="GameSecret_Game3Secret_Portal_Spawn" type="Marker2D" parent="."]

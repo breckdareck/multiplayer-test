@@ -73,7 +73,7 @@ const MANA_POTION_THRESHOLD: float = 0.3
 
 var _shop_check_timer: float = 0.0
 const SHOP_CHECK_INTERVAL: float = 10.0
-const TOWN_MAP_ID: String = "town"
+const TOWN_MAP_ID: String = "lanterns_rest"
 ## Inventory & shopping — sell junk, restock potions, route to a town merchant.
 var _economy = BotEconomy.new(self)
 

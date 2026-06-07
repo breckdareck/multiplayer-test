@@ -1,11 +1,11 @@
 {
   "auto_spawn": true,
-  "default_map": "game",
+  "default_map": "near_wilds",
   "bots": [
-	{ "name": "Bob", "class": "SWORDSMAN", "map": "town", "patrol_route": ["game", "game2", "game3", "game4"] },
-	{ "name": "Bobbert", "class": "MAGE", "map": "town", "patrol_route": ["game", "game2", "game3", "game4"] },
-	{ "name": "Breck", "class": "ROGUE", "map": "town", "patrol_route": ["game", "game2", "game3", "game4"] },
-	{ "name": "Bert", "class": "ARCHER", "map": "town", "patrol_route": ["game", "game2", "game3", "game4"] },
+	{ "name": "Bob", "class": "SWORDSMAN", "map": "lanterns_rest", "patrol_route": ["near_wilds", "ember_meadows", "deep_woods", "ruins"] },
+	{ "name": "Bobbert", "class": "MAGE", "map": "lanterns_rest", "patrol_route": ["near_wilds", "ember_meadows", "deep_woods", "ruins"] },
+	{ "name": "Breck", "class": "ROGUE", "map": "lanterns_rest", "patrol_route": ["near_wilds", "ember_meadows", "deep_woods", "ruins"] },
+	{ "name": "Bert", "class": "ARCHER", "map": "lanterns_rest", "patrol_route": ["near_wilds", "ember_meadows", "deep_woods", "ruins"] },
   ],
   "behavior": {
 	"think_interval": 0.3,
@@ -19,9 +19,9 @@
 	"allow_map_travel": true
   },
   "map_difficulty": {
-	"game": { "min_level": 1, "max_level": 8 },
-	"game2": { "min_level": 10, "max_level": 25 },
-	"game3": { "min_level": 45, "max_level": 90 },
-	"game4": { "min_level": 1, "max_level": 12 },
+	"near_wilds": { "min_level": 1, "max_level": 8 },
+	"ember_meadows": { "min_level": 10, "max_level": 25 },
+	"deep_woods": { "min_level": 45, "max_level": 90 },
+	"ruins": { "min_level": 1, "max_level": 12 },
   }
 }

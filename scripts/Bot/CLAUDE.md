@@ -73,14 +73,14 @@ bots since they deal real damage — so a grinding bot accrues both naturally.
 ```jsonc
 {
   "auto_spawn": true,            // spawn bots when the server starts
-  "default_map": "game",
+  "default_map": "near_wilds",
   "bots": [                      // one entry per bot; name "random" auto-generates
-    { "name": "Bob", "class": "SWORDSMAN", "map": "town",
-      "patrol_route": ["game", "game2", "game3"] }
+    { "name": "Bob", "class": "SWORDSMAN", "map": "lanterns_rest",
+      "patrol_route": ["near_wilds", "ember_meadows", "deep_woods"] }
   ],
   "behavior": { },               // think_interval, ranges, durations - copied into each brain
   "map_difficulty": {            // per-map level band; bots travel to stay in-band
-    "game": { "min_level": 1, "max_level": 20 }
+    "near_wilds": { "min_level": 1, "max_level": 20 }
   }
 }
 ```

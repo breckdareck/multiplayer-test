@@ -1020,7 +1020,7 @@ script = ExtResource("3_kc88y")
 
 [node name="PortalToGame4" parent="." instance=ExtResource("4_q3nul")]
 position = Vector2(-520, 16)
-target_map_id = "game4"
+target_map_id = "ruins"
 target_spawn_point_name = "Game4_Mines_Portal_Spawn"
 
 [node name="Mines_Game4_Portal_Spawn" type="Marker2D" parent="."]

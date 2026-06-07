@@ -15,16 +15,16 @@ signal local_player_changed(body: Node)
 
 # Map configuration - add your map scenes here
 const MAP_SCENES = {
-	"game": "res://scenes/Levels/game.tscn",
-	"game2": "res://scenes/Levels/game2.tscn",
-	"game3": "res://scenes/Levels/game3.tscn",
-	"game4": "res://scenes/Levels/game4.tscn",
+	"near_wilds": "res://scenes/Levels/near_wilds.tscn",
+	"ember_meadows": "res://scenes/Levels/ember_meadows.tscn",
+	"deep_woods": "res://scenes/Levels/deep_woods.tscn",
+	"ruins": "res://scenes/Levels/ruins.tscn",
 	"mines": "res://scenes/Levels/mines.tscn",
 	"keep": "res://scenes/Levels/keep.tscn",
 	"emberscar": "res://scenes/Levels/emberscar.tscn",
 	"weave": "res://scenes/Levels/weave.tscn",
 	"warlord": "res://scenes/Levels/warlord.tscn",
-	"town": "res://scenes/Levels/town.tscn",
+	"lanterns_rest": "res://scenes/Levels/lanterns_rest.tscn",
 }
 
 ## Themed display names for the loading screen (the in-world zone banner reads the
@@ -32,11 +32,11 @@ const MAP_SCENES = {
 ## scene's display_name. A client shows this BEFORE the target map is loaded, so
 ## it can't read the instance — hence the lookup table.
 const MAP_DISPLAY_NAMES = {
-	"town": "Lantern's Rest",
-	"game": "The Near-Wilds",
-	"game2": "Ember-Meadows",
-	"game3": "The Deep Woods",
-	"game4": "The Ruins",
+	"lanterns_rest": "Lantern's Rest",
+	"near_wilds": "The Near-Wilds",
+	"ember_meadows": "Ember-Meadows",
+	"deep_woods": "The Deep Woods",
+	"ruins": "The Ruins",
 	"mines": "The Drowned Mines",
 	"keep": "The Warded Keep",
 	"emberscar": "The Ember-Scar",
@@ -44,7 +44,7 @@ const MAP_DISPLAY_NAMES = {
 	"warlord": "The Sundered Heart",
 }
 
-const DEFAULT_MAP = "town"
+const DEFAULT_MAP = "lanterns_rest"
 
 
 ## Themed name for a map_id (falls back to the raw id for unknown maps).

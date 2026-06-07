@@ -90,7 +90,7 @@ wielded weapon's next ability point, and a FFA drop.
 flowchart LR
     Login --> Town[Town hub]
     Town --> Goal[Pick a goal: quest / hunt a level band / spend points]
-    Goal --> Map[Portal to a field map: game .. game4]
+    Goal --> Map[Portal to a field map: near_wilds .. warlord]
     Map --> Loop30s[30s combat loop x N]
     Loop30s --> Spend[Spend attribute + ability points, slot new gear]
     Spend --> Town
@@ -118,7 +118,7 @@ The old kingdoms fell with the Weave, and raw embers warped the beasts of the
 deep woods into monsters.
 
 The survivors rebuilt. They raised **Hearths** — warm frontier towns ringed by
-**ember-lanterns** that hold the wild at bay (the safe hubs / `town`) — and
+**ember-lanterns** that hold the wild at bay (the safe hubs / `lanterns_rest`) — and
 learned the one art the old world never needed: an ember can't be wielded
 barehanded, but **bound into a weapon, it can be channelled**. Past the
 lantern-light lie **the Emberwilds**: overgrown fields, goblin-held woods,
@@ -174,11 +174,11 @@ the edges.
 
 | Region (map_id) | Level band | Vibe (Emberwilds) | Notable mobs |
 |---|---|---|---|
-| `town` | — | **Lantern's Rest** — the starting Hearth, safe hub ringed by ember-lanterns | Quest-giver Hearthfolk, no combat |
-| `game` | ~1–3 | **The Near-Wilds** — overgrown fields just past the lantern-line | Slime (1), Bunny (1), Bird (3) |
-| `game2` | ~6–9 | **Ember-Meadows** — wilder pastoral country | Boar (6), Deer (7), Fox (9) |
-| `game3` | ~10–23 | The **Deep Woods** — goblin-held, ember-thick | Goblin Warrior (13), Goblin (18), Cave Goblin (23) |
-| `game4` | ~28–39 | **The Ruins** — the broken old world's edge | Tusk Brute (28), Fox Swordsman (33), Stone Slime (33), Cat Robber (36), Dust Fox (38) |
+| `lanterns_rest` | — | **Lantern's Rest** — the starting Hearth, safe hub ringed by ember-lanterns | Quest-giver Hearthfolk, no combat |
+| `near_wilds` | ~1–3 | **The Near-Wilds** — overgrown fields just past the lantern-line | Slime (1), Bunny (1), Bird (3) |
+| `ember_meadows` | ~6–9 | **Ember-Meadows** — wilder pastoral country | Boar (6), Deer (7), Fox (9) |
+| `deep_woods` | ~10–23 | The **Deep Woods** — goblin-held, ember-thick | Goblin Warrior (13), Goblin (18), Cave Goblin (23) |
+| `ruins` | ~28–39 | **The Ruins** — the broken old world's edge | Tusk Brute (28), Fox Swordsman (33), Stone Slime (33), Cat Robber (36), Dust Fox (38) |
 | `mines` | ~40–50 | **The Drowned Mines** — flooded old workings | Wolf Pathfinder (40), Mithril Hare (43), Deer Druid (44), Rabbit Wizard (48), War Goblin (48) |
 | `keep` | ~52–63 | **The Warded Keep** — the Warlord's old garrison | Bear Warrior (52), Lion Knight (57), Adamant Crawler (58), Panda Warrior (62), Shadow Fox (63) |
 | `emberscar` | ~68–83 | **The Ember-Scar** — where the embers fell thickest | Runed Boar (68), Fire Slime (73), Ember Fox (78), Wild Boar (83) |
@@ -217,7 +217,7 @@ wielded) drives damage scaling — *"I am my weapon."*
 
 ### 7.3 NPCs
 
-Quest-giver NPCs (`scripts/NPC/quest_giver_npc.gd`) live in `town`. Job/class
+Quest-giver NPCs (`scripts/NPC/quest_giver_npc.gd`) live in `lanterns_rest`. Job/class
 advancement NPCs from the legacy design are deprecated (no class advancement).
 
 ## 8. Combat system
@@ -445,7 +445,7 @@ the owner's MP. Full architecture: [ADR 0001](adr/0001-pet-system-architecture.m
 ### 12.1 Map structure
 
 2D side-scrolling maps connected by portals. `MapManager` owns a registry of 5
-playable maps (`town`, `game`, `game2`–`game4`; `DEFAULT_MAP = "town"`). Each map
+playable maps (`lanterns_rest`, `near_wilds`, `ember_meadows`–`ruins`; `DEFAULT_MAP = "town"`). Each map
 runs in its **own `SubViewport` with a fresh `World2D`** (isolated physics / nav /
 audio), composited under `/root/Maps`. The server keeps every active map loaded;
 a client loads only its current map; empty maps unload. A portal-adjacency graph
@@ -462,11 +462,11 @@ named-channel roster, it's a port-switch mechanism.
 
 | Map | Level band | Theme | Notable mobs / NPCs |
 |---|---|---|---|
-| `town` | — | Hub | Quest-giver NPCs |
-| `game` | 1–3 | Starter field | Slime, Bunny, Bird |
-| `game2` | 6–9 | Meadow | Boar, Deer, Fox |
-| `game3` | 10–23 | Goblin woods | Goblin Warrior, Goblin, Cave Goblin |
-| `game4` | 28+ | Higher tier | Tusk Brute + |
+| `lanterns_rest` | — | Hub | Quest-giver NPCs |
+| `near_wilds` | 1–3 | Starter field | Slime, Bunny, Bird |
+| `ember_meadows` | 6–9 | Meadow | Boar, Deer, Fox |
+| `deep_woods` | 10–23 | Goblin woods | Goblin Warrior, Goblin, Cave Goblin |
+| `ruins` | 28+ | Higher tier | Tusk Brute + |
 
 > ⚠ Open question: the enemy **ladder reaches level 100** but there are only **5
 > maps topping out around the high-20s/30s band**. The ~33–100 enemies exist as

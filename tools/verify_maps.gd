@@ -1,18 +1,19 @@
 extends SceneTree
+func _collect(n, out):
+	if "target_map_id" in n and n.target_map_id is String and n.target_map_id != "":
+		out[n.target_map_id] = true
+	for c in n.get_children(): _collect(c, out)
 func _initialize() -> void:
-	for id in ["mines","keep","emberscar","weave","warlord"]:
-		var p := "res://scenes/Levels/%s.tscn" % id
-		var ps = load(p)
-		if ps == null:
-			print("FAIL load: ", id); continue
+	var targets := {}
+	for id in MapManager.MAP_SCENES:
+		var ps = load(MapManager.MAP_SCENES[id])
+		if ps == null: print("FAIL load ", id); continue
 		var inst = ps.instantiate()
-		if inst == null:
-			print("FAIL instantiate: ", id); continue
-		var en = inst.get_node_or_null("Enemies")
-		var pl = inst.get_node_or_null("Players")
-		var gdh = inst.get_node_or_null("GlobalDropHandler")
-		print("OK %-10s name='%s' enemies=%d players=%s gdh=%s" % [
-			id, inst.display_name, (en.get_child_count() if en else -1),
-			pl != null, gdh != null])
+		_collect(inst, targets)
+		print("OK %-14s display='%s'" % [id, inst.display_name])
 		inst.free()
+	for t in targets:
+		if not MapManager.MAP_SCENES.has(t):
+			print("BAD PORTAL TARGET -> '%s' (not a map id)" % t)
+	print("portal targets seen: ", targets.keys())
 	quit()

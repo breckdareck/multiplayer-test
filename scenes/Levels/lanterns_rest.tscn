@@ -14,7 +14,7 @@
 [ext_resource type="Resource" uid="uid://bwlru2cwcphdy" path="res://resources/Items/Consumables/Mana_Potion.tres" id="16_um1b1"]
 [ext_resource type="Resource" uid="uid://jwwtuktlssm4" path="res://resources/Items/Consumables/Exp_Potion.tres" id="17_1o3m4"]
 [ext_resource type="Script" uid="uid://igk1rxt26f2i" path="res://scripts/UI/global_drop_handler.gd" id="18_a3rpc"]
-[ext_resource type="Resource" uid="uid://cpjl8touji5vt" path="res://resources/Items/Consumables/Town_Potion.tres" id="19_twnpt"]
+[ext_resource type="Resource" uid="uid://cpjl8touji5vt" path="res://resources/Items/Consumables/Hearthstone.tres" id="19_twnpt"]
 [ext_resource type="Resource" uid="uid://bwy06fjcsbcqk" path="res://resources/Items/Consumables/Generated/Lesser_Healing_Draught.tres" id="20_lhd00"]
 [ext_resource type="Resource" uid="uid://ic87qn8144l7" path="res://resources/Items/Consumables/Generated/Lesser_Mana_Draught.tres" id="21_lmd00"]
 [ext_resource type="Resource" uid="uid://jcdx6xjdvlag" path="res://resources/Items/Consumables/Generated/Healing_Draught.tres" id="22_hd000"]
@@ -540,7 +540,7 @@ script = ExtResource("2_bkv3e")
 
 [node name="PortalToGame" parent="." instance=ExtResource("3_knl1o")]
 position = Vector2(-78, -608)
-target_map_id = "game"
+target_map_id = "near_wilds"
 target_spawn_point_name = "Game_Town_Portal_Spawn"
 
 [node name="Town_Game_Portal_Spawn" type="Marker2D" parent="."]
@@ -548,7 +548,7 @@ position = Vector2(-53, -606)
 
 [node name="SecretPortalToGame4" parent="." instance=ExtResource("4_7kjy5")]
 position = Vector2(156, -608)
-target_map_id = "game4"
+target_map_id = "ruins"
 target_spawn_point_name = "Game4_Town_Portal_Spawn"
 
 [node name="TownSecret_Game4Secret_Portal_Spawn" type="Marker2D" parent="."]

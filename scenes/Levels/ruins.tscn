@@ -1076,7 +1076,7 @@ script = ExtResource("2_rrhmt")
 
 [node name="PortalToTargetTown" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(222, -157)
-target_map_id = "town"
+target_map_id = "lanterns_rest"
 target_spawn_point_name = "TownSecret_Game4Secret_Portal_Spawn"
 
 [node name="Game4_Town_Portal_Spawn" type="Marker2D" parent="."]

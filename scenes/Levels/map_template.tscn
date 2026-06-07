@@ -1014,7 +1014,7 @@ spawn_path = NodePath("..")
 script = ExtResource("3_kc88y")
 
 [node name="PortalToTargetMap" parent="." instance=ExtResource("4_q3nul")]
-target_map_id = "game2"
+target_map_id = "ember_meadows"
 target_spawn_point_name = "Game2_Game_Portal_Spawn"
 
 [node name="CurrentMap_TargetMap_Portal_Spawn" type="Marker2D" parent="."]
