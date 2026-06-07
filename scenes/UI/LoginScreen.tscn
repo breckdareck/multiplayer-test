@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://c78xmv3587kv2"]
+[gd_scene load_steps=12 format=3 uid="uid://c78xmv3587kv2"]
 
 [ext_resource type="Script" uid="uid://bdaw424g73ylw" path="res://scripts/UI/LoginScreen.gd" id="1_script"]
 [ext_resource type="Theme" uid="uid://dumv2cfji0owj" path="res://assets/themes/UI_Theme.tres" id="2_theme"]
@@ -28,9 +28,25 @@ spread = 18.0
 initial_velocity_min = 3.0
 initial_velocity_max = 12.0
 gravity = Vector3(0, -6, 0)
-scale_min = 0.3
-scale_max = 1.1
+scale_min = 0.0
+scale_max = 2.0
 color = Color(1, 0.82, 0.45, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3g7qs"]
+content_margin_left = 8.0
+content_margin_top = 8.0
+content_margin_right = 8.0
+content_margin_bottom = 8.0
+bg_color = Color(0.078431375, 0.078431375, 0.101960786, 0.93333334)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25, 0.25, 0.3, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
 [node name="LoginScreen" type="Control"]
 layout_mode = 3
@@ -48,6 +64,8 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_top = 1.0
+offset_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("4_sky")
@@ -59,9 +77,9 @@ modulate = Color(1, 1, 1, 0.85)
 texture_filter = 1
 layout_mode = 1
 offset_left = 4.0
-offset_top = -112.0
+offset_top = -97.000015
 offset_right = 484.8
-offset_bottom = 188.5
+offset_bottom = 203.49998
 scale = Vector2(4, 4)
 texture = ExtResource("5_cloud1")
 
@@ -70,9 +88,9 @@ modulate = Color(1, 1, 1, 0.7)
 texture_filter = 1
 layout_mode = 1
 offset_left = -5.999878
-offset_top = -115.99997
+offset_top = -76.0
 offset_right = 378.00012
-offset_bottom = 124.00003
+offset_bottom = 164.0
 scale = Vector2(5, 5)
 texture = ExtResource("6_cloud2")
 
@@ -83,7 +101,8 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -1200.0
+offset_top = -1066.0
+offset_bottom = 134.0
 grow_horizontal = 2
 grow_vertical = 0
 texture = ExtResource("3_village")
@@ -101,7 +120,7 @@ color = Color(0.05, 0.06, 0.11, 0.5)
 [node name="Embers" type="GPUParticles2D" parent="."]
 modulate = Color(1, 1, 1, 0.55)
 position = Vector2(960, 560)
-amount = 36
+amount = 47
 texture = SubResource("GradientTexture2D_ember")
 lifetime = 7.0
 preprocess = 7.0
@@ -160,22 +179,23 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -248.03223
-offset_top = -309.0
-offset_right = 248.03223
-offset_bottom = 390.0
+offset_left = -183.01611
+offset_top = -272.5
+offset_right = 183.01611
+offset_bottom = 272.5
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_3g7qs")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 27.0
-offset_top = 22.0
-offset_right = -29.064453
-offset_bottom = -22.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 14
@@ -260,6 +280,7 @@ autowrap_mode = 2
 [node name="DevSidebar" type="PanelContainer" parent="."]
 visible = false
 layout_mode = 1
+anchors_preset = 6
 anchor_left = 1.0
 anchor_top = 0.5
 anchor_right = 1.0
@@ -333,6 +354,7 @@ text = "Dagger"
 [node name="DevToggle" type="Button" parent="."]
 modulate = Color(1, 1, 1, 0.4)
 layout_mode = 1
+anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_left = 12.0
