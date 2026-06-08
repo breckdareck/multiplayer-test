@@ -1,79 +1,121 @@
-# Multiplayer Godot RPG
+# Emberwilds
 
-A **server-authoritative multiplayer RPG** built with Godot 4.5+, modeled on
-MapleStory: 2D side-scrolling platformer with component-based characters,
-data-driven content, and a Flask + PostgreSQL backend for account and character
-persistence. Host a server, invite your friends, grind a meadow into a forest
-into a shadowfell, and advance your job at level 30.
+> *Rekindle the wilds.*
 
-## Features
+A **server-authoritative 2D co-op RPG** built with Godot 4.5+, where **your weapon
+is your class**. There are no job classes to pick — you wield a **Sword, Bow,
+Staff, or Dagger**, master it, dual-wield a second, and rebuild it through
+branching upgrade trees. Modeled on MapleStory's chunky 2D hunting, crossed with
+New World's weapon-driven identity and Diablo-style ability upgrades. Host a
+lobby, bring your friends, and push the frontier back.
 
-### Multiplayer & Persistence
-- Server-authoritative architecture — the server validates all state, clients send intent via RPCs
-- Host/join networking on a listen server, with in-game channel (port) switching
-- Account & character system persisted to PostgreSQL via a Flask REST API
-- Dedicated headless server support
+Generations ago the **Weave** that held all magic shattered in the **Emberfall**,
+raining elemental **embers** across the land and warping the wild into monsters.
+An ember can't be wielded barehanded — but *bound into a weapon, it can be
+channelled*. You're a **Wilder**: take up your steel, walk past the lantern-light,
+and rekindle the wilds. Full world bible in [docs/LORE.md](docs/LORE.md).
 
-### Characters & Progression
-- **Four base classes** — Swordsman, Archer, Mage, Rogue — each with its own
-  class abilities, stat growth, and per-level sprite frames
-- **Job Advancement at level 30** via the Job Master NPC in town: Swordsman →
-  Crusader, Archer → Ranger, Mage → Archmage, Rogue → Assassin
-- Component-based characters: Health, Mana, Stats, Combat, Class, Leveling,
-  Ability, Buff, Equipment, Inventory
-- Ability system with cooldowns, skill points, prerequisites, stat scaling, and proc effects
-- Buff/debuff system with stacking, durations, and custom logic hooks
-- Skills learned as a base class carry over after advancing
-
-### Quests & Onboarding
-- **Guided level-1→30 quest journey** of 13 chained quests covering the
-  beginner / early / mid / advancement tracks
-- **First-login onboarding**: a brand-new character is greeted in town, given a
-  starter quest automatically, and walked through controls in chat
-- **Always-on Quest Tracker HUD** in the top-right that shows active quests
-  and their objective progress in real time
-- KILL, COLLECT, and REACH_LEVEL objectives with prerequisites and chained
-  unlock notifications
-- Capstone **"Answer the Call"** quest at level 25→30 directs the player to
-  the Job Master for advancement
-
-### RPG Systems
-- Inventory with stacking, drag-and-drop, and server validation
-- Equipment slots (head, chest, legs, feet, weapon) with stat bonuses and visual changes
-- Consumables — heal, restore mana, grant experience, town teleport
-- Merchant buy/sell and player-to-player trading
-- Party system — create, invite, join, leave
-
-### World & Combat
-- **Four themed zones** connected by portals — **Maple Town**, **Slime Meadow**,
-  **Goblin Hollow**, **Shadowfell** — with a zone-entry banner that fades in on
-  map change
-- **Per-zone camera bounds** auto-computed from the tilemap on load, with an
-  editor-only preview outline so you can see exactly where the camera will clamp
-- **Parallax background layers** (sky, distant forest, trees, drifting clouds)
-  on hunting maps, visibility-gated so the host doesn't see other maps' layers
-- Enemy AI state machines with aggro, chase, patrol, and attack behaviors
-- Server-side AI bots that explore, fight, loot, and trade
-- Critical hits, floating damage numbers, invulnerability frames, death/respawn, killzones
-
-### Interface
-- Draggable windows for abilities, equipment, stats, inventory, party, quest log, and chat
-- 8-slot hotbar with cooldown visualization, buff bar, and a mobile touch HUD
-- In-game chat with slash commands (`/quest`, `/bot`, `/trade`, emotes, ...)
+![Emberwilds title screen](README/Login.png)
 
 ## Screenshots
 
-| Login | Character Select |
+| Forge your legend | Choose your Wilder |
 |---|---|
-| ![Login](README/Login.png) | ![Character Select](README/Character_Select.png) |
+| ![Character creation](README/Character_Create.png) | ![Character select](README/Character_Select.png) |
 
-| Maple Town | Stats / Inventory / Abilities |
+| Lantern's Rest — the Hearth hub | Hunting the Near-Wilds |
 |---|---|
-| ![Town](README/Town.png) | ![Stats, Inventory, and Abilities](README/Stats_Inventory_Abilities.png) |
+| ![Lantern's Rest](README/Lanterns_Rest.png) | ![Gameplay](README/Gameplay.png) |
 
-| Party & Quest | Bot Debug Overlay |
+Dual-wield: two weapons equipped at once light up two signature gauges (here Sword
+**Combo** + Bow **Momentum**) and a **Synergy** between the disciplines —
+
+![Weapon gauges and synergy](README/Weapon_Widget.png)
+
+| Weapon mastery & ability trees | The unified character hub |
 |---|---|
-| ![Party and Quest](README/Party_Quest.png) | ![Bot Debug](README/Bot_Debug.png) |
+| ![Abilities](README/Abilities.png) | ![Character window](README/Game_Window.png) |
+
+## Features
+
+### The weapon is the class
+- **Four weapon disciplines** — Sword, Bow, Staff, Dagger — each with its own
+  **signature gauge** (sword **Combo**, bow **Momentum**, staff **Element Stance**,
+  dagger **Shadowmeld**), stat axis (Defense / Accuracy / Magic Attack / Evasion),
+  and a different *mechanical shape*, not a reskin
+- **Two weapon slots** equipped at once — your kit is the **union of two ability
+  trees**, and passives stack from both slots
+- **Per-discipline weapon mastery** (cap 100) earned by fighting with that weapon;
+  the active weapon drives your damage scaling — *"I am my weapon"*
+- **Spellblade hybrid:** wield a Staff with high STR/DEX and your magic damage
+  folds in a slice of your melee stat
+
+### Build it yourself
+- **Freely-allocated attributes** — 5 points per level (495 at the cap). Five
+  dual-role attributes, each a weapon stat **and** a utility: **STR** (+Defense),
+  **DEX** (+Accuracy), **INT** (+Mana/MP regen), **LUCK** (+Crit rate), **CON**
+  (+Max HP/HP regen — the tank lever)
+- **Per-ability 3-tier upgrade trees** (Diablo-4 shape): a broad modifier → a
+  mechanical augment → pick **one of three** mutually-exclusive Tier-3 variants
+  that *change how the ability plays* — never just "+30% damage." **80 abilities
+  with 343 upgrade variants** in the build
+- **Free respec** at every granularity (one ability, a tree, a discipline, or
+  everything) — rebuild around a new weapon without re-grinding
+- Two divergent **paths per weapon** (Vanguard/Berserker, Marksman/Skirmisher,
+  Elementalist/Sage, Assassin/Venomancer)
+
+### Multiplayer & persistence
+- **Server-authoritative** architecture — the server validates all state; clients
+  send *intent* via RPCs, the server mutates and broadcasts the truth
+- **Host / join** on a listen server, with in-game **channel** (port) switching
+- Account & character system persisted to **PostgreSQL via a Flask REST API**
+- Dedicated **headless server** support
+
+### Combat
+- **Basic attack** (always rolls off your active weapon), **abilities** on an
+  8-slot hotbar, and a **signature gauge** you build and spend for a payoff cast
+- **Mastery damage floor** (min roll = 20% of max) so even low rolls feel like
+  progress; floating crit numbers; **CRITDAMAGE** as a chase gear stat
+- A **second damage axis** — staff spells mitigate against Magic Defense
+- Status effects: **bleed / poison / burn DoTs**, slow, knockback, stealth, marks
+- **No dodge i-frames** — most enemies deal contact damage, so survival is HP, the
+  potion loop, positioning, and per-weapon defensive abilities (MapleStory's model)
+
+### World & enemies
+- A **Hearth hub** (Lantern's Rest) ringed by **portal-connected wild maps** that
+  climb from the Near-Wilds to the Sundered Heart and its keeper, the **Eternal
+  Warlord** (level 100)
+- **Per-map isolation** — each map runs in its own `SubViewport` with a fresh
+  `World2D` (independent physics / nav / audio); maps stay warm in a residency pool
+- **Parallax background layers** and **per-map camera bounds** auto-computed from
+  the tilemap
+- A **24-enemy ladder** (level 1 → 100) with state-machine AI (idle → patrol →
+  chase → attack → leash) and both contact-damage and telegraphed-slash models
+- **Server-side AI bots** that join parties, fight, loot, and focus your target —
+  Erenshor-style population and party-fill
+- **Pets** — owner-bound companions that auto-pot, auto-loot, and auto-buff
+
+### Progression, quests & onboarding
+- **Level cap 100**; character level and weapon mastery are decoupled but
+  calibrated so mastery ~100 lands around level ~70 (then refine attributes & gear)
+- **`.tres`-driven quests** — a guided **level 1 → 30 journey** across six chains,
+  with first-login onboarding (auto-granted first kill + welcome overlay)
+- An **always-on Quest Tracker** HUD; KILL / COLLECT / REACH_LEVEL objectives with
+  prerequisites and chained unlocks
+
+### Items & economy
+- **Weapons** (two slots) and **armor** (head / chest / legs / feet) with rolled
+  stats; **rarity** from Common to Legendary; ~281 item resources
+- **Consumables** (HP/MP potions, pet food, pet skill books), merchant buy/sell,
+  and dual-confirmation **player-to-player trading**
+
+### Interface
+- A **unified game window** — equipment, stats, the five attributes, inventory,
+  and pet on a Character tab; the branching skill tree on an Abilities tab
+- 8-slot hotbar with cooldowns, the four **screen-edge weapon-gauge widgets**, buff
+  bar, target frame, party frames, and a mobile touch HUD
+- In-game chat with slash commands (`/quest`, `/bot`, `/trade`, emotes, …) and a
+  backtick-toggled developer console
 
 ## Getting Started
 
@@ -86,7 +128,7 @@ into a shadowfell, and advance your job at level 30.
 1. Clone the repository and open it in Godot:
    ```bash
    git clone <repository-url>
-   cd multiplayer-test
+   cd emberwilds
    ```
 2. Start the backend (required for account/character persistence):
    ```bash
@@ -105,6 +147,10 @@ godot --headless --feature dedicated_server --path . -- --port 8080
 ```
 Windows helpers: `start_server.bat` / `stop_server.bat`.
 
+> **Just want to see combat?** In a debug build, the login screen's dev panel
+> (toggle with **F9**) has skip-to-combat buttons that host an offline max-level
+> Wilder of each discipline straight into the field — no backend required.
+
 To let friends outside your network play with persistent characters, see
 [DEPLOYMENT.md](DEPLOYMENT.md) for the VPS recipe and the in-game Backend
 Settings flow.
@@ -112,48 +158,54 @@ Settings flow.
 ## How to Play
 
 1. Create an account and log in on the Login screen.
-2. Create or select a character — characters persist across sessions.
+2. **Forge your legend** — create a character and pick your **starting weapon**
+   (Sword / Bow / Staff / Dagger). Characters persist across sessions.
 3. **Host** a game (listen server) or **Join** one by entering the host's IP and port.
-4. New characters spawn in **Maple Town**. Right-click the merchant for the
-   shop and the Job Master once you reach level 30. Step into a glowing portal
-   and press the interact key to travel between zones.
+4. New Wilders start in the **Hearth**. Talk to the quest-giver Hearthfolk, step
+   into a glowing **portal**, and head into the wilds. Build your weapon's gauge,
+   spend it on a payoff, and pour your attribute and ability points into the build
+   you want — respec is free if you change your mind.
 
 ### Controls (default — customizable in Options)
 
 | Action | Input |
 |---|---|
-| Move left / right | A / D (or Left / Right arrows) |
-| Move down | S (or Down arrow) |
+| Move left / right | A / D (or ← / →) |
+| Move up / down | W / S (or ↑ / ↓) |
 | Jump | Space |
-| Attack | Left Ctrl |
-| Pick up item | Z |
+| Basic attack | Left Ctrl |
+| Weapon signature (spend gauge) | R |
+| Swap weapon loadout | Tab |
 | Ability hotkeys | 1 – 8 |
-| Abilities window | K |
-| Inventory window | I |
-| Equipment window | E |
-| Stats window | C |
+| Pick up item | Z |
+| Character window (stats / equipment / inventory) | C / E / I |
+| Abilities (skill tree) | K |
 | Party window | P |
 | Quest log | Q |
-| Toggle in-game debug panel | ` (backtick) |
 | Interact with NPC / chest | Right-click |
+| Toggle in-game debug panel | ` (backtick) |
 
 Drop through one-way platforms: hold **Move Down** and press **Jump**.
 
 ## Project Layout
 
 ```
-addons/      Godot editor plugins
-assets/      Sprites, audio, fonts, shaders, themes
+addons/      Godot editor plugins (resource editor, balance/boss-attack designers)
+assets/      Sprites, audio, fonts, shaders, themes, curves
 backend/     Flask REST API + Dockerfile
-resources/   Data-driven content (.tres): abilities, buffs, items, enemies, classes
+docs/        GDD, world lore, ADRs, design references
+resources/   Data-driven content (.tres): abilities, upgrades, buffs, items,
+             enemies, disciplines, quests, VFX
 scenes/      Levels, UI, player, NPC, and gameplay scenes
 scripts/     Game logic (GDScript)
+tools/       Content generators and screenshot/render scripts
 ```
 
 ## Architecture & Contributing
 
 This repo uses a layered `CLAUDE.md` documentation hierarchy. Start with the root
-[CLAUDE.md](CLAUDE.md), then read the subsystem guide for the area you're touching:
+[CLAUDE.md](CLAUDE.md), skim the [Game Design Document](docs/GDD.md) for the full
+picture, then read the subsystem guide for the area you're touching:
 
 | Area | Guide |
 |---|---|
@@ -163,18 +215,18 @@ This repo uses a layered `CLAUDE.md` documentation hierarchy. Start with the roo
 | AI bots | [scripts/Bot/CLAUDE.md](scripts/Bot/CLAUDE.md) |
 | Backend (Flask / Postgres) | [backend/CLAUDE.md](backend/CLAUDE.md) |
 
+Key architectural decisions are recorded as ADRs in [docs/adr/](docs/adr/) (class
+removal, the attribute system, the unified window, map residency, bots, pets, …).
 Adding content (abilities, buffs, items, enemies, maps, backend endpoints) follows
 packaged, repeatable workflows — see [AI-LAYER.md](AI-LAYER.md).
 
 ## Roadmap
 
-Planned work is tracked in [TODO.md](TODO.md) — a tiered board covering social
-systems, the player economy, cooperative content (party quests, bosses), guilds,
-and world expansion.
-
-For the focused "what's left to polish into a showable demo" checklist (the
-showcase path, must-fix art / audio / feel gaps, and pre-demo verification),
-see [DEMO_POLISH.md](DEMO_POLISH.md).
+The **weapon-identity overhaul is systems-complete in code**; the next milestones
+are live multiplayer validation, balance tuning, and content depth (high-level
+maps, authored boss mechanics, economy sinks). The full picture lives in the
+[GDD §19 production roadmap](docs/GDD.md), with the tiered task board in
+[TODO.md](TODO.md) and the showable-demo checklist in [DEMO_POLISH.md](DEMO_POLISH.md).
 
 ## Credits
 
