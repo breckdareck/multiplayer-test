@@ -1,14 +1,15 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=14 format=3 uid="uid://gu6abtg4l5rp"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=15 format=3 uid="uid://gu6abtg4l5rp"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
 [ext_resource type="SpriteFrames" uid="uid://ckcbsuhp72f5i" path="res://resources/Enemies/Goblin/SF_Goblin.tres" id="3_sf"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Bronze_Dirk.tres" id="d_1"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Bronze_Warbow.tres" id="d_2"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Bronze_Vanguard_Legguards.tres" id="d_3"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Bronze_Pathfinder_Mail.tres" id="d_4"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Bronze_Nightshade_Mail.tres" id="d_5"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Bronze_Arcanist_Legguards.tres" id="d_6"]
+[ext_resource type="Script" uid="uid://cdsbcru4b1hr8" path="res://scripts/Resources/BossAttackData.gd" id="9_1ytme"]
+[ext_resource type="Resource" uid="uid://uyfoc8mdprto" path="res://resources/DropTables/Generated/Bronze_Dirk.tres" id="d_1"]
+[ext_resource type="Resource" uid="uid://cuipmwy7ps24n" path="res://resources/DropTables/Generated/Bronze_Warbow.tres" id="d_2"]
+[ext_resource type="Resource" uid="uid://df7ldq8yr5ulw" path="res://resources/DropTables/Generated/Bronze_Vanguard_Legguards.tres" id="d_3"]
+[ext_resource type="Resource" uid="uid://brhlphpdwtb3k" path="res://resources/DropTables/Generated/Bronze_Pathfinder_Mail.tres" id="d_4"]
+[ext_resource type="Resource" uid="uid://blcgg1vtxug62" path="res://resources/DropTables/Generated/Bronze_Nightshade_Mail.tres" id="d_5"]
+[ext_resource type="Resource" uid="uid://bp83pae2t0ykl" path="res://resources/DropTables/Generated/Bronze_Arcanist_Legguards.tres" id="d_6"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)
@@ -32,7 +33,7 @@ metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 script = ExtResource("2_ed")
 monster_name = "Goblin Warrior"
 monster_level = 13
-movement_speed = 42
+movement_speed = 42.0
 is_aggressive = true
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")

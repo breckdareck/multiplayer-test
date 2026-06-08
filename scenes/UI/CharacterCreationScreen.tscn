@@ -9,10 +9,9 @@
 [ext_resource type="Texture2D" uid="uid://cgjqecy2i25oj" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Cloud_1.png" id="7_cloud1"]
 [ext_resource type="Texture2D" uid="uid://dgn0sn4ddie7p" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Cloud_2.png" id="8_cloud2"]
 [ext_resource type="FontFile" uid="uid://dxbqcm3ww0xmj" path="res://assets/fonts/Starbim.ttf" id="9_title_font"]
-[ext_resource type="Script" path="res://scripts/UI/menu_parallax.gd" id="p_parallax"]
+[ext_resource type="Script" uid="uid://0jbd3hyeo2d1" path="res://scripts/UI/menu_parallax.gd" id="p_parallax"]
 
 [sub_resource type="Gradient" id="Gradient_ember"]
-offsets = PackedFloat32Array(0, 1)
 colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_ember"]
@@ -68,32 +67,37 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = -90.000114
+offset_top = -96.99998
+offset_right = -90.00012
+offset_bottom = -97.0
 grow_horizontal = 2
 grow_vertical = 2
+scale = Vector2(1.1239439, 1.1239439)
 texture = ExtResource("6_sky")
 expand_mode = 1
 stretch_mode = 6
 
 [node name="Cloud1" type="TextureRect" parent="."]
-texture_filter = 1
 modulate = Color(1, 1, 1, 0.85)
-layout_mode = 1
-offset_left = 220.0
-offset_top = 120.0
-offset_right = 412.0
-offset_bottom = 216.0
-scale = Vector2(4, 4)
+texture_filter = 1
+layout_mode = 0
+offset_left = -86.000114
+offset_top = -195.0
+offset_right = 394.79987
+offset_bottom = 105.5
+scale = Vector2(4.4957757, 4.4957757)
 texture = ExtResource("7_cloud1")
 
 [node name="Cloud2" type="TextureRect" parent="."]
-texture_filter = 1
 modulate = Color(1, 1, 1, 0.7)
-layout_mode = 1
-offset_left = 1360.0
-offset_top = 250.0
-offset_right = 1552.0
-offset_bottom = 346.0
-scale = Vector2(5, 5)
+texture_filter = 1
+layout_mode = 0
+offset_left = -96.0
+offset_top = -173.99998
+offset_right = 288.0
+offset_bottom = 66.000015
+scale = Vector2(5.6197195, 5.6197195)
 texture = ExtResource("8_cloud2")
 
 [node name="Village" type="TextureRect" parent="."]
@@ -103,9 +107,13 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -1200.0
+offset_left = -90.000114
+offset_top = -1164.0
+offset_right = -90.00012
+offset_bottom = 36.0
 grow_horizontal = 2
 grow_vertical = 0
+scale = Vector2(1.1239439, 1.1239439)
 texture = ExtResource("5_village")
 expand_mode = 1
 

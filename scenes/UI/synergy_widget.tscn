@@ -28,7 +28,7 @@ offset_top = -300.0
 offset_right = 150.0
 offset_bottom = -232.0
 grow_vertical = 2
-mouse_filter = 2
+mouse_filter = 1
 script = ExtResource("1_widget")
 
 [node name="Panel" type="PanelContainer" parent="."]

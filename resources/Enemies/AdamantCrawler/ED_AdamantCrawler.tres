@@ -1,14 +1,15 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=13 format=3 uid="uid://du7cuep7ula3o"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=14 format=3 uid="uid://du7cuep7ula3o"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
 [ext_resource type="SpriteFrames" uid="uid://b2ohgim61o1bm" path="res://resources/Enemies/Slime/SF_Slime.tres" id="3_sf"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Adamant_Spellstaff.tres" id="d_1"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Adamant_Warbow.tres" id="d_2"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Adamant_Arcanist_Mail.tres" id="d_3"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Adamant_Arcanist_Legguards.tres" id="d_4"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Adamant_Pathfinder_Helm.tres" id="d_5"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Adamant_Nightshade_Boots.tres" id="d_6"]
+[ext_resource type="Script" uid="uid://cdsbcru4b1hr8" path="res://scripts/Resources/BossAttackData.gd" id="9_u8fa4"]
+[ext_resource type="Resource" uid="uid://bvau85p5jo8i1" path="res://resources/DropTables/Generated/Adamant_Spellstaff.tres" id="d_1"]
+[ext_resource type="Resource" uid="uid://da3iqpgk53mfv" path="res://resources/DropTables/Generated/Adamant_Warbow.tres" id="d_2"]
+[ext_resource type="Resource" uid="uid://kaiy41y0odhb" path="res://resources/DropTables/Generated/Adamant_Arcanist_Mail.tres" id="d_3"]
+[ext_resource type="Resource" uid="uid://cmd2yxkqmk3vx" path="res://resources/DropTables/Generated/Adamant_Arcanist_Legguards.tres" id="d_4"]
+[ext_resource type="Resource" uid="uid://b1ewjw45dtoqt" path="res://resources/DropTables/Generated/Adamant_Pathfinder_Helm.tres" id="d_5"]
+[ext_resource type="Resource" uid="uid://cg611r4qield7" path="res://resources/DropTables/Generated/Adamant_Nightshade_Boots.tres" id="d_6"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)
@@ -28,7 +29,7 @@ metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 script = ExtResource("2_ed")
 monster_name = "Adamant Crawler"
 monster_level = 58
-movement_speed = 55
+movement_speed = 55.0
 is_aggressive = true
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")

@@ -1,6 +1,8 @@
 extends Control
 class_name StaffElementWidget
 
+const GaugeInfo = preload("res://scripts/UI/gauge_info.gd")
+
 ## PR 7 — Staff discipline's signature class widget (MapleStory style).
 ##
 ## Lives on the left edge of the screen, vertically centered (same anchor family
@@ -50,9 +52,17 @@ var _current_element: int = 0
 #region #################### Lifecycle ####################
 
 func _ready() -> void:
+	# Non-empty tooltip_text makes Godot call _make_custom_tooltip() on hover.
+	tooltip_text = "ELEMENT STANCE"
 	# Player-dependent wiring happens in bind_player() — persistent UI layer,
 	# (re)bound per spawn / map change (ADR 0009 Stage B).
 	visible = false
+
+
+## Skinned BBCode tooltip explaining the element stance (matches the ability /
+## item tooltip look) instead of Godot's raw-text default.
+func _make_custom_tooltip(_for_text: String) -> Object:
+	return AbilityTooltip.build(GaugeInfo.staff_element())
 
 
 ## Binds this widget to the local player body. Called by LocalPlayerUI.

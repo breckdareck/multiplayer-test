@@ -1,12 +1,13 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=12 format=3 uid="uid://bmiep2r0eorcq"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=13 format=3 uid="uid://bmiep2r0eorcq"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Mithril_Spellstaff.tres" id="2_fx375"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Mithril_Arcanist_Helm.tres" id="3_124sg"]
+[ext_resource type="Resource" uid="uid://cvo811y27aysa" path="res://resources/DropTables/Generated/Mithril_Spellstaff.tres" id="2_fx375"]
+[ext_resource type="Resource" uid="uid://dajjcfqcygfvs" path="res://resources/DropTables/Generated/Mithril_Arcanist_Helm.tres" id="3_124sg"]
 [ext_resource type="SpriteFrames" uid="uid://oehyffp700bf" path="res://resources/Enemies/RabbitWizard/SF_RabbitWizard.tres" id="3_sf"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Mithril_Arcanist_Mail.tres" id="4_vdfpd"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Mithril_Arcanist_Boots.tres" id="5_aakxn"]
+[ext_resource type="Resource" uid="uid://yk34asjyy3di" path="res://resources/DropTables/Generated/Mithril_Arcanist_Mail.tres" id="4_vdfpd"]
+[ext_resource type="Resource" uid="uid://dvis2xjm15j8n" path="res://resources/DropTables/Generated/Mithril_Arcanist_Boots.tres" id="5_aakxn"]
+[ext_resource type="Script" uid="uid://cdsbcru4b1hr8" path="res://scripts/Resources/BossAttackData.gd" id="7_124sg"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)

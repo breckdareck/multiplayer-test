@@ -36,6 +36,8 @@ var api_presets = {
 }
 
 func _ready():
+	AudioManager.play_song("res://assets/music/Title.mp3")
+	
 	login_button.pressed.connect(_on_login_pressed)
 	register_button.pressed.connect(_on_register_pressed)
 	local_save_checkbox.toggled.connect(_on_local_save_toggled)

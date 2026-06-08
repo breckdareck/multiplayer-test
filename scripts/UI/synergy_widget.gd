@@ -2,32 +2,29 @@ extends Control
 
 ## Weapon-pair synergy HUD widget. Names the cross-gauge synergy you get from your
 ## TWO equipped weapons (e.g. Sword+Staff = "SPELLBLADE") and flashes whenever a
-## synergy effect fires. The server drives the proc through
-## WeaponPairSynergyComponent.synergy_proc (synced to the owning client); this
-## widget only paints — it never reads or mutates gameplay state. Left edge, same
-## family as the four gauge widgets. Design: project_farever_reference.
+## synergy effect fires. Hovering the widget shows a tooltip explaining what the
+## synergy does and how the two weapons feed each other (see SynergyInfo). The
+## server drives the proc through WeaponPairSynergyComponent.synergy_proc (synced
+## to the owning client); this widget only paints — it never reads or mutates
+## gameplay state. Left edge, same family as the four gauge widgets.
+## Design: project_farever_reference.
+
+const SynergyInfo = preload("res://scripts/UI/synergy_info.gd")
 
 const SWORD := Constants.ClassType.SWORD
 const BOW := Constants.ClassType.BOW
 const STAFF := Constants.ClassType.STAFF
 const DAGGER := Constants.ClassType.DAGGER
 
-## Display name per equipped pair — keyed by the sorted "min_max" discipline ints
-## (SWORD=0, BOW=1, STAFF=2, DAGGER=3).
-const PAIR_NAMES := {
-	"0_2": "SPELLBLADE",      # sword + staff — sword hits carry the stance element
-	"1_2": "ELEMENTAL SHOT",  # bow + staff   — arrows carry the stance element
-	"2_3": "HEXBLADE",        # staff + dagger — ambush carries the stance element
-	"0_1": "SKIRMISHER",      # sword + bow   — bow hits bank combo
-	"0_3": "ASSASSIN",        # sword + dagger — ambush spends banked combo
-	"1_3": "AMBUSHER",        # bow + dagger  — ambush spends bow charge
-}
 const ACTIVE_COLOR: Color = Color(0.55, 0.9, 1.0, 1.0)   # cyan flash on proc
 const IDLE_COLOR: Color = Color(0.6, 0.62, 0.7, 1.0)     # dim when idle
 
 var player: MultiplayerPlayerV2 = null
 var equipment_component: EquipmentComponent = null
 var synergy_component: Node = null
+
+## Pair key of the synergy currently shown ("" when none) — drives the tooltip.
+var _current_pair_key: String = ""
 
 @onready var pair_label: Label = $Panel/VBox/PairLabel
 
@@ -76,16 +73,37 @@ func _on_active_weapon_changed(_active_weapon, _active_item) -> void:
 ## Show + name the synergy only when a recognized two-weapon pair is equipped.
 func _refresh() -> void:
 	if not is_instance_valid(player) or not player.has_method("get_equipped_disciplines"):
-		visible = false
+		_set_pair("")
 		return
 	var key: String = _pair_key(player.get_equipped_disciplines())
-	if not PAIR_NAMES.has(key):
+	var rec = SynergyInfo.get_for_key(key)
+	if rec == null:
+		_set_pair("")
+		return
+	_set_pair(key)
+	if is_instance_valid(pair_label):
+		pair_label.text = rec["name"]
+		pair_label.add_theme_color_override("font_color", IDLE_COLOR)
+
+
+## Stores the active pair key and updates visibility + the hover tooltip trigger.
+## tooltip_text must be non-empty for Godot to call _make_custom_tooltip(); the
+## name doubles as the plain-text fallback.
+func _set_pair(key: String) -> void:
+	_current_pair_key = key
+	if key == "":
 		visible = false
+		tooltip_text = ""
 		return
 	visible = true
-	if is_instance_valid(pair_label):
-		pair_label.text = PAIR_NAMES[key]
-		pair_label.add_theme_color_override("font_color", IDLE_COLOR)
+	var rec = SynergyInfo.get_for_key(key)
+	tooltip_text = rec["name"] if rec != null else ""
+
+
+## Render the synergy explanation as a skinned BBCode tooltip (matches the
+## ability / item tooltip look), rather than Godot's raw-text default.
+func _make_custom_tooltip(_for_text: String) -> Object:
+	return AbilityTooltip.build(SynergyInfo.tooltip_bbcode(_current_pair_key))
 
 
 ## Normalized "min_max" key for a 2-discipline weapon set; "" if not a valid pair

@@ -1,7 +1,8 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=9 format=3 uid="uid://blx5g1kkwltd3"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=10 format=3 uid="uid://blx5g1kkwltd3"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_adjew"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_tra84"]
+[ext_resource type="Script" uid="uid://cdsbcru4b1hr8" path="res://scripts/Resources/BossAttackData.gd" id="3_r1dgh"]
 [ext_resource type="Texture2D" uid="uid://chccyd0fdl420" path="res://assets/sprites/MinifolksVillagers2/Original/Outline/MiniGraveDigger.png" id="3_tra84"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_r1dgh"]

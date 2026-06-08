@@ -1,6 +1,8 @@
 extends Control
 class_name BowMomentumWidget
 
+const GaugeInfo = preload("res://scripts/UI/gauge_info.gd")
+
 ## Bow discipline's signature class widget (MapleStory style).
 ##
 ## Lives on the left edge of the screen, vertically centered (same anchor family
@@ -69,9 +71,17 @@ func _ready() -> void:
 	_fill_style.corner_radius_bottom_right = 4
 	if is_instance_valid(bar_fill):
 		bar_fill.add_theme_stylebox_override("panel", _fill_style)
+	# Non-empty tooltip_text makes Godot call _make_custom_tooltip() on hover.
+	tooltip_text = "MOMENTUM"
 	# Player-dependent wiring happens in bind_player() — persistent UI layer,
 	# (re)bound per spawn / map change (ADR 0009 Stage B).
 	visible = false
+
+
+## Skinned BBCode tooltip explaining the Momentum gauge (matches the ability /
+## item tooltip look) instead of Godot's raw-text default.
+func _make_custom_tooltip(_for_text: String) -> Object:
+	return AbilityTooltip.build(GaugeInfo.bow_momentum())
 
 
 ## Binds this widget to the local player body. Called by LocalPlayerUI.

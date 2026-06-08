@@ -1,12 +1,13 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=12 format=3 uid="uid://b1qu1ul6hgffb"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=13 format=3 uid="uid://b1qu1ul6hgffb"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Adamant_Longsword.tres" id="2_kaplw"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Adamant_Vanguard_Helm.tres" id="3_hpu7y"]
+[ext_resource type="Resource" uid="uid://cwgd24ibg8o6a" path="res://resources/DropTables/Generated/Adamant_Longsword.tres" id="2_kaplw"]
+[ext_resource type="Resource" uid="uid://clpsklsbudk0w" path="res://resources/DropTables/Generated/Adamant_Vanguard_Helm.tres" id="3_hpu7y"]
 [ext_resource type="SpriteFrames" uid="uid://mtw60mg8lyd6" path="res://resources/Enemies/BearWarrior/SF_BearWarrior.tres" id="3_sf"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Adamant_Vanguard_Mail.tres" id="4_336de"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Adamant_Vanguard_Legguards.tres" id="5_whxf5"]
+[ext_resource type="Resource" uid="uid://btfa7e13cwxy1" path="res://resources/DropTables/Generated/Adamant_Vanguard_Mail.tres" id="4_336de"]
+[ext_resource type="Resource" uid="uid://t5g8j7ggi5pp" path="res://resources/DropTables/Generated/Adamant_Vanguard_Legguards.tres" id="5_whxf5"]
+[ext_resource type="Script" uid="uid://cdsbcru4b1hr8" path="res://scripts/Resources/BossAttackData.gd" id="7_hpu7y"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)

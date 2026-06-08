@@ -1,12 +1,13 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=12 format=3 uid="uid://bld37jsiv57p8"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=13 format=3 uid="uid://bld37jsiv57p8"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Steel_Warbow.tres" id="2_emfy1"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Steel_Pathfinder_Helm.tres" id="3_mp4le"]
+[ext_resource type="Resource" uid="uid://dpwj83saatva4" path="res://resources/DropTables/Generated/Steel_Warbow.tres" id="2_emfy1"]
+[ext_resource type="Resource" uid="uid://b87nvd08x16ed" path="res://resources/DropTables/Generated/Steel_Pathfinder_Helm.tres" id="3_mp4le"]
 [ext_resource type="SpriteFrames" uid="uid://dd0cbgtqoeys8" path="res://resources/Enemies/WolfPathfinder/SF_WolfPathfinder.tres" id="3_sf"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Steel_Pathfinder_Mail.tres" id="4_7tcgy"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Steel_Pathfinder_Legguards.tres" id="5_0mvmo"]
+[ext_resource type="Resource" uid="uid://co5qn1qessffp" path="res://resources/DropTables/Generated/Steel_Pathfinder_Mail.tres" id="4_7tcgy"]
+[ext_resource type="Resource" uid="uid://cehpa0y5dr2u4" path="res://resources/DropTables/Generated/Steel_Pathfinder_Legguards.tres" id="5_0mvmo"]
+[ext_resource type="Script" uid="uid://cdsbcru4b1hr8" path="res://scripts/Resources/BossAttackData.gd" id="7_mp4le"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)

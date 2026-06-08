@@ -1,16 +1,17 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=15 format=3 uid="uid://lw7ee7wrtoj8"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=16 format=3 uid="uid://lw7ee7wrtoj8"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
 [ext_resource type="SpriteFrames" uid="uid://b2ohgim61o1bm" path="res://resources/Enemies/Slime/SF_Slime.tres" id="3_sf"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Astral_Longsword.tres" id="d_1"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Astral_Spellstaff.tres" id="d_2"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Astral_Warbow.tres" id="d_3"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Astral_Dirk.tres" id="d_4"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Astral_Vanguard_Mail.tres" id="d_5"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Astral_Arcanist_Mail.tres" id="d_6"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Astral_Nightshade_Mail.tres" id="d_7"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Astral_Pathfinder_Mail.tres" id="d_8"]
+[ext_resource type="Script" uid="uid://cdsbcru4b1hr8" path="res://scripts/Resources/BossAttackData.gd" id="11_p1tbq"]
+[ext_resource type="Resource" uid="uid://clh21s5wk3vln" path="res://resources/DropTables/Generated/Astral_Longsword.tres" id="d_1"]
+[ext_resource type="Resource" uid="uid://c8p85ufq0a18y" path="res://resources/DropTables/Generated/Astral_Spellstaff.tres" id="d_2"]
+[ext_resource type="Resource" uid="uid://mfwjnvqgufd5" path="res://resources/DropTables/Generated/Astral_Warbow.tres" id="d_3"]
+[ext_resource type="Resource" uid="uid://dllx4v42ngboo" path="res://resources/DropTables/Generated/Astral_Dirk.tres" id="d_4"]
+[ext_resource type="Resource" uid="uid://q1d5yrw03ho" path="res://resources/DropTables/Generated/Astral_Vanguard_Mail.tres" id="d_5"]
+[ext_resource type="Resource" uid="uid://d4jcxnebiukkn" path="res://resources/DropTables/Generated/Astral_Arcanist_Mail.tres" id="d_6"]
+[ext_resource type="Resource" uid="uid://b47dpykijuaoi" path="res://resources/DropTables/Generated/Astral_Nightshade_Mail.tres" id="d_7"]
+[ext_resource type="Resource" uid="uid://kfnr03f8plvh" path="res://resources/DropTables/Generated/Astral_Pathfinder_Mail.tres" id="d_8"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)
@@ -30,7 +31,7 @@ metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 script = ExtResource("2_ed")
 monster_name = "Astral Slime"
 monster_level = 93
-movement_speed = 55
+movement_speed = 55.0
 is_magic_attacker = true
 archetype = 1
 sprite_frames = ExtResource("3_sf")

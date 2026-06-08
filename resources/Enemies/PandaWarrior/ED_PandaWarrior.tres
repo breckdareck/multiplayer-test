@@ -1,12 +1,13 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=12 format=3 uid="uid://higweans5wtq"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=13 format=3 uid="uid://higweans5wtq"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Pristine_Longsword.tres" id="2_dcjc3"]
+[ext_resource type="Resource" uid="uid://dv0bmch011max" path="res://resources/DropTables/Generated/Pristine_Longsword.tres" id="2_dcjc3"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Pristine_Vanguard_Helm.tres" id="3_bn5df"]
+[ext_resource type="Resource" uid="uid://dj7usjjogkg08" path="res://resources/DropTables/Generated/Pristine_Vanguard_Helm.tres" id="3_bn5df"]
 [ext_resource type="SpriteFrames" uid="uid://lf5wovmv23cj" path="res://resources/Enemies/PandaWarrior/SF_PandaWarrior.tres" id="3_sf"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Pristine_Vanguard_Mail.tres" id="4_ale3e"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Pristine_Vanguard_Legguards.tres" id="5_8rspn"]
+[ext_resource type="Resource" uid="uid://c0tsei26gg41o" path="res://resources/DropTables/Generated/Pristine_Vanguard_Mail.tres" id="4_ale3e"]
+[ext_resource type="Resource" uid="uid://nwbgjmfsy1ht" path="res://resources/DropTables/Generated/Pristine_Vanguard_Legguards.tres" id="5_8rspn"]
+[ext_resource type="Script" uid="uid://cdsbcru4b1hr8" path="res://scripts/Resources/BossAttackData.gd" id="7_bn5df"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(72, 40)

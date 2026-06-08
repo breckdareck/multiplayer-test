@@ -1,6 +1,8 @@
 extends Control
 class_name SwordComboWidget
 
+const GaugeInfo = preload("res://scripts/UI/gauge_info.gd")
+
 ## PR 5 — Sword discipline's signature class widget (MapleStory style).
 ##
 ## Lives on the left edge of the screen, vertically centered. Shows a vertical
@@ -62,9 +64,17 @@ func _ready() -> void:
 		if pip:
 			combo_pips.append(pip)
 			pip.add_theme_stylebox_override("panel", _pip_style_empty)
+	# Non-empty tooltip_text makes Godot call _make_custom_tooltip() on hover.
+	tooltip_text = "COMBO POINTS"
 	# Player-dependent wiring happens in bind_player() — this widget lives in the
 	# persistent UI layer and is (re)bound per spawn / map change (ADR 0009 Stage B).
 	visible = false
+
+
+## Skinned BBCode tooltip explaining the combo-point gauge (matches the ability /
+## item tooltip look) instead of Godot's raw-text default.
+func _make_custom_tooltip(_for_text: String) -> Object:
+	return AbilityTooltip.build(GaugeInfo.sword_combo())
 
 
 ## Binds this widget to the local player body. Called by LocalPlayerUI.

@@ -1,24 +1,25 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=14 format=3 uid="uid://0kb81m13obdv"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=15 format=3 uid="uid://0kb81m13obdv"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
 [ext_resource type="SpriteFrames" uid="uid://baqtyjguyoxo2" path="res://resources/Enemies/Fox/SF_Fox.tres" id="3_sf"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Dragonbone_Dirk.tres" id="d_1"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Dragonbone_Warbow.tres" id="d_2"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Dragonbone_Nightshade_Mail.tres" id="d_3"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Dragonbone_Nightshade_Helm.tres" id="d_4"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Dragonbone_Pathfinder_Mail.tres" id="d_5"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Dragonbone_Arcanist_Boots.tres" id="d_6"]
+[ext_resource type="Script" uid="uid://cdsbcru4b1hr8" path="res://scripts/Resources/BossAttackData.gd" id="9_dtpmy"]
+[ext_resource type="Resource" uid="uid://co64gdbe0rj4i" path="res://resources/DropTables/Generated/Dragonbone_Dirk.tres" id="d_1"]
+[ext_resource type="Resource" uid="uid://byfox0v05n4ba" path="res://resources/DropTables/Generated/Dragonbone_Warbow.tres" id="d_2"]
+[ext_resource type="Resource" uid="uid://dcwxr7du4ewvn" path="res://resources/DropTables/Generated/Dragonbone_Nightshade_Mail.tres" id="d_3"]
+[ext_resource type="Resource" uid="uid://idp1vjkfldc6" path="res://resources/DropTables/Generated/Dragonbone_Nightshade_Helm.tres" id="d_4"]
+[ext_resource type="Resource" uid="uid://bvydaoas6a5r6" path="res://resources/DropTables/Generated/Dragonbone_Pathfinder_Mail.tres" id="d_5"]
+[ext_resource type="Resource" uid="uid://cm6m7antd1qnn" path="res://resources/DropTables/Generated/Dragonbone_Arcanist_Boots.tres" id="d_6"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)
 
-[sub_resource type="CircleShape2D" id="Shape_col"]
-radius = 5.09902
-
 [sub_resource type="CapsuleShape2D" id="Shape_body"]
 radius = 8.0
 height = 24.0
+
+[sub_resource type="CircleShape2D" id="Shape_col"]
+radius = 5.09902
 
 [sub_resource type="Resource" id="Resource_coin"]
 script = ExtResource("1_drop")
@@ -32,7 +33,7 @@ metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 script = ExtResource("2_ed")
 monster_name = "Ember Fox"
 monster_level = 78
-movement_speed = 50
+movement_speed = 50.0
 is_aggressive = true
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")

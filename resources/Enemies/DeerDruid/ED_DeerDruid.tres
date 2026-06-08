@@ -1,12 +1,13 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=12 format=3 uid="uid://bt4xq3n5twpv3"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=13 format=3 uid="uid://bt4xq3n5twpv3"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Mithril_Spellstaff.tres" id="2_na2gx"]
+[ext_resource type="Resource" uid="uid://cvo811y27aysa" path="res://resources/DropTables/Generated/Mithril_Spellstaff.tres" id="2_na2gx"]
 [ext_resource type="SpriteFrames" uid="uid://culu06oreubu" path="res://resources/Enemies/DeerDruid/SF_DeerDruid.tres" id="3_sf"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Mithril_Arcanist_Helm.tres" id="3_x2iks"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Mithril_Arcanist_Mail.tres" id="4_s2p1l"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Mithril_Arcanist_Legguards.tres" id="5_8xxb6"]
+[ext_resource type="Resource" uid="uid://dajjcfqcygfvs" path="res://resources/DropTables/Generated/Mithril_Arcanist_Helm.tres" id="3_x2iks"]
+[ext_resource type="Resource" uid="uid://yk34asjyy3di" path="res://resources/DropTables/Generated/Mithril_Arcanist_Mail.tres" id="4_s2p1l"]
+[ext_resource type="Resource" uid="uid://cudpwp5nlfwwn" path="res://resources/DropTables/Generated/Mithril_Arcanist_Legguards.tres" id="5_8xxb6"]
+[ext_resource type="Script" uid="uid://cdsbcru4b1hr8" path="res://scripts/Resources/BossAttackData.gd" id="7_x2iks"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)
