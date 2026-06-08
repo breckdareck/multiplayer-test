@@ -8,10 +8,11 @@
     ],
     "spawn": { "x": 2, "y": 13 },
     "portals": [
-      { "x": 42, "y": 12, "target_map_id": "lanterns_rest", "target_spawn_point_name": "Meadow_Return_Spawn", "arrival_name": "Hub_Meadow_Spawn" }
+      { "x": 42, "target_map_id": "lanterns_rest", "target_spawn_point_name": "Meadow_Return_Spawn", "arrival_name": "Hub_Meadow_Spawn" }
     ],
-    "enemies": [
-      { "x": 10, "y": 13 }, { "x": 18, "y": 13 }, { "x": 26, "y": 13 }, { "x": 32, "y": 13 }
+    "spawners": [
+      { "enemy": "res://scenes/NPC/slime.tscn", "pool_size": 6, "respawn_delay": 5.0,
+        "locations": [ { "x": 10, "y": 13 }, { "x": 18, "y": 13 }, { "x": 26, "y": 13 }, { "x": 34, "y": 13 } ] }
     ],
     "killzone_y": 19,
     "camera_top_padding": 400,
@@ -26,17 +27,118 @@
       { "x": 5, "y": 11, "w": 30, "depth": 1 },
       { "x": 10, "y": 7, "w": 22, "depth": 1 }
     ],
+    "ladders": [
+      { "x": 7, "top": 11, "bottom": 15 },
+      { "x": 32, "top": 11, "bottom": 15 },
+      { "x": 12, "top": 7, "bottom": 11 },
+      { "x": 29, "top": 7, "bottom": 11 }
+    ],
     "spawn": { "x": 2, "y": 14 },
     "portals": [
-      { "x": 37, "y": 13, "target_map_id": "lanterns_rest", "target_spawn_point_name": "Terraces_Return_Spawn", "arrival_name": "Hub_Terraces_Spawn" }
+      { "x": 37, "target_map_id": "lanterns_rest", "target_spawn_point_name": "Terraces_Return_Spawn", "arrival_name": "Hub_Terraces_Spawn" }
     ],
-    "enemies": [
-      { "x": 12, "y": 14 }, { "x": 24, "y": 14 },
-      { "x": 14, "y": 10 }, { "x": 26, "y": 10 },
-      { "x": 18, "y": 6 }
+    "spawners": [
+      { "enemy": "res://scenes/NPC/slime.tscn", "pool_size": 4, "respawn_delay": 5.0,
+        "locations": [ { "x": 12, "y": 14 }, { "x": 24, "y": 14 } ] },
+      { "enemy": "res://scenes/NPC/goblin.tscn", "pool_size": 3, "respawn_delay": 6.0,
+        "locations": [ { "x": 14, "y": 10 }, { "x": 26, "y": 10 }, { "x": 18, "y": 6 } ] }
     ],
     "killzone_y": 20,
     "camera_top_padding": 400,
     "camera_bottom_padding": 80
+  },
+
+  "_comment": "paint_existing maps keep their authored portals/enemies/boss; 'generate' builds a tall staggered platform tower + auto ladders, and the builder clones enemies to densely populate every platform.",
+
+  "mines": {
+    "paint_existing": true, "tile": 16, "killzone_y": 9,
+    "generate": { "shape": "cliffs", "levels": 6, "level_height": 3,
+      "pw_min": 9, "pw_max": 18, "main_x": -48, "main_w": 96, "main_y": 2,
+      "enemy_spacing": 5, "max_enemies": 55 },
+    "portals": [
+      { "portal": "PortalToKeep", "arrival": "Mines_Keep_Portal_Spawn", "x": 47 },
+      { "portal": "PortalToDustWarren", "arrival": "Mines_DustWarren_Portal_Spawn", "target_map_id": "dust_warren", "target_spawn_point_name": "DustWarren_Mines_Portal_Spawn", "x": -16 }
+    ],
+    "decor": { "scatter": "bush" }
+  },
+  "keep": {
+    "paint_existing": true, "tile": 16, "killzone_y": 9,
+    "generate": { "shape": "stairs", "levels": 9, "level_height": 2, "step_w": 13,
+      "main_x": -40, "main_w": 80, "main_y": 2, "enemy_spacing": 5, "max_enemies": 50 },
+    "portals": [
+      { "portal": "PortalToMines", "arrival": "Keep_Mines_Portal_Spawn", "x": -39 },
+      { "portal": "PortalToEmberscar", "arrival": "Keep_Emberscar_Portal_Spawn", "x": 39 },
+      { "portal": "PortalToLanternsRest", "arrival": "Keep_LanternsRest_Portal_Spawn", "target_map_id": "lanterns_rest", "target_spawn_point_name": "LanternsRest_Keep_Portal_Spawn", "x": -20 },
+      { "portal": "PortalToDeepWoods", "arrival": "Keep_DeepWoods_Portal_Spawn", "target_map_id": "deep_woods", "target_spawn_point_name": "DeepWoods_Keep_Portal_Spawn", "x": 20 }
+    ],
+    "decor": { "ground_props": [ { "kind": "house", "x": -6 } ], "scatter": "bush" }
+  },
+  "emberscar": {
+    "paint_existing": true, "tile": 16, "killzone_y": 9,
+    "generate": { "shape": "pyramid", "levels": 6, "level_height": 3,
+      "main_x": -34, "main_w": 68, "main_y": 2, "enemy_spacing": 5, "max_enemies": 48 },
+    "portals": [
+      { "portal": "PortalToKeep", "arrival": "Emberscar_Keep_Portal_Spawn", "x": -33 },
+      { "portal": "PortalToWeave", "arrival": "Emberscar_Weave_Portal_Spawn", "x": 33 }
+    ],
+    "decor": { "scatter": "bush" }
+  },
+  "weave": {
+    "paint_existing": true, "tile": 16, "killzone_y": 9,
+    "generate": { "shape": "tower", "levels": 8, "level_height": 3, "platforms_per_level": 2,
+      "pw_min": 7, "pw_max": 11, "main_x": -26, "main_w": 52, "main_y": 2, "main_depth": 3,
+      "enemy_spacing": 5, "max_enemies": 48 },
+    "portals": [
+      { "portal": "PortalToEmberscar", "arrival": "Weave_Emberscar_Portal_Spawn", "x": -25 },
+      { "portal": "PortalToWarlord", "arrival": "Weave_Warlord_Portal_Spawn", "x": 25 }
+    ],
+    "decor": { "ground_props": [ { "kind": "smalltree", "x": -22 }, { "kind": "smalltree", "x": 18 } ], "scatter": "bush" }
+  },
+
+  "_comment2": "NEW bridge maps (fresh + generate + populate) filling the lv 22-38 gap between ember_meadows and the Emberwilds chain, using the previously-unused mid-tier enemies.",
+
+  "thornroot": {
+    "display_name": "Thornroot Hollow", "tile": 16, "killzone_y": 9,
+    "generate": { "shape": "cliffs", "levels": 5, "level_height": 3, "pw_min": 9, "pw_max": 15,
+      "main_x": -30, "main_w": 60, "main_y": 2, "enemy_spacing": 6, "max_enemies": 34 },
+    "spawn": { "x": -27, "y": 0 },
+    "portals": [
+      { "x": -29, "target_map_id": "ember_meadows", "target_spawn_point_name": "EmberMeadows_Thornroot_Portal_Spawn", "arrival_name": "Thornroot_EmberMeadows_Portal_Spawn" },
+      { "x": 29, "target_map_id": "dust_warren", "target_spawn_point_name": "DustWarren_Thornroot_Portal_Spawn", "arrival_name": "Thornroot_DustWarren_Portal_Spawn" }
+    ],
+    "populate": [ "res://scenes/NPC/cave_goblin.tscn", "res://scenes/NPC/Minifolks/tusk_brute.tscn" ],
+    "decor": { "scatter": "bush" }
+  },
+  "dust_warren": {
+    "display_name": "The Dust Warren", "tile": 16, "killzone_y": 9,
+    "generate": { "shape": "pyramid", "levels": 5, "level_height": 3,
+      "main_x": -32, "main_w": 64, "main_y": 2, "enemy_spacing": 6, "max_enemies": 38 },
+    "spawn": { "x": -29, "y": 0 },
+    "portals": [
+      { "x": -31, "target_map_id": "thornroot", "target_spawn_point_name": "Thornroot_DustWarren_Portal_Spawn", "arrival_name": "DustWarren_Thornroot_Portal_Spawn" },
+      { "x": 31, "target_map_id": "mines", "target_spawn_point_name": "Mines_DustWarren_Portal_Spawn", "arrival_name": "DustWarren_Mines_Portal_Spawn" }
+    ],
+    "populate": [ "res://scenes/NPC/stone_slime.tscn", "res://scenes/NPC/Beastmen/fox_swordsman.tscn", "res://scenes/NPC/Beastmen/cat_robber.tscn", "res://scenes/NPC/Minifolks/dust_fox.tscn" ],
+    "decor": { "scatter": "bush" }
+  },
+  "warlord": {
+    "paint_existing": true, "tile": 16, "killzone_y": 9, "boss_center": true,
+    "platforms": [
+      { "x": -36, "y": 2, "w": 72, "depth": 4 },
+      { "x": -33, "y": -2, "w": 10, "depth": 1 },
+      { "x": 23, "y": -2, "w": 10, "depth": 1 },
+      { "x": -30, "y": -6, "w": 8, "depth": 1 },
+      { "x": 22, "y": -6, "w": 8, "depth": 1 }
+    ],
+    "ladders": [
+      { "x": -29, "top": -2, "bottom": 2 },
+      { "x": 27, "top": -2, "bottom": 2 },
+      { "x": -27, "top": -6, "bottom": -2 },
+      { "x": 25, "top": -6, "bottom": -2 }
+    ],
+    "portals": [
+      { "portal": "PortalToWeave", "arrival": "Warlord_Weave_Portal_Spawn", "x": -35 }
+    ],
+    "decor": { "scatter": "bush" }
   }
 }

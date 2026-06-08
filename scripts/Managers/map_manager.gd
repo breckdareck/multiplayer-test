@@ -25,6 +25,10 @@ const MAP_SCENES = {
 	"weave": "res://scenes/Levels/weave.tscn",
 	"warlord": "res://scenes/Levels/warlord.tscn",
 	"lanterns_rest": "res://scenes/Levels/lanterns_rest.tscn",
+	"meadow_path": "res://scenes/Levels/meadow_path.tscn",
+	"three_terraces": "res://scenes/Levels/three_terraces.tscn",
+	"thornroot": "res://scenes/Levels/thornroot.tscn",
+	"dust_warren": "res://scenes/Levels/dust_warren.tscn",
 }
 
 ## Themed display names for the loading screen (the in-world zone banner reads the
@@ -42,6 +46,10 @@ const MAP_DISPLAY_NAMES = {
 	"emberscar": "The Ember-Scar",
 	"weave": "The Weave's Edge",
 	"warlord": "The Sundered Heart",
+	"meadow_path": "Slime Meadow",
+	"three_terraces": "Windmill Terraces",
+	"thornroot": "Thornroot Hollow",
+	"dust_warren": "The Dust Warren",
 }
 
 const DEFAULT_MAP = "lanterns_rest"

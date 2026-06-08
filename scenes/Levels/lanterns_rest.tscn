@@ -3,7 +3,6 @@
 [ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_as7l3"]
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/VFX/damage_numbers.gd" id="2_bkv3e"]
 [ext_resource type="PackedScene" uid="uid://brfb5t5im33fl" path="res://scenes/Gameplay/portal.tscn" id="3_knl1o"]
-[ext_resource type="PackedScene" path="res://scenes/Gameplay/secret_portal.tscn" id="4_7kjy5"]
 [ext_resource type="Texture2D" uid="uid://jorjvuc5wn72" path="res://assets/sprites/world_tileset.png" id="5_t0e5x"]
 [ext_resource type="Texture2D" uid="uid://cd28i3fo3v1m0" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/country village tileset.png" id="6_1faty"]
 [ext_resource type="Texture2D" uid="uid://b8r3ov605pnuj" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/Country_village_props.png" id="7_007j2"]
@@ -25,6 +24,7 @@
 [ext_resource type="Resource" uid="uid://6yjeaof3r55y" path="res://resources/Items/Consumables/Generated/Grand_Mana_Draught.tres" id="27_grmd0"]
 [ext_resource type="PackedScene" uid="uid://d238i6w4h1880" path="res://scenes/NPC/training_dummy.tscn" id="28_7kjy5"]
 [ext_resource type="Resource" uid="uid://dtoref1fhkeit" path="res://resources/Items/Consumables/Generated/Superior_Healing_Draught.tres" id="28_suhd0"]
+[ext_resource type="PackedScene" uid="uid://cxw1l5r8vlitr" path="res://scenes/Gameplay/ladder.tscn" id="29_nihel"]
 [ext_resource type="Resource" uid="uid://w62fp0tsjx7m" path="res://resources/Items/Consumables/Generated/Superior_Mana_Draught.tres" id="29_sumd0"]
 [ext_resource type="Resource" uid="uid://co2rco5i8u5to" path="res://resources/Items/Consumables/Generated/Supreme_Healing_Draught.tres" id="30_sphd0"]
 [ext_resource type="Resource" uid="uid://du18ipmsccmp1" path="res://resources/Items/Consumables/Generated/Supreme_Mana_Draught.tres" id="31_spmd0"]
@@ -538,21 +538,23 @@ camera_top_padding = 200
 spawn_path = NodePath("..")
 script = ExtResource("2_bkv3e")
 
-[node name="PortalToGame" parent="." instance=ExtResource("3_knl1o")]
-position = Vector2(-78, -608)
+[node name="PortalToNearWilds" parent="." instance=ExtResource("3_knl1o")]
+z_index = 1
+position = Vector2(-207, -608)
 target_map_id = "near_wilds"
-target_spawn_point_name = "Game_Town_Portal_Spawn"
+target_spawn_point_name = "NearWilds_LanternsRest_Portal_Spawn"
 
-[node name="Town_Game_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(-53, -606)
+[node name="LanternsRest_NearWilds_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(-180, -606)
 
-[node name="SecretPortalToGame4" parent="." instance=ExtResource("4_7kjy5")]
-position = Vector2(156, -608)
-target_map_id = "ruins"
-target_spawn_point_name = "Game4_Town_Portal_Spawn"
+[node name="PortalToKeep" parent="." instance=ExtResource("3_knl1o")]
+z_index = 1
+position = Vector2(236, -608)
+target_map_id = "keep"
+target_spawn_point_name = "Keep_LanternsRest_Portal_Spawn"
 
-[node name="TownSecret_Game4Secret_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(135, -606)
+[node name="LanternsRest_Keep_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(210, -606)
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(0, -608)
@@ -606,6 +608,9 @@ debug_color = Color(0.9764706, 0, 0, 0.75686276)
 [node name="Players" type="Node2D" parent="."]
 
 [node name="Enemies" type="Node2D" parent="."]
+
+[node name="Training_Dummy" parent="Enemies" instance=ExtResource("28_7kjy5")]
+position = Vector2(-152, -593)
 
 [node name="Projectiles" type="Node2D" parent="."]
 
@@ -681,8 +686,8 @@ script = ExtResource("18_a3rpc")
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 
-[node name="Training_Dummy" parent="." instance=ExtResource("28_7kjy5")]
-position = Vector2(-152, -593)
+[node name="Ladder" parent="." instance=ExtResource("29_nihel")]
+position = Vector2(176, -625)
 
 [editable path="MerchantNPC"]
 [editable path="VillageElderNPC"]

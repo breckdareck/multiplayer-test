@@ -1,9 +1,8 @@
-[gd_scene load_steps=29 format=4 uid="uid://ftib17laf2kk"]
+[gd_scene load_steps=31 format=4 uid="uid://ftib17laf2kk"]
 
 [ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_hd3yw"]
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/VFX/damage_numbers.gd" id="2_cfook"]
-[ext_resource type="PackedScene" path="res://scenes/Gameplay/portal.tscn" id="3_wye8b"]
-[ext_resource type="PackedScene" path="res://scenes/Gameplay/secret_portal.tscn" id="4_giv6l"]
+[ext_resource type="PackedScene" uid="uid://brfb5t5im33fl" path="res://scenes/Gameplay/portal.tscn" id="3_wye8b"]
 [ext_resource type="Texture2D" uid="uid://jorjvuc5wn72" path="res://assets/sprites/world_tileset.png" id="4_rjw66"]
 [ext_resource type="Texture2D" uid="uid://cd28i3fo3v1m0" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/country village tileset.png" id="5_61k7k"]
 [ext_resource type="Texture2D" uid="uid://b8r3ov605pnuj" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/Country_village_props.png" id="6_741bq"]
@@ -14,10 +13,11 @@
 [ext_resource type="Texture2D" uid="uid://bltuclvu72dcb" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Back_tree_2.png" id="11_grdtf"]
 [ext_resource type="Texture2D" uid="uid://dn66ntccqo3io" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/props_clouds.png" id="12_b22rv"]
 [ext_resource type="PackedScene" uid="uid://bx2n3vrfxk75m" path="res://scenes/Gameplay/killzone.tscn" id="13_07ik3"]
-[ext_resource type="PackedScene" path="res://scenes/NPC/goblin_warrior.tscn" id="15_mkfku"]
+[ext_resource type="PackedScene" uid="uid://bj7nxg5um1rn6" path="res://scenes/NPC/goblin_warrior.tscn" id="15_mkfku"]
 [ext_resource type="Script" uid="uid://bwpy3okndk0cu" path="res://scripts/Enemy/enemy_spawner.gd" id="16_mxmss"]
 [ext_resource type="PackedScene" uid="uid://c0fdrl7mq5ou7" path="res://scenes/NPC/goblin.tscn" id="17_i3lvf"]
 [ext_resource type="Script" uid="uid://b4ed7py37e6nt" path="res://scripts/Gameplay/enemy_multiplayer_spawner.gd" id="18_y6jw5"]
+[ext_resource type="Script" uid="uid://br1domvn1uea5" path="res://scripts/Gameplay/ladder.gd" id="19_2rrml"]
 [ext_resource type="Script" uid="uid://igk1rxt26f2i" path="res://scripts/UI/global_drop_handler.gd" id="19_a5oj5"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_wcg0u"]
@@ -1012,6 +1012,13 @@ sources/2 = SubResource("TileSetAtlasSource_2vl1t")
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_j018g"]
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_7eeri"]
+size = Vector2(14, 79)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_blkch"]
+atlas = ExtResource("4_rjw66")
+region = Rect2(145, 52, 14, 12)
+
 [node name="Game2" type="Node2D"]
 script = ExtResource("1_hd3yw")
 bgm_path = "res://assets/music/time_for_adventure.mp3"
@@ -1022,20 +1029,28 @@ unique_name_in_owner = true
 spawn_path = NodePath("..")
 script = ExtResource("2_cfook")
 
-[node name="PortalToGame" parent="." instance=ExtResource("3_wye8b")]
+[node name="PortalToNearWilds" parent="." instance=ExtResource("3_wye8b")]
 position = Vector2(1336, -32)
 target_map_id = "near_wilds"
-target_spawn_point_name = "Game_Game2_Portal_Spawn"
+target_spawn_point_name = "NearWilds_EmberMeadows_Portal_Spawn"
 
-[node name="Game2_Game_Portal_Spawn" type="Marker2D" parent="."]
+[node name="EmberMeadows_NearWilds_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(1357, -25)
 
-[node name="SecretPortal" parent="." instance=ExtResource("4_giv6l")]
-position = Vector2(1331, -144)
-target_map_id = "near_wilds"
-target_spawn_point_name = "GameSecret_Game2Secret_Portal_Spawn"
+[node name="PortalToThornroot" parent="." instance=ExtResource("3_wye8b")]
+position = Vector2(2309, -32)
+target_map_id = "thornroot"
+target_spawn_point_name = "Thornroot_EmberMeadows_Portal_Spawn"
 
-[node name="Game2Secret_GameSecret_Portal_Spawn" type="Marker2D" parent="."]
+[node name="EmberMeadows_Thornroot_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(2291, -25)
+
+[node name="PortalToMeadow" parent="." instance=ExtResource("3_wye8b")]
+position = Vector2(1331, -144)
+target_map_id = "meadow_path"
+target_spawn_point_name = "Hub_Meadow_Spawn"
+
+[node name="EmberMeadows_Meadow_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(1369, -140)
 
 [node name="Camera2D" type="Camera2D" parent="."]
@@ -1181,7 +1196,8 @@ layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = 1152.0
+offset_left = -3.0
+offset_right = 1149.0
 offset_bottom = 648.0
 grow_horizontal = 2
 grow_vertical = 2
@@ -1190,3 +1206,23 @@ script = ExtResource("19_a5oj5")
 metadata/_edit_use_anchors_ = true
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+
+[node name="Ladder" type="Area2D" parent="."]
+position = Vector2(1385, -97)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("19_2rrml")
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="Ladder"]
+position = Vector2(0, 7.5)
+shape = SubResource("RectangleShape2D_7eeri")
+
+[node name="NinePatchRect2" type="NinePatchRect" parent="Ladder"]
+offset_left = -7.0
+offset_top = -32.0
+offset_right = 7.0
+offset_bottom = 47.0
+texture = SubResource("AtlasTexture_blkch")
+patch_margin_top = 2
+patch_margin_bottom = 2
+axis_stretch_vertical = 1

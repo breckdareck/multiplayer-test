@@ -2,26 +2,150 @@
   "auto_spawn": true,
   "default_map": "near_wilds",
   "bots": [
-	{ "name": "Bob", "class": "SWORDSMAN", "map": "lanterns_rest", "patrol_route": ["near_wilds", "ember_meadows", "deep_woods", "ruins"] },
-	{ "name": "Bobbert", "class": "MAGE", "map": "lanterns_rest", "patrol_route": ["near_wilds", "ember_meadows", "deep_woods", "ruins"] },
-	{ "name": "Breck", "class": "ROGUE", "map": "lanterns_rest", "patrol_route": ["near_wilds", "ember_meadows", "deep_woods", "ruins"] },
-	{ "name": "Bert", "class": "ARCHER", "map": "lanterns_rest", "patrol_route": ["near_wilds", "ember_meadows", "deep_woods", "ruins"] },
+    {
+      "name": "Bob",
+      "class": "SWORDSMAN",
+      "map": "lanterns_rest",
+      "patrol_route": [
+        "near_wilds",
+        "ember_meadows",
+        "thornroot",
+        "dust_warren",
+        "ruins",
+        "mines",
+        "keep",
+        "emberscar",
+        "weave",
+        "warlord",
+        "deep_woods",
+        "meadow_path",
+        "three_terraces"
+      ]
+    },
+    {
+      "name": "Bobbert",
+      "class": "MAGE",
+      "map": "lanterns_rest",
+      "patrol_route": [
+        "near_wilds",
+        "ember_meadows",
+        "thornroot",
+        "dust_warren",
+        "ruins",
+        "mines",
+        "keep",
+        "emberscar",
+        "weave",
+        "warlord",
+        "deep_woods",
+        "meadow_path",
+        "three_terraces"
+      ]
+    },
+    {
+      "name": "Breck",
+      "class": "ROGUE",
+      "map": "lanterns_rest",
+      "patrol_route": [
+        "near_wilds",
+        "ember_meadows",
+        "thornroot",
+        "dust_warren",
+        "ruins",
+        "mines",
+        "keep",
+        "emberscar",
+        "weave",
+        "warlord",
+        "deep_woods",
+        "meadow_path",
+        "three_terraces"
+      ]
+    },
+    {
+      "name": "Bert",
+      "class": "ARCHER",
+      "map": "lanterns_rest",
+      "patrol_route": [
+        "near_wilds",
+        "ember_meadows",
+        "thornroot",
+        "dust_warren",
+        "ruins",
+        "mines",
+        "keep",
+        "emberscar",
+        "weave",
+        "warlord",
+        "deep_woods",
+        "meadow_path",
+        "three_terraces"
+      ]
+    }
   ],
   "behavior": {
-	"think_interval": 0.3,
-	"wander_chance": 0.6,
-	"idle_duration_min": 1.0,
-	"idle_duration_max": 4.0,
-	"wander_duration_min": 2.0,
-	"wander_duration_max": 6.0,
-	"aggro_range": 200.0,
-	"loot_range": 80.0,
-	"allow_map_travel": true
+    "think_interval": 0.3,
+    "wander_chance": 0.6,
+    "idle_duration_min": 1.0,
+    "idle_duration_max": 4.0,
+    "wander_duration_min": 2.0,
+    "wander_duration_max": 6.0,
+    "aggro_range": 200.0,
+    "loot_range": 80.0,
+    "allow_map_travel": true
   },
   "map_difficulty": {
-	"near_wilds": { "min_level": 1, "max_level": 8 },
-	"ember_meadows": { "min_level": 10, "max_level": 25 },
-	"deep_woods": { "min_level": 45, "max_level": 90 },
-	"ruins": { "min_level": 1, "max_level": 12 },
+    "near_wilds": {
+      "min_level": 1,
+      "max_level": 8
+    },
+    "ember_meadows": {
+      "min_level": 10,
+      "max_level": 25
+    },
+    "ruins": {
+      "min_level": 1,
+      "max_level": 12
+    },
+    "meadow_path": {
+      "min_level": 14,
+      "max_level": 22
+    },
+    "three_terraces": {
+      "min_level": 12,
+      "max_level": 22
+    },
+    "mines": {
+      "min_level": 38,
+      "max_level": 50
+    },
+    "keep": {
+      "min_level": 50,
+      "max_level": 64
+    },
+    "emberscar": {
+      "min_level": 64,
+      "max_level": 84
+    },
+    "weave": {
+      "min_level": 84,
+      "max_level": 95
+    },
+    "warlord": {
+      "min_level": 95,
+      "max_level": 100
+    },
+    "deep_woods": {
+      "min_level": 45,
+      "max_level": 90
+    },
+    "thornroot": {
+      "min_level": 22,
+      "max_level": 31
+    },
+    "dust_warren": {
+      "min_level": 30,
+      "max_level": 39
+    }
   }
 }

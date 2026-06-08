@@ -1074,13 +1074,21 @@ camera_bottom_padding = -105
 spawn_path = NodePath("..")
 script = ExtResource("2_rrhmt")
 
-[node name="PortalToTargetTown" parent="." instance=ExtResource("3_76n2i")]
+[node name="PortalToNearWilds" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(222, -157)
-target_map_id = "lanterns_rest"
-target_spawn_point_name = "TownSecret_Game4Secret_Portal_Spawn"
+target_map_id = "near_wilds"
+target_spawn_point_name = "NearWilds_Ruins_Portal_Spawn"
 
-[node name="Game4_Town_Portal_Spawn" type="Marker2D" parent="."]
+[node name="Ruins_NearWilds_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(201, -156)
+
+[node name="PortalToTerraces" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(-466, -157)
+target_map_id = "three_terraces"
+target_spawn_point_name = "Hub_Terraces_Spawn"
+
+[node name="Ruins_Terraces_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(-442, -157)
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(-119, -285)
@@ -1838,11 +1846,3 @@ mouse_filter = 1
 script = ExtResource("9_pjyxy")
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
-
-[node name="PortalToMines" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(300, -157)
-target_map_id = "mines"
-target_spawn_point_name = "Mines_Game4_Portal_Spawn"
-
-[node name="Game4_Mines_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(280, -157)

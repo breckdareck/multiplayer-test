@@ -1,4 +1,4 @@
-[gd_scene load_steps=30 format=4 uid="uid://d1hwvomjwdrjv"]
+[gd_scene load_steps=29 format=4 uid="uid://d1hwvomjwdrjv"]
 
 [ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_e24jv"]
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/VFX/damage_numbers.gd" id="1_ryi0r"]
@@ -13,7 +13,6 @@
 [ext_resource type="Texture2D" uid="uid://ci2ydn2sxaxpp" path="res://assets/sprites/platforms.png" id="10_l25cu"]
 [ext_resource type="Script" uid="uid://cvqlmxlnxa5ab" path="res://scripts/NPC/quest_giver_npc.gd" id="15_j167y"]
 [ext_resource type="Script" uid="uid://be1clobtt03tr" path="res://scripts/UI/quest_giver_dialog.gd" id="16_kgokg"]
-[ext_resource type="PackedScene" path="res://scenes/Gameplay/secret_portal.tscn" id="17_j167y"]
 [ext_resource type="Script" uid="uid://igk1rxt26f2i" path="res://scripts/UI/global_drop_handler.gd" id="24_drop_handler"]
 [ext_resource type="PackedScene" uid="uid://cvbk0n8a7q2x1" path="res://scenes/Levels/village_background.tscn" id="bg_village"]
 
@@ -1049,29 +1048,29 @@ camera_top_padding = 180
 spawn_path = NodePath("..")
 script = ExtResource("1_ryi0r")
 
-[node name="PortalToGame2" parent="." instance=ExtResource("3_jq5g6")]
+[node name="PortalToEmberMeadows" parent="." instance=ExtResource("3_jq5g6")]
 position = Vector2(504, 0)
 target_map_id = "ember_meadows"
-target_spawn_point_name = "Game2_Game_Portal_Spawn"
+target_spawn_point_name = "EmberMeadows_NearWilds_Portal_Spawn"
 
-[node name="Game_Game2_Portal_Spawn" type="Marker2D" parent="."]
+[node name="NearWilds_EmberMeadows_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(480, 6)
 
-[node name="PortalToTown" parent="." instance=ExtResource("3_jq5g6")]
+[node name="PortalToLanternsRest" parent="." instance=ExtResource("3_jq5g6")]
 position = Vector2(-952, 0)
 target_map_id = "lanterns_rest"
-target_spawn_point_name = "Town_Game_Portal_Spawn"
+target_spawn_point_name = "LanternsRest_NearWilds_Portal_Spawn"
 
-[node name="Game_Town_Portal_Spawn" type="Marker2D" parent="."]
+[node name="NearWilds_LanternsRest_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(-928, 7)
 
-[node name="SecretPortalToGame3" parent="." instance=ExtResource("17_j167y")]
-position = Vector2(-72, -64)
-target_map_id = "deep_woods"
-target_spawn_point_name = "Game3_Game_Portal_Spawn"
+[node name="PortalToRuins" parent="." instance=ExtResource("3_jq5g6")]
+position = Vector2(-41, -16)
+target_map_id = "ruins"
+target_spawn_point_name = "Ruins_NearWilds_Portal_Spawn"
 
-[node name="GameSecret_Game3Secret_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(8, -55)
+[node name="NearWilds_Ruins_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(0, -15)
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(0, -16)
