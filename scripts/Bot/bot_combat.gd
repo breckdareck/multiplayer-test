@@ -127,7 +127,10 @@ func party_focus_target() -> EnemyBase:
 		var foe: EnemyBase = null
 		var mate = BotManager.get_bot_brain(member_id)
 		if mate != null:
-			foe = mate.target_enemy
+			# Untyped hop: mate.target_enemy may be a previously-freed node.
+			var mate_target = mate.target_enemy
+			if is_instance_valid(mate_target):
+				foe = mate_target
 		else:
 			# Human teammate: no explicit target lock, so focus their most
 			# recently-damaged enemy (get_recent_combat_target, stale-guarded).
@@ -151,10 +154,15 @@ func party_focus_target() -> EnemyBase:
 
 func do_fight() -> void:
 	var player: MultiplayerPlayerV2 = brain.player
-	var target_enemy: EnemyBase = brain.target_enemy
-	if not is_instance_valid(target_enemy):
+	# Read untyped first: brain.target_enemy can hold a previously-freed node
+	# (the enemy was freed without target_enemy being nulled). A typed read of a
+	# freed instance trips Godot's "previously freed instance" error before we can
+	# guard it, so validate on the Variant before narrowing to EnemyBase.
+	var target_ref = brain.target_enemy
+	if not is_instance_valid(target_ref):
 		disengage()
 		return
+	var target_enemy: EnemyBase = target_ref
 
 	if _combat_timer >= COMBAT_DISENGAGE_TIME:
 		_blacklisted_enemies.append(target_enemy)
@@ -520,7 +528,9 @@ func _try_use_attack_ability(distance_to_target: float = 0.0) -> bool:
 		return false
 
 	# How many enemies are bunched on the target — drives AoE preference.
-	var target_enemy: EnemyBase = brain.target_enemy
+	# Untyped read guards against a previously-freed brain.target_enemy (see do_fight).
+	var target_ref = brain.target_enemy
+	var target_enemy: EnemyBase = target_ref if is_instance_valid(target_ref) else null
 	var cluster := 1
 	if is_instance_valid(target_enemy):
 		cluster = _count_enemies_near(target_enemy.global_position, AOE_CLUSTER_RADIUS)

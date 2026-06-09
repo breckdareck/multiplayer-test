@@ -1147,7 +1147,7 @@ func change_class_request(new_class: int) -> void:
 func set_username(uname: String) -> void:
 	username = uname
 	if is_instance_valid(player_name_label):
-		player_name_label.text = username
+		player_name_label.text = ("Lv." + str(level_component.level)) + " " + username
 
 
 @rpc("authority", "call_local", "reliable")

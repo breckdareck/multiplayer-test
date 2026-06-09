@@ -135,21 +135,23 @@ func create_dropped_item(item_data: ItemData, amount: int, world_position: Vecto
 	if not scene_to_add_to:
 		scene_to_add_to = MapManager.get_current_visible_map()
 	
-	if scene_to_add_to:
-		var drops_node = scene_to_add_to.get_node_or_null("ItemDrops")
-		if drops_node:
-			drops_node.add_child(dropped_item, true)
-		else:
-			scene_to_add_to.add_child(dropped_item, true)
-	else:
+	if not scene_to_add_to:
 		push_error("GlobalDropHandler: No game scene found to add dropped item!")
 		dropped_item.queue_free()
 		return
 
-	# Position it in the world
-	# IMPORTANT: Set position AFTER adding to tree so global_position is calculated correctly relative to parent
-	dropped_item.global_position = world_position
-	
+	var parent_node: Node = scene_to_add_to.get_node_or_null("ItemDrops")
+	if not parent_node:
+		parent_node = scene_to_add_to
+
+	# Set LOCAL position BEFORE add_child so the node never exists at (0,0) in the
+	# tree — otherwise physics interpolation streaks it from the origin to
+	# world_position ("flies across the screen"), most visibly on the host (which
+	# runs the item's physics) and for enemy drops (spawned inside _physics_process).
+	# Same proven order as damage_numbers.gd. (Translation-only map parent.)
+	dropped_item.position = world_position - parent_node.global_position
+	parent_node.add_child(dropped_item, true)
+
 	# Setup the dropped item
 	dropped_item.setup(item_data, amount, eligible_player_ids)
 	
@@ -218,19 +220,19 @@ func spawn_item_client(item_id: String, amount: int, world_position: Vector2, el
 	
 	# Add to current map
 	var scene_to_add_to = MapManager.get_current_visible_map()
-	if scene_to_add_to:
-		var drops_node = scene_to_add_to.get_node_or_null("ItemDrops")
-		if drops_node:
-			drops_node.add_child(dropped_item)
-		else:
-			scene_to_add_to.add_child(dropped_item)
-	else:
-		# If no map visible, maybe just don't spawn? Or spawn in root?
-		# For now, ignore if no map.
+	if not scene_to_add_to:
+		# If no map visible, don't spawn.
 		dropped_item.queue_free()
 		return
-		
-	dropped_item.global_position = world_position
+
+	var parent_node: Node = scene_to_add_to.get_node_or_null("ItemDrops")
+	if not parent_node:
+		parent_node = scene_to_add_to
+
+	# Set position BEFORE add_child to avoid an interpolation streak from (0,0).
+	# See create_dropped_item / damage_numbers.gd.
+	dropped_item.position = world_position - parent_node.global_position
+	parent_node.add_child(dropped_item)
 	dropped_item.setup(item_data, amount, eligible_player_ids)
 	dropped_item.sprite.texture = item_data.icon
 	# Seed the replicated state so a client joining a map with already-settled

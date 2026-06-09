@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="BuffData" load_steps=4 format=3 uid="uid://hys280log47e"]
+[gd_resource type="Resource" script_class="BuffData" load_steps=5 format=3 uid="uid://hys280log47e"]
 
+[ext_resource type="Texture2D" uid="uid://b0mt1b7g7dx26" path="res://assets/sprites/Abilities/generated_px/Sword/A_Banner.png" id="1_3lmp7"]
 [ext_resource type="Script" uid="uid://bcuvemv85jprb" path="res://scripts/Resources/BuffSystem/BuffData.gd" id="1_bd"]
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="2_sd"]
 
@@ -16,7 +17,9 @@ script = ExtResource("1_bd")
 buff_id = "Banner Aura"
 buff_name = "Banner Aura"
 description = "Standing in a friendly Banner — bonus Defense and HP regen."
+buff_icon = ExtResource("1_3lmp7")
 duration = 1.5
+is_aura = true
 stat_modifiers = Dictionary[int, ExtResource("2_sd")]({
 8: SubResource("Resource_def_mod")
 })

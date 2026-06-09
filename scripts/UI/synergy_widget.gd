@@ -16,8 +16,8 @@ const BOW := Constants.ClassType.BOW
 const STAFF := Constants.ClassType.STAFF
 const DAGGER := Constants.ClassType.DAGGER
 
-const ACTIVE_COLOR: Color = Color(0.55, 0.9, 1.0, 1.0)   # cyan flash on proc
-const IDLE_COLOR: Color = Color(0.6, 0.62, 0.7, 1.0)     # dim when idle
+const ACTIVE_COLOR: Color = Color(1.0, 0.82, 0.4, 1.0)   # amber flash on proc
+const IDLE_COLOR: Color = Color(0.78, 0.72, 0.62, 1.0)   # warm dim when idle
 
 var player: MultiplayerPlayerV2 = null
 var equipment_component: EquipmentComponent = null

@@ -52,8 +52,8 @@ func _build_ui() -> void:
 		theme = ui_theme
 
 	var bg := StyleBoxFlat.new()
-	bg.bg_color = Color(0.08, 0.09, 0.12, 0.82)
-	bg.border_color = Color(0.35, 0.38, 0.45, 0.9)
+	bg.bg_color = Color(0.105, 0.078, 0.058, 0.86)
+	bg.border_color = Color(0.6, 0.42, 0.2, 0.9)
 	bg.set_border_width_all(1)
 	bg.set_corner_radius_all(3)
 	bg.content_margin_left = 10.0
@@ -140,7 +140,7 @@ func _make_entry(q: Dictionary) -> Control:
 	var name_label := Label.new()
 	name_label.text = q.get("name", "Quest")
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	name_label.add_theme_color_override("font_color", Color(0.55, 0.85, 1.0))
+	name_label.add_theme_color_override("font_color", Color(0.95, 0.86, 0.66))
 	name_label.add_theme_font_size_override("font_size", 13)
 	box.add_child(name_label)
 

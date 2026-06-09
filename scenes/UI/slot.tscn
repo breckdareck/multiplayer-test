@@ -4,19 +4,19 @@
 [ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="2_tuhj4"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tuhj4"]
-bg_color = Color(0.1, 0.1, 0.13, 1)
+bg_color = Color(0.13, 0.1, 0.072, 1)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.3, 0.3, 0.35, 1)
+border_color = Color(0.5, 0.34, 0.16, 1)
 corner_radius_top_left = 1
 corner_radius_top_right = 1
 corner_radius_bottom_right = 1
 corner_radius_bottom_left = 1
 
 [sub_resource type="Gradient" id="Gradient_tuhj4"]
-colors = PackedColorArray(0.15, 0.15, 0.18, 0.5, 0.08, 0.08, 0.1, 0)
+colors = PackedColorArray(0.2, 0.15, 0.1, 0.5, 0.08, 0.06, 0.045, 0)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_tuhj4"]
 gradient = SubResource("Gradient_tuhj4")

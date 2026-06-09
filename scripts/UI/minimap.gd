@@ -29,7 +29,12 @@ const HEADER_H := 20.0
 const PAD := 6.0
 ## How far a wide map may zoom past full-width-fit before the view starts
 ## scrolling to follow the player (instead of cramming the whole width in).
-const SCROLL_ZOOM := 2.0
+## Higher = long maps render at a more readable scale and scroll to follow you.
+const SCROLL_ZOOM := 3.0
+## Upper bound on the fit scale (minimap-px per world-px). Without this a TINY map
+## fits-to-height and balloons to fill the whole box; the cap holds a tiny map at a
+## sane scale, centered, with breathing room — instead of over-zooming it.
+const MAX_ZOOM := 0.28
 ## Character dots are lifted this many px so they sit ON TOP of the platform line
 ## rather than centered on it (a character's origin is at its feet = the tile top).
 const ENTITY_LIFT := 5.0
@@ -159,7 +164,7 @@ func _fit(body: Rect2) -> Dictionary:
 		return {"s": 1.0, "off": body.position}
 	var s_h: float = body.size.y / _world_bounds.size.y
 	var s_w: float = body.size.x / _world_bounds.size.x
-	var s: float = minf(s_h, s_w * SCROLL_ZOOM)
+	var s: float = minf(minf(s_h, s_w * SCROLL_ZOOM), MAX_ZOOM)
 
 	var off_y: float = body.position.y + (body.size.y - _world_bounds.size.y * s) * 0.5
 	var content_w: float = _world_bounds.size.x * s

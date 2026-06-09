@@ -166,15 +166,15 @@ func update_visual():
 	var panel_style = get_theme_stylebox("panel").duplicate()
 	
 	if is_drag_hovering:
-		panel_style.border_color = Color(0.2, 0.8, 1.0, 1.0)
+		panel_style.border_color = Color(1.0, 0.78, 0.3, 1.0)
 		panel_style.border_width_left = 2
 		panel_style.border_width_top = 2
 		panel_style.border_width_right = 2
 		panel_style.border_width_bottom = 2
 	elif assigned_ability or assigned_consumable:
-		panel_style.border_color = Color(0.8, 0.8, 0.2, 1.0)
+		panel_style.border_color = Color(0.92, 0.72, 0.25, 1.0)
 	else:
-		panel_style.border_color = Color(0.35, 0.35, 0.45, 1)
+		panel_style.border_color = Color(0.5, 0.34, 0.16, 1)
 	
 	add_theme_stylebox_override("panel", panel_style)
 

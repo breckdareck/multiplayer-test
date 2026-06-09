@@ -27,7 +27,18 @@ var _trade_request_popup: TradeRequestPopup = null
 @onready var experience_bar: TextureProgressBar = $BottomStatsContainer/ExperienceBar
 @onready var exp_percent_label: RichTextLabel = $BottomStatsContainer/ExperienceBar/EXPPercentLabel
 
-@onready var level_label: RichTextLabel = $BottomStatsContainer/ExperienceBar/LevelPanel/LevelLabel 
+@onready var level_label: RichTextLabel = $BottomStatsContainer/ExperienceBar/LevelPanel/LevelLabel
+
+@onready var mastery_bar: TextureProgressBar = $BottomStatsContainer/MasteryBar
+@onready var mastery_label: Label = $BottomStatsContainer/MasteryBar/MasteryLabel
+@onready var mastery_percent_label: Label = $BottomStatsContainer/MasteryBar/MasteryPercentLabel
+
+## The discipline currently shown by the mastery bar — the player's ACTIVE
+## (wielded) weapon discipline. Cached so mastery_xp_changed events for a
+## non-displayed discipline (e.g. the secondary weapon earning kill credit)
+## don't stomp the bar.
+var _mastery_discipline: int = -1
+
 @onready var moveable_windows_container: Node = %MoveableWindows
 
 func _ready() -> void:
@@ -102,6 +113,19 @@ func bind_player(body) -> void:
 	player.mana_component.mana_changed.connect(_on_mana_changed)
 	player.level_component.experience_changed.connect(_on_experience_changed)
 	player.level_component.leveled_up.connect(_on_level_changed)
+
+	# Mastery bar tracks the wielded weapon's discipline; repoint it on weapon swap.
+	if is_instance_valid(player.weapon_mastery_component):
+		player.weapon_mastery_component.mastery_xp_changed.connect(_on_mastery_xp_changed)
+		player.weapon_mastery_component.mastery_level_changed.connect(_on_mastery_level_changed)
+	if is_instance_valid(player.equipment_component):
+		player.equipment_component.active_weapon_changed.connect(_on_active_weapon_changed_mastery)
+	# Mastery is loaded with its signals suppressed, so the initial bind below can
+	# read a stale 0. Refresh again on the post-load stats_changed — the same wake-up
+	# that re-pushes HP/MP after _load_data — so the bar lands on real values.
+	if is_instance_valid(player.stats_component):
+		player.stats_component.stats_changed.connect(_refresh_mastery_display)
+	_refresh_mastery_display()
 
 
 func unbind_player() -> void:
@@ -207,3 +231,53 @@ func _on_experience_changed(new_value: int, _exp_to_level: int) -> void:
 
 func _on_level_changed(new_value: int) -> void:
 	level_label.text = "LV.[color=yellow]%s[/color]" % str(new_value)
+
+
+## Rebuilds the mastery bar from scratch for the player's CURRENT active
+## (wielded) discipline. Called on bind and whenever the active weapon changes.
+func _refresh_mastery_display() -> void:
+	if not is_instance_valid(player):
+		return
+	var wm = player.weapon_mastery_component
+	if not is_instance_valid(wm):
+		mastery_bar.visible = false
+		return
+	mastery_bar.visible = true
+	var disc: int = wm.get_active_discipline()
+	_mastery_discipline = disc
+	_update_mastery_bar(disc, wm.get_mastery_xp(disc), wm.get_xp_to_next_level(disc), wm.get_mastery_level(disc))
+
+
+## Paints the bar + labels for a discipline's mastery progress. At the cap the
+## bar fills solid and reads "MAX" instead of a percentage.
+func _update_mastery_bar(disc: int, xp: int, xp_to_next: int, level: int) -> void:
+	var disc_name: String = ResourceManager.get_class_name(disc).to_upper()
+	if level >= WeaponMasteryComponent.MASTERY_CAP:
+		mastery_bar.max_value = 1
+		mastery_bar.value = 1
+		mastery_label.text = "%s MASTERY · MAX" % disc_name
+		mastery_percent_label.text = ""
+		return
+	mastery_bar.max_value = max(1, xp_to_next)
+	mastery_bar.value = xp
+	mastery_label.text = "%s MASTERY · %d" % [disc_name, level]
+	mastery_percent_label.text = "%d%%" % int(round(float(xp) / float(max(1, xp_to_next)) * 100.0))
+
+
+func _on_mastery_xp_changed(discipline: int, current_xp: int, xp_to_next: int) -> void:
+	# Only the wielded discipline drives the bar; ignore credit to other slots.
+	if discipline != _mastery_discipline:
+		return
+	if not is_instance_valid(player) or not is_instance_valid(player.weapon_mastery_component):
+		return
+	_update_mastery_bar(discipline, current_xp, xp_to_next, player.weapon_mastery_component.get_mastery_level(discipline))
+
+
+func _on_mastery_level_changed(discipline: int, _new_level: int) -> void:
+	if discipline != _mastery_discipline:
+		return
+	_refresh_mastery_display()
+
+
+func _on_active_weapon_changed_mastery(_active_weapon: String, _active_item) -> void:
+	_refresh_mastery_display()

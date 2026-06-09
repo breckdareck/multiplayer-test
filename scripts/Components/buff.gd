@@ -18,6 +18,10 @@ class ActiveBuff:
 	var total_duration: float = 0.0  # The full applied duration (may differ from resource)
 	var source_node: Node = null  # Who applied this buff
 	var custom_logic_instance: Node = null  # For buffs with custom scripts
+	# Extra human-readable effect lines for the tooltip, set by the applying
+	# ability for effects that aren't stat modifiers (e.g. Banner's HP/sec heal).
+	# Synced to the owning client via sync_buff_display_effects.
+	var display_effects: Array = []
 
 	func _init(data: BuffData, src: Node = null):
 		buff_data = data
@@ -267,6 +271,55 @@ func get_buff_stat_modifiers() -> Dictionary:
 	return modifiers
 
 
+## Returns a single active buff's effective stat modifiers (scaled by stacks),
+## reading the LIVE active buff — which, for abilities that call scale_buff_stat,
+## holds the level-scaled value rather than the shared .tres default. Used by the
+## buff bar tooltip so the displayed numbers match what's actually applied.
+## Returns {} if the buff isn't active.
+func get_buff_stat_modifiers_for(buff_id: String) -> Dictionary:
+	if not _active_buffs.has(buff_id):
+		return {}
+	var active_buff: ActiveBuff = _active_buffs[buff_id]
+	var out: Dictionary = {}
+	for stat_type in active_buff.buff_data.stat_modifiers:
+		var src: StatData = active_buff.buff_data.stat_modifiers[stat_type]
+		var copy := StatData.new(stat_type, 0)
+		copy.flat_bonus_value = src.flat_bonus_value * active_buff.stacks
+		copy.percent_bonus_value = src.percent_bonus_value * active_buff.stacks
+		out[stat_type] = copy
+	return out
+
+
+## Returns the extra human-readable effect lines attached to an active buff
+## (e.g. "+8 HP/sec"), or [] if none / not active.
+func get_buff_display_effects(buff_id: String) -> Array:
+	if not _active_buffs.has(buff_id):
+		return []
+	return _active_buffs[buff_id].display_effects
+
+
+## [Server] Attach human-readable effect lines to an active buff for the tooltip
+## (for ability-driven effects that aren't stat modifiers, like Banner's HP/sec
+## regen). Synced to the owning client.
+func set_buff_display_effects(buff_id: String, lines: Array) -> void:
+	if not multiplayer.is_server():
+		return
+	if not _active_buffs.has(buff_id):
+		return
+	_active_buffs[buff_id].display_effects = lines.duplicate()
+	if not is_bot_owned():
+		sync_buff_display_effects.rpc(buff_id, lines.duplicate())
+
+
+@rpc("authority", "call_local", "reliable")
+func sync_buff_display_effects(buff_id: String, lines: Array) -> void:
+	if multiplayer.is_server():
+		return
+	if not _active_buffs.has(buff_id):
+		return
+	_active_buffs[buff_id].display_effects = lines.duplicate()
+
+
 func _force_stat_recalc() -> void:
 	if _stats_component and multiplayer.is_server():
 		_stats_component.mark_stats_dirty()
@@ -416,7 +469,7 @@ func sync_all_buffs_to_client(peer_id: int) -> void:
 	var buff_batch: Array = []
 	for buff_id in _active_buffs:
 		var active_buff: ActiveBuff = _active_buffs[buff_id]
-		buff_batch.append({"id": buff_id, "stacks": active_buff.stacks, "duration": active_buff.remaining_duration, "total_duration": active_buff.total_duration})
+		buff_batch.append({"id": buff_id, "stacks": active_buff.stacks, "duration": active_buff.remaining_duration, "total_duration": active_buff.total_duration, "display_effects": active_buff.display_effects})
 	sync_all_buffs_batch.rpc_id(peer_id, buff_batch)
 
 	if _active_buffs.has("Shadow Partner") and owner.has_method("sync_shadow_partner"):
@@ -442,6 +495,7 @@ func sync_all_buffs_batch(buffs: Array) -> void:
 		active_buff.stacks = stacks
 		active_buff.remaining_duration = duration
 		active_buff.total_duration = total_dur if total_dur > 0.0 else duration
+		active_buff.display_effects = entry.get("display_effects", [])
 		_active_buffs[buff_id] = active_buff
 
 		buff_applied.emit(buff_id, duration)

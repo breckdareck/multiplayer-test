@@ -25,8 +25,10 @@ class BuffIcon extends Control:
 	var total_duration: float = 0.0
 	var stacks: int = 1
 	var is_removable: bool = true  # NEW: Can this buff be manually removed?
+	var is_aura: bool = false  # Aura/stance: shown but locked (never removable)
+	var buff_component: BuffComponent  # Source of live, level-scaled effect data
 	
-	var gradient_color: Color = Color(0.3, 0.3, 0.3, 0.8)
+	var gradient_color: Color = Color(0.2, 0.16, 0.12, 0.8)
 	var hover_color: Color = Color(1.0, 1.0, 1.0, 0.3)
 	
 	var _texture_rect: TextureRect
@@ -35,12 +37,13 @@ class BuffIcon extends Control:
 	var _gradient_overlay: ColorRect
 	var _hover_overlay: ColorRect  # NEW: Shows when hovering
 	
-	func _init(id: String, texture: Texture2D, duration: float, icon_dimensions: Vector2, removable: bool = true):
+	func _init(id: String, texture: Texture2D, duration: float, icon_dimensions: Vector2, removable: bool = true, aura: bool = false):
 		buff_id = id
 		icon_texture = texture
 		remaining_time = duration
 		total_duration = duration
 		is_removable = removable
+		is_aura = aura
 		custom_minimum_size = icon_dimensions
 		name = "BuffIcon_" + id
 		
@@ -115,16 +118,24 @@ class BuffIcon extends Control:
 		add_child(_stack_label)
 
 		TooltipTheme.apply_to(self)
-	
-	# NEW: Handle mouse enter
-	func _mouse_enter() -> void:
+
+		# Wire the hover handlers. Godot exposes `mouse_entered`/`mouse_exited`
+		# signals (there are no `_mouse_enter`/`_mouse_exit` virtuals), so the
+		# tooltip text must be set from connected handlers or it never appears.
+		mouse_entered.connect(_on_mouse_entered)
+		mouse_exited.connect(_on_mouse_exited)
+
+	func _on_mouse_entered() -> void:
 		if is_removable:
 			_hover_overlay.visible = true
 		tooltip_text = _build_tooltip()
-		# Debuffs (non-removable buffs) get a red tooltip border to match the
-		# "this is bad" cue the rest of the UI uses.
+		# Colour-code the tooltip border so the three categories read at a glance:
+		# auras = cyan (maintained/locked), debuffs = red ("this is bad"), and
+		# regular removable buffs = default.
 		var border: Variant = null
-		if not is_removable:
+		if is_aura:
+			border = Color(0.9, 0.75, 0.35)
+		elif not is_removable:
 			border = Color(0.9, 0.3, 0.3)
 		TooltipTheme.set_border_color(self, border)
 
@@ -138,13 +149,83 @@ class BuffIcon extends Control:
 		if buff_data and not buff_data.description.is_empty():
 			lines.append("")
 			lines.append(buff_data.description)
+
+		# "What it's doing": read the LIVE active-buff modifiers (level-scaled by
+		# the applying ability), plus any extra display lines for non-stat effects
+		# (e.g. Banner's HP/sec heal). Falls back to the resource default if the
+		# component isn't available.
+		var effect_lines := _build_effect_lines()
+		if not effect_lines.is_empty():
+			lines.append("")
+			lines.append_array(effect_lines)
+
+		# Status footer (duration / stacks).
+		var footer: Array[String] = []
+		if is_aura:
+			# Auras are maintained, not timed — a flickering countdown is noise.
+			footer.append("Aura — active while in range")
+		elif total_duration <= 0:
+			footer.append("Duration: Permanent")
+		else:
+			footer.append("Time left: %.0fs" % max(0.0, remaining_time))
+		if buff_data and buff_data.stack_behavior == BuffData.StackBehavior.STACK and stacks > 1:
+			footer.append("Stacks: %d/%d" % [stacks, buff_data.max_stacks])
+		if not footer.is_empty():
+			lines.append("")
+			lines.append_array(footer)
+
 		if is_removable:
 			lines.append("")
 			lines.append("(Right-click to remove)")
 		return "\n".join(lines)
 
-	# NEW: Handle mouse exit
-	func _mouse_exit() -> void:
+	## Builds the "what it's doing" lines: stat modifiers (already scaled by stacks
+	## and ability level) followed by any non-stat display effects (e.g. HP/sec).
+	func _build_effect_lines() -> Array[String]:
+		var out: Array[String] = []
+		var modifiers := _effective_modifiers()
+		for stat_type in modifiers:
+			var stat: StatData = modifiers[stat_type]
+			if stat == null:
+				continue
+			var stat_name := str(Constants.StatType.keys()[stat_type]).to_upper()
+			if stat.flat_bonus_value != 0:
+				out.append("%s %s" % [_sign(stat.flat_bonus_value), stat_name])
+			if not is_zero_approx(stat.percent_bonus_value):
+				out.append("%s%% %s" % [_sign_f(stat.percent_bonus_value), stat_name])
+		# Non-stat effects the applying ability attached (e.g. "+8 HP/sec").
+		if is_instance_valid(buff_component) and buff_component.has_method("get_buff_display_effects"):
+			for line in buff_component.get_buff_display_effects(buff_id):
+				out.append(str(line))
+		return out
+
+	## Returns the effective stat modifiers (scaled by stacks): the LIVE active
+	## buff when the component is available (so ability-scaled values like Banner's
+	## Defense are accurate), else the resource default.
+	func _effective_modifiers() -> Dictionary:
+		if is_instance_valid(buff_component) and buff_component.has_method("get_buff_stat_modifiers_for"):
+			var live: Dictionary = buff_component.get_buff_stat_modifiers_for(buff_id)
+			if not live.is_empty():
+				return live
+		var buff_data: BuffData = ResourceManager.get_buff_data(buff_id)
+		if buff_data == null:
+			return {}
+		var out: Dictionary = {}
+		for stat_type in buff_data.stat_modifiers:
+			var src: StatData = buff_data.stat_modifiers[stat_type]
+			var copy := StatData.new(stat_type, 0)
+			copy.flat_bonus_value = src.flat_bonus_value * maxi(1, stacks)
+			copy.percent_bonus_value = src.percent_bonus_value * maxi(1, stacks)
+			out[stat_type] = copy
+		return out
+
+	func _sign(value: int) -> String:
+		return "+%d" % value if value >= 0 else str(value)
+
+	func _sign_f(value: float) -> String:
+		return "+%.0f" % value if value >= 0 else "%.0f" % value
+
+	func _on_mouse_exited() -> void:
 		_hover_overlay.visible = false
 	
 	# NEW: Handle mouse input
@@ -157,7 +238,13 @@ class BuffIcon extends Control:
 	
 	func update_time(time: float) -> void:
 		remaining_time = time
-		
+
+		# Auras are maintained, not timed — no flickering countdown or wipe.
+		if is_aura:
+			_time_label.text = ""
+			_gradient_overlay.visible = false
+			return
+
 		# Update text to show only the number
 		if total_duration > 0 and remaining_time > 0:
 			_time_label.text = _format_time_number(remaining_time)
@@ -324,8 +411,10 @@ func _on_buff_applied(buff_id: String, duration: float) -> void:
 		push_warning("BuffBar: Could not find BuffData for '%s'" % buff_id)
 		return
 	
-	# Determine if buff can be manually removed (beneficial buffs can be removed, debuffs cannot)
-	var is_removable = not buff_data.is_debuff
+	# Determine if buff can be manually removed. Beneficial buffs can be removed;
+	# debuffs and auras/stances are locked (the player must not be able to cancel
+	# a maintained aura by accident).
+	var is_removable = not buff_data.is_debuff and not buff_data.is_aura
 	
 	# Create buff icon — use the actual applied total duration for the progress bar
 	# (which may differ from the resource default if a custom duration was used),
@@ -333,7 +422,8 @@ func _on_buff_applied(buff_id: String, duration: float) -> void:
 	var total_dur: float = _buff_component.get_buff_total_duration(buff_id)
 	if total_dur <= 0.0:
 		total_dur = buff_data.duration  # fallback to resource default
-	var icon := BuffIcon.new(buff_id, buff_data.buff_icon, total_dur, icon_size, is_removable)
+	var icon := BuffIcon.new(buff_id, buff_data.buff_icon, total_dur, icon_size, is_removable, buff_data.is_aura)
+	icon.buff_component = _buff_component
 	icon.remaining_time = duration
 	icon.update_time(duration)
 

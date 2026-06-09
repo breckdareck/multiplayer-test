@@ -153,6 +153,11 @@ func _apply_banner_aura(ally: Node) -> void:
 		if not _scaled_allies.has(aid) and buff_comp.has_method("scale_buff_stat"):
 			_scaled_allies[aid] = true
 			buff_comp.scale_buff_stat(BANNER_BUFF_NAME, Constants.StatType.DEFENSE, _aura_defense)
+			# Surface the HP regen (which is a direct heal, not a stat modifier) on
+			# the buff tooltip, reflecting the actual per-tick heal including any
+			# Healing Banner (T3) bonus.
+			if buff_comp.has_method("set_buff_display_effects"):
+				buff_comp.set_buff_display_effects(BANNER_BUFF_NAME, ["+%d HP/sec" % heal_amount])
 
 
 ## Inspiring Banner (T3) outgoing-damage bonus for a node currently inside a

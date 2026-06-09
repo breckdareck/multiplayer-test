@@ -27,8 +27,8 @@ const GaugeInfo = preload("res://scripts/UI/gauge_info.gd")
 const COMBO_CAP: int = 3
 const PIP_FILLED_COLOR: Color = Color(1.0, 0.65, 0.15, 1.0)
 const PIP_FILLED_BORDER: Color = Color(1.0, 0.85, 0.4, 1.0)
-const PIP_EMPTY_COLOR: Color = Color(0.15, 0.15, 0.18, 0.85)
-const PIP_EMPTY_BORDER: Color = Color(0.45, 0.45, 0.5, 1.0)
+const PIP_EMPTY_COLOR: Color = Color(0.12, 0.1, 0.085, 0.85)
+const PIP_EMPTY_BORDER: Color = Color(0.4, 0.32, 0.22, 1.0)
 
 #endregion
 

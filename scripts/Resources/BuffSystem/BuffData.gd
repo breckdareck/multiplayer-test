@@ -25,6 +25,13 @@ enum StackBehavior {
 ## Whether this is a beneficial buff or harmful debuff
 @export var is_debuff: bool = false
 
+## Whether this is an aura/stance rather than a "legit" player buff. Auras are
+## environmental or maintained effects (e.g. standing in a Banner) that the
+## player should NOT be able to manually cancel — they show on the buff bar with
+## their own styling but are not right-click removable. Mutually meaningful with
+## is_debuff: an aura is treated as locked regardless of debuff status.
+@export var is_aura: bool = false
+
 ## How the buff behaves when reapplied
 @export var stack_behavior: StackBehavior = StackBehavior.REFRESH
 

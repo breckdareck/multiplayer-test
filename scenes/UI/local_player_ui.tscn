@@ -1,8 +1,5 @@
-[gd_scene load_steps=67 format=3 uid="uid://c0561sc5huujo"]
+[gd_scene load_steps=32 format=3 uid="uid://c0561sc5huujo"]
 
-[ext_resource type="Script" path="res://scripts/UI/local_player_ui.gd" id="ctrl_lpui"]
-[ext_resource type="Script" path="res://scripts/UI/minimap.gd" id="minimap_scr"]
-[ext_resource type="Script" path="res://scripts/UI/world_map.gd" id="worldmap_scr"]
 [ext_resource type="Script" uid="uid://boxv5npw3xeg3" path="res://scripts/Player/player_hud.gd" id="11_ihqbe"]
 [ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="12_cgmen"]
 [ext_resource type="Texture2D" uid="uid://b41h3nwnk7ghm" path="res://assets/UI/Left_button.png" id="15_32uah"]
@@ -17,44 +14,56 @@
 [ext_resource type="PackedScene" uid="uid://1ufb4svp8iwu" path="res://scenes/UI/quest_window.tscn" id="26_quest"]
 [ext_resource type="PackedScene" uid="uid://jtdhvyo8t2y7" path="res://scenes/UI/game_window.tscn" id="34_ghub"]
 [ext_resource type="PackedScene" uid="uid://c66548ep3jkx5" path="res://scenes/UI/boss_hp_bar.tscn" id="40_bosshp"]
+[ext_resource type="Script" uid="uid://dlr22q3gxy11p" path="res://scripts/UI/local_player_ui.gd" id="ctrl_lpui"]
+[ext_resource type="Script" uid="uid://cnvd4m3hq5xa8" path="res://scripts/UI/minimap.gd" id="minimap_scr"]
+[ext_resource type="Script" uid="uid://c3otg6v6xnqsq" path="res://scripts/UI/world_map.gd" id="worldmap_scr"]
 
 [sub_resource type="Gradient" id="Gradient_2qjlr"]
-colors = PackedColorArray(0.15, 0.15, 0.15, 1, 0.14902, 0.14902, 0.14902, 1)
+colors = PackedColorArray(0.1, 0.072, 0.052, 1, 0.078, 0.056, 0.042, 1)
 
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_7vu7v"]
 gradient = SubResource("Gradient_2qjlr")
 use_hdr = true
 
 [sub_resource type="Gradient" id="Gradient_7vu7v"]
-offsets = PackedFloat32Array(0)
-colors = PackedColorArray(1, 0, 0, 1)
+colors = PackedColorArray(1, 0.42, 0.3, 1, 0.74, 0.13, 0.11, 1)
 
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_0r45a"]
 gradient = SubResource("Gradient_7vu7v")
 use_hdr = true
 
 [sub_resource type="Gradient" id="Gradient_x6dh1"]
-offsets = PackedFloat32Array(0)
-colors = PackedColorArray(0, 0, 1, 1)
+colors = PackedColorArray(0.42, 0.72, 1, 1, 0.12, 0.37, 0.75, 1)
 
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_3myi5"]
 gradient = SubResource("Gradient_x6dh1")
 use_hdr = true
 
 [sub_resource type="Gradient" id="Gradient_x5q00"]
-offsets = PackedFloat32Array(0)
-colors = PackedColorArray(1, 1, 0, 1)
+colors = PackedColorArray(1, 0.82, 0.4, 1, 0.88, 0.55, 0.12, 1)
 
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_2qjlr"]
 gradient = SubResource("Gradient_x5q00")
 use_hdr = true
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2qjlr"]
-bg_color = Color(0.0748453, 0.0748453, 0.0748452, 1)
+bg_color = Color(0.12, 0.085, 0.06, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.78, 0.53, 0.22, 1)
 corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
+
+[sub_resource type="Gradient" id="Gradient_mastery"]
+colors = PackedColorArray(1, 0.78, 0.45, 1, 1, 0.5, 0.1, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_mastery"]
+gradient = SubResource("Gradient_mastery")
+use_hdr = true
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7vu7v"]
 bg_color = Color(0.113049, 0.113049, 0.113049, 0.666667)
@@ -77,7 +86,6 @@ size = Vector2(275, 275)
 script = ExtResource("ctrl_lpui")
 
 [node name="PlayerHUD" type="Control" parent="."]
-visible = false
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -203,7 +211,7 @@ anchor_top = 0.5
 anchor_bottom = 0.5
 offset_left = -100.0
 offset_top = -12.5
-offset_bottom = 37.5
+offset_bottom = 45.5
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_2qjlr")
 
@@ -246,6 +254,55 @@ theme_override_fonts/normal_font = ExtResource("12_cgmen")
 theme_override_font_sizes/normal_font_size = 16
 text = "38%"
 horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MasteryBar" type="TextureProgressBar" parent="PlayerHUD/BottomStatsContainer"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -300.0
+offset_top = -47.0
+offset_right = 400.0
+offset_bottom = -27.0
+grow_horizontal = 2
+grow_vertical = 0
+value = 61.0
+nine_patch_stretch = true
+texture_under = SubResource("GradientTexture1D_7vu7v")
+texture_progress = SubResource("GradientTexture1D_mastery")
+
+[node name="MasteryLabel" type="Label" parent="PlayerHUD/BottomStatsContainer/MasteryBar"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 5.0
+offset_top = -18.0
+offset_right = 396.0
+offset_bottom = 4.0
+grow_vertical = 2
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("12_cgmen")
+theme_override_font_sizes/font_size = 15
+text = "SWORD MASTERY"
+vertical_alignment = 1
+
+[node name="MasteryPercentLabel" type="Label" parent="PlayerHUD/BottomStatsContainer/MasteryBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/outline_size = 8
+theme_override_fonts/font = ExtResource("12_cgmen")
+theme_override_font_sizes/font_size = 14
+text = "61%"
+horizontal_alignment = 2
 vertical_alignment = 1
 
 [node name="MobileButtons" type="Control" parent="PlayerHUD"]
@@ -412,32 +469,45 @@ offset_bottom = -21.0
 
 [node name="SynergyWidget" parent="PlayerHUD" instance=ExtResource("18_synrg")]
 layout_mode = 1
+offset_left = 11.0
+offset_top = -275.0
+offset_right = 145.0
+offset_bottom = -207.0
 
 [node name="SwordComboWidget" parent="PlayerHUD" instance=ExtResource("17_swcmbo")]
 layout_mode = 1
-offset_top = -200.0
-offset_bottom = -72.0
+offset_left = 13.0
+offset_top = -202.0
+offset_right = 69.0
+offset_bottom = -74.0
 
 [node name="BowMomentumWidget" parent="PlayerHUD" instance=ExtResource("17_bcwdgt")]
 layout_mode = 1
-offset_top = -60.0
-offset_bottom = 68.0
+offset_left = 85.0
+offset_top = -191.0
+offset_right = 141.0
+offset_bottom = -63.0
 
 [node name="StaffElementWidget" parent="PlayerHUD" instance=ExtResource("17_stfwdgt")]
 layout_mode = 1
-offset_top = 80.0
-offset_bottom = 160.0
+offset_left = 13.0
+offset_top = -47.0
+offset_right = 93.0
+offset_bottom = 33.0
 
 [node name="ShadowmeldWidget" parent="PlayerHUD" instance=ExtResource("17_shdwdgt")]
 layout_mode = 1
-offset_top = 172.0
-offset_bottom = 252.0
+offset_left = 12.0
+offset_top = 37.0
+offset_right = 108.0
+offset_bottom = 117.0
 
 [node name="BossHpBar" parent="PlayerHUD" instance=ExtResource("40_bosshp")]
 layout_mode = 1
 
 [node name="Minimap" type="Control" parent="PlayerHUD"]
 layout_mode = 1
+anchors_preset = 0
 offset_right = 212.0
 offset_bottom = 168.0
 mouse_filter = 1

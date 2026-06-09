@@ -39,15 +39,15 @@ const ST_AVAIL := 1
 const ST_OWNED := 2
 const ST_MAX := 3
 
-const C_OWNED := Color(0.36, 0.74, 1.0)
-const C_MAX := Color(0.95, 0.80, 0.30)
-const C_AVAIL := Color(0.82, 0.85, 0.92)
-const C_LOCKED := Color(0.32, 0.32, 0.38)
-const C_SELECT := Color(1.0, 0.95, 0.45)
+const C_OWNED := Color(0.95, 0.62, 0.26)
+const C_MAX := Color(0.98, 0.84, 0.34)
+const C_AVAIL := Color(0.84, 0.76, 0.6)
+const C_LOCKED := Color(0.4, 0.34, 0.28)
+const C_SELECT := Color(1.0, 0.9, 0.45)
 const C_PASS := Color(0.42, 0.86, 0.62)
-const C_UPG := Color(0.86, 0.70, 0.34)
-const C_BG := Color(0.11, 0.11, 0.14, 0.97)
-const C_BG_LOCKED := Color(0.07, 0.07, 0.09, 0.92)
+const C_UPG := Color(0.86, 0.7, 0.34)
+const C_BG := Color(0.13, 0.1, 0.072, 0.97)
+const C_BG_LOCKED := Color(0.09, 0.07, 0.05, 0.92)
 
 var _comp
 var _disc := ""
@@ -152,7 +152,7 @@ func _build_toggle() -> void:
 		var sb := _sbox(Color(0.2, 0.18, 0.08) if on else C_BG_LOCKED, C_MAX if on else C_LOCKED, 2)
 		for s in ["normal", "hover", "pressed", "focus"]:
 			btn.add_theme_stylebox_override(s, sb)
-		btn.add_theme_color_override("font_color", C_MAX if on else Color(0.6, 0.6, 0.65))
+		btn.add_theme_color_override("font_color", C_MAX if on else Color(0.7, 0.64, 0.56))
 		var pi: int = p
 		btn.pressed.connect(func(): set_path(pi))
 		add_child(btn)
@@ -281,7 +281,7 @@ func _upg_node(a, up, x: int, y: int) -> void:
 	if owned:
 		nm = "✓ " + nm
 	@warning_ignore("integer_division")
-	_text_c(btn, 2, (UPG_H - 11) / 2, UPG_W - 4, nm, 9, Color(0.62, 0.62, 0.67) if dim else border)
+	_text_c(btn, 2, (UPG_H - 11) / 2, UPG_W - 4, nm, 9, Color(0.62, 0.57, 0.5) if dim else border)
 
 
 # ---- styling helpers ----

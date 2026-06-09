@@ -1205,8 +1205,10 @@ func spawn_projectile_visual(proj_name: String, scene_path: String, start_pos: V
 	projectile.name = proj_name
 	var target: Node = get_node_or_null(target_path) if not target_path.is_empty() else null
 	projectile.initialize(null, target, null, null, speed, direction)
+	# Set position BEFORE add_child to avoid an interpolation streak from (0,0).
+	# See ability.gd spawn_projectile / damage_numbers.gd.
+	projectile.position = start_pos - container.global_position
 	container.add_child(projectile)
-	projectile.global_position = start_pos
 
 
 ## [Server -> Client] Removes a projectile visual early — the server's
@@ -1319,8 +1321,13 @@ func _spawn_vfx_visual(key: String, pos: Vector2, scale_mult: float, rot: float,
 	if not is_instance_valid(map_node):
 		return
 	var fx = _SpriteEffectVfx.new()
-	map_node.add_child(fx)
+	# Set LOCAL position BEFORE add_child so the node never exists at (0,0) in the
+	# tree — otherwise physics interpolation streaks it from the origin to pos
+	# ("flies across the screen"). This is the proven order damage_numbers.gd and
+	# the ground-zone visual use; assigning position AFTER add_child re-introduces
+	# the streak. (Translation-only map parent, so local = pos - map global.)
 	fx.position = pos - map_node.global_position
+	map_node.add_child(fx)
 	fx.setup(key, scale_mult, rot, flip_h, duration)
 
 
@@ -1352,8 +1359,10 @@ func _spawn_ground_vfx_visual(key: String, center: Vector2, width: float, durati
 	if not is_instance_valid(map_node):
 		return
 	var fx = _SpriteEffectVfx.new()
-	map_node.add_child(fx)
+	# Set position BEFORE add_child to avoid an interpolation streak from (0,0).
+	# See _spawn_vfx_visual.
 	fx.position = center - map_node.global_position
+	map_node.add_child(fx)
 	fx.setup_ground_strip(key, width, duration)
 
 

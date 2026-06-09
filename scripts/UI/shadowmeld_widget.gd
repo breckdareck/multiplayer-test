@@ -28,7 +28,7 @@ const GaugeInfo = preload("res://scripts/UI/gauge_info.gd")
 
 const STEALTHED_COLOR: Color = Color(0.65, 0.45, 0.95, 1.0)  # purple — cloaked
 const READY_COLOR: Color = Color(0.55, 0.85, 0.6, 1.0)       # green — ready
-const COOLDOWN_COLOR: Color = Color(0.55, 0.55, 0.6, 1.0)    # grey — recharging
+const COOLDOWN_COLOR: Color = Color(0.55, 0.5, 0.42, 1.0)    # warm grey — recharging
 
 #endregion
 

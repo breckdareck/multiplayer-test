@@ -1166,17 +1166,20 @@ func spawn_projectile(ability: AbilityData, level_stats: AbilityLevelData, targe
 		printerr("Could not find valid Projectiles container for ability: %s" % ability.ability_name)
 		return
 
-	# Add projectile to scene tree first, then set global position
-	target_container.add_child(projectile_instance, true)
-	
 	var spawn_pos = owner.global_position
 	if is_instance_valid(owner.projectile_spawn_location):
 		spawn_pos = owner.projectile_spawn_location.global_position
 	else:
 		printerr("Projectile spawn location not set on player controller. Spawning at player position.")
-	
-	projectile_instance.global_position = spawn_pos
-	
+
+	# Set LOCAL position BEFORE add_child so the node never exists at (0,0) in the
+	# tree — otherwise physics interpolation streaks it from the origin to spawn_pos
+	# ("flies across the screen"). Same proven order as damage_numbers.gd; assigning
+	# global_position AFTER add_child re-introduces the streak. (Translation-only map
+	# parent, so local = spawn_pos - container global.)
+	projectile_instance.position = spawn_pos - target_container.global_position
+	target_container.add_child(projectile_instance, true)
+
 	# Replicate the visual to same-map clients. Routed through MapManager (an
 	# autoload that always resolves on every peer) so it works for bot casters
 	# too. Clients simulate the projectile locally; the server is authoritative

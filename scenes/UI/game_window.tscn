@@ -16,12 +16,12 @@ content_margin_left = 9.0
 content_margin_top = 7.0
 content_margin_right = 9.0
 content_margin_bottom = 7.0
-bg_color = Color(0.09, 0.09, 0.12, 0.98)
+bg_color = Color(0.11, 0.082, 0.062, 0.98)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.5, 0.5, 0.58, 1)
+border_color = Color(0.7, 0.48, 0.2, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
@@ -30,7 +30,7 @@ corner_radius_bottom_left = 4
 [sub_resource type="Theme" id="hub_theme"]
 default_font = ExtResource("3_font")
 default_font_size = 11
-TooltipLabel/colors/font_color = Color(0.96, 0.96, 0.98, 1)
+TooltipLabel/colors/font_color = Color(0.97, 0.94, 0.88, 1)
 TooltipLabel/font_sizes/font_size = 14
 TooltipPanel/styles/panel = SubResource("tooltip_sb")
 
@@ -39,12 +39,12 @@ content_margin_left = 12.0
 content_margin_top = 8.0
 content_margin_right = 12.0
 content_margin_bottom = 10.0
-bg_color = Color(0.08, 0.08, 0.1, 1)
+bg_color = Color(0.105, 0.078, 0.058, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.25, 0.25, 0.3, 1)
+border_color = Color(0.42, 0.29, 0.14, 1)
 corner_radius_top_left = 6
 corner_radius_top_right = 6
 corner_radius_bottom_right = 6
@@ -52,19 +52,19 @@ corner_radius_bottom_left = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ihqbe"]
 content_margin_top = 5.0
-bg_color = Color(0.08, 0.08, 0.1, 1)
+bg_color = Color(0.105, 0.078, 0.058, 1)
 corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tuhj4"]
-bg_color = Color(0.1, 0.1, 0.13, 1)
+bg_color = Color(0.13, 0.1, 0.072, 1)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.3, 0.3, 0.35, 1)
+border_color = Color(0.5, 0.34, 0.16, 1)
 corner_radius_top_left = 1
 corner_radius_top_right = 1
 corner_radius_bottom_right = 1
@@ -89,24 +89,24 @@ outline_color = Color(0, 0, 0, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vam3o"]
 content_margin_top = 5.0
-bg_color = Color(0.12156863, 0.09803922, 0.16078432, 1)
+bg_color = Color(0.13, 0.1, 0.072, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.49803922, 0.4, 0.69803923, 1)
+border_color = Color(0.5, 0.34, 0.16, 1)
 corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qhurc"]
-bg_color = Color(0.09019608, 0.09019608, 0.09803922, 1)
+bg_color = Color(0.11, 0.082, 0.06, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.90588236, 0.8901961, 0.34901962, 1)
+border_color = Color(0.92, 0.7, 0.3, 1)
 corner_radius_top_left = 3
 corner_radius_top_right = 3
 corner_radius_bottom_right = 3
@@ -115,12 +115,12 @@ corner_radius_bottom_left = 3
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xhp0y"]
 content_margin_top = 5.0
 content_margin_bottom = 5.0
-bg_color = Color(0.15640001, 0.15640001, 0.17, 1)
+bg_color = Color(0.17, 0.125, 0.085, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.90588236, 0.8901961, 0.34901962, 1)
+border_color = Color(0.92, 0.7, 0.3, 1)
 corner_radius_top_left = 3
 corner_radius_top_right = 3
 corner_radius_bottom_right = 3
@@ -129,12 +129,12 @@ corner_radius_bottom_left = 3
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mqlp0"]
 content_margin_top = 5.0
 content_margin_bottom = 5.0
-bg_color = Color(0.0368, 0.0368, 0.04, 1)
+bg_color = Color(0.05, 0.037, 0.027, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.90588236, 0.8901961, 0.34901962, 1)
+border_color = Color(0.92, 0.7, 0.3, 1)
 corner_radius_top_left = 3
 corner_radius_top_right = 3
 corner_radius_bottom_right = 3
@@ -143,12 +143,12 @@ corner_radius_bottom_left = 3
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qk6wm"]
 content_margin_top = 5.0
 content_margin_bottom = 5.0
-bg_color = Color(0.09019608, 0.09019608, 0.09803922, 1)
+bg_color = Color(0.11, 0.082, 0.06, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.90588236, 0.8901961, 0.34901962, 1)
+border_color = Color(0.92, 0.7, 0.3, 1)
 corner_radius_top_left = 3
 corner_radius_top_right = 3
 corner_radius_bottom_right = 3
@@ -156,12 +156,12 @@ corner_radius_bottom_left = 3
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4ni0x"]
 content_margin_top = 5.0
-bg_color = Color(0.08, 0.08, 0.1, 1)
+bg_color = Color(0.105, 0.078, 0.058, 1)
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jn0uf"]
-bg_color = Color(0.06, 0.06, 0.08, 1)
+bg_color = Color(0.082, 0.06, 0.045, 1)
 corner_radius_top_left = 5
 corner_radius_top_right = 5
 expand_margin_top = 5.0
@@ -169,7 +169,7 @@ expand_margin_top = 5.0
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_32uah"]
 content_margin_left = 20.0
 content_margin_right = 20.0
-bg_color = Color(0.1, 0.1, 0.12, 1)
+bg_color = Color(0.125, 0.095, 0.068, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
@@ -183,12 +183,12 @@ expand_margin_top = 3.0
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_kp55c"]
 content_margin_left = 20.0
 content_margin_right = 20.0
-bg_color = Color(0.2, 0.2, 0.25, 1)
+bg_color = Color(0.235, 0.165, 0.1, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.90588236, 0.8901961, 0.34901962, 1)
+border_color = Color(0.92, 0.7, 0.3, 1)
 corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
@@ -196,24 +196,24 @@ corner_radius_bottom_left = 5
 expand_margin_top = 3.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_w2lun"]
-bg_color = Color(0.1, 0.1, 0.13, 1)
+bg_color = Color(0.13, 0.1, 0.072, 1)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.3, 0.3, 0.35, 1)
+border_color = Color(0.5, 0.34, 0.16, 1)
 corner_radius_top_left = 1
 corner_radius_top_right = 1
 corner_radius_bottom_right = 1
 corner_radius_bottom_left = 1
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4xm4e"]
-bg_color = Color(0.06, 0.06, 0.08, 1)
+bg_color = Color(0.082, 0.06, 0.045, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.25, 0.25, 0.3, 1)
+border_color = Color(0.42, 0.29, 0.14, 1)
 corner_radius_top_left = 2
 corner_radius_top_right = 2
 corner_radius_bottom_right = 2
@@ -257,7 +257,7 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.905882, 0.890196, 0.34902, 1)
+theme_override_colors/font_color = Color(0.96, 0.78, 0.32, 1)
 theme_override_font_sizes/font_size = 16
 text = "CHARACTER"
 
@@ -306,7 +306,7 @@ theme_override_constants/separation = 6
 
 [node name="Hdr" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col1/V"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.905882, 0.890196, 0.34902, 1)
+theme_override_colors/font_color = Color(0.96, 0.78, 0.32, 1)
 theme_override_font_sizes/font_size = 16
 text = "EQUIPMENT"
 
@@ -620,7 +620,7 @@ theme_override_constants/separation = 6
 
 [node name="Hdr" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.905882, 0.890196, 0.34902, 1)
+theme_override_colors/font_color = Color(0.96, 0.78, 0.32, 1)
 theme_override_font_sizes/font_size = 16
 text = "STATS"
 
@@ -636,7 +636,7 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/HpRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+theme_override_colors/font_color = Color(0.72, 0.66, 0.57, 1)
 theme_override_font_sizes/font_size = 16
 text = "HP"
 
@@ -652,7 +652,7 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/MpRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+theme_override_colors/font_color = Color(0.72, 0.66, 0.57, 1)
 theme_override_font_sizes/font_size = 16
 text = "MP"
 
@@ -668,7 +668,7 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/AtkRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+theme_override_colors/font_color = Color(0.72, 0.66, 0.57, 1)
 theme_override_font_sizes/font_size = 16
 text = "Attack"
 
@@ -684,7 +684,7 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/MAtkRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+theme_override_colors/font_color = Color(0.72, 0.66, 0.57, 1)
 theme_override_font_sizes/font_size = 16
 text = "Magic Atk"
 
@@ -700,7 +700,7 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/DefRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+theme_override_colors/font_color = Color(0.72, 0.66, 0.57, 1)
 theme_override_font_sizes/font_size = 16
 text = "Defense"
 
@@ -716,7 +716,7 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/MDefRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+theme_override_colors/font_color = Color(0.72, 0.66, 0.57, 1)
 theme_override_font_sizes/font_size = 16
 text = "Mag Def"
 
@@ -732,7 +732,7 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/CritRateRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+theme_override_colors/font_color = Color(0.72, 0.66, 0.57, 1)
 theme_override_font_sizes/font_size = 16
 text = "Crit Rate"
 
@@ -748,7 +748,7 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/CritDmgRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+theme_override_colors/font_color = Color(0.72, 0.66, 0.57, 1)
 theme_override_font_sizes/font_size = 16
 text = "Crit Dmg"
 
@@ -769,7 +769,7 @@ tooltip_text = "Accuracy
 (0.05% per DEX). Compensates for above-level enemies
 and weapon underlevel penalties."
 mouse_filter = 1
-theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+theme_override_colors/font_color = Color(0.72, 0.66, 0.57, 1)
 theme_override_font_sizes/font_size = 16
 text = "Accuracy"
 
@@ -795,7 +795,7 @@ tooltip_text = "Evasion
 the dagger Evasion passive and gear. Caps the
 attacker's hit chance no lower than 5%."
 mouse_filter = 1
-theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+theme_override_colors/font_color = Color(0.72, 0.66, 0.57, 1)
 theme_override_font_sizes/font_size = 16
 text = "Evasion"
 
@@ -816,7 +816,7 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/DmgRangeRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.62, 0.62, 0.68, 1)
+theme_override_colors/font_color = Color(0.72, 0.66, 0.57, 1)
 theme_override_font_sizes/font_size = 16
 text = "Dmg Range"
 
@@ -1043,7 +1043,7 @@ theme_override_constants/separation = 6
 
 [node name="Hdr" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col3/V"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.905882, 0.890196, 0.34902, 1)
+theme_override_colors/font_color = Color(0.96, 0.78, 0.32, 1)
 theme_override_font_sizes/font_size = 16
 text = "INVENTORY"
 
