@@ -107,6 +107,12 @@ through `scripts/Networking/network_manager.gd`.
   loads NOTHING — each category block (`if 'inventory'/'abilities'/'buffs' in
   data`) lazy-loads only the collection it touches, so a frequent partial
   ("stats") save does ZERO child queries.
+- **Character-select list** (`get_characters`): each entry carries the card fields
+  the select screen renders — `level`, `character_class`, `max_health`, `max_mana`,
+  `monies`, `attribute_points`, `weapon_mastery`, and `weapons` (the equipped
+  `WEAPON` / `SECONDARY_WEAPON` rows as slim `{item_path}` refs; the client resolves
+  them to `ItemData` locally). `NetworkManager.get_characters()`'s offline local-save
+  branch mirrors this exact shape — change both together.
 - **Bots**: bot characters have no account, so they are all owned by one shared
   `__bots__` account (`account_id` is `NOT NULL`). `save_player` accepts an `is_bot`
   flag to create a bot's `Player` row on the fly and stamp the `is_bot` column.

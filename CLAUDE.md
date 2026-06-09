@@ -57,7 +57,7 @@ Registered in `project.godot`; globally accessible by name from any script.
 | `NetworkManager` | `scripts/Networking/network_manager.gd` | Backend HTTP API (login, characters, save/load) |
 | `ResourceManager` | `scripts/Managers/resource_manager.gd` | Loads & caches ability/item/buff/class `.tres` |
 | `SaveManager` | `scripts/Managers/save_manager.gd` | Debounced player-data persistence |
-| `MapManager` | `scripts/Managers/map_manager.gd` | Map registry (15 Emberwilds zones, L1–100; `HEARTH_MAPS` = the safe towns), transitions, visibility, spawning; map residency = **bounded warm pool** (occupied maps + their portal neighbours stay resident, cold empty maps are evicted) + central proximity enemy activation — see [docs/adr/0007-map-residency-and-enemy-activation.md](docs/adr/0007-map-residency-and-enemy-activation.md) (the ADR text describes the v1 pre-instantiate-all design; the warm-pool revision is what's live in code) |
+| `MapManager` | `scripts/Managers/map_manager.gd` | Map registry (15 Emberwilds zones, L1–100; `HEARTH_MAPS` = the safe towns), transitions, visibility, spawning; map residency = **bounded warm pool** (occupied maps + their portal neighbours stay resident, cold empty maps are evicted) + central proximity enemy activation — see [docs/adr/0007-map-residency-and-enemy-activation.md](docs/adr/0007-map-residency-and-enemy-activation.md) (original v1 decision kept for history + dated warm-pool revision) |
 | `PartyManager` | `scripts/Managers/party_manager.gd` | Party creation/joining |
 | `BotManager` | `scripts/Bot/bot_manager.gd` | Server-side AI bot lifecycle, `/bot` commands |
 | `TradeManager` | `scripts/Trading/trade_manager.gd` | Player-to-player trading |

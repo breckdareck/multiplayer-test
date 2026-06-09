@@ -86,9 +86,10 @@ func _scale_to(btn: BaseButton, target: Vector2, dur: float,
 		return
 	# Scale around the center, not the top-left corner.
 	btn.pivot_offset = btn.size * 0.5
-	var prev: Tween = btn.get_meta("_uifx_tween", null)
-	if prev is Tween and prev.is_valid():
-		prev.kill()
+	if btn.has_meta("_uifx_tween"):
+		var prev: Tween = btn.get_meta("_uifx_tween")
+		if prev is Tween and prev.is_valid():
+			prev.kill()
 	var tw := btn.create_tween()
 	tw.tween_property(btn, "scale", target, dur).set_trans(trans).set_ease(ease_type)
 	btn.set_meta("_uifx_tween", tw)

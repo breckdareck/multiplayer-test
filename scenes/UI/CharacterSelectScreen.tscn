@@ -188,9 +188,9 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -350.0
+offset_left = -540.0
 offset_top = -289.0
-offset_right = 350.0
+offset_right = -40.0
 offset_bottom = 360.0
 grow_horizontal = 2
 grow_vertical = 2
@@ -299,6 +299,124 @@ theme_override_colors/font_color = Color(1, 0.2, 0.2, 1)
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 16
 horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="CardPanel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -10.0
+offset_top = -289.0
+offset_right = 540.0
+offset_bottom = 360.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="CardVBox" type="VBoxContainer" parent="CardPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 16.0
+offset_right = -24.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+
+[node name="SpriteHolder" type="Control" parent="CardPanel/CardVBox"]
+custom_minimum_size = Vector2(0, 170)
+layout_mode = 2
+
+[node name="CharSprite" type="TextureRect" parent="CardPanel/CardVBox/SpriteHolder"]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CharName" type="Label" parent="CardPanel/CardVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.42, 1)
+theme_override_fonts/font = ExtResource("3_font_bold")
+theme_override_font_sizes/font_size = 28
+horizontal_alignment = 1
+
+[node name="CharSubtitle" type="Label" parent="CardPanel/CardVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.86, 0.95, 0.9)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+
+[node name="SepA" type="HSeparator" parent="CardPanel/CardVBox"]
+layout_mode = 2
+
+[node name="WeaponsHeader" type="Label" parent="CardPanel/CardVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.42, 1)
+theme_override_fonts/font = ExtResource("3_font_bold")
+theme_override_font_sizes/font_size = 18
+text = "Weapons"
+
+[node name="WeaponPrimary" type="Label" parent="CardPanel/CardVBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 16
+autowrap_mode = 2
+
+[node name="WeaponSecondary" type="Label" parent="CardPanel/CardVBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 16
+autowrap_mode = 2
+
+[node name="SepB" type="HSeparator" parent="CardPanel/CardVBox"]
+layout_mode = 2
+
+[node name="StatsHeader" type="Label" parent="CardPanel/CardVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.42, 1)
+theme_override_fonts/font = ExtResource("3_font_bold")
+theme_override_font_sizes/font_size = 18
+text = "Stats"
+
+[node name="StatsGrid" type="GridContainer" parent="CardPanel/CardVBox"]
+layout_mode = 2
+columns = 4
+theme_override_constants/h_separation = 24
+theme_override_constants/v_separation = 4
+
+[node name="SepC" type="HSeparator" parent="CardPanel/CardVBox"]
+layout_mode = 2
+
+[node name="MasteryLabel" type="Label" parent="CardPanel/CardVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.86, 0.95, 0.8)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 14
+autowrap_mode = 2
+
+[node name="EmptyHint" type="Label" parent="CardPanel/CardVBox"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.86, 0.8, 0.68, 0.7)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "No Wilders yet.
+Create your first character to begin."
+horizontal_alignment = 1
+vertical_alignment = 1
 autowrap_mode = 2
 
 [node name="Parallax" type="Node" parent="."]

@@ -364,15 +364,29 @@ def get_characters():
     
     # Get all characters for this account
     characters = Player.query.filter_by(account_id=account_id).all()
-    
+
     character_list = []
     for char in characters:
+        # Equipped weapons (primary + secondary) so the select screen can show
+        # the two-weapon kit. The client resolves item_path -> ItemData locally.
+        weapons = {}
+        for eq in PlayerEquipment.query.filter(
+                PlayerEquipment.player_username == char.username,
+                PlayerEquipment.slot_type.in_(["WEAPON", "SECONDARY_WEAPON"])).all():
+            if eq.item_path:
+                weapons[eq.slot_type] = {"item_path": eq.item_path}
         character_list.append({
             "name": char.username,
             "level": char.level,
-            "character_class": char.character_class
+            "character_class": char.character_class,
+            "max_health": char.max_health,
+            "max_mana": char.max_mana,
+            "monies": char.monies,
+            "attribute_points": char.attribute_points or {},
+            "weapon_mastery": char.weapon_mastery or {},
+            "weapons": weapons,
         })
-    
+
     return jsonify({"characters": character_list}), 200
 
 

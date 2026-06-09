@@ -1,5 +1,13 @@
 # Map residency and enemy activation — pre-instantiate all maps at boot, sleep enemies by proximity
 
+## Status
+
+Accepted. **Residency model revised 2026-06-07** (commit `21e6b83`): the v1
+"pre-instantiate all, never free" decision below hit its stated revisit trigger
+at 15 maps and was replaced by the bounded warm pool — see
+[Revision](#revision-2026-06-07--bounded-warm-pool-replaces-pre-instantiate-all).
+The enemy-activation decision (§2) is unchanged and live as written.
+
 ## Context
 
 The host hitched whenever a player (or a roaming bot) entered a map that was
@@ -94,3 +102,62 @@ enemies sleep.
 - Enemies must initialize **asleep** at boot (no agents on any map yet); the
   first agent to enter a map should trigger an immediate scan for that map so
   wake latency on spawn-in isn't a visible ~100 ms.
+
+## Revision (2026-06-07) — bounded warm pool replaces pre-instantiate-all
+
+The map roster grew from 5 to 15 (`MAP_SCENES`), crossing the revisit trigger
+in §1. Pre-instantiating everything at boot was replaced by the **bounded warm
+pool** sketched there, implemented in `scripts/Managers/map_manager.gd`
+(commit `21e6b83`). The original decision text above is kept for history; this
+section describes what is live.
+
+### Residency as implemented
+
+- **Boot** (`_on_server_started`): build the portal connectivity graph first —
+  `_build_map_connections` now scans portals off-tree (instantiate, read,
+  `free()`, no `_ready`) for any map without a resident instance, so it no
+  longer requires pre-instantiation. Then `_warm_around(DEFAULT_MAP)` warms
+  only the starting Hearth and its portal neighbours. Boot stays cheap as the
+  roster grows.
+- **Lazy load on travel**: maps instantiate on demand as agents (players *or*
+  bots) enter them. `add_player_to_map` calls `_warm_around(map_id)` after
+  every spawn, so an occupied map's portal neighbours are always resident —
+  adjacent travel keeps the no-hitch fast-reparent path that motivated v1.
+  `_load_map_on_server` is idempotent (returns if already resident).
+- **Warm set** (`_compute_warm_set`): the town (`DEFAULT_MAP`) + every map with
+  ≥1 agent in `active_maps[map_id].player_ids` + each occupied map's portal
+  neighbours. This is the "occupied maps pinned" rule from the revisit sketch;
+  there is no LRU cap or TTL — the neighbour rule bounds the pool naturally.
+- **Eviction** (`_evict_cold_maps`): a periodic evictor runs in `_process`
+  every `WARM_EVICT_INTERVAL = 20 s` and frees maps that are **empty AND
+  outside the warm set**, via `_unload_map_on_server` (frees the SubViewport
+  wrapper too). It never runs inside a transition, so it can't free a map
+  mid-handoff.
+- **On last agent leaving a map** (`KEEP_MAPS_RESIDENT = true` branch in
+  `_remove_player_from_map`): the map is *not* freed immediately — its enemies
+  are put to sleep at once (≈free) and the evictor unloads it later only if it
+  goes cold (drops out of the warm set). This restores the v1 "no
+  re-entry hitch on a recently-vacated map" property without unbounded
+  residency.
+- `_preinstantiate_all_maps()` survives as a debug "warm everything" helper;
+  it is no longer called at boot.
+
+### Enemy activation — unchanged
+
+§2 is live exactly as decided: central server-only proximity scanner in
+`MapManager._process` at `ACTIVATION_SCAN_INTERVAL = 0.1 s` (~10 Hz), wake
+radius `960 px` / sleep radius `1280 px` hysteresis, engaged enemies never
+sleep, zero-agent maps sleep everything.
+
+### Consequences delta
+
+- The v1 consequence "maps are no longer freed on empty, so transient state
+  survives" is **narrowed**: a cold map *is* eventually freed (≥20 s after its
+  last agent leaves, and only once no occupied map neighbours it), so
+  per-map transient state (ground loot, etc.) must still tolerate map unload —
+  its own despawn timers remain the correct mechanism.
+- `map_unloaded` fires again in normal operation (it was dead under v1).
+- The disconnect hard-reset consequence simplifies: after a teardown, the next
+  `server_has_started` re-runs `_on_server_started` (portal graph +
+  `_warm_around(DEFAULT_MAP)`) — a cheap two-map-ish warm, not a full
+  pre-instantiation pass.

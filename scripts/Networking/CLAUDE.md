@@ -73,4 +73,8 @@ own their own `HTTPRequest` lifecycle and retry policy, but the **wire protocol*
 path and the read-merge-write helpers, so the offline fallback behaves identically
 across all three. The backend URL is resolved on demand from `UserConfig` in every
 HTTP caller, so a runtime `set_backend_api_url()` takes effect without a restart.
+`NetworkManager.get_characters()`'s offline branch enriches each local-save entry
+with the same select-screen fields the backend list endpoint returns (max HP/MP,
+monies, attribute points, weapon mastery, equipped two-weapon kit) — keep the two
+shapes in lockstep when either side changes.
 Endpoints and payloads: [backend/CLAUDE.md](../../backend/CLAUDE.md).

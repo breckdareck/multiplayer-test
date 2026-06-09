@@ -123,6 +123,23 @@ func get_characters():
 				if loaded_data is Dictionary:
 					char_data["level"] = loaded_data.get("level", 1)
 					char_data["character_class"] = loaded_data.get("character_class", 0)
+					# Same enrichment shape as the backend list endpoint, so the
+					# select screen's character card works offline too.
+					char_data["max_health"] = loaded_data.get("max_health", 100)
+					char_data["max_mana"] = loaded_data.get("max_mana", 100)
+					char_data["monies"] = loaded_data.get("monies", 0)
+					char_data["attribute_points"] = loaded_data.get("attribute_points", {})
+					char_data["weapon_mastery"] = loaded_data.get("weapon_mastery", {})
+					var weapons := {}
+					var inv = loaded_data.get("inventory", {})
+					var equip = inv.get("equipment", {}) if inv is Dictionary else {}
+					for slot in ["WEAPON", "SECONDARY_WEAPON"]:
+						var item = equip.get(slot) if equip is Dictionary else null
+						if item is Dictionary:
+							var path: String = item.get("original_resource_path", item.get("resource_path", ""))
+							if path != "":
+								weapons[slot] = {"item_path": path}
+					char_data["weapons"] = weapons
 				characters.append(char_data)
 				#print("Local save: Found character '%s' (level %d)" % [char_name, char_data["level"]])
 				idx += 1
