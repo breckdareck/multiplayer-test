@@ -57,13 +57,12 @@ Registered in `project.godot`; globally accessible by name from any script.
 | `NetworkManager` | `scripts/Networking/network_manager.gd` | Backend HTTP API (login, characters, save/load) |
 | `ResourceManager` | `scripts/Managers/resource_manager.gd` | Loads & caches ability/item/buff/class `.tres` |
 | `SaveManager` | `scripts/Managers/save_manager.gd` | Debounced player-data persistence |
-| `MapManager` | `scripts/Managers/map_manager.gd` | Map registry, transitions, visibility, spawning; map residency (all maps pre-instantiated at boot, kept resident) + proximity enemy activation — see [docs/adr/0007-map-residency-and-enemy-activation.md](docs/adr/0007-map-residency-and-enemy-activation.md) |
+| `MapManager` | `scripts/Managers/map_manager.gd` | Map registry (15 Emberwilds zones, L1–100; `HEARTH_MAPS` = the safe towns), transitions, visibility, spawning; map residency = **bounded warm pool** (occupied maps + their portal neighbours stay resident, cold empty maps are evicted) + central proximity enemy activation — see [docs/adr/0007-map-residency-and-enemy-activation.md](docs/adr/0007-map-residency-and-enemy-activation.md) (the ADR text describes the v1 pre-instantiate-all design; the warm-pool revision is what's live in code) |
 | `PartyManager` | `scripts/Managers/party_manager.gd` | Party creation/joining |
 | `BotManager` | `scripts/Bot/bot_manager.gd` | Server-side AI bot lifecycle, `/bot` commands |
 | `TradeManager` | `scripts/Trading/trade_manager.gd` | Player-to-player trading |
 | `QuestManager` | `scripts/Managers/quest_manager.gd` | Quest tracking and objectives |
 | `PetManager` | `scripts/Managers/pet_manager.gd` | Per-character pet roster, hunger tick, auto-buff timer, auto-loot / auto-pot validation — see [docs/adr/0001-pet-system-architecture.md](docs/adr/0001-pet-system-architecture.md) |
-| `JobAdvancementManager` | `scripts/Managers/job_advancement_manager.gd` | Class advancement at level 30 |
 | `ChatManager` | `scripts/Managers/ChatManager.gd` | In-game messaging and slash commands |
 | `KeybindManager` | `scripts/Managers/keybind_manager.gd` | Custom keybindings |
 | `UserConfig` | `scripts/Managers/user_config.gd` | User-preference persistence |
@@ -122,6 +121,54 @@ Player and enemy characters are composed of `Node` components under a root
 character node (`Player/Components/Health`, `.../Stats`, …). The root player
 script is `scripts/Player/multiplayer_controller_v2.gd` (`MultiplayerPlayerV2`).
 See [scripts/Components/CLAUDE.md](scripts/Components/CLAUDE.md).
+
+## Weapon-driven identity (no classes)
+
+There are no character classes or job advancement. Identity comes from the four
+**weapon disciplines** — Sword, Bow, Staff, Dagger (`Constants.ClassType`).
+`WeaponMasteryComponent` is the single owner of identity: per-discipline mastery
+levels plus the `primary_discipline` pointer (legacy class saves normalize on
+load). Players carry a **two-weapon kit** (primary + secondary hotbar slots);
+the pairing names a synergy via `WeaponPairSynergyComponent` (e.g. Sword+Staff =
+Spellblade). Each discipline has a gauge mechanic (sword combo points, bow
+momentum, staff Fire/Ice/Lightning stances, dagger shadowmeld stealth) and a
+2-path ability tree with 3-tier per-ability upgrades. Character level grants
+**5 freely-allocated attribute points per level** (STR/DEX/INT/LUCK/CON, managed
+by `StatsComponent`). See
+[docs/adr/0004-classcomponent-removal-weapon-discipline.md](docs/adr/0004-classcomponent-removal-weapon-discipline.md)
+and [docs/adr/0002-attribute-allocation-system.md](docs/adr/0002-attribute-allocation-system.md).
+
+## Testing
+
+Zero-dependency headless harness in `test/` (no GUT/gdUnit4). Run with
+`run_tests.bat`, or directly:
+
+```
+godot --headless --path . --script res://test/run_tests.gd --log-file test/last_run.log
+```
+
+Exit 0 = all pass, 1 = any failure (the GUI `Godot.exe` won't pipe stdout on
+Windows — use the log file). Suites live under `test/ability/`, `test/boss/`,
+`test/bot/`, and `test/nav/`, covering ability scaling formulas, every
+ability×level + upgrade (content validation), live `AbilityComponent` behavior,
+respec economy, boss phases/attack data, and bot point-spending.
+
+## Editor tooling (`addons/`)
+
+- `resource_editor` — custom dock (left, "Resources" tab) for authoring
+  abilities / items / buffs / upgrade trees: formula tree + curve chart, hitbox
+  visualizer, VFX picker, upgrade-tree cards, plus popup windows for the
+  discipline placement board, validation dashboard, and batch edit.
+- `balance_simulator` — read-only dock that runs each ability's scaling
+  formulas per level and mirrors `CombatComponent`'s hit math in a combat
+  simulator.
+- `boss_attack_designer` — visual preview/scrub of `BossAttackData`
+  (shape, dash, windup/hit timing) at true runtime geometry.
+
+Gotcha: running `godot --editor --quit` headless disables plugins in
+`project.godot` and re-serializes touched `.tres` — verify with `--script`
+smokes instead, and `git checkout -- project.godot resources/` after any
+`--editor` run.
 
 ## Data-driven content
 

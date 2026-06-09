@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emberwilds — HUD Redesign Mockups</title>
+<style>
+  /* ---- Pixel-ish web fonts that approximate PixelOperator8 ---- */
+  @import url('https://fonts.googleapis.com/css2?family=Jersey+10&family=Pixelify+Sans:wght@400..700&display=swap');
+
+  :root{
+    --pixel: 'Pixelify Sans', 'Jersey 10', monospace;
+    --num: 'Jersey 10', 'Pixelify Sans', monospace;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ background:#101014; color:#e8e8ee; font-family:var(--pixel); }
+  body{ padding:24px 24px 80px; }
+
+  h1{ font-size:30px; letter-spacing:1px; margin-bottom:4px; color:#ffd98a;
+      text-shadow:0 2px 0 #000, 0 0 18px rgba(255,150,40,.35); }
+  .sub{ color:#9aa0ad; font-size:15px; margin-bottom:18px; max-width:980px; line-height:1.5; }
+
+  /* ---- Tabs ---- */
+  .tabs{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+  .tab{ font-family:var(--pixel); font-size:15px; cursor:pointer; user-select:none;
+        padding:9px 16px; border-radius:8px; border:2px solid #2c2c36;
+        background:#1a1a22; color:#b8bcc8; transition:.15s; }
+  .tab:hover{ border-color:#46464f; color:#e8e8ee; }
+  .tab.active{ background:#2a2118; border-color:#c8862a; color:#ffd98a;
+               box-shadow:0 0 14px rgba(255,150,40,.25); }
+
+  .stageWrap{ display:none; }
+  .stageWrap.show{ display:block; }
+  .caption{ margin:10px 2px 22px; color:#aab; font-size:14px; line-height:1.55; max-width:1080px;}
+  .caption b{ color:#ffd98a; }
+  .pill{ display:inline-block; font-size:12px; padding:2px 8px; border-radius:20px;
+         background:#22222c; border:1px solid #3a3a46; color:#cfd3dc; margin-right:6px; }
+
+  /* ====== THE GAME STAGE (16:9) ====== */
+  .stage{
+    position:relative; width:100%; max-width:1180px; aspect-ratio:16/9;
+    border-radius:10px; overflow:hidden; border:1px solid #000;
+    box-shadow:0 12px 40px rgba(0,0,0,.6);
+    background:
+      radial-gradient(120% 80% at 50% -10%, #3a2536 0%, #241a2a 38%, #161320 70%, #0c0a14 100%);
+    font-size:14px;
+  }
+  /* distant parallax hills */
+  .stage .hills{ position:absolute; inset:0; }
+  .stage .hills::before{ content:""; position:absolute; left:-5%; right:-5%; bottom:30%;
+    height:34%; background:linear-gradient(#2e2233,#241a2a); border-radius:50% 50% 0 0/100% 100% 0 0; opacity:.7;}
+  .stage .hills::after{ content:""; position:absolute; left:-5%; right:-5%; bottom:30%;
+    height:22%; background:linear-gradient(#3b2a2f,#2c2026); border-radius:50% 50% 0 0/100% 100% 0 0; opacity:.85;}
+  /* ground */
+  .stage .ground{ position:absolute; left:0; right:0; bottom:0; height:30%;
+    background:
+      repeating-linear-gradient(90deg, #4a2f2c 0 26px, #432a27 26px 52px);
+    border-top:5px solid #6f8a3e;
+    box-shadow:inset 0 6px 0 #5a7733, inset 0 26px 30px rgba(0,0,0,.4);}
+  .stage .ground::before{ content:""; position:absolute; left:0; right:0; top:-5px; height:5px;
+    background:#83a64d;}
+  /* a couple of embers floating */
+  .stage .ember{ position:absolute; width:4px; height:4px; border-radius:50%;
+    background:#ffb347; box-shadow:0 0 8px 2px rgba(255,150,40,.7); opacity:.8;}
+
+  /* hero placeholder */
+  .hero{ position:absolute; bottom:30%; left:48%; width:42px; height:74px;
+    background:linear-gradient(#d8c08a,#7a5a3a); border-radius:8px 8px 6px 6px;
+    box-shadow:0 6px 14px rgba(0,0,0,.5); }
+  .hero::after{ content:""; position:absolute; left:-10px; right:-10px; bottom:-6px; height:10px;
+    background:radial-gradient(closest-side, rgba(0,0,0,.55), transparent); }
+
+  /* small enemy */
+  .mob{ position:absolute; bottom:30%; left:64%; width:40px; height:34px;
+    background:radial-gradient(circle at 40% 35%, #b9504f, #5e2222); border-radius:50% 50% 45% 45%;
+    box-shadow:0 5px 12px rgba(0,0,0,.5);}
+  .mob .hpm{ position:absolute; top:-12px; left:0; width:100%; height:5px; background:#2a0d0d; border-radius:3px;}
+  .mob .hpm i{ display:block; width:62%; height:100%; background:#e23; border-radius:3px;}
+
+  /* generic absolutely-positioned HUD zones */
+  .z{ position:absolute; }
+  .tl{ top:12px; left:12px; }
+  .tr{ top:12px; right:12px; }
+  .tc{ top:14px; left:50%; transform:translateX(-50%); }
+  .bc{ bottom:12px; left:50%; transform:translateX(-50%); }
+  .lc{ top:50%; left:12px; transform:translateY(-50%); }
+
+  /* minimap */
+  .minimap{ width:190px; height:120px; border-radius:8px; position:relative; overflow:hidden;}
+  .minimap .mlabel{ position:absolute; top:4px; left:8px; font-size:12px; letter-spacing:1px; z-index:2;}
+  .dot{ position:absolute; width:6px; height:6px; border-radius:50%;}
+
+  /* buff icons */
+  .buffs{ display:flex; gap:6px; }
+  .buff{ width:38px; height:38px; border-radius:7px; position:relative; display:flex; align-items:flex-end; justify-content:center;}
+  .buff small{ font-size:11px; padding:0 2px; background:rgba(0,0,0,.6); border-radius:3px;}
+
+  /* quest tracker */
+  .quests{ width:230px; padding:8px 10px; border-radius:8px; margin-top:8px; font-size:13px;}
+  .quests h4{ font-size:13px; letter-spacing:1px; margin-bottom:5px;}
+  .quests .q{ color:#7fc7ff; margin:5px 0 2px;}
+  .quests .o{ color:#cfd2da; font-size:12px; padding-left:6px;}
+  .quests .o.done{ color:#73e07a; text-decoration:line-through; opacity:.8;}
+
+  /* boss bar */
+  .boss{ width:440px; padding:6px 10px 8px; border-radius:8px; text-align:center;}
+  .boss .bt{ font-size:15px; letter-spacing:2px; }
+  .boss .bb{ height:14px; border-radius:7px; margin-top:5px; overflow:hidden; background:#23090b;}
+  .boss .bb i{ display:block; height:100%; width:73%; }
+
+  /* left discipline gauge (combo pips) */
+  .gauge{ width:60px; padding:8px 0 10px; border-radius:10px; text-align:center;}
+  .gauge .gl{ font-size:11px; letter-spacing:1px; writing-mode:horizontal-tb; margin-bottom:8px;}
+  .pips{ display:flex; flex-direction:column; gap:7px; align-items:center;}
+  .pip{ width:18px; height:18px; border-radius:50%; }
+
+  /* ===== bottom cluster shared skeleton ===== */
+  .bottom{ width:980px; max-width:94vw; }
+  .bars{ display:flex; flex-direction:column; gap:5px; }
+  .barRow{ display:flex; gap:8px; align-items:center;}
+  .bar{ position:relative; height:24px; border-radius:6px; overflow:hidden; flex:1;}
+  .bar.lg{ height:28px;}
+  .bar .fill{ position:absolute; inset:0; }
+  .bar .txt{ position:absolute; inset:0; display:flex; align-items:center; gap:8px; padding:0 10px; z-index:2; font-size:14px;}
+  .bar .txt .lab{ font-weight:700;}
+  .bar .txt .val{ margin-left:auto; font-family:var(--num); letter-spacing:.5px;}
+
+  /* hotbar */
+  .hotbarRow{ display:flex; gap:14px; align-items:flex-end; margin-top:8px; justify-content:center;}
+  .hbgroup{ display:flex; gap:7px; padding:8px; border-radius:10px;}
+  .slot{ width:54px; height:54px; border-radius:8px; position:relative; display:flex; align-items:center; justify-content:center; font-size:22px;}
+  .slot .key{ position:absolute; top:2px; left:4px; font-size:11px; color:#cfd2da;}
+  .slot.cd::after{ content:""; position:absolute; inset:0; background:rgba(0,0,0,.6); border-radius:8px;
+     clip-path: polygon(0 0,100% 0,100% 55%,0 55%);}
+  .slot .cdn{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:var(--num); font-size:20px; z-index:3;}
+  .wslot{ width:54px; height:54px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:24px; position:relative;}
+  .wslot.active{ }
+  .wkey{ position:absolute; bottom:2px; right:4px; font-size:10px; color:#cfd2da;}
+
+  /* legend / spec block under each */
+  .spec{ display:flex; gap:18px; flex-wrap:wrap; margin-top:12px; }
+  .spec .swatch{ display:flex; align-items:center; gap:7px; font-size:13px; color:#cdd; }
+  .spec .swatch i{ width:16px; height:16px; border-radius:4px; display:inline-block; border:1px solid rgba(255,255,255,.15);}
+
+  /* =====================================================================
+     THEME A — EMBER HEARTH  (forged bronze, warm wood, ember glow)
+     ===================================================================== */
+  .A .minimap{ background:rgba(28,20,14,.82); border:2px solid #a8702e; box-shadow:inset 0 0 24px rgba(255,140,40,.12), 0 0 0 1px #000;}
+  .A .minimap .mlabel{ color:#ffcf86;}
+  .A .quests{ background:linear-gradient(#241a12,#1a130d); border:2px solid #8a5f2c; box-shadow:inset 0 1px 0 rgba(255,200,120,.12);}
+  .A .quests h4{ color:#ffce7a;}
+  .A .buff{ background:#241910; border:2px solid #b3791f; box-shadow:0 0 8px rgba(255,150,40,.2);}
+  .A .gauge{ background:linear-gradient(#241a12,#191109); border:2px solid #c8862a; box-shadow:inset 0 0 16px rgba(255,150,40,.15);}
+  .A .gauge .gl{ color:#ffce7a;}
+  .A .pip{ background:#2a1f12; border:1px solid #5a3f1d;}
+  .A .pip.on{ background:radial-gradient(circle at 40% 35%, #ffd27a, #ff8a1e); border-color:#ffb24d; box-shadow:0 0 10px rgba(255,150,40,.8);}
+  .A .boss{ background:linear-gradient(#2a1410,#1c0d0b); border:2px solid #b23a2a;}
+  .A .boss .bt{ color:#ffce7a;}
+  .A .boss .bb i{ background:linear-gradient(#ff6a4a,#c01616);}
+  /* A bars frame */
+  .A .bottom{ padding:10px 12px 12px; border-radius:14px;
+    background:linear-gradient(#241913 0%,#1a120c 100%);
+    border:2px solid #9a6a2e;
+    box-shadow:inset 0 1px 0 rgba(255,210,140,.14), inset 0 0 30px rgba(120,60,10,.25), 0 8px 24px rgba(0,0,0,.5);}
+  .A .bar{ background:#160f08; box-shadow:inset 0 2px 4px rgba(0,0,0,.6); border:1px solid #3a2a16;}
+  .A .bar.hp .fill{ background:linear-gradient(#ff5a4a,#b41616);}
+  .A .bar.mp .fill{ background:linear-gradient(#5ab8ff,#1f5fc0);}
+  .A .bar.exp .fill{ background:linear-gradient(#ffd166,#e8901f);}
+  .A .bar.mastery .fill{ background:linear-gradient(#ffcf7a,#ff8a1e);}
+  .A .bar .txt .lab,.A .bar .txt .val{ color:#fff7e8; text-shadow:0 1px 2px rgba(0,0,0,.9);}
+  .A .lvl{ font-family:var(--num); background:#1a120c; border:2px solid #c8862a; color:#ffce7a; border-radius:7px; padding:0 10px; height:28px; display:flex; align-items:center; font-size:16px;}
+  .A .hbgroup{ background:linear-gradient(#221811,#160f08); border:2px solid #8a5f2c; box-shadow:inset 0 1px 0 rgba(255,210,140,.1);}
+  .A .slot{ background:#2a1d12; border:2px solid #5a3f1d; box-shadow:inset 0 0 8px rgba(0,0,0,.5);}
+  .A .slot.cd{ border-color:#7a5424;}
+  .A .slot .cdn{ color:#ffce7a;}
+  .A .wslot{ background:#2a1d12; border:2px solid #5a3f1d;}
+  .A .wslot.active{ border-color:#ffb24d; box-shadow:0 0 12px rgba(255,150,40,.55);}
+
+  /* =====================================================================
+     THEME B — RUNED SLATE  (cool blue stone, glowing gold rune filigree)
+     ===================================================================== */
+  .B .minimap{ background:rgba(14,18,30,.85); border:2px solid #4a5b80; box-shadow:inset 0 0 24px rgba(90,140,220,.12), 0 0 0 1px #000;}
+  .B .minimap .mlabel{ color:#d8c87a;}
+  .B .quests{ background:linear-gradient(#141a28,#0e131e); border:1px solid #3a4866; box-shadow:inset 0 0 18px rgba(80,120,200,.1);}
+  .B .quests h4{ color:#e7cf7d;}
+  .B .buff{ background:#121826; border:2px solid #46689e; box-shadow:0 0 8px rgba(90,140,220,.25);}
+  .B .gauge{ background:linear-gradient(#141a28,#0d1119); border:1px solid #3a4866; box-shadow:inset 0 0 16px rgba(90,140,220,.14);}
+  .B .gauge .gl{ color:#e7cf7d;}
+  .B .pip{ background:#161d2c; border:1px solid #34405c;}
+  .B .pip.on{ background:radial-gradient(circle at 40% 35%, #ffe9a6, #e0b94a); border-color:#ffe08a; box-shadow:0 0 10px rgba(255,210,110,.8);}
+  .B .boss{ background:linear-gradient(#1a1320,#0e0a14); border:1px solid #6a3850;}
+  .B .boss .bt{ color:#e7cf7d;}
+  .B .boss .bb i{ background:linear-gradient(#d86aa0,#a01650);}
+  .B .bottom{ padding:11px 13px 13px; border-radius:12px;
+    background:linear-gradient(#151b29 0%,#0e131d 100%);
+    border:1px solid #3c4a6a;
+    box-shadow:inset 0 1px 0 rgba(160,190,240,.12), inset 0 0 34px rgba(40,70,130,.3), 0 8px 24px rgba(0,0,0,.55);}
+  .B .bottom::before{ /* gold filigree top line */ content:""; position:absolute;}
+  .B .bar{ background:#0c111b; box-shadow:inset 0 2px 4px rgba(0,0,0,.6); border:1px solid #29344c;}
+  .B .bar.hp .fill{ background:linear-gradient(#ff7a6a,#c22a3a);}
+  .B .bar.mp .fill{ background:linear-gradient(#7ad0ff,#2a78d8);}
+  .B .bar.exp .fill{ background:linear-gradient(#ffe49a,#d8a83a);}
+  .B .bar.mastery .fill{ background:linear-gradient(#a98aff,#6a48c8);}
+  .B .bar .txt .lab,.B .bar .txt .val{ color:#eef3ff; text-shadow:0 1px 2px rgba(0,0,0,.9);}
+  .B .lvl{ font-family:var(--num); background:#0e131e; border:1px solid #5a6a90; color:#e7cf7d; border-radius:6px; padding:0 10px; height:28px; display:flex; align-items:center; font-size:16px;}
+  .B .hbgroup{ background:linear-gradient(#141a28,#0c111b); border:1px solid #3a4866; box-shadow:inset 0 1px 0 rgba(160,190,240,.1);}
+  .B .slot{ background:#141b2a; border:1px solid #34405c; box-shadow:inset 0 0 8px rgba(0,0,0,.5);}
+  .B .slot .cdn{ color:#e7cf7d;}
+  .B .wslot{ background:#141b2a; border:1px solid #34405c;}
+  .B .wslot.active{ border-color:#e7cf7d; box-shadow:0 0 12px rgba(255,210,110,.5);}
+
+  /* =====================================================================
+     THEME C — MAPLE MODERN  (bright, flat, bold outlines, number-forward)
+     ===================================================================== */
+  .C .minimap{ background:rgba(20,24,40,.9); border:3px solid #11131c; box-shadow:0 4px 0 #11131c, inset 0 0 0 2px #3b6ea5;}
+  .C .minimap .mlabel{ color:#ffe04a;}
+  .C .quests{ background:#1c2236; border:3px solid #11131c; box-shadow:0 4px 0 #11131c;}
+  .C .quests h4{ color:#ffd23b;}
+  .C .buff{ background:#222a42; border:3px solid #11131c; box-shadow:0 3px 0 #11131c;}
+  .C .gauge{ background:#1c2236; border:3px solid #11131c; box-shadow:0 4px 0 #11131c;}
+  .C .gauge .gl{ color:#ffd23b;}
+  .C .pip{ background:#2a3350; border:2px solid #11131c;}
+  .C .pip.on{ background:#ffb02e; border-color:#11131c; box-shadow:0 0 10px rgba(255,176,46,.7);}
+  .C .boss{ background:#2a1530; border:3px solid #11131c; box-shadow:0 4px 0 #11131c;}
+  .C .boss .bt{ color:#ff6db0;}
+  .C .boss .bb{ background:#150709; border:2px solid #11131c;}
+  .C .boss .bb i{ background:linear-gradient(#ff5d7a,#e01644);}
+  .C .bottom{ padding:10px 12px 12px; border-radius:14px;
+    background:#1a2034; border:3px solid #11131c; box-shadow:0 6px 0 #11131c, 0 10px 24px rgba(0,0,0,.5);}
+  .C .bar{ background:#0e1220; border:3px solid #11131c; border-radius:8px;}
+  .C .bar.hp .fill{ background:linear-gradient(#ff5d5d,#e21f3a);}
+  .C .bar.mp .fill{ background:linear-gradient(#3ec6ff,#1a7ce0);}
+  .C .bar.exp .fill{ background:linear-gradient(#ffe24a,#f5b21a);}
+  .C .bar.mastery .fill{ background:repeating-linear-gradient(45deg,#ffc24a 0 10px,#ffb02e 10px 20px);}
+  .C .bar .txt .lab,.C .bar .txt .val{ color:#fff; text-shadow:1px 1px 0 #11131c, -1px 1px 0 #11131c, 1px -1px 0 #11131c, -1px -1px 0 #11131c;}
+  .C .lvl{ font-family:var(--num); background:#ffd23b; color:#11131c; border:3px solid #11131c; border-radius:8px; padding:0 10px; height:28px; display:flex; align-items:center; font-size:18px; font-weight:700;}
+  .C .hbgroup{ background:#222a42; border:3px solid #11131c; box-shadow:0 4px 0 #11131c;}
+  .C .slot{ background:#2a3350; border:3px solid #11131c; border-radius:8px;}
+  .C .slot .key{ color:#ffe04a;}
+  .C .slot .cdn{ color:#fff;}
+  .C .wslot{ background:#2a3350; border:3px solid #11131c; border-radius:8px;}
+  .C .wslot.active{ border-color:#ffd23b; box-shadow:0 0 0 2px #ffd23b, 0 4px 0 #11131c;}
+
+  /* =====================================================================
+     CURRENT (reconstruction of what's in-engine today)
+     ===================================================================== */
+  .CUR .minimap{ background:rgba(13,15,23,.78); border:1px solid rgba(230,217,128,.5);}
+  .CUR .minimap .mlabel{ color:#e6d980;}
+  .CUR .quests{ background:rgba(20,23,31,.82); border:1px solid rgba(90,97,115,.9);}
+  .CUR .quests h4{ color:#ffd95a;}
+  .CUR .buff{ background:#15151b; border:1px solid #444;}
+  .CUR .gauge{ background:rgba(12,15,18,.85); border:2px solid #a6802e;}
+  .CUR .gauge .gl{ color:#ddd;}
+  .CUR .pip{ background:#26262e; border:1px solid #333;}
+  .CUR .pip.on{ background:#ffa726;}
+  .CUR .boss{ background:rgba(20,12,12,.9); border:2px solid #a62e33;}
+  .CUR .boss .bt{ color:#ffd166;}
+  .CUR .boss .bb i{ background:#d91f29;}
+  .CUR .bottom{}
+  .CUR .bar{ background:#262626; border-radius:0;}
+  .CUR .bar.hp .fill{ background:#ff0000;}
+  .CUR .bar.mp .fill{ background:#0000ff;}
+  .CUR .bar.exp .fill{ background:#ffff00;}
+  .CUR .bar.exp .txt .lab{ color:#222;}
+  .CUR .bar.mastery{ display:none;} /* none exists today */
+  .CUR .bar .txt .lab,.CUR .bar .txt .val{ color:#fff; text-shadow:0 0 4px #000;}
+  .CUR .lvl{ background:#131313; border:1px solid #444; color:#ffd95a; padding:0 8px; height:25px; display:flex; align-items:center; font-size:14px;}
+  .CUR .hbgroup{ background:rgba(12,12,12,.94); border:3px solid #dedede;}
+  .CUR .slot{ background:#1a1a21; border:2px solid #4d4d59; border-radius:0;}
+  .CUR .wslot{ background:#1a1a21; border:2px solid #4d4d59; border-radius:0;}
+  .CUR .wslot.active{ border-color:#fff;}
+  .CUR .note{ position:absolute; bottom:13%; left:50%; transform:translateX(-50%);
+     color:#ff9a9a; font-size:13px; background:rgba(0,0,0,.6); padding:3px 10px; border-radius:5px;}
+
+  .foot{ margin-top:30px; color:#7a8090; font-size:13px; max-width:1000px; line-height:1.6;}
+  code{ background:#1c1c24; padding:1px 6px; border-radius:4px; color:#ffce7a; font-size:13px;}
+</style>
+</head>
+<body>
+
+<h1>Emberwilds — Player HUD Redesign</h1>
+<p class="sub">Three themed directions next to a faithful reconstruction of today's HUD. Every mockup shows the full read-out you asked for — <b>Health, Mana, Character EXP, and a Discipline mastery bar</b> — plus the hotbar (2 weapon slots + 5 ability slots) and the supporting widgets (minimap, buffs, quest tracker, boss bar, and the left-edge discipline gauge). Use the tabs to flip between them.</p>
+
+<div class="tabs">
+  <div class="tab active" data-t="CUR">● Current (in-engine)</div>
+  <div class="tab" data-t="A">A — Ember Hearth</div>
+  <div class="tab" data-t="B">B — Runed Slate</div>
+  <div class="tab" data-t="C">C — Maple Modern</div>
+</div>
+
+<!-- ============================ TEMPLATE BUILT 4x via JS ============================ -->
+<div id="mount"></div>
+
+<p class="foot">
+  Mockups are hand-built HTML/CSS reconstructions from the live scene data in <code>local_player_ui.tscn</code> — fonts approximate <code>PixelOperator8</code>. Colors, bar layout, and widget placement mirror the real nodes. The <b>Discipline mastery bar</b> is new (no mastery bar exists in the HUD today — it lives only in the dead <code>stats_window.gd</code>); each direction shows where it would sit. Nothing here is wired to the engine yet — pick a direction and I'll build it in Godot StyleBoxFlat (Maple Modern is the cheapest to ship; Ember Hearth / Runed Slate may want a few 9-slice textures).
+</p>
+
+<script>
+function stage(theme){
+  // shared inner markup for one game screen
+  return `
+  <div class="stage ${theme}">
+    <div class="hills"></div>
+    <div class="ground"></div>
+    <span class="ember" style="left:30%;bottom:48%"></span>
+    <span class="ember" style="left:70%;bottom:55%"></span>
+    <span class="ember" style="left:55%;bottom:42%"></span>
+    <div class="hero"></div>
+    <div class="mob"><div class="hpm"><i></i></div></div>
+
+    <!-- top-left minimap -->
+    <div class="z tl">
+      <div class="minimap">
+        <span class="mlabel">MEADOW PATH</span>
+        <span class="dot" style="background:#ffe04a;left:46%;top:60%"></span>
+        <span class="dot" style="background:#5ab0ff;left:30%;top:50%"></span>
+        <span class="dot" style="background:#b0b0b8;left:60%;top:66%"></span>
+        <span class="dot" style="background:#ff5a5a;left:66%;top:58%"></span>
+        <span class="dot" style="background:#5aff7a;left:86%;top:44%"></span>
+      </div>
+    </div>
+
+    <!-- top-right buffs + quests -->
+    <div class="z tr" style="text-align:right">
+      <div class="buffs" style="justify-content:flex-end">
+        <div class="buff">⚔<small>0:42</small></div>
+        <div class="buff">🛡<small>0:18</small></div>
+        <div class="buff">🔥<small>0:09</small></div>
+      </div>
+      <div class="quests">
+        <h4>◆ QUESTS</h4>
+        <div class="q">Cinders on the Path</div>
+        <div class="o done">Reach the Meadow gate</div>
+        <div class="o">Slay Ember Voles &nbsp;3/5</div>
+      </div>
+    </div>
+
+    <!-- top-center boss bar -->
+    <div class="z tc">
+      <div class="boss">
+        <div class="bt">⟡ THE WARLORD ⟡</div>
+        <div class="bb"><i></i></div>
+      </div>
+    </div>
+
+    <!-- left discipline gauge -->
+    <div class="z lc">
+      <div class="gauge">
+        <div class="gl">COMBO</div>
+        <div class="pips">
+          <span class="pip on"></span>
+          <span class="pip on"></span>
+          <span class="pip"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- bottom cluster -->
+    <div class="z bc">
+      <div class="bottom">
+        <div class="bars">
+          <!-- HP + MP on top -->
+          <div class="barRow">
+            <div class="bar hp"><div class="fill" style="width:72%"></div>
+              <div class="txt"><span class="lab">HP</span><span class="val">1,840 / 2,560</span></div></div>
+            <div class="bar mp"><div class="fill" style="width:54%"></div>
+              <div class="txt"><span class="lab">MP</span><span class="val">270 / 500</span></div></div>
+          </div>
+          <!-- EXP below, full width -->
+          <div class="barRow">
+            <div class="lvl">LV&nbsp;<b>24</b></div>
+            <div class="bar exp"><div class="fill" style="width:38%"></div>
+              <div class="txt"><span class="lab">EXP</span><span class="val">38%</span></div></div>
+          </div>
+          <!-- Discipline mastery below EXP -->
+          <div class="barRow">
+            <div class="bar mastery"><div class="fill" style="width:61%"></div>
+              <div class="txt"><span class="lab">⚔ SWORD MASTERY · 14</span><span class="val">61%</span></div></div>
+          </div>
+        </div>
+
+        <!-- hotbar -->
+        <div class="hotbarRow">
+          <div class="hbgroup">
+            <div class="wslot active">🗡<span class="wkey">Q</span></div>
+            <div class="wslot">🏹<span class="wkey">E</span></div>
+          </div>
+          <div class="hbgroup">
+            <div class="slot"><span class="key">1</span>⚡</div>
+            <div class="slot cd"><span class="key">2</span><span class="cdn">3</span>💥</div>
+            <div class="slot"><span class="key">3</span>🌀</div>
+            <div class="slot"><span class="key">4</span>🛡</div>
+            <div class="slot"><span class="key">5</span>🔥</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    ${theme==='CUR' ? '<div class="note">⚠ no discipline-mastery bar exists today · flat red/blue/yellow bars · bright grey hotbar border</div>' : ''}
+  </div>`;
+}
+
+const blurbs = {
+  CUR: `<span class="pill">baseline</span> What ships today: two flat <b>pure-red / pure-blue</b> bars split around bottom-center, a <b>pure-yellow</b> EXP bar, and a hotbar with a stark <b>bright-grey 3px border</b> that doesn't match anything else. No mastery bar. Reads like a functional debug UI — none of the Emberwilds warmth.`,
+  A: `<span class="pill">recommended for lore fit</span> <b>Ember Hearth</b> — forged-bronze plates, warm wood-dark panels, amber rim-light and a soft ember glow on active elements. HP is an ember-crimson, MP a cool arcane blue, EXP & mastery share the signature amber-gold. Feels like a lantern lit against the dark wild. Reuses the existing per-weapon palette (sword=amber, bow=steel, staff=purple, dagger=violet) as the gauge accent.`,
+  B: `<span class="pill">"the ruins you climb toward"</span> <b>Runed Slate</b> — cool blue-slate stone with thin gold filigree and glowing rune accents. Higher-fantasy, a touch more austere; the discipline gauge and level chip glow gold like lit runes. Mastery bar carries the discipline's own color (shown here in staff-purple to demonstrate the per-weapon tint).`,
+  C: `<span class="pill">cheapest to ship</span> <b>Maple Modern</b> — bright, flat, chunky black outlines with a hard drop-shadow, big number-forward values. Closest to MapleStory's cheerful readability and trivial to build with Godot <code>StyleBoxFlat</code> (no texture art needed). Mastery bar uses a candy-stripe fill so it reads distinct from EXP at a glance.`
+};
+
+const mount = document.getElementById('mount');
+['CUR','A','B','C'].forEach((t,i)=>{
+  const wrap = document.createElement('div');
+  wrap.className = 'stageWrap'+(i===0?' show':'');
+  wrap.dataset.w = t;
+  wrap.innerHTML = stage(t) + `<div class="caption">${blurbs[t]}</div>`;
+  mount.appendChild(wrap);
+});
+
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    tab.classList.add('active');
+    const t = tab.dataset.t;
+    document.querySelectorAll('.stageWrap').forEach(w=>{
+      w.classList.toggle('show', w.dataset.w===t);
+    });
+  });
+});
+</script>
+</body>
+</html>
