@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="ConsumableData" load_steps=4 format=3]
+
+[ext_resource type="Texture2D" uid="uid://b0f14l1auyf4r" path="res://assets/sprites/Items/generated_px/Consumables/Hearthstone.png" id="99_svgicon"]
+[ext_resource type="Script" uid="uid://ubv3mjjv4lvi" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://04d0vey05pky" path="res://scripts/Resources/ItemSystem/Effects/Effect_TownPotion.gd" id="2_effect"]
+
+[resource]
+script = ExtResource("1_script")
+effect_script = ExtResource("2_effect")
+effect_properties = {
+"target_map": "lanterns_rest"
+}
+item_id = "scroll-lanterns-rest-7f3a91c4-2b18-4e90-9d12"
+name = "Lantern's Rest Scroll"
+icon = ExtResource("99_svgicon")
+description = "A return-scroll inked with the lanterns of home. Tears to carry you to Lantern's Rest from anywhere in the wilds."
+item_type = 2
+item_level = -1
+custom_item_value = 150
+can_stack = true
+max_stack_amount = 99
+current_stack_amount = 1

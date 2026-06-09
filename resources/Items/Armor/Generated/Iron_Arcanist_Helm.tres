@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://ceb7qrk1r1bar"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=16 format=3 uid="uid://ceb7qrk1r1bar"]
 
-[ext_resource type="Texture2D" uid="uid://dss2h6udjmpkp" path="res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Arcanist_Helm.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_4cq06"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Arcanist_Helm.png" id="2_70c2n"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_wh042"]
 
 [sub_resource type="Resource" id="Resource_03tql"]
@@ -18,28 +18,83 @@ flat_bonus_value = 13
 
 [sub_resource type="Resource" id="Resource_3v3mr"]
 script = ExtResource("1_4cq06")
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_6sxs0"]
+script = ExtResource("1_4cq06")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_iaiof"]
+script = ExtResource("1_4cq06")
 stat_type = 1
 base_value = 0
 flat_bonus_value = 5
 
-[sub_resource type="Resource" id="Resource_6sxs0"]
+[sub_resource type="Resource" id="Resource_uco44"]
+script = ExtResource("1_4cq06")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_1upuk"]
+script = ExtResource("1_4cq06")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_8dgif"]
+script = ExtResource("1_4cq06")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_lyn5s"]
+script = ExtResource("1_4cq06")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_87uaf"]
+script = ExtResource("1_4cq06")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_ia05l"]
 script = ExtResource("1_4cq06")
 stat_type = 5
 base_value = 0
 flat_bonus_value = 28
 
+[sub_resource type="Resource" id="Resource_0e2x6"]
+script = ExtResource("1_4cq06")
+stat_type = 7
+base_value = 0
+flat_bonus_value = 1
+
 [resource]
 script = ExtResource("3_wh042")
 bonus_stats = Dictionary[int, ExtResource("1_4cq06")]({
-1: SubResource("Resource_3v3mr"),
-5: SubResource("Resource_6sxs0"),
+0: SubResource("Resource_3v3mr"),
+1: SubResource("Resource_iaiof"),
+2: SubResource("Resource_6sxs0"),
+3: SubResource("Resource_uco44"),
+5: SubResource("Resource_ia05l"),
+7: SubResource("Resource_0e2x6"),
 8: SubResource("Resource_03tql"),
-9: SubResource("Resource_s5sx3")
+9: SubResource("Resource_s5sx3"),
+10: SubResource("Resource_8dgif"),
+11: SubResource("Resource_lyn5s"),
+15: SubResource("Resource_1upuk"),
+16: SubResource("Resource_87uaf")
 })
-item_id = "5209751214-0403-147126-145106-14065071109804"
+item_id = "3292710105-051410-29115-75512-08121312312101311314"
 name = "Iron Arcanist Helm"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_70c2n")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
 item_level = 27

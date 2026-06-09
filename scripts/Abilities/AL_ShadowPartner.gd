@@ -12,6 +12,13 @@ func execute(owner_node: Node, ability: AbilityData, level_stats: AbilityLevelDa
 	var duration: float = ability.buff_duration_formula.calculate(level_stats.level)
 	var damage_percent: float = ability.scaling_data.damage_percent_formula.calculate(level_stats.level)
 
+	# Upgrade reads: Lasting/Eternal Shadow extend the duration; Vicious/Savage Shadow
+	# boost the mimic damage. (Swift Shadow's cooldown_flat_reduction is generic.)
+	var ability_comp = owner_node.get("ability_component")
+	if ability_comp and ability != null and ability_comp.has_method("get_ability_upgrade_magnitude"):
+		duration += ability_comp.get_ability_upgrade_magnitude(ability.ability_id, "buff_duration_bonus")
+		damage_percent *= (1.0 + maxf(0.0, ability_comp.get_ability_upgrade_magnitude(ability.ability_id, "shadow_damage_bonus")))
+
 	buff_component.apply_buff("Shadow Partner", owner_node, duration)
 
 	var active_buff = buff_component._active_buffs.get("Shadow Partner")

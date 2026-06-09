@@ -1,14 +1,8 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://bmpt7l2gredjo"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://bmpt7l2gredjo"]
 
-[ext_resource type="Texture2D" uid="uid://bswjtrgb8xftk" path="res://assets/sprites/Items/generated_px/Armor/Generated/Worn_Pathfinder_Mail.png" id="99_svgicon"]
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_oihvn"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_ikjbd"]
-
-[sub_resource type="Resource" id="Resource_2rueg"]
-script = ExtResource("1_oihvn")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 1
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_oihvn"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Worn_Pathfinder_Mail.png" id="2_krwaw"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_ikjbd"]
 
 [sub_resource type="Resource" id="Resource_3lhfs"]
 script = ExtResource("1_oihvn")
@@ -22,9 +16,56 @@ stat_type = 9
 base_value = 0
 flat_bonus_value = 3
 
+[sub_resource type="Resource" id="Resource_2rueg"]
+script = ExtResource("1_oihvn")
+base_value = 0
+flat_bonus_value = 1
+
 [sub_resource type="Resource" id="Resource_pt4bf"]
 script = ExtResource("1_oihvn")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_68njm"]
+script = ExtResource("1_oihvn")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_rvix4"]
+script = ExtResource("1_oihvn")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_34iwf"]
+script = ExtResource("1_oihvn")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_0gr1n"]
+script = ExtResource("1_oihvn")
 stat_type = 10
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_hglun"]
+script = ExtResource("1_oihvn")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_4cwim"]
+script = ExtResource("1_oihvn")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_8r4lt"]
+script = ExtResource("1_oihvn")
+stat_type = 17
 base_value = 0
 flat_bonus_value = 1
 
@@ -32,14 +73,23 @@ flat_bonus_value = 1
 script = ExtResource("3_ikjbd")
 armor_type = 1
 bonus_stats = Dictionary[int, ExtResource("1_oihvn")]({
-2: SubResource("Resource_2rueg"),
+0: SubResource("Resource_2rueg"),
+1: SubResource("Resource_68njm"),
+2: SubResource("Resource_pt4bf"),
+3: SubResource("Resource_rvix4"),
 8: SubResource("Resource_3lhfs"),
 9: SubResource("Resource_dibvk"),
-10: SubResource("Resource_pt4bf")
+10: SubResource("Resource_0gr1n"),
+11: SubResource("Resource_hglun"),
+15: SubResource("Resource_34iwf"),
+16: SubResource("Resource_4cwim"),
+17: SubResource("Resource_8r4lt")
 })
-item_id = "136129010148-45111-00139-213813-0144151151411214105"
+item_id = "132397101513-1065-9996-41100-804454811011149"
 name = "Worn Pathfinder Mail"
-icon = ExtResource("99_svgicon")
+rarity = 0
+icon = ExtResource("2_krwaw")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 1
+custom_item_value = 0

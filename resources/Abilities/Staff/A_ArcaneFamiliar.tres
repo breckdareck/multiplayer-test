@@ -50,6 +50,7 @@ cast_time_formula = SubResource("Resource_cast")
 script = ExtResource("4_ad")
 ability_id = "arcane_familiar_v1"
 ability_name = "Arcane Familiar"
+damage_stat = 13
 description = "Summons a mini arcane wisp for 12 seconds. The familiar auto-casts an Arcane Bolt at nearby enemies for $[damage_percent] magic damage."
 ability_icon = ExtResource("1_icon")
 max_level = 10

@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://beanl2lflu168"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=16 format=3 uid="uid://beanl2lflu168"]
 
-[ext_resource type="Texture2D" uid="uid://by8sqrc780uy6" path="res://assets/sprites/Items/generated_px/Armor/Generated/Worn_Arcanist_Helm.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_lc4h5"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Worn_Arcanist_Helm.png" id="2_142jp"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_hgaje"]
 
 [sub_resource type="Resource" id="Resource_5x5o2"]
@@ -18,28 +18,83 @@ flat_bonus_value = 2
 
 [sub_resource type="Resource" id="Resource_fa745"]
 script = ExtResource("1_lc4h5")
-stat_type = 1
 base_value = 0
 flat_bonus_value = 1
 
 [sub_resource type="Resource" id="Resource_aor8i"]
 script = ExtResource("1_lc4h5")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_6jevo"]
+script = ExtResource("1_lc4h5")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_joh7j"]
+script = ExtResource("1_lc4h5")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_nth41"]
+script = ExtResource("1_lc4h5")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_vj4rd"]
+script = ExtResource("1_lc4h5")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_foq8u"]
+script = ExtResource("1_lc4h5")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_trcqb"]
+script = ExtResource("1_lc4h5")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_ehvfr"]
+script = ExtResource("1_lc4h5")
 stat_type = 5
 base_value = 0
 flat_bonus_value = 5
 
+[sub_resource type="Resource" id="Resource_n82o4"]
+script = ExtResource("1_lc4h5")
+stat_type = 7
+base_value = 0
+flat_bonus_value = 1
+
 [resource]
 script = ExtResource("3_hgaje")
 bonus_stats = Dictionary[int, ExtResource("1_lc4h5")]({
-1: SubResource("Resource_fa745"),
-5: SubResource("Resource_aor8i"),
+0: SubResource("Resource_fa745"),
+1: SubResource("Resource_6jevo"),
+2: SubResource("Resource_aor8i"),
+3: SubResource("Resource_joh7j"),
+5: SubResource("Resource_ehvfr"),
+7: SubResource("Resource_n82o4"),
 8: SubResource("Resource_5x5o2"),
-9: SubResource("Resource_rh1gr")
+9: SubResource("Resource_rh1gr"),
+10: SubResource("Resource_vj4rd"),
+11: SubResource("Resource_foq8u"),
+15: SubResource("Resource_nth41"),
+16: SubResource("Resource_trcqb")
 })
-item_id = "051541515015-012315-014145-144137-632111415261170"
+item_id = "1318395151-15249-10141412-10738-1012130113135154114"
 name = "Worn Arcanist Helm"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_142jp")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
 item_level = 1

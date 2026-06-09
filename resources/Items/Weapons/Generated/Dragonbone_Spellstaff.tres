@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://c3vlo1pn338q3"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=7 format=3 uid="uid://c3vlo1pn338q3"]
 
-[ext_resource type="Texture2D" uid="uid://erx6dwjyuede" path="res://assets/sprites/Items/generated_px/Weapons/Generated/Dragonbone_Spellstaff.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_ceo8l"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_hvveu"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Weapons/Generated/Dragonbone_Spellstaff.png" id="2_hvveu"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_q6bao"]
 
 [sub_resource type="Resource" id="Resource_ny1n2"]
@@ -23,11 +22,6 @@ stat_type = 5
 base_value = 0
 flat_bonus_value = 98
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_qkbq1"]
-atlas = ExtResource("2_hvveu")
-region = Rect2(10, 17, 4, 11)
-margin = Rect2(3.5, 0, 7, 0)
-
 [resource]
 script = ExtResource("3_q6bao")
 weapon_type = 2
@@ -38,10 +32,10 @@ bonus_stats = Dictionary[int, ExtResource("1_ceo8l")]({
 5: SubResource("Resource_apa2c"),
 13: SubResource("Resource_ny1n2")
 })
-item_id = "610139521310-1171513-159013-8886-1331427997121100"
+item_id = "2112668012-139310-75135-15206-3154156918127122"
 name = "Dragonbone Spellstaff"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_hvveu")
 description = "A conduit of arcane power wielded by Mages."
 item_type = 1
 item_level = 77

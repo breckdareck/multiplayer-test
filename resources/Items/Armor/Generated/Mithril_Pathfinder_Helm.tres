@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://drouamtt2u1yh"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://drouamtt2u1yh"]
 
-[ext_resource type="Texture2D" uid="uid://80dvwg7er1fa" path="res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Pathfinder_Helm.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_22etv"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Pathfinder_Helm.png" id="2_fj5bo"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_r7u70"]
 
 [sub_resource type="Resource" id="Resource_htwjg"]
@@ -18,28 +18,76 @@ flat_bonus_value = 16
 
 [sub_resource type="Resource" id="Resource_4ool3"]
 script = ExtResource("1_22etv")
-stat_type = 2
 base_value = 0
-flat_bonus_value = 8
+flat_bonus_value = 3
 
 [sub_resource type="Resource" id="Resource_fbgok"]
+script = ExtResource("1_22etv")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 7
+
+[sub_resource type="Resource" id="Resource_ic2nn"]
+script = ExtResource("1_22etv")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_me7eq"]
+script = ExtResource("1_22etv")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_615qn"]
+script = ExtResource("1_22etv")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_7bdjb"]
 script = ExtResource("1_22etv")
 stat_type = 10
 base_value = 0
 flat_bonus_value = 2
 
+[sub_resource type="Resource" id="Resource_qbn1j"]
+script = ExtResource("1_22etv")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_bs51t"]
+script = ExtResource("1_22etv")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_e0b2w"]
+script = ExtResource("1_22etv")
+stat_type = 17
+base_value = 0
+flat_bonus_value = 1
+
 [resource]
 script = ExtResource("3_r7u70")
 bonus_stats = Dictionary[int, ExtResource("1_22etv")]({
-2: SubResource("Resource_4ool3"),
+0: SubResource("Resource_4ool3"),
+1: SubResource("Resource_ic2nn"),
+2: SubResource("Resource_fbgok"),
+3: SubResource("Resource_me7eq"),
 8: SubResource("Resource_htwjg"),
 9: SubResource("Resource_ofaof"),
-10: SubResource("Resource_fbgok")
+10: SubResource("Resource_7bdjb"),
+11: SubResource("Resource_qbn1j"),
+15: SubResource("Resource_615qn"),
+16: SubResource("Resource_bs51t"),
+17: SubResource("Resource_e0b2w")
 })
-item_id = "01431205129-12613-21407-2186-12101311153131051012"
+item_id = "1111413410100-15539-69103-01227-53120414011314140"
 name = "Mithril Pathfinder Helm"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_fj5bo")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 43

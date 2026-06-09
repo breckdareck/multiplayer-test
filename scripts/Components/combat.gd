@@ -651,6 +651,13 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 			else:
 				owner_node.remove_meta("smoke_inside_crit_until_ms")  # stale, clean up
 
+		# Evasion payoff — a dodge (enemy_base sets evasion_crit_until_ms) primes the
+		# rogue's next strike to crit. One-shot: consumed whether or not it's still fresh.
+		if not is_crit and owner_node.has_meta("evasion_crit_until_ms"):
+			if Time.get_ticks_msec() < int(owner_node.get_meta("evasion_crit_until_ms")):
+				is_crit = true
+			owner_node.remove_meta("evasion_crit_until_ms")
+
 		if is_crit:
 			var crit_damage_bonus = _stats_component.stats.get(Constants.StatType.CRITDAMAGE).total_value
 			var crit_multiplier = randf_range(1.2, 1.5) + (crit_damage_bonus / 100.0)

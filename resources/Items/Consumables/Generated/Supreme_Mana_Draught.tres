@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="ConsumableData" load_steps=4 format=3 uid="uid://du18ipmsccmp1"]
 
-[ext_resource type="Texture2D" uid="uid://4twp8nbd7yev" path="res://assets/sprites/Items/generated_px/Consumables/Generated/Supreme_Mana_Draught.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/Effects/Effect_RestoreMana.gd" id="1_4cd6c"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Consumables/Generated/Supreme_Mana_Draught.png" id="2_ew1d7"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="3_lae7q"]
 
 [resource]
@@ -10,9 +10,9 @@ effect_script = ExtResource("1_4cd6c")
 effect_properties = {
 "regain_amount": 1200
 }
-item_id = "15401113552-114149-1115136-9870-7129641514120131213"
+item_id = "08651331212-80157-61412-21281-74314101131360120"
 name = "Supreme Mana Draught"
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_ew1d7")
 description = "Restores 1200 MP when consumed."
 item_type = 2
 item_level = -1

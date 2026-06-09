@@ -6,6 +6,6 @@
 script = ExtResource("1_aud")
 upgrade_id = "eva_t1_lithe"
 upgrade_name = "Lithe"
-description = "Increases Evasion's Defense bonus by +2."
+description = "Increases Evasion's Evasion Chance bonus by +3."
 effect_key = "passive_stat_flat_bonus"
-magnitude = 2.0
+magnitude = 3.0

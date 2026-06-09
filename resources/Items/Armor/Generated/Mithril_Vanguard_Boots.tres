@@ -1,48 +1,94 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://cbwjkuhtpirnr"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://cbwjkuhtpirnr"]
 
-[ext_resource type="Texture2D" uid="uid://cymauadwcekr0" path="res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Vanguard_Boots.png" id="99_svgicon"]
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_a310i"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_txbd5"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_txbd5"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Vanguard_Boots.png" id="2_sk3ad"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_dvet8"]
 
-[sub_resource type="Resource" id="Resource_sk3ad"]
-script = ExtResource("1_a310i")
+[sub_resource type="Resource" id="Resource_5140k"]
+script = ExtResource("1_txbd5")
 stat_type = 8
 base_value = 0
 flat_bonus_value = 17
 
-[sub_resource type="Resource" id="Resource_dvet8"]
-script = ExtResource("1_a310i")
+[sub_resource type="Resource" id="Resource_kiq4y"]
+script = ExtResource("1_txbd5")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 11
 
-[sub_resource type="Resource" id="Resource_5140k"]
-script = ExtResource("1_a310i")
+[sub_resource type="Resource" id="Resource_c0uar"]
+script = ExtResource("1_txbd5")
 base_value = 0
 flat_bonus_value = 6
 
-[sub_resource type="Resource" id="Resource_kiq4y"]
-script = ExtResource("1_a310i")
+[sub_resource type="Resource" id="Resource_xqhrp"]
+script = ExtResource("1_txbd5")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_yphf1"]
+script = ExtResource("1_txbd5")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_mkcar"]
+script = ExtResource("1_txbd5")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_58fmw"]
+script = ExtResource("1_txbd5")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="Resource" id="Resource_qsa3y"]
+script = ExtResource("1_txbd5")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_cpfa8"]
+script = ExtResource("1_txbd5")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_kly83"]
+script = ExtResource("1_txbd5")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_hx4y8"]
+script = ExtResource("1_txbd5")
 stat_type = 4
 base_value = 0
 flat_bonus_value = 43
 
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_c0uar"]
-load_path = "res://.godot/imported/Eqp_Leather_Sandals.png-23f0cc5f3f25b855dccf580eeba0d806.ctex"
-
 [resource]
-script = ExtResource("2_txbd5")
+script = ExtResource("3_dvet8")
 armor_type = 3
-bonus_stats = Dictionary[int, ExtResource("1_a310i")]({
-0: SubResource("Resource_5140k"),
-4: SubResource("Resource_kiq4y"),
-8: SubResource("Resource_sk3ad"),
-9: SubResource("Resource_dvet8")
+bonus_stats = Dictionary[int, ExtResource("1_txbd5")]({
+0: SubResource("Resource_c0uar"),
+1: SubResource("Resource_yphf1"),
+2: SubResource("Resource_xqhrp"),
+3: SubResource("Resource_mkcar"),
+4: SubResource("Resource_hx4y8"),
+8: SubResource("Resource_5140k"),
+9: SubResource("Resource_kiq4y"),
+10: SubResource("Resource_qsa3y"),
+11: SubResource("Resource_cpfa8"),
+15: SubResource("Resource_58fmw"),
+16: SubResource("Resource_kly83")
 })
-item_id = "13621051247-31129-3141514-71245-1221023713011468"
+item_id = "9153121110136-90914-1415142-128121-11110581412125122"
 name = "Mithril Vanguard Boots"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_sk3ad")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 43

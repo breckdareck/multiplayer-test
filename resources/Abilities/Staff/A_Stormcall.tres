@@ -55,6 +55,7 @@ cast_time_formula = SubResource("Resource_cast")
 script = ExtResource("4_ad")
 ability_id = "stormcall_v1"
 ability_name = "Stormcall"
+damage_stat = 13
 description = "Channel for 3 seconds. Lightning randomly strikes nearby enemies every half-second for $[damage_percent] magic damage. The staff's heaviest sustain."
 ability_icon = ExtResource("1_icon")
 max_level = 10

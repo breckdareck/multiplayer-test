@@ -1,49 +1,101 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://tljig1d77rbj"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=16 format=3 uid="uid://tljig1d77rbj"]
 
-[ext_resource type="Texture2D" uid="uid://dffjjqtdwkssy" path="res://assets/sprites/Items/generated_px/Armor/Generated/Worn_Arcanist_Boots.png" id="99_svgicon"]
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_7cruu"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_gtgow"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_gtgow"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Worn_Arcanist_Boots.png" id="2_l5xa5"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_k31hf"]
 
-[sub_resource type="Resource" id="Resource_l5xa5"]
-script = ExtResource("1_7cruu")
+[sub_resource type="Resource" id="Resource_r72h4"]
+script = ExtResource("1_gtgow")
 stat_type = 8
 base_value = 0
 flat_bonus_value = 1
 
-[sub_resource type="Resource" id="Resource_k31hf"]
-script = ExtResource("1_7cruu")
+[sub_resource type="Resource" id="Resource_pftfo"]
+script = ExtResource("1_gtgow")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 2
 
-[sub_resource type="Resource" id="Resource_r72h4"]
-script = ExtResource("1_7cruu")
+[sub_resource type="Resource" id="Resource_7c0h8"]
+script = ExtResource("1_gtgow")
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_3her7"]
+script = ExtResource("1_gtgow")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_qx8n2"]
+script = ExtResource("1_gtgow")
 stat_type = 1
 base_value = 0
 flat_bonus_value = 1
 
-[sub_resource type="Resource" id="Resource_pftfo"]
-script = ExtResource("1_7cruu")
+[sub_resource type="Resource" id="Resource_y2fcq"]
+script = ExtResource("1_gtgow")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_hebia"]
+script = ExtResource("1_gtgow")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_7yjsm"]
+script = ExtResource("1_gtgow")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_c6kep"]
+script = ExtResource("1_gtgow")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_u34xe"]
+script = ExtResource("1_gtgow")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_gwltn"]
+script = ExtResource("1_gtgow")
 stat_type = 5
 base_value = 0
 flat_bonus_value = 4
 
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_7c0h8"]
-load_path = "res://.godot/imported/Eqp_Leather_Sandals.png-23f0cc5f3f25b855dccf580eeba0d806.ctex"
+[sub_resource type="Resource" id="Resource_yf723"]
+script = ExtResource("1_gtgow")
+stat_type = 7
+base_value = 0
+flat_bonus_value = 1
 
 [resource]
-script = ExtResource("2_gtgow")
+script = ExtResource("3_k31hf")
 armor_type = 3
-bonus_stats = Dictionary[int, ExtResource("1_7cruu")]({
-1: SubResource("Resource_r72h4"),
-5: SubResource("Resource_pftfo"),
-8: SubResource("Resource_l5xa5"),
-9: SubResource("Resource_k31hf")
+bonus_stats = Dictionary[int, ExtResource("1_gtgow")]({
+0: SubResource("Resource_7c0h8"),
+1: SubResource("Resource_qx8n2"),
+2: SubResource("Resource_3her7"),
+3: SubResource("Resource_y2fcq"),
+5: SubResource("Resource_gwltn"),
+7: SubResource("Resource_yf723"),
+8: SubResource("Resource_r72h4"),
+9: SubResource("Resource_pftfo"),
+10: SubResource("Resource_7yjsm"),
+11: SubResource("Resource_c6kep"),
+15: SubResource("Resource_hebia"),
+16: SubResource("Resource_u34xe")
 })
-item_id = "214441414715-113148-11665-151812-76167412141412123"
+item_id = "78115015110-121120-61430-86114-1315461210893902"
 name = "Worn Arcanist Boots"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_l5xa5")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
 item_level = 1

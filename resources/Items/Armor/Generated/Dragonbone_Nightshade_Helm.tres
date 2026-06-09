@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://cx3yco3tlsu3p"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://cx3yco3tlsu3p"]
 
-[ext_resource type="Texture2D" uid="uid://cnic8pgdry2p6" path="res://assets/sprites/Items/generated_px/Armor/Generated/Dragonbone_Nightshade_Helm.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_5ju7f"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Dragonbone_Nightshade_Helm.png" id="2_cg0rx"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_7pc2c"]
 
 [sub_resource type="Resource" id="Resource_fyqm2"]
@@ -18,28 +18,76 @@ flat_bonus_value = 27
 
 [sub_resource type="Resource" id="Resource_ogwd8"]
 script = ExtResource("1_5ju7f")
-stat_type = 3
 base_value = 0
-flat_bonus_value = 14
+flat_bonus_value = 4
 
 [sub_resource type="Resource" id="Resource_i6odn"]
 script = ExtResource("1_5ju7f")
-stat_type = 11
+stat_type = 2
 base_value = 0
 flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_ucm3v"]
+script = ExtResource("1_5ju7f")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_k7kl2"]
+script = ExtResource("1_5ju7f")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 12
+
+[sub_resource type="Resource" id="Resource_52o8j"]
+script = ExtResource("1_5ju7f")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="Resource" id="Resource_1br24"]
+script = ExtResource("1_5ju7f")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_600y5"]
+script = ExtResource("1_5ju7f")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 6
+
+[sub_resource type="Resource" id="Resource_omgus"]
+script = ExtResource("1_5ju7f")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_xgea3"]
+script = ExtResource("1_5ju7f")
+stat_type = 17
+base_value = 0
+flat_bonus_value = 2
 
 [resource]
 script = ExtResource("3_7pc2c")
 bonus_stats = Dictionary[int, ExtResource("1_5ju7f")]({
-3: SubResource("Resource_ogwd8"),
+0: SubResource("Resource_ogwd8"),
+1: SubResource("Resource_ucm3v"),
+2: SubResource("Resource_i6odn"),
+3: SubResource("Resource_k7kl2"),
 8: SubResource("Resource_fyqm2"),
 9: SubResource("Resource_uqar2"),
-11: SubResource("Resource_i6odn")
+10: SubResource("Resource_1br24"),
+11: SubResource("Resource_600y5"),
+15: SubResource("Resource_52o8j"),
+16: SubResource("Resource_omgus"),
+17: SubResource("Resource_xgea3")
 })
-item_id = "132102143714-3131310-8524-25159-1013363471013913"
+item_id = "111506111135-05213-1015150-110215-53107714590013"
 name = "Dragonbone Nightshade Helm"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_cg0rx")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 77

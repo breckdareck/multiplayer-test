@@ -1,49 +1,94 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://dsu0itc80ivah"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://dsu0itc80ivah"]
 
-[ext_resource type="Texture2D" uid="uid://b60l50wa2u277" path="res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Pathfinder_Boots.png" id="99_svgicon"]
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_oqee6"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_y6gvu"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_y6gvu"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Pathfinder_Boots.png" id="2_y4ypl"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_rshsd"]
 
-[sub_resource type="Resource" id="Resource_y4ypl"]
-script = ExtResource("1_oqee6")
+[sub_resource type="Resource" id="Resource_kqf33"]
+script = ExtResource("1_y6gvu")
 stat_type = 8
 base_value = 0
 flat_bonus_value = 18
 
-[sub_resource type="Resource" id="Resource_rshsd"]
-script = ExtResource("1_oqee6")
+[sub_resource type="Resource" id="Resource_a2823"]
+script = ExtResource("1_y6gvu")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 18
 
-[sub_resource type="Resource" id="Resource_kqf33"]
-script = ExtResource("1_oqee6")
+[sub_resource type="Resource" id="Resource_3j4kf"]
+script = ExtResource("1_y6gvu")
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_ak83y"]
+script = ExtResource("1_y6gvu")
 stat_type = 2
 base_value = 0
-flat_bonus_value = 10
+flat_bonus_value = 8
 
-[sub_resource type="Resource" id="Resource_a2823"]
-script = ExtResource("1_oqee6")
+[sub_resource type="Resource" id="Resource_0gv6p"]
+script = ExtResource("1_y6gvu")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_qg24w"]
+script = ExtResource("1_y6gvu")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_58377"]
+script = ExtResource("1_y6gvu")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_8m1mq"]
+script = ExtResource("1_y6gvu")
 stat_type = 10
 base_value = 0
 flat_bonus_value = 2
 
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_3j4kf"]
-load_path = "res://.godot/imported/Eqp_Leather_Sandals.png-23f0cc5f3f25b855dccf580eeba0d806.ctex"
+[sub_resource type="Resource" id="Resource_onx0u"]
+script = ExtResource("1_y6gvu")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_yx4d2"]
+script = ExtResource("1_y6gvu")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_qvi2k"]
+script = ExtResource("1_y6gvu")
+stat_type = 17
+base_value = 0
+flat_bonus_value = 1
 
 [resource]
-script = ExtResource("2_y6gvu")
+script = ExtResource("3_rshsd")
 armor_type = 3
-bonus_stats = Dictionary[int, ExtResource("1_oqee6")]({
-2: SubResource("Resource_kqf33"),
-8: SubResource("Resource_y4ypl"),
-9: SubResource("Resource_rshsd"),
-10: SubResource("Resource_a2823")
+bonus_stats = Dictionary[int, ExtResource("1_y6gvu")]({
+0: SubResource("Resource_3j4kf"),
+1: SubResource("Resource_0gv6p"),
+2: SubResource("Resource_ak83y"),
+3: SubResource("Resource_qg24w"),
+8: SubResource("Resource_kqf33"),
+9: SubResource("Resource_a2823"),
+10: SubResource("Resource_8m1mq"),
+11: SubResource("Resource_onx0u"),
+15: SubResource("Resource_58377"),
+16: SubResource("Resource_yx4d2"),
+17: SubResource("Resource_qvi2k")
 })
-item_id = "1315119910116-7526-120128-15111515-15104111541512113110"
+item_id = "121321578130-1750-41266-661514-1012279131098044"
 name = "Pristine Pathfinder Boots"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_y4ypl")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 60

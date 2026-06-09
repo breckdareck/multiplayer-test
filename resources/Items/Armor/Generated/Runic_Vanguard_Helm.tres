@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://bpwe06d8ve3he"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://bpwe06d8ve3he"]
 
-[ext_resource type="Texture2D" uid="uid://dvxf5nggkcyyl" path="res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Vanguard_Helm.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_p3rll"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Vanguard_Helm.png" id="2_rutqs"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_k6r8h"]
 
 [sub_resource type="Resource" id="Resource_uqeob"]
@@ -23,6 +23,48 @@ flat_bonus_value = 11
 
 [sub_resource type="Resource" id="Resource_w03uj"]
 script = ExtResource("1_p3rll")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_q7p8o"]
+script = ExtResource("1_p3rll")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_arbr4"]
+script = ExtResource("1_p3rll")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_efkjm"]
+script = ExtResource("1_p3rll")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 10
+
+[sub_resource type="Resource" id="Resource_otvay"]
+script = ExtResource("1_p3rll")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_veavk"]
+script = ExtResource("1_p3rll")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_wikfc"]
+script = ExtResource("1_p3rll")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_8sqno"]
+script = ExtResource("1_p3rll")
 stat_type = 4
 base_value = 0
 flat_bonus_value = 78
@@ -31,14 +73,21 @@ flat_bonus_value = 78
 script = ExtResource("3_k6r8h")
 bonus_stats = Dictionary[int, ExtResource("1_p3rll")]({
 0: SubResource("Resource_3hps3"),
-4: SubResource("Resource_w03uj"),
+1: SubResource("Resource_q7p8o"),
+2: SubResource("Resource_w03uj"),
+3: SubResource("Resource_arbr4"),
+4: SubResource("Resource_8sqno"),
 8: SubResource("Resource_uqeob"),
-9: SubResource("Resource_7q57r")
+9: SubResource("Resource_7q57r"),
+10: SubResource("Resource_otvay"),
+11: SubResource("Resource_veavk"),
+15: SubResource("Resource_efkjm"),
+16: SubResource("Resource_wikfc")
 })
-item_id = "4111395151313-106215-1514612-0215-1211120468151415"
+item_id = "128117813714-54414-69610-13955-7821569281161212"
 name = "Runic Vanguard Helm"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_rutqs")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 68

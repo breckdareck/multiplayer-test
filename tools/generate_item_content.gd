@@ -38,6 +38,9 @@ const CRITCHANCE := 10
 const CRITDMG := 11
 const WEAPONATK := 12
 const MAGICATK := 13
+const CON := 15
+const ACCURACY := 16
+const EVASION := 17
 
 const WEAPON_DIR := "res://resources/Items/Weapons/Generated/"
 const ARMOR_DIR := "res://resources/Items/Armor/Generated/"
@@ -114,7 +117,7 @@ func _generate_weapons() -> void:
 			w.item_level = lv
 			w.rarity = Constants.ItemRarity.COMMON
 			w.description = d["desc"]
-			w.icon = _get_icon(d["icon"])
+			w.icon = _item_icon(w.name, "Weapons/Generated", d["icon"])
 			for st in d["stats"]:
 				w.bonus_stats[st[0]] = _stat(st[0], maxi(1, roundi(st[1] + lv * st[2])))
 			_save(w, WEAPON_DIR + _fname(w.name) + ".tres")
@@ -131,19 +134,28 @@ func _generate_armor() -> void:
 	# bumped across the board (old MDEF was a flat 0.4 slope, now 0.45-0.7) and
 	# Arcanist robes now give magic defense on par with Vanguard plate's armour,
 	# so the magic-defense axis actually matters and scales.
+	# COMMON spread on EVERY piece (dual-discipline support, 2026-06-08): a splash of
+	# all attributes + CON + a little crit/accuracy, so a player running two weapons
+	# (e.g. Staff + Dagger) is never stuck with single-stat gear. Each set then layers
+	# its SIGNATURE on top (its primary attribute heavier + flavour stats incl. EVASION
+	# on light armour). Duplicate stats are summed. [stat, base, per_level].
+	var common := [
+		[STR, 0.4, 0.09], [DEX, 0.4, 0.09], [INT, 0.4, 0.09], [LUCK, 0.4, 0.09],
+		[CON, 0.5, 0.10], [CRITCHANCE, 0.3, 0.025], [CRITDMG, 0.25, 0.025], [ACCURACY, 0.3, 0.03],
+	]
 	var sets := [
 		{"name": "Vanguard", "desc": "Heavy plate forged for front-line Swordsmen.",
-		 "theme": [[STR, 1.0, 0.25], [HEALTH, 8.0, 1.8]],
-		 "def": [3.0, 0.7], "mdef": [2.0, 0.45]},      # plate: high armour, low magic resist
+		 "def": [3.0, 0.7], "mdef": [2.0, 0.45],
+		 "sig": [[STR, 0.6, 0.16], [HEALTH, 8.0, 1.8], [CON, 0.5, 0.12]]},      # plate: tanky STR
 		{"name": "Pathfinder", "desc": "Light, flexible armour suited to an Archer's mobility.",
-		 "theme": [[DEX, 1.0, 0.3], [CRITCHANCE, 1.0, 0.05]],
-		 "def": [2.5, 0.55], "mdef": [2.5, 0.55]},      # leather: balanced
+		 "def": [2.5, 0.55], "mdef": [2.5, 0.55],
+		 "sig": [[DEX, 0.6, 0.16], [CRITCHANCE, 0.6, 0.04], [CRITDMG, 0.4, 0.035], [EVASION, 0.5, 0.04], [ACCURACY, 0.5, 0.06]]},  # light: agile crit
 		{"name": "Arcanist", "desc": "Enchanted vestments that channel a Mage's power.",
-		 "theme": [[INT, 1.0, 0.3], [MANA, 6.0, 1.5]],
-		 "def": [2.0, 0.45], "mdef": [3.0, 0.7]},       # robes: high magic resist, low armour
+		 "def": [2.0, 0.45], "mdef": [3.0, 0.7],
+		 "sig": [[INT, 0.6, 0.16], [MANA, 6.0, 1.5], [MPREGEN, 0.3, 0.06]]},     # robes: caster
 		{"name": "Nightshade", "desc": "Shadowy garb tailored for a Rogue's deadly craft.",
-		 "theme": [[LUCK, 1.0, 0.3], [CRITDMG, 1.0, 0.08]],
-		 "def": [2.5, 0.55], "mdef": [2.5, 0.55]},      # cloth/leather: balanced
+		 "def": [2.5, 0.55], "mdef": [2.5, 0.55],
+		 "sig": [[LUCK, 0.6, 0.16], [CRITDMG, 1.0, 0.08], [CRITCHANCE, 0.4, 0.03], [EVASION, 0.5, 0.04]]},  # light: evasive crit
 	]
 	var slots := [
 		{"atype": 0, "noun": "Helm", "weight": 0.6, "icon": "armor0"},
@@ -164,11 +176,18 @@ func _generate_armor() -> void:
 				a.item_level = lv
 				a.rarity = Constants.ItemRarity.COMMON
 				a.description = s["desc"]
-				a.icon = _get_icon(slot["icon"])
+				a.icon = _item_icon(a.name, "Armor/Generated", slot["icon"])
 				a.bonus_stats[DEF] = _stat(DEF, maxi(1, roundi((s["def"][0] + lv * s["def"][1]) * wgt)))
 				a.bonus_stats[MDEF] = _stat(MDEF, maxi(1, roundi((s["mdef"][0] + lv * s["mdef"][1]) * wgt)))
-				for t in s["theme"]:
-					a.bonus_stats[t[0]] = _stat(t[0], maxi(1, roundi((t[1] + lv * t[2]) * wgt)))
+				# Accumulate COMMON + this set's SIGNATURE, summing any stat in both,
+				# then write each as a flat bonus scaled by the slot weight.
+				var acc := {}
+				for t in common:
+					acc[t[0]] = float(acc.get(t[0], 0.0)) + (t[1] + lv * t[2])
+				for t in s["sig"]:
+					acc[t[0]] = float(acc.get(t[0], 0.0)) + (t[1] + lv * t[2])
+				for stat_id in acc:
+					a.bonus_stats[stat_id] = _stat(stat_id, maxi(1, roundi(acc[stat_id] * wgt)))
 				_save(a, ARMOR_DIR + _fname(a.name) + ".tres")
 				_counts["armor"] += 1
 				_make_drop_table(a, _equip_drop_chance(lv), true)
@@ -200,7 +219,7 @@ func _make_consumable(cname: String, icon: String, effect: Script, prop: String,
 	c.custom_item_value = value
 	c.rarity = Constants.ItemRarity.COMMON
 	c.description = desc
-	c.icon = _get_icon(icon)
+	c.icon = _item_icon(c.name, "Consumables/Generated", icon)
 	c.effect_script = effect
 	c.effect_properties = {prop: amount}
 	c.can_stack = true
@@ -273,7 +292,7 @@ func _make_unique_weapon(uname: String, wtype: int, speed: int, lv: int,
 	w.item_level = lv
 	w.rarity = Constants.ItemRarity.LEGENDARY
 	w.description = desc
-	w.icon = _get_icon(icon)
+	w.icon = _item_icon(w.name, "Unique", icon)
 	for k in stats:
 		w.bonus_stats[k] = _stat(k, stats[k])
 	_save(w, UNIQUE_DIR + _fname(uname) + ".tres")
@@ -291,7 +310,7 @@ func _make_unique_armor(uname: String, atype: int, lv: int, icon: String,
 	a.item_level = lv
 	a.rarity = Constants.ItemRarity.LEGENDARY
 	a.description = desc
-	a.icon = _get_icon(icon)
+	a.icon = _item_icon(a.name, "Unique", icon)
 	for k in stats:
 		a.bonus_stats[k] = _stat(k, stats[k])
 	_save(a, UNIQUE_DIR + _fname(uname) + ".tres")
@@ -335,6 +354,20 @@ func _stat(stat_type: int, amount: int) -> StatData:
 	s.base_value = 0
 	s.flat_bonus_value = amount
 	return s
+
+
+## Per-item icon: load the item's matching generated_px PNG by name as a PATH
+## reference (which survives re-runs and serialises as an ext_resource), falling
+## back to the generic source icon only if that item has no PNG yet. Replaces the
+## old behaviour where every regen embedded a generic DUPLICATE texture and so
+## clobbered the wired per-item sprites.
+func _item_icon(item_name: String, subdir: String, fallback_key: String) -> Texture2D:
+	var png := "res://assets/sprites/Items/generated_px/%s/%s.png" % [subdir, _fname(item_name)]
+	if ResourceLoader.exists(png):
+		var tex = load(png)
+		if tex is Texture2D:
+			return tex
+	return _get_icon(fallback_key)
 
 
 func _get_icon(key: String) -> Texture2D:

@@ -6,7 +6,7 @@
 script = ExtResource("1_aud")
 upgrade_id = "eva_t2_slippery"
 upgrade_name = "Slippery"
-description = "Increases Evasion's Defense bonus by +3."
+description = "Increases Evasion's Evasion Chance bonus by +4."
 tier = 2
 effect_key = "passive_stat_flat_bonus"
-magnitude = 3.0
+magnitude = 4.0

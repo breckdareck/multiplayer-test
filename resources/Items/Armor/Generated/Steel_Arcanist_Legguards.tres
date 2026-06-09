@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://ceaul4ktillv4"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=16 format=3 uid="uid://ceaul4ktillv4"]
 
-[ext_resource type="Texture2D" uid="uid://dil7yksddbfua" path="res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Arcanist_Legguards.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_whepr"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_7ses6"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Arcanist_Legguards.png" id="2_7ses6"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_i2yj2"]
 
 [sub_resource type="Resource" id="Resource_oexgf"]
@@ -19,34 +18,84 @@ flat_bonus_value = 22
 
 [sub_resource type="Resource" id="Resource_5tg0r"]
 script = ExtResource("1_whepr")
-stat_type = 1
 base_value = 0
-flat_bonus_value = 9
+flat_bonus_value = 3
 
 [sub_resource type="Resource" id="Resource_vxd4x"]
+script = ExtResource("1_whepr")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_opp5j"]
+script = ExtResource("1_whepr")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 8
+
+[sub_resource type="Resource" id="Resource_j2ka3"]
+script = ExtResource("1_whepr")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_pqygp"]
+script = ExtResource("1_whepr")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_eeufs"]
+script = ExtResource("1_whepr")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_1mkoc"]
+script = ExtResource("1_whepr")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_hej1f"]
+script = ExtResource("1_whepr")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_28e4e"]
 script = ExtResource("1_whepr")
 stat_type = 5
 base_value = 0
 flat_bonus_value = 47
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_opp5j"]
-atlas = ExtResource("2_7ses6")
-region = Rect2(0, 0, 25, 16)
-margin = Rect2(0.5, 5.5, 1, 10)
+[sub_resource type="Resource" id="Resource_bchdv"]
+script = ExtResource("1_whepr")
+stat_type = 7
+base_value = 0
+flat_bonus_value = 2
 
 [resource]
 script = ExtResource("3_i2yj2")
 armor_type = 2
 bonus_stats = Dictionary[int, ExtResource("1_whepr")]({
-1: SubResource("Resource_5tg0r"),
-5: SubResource("Resource_vxd4x"),
+0: SubResource("Resource_5tg0r"),
+1: SubResource("Resource_opp5j"),
+2: SubResource("Resource_vxd4x"),
+3: SubResource("Resource_j2ka3"),
+5: SubResource("Resource_28e4e"),
+7: SubResource("Resource_bchdv"),
 8: SubResource("Resource_oexgf"),
-9: SubResource("Resource_3eupp")
+9: SubResource("Resource_3eupp"),
+10: SubResource("Resource_eeufs"),
+11: SubResource("Resource_1mkoc"),
+15: SubResource("Resource_pqygp"),
+16: SubResource("Resource_hej1f")
 })
-item_id = "111512151426-42412-12178-121324-13101514101110510120"
+item_id = "11051261069-9971-87615-11480-5141085112099213"
 name = "Steel Arcanist Legguards"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_7ses6")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
 item_level = 35

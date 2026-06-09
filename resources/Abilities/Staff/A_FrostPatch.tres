@@ -55,6 +55,7 @@ cast_time_formula = SubResource("Resource_cast")
 script = ExtResource("4_ad")
 ability_id = "frost_patch_v1"
 ability_name = "Frost Patch"
+damage_stat = 13
 description = "Cast a patch of frost at your feet for 4 seconds. Enemies inside take $[damage_percent] magic damage per tick and are chilled for 50% slow."
 ability_icon = ExtResource("1_icon")
 max_level = 10

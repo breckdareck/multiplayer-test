@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://buedut2jc1iux"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://buedut2jc1iux"]
 
-[ext_resource type="Texture2D" uid="uid://1m6pejyogh8a" path="res://assets/sprites/Items/generated_px/Armor/Generated/Rough_Vanguard_Mail.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_kqncv"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Rough_Vanguard_Mail.png" id="2_c5cat"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_gofh3"]
 
 [sub_resource type="Resource" id="Resource_ytmew"]
@@ -23,6 +23,48 @@ flat_bonus_value = 3
 
 [sub_resource type="Resource" id="Resource_udxgf"]
 script = ExtResource("1_kqncv")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_rt6pp"]
+script = ExtResource("1_kqncv")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_iem5l"]
+script = ExtResource("1_kqncv")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_e80tw"]
+script = ExtResource("1_kqncv")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_obe40"]
+script = ExtResource("1_kqncv")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_un842"]
+script = ExtResource("1_kqncv")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_6ef3l"]
+script = ExtResource("1_kqncv")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_lfwnw"]
+script = ExtResource("1_kqncv")
 stat_type = 4
 base_value = 0
 flat_bonus_value = 22
@@ -32,14 +74,21 @@ script = ExtResource("3_gofh3")
 armor_type = 1
 bonus_stats = Dictionary[int, ExtResource("1_kqncv")]({
 0: SubResource("Resource_vvsfq"),
-4: SubResource("Resource_udxgf"),
+1: SubResource("Resource_rt6pp"),
+2: SubResource("Resource_udxgf"),
+3: SubResource("Resource_iem5l"),
+4: SubResource("Resource_lfwnw"),
 8: SubResource("Resource_ytmew"),
-9: SubResource("Resource_pvxng")
+9: SubResource("Resource_pvxng"),
+10: SubResource("Resource_obe40"),
+11: SubResource("Resource_un842"),
+15: SubResource("Resource_e80tw"),
+16: SubResource("Resource_6ef3l")
 })
-item_id = "4108091421-14141413-159159-80711-112110036133907"
+item_id = "011110151542-61541-1750-4363-15061511912142394"
 name = "Rough Vanguard Mail"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_c5cat")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 8

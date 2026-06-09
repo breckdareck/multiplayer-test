@@ -50,6 +50,7 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 	var fire_rate: float = FIRE_RATE
 	var extra_count: int = 0
 	var chain: int = 0
+	var damage_bonus: float = 0.0
 	var ability_comp = owner_node.get("ability_component")
 	if ability_comp and _ability != null and ability_comp.has_method("get_ability_upgrade_magnitude"):
 		duration += ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_summon_duration")
@@ -57,19 +58,27 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 		fire_rate = FIRE_RATE / (1.0 + maxf(0.0, fr_bonus))
 		extra_count = int(ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_summon_count"))
 		chain = int(ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_chain_targets"))
+		# Heavy Familiar (T3): +damage to the wisp's bolts.
+		damage_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_damage_mult")
+
+	# Cache the dot_scaling_base anchor (max_range x damage%) on each familiar so its
+	# bolts scale with attributes + mastery + gear, not raw MAGICATTACK.
+	var combat = owner_node.get("combat_component")
+	var dot_base: int = int(combat.dot_scaling_base(_ability) * (1.0 + maxf(0.0, damage_bonus))) if combat != null and is_instance_valid(combat) and combat.has_method("dot_scaling_base") else 0
 
 	for i in range(1 + extra_count):
 		var offset := Vector2(40.0, -20.0) if i == 0 else Vector2(-40.0, -20.0 - 10.0 * i)
-		_spawn_familiar(owner_node, map_inst, offset, duration, fire_rate, chain)
+		_spawn_familiar(owner_node, map_inst, offset, duration, fire_rate, chain, dot_base)
 
 
 ## Spawn one familiar with the resolved duration / fire rate / chain count.
-func _spawn_familiar(owner_node: Node, map_inst: Node, offset: Vector2, duration: float, fire_rate: float, chain: int) -> void:
+func _spawn_familiar(owner_node: Node, map_inst: Node, offset: Vector2, duration: float, fire_rate: float, chain: int, dot_base: int = 0) -> void:
 	var familiar := Node2D.new()
 	familiar.name = "ArcaneFamiliar"
 	familiar.global_position = owner_node.global_position + offset
 	familiar.add_to_group("networked_entities")
 	familiar.set_meta("chain_targets", chain)
+	familiar.set_meta("dot_base", dot_base)
 	map_inst.add_child(familiar)
 
 	var fire_timer := Timer.new()
@@ -100,7 +109,9 @@ func _on_familiar_tick(familiar: Node2D, caster: Node) -> void:
 	if stats == null or not stats.stats.has(Constants.StatType.MAGICATTACK):
 		return
 	var magic_attack: int = int(stats.stats[Constants.StatType.MAGICATTACK].total_value)
-	var damage: int = maxi(1, roundi(magic_attack * BOLT_DAMAGE_PCT))
+	var cached_base: int = int(familiar.get_meta("dot_base", 0))
+	var scale_base: int = cached_base if cached_base > 0 else magic_attack
+	var damage: int = maxi(1, roundi(scale_base * BOLT_DAMAGE_PCT))
 
 	# Gather living enemies on the same map within range, nearest first. Chaining
 	# Familiar (T3) lets each bolt strike 1 + chain_targets enemies.

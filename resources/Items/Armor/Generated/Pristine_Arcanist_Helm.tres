@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://bh6mhnwoks7md"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=16 format=3 uid="uid://bh6mhnwoks7md"]
 
-[ext_resource type="Texture2D" uid="uid://1nhi5opde1w" path="res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Arcanist_Helm.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_plrkt"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Arcanist_Helm.png" id="2_qp7ct"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_s0a2a"]
 
 [sub_resource type="Resource" id="Resource_k0oab"]
@@ -18,28 +18,83 @@ flat_bonus_value = 27
 
 [sub_resource type="Resource" id="Resource_c36xs"]
 script = ExtResource("1_plrkt")
-stat_type = 1
 base_value = 0
-flat_bonus_value = 11
+flat_bonus_value = 3
 
 [sub_resource type="Resource" id="Resource_b50ps"]
+script = ExtResource("1_plrkt")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_gloc4"]
+script = ExtResource("1_plrkt")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 10
+
+[sub_resource type="Resource" id="Resource_7ih8f"]
+script = ExtResource("1_plrkt")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_2rx8b"]
+script = ExtResource("1_plrkt")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_6pfyc"]
+script = ExtResource("1_plrkt")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_jprp7"]
+script = ExtResource("1_plrkt")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_u5mtl"]
+script = ExtResource("1_plrkt")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_33ue7"]
 script = ExtResource("1_plrkt")
 stat_type = 5
 base_value = 0
 flat_bonus_value = 58
 
+[sub_resource type="Resource" id="Resource_p01cj"]
+script = ExtResource("1_plrkt")
+stat_type = 7
+base_value = 0
+flat_bonus_value = 2
+
 [resource]
 script = ExtResource("3_s0a2a")
 bonus_stats = Dictionary[int, ExtResource("1_plrkt")]({
-1: SubResource("Resource_c36xs"),
-5: SubResource("Resource_b50ps"),
+0: SubResource("Resource_c36xs"),
+1: SubResource("Resource_gloc4"),
+2: SubResource("Resource_b50ps"),
+3: SubResource("Resource_7ih8f"),
+5: SubResource("Resource_33ue7"),
+7: SubResource("Resource_p01cj"),
 8: SubResource("Resource_k0oab"),
-9: SubResource("Resource_27si6")
+9: SubResource("Resource_27si6"),
+10: SubResource("Resource_6pfyc"),
+11: SubResource("Resource_jprp7"),
+15: SubResource("Resource_2rx8b"),
+16: SubResource("Resource_u5mtl")
 })
-item_id = "507149425-63125-50011-9059-63131195391114813"
+item_id = "4141514131546-37109-11513-413314-101501041211156131"
 name = "Pristine Arcanist Helm"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_qp7ct")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
 item_level = 60

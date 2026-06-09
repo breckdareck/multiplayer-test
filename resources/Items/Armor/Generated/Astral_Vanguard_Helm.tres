@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://dpbmw434rclny"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://dpbmw434rclny"]
 
-[ext_resource type="Texture2D" uid="uid://iunameiy33gq" path="res://assets/sprites/Items/generated_px/Armor/Generated/Astral_Vanguard_Helm.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_eu006"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Astral_Vanguard_Helm.png" id="2_pwkvs"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_kbh4l"]
 
 [sub_resource type="Resource" id="Resource_0kf1c"]
@@ -23,6 +23,48 @@ flat_bonus_value = 15
 
 [sub_resource type="Resource" id="Resource_kckma"]
 script = ExtResource("1_eu006")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="Resource" id="Resource_t72l4"]
+script = ExtResource("1_eu006")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="Resource" id="Resource_vt317"]
+script = ExtResource("1_eu006")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="Resource" id="Resource_jdk4o"]
+script = ExtResource("1_eu006")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 13
+
+[sub_resource type="Resource" id="Resource_2602b"]
+script = ExtResource("1_eu006")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_1hvgr"]
+script = ExtResource("1_eu006")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_vl62u"]
+script = ExtResource("1_eu006")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_o743w"]
+script = ExtResource("1_eu006")
 stat_type = 4
 base_value = 0
 flat_bonus_value = 105
@@ -31,14 +73,21 @@ flat_bonus_value = 105
 script = ExtResource("3_kbh4l")
 bonus_stats = Dictionary[int, ExtResource("1_eu006")]({
 0: SubResource("Resource_lngq8"),
-4: SubResource("Resource_kckma"),
+1: SubResource("Resource_t72l4"),
+2: SubResource("Resource_kckma"),
+3: SubResource("Resource_vt317"),
+4: SubResource("Resource_o743w"),
 8: SubResource("Resource_0kf1c"),
-9: SubResource("Resource_y06lp")
+9: SubResource("Resource_y06lp"),
+10: SubResource("Resource_2602b"),
+11: SubResource("Resource_1hvgr"),
+15: SubResource("Resource_jdk4o"),
+16: SubResource("Resource_vl62u")
 })
-item_id = "101310515101010-1011120-111614-6130-7410113134145165"
+item_id = "142131414309-138118-2893-1413913-611775313413093"
 name = "Astral Vanguard Helm"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_pwkvs")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 93

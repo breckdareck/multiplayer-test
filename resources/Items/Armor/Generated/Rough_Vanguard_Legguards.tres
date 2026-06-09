@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://crge3k2cc4663"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://crge3k2cc4663"]
 
-[ext_resource type="Texture2D" uid="uid://dhjislpmwb3sx" path="res://assets/sprites/Items/generated_px/Armor/Generated/Rough_Vanguard_Legguards.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_irxyf"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_jt40f"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Rough_Vanguard_Legguards.png" id="2_jt40f"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_23u64"]
 
 [sub_resource type="Resource" id="Resource_b2f33"]
@@ -24,28 +23,72 @@ flat_bonus_value = 2
 
 [sub_resource type="Resource" id="Resource_d46ia"]
 script = ExtResource("1_irxyf")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_auuhb"]
+script = ExtResource("1_irxyf")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_mr2k6"]
+script = ExtResource("1_irxyf")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_tf8ab"]
+script = ExtResource("1_irxyf")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_c05hy"]
+script = ExtResource("1_irxyf")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_lr5yi"]
+script = ExtResource("1_irxyf")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_bdtwh"]
+script = ExtResource("1_irxyf")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_hss3e"]
+script = ExtResource("1_irxyf")
 stat_type = 4
 base_value = 0
 flat_bonus_value = 18
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_auuhb"]
-atlas = ExtResource("2_jt40f")
-region = Rect2(0, 0, 25, 16)
-margin = Rect2(0.5, 5.5, 1, 10)
 
 [resource]
 script = ExtResource("3_23u64")
 armor_type = 2
 bonus_stats = Dictionary[int, ExtResource("1_irxyf")]({
 0: SubResource("Resource_vde6f"),
-4: SubResource("Resource_d46ia"),
+1: SubResource("Resource_auuhb"),
+2: SubResource("Resource_d46ia"),
+3: SubResource("Resource_mr2k6"),
+4: SubResource("Resource_hss3e"),
 8: SubResource("Resource_b2f33"),
-9: SubResource("Resource_0ga6q")
+9: SubResource("Resource_0ga6q"),
+10: SubResource("Resource_c05hy"),
+11: SubResource("Resource_lr5yi"),
+15: SubResource("Resource_tf8ab"),
+16: SubResource("Resource_bdtwh")
 })
-item_id = "1351013145101-341412-3863-11214-551051294612310"
+item_id = "16127413112-4111013-84514-7971-1110113158738141314"
 name = "Rough Vanguard Legguards"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_jt40f")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 8

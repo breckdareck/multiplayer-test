@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://du7fyface5ly0"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://du7fyface5ly0"]
 
-[ext_resource type="Texture2D" uid="uid://bsfc8aqlipyjj" path="res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Pathfinder_Legguards.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_lboj5"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_0aycp"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Pathfinder_Legguards.png" id="2_0aycp"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_225pu"]
 
 [sub_resource type="Resource" id="Resource_iws6k"]
@@ -19,34 +18,77 @@ flat_bonus_value = 21
 
 [sub_resource type="Resource" id="Resource_vbfuq"]
 script = ExtResource("1_lboj5")
-stat_type = 2
 base_value = 0
-flat_bonus_value = 11
+flat_bonus_value = 3
 
 [sub_resource type="Resource" id="Resource_8krcj"]
+script = ExtResource("1_lboj5")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 9
+
+[sub_resource type="Resource" id="Resource_ptaby"]
+script = ExtResource("1_lboj5")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_5pop6"]
+script = ExtResource("1_lboj5")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_8kku8"]
+script = ExtResource("1_lboj5")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_ekehw"]
 script = ExtResource("1_lboj5")
 stat_type = 10
 base_value = 0
 flat_bonus_value = 3
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_ptaby"]
-atlas = ExtResource("2_0aycp")
-region = Rect2(0, 0, 25, 16)
-margin = Rect2(0.5, 5.5, 1, 10)
+[sub_resource type="Resource" id="Resource_xces3"]
+script = ExtResource("1_lboj5")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_5wpb3"]
+script = ExtResource("1_lboj5")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_ln43v"]
+script = ExtResource("1_lboj5")
+stat_type = 17
+base_value = 0
+flat_bonus_value = 2
 
 [resource]
 script = ExtResource("3_225pu")
 armor_type = 2
 bonus_stats = Dictionary[int, ExtResource("1_lboj5")]({
-2: SubResource("Resource_vbfuq"),
+0: SubResource("Resource_vbfuq"),
+1: SubResource("Resource_ptaby"),
+2: SubResource("Resource_8krcj"),
+3: SubResource("Resource_5pop6"),
 8: SubResource("Resource_iws6k"),
 9: SubResource("Resource_y4fjt"),
-10: SubResource("Resource_8krcj")
+10: SubResource("Resource_ekehw"),
+11: SubResource("Resource_xces3"),
+15: SubResource("Resource_8kku8"),
+16: SubResource("Resource_5wpb3"),
+17: SubResource("Resource_ln43v")
 })
-item_id = "9561492131-26112-142107-915310-141211151112101314678"
+item_id = "151531311815-1151511-812315-138915-1421121325150136"
 name = "Mithril Pathfinder Legguards"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_0aycp")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 43

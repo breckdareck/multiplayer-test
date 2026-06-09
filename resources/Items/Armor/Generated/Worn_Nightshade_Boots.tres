@@ -1,49 +1,94 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://dil6pdsxdrb0n"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://dil6pdsxdrb0n"]
 
-[ext_resource type="Texture2D" uid="uid://c3nvjpf70nrkl" path="res://assets/sprites/Items/generated_px/Armor/Generated/Worn_Nightshade_Boots.png" id="99_svgicon"]
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_wgcwc"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_2cb8n"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_2cb8n"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Worn_Nightshade_Boots.png" id="2_1ln5v"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_8hn16"]
 
-[sub_resource type="Resource" id="Resource_1ln5v"]
-script = ExtResource("1_wgcwc")
+[sub_resource type="Resource" id="Resource_0nvbh"]
+script = ExtResource("1_2cb8n")
 stat_type = 8
 base_value = 0
 flat_bonus_value = 2
 
-[sub_resource type="Resource" id="Resource_8hn16"]
-script = ExtResource("1_wgcwc")
+[sub_resource type="Resource" id="Resource_7t02x"]
+script = ExtResource("1_2cb8n")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 2
 
-[sub_resource type="Resource" id="Resource_0nvbh"]
-script = ExtResource("1_wgcwc")
+[sub_resource type="Resource" id="Resource_lin6w"]
+script = ExtResource("1_2cb8n")
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_yhbkr"]
+script = ExtResource("1_2cb8n")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_a5w5b"]
+script = ExtResource("1_2cb8n")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_8t523"]
+script = ExtResource("1_2cb8n")
 stat_type = 3
 base_value = 0
 flat_bonus_value = 1
 
-[sub_resource type="Resource" id="Resource_7t02x"]
-script = ExtResource("1_wgcwc")
+[sub_resource type="Resource" id="Resource_wvat1"]
+script = ExtResource("1_2cb8n")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_201ta"]
+script = ExtResource("1_2cb8n")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_cx02a"]
+script = ExtResource("1_2cb8n")
 stat_type = 11
 base_value = 0
 flat_bonus_value = 1
 
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_lin6w"]
-load_path = "res://.godot/imported/Eqp_Leather_Sandals.png-23f0cc5f3f25b855dccf580eeba0d806.ctex"
+[sub_resource type="Resource" id="Resource_rq0ds"]
+script = ExtResource("1_2cb8n")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_nsm1c"]
+script = ExtResource("1_2cb8n")
+stat_type = 17
+base_value = 0
+flat_bonus_value = 1
 
 [resource]
-script = ExtResource("2_2cb8n")
+script = ExtResource("3_8hn16")
 armor_type = 3
-bonus_stats = Dictionary[int, ExtResource("1_wgcwc")]({
-3: SubResource("Resource_0nvbh"),
-8: SubResource("Resource_1ln5v"),
-9: SubResource("Resource_8hn16"),
-11: SubResource("Resource_7t02x")
+bonus_stats = Dictionary[int, ExtResource("1_2cb8n")]({
+0: SubResource("Resource_lin6w"),
+1: SubResource("Resource_a5w5b"),
+2: SubResource("Resource_yhbkr"),
+3: SubResource("Resource_8t523"),
+8: SubResource("Resource_0nvbh"),
+9: SubResource("Resource_7t02x"),
+10: SubResource("Resource_201ta"),
+11: SubResource("Resource_cx02a"),
+15: SubResource("Resource_wvat1"),
+16: SubResource("Resource_rq0ds"),
+17: SubResource("Resource_nsm1c")
 })
-item_id = "1114455707-11996-151140-134210-3141513115415812211"
+item_id = "2121531217-10298-13587-9738-1210152911151440"
 name = "Worn Nightshade Boots"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_1ln5v")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 1

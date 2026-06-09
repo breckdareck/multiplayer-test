@@ -181,13 +181,17 @@ static func _resolve_icon(item: ItemData) -> Texture2D:
 static func _subtitle_text(item: ItemData) -> String:
 	if item.item_type != Constants.ItemType.EQUIPMENT:
 		return ""
+	# Lead with the item's level (e.g. "Lv 100  —  Mail Armor"). item_level 0 = unset.
+	var lvl := ""
+	if "item_level" in item and item.item_level > 0:
+		lvl = "Lv %d  —  " % item.item_level
 	if item.equipment_type == Constants.EquipmentType.WEAPON:
 		var weapon_name := str(Constants.WeaponType.keys()[item.weapon_type]).capitalize()
 		if "attack_speed" in item:
-			return "%s  —  %s" % [weapon_name, str(item.attack_speed).capitalize()]
-		return weapon_name
+			return "%s%s  —  %s" % [lvl, weapon_name, str(item.attack_speed).capitalize()]
+		return lvl + weapon_name
 	elif item.equipment_type == Constants.EquipmentType.ARMOR:
-		return str(Constants.ArmorType.keys()[item.armor_type]).capitalize() + " Armor"
+		return lvl + str(Constants.ArmorType.keys()[item.armor_type]).capitalize() + " Armor"
 	return ""
 
 

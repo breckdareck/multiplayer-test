@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://db20k1pcbc68p"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://db20k1pcbc68p"]
 
-[ext_resource type="Texture2D" uid="uid://b2u848liw8e0o" path="res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Nightshade_Mail.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_w3uds"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Nightshade_Mail.png" id="2_3gy13"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_3cfto"]
 
 [sub_resource type="Resource" id="Resource_n2rso"]
@@ -18,29 +18,77 @@ flat_bonus_value = 26
 
 [sub_resource type="Resource" id="Resource_480x8"]
 script = ExtResource("1_w3uds")
-stat_type = 3
 base_value = 0
-flat_bonus_value = 14
+flat_bonus_value = 4
 
 [sub_resource type="Resource" id="Resource_33njl"]
 script = ExtResource("1_w3uds")
-stat_type = 11
+stat_type = 2
 base_value = 0
 flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_cv0kl"]
+script = ExtResource("1_w3uds")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_b1ykv"]
+script = ExtResource("1_w3uds")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 12
+
+[sub_resource type="Resource" id="Resource_xhgh7"]
+script = ExtResource("1_w3uds")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="Resource" id="Resource_vuk3x"]
+script = ExtResource("1_w3uds")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_evwug"]
+script = ExtResource("1_w3uds")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 6
+
+[sub_resource type="Resource" id="Resource_uu2op"]
+script = ExtResource("1_w3uds")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_qwvn4"]
+script = ExtResource("1_w3uds")
+stat_type = 17
+base_value = 0
+flat_bonus_value = 2
 
 [resource]
 script = ExtResource("3_3cfto")
 armor_type = 1
 bonus_stats = Dictionary[int, ExtResource("1_w3uds")]({
-3: SubResource("Resource_480x8"),
+0: SubResource("Resource_480x8"),
+1: SubResource("Resource_cv0kl"),
+2: SubResource("Resource_33njl"),
+3: SubResource("Resource_b1ykv"),
 8: SubResource("Resource_n2rso"),
 9: SubResource("Resource_08nk5"),
-11: SubResource("Resource_33njl")
+10: SubResource("Resource_vuk3x"),
+11: SubResource("Resource_evwug"),
+15: SubResource("Resource_xhgh7"),
+16: SubResource("Resource_uu2op"),
+17: SubResource("Resource_qwvn4")
 })
-item_id = "1131430335-012515-201114-212122-7015814415156649"
+item_id = "104863235-261212-61553-6717-91556130831411013"
 name = "Mithril Nightshade Mail"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_3gy13")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 43

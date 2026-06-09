@@ -1,12 +1,13 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=12 format=3 uid="uid://dqwxl3fayvyn8"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=13 format=3 uid="uid://dqwxl3fayvyn8"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Iron_Longsword.tres" id="2_lpbud"]
+[ext_resource type="Resource" uid="uid://cgkidkcxo2pqu" path="res://resources/DropTables/Generated/Iron_Longsword.tres" id="2_lpbud"]
 [ext_resource type="SpriteFrames" uid="uid://dsxskfabgptpc" path="res://resources/Enemies/FoxSwordsman/SF_FoxSwordsman.tres" id="3_sf"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Iron_Vanguard_Helm.tres" id="3_xu8iu"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Iron_Vanguard_Mail.tres" id="4_uotyq"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Iron_Vanguard_Boots.tres" id="5_yhgx0"]
+[ext_resource type="Resource" uid="uid://76gubqtatt2l" path="res://resources/DropTables/Generated/Iron_Vanguard_Helm.tres" id="3_xu8iu"]
+[ext_resource type="Resource" uid="uid://p2ibckcuiu57" path="res://resources/DropTables/Generated/Iron_Vanguard_Mail.tres" id="4_uotyq"]
+[ext_resource type="Resource" uid="uid://c3kindti5hko3" path="res://resources/DropTables/Generated/Iron_Vanguard_Boots.tres" id="5_yhgx0"]
+[ext_resource type="Script" uid="uid://cdsbcru4b1hr8" path="res://scripts/Resources/BossAttackData.gd" id="7_xu8iu"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)

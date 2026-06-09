@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://sfpfbpryubrf"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=6 format=3 uid="uid://sfpfbpryubrf"]
 
-[ext_resource type="Texture2D" uid="uid://dx8flyjaf3ttk" path="res://assets/sprites/Items/generated_px/Weapons/Generated/Runic_Longsword.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_m8cd0"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_8e0e0"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Weapons/Generated/Runic_Longsword.png" id="2_8e0e0"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_cj15m"]
 
 [sub_resource type="Resource" id="Resource_obi8o"]
@@ -16,11 +15,6 @@ script = ExtResource("1_m8cd0")
 base_value = 0
 flat_bonus_value = 26
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_hnpsj"]
-atlas = ExtResource("2_8e0e0")
-region = Rect2(10, 17, 4, 11)
-margin = Rect2(3.5, 0, 7, 0)
-
 [resource]
 script = ExtResource("3_cj15m")
 weapon_type = 0
@@ -30,10 +24,10 @@ bonus_stats = Dictionary[int, ExtResource("1_m8cd0")]({
 0: SubResource("Resource_qq4gy"),
 12: SubResource("Resource_obi8o")
 })
-item_id = "01281514099-541210-2396-010117-09214261081213130"
+item_id = "12361514129-91284-1415411-1663-124150120191512121"
 name = "Runic Longsword"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_8e0e0")
 description = "A balanced blade — the Swordsman's trusted companion."
 item_type = 1
 item_level = 68

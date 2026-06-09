@@ -112,7 +112,12 @@ const BASE_ATTRIBUTE_VALUE: int = 4
 const STR_TO_DEFENSE: float = 1.0
 const INT_TO_MANA: float = 5.0
 const INT_TO_MPREGEN: float = 0.1
-const LUCK_TO_CRIT: float = 0.1   # % crit per LUCK
+const LUCK_TO_CRIT: float = 0.1   # % crit per LUCK (full rate below the knee)
+## LUCK -> crit DIMINISHING RETURNS (2026-06-08): full LUCK_TO_CRIT up to the knee,
+## then a reduced slope above it, so a high-LUCK build (dagger) no longer trivially
+## reaches 100% crit. At LUCK ~800 this gives ~31% crit from LUCK (was ~80%).
+const LUCK_CRIT_KNEE: float = 100.0
+const LUCK_CRIT_SLOPE: float = 0.30
 const CON_TO_HP: float = 8.0
 const CON_TO_HPREGEN: float = 0.2
 const DEX_TO_ACCURACY: float = 0.05  # % hit per DEX, consumed in combat.gd
@@ -463,9 +468,17 @@ func _apply_attribute_utilities() -> void:
 	stats[Constants.StatType.DEFENSE].flat_bonus_value += int(strv * STR_TO_DEFENSE)
 	stats[Constants.StatType.MANA].flat_bonus_value += int(intv * INT_TO_MANA)
 	stats[Constants.StatType.MPREGEN].flat_bonus_value += int(intv * INT_TO_MPREGEN)
-	stats[Constants.StatType.CRITCHANCE].flat_bonus_value += int(luk * LUCK_TO_CRIT)
+	stats[Constants.StatType.CRITCHANCE].flat_bonus_value += int(_luck_to_crit(float(luk)))
 	stats[Constants.StatType.HEALTH].flat_bonus_value += int(con * CON_TO_HP)
 	stats[Constants.StatType.HPREGEN].flat_bonus_value += int(con * CON_TO_HPREGEN)
+
+
+## LUCK -> crit%, with diminishing returns above LUCK_CRIT_KNEE so crit can't be
+## stacked to a guaranteed 100% from a high LUCK primary alone.
+func _luck_to_crit(luck: float) -> float:
+	if luck <= LUCK_CRIT_KNEE:
+		return luck * LUCK_TO_CRIT
+	return LUCK_CRIT_KNEE * LUCK_TO_CRIT + (luck - LUCK_CRIT_KNEE) * LUCK_TO_CRIT * LUCK_CRIT_SLOPE
 
 
 func save_attributes() -> Dictionary:

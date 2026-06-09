@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://dl4wgl1bpxqaw"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://dl4wgl1bpxqaw"]
 
-[ext_resource type="Texture2D" uid="uid://cxmu7g43xjd7a" path="res://assets/sprites/Items/generated_px/Armor/Generated/Eternal_Pathfinder_Legguards.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_xoy2r"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_mn4ad"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Eternal_Pathfinder_Legguards.png" id="2_mn4ad"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_tm7pb"]
 
 [sub_resource type="Resource" id="Resource_6y2a7"]
@@ -19,34 +18,77 @@ flat_bonus_value = 46
 
 [sub_resource type="Resource" id="Resource_psq8k"]
 script = ExtResource("1_xoy2r")
-stat_type = 2
 base_value = 0
-flat_bonus_value = 25
+flat_bonus_value = 8
 
 [sub_resource type="Resource" id="Resource_m2tds"]
 script = ExtResource("1_xoy2r")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 21
+
+[sub_resource type="Resource" id="Resource_cqqku"]
+script = ExtResource("1_xoy2r")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 8
+
+[sub_resource type="Resource" id="Resource_g3cxg"]
+script = ExtResource("1_xoy2r")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 8
+
+[sub_resource type="Resource" id="Resource_spof7"]
+script = ExtResource("1_xoy2r")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 8
+
+[sub_resource type="Resource" id="Resource_sx1w5"]
+script = ExtResource("1_xoy2r")
 stat_type = 10
+base_value = 0
+flat_bonus_value = 6
+
+[sub_resource type="Resource" id="Resource_ak400"]
+script = ExtResource("1_xoy2r")
+stat_type = 11
 base_value = 0
 flat_bonus_value = 5
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_cqqku"]
-atlas = ExtResource("2_mn4ad")
-region = Rect2(0, 0, 25, 16)
-margin = Rect2(0.5, 5.5, 1, 10)
+[sub_resource type="Resource" id="Resource_jwes5"]
+script = ExtResource("1_xoy2r")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 8
+
+[sub_resource type="Resource" id="Resource_mwq2f"]
+script = ExtResource("1_xoy2r")
+stat_type = 17
+base_value = 0
+flat_bonus_value = 4
 
 [resource]
 script = ExtResource("3_tm7pb")
 armor_type = 2
 bonus_stats = Dictionary[int, ExtResource("1_xoy2r")]({
-2: SubResource("Resource_psq8k"),
+0: SubResource("Resource_psq8k"),
+1: SubResource("Resource_cqqku"),
+2: SubResource("Resource_m2tds"),
+3: SubResource("Resource_g3cxg"),
 8: SubResource("Resource_6y2a7"),
 9: SubResource("Resource_mo441"),
-10: SubResource("Resource_m2tds")
+10: SubResource("Resource_sx1w5"),
+11: SubResource("Resource_ak400"),
+15: SubResource("Resource_spof7"),
+16: SubResource("Resource_jwes5"),
+17: SubResource("Resource_mwq2f")
 })
-item_id = "289315286-02156-251110-151052-131313512714414936"
+item_id = "121511731049-21813-71108-1413514-25015103421435"
 name = "Eternal Pathfinder Legguards"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_mn4ad")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 100

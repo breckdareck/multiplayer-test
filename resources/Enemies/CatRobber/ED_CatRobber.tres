@@ -1,12 +1,13 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=12 format=3 uid="uid://bsj8dfdcdgv3b"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=13 format=3 uid="uid://bsj8dfdcdgv3b"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Steel_Dirk.tres" id="2_0sslh"]
+[ext_resource type="Resource" uid="uid://dyfws8o3mtopt" path="res://resources/DropTables/Generated/Steel_Dirk.tres" id="2_0sslh"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
 [ext_resource type="SpriteFrames" uid="uid://5mmjlwcgutty" path="res://resources/Enemies/CatRobber/SF_CatRobber.tres" id="3_sf"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Steel_Nightshade_Helm.tres" id="3_t6ihc"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Steel_Nightshade_Mail.tres" id="4_8ewg1"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Steel_Nightshade_Boots.tres" id="5_xe36i"]
+[ext_resource type="Resource" uid="uid://ci0abpnpqmdx3" path="res://resources/DropTables/Generated/Steel_Nightshade_Helm.tres" id="3_t6ihc"]
+[ext_resource type="Resource" uid="uid://cx4ya1aqkou7k" path="res://resources/DropTables/Generated/Steel_Nightshade_Mail.tres" id="4_8ewg1"]
+[ext_resource type="Resource" uid="uid://wtj7fybhha60" path="res://resources/DropTables/Generated/Steel_Nightshade_Boots.tres" id="5_xe36i"]
+[ext_resource type="Script" uid="uid://cdsbcru4b1hr8" path="res://scripts/Resources/BossAttackData.gd" id="7_t6ihc"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)

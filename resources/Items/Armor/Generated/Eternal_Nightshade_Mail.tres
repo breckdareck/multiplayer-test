@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://d143ppkma6qd3"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://d143ppkma6qd3"]
 
-[ext_resource type="Texture2D" uid="uid://crdohsyjr4di4" path="res://assets/sprites/Items/generated_px/Armor/Generated/Eternal_Nightshade_Mail.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_dkby6"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Eternal_Nightshade_Mail.png" id="2_ggsdi"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_oqj7a"]
 
 [sub_resource type="Resource" id="Resource_r17jj"]
@@ -18,29 +18,77 @@ flat_bonus_value = 58
 
 [sub_resource type="Resource" id="Resource_lxdch"]
 script = ExtResource("1_dkby6")
-stat_type = 3
 base_value = 0
-flat_bonus_value = 31
+flat_bonus_value = 9
 
 [sub_resource type="Resource" id="Resource_o2khg"]
 script = ExtResource("1_dkby6")
-stat_type = 11
+stat_type = 2
 base_value = 0
 flat_bonus_value = 9
+
+[sub_resource type="Resource" id="Resource_x4p1a"]
+script = ExtResource("1_dkby6")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 9
+
+[sub_resource type="Resource" id="Resource_8q3m4"]
+script = ExtResource("1_dkby6")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 26
+
+[sub_resource type="Resource" id="Resource_unx5i"]
+script = ExtResource("1_dkby6")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 11
+
+[sub_resource type="Resource" id="Resource_b13p8"]
+script = ExtResource("1_dkby6")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 6
+
+[sub_resource type="Resource" id="Resource_pvs6q"]
+script = ExtResource("1_dkby6")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 12
+
+[sub_resource type="Resource" id="Resource_u6fvg"]
+script = ExtResource("1_dkby6")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_jgh7m"]
+script = ExtResource("1_dkby6")
+stat_type = 17
+base_value = 0
+flat_bonus_value = 5
 
 [resource]
 script = ExtResource("3_oqj7a")
 armor_type = 1
 bonus_stats = Dictionary[int, ExtResource("1_dkby6")]({
-3: SubResource("Resource_lxdch"),
+0: SubResource("Resource_lxdch"),
+1: SubResource("Resource_x4p1a"),
+2: SubResource("Resource_o2khg"),
+3: SubResource("Resource_8q3m4"),
 8: SubResource("Resource_r17jj"),
 9: SubResource("Resource_0iva8"),
-11: SubResource("Resource_o2khg")
+10: SubResource("Resource_b13p8"),
+11: SubResource("Resource_pvs6q"),
+15: SubResource("Resource_unx5i"),
+16: SubResource("Resource_u6fvg"),
+17: SubResource("Resource_jgh7m")
 })
-item_id = "1581229561-13540-10330-112105-56902119731568"
+item_id = "12111108511-8635-11006-53150-2117982803151510"
 name = "Eternal Nightshade Mail"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_ggsdi")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 100

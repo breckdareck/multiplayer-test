@@ -69,7 +69,12 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 		_slow_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_slow_pct")
 	_seen.clear()
 
-	var tick_damage: int = maxi(1, roundi(magic_attack * TICK_DAMAGE_PCT * (1.0 + damage_bonus)))
+	# Scale ticks off dot_scaling_base (max_range x damage%) so the patch tracks
+	# attributes + mastery + gear instead of raw MAGICATTACK (which fell behind at
+	# endgame). Same anchor the bleeds/Caltrops use.
+	var combat = owner_node.get("combat_component")
+	var dot_base: int = combat.dot_scaling_base(_ability) if combat != null and is_instance_valid(combat) and combat.has_method("dot_scaling_base") else maxi(1, magic_attack)
+	var tick_damage: int = maxi(1, roundi(dot_base * TICK_DAMAGE_PCT * (1.0 + damage_bonus)))
 	var duration: float = ZONE_DURATION + duration_bonus
 	var rect_size: Vector2 = ZONE_RECT_SIZE + Vector2(width_bonus, 0.0)
 

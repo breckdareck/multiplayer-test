@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://rp5k0wgtnu11"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://rp5k0wgtnu11"]
 
-[ext_resource type="Texture2D" uid="uid://c7awak5ok53o7" path="res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Pathfinder_Helm.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_s4kl3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Pathfinder_Helm.png" id="2_mt1k4"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_cdiuk"]
 
 [sub_resource type="Resource" id="Resource_h0uv8"]
@@ -18,28 +18,76 @@ flat_bonus_value = 24
 
 [sub_resource type="Resource" id="Resource_pqw5v"]
 script = ExtResource("1_s4kl3")
-stat_type = 2
 base_value = 0
-flat_bonus_value = 13
+flat_bonus_value = 4
 
 [sub_resource type="Resource" id="Resource_3ucbr"]
+script = ExtResource("1_s4kl3")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 11
+
+[sub_resource type="Resource" id="Resource_2rvxi"]
+script = ExtResource("1_s4kl3")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_os6sh"]
+script = ExtResource("1_s4kl3")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_bpywa"]
+script = ExtResource("1_s4kl3")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_8j8nj"]
 script = ExtResource("1_s4kl3")
 stat_type = 10
 base_value = 0
 flat_bonus_value = 3
 
+[sub_resource type="Resource" id="Resource_tx1y1"]
+script = ExtResource("1_s4kl3")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_2yd72"]
+script = ExtResource("1_s4kl3")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_uauyo"]
+script = ExtResource("1_s4kl3")
+stat_type = 17
+base_value = 0
+flat_bonus_value = 2
+
 [resource]
 script = ExtResource("3_cdiuk")
 bonus_stats = Dictionary[int, ExtResource("1_s4kl3")]({
-2: SubResource("Resource_pqw5v"),
+0: SubResource("Resource_pqw5v"),
+1: SubResource("Resource_2rvxi"),
+2: SubResource("Resource_3ucbr"),
+3: SubResource("Resource_os6sh"),
 8: SubResource("Resource_h0uv8"),
 9: SubResource("Resource_pl0kr"),
-10: SubResource("Resource_3ucbr")
+10: SubResource("Resource_8j8nj"),
+11: SubResource("Resource_tx1y1"),
+15: SubResource("Resource_bpywa"),
+16: SubResource("Resource_2yd72"),
+17: SubResource("Resource_uauyo")
 })
-item_id = "12581412580-1311915-71161-11411-135111119621010151"
+item_id = "139315101332-410119-108109-32117-61014610123123772"
 name = "Runic Pathfinder Helm"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_mt1k4")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 68

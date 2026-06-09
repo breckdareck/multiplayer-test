@@ -87,7 +87,11 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 		aftershock = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_aftershock_mult")
 		burst = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_burst_mult")
 
-	var tick_damage: int = maxi(1, roundi(wpn_attack * BASE_TICK_DAMAGE_PCT * combo_mult))
+	# Scale the tremor ticks off dot_scaling_base (max_range x damage%) so they
+	# track attributes + mastery + gear, NOT raw WEAPONATTACK (which collapsed at
+	# endgame). Same anchor the bleeds/Caltrops use. combo_mult amplifies on top.
+	var dot_base: int = combat.dot_scaling_base(_ability) if combat != null and is_instance_valid(combat) and combat.has_method("dot_scaling_base") else maxi(1, wpn_attack)
+	var tick_damage: int = maxi(1, roundi(dot_base * BASE_TICK_DAMAGE_PCT * combo_mult))
 	var duration: float = ZONE_DURATION + duration_bonus
 	var rect_size: Vector2 = ZONE_RECT_SIZE + Vector2(width_bonus, 0.0)
 	var gz = load("res://scripts/Gameplay/ground_zone.gd")

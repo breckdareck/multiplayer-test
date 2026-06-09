@@ -1,34 +1,19 @@
-[gd_scene load_steps=69 format=4]
+[gd_scene load_steps=54 format=4 uid="uid://cbn1cpi76flwa"]
 
-[ext_resource type="Script" path="res://scripts/Gameplay/map_base.gd" id="1_vhnxn"]
-[ext_resource type="Script" path="res://scripts/VFX/damage_numbers.gd" id="3_kc88y"]
-[ext_resource type="Script" path="res://scripts/Gameplay/portal.gd" id="4_l6qd1"]
-[ext_resource type="PackedScene" path="res://scenes/Gameplay/portal.tscn" id="4_q3nul"]
-[ext_resource type="Texture2D" path="res://assets/sprites/world_tileset.png" id="6_dosu4"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/country village tileset.png" id="7_cedd2"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/Country_village_props.png" id="8_8snk7"]
-[ext_resource type="PackedScene" path="res://scenes/Gameplay/killzone.tscn" id="9_ffoeb"]
-[ext_resource type="Script" path="res://scripts/Gameplay/killzone.gd" id="9_qdef6"]
-[ext_resource type="Script" path="res://scripts/Enemy/enemy_base.gd" id="11_y8lys"]
-[ext_resource type="Resource" path="res://resources/Enemies/WolfPathfinder/ED_WolfPathfinder.tres" id="12_ellth"]
-[ext_resource type="Curve" path="res://assets/curves/monster_hp_curve.tres" id="13_4o3fe"]
-[ext_resource type="Curve" path="res://assets/curves/monster_exp_curve.tres" id="14_18e7k"]
-[ext_resource type="Script" path="res://scripts/UI/global_drop_handler.gd" id="15_2xd81"]
-[ext_resource type="Curve" path="res://assets/curves/monster_wep_att_curve.tres" id="15_ik4jg"]
-[ext_resource type="Curve" path="res://assets/curves/monster_magic_att_curve.tres" id="16_gsp2u"]
-[ext_resource type="Curve" path="res://assets/curves/monster_wep_def_curve.tres" id="17_ld7mp"]
-[ext_resource type="Curve" path="res://assets/curves/monster_magic_def_curve.tres" id="18_kja5v"]
-[ext_resource type="Curve" path="res://assets/curves/monster_monies_curve.tres" id="19_w83jk"]
-[ext_resource type="Resource" path="res://resources/Enemies/MithrilHare/ED_MithrilHare.tres" id="21_h3lja"]
-[ext_resource type="Resource" path="res://resources/Enemies/DeerDruid/ED_DeerDruid.tres" id="23_paspc"]
-[ext_resource type="Resource" path="res://resources/Enemies/RabbitWizard/ED_RabbitWizard.tres" id="25_jk1ku"]
-[ext_resource type="Resource" path="res://resources/Enemies/WarGoblin/ED_WarGoblin.tres" id="27_yv6u2"]
-[ext_resource type="Script" path="res://scripts/Gameplay/ladder.gd" id="30_y8lys"]
-[ext_resource type="PackedScene" path="res://scenes/NPC/Beastmen/deer_druid.tscn" id="e_deer_druid"]
-[ext_resource type="PackedScene" path="res://scenes/NPC/Minifolks/mithril_hare.tscn" id="e_mithril_hare"]
-[ext_resource type="PackedScene" path="res://scenes/NPC/Beastmen/rabbit_wizard.tscn" id="e_rabbit_wizard"]
-[ext_resource type="PackedScene" path="res://scenes/NPC/war_goblin.tscn" id="e_war_goblin"]
-[ext_resource type="PackedScene" path="res://scenes/NPC/Beastmen/wolf_pathfinder.tscn" id="e_wolf_pathfinder"]
+[ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_vhnxn"]
+[ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/VFX/damage_numbers.gd" id="3_kc88y"]
+[ext_resource type="PackedScene" uid="uid://brfb5t5im33fl" path="res://scenes/Gameplay/portal.tscn" id="4_q3nul"]
+[ext_resource type="Texture2D" uid="uid://jorjvuc5wn72" path="res://assets/sprites/world_tileset.png" id="6_dosu4"]
+[ext_resource type="Texture2D" uid="uid://cd28i3fo3v1m0" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/country village tileset.png" id="7_cedd2"]
+[ext_resource type="Texture2D" uid="uid://b8r3ov605pnuj" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/Country_village_props.png" id="8_8snk7"]
+[ext_resource type="PackedScene" uid="uid://bx2n3vrfxk75m" path="res://scenes/Gameplay/killzone.tscn" id="9_ffoeb"]
+[ext_resource type="Script" uid="uid://igk1rxt26f2i" path="res://scripts/UI/global_drop_handler.gd" id="15_2xd81"]
+[ext_resource type="Script" uid="uid://br1domvn1uea5" path="res://scripts/Gameplay/ladder.gd" id="30_y8lys"]
+[ext_resource type="PackedScene" uid="uid://b7uy8wgb0j1t3" path="res://scenes/NPC/Beastmen/deer_druid.tscn" id="e_deer_druid"]
+[ext_resource type="PackedScene" uid="uid://dvymxl60snfn8" path="res://scenes/NPC/Minifolks/mithril_hare.tscn" id="e_mithril_hare"]
+[ext_resource type="PackedScene" uid="uid://dppxdoxl4kf2k" path="res://scenes/NPC/Beastmen/rabbit_wizard.tscn" id="e_rabbit_wizard"]
+[ext_resource type="PackedScene" uid="uid://cppmohti6r7s0" path="res://scenes/NPC/war_goblin.tscn" id="e_war_goblin"]
+[ext_resource type="PackedScene" uid="uid://wjbryq6x0qx5" path="res://scenes/NPC/Beastmen/wolf_pathfinder.tscn" id="e_wolf_pathfinder"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lnu2h"]
 texture = ExtResource("6_dosu4")
@@ -1139,16 +1124,13 @@ camera_top_padding = 180
 spawn_path = NodePath("..")
 script = ExtResource("3_kc88y")
 
-[node name="PortalToKeep" type="Area2D" parent="." instance=ExtResource("4_q3nul")]
-position = Vector2(760, 16)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("4_l6qd1")
-target_map_id = "keep"
-target_spawn_point_name = "Keep_Mines_Portal_Spawn"
+[node name="PortalToEmberwatch" parent="." instance=ExtResource("4_q3nul")]
+position = Vector2(743, 16)
+target_map_id = "emberwatch"
+target_spawn_point_name = "Emberwatch_Mines_Portal_Spawn"
 
-[node name="Mines_Keep_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(792, 16)
+[node name="Mines_Emberwatch_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(713, 16)
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(0, -16)
@@ -1188,10 +1170,8 @@ tile_set = SubResource("TileSet_lbhrr")
 use_parent_material = true
 tile_set = SubResource("TileSet_ryi0r")
 
-[node name="Killzone" type="Area2D" parent="." instance=ExtResource("9_ffoeb")]
+[node name="Killzone" parent="." instance=ExtResource("9_ffoeb")]
 position = Vector2(0, 144)
-collision_mask = 2
-script = ExtResource("9_qdef6")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Killzone"]
 shape = SubResource("WorldBoundaryShape2D_p57ef")
@@ -1203,888 +1183,174 @@ debug_color = Color(0.9764706, 0, 0, 0.75686276)
 
 [node name="Enemies" type="Node2D" parent="."]
 
-[node name="WolfPathfinder" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_wolf_pathfinder")]
+[node name="WolfPathfinder" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
 position = Vector2(-720, 36)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("12_ellth")
 respawnable = true
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="WolfPathfinder2" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_wolf_pathfinder")]
+[node name="WolfPathfinder2" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
 position = Vector2(-624, 36)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("12_ellth")
 respawnable = true
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="WolfPathfinder3" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_wolf_pathfinder")]
+[node name="WolfPathfinder3" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
 position = Vector2(-528, 36)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("12_ellth")
 respawnable = true
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="WolfPathfinder4" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_wolf_pathfinder")]
+[node name="WolfPathfinder4" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
 position = Vector2(-432, 36)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("12_ellth")
 respawnable = true
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="MithrilHare5" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_mithril_hare")]
+[node name="MithrilHare5" parent="Enemies" instance=ExtResource("e_mithril_hare")]
 position = Vector2(-336, 36)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("21_h3lja")
 respawnable = true
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="MithrilHare6" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_mithril_hare")]
+[node name="MithrilHare6" parent="Enemies" instance=ExtResource("e_mithril_hare")]
 position = Vector2(-240, 36)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("21_h3lja")
 respawnable = true
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="MithrilHare7" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_mithril_hare")]
+[node name="MithrilHare7" parent="Enemies" instance=ExtResource("e_mithril_hare")]
 position = Vector2(-144, 36)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("21_h3lja")
 respawnable = true
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="DeerDruid8" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_deer_druid")]
+[node name="DeerDruid8" parent="Enemies" instance=ExtResource("e_deer_druid")]
 position = Vector2(-48, 36)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("23_paspc")
 respawnable = true
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="DeerDruid9" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_deer_druid")]
+[node name="DeerDruid9" parent="Enemies" instance=ExtResource("e_deer_druid")]
 position = Vector2(48, 36)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("23_paspc")
 respawnable = true
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="DeerDruid10" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_deer_druid")]
+[node name="DeerDruid10" parent="Enemies" instance=ExtResource("e_deer_druid")]
 position = Vector2(144, 36)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("23_paspc")
 respawnable = true
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="RabbitWizard11" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_rabbit_wizard")]
+[node name="RabbitWizard11" parent="Enemies" instance=ExtResource("e_rabbit_wizard")]
 position = Vector2(240, 36)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("25_jk1ku")
 respawnable = true
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="RabbitWizard12" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_rabbit_wizard")]
+[node name="RabbitWizard12" parent="Enemies" instance=ExtResource("e_rabbit_wizard")]
 position = Vector2(336, 36)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("25_jk1ku")
 respawnable = true
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="RabbitWizard13" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_rabbit_wizard")]
+[node name="RabbitWizard13" parent="Enemies" instance=ExtResource("e_rabbit_wizard")]
 position = Vector2(432, 36)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("25_jk1ku")
 respawnable = true
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="WarGoblin14" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_war_goblin")]
+[node name="WarGoblin14" parent="Enemies" instance=ExtResource("e_war_goblin")]
 position = Vector2(528, 36)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("27_yv6u2")
 respawnable = true
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="WarGoblin15" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_war_goblin")]
+[node name="WarGoblin15" parent="Enemies" instance=ExtResource("e_war_goblin")]
 position = Vector2(624, 36)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("27_yv6u2")
 respawnable = true
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="WarGoblin16" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_war_goblin")]
+[node name="WarGoblin16" parent="Enemies" instance=ExtResource("e_war_goblin")]
 position = Vector2(720, 36)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("27_yv6u2")
 respawnable = true
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_16" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_wolf_pathfinder")]
+[node name="Clone_16" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
 position = Vector2(-632, -12)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("12_ellth")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_17" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_wolf_pathfinder")]
+[node name="Clone_17" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
 position = Vector2(-552, -12)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("12_ellth")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_18" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_wolf_pathfinder")]
+[node name="Clone_18" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
 position = Vector2(-472, -12)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("12_ellth")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_19" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_wolf_pathfinder")]
+[node name="Clone_19" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
 position = Vector2(472, -28)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("12_ellth")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_20" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_mithril_hare")]
+[node name="Clone_20" parent="Enemies" instance=ExtResource("e_mithril_hare")]
 position = Vector2(552, -28)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("21_h3lja")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_21" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_mithril_hare")]
+[node name="Clone_21" parent="Enemies" instance=ExtResource("e_mithril_hare")]
 position = Vector2(632, -28)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("21_h3lja")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_22" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_mithril_hare")]
+[node name="Clone_22" parent="Enemies" instance=ExtResource("e_mithril_hare")]
 position = Vector2(-620, -60)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("21_h3lja")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_23" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_deer_druid")]
+[node name="Clone_23" parent="Enemies" instance=ExtResource("e_deer_druid")]
 position = Vector2(-516, -60)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("23_paspc")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_24" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_deer_druid")]
+[node name="Clone_24" parent="Enemies" instance=ExtResource("e_deer_druid")]
 position = Vector2(480, -60)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("23_paspc")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_25" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_deer_druid")]
+[node name="Clone_25" parent="Enemies" instance=ExtResource("e_deer_druid")]
 position = Vector2(576, -60)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("23_paspc")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_26" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_rabbit_wizard")]
+[node name="Clone_26" parent="Enemies" instance=ExtResource("e_rabbit_wizard")]
 position = Vector2(672, -60)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("25_jk1ku")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_27" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_rabbit_wizard")]
+[node name="Clone_27" parent="Enemies" instance=ExtResource("e_rabbit_wizard")]
 position = Vector2(-16, -60)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("25_jk1ku")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_28" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_rabbit_wizard")]
+[node name="Clone_28" parent="Enemies" instance=ExtResource("e_rabbit_wizard")]
 position = Vector2(80, -60)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("25_jk1ku")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_29" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_war_goblin")]
+[node name="Clone_29" parent="Enemies" instance=ExtResource("e_war_goblin")]
 position = Vector2(-688, -124)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("27_yv6u2")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_30" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_war_goblin")]
+[node name="Clone_30" parent="Enemies" instance=ExtResource("e_war_goblin")]
 position = Vector2(-592, -124)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("27_yv6u2")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_31" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_war_goblin")]
+[node name="Clone_31" parent="Enemies" instance=ExtResource("e_war_goblin")]
 position = Vector2(472, -108)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("27_yv6u2")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_32" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_wolf_pathfinder")]
+[node name="Clone_32" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
 position = Vector2(552, -108)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("12_ellth")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_33" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_wolf_pathfinder")]
+[node name="Clone_33" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
 position = Vector2(632, -108)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("12_ellth")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_34" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_wolf_pathfinder")]
+[node name="Clone_34" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
 position = Vector2(-664, -140)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("12_ellth")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_35" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_wolf_pathfinder")]
+[node name="Clone_35" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
 position = Vector2(560, -140)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("12_ellth")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_36" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_mithril_hare")]
+[node name="Clone_36" parent="Enemies" instance=ExtResource("e_mithril_hare")]
 position = Vector2(656, -140)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("21_h3lja")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_37" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_mithril_hare")]
+[node name="Clone_37" parent="Enemies" instance=ExtResource("e_mithril_hare")]
 position = Vector2(-72, -156)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("21_h3lja")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_38" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_mithril_hare")]
+[node name="Clone_38" parent="Enemies" instance=ExtResource("e_mithril_hare")]
 position = Vector2(8, -156)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("21_h3lja")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_39" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_deer_druid")]
+[node name="Clone_39" parent="Enemies" instance=ExtResource("e_deer_druid")]
 position = Vector2(88, -156)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("23_paspc")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_40" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_deer_druid")]
+[node name="Clone_40" parent="Enemies" instance=ExtResource("e_deer_druid")]
 position = Vector2(-632, -204)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("23_paspc")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_41" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_deer_druid")]
+[node name="Clone_41" parent="Enemies" instance=ExtResource("e_deer_druid")]
 position = Vector2(477.33334, -204)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("23_paspc")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_42" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_rabbit_wizard")]
+[node name="Clone_42" parent="Enemies" instance=ExtResource("e_rabbit_wizard")]
 position = Vector2(568, -204)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("25_jk1ku")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_43" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_rabbit_wizard")]
+[node name="Clone_43" parent="Enemies" instance=ExtResource("e_rabbit_wizard")]
 position = Vector2(658.6667, -204)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("25_jk1ku")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_44" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_rabbit_wizard")]
+[node name="Clone_44" parent="Enemies" instance=ExtResource("e_rabbit_wizard")]
 position = Vector2(-652, -236)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("25_jk1ku")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_45" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_war_goblin")]
+[node name="Clone_45" parent="Enemies" instance=ExtResource("e_war_goblin")]
 position = Vector2(-548, -236)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("27_yv6u2")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_46" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_war_goblin")]
+[node name="Clone_46" parent="Enemies" instance=ExtResource("e_war_goblin")]
 position = Vector2(464, -252)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("27_yv6u2")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_47" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_war_goblin")]
+[node name="Clone_47" parent="Enemies" instance=ExtResource("e_war_goblin")]
 position = Vector2(560, -252)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("27_yv6u2")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_48" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_wolf_pathfinder")]
+[node name="Clone_48" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
 position = Vector2(656, -252)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("12_ellth")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_49" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_wolf_pathfinder")]
+[node name="Clone_49" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
 position = Vector2(-52, -252)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("12_ellth")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
-[node name="Clone_50" type="CharacterBody2D" parent="Enemies" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"] instance=ExtResource("e_wolf_pathfinder")]
+[node name="Clone_50" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
 position = Vector2(36, -252)
-collision_layer = 8
-collision_mask = 5
-script = ExtResource("11_y8lys")
-enemy_data = ExtResource("12_ellth")
-health_component = NodePath("Health")
-stats_component = NodePath("Stats")
-health_curve = ExtResource("13_4o3fe")
-experience_curve = ExtResource("14_18e7k")
-wep_att_curve = ExtResource("15_ik4jg")
-magic_att_curve = ExtResource("16_gsp2u")
-wep_def_curve = ExtResource("17_ld7mp")
-magic_def_curve = ExtResource("18_kja5v")
-monies_curve = ExtResource("19_w83jk")
-name_label = NodePath("NameLabel")
 
 [node name="Projectiles" type="Node2D" parent="."]
 
@@ -2389,19 +1655,10 @@ patch_margin_top = 2
 patch_margin_bottom = 2
 axis_stretch_vertical = 1
 
-[node name="PortalToDustWarren" type="Area2D" parent="." instance=ExtResource("4_q3nul")]
-position = Vector2(-248, 16)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("4_l6qd1")
+[node name="PortalToDustWarren" parent="." instance=ExtResource("4_q3nul")]
+position = Vector2(-745, 16)
 target_map_id = "dust_warren"
 target_spawn_point_name = "DustWarren_Mines_Portal_Spawn"
 
 [node name="Mines_DustWarren_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(-216, 16)
-
-[connection signal="body_entered" from="PortalToKeep" to="PortalToKeep" method="_on_body_entered"]
-[connection signal="body_exited" from="PortalToKeep" to="PortalToKeep" method="_on_body_exited"]
-[connection signal="body_entered" from="Killzone" to="Killzone" method="_on_body_entered"]
-[connection signal="body_entered" from="PortalToDustWarren" to="PortalToDustWarren" method="_on_body_entered"]
-[connection signal="body_exited" from="PortalToDustWarren" to="PortalToDustWarren" method="_on_body_exited"]
+position = Vector2(-713, 16)

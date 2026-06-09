@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://dudpta1gfrmf5"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=7 format=3 uid="uid://dudpta1gfrmf5"]
 
-[ext_resource type="Texture2D" uid="uid://c3p8xvj34dccr" path="res://assets/sprites/Items/generated_px/Weapons/Generated/Fine_Warbow.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_2vp0m"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_1ufne"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Weapons/Generated/Fine_Warbow.png" id="2_1ufne"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_wg84x"]
 
 [sub_resource type="Resource" id="Resource_3co4m"]
@@ -23,11 +22,6 @@ stat_type = 10
 base_value = 0
 flat_bonus_value = 2
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_stl4t"]
-atlas = ExtResource("2_1ufne")
-region = Rect2(10, 17, 4, 11)
-margin = Rect2(3.5, 0, 7, 0)
-
 [resource]
 script = ExtResource("3_wg84x")
 weapon_type = 1
@@ -38,10 +32,10 @@ bonus_stats = Dictionary[int, ExtResource("1_2vp0m")]({
 10: SubResource("Resource_xbgh2"),
 12: SubResource("Resource_3co4m")
 })
-item_id = "31561566144-1015312-5163-71243-40120605815481"
+item_id = "145103071210-138015-92011-41390-12101107153151347"
 name = "Fine Warbow"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_1ufne")
 description = "A finely strung bow built for an Archer's precision."
 item_type = 1
 item_level = 20

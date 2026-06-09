@@ -20,6 +20,7 @@ const MAP_SCENES = {
 	"deep_woods": "res://scenes/Levels/deep_woods.tscn",
 	"ruins": "res://scenes/Levels/ruins.tscn",
 	"mines": "res://scenes/Levels/mines.tscn",
+	"emberwatch": "res://scenes/Levels/emberwatch.tscn",
 	"keep": "res://scenes/Levels/keep.tscn",
 	"emberscar": "res://scenes/Levels/emberscar.tscn",
 	"weave": "res://scenes/Levels/weave.tscn",
@@ -42,6 +43,7 @@ const MAP_DISPLAY_NAMES = {
 	"deep_woods": "The Deep Woods",
 	"ruins": "The Ruins",
 	"mines": "The Drowned Mines",
+	"emberwatch": "Emberwatch",
 	"keep": "The Warded Keep",
 	"emberscar": "The Ember-Scar",
 	"weave": "The Weave's Edge",
@@ -53,6 +55,11 @@ const MAP_DISPLAY_NAMES = {
 }
 
 const DEFAULT_MAP = "lanterns_rest"
+
+## Safe hearth (town) maps, in priority order. Single source of truth for "where
+## is safe" — used by Hearthstone/Town-Scroll teleports (nearest-hearth BFS) and
+## the world map's town styling. Add a town here when you add one.
+const HEARTH_MAPS: Array[String] = ["lanterns_rest", "emberwatch"]
 
 
 ## Themed name for a map_id (falls back to the raw id for unknown maps).
@@ -1581,6 +1588,32 @@ func get_next_map_toward(from_map: String, to_map: String) -> String:
 			visited[neighbor] = true
 			queue.append([neighbor, entry[1]])
 	return ""
+
+
+## Returns the closest hearth (safe town) map to `from_map_id` by portal-hop
+## distance — the destination for a generic Hearthstone. If the player is already
+## at a hearth, returns it. Falls back to DEFAULT_MAP if the graph is empty / no
+## hearth is reachable. Server-side (uses the portal-derived map graph).
+func get_nearest_hearth(from_map_id: String) -> String:
+	if from_map_id in HEARTH_MAPS:
+		return from_map_id
+	if map_connections.is_empty():
+		_build_map_connections()
+	var visited := {from_map_id: true}
+	var queue: Array = []
+	for neighbor in map_connections.get(from_map_id, []):
+		visited[neighbor] = true
+		queue.append(neighbor)
+	while not queue.is_empty():
+		var m: String = queue.pop_front()
+		if m in HEARTH_MAPS:
+			return m
+		for neighbor in map_connections.get(m, []):
+			if neighbor in visited:
+				continue
+			visited[neighbor] = true
+			queue.append(neighbor)
+	return DEFAULT_MAP
 
 
 # === UTILITY FUNCTIONS ===

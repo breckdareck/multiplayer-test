@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://b46ytuowuqds"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=6 format=3 uid="uid://b46ytuowuqds"]
 
-[ext_resource type="Texture2D" uid="uid://vjbo6cjfpsae" path="res://assets/sprites/Items/generated_px/Weapons/Generated/Astral_Longsword.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_3psyx"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_cayum"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Weapons/Generated/Astral_Longsword.png" id="2_cayum"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_crbe7"]
 
 [sub_resource type="Resource" id="Resource_hgilf"]
@@ -16,11 +15,6 @@ script = ExtResource("1_3psyx")
 base_value = 0
 flat_bonus_value = 35
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_vx4hv"]
-atlas = ExtResource("2_cayum")
-region = Rect2(10, 17, 4, 11)
-margin = Rect2(3.5, 0, 7, 0)
-
 [resource]
 script = ExtResource("3_crbe7")
 weapon_type = 0
@@ -30,10 +24,10 @@ bonus_stats = Dictionary[int, ExtResource("1_3psyx")]({
 0: SubResource("Resource_q614r"),
 12: SubResource("Resource_hgilf")
 })
-item_id = "1193243712-56310-1510158-811134-711012115139310815"
+item_id = "58910145145-615135-24910-6078-579106811210061"
 name = "Astral Longsword"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_cayum")
 description = "A balanced blade — the Swordsman's trusted companion."
 item_type = 1
 item_level = 93

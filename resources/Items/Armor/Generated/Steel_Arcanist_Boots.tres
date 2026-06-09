@@ -1,49 +1,101 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bmapppu8xr35h"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=16 format=3 uid="uid://bmapppu8xr35h"]
 
-[ext_resource type="Texture2D" uid="uid://bk4n4jbaubr2y" path="res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Arcanist_Boots.png" id="99_svgicon"]
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_xeutd"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_0046c"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_0046c"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Arcanist_Boots.png" id="2_rovre"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_nsjv4"]
 
-[sub_resource type="Resource" id="Resource_rovre"]
-script = ExtResource("1_xeutd")
+[sub_resource type="Resource" id="Resource_1y6h3"]
+script = ExtResource("1_0046c")
 stat_type = 8
 base_value = 0
 flat_bonus_value = 9
 
-[sub_resource type="Resource" id="Resource_nsjv4"]
-script = ExtResource("1_xeutd")
+[sub_resource type="Resource" id="Resource_76cp0"]
+script = ExtResource("1_0046c")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 14
 
-[sub_resource type="Resource" id="Resource_1y6h3"]
-script = ExtResource("1_xeutd")
+[sub_resource type="Resource" id="Resource_807ro"]
+script = ExtResource("1_0046c")
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_cfmrb"]
+script = ExtResource("1_0046c")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_xvb6r"]
+script = ExtResource("1_0046c")
 stat_type = 1
 base_value = 0
-flat_bonus_value = 6
+flat_bonus_value = 5
 
-[sub_resource type="Resource" id="Resource_76cp0"]
-script = ExtResource("1_xeutd")
+[sub_resource type="Resource" id="Resource_naeuf"]
+script = ExtResource("1_0046c")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_j5ptl"]
+script = ExtResource("1_0046c")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_tnex4"]
+script = ExtResource("1_0046c")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_ejkwr"]
+script = ExtResource("1_0046c")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_vxdj0"]
+script = ExtResource("1_0046c")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_b042x"]
+script = ExtResource("1_0046c")
 stat_type = 5
 base_value = 0
 flat_bonus_value = 29
 
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_807ro"]
-load_path = "res://.godot/imported/Eqp_Leather_Sandals.png-23f0cc5f3f25b855dccf580eeba0d806.ctex"
+[sub_resource type="Resource" id="Resource_1mx0r"]
+script = ExtResource("1_0046c")
+stat_type = 7
+base_value = 0
+flat_bonus_value = 1
 
 [resource]
-script = ExtResource("2_0046c")
+script = ExtResource("3_nsjv4")
 armor_type = 3
-bonus_stats = Dictionary[int, ExtResource("1_xeutd")]({
-1: SubResource("Resource_1y6h3"),
-5: SubResource("Resource_76cp0"),
-8: SubResource("Resource_rovre"),
-9: SubResource("Resource_nsjv4")
+bonus_stats = Dictionary[int, ExtResource("1_0046c")]({
+0: SubResource("Resource_807ro"),
+1: SubResource("Resource_xvb6r"),
+2: SubResource("Resource_cfmrb"),
+3: SubResource("Resource_naeuf"),
+5: SubResource("Resource_b042x"),
+7: SubResource("Resource_1mx0r"),
+8: SubResource("Resource_1y6h3"),
+9: SubResource("Resource_76cp0"),
+10: SubResource("Resource_tnex4"),
+11: SubResource("Resource_ejkwr"),
+15: SubResource("Resource_j5ptl"),
+16: SubResource("Resource_vxdj0")
 })
-item_id = "411213711013-145212-12170-69612-6125131015460712"
+item_id = "1271221215126-1113116-3450-11125-141512512011811011"
 name = "Steel Arcanist Boots"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_rovre")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
 item_level = 35

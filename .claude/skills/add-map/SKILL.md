@@ -240,6 +240,61 @@ clear). The rock backfill auto-sizes to the whole platform tower; `decor` props:
 `ground_props` (anchored on the main ground) and `scatter` (a prop on alternating
 upper platforms).
 
+### MapleStory design principles (grind-map quality)
+
+Full write-up: [maplestory_map_design.md](maplestory_map_design.md). Apply these
+when choosing a layout, density, and mob set — a map is a *rotation* (a clearing
+loop), not just a pile of platforms:
+
+- **Density 25–40+ mobs.** Our `enemy_spacing`/`max_enemies` target ~30–55; never
+  ship ~15 or it bottlenecks XP/loot. Aim so a player clears the whole map in
+  roughly one respawn window (don't leave them idle waiting for the next wave).
+- **Design the rotation.** Pick a shape whose loop clears everything with minimal
+  backtracking:
+  - *Horizontal lazy-grinder* — long flat platforms stacked tightly; run one way
+    spamming, turn, repeat. Lowest friction, best for early/transition maps (wide
+    `main_w`, big `pw`, small `level_height`).
+  - *Vertical loop* — clear top, drop tier by tier, then a **bottom→top return
+    portal** restarts the loop instantly (gravity does the travel). For tall
+    `stairs`/`tower` maps add a portal at the base whose `target_map_id` is the
+    SAME map and whose `target_spawn_point_name` is a marker on the top platform —
+    ladders alone kill momentum.
+  - *Compact stay-in-place* — small map, mobs spawn around the centre; outliers
+    handled by summons/pets (small `main_w`, few `levels`).
+- **Tier spacing vs. attack reach.** Stack grind tiers close (~1–2 tiles) so a
+  player hits the tier above without jumping; far tiers force a jump-attack per
+  platform (fatigue). Reserve 3-tile gaps + ladders for *traversal* sections, not
+  the core grind floor. (Jump apex ≈1.8 tiles.)
+- **Mob hitboxes.** Prefer grounded, normal-sized mobs for grind maps; tiny or
+  flying mobs slip under/over attacks and leave stragglers that break the loop —
+  choose `populate` enemies accordingly.
+- **Loot on the path.** Don't scatter platforms so jaggedly that drops land
+  unreachable; the pet auto-loot follows the kill rotation, so keep platform tops
+  broad and aligned.
+- **One-shot timing.** The wave rhythm assumes mobs die fast at the intended
+  level (see the enemy-level-balance memory); anchor mob `monster_level` to the
+  band's low end so they don't take 3 hits and desync the rotation.
+
+### Engine-architecture references → our Godot equivalents
+
+Deeper reference (MapleStory's `.wz` data model, foothold math, VR camera, portal
+types, MSW Lua): [maplestory_complete_encyclopedia.md](maplestory_complete_encyclopedia.md)
+and [maplestory_architecture_encyclopedia.md](maplestory_architecture_encyclopedia.md).
+Most of it is engine-specific, but several concepts map directly onto how we build
+maps here — translate, don't copy:
+
+| MapleStory concept | Our Godot equivalent / action |
+|---|---|
+| **VR camera quad** (`VRTop/Bottom/Left/Right`) | `MapBase` already auto-computes camera limits from the `Mid` layer's `used_rect` + padding — that *is* the VR quad. Keep the `Mid` extent tight to the play area. |
+| **Footholds** (vector floor segments) | Collision comes from the TileSet physics polygons on the `Mid` layer; painted grass-top cells are the footholds. |
+| **Down-jump / thin one-way platforms** | The project has one-way/drop-through platform support — use thin upper tiers so a vertical-loop map lets players *dive* down through platforms (don't make every tier solid). |
+| **Portal types** (0 start, 2 ordinary/press-Up, 3 collision/instant) | `PlayerSpawn` = the Type-0 start point. Our `portal.tscn` is an `Area2D` `body_entered` trigger (≈ Type 3 instant) with an interact label. For the **vertical-loop bottom→top**, use an instant touch portal whose target is the *same map's* top-platform marker. |
+| **`town` safe-zone, `fieldLimit`, `lvLimit`** | Design intents, not engine flags: `lanterns_rest` is the town/safe hub; a boss arena (warlord) is the "no-escape" map; level gating lives in bot `map_difficulty` bands (mirror it for players if you add gates). |
+| **Parallax `back` layers + `rx/ry` scroll ratios, Z-sorting** | We decorate on `Background` (z −3) / `Background2` (z −2); for real depth add a `ParallaxBackground` with the `Country.png` parallax art behind those. Z-index batching = keep decoration on those two layers. |
+| **Spawn restricted on short platforms** | Our slot generator only places on platform tops; keep generated platforms wide enough (`pw_min` ≥ ~6) so wandering mobs don't walk off. |
+| **High density vs packet throttle / tick-rate** | Server-authoritative netcode makes 40+ synced mobs costly — but ADR 0007 proximity activation sleeps far enemies, so dense static populations are cheap until a player is near. That's why we can afford 30–55 mobs/map. |
+| **`onUserEnter` / dynamic spawn-wave top-up** | Our `EnemySpawner` (pooled, respawn_delay) is the closest analog; static `populate` maps don't respawn. Use spawners where you want sustained waves. |
+
 What the builder does in this mode (`_decorate_and_populate`):
 - **Decoration uses the non-physics layers.** `backfill` paints a rock rectangle
   on the `Background` layer (z -3, `collision_enabled = false`, **darkened via

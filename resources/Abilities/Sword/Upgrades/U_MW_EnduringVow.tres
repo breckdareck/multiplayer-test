@@ -6,7 +6,7 @@
 script = ExtResource("1_aud")
 upgrade_id = "mw_t3_enduring_vow"
 upgrade_name = "Enduring Vow"
-description = "Vow of the Vanguard lasts 30 seconds longer."
+description = "Vow of the Vanguard lasts up to 30 seconds longer (scales with combo consumed)."
 point_cost = 2
 tier = 3
 variant_group = "vow_variant"

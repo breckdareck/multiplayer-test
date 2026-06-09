@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="ConsumableData" load_steps=4 format=3 uid="uid://r25iljcogvay"]
 
-[ext_resource type="Texture2D" uid="uid://bxqifgnqia3if" path="res://assets/sprites/Items/generated_px/Consumables/Generated/Greater_Healing_Draught.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/Effects/Effect_RestoreHealth.gd" id="1_cov4o"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Consumables/Generated/Greater_Healing_Draught.png" id="2_2uu5y"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="3_04x7s"]
 
 [resource]
@@ -10,9 +10,9 @@ effect_script = ExtResource("1_cov4o")
 effect_properties = {
 "heal_amount": 320
 }
-item_id = "71121138812-9417-9993-4600-151113158242211145"
+item_id = "10111512114156-0851-1412127-101104-91511312801558104"
 name = "Greater Healing Draught"
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_2uu5y")
 description = "Restores 320 HP when consumed."
 item_type = 2
 item_level = -1

@@ -116,6 +116,12 @@ func unbind() -> void:
 func notify_map_arrival() -> void:
 	if is_instance_valid(_body):
 		_show_zone_banner(_body)
+	# Live-node reparent keeps the same body, so bind_player isn't re-called — but
+	# per-map widgets (minimap terrain, world-map current-location) must still
+	# refresh. Notify any bindable that cares about map changes.
+	for w in _bindables:
+		if is_instance_valid(w) and w.has_method("notify_map_arrival"):
+			w.notify_map_arrival()
 
 
 func _show_zone_banner(body: Node) -> void:

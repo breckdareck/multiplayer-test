@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://bew502wcec1of"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://bew502wcec1of"]
 
-[ext_resource type="Texture2D" uid="uid://8ys6slpwl648" path="res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Nightshade_Helm.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_85lv4"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Nightshade_Helm.png" id="2_i0gg2"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_ergpi"]
 
 [sub_resource type="Resource" id="Resource_c3qw3"]
@@ -18,28 +18,76 @@ flat_bonus_value = 6
 
 [sub_resource type="Resource" id="Resource_sjffg"]
 script = ExtResource("1_85lv4")
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_ym35j"]
+script = ExtResource("1_85lv4")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_8cxju"]
+script = ExtResource("1_85lv4")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_b1cb7"]
+script = ExtResource("1_85lv4")
 stat_type = 3
 base_value = 0
 flat_bonus_value = 3
 
-[sub_resource type="Resource" id="Resource_ym35j"]
+[sub_resource type="Resource" id="Resource_l8jg4"]
+script = ExtResource("1_85lv4")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_0s417"]
+script = ExtResource("1_85lv4")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_6poyl"]
 script = ExtResource("1_85lv4")
 stat_type = 11
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_uwo4k"]
+script = ExtResource("1_85lv4")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_8d41v"]
+script = ExtResource("1_85lv4")
+stat_type = 17
 base_value = 0
 flat_bonus_value = 1
 
 [resource]
 script = ExtResource("3_ergpi")
 bonus_stats = Dictionary[int, ExtResource("1_85lv4")]({
-3: SubResource("Resource_sjffg"),
+0: SubResource("Resource_sjffg"),
+1: SubResource("Resource_8cxju"),
+2: SubResource("Resource_ym35j"),
+3: SubResource("Resource_b1cb7"),
 8: SubResource("Resource_c3qw3"),
 9: SubResource("Resource_cmhua"),
-11: SubResource("Resource_ym35j")
+10: SubResource("Resource_0s417"),
+11: SubResource("Resource_6poyl"),
+15: SubResource("Resource_l8jg4"),
+16: SubResource("Resource_uwo4k"),
+17: SubResource("Resource_8d41v")
 })
-item_id = "12021389102-8461-21536-9584-612141509151511433"
+item_id = "14139374150-1311515-139142-121575-512852101041414713"
 name = "Bronze Nightshade Helm"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_i0gg2")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 13

@@ -6,12 +6,17 @@ func execute():
 		print("Town Potion Effect: Invalid user.")
 		return
 
-	var target_map: String = source_item.effect_properties.get("target_map", MapManager.DEFAULT_MAP)
-	print("Town Potion: Target Map %s - Default Map %s" % [target_map, MapManager.DEFAULT_MAP])
+	# Town-Scroll behaviour: a specific "target_map" property goes straight there
+	# (e.g. a Lantern's Rest Scroll). With no target_map, this is a generic
+	# Hearthstone — teleport to the NEAREST hearth from where the player is now.
 	var current_map: String = MapManager.get_player_map(user.player_id)
+	var target_map: String = source_item.effect_properties.get("target_map", "")
+	if target_map.is_empty():
+		target_map = MapManager.get_nearest_hearth(current_map)
+
 	if current_map == target_map:
-		print("Town Potion: Player '%s' is already on map '%s'." % [user.username, target_map])
+		print("Hearthstone: '%s' is already at hearth '%s'." % [user.username, target_map])
 		return
 
-	print("Town Potion: Teleporting '%s' to '%s'." % [user.username, target_map])
+	print("Hearthstone: Teleporting '%s' to '%s'." % [user.username, target_map])
 	MapManager.request_map_change(user.player_id, target_map)

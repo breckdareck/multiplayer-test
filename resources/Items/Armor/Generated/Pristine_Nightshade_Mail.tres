@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://bsvmdwfjf17wh"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://bsvmdwfjf17wh"]
 
-[ext_resource type="Texture2D" uid="uid://6hs28mjb6af4" path="res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Nightshade_Mail.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_qbsnq"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Nightshade_Mail.png" id="2_1sgvm"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_fb72f"]
 
 [sub_resource type="Resource" id="Resource_vcaim"]
@@ -18,29 +18,77 @@ flat_bonus_value = 36
 
 [sub_resource type="Resource" id="Resource_ymf4m"]
 script = ExtResource("1_qbsnq")
-stat_type = 3
 base_value = 0
-flat_bonus_value = 19
+flat_bonus_value = 6
 
 [sub_resource type="Resource" id="Resource_5bv18"]
 script = ExtResource("1_qbsnq")
-stat_type = 11
+stat_type = 2
 base_value = 0
 flat_bonus_value = 6
+
+[sub_resource type="Resource" id="Resource_1v6ta"]
+script = ExtResource("1_qbsnq")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 6
+
+[sub_resource type="Resource" id="Resource_ye21e"]
+script = ExtResource("1_qbsnq")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 16
+
+[sub_resource type="Resource" id="Resource_gqd0u"]
+script = ExtResource("1_qbsnq")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 7
+
+[sub_resource type="Resource" id="Resource_edthw"]
+script = ExtResource("1_qbsnq")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_p4gef"]
+script = ExtResource("1_qbsnq")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 8
+
+[sub_resource type="Resource" id="Resource_kcjoa"]
+script = ExtResource("1_qbsnq")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_y7phm"]
+script = ExtResource("1_qbsnq")
+stat_type = 17
+base_value = 0
+flat_bonus_value = 3
 
 [resource]
 script = ExtResource("3_fb72f")
 armor_type = 1
 bonus_stats = Dictionary[int, ExtResource("1_qbsnq")]({
-3: SubResource("Resource_ymf4m"),
+0: SubResource("Resource_ymf4m"),
+1: SubResource("Resource_1v6ta"),
+2: SubResource("Resource_5bv18"),
+3: SubResource("Resource_ye21e"),
 8: SubResource("Resource_vcaim"),
 9: SubResource("Resource_756q6"),
-11: SubResource("Resource_5bv18")
+10: SubResource("Resource_edthw"),
+11: SubResource("Resource_p4gef"),
+15: SubResource("Resource_gqd0u"),
+16: SubResource("Resource_kcjoa"),
+17: SubResource("Resource_y7phm")
 })
-item_id = "14312594158-1510111-710119-14781-11151435514450110"
+item_id = "71410361140-1012212-12437-6800-1127115115126624"
 name = "Pristine Nightshade Mail"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_1sgvm")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 60

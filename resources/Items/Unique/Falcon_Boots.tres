@@ -1,42 +1,39 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://cp2kgnc7loqw3"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=7 format=3 uid="uid://cp2kgnc7loqw3"]
 
-[ext_resource type="Texture2D" uid="uid://bcvl8ndqwqhu2" path="res://assets/sprites/Items/generated_px/Unique/Falcon_Boots.png" id="99_svgicon"]
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_2v5he"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_ld160"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_ld160"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Unique/Falcon_Boots.png" id="2_4icmw"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_oknfc"]
 
-[sub_resource type="Resource" id="Resource_4icmw"]
-script = ExtResource("1_2v5he")
+[sub_resource type="Resource" id="Resource_p1evl"]
+script = ExtResource("1_ld160")
 stat_type = 8
 base_value = 0
 flat_bonus_value = 22
 
-[sub_resource type="Resource" id="Resource_oknfc"]
-script = ExtResource("1_2v5he")
+[sub_resource type="Resource" id="Resource_jpo30"]
+script = ExtResource("1_ld160")
 stat_type = 2
 base_value = 0
 flat_bonus_value = 22
 
-[sub_resource type="Resource" id="Resource_p1evl"]
-script = ExtResource("1_2v5he")
+[sub_resource type="Resource" id="Resource_52hyh"]
+script = ExtResource("1_ld160")
 stat_type = 10
 base_value = 0
 flat_bonus_value = 12
 
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_jpo30"]
-load_path = "res://.godot/imported/Eqp_Leather_Sandals.png-23f0cc5f3f25b855dccf580eeba0d806.ctex"
-
 [resource]
-script = ExtResource("2_ld160")
+script = ExtResource("3_oknfc")
 armor_type = 3
-bonus_stats = Dictionary[int, ExtResource("1_2v5he")]({
-2: SubResource("Resource_oknfc"),
-8: SubResource("Resource_4icmw"),
-10: SubResource("Resource_p1evl")
+bonus_stats = Dictionary[int, ExtResource("1_ld160")]({
+2: SubResource("Resource_jpo30"),
+8: SubResource("Resource_p1evl"),
+10: SubResource("Resource_52hyh")
 })
-item_id = "102428786-13217-115812-613121-7044214055151113"
+item_id = "0091501316-12135-814514-151356-8614710143152450"
 name = "Falcon Boots"
 rarity = 4
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_4icmw")
 description = "Boots that carry an Archer as swift as a stooping falcon."
 item_type = 1
 item_level = 45

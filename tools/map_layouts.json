@@ -48,6 +48,23 @@
     "camera_bottom_padding": 80
   },
 
+  "emberwatch": {
+    "display_name": "Emberwatch",
+    "bgm_path": "",
+    "tile": 16,
+    "platforms": [
+      { "x": 0, "y": 14, "w": 56, "depth": 4 }
+    ],
+    "spawn": { "x": 28, "y": 13 },
+    "portals": [
+      { "x": 3, "target_map_id": "mines", "target_spawn_point_name": "Mines_Emberwatch_Portal_Spawn", "arrival_name": "Emberwatch_Mines_Portal_Spawn" },
+      { "x": 53, "target_map_id": "deep_woods", "target_spawn_point_name": "DeepWoods_Emberwatch_Portal_Spawn", "arrival_name": "Emberwatch_DeepWoods_Portal_Spawn" }
+    ],
+    "killzone_y": 19,
+    "camera_top_padding": 400,
+    "camera_bottom_padding": 80
+  },
+
   "_comment": "paint_existing maps keep their authored portals/enemies/boss; 'generate' builds a tall staggered platform tower + auto ladders, and the builder clones enemies to densely populate every platform.",
 
   "mines": {
@@ -56,7 +73,7 @@
       "pw_min": 9, "pw_max": 18, "main_x": -48, "main_w": 96, "main_y": 2,
       "enemy_spacing": 5, "max_enemies": 55 },
     "portals": [
-      { "portal": "PortalToKeep", "arrival": "Mines_Keep_Portal_Spawn", "x": 47 },
+      { "portal": "PortalToKeep", "rename": "PortalToEmberwatch", "arrival": "Mines_Emberwatch_Portal_Spawn", "target_map_id": "emberwatch", "target_spawn_point_name": "Emberwatch_Mines_Portal_Spawn", "x": 47 },
       { "portal": "PortalToDustWarren", "arrival": "Mines_DustWarren_Portal_Spawn", "target_map_id": "dust_warren", "target_spawn_point_name": "DustWarren_Mines_Portal_Spawn", "x": -16 }
     ],
     "decor": { "scatter": "bush" }
@@ -66,10 +83,8 @@
     "generate": { "shape": "stairs", "levels": 9, "level_height": 2, "step_w": 13,
       "main_x": -40, "main_w": 80, "main_y": 2, "enemy_spacing": 5, "max_enemies": 50 },
     "portals": [
-      { "portal": "PortalToMines", "arrival": "Keep_Mines_Portal_Spawn", "x": -39 },
       { "portal": "PortalToEmberscar", "arrival": "Keep_Emberscar_Portal_Spawn", "x": 39 },
-      { "portal": "PortalToLanternsRest", "arrival": "Keep_LanternsRest_Portal_Spawn", "target_map_id": "lanterns_rest", "target_spawn_point_name": "LanternsRest_Keep_Portal_Spawn", "x": -20 },
-      { "portal": "PortalToDeepWoods", "arrival": "Keep_DeepWoods_Portal_Spawn", "target_map_id": "deep_woods", "target_spawn_point_name": "DeepWoods_Keep_Portal_Spawn", "x": 20 }
+      { "portal": "PortalToDeepWoods", "arrival": "Keep_DeepWoods_Portal_Spawn", "target_map_id": "deep_woods", "target_spawn_point_name": "DeepWoods_Keep_Portal_Spawn", "x": -39 }
     ],
     "decor": { "ground_props": [ { "kind": "house", "x": -6 } ], "scatter": "bush" }
   },
@@ -103,7 +118,7 @@
       "main_x": -30, "main_w": 60, "main_y": 2, "enemy_spacing": 6, "max_enemies": 34 },
     "spawn": { "x": -27, "y": 0 },
     "portals": [
-      { "x": -29, "target_map_id": "ember_meadows", "target_spawn_point_name": "EmberMeadows_Thornroot_Portal_Spawn", "arrival_name": "Thornroot_EmberMeadows_Portal_Spawn" },
+      { "x": -29, "target_map_id": "ruins", "target_spawn_point_name": "Ruins_Thornroot_Portal_Spawn", "arrival_name": "Thornroot_Ruins_Portal_Spawn" },
       { "x": 29, "target_map_id": "dust_warren", "target_spawn_point_name": "DustWarren_Thornroot_Portal_Spawn", "arrival_name": "Thornroot_DustWarren_Portal_Spawn" }
     ],
     "populate": [ "res://scenes/NPC/cave_goblin.tscn", "res://scenes/NPC/Minifolks/tusk_brute.tscn" ],

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://uspsavage3"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "sp_t3_savage_shadow"
+upgrade_name = "Savage Shadow"
+description = "The shadow mimics your attacks for +50% more damage."
+point_cost = 2
+tier = 3
+variant_group = "sp_t3_variant"
+effect_key = "shadow_damage_bonus"
+magnitude = 0.5

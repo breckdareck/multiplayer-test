@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://6vnuu4emqp3f"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://6vnuu4emqp3f"]
 
-[ext_resource type="Texture2D" uid="uid://dww03txdohup5" path="res://assets/sprites/Items/generated_px/Armor/Generated/Astral_Pathfinder_Legguards.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_260fo"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_w802k"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Astral_Pathfinder_Legguards.png" id="2_w802k"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_xoify"]
 
 [sub_resource type="Resource" id="Resource_p5j3t"]
@@ -19,34 +18,77 @@ flat_bonus_value = 43
 
 [sub_resource type="Resource" id="Resource_03sim"]
 script = ExtResource("1_260fo")
-stat_type = 2
 base_value = 0
-flat_bonus_value = 23
+flat_bonus_value = 7
 
 [sub_resource type="Resource" id="Resource_ug0lr"]
 script = ExtResource("1_260fo")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 19
+
+[sub_resource type="Resource" id="Resource_5uyro"]
+script = ExtResource("1_260fo")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 7
+
+[sub_resource type="Resource" id="Resource_eufwx"]
+script = ExtResource("1_260fo")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 7
+
+[sub_resource type="Resource" id="Resource_rspb4"]
+script = ExtResource("1_260fo")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 8
+
+[sub_resource type="Resource" id="Resource_66c23"]
+script = ExtResource("1_260fo")
 stat_type = 10
+base_value = 0
+flat_bonus_value = 6
+
+[sub_resource type="Resource" id="Resource_tvm54"]
+script = ExtResource("1_260fo")
+stat_type = 11
 base_value = 0
 flat_bonus_value = 5
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_5uyro"]
-atlas = ExtResource("2_w802k")
-region = Rect2(0, 0, 25, 16)
-margin = Rect2(0.5, 5.5, 1, 10)
+[sub_resource type="Resource" id="Resource_qy834"]
+script = ExtResource("1_260fo")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 7
+
+[sub_resource type="Resource" id="Resource_7ay7i"]
+script = ExtResource("1_260fo")
+stat_type = 17
+base_value = 0
+flat_bonus_value = 3
 
 [resource]
 script = ExtResource("3_xoify")
 armor_type = 2
 bonus_stats = Dictionary[int, ExtResource("1_260fo")]({
-2: SubResource("Resource_03sim"),
+0: SubResource("Resource_03sim"),
+1: SubResource("Resource_5uyro"),
+2: SubResource("Resource_ug0lr"),
+3: SubResource("Resource_eufwx"),
 8: SubResource("Resource_p5j3t"),
 9: SubResource("Resource_b52dc"),
-10: SubResource("Resource_ug0lr")
+10: SubResource("Resource_66c23"),
+11: SubResource("Resource_tvm54"),
+15: SubResource("Resource_rspb4"),
+16: SubResource("Resource_qy834"),
+17: SubResource("Resource_7ay7i")
 })
-item_id = "81114814101014-7128-7172-37159-593510911034010"
+item_id = "52891561311-13978-1515614-7138-41073581541351215"
 name = "Astral Pathfinder Legguards"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_w802k")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 93

@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://dslqx7nlebxqf"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://dslqx7nlebxqf"]
 
-[ext_resource type="Texture2D" uid="uid://ct23ey5yhecva" path="res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Pathfinder_Mail.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_43fnw"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Pathfinder_Mail.png" id="2_cvghq"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_mvm6h"]
 
 [sub_resource type="Resource" id="Resource_g0ejx"]
@@ -18,29 +18,77 @@ flat_bonus_value = 26
 
 [sub_resource type="Resource" id="Resource_ry51c"]
 script = ExtResource("1_43fnw")
-stat_type = 2
 base_value = 0
-flat_bonus_value = 14
+flat_bonus_value = 4
 
 [sub_resource type="Resource" id="Resource_vin4s"]
 script = ExtResource("1_43fnw")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 12
+
+[sub_resource type="Resource" id="Resource_amyla"]
+script = ExtResource("1_43fnw")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_ofnfr"]
+script = ExtResource("1_43fnw")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_uo1b1"]
+script = ExtResource("1_43fnw")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="Resource" id="Resource_r1wky"]
+script = ExtResource("1_43fnw")
 stat_type = 10
 base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_20tp7"]
+script = ExtResource("1_43fnw")
+stat_type = 11
+base_value = 0
 flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_ctife"]
+script = ExtResource("1_43fnw")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="Resource" id="Resource_f7hbo"]
+script = ExtResource("1_43fnw")
+stat_type = 17
+base_value = 0
+flat_bonus_value = 2
 
 [resource]
 script = ExtResource("3_mvm6h")
 armor_type = 1
 bonus_stats = Dictionary[int, ExtResource("1_43fnw")]({
-2: SubResource("Resource_ry51c"),
+0: SubResource("Resource_ry51c"),
+1: SubResource("Resource_amyla"),
+2: SubResource("Resource_vin4s"),
+3: SubResource("Resource_ofnfr"),
 8: SubResource("Resource_g0ejx"),
 9: SubResource("Resource_t8vgk"),
-10: SubResource("Resource_vin4s")
+10: SubResource("Resource_r1wky"),
+11: SubResource("Resource_20tp7"),
+15: SubResource("Resource_uo1b1"),
+16: SubResource("Resource_ctife"),
+17: SubResource("Resource_f7hbo")
 })
-item_id = "9478214414-50158-1705-611115-312101504911137311"
+item_id = "4931415764-111097-154125-1511912-086116031077136"
 name = "Mithril Pathfinder Mail"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_cvghq")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 43

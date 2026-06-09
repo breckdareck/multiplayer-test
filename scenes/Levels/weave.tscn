@@ -1143,12 +1143,12 @@ target_spawn_point_name = "Emberscar_Weave_Portal_Spawn"
 position = Vector2(-360, 16)
 
 [node name="PortalToWarlord" parent="." instance=ExtResource("4_q3nul")]
-position = Vector2(408, 16)
+position = Vector2(390, 16)
 target_map_id = "warlord"
 target_spawn_point_name = "Warlord_Weave_Portal_Spawn"
 
 [node name="Weave_Warlord_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(379, 16)
+position = Vector2(361, 16)
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(0, -16)

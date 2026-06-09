@@ -6,6 +6,6 @@
 script = ExtResource("1_aud")
 upgrade_id = "ear_t1_wider_crack"
 upgrade_name = "Wider Crack"
-description = "Earthsplitter's zone radius is increased."
+description = "Earthsplitter's zone radius is significantly increased."
 effect_key = "bonus_zone_radius"
-magnitude = 20.0
+magnitude = 60.0

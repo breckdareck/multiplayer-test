@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://dmpogtcwvlecc"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://dmpogtcwvlecc"]
 
-[ext_resource type="Texture2D" uid="uid://2wrdchcmlcbr" path="res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Nightshade_Mail.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_wu7ia"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Nightshade_Mail.png" id="2_7qd5j"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_1n6gj"]
 
 [sub_resource type="Resource" id="Resource_50umk"]
@@ -18,29 +18,77 @@ flat_bonus_value = 40
 
 [sub_resource type="Resource" id="Resource_6dqhs"]
 script = ExtResource("1_wu7ia")
-stat_type = 3
 base_value = 0
-flat_bonus_value = 21
+flat_bonus_value = 7
 
 [sub_resource type="Resource" id="Resource_llfmh"]
 script = ExtResource("1_wu7ia")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 7
+
+[sub_resource type="Resource" id="Resource_r24rb"]
+script = ExtResource("1_wu7ia")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 7
+
+[sub_resource type="Resource" id="Resource_jupmb"]
+script = ExtResource("1_wu7ia")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 18
+
+[sub_resource type="Resource" id="Resource_q83bp"]
+script = ExtResource("1_wu7ia")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 7
+
+[sub_resource type="Resource" id="Resource_jeomt"]
+script = ExtResource("1_wu7ia")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_sk18d"]
+script = ExtResource("1_wu7ia")
 stat_type = 11
 base_value = 0
-flat_bonus_value = 6
+flat_bonus_value = 8
+
+[sub_resource type="Resource" id="Resource_fyrec"]
+script = ExtResource("1_wu7ia")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_flqes"]
+script = ExtResource("1_wu7ia")
+stat_type = 17
+base_value = 0
+flat_bonus_value = 3
 
 [resource]
 script = ExtResource("3_1n6gj")
 armor_type = 1
 bonus_stats = Dictionary[int, ExtResource("1_wu7ia")]({
-3: SubResource("Resource_6dqhs"),
+0: SubResource("Resource_6dqhs"),
+1: SubResource("Resource_r24rb"),
+2: SubResource("Resource_llfmh"),
+3: SubResource("Resource_jupmb"),
 8: SubResource("Resource_50umk"),
 9: SubResource("Resource_j58jb"),
-11: SubResource("Resource_llfmh")
+10: SubResource("Resource_jeomt"),
+11: SubResource("Resource_sk18d"),
+15: SubResource("Resource_q83bp"),
+16: SubResource("Resource_fyrec"),
+17: SubResource("Resource_flqes")
 })
-item_id = "45479295-99315-3498-914213-125152121251376912"
+item_id = "13615120545-0446-3628-13747-15471255015131315"
 name = "Runic Nightshade Mail"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_7qd5j")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 68

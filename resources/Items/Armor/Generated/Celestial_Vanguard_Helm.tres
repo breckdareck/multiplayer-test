@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://h27f1vyhlurm"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://h27f1vyhlurm"]
 
-[ext_resource type="Texture2D" uid="uid://b7pygx4fs0yyr" path="res://assets/sprites/Items/generated_px/Armor/Generated/Celestial_Vanguard_Helm.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_3uion"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Celestial_Vanguard_Helm.png" id="2_bm2xj"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_gxytb"]
 
 [sub_resource type="Resource" id="Resource_x11wm"]
@@ -23,6 +23,48 @@ flat_bonus_value = 13
 
 [sub_resource type="Resource" id="Resource_kly63"]
 script = ExtResource("1_3uion")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="Resource" id="Resource_3mbfy"]
+script = ExtResource("1_3uion")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="Resource" id="Resource_ewntk"]
+script = ExtResource("1_3uion")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="Resource" id="Resource_f00ip"]
+script = ExtResource("1_3uion")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 12
+
+[sub_resource type="Resource" id="Resource_k7sfn"]
+script = ExtResource("1_3uion")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_mq31e"]
+script = ExtResource("1_3uion")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_hpn8a"]
+script = ExtResource("1_3uion")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_d2bir"]
+script = ExtResource("1_3uion")
 stat_type = 4
 base_value = 0
 flat_bonus_value = 97
@@ -31,14 +73,21 @@ flat_bonus_value = 97
 script = ExtResource("3_gxytb")
 bonus_stats = Dictionary[int, ExtResource("1_3uion")]({
 0: SubResource("Resource_h5p41"),
-4: SubResource("Resource_kly63"),
+1: SubResource("Resource_3mbfy"),
+2: SubResource("Resource_kly63"),
+3: SubResource("Resource_ewntk"),
+4: SubResource("Resource_d2bir"),
 8: SubResource("Resource_x11wm"),
-9: SubResource("Resource_hghn6")
+9: SubResource("Resource_hghn6"),
+10: SubResource("Resource_k7sfn"),
+11: SubResource("Resource_mq31e"),
+15: SubResource("Resource_f00ip"),
+16: SubResource("Resource_hpn8a")
 })
-item_id = "148112771-101125-61313-861310-56322714689133"
+item_id = "612504777-44112-3893-13713-9118401712121412"
 name = "Celestial Vanguard Helm"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_bm2xj")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 85

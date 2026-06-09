@@ -1,0 +1,945 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Full Ability Balance Report &mdash; Weapon Identity Overhaul</title>
+<style>
+:root{--bg:#0f1117;--card:#181b24;--card2:#1f232e;--line:#2c313d;--fg:#e6e8ee;--mut:#9aa3b2;
+--ok:#3fb950;--warn:#d29922;--bad:#f85149;--acc:#58a6ff;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 -apple-system,Segoe UI,Roboto,sans-serif}
+header{padding:28px 32px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#1b2030,#0f1117)}
+header h1{margin:0 0 6px;font-size:24px}
+header p{margin:0;color:var(--mut)}
+nav{position:sticky;top:0;z-index:10;background:#10131c;border-bottom:1px solid var(--line);padding:8px 32px;display:flex;gap:14px;flex-wrap:wrap}
+nav a{color:var(--acc);text-decoration:none;font-weight:600;font-size:13px}
+nav a:hover{text-decoration:underline}
+section{padding:20px 32px;border-bottom:1px solid var(--line)}
+h2{font-size:20px;border-left:4px solid var(--acc);padding-left:10px}
+h3{font-size:16px;color:var(--mut);margin-top:26px;text-transform:uppercase;letter-spacing:.04em}
+h4{margin:0 0 4px;font-size:15px}
+code{background:#11141c;padding:1px 5px;border-radius:4px;color:#c9d1d9;font-size:12px}
+.ability{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:14px 0}
+.ability.broken{border-color:#5a2230;background:#1d1418}
+.desc{color:var(--mut);font-size:12.5px;margin-bottom:8px}
+.stat-tag{font-size:11px;color:var(--mut);font-weight:400;border:1px solid var(--line);border-radius:4px;padding:1px 5px;margin-left:4px}
+.badge{font-size:11px;border-radius:5px;padding:2px 7px;font-weight:700;margin-left:6px}
+.badge-bad{background:#5a2230;color:#ffb3bd}
+.badge-ok{background:#16341f;color:#9fe6ad}
+.shortfall{background:#2a1419;border:1px solid #5a2230;border-radius:8px;padding:8px 10px;margin:8px 0;font-size:13px;color:#ffd7dc}
+table.dmg{width:100%;border-collapse:collapse;margin:8px 0;font-size:12.5px}
+table.dmg th{background:#11141c;color:var(--mut);text-align:right;padding:5px 7px;border-bottom:1px solid var(--line);font-weight:600}
+table.dmg th:first-child,table.dmg td:first-child{text-align:left}
+table.dmg td{padding:4px 7px;border-bottom:1px solid #20242e;text-align:right}
+table.dmg td small{color:var(--mut);font-size:10px;margin-left:3px}
+tr.broken td{background:#1d1418}
+.ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad);font-weight:700}
+td.ok{color:var(--ok)}td.warn{color:var(--warn)}td.bad{color:var(--bad);font-weight:700}
+.sweep{margin-top:6px}.sweeptab{max-width:680px}
+.finding-big{background:#2a1419;border:1px solid #5a2230;border-radius:10px;padding:14px 16px;margin:12px 0;font-size:14.5px;line-height:1.55}
+details.method{margin-top:16px;background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:8px 12px}
+details.method summary{cursor:pointer;font-weight:700;color:var(--acc)}
+details.method ul{margin:10px 0 4px;padding-left:18px;color:#c9d1d9}
+details.method li{margin:4px 0}
+</style></head><body>
+<header><h1>Full Ability Balance Report</h1>
+<p>Weapon-identity overhaul &mdash; every ability, every rank, level 1&rarr;100, vs the monster curve.
+Generated from authoritative game-formula data.</p></header>
+<nav><a href="#summary">Summary</a><a href="#Sword">Sword</a><a href="#Bow">Bow</a>
+<a href="#Staff">Staff</a><a href="#Dagger">Dagger</a></nav>
+
+<section id="summary"><h2>Executive summary</h2>
+<p>This report re-implements the live combat pipeline (<code>combat.gd._execute_hit</code> / <code>_calculate_max_range</code> + <code>stats.gd</code>) and drives it with the authoritative per-level ability numbers dumped straight from the game formulas (<code>docs/ability_data_dump.json</code>). For every damage ability it walks ranks 1&rarr;max at the character level a focused player unlocks them, against a spread of monster levels, from level 1 to 100.</p>
+<div class="finding-big" style="border-color:#2a6;background:#13241a">&#9745; <b>RESOLVED (2026-06-08): the 7 raw-stat riders are fixed.</b> Earthsplitter, Sky Volley, Frost Patch, Stormcall, Arcane Lance, Arcane Familiar and Spellweave now scale their zone/DoT/summon ticks through <code>combat.dot_scaling_base(ability)</code> (the same <code>max_range &times; damage%</code> anchor the bleeds use), so they track attributes + mastery + gear instead of falling ~30&ndash;55&times; behind at the cap. Additionally, 4 staff zones (Frost Patch, Stormcall, Spellweave, Arcane Familiar) had <code>damage_stat = WEAPONATTACK</code> &mdash; a mage's WEAPONATTACK is 0, so their <i>direct hit was also dealing ~zero</i>; corrected to MAGICATTACK. The tables below reflect the fixed scaling; all damage abilities now sit in a sane band L1&rarr;100. Watch tuning on Earthsplitter at max combo (combo amp &times; the now-larger base) and Spellweave's amplified release &mdash; both are strong but no longer broken.</div>
+<table class="dmg"><thead><tr><th>Ability</th><th>Weapon</th><th>Rider stat</th><th>Rider model</th><th>L100 rider tick now</th><th>L100 tick if fixed</th><th>Rider shortfall</th></tr></thead><tbody>
+</tbody></table>
+<h3 style="margin-top:22px">At-a-glance: every damage ability, level 1 &rarr; 100</h3>
+<p style="color:var(--mut);font-size:12.5px">Single-target burst as % of an <i>at-level</i> enemy's HP (one cast / one DoT application). Max target count shown for AoE context. "Rider@100" = the share coming from a zone/DoT tick at L100 (red = broken raw-stat rider that dies at endgame).</p>
+<table class="dmg"><thead><tr><th>Ability</th><th>Wpn</th><th>Model</th><th>Tgts</th><th>L1</th><th>L50</th><th>L100</th><th>Rider@100</th><th>Read</th></tr></thead><tbody>
+<tr><td>Charge!</td><td>Sword</td><td>direct</td><td>3</td><td class="ok">28%</td><td class="ok">27%</td><td class="warn">13%</td><td class="">0.0%</td><td class="ok">ok</td></tr>
+<tr><td>Crescent Cleave</td><td>Sword</td><td>direct</td><td>6</td><td class="ok">41%</td><td class="ok">54%</td><td class="ok">29%</td><td class="">0.0%</td><td class="ok">ok</td></tr>
+<tr><td>Earthsplitter</td><td>Sword</td><td>DoT (ok)</td><td>8</td><td class="ok">49%</td><td class="ok">53%</td><td class="ok">31%</td><td class="ok">20.1%</td><td class="ok">ok</td></tr>
+<tr><td>Hemorrhage</td><td>Sword</td><td>DoT (ok)</td><td>1</td><td class="ok">76%</td><td class="ok">97%</td><td class="ok">60%</td><td class="ok">38.2%</td><td class="ok">ok</td></tr>
+<tr><td>Steel Flurry</td><td>Sword</td><td>direct</td><td>3</td><td class="ok">44%</td><td class="ok">51%</td><td class="ok">26%</td><td class="">0.0%</td><td class="ok">ok</td></tr>
+<tr><td>Sundering Blow</td><td>Sword</td><td>direct</td><td>1</td><td class="ok">32%</td><td class="ok">41%</td><td class="warn">22%</td><td class="">0.0%</td><td class="ok">ok</td></tr>
+<tr><td>Vanguard&#x27;s Onslaught</td><td>Sword</td><td>direct</td><td>6</td><td class="ok">50%</td><td class="ok">50%</td><td class="warn">25%</td><td class="">0.0%</td><td class="ok">ok</td></tr>
+<tr><td>Vault Strike</td><td>Sword</td><td>direct</td><td>2</td><td class="ok">33%</td><td class="ok">39%</td><td class="warn">20%</td><td class="">0.0%</td><td class="ok">ok</td></tr>
+<tr><td>Barbed Shot</td><td>Bow</td><td>DoT (ok)</td><td>1</td><td class="ok">71%</td><td class="ok">83%</td><td class="ok">52%</td><td class="ok">31.8%</td><td class="ok">ok</td></tr>
+<tr><td>Caltrops</td><td>Bow</td><td>DoT (ok)</td><td>6</td><td class="ok">47%</td><td class="ok">26%</td><td class="warn">15%</td><td class="ok">7.9%</td><td class="ok">ok</td></tr>
+<tr><td>Disengage</td><td>Bow</td><td>direct</td><td>1</td><td class="ok">31%</td><td class="ok">39%</td><td class="warn">22%</td><td class="">0.0%</td><td class="ok">ok</td></tr>
+<tr><td>Hailstorm</td><td>Bow</td><td>direct</td><td>3</td><td class="ok">33%</td><td class="ok">104%</td><td class="ok">83%</td><td class="">0.0%</td><td class="bad">very strong @100</td></tr>
+<tr><td>Sky Volley</td><td>Bow</td><td>DoT (ok)</td><td>6</td><td class="ok">53%</td><td class="ok">28%</td><td class="warn">17%</td><td class="ok">9.9%</td><td class="ok">ok</td></tr>
+<tr><td>Skyfall</td><td>Bow</td><td>direct</td><td>6</td><td class="warn">17%</td><td class="warn">22%</td><td class="warn">13%</td><td class="">0.0%</td><td class="ok">ok</td></tr>
+<tr><td>Snap Shot</td><td>Bow</td><td>direct</td><td>1</td><td class="ok">28%</td><td class="warn">23%</td><td class="warn">11%</td><td class="">0.0%</td><td class="ok">ok</td></tr>
+<tr><td>Snipe</td><td>Bow</td><td>direct</td><td>1</td><td class="ok">56%</td><td class="ok">74%</td><td class="ok">42%</td><td class="">0.0%</td><td class="ok">ok</td></tr>
+<tr><td>Split Shot</td><td>Bow</td><td>direct</td><td>1</td><td class="ok">43%</td><td class="ok">52%</td><td class="ok">29%</td><td class="">0.0%</td><td class="ok">ok</td></tr>
+<tr><td>Sundering Arrow</td><td>Bow</td><td>direct</td><td>6</td><td class="ok">47%</td><td class="ok">50%</td><td class="ok">27%</td><td class="">0.0%</td><td class="ok">ok</td></tr>
+<tr><td>Arcane Bolt</td><td>Staff</td><td>direct</td><td>1</td><td class="ok">32%</td><td class="ok">36%</td><td class="warn">19%</td><td class="">0.0%</td><td class="ok">ok</td></tr>
+<tr><td>Arcane Familiar</td><td>Staff</td><td>DoT (ok)</td><td>1</td><td class="ok">119%</td><td class="ok">145%</td><td class="ok">94%</td><td class="ok">85.2%</td><td class="ok">ok</td></tr>
+<tr><td>Arcane Lance</td><td>Staff</td><td>DoT (ok)</td><td>3</td><td class="ok">61%</td><td class="ok">130%</td><td class="ok">97%</td><td class="ok">10.2%</td><td class="ok">ok</td></tr>
+<tr><td>Frost Patch</td><td>Staff</td><td>DoT (ok)</td><td>6</td><td class="ok">41%</td><td class="warn">22%</td><td class="warn">12%</td><td class="ok">6.0%</td><td class="ok">ok</td></tr>
+<tr><td>Glacial Spike</td><td>Staff</td><td>direct</td><td>1</td><td class="ok">28%</td><td class="ok">33%</td><td class="warn">18%</td><td class="">0.0%</td><td class="ok">ok</td></tr>
+<tr><td>Immolate</td><td>Staff</td><td>DoT (ok)</td><td>1</td><td class="ok">72%</td><td class="ok">77%</td><td class="ok">48%</td><td class="ok">30.6%</td><td class="ok">ok</td></tr>
+<tr><td>Pyre Burst</td><td>Staff</td><td>DoT (ok)</td><td>6</td><td class="ok">66%</td><td class="ok">58%</td><td class="ok">38%</td><td class="ok">26.4%</td><td class="ok">ok</td></tr>
+<tr><td>Spellweave</td><td>Staff</td><td>DoT (ok)</td><td>4</td><td class="ok">68%</td><td class="ok">83%</td><td class="ok">50%</td><td class="ok">34.5%</td><td class="ok">ok</td></tr>
+<tr><td>Stormcall</td><td>Staff</td><td>DoT (ok)</td><td>5</td><td class="ok">57%</td><td class="ok">40%</td><td class="warn">24%</td><td class="ok">16.1%</td><td class="ok">ok</td></tr>
+<tr><td>Backstab</td><td>Dagger</td><td>direct</td><td>1</td><td class="warn">22%</td><td class="ok">27%</td><td class="warn">16%</td><td class="">0.0%</td><td class="ok">ok</td></tr>
+<tr><td>Cripple</td><td>Dagger</td><td>direct</td><td>1</td><td class="warn">20%</td><td class="ok">28%</td><td class="warn">17%</td><td class="">0.0%</td><td class="ok">ok</td></tr>
+<tr><td>Envenom</td><td>Dagger</td><td>DoT (ok)</td><td>1</td><td class="ok">65%</td><td class="ok">60%</td><td class="ok">39%</td><td class="ok">16.9%</td><td class="ok">ok</td></tr>
+<tr><td>Eviscerate</td><td>Dagger</td><td>direct</td><td>1</td><td class="ok">53%</td><td class="ok">81%</td><td class="ok">50%</td><td class="">0.0%</td><td class="ok">ok</td></tr>
+<tr><td>Fan of Knives</td><td>Dagger</td><td>direct</td><td>3</td><td class="ok">47%</td><td class="ok">66%</td><td class="ok">39%</td><td class="">0.0%</td><td class="ok">ok</td></tr>
+<tr><td>Shadow Partner</td><td>Dagger</td><td>direct</td><td>1</td><td class="warn">15%</td><td class="warn">17%</td><td class="warn">9%</td><td class="">0.0%</td><td class="ok">ok</td></tr>
+<tr><td>Twin Fang</td><td>Dagger</td><td>direct</td><td>1</td><td class="ok">41%</td><td class="ok">57%</td><td class="ok">34%</td><td class="">0.0%</td><td class="ok">ok</td></tr>
+<tr><td>Vendetta</td><td>Dagger</td><td>direct</td><td>1</td><td class="ok">33%</td><td class="ok">41%</td><td class="warn">23%</td><td class="">0.0%</td><td class="ok">ok</td></tr>
+</tbody></table>
+
+<details class="method"><summary>Methodology &amp; assumptions (click)</summary>
+<ul>
+<li><b>Damage formula</b>: <code>max_range = round(1.2 &times; (primary&times;4 + secondary) &times; attack_power / 100)</code>;
+per hit rolls <code>randf_range(0.2&times;max, max)</code> (avg 0.6&times;), then &times; level-modifier
+<code>clamp(1+0.05&times;(charLv-mobLv), 0.5, 1.5)</code>, &times; defense <code>1 - DEF/(DEF+500)</code>,
+&times; expected crit. DoT/zone ticks call <code>take_damage</code> directly so they skip defense, crit,
+level-mod and always land.</li>
+<li><b>Player build</b>: <i>focused</i> single weapon, all 5 attribute points/level into the primary
+damage stat (soft-capped above 300 allocation), plus per-mastery stat bonuses. Mastery tracks the
+character level and caps at 100 around char 70 (focused grinder).</li>
+<li><b>Gear</b>: WEAPON/MAGIC ATTACK is base 0 (gear only); modelled ~9 at L1 &rarr; ~197 at L100
+(real starter &rarr; endgame weapons). <b>Folded in 2026-06-08</b>: the level-appropriate generated
+SET (4 armour pieces + weapon, <code>generate_item_content.gd</code>) now contributes its full attribute
+spread (STR/DEX/INT/LUCK/CON), crit chance, and crit damage to the player stats &mdash; so these numbers
+reflect a geared player, not attributes+mastery alone (this adds ~+16% max-range / ~+20% damage at L100,
+and pushes gear-stacked crit rates high, e.g. Dagger ~100% from LUCK&rarr;crit + Nightshade crit gear).</li>
+<li><b>Rank pacing</b>: ability rank <i>r</i> is shown at character level <code>round(70&times;r/max_level)</code>
+&mdash; where a focused player realistically has that rank (rank max &asymp; char 70).</li>
+<li><b>Enemies</b>: NONE-archetype curve baseline &mdash; HP <code>0.7&times;L^2.3</code>,
+DEF/MDEF <code>1.8&times;L^1.2</code>. Real enemies apply archetype multipliers (tanky/glassy) on top.</li>
+<li><b>% HP</b> = single cast / single DoT application vs ONE at-level enemy. Green &ge;25%, amber 8&ndash;25%,
+red &lt;8%. DoT stacks &amp; AoE-on-many-targets are noted, not folded into the single-target % HP.</li>
+</ul></details>
+
+</section>
+<section id="Sword"><h2>Sword</h2>
+<h3>Damage abilities</h3>
+<div class="ability " id="ab-earthsplitte">
+<h4>Earthsplitter <span class="stat-tag">WEAPONATTACK</span> <span class="badge badge-ok">DoT: dot_scaling_base (correct)</span></h4>
+<div class="desc">A heavy slam consumes ALL combo points: deals [color=#e6c95c]$[damage_percent] on impact[/color], then leaves a tremor zone at your feet for 4s. Each combo point spent amplifies BOTH the impact and the per-tick zone damage by +75%.</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>74</td><td>80</td><td>34.2</td><td><span>36.0</span><small>(tremor zone)</small></td><td><b>70.2</b></td><td>61</td><td class="ok">115.2%</td><td>1</td><td>96%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>262</td><td>84</td><td>123</td><td><span>132</span><small>(tremor zone)</small></td><td><b>255</b></td><td>303</td><td class="ok">84.2%</td><td>2</td><td>97%</td></tr>
+<tr><td>3</td><td>21</td><td>221</td><td>538</td><td>88</td><td>255</td><td><span>284</span><small>(tremor zone)</small></td><td><b>539</b></td><td>769</td><td class="ok">70.2%</td><td>2</td><td>98%</td></tr>
+<tr><td>4</td><td>28</td><td>293</td><td>910</td><td>92</td><td>435</td><td><span>504</span><small>(tremor zone)</small></td><td><b>939</b></td><td>1,491</td><td class="ok">63.0%</td><td>2</td><td>100%</td></tr>
+<tr><td>5</td><td>35</td><td>367</td><td>1,406</td><td>96</td><td>671</td><td><span>808</span><small>(tremor zone)</small></td><td><b>1,479</b></td><td>2,491</td><td class="ok">59.4%</td><td>2</td><td>100%</td></tr>
+<tr><td>6</td><td>42</td><td>432</td><td>1,945</td><td>100</td><td>920</td><td><span>1,168</span><small>(tremor zone)</small></td><td><b>2,088</b></td><td>3,789</td><td class="ok">55.1%</td><td>2</td><td>100%</td></tr>
+<tr><td>7</td><td>49</td><td>505</td><td>2,611</td><td>104</td><td>1,226</td><td><span>1,628</span><small>(tremor zone)</small></td><td><b>2,854</b></td><td>5,402</td><td class="ok">52.8%</td><td>2</td><td>100%</td></tr>
+<tr><td>8</td><td>56</td><td>579</td><td>3,382</td><td>108</td><td>1,583</td><td><span>2,192</span><small>(tremor zone)</small></td><td><b>3,775</b></td><td>7,344</td><td class="ok">51.4%</td><td>2</td><td>100%</td></tr>
+<tr><td>9</td><td>63</td><td>648</td><td>4,257</td><td>112</td><td>1,973</td><td><span>2,860</span><small>(tremor zone)</small></td><td><b>4,833</b></td><td>9,629</td><td class="ok">50.2%</td><td>2</td><td>100%</td></tr>
+<tr><td>10</td><td>70</td><td>700</td><td>5,079</td><td>116</td><td>2,344</td><td><span>3,536</span><small>(tremor zone)</small></td><td><b>5,880</b></td><td>12,269</td><td class="ok">47.9%</td><td>3</td><td>100%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="ok">48.8%<small>L1</small></td><td class="ok">48.8%<small>L1</small></td><td class="ok">48.8%<small>L1</small></td><td class="warn">14.1%<small>L6</small></td><td class="bad">2.9%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">1134.7%<small>L1</small></td><td class="ok">551.4%<small>L5</small></td><td class="ok">94.8%<small>L10</small></td><td class="ok">30.4%<small>L15</small></td><td class="warn">12.9%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">111.8%<small>L40</small></td><td class="ok">76.2%<small>L45</small></td><td class="ok">53.1%<small>L50</small></td><td class="ok">36.0%<small>L55</small></td><td class="ok">25.1%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">48.6%<small>L90</small></td><td class="ok">39.0%<small>L95</small></td><td class="ok">31.5%<small>L100</small></td><td class="warn">24.8%<small>L105</small></td><td class="warn">19.5%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<div class="ability " id="ab-101401115521">
+<h4>Hemorrhage <span class="stat-tag">WEAPONATTACK</span> <span class="badge badge-ok">DoT: dot_scaling_base (correct)</span></h4>
+<div class="desc">Cuts deeply for $[damage_percent] damage. [color=#e6c95c]Applies a stacking Bleed (max 3 stacks) — each stack deals 20% Weapon Attack/s for 6 seconds.[/color]</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>74</td><td>130</td><td>55.7</td><td><span>60.0</span><small>(bleed)</small></td><td><b>116</b></td><td>61</td><td class="ok">189.6%</td><td>1</td><td>96%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>262</td><td>140</td><td>205</td><td><span>222</span><small>(bleed)</small></td><td><b>427</b></td><td>303</td><td class="ok">141.0%</td><td>1</td><td>97%</td></tr>
+<tr><td>3</td><td>21</td><td>221</td><td>538</td><td>150</td><td>435</td><td><span>486</span><small>(bleed)</small></td><td><b>921</b></td><td>769</td><td class="ok">119.8%</td><td>1</td><td>98%</td></tr>
+<tr><td>4</td><td>28</td><td>293</td><td>910</td><td>160</td><td>756</td><td><span>876</span><small>(bleed)</small></td><td><b>1,632</b></td><td>1,491</td><td class="ok">109.5%</td><td>1</td><td>100%</td></tr>
+<tr><td>5</td><td>35</td><td>367</td><td>1,406</td><td>170</td><td>1,189</td><td><span>1,434</span><small>(bleed)</small></td><td><b>2,623</b></td><td>2,491</td><td class="ok">105.3%</td><td>1</td><td>100%</td></tr>
+<tr><td>6</td><td>42</td><td>432</td><td>1,945</td><td>180</td><td>1,657</td><td><span>2,100</span><small>(bleed)</small></td><td><b>3,757</b></td><td>3,789</td><td class="ok">99.1%</td><td>2</td><td>100%</td></tr>
+<tr><td>7</td><td>49</td><td>505</td><td>2,611</td><td>190</td><td>2,240</td><td><span>2,976</span><small>(bleed)</small></td><td><b>5,216</b></td><td>5,402</td><td class="ok">96.5%</td><td>2</td><td>100%</td></tr>
+<tr><td>8</td><td>56</td><td>579</td><td>3,382</td><td>200</td><td>2,931</td><td><span>4,056</span><small>(bleed)</small></td><td><b>6,987</b></td><td>7,344</td><td class="ok">95.1%</td><td>2</td><td>100%</td></tr>
+<tr><td>9</td><td>63</td><td>648</td><td>4,257</td><td>210</td><td>3,700</td><td><span>5,364</span><small>(bleed)</small></td><td><b>9,064</b></td><td>9,629</td><td class="ok">94.1%</td><td>2</td><td>100%</td></tr>
+<tr><td>10</td><td>70</td><td>700</td><td>5,079</td><td>220</td><td>4,446</td><td><span>6,702</span><small>(bleed)</small></td><td><b>11,148</b></td><td>12,269</td><td class="ok">90.9%</td><td>2</td><td>100%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="ok">75.9%<small>L1</small></td><td class="ok">75.9%<small>L1</small></td><td class="ok">75.9%<small>L1</small></td><td class="warn">21.7%<small>L6</small></td><td class="bad">4.5%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">1827.2%<small>L1</small></td><td class="ok">887.0%<small>L5</small></td><td class="ok">152.3%<small>L10</small></td><td class="ok">48.6%<small>L15</small></td><td class="warn">20.6%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">204.4%<small>L40</small></td><td class="ok">139.4%<small>L45</small></td><td class="ok">97.1%<small>L50</small></td><td class="ok">65.9%<small>L55</small></td><td class="ok">45.8%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">92.2%<small>L90</small></td><td class="ok">74.1%<small>L95</small></td><td class="ok">59.7%<small>L100</small></td><td class="ok">47.0%<small>L105</small></td><td class="ok">36.9%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<div class="ability " id="ab-charge_v1">
+<h4>Charge! <span class="stat-tag">WEAPONATTACK</span> </h4>
+<div class="desc">Rush forward in your facing direction, striking up to $[target_count] enemies for $[damage_percent] damage. [color=#e6c95c]+1 combo per enemy hit.[/color]</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>74</td><td>100</td><td>42.8</td><td>&mdash;</td><td><b>42.8</b></td><td>61</td><td class="ok">70.2%</td><td>2</td><td>96%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>262</td><td>104</td><td>152</td><td>&mdash;</td><td><b>152</b></td><td>303</td><td class="ok">50.3%</td><td>2</td><td>97%</td></tr>
+<tr><td>3</td><td>21</td><td>221</td><td>538</td><td>108</td><td>314</td><td>&mdash;</td><td><b>314</b></td><td>769</td><td class="ok">40.8%</td><td>3</td><td>98%</td></tr>
+<tr><td>4</td><td>28</td><td>293</td><td>910</td><td>112</td><td>530</td><td>&mdash;</td><td><b>530</b></td><td>1,491</td><td class="ok">35.5%</td><td>3</td><td>100%</td></tr>
+<tr><td>5</td><td>35</td><td>367</td><td>1,406</td><td>116</td><td>811</td><td>&mdash;</td><td><b>811</b></td><td>2,491</td><td class="ok">32.6%</td><td>4</td><td>100%</td></tr>
+<tr><td>6</td><td>42</td><td>432</td><td>1,945</td><td>120</td><td>1,104</td><td>&mdash;</td><td><b>1,104</b></td><td>3,789</td><td class="ok">29.1%</td><td>4</td><td>100%</td></tr>
+<tr><td>7</td><td>49</td><td>505</td><td>2,611</td><td>124</td><td>1,462</td><td>&mdash;</td><td><b>1,462</b></td><td>5,402</td><td class="ok">27.1%</td><td>4</td><td>100%</td></tr>
+<tr><td>8</td><td>56</td><td>579</td><td>3,382</td><td>128</td><td>1,876</td><td>&mdash;</td><td><b>1,876</b></td><td>7,344</td><td class="ok">25.5%</td><td>4</td><td>100%</td></tr>
+<tr><td>9</td><td>63</td><td>648</td><td>4,257</td><td>132</td><td>2,325</td><td>&mdash;</td><td><b>2,325</b></td><td>9,629</td><td class="warn">24.2%</td><td>5</td><td>100%</td></tr>
+<tr><td>10</td><td>70</td><td>700</td><td>5,079</td><td>136</td><td>2,749</td><td>&mdash;</td><td><b>2,749</b></td><td>12,269</td><td class="warn">22.4%</td><td>5</td><td>100%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="ok">27.7%<small>L1</small></td><td class="ok">27.7%<small>L1</small></td><td class="ok">27.7%<small>L1</small></td><td class="bad">5.9%<small>L6</small></td><td class="bad">0.8%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">851.7%<small>L1</small></td><td class="ok">385.6%<small>L5</small></td><td class="ok">57.8%<small>L10</small></td><td class="warn">14.0%<small>L15</small></td><td class="bad">3.8%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">72.9%<small>L40</small></td><td class="ok">44.8%<small>L45</small></td><td class="ok">27.2%<small>L50</small></td><td class="warn">13.9%<small>L55</small></td><td class="bad">6.1%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">26.9%<small>L90</small></td><td class="warn">19.2%<small>L95</small></td><td class="warn">13.3%<small>L100</small></td><td class="bad">7.9%<small>L105</small></td><td class="bad">3.9%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<div class="ability " id="ab-04236384-154">
+<h4>Crescent Cleave <span class="stat-tag">WEAPONATTACK</span> </h4>
+<div class="desc">AOE finisher. Slashes $[target_count] enemies $[hit_count] time dealing $[damage_percent] damage. [color=#e6c95c]Consumes all combo points to amplify damage by +100% per point spent (max +300% at 3 combo).[/color]</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>74</td><td>150</td><td>64.2</td><td>&mdash;</td><td><b>64.2</b></td><td>61</td><td class="ok">105.3%</td><td>1</td><td>96%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>262</td><td>166</td><td>243</td><td>&mdash;</td><td><b>243</b></td><td>303</td><td class="ok">80.3%</td><td>2</td><td>97%</td></tr>
+<tr><td>3</td><td>21</td><td>221</td><td>538</td><td>182</td><td>528</td><td>&mdash;</td><td><b>528</b></td><td>769</td><td class="ok">68.7%</td><td>2</td><td>98%</td></tr>
+<tr><td>4</td><td>28</td><td>293</td><td>910</td><td>198</td><td>936</td><td>&mdash;</td><td><b>936</b></td><td>1,491</td><td class="ok">62.8%</td><td>2</td><td>100%</td></tr>
+<tr><td>5</td><td>35</td><td>367</td><td>1,406</td><td>214</td><td>1,496</td><td>&mdash;</td><td><b>1,496</b></td><td>2,491</td><td class="ok">60.1%</td><td>2</td><td>100%</td></tr>
+<tr><td>6</td><td>42</td><td>432</td><td>1,945</td><td>230</td><td>2,117</td><td>&mdash;</td><td><b>2,117</b></td><td>3,789</td><td class="ok">55.9%</td><td>2</td><td>100%</td></tr>
+<tr><td>7</td><td>49</td><td>505</td><td>2,611</td><td>246</td><td>2,900</td><td>&mdash;</td><td><b>2,900</b></td><td>5,402</td><td class="ok">53.7%</td><td>2</td><td>100%</td></tr>
+<tr><td>8</td><td>56</td><td>579</td><td>3,382</td><td>262</td><td>3,840</td><td>&mdash;</td><td><b>3,840</b></td><td>7,344</td><td class="ok">52.3%</td><td>2</td><td>100%</td></tr>
+<tr><td>9</td><td>63</td><td>648</td><td>4,257</td><td>278</td><td>4,898</td><td>&mdash;</td><td><b>4,898</b></td><td>9,629</td><td class="ok">50.9%</td><td>2</td><td>100%</td></tr>
+<tr><td>10</td><td>70</td><td>700</td><td>5,079</td><td>294</td><td>5,942</td><td>&mdash;</td><td><b>5,942</b></td><td>12,269</td><td class="ok">48.4%</td><td>3</td><td>100%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="ok">41.5%<small>L1</small></td><td class="ok">41.5%<small>L1</small></td><td class="ok">41.5%<small>L1</small></td><td class="warn">8.9%<small>L6</small></td><td class="bad">1.2%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">1277.5%<small>L1</small></td><td class="ok">578.5%<small>L5</small></td><td class="ok">86.7%<small>L10</small></td><td class="warn">21.0%<small>L15</small></td><td class="bad">5.7%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">144.7%<small>L40</small></td><td class="ok">89.0%<small>L45</small></td><td class="ok">53.9%<small>L50</small></td><td class="ok">27.6%<small>L55</small></td><td class="warn">12.1%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">58.1%<small>L90</small></td><td class="ok">41.5%<small>L95</small></td><td class="ok">28.7%<small>L100</small></td><td class="warn">17.1%<small>L105</small></td><td class="warn">8.3%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<div class="ability " id="ab-15163791113-">
+<h4>Steel Flurry <span class="stat-tag">WEAPONATTACK</span> </h4>
+<div class="desc">Combo builder. Thrusts $[hit_count] times hitting $[target_count] enemies dealing $[damage_percent] damage. [color=#e6c95c]Each hit landed builds 1 combo point (capped at 3).[/color]</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>74</td><td>80</td><td>68.5</td><td>&mdash;</td><td><b>68.5</b></td><td>61</td><td class="ok">112.3%</td><td>1</td><td>96%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>262</td><td>86</td><td>252</td><td>&mdash;</td><td><b>252</b></td><td>303</td><td class="ok">83.2%</td><td>2</td><td>97%</td></tr>
+<tr><td>3</td><td>21</td><td>221</td><td>538</td><td>92</td><td>534</td><td>&mdash;</td><td><b>534</b></td><td>769</td><td class="ok">69.5%</td><td>2</td><td>98%</td></tr>
+<tr><td>4</td><td>28</td><td>293</td><td>910</td><td>98</td><td>927</td><td>&mdash;</td><td><b>927</b></td><td>1,491</td><td class="ok">62.1%</td><td>2</td><td>100%</td></tr>
+<tr><td>5</td><td>35</td><td>367</td><td>1,406</td><td>104</td><td>1,454</td><td>&mdash;</td><td><b>1,454</b></td><td>2,491</td><td class="ok">58.4%</td><td>2</td><td>100%</td></tr>
+<tr><td>6</td><td>42</td><td>432</td><td>1,945</td><td>110</td><td>2,025</td><td>&mdash;</td><td><b>2,025</b></td><td>3,789</td><td class="ok">53.4%</td><td>2</td><td>100%</td></tr>
+<tr><td>7</td><td>49</td><td>505</td><td>2,611</td><td>116</td><td>2,735</td><td>&mdash;</td><td><b>2,735</b></td><td>5,402</td><td class="ok">50.6%</td><td>2</td><td>100%</td></tr>
+<tr><td>8</td><td>56</td><td>579</td><td>3,382</td><td>122</td><td>3,576</td><td>&mdash;</td><td><b>3,576</b></td><td>7,344</td><td class="ok">48.7%</td><td>3</td><td>100%</td></tr>
+<tr><td>9</td><td>63</td><td>648</td><td>4,257</td><td>128</td><td>4,510</td><td>&mdash;</td><td><b>4,510</b></td><td>9,629</td><td class="ok">46.8%</td><td>3</td><td>100%</td></tr>
+<tr><td>10</td><td>70</td><td>700</td><td>5,079</td><td>134</td><td>5,417</td><td>&mdash;</td><td><b>5,417</b></td><td>12,269</td><td class="ok">44.1%</td><td>3</td><td>100%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="ok">44.2%<small>L1</small></td><td class="ok">44.2%<small>L1</small></td><td class="ok">44.2%<small>L1</small></td><td class="warn">9.5%<small>L6</small></td><td class="bad">1.2%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">1362.7%<small>L1</small></td><td class="ok">617.0%<small>L5</small></td><td class="ok">92.5%<small>L10</small></td><td class="warn">22.4%<small>L15</small></td><td class="bad">6.1%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">136.5%<small>L40</small></td><td class="ok">83.9%<small>L45</small></td><td class="ok">50.9%<small>L50</small></td><td class="ok">26.1%<small>L55</small></td><td class="warn">11.4%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">53.0%<small>L90</small></td><td class="ok">37.9%<small>L95</small></td><td class="ok">26.1%<small>L100</small></td><td class="warn">15.6%<small>L105</small></td><td class="bad">7.6%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<div class="ability " id="ab-1115614771-1">
+<h4>Sundering Blow <span class="stat-tag">WEAPONATTACK</span> </h4>
+<div class="desc">Single-target finisher. Deliver a heavy blow to a single monster for $[damage_percent] damage. [color=#e6c95c]Consumes all combo points to amplify damage by +200% per point spent (max +600% at 3 combo).[/color]</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>74</td><td>114</td><td>48.8</td><td>&mdash;</td><td><b>48.8</b></td><td>61</td><td class="ok">80.0%</td><td>2</td><td>96%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>262</td><td>126</td><td>185</td><td>&mdash;</td><td><b>185</b></td><td>303</td><td class="ok">60.9%</td><td>2</td><td>97%</td></tr>
+<tr><td>3</td><td>21</td><td>221</td><td>538</td><td>138</td><td>401</td><td>&mdash;</td><td><b>401</b></td><td>769</td><td class="ok">52.1%</td><td>2</td><td>98%</td></tr>
+<tr><td>4</td><td>28</td><td>293</td><td>910</td><td>150</td><td>709</td><td>&mdash;</td><td><b>709</b></td><td>1,491</td><td class="ok">47.6%</td><td>3</td><td>100%</td></tr>
+<tr><td>5</td><td>35</td><td>367</td><td>1,406</td><td>162</td><td>1,133</td><td>&mdash;</td><td><b>1,133</b></td><td>2,491</td><td class="ok">45.5%</td><td>3</td><td>100%</td></tr>
+<tr><td>6</td><td>42</td><td>432</td><td>1,945</td><td>174</td><td>1,601</td><td>&mdash;</td><td><b>1,601</b></td><td>3,789</td><td class="ok">42.3%</td><td>3</td><td>100%</td></tr>
+<tr><td>7</td><td>49</td><td>505</td><td>2,611</td><td>186</td><td>2,192</td><td>&mdash;</td><td><b>2,192</b></td><td>5,402</td><td class="ok">40.6%</td><td>3</td><td>100%</td></tr>
+<tr><td>8</td><td>56</td><td>579</td><td>3,382</td><td>198</td><td>2,902</td><td>&mdash;</td><td><b>2,902</b></td><td>7,344</td><td class="ok">39.5%</td><td>3</td><td>100%</td></tr>
+<tr><td>9</td><td>63</td><td>648</td><td>4,257</td><td>210</td><td>3,700</td><td>&mdash;</td><td><b>3,700</b></td><td>9,629</td><td class="ok">38.4%</td><td>3</td><td>100%</td></tr>
+<tr><td>10</td><td>70</td><td>700</td><td>5,079</td><td>222</td><td>4,487</td><td>&mdash;</td><td><b>4,487</b></td><td>12,269</td><td class="ok">36.6%</td><td>3</td><td>100%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="ok">31.5%<small>L1</small></td><td class="ok">31.5%<small>L1</small></td><td class="ok">31.5%<small>L1</small></td><td class="bad">6.8%<small>L6</small></td><td class="bad">0.9%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">970.9%<small>L1</small></td><td class="ok">439.6%<small>L5</small></td><td class="ok">65.9%<small>L10</small></td><td class="warn">16.0%<small>L15</small></td><td class="bad">4.3%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">109.4%<small>L40</small></td><td class="ok">67.3%<small>L45</small></td><td class="ok">40.8%<small>L50</small></td><td class="warn">20.9%<small>L55</small></td><td class="warn">9.2%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">43.9%<small>L90</small></td><td class="ok">31.4%<small>L95</small></td><td class="warn">21.7%<small>L100</small></td><td class="warn">12.9%<small>L105</small></td><td class="bad">6.3%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<div class="ability " id="ab-onslaught_v1">
+<h4>Vanguard&#x27;s Onslaught <span class="stat-tag">WEAPONATTACK</span> </h4>
+<div class="desc">Channel for up to 2 seconds. Release a forward thrust that PIERCES every enemy in a line, dealing $[damage_percent] damage. [color=#e6c95c]+1 combo per enemy pierced.[/color]</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>74</td><td>180</td><td>77.1</td><td>&mdash;</td><td><b>77.1</b></td><td>61</td><td class="ok">126.3%</td><td>1</td><td>96%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>262</td><td>188</td><td>275</td><td>&mdash;</td><td><b>275</b></td><td>303</td><td class="ok">90.9%</td><td>2</td><td>97%</td></tr>
+<tr><td>3</td><td>21</td><td>221</td><td>538</td><td>196</td><td>569</td><td>&mdash;</td><td><b>569</b></td><td>769</td><td class="ok">74.0%</td><td>2</td><td>98%</td></tr>
+<tr><td>4</td><td>28</td><td>293</td><td>910</td><td>204</td><td>964</td><td>&mdash;</td><td><b>964</b></td><td>1,491</td><td class="ok">64.7%</td><td>2</td><td>100%</td></tr>
+<tr><td>5</td><td>35</td><td>367</td><td>1,406</td><td>212</td><td>1,482</td><td>&mdash;</td><td><b>1,482</b></td><td>2,491</td><td class="ok">59.5%</td><td>2</td><td>100%</td></tr>
+<tr><td>6</td><td>42</td><td>432</td><td>1,945</td><td>220</td><td>2,025</td><td>&mdash;</td><td><b>2,025</b></td><td>3,789</td><td class="ok">53.4%</td><td>2</td><td>100%</td></tr>
+<tr><td>7</td><td>49</td><td>505</td><td>2,611</td><td>228</td><td>2,688</td><td>&mdash;</td><td><b>2,688</b></td><td>5,402</td><td class="ok">49.8%</td><td>3</td><td>100%</td></tr>
+<tr><td>8</td><td>56</td><td>579</td><td>3,382</td><td>236</td><td>3,459</td><td>&mdash;</td><td><b>3,459</b></td><td>7,344</td><td class="ok">47.1%</td><td>3</td><td>100%</td></tr>
+<tr><td>9</td><td>63</td><td>648</td><td>4,257</td><td>244</td><td>4,299</td><td>&mdash;</td><td><b>4,299</b></td><td>9,629</td><td class="ok">44.6%</td><td>3</td><td>100%</td></tr>
+<tr><td>10</td><td>70</td><td>700</td><td>5,079</td><td>252</td><td>5,093</td><td>&mdash;</td><td><b>5,093</b></td><td>12,269</td><td class="ok">41.5%</td><td>3</td><td>100%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="ok">49.8%<small>L1</small></td><td class="ok">49.8%<small>L1</small></td><td class="ok">49.8%<small>L1</small></td><td class="warn">10.7%<small>L6</small></td><td class="bad">1.4%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">1533.0%<small>L1</small></td><td class="ok">694.2%<small>L5</small></td><td class="ok">104.1%<small>L10</small></td><td class="ok">25.2%<small>L15</small></td><td class="bad">6.8%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">134.1%<small>L40</small></td><td class="ok">82.4%<small>L45</small></td><td class="ok">50.0%<small>L50</small></td><td class="ok">25.6%<small>L55</small></td><td class="warn">11.2%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">49.8%<small>L90</small></td><td class="ok">35.6%<small>L95</small></td><td class="warn">24.6%<small>L100</small></td><td class="warn">14.7%<small>L105</small></td><td class="bad">7.1%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<div class="ability " id="ab-031515140157">
+<h4>Vault Strike <span class="stat-tag">WEAPONATTACK</span> </h4>
+<div class="desc">Dash forward and strike for $[damage_percent] damage to up to $[target_count] enemies in your path. [color=#e6c95c]Builds 2 combo points per enemy hit.[/color]</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>74</td><td>120</td><td>51.4</td><td>&mdash;</td><td><b>51.4</b></td><td>61</td><td class="ok">84.2%</td><td>2</td><td>96%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>262</td><td>130</td><td>190</td><td>&mdash;</td><td><b>190</b></td><td>303</td><td class="ok">62.9%</td><td>2</td><td>97%</td></tr>
+<tr><td>3</td><td>21</td><td>221</td><td>538</td><td>140</td><td>406</td><td>&mdash;</td><td><b>406</b></td><td>769</td><td class="ok">52.8%</td><td>2</td><td>98%</td></tr>
+<tr><td>4</td><td>28</td><td>293</td><td>910</td><td>150</td><td>709</td><td>&mdash;</td><td><b>709</b></td><td>1,491</td><td class="ok">47.6%</td><td>3</td><td>100%</td></tr>
+<tr><td>5</td><td>35</td><td>367</td><td>1,406</td><td>160</td><td>1,119</td><td>&mdash;</td><td><b>1,119</b></td><td>2,491</td><td class="ok">44.9%</td><td>3</td><td>100%</td></tr>
+<tr><td>6</td><td>42</td><td>432</td><td>1,945</td><td>170</td><td>1,565</td><td>&mdash;</td><td><b>1,565</b></td><td>3,789</td><td class="ok">41.3%</td><td>3</td><td>100%</td></tr>
+<tr><td>7</td><td>49</td><td>505</td><td>2,611</td><td>180</td><td>2,122</td><td>&mdash;</td><td><b>2,122</b></td><td>5,402</td><td class="ok">39.3%</td><td>3</td><td>100%</td></tr>
+<tr><td>8</td><td>56</td><td>579</td><td>3,382</td><td>190</td><td>2,784</td><td>&mdash;</td><td><b>2,784</b></td><td>7,344</td><td class="ok">37.9%</td><td>3</td><td>100%</td></tr>
+<tr><td>9</td><td>63</td><td>648</td><td>4,257</td><td>200</td><td>3,523</td><td>&mdash;</td><td><b>3,523</b></td><td>9,629</td><td class="ok">36.6%</td><td>3</td><td>100%</td></tr>
+<tr><td>10</td><td>70</td><td>700</td><td>5,079</td><td>210</td><td>4,244</td><td>&mdash;</td><td><b>4,244</b></td><td>12,269</td><td class="ok">34.6%</td><td>3</td><td>100%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="ok">33.2%<small>L1</small></td><td class="ok">33.2%<small>L1</small></td><td class="ok">33.2%<small>L1</small></td><td class="bad">7.1%<small>L6</small></td><td class="bad">0.9%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">1022.0%<small>L1</small></td><td class="ok">462.8%<small>L5</small></td><td class="ok">69.4%<small>L10</small></td><td class="warn">16.8%<small>L15</small></td><td class="bad">4.6%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">105.9%<small>L40</small></td><td class="ok">65.1%<small>L45</small></td><td class="ok">39.5%<small>L50</small></td><td class="warn">20.2%<small>L55</small></td><td class="warn">8.9%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">41.5%<small>L90</small></td><td class="ok">29.7%<small>L95</small></td><td class="warn">20.5%<small>L100</small></td><td class="warn">12.2%<small>L105</small></td><td class="bad">6.0%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<h3>Support / utility / passives (no direct damage)</h3>
+<table class="dmg"><thead><tr><th>Ability</th><th>Type</th><th>Effect</th></tr></thead><tbody>
+<tr><td>Banner of the Vanguard</td><td>Active</td><td>Plant a banner at your feet for 8 seconds. Allies inside gain [color=#7ec2ff]+$[value:defense] Defense[/color] and [color=#7ec2ff]+$[value:hp_regen] HP[/color] </td></tr>
+<tr><td>Bulwark Stance</td><td>Active</td><td>Enter a defensive stance — gain [color=#7ec2ff]+$[value:defense] Defense[/color] for $[buff_duration]. Drains 2 MP/s; auto-cancels when MP runs out.</td></tr>
+<tr><td>Iron Riposte</td><td>Active</td><td>Reflects $[damage_percent] of damage taken back to attackers for $[buff_duration].
+Cannot reflect more than half of the enemy&#x27;s Max HP at once.</td></tr>
+<tr><td>Sentinel&#x27;s Mark</td><td>Active</td><td>Mark one enemy for 8 seconds. While marked, sword hits on this target deal [color=#e6c95c]+$[value:mark_damage]% damage[/color] and have a [color=#e6c95c]$[valu</td></tr>
+<tr><td>Vow of the Vanguard</td><td>Active</td><td>Grants a temporary buff that increases all stats by $[stat_bonus]% for $[buff_duration].</td></tr>
+<tr><td>Aggression</td><td>Passive</td><td>Deal +$[damage_percent] damage to enemies above 90% health. Strong openers; fades as foes weaken.</td></tr>
+<tr><td>Battle-Hardened</td><td>Passive</td><td>Permanently increases Defense by $[stat_bonus].</td></tr>
+<tr><td>Bloodthirst</td><td>Passive</td><td>Restore [color=#e6c95c]$[damage_percent][/color] of Max HP whenever you kill an enemy.</td></tr>
+<tr><td>Hardened Frame</td><td>Passive</td><td>Permanently increases Max HP by $[stat_bonus]%.</td></tr>
+<tr><td>Last Stand</td><td>Passive</td><td>Deal +$[damage_percent] damage while BELOW 35% health. The cornered-warrior&#x27;s resolve.</td></tr>
+<tr><td>Second Wind</td><td>Passive</td><td>Permanently increases HP regeneration by $[stat_bonus].</td></tr>
+<tr><td>Vanguard&#x27;s Resolve</td><td>Passive</td><td>While you carry combo points, reduce incoming damage — up to $[damage_percent] less at full combo (scales with combo and level).</td></tr>
+</tbody></table>
+</section>
+<section id="Bow"><h2>Bow</h2>
+<h3>Damage abilities</h3>
+<div class="ability " id="ab-218514101200">
+<h4>Barbed Shot <span class="stat-tag">WEAPONATTACK</span> <span class="badge badge-ok">DoT: dot_scaling_base (correct)</span></h4>
+<div class="desc">Looses a barbed arrow at one enemy for $[damage_percent] damage. [color=#e6c95c]Applies a stacking Bleed (max 3 stacks) — each stack deals 20% Weapon Attack/s for 6 seconds.[/color]</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>74</td><td>110</td><td>48.3</td><td><span>48.0</span><small>(bleed)</small></td><td><b>96.3</b></td><td>61</td><td class="ok">157.9%</td><td>1</td><td>98%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>262</td><td>118</td><td>179</td><td><span>186</span><small>(bleed)</small></td><td><b>365</b></td><td>303</td><td class="ok">120.6%</td><td>1</td><td>100%</td></tr>
+<tr><td>3</td><td>21</td><td>222</td><td>540</td><td>126</td><td>379</td><td><span>408</span><small>(bleed)</small></td><td><b>787</b></td><td>769</td><td class="ok">102.3%</td><td>1</td><td>100%</td></tr>
+<tr><td>4</td><td>28</td><td>295</td><td>916</td><td>134</td><td>659</td><td><span>738</span><small>(bleed)</small></td><td><b>1,397</b></td><td>1,491</td><td class="ok">93.7%</td><td>2</td><td>100%</td></tr>
+<tr><td>5</td><td>35</td><td>369</td><td>1,413</td><td>142</td><td>1,039</td><td><span>1,206</span><small>(bleed)</small></td><td><b>2,245</b></td><td>2,491</td><td class="ok">90.1%</td><td>2</td><td>100%</td></tr>
+<tr><td>6</td><td>42</td><td>434</td><td>1,953</td><td>150</td><td>1,443</td><td><span>1,758</span><small>(bleed)</small></td><td><b>3,201</b></td><td>3,789</td><td class="ok">84.5%</td><td>2</td><td>100%</td></tr>
+<tr><td>7</td><td>49</td><td>507</td><td>2,621</td><td>158</td><td>1,970</td><td><span>2,484</span><small>(bleed)</small></td><td><b>4,454</b></td><td>5,402</td><td class="ok">82.4%</td><td>2</td><td>100%</td></tr>
+<tr><td>8</td><td>56</td><td>581</td><td>3,393</td><td>166</td><td>2,564</td><td><span>3,378</span><small>(bleed)</small></td><td><b>5,942</b></td><td>7,344</td><td class="ok">80.9%</td><td>2</td><td>100%</td></tr>
+<tr><td>9</td><td>63</td><td>651</td><td>4,275</td><td>174</td><td>3,296</td><td><span>4,464</span><small>(bleed)</small></td><td><b>7,760</b></td><td>9,629</td><td class="ok">80.6%</td><td>2</td><td>100%</td></tr>
+<tr><td>10</td><td>70</td><td>703</td><td>5,099</td><td>182</td><td>3,970</td><td><span>5,568</span><small>(bleed)</small></td><td><b>9,538</b></td><td>12,269</td><td class="ok">77.7%</td><td>2</td><td>100%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="ok">70.6%<small>L1</small></td><td class="ok">70.6%<small>L1</small></td><td class="ok">70.6%<small>L1</small></td><td class="warn">20.5%<small>L6</small></td><td class="bad">4.3%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">1580.4%<small>L1</small></td><td class="ok">768.7%<small>L5</small></td><td class="ok">134.5%<small>L10</small></td><td class="ok">43.2%<small>L15</small></td><td class="warn">18.4%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">175.2%<small>L40</small></td><td class="ok">119.1%<small>L45</small></td><td class="ok">82.7%<small>L50</small></td><td class="ok">58.4%<small>L55</small></td><td class="ok">40.6%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">81.0%<small>L90</small></td><td class="ok">64.7%<small>L95</small></td><td class="ok">51.8%<small>L100</small></td><td class="ok">41.4%<small>L105</small></td><td class="ok">33.1%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<div class="ability " id="ab-caltrops_v1">
+<h4>Caltrops <span class="stat-tag">WEAPONATTACK</span> <span class="badge badge-ok">DoT: dot_scaling_base (correct)</span></h4>
+<div class="desc">Drop a patch of caltrops at your feet for 5 seconds. Enemies inside take $[damage_percent] damage per tick and are slowed by 30%.</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>74</td><td>50</td><td>22.0</td><td><span>15.0</span><small>(spike zone)</small></td><td><b>37.0</b></td><td>61</td><td class="ok">60.6%</td><td>2</td><td>98%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>262</td><td>52</td><td>79.1</td><td><span>55.0</span><small>(spike zone)</small></td><td><b>134</b></td><td>303</td><td class="ok">44.2%</td><td>3</td><td>100%</td></tr>
+<tr><td>3</td><td>21</td><td>222</td><td>540</td><td>54</td><td>162</td><td><span>115</span><small>(spike zone)</small></td><td><b>277</b></td><td>769</td><td class="ok">36.1%</td><td>3</td><td>100%</td></tr>
+<tr><td>4</td><td>28</td><td>295</td><td>916</td><td>56</td><td>275</td><td><span>205</span><small>(spike zone)</small></td><td><b>480</b></td><td>1,491</td><td class="ok">32.2%</td><td>4</td><td>100%</td></tr>
+<tr><td>5</td><td>35</td><td>369</td><td>1,413</td><td>58</td><td>424</td><td><span>330</span><small>(spike zone)</small></td><td><b>754</b></td><td>2,491</td><td class="ok">30.3%</td><td>4</td><td>100%</td></tr>
+<tr><td>6</td><td>42</td><td>434</td><td>1,953</td><td>60</td><td>577</td><td><span>470</span><small>(spike zone)</small></td><td><b>1,047</b></td><td>3,789</td><td class="ok">27.6%</td><td>4</td><td>100%</td></tr>
+<tr><td>7</td><td>49</td><td>507</td><td>2,621</td><td>62</td><td>773</td><td><span>650</span><small>(spike zone)</small></td><td><b>1,423</b></td><td>5,402</td><td class="ok">26.3%</td><td>4</td><td>100%</td></tr>
+<tr><td>8</td><td>56</td><td>581</td><td>3,393</td><td>64</td><td>989</td><td><span>870</span><small>(spike zone)</small></td><td><b>1,859</b></td><td>7,344</td><td class="ok">25.3%</td><td>4</td><td>100%</td></tr>
+<tr><td>9</td><td>63</td><td>651</td><td>4,275</td><td>66</td><td>1,250</td><td><span>1,130</span><small>(spike zone)</small></td><td><b>2,380</b></td><td>9,629</td><td class="warn">24.7%</td><td>5</td><td>100%</td></tr>
+<tr><td>10</td><td>70</td><td>703</td><td>5,099</td><td>68</td><td>1,483</td><td><span>1,385</span><small>(spike zone)</small></td><td><b>2,868</b></td><td>12,269</td><td class="warn">23.4%</td><td>5</td><td>100%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="ok">47.2%<small>L1</small></td><td class="ok">47.2%<small>L1</small></td><td class="ok">47.2%<small>L1</small></td><td class="warn">14.6%<small>L6</small></td><td class="bad">3.3%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">627.4%<small>L1</small></td><td class="ok">300.7%<small>L5</small></td><td class="ok">51.4%<small>L10</small></td><td class="warn">15.8%<small>L15</small></td><td class="bad">6.4%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">58.7%<small>L40</small></td><td class="ok">39.1%<small>L45</small></td><td class="ok">26.4%<small>L50</small></td><td class="warn">18.1%<small>L55</small></td><td class="warn">12.0%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">25.2%<small>L90</small></td><td class="warn">19.7%<small>L95</small></td><td class="warn">15.4%<small>L100</small></td><td class="warn">11.9%<small>L105</small></td><td class="warn">9.2%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<div class="ability " id="ab-sky_volley_v">
+<h4>Sky Volley <span class="stat-tag">WEAPONATTACK</span> <span class="badge badge-ok">DoT: dot_scaling_base (correct)</span></h4>
+<div class="desc">Channel for up to 3 seconds. Arrows rain in a wide area ahead of you, dealing $[damage_percent] damage every half-second. [color=#e6c95c]+1 Momentum per second held.[/color]</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>74</td><td>45</td><td>19.8</td><td><span>18.0</span><small>(arrow rain)</small></td><td><b>37.8</b></td><td>61</td><td class="ok">61.9%</td><td>2</td><td>98%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>262</td><td>47</td><td>71.5</td><td><span>66.0</span><small>(arrow rain)</small></td><td><b>137</b></td><td>303</td><td class="ok">45.4%</td><td>3</td><td>100%</td></tr>
+<tr><td>3</td><td>21</td><td>222</td><td>540</td><td>49</td><td>147</td><td><span>144</span><small>(arrow rain)</small></td><td><b>291</b></td><td>769</td><td class="ok">37.9%</td><td>3</td><td>100%</td></tr>
+<tr><td>4</td><td>28</td><td>295</td><td>916</td><td>51</td><td>251</td><td><span>252</span><small>(arrow rain)</small></td><td><b>503</b></td><td>1,491</td><td class="ok">33.7%</td><td>3</td><td>100%</td></tr>
+<tr><td>5</td><td>35</td><td>369</td><td>1,413</td><td>53</td><td>388</td><td><span>402</span><small>(arrow rain)</small></td><td><b>790</b></td><td>2,491</td><td class="ok">31.7%</td><td>4</td><td>100%</td></tr>
+<tr><td>6</td><td>42</td><td>434</td><td>1,953</td><td>55</td><td>529</td><td><span>582</span><small>(arrow rain)</small></td><td><b>1,111</b></td><td>3,789</td><td class="ok">29.3%</td><td>4</td><td>100%</td></tr>
+<tr><td>7</td><td>49</td><td>507</td><td>2,621</td><td>57</td><td>711</td><td><span>804</span><small>(arrow rain)</small></td><td><b>1,515</b></td><td>5,402</td><td class="ok">28.0%</td><td>4</td><td>100%</td></tr>
+<tr><td>8</td><td>56</td><td>581</td><td>3,393</td><td>59</td><td>911</td><td><span>1,080</span><small>(arrow rain)</small></td><td><b>1,991</b></td><td>7,344</td><td class="ok">27.1%</td><td>4</td><td>100%</td></tr>
+<tr><td>9</td><td>63</td><td>651</td><td>4,275</td><td>61</td><td>1,156</td><td><span>1,410</span><small>(arrow rain)</small></td><td><b>2,566</b></td><td>9,629</td><td class="ok">26.6%</td><td>4</td><td>100%</td></tr>
+<tr><td>10</td><td>70</td><td>703</td><td>5,099</td><td>63</td><td>1,374</td><td><span>1,734</span><small>(arrow rain)</small></td><td><b>3,108</b></td><td>12,269</td><td class="ok">25.3%</td><td>4</td><td>100%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="ok">52.5%<small>L1</small></td><td class="ok">52.5%<small>L1</small></td><td class="ok">52.5%<small>L1</small></td><td class="warn">16.6%<small>L6</small></td><td class="bad">3.8%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">624.7%<small>L1</small></td><td class="ok">302.8%<small>L5</small></td><td class="ok">52.7%<small>L10</small></td><td class="warn">16.7%<small>L15</small></td><td class="bad">7.0%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">60.5%<small>L40</small></td><td class="ok">40.9%<small>L45</small></td><td class="ok">28.2%<small>L50</small></td><td class="warn">19.8%<small>L55</small></td><td class="warn">13.6%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">26.6%<small>L90</small></td><td class="warn">21.1%<small>L95</small></td><td class="warn">16.8%<small>L100</small></td><td class="warn">13.4%<small>L105</small></td><td class="warn">10.6%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<div class="ability " id="ab-811315105121">
+<h4>Disengage <span class="stat-tag">WEAPONATTACK</span> </h4>
+<div class="desc">Hop backward and loose an arrow for $[damage_percent] damage, briefly evading all harm. The archer&#x27;s escape.</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>74</td><td>110</td><td>48.3</td><td>&mdash;</td><td><b>48.3</b></td><td>61</td><td class="ok">79.2%</td><td>2</td><td>98%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>262</td><td>120</td><td>182</td><td>&mdash;</td><td><b>182</b></td><td>303</td><td class="ok">60.2%</td><td>2</td><td>100%</td></tr>
+<tr><td>3</td><td>21</td><td>222</td><td>540</td><td>130</td><td>391</td><td>&mdash;</td><td><b>391</b></td><td>769</td><td class="ok">50.8%</td><td>2</td><td>100%</td></tr>
+<tr><td>4</td><td>28</td><td>295</td><td>916</td><td>140</td><td>689</td><td>&mdash;</td><td><b>689</b></td><td>1,491</td><td class="ok">46.2%</td><td>3</td><td>100%</td></tr>
+<tr><td>5</td><td>35</td><td>369</td><td>1,413</td><td>150</td><td>1,097</td><td>&mdash;</td><td><b>1,097</b></td><td>2,491</td><td class="ok">44.1%</td><td>3</td><td>100%</td></tr>
+<tr><td>6</td><td>42</td><td>434</td><td>1,953</td><td>160</td><td>1,539</td><td>&mdash;</td><td><b>1,539</b></td><td>3,789</td><td class="ok">40.6%</td><td>3</td><td>100%</td></tr>
+<tr><td>7</td><td>49</td><td>507</td><td>2,621</td><td>170</td><td>2,119</td><td>&mdash;</td><td><b>2,119</b></td><td>5,402</td><td class="ok">39.2%</td><td>3</td><td>100%</td></tr>
+<tr><td>8</td><td>56</td><td>581</td><td>3,393</td><td>180</td><td>2,781</td><td>&mdash;</td><td><b>2,781</b></td><td>7,344</td><td class="ok">37.9%</td><td>3</td><td>100%</td></tr>
+<tr><td>9</td><td>63</td><td>651</td><td>4,275</td><td>190</td><td>3,600</td><td>&mdash;</td><td><b>3,600</b></td><td>9,629</td><td class="ok">37.4%</td><td>3</td><td>100%</td></tr>
+<tr><td>10</td><td>70</td><td>703</td><td>5,099</td><td>200</td><td>4,363</td><td>&mdash;</td><td><b>4,363</b></td><td>12,269</td><td class="ok">35.6%</td><td>3</td><td>100%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="ok">30.6%<small>L1</small></td><td class="ok">30.6%<small>L1</small></td><td class="ok">30.6%<small>L1</small></td><td class="bad">6.6%<small>L6</small></td><td class="bad">0.9%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">940.4%<small>L1</small></td><td class="ok">425.8%<small>L5</small></td><td class="ok">65.9%<small>L10</small></td><td class="warn">16.1%<small>L15</small></td><td class="bad">4.4%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">105.4%<small>L40</small></td><td class="ok">64.8%<small>L45</small></td><td class="ok">39.3%<small>L50</small></td><td class="warn">22.9%<small>L55</small></td><td class="warn">11.0%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">44.4%<small>L90</small></td><td class="ok">31.8%<small>L95</small></td><td class="warn">21.9%<small>L100</small></td><td class="warn">14.3%<small>L105</small></td><td class="warn">8.3%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<div class="ability " id="ab-191169810245">
+<h4>Hailstorm <span class="stat-tag">WEAPONATTACK</span> </h4>
+<div class="desc">Unleashes a storm of $[hit_count] arrows at up to $[target_count] enemies, dealing $[damage_percent] damage each.</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>74</td><td>40</td><td>52.7</td><td>&mdash;</td><td><b>52.7</b></td><td>61</td><td class="ok">86.4%</td><td>2</td><td>98%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>262</td><td>44</td><td>201</td><td>&mdash;</td><td><b>201</b></td><td>303</td><td class="ok">66.2%</td><td>2</td><td>100%</td></tr>
+<tr><td>3</td><td>21</td><td>222</td><td>540</td><td>48</td><td>577</td><td>&mdash;</td><td><b>577</b></td><td>769</td><td class="ok">75.1%</td><td>2</td><td>100%</td></tr>
+<tr><td>4</td><td>28</td><td>295</td><td>916</td><td>52</td><td>1,279</td><td>&mdash;</td><td><b>1,279</b></td><td>1,491</td><td class="ok">85.8%</td><td>2</td><td>100%</td></tr>
+<tr><td>5</td><td>35</td><td>369</td><td>1,413</td><td>56</td><td>2,458</td><td>&mdash;</td><td><b>2,458</b></td><td>2,491</td><td class="ok">98.7%</td><td>2</td><td>100%</td></tr>
+<tr><td>6</td><td>42</td><td>434</td><td>1,953</td><td>60</td><td>4,041</td><td>&mdash;</td><td><b>4,041</b></td><td>3,789</td><td class="ok">106.7%</td><td>1</td><td>100%</td></tr>
+<tr><td>7</td><td>49</td><td>507</td><td>2,621</td><td>64</td><td>5,585</td><td>&mdash;</td><td><b>5,585</b></td><td>5,402</td><td class="ok">103.4%</td><td>1</td><td>100%</td></tr>
+<tr><td>8</td><td>56</td><td>581</td><td>3,393</td><td>68</td><td>8,404</td><td>&mdash;</td><td><b>8,404</b></td><td>7,344</td><td class="ok">114.4%</td><td>1</td><td>100%</td></tr>
+<tr><td>9</td><td>63</td><td>651</td><td>4,275</td><td>72</td><td>12,276</td><td>&mdash;</td><td><b>12,276</b></td><td>9,629</td><td class="ok">127.5%</td><td>1</td><td>100%</td></tr>
+<tr><td>10</td><td>70</td><td>703</td><td>5,099</td><td>76</td><td>16,580</td><td>&mdash;</td><td><b>16,580</b></td><td>12,269</td><td class="ok">135.1%</td><td>1</td><td>100%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="ok">33.4%<small>L1</small></td><td class="ok">33.4%<small>L1</small></td><td class="ok">33.4%<small>L1</small></td><td class="bad">7.2%<small>L6</small></td><td class="bad">0.9%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">1025.8%<small>L1</small></td><td class="ok">464.5%<small>L5</small></td><td class="ok">71.9%<small>L10</small></td><td class="warn">17.6%<small>L15</small></td><td class="bad">4.8%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">277.8%<small>L40</small></td><td class="ok">170.8%<small>L45</small></td><td class="ok">103.5%<small>L50</small></td><td class="ok">60.3%<small>L55</small></td><td class="ok">29.0%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">168.9%<small>L90</small></td><td class="ok">120.7%<small>L95</small></td><td class="ok">83.4%<small>L100</small></td><td class="ok">54.3%<small>L105</small></td><td class="ok">31.6%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<div class="ability " id="ab-101511815139">
+<h4>Skyfall <span class="stat-tag">WEAPONATTACK</span> </h4>
+<div class="desc">Calls a rain of arrows down on up to $[target_count] enemies, dealing $[damage_percent] damage each.</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>74</td><td>60</td><td>26.3</td><td>&mdash;</td><td><b>26.3</b></td><td>61</td><td class="ok">43.2%</td><td>3</td><td>98%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>262</td><td>66</td><td>100</td><td>&mdash;</td><td><b>100</b></td><td>303</td><td class="ok">33.1%</td><td>4</td><td>100%</td></tr>
+<tr><td>3</td><td>21</td><td>222</td><td>540</td><td>72</td><td>216</td><td>&mdash;</td><td><b>216</b></td><td>769</td><td class="ok">28.1%</td><td>4</td><td>100%</td></tr>
+<tr><td>4</td><td>28</td><td>295</td><td>916</td><td>78</td><td>384</td><td>&mdash;</td><td><b>384</b></td><td>1,491</td><td class="ok">25.7%</td><td>4</td><td>100%</td></tr>
+<tr><td>5</td><td>35</td><td>369</td><td>1,413</td><td>84</td><td>615</td><td>&mdash;</td><td><b>615</b></td><td>2,491</td><td class="warn">24.7%</td><td>5</td><td>100%</td></tr>
+<tr><td>6</td><td>42</td><td>434</td><td>1,953</td><td>90</td><td>866</td><td>&mdash;</td><td><b>866</b></td><td>3,789</td><td class="warn">22.9%</td><td>5</td><td>100%</td></tr>
+<tr><td>7</td><td>49</td><td>507</td><td>2,621</td><td>96</td><td>1,197</td><td>&mdash;</td><td><b>1,197</b></td><td>5,402</td><td class="warn">22.2%</td><td>5</td><td>100%</td></tr>
+<tr><td>8</td><td>56</td><td>581</td><td>3,393</td><td>102</td><td>1,576</td><td>&mdash;</td><td><b>1,576</b></td><td>7,344</td><td class="warn">21.5%</td><td>5</td><td>100%</td></tr>
+<tr><td>9</td><td>63</td><td>651</td><td>4,275</td><td>108</td><td>2,046</td><td>&mdash;</td><td><b>2,046</b></td><td>9,629</td><td class="warn">21.2%</td><td>5</td><td>100%</td></tr>
+<tr><td>10</td><td>70</td><td>703</td><td>5,099</td><td>114</td><td>2,487</td><td>&mdash;</td><td><b>2,487</b></td><td>12,269</td><td class="warn">20.3%</td><td>5</td><td>100%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="warn">16.7%<small>L1</small></td><td class="warn">16.7%<small>L1</small></td><td class="warn">16.7%<small>L1</small></td><td class="bad">3.6%<small>L6</small></td><td class="bad">0.5%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">512.9%<small>L1</small></td><td class="ok">232.3%<small>L5</small></td><td class="ok">36.0%<small>L10</small></td><td class="warn">8.8%<small>L15</small></td><td class="bad">2.4%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">59.5%<small>L40</small></td><td class="ok">36.6%<small>L45</small></td><td class="warn">22.2%<small>L50</small></td><td class="warn">12.9%<small>L55</small></td><td class="bad">6.2%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">25.3%<small>L90</small></td><td class="warn">18.1%<small>L95</small></td><td class="warn">12.5%<small>L100</small></td><td class="warn">8.2%<small>L105</small></td><td class="bad">4.7%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<div class="ability " id="ab-101151213413">
+<h4>Snap Shot <span class="stat-tag">WEAPONATTACK</span> </h4>
+<div class="desc">Looses a quick arrow, hitting $[hit_count] time(s) on $[target_count] enemies for $[damage_percent] damage.</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>70</td><td>703</td><td>5,099</td><td>100</td><td>2,182</td><td>&mdash;</td><td><b>2,182</b></td><td>12,269</td><td class="warn">17.8%</td><td>6</td><td>100%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="ok">27.8%<small>L1</small></td><td class="ok">27.8%<small>L1</small></td><td class="ok">27.8%<small>L1</small></td><td class="bad">6.0%<small>L6</small></td><td class="bad">0.8%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">854.9%<small>L1</small></td><td class="ok">387.1%<small>L5</small></td><td class="ok">59.9%<small>L10</small></td><td class="warn">14.6%<small>L15</small></td><td class="bad">4.0%<small>L20</small></td></tr>
+<tr><td>50 (r1)</td><td class="ok">62.0%<small>L40</small></td><td class="ok">38.1%<small>L45</small></td><td class="warn">23.1%<small>L50</small></td><td class="warn">13.5%<small>L55</small></td><td class="bad">6.5%<small>L60</small></td></tr>
+<tr><td>100 (r1)</td><td class="warn">22.2%<small>L90</small></td><td class="warn">15.9%<small>L95</small></td><td class="warn">11.0%<small>L100</small></td><td class="bad">7.1%<small>L105</small></td><td class="bad">4.2%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<div class="ability " id="ab-121615118105">
+<h4>Snipe <span class="stat-tag">WEAPONATTACK</span> </h4>
+<div class="desc">Takes careful aim and fires a single devastating arrow at one enemy for $[damage_percent] damage.</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>74</td><td>200</td><td>87.8</td><td>&mdash;</td><td><b>87.8</b></td><td>61</td><td class="ok">144.0%</td><td>1</td><td>98%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>262</td><td>220</td><td>334</td><td>&mdash;</td><td><b>334</b></td><td>303</td><td class="ok">110.4%</td><td>1</td><td>100%</td></tr>
+<tr><td>3</td><td>21</td><td>222</td><td>540</td><td>240</td><td>722</td><td>&mdash;</td><td><b>722</b></td><td>769</td><td class="ok">93.8%</td><td>2</td><td>100%</td></tr>
+<tr><td>4</td><td>28</td><td>295</td><td>916</td><td>260</td><td>1,279</td><td>&mdash;</td><td><b>1,279</b></td><td>1,491</td><td class="ok">85.8%</td><td>2</td><td>100%</td></tr>
+<tr><td>5</td><td>35</td><td>369</td><td>1,413</td><td>280</td><td>2,048</td><td>&mdash;</td><td><b>2,048</b></td><td>2,491</td><td class="ok">82.2%</td><td>2</td><td>100%</td></tr>
+<tr><td>6</td><td>42</td><td>434</td><td>1,953</td><td>300</td><td>2,886</td><td>&mdash;</td><td><b>2,886</b></td><td>3,789</td><td class="ok">76.2%</td><td>2</td><td>100%</td></tr>
+<tr><td>7</td><td>49</td><td>507</td><td>2,621</td><td>320</td><td>3,989</td><td>&mdash;</td><td><b>3,989</b></td><td>5,402</td><td class="ok">73.9%</td><td>2</td><td>100%</td></tr>
+<tr><td>8</td><td>56</td><td>581</td><td>3,393</td><td>340</td><td>5,252</td><td>&mdash;</td><td><b>5,252</b></td><td>7,344</td><td class="ok">71.5%</td><td>2</td><td>100%</td></tr>
+<tr><td>9</td><td>63</td><td>651</td><td>4,275</td><td>360</td><td>6,820</td><td>&mdash;</td><td><b>6,820</b></td><td>9,629</td><td class="ok">70.8%</td><td>2</td><td>100%</td></tr>
+<tr><td>10</td><td>70</td><td>703</td><td>5,099</td><td>380</td><td>8,290</td><td>&mdash;</td><td><b>8,290</b></td><td>12,269</td><td class="ok">67.6%</td><td>2</td><td>100%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="ok">55.6%<small>L1</small></td><td class="ok">55.6%<small>L1</small></td><td class="ok">55.6%<small>L1</small></td><td class="warn">12.0%<small>L6</small></td><td class="bad">1.6%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">1709.7%<small>L1</small></td><td class="ok">774.2%<small>L5</small></td><td class="ok">119.9%<small>L10</small></td><td class="ok">29.3%<small>L15</small></td><td class="warn">8.0%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">198.4%<small>L40</small></td><td class="ok">122.0%<small>L45</small></td><td class="ok">73.9%<small>L50</small></td><td class="ok">43.1%<small>L55</small></td><td class="warn">20.7%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">84.4%<small>L90</small></td><td class="ok">60.3%<small>L95</small></td><td class="ok">41.7%<small>L100</small></td><td class="ok">27.2%<small>L105</small></td><td class="warn">15.8%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<div class="ability " id="ab-451281001215">
+<h4>Split Shot <span class="stat-tag">WEAPONATTACK</span> </h4>
+<div class="desc">Splits the nock to fire $[hit_count] arrows at $[target_count] enemy for $[damage_percent] damage per hit.</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>74</td><td>77</td><td>67.6</td><td>&mdash;</td><td><b>67.6</b></td><td>61</td><td class="ok">110.8%</td><td>1</td><td>98%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>262</td><td>83</td><td>252</td><td>&mdash;</td><td><b>252</b></td><td>303</td><td class="ok">83.3%</td><td>2</td><td>100%</td></tr>
+<tr><td>3</td><td>21</td><td>222</td><td>540</td><td>89</td><td>535</td><td>&mdash;</td><td><b>535</b></td><td>769</td><td class="ok">69.6%</td><td>2</td><td>100%</td></tr>
+<tr><td>4</td><td>28</td><td>295</td><td>916</td><td>95</td><td>935</td><td>&mdash;</td><td><b>935</b></td><td>1,491</td><td class="ok">62.7%</td><td>2</td><td>100%</td></tr>
+<tr><td>5</td><td>35</td><td>369</td><td>1,413</td><td>101</td><td>1,478</td><td>&mdash;</td><td><b>1,478</b></td><td>2,491</td><td class="ok">59.3%</td><td>2</td><td>100%</td></tr>
+<tr><td>6</td><td>42</td><td>434</td><td>1,953</td><td>107</td><td>2,059</td><td>&mdash;</td><td><b>2,059</b></td><td>3,789</td><td class="ok">54.3%</td><td>2</td><td>100%</td></tr>
+<tr><td>7</td><td>49</td><td>507</td><td>2,621</td><td>113</td><td>2,818</td><td>&mdash;</td><td><b>2,818</b></td><td>5,402</td><td class="ok">52.2%</td><td>2</td><td>100%</td></tr>
+<tr><td>8</td><td>56</td><td>581</td><td>3,393</td><td>119</td><td>3,677</td><td>&mdash;</td><td><b>3,677</b></td><td>7,344</td><td class="ok">50.1%</td><td>2</td><td>100%</td></tr>
+<tr><td>9</td><td>63</td><td>651</td><td>4,275</td><td>125</td><td>4,736</td><td>&mdash;</td><td><b>4,736</b></td><td>9,629</td><td class="ok">49.2%</td><td>3</td><td>100%</td></tr>
+<tr><td>10</td><td>70</td><td>703</td><td>5,099</td><td>131</td><td>5,716</td><td>&mdash;</td><td><b>5,716</b></td><td>12,269</td><td class="ok">46.6%</td><td>3</td><td>100%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="ok">42.8%<small>L1</small></td><td class="ok">42.8%<small>L1</small></td><td class="ok">42.8%<small>L1</small></td><td class="warn">9.2%<small>L6</small></td><td class="bad">1.2%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">1316.5%<small>L1</small></td><td class="ok">596.1%<small>L5</small></td><td class="ok">92.3%<small>L10</small></td><td class="warn">22.6%<small>L15</small></td><td class="bad">6.2%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">140.1%<small>L40</small></td><td class="ok">86.1%<small>L45</small></td><td class="ok">52.2%<small>L50</small></td><td class="ok">30.4%<small>L55</small></td><td class="warn">14.6%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">58.2%<small>L90</small></td><td class="ok">41.6%<small>L95</small></td><td class="ok">28.7%<small>L100</small></td><td class="warn">18.7%<small>L105</small></td><td class="warn">10.9%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<div class="ability " id="ab-sundering_ar">
+<h4>Sundering Arrow <span class="stat-tag">WEAPONATTACK</span> </h4>
+<div class="desc">Consumes all current Momentum to fire a heavy arrow that PIERCES every enemy in a line for $[damage_percent] damage each.</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>74</td><td>170</td><td>74.6</td><td>&mdash;</td><td><b>74.6</b></td><td>61</td><td class="ok">122.4%</td><td>1</td><td>98%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>262</td><td>178</td><td>271</td><td>&mdash;</td><td><b>271</b></td><td>303</td><td class="ok">89.3%</td><td>2</td><td>100%</td></tr>
+<tr><td>3</td><td>21</td><td>222</td><td>540</td><td>186</td><td>559</td><td>&mdash;</td><td><b>559</b></td><td>769</td><td class="ok">72.7%</td><td>2</td><td>100%</td></tr>
+<tr><td>4</td><td>28</td><td>295</td><td>916</td><td>194</td><td>954</td><td>&mdash;</td><td><b>954</b></td><td>1,491</td><td class="ok">64.0%</td><td>2</td><td>100%</td></tr>
+<tr><td>5</td><td>35</td><td>369</td><td>1,413</td><td>202</td><td>1,478</td><td>&mdash;</td><td><b>1,478</b></td><td>2,491</td><td class="ok">59.3%</td><td>2</td><td>100%</td></tr>
+<tr><td>6</td><td>42</td><td>434</td><td>1,953</td><td>210</td><td>2,021</td><td>&mdash;</td><td><b>2,021</b></td><td>3,789</td><td class="ok">53.3%</td><td>2</td><td>100%</td></tr>
+<tr><td>7</td><td>49</td><td>507</td><td>2,621</td><td>218</td><td>2,718</td><td>&mdash;</td><td><b>2,718</b></td><td>5,402</td><td class="ok">50.3%</td><td>2</td><td>100%</td></tr>
+<tr><td>8</td><td>56</td><td>581</td><td>3,393</td><td>226</td><td>3,491</td><td>&mdash;</td><td><b>3,491</b></td><td>7,344</td><td class="ok">47.5%</td><td>3</td><td>100%</td></tr>
+<tr><td>9</td><td>63</td><td>651</td><td>4,275</td><td>234</td><td>4,433</td><td>&mdash;</td><td><b>4,433</b></td><td>9,629</td><td class="ok">46.0%</td><td>3</td><td>100%</td></tr>
+<tr><td>10</td><td>70</td><td>703</td><td>5,099</td><td>242</td><td>5,279</td><td>&mdash;</td><td><b>5,279</b></td><td>12,269</td><td class="ok">43.0%</td><td>3</td><td>100%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="ok">47.3%<small>L1</small></td><td class="ok">47.3%<small>L1</small></td><td class="ok">47.3%<small>L1</small></td><td class="warn">10.2%<small>L6</small></td><td class="bad">1.3%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">1453.3%<small>L1</small></td><td class="ok">658.0%<small>L5</small></td><td class="ok">101.9%<small>L10</small></td><td class="warn">24.9%<small>L15</small></td><td class="bad">6.8%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">135.2%<small>L40</small></td><td class="ok">83.1%<small>L45</small></td><td class="ok">50.4%<small>L50</small></td><td class="ok">29.3%<small>L55</small></td><td class="warn">14.1%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">53.8%<small>L90</small></td><td class="ok">38.4%<small>L95</small></td><td class="ok">26.5%<small>L100</small></td><td class="warn">17.3%<small>L105</small></td><td class="warn">10.1%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<h3>Support / utility / passives (no direct damage)</h3>
+<table class="dmg"><thead><tr><th>Ability</th><th>Type</th><th>Effect</th></tr></thead><tbody>
+<tr><td>Eagle Eye</td><td>Active</td><td>Sharpens the party&#x27;s sight, increasing critical hit chance by $[stat_bonus]% and critical damage for all party members for $[buff_duration].</td></tr>
+<tr><td>Mark of the Hunt</td><td>Active</td><td><span class="badge badge-ok">T3 bleed uses dot_scaling_base</span>Mark one enemy with a Hunter&#x27;s Mark for 8 seconds. The next momentum-spender cast against this target is an AUTO-CRIT.</td></tr>
+<tr><td>Steady Aim</td><td>Active</td><td>Steadies your draw, increasing weapon attack and critical hit chance for $[buff_duration].</td></tr>
+<tr><td>Execution</td><td>Passive</td><td>Deal +$[damage_percent] damage to enemies below 30% health. A finisher — useless on fresh foes, lethal on wounded ones.</td></tr>
+<tr><td>Keen Eye</td><td>Passive</td><td>Permanently increases critical hit chance by $[stat_bonus]%.</td></tr>
+<tr><td>Lethality</td><td>Passive</td><td>Permanently increases critical damage by $[stat_bonus]%.</td></tr>
+<tr><td>Marksman&#x27;s Focus</td><td>Passive</td><td>Permanently increases your Accuracy by $[stat_bonus]%, helping your shots connect against higher-level enemies.</td></tr>
+<tr><td>Surefoot</td><td>Passive</td><td>Permanently increases knockback resistance by $[stat_bonus] — the archer holds their ground.</td></tr>
+<tr><td>Tailwind</td><td>Passive</td><td>Deal up to +$[damage_percent] damage at full Momentum (scales with stacks). Ride the rhythm.</td></tr>
+<tr><td>Wind Rider</td><td>Passive</td><td>Each Momentum stack reduces basic-attack delay by $[value:per_stack]%. The faster you build, the faster you fire.</td></tr>
+</tbody></table>
+</section>
+<section id="Staff"><h2>Staff</h2>
+<h3>Damage abilities</h3>
+<div class="ability " id="ab-arcane_famil">
+<h4>Arcane Familiar <span class="stat-tag">MAGICATTACK</span> <span class="badge badge-ok">DoT: dot_scaling_base (correct)</span></h4>
+<div class="desc">Summons a mini arcane wisp for 12 seconds. The familiar auto-casts an Arcane Bolt at nearby enemies for $[damage_percent] magic damage.</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>78</td><td>60</td><td>27.0</td><td><span>150</span><small>(15 bolts)</small></td><td><b>177</b></td><td>61</td><td class="ok">290.2%</td><td>1</td><td>95%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>268</td><td>63</td><td>93.9</td><td><span>555</span><small>(15 bolts)</small></td><td><b>649</b></td><td>303</td><td class="ok">214.1%</td><td>1</td><td>95%</td></tr>
+<tr><td>3</td><td>21</td><td>222</td><td>552</td><td>66</td><td>195</td><td><span>1,200</span><small>(15 bolts)</small></td><td><b>1,395</b></td><td>769</td><td class="ok">181.4%</td><td>1</td><td>96%</td></tr>
+<tr><td>4</td><td>28</td><td>295</td><td>933</td><td>69</td><td>331</td><td><span>2,130</span><small>(15 bolts)</small></td><td><b>2,461</b></td><td>1,491</td><td class="ok">165.0%</td><td>1</td><td>96%</td></tr>
+<tr><td>5</td><td>35</td><td>369</td><td>1,438</td><td>72</td><td>510</td><td><span>3,420</span><small>(15 bolts)</small></td><td><b>3,930</b></td><td>2,491</td><td class="ok">157.7%</td><td>1</td><td>96%</td></tr>
+<tr><td>6</td><td>42</td><td>434</td><td>1,983</td><td>75</td><td>698</td><td><span>4,905</span><small>(15 bolts)</small></td><td><b>5,603</b></td><td>3,789</td><td class="ok">147.9%</td><td>1</td><td>96%</td></tr>
+<tr><td>7</td><td>49</td><td>507</td><td>2,659</td><td>78</td><td>931</td><td><span>6,840</span><small>(15 bolts)</small></td><td><b>7,771</b></td><td>5,402</td><td class="ok">143.9%</td><td>1</td><td>96%</td></tr>
+<tr><td>8</td><td>56</td><td>581</td><td>3,442</td><td>81</td><td>1,205</td><td><span>9,195</span><small>(15 bolts)</small></td><td><b>10,400</b></td><td>7,344</td><td class="ok">141.6%</td><td>1</td><td>96%</td></tr>
+<tr><td>9</td><td>63</td><td>651</td><td>4,336</td><td>84</td><td>1,508</td><td><span>12,015</span><small>(15 bolts)</small></td><td><b>13,523</b></td><td>9,629</td><td class="ok">140.4%</td><td>1</td><td>96%</td></tr>
+<tr><td>10</td><td>70</td><td>703</td><td>5,173</td><td>87</td><td>1,798</td><td><span>14,850</span><small>(15 bolts)</small></td><td><b>16,648</b></td><td>12,269</td><td class="ok">135.7%</td><td>1</td><td>96%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="ok">119.0%<small>L1</small></td><td class="ok">119.0%<small>L1</small></td><td class="ok">119.0%<small>L1</small></td><td class="ok">39.0%<small>L6</small></td><td class="warn">9.1%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">2434.6%<small>L1</small></td><td class="ok">1259.9%<small>L5</small></td><td class="ok">239.3%<small>L10</small></td><td class="ok">88.9%<small>L15</small></td><td class="ok">43.8%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">261.6%<small>L40</small></td><td class="ok">192.3%<small>L45</small></td><td class="ok">144.8%<small>L50</small></td><td class="ok">110.9%<small>L55</small></td><td class="ok">87.5%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">126.9%<small>L90</small></td><td class="ok">109.0%<small>L95</small></td><td class="ok">93.9%<small>L100</small></td><td class="ok">80.9%<small>L105</small></td><td class="ok">70.7%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<div class="ability " id="ab-191169810245">
+<h4>Arcane Lance <span class="stat-tag">MAGICATTACK</span> <span class="badge badge-ok">DoT: dot_scaling_base (correct)</span></h4>
+<div class="desc">Channels a searing lance of arcane force, pulsing $[hit_count] times across up to $[target_count] enemies for $[damage_percent] magic damage each.</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>78</td><td>50</td><td>67.5</td><td><span>16.0</span><small>(chain/enemy)</small></td><td><b>83.5</b></td><td>61</td><td class="ok">136.9%</td><td>1</td><td>95%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>268</td><td>54</td><td>241</td><td><span>58.0</span><small>(chain/enemy)</small></td><td><b>299</b></td><td>303</td><td class="ok">98.8%</td><td>2</td><td>95%</td></tr>
+<tr><td>3</td><td>21</td><td>222</td><td>552</td><td>58</td><td>685</td><td><span>128</span><small>(chain/enemy)</small></td><td><b>813</b></td><td>769</td><td class="ok">105.7%</td><td>1</td><td>96%</td></tr>
+<tr><td>4</td><td>28</td><td>295</td><td>933</td><td>62</td><td>1,486</td><td><span>231</span><small>(chain/enemy)</small></td><td><b>1,717</b></td><td>1,491</td><td class="ok">115.1%</td><td>1</td><td>96%</td></tr>
+<tr><td>5</td><td>35</td><td>369</td><td>1,438</td><td>66</td><td>2,802</td><td><span>380</span><small>(chain/enemy)</small></td><td><b>3,182</b></td><td>2,491</td><td class="ok">127.8%</td><td>1</td><td>96%</td></tr>
+<tr><td>6</td><td>42</td><td>434</td><td>1,983</td><td>70</td><td>4,560</td><td><span>555</span><small>(chain/enemy)</small></td><td><b>5,115</b></td><td>3,789</td><td class="ok">135.0%</td><td>1</td><td>96%</td></tr>
+<tr><td>7</td><td>49</td><td>507</td><td>2,659</td><td>74</td><td>6,182</td><td><span>787</span><small>(chain/enemy)</small></td><td><b>6,969</b></td><td>5,402</td><td class="ok">129.0%</td><td>1</td><td>96%</td></tr>
+<tr><td>8</td><td>56</td><td>581</td><td>3,442</td><td>78</td><td>9,285</td><td><span>1,074</span><small>(chain/enemy)</small></td><td><b>10,359</b></td><td>7,344</td><td class="ok">141.1%</td><td>1</td><td>96%</td></tr>
+<tr><td>9</td><td>63</td><td>651</td><td>4,336</td><td>82</td><td>13,250</td><td><span>1,422</span><small>(chain/enemy)</small></td><td><b>14,672</b></td><td>9,629</td><td class="ok">152.4%</td><td>1</td><td>96%</td></tr>
+<tr><td>10</td><td>70</td><td>703</td><td>5,173</td><td>86</td><td>17,776</td><td><span>1,780</span><small>(chain/enemy)</small></td><td><b>19,556</b></td><td>12,269</td><td class="ok">159.4%</td><td>1</td><td>96%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="ok">60.7%<small>L1</small></td><td class="ok">60.7%<small>L1</small></td><td class="ok">60.7%<small>L1</small></td><td class="warn">14.8%<small>L6</small></td><td class="bad">2.5%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">1529.7%<small>L1</small></td><td class="ok">708.7%<small>L5</small></td><td class="ok">110.1%<small>L10</small></td><td class="ok">29.8%<small>L15</small></td><td class="warn">10.0%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">346.9%<small>L40</small></td><td class="ok">216.9%<small>L45</small></td><td class="ok">129.9%<small>L50</small></td><td class="ok">68.4%<small>L55</small></td><td class="ok">34.0%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">194.7%<small>L90</small></td><td class="ok">141.3%<small>L95</small></td><td class="ok">96.8%<small>L100</small></td><td class="ok">56.8%<small>L105</small></td><td class="ok">30.9%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<div class="ability " id="ab-frost_patch_">
+<h4>Frost Patch <span class="stat-tag">MAGICATTACK</span> <span class="badge badge-ok">DoT: dot_scaling_base (correct)</span></h4>
+<div class="desc">Cast a patch of frost at your feet for 4 seconds. Enemies inside take $[damage_percent] magic damage per tick and are chilled for 50% slow.</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>78</td><td>45</td><td>20.2</td><td><span>12.0</span><small>(frost ticks)</small></td><td><b>32.2</b></td><td>61</td><td class="ok">52.9%</td><td>2</td><td>95%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>268</td><td>47</td><td>70.0</td><td><span>40.0</span><small>(frost ticks)</small></td><td><b>110</b></td><td>303</td><td class="ok">36.3%</td><td>3</td><td>95%</td></tr>
+<tr><td>3</td><td>21</td><td>222</td><td>552</td><td>49</td><td>145</td><td><span>88.0</span><small>(frost ticks)</small></td><td><b>233</b></td><td>769</td><td class="ok">30.3%</td><td>4</td><td>96%</td></tr>
+<tr><td>4</td><td>28</td><td>295</td><td>933</td><td>51</td><td>244</td><td><span>152</span><small>(frost ticks)</small></td><td><b>396</b></td><td>1,491</td><td class="ok">26.6%</td><td>4</td><td>96%</td></tr>
+<tr><td>5</td><td>35</td><td>369</td><td>1,438</td><td>53</td><td>375</td><td><span>244</span><small>(frost ticks)</small></td><td><b>619</b></td><td>2,491</td><td class="warn">24.9%</td><td>5</td><td>96%</td></tr>
+<tr><td>6</td><td>42</td><td>434</td><td>1,983</td><td>55</td><td>512</td><td><span>348</span><small>(frost ticks)</small></td><td><b>860</b></td><td>3,789</td><td class="warn">22.7%</td><td>5</td><td>96%</td></tr>
+<tr><td>7</td><td>49</td><td>507</td><td>2,659</td><td>57</td><td>680</td><td><span>484</span><small>(frost ticks)</small></td><td><b>1,164</b></td><td>5,402</td><td class="warn">21.6%</td><td>5</td><td>96%</td></tr>
+<tr><td>8</td><td>56</td><td>581</td><td>3,442</td><td>59</td><td>878</td><td><span>648</span><small>(frost ticks)</small></td><td><b>1,526</b></td><td>7,344</td><td class="warn">20.8%</td><td>5</td><td>96%</td></tr>
+<tr><td>9</td><td>63</td><td>651</td><td>4,336</td><td>61</td><td>1,095</td><td><span>848</span><small>(frost ticks)</small></td><td><b>1,943</b></td><td>9,629</td><td class="warn">20.2%</td><td>5</td><td>96%</td></tr>
+<tr><td>10</td><td>70</td><td>703</td><td>5,173</td><td>63</td><td>1,302</td><td><span>1,044</span><small>(frost ticks)</small></td><td><b>2,346</b></td><td>12,269</td><td class="warn">19.1%</td><td>6</td><td>96%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="ok">40.9%<small>L1</small></td><td class="ok">40.9%<small>L1</small></td><td class="ok">40.9%<small>L1</small></td><td class="warn">12.4%<small>L6</small></td><td class="bad">2.7%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">534.3%<small>L1</small></td><td class="ok">253.0%<small>L5</small></td><td class="ok">41.1%<small>L10</small></td><td class="warn">12.1%<small>L15</small></td><td class="bad">4.7%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">50.6%<small>L40</small></td><td class="ok">33.3%<small>L45</small></td><td class="warn">21.7%<small>L50</small></td><td class="warn">13.5%<small>L55</small></td><td class="warn">8.6%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="warn">20.9%<small>L90</small></td><td class="warn">16.2%<small>L95</small></td><td class="warn">12.3%<small>L100</small></td><td class="warn">8.8%<small>L105</small></td><td class="bad">6.5%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<div class="ability " id="ab-218514101200">
+<h4>Immolate <span class="stat-tag">MAGICATTACK</span> <span class="badge badge-ok">DoT: dot_scaling_base (correct)</span></h4>
+<div class="desc">Hurls a searing bolt at one enemy for $[damage_percent] magic damage. [color=#e6915c]Sets a stacking Burn (max 3 stacks) — each stack deals 18% Magic Attack/s for 6 seconds.[/color]</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>78</td><td>100</td><td>45.0</td><td><span>48.0</span><small>(burn)</small></td><td><b>93.0</b></td><td>61</td><td class="ok">152.4%</td><td>1</td><td>95%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>268</td><td>108</td><td>161</td><td><span>174</span><small>(burn)</small></td><td><b>335</b></td><td>303</td><td class="ok">110.5%</td><td>1</td><td>95%</td></tr>
+<tr><td>3</td><td>21</td><td>222</td><td>552</td><td>116</td><td>343</td><td><span>384</span><small>(burn)</small></td><td><b>727</b></td><td>769</td><td class="ok">94.5%</td><td>2</td><td>96%</td></tr>
+<tr><td>4</td><td>28</td><td>295</td><td>933</td><td>124</td><td>594</td><td><span>696</span><small>(burn)</small></td><td><b>1,290</b></td><td>1,491</td><td class="ok">86.5%</td><td>2</td><td>96%</td></tr>
+<tr><td>5</td><td>35</td><td>369</td><td>1,438</td><td>132</td><td>934</td><td><span>1,140</span><small>(burn)</small></td><td><b>2,074</b></td><td>2,491</td><td class="ok">83.3%</td><td>2</td><td>96%</td></tr>
+<tr><td>6</td><td>42</td><td>434</td><td>1,983</td><td>140</td><td>1,303</td><td><span>1,668</span><small>(burn)</small></td><td><b>2,971</b></td><td>3,789</td><td class="ok">78.4%</td><td>2</td><td>96%</td></tr>
+<tr><td>7</td><td>49</td><td>507</td><td>2,659</td><td>148</td><td>1,766</td><td><span>2,364</span><small>(burn)</small></td><td><b>4,130</b></td><td>5,402</td><td class="ok">76.5%</td><td>2</td><td>96%</td></tr>
+<tr><td>8</td><td>56</td><td>581</td><td>3,442</td><td>156</td><td>2,321</td><td><span>3,222</span><small>(burn)</small></td><td><b>5,543</b></td><td>7,344</td><td class="ok">75.5%</td><td>2</td><td>96%</td></tr>
+<tr><td>9</td><td>63</td><td>651</td><td>4,336</td><td>164</td><td>2,944</td><td><span>4,266</span><small>(burn)</small></td><td><b>7,210</b></td><td>9,629</td><td class="ok">74.9%</td><td>2</td><td>96%</td></tr>
+<tr><td>10</td><td>70</td><td>703</td><td>5,173</td><td>172</td><td>3,555</td><td><span>5,340</span><small>(burn)</small></td><td><b>8,895</b></td><td>12,269</td><td class="ok">72.5%</td><td>2</td><td>96%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="ok">71.6%<small>L1</small></td><td class="ok">71.6%<small>L1</small></td><td class="ok">71.6%<small>L1</small></td><td class="warn">20.7%<small>L6</small></td><td class="bad">4.3%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">1490.9%<small>L1</small></td><td class="ok">724.8%<small>L5</small></td><td class="ok">123.9%<small>L10</small></td><td class="ok">39.7%<small>L15</small></td><td class="warn">17.0%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">165.6%<small>L40</small></td><td class="ok">112.7%<small>L45</small></td><td class="ok">76.9%<small>L50</small></td><td class="ok">51.5%<small>L55</small></td><td class="ok">35.9%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">75.4%<small>L90</small></td><td class="ok">60.4%<small>L95</small></td><td class="ok">47.9%<small>L100</small></td><td class="ok">36.9%<small>L105</small></td><td class="ok">29.1%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<div class="ability " id="ab-4516312154-2">
+<h4>Pyre Burst <span class="stat-tag">MAGICATTACK</span> <span class="badge badge-ok">DoT: dot_scaling_base (correct)</span></h4>
+<div class="desc">Hurls a roaring fireball that erupts on impact, scorching up to $[target_count] enemies for $[damage_percent] magic damage each.</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>78</td><td>60</td><td>27.0</td><td><span>24.0</span><small>(burn)</small> + <span>15.0</span><small>(fire pool)</small></td><td><b>66.0</b></td><td>61</td><td class="ok">108.2%</td><td>1</td><td>95%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>268</td><td>66</td><td>98.3</td><td><span>84.0</span><small>(burn)</small> + <span>54.0</span><small>(fire pool)</small></td><td><b>236</b></td><td>303</td><td class="ok">78.0%</td><td>2</td><td>95%</td></tr>
+<tr><td>3</td><td>21</td><td>222</td><td>552</td><td>72</td><td>213</td><td><span>192</span><small>(burn)</small> + <span>120</span><small>(fire pool)</small></td><td><b>525</b></td><td>769</td><td class="ok">68.2%</td><td>2</td><td>96%</td></tr>
+<tr><td>4</td><td>28</td><td>295</td><td>933</td><td>78</td><td>374</td><td><span>348</span><small>(burn)</small> + <span>219</span><small>(fire pool)</small></td><td><b>941</b></td><td>1,491</td><td class="ok">63.1%</td><td>2</td><td>96%</td></tr>
+<tr><td>5</td><td>35</td><td>369</td><td>1,438</td><td>84</td><td>594</td><td><span>580</span><small>(burn)</small> + <span>363</span><small>(fire pool)</small></td><td><b>1,537</b></td><td>2,491</td><td class="ok">61.7%</td><td>2</td><td>96%</td></tr>
+<tr><td>6</td><td>42</td><td>434</td><td>1,983</td><td>90</td><td>837</td><td><span>856</span><small>(burn)</small> + <span>534</span><small>(fire pool)</small></td><td><b>2,227</b></td><td>3,789</td><td class="ok">58.8%</td><td>2</td><td>96%</td></tr>
+<tr><td>7</td><td>49</td><td>507</td><td>2,659</td><td>96</td><td>1,146</td><td><span>1,224</span><small>(burn)</small> + <span>765</span><small>(fire pool)</small></td><td><b>3,135</b></td><td>5,402</td><td class="ok">58.0%</td><td>2</td><td>96%</td></tr>
+<tr><td>8</td><td>56</td><td>581</td><td>3,442</td><td>102</td><td>1,518</td><td><span>1,684</span><small>(burn)</small> + <span>1,053</span><small>(fire pool)</small></td><td><b>4,255</b></td><td>7,344</td><td class="ok">57.9%</td><td>2</td><td>96%</td></tr>
+<tr><td>9</td><td>63</td><td>651</td><td>4,336</td><td>108</td><td>1,939</td><td><span>2,248</span><small>(burn)</small> + <span>1,404</span><small>(fire pool)</small></td><td><b>5,591</b></td><td>9,629</td><td class="ok">58.1%</td><td>2</td><td>96%</td></tr>
+<tr><td>10</td><td>70</td><td>703</td><td>5,173</td><td>114</td><td>2,356</td><td><span>2,832</span><small>(burn)</small> + <span>1,770</span><small>(fire pool)</small></td><td><b>6,958</b></td><td>12,269</td><td class="ok">56.7%</td><td>2</td><td>96%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="ok">65.6%<small>L1</small></td><td class="ok">65.6%<small>L1</small></td><td class="ok">65.6%<small>L1</small></td><td class="warn">20.4%<small>L6</small></td><td class="bad">4.6%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">1007.9%<small>L1</small></td><td class="ok">495.6%<small>L5</small></td><td class="ok">86.5%<small>L10</small></td><td class="ok">28.6%<small>L15</small></td><td class="warn">12.7%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">121.7%<small>L40</small></td><td class="ok">84.0%<small>L45</small></td><td class="ok">58.4%<small>L50</small></td><td class="ok">40.3%<small>L55</small></td><td class="ok">28.9%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">57.7%<small>L90</small></td><td class="ok">46.9%<small>L95</small></td><td class="ok">37.9%<small>L100</small></td><td class="ok">29.9%<small>L105</small></td><td class="warn">24.2%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<div class="ability " id="ab-spellweave_v">
+<h4>Spellweave <span class="stat-tag">MAGICATTACK</span> <span class="badge badge-ok">DoT: dot_scaling_base (correct)</span></h4>
+<div class="desc">Channel for up to 2 seconds. Release an AMPLIFIED version of your current stance&#x27;s signature: FIRE = larger pool, ICE = area freeze, LIGHTNING = +3 chain hops.</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>78</td><td>110</td><td>49.5</td><td><span>65.0</span><small>(fire pool)</small> / <span>51.0</span><small>(lightning/enemy)</small></td><td><b>114</b></td><td>61</td><td class="ok">187.7%</td><td>1</td><td>95%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>268</td><td>115</td><td>171</td><td><span>230</span><small>(fire pool)</small> / <span>185</span><small>(lightning/enemy)</small></td><td><b>401</b></td><td>303</td><td class="ok">132.5%</td><td>1</td><td>95%</td></tr>
+<tr><td>3</td><td>21</td><td>222</td><td>552</td><td>120</td><td>354</td><td><span>495</span><small>(fire pool)</small> / <span>397</span><small>(lightning/enemy)</small></td><td><b>849</b></td><td>769</td><td class="ok">110.4%</td><td>1</td><td>96%</td></tr>
+<tr><td>4</td><td>28</td><td>295</td><td>933</td><td>125</td><td>599</td><td><span>875</span><small>(fire pool)</small> / <span>700</span><small>(lightning/enemy)</small></td><td><b>1,474</b></td><td>1,491</td><td class="ok">98.9%</td><td>2</td><td>96%</td></tr>
+<tr><td>5</td><td>35</td><td>369</td><td>1,438</td><td>130</td><td>920</td><td><span>1,400</span><small>(fire pool)</small> / <span>1,122</span><small>(lightning/enemy)</small></td><td><b>2,320</b></td><td>2,491</td><td class="ok">93.1%</td><td>2</td><td>96%</td></tr>
+<tr><td>6</td><td>42</td><td>434</td><td>1,983</td><td>135</td><td>1,256</td><td><span>2,010</span><small>(fire pool)</small> / <span>1,606</span><small>(lightning/enemy)</small></td><td><b>3,266</b></td><td>3,789</td><td class="ok">86.2%</td><td>2</td><td>96%</td></tr>
+<tr><td>7</td><td>49</td><td>507</td><td>2,659</td><td>140</td><td>1,671</td><td><span>2,790</span><small>(fire pool)</small> / <span>2,234</span><small>(lightning/enemy)</small></td><td><b>4,461</b></td><td>5,402</td><td class="ok">82.6%</td><td>2</td><td>96%</td></tr>
+<tr><td>8</td><td>56</td><td>581</td><td>3,442</td><td>145</td><td>2,158</td><td><span>3,745</span><small>(fire pool)</small> / <span>2,995</span><small>(lightning/enemy)</small></td><td><b>5,903</b></td><td>7,344</td><td class="ok">80.4%</td><td>2</td><td>96%</td></tr>
+<tr><td>9</td><td>63</td><td>651</td><td>4,336</td><td>150</td><td>2,693</td><td><span>4,880</span><small>(fire pool)</small> / <span>3,902</span><small>(lightning/enemy)</small></td><td><b>7,573</b></td><td>9,629</td><td class="ok">78.6%</td><td>2</td><td>96%</td></tr>
+<tr><td>10</td><td>70</td><td>703</td><td>5,173</td><td>155</td><td>3,204</td><td><span>6,015</span><small>(fire pool)</small> / <span>4,811</span><small>(lightning/enemy)</small></td><td><b>9,219</b></td><td>12,269</td><td class="ok">75.1%</td><td>2</td><td>96%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="ok">68.1%<small>L1</small></td><td class="ok">68.1%<small>L1</small></td><td class="ok">68.1%<small>L1</small></td><td class="warn">19.1%<small>L6</small></td><td class="bad">3.8%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">1780.0%<small>L1</small></td><td class="ok">872.3%<small>L5</small></td><td class="ok">151.3%<small>L10</small></td><td class="ok">49.6%<small>L15</small></td><td class="warn">21.7%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">174.1%<small>L40</small></td><td class="ok">119.9%<small>L45</small></td><td class="ok">83.2%<small>L50</small></td><td class="ok">57.1%<small>L55</small></td><td class="ok">40.8%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">76.7%<small>L90</small></td><td class="ok">62.2%<small>L95</small></td><td class="ok">50.1%<small>L100</small></td><td class="ok">39.4%<small>L105</small></td><td class="ok">31.8%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<div class="ability " id="ab-stormcall_v1">
+<h4>Stormcall <span class="stat-tag">MAGICATTACK</span> <span class="badge badge-ok">DoT: dot_scaling_base (correct)</span></h4>
+<div class="desc">Channel for 3 seconds. Lightning randomly strikes nearby enemies every half-second for $[damage_percent] magic damage. The staff&#x27;s heaviest sustain.</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>78</td><td>55</td><td>24.7</td><td><span>30.0</span><small>(storm ticks)</small></td><td><b>54.7</b></td><td>61</td><td class="ok">89.7%</td><td>2</td><td>95%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>268</td><td>58</td><td>86.4</td><td><span>102</span><small>(storm ticks)</small></td><td><b>188</b></td><td>303</td><td class="ok">62.2%</td><td>2</td><td>95%</td></tr>
+<tr><td>3</td><td>21</td><td>222</td><td>552</td><td>61</td><td>180</td><td><span>222</span><small>(storm ticks)</small></td><td><b>402</b></td><td>769</td><td class="ok">52.3%</td><td>2</td><td>96%</td></tr>
+<tr><td>4</td><td>28</td><td>295</td><td>933</td><td>64</td><td>307</td><td><span>396</span><small>(storm ticks)</small></td><td><b>703</b></td><td>1,491</td><td class="ok">47.1%</td><td>3</td><td>96%</td></tr>
+<tr><td>5</td><td>35</td><td>369</td><td>1,438</td><td>67</td><td>474</td><td><span>636</span><small>(storm ticks)</small></td><td><b>1,110</b></td><td>2,491</td><td class="ok">44.6%</td><td>3</td><td>96%</td></tr>
+<tr><td>6</td><td>42</td><td>434</td><td>1,983</td><td>70</td><td>651</td><td><span>918</span><small>(storm ticks)</small></td><td><b>1,569</b></td><td>3,789</td><td class="ok">41.4%</td><td>3</td><td>96%</td></tr>
+<tr><td>7</td><td>49</td><td>507</td><td>2,659</td><td>73</td><td>871</td><td><span>1,284</span><small>(storm ticks)</small></td><td><b>2,155</b></td><td>5,402</td><td class="ok">39.9%</td><td>3</td><td>96%</td></tr>
+<tr><td>8</td><td>56</td><td>581</td><td>3,442</td><td>76</td><td>1,131</td><td><span>1,728</span><small>(storm ticks)</small></td><td><b>2,859</b></td><td>7,344</td><td class="ok">38.9%</td><td>3</td><td>96%</td></tr>
+<tr><td>9</td><td>63</td><td>651</td><td>4,336</td><td>79</td><td>1,418</td><td><span>2,262</span><small>(storm ticks)</small></td><td><b>3,680</b></td><td>9,629</td><td class="ok">38.2%</td><td>3</td><td>96%</td></tr>
+<tr><td>10</td><td>70</td><td>703</td><td>5,173</td><td>82</td><td>1,695</td><td><span>2,802</span><small>(storm ticks)</small></td><td><b>4,497</b></td><td>12,269</td><td class="ok">36.7%</td><td>3</td><td>96%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="ok">57.4%<small>L1</small></td><td class="ok">57.4%<small>L1</small></td><td class="ok">57.4%<small>L1</small></td><td class="warn">17.7%<small>L6</small></td><td class="bad">3.9%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">850.0%<small>L1</small></td><td class="ok">414.7%<small>L5</small></td><td class="ok">71.4%<small>L10</small></td><td class="warn">23.1%<small>L15</small></td><td class="warn">10.0%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">85.3%<small>L40</small></td><td class="ok">58.3%<small>L45</small></td><td class="ok">40.1%<small>L50</small></td><td class="ok">27.1%<small>L55</small></td><td class="warn">19.1%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">37.8%<small>L90</small></td><td class="ok">30.5%<small>L95</small></td><td class="warn">24.3%<small>L100</small></td><td class="warn">18.9%<small>L105</small></td><td class="warn">15.1%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<div class="ability " id="ab-139710367991">
+<h4>Arcane Bolt <span class="stat-tag">MAGICATTACK</span> </h4>
+<div class="desc">Hurls a focused bolt of raw mana at $[target_count] enemy, dealing $[damage_percent] magic damage. The mage&#x27;s bread and butter.</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>78</td><td>100</td><td>45.0</td><td>&mdash;</td><td><b>45.0</b></td><td>61</td><td class="ok">73.8%</td><td>2</td><td>95%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>268</td><td>110</td><td>164</td><td>&mdash;</td><td><b>164</b></td><td>303</td><td class="ok">54.1%</td><td>2</td><td>95%</td></tr>
+<tr><td>3</td><td>21</td><td>222</td><td>552</td><td>120</td><td>354</td><td>&mdash;</td><td><b>354</b></td><td>769</td><td class="ok">46.1%</td><td>3</td><td>96%</td></tr>
+<tr><td>4</td><td>28</td><td>295</td><td>933</td><td>130</td><td>623</td><td>&mdash;</td><td><b>623</b></td><td>1,491</td><td class="ok">41.8%</td><td>3</td><td>96%</td></tr>
+<tr><td>5</td><td>35</td><td>369</td><td>1,438</td><td>140</td><td>991</td><td>&mdash;</td><td><b>991</b></td><td>2,491</td><td class="ok">39.8%</td><td>3</td><td>96%</td></tr>
+<tr><td>6</td><td>42</td><td>434</td><td>1,983</td><td>150</td><td>1,396</td><td>&mdash;</td><td><b>1,396</b></td><td>3,789</td><td class="ok">36.8%</td><td>3</td><td>96%</td></tr>
+<tr><td>7</td><td>49</td><td>507</td><td>2,659</td><td>160</td><td>1,909</td><td>&mdash;</td><td><b>1,909</b></td><td>5,402</td><td class="ok">35.3%</td><td>3</td><td>96%</td></tr>
+<tr><td>8</td><td>56</td><td>581</td><td>3,442</td><td>170</td><td>2,529</td><td>&mdash;</td><td><b>2,529</b></td><td>7,344</td><td class="ok">34.4%</td><td>3</td><td>96%</td></tr>
+<tr><td>9</td><td>63</td><td>651</td><td>4,336</td><td>180</td><td>3,232</td><td>&mdash;</td><td><b>3,232</b></td><td>9,629</td><td class="ok">33.6%</td><td>3</td><td>96%</td></tr>
+<tr><td>10</td><td>70</td><td>703</td><td>5,173</td><td>190</td><td>3,927</td><td>&mdash;</td><td><b>3,927</b></td><td>12,269</td><td class="ok">32.0%</td><td>4</td><td>96%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="ok">31.6%<small>L1</small></td><td class="ok">31.6%<small>L1</small></td><td class="ok">31.6%<small>L1</small></td><td class="bad">6.8%<small>L6</small></td><td class="bad">0.9%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">890.9%<small>L1</small></td><td class="ok">403.4%<small>L5</small></td><td class="ok">59.6%<small>L10</small></td><td class="warn">14.4%<small>L15</small></td><td class="bad">3.9%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">99.6%<small>L40</small></td><td class="ok">61.2%<small>L45</small></td><td class="ok">35.6%<small>L50</small></td><td class="warn">17.5%<small>L55</small></td><td class="bad">7.5%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">40.2%<small>L90</small></td><td class="ok">28.7%<small>L95</small></td><td class="warn">19.1%<small>L100</small></td><td class="warn">10.5%<small>L105</small></td><td class="bad">5.0%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<div class="ability " id="ab-931519511610">
+<h4>Glacial Spike <span class="stat-tag">MAGICATTACK</span> </h4>
+<div class="desc">Drives a spike of jagged ice into $[target_count] enemy, dealing $[damage_percent] magic damage. A heavy, deliberate strike.</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>78</td><td>90</td><td>40.5</td><td>&mdash;</td><td><b>40.5</b></td><td>61</td><td class="ok">66.4%</td><td>2</td><td>95%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>268</td><td>100</td><td>149</td><td>&mdash;</td><td><b>149</b></td><td>303</td><td class="ok">49.2%</td><td>3</td><td>95%</td></tr>
+<tr><td>3</td><td>21</td><td>222</td><td>552</td><td>110</td><td>325</td><td>&mdash;</td><td><b>325</b></td><td>769</td><td class="ok">42.2%</td><td>3</td><td>96%</td></tr>
+<tr><td>4</td><td>28</td><td>295</td><td>933</td><td>120</td><td>575</td><td>&mdash;</td><td><b>575</b></td><td>1,491</td><td class="ok">38.6%</td><td>3</td><td>96%</td></tr>
+<tr><td>5</td><td>35</td><td>369</td><td>1,438</td><td>130</td><td>920</td><td>&mdash;</td><td><b>920</b></td><td>2,491</td><td class="ok">36.9%</td><td>3</td><td>96%</td></tr>
+<tr><td>6</td><td>42</td><td>434</td><td>1,983</td><td>140</td><td>1,303</td><td>&mdash;</td><td><b>1,303</b></td><td>3,789</td><td class="ok">34.4%</td><td>3</td><td>96%</td></tr>
+<tr><td>7</td><td>49</td><td>507</td><td>2,659</td><td>150</td><td>1,790</td><td>&mdash;</td><td><b>1,790</b></td><td>5,402</td><td class="ok">33.1%</td><td>4</td><td>96%</td></tr>
+<tr><td>8</td><td>56</td><td>581</td><td>3,442</td><td>160</td><td>2,381</td><td>&mdash;</td><td><b>2,381</b></td><td>7,344</td><td class="ok">32.4%</td><td>4</td><td>96%</td></tr>
+<tr><td>9</td><td>63</td><td>651</td><td>4,336</td><td>170</td><td>3,052</td><td>&mdash;</td><td><b>3,052</b></td><td>9,629</td><td class="ok">31.7%</td><td>4</td><td>96%</td></tr>
+<tr><td>10</td><td>70</td><td>703</td><td>5,173</td><td>180</td><td>3,720</td><td>&mdash;</td><td><b>3,720</b></td><td>12,269</td><td class="ok">30.3%</td><td>4</td><td>96%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="ok">28.4%<small>L1</small></td><td class="ok">28.4%<small>L1</small></td><td class="ok">28.4%<small>L1</small></td><td class="bad">6.1%<small>L6</small></td><td class="bad">0.8%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">801.8%<small>L1</small></td><td class="ok">363.1%<small>L5</small></td><td class="ok">53.6%<small>L10</small></td><td class="warn">13.0%<small>L15</small></td><td class="bad">3.5%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">93.4%<small>L40</small></td><td class="ok">57.4%<small>L45</small></td><td class="ok">33.4%<small>L50</small></td><td class="warn">16.4%<small>L55</small></td><td class="bad">7.1%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">38.0%<small>L90</small></td><td class="ok">27.2%<small>L95</small></td><td class="warn">18.1%<small>L100</small></td><td class="warn">10.0%<small>L105</small></td><td class="bad">4.7%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<h3>Support / utility / passives (no direct damage)</h3>
+<table class="dmg"><thead><tr><th>Ability</th><th>Type</th><th>Effect</th></tr></thead><tbody>
+<tr><td>Aether Ward</td><td>Active</td><td>Weaves a ward that drains mana to absorb incoming damage instead of HP for $[buff_duration]. The shield shatters when mana runs dry.</td></tr>
+<tr><td>Communion</td><td>Active</td><td>Channel the aether for the whole party, raising MP regeneration and magic attack by $[stat_bonus]% for $[buff_duration].</td></tr>
+<tr><td>Mana Surge</td><td>Active</td><td>Mark one enemy with Mana Resonance for 8 seconds. Your next staff spell vs this target deals +50% damage AND refunds 50% of its MP cost.</td></tr>
+<tr><td>Phase Step</td><td>Active</td><td>Slip through the weave and reappear a short distance away in your facing direction (or up/down), briefly untouchable. The mage&#x27;s escape.</td></tr>
+<tr><td>Arcane Resonance</td><td>Passive</td><td>Permanently increases your Magic Attack by $[stat_bonus]% — arcane currents amplify every spell.</td></tr>
+<tr><td>Deep Wellspring</td><td>Passive</td><td>Permanently increases Max Mana by $[stat_bonus]%.</td></tr>
+<tr><td>Elemental Affinity</td><td>Passive</td><td>While in a stance, spells whose element matches gain +$[damage_percent] damage. Commit to a stance, reap the payoff.</td></tr>
+<tr><td>Killing Spree</td><td>Passive</td><td>After a kill, deal +$[damage_percent] damage for 4s. Snowballs through packs; does nothing on a lone target.</td></tr>
+<tr><td>Mana Flow</td><td>Passive</td><td>Permanently increases MP regeneration by $[stat_bonus].</td></tr>
+<tr><td>Overload</td><td>Passive</td><td>Deal +$[damage_percent] damage while above 50% mana. Channel your reserves.</td></tr>
+<tr><td>Spell Ward</td><td>Passive</td><td>Permanently increases Magic Defense by $[stat_bonus].</td></tr>
+</tbody></table>
+</section>
+<section id="Dagger"><h2>Dagger</h2>
+<h3>Damage abilities</h3>
+<div class="ability " id="ab-514118118101">
+<h4>Envenom <span class="stat-tag">WEAPONATTACK</span> <span class="badge badge-ok">DoT: dot_scaling_base (correct)</span></h4>
+<div class="desc">Strikes one enemy with a poison-coated blade for $[damage_percent] damage. [color=#7ed957]Applies a stacking Poison (max 3 stacks) — each stack deals 20% Weapon Attack/s for 6 seconds.[/color]</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>74</td><td>90</td><td>39.7</td><td><span>24.0</span><small>(poison)</small></td><td><b>63.7</b></td><td>61</td><td class="ok">104.5%</td><td>1</td><td>96%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>262</td><td>98</td><td>153</td><td><span>90.0</span><small>(poison)</small></td><td><b>243</b></td><td>303</td><td class="ok">80.1%</td><td>2</td><td>97%</td></tr>
+<tr><td>3</td><td>21</td><td>221</td><td>538</td><td>106</td><td>333</td><td><span>204</span><small>(poison)</small></td><td><b>537</b></td><td>769</td><td class="ok">69.8%</td><td>2</td><td>98%</td></tr>
+<tr><td>4</td><td>28</td><td>293</td><td>910</td><td>114</td><td>594</td><td><span>372</span><small>(poison)</small></td><td><b>966</b></td><td>1,491</td><td class="ok">64.8%</td><td>2</td><td>100%</td></tr>
+<tr><td>5</td><td>35</td><td>367</td><td>1,406</td><td>122</td><td>968</td><td><span>618</span><small>(poison)</small></td><td><b>1,586</b></td><td>2,491</td><td class="ok">63.7%</td><td>2</td><td>100%</td></tr>
+<tr><td>6</td><td>42</td><td>432</td><td>1,945</td><td>130</td><td>1,369</td><td><span>912</span><small>(poison)</small></td><td><b>2,281</b></td><td>3,789</td><td class="ok">60.2%</td><td>2</td><td>100%</td></tr>
+<tr><td>7</td><td>49</td><td>505</td><td>2,611</td><td>138</td><td>1,913</td><td><span>1,296</span><small>(poison)</small></td><td><b>3,209</b></td><td>5,402</td><td class="ok">59.4%</td><td>2</td><td>100%</td></tr>
+<tr><td>8</td><td>56</td><td>579</td><td>3,382</td><td>146</td><td>2,556</td><td><span>1,776</span><small>(poison)</small></td><td><b>4,332</b></td><td>7,344</td><td class="ok">59.0%</td><td>2</td><td>100%</td></tr>
+<tr><td>9</td><td>63</td><td>648</td><td>4,257</td><td>154</td><td>3,360</td><td><span>2,358</span><small>(poison)</small></td><td><b>5,718</b></td><td>9,629</td><td class="ok">59.4%</td><td>2</td><td>100%</td></tr>
+<tr><td>10</td><td>70</td><td>700</td><td>5,079</td><td>162</td><td>4,131</td><td><span>2,964</span><small>(poison)</small></td><td><b>7,095</b></td><td>12,269</td><td class="ok">57.8%</td><td>2</td><td>100%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="ok">65.1%<small>L1</small></td><td class="ok">65.1%<small>L1</small></td><td class="ok">65.1%<small>L1</small></td><td class="warn">19.4%<small>L6</small></td><td class="bad">4.1%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">1125.3%<small>L1</small></td><td class="ok">536.1%<small>L5</small></td><td class="ok">88.9%<small>L10</small></td><td class="ok">26.8%<small>L15</small></td><td class="warn">10.6%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">136.7%<small>L40</small></td><td class="ok">90.0%<small>L45</small></td><td class="ok">60.0%<small>L50</small></td><td class="ok">37.8%<small>L55</small></td><td class="warn">23.9%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">65.5%<small>L90</small></td><td class="ok">50.4%<small>L95</small></td><td class="ok">38.6%<small>L100</small></td><td class="ok">28.0%<small>L105</small></td><td class="warn">19.9%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<div class="ability " id="ab-backstab_v1">
+<h4>Backstab <span class="stat-tag">WEAPONATTACK</span> </h4>
+<div class="desc">Strike a single enemy for $[damage_percent] damage. [color=#e6c95c]Deals +75% bonus damage when striking from BEHIND (the side the enemy is facing away from).[/color]</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>74</td><td>80</td><td>35.3</td><td>&mdash;</td><td><b>35.3</b></td><td>61</td><td class="ok">57.9%</td><td>2</td><td>96%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>262</td><td>84</td><td>131</td><td>&mdash;</td><td><b>131</b></td><td>303</td><td class="ok">43.2%</td><td>3</td><td>97%</td></tr>
+<tr><td>3</td><td>21</td><td>221</td><td>538</td><td>88</td><td>276</td><td>&mdash;</td><td><b>276</b></td><td>769</td><td class="ok">35.9%</td><td>3</td><td>98%</td></tr>
+<tr><td>4</td><td>28</td><td>293</td><td>910</td><td>92</td><td>479</td><td>&mdash;</td><td><b>479</b></td><td>1,491</td><td class="ok">32.2%</td><td>4</td><td>100%</td></tr>
+<tr><td>5</td><td>35</td><td>367</td><td>1,406</td><td>96</td><td>762</td><td>&mdash;</td><td><b>762</b></td><td>2,491</td><td class="ok">30.6%</td><td>4</td><td>100%</td></tr>
+<tr><td>6</td><td>42</td><td>432</td><td>1,945</td><td>100</td><td>1,053</td><td>&mdash;</td><td><b>1,053</b></td><td>3,789</td><td class="ok">27.8%</td><td>4</td><td>100%</td></tr>
+<tr><td>7</td><td>49</td><td>505</td><td>2,611</td><td>104</td><td>1,441</td><td>&mdash;</td><td><b>1,441</b></td><td>5,402</td><td class="ok">26.7%</td><td>4</td><td>100%</td></tr>
+<tr><td>8</td><td>56</td><td>579</td><td>3,382</td><td>108</td><td>1,891</td><td>&mdash;</td><td><b>1,891</b></td><td>7,344</td><td class="ok">25.7%</td><td>4</td><td>100%</td></tr>
+<tr><td>9</td><td>63</td><td>648</td><td>4,257</td><td>112</td><td>2,444</td><td>&mdash;</td><td><b>2,444</b></td><td>9,629</td><td class="ok">25.4%</td><td>4</td><td>100%</td></tr>
+<tr><td>10</td><td>70</td><td>700</td><td>5,079</td><td>116</td><td>2,958</td><td>&mdash;</td><td><b>2,958</b></td><td>12,269</td><td class="warn">24.1%</td><td>5</td><td>100%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="warn">22.3%<small>L1</small></td><td class="warn">22.3%<small>L1</small></td><td class="warn">22.3%<small>L1</small></td><td class="bad">4.8%<small>L6</small></td><td class="bad">0.6%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">715.9%<small>L1</small></td><td class="ok">324.1%<small>L5</small></td><td class="ok">48.6%<small>L10</small></td><td class="warn">11.8%<small>L15</small></td><td class="bad">3.2%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">72.5%<small>L40</small></td><td class="ok">44.6%<small>L45</small></td><td class="ok">27.0%<small>L50</small></td><td class="warn">13.9%<small>L55</small></td><td class="bad">6.1%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">31.5%<small>L90</small></td><td class="warn">22.5%<small>L95</small></td><td class="warn">15.5%<small>L100</small></td><td class="warn">9.3%<small>L105</small></td><td class="bad">4.5%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<div class="ability " id="ab-491511151141">
+<h4>Cripple <span class="stat-tag">WEAPONATTACK</span> </h4>
+<div class="desc">A vicious strike for $[damage_percent] damage that maims $[target_count] enemy, sapping their defense and attack power.</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>74</td><td>70</td><td>30.9</td><td>&mdash;</td><td><b>30.9</b></td><td>61</td><td class="ok">50.6%</td><td>2</td><td>96%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>262</td><td>76</td><td>118</td><td>&mdash;</td><td><b>118</b></td><td>303</td><td class="ok">39.1%</td><td>3</td><td>97%</td></tr>
+<tr><td>3</td><td>21</td><td>221</td><td>538</td><td>82</td><td>258</td><td>&mdash;</td><td><b>258</b></td><td>769</td><td class="ok">33.5%</td><td>3</td><td>98%</td></tr>
+<tr><td>4</td><td>28</td><td>293</td><td>910</td><td>88</td><td>459</td><td>&mdash;</td><td><b>459</b></td><td>1,491</td><td class="ok">30.8%</td><td>4</td><td>100%</td></tr>
+<tr><td>5</td><td>35</td><td>367</td><td>1,406</td><td>94</td><td>746</td><td>&mdash;</td><td><b>746</b></td><td>2,491</td><td class="ok">29.9%</td><td>4</td><td>100%</td></tr>
+<tr><td>6</td><td>42</td><td>432</td><td>1,945</td><td>100</td><td>1,053</td><td>&mdash;</td><td><b>1,053</b></td><td>3,789</td><td class="ok">27.8%</td><td>4</td><td>100%</td></tr>
+<tr><td>7</td><td>49</td><td>505</td><td>2,611</td><td>106</td><td>1,469</td><td>&mdash;</td><td><b>1,469</b></td><td>5,402</td><td class="ok">27.2%</td><td>4</td><td>100%</td></tr>
+<tr><td>8</td><td>56</td><td>579</td><td>3,382</td><td>112</td><td>1,961</td><td>&mdash;</td><td><b>1,961</b></td><td>7,344</td><td class="ok">26.7%</td><td>4</td><td>100%</td></tr>
+<tr><td>9</td><td>63</td><td>648</td><td>4,257</td><td>118</td><td>2,574</td><td>&mdash;</td><td><b>2,574</b></td><td>9,629</td><td class="ok">26.7%</td><td>4</td><td>100%</td></tr>
+<tr><td>10</td><td>70</td><td>700</td><td>5,079</td><td>124</td><td>3,162</td><td>&mdash;</td><td><b>3,162</b></td><td>12,269</td><td class="ok">25.8%</td><td>4</td><td>100%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="warn">19.5%<small>L1</small></td><td class="warn">19.5%<small>L1</small></td><td class="warn">19.5%<small>L1</small></td><td class="bad">4.2%<small>L6</small></td><td class="bad">0.5%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">626.4%<small>L1</small></td><td class="ok">283.6%<small>L5</small></td><td class="ok">42.5%<small>L10</small></td><td class="warn">10.3%<small>L15</small></td><td class="bad">2.8%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">73.9%<small>L40</small></td><td class="ok">45.5%<small>L45</small></td><td class="ok">27.6%<small>L50</small></td><td class="warn">14.1%<small>L55</small></td><td class="bad">6.2%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">33.6%<small>L90</small></td><td class="warn">24.0%<small>L95</small></td><td class="warn">16.6%<small>L100</small></td><td class="warn">9.9%<small>L105</small></td><td class="bad">4.8%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<div class="ability " id="ab-516118105115">
+<h4>Eviscerate <span class="stat-tag">WEAPONATTACK</span> </h4>
+<div class="desc">Drives both blades into one enemy&#x27;s vitals for a devastating $[damage_percent] damage — the rogue&#x27;s killing blow.</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>74</td><td>190</td><td>83.8</td><td>&mdash;</td><td><b>83.8</b></td><td>61</td><td class="ok">137.5%</td><td>1</td><td>96%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>262</td><td>210</td><td>327</td><td>&mdash;</td><td><b>327</b></td><td>303</td><td class="ok">108.0%</td><td>1</td><td>97%</td></tr>
+<tr><td>3</td><td>21</td><td>221</td><td>538</td><td>230</td><td>723</td><td>&mdash;</td><td><b>723</b></td><td>769</td><td class="ok">94.0%</td><td>2</td><td>98%</td></tr>
+<tr><td>4</td><td>28</td><td>293</td><td>910</td><td>250</td><td>1,303</td><td>&mdash;</td><td><b>1,303</b></td><td>1,491</td><td class="ok">87.4%</td><td>2</td><td>100%</td></tr>
+<tr><td>5</td><td>35</td><td>367</td><td>1,406</td><td>270</td><td>2,142</td><td>&mdash;</td><td><b>2,142</b></td><td>2,491</td><td class="ok">86.0%</td><td>2</td><td>100%</td></tr>
+<tr><td>6</td><td>42</td><td>432</td><td>1,945</td><td>290</td><td>3,053</td><td>&mdash;</td><td><b>3,053</b></td><td>3,789</td><td class="ok">80.6%</td><td>2</td><td>100%</td></tr>
+<tr><td>7</td><td>49</td><td>505</td><td>2,611</td><td>310</td><td>4,296</td><td>&mdash;</td><td><b>4,296</b></td><td>5,402</td><td class="ok">79.5%</td><td>2</td><td>100%</td></tr>
+<tr><td>8</td><td>56</td><td>579</td><td>3,382</td><td>330</td><td>5,778</td><td>&mdash;</td><td><b>5,778</b></td><td>7,344</td><td class="ok">78.7%</td><td>2</td><td>100%</td></tr>
+<tr><td>9</td><td>63</td><td>648</td><td>4,257</td><td>350</td><td>7,636</td><td>&mdash;</td><td><b>7,636</b></td><td>9,629</td><td class="ok">79.3%</td><td>2</td><td>100%</td></tr>
+<tr><td>10</td><td>70</td><td>700</td><td>5,079</td><td>370</td><td>9,434</td><td>&mdash;</td><td><b>9,434</b></td><td>12,269</td><td class="ok">76.9%</td><td>2</td><td>100%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="ok">53.0%<small>L1</small></td><td class="ok">53.0%<small>L1</small></td><td class="ok">53.0%<small>L1</small></td><td class="warn">11.4%<small>L6</small></td><td class="bad">1.5%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">1700.2%<small>L1</small></td><td class="ok">769.8%<small>L5</small></td><td class="ok">115.4%<small>L10</small></td><td class="ok">27.9%<small>L15</small></td><td class="bad">7.6%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">216.2%<small>L40</small></td><td class="ok">132.9%<small>L45</small></td><td class="ok">80.6%<small>L50</small></td><td class="ok">41.3%<small>L55</small></td><td class="warn">18.1%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">100.4%<small>L90</small></td><td class="ok">71.7%<small>L95</small></td><td class="ok">49.5%<small>L100</small></td><td class="ok">29.6%<small>L105</small></td><td class="warn">14.4%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<div class="ability " id="ab-1211275562-1">
+<h4>Fan of Knives <span class="stat-tag">WEAPONATTACK</span> </h4>
+<div class="desc">Hurls a fan of $[hit_count] throwing blades, striking up to $[target_count] enemies for $[damage_percent] damage per blade.</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>74</td><td>24</td><td>74.1</td><td>&mdash;</td><td><b>74.1</b></td><td>61</td><td class="ok">121.5%</td><td>1</td><td>96%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>262</td><td>26</td><td>284</td><td>&mdash;</td><td><b>284</b></td><td>303</td><td class="ok">93.6%</td><td>2</td><td>97%</td></tr>
+<tr><td>3</td><td>21</td><td>221</td><td>538</td><td>28</td><td>616</td><td>&mdash;</td><td><b>616</b></td><td>769</td><td class="ok">80.1%</td><td>2</td><td>98%</td></tr>
+<tr><td>4</td><td>28</td><td>293</td><td>910</td><td>30</td><td>1,094</td><td>&mdash;</td><td><b>1,094</b></td><td>1,491</td><td class="ok">73.4%</td><td>2</td><td>100%</td></tr>
+<tr><td>5</td><td>35</td><td>367</td><td>1,406</td><td>32</td><td>1,777</td><td>&mdash;</td><td><b>1,777</b></td><td>2,491</td><td class="ok">71.4%</td><td>2</td><td>100%</td></tr>
+<tr><td>6</td><td>42</td><td>432</td><td>1,945</td><td>34</td><td>2,506</td><td>&mdash;</td><td><b>2,506</b></td><td>3,789</td><td class="ok">66.1%</td><td>2</td><td>100%</td></tr>
+<tr><td>7</td><td>49</td><td>505</td><td>2,611</td><td>36</td><td>3,493</td><td>&mdash;</td><td><b>3,493</b></td><td>5,402</td><td class="ok">64.7%</td><td>2</td><td>100%</td></tr>
+<tr><td>8</td><td>56</td><td>579</td><td>3,382</td><td>38</td><td>4,657</td><td>&mdash;</td><td><b>4,657</b></td><td>7,344</td><td class="ok">63.4%</td><td>2</td><td>100%</td></tr>
+<tr><td>9</td><td>63</td><td>648</td><td>4,257</td><td>40</td><td>6,109</td><td>&mdash;</td><td><b>6,109</b></td><td>9,629</td><td class="ok">63.4%</td><td>2</td><td>100%</td></tr>
+<tr><td>10</td><td>70</td><td>700</td><td>5,079</td><td>42</td><td>7,497</td><td>&mdash;</td><td><b>7,497</b></td><td>12,269</td><td class="ok">61.1%</td><td>2</td><td>100%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="ok">46.9%<small>L1</small></td><td class="ok">46.9%<small>L1</small></td><td class="ok">46.9%<small>L1</small></td><td class="warn">10.1%<small>L6</small></td><td class="bad">1.3%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">1503.3%<small>L1</small></td><td class="ok">680.7%<small>L5</small></td><td class="ok">102.0%<small>L10</small></td><td class="warn">24.7%<small>L15</small></td><td class="bad">6.7%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">175.8%<small>L40</small></td><td class="ok">108.1%<small>L45</small></td><td class="ok">65.5%<small>L50</small></td><td class="ok">33.6%<small>L55</small></td><td class="warn">14.7%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">79.8%<small>L90</small></td><td class="ok">57.0%<small>L95</small></td><td class="ok">39.4%<small>L100</small></td><td class="warn">23.5%<small>L105</small></td><td class="warn">11.4%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<div class="ability " id="ab-191049797111">
+<h4>Shadow Partner <span class="stat-tag">WEAPONATTACK</span> </h4>
+<div class="desc">Summons a shadow copy that mimics your attacks at $[damage_percent] damage for $[buff_duration].</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>14</td><td>148</td><td>262</td><td>54</td><td>84.2</td><td>&mdash;</td><td><b>84.2</b></td><td>303</td><td class="ok">27.8%</td><td>4</td><td>97%</td></tr>
+<tr><td>2</td><td>28</td><td>293</td><td>910</td><td>58</td><td>302</td><td>&mdash;</td><td><b>302</b></td><td>1,491</td><td class="warn">20.3%</td><td>5</td><td>100%</td></tr>
+<tr><td>3</td><td>42</td><td>432</td><td>1,945</td><td>62</td><td>653</td><td>&mdash;</td><td><b>653</b></td><td>3,789</td><td class="warn">17.2%</td><td>6</td><td>100%</td></tr>
+<tr><td>4</td><td>56</td><td>579</td><td>3,382</td><td>66</td><td>1,156</td><td>&mdash;</td><td><b>1,156</b></td><td>7,344</td><td class="warn">15.7%</td><td>7</td><td>100%</td></tr>
+<tr><td>5</td><td>70</td><td>700</td><td>5,079</td><td>70</td><td>1,785</td><td>&mdash;</td><td><b>1,785</b></td><td>12,269</td><td class="warn">14.5%</td><td>7</td><td>100%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="warn">15.1%<small>L1</small></td><td class="warn">15.1%<small>L1</small></td><td class="warn">15.1%<small>L1</small></td><td class="bad">3.2%<small>L6</small></td><td class="bad">0.4%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">483.2%<small>L1</small></td><td class="ok">218.8%<small>L5</small></td><td class="ok">32.8%<small>L10</small></td><td class="bad">7.9%<small>L15</small></td><td class="bad">2.2%<small>L20</small></td></tr>
+<tr><td>50 (r4)</td><td class="ok">46.0%<small>L40</small></td><td class="ok">28.3%<small>L45</small></td><td class="warn">17.2%<small>L50</small></td><td class="warn">8.8%<small>L55</small></td><td class="bad">3.9%<small>L60</small></td></tr>
+<tr><td>100 (r5)</td><td class="warn">19.0%<small>L90</small></td><td class="warn">13.6%<small>L95</small></td><td class="warn">9.4%<small>L100</small></td><td class="bad">5.6%<small>L105</small></td><td class="bad">2.7%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<div class="ability " id="ab-1111528545-1">
+<h4>Twin Fang <span class="stat-tag">WEAPONATTACK</span> </h4>
+<div class="desc">A lightning-fast pair of stabs to one enemy, hitting $[hit_count] times for $[damage_percent] damage.</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>74</td><td>73</td><td>64.4</td><td>&mdash;</td><td><b>64.4</b></td><td>61</td><td class="ok">105.6%</td><td>1</td><td>96%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>262</td><td>79</td><td>246</td><td>&mdash;</td><td><b>246</b></td><td>303</td><td class="ok">81.3%</td><td>2</td><td>97%</td></tr>
+<tr><td>3</td><td>21</td><td>221</td><td>538</td><td>85</td><td>534</td><td>&mdash;</td><td><b>534</b></td><td>769</td><td class="ok">69.4%</td><td>2</td><td>98%</td></tr>
+<tr><td>4</td><td>28</td><td>293</td><td>910</td><td>91</td><td>949</td><td>&mdash;</td><td><b>949</b></td><td>1,491</td><td class="ok">63.6%</td><td>2</td><td>100%</td></tr>
+<tr><td>5</td><td>35</td><td>367</td><td>1,406</td><td>97</td><td>1,539</td><td>&mdash;</td><td><b>1,539</b></td><td>2,491</td><td class="ok">61.8%</td><td>2</td><td>100%</td></tr>
+<tr><td>6</td><td>42</td><td>432</td><td>1,945</td><td>103</td><td>2,169</td><td>&mdash;</td><td><b>2,169</b></td><td>3,789</td><td class="ok">57.2%</td><td>2</td><td>100%</td></tr>
+<tr><td>7</td><td>49</td><td>505</td><td>2,611</td><td>109</td><td>3,021</td><td>&mdash;</td><td><b>3,021</b></td><td>5,402</td><td class="ok">55.9%</td><td>2</td><td>100%</td></tr>
+<tr><td>8</td><td>56</td><td>579</td><td>3,382</td><td>115</td><td>4,027</td><td>&mdash;</td><td><b>4,027</b></td><td>7,344</td><td class="ok">54.8%</td><td>2</td><td>100%</td></tr>
+<tr><td>9</td><td>63</td><td>648</td><td>4,257</td><td>121</td><td>5,280</td><td>&mdash;</td><td><b>5,280</b></td><td>9,629</td><td class="ok">54.8%</td><td>2</td><td>100%</td></tr>
+<tr><td>10</td><td>70</td><td>700</td><td>5,079</td><td>127</td><td>6,477</td><td>&mdash;</td><td><b>6,477</b></td><td>12,269</td><td class="ok">52.8%</td><td>2</td><td>100%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="ok">40.8%<small>L1</small></td><td class="ok">40.8%<small>L1</small></td><td class="ok">40.8%<small>L1</small></td><td class="warn">8.8%<small>L6</small></td><td class="bad">1.1%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">1306.4%<small>L1</small></td><td class="ok">591.6%<small>L5</small></td><td class="ok">88.7%<small>L10</small></td><td class="warn">21.5%<small>L15</small></td><td class="bad">5.8%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">152.1%<small>L40</small></td><td class="ok">93.5%<small>L45</small></td><td class="ok">56.7%<small>L50</small></td><td class="ok">29.0%<small>L55</small></td><td class="warn">12.7%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">68.9%<small>L90</small></td><td class="ok">49.2%<small>L95</small></td><td class="ok">34.0%<small>L100</small></td><td class="warn">20.3%<small>L105</small></td><td class="warn">9.9%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<div class="ability " id="ab-vendetta_v1">
+<h4>Vendetta <span class="stat-tag">WEAPONATTACK</span> </h4>
+<div class="desc">Consumes ALL Envenom poison stacks on the target for a burst of damage: $[damage_percent] base + 60% Weapon Attack per stack consumed.</div>
+<table class="dmg"><thead><tr><th>Rank</th><th>Char Lv</th><th>Primary</th><th>MaxRange</th><th>Dmg%</th><th>Direct/cast</th><th>DoT total</th><th>Burst vs 1</th><th>Mob HP</th><th>% HP</th><th>Casts&rarr;kill</th><th>Hit%</th></tr></thead><tbody>
+<tr><td>1</td><td>7</td><td>70</td><td>74</td><td>120</td><td>53.0</td><td>&mdash;</td><td><b>53.0</b></td><td>61</td><td class="ok">86.8%</td><td>2</td><td>96%</td></tr>
+<tr><td>2</td><td>14</td><td>148</td><td>262</td><td>126</td><td>196</td><td>&mdash;</td><td><b>196</b></td><td>303</td><td class="ok">64.8%</td><td>2</td><td>97%</td></tr>
+<tr><td>3</td><td>21</td><td>221</td><td>538</td><td>132</td><td>415</td><td>&mdash;</td><td><b>415</b></td><td>769</td><td class="ok">53.9%</td><td>2</td><td>98%</td></tr>
+<tr><td>4</td><td>28</td><td>293</td><td>910</td><td>138</td><td>719</td><td>&mdash;</td><td><b>719</b></td><td>1,491</td><td class="ok">48.2%</td><td>3</td><td>100%</td></tr>
+<tr><td>5</td><td>35</td><td>367</td><td>1,406</td><td>144</td><td>1,143</td><td>&mdash;</td><td><b>1,143</b></td><td>2,491</td><td class="ok">45.9%</td><td>3</td><td>100%</td></tr>
+<tr><td>6</td><td>42</td><td>432</td><td>1,945</td><td>150</td><td>1,579</td><td>&mdash;</td><td><b>1,579</b></td><td>3,789</td><td class="ok">41.7%</td><td>3</td><td>100%</td></tr>
+<tr><td>7</td><td>49</td><td>505</td><td>2,611</td><td>156</td><td>2,162</td><td>&mdash;</td><td><b>2,162</b></td><td>5,402</td><td class="ok">40.0%</td><td>3</td><td>100%</td></tr>
+<tr><td>8</td><td>56</td><td>579</td><td>3,382</td><td>162</td><td>2,836</td><td>&mdash;</td><td><b>2,836</b></td><td>7,344</td><td class="ok">38.6%</td><td>3</td><td>100%</td></tr>
+<tr><td>9</td><td>63</td><td>648</td><td>4,257</td><td>168</td><td>3,665</td><td>&mdash;</td><td><b>3,665</b></td><td>9,629</td><td class="ok">38.1%</td><td>3</td><td>100%</td></tr>
+<tr><td>10</td><td>70</td><td>700</td><td>5,079</td><td>174</td><td>4,437</td><td>&mdash;</td><td><b>4,437</b></td><td>12,269</td><td class="ok">36.2%</td><td>3</td><td>100%</td></tr>
+</tbody></table>
+<div class="sweep"><b>Level-vs-level (% of mob HP per cast/application):</b><table class="dmg sweeptab"><thead><tr><th>Char Lv (rank)</th><th>mob -10</th><th>mob -5</th><th>mob =</th><th>mob +5</th><th>mob +10</th></tr></thead><tbody>
+<tr><td>1 (r1)</td><td class="ok">33.5%<small>L1</small></td><td class="ok">33.5%<small>L1</small></td><td class="ok">33.5%<small>L1</small></td><td class="bad">7.2%<small>L6</small></td><td class="bad">0.9%<small>L11</small></td></tr>
+<tr><td>10 (r1)</td><td class="ok">1073.8%<small>L1</small></td><td class="ok">486.2%<small>L5</small></td><td class="ok">72.9%<small>L10</small></td><td class="warn">17.6%<small>L15</small></td><td class="bad">4.8%<small>L20</small></td></tr>
+<tr><td>50 (r7)</td><td class="ok">108.8%<small>L40</small></td><td class="ok">66.9%<small>L45</small></td><td class="ok">40.6%<small>L50</small></td><td class="warn">20.8%<small>L55</small></td><td class="warn">9.1%<small>L60</small></td></tr>
+<tr><td>100 (r10)</td><td class="ok">47.2%<small>L90</small></td><td class="ok">33.7%<small>L95</small></td><td class="warn">23.3%<small>L100</small></td><td class="warn">13.9%<small>L105</small></td><td class="bad">6.8%<small>L110</small></td></tr>
+</tbody></table></div>
+</div>
+<h3>Support / utility / passives (no direct damage)</h3>
+<table class="dmg"><thead><tr><th>Ability</th><th>Type</th><th>Effect</th></tr></thead><tbody>
+<tr><td>Bloodlust</td><td>Active</td><td>Whips the party into a killing frenzy, granting +$[stat_bonus]% critical hit chance and bonus critical damage to all party members for $[buff_duration].</td></tr>
+<tr><td>Death Mark</td><td>Active</td><td><span class="badge badge-ok">T3 bleed uses dot_scaling_base</span>Mark one enemy for 8 seconds. Every dagger hit on the marked target has +25% critical hit chance.</td></tr>
+<tr><td>Killing Edge</td><td>Active</td><td>Sharpens your blades to a killing edge — for $[buff_duration], gain [color=#e6c95c]+$[stat_bonus]% Critical Hit Chance[/color] and bonus Critical Damage.</td></tr>
+<tr><td>Shadowstep</td><td>Active</td><td>Blink through the shadows to reappear behind the furthest enemy in range, facing them and briefly evading all harm. Deals no damage — it sets up a strike from b</td></tr>
+<tr><td>Smoke Bomb</td><td>Active</td><td>Drops a smoke cloud at your feet for 4 seconds. Allies inside gain +40% Evasion (a chance to dodge each incoming attack).</td></tr>
+<tr><td>Composure</td><td>Passive</td><td>While above 80% health, deal +$[damage_percent] damage. Rewards staying untouched; falls off when you&#x27;re hurt.</td></tr>
+<tr><td>Cutthroat</td><td>Passive</td><td>Permanently increases critical damage by $[stat_bonus]%.</td></tr>
+<tr><td>Evasion</td><td>Passive</td><td>Permanently increases your Evasion by $[stat_bonus]%, reducing the chance that incoming attacks land.</td></tr>
+<tr><td>Killer Instinct</td><td>Passive</td><td>Permanently increases critical hit chance by $[stat_bonus]%.</td></tr>
+<tr><td>Opportunist</td><td>Passive</td><td>Deal +$[damage_percent] damage while in stealth. Strike from the dark.</td></tr>
+<tr><td>Predator&#x27;s Patience</td><td>Passive</td><td>Each second out of stealth since your last ambush builds a Patience stack (max 10). Your next ambush gains +$[value:per_stack]% damage per stack.</td></tr>
+<tr><td>Toxicology</td><td>Passive</td><td>Deal +$[damage_percent] damage to POISONED enemies. Twist the toxin.</td></tr>
+</tbody></table>
+</section>
+</body></html>

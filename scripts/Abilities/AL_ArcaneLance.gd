@@ -49,7 +49,9 @@ func on_hit(_owner_node: Node, _target: Node, _ability: AbilityData) -> void:
 	if stats_comp == null or not stats_comp.stats.has(Constants.StatType.MAGICATTACK):
 		return
 	var magic_attack: int = int(stats_comp.stats[Constants.StatType.MAGICATTACK].total_value)
-	var chain_dmg: int = maxi(1, roundi(magic_attack * CHAIN_DAMAGE_PCT))
+	var combat = _owner_node.get("combat_component")
+	var dot_base: int = combat.dot_scaling_base(_ability) if combat != null and is_instance_valid(combat) and combat.has_method("dot_scaling_base") else maxi(1, magic_attack)
+	var chain_dmg: int = maxi(1, roundi(dot_base * CHAIN_DAMAGE_PCT))
 
 	for near in _nearby_enemies(_target, CHAIN_RADIUS, CHAIN_MAX_TARGETS):
 		var nh = near.get("health_component")

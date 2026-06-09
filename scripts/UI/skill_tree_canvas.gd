@@ -27,8 +27,10 @@ const UPG_VGAP := 7
 const X_T1 := 220   # PAD + NODE_W + 20
 const X_T2 := 338
 const X_T3 := 456
-const PASS_ROW := 52
-const ACT_ROW := 104
+# Vertical stride between consecutive abilities. Sized so a 3-variant T3 fan
+# (98px tall, centred on the ability) clears the next ability with breathing room.
+const PASS_ROW := 92
+const ACT_ROW := 152
 const TOP := 44
 
 # Node states

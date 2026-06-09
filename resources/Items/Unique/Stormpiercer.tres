@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=10 format=3 uid="uid://cnuav2bxo7hkn"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://cnuav2bxo7hkn"]
 
-[ext_resource type="Texture2D" uid="uid://k3bnrqjdv5lf" path="res://assets/sprites/Items/generated_px/Unique/Stormpiercer.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_33bm3"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_kqs2s"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Unique/Stormpiercer.png" id="2_kqs2s"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_a6pec"]
 
 [sub_resource type="Resource" id="Resource_w0dof"]
@@ -29,11 +28,6 @@ stat_type = 11
 base_value = 0
 flat_bonus_value = 30
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_wqg87"]
-atlas = ExtResource("2_kqs2s")
-region = Rect2(10, 17, 4, 11)
-margin = Rect2(3.5, 0, 7, 0)
-
 [resource]
 script = ExtResource("3_a6pec")
 weapon_type = 1
@@ -45,10 +39,10 @@ bonus_stats = Dictionary[int, ExtResource("1_33bm3")]({
 11: SubResource("Resource_nk1pr"),
 12: SubResource("Resource_w0dof")
 })
-item_id = "69139124124-041115-071113-93912-413108011263512"
+item_id = "14691461372-1312612-111260-2131315-595951011361483"
 name = "Stormpiercer"
 rarity = 4
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_kqs2s")
 description = "A bow that looses arrows wreathed in crackling wind."
 item_type = 1
 item_level = 55

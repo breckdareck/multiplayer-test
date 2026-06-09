@@ -1,6 +1,8 @@
-[gd_scene load_steps=65 format=3 uid="uid://c0561sc5huujo"]
+[gd_scene load_steps=67 format=3 uid="uid://c0561sc5huujo"]
 
 [ext_resource type="Script" path="res://scripts/UI/local_player_ui.gd" id="ctrl_lpui"]
+[ext_resource type="Script" path="res://scripts/UI/minimap.gd" id="minimap_scr"]
+[ext_resource type="Script" path="res://scripts/UI/world_map.gd" id="worldmap_scr"]
 [ext_resource type="Script" uid="uid://boxv5npw3xeg3" path="res://scripts/Player/player_hud.gd" id="11_ihqbe"]
 [ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="12_cgmen"]
 [ext_resource type="Texture2D" uid="uid://b41h3nwnk7ghm" path="res://assets/UI/Left_button.png" id="15_32uah"]
@@ -434,6 +436,13 @@ offset_bottom = 252.0
 [node name="BossHpBar" parent="PlayerHUD" instance=ExtResource("40_bosshp")]
 layout_mode = 1
 
+[node name="Minimap" type="Control" parent="PlayerHUD"]
+layout_mode = 1
+offset_right = 212.0
+offset_bottom = 168.0
+mouse_filter = 1
+script = ExtResource("minimap_scr")
+
 [node name="MoveableWindows" type="Control" parent="."]
 unique_name_in_owner = true
 layout_mode = 3
@@ -450,3 +459,12 @@ layout_mode = 1
 [node name="GameWindow" parent="MoveableWindows" instance=ExtResource("34_ghub")]
 visible = false
 layout_mode = 1
+
+[node name="WorldMap" type="Control" parent="MoveableWindows"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("worldmap_scr")

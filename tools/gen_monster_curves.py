@@ -40,13 +40,23 @@ def _atk_bonus(L):
     return LOW_ATK_BONUS * frac
 
 
+# Attack exponent SOFTENED 1.5 -> 1.25 (2026-06-08). The L^1.5 ramp made endgame
+# touch damage brutal: a same-level, same-gear non-Sword character took ~30% of its
+# HP per contact hit (died in 3-4 touches), forcing potion-spam every couple of
+# seconds — far harsher than the MapleStory model this game targets (touch damage is
+# chip you out-heal while farming; death at-level comes from boss/elite skills, not
+# walking into a normal mob). L^1.25 keeps a super-linear climb (gear still matters)
+# but brings at-level touch to ~5-8% of HP for squishies / ~2% for the Sword tank,
+# and ARMOR matters MORE per point (mitigation = def/(def+0.75*att) rises as att falls).
+# It also defangs the boss's flat special from a one-shot to a survivable telegraph.
+# Player->enemy damage is unaffected (that uses the separate DEFENSE curve).
 def _attack(L):
-    return max(2, round(L ** 1.5 + _atk_bonus(L)))
+    return max(2, round(L ** 1.25 + _atk_bonus(L)))
 
 
 # (filename, uid, value_fn) -- uids preserved so enemy .tscn refs don't break.
 CURVES = [
-    # Attack: L^1.5 ramp + early-game tent bump (see _attack). L6~34, L30~164, L100=1000.
+    # Attack: L^1.25 ramp + early-game tent bump (see _attack). L6~29, L30~70, L100~316.
     ("monster_wep_att_curve.tres",   "uid://c20efdba57fc", _attack),
     # Magic attack mirrors physical; magic already hits harder (player MAGICDEFENSE
     # is gear-only) so no extra multiplier here.

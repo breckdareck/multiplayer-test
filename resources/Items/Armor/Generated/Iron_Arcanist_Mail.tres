@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://kw22mt7r7kx7"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=16 format=3 uid="uid://kw22mt7r7kx7"]
 
-[ext_resource type="Texture2D" uid="uid://i7qhbj1n4rln" path="res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Arcanist_Mail.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_33mqg"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Arcanist_Mail.png" id="2_ca8f4"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_8gnc4"]
 
 [sub_resource type="Resource" id="Resource_cb0en"]
@@ -18,29 +18,84 @@ flat_bonus_value = 22
 
 [sub_resource type="Resource" id="Resource_lyls2"]
 script = ExtResource("1_33mqg")
-stat_type = 1
 base_value = 0
-flat_bonus_value = 9
+flat_bonus_value = 3
 
 [sub_resource type="Resource" id="Resource_q6mnb"]
+script = ExtResource("1_33mqg")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_yx4hh"]
+script = ExtResource("1_33mqg")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 8
+
+[sub_resource type="Resource" id="Resource_ye447"]
+script = ExtResource("1_33mqg")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_4rgli"]
+script = ExtResource("1_33mqg")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_d16hf"]
+script = ExtResource("1_33mqg")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_i4jgr"]
+script = ExtResource("1_33mqg")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_hcdis"]
+script = ExtResource("1_33mqg")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_glcqt"]
 script = ExtResource("1_33mqg")
 stat_type = 5
 base_value = 0
 flat_bonus_value = 47
 
+[sub_resource type="Resource" id="Resource_q85hi"]
+script = ExtResource("1_33mqg")
+stat_type = 7
+base_value = 0
+flat_bonus_value = 2
+
 [resource]
 script = ExtResource("3_8gnc4")
 armor_type = 1
 bonus_stats = Dictionary[int, ExtResource("1_33mqg")]({
-1: SubResource("Resource_lyls2"),
-5: SubResource("Resource_q6mnb"),
+0: SubResource("Resource_lyls2"),
+1: SubResource("Resource_yx4hh"),
+2: SubResource("Resource_q6mnb"),
+3: SubResource("Resource_ye447"),
+5: SubResource("Resource_glcqt"),
+7: SubResource("Resource_q85hi"),
 8: SubResource("Resource_cb0en"),
-9: SubResource("Resource_rjyc5")
+9: SubResource("Resource_rjyc5"),
+10: SubResource("Resource_d16hf"),
+11: SubResource("Resource_i4jgr"),
+15: SubResource("Resource_4rgli"),
+16: SubResource("Resource_hcdis")
 })
-item_id = "11778145011-116910-591511-011712-13125301271139014"
+item_id = "119214114123-015114-8141010-11487-1411010181415121111"
 name = "Iron Arcanist Mail"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_ca8f4")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
 item_level = 27

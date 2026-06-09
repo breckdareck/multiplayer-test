@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=10 format=3 uid="uid://bjv3bsjpcfjg"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://bjv3bsjpcfjg"]
 
-[ext_resource type="Texture2D" uid="uid://dwyl7rrl2bxhd" path="res://assets/sprites/Items/generated_px/Unique/Staff_of_Eternity.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_dms1g"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_1sq0n"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Unique/Staff_of_Eternity.png" id="2_1sq0n"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_5pn12"]
 
 [sub_resource type="Resource" id="Resource_mk3bg"]
@@ -29,11 +28,6 @@ stat_type = 7
 base_value = 0
 flat_bonus_value = 20
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_omud0"]
-atlas = ExtResource("2_1sq0n")
-region = Rect2(10, 17, 4, 11)
-margin = Rect2(3.5, 0, 7, 0)
-
 [resource]
 script = ExtResource("3_5pn12")
 weapon_type = 2
@@ -45,10 +39,10 @@ bonus_stats = Dictionary[int, ExtResource("1_dms1g")]({
 7: SubResource("Resource_4wkig"),
 13: SubResource("Resource_mk3bg")
 })
-item_id = "14131014613815-8111311-83139-215712-3914141161315713114"
+item_id = "131031314373-121303-2083-119211-9155131109141027"
 name = "Staff of Eternity"
 rarity = 4
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_1sq0n")
 description = "An ancient staff humming with limitless arcane reserves."
 item_type = 1
 item_level = 60

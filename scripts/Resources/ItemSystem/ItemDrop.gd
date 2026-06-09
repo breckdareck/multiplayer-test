@@ -2,30 +2,61 @@
 class_name ItemDropResource
 extends Resource
 
-## Base stat budgets at item level 1. Scaled up by the item's level via
-## BUDGET_GROWTH_PER_LEVEL so higher-level gear rolls more total stats.
-## Raised 2026-06-02 (~2x) so dropped gear is a felt upgrade over the roll-less
-## starter set — the old Common budget (1-3 split across ~4 stats) left armor
-## with ~0 extra DEFENSE, so loot never improved defense in the early game.
-const RARITY_BUDGETS = {
-	Constants.ItemRarity.COMMON: {"min": 3, "max": 6},
-	Constants.ItemRarity.UNCOMMON: {"min": 6, "max": 10},
-	Constants.ItemRarity.RARE: {"min": 10, "max": 16},
-	Constants.ItemRarity.EPIC: {"min": 16, "max": 24},
-	Constants.ItemRarity.LEGENDARY: {"min": 24, "max": 36},
+## AFFIX-based rolls (2026-06-08). Replaces the old single greedy stat-budget that
+## dumped everything into 1-2 random stats (feast/famine, illegible rarity, uncapped
+## crit stacking). A drop now boosts its DEFINING stat(s), then rolls a FIXED number
+## of DISTINCT bonus affixes by rarity, each drawn from the item's pool (weighted
+## toward its signature) with a per-stat, per-rarity capped magnitude.
+
+## How many bonus affixes a drop rolls, by rarity (higher = more, legible value).
+const AFFIX_COUNT := {
+	Constants.ItemRarity.COMMON: 1,
+	Constants.ItemRarity.UNCOMMON: 2,
+	Constants.ItemRarity.RARE: 3,
+	Constants.ItemRarity.EPIC: 4,
+	Constants.ItemRarity.LEGENDARY: 5,
 }
 
-## Each item level above 1 grows the stat budget multiplicatively. At 0.035 a
-## level-50 item rolls ~2.7x and a level-90 item ~4.1x the base budget, while
-## the rarity tiers stay proportional to one another.
-const BUDGET_GROWTH_PER_LEVEL := 0.035
+## Per-affix magnitude multiplier by rarity (a Legendary affix rolls bigger).
+const RARITY_AFFIX_MULT := {
+	Constants.ItemRarity.COMMON: 0.7,
+	Constants.ItemRarity.UNCOMMON: 0.9,
+	Constants.ItemRarity.RARE: 1.1,
+	Constants.ItemRarity.EPIC: 1.35,
+	Constants.ItemRarity.LEGENDARY: 1.7,
+}
 
-## Fraction of every roll reserved for the gear's DEFINING stats (armor →
-## DEFENSE/MAGICDEFENSE, weapon → its attack stat), split evenly among them
-## before the rest scatters across the full pool. Guarantees a drop improves its
-## core role instead of dumping all points into incidental theme stats — the
-## fix for "armor drops never raise my defense". (Added 2026-06-02.)
-const PRIMARY_BUDGET_SHARE := 0.6
+## One-affix roll range [min, max] PER ITEM LEVEL (before the rarity multiplier).
+## Crit / evasion / accuracy roll SMALL (each point is worth far more than a point
+## of an attribute); HP/MANA roll large. Tuned so a crit-focused legendary SET adds
+## ~+15-25% crit (capped) instead of the old uncapped +100%.
+const AFFIX_SCALE := {
+	Constants.StatType.STRENGTH: [0.15, 0.35],
+	Constants.StatType.DEXTERITY: [0.15, 0.35],
+	Constants.StatType.INTELLIGENCE: [0.15, 0.35],
+	Constants.StatType.LUCK: [0.15, 0.35],
+	Constants.StatType.CONSTITUTION: [0.18, 0.40],
+	Constants.StatType.HEALTH: [0.8, 1.6],
+	Constants.StatType.MANA: [0.6, 1.2],
+	Constants.StatType.HPREGEN: [0.05, 0.12],
+	Constants.StatType.MPREGEN: [0.05, 0.12],
+	Constants.StatType.DEFENSE: [0.2, 0.4],
+	Constants.StatType.MAGICDEFENSE: [0.2, 0.4],
+	Constants.StatType.CRITCHANCE: [0.03, 0.05],
+	Constants.StatType.CRITDAMAGE: [0.05, 0.10],
+	Constants.StatType.EVASIONCHANCE: [0.03, 0.05],
+	Constants.StatType.ACCURACY: [0.05, 0.10],
+	Constants.StatType.KNOCKBACKRESIST: [0.1, 0.25],
+}
+const DEFAULT_AFFIX_SCALE := [0.1, 0.25]
+
+## Defining stat(s) (armor DEF/MDEF, weapon attack) always roll at this multiple of
+## a normal affix so a drop reliably improves its core role.
+const DEFINING_AFFIX_MULT := 1.8
+
+## Affix-selection weight = base stat value + this floor, so a set's SIGNATURE stats
+## (high base) are favoured while every pooled stat keeps a real chance.
+const AFFIX_WEIGHT_FLOOR := 25.0
 
 ## The item that can drop (reference by name for easy setup)
 @export var item_name: String = ""
@@ -104,49 +135,65 @@ func get_item_data() -> ItemData:
 
 
 func _apply_random_stats(item: EquipmentData) -> void:
-	# 1. Determine Rarity
-	var chosen_rarity = _choose_random_rarity()
-	##print(">> Rarity chosen by function: %s" % Constants.ItemRarity.find_key(chosen_rarity))
-	item.rarity = chosen_rarity
-	##print(">> Rarity assigned to item: %s" % Constants.ItemRarity.find_key(item.rarity))
-	
-	# 2. Determine Stat Budget based on Rarity, scaled by the item's level
-	var budget_range = RARITY_BUDGETS.get(chosen_rarity, {"min": 1, "max": 1})
-	var level_scale = _get_level_budget_scale(item.item_level)
-	var scaled_min = maxi(1, roundi(budget_range.min * level_scale))
-	var scaled_max = maxi(scaled_min, roundi(budget_range.max * level_scale))
-	var stat_budget = randi_range(scaled_min, scaled_max)
-	
-	# 3. Allocate Stats
-	var remaining_budget = stat_budget
+	# 1. Rarity drives BOTH the affix count and the per-affix magnitude.
+	var rarity = _choose_random_rarity()
+	item.rarity = rarity
+	var ilv: int = maxi(1, item.item_level)
+	var rmult: float = float(RARITY_AFFIX_MULT.get(rarity, 1.0))
 
-	# 3a. Reserve a share for the gear's DEFINING stats (armor: DEF/MDEF; weapon:
-	# its attack stat), split EVENLY among them so a dropped piece reliably
-	# improves its core role. Without this the old greedy shuffle let an
-	# incidental theme stat eat the whole (small) budget, so armor drops almost
-	# never raised defense.
-	var primary := _primary_roll_stats(item)
-	if not primary.is_empty():
-		var primary_budget: int = mini(remaining_budget, roundi(stat_budget * PRIMARY_BUDGET_SHARE))
-		@warning_ignore("integer_division")
-		var per: int = primary_budget / primary.size()
-		var extra: int = primary_budget % primary.size()
-		for i in primary.size():
-			var amt: int = per + (1 if i < extra else 0)
-			if amt > 0:
-				_add_rolled_stat(item, primary[i], amt)
-				remaining_budget -= amt
+	# 2. DEFINING stats (armor DEF/MDEF, weapon attack) — a guaranteed boost so a
+	#    drop reliably improves its core role.
+	var defining := _primary_roll_stats(item)
+	for stat_type in defining:
+		_add_rolled_stat(item, stat_type, _roll_affix_value(stat_type, ilv, rmult * DEFINING_AFFIX_MULT))
 
-	# 3b. Scatter the remainder across the full pool (greedy, for stat variety).
-	var pool: Array = possible_stats.duplicate()
-	pool.shuffle()
-	for stat_type in pool:
-		if remaining_budget <= 0:
-			break
-		# Assign a random amount for this stat, at least 1
-		var amount_to_assign = randi_range(1, remaining_budget)
-		_add_rolled_stat(item, stat_type, amount_to_assign)
-		remaining_budget -= amount_to_assign
+	# 3. N DISTINCT bonus affixes (by rarity) from the non-defining pool, weighted
+	#    toward the item's signature stats (their base magnitude).
+	var count: int = int(AFFIX_COUNT.get(rarity, 1))
+	var pool: Array = []
+	for s in possible_stats:
+		if not defining.has(s):
+			pool.append(s)
+	for stat_type in _weighted_sample(item, pool, count):
+		_add_rolled_stat(item, stat_type, _roll_affix_value(stat_type, ilv, rmult))
+
+
+## One affix's value: randi_range over the stat's per-level [min,max] x item level x
+## rarity multiplier (at least 1). Different stats have different value densities.
+func _roll_affix_value(stat_type, ilv: int, mult: float) -> int:
+	var rng: Array = AFFIX_SCALE.get(stat_type, DEFAULT_AFFIX_SCALE)
+	var lo: int = maxi(1, roundi(float(rng[0]) * ilv * mult))
+	var hi: int = maxi(lo, roundi(float(rng[1]) * ilv * mult))
+	return randi_range(lo, hi)
+
+
+## Picks `count` DISTINCT stats from `pool` weighted by (base value + floor), so a
+## set's signature stats are favoured but every pooled stat keeps a real chance.
+func _weighted_sample(item: EquipmentData, pool: Array, count: int) -> Array:
+	var picks: Array = []
+	var avail: Array = pool.duplicate()
+	for _i in range(mini(count, avail.size())):
+		var total: float = 0.0
+		for s in avail:
+			total += _affix_weight(item, s)
+		var r: float = randf() * total
+		var acc: float = 0.0
+		var chosen = avail[0]
+		for s in avail:
+			acc += _affix_weight(item, s)
+			if r <= acc:
+				chosen = s
+				break
+		picks.append(chosen)
+		avail.erase(chosen)
+	return picks
+
+
+func _affix_weight(item: EquipmentData, stat_type) -> float:
+	var base: float = 0.0
+	if item.bonus_stats.has(stat_type):
+		base = float((item.bonus_stats[stat_type] as StatData).flat_bonus_value)
+	return base + AFFIX_WEIGHT_FLOOR
 
 
 ## Adds `amount` to an item's flat bonus for `stat_type`, creating the StatData
@@ -173,14 +220,6 @@ func _primary_roll_stats(item: EquipmentData) -> Array:
 			out.append(Constants.StatType.MAGICATTACK)
 		return out
 	return []
-
-## Multiplier applied to the base rarity budget based on the item's level.
-## Level 1 (or lower / unset) leaves the budget unchanged.
-func _get_level_budget_scale(item_level: int) -> float:
-	if item_level <= 1:
-		return 1.0
-	return 1.0 + (item_level - 1) * BUDGET_GROWTH_PER_LEVEL
-
 
 func _choose_random_rarity() -> Constants.ItemRarity:
 	##print("--- Choosing Random Rarity ---")

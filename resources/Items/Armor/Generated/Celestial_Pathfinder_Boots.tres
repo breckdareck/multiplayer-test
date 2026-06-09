@@ -1,49 +1,94 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://w2fbxcr0u227"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://w2fbxcr0u227"]
 
-[ext_resource type="Texture2D" uid="uid://baml7fmqpnghx" path="res://assets/sprites/Items/generated_px/Armor/Generated/Celestial_Pathfinder_Boots.png" id="99_svgicon"]
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_jbpee"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_lufwv"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_lufwv"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Celestial_Pathfinder_Boots.png" id="2_iefij"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_jiq13"]
 
-[sub_resource type="Resource" id="Resource_iefij"]
-script = ExtResource("1_jbpee")
+[sub_resource type="Resource" id="Resource_2trwr"]
+script = ExtResource("1_lufwv")
 stat_type = 8
 base_value = 0
 flat_bonus_value = 25
 
-[sub_resource type="Resource" id="Resource_jiq13"]
-script = ExtResource("1_jbpee")
+[sub_resource type="Resource" id="Resource_l5ajj"]
+script = ExtResource("1_lufwv")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 25
 
-[sub_resource type="Resource" id="Resource_2trwr"]
-script = ExtResource("1_jbpee")
+[sub_resource type="Resource" id="Resource_5n304"]
+script = ExtResource("1_lufwv")
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_il1lx"]
+script = ExtResource("1_lufwv")
 stat_type = 2
 base_value = 0
-flat_bonus_value = 13
+flat_bonus_value = 11
 
-[sub_resource type="Resource" id="Resource_l5ajj"]
-script = ExtResource("1_jbpee")
+[sub_resource type="Resource" id="Resource_4hc2g"]
+script = ExtResource("1_lufwv")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_qfmc8"]
+script = ExtResource("1_lufwv")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_3xm2x"]
+script = ExtResource("1_lufwv")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="Resource" id="Resource_cguqv"]
+script = ExtResource("1_lufwv")
 stat_type = 10
 base_value = 0
 flat_bonus_value = 3
 
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_5n304"]
-load_path = "res://.godot/imported/Eqp_Leather_Sandals.png-23f0cc5f3f25b855dccf580eeba0d806.ctex"
+[sub_resource type="Resource" id="Resource_byojw"]
+script = ExtResource("1_lufwv")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_s3el6"]
+script = ExtResource("1_lufwv")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_dnmul"]
+script = ExtResource("1_lufwv")
+stat_type = 17
+base_value = 0
+flat_bonus_value = 2
 
 [resource]
-script = ExtResource("2_lufwv")
+script = ExtResource("3_jiq13")
 armor_type = 3
-bonus_stats = Dictionary[int, ExtResource("1_jbpee")]({
-2: SubResource("Resource_2trwr"),
-8: SubResource("Resource_iefij"),
-9: SubResource("Resource_jiq13"),
-10: SubResource("Resource_l5ajj")
+bonus_stats = Dictionary[int, ExtResource("1_lufwv")]({
+0: SubResource("Resource_5n304"),
+1: SubResource("Resource_4hc2g"),
+2: SubResource("Resource_il1lx"),
+3: SubResource("Resource_qfmc8"),
+8: SubResource("Resource_2trwr"),
+9: SubResource("Resource_l5ajj"),
+10: SubResource("Resource_cguqv"),
+11: SubResource("Resource_byojw"),
+15: SubResource("Resource_3xm2x"),
+16: SubResource("Resource_s3el6"),
+17: SubResource("Resource_dnmul")
 })
-item_id = "12191311290-831012-60310-61300-07113009121471111"
+item_id = "4341321435-6048-0959-11856-68101481571481349"
 name = "Celestial Pathfinder Boots"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_iefij")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 85

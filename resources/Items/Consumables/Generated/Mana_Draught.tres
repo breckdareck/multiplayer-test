@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="ConsumableData" load_steps=4 format=3 uid="uid://dlqvvt3gv82jc"]
 
-[ext_resource type="Texture2D" uid="uid://cgwryqvlpwg51" path="res://assets/sprites/Items/generated_px/Consumables/Generated/Mana_Draught.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/Effects/Effect_RestoreMana.gd" id="1_6kohk"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Consumables/Generated/Mana_Draught.png" id="2_dp5rx"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="3_k85gb"]
 
 [resource]
@@ -10,9 +10,9 @@ effect_script = ExtResource("1_6kohk")
 effect_properties = {
 "regain_amount": 100
 }
-item_id = "148965978-53712-1514814-61136-714812841310141215"
+item_id = "141112915012-59415-5121414-781115-891201211471413155"
 name = "Mana Draught"
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_dp5rx")
 description = "Restores 100 MP when consumed."
 item_type = 2
 item_level = -1

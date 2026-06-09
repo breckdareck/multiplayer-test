@@ -1074,13 +1074,21 @@ camera_bottom_padding = -105
 spawn_path = NodePath("..")
 script = ExtResource("2_rrhmt")
 
-[node name="PortalToNearWilds" parent="." instance=ExtResource("3_76n2i")]
+[node name="PortalToEmberMeadows" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(222, -157)
-target_map_id = "near_wilds"
-target_spawn_point_name = "NearWilds_Ruins_Portal_Spawn"
+target_map_id = "ember_meadows"
+target_spawn_point_name = "EmberMeadows_Ruins_Portal_Spawn"
 
-[node name="Ruins_NearWilds_Portal_Spawn" type="Marker2D" parent="."]
+[node name="Ruins_EmberMeadows_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(201, -156)
+
+[node name="PortalToThornroot" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(120, -157)
+target_map_id = "thornroot"
+target_spawn_point_name = "Thornroot_Ruins_Portal_Spawn"
+
+[node name="Ruins_Thornroot_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(99, -156)
 
 [node name="PortalToTerraces" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(-466, -157)

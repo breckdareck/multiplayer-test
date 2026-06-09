@@ -1,49 +1,94 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bwromfjhu3xlc"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://bwromfjhu3xlc"]
 
-[ext_resource type="Texture2D" uid="uid://brrtmi0ahyffm" path="res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Pathfinder_Boots.png" id="99_svgicon"]
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_gxshi"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_e5162"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_e5162"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Pathfinder_Boots.png" id="2_1x4tv"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_d2ysi"]
 
-[sub_resource type="Resource" id="Resource_1x4tv"]
-script = ExtResource("1_gxshi")
+[sub_resource type="Resource" id="Resource_0r0t6"]
+script = ExtResource("1_e5162")
 stat_type = 8
 base_value = 0
 flat_bonus_value = 11
 
-[sub_resource type="Resource" id="Resource_d2ysi"]
-script = ExtResource("1_gxshi")
+[sub_resource type="Resource" id="Resource_fvea7"]
+script = ExtResource("1_e5162")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 11
 
-[sub_resource type="Resource" id="Resource_0r0t6"]
-script = ExtResource("1_gxshi")
+[sub_resource type="Resource" id="Resource_17cah"]
+script = ExtResource("1_e5162")
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_htyfx"]
+script = ExtResource("1_e5162")
 stat_type = 2
 base_value = 0
-flat_bonus_value = 6
+flat_bonus_value = 5
 
-[sub_resource type="Resource" id="Resource_fvea7"]
-script = ExtResource("1_gxshi")
+[sub_resource type="Resource" id="Resource_be184"]
+script = ExtResource("1_e5162")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_i1ygv"]
+script = ExtResource("1_e5162")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_swjhc"]
+script = ExtResource("1_e5162")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_qfpp8"]
+script = ExtResource("1_e5162")
 stat_type = 10
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_icd7g"]
+script = ExtResource("1_e5162")
+stat_type = 11
 base_value = 0
 flat_bonus_value = 1
 
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_17cah"]
-load_path = "res://.godot/imported/Eqp_Leather_Sandals.png-23f0cc5f3f25b855dccf580eeba0d806.ctex"
+[sub_resource type="Resource" id="Resource_rijms"]
+script = ExtResource("1_e5162")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_haoxi"]
+script = ExtResource("1_e5162")
+stat_type = 17
+base_value = 0
+flat_bonus_value = 1
 
 [resource]
-script = ExtResource("2_e5162")
+script = ExtResource("3_d2ysi")
 armor_type = 3
-bonus_stats = Dictionary[int, ExtResource("1_gxshi")]({
-2: SubResource("Resource_0r0t6"),
-8: SubResource("Resource_1x4tv"),
-9: SubResource("Resource_d2ysi"),
-10: SubResource("Resource_fvea7")
+bonus_stats = Dictionary[int, ExtResource("1_e5162")]({
+0: SubResource("Resource_17cah"),
+1: SubResource("Resource_be184"),
+2: SubResource("Resource_htyfx"),
+3: SubResource("Resource_i1ygv"),
+8: SubResource("Resource_0r0t6"),
+9: SubResource("Resource_fvea7"),
+10: SubResource("Resource_qfpp8"),
+11: SubResource("Resource_icd7g"),
+15: SubResource("Resource_swjhc"),
+16: SubResource("Resource_rijms"),
+17: SubResource("Resource_haoxi")
 })
-item_id = "681481093-813811-131028-41415-141114391312551326"
+item_id = "31015089611-146138-16513-134134-131412215782912115"
 name = "Steel Pathfinder Boots"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_1x4tv")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 35

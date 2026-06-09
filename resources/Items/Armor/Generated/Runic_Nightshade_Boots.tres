@@ -1,49 +1,94 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://dhu0k100byqmw"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://dhu0k100byqmw"]
 
-[ext_resource type="Texture2D" uid="uid://b3ped04d3fm2t" path="res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Nightshade_Boots.png" id="99_svgicon"]
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_1irry"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_4kccy"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_4kccy"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Nightshade_Boots.png" id="2_5jkjt"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_yar0i"]
 
-[sub_resource type="Resource" id="Resource_5jkjt"]
-script = ExtResource("1_1irry")
+[sub_resource type="Resource" id="Resource_86cor"]
+script = ExtResource("1_4kccy")
 stat_type = 8
 base_value = 0
 flat_bonus_value = 20
 
-[sub_resource type="Resource" id="Resource_yar0i"]
-script = ExtResource("1_1irry")
+[sub_resource type="Resource" id="Resource_ujm57"]
+script = ExtResource("1_4kccy")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 20
 
-[sub_resource type="Resource" id="Resource_86cor"]
-script = ExtResource("1_1irry")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 11
-
-[sub_resource type="Resource" id="Resource_ujm57"]
-script = ExtResource("1_1irry")
-stat_type = 11
+[sub_resource type="Resource" id="Resource_bkbvx"]
+script = ExtResource("1_4kccy")
 base_value = 0
 flat_bonus_value = 3
 
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_bkbvx"]
-load_path = "res://.godot/imported/Eqp_Leather_Sandals.png-23f0cc5f3f25b855dccf580eeba0d806.ctex"
+[sub_resource type="Resource" id="Resource_vs3gs"]
+script = ExtResource("1_4kccy")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_u2gfh"]
+script = ExtResource("1_4kccy")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_0eeyh"]
+script = ExtResource("1_4kccy")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 9
+
+[sub_resource type="Resource" id="Resource_u1pdl"]
+script = ExtResource("1_4kccy")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_okeui"]
+script = ExtResource("1_4kccy")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_pje62"]
+script = ExtResource("1_4kccy")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_hng4k"]
+script = ExtResource("1_4kccy")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_rs8s4"]
+script = ExtResource("1_4kccy")
+stat_type = 17
+base_value = 0
+flat_bonus_value = 2
 
 [resource]
-script = ExtResource("2_4kccy")
+script = ExtResource("3_yar0i")
 armor_type = 3
-bonus_stats = Dictionary[int, ExtResource("1_1irry")]({
-3: SubResource("Resource_86cor"),
-8: SubResource("Resource_5jkjt"),
-9: SubResource("Resource_yar0i"),
-11: SubResource("Resource_ujm57")
+bonus_stats = Dictionary[int, ExtResource("1_4kccy")]({
+0: SubResource("Resource_bkbvx"),
+1: SubResource("Resource_u2gfh"),
+2: SubResource("Resource_vs3gs"),
+3: SubResource("Resource_0eeyh"),
+8: SubResource("Resource_86cor"),
+9: SubResource("Resource_ujm57"),
+10: SubResource("Resource_okeui"),
+11: SubResource("Resource_pje62"),
+15: SubResource("Resource_u1pdl"),
+16: SubResource("Resource_hng4k"),
+17: SubResource("Resource_rs8s4")
 })
-item_id = "1315141468144-12911-48111-1211137-1321015742611786"
+item_id = "1310494329-152122-1513146-21443-51390811714101115"
 name = "Runic Nightshade Boots"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_5jkjt")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 68

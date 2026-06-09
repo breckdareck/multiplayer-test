@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "vrs_t3_combat_resolve"
 upgrade_name = "Combat Resolve"
-description = "Vanguard's Resolve also grants +Defense while at full combo."
+description = "Vanguard's Resolve also grants a large Defense bonus while at full combo."
 point_cost = 2
 tier = 3
 variant_group = "vrs_t3_variant"
 effect_key = "bonus_defense_at_full"
-magnitude = 50
+magnitude = 150

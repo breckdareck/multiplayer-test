@@ -547,15 +547,6 @@ target_spawn_point_name = "NearWilds_LanternsRest_Portal_Spawn"
 [node name="LanternsRest_NearWilds_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(-180, -606)
 
-[node name="PortalToKeep" parent="." instance=ExtResource("3_knl1o")]
-z_index = 1
-position = Vector2(236, -608)
-target_map_id = "keep"
-target_spawn_point_name = "Keep_LanternsRest_Portal_Spawn"
-
-[node name="LanternsRest_Keep_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(210, -606)
-
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(0, -608)
 zoom = Vector2(4, 4)

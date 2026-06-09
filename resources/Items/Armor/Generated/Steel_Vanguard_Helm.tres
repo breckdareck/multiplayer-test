@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://df4ea2qgjjqpr"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://df4ea2qgjjqpr"]
 
-[ext_resource type="Texture2D" uid="uid://opwpcecx1frn" path="res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Vanguard_Helm.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_12syc"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Vanguard_Helm.png" id="2_p63p1"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_e05di"]
 
 [sub_resource type="Resource" id="Resource_47qja"]
@@ -23,6 +23,48 @@ flat_bonus_value = 6
 
 [sub_resource type="Resource" id="Resource_exxyk"]
 script = ExtResource("1_12syc")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_dwihy"]
+script = ExtResource("1_12syc")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_pemsd"]
+script = ExtResource("1_12syc")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_btba1"]
+script = ExtResource("1_12syc")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="Resource" id="Resource_hq1me"]
+script = ExtResource("1_12syc")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_1redu"]
+script = ExtResource("1_12syc")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_cm1nd"]
+script = ExtResource("1_12syc")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_wjm4n"]
+script = ExtResource("1_12syc")
 stat_type = 4
 base_value = 0
 flat_bonus_value = 43
@@ -31,14 +73,21 @@ flat_bonus_value = 43
 script = ExtResource("3_e05di")
 bonus_stats = Dictionary[int, ExtResource("1_12syc")]({
 0: SubResource("Resource_wq8or"),
-4: SubResource("Resource_exxyk"),
+1: SubResource("Resource_dwihy"),
+2: SubResource("Resource_exxyk"),
+3: SubResource("Resource_pemsd"),
+4: SubResource("Resource_wjm4n"),
 8: SubResource("Resource_47qja"),
-9: SubResource("Resource_vq8ym")
+9: SubResource("Resource_vq8ym"),
+10: SubResource("Resource_hq1me"),
+11: SubResource("Resource_1redu"),
+15: SubResource("Resource_btba1"),
+16: SubResource("Resource_cm1nd")
 })
-item_id = "121241012140-81176-1415150-101487-98133093111411213"
+item_id = "1321821341-9424-71151-131484-13261441201112514"
 name = "Steel Vanguard Helm"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_p63p1")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 35

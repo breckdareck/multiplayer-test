@@ -1,48 +1,94 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://dirmiyf7u5ks7"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://dirmiyf7u5ks7"]
 
-[ext_resource type="Texture2D" uid="uid://b5c2jiqbnpqjg" path="res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Vanguard_Boots.png" id="99_svgicon"]
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_ie8nr"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_s78js"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_s78js"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Vanguard_Boots.png" id="2_8otej"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_wu8p0"]
 
-[sub_resource type="Resource" id="Resource_8otej"]
-script = ExtResource("1_ie8nr")
+[sub_resource type="Resource" id="Resource_tcm51"]
+script = ExtResource("1_s78js")
 stat_type = 8
 base_value = 0
 flat_bonus_value = 19
 
-[sub_resource type="Resource" id="Resource_wu8p0"]
-script = ExtResource("1_ie8nr")
+[sub_resource type="Resource" id="Resource_hnler"]
+script = ExtResource("1_s78js")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 12
 
-[sub_resource type="Resource" id="Resource_tcm51"]
-script = ExtResource("1_ie8nr")
+[sub_resource type="Resource" id="Resource_4vpuo"]
+script = ExtResource("1_s78js")
 base_value = 0
 flat_bonus_value = 7
 
-[sub_resource type="Resource" id="Resource_hnler"]
-script = ExtResource("1_ie8nr")
+[sub_resource type="Resource" id="Resource_v13ny"]
+script = ExtResource("1_s78js")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_c3bm0"]
+script = ExtResource("1_s78js")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_wgg5w"]
+script = ExtResource("1_s78js")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_cfbnj"]
+script = ExtResource("1_s78js")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 6
+
+[sub_resource type="Resource" id="Resource_ud6cu"]
+script = ExtResource("1_s78js")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_ry5n4"]
+script = ExtResource("1_s78js")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_llgqx"]
+script = ExtResource("1_s78js")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_cyjl3"]
+script = ExtResource("1_s78js")
 stat_type = 4
 base_value = 0
 flat_bonus_value = 49
 
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_4vpuo"]
-load_path = "res://.godot/imported/Eqp_Leather_Sandals.png-23f0cc5f3f25b855dccf580eeba0d806.ctex"
-
 [resource]
-script = ExtResource("2_s78js")
+script = ExtResource("3_wu8p0")
 armor_type = 3
-bonus_stats = Dictionary[int, ExtResource("1_ie8nr")]({
-0: SubResource("Resource_tcm51"),
-4: SubResource("Resource_hnler"),
-8: SubResource("Resource_8otej"),
-9: SubResource("Resource_wu8p0")
+bonus_stats = Dictionary[int, ExtResource("1_s78js")]({
+0: SubResource("Resource_4vpuo"),
+1: SubResource("Resource_c3bm0"),
+2: SubResource("Resource_v13ny"),
+3: SubResource("Resource_wgg5w"),
+4: SubResource("Resource_cyjl3"),
+8: SubResource("Resource_tcm51"),
+9: SubResource("Resource_hnler"),
+10: SubResource("Resource_ud6cu"),
+11: SubResource("Resource_ry5n4"),
+15: SubResource("Resource_cfbnj"),
+16: SubResource("Resource_llgqx")
 })
-item_id = "7391112213-10232-69128-71432-032967151114118"
+item_id = "611730452-1415114-19106-14764-5121010831135502"
 name = "Adamant Vanguard Boots"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_8otej")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 50

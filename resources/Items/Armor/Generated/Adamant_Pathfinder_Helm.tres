@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://djpytp430h4pk"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://djpytp430h4pk"]
 
-[ext_resource type="Texture2D" uid="uid://dbcsas0dtbbll" path="res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Pathfinder_Helm.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_xikcc"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Pathfinder_Helm.png" id="2_3fko7"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_b171f"]
 
 [sub_resource type="Resource" id="Resource_fr6t0"]
@@ -18,28 +18,76 @@ flat_bonus_value = 18
 
 [sub_resource type="Resource" id="Resource_nuc8j"]
 script = ExtResource("1_xikcc")
-stat_type = 2
 base_value = 0
-flat_bonus_value = 10
+flat_bonus_value = 3
 
 [sub_resource type="Resource" id="Resource_200c6"]
 script = ExtResource("1_xikcc")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 8
+
+[sub_resource type="Resource" id="Resource_3qnoe"]
+script = ExtResource("1_xikcc")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_44mw7"]
+script = ExtResource("1_xikcc")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_1aoy3"]
+script = ExtResource("1_xikcc")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_isk4i"]
+script = ExtResource("1_xikcc")
 stat_type = 10
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_o61bp"]
+script = ExtResource("1_xikcc")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_yhtvw"]
+script = ExtResource("1_xikcc")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_1l1ei"]
+script = ExtResource("1_xikcc")
+stat_type = 17
 base_value = 0
 flat_bonus_value = 2
 
 [resource]
 script = ExtResource("3_b171f")
 bonus_stats = Dictionary[int, ExtResource("1_xikcc")]({
-2: SubResource("Resource_nuc8j"),
+0: SubResource("Resource_nuc8j"),
+1: SubResource("Resource_3qnoe"),
+2: SubResource("Resource_200c6"),
+3: SubResource("Resource_44mw7"),
 8: SubResource("Resource_fr6t0"),
 9: SubResource("Resource_4dp05"),
-10: SubResource("Resource_200c6")
+10: SubResource("Resource_isk4i"),
+11: SubResource("Resource_o61bp"),
+15: SubResource("Resource_1aoy3"),
+16: SubResource("Resource_yhtvw"),
+17: SubResource("Resource_1l1ei")
 })
-item_id = "1110141460144-0708-610212-12811-8041133811111547"
+item_id = "523341196-12821-1747-49710-91029481492451"
 name = "Adamant Pathfinder Helm"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_3fko7")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 50

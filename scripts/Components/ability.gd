@@ -757,6 +757,29 @@ func _can_afford_ability(ability_id: String, level_stats: AbilityLevelData) -> b
 	return true
 
 
+## True when the owner is currently on a ladder/rope (climb state). While
+## climbing, the climb state has cleared the player's ground + one-way-platform
+## collision mask so they pass through the world, and the attack state applies
+## gravity — so any ability that routes through the attack state would drop the
+## player through the floor. Worse, _trigger_ability_state_change assigns
+## current_state directly (bypassing climb.exit()), so the mask would never be
+## restored. Used to gate casts to SELF buffs only while on a ladder.
+func _is_owner_climbing() -> bool:
+	var state_machine = owner.get_node_or_null("StateMachine")
+	if not state_machine or not ("current_state" in state_machine):
+		return false
+	var cs = state_machine.current_state
+	return cs != null and cs.name == "climb"
+
+
+## True for a self-target buff — one that applies to the caster and needs no
+## swing/hitbox (target_type SELF). These are the only abilities allowed while
+## climbing; everything else is gated out (see _is_owner_climbing).
+func _is_self_buff_ability(ability: AbilityData) -> bool:
+	return ability != null and ability.active_behavior != null \
+		and ability.active_behavior.target_type == Constants.TargetType.SELF
+
+
 ## Returns the `Constants.ClassType` discipline of the ACTIVE weapon (PR 3),
 ## or -1 if there's no tier-1 weapon equipped in the active slot. Used by the
 ## mastery-XP-on-cast grant. Falls back to the character's primary_discipline when
@@ -840,7 +863,15 @@ func _handle_authoritative_use(ability_id: String, ability: AbilityData, level_s
 	# Check resources and state
 	if not _can_afford_ability(ability_id, level_stats):
 		return false
-	
+
+	# Ladder/rope guard: while climbing, only self-target buffs may be cast. Any
+	# attack ability would route through the attack state, which applies gravity
+	# while the climb state has the ground/platform collision disabled — dropping
+	# the player through the world. Buffs apply in place (see
+	# _trigger_ability_state_change) without ever leaving the ladder.
+	if _is_owner_climbing() and not _is_self_buff_ability(ability):
+		return false
+
 	# Consume resources and start cooldown
 	var cooldown_duration = _consume_ability_resources(ability_id, level_stats)
 	
@@ -897,20 +928,33 @@ func _trigger_ability_state_change(ability: AbilityData, level_stats: AbilityLev
 		push_error("Could not find StateMachine on owner.")
 		return
 		
-	var attack_state = state_machine.get_node_or_null("attack")
-	if not attack_state or not attack_state.has_method("set_ability_data"):
-		push_error("Attack state is invalid or missing 'set_ability_data' method.")
-		return
-	
-	# Configure the attack state with this ability's data
-	attack_state.set_ability_data(ability, level_stats)
-	
-	# Transition to the attack state
-	if "current_state" in state_machine and state_machine.current_state != attack_state:
-		state_machine.current_state = attack_state
-		attack_state.enter()
-		if active_behavior.sfx_path:
-			AudioManager.play_sfx_for_map(MapManager.get_player_map(owner.player_id), active_behavior.sfx_path, owner.global_position)
+	# Ladder/rope: a self-buff applies IN PLACE — do NOT enter the attack state.
+	# The attack state applies gravity while the climb state has cleared the
+	# ground/platform collision mask, so transitioning would drop the player
+	# through the world (and the direct current_state assignment below bypasses
+	# climb.exit(), so the mask would never be restored). Non-buff casts are
+	# already rejected in _handle_authoritative_use, so anything reaching here
+	# while climbing is a SELF buff whose effect still runs via the cast VFX and
+	# logic_script.execute() below. This branch is reached on both the server and
+	# (via ability_used_client) the clients, which share the synced climb state.
+	if not _is_owner_climbing():
+		var attack_state = state_machine.get_node_or_null("attack")
+		if not attack_state or not attack_state.has_method("set_ability_data"):
+			push_error("Attack state is invalid or missing 'set_ability_data' method.")
+			return
+
+		# Configure the attack state with this ability's data
+		attack_state.set_ability_data(ability, level_stats)
+
+		# Transition to the attack state
+		if "current_state" in state_machine and state_machine.current_state != attack_state:
+			state_machine.current_state = attack_state
+			attack_state.enter()
+			if active_behavior.sfx_path:
+				AudioManager.play_sfx_for_map(MapManager.get_player_map(owner.player_id), active_behavior.sfx_path, owner.global_position)
+	elif active_behavior.sfx_path:
+		# In-place buff on a ladder — no state change, but still play the cast SFX.
+		AudioManager.play_sfx_for_map(MapManager.get_player_map(owner.player_id), active_behavior.sfx_path, owner.global_position)
 
 	# Cast "juice" — a one-shot VFX at the caster when the ability fires. The
 	# broadcast self-guards `is_server`, so only the authoritative cast (server /

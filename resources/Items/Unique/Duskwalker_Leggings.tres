@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://bycsaocwy7e0a"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://bycsaocwy7e0a"]
 
-[ext_resource type="Texture2D" uid="uid://c2rt7b57oyhjl" path="res://assets/sprites/Items/generated_px/Unique/Duskwalker_Leggings.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_jpnuc"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_niqmn"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Unique/Duskwalker_Leggings.png" id="2_niqmn"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_fgacn"]
 
 [sub_resource type="Resource" id="Resource_dm0t0"]
@@ -29,11 +28,6 @@ stat_type = 11
 base_value = 0
 flat_bonus_value = 22
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_c4ojk"]
-atlas = ExtResource("2_niqmn")
-region = Rect2(0, 0, 25, 16)
-margin = Rect2(0.5, 5.5, 1, 10)
-
 [resource]
 script = ExtResource("3_fgacn")
 armor_type = 2
@@ -43,10 +37,10 @@ bonus_stats = Dictionary[int, ExtResource("1_jpnuc")]({
 10: SubResource("Resource_qgqhv"),
 11: SubResource("Resource_8ienq")
 })
-item_id = "15513501138-71303-91197-149211-1110354938910112"
+item_id = "5911450011-37133-2678-1313512-1003215110726133"
 name = "Duskwalker Leggings"
 rarity = 4
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_niqmn")
 description = "Leggings that fall silent the moment dusk takes the sky."
 item_type = 1
 item_level = 47

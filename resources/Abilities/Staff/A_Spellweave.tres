@@ -55,6 +55,7 @@ cast_time_formula = SubResource("Resource_cast")
 script = ExtResource("4_ad")
 ability_id = "spellweave_v1"
 ability_name = "Spellweave"
+damage_stat = 13
 description = "Channel for up to 2 seconds. Release an AMPLIFIED version of your current stance's signature: FIRE = larger pool, ICE = area freeze, LIGHTNING = +3 chain hops."
 ability_icon = ExtResource("1_icon")
 max_level = 10

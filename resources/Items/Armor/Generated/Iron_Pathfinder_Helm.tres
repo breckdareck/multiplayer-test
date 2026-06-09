@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://coslg6r5hj06t"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://coslg6r5hj06t"]
 
-[ext_resource type="Texture2D" uid="uid://2snj57elemyu" path="res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Pathfinder_Helm.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_l8ds0"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Pathfinder_Helm.png" id="2_a5dp2"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_tc1bv"]
 
 [sub_resource type="Resource" id="Resource_5vi26"]
@@ -18,28 +18,76 @@ flat_bonus_value = 10
 
 [sub_resource type="Resource" id="Resource_40xw2"]
 script = ExtResource("1_l8ds0")
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_3om2f"]
+script = ExtResource("1_l8ds0")
 stat_type = 2
 base_value = 0
 flat_bonus_value = 5
 
-[sub_resource type="Resource" id="Resource_3om2f"]
+[sub_resource type="Resource" id="Resource_ybjxt"]
+script = ExtResource("1_l8ds0")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_3hqr5"]
+script = ExtResource("1_l8ds0")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_7j4mg"]
+script = ExtResource("1_l8ds0")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_qocf0"]
 script = ExtResource("1_l8ds0")
 stat_type = 10
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_ibgqh"]
+script = ExtResource("1_l8ds0")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_yavjx"]
+script = ExtResource("1_l8ds0")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_oxu0c"]
+script = ExtResource("1_l8ds0")
+stat_type = 17
 base_value = 0
 flat_bonus_value = 1
 
 [resource]
 script = ExtResource("3_tc1bv")
 bonus_stats = Dictionary[int, ExtResource("1_l8ds0")]({
-2: SubResource("Resource_40xw2"),
+0: SubResource("Resource_40xw2"),
+1: SubResource("Resource_ybjxt"),
+2: SubResource("Resource_3om2f"),
+3: SubResource("Resource_3hqr5"),
 8: SubResource("Resource_5vi26"),
 9: SubResource("Resource_po2mb"),
-10: SubResource("Resource_3om2f")
+10: SubResource("Resource_qocf0"),
+11: SubResource("Resource_ibgqh"),
+15: SubResource("Resource_7j4mg"),
+16: SubResource("Resource_yavjx"),
+17: SubResource("Resource_oxu0c")
 })
-item_id = "1210126513159-515713-0151012-7028-110121179311413410"
+item_id = "154111554415-96115-22613-1513127-15121149495089"
 name = "Iron Pathfinder Helm"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_a5dp2")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 27

@@ -1,48 +1,94 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://b15t57xwlb2un"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://b15t57xwlb2un"]
 
-[ext_resource type="Texture2D" uid="uid://yp6k2sf5uip0" path="res://assets/sprites/Items/generated_px/Armor/Generated/Celestial_Vanguard_Boots.png" id="99_svgicon"]
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_6jhxn"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_hbrde"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_hbrde"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Celestial_Vanguard_Boots.png" id="2_wbke6"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_bn7w7"]
 
-[sub_resource type="Resource" id="Resource_wbke6"]
-script = ExtResource("1_6jhxn")
+[sub_resource type="Resource" id="Resource_rvv3s"]
+script = ExtResource("1_hbrde")
 stat_type = 8
 base_value = 0
 flat_bonus_value = 31
 
-[sub_resource type="Resource" id="Resource_bn7w7"]
-script = ExtResource("1_6jhxn")
+[sub_resource type="Resource" id="Resource_ph0ld"]
+script = ExtResource("1_hbrde")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 20
 
-[sub_resource type="Resource" id="Resource_rvv3s"]
-script = ExtResource("1_6jhxn")
+[sub_resource type="Resource" id="Resource_pe6mb"]
+script = ExtResource("1_hbrde")
 base_value = 0
 flat_bonus_value = 11
 
-[sub_resource type="Resource" id="Resource_ph0ld"]
-script = ExtResource("1_6jhxn")
+[sub_resource type="Resource" id="Resource_k7ucg"]
+script = ExtResource("1_hbrde")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_q4ex0"]
+script = ExtResource("1_hbrde")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_2j3ms"]
+script = ExtResource("1_hbrde")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_yt0ep"]
+script = ExtResource("1_hbrde")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 10
+
+[sub_resource type="Resource" id="Resource_xhu4w"]
+script = ExtResource("1_hbrde")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_5q6op"]
+script = ExtResource("1_hbrde")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_bufff"]
+script = ExtResource("1_hbrde")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_kh5vv"]
+script = ExtResource("1_hbrde")
 stat_type = 4
 base_value = 0
 flat_bonus_value = 81
 
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_pe6mb"]
-load_path = "res://.godot/imported/Eqp_Leather_Sandals.png-23f0cc5f3f25b855dccf580eeba0d806.ctex"
-
 [resource]
-script = ExtResource("2_hbrde")
+script = ExtResource("3_bn7w7")
 armor_type = 3
-bonus_stats = Dictionary[int, ExtResource("1_6jhxn")]({
-0: SubResource("Resource_rvv3s"),
-4: SubResource("Resource_ph0ld"),
-8: SubResource("Resource_wbke6"),
-9: SubResource("Resource_bn7w7")
+bonus_stats = Dictionary[int, ExtResource("1_hbrde")]({
+0: SubResource("Resource_pe6mb"),
+1: SubResource("Resource_q4ex0"),
+2: SubResource("Resource_k7ucg"),
+3: SubResource("Resource_2j3ms"),
+4: SubResource("Resource_kh5vv"),
+8: SubResource("Resource_rvv3s"),
+9: SubResource("Resource_ph0ld"),
+10: SubResource("Resource_xhu4w"),
+11: SubResource("Resource_5q6op"),
+15: SubResource("Resource_yt0ep"),
+16: SubResource("Resource_bufff")
 })
-item_id = "271011713612-741210-96155-351410-8142121213544068"
+item_id = "5711114013-931313-41159-211106-2120145731543911"
 name = "Celestial Vanguard Boots"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_wbke6")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 85

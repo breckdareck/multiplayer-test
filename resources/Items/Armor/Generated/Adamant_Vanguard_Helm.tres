@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://j2fkaabdoxma"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://j2fkaabdoxma"]
 
-[ext_resource type="Texture2D" uid="uid://lh3b28vrropa" path="res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Vanguard_Helm.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_61d5j"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Vanguard_Helm.png" id="2_a2isc"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_lansu"]
 
 [sub_resource type="Resource" id="Resource_gnf6o"]
@@ -23,6 +23,48 @@ flat_bonus_value = 8
 
 [sub_resource type="Resource" id="Resource_crfll"]
 script = ExtResource("1_61d5j")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_if6e5"]
+script = ExtResource("1_61d5j")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_j2wxl"]
+script = ExtResource("1_61d5j")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_b07jg"]
+script = ExtResource("1_61d5j")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 7
+
+[sub_resource type="Resource" id="Resource_t805w"]
+script = ExtResource("1_61d5j")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_l230e"]
+script = ExtResource("1_61d5j")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_hjbku"]
+script = ExtResource("1_61d5j")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_tca8w"]
+script = ExtResource("1_61d5j")
 stat_type = 4
 base_value = 0
 flat_bonus_value = 59
@@ -31,14 +73,21 @@ flat_bonus_value = 59
 script = ExtResource("3_lansu")
 bonus_stats = Dictionary[int, ExtResource("1_61d5j")]({
 0: SubResource("Resource_pwtbw"),
-4: SubResource("Resource_crfll"),
+1: SubResource("Resource_if6e5"),
+2: SubResource("Resource_crfll"),
+3: SubResource("Resource_j2wxl"),
+4: SubResource("Resource_tca8w"),
 8: SubResource("Resource_gnf6o"),
-9: SubResource("Resource_bceva")
+9: SubResource("Resource_bceva"),
+10: SubResource("Resource_t805w"),
+11: SubResource("Resource_l230e"),
+15: SubResource("Resource_b07jg"),
+16: SubResource("Resource_hjbku")
 })
-item_id = "9811078912-715156-08014-42414-051758771181512"
+item_id = "6080781114-1314315-1461211-11252-314121215815131213"
 name = "Adamant Vanguard Helm"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_a2isc")
 description = "Heavy plate forged for front-line Swordsmen."
 item_type = 1
 item_level = 50

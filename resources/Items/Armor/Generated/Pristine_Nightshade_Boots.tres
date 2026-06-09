@@ -1,49 +1,94 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bn6msftq53uim"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://bn6msftq53uim"]
 
-[ext_resource type="Texture2D" uid="uid://d2gx5mgck8nx0" path="res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Nightshade_Boots.png" id="99_svgicon"]
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_j5lir"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_byhru"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_byhru"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Nightshade_Boots.png" id="2_vo2ai"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_pgf62"]
 
-[sub_resource type="Resource" id="Resource_vo2ai"]
-script = ExtResource("1_j5lir")
+[sub_resource type="Resource" id="Resource_t4axk"]
+script = ExtResource("1_byhru")
 stat_type = 8
 base_value = 0
 flat_bonus_value = 18
 
-[sub_resource type="Resource" id="Resource_pgf62"]
-script = ExtResource("1_j5lir")
+[sub_resource type="Resource" id="Resource_qvm1y"]
+script = ExtResource("1_byhru")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 18
 
-[sub_resource type="Resource" id="Resource_t4axk"]
-script = ExtResource("1_j5lir")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 10
-
-[sub_resource type="Resource" id="Resource_qvm1y"]
-script = ExtResource("1_j5lir")
-stat_type = 11
+[sub_resource type="Resource" id="Resource_086oa"]
+script = ExtResource("1_byhru")
 base_value = 0
 flat_bonus_value = 3
 
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_086oa"]
-load_path = "res://.godot/imported/Eqp_Leather_Sandals.png-23f0cc5f3f25b855dccf580eeba0d806.ctex"
+[sub_resource type="Resource" id="Resource_gglep"]
+script = ExtResource("1_byhru")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_s6tm6"]
+script = ExtResource("1_byhru")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_jlsgs"]
+script = ExtResource("1_byhru")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 8
+
+[sub_resource type="Resource" id="Resource_mykh2"]
+script = ExtResource("1_byhru")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_ck8ny"]
+script = ExtResource("1_byhru")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_npmeu"]
+script = ExtResource("1_byhru")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_rquvv"]
+script = ExtResource("1_byhru")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_17lh8"]
+script = ExtResource("1_byhru")
+stat_type = 17
+base_value = 0
+flat_bonus_value = 1
 
 [resource]
-script = ExtResource("2_byhru")
+script = ExtResource("3_pgf62")
 armor_type = 3
-bonus_stats = Dictionary[int, ExtResource("1_j5lir")]({
-3: SubResource("Resource_t4axk"),
-8: SubResource("Resource_vo2ai"),
-9: SubResource("Resource_pgf62"),
-11: SubResource("Resource_qvm1y")
+bonus_stats = Dictionary[int, ExtResource("1_byhru")]({
+0: SubResource("Resource_086oa"),
+1: SubResource("Resource_s6tm6"),
+2: SubResource("Resource_gglep"),
+3: SubResource("Resource_jlsgs"),
+8: SubResource("Resource_t4axk"),
+9: SubResource("Resource_qvm1y"),
+10: SubResource("Resource_ck8ny"),
+11: SubResource("Resource_npmeu"),
+15: SubResource("Resource_mykh2"),
+16: SubResource("Resource_rquvv"),
+17: SubResource("Resource_17lh8")
 })
-item_id = "10951151370-1015113-145011-143615-715223654119153"
+item_id = "61191612-133155-153613-11244-14121132121521110312"
 name = "Pristine Nightshade Boots"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_vo2ai")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 60

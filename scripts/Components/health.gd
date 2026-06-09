@@ -164,6 +164,37 @@ func _on_regen_timer_timeout() -> void:
 		heal_damage(regen, self.owner)
 
 	
+## Server-side: pop a "MISS" floating number over this player when they EVADE an
+## attack (enemy_base's evasion branch never deals damage, so it never reaches the
+## take_damage number path — this makes a dodge visible). value -1 renders as MISS.
+func show_dodge() -> void:
+	if not multiplayer.is_server():
+		return
+	var entity = get_owner()
+	if not (entity is MultiplayerPlayerV2):
+		return
+	var map_node: Node = MapManager.get_player_map_node(entity.player_id)
+	if not is_instance_valid(map_node):
+		return
+	var dmg_spawner = map_node.find_child("DmgNumberSpawner", true, false)
+	if dmg_spawner and dmg_spawner.has_method("display_number"):
+		dmg_spawner.display_number(-1, entity.global_position, false, true)
+
+
+## Server-side: a successful DODGE consumes the contact tick the same way a hit
+## does — it starts the standard invulnerability window. Without this, the enemy's
+## per-frame contact check re-rolls every frame until a hit lands (spamming MISS),
+## AND evasion wouldn't actually reduce SUSTAINED contact damage (the enemy would
+## just keep rolling until it connects). With it, each dodged contact tick is a real
+## 0-damage tick on the same cadence as a hit, so evasion% genuinely reduces incoming
+## contact DPS.
+func trigger_dodge_invulnerability() -> void:
+	if not multiplayer.is_server():
+		return
+	is_invulnerable = true
+	invulnerability_timer.start()
+
+
 @rpc("any_peer", "call_local", "reliable")
 func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, is_crit: bool = false, show_number: bool = true) -> void:
 	

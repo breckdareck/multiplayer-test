@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://c0ajm21ubu71f"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=16 format=3 uid="uid://c0ajm21ubu71f"]
 
-[ext_resource type="Texture2D" uid="uid://tplcj6yr6slw" path="res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Arcanist_Mail.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_nod6j"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Arcanist_Mail.png" id="2_3xyk4"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_68evk"]
 
 [sub_resource type="Resource" id="Resource_if2i1"]
@@ -18,29 +18,84 @@ flat_bonus_value = 45
 
 [sub_resource type="Resource" id="Resource_wp80b"]
 script = ExtResource("1_nod6j")
-stat_type = 1
 base_value = 0
-flat_bonus_value = 19
+flat_bonus_value = 6
 
 [sub_resource type="Resource" id="Resource_x5jyi"]
+script = ExtResource("1_nod6j")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 6
+
+[sub_resource type="Resource" id="Resource_m2xfq"]
+script = ExtResource("1_nod6j")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 16
+
+[sub_resource type="Resource" id="Resource_ihuqh"]
+script = ExtResource("1_nod6j")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 6
+
+[sub_resource type="Resource" id="Resource_4d7ah"]
+script = ExtResource("1_nod6j")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 7
+
+[sub_resource type="Resource" id="Resource_mbaq2"]
+script = ExtResource("1_nod6j")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_i7jf5"]
+script = ExtResource("1_nod6j")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_uqvfe"]
+script = ExtResource("1_nod6j")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_46t6p"]
 script = ExtResource("1_nod6j")
 stat_type = 5
 base_value = 0
 flat_bonus_value = 96
 
+[sub_resource type="Resource" id="Resource_c8act"]
+script = ExtResource("1_nod6j")
+stat_type = 7
+base_value = 0
+flat_bonus_value = 4
+
 [resource]
 script = ExtResource("3_68evk")
 armor_type = 1
 bonus_stats = Dictionary[int, ExtResource("1_nod6j")]({
-1: SubResource("Resource_wp80b"),
-5: SubResource("Resource_x5jyi"),
+0: SubResource("Resource_wp80b"),
+1: SubResource("Resource_m2xfq"),
+2: SubResource("Resource_x5jyi"),
+3: SubResource("Resource_ihuqh"),
+5: SubResource("Resource_46t6p"),
+7: SubResource("Resource_c8act"),
 8: SubResource("Resource_if2i1"),
-9: SubResource("Resource_l63yx")
+9: SubResource("Resource_l63yx"),
+10: SubResource("Resource_mbaq2"),
+11: SubResource("Resource_i7jf5"),
+15: SubResource("Resource_4d7ah"),
+16: SubResource("Resource_uqvfe")
 })
-item_id = "3381501013-115130-03125-91187-121314125129111129"
+item_id = "140148111036-7031-0923-8121312-13814781233351114"
 name = "Pristine Arcanist Mail"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_3xyk4")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
 item_level = 60

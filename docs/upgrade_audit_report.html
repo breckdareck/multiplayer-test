@@ -1,0 +1,678 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Upgrade &amp; Passive Audit &mdash; Weapon Identity Overhaul</title>
+<style>
+:root{--bg:#0f1117;--card:#181b24;--card2:#1f232e;--line:#2c313d;--fg:#e6e8ee;--mut:#9aa3b2;
+--ok:#3fb950;--warn:#d29922;--bad:#f85149;--acc:#58a6ff;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 -apple-system,Segoe UI,Roboto,sans-serif}
+header{padding:28px 32px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#1b2030,#0f1117)}
+header h1{margin:0 0 6px;font-size:24px}header p{margin:0;color:var(--mut)}
+nav{position:sticky;top:0;z-index:10;background:#10131c;border-bottom:1px solid var(--line);padding:8px 32px;display:flex;gap:14px;flex-wrap:wrap}
+nav a{color:var(--acc);text-decoration:none;font-weight:600;font-size:13px}
+section{padding:20px 32px;border-bottom:1px solid var(--line)}
+h2{font-size:20px;border-left:4px solid var(--acc);padding-left:10px}
+h3{font-size:15px;color:var(--mut);margin-top:24px;text-transform:uppercase;letter-spacing:.04em}
+h4{margin:18px 0 4px;font-size:14.5px}
+code{background:#11141c;padding:1px 5px;border-radius:4px;color:#c9d1d9;font-size:11.5px}
+.stat-tag{font-size:11px;color:var(--mut);font-weight:400;border:1px solid var(--line);border-radius:4px;padding:1px 5px;margin-left:4px}
+table.dmg{width:100%;border-collapse:collapse;margin:6px 0;font-size:12px}
+table.dmg th{background:#11141c;color:var(--mut);text-align:left;padding:5px 7px;border-bottom:1px solid var(--line);font-weight:600}
+table.dmg td{padding:4px 7px;border-bottom:1px solid #20242e;vertical-align:top}
+table.dmg td small{color:var(--mut);font-size:10.5px}
+.ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad);font-weight:700}
+td.ok{color:var(--ok)}td.warn{color:var(--warn);font-weight:600}td.bad{color:var(--bad);font-weight:700}
+.finding-big{background:#13241a;border:1px solid #2a6;border-radius:10px;padding:14px 16px;margin:12px 0;font-size:14px;line-height:1.55}
+ul.fa{color:#c9d1d9;font-size:12.5px;padding-left:18px}ul.fa li{margin:6px 0}
+</style></head><body>
+<header><h1>Upgrade &amp; Passive Audit</h1>
+<p>Weapon-identity overhaul &mdash; do all 340 upgrades and 28 passives actually do something meaningful?</p></header>
+<nav><a href="#summary">Summary</a><a href="#Sword">Sword</a><a href="#Bow">Bow</a>
+<a href="#Staff">Staff</a><a href="#Dagger">Dagger</a><a href="#passives">Passives</a></nav>
+
+<section id="summary"><h2>Executive summary</h2>
+<p>Audited all <b>347 upgrades</b> across 80 abilities and <b>28 passives</b>. Method: every upgrade's <code>effect_key</code> is matched to its real consumer call-site in code, and each handler was read to confirm the magnitude is actually applied and meaningful (not read-and-ignored).</p>
+<div class="finding-big" style="border-color:#2a6;background:#13241a">&#9745; <b>The system is overwhelmingly healthy.</b> All 86 unique effect_keys are consumed in code &mdash; <b>zero dead keys, zero zero-magnitude upgrades</b>. The generic handlers (bonus_damage_mult, bonus_targets, bonus_hits, bonus_lifesteal, cooldown/mana_flat_reduction, passive_stat_flat/percent_bonus, conditional_damage_bonus) all apply correctly; all 14 stat passives reach the player's stats; and the conditional-damage + proc dispatch pathways are wired end-to-end. The only functional bug found is now fixed.</div>
+<h3>Issues found</h3><table class="dmg"><thead><tr><th>Item</th><th>Verdict</th><th>Detail</th></tr></thead><tbody>
+<tr><td>Spellweave &mdash; Heavy Weave</td><td class="ok">FIXED</td><td>Was NO-OP: execute() never read bonus_damage_mult, so the amplified release ignored it. Fixed 2026-06-08 — scale_base now ×(1+bonus).</td></tr>
+<tr><td>Arcane Familiar &mdash; Heavy Familiar</td><td class="ok">FIXED</td><td>Was NO-OP: the wisp&#x27;s bolts ignored bonus_damage_mult. Fixed 2026-06-08 — dot_base now ×(1+bonus).</td></tr>
+<tr><td>Evasion &mdash; Lithe</td><td class="ok">FIXED</td><td>Description corrected to &#x27;Evasion Chance bonus&#x27; (2026-06-08).</td></tr>
+<tr><td>Evasion &mdash; Slippery</td><td class="ok">FIXED</td><td>Description corrected to &#x27;Evasion Chance bonus&#x27;.</td></tr>
+<tr><td>Evasion &mdash; Untouchable</td><td class="ok">FIXED</td><td>Description corrected to &#x27;Evasion Chance bonus&#x27;.</td></tr>
+<tr><td>Vendetta &mdash; Sharp Vendetta</td><td class="ok">FIXED</td><td>Description corrected to &#x27;Vendetta deals +10% more damage&#x27;.</td></tr>
+<tr><td>Vow of the Vanguard &mdash; Inspiring Vow</td><td class="ok">FIXED</td><td>Description now notes the duration scales with combo consumed.</td></tr>
+<tr><td>Vow of the Vanguard &mdash; Enduring Vow</td><td class="ok">FIXED</td><td>Description now notes the duration scales with combo consumed.</td></tr>
+<tr><td>Earthsplitter &mdash; Wider Crack</td><td class="ok">FIXED</td><td>Magnitude bumped 20px → 60px.</td></tr>
+<tr><td>Caltrops &mdash; Wider Field</td><td class="ok">FIXED</td><td>Magnitude bumped 20px → 60px.</td></tr>
+<tr><td>Vanguard&#x27;s Resolve &mdash; Combat Resolve</td><td class="ok">FIXED</td><td>Bumped 50 → 150 DEFENSE at full combo (~23% mitigation).</td></tr>
+<tr><td>Passive: Battle-Hardened</td><td class="ok">FIXED</td><td>DEFENSE bumped to base 10 / +22 per level (L5 = 98, was 27).</td></tr>
+<tr><td>Passive: Spell Ward</td><td class="ok">FIXED</td><td>MAGICDEFENSE bumped to base 10 / +22 per level (L5 = 98, was 27).</td></tr>
+<tr><td>on_damaged proc event</td><td class="warn">LATENT</td><td>No dispatch site exists; no current passive uses it, but an authored on_damaged proc would silently never fire.</td></tr>
+</tbody></table>
+<h3>Investigated &amp; confirmed NOT bugs</h3><p style="color:var(--mut);font-size:12.5px">Two findings raised during the audit were verified against the actual code and are working correctly &mdash; listed so they aren't re-chased:</p><ul class="fa">
+<li><b>Overload / Killing Spree / Opportunist / Toxicology / Composure upgrade tiers</b> &mdash; Verified WORKING via ability.gd:420-421 — the generic conditional_damage_bonus path adds each upgrade&#x27;s magnitude when the passive&#x27;s condition fires, regardless of _level_bonus().</li>
+<li><b>Mark of the Hunt — Bleeding Mark (T3)</b> &mdash; Verified WORKING: combat.dot_scaling_base() defaults dmg_pct to 100 for damage-less abilities (combat.gd:1195-1199), so the bleed = max_range × 0.05 — fully stat-scaled, not 1 HP.</li>
+</ul></section>
+<section id="Sword"><h2>Sword</h2>
+<h4>Banner of the Vanguard <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Wider Banner</td><td>T1</td><td><code>bonus_zone_radius</code></td><td>30.0</td><td><small>AL_Banner.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Lasting Banner</td><td>T2</td><td><code>bonus_zone_duration</code></td><td>3.0</td><td><small>AL_Banner.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Bulwark Banner <small>[bnr_t3_variant]</small></td><td>T3</td><td><code>bonus_damage_reduction</code></td><td>0.15</td><td><small>AL_Banner.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Healing Banner <small>[bnr_t3_variant]</small></td><td>T3</td><td><code>bonus_heal_mult</code></td><td>1.0</td><td><small>AL_Banner.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Inspiring Banner <small>[bnr_t3_variant]</small></td><td>T3</td><td><code>bonus_aura_damage</code></td><td>0.1</td><td><small>AL_Banner.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Bulwark Stance <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Tireless</td><td>T1</td><td><code>buff_duration_bonus</code></td><td>10.0</td><td><small>AL_Aether_Ward.gd, AL_Bloodlust.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Steadfast</td><td>T2</td><td><code>mana_flat_reduction</code></td><td>4.0</td><td><small>ability.gd, ability_window.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Indomitable <small>[bs_variant]</small></td><td>T3</td><td><code>buff_duration_bonus</code></td><td>20.0</td><td><small>AL_Aether_Ward.gd, AL_Bloodlust.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Iron Will <small>[bs_variant]</small></td><td>T3</td><td><code>mana_flat_reduction</code></td><td>8.0</td><td><small>ability.gd, ability_window.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Quick Brace <small>[bs_variant]</small></td><td>T3</td><td><code>cooldown_flat_reduction</code></td><td>5.0</td><td><small>AbilityUpgradeData.gd, ability.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Charge! <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Swift Foot</td><td>T1</td><td><code>cooldown_flat_reduction</code></td><td>1.0</td><td><small>AbilityUpgradeData.gd, ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Wider Cleave</td><td>T2</td><td><code>bonus_damage_mult</code></td><td>0.25</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Battlecry <small>[chg_t3_variant]</small></td><td>T3</td><td><code>bonus_combo_per_hit</code></td><td>1.0</td><td><small>AL_Charge.gd, AL_Onslaught.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Crushing Charge <small>[chg_t3_variant]</small></td><td>T3</td><td><code>bonus_damage_mult</code></td><td>0.7</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Trampling Charge <small>[chg_t3_variant]</small></td><td>T3</td><td><code>bonus_targets</code></td><td>2.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Crescent Cleave <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Razor Edge</td><td>T1</td><td><code>cooldown_flat_reduction</code></td><td>1.0</td><td><small>AbilityUpgradeData.gd, ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Deep Cuts</td><td>T2</td><td><code>bonus_damage_mult</code></td><td>0.25</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Razor Wind <small>[cc_finisher_variant]</small></td><td>T3</td><td><code>combo_coefficient_override</code></td><td>2.0</td><td><small>AL_PowerStrike.gd, AL_Slash.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Tempest <small>[cc_finisher_variant]</small></td><td>T3</td><td><code>bonus_damage_mult</code></td><td>0.6</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Whirlwind <small>[cc_finisher_variant]</small></td><td>T3</td><td><code>bonus_targets</code></td><td>3.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Earthsplitter <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Wider Crack</td><td>T1</td><td><code>bonus_zone_radius</code></td><td>60.0</td><td><small>AL_Banner.gd, AL_Caltrops.gd</small></td><td class="ok">FIXED <small>Magnitude bumped 20px → 60px.</small></td></tr>
+<tr><td>Lingering Tremors</td><td>T2</td><td><code>bonus_zone_duration</code></td><td>1.5</td><td><small>AL_Banner.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Aftershock <small>[ear_t3_variant]</small></td><td>T3</td><td><code>bonus_aftershock_mult</code></td><td>0.5</td><td><small>AL_Earthsplitter.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Cataclysm <small>[ear_t3_variant]</small></td><td>T3</td><td><code>bonus_burst_mult</code></td><td>2.0</td><td><small>AL_Earthsplitter.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Fissure Network <small>[ear_t3_variant]</small></td><td>T3</td><td><code>bonus_zone_split</code></td><td>1.0</td><td><small>AL_Earthsplitter.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Hemorrhage <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Serrated Edge</td><td>T1</td><td><code>bonus_damage_mult</code></td><td>0.25</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Deep Gash</td><td>T2</td><td><code>bleed_max_stack_bonus</code></td><td>1.0</td><td><small>AL_BarbedShot.gd, AL_Hemorrhage.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Exsanguinate <small>[hem_bleed_variant]</small></td><td>T3</td><td><code>bleed_duration_bonus</code></td><td>4.0</td><td><small>AL_BarbedShot.gd, AL_Hemorrhage.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Hemophilia <small>[hem_bleed_variant]</small></td><td>T3</td><td><code>bleed_potency_bonus</code></td><td>0.5</td><td><small>AL_BarbedShot.gd, AL_Hemorrhage.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Rupture <small>[hem_bleed_variant]</small></td><td>T3</td><td><code>bonus_targets</code></td><td>1.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Iron Riposte <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Quick Recovery</td><td>T1</td><td><code>cooldown_flat_reduction</code></td><td>3.0</td><td><small>AbilityUpgradeData.gd, ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Lasting Guard</td><td>T2</td><td><code>buff_duration_bonus</code></td><td>5.0</td><td><small>AL_Aether_Ward.gd, AL_Bloodlust.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Efficient Guard <small>[ir_guard_variant]</small></td><td>T3</td><td><code>mana_flat_reduction</code></td><td>8.0</td><td><small>ability.gd, ability_window.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Eternal Guard <small>[ir_guard_variant]</small></td><td>T3</td><td><code>buff_duration_bonus</code></td><td>10.0</td><td><small>AL_Aether_Ward.gd, AL_Bloodlust.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Spiked Bulwark <small>[ir_guard_variant]</small></td><td>T3</td><td><code>reflect_bonus</code></td><td>15.0</td><td><small>AL_IronRiposte.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Sentinel&#x27;s Mark <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Extended Mark</td><td>T1</td><td><code>bonus_mark_duration</code></td><td>3.0</td><td><small>AL_DeathMark.gd, AL_ManaSurge.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Sharper Mark</td><td>T2</td><td><code>bonus_mark_damage</code></td><td>0.1</td><td><small>AL_SentinelsMark.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Echoing Mark <small>[snm_t3_variant]</small></td><td>T3</td><td><code>bonus_mark_spread</code></td><td>1.0</td><td><small>AL_DeathMark.gd, AL_ManaSurge.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Generous Mark <small>[snm_t3_variant]</small></td><td>T3</td><td><code>bonus_refund_chance</code></td><td>0.25</td><td><small>AL_SentinelsMark.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Punishing Mark <small>[snm_t3_variant]</small></td><td>T3</td><td><code>bonus_mark_damage</code></td><td>0.3</td><td><small>AL_SentinelsMark.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Steel Flurry <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Keen Edge</td><td>T1</td><td><code>bonus_damage_mult</code></td><td>0.2</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Wide Sweep</td><td>T2</td><td><code>bonus_targets</code></td><td>1.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Doubletap <small>[sf_flurry_variant]</small></td><td>T3</td><td><code>combo_per_hit_bonus</code></td><td>1.0</td><td><small>AL_Steel_Flurry.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Overwhelm <small>[sf_flurry_variant]</small></td><td>T3</td><td><code>bonus_damage_mult</code></td><td>0.5</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Relentless <small>[sf_flurry_variant]</small></td><td>T3</td><td><code>bonus_hits</code></td><td>1.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Sundering Blow <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Heavy Pommel</td><td>T1</td><td><code>cooldown_flat_reduction</code></td><td>1.0</td><td><small>AbilityUpgradeData.gd, ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Armor Pierce</td><td>T2</td><td><code>bonus_damage_mult</code></td><td>0.3</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Brutal Force <small>[ps_finisher_variant]</small></td><td>T3</td><td><code>bonus_damage_mult</code></td><td>0.7</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Cleaving Blow <small>[ps_finisher_variant]</small></td><td>T3</td><td><code>bonus_targets</code></td><td>1.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Executioner <small>[ps_finisher_variant]</small></td><td>T3</td><td><code>combo_coefficient_override</code></td><td>3.0</td><td><small>AL_PowerStrike.gd, AL_Slash.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Vanguard&#x27;s Onslaught <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Swift Wind-up</td><td>T1</td><td><code>channel_time_reduction</code></td><td>0.5</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Strong Arm</td><td>T2</td><td><code>bonus_damage_mult</code></td><td>0.25</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Devastator <small>[osl_t3_variant]</small></td><td>T3</td><td><code>bonus_damage_mult</code></td><td>0.6</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Earthshaker <small>[osl_t3_variant]</small></td><td>T3</td><td><code>bonus_targets</code></td><td>3.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Unstoppable <small>[osl_t3_variant]</small></td><td>T3</td><td><code>bonus_combo_per_hit</code></td><td>1.0</td><td><small>AL_Charge.gd, AL_Onslaught.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Vault Strike <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Momentum</td><td>T1</td><td><code>bonus_damage_mult</code></td><td>0.25</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Wide Arc</td><td>T2</td><td><code>bonus_targets</code></td><td>1.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Predator&#x27;s Bound <small>[vs_dash_variant]</small></td><td>T3</td><td><code>bonus_damage_mult</code></td><td>0.6</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Relentless Charge <small>[vs_dash_variant]</small></td><td>T3</td><td><code>bonus_hits</code></td><td>1.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Sweeping Strike <small>[vs_dash_variant]</small></td><td>T3</td><td><code>bonus_targets</code></td><td>2.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Vow of the Vanguard <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Inspiring Vow</td><td>T1</td><td><code>buff_duration_bonus</code></td><td>10.0</td><td><small>AL_Aether_Ward.gd, AL_Bloodlust.gd</small></td><td class="ok">FIXED <small>Description now notes the duration scales with combo consumed.</small></td></tr>
+<tr><td>Battle Hymn</td><td>T2</td><td><code>mana_flat_reduction</code></td><td>5.0</td><td><small>ability.gd, ability_window.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Efficient Vow <small>[vow_variant]</small></td><td>T3</td><td><code>mana_flat_reduction</code></td><td>10.0</td><td><small>ability.gd, ability_window.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Enduring Vow <small>[vow_variant]</small></td><td>T3</td><td><code>buff_duration_bonus</code></td><td>30.0</td><td><small>AL_Aether_Ward.gd, AL_Bloodlust.gd</small></td><td class="ok">FIXED <small>Description now notes the duration scales with combo consumed.</small></td></tr>
+<tr><td>Greater Vow <small>[vow_variant]</small></td><td>T3</td><td><code>vow_stat_bonus</code></td><td>2.0</td><td><small>AL_Vow_Of_The_Vanguard.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Aggression <span class="stat-tag">Passive</span> <span class="stat-tag">3 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Mighty</td><td>T1</td><td><code>conditional_damage_bonus</code></td><td>0.03</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Powerful</td><td>T2</td><td><code>conditional_damage_bonus</code></td><td>0.05</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Herculean</td><td>T3</td><td><code>conditional_damage_bonus</code></td><td>0.07</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Battle-Hardened <span class="stat-tag">Passive</span> <span class="stat-tag">3 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Seasoned</td><td>T1</td><td><code>passive_stat_flat_bonus</code></td><td>2.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Veteran</td><td>T2</td><td><code>passive_stat_flat_bonus</code></td><td>3.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Unbreakable</td><td>T3</td><td><code>passive_stat_flat_bonus</code></td><td>3.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Bloodthirst <span class="stat-tag">Passive</span> <span class="stat-tag">3 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Vitality</td><td>T1</td><td><code>heal_pct_bonus</code></td><td>0.5</td><td><small>AL_Bloodthirst.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Sanguine</td><td>T2</td><td><code>heal_pct_bonus</code></td><td>1.0</td><td><small>AL_Bloodthirst.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Bloodfeast</td><td>T3</td><td><code>heal_pct_bonus</code></td><td>2.0</td><td><small>AL_Bloodthirst.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Hardened Frame <span class="stat-tag">Passive</span> <span class="stat-tag">3 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Toughness</td><td>T1</td><td><code>passive_stat_percent_bonus</code></td><td>1.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Resilience</td><td>T2</td><td><code>passive_stat_percent_bonus</code></td><td>2.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Fortitude</td><td>T3</td><td><code>passive_stat_percent_bonus</code></td><td>2.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Last Stand <span class="stat-tag">Passive</span> <span class="stat-tag">3 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Cruel</td><td>T1</td><td><code>conditional_damage_bonus</code></td><td>0.03</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Savage</td><td>T2</td><td><code>conditional_damage_bonus</code></td><td>0.05</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Devastating</td><td>T3</td><td><code>conditional_damage_bonus</code></td><td>0.07</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Second Wind <span class="stat-tag">Passive</span> <span class="stat-tag">3 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Recovery</td><td>T1</td><td><code>passive_stat_flat_bonus</code></td><td>1.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Second Heart</td><td>T2</td><td><code>passive_stat_flat_bonus</code></td><td>1.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Inexhaustible</td><td>T3</td><td><code>passive_stat_flat_bonus</code></td><td>2.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Vanguard&#x27;s Resolve <span class="stat-tag">Passive</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Stalwart Resolve</td><td>T1</td><td><code>bonus_passive_potency</code></td><td>0.02</td><td><small>AL_ElementalAffinity.gd, AL_PredatorsPatience.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Iron Resolve</td><td>T2</td><td><code>bonus_passive_potency</code></td><td>0.03</td><td><small>AL_ElementalAffinity.gd, AL_PredatorsPatience.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Combat Resolve <small>[vrs_t3_variant]</small></td><td>T3</td><td><code>bonus_defense_at_full</code></td><td>150.0</td><td><small>AL_VanguardsResolve.gd</small></td><td class="ok">FIXED <small>Bumped 50 → 150 DEFENSE at full combo (~23% mitigation).</small></td></tr>
+<tr><td>Eternal Resolve <small>[vrs_t3_variant]</small></td><td>T3</td><td><code>bonus_resolve_carryover</code></td><td>2.0</td><td><small>AL_VanguardsResolve.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Tenacious Resolve <small>[vrs_t3_variant]</small></td><td>T3</td><td><code>bonus_resolve_cap</code></td><td>1.0</td><td><small>AL_VanguardsResolve.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+</section>
+<section id="Bow"><h2>Bow</h2>
+<h4>Barbed Shot <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Broadhead Tips</td><td>T1</td><td><code>bonus_damage_mult</code></td><td>0.25</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Jagged Heads</td><td>T2</td><td><code>bleed_max_stack_bonus</code></td><td>1.0</td><td><small>AL_BarbedShot.gd, AL_Hemorrhage.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Festering Wound <small>[bs_bleed_variant]</small></td><td>T3</td><td><code>bleed_duration_bonus</code></td><td>4.0</td><td><small>AL_BarbedShot.gd, AL_Hemorrhage.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Lacerate <small>[bs_bleed_variant]</small></td><td>T3</td><td><code>bleed_potency_bonus</code></td><td>0.5</td><td><small>AL_BarbedShot.gd, AL_Hemorrhage.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Splintering Arrow <small>[bs_bleed_variant]</small></td><td>T3</td><td><code>bonus_targets</code></td><td>1.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Caltrops <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Sharper Spikes</td><td>T1</td><td><code>bonus_damage_mult</code></td><td>0.25</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Wider Field</td><td>T2</td><td><code>bonus_zone_radius</code></td><td>60.0</td><td><small>AL_Banner.gd, AL_Caltrops.gd</small></td><td class="ok">FIXED <small>Magnitude bumped 20px → 60px.</small></td></tr>
+<tr><td>Lingering Field <small>[cal_t3_variant]</small></td><td>T3</td><td><code>bonus_zone_duration</code></td><td>2.0</td><td><small>AL_Banner.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Piercing Spikes <small>[cal_t3_variant]</small></td><td>T3</td><td><code>bonus_slow_pct</code></td><td>0.2</td><td><small>AL_Caltrops.gd, AL_FrostPatch.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Poisoned Spikes <small>[cal_t3_variant]</small></td><td>T3</td><td><code>bonus_bleed_applies</code></td><td>1.0</td><td><small>AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Disengage <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Light Feet</td><td>T1</td><td><code>cooldown_flat_reduction</code></td><td>1.0</td><td><small>AbilityUpgradeData.gd, ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Parting Shot</td><td>T2</td><td><code>bonus_damage_mult</code></td><td>0.3</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Caltrops <small>[dis_escape_variant]</small></td><td>T3</td><td><code>bonus_targets</code></td><td>2.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Evasion <small>[dis_escape_variant]</small></td><td>T3</td><td><code>cooldown_flat_reduction</code></td><td>2.0</td><td><small>AbilityUpgradeData.gd, ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Smoke Bomb <small>[dis_escape_variant]</small></td><td>T3</td><td><code>bonus_damage_mult</code></td><td>0.7</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Eagle Eye <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Farsight</td><td>T1</td><td><code>buff_duration_bonus</code></td><td>5.0</td><td><small>AL_Aether_Ward.gd, AL_Bloodlust.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Clarity</td><td>T2</td><td><code>buff_attack_bonus</code></td><td>15.0</td><td><small>AL_Bloodlust.gd, AL_Eagle_Eye.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Eternal Vigil <small>[ee_vision_variant]</small></td><td>T3</td><td><code>buff_critdamage_bonus</code></td><td>25.0</td><td><small>AL_Bloodlust.gd, AL_Eagle_Eye.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Focus Fire <small>[ee_vision_variant]</small></td><td>T3</td><td><code>buff_attack_bonus</code></td><td>30.0</td><td><small>AL_Bloodlust.gd, AL_Eagle_Eye.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Hawk&#x27;s Eye <small>[ee_vision_variant]</small></td><td>T3</td><td><code>buff_critchance_bonus</code></td><td>5.0</td><td><small>AL_Bloodlust.gd, AL_Eagle_Eye.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Hailstorm <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Rapid Loose</td><td>T1</td><td><code>bonus_hits</code></td><td>1.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Splinter</td><td>T2</td><td><code>bonus_targets</code></td><td>1.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Bloodletting <small>[hail_storm_variant]</small></td><td>T3</td><td><code>bonus_damage_mult</code></td><td>0.4</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Flurry <small>[hail_storm_variant]</small></td><td>T3</td><td><code>bonus_hits</code></td><td>3.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Suppressing Fire <small>[hail_storm_variant]</small></td><td>T3</td><td><code>bonus_targets</code></td><td>2.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Mark of the Hunt <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Lasting Mark</td><td>T1</td><td><code>bonus_mark_duration</code></td><td>4.0</td><td><small>AL_DeathMark.gd, AL_ManaSurge.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Quick Mark</td><td>T2</td><td><code>cooldown_flat_reduction</code></td><td>2.0</td><td><small>AbilityUpgradeData.gd, ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Bleeding Mark <small>[moh_t3_variant]</small></td><td>T3</td><td><code>bonus_bleed_dot</code></td><td>0.05</td><td><small>AL_DeathMark.gd, AL_MarkOfTheHunt.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Double Mark <small>[moh_t3_variant]</small></td><td>T3</td><td><code>bonus_mark_targets</code></td><td>1.0</td><td><small>AL_DeathMark.gd, AL_ManaSurge.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Sundering Mark <small>[moh_t3_variant]</small></td><td>T3</td><td><code>bonus_pierce_on_crit</code></td><td>1.0</td><td><small>AL_MarkOfTheHunt.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Sky Volley <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Sustained Volley</td><td>T1</td><td><code>channel_time_extension</code></td><td>1.0</td><td><small>AL_SkyVolley.gd, AL_Stormcall.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Heavy Volley</td><td>T2</td><td><code>bonus_damage_mult</code></td><td>0.2</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Marking Volley <small>[skv_t3_variant]</small></td><td>T3</td><td><code>bonus_marks_applied</code></td><td>1.0</td><td><small>AL_SkyVolley.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Rapid Volley <small>[skv_t3_variant]</small></td><td>T3</td><td><code>bonus_tick_rate</code></td><td>0.5</td><td><small>AL_SkyVolley.gd, AL_Stormcall.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Wide Volley <small>[skv_t3_variant]</small></td><td>T3</td><td><code>bonus_zone_radius</code></td><td>40.0</td><td><small>AL_Banner.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Skyfall <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Wide Fall</td><td>T1</td><td><code>bonus_targets</code></td><td>2.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Heavy Volley</td><td>T2</td><td><code>bonus_damage_mult</code></td><td>0.25</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Double Fall <small>[sky_storm_variant]</small></td><td>T3</td><td><code>bonus_hits</code></td><td>1.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Meteor Shafts <small>[sky_storm_variant]</small></td><td>T3</td><td><code>bonus_damage_mult</code></td><td>0.6</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Torrent <small>[sky_storm_variant]</small></td><td>T3</td><td><code>bonus_targets</code></td><td>4.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Snipe <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Steady Hand</td><td>T1</td><td><code>cooldown_flat_reduction</code></td><td>1.0</td><td><small>AbilityUpgradeData.gd, ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Armor Pierce</td><td>T2</td><td><code>bonus_damage_mult</code></td><td>0.3</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Double Tap <small>[snp_shot_variant]</small></td><td>T3</td><td><code>bonus_hits</code></td><td>1.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Killshot <small>[snp_shot_variant]</small></td><td>T3</td><td><code>bonus_damage_mult</code></td><td>0.9</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Pinning Shot <small>[snp_shot_variant]</small></td><td>T3</td><td><code>bonus_targets</code></td><td>1.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Split Shot <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Swift Nock</td><td>T1</td><td><code>cooldown_flat_reduction</code></td><td>0.5</td><td><small>AbilityUpgradeData.gd, ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Wide Spread</td><td>T2</td><td><code>bonus_targets</code></td><td>1.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Barbed Tips <small>[sps_shot_variant]</small></td><td>T3</td><td><code>bonus_damage_mult</code></td><td>0.45</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Piercing Shot <small>[sps_shot_variant]</small></td><td>T3</td><td><code>bonus_targets</code></td><td>2.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Volley <small>[sps_shot_variant]</small></td><td>T3</td><td><code>bonus_hits</code></td><td>1.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Steady Aim <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Long Draw</td><td>T1</td><td><code>buff_duration_bonus</code></td><td>5.0</td><td><small>AL_Aether_Ward.gd, AL_Bloodlust.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Conserve</td><td>T2</td><td><code>buff_critdamage_bonus</code></td><td>15.0</td><td><small>AL_Bloodlust.gd, AL_Eagle_Eye.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Deadeye <small>[sa_stance_variant]</small></td><td>T3</td><td><code>buff_critchance_bonus</code></td><td>5.0</td><td><small>AL_Bloodlust.gd, AL_Eagle_Eye.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Perfect Stance <small>[sa_stance_variant]</small></td><td>T3</td><td><code>buff_attack_bonus</code></td><td>20.0</td><td><small>AL_Bloodlust.gd, AL_Eagle_Eye.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Zen <small>[sa_stance_variant]</small></td><td>T3</td><td><code>buff_critdamage_bonus</code></td><td>30.0</td><td><small>AL_Bloodlust.gd, AL_Eagle_Eye.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Sundering Arrow <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Swift Sundering</td><td>T1</td><td><code>cooldown_flat_reduction</code></td><td>1.0</td><td><small>AbilityUpgradeData.gd, ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Heavy Sundering</td><td>T2</td><td><code>bonus_damage_mult</code></td><td>0.3</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Crushing Sundering <small>[sdr_t3_variant]</small></td><td>T3</td><td><code>bonus_damage_mult</code></td><td>0.7</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Far Sundering <small>[sdr_t3_variant]</small></td><td>T3</td><td><code>bonus_targets</code></td><td>3.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Refunding Sundering <small>[sdr_t3_variant]</small></td><td>T3</td><td><code>bonus_momentum_refund</code></td><td>4.0</td><td><small>AL_SunderingArrow.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Execution <span class="stat-tag">Passive</span> <span class="stat-tag">3 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Coup de Grace</td><td>T1</td><td><code>conditional_damage_bonus</code></td><td>0.03</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Killing Blow</td><td>T2</td><td><code>conditional_damage_bonus</code></td><td>0.05</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Reaper&#x27;s Mark</td><td>T3</td><td><code>conditional_damage_bonus</code></td><td>0.07</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Keen Eye <span class="stat-tag">Passive</span> <span class="stat-tag">3 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Focused</td><td>T1</td><td><code>passive_stat_flat_bonus</code></td><td>1.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Precise</td><td>T2</td><td><code>passive_stat_flat_bonus</code></td><td>2.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Unerring</td><td>T3</td><td><code>passive_stat_flat_bonus</code></td><td>2.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Lethality <span class="stat-tag">Passive</span> <span class="stat-tag">3 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Vicious</td><td>T1</td><td><code>passive_stat_flat_bonus</code></td><td>1.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Brutal</td><td>T2</td><td><code>passive_stat_flat_bonus</code></td><td>2.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Merciless</td><td>T3</td><td><code>passive_stat_flat_bonus</code></td><td>2.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Marksman&#x27;s Focus <span class="stat-tag">Passive</span> <span class="stat-tag">3 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Steady Hand</td><td>T1</td><td><code>passive_stat_flat_bonus</code></td><td>2.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Sharpshooter&#x27;s Eye</td><td>T2</td><td><code>passive_stat_flat_bonus</code></td><td>3.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Dead-Eye</td><td>T3</td><td><code>passive_stat_flat_bonus</code></td><td>3.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Surefoot <span class="stat-tag">Passive</span> <span class="stat-tag">3 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Hardy</td><td>T1</td><td><code>passive_stat_flat_bonus</code></td><td>1.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Rugged</td><td>T2</td><td><code>passive_stat_flat_bonus</code></td><td>2.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Indomitable</td><td>T3</td><td><code>passive_stat_flat_bonus</code></td><td>2.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Tailwind <span class="stat-tag">Passive</span> <span class="stat-tag">3 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Crosswind</td><td>T1</td><td><code>conditional_damage_bonus</code></td><td>0.03</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Headwind</td><td>T2</td><td><code>conditional_damage_bonus</code></td><td>0.05</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Hurricane</td><td>T3</td><td><code>conditional_damage_bonus</code></td><td>0.07</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Wind Rider <span class="stat-tag">Passive</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Soaring Wind</td><td>T1</td><td><code>bonus_passive_potency</code></td><td>0.01</td><td><small>AL_ElementalAffinity.gd, AL_PredatorsPatience.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Howling Wind</td><td>T2</td><td><code>bonus_passive_cap</code></td><td>0.1</td><td><small>AL_PredatorsPatience.gd, AL_WindRider.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Driving Wind <small>[wnd_t3_variant]</small></td><td>T3</td><td><code>bonus_dmg_at_full</code></td><td>0.1</td><td><small>AL_WindRider.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Steady Wind <small>[wnd_t3_variant]</small></td><td>T3</td><td><code>bonus_at_full_mult</code></td><td>1.0</td><td><small>AL_WindRider.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Twin Wind <small>[wnd_t3_variant]</small></td><td>T3</td><td><code>bonus_cd_carryover</code></td><td>0.5</td><td><small>AL_WindRider.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+</section>
+<section id="Staff"><h2>Staff</h2>
+<h4>Aether Ward <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Lasting Ward</td><td>T1</td><td><code>buff_duration_bonus</code></td><td>10.0</td><td><small>AL_Aether_Ward.gd, AL_Bloodlust.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Efficient Ward</td><td>T2</td><td><code>mana_flat_reduction</code></td><td>5.0</td><td><small>ability.gd, ability_window.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Eternal Ward <small>[aw_ward_variant]</small></td><td>T3</td><td><code>buff_duration_bonus</code></td><td>25.0</td><td><small>AL_Aether_Ward.gd, AL_Bloodlust.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Quick Recharge <small>[aw_ward_variant]</small></td><td>T3</td><td><code>cooldown_flat_reduction</code></td><td>12.0</td><td><small>AbilityUpgradeData.gd, ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Reinforced Ward <small>[aw_ward_variant]</small></td><td>T3</td><td><code>absorption_bonus</code></td><td>0.15</td><td><small>AL_Aether_Ward.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Arcane Bolt <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Quick Cast</td><td>T1</td><td><code>cooldown_flat_reduction</code></td><td>0.4</td><td><small>AbilityUpgradeData.gd, ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Forked Bolt</td><td>T2</td><td><code>bonus_targets</code></td><td>1.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Chain Bolt <small>[ab_bolt_variant]</small></td><td>T3</td><td><code>bonus_targets</code></td><td>3.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Double Strike <small>[ab_bolt_variant]</small></td><td>T3</td><td><code>bonus_hits</code></td><td>1.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Overcharge <small>[ab_bolt_variant]</small></td><td>T3</td><td><code>bonus_damage_mult</code></td><td>0.45</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Arcane Familiar <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Lasting Familiar</td><td>T1</td><td><code>bonus_summon_duration</code></td><td>4.0</td><td><small>AL_ArcaneFamiliar.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Quick Familiar</td><td>T2</td><td><code>bonus_fire_rate</code></td><td>0.25</td><td><small>AL_ArcaneFamiliar.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Chaining Familiar <small>[afm_t3_variant]</small></td><td>T3</td><td><code>bonus_chain_targets</code></td><td>1.0</td><td><small>AL_ArcaneFamiliar.gd, AL_Stormcall.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Heavy Familiar <small>[afm_t3_variant]</small></td><td>T3</td><td><code>bonus_damage_mult</code></td><td>0.4</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">FIXED <small>Was NO-OP: the wisp&#x27;s bolts ignored bonus_damage_mult. Fixed 2026-06-08 — dot_base now ×(1+bonus).</small></td></tr>
+<tr><td>Twin Familiar <small>[afm_t3_variant]</small></td><td>T3</td><td><code>bonus_summon_count</code></td><td>1.0</td><td><small>AL_ArcaneFamiliar.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Arcane Lance <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Sustained Beam</td><td>T1</td><td><code>bonus_hits</code></td><td>1.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Diffuse</td><td>T2</td><td><code>bonus_targets</code></td><td>1.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Cascade <small>[lan_beam_variant]</small></td><td>T3</td><td><code>bonus_hits</code></td><td>3.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Overload <small>[lan_beam_variant]</small></td><td>T3</td><td><code>bonus_damage_mult</code></td><td>0.4</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Prismatic Split <small>[lan_beam_variant]</small></td><td>T3</td><td><code>bonus_targets</code></td><td>2.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Communion <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Extended Rite</td><td>T1</td><td><code>buff_duration_bonus</code></td><td>15.0</td><td><small>AL_Aether_Ward.gd, AL_Bloodlust.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Frugal Rite</td><td>T2</td><td><code>mana_flat_reduction</code></td><td>8.0</td><td><small>ability.gd, ability_window.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Empowered Communion <small>[com_rite_variant]</small></td><td>T3</td><td><code>communion_matk_bonus</code></td><td>5.0</td><td><small>AL_Communion.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Enduring Communion <small>[com_rite_variant]</small></td><td>T3</td><td><code>buff_duration_bonus</code></td><td>60.0</td><td><small>AL_Aether_Ward.gd, AL_Bloodlust.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Swift Rite <small>[com_rite_variant]</small></td><td>T3</td><td><code>cooldown_flat_reduction</code></td><td>20.0</td><td><small>AbilityUpgradeData.gd, ability.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Frost Patch <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Wider Frost</td><td>T1</td><td><code>bonus_zone_radius</code></td><td>20.0</td><td><small>AL_Banner.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Deep Frost</td><td>T2</td><td><code>bonus_damage_mult</code></td><td>0.25</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Glacial Frost <small>[fpt_t3_variant]</small></td><td>T3</td><td><code>bonus_freeze_on_enter</code></td><td>0.5</td><td><small>AL_FrostPatch.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Lingering Frost <small>[fpt_t3_variant]</small></td><td>T3</td><td><code>bonus_zone_duration</code></td><td>2.0</td><td><small>AL_Banner.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Shattering Frost <small>[fpt_t3_variant]</small></td><td>T3</td><td><code>bonus_slow_pct</code></td><td>0.2</td><td><small>AL_Caltrops.gd, AL_FrostPatch.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Glacial Spike <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Deep Freeze</td><td>T1</td><td><code>cooldown_flat_reduction</code></td><td>1.0</td><td><small>AbilityUpgradeData.gd, ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Piercing Cold</td><td>T2</td><td><code>bonus_damage_mult</code></td><td>0.25</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Frostbite <small>[gla_frost_variant]</small></td><td>T3</td><td><code>bonus_hits</code></td><td>1.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Ice Shards <small>[gla_frost_variant]</small></td><td>T3</td><td><code>bonus_targets</code></td><td>2.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Shatter <small>[gla_frost_variant]</small></td><td>T3</td><td><code>bonus_damage_mult</code></td><td>0.7</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Immolate <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Searing Bolt</td><td>T1</td><td><code>bonus_damage_mult</code></td><td>0.25</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Stoked Flames</td><td>T2</td><td><code>burn_max_stack_bonus</code></td><td>1.0</td><td><small>AL_Immolate.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Smoldering Embers <small>[imm_burn_variant]</small></td><td>T3</td><td><code>burn_duration_bonus</code></td><td>4.0</td><td><small>AL_Immolate.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>White Hot <small>[imm_burn_variant]</small></td><td>T3</td><td><code>burn_potency_bonus</code></td><td>0.5</td><td><small>AL_Immolate.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Wildfire <small>[imm_burn_variant]</small></td><td>T3</td><td><code>bonus_targets</code></td><td>1.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Mana Surge <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Lingering Surge</td><td>T1</td><td><code>bonus_mark_duration</code></td><td>4.0</td><td><small>AL_DeathMark.gd, AL_ManaSurge.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Surging Refund</td><td>T2</td><td><code>bonus_refund_pct</code></td><td>0.15</td><td><small>AL_ManaSurge.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Cascading Surge <small>[mns_t3_variant]</small></td><td>T3</td><td><code>bonus_mark_spread</code></td><td>1.0</td><td><small>AL_DeathMark.gd, AL_ManaSurge.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Heavy Surge <small>[mns_t3_variant]</small></td><td>T3</td><td><code>bonus_damage_bonus</code></td><td>0.25</td><td><small>AL_ManaSurge.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Multiplying Surge <small>[mns_t3_variant]</small></td><td>T3</td><td><code>bonus_mark_targets</code></td><td>1.0</td><td><small>AL_DeathMark.gd, AL_ManaSurge.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Phase Step <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Flicker</td><td>T1</td><td><code>cooldown_flat_reduction</code></td><td>1.0</td><td><small>AbilityUpgradeData.gd, ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Efficient Shift</td><td>T2</td><td><code>mana_flat_reduction</code></td><td>10.0</td><td><small>ability.gd, ability_window.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Free Shift <small>[pha_shift_variant]</small></td><td>T3</td><td><code>mana_flat_reduction</code></td><td>20.0</td><td><small>ability.gd, ability_window.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Phaseguard <small>[pha_shift_variant]</small></td><td>T3</td><td><code>iframe_duration_bonus</code></td><td>0.4</td><td><small>AL_Shadowstep.gd, AL_Teleport.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Quickened Blink <small>[pha_shift_variant]</small></td><td>T3</td><td><code>cooldown_flat_reduction</code></td><td>3.0</td><td><small>AbilityUpgradeData.gd, ability.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Pyre Burst <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Wide Blast</td><td>T1</td><td><code>bonus_targets</code></td><td>2.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Kindling</td><td>T2</td><td><code>bonus_damage_mult</code></td><td>0.25</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Aftershock <small>[pyr_blast_variant]</small></td><td>T3</td><td><code>bonus_hits</code></td><td>1.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Conflagration <small>[pyr_blast_variant]</small></td><td>T3</td><td><code>bonus_targets</code></td><td>4.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Detonate <small>[pyr_blast_variant]</small></td><td>T3</td><td><code>bonus_damage_mult</code></td><td>0.6</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Spellweave <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Swift Weave</td><td>T1</td><td><code>cooldown_flat_reduction</code></td><td>2.0</td><td><small>AbilityUpgradeData.gd, ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Heavy Weave</td><td>T2</td><td><code>bonus_damage_mult</code></td><td>0.3</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">FIXED <small>Was NO-OP: execute() never read bonus_damage_mult, so the amplified release ignored it. Fixed 2026-06-08 — scale_base now ×(1+bonus).</small></td></tr>
+<tr><td>Doubled Weave <small>[spw_t3_variant]</small></td><td>T3</td><td><code>bonus_double_release</code></td><td>1.0</td><td><small>AL_Spellweave.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Echoing Weave <small>[spw_t3_variant]</small></td><td>T3</td><td><code>bonus_mp_refund</code></td><td>0.5</td><td><small>AL_Spellweave.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Wide Weave <small>[spw_t3_variant]</small></td><td>T3</td><td><code>bonus_zone_radius</code></td><td>50.0</td><td><small>AL_Banner.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Stormcall <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Sustained Storm</td><td>T1</td><td><code>channel_time_extension</code></td><td>1.0</td><td><small>AL_SkyVolley.gd, AL_Stormcall.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Heavy Storm</td><td>T2</td><td><code>bonus_damage_mult</code></td><td>0.25</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Chaining Storm <small>[stc_t3_variant]</small></td><td>T3</td><td><code>bonus_chain_targets</code></td><td>1.0</td><td><small>AL_ArcaneFamiliar.gd, AL_Stormcall.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Rapid Storm <small>[stc_t3_variant]</small></td><td>T3</td><td><code>bonus_tick_rate</code></td><td>0.5</td><td><small>AL_SkyVolley.gd, AL_Stormcall.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Wide Storm <small>[stc_t3_variant]</small></td><td>T3</td><td><code>bonus_zone_radius</code></td><td>40.0</td><td><small>AL_Banner.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Arcane Resonance <span class="stat-tag">Passive</span> <span class="stat-tag">3 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Attuned</td><td>T1</td><td><code>passive_stat_percent_bonus</code></td><td>2.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Resonant</td><td>T2</td><td><code>passive_stat_percent_bonus</code></td><td>2.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Overcharged</td><td>T3</td><td><code>passive_stat_percent_bonus</code></td><td>4.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Deep Wellspring <span class="stat-tag">Passive</span> <span class="stat-tag">3 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Brimming</td><td>T1</td><td><code>passive_stat_percent_bonus</code></td><td>1.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Bottomless</td><td>T2</td><td><code>passive_stat_percent_bonus</code></td><td>1.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Oceanic</td><td>T3</td><td><code>passive_stat_percent_bonus</code></td><td>2.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Elemental Affinity <span class="stat-tag">Passive</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Greater Affinity</td><td>T1</td><td><code>bonus_passive_potency</code></td><td>0.03</td><td><small>AL_ElementalAffinity.gd, AL_PredatorsPatience.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Mastery Affinity</td><td>T2</td><td><code>bonus_passive_potency</code></td><td>0.05</td><td><small>AL_ElementalAffinity.gd, AL_PredatorsPatience.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Crossover Affinity <small>[ela_t3_variant]</small></td><td>T3</td><td><code>bonus_carryover</code></td><td>0.06</td><td><small>AL_ElementalAffinity.gd, AL_PredatorsPatience.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Mighty Affinity <small>[ela_t3_variant]</small></td><td>T3</td><td><code>bonus_at_full_mp</code></td><td>1.0</td><td><small>AL_ElementalAffinity.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Sustained Affinity <small>[ela_t3_variant]</small></td><td>T3</td><td><code>bonus_mp_reduction</code></td><td>0.1</td><td><small>AL_ElementalAffinity.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Killing Spree <span class="stat-tag">Passive</span> <span class="stat-tag">3 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Momentum</td><td>T1</td><td><code>conditional_damage_bonus</code></td><td>0.03</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Adrenaline Surge</td><td>T2</td><td><code>conditional_damage_bonus</code></td><td>0.05</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Frenzy</td><td>T3</td><td><code>conditional_damage_bonus</code></td><td>0.07</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Mana Flow <span class="stat-tag">Passive</span> <span class="stat-tag">3 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Hale</td><td>T1</td><td><code>passive_stat_flat_bonus</code></td><td>1.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Robust</td><td>T2</td><td><code>passive_stat_flat_bonus</code></td><td>1.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Flourishing</td><td>T3</td><td><code>passive_stat_flat_bonus</code></td><td>2.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Overload <span class="stat-tag">Passive</span> <span class="stat-tag">3 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Charged</td><td>T1</td><td><code>conditional_damage_bonus</code></td><td>0.03</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Surging</td><td>T2</td><td><code>conditional_damage_bonus</code></td><td>0.05</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Overflowing</td><td>T3</td><td><code>conditional_damage_bonus</code></td><td>0.07</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Spell Ward <span class="stat-tag">Passive</span> <span class="stat-tag">3 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Warded</td><td>T1</td><td><code>passive_stat_flat_bonus</code></td><td>3.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Bulwarked</td><td>T2</td><td><code>passive_stat_flat_bonus</code></td><td>3.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Impervious</td><td>T3</td><td><code>passive_stat_flat_bonus</code></td><td>6.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+</section>
+<section id="Dagger"><h2>Dagger</h2>
+<h4>Backstab <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Sharper Backstab</td><td>T1</td><td><code>bonus_positional_dmg</code></td><td>0.1</td><td><small>AL_Backstab.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Quick Backstab</td><td>T2</td><td><code>cooldown_flat_reduction</code></td><td>1.0</td><td><small>AbilityUpgradeData.gd, ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Crippling Backstab <small>[bks_t3_variant]</small></td><td>T3</td><td><code>bonus_slow_apply</code></td><td>0.3</td><td><small>AL_Backstab.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Lethal Backstab <small>[bks_t3_variant]</small></td><td>T3</td><td><code>backstab_fullhp_mult</code></td><td>2.0</td><td><small>AL_Backstab.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Twin Backstab <small>[bks_t3_variant]</small></td><td>T3</td><td><code>bonus_hits</code></td><td>1.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Bloodlust <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Invigorate</td><td>T1</td><td><code>buff_duration_bonus</code></td><td>5.0</td><td><small>AL_Aether_Ward.gd, AL_Bloodlust.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Frenzy</td><td>T2</td><td><code>buff_attack_bonus</code></td><td>20.0</td><td><small>AL_Bloodlust.gd, AL_Eagle_Eye.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Efficient Frenzy <small>[bld_frenzy_variant]</small></td><td>T3</td><td><code>buff_critdamage_bonus</code></td><td>25.0</td><td><small>AL_Bloodlust.gd, AL_Eagle_Eye.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Endless Bloodhunt <small>[bld_frenzy_variant]</small></td><td>T3</td><td><code>buff_critchance_bonus</code></td><td>6.0</td><td><small>AL_Bloodlust.gd, AL_Eagle_Eye.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Rampage <small>[bld_frenzy_variant]</small></td><td>T3</td><td><code>buff_attack_bonus</code></td><td>35.0</td><td><small>AL_Bloodlust.gd, AL_Eagle_Eye.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Cripple <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Quick Jab</td><td>T1</td><td><code>cooldown_flat_reduction</code></td><td>2.0</td><td><small>AbilityUpgradeData.gd, ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Deepen the Wound</td><td>T2</td><td><code>bonus_damage_mult</code></td><td>0.3</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Disarm <small>[crp_maim_variant]</small></td><td>T3</td><td><code>bonus_damage_mult</code></td><td>0.75</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Hamstring <small>[crp_maim_variant]</small></td><td>T3</td><td><code>cooldown_flat_reduction</code></td><td>4.0</td><td><small>AbilityUpgradeData.gd, ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Mass Maim <small>[crp_maim_variant]</small></td><td>T3</td><td><code>bonus_targets</code></td><td>2.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Death Mark <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Lingering Mark</td><td>T1</td><td><code>bonus_mark_duration</code></td><td>4.0</td><td><small>AL_DeathMark.gd, AL_ManaSurge.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Killing Mark</td><td>T2</td><td><code>bonus_mark_potency</code></td><td>10.0</td><td><small>AL_DeathMark.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Bleeding Mark <small>[dmk_t3_variant]</small></td><td>T3</td><td><code>bonus_bleed_dot</code></td><td>0.1</td><td><small>AL_DeathMark.gd, AL_MarkOfTheHunt.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Double Mark <small>[dmk_t3_variant]</small></td><td>T3</td><td><code>bonus_mark_targets</code></td><td>1.0</td><td><small>AL_DeathMark.gd, AL_ManaSurge.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Spreading Mark <small>[dmk_t3_variant]</small></td><td>T3</td><td><code>bonus_mark_spread</code></td><td>1.0</td><td><small>AL_DeathMark.gd, AL_ManaSurge.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Envenom <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Coated Blade</td><td>T1</td><td><code>bonus_damage_mult</code></td><td>0.25</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Virulent</td><td>T2</td><td><code>poison_max_stack_bonus</code></td><td>1.0</td><td><small>AL_Envenom.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Corrosive Toxin <small>[env_poison_variant]</small></td><td>T3</td><td><code>poison_max_stack_bonus</code></td><td>2.0</td><td><small>AL_Envenom.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Lingering Death <small>[env_poison_variant]</small></td><td>T3</td><td><code>poison_duration_bonus</code></td><td>4.0</td><td><small>AL_Envenom.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Neurotoxin <small>[env_poison_variant]</small></td><td>T3</td><td><code>poison_potency_bonus</code></td><td>0.5</td><td><small>AL_Envenom.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Eviscerate <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Swift Kill</td><td>T1</td><td><code>cooldown_flat_reduction</code></td><td>1.0</td><td><small>AbilityUpgradeData.gd, ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Exposed Vitals</td><td>T2</td><td><code>bonus_damage_mult</code></td><td>0.3</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Assassinate <small>[evi_finisher_variant]</small></td><td>T3</td><td><code>bonus_damage_mult</code></td><td>0.9</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Overkill <small>[evi_finisher_variant]</small></td><td>T3</td><td><code>bonus_hits</code></td><td>1.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Throatcut <small>[evi_finisher_variant]</small></td><td>T3</td><td><code>bonus_targets</code></td><td>1.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Fan of Knives <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Swift Hands</td><td>T1</td><td><code>cooldown_flat_reduction</code></td><td>1.0</td><td><small>AbilityUpgradeData.gd, ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Keen Blades</td><td>T2</td><td><code>bonus_damage_mult</code></td><td>0.3</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Barrage <small>[fok_throw_variant]</small></td><td>T3</td><td><code>bonus_hits</code></td><td>3.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Razor Fan <small>[fok_throw_variant]</small></td><td>T3</td><td><code>bonus_damage_mult</code></td><td>0.7</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Wide Spread <small>[fok_throw_variant]</small></td><td>T3</td><td><code>bonus_targets</code></td><td>2.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Killing Edge <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Linger</td><td>T1</td><td><code>buff_duration_bonus</code></td><td>3.0</td><td><small>AL_Aether_Ward.gd, AL_Bloodlust.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Silent Steps</td><td>T2</td><td><code>buff_critdamage_bonus</code></td><td>50.0</td><td><small>AL_Bloodlust.gd, AL_Eagle_Eye.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Endless Shroud <small>[van_cloak_variant]</small></td><td>T3</td><td><code>buff_critchance_bonus</code></td><td>30.0</td><td><small>AL_Bloodlust.gd, AL_Eagle_Eye.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Phantom Reflex <small>[van_cloak_variant]</small></td><td>T3</td><td><code>buff_attack_bonus</code></td><td>30.0</td><td><small>AL_Bloodlust.gd, AL_Eagle_Eye.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Swift Exit <small>[van_cloak_variant]</small></td><td>T3</td><td><code>buff_duration_bonus</code></td><td>5.0</td><td><small>AL_Aether_Ward.gd, AL_Bloodlust.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Shadow Partner <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Lasting Shadow</td><td>T1</td><td><code>buff_duration_bonus</code></td><td>4.0</td><td><small>AL_Aether_Ward.gd, AL_Bloodlust.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Vicious Shadow</td><td>T2</td><td><code>shadow_damage_bonus</code></td><td>0.25</td><td><small>AL_ShadowPartner.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Eternal Shadow <small>[sp_t3_variant]</small></td><td>T3</td><td><code>buff_duration_bonus</code></td><td>10.0</td><td><small>AL_Aether_Ward.gd, AL_Bloodlust.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Savage Shadow <small>[sp_t3_variant]</small></td><td>T3</td><td><code>shadow_damage_bonus</code></td><td>0.5</td><td><small>AL_ShadowPartner.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Swift Shadow <small>[sp_t3_variant]</small></td><td>T3</td><td><code>cooldown_flat_reduction</code></td><td>3.0</td><td><small>AbilityUpgradeData.gd, ability.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Shadowstep <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Fleet Footed</td><td>T1</td><td><code>cooldown_flat_reduction</code></td><td>1.0</td><td><small>AbilityUpgradeData.gd, ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Lengthened Shadow</td><td>T2</td><td><code>blink_range_bonus</code></td><td>60.0</td><td><small>AL_Shadowstep.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Lingering Shadow <small>[sst_dash_variant]</small></td><td>T3</td><td><code>backstab_window_bonus</code></td><td>1.5</td><td><small>AL_Shadowstep.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Phantom Guard <small>[sst_dash_variant]</small></td><td>T3</td><td><code>iframe_duration_bonus</code></td><td>0.4</td><td><small>AL_Shadowstep.gd, AL_Teleport.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Vanishing Step <small>[sst_dash_variant]</small></td><td>T3</td><td><code>stealth_seconds</code></td><td>1.5</td><td><small>AL_Shadowstep.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Smoke Bomb <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Lasting Smoke</td><td>T1</td><td><code>bonus_zone_duration</code></td><td>2.0</td><td><small>AL_Banner.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Wider Smoke</td><td>T2</td><td><code>bonus_zone_radius</code></td><td>30.0</td><td><small>AL_Banner.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Choking Smoke <small>[smk_t3_variant]</small></td><td>T3</td><td><code>bonus_enemy_damage_debuff</code></td><td>0.3</td><td><small>AL_SmokeBomb.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Restorative Smoke <small>[smk_t3_variant]</small></td><td>T3</td><td><code>bonus_ally_heal_per_tick</code></td><td>8.0</td><td><small>AL_SmokeBomb.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Shadow Smoke <small>[smk_t3_variant]</small></td><td>T3</td><td><code>bonus_inside_crit</code></td><td>1.0</td><td><small>AL_SmokeBomb.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Twin Fang <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Quicken</td><td>T1</td><td><code>cooldown_flat_reduction</code></td><td>0.5</td><td><small>AbilityUpgradeData.gd, ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Serrated Edge</td><td>T2</td><td><code>bonus_damage_mult</code></td><td>0.25</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Dual Edge <small>[tf_strike_variant]</small></td><td>T3</td><td><code>bonus_targets</code></td><td>1.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Flurry <small>[tf_strike_variant]</small></td><td>T3</td><td><code>bonus_hits</code></td><td>1.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Gutting Strike <small>[tf_strike_variant]</small></td><td>T3</td><td><code>bonus_damage_mult</code></td><td>0.65</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Vendetta <span class="stat-tag">Active</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Sharp Vendetta</td><td>T1</td><td><code>bonus_damage_mult</code></td><td>0.1</td><td><small>AL_ArcaneFamiliar.gd, AL_Caltrops.gd</small></td><td class="ok">FIXED <small>Description corrected to &#x27;Vendetta deals +10% more damage&#x27;.</small></td></tr>
+<tr><td>Quick Vendetta</td><td>T2</td><td><code>cooldown_flat_reduction</code></td><td>1.0</td><td><small>AbilityUpgradeData.gd, ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Lethal Vendetta <small>[ven_t3_variant]</small></td><td>T3</td><td><code>bonus_execute_mult</code></td><td>1.0</td><td><small>AL_Vendetta.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Regenerative Vendetta <small>[ven_t3_variant]</small></td><td>T3</td><td><code>bonus_lifesteal</code></td><td>0.25</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Spreading Vendetta <small>[ven_t3_variant]</small></td><td>T3</td><td><code>bonus_targets</code></td><td>1.0</td><td><small>combat.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Composure <span class="stat-tag">Passive</span> <span class="stat-tag">3 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Steady</td><td>T1</td><td><code>conditional_damage_bonus</code></td><td>0.03</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Unfazed</td><td>T2</td><td><code>conditional_damage_bonus</code></td><td>0.05</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Cold-Blooded</td><td>T3</td><td><code>conditional_damage_bonus</code></td><td>0.07</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Cutthroat <span class="stat-tag">Passive</span> <span class="stat-tag">3 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Razor&#x27;s Edge</td><td>T1</td><td><code>passive_stat_flat_bonus</code></td><td>1.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Killing Stroke</td><td>T2</td><td><code>passive_stat_flat_bonus</code></td><td>2.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Death Strike</td><td>T3</td><td><code>passive_stat_flat_bonus</code></td><td>2.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Evasion <span class="stat-tag">Passive</span> <span class="stat-tag">3 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Lithe</td><td>T1</td><td><code>passive_stat_flat_bonus</code></td><td>2.0</td><td><small>ability.gd</small></td><td class="ok">FIXED <small>Description corrected to &#x27;Evasion Chance bonus&#x27; (2026-06-08).</small></td></tr>
+<tr><td>Slippery</td><td>T2</td><td><code>passive_stat_flat_bonus</code></td><td>3.0</td><td><small>ability.gd</small></td><td class="ok">FIXED <small>Description corrected to &#x27;Evasion Chance bonus&#x27;.</small></td></tr>
+<tr><td>Untouchable</td><td>T3</td><td><code>passive_stat_flat_bonus</code></td><td>3.0</td><td><small>ability.gd</small></td><td class="ok">FIXED <small>Description corrected to &#x27;Evasion Chance bonus&#x27;.</small></td></tr>
+</tbody></table>
+<h4>Killer Instinct <span class="stat-tag">Passive</span> <span class="stat-tag">3 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Sharp</td><td>T1</td><td><code>passive_stat_flat_bonus</code></td><td>1.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Deadly</td><td>T2</td><td><code>passive_stat_flat_bonus</code></td><td>2.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Lethal</td><td>T3</td><td><code>passive_stat_flat_bonus</code></td><td>2.0</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Opportunist <span class="stat-tag">Passive</span> <span class="stat-tag">3 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Backstab</td><td>T1</td><td><code>conditional_damage_bonus</code></td><td>0.03</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Ambush</td><td>T2</td><td><code>conditional_damage_bonus</code></td><td>0.05</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Assassinate</td><td>T3</td><td><code>conditional_damage_bonus</code></td><td>0.07</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Predator&#x27;s Patience <span class="stat-tag">Passive</span> <span class="stat-tag">5 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Sharper Patience</td><td>T1</td><td><code>bonus_passive_potency</code></td><td>0.01</td><td><small>AL_ElementalAffinity.gd, AL_PredatorsPatience.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Greater Patience</td><td>T2</td><td><code>bonus_passive_cap</code></td><td>2.0</td><td><small>AL_PredatorsPatience.gd, AL_WindRider.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Eternal Patience <small>[prd_t3_variant]</small></td><td>T3</td><td><code>bonus_carryover</code></td><td>2.0</td><td><small>AL_ElementalAffinity.gd, AL_PredatorsPatience.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Killer Patience <small>[prd_t3_variant]</small></td><td>T3</td><td><code>bonus_crit_per_stack</code></td><td>0.01</td><td><small>AL_PredatorsPatience.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Lifesteal Patience <small>[prd_t3_variant]</small></td><td>T3</td><td><code>bonus_lifesteal_at_max</code></td><td>0.3</td><td><small>AL_PredatorsPatience.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+<h4>Toxicology <span class="stat-tag">Passive</span> <span class="stat-tag">3 upgrades</span></h4>
+<table class="dmg"><thead><tr><th>Upgrade</th><th>Tier</th><th>effect_key</th><th>magnitude</th><th>consumer</th><th>verdict</th></tr></thead><tbody>
+<tr><td>Cruel</td><td>T1</td><td><code>conditional_damage_bonus</code></td><td>0.03</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Savage</td><td>T2</td><td><code>conditional_damage_bonus</code></td><td>0.05</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+<tr><td>Ruthless</td><td>T3</td><td><code>conditional_damage_bonus</code></td><td>0.07</td><td><small>ability.gd</small></td><td class="ok">OK</td></tr>
+</tbody></table>
+</section>
+<section id="passives"><h2>Passives (28)</h2><table class="dmg"><thead><tr><th>Passive</th><th>Weapon</th><th>Mechanism</th><th>How it applies</th><th>Verdict</th></tr></thead><tbody>
+<tr><td>Aggression</td><td>Sword</td><td>logic: AL_Aggression.gd</td><td><small>conditional_damage_mult via ability.gd:420 (+conditional_damage_bonus upgrades)</small></td><td class="ok">OK</td></tr>
+<tr><td>Battle-Hardened</td><td>Sword</td><td>stat: DEFENSE</td><td><small>ability.gd get_passive_effect_modifiers → StatsComponent</small></td><td class="ok">FIXED <small>DEFENSE bumped to base 10 / +22 per level (L5 = 98, was 27).</small></td></tr>
+<tr><td>Bloodthirst</td><td>Sword</td><td>logic: AL_Bloodthirst.gd</td><td><small>conditional_damage_mult via ability.gd:420 (+conditional_damage_bonus upgrades)</small></td><td class="ok">OK</td></tr>
+<tr><td>Hardened Frame</td><td>Sword</td><td>stat: HEALTH</td><td><small>ability.gd get_passive_effect_modifiers → StatsComponent</small></td><td class="ok">OK</td></tr>
+<tr><td>Last Stand</td><td>Sword</td><td>logic: AL_LastStand.gd</td><td><small>conditional_damage_mult via ability.gd:420 (+conditional_damage_bonus upgrades)</small></td><td class="ok">OK</td></tr>
+<tr><td>Second Wind</td><td>Sword</td><td>stat: HPREGEN</td><td><small>ability.gd get_passive_effect_modifiers → StatsComponent</small></td><td class="ok">OK</td></tr>
+<tr><td>Vanguard&#x27;s Resolve</td><td>Sword</td><td>logic: AL_VanguardsResolve.gd</td><td><small>conditional_damage_mult via ability.gd:420 (+conditional_damage_bonus upgrades)</small></td><td class="ok">OK</td></tr>
+<tr><td>Execution</td><td>Bow</td><td>logic: AL_Execution.gd</td><td><small>conditional_damage_mult via ability.gd:420 (+conditional_damage_bonus upgrades)</small></td><td class="ok">OK</td></tr>
+<tr><td>Keen Eye</td><td>Bow</td><td>stat: CRITCHANCE</td><td><small>ability.gd get_passive_effect_modifiers → StatsComponent</small></td><td class="ok">OK</td></tr>
+<tr><td>Lethality</td><td>Bow</td><td>stat: CRITDAMAGE</td><td><small>ability.gd get_passive_effect_modifiers → StatsComponent</small></td><td class="ok">OK</td></tr>
+<tr><td>Marksman&#x27;s Focus</td><td>Bow</td><td>stat: ACCURACY</td><td><small>ability.gd get_passive_effect_modifiers → StatsComponent</small></td><td class="ok">OK</td></tr>
+<tr><td>Surefoot</td><td>Bow</td><td>stat: KNOCKBACKRESIST</td><td><small>ability.gd get_passive_effect_modifiers → StatsComponent</small></td><td class="ok">OK</td></tr>
+<tr><td>Tailwind</td><td>Bow</td><td>logic: AL_Tailwind.gd</td><td><small>conditional_damage_mult via ability.gd:420 (+conditional_damage_bonus upgrades)</small></td><td class="ok">OK</td></tr>
+<tr><td>Wind Rider</td><td>Bow</td><td>logic: AL_WindRider.gd</td><td><small>logic_script effect (proc / buff / CC)</small></td><td class="ok">OK</td></tr>
+<tr><td>Arcane Resonance</td><td>Staff</td><td>stat: MAGICATTACK</td><td><small>ability.gd get_passive_effect_modifiers → StatsComponent</small></td><td class="ok">OK</td></tr>
+<tr><td>Deep Wellspring</td><td>Staff</td><td>stat: MANA</td><td><small>ability.gd get_passive_effect_modifiers → StatsComponent</small></td><td class="ok">OK</td></tr>
+<tr><td>Elemental Affinity</td><td>Staff</td><td>logic: AL_ElementalAffinity.gd</td><td><small>conditional_damage_mult via ability.gd:420 (+conditional_damage_bonus upgrades)</small></td><td class="ok">OK</td></tr>
+<tr><td>Killing Spree</td><td>Staff</td><td>logic: AL_KillingSpree.gd</td><td><small>conditional_damage_mult via ability.gd:420 (+conditional_damage_bonus upgrades)</small></td><td class="ok">OK</td></tr>
+<tr><td>Mana Flow</td><td>Staff</td><td>stat: MPREGEN</td><td><small>ability.gd get_passive_effect_modifiers → StatsComponent</small></td><td class="ok">OK</td></tr>
+<tr><td>Overload</td><td>Staff</td><td>logic: AL_Overload.gd</td><td><small>conditional_damage_mult via ability.gd:420 (+conditional_damage_bonus upgrades)</small></td><td class="ok">OK</td></tr>
+<tr><td>Spell Ward</td><td>Staff</td><td>stat: MAGICDEFENSE</td><td><small>ability.gd get_passive_effect_modifiers → StatsComponent</small></td><td class="ok">FIXED <small>MAGICDEFENSE bumped to base 10 / +22 per level (L5 = 98, was 27).</small></td></tr>
+<tr><td>Composure</td><td>Dagger</td><td>logic: AL_Composure.gd</td><td><small>conditional_damage_mult via ability.gd:420 (+conditional_damage_bonus upgrades)</small></td><td class="ok">OK</td></tr>
+<tr><td>Cutthroat</td><td>Dagger</td><td>stat: CRITDAMAGE</td><td><small>ability.gd get_passive_effect_modifiers → StatsComponent</small></td><td class="ok">OK</td></tr>
+<tr><td>Evasion</td><td>Dagger</td><td>stat: EVASIONCHANCE</td><td><small>ability.gd get_passive_effect_modifiers → StatsComponent</small></td><td class="ok">OK</td></tr>
+<tr><td>Killer Instinct</td><td>Dagger</td><td>stat: CRITCHANCE</td><td><small>ability.gd get_passive_effect_modifiers → StatsComponent</small></td><td class="ok">OK</td></tr>
+<tr><td>Opportunist</td><td>Dagger</td><td>logic: AL_Opportunist.gd</td><td><small>conditional_damage_mult via ability.gd:420 (+conditional_damage_bonus upgrades)</small></td><td class="ok">OK</td></tr>
+<tr><td>Predator&#x27;s Patience</td><td>Dagger</td><td>logic: AL_PredatorsPatience.gd</td><td><small>logic_script effect (proc / buff / CC)</small></td><td class="ok">OK</td></tr>
+<tr><td>Toxicology</td><td>Dagger</td><td>logic: AL_Toxicology.gd</td><td><small>conditional_damage_mult via ability.gd:420 (+conditional_damage_bonus upgrades)</small></td><td class="ok">OK</td></tr>
+</tbody></table></section>
+</body></html>

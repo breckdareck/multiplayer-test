@@ -27,6 +27,10 @@ signal boss_phase_changed(phase_index: int)
 const DEFENSE_SOFTNESS: float = 0.75
 const MAX_DEFENSE_MITIGATION: float = 0.85
 
+## How long after an evasion DODGE the player's next strike is guaranteed to crit
+## (the rogue payoff for speccing evasion). Consumed on the next hit (combat.gd).
+const EVASION_CRIT_WINDOW_MS: int = 4000
+
 @export var enemy_data: EnemyData
 
 @export var respawnable: bool
@@ -910,6 +914,17 @@ func damage_on_overlap(body: Node):
 			var dodger_ability = body.get_node_or_null("Components/Ability")
 			if dodger_ability and dodger_ability.has_method("try_trigger_procs"):
 				dodger_ability.try_trigger_procs("on_dodge", self, {"attacker": self})
+			# Evasion payoff (rogue identity): a dodge primes the next strike to crit,
+			# and pops a MISS number so the dodge reads as a win, not a non-event.
+			body.set_meta("evasion_crit_until_ms", Time.get_ticks_msec() + EVASION_CRIT_WINDOW_MS)
+			if is_instance_valid(health):
+				# Consume the contact tick (i-frame window) so this overlap doesn't
+				# re-roll every frame — stops the MISS spam AND makes evasion actually
+				# reduce sustained contact damage (a dodge = a real 0-damage tick).
+				if health.has_method("trigger_dodge_invulnerability"):
+					health.trigger_dodge_invulnerability()
+				if health.has_method("show_dodge"):
+					health.show_dodge()
 			return
 
 		# Defense mitigation — DIMINISHING RETURNS on effective defense.

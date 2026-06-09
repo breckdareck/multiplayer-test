@@ -1,48 +1,95 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://c70f0e5mgqi36"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://c70f0e5mgqi36"]
 
-[ext_resource type="Texture2D" uid="uid://bp81cnskuqfj" path="res://assets/sprites/Items/generated_px/Armor/Generated/Worn_Pathfinder_Boots.png" id="99_svgicon"]
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_cr81k"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_ummpt"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_ummpt"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Worn_Pathfinder_Boots.png" id="2_hpull"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_2kt0c"]
 
 [sub_resource type="Resource" id="Resource_bkjch"]
-script = ExtResource("1_cr81k")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_hpull"]
-script = ExtResource("1_cr81k")
+script = ExtResource("1_ummpt")
 stat_type = 8
 base_value = 0
 flat_bonus_value = 2
 
-[sub_resource type="Resource" id="Resource_2kt0c"]
-script = ExtResource("1_cr81k")
+[sub_resource type="Resource" id="Resource_5mnai"]
+script = ExtResource("1_ummpt")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 2
 
-[sub_resource type="Resource" id="Resource_5mnai"]
-script = ExtResource("1_cr81k")
+[sub_resource type="Resource" id="Resource_jorka"]
+script = ExtResource("1_ummpt")
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_qqf7o"]
+script = ExtResource("1_ummpt")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_hbjpb"]
+script = ExtResource("1_ummpt")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_1kbge"]
+script = ExtResource("1_ummpt")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_j5omp"]
+script = ExtResource("1_ummpt")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_b5n54"]
+script = ExtResource("1_ummpt")
 stat_type = 10
 base_value = 0
 flat_bonus_value = 1
 
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_jorka"]
-load_path = "res://.godot/imported/Eqp_Leather_Sandals.png-23f0cc5f3f25b855dccf580eeba0d806.ctex"
+[sub_resource type="Resource" id="Resource_alp71"]
+script = ExtResource("1_ummpt")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_4shjc"]
+script = ExtResource("1_ummpt")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_i1j33"]
+script = ExtResource("1_ummpt")
+stat_type = 17
+base_value = 0
+flat_bonus_value = 1
 
 [resource]
-script = ExtResource("2_ummpt")
+script = ExtResource("3_2kt0c")
 armor_type = 3
-bonus_stats = Dictionary[int, ExtResource("1_cr81k")]({
-2: SubResource("Resource_bkjch"),
-8: SubResource("Resource_hpull"),
-9: SubResource("Resource_2kt0c"),
-10: SubResource("Resource_5mnai")
+bonus_stats = Dictionary[int, ExtResource("1_ummpt")]({
+0: SubResource("Resource_jorka"),
+1: SubResource("Resource_hbjpb"),
+2: SubResource("Resource_qqf7o"),
+3: SubResource("Resource_1kbge"),
+8: SubResource("Resource_bkjch"),
+9: SubResource("Resource_5mnai"),
+10: SubResource("Resource_b5n54"),
+11: SubResource("Resource_alp71"),
+15: SubResource("Resource_j5omp"),
+16: SubResource("Resource_4shjc"),
+17: SubResource("Resource_i1j33")
 })
-item_id = "910127715110-1311154-33511-51366-63012159341110914"
+item_id = "12422671410-231411-1215710-127129-121121128328569"
 name = "Worn Pathfinder Boots"
-icon = ExtResource("99_svgicon")
+rarity = 0
+icon = ExtResource("2_hpull")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 1
+custom_item_value = 0

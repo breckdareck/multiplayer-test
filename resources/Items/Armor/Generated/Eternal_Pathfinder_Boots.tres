@@ -1,49 +1,94 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://buiqmb6wi3v8r"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://buiqmb6wi3v8r"]
 
-[ext_resource type="Texture2D" uid="uid://cnlaeh0v5twx5" path="res://assets/sprites/Items/generated_px/Armor/Generated/Eternal_Pathfinder_Boots.png" id="99_svgicon"]
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_swvht"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_j5g5w"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_j5g5w"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Eternal_Pathfinder_Boots.png" id="2_mnmu5"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_prs0k"]
 
-[sub_resource type="Resource" id="Resource_mnmu5"]
-script = ExtResource("1_swvht")
+[sub_resource type="Resource" id="Resource_ldolv"]
+script = ExtResource("1_j5g5w")
 stat_type = 8
 base_value = 0
 flat_bonus_value = 29
 
-[sub_resource type="Resource" id="Resource_prs0k"]
-script = ExtResource("1_swvht")
+[sub_resource type="Resource" id="Resource_1rw5o"]
+script = ExtResource("1_j5g5w")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 29
 
-[sub_resource type="Resource" id="Resource_ldolv"]
-script = ExtResource("1_swvht")
+[sub_resource type="Resource" id="Resource_ovifc"]
+script = ExtResource("1_j5g5w")
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="Resource" id="Resource_wcm4a"]
+script = ExtResource("1_j5g5w")
 stat_type = 2
 base_value = 0
-flat_bonus_value = 16
+flat_bonus_value = 13
 
-[sub_resource type="Resource" id="Resource_1rw5o"]
-script = ExtResource("1_swvht")
+[sub_resource type="Resource" id="Resource_poivx"]
+script = ExtResource("1_j5g5w")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="Resource" id="Resource_fcvp2"]
+script = ExtResource("1_j5g5w")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="Resource" id="Resource_vwljs"]
+script = ExtResource("1_j5g5w")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="Resource" id="Resource_7sekf"]
+script = ExtResource("1_j5g5w")
 stat_type = 10
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_7sn7x"]
+script = ExtResource("1_j5g5w")
+stat_type = 11
 base_value = 0
 flat_bonus_value = 3
 
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_ovifc"]
-load_path = "res://.godot/imported/Eqp_Leather_Sandals.png-23f0cc5f3f25b855dccf580eeba0d806.ctex"
+[sub_resource type="Resource" id="Resource_3v5vv"]
+script = ExtResource("1_j5g5w")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="Resource" id="Resource_bw846"]
+script = ExtResource("1_j5g5w")
+stat_type = 17
+base_value = 0
+flat_bonus_value = 2
 
 [resource]
-script = ExtResource("2_j5g5w")
+script = ExtResource("3_prs0k")
 armor_type = 3
-bonus_stats = Dictionary[int, ExtResource("1_swvht")]({
-2: SubResource("Resource_ldolv"),
-8: SubResource("Resource_mnmu5"),
-9: SubResource("Resource_prs0k"),
-10: SubResource("Resource_1rw5o")
+bonus_stats = Dictionary[int, ExtResource("1_j5g5w")]({
+0: SubResource("Resource_ovifc"),
+1: SubResource("Resource_poivx"),
+2: SubResource("Resource_wcm4a"),
+3: SubResource("Resource_fcvp2"),
+8: SubResource("Resource_ldolv"),
+9: SubResource("Resource_1rw5o"),
+10: SubResource("Resource_7sekf"),
+11: SubResource("Resource_7sn7x"),
+15: SubResource("Resource_vwljs"),
+16: SubResource("Resource_3v5vv"),
+17: SubResource("Resource_bw846")
 })
-item_id = "13310121564-15913-1514157-57110-0161311118291490"
+item_id = "25151215445-4131013-7428-513414-150087615602911"
 name = "Eternal Pathfinder Boots"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_mnmu5")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 100

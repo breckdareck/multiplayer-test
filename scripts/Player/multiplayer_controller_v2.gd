@@ -65,6 +65,12 @@ const MAX_FALL_SPEED: float = 1200.0
 var username: String = ""
 var _current_party_id: int = -1
 
+## Map ids this character has set foot in — drives the world map's fog-of-war
+## (reveal on first visit). Server-authoritative: the server appends on each map
+## change (see MapManager) and it rides the normal save; the client receives it
+## via load data and augments it live from its own current map.
+var visited_maps: Array = []
+
 var direction: int = 0 # The current input direction from the synchronizer
 var facing_direction: int = 1 # The last non-zero direction, for facing
 var input_down: bool = false # The current down input from the synchronizer
@@ -707,6 +713,12 @@ func _get_save_data(update_type: String = "all") -> Dictionary:
 
 ## Public so SaveManager can call it when the debounce timer fires.
 func get_save_data(update_type: String = "all") -> Dictionary:
+	# Record wherever the player currently is for world-map fog-of-war. Every
+	# stats/all save (incl. the snapshot taken on each map change) thus captures
+	# the maps they've stood in; the client reveals instantly from its live map.
+	if multiplayer.is_server():
+		mark_map_visited(MapManager.get_player_map(player_id))
+
 	var data: Dictionary = {
 		'username': username
 	}
@@ -755,8 +767,17 @@ func _get_stats_data() -> Dictionary:
 		'experience': level_component.experience if is_instance_valid(level_component) else 0,
 		'last_map': MapManager.get_player_map(player_id) if multiplayer.is_server() else MapManager.current_map_id,
 		'character_type': weapon_mastery_component.primary_discipline if is_instance_valid(weapon_mastery_component) else 0,
-		'attribute_points': stats_component.save_attributes() if is_instance_valid(stats_component) else {}
+		'attribute_points': stats_component.save_attributes() if is_instance_valid(stats_component) else {},
+		'visited_maps': visited_maps,
 	}
+
+
+## Server records that this character has now been to `map_id` (world-map
+## fog-of-war). Appended to the save on the next debounce.
+func mark_map_visited(map_id: String) -> void:
+	if map_id == "" or map_id in visited_maps:
+		return
+	visited_maps.append(map_id)
 
 
 func _load_data(data: Dictionary) -> void:
@@ -774,6 +795,10 @@ func _load_data(data: Dictionary) -> void:
 	if is_instance_valid(ability_component):
 		ability_component.set_loading_mode(true)
 		ability_component.disconnect_level_signals()
+
+	var loaded_visited = data.get("visited_maps", [])
+	if loaded_visited is Array:
+		visited_maps = loaded_visited.duplicate()
 
 	if is_instance_valid(level_component):
 		level_component.set_block_signals(true)

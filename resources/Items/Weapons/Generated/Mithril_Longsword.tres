@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://bkjy2cic3sry5"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=6 format=3 uid="uid://bkjy2cic3sry5"]
 
-[ext_resource type="Texture2D" uid="uid://7v3g6ik3f1qs" path="res://assets/sprites/Items/generated_px/Weapons/Generated/Mithril_Longsword.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_wwi0a"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_n2rjw"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Weapons/Generated/Mithril_Longsword.png" id="2_n2rjw"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_6a8m1"]
 
 [sub_resource type="Resource" id="Resource_fkbu0"]
@@ -16,11 +15,6 @@ script = ExtResource("1_wwi0a")
 base_value = 0
 flat_bonus_value = 17
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_kwee4"]
-atlas = ExtResource("2_n2rjw")
-region = Rect2(10, 17, 4, 11)
-margin = Rect2(3.5, 0, 7, 0)
-
 [resource]
 script = ExtResource("3_6a8m1")
 weapon_type = 0
@@ -30,10 +24,10 @@ bonus_stats = Dictionary[int, ExtResource("1_wwi0a")]({
 0: SubResource("Resource_qfkwt"),
 12: SubResource("Resource_fkbu0")
 })
-item_id = "1502106614-6836-22412-156513-9131014371121461"
+item_id = "15143089153-5226-11315-831414-0011158880111164"
 name = "Mithril Longsword"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_n2rjw")
 description = "A balanced blade — the Swordsman's trusted companion."
 item_type = 1
 item_level = 43

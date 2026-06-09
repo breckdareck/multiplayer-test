@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://cu826wiomiwup"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://cu826wiomiwup"]
 
-[ext_resource type="Texture2D" uid="uid://ddukskc5gb8av" path="res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Nightshade_Helm.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_jj8b5"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Nightshade_Helm.png" id="2_vemf8"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_fa6fo"]
 
 [sub_resource type="Resource" id="Resource_02och"]
@@ -18,28 +18,76 @@ flat_bonus_value = 10
 
 [sub_resource type="Resource" id="Resource_0wth0"]
 script = ExtResource("1_jj8b5")
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_65v8x"]
+script = ExtResource("1_jj8b5")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_5g4iw"]
+script = ExtResource("1_jj8b5")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_dgvx7"]
+script = ExtResource("1_jj8b5")
 stat_type = 3
 base_value = 0
 flat_bonus_value = 5
 
-[sub_resource type="Resource" id="Resource_65v8x"]
+[sub_resource type="Resource" id="Resource_2b4ky"]
+script = ExtResource("1_jj8b5")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_poug2"]
+script = ExtResource("1_jj8b5")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_xkm83"]
 script = ExtResource("1_jj8b5")
 stat_type = 11
 base_value = 0
 flat_bonus_value = 2
 
+[sub_resource type="Resource" id="Resource_4sef4"]
+script = ExtResource("1_jj8b5")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_ghhxu"]
+script = ExtResource("1_jj8b5")
+stat_type = 17
+base_value = 0
+flat_bonus_value = 1
+
 [resource]
 script = ExtResource("3_fa6fo")
 bonus_stats = Dictionary[int, ExtResource("1_jj8b5")]({
-3: SubResource("Resource_0wth0"),
+0: SubResource("Resource_0wth0"),
+1: SubResource("Resource_5g4iw"),
+2: SubResource("Resource_65v8x"),
+3: SubResource("Resource_dgvx7"),
 8: SubResource("Resource_02och"),
 9: SubResource("Resource_8fl4j"),
-11: SubResource("Resource_65v8x")
+10: SubResource("Resource_poug2"),
+11: SubResource("Resource_xkm83"),
+15: SubResource("Resource_2b4ky"),
+16: SubResource("Resource_4sef4"),
+17: SubResource("Resource_ghhxu")
 })
-item_id = "061110117814-5452-215213-1181214-13615521139410152"
+item_id = "7612139419-414410-156913-613810-951328015014117"
 name = "Iron Nightshade Helm"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_vemf8")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 27

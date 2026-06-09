@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=10 format=3 uid="uid://cbpcidj5ejmor"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://cbpcidj5ejmor"]
 
-[ext_resource type="Texture2D" uid="uid://cy3g26i151gwi" path="res://assets/sprites/Items/generated_px/Armor/Generated/Fine_Nightshade_Legguards.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_yvoys"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Items/Equipment/Eqp_Blue_Jean_Shorts.png" id="2_4mo6l"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Fine_Nightshade_Legguards.png" id="2_4mo6l"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_3u20t"]
 
 [sub_resource type="Resource" id="Resource_myqw8"]
@@ -19,34 +18,77 @@ flat_bonus_value = 11
 
 [sub_resource type="Resource" id="Resource_6iqo6"]
 script = ExtResource("1_yvoys")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 6
-
-[sub_resource type="Resource" id="Resource_ead68"]
-script = ExtResource("1_yvoys")
-stat_type = 11
 base_value = 0
 flat_bonus_value = 2
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_m1b0g"]
-atlas = ExtResource("2_4mo6l")
-region = Rect2(0, 0, 25, 16)
-margin = Rect2(0.5, 5.5, 1, 10)
+[sub_resource type="Resource" id="Resource_ead68"]
+script = ExtResource("1_yvoys")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_m1b0g"]
+script = ExtResource("1_yvoys")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_afmmg"]
+script = ExtResource("1_yvoys")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="Resource" id="Resource_ncga0"]
+script = ExtResource("1_yvoys")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_sxtip"]
+script = ExtResource("1_yvoys")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_0dto7"]
+script = ExtResource("1_yvoys")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_iuig6"]
+script = ExtResource("1_yvoys")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_rmi3g"]
+script = ExtResource("1_yvoys")
+stat_type = 17
+base_value = 0
+flat_bonus_value = 1
 
 [resource]
 script = ExtResource("3_3u20t")
 armor_type = 2
 bonus_stats = Dictionary[int, ExtResource("1_yvoys")]({
-3: SubResource("Resource_6iqo6"),
+0: SubResource("Resource_6iqo6"),
+1: SubResource("Resource_m1b0g"),
+2: SubResource("Resource_ead68"),
+3: SubResource("Resource_afmmg"),
 8: SubResource("Resource_myqw8"),
 9: SubResource("Resource_6f07j"),
-11: SubResource("Resource_ead68")
+10: SubResource("Resource_sxtip"),
+11: SubResource("Resource_0dto7"),
+15: SubResource("Resource_ncga0"),
+16: SubResource("Resource_iuig6"),
+17: SubResource("Resource_rmi3g")
 })
-item_id = "15211111174-72315-10427-89015-1110148151308112"
+item_id = "150654959-213513-108812-32012-610012991114314115"
 name = "Fine Nightshade Legguards"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_4mo6l")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 20

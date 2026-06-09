@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=10 format=3 uid="uid://ivjcydwbpunj"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://ivjcydwbpunj"]
 
-[ext_resource type="Texture2D" uid="uid://ddop72dpuq7kf" path="res://assets/sprites/Items/generated_px/Unique/Shadowfang.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_ah0cb"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_np07y"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Unique/Shadowfang.png" id="2_np07y"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_nxotr"]
 
 [sub_resource type="Resource" id="Resource_gauds"]
@@ -29,11 +28,6 @@ stat_type = 11
 base_value = 0
 flat_bonus_value = 40
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_i1ikh"]
-atlas = ExtResource("2_np07y")
-region = Rect2(10, 17, 4, 11)
-margin = Rect2(3.5, 0, 7, 0)
-
 [resource]
 script = ExtResource("3_nxotr")
 weapon_type = 3
@@ -45,10 +39,10 @@ bonus_stats = Dictionary[int, ExtResource("1_ah0cb")]({
 11: SubResource("Resource_csdb8"),
 12: SubResource("Resource_gauds")
 })
-item_id = "9136131561212-214143-11546-21127-981326811655311"
+item_id = "1166159172-154714-021513-1511128-14950715121118310"
 name = "Shadowfang"
 rarity = 4
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_np07y")
 description = "A blackened fang that seems to drink the light around it."
 item_type = 1
 item_level = 55

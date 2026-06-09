@@ -6,8 +6,8 @@
 script = ExtResource("1_aud")
 upgrade_id = "eva_t3_untouchable"
 upgrade_name = "Untouchable"
-description = "Increases Evasion's Defense bonus by +3."
+description = "Increases Evasion's Evasion Chance bonus by +5."
 point_cost = 2
 tier = 3
 effect_key = "passive_stat_flat_bonus"
-magnitude = 3.0
+magnitude = 5.0

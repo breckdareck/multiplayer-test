@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://xr7oiuydpfbs"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://xr7oiuydpfbs"]
 
-[ext_resource type="Texture2D" uid="uid://6bgo8jrsaikb" path="res://assets/sprites/Items/generated_px/Armor/Generated/Eternal_Pathfinder_Helm.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_6mnhy"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Eternal_Pathfinder_Helm.png" id="2_k7641"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_ys250"]
 
 [sub_resource type="Resource" id="Resource_fng0b"]
@@ -18,28 +18,76 @@ flat_bonus_value = 35
 
 [sub_resource type="Resource" id="Resource_wfo4x"]
 script = ExtResource("1_6mnhy")
-stat_type = 2
 base_value = 0
-flat_bonus_value = 19
+flat_bonus_value = 6
 
 [sub_resource type="Resource" id="Resource_kw4cq"]
+script = ExtResource("1_6mnhy")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 16
+
+[sub_resource type="Resource" id="Resource_g3wdd"]
+script = ExtResource("1_6mnhy")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 6
+
+[sub_resource type="Resource" id="Resource_djcwk"]
+script = ExtResource("1_6mnhy")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 6
+
+[sub_resource type="Resource" id="Resource_nw0ws"]
+script = ExtResource("1_6mnhy")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 6
+
+[sub_resource type="Resource" id="Resource_loo33"]
 script = ExtResource("1_6mnhy")
 stat_type = 10
 base_value = 0
 flat_bonus_value = 4
 
+[sub_resource type="Resource" id="Resource_vhed0"]
+script = ExtResource("1_6mnhy")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 4
+
+[sub_resource type="Resource" id="Resource_qurtl"]
+script = ExtResource("1_6mnhy")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 6
+
+[sub_resource type="Resource" id="Resource_x6kbp"]
+script = ExtResource("1_6mnhy")
+stat_type = 17
+base_value = 0
+flat_bonus_value = 3
+
 [resource]
 script = ExtResource("3_ys250")
 bonus_stats = Dictionary[int, ExtResource("1_6mnhy")]({
-2: SubResource("Resource_wfo4x"),
+0: SubResource("Resource_wfo4x"),
+1: SubResource("Resource_g3wdd"),
+2: SubResource("Resource_kw4cq"),
+3: SubResource("Resource_djcwk"),
 8: SubResource("Resource_fng0b"),
 9: SubResource("Resource_n1qdl"),
-10: SubResource("Resource_kw4cq")
+10: SubResource("Resource_loo33"),
+11: SubResource("Resource_vhed0"),
+15: SubResource("Resource_nw0ws"),
+16: SubResource("Resource_qurtl"),
+17: SubResource("Resource_x6kbp")
 })
-item_id = "111515151412315-11503-1413211-140315-1591141131487842"
+item_id = "1214131450911-1993-08514-121321-162311805511123"
 name = "Eternal Pathfinder Helm"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_k7641")
 description = "Light, flexible armour suited to an Archer's mobility."
 item_type = 1
 item_level = 100

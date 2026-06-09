@@ -9,17 +9,17 @@
       "patrol_route": [
         "near_wilds",
         "ember_meadows",
+        "meadow_path",
+        "ruins",
+        "three_terraces",
         "thornroot",
         "dust_warren",
-        "ruins",
         "mines",
+        "deep_woods",
         "keep",
         "emberscar",
         "weave",
-        "warlord",
-        "deep_woods",
-        "meadow_path",
-        "three_terraces"
+        "warlord"
       ]
     },
     {
@@ -29,17 +29,17 @@
       "patrol_route": [
         "near_wilds",
         "ember_meadows",
+        "meadow_path",
+        "ruins",
+        "three_terraces",
         "thornroot",
         "dust_warren",
-        "ruins",
         "mines",
+        "deep_woods",
         "keep",
         "emberscar",
         "weave",
-        "warlord",
-        "deep_woods",
-        "meadow_path",
-        "three_terraces"
+        "warlord"
       ]
     },
     {
@@ -49,17 +49,17 @@
       "patrol_route": [
         "near_wilds",
         "ember_meadows",
+        "meadow_path",
+        "ruins",
+        "three_terraces",
         "thornroot",
         "dust_warren",
-        "ruins",
         "mines",
+        "deep_woods",
         "keep",
         "emberscar",
         "weave",
-        "warlord",
-        "deep_woods",
-        "meadow_path",
-        "three_terraces"
+        "warlord"
       ]
     },
     {
@@ -69,17 +69,17 @@
       "patrol_route": [
         "near_wilds",
         "ember_meadows",
+        "meadow_path",
+        "ruins",
+        "three_terraces",
         "thornroot",
         "dust_warren",
-        "ruins",
         "mines",
+        "deep_woods",
         "keep",
         "emberscar",
         "weave",
-        "warlord",
-        "deep_woods",
-        "meadow_path",
-        "three_terraces"
+        "warlord"
       ]
     }
   ],

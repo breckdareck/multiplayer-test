@@ -1,48 +1,95 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=9 format=3 uid="uid://bucif0vx7lve1"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://bucif0vx7lve1"]
 
-[ext_resource type="Texture2D" uid="uid://cnrwb1apnuyvs" path="res://assets/sprites/Items/generated_px/Armor/Generated/Eternal_Nightshade_Boots.png" id="99_svgicon"]
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_7yarm"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="2_oiq31"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_oiq31"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Eternal_Nightshade_Boots.png" id="2_uta4q"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_p6rkp"]
 
 [sub_resource type="Resource" id="Resource_05c2q"]
-script = ExtResource("1_7yarm")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 16
-
-[sub_resource type="Resource" id="Resource_uta4q"]
-script = ExtResource("1_7yarm")
+script = ExtResource("1_oiq31")
 stat_type = 8
 base_value = 0
 flat_bonus_value = 29
 
-[sub_resource type="Resource" id="Resource_p6rkp"]
-script = ExtResource("1_7yarm")
+[sub_resource type="Resource" id="Resource_6t2ur"]
+script = ExtResource("1_oiq31")
 stat_type = 9
 base_value = 0
 flat_bonus_value = 29
 
-[sub_resource type="Resource" id="Resource_6t2ur"]
-script = ExtResource("1_7yarm")
-stat_type = 11
+[sub_resource type="Resource" id="Resource_flxvg"]
+script = ExtResource("1_oiq31")
 base_value = 0
 flat_bonus_value = 5
 
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_flxvg"]
-load_path = "res://.godot/imported/Eqp_Leather_Sandals.png-23f0cc5f3f25b855dccf580eeba0d806.ctex"
+[sub_resource type="Resource" id="Resource_tjy7b"]
+script = ExtResource("1_oiq31")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="Resource" id="Resource_3hcg0"]
+script = ExtResource("1_oiq31")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="Resource" id="Resource_gy4bw"]
+script = ExtResource("1_oiq31")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 13
+
+[sub_resource type="Resource" id="Resource_xv88m"]
+script = ExtResource("1_oiq31")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="Resource" id="Resource_57mlw"]
+script = ExtResource("1_oiq31")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_3pk3d"]
+script = ExtResource("1_oiq31")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 6
+
+[sub_resource type="Resource" id="Resource_5kb22"]
+script = ExtResource("1_oiq31")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_ff7ut"]
+script = ExtResource("1_oiq31")
+stat_type = 17
+base_value = 0
+flat_bonus_value = 2
 
 [resource]
-script = ExtResource("2_oiq31")
+script = ExtResource("3_p6rkp")
 armor_type = 3
-bonus_stats = Dictionary[int, ExtResource("1_7yarm")]({
-3: SubResource("Resource_05c2q"),
-8: SubResource("Resource_uta4q"),
-9: SubResource("Resource_p6rkp"),
-11: SubResource("Resource_6t2ur")
+bonus_stats = Dictionary[int, ExtResource("1_oiq31")]({
+0: SubResource("Resource_flxvg"),
+1: SubResource("Resource_3hcg0"),
+2: SubResource("Resource_tjy7b"),
+3: SubResource("Resource_gy4bw"),
+8: SubResource("Resource_05c2q"),
+9: SubResource("Resource_6t2ur"),
+10: SubResource("Resource_57mlw"),
+11: SubResource("Resource_3pk3d"),
+15: SubResource("Resource_xv88m"),
+16: SubResource("Resource_5kb22"),
+17: SubResource("Resource_ff7ut")
 })
-item_id = "111131412107-1101215-7918-58113-1123891431135122"
+item_id = "131949209-12306-811112-01409-510111410101058038"
 name = "Eternal Nightshade Boots"
-icon = ExtResource("99_svgicon")
+rarity = 0
+icon = ExtResource("2_uta4q")
 description = "Shadowy garb tailored for a Rogue's deadly craft."
 item_type = 1
 item_level = 100
+custom_item_value = 0

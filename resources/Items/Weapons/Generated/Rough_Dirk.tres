@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=9 format=3 uid="uid://ypv6hfgg7mkr"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=7 format=3 uid="uid://ypv6hfgg7mkr"]
 
-[ext_resource type="Texture2D" uid="uid://c2y3lpgu62asi" path="res://assets/sprites/Items/generated_px/Weapons/Generated/Rough_Dirk.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_2ngc5"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MinifolksHumans/Without Outline/MiniSwordMan.png" id="2_y4ata"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Weapons/Generated/Rough_Dirk.png" id="2_y4ata"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_sjedc"]
 
 [sub_resource type="Resource" id="Resource_ke1t7"]
@@ -23,11 +22,6 @@ stat_type = 10
 base_value = 0
 flat_bonus_value = 3
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_kovry"]
-atlas = ExtResource("2_y4ata")
-region = Rect2(10, 17, 4, 11)
-margin = Rect2(3.5, 0, 7, 0)
-
 [resource]
 script = ExtResource("3_sjedc")
 weapon_type = 3
@@ -38,10 +32,10 @@ bonus_stats = Dictionary[int, ExtResource("1_2ngc5")]({
 10: SubResource("Resource_cxqms"),
 12: SubResource("Resource_ke1t7")
 })
-item_id = "412092662-83314-74101-1114512-4161101224121440"
+item_id = "14131147131114-01510-610157-131128-111123113141010111"
 name = "Rough Dirk"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_y4ata")
 description = "A swift, wickedly sharp blade prized by Rogues."
 item_type = 1
 item_level = 8

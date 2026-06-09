@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="ConsumableData" load_steps=4 format=3 uid="uid://dtoref1fhkeit"]
 
-[ext_resource type="Texture2D" uid="uid://btkwwbbedelao" path="res://assets/sprites/Items/generated_px/Consumables/Generated/Superior_Healing_Draught.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/Effects/Effect_RestoreHealth.gd" id="1_x0iup"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Consumables/Generated/Superior_Healing_Draught.png" id="2_bycy2"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="3_001h7"]
 
 [resource]
@@ -10,9 +10,9 @@ effect_script = ExtResource("1_x0iup")
 effect_properties = {
 "heal_amount": 1050
 }
-item_id = "311312957-91143-0271-5365-04151151110351225"
+item_id = "410812810105-91230-1315811-1314103-379215215241111"
 name = "Superior Healing Draught"
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_bycy2")
 description = "Restores 1050 HP when consumed."
 item_type = 2
 item_level = -1

@@ -1,14 +1,15 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=14 format=3 uid="uid://b3r8lnsxnhva1"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=15 format=3 uid="uid://b3r8lnsxnhva1"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
 [ext_resource type="SpriteFrames" uid="uid://baqtyjguyoxo2" path="res://resources/Enemies/Fox/SF_Fox.tres" id="3_sf"]
+[ext_resource type="Script" uid="uid://cdsbcru4b1hr8" path="res://scripts/Resources/BossAttackData.gd" id="9_sfnuc"]
 [ext_resource type="Resource" uid="uid://dyfws8o3mtopt" path="res://resources/DropTables/Generated/Steel_Dirk.tres" id="d_1"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Steel_Warbow.tres" id="d_2"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Steel_Pathfinder_Mail.tres" id="d_3"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Steel_Pathfinder_Boots.tres" id="d_4"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Steel_Nightshade_Helm.tres" id="d_5"]
-[ext_resource type="Resource" path="res://resources/DropTables/Generated/Steel_Nightshade_Mail.tres" id="d_6"]
+[ext_resource type="Resource" uid="uid://dpwj83saatva4" path="res://resources/DropTables/Generated/Steel_Warbow.tres" id="d_2"]
+[ext_resource type="Resource" uid="uid://co5qn1qessffp" path="res://resources/DropTables/Generated/Steel_Pathfinder_Mail.tres" id="d_3"]
+[ext_resource type="Resource" uid="uid://dgtu6u5ayxu1l" path="res://resources/DropTables/Generated/Steel_Pathfinder_Boots.tres" id="d_4"]
+[ext_resource type="Resource" uid="uid://ci0abpnpqmdx3" path="res://resources/DropTables/Generated/Steel_Nightshade_Helm.tres" id="d_5"]
+[ext_resource type="Resource" uid="uid://cx4ya1aqkou7k" path="res://resources/DropTables/Generated/Steel_Nightshade_Mail.tres" id="d_6"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)
@@ -32,7 +33,7 @@ metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 script = ExtResource("2_ed")
 monster_name = "Dust Fox"
 monster_level = 38
-movement_speed = 50
+movement_speed = 50.0
 is_aggressive = true
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")

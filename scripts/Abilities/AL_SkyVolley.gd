@@ -70,7 +70,12 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 		tick_rate_bonus = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_tick_rate")
 		_applies_mark = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_marks_applied") > 0.0
 
-	var tick_damage: int = maxi(1, roundi(wpn_attack * TICK_DAMAGE_PCT * (1.0 + damage_bonus)))
+	# Scale ticks off dot_scaling_base (max_range x damage%) so the rain tracks
+	# attributes + mastery + gear instead of raw WEAPONATTACK (which fell behind at
+	# endgame). Same anchor the bleeds/Caltrops use.
+	var combat = owner_node.get("combat_component")
+	var dot_base: int = combat.dot_scaling_base(_ability) if combat != null and is_instance_valid(combat) and combat.has_method("dot_scaling_base") else maxi(1, wpn_attack)
+	var tick_damage: int = maxi(1, roundi(dot_base * TICK_DAMAGE_PCT * (1.0 + damage_bonus)))
 	var duration: float = ZONE_DURATION + duration_bonus
 	var rect_size: Vector2 = ZONE_RECT_SIZE + Vector2(width_bonus, 0.0)
 	var tick_interval: float = ZONE_TICK_INTERVAL * clampf(1.0 - tick_rate_bonus, 0.1, 1.0)

@@ -6,6 +6,6 @@
 script = ExtResource("1_aud")
 upgrade_id = "ven_t1_sharp_vendetta"
 upgrade_name = "Sharp Vendetta"
-description = "Vendetta's per-stack burst damage is increased by +10%."
+description = "Vendetta deals +10% more damage."
 effect_key = "bonus_damage_mult"
 magnitude = 0.1

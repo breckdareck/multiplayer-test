@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://bmvpm87d13ms5"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=16 format=3 uid="uid://bmvpm87d13ms5"]
 
-[ext_resource type="Texture2D" uid="uid://crcukr48gj7h7" path="res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Arcanist_Mail.png" id="99_svgicon"]
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_8gwgu"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Arcanist_Mail.png" id="2_f4gpo"]
 [ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_ufy56"]
 
 [sub_resource type="Resource" id="Resource_51xjn"]
@@ -18,29 +18,84 @@ flat_bonus_value = 38
 
 [sub_resource type="Resource" id="Resource_0df7v"]
 script = ExtResource("1_8gwgu")
-stat_type = 1
 base_value = 0
-flat_bonus_value = 16
+flat_bonus_value = 5
 
 [sub_resource type="Resource" id="Resource_k1ygh"]
+script = ExtResource("1_8gwgu")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="Resource" id="Resource_y47xm"]
+script = ExtResource("1_8gwgu")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 14
+
+[sub_resource type="Resource" id="Resource_y0x35"]
+script = ExtResource("1_8gwgu")
+stat_type = 3
+base_value = 0
+flat_bonus_value = 5
+
+[sub_resource type="Resource" id="Resource_nwflk"]
+script = ExtResource("1_8gwgu")
+stat_type = 15
+base_value = 0
+flat_bonus_value = 6
+
+[sub_resource type="Resource" id="Resource_vjtmq"]
+script = ExtResource("1_8gwgu")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_kkmdu"]
+script = ExtResource("1_8gwgu")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_xuoy3"]
+script = ExtResource("1_8gwgu")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_ra2py"]
 script = ExtResource("1_8gwgu")
 stat_type = 5
 base_value = 0
 flat_bonus_value = 81
 
+[sub_resource type="Resource" id="Resource_qs5cl"]
+script = ExtResource("1_8gwgu")
+stat_type = 7
+base_value = 0
+flat_bonus_value = 3
+
 [resource]
 script = ExtResource("3_ufy56")
 armor_type = 1
 bonus_stats = Dictionary[int, ExtResource("1_8gwgu")]({
-1: SubResource("Resource_0df7v"),
-5: SubResource("Resource_k1ygh"),
+0: SubResource("Resource_0df7v"),
+1: SubResource("Resource_y47xm"),
+2: SubResource("Resource_k1ygh"),
+3: SubResource("Resource_y0x35"),
+5: SubResource("Resource_ra2py"),
+7: SubResource("Resource_qs5cl"),
 8: SubResource("Resource_51xjn"),
-9: SubResource("Resource_4520r")
+9: SubResource("Resource_4520r"),
+10: SubResource("Resource_vjtmq"),
+11: SubResource("Resource_kkmdu"),
+15: SubResource("Resource_nwflk"),
+16: SubResource("Resource_xuoy3")
 })
-item_id = "6812157815-1341315-31215-991313-1371341313111312151413"
+item_id = "15009101195-11066-27159-121524-47692111417940"
 name = "Adamant Arcanist Mail"
 rarity = 0
-icon = ExtResource("99_svgicon")
+icon = ExtResource("2_f4gpo")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
 item_level = 50

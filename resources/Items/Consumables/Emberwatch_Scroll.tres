@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="ConsumableData" load_steps=4 format=3]
+
+[ext_resource type="Texture2D" uid="uid://b0f14l1auyf4r" path="res://assets/sprites/Items/generated_px/Consumables/Hearthstone.png" id="99_svgicon"]
+[ext_resource type="Script" uid="uid://ubv3mjjv4lvi" path="res://scripts/Resources/ItemSystem/ConsumableData.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://04d0vey05pky" path="res://scripts/Resources/ItemSystem/Effects/Effect_TownPotion.gd" id="2_effect"]
+
+[resource]
+script = ExtResource("1_script")
+effect_script = ExtResource("2_effect")
+effect_properties = {
+"target_map": "emberwatch"
+}
+item_id = "scroll-emberwatch-1c8e44a2-5f73-4b06-8a91"
+name = "Emberwatch Scroll"
+icon = ExtResource("99_svgicon")
+description = "A return-scroll bound to the forward Hearth. Tears to carry you to Emberwatch, the last lantern before the deep frontier."
+item_type = 2
+item_level = -1
+custom_item_value = 150
+can_stack = true
+max_stack_amount = 99
+current_stack_amount = 1
