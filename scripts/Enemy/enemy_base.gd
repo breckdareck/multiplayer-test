@@ -75,6 +75,14 @@ const INVINCIBLE_MAX_HEALTH := 1_000_000_000
 @onready var attack_hitbox: Area2D = $AttackHitbox
 @onready var body_hitbox: Area2D = $BodyHitbox
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
+@onready var health_bar: ProgressBar = get_node_or_null("HealthBar")
+
+# MapleStory-style overhead HP bar: the bar stays hidden until the LOCAL player
+# damages this enemy, then shows on that player's screen only for a short window
+# that refreshes on each hit. Per-client, purely cosmetic — the timer lives on
+# each peer (including the host) and is (re)started by client_show_health_bar.
+const HEALTH_BAR_VISIBLE_DURATION := 4.0
+var _health_bar_hide_timer: Timer
 
 
 var experience_reward: int = 0:
@@ -322,6 +330,17 @@ func _ready() -> void:
 		_ensure_boss_special_state()
 	state_machine.init(self, animated_sprite)
 
+	# Overhead HP bar starts hidden on every peer; only revealed on the screen of
+	# whoever lands a hit (MapleStory-style). The hide timer runs locally per peer.
+	if health_bar:
+		health_bar.hide()
+		_health_bar_hide_timer = Timer.new()
+		_health_bar_hide_timer.name = "HealthBarHideTimer"
+		_health_bar_hide_timer.one_shot = true
+		_health_bar_hide_timer.wait_time = HEALTH_BAR_VISIBLE_DURATION
+		add_child(_health_bar_hide_timer)
+		_health_bar_hide_timer.timeout.connect(_on_health_bar_hide_timeout)
+
 
 func _process(delta: float) -> void:
 	if _is_being_cleaned_up:
@@ -425,6 +444,11 @@ func on_enemy_damaged(amount: int, source: Node) -> void:
 		if multiplayer.is_server():
 			for pid in _get_real_players_on_same_map():
 				client_show_name_label.rpc_id(pid)
+			# MapleStory-style: reveal the overhead HP bar only on the screen of
+			# the player who landed the hit. Bots have negative peer ids and no
+			# client, so skip them; rpc_id(1) runs locally for a host attacker.
+			if player_id > 0:
+				client_show_health_bar.rpc_id(player_id)
 
 	# Provoked: a passive enemy wakes up and chases whoever just hit it. An
 	# already-aggressive enemy retargets onto its current attacker.
@@ -676,6 +700,33 @@ func client_show_name_label():
 func client_hide_name_label():
 	name_label.hide()
 
+
+## [Server → the hitting client only] Reveal this enemy's overhead HP bar and
+## (re)start the hide countdown. Sent per-attacker so each player only sees the
+## bar of enemies THEY are fighting.
+@rpc("any_peer", "call_local", "reliable")
+func client_show_health_bar() -> void:
+	if not health_bar or not is_instance_valid(health_bar):
+		return
+	health_bar.show()
+	if _health_bar_hide_timer:
+		_health_bar_hide_timer.start()
+
+
+## [Server → real players on map] Force the HP bar hidden immediately (death /
+## pooling), independent of the hide countdown.
+@rpc("any_peer", "call_local", "reliable")
+func client_hide_health_bar() -> void:
+	if _health_bar_hide_timer:
+		_health_bar_hide_timer.stop()
+	if health_bar and is_instance_valid(health_bar):
+		health_bar.hide()
+
+
+func _on_health_bar_hide_timeout() -> void:
+	if health_bar and is_instance_valid(health_bar):
+		health_bar.hide()
+
 # --- Object Pooling Methods ---
 
 ## Deactivates the enemy, making it invisible and non-interactive.
@@ -707,6 +758,7 @@ func pool_deactivate() -> void:
 	if multiplayer.is_server():
 		for pid in _get_real_players_on_same_map():
 			client_hide_name_label.rpc_id(pid)
+			client_hide_health_bar.rpc_id(pid)
 
 
 func pool_reset() -> void:
