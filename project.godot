@@ -38,6 +38,7 @@ TradeManager="*res://scripts/Trading/trade_manager.gd"
 QuestManager="*res://scripts/Managers/quest_manager.gd"
 PetManager="*res://scripts/Managers/pet_manager.gd"
 DebugPanel="*res://scripts/UI/debug_panel.gd"
+UiFx="*res://scripts/UI/ui_fx.gd"
 
 [display]
 

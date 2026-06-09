@@ -200,6 +200,10 @@ func _on_player_died(_killer: Node) -> void:
 	for window in get_tree().get_nodes_in_group("ui_window"):
 		if window is Control and window.visible:
 			window.visible = false
+	# Maple-style death beat: a somber sting + a dark vignette fading in
+	# under the popup. Local-only cosmetics.
+	AudioManager.play_ui_sfx("res://assets/sounds/generated/death_sting.wav")
+	_fade_death_vignette(0.55, 0.6)
 	# Show death popup
 	if not is_instance_valid(death_popup_instance):
 		death_popup_instance = death_popup_scene.instantiate()
@@ -216,6 +220,27 @@ func _on_health_changed(new_health: int, _max_health: int) -> void:
 	if new_health > 0 and is_instance_valid(death_popup_instance) and death_popup_instance.visible:
 		death_popup_instance.hide()
 		InputManager.set_input_locked(false)
+		_fade_death_vignette(0.0, 0.4)
+
+var _death_vignette: ColorRect = null
+var _vignette_tween: Tween = null
+
+
+## Fades the full-screen death dim to `target_alpha` over `dur`. Built lazily,
+## mouse-transparent, and kept below the popup so the Respawn button stays
+## clickable.
+func _fade_death_vignette(target_alpha: float, dur: float) -> void:
+	if not is_instance_valid(_death_vignette):
+		_death_vignette = ColorRect.new()
+		_death_vignette.color = Color(0.10, 0.02, 0.03, 0.0)
+		_death_vignette.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_death_vignette.set_anchors_preset(Control.PRESET_FULL_RECT)
+		add_child(_death_vignette)
+	if _vignette_tween and _vignette_tween.is_valid():
+		_vignette_tween.kill()
+	_vignette_tween = create_tween()
+	_vignette_tween.tween_property(_death_vignette, "color:a", target_alpha, dur)
+
 
 func _on_mana_changed(new_mana: int, _max_mana: int) -> void:
 	"""Updates the ProgressBar value when health changes."""

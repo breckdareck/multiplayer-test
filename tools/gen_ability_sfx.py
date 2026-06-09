@@ -362,6 +362,38 @@ def snd_land_soft(rng):
     return normalize(mix(thud, gain(scuff, 0.6)), 0.35)  # deliberately quiet
 
 
+# --- UI palette -------------------------------------------------------------
+
+def snd_ui_click(rng):
+    blip = env_ad(sine_sweep(1250, 980, 0.05), 0.001, 0.012)
+    tick = env_ad(highpass(white(rng, 0.03), 2500), 0.001, 0.006)
+    return normalize(mix(blip, gain(tick, 0.35)), 0.55)
+
+
+def snd_ui_hover(rng):
+    return normalize(env_ad(sine_sweep(1700, 1550, 0.03), 0.002, 0.008), 0.22)
+
+
+def snd_ui_open(rng):
+    woo = env_ad(bandpass_sweep(white(rng, 0.16), 500, 1400, 1800, 4200), 0.01, 0.045)
+    blip = gain(env_ad(sine_sweep(620, 1080, 0.14, curve=0.8), 0.008, 0.04), 0.5)
+    return normalize(mix(woo, blip), 0.5)
+
+
+def snd_ui_close(rng):
+    woo = env_ad(bandpass_sweep(white(rng, 0.14), 1800, 4200, 450, 1200), 0.008, 0.04)
+    blip = gain(env_ad(sine_sweep(1080, 580, 0.12, curve=0.8), 0.006, 0.035), 0.5)
+    return normalize(mix(woo, blip), 0.45)
+
+
+def snd_death_sting(rng):
+    # Somber minor dyad (A2 + C3) with a slow dark swell underneath.
+    low = mix(partial(110.0, 1.2, 0.40), partial(130.81, 1.2, 0.38, 0.8),
+              partial(220.0, 1.2, 0.22, 0.35))
+    swell = env_ad(lowpass(white(rng, 1.1), 300), 0.30, 0.30)
+    return normalize(mix(low, gain(swell, 0.25)), 0.6)
+
+
 SOUNDS = {
     "sword_slash": snd_sword_slash,
     "sword_heavy": snd_sword_heavy,
@@ -388,6 +420,11 @@ SOUNDS = {
     "attack_staff": snd_attack_staff,
     "attack_dagger": snd_attack_dagger,
     "land_soft": snd_land_soft,
+    "ui_click": snd_ui_click,
+    "ui_hover": snd_ui_hover,
+    "ui_open": snd_ui_open,
+    "ui_close": snd_ui_close,
+    "death_sting": snd_death_sting,
 }
 
 

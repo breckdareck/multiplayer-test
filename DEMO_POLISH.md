@@ -70,8 +70,11 @@ The blocking issues. If you only have time for a few, do these.
   Godot imports the new .wav files before testing in-game.
 - [x] **Attack sound** — per-discipline basic-attack swing SFX in the attack
   state (`_BASIC_ATTACK_SFX`, server-broadcast via `play_sfx_for_map`).
-- [ ] **UI feedback** — `tap.wav` on every button press (login, Game Window
-  tabs, inventory drag-drop, hotbar). Currently silent in places.
+- [x] **UI feedback** — `UiFx` autoload hooks `SceneTree.node_added`: every
+  BaseButton gets a generated click + hover tick and press-in/spring-back
+  scale tweens; `ui_window` Controls get open/close whooshes. Opt out per
+  node with `set_meta("no_ui_fx", true)`. Non-positional playback via
+  `AudioManager.play_ui_sfx`.
 - [x] **Jump / landing** — `jump.wav` fires on jump enter (pre-existing);
   quiet `land_soft.wav` thud added on fall→ground transition (−6 dB).
 - [x] **Item pickup** — verified: `pickup_sfx` on DroppedItem plays
@@ -82,14 +85,12 @@ The blocking issues. If you only have time for a few, do these.
 
 ### Game feel
 
-- [ ] **Hitstop on big crits** — 60–100 ms of impact-freeze when a crit lands.
-  NOT `Engine.time_scale` — pausing the engine clock on the host stutters every
-  peer in a multiplayer game. Do it as a **local-only** effect on the hitter's
-  client: briefly freeze the target's sprite frame / pause its AnimationPlayer
-  and add a small camera punch, then resume. Same feel, zero sim impact.
-- [ ] **Death feedback** — currently a death animation and respawn timer.
-  Add a dark vignette + slow-motion ramp on death, and a "You Died" overlay
-  on the local player.
+- ~~Hitstop on big crits~~ — CUT (2026-06-09): MapleStory doesn't do
+  impact-freeze, and that's the feel reference. Screen shake already covers
+  the impact beat.
+- [x] **Death feedback** — Maple-style minimum: a somber death sting +
+  dark vignette fade-in under the existing DeathPopup, cleared on respawn
+  (`player_hud.gd`). No slow-mo (multiplayer) — the popup is the tombstone.
 
 ---
 

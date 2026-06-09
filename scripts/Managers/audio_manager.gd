@@ -39,6 +39,24 @@ func play_sfx(sfx_path: String, global_position: Vector2 = Vector2.ZERO, volume_
 	await sfx_player.finished
 	sfx_player.queue_free()
 
+# Plays a NON-positional SFX locally (UI clicks, death sting, etc.).
+# play_sfx uses an AudioStreamPlayer2D, which attenuates with distance from the
+# camera — at (0,0) it's inaudible anywhere in a real map. UI sounds must not
+# be positional, so they get a plain AudioStreamPlayer.
+func play_ui_sfx(sfx_path: String, volume_db: float = 0.0):
+	var sfx_stream: AudioStream = ResourceLoader.load(sfx_path)
+	if not sfx_stream:
+		push_warning("AudioManager: UI SFX not found at path: %s" % sfx_path)
+		return
+	var sfx_player := AudioStreamPlayer.new()
+	sfx_player.stream = sfx_stream
+	sfx_player.volume_db = volume_db
+	sfx_player.bus = "SFX"
+	add_child(sfx_player)
+	sfx_player.play()
+	await sfx_player.finished
+	sfx_player.queue_free()
+
 # RPC to play an SFX on all clients. Called by the server.
 @rpc("any_peer", "call_local", "reliable")
 func play_sfx_rpc(sfx_path: String, global_position: Vector2 = Vector2.ZERO, volume_db: float = 0.0):
