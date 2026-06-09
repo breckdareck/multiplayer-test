@@ -20,6 +20,7 @@ size = Vector2(120, 46)
 
 [sub_resource type="Resource" id="Resource_icst1"]
 script = ExtResource("2_icst2")
+sfx_path = "res://assets/sounds/generated/staff_ice.wav"
 target_type = 1
 hit_box_shape_data = SubResource("RectangleShape2D_icst1")
 hit_box_position_data = Vector2(60, -10)

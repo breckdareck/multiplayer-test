@@ -18,7 +18,7 @@
 script = ExtResource("2_abd")
 target_type = 1
 animation_name = "attack_1"
-sfx_path = "res://assets/sounds/tap.wav"
+sfx_path = "res://assets/sounds/generated/staff_arcane.wav"
 logic_script = ExtResource("3_al")
 cast_vfx = "none"
 

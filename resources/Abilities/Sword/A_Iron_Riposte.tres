@@ -17,6 +17,7 @@
 
 [sub_resource type="Resource" id="Resource_1gbs7"]
 script = ExtResource("2_rxk8e")
+sfx_path = "res://assets/sounds/generated/sword_guard.wav"
 logic_script = ExtResource("2_u0dcv")
 metadata/_custom_type_script = "uid://1raaatfhww5y"
 

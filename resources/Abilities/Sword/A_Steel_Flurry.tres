@@ -23,7 +23,7 @@ target_type = 1
 hit_box_shape_data = SubResource("RectangleShape2D_ajojy")
 hit_box_position_data = Vector2(33, -10)
 animation_name = "attack_1"
-sfx_path = "res://assets/sounds/tap.wav"
+sfx_path = "res://assets/sounds/generated/sword_slash.wav"
 logic_script = ExtResource("3_brand")
 
 [sub_resource type="Resource" id="Resource_wr37i"]

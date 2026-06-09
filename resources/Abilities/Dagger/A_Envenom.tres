@@ -23,7 +23,7 @@ target_type = 1
 hit_box_shape_data = SubResource("RectangleShape2D_env1")
 hit_box_position_data = Vector2(17, -10)
 animation_name = "attack_1"
-sfx_path = "res://assets/sounds/tap.wav"
+sfx_path = "res://assets/sounds/generated/dagger_poison.wav"
 logic_script = ExtResource("3_env1")
 metadata/_custom_type_script = "uid://1raaatfhww5y"
 

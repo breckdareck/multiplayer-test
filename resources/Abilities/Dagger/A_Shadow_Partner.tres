@@ -18,6 +18,7 @@
 [sub_resource type="Resource" id="Resource_shpn1"]
 resource_local_to_scene = true
 script = ExtResource("1_shpn2")
+sfx_path = "res://assets/sounds/generated/dagger_stealth.wav"
 logic_script = ExtResource("10_shpn1")
 
 [sub_resource type="Resource" id="Resource_shpn5"]

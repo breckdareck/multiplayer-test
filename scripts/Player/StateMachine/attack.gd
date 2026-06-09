@@ -48,6 +48,16 @@ var _was_on_floor: bool = false
 enum AttackType { BASIC, ABILITY }
 var _current_attack_type: AttackType = AttackType.BASIC
 
+# Per-discipline basic-attack swing SFX (generated palette — see
+# tools/gen_ability_sfx.py). Played via play_sfx_for_map, which no-ops on
+# clients, so the server broadcasts exactly one sound per swing.
+const _BASIC_ATTACK_SFX := {
+	Constants.ClassType.SWORD: "res://assets/sounds/generated/attack_sword.wav",
+	Constants.ClassType.BOW: "res://assets/sounds/generated/attack_bow.wav",
+	Constants.ClassType.STAFF: "res://assets/sounds/generated/attack_staff.wav",
+	Constants.ClassType.DAGGER: "res://assets/sounds/generated/attack_dagger.wav",
+}
+
 # Basic attack data
 var _current_attack_name: String = ""
 
@@ -93,9 +103,13 @@ func _start_basic_attack():
 	get_active_discipline), not the starting class — so a Swordsman who swapped
 	to a bow correctly fires arrows, and a Mage who picked up a sword swings."""
 	var is_archer := false
+	var swing_sfx: String = ""
 	if player.has_method("get_active_discipline"):
 		var cls: int = player.get_active_discipline()
 		is_archer = cls == Constants.ClassType.BOW or cls == Constants.ClassType.RANGER
+		swing_sfx = _BASIC_ATTACK_SFX.get(cls, "")
+	if not swing_sfx.is_empty():
+		AudioManager.play_sfx_for_map(MapManager.get_player_map(player.player_id), swing_sfx, player.global_position)
 
 	if is_archer and _try_use_arrow_shot():
 		return

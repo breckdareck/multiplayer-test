@@ -19,6 +19,7 @@ size = Vector2(120, 46)
 
 [sub_resource type="Resource" id="Resource_lk7a1"]
 script = ExtResource("2_lk7a2")
+sfx_path = "res://assets/sounds/generated/dagger_throw.wav"
 target_type = 1
 hit_box_shape_data = SubResource("RectangleShape2D_lk7a1")
 hit_box_position_data = Vector2(60, -10)

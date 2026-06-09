@@ -19,6 +19,7 @@ size = Vector2(120, 46)
 
 [sub_resource type="Resource" id="Resource_mgbt1"]
 script = ExtResource("2_mgbt2")
+sfx_path = "res://assets/sounds/generated/staff_arcane.wav"
 target_type = 1
 hit_box_shape_data = SubResource("RectangleShape2D_mgbt1")
 hit_box_position_data = Vector2(60, -10)

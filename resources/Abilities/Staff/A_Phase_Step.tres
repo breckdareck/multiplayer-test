@@ -17,6 +17,7 @@
 [sub_resource type="Resource" id="Resource_telp1"]
 resource_local_to_scene = true
 script = ExtResource("1_telp2")
+sfx_path = "res://assets/sounds/generated/dash_whoosh.wav"
 logic_script = ExtResource("2_telp1")
 cast_vfx = "dark_cast"
 

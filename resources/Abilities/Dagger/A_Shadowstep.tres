@@ -18,7 +18,7 @@
 script = ExtResource("2_sst2")
 target_type = 1
 animation_name = "attack_1"
-sfx_path = "res://assets/sounds/tap.wav"
+sfx_path = "res://assets/sounds/generated/dash_whoosh.wav"
 logic_script = ExtResource("3_sst1")
 metadata/_custom_type_script = "uid://1raaatfhww5y"
 

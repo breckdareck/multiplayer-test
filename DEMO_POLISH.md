@@ -60,18 +60,25 @@ The blocking issues. If you only have time for a few, do these.
 `AudioManager` and the SFX pipeline exist (per-map BGM, title music, ability
 `sfx_path` broadcast to the map). What's left is **coverage and quality**:
 
-- [ ] **Placeholder ability SFX** — many ability `.tres` set
-  `sfx_path = "res://assets/sounds/tap.wav"` (a UI click) as a stand-in.
-  Audit the 6–8 abilities the demo discipline actually uses and give them
-  real cast sounds.
-- [ ] **Attack sound** — verify every base-attack swing plays a swing/hit SFX
-  per weapon (`scripts/Components/combat.gd`).
+- [x] **Ability cast SFX** — `tools/gen_ability_sfx.py` synthesizes a
+  25-sound procedural palette (`assets/sounds/generated/`) and wires
+  `sfx_path` on all 52 active abilities by keyword (slash/heavy/warcry/guard,
+  release/snipe/volley/trap, fire/ice/lightning/arcane/buff,
+  stab/poison/stealth/throw, mark ping, dash whoosh). Deterministic and
+  re-runnable; passives skipped (never cast). Upgrade path: drop real
+  recorded sounds over the same filenames. NOTE: open the editor once so
+  Godot imports the new .wav files before testing in-game.
+- [x] **Attack sound** — per-discipline basic-attack swing SFX in the attack
+  state (`_BASIC_ATTACK_SFX`, server-broadcast via `play_sfx_for_map`).
 - [ ] **UI feedback** — `tap.wav` on every button press (login, Game Window
   tabs, inventory drag-drop, hotbar). Currently silent in places.
-- [ ] **Footsteps / jump landing** — verify `jump.wav` fires on jump start;
-  add a quiet landing thud.
-- [ ] **Item pickup** — `pickup.mp3` on every coin/item pickup (incl. pet
-  magnet loot).
+- [x] **Jump / landing** — `jump.wav` fires on jump enter (pre-existing);
+  quiet `land_soft.wav` thud added on fall→ground transition (−6 dB).
+- [x] **Item pickup** — verified: `pickup_sfx` on DroppedItem plays
+  `pickup.mp3`; coin pickups play `coin.wav` (`player_inventory.gd`).
+- [ ] **Listen pass** — the generated palette is synthesized, not recorded.
+  Play each weapon for a minute and re-tune any sound that grates
+  (tweak the recipe in `gen_ability_sfx.py` and re-run).
 
 ### Game feel
 

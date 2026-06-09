@@ -47,6 +47,9 @@ func physics_update(delta: float) -> State:
 
 	# Transition to ground states upon landing
 	if parent.is_on_floor():
+		# Quiet landing thud (server-broadcast to the map; no-op on clients).
+		AudioManager.play_sfx_for_map(MapManager.get_player_map(player.player_id),
+				"res://assets/sounds/generated/land_soft.wav", player.global_position, -6.0)
 		if player.direction != 0:
 			return move_state
 		else:

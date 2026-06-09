@@ -24,7 +24,7 @@ target_type = 1
 hit_box_shape_data = SubResource("RectangleShape2D_diso1")
 hit_box_position_data = Vector2(15, -10)
 animation_name = "attack_1"
-sfx_path = "res://assets/sounds/tap.wav"
+sfx_path = "res://assets/sounds/generated/dagger_stab.wav"
 logic_script = ExtResource("10_diso1")
 
 [sub_resource type="Resource" id="Resource_diso9"]

@@ -19,6 +19,7 @@ size = Vector2(160, 46)
 
 [sub_resource type="Resource" id="Resource_vrq40"]
 script = ExtResource("2_strf2")
+sfx_path = "res://assets/sounds/generated/bow_volley.wav"
 target_type = 1
 hit_box_shape_data = SubResource("RectangleShape2D_aa4ap")
 hit_box_position_data = Vector2(80, -23)

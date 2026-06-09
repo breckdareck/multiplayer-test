@@ -18,7 +18,7 @@
 script = ExtResource("2_abd")
 target_type = 1
 animation_name = "attack_1"
-sfx_path = "res://assets/sounds/tap.wav"
+sfx_path = "res://assets/sounds/generated/sword_warcry.wav"
 logic_script = ExtResource("3_al")
 
 [sub_resource type="Resource" id="Resource_cast"]
