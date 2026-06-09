@@ -73,6 +73,13 @@ var applier: Node = null
 ## slow patches, etc.
 var visual_color: Color = Color(0.9, 0.4, 0.15, 0.35)
 
+## Whether the zone draws its own fill + outline + boundary brackets. Boss
+## telegraphs leave this true so the wind-up area reads clearly. Player-ability
+## zones set it false — they already broadcast a tiled ground VFX
+## (`broadcast_ground_vfx_everywhere`), so the zone's own outline is redundant
+## and is suppressed. Pure-gameplay hit-testing is unaffected either way.
+var draw_visual: bool = true
+
 ## Optional per-tick callback. Signature: `func(enemy: Node) -> void`.
 ## Called once per enemy per tick AFTER damage is applied. Use for non-damage
 ## status effects (Caltrops slow, Smoke Bomb concealment, Frost Patch chill).
@@ -124,10 +131,15 @@ func _ready() -> void:
 	_cached_map_root = get_parent()
 	_next_tick = tick_interval
 	_initial_alpha = visual_color.a
-	queue_redraw()
+	if draw_visual:
+		queue_redraw()
 
 
 func _draw() -> void:
+	# Player-ability zones suppress their own drawing (the ability already
+	# broadcasts a tiled ground VFX). Only boss telegraphs draw the outline.
+	if not draw_visual:
+		return
 	# Fill + bolder outline, then the temporary spawn/tick flash overlays + the
 	# corner brackets (RECT) or radial tick marks (CIRCLE) that always
 	# telegraph the zone's extent regardless of fade state.
@@ -200,17 +212,19 @@ func _draw_circle_tick_marks(color: Color) -> void:
 func _physics_process(delta: float) -> void:
 	_elapsed += delta
 
-	# Linear alpha taper across the zone's lifetime — full alpha at spawn,
-	# 50% alpha at expiration so the zone visibly fades rather than vanishing.
-	var t := clampf(_elapsed / duration, 0.0, 1.0)
-	visual_color.a = _initial_alpha * (1.0 - 0.5 * t)
+	# Visual upkeep — skipped entirely for non-drawing (player-ability) zones.
+	if draw_visual:
+		# Linear alpha taper across the zone's lifetime — full alpha at spawn,
+		# 50% alpha at expiration so the zone visibly fades rather than vanishing.
+		var t := clampf(_elapsed / duration, 0.0, 1.0)
+		visual_color.a = _initial_alpha * (1.0 - 0.5 * t)
 
-	# Decay the temporary-flash intensities. Runs on every peer because the
-	# visual flash applies to both server and remote-mirror clones — the
-	# server is also a client on a listen-server setup.
-	_tick_pulse = maxf(0.0, _tick_pulse - delta * _TICK_PULSE_DECAY)
-	_spawn_pulse = maxf(0.0, _spawn_pulse - delta * _SPAWN_PULSE_DECAY)
-	queue_redraw()
+		# Decay the temporary-flash intensities. Runs on every peer because the
+		# visual flash applies to both server and remote-mirror clones — the
+		# server is also a client on a listen-server setup.
+		_tick_pulse = maxf(0.0, _tick_pulse - delta * _TICK_PULSE_DECAY)
+		_spawn_pulse = maxf(0.0, _spawn_pulse - delta * _SPAWN_PULSE_DECAY)
+		queue_redraw()
 
 	if _elapsed >= duration:
 		queue_free()
@@ -455,13 +469,16 @@ static func spawn_server_shaped(
 	zone.visual_color = visual_color
 	zone.on_tick_callback = on_tick_callback
 	zone.on_ally_tick_callback = on_ally_tick_callback
+	# Player-ability zones don't draw their own outline — the spawning ability
+	# already broadcasts a tiled ground VFX that telegraphs the area. The zone
+	# stays a pure server-authoritative hit-test region. (Boss telegraphs spawn
+	# via MapManager._spawn_ground_zone_visual, which leaves draw_visual=true.)
+	zone.draw_visual = false
 	map_inst.add_child(zone)
 
-	# Broadcast a visual-only mirror to remote clients viewing the same map.
-	# The host is also a client but its mirror is unnecessary — the
-	# authoritative zone above already renders on screen when the host is on
-	# this map (matches the lightning-arc broadcast pattern).
-	MapManager.broadcast_ground_zone_shaped(map_id, pos, shape_type_arg, radius_arg, rect_size_arg, duration, visual_color)
+	# No visual-mirror broadcast: with draw_visual off the mirror would render
+	# nothing, and the spawning ability handles remote-client visuals via its
+	# own broadcast_ground_vfx_everywhere call.
 
 	return zone
 
