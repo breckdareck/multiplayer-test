@@ -20,12 +20,13 @@ kanban-plugin: board
 	- [x] Party Grind Zones — party members on the same map share EXP with a scaling bonus (+10% per additional member); non-damage-dealing members still get 25% of base; mastery XP is shared too
 	- [ ] First Party Quest — ONE simple PQ: 3 stages (kill room, switch puzzle, boss). Reuse existing enemies and tilesets
 	- [x] First Boss Encounter — the **Eternal Warlord** (L100, The Sundered Heart): 3 HP phases + enrage, telegraphed `BossAttackData` specials (windup/hold/dash-slam), boss HP bar UI, authored with the `boss_attack_designer` dock (ADR 0005)
-	- [ ] More bosses — mid-level bosses for the L30–70 zones, reusing the BossAttackData pipeline (add a .tres + optional logic_script, don't subclass)
+	- [x] First mid-band boss — **Thornroot Warchief** (L30 area boss in Thornroot Hollow, 3 phases + enrage + Thorn Rush dash special, Steel-tier drops, capstone quest)
+	- [ ] More bosses — L45–70 zones still bossless; reuse the BossAttackData pipeline (add a .tres + optional logic_script, don't subclass)
 - [ ] Tier 4 — Progression & Identity
 	- [x] Weapon-driven identity — classes & job advancement REMOVED (ADR 0004); identity = 4 weapon disciplines (Sword/Bow/Staff/Dagger) with per-discipline mastery, dual-weapon kits + pair synergies, per-weapon gauges (combo / momentum / stances / shadowmeld)
 	- [x] Attribute allocation — 5 free points per character level across STR/DEX/INT/LUCK/CON (ADR 0002), with reconcile guard, respec (cost scales with points refunded), backend `attribute_points` JSONB
 	- [x] Ability trees + upgrades — 2-path tree per weapon, ~18 abilities each (≈73 base abilities), 3-tier per-ability upgrade trees (300+ upgrade .tres), purchase/respec API, points-reconcile guard on load
-	- [x] Quest System — 26 quests across 7 chains covering L1–95 (beginner → endgame zone quests), KILL/COLLECT/REACH_LEVEL objectives, onboarding welcome overlay + auto-accepted starter quest, always-on Quest Tracker HUD
+	- [x] Quest System — 31 quests across 8 chains covering L1–95 with no gaps (the Wilds chain bridges L26–40: Thornroot → Dust Warren → boss capstone → Drowned Mines), KILL/COLLECT/REACH_LEVEL objectives, onboarding welcome overlay + auto-accepted starter quest, always-on Quest Tracker HUD
 	- [x] NPC quest-givers — `QuestGiverNPC` generalizes right-click NPC dialogs (Village Elder in Lantern's Rest, slime-threat giver in the Near-Wilds); quest IDs baked into NPC `offered_quest_ids`
 	- [x] Pets — per-character roster with hunger/feeding, auto-loot magnet, auto-pot, auto-buff command slots (ADR 0001)
 	- [ ] Daily Quests — 3 rotating daily objectives (kill X enemies, collect Y items). Rewards: EXP + coins

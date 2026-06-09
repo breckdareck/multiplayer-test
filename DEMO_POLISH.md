@@ -98,10 +98,12 @@ The blocking issues. If you only have time for a few, do these.
 
 Real quality bumps, but the demo can ship without them.
 
-- [ ] **Mid-band boss** — the only boss is the L100 Eternal Warlord, which a
-  fresh demo character can't reach honestly. A reskinned L25–30 boss behind a
-  portal (new `BossAttackData` .tres + the boss_attack_designer dock, no new
-  code) would let the boss beat happen *inside* the honest demo arc.
+- [x] **Mid-band boss** — the **Thornroot Warchief** (L30, 3 phases, enrage,
+  telegraphed "Thorn Rush" dash special) holds the high terraces of Thornroot
+  Hollow — an in-map area boss, Mushmom-style, with Steel-tier loot and the
+  `q_thornroot_warchief` capstone quest pointing at him. Zero new code: an
+  EnemyData + BossAttackData .tres on the Warlord scene pattern (SF_Goblin,
+  thorn-green tint).
 - [ ] **Quest variety on the demo path** — all 26 quests are KILL objectives
   today (COLLECT/REACH_LEVEL types exist in code but are unused). One COLLECT
   quest on the starter path would show the system's breadth.

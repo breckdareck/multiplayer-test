@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://cpw7x68b3o353" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
+
+[resource]
+script = ExtResource("1_quest_data")
+quest_id = "q_warren_vanguard"
+quest_name = "The Warren's Vanguard"
+description = "Past Thornroot the land dries to the Dust Warren, and its ember-warped vanguard holds the dunes: stone-shelled slimes and fox swordsmen drilling under a brass sun. Break their line."
+required_level = 31
+prerequisite_quest_id = "q_thornroot_tusks"
+objectives = Array[Dictionary]([{
+"amount": 20,
+"target": "Stone Slime",
+"type": 0
+}, {
+"amount": 15,
+"target": "Fox Swordsman",
+"type": 0
+}])
+reward_exp = 3600
+reward_coins = 650
+sort_order = 410

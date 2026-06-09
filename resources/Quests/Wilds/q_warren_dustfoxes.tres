@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://cpw7x68b3o353" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
+
+[resource]
+script = ExtResource("1_quest_data")
+quest_id = "q_warren_dustfoxes"
+quest_name = "Eyes in the Dust"
+description = "Dust Foxes run the deep Warren at dusk, and lately they run organized — something is leading them toward the Drowned Mines. Cull the packs and clear the road down."
+required_level = 37
+prerequisite_quest_id = "q_warren_robbers"
+objectives = Array[Dictionary]([{
+"amount": 20,
+"target": "Dust Fox",
+"type": 0
+}])
+reward_exp = 5200
+reward_coins = 1000
+sort_order = 430

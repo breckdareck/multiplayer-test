@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://cpw7x68b3o353" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
+
+[resource]
+script = ExtResource("1_quest_data")
+quest_id = "q_warren_robbers"
+quest_name = "Honor Among Thieves"
+description = "Cat Robbers are picking caravans clean along the Warren road — Hearth-bound supplies vanish dune by dune. Recover what the wilds took and teach the bandits the cost."
+required_level = 34
+prerequisite_quest_id = "q_warren_vanguard"
+objectives = Array[Dictionary]([{
+"amount": 20,
+"target": "Cat Robber",
+"type": 0
+}])
+reward_exp = 4500
+reward_coins = 850
+sort_order = 420

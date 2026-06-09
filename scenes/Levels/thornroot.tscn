@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=4 uid="uid://1dtpk2tpjrgy"]
+[gd_scene load_steps=30 format=4 uid="uid://1dtpk2tpjrgy"]
 
 [ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_aj8v8"]
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/VFX/damage_numbers.gd" id="2_j2nq3"]
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://bx2n3vrfxk75m" path="res://scenes/Gameplay/killzone.tscn" id="8_0pfqt"]
 [ext_resource type="PackedScene" uid="uid://cnes7f1n2altk" path="res://scenes/NPC/cave_goblin.tscn" id="10_enev1"]
 [ext_resource type="PackedScene" uid="uid://b3drshokinfof" path="res://scenes/NPC/Minifolks/tusk_brute.tscn" id="20_10gp4"]
+[ext_resource type="PackedScene" path="res://scenes/NPC/thornroot_warchief.tscn" id="21_boss1"]
 [ext_resource type="Script" uid="uid://igk1rxt26f2i" path="res://scripts/UI/global_drop_handler.gd" id="22_64xxr"]
 [ext_resource type="Script" uid="uid://br1domvn1uea5" path="res://scripts/Gameplay/ladder.gd" id="23_6eojl"]
 
@@ -1182,6 +1183,9 @@ position = Vector2(260, -208)
 
 [node name="Mob_26" parent="Enemies" instance=ExtResource("10_enev1")]
 position = Vector2(368, -208)
+
+[node name="ThornrootWarchief" parent="Enemies" instance=ExtResource("21_boss1")]
+position = Vector2(314, -208)
 
 [node name="Projectiles" type="Node2D" parent="."]
 

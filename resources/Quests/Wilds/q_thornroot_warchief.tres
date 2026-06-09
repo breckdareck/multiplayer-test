@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://cpw7x68b3o353" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
+
+[resource]
+script = ExtResource("1_quest_data")
+quest_id = "q_thornroot_warchief"
+quest_name = "The Warchief of the Hollow"
+description = "The Hollow's goblins don't dig like scavengers anymore — they dig like an army with orders. Their Warchief holds the high terraces of Thornroot. Climb up, call him out, and put an end to whatever he's digging toward."
+required_level = 30
+prerequisite_quest_id = "q_thornroot_tusks"
+objectives = Array[Dictionary]([{
+"amount": 1,
+"target": "Thornroot Warchief",
+"type": 0
+}])
+reward_exp = 4000
+reward_coins = 800
+reward_items = Array[String](["Grand Healing Draught"])
+sort_order = 405

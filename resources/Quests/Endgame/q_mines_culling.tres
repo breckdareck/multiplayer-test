@@ -8,7 +8,7 @@ quest_id = "q_mines_culling"
 quest_name = "The Drowned Mines"
 description = "The old workings are flooded and goblin-thick. Cull the pathfinder wolves stalking the Drowned Mines and make the dark a little safer."
 required_level = 40
-prerequisite_quest_id = "q_call_to_advance"
+prerequisite_quest_id = "q_warren_dustfoxes"
 objectives = Array[Dictionary]([{
 "amount": 25,
 "target": "Wolf Pathfinder",

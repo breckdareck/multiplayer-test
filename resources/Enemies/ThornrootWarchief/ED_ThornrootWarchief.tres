@@ -1,0 +1,68 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=14 format=3]
+
+[ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
+[ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
+[ext_resource type="SpriteFrames" uid="uid://ckcbsuhp72f5i" path="res://resources/Enemies/Goblin/SF_Goblin.tres" id="3_sf"]
+[ext_resource type="Script" uid="uid://cdsbcru4b1hr8" path="res://scripts/Resources/BossAttackData.gd" id="4_bad"]
+[ext_resource type="Resource" uid="uid://ctyudsiiryswh" path="res://resources/DropTables/Generated/Steel_Longsword.tres" id="d_1"]
+[ext_resource type="Resource" uid="uid://dpwj83saatva4" path="res://resources/DropTables/Generated/Steel_Warbow.tres" id="d_2"]
+[ext_resource type="Resource" uid="uid://dmdk1fs3konm5" path="res://resources/DropTables/Generated/Steel_Spellstaff.tres" id="d_3"]
+[ext_resource type="Resource" uid="uid://dyfws8o3mtopt" path="res://resources/DropTables/Generated/Steel_Dirk.tres" id="d_4"]
+[ext_resource type="Resource" uid="uid://byxx4whtapp3d" path="res://resources/DropTables/Generated/Steel_Vanguard_Mail.tres" id="d_5"]
+
+[sub_resource type="RectangleShape2D" id="Shape_atk"]
+size = Vector2(64, 37)
+
+[sub_resource type="CapsuleShape2D" id="Shape_body"]
+radius = 13.0
+height = 34.0
+
+[sub_resource type="CircleShape2D" id="Shape_col"]
+radius = 6.0
+
+[sub_resource type="Resource" id="Resource_coin"]
+script = ExtResource("1_drop")
+item_name = "Coin"
+drop_chance = 0.9
+min_amount = 6
+max_amount = 10
+metadata/_custom_type_script = "uid://cucvsoha2s1kj"
+
+[sub_resource type="Resource" id="Resource_rush"]
+script = ExtResource("4_bad")
+attack_name = "Thorn Rush"
+windup_time = 1.2
+hit_time = 1.45
+anim_mode = 1
+windup_anim = "dash_attack"
+hold_frame = 4
+reach = 160.0
+band_height = 55.0
+movement = 1
+dash_time = 0.3
+damage_mult = 2.0
+
+[resource]
+script = ExtResource("2_ed")
+monster_name = "Thornroot Warchief"
+monster_level = 30
+movement_speed = 44.0
+health_mult = 10.0
+attack_mult = 2.5
+is_aggressive = true
+detection_radius = 260.0
+sprite_frames = ExtResource("3_sf")
+character_collision_shape = SubResource("Shape_col")
+body_hitbox_shape = SubResource("Shape_body")
+attack_hitbox_shape = SubResource("Shape_atk")
+is_boss = true
+boss_title = "Thornroot Warchief"
+boss_subtitle = "The Hollow's goblins dig at his word — and they dig toward something."
+phase_health_thresholds = Array[float]([0.66, 0.33])
+enrage_health_threshold = 0.2
+special_telegraph_time = 1.2
+special_attack_radius = 130.0
+special_attack_damage_mult = 2.0
+special_attacks = Array[ExtResource("4_bad")]([SubResource("Resource_rush")])
+item_drops = Array[ExtResource("1_drop")]([SubResource("Resource_coin"), ExtResource("d_1"), ExtResource("d_2"), ExtResource("d_3"), ExtResource("d_4"), ExtResource("d_5")])
+metadata/_custom_type_script = "uid://dv7aj5x3e50cg"

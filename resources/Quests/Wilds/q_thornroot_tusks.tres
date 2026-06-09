@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://cpw7x68b3o353" path="res://scripts/Resources/QuestSystem/QuestData.gd" id="1_quest_data"]
+
+[resource]
+script = ExtResource("1_quest_data")
+quest_id = "q_thornroot_tusks"
+quest_name = "Tusks in the Thorns"
+description = "Tusk Brutes have rooted deep into Thornroot Hollow, goring anything that strays off the path. Thin the sounder before the thorns grow teeth of their own."
+required_level = 26
+prerequisite_quest_id = "q_call_to_advance"
+objectives = Array[Dictionary]([{
+"amount": 15,
+"target": "Tusk Brute",
+"type": 0
+}])
+reward_exp = 2800
+reward_coins = 450
+sort_order = 400
