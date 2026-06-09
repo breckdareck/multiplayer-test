@@ -95,5 +95,5 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 		if not buff_component.is_bot_owned():
 			buff_component.sync_buff_stat_modifiers.rpc("Vow of the Vanguard", modifier_data)
 
-	print("%s activated Vow of the Vanguard (Level %d) - Duration: %ds, Stats: +%.0f%% [%d members]" %
-		[_owner_node.name, _level_stats.level, duration, stats_percent, party_members.size()])
+	#print("%s activated Vow of the Vanguard (Level %d) - Duration: %ds, Stats: +%.0f%% [%d members]" %
+		#[_owner_node.name, _level_stats.level, duration, stats_percent, party_members.size()])

@@ -822,8 +822,21 @@ func request_transfer_item(from_addr: String, to_addr: String, requesting_owner_
 	if not multiplayer.is_server():
 		return
 
-	if owner_id > 0 and owner_id != requesting_owner_id:
-		send_inventory_correction.rpc_id(requesting_owner_id)
+	# SECURITY: trust the transport-level sender, never the client-supplied id.
+	# get_remote_sender_id() is 0 when the host dispatched this locally
+	# (call_local), which can only be peer 1. A claimed id that disagrees with
+	# the wire sender is a spoof attempt — drop it.
+	var sender: int = multiplayer.get_remote_sender_id()
+	if sender == 0:
+		sender = 1
+	if sender != requesting_owner_id:
+		return
+
+	# Only the owning player may move items in their inventory. owner_id <= 0
+	# (bot/unowned component) never accepts client-driven transfers — bot flows
+	# call the model functions server-side directly, not this RPC.
+	if owner_id <= 0 or owner_id != sender:
+		send_inventory_correction.rpc_id(sender)
 		return
 
 	if slots_data.is_empty():
@@ -834,7 +847,7 @@ func request_transfer_item(from_addr: String, to_addr: String, requesting_owner_
 	var to_sd := resolve_slot_data(to_addr)
 
 	if from_sd == null or to_sd == null or not _is_move_valid_sd(from_sd, to_sd):
-		send_inventory_correction.rpc_id(requesting_owner_id)
+		send_inventory_correction.rpc_id(sender)
 		return
 
 	# Authoritative model swap. swap_slot_data refreshes the server's own views,

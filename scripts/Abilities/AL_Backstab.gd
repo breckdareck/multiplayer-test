@@ -100,7 +100,7 @@ func execute(owner_node: Node, ability: AbilityData, _level_stats: AbilityLevelD
 	# Fold the bonus into the whole hit. combat resets this to 1.0 in
 	# end_ability_attack so it never bleeds into the next cast.
 	combat.pending_ability_damage_multiplier = 1.0 + bonus
-	print("Backstab from behind: +%.0f%% damage%s" % [bonus * 100.0, " (LETHAL — full-HP target)" if lethal_applied else ""])
+	#print("Backstab from behind: +%.0f%% damage%s" % [bonus * 100.0, " (LETHAL — full-HP target)" if lethal_applied else ""])
 
 
 ## Crippling Backstab (T3): the hit also slows the target. Fires per landed hit

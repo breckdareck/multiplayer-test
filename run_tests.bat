@@ -15,7 +15,11 @@ if not exist "%GODOT_BIN%" (
 )
 
 set "LOG=%~dp0test\last_run.log"
-"%GODOT_BIN%" --headless --path "%~dp0" --script res://test/run_tests.gd --log-file "%LOG%"
+REM NOTE: %~dp0 ends with a backslash, which would escape the closing quote in
+REM --path "%~dp0" and garble every argument after it (Godot aborts with
+REM "Invalid project path" and the stale previous log gets printed). We already
+REM cd into the project above, so a plain relative path is correct.
+"%GODOT_BIN%" --headless --path . --script res://test/run_tests.gd --log-file "%LOG%"
 set EXITCODE=%ERRORLEVEL%
 
 echo.

@@ -34,5 +34,5 @@ func execute(owner_node: Node, ability: AbilityData, level_stats: AbilityLevelDa
 		active_buff.custom_logic_instance.absorption_rate = absorption_rate
 		active_buff.custom_logic_instance.source_ability_level = level_stats.level
 
-	print("%s activated Aether Ward (Level %d) — %.0f%% absorption for %.0fs" % [
-		owner_node.name, level_stats.level, absorption_rate * 100.0, duration])
+	#print("%s activated Aether Ward (Level %d) — %.0f%% absorption for %.0fs" % [
+		#owner_node.name, level_stats.level, absorption_rate * 100.0, duration])

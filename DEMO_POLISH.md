@@ -75,9 +75,11 @@ The blocking issues. If you only have time for a few, do these.
 
 ### Game feel
 
-- [ ] **Hitstop on big crits** — 60–100 ms freeze when a crit lands. One
-  `await get_tree().create_timer(0.08).timeout` with `Engine.time_scale = 0`
-  in `combat.gd`. Massive impact for tiny work.
+- [ ] **Hitstop on big crits** — 60–100 ms of impact-freeze when a crit lands.
+  NOT `Engine.time_scale` — pausing the engine clock on the host stutters every
+  peer in a multiplayer game. Do it as a **local-only** effect on the hitter's
+  client: briefly freeze the target's sprite frame / pause its AnimationPlayer
+  and add a small camera punch, then resume. Same feel, zero sim impact.
 - [ ] **Death feedback** — currently a death animation and respawn timer.
   Add a dark vignette + slow-motion ramp on death, and a "You Died" overlay
   on the local player.

@@ -26,5 +26,5 @@ func execute(owner_node: Node, ability: AbilityData, level_stats: AbilityLevelDa
 		active_buff.custom_logic_instance.source_ability_level = level_stats.level
 		active_buff.custom_logic_instance.damage_percent = damage_percent
 
-	print("%s summoned Shadow Partner (Level %d) — %.0f%% damage for %.0fs" % [
-		owner_node.name, level_stats.level, damage_percent, duration])
+	#print("%s summoned Shadow Partner (Level %d) — %.0f%% damage for %.0fs" % [
+		#owner_node.name, level_stats.level, damage_percent, duration])

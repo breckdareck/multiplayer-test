@@ -52,6 +52,9 @@ static func new_character(char_name: String, class_id: int) -> Dictionary:
 		# AbilityComponent.bootstrap_fresh_character_if_needed bumping the chosen
 		# discipline to mastery 1 (which grants 1 point via mastery_level_changed).
 		"abilities": {"available_points_per_discipline": _starter_ability_point_pools(class_id, starting_level)},
+		# Empty mastery dict — WeaponMasteryComponent fills four zero-state
+		# disciplines via _ensure_default_disciplines, same as normalize_loaded.
+		"weapon_mastery": {},
 		"buffs": {},
 		"quests": {}
 	}

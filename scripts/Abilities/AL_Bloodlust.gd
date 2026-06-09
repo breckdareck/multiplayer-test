@@ -79,8 +79,8 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 		if not buff_component.is_bot_owned():
 			buff_component.sync_buff_stat_modifiers.rpc("Bloodlust", modifier_data)
 
-	print("%s activated Bloodlust (Level %d) - Duration: %ds [%d members]" %
-		[_owner_node.name, _level_stats.level, duration, party_members.size()])
+	#print("%s activated Bloodlust (Level %d) - Duration: %ds [%d members]" %
+		#[_owner_node.name, _level_stats.level, duration, party_members.size()])
 
 
 ## Helper: if an upgrade-only stat (one not in base scaling_data) has a non-zero

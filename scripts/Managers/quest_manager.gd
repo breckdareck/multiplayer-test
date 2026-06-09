@@ -382,7 +382,7 @@ func start_onboarding(username: String) -> void:
 			_send_message(pid, "Welcome, %s!" % username, Color.GOLD)
 			_send_message(pid, "Move with A/D or the arrow keys, jump with Space, and attack with Ctrl.", Color.WHITE)
 			_send_message(pid, "Press Q to open your Quest Log. Step into a glowing portal and interact to travel between areas.", Color.WHITE)
-			_send_message(pid, "Reach level 30 to unlock Job Advancement. Your journey begins now:", Color.WHITE)
+			_send_message(pid, "Your weapon is your class — wielding it raises its mastery, and leveling up grants attribute points. Your journey begins now:", Color.WHITE)
 
 			# Auto-accept the starter quest so a new player always has a goal.
 			var completed: Array = _completed_quests.get(username, [])

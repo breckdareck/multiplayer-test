@@ -6,4 +6,4 @@ extends Node
 ## This script exists for any additional on-cast effects.
 
 func execute(owner_node: Node, _ability: AbilityData, level_stats: AbilityLevelData):
-	print("%s used Disorder (Level %d)" % [owner_node.name, level_stats.level])
+	#print("%s used Disorder (Level %d)" % [owner_node.name, level_stats.level])

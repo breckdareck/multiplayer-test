@@ -2,10 +2,11 @@ class_name WelcomeOverlay
 extends Control
 
 ## First-login onboarding overlay. Shown ONCE to brand-new characters when
-## QuestManager.start_onboarding fires. Lists the controls, the four
-## most-likely-to-be-missed keybinds (Q quest log, K abilities, right-click
-## NPC, portals), and a single dismiss button. Input is locked while the
-## overlay is up so the player actually reads it instead of fumbling around.
+## QuestManager.start_onboarding fires. Lists the controls (including the
+## weapon-identity keys: Tab swap, R weapon power), the most-likely-to-be-missed
+## keybinds (Q quest log, K abilities, Tab dual-mastery, right-click NPC,
+## portals), and a single dismiss button. Input is locked while the overlay is
+## up so the player actually reads it instead of fumbling around.
 ##
 ## Self-frees on dismiss. The QuestManager `_onboarded` flag guarantees the
 ## RPC that spawns this overlay only fires once per character.
@@ -91,7 +92,7 @@ func _build_ui() -> void:
 
 	# The card itself.
 	var card := PanelContainer.new()
-	card.custom_minimum_size = Vector2(560, 420)
+	card.custom_minimum_size = Vector2(560, 470)
 	card.mouse_filter = Control.MOUSE_FILTER_STOP
 
 	var ui_theme: Theme = load(THEME_PATH)
@@ -148,6 +149,8 @@ func _build_ui() -> void:
 	_add_control_row(controls, "Move", "A / D  or  Arrow Keys")
 	_add_control_row(controls, "Jump", "Space")
 	_add_control_row(controls, "Attack", "Ctrl")
+	_add_control_row(controls, "Swap weapon", "Tab")
+	_add_control_row(controls, "Weapon power (stance / stealth)", "R")
 	_add_control_row(controls, "Pick up item", "Z")
 	_add_control_row(controls, "Drop through platform", "Down  +  Space")
 
@@ -162,7 +165,8 @@ func _build_ui() -> void:
 
 	_add_tip(col, "Q", "Open your Quest Log — your first quest is already accepted")
 	_add_tip(col, "K", "Open the Abilities window once you have skill points")
-	_add_tip(col, "Right-click", "Talk to NPCs (the merchant, the Job Master)")
+	_add_tip(col, "Tab", "Your weapon is your class — carry two and swap mid-fight to build both masteries")
+	_add_tip(col, "Right-click", "Talk to NPCs (the merchant, quest givers)")
 	_add_tip(col, "Portal", "Step into the glowing portal and press the interact key to travel")
 
 	col.add_child(_make_separator())

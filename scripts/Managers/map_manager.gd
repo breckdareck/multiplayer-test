@@ -1554,7 +1554,7 @@ func _build_map_connections() -> void:
 				_collect_portal_targets(root, map_id, connections)
 				root.free()
 		map_connections[map_id] = connections
-	print("MapManager: Map connectivity graph: %s" % map_connections)
+	#print("MapManager: Map connectivity graph: %s" % map_connections)
 
 
 ## Recursively collects portal destination map ids under `node` into `out`.

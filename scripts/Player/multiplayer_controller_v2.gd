@@ -1130,18 +1130,6 @@ func apply_appearance(class_type: int, level: int) -> void:
 		appearance_component.apply_appearance(class_type, level)
 
 
-# [CLIENT -> SERVER] Client requests to change their primary discipline.
-@rpc("any_peer", "call_local", "reliable")
-func change_class_request(new_class: int) -> void:
-	if not multiplayer.is_server():
-		return
-	#print("Change Discipline Request")
-	if is_instance_valid(weapon_mastery_component):
-		weapon_mastery_component.set_primary_discipline_rpc.rpc(new_class)
-		if is_instance_valid(appearance_component):
-			appearance_component.refresh_on_server()
-
-
 # [ALL PEERS] Sets the username for this player instance across all clients.
 @rpc("any_peer", "call_local", "reliable")
 func set_username(uname: String) -> void:

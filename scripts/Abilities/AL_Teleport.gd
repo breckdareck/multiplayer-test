@@ -40,7 +40,7 @@ func execute(owner_node: Node, _ability: AbilityData, level_stats: AbilityLevelD
 	owner_node.velocity = Vector2.ZERO
 	owner_node.global_position = destination
 	owner_node.move_and_slide()
-	print("%s teleported to %s (Level %d)" % [owner_node.name, destination, level_stats.level])
+	#print("%s teleported to %s (Level %d)" % [owner_node.name, destination, level_stats.level])
 
 	_grant_iframes(owner_node, _ability)
 

@@ -61,7 +61,8 @@ class Player(db.Model):
     max_health = db.Column(db.Integer, default=100)
     current_mana = db.Column(db.Integer, default=100)
     max_mana = db.Column(db.Integer, default=100)
-    last_map = db.Column(db.String(255), default="town")
+    # Must match MapManager.DEFAULT_MAP — "town" no longer exists in MAP_SCENES.
+    last_map = db.Column(db.String(255), default="lanterns_rest")
     monies = db.Column(db.Integer, default=0)
     # Legacy single-pool ability points. PR 4 replaced this with
     # `ability_points_per_discipline` (a JSONB dict keyed by lowercase weapon
@@ -396,7 +397,7 @@ def create_character():
         username=char_name,
         level=1,
         experience=0,
-        last_map="town",
+        last_map="lanterns_rest",
         monies=0,
         character_class=class_id,
         current_health=100,

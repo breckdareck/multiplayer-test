@@ -66,8 +66,8 @@ func execute(owner_node: Node, ability: AbilityData, level_stats: AbilityLevelDa
 
 	buff_component._force_stat_recalc()
 
-	print("%s activated Killing Edge (Level %d) — +%.1f%% crit / +%.1f%% critdmg for %.0fs" % [
-		owner_node.name, level_stats.level,
-		crit_chance_bonus + extra_critchance,
-		crit_damage_bonus + extra_critdmg,
-		duration])
+	#print("%s activated Killing Edge (Level %d) — +%.1f%% crit / +%.1f%% critdmg for %.0fs" % [
+		#owner_node.name, level_stats.level,
+		#crit_chance_bonus + extra_critchance,
+		#crit_damage_bonus + extra_critdmg,
+		#duration])

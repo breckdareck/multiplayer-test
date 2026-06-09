@@ -92,5 +92,5 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 		if not buff_component.is_bot_owned():
 			buff_component.sync_buff_stat_modifiers.rpc("Communion", modifier_data)
 
-	print("%s activated Communion (Level %d) - Duration: %ds [%d members]" %
-		[_owner_node.name, _level_stats.level, duration, party_members.size()])
+	#print("%s activated Communion (Level %d) - Duration: %ds [%d members]" %
+		#[_owner_node.name, _level_stats.level, duration, party_members.size()])
