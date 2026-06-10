@@ -483,20 +483,38 @@ func _churn_tick(cfg: Dictionary) -> void:
 
 	if do_login:
 		var pick: Dictionary = offline.pick_random()
-		var bot_id := spawn_bot(pick.name, pick.class_type, "")
-		if bot_id == 0:
-			return
-		# Re-link the config definition (patrol route etc.) for authored names.
-		for bot_def in bot_config.get("bots", []):
-			if String(bot_def.get("name", "")) == pick.name:
-				_bot_def_map[bot_id] = bot_def
-				break
-		_broadcast_system_to_players("%s has logged in." % pick.name, Color(0.6, 0.85, 0.6))
+		if login_identity(pick.name) != 0:
+			_broadcast_system_to_players("%s has logged in." % pick.name, Color(0.6, 0.85, 0.6))
 	else:
 		var out_id: int = logout_pool.pick_random()
 		var out_name: String = active_bots[out_id].username
 		despawn_bot(out_id)
 		_broadcast_system_to_players("%s has logged off." % out_name, Color(0.65, 0.65, 0.65))
+
+
+## Spawns a known offline identity by name (config def or roster entry) — the
+## same path churn login uses, shared with the roster UI's "Log In" button.
+## Returns the new bot id, or 0.
+func login_identity(identity_name: String) -> int:
+	for pick in _offline_identities():
+		if String(pick.name).to_lower() == identity_name.to_lower():
+			var bot_id := spawn_bot(pick.name, pick.class_type, "")
+			if bot_id == 0:
+				return 0
+			# Re-link the config definition (patrol route etc.) for authored names.
+			for bot_def in bot_config.get("bots", []):
+				if String(bot_def.get("name", "")) == pick.name:
+					_bot_def_map[bot_id] = bot_def
+					break
+			return bot_id
+	return 0
+
+
+## Read-only view of the persistent roster for UI (loads it on first use).
+func get_roster() -> Dictionary:
+	if not _roster_loaded:
+		_load_roster()
+	return _roster
 
 
 ## Identities that could "log in": authored config bots + every roster name,

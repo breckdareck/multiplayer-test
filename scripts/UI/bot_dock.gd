@@ -2,34 +2,71 @@ class_name BotDock
 extends Panel
 ##
 ## Multi-bot live roster window — opened from the debug console via `botdock`
-## (or the "Roster" quick-action). Lists every active bot in a table with
-## per-row Watch / Inspect / Come / Despawn buttons. Host-only — bots are
-## server-side; on a client the table would be empty.
+## (or the "Roster" quick-action). Host-only — bots are server-side; on a
+## client the table would be empty.
 ##
-## Single-bot deep-dive remains the existing BotInspectWindow (opened by
-## /bot inspect <id> and by this dock's "Inspect" row button).
+## Layout: a live summary toolbar (counts, churn status, quick actions), the
+## ONLINE table (HP/MP bars, color-coded class/personality/action, watched-row
+## highlight), and the OFFLINE identity book from saves/bot_roster.json with
+## per-row "Log In" (the same path churn login uses).
+##
+## Single-bot deep-dive remains BotInspectWindow (opened by /bot inspect and by
+## this dock's "Inspect" row button).
 
-const WINDOW_WIDTH: float = 860.0
-const WINDOW_HEIGHT: float = 360.0
+const WINDOW_WIDTH: float = 880.0
+const WINDOW_HEIGHT: float = 480.0
 const TITLE_HEIGHT: float = 28.0
 const PADDING: float = 8.0
 const REFRESH_INTERVAL: float = 0.5
 
 ## Column layout — keep in sync with header + row builders.
 const COL_WIDTHS := {
-	"id": 44, "name": 110, "class": 70, "pers": 76, "lv": 36, "hp": 80, "mp": 80,
-	"action": 150, "map": 70, "weapon": 110,
+	"id": 40, "name": 110, "class": 64, "pers": 76, "lv": 44, "hp": 92, "mp": 92,
+	"action": 160, "map": 110, "weapon": 110,
 }
 const COLUMNS := ["id", "name", "class", "pers", "lv", "hp", "mp", "action", "map", "weapon"]
-const ACTIONS_WIDTH := 320  # combined min width of the row's action buttons
+const ACTIONS_WIDTH := 300  # combined min width of the row's action buttons
+
+const CLASS_COLORS := {
+	"SWORD": Color(0.95, 0.55, 0.40),
+	"BOW": Color(0.55, 0.85, 0.50),
+	"STAFF": Color(0.50, 0.70, 1.00),
+	"DAGGER": Color(0.80, 0.55, 1.00),
+}
+const PERSONALITY_COLORS := {
+	"butcher": Color(1.00, 0.45, 0.45),
+	"bragger": Color(1.00, 0.85, 0.40),
+	"quiet": Color(0.62, 0.66, 0.72),
+	"helper": Color(0.50, 0.88, 0.55),
+	"wanderer": Color(0.70, 0.60, 1.00),
+}
+const ACTION_COLORS := {
+	"fight": Color(1.00, 0.48, 0.43),
+	"retreat": Color(1.00, 0.62, 0.26),
+	"travel": Color(0.48, 0.72, 1.00),
+	"regroup": Color(0.43, 0.91, 0.91),
+	"loot": Color(1.00, 0.85, 0.40),
+	"wander": Color(0.66, 0.70, 0.76),
+	"idle": Color(0.55, 0.58, 0.62),
+}
+
+const ROW_EVEN := Color(1, 1, 1, 0.03)
+const ROW_ODD := Color(1, 1, 1, 0.00)
+const ROW_WATCHED := Color(0.95, 0.80, 0.35, 0.14)
 
 var is_dragging := false
 var drag_offset := Vector2()
 var _title_label: Label
+var _summary_label: Label
 var _rows_container: VBoxContainer
 var _empty_label: Label
+var _offline_header: Label
+var _offline_container: VBoxContainer
 var _refresh_timer: float = 0.0
-var _row_by_bot: Dictionary = {}  # bot_id -> { row: HBoxContainer, fields: Dictionary, watch_btn: Button }
+var _row_by_bot: Dictionary = {}  # bot_id -> { row, panel_style, fields, hp, mp, watch_btn }
+## Signature of the offline list currently rendered, so it only rebuilds when
+## the identity set actually changes.
+var _offline_signature: String = ""
 
 
 static func create() -> BotDock:
@@ -42,8 +79,8 @@ static func create() -> BotDock:
 	window.add_to_group("ui_window")
 
 	var bg := StyleBoxFlat.new()
-	bg.bg_color = Color(0.12, 0.12, 0.15, 0.95)
-	bg.border_color = Color(0.3, 0.3, 0.4, 1.0)
+	bg.bg_color = Color(0.10, 0.10, 0.13, 0.96)
+	bg.border_color = Color(0.35, 0.32, 0.25, 1.0)
 	bg.set_border_width_all(2)
 	bg.set_corner_radius_all(4)
 	window.add_theme_stylebox_override("panel", bg)
@@ -64,7 +101,7 @@ func _build_ui() -> void:
 	title_bar.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	title_bar.mouse_filter = Control.MOUSE_FILTER_PASS
 	var title_bg := StyleBoxFlat.new()
-	title_bg.bg_color = Color(0.18, 0.18, 0.22, 1.0)
+	title_bg.bg_color = Color(0.17, 0.16, 0.20, 1.0)
 	title_bg.set_corner_radius_all(4)
 	title_bg.corner_radius_bottom_left = 0
 	title_bg.corner_radius_bottom_right = 0
@@ -74,7 +111,7 @@ func _build_ui() -> void:
 	_title_label = Label.new()
 	_title_label.text = "Bot Roster"
 	_title_label.add_theme_font_size_override("font_size", 13)
-	_title_label.add_theme_color_override("font_color", Color(0.9, 0.85, 0.6, 1.0))
+	_title_label.add_theme_color_override("font_color", Color(0.95, 0.85, 0.55, 1.0))
 	_title_label.position = Vector2(PADDING, 4)
 	_title_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	title_bar.add_child(_title_label)
@@ -93,6 +130,31 @@ func _build_ui() -> void:
 	close_button.pressed.connect(func(): visible = false)
 	title_bar.add_child(close_button)
 
+	# --- Summary toolbar: live counts + quick actions ---
+	var toolbar := HBoxContainer.new()
+	toolbar.add_theme_constant_override("separation", 6)
+	var toolbar_margin := MarginContainer.new()
+	toolbar_margin.add_theme_constant_override("margin_left", int(PADDING))
+	toolbar_margin.add_theme_constant_override("margin_right", int(PADDING))
+	toolbar_margin.add_theme_constant_override("margin_top", 4)
+	toolbar_margin.add_theme_constant_override("margin_bottom", 2)
+	toolbar_margin.add_child(toolbar)
+	root_vbox.add_child(toolbar_margin)
+
+	_summary_label = _styled_label("", 11, Color(0.75, 0.78, 0.85))
+	_summary_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	toolbar.add_child(_summary_label)
+	toolbar.add_child(_toolbar_button("Spawn", func():
+		BotManager.handle_command(["spawn", "random",
+			["SWORD", "BOW", "STAFF", "DAGGER"].pick_random()] as Array, multiplayer.get_unique_id())))
+	toolbar.add_child(_toolbar_button("Churn Now", func():
+		BotManager.handle_command(["churn", "now"] as Array, multiplayer.get_unique_id())))
+	toolbar.add_child(_toolbar_button("Banter", func():
+		BotManager.handle_command(["banter"] as Array, multiplayer.get_unique_id())))
+	var despawn_all := _toolbar_button("Despawn All", func(): BotManager.despawn_all_bots())
+	despawn_all.add_theme_color_override("font_color", Color(1.0, 0.55, 0.55))
+	toolbar.add_child(despawn_all)
+
 	# --- Scrollable content (header + rows together so they scroll horizontally
 	# in lock-step). Vertical scrolling moves the header off-screen, which is
 	# acceptable for a debug tool.
@@ -107,7 +169,7 @@ func _build_ui() -> void:
 	var content_margin := MarginContainer.new()
 	content_margin.add_theme_constant_override("margin_left", int(PADDING))
 	content_margin.add_theme_constant_override("margin_right", int(PADDING))
-	content_margin.add_theme_constant_override("margin_top", int(PADDING))
+	content_margin.add_theme_constant_override("margin_top", 2)
 	content_margin.add_theme_constant_override("margin_bottom", int(PADDING))
 	# Note: do NOT set SIZE_EXPAND_FILL on the content — we want it to take its
 	# natural width so the ScrollContainer reveals a horizontal scroll bar when
@@ -128,6 +190,17 @@ func _build_ui() -> void:
 	_empty_label.text = "(no active bots — try /bot spawn random SWORD)"
 	_empty_label.modulate = Color(1, 1, 1, 0.5)
 	_rows_container.add_child(_empty_label)
+
+	# --- Offline identity book (saves/bot_roster.json) ---
+	_offline_header = _styled_label("", 11, Color(0.65, 0.68, 0.75))
+	var off_margin := MarginContainer.new()
+	off_margin.add_theme_constant_override("margin_top", 8)
+	off_margin.add_child(_offline_header)
+	content_vbox.add_child(off_margin)
+
+	_offline_container = VBoxContainer.new()
+	_offline_container.add_theme_constant_override("separation", 2)
+	content_vbox.add_child(_offline_container)
 
 
 func _build_header() -> HBoxContainer:
@@ -151,6 +224,43 @@ func _styled_label(text: String, font_size: int, color: Color) -> Label:
 	return l
 
 
+func _toolbar_button(text: String, handler: Callable) -> Button:
+	var b := Button.new()
+	b.text = text
+	b.focus_mode = Control.FOCUS_NONE
+	b.add_theme_font_size_override("font_size", 11)
+	b.pressed.connect(handler)
+	return b
+
+
+## A slim colored bar with a centered value label (HP / MP cells).
+func _make_bar(fill_color: Color, width: int) -> Dictionary:
+	var bar := ProgressBar.new()
+	bar.custom_minimum_size = Vector2(width, 15)
+	bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	bar.show_percentage = false
+	bar.min_value = 0.0
+	bar.max_value = 1.0
+	var bg_sb := StyleBoxFlat.new()
+	bg_sb.bg_color = Color(0, 0, 0, 0.5)
+	bg_sb.set_corner_radius_all(3)
+	var fill_sb := StyleBoxFlat.new()
+	fill_sb.bg_color = fill_color
+	fill_sb.set_corner_radius_all(3)
+	bar.add_theme_stylebox_override("background", bg_sb)
+	bar.add_theme_stylebox_override("fill", fill_sb)
+
+	var lbl := Label.new()
+	lbl.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	lbl.add_theme_font_size_override("font_size", 9)
+	lbl.add_theme_color_override("font_color", Color(1, 1, 1, 0.95))
+	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	bar.add_child(lbl)
+	return {"bar": bar, "label": lbl}
+
+
 # --- Refresh -----------------------------------------------------------------
 
 func _process(delta: float) -> void:
@@ -168,8 +278,8 @@ func _process(delta: float) -> void:
 
 
 ## Builds new rows for bots that just appeared, removes rows for bots that
-## despawned, updates text fields in place for everyone else. Avoids tearing
-## down the whole table on every refresh tick.
+## despawned, updates fields in place for everyone else. Avoids tearing down
+## the whole table on every refresh tick.
 func _refresh() -> void:
 	if not multiplayer.is_server():
 		_empty_label.text = "(host-only — open this on the server)"
@@ -192,25 +302,83 @@ func _refresh() -> void:
 			_row_by_bot.erase(bot_id)
 
 	_empty_label.visible = _row_by_bot.is_empty()
-	_title_label.text = "Bot Roster  (%d active)" % _row_by_bot.size()
+	_title_label.text = "Bot Roster  (%d online)" % _row_by_bot.size()
 
-	# Highlight the currently-watched bot.
+	_apply_row_styles()
+	_update_summary()
+	_refresh_offline()
+
+
+## Row striping + watched-row highlight, recomputed over the live visual order.
+func _apply_row_styles() -> void:
 	var watched: int = BotManager.get_watched_bot() if BotManager.has_method("get_watched_bot") else 0
-	for bot_id in _row_by_bot:
+	var index := 0
+	for child in _rows_container.get_children():
+		if child == _empty_label or not (child is PanelContainer):
+			continue
+		var bot_id: int = child.get_meta("bot_id", 0)
+		var style: StyleBoxFlat = _row_by_bot.get(bot_id, {}).get("panel_style")
+		if style == null:
+			continue
+		if bot_id == watched:
+			style.bg_color = ROW_WATCHED
+		else:
+			style.bg_color = ROW_EVEN if index % 2 == 0 else ROW_ODD
+		index += 1
 		var btn: Button = _row_by_bot[bot_id].watch_btn
 		if is_instance_valid(btn):
-			btn.text = "Stop Watch" if bot_id == watched else "Watch"
+			btn.text = "Unwatch" if bot_id == watched else "Watch"
+
+
+func _update_summary() -> void:
+	var fighting := 0
+	var traveling := 0
+	for bot_id in BotManager.active_bots:
+		var brain = BotManager.get_bot_brain(bot_id)
+		if brain == null:
+			continue
+		match String(brain.current_action):
+			"fight": fighting += 1
+			"travel": traveling += 1
+	var churn_cfg: Dictionary = BotManager.bot_config.get("churn", {})
+	var churn_str := "churn OFF"
+	if churn_cfg.get("enabled", false):
+		churn_str = "churn ON (next ~%ds)" % int(maxf(BotManager._churn_timer, 0.0))
+	_summary_label.text = "%d online · %d fighting · %d traveling · %s" % [
+		BotManager.active_bots.size(), fighting, traveling, churn_str]
 
 
 func _add_row(bot_id: int) -> void:
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 6)
-	_rows_container.add_child(row)
-	# Make sure empty label is reordered to the end so it disappears behind data rows.
+	var panel := PanelContainer.new()
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = ROW_ODD
+	panel_style.set_corner_radius_all(3)
+	panel_style.content_margin_left = 2
+	panel_style.content_margin_right = 2
+	panel_style.content_margin_top = 1
+	panel_style.content_margin_bottom = 1
+	panel.add_theme_stylebox_override("panel", panel_style)
+	panel.set_meta("bot_id", bot_id)
+	_rows_container.add_child(panel)
+	# Keep the empty label at the end so it disappears behind data rows.
 	_rows_container.move_child(_empty_label, _rows_container.get_child_count() - 1)
 
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 6)
+	panel.add_child(row)
+
 	var fields: Dictionary = {}
+	var hp: Dictionary = {}
+	var mp: Dictionary = {}
 	for col in COLUMNS:
+		if col == "hp" or col == "mp":
+			var made := _make_bar(
+				Color(0.80, 0.25, 0.25) if col == "hp" else Color(0.25, 0.45, 0.85),
+				COL_WIDTHS[col])
+			row.add_child(made.bar)
+			if col == "hp": hp = made
+			else: mp = made
+			continue
 		var l := _styled_label("", 11, Color.WHITE)
 		l.custom_minimum_size = Vector2(COL_WIDTHS[col], 0)
 		l.clip_text = true
@@ -226,48 +394,79 @@ func _add_row(bot_id: int) -> void:
 	actions_box.add_child(watch_btn)
 	actions_box.add_child(_row_button("Inspect", func(): _on_inspect(bot_id)))
 	actions_box.add_child(_row_button("Come", func(): _on_come(bot_id)))
-	var despawn_btn := _row_button("Despawn", func(): _on_despawn(bot_id))
+	var despawn_btn := _row_button("Logoff", func(): _on_despawn(bot_id))
 	despawn_btn.add_theme_color_override("font_color", Color(1.0, 0.5, 0.5))
 	actions_box.add_child(despawn_btn)
 
-	_row_by_bot[bot_id] = { "row": row, "fields": fields, "watch_btn": watch_btn }
+	_row_by_bot[bot_id] = {
+		"row": panel, "panel_style": panel_style, "fields": fields,
+		"hp": hp, "mp": mp, "watch_btn": watch_btn,
+	}
 
 
 func _update_row(bot_id: int) -> void:
 	var info: Dictionary = BotManager.active_bots.get(bot_id, {})
-	var fields: Dictionary = _row_by_bot[bot_id].fields
+	var data: Dictionary = _row_by_bot[bot_id]
+	var fields: Dictionary = data.fields
+
 	fields.id.text = str(bot_id)
 	fields.name.text = String(info.get("username", "?"))
-	fields["class"].text = String(Constants.ClassType.find_key(info.get("class_type", 0)))
-	fields.pers.text = String(info.get("personality", "—"))
-	fields.map.text = String(info.get("map_id", "?"))
+
+	var class_key: String = String(Constants.ClassType.find_key(info.get("class_type", 0)))
+	fields["class"].text = class_key
+	fields["class"].add_theme_color_override("font_color", CLASS_COLORS.get(class_key, Color.WHITE))
+
+	var pers: String = String(info.get("personality", "—"))
+	fields.pers.text = pers
+	fields.pers.add_theme_color_override("font_color",
+		PERSONALITY_COLORS.get(pers, Color(0.85, 0.85, 0.9)))
+
+	var map_id: String = String(info.get("map_id", "?"))
+	fields.map.text = MapManager._map_display_name(map_id)
+	fields.map.tooltip_text = map_id
 
 	var node := PlayerManager.get_player_node(bot_id)
 	if is_instance_valid(node):
-		fields.lv.text = str(node.level_component.level) if is_instance_valid(node.level_component) else "?"
+		fields.lv.text = "Lv.%s" % (str(node.level_component.level) if is_instance_valid(node.level_component) else "?")
 		if is_instance_valid(node.health_component):
-			fields.hp.text = "%d/%d" % [node.health_component.current_health, node.health_component.max_health]
+			_set_bar(data.hp, node.health_component.current_health, node.health_component.max_health)
 		if "mana_component" in node and is_instance_valid(node.mana_component):
-			fields.mp.text = "%d/%d" % [node.mana_component.current_mana, node.mana_component.max_mana]
+			_set_bar(data.mp, node.mana_component.current_mana, node.mana_component.max_mana)
 		fields.weapon.text = _weapon_name_for(node)
 	else:
 		fields.lv.text = "?"
-		fields.hp.text = "?"
-		fields.mp.text = "?"
+		_set_bar(data.hp, 0, 0)
+		_set_bar(data.mp, 0, 0)
 		fields.weapon.text = "?"
 
 	var brain = BotManager.get_bot_brain(bot_id)
 	if brain != null:
 		var action: String = String(brain.current_action)
+		var action_color: Color = ACTION_COLORS.get(action, Color(0.8, 0.8, 0.85))
 		# Annotate with current target when fighting / chasing, and with an
 		# active companion command (those override normal priorities).
 		if is_instance_valid(brain.target_enemy):
-			action += " → " + String(brain.target_enemy.name)
+			action += " → " + String(brain.target_enemy.monster_name if "monster_name" in brain.target_enemy else brain.target_enemy.name)
 		if not brain.companion_mode.is_empty():
 			action += "  [%s]" % brain.companion_mode
 		fields.action.text = action
+		fields.action.add_theme_color_override("font_color", action_color)
 	else:
 		fields.action.text = "(no brain)"
+		fields.action.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
+
+
+func _set_bar(bar_data: Dictionary, current: int, max_value: int) -> void:
+	if bar_data.is_empty():
+		return
+	var bar: ProgressBar = bar_data.bar
+	var lbl: Label = bar_data.label
+	if max_value <= 0:
+		bar.value = 0.0
+		lbl.text = "?"
+		return
+	bar.value = clampf(float(current) / float(max_value), 0.0, 1.0)
+	lbl.text = "%d/%d" % [current, max_value]
 
 
 func _weapon_name_for(node: Node) -> String:
@@ -279,12 +478,78 @@ func _weapon_name_for(node: Node) -> String:
 	for key in eq.slots_data:
 		var slot = eq.slots_data[key]
 		if slot and slot.item and "name" in slot.item:
-			# Equipment slots include head/chest/legs/feet/weapon; only weapon
-			# typically has a recognizable damage value, but for the dock we
-			# just report whatever item is in the weapon slot.
 			if str(key).to_lower().find("weapon") >= 0:
 				return String(slot.item.name)
 	return "—"
+
+
+# --- Offline identity book ----------------------------------------------------
+
+## Rebuilds the offline list only when the identity SET changes (names are
+## stable between churn events; per-tick rebuild would just flicker buttons).
+func _refresh_offline() -> void:
+	var offline: Array = BotManager._offline_identities()
+	var roster: Dictionary = BotManager.get_roster()
+	var sig_parts: PackedStringArray = []
+	for entry in offline:
+		sig_parts.append(String(entry.name))
+	sig_parts.sort()
+	var signature := ",".join(sig_parts)
+	_offline_header.text = "OFFLINE IDENTITIES  (%d — churn logs these in over time)" % offline.size()
+	if signature == _offline_signature:
+		return
+	_offline_signature = signature
+
+	for child in _offline_container.get_children():
+		child.queue_free()
+	for entry in offline:
+		var identity_name: String = String(entry.name)
+		var roster_entry: Dictionary = roster.get(identity_name, {})
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 6)
+		row.modulate = Color(1, 1, 1, 0.75)
+
+		var dot := _styled_label("○", 11, Color(0.55, 0.58, 0.62))
+		dot.custom_minimum_size = Vector2(COL_WIDTHS.id, 0)
+		row.add_child(dot)
+
+		var name_lbl := _styled_label(identity_name, 11, Color(0.85, 0.85, 0.9))
+		name_lbl.custom_minimum_size = Vector2(COL_WIDTHS.name, 0)
+		row.add_child(name_lbl)
+
+		var class_key: String = String(roster_entry.get("class",
+			Constants.ClassType.find_key(entry.class_type)))
+		var class_lbl := _styled_label(class_key, 11, CLASS_COLORS.get(class_key, Color.WHITE))
+		class_lbl.custom_minimum_size = Vector2(COL_WIDTHS["class"], 0)
+		row.add_child(class_lbl)
+
+		var pers: String = String(roster_entry.get("personality", "—"))
+		var pers_lbl := _styled_label(pers, 11, PERSONALITY_COLORS.get(pers, Color(0.85, 0.85, 0.9)))
+		pers_lbl.custom_minimum_size = Vector2(COL_WIDTHS.pers, 0)
+		row.add_child(pers_lbl)
+
+		var seen_lbl := _styled_label("seen %s" % BotManager._format_ago(int(roster_entry.get("last_seen", 0))),
+			11, Color(0.6, 0.63, 0.68))
+		seen_lbl.custom_minimum_size = Vector2(120, 0)
+		row.add_child(seen_lbl)
+
+		var rep: Dictionary = roster_entry.get("rep", {})
+		var rep_lbl := _styled_label(
+			"knows %d player(s)" % rep.size() if not rep.is_empty() else "knows nobody",
+			11, Color(0.6, 0.63, 0.68))
+		rep_lbl.custom_minimum_size = Vector2(130, 0)
+		row.add_child(rep_lbl)
+
+		var login_btn := _row_button("Log In", func(): _on_login(identity_name))
+		login_btn.add_theme_color_override("font_color", Color(0.55, 0.9, 0.6))
+		row.add_child(login_btn)
+
+		_offline_container.add_child(row)
+
+
+func _on_login(identity_name: String) -> void:
+	BotManager.login_identity(identity_name)
+	_offline_signature = ""  # force the offline list to rebuild next tick
 
 
 func _row_button(text: String, handler: Callable) -> Button:
@@ -328,6 +593,7 @@ func _on_come(bot_id: int) -> void:
 
 func _on_despawn(bot_id: int) -> void:
 	BotManager.despawn_bot(bot_id)
+	_offline_signature = ""  # the identity returns to the offline book
 
 
 # --- Drag handling (title bar grabs the window) ----------------------------
