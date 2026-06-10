@@ -113,6 +113,48 @@ together) so the point-reconcile invariant holds — plus band-appropriate
 gold. Existing bots load their save; seeding never re-applies.
 _Avoid_: Level boost, starter level.
 
+## Combat statuses
+
+**Status tag**:
+A canonical queryable category of enemy status — `bleed`, `poison`, `burn`,
+`chill`, `mark` — aggregated across all per-source applications. Per-ability
+meta keys (`hemorrhage_bleed`, `envenom_poison`, …) remain the unit of
+stacking and tick math; the tag is the unit of *querying* (`is bleeding?`,
+`total bleed stacks?` = sum across sources). Implemented as a registry index
+on the enemy, maintained at apply time (`EnemyStatus` helper, BleedDot-style).
+Consumers and escalation rules key off tags, never off per-ability keys.
+Tag state is **enemy-global**: consumers read and spend the whole tag
+regardless of which participant (player or bot) applied it; per-key tick/kill
+credit keeps its existing last-refresher behavior.
+_Avoid_: Status channel ("channel" is reserved for cast-over-time channeled
+abilities and port-switched server instances), status effect, DoT type.
+
+**Channeled ability**:
+An active with a cast-time wind-up that roots the caster before its release
+(Vanguard's Onslaught, Spellweave, Sky Volley, Stormcall, Charge!). Modified
+by `channel_time_reduction` / `channel_time_extension` upgrade keys.
+_Avoid_: Channel (bare — collides with server-instance channels), cast bar.
+
+**Escalation rule**:
+An authored cross-status combat rule fired at status-apply time — e.g. chill
+applied to a burning enemy triggers a Thermal Shock burst. Lives in a small
+static code table at the `EnemyStatus` registration chokepoint (deliberately
+NOT `.tres`-driven: ~3 cross-cutting rules with bespoke effects, GW2-style
+legibility). Reaction bursts scale off the *triggering* application's ability
+max hit × stacks consumed, crediting the participant who completed the combo.
+_Avoid_: Combo rule, element reaction (when meaning this system), proc.
+
+**Duo node**:
+The named synergy effect for a specific weapon-discipline pair (6 pairs
+total): one on-swap trigger + one standing pair rule, authored in
+`weapon_pair_synergy.gd`. NOT a purchasable upgrade — a stateless *derived*
+unlock, active while both equipped disciplines have at least the threshold
+points spent in them. Never persisted (recomputed from synced state), costs
+no ability points, deactivates automatically on respec below threshold, and
+works for bots with no extra wiring. Swap-trigger internal cooldowns are
+transient server-side state, also never persisted.
+_Avoid_: Duo boon, pair upgrade, synergy perk.
+
 ## Content & progression
 
 **Ability**:
