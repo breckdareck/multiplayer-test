@@ -43,7 +43,7 @@ func on_hit(owner_node: Node, target: Node, _ability: AbilityData) -> void:
 	var ability_comp = owner_node.get("ability_component")
 	if ability_comp and _ability != null and ability_comp.has_method("get_ability_upgrade_magnitude"):
 		duration += ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_mark_duration")
-		dmg_bonus += ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_damage_bonus")
+		dmg_bonus += ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_mark_damage")
 		spread = int(ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_mark_spread"))
 		extra_targets = int(ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_mark_targets"))
 

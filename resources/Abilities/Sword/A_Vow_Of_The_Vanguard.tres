@@ -9,11 +9,11 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="5_dno0u"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="7_wemtw"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="9_aud"]
-[ext_resource type="Resource" uid="uid://bcnfqh1xs5vd5" path="res://resources/Abilities/Sword/Upgrades/U_MW_InspiringVow.tres" id="10_iv"]
-[ext_resource type="Resource" uid="uid://burosksmo1tir" path="res://resources/Abilities/Sword/Upgrades/U_MW_BattleHymn.tres" id="11_bh"]
-[ext_resource type="Resource" uid="uid://mwu3greater" path="res://resources/Abilities/Sword/Upgrades/U_MW_GreaterVow.tres" id="12_gv"]
-[ext_resource type="Resource" uid="uid://mwu4enduring" path="res://resources/Abilities/Sword/Upgrades/U_MW_EnduringVow.tres" id="13_ev"]
-[ext_resource type="Resource" uid="uid://bcnjl8nqmvrej" path="res://resources/Abilities/Sword/Upgrades/U_MW_EfficientVow.tres" id="14_efv"]
+[ext_resource type="Resource" uid="uid://bcnfqh1xs5vd5" path="res://resources/Abilities/Sword/Upgrades/U_VOW_InspiringVow.tres" id="10_iv"]
+[ext_resource type="Resource" uid="uid://burosksmo1tir" path="res://resources/Abilities/Sword/Upgrades/U_VOW_BattleHymn.tres" id="11_bh"]
+[ext_resource type="Resource" uid="uid://mwu3greater" path="res://resources/Abilities/Sword/Upgrades/U_VOW_GreaterVow.tres" id="12_gv"]
+[ext_resource type="Resource" uid="uid://mwu4enduring" path="res://resources/Abilities/Sword/Upgrades/U_VOW_EnduringVow.tres" id="13_ev"]
+[ext_resource type="Resource" uid="uid://bcnjl8nqmvrej" path="res://resources/Abilities/Sword/Upgrades/U_VOW_EfficientVow.tres" id="14_efv"]
 
 [sub_resource type="Resource" id="Resource_7mrcw"]
 resource_local_to_scene = true

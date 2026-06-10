@@ -8,11 +8,11 @@
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_tn7bo"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_t6bdd"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="9_aud"]
-[ext_resource type="Resource" uid="uid://2ijaftdicsop" path="res://resources/Abilities/Sword/Upgrades/U_PS_HeavyPommel.tres" id="10_hp"]
-[ext_resource type="Resource" uid="uid://3bwl7mdb3xmi" path="res://resources/Abilities/Sword/Upgrades/U_PS_ArmorPierce.tres" id="11_ap"]
-[ext_resource type="Resource" uid="uid://4f3duphcetov" path="res://resources/Abilities/Sword/Upgrades/U_PS_Executioner.tres" id="12_ex"]
-[ext_resource type="Resource" uid="uid://dbvaocpo62rik" path="res://resources/Abilities/Sword/Upgrades/U_PS_CleavingBlow.tres" id="13_cb"]
-[ext_resource type="Resource" uid="uid://6cwuc378exmi" path="res://resources/Abilities/Sword/Upgrades/U_PS_BrutalForce.tres" id="14_bf"]
+[ext_resource type="Resource" uid="uid://2ijaftdicsop" path="res://resources/Abilities/Sword/Upgrades/U_SDB_HeavyPommel.tres" id="10_hp"]
+[ext_resource type="Resource" uid="uid://3bwl7mdb3xmi" path="res://resources/Abilities/Sword/Upgrades/U_SDB_ArmorPierce.tres" id="11_ap"]
+[ext_resource type="Resource" uid="uid://4f3duphcetov" path="res://resources/Abilities/Sword/Upgrades/U_SDB_Executioner.tres" id="12_ex"]
+[ext_resource type="Resource" uid="uid://dbvaocpo62rik" path="res://resources/Abilities/Sword/Upgrades/U_SDB_CleavingBlow.tres" id="13_cb"]
+[ext_resource type="Resource" uid="uid://6cwuc378exmi" path="res://resources/Abilities/Sword/Upgrades/U_SDB_BrutalForce.tres" id="14_bf"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_i4okq"]
 size = Vector2(30, 20)

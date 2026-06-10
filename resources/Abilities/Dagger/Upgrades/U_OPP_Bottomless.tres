@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_aud")
 upgrade_id = "dpk_t3_bottomless"
-upgrade_name = "Assassinate"
+upgrade_name = "Death in the Dark"
 description = "Increases Opportunist's stealth damage bonus by +7%."
 point_cost = 2
 tier = 3

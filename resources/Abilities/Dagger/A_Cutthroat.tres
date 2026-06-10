@@ -7,9 +7,9 @@
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_vig1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_vig1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
-[ext_resource type="Resource" uid="uid://7fgrmrmqpctg" path="res://resources/Abilities/Dagger/Upgrades/U_VIG_Hardy.tres" id="9_vig1"]
-[ext_resource type="Resource" uid="uid://be1cxe2ke18u8" path="res://resources/Abilities/Dagger/Upgrades/U_VIG_Robust.tres" id="10_vig2"]
-[ext_resource type="Resource" uid="uid://ecmkg1d3hv8t" path="res://resources/Abilities/Dagger/Upgrades/U_VIG_Stalwart.tres" id="11_vig3"]
+[ext_resource type="Resource" uid="uid://7fgrmrmqpctg" path="res://resources/Abilities/Dagger/Upgrades/U_CUT_Hardy.tres" id="9_vig1"]
+[ext_resource type="Resource" uid="uid://be1cxe2ke18u8" path="res://resources/Abilities/Dagger/Upgrades/U_CUT_Robust.tres" id="10_vig2"]
+[ext_resource type="Resource" uid="uid://ecmkg1d3hv8t" path="res://resources/Abilities/Dagger/Upgrades/U_CUT_Stalwart.tres" id="11_vig3"]
 
 [sub_resource type="Resource" id="Resource_vig_behav"]
 resource_local_to_scene = true

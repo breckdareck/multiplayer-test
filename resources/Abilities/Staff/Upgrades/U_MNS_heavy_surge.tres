@@ -10,5 +10,5 @@ description = "Mana Surge's damage bonus is increased to +75%."
 point_cost = 2
 tier = 3
 variant_group = "mns_t3_variant"
-effect_key = "bonus_damage_bonus"
+effect_key = "bonus_mark_damage"
 magnitude = 0.25

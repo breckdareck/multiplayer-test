@@ -7,9 +7,9 @@
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_vb1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_vb1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
-[ext_resource type="Resource" uid="uid://ca64ob0mairgm" path="res://resources/Abilities/Staff/Upgrades/U_VB_Hale.tres" id="9_ha"]
-[ext_resource type="Resource" uid="uid://clut6l17diac5" path="res://resources/Abilities/Staff/Upgrades/U_VB_Robust.tres" id="10_ro"]
-[ext_resource type="Resource" uid="uid://btj2dcbr3hpub" path="res://resources/Abilities/Staff/Upgrades/U_VB_Flourishing.tres" id="11_fl"]
+[ext_resource type="Resource" uid="uid://ca64ob0mairgm" path="res://resources/Abilities/Staff/Upgrades/U_MFL_Hale.tres" id="9_ha"]
+[ext_resource type="Resource" uid="uid://clut6l17diac5" path="res://resources/Abilities/Staff/Upgrades/U_MFL_Robust.tres" id="10_ro"]
+[ext_resource type="Resource" uid="uid://btj2dcbr3hpub" path="res://resources/Abilities/Staff/Upgrades/U_MFL_Flourishing.tres" id="11_fl"]
 
 [sub_resource type="Resource" id="Resource_vb_behav"]
 resource_local_to_scene = true

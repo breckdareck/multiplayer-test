@@ -6,9 +6,9 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_28yas"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_64xiq"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="7_aud"]
-[ext_resource type="Resource" uid="uid://spu1mighty" path="res://resources/Abilities/Sword/Upgrades/U_SP_Mighty.tres" id="8_mi"]
-[ext_resource type="Resource" uid="uid://spu2powerful" path="res://resources/Abilities/Sword/Upgrades/U_SP_Powerful.tres" id="9_po"]
-[ext_resource type="Resource" uid="uid://c88l353clru8l" path="res://resources/Abilities/Sword/Upgrades/U_SP_Herculean.tres" id="10_he"]
+[ext_resource type="Resource" uid="uid://spu1mighty" path="res://resources/Abilities/Sword/Upgrades/U_AGG_Mighty.tres" id="8_mi"]
+[ext_resource type="Resource" uid="uid://spu2powerful" path="res://resources/Abilities/Sword/Upgrades/U_AGG_Powerful.tres" id="9_po"]
+[ext_resource type="Resource" uid="uid://c88l353clru8l" path="res://resources/Abilities/Sword/Upgrades/U_AGG_Herculean.tres" id="10_he"]
 [ext_resource type="Script" uid="uid://djmplaybeawii" path="res://scripts/Abilities/AL_Aggression.gd" id="11_alag"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="12_asf"]
 

@@ -6,9 +6,9 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_dr1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_dr1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
-[ext_resource type="Resource" uid="uid://u4y45erj4pkf" path="res://resources/Abilities/Bow/Upgrades/U_DR_Capacity.tres" id="9_ca"]
-[ext_resource type="Resource" uid="uid://dfef20lwdp1g7" path="res://resources/Abilities/Bow/Upgrades/U_DR_Wellspring.tres" id="10_we"]
-[ext_resource type="Resource" uid="uid://3sm377aeajt8" path="res://resources/Abilities/Bow/Upgrades/U_DR_Boundless.tres" id="11_bo"]
+[ext_resource type="Resource" uid="uid://u4y45erj4pkf" path="res://resources/Abilities/Bow/Upgrades/U_TWD_Capacity.tres" id="9_ca"]
+[ext_resource type="Resource" uid="uid://dfef20lwdp1g7" path="res://resources/Abilities/Bow/Upgrades/U_TWD_Wellspring.tres" id="10_we"]
+[ext_resource type="Resource" uid="uid://3sm377aeajt8" path="res://resources/Abilities/Bow/Upgrades/U_TWD_Boundless.tres" id="11_bo"]
 [ext_resource type="Script" uid="uid://ltailwind01x" path="res://scripts/Abilities/AL_Tailwind.gd" id="12_tw"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="ASF_dmgpct"]
 

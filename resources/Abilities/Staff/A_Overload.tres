@@ -6,9 +6,9 @@
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="4_km1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="6_km1"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
-[ext_resource type="Resource" uid="uid://sjlft87i8iyo" path="res://resources/Abilities/Staff/Upgrades/U_KM_Focused.tres" id="9_fo"]
-[ext_resource type="Resource" uid="uid://c7ej7bwnxoepp" path="res://resources/Abilities/Staff/Upgrades/U_KM_Incisive.tres" id="10_in"]
-[ext_resource type="Resource" uid="uid://cm0p51eh0bywk" path="res://resources/Abilities/Staff/Upgrades/U_KM_Prescient.tres" id="11_pr"]
+[ext_resource type="Resource" uid="uid://sjlft87i8iyo" path="res://resources/Abilities/Staff/Upgrades/U_OVL_Focused.tres" id="9_fo"]
+[ext_resource type="Resource" uid="uid://c7ej7bwnxoepp" path="res://resources/Abilities/Staff/Upgrades/U_OVL_Incisive.tres" id="10_in"]
+[ext_resource type="Resource" uid="uid://cm0p51eh0bywk" path="res://resources/Abilities/Staff/Upgrades/U_OVL_Prescient.tres" id="11_pr"]
 [ext_resource type="Script" uid="uid://loverload01x" path="res://scripts/Abilities/AL_Overload.gd" id="12_ov"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="ASF_dmgpct"]
 

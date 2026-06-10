@@ -9,11 +9,11 @@
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_b8raq"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_cm1ky"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="10_aud"]
-[ext_resource type="Resource" uid="uid://pgu1quickrec" path="res://resources/Abilities/Sword/Upgrades/U_PG_QuickRecovery.tres" id="11_qr"]
-[ext_resource type="Resource" uid="uid://pgu2lasting" path="res://resources/Abilities/Sword/Upgrades/U_PG_LastingGuard.tres" id="12_lg"]
-[ext_resource type="Resource" uid="uid://pgu3spiked" path="res://resources/Abilities/Sword/Upgrades/U_PG_SpikedBulwark.tres" id="13_sb"]
-[ext_resource type="Resource" uid="uid://pgu4eternal" path="res://resources/Abilities/Sword/Upgrades/U_PG_EternalGuard.tres" id="14_eg"]
-[ext_resource type="Resource" uid="uid://dunjl8nqmvrej" path="res://resources/Abilities/Sword/Upgrades/U_PG_EfficientGuard.tres" id="15_ef"]
+[ext_resource type="Resource" uid="uid://pgu1quickrec" path="res://resources/Abilities/Sword/Upgrades/U_IR_QuickRecovery.tres" id="11_qr"]
+[ext_resource type="Resource" uid="uid://pgu2lasting" path="res://resources/Abilities/Sword/Upgrades/U_IR_LastingGuard.tres" id="12_lg"]
+[ext_resource type="Resource" uid="uid://pgu3spiked" path="res://resources/Abilities/Sword/Upgrades/U_IR_SpikedBulwark.tres" id="13_sb"]
+[ext_resource type="Resource" uid="uid://pgu4eternal" path="res://resources/Abilities/Sword/Upgrades/U_IR_EternalGuard.tres" id="14_eg"]
+[ext_resource type="Resource" uid="uid://dunjl8nqmvrej" path="res://resources/Abilities/Sword/Upgrades/U_IR_EfficientGuard.tres" id="15_ef"]
 
 [sub_resource type="Resource" id="Resource_1gbs7"]
 script = ExtResource("2_rxk8e")
