@@ -1047,10 +1047,6 @@ use_parent_material = true
 rotation = 0.00035073853
 tile_set = SubResource("TileSet_lbhrr")
 
-[node name="Barrier" type="TileMapLayer" parent="TileMap"]
-use_parent_material = true
-tile_set = SubResource("TileSet_ryi0r")
-
 [node name="Killzone" parent="." instance=ExtResource("9_ffoeb")]
 position = Vector2(0, 60)
 

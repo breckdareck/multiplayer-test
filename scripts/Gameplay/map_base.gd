@@ -38,6 +38,16 @@ class_name MapBase
 @export var camera_limit_right: int = 10000000
 @export var camera_limit_bottom: int = 10000000
 
+@export_category("Side Walls")
+## When true, two invisible walls (a StaticBody2D with WorldBoundaryShape2D
+## colliders on the "World" layer) are created at runtime at the left/right
+## edges of the playable ground, so players and enemies can't walk or get
+## knocked off the sides of the map. Computed from the same "Mid" tile layer
+## as the camera bounds.
+@export var side_walls_auto: bool = true
+## Pushes the walls outward (+) or inward (-) from the ground edges, in pixels.
+@export var side_wall_margin: float = 0.0
+
 @export_category("Editor Preview")
 ## Draw a colored outline of the camera bounds directly on the map in the
 ## editor view. The preview live-updates as you edit the tilemap or padding.
@@ -56,6 +66,8 @@ func _ready() -> void:
 	add_to_group("map_base")
 	if camera_bounds_auto:
 		_auto_compute_camera_bounds()
+	if side_walls_auto:
+		_create_side_walls()
 
 
 func _process(_delta: float) -> void:
@@ -91,6 +103,57 @@ func _draw() -> void:
 		]
 		draw_string(font, Vector2(bounds[0] + 8, bounds[1] + 22), label_text,
 			HORIZONTAL_ALIGNMENT_LEFT, -1, 16, bounds_outline_color)
+	# Side-wall preview: vertical lines where the runtime walls will sit.
+	if side_walls_auto:
+		var extent: Variant = _compute_ground_extent_x()
+		if extent != null:
+			var wall_color := Color(1.0, 0.35, 0.2, 0.9)
+			var left_x: float = extent[0] - side_wall_margin
+			var right_x: float = extent[1] + side_wall_margin
+			draw_line(Vector2(left_x, bounds[1]), Vector2(left_x, bounds[3]), wall_color, 3.0)
+			draw_line(Vector2(right_x, bounds[1]), Vector2(right_x, bounds[3]), wall_color, 3.0)
+
+
+## Build the runtime side walls: one StaticBody2D with two WorldBoundaryShape2D
+## colliders (infinite vertical half-planes facing inward) at the horizontal
+## edges of the playable ground. Runs on every peer — the walls are
+## deterministic from the scene, not networked state.
+func _create_side_walls() -> void:
+	var extent: Variant = _compute_ground_extent_x()
+	if extent == null:
+		return
+	var walls := StaticBody2D.new()
+	walls.name = "SideWalls"
+	walls.collision_layer = 1  # "World" — both players and enemies mask it
+	walls.collision_mask = 0
+	var sides: Array = [
+		[extent[0] - side_wall_margin, Vector2.RIGHT],  # left wall, pushes right
+		[extent[1] + side_wall_margin, Vector2.LEFT],   # right wall, pushes left
+	]
+	for side in sides:
+		var shape := WorldBoundaryShape2D.new()
+		shape.normal = side[1]
+		var collider := CollisionShape2D.new()
+		collider.shape = shape
+		collider.position = Vector2(side[0], 0)
+		walls.add_child(collider)
+	add_child(walls)
+
+
+## Global min/max X of the playable ground ("Mid" layer used rect), as
+## [min_x, max_x], or null if no usable tilemap is found.
+func _compute_ground_extent_x() -> Variant:
+	var layer: TileMapLayer = _find_playable_tilemap_layer(self)
+	if not is_instance_valid(layer) or not layer.tile_set:
+		return null
+	var used: Rect2i = layer.get_used_rect()
+	if used.size.x <= 0 or used.size.y <= 0:
+		return null
+	var tile_size: Vector2 = Vector2(layer.tile_set.tile_size)
+	return [
+		layer.to_global(Vector2(used.position) * tile_size).x,
+		layer.to_global(Vector2(used.end) * tile_size).x,
+	]
 
 
 ## Compute what the auto-bounds would be without mutating any export. Returns
