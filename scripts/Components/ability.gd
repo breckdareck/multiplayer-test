@@ -227,6 +227,16 @@ func _ready() -> void:
 	if _equipment_component:
 		_equipment_component.active_weapon_changed.connect(_on_active_weapon_changed)
 
+	# Dispatch the "on_damaged" passive proc event when this character takes
+	# damage. AbilityLevelData/AbilityScalingData have supported the event
+	# since PR 6, but no code path ever fired it — a passive authored against
+	# on_damaged_proc would silently never proc (flagged in
+	# tools/upgrade_audit_report.py). Mirrors BuffComponent's reactive-buff
+	# hookup to the same signal; server-only like every other proc dispatch.
+	var health_component = get_parent().get_node_or_null("Health")
+	if health_component and multiplayer.is_server():
+		health_component.damaged.connect(_on_health_damaged)
+
 	# Find or create the projectiles container inside the current visible map.
 	var map_node = MapManager.get_current_visible_map()
 	if map_node:
@@ -518,6 +528,13 @@ func get_ability_cooldown_modifier(ability_id: String) -> float:
 
 func get_ability_mana_modifier(ability_id: String) -> float:
 	return _get_ability_modifier(ability_id, func(level_stats, id): return level_stats.get_ability_mana_modifier(id))
+
+
+## Incoming-damage proc dispatch. `source` is the attacker (null for
+## environmental damage) so a retaliation proc can target them; the incoming
+## amount rides as base_damage so proc.damage_percent scales off the hit taken.
+func _on_health_damaged(amount: int, source: Node) -> void:
+	try_trigger_procs("on_damaged", source, { "base_damage": amount })
 
 
 func try_trigger_procs(event_type: String, target: Node = null, context: Dictionary = {}) -> void:
