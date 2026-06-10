@@ -1343,7 +1343,7 @@ func _complete_bot_args(prior_args: PackedStringArray, _t: String) -> PackedStri
 				"say":
 					return PackedStringArray(["greet", "level_up", "death", "rare_loot",
 						"boss_kill", "boss_engage", "party_join", "retreat", "gear_upgrade",
-						"reply", "banter_open", "banter_reply"])
+						"reply"])
 			return PackedStringArray()
 		"roster":
 			return PackedStringArray(["forget"])

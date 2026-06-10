@@ -123,9 +123,12 @@ pattern). See [docs/adr/0011-bot-ambient-population.md](../../docs/adr/0011-bot-
   level-adjacent player (normal invite UI); 5-min cooldown, 30s unanswered
   → the solo party is abandoned. Party tracking watches real-player
   MEMBERSHIP, not party id (creating the invite party is silent).
-- **Banter** — `BotManager._step_banter` scripts one overheard
-  open+reply exchange (60–140s cadence) between two bots within 350px on a
-  map with a real-player audience.
+- **Banter** — `BotManager._step_banter` scripts one overheard exchange
+  (60–140s cadence) between two bots within 350px on a map with a
+  real-player audience. Lines come from the shared `banter` TOPIC table in
+  `bot_personalities.json` — each topic pairs one opener with replies
+  written for it, so exchanges are coherent by construction (per-archetype
+  open/reply pools were removed: independent pools produced non-sequiturs).
 - **Offline catch-up** — a returning identity gains levels for downtime
   since roster `last_seen` (`bot_config.json "offline_progression"`), via
   `pump_bot_to_level` (now level-cap-safe).

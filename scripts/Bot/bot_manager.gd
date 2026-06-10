@@ -15,6 +15,10 @@ var _inspect_window: BotInspectWindow = null
 # --- Ambient population (ADR 0011): personality archetypes + identity roster ---
 ## Archetype table (chattiness + per-event line pools), data not code.
 var _personalities: Dictionary = {}
+## Shared banter topics: each entry pairs ONE opener with replies that actually
+## answer it — exchanges are coherent by construction, unlike the old
+## independent per-archetype open/reply pools (any open could draw any reply).
+var _banter_topics: Array = []
 var _personalities_path: String = "res://config/bot_personalities.json"
 ## Server-side identity roster: persists the personality a random bot rolled so
 ## it stays recognizable across sessions. Deliberately NOT a backend column —
@@ -313,6 +317,7 @@ func handle_bot_reparented(bot_id: int) -> void:
 
 func _load_personalities() -> void:
 	_personalities = {}
+	_banter_topics = []
 	if not FileAccess.file_exists(_personalities_path):
 		return
 	var file := FileAccess.open(_personalities_path, FileAccess.READ)
@@ -320,6 +325,7 @@ func _load_personalities() -> void:
 	file.close()
 	if parsed is Dictionary:
 		_personalities = parsed.get("archetypes", {})
+		_banter_topics = parsed.get("banter", [])
 	else:
 		push_warning("BotManager: Failed to parse %s" % _personalities_path)
 
@@ -591,15 +597,23 @@ func _banter_tick() -> String:
 	return "No two bots within %dpx of each other." % int(BANTER_PAIR_RANGE)
 
 
+## One scripted exchange from the shared topic table: A opens, B answers with a
+## reply written FOR that opener. Delivered straight through bot_say (budget
+## applies); the reply waits out the global speech gap so both lines clear it.
 func _run_banter(id_a: int, id_b: int, name_a: String, name_b: String) -> void:
-	var brain_a := get_bot_brain(id_a)
-	if brain_a == null or not brain_a.try_speak("banter_open", {"player": name_b}, true):
+	if _banter_topics.is_empty():
 		return
-	# The reply waits out the global speech gap so both lines clear the budget.
+	var topic: Dictionary = _banter_topics.pick_random()
+	var map_name: String = MapManager._map_display_name(MapManager.get_player_map(id_a))
+	var open_text: String = String(topic.get("open", "")).format({"player": name_b, "map": map_name})
+	if open_text.is_empty() or not ChatManager.bot_say(id_a, open_text):
+		return
 	await get_tree().create_timer(ChatManager.BOT_SPEECH_GLOBAL_GAP + randf_range(1.0, 2.5)).timeout
-	var brain_b := get_bot_brain(id_b)
-	if brain_b != null:
-		brain_b.try_speak("banter_reply", {"player": name_a}, true)
+	var replies: Array = topic.get("replies", [])
+	if replies.is_empty():
+		return
+	var reply_text: String = String(replies.pick_random()).format({"player": name_a, "map": map_name})
+	ChatManager.bot_say(id_b, reply_text)
 
 
 # --- Cold-start seeding (ADR 0011) ---

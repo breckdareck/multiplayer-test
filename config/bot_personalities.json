@@ -1,4 +1,86 @@
 {
+  "banter": [
+    {
+      "open": "anyone else farming {map}, or is it just us out here?",
+      "replies": [
+        "just us, {player}. more drops for me",
+        "saw a couple earlier — they pushed on toward the keep",
+        "quiet today. I'm not complaining"
+      ]
+    },
+    {
+      "open": "drops been any good for you today, {player}?",
+      "replies": [
+        "one rare all morning. ONE.",
+        "can't complain — sold a whole bagful in town",
+        "junk mostly. still beats an empty bag"
+      ]
+    },
+    {
+      "open": "you ever been out past the deep woods, {player}?",
+      "replies": [
+        "once. didn't stay long",
+        "not at my level. someday",
+        "past the woods it stops being farming and starts being surviving"
+      ]
+    },
+    {
+      "open": "heard the Warlord one-shots people clean through the floor",
+      "replies": [
+        "it's a horizontal slam — jump it and you're fine",
+        "only if you stand there admiring the windup",
+        "that's what the jump button is for, {player}"
+      ]
+    },
+    {
+      "open": "I swear the merchant at Lantern's Rest smiles when I walk in broke",
+      "replies": [
+        "the prices are flat, {player}. your potion habit isn't",
+        "ha! felt that one",
+        "buy in bulk, cry once"
+      ]
+    },
+    {
+      "open": "race you to the next rare drop, {player}",
+      "replies": [
+        "you're on",
+        "deal. loser buys the potions",
+        "last race you faceplanted into a thornroot, but sure"
+      ]
+    },
+    {
+      "open": "ever feel like the slimes are staring at you?",
+      "replies": [
+        "they're always staring. that's the job",
+        "...well NOW I do, {player}. thanks",
+        "stare back. they hate that"
+      ]
+    },
+    {
+      "open": "how's the gear holding up, {player}?",
+      "replies": [
+        "better than the old set, worse than I hoped",
+        "it does the job. the job is hitting things",
+        "ask the enemies"
+      ]
+    },
+    {
+      "open": "long day, {player}?",
+      "replies": [
+        "long week",
+        "they're all long out here",
+        "good long, though"
+      ]
+    },
+    {
+      "open": "if you could live anywhere on the map, where?",
+      "replies": [
+        "Lantern's Rest. close to the merchant, far from the Warlord",
+        "somewhere without slimes. so nowhere",
+        "right here's fine. commute's short"
+      ]
+    }
+  ],
   "archetypes": {
     "butcher": {
       "chattiness": 0.85,
@@ -91,16 +173,6 @@
           "tactical withdrawal, son. there's a fuckin' difference",
           "right, fallin' back. this ain't over, not by a long fuckin' shot",
           "even I know when to leg it. briefly. shut up"
-        ],
-        "banter_open": [
-          "oi {player}, you seen the state of the monsters round here? fuckin' diabolical",
-          "{player}, tell me straight. you trust them quest-givers? 'cause I fuckin' don't",
-          "you hear about the Warlord, {player}? proper piece of work, that cunt"
-        ],
-        "banter_reply": [
-          "couldn't have said it better meself, {player}",
-          "ha! you're alright, {player}. for a fuckin' lunatic",
-          "careful sayin' that out loud, son. but yeah, fuckin' agreed"
         ]
       }
     },
@@ -191,16 +263,6 @@
           "{player}, you look like you could use a carry. party?",
           "oi {player}, group with greatness?",
           "{player}! once-in-a-lifetime chance to farm with me"
-        ],
-        "banter_open": [
-          "{player}, tell them how I soloed this whole map",
-          "be honest {player}, am I the best you've grouped with?",
-          "{player}, race you to the next rare drop"
-        ],
-        "banter_reply": [
-          "sure, {player}. and I'm the king of Emberwatch",
-          "we were ALL there, {player}. it was one slime",
-          "you wish, {player}"
         ]
       }
     },
@@ -274,14 +336,6 @@
         "party_invite": [
           "group, {player}?",
           "party up?"
-        ],
-        "banter_open": [
-          "{player}, drops any good here?",
-          "long day, {player}?"
-        ],
-        "banter_reply": [
-          "yeah",
-          "same as always, {player}"
         ]
       }
     },
@@ -369,16 +423,6 @@
           "hey {player}, hunting alone? I'll watch your flank — party?",
           "{player}, want to team up? safer in pairs out here",
           "got room for one more, {player}? I've got potions to share"
-        ],
-        "banter_open": [
-          "{player}, you stocked up on potions before heading out?",
-          "watch the upper ledges, {player} — they hit harder up there",
-          "good hunting today, {player}?"
-        ],
-        "banter_reply": [
-          "always do, {player}. always do",
-          "noted! you be careful too, {player}",
-          "can't complain, {player}. drops are decent"
         ]
       }
     },
@@ -463,16 +507,6 @@
           "walking the same road, {player}? might as well walk it together",
           "{player}, company makes the maps shorter. group up?",
           "two sets of eyes beat one out here, {player}. party?"
-        ],
-        "banter_open": [
-          "{player}, ever been past the deep woods?",
-          "this map reminds me of somewhere I can't place, {player}",
-          "what's the strangest thing you've seen out here, {player}?"
-        ],
-        "banter_reply": [
-          "everywhere worth going, {player}",
-          "every map looks like somewhere else if you wander enough",
-          "you don't want to know, {player}. truly"
         ]
       }
     }
