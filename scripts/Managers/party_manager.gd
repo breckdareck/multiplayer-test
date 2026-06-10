@@ -350,7 +350,8 @@ func _client_update_party_data(party_data_dict: Dictionary):
 		_player_info_cache[member_data.id] = {
 			"username": member_data.username,
 			"level": member_data.level,
-			"class_name": member_data.class_name
+			"class_name": member_data.class_name,
+			"is_online": member_data.get("is_online", true),
 		}
 
 	var new_party_data = PartyData.new(party_id, party_data_dict.get("leader_id"))
@@ -394,7 +395,12 @@ func _send_party_data_to_members(party_id: int):
 			"id": member_id,
 			"username": player_info.get("username", "Player " + str(member_id)),
 			"level": level,
-			"class_name": player_class
+			"class_name": player_class,
+			# Authoritative presence. A client can only resolve nodes on its OWN
+			# loaded map, so it must not infer online-ness from a node lookup —
+			# that marks every cross-map ally "offline". Having a current map
+			# means connected (disconnects are removed from the party anyway).
+			"is_online": MapManager.get_player_map(member_id) != "",
 		})
 
 	var party_data_to_send = {

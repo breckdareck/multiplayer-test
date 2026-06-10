@@ -22,6 +22,10 @@ var game_server_port: int = 8080
 
 # Gameplay settings
 var screen_shake_enabled: bool = true
+## Chat window font size. 16 matches UI_Theme's default_font_size, so the
+## default is a no-op until the player moves the slider.
+var chat_text_size: int = 16
+signal chat_text_size_changed(size: int)
 
 func _init():
 	# Define default hotbar actions
@@ -317,12 +321,20 @@ func set_game_server_port(port: int):
 func _load_gameplay_settings_from_config(config: ConfigFile):
 	if config.has_section(GAMEPLAY_CONFIG_SECTION):
 		screen_shake_enabled = config.get_value(GAMEPLAY_CONFIG_SECTION, "screen_shake_enabled", screen_shake_enabled)
+		chat_text_size = config.get_value(GAMEPLAY_CONFIG_SECTION, "chat_text_size", chat_text_size)
 
 
 func _save_gameplay_settings_to_config(config: ConfigFile, _file_existed_before_save: bool):
 	config.set_value(GAMEPLAY_CONFIG_SECTION, "screen_shake_enabled", screen_shake_enabled)
+	config.set_value(GAMEPLAY_CONFIG_SECTION, "chat_text_size", chat_text_size)
 
 
 func set_screen_shake_enabled(enabled: bool):
 	screen_shake_enabled = enabled
 	save_config()
+
+
+func set_chat_text_size(size: int) -> void:
+	chat_text_size = clampi(size, 10, 24)
+	save_config()
+	chat_text_size_changed.emit(chat_text_size)

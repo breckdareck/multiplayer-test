@@ -1208,6 +1208,10 @@ func _maybe_invite_player(my_map: String) -> void:
 	var bot_level: int = player.level_component.level
 
 	for pid in MapManager.get_real_players_on_map(my_map):
+		# Belt-and-braces: player_ids and player_current_maps can disagree for
+		# a frame mid-transit — never invite someone who isn't really here.
+		if MapManager.get_player_map(pid) != my_map:
+			continue
 		if PartyManager.get_player_party_id(pid) != -1:
 			continue
 		var node := PlayerManager.get_player_node(pid)

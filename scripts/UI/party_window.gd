@@ -224,10 +224,17 @@ func _update_party_display():
 			var level: int
 			var player_class: String
 
+			# Presence: the host can resolve every node (it scans all maps), but
+			# a CLIENT only has its own loaded map — a cross-map ally's node is
+			# simply not there, which is not "offline". Clients trust the
+			# server-sent is_online flag instead of the node lookup.
+			var is_online: bool
+
 			if multiplayer.is_server(): # HOST PATH
 				# Host gets data directly from the player node
 				level = 1
 				player_class = "N/A"
+				is_online = player_node != null
 				if player_node:
 					if player_node.level_component:
 						level = player_node.level_component.level
@@ -238,8 +245,9 @@ func _update_party_display():
 				var member_info = PartyManager.get_party_member_info(member_id)
 				level = member_info.get("level", 1)
 				player_class = member_info.get("class_name", "N/A")
+				is_online = member_info.get("is_online", true)
 
-			if player_node: # Player is online
+			if is_online: # Player is online
 				var item = online_tree.create_item(root_online)
 				var display_name = username
 				if member_is_leader:

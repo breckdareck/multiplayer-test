@@ -696,6 +696,16 @@ func _finalize_player_spawn(player_id: int, map_id: String, spawn_point_name: St
 	if not multiplayer.is_server() or not map_id in active_maps: return
 
 	#print("MapManager: Finalizing spawn for player %d on map %s at spawn '%s'" % [player_id, map_id, spawn_point_name])
+	# Occupancy bookkeeping — scrub the id from EVERY map's list before adding.
+	# _finalize_player_spawn can run twice for the same arrival (the host gets a
+	# direct call AND its own client ACK), and Array.erase removes only ONE
+	# occurrence — so without the scrub a duplicate survives the next map
+	# change as a ghost entry that keeps receiving map-scoped traffic (bot
+	# speech, bot party invites) from maps the player already left.
+	for other_map_id in active_maps:
+		var ids: Array = active_maps[other_map_id].player_ids
+		while player_id in ids:
+			ids.erase(player_id)
 	active_maps[map_id].player_ids.append(player_id)
 	
 	# Sync EXISTING players to the new joiner
