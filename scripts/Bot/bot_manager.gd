@@ -944,10 +944,21 @@ func _step_nav_graph_builds() -> void:
 
 
 ## Camera-follow a bot for debugging. watch_bot(0) stops and restores the host
-## camera. Host-only — peer 1's player owns the active viewport camera there.
+## view. Host-only.
+##
+## Every map lives in its own SubViewport with an isolated World2D (ADR 0007),
+## so the host's camera can never LOOK at a bot on another map — a camera only
+## sees its own world. Watching therefore (a) locally composites the BOT's map
+## (the same _set_local_map_visible switch a host map change uses; purely
+## visual, the host keeps simulating on its own now-hidden map) and (b) drives
+## a dedicated follow camera that lives inside the bot's SubViewport.
 var _watched_bot: int = 0
-var _watch_saved_cam_pos: Vector2 = Vector2.ZERO
-var _watch_cam_saved: bool = false
+var _watch_camera: Camera2D = null
+## The map this watch session is currently compositing locally ("" = none).
+var _watch_shown_map: String = ""
+## The host map this watch session has hidden ("" = none) — re-hidden if the
+## host itself changes maps mid-watch (its arrival re-shows its new map).
+var _watch_hidden_host_map: String = ""
 
 func watch_bot(bot_id: int) -> void:
 	if bot_id == _watched_bot:
@@ -963,17 +974,21 @@ func get_watched_bot() -> int:
 
 
 func _restore_watch_camera() -> void:
-	if not _watch_cam_saved:
-		return
+	if is_instance_valid(_watch_camera):
+		_watch_camera.queue_free()
+	_watch_camera = null
+	# Put the host's own map back on screen and hand the view back to its camera.
+	if not _watch_shown_map.is_empty() and _watch_shown_map != MapManager.current_map_id:
+		MapManager._set_local_map_visible(_watch_shown_map, false)
+	if not MapManager.current_map_id.is_empty():
+		MapManager._set_local_map_visible(MapManager.current_map_id, true)
+	_watch_shown_map = ""
+	_watch_hidden_host_map = ""
 	var host := PlayerManager.get_player_node(1)
 	if is_instance_valid(host) and is_instance_valid(host.camera):
-		host.camera.position = _watch_saved_cam_pos
-		# Reinstate the current map's camera bounds (they were widened to let the
-		# follow camera move freely). _apply_map_camera_bounds re-reads the active
-		# MapBase, so it handles the case where the host changed maps mid-watch.
+		host.camera.make_current()
 		if host.has_method("_apply_map_camera_bounds"):
 			host._apply_map_camera_bounds(host.camera)
-	_watch_cam_saved = false
 
 
 func _update_watch_camera() -> void:
@@ -983,19 +998,46 @@ func _update_watch_camera() -> void:
 		watch_bot(0)  # bot despawned — stop following
 		return
 	var bot := PlayerManager.get_player_node(_watched_bot)
-	var host := PlayerManager.get_player_node(1)
-	if not is_instance_valid(bot) or not is_instance_valid(host) or not is_instance_valid(host.camera):
+	if not is_instance_valid(bot):
 		return
-	if not _watch_cam_saved:
-		_watch_saved_cam_pos = host.camera.position
-		_watch_cam_saved = true
-	# Widen the camera limits every frame: the per-map MapBase bounds otherwise
-	# clamp the follow camera, and a mid-watch map change would re-apply them.
-	host.camera.limit_left = -10000000
-	host.camera.limit_top = -10000000
-	host.camera.limit_right = 10000000
-	host.camera.limit_bottom = 10000000
-	host.camera.global_position = bot.global_position
+	var bot_map := MapManager.get_player_map(_watched_bot)
+	if bot_map.is_empty():
+		return
+
+	# Composite the bot's map locally (and keep up when the bot hops maps).
+	if _watch_shown_map != bot_map:
+		if not _watch_shown_map.is_empty() and _watch_shown_map != MapManager.current_map_id:
+			MapManager._set_local_map_visible(_watch_shown_map, false)
+		if MapManager.current_map_id != bot_map:
+			MapManager._set_local_map_visible(MapManager.current_map_id, false)
+			_watch_hidden_host_map = MapManager.current_map_id
+		MapManager._set_local_map_visible(bot_map, true)
+		_watch_shown_map = bot_map
+
+	# The host changing maps mid-watch re-shows ITS new map — re-hide it so the
+	# watched map stays the one on screen.
+	if MapManager.current_map_id != bot_map and MapManager.current_map_id != _watch_hidden_host_map:
+		MapManager._set_local_map_visible(MapManager.current_map_id, false)
+		_watch_hidden_host_map = MapManager.current_map_id
+
+	# Follow camera inside the bot's own SubViewport/World2D. Recreated when
+	# the bot crosses into a different viewport (reparent map hop).
+	if not is_instance_valid(_watch_camera) or _watch_camera.get_viewport() != bot.get_viewport():
+		if is_instance_valid(_watch_camera):
+			_watch_camera.queue_free()
+		_watch_camera = Camera2D.new()
+		_watch_camera.name = "BotWatchCamera"
+		var host := PlayerManager.get_player_node(1)
+		if is_instance_valid(host) and is_instance_valid(host.camera):
+			_watch_camera.zoom = host.camera.zoom
+		bot.get_viewport().add_child(_watch_camera)
+		# Land on the bot immediately — physics interpolation would otherwise
+		# swoop the view in from (0,0) on the first frame.
+		_watch_camera.global_position = bot.global_position
+		_watch_camera.reset_physics_interpolation()
+	if not _watch_camera.is_current():
+		_watch_camera.make_current()
+	_watch_camera.global_position = bot.global_position
 
 
 ## The cached nav graph for a map (built or still building), for debug tooling.
