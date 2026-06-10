@@ -6,6 +6,6 @@
 script = ExtResource("1_aud")
 upgrade_id = "evi_t1_swift_kill"
 upgrade_name = "Swift Kill"
-description = "Reduces Eviscerate's cooldown by 1 second."
-effect_key = "cooldown_flat_reduction"
-magnitude = 1.0
+description = "Deals +15% damage to MARKED enemies (any source's mark counts)."
+effect_key = "bonus_damage_vs_mark"
+magnitude = 0.15

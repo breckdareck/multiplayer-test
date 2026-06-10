@@ -6,7 +6,7 @@
 script = ExtResource("1_aud")
 upgrade_id = "tf_t2_serrated"
 upgrade_name = "Serrated Edge"
-description = "Twin Fang deals +25% damage."
+description = "Deals +25% damage to BURNING enemies (any source's burn counts)."
 tier = 2
-effect_key = "bonus_damage_mult"
+effect_key = "bonus_damage_vs_burn"
 magnitude = 0.25

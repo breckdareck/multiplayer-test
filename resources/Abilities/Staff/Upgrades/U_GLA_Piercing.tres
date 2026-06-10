@@ -6,7 +6,7 @@
 script = ExtResource("1_aud")
 upgrade_id = "gla_t2_piercing"
 upgrade_name = "Piercing Cold"
-description = "Glacial Spike deals +25% damage."
+description = "Deals +25% damage to BLEEDING enemies (any source's bleed counts)."
 tier = 2
-effect_key = "bonus_damage_mult"
+effect_key = "bonus_damage_vs_bleed"
 magnitude = 0.25

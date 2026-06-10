@@ -6,7 +6,7 @@
 script = ExtResource("1_aud")
 upgrade_id = "ps_t2_armor_pierce"
 upgrade_name = "Armor Pierce"
-description = "Sundering Blow deals +30% damage."
+description = "Deals +25% damage to BURNING enemies (any source's burn counts)."
 tier = 2
-effect_key = "bonus_damage_mult"
-magnitude = 0.3
+effect_key = "bonus_damage_vs_burn"
+magnitude = 0.25

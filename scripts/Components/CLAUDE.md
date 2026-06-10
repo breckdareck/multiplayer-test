@@ -507,7 +507,12 @@ Generic — consumed by Combat/Ability with NO per-AL code:
   bonus is meaningless; same function),
   `conditional_damage_bonus` (FLAT fraction added to a conditional passive's bonus
   while its condition is met; summed in get_conditional_damage_modifier — the upgrade
-  tree for every `conditional_damage_mult` passive points here).
+  tree for every `conditional_damage_mult` passive points here),
+  `bonus_damage_vs_bleed` / `_vs_poison` / `_vs_burn` / `_vs_chill` / `_vs_mark`
+  (ADR 0013 — additive % applied per TARGET in _execute_hit when the enemy carries
+  the status tag, ANY source's; the 2026-06-10 re-author pointed ~34 formerly-bare
+  T1/T2 damage/CD/mana nodes on actives here. NOTE: built by string concat in
+  combat.gd, so the effect_key_scanner dropdown may not list them — type by hand).
 Ability-specific — read in the named AL via `ability_has_upgrade_effect` /
 `get_ability_upgrade_magnitude`:
   `combo_coefficient_override` (AL_Slash, AL_PowerStrike),

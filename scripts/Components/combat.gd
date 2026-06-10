@@ -685,6 +685,28 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 		if _ability_component and _ability_component.has_method("get_conditional_damage_modifier"):
 			modified_damage *= _ability_component.get_conditional_damage_modifier(target_enemy, ability)
 
+		# Tag-conditional ability upgrades (ADR 0013) — generic
+		# "bonus_damage_vs_<tag>" effect_keys, applied per TARGET (the status
+		# tag lives on the enemy). Consumed centrally here so re-authored T1/T2
+		# upgrade .tres need no per-AL code; summed when an ability owns more
+		# than one. Tags are enemy-global — anyone's bleed/burn/chill counts.
+		# Keys spelled out literally so the dead-upgrade test + the resource
+		# editor's effect_key_scanner can find them.
+		if ability != null and _ability_component:
+			var vs_bonus: float = 0.0
+			for entry in [
+				["bonus_damage_vs_bleed", "bleed"],
+				["bonus_damage_vs_poison", "poison"],
+				["bonus_damage_vs_burn", "burn"],
+				["bonus_damage_vs_chill", "chill"],
+				["bonus_damage_vs_mark", "mark"],
+			]:
+				var mag: float = _upgrade_float(ability, entry[0])
+				if mag != 0.0 and EnemyStatus.has_tag(target_enemy, entry[1]):
+					vs_bonus += mag
+			if vs_bonus != 0.0:
+				modified_damage *= (1.0 + vs_bonus)
+
 		var damage_to_deal = roundi(modified_damage)
 
 		# PR 7 — Dagger Shadowmeld ambush: scale this hit if the attack landed

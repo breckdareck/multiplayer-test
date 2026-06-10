@@ -6,7 +6,7 @@
 script = ExtResource("1_aud")
 upgrade_id = "bks_t2_quick_backstab"
 upgrade_name = "Quick Backstab"
-description = "Backstab's cooldown is reduced by 1 second."
+description = "Deals +25% damage to BURNING enemies (any source's burn counts)."
 tier = 2
-effect_key = "cooldown_flat_reduction"
-magnitude = 1.0
+effect_key = "bonus_damage_vs_burn"
+magnitude = 0.25
