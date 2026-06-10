@@ -459,24 +459,28 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
   <span class="brand">Game Design Document</span>
   <button class="theme-toggle" id="themeToggle" type="button">Theme: light</button>
 </header>
-<nav class="gdd-toc"><h2>Contents</h2><ul><li><a href="#1-executive-summary">1. Executive summary</a></li><li><a href="#2-design-pillars">2. Design pillars</a></li><li><a href="#3-game-overview">3. Game overview</a></li><li><a href="#4-player-experience-goals">4. Player experience goals</a></li><li><a href="#5-core-loops">5. Core loops</a><ul><li><a href="#51-30-second-loop">5.1 30-second loop</a></li><li><a href="#52-session-loop">5.2 Session loop</a></li><li><a href="#53-meta-loop-week-over-week">5.3 Meta loop (week-over-week)</a></li></ul></li><li><a href="#6-story-setting-world">6. Story, setting &amp; world</a><ul><li><a href="#61-setting-the-emberwilds">6.1 Setting — the Emberwilds</a></li><li><a href="#62-tone-cozy-catastrophe">6.2 Tone — cozy catastrophe</a></li><li><a href="#63-plot-beats-high-level">6.3 Plot beats (high level)</a></li><li><a href="#64-regions">6.4 Regions</a></li></ul></li><li><a href="#7-characters-disciplines">7. Characters &amp; disciplines</a><ul><li><a href="#71-player-character">7.1 Player character</a></li><li><a href="#72-weapon-disciplines-there-are-no-classes">7.2 Weapon disciplines (there are no classes)</a></li><li><a href="#73-npcs">7.3 NPCs</a></li></ul></li><li><a href="#8-combat-system">8. Combat system</a><ul><li><a href="#81-core-combat-verbs">8.1 Core combat verbs</a></li><li><a href="#82-damage-formula">8.2 Damage formula</a></li><li><a href="#83-hit-miss-crit">8.3 Hit / miss &amp; crit</a></li><li><a href="#84-threat-aggro">8.4 Threat / aggro</a></li><li><a href="#85-death-respawn">8.5 Death &amp; respawn</a></li></ul></li><li><a href="#9-progression-systems">9. Progression systems</a><ul><li><a href="#91-levels-xp">9.1 Levels &amp; XP</a></li><li><a href="#92-attribute-points-manual-allocation-adr-0002-shipped">9.2 Attribute points (manual allocation — ADR 0002, shipped)</a></li><li><a href="#93-abilities-three-behavior-layers">9.3 Abilities — three behavior layers</a></li><li><a href="#94-ability-points-upgrade-trees">9.4 Ability points &amp; upgrade trees</a></li><li><a href="#95-weapon-mastery">9.5 Weapon mastery</a></li></ul></li><li><a href="#10-items-equipment-economy">10. Items, equipment &amp; economy</a><ul><li><a href="#101-item-categories">10.1 Item categories</a></li><li><a href="#102-rarity-affixes">10.2 Rarity &amp; affixes</a></li><li><a href="#103-equipment-slots">10.3 Equipment slots</a></li><li><a href="#104-crafting-enchanting">10.4 Crafting &amp; enchanting</a></li><li><a href="#105-economy">10.5 Economy</a></li></ul></li><li><a href="#11-enemies-ai">11. Enemies &amp; AI</a><ul><li><a href="#111-enemy-ladder">11.1 Enemy ladder</a></li><li><a href="#112-enemy-ai">11.2 Enemy AI</a></li><li><a href="#113-bots-server-side-ai-participants">11.3 Bots (server-side AI participants)</a></li><li><a href="#114-pets-owner-bound-companions">11.4 Pets (owner-bound companions)</a></li></ul></li><li><a href="#12-levels-maps-world-topology">12. Levels, maps &amp; world topology</a><ul><li><a href="#121-map-structure">12.1 Map structure</a></li><li><a href="#122-channels">12.2 Channels</a></li><li><a href="#123-map-roster-v1">12.3 Map roster (v1)</a></li></ul></li><li><a href="#13-multiplayer-social-systems">13. Multiplayer &amp; social systems</a><ul><li><a href="#131-topology">13.1 Topology</a></li><li><a href="#132-parties">13.2 Parties</a></li><li><a href="#133-trading">13.3 Trading</a></li><li><a href="#134-chat-commands">13.4 Chat &amp; commands</a></li><li><a href="#135-friends-guilds">13.5 Friends &amp; guilds</a></li></ul></li><li><a href="#14-quests-onboarding">14. Quests &amp; onboarding</a><ul><li><a href="#141-quest-philosophy">14.1 Quest philosophy</a></li><li><a href="#142-onboarding-lvl-15">14.2 Onboarding (lvl 1–5)</a></li><li><a href="#143-quest-roster-22-quests-across-6-chains">14.3 Quest roster (22 quests across 6 chains)</a></li></ul></li><li><a href="#15-user-interface-ux">15. User interface &amp; UX</a><ul><li><a href="#151-screen-flow">15.1 Screen flow</a></li><li><a href="#152-hud">15.2 HUD</a></li><li><a href="#153-windows-the-unified-game-window-adr-0003-shipped">15.3 Windows — the unified game window (ADR 0003, shipped)</a></li><li><a href="#154-accessibility">15.4 Accessibility</a></li></ul></li><li><a href="#16-art-direction">16. Art direction</a><ul><li><a href="#161-visual-pillars">16.1 Visual pillars</a></li><li><a href="#162-style-references">16.2 Style references</a></li><li><a href="#163-asset-pipeline">16.3 Asset pipeline</a></li></ul></li><li><a href="#17-audio-design">17. Audio design</a></li><li><a href="#18-technical-architecture">18. Technical architecture</a><ul><li><a href="#181-server-authority">18.1 Server authority</a></li><li><a href="#182-autoload-singletons-player-facing-roles">18.2 Autoload singletons (player-facing roles)</a></li><li><a href="#183-component-based-characters">18.3 Component-based characters</a></li><li><a href="#184-data-driven-content">18.4 Data-driven content</a></li><li><a href="#185-persistence">18.5 Persistence</a></li><li><a href="#186-performance-targets">18.6 Performance targets</a></li></ul></li><li><a href="#19-production-roadmap">19. Production roadmap</a><ul><li><a href="#191-current-state">19.1 Current state</a></li><li><a href="#192-milestones">19.2 Milestones</a></li><li><a href="#193-out-of-scope-v1">19.3 Out of scope (v1)</a></li></ul></li><li><a href="#20-risks-open-questions-appendix">20. Risks, open questions &amp; appendix</a><ul><li><a href="#201-top-risks">20.1 Top risks</a></li><li><a href="#202-open-questions">20.2 Open questions</a></li><li><a href="#203-glossary">20.3 Glossary</a></li><li><a href="#204-references">20.4 References</a></li></ul></li></ul></nav>
+<nav class="gdd-toc"><h2>Contents</h2><ul><li><a href="#1-executive-summary">1. Executive summary</a></li><li><a href="#2-design-pillars">2. Design pillars</a></li><li><a href="#3-game-overview">3. Game overview</a></li><li><a href="#4-player-experience-goals">4. Player experience goals</a></li><li><a href="#5-core-loops">5. Core loops</a><ul><li><a href="#51-30-second-loop">5.1 30-second loop</a></li><li><a href="#52-session-loop">5.2 Session loop</a></li><li><a href="#53-meta-loop-week-over-week">5.3 Meta loop (week-over-week)</a></li></ul></li><li><a href="#6-story-setting-world">6. Story, setting &amp; world</a><ul><li><a href="#61-setting-the-emberwilds">6.1 Setting — the Emberwilds</a></li><li><a href="#62-tone-cozy-catastrophe">6.2 Tone — cozy catastrophe</a></li><li><a href="#63-plot-beats-high-level">6.3 Plot beats (high level)</a></li><li><a href="#64-regions">6.4 Regions</a></li></ul></li><li><a href="#7-characters-disciplines">7. Characters &amp; disciplines</a><ul><li><a href="#71-player-character">7.1 Player character</a></li><li><a href="#72-weapon-disciplines-there-are-no-classes">7.2 Weapon disciplines (there are no classes)</a></li><li><a href="#73-npcs">7.3 NPCs</a></li></ul></li><li><a href="#8-combat-system">8. Combat system</a><ul><li><a href="#81-core-combat-verbs">8.1 Core combat verbs</a></li><li><a href="#82-damage-formula">8.2 Damage formula</a></li><li><a href="#83-hit-miss-crit">8.3 Hit / miss &amp; crit</a></li><li><a href="#84-threat-aggro">8.4 Threat / aggro</a></li><li><a href="#85-death-respawn">8.5 Death &amp; respawn</a></li></ul></li><li><a href="#9-progression-systems">9. Progression systems</a><ul><li><a href="#91-levels-xp">9.1 Levels &amp; XP</a></li><li><a href="#92-attribute-points-manual-allocation-adr-0002-shipped">9.2 Attribute points (manual allocation — ADR 0002, shipped)</a></li><li><a href="#93-abilities-three-behavior-layers">9.3 Abilities — three behavior layers</a></li><li><a href="#94-ability-points-upgrade-trees">9.4 Ability points &amp; upgrade trees</a></li><li><a href="#95-weapon-mastery">9.5 Weapon mastery</a></li></ul></li><li><a href="#10-items-equipment-economy">10. Items, equipment &amp; economy</a><ul><li><a href="#101-item-categories">10.1 Item categories</a></li><li><a href="#102-rarity-affixes">10.2 Rarity &amp; affixes</a></li><li><a href="#103-equipment-slots">10.3 Equipment slots</a></li><li><a href="#104-crafting-enchanting">10.4 Crafting &amp; enchanting</a></li><li><a href="#105-economy">10.5 Economy</a></li></ul></li><li><a href="#11-enemies-ai">11. Enemies &amp; AI</a><ul><li><a href="#111-enemy-ladder">11.1 Enemy ladder</a></li><li><a href="#111b-bosses-adr-0005-shipped">11.1b Bosses (ADR 0005, shipped)</a></li><li><a href="#112-enemy-ai">11.2 Enemy AI</a></li><li><a href="#113-bots-server-side-ai-participants">11.3 Bots (server-side AI participants)</a></li><li><a href="#114-pets-owner-bound-companions">11.4 Pets (owner-bound companions)</a></li></ul></li><li><a href="#12-levels-maps-world-topology">12. Levels, maps &amp; world topology</a><ul><li><a href="#121-map-structure">12.1 Map structure</a></li><li><a href="#122-channels">12.2 Channels</a></li><li><a href="#123-map-roster-v1">12.3 Map roster (v1)</a></li><li><a href="#124-wayfinding">12.4 Wayfinding</a></li></ul></li><li><a href="#13-multiplayer-social-systems">13. Multiplayer &amp; social systems</a><ul><li><a href="#131-topology">13.1 Topology</a></li><li><a href="#132-parties">13.2 Parties</a></li><li><a href="#133-trading">13.3 Trading</a></li><li><a href="#134-chat-commands">13.4 Chat &amp; commands</a></li><li><a href="#135-friends-guilds">13.5 Friends &amp; guilds</a></li></ul></li><li><a href="#14-quests-onboarding">14. Quests &amp; onboarding</a><ul><li><a href="#141-quest-philosophy">14.1 Quest philosophy</a></li><li><a href="#142-onboarding-lvl-15">14.2 Onboarding (lvl 1–5)</a></li><li><a href="#143-quest-roster-31-quests">14.3 Quest roster (31 quests)</a></li></ul></li><li><a href="#15-user-interface-ux">15. User interface &amp; UX</a><ul><li><a href="#151-screen-flow">15.1 Screen flow</a></li><li><a href="#152-hud">15.2 HUD</a></li><li><a href="#153-windows-the-unified-game-window-adr-0003-shipped">15.3 Windows — the unified game window (ADR 0003, shipped)</a></li><li><a href="#154-persistent-local-player-ui-layer-adr-0009-shipped-stages-abc">15.4 Persistent local-player UI layer (ADR 0009, shipped — Stages A/B/C)</a></li><li><a href="#155-ui-feel">15.5 UI feel</a></li><li><a href="#156-accessibility">15.6 Accessibility</a></li></ul></li><li><a href="#16-art-direction">16. Art direction</a><ul><li><a href="#161-visual-pillars">16.1 Visual pillars</a></li><li><a href="#162-style-references">16.2 Style references</a></li><li><a href="#163-asset-pipeline">16.3 Asset pipeline</a></li></ul></li><li><a href="#17-audio-design">17. Audio design</a></li><li><a href="#18-technical-architecture">18. Technical architecture</a><ul><li><a href="#181-server-authority">18.1 Server authority</a></li><li><a href="#182-autoload-singletons-player-facing-roles">18.2 Autoload singletons (player-facing roles)</a></li><li><a href="#183-component-based-characters">18.3 Component-based characters</a></li><li><a href="#184-data-driven-content">18.4 Data-driven content</a></li><li><a href="#185-persistence">18.5 Persistence</a></li><li><a href="#186-performance-targets">18.6 Performance targets</a></li></ul></li><li><a href="#19-production-roadmap">19. Production roadmap</a><ul><li><a href="#191-current-state">19.1 Current state</a></li><li><a href="#192-milestones">19.2 Milestones</a></li><li><a href="#193-out-of-scope-v1">19.3 Out of scope (v1)</a></li></ul></li><li><a href="#20-risks-open-questions-appendix">20. Risks, open questions &amp; appendix</a><ul><li><a href="#201-top-risks">20.1 Top risks</a></li><li><a href="#202-open-questions">20.2 Open questions</a></li><li><a href="#203-glossary">20.3 Glossary</a></li><li><a href="#204-references">20.4 References</a></li></ul></li></ul></nav>
 <main class="gdd-main">
   <article class="gdd-content">
     <h1>Emberwilds — Game Design Document</h1>
 <blockquote>
-<p><strong>Version:</strong> v0.9 — systems-complete draft
-<strong>Last updated:</strong> 2026-06-02
+<p><strong>Version:</strong> v1.0 — systems-complete, world built out, live-hardening
+<strong>Last updated:</strong> 2026-06-10
 <strong>Owner:</strong> Breck Palmateer
-<strong>Status:</strong> Vertical slice — core systems implemented in code (<code>feat/weapon-identity-overhaul</code>, overhaul folder), live end-to-end validation pending.</p>
+<strong>Status:</strong> Vertical slice+ — core systems and the full 15-map Emberwilds world are in code (overhaul folder, branch <code>feat/bot-ambient-population</code>, which contains the whole <code>feat/weapon-identity-overhaul</code> line); live multiplayer playtesting is underway.</p>
 </blockquote>
 <hr />
 <blockquote>
-<p><strong>Reading note.</strong> This GDD documents the <strong>weapon-identity overhaul</strong> as it
-actually exists in code today (folder <code>multiplayer-test-overhaul/</code>), not the
-abandoned PR-4 WIP in the base repo. Where this supersedes the older
-<a href="v1_design_summary.html"><code>docs/v1_design_summary.html</code></a>, it does so because
-that plan has now largely <strong>shipped</strong> — 80 abilities, four weapon gauges, the
-manual attribute pool, and the unified game window are all in the build.</p>
+<p><strong>Reading note.</strong> This GDD documents the game as it actually exists in code
+today (folder <code>multiplayer-test-overhaul/</code> — the canonical line). Where it
+supersedes the older <a href="v1_design_summary.html"><code>docs/v1_design_summary.html</code></a>,
+it does so because that plan has now largely <strong>shipped</strong> — 80 weapon
+abilities, four signature gauges, the manual attribute pool, the unified game
+window, two authored bosses (<a href="adr/0005-boss-encounter-system.md">ADR 0005</a>),
+the persistent local-player UI layer
+(<a href="adr/0009-persistent-local-ui-layer.md">ADR 0009</a>), ambient bot population
+(<a href="adr/0011-bot-ambient-population.md">ADR 0011</a>), and the full
+Lantern's-Rest-to-Sundered-Heart world map are all in the build.</p>
 </blockquote>
 <h2 id="1-executive-summary">1. Executive summary</h2>
 <p><strong>Emberwilds</strong> is a <strong>server-authoritative 2D side-scrolling co-op RPG</strong> where
@@ -493,7 +497,7 @@ Shadowmeld), and cash it into a payoff. Friends host a lobby and drop in; bots
 fill out the party and the world.</p>
 <ul>
 <li><strong>One-line pitch:</strong> A 2D co-op hunting RPG where your <em>weapon</em> is your class — master it, dual-wield it, and rebuild it through branching upgrade trees.</li>
-<li><strong>High concept:</strong> Pick up a sword and you <em>are</em> a vanguard; swap to a dagger and you're an assassin — identity flows from the weapon in your hand and the attribute points you pour into it, not from a class you chose at character creation. Two weapon slots, four signature gauges, and 80 abilities with 343 upgrade variants make every build feel hand-assembled.</li>
+<li><strong>High concept:</strong> Pick up a sword and you <em>are</em> a vanguard; swap to a dagger and you're an assassin — identity flows from the weapon in your hand and the attribute points you pour into it, not from a class you chose at character creation. Two weapon slots, four signature gauges, and 80 weapon abilities with 347 upgrade variants make every build feel hand-assembled.</li>
 <li><strong>Reference points:</strong> MapleStory (2D hunting feel, silhouette-legible sprites), New World (weapon-driven identity + freely-allocated attributes with utility breakpoints), Ragnarok Online (card-style gear identity, target audience), Diablo 4 (3-tier ability upgrade trees with mutually-exclusive variants), Last Epoch (ability transformation depth), Erenshor (bots-as-population).</li>
 </ul>
 <h2 id="2-design-pillars">2. Design pillars</h2>
@@ -504,7 +508,7 @@ fill out the party and the world.</p>
 <li><strong>Server owns the truth.</strong> Clients send intent; the server validates, mutates, and broadcasts. Health, stats, drops, abilities, and progression never trust a client. This is the multiplayer moat.</li>
 <li><strong>Co-op is "farm faster together," not "fill a trinity."</strong> Parties hunt faster and roles emerge from weapon identity — there is no enforced tank/healer holy trinity, no ally-targeted heals, no enemy party-scaling.</li>
 </ol>
-<blockquote class="callout-question"><p>⚠ Open question: Pillars 2 and 5 are in tension at endgame — a 495-point attribute pool plus 100 ability points plus 343 upgrades is a <em>lot</em> of build freedom, but the co-op loop currently has no content that <em>demands</em> a coordinated build (no boss mechanics, no role gates). See §11 and §19.</p></blockquote>
+<blockquote class="callout-question"><p>⚠ Open question: Pillars 2 and 5 are in tension at endgame — a 495-point attribute pool plus 100 ability points plus 347 upgrades is a <em>lot</em> of build freedom, but the co-op loop still has no content that <em>demands</em> a coordinated build. The boss system now exists and two bosses are authored (§11.1), yet both are solo-readable telegraph fights — no role gates. See §11 and §19.</p></blockquote>
 <h2 id="3-game-overview">3. Game overview</h2>
 <table>
 <thead>
@@ -564,7 +568,7 @@ fill out the party and the world.</p>
 <ul>
 <li><strong>Moment-to-moment (seconds):</strong> every hit lands with a clear number pop and a mastery-floored damage roll (min damage = 20% of max, so even low rolls feel like progress); the weapon gauge visibly fills on the screen edge, building toward a payoff cast.</li>
 <li><strong>Session (minutes):</strong> "one more rank" — I left the hunt with my Sword mastery ticking toward the next ability point, a new attribute point or two, and maybe a rarer drop with a <code>CRITDAMAGE</code> roll I want to slot.</li>
-<li><strong>Long-term (hours/days):</strong> my Sword/Staff spellblade plays nothing like my friend's pure Dagger crit-assassin, because we spent attributes, ability points, and Tier-3 upgrade variants in completely different directions — and respeccing is free, so I can rebuild around a new weapon without re-grinding.</li>
+<li><strong>Long-term (hours/days):</strong> my Sword/Staff spellblade plays nothing like my friend's pure Dagger crit-assassin, because we spent attributes, ability points, and Tier-3 upgrade variants in completely different directions — and respec cost scales with how much you undo (cheap to tweak, priced to rebuild), so experimenting stays affordable without making builds weightless.</li>
 </ul>
 <h2 id="5-core-loops">5. Core loops</h2>
 <h3 id="51-30-second-loop">5.1 30-second loop</h3>
@@ -687,13 +691,18 @@ journey told in Emberwilds fiction. The plot is intentionally light — the
   the question the Hearths still argue over.)</em></li>
 </ul>
 <h3 id="64-regions">6.4 Regions</h3>
+<p><strong>15 maps</strong>, verified against the level scenes and the portal graph
+(<code>config/world_map_data.json</code>). Two <strong>Hearths</strong> (safe towns,
+<code>MapManager.HEARTH_MAPS</code>): <strong>Lantern's Rest</strong> at the start of the world and
+<strong>Emberwatch</strong> as the mid-world rest stop between the Drowned Mines and the
+Warded Keep.</p>
 <table>
 <thead>
 <tr>
 <th>Region (map_id)</th>
 <th>Level band</th>
 <th>Vibe (Emberwilds)</th>
-<th>Notable mobs</th>
+<th>Mobs (from the scene)</th>
 </tr>
 </thead>
 <tbody>
@@ -701,53 +710,83 @@ journey told in Emberwilds fiction. The plot is intentionally light — the
 <td><code>lanterns_rest</code></td>
 <td>—</td>
 <td><strong>Lantern's Rest</strong> — the starting Hearth, safe hub ringed by ember-lanterns</td>
-<td>Quest-giver Hearthfolk, no combat</td>
+<td>Quest-giver Hearthfolk, Training Dummy</td>
 </tr>
 <tr>
 <td><code>near_wilds</code></td>
-<td>~1–3</td>
+<td>1–6</td>
 <td><strong>The Near-Wilds</strong> — overgrown fields just past the lantern-line</td>
-<td>Slime (1), Bunny (1), Bird (3)</td>
+<td>Slime (1), Boar (6)</td>
+</tr>
+<tr>
+<td><code>meadow_path</code></td>
+<td>~1</td>
+<td><strong>Slime Meadow</strong> — a side path off the meadows</td>
+<td>Slime (1)</td>
 </tr>
 <tr>
 <td><code>ember_meadows</code></td>
-<td>~6–9</td>
-<td><strong>Ember-Meadows</strong> — wilder pastoral country</td>
-<td>Boar (6), Deer (7), Fox (9)</td>
+<td>13–18</td>
+<td><strong>Ember-Meadows</strong> — goblin-raided pastoral country</td>
+<td>Goblin Warrior (13), Goblin (18)</td>
 </tr>
 <tr>
-<td><code>deep_woods</code></td>
-<td>~10–23</td>
-<td>The <strong>Deep Woods</strong> — goblin-held, ember-thick</td>
-<td>Goblin Warrior (13), Goblin (18), Cave Goblin (23)</td>
+<td><code>three_terraces</code></td>
+<td>1–18</td>
+<td><strong>Windmill Terraces</strong> — a vertical side zone</td>
+<td>Slime (1), Goblin (18)</td>
 </tr>
 <tr>
 <td><code>ruins</code></td>
-<td>~28–39</td>
+<td>1–9</td>
 <td><strong>The Ruins</strong> — the broken old world's edge</td>
-<td>Tusk Brute (28), Fox Swordsman (33), Stone Slime (33), Cat Robber (36), Dust Fox (38)</td>
+<td>Bunny (1), Bird (3), Deer (7), Fox (9)</td>
+</tr>
+<tr>
+<td><code>thornroot</code></td>
+<td>23–30</td>
+<td><strong>Thornroot Hollow</strong> — the Warchief's war-camp</td>
+<td>Cave Goblin (23), Tusk Brute (28), <strong>Thornroot Warchief (30, boss)</strong></td>
+</tr>
+<tr>
+<td><code>dust_warren</code></td>
+<td>33–38</td>
+<td><strong>The Dust Warren</strong> — dry burrows of the anthro warbands</td>
+<td>Stone Slime (33), Fox Swordsman (33), Cat Robber (36), Dust Fox (38)</td>
 </tr>
 <tr>
 <td><code>mines</code></td>
-<td>~40–50</td>
+<td>40–48</td>
 <td><strong>The Drowned Mines</strong> — flooded old workings</td>
 <td>Wolf Pathfinder (40), Mithril Hare (43), Deer Druid (44), Rabbit Wizard (48), War Goblin (48)</td>
 </tr>
 <tr>
+<td><code>emberwatch</code></td>
+<td>—</td>
+<td><strong>Emberwatch</strong> — the second Hearth, deep in the wilds</td>
+<td>Safe hub, no combat</td>
+</tr>
+<tr>
 <td><code>keep</code></td>
-<td>~52–63</td>
+<td>52–63</td>
 <td><strong>The Warded Keep</strong> — the Warlord's old garrison</td>
-<td>Bear Warrior (52), Lion Knight (57), Adamant Crawler (58), Panda Warrior (62), Shadow Fox (63)</td>
+<td>Bear Warrior (52), Dark Bunny (53), Lion Knight (57), Adamant Crawler (58), Panda Warrior (62), Shadow Fox (63)</td>
+</tr>
+<tr>
+<td><code>deep_woods</code></td>
+<td>53–73</td>
+<td><strong>The Deep Woods</strong> — shadow-warped, ember-thick forest</td>
+<td>Dark Bunny (53), Shadow Fox (63), Fire Slime (73)</td>
 </tr>
 <tr>
 <td><code>emberscar</code></td>
-<td>~68–83</td>
+<td>68–83</td>
 <td><strong>The Ember-Scar</strong> — where the embers fell thickest</td>
 <td>Runed Boar (68), Fire Slime (73), Ember Fox (78), Wild Boar (83)</td>
 </tr>
 <tr>
 <td><code>weave</code></td>
-<td>~88–93</td>
+<td>88–93</td>
 <td><strong>The Weave's Edge</strong> — arcane, near the Weave's heart</td>
 <td>Celestial Hare (88), Astral Slime (93)</td>
 </tr>
@@ -755,10 +794,19 @@ journey told in Emberwilds fiction. The plot is intentionally light — the
 <td><code>warlord</code></td>
 <td>100</td>
 <td><strong>The Sundered Heart</strong> — the deepest ruin</td>
-<td>Eternal Warlord (100, boss)</td>
+<td><strong>Eternal Warlord (100, boss)</strong></td>
 </tr>
 </tbody>
 </table>
+<p>Portal flow (main spine): Lantern's Rest → Near-Wilds → Ember-Meadows → Ruins →
+Thornroot Hollow → Dust Warren → Drowned Mines → <strong>Emberwatch</strong> → Warded Keep →
+Ember-Scar → Weave's Edge → Sundered Heart, with Slime Meadow, Windmill
+Terraces, and the Deep Woods as side zones.</p>
+<blockquote class="callout-question"><p>⚠ Open question (content): <strong>The Ruins sits between Ember-Meadows (13–18) and
+Thornroot Hollow (23–30) on the spine but hosts level 1–9 critters</strong> (Bunny /
+Bird / Deer / Fox) — a difficulty dip that contradicts both the level-curve
+geography and the zone's "broken old world" fiction. Likely a leftover from the
+enemy reshuffle; re-stock it to a ~19–22 band or re-order the spine.</p></blockquote>
 <h2 id="7-characters-disciplines">7. Characters &amp; disciplines</h2>
 <h3 id="71-player-character">7.1 Player character</h3>
 <ul>
@@ -857,10 +905,18 @@ DEF 250, <code>def_mult = 1 − 250/750 = 0.667</code> → ~1,080 top-end, ~216 
 <h3 id="83-hit-miss-crit">8.3 Hit / miss &amp; crit</h3>
 <p>Hit chance starts at 95%, ±3% per attacker/target level difference, +0.05% per
 DEX, minus target Evasion and an under-leveled-weapon penalty (<code>2.0 ×
-levels_under</code>), clamped [5, 100]. Crit <strong>rate</strong> comes from <code>CRITCHANCE</code>
-(LUCK gives +0.1%/point); crit <strong>damage</strong> is <code>randf(1.2–1.5) + CRITDAMAGE/100</code>,
-and <code>CRITDAMAGE</code> is <strong>gear-only</strong> — so crit is a trap stat until you find
-<code>CRITDAMAGE</code> gear (a deliberate roll on high-tier armor; <a href="adr/0002-attribute-allocation-system.md">ADR 0002</a> §7 fast-follow, <strong>shipped</strong>).</p>
+levels_under</code>), clamped [5, 100]. A missed attack renders a <strong>MISS</strong> pop (damage
+value <code>-1</code>), so evasion is <em>visible</em>, not silent. Crit <strong>rate</strong> comes from
+<code>CRITCHANCE</code> (LUCK gives +0.1%/point); crit <strong>damage</strong> is <code>randf(1.2–1.5) +
+CRITDAMAGE/100</code>, and <code>CRITDAMAGE</code> is <strong>gear-only</strong> — so crit is a trap stat until
+you find <code>CRITDAMAGE</code> gear (a deliberate roll on high-tier armor;
+<a href="adr/0002-attribute-allocation-system.md">ADR 0002</a> §7 fast-follow, <strong>shipped</strong>).</p>
+<p><strong>Evasion is a real identity (2026-06-08 rework):</strong> player <code>EVASIONCHANCE</code>
+rolls on gear (every armor piece can carry it — §10.2), and a fully-committed
+evasion build reaches roughly <strong>~46% dodge</strong>. Dodging an enemy hit <strong>primes a
+guaranteed crit on your next attack</strong> (an <code>evasion_crit</code> window set by
+<code>enemy_base</code> and consumed in <code>combat.gd</code>) — dodge-tanking <em>feeds</em> offense
+instead of just negating damage, the dagger/rogue payoff loop.</p>
 <h3 id="84-threat-aggro">8.4 Threat / aggro</h3>
 <p>Enemies use nearest-target aggro via a state machine (idle → patrol → chase →
 attack → leash). No tank-threat system — co-op roles are emergent (§13.2). Bots
@@ -922,7 +978,7 @@ loss. (MMO-lite, friendly to co-op hunting.)</p>
 </table>
 <ul>
 <li><strong>Soft cap</strong> (a balance addition beyond the ADR): allocations into one attribute count full up to <strong>300</strong>, then <strong>40%</strong> per point (<code>ATTR_SOFT_CAP_KNEE = 300</code>, <code>ATTR_SOFT_CAP_SLOPE = 0.4</code>).</li>
-<li><strong>Free respec</strong>, server-authoritative; <code>reconcile_attribute_points()</code> enforces <code>granted == spent + unused</code> on load (and default-allocates un-migrated characters to their discipline ratio, loss-free).</li>
+<li><strong>Respec costs monies, scaled by magnitude</strong> (<code>ATTR_RESPEC_COST_PER_POINT = 5</code> per point actually refunded — light tweaks cheap, full rebuilds priced; a respec that refunds nothing is blocked, and the confirmation dialog states the cost first). Server-authoritative; <code>reconcile_attribute_points()</code> enforces <code>granted == spent + unused</code> on load (and default-allocates un-migrated characters to their discipline ratio, loss-free).</li>
 <li><strong>HP/MP base curves stay discipline-anchored</strong> (the one surviving auto-derivation) — they don't shift when you swap weapons; CON is purely additive on top, the deliberate tank lever.</li>
 </ul>
 <h3 id="93-abilities-three-behavior-layers">9.3 Abilities — three behavior layers</h3>
@@ -939,8 +995,8 @@ recursively; enemies are the exception (referenced directly).</p>
 <ul>
 <li><strong>1 ability point per mastery level</strong> (<code>ABILITY_POINTS_PER_MASTERY_LEVEL = 1</code>) → <strong>100 points per discipline</strong> at <code>MASTERY_CAP = 100</code>. Points are granted only to the discipline you actually wield.</li>
 <li><strong>No free starter</strong> — the first point comes from the creation bootstrap (mastery 0→1).</li>
-<li><strong>Per-ability 3-tier upgrade trees</strong> (<code>AbilityUpgradeData</code>, Diablo-4 shape): <strong>T1</strong> (1pt, broad modifier) → <strong>T2</strong> (1pt, mechanical augment) → <strong>T3</strong> (2pt, pick <strong>one of 3</strong> mutually-exclusive variants that <em>change how the ability plays</em>). <strong>343 upgrade <code>.tres</code></strong> exist (Sword 89 / Bow 83 / Staff 88 / Dagger 83).</li>
-<li><strong>Respec</strong> at four granularities (per-ability / per-tree / per-discipline / all), free. <code>reconcile_ability_points()</code> enforces <code>granted == spent + unused</code>.</li>
+<li><strong>Per-ability 3-tier upgrade trees</strong> (<code>AbilityUpgradeData</code>, Diablo-4 shape): <strong>T1</strong> (1pt, broad modifier) → <strong>T2</strong> (1pt, mechanical augment) → <strong>T3</strong> (2pt, pick <strong>one of 3</strong> mutually-exclusive variants that <em>change how the ability plays</em>). <strong>347 upgrade <code>.tres</code></strong> exist (Sword 88 / Bow 83 / Staff 88 / Dagger 88).</li>
+<li><strong>Respec</strong> at four granularities (per-ability / per-tree / per-discipline / all), each costing monies by blast radius (<code>ABILITY_RESPEC_COST_PER_POINT = 20</code> per point actually refunded — ability points are scarcer than attribute points, so the rate is higher). <code>reconcile_ability_points()</code> enforces <code>granted == spent + unused</code>.</li>
 <li><strong>Invariant (hard rule):</strong> a player must never randomly gain or lose points; both reconcile passes run on load and correct drift.</li>
 </ul>
 <h3 id="95-weapon-mastery">9.5 Weapon mastery</h3>
@@ -992,6 +1048,12 @@ Wielding a weapon always reinforces its identity even for an off-stat build.</p>
 <td>Teaches a Pet command</td>
 </tr>
 <tr>
+<td>Consumable (teleport)</td>
+<td><code>ConsumableData</code></td>
+<td>Yes</td>
+<td><strong>Hearthstone</strong> (nearest Hearth via portal-graph BFS) + per-town scrolls (Lantern's Rest, Emberwatch)</td>
+</tr>
+<tr>
 <td>Currency</td>
 <td><code>Coin.tres</code></td>
 <td>Yes</td>
@@ -999,13 +1061,17 @@ Wielding a weapon always reinforces its identity even for an off-stat build.</p>
 </tr>
 </tbody>
 </table>
-<p>~281 item <code>.tres</code> exist (54 weapons, 188 armor — largely procedurally generated
+<p>~343 item <code>.tres</code> exist (66 weapons, 236 armor — largely procedurally generated
 — plus consumables, pet items, unique).</p>
 <h3 id="102-rarity-affixes">10.2 Rarity &amp; affixes</h3>
 <p><code>ItemRarity</code> = COMMON / UNCOMMON / RARE / EPIC / LEGENDARY. Drops roll stats from
-an <code>ItemDrop.possible_stats</code> pool, shuffled and assigned at drop time. <strong><code>CRITDAMAGE</code>
-is a rollable gear stat</strong> (StatType idx 11) — the multiplicative partner to
-LUCK's crit-rate, and the thing that makes crit builds viable.</p>
+an <code>ItemDrop.possible_stats</code> pool, shuffled and assigned at drop time. <strong>All armor
+now rolls broad dual-discipline stat pools</strong> (2026-06-08 rework): every attribute
+plus crit / evasion / accuracy can appear, so a drop is never dead just because
+it's "off-class" — gear is where hybrid builds and the evasion / crit identities
+come from. <strong><code>CRITDAMAGE</code> is a rollable gear stat</strong> (StatType idx 11) — the
+multiplicative partner to LUCK's crit-rate, and the thing that makes crit builds
+viable.</p>
 <h3 id="103-equipment-slots">10.3 Equipment slots</h3>
 <p>Four armor slots (HEAD/CHEST/LEGS/FEET) + <strong>two weapon slots</strong>. Two equipped
 weapons mean the player's kit is the <strong>union of two ability trees</strong> — and
@@ -1020,13 +1086,17 @@ accommodate it, but no crafting system ships in v1.</p></blockquote>
 <ul>
 <li><strong>Currency:</strong> "monies" (coins), dropped by mobs and rewarded by quests.</li>
 <li><strong>Faucets:</strong> mob drops (FFA in parties), quest rewards.</li>
-<li><strong>Sinks:</strong> currently thin — respec is free, no repair, no gacha. <strong>An intentional design gap</strong> (see §19/§20).</li>
+<li><strong>Sinks:</strong> <strong>respec is now the first real sink</strong> — cost scales with the number of points refunded (attributes ×5/pt, ability points ×20/pt; §9.2/§9.4), so early experimentation stays cheap while deep-build redos absorb late-game income. Still no repair, vendor-tax, or gacha — the sink layer stays thin beyond respec (see §20).</li>
 </ul>
 <h2 id="11-enemies-ai">11. Enemies &amp; AI</h2>
 <h3 id="111-enemy-ladder">11.1 Enemy ladder</h3>
-<p>24 <code>EnemyData</code> (<code>.tres</code>, <strong>not</strong> auto-loaded — referenced from each enemy scene),
-forming a clean ~5-level-spaced ladder from 1 to 100 across four creature families
-(slime / hare-bunny / fox / boar) plus a goblin sub-line:</p>
+<p>34 <code>EnemyData</code> (<code>.tres</code>, <strong>not</strong> auto-loaded — referenced from each enemy scene),
+forming a clean ~5-level-spaced ladder from 1 to 100. The low band is the classic
+creature families (slime / hare-bunny / fox / boar / goblin); the <strong>mid band
+(33–62) is an anthro warrior line</strong> (Fox Swordsman, Cat Robber, Wolf Pathfinder,
+Mithril Hare, Deer Druid, Rabbit Wizard, War Goblin, Bear Warrior, Lion Knight,
+Panda Warrior); the high band returns to elemental / celestial variants up to the
+capstone. Every mob has a home map (§6.4).</p>
 <table>
 <thead>
 <tr>
@@ -1040,93 +1110,179 @@ forming a clean ~5-level-spaced ladder from 1 to 100 across four creature famili
 <tr>
 <td>1</td>
 <td>Slime, Bunny</td>
-<td>53</td>
-<td>Dark Bunny</td>
+<td>48</td>
+<td>Rabbit Wizard, War Goblin</td>
 </tr>
 <tr>
 <td>3</td>
 <td>Bird</td>
-<td>58</td>
-<td>Adamant Crawler</td>
+<td>52</td>
+<td>Bear Warrior</td>
 </tr>
 <tr>
 <td>6</td>
 <td>Boar</td>
-<td>63</td>
-<td>Shadow Fox</td>
+<td>53</td>
+<td>Dark Bunny</td>
 </tr>
 <tr>
 <td>7</td>
 <td>Deer</td>
-<td>68</td>
-<td>Runed Boar</td>
+<td>57</td>
+<td>Lion Knight</td>
 </tr>
 <tr>
 <td>9</td>
 <td>Fox</td>
-<td>73</td>
-<td>Fire Slime</td>
+<td>58</td>
+<td>Adamant Crawler</td>
 </tr>
 <tr>
 <td>13</td>
 <td>Goblin Warrior</td>
-<td>78</td>
-<td>Ember Fox</td>
+<td>62</td>
+<td>Panda Warrior</td>
 </tr>
 <tr>
 <td>18</td>
 <td>Goblin</td>
-<td>83</td>
-<td>Wild Boar</td>
+<td>63</td>
+<td>Shadow Fox</td>
 </tr>
 <tr>
 <td>23</td>
 <td>Cave Goblin</td>
-<td>88</td>
-<td>Celestial Hare</td>
+<td>68</td>
+<td>Runed Boar</td>
 </tr>
 <tr>
 <td>28</td>
 <td>Tusk Brute</td>
+<td>73</td>
+<td>Fire Slime</td>
+</tr>
+<tr>
+<td><strong>30</strong></td>
+<td><strong>Thornroot Warchief</strong> (boss)</td>
+<td>78</td>
+<td>Ember Fox</td>
+</tr>
+<tr>
+<td>33</td>
+<td>Stone Slime, Fox Swordsman</td>
+<td>83</td>
+<td>Wild Boar</td>
+</tr>
+<tr>
+<td>36</td>
+<td>Cat Robber</td>
+<td>88</td>
+<td>Celestial Hare</td>
+</tr>
+<tr>
+<td>38</td>
+<td>Dust Fox</td>
 <td>93</td>
 <td>Astral Slime</td>
 </tr>
 <tr>
-<td>33</td>
-<td>Stone Slime</td>
+<td>40</td>
+<td>Wolf Pathfinder</td>
 <td><strong>100</strong></td>
-<td><strong>Eternal Warlord</strong> (capstone)</td>
+<td><strong>Eternal Warlord</strong> (boss)</td>
 </tr>
 <tr>
-<td>38–48</td>
-<td>Dust Fox, Mithril Hare, War Goblin</td>
-<td></td>
+<td>43</td>
+<td>Mithril Hare</td>
+<td>—</td>
 <td>+ <code>training_dummy</code> (no level)</td>
+</tr>
+<tr>
+<td>44</td>
+<td>Deer Druid</td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
 <p><code>monster_level</code> cascades through six stat curves <strong>and</strong> the combat hit-chance /
 damage modifiers — small level gaps compound, so mob levels are anchored to the
-lowest player level expected to fight them.</p>
-<blockquote class="callout-question"><p>⚠ Open question: there is <strong>no <code>is_boss</code>/<code>is_elite</code> schema flag</strong> — "elite"
-status is implied by level/family only. The Eternal Warlord is the lone
-capstone; there are <strong>no authored boss encounters with mechanics</strong> yet (§19).</p></blockquote>
+lowest player level expected to fight them. The enemy <strong>attack curve was softened
+L^1.5 → L^1.25</strong> in the 2026-06-08 balance pass, bringing endgame touch damage
+down to MapleStory-style chip while keeping a super-linear climb.</p>
+<h3 id="111b-bosses-adr-0005-shipped">11.1b Bosses (<a href="adr/0005-boss-encounter-system.md">ADR 0005</a>, shipped)</h3>
+<p>Bosses are <strong>data-driven flags on <code>EnemyData</code></strong> — no per-boss subclasses:
+<code>is_boss</code>, <code>boss_title</code>, <code>phase_health_thresholds</code> (HP-fraction phase
+transitions), <code>enrage_health_threshold</code> + damage / attack-speed multipliers, and
+<code>special_attacks: Array[BossAttackData]</code> — telegraphed AoE attacks with a shape
+(RECT / CIRCLE / CONE), forward offset, windup→hit timing, optional dash, and
+<code>logic_script</code> hooks (on_windup_start / on_hit / on_recover). Boss/telegraph
+visuals broadcast through <code>MapManager.show_ground_zone_*_everywhere</code>
+(host-inclusive), and a <strong>boss HP bar</strong> appears on the HUD.</p>
+<p>Two bosses are authored:</p>
+<table>
+<thead>
+<tr>
+<th>Boss</th>
+<th>Level</th>
+<th>Map</th>
+<th>HP mult</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Thornroot Warchief</strong></td>
+<td>30</td>
+<td>Thornroot Hollow</td>
+<td>×10</td>
+<td>The first wall — the area boss that caps the level-1→30 journey</td>
+</tr>
+<tr>
+<td><strong>Eternal Warlord</strong></td>
+<td>100</td>
+<td>The Sundered Heart</td>
+<td>×20</td>
+<td>The endgame capstone</td>
+</tr>
+</tbody>
+</table>
+<p>Telegraph counterplay is <strong>read-and-move</strong> (clear the slam band by jumping /
+repositioning), not i-frames — consistent with §8.1's no-dodge-button rule.
+Authoring is tool-supported: the <code>addons/boss_attack_designer/</code> editor dock
+previews a <code>BossAttackData</code>'s shape / dash / animation at true runtime geometry
+with play/scrub.</p>
 <h3 id="112-enemy-ai">11.2 Enemy AI</h3>
 <p>State machine (<code>scripts/Enemy/StateMachine/</code>): idle → patrol → chase → attack →
 leash, with two damage models:</p>
 <ul>
 <li><strong>Contact damage</strong> (default) — body-hitbox overlap; the player must read spacing, not timing.</li>
-<li><strong>Telegraphed slash</strong> — a wind-up animation that only connects on swing frames, used by the <strong>whole goblin family + Eternal Warlord</strong> (5 scenes). <em>(Corrects older memory that said "only Goblin telegraphs.")</em></li>
+<li><strong>Telegraphed slash</strong> — a wind-up animation that only connects on swing frames, used by the <strong>whole goblin family + both bosses</strong>. <em>(Corrects older memory that said "only Goblin telegraphs.")</em></li>
 </ul>
+<p>Enemy damage feedback: a MapleStory-style <strong>overhead HP bar</strong> shows on a hit
+enemy — visible <strong>only to the peer who hit it</strong>.</p>
 <p>Because most of the roster is collision-based, <strong>reactive parry/dodge-window
 ability shapes are off the table</strong> until the telegraphed roster grows.</p>
 <h3 id="113-bots-server-side-ai-participants">11.3 Bots (server-side AI participants)</h3>
 <p>A <strong>Bot</strong> is a server-side AI with a negative peer id and no client, driving the
 same <code>MultiplayerPlayerV2</code> character a human would (input via <code>bot_brain.gd</code>).
 Bots join parties, fight enemies, cast abilities, deal real damage, and focus the
-player's target — Erenshor-style population + party-fill. Managed by <code>BotManager</code>
-via <code>/bot spawn|despawn|list</code> commands. <strong>Bots cannot own a Pet.</strong> Never send a
-node-addressed RPC to a bot — route bot visuals through an autoload.</p>
+player's target — and they <strong>spend their earned ability and attribute points</strong> on
+their weapon identity, so a bot scales like a real build. Managed by <code>BotManager</code>
+via <code>/bot spawn|despawn|list</code> commands (plus a <code>/bot stress</code> map-change load
+test). <strong>Bots cannot own a Pet.</strong> Never send a node-addressed RPC to a bot —
+route bot visuals through an autoload.</p>
+<p><strong>Ambient population (<a href="adr/0011-bot-ambient-population.md">ADR 0011</a>, shipped):</strong>
+the Erenshor "SimPlayer" pattern — a small co-op session should feel like a busy
+server. Bots have <strong>speech</strong> (server-initiated through a <code>ChatManager</code> entry
+point, since a bot can never be a remote RPC sender; a server-wide + per-bot
+<strong>speech budget</strong> throttles it; lines are event-keyed — level-up, rare drop,
+death, greeting, party events — and always true to what the bot actually did),
+<strong>persistent identity</strong> (personality archetype / line pool / chattiness live in a
+server-side roster file next to <code>bot_config.json</code>, <em>not</em> Postgres; bot <em>progress</em>
+still saves through the normal <code>SaveManager</code> pipeline under a shared <code>__bots__</code>
+account), <strong>seeded spawns</strong> at map-band-appropriate levels, and <strong>companion
+commands + trade consent</strong>.</p>
 <h3 id="114-pets-owner-bound-companions">11.4 Pets (owner-bound companions)</h3>
 <p>A <strong>Pet</strong> is an owner-bound companion spawned by <code>PetManager</code> — <strong>no peer id, no
 Health/Stats/Combat components, cannot take damage</strong>. It survives map/channel
@@ -1137,63 +1293,41 @@ ticks; a <strong>hungry</strong> pet (0 hunger) stops following and auto-actions
 the owner's MP. Full architecture: <a href="adr/0001-pet-system-architecture.md">ADR 0001</a>.</p>
 <h2 id="12-levels-maps-world-topology">12. Levels, maps &amp; world topology</h2>
 <h3 id="121-map-structure">12.1 Map structure</h3>
-<p>2D side-scrolling maps connected by portals. <code>MapManager</code> owns a registry of 5
-playable maps (<code>lanterns_rest</code>, <code>near_wilds</code>, <code>ember_meadows</code>–<code>ruins</code>; <code>DEFAULT_MAP = "town"</code>). Each map
-runs in its <strong>own <code>SubViewport</code> with a fresh <code>World2D</code></strong> (isolated physics / nav /
-audio), composited under <code>/root/Maps</code>. The server keeps every active map loaded;
-a client loads only its current map; empty maps unload. A portal-adjacency graph
-is built server-side at startup for bot cross-map routing.</p>
+<p>2D side-scrolling maps connected by portals. <code>MapManager</code> owns a registry of
+<strong>15 playable maps</strong> (§6.4; <code>DEFAULT_MAP = "lanterns_rest"</code>). Each map runs in
+its <strong>own <code>SubViewport</code> with a fresh <code>World2D</code></strong> (isolated physics / nav /
+audio), composited under <code>/root/Maps</code>. The server keeps maps resident in a
+<strong>warm pool</strong> (<a href="adr/0007-map-residency-and-enemy-activation.md">ADR 0007</a>) — a
+vacated map enters a TTL/LRU grace period instead of freeing immediately,
+killing the cold-<code>instantiate()</code> hiccup on re-entry — and per-enemy <strong>proximity
+activation</strong> sleeps enemies no agent is near. A client loads only its current
+map. Map changes use a <strong>reparent handoff</strong>
+(<a href="adr/0008-bot-map-change-reparent.md">ADR 0008</a>): the <em>live</em> character node
+moves between maps' <code>Players</code> containers instead of being freed and rebuilt
+(bots + the host today, enabled by the persistent UI layer — §15.4). A
+portal-adjacency graph is built server-side at startup for bot cross-map routing
+— and reused by the <strong>Hearthstone</strong> consumable's nearest-Hearth BFS (§10.1).</p>
 <h3 id="122-channels">12.2 Channels</h3>
 <p>A <strong>Channel</strong> is a port-switched server instance (<code>ChannelManager</code>). Players
 switch channels to balance population without a full restart (client-only,
 2s switch timeout). Same world content, separate population — there is no fixed
 named-channel roster, it's a port-switch mechanism.</p>
 <h3 id="123-map-roster-v1">12.3 Map roster (v1)</h3>
-<table>
-<thead>
-<tr>
-<th>Map</th>
-<th>Level band</th>
-<th>Theme</th>
-<th>Notable mobs / NPCs</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>lanterns_rest</code></td>
-<td>—</td>
-<td>Hub</td>
-<td>Quest-giver NPCs</td>
-</tr>
-<tr>
-<td><code>near_wilds</code></td>
-<td>1–3</td>
-<td>Starter field</td>
-<td>Slime, Bunny, Bird</td>
-</tr>
-<tr>
-<td><code>ember_meadows</code></td>
-<td>6–9</td>
-<td>Meadow</td>
-<td>Boar, Deer, Fox</td>
-</tr>
-<tr>
-<td><code>deep_woods</code></td>
-<td>10–23</td>
-<td>Goblin woods</td>
-<td>Goblin Warrior, Goblin, Cave Goblin</td>
-</tr>
-<tr>
-<td><code>ruins</code></td>
-<td>28+</td>
-<td>Higher tier</td>
-<td>Tusk Brute +</td>
-</tr>
-</tbody>
-</table>
-<blockquote class="callout-question"><p>⚠ Open question: the enemy <strong>ladder reaches level 100</strong> but there are only <strong>5
-maps topping out around the high-20s/30s band</strong>. The ~33–100 enemies exist as
-data without dedicated maps to host them — a major content gap (§19).</p></blockquote>
+<p>The full 15-map roster with level bands, fiction, and mob lists is the regions
+table in <strong>§6.4</strong> — single source, not duplicated here. The shape: two Hearth
+hubs (Lantern's Rest, Emberwatch), a main spine of ten hunting zones climbing
+1 → 100, and three side zones (Slime Meadow, Windmill Terraces, Deep Woods).</p>
+<p><em>Resolved (was open):</em> the old "ladder reaches 100 but maps stop at ~30" content
+gap is closed — <strong>every enemy band now has a home map</strong>, capped by the Warlord's
+boss arena. The remaining content wrinkle is the Ruins level-dip (§6.4).</p>
+<h3 id="124-wayfinding">12.4 Wayfinding</h3>
+<ul>
+<li><strong>Minimap</strong> — an always-on HUD widget (client-side).</li>
+<li><strong>World map</strong> — full-screen overlay on <strong>M</strong> with fog-of-war over unvisited
+  zones; reads the static <code>config/world_map_data.json</code> (regenerated via
+  <code>tools/dump_world_map.gd</code> after map/enemy/drop changes).</li>
+<li><strong>Hearthstone + town scrolls</strong> — teleport consumables back to a Hearth (§10.1).</li>
+</ul>
 <h2 id="13-multiplayer-social-systems">13. Multiplayer &amp; social systems</h2>
 <h3 id="131-topology">13.1 Topology</h3>
 <p>Server-authoritative ENet today, Flask/PostgreSQL for persistence. The intended
@@ -1216,22 +1350,27 @@ emergent (no trinity).</p>
 Plus an instant player↔bot give/take (no confirm, no proximity).</p>
 <h3 id="134-chat-commands">13.4 Chat &amp; commands</h3>
 <p><code>ChatManager</code> — rate-limited (3 msgs/2s, 200-char cap), emotes (<code>/sit /wave
-/laugh /cry</code>), and slash-command routing (<code>/quest</code>, <code>/bot</code>, <code>/advance</code>, …). The
-backtick-toggled <code>DebugPanel</code> console adds typed dev commands with autocomplete.</p>
+/laugh /cry</code>), and slash-command routing (<code>/quest</code>, <code>/bot</code>, <code>/trade</code>). <strong>Bot
+speech</strong> enters here too — the server-side <code>bot_say()</code> entry with its speech
+budget (<a href="adr/0011-bot-ambient-population.md">ADR 0011</a>, §11.3), so Bots show up
+in the same feed and overhead bubbles as players. The backtick-toggled
+<code>DebugPanel</code> console adds typed dev commands with autocomplete.</p>
 <h3 id="135-friends-guilds">13.5 Friends &amp; guilds</h3>
 <blockquote class="callout-question"><p>⚠ Open question: no friends list or guild system exists; both are post-v1
 (and partly subsumed by the Steam-lobby direction).</p></blockquote>
 <h2 id="14-quests-onboarding">14. Quests &amp; onboarding</h2>
 <h3 id="141-quest-philosophy">14.1 Quest philosophy</h3>
-<p>Quests are <strong>server-authoritative</strong> and now <strong><code>.tres</code>-driven</strong> (<code>QuestData</code>
+<p>Quests are <strong>server-authoritative</strong> and <strong><code>.tres</code>-driven</strong> (<code>QuestData</code>
 auto-loaded recursively from <code>resources/Quests/</code>, sorted by <code>sort_order</code>).
-<em>(Corrects older memory that said quests are defined in code.)</em> Progress is
-persisted per-character. The arc is a <strong>level 1→30 guided journey + onboarding</strong>.</p>
+Progress is persisted per-character. The arc is a <strong>guided journey</strong>: onboarding
+→ the level 1→30 climb capped by the <strong>Thornroot Warchief</strong> → a <strong>26–40 bridge</strong>
+through the Dust Warren → one anchor hunt per endgame zone (Mines, Keep,
+Ember-Scar, Weave) → the <strong>Warlord</strong> himself.</p>
 <h3 id="142-onboarding-lvl-15">14.2 Onboarding (lvl 1–5)</h3>
 <p><code>start_onboarding</code> auto-accepts <code>q_first_blood</code> (kill 1 Slime) and shows a
 WelcomeOverlay. Early chains are level-gated via <code>required_level</code> +
 <code>prerequisite_quest_id</code>, teaching combat, the gauge, and progression.</p>
-<h3 id="143-quest-roster-22-quests-across-6-chains">14.3 Quest roster (22 quests across 6 chains)</h3>
+<h3 id="143-quest-roster-31-quests">14.3 Quest roster (31 quests)</h3>
 <table>
 <thead>
 <tr>
@@ -1243,7 +1382,7 @@ WelcomeOverlay. Early chains are level-gated via <code>required_level</code> +
 <tbody>
 <tr>
 <td><strong>KILL</strong></td>
-<td><code>q_first_blood</code> (1 Slime), <code>q_slime_slayer</code>, <code>q_boar_patrol</code></td>
+<td><code>q_first_blood</code> (1 Slime), <code>q_thornroot_warchief</code> (the L30 boss), <code>q_warlord</code></td>
 <td>EXP / coins</td>
 </tr>
 <tr>
@@ -1253,13 +1392,17 @@ WelcomeOverlay. Early chains are level-gated via <code>required_level</code> +
 </tr>
 <tr>
 <td><strong>REACH_LEVEL</strong></td>
-<td><code>q_level_up</code> (lvl 5), <code>q_call_to_advance</code> (lvl 30 → <code>/advance</code>)</td>
+<td><code>q_level_up</code> (lvl 5), <code>q_call_to_advance</code> (lvl 30)</td>
 <td>EXP / progression</td>
 </tr>
 </tbody>
 </table>
-<p>Chains: Beginner, Early, Mid, Advancement, EndlessHunt (repeatable culls),
-SlimeThreat. Quests are pinnable (max 5 tracked). <strong>No talk-to-NPC objective
+<p>Chains: the Beginner / Early / Mid climb, SlimeThreat, EndlessHunt (repeatable
+culls), the <strong>Thornroot arc</strong> (<code>q_thornroot_tusks</code> → <code>q_thornroot_warchief</code>),
+the <strong>Dust Warren bridge</strong> (<code>q_warren_dustfoxes</code> / <code>q_warren_robbers</code> /
+<code>q_warren_vanguard</code>, L26–40), and one anchor quest per endgame zone
+(<code>q_mines_culling</code>, <code>q_keep_breaking</code>, <code>q_emberscar_purge</code>, <code>q_weave_vigil</code>,
+<code>q_warlord</code>). Quests are pinnable (max 5 tracked). <strong>No talk-to-NPC objective
 type</strong> yet (quests carry an <code>npc_only</code> flag + there are quest-giver NPCs).</p>
 <h2 id="15-user-interface-ux">15. User interface &amp; UX</h2>
 <h3 id="151-screen-flow">15.1 Screen flow</h3>
@@ -1274,22 +1417,45 @@ flowchart LR
 </div>
 
 <h3 id="152-hud">15.2 HUD</h3>
-<p>Always-on: health/mana bars, hotbar, the <strong>four screen-edge weapon-gauge
-widgets</strong> (sword combo, bow momentum, staff element, dagger shadowmeld — each its
-own anchored widget, never crammed into the hotbar), target frame, party frames,
-quest tracker. Chat is toggleable.</p>
+<p>Always-on: the bar stack — <strong>HP/MP → EXP → Mastery</strong> (the mastery bar tracks the
+wielded discipline's progress to its next ability point), hotbar (drag-to-
+rearrange, per-weapon front/back bars saved independently), the <strong>four
+screen-edge weapon-gauge widgets</strong> (sword combo, bow momentum, staff element,
+dagger shadowmeld — each its own anchored widget, never crammed into the hotbar),
+<strong>minimap</strong>, buff bar (with tooltips), target frame, party frames, quest tracker,
+and a <strong>boss HP bar</strong> during boss fights. The <strong>world map</strong> opens on <strong>M</strong>
+(§12.4). Chat is toggleable.</p>
+<p><strong>Theme:</strong> the <strong>Ember Hearth</strong> direction — warm bronze/amber, applied through
+the shared <code>UI_Theme.tres</code> so every window re-themes at once (campfire warmth to
+match §6.2's cozy-catastrophe tone).</p>
 <h3 id="153-windows-the-unified-game-window-adr-0003-shipped">15.3 Windows — the unified game window (<a href="adr/0003-unified-game-window.md">ADR 0003</a>, shipped)</h3>
 <p>Equipment, inventory, stats, abilities, and pet are folded into <strong>one tabbed
 hub</strong> (<code>game_window.tscn</code>):</p>
 <ul>
-<li><strong>Tab 0 — Character:</strong> three columns — <strong>Stats</strong> (5 attribute rows STR/DEX/INT/LUCK/CON each with a <code>+</code> allocation button + a free Respec), <strong>Equipment</strong> grid + embedded <strong>Pet</strong> panel, and <strong>Inventory</strong>.</li>
+<li><strong>Tab 0 — Character:</strong> three columns — <strong>Stats</strong> (5 attribute rows STR/DEX/INT/LUCK/CON each with a <code>+</code> allocation button + Respec, with the monies cost stated in a confirmation dialog first), <strong>Equipment</strong> grid + embedded <strong>Pet</strong> panel, and <strong>Inventory</strong>.</li>
 <li><strong>Tab 1 — Abilities:</strong> the branching skill tree as an instanced sub-scene.</li>
 </ul>
 <p>The hub is a thin controller (fills editor-authored nodes + wires signals) and is
 <strong>non-modal</strong> (movable, never locks input). Separate windows remain for chat,
 hotbar, party, trade, shop, and quests. New modal overlays must call
 <code>InputManager.set_input_locked(true/false)</code> on open/close.</p>
-<h3 id="154-accessibility">15.4 Accessibility</h3>
+<h3 id="154-persistent-local-player-ui-layer-adr-0009-shipped-stages-abc">15.4 Persistent local-player UI layer (<a href="adr/0009-persistent-local-ui-layer.md">ADR 0009</a>, shipped — Stages A/B/C)</h3>
+<p>The HUD and <code>MoveableWindows</code> no longer live <strong>inside the character body</strong>. They
+were lifted into one persistent client-side <code>CanvasLayer</code>
+(<code>scenes/UI/local_player_ui.tscn</code>), instantiated once per client and <strong>rebound</strong>
+to the current body on each spawn / map change via
+<code>MapManager.local_player_changed</code>. Components own the data; the view wiring was
+inverted so the UI subscribes to them (Stage A), the HUD was extracted (Stage B),
+and the <strong>host now reparents on map change with no rebuild</strong> (Stage C). This is
+the enabler for the reparent handoff in §12.1.</p>
+<blockquote class="callout-question"><p>⚠ Doc-vs-code note: ADR 0009's own header still reads "proposed (design; not
+yet built)" — stale; Stages A/B/C are merged. Refresh the ADR header.</p></blockquote>
+<h3 id="155-ui-feel">15.5 UI feel</h3>
+<p>Global <strong>button sounds + hover/press tweens</strong>, window open/close <strong>whooshes</strong>,
+and death feedback shipped in the juice pass alongside the Ember Hearth retheme —
+the "juice" layer: every interaction answers with motion and sound, so feedback
+is felt, not read.</p>
+<h3 id="156-accessibility">15.6 Accessibility</h3>
 <blockquote class="callout-question"><p>⚠ Open question: rebindable keys exist (<code>KeybindManager</code>); colorblind palette,
 font scaling, and motion options are unspecified — a v1 gap to scope.</p></blockquote>
 <h2 id="16-art-direction">16. Art direction</h2>
@@ -1307,7 +1473,11 @@ palette). Pull environment and enemy art from packs; keep silhouettes readable a
 their own <code>EnemyData</code>. No custom-art pipeline.</p>
 <h2 id="17-audio-design">17. Audio design</h2>
 <p><code>AudioManager</code> drives per-map music and combat/UI SFX (hit, crit, level-up,
-button). Mood map: town = warm, fields = light, high-level zones = tense.</p>
+button). Mood map: Hearths = warm, fields = light, deep zones = tense.</p>
+<p><strong>Ability SFX:</strong> a procedurally-generated <strong>25-sound palette</strong>
+(<code>tools/gen_ability_sfx.py</code>) is wired to <strong>all 52 active abilities</strong> plus basic
+attacks and landings — every cast answers with sound. (A listen-pass to tune
+individual assignments is still pending.)</p>
 <blockquote>
 <p>Technical rule: with the SubViewport-per-map setup, hiding a map's render tree
 does <strong>not</strong> gate its audio — positional audio must check <code>is_visible_in_tree()</code>
@@ -1327,11 +1497,13 @@ discipline <code>.tres</code>), <code>SaveManager</code> (debounced persistence)
 (backend HTTP), plus Party/Trade/Quest/Channel/Chat/Keybind managers.</p>
 <h3 id="183-component-based-characters">18.3 Component-based characters</h3>
 <p>Players and enemies are a root node + single-concern <code>Node</code> components:
-<strong>Health, Stats, Combat, Ability, Buff, Equipment, Inventory</strong>, plus the
-overhaul's <strong>WeaponMastery</strong> and the four signature-gauge components
-(<code>SwordCombo</code>, <code>BowMomentum</code>, <code>StaffElement</code>, <code>Shadowmeld</code>, all extending
-<code>WeaponSignatureComponent</code>). <strong>Pets deliberately use none of this</strong> — they have
-no components and can't take damage.</p>
+<strong>Health, Mana, Stats, Combat, Ability, Buff, Equipment, Inventory, Appearance</strong>,
+plus the overhaul's <strong>WeaponMastery</strong> (the single owner of weapon identity since
+<code>ClassComponent</code> was deleted — <a href="adr/0004-classcomponent-removal-weapon-discipline.md">ADR 0004</a>),
+<strong>WeaponPairSynergy</strong> (the two-equipped-weapons union), and the four
+signature-gauge components (<code>SwordCombo</code>, <code>BowMomentum</code>, <code>StaffElement</code>,
+<code>Shadowmeld</code>, all extending <code>WeaponSignatureComponent</code>). <strong>Pets deliberately use
+none of this</strong> — they have no components and can't take damage.</p>
 <h3 id="184-data-driven-content">18.4 Data-driven content</h3>
 <p><code>.tres</code> resources auto-loaded by <code>ResourceManager</code> (<code>resources/Abilities/</code>,
 <code>Items/</code>, <code>Buffs/</code>, <code>Player/Disciplines/</code>, <code>Quests/</code>). <strong>Enemies are referenced
@@ -1368,15 +1540,20 @@ spawn a shared <code>GroundZone</code> networked entity (server-ticked, used by 
 </table>
 <h2 id="19-production-roadmap">19. Production roadmap</h2>
 <h3 id="191-current-state">19.1 Current state</h3>
-<p>The <strong>weapon-identity overhaul is systems-complete in code</strong>: four disciplines,
-the manual 495-point attribute pool with CON and a soft-cap, mastery to 100, <strong>80
-abilities (13 active + 7 passive/weapon)</strong> backed by 58 ability-logic scripts,
-<strong>343 upgrade variants</strong>, four signature gauges with widgets, ground-zone
-infrastructure, the unified game window, <code>.tres</code>-driven quests, and a normalized
-backend with the <code>attribute_points</code> column live. <strong>What it lacks is validation
-and surrounding content</strong> — much of this landed compile/unit-validated only (84/84
-unit tests pass), without a live end-to-end multiplayer playtest, and the world
-(5 maps, no boss mechanics, thin endgame) hasn't caught up to the systems.</p>
+<p>The <strong>weapon-identity overhaul is systems-complete and the world has caught up</strong>:
+four disciplines, the manual 495-point attribute pool with CON and a soft-cap,
+mastery to 100, <strong>80 weapon abilities (13 active + 7 passive)</strong> backed by 58
+ability-logic scripts, <strong>347 upgrade variants</strong>, four signature gauges with
+widgets, ground-zone infrastructure, the unified game window, <strong>15 maps spanning
+the full 1–100 ladder with two Hearth hubs</strong>, <strong>two authored bosses</strong>, a quest
+journey that now runs onboarding → Warchief → endgame zones → Warlord, the
+persistent local-player UI layer, ambient bot population, respec-as-economy-sink,
+the Ember Hearth retheme + minimap/world-map wayfinding, an ability SFX palette,
+and a normalized backend with the <code>attribute_points</code> column live. <strong>The current
+phase is live-hardening and balance</strong> — the recent commit stream is real-session
+bug-fixing and feel work (client save bugs, remote sprite sync, reparent edge
+cases, the 2026-06-08 balance pass: attack-curve soften, evasion identity,
+dual-discipline gear).</p>
 <h3 id="192-milestones">19.2 Milestones</h3>
 <table>
 <thead>
@@ -1389,22 +1566,22 @@ unit tests pass), without a live end-to-end multiplayer playtest, and the world
 <tbody>
 <tr>
 <td><strong>V1 systems</strong></td>
-<td>4 disciplines, attributes, 80 abilities + upgrades, gauges, unified window, quests 1→30, backend</td>
-<td>✅ in code, <strong>validation pending</strong></td>
-</tr>
-<tr>
-<td><strong>V1 validation + balance</strong></td>
-<td>Live multiplayer playtest; regenerate the ability balance report against the 80-ability roster; tune soft-cap / crit / specialization spike</td>
-<td>▶ next</td>
+<td>4 disciplines, attributes, 80 abilities + upgrades, gauges, unified window, boss system, persistent UI layer, ambient bots, backend</td>
+<td>✅ in code</td>
 </tr>
 <tr>
 <td><strong>V1 content depth</strong></td>
-<td>Maps for the 33–100 enemy band; authored boss encounter(s) with mechanics; economy sinks; endgame loop</td>
-<td>Planned</td>
+<td>15-map world for the full 1–100 band, 2 authored bosses, quest journey to the Warlord, respec economy sink, wayfinding</td>
+<td>✅ in code (remaining: Ruins level-dip, more bosses)</td>
+</tr>
+<tr>
+<td><strong>V1 validation + balance</strong></td>
+<td>Live multiplayer playtest (in progress); post-balance-pass re-glance (evasion/gear power creep); regenerate the ability balance report against the live roster</td>
+<td>▶ now</td>
 </tr>
 <tr>
 <td><strong>V2 — converge &amp; lobby</strong></td>
-<td>Make the overhaul the canonical main line (retire base-repo PR-4 WIP); Steam-lobby topology</td>
+<td>Merge the canonical line to <code>master</code>; Steam-lobby topology</td>
 <td>Planned</td>
 </tr>
 <tr>
@@ -1431,22 +1608,22 @@ objectives, and any custom character art beyond the four sprites.</p>
 </thead>
 <tbody>
 <tr>
-<td><strong>Systems built but never live-playtested end-to-end</strong> — the whole overhaul is compile/unit-validated only</td>
+<td><strong>Live soak still shallow</strong> — playtesting has started and is fixing real bugs, but no sustained multi-session co-op soak yet</td>
+<td>Med</td>
 <td>High</td>
-<td>High</td>
-<td>Make a live host+client+bot playtest of spawn→stats→combat→sprite→gauge→save the immediate next step (ADR 0004 already flags this)</td>
+<td>Keep the host+client+bot soak running across spawn→combat→gauge→save→map-change→boss; hold until the reparent/persistence paths go quiet</td>
 </tr>
 <tr>
-<td><strong>Balance drift on the new 80-ability roster</strong> — 495 AP pool, +43% pure-primary spike, crit dead without gear CRITDAMAGE</td>
+<td><strong>Post-balance-pass power creep</strong> — the 2026-06-08 pass (evasion identity + broad dual-discipline gear) was a modest deliberate creep; re-balance glance pending</td>
 <td>High</td>
 <td>Med</td>
-<td>Regenerate <code>ability_balance_report.html</code> against the live roster; keep the soft-cap + add diminishing returns / caps if playtest shows runaway</td>
+<td>Regenerate <code>ability_balance_report.html</code> against the live roster; re-run the offense/survivability audit generators</td>
 </tr>
 <tr>
-<td><strong>Content lags systems</strong> — enemy ladder to L100 but maps stop ~L30, no boss mechanics, no economy sinks</td>
-<td>High</td>
+<td><strong>Endgame chase is thin</strong> — zones and quests reach 100, but L70–100 is still attribute/gear refinement + repeatables; two bosses total</td>
 <td>Med</td>
-<td>Add high-band maps + at least one authored boss; add a gold sink (respec cost / repair / vendor)</td>
+<td>Med</td>
+<td>More authored bosses on the shipped boss system; consider a set-gear or sigil chase (§6.1 fiction already reserves "Sigils")</td>
 </tr>
 <tr>
 <td><strong>4-sprite art constraint limits perceived variety</strong></td>
@@ -1455,20 +1632,21 @@ objectives, and any custom character art beyond the four sprites.</p>
 <td>Lean on ability FX, gauge widgets, and numbers; this is already the design's load-bearing bet</td>
 </tr>
 <tr>
-<td><strong>Two-repo split</strong> — canonical overhaul vs. abandoned base-repo WIP</td>
+<td><strong>Two-folder split</strong> — the canonical line lives in the overhaul folder; the baseline clone (<code>multiplayer-test/</code>) trails and invites edits in the wrong place</td>
 <td>Med</td>
 <td>Med</td>
-<td>Converge: promote the overhaul to main, retire base PR-4 WIP</td>
+<td>Merge to <code>master</code>, retire the stale clone (it has already absorbed misdirected work)</td>
 </tr>
 </tbody>
 </table>
 <h3 id="202-open-questions">20.2 Open questions</h3>
 <ul>
-<li>⚠ <strong>Damage ceiling tuning</strong> — ship the ×4 primary multiplier as-is, or pre-emptively soft-cap further? (ADR 0002 resolved: ship as-is, add diminishing returns as fast-follow only if playtest shows runaway.)</li>
-<li>⚠ <strong>Endgame loop (L70–100)</strong> — currently attribute/gear refinement + EndlessHunt repeatables only; needs a real chase (boss, set gear, or card system).</li>
-<li>⚠ <strong>Economy sinks</strong> — free respec + no repair leaves coins almost sink-less; what absorbs currency?</li>
-<li>⚠ <strong>Boss design</strong> — no <code>is_boss</code> flag, no mechanics; what does the Eternal Warlord encounter actually do, and does it demand a coordinated party (testing Pillar 5)?</li>
-<li>⚠ <strong>Narrative</strong> — is there an authored story, or do quest chains carry it indefinitely?</li>
+<li>⚠ <strong>Damage ceiling tuning</strong> — ship the ×4 primary multiplier as-is, or pre-emptively soft-cap further? (ADR 0002 resolved: ship as-is, add diminishing returns as fast-follow only if playtest shows runaway. The 2026-06-08 pass already softened the <em>enemy</em> attack curve; the player ceiling is still under live observation.)</li>
+<li>⚠ <strong>Endgame loop (L70–100)</strong> — zones, quests, and the Warlord exist; the <em>chase</em> is still attribute/gear refinement + repeatables. What's the repeatable endgame draw — boss farming, set gear, or the Sigil system the fiction reserves?</li>
+<li>⚠ <strong>Economy sinks beyond respec</strong> — respec is now a real sink (×5/×20 per refunded point), but income at cap will outrun it; repair, vendor tax, or crafting costs are the candidates.</li>
+<li>⚠ <strong>Boss coordination</strong> — both bosses are solo-readable telegraph fights; does any encounter ever <em>demand</em> a coordinated party (testing Pillar 5), or do bosses stay "farm-faster-together"?</li>
+<li>⚠ <strong>The Ruins level-dip</strong> — L1–9 critters in a ~20-band spine slot (§6.4); re-stock or re-order?</li>
+<li>⚠ <strong>Narrative</strong> — the world bible (LORE.md) is authored; the <em>plot</em> is still carried by quest chains. Is that the intended ceiling?</li>
 </ul>
 <h3 id="203-glossary">20.3 Glossary</h3>
 <p>See <a href="../CONTEXT.md">CONTEXT.md</a> — use those terms exactly (<strong>Pet</strong>, <strong>Bot</strong>,
@@ -1478,7 +1656,8 @@ objectives, and any custom character art beyond the four sprites.</p>
 <ul>
 <li><a href="../CLAUDE.md">CLAUDE.md</a> — repo-wide truths</li>
 <li><a href="../CONTEXT.md">CONTEXT.md</a> — domain glossary</li>
-<li><a href="adr/">docs/adr/</a> — 0001 Pets · 0002 Attributes · 0003 Unified window · 0004 Class removal</li>
+<li><a href="adr/">docs/adr/</a> — 0001 Pets · 0002 Attributes · 0003 Unified window · 0004 Class removal · 0005 Boss encounters · 0007 Map residency · 0008 Reparent handoff · 0009 Persistent UI layer · 0010 Resource-editor effect keys · 0011 Bot ambient population</li>
+<li><a href="LORE.md">docs/LORE.md</a> — the Emberwilds world bible</li>
 <li><a href="v1_design_summary.html">docs/v1_design_summary.html</a> — the 2026-05-31 ability-design grilling this GDD supersedes</li>
 <li><a href="ability_balance_report.html">docs/ability_balance_report.html</a> — per-ability balance numbers (regenerate against the 80-ability roster)</li>
 <li>External: MapleStory, New World, Ragnarok Online, Diablo 4, Last Epoch, Erenshor</li>
