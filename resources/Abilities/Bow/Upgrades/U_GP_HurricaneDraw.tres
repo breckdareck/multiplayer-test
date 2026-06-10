@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AbilityUpgradeData" load_steps=2 format=3 uid="uid://gpupghurrdrw1"]
+
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="1_aud"]
+
+[resource]
+script = ExtResource("1_aud")
+upgrade_id = "gp_t3_hurricane_draw"
+upgrade_name = "Hurricane Draw"
+description = "Each enemy pierced builds +1 extra Momentum."
+point_cost = 2
+tier = 3
+variant_group = "gp_pierce_variant"
+effect_key = "bonus_momentum_per_hit"
+magnitude = 1.0

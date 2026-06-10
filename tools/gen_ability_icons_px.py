@@ -279,6 +279,7 @@ PX = {
  "Surefoot": DR(lambda c: m_boot(c), lambda c: m_chevrons(c, 16, 6, GREEN, True, 1)),
  "Tailwind": DR(lambda c: m_wind(c, 16, 13, GREEN), lambda c: m_arrow(c, STEEL, 20, 22, 8)),
  "Wind Rider": DR(lambda c: m_wind(c, 16, 16, GREEN)),
+ "Gale Pierce": DR(lambda c: m_wind(c, 12, 10, GREEN), lambda c: m_arrow(c, STEEL, 16, 19, 13, False)),
  # STAFF
  "Aether Ward": DR(lambda c: m_shield(c), lambda c: m_rings(c, 16, 15)),
  "Arcane Familiar": DR(lambda c: m_wisp(c)),
