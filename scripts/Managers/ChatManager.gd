@@ -9,6 +9,13 @@ const RATE_LIMIT_INTERVAL: float = 2.0
 const RATE_LIMIT_BURST: int = 3
 var _rate_limits: Dictionary = {}
 
+## Server-wide minimum gap between any two bot chat lines. Bots cannot be the
+## remote sender of a chat RPC (negative peer id, no client), so bot speech
+## enters through bot_say() below — this budget keeps a large bot population
+## from drowning the feed (see docs/adr/0011-bot-ambient-population.md).
+const BOT_SPEECH_GLOBAL_GAP: float = 6.0
+var _last_bot_speech_time: float = -1000.0
+
 ## Supported emotes: command -> display text
 const EMOTES: Dictionary = {
 	"/sit": "*sits down*",
@@ -111,6 +118,50 @@ func _broadcast_message(text: String) -> void:
 
 	if server_id in players_on_map:
 		_show_chat_message(sender_id, sender_name, text)
+
+
+## [SERVER] Speak a chat line as a bot. The server initiates this directly —
+## a bot can never be an RPC's remote sender — and it reuses the normal
+## _show_chat_message broadcast, so every real player on the bot's map gets the
+## feed line + the overhead bubble on their copy of the bot's character node.
+## Returns false (without consuming the global budget) when the line was not
+## delivered: budget gap not elapsed, bot not live, or no real player on the
+## map to hear it. Callers use the return value to keep their own per-bot
+## cooldown honest.
+func bot_say(bot_id: int, text: String) -> bool:
+	if not multiplayer.is_server():
+		return false
+	if not BotManager.is_bot(bot_id):
+		return false
+	text = text.strip_edges()
+	if text.is_empty():
+		return false
+	if text.length() > MAX_MESSAGE_LENGTH:
+		text = text.substr(0, MAX_MESSAGE_LENGTH)
+
+	var now: float = Time.get_ticks_msec() / 1000.0
+	if now - _last_bot_speech_time < BOT_SPEECH_GLOBAL_GAP:
+		return false
+
+	var player_node: MultiplayerPlayerV2 = PlayerManager.get_player_node(bot_id)
+	if not is_instance_valid(player_node):
+		return false
+	var bot_map: String = MapManager.get_player_map(bot_id)
+	if bot_map.is_empty():
+		return false
+	var players_on_map: Array = MapManager.get_real_players_on_map(bot_map)
+	if players_on_map.is_empty():
+		return false
+
+	_last_bot_speech_time = now
+	var sender_name: String = player_node.username
+	var server_id: int = multiplayer.get_unique_id()
+	for peer_id in players_on_map:
+		if peer_id != server_id:
+			_show_chat_message.rpc_id(peer_id, bot_id, sender_name, text)
+	if server_id in players_on_map:
+		_show_chat_message(bot_id, sender_name, text)
+	return true
 
 
 ## Server -> Client: display chat message and bubble

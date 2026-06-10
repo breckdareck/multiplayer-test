@@ -1,0 +1,204 @@
+{
+  "archetypes": {
+    "bragger": {
+      "chattiness": 0.9,
+      "lines": {
+        "greet": [
+          "oh hey {player}, watch and learn",
+          "{player}! you're just in time to see me carry this map",
+          "another fan arrives. hi {player}",
+          "yo {player}. this whole map is basically my farm"
+        ],
+        "level_up": [
+          "level {level}. called it.",
+          "ding! {level} and still untouchable",
+          "{level} already? I make this look easy",
+          "level {level}. somebody scout the next map for me"
+        ],
+        "death": [
+          "ok THAT was lag",
+          "I had it on the ropes, whatever",
+          "bold of it to hit back honestly",
+          "don't screenshot that"
+        ],
+        "rare_loot": [
+          "{item}?? of course it drops for me",
+          "ooh {item}. naturally.",
+          "the game knows who deserves {item}"
+        ],
+        "boss_kill": [
+          "{enemy} down. you're welcome, everyone",
+          "and THAT is how you delete a {enemy}",
+          "tell your friends what you saw here"
+        ],
+        "party_join": [
+          "fine, I'll carry",
+          "party up. try to keep my pace",
+          "you get one (1) free carry, starting now"
+        ],
+        "command_follow": [
+          "ugh fine, lead on",
+          "right behind you. don't slow me down"
+        ],
+        "command_stay": [
+          "holding here. this spot's mine now",
+          "fine, I'll guard this exact pixel"
+        ],
+        "command_free": [
+          "freedom! later",
+          "back to business"
+        ],
+        "decline_trade": [
+          "hands off, {player}. that one's mine",
+          "nice try {player}, earn your own",
+          "absolutely not. that's MY loot"
+        ]
+      }
+    },
+    "quiet": {
+      "chattiness": 0.25,
+      "lines": {
+        "greet": [
+          "hey",
+          "o/",
+          "hi {player}"
+        ],
+        "level_up": [
+          "ding",
+          "{level}"
+        ],
+        "death": [
+          "oof",
+          "rip me"
+        ],
+        "rare_loot": [
+          "huh. {item}",
+          "nice"
+        ],
+        "boss_kill": [
+          "{enemy} dead",
+          "done"
+        ],
+        "party_join": [
+          "sure",
+          "ok"
+        ],
+        "command_follow": [
+          "ok",
+          "following"
+        ],
+        "command_stay": [
+          "ok, staying"
+        ],
+        "command_free": [
+          "ok"
+        ],
+        "decline_trade": [
+          "no",
+          "need that"
+        ]
+      }
+    },
+    "helper": {
+      "chattiness": 0.7,
+      "lines": {
+        "greet": [
+          "hey {player}! need a hand out here?",
+          "welcome to {map}, {player}. mobs hit harder on the upper ledges",
+          "hi {player}! shout if you want a party",
+          "good hunting today, {player}?"
+        ],
+        "level_up": [
+          "level {level}! slowly getting there",
+          "ding, {level}. the grind is real but it's honest work",
+          "{level}! ok, one more level, then I restock"
+        ],
+        "death": [
+          "welp. anyone else want to avoid that spot? because I recommend it",
+          "down I go. learn from my mistakes, friends",
+          "that one's on me, got greedy"
+        ],
+        "rare_loot": [
+          "oh nice, {item}! someone might need this more than me",
+          "{item} dropped! today's a good day",
+          "whoa, {item}. lucky roll"
+        ],
+        "boss_kill": [
+          "{enemy} is down! map's safe for a bit",
+          "got the {enemy}! good pulls everyone",
+          "{enemy} cleared. watch the respawn though"
+        ],
+        "party_join": [
+          "glad to group up! I'll watch your flank",
+          "party time. I've got potions if it gets rough",
+          "let's do this properly — pull small, stay alive"
+        ],
+        "command_follow": [
+          "on your six!",
+          "right with you, lead the way"
+        ],
+        "command_stay": [
+          "I'll hold this spot. be safe out there",
+          "anchored here. yell if you need me"
+        ],
+        "command_free": [
+          "alright, back to my rounds. good hunting!",
+          "roaming again — wave if you see me"
+        ],
+        "decline_trade": [
+          "sorry {player}, I actually need that one",
+          "ah, can't part with that — it's keeping me alive out here"
+        ]
+      }
+    },
+    "wanderer": {
+      "chattiness": 0.5,
+      "lines": {
+        "greet": [
+          "oh, a person. don't see many of those in {map}",
+          "passing through, {player}?",
+          "{map}'s nice this time of day",
+          "small world, {player}"
+        ],
+        "level_up": [
+          "level {level} somewhere on the road",
+          "ding. {level} now. time to move on soon",
+          "{level}. the maps keep changing, the grind doesn't"
+        ],
+        "death": [
+          "every map kills you a little differently",
+          "and that's why I don't linger",
+          "noted: don't do that again"
+        ],
+        "rare_loot": [
+          "{item}, just lying there. the road provides",
+          "found {item}. some days the wandering pays"
+        ],
+        "boss_kill": [
+          "{enemy} won't be bothering this map for a while",
+          "one less {enemy} on the road"
+        ],
+        "party_join": [
+          "company for the road? alright",
+          "I'll walk with you a while"
+        ],
+        "command_follow": [
+          "your road's as good as mine",
+          "alright, I'll follow your lead"
+        ],
+        "command_stay": [
+          "strange, staying put. but alright",
+          "I'll wait here. for a while"
+        ],
+        "command_free": [
+          "the road calls. see you around",
+          "back to wandering"
+        ],
+        "decline_trade": [
+          "that one's traveled too far with me to give up, {player}",
+          "no deal — that's part of the kit"
+        ]
+      }
+    }
+  }
+}

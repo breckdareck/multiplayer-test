@@ -558,6 +558,19 @@ func _transfer_trade_item(player_id: int, target_id: int, slot_index: int, givin
 	if not slot.item:
 		return
 
+	# Trade consent (ADR 0011): a NON-party player may only take items the bot
+	# considers junk — its potions and gear upgrades are its survival kit and
+	# build. Party members keep the unrestricted give/take window (it doubles
+	# as a mule/testing convenience), and giving is always free.
+	if not giving and not _same_party(player_id, target_id) \
+			and _bot_declines_item(target_node, slot.item):
+		_notify_player(player_id, "%s refuses to part with %s." % [
+			_get_player_name(target_id), slot.item.name], Color.ORANGE)
+		var brain = BotManager.get_bot_brain(target_id)
+		if brain != null:
+			brain.try_speak("decline_trade", {"player": _get_player_name(player_id)}, true)
+		return
+
 	# Check space before removing — a full destination would otherwise destroy
 	# the item (the remove succeeds but the add silently fails).
 	if dest_inv.get_empty_slots().is_empty():
@@ -568,6 +581,31 @@ func _transfer_trade_item(player_id: int, target_id: int, slot_index: int, givin
 	var item: ItemData = slot.item
 	source_inv.remove_item(item, "traded")
 	dest_inv.server_add_item_instance(item.to_dictionary())
+
+
+## True when both ids are in the SAME party.
+func _same_party(id_a: int, id_b: int) -> bool:
+	var party_a := PartyManager.get_player_party_id(id_a)
+	return party_a != -1 and party_a == PartyManager.get_player_party_id(id_b)
+
+
+## What a bot refuses to hand a stranger: consumables (its potion supply) and
+## any equipment it would itself equip — valued with the same scorer the bot
+## equips with. Everything else is sell-fodder it parts with freely.
+func _bot_declines_item(bot_node: MultiplayerPlayerV2, item: ItemData) -> bool:
+	if item is ConsumableData:
+		return true
+	if item is not EquipmentData:
+		return false
+	if not is_instance_valid(bot_node.equipment_component):
+		return false
+	var class_type: Constants.ClassType = Constants.ClassType.BEGINNER
+	if is_instance_valid(bot_node.weapon_mastery_component):
+		class_type = bot_node.weapon_mastery_component.primary_discipline as Constants.ClassType
+	var target_slot := BotEquipmentLogic.get_target_slot(item, bot_node.equipment_component)
+	if target_slot == null:
+		return false
+	return BotEquipmentLogic.should_equip(target_slot.item, item, class_type)
 
 
 #=============================================================================

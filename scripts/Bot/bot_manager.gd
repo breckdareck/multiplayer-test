@@ -12,6 +12,21 @@ var _used_names: Dictionary = {}
 var _bot_def_map: Dictionary = {}  # { bot_id: bot_def Dictionary from config }
 var _inspect_window: BotInspectWindow = null
 
+# --- Ambient population (ADR 0011): personality archetypes + identity roster ---
+## Archetype table (chattiness + per-event line pools), data not code.
+var _personalities: Dictionary = {}
+var _personalities_path: String = "res://config/bot_personalities.json"
+## Server-side identity roster: persists the personality a random bot rolled so
+## it stays recognizable across sessions. Deliberately NOT a backend column —
+## see docs/adr/0011-bot-ambient-population.md.
+var _roster: Dictionary = {}
+var _roster_path: String = "res://saves/bot_roster.json"
+var _roster_loaded: bool = false
+## Bots whose spawn found NO existing save row — they get a one-time level/gold
+## seed in _on_bot_spawned so a cold-start server has a leveled population
+## instead of twenty newborns. Set by PlayerManager.add_bot.
+var _fresh_bots: Dictionary = {}
+
 ## Emitted (on any peer) when a requested bot data snapshot arrives.
 signal bot_snapshot_received(bot_id: int, snapshot: Dictionary)
 
@@ -49,6 +64,7 @@ func _ready() -> void:
 
 func _on_server_started() -> void:
 	load_config(_config_path)
+	_load_personalities()
 	if bot_config.get("auto_spawn", false):
 		# Wait a few frames for the first map to load before spawning bots.
 		await get_tree().create_timer(2.0).timeout
@@ -204,6 +220,17 @@ func _on_bot_spawned(bot_id: int) -> void:
 	if is_instance_valid(bot_camera):
 		bot_camera.queue_free()
 
+	# Resolve the bot's personality once (config > roster > persisted roll).
+	if bot_id in active_bots and not active_bots[bot_id].has("personality"):
+		active_bots[bot_id]["personality"] = _resolve_personality_key(
+			active_bots[bot_id]["username"], get_bot_definition(bot_id))
+
+	# Cold-start seed BEFORE the brain attaches — the level pump fires dozens of
+	# level-up signals, and seeding pre-brain means no speech hook hears them.
+	if _fresh_bots.has(bot_id):
+		_fresh_bots.erase(bot_id)
+		_seed_fresh_bot(bot_id)
+
 	# The brain is parented to BotManager — not the character node — so it
 	# survives the character being freed and recreated on every map change,
 	# keeping its travel timers, patrol progress and cooldowns intact. On a map
@@ -232,6 +259,7 @@ func _on_bot_spawned(bot_id: int) -> void:
 		brain.init(player_node, bot_id, behavior_cfg)
 		if bot_id in active_bots:
 			active_bots[bot_id]["brain"] = brain
+	brain.personality = get_bot_personality(bot_id)
 
 	if bot_id in active_bots:
 		var current_map := MapManager.get_player_map(bot_id)
@@ -255,6 +283,145 @@ func handle_bot_reparented(bot_id: int) -> void:
 		var current_map := MapManager.get_player_map(bot_id)
 		if not current_map.is_empty():
 			active_bots[bot_id]["map_id"] = current_map
+
+
+# --- Personality archetypes + identity roster (ADR 0011) ---
+
+func _load_personalities() -> void:
+	_personalities = {}
+	if not FileAccess.file_exists(_personalities_path):
+		return
+	var file := FileAccess.open(_personalities_path, FileAccess.READ)
+	var parsed = JSON.parse_string(file.get_as_text())
+	file.close()
+	if parsed is Dictionary:
+		_personalities = parsed.get("archetypes", {})
+	else:
+		push_warning("BotManager: Failed to parse %s" % _personalities_path)
+
+
+func _load_roster() -> void:
+	_roster_loaded = true
+	_roster = {}
+	if not FileAccess.file_exists(_roster_path):
+		return
+	var file := FileAccess.open(_roster_path, FileAccess.READ)
+	var parsed = JSON.parse_string(file.get_as_text())
+	file.close()
+	if parsed is Dictionary:
+		_roster = parsed
+
+
+func _save_roster() -> void:
+	DirAccess.make_dir_recursive_absolute("res://saves")
+	var file := FileAccess.open(_roster_path, FileAccess.WRITE)
+	if file == null:
+		push_warning("BotManager: Could not write roster to %s" % _roster_path)
+		return
+	file.store_string(JSON.stringify(_roster, "  "))
+	file.close()
+
+
+## The personality archetype KEY for a bot: an authored `personality` in its
+## config entry wins; otherwise the roster's persisted roll; otherwise roll one
+## now and persist it so this name keeps its personality across sessions.
+func _resolve_personality_key(bot_name: String, bot_def: Dictionary) -> String:
+	if _personalities.is_empty():
+		return ""
+	var authored: String = bot_def.get("personality", "")
+	if not authored.is_empty() and _personalities.has(authored):
+		return authored
+	if not _roster_loaded:
+		_load_roster()
+	var rostered: String = _roster.get(bot_name, {}).get("personality", "")
+	if not rostered.is_empty() and _personalities.has(rostered):
+		return rostered
+	var keys: Array = _personalities.keys()
+	var rolled: String = keys.pick_random()
+	_roster[bot_name] = {"personality": rolled}
+	_save_roster()
+	return rolled
+
+
+## The full archetype Dictionary ({chattiness, lines}) a bot speaks with, plus
+## its key under "key". Empty Dictionary when personalities are unavailable.
+func get_bot_personality(bot_id: int) -> Dictionary:
+	var key: String = active_bots.get(bot_id, {}).get("personality", "")
+	if key.is_empty() or not _personalities.has(key):
+		return {}
+	var archetype: Dictionary = _personalities[key].duplicate()
+	archetype["key"] = key
+	return archetype
+
+
+# --- Cold-start seeding (ADR 0011) ---
+
+## Flags a bot whose data load found no save row. Called by PlayerManager.add_bot
+## before the spawn handshake; consumed once in _on_bot_spawned.
+func mark_bot_fresh(bot_id: int) -> void:
+	_fresh_bots[bot_id] = true
+
+
+## One-time seed for a brand-new bot (no save row): level it into a difficulty
+## band so the population reads as a lived-in server, and grant band-appropriate
+## gold so the existing restock/equip logic can gear it up on its first town
+## trip. Runs AFTER JoinHandshake (components live, load complete), and goes
+## through pump_bot_to_level — the same EXP+mastery path as /bot set_level — so
+## the ability/attribute point-reconcile invariant holds.
+func _seed_fresh_bot(bot_id: int) -> void:
+	var player_node := PlayerManager.get_player_node(bot_id)
+	if not is_instance_valid(player_node) or not is_instance_valid(player_node.level_component):
+		return
+
+	var bot_def := get_bot_definition(bot_id)
+	var target_level: int = int(bot_def.get("seed_level", 0))
+	if target_level <= 0:
+		# Pick a band: the spawn map's if it has one, else a random banded map
+		# from the patrol route (config bots start in town, which is unbanded).
+		var band := get_map_difficulty(MapManager.get_player_map(bot_id))
+		if band.is_empty():
+			var banded: Array = []
+			for map_id in bot_def.get("patrol_route", _default_patrol_route()):
+				if not get_map_difficulty(map_id).is_empty():
+					banded.append(map_id)
+			if not banded.is_empty():
+				band = get_map_difficulty(banded.pick_random())
+		if band.is_empty():
+			return  # nowhere to anchor a seed — stay level 1
+		target_level = randi_range(int(band.get("min_level", 1)), int(band.get("max_level", 1)))
+
+	var cap: int = int(bot_config.get("seed_max_level", 0))
+	if cap > 0:
+		target_level = mini(target_level, cap)
+	if target_level <= player_node.level_component.level:
+		return
+
+	pump_bot_to_level(player_node, target_level)
+	if is_instance_valid(player_node.player_inventory):
+		player_node.player_inventory.monies_amount += target_level * 40
+
+
+## Levels a bot's character to `level` by pumping EXP, and raises its
+## primary-discipline mastery to match (one mastery level per character level,
+## capped) — character EXP only grants attribute points; ability points come
+## from WEAPON MASTERY (mastery_level_changed -> ability-point grant), so
+## without the mastery pump a leveled bot would have a full attribute build but
+## no skills. One level's XP per call: grant_mastery_xp_server emits once per
+## call, so a single lump would jump levels but grant only one ability point.
+## Shared by /bot set_level and cold-start seeding. Returns a mastery summary.
+func pump_bot_to_level(player_node: MultiplayerPlayerV2, level: int) -> String:
+	while player_node.level_component.level < level:
+		player_node.level_component.add_exp(player_node.level_component.get_exp_to_next_level())
+	var mastery_msg := ""
+	var wm = player_node.weapon_mastery_component
+	if is_instance_valid(wm):
+		var disc: int = wm.primary_discipline
+		var target_mastery: int = mini(level, WeaponMasteryComponent.MASTERY_CAP)
+		var start_mastery: int = wm.get_mastery_level(disc)
+		while wm.get_mastery_level(disc) < target_mastery:
+			wm.grant_mastery_xp_server(disc, wm.get_xp_to_next_level(disc))
+		mastery_msg = " (mastery %d -> %d)" % [start_mastery, wm.get_mastery_level(disc)]
+	return mastery_msg
 
 
 # --- Client-side bot data sync (on-demand snapshots) ---
@@ -639,7 +806,7 @@ func _class_string_to_type(class_str: String) -> int:
 ## route UI back to the requesting client rather than always the host.
 func handle_command(args: Array, requester_id: int = 0) -> String:
 	if args.is_empty():
-		return "Usage: /bot <spawn|despawn|despawn_all|list|teleport|set_level|party|travel|stress|inspect|trade|navgraph|navpath|debugdraw|stats|watch|reload_config>"
+		return "Usage: /bot <spawn|despawn|despawn_all|list|teleport|set_level|party|follow|stay|free|travel|stress|inspect|trade|navgraph|navpath|debugdraw|stats|watch|reload_config>"
 
 	var sub_command: String = args[0].to_lower()
 	match sub_command:
@@ -715,28 +882,14 @@ func handle_command(args: Array, requester_id: int = 0) -> String:
 			if not is_instance_valid(player_node) or not is_instance_valid(player_node.level_component):
 				return "Bot %d player node not ready." % bot_id
 			var current := player_node.level_component.level
-			while player_node.level_component.level < level:
-				player_node.level_component.add_exp(player_node.level_component.get_exp_to_next_level())
-			# Character EXP only grants attribute points; ability points come
-			# from WEAPON MASTERY (mastery_level_changed -> ability-point grant),
-			# which set_level would otherwise never raise — leaving a high-level
-			# test bot with a full attribute build but no skills. Raise the bot's
-			# primary-discipline mastery to match so it has a usable kit. One
-			# level's XP per call: grant_mastery_xp_server emits once per call, so
-			# a single lump would jump levels but grant only one ability point.
-			var mastery_msg := ""
-			var wm = player_node.weapon_mastery_component
-			if is_instance_valid(wm):
-				var disc: int = wm.primary_discipline
-				var target_mastery: int = mini(level, WeaponMasteryComponent.MASTERY_CAP)
-				var start_mastery: int = wm.get_mastery_level(disc)
-				while wm.get_mastery_level(disc) < target_mastery:
-					wm.grant_mastery_xp_server(disc, wm.get_xp_to_next_level(disc))
-				mastery_msg = " (mastery %d -> %d)" % [start_mastery, wm.get_mastery_level(disc)]
+			var mastery_msg := pump_bot_to_level(player_node, level)
 			return "Bot %d leveled from %d to %d.%s" % [bot_id, current, player_node.level_component.level, mastery_msg]
 
 		"party":
 			return _handle_party_command(args.slice(1))
+
+		"follow", "stay", "free":
+			return _handle_companion_command(sub_command, args.slice(1), requester_id)
 
 		"travel":
 			return _handle_travel_command(args.slice(1))
@@ -752,7 +905,9 @@ func handle_command(args: Array, requester_id: int = 0) -> String:
 
 		"reload_config":
 			load_config(_config_path)
-			return "Bot config reloaded (%d bot definitions)." % bot_config.get("bots", []).size()
+			_load_personalities()
+			return "Bot config reloaded (%d bot definitions, %d personality archetypes)." % [
+				bot_config.get("bots", []).size(), _personalities.size()]
 
 		"navgraph":
 			return _handle_navgraph_command(args.slice(1))
@@ -770,7 +925,55 @@ func handle_command(args: Array, requester_id: int = 0) -> String:
 			return _handle_watch_command(args.slice(1))
 
 		_:
-			return "Unknown bot command '%s'. Use: spawn, despawn, despawn_all, list, teleport, set_level, party, travel, inspect, trade, navgraph, navpath, debugdraw, stats, watch, reload_config" % sub_command
+			return "Unknown bot command '%s'. Use: spawn, despawn, despawn_all, list, teleport, set_level, party, follow, stay, free, travel, inspect, trade, navgraph, navpath, debugdraw, stats, watch, reload_config" % sub_command
+
+
+## /bot follow|stay|free <name|id|all> — player-issued companion commands
+## (ADR 0011). Party-leader-only, so a bystander can't order someone else's
+## groupmates around. "all" commands every bot in the requester's party. These
+## set a mode flag on the brain — no trinity roles, no new RPC surface.
+func _handle_companion_command(mode: String, args: Array, requester_id: int) -> String:
+	if args.is_empty():
+		return "Usage: /bot %s <name|id|all>" % mode
+	if requester_id == 0 or is_bot(requester_id):
+		return "Companion commands must come from a player."
+	var requester_party := PartyManager.get_player_party_id(requester_id)
+	if requester_party == -1:
+		return "You must be in a party with the bot to command it."
+	if PartyManager.get_party_leader(requester_party) != requester_id:
+		return "Only the party leader can command bots."
+
+	var targets: Array[int] = []
+	if args[0].to_lower() == "all":
+		for member_id in PartyManager.get_party_members(requester_id):
+			if is_bot(member_id):
+				targets.append(member_id)
+		if targets.is_empty():
+			return "No bots in your party."
+	else:
+		var single_id := _find_bot_by_name_or_id(args[0])
+		if single_id == 0:
+			return "Bot '%s' not found." % args[0]
+		if PartyManager.get_player_party_id(single_id) != requester_party:
+			return "Bot '%s' is not in your party." % active_bots[single_id].username
+		targets.append(single_id)
+
+	var applied: PackedStringArray = []
+	for bot_id in targets:
+		var brain := get_bot_brain(bot_id)
+		if brain == null:
+			continue
+		brain.set_companion_mode("" if mode == "free" else mode)
+		applied.append(active_bots[bot_id].username)
+	if applied.is_empty():
+		return "No bot brains available to command."
+	match mode:
+		"follow":
+			return "%s now following you." % ", ".join(applied)
+		"stay":
+			return "%s holding position." % ", ".join(applied)
+		_:
+			return "%s released to roam." % ", ".join(applied)
 
 
 ## Reports a bot's lifetime behaviour metrics.

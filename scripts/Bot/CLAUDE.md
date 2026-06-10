@@ -68,6 +68,40 @@ level**; ability points are granted only by **weapon-mastery** level-ups
 earned **on kill** (`CombatComponent.grant_mastery_xp_server`), which fires for
 bots since they deal real damage — so a grinding bot accrues both naturally.
 
+## Ambient population (ADR 0011)
+
+Bots fake a busy server for a small co-op session (the Erenshor "SimPlayer"
+pattern). See [docs/adr/0011-bot-ambient-population.md](../../docs/adr/0011-bot-ambient-population.md).
+
+- **Speech** — `ChatManager.bot_say(bot_id, text)` is the ONLY way a bot
+  speaks (a bot can never be an RPC's remote sender). It is map-scoped like
+  player chat and applies a server-wide budget (`BOT_SPEECH_GLOBAL_GAP`); the
+  brain's `try_speak(event, ctx, force)` adds a per-bot cooldown + chattiness
+  roll on top. Events: `greet` (LOD far→near transition), `level_up`, `death`,
+  `rare_loot` (rarity ≥ RARE), `boss_kill`, `party_join`, `command_*`,
+  `decline_trade`. Lines are data in `config/bot_personalities.json`
+  (templates: `{player}` `{map}` `{item}` `{enemy}` `{level}`).
+- **Personality** — an archetype key per bot: authored `"personality"` in the
+  bot's config entry wins; otherwise a one-time roll persisted in
+  `saves/bot_roster.json` (server-side identity roster — deliberately NOT a
+  backend column) so random bots stay recognizable across sessions.
+- **Cold-start seeding** — a bot whose spawn found NO save row
+  (`PlayerManager.add_bot` → `mark_bot_fresh`) gets a one-time seed in
+  `_on_bot_spawned`: level into a difficulty band (spawn map's band, else a
+  random banded patrol map; per-bot `"seed_level"` overrides; global
+  `"seed_max_level"` caps) via `pump_bot_to_level` — the same EXP+mastery path
+  as `/bot set_level`, so the point-reconcile invariant holds — plus
+  `level × 40` gold. Seeding runs BEFORE the brain attaches so the level-up
+  pump can't trigger speech.
+- **Companion commands** — `/bot follow|stay|free <name|id|all>`,
+  party-leader-only. A mode flag on the brain (no trinity roles): `follow`
+  sticks to the leader (same-map and into town, unlike ambient regrouping);
+  `stay` anchors at the commanded position (fights only within `STAY_RADIUS`);
+  commands suppress restock errands and lapse when the bot leaves the party.
+- **Trade consent** — non-party players can only TAKE sell-fodder from a bot;
+  consumables and would-equip gear are declined (scored by
+  `BotEquipmentLogic`). Party members keep the free give/take window.
+
 ## Configuration — `config/bot_config.json`
 
 ```jsonc

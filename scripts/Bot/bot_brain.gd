@@ -130,6 +130,26 @@ var _lod_frame: int = 0
 const LOD_CHECK_INTERVAL: float = 1.0
 const LOD_APPLY_EVERY: int = 4
 
+# --- Ambient population (ADR 0011): personality voice + companion commands ---
+## Archetype data ({chattiness, lines, key}) resolved by BotManager and set on
+## every spawn/attach. Empty when personalities are unavailable — all speech
+## no-ops.
+var personality: Dictionary = {}
+## Per-bot gap between lines; ChatManager.bot_say applies the server-wide
+## budget on top. Only reset when a line was actually delivered.
+var _speech_cooldown: float = 0.0
+const SPEECH_COOLDOWN: float = 40.0
+var _last_party_id: int = -1
+
+## Player-issued companion command: "", "follow", or "stay" (/bot follow|stay|free).
+## Persists across map hops (the brain outlives the body); lapses when the bot
+## stops being a party member under someone else's lead.
+var companion_mode: String = ""
+var companion_anchor: Vector2 = Vector2.ZERO
+var _companion_goal: Vector2 = Vector2.ZERO
+const FOLLOW_NEAR_DISTANCE: float = 90.0
+const STAY_RADIUS: float = 220.0
+
 # --- Lifetime metrics, surfaced by `/bot stats` and the debug panel. ---
 var _metrics := {
 	"kills": 0,
@@ -151,10 +171,14 @@ func get_metrics() -> Dictionary:
 ## Connects to the character's death signal for death-cause metrics. Safe to
 ## call repeatedly (e.g. after a map change re-bodies the bot).
 func _connect_health_signals() -> void:
-	if not is_instance_valid(player) or not is_instance_valid(player.health_component):
+	if not is_instance_valid(player):
 		return
-	if not player.health_component.died.is_connected(_on_player_died):
+	if is_instance_valid(player.health_component) \
+			and not player.health_component.died.is_connected(_on_player_died):
 		player.health_component.died.connect(_on_player_died)
+	if is_instance_valid(player.level_component) \
+			and not player.level_component.leveled_up.is_connected(_on_leveled_up):
+		player.level_component.leveled_up.connect(_on_leveled_up)
 
 
 func _on_player_died(killer: Node) -> void:
@@ -163,6 +187,65 @@ func _on_player_died(killer: Node) -> void:
 		_metrics.deaths_to_enemy += 1
 	else:
 		_metrics.deaths_to_hazard += 1
+	try_speak("death")
+
+
+func _on_leveled_up(new_level: int) -> void:
+	try_speak("level_up", {"level": new_level})
+
+
+# --- Personality speech (ADR 0011) -------------------------------------------
+
+## Attempts a personality line for `event`. Rolls against chattiness and the
+## per-bot cooldown, then hands the line to ChatManager.bot_say, which applies
+## the server-wide speech budget and the map-scoped broadcast. `force` skips
+## the chattiness roll and cooldown (command acks and trade declines should
+## answer) — the global budget still applies. The cooldown only resets when a
+## line was actually delivered, so a blocked attempt doesn't silence the bot.
+func try_speak(event: String, ctx: Dictionary = {}, force: bool = false) -> void:
+	if personality.is_empty():
+		return
+	var pool: Array = personality.get("lines", {}).get(event, [])
+	if pool.is_empty():
+		return
+	if not force:
+		if _speech_cooldown > 0.0:
+			return
+		if randf() > float(personality.get("chattiness", 0.5)):
+			return
+	var text: String = String(pool.pick_random()).format(_speech_context(ctx))
+	if ChatManager.bot_say(bot_id, text):
+		_speech_cooldown = SPEECH_COOLDOWN
+
+
+## Default template values ({player}, {map}, {level}, ...) with event-specific
+## entries merged over them.
+func _speech_context(ctx: Dictionary) -> Dictionary:
+	var level: int = 0
+	if is_instance_valid(player) and is_instance_valid(player.level_component):
+		level = player.level_component.level
+	var base := {
+		"player": "",
+		"map": MapManager.get_player_map(bot_id).replace("_", " ").capitalize(),
+		"level": level,
+		"item": "",
+		"enemy": "",
+	}
+	if String(ctx.get("player", "")).is_empty():
+		var names := _real_player_names_on_map()
+		if not names.is_empty():
+			base["player"] = names.pick_random()
+	base.merge(ctx, true)
+	return base
+
+
+func _real_player_names_on_map() -> Array:
+	var names: Array = []
+	for pid in MapManager.get_real_players_on_map(MapManager.get_player_map(bot_id)):
+		var node := PlayerManager.get_player_node(pid)
+		if is_instance_valid(node) and not node.username.is_empty():
+			names.append(node.username)
+	return names
 
 
 func init(player_node: MultiplayerPlayerV2, id: int, behavior_config: Dictionary = {}) -> void:
@@ -182,6 +265,10 @@ func init(player_node: MultiplayerPlayerV2, id: int, behavior_config: Dictionary
 
 	think_timer = randf() * think_interval
 	_party_seek_timer = PARTY_SEEK_INTERVAL + randf() * PARTY_SEEK_INTERVAL
+
+	# Start "far" so the first LOD check on a map that already has a real player
+	# registers as an arrival and can fire a greet line.
+	_lod_far = true
 
 	_navigator.compute_jump_profile()
 	_connect_health_signals()
@@ -211,6 +298,9 @@ func attach_to_player(player_node: MultiplayerPlayerV2) -> void:
 	_navigator._nav_path = PackedInt64Array()
 	_navigator._nav_goal = Vector2.INF
 	_navigator._descend_dir = 0
+	# Re-arm the arrival greet: entering a map that has a real player on it
+	# counts as meeting them (the LOD check sees a far->near transition).
+	_lod_far = true
 	# Run shop maintenance on the very next think instead of waiting up to
 	# SHOP_CHECK_INTERVAL. Without this, a bot that traveled to town for a
 	# restock can leave again before the timer elapses — needs_restock /
@@ -240,10 +330,17 @@ func _process(delta: float) -> void:
 	action_timer -= delta
 	think_timer -= delta
 
+	_speech_cooldown -= delta
+
 	_lod_check_timer -= delta
 	if _lod_check_timer <= 0.0:
 		_lod_check_timer = LOD_CHECK_INTERVAL
+		var was_far := _lod_far
 		_lod_far = _is_lod_far()
+		# far -> near means a real player just arrived on this map (or the bot
+		# just arrived on theirs) — the natural moment for a greeting.
+		if was_far and not _lod_far:
+			try_speak("greet")
 
 	if current_action == "fight" and is_instance_valid(target_enemy):
 		var enemy_hp := -1
@@ -435,8 +532,10 @@ func _handle_dead(delta: float) -> void:
 func _think() -> void:
 	_refresh_targets()
 	_tick_travel_timers()
+	_track_party_changes()
 
 	if _consider_retreat(): return
+	if _consider_companion(): return
 	if _consider_restock_trip(): return
 	if _consider_follow_leader(): return
 	if _consider_urgent_travel(): return
@@ -452,6 +551,8 @@ func _refresh_targets() -> void:
 	if is_instance_valid(target_enemy):
 		if target_enemy.health_component and target_enemy.health_component.is_dead:
 			_metrics.kills += 1
+			if target_enemy.enemy_data != null and target_enemy.enemy_data.is_boss:
+				try_speak("boss_kill", {"enemy": target_enemy.monster_name})
 			target_enemy = null
 	else:
 		target_enemy = null
@@ -459,9 +560,26 @@ func _refresh_targets() -> void:
 	if is_instance_valid(target_loot):
 		if target_loot.current_state == DroppedItem.ItemState.COLLECTED:
 			_metrics.loot_collected += 1
+			if target_loot.item_data != null \
+					and target_loot.item_data.rarity >= Constants.ItemRarity.RARE:
+				try_speak("rare_loot", {"item": target_loot.item_data.name})
 			target_loot = null
 	else:
 		target_loot = null
+
+
+## Detects party membership changes for speech + companion-command hygiene:
+## joining a party gets a line; leaving one lapses any standing command.
+func _track_party_changes() -> void:
+	var party_id := PartyManager.get_player_party_id(bot_id)
+	if party_id == _last_party_id:
+		return
+	var joined := party_id != -1 and _last_party_id == -1
+	_last_party_id = party_id
+	if joined:
+		try_speak("party_join")
+	if party_id == -1:
+		companion_mode = ""
 
 
 ## Survival: when critically low on HP, retreat to safety and regenerate. Stays
@@ -501,11 +619,83 @@ func _consider_retreat() -> bool:
 	return false
 
 
+## Applies a player-issued companion command (ADR 0011): "follow" sticks to the
+## party leader — including same-map and into town, unlike the ambient
+## regroup — and "stay" anchors the bot near where it was commanded. Speech
+## acks happen in set_companion_mode. Returns true only when the command needs
+## movement this think; otherwise falls through so the bot fights/loots
+## normally around the commanded position.
+func _consider_companion() -> bool:
+	if companion_mode.is_empty():
+		return false
+	# Commands lapse when the bot is no longer a party member under someone
+	# else's lead (kicked, disbanded, or promoted to leader itself).
+	var leader_id := _get_party_leader()
+	if leader_id == 0 or leader_id == bot_id:
+		companion_mode = ""
+		return false
+
+	if companion_mode == "stay":
+		if player.global_position.distance_to(companion_anchor) > STAY_RADIUS:
+			_companion_goal = companion_anchor
+			target_enemy = null
+			current_action = "regroup"
+			return true
+		return false
+
+	# follow
+	var leader_map := MapManager.get_player_map(leader_id)
+	var my_map := MapManager.get_player_map(bot_id)
+	if leader_map.is_empty():
+		return false
+	if leader_map != my_map:
+		var hop := MapManager.get_next_map_toward(my_map, leader_map)
+		if hop.is_empty():
+			return false
+		if not is_instance_valid(target_portal) or target_portal.target_map_id != hop:
+			target_portal = _find_portal_to_map(hop)
+		if not is_instance_valid(target_portal):
+			return false
+		target_enemy = null
+		current_action = "travel"
+		return true
+	var leader_node := PlayerManager.get_player_node(leader_id)
+	if not is_instance_valid(leader_node):
+		return false
+	if player.global_position.distance_to(leader_node.global_position) > FOLLOW_NEAR_DISTANCE:
+		_companion_goal = leader_node.global_position
+		current_action = "regroup"
+		return true
+	return false
+
+
+## Sets a player-issued companion command ("follow"/"stay"/"" = free) and
+## speaks the matching ack. "stay" anchors at the bot's current position.
+func set_companion_mode(mode: String) -> void:
+	companion_mode = mode
+	if mode == "stay" and is_instance_valid(player):
+		companion_anchor = player.global_position
+	target_portal = null
+	if not mode.is_empty():
+		think_timer = 0.0  # obey on the very next frame's think
+	match mode:
+		"follow":
+			try_speak("command_follow", {}, true)
+		"stay":
+			try_speak("command_stay", {}, true)
+		_:
+			try_speak("command_free", {}, true)
+
+
 ## Visit town when out of potions, or when the bag is full with no merchant here
 ## to sell to. Routes hop-by-hop (town may not be directly portal-connected).
 ## bot_economy sets needs_restock/needs_sell — its affordability gate keeps a
 ## broke bot from looping here instead of fighting to earn the gold it needs.
 func _consider_restock_trip() -> bool:
+	# A commanded bot postpones errands — wandering off to shop mid-"follow"
+	# abandons the player it was told to stick with.
+	if not companion_mode.is_empty():
+		return false
 	if not (_economy.needs_restock or _economy.needs_sell):
 		return false
 	var my_map := MapManager.get_player_map(bot_id)
@@ -530,6 +720,10 @@ func _consider_restock_trip() -> bool:
 ## Regrouping routes the bot to the leader's map on foot, hop-by-hop through
 ## portals — it is never a teleport.
 func _consider_follow_leader() -> bool:
+	# "stay" outranks ambient regrouping; "follow" already handled cross-map
+	# travel (including into town) in _consider_companion before this runs.
+	if companion_mode == "stay":
+		return false
 	if not _should_follow_leader():
 		return false
 	var leader_map := MapManager.get_player_map(_get_party_leader())
@@ -590,6 +784,11 @@ func _consider_fight() -> bool:
 			var new_sq := player.global_position.distance_squared_to(closer.global_position)
 			if new_sq < cur_sq * _combat.RETARGET_FACTOR:
 				_combat.set_target_enemy(closer)
+	# A "stay" bot defends its anchor, not the whole map — chasing an enemy
+	# beyond the stay radius would just yo-yo against the regroup pull.
+	if companion_mode == "stay" and is_instance_valid(target_enemy) \
+			and target_enemy.global_position.distance_to(companion_anchor) > STAY_RADIUS:
+		_combat.disengage()
 	if target_enemy:
 		current_action = "fight"
 		return true
@@ -767,6 +966,10 @@ func _apply_current_action() -> void:
 			_do_loot()
 		"travel":
 			_do_navigate_to_portal()
+		"regroup":
+			# Walking back to a companion goal (the leader, or a stay anchor).
+			player.do_pickup = false
+			_navigator.navigate_smart(_companion_goal)
 
 
 func _do_wander() -> void:
