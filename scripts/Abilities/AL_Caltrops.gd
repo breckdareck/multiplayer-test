@@ -130,6 +130,7 @@ func _apply_caltrops_slow(enemy: Node) -> void:
 	var original_speed: float = e.movement_speed
 	e.movement_speed = original_speed * (1.0 - _slow_pct)
 	e.set_meta(SLOW_META, original_speed)
+	EnemyStatus.register(e, EnemyStatus.TAG_CHILL, SLOW_META, null)
 
 	e.get_tree().create_timer(SLOW_DURATION).timeout.connect(
 		func():

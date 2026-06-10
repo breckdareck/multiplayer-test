@@ -65,6 +65,21 @@ var _current_attack_name: String = ""
 var _current_ability: AbilityData = null
 var _current_level_stats: AbilityLevelData = null
 
+# Channeled-cast state (ActiveBehaviorData.channel_mode). WINDUP_RELEASE defers
+# the release (logic_script.execute + hitbox) until the wind-up elapses; HOLD
+# releases immediately but keeps the caster rooted for the channel duration.
+# The countdown runs in physics_update on EVERY peer (peer-local clocks — the
+# server's release is the only authoritative one; client copies no-op inside
+# the AL's is_server guard). Force-exiting the state (death) before the release
+# fires cancels it with no resource refund.
+const CHANNEL_NONE: int = 0
+const CHANNEL_WINDUP_RELEASE: int = 1
+const CHANNEL_HOLD: int = 2
+## Hitbox window passed to combat at the moment a wind-up releases.
+const WINDUP_RELEASE_WINDOW: float = 0.3
+var _windup_pending: bool = false
+var _windup_remaining: float = 0.0
+
 @onready var animation_player: AnimationPlayer = owner.get_node_or_null("../../AnimationPlayer")
 @onready var attack_state_timer: Timer = $"../../AttackStateTimer"
 
@@ -89,13 +104,14 @@ func enter() -> void:
 			_current_attack_name = "attack_1" # Default basic attack animation
 		_start_basic_attack()
 
-func _play_animation(anim_name: String) -> void:
+func _play_animation(anim_name: String, speed_override: float = -1.0) -> void:
 	if (not multiplayer.is_server() || MultiplayerManager.host_mode_enabled) and not anim_name.is_empty():
 		if animation_player:
 			animation_player.play(anim_name)
 		else:
 			if anim_name in animations.sprite_frames.get_animation_names():
-				animations.play(anim_name, attack_speed_percent)
+				var speed: float = speed_override if speed_override > 0.0 else attack_speed_percent
+				animations.play(anim_name, speed)
 
 func _start_basic_attack():
 	"""Executes a basic melee attack, or Snap Shot for the wielded weapon's
@@ -151,10 +167,15 @@ func _start_ability_attack(use_anim_duration: bool = false):
 		return
 
 	var anim_name: String = _current_ability.active_behavior.animation_name
-	_play_animation(anim_name)
-
 	var duration: float = _get_animation_duration(anim_name)
 	#print("Ability Attack: %s, Animation: %s, Duration: %f" % [_current_ability.ability_name, anim_name, duration])
+
+	var channel_mode: int = _current_ability.active_behavior.channel_mode
+	if channel_mode != CHANNEL_NONE and not use_anim_duration:
+		_start_channeled_attack(channel_mode, anim_name, duration)
+		return
+
+	_play_animation(anim_name)
 
 	var buffer: float = 0.02
 	attack_state_timer.start(max(duration - buffer, 0.01))
@@ -166,6 +187,56 @@ func _start_ability_attack(use_anim_duration: bool = false):
 				player.combat_component.process_ability_hit(_current_ability, _current_level_stats, duration)
 			else:
 				player.combat_component.process_ability_hit(_current_ability, _current_level_stats)
+
+
+func _start_channeled_attack(channel_mode: int, anim_name: String, anim_duration: float) -> void:
+	"""Channeled cast: the state persists for the channel duration (cast_time
+	minus any owned channel_time_reduction), rooting the caster. WINDUP_RELEASE
+	defers the release to the end of the wind-up; HOLD releases immediately."""
+	var channel_duration: float = _current_level_stats.cast_time
+	var ac = player.get("ability_component")
+	if ac != null and is_instance_valid(ac) and ac.has_method("get_ability_upgrade_magnitude"):
+		channel_duration -= float(ac.get_ability_upgrade_magnitude(_current_ability.ability_id, "channel_time_reduction"))
+	channel_duration = maxf(channel_duration, 0.2)
+
+	var state_duration: float = channel_duration
+	if channel_mode == CHANNEL_WINDUP_RELEASE:
+		state_duration += WINDUP_RELEASE_WINDOW
+		_windup_pending = true
+		_windup_remaining = channel_duration
+	attack_state_timer.start(state_duration)
+
+	# Stretch the attack animation across the channel so the wind-up/hold is
+	# visible instead of the anim finishing in a fraction of the rooted window.
+	var stretch_speed: float = -1.0
+	if anim_duration > 0.0 and state_duration > anim_duration:
+		stretch_speed = attack_speed_percent * (anim_duration / state_duration)
+	_play_animation(anim_name, stretch_speed)
+
+	if channel_mode == CHANNEL_HOLD and multiplayer.is_server():
+		# Release up front; the rooted state carries the "channel" feel while
+		# the ability's own zone/effect runs. Hitbox window stays cast_time-
+		# driven inside process_ability_hit, matching the rooted duration.
+		if player.combat_component:
+			player.combat_component.process_ability_hit(_current_ability, _current_level_stats)
+
+
+func _fire_windup_release() -> void:
+	"""End of a WINDUP_RELEASE channel: open the hitbox and run the ability's
+	logic script. Runs on every peer (the AL's is_server guard makes the
+	server's release the only authoritative one). Never reached if the state
+	was force-exited first — exit() clears the pending flag."""
+	if not _current_ability or not _current_level_stats:
+		return
+
+	if multiplayer.is_server() and player.combat_component:
+		player.combat_component.process_ability_hit(_current_ability, _current_level_stats, WINDUP_RELEASE_WINDOW)
+
+	var behavior: ActiveBehaviorData = _current_ability.active_behavior
+	if behavior and behavior.logic_script:
+		var logic = behavior.logic_script.new()
+		if logic.has_method("execute"):
+			logic.execute(player, _current_ability, _current_level_stats)
 
 func _get_animation_duration(anim_name: String) -> float:
 	var sprite_frames: SpriteFrames = player.animated_sprite.sprite_frames
@@ -197,6 +268,15 @@ func physics_update(delta: float) -> State:
 	parent.velocity.y += gravity * delta
 	parent.move_and_slide()
 
+	# Channeled wind-up countdown — runs on every peer (peer-local clocks);
+	# deliberately NOT a SceneTreeTimer (the ~70ms jitter lesson from the boss
+	# special-attack work).
+	if _windup_pending:
+		_windup_remaining -= delta
+		if _windup_remaining <= 0.0:
+			_windup_pending = false
+			_fire_windup_release()
+
 	if multiplayer.is_server():
 		# Consume inputs during attack to prevent buffering
 		if player.do_attack:
@@ -213,7 +293,10 @@ func physics_update(delta: float) -> State:
 
 func exit() -> void:
 	super()
-	# Clear attack data when leaving state
+	# Clear attack data when leaving state. A still-pending wind-up dies here
+	# (death / forced state change cancels the release, no resource refund).
+	_windup_pending = false
+	_windup_remaining = 0.0
 	_current_attack_name = ""
 	_current_ability = null
 	_current_level_stats = null

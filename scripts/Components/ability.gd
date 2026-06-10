@@ -954,6 +954,7 @@ func _trigger_ability_state_change(ability: AbilityData, level_stats: AbilityLev
 	# while climbing is a SELF buff whose effect still runs via the cast VFX and
 	# logic_script.execute() below. This branch is reached on both the server and
 	# (via ability_used_client) the clients, which share the synced climb state.
+	var deferred_to_windup: bool = false
 	if not _is_owner_climbing():
 		var attack_state = state_machine.get_node_or_null("attack")
 		if not attack_state or not attack_state.has_method("set_ability_data"):
@@ -967,6 +968,13 @@ func _trigger_ability_state_change(ability: AbilityData, level_stats: AbilityLev
 		if "current_state" in state_machine and state_machine.current_state != attack_state:
 			state_machine.current_state = attack_state
 			attack_state.enter()
+			# WINDUP_RELEASE channel: the attack state now owns the release —
+			# logic_script.execute() fires at the END of the wind-up (or never,
+			# if the state is force-exited first). Only defer when the state was
+			# actually entered; if the transition was skipped, fall through to
+			# the immediate execute below so the cast can't be silently lost.
+			if active_behavior.channel_mode == 1:
+				deferred_to_windup = true
 			if active_behavior.sfx_path:
 				AudioManager.play_sfx_for_map(MapManager.get_player_map(owner.player_id), active_behavior.sfx_path, owner.global_position)
 	elif active_behavior.sfx_path:
@@ -987,8 +995,9 @@ func _trigger_ability_state_change(ability: AbilityData, level_stats: AbilityLev
 		var face_left: bool = ("facing_direction" in owner) and int(owner.facing_direction) < 0
 		MapManager.broadcast_vfx_everywhere(MapManager.get_player_map(owner.player_id), cast_key, cast_anchor, 1.0, 0.0, face_left)
 
-	# Execute optional custom logic from the ability's script resource
-	if active_behavior.logic_script:
+	# Execute optional custom logic from the ability's script resource.
+	# Skipped for wind-up channels — the attack state fires it at release.
+	if active_behavior.logic_script and not deferred_to_windup:
 		var custom_logic = active_behavior.logic_script.new()
 		if custom_logic.has_method("execute"):
 			custom_logic.execute(owner, ability, level_stats)

@@ -1,18 +1,18 @@
 extends Node
 
 ## Toxicology (dagger passive) — CONDITIONAL damage: +bonus against POISONED
-## targets. Twist the toxin — pairs with Envenom (which tags its victims with the
-## "envenom_poison" meta). Class-neutral (stacks from both equipped weapon slots).
-## See AL_Aggression for the contract (returns the bonus FRACTION; combat applies
-## 1 + total).
+## targets. Reads the poison STATUS TAG (ADR 0013), so ANY poison source
+## qualifies — Envenom, Caltrops' Poisoned Spikes T3, the weapon-pair imbue —
+## not just Envenom's own meta key. Class-neutral (stacks from both equipped
+## weapon slots). See AL_Aggression for the contract (returns the bonus
+## FRACTION; combat applies 1 + total).
 
-const POISON_META: String = "envenom_poison"
 const BONUS_AT_MAX: float = 0.30   # +30% at passive level 10 (scales linearly)
 const MAX_LEVEL: int = 5
 func conditional_damage_mult(_owner: Node, target: Node, level: int, _cast_ability: AbilityData = null, passive_id: String = "") -> float:
 	if not is_instance_valid(target):
 		return 0.0
-	if not target.has_meta(POISON_META):
+	if not EnemyStatus.has_tag(target, EnemyStatus.TAG_POISON):
 		return 0.0
 	return _level_bonus(passive_id, level)
 

@@ -90,6 +90,7 @@ func on_hit(_owner_node: Node, _target: Node, _ability: AbilityData) -> void:
 		existing["per_tick"] = per_tick  # refresh to latest applier's damage
 		existing["fire"] = fire          # latest application sets the splash flag
 		_target.set_meta(BURN_META, existing)
+		EnemyStatus.register(_target, EnemyStatus.TAG_BURN, BURN_META, _owner_node)
 		return
 
 	# Fresh burn — set up state and start the tick timer.
@@ -102,6 +103,7 @@ func on_hit(_owner_node: Node, _target: Node, _ability: AbilityData) -> void:
 	}
 	_target.set_meta(BURN_META, fresh)
 	_schedule_burn_tick(_target)
+	EnemyStatus.register(_target, EnemyStatus.TAG_BURN, BURN_META, _owner_node)
 
 
 ## When a burn tick downs an enemy, the regular combat-kill pathway

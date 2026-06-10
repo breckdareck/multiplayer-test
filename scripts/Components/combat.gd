@@ -236,7 +236,10 @@ func process_ability_hit(ability: AbilityData, level_stats: AbilityLevelData, du
 	var attack_duration = duration_override if duration_override > 0.0 else level_stats.cast_time
 	# v1 channel_time_reduction upgrade (Onslaught's Swift Wind-up / Spellweave's
 	# Swift Weave): trim the channel/cast window by the owned magnitude (seconds).
-	if _ability_component and _ability_component.has_method("get_ability_upgrade_magnitude"):
+	# Only on the cast_time path — a duration_override comes from the attack
+	# state (anim-duration basics, or a wind-up release whose reduction was
+	# already applied to the wind-up itself) and must not shrink twice.
+	if duration_override <= 0.0 and _ability_component and _ability_component.has_method("get_ability_upgrade_magnitude"):
 		attack_duration -= _ability_component.get_ability_upgrade_magnitude(ability.ability_id, "channel_time_reduction")
 	if attack_duration <= 0.0:
 		attack_duration = 0.05
@@ -657,6 +660,14 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 			if Time.get_ticks_msec() < int(owner_node.get_meta("evasion_crit_until_ms")):
 				is_crit = true
 			owner_node.remove_meta("evasion_crit_until_ms")
+
+		# Brittle escalation (ADR 0013) — a marked enemy that reached 5+ bleed
+		# stacks had its mark consumed and was primed: the next hit against it
+		# is a guaranteed crit. One-shot, enemy-side meta — ANY participant's
+		# hit cashes it (enemy-global tag state).
+		if not is_crit and target_enemy.has_meta(EnemyStatus.BRITTLE_META):
+			is_crit = true
+			target_enemy.remove_meta(EnemyStatus.BRITTLE_META)
 
 		if is_crit:
 			var crit_damage_bonus = _stats_component.stats.get(Constants.StatType.CRITDAMAGE).total_value

@@ -122,6 +122,7 @@ func _apply_chill(enemy: Node) -> void:
 	var slow: float = clampf(SLOW_PCT + _slow_bonus, 0.0, 0.95)
 	e.movement_speed = original_speed * (1.0 - slow)
 	e.set_meta(SLOW_META, original_speed)
+	EnemyStatus.register(e, EnemyStatus.TAG_CHILL, SLOW_META, null)
 
 	e.get_tree().create_timer(SLOW_DURATION).timeout.connect(
 		func():

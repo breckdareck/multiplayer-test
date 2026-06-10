@@ -126,6 +126,7 @@ func on_hit(owner_node: Node, target: Node, ability: AbilityData) -> void:
 	var original_speed: float = e.movement_speed
 	e.movement_speed = original_speed * (1.0 - clampf(slow_pct, 0.0, 0.95))
 	e.set_meta(SLOW_META, original_speed)
+	EnemyStatus.register(e, EnemyStatus.TAG_CHILL, SLOW_META, null)
 	e.get_tree().create_timer(SLOW_DURATION).timeout.connect(
 		func():
 			if not is_instance_valid(e):

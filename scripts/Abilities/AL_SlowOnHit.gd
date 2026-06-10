@@ -48,6 +48,7 @@ static func apply_slow(target: Node, slow_pct: float, duration: float) -> void:
 	var original_speed: float = enemy.movement_speed
 	enemy.movement_speed = original_speed * (1.0 - clampf(slow_pct, 0.0, 0.9))
 	enemy.set_meta(SLOW_META, original_speed)
+	EnemyStatus.register(enemy, EnemyStatus.TAG_CHILL, SLOW_META, null)
 
 	if enemy.animated_sprite and is_instance_valid(enemy.animated_sprite):
 		enemy.animated_sprite.modulate = Color(0.75, 0.8, 1.0, 1.0)

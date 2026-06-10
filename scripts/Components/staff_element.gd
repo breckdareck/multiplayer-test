@@ -187,6 +187,7 @@ func _apply_burn(attacker: Node, target: Node, base_damage: int) -> void:
 		existing["per_tick"] = per_tick  # refresh to latest applier's damage
 		existing["applier"] = attacker
 		target.set_meta(BURN_META, existing)
+		EnemyStatus.register(target, EnemyStatus.TAG_BURN, BURN_META, attacker)
 		return
 
 	var fresh: Dictionary = {
@@ -197,6 +198,7 @@ func _apply_burn(attacker: Node, target: Node, base_damage: int) -> void:
 	}
 	target.set_meta(BURN_META, fresh)
 	_schedule_burn_tick(target)
+	EnemyStatus.register(target, EnemyStatus.TAG_BURN, BURN_META, attacker)
 
 
 func _schedule_burn_tick(target: Node) -> void:
@@ -274,6 +276,9 @@ func _apply_slow(target: Node) -> void:
 	var original_speed: float = enemy.movement_speed
 	enemy.movement_speed = original_speed * (1.0 - SLOW_PCT)
 	enemy.set_meta(SLOW_META, original_speed)
+	# No attacker context here — Thermal Shock credits the consumed burn's
+	# own applier instead (see EnemyStatus._thermal_shock).
+	EnemyStatus.register(enemy, EnemyStatus.TAG_CHILL, SLOW_META, null)
 
 	if enemy.animated_sprite and is_instance_valid(enemy.animated_sprite):
 		enemy.animated_sprite.modulate = Color(0.6, 0.8, 1.0, 1.0)
