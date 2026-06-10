@@ -1300,6 +1300,7 @@ func _build_bubble(text: String) -> PanelContainer:
 
 	var panel := PanelContainer.new()
 	panel.add_theme_stylebox_override("panel", style)
+	panel.z_index += 2
 	panel.add_child(margin)
 
 	# Must be in the tree before get_minimum_size() returns real values
