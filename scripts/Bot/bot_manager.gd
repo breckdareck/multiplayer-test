@@ -234,18 +234,26 @@ func _on_bot_spawned(bot_id: int) -> void:
 
 	# Resolve the bot's personality once (config > roster > persisted roll),
 	# then stamp the full roster identity (class + last_seen) so churn and
-	# offline catch-up know this name.
-	if bot_id in active_bots and not active_bots[bot_id].has("personality"):
+	# offline catch-up know this name. The PREVIOUS last_seen is captured
+	# first — the stamp would otherwise zero the downtime catch-up measures.
+	var first_session_spawn: bool = bot_id in active_bots and not active_bots[bot_id].has("personality")
+	var prev_last_seen: int = 0
+	if first_session_spawn:
+		if not _roster_loaded:
+			_load_roster()
+		prev_last_seen = int(_roster.get(active_bots[bot_id]["username"], {}).get("last_seen", 0))
 		active_bots[bot_id]["personality"] = _resolve_personality_key(
 			active_bots[bot_id]["username"], get_bot_definition(bot_id))
 		_touch_roster(active_bots[bot_id]["username"], active_bots[bot_id]["class_type"],
 				String(active_bots[bot_id]["personality"]))
 
-	# Cold-start seed BEFORE the brain attaches — the level pump fires dozens of
-	# level-up signals, and seeding pre-brain means no speech hook hears them.
+	# Level pumps run BEFORE the brain attaches — they fire dozens of level-up
+	# signals, and pre-brain means no speech hook hears them.
 	if _fresh_bots.has(bot_id):
 		_fresh_bots.erase(bot_id)
 		_seed_fresh_bot(bot_id)
+	elif first_session_spawn and prev_last_seen > 0:
+		_apply_offline_catchup(bot_id, prev_last_seen)
 
 	# The brain is parented to BotManager — not the character node — so it
 	# survives the character being freed and recreated on every map change,
@@ -607,6 +615,30 @@ func _seed_fresh_bot(bot_id: int) -> void:
 		player_node.player_inventory.monies_amount += target_level * 40
 
 
+## A returning bot "kept playing" while it was offline (ADR 0012): downtime
+## since the roster's last_seen converts to levels through the same
+## EXP+mastery pump as seeding, so the point-reconcile invariant holds. The
+## world keeps living between host sessions.
+func _apply_offline_catchup(bot_id: int, last_seen_unix: int) -> void:
+	var cfg: Dictionary = bot_config.get("offline_progression", {})
+	if not cfg.get("enabled", false):
+		return
+	var player_node := PlayerManager.get_player_node(bot_id)
+	if not is_instance_valid(player_node) or not is_instance_valid(player_node.level_component):
+		return
+	var hours: float = maxf(0.0, (Time.get_unix_time_from_system() - last_seen_unix) / 3600.0)
+	var gained: int = mini(int(hours * float(cfg.get("levels_per_hour", 0.25))), int(cfg.get("max_catchup", 8)))
+	if gained <= 0:
+		return
+	var target: int = player_node.level_component.level + gained
+	var cap: int = int(bot_config.get("seed_max_level", 0))
+	if cap > 0:
+		target = mini(target, cap)
+	pump_bot_to_level(player_node, target)
+	if is_instance_valid(player_node.player_inventory):
+		player_node.player_inventory.monies_amount += gained * 40
+
+
 ## Levels a bot's character to `level` by pumping EXP, and raises its
 ## primary-discipline mastery to match (one mastery level per character level,
 ## capped) — character EXP only grants attribute points; ability points come
@@ -617,7 +649,10 @@ func _seed_fresh_bot(bot_id: int) -> void:
 ## Shared by /bot set_level and cold-start seeding. Returns a mastery summary.
 func pump_bot_to_level(player_node: MultiplayerPlayerV2, level: int) -> String:
 	while player_node.level_component.level < level:
+		var before: int = player_node.level_component.level
 		player_node.level_component.add_exp(player_node.level_component.get_exp_to_next_level())
+		if player_node.level_component.level == before:
+			break  # level cap — exp no longer levels; don't spin
 	var mastery_msg := ""
 	var wm = player_node.weapon_mastery_component
 	if is_instance_valid(wm):

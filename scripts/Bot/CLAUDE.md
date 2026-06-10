@@ -102,6 +102,38 @@ pattern). See [docs/adr/0011-bot-ambient-population.md](../../docs/adr/0011-bot-
   consumables and would-equip gear are declined (scored by
   `BotEquipmentLogic`). Party members keep the free give/take window.
 
+### Texture layer (ADR 0012)
+
+- **Churn** — `BotManager._step_churn` logs identities in/out over a session
+  (`bot_config.json "churn"` block); pool = config bots ∪ roster; global
+  "<name> has logged in/off" feed lines. Never churns out a player's
+  groupmate, a commanded companion, or a stress bot. Roster entries carry
+  `class` + `last_seen`.
+- **Replies** — `ChatManager._broadcast_message` scans player messages for
+  same-map bot names → delayed forced `try_speak("reply")`, staggered past
+  the speech gap.
+- **Image emotes** — `tools/gen_emote_icons_px.py` renders sit/wave/laugh/cry
+  to `assets/sprites/Emotes/generated_px/`; `EMOTES` maps command →
+  `{text, icon}`; `ChatManager.bot_emote()` is the visual-only twin of
+  `bot_say` (own 3s gap). Bots wave on greet, cry on death, sit on idle.
+- **Reputation** — `BotManager.add_reputation/get_reputation`, per-player
+  scores in the roster (party +3/member, trade +1/item). Greet pools tier:
+  `greet` → `greet_familiar` (3+) → `greet_friend` (10+).
+- **Player invites** — a solo bot with no bot partner may invite a solo
+  level-adjacent player (normal invite UI); 5-min cooldown, 30s unanswered
+  → the solo party is abandoned. Party tracking watches real-player
+  MEMBERSHIP, not party id (creating the invite party is silent).
+- **Banter** — `BotManager._step_banter` scripts one overheard
+  open+reply exchange (60–140s cadence) between two bots within 350px on a
+  map with a real-player audience.
+- **Offline catch-up** — a returning identity gains levels for downtime
+  since roster `last_seen` (`bot_config.json "offline_progression"`), via
+  `pump_bot_to_level` (now level-cap-safe).
+- **World-map presence** — `MapManager.request_population_counts` /
+  `receive_population_counts` RPC pair; the world map shows an "N" badge on
+  revealed maps (players + bots counted indistinguishably). The minimap
+  already draws bots.
+
 ## Configuration — `config/bot_config.json`
 
 ```jsonc

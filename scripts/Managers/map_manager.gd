@@ -1678,6 +1678,37 @@ func get_real_players_on_map(map_id: String) -> Array:
 	return all_players.filter(func(id): return not BotManager.is_bot(id))
 
 
+## Emitted on the requesting peer when per-map population counts arrive.
+signal population_counts_received(counts: Dictionary)
+
+
+## [Client -> Server] The world-map overlay asks how many characters occupy
+## each map — players AND bots counted indistinguishably, which is the point
+## (ADR 0012). One snapshot per request, no continuous sync.
+@rpc("any_peer", "call_local", "reliable")
+func request_population_counts() -> void:
+	if not multiplayer.is_server():
+		return
+	var requester := multiplayer.get_remote_sender_id()
+	if requester == 0:
+		requester = multiplayer.get_unique_id()
+	var counts: Dictionary = {}
+	for map_id in active_maps:
+		var n: int = active_maps[map_id].get("player_ids", []).size()
+		if n > 0:
+			counts[map_id] = n
+	if requester == multiplayer.get_unique_id():
+		receive_population_counts(counts)
+	else:
+		receive_population_counts.rpc_id(requester, counts)
+
+
+## [Server -> Client] Delivers the population snapshot to the requester.
+@rpc("authority", "call_local", "reliable")
+func receive_population_counts(counts: Dictionary) -> void:
+	population_counts_received.emit(counts)
+
+
 ## Server-only. Invokes `fn(peer_id)` for each client on `map_id`. The single
 ## seam for "send this to everyone on a map": it owns the player lookup, the
 ## bot exclusion (bots are clientless, so excluded by default — never
