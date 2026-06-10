@@ -25,7 +25,7 @@ const COL_WIDTHS := {
 	"action": 160, "map": 110, "weapon": 110,
 }
 const COLUMNS := ["id", "name", "class", "pers", "lv", "hp", "mp", "action", "map", "weapon"]
-const ACTIONS_WIDTH := 300  # combined min width of the row's action buttons
+const ACTIONS_WIDTH := 360  # combined min width of the row's action buttons
 
 const CLASS_COLORS := {
 	"SWORD": Color(0.95, 0.55, 0.40),
@@ -394,6 +394,7 @@ func _add_row(bot_id: int) -> void:
 	actions_box.add_child(watch_btn)
 	actions_box.add_child(_row_button("Inspect", func(): _on_inspect(bot_id)))
 	actions_box.add_child(_row_button("Come", func(): _on_come(bot_id)))
+	actions_box.add_child(_row_button("TP To", func(): _on_tp_to(bot_id)))
 	var despawn_btn := _row_button("Logoff", func(): _on_despawn(bot_id))
 	despawn_btn.add_theme_color_override("font_color", Color(1.0, 0.5, 0.5))
 	actions_box.add_child(despawn_btn)
@@ -589,6 +590,27 @@ func _on_come(bot_id: int) -> void:
 	var bot_node := PlayerManager.get_player_node(bot_id)
 	if is_instance_valid(bot_node):
 		bot_node.global_position = host.global_position
+
+
+## The inverse of Come: teleport the HOST to the bot. The host takes the
+## reparent fast path (ADR 0009 Stage C), so after request_map_change returns
+## its node is live on the new map and can be placed at the bot directly; the
+## recreate fallback leaves it at the spawn point instead (still on the map).
+func _on_tp_to(bot_id: int) -> void:
+	var host_id := multiplayer.get_unique_id()
+	var bot_node := PlayerManager.get_player_node(bot_id)
+	if not is_instance_valid(bot_node):
+		return
+	var bot_map: String = MapManager.get_player_map(bot_id)
+	if bot_map.is_empty():
+		return
+	if MapManager.get_player_map(host_id) != bot_map:
+		MapManager.request_map_change(host_id, bot_map)
+	var host := PlayerManager.get_player_node(host_id)
+	if is_instance_valid(host) and is_instance_valid(bot_node) \
+			and MapManager.get_player_map(host_id) == bot_map:
+		host.global_position = bot_node.global_position
+		host.reset_physics_interpolation()
 
 
 func _on_despawn(bot_id: int) -> void:

@@ -479,6 +479,7 @@ func _register_commands() -> void:
 	_register("gold", "gold [@target] <amount> — negative subtracts", _cmd_gold, _complete_target_first)
 	_register("tp", "tp [@target] <map> | tp [@target] <x> <y>", _cmd_tp, _complete_tp)
 	_register("come", "come <bot_id|name> — teleport a bot to your map", _cmd_come, _complete_bot_target)
+	_register("goto", "goto <bot_id|name> — teleport yourself to a bot (the inverse of come)", _cmd_goto, _complete_bot_target)
 	_register("botdock", "Open the live bot roster window (host-only).", _cmd_botdock)
 
 	# Enemies (host-only; spawned enemy is server-side and visible to clients
@@ -1039,6 +1040,31 @@ func _cmd_come(args: Array) -> String:
 	if is_instance_valid(bot_node):
 		bot_node.global_position = host.global_position
 	return "Bot %d teleported to %s." % [bot_id, str(host.global_position)]
+
+
+## The inverse of `come`: move the HOST to the bot's map and position. The
+## host takes the reparent fast path (ADR 0009 Stage C), so its node is live
+## right after request_map_change; the recreate fallback lands at the spawn
+## point instead (still on the right map).
+func _cmd_goto(args: Array) -> String:
+	if args.is_empty(): return "Usage: goto <bot_id|name>"
+	if not multiplayer.is_server(): return "[color=#ff8888]goto: host-only.[/color]"
+	var bot_id := _find_bot_id(String(args[0]))
+	if bot_id == 0: return "Bot '%s' not found." % args[0]
+	var bot_node := PlayerManager.get_player_node(bot_id)
+	if not is_instance_valid(bot_node): return "Bot %d has no live body." % bot_id
+	var bot_map: String = MapManager.get_player_map(bot_id)
+	if bot_map.is_empty(): return "Bot %d has no current map." % bot_id
+	var host_id := multiplayer.get_unique_id()
+	if MapManager.get_player_map(host_id) != bot_map:
+		MapManager.request_map_change(host_id, bot_map)
+	var host := PlayerManager.get_player_node(host_id)
+	if is_instance_valid(host) and is_instance_valid(bot_node) \
+			and MapManager.get_player_map(host_id) == bot_map:
+		host.global_position = bot_node.global_position
+		host.reset_physics_interpolation()
+		return "Teleported to bot %d on '%s'." % [bot_id, bot_map]
+	return "Travelling to '%s' (landed at spawn — recreate path)." % bot_map
 
 
 # --- Enemies ----------------------------------------------------------------
