@@ -9,7 +9,7 @@ extends Panel
 ## Single-bot deep-dive remains the existing BotInspectWindow (opened by
 ## /bot inspect <id> and by this dock's "Inspect" row button).
 
-const WINDOW_WIDTH: float = 760.0
+const WINDOW_WIDTH: float = 860.0
 const WINDOW_HEIGHT: float = 360.0
 const TITLE_HEIGHT: float = 28.0
 const PADDING: float = 8.0
@@ -17,9 +17,10 @@ const REFRESH_INTERVAL: float = 0.5
 
 ## Column layout — keep in sync with header + row builders.
 const COL_WIDTHS := {
-	"id": 44, "name": 110, "class": 70, "lv": 36, "hp": 80, "mp": 80,
-	"action": 130, "map": 70, "weapon": 110,
+	"id": 44, "name": 110, "class": 70, "pers": 76, "lv": 36, "hp": 80, "mp": 80,
+	"action": 150, "map": 70, "weapon": 110,
 }
+const COLUMNS := ["id", "name", "class", "pers", "lv", "hp", "mp", "action", "map", "weapon"]
 const ACTIONS_WIDTH := 320  # combined min width of the row's action buttons
 
 var is_dragging := false
@@ -132,7 +133,7 @@ func _build_ui() -> void:
 func _build_header() -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 6)
-	for col in ["id", "name", "class", "lv", "hp", "mp", "action", "map", "weapon"]:
+	for col in COLUMNS:
 		var lab := _styled_label(col.to_upper(), 11, Color(0.7, 0.75, 0.85))
 		lab.custom_minimum_size = Vector2(COL_WIDTHS[col], 0)
 		row.add_child(lab)
@@ -209,7 +210,7 @@ func _add_row(bot_id: int) -> void:
 	_rows_container.move_child(_empty_label, _rows_container.get_child_count() - 1)
 
 	var fields: Dictionary = {}
-	for col in ["id", "name", "class", "lv", "hp", "mp", "action", "map", "weapon"]:
+	for col in COLUMNS:
 		var l := _styled_label("", 11, Color.WHITE)
 		l.custom_minimum_size = Vector2(COL_WIDTHS[col], 0)
 		l.clip_text = true
@@ -238,6 +239,7 @@ func _update_row(bot_id: int) -> void:
 	fields.id.text = str(bot_id)
 	fields.name.text = String(info.get("username", "?"))
 	fields["class"].text = String(Constants.ClassType.find_key(info.get("class_type", 0)))
+	fields.pers.text = String(info.get("personality", "—"))
 	fields.map.text = String(info.get("map_id", "?"))
 
 	var node := PlayerManager.get_player_node(bot_id)
@@ -257,9 +259,12 @@ func _update_row(bot_id: int) -> void:
 	var brain = BotManager.get_bot_brain(bot_id)
 	if brain != null:
 		var action: String = String(brain.current_action)
-		# Annotate with current target when fighting / chasing.
+		# Annotate with current target when fighting / chasing, and with an
+		# active companion command (those override normal priorities).
 		if is_instance_valid(brain.target_enemy):
 			action += " → " + String(brain.target_enemy.name)
+		if not brain.companion_mode.is_empty():
+			action += "  [%s]" % brain.companion_mode
 		fields.action.text = action
 	else:
 		fields.action.text = "(no brain)"

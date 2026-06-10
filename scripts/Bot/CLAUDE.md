@@ -162,9 +162,15 @@ way to leave town after its first restock trip (without this fallback,
 
 ## `/bot` commands
 
-`spawn`, `despawn`, `despawn_all`, `list`, `teleport`, `set_level`, `party`,
-`travel info`, `inspect`, `trade`, `reload_config` — dispatched by
-`BotManager.handle_command()`.
+`spawn`, `despawn`, `despawn_all`, `list`, `roster [forget <name>]`,
+`teleport`, `set_level`, `personality <bot> [archetype]`,
+`say <bot> <event|text>`, `emote <bot> <sit|wave|laugh|cry>`,
+`rep <bot> [player [delta]]`, `party`, `follow|stay|free <bot|all>`,
+`churn <status|on|off|now>`, `banter`, `travel info`, `inspect`, `trade`,
+`reload_config` — dispatched by `BotManager.handle_command()`. The debug
+console (`` ` ``) passes through with Tab-completion for every subcommand;
+`botdock` opens the live roster table, `/bot inspect` the single-bot
+deep-dive (identity, brain state, mastery, lifetime metrics, reputation).
 
 `set_level` pumps character EXP **and** raises the bot's primary-discipline
 mastery to match (one mastery level per character level, capped at

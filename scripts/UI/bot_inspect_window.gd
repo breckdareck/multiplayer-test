@@ -22,12 +22,18 @@ const REFRESH_INTERVAL: float = 0.5
 # Stored references for update-in-place
 var _name_label: Label
 var _level_label: Label
+var _personality_label: Label
 var _hp_value: Label
 var _mp_value: Label
 var _gold_value: Label
 var _map_value: Label
 var _action_row: HBoxContainer
 var _action_value: Label
+var _companion_value: Label
+var _patrol_value: Label
+var _mastery_rows: Dictionary = {}  # ClassType -> value Label
+var _metrics_rows: Dictionary = {}  # metric key -> value Label
+var _rep_section: VBoxContainer
 
 var _equip_rows: Array[HBoxContainer] = []  # 5 rows: Weapon, Head, Chest, Legs, Feet
 var _stat_rows: Dictionary = {}  # StatType -> value Label
@@ -134,6 +140,8 @@ func _build_sections() -> void:
 	content_container.add_child(_name_label)
 	_level_label = _make_label("", 11, Color(0.7, 0.8, 0.9))
 	content_container.add_child(_level_label)
+	_personality_label = _make_label("", 10, Color(0.85, 0.65, 1.0))
+	content_container.add_child(_personality_label)
 
 	var hp_row := _make_stat_row("HP", "", Color(0.9, 0.3, 0.3))
 	_hp_value = hp_row.get_child(1)
@@ -154,6 +162,29 @@ func _build_sections() -> void:
 	_action_row = _make_stat_row("Action", "", Color(0.6, 0.7, 0.6))
 	_action_value = _action_row.get_child(1)
 	content_container.add_child(_action_row)
+
+	var companion_row := _make_stat_row("Companion", "", Color(0.7, 0.9, 1.0))
+	_companion_value = companion_row.get_child(1)
+	content_container.add_child(companion_row)
+
+	var patrol_row := _make_stat_row("Patrol", "", Color(0.6, 0.7, 0.6))
+	_patrol_value = patrol_row.get_child(1)
+	content_container.add_child(patrol_row)
+
+	_add_separator()
+
+	# --- Weapon mastery (4 fixed rows) ---
+	content_container.add_child(_make_label("Weapon Mastery", 12, Color(0.9, 0.85, 0.6)))
+	var mastery_entries := [
+		["Sword", Constants.ClassType.SWORD],
+		["Bow", Constants.ClassType.BOW],
+		["Staff", Constants.ClassType.STAFF],
+		["Dagger", Constants.ClassType.DAGGER],
+	]
+	for entry in mastery_entries:
+		var m_row := _make_stat_row(entry[0], "", Color(0.8, 0.8, 0.8))
+		_mastery_rows[entry[1]] = m_row.get_child(1)
+		content_container.add_child(m_row)
 
 	_add_separator()
 
@@ -211,6 +242,31 @@ func _build_sections() -> void:
 	_inv_notable_section.add_theme_constant_override("separation", 4)
 	content_container.add_child(_inv_notable_section)
 
+	_add_separator()
+
+	# --- Lifetime metrics (fixed rows) ---
+	content_container.add_child(_make_label("Lifetime", 12, Color(0.9, 0.85, 0.6)))
+	var metric_entries := [
+		["Kills", "kills", Color(0.9, 0.6, 0.5)],
+		["Deaths", "deaths", Color(0.7, 0.5, 0.5)],
+		["Loot grabbed", "loot_collected", Color(0.7, 0.8, 0.6)],
+		["Sale gold", "gold_from_sales", Color(0.9, 0.8, 0.3)],
+		["Stuck saves", "stuck_recoveries", Color(0.7, 0.7, 0.7)],
+		["Travel fails", "travel_abandons", Color(0.7, 0.7, 0.7)],
+	]
+	for entry in metric_entries:
+		var met_row := _make_stat_row(entry[0], "", entry[2])
+		_metrics_rows[entry[1]] = met_row.get_child(1)
+		content_container.add_child(met_row)
+
+	_add_separator()
+
+	# --- Reputation (dynamic) ---
+	content_container.add_child(_make_label("Reputation", 12, Color(0.9, 0.85, 0.6)))
+	_rep_section = VBoxContainer.new()
+	_rep_section.add_theme_constant_override("separation", 2)
+	content_container.add_child(_rep_section)
+
 	_built = true
 
 
@@ -264,6 +320,15 @@ func _update_content() -> void:
 		Constants.ClassType.find_key(_snapshot.get("class", 0)),
 	]
 
+	var personality: String = _snapshot.get("personality", "")
+	if personality.is_empty():
+		_personality_label.text = ""
+		_personality_label.visible = false
+	else:
+		_personality_label.visible = true
+		_personality_label.text = "“%s” personality · chattiness %d%%" % [
+			personality, int(float(_snapshot.get("chattiness", 0.0)) * 100.0)]
+
 	_hp_value.text = "%d / %d" % [_snapshot.get("hp", 0), _snapshot.get("max_hp", 0)]
 	_mp_value.text = "%d / %d" % [_snapshot.get("mp", 0), _snapshot.get("max_mp", 0)]
 	_gold_value.text = str(_snapshot.get("gold", 0))
@@ -272,6 +337,49 @@ func _update_content() -> void:
 	var action: String = _snapshot.get("action", "")
 	_action_row.visible = not action.is_empty()
 	_action_value.text = action
+
+	var companion: String = _snapshot.get("companion", "")
+	_companion_value.text = companion if not companion.is_empty() else "free roam"
+
+	var route: Array = _snapshot.get("patrol_route", [])
+	if route.is_empty():
+		_patrol_value.text = "(none)"
+	else:
+		var idx: int = clampi(int(_snapshot.get("patrol_index", 0)), 0, route.size() - 1)
+		_patrol_value.text = "%d/%d → %s" % [idx + 1, route.size(), String(route[idx])]
+
+	# --- Weapon mastery ---
+	var masteries: Dictionary = _snapshot.get("masteries", {})
+	for disc in _mastery_rows:
+		var m_label: Label = _mastery_rows[disc]
+		var lvl: int = int(masteries.get(disc, 0))
+		m_label.text = "Lv.%d" % lvl if lvl > 0 else "—"
+
+	# --- Lifetime metrics ---
+	var metrics: Dictionary = _snapshot.get("metrics", {})
+	for key in _metrics_rows:
+		var value_lbl: Label = _metrics_rows[key]
+		if key == "deaths":
+			value_lbl.text = "%d (enemy %d / hazard %d)" % [
+				int(metrics.get("deaths", 0)),
+				int(metrics.get("deaths_to_enemy", 0)),
+				int(metrics.get("deaths_to_hazard", 0))]
+		else:
+			value_lbl.text = str(int(metrics.get(key, 0)))
+
+	# --- Reputation ---
+	for child in _rep_section.get_children():
+		child.queue_free()
+	var rep: Dictionary = _snapshot.get("rep", {})
+	if rep.is_empty():
+		_rep_section.add_child(_make_label("  knows nobody yet", 9, Color(0.5, 0.5, 0.55)))
+	else:
+		for player_name in rep:
+			var score: int = int(rep[player_name])
+			var tier := "friend" if score >= 10 else ("familiar" if score >= 3 else "stranger")
+			var tier_color := Color(0.5, 0.9, 0.5) if score >= 10 \
+				else (Color(0.8, 0.8, 0.5) if score >= 3 else Color(0.6, 0.6, 0.65))
+			_rep_section.add_child(_make_label("  %s — %d (%s)" % [player_name, score, tier], 9, tier_color))
 
 	# --- Equipment (5 fixed rows: Weapon, Head, Chest, Legs, Feet) ---
 	var equipment: Dictionary = _snapshot.get("equipment", {})

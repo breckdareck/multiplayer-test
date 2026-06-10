@@ -1308,9 +1308,10 @@ func _complete_navdraw(prior_args: PackedStringArray, _t: String) -> PackedStrin
 
 
 func _complete_bot_args(prior_args: PackedStringArray, _t: String) -> PackedStringArray:
-	const BOT_SUBS := ["spawn", "despawn", "despawn_all", "list", "teleport",
-		"set_level", "party", "travel", "inspect", "trade", "navgraph",
-		"navpath", "debugdraw", "stats", "watch", "reload_config"]
+	const BOT_SUBS := ["spawn", "despawn", "despawn_all", "list", "roster", "teleport",
+		"set_level", "personality", "say", "emote", "rep", "party",
+		"follow", "stay", "free", "churn", "banter", "travel", "inspect",
+		"trade", "navgraph", "navpath", "debugdraw", "stats", "watch", "reload_config"]
 	if prior_args.is_empty():
 		var out: PackedStringArray = []
 		for s in BOT_SUBS: out.append(s)
@@ -1329,6 +1330,25 @@ func _complete_bot_args(prior_args: PackedStringArray, _t: String) -> PackedStri
 				out.append(str(bot_id))
 			if sub == "watch": out.append("off")
 			return out
+		"personality", "say", "emote", "rep", "follow", "stay", "free":
+			if prior_args.size() == 1:
+				var out: PackedStringArray = _bot_name_candidates()
+				if sub in ["follow", "stay", "free"]: out.append("all")
+				return out
+			match sub:
+				"personality":
+					return PackedStringArray(BotManager._personalities.keys())
+				"emote":
+					return PackedStringArray(["sit", "wave", "laugh", "cry"])
+				"say":
+					return PackedStringArray(["greet", "level_up", "death", "rare_loot",
+						"boss_kill", "boss_engage", "party_join", "retreat", "gear_upgrade",
+						"reply", "banter_open", "banter_reply"])
+			return PackedStringArray()
+		"roster":
+			return PackedStringArray(["forget"])
+		"churn":
+			return PackedStringArray(["status", "on", "off", "now"])
 		"party":
 			return PackedStringArray(["list", "info", "kick"])
 		"travel":
@@ -1336,6 +1356,16 @@ func _complete_bot_args(prior_args: PackedStringArray, _t: String) -> PackedStri
 		"debugdraw":
 			return PackedStringArray(["on", "off"])
 	return PackedStringArray()
+
+
+## Active bot ids AND names — names read better in commands.
+func _bot_name_candidates() -> PackedStringArray:
+	var out: PackedStringArray = []
+	for bot_id in BotManager.active_bots:
+		out.append(str(bot_id))
+		var bot_name: String = BotManager.active_bots[bot_id].get("username", "")
+		if not bot_name.is_empty(): out.append(bot_name)
+	return out
 
 
 # --- Helpers ----------------------------------------------------------------
