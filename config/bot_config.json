@@ -83,6 +83,13 @@
       ]
     }
   ],
+  "churn": {
+    "enabled": true,
+    "interval_min": 180,
+    "interval_max": 420,
+    "min_online": 2,
+    "max_online": 8
+  },
   "behavior": {
     "think_interval": 0.3,
     "wander_chance": 0.6,

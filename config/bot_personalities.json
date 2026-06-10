@@ -52,6 +52,26 @@
           "hands off, {player}. that one's mine",
           "nice try {player}, earn your own",
           "absolutely not. that's MY loot"
+        ],
+        "reply": [
+          "you rang, {player}? of course you did",
+          "yes {player}, the legend is busy",
+          "speak quickly {player}, mobs to farm"
+        ],
+        "gear_upgrade": [
+          "new {item}. as if I needed the help",
+          "{item} equipped. the drip is unbearable",
+          "upgraded to {item}. fear me more"
+        ],
+        "retreat": [
+          "TACTICAL retreat. write that down",
+          "I'm not running, I'm kiting. obviously",
+          "regrouping. on purpose"
+        ],
+        "boss_engage": [
+          "a {enemy}? finally a warmup",
+          "{enemy}, meet your highlight reel",
+          "everyone watch this"
         ]
       }
     },
@@ -96,6 +116,23 @@
         "decline_trade": [
           "no",
           "need that"
+        ],
+        "reply": [
+          "yeah?",
+          "hm?",
+          "what's up"
+        ],
+        "gear_upgrade": [
+          "new {item}",
+          "upgrade"
+        ],
+        "retreat": [
+          "brb",
+          "too spicy"
+        ],
+        "boss_engage": [
+          "{enemy}. ok",
+          "here we go"
         ]
       }
     },
@@ -148,6 +185,26 @@
         "decline_trade": [
           "sorry {player}, I actually need that one",
           "ah, can't part with that — it's keeping me alive out here"
+        ],
+        "reply": [
+          "hey {player}! what do you need?",
+          "right here, {player}. what's up?",
+          "at your service, {player}"
+        ],
+        "gear_upgrade": [
+          "swapped to {item} — should hold up better out here",
+          "found a {item} that fits. solid",
+          "{item} equipped. ready for rougher maps now"
+        ],
+        "retreat": [
+          "falling back to patch up — don't overextend without me!",
+          "need a breather, watch my side",
+          "backing off to heal, be right back in it"
+        ],
+        "boss_engage": [
+          "{enemy} engaged! watch its windups",
+          "big pull — {enemy} incoming, stay mobile",
+          "on the {enemy}! mind the telegraphs"
         ]
       }
     },
@@ -197,6 +254,26 @@
         "decline_trade": [
           "that one's traveled too far with me to give up, {player}",
           "no deal — that's part of the kit"
+        ],
+        "reply": [
+          "someone remembers my name. hey {player}",
+          "you called, {player}?",
+          "small world keeps getting smaller, {player}"
+        ],
+        "gear_upgrade": [
+          "picked up a {item} along the way",
+          "the road provides — {item} equipped",
+          "trading up to {item}. the old one served well"
+        ],
+        "retreat": [
+          "this is the part where I leave",
+          "live to wander another day",
+          "the road also goes the other way"
+        ],
+        "boss_engage": [
+          "so YOU'RE what the locals warned me about, {enemy}",
+          "every map has its monster. {enemy}, I presume",
+          "well met, {enemy}. let's get this over with"
         ]
       }
     }

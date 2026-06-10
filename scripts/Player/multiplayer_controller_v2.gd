@@ -1356,18 +1356,56 @@ func show_chat_bubble(message: String) -> void:
 	_active_chat_bubble = null
 
 
-func show_emote_bubble(text: String) -> void:
+func show_emote_bubble(text: String, icon_path: String = "") -> void:
 	if is_instance_valid(_active_emote_bubble):
 		_active_emote_bubble.queue_free()
 		_active_emote_bubble = null
 
-	var panel := await _build_bubble(text)
-	panel.modulate = Color(1.0, 0.92, 0.6, 1.0)
+	# Pixel-art emote icon (ADR 0012) when one exists; the text form is the
+	# fallback for emotes without generated art.
+	var panel: PanelContainer
+	if not icon_path.is_empty() and ResourceLoader.exists(icon_path):
+		panel = await _build_emote_icon_bubble(icon_path)
+	else:
+		panel = await _build_bubble(text)
+		panel.modulate = Color(1.0, 0.92, 0.6, 1.0)
 	_active_emote_bubble = panel
-	# No add_child here — _build_bubble already added it
+	# No add_child here — the builders already added it
 	await _position_bubble(panel)
 
 	await get_tree().create_timer(3.0).timeout
 	if is_instance_valid(panel):
 		panel.queue_free()
 	_active_emote_bubble = null
+
+
+## An overhead bubble holding a pixel emote icon instead of text. Same panel
+## styling and positioning contract as _build_bubble.
+func _build_emote_icon_bubble(icon_path: String) -> PanelContainer:
+	var icon := TextureRect.new()
+	icon.texture = load(icon_path)
+	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.custom_minimum_size = Vector2(28, 28)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 4)
+	margin.add_theme_constant_override("margin_right", 4)
+	margin.add_theme_constant_override("margin_top", 3)
+	margin.add_theme_constant_override("margin_bottom", 3)
+	margin.add_child(icon)
+
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.0, 0.0, 0.0, 0.6)
+	style.set_corner_radius_all(6)
+	style.set_border_width_all(1)
+	style.border_color = Color(1.0, 1.0, 1.0, 0.15)
+
+	var panel := PanelContainer.new()
+	panel.add_theme_stylebox_override("panel", style)
+	panel.add_child(margin)
+
+	# Must be in the tree before size math (same contract as _build_bubble).
+	add_child(panel)
+	await get_tree().process_frame
+	return panel

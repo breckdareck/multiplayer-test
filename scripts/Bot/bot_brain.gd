@@ -188,6 +188,7 @@ func _on_player_died(killer: Node) -> void:
 	else:
 		_metrics.deaths_to_hazard += 1
 	try_speak("death")
+	ChatManager.bot_emote(bot_id, "/cry")
 
 
 func _on_leveled_up(new_level: int) -> void:
@@ -202,20 +203,22 @@ func _on_leveled_up(new_level: int) -> void:
 ## the chattiness roll and cooldown (command acks and trade declines should
 ## answer) — the global budget still applies. The cooldown only resets when a
 ## line was actually delivered, so a blocked attempt doesn't silence the bot.
-func try_speak(event: String, ctx: Dictionary = {}, force: bool = false) -> void:
+func try_speak(event: String, ctx: Dictionary = {}, force: bool = false) -> bool:
 	if personality.is_empty():
-		return
+		return false
 	var pool: Array = personality.get("lines", {}).get(event, [])
 	if pool.is_empty():
-		return
+		return false
 	if not force:
 		if _speech_cooldown > 0.0:
-			return
+			return false
 		if randf() > float(personality.get("chattiness", 0.5)):
-			return
+			return false
 	var text: String = String(pool.pick_random()).format(_speech_context(ctx))
 	if ChatManager.bot_say(bot_id, text):
 		_speech_cooldown = SPEECH_COOLDOWN
+		return true
+	return false
 
 
 ## Default template values ({player}, {map}, {level}, ...) with event-specific
@@ -224,9 +227,10 @@ func _speech_context(ctx: Dictionary) -> Dictionary:
 	var level: int = 0
 	if is_instance_valid(player) and is_instance_valid(player.level_component):
 		level = player.level_component.level
+	var map_id := MapManager.get_player_map(bot_id)
 	var base := {
 		"player": "",
-		"map": MapManager.get_player_map(bot_id).replace("_", " ").capitalize(),
+		"map": MapManager.MAP_DISPLAY_NAMES.get(map_id, map_id.replace("_", " ").capitalize()),
 		"level": level,
 		"item": "",
 		"enemy": "",
@@ -340,7 +344,8 @@ func _process(delta: float) -> void:
 		# far -> near means a real player just arrived on this map (or the bot
 		# just arrived on theirs) — the natural moment for a greeting.
 		if was_far and not _lod_far:
-			try_speak("greet")
+			if try_speak("greet"):
+				ChatManager.bot_emote(bot_id, "/wave")
 
 	if current_action == "fight" and is_instance_valid(target_enemy):
 		var enemy_hp := -1
@@ -568,6 +573,16 @@ func _refresh_targets() -> void:
 		target_loot = null
 
 
+## One "here we go" line per boss instance — engaging the same boss again
+## after a retarget stays quiet.
+var _announced_boss: EnemyBase = null
+
+func _maybe_announce_boss(enemy: EnemyBase) -> void:
+	if enemy.enemy_data != null and enemy.enemy_data.is_boss and enemy != _announced_boss:
+		_announced_boss = enemy
+		try_speak("boss_engage", {"enemy": enemy.monster_name})
+
+
 ## Detects party membership changes for speech + companion-command hygiene:
 ## joining a party gets a line; leaving one lapses any standing command.
 func _track_party_changes() -> void:
@@ -615,6 +630,7 @@ func _consider_retreat() -> bool:
 		_recover_hp_mark = _health_fraction()
 		_recover_stall_timer = 0.0
 		current_action = "retreat"
+		try_speak("retreat")
 		return true
 	return false
 
@@ -777,6 +793,7 @@ func _consider_fight() -> bool:
 			new_enemy = _combat.find_best_enemy()
 		if new_enemy:
 			_combat.set_target_enemy(new_enemy)
+			_maybe_announce_boss(new_enemy)
 	else:
 		var closer: EnemyBase = _combat.find_best_enemy()
 		if is_instance_valid(closer) and closer != target_enemy:
@@ -940,6 +957,11 @@ func _start_idle() -> void:
 	current_action = "idle"
 	action_timer = randf_range(idle_duration_min, idle_duration_max)
 	wander_direction = 0
+	# Ambient flavor: occasionally sit through the idle — only when someone is
+	# around to see it (the emote gap caps the map-wide rate).
+	if not _lod_far and randf() < 0.15:
+		if ChatManager.bot_emote(bot_id, "/sit"):
+			action_timer = maxf(action_timer, 3.5)
 
 
 func _start_wander() -> void:
@@ -1300,9 +1322,11 @@ func _evaluate_and_equip() -> void:
 			continue
 
 		if BotEquipmentLogic.should_equip(target_slot.item, slot.item, class_type):
+			var upgrade_name: String = slot.item.name
 			# UI-independent swap — moves the upgrade into equipment and the
 			# old item back into this inventory slot, with tracking + stats.
 			player.inventory_component.swap_slot_data(slot, target_slot)
+			try_speak("gear_upgrade", {"item": upgrade_name})
 
 
 func _try_use_consumable() -> void:

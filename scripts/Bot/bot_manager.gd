@@ -26,6 +26,8 @@ var _roster_loaded: bool = false
 ## seed in _on_bot_spawned so a cold-start server has a leveled population
 ## instead of twenty newborns. Set by PlayerManager.add_bot.
 var _fresh_bots: Dictionary = {}
+## Login/logout churn timer (ADR 0012) — the population changes over a session.
+var _churn_timer: float = 0.0
 
 ## Emitted (on any peer) when a requested bot data snapshot arrives.
 signal bot_snapshot_received(bot_id: int, snapshot: Dictionary)
@@ -157,6 +159,10 @@ func despawn_bot(bot_id: int) -> void:
 	if PartyManager.get_player_party_id(bot_id) != -1:
 		PartyManager.leave_party(bot_id)
 
+	# Stamp last_seen so churn re-login and offline catch-up know when this
+	# identity was last in the world.
+	_touch_roster(info.username, info.class_type, String(info.get("personality", "")))
+
 	# The brain lives under BotManager, so free it explicitly — it is not a
 	# child of the character node that remove_player tears down.
 	var brain = info.get("brain")
@@ -220,10 +226,14 @@ func _on_bot_spawned(bot_id: int) -> void:
 	if is_instance_valid(bot_camera):
 		bot_camera.queue_free()
 
-	# Resolve the bot's personality once (config > roster > persisted roll).
+	# Resolve the bot's personality once (config > roster > persisted roll),
+	# then stamp the full roster identity (class + last_seen) so churn and
+	# offline catch-up know this name.
 	if bot_id in active_bots and not active_bots[bot_id].has("personality"):
 		active_bots[bot_id]["personality"] = _resolve_personality_key(
 			active_bots[bot_id]["username"], get_bot_definition(bot_id))
+		_touch_roster(active_bots[bot_id]["username"], active_bots[bot_id]["class_type"],
+				String(active_bots[bot_id]["personality"]))
 
 	# Cold-start seed BEFORE the brain attaches — the level pump fires dozens of
 	# level-up signals, and seeding pre-brain means no speech hook hears them.
@@ -352,6 +362,112 @@ func get_bot_personality(bot_id: int) -> Dictionary:
 	var archetype: Dictionary = _personalities[key].duplicate()
 	archetype["key"] = key
 	return archetype
+
+
+## Writes/refreshes a bot's roster identity (personality, class, last_seen).
+## The roster is what lets churn re-login an identity faithfully and what
+## offline catch-up measures downtime against (ADR 0012).
+func _touch_roster(bot_name: String, class_type: int, personality_key: String) -> void:
+	if not _roster_loaded:
+		_load_roster()
+	var entry: Dictionary = _roster.get(bot_name, {})
+	if not personality_key.is_empty():
+		entry["personality"] = personality_key
+	entry["class"] = Constants.ClassType.find_key(class_type)
+	entry["last_seen"] = Time.get_unix_time_from_system()
+	_roster[bot_name] = entry
+	_save_roster()
+
+
+# --- Login/logout churn (ADR 0012) ---
+
+func _step_churn(delta: float) -> void:
+	var cfg: Dictionary = bot_config.get("churn", {})
+	if not cfg.get("enabled", false):
+		return
+	_churn_timer -= delta
+	if _churn_timer > 0.0:
+		return
+	_churn_timer = randf_range(float(cfg.get("interval_min", 180.0)), float(cfg.get("interval_max", 420.0)))
+	_churn_tick(cfg)
+
+
+## One churn event: log an offline identity in, or an online bot off. The
+## feed notice goes to EVERY real player — login churn is global server
+## texture, not map-scoped chatter.
+func _churn_tick(cfg: Dictionary) -> void:
+	var min_online: int = int(cfg.get("min_online", 2))
+	var max_online: int = int(cfg.get("max_online", 8))
+	var offline: Array = _offline_identities()
+	var logout_pool: Array = _logout_candidates()
+	var can_login: bool = active_bots.size() < max_online and not offline.is_empty()
+	var can_logout: bool = active_bots.size() > min_online and not logout_pool.is_empty()
+	if not can_login and not can_logout:
+		return
+	var do_login: bool = can_login if not (can_login and can_logout) else randf() < 0.5
+
+	if do_login:
+		var pick: Dictionary = offline.pick_random()
+		var bot_id := spawn_bot(pick.name, pick.class_type, "")
+		if bot_id == 0:
+			return
+		# Re-link the config definition (patrol route etc.) for authored names.
+		for bot_def in bot_config.get("bots", []):
+			if String(bot_def.get("name", "")) == pick.name:
+				_bot_def_map[bot_id] = bot_def
+				break
+		_broadcast_system_to_players("%s has logged in." % pick.name, Color(0.6, 0.85, 0.6))
+	else:
+		var out_id: int = logout_pool.pick_random()
+		var out_name: String = active_bots[out_id].username
+		despawn_bot(out_id)
+		_broadcast_system_to_players("%s has logged off." % out_name, Color(0.65, 0.65, 0.65))
+
+
+## Identities that could "log in": authored config bots + every roster name,
+## minus whoever is already online.
+func _offline_identities() -> Array:
+	var out: Array = []
+	var seen: Dictionary = {}
+	for bot_def in bot_config.get("bots", []):
+		var bot_name: String = bot_def.get("name", "")
+		if bot_name.is_empty() or bot_name.to_lower() == "random" \
+				or _is_name_taken(bot_name) or seen.has(bot_name):
+			continue
+		seen[bot_name] = true
+		out.append({"name": bot_name, "class_type": _class_string_to_type(bot_def.get("class", "SWORDSMAN"))})
+	if not _roster_loaded:
+		_load_roster()
+	for bot_name in _roster:
+		if _is_name_taken(bot_name) or seen.has(bot_name):
+			continue
+		seen[bot_name] = true
+		out.append({"name": bot_name, "class_type": _class_string_to_type(String(_roster[bot_name].get("class", "SWORDSMAN")))})
+	return out
+
+
+## Online bots that may churn out: never a real player's groupmate, never a
+## commanded companion, never a stress-test bot.
+func _logout_candidates() -> Array:
+	var out: Array = []
+	for bot_id in active_bots:
+		if bot_id in _stress_bot_ids:
+			continue
+		var party_id := PartyManager.get_player_party_id(bot_id)
+		if party_id != -1 and PartyManager._party_has_real_player(party_id):
+			continue
+		var brain := get_bot_brain(bot_id)
+		if brain != null and not brain.companion_mode.is_empty():
+			continue
+		out.append(bot_id)
+	return out
+
+
+## System line to every connected real player.
+func _broadcast_system_to_players(text: String, color: Color) -> void:
+	for pid in PlayerManager.active_players:
+		if not is_bot(pid):
+			ChatManager.notify_peer(pid, text, color)
 
 
 # --- Cold-start seeding (ADR 0011) ---
@@ -598,6 +714,7 @@ func _process(delta: float) -> void:
 		return
 	_step_nav_graph_builds()
 	_update_watch_camera()
+	_step_churn(delta)
 	if _stress_active:
 		_step_stress(delta)
 
