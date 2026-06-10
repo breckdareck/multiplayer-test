@@ -24,12 +24,25 @@ func accept_invite(invitee_id: int, party_id: int) -> bool:
 		return false
 
 	if _player_party_map.has(invitee_id):
+		ChatManager.notify_peer(invitee_id, "You are already in a party.", Color.ORANGE)
 		return false
 
 	if not _parties.has(party_id):
+		# The party dissolved while the popup sat unanswered (e.g. a bot
+		# abandoned its unanswered invite). Failing silently here reads as
+		# "accept is broken" — say what happened.
+		ChatManager.notify_peer(invitee_id, "That party invite has expired.", Color.ORANGE)
 		return false
 
 	var party: PartyData = _parties[party_id]
+
+	# A bot-led invite is a "right here, right now" offer — if either side has
+	# moved maps since it was sent, it no longer applies.
+	if BotManager.is_bot(party.leader_id) \
+			and MapManager.get_player_map(party.leader_id) != MapManager.get_player_map(invitee_id):
+		ChatManager.notify_peer(invitee_id, "That invite expired — the inviter is on another map.", Color.ORANGE)
+		return false
+
 	var invite_found = false
 	for inviter_id in party.invites.keys():
 		if party.has_invite(inviter_id, invitee_id):
@@ -38,6 +51,7 @@ func accept_invite(invitee_id: int, party_id: int) -> bool:
 			break
 
 	if not invite_found:
+		ChatManager.notify_peer(invitee_id, "That party invite has expired.", Color.ORANGE)
 		return false
 
 	party.add_member(invitee_id)
@@ -78,6 +92,13 @@ func send_invite(inviter_id: int, invitee_id: int) -> bool:
 	var party: PartyData = _parties[inviter_party_id]
 	if not party.is_leader(inviter_id):
 		#print("Player %d is not the leader of party %d." % [inviter_id, inviter_party_id])
+		return false
+
+	# A bot may only invite a real player who is on ITS map right now. This is
+	# the single invite chokepoint, so every bot invite path — present or
+	# future — inherits the rule.
+	if BotManager.is_bot(inviter_id) and not BotManager.is_bot(invitee_id) \
+			and MapManager.get_player_map(inviter_id) != MapManager.get_player_map(invitee_id):
 		return false
 
 	if _player_party_map.has(invitee_id):

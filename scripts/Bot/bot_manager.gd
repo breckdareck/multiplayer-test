@@ -500,6 +500,10 @@ func _logout_candidates() -> Array:
 		var brain := get_bot_brain(bot_id)
 		if brain != null and not brain.companion_mode.is_empty():
 			continue
+		# Mid-invite bots stay online — churning one out dissolves the party
+		# the player is about to accept into.
+		if brain != null and brain._pending_player_invite_timer > 0.0:
+			continue
 		out.append(bot_id)
 	return out
 
