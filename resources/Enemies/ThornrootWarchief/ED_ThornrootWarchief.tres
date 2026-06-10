@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=14 format=3]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=15 format=3 uid="uid://sekkfwmqboy4"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
@@ -31,7 +31,6 @@ metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 [sub_resource type="Resource" id="Resource_rush"]
 script = ExtResource("4_bad")
 attack_name = "Thorn Rush"
-windup_time = 1.2
 hit_time = 1.45
 anim_mode = 1
 windup_anim = "dash_attack"
@@ -40,7 +39,6 @@ reach = 160.0
 band_height = 55.0
 movement = 1
 dash_time = 0.3
-damage_mult = 2.0
 
 [resource]
 script = ExtResource("2_ed")
@@ -60,9 +58,7 @@ boss_title = "Thornroot Warchief"
 boss_subtitle = "The Hollow's goblins dig at his word — and they dig toward something."
 phase_health_thresholds = Array[float]([0.66, 0.33])
 enrage_health_threshold = 0.2
-special_telegraph_time = 1.2
 special_attack_radius = 130.0
-special_attack_damage_mult = 2.0
 special_attacks = Array[ExtResource("4_bad")]([SubResource("Resource_rush")])
 item_drops = Array[ExtResource("1_drop")]([SubResource("Resource_coin"), ExtResource("d_1"), ExtResource("d_2"), ExtResource("d_3"), ExtResource("d_4"), ExtResource("d_5")])
 metadata/_custom_type_script = "uid://dv7aj5x3e50cg"

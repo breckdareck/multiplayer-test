@@ -1094,6 +1094,14 @@ target_spawn_point_name = "Thornroot_DustWarren_Portal_Spawn"
 [node name="DustWarren_Thornroot_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(-464, 0)
 
+[node name="Portal1" parent="." instance=ExtResource("3_is3rs")]
+position = Vector2(485, 16)
+target_map_id = "mines"
+target_spawn_point_name = "Mines_DustWarren_Portal_Spawn"
+
+[node name="DustWarren_Mines_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(454, 18)
+
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(0, -16)
 zoom = Vector2(4, 4)
@@ -1148,118 +1156,347 @@ debug_color = Color(0.9764706, 0, 0, 0.75686276)
 
 [node name="Mob_0" parent="Enemies" instance=ExtResource("10_o0nx0")]
 position = Vector2(-460.8, 36)
+respawnable = true
 
 [node name="Mob_1" parent="Enemies" instance=ExtResource("20_mvutj")]
 position = Vector2(-358.4, 36)
+respawnable = true
 
 [node name="Mob_2" parent="Enemies" instance=ExtResource("22_u58lv")]
 position = Vector2(-256, 36)
+respawnable = true
 
 [node name="Mob_3" parent="Enemies" instance=ExtResource("24_fk1p8")]
 position = Vector2(-153.6, 36)
+respawnable = true
 
 [node name="Mob_4" parent="Enemies" instance=ExtResource("10_o0nx0")]
 position = Vector2(-51.2, 36)
+respawnable = true
 
 [node name="Mob_5" parent="Enemies" instance=ExtResource("20_mvutj")]
 position = Vector2(51.2, 36)
+respawnable = true
 
 [node name="Mob_6" parent="Enemies" instance=ExtResource("22_u58lv")]
 position = Vector2(153.6, 36)
+respawnable = true
 
 [node name="Mob_7" parent="Enemies" instance=ExtResource("24_fk1p8")]
 position = Vector2(256, 36)
+respawnable = true
 
 [node name="Mob_8" parent="Enemies" instance=ExtResource("10_o0nx0")]
 position = Vector2(358.4, 36)
+respawnable = true
 
 [node name="Mob_9" parent="Enemies" instance=ExtResource("20_mvutj")]
 position = Vector2(460.8, 36)
+respawnable = true
 
 [node name="Mob_10" parent="Enemies" instance=ExtResource("22_u58lv")]
 position = Vector2(-384, -12)
+respawnable = true
 
 [node name="Mob_11" parent="Enemies" instance=ExtResource("24_fk1p8")]
 position = Vector2(-288, -12)
+respawnable = true
 
 [node name="Mob_12" parent="Enemies" instance=ExtResource("10_o0nx0")]
 position = Vector2(-192, -12)
+respawnable = true
 
 [node name="Mob_13" parent="Enemies" instance=ExtResource("20_mvutj")]
 position = Vector2(-96, -12)
+respawnable = true
 
 [node name="Mob_14" parent="Enemies" instance=ExtResource("22_u58lv")]
 position = Vector2(0, -12)
+respawnable = true
 
 [node name="Mob_15" parent="Enemies" instance=ExtResource("24_fk1p8")]
 position = Vector2(96, -12)
+respawnable = true
 
 [node name="Mob_16" parent="Enemies" instance=ExtResource("10_o0nx0")]
 position = Vector2(192, -12)
+respawnable = true
 
 [node name="Mob_17" parent="Enemies" instance=ExtResource("20_mvutj")]
 position = Vector2(288, -12)
+respawnable = true
 
 [node name="Mob_18" parent="Enemies" instance=ExtResource("22_u58lv")]
 position = Vector2(384, -12)
+respawnable = true
 
 [node name="Mob_19" parent="Enemies" instance=ExtResource("24_fk1p8")]
 position = Vector2(-301.7143, -60)
+respawnable = true
 
 [node name="Mob_20" parent="Enemies" instance=ExtResource("10_o0nx0")]
 position = Vector2(-201.14285, -60)
+respawnable = true
 
 [node name="Mob_21" parent="Enemies" instance=ExtResource("20_mvutj")]
 position = Vector2(-100.57143, -60)
+respawnable = true
 
 [node name="Mob_22" parent="Enemies" instance=ExtResource("22_u58lv")]
 position = Vector2(0, -60)
+respawnable = true
 
 [node name="Mob_23" parent="Enemies" instance=ExtResource("24_fk1p8")]
 position = Vector2(100.57143, -60)
+respawnable = true
 
 [node name="Mob_24" parent="Enemies" instance=ExtResource("10_o0nx0")]
 position = Vector2(201.14285, -60)
+respawnable = true
 
 [node name="Mob_25" parent="Enemies" instance=ExtResource("20_mvutj")]
 position = Vector2(301.7143, -60)
+respawnable = true
 
 [node name="Mob_26" parent="Enemies" instance=ExtResource("22_u58lv")]
 position = Vector2(-217.6, -108)
+respawnable = true
 
 [node name="Mob_27" parent="Enemies" instance=ExtResource("24_fk1p8")]
 position = Vector2(-108.8, -108)
+respawnable = true
 
 [node name="Mob_28" parent="Enemies" instance=ExtResource("10_o0nx0")]
 position = Vector2(0, -108)
+respawnable = true
 
 [node name="Mob_29" parent="Enemies" instance=ExtResource("20_mvutj")]
 position = Vector2(108.8, -108)
+respawnable = true
 
 [node name="Mob_30" parent="Enemies" instance=ExtResource("22_u58lv")]
 position = Vector2(217.6, -108)
+respawnable = true
 
 [node name="Mob_31" parent="Enemies" instance=ExtResource("24_fk1p8")]
 position = Vector2(-144, -156)
+respawnable = true
 
 [node name="Mob_32" parent="Enemies" instance=ExtResource("10_o0nx0")]
 position = Vector2(-48, -156)
+respawnable = true
 
 [node name="Mob_33" parent="Enemies" instance=ExtResource("20_mvutj")]
 position = Vector2(48, -156)
+respawnable = true
 
 [node name="Mob_34" parent="Enemies" instance=ExtResource("22_u58lv")]
 position = Vector2(144, -156)
+respawnable = true
 
 [node name="Mob_35" parent="Enemies" instance=ExtResource("24_fk1p8")]
 position = Vector2(-56, -204)
+respawnable = true
 
 [node name="Mob_36" parent="Enemies" instance=ExtResource("10_o0nx0")]
 position = Vector2(56, -204)
+respawnable = true
 
 [node name="Projectiles" type="Node2D" parent="."]
 
 [node name="ItemDrops" type="Node2D" parent="."]
+
+[node name="Ladders" type="Node2D" parent="."]
+
+[node name="Ladder_87_99" type="Area2D" parent="Ladders"]
+position = Vector2(-200, -24)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("27_jpmew")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladders/Ladder_87_99"]
+position = Vector2(0, 28)
+shape = SubResource("RectangleShape2D_ti88b")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="Ladders/Ladder_87_99"]
+offset_left = -7.0
+offset_right = 7.0
+offset_bottom = 56.0
+texture = SubResource("AtlasTexture_t0tp2")
+patch_margin_top = 2
+patch_margin_bottom = 2
+axis_stretch_vertical = 1
+
+[node name="Ladder_113_99" type="Area2D" parent="Ladders"]
+position = Vector2(216, -24)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("27_jpmew")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladders/Ladder_113_99"]
+position = Vector2(0, 28)
+shape = SubResource("RectangleShape2D_302x6")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="Ladders/Ladder_113_99"]
+offset_left = -7.0
+offset_right = 7.0
+offset_bottom = 56.0
+texture = SubResource("AtlasTexture_lr2qa")
+patch_margin_top = 2
+patch_margin_bottom = 2
+axis_stretch_vertical = 1
+
+[node name="Ladder_89_96" type="Area2D" parent="Ladders"]
+position = Vector2(-168, -72)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("27_jpmew")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladders/Ladder_89_96"]
+position = Vector2(0, 28)
+shape = SubResource("RectangleShape2D_eswcj")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="Ladders/Ladder_89_96"]
+offset_left = -7.0
+offset_right = 7.0
+offset_bottom = 56.0
+texture = SubResource("AtlasTexture_2jkoe")
+patch_margin_top = 2
+patch_margin_bottom = 2
+axis_stretch_vertical = 1
+
+[node name="Ladder_111_96" type="Area2D" parent="Ladders"]
+position = Vector2(184, -72)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("27_jpmew")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladders/Ladder_111_96"]
+position = Vector2(0, 28)
+shape = SubResource("RectangleShape2D_v1exv")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="Ladders/Ladder_111_96"]
+offset_left = -7.0
+offset_right = 7.0
+offset_bottom = 56.0
+texture = SubResource("AtlasTexture_wq6ih")
+patch_margin_top = 2
+patch_margin_bottom = 2
+axis_stretch_vertical = 1
+
+[node name="Ladder_92_93" type="Area2D" parent="Ladders"]
+position = Vector2(-120, -120)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("27_jpmew")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladders/Ladder_92_93"]
+position = Vector2(0, 28)
+shape = SubResource("RectangleShape2D_33tdi")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="Ladders/Ladder_92_93"]
+offset_left = -7.0
+offset_right = 7.0
+offset_bottom = 56.0
+texture = SubResource("AtlasTexture_sx5ns")
+patch_margin_top = 2
+patch_margin_bottom = 2
+axis_stretch_vertical = 1
+
+[node name="Ladder_108_93" type="Area2D" parent="Ladders"]
+position = Vector2(136, -120)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("27_jpmew")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladders/Ladder_108_93"]
+position = Vector2(0, 28)
+shape = SubResource("RectangleShape2D_pghh8")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="Ladders/Ladder_108_93"]
+offset_left = -7.0
+offset_right = 7.0
+offset_bottom = 56.0
+texture = SubResource("AtlasTexture_rreix")
+patch_margin_top = 2
+patch_margin_bottom = 2
+axis_stretch_vertical = 1
+
+[node name="Ladder_94_90" type="Area2D" parent="Ladders"]
+position = Vector2(-88, -168)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("27_jpmew")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladders/Ladder_94_90"]
+position = Vector2(0, 28)
+shape = SubResource("RectangleShape2D_plpid")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="Ladders/Ladder_94_90"]
+offset_left = -7.0
+offset_right = 7.0
+offset_bottom = 56.0
+texture = SubResource("AtlasTexture_gsldg")
+patch_margin_top = 2
+patch_margin_bottom = 2
+axis_stretch_vertical = 1
+
+[node name="Ladder_106_90" type="Area2D" parent="Ladders"]
+position = Vector2(104, -168)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("27_jpmew")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladders/Ladder_106_90"]
+position = Vector2(0, 28)
+shape = SubResource("RectangleShape2D_tkr3t")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="Ladders/Ladder_106_90"]
+offset_left = -7.0
+offset_right = 7.0
+offset_bottom = 56.0
+texture = SubResource("AtlasTexture_2t20d")
+patch_margin_top = 2
+patch_margin_bottom = 2
+axis_stretch_vertical = 1
+
+[node name="Ladder_97_87" type="Area2D" parent="Ladders"]
+position = Vector2(-40, -216)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("27_jpmew")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladders/Ladder_97_87"]
+position = Vector2(0, 28)
+shape = SubResource("RectangleShape2D_rj1ff")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="Ladders/Ladder_97_87"]
+offset_left = -7.0
+offset_right = 7.0
+offset_bottom = 56.0
+texture = SubResource("AtlasTexture_ggwlv")
+patch_margin_top = 2
+patch_margin_bottom = 2
+axis_stretch_vertical = 1
+
+[node name="Ladder_103_87" type="Area2D" parent="Ladders"]
+position = Vector2(56, -216)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("27_jpmew")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladders/Ladder_103_87"]
+position = Vector2(0, 28)
+shape = SubResource("RectangleShape2D_w8oa6")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="Ladders/Ladder_103_87"]
+offset_left = -7.0
+offset_right = 7.0
+offset_bottom = 56.0
+texture = SubResource("AtlasTexture_8m4w7")
+patch_margin_top = 2
+patch_margin_bottom = 2
+axis_stretch_vertical = 1
 
 [node name="GlobalDropHandler" type="Control" parent="."]
 layout_mode = 3
@@ -1274,201 +1511,3 @@ mouse_filter = 1
 script = ExtResource("26_bb65a")
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
-
-[node name="Portal1" parent="." instance=ExtResource("3_is3rs")]
-position = Vector2(485, 16)
-target_map_id = "mines"
-target_spawn_point_name = "Mines_DustWarren_Portal_Spawn"
-
-[node name="DustWarren_Mines_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(454, 18)
-
-[node name="Ladder_87_99" type="Area2D" parent="."]
-position = Vector2(-200, -24)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("27_jpmew")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladder_87_99"]
-position = Vector2(0, 28)
-shape = SubResource("RectangleShape2D_ti88b")
-
-[node name="NinePatchRect" type="NinePatchRect" parent="Ladder_87_99"]
-offset_left = -7.0
-offset_right = 7.0
-offset_bottom = 56.0
-texture = SubResource("AtlasTexture_t0tp2")
-patch_margin_top = 2
-patch_margin_bottom = 2
-axis_stretch_vertical = 1
-
-[node name="Ladder_113_99" type="Area2D" parent="."]
-position = Vector2(216, -24)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("27_jpmew")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladder_113_99"]
-position = Vector2(0, 28)
-shape = SubResource("RectangleShape2D_302x6")
-
-[node name="NinePatchRect" type="NinePatchRect" parent="Ladder_113_99"]
-offset_left = -7.0
-offset_right = 7.0
-offset_bottom = 56.0
-texture = SubResource("AtlasTexture_lr2qa")
-patch_margin_top = 2
-patch_margin_bottom = 2
-axis_stretch_vertical = 1
-
-[node name="Ladder_89_96" type="Area2D" parent="."]
-position = Vector2(-168, -72)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("27_jpmew")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladder_89_96"]
-position = Vector2(0, 28)
-shape = SubResource("RectangleShape2D_eswcj")
-
-[node name="NinePatchRect" type="NinePatchRect" parent="Ladder_89_96"]
-offset_left = -7.0
-offset_right = 7.0
-offset_bottom = 56.0
-texture = SubResource("AtlasTexture_2jkoe")
-patch_margin_top = 2
-patch_margin_bottom = 2
-axis_stretch_vertical = 1
-
-[node name="Ladder_111_96" type="Area2D" parent="."]
-position = Vector2(184, -72)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("27_jpmew")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladder_111_96"]
-position = Vector2(0, 28)
-shape = SubResource("RectangleShape2D_v1exv")
-
-[node name="NinePatchRect" type="NinePatchRect" parent="Ladder_111_96"]
-offset_left = -7.0
-offset_right = 7.0
-offset_bottom = 56.0
-texture = SubResource("AtlasTexture_wq6ih")
-patch_margin_top = 2
-patch_margin_bottom = 2
-axis_stretch_vertical = 1
-
-[node name="Ladder_92_93" type="Area2D" parent="."]
-position = Vector2(-120, -120)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("27_jpmew")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladder_92_93"]
-position = Vector2(0, 28)
-shape = SubResource("RectangleShape2D_33tdi")
-
-[node name="NinePatchRect" type="NinePatchRect" parent="Ladder_92_93"]
-offset_left = -7.0
-offset_right = 7.0
-offset_bottom = 56.0
-texture = SubResource("AtlasTexture_sx5ns")
-patch_margin_top = 2
-patch_margin_bottom = 2
-axis_stretch_vertical = 1
-
-[node name="Ladder_108_93" type="Area2D" parent="."]
-position = Vector2(136, -120)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("27_jpmew")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladder_108_93"]
-position = Vector2(0, 28)
-shape = SubResource("RectangleShape2D_pghh8")
-
-[node name="NinePatchRect" type="NinePatchRect" parent="Ladder_108_93"]
-offset_left = -7.0
-offset_right = 7.0
-offset_bottom = 56.0
-texture = SubResource("AtlasTexture_rreix")
-patch_margin_top = 2
-patch_margin_bottom = 2
-axis_stretch_vertical = 1
-
-[node name="Ladder_94_90" type="Area2D" parent="."]
-position = Vector2(-88, -168)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("27_jpmew")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladder_94_90"]
-position = Vector2(0, 28)
-shape = SubResource("RectangleShape2D_plpid")
-
-[node name="NinePatchRect" type="NinePatchRect" parent="Ladder_94_90"]
-offset_left = -7.0
-offset_right = 7.0
-offset_bottom = 56.0
-texture = SubResource("AtlasTexture_gsldg")
-patch_margin_top = 2
-patch_margin_bottom = 2
-axis_stretch_vertical = 1
-
-[node name="Ladder_106_90" type="Area2D" parent="."]
-position = Vector2(104, -168)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("27_jpmew")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladder_106_90"]
-position = Vector2(0, 28)
-shape = SubResource("RectangleShape2D_tkr3t")
-
-[node name="NinePatchRect" type="NinePatchRect" parent="Ladder_106_90"]
-offset_left = -7.0
-offset_right = 7.0
-offset_bottom = 56.0
-texture = SubResource("AtlasTexture_2t20d")
-patch_margin_top = 2
-patch_margin_bottom = 2
-axis_stretch_vertical = 1
-
-[node name="Ladder_97_87" type="Area2D" parent="."]
-position = Vector2(-40, -216)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("27_jpmew")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladder_97_87"]
-position = Vector2(0, 28)
-shape = SubResource("RectangleShape2D_rj1ff")
-
-[node name="NinePatchRect" type="NinePatchRect" parent="Ladder_97_87"]
-offset_left = -7.0
-offset_right = 7.0
-offset_bottom = 56.0
-texture = SubResource("AtlasTexture_ggwlv")
-patch_margin_top = 2
-patch_margin_bottom = 2
-axis_stretch_vertical = 1
-
-[node name="Ladder_103_87" type="Area2D" parent="."]
-position = Vector2(56, -216)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("27_jpmew")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladder_103_87"]
-position = Vector2(0, 28)
-shape = SubResource("RectangleShape2D_w8oa6")
-
-[node name="NinePatchRect" type="NinePatchRect" parent="Ladder_103_87"]
-offset_left = -7.0
-offset_right = 7.0
-offset_bottom = 56.0
-texture = SubResource("AtlasTexture_8m4w7")
-patch_margin_top = 2
-patch_margin_bottom = 2
-axis_stretch_vertical = 1

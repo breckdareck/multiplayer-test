@@ -1249,108 +1249,143 @@ respawnable = true
 
 [node name="Clone_16" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
 position = Vector2(-632, -12)
+respawnable = true
 
 [node name="Clone_17" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
 position = Vector2(-552, -12)
+respawnable = true
 
 [node name="Clone_18" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
 position = Vector2(-472, -12)
+respawnable = true
 
 [node name="Clone_19" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
 position = Vector2(472, -28)
+respawnable = true
 
 [node name="Clone_20" parent="Enemies" instance=ExtResource("e_mithril_hare")]
 position = Vector2(552, -28)
+respawnable = true
 
 [node name="Clone_21" parent="Enemies" instance=ExtResource("e_mithril_hare")]
 position = Vector2(632, -28)
+respawnable = true
 
 [node name="Clone_22" parent="Enemies" instance=ExtResource("e_mithril_hare")]
 position = Vector2(-620, -60)
+respawnable = true
 
 [node name="Clone_23" parent="Enemies" instance=ExtResource("e_deer_druid")]
 position = Vector2(-516, -60)
+respawnable = true
 
 [node name="Clone_24" parent="Enemies" instance=ExtResource("e_deer_druid")]
 position = Vector2(480, -60)
+respawnable = true
 
 [node name="Clone_25" parent="Enemies" instance=ExtResource("e_deer_druid")]
 position = Vector2(576, -60)
+respawnable = true
 
 [node name="Clone_26" parent="Enemies" instance=ExtResource("e_rabbit_wizard")]
 position = Vector2(672, -60)
+respawnable = true
 
 [node name="Clone_27" parent="Enemies" instance=ExtResource("e_rabbit_wizard")]
 position = Vector2(-16, -60)
+respawnable = true
 
 [node name="Clone_28" parent="Enemies" instance=ExtResource("e_rabbit_wizard")]
 position = Vector2(80, -60)
+respawnable = true
 
 [node name="Clone_29" parent="Enemies" instance=ExtResource("e_war_goblin")]
 position = Vector2(-688, -124)
+respawnable = true
 
 [node name="Clone_30" parent="Enemies" instance=ExtResource("e_war_goblin")]
 position = Vector2(-592, -124)
+respawnable = true
 
 [node name="Clone_31" parent="Enemies" instance=ExtResource("e_war_goblin")]
 position = Vector2(472, -108)
+respawnable = true
 
 [node name="Clone_32" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
 position = Vector2(552, -108)
+respawnable = true
 
 [node name="Clone_33" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
 position = Vector2(632, -108)
+respawnable = true
 
 [node name="Clone_34" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
 position = Vector2(-664, -140)
+respawnable = true
 
 [node name="Clone_35" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
 position = Vector2(560, -140)
+respawnable = true
 
 [node name="Clone_36" parent="Enemies" instance=ExtResource("e_mithril_hare")]
 position = Vector2(656, -140)
+respawnable = true
 
 [node name="Clone_37" parent="Enemies" instance=ExtResource("e_mithril_hare")]
 position = Vector2(-72, -156)
+respawnable = true
 
 [node name="Clone_38" parent="Enemies" instance=ExtResource("e_mithril_hare")]
 position = Vector2(8, -156)
+respawnable = true
 
 [node name="Clone_39" parent="Enemies" instance=ExtResource("e_deer_druid")]
 position = Vector2(88, -156)
+respawnable = true
 
 [node name="Clone_40" parent="Enemies" instance=ExtResource("e_deer_druid")]
 position = Vector2(-632, -204)
+respawnable = true
 
 [node name="Clone_41" parent="Enemies" instance=ExtResource("e_deer_druid")]
 position = Vector2(477.33334, -204)
+respawnable = true
 
 [node name="Clone_42" parent="Enemies" instance=ExtResource("e_rabbit_wizard")]
 position = Vector2(568, -204)
+respawnable = true
 
 [node name="Clone_43" parent="Enemies" instance=ExtResource("e_rabbit_wizard")]
 position = Vector2(658.6667, -204)
+respawnable = true
 
 [node name="Clone_44" parent="Enemies" instance=ExtResource("e_rabbit_wizard")]
 position = Vector2(-652, -236)
+respawnable = true
 
 [node name="Clone_45" parent="Enemies" instance=ExtResource("e_war_goblin")]
 position = Vector2(-548, -236)
+respawnable = true
 
 [node name="Clone_46" parent="Enemies" instance=ExtResource("e_war_goblin")]
 position = Vector2(464, -252)
+respawnable = true
 
 [node name="Clone_47" parent="Enemies" instance=ExtResource("e_war_goblin")]
 position = Vector2(560, -252)
+respawnable = true
 
 [node name="Clone_48" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
 position = Vector2(656, -252)
+respawnable = true
 
 [node name="Clone_49" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
 position = Vector2(-52, -252)
+respawnable = true
 
 [node name="Clone_50" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
 position = Vector2(36, -252)
+respawnable = true
 
 [node name="Projectiles" type="Node2D" parent="."]
 

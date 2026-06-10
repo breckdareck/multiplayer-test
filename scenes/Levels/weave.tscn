@@ -1243,69 +1243,91 @@ respawnable = true
 
 [node name="Clone_10" parent="Enemies" instance=ExtResource("e_celestial_hare")]
 position = Vector2(-296, -12)
+respawnable = true
 
 [node name="Clone_11" parent="Enemies" instance=ExtResource("e_celestial_hare")]
 position = Vector2(-216, -12)
+respawnable = true
 
 [node name="Clone_12" parent="Enemies" instance=ExtResource("e_celestial_hare")]
 position = Vector2(264, -12)
+respawnable = true
 
 [node name="Clone_13" parent="Enemies" instance=ExtResource("e_celestial_hare")]
 position = Vector2(-296, -60)
+respawnable = true
 
 [node name="Clone_14" parent="Enemies" instance=ExtResource("e_celestial_hare")]
 position = Vector2(240, -60)
+respawnable = true
 
 [node name="Clone_15" parent="Enemies" instance=ExtResource("e_astral_slime")]
 position = Vector2(-232, -108)
+respawnable = true
 
 [node name="Clone_16" parent="Enemies" instance=ExtResource("e_astral_slime")]
 position = Vector2(-152, -108)
+respawnable = true
 
 [node name="Clone_17" parent="Enemies" instance=ExtResource("e_astral_slime")]
 position = Vector2(256, -108)
+respawnable = true
 
 [node name="Clone_18" parent="Enemies" instance=ExtResource("e_astral_slime")]
 position = Vector2(-128, -156)
+respawnable = true
 
 [node name="Clone_19" parent="Enemies" instance=ExtResource("e_astral_slime")]
 position = Vector2(108, -156)
+respawnable = true
 
 [node name="Clone_20" parent="Enemies" instance=ExtResource("e_celestial_hare")]
 position = Vector2(196, -156)
+respawnable = true
 
 [node name="Clone_21" parent="Enemies" instance=ExtResource("e_celestial_hare")]
 position = Vector2(-200, -204)
+respawnable = true
 
 [node name="Clone_22" parent="Enemies" instance=ExtResource("e_celestial_hare")]
 position = Vector2(264, -204)
+respawnable = true
 
 [node name="Clone_23" parent="Enemies" instance=ExtResource("e_celestial_hare")]
 position = Vector2(-280, -252)
+respawnable = true
 
 [node name="Clone_24" parent="Enemies" instance=ExtResource("e_celestial_hare")]
 position = Vector2(-200, -252)
+respawnable = true
 
 [node name="Clone_25" parent="Enemies" instance=ExtResource("e_astral_slime")]
 position = Vector2(40, -252)
+respawnable = true
 
 [node name="Clone_26" parent="Enemies" instance=ExtResource("e_astral_slime")]
 position = Vector2(120, -252)
+respawnable = true
 
 [node name="Clone_27" parent="Enemies" instance=ExtResource("e_astral_slime")]
 position = Vector2(-276, -300)
+respawnable = true
 
 [node name="Clone_28" parent="Enemies" instance=ExtResource("e_astral_slime")]
 position = Vector2(-188, -300)
+respawnable = true
 
 [node name="Clone_29" parent="Enemies" instance=ExtResource("e_astral_slime")]
 position = Vector2(168, -300)
+respawnable = true
 
 [node name="Clone_30" parent="Enemies" instance=ExtResource("e_celestial_hare")]
 position = Vector2(-152, -348)
+respawnable = true
 
 [node name="Clone_31" parent="Enemies" instance=ExtResource("e_celestial_hare")]
 position = Vector2(248, -348)
+respawnable = true
 
 [node name="Projectiles" type="Node2D" parent="."]
 

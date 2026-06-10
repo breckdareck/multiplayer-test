@@ -1075,6 +1075,8 @@ tile_set = SubResource("TileSet_vsk6t")
 
 [node name="Killzone" parent="." instance=ExtResource("6_5y0l1")]
 position = Vector2(965, 101)
+monitoring = false
+monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Killzone"]
 position = Vector2(833, -13)

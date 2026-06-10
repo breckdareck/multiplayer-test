@@ -1,4 +1,4 @@
-[gd_scene load_steps=30 format=4 uid="uid://1dtpk2tpjrgy"]
+[gd_scene load_steps=31 format=4 uid="uid://1dtpk2tpjrgy"]
 
 [ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_aj8v8"]
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/VFX/damage_numbers.gd" id="2_j2nq3"]
@@ -1028,12 +1028,15 @@ size = Vector2(14, 72)
 atlas = ExtResource("5_172bj")
 region = Rect2(145, 52, 14, 12)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_k13h1"]
-size = Vector2(14, 56)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2sk81"]
+size = Vector2(14, 32)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_1bbp6"]
 atlas = ExtResource("5_172bj")
 region = Rect2(145, 52, 14, 12)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_k13h1"]
+size = Vector2(14, 56)
 
 [node name="Thornroot" type="Node2D"]
 script = ExtResource("1_aj8v8")
@@ -1105,87 +1108,116 @@ debug_color = Color(0.9764706, 0, 0, 0.75686276)
 
 [node name="Mob_0" parent="Enemies" instance=ExtResource("10_enev1")]
 position = Vector2(-432, 32)
+respawnable = true
 
 [node name="Mob_1" parent="Enemies" instance=ExtResource("20_10gp4")]
 position = Vector2(-336, 32)
+respawnable = true
 
 [node name="Mob_2" parent="Enemies" instance=ExtResource("10_enev1")]
 position = Vector2(-240, 32)
+respawnable = true
 
 [node name="Mob_3" parent="Enemies" instance=ExtResource("20_10gp4")]
 position = Vector2(-144, 32)
+respawnable = true
 
 [node name="Mob_4" parent="Enemies" instance=ExtResource("10_enev1")]
 position = Vector2(-48, 32)
+respawnable = true
 
 [node name="Mob_5" parent="Enemies" instance=ExtResource("20_10gp4")]
 position = Vector2(48, 32)
+respawnable = true
 
 [node name="Mob_6" parent="Enemies" instance=ExtResource("10_enev1")]
 position = Vector2(144, 32)
+respawnable = true
 
 [node name="Mob_7" parent="Enemies" instance=ExtResource("20_10gp4")]
 position = Vector2(240, 32)
+respawnable = true
 
 [node name="Mob_8" parent="Enemies" instance=ExtResource("10_enev1")]
 position = Vector2(336, 32)
+respawnable = true
 
 [node name="Mob_9" parent="Enemies" instance=ExtResource("20_10gp4")]
 position = Vector2(432, 32)
+respawnable = true
 
 [node name="Mob_10" parent="Enemies" instance=ExtResource("10_enev1")]
-position = Vector2(-396, -16)
+position = Vector2(-384, 31)
+respawnable = true
 
 [node name="Mob_11" parent="Enemies" instance=ExtResource("20_10gp4")]
-position = Vector2(-292, -16)
+position = Vector2(-292, 31)
+respawnable = true
 
 [node name="Mob_12" parent="Enemies" instance=ExtResource("10_enev1")]
 position = Vector2(328, -16)
+respawnable = true
 
 [node name="Mob_13" parent="Enemies" instance=ExtResource("20_10gp4")]
 position = Vector2(-304, -64)
+respawnable = true
 
 [node name="Mob_14" parent="Enemies" instance=ExtResource("10_enev1")]
-position = Vector2(336, -48)
+position = Vector2(283, -16)
+respawnable = true
 
 [node name="Mob_15" parent="Enemies" instance=ExtResource("20_10gp4")]
 position = Vector2(-40, -64)
+respawnable = true
 
 [node name="Mob_16" parent="Enemies" instance=ExtResource("10_enev1")]
 position = Vector2(-387, -128)
+respawnable = true
 
 [node name="Mob_17" parent="Enemies" instance=ExtResource("20_10gp4")]
 position = Vector2(-268, -128)
+respawnable = true
 
 [node name="Mob_18" parent="Enemies" instance=ExtResource("10_enev1")]
 position = Vector2(296, -128)
+respawnable = true
 
 [node name="Mob_19" parent="Enemies" instance=ExtResource("20_10gp4")]
 position = Vector2(-344, -176)
+respawnable = true
 
 [node name="Mob_20" parent="Enemies" instance=ExtResource("10_enev1")]
 position = Vector2(232, -128)
+respawnable = true
 
 [node name="Mob_21" parent="Enemies" instance=ExtResource("20_10gp4")]
 position = Vector2(358, -130)
+respawnable = true
 
 [node name="Mob_22" parent="Enemies" instance=ExtResource("10_enev1")]
 position = Vector2(-88, -160)
+respawnable = true
 
 [node name="Mob_23" parent="Enemies" instance=ExtResource("20_10gp4")]
 position = Vector2(24, -160)
+respawnable = true
 
 [node name="Mob_24" parent="Enemies" instance=ExtResource("10_enev1")]
 position = Vector2(-290, -176)
+respawnable = true
 
 [node name="Mob_25" parent="Enemies" instance=ExtResource("20_10gp4")]
 position = Vector2(260, -208)
+respawnable = true
 
 [node name="Mob_26" parent="Enemies" instance=ExtResource("10_enev1")]
 position = Vector2(368, -208)
+respawnable = true
 
 [node name="ThornrootWarchief" parent="Enemies" instance=ExtResource("21_boss1")]
-position = Vector2(314, -208)
+position = Vector2(0, 32)
+respawnable = true
+respawn_delay = 300
 
 [node name="Projectiles" type="Node2D" parent="."]
 
@@ -1214,7 +1246,7 @@ target_spawn_point_name = "DustWarren_Thornroot_Portal_Spawn"
 position = Vector2(440, 20)
 
 [node name="Ladder_120_99" type="Area2D" parent="."]
-position = Vector2(328, -24)
+position = Vector2(316, -129)
 collision_layer = 0
 collision_mask = 2
 script = ExtResource("23_6eojl")
@@ -1233,7 +1265,7 @@ patch_margin_bottom = 2
 axis_stretch_vertical = 1
 
 [node name="Ladder_121_97" type="Area2D" parent="."]
-position = Vector2(254, -128)
+position = Vector2(309, -17)
 collision_layer = 0
 collision_mask = 2
 script = ExtResource("23_6eojl")
@@ -1243,6 +1275,25 @@ position = Vector2(0, 20)
 shape = SubResource("RectangleShape2D_eo2qo")
 
 [node name="NinePatchRect" type="NinePatchRect" parent="Ladder_121_97"]
+offset_left = -7.0
+offset_right = 7.0
+offset_bottom = 40.0
+texture = SubResource("AtlasTexture_40mqp")
+patch_margin_top = 2
+patch_margin_bottom = 2
+axis_stretch_vertical = 1
+
+[node name="Ladder_121_98" type="Area2D" parent="."]
+position = Vector2(332, -209)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("23_6eojl")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladder_121_98"]
+position = Vector2(0, 20)
+shape = SubResource("RectangleShape2D_eo2qo")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="Ladder_121_98"]
 offset_left = -7.0
 offset_right = 7.0
 offset_bottom = 40.0
@@ -1270,17 +1321,74 @@ patch_margin_top = 2
 patch_margin_bottom = 2
 axis_stretch_vertical = 1
 
+[node name="Ladder_81_93" type="Area2D" parent="."]
+position = Vector2(-85, -65)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("23_6eojl")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladder_81_93"]
+position = Vector2(0, 36)
+shape = SubResource("RectangleShape2D_5jenw")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="Ladder_81_93"]
+offset_left = -7.0
+offset_right = 7.0
+offset_bottom = 72.0
+texture = SubResource("AtlasTexture_ty5ee")
+patch_margin_top = 2
+patch_margin_bottom = 2
+axis_stretch_vertical = 1
+
+[node name="Ladder_81_94" type="Area2D" parent="."]
+position = Vector2(-8, -161)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("23_6eojl")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladder_81_94"]
+position = Vector2(0, 36)
+shape = SubResource("RectangleShape2D_5jenw")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="Ladder_81_94"]
+offset_left = -7.0
+offset_right = 7.0
+offset_bottom = 72.0
+texture = SubResource("AtlasTexture_ty5ee")
+patch_margin_top = 2
+patch_margin_bottom = 2
+axis_stretch_vertical = 1
+
 [node name="Ladder_79_89" type="Area2D" parent="."]
-position = Vector2(-328, -184)
+position = Vector2(-372, -177)
 collision_layer = 0
 collision_mask = 2
 script = ExtResource("23_6eojl")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Ladder_79_89"]
+position = Vector2(0, 16)
+shape = SubResource("RectangleShape2D_2sk81")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="Ladder_79_89"]
+offset_left = -7.0
+offset_right = 7.0
+offset_bottom = 32.0
+texture = SubResource("AtlasTexture_1bbp6")
+patch_margin_top = 2
+patch_margin_bottom = 2
+axis_stretch_vertical = 1
+
+[node name="Ladder_79_90" type="Area2D" parent="."]
+position = Vector2(-328, -129)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("23_6eojl")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladder_79_90"]
 position = Vector2(0, 28)
 shape = SubResource("RectangleShape2D_k13h1")
 
-[node name="NinePatchRect" type="NinePatchRect" parent="Ladder_79_89"]
+[node name="NinePatchRect" type="NinePatchRect" parent="Ladder_79_90"]
 offset_left = -7.0
 offset_right = 7.0
 offset_bottom = 56.0

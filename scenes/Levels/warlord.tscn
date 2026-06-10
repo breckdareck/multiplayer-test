@@ -1107,6 +1107,7 @@ debug_color = Color(0.9764706, 0, 0, 0.75686276)
 [node name="EternalWarlord" parent="Enemies" instance=ExtResource("e_eternal_warlord")]
 position = Vector2(0, 36)
 respawnable = true
+respawn_delay = 300
 
 [node name="Projectiles" type="Node2D" parent="."]
 
