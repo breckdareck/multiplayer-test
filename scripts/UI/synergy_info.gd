@@ -14,12 +14,22 @@ extends RefCounted
 ##   pair  — the two weapons in plain words ("Sword + Staff")
 ##   tag   — one-line hook describing the loop the two weapons form
 ##   dirs  — ordered [weapon, effect] pairs: what each weapon does for the other.
+##   duo   — the pair's DUO NODE (ADR 0013): a derived unlock (30+ ability
+##           points spent in BOTH equipped disciplines) that adds an on-swap
+##           trigger (8s internal cooldown) + a standing amplification. Keep in
+##           lockstep with weapon_pair_synergy.gd's _fire_duo_swap_trigger /
+##           duo standing constants.
+##     name      — the duo's name
+##     swap      — what firing the swap trigger does
+##     standing  — the always-on amplification while the duo is unlocked
 
 const HEADER_COLOR := "#8fd0ff"   # cyan — synergy name
 const PAIR_COLOR := "#c9b88a"     # muted gold — weapon pair line
 const TAG_COLOR := "#9aa6b8"      # grey — the loop hook
 const DIR_COLOR := "#ffd479"      # warm gold — "Wielding the X" label
 const BODY_COLOR := "#d6dae3"     # off-white — effect text
+const DUO_COLOR := "#ff9d5c"      # ember orange — duo node name
+const DUO_LOCKED_COLOR := "#7d8694"  # dim grey — locked duo state
 
 const DATA := {
 	# Sword + Staff
@@ -31,6 +41,11 @@ const DATA := {
 			["Sword", "Your sword ability hits carry the staff's active stance element (burn / slow / chain)."],
 			["Staff", "Your spells spend banked Sword Combo for a bonus magic burst (~50% per point)."],
 		],
+		"duo": {
+			"name": "EMBERBLADE",
+			"swap": "Your next stance imbue strikes twice.",
+			"standing": "Your BASIC sword hits also carry the stance element (not just abilities).",
+		},
 	},
 	# Bow + Staff
 	"1_2": {
@@ -41,6 +56,11 @@ const DATA := {
 			["Bow", "Your arrows carry the staff's active stance element (burn / slow / chain)."],
 			["Staff", "Your spells ride your Bow Momentum ramp for bonus damage (it persists across the swap)."],
 		],
+		"duo": {
+			"name": "GALECALLER",
+			"swap": "Gain 4 Momentum stacks on the spot.",
+			"standing": "Spells riding your Momentum pay 1.5× the usual bonus.",
+		},
 	},
 	# Staff + Dagger
 	"2_3": {
@@ -51,6 +71,11 @@ const DATA := {
 			["Staff", "Your spells apply the dagger's poison DoT (stacking, scales with the hit)."],
 			["Dagger", "Your ambush carries the staff's active stance element (burn / slow / chain)."],
 		],
+		"duo": {
+			"name": "VENOMWEAVE",
+			"swap": "Your next poison imbue applies DOUBLE stacks.",
+			"standing": "The pair's poison imbue stacks to 8 (up from 5).",
+		},
 	},
 	# Sword + Bow
 	"0_1": {
@@ -61,6 +86,11 @@ const DATA := {
 			["Bow", "Your bow hits bank Sword Combo points, which persist across the weapon swap."],
 			["Sword", "Swap in with a full stockpile and unload it on a heavy combo finisher."],
 		],
+		"duo": {
+			"name": "SKIRMISHER'S RHYTHM",
+			"swap": "Bank 2 Sword Combo points instantly.",
+			"standing": "Every 3rd bow hit banks an EXTRA Combo point.",
+		},
 	},
 	# Sword + Dagger
 	"0_3": {
@@ -71,6 +101,11 @@ const DATA := {
 			["Sword", "Your sword ability hits apply the dagger's poison DoT."],
 			["Dagger", "Your ambush spends banked Sword Combo for a damage spike (~50% per point)."],
 		],
+		"duo": {
+			"name": "BLADE DANCER'S OATH",
+			"swap": "Swap to the dagger: meld into shadow. Swap to the sword: bank 2 Combo points.",
+			"standing": "Ambush combo-spend pays 75% per point (up from 50%).",
+		},
 	},
 	# Bow + Dagger
 	"1_3": {
@@ -81,6 +116,11 @@ const DATA := {
 			["Bow", "Your bow hits charge an ambush buffer (up to 10) and apply poison."],
 			["Dagger", "Your next ambush spends the stored charge for a burst of bonus damage."],
 		],
+		"duo": {
+			"name": "VEILED QUARRY",
+			"swap": "The ambush buffer charges +4 from the swap itself.",
+			"standing": "Buffer cap raised to 15 (up from 10).",
+		},
 	},
 }
 
@@ -92,7 +132,12 @@ static func get_for_key(pair_key: String):
 
 ## Builds the BBCode tooltip body for a pair key: name, weapons, the loop hook, and
 ## both directions (what each weapon does for the other). "" if not a real synergy.
-static func tooltip_bbcode(pair_key: String) -> String:
+##
+## The optional duo args render the pair's DUO NODE section with live state:
+## `duo_unlocked` paints it active; `duo_progress` is a short pre-formatted
+## points line (e.g. "Sword 12/30 · Staff 30/30") shown while locked. Pass
+## neither to render the duo as plain reference text.
+static func tooltip_bbcode(pair_key: String, duo_unlocked: bool = false, duo_progress: String = "") -> String:
 	var rec = DATA.get(pair_key, null)
 	if rec == null:
 		return ""
@@ -105,4 +150,17 @@ static func tooltip_bbcode(pair_key: String) -> String:
 		out += "\n\n[color=%s][b]Wielding the %s:[/b][/color]\n[color=%s]%s[/color]" % [
 			DIR_COLOR, d[0], BODY_COLOR, d[1],
 		]
+
+	var duo = rec.get("duo", null)
+	if duo != null:
+		var name_color: String = DUO_COLOR if duo_unlocked else DUO_LOCKED_COLOR
+		var state: String = "UNLOCKED" if duo_unlocked else "LOCKED"
+		out += "\n\n[color=%s][b]★ DUO — %s[/b]  (%s)[/color]" % [name_color, duo["name"], state]
+		out += "\n[color=%s][b]On weapon swap[/b] (8s cooldown): %s[/color]" % [BODY_COLOR if duo_unlocked else DUO_LOCKED_COLOR, duo["swap"]]
+		out += "\n[color=%s][b]Always:[/b] %s[/color]" % [BODY_COLOR if duo_unlocked else DUO_LOCKED_COLOR, duo["standing"]]
+		if not duo_unlocked:
+			out += "\n[color=%s]Unlocks with 30+ ability points spent in BOTH equipped weapons." % TAG_COLOR
+			if duo_progress != "":
+				out += "  (%s)" % duo_progress
+			out += "[/color]"
 	return out
