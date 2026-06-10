@@ -45,6 +45,7 @@
     {
       "name": "Breck",
       "class": "ROGUE",
+      "personality": "butcher",
       "map": "lanterns_rest",
       "patrol_route": [
         "near_wilds",

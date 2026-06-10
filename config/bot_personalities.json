@@ -1,5 +1,108 @@
 {
   "archetypes": {
+    "butcher": {
+      "chattiness": 0.85,
+      "lines": {
+        "greet": [
+          "oi oi, {player}. welcome to the bloody party",
+          "well well. {player}. try not to get yourself killed, eh?",
+          "{player}, is it? right then, sunshine. stay behind me",
+          "another fresh face. listen close {player}, the monsters here are right diabolical"
+        ],
+        "greet_familiar": [
+          "back again, {player}? knew you had a screw loose. good",
+          "oi, {player}. still alive then. colour me impressed",
+          "look what the cat dragged in. alright, {player}"
+        ],
+        "greet_friend": [
+          "{player}! me favourite lunatic. c'mon, we've got monsters to sort",
+          "oi {player}, son. was wonderin' when you'd show",
+          "there he is. {player}, you beautiful bastard. let's get to work"
+        ],
+        "level_up": [
+          "level {level}. gettin' proper dangerous now, aren't I",
+          "{level}. the bastards should start worryin'",
+          "ding, as the kids say. {level}",
+          "level {level}, and I'm just gettin' warmed up, sunshine"
+        ],
+        "death": [
+          "right. that was a bloody liberty",
+          "oh, that's diabolical, that is",
+          "I'll be havin' words about that",
+          "down but not done, son. never done"
+        ],
+        "rare_loot": [
+          "{item}, eh? don't mind if I do",
+          "ooh, {item}. proper bit of kit, that",
+          "come to daddy, {item}"
+        ],
+        "boss_engage": [
+          "oi, {enemy}! remember me? no? you will",
+          "right then, {enemy}. let's dance, you diabolical bastard",
+          "there you are, {enemy}. been lookin' forward to this all bloody day",
+          "{enemy}. big, ugly, and about to be very dead"
+        ],
+        "boss_kill": [
+          "and THAT, children, is how you do a {enemy}",
+          "{enemy}'s done. anyone else? no? smart",
+          "told you, didn't I. {enemy} never stood a chance",
+          "one less {enemy} in the world. lovely jubbly"
+        ],
+        "party_join": [
+          "right, listen up. stay close, hit hard, don't do anythin' stupid",
+          "a team, is it? fine. but we do this my way",
+          "welcome aboard, sunshine. try to keep up"
+        ],
+        "party_invite": [
+          "oi {player}. you look like you can handle yourself. fancy doin' some damage?",
+          "{player}, son. I've got a plan and it needs one more pair of hands",
+          "you, {player}. me. that lot of monsters over there. you do the maths"
+        ],
+        "command_follow": [
+          "right behind you, chief",
+          "lead on then, sunshine. this better be good"
+        ],
+        "command_stay": [
+          "fine. I'll mind the fort. don't die out there",
+          "holdin' here. anythin' comes past me, it's brown bread"
+        ],
+        "command_free": [
+          "off the leash, am I? lovely",
+          "right, back to me own devices. cheers"
+        ],
+        "decline_trade": [
+          "touch that again, {player}, and we're gonna have a proper falling out",
+          "oi! paws off, son. that's mine",
+          "not a chance, {player}. earned that one the hard way"
+        ],
+        "reply": [
+          "what's the craic, {player}?",
+          "you called, sunshine?",
+          "make it quick, {player}. monsters don't kill themselves",
+          "oi oi. what do you need, son?"
+        ],
+        "gear_upgrade": [
+          "{item}. now THAT'S more like it",
+          "strapped on a {item}. the bastards are in trouble now",
+          "new {item}. proper tasty bit of kit"
+        ],
+        "retreat": [
+          "tactical withdrawal, son. there's a difference",
+          "right, fallin' back. this ain't over, not by a long shot",
+          "even I know when to leg it. briefly"
+        ],
+        "banter_open": [
+          "oi {player}, you seen the state of the monsters round here? diabolical",
+          "{player}, tell me straight. you trust them quest-givers? 'cause I don't",
+          "you hear about the Warlord, {player}? proper piece of work, that one"
+        ],
+        "banter_reply": [
+          "couldn't have said it better meself, {player}",
+          "ha! you're alright, {player}. for a lunatic",
+          "careful sayin' that out loud, son. but yeah"
+        ]
+      }
+    },
     "bragger": {
       "chattiness": 0.9,
       "lines": {
