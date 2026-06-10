@@ -352,6 +352,7 @@ func _client_update_party_data(party_data_dict: Dictionary):
 			"level": member_data.level,
 			"class_name": member_data.class_name,
 			"is_online": member_data.get("is_online", true),
+			"map": member_data.get("map", ""),
 		}
 
 	var new_party_data = PartyData.new(party_id, party_data_dict.get("leader_id"))
@@ -401,6 +402,7 @@ func _send_party_data_to_members(party_id: int):
 			# that marks every cross-map ally "offline". Having a current map
 			# means connected (disconnects are removed from the party anyway).
 			"is_online": MapManager.get_player_map(member_id) != "",
+			"map": MapManager._map_display_name(MapManager.get_player_map(member_id)),
 		})
 
 	var party_data_to_send = {

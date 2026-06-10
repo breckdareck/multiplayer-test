@@ -9,11 +9,8 @@ extends Panel
 @onready var create_button: Button = %CreateButton
 @onready var show_hp_button: Button = %ShowHPButton
 @onready var kick_button: Button = %KickButton
-@onready var whisper_button: Button = %WhisperButton
-@onready var search_button: Button = %SearchButton
 @onready var party_leader_button: Button = %PartyLeaderButton
 @onready var leave_button: Button = %LeaveButton
-@onready var chat_button: Button = %ChatButton
 @onready var invite_button: Button = %InviteButton
 @onready var invite_line_edit: LineEdit = %InviteLineEdit
 
@@ -54,15 +51,17 @@ func _ready():
 
 # --- Initialization ---
 func _initialize_trees():
-	online_tree.set_column_titles_visible(true)
-	online_tree.set_column_title(0, "Name")
-	online_tree.set_column_title(1, "Job")
-	online_tree.set_column_title(2, "Level")
-
-	offline_tree.set_column_titles_visible(true)
-	offline_tree.set_column_title(0, "Name")
-	offline_tree.set_column_title(1, "Job")
-	offline_tree.set_column_title(2, "Level")
+	for tree in [online_tree, offline_tree]:
+		tree.set_column_titles_visible(true)
+		tree.set_column_title(0, "Name")
+		tree.set_column_title(1, "Job")
+		tree.set_column_title(2, "Level")
+		tree.set_column_title(3, "Map")
+		# Name and Map carry the long strings; Job/Level stay compact.
+		tree.set_column_expand_ratio(0, 3)
+		tree.set_column_expand_ratio(1, 2)
+		tree.set_column_expand_ratio(2, 1)
+		tree.set_column_expand_ratio(3, 3)
 
 # --- Button Callbacks ---
 func _on_create_party_button_pressed():
@@ -223,6 +222,7 @@ func _update_party_display():
 			
 			var level: int
 			var player_class: String
+			var member_map: String
 
 			# Presence: the host can resolve every node (it scans all maps), but
 			# a CLIENT only has its own loaded map — a cross-map ally's node is
@@ -235,6 +235,7 @@ func _update_party_display():
 				level = 1
 				player_class = "N/A"
 				is_online = player_node != null
+				member_map = MapManager._map_display_name(MapManager.get_player_map(member_id))
 				if player_node:
 					if player_node.level_component:
 						level = player_node.level_component.level
@@ -246,6 +247,7 @@ func _update_party_display():
 				level = member_info.get("level", 1)
 				player_class = member_info.get("class_name", "N/A")
 				is_online = member_info.get("is_online", true)
+				member_map = member_info.get("map", "")
 
 			if is_online: # Player is online
 				var item = online_tree.create_item(root_online)
@@ -255,6 +257,7 @@ func _update_party_display():
 				item.set_text(0, display_name)
 				item.set_text(1, player_class)
 				item.set_text(2, str(level))
+				item.set_text(3, member_map)
 				item.set_text_alignment(2, HORIZONTAL_ALIGNMENT_CENTER)
 				item.set_metadata(0, member_id)
 				online_members_count += 1
@@ -267,6 +270,7 @@ func _update_party_display():
 				item.set_text(0, display_name)
 				item.set_text(1, player_class)
 				item.set_text(2, str(level))
+				item.set_text(3, "")
 				item.set_text_alignment(2, HORIZONTAL_ALIGNMENT_CENTER)
 				item.set_metadata(0, member_id)
 
@@ -295,6 +299,3 @@ func _update_party_display():
 	party_leader_button.disabled = not is_leader
 	
 	show_hp_button.disabled = not is_in_party
-	whisper_button.disabled = not is_in_party
-	chat_button.disabled = not is_in_party
-	search_button.disabled = is_in_party

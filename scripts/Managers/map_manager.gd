@@ -607,6 +607,10 @@ func _reparent_peer_to_map(peer_id: int, old_map_id: String, new_map_id: String,
 		broadcast_player_appearance(peer_id)
 		BotManager.handle_bot_reparented(peer_id)
 
+	# Party members see each other's current map in the party window — push
+	# fresh member data after a reparent hop too (bots travel constantly).
+	PartyManager.notify_player_data_changed(peer_id)
+
 	# 9. Wake enemies near the arriver now; re-sleep the lighter old map (ADR 0007).
 	_scan_map_activation(new_map_id)
 	_scan_map_activation(old_map_id)
@@ -707,6 +711,10 @@ func _finalize_player_spawn(player_id: int, map_id: String, spawn_point_name: St
 		while player_id in ids:
 			ids.erase(player_id)
 	active_maps[map_id].player_ids.append(player_id)
+
+	# Party members see each other's current map in the party window — push
+	# fresh member data (map / presence) to the party on every arrival.
+	PartyManager.notify_player_data_changed(player_id)
 	
 	# Sync EXISTING players to the new joiner
 	# The new joiner needs to know about everyone else already on the map
