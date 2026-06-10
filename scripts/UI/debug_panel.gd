@@ -473,8 +473,8 @@ func _register_commands() -> void:
 	_register("revive", "revive [@target]", _cmd_revive, _complete_target_first)
 	_register("level", "level [@target] [n] — no n: +1 level", _cmd_level, _complete_target_first)
 	_register("mastery", "mastery [@target] <sword|bow|staff|dagger|0-3> [n=1] — grants enough XP to level that discipline's mastery N times.", _cmd_mastery, _complete_mastery)
-	_register("upgrade", "upgrade list | upgrade buy <upgrade_id> — PR 6 ability-upgrade testing (host-only).", _cmd_upgrade)
-	_register("respec", "respec <sword|bow|staff|dagger|all> — refund a discipline's spent ability points + upgrades (host-only).", _cmd_respec, _complete_mastery)
+	_register("upgrade", "upgrade list | upgrade buy <upgrade_id> — PR 6 ability-upgrade testing (host-only).", _cmd_upgrade, _complete_upgrade)
+	_register("respec", "respec <sword|bow|staff|dagger|all> — refund a discipline's spent ability points + upgrades (host-only).", _cmd_respec, _complete_respec)
 	_register("give", "give [@target] <item_name> [count=1]", _cmd_give, _complete_give)
 	_register("gold", "gold [@target] <amount> — negative subtracts", _cmd_gold, _complete_target_first)
 	_register("tp", "tp [@target] <map> | tp [@target] <x> <y>", _cmd_tp, _complete_tp)
@@ -490,7 +490,7 @@ func _register_commands() -> void:
 	_register("watch-bot", "watch-bot <id|name|off> — camera-follow a bot. Host-only.", _cmd_watch_bot, _complete_bot_target)
 	_register("navdraw", "Toggle the nav overlay; 'navdraw [graph|paths|info] [on|off]' for sub-layers.", _cmd_navdraw, _complete_navdraw)
 	_register("bot", "Bot subcommands (spawn, despawn, list, ...). Host-only.", _cmd_bot, _complete_bot_args)
-	_register("quest", "Quest subcommands. Host-only.", _cmd_quest)
+	_register("quest", "Quest subcommands (list, accept, progress, abandon, track). Host-only.", _cmd_quest, _complete_quest_args)
 	_register("zone", "zone [name] — list/spawn a ground-zone for visual inspection (no damage). Host-only.", _cmd_zone, _complete_zone_args)
 
 
@@ -1269,6 +1269,46 @@ func _complete_give(prior_args: PackedStringArray, _t: String) -> PackedStringAr
 	return PackedStringArray()
 
 
+## Completer for 'upgrade' — list/buy, then upgrade ids for buy.
+func _complete_upgrade(prior_args: PackedStringArray, _t: String) -> PackedStringArray:
+	if prior_args.is_empty():
+		return PackedStringArray(["list", "buy"])
+	if prior_args[0].to_lower() == "buy" and prior_args.size() == 1:
+		var out: PackedStringArray = []
+		if "ability_data" in ResourceManager:
+			for ability_id in ResourceManager.ability_data:
+				var ability: AbilityData = ResourceManager.ability_data[ability_id]
+				if ability == null or ability.upgrades == null:
+					continue
+				for up in ability.upgrades:
+					if up != null:
+						out.append(up.upgrade_id)
+		out.sort()
+		return out
+	return PackedStringArray()
+
+
+## Completer for 'respec' — disciplines plus 'all' (no @target: self-only).
+func _complete_respec(prior_args: PackedStringArray, _t: String) -> PackedStringArray:
+	if not prior_args.is_empty():
+		return PackedStringArray()
+	return PackedStringArray(["sword", "bow", "staff", "dagger", "all"])
+
+
+## Completer for 'quest' — subcommands, then quest ids where one is expected.
+func _complete_quest_args(prior_args: PackedStringArray, _t: String) -> PackedStringArray:
+	if prior_args.is_empty():
+		return PackedStringArray(["list", "accept", "progress", "abandon", "track"])
+	if prior_args.size() == 1 and prior_args[0].to_lower() in ["accept", "abandon", "track"]:
+		var out: PackedStringArray = []
+		if "_quests" in QuestManager:
+			for quest_id in QuestManager._quests:
+				out.append(quest_id)
+		out.sort()
+		return out
+	return PackedStringArray()
+
+
 ## Completer for 'tp' — @target candidates or map IDs as the first arg.
 func _complete_tp(prior_args: PackedStringArray, _t: String) -> PackedStringArray:
 	if prior_args.is_empty():
@@ -1289,11 +1329,14 @@ func _complete_item_name(_p: PackedStringArray, _t: String) -> PackedStringArray
 
 
 func _map_id_candidates() -> PackedStringArray:
+	# MAP_SCENES is the canonical map registry — the previous probes
+	# (get_all_map_ids() / a `maps` property) matched nothing, so every map
+	# completion silently returned empty.
 	var out: PackedStringArray = []
-	if MapManager.has_method("get_all_map_ids"):
-		out = MapManager.get_all_map_ids()
-	elif "maps" in MapManager:
-		out = PackedStringArray(MapManager.maps.keys())
+	if "MAP_SCENES" in MapManager:
+		for map_id in MapManager.MAP_SCENES:
+			out.append(map_id)
+	out.sort()
 	return out
 
 
@@ -1345,15 +1388,23 @@ func _complete_bot_args(prior_args: PackedStringArray, _t: String) -> PackedStri
 	var sub: String = prior_args[0].to_lower()
 	match sub:
 		"spawn":
+			if prior_args.size() == 1:
+				return PackedStringArray(["random"])
 			if prior_args.size() == 2:
 				var out: PackedStringArray = []
 				for c in SPAWN_CLASSES: out.append(c)
 				return out
-			return PackedStringArray(["random"]) if prior_args.size() == 1 else PackedStringArray()
-		"despawn", "set_level", "teleport", "watch", "stats", "inspect", "trade", "navgraph", "navpath":
-			var out: PackedStringArray = []
-			for bot_id in BotManager.active_bots:
-				out.append(str(bot_id))
+			if prior_args.size() == 3:
+				return _map_id_candidates()
+			return PackedStringArray()
+		"teleport":
+			if prior_args.size() == 1:
+				return _bot_name_candidates()
+			if prior_args.size() == 2:
+				return _map_id_candidates()
+			return PackedStringArray()
+		"despawn", "set_level", "watch", "stats", "inspect", "trade", "navgraph", "navpath":
+			var out: PackedStringArray = _bot_name_candidates()
 			if sub == "watch": out.append("off")
 			return out
 		"personality", "say", "emote", "rep", "follow", "stay", "free":
@@ -1370,9 +1421,20 @@ func _complete_bot_args(prior_args: PackedStringArray, _t: String) -> PackedStri
 					return PackedStringArray(["greet", "level_up", "death", "rare_loot",
 						"boss_kill", "boss_engage", "party_join", "retreat", "gear_upgrade",
 						"reply", "grats"])
+				"rep":
+					var players: PackedStringArray = []
+					for pid in PlayerManager.active_players:
+						if not BotManager.is_bot(pid):
+							var pname: String = PlayerManager.active_players[pid].get("username", "")
+							if not pname.is_empty(): players.append(pname)
+					return players
 			return PackedStringArray()
 		"roster":
-			return PackedStringArray(["forget"])
+			if prior_args.size() == 1:
+				return PackedStringArray(["forget"])
+			if prior_args.size() == 2 and prior_args[1].to_lower() == "forget":
+				return PackedStringArray(BotManager.get_roster().keys())
+			return PackedStringArray()
 		"churn":
 			return PackedStringArray(["status", "on", "off", "now"])
 		"party":
@@ -1532,10 +1594,11 @@ func _cmd_zone(args: Array) -> String:
 	return "[color=#9fd]Spawned %s zone (%s, %.1fs)[/color] at your feet for inspection." % [zone_name, dim_label, float(cfg["duration"])]
 
 
-func _complete_zone_args(line: String, _word: String) -> PackedStringArray:
-	# Suggest catalog names for the first arg, nothing past that.
-	var tokens := line.split(" ", false)
-	if tokens.size() > 2:
+func _complete_zone_args(prior_args: PackedStringArray, _t: String) -> PackedStringArray:
+	# Suggest catalog names for the first arg, nothing past that. (Previously
+	# declared with a String first param while the dispatcher passes a
+	# PackedStringArray — completing past 'zone ' errored instead of suggesting.)
+	if not prior_args.is_empty():
 		return PackedStringArray()
 	var out: PackedStringArray = PackedStringArray()
 	for n in ZONE_CATALOG.keys():
