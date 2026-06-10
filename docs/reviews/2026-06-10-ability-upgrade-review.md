@@ -145,6 +145,25 @@ Carried over from `tools/upgrade_audit_report.py`'s own notes: any future passiv
 `on_damaged_proc` will silently never fire. Add the dispatch or a loud assert before
 authoring content against it.
 
+## Status update (2026-06-10, later the same day)
+
+All findings below were addressed on `feat/weapon-identity-overhaul`
+(commits `18964d55`, `d7479337`, `5f03bd47`, `860509f1`):
+
+1. **Fixed** — Bow gained Gale Pierce (path B depth 5), the Momentum-builder
+   counterpart to Sundering Arrow; Bow now matches the other disciplines'
+   13 actives / 88 upgrade points.
+2. **Fixed** — each of the 15 numeric-only T3 trios now has at least one
+   behavior-changing variant wired to its weapon's identity system.
+3. **Fixed** — Bulwark Stance's T3s are now Counter Stance (reflect) /
+   Immovable (damage reduction) / Unyielding Vigil (no MP drain).
+4. **Fixed** — 62 drifted upgrade files renamed to their owners' prefixes.
+5. **Fixed** — "Assassinate"/"Backstab"/"Overload" upgrade-name collisions
+   renamed away.
+6. **Fixed** — `bonus_damage_bonus` → `bonus_mark_damage`.
+7. Open — `on_damaged` proc still has no dispatch site (unchanged; noted in
+   `tools/upgrade_audit_report.py`).
+
 ## Suggested order of attack
 
 1. Decide Bow's 13th active (or document the 12+Momentum tradeoff). — finding 1
