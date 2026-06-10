@@ -72,10 +72,16 @@ var _duo_active: bool = false
 var _duo_pair_key: String = ""  # canonical "sword_staff" order: sword/bow/staff/dagger
 var _duo_last_refresh_ms: int = -1000000
 var _duo_swap_ready_at_ms: int = 0
-## sword_staff swap trigger: the next stance imbue fires twice.
+## sword_staff swap-to-SWORD trigger: the next stance imbue fires twice.
 var _ss_double_imbue: bool = false
-## staff_dagger swap trigger: the next poison imbue applies double stacks.
+## sword_staff swap-to-STAFF trigger: the next spell's combo-spend pays double.
+var _ss_spell_spend_double: bool = false
+## bow_staff swap-to-STAFF trigger: the next spell's Momentum ride is doubled.
+var _bs_ride_double: bool = false
+## staff_dagger swap-to-STAFF trigger: the next poison imbue applies double stacks.
 var _venom_double_next: bool = false
+## staff_dagger swap-to-DAGGER trigger: the next ambush carries the stance twice.
+var _sd_ambush_imbue_double: bool = false
 ## sword_bow duo standing: every 3rd bow hit banks an extra combo point.
 var _sb_hit_count: int = 0
 
@@ -113,31 +119,39 @@ func on_weapon_state_changed(active_discipline: int, equipped_disciplines: Array
 func on_owner_died() -> void:
 	_bd_charge = 0
 	_ss_double_imbue = false
+	_ss_spell_spend_double = false
+	_bs_ride_double = false
 	_venom_double_next = false
+	_sd_ambush_imbue_double = false
 	_sb_hit_count = 0
 
 
 ## The duo's on-swap beat. Effects are deliberately small and immediate —
 ## the swap button becomes a rotation beat (GW2 sigil pattern), bounded by
-## the 8s internal cooldown.
+## the 8s internal cooldown. DIRECTION-AWARE: the reward always lands on the
+## weapon you arrive on, in that weapon's own currency (sword → combo,
+## bow → Momentum, dagger → stealth / ambush buffer, staff → an empowered
+## next spell), so neither side of a pair is the "donor" on swap.
 func _fire_duo_swap_trigger(owner_node: Node, active_discipline: int) -> void:
 	match _duo_pair_key:
 		"sword_staff":
-			# Emberblade — the swap discharges the stance: the next stance
-			# imbue from this pair fires twice.
-			_ss_double_imbue = true
+			# Emberblade — to the SWORD: the next stance imbue strikes twice;
+			# to the STAFF: the next spell's combo-spend pays double.
+			if active_discipline == STAFF:
+				_ss_spell_spend_double = true
+			else:
+				_ss_double_imbue = true
 			_proc(owner_node, "sword_staff")
 		"sword_bow":
-			# Skirmisher's Rhythm — the swap banks 2 combo points (combo
-			# persists whichever of the pair is wielded).
-			var combo = owner_node.get("sword_combo_component")
-			if combo != null and is_instance_valid(combo) and combo.has_method("add_combo_point"):
-				combo.add_combo_point()
-				combo.add_combo_point()
-				_proc(owner_node, "sword_bow")
+			# Skirmisher's Rhythm — to the SWORD: bank 2 combo points;
+			# to the BOW: gain 3 Momentum stacks.
+			if active_discipline == BOW:
+				_grant_momentum(owner_node, 3, "sword_bow")
+			else:
+				_grant_combo(owner_node, 2, "sword_bow")
 		"sword_dagger":
-			# Blade Dancer's Oath — swapping TO the dagger melds into shadow;
-			# swapping TO the sword banks 2 combo points.
+			# Blade Dancer's Oath — to the DAGGER: meld into shadow;
+			# to the SWORD: bank 2 combo points.
 			if active_discipline == DAGGER:
 				var shadow = owner_node.get("shadowmeld_component")
 				if shadow != null and is_instance_valid(shadow) and shadow.has_method("toggle_shadowmeld"):
@@ -149,25 +163,48 @@ func _fire_duo_swap_trigger(owner_node: Node, active_discipline: int) -> void:
 						shadow.call_deferred("toggle_shadowmeld")
 						_proc(owner_node, "sword_dagger")
 			else:
-				var combo = owner_node.get("sword_combo_component")
-				if combo != null and is_instance_valid(combo) and combo.has_method("add_combo_point"):
-					combo.add_combo_point()
-					combo.add_combo_point()
-					_proc(owner_node, "sword_dagger")
+				_grant_combo(owner_node, 2, "sword_dagger")
 		"bow_staff":
-			# Galecaller — the swap stirs the wind: +4 Momentum stacks.
-			var bm = owner_node.get("bow_momentum_component")
-			if bm != null and is_instance_valid(bm) and bm.has_method("add_momentum"):
-				bm.add_momentum(4)
+			# Galecaller — to the BOW: gain 4 Momentum; to the STAFF: the
+			# next spell's Momentum ride is doubled.
+			if active_discipline == STAFF:
+				_bs_ride_double = true
 				_proc(owner_node, "bow_staff")
+			else:
+				_grant_momentum(owner_node, 4, "bow_staff")
 		"bow_dagger":
-			# Veiled Quarry — the swap charges the ambush buffer.
-			_bd_charge = mini(DUO_BD_CHARGE_CAP, _bd_charge + 4)
-			_proc(owner_node, "bow_dagger")
+			# Veiled Quarry — to the DAGGER: the ambush buffer charges +4;
+			# to the BOW: gain 3 Momentum.
+			if active_discipline == BOW:
+				_grant_momentum(owner_node, 3, "bow_dagger")
+			else:
+				_bd_charge = mini(DUO_BD_CHARGE_CAP, _bd_charge + 4)
+				_proc(owner_node, "bow_dagger")
 		"staff_dagger":
-			# Venomweave — the next poison imbue applies double stacks.
-			_venom_double_next = true
+			# Venomweave — to the STAFF: the next poison imbue applies double
+			# stacks; to the DAGGER: the next ambush carries the stance twice.
+			if active_discipline == DAGGER:
+				_sd_ambush_imbue_double = true
+			else:
+				_venom_double_next = true
 			_proc(owner_node, "staff_dagger")
+
+
+func _grant_combo(owner_node: Node, n: int, pair_key: String) -> void:
+	var combo = owner_node.get("sword_combo_component")
+	if combo == null or not is_instance_valid(combo) or not combo.has_method("add_combo_point"):
+		return
+	for _i in range(n):
+		combo.add_combo_point()
+	_proc(owner_node, pair_key)
+
+
+func _grant_momentum(owner_node: Node, n: int, pair_key: String) -> void:
+	var bm = owner_node.get("bow_momentum_component")
+	if bm == null or not is_instance_valid(bm) or not bm.has_method("add_momentum"):
+		return
+	bm.add_momentum(n)
+	_proc(owner_node, pair_key)
 
 
 ## Re-derive whether the equipped pair's duo is unlocked (rate-limited; weapon
@@ -305,9 +342,15 @@ func _imbue_with_stance(owner_node: Node, target: Node, hit_damage: int, pair_ke
 	if staff == null or not is_instance_valid(staff) or not staff.has_method("apply_element_on_hit"):
 		return
 	staff.apply_element_on_hit(owner_node, target, hit_damage)
-	# Emberblade duo swap trigger: the post-swap imbue discharges twice.
+	# Emberblade duo swap trigger (to the sword): the post-swap imbue
+	# discharges twice.
 	if _ss_double_imbue and pair_key == "sword_staff":
 		_ss_double_imbue = false
+		staff.apply_element_on_hit(owner_node, target, hit_damage)
+	# Venomweave duo swap trigger (to the dagger): the post-swap ambush
+	# carries the stance element twice.
+	if _sd_ambush_imbue_double and pair_key == "staff_dagger":
+		_sd_ambush_imbue_double = false
 		staff.apply_element_on_hit(owner_node, target, hit_damage)
 	_proc(owner_node, pair_key)
 
@@ -334,6 +377,11 @@ func _spend_combo_for_bonus(owner_node: Node, target: Node, hit_damage: int, mul
 		return
 	if combo.has_method("spend_combo"):
 		combo.spend_combo()
+	# Emberblade duo swap trigger (to the staff): the post-swap spell's
+	# combo-spend pays double. Consumed only when a spend actually happens.
+	if _ss_spell_spend_double and pair_key == "staff_sword":
+		_ss_spell_spend_double = false
+		mult *= 2.0
 	_deal_bonus(owner_node, target, maxi(1, roundi(hit_damage * n * mult)))
 	_proc(owner_node, pair_key)
 
@@ -365,6 +413,11 @@ func _spell_ride_momentum(owner_node: Node, target: Node, hit_damage: int, ride_
 	var bm = owner_node.get("bow_momentum_component")
 	if bm == null or not is_instance_valid(bm) or not bm.has_method("get_damage_bonus"):
 		return
+	# Galecaller duo swap trigger (to the staff): the post-swap spell's ride
+	# is doubled. Consumed only when a ride actually pays out.
+	if _bs_ride_double and bm.get_damage_bonus() > 0.0:
+		_bs_ride_double = false
+		ride_mult *= 2.0
 	var bonus_frac: float = bm.get_damage_bonus() * ride_mult
 	if bonus_frac <= 0.0:
 		return

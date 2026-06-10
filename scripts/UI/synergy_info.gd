@@ -43,7 +43,7 @@ const DATA := {
 		],
 		"duo": {
 			"name": "EMBERBLADE",
-			"swap": "Your next stance imbue strikes twice.",
+			"swap": "To the sword: your next stance imbue strikes TWICE. To the staff: your next spell's Combo-spend pays DOUBLE.",
 			"standing": "Your BASIC sword hits also carry the stance element (not just abilities).",
 		},
 	},
@@ -58,7 +58,7 @@ const DATA := {
 		],
 		"duo": {
 			"name": "GALECALLER",
-			"swap": "Gain 4 Momentum stacks on the spot.",
+			"swap": "To the bow: gain 4 Momentum. To the staff: your next spell's Momentum ride is DOUBLED.",
 			"standing": "Spells riding your Momentum pay 1.5× the usual bonus.",
 		},
 	},
@@ -73,7 +73,7 @@ const DATA := {
 		],
 		"duo": {
 			"name": "VENOMWEAVE",
-			"swap": "Your next poison imbue applies DOUBLE stacks.",
+			"swap": "To the staff: your next poison imbue applies DOUBLE stacks. To the dagger: your next ambush carries the stance element TWICE.",
 			"standing": "The pair's poison imbue stacks to 8 (up from 5).",
 		},
 	},
@@ -88,7 +88,7 @@ const DATA := {
 		],
 		"duo": {
 			"name": "SKIRMISHER'S RHYTHM",
-			"swap": "Bank 2 Sword Combo points instantly.",
+			"swap": "To the sword: bank 2 Combo points. To the bow: gain 3 Momentum.",
 			"standing": "Every 3rd bow hit banks an EXTRA Combo point.",
 		},
 	},
@@ -103,7 +103,7 @@ const DATA := {
 		],
 		"duo": {
 			"name": "BLADE DANCER'S OATH",
-			"swap": "Swap to the dagger: meld into shadow. Swap to the sword: bank 2 Combo points.",
+			"swap": "To the dagger: meld into shadow. To the sword: bank 2 Combo points.",
 			"standing": "Ambush combo-spend pays 75% per point (up from 50%).",
 		},
 	},
@@ -118,7 +118,7 @@ const DATA := {
 		],
 		"duo": {
 			"name": "VEILED QUARRY",
-			"swap": "The ambush buffer charges +4 from the swap itself.",
+			"swap": "To the dagger: the ambush buffer charges +4. To the bow: gain 3 Momentum.",
 			"standing": "Buffer cap raised to 15 (up from 10).",
 		},
 	},
