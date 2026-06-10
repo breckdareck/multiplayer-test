@@ -163,4 +163,12 @@ static func tooltip_bbcode(pair_key: String, duo_unlocked: bool = false, duo_pro
 			if duo_progress != "":
 				out += "  (%s)" % duo_progress
 			out += "[/color]"
+
+	# Element reactions (ADR 0013 escalation rules) — global, always active,
+	# any participant's statuses count. Taught here because the synergy widget
+	# is the cross-weapon surface; the applier abilities carry matching hints.
+	out += "\n\n[color=%s][b]ELEMENT REACTIONS[/b] (always active, any source's status):[/color]" % DUO_COLOR
+	out += "\n[color=%s]• Chill + Burn → [b]Thermal Shock[/b]: detonates the burn in one burst (consumes both)." % BODY_COLOR
+	out += "\n• Poison onto a Bleeding enemy → [b]Septic[/b]: that poison ticks 50 percent harder."
+	out += "\n• 5+ Bleed stacks on a Marked enemy → [b]Brittle[/b]: shatters the mark — the next hit is a guaranteed crit.[/color]"
 	return out

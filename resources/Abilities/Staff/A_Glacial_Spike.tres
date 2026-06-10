@@ -78,7 +78,7 @@ metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
 script = ExtResource("2_icst1")
 ability_id = "9315195116108-10180-11141197-8591-12491086711491459"
 ability_name = "Glacial Spike"
-description = "Drives a spike of jagged ice into $[target_count] enemy, dealing $[damage_percent] magic damage. A heavy, deliberate strike."
+description = "Drives a spike of jagged ice into $[target_count] enemy, dealing $[damage_percent] magic damage. A heavy, deliberate strike. [color=#ffb36b]Reaction — chilling a BURNING enemy (or burning a CHILLED one) triggers a Thermal Shock burst.[/color]"
 ability_icon = ExtResource("1_l2dqg")
 max_level = 10
 damage_stat = 13

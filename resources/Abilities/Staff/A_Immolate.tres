@@ -77,7 +77,7 @@ metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
 script = ExtResource("2_im1")
 ability_id = "21851410120052-9143-1011311-4101-1413111411105180"
 ability_name = "Immolate"
-description = "Hurls a searing bolt at one enemy for $[damage_percent] magic damage. [color=#e6915c]Sets a stacking Burn (max 3 stacks) — each stack deals 18% Magic Attack/s for 6 seconds.[/color]"
+description = "Hurls a searing bolt at one enemy for $[damage_percent] magic damage. [color=#e6915c]Sets a stacking Burn (max 3 stacks) — each stack deals 18% Magic Attack/s for 6 seconds.[/color] [color=#ffb36b]Reaction — chilling a BURNING enemy (or burning a CHILLED one) triggers a Thermal Shock burst.[/color]"
 ability_icon = ExtResource("1_im1")
 max_level = 10
 damage_stat = 13
