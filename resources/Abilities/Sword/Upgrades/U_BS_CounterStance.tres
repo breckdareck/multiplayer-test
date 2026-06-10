@@ -4,11 +4,11 @@
 
 [resource]
 script = ExtResource("1_aud")
-upgrade_id = "bs_t3_indomitable"
-upgrade_name = "Indomitable"
-description = "Bulwark Stance lasts 20 seconds longer."
+upgrade_id = "bs_t3_counter_stance"
+upgrade_name = "Counter Stance"
+description = "While Bulwark Stance holds, 20% of the damage you take is reflected back at the attacker."
 point_cost = 2
 tier = 3
 variant_group = "bs_variant"
-effect_key = "buff_duration_bonus"
+effect_key = "stance_reflect"
 magnitude = 20.0

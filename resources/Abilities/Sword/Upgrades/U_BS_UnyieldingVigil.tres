@@ -4,11 +4,11 @@
 
 [resource]
 script = ExtResource("1_aud")
-upgrade_id = "bs_t3_iron_will"
-upgrade_name = "Iron Will"
-description = "Reduces Bulwark Stance's mana cost by 8."
+upgrade_id = "bs_t3_unyielding_vigil"
+upgrade_name = "Unyielding Vigil"
+description = "Bulwark Stance no longer drains MP."
 point_cost = 2
 tier = 3
 variant_group = "bs_variant"
-effect_key = "mana_flat_reduction"
-magnitude = 8.0
+effect_key = "stance_no_drain"
+magnitude = 1.0

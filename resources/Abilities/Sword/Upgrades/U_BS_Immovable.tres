@@ -4,11 +4,11 @@
 
 [resource]
 script = ExtResource("1_aud")
-upgrade_id = "bs_t3_quick_brace"
-upgrade_name = "Quick Brace"
-description = "Reduces Bulwark Stance's cooldown by 5 seconds."
+upgrade_id = "bs_t3_immovable"
+upgrade_name = "Immovable"
+description = "While Bulwark Stance holds, you take 15% less damage."
 point_cost = 2
 tier = 3
 variant_group = "bs_variant"
-effect_key = "cooldown_flat_reduction"
-magnitude = 5.0
+effect_key = "stance_damage_reduction"
+magnitude = 0.15

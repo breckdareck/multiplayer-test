@@ -41,3 +41,14 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 	var defense: float = _ability.get_custom_value("defense", _level_stats.level, DEFENSE_AT_MAX)
 	if buff_component.has_method("scale_buff_stat"):
 		buff_component.scale_buff_stat("Bulwark Stance", Constants.StatType.DEFENSE, defense)
+
+	# T3 variants — stamp the owned variant's parameters onto the buff's logic
+	# instance (the Iron Riposte idiom: AL reads upgrades once at cast, BL acts
+	# on plain fields). All three share the bs_variant mutex group, so at most
+	# one is non-zero.
+	var active_buff = buff_component._active_buffs.get("Bulwark Stance")
+	if active_buff and active_buff.custom_logic_instance and ability_comp and ability_comp.has_method("get_ability_upgrade_magnitude"):
+		var bl = active_buff.custom_logic_instance
+		bl.reflect_percentage = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "stance_reflect")
+		bl.damage_reduction = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "stance_damage_reduction")
+		bl.mp_drain_disabled = ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "stance_no_drain") > 0.0
