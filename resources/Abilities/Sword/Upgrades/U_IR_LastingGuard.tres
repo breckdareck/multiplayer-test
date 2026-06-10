@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_aud")
 upgrade_id = "pg_t2_lasting_guard"
-upgrade_name = "Lasting Guard"
-description = "Iron Riposte lasts 5 seconds longer."
+upgrade_name = "Lingering Dread"
+description = "Enemies stay weakened 3 seconds longer."
 tier = 2
-effect_key = "buff_duration_bonus"
-magnitude = 5.0
+effect_key = "weaken_duration_bonus"
+magnitude = 3.0

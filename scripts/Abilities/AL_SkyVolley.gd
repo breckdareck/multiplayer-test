@@ -115,8 +115,8 @@ func _build_momentum(owner_node: Node, _enemy: Node) -> void:
 	# Marking Volley (T3): tag each enemy hit with a short Hunter's Mark so the
 	# next momentum-spender (Snipe / Sundering Arrow) auto-crits it.
 	if _applies_mark and is_instance_valid(_enemy) and _enemy is EnemyBase:
-		# Matches AL_MarkOfTheHunt.MARK_META / MARK_DURATION (8s).
-		var expire_at_ms: int = Time.get_ticks_msec() + 8000
+		# Matches AL_MarkOfTheHunt.MARK_META / MARK_DURATION (12s).
+		var expire_at_ms: int = Time.get_ticks_msec() + 12000
 		_enemy.set_meta("hunters_mark_remaining", expire_at_ms)
 
 	# Rate limit: at most 1 momentum build per second of held channel.

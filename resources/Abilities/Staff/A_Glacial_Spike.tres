@@ -39,7 +39,7 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_icst3"]
 script = ExtResource("6_icst1")
-base_value = 6.0
+base_value = 4
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_icst4"]

@@ -1,10 +1,9 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=24 format=3 uid="uid://bj44mdaqov8t"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://bj44mdaqov8t"]
 
 [ext_resource type="Texture2D" uid="uid://b1rrm6osdo2pu" path="res://assets/sprites/Abilities/generated_px/Sword/A_Iron_Riposte.png" id="1_26017"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_26017"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_rxk8e"]
-[ext_resource type="Script" uid="uid://doiljfws248yw" path="res://scripts/Abilities/AL_IronRiposte.gd" id="2_u0dcv"]
-[ext_resource type="Resource" uid="uid://exhase0djcpt" path="res://resources/Buffs/B_Iron_Riposte.tres" id="4_124qu"]
+[ext_resource type="Script" path="res://scripts/Abilities/AL_ChallengingShout.gd" id="2_u0dcv"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="6_jrmpn"]
 [ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="7_b8raq"]
 [ext_resource type="Script" uid="uid://bx4thfjsjclbw" path="res://scripts/Resources/AbilitySystem/StatBonusFormula.gd" id="8_cm1ky"]
@@ -15,17 +14,18 @@
 [ext_resource type="Resource" uid="uid://pgu4eternal" path="res://resources/Abilities/Sword/Upgrades/U_IR_EternalGuard.tres" id="14_eg"]
 [ext_resource type="Resource" uid="uid://dunjl8nqmvrej" path="res://resources/Abilities/Sword/Upgrades/U_IR_EfficientGuard.tres" id="15_ef"]
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_shout"]
+size = Vector2(240, 90)
+
 [sub_resource type="Resource" id="Resource_1gbs7"]
 script = ExtResource("2_rxk8e")
-sfx_path = "res://assets/sounds/generated/sword_guard.wav"
+target_type = 1
+hit_box_shape_data = SubResource("RectangleShape2D_shout")
+hit_box_position_data = Vector2(0, -25)
+animation_name = "attack_1"
+sfx_path = "res://assets/sounds/generated/sword_warcry.wav"
 logic_script = ExtResource("2_u0dcv")
 metadata/_custom_type_script = "uid://1raaatfhww5y"
-
-[sub_resource type="Resource" id="Resource_ddpfy"]
-script = ExtResource("6_jrmpn")
-base_value = 12.0
-per_level = 1.0
-metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_b2sp4"]
 script = ExtResource("6_jrmpn")
@@ -33,19 +33,19 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_346sf"]
 script = ExtResource("6_jrmpn")
-base_value = 25.0
+base_value = 20.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_dgn0w"]
 script = ExtResource("6_jrmpn")
-base_value = 12.0
-per_level = 4.0
+base_value = 60.0
+per_level = 6.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_jojv8"]
 script = ExtResource("6_jrmpn")
-base_value = 18.0
-per_level = 2.0
+base_value = 10.0
+per_level = 0.5
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_rt43a"]
@@ -55,7 +55,7 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_exyov"]
 script = ExtResource("6_jrmpn")
-base_value = 1.0
+base_value = 6.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_qc0ct"]
@@ -71,9 +71,8 @@ metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
 [resource]
 script = ExtResource("2_26017")
 ability_id = "32121111002-711613-1312210-11605-410115144314331013"
-ability_name = "Iron Riposte"
-description = "Reflects $[damage_percent] of damage taken back to attackers for $[buff_duration].
-Cannot reflect more than half of the enemy's Max HP at once."
+ability_name = "Challenging Shout"
+description = "A thunderous war-shout: deals $[damage_percent] damage to up to $[target_count] nearby enemies. [color=#9ad7ff]Struck enemies deal 15% LESS damage for 6 seconds.[/color]"
 ability_icon = ExtResource("1_26017")
 max_level = 10
 required_class = Array[int]([0])
@@ -82,7 +81,5 @@ tree_path = 0
 tree_depth = 1
 upgrades = Array[ExtResource("10_aud")]([ExtResource("11_qr"), ExtResource("12_lg"), ExtResource("13_sb"), ExtResource("14_eg"), ExtResource("15_ef")])
 active_behavior = SubResource("Resource_1gbs7")
-applies_buff = ExtResource("4_124qu")
-buff_duration_formula = SubResource("Resource_ddpfy")
 scaling_data = SubResource("Resource_qc0ct")
 metadata/_custom_type_script = "uid://b8y62rc8nb40j"

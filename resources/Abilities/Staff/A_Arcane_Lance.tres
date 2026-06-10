@@ -44,8 +44,8 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_ln4"]
 script = ExtResource("6_ln1")
-base_value = 50.0
-per_level = 4.0
+base_value = 35.0
+per_level = 2.8
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_ln5"]
@@ -57,7 +57,7 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 [sub_resource type="Resource" id="Resource_ln6"]
 script = ExtResource("6_ln1")
 base_value = 3.0
-per_level = 0.8
+per_level = 0.334
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_ln7"]

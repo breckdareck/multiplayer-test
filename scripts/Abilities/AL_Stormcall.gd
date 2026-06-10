@@ -27,7 +27,7 @@ const ZONE_SPAWN_OFFSET: float = 140.0  ## px ahead of caster in facing directio
 ## Tick damage = 11% of MAGICATTACK per tick. With 6 ticks across 3s that's
 ## ~66% sustained per enemy who stays the full duration — comparable to
 ## the Pyre Burst pool's ceiling but with a different cast profile.
-const TICK_DAMAGE_PCT: float = 0.11
+const TICK_DAMAGE_PCT: float = 0.14
 
 const ZONE_COLOR: Color = Color(0.55, 0.55, 1.0, 0.38)  ## lightning blue-purple
 ## Chaining Storm (T3): each strike arcs to nearby enemies within this radius.

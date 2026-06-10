@@ -78,7 +78,7 @@ metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
 script = ExtResource("2_diso2")
 ability_id = "4915111511410410111-10180-17141116-8591-12491086711491467"
 ability_name = "Cripple"
-description = "A vicious strike for $[damage_percent] damage that maims $[target_count] enemy, sapping their defense and attack power."
+description = "A vicious strike for $[damage_percent] damage that maims $[target_count] enemy, sapping their defense and attack power. [color=#9ad7ff]Hamstrings the target: 30% slow for 2.5s (CHILL).[/color]"
 ability_icon = ExtResource("1_kjmtn")
 max_level = 10
 required_class = Array[int]([3])
