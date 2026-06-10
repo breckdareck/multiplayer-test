@@ -200,7 +200,10 @@ func _on_player_died(killer: Node) -> void:
 
 
 func _on_leveled_up(new_level: int) -> void:
-	try_speak("level_up", {"level": new_level})
+	# Only when the ding LINE was heard does a neighbor answer it — a grats to
+	# a silent bot level-up would come out of nowhere.
+	if try_speak("level_up", {"level": new_level}):
+		BotManager.queue_grats(bot_id, new_level, true)
 
 
 # --- Personality speech (ADR 0011) -------------------------------------------

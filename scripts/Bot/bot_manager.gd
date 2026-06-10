@@ -616,6 +616,57 @@ func _run_banter(id_a: int, id_b: int, name_a: String, name_b: String) -> void:
 	ChatManager.bot_say(id_b, reply_text)
 
 
+# --- Level-up congratulations (ADR 0012 texture) ---
+
+## How close a bot must be to the leveler to notice the ding.
+const GRATS_RANGE: float = 500.0
+
+## A character leveled up where bots could see it — a nearby bot may answer
+## with a "grats" line. Called from BotBrain._on_leveled_up when a BOT's own
+## level_up line was actually delivered (`spoke` true), and from
+## LevelingComponent for PLAYER dings (the level-up flash + sound are visible
+## map-wide, so a grats needs no preceding chat line).
+func queue_grats(leveler_id: int, level: int, spoke: bool) -> void:
+	if not multiplayer.is_server():
+		return
+	# Sometimes, not every ding — milestone levels always get the cheer.
+	if level % 10 != 0 and randf() < 0.5:
+		return
+	_deliver_grats(leveler_id, level, spoke)
+
+
+func _deliver_grats(leveler_id: int, level: int, spoke: bool) -> void:
+	# After the leveler's own line clears the speech budget (bot levelers), or
+	# a natural beat after the ding (player levelers).
+	var delay: float = ChatManager.BOT_SPEECH_GLOBAL_GAP + randf_range(0.8, 2.2) \
+			if spoke else randf_range(1.5, 3.0)
+	await get_tree().create_timer(delay).timeout
+
+	var leveler := PlayerManager.get_player_node(leveler_id)
+	if not is_instance_valid(leveler):
+		return
+	var map_id := MapManager.get_player_map(leveler_id)
+	if map_id.is_empty():
+		return
+	var candidates: Array = []
+	for bot_id in active_bots:
+		if bot_id == leveler_id:
+			continue
+		if MapManager.get_player_map(bot_id) != map_id:
+			continue
+		var node := PlayerManager.get_player_node(bot_id)
+		if not is_instance_valid(node):
+			continue
+		if node.global_position.distance_to(leveler.global_position) > GRATS_RANGE:
+			continue
+		candidates.append(bot_id)
+	if candidates.is_empty():
+		return
+	var brain := get_bot_brain(candidates.pick_random())
+	if brain != null:
+		brain.try_speak("grats", {"player": leveler.username, "level": level}, true)
+
+
 # --- Cold-start seeding (ADR 0011) ---
 
 ## Flags a bot whose data load found no save row. Called by PlayerManager.add_bot

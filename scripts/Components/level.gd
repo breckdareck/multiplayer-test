@@ -20,6 +20,11 @@ var level:int = 1:
 			AudioManager.play_sfx_for_map(MapManager.get_player_map(get_owner().player_id), "res://assets/sounds/level_up.mp3", get_owner().global_position)
 			# NEW: Notify PartyManager of the level change
 			PartyManager.notify_player_data_changed(get_owner().player_id)
+			# A nearby bot may congratulate a PLAYER's ding (the flash/sound is
+			# visible map-wide). Bot dings route through BotBrain._on_leveled_up
+			# instead, gated on their own level_up line being heard.
+			if not BotManager.is_bot(get_owner().player_id):
+				BotManager.queue_grats(get_owner().player_id, value, false)
 
 var experience = 0:
 	set(value):

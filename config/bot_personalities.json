@@ -173,6 +173,12 @@
           "tactical withdrawal, son. there's a fuckin' difference",
           "right, fallin' back. this ain't over, not by a long fuckin' shot",
           "even I know when to leg it. briefly. shut up"
+        ],
+        "grats": [
+          "oi, {level}? proper fuckin' work, {player}",
+          "grats, son. now do it again",
+          "look at {player} go. lovely jubbly",
+          "{level} already, {player}? the cunts out there should worry"
         ]
       }
     },
@@ -263,6 +269,12 @@
           "{player}, you look like you could use a carry. party?",
           "oi {player}, group with greatness?",
           "{player}! once-in-a-lifetime chance to farm with me"
+        ],
+        "grats": [
+          "grats {player}. still behind me though",
+          "ooh, {level}. cute. gz {player}",
+          "gz {player}, welcome to almost-my-level",
+          "grats! I remember {level}. simpler times"
         ]
       }
     },
@@ -336,6 +348,11 @@
         "party_invite": [
           "group, {player}?",
           "party up?"
+        ],
+        "grats": [
+          "gz",
+          "grats {player}",
+          "nice. {level}"
         ]
       }
     },
@@ -423,6 +440,12 @@
           "hey {player}, hunting alone? I'll watch your flank — party?",
           "{player}, want to team up? safer in pairs out here",
           "got room for one more, {player}? I've got potions to share"
+        ],
+        "grats": [
+          "grats {player}! {level} looks good on you",
+          "ding! congrats {player}",
+          "well earned, {player}. onward and upward",
+          "gz {player}! the grind pays off"
         ]
       }
     },
@@ -507,6 +530,11 @@
           "walking the same road, {player}? might as well walk it together",
           "{player}, company makes the maps shorter. group up?",
           "two sets of eyes beat one out here, {player}. party?"
+        ],
+        "grats": [
+          "grats, {player}. the road levels us all eventually",
+          "{level} already? time moves different out here. gz",
+          "another milestone for {player}. well walked"
         ]
       }
     }
