@@ -1,6 +1,8 @@
 class_name CombatComponent
 extends Node
 
+const EnemyStatus := preload("res://scripts/Gameplay/enemy_status.gd")
+
 signal dealt_damage(target: Node, damage_values: Array, crit_values: Array)
 
 @export var attack_hitbox: CollisionShape2D

@@ -1,5 +1,7 @@
 extends Node
 
+const EnemyStatus := preload("res://scripts/Gameplay/enemy_status.gd")
+
 ## Caltrops — the Bow discipline's fire-and-forget ground-zone. Drops a patch
 ## of caltrops at the caster's feet for 5 seconds. Enemies inside take a small
 ## damage tick every second AND get briefly slowed each tick (so a fast-moving

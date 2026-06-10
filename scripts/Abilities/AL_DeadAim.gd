@@ -2,19 +2,20 @@ extends Node
 
 const EnemyStatus := preload("res://scripts/Gameplay/enemy_status.gd")
 
-## Toxicology (dagger passive) — CONDITIONAL damage: +bonus against POISONED
-## targets. Reads the poison STATUS TAG (ADR 0013), so ANY poison source
-## qualifies — Envenom, Caltrops' Poisoned Spikes T3, the weapon-pair imbue —
-## not just Envenom's own meta key. Class-neutral (stacks from both equipped
-## weapon slots). See AL_Aggression for the contract (returns the bonus
-## FRACTION; combat applies 1 + total).
+## Dead Aim (bow passive) — CONDITIONAL damage: +bonus against CHILLED
+## targets. A slowed mark is an easy mark — reads the chill STATUS TAG
+## (ADR 0013), so ANY slow source qualifies: a staff partner's ice stance /
+## Frost Patch, your own Caltrops, a dagger's Hamstring. Cross-discipline
+## consumer (the tag-consumer economy). Class-neutral (stacks from both
+## equipped weapon slots). See AL_Aggression for the contract (returns the
+## bonus FRACTION; combat applies 1 + total).
 
-const BONUS_AT_MAX: float = 0.30   # +30% at passive level 10 (scales linearly)
+const BONUS_AT_MAX: float = 0.30   # +30% at passive level 5 (scales linearly)
 const MAX_LEVEL: int = 5
 func conditional_damage_mult(_owner: Node, target: Node, level: int, _cast_ability: AbilityData = null, passive_id: String = "") -> float:
 	if not is_instance_valid(target):
 		return 0.0
-	if not EnemyStatus.has_tag(target, EnemyStatus.TAG_POISON):
+	if not EnemyStatus.has_tag(target, EnemyStatus.TAG_CHILL):
 		return 0.0
 	return _level_bonus(passive_id, level)
 

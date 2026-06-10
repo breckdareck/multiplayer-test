@@ -1,6 +1,8 @@
 class_name BleedDot
 extends RefCounted
 
+const EnemyStatus := preload("res://scripts/Gameplay/enemy_status.gd")
+
 ## Shared server-authoritative bleed/poison DOT helper. Extracted from the proven
 ## AL_BarbedShot / AL_Hemorrhage meta-tracking pattern so any ability (Caltrops'
 ## Poisoned Spikes, Mark of the Hunt's Bleeding Mark, Death Mark's bleed variant)

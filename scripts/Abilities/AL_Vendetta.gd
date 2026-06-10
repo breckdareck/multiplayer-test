@@ -1,5 +1,7 @@
 extends Node
 
+const EnemyStatus := preload("res://scripts/Gameplay/enemy_status.gd")
+
 ## Vendetta (dagger active) — POISON SPENDER. Consumes ALL poison stacks on
 ## the target — the whole poison STATUS TAG (ADR 0013): Envenom, Caltrops'
 ## Poisoned Spikes, the weapon-pair imbue, anyone's — and folds a burst into

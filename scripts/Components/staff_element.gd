@@ -1,6 +1,8 @@
 class_name StaffElementComponent
 extends WeaponSignatureComponent
 
+const EnemyStatus := preload("res://scripts/Gameplay/enemy_status.gd")
+
 ## PR 7 — Staff discipline's signature combat system: the ELEMENT STANCE.
 ##
 ## Staff identity: while wielding a STAFF, a key (WeaponSignature) cycles the

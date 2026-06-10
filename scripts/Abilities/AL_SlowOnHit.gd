@@ -1,5 +1,7 @@
 extends Node
 
+const EnemyStatus := preload("res://scripts/Gameplay/enemy_status.gd")
+
 ## Shared upgrade hook — SLOW ON HIT. Attached as the logic_script of abilities
 ## whose T3 variant slows struck enemies (Skyfall's Grounding Fall, Fan of
 ## Knives' Hamstring Fan, ...). on_hit no-ops unless the ability owns an

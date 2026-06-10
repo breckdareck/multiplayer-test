@@ -1,5 +1,7 @@
 extends Node
 
+const EnemyStatus := preload("res://scripts/Gameplay/enemy_status.gd")
+
 ## Frost Patch — the Staff discipline's Ice-flavored ground-zone. A persistent
 ## patch of frost at the caster's feet for 4 seconds. Enemies inside take a
 ## small magic-damage tick every second AND get briefly chilled (50% movement

@@ -1,4 +1,3 @@
-class_name EnemyStatus
 extends RefCounted
 
 ## Status-tag query layer + escalation rules (ADR 0013).
@@ -204,7 +203,7 @@ static func _thermal_shock(target: Node, applier: Node) -> void:
 	if target.has_method("play_dot"):
 		target.play_dot("burn")
 	if was_alive and health_comp.is_dead:
-		BleedDot._credit_kill(applier, target)
+		_credit_kill(applier, target)
 
 
 ## The just-applied poison ticks SEPTIC_MULT harder while the enemy bleeds.
@@ -223,3 +222,31 @@ static func _septic(target: Node, poison_key: String) -> void:
 static func _brittle(target: Node) -> void:
 	if consume_tag(target, TAG_MARK) > 0:
 		target.set_meta(BRITTLE_META, true)
+
+
+## When the Thermal Shock burst downs an enemy, combat.gd._execute_hit never
+## runs — mirror the kill crediting locally (same shape as
+## BleedDot._credit_kill; duplicated to avoid a preload cycle with bleed_dot).
+static func _credit_kill(applier, target: Node) -> void:
+	if applier == null or not is_instance_valid(applier):
+		return
+	if target == null or not is_instance_valid(target):
+		return
+
+	var mastery_comp = applier.get("weapon_mastery_component")
+	var combat_comp = applier.get("combat_component")
+	if mastery_comp and combat_comp and "monster_level" in target and applier.level_component:
+		var kill_xp: int = WeaponMasteryComponent.compute_kill_xp(
+			target.monster_level,
+			applier.level_component.level
+		)
+		var kill_disc: int = combat_comp._active_weapon_discipline()
+		if kill_disc != -1:
+			mastery_comp.grant_mastery_xp_server(kill_disc, kill_xp)
+		var sec_disc: int = combat_comp._secondary_weapon_discipline()
+		if sec_disc != -1 and sec_disc != kill_disc:
+			mastery_comp.grant_mastery_xp_server(sec_disc, kill_xp)
+
+	var ability_comp = applier.get("ability_component")
+	if ability_comp and ability_comp.has_method("dispatch_passive_event_on_kill"):
+		ability_comp.dispatch_passive_event_on_kill(target)

@@ -1,5 +1,7 @@
 extends Node
 
+const EnemyStatus := preload("res://scripts/Gameplay/enemy_status.gd")
+
 ## Envenom — the Dagger discipline's single-target poison-setter. A coated-blade
 ## strike whose on_hit applies (or refreshes and stacks) a poison DOT on the
 ## target. Each stack ticks 20% of the applier's WEAPONATTACK per second for

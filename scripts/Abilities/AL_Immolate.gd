@@ -1,5 +1,7 @@
 extends Node
 
+const EnemyStatus := preload("res://scripts/Gameplay/enemy_status.gd")
+
 ## Immolate — the Staff discipline's single-target burn-setter (projectile). The
 ## bolt's on_hit ignites the target with a stacking burn DOT. Each stack ticks a
 ## fraction of the applier's MAGICATTACK per second. This is the mage analogue of

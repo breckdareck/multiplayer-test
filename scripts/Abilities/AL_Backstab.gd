@@ -1,5 +1,7 @@
 extends Node
 
+const EnemyStatus := preload("res://scripts/Gameplay/enemy_status.gd")
+
 ## Backstab (dagger active) — POSITIONAL BONUS. When the player strikes an enemy
 ## from BEHIND (the side the enemy is facing away from), Backstab deals
 ## bonus damage. Rewards getting behind a target — pairs perfectly with the

@@ -1,5 +1,7 @@
 extends Node
 
+const EnemyStatus := preload("res://scripts/Gameplay/enemy_status.gd")
+
 ## Pyre Burst — FIRE-stance reaction. Pyre Burst is the staff's AoE fireball: it
 ## erupts on impact and hits up to several enemies. On a normal hit the generic
 ## element rider (when FIRE is active) handles whatever baseline burn the stance
