@@ -70,6 +70,49 @@ The maximum distance a pet may be from its owner. Used both for "teleport
 pet to owner if it falls behind" and as the server-side clamp on
 owner-client-reported pet position (defeats spoofing for distant auto-loot).
 
+## Bot population
+
+**Bot speech**:
+A server-initiated chat line attributed to a bot, entered through a
+server-side `ChatManager` call (a bot can never be an RPC's remote sender)
+and broadcast like any player message — feed line + overhead bubble on every
+peer's copy of the bot's character node. Event-keyed and always true to what
+the bot actually did. See
+[docs/adr/0011-bot-ambient-population.md](docs/adr/0011-bot-ambient-population.md).
+_Avoid_: Bot chat AI, bot dialogue.
+
+**Speech budget**:
+The ChatManager-owned rate limit on bot speech: a server-wide minimum gap
+between any two bot lines plus a per-bot cooldown, scaled by the bot's
+chattiness. Exists so 20 bots build the busy-server illusion instead of
+spamming it away.
+
+**Personality archetype**:
+A data-defined behavioral flavor for a bot — line-pool key, chattiness, zone
+preference. Authored in `bot_config.json` for named bots; rolled once for
+`/bot spawn random` bots and persisted in the bot roster.
+_Avoid_: Personality type, role, profile.
+
+**Bot roster**:
+The server-side file (written by `BotManager`) persisting per-bot *identity*
+(name, archetype, rolled traits). Distinct from the bot's **Player save**
+(level/gear/build, which goes through `SaveManager` to the backend).
+Deliberately NOT a Postgres column — see ADR 0011.
+_Avoid_: Bot save, bot database.
+
+**Companion command**:
+A party-leader-issued `/bot` order (`follow`, `stay`, `free`) that sets a
+mode flag on the bot's brain. Distinct from a **Pet command** (a taught pet
+capability) and from trinity roles, which the party model deliberately lacks.
+_Avoid_: Pet command, bot order, role assignment.
+
+**Seeded spawn**:
+A bot's first-ever spawn (no save row) at a level inside its home map's
+`map_difficulty` band — granted through the `set_level` path (EXP + mastery
+together) so the point-reconcile invariant holds — plus band-appropriate
+gold. Existing bots load their save; seeding never re-applies.
+_Avoid_: Level boost, starter level.
+
 ## Content & progression
 
 **Ability**:
