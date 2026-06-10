@@ -161,8 +161,9 @@ All findings below were addressed on `feat/weapon-identity-overhaul`
 5. **Fixed** — "Assassinate"/"Backstab"/"Overload" upgrade-name collisions
    renamed away.
 6. **Fixed** — `bonus_damage_bonus` → `bonus_mark_damage`.
-7. Open — `on_damaged` proc still has no dispatch site (unchanged; noted in
-   `tools/upgrade_audit_report.py`).
+7. **Fixed** (`cb59fdd9`) — `on_damaged` procs now dispatch via the Health
+   component's `damaged` signal in `AbilityComponent`. Verified headless with
+   Godot 4.5: 119/119 unit tests pass; all 81 ability `.tres` load cleanly.
 
 ## Suggested order of attack
 
