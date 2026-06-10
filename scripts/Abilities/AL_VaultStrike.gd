@@ -62,6 +62,12 @@ func on_hit(_owner_node: Node, _target: Node, _ability: AbilityData) -> void:
 	var combo_comp = _owner_node.get("sword_combo_component")
 	if combo_comp == null or not is_instance_valid(combo_comp):
 		return
+	# Crashing Vault (T3): each struck enemy builds extra combo points on top
+	# of the innate 2 (same read as Charge's Battlecry).
+	var extra: int = 0
+	var ability_comp = _owner_node.get("ability_component")
+	if ability_comp and _ability != null and ability_comp.has_method("get_ability_upgrade_magnitude"):
+		extra = int(ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "bonus_combo_per_hit"))
 	# Iterate add_combo_point — the component caps at COMBO_CAP internally.
-	for i in range(COMBO_PER_HIT):
+	for i in range(COMBO_PER_HIT + extra):
 		combo_comp.add_combo_point()

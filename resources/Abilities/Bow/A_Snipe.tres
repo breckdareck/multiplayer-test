@@ -12,7 +12,7 @@
 [ext_resource type="Resource" uid="uid://olvldgi6rri1" path="res://resources/Abilities/Bow/Upgrades/U_SNP_ArmorPierce.tres" id="12_ap"]
 [ext_resource type="Resource" uid="uid://juykfss3nspg" path="res://resources/Abilities/Bow/Upgrades/U_SNP_Killshot.tres" id="13_ks"]
 [ext_resource type="Resource" uid="uid://bdkbo3vjqyv2" path="res://resources/Abilities/Bow/Upgrades/U_SNP_PinningShot.tres" id="14_pn"]
-[ext_resource type="Resource" uid="uid://ckhiiuiwk6l4m" path="res://resources/Abilities/Bow/Upgrades/U_SNP_DoubleTap.tres" id="15_dt"]
+[ext_resource type="Resource" uid="uid://ckhiiuiwk6l4m" path="res://resources/Abilities/Bow/Upgrades/U_SNP_Windfall.tres" id="15_dt"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_aa4ap"]
 size = Vector2(160, 46)

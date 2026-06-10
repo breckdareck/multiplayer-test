@@ -11,7 +11,7 @@
 [ext_resource type="Resource" uid="uid://bq2jw6bn6r8hs" path="res://resources/Abilities/Staff/Upgrades/U_GLA_DeepFreeze.tres" id="11_df"]
 [ext_resource type="Resource" uid="uid://bbhm2se8ajao3" path="res://resources/Abilities/Staff/Upgrades/U_GLA_Piercing.tres" id="12_pc"]
 [ext_resource type="Resource" uid="uid://dcdrlq2s7p5ad" path="res://resources/Abilities/Staff/Upgrades/U_GLA_Shatter.tres" id="13_sh"]
-[ext_resource type="Resource" uid="uid://cjihpendbpfh3" path="res://resources/Abilities/Staff/Upgrades/U_GLA_Frostbite.tres" id="14_fb"]
+[ext_resource type="Resource" uid="uid://cjihpendbpfh3" path="res://resources/Abilities/Staff/Upgrades/U_GLA_Permafrost.tres" id="14_fb"]
 [ext_resource type="Resource" uid="uid://ba5udteyvpnb4" path="res://resources/Abilities/Staff/Upgrades/U_GLA_IceShards.tres" id="15_is"]
 [ext_resource type="Script" uid="uid://bta1oqi4dor43" path="res://scripts/Abilities/AL_GlacialSpike.gd" id="16_algla"]
 

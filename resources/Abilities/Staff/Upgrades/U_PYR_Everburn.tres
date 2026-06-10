@@ -4,11 +4,11 @@
 
 [resource]
 script = ExtResource("1_aud")
-upgrade_id = "pyr_t3_aftershock"
-upgrade_name = "Aftershock"
-description = "Pyre Burst detonates a second time, striking each enemy twice."
+upgrade_id = "pyr_t3_everburn"
+upgrade_name = "Everburn"
+description = "Pyre Burst's burn and fire pool ignite in any element stance, not just Fire."
 point_cost = 2
 tier = 3
 variant_group = "pyr_blast_variant"
-effect_key = "bonus_hits"
+effect_key = "reaction_any_stance"
 magnitude = 1.0

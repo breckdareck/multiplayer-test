@@ -12,7 +12,7 @@
 [ext_resource type="Resource" uid="uid://b30vu3u2rpbqj" path="res://resources/Abilities/Staff/Upgrades/U_AB_Forked.tres" id="11_fk"]
 [ext_resource type="Resource" uid="uid://curhshnttjqa7" path="res://resources/Abilities/Staff/Upgrades/U_AB_Overcharge.tres" id="12_oc"]
 [ext_resource type="Resource" uid="uid://dkx1sqckk6aqi" path="res://resources/Abilities/Staff/Upgrades/U_AB_ChainBolt.tres" id="13_cb"]
-[ext_resource type="Resource" uid="uid://8ym7g0q1akbq" path="res://resources/Abilities/Staff/Upgrades/U_AB_DoubleStrike.tres" id="14_ds"]
+[ext_resource type="Resource" uid="uid://8ym7g0q1akbq" path="res://resources/Abilities/Staff/Upgrades/U_AB_SiphoningBolt.tres" id="14_ds"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_mgbt1"]
 size = Vector2(120, 46)

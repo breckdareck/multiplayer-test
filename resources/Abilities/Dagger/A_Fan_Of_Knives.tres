@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://lky7abl001xx"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=24 format=3 uid="uid://lky7abl001xx"]
 
 [ext_resource type="Texture2D" uid="uid://ba7iyuwxb5hhc" path="res://assets/sprites/Abilities/generated_px/Dagger/A_Fan_Of_Knives.png" id="1_cs3h4"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_lk7a1"]
@@ -11,8 +11,9 @@
 [ext_resource type="Resource" uid="uid://bggkwnqcbqm4t" path="res://resources/Abilities/Dagger/Upgrades/U_FOK_SwiftHands.tres" id="11_fok1"]
 [ext_resource type="Resource" uid="uid://4naer8y6ay5f" path="res://resources/Abilities/Dagger/Upgrades/U_FOK_KeenBlades.tres" id="12_fok2"]
 [ext_resource type="Resource" uid="uid://c2nyy23ei00jc" path="res://resources/Abilities/Dagger/Upgrades/U_FOK_WideSpread.tres" id="13_fok3"]
-[ext_resource type="Resource" uid="uid://cuspl1ny1rci" path="res://resources/Abilities/Dagger/Upgrades/U_FOK_Barrage.tres" id="14_fok4"]
+[ext_resource type="Resource" uid="uid://cuspl1ny1rci" path="res://resources/Abilities/Dagger/Upgrades/U_FOK_HamstringFan.tres" id="14_fok4"]
 [ext_resource type="Resource" uid="uid://c6my6s7pqv21q" path="res://resources/Abilities/Dagger/Upgrades/U_FOK_RazorFan.tres" id="15_fok5"]
+[ext_resource type="Script" uid="uid://alslowonhit2026a" path="res://scripts/Abilities/AL_SlowOnHit.gd" id="90_slowhit"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_lk7a1"]
 size = Vector2(120, 46)
@@ -23,6 +24,7 @@ sfx_path = "res://assets/sounds/generated/dagger_throw.wav"
 target_type = 1
 hit_box_shape_data = SubResource("RectangleShape2D_lk7a1")
 hit_box_position_data = Vector2(60, -10)
+logic_script = ExtResource("90_slowhit")
 animation_name = "attack_2"
 is_projectile = true
 projectile_scene = ExtResource("2_obq5c")

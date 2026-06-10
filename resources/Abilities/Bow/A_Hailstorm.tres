@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://strafearc01x"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=24 format=3 uid="uid://strafearc01x"]
 
 [ext_resource type="Texture2D" uid="uid://e06e71gew6xq" path="res://assets/sprites/Abilities/generated_px/Bow/A_Hailstorm.png" id="1_py52j"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_strf1"]
@@ -13,6 +13,7 @@
 [ext_resource type="Resource" uid="uid://dmtnk4sc6xi77" path="res://resources/Abilities/Bow/Upgrades/U_HAIL_Flurry.tres" id="13_fl"]
 [ext_resource type="Resource" uid="uid://y3epx7mng13s" path="res://resources/Abilities/Bow/Upgrades/U_HAIL_Bloodletting.tres" id="14_bl"]
 [ext_resource type="Resource" uid="uid://dldwvu35db2e4" path="res://resources/Abilities/Bow/Upgrades/U_HAIL_SuppressingFire.tres" id="15_sf"]
+[ext_resource type="Script" uid="uid://alweakenonhit2026a" path="res://scripts/Abilities/AL_WeakenOnHit.gd" id="90_weakhit"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_aa4ap"]
 size = Vector2(160, 46)
@@ -23,6 +24,7 @@ sfx_path = "res://assets/sounds/generated/bow_volley.wav"
 target_type = 1
 hit_box_shape_data = SubResource("RectangleShape2D_aa4ap")
 hit_box_position_data = Vector2(80, -23)
+logic_script = ExtResource("90_weakhit")
 animation_name = "attack_2"
 hit_vfx = "phys_impact"
 is_projectile = true

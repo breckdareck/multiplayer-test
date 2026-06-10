@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://rrwrain001x"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=24 format=3 uid="uid://rrwrain001x"]
 
 [ext_resource type="Texture2D" uid="uid://b8vchtg4ngdal" path="res://assets/sprites/Abilities/generated_px/Bow/A_Skyfall.png" id="1_r8vpe"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_arrn1"]
@@ -12,7 +12,8 @@
 [ext_resource type="Resource" uid="uid://dhyl5q5mbjlhu" path="res://resources/Abilities/Bow/Upgrades/U_SKY_HeavyVolley.tres" id="12_hv"]
 [ext_resource type="Resource" uid="uid://bx1xin36u3n5f" path="res://resources/Abilities/Bow/Upgrades/U_SKY_Torrent.tres" id="13_to"]
 [ext_resource type="Resource" uid="uid://6tnkxa4x6cfy" path="res://resources/Abilities/Bow/Upgrades/U_SKY_MeteorShafts.tres" id="14_ms"]
-[ext_resource type="Resource" uid="uid://dcqkhtub70nl4" path="res://resources/Abilities/Bow/Upgrades/U_SKY_DoubleFall.tres" id="15_df"]
+[ext_resource type="Resource" uid="uid://dcqkhtub70nl4" path="res://resources/Abilities/Bow/Upgrades/U_SKY_GroundingFall.tres" id="15_df"]
+[ext_resource type="Script" uid="uid://alslowonhit2026a" path="res://scripts/Abilities/AL_SlowOnHit.gd" id="90_slowhit"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_aa4ap"]
 size = Vector2(160, 46)
@@ -23,6 +24,7 @@ sfx_path = "res://assets/sounds/generated/bow_volley.wav"
 target_type = 1
 hit_box_shape_data = SubResource("RectangleShape2D_aa4ap")
 hit_box_position_data = Vector2(80, -10)
+logic_script = ExtResource("90_slowhit")
 animation_name = "attack_2"
 is_projectile = true
 projectile_scene = ExtResource("2_arrn3")

@@ -4,11 +4,11 @@
 
 [resource]
 script = ExtResource("1_aud")
-upgrade_id = "lan_t3_overload"
-upgrade_name = "Overload"
-description = "Arcane Lance deals +40% damage per pulse."
+upgrade_id = "lan_t3_storm_lance"
+upgrade_name = "Storm Lance"
+description = "Arcane Lance's chain-shock reaction fires in any element stance, not just Lightning."
 point_cost = 2
 tier = 3
 variant_group = "lan_beam_variant"
-effect_key = "bonus_damage_mult"
-magnitude = 0.4
+effect_key = "reaction_any_stance"
+magnitude = 1.0

@@ -4,11 +4,11 @@
 
 [resource]
 script = ExtResource("1_aud")
-upgrade_id = "gla_t3_frostbite"
-upgrade_name = "Frostbite"
-description = "Glacial Spike strikes twice, shattering the ice for a second impact."
+upgrade_id = "gla_t3_permafrost"
+upgrade_name = "Permafrost"
+description = "Glacial Spike's hard freeze triggers in any element stance, not just Ice."
 point_cost = 2
 tier = 3
 variant_group = "gla_frost_variant"
-effect_key = "bonus_hits"
+effect_key = "reaction_any_stance"
 magnitude = 1.0

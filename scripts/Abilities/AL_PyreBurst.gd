@@ -69,7 +69,8 @@ func on_hit(_owner_node: Node, _target: Node, _ability: AbilityData) -> void:
 		return
 	if not is_instance_valid(_target):
 		return
-	if not _is_fire_active(_owner_node):
+	# Everburn (T3): the burn + fire pool ignite in ANY stance.
+	if not _is_fire_active(_owner_node) and not _reaction_any_stance(_owner_node, _ability):
 		return  # off-FIRE: direct AoE damage + generic rider handle the baseline
 
 	var stats_comp = _owner_node.get("stats_component")
@@ -213,3 +214,12 @@ func _on_burn_tick(target: Node) -> void:
 
 	target.set_meta(BURN_META, state)
 	_schedule_burn_tick(target)
+
+
+## Stance-breaker T3 ("reaction_any_stance"): true when the owned variant lets
+## this ability's element reaction fire regardless of the active stance.
+func _reaction_any_stance(owner_node: Node, ability: AbilityData) -> bool:
+	var ability_comp = owner_node.get("ability_component")
+	if ability_comp == null or ability == null or not ability_comp.has_method("get_ability_upgrade_magnitude"):
+		return false
+	return ability_comp.get_ability_upgrade_magnitude(ability.ability_id, "reaction_any_stance") > 0.0

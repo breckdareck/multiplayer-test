@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "hail_t3_suppressing_fire"
 upgrade_name = "Suppressing Fire"
-description = "Hailstorm sprays +2 additional enemies."
+description = "Enemies struck by Hailstorm deal 25% less damage for 3 seconds."
 point_cost = 2
 tier = 3
 variant_group = "hail_storm_variant"
-effect_key = "bonus_targets"
-magnitude = 2.0
+effect_key = "bonus_weaken_on_hit"
+magnitude = 0.25

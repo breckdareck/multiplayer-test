@@ -4,11 +4,11 @@
 
 [resource]
 script = ExtResource("1_aud")
-upgrade_id = "sps_t3_volley"
-upgrade_name = "Volley"
-description = "Split Shot fires +1 additional arrow per cast."
+upgrade_id = "sps_t3_gale_nock"
+upgrade_name = "Gale Nock"
+description = "Each enemy Split Shot strikes builds +1 extra Momentum."
 point_cost = 2
 tier = 3
 variant_group = "sps_shot_variant"
-effect_key = "bonus_hits"
+effect_key = "bonus_momentum_per_hit"
 magnitude = 1.0

@@ -701,6 +701,17 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 				if hc_owner and is_instance_valid(hc_owner) and not hc_owner.is_dead and hc_owner.has_method("heal_damage"):
 					hc_owner.heal_damage(maxi(1, roundi(damage_to_deal * heal_frac)), owner_node)
 
+		# v1 manasteal hook (staff) — Siphoning Bolt (Arcane Bolt T3) restores
+		# flat MP per landed hit. Generic: any ability owning "bonus_mp_on_hit".
+		# current_mana's setter clamps to [0, max_mana], so direct += is the
+		# canonical restore (same as Mana Surge's refund).
+		if damage_to_deal > 0 and ability != null:
+			var mp_gain: int = _upgrade_int(ability, "bonus_mp_on_hit")
+			if mp_gain > 0:
+				var mc_owner = owner_node.get("mana_component")
+				if mc_owner and is_instance_valid(mc_owner):
+					mc_owner.current_mana += mp_gain
+
 		# v1 mark consume hooks — post-hit effects that fire after damage
 		# lands. SentinelsMark rolls a combo refund; ManaSurge refunds half
 		# the spell's MP cost to the caster. Both no-op on unmarked targets.
@@ -785,6 +796,15 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 			preload("res://scripts/Abilities/AL_DeathMark.gd").spread_on_death(target_enemy)
 			preload("res://scripts/Abilities/AL_SentinelsMark.gd").spread_on_death(target_enemy)
 
+		# v1 Momentum-on-kill (T3 variant): Windfall (Snipe) refunds Momentum
+		# when the ability's hit lands the killing blow — a payoff loop for the
+		# Momentum SPENDER. Generic: any bow ability owning the upgrade gets it.
+		if was_alive and health_comp.is_dead and ability != null:
+			if is_instance_valid(_bow_momentum_component) and _is_wielding_bow():
+				var momentum_refund: int = _upgrade_int(ability, "bonus_momentum_on_kill")
+				if momentum_refund > 0:
+					_bow_momentum_component.add_momentum(momentum_refund)
+
 		# PR 5 — Sword signature: build a combo point on every BASIC-ATTACK
 		# HIT while wielding a sword. Conditions:
 		#  - `ability == null` (the basic-melee pathway; not the ability or
@@ -862,6 +882,10 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 		var momentum_gain: int = 1
 		if ability != null and (ability.ability_name == "Hailstorm" or ability.ability_name == "Skyfall"):
 			momentum_gain = 2
+		# v1 Momentum-per-hit (T3 variant): Gale Nock (Split Shot) builds extra
+		# Momentum per landed hit. Generic: any bow ability owning the upgrade.
+		if ability != null:
+			momentum_gain += _upgrade_int(ability, "bonus_momentum_per_hit")
 		_bow_momentum_component.add_momentum(momentum_gain)
 
 	# PR 7 — Dagger ambush: this hit landed FROM stealth (ambush_mult raised before

@@ -4,11 +4,11 @@
 
 [resource]
 script = ExtResource("1_aud")
-upgrade_id = "fok_t3_barrage"
-upgrade_name = "Barrage"
-description = "Fan of Knives hurls +3 additional blades."
+upgrade_id = "fok_t3_hamstring_fan"
+upgrade_name = "Hamstring Fan"
+description = "Enemies struck by Fan of Knives are slowed 40% for 2.5 seconds."
 point_cost = 2
 tier = 3
 variant_group = "fok_throw_variant"
-effect_key = "bonus_hits"
-magnitude = 3.0
+effect_key = "bonus_slow_on_hit"
+magnitude = 0.4

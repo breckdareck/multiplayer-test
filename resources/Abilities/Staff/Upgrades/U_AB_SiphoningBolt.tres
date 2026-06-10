@@ -4,11 +4,11 @@
 
 [resource]
 script = ExtResource("1_aud")
-upgrade_id = "ab_t3_double_strike"
-upgrade_name = "Double Strike"
-description = "Arcane Bolt strikes each enemy twice."
+upgrade_id = "ab_t3_siphoning_bolt"
+upgrade_name = "Siphoning Bolt"
+description = "Each landed Arcane Bolt restores 3 MP."
 point_cost = 2
 tier = 3
 variant_group = "ab_bolt_variant"
-effect_key = "bonus_hits"
-magnitude = 1.0
+effect_key = "bonus_mp_on_hit"
+magnitude = 3.0

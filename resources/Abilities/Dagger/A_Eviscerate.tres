@@ -10,7 +10,7 @@
 [ext_resource type="Resource" uid="uid://b81bw1tjw22lm" path="res://resources/Abilities/Dagger/Upgrades/U_EVI_SwiftKill.tres" id="11_evi1"]
 [ext_resource type="Resource" uid="uid://d0jv6y1qnyqxg" path="res://resources/Abilities/Dagger/Upgrades/U_EVI_Exposed.tres" id="12_evi2"]
 [ext_resource type="Resource" uid="uid://brb05ufisqnhp" path="res://resources/Abilities/Dagger/Upgrades/U_EVI_Assassinate.tres" id="13_evi3"]
-[ext_resource type="Resource" uid="uid://dbedi3ws4ngja" path="res://resources/Abilities/Dagger/Upgrades/U_EVI_Overkill.tres" id="14_evi4"]
+[ext_resource type="Resource" uid="uid://dbedi3ws4ngja" path="res://resources/Abilities/Dagger/Upgrades/U_EVI_ButchersOpening.tres" id="14_evi4"]
 [ext_resource type="Resource" uid="uid://bidsfu2jjfyla" path="res://resources/Abilities/Dagger/Upgrades/U_EVI_Throatcut.tres" id="15_evi5"]
 [ext_resource type="Script" uid="uid://dyxd3wlt1r4jr" path="res://scripts/Abilities/AL_Eviscerate.gd" id="16_alevi"]
 

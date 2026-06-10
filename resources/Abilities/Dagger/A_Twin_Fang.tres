@@ -9,7 +9,7 @@
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="8_aud"]
 [ext_resource type="Resource" uid="uid://bakxuvfxtfrip" path="res://resources/Abilities/Dagger/Upgrades/U_TF_Quicken.tres" id="9_tf1"]
 [ext_resource type="Resource" uid="uid://fiydj778pydh" path="res://resources/Abilities/Dagger/Upgrades/U_TF_Serrated.tres" id="10_tf2"]
-[ext_resource type="Resource" uid="uid://yin7bbwpe8u1" path="res://resources/Abilities/Dagger/Upgrades/U_TF_Flurry.tres" id="11_tf3"]
+[ext_resource type="Resource" uid="uid://yin7bbwpe8u1" path="res://resources/Abilities/Dagger/Upgrades/U_TF_FangAndVein.tres" id="11_tf3"]
 [ext_resource type="Resource" uid="uid://dxv1d8iu8u8a4" path="res://resources/Abilities/Dagger/Upgrades/U_TF_Gutter.tres" id="12_tf4"]
 [ext_resource type="Resource" uid="uid://oq02pc22w07k" path="res://resources/Abilities/Dagger/Upgrades/U_TF_DualEdge.tres" id="13_tf5"]
 

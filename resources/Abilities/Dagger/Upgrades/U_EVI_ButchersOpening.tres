@@ -4,11 +4,11 @@
 
 [resource]
 script = ExtResource("1_aud")
-upgrade_id = "evi_t3_overkill"
-upgrade_name = "Overkill"
-description = "Eviscerate strikes a second time for crushing follow-up damage."
+upgrade_id = "evi_t3_butchers_opening"
+upgrade_name = "Butcher's Opening"
+description = "Eviscerate's execute no longer requires striking from stealth."
 point_cost = 2
 tier = 3
 variant_group = "evi_finisher_variant"
-effect_key = "bonus_hits"
+effect_key = "execute_without_stealth"
 magnitude = 1.0

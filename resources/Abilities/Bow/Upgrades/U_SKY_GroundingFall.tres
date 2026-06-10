@@ -4,11 +4,11 @@
 
 [resource]
 script = ExtResource("1_aud")
-upgrade_id = "sky_t3_double_fall"
-upgrade_name = "Double Fall"
-description = "Skyfall strikes each enemy twice."
+upgrade_id = "sky_t3_grounding_fall"
+upgrade_name = "Grounding Fall"
+description = "Enemies struck by Skyfall are slowed 40% for 2.5 seconds."
 point_cost = 2
 tier = 3
 variant_group = "sky_storm_variant"
-effect_key = "bonus_hits"
-magnitude = 1.0
+effect_key = "bonus_slow_on_hit"
+magnitude = 0.4

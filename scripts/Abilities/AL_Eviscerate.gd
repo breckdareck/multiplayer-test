@@ -36,6 +36,12 @@ func on_hit(owner_node: Node, target: Node, _ability: AbilityData) -> void:
 		var bc = owner_node.get("buff_component")
 		if bc != null and is_instance_valid(bc) and bc.has_method("has_buff"):
 			stealthed = bc.has_buff("Vanish")
+	# Butcher's Opening (T3): the execute window no longer needs stealth —
+	# turns the stealth-opener payoff into a general low-HP finisher.
+	if not stealthed:
+		var ac = owner_node.get("ability_component")
+		if ac and _ability != null and ac.has_method("get_ability_upgrade_magnitude"):
+			stealthed = ac.get_ability_upgrade_magnitude(_ability.ability_id, "execute_without_stealth") > 0.0
 	if not stealthed:
 		return
 

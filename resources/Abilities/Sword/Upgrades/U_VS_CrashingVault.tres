@@ -4,11 +4,11 @@
 
 [resource]
 script = ExtResource("1_aud")
-upgrade_id = "vs_t3_relentless_charge"
-upgrade_name = "Relentless Charge"
-description = "Vault Strike hits each enemy in its path twice."
+upgrade_id = "vs_t3_crashing_vault"
+upgrade_name = "Crashing Vault"
+description = "Each enemy Vault Strike hits builds +2 extra combo points."
 point_cost = 2
 tier = 3
 variant_group = "vs_dash_variant"
-effect_key = "bonus_hits"
-magnitude = 1.0
+effect_key = "bonus_combo_per_hit"
+magnitude = 2.0

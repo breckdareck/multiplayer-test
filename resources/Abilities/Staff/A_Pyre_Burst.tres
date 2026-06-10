@@ -11,7 +11,7 @@
 [ext_resource type="Resource" uid="uid://drfey3cci1ltu" path="res://resources/Abilities/Staff/Upgrades/U_PYR_Kindling.tres" id="12_kd"]
 [ext_resource type="Resource" uid="uid://bybl2nunw1sw1" path="res://resources/Abilities/Staff/Upgrades/U_PYR_Conflagration.tres" id="13_cf"]
 [ext_resource type="Resource" uid="uid://bb8gifie8ivc7" path="res://resources/Abilities/Staff/Upgrades/U_PYR_Detonate.tres" id="14_dt"]
-[ext_resource type="Resource" uid="uid://v5s7wrlxk23d" path="res://resources/Abilities/Staff/Upgrades/U_PYR_Aftershock.tres" id="15_as"]
+[ext_resource type="Resource" uid="uid://v5s7wrlxk23d" path="res://resources/Abilities/Staff/Upgrades/U_PYR_Everburn.tres" id="15_as"]
 [ext_resource type="Script" uid="uid://lpyreburst1x" path="res://scripts/Abilities/AL_PyreBurst.gd" id="16_alpyr"]
 [ext_resource type="Texture2D" uid="uid://mvgci1i55lsc" path="res://assets/sprites/Abilities/generated_px/Staff/A_Pyre_Burst.png" id="99_svgicon"]
 

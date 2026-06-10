@@ -4,11 +4,11 @@
 
 [resource]
 script = ExtResource("1_aud")
-upgrade_id = "snp_t3_double_tap"
-upgrade_name = "Double Tap"
-description = "Snipe fires a second arrow at the target."
+upgrade_id = "snp_t3_windfall"
+upgrade_name = "Windfall"
+description = "If Snipe kills its target, refund 4 Momentum."
 point_cost = 2
 tier = 3
 variant_group = "snp_shot_variant"
-effect_key = "bonus_hits"
-magnitude = 1.0
+effect_key = "bonus_momentum_on_kill"
+magnitude = 4.0
