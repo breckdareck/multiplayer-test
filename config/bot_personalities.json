@@ -72,6 +72,31 @@
           "a {enemy}? finally a warmup",
           "{enemy}, meet your highlight reel",
           "everyone watch this"
+        ],
+        "greet_familiar": [
+          "oh look, {player} again. you're learning from the best",
+          "back for more lessons, {player}?",
+          "{player}! my favorite witness"
+        ],
+        "greet_friend": [
+          "{player}! my loyal sidekick returns",
+          "the dream team reassembles. hey {player}",
+          "{player}, I saved some kills for you. you're welcome"
+        ],
+        "party_invite": [
+          "{player}, you look like you could use a carry. party?",
+          "oi {player}, group with greatness?",
+          "{player}! once-in-a-lifetime chance to farm with me"
+        ],
+        "banter_open": [
+          "{player}, tell them how I soloed this whole map",
+          "be honest {player}, am I the best you've grouped with?",
+          "{player}, race you to the next rare drop"
+        ],
+        "banter_reply": [
+          "sure, {player}. and I'm the king of Emberwatch",
+          "we were ALL there, {player}. it was one slime",
+          "you wish, {player}"
         ]
       }
     },
@@ -133,6 +158,26 @@
         "boss_engage": [
           "{enemy}. ok",
           "here we go"
+        ],
+        "greet_familiar": [
+          "oh hey {player}",
+          "you again. cool"
+        ],
+        "greet_friend": [
+          "{player}! hey",
+          "good to see you, {player}"
+        ],
+        "party_invite": [
+          "group, {player}?",
+          "party up?"
+        ],
+        "banter_open": [
+          "{player}, drops any good here?",
+          "long day, {player}?"
+        ],
+        "banter_reply": [
+          "yeah",
+          "same as always, {player}"
         ]
       }
     },
@@ -205,6 +250,31 @@
           "{enemy} engaged! watch its windups",
           "big pull — {enemy} incoming, stay mobile",
           "on the {enemy}! mind the telegraphs"
+        ],
+        "greet_familiar": [
+          "good to see a familiar face, {player}!",
+          "{player}! how'd that last map treat you?",
+          "back in the field, {player}? need anything?"
+        ],
+        "greet_friend": [
+          "{player}! was hoping I'd run into you",
+          "my favorite hunting partner. hey {player}!",
+          "{player}! got your back as always"
+        ],
+        "party_invite": [
+          "hey {player}, hunting alone? I'll watch your flank — party?",
+          "{player}, want to team up? safer in pairs out here",
+          "got room for one more, {player}? I've got potions to share"
+        ],
+        "banter_open": [
+          "{player}, you stocked up on potions before heading out?",
+          "watch the upper ledges, {player} — they hit harder up there",
+          "good hunting today, {player}?"
+        ],
+        "banter_reply": [
+          "always do, {player}. always do",
+          "noted! you be careful too, {player}",
+          "can't complain, {player}. drops are decent"
         ]
       }
     },
@@ -274,6 +344,31 @@
           "so YOU'RE what the locals warned me about, {enemy}",
           "every map has its monster. {enemy}, I presume",
           "well met, {enemy}. let's get this over with"
+        ],
+        "greet_familiar": [
+          "our roads cross again, {player}",
+          "didn't expect to see you out here, {player}. small world",
+          "{player}. the maps keep bringing us together"
+        ],
+        "greet_friend": [
+          "{player}! the road's better with you on it",
+          "well if it isn't my favorite traveler. hey {player}",
+          "{player}, I've got stories since we last met"
+        ],
+        "party_invite": [
+          "walking the same road, {player}? might as well walk it together",
+          "{player}, company makes the maps shorter. group up?",
+          "two sets of eyes beat one out here, {player}. party?"
+        ],
+        "banter_open": [
+          "{player}, ever been past the deep woods?",
+          "this map reminds me of somewhere I can't place, {player}",
+          "what's the strangest thing you've seen out here, {player}?"
+        ],
+        "banter_reply": [
+          "everywhere worth going, {player}",
+          "every map looks like somewhere else if you wander enough",
+          "you don't want to know, {player}. truly"
         ]
       }
     }

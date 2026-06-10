@@ -581,6 +581,8 @@ func _transfer_trade_item(player_id: int, target_id: int, slot_index: int, givin
 	var item: ItemData = slot.item
 	source_inv.remove_item(item, "traded")
 	dest_inv.server_add_item_instance(item.to_dictionary())
+	# Trading builds familiarity (ADR 0012 reputation -> tiered greetings).
+	BotManager.add_reputation(target_id, _get_player_name(player_id), 1)
 
 
 ## True when both ids are in the SAME party.

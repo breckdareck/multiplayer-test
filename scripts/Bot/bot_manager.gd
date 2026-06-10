@@ -28,6 +28,12 @@ var _roster_loaded: bool = false
 var _fresh_bots: Dictionary = {}
 ## Login/logout churn timer (ADR 0012) — the population changes over a session.
 var _churn_timer: float = 0.0
+## Bot-to-bot banter timer (ADR 0012) — overheard conversation for an audience.
+var _banter_timer: float = 0.0
+const BANTER_INTERVAL_MIN: float = 60.0
+const BANTER_INTERVAL_MAX: float = 140.0
+## The two bots must be near each other to read as a conversation.
+const BANTER_PAIR_RANGE: float = 350.0
 
 ## Emitted (on any peer) when a requested bot data snapshot arrives.
 signal bot_snapshot_received(bot_id: int, snapshot: Dictionary)
@@ -379,6 +385,33 @@ func _touch_roster(bot_name: String, class_type: int, personality_key: String) -
 	_save_roster()
 
 
+# --- Reputation (ADR 0012): per-bot, per-player familiarity in the roster ---
+
+## Bumps how well a bot knows a player (parties shared, trades). Drives the
+## tiered greeting pools — the cross-session "Bob remembers me" payoff.
+func add_reputation(bot_id: int, player_username: String, amount: int) -> void:
+	if not active_bots.has(bot_id) or player_username.is_empty():
+		return
+	if not _roster_loaded:
+		_load_roster()
+	var bot_name: String = active_bots[bot_id].username
+	var entry: Dictionary = _roster.get(bot_name, {})
+	var rep: Dictionary = entry.get("rep", {})
+	rep[player_username] = int(rep.get(player_username, 0)) + amount
+	entry["rep"] = rep
+	_roster[bot_name] = entry
+	_save_roster()
+
+
+func get_reputation(bot_id: int, player_username: String) -> int:
+	var bot_name: String = active_bots.get(bot_id, {}).get("username", "")
+	if bot_name.is_empty():
+		return 0
+	if not _roster_loaded:
+		_load_roster()
+	return int(_roster.get(bot_name, {}).get("rep", {}).get(player_username, 0))
+
+
 # --- Login/logout churn (ADR 0012) ---
 
 func _step_churn(delta: float) -> void:
@@ -468,6 +501,63 @@ func _broadcast_system_to_players(text: String, color: Color) -> void:
 	for pid in PlayerManager.active_players:
 		if not is_bot(pid):
 			ChatManager.notify_peer(pid, text, color)
+
+
+# --- Bot-to-bot banter (ADR 0012) ---
+
+func _step_banter(delta: float) -> void:
+	_banter_timer -= delta
+	if _banter_timer > 0.0:
+		return
+	_banter_timer = randf_range(BANTER_INTERVAL_MIN, BANTER_INTERVAL_MAX)
+	_banter_tick()
+
+
+## Scripts one overheard exchange: two near-each-other bots on a map that has
+## a real-player audience — one opens, the other answers after the speech gap
+## has cleared. No audience -> no banter; it exists to be overheard.
+func _banter_tick() -> void:
+	var by_map: Dictionary = {}
+	for bot_id in active_bots:
+		var map_id := MapManager.get_player_map(bot_id)
+		if map_id.is_empty() or MapManager.get_real_players_on_map(map_id).is_empty():
+			continue
+		if not by_map.has(map_id):
+			by_map[map_id] = []
+		by_map[map_id].append(bot_id)
+
+	var candidate_maps: Array = []
+	for map_id in by_map:
+		if by_map[map_id].size() >= 2:
+			candidate_maps.append(map_id)
+	if candidate_maps.is_empty():
+		return
+
+	var bots: Array = by_map[candidate_maps.pick_random()]
+	bots.shuffle()
+	for i in bots.size():
+		var node_a := PlayerManager.get_player_node(bots[i])
+		if not is_instance_valid(node_a):
+			continue
+		for j in range(i + 1, bots.size()):
+			var node_b := PlayerManager.get_player_node(bots[j])
+			if not is_instance_valid(node_b):
+				continue
+			if node_a.global_position.distance_to(node_b.global_position) > BANTER_PAIR_RANGE:
+				continue
+			_run_banter(bots[i], bots[j], node_a.username, node_b.username)
+			return
+
+
+func _run_banter(id_a: int, id_b: int, name_a: String, name_b: String) -> void:
+	var brain_a := get_bot_brain(id_a)
+	if brain_a == null or not brain_a.try_speak("banter_open", {"player": name_b}, true):
+		return
+	# The reply waits out the global speech gap so both lines clear the budget.
+	await get_tree().create_timer(ChatManager.BOT_SPEECH_GLOBAL_GAP + randf_range(1.0, 2.5)).timeout
+	var brain_b := get_bot_brain(id_b)
+	if brain_b != null:
+		brain_b.try_speak("banter_reply", {"player": name_a}, true)
 
 
 # --- Cold-start seeding (ADR 0011) ---
@@ -715,6 +805,7 @@ func _process(delta: float) -> void:
 	_step_nav_graph_builds()
 	_update_watch_camera()
 	_step_churn(delta)
+	_step_banter(delta)
 	if _stress_active:
 		_step_stress(delta)
 

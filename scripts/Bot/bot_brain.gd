@@ -97,6 +97,14 @@ var _party_seek_timer: float = 0.0
 const PARTY_SEEK_INTERVAL: float = 12.0
 const PARTY_SEEK_RANGE: float = 300.0
 
+# --- Bot-invites-player (ADR 0012): rare, polite, self-cleaning. ---
+## Cooldown between invite attempts at real players.
+var _player_invite_timer: float = 0.0
+const PLAYER_INVITE_COOLDOWN: float = 300.0
+## How long an unanswered invite keeps the bot waiting in its solo party.
+var _pending_player_invite_timer: float = -1.0
+const PLAYER_INVITE_TIMEOUT: float = 30.0
+
 # --- Stuck detection: catches a bot that intends to move but makes no
 # progress (bad terrain, an unreachable target) and escalates to recovery. ---
 var _stuck_sample_pos: Vector2 = Vector2.ZERO
@@ -243,6 +251,16 @@ func _speech_context(ctx: Dictionary) -> Dictionary:
 	return base
 
 
+## Which greeting pool fits this player: stranger, familiar, or friend.
+func _greet_event_for(player_name: String) -> String:
+	var rep := BotManager.get_reputation(bot_id, player_name)
+	if rep >= 10:
+		return "greet_friend"
+	if rep >= 3:
+		return "greet_familiar"
+	return "greet"
+
+
 func _real_player_names_on_map() -> Array:
 	var names: Array = []
 	for pid in MapManager.get_real_players_on_map(MapManager.get_player_map(bot_id)):
@@ -335,6 +353,11 @@ func _process(delta: float) -> void:
 	think_timer -= delta
 
 	_speech_cooldown -= delta
+	_player_invite_timer -= delta
+	if _pending_player_invite_timer > 0.0:
+		_pending_player_invite_timer -= delta
+		if _pending_player_invite_timer <= 0.0:
+			_abandon_unanswered_invite()
 
 	_lod_check_timer -= delta
 	if _lod_check_timer <= 0.0:
@@ -342,10 +365,14 @@ func _process(delta: float) -> void:
 		var was_far := _lod_far
 		_lod_far = _is_lod_far()
 		# far -> near means a real player just arrived on this map (or the bot
-		# just arrived on theirs) — the natural moment for a greeting.
+		# just arrived on theirs) — the natural moment for a greeting. The
+		# greeting pool tiers by how well this bot knows that player (ADR 0012).
 		if was_far and not _lod_far:
-			if try_speak("greet"):
-				ChatManager.bot_emote(bot_id, "/wave")
+			var names := _real_player_names_on_map()
+			if not names.is_empty():
+				var who: String = names.pick_random()
+				if try_speak(_greet_event_for(who), {"player": who}):
+					ChatManager.bot_emote(bot_id, "/wave")
 
 	if current_action == "fight" and is_instance_valid(target_enemy):
 		var enemy_hp := -1
@@ -583,18 +610,39 @@ func _maybe_announce_boss(enemy: EnemyBase) -> void:
 		try_speak("boss_engage", {"enemy": enemy.monster_name})
 
 
-## Detects party membership changes for speech + companion-command hygiene:
-## joining a party gets a line; leaving one lapses any standing command.
+## Detects party changes for speech + companion-command hygiene. Tracks real-
+## player MEMBERSHIP, not just the party id: a bot that created a solo party
+## to invite someone hasn't "joined" anything yet, and a player accepting that
+## invite later changes the roster without changing the bot's party id.
+var _known_real_members: Dictionary = {}  # username -> true
+
 func _track_party_changes() -> void:
 	var party_id := PartyManager.get_player_party_id(bot_id)
-	if party_id == _last_party_id:
-		return
-	var joined := party_id != -1 and _last_party_id == -1
+	var real_members: Dictionary = {}
+	if party_id != -1:
+		for member_id in PartyManager.get_party_members(bot_id):
+			if not BotManager.is_bot(member_id):
+				var member_node := PlayerManager.get_player_node(member_id)
+				if is_instance_valid(member_node):
+					real_members[member_node.username] = true
+
+	var newly_joined := party_id != -1 and _last_party_id == -1
+	var new_real: Array = []
+	for uname in real_members:
+		if not _known_real_members.has(uname):
+			new_real.append(uname)
 	_last_party_id = party_id
-	if joined:
-		try_speak("party_join")
+	_known_real_members = real_members
+
 	if party_id == -1:
-		companion_mode = ""
+		companion_mode = ""  # commands lapse with the party
+		return
+	if newly_joined or not new_real.is_empty():
+		_pending_player_invite_timer = -1.0  # someone answered — stop the clock
+		try_speak("party_join")
+	# Grouping with real players builds familiarity (ADR 0012 reputation).
+	for uname in new_real:
+		BotManager.add_reputation(bot_id, uname, 3)
 
 
 ## Survival: when critically low on HP, retreat to safety and regenerate. Stays
@@ -1136,6 +1184,8 @@ func _try_party_seek() -> void:
 			best_bot_id = other_id
 
 	if best_bot_id == 0:
+		# No solo bot around — maybe a solo PLAYER wants company (ADR 0012).
+		_maybe_invite_player(my_map)
 		return
 
 	var party_id := PartyManager.create_party(bot_id)
@@ -1143,6 +1193,52 @@ func _try_party_seek() -> void:
 		return
 	var accepted := PartyManager.send_invite(bot_id, best_bot_id)
 	if not accepted:
+		PartyManager.leave_party(bot_id)
+
+
+## A solo bot may invite a nearby solo player to group. Rare and polite: a
+## long per-bot cooldown, one pending attempt at a time, and the temporary
+## solo party is abandoned if the player doesn't answer — a bot never sits
+## leader of a phantom party. The player consents through the normal invite UI.
+func _maybe_invite_player(my_map: String) -> void:
+	if _player_invite_timer > 0.0 or _pending_player_invite_timer > 0.0:
+		return
+	if not is_instance_valid(player.level_component):
+		return
+	var bot_level: int = player.level_component.level
+
+	for pid in MapManager.get_real_players_on_map(my_map):
+		if PartyManager.get_player_party_id(pid) != -1:
+			continue
+		var node := PlayerManager.get_player_node(pid)
+		if not is_instance_valid(node) or not is_instance_valid(node.level_component):
+			continue
+		if absi(node.level_component.level - bot_level) > 10:
+			continue
+		if player.global_position.distance_to(node.global_position) > PARTY_SEEK_RANGE:
+			continue
+
+		_player_invite_timer = PLAYER_INVITE_COOLDOWN
+		var party_id := PartyManager.create_party(bot_id)
+		if party_id == -1:
+			return
+		# Creating the solo party is setup, not "joining" — keep the membership
+		# tracker quiet so party_join only fires if the player accepts.
+		_last_party_id = party_id
+		if not PartyManager.send_invite(bot_id, pid):
+			PartyManager.leave_party(bot_id)
+			return
+		_pending_player_invite_timer = PLAYER_INVITE_TIMEOUT
+		try_speak("party_invite", {"player": node.username}, true)
+		return
+
+
+## The invite timed out unanswered — stand down if still alone in the party.
+func _abandon_unanswered_invite() -> void:
+	_pending_player_invite_timer = -1.0
+	if PartyManager.get_player_party_id(bot_id) == -1:
+		return
+	if PartyManager.get_party_members(bot_id).size() <= 1:
 		PartyManager.leave_party(bot_id)
 
 
