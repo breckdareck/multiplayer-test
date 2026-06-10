@@ -97,6 +97,7 @@ func _ready() -> void:
 	# toggle() (M key), so the open/close side-effects live in _on_visibility_changed.
 	add_to_group("ui_window")
 	visibility_changed.connect(_on_visibility_changed)
+	MapManager.population_counts_received.connect(_on_population_counts)
 	set_process(false)
 
 
@@ -119,9 +120,20 @@ func _on_visibility_changed() -> void:
 	if visible:
 		_pulse = 0.0
 		move_to_front()
+		# One population snapshot per open (ADR 0012) — counts players + bots.
+		if multiplayer.has_multiplayer_peer():
+			MapManager.request_population_counts.rpc_id(1)
 	else:
 		_hovered = ""
 		_tip.visible = false
+
+
+## Per-map occupant counts (players + bots), refreshed each time the map opens.
+var _population: Dictionary = {}
+
+func _on_population_counts(counts: Dictionary) -> void:
+	_population = counts
+	queue_redraw()
 
 
 func _unhandled_key_input(event: InputEvent) -> void:
@@ -465,6 +477,13 @@ func _draw() -> void:
 				var dname: String = MapManager.MAP_DISPLAY_NAMES.get(map_id, info.get("display_name", map_id))
 				draw_string(_font, p + Vector2(-60, r + 14), dname,
 					HORIZONTAL_ALIGNMENT_CENTER, 120, 12, Color(0.92, 0.92, 0.95))
+				# Population badge (ADR 0012) — revealed maps only, so fog of
+				# war doesn't leak where the action is.
+				var pop: int = int(_population.get(map_id, 0))
+				if pop > 0:
+					draw_circle(p + Vector2(r + 5, -r - 2), 7.0, Color(0.12, 0.3, 0.16, 0.9))
+					draw_string(_font, p + Vector2(r + 5 - 8, -r + 2), str(pop),
+						HORIZONTAL_ALIGNMENT_CENTER, 16, 10, Color(0.6, 1.0, 0.65))
 			else:
 				draw_string(_font, p + Vector2(-5, 5), "?",
 					HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(0.6, 0.6, 0.65))

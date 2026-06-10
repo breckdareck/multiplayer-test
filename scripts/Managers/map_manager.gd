@@ -607,6 +607,10 @@ func _reparent_peer_to_map(peer_id: int, old_map_id: String, new_map_id: String,
 		broadcast_player_appearance(peer_id)
 		BotManager.handle_bot_reparented(peer_id)
 
+	# Party members see each other's current map in the party window — push
+	# fresh member data after a reparent hop too (bots travel constantly).
+	PartyManager.notify_player_data_changed(peer_id)
+
 	# 9. Wake enemies near the arriver now; re-sleep the lighter old map (ADR 0007).
 	_scan_map_activation(new_map_id)
 	_scan_map_activation(old_map_id)
@@ -696,7 +700,21 @@ func _finalize_player_spawn(player_id: int, map_id: String, spawn_point_name: St
 	if not multiplayer.is_server() or not map_id in active_maps: return
 
 	#print("MapManager: Finalizing spawn for player %d on map %s at spawn '%s'" % [player_id, map_id, spawn_point_name])
+	# Occupancy bookkeeping — scrub the id from EVERY map's list before adding.
+	# _finalize_player_spawn can run twice for the same arrival (the host gets a
+	# direct call AND its own client ACK), and Array.erase removes only ONE
+	# occurrence — so without the scrub a duplicate survives the next map
+	# change as a ghost entry that keeps receiving map-scoped traffic (bot
+	# speech, bot party invites) from maps the player already left.
+	for other_map_id in active_maps:
+		var ids: Array = active_maps[other_map_id].player_ids
+		while player_id in ids:
+			ids.erase(player_id)
 	active_maps[map_id].player_ids.append(player_id)
+
+	# Party members see each other's current map in the party window — push
+	# fresh member data (map / presence) to the party on every arrival.
+	PartyManager.notify_player_data_changed(player_id)
 	
 	# Sync EXISTING players to the new joiner
 	# The new joiner needs to know about everyone else already on the map
@@ -1676,6 +1694,37 @@ func get_players_on_map(map_id: String) -> Array:
 func get_real_players_on_map(map_id: String) -> Array:
 	var all_players := get_players_on_map(map_id)
 	return all_players.filter(func(id): return not BotManager.is_bot(id))
+
+
+## Emitted on the requesting peer when per-map population counts arrive.
+signal population_counts_received(counts: Dictionary)
+
+
+## [Client -> Server] The world-map overlay asks how many characters occupy
+## each map — players AND bots counted indistinguishably, which is the point
+## (ADR 0012). One snapshot per request, no continuous sync.
+@rpc("any_peer", "call_local", "reliable")
+func request_population_counts() -> void:
+	if not multiplayer.is_server():
+		return
+	var requester := multiplayer.get_remote_sender_id()
+	if requester == 0:
+		requester = multiplayer.get_unique_id()
+	var counts: Dictionary = {}
+	for map_id in active_maps:
+		var n: int = active_maps[map_id].get("player_ids", []).size()
+		if n > 0:
+			counts[map_id] = n
+	if requester == multiplayer.get_unique_id():
+		receive_population_counts(counts)
+	else:
+		receive_population_counts.rpc_id(requester, counts)
+
+
+## [Server -> Client] Delivers the population snapshot to the requester.
+@rpc("authority", "call_local", "reliable")
+func receive_population_counts(counts: Dictionary) -> void:
+	population_counts_received.emit(counts)
 
 
 ## Server-only. Invokes `fn(peer_id)` for each client on `map_id`. The single

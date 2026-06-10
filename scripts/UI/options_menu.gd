@@ -7,6 +7,8 @@ signal back_pressed
 @onready var music_slider: HSlider = %MusicSlider
 @onready var sfx_slider: HSlider = %SfxSlider
 @onready var screen_shake_checkbox: CheckBox = %ScreenShakeCheckBox
+@onready var chat_text_size_slider: HSlider = %ChatTextSizeSlider
+@onready var chat_text_size_value: Label = %ChatTextSizeValue
 @onready var back_button: Button = %BackButton
 
 var master_bus_idx: int
@@ -26,6 +28,8 @@ func _ready():
 	music_slider.value = db_to_linear(UserConfig.music_volume_db)
 	sfx_slider.value = db_to_linear(UserConfig.sfx_volume_db)
 	screen_shake_checkbox.button_pressed = UserConfig.screen_shake_enabled
+	chat_text_size_slider.value = UserConfig.chat_text_size
+	chat_text_size_value.text = str(UserConfig.chat_text_size)
 
 
 	# Connect slider signals
@@ -33,6 +37,7 @@ func _ready():
 	music_slider.value_changed.connect(_on_music_slider_value_changed)
 	sfx_slider.value_changed.connect(_on_sfx_slider_value_changed)
 	screen_shake_checkbox.toggled.connect(_on_screen_shake_toggled)
+	chat_text_size_slider.value_changed.connect(_on_chat_text_size_changed)
 
 func show_menu():
 	visible = true
@@ -51,3 +56,7 @@ func _on_sfx_slider_value_changed(value: float):
 
 func _on_screen_shake_toggled(button_pressed: bool):
 	UserConfig.set_screen_shake_enabled(button_pressed)
+
+func _on_chat_text_size_changed(value: float):
+	UserConfig.set_chat_text_size(int(value))
+	chat_text_size_value.text = str(int(value))

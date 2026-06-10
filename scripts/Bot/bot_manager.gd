@@ -12,6 +12,33 @@ var _used_names: Dictionary = {}
 var _bot_def_map: Dictionary = {}  # { bot_id: bot_def Dictionary from config }
 var _inspect_window: BotInspectWindow = null
 
+# --- Ambient population (ADR 0011): personality archetypes + identity roster ---
+## Archetype table (chattiness + per-event line pools), data not code.
+var _personalities: Dictionary = {}
+## Shared banter topics: each entry pairs ONE opener with replies that actually
+## answer it — exchanges are coherent by construction, unlike the old
+## independent per-archetype open/reply pools (any open could draw any reply).
+var _banter_topics: Array = []
+var _personalities_path: String = "res://config/bot_personalities.json"
+## Server-side identity roster: persists the personality a random bot rolled so
+## it stays recognizable across sessions. Deliberately NOT a backend column —
+## see docs/adr/0011-bot-ambient-population.md.
+var _roster: Dictionary = {}
+var _roster_path: String = "res://saves/bot_roster.json"
+var _roster_loaded: bool = false
+## Bots whose spawn found NO existing save row — they get a one-time level/gold
+## seed in _on_bot_spawned so a cold-start server has a leveled population
+## instead of twenty newborns. Set by PlayerManager.add_bot.
+var _fresh_bots: Dictionary = {}
+## Login/logout churn timer (ADR 0012) — the population changes over a session.
+var _churn_timer: float = 0.0
+## Bot-to-bot banter timer (ADR 0012) — overheard conversation for an audience.
+var _banter_timer: float = 0.0
+const BANTER_INTERVAL_MIN: float = 60.0
+const BANTER_INTERVAL_MAX: float = 140.0
+## The two bots must be near each other to read as a conversation.
+const BANTER_PAIR_RANGE: float = 350.0
+
 ## Emitted (on any peer) when a requested bot data snapshot arrives.
 signal bot_snapshot_received(bot_id: int, snapshot: Dictionary)
 
@@ -49,6 +76,7 @@ func _ready() -> void:
 
 func _on_server_started() -> void:
 	load_config(_config_path)
+	_load_personalities()
 	if bot_config.get("auto_spawn", false):
 		# Wait a few frames for the first map to load before spawning bots.
 		await get_tree().create_timer(2.0).timeout
@@ -141,6 +169,10 @@ func despawn_bot(bot_id: int) -> void:
 	if PartyManager.get_player_party_id(bot_id) != -1:
 		PartyManager.leave_party(bot_id)
 
+	# Stamp last_seen so churn re-login and offline catch-up know when this
+	# identity was last in the world.
+	_touch_roster(info.username, info.class_type, String(info.get("personality", "")))
+
 	# The brain lives under BotManager, so free it explicitly — it is not a
 	# child of the character node that remove_player tears down.
 	var brain = info.get("brain")
@@ -204,6 +236,29 @@ func _on_bot_spawned(bot_id: int) -> void:
 	if is_instance_valid(bot_camera):
 		bot_camera.queue_free()
 
+	# Resolve the bot's personality once (config > roster > persisted roll),
+	# then stamp the full roster identity (class + last_seen) so churn and
+	# offline catch-up know this name. The PREVIOUS last_seen is captured
+	# first — the stamp would otherwise zero the downtime catch-up measures.
+	var first_session_spawn: bool = bot_id in active_bots and not active_bots[bot_id].has("personality")
+	var prev_last_seen: int = 0
+	if first_session_spawn:
+		if not _roster_loaded:
+			_load_roster()
+		prev_last_seen = int(_roster.get(active_bots[bot_id]["username"], {}).get("last_seen", 0))
+		active_bots[bot_id]["personality"] = _resolve_personality_key(
+			active_bots[bot_id]["username"], get_bot_definition(bot_id))
+		_touch_roster(active_bots[bot_id]["username"], active_bots[bot_id]["class_type"],
+				String(active_bots[bot_id]["personality"]))
+
+	# Level pumps run BEFORE the brain attaches — they fire dozens of level-up
+	# signals, and pre-brain means no speech hook hears them.
+	if _fresh_bots.has(bot_id):
+		_fresh_bots.erase(bot_id)
+		_seed_fresh_bot(bot_id)
+	elif first_session_spawn and prev_last_seen > 0:
+		_apply_offline_catchup(bot_id, prev_last_seen)
+
 	# The brain is parented to BotManager — not the character node — so it
 	# survives the character being freed and recreated on every map change,
 	# keeping its travel timers, patrol progress and cooldowns intact. On a map
@@ -232,6 +287,7 @@ func _on_bot_spawned(bot_id: int) -> void:
 		brain.init(player_node, bot_id, behavior_cfg)
 		if bot_id in active_bots:
 			active_bots[bot_id]["brain"] = brain
+	brain.personality = get_bot_personality(bot_id)
 
 	if bot_id in active_bots:
 		var current_map := MapManager.get_player_map(bot_id)
@@ -255,6 +311,475 @@ func handle_bot_reparented(bot_id: int) -> void:
 		var current_map := MapManager.get_player_map(bot_id)
 		if not current_map.is_empty():
 			active_bots[bot_id]["map_id"] = current_map
+
+
+# --- Personality archetypes + identity roster (ADR 0011) ---
+
+func _load_personalities() -> void:
+	_personalities = {}
+	_banter_topics = []
+	if not FileAccess.file_exists(_personalities_path):
+		return
+	var file := FileAccess.open(_personalities_path, FileAccess.READ)
+	var parsed = JSON.parse_string(file.get_as_text())
+	file.close()
+	if parsed is Dictionary:
+		_personalities = parsed.get("archetypes", {})
+		_banter_topics = parsed.get("banter", [])
+	else:
+		push_warning("BotManager: Failed to parse %s" % _personalities_path)
+
+
+func _load_roster() -> void:
+	_roster_loaded = true
+	_roster = {}
+	if not FileAccess.file_exists(_roster_path):
+		return
+	var file := FileAccess.open(_roster_path, FileAccess.READ)
+	var parsed = JSON.parse_string(file.get_as_text())
+	file.close()
+	if parsed is Dictionary:
+		_roster = parsed
+
+
+func _save_roster() -> void:
+	DirAccess.make_dir_recursive_absolute("res://saves")
+	var file := FileAccess.open(_roster_path, FileAccess.WRITE)
+	if file == null:
+		push_warning("BotManager: Could not write roster to %s" % _roster_path)
+		return
+	file.store_string(JSON.stringify(_roster, "  "))
+	file.close()
+
+
+## The personality archetype KEY for a bot: an authored `personality` in its
+## config entry wins; otherwise the roster's persisted roll; otherwise roll one
+## now and persist it so this name keeps its personality across sessions.
+func _resolve_personality_key(bot_name: String, bot_def: Dictionary) -> String:
+	if _personalities.is_empty():
+		return ""
+	var authored: String = bot_def.get("personality", "")
+	if not authored.is_empty() and _personalities.has(authored):
+		return authored
+	if not _roster_loaded:
+		_load_roster()
+	var rostered: String = _roster.get(bot_name, {}).get("personality", "")
+	if not rostered.is_empty() and _personalities.has(rostered):
+		return rostered
+	var keys: Array = _personalities.keys()
+	var rolled: String = keys.pick_random()
+	_roster[bot_name] = {"personality": rolled}
+	_save_roster()
+	return rolled
+
+
+## The full archetype Dictionary ({chattiness, lines}) a bot speaks with, plus
+## its key under "key". Empty Dictionary when personalities are unavailable.
+func get_bot_personality(bot_id: int) -> Dictionary:
+	var key: String = active_bots.get(bot_id, {}).get("personality", "")
+	if key.is_empty() or not _personalities.has(key):
+		return {}
+	var archetype: Dictionary = _personalities[key].duplicate()
+	archetype["key"] = key
+	return archetype
+
+
+## Swaps a live bot's personality and persists the choice in the roster. Note:
+## a config-authored "personality" on the bot's entry still wins on the NEXT
+## spawn — this is a live/runtime override for testing and for random bots.
+func set_bot_personality(bot_id: int, key: String) -> bool:
+	if not _personalities.has(key) or not active_bots.has(bot_id):
+		return false
+	active_bots[bot_id]["personality"] = key
+	var brain := get_bot_brain(bot_id)
+	if brain != null:
+		brain.personality = get_bot_personality(bot_id)
+	_touch_roster(active_bots[bot_id]["username"], active_bots[bot_id]["class_type"], key)
+	return true
+
+
+## "5m ago"-style relative timestamp for roster output.
+func _format_ago(unix: int) -> String:
+	if unix <= 0:
+		return "never"
+	var secs: int = int(Time.get_unix_time_from_system()) - unix
+	if secs < 60:
+		return "%ds ago" % maxi(secs, 0)
+	if secs < 3600:
+		return "%dm ago" % (secs / 60)
+	if secs < 86400:
+		return "%dh ago" % (secs / 3600)
+	return "%dd ago" % (secs / 86400)
+
+
+## Writes/refreshes a bot's roster identity (personality, class, last_seen).
+## The roster is what lets churn re-login an identity faithfully and what
+## offline catch-up measures downtime against (ADR 0012).
+func _touch_roster(bot_name: String, class_type: int, personality_key: String) -> void:
+	if not _roster_loaded:
+		_load_roster()
+	var entry: Dictionary = _roster.get(bot_name, {})
+	if not personality_key.is_empty():
+		entry["personality"] = personality_key
+	entry["class"] = Constants.ClassType.find_key(class_type)
+	entry["last_seen"] = Time.get_unix_time_from_system()
+	_roster[bot_name] = entry
+	_save_roster()
+
+
+# --- Reputation (ADR 0012): per-bot, per-player familiarity in the roster ---
+
+## Bumps how well a bot knows a player (parties shared, trades). Drives the
+## tiered greeting pools — the cross-session "Bob remembers me" payoff.
+func add_reputation(bot_id: int, player_username: String, amount: int) -> void:
+	if not active_bots.has(bot_id) or player_username.is_empty():
+		return
+	if not _roster_loaded:
+		_load_roster()
+	var bot_name: String = active_bots[bot_id].username
+	var entry: Dictionary = _roster.get(bot_name, {})
+	var rep: Dictionary = entry.get("rep", {})
+	rep[player_username] = int(rep.get(player_username, 0)) + amount
+	entry["rep"] = rep
+	_roster[bot_name] = entry
+	_save_roster()
+
+
+func get_reputation(bot_id: int, player_username: String) -> int:
+	var bot_name: String = active_bots.get(bot_id, {}).get("username", "")
+	if bot_name.is_empty():
+		return 0
+	if not _roster_loaded:
+		_load_roster()
+	return int(_roster.get(bot_name, {}).get("rep", {}).get(player_username, 0))
+
+
+# --- Login/logout churn (ADR 0012) ---
+
+func _step_churn(delta: float) -> void:
+	var cfg: Dictionary = bot_config.get("churn", {})
+	if not cfg.get("enabled", false):
+		return
+	_churn_timer -= delta
+	if _churn_timer > 0.0:
+		return
+	_churn_timer = randf_range(float(cfg.get("interval_min", 180.0)), float(cfg.get("interval_max", 420.0)))
+	_churn_tick(cfg)
+
+
+## One churn event: log an offline identity in, or an online bot off. The
+## feed notice goes to EVERY real player — login churn is global server
+## texture, not map-scoped chatter.
+func _churn_tick(cfg: Dictionary) -> void:
+	var min_online: int = int(cfg.get("min_online", 2))
+	var max_online: int = int(cfg.get("max_online", 8))
+	var offline: Array = _offline_identities()
+	var logout_pool: Array = _logout_candidates()
+	var can_login: bool = active_bots.size() < max_online and not offline.is_empty()
+	var can_logout: bool = active_bots.size() > min_online and not logout_pool.is_empty()
+	if not can_login and not can_logout:
+		return
+	var do_login: bool = can_login if not (can_login and can_logout) else randf() < 0.5
+
+	if do_login:
+		var pick: Dictionary = offline.pick_random()
+		if login_identity(pick.name) != 0:
+			_broadcast_system_to_players("%s has logged in." % pick.name, Color(0.6, 0.85, 0.6))
+	else:
+		var out_id: int = logout_pool.pick_random()
+		var out_name: String = active_bots[out_id].username
+		despawn_bot(out_id)
+		_broadcast_system_to_players("%s has logged off." % out_name, Color(0.65, 0.65, 0.65))
+
+
+## Spawns a known offline identity by name (config def or roster entry) — the
+## same path churn login uses, shared with the roster UI's "Log In" button.
+## Returns the new bot id, or 0.
+func login_identity(identity_name: String) -> int:
+	for pick in _offline_identities():
+		if String(pick.name).to_lower() == identity_name.to_lower():
+			var bot_id := spawn_bot(pick.name, pick.class_type, "")
+			if bot_id == 0:
+				return 0
+			# Re-link the config definition (patrol route etc.) for authored names.
+			for bot_def in bot_config.get("bots", []):
+				if String(bot_def.get("name", "")) == pick.name:
+					_bot_def_map[bot_id] = bot_def
+					break
+			return bot_id
+	return 0
+
+
+## Read-only view of the persistent roster for UI (loads it on first use).
+func get_roster() -> Dictionary:
+	if not _roster_loaded:
+		_load_roster()
+	return _roster
+
+
+## Identities that could "log in": authored config bots + every roster name,
+## minus whoever is already online.
+func _offline_identities() -> Array:
+	var out: Array = []
+	var seen: Dictionary = {}
+	for bot_def in bot_config.get("bots", []):
+		var bot_name: String = bot_def.get("name", "")
+		if bot_name.is_empty() or bot_name.to_lower() == "random" \
+				or _is_name_taken(bot_name) or seen.has(bot_name):
+			continue
+		seen[bot_name] = true
+		out.append({"name": bot_name, "class_type": _class_string_to_type(bot_def.get("class", "SWORDSMAN"))})
+	if not _roster_loaded:
+		_load_roster()
+	for bot_name in _roster:
+		if _is_name_taken(bot_name) or seen.has(bot_name):
+			continue
+		seen[bot_name] = true
+		out.append({"name": bot_name, "class_type": _class_string_to_type(String(_roster[bot_name].get("class", "SWORDSMAN")))})
+	return out
+
+
+## Online bots that may churn out: never a real player's groupmate, never a
+## commanded companion, never a stress-test bot.
+func _logout_candidates() -> Array:
+	var out: Array = []
+	for bot_id in active_bots:
+		if bot_id in _stress_bot_ids:
+			continue
+		var party_id := PartyManager.get_player_party_id(bot_id)
+		if party_id != -1 and PartyManager._party_has_real_player(party_id):
+			continue
+		var brain := get_bot_brain(bot_id)
+		if brain != null and not brain.companion_mode.is_empty():
+			continue
+		# Mid-invite bots stay online — churning one out dissolves the party
+		# the player is about to accept into.
+		if brain != null and brain._pending_player_invite_timer > 0.0:
+			continue
+		out.append(bot_id)
+	return out
+
+
+## System line to every connected real player.
+func _broadcast_system_to_players(text: String, color: Color) -> void:
+	for pid in PlayerManager.active_players:
+		if not is_bot(pid):
+			ChatManager.notify_peer(pid, text, color)
+
+
+# --- Bot-to-bot banter (ADR 0012) ---
+
+func _step_banter(delta: float) -> void:
+	_banter_timer -= delta
+	if _banter_timer > 0.0:
+		return
+	_banter_timer = randf_range(BANTER_INTERVAL_MIN, BANTER_INTERVAL_MAX)
+	_banter_tick()
+
+
+## Scripts one overheard exchange: two near-each-other bots on a map that has
+## a real-player audience — one opens, the other answers after the speech gap
+## has cleared. No audience -> no banter; it exists to be overheard. Returns a
+## status line so `/bot banter` can report what happened.
+func _banter_tick() -> String:
+	var by_map: Dictionary = {}
+	for bot_id in active_bots:
+		var map_id := MapManager.get_player_map(bot_id)
+		if map_id.is_empty() or MapManager.get_real_players_on_map(map_id).is_empty():
+			continue
+		if not by_map.has(map_id):
+			by_map[map_id] = []
+		by_map[map_id].append(bot_id)
+
+	var candidate_maps: Array = []
+	for map_id in by_map:
+		if by_map[map_id].size() >= 2:
+			candidate_maps.append(map_id)
+	if candidate_maps.is_empty():
+		return "No map has both an audience and 2+ bots."
+
+	var bots: Array = by_map[candidate_maps.pick_random()]
+	bots.shuffle()
+	for i in bots.size():
+		var node_a := PlayerManager.get_player_node(bots[i])
+		if not is_instance_valid(node_a):
+			continue
+		for j in range(i + 1, bots.size()):
+			var node_b := PlayerManager.get_player_node(bots[j])
+			if not is_instance_valid(node_b):
+				continue
+			if node_a.global_position.distance_to(node_b.global_position) > BANTER_PAIR_RANGE:
+				continue
+			_run_banter(bots[i], bots[j], node_a.username, node_b.username)
+			return "Banter: %s -> %s." % [node_a.username, node_b.username]
+	return "No two bots within %dpx of each other." % int(BANTER_PAIR_RANGE)
+
+
+## One scripted exchange from the shared topic table: A opens, B answers with a
+## reply written FOR that opener. Delivered straight through bot_say (budget
+## applies); the reply waits out the global speech gap so both lines clear it.
+func _run_banter(id_a: int, id_b: int, name_a: String, name_b: String) -> void:
+	if _banter_topics.is_empty():
+		return
+	var topic: Dictionary = _banter_topics.pick_random()
+	var map_name: String = MapManager._map_display_name(MapManager.get_player_map(id_a))
+	var open_text: String = String(topic.get("open", "")).format({"player": name_b, "map": map_name})
+	if open_text.is_empty() or not ChatManager.bot_say(id_a, open_text):
+		return
+	await get_tree().create_timer(ChatManager.BOT_SPEECH_GLOBAL_GAP + randf_range(1.0, 2.5)).timeout
+	var replies: Array = topic.get("replies", [])
+	if replies.is_empty():
+		return
+	var reply_text: String = String(replies.pick_random()).format({"player": name_a, "map": map_name})
+	ChatManager.bot_say(id_b, reply_text)
+
+
+# --- Level-up congratulations (ADR 0012 texture) ---
+
+## How close a bot must be to the leveler to notice the ding.
+const GRATS_RANGE: float = 500.0
+
+## A character leveled up where bots could see it — a nearby bot may answer
+## with a "grats" line. Called from BotBrain._on_leveled_up when a BOT's own
+## level_up line was actually delivered (`spoke` true), and from
+## LevelingComponent for PLAYER dings (the level-up flash + sound are visible
+## map-wide, so a grats needs no preceding chat line).
+func queue_grats(leveler_id: int, level: int, spoke: bool) -> void:
+	if not multiplayer.is_server():
+		return
+	# Sometimes, not every ding — milestone levels always get the cheer.
+	if level % 10 != 0 and randf() < 0.5:
+		return
+	_deliver_grats(leveler_id, level, spoke)
+
+
+func _deliver_grats(leveler_id: int, level: int, spoke: bool) -> void:
+	# After the leveler's own line clears the speech budget (bot levelers), or
+	# a natural beat after the ding (player levelers).
+	var delay: float = ChatManager.BOT_SPEECH_GLOBAL_GAP + randf_range(0.8, 2.2) \
+			if spoke else randf_range(1.5, 3.0)
+	await get_tree().create_timer(delay).timeout
+
+	var leveler := PlayerManager.get_player_node(leveler_id)
+	if not is_instance_valid(leveler):
+		return
+	var map_id := MapManager.get_player_map(leveler_id)
+	if map_id.is_empty():
+		return
+	var candidates: Array = []
+	for bot_id in active_bots:
+		if bot_id == leveler_id:
+			continue
+		if MapManager.get_player_map(bot_id) != map_id:
+			continue
+		var node := PlayerManager.get_player_node(bot_id)
+		if not is_instance_valid(node):
+			continue
+		if node.global_position.distance_to(leveler.global_position) > GRATS_RANGE:
+			continue
+		candidates.append(bot_id)
+	if candidates.is_empty():
+		return
+	var brain := get_bot_brain(candidates.pick_random())
+	if brain != null:
+		brain.try_speak("grats", {"player": leveler.username, "level": level}, true)
+
+
+# --- Cold-start seeding (ADR 0011) ---
+
+## Flags a bot whose data load found no save row. Called by PlayerManager.add_bot
+## before the spawn handshake; consumed once in _on_bot_spawned.
+func mark_bot_fresh(bot_id: int) -> void:
+	_fresh_bots[bot_id] = true
+
+
+## One-time seed for a brand-new bot (no save row): level it into a difficulty
+## band so the population reads as a lived-in server, and grant band-appropriate
+## gold so the existing restock/equip logic can gear it up on its first town
+## trip. Runs AFTER JoinHandshake (components live, load complete), and goes
+## through pump_bot_to_level — the same EXP+mastery path as /bot set_level — so
+## the ability/attribute point-reconcile invariant holds.
+func _seed_fresh_bot(bot_id: int) -> void:
+	var player_node := PlayerManager.get_player_node(bot_id)
+	if not is_instance_valid(player_node) or not is_instance_valid(player_node.level_component):
+		return
+
+	var bot_def := get_bot_definition(bot_id)
+	var target_level: int = int(bot_def.get("seed_level", 0))
+	if target_level <= 0:
+		# Pick a band: the spawn map's if it has one, else a random banded map
+		# from the patrol route (config bots start in town, which is unbanded).
+		var band := get_map_difficulty(MapManager.get_player_map(bot_id))
+		if band.is_empty():
+			var banded: Array = []
+			for map_id in bot_def.get("patrol_route", _default_patrol_route()):
+				if not get_map_difficulty(map_id).is_empty():
+					banded.append(map_id)
+			if not banded.is_empty():
+				band = get_map_difficulty(banded.pick_random())
+		if band.is_empty():
+			return  # nowhere to anchor a seed — stay level 1
+		target_level = randi_range(int(band.get("min_level", 1)), int(band.get("max_level", 1)))
+
+	var cap: int = int(bot_config.get("seed_max_level", 0))
+	if cap > 0:
+		target_level = mini(target_level, cap)
+	if target_level <= player_node.level_component.level:
+		return
+
+	pump_bot_to_level(player_node, target_level)
+	if is_instance_valid(player_node.player_inventory):
+		player_node.player_inventory.monies_amount += target_level * 40
+
+
+## A returning bot "kept playing" while it was offline (ADR 0012): downtime
+## since the roster's last_seen converts to levels through the same
+## EXP+mastery pump as seeding, so the point-reconcile invariant holds. The
+## world keeps living between host sessions.
+func _apply_offline_catchup(bot_id: int, last_seen_unix: int) -> void:
+	var cfg: Dictionary = bot_config.get("offline_progression", {})
+	if not cfg.get("enabled", false):
+		return
+	var player_node := PlayerManager.get_player_node(bot_id)
+	if not is_instance_valid(player_node) or not is_instance_valid(player_node.level_component):
+		return
+	var hours: float = maxf(0.0, (Time.get_unix_time_from_system() - last_seen_unix) / 3600.0)
+	var gained: int = mini(int(hours * float(cfg.get("levels_per_hour", 0.25))), int(cfg.get("max_catchup", 8)))
+	if gained <= 0:
+		return
+	var target: int = player_node.level_component.level + gained
+	var cap: int = int(bot_config.get("seed_max_level", 0))
+	if cap > 0:
+		target = mini(target, cap)
+	pump_bot_to_level(player_node, target)
+	if is_instance_valid(player_node.player_inventory):
+		player_node.player_inventory.monies_amount += gained * 40
+
+
+## Levels a bot's character to `level` by pumping EXP, and raises its
+## primary-discipline mastery to match (one mastery level per character level,
+## capped) — character EXP only grants attribute points; ability points come
+## from WEAPON MASTERY (mastery_level_changed -> ability-point grant), so
+## without the mastery pump a leveled bot would have a full attribute build but
+## no skills. One level's XP per call: grant_mastery_xp_server emits once per
+## call, so a single lump would jump levels but grant only one ability point.
+## Shared by /bot set_level and cold-start seeding. Returns a mastery summary.
+func pump_bot_to_level(player_node: MultiplayerPlayerV2, level: int) -> String:
+	while player_node.level_component.level < level:
+		var before: int = player_node.level_component.level
+		player_node.level_component.add_exp(player_node.level_component.get_exp_to_next_level())
+		if player_node.level_component.level == before:
+			break  # level cap — exp no longer levels; don't spin
+	var mastery_msg := ""
+	var wm = player_node.weapon_mastery_component
+	if is_instance_valid(wm):
+		var disc: int = wm.primary_discipline
+		var target_mastery: int = mini(level, WeaponMasteryComponent.MASTERY_CAP)
+		var start_mastery: int = wm.get_mastery_level(disc)
+		while wm.get_mastery_level(disc) < target_mastery:
+			wm.grant_mastery_xp_server(disc, wm.get_xp_to_next_level(disc))
+		mastery_msg = " (mastery %d -> %d)" % [start_mastery, wm.get_mastery_level(disc)]
+	return mastery_msg
 
 
 # --- Client-side bot data sync (on-demand snapshots) ---
@@ -299,6 +824,26 @@ func _gather_bot_snapshot(bot_id: int) -> Dictionary:
 	var brain := get_bot_brain(bot_id)
 	if brain:
 		snap["action"] = brain.current_action
+		snap["companion"] = brain.companion_mode
+		snap["metrics"] = brain.get_metrics().duplicate()
+		snap["patrol_route"] = brain.patrol_route.duplicate()
+		snap["patrol_index"] = brain.patrol_index
+
+	# Identity + social layer (ADR 0011/0012) for the inspect window.
+	snap["personality"] = String(active_bots.get(bot_id, {}).get("personality", ""))
+	var archetype := get_bot_personality(bot_id)
+	snap["chattiness"] = float(archetype.get("chattiness", 0.0))
+	if not _roster_loaded:
+		_load_roster()
+	snap["rep"] = _roster.get(node.username, {}).get("rep", {}).duplicate()
+
+	# Per-discipline weapon mastery levels.
+	var masteries: Dictionary = {}
+	if is_instance_valid(node.weapon_mastery_component):
+		for disc in [Constants.ClassType.SWORD, Constants.ClassType.BOW,
+				Constants.ClassType.STAFF, Constants.ClassType.DAGGER]:
+			masteries[disc] = node.weapon_mastery_component.get_mastery_level(disc)
+	snap["masteries"] = masteries
 
 	# Equipment — keyed by str(equipment key); {} for an empty slot.
 	var eq: Dictionary = {}
@@ -431,6 +976,8 @@ func _process(delta: float) -> void:
 		return
 	_step_nav_graph_builds()
 	_update_watch_camera()
+	_step_churn(delta)
+	_step_banter(delta)
 	if _stress_active:
 		_step_stress(delta)
 
@@ -480,10 +1027,21 @@ func _step_nav_graph_builds() -> void:
 
 
 ## Camera-follow a bot for debugging. watch_bot(0) stops and restores the host
-## camera. Host-only — peer 1's player owns the active viewport camera there.
+## view. Host-only.
+##
+## Every map lives in its own SubViewport with an isolated World2D (ADR 0007),
+## so the host's camera can never LOOK at a bot on another map — a camera only
+## sees its own world. Watching therefore (a) locally composites the BOT's map
+## (the same _set_local_map_visible switch a host map change uses; purely
+## visual, the host keeps simulating on its own now-hidden map) and (b) drives
+## a dedicated follow camera that lives inside the bot's SubViewport.
 var _watched_bot: int = 0
-var _watch_saved_cam_pos: Vector2 = Vector2.ZERO
-var _watch_cam_saved: bool = false
+var _watch_camera: Camera2D = null
+## The map this watch session is currently compositing locally ("" = none).
+var _watch_shown_map: String = ""
+## The host map this watch session has hidden ("" = none) — re-hidden if the
+## host itself changes maps mid-watch (its arrival re-shows its new map).
+var _watch_hidden_host_map: String = ""
 
 func watch_bot(bot_id: int) -> void:
 	if bot_id == _watched_bot:
@@ -499,17 +1057,21 @@ func get_watched_bot() -> int:
 
 
 func _restore_watch_camera() -> void:
-	if not _watch_cam_saved:
-		return
+	if is_instance_valid(_watch_camera):
+		_watch_camera.queue_free()
+	_watch_camera = null
+	# Put the host's own map back on screen and hand the view back to its camera.
+	if not _watch_shown_map.is_empty() and _watch_shown_map != MapManager.current_map_id:
+		MapManager._set_local_map_visible(_watch_shown_map, false)
+	if not MapManager.current_map_id.is_empty():
+		MapManager._set_local_map_visible(MapManager.current_map_id, true)
+	_watch_shown_map = ""
+	_watch_hidden_host_map = ""
 	var host := PlayerManager.get_player_node(1)
 	if is_instance_valid(host) and is_instance_valid(host.camera):
-		host.camera.position = _watch_saved_cam_pos
-		# Reinstate the current map's camera bounds (they were widened to let the
-		# follow camera move freely). _apply_map_camera_bounds re-reads the active
-		# MapBase, so it handles the case where the host changed maps mid-watch.
+		host.camera.make_current()
 		if host.has_method("_apply_map_camera_bounds"):
 			host._apply_map_camera_bounds(host.camera)
-	_watch_cam_saved = false
 
 
 func _update_watch_camera() -> void:
@@ -519,19 +1081,46 @@ func _update_watch_camera() -> void:
 		watch_bot(0)  # bot despawned — stop following
 		return
 	var bot := PlayerManager.get_player_node(_watched_bot)
-	var host := PlayerManager.get_player_node(1)
-	if not is_instance_valid(bot) or not is_instance_valid(host) or not is_instance_valid(host.camera):
+	if not is_instance_valid(bot):
 		return
-	if not _watch_cam_saved:
-		_watch_saved_cam_pos = host.camera.position
-		_watch_cam_saved = true
-	# Widen the camera limits every frame: the per-map MapBase bounds otherwise
-	# clamp the follow camera, and a mid-watch map change would re-apply them.
-	host.camera.limit_left = -10000000
-	host.camera.limit_top = -10000000
-	host.camera.limit_right = 10000000
-	host.camera.limit_bottom = 10000000
-	host.camera.global_position = bot.global_position
+	var bot_map := MapManager.get_player_map(_watched_bot)
+	if bot_map.is_empty():
+		return
+
+	# Composite the bot's map locally (and keep up when the bot hops maps).
+	if _watch_shown_map != bot_map:
+		if not _watch_shown_map.is_empty() and _watch_shown_map != MapManager.current_map_id:
+			MapManager._set_local_map_visible(_watch_shown_map, false)
+		if MapManager.current_map_id != bot_map:
+			MapManager._set_local_map_visible(MapManager.current_map_id, false)
+			_watch_hidden_host_map = MapManager.current_map_id
+		MapManager._set_local_map_visible(bot_map, true)
+		_watch_shown_map = bot_map
+
+	# The host changing maps mid-watch re-shows ITS new map — re-hide it so the
+	# watched map stays the one on screen.
+	if MapManager.current_map_id != bot_map and MapManager.current_map_id != _watch_hidden_host_map:
+		MapManager._set_local_map_visible(MapManager.current_map_id, false)
+		_watch_hidden_host_map = MapManager.current_map_id
+
+	# Follow camera inside the bot's own SubViewport/World2D. Recreated when
+	# the bot crosses into a different viewport (reparent map hop).
+	if not is_instance_valid(_watch_camera) or _watch_camera.get_viewport() != bot.get_viewport():
+		if is_instance_valid(_watch_camera):
+			_watch_camera.queue_free()
+		_watch_camera = Camera2D.new()
+		_watch_camera.name = "BotWatchCamera"
+		var host := PlayerManager.get_player_node(1)
+		if is_instance_valid(host) and is_instance_valid(host.camera):
+			_watch_camera.zoom = host.camera.zoom
+		bot.get_viewport().add_child(_watch_camera)
+		# Land on the bot immediately — physics interpolation would otherwise
+		# swoop the view in from (0,0) on the first frame.
+		_watch_camera.global_position = bot.global_position
+		_watch_camera.reset_physics_interpolation()
+	if not _watch_camera.is_current():
+		_watch_camera.make_current()
+	_watch_camera.global_position = bot.global_position
 
 
 ## The cached nav graph for a map (built or still building), for debug tooling.
@@ -639,7 +1228,7 @@ func _class_string_to_type(class_str: String) -> int:
 ## route UI back to the requesting client rather than always the host.
 func handle_command(args: Array, requester_id: int = 0) -> String:
 	if args.is_empty():
-		return "Usage: /bot <spawn|despawn|despawn_all|list|teleport|set_level|party|travel|stress|inspect|trade|navgraph|navpath|debugdraw|stats|watch|reload_config>"
+		return "Usage: /bot <spawn|despawn|despawn_all|list|roster|teleport|set_level|personality|say|emote|rep|party|follow|stay|free|churn|banter|travel|stress|inspect|trade|navgraph|navpath|debugdraw|stats|watch|reload_config>"
 
 	var sub_command: String = args[0].to_lower()
 	match sub_command:
@@ -715,28 +1304,35 @@ func handle_command(args: Array, requester_id: int = 0) -> String:
 			if not is_instance_valid(player_node) or not is_instance_valid(player_node.level_component):
 				return "Bot %d player node not ready." % bot_id
 			var current := player_node.level_component.level
-			while player_node.level_component.level < level:
-				player_node.level_component.add_exp(player_node.level_component.get_exp_to_next_level())
-			# Character EXP only grants attribute points; ability points come
-			# from WEAPON MASTERY (mastery_level_changed -> ability-point grant),
-			# which set_level would otherwise never raise — leaving a high-level
-			# test bot with a full attribute build but no skills. Raise the bot's
-			# primary-discipline mastery to match so it has a usable kit. One
-			# level's XP per call: grant_mastery_xp_server emits once per call, so
-			# a single lump would jump levels but grant only one ability point.
-			var mastery_msg := ""
-			var wm = player_node.weapon_mastery_component
-			if is_instance_valid(wm):
-				var disc: int = wm.primary_discipline
-				var target_mastery: int = mini(level, WeaponMasteryComponent.MASTERY_CAP)
-				var start_mastery: int = wm.get_mastery_level(disc)
-				while wm.get_mastery_level(disc) < target_mastery:
-					wm.grant_mastery_xp_server(disc, wm.get_xp_to_next_level(disc))
-				mastery_msg = " (mastery %d -> %d)" % [start_mastery, wm.get_mastery_level(disc)]
+			var mastery_msg := pump_bot_to_level(player_node, level)
 			return "Bot %d leveled from %d to %d.%s" % [bot_id, current, player_node.level_component.level, mastery_msg]
 
 		"party":
 			return _handle_party_command(args.slice(1))
+
+		"follow", "stay", "free":
+			return _handle_companion_command(sub_command, args.slice(1), requester_id)
+
+		"roster":
+			return _handle_roster_command(args.slice(1))
+
+		"personality":
+			return _handle_personality_command(args.slice(1))
+
+		"say":
+			return _handle_say_command(args.slice(1))
+
+		"emote":
+			return _handle_emote_command(args.slice(1))
+
+		"rep":
+			return _handle_rep_command(args.slice(1))
+
+		"churn":
+			return _handle_churn_command(args.slice(1))
+
+		"banter":
+			return _banter_tick()
 
 		"travel":
 			return _handle_travel_command(args.slice(1))
@@ -752,7 +1348,9 @@ func handle_command(args: Array, requester_id: int = 0) -> String:
 
 		"reload_config":
 			load_config(_config_path)
-			return "Bot config reloaded (%d bot definitions)." % bot_config.get("bots", []).size()
+			_load_personalities()
+			return "Bot config reloaded (%d bot definitions, %d personality archetypes)." % [
+				bot_config.get("bots", []).size(), _personalities.size()]
 
 		"navgraph":
 			return _handle_navgraph_command(args.slice(1))
@@ -770,7 +1368,214 @@ func handle_command(args: Array, requester_id: int = 0) -> String:
 			return _handle_watch_command(args.slice(1))
 
 		_:
-			return "Unknown bot command '%s'. Use: spawn, despawn, despawn_all, list, teleport, set_level, party, travel, inspect, trade, navgraph, navpath, debugdraw, stats, watch, reload_config" % sub_command
+			return "Unknown bot command '%s'. Use: spawn, despawn, despawn_all, list, roster, teleport, set_level, personality, say, emote, rep, party, follow, stay, free, churn, banter, travel, inspect, trade, navgraph, navpath, debugdraw, stats, watch, reload_config" % sub_command
+
+
+## /bot roster [forget <name>] — the persistent identity book (ADR 0011/0012):
+## every name the server has ever rolled, with class, personality, last_seen,
+## reputation footprint, and whether it is online right now.
+func _handle_roster_command(args: Array) -> String:
+	if not _roster_loaded:
+		_load_roster()
+	if not args.is_empty() and args[0].to_lower() == "forget":
+		if args.size() < 2:
+			return "Usage: /bot roster forget <name>"
+		var target: String = args[1]
+		for roster_name in _roster:
+			if String(roster_name).to_lower() == target.to_lower():
+				_roster.erase(roster_name)
+				_save_roster()
+				return "Forgot roster identity '%s' (next spawn re-rolls)." % roster_name
+		return "No roster entry for '%s'." % target
+	if _roster.is_empty():
+		return "Roster is empty — identities are written on first spawn."
+	var lines: PackedStringArray = ["Roster (%d identities, saves/bot_roster.json):" % _roster.size()]
+	var names: Array = _roster.keys()
+	names.sort()
+	for roster_name in names:
+		var e: Dictionary = _roster[roster_name]
+		var rep: Dictionary = e.get("rep", {})
+		var best_friend := ""
+		var best_score := 0
+		for player_name in rep:
+			if int(rep[player_name]) > best_score:
+				best_score = int(rep[player_name])
+				best_friend = player_name
+		var rep_str := "knows %d player(s)%s" % [rep.size(),
+			" — best: %s (%d)" % [best_friend, best_score] if not best_friend.is_empty() else ""] \
+			if not rep.is_empty() else "knows nobody yet"
+		lines.append("  %s %-14s %-9s %-9s seen %-8s %s" % [
+			"●" if _is_name_taken(roster_name) else "○", roster_name,
+			String(e.get("class", "?")), String(e.get("personality", "?")),
+			_format_ago(int(e.get("last_seen", 0))), rep_str])
+	lines.append("  (● online  ○ offline · 'forget <name>' re-rolls an identity)")
+	return "\n".join(lines)
+
+
+## /bot personality <name|id> [archetype] — view or live-swap a bot's voice.
+func _handle_personality_command(args: Array) -> String:
+	if args.is_empty():
+		return "Usage: /bot personality <name|id> [%s]" % " | ".join(PackedStringArray(_personalities.keys()))
+	var bot_id := _find_bot_by_name_or_id(args[0])
+	if bot_id == 0:
+		return "Bot '%s' not found." % args[0]
+	var current: String = String(active_bots[bot_id].get("personality", "(unset)"))
+	if args.size() == 1:
+		var archetype := get_bot_personality(bot_id)
+		return "%s: personality '%s' (chattiness %.2f). Archetypes: %s" % [
+			active_bots[bot_id].username, current,
+			float(archetype.get("chattiness", 0.0)),
+			", ".join(PackedStringArray(_personalities.keys()))]
+	var key: String = args[1].to_lower()
+	if not set_bot_personality(bot_id, key):
+		return "Unknown archetype '%s'. Use: %s" % [key, ", ".join(PackedStringArray(_personalities.keys()))]
+	return "%s: personality '%s' -> '%s' (persisted; a config-authored personality still wins on respawn)." % [
+		active_bots[bot_id].username, current, key]
+
+
+## /bot say <name|id> <event|text...> — force speech. A known event key pulls
+## a line from the bot's pools (the real pipeline, budget included); anything
+## else is spoken verbatim. Either way it only lands if a real player shares
+## the bot's map — same rule as organic speech.
+func _handle_say_command(args: Array) -> String:
+	if args.size() < 2:
+		return "Usage: /bot say <name|id> <event|text...> (events: greet, level_up, death, rare_loot, boss_kill, ...)"
+	var bot_id := _find_bot_by_name_or_id(args[0])
+	if bot_id == 0:
+		return "Bot '%s' not found." % args[0]
+	var brain := get_bot_brain(bot_id)
+	if brain == null:
+		return "Bot %d has no active brain." % bot_id
+	var rest: Array = args.slice(1)
+	var archetype := get_bot_personality(bot_id)
+	if rest.size() == 1 and archetype.get("lines", {}).has(rest[0]):
+		brain.try_speak(rest[0], {}, true)
+		return "Forced '%s' line from %s (delivers only if a player is on its map)." % [rest[0], active_bots[bot_id].username]
+	var text: String = " ".join(PackedStringArray(rest))
+	if ChatManager.bot_say(bot_id, text):
+		return "%s says: %s" % [active_bots[bot_id].username, text]
+	return "Not delivered (speech budget, or no real player on the bot's map)."
+
+
+## /bot emote <name|id> <sit|wave|laugh|cry>
+func _handle_emote_command(args: Array) -> String:
+	if args.size() < 2:
+		return "Usage: /bot emote <name|id> <sit|wave|laugh|cry>"
+	var bot_id := _find_bot_by_name_or_id(args[0])
+	if bot_id == 0:
+		return "Bot '%s' not found." % args[0]
+	var emote: String = args[1].to_lower()
+	if not emote.begins_with("/"):
+		emote = "/" + emote
+	if not ChatManager.EMOTES.has(emote):
+		return "Unknown emote '%s'. Use: sit, wave, laugh, cry." % args[1]
+	if ChatManager.bot_emote(bot_id, emote):
+		return "%s %s" % [active_bots[bot_id].username, ChatManager.EMOTES[emote]["text"]]
+	return "Not delivered (emote gap, or no real player on the bot's map)."
+
+
+## /bot rep <name|id> [player [delta]] — view or adjust familiarity scores.
+func _handle_rep_command(args: Array) -> String:
+	if args.is_empty():
+		return "Usage: /bot rep <name|id> [player [delta]]"
+	var bot_id := _find_bot_by_name_or_id(args[0])
+	if bot_id == 0:
+		return "Bot '%s' not found." % args[0]
+	var bot_name: String = active_bots[bot_id].username
+	if args.size() >= 3 and String(args[2]).is_valid_int():
+		add_reputation(bot_id, args[1], String(args[2]).to_int())
+		return "%s rep for '%s' -> %d." % [bot_name, args[1], get_reputation(bot_id, args[1])]
+	if args.size() == 2:
+		var score := get_reputation(bot_id, args[1])
+		return "%s knows '%s' at %d (%s)." % [bot_name, args[1], score, _rep_tier_label(score)]
+	if not _roster_loaded:
+		_load_roster()
+	var rep: Dictionary = _roster.get(bot_name, {}).get("rep", {})
+	if rep.is_empty():
+		return "%s knows nobody yet." % bot_name
+	var lines: PackedStringArray = ["%s's reputation:" % bot_name]
+	for player_name in rep:
+		var score: int = int(rep[player_name])
+		lines.append("  %-14s %3d  (%s)" % [player_name, score, _rep_tier_label(score)])
+	return "\n".join(lines)
+
+
+func _rep_tier_label(score: int) -> String:
+	if score >= 10:
+		return "friend"
+	if score >= 3:
+		return "familiar"
+	return "stranger"
+
+
+## /bot churn <status|on|off|now> — inspect or drive the login/logoff cycler.
+func _handle_churn_command(args: Array) -> String:
+	var cfg: Dictionary = bot_config.get("churn", {})
+	var sub: String = args[0].to_lower() if not args.is_empty() else "status"
+	match sub:
+		"status":
+			return "Churn %s — online %d (floor %d / cap %d), offline pool %d, next event in ~%ds." % [
+				"ON" if cfg.get("enabled", false) else "OFF",
+				active_bots.size(), int(cfg.get("min_online", 2)), int(cfg.get("max_online", 8)),
+				_offline_identities().size(), int(maxf(_churn_timer, 0.0))]
+		"on", "off":
+			if not bot_config.has("churn"):
+				bot_config["churn"] = {}
+			bot_config["churn"]["enabled"] = (sub == "on")
+			return "Churn %s (runtime only — reload_config restores the file's setting)." % sub.to_upper()
+		"now":
+			_churn_timer = randf_range(float(cfg.get("interval_min", 180.0)), float(cfg.get("interval_max", 420.0)))
+			_churn_tick(cfg)
+			return "Churn event forced."
+	return "Usage: /bot churn <status|on|off|now>"
+
+
+## /bot follow|stay|free <name|id|all> — player-issued companion commands
+## (ADR 0011). Party-leader-only, so a bystander can't order someone else's
+## groupmates around. "all" commands every bot in the requester's party. These
+## set a mode flag on the brain — no trinity roles, no new RPC surface.
+func _handle_companion_command(mode: String, args: Array, requester_id: int) -> String:
+	if args.is_empty():
+		return "Usage: /bot %s <name|id|all>" % mode
+	if requester_id == 0 or is_bot(requester_id):
+		return "Companion commands must come from a player."
+	var requester_party := PartyManager.get_player_party_id(requester_id)
+	if requester_party == -1:
+		return "You must be in a party with the bot to command it."
+	if PartyManager.get_party_leader(requester_party) != requester_id:
+		return "Only the party leader can command bots."
+
+	var targets: Array[int] = []
+	if args[0].to_lower() == "all":
+		for member_id in PartyManager.get_party_members(requester_id):
+			if is_bot(member_id):
+				targets.append(member_id)
+		if targets.is_empty():
+			return "No bots in your party."
+	else:
+		var single_id := _find_bot_by_name_or_id(args[0])
+		if single_id == 0:
+			return "Bot '%s' not found." % args[0]
+		if PartyManager.get_player_party_id(single_id) != requester_party:
+			return "Bot '%s' is not in your party." % active_bots[single_id].username
+		targets.append(single_id)
+
+	var applied: PackedStringArray = []
+	for bot_id in targets:
+		var brain := get_bot_brain(bot_id)
+		if brain == null:
+			continue
+		brain.set_companion_mode("" if mode == "free" else mode)
+		applied.append(active_bots[bot_id].username)
+	if applied.is_empty():
+		return "No bot brains available to command."
+	match mode:
+		"follow":
+			return "%s now following you." % ", ".join(applied)
+		"stay":
+			return "%s holding position." % ", ".join(applied)
+		_:
+			return "%s released to roam." % ", ".join(applied)
 
 
 ## Reports a bot's lifetime behaviour metrics.

@@ -1,0 +1,542 @@
+{
+  "banter": [
+    {
+      "open": "anyone else farming {map}, or is it just us out here?",
+      "replies": [
+        "just us, {player}. more drops for me",
+        "saw a couple earlier — they pushed on toward the keep",
+        "quiet today. I'm not complaining"
+      ]
+    },
+    {
+      "open": "drops been any good for you today, {player}?",
+      "replies": [
+        "one rare all morning. ONE.",
+        "can't complain — sold a whole bagful in town",
+        "junk mostly. still beats an empty bag"
+      ]
+    },
+    {
+      "open": "you ever been out past the deep woods, {player}?",
+      "replies": [
+        "once. didn't stay long",
+        "not at my level. someday",
+        "past the woods it stops being farming and starts being surviving"
+      ]
+    },
+    {
+      "open": "heard the Warlord one-shots people clean through the floor",
+      "replies": [
+        "it's a horizontal slam — jump it and you're fine",
+        "only if you stand there admiring the windup",
+        "that's what the jump button is for, {player}"
+      ]
+    },
+    {
+      "open": "I swear the merchant at Lantern's Rest smiles when I walk in broke",
+      "replies": [
+        "the prices are flat, {player}. your potion habit isn't",
+        "ha! felt that one",
+        "buy in bulk, cry once"
+      ]
+    },
+    {
+      "open": "race you to the next rare drop, {player}",
+      "replies": [
+        "you're on",
+        "deal. loser buys the potions",
+        "last race you faceplanted into a thornroot, but sure"
+      ]
+    },
+    {
+      "open": "ever feel like the slimes are staring at you?",
+      "replies": [
+        "they're always staring. that's the job",
+        "...well NOW I do, {player}. thanks",
+        "stare back. they hate that"
+      ]
+    },
+    {
+      "open": "how's the gear holding up, {player}?",
+      "replies": [
+        "better than the old set, worse than I hoped",
+        "it does the job. the job is hitting things",
+        "ask the enemies"
+      ]
+    },
+    {
+      "open": "long day, {player}?",
+      "replies": [
+        "long week",
+        "they're all long out here",
+        "good long, though"
+      ]
+    },
+    {
+      "open": "if you could live anywhere on the map, where?",
+      "replies": [
+        "Lantern's Rest. close to the merchant, far from the Warlord",
+        "somewhere without slimes. so nowhere",
+        "right here's fine. commute's short"
+      ]
+    }
+  ],
+  "archetypes": {
+    "butcher": {
+      "chattiness": 0.85,
+      "lines": {
+        "greet": [
+          "oi oi, {player}. welcome to the fuckin' party",
+          "well well. {player}. try not to get yourself fuckin' killed, eh?",
+          "{player}, is it? right then, sunshine. stay behind me and don't do anythin' stupid",
+          "another fresh face. listen close {player}, the cunts round here are proper diabolical"
+        ],
+        "greet_familiar": [
+          "back again, {player}? knew you had a fuckin' screw loose. good",
+          "oi, {player}. still alive then. colour me fuckin' impressed",
+          "look what the cat dragged in. alright, {player}, you mad bastard"
+        ],
+        "greet_friend": [
+          "{player}! me favourite fuckin' lunatic. c'mon, we've got cunts to sort",
+          "oi {player}, son. was wonderin' when you'd fuckin' show",
+          "there he is. {player}, you beautiful bastard. let's go to work"
+        ],
+        "level_up": [
+          "level {level}. gettin' proper fuckin' dangerous now, aren't I",
+          "{level}. them cunts out there should start worryin'",
+          "ding, as the kids say. {level}. fuckin' lovely",
+          "level {level}, and I'm just gettin' warmed up, sunshine"
+        ],
+        "death": [
+          "right. that was a fuckin' liberty, that was",
+          "oh, that's diabolical, that is. proper fuckin' diabolical",
+          "you've gotta be FUCKIN' jokin' me",
+          "cunts. the lot of 'em. I'll be back",
+          "down but not done, son. never fuckin' done"
+        ],
+        "rare_loot": [
+          "{item}, eh? don't mind if I fuckin' do",
+          "ooh, {item}. proper tasty bit of kit, that",
+          "come to daddy, {item}. lovely jubbly"
+        ],
+        "boss_engage": [
+          "oi, {enemy}! remember me, you cunt? no? you fuckin' will",
+          "right then, {enemy}. let's dance, you diabolical cunt",
+          "there you are, {enemy}. been lookin' forward to this all fuckin' day",
+          "{enemy}. big, ugly, and about to be very fuckin' dead. c'mon then!"
+        ],
+        "boss_kill": [
+          "and THAT, children, is how you do a {enemy}. fuckin' easy",
+          "{enemy}'s done. anyone else fancy it? no? smart cunts",
+          "told you, didn't I. {enemy} never stood a fuckin' chance",
+          "one less {enemy} in the world. lovely fuckin' jubbly"
+        ],
+        "party_join": [
+          "right, listen up you lot. stay close, hit hard, don't do anythin' fuckin' stupid",
+          "a team, is it? fine. but we do this MY way, savvy?",
+          "welcome aboard, sunshine. try to keep up, eh"
+        ],
+        "party_invite": [
+          "oi {player}. you look like you can handle yourself. fancy doin' some fuckin' damage?",
+          "{player}, son. I've got a plan, and it needs one more violent bastard. you in?",
+          "you, {player}. me. that lot of cunts over there. you do the maths"
+        ],
+        "command_follow": [
+          "right behind you, chief",
+          "lead on then, sunshine. this better be fuckin' good"
+        ],
+        "command_stay": [
+          "fine. I'll mind the fort. don't fuckin' die out there",
+          "holdin' here. anythin' comes past me, it's a dead cunt"
+        ],
+        "command_free": [
+          "off the leash, am I? fuckin' lovely",
+          "right, back to me own devices. cheers, love"
+        ],
+        "decline_trade": [
+          "touch that again, {player}, and you'll be countin' your fingers, son",
+          "oi! paws off, you cheeky cunt. that's mine",
+          "not a fuckin' chance, {player}. earned that one the hard way"
+        ],
+        "reply": [
+          "what's the craic, {player}?",
+          "you called, sunshine?",
+          "make it quick, {player}. these cunts don't kill themselves",
+          "oi oi. what do you need, son?"
+        ],
+        "gear_upgrade": [
+          "{item}. now THAT'S more fuckin' like it",
+          "strapped on a {item}. them cunts are in trouble now",
+          "new {item}. proper tasty bit of kit, that"
+        ],
+        "retreat": [
+          "tactical withdrawal, son. there's a fuckin' difference",
+          "right, fallin' back. this ain't over, not by a long fuckin' shot",
+          "even I know when to leg it. briefly. shut up"
+        ],
+        "grats": [
+          "oi, {level}? proper fuckin' work, {player}",
+          "grats, son. now do it again",
+          "look at {player} go. lovely jubbly",
+          "{level} already, {player}? the cunts out there should worry"
+        ]
+      }
+    },
+    "bragger": {
+      "chattiness": 0.9,
+      "lines": {
+        "greet": [
+          "oh hey {player}, watch and learn",
+          "{player}! you're just in time to see me carry this map",
+          "another fan arrives. hi {player}",
+          "yo {player}. this whole map is basically my farm"
+        ],
+        "level_up": [
+          "level {level}. called it.",
+          "ding! {level} and still untouchable",
+          "{level} already? I make this look easy",
+          "level {level}. somebody scout the next map for me"
+        ],
+        "death": [
+          "ok THAT was lag",
+          "I had it on the ropes, whatever",
+          "bold of it to hit back honestly",
+          "don't screenshot that"
+        ],
+        "rare_loot": [
+          "{item}?? of course it drops for me",
+          "ooh {item}. naturally.",
+          "the game knows who deserves {item}"
+        ],
+        "boss_kill": [
+          "{enemy} down. you're welcome, everyone",
+          "and THAT is how you delete a {enemy}",
+          "tell your friends what you saw here"
+        ],
+        "party_join": [
+          "fine, I'll carry",
+          "party up. try to keep my pace",
+          "you get one (1) free carry, starting now"
+        ],
+        "command_follow": [
+          "ugh fine, lead on",
+          "right behind you. don't slow me down"
+        ],
+        "command_stay": [
+          "holding here. this spot's mine now",
+          "fine, I'll guard this exact pixel"
+        ],
+        "command_free": [
+          "freedom! later",
+          "back to business"
+        ],
+        "decline_trade": [
+          "hands off, {player}. that one's mine",
+          "nice try {player}, earn your own",
+          "absolutely not. that's MY loot"
+        ],
+        "reply": [
+          "you rang, {player}? of course you did",
+          "yes {player}, the legend is busy",
+          "speak quickly {player}, mobs to farm"
+        ],
+        "gear_upgrade": [
+          "new {item}. as if I needed the help",
+          "{item} equipped. the drip is unbearable",
+          "upgraded to {item}. fear me more"
+        ],
+        "retreat": [
+          "TACTICAL retreat. write that down",
+          "I'm not running, I'm kiting. obviously",
+          "regrouping. on purpose"
+        ],
+        "boss_engage": [
+          "a {enemy}? finally a warmup",
+          "{enemy}, meet your highlight reel",
+          "everyone watch this"
+        ],
+        "greet_familiar": [
+          "oh look, {player} again. you're learning from the best",
+          "back for more lessons, {player}?",
+          "{player}! my favorite witness"
+        ],
+        "greet_friend": [
+          "{player}! my loyal sidekick returns",
+          "the dream team reassembles. hey {player}",
+          "{player}, I saved some kills for you. you're welcome"
+        ],
+        "party_invite": [
+          "{player}, you look like you could use a carry. party?",
+          "oi {player}, group with greatness?",
+          "{player}! once-in-a-lifetime chance to farm with me"
+        ],
+        "grats": [
+          "grats {player}. still behind me though",
+          "ooh, {level}. cute. gz {player}",
+          "gz {player}, welcome to almost-my-level",
+          "grats! I remember {level}. simpler times"
+        ]
+      }
+    },
+    "quiet": {
+      "chattiness": 0.25,
+      "lines": {
+        "greet": [
+          "hey",
+          "o/",
+          "hi {player}"
+        ],
+        "level_up": [
+          "ding",
+          "{level}"
+        ],
+        "death": [
+          "oof",
+          "rip me"
+        ],
+        "rare_loot": [
+          "huh. {item}",
+          "nice"
+        ],
+        "boss_kill": [
+          "{enemy} dead",
+          "done"
+        ],
+        "party_join": [
+          "sure",
+          "ok"
+        ],
+        "command_follow": [
+          "ok",
+          "following"
+        ],
+        "command_stay": [
+          "ok, staying"
+        ],
+        "command_free": [
+          "ok"
+        ],
+        "decline_trade": [
+          "no",
+          "need that"
+        ],
+        "reply": [
+          "yeah?",
+          "hm?",
+          "what's up"
+        ],
+        "gear_upgrade": [
+          "new {item}",
+          "upgrade"
+        ],
+        "retreat": [
+          "brb",
+          "too spicy"
+        ],
+        "boss_engage": [
+          "{enemy}. ok",
+          "here we go"
+        ],
+        "greet_familiar": [
+          "oh hey {player}",
+          "you again. cool"
+        ],
+        "greet_friend": [
+          "{player}! hey",
+          "good to see you, {player}"
+        ],
+        "party_invite": [
+          "group, {player}?",
+          "party up?"
+        ],
+        "grats": [
+          "gz",
+          "grats {player}",
+          "nice. {level}"
+        ]
+      }
+    },
+    "helper": {
+      "chattiness": 0.7,
+      "lines": {
+        "greet": [
+          "hey {player}! need a hand out here?",
+          "welcome to {map}, {player}. mobs hit harder on the upper ledges",
+          "hi {player}! shout if you want a party",
+          "good hunting today, {player}?"
+        ],
+        "level_up": [
+          "level {level}! slowly getting there",
+          "ding, {level}. the grind is real but it's honest work",
+          "{level}! ok, one more level, then I restock"
+        ],
+        "death": [
+          "welp. anyone else want to avoid that spot? because I recommend it",
+          "down I go. learn from my mistakes, friends",
+          "that one's on me, got greedy"
+        ],
+        "rare_loot": [
+          "oh nice, {item}! someone might need this more than me",
+          "{item} dropped! today's a good day",
+          "whoa, {item}. lucky roll"
+        ],
+        "boss_kill": [
+          "{enemy} is down! map's safe for a bit",
+          "got the {enemy}! good pulls everyone",
+          "{enemy} cleared. watch the respawn though"
+        ],
+        "party_join": [
+          "glad to group up! I'll watch your flank",
+          "party time. I've got potions if it gets rough",
+          "let's do this properly — pull small, stay alive"
+        ],
+        "command_follow": [
+          "on your six!",
+          "right with you, lead the way"
+        ],
+        "command_stay": [
+          "I'll hold this spot. be safe out there",
+          "anchored here. yell if you need me"
+        ],
+        "command_free": [
+          "alright, back to my rounds. good hunting!",
+          "roaming again — wave if you see me"
+        ],
+        "decline_trade": [
+          "sorry {player}, I actually need that one",
+          "ah, can't part with that — it's keeping me alive out here"
+        ],
+        "reply": [
+          "hey {player}! what do you need?",
+          "right here, {player}. what's up?",
+          "at your service, {player}"
+        ],
+        "gear_upgrade": [
+          "swapped to {item} — should hold up better out here",
+          "found a {item} that fits. solid",
+          "{item} equipped. ready for rougher maps now"
+        ],
+        "retreat": [
+          "falling back to patch up — don't overextend without me!",
+          "need a breather, watch my side",
+          "backing off to heal, be right back in it"
+        ],
+        "boss_engage": [
+          "{enemy} engaged! watch its windups",
+          "big pull — {enemy} incoming, stay mobile",
+          "on the {enemy}! mind the telegraphs"
+        ],
+        "greet_familiar": [
+          "good to see a familiar face, {player}!",
+          "{player}! how'd that last map treat you?",
+          "back in the field, {player}? need anything?"
+        ],
+        "greet_friend": [
+          "{player}! was hoping I'd run into you",
+          "my favorite hunting partner. hey {player}!",
+          "{player}! got your back as always"
+        ],
+        "party_invite": [
+          "hey {player}, hunting alone? I'll watch your flank — party?",
+          "{player}, want to team up? safer in pairs out here",
+          "got room for one more, {player}? I've got potions to share"
+        ],
+        "grats": [
+          "grats {player}! {level} looks good on you",
+          "ding! congrats {player}",
+          "well earned, {player}. onward and upward",
+          "gz {player}! the grind pays off"
+        ]
+      }
+    },
+    "wanderer": {
+      "chattiness": 0.5,
+      "lines": {
+        "greet": [
+          "oh, a person. don't see many of those in {map}",
+          "passing through, {player}?",
+          "{map}'s nice this time of day",
+          "small world, {player}"
+        ],
+        "level_up": [
+          "level {level} somewhere on the road",
+          "ding. {level} now. time to move on soon",
+          "{level}. the maps keep changing, the grind doesn't"
+        ],
+        "death": [
+          "every map kills you a little differently",
+          "and that's why I don't linger",
+          "noted: don't do that again"
+        ],
+        "rare_loot": [
+          "{item}, just lying there. the road provides",
+          "found {item}. some days the wandering pays"
+        ],
+        "boss_kill": [
+          "{enemy} won't be bothering this map for a while",
+          "one less {enemy} on the road"
+        ],
+        "party_join": [
+          "company for the road? alright",
+          "I'll walk with you a while"
+        ],
+        "command_follow": [
+          "your road's as good as mine",
+          "alright, I'll follow your lead"
+        ],
+        "command_stay": [
+          "strange, staying put. but alright",
+          "I'll wait here. for a while"
+        ],
+        "command_free": [
+          "the road calls. see you around",
+          "back to wandering"
+        ],
+        "decline_trade": [
+          "that one's traveled too far with me to give up, {player}",
+          "no deal — that's part of the kit"
+        ],
+        "reply": [
+          "someone remembers my name. hey {player}",
+          "you called, {player}?",
+          "small world keeps getting smaller, {player}"
+        ],
+        "gear_upgrade": [
+          "picked up a {item} along the way",
+          "the road provides — {item} equipped",
+          "trading up to {item}. the old one served well"
+        ],
+        "retreat": [
+          "this is the part where I leave",
+          "live to wander another day",
+          "the road also goes the other way"
+        ],
+        "boss_engage": [
+          "so YOU'RE what the locals warned me about, {enemy}",
+          "every map has its monster. {enemy}, I presume",
+          "well met, {enemy}. let's get this over with"
+        ],
+        "greet_familiar": [
+          "our roads cross again, {player}",
+          "didn't expect to see you out here, {player}. small world",
+          "{player}. the maps keep bringing us together"
+        ],
+        "greet_friend": [
+          "{player}! the road's better with you on it",
+          "well if it isn't my favorite traveler. hey {player}",
+          "{player}, I've got stories since we last met"
+        ],
+        "party_invite": [
+          "walking the same road, {player}? might as well walk it together",
+          "{player}, company makes the maps shorter. group up?",
+          "two sets of eyes beat one out here, {player}. party?"
+        ],
+        "grats": [
+          "grats, {player}. the road levels us all eventually",
+          "{level} already? time moves different out here. gz",
+          "another milestone for {player}. well walked"
+        ]
+      }
+    }
+  }
+}

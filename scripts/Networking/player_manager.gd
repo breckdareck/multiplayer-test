@@ -61,6 +61,10 @@ func add_bot(bot_id: int, username: String, class_type: int, map_id: String) -> 
 	}
 
 	var player_data: Dictionary = await _load_player_data_async(username)
+	# No save row -> a brand-new bot. Flag it so BotManager seeds its level/gold
+	# after the spawn handshake (ADR 0011 cold-start seeding).
+	if player_data.is_empty():
+		BotManager.mark_bot_fresh(bot_id)
 	var spawn_map: String = player_data.get("last_map", map_id)
 	if spawn_map.is_empty():
 		spawn_map = map_id

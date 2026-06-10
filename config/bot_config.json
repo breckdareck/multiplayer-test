@@ -45,6 +45,7 @@
     {
       "name": "Breck",
       "class": "ROGUE",
+      "personality": "butcher",
       "map": "lanterns_rest",
       "patrol_route": [
         "near_wilds",
@@ -83,6 +84,18 @@
       ]
     }
   ],
+  "churn": {
+    "enabled": true,
+    "interval_min": 180,
+    "interval_max": 420,
+    "min_online": 2,
+    "max_online": 8
+  },
+  "offline_progression": {
+    "enabled": true,
+    "levels_per_hour": 0.25,
+    "max_catchup": 8
+  },
   "behavior": {
     "think_interval": 0.3,
     "wander_chance": 0.6,
