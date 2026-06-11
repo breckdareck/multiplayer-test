@@ -147,25 +147,31 @@ var _pending_special_idx: int = -1
 # --- Mark indicator (floating diamond over marked enemies) ---
 const _MARK_INDICATOR_SCRIPT := preload("res://scripts/Enemy/mark_indicator.gd")
 const _DOT_VISUALS_SCRIPT := preload("res://scripts/Enemy/dot_visuals.gd")
-## Mark meta key → indicator color, in PRIORITY order (first active wins when an
-## enemy carries more than one mark). The metas are absolute server-clock expiry
-## timestamps (ms) written by the mark abilities' AL_*.gd on_hit. Dictionaries
+## Status-row definitions, in PRIORITY order (when more than _MAX_STATUS_ICONS
+## are active, the earliest entries win the visible slots and the rest fold
+## into a "+n" tail). Two source kinds:
+##   "expiry" — a per-enemy meta holding an absolute server-clock timestamp
+##              (ms); active while now < value (the mark/weaken pattern).
+##   "tag"    — an EnemyStatus status tag (ADR 0013); active while any source's
+##              application is live (bleed/poison/burn/chill).
+## Shapes are the code-drawn glyph names in mark_indicator.gd. Dictionaries
 ## preserve insertion order, so iterating gives the priority.
-const _MARK_META_COLORS := {
-	"death_mark_remaining": Color(1.0, 0.27, 0.27),     # Death Mark — red
-	"hunters_mark_remaining": Color(1.0, 0.84, 0.22),   # Mark of the Hunt — gold
-	"sentinels_mark_remaining": Color(0.42, 0.70, 1.0), # Sentinel's Mark — blue
-	"mana_resonance_remaining": Color(0.72, 0.42, 1.0), # Mana Surge — purple
-	# Weakened attacker (Challenging Shout / Choking Smoke / Suppressing
-	# Fire — the shared smoke-choke channel health.gd reads). Lowest
-	# priority: a real mark wins the slot. Drawn as a slashed-through
-	# downward sword (see _MARK_META_SHAPES) — the attack-down tell.
-	"smoke_choke_expire_at_ms": Color(0.72, 0.76, 0.82),
+const _STATUS_DEFS := {
+	"death_mark_remaining": {"kind": "expiry", "shape": "skull", "color": Color(1.0, 0.27, 0.27)},
+	"hunters_mark_remaining": {"kind": "expiry", "shape": "crosshair", "color": Color(1.0, 0.84, 0.22)},
+	"sentinels_mark_remaining": {"kind": "expiry", "shape": "flag", "color": Color(0.42, 0.70, 1.0)},
+	"mana_resonance_remaining": {"kind": "expiry", "shape": "sparkle", "color": Color(0.72, 0.42, 1.0)},
+	# Weakened attacker (Challenging Shout / Choking Smoke / Suppressing Fire
+	# — the shared smoke-choke channel health.gd reads).
+	"smoke_choke_expire_at_ms": {"kind": "expiry", "shape": "weaken", "color": Color(0.72, 0.76, 0.82)},
+	"bleed": {"kind": "tag", "shape": "droplet", "color": Color(0.92, 0.18, 0.20)},
+	"poison": {"kind": "tag", "shape": "bubbles", "color": Color(0.42, 0.82, 0.34)},
+	"burn": {"kind": "tag", "shape": "flame", "color": Color(1.0, 0.55, 0.16)},
+	"chill": {"kind": "tag", "shape": "snowflake", "color": Color(0.58, 0.82, 1.0)},
 }
-## Glyph shape per mark meta (mark_indicator.gd shapes). Default: "diamond".
-const _MARK_META_SHAPES := {
-	"smoke_choke_expire_at_ms": "weaken",
-}
+## Visible-slot cap for the status row — everything past this folds into "+n".
+const _MAX_STATUS_ICONS := 4
+const _ENEMY_STATUS := preload("res://scripts/Gameplay/enemy_status.gd")
 ## How often (seconds) the server re-evaluates an enemy's mark state. Cheap
 ## (4 meta checks) so 0.2s is plenty responsive without per-frame cost.
 const _MARK_CHECK_INTERVAL := 0.2
@@ -173,9 +179,9 @@ const _MARK_CHECK_INTERVAL := 0.2
 var mark_indicator: Node2D = null
 var dot_visuals: Node2D = null
 var _mark_check_accum: float = 0.0
-## Index of the currently-broadcast mark color (-1 = none). Only re-broadcast
-## the sync RPC when this changes, not every check.
-var _current_mark_idx: int = -1
+## Signature of the currently-broadcast status row ("" = none shown). Only
+## re-broadcast the sync RPC when the visible set actually changes.
+var _status_row_signature: String = ":0"
 
 
 func _apply_enemy_data() -> void:
@@ -391,37 +397,42 @@ func _physics_process(delta: float) -> void:
 ## per-mark-site hooks needed.
 func _refresh_mark_indicator() -> void:
 	var now: int = Time.get_ticks_msec()
-	var found_idx: int = -1
-	var found_color: Color = Color.WHITE
-	var found_shape: String = "diamond"
-	var i: int = 0
-	for key in _MARK_META_COLORS:
-		if has_meta(key) and now < int(get_meta(key)):
-			found_idx = i
-			found_color = _MARK_META_COLORS[key]
-			found_shape = _MARK_META_SHAPES.get(key, "diamond")
-			break
-		i += 1
+	var shapes: PackedStringArray = PackedStringArray()
+	var colors: PackedColorArray = PackedColorArray()
+	var overflow: int = 0
+	for key in _STATUS_DEFS:
+		var def: Dictionary = _STATUS_DEFS[key]
+		var active: bool = false
+		if def["kind"] == "expiry":
+			active = has_meta(key) and now < int(get_meta(key))
+		else:
+			active = _ENEMY_STATUS.has_tag(self, key)
+		if not active:
+			continue
+		if shapes.size() < _MAX_STATUS_ICONS:
+			shapes.append(def["shape"])
+			colors.append(def["color"])
+		else:
+			overflow += 1
 
-	if found_idx == _current_mark_idx:
-		return  # no change — don't re-broadcast
-	_current_mark_idx = found_idx
+	# Broadcast only on change — the signature folds shapes + overflow.
+	var signature: String = "|".join(shapes) + ":%d" % overflow
+	if signature == _status_row_signature:
+		return
+	_status_row_signature = signature
 	# call_local so the host (also a client) updates its own indicator too.
-	sync_mark_indicator.rpc(found_idx >= 0, found_color, found_shape)
+	sync_mark_indicator.rpc(shapes, colors, overflow)
 
 
-## [Server → all peers] Toggles + colors + shapes the floating mark indicator.
-## Routed as a node-addressed RPC because enemies are MultiplayerSpawner-
-## replicated (same path on every peer) — unlike bots, which need autoload
-## routing.
+## [Server → all peers] Replaces the floating status row (glyph shapes +
+## colors, capped server-side, with the fold-over count). Routed as a
+## node-addressed RPC because enemies are MultiplayerSpawner-replicated (same
+## path on every peer) — unlike bots, which need autoload routing.
 @rpc("authority", "call_local", "reliable")
-func sync_mark_indicator(active: bool, color: Color, shape: String = "diamond") -> void:
+func sync_mark_indicator(shapes: PackedStringArray, colors: PackedColorArray, overflow: int = 0) -> void:
 	if mark_indicator == null or not is_instance_valid(mark_indicator):
 		return
-	if active:
-		mark_indicator.set_mark(color, shape)
-	else:
-		mark_indicator.clear_mark()
+	mark_indicator.set_statuses(shapes, colors, overflow)
 
 
 ## [Server] Play the DoT tick visual (icon + particle burst + poison tint) on EVERY
@@ -506,16 +517,17 @@ func _deferred_death_processing(_killer: Node) -> void:
 	if _is_being_cleaned_up:
 		return
 
-	# Clear any mark metas + hide the indicator immediately on death so a
+	# Clear any expiry-status metas + hide the row immediately on death so a
 	# pooled-and-respawned enemy doesn't briefly show a stale mark. (The
 	# timestamps would expire on their own, but a respawn within the mark
-	# window could otherwise flash the old marker.)
-	for key in _MARK_META_COLORS:
-		if has_meta(key):
+	# window could otherwise flash the old marker.) Tag statuses clear via
+	# their own DoT machinery; the empty broadcast hides them regardless.
+	for key in _STATUS_DEFS:
+		if _STATUS_DEFS[key]["kind"] == "expiry" and has_meta(key):
 			remove_meta(key)
-	if _current_mark_idx != -1:
-		_current_mark_idx = -1
-		sync_mark_indicator.rpc(false, Color.WHITE, "diamond")
+	if _status_row_signature != ":0":
+		_status_row_signature = ":0"
+		sync_mark_indicator.rpc(PackedStringArray(), PackedColorArray(), 0)
 
 	#print("Enemy died. Killer: ", _killer, " Type: ", typeof(_killer))
 
