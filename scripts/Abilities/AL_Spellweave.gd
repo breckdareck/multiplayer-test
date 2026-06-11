@@ -78,6 +78,13 @@ func execute(owner_node: Node, ability: AbilityData, level_stats: AbilityLevelDa
 		damage_bonus = ability_comp.get_ability_upgrade_magnitude(ability.ability_id, "bonus_damage_mult")
 	scale_base = int(scale_base * (1.0 + maxf(0.0, damage_bonus)))
 
+	# Tap-or-hold charge: an early-released wind-up publishes its charge
+	# fraction (attack state meta, 0.5..1.0); the release's own damage bases
+	# don't route through calculate_ability_damage, so scale them here. Full
+	# wind-ups never set the meta (fraction 1.0).
+	if owner_node.has_meta("channel_charge"):
+		scale_base = maxi(1, int(scale_base * float(owner_node.get_meta("channel_charge"))))
+
 	_release(owner_node, element, facing, scale_base, reach_bonus)
 
 	# Echoing Weave: refund a fraction of the spell's MP cost if any enemy was in

@@ -135,9 +135,10 @@ func activate_slot(slot_index: int):
 	if slot.assigned_ability:
 		if player and player.ability_component.has_method("use_ability"):
 			player.ability_component.use_ability(slot.assigned_ability.ability_id)
-			# Track hold-channels: releasing this slot's key ends the channel.
+			# Track channels (both kinds): releasing this slot's key ends a
+			# HOLD zone early or fires a WINDUP cast at its charged fraction.
 			var behavior = slot.assigned_ability.active_behavior
-			if behavior != null and behavior.channel_mode == 2:
+			if behavior != null and behavior.channel_mode != 0:
 				_channel_hold_action = "hotbar_" + str(slot_index + 1)
 	elif slot.assigned_consumable:
 		_use_consumable(slot.assigned_consumable)

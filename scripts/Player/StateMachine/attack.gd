@@ -80,13 +80,22 @@ const WINDUP_RELEASE_WINDOW: float = 0.3
 var _windup_pending: bool = false
 var _windup_remaining: float = 0.0
 
-## HOLD channels are TAP-OR-HOLD (risk/reward): releasing the hotbar key ends
-## the channel early — the rooted state exits and the ability's registered
-## zone (player meta "active_channel_zone") is cut short. A minimum hold stops
-## a tap from being a zero-cost cancel: you always commit at least this long.
+## Channels are TAP-OR-HOLD (risk/reward). Releasing the hotbar key early:
+##   HOLD zones (Sky Volley / Stormcall) — the channel ends, the registered
+##   zone (player meta "active_channel_zone") is cut short, you un-root.
+##   WINDUP casts (Onslaught / Spellweave) — the release fires IMMEDIATELY at
+##   reduced power: charge fraction = elapsed/full wind-up, floored at
+##   CHARGE_FLOOR. Hold to full for 100%. The fraction scales combat's
+##   pending multiplier AND is published as player meta "channel_charge"
+##   for ALs whose release damage doesn't route through calculate_ability_
+##   damage (Spellweave's stance releases).
+## A minimum hold stops a tap from being a zero-cost cancel: you always
+## commit at least this long.
 const MIN_HOLD_SEC: float = 0.35
+const CHARGE_FLOOR: float = 0.5
 var _hold_active: bool = false
 var _hold_elapsed: float = 0.0
+var _windup_total: float = 0.0
 
 @onready var animation_player: AnimationPlayer = owner.get_node_or_null("../../AnimationPlayer")
 @onready var attack_state_timer: Timer = $"../../AttackStateTimer"
@@ -212,7 +221,11 @@ func _start_channeled_attack(channel_mode: int, anim_name: String, anim_duration
 		state_duration += WINDUP_RELEASE_WINDOW
 		_windup_pending = true
 		_windup_remaining = channel_duration
+		_windup_total = channel_duration
 	elif channel_mode == CHANNEL_HOLD:
+		pass
+	if channel_mode != CHANNEL_NONE:
+		# Both channel kinds watch for an early key release (tap-or-hold).
 		_hold_active = true
 		_hold_elapsed = 0.0
 		# Clear any stale release intent so a previous tap can't insta-end
@@ -299,16 +312,35 @@ func physics_update(delta: float) -> State:
 		if player.do_jump:
 			player.do_jump = false
 
-		# HOLD channel — honor an early release after the minimum hold: cut
-		# the registered zone short and stop the state timer so the rooted
-		# state exits on the check below. Tap = MIN_HOLD_SEC of channel.
+		# Channel — honor an early release after the minimum hold.
+		# HOLD zones: cut the registered zone short + stop the state timer so
+		# the rooted state exits below. WINDUP casts: fire the release NOW at
+		# the charged fraction (elapsed/full, floored), then keep the state
+		# alive just long enough for the release hitbox window.
 		if _hold_active:
 			_hold_elapsed += delta
 			if _hold_elapsed >= MIN_HOLD_SEC and bool(player.get("channel_release_requested")):
 				player.channel_release_requested = false
 				_hold_active = false
-				_end_registered_channel_zone()
-				attack_state_timer.stop()
+				if _windup_pending:
+					var fraction: float = 1.0
+					if _windup_total > 0.0:
+						fraction = clampf(1.0 - (_windup_remaining / _windup_total), CHARGE_FLOOR, 1.0)
+					_windup_pending = false
+					_windup_remaining = 0.0
+					# Publish the charge: combat's pending multiplier scales
+					# the hitbox damage rolls; the meta lets AL releases
+					# (Spellweave) scale their own bases. Both are cleaned up
+					# by end_ability_attack / exit() respectively.
+					if fraction < 1.0:
+						player.set_meta("channel_charge", fraction)
+						if player.combat_component:
+							player.combat_component.pending_ability_damage_multiplier = fraction
+					_fire_windup_release()
+					attack_state_timer.start(WINDUP_RELEASE_WINDOW)
+				else:
+					_end_registered_channel_zone()
+					attack_state_timer.stop()
 
 		# Check if attack animation is finished
 		if attack_state_timer.is_stopped():
@@ -334,6 +366,9 @@ func exit() -> void:
 		player.channel_release_requested = false
 	if player != null and is_instance_valid(player) and player.has_meta("active_channel_zone"):
 		player.remove_meta("active_channel_zone")
+	if player != null and is_instance_valid(player) and player.has_meta("channel_charge"):
+		player.remove_meta("channel_charge")
+	_windup_total = 0.0
 	_current_attack_name = ""
 	_current_ability = null
 	_current_level_stats = null
