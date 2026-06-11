@@ -64,3 +64,51 @@ func test_boss_map_is_registered() -> void:
 		assert_true(true, "registry constant not found; skipping strict check")
 		return
 	assert_true(scenes.has(c["PAIRTEST_BOSS_MAP"]), "boss map '%s' not in MapManager registry" % c["PAIRTEST_BOSS_MAP"])
+
+
+func test_passive_priorities_resolve_as_discipline_passives() -> void:
+	var passives: Dictionary = _consts()["PAIRTEST_PASSIVES"]
+	var rm = (Engine.get_main_loop() as SceneTree).root.get_node("/root/ResourceManager")
+	assert_eq(passives.size(), 4)
+	for key in passives:
+		var disc: int = DISC_BY_KEY[key]
+		for n in passives[key]:
+			var ability = rm.get_ability_data(String(n))
+			assert_not_null(ability, "%s: unknown passive '%s'" % [key, n])
+			if ability == null:
+				continue
+			assert_eq(int(ability.ability_type), int(Constants.AbilityType.PASSIVE),
+				"%s: '%s' must be a PASSIVE" % [key, n])
+			assert_true(disc in ability.required_class,
+				"%s: '%s' is not a %s passive" % [key, n, key])
+
+
+func test_core_build_fits_the_100_point_mastery_budget() -> void:
+	# The legit budget is MASTERY_CAP x 1 = 100 points per discipline. The
+	# build's CORE (5 hotbar actives maxed + T1/T2 + one T3 each) must fit
+	# with headroom for at least one full passive line, or the curated tables
+	# have drifted out of budget.
+	var c := _consts()
+	var rm = (Engine.get_main_loop() as SceneTree).root.get_node("/root/ResourceManager")
+	var numeric: Array = c["PAIRTEST_NUMERIC_KEYS"]
+	for key in c["PAIRTEST_LOADOUTS"]:
+		var cost := 0
+		for n in c["PAIRTEST_LOADOUTS"][key]:
+			var ability = rm.get_ability_data(String(n))
+			if ability == null:
+				continue
+			cost += ability.max_level
+			var t3_cost := 0
+			var first_t3 := 0
+			for up in ability.upgrades:
+				if up == null:
+					continue
+				if up.tier < 3:
+					cost += up.point_cost
+				else:
+					if first_t3 == 0:
+						first_t3 = up.point_cost
+					if not (up.effect_key in numeric):
+						t3_cost = up.point_cost
+			cost += t3_cost if t3_cost > 0 else first_t3
+		assert_true(cost <= 90, "%s core build costs %d - must leave >=10 pts for passives" % [key, cost])

@@ -1640,10 +1640,23 @@ const PAIRTEST_ARMOR_FAMILY := {0: "Vanguard", 1: "Pathfinder", 2: "Arcanist", 3
 const PAIRTEST_WEAPON_NOUN := {0: "Longsword", 1: "Warbow", 2: "Spellstaff", 3: "Dirk"}
 const PAIRTEST_LEVEL := 100
 const PAIRTEST_BOSS_MAP := "warlord"
-## Dev point grant per discipline — enough to max every ability + buy a full
-## upgrade spread (one T3 variant per mutex group wins automatically: the
-## purchase API blocks the second and third).
-const PAIRTEST_DEV_POINTS := 500
+## Legit budget: NO dev point grant. The build spends only what capped
+## mastery legitimately provides (MASTERY_CAP x ABILITY_POINTS_PER_MASTERY_LEVEL
+## = 100 points per discipline), allocated like a real player would:
+## max the 5 hotbar actives, buy their T1/T2 + one curated T3 each, then
+## sink the remainder into the discipline's synergy passives.
+const PAIRTEST_PASSIVES := {
+	"sword": ["Vanguard's Resolve", "Battle-Hardened", "Aggression"],
+	"bow": ["Wind Rider", "Tailwind", "Lethality"],
+	"staff": ["Elemental Affinity", "Overload", "Killing Spree"],
+	"dagger": ["Predator's Patience", "Opportunist", "Toxicology"],
+}
+## effect_keys that are plain stat bumps — when picking ONE T3 variant per
+## ability, prefer the behavioral option (the one whose key is NOT in this
+## set); those are the variants authored to feed the pair/escalation play.
+const PAIRTEST_NUMERIC_KEYS := ["bonus_damage_mult", "bonus_targets", "bonus_hits",
+	"cooldown_flat_reduction", "mana_flat_reduction", "buff_duration_bonus",
+	"bonus_zone_radius", "bonus_zone_duration"]
 
 const _DISC_KEYS := {0: "sword", 1: "bow", 2: "staff", 3: "dagger"}
 
@@ -1711,35 +1724,31 @@ func _cmd_pairtest(args: Array) -> String:
 		p.equipment_component._emit_equipment_changed_deferred()
 		out.append("equipped: " + ", ".join(equipped))
 
-	# 4. Max every ability of both disciplines + buy the full upgrade spread.
+	# 4. Spend the LEGIT budget (100 pts/discipline from capped mastery):
+	# respec to a clean slate first so reruns and pre-spent characters get
+	# the full pool back, then allocate like a real build - hotbar actives
+	# first, their upgrades, then the discipline's synergy passives.
 	var ac = p.ability_component
 	if is_instance_valid(ac):
-		var learned := 0
-		var upgrades_bought := 0
 		for disc in [prim, sec]:
-			ac._add_ability_points(PAIRTEST_DEV_POINTS, _DISC_KEYS[disc])
-			for ability_id in ResourceManager.ability_data:
-				var ability: AbilityData = ResourceManager.ability_data[ability_id]
-				if ability == null or ability.required_class == null or not (disc in ability.required_class):
-					continue
-				if int(ac.get_ability_level(ability_id)) <= 0:
-					ac.learn_ability(ability_id, 0)
-				while int(ac.get_ability_level(ability_id)) < ability.max_level:
-					if not ac.level_up_ability(ability_id):
-						break
-				if int(ac.get_ability_level(ability_id)) >= ability.max_level:
-					learned += 1
-				if ability.upgrades == null:
-					continue
-				for up in ability.upgrades:
-					if up == null:
-						continue
-					# Mutex groups self-limit: the first variant of each T3
-					# trio purchases, the rest are refused.
-					if ac.can_purchase_upgrade(ability_id, up.upgrade_id).ok:
-						ac.purchase_upgrade(ability_id, up.upgrade_id)
-						upgrades_bought += 1
-		out.append("abilities maxed: %d, upgrades bought: %d (duo threshold comfortably met)" % [learned, upgrades_bought])
+			ac.respec_discipline(_DISC_KEYS[disc])
+		for disc in [prim, sec]:
+			var key: String = _DISC_KEYS[disc]
+			var loadout_key: String = key + "|" + _DISC_KEYS[sec if disc == prim else prim]
+			var maxed := 0
+			var upgrades_bought := 0
+			# Actives on the bar first - the build's core.
+			for ability_name in PAIRTEST_LOADOUTS[loadout_key]:
+				var r := _pairtest_build_ability(ac, String(ability_name))
+				maxed += r.x
+				upgrades_bought += r.y
+			# Remaining points into the synergy passives, in priority order.
+			for passive_name in PAIRTEST_PASSIVES[key]:
+				var r2 := _pairtest_build_ability(ac, String(passive_name))
+				maxed += r2.x
+				upgrades_bought += r2.y
+			out.append("%s build: %d abilities maxed, %d upgrades, %d pts left" % [
+				key, maxed, upgrades_bought, ac.get_available_points_for_discipline(key)])
 
 		# 5. Curated synergy hotbars — primary bar for (prim|sec), secondary
 		# bar for the reverse direction, so Tab-swapping keeps the synergy story.
@@ -1778,6 +1787,53 @@ func _pairtest_bar(loadout_key: String, slot_count: int) -> Dictionary:
 				id = ability.ability_id
 		cfg[str(i)] = id
 	return cfg
+
+
+## Levels one ability to max and buys its upgrade line (T1, T2, ONE curated
+## T3) within whatever points remain. Returns Vector2i(maxed ? 1 : 0, upgrades
+## bought). All spending goes through the real validation APIs, so when the
+## pool dries up the calls refuse and the build simply stops growing.
+func _pairtest_build_ability(ac, ability_name: String) -> Vector2i:
+	var ability: AbilityData = ResourceManager.get_ability_data(ability_name)
+	if ability == null:
+		return Vector2i.ZERO
+	var ability_id: String = ability.ability_id
+	if int(ac.get_ability_level(ability_id)) <= 0:
+		ac.learn_ability(ability_id, 0)
+	while int(ac.get_ability_level(ability_id)) < ability.max_level:
+		if not ac.level_up_ability(ability_id):
+			break
+	var maxed: int = 1 if int(ac.get_ability_level(ability_id)) >= ability.max_level else 0
+	var bought := 0
+	if ability.upgrades == null or maxed == 0:
+		return Vector2i(maxed, 0)
+	# T1 + T2 (stackable), then exactly one curated T3.
+	for up in ability.upgrades:
+		if up == null or up.tier >= 3:
+			continue
+		if ac.can_purchase_upgrade(ability_id, up.upgrade_id).ok:
+			ac.purchase_upgrade(ability_id, up.upgrade_id)
+			bought += 1
+	var t3 := _pairtest_pick_t3(ability)
+	if t3 != null and ac.can_purchase_upgrade(ability_id, t3.upgrade_id).ok:
+		ac.purchase_upgrade(ability_id, t3.upgrade_id)
+		bought += 1
+	return Vector2i(maxed, bought)
+
+
+## The curated T3: prefer the behavioral variant (effect_key outside the
+## plain-numeric set) - those are the options authored to feed the pair
+## synergy and the status-tag escalations. Falls back to the first T3.
+func _pairtest_pick_t3(ability: AbilityData) -> AbilityUpgradeData:
+	var first: AbilityUpgradeData = null
+	for up in ability.upgrades:
+		if up == null or up.tier != 3:
+			continue
+		if first == null:
+			first = up
+		if not (up.effect_key in PAIRTEST_NUMERIC_KEYS):
+			return up
+	return first
 
 
 func _complete_pairtest(prior_args: PackedStringArray, _t: String) -> PackedStringArray:
