@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3]
+
+[ext_resource type="Script" uid="uid://nblkvwf7wtfw" path="res://scripts/Resources/VfxEffectData.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/sprites/VFX/generated_px/caltrops_ground-Sheet.png" id="2_sheet"]
+
+[resource]
+script = ExtResource("1_script")
+effect_key = "caltrops_ground"
+category = "ground"
+sheet = ExtResource("2_sheet")
+frame_width = 48
+frame_height = 24
+row = 0
+fps = 6.0
+loop = true
+scale = 1.5
+offset = Vector2(-1, -12)

@@ -108,8 +108,9 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 		Callable(self, "_apply_caltrops_slow")
 	)
 
-	# Ground "juice" — a tiled spike strip scattered across the caltrops patch.
-	MapManager.broadcast_ground_vfx_everywhere(MapManager.get_player_map(owner_node.player_id), "earth_ground", owner_node.global_position, rect_size.x, duration)
+	# Ground "juice" — the bespoke caltrops strip (scattered steel jacks with a
+	# wandering glint; generated sheet — tools/gen_caltrops_ground.py).
+	MapManager.broadcast_ground_vfx_everywhere(MapManager.get_player_map(owner_node.player_id), "caltrops_ground", owner_node.global_position, rect_size.x, duration)
 
 
 ## Per-tick callback fired by the zone for each enemy currently inside.
