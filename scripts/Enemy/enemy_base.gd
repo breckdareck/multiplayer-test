@@ -158,9 +158,13 @@ const _MARK_META_COLORS := {
 	"mana_resonance_remaining": Color(0.72, 0.42, 1.0), # Mana Surge — purple
 	# Weakened attacker (Challenging Shout / Choking Smoke / Suppressing
 	# Fire — the shared smoke-choke channel health.gd reads). Lowest
-	# priority: a real mark wins the slot; the grey diamond shows when only
-	# the weaken is active, making the debuff visible on the enemy at all.
-	"smoke_choke_expire_at_ms": Color(0.62, 0.66, 0.72),
+	# priority: a real mark wins the slot. Drawn as a slashed-through
+	# downward sword (see _MARK_META_SHAPES) — the attack-down tell.
+	"smoke_choke_expire_at_ms": Color(0.72, 0.76, 0.82),
+}
+## Glyph shape per mark meta (mark_indicator.gd shapes). Default: "diamond".
+const _MARK_META_SHAPES := {
+	"smoke_choke_expire_at_ms": "weaken",
 }
 ## How often (seconds) the server re-evaluates an enemy's mark state. Cheap
 ## (4 meta checks) so 0.2s is plenty responsive without per-frame cost.
@@ -389,11 +393,13 @@ func _refresh_mark_indicator() -> void:
 	var now: int = Time.get_ticks_msec()
 	var found_idx: int = -1
 	var found_color: Color = Color.WHITE
+	var found_shape: String = "diamond"
 	var i: int = 0
 	for key in _MARK_META_COLORS:
 		if has_meta(key) and now < int(get_meta(key)):
 			found_idx = i
 			found_color = _MARK_META_COLORS[key]
+			found_shape = _MARK_META_SHAPES.get(key, "diamond")
 			break
 		i += 1
 
@@ -401,18 +407,19 @@ func _refresh_mark_indicator() -> void:
 		return  # no change — don't re-broadcast
 	_current_mark_idx = found_idx
 	# call_local so the host (also a client) updates its own indicator too.
-	sync_mark_indicator.rpc(found_idx >= 0, found_color)
+	sync_mark_indicator.rpc(found_idx >= 0, found_color, found_shape)
 
 
-## [Server → all peers] Toggles + colors the floating mark indicator. Routed as
-## a node-addressed RPC because enemies are MultiplayerSpawner-replicated (same
-## path on every peer) — unlike bots, which need autoload routing.
+## [Server → all peers] Toggles + colors + shapes the floating mark indicator.
+## Routed as a node-addressed RPC because enemies are MultiplayerSpawner-
+## replicated (same path on every peer) — unlike bots, which need autoload
+## routing.
 @rpc("authority", "call_local", "reliable")
-func sync_mark_indicator(active: bool, color: Color) -> void:
+func sync_mark_indicator(active: bool, color: Color, shape: String = "diamond") -> void:
 	if mark_indicator == null or not is_instance_valid(mark_indicator):
 		return
 	if active:
-		mark_indicator.set_mark(color)
+		mark_indicator.set_mark(color, shape)
 	else:
 		mark_indicator.clear_mark()
 
@@ -508,7 +515,7 @@ func _deferred_death_processing(_killer: Node) -> void:
 			remove_meta(key)
 	if _current_mark_idx != -1:
 		_current_mark_idx = -1
-		sync_mark_indicator.rpc(false, Color.WHITE)
+		sync_mark_indicator.rpc(false, Color.WHITE, "diamond")
 
 	#print("Enemy died. Killer: ", _killer, " Type: ", typeof(_killer))
 
