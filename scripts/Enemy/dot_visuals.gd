@@ -2,17 +2,20 @@ class_name EnemyDotVisuals
 extends Node2D
 
 ## Damage-over-time visual feedback on an enemy. Three layers, all asset-free:
-##   - a custom-DRAWN floating status icon (blood drop / poison skull / flame),
 ##   - a per-tick PARTICLE burst (red blood spurt / green gas / fire), code-built
-##     GPUParticles2D (mirrors the level-up burst), and
-##   - a green TINT on the enemy sprite while poisoned.
+##     GPUParticles2D (mirrors the level-up burst),
+##   - a green TINT on the enemy sprite while poisoned, and
+##   - a custom-DRAWN floating flame icon for BURN ONLY. Bleed and poison no
+##     longer draw a floating icon — the persistent status row (mark_indicator's
+##     droplet / bubbles glyphs) owns "this enemy is bleeding/poisoned" now, and
+##     the old per-tick icons doubled it up (2026-06-10 playtest feedback). The
+##     flame stays: it pulses with the tick rhythm and reads as active fire.
 ## Built dynamically by EnemyBase._ready on EVERY peer (like mark_indicator) and
 ## driven by EnemyBase.play_dot() → a server→all-peers RPC, so every client sees it.
 ##
 ## "Refresh on tick" model: each DoT tick calls tick(); the icon + tint linger
 ## HOLD_SEC after the LAST tick, so an expired DoT fades out on its own with no
-## explicit stop hook. Multiple DoTs on one enemy each spurt their own particles;
-## the icon shows the most-recent type (minor flicker on overlap is acceptable v1).
+## explicit stop hook. Multiple DoTs on one enemy each spurt their own particles.
 
 enum DotType { NONE, BLEED, POISON, BURN }
 
@@ -25,10 +28,8 @@ const PARTICLE_POS := Vector2(0.0, -20.0)
 const HOLD_SEC := 1.6
 
 const BLEED_COLOR := Color(0.72, 0.06, 0.06)
-const SKULL_COLOR := Color(0.80, 0.93, 0.72)
 const POISON_TINT := Color(0.55, 1.0, 0.55)
 const FIRE_COLOR := Color(1.0, 0.55, 0.12)
-const ICON_OUTLINE := Color(0.05, 0.05, 0.08, 0.9)
 
 var _type: int = DotType.NONE
 var _icon_until_ms: int = 0
@@ -204,35 +205,14 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	# Bob + alpha pulse, like the mark indicator, so the icon catches the eye.
+	# BURN only — bleed/poison state lives in the status row's glyphs now;
+	# their tick feedback is the particle burst (+ poison tint) alone.
+	if _type != DotType.BURN:
+		return
 	var bob := sin(_t * 3.2) * 1.6
 	var pulse := 0.8 + 0.2 * sin(_t * 4.5)
 	var c := ICON_OFFSET + Vector2(0, bob)
-	match _type:
-		DotType.BLEED: _draw_blood_drop(c, pulse)
-		DotType.POISON: _draw_skull(c, pulse)
-		DotType.BURN: _draw_flame(c, pulse)
-
-
-func _draw_blood_drop(c: Vector2, a: float) -> void:
-	var col := Color(BLEED_COLOR.r, BLEED_COLOR.g, BLEED_COLOR.b, a)
-	# Teardrop: a pointed top + a round bottom.
-	var top := PackedVector2Array([c + Vector2(0, -7), c + Vector2(-3.5, 1), c + Vector2(3.5, 1)])
-	draw_colored_polygon(top, col)
-	draw_circle(c + Vector2(0, 2.5), 4.2, col)
-	draw_arc(c + Vector2(0, 2.5), 4.2, 0, TAU, 16, ICON_OUTLINE, 1.0)
-
-
-func _draw_skull(c: Vector2, a: float) -> void:
-	var pale := Color(SKULL_COLOR.r, SKULL_COLOR.g, SKULL_COLOR.b, a)
-	var dark := Color(0.08, 0.14, 0.08, a)
-	draw_circle(c, 5.5, pale)                                  # cranium
-	draw_rect(Rect2(c + Vector2(-2.5, 3.5), Vector2(5, 3)), pale)  # jaw
-	draw_circle(c + Vector2(-2.0, -0.5), 1.5, dark)            # left eye
-	draw_circle(c + Vector2(2.0, -0.5), 1.5, dark)             # right eye
-	draw_line(c + Vector2(0, 1.5), c + Vector2(0, 3.0), dark, 1.0)  # nose
-	# teeth
-	draw_line(c + Vector2(-1.2, 3.6), c + Vector2(-1.2, 6.2), dark, 1.0)
-	draw_line(c + Vector2(1.2, 3.6), c + Vector2(1.2, 6.2), dark, 1.0)
+	_draw_flame(c, pulse)
 
 
 func _draw_flame(c: Vector2, a: float) -> void:
