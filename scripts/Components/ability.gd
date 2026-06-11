@@ -1681,16 +1681,17 @@ func _on_active_weapon_changed(_active_weapon: String, _active_item: ItemData) -
 		# Just flipped to primary — the live config still shows secondary.
 		_secondary_hotbar_bindings = live_config.duplicate()
 
-	# Push the new active set into the live hotbar.
-	hotbar.load_hotbar_config(_active_bindings_for_load())
+	# Push the new active set into the live hotbar via the ESO-style flip —
+	# the bar squashes edge-on, the bindings land at the midpoint, and it
+	# expands back out showing the new weapon's bar.
+	if hotbar.has_method("play_weapon_swap"):
+		hotbar.play_weapon_swap(_active_bindings_for_load())
+	else:
+		hotbar.load_hotbar_config(_active_bindings_for_load())
 
 	# Persist the swap's snapshot (the outgoing weapon's captured layout) to the
 	# server-authoritative copy so it survives relog / map change (ADR 0009 B).
 	_push_bindings_to_server()
-
-	# Visual ping: flash the hotbar to draw the eye to the changed bindings.
-	if hotbar.has_method("flash_swap_indicator"):
-		hotbar.flash_swap_indicator()
 			
 ## Disconnects from mastery component signals to prevent side effects during loading.
 ## (PR 4 fix 2026-05-27: was disconnecting LevelingComponent.leveled_up before

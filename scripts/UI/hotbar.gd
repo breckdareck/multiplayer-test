@@ -5,6 +5,7 @@ const HOTBARSLOT = preload("res://scenes/UI/hotbar_slot.tscn")
 const ABILITYDATA = preload("res://scripts/Resources/AbilitySystem/AbilityData.gd")
 
 @onready var slots_container: HBoxContainer = %SlotsContainer
+@onready var background: PanelContainer = $Background
 # The two weapon-loadout widgets live under the WeaponSwapSection. Resolved
 # in _ready() (after @onready binds slots_container) so we can use a single
 # get_node call against the swap section parent.
@@ -17,10 +18,17 @@ var slot_count: int = 5
 var player: MultiplayerPlayerV2
 var ability_component: AbilityComponent
 var equipment_component: EquipmentComponent
-var _flash_remaining: float = 0.0
 
-const HOTBAR_FLASH_DURATION := 0.1
-const HOTBAR_FLASH_COLOR := Color(1.3, 1.3, 0.7, 1.0)
+# Total duration of each ability's last-started cooldown, so slots can fade
+# the overlay proportionally. Remaining time itself is read from the
+# AbilityComponent (the single source of truth) by each slot per frame.
+var _cooldown_totals: Dictionary = {}
+
+# ESO-style bar-swap flip (see play_weapon_swap).
+var _swap_tween: Tween = null
+var _pending_swap_config = null  # Dictionary while a flip is mid-flight, else null
+
+const SWAP_FLIP_HALF_DURATION := 0.09
 
 func _ready():
 	# Resolve weapon-swap section widgets via the unique-name lookup. `%`
@@ -82,12 +90,7 @@ func unbind_player() -> void:
 	equipment_component = null
 
 
-func _process(delta: float) -> void:
-	if _flash_remaining > 0.0:
-		_flash_remaining = maxf(0.0, _flash_remaining - delta)
-		if _flash_remaining <= 0.0:
-			modulate = Color.WHITE
-
+func _process(_delta: float) -> void:
 	# Hold-channel release watch (tap-or-hold): the moment the casting key is
 	# no longer held, send the release intent — the server ends the channel
 	# early (after its minimum hold).
@@ -155,8 +158,13 @@ func _use_consumable(consumable: ConsumableData) -> void:
 			return
 
 func _on_cooldown_started(ability_id: String, duration: float) -> void:
-	for slot in hotbar_slots:
-		slot.start_cooldown(ability_id, duration)
+	# Record the total so slots can fade the overlay; slots read the live
+	# remaining time straight from the AbilityComponent each frame.
+	_cooldown_totals[ability_id] = duration
+
+
+func get_cooldown_total(ability_id: String) -> float:
+	return _cooldown_totals.get(ability_id, 0.0)
 
 ## Optional: Handle keybind inputs
 func _input(event: InputEvent):
@@ -176,6 +184,15 @@ func save_hotbar_config() -> Dictionary:
 	# Keys are stringified to match load_hotbar_config (which uses str(i)) so the
 	# in-memory carry-over on map changes lines up — backend JSON would coerce
 	# them anyway, masking the mismatch on initial join.
+	#
+	# While a swap flip is mid-flight the slots still show the OUTGOING weapon's
+	# layout — the incoming config hasn't been applied yet (it lands at the flip
+	# midpoint). Return the pending config so a snapshot taken during the flip
+	# (rapid re-swap, slot edit) reflects what the bar is BECOMING, not a stale
+	# frame of what it was.
+	if _pending_swap_config != null:
+		return _pending_swap_config.duplicate()
+
 	var config = {}
 	for slot in hotbar_slots:
 		var key := str(slot.get_index())
@@ -189,6 +206,17 @@ func save_hotbar_config() -> Dictionary:
 
 ## Load hotbar configuration (from save data)
 func load_hotbar_config(config: Dictionary):
+	# A direct load (save load / map change) supersedes any in-flight swap
+	# flip — drop the pending config and snap the bar back to full width so
+	# the flip's midpoint callback can't stomp this load. (When this call IS
+	# the midpoint callback, _pending_swap_config was already nulled.)
+	if _pending_swap_config != null:
+		_pending_swap_config = null
+		if _swap_tween and _swap_tween.is_valid():
+			_swap_tween.kill()
+		if is_instance_valid(background):
+			background.scale.x = 1.0
+
 	# PR 3: a per-weapon binding may legitimately be empty (e.g. the secondary
 	# loadout right after equipping a new weapon for the first time). Treat
 	# an empty config as "clear all slots" rather than bailing — otherwise
@@ -284,9 +312,34 @@ func _on_weapon_slot_click(_slot_kind: String) -> void:
 	PlayerManager.player_input.rpc_id(1, "weapon_swap")
 
 
-## Brief tint flash drawing the eye to the changed bindings on swap. Called
-## by AbilityComponent._on_active_weapon_changed when the live bindings have
-## been swapped in.
-func flash_swap_indicator() -> void:
-	_flash_remaining = HOTBAR_FLASH_DURATION
-	modulate = HOTBAR_FLASH_COLOR
+## ESO-style bar-swap: flip the whole bar horizontally — squash scale.x to 0,
+## apply the incoming weapon's bindings while edge-on (invisible), then expand
+## back out showing the new bar. Called by AbilityComponent's
+## _on_active_weapon_changed instead of a bare load_hotbar_config.
+func play_weapon_swap(config: Dictionary) -> void:
+	# A flip already mid-flight (rapid re-swap): finish its load instantly so
+	# configs apply in order, then start the new flip from wherever scale is.
+	if _swap_tween and _swap_tween.is_valid():
+		_swap_tween.kill()
+	_apply_pending_swap_config()
+
+	_pending_swap_config = config.duplicate()
+	if not is_instance_valid(background):
+		_apply_pending_swap_config()
+		return
+
+	background.pivot_offset = background.size / 2.0
+	_swap_tween = create_tween()
+	_swap_tween.tween_property(background, "scale:x", 0.0, SWAP_FLIP_HALF_DURATION) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	_swap_tween.tween_callback(_apply_pending_swap_config)
+	_swap_tween.tween_property(background, "scale:x", 1.0, SWAP_FLIP_HALF_DURATION) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+
+
+func _apply_pending_swap_config() -> void:
+	if _pending_swap_config == null:
+		return
+	var cfg: Dictionary = _pending_swap_config
+	_pending_swap_config = null
+	load_hotbar_config(cfg)

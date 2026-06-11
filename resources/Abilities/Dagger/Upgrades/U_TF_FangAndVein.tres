@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "tf_t3_fang_and_vein"
 upgrade_name = "Fang and Vein"
-description = "Twin Fang heals you for 20% of the damage it deals."
+description = "Twin Fang heals you for 5% of the damage it deals."
 point_cost = 2
 tier = 3
 variant_group = "tf_strike_variant"
 effect_key = "bonus_lifesteal"
-magnitude = 0.2
+magnitude = 0.05

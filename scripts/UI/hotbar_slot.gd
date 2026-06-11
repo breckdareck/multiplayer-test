@@ -14,9 +14,6 @@ var assigned_ability: AbilityData = null
 var assigned_consumable: ConsumableData = null
 var is_drag_hovering: bool = false
 
-var _cooldown_timer: float = 0.0
-var _cooldown_total: float = 0.0
-
 func _ready():
 	_update_keybind_label()
 
@@ -26,31 +23,34 @@ func _ready():
 	TooltipTheme.apply_to(self)
 	mouse_entered.connect(_on_mouse_entered)
 
-func _process(delta: float) -> void:
-	if _cooldown_timer <= 0.0:
-		return
-	_cooldown_timer -= delta
-	if _cooldown_timer <= 0.0:
-		_cooldown_timer = 0.0
-		if cooldown_overlay:
-			cooldown_overlay.visible = false
-	else:
-		if cooldown_label:
-			cooldown_label.text = "%.1fs" % _cooldown_timer
-		if cooldown_overlay:
-			cooldown_overlay.color.a = 0.4 + 0.3 * (_cooldown_timer / _cooldown_total)
+func _process(_delta: float) -> void:
+	_update_cooldown_display()
 
-func start_cooldown(ability_id: String, duration: float) -> void:
-	if not assigned_ability or assigned_ability.ability_id != ability_id:
+## Cooldowns are read from the AbilityComponent's authoritative per-ability
+## dict every frame rather than ticked locally per slot. Per-weapon hotbar
+## bindings mean a slot's CONTENT changes on weapon swap while the cooldowns
+## belong to abilities — a slot-local timer kept painting the outgoing
+## ability's cooldown over the incoming one and lost the back bar's still-
+## ticking cooldowns when swapping back.
+func _update_cooldown_display() -> void:
+	var remaining := 0.0
+	var total := 0.0
+	if assigned_ability:
+		var hb := _get_hotbar()
+		if hb and is_instance_valid(hb.ability_component):
+			remaining = hb.ability_component.get_cooldown_remaining(assigned_ability.ability_id)
+			total = hb.get_cooldown_total(assigned_ability.ability_id)
+
+	if remaining <= 0.0:
+		if cooldown_overlay and cooldown_overlay.visible:
+			cooldown_overlay.visible = false
 		return
-	if duration <= 0.0:
-		return
-	_cooldown_total = duration
-	_cooldown_timer = duration
+
 	if cooldown_overlay:
 		cooldown_overlay.visible = true
+		cooldown_overlay.color.a = 0.4 + 0.3 * clampf(remaining / maxf(total, remaining), 0.0, 1.0)
 	if cooldown_label:
-		cooldown_label.text = "%.1fs" % duration
+		cooldown_label.text = "%.1fs" % remaining
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_ENTER_TREE:
@@ -272,13 +272,20 @@ func _get_ability_level(ability_data: AbilityData) -> int:
 	return 0
 
 
+var _hotbar_cache: Hotbar = null
+
 func _get_hotbar() -> Hotbar:
 	# The hotbar scene wraps slots in a Background PanelContainer, so the
-	# Hotbar root is not at a fixed depth. Walk up until we find one.
+	# Hotbar root is not at a fixed depth. Walk up until we find one. Cached —
+	# slots live persistently under the hotbar (ADR 0009) and this is queried
+	# every frame for the cooldown display.
+	if is_instance_valid(_hotbar_cache):
+		return _hotbar_cache
 	var node := get_parent()
 	while node != null:
 		if node is Hotbar:
-			return node
+			_hotbar_cache = node
+			return _hotbar_cache
 		node = node.get_parent()
 	return null
 
