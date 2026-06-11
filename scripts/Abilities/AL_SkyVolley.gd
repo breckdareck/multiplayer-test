@@ -89,7 +89,7 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 	# Reset the momentum-rate-limit meta for this cast.
 	owner_node.set_meta(MOMENTUM_TICK_META, 0)
 
-	load("res://scripts/Gameplay/ground_zone.gd").spawn_server_rect(
+	var zone: Node2D = load("res://scripts/Gameplay/ground_zone.gd").spawn_server_rect(
 		owner_node,
 		spawn_pos,
 		rect_size,
@@ -99,9 +99,13 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 		ZONE_COLOR,
 		Callable(self, "_build_momentum").bind(owner_node),
 	)
-
-	# Ground "juice" — tiled arrows raining down across the volley strip.
-	MapManager.broadcast_ground_vfx_everywhere(MapManager.get_player_map(owner_node.player_id), "arrow_ground", spawn_pos, rect_size.x, duration)
+	if zone != null:
+		# Hold-to-channel (risk/reward): the zone manages its own arrow rain in
+		# short chunks, and the attack state ends it early via this meta when
+		# the player RELEASES the hotbar key (tap = brief volley, full hold =
+		# the whole storm + the Momentum trickle).
+		zone.ground_vfx_key = "arrow_ground"
+		owner_node.set_meta("active_channel_zone", zone)
 
 
 ## Per-tick callback — builds Momentum on the caster, rate-limited to once

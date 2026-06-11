@@ -90,7 +90,7 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 	# Chaining Storm (T3) adds a per-enemy callback that arcs to nearby enemies.
 	var chain_cb := Callable(self, "_chain_strike").bind(owner_node) if _chain_targets > 0 else Callable()
 
-	load("res://scripts/Gameplay/ground_zone.gd").spawn_server_rect(
+	var zone: Node2D = load("res://scripts/Gameplay/ground_zone.gd").spawn_server_rect(
 		owner_node,
 		spawn_pos,
 		rect_size,
@@ -100,9 +100,13 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 		ZONE_COLOR,
 		chain_cb,
 	)
-
-	# Ground "juice" — a tiled crackling-lightning strip across the storm area.
-	MapManager.broadcast_ground_vfx_everywhere(MapManager.get_player_map(owner_node.player_id), "lightning_ground", spawn_pos, rect_size.x, duration)
+	if zone != null:
+		# Hold-to-channel (risk/reward): the zone manages its own crackling
+		# strip in short chunks, and the attack state ends it early via this
+		# meta when the player RELEASES the hotbar key (tap = a crack of
+		# thunder, full hold = the whole storm).
+		zone.ground_vfx_key = "lightning_ground"
+		owner_node.set_meta("active_channel_zone", zone)
 
 
 ## Per-tick callback for each enemy struck inside the storm: arc to the nearest

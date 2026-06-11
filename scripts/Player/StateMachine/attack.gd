@@ -80,6 +80,14 @@ const WINDUP_RELEASE_WINDOW: float = 0.3
 var _windup_pending: bool = false
 var _windup_remaining: float = 0.0
 
+## HOLD channels are TAP-OR-HOLD (risk/reward): releasing the hotbar key ends
+## the channel early — the rooted state exits and the ability's registered
+## zone (player meta "active_channel_zone") is cut short. A minimum hold stops
+## a tap from being a zero-cost cancel: you always commit at least this long.
+const MIN_HOLD_SEC: float = 0.35
+var _hold_active: bool = false
+var _hold_elapsed: float = 0.0
+
 @onready var animation_player: AnimationPlayer = owner.get_node_or_null("../../AnimationPlayer")
 @onready var attack_state_timer: Timer = $"../../AttackStateTimer"
 
@@ -204,6 +212,13 @@ func _start_channeled_attack(channel_mode: int, anim_name: String, anim_duration
 		state_duration += WINDUP_RELEASE_WINDOW
 		_windup_pending = true
 		_windup_remaining = channel_duration
+	elif channel_mode == CHANNEL_HOLD:
+		_hold_active = true
+		_hold_elapsed = 0.0
+		# Clear any stale release intent so a previous tap can't insta-end
+		# this fresh channel.
+		if "channel_release_requested" in player:
+			player.channel_release_requested = false
 	attack_state_timer.start(state_duration)
 
 	# Stretch the attack animation across the channel so the wind-up/hold is
@@ -284,6 +299,17 @@ func physics_update(delta: float) -> State:
 		if player.do_jump:
 			player.do_jump = false
 
+		# HOLD channel — honor an early release after the minimum hold: cut
+		# the registered zone short and stop the state timer so the rooted
+		# state exits on the check below. Tap = MIN_HOLD_SEC of channel.
+		if _hold_active:
+			_hold_elapsed += delta
+			if _hold_elapsed >= MIN_HOLD_SEC and bool(player.get("channel_release_requested")):
+				player.channel_release_requested = false
+				_hold_active = false
+				_end_registered_channel_zone()
+				attack_state_timer.stop()
+
 		# Check if attack animation is finished
 		if attack_state_timer.is_stopped():
 			# Return to appropriate state
@@ -297,10 +323,32 @@ func exit() -> void:
 	# (death / forced state change cancels the release, no resource refund).
 	_windup_pending = false
 	_windup_remaining = 0.0
+	# HOLD channel bookkeeping: drop the zone registration (a naturally-ended
+	# channel's zone expires on its own; a force-exit — death — cuts it short)
+	# and clear any unconsumed release intent.
+	if _hold_active and multiplayer.is_server():
+		_end_registered_channel_zone()
+	_hold_active = false
+	_hold_elapsed = 0.0
+	if player != null and is_instance_valid(player) and "channel_release_requested" in player:
+		player.channel_release_requested = false
+	if player != null and is_instance_valid(player) and player.has_meta("active_channel_zone"):
+		player.remove_meta("active_channel_zone")
 	_current_attack_name = ""
 	_current_ability = null
 	_current_level_stats = null
 	_current_attack_type = AttackType.BASIC
+
+
+## Server-side: cut the channel's registered ground zone short (the ability's
+## AL stored it on the player as "active_channel_zone" at spawn).
+func _end_registered_channel_zone() -> void:
+	if player == null or not is_instance_valid(player) or not player.has_meta("active_channel_zone"):
+		return
+	var zone = player.get_meta("active_channel_zone")
+	player.remove_meta("active_channel_zone")
+	if zone != null and is_instance_valid(zone) and zone.has_method("end_early"):
+		zone.end_early()
 
 # Called by ability component to set ability data before entering this state
 func set_ability_data(ability: AbilityData, level_stats: AbilityLevelData) -> void:
