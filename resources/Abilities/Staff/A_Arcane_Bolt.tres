@@ -42,8 +42,8 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_mgbt4"]
 script = ExtResource("6_mgbt1")
-base_value = 100.0
-per_level = 10.0
+base_value = 112.0
+per_level = 11.2
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_mgbt5"]

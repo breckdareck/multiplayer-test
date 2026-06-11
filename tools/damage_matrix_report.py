@@ -306,6 +306,13 @@ for w, v in tot.items():
 #    are excluded from LOW flags - their value is the payoff, not the hit.
 UTILITY_IDENTITY = {"Mark of the Hunt", "Death Mark", "Sentinel's Mark", "Mana Surge",
                     "Shadow Partner", "Arcane Familiar", "Smoke Bomb", "Banner of the Vanguard"}
+# ADR 0014 cooldown bands: ULT/HEAVY are weight-per-cast designs - low DPS is
+# the point, so they are exempt from the low-outlier flag and instead checked
+# against their calibration windows below.
+ULTIMATES = {"Earthsplitter": "Sword", "Snipe": "Bow", "Stormcall": "Staff", "Eviscerate": "Dagger"}
+HEAVIES = {"Crescent Cleave", "Vanguard's Onslaught", "Sundering Arrow", "Sky Volley",
+           "Pyre Burst", "Spellweave", "Vendetta", "Death Mark"}
+BAND_EXEMPT = set(ULTIMATES) | HEAVIES | UTILITY_IDENTITY
 rotation = {}
 for w in WEAPONS:
     rows_d = []
@@ -320,7 +327,7 @@ for w in WEAPONS:
     for n, v in rows_d:
         if v > 2.5 * m:
             issues.append("**DPS outlier (high):** %s `%s` %.1f dps vs weapon median %.1f (x%.1f)." % (w, n, v, m, v / m))
-        elif v < 0.3 * m and n not in UTILITY_IDENTITY:
+        elif v < 0.3 * m and n not in BAND_EXEMPT:
             issues.append("**DPS outlier (low):** %s `%s` %.1f dps vs weapon median %.1f (x%.2f)." % (w, n, v, m, v / m))
 
 # 5b. rotation-core comparison: mean of each weapon's top-3 ability DPS - a
@@ -351,6 +358,33 @@ for w in WEAPONS:
         live = b["max_range_by_stat"][MAG_ATK if w == "Staff" else WPN_ATK]
         if live <= 0:
             issues.append("**dead build:** %s L%d max_range is %d." % (w, L, live))
+
+# ── ADR 0014 band calibration check (at the ability-max/char-L10 anchor) ────
+def hp_curve(L):
+    return max(15, round(0.7 * L ** 2.3))
+
+
+lines += ["## Pacing-spectrum calibration (ADR 0014, anchored at char/ability L10)", "",
+          "| Ability | band | cd | per-target frac of at-level HP | window |", "|---|---|---|---|---|"]
+for name, w in list(ULTIMATES.items()) + [(h, None) for h in sorted(HEAVIES - UTILITY_IDENTITY)]:
+    if w is None:
+        w = next(ww for ww in WEAPONS for ab in D["abilities"][ww] if ab["name"] == name)
+    ab = next(a for a in D["abilities"][w] if a["name"] == name)
+    ls = ab["levels"]["10"]
+    if ls["damage_percent"] <= 0:
+        continue
+    b = D["builds"][f"{w}_L10"]
+    ticks = zone_ticks(name) if name in ZONE_KEYS else 1
+    cast = avg_roll(b, ab["damage_stat"]) * ls["damage_percent"] / 100.0 * max(1, ls["hits"]) * ticks
+    frac = cast / hp_curve(10)
+    band = "ULT" if name in ULTIMATES else "HEAVY"
+    lo, hi = (0.85, 1.15) if band == "ULT" else (0.35, 0.80)
+    ok = lo <= frac <= hi
+    lines.append("| %s | %s | %.0fs | %.2f | %.2f-%.2f %s |" % (
+        name, band, ls["cooldown"], frac, lo, hi, "OK" if ok else "**OUT**"))
+    if not ok:
+        issues.append("**band calibration:** %s (%s) frac %.2f outside %.2f-%.2f window." % (name, band, frac, lo, hi))
+lines.append("")
 
 lines += ["## Inconsistency sweep", ""]
 lines += [("- " + i) for i in issues] if issues else ["- none found"]

@@ -15,7 +15,7 @@ extends Node
 ## So Mana Surge isn't just damage — it's how a staff build sustains
 ## high-MP rotations.
 
-const MARK_DURATION: float = 8.0
+const MARK_DURATION: float = 15.0
 const MARK_META: String = "mana_resonance_remaining"
 const DMG_BONUS_META: String = "mana_resonance_dmg"
 const SPREAD_META: String = "mana_resonance_spread"

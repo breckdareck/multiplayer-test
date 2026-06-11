@@ -41,7 +41,7 @@ const SLOW_META: String = "caltrops_slow"
 ## the field. 0.6 preserves the pre-2026-06-11 poison:tick ratio.
 const POISON_TICK_FRAC: float = 0.6
 const POISON_MAX_STACKS: int = 5
-const POISON_DURATION: float = 3.0
+const POISON_DURATION: float = 12.0
 const POISON_META: String = "caltrops_poison"
 
 const ZONE_COLOR: Color = Color(0.55, 0.42, 0.18, 0.40)  # rusty brown

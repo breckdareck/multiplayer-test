@@ -46,14 +46,31 @@ const DISCIPLINES := {
 	"Staff": Constants.ClassType.STAFF,
 	"Dagger": Constants.ClassType.DAGGER,
 }
-const CHAR_LEVELS := [1, 5, 10]
-## item_level 1 gear for char levels 1+5 (next tier is 8); tier-8 gear at 10.
-const WEAPON_FILES := {
-	"Sword": {1: "Worn_Longsword", 10: "Bronze_Longsword"},
-	"Bow": {1: "Worn_Warbow", 10: "Bronze_Warbow"},
-	"Staff": {1: "Worn_Spellstaff", 10: "Bronze_Spellstaff"},
-	"Dagger": {1: "Worn_Dirk", 10: "Bronze_Dirk"},
-}
+const CHAR_LEVELS := [1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100]
+const WEAPON_NOUNS := {"Sword": "Longsword", "Bow": "Warbow", "Staff": "Spellstaff", "Dagger": "Dirk"}
+
+
+## Highest-item_level generated weapon of the noun that a character of `level`
+## can wear (fallback: the lowest tier). Replaces the old hand-picked table so
+## the matrix can sweep every 5 levels.
+func _pick_weapon(noun: String, level: int) -> Resource:
+	var best: Resource = null
+	var best_lv: int = -1
+	var lowest: Resource = null
+	var lowest_lv: int = 1 << 30
+	for f in DirAccess.get_files_at("res://resources/Items/Weapons/Generated"):
+		if not (f.ends_with("_%s.tres" % noun)):
+			continue
+		var w = load("res://resources/Items/Weapons/Generated/" + f)
+		if w == null:
+			continue
+		if w.item_level < lowest_lv:
+			lowest_lv = w.item_level
+			lowest = w
+		if w.item_level <= level and w.item_level > best_lv:
+			best_lv = w.item_level
+			best = w
+	return best if best != null else lowest
 
 var _ran := false
 
@@ -124,8 +141,8 @@ func _build_stats(disc_name: String, disc: int, level: int) -> Dictionary:
 	stats._recalculate_stats()
 
 	# Weapon: flat bonus_stats added on read (the equipment pipeline's effect).
-	var wfile: String = WEAPON_FILES[disc_name][1 if level < 10 else 10]
-	var weapon = load("res://resources/Items/Weapons/Generated/%s.tres" % wfile)
+	var weapon = _pick_weapon(WEAPON_NOUNS[disc_name], level)
+	var wfile: String = weapon.name
 	var wflats := {}
 	for stype in weapon.bonus_stats:
 		var sd = weapon.bonus_stats[stype]

@@ -59,7 +59,7 @@ const ELEMENT_COUNT: int = 3
 const BURN_HIT_PCT: float = 0.12
 const BURN_MIN_PER_TICK: int = 2
 const BURN_TICK_INTERVAL: float = 1.0
-const BURN_DURATION: float = 4.0
+const BURN_DURATION: float = 12.0
 const BURN_MAX_STACKS: int = 3
 const BURN_META: String = "staff_element_burn"
 

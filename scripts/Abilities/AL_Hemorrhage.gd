@@ -12,7 +12,7 @@ extends Node
 
 const MAX_STACKS: int = 3
 const TICK_INTERVAL: float = 1.0
-const DURATION_SECONDS: float = 6.0
+const DURATION_SECONDS: float = 12.0
 ## PR 6 follow-up: bumped from 0.05 → 0.20 because at low WPN_ATK the bleed
 ## rounded down to 1/tick — invisible against enemy HP pools. 20% gives a
 ## noticeable DOT (e.g. WPN_ATK 20 → 4/tick/stack → 12/tick at 3-stack

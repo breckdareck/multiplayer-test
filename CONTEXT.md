@@ -252,3 +252,14 @@ _Avoid_: Save file, character data, profile.
 The per-character account-layer row in Postgres (login, character list,
 owned characters, the unique `username`). Lives behind the Flask API.
 _Avoid_: Account, profile, user record.
+
+## Combat pacing
+
+**Cooldown band**:
+One of four pacing tiers every weapon kit's actives are authored into
+(ADR 0014): FILLER (1-2s spam/builders), SHORT (4-6s), HEAVY (12-14s,
+~0.45-0.75x of an at-level normal enemy's HP per target), ULTIMATE (~30s,
+~one-shots an at-level normal, never a boss). Cooldowns are flat across
+ability levels; damage curves are calibrated against the enemy HP curve by
+`tools/damage_matrix.gd`.
+_Avoid_: tier (collides with gear/upgrade tiers), rank.

@@ -39,7 +39,7 @@ const STAFF_SWORD_COMBO_MULT: float = 0.5
 ## stats / mastery / gear like the other DoTs).
 const POISON_PER_TICK_FRAC: float = 0.06
 const POISON_MAX_STACKS: int = 5
-const POISON_DURATION: float = 4.0
+const POISON_DURATION: float = 12.0
 
 ## Emitted on the server AND the owning client (via call_local RPC) whenever a
 ## synergy effect fires — drives the synergy widget's flash. `pair_key` is one of

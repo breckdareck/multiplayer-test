@@ -16,7 +16,7 @@ extends Node
 ## the absolute server-clock expiry time. CombatComponent.has_crit_bonus()
 ## reads this on every dagger hit and adds the bonus to the crit roll.
 
-const MARK_DURATION: float = 8.0
+const MARK_DURATION: float = 15.0
 const MARK_META: String = "death_mark_remaining"
 ## Per-enemy metas carrying the upgrade-scaled values, stamped at mark time so the
 ## static crit/spread helpers (and combat.gd) read them without an ability_id.

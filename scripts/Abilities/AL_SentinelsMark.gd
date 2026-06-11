@@ -17,7 +17,7 @@ extends Node
 ## (combat.gd's per-hit pipeline), so on_hit fires for each pierced /
 ## flurried enemy that's marked.
 
-const MARK_DURATION: float = 8.0
+const MARK_DURATION: float = 15.0
 const MARK_META: String = "sentinels_mark_remaining"
 ## Stamped per-enemy at mark time so the static damage/spread helpers read the
 ## upgrade-scaled values without an ability_id.

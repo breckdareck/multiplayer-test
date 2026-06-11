@@ -16,7 +16,7 @@ extends Node
 ## path reads `is_marked(target)` and forces the crit on a momentum-spender
 ## hit, then clears the mark. Lazy expiry on read — no per-mark Timer.
 
-const MARK_DURATION: float = 12.0
+const MARK_DURATION: float = 15.0
 const MARK_META: String = "hunters_mark_remaining"
 ## Sundering Mark (T3): the marked target carries this flag so combat.gd, when it
 ## consumes the mark for an auto-crit, spreads the hunt to nearby enemies.

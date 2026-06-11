@@ -36,13 +36,13 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_snp_cd"]
 script = ExtResource("6_snp1")
-base_value = 6.0
+base_value = 30.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_snp_dmg"]
 script = ExtResource("6_snp1")
-base_value = 240.0
-per_level = 20.0
+base_value = 518.0
+per_level = 47.1
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_snp_mana"]

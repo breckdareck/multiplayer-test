@@ -16,7 +16,7 @@ const EnemyStatus := preload("res://scripts/Gameplay/enemy_status.gd")
 
 const MAX_STACKS: int = 3
 const TICK_INTERVAL: float = 1.0
-const DURATION_SECONDS: float = 6.0
+const DURATION_SECONDS: float = 12.0
 ## Per tick per stack = this fraction of the ability's MAX hit (max_range × dmg%),
 ## via CombatComponent.dot_scaling_base — so the burn scales with mastery +
 ## attributes + ability level + gear like direct damage (project_dot_scaling_divergence).

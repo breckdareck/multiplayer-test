@@ -34,12 +34,12 @@ base_value = 0.25
 
 [sub_resource type="Resource" id="Resource_cd"]
 script = ExtResource("5_asf")
-base_value = 8.0
+base_value = 30.0
 
 [sub_resource type="Resource" id="Resource_dmg"]
 script = ExtResource("5_asf")
-base_value = 80.0
-per_level = 4.0
+base_value = 398.0
+per_level = 36.2
 
 [sub_resource type="Resource" id="Resource_mana"]
 script = ExtResource("5_asf")

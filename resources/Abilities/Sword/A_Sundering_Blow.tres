@@ -31,7 +31,7 @@ script = ExtResource("6_pdrvi")
 
 [sub_resource type="Resource" id="Resource_j1pqa"]
 script = ExtResource("6_pdrvi")
-base_value = 3.0
+base_value = 4.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_rfic8"]
