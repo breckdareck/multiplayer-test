@@ -22,7 +22,7 @@ script = ExtResource("2_abd")
 target_type = 1
 hit_box_shape_data = SubResource("RectangleShape2D_hit")
 hit_box_position_data = Vector2(80, -10)
-animation_name = "attack_1"
+animation_name = "attack_2"
 sfx_path = "res://assets/sounds/generated/mark_ping.wav"
 logic_script = ExtResource("3_al")
 
