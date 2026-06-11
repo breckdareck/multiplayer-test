@@ -51,9 +51,9 @@ func _mount() -> Dictionary:
 
 
 func _cap_mastery(ctx: Dictionary, disc: int) -> void:
-	var wm = ctx.wm
-	while wm.get_mastery_level(disc) < WeaponMasteryComponent.MASTERY_CAP:
-		wm.grant_mastery_xp_server(disc, wm.get_xp_to_next_level(disc))
+	# ONE mega-grant: the internal level loop must emit mastery_level_changed
+	# once PER level (the multi-level emit fix), or points are silently lost.
+	ctx.wm.grant_mastery_xp_server(disc, 1 << 31)
 
 
 func test_capped_mastery_grants_exactly_100_points_per_discipline() -> void:
@@ -76,12 +76,16 @@ func test_sword_dagger_build_executes_within_budget() -> void:
 	var consts: Dictionary = panel.get_script().get_script_constant_map()
 	var rm = (Engine.get_main_loop() as SceneTree).root.get_node("/root/ResourceManager")
 
+	# Spend inside bulk-edit, exactly like the command does - the end state
+	# must be identical to incremental spending.
+	ac.begin_bulk_edit()
 	for pair in [["sword|dagger", "sword"], ["dagger|sword", "dagger"]]:
 		var names: Array = []
 		names.append_array(consts["PAIRTEST_LOADOUTS"][pair[0]])
 		names.append_array(consts["PAIRTEST_PASSIVES"][pair[1]])
 		for n in names:
 			panel._pairtest_build_ability(ac, String(n))
+	ac.end_bulk_edit()
 
 	# Every curated ACTIVE must be at max level with its upgrade line bought.
 	for pair_key in ["sword|dagger", "dagger|sword"]:
