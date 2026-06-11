@@ -8,7 +8,7 @@
 script = ExtResource("1_njx7r")
 stat_type = 12
 base_value = 0
-flat_bonus_value = 5
+flat_bonus_value = 7
 
 [sub_resource type="Resource" id="Resource_gmy5d"]
 script = ExtResource("1_njx7r")

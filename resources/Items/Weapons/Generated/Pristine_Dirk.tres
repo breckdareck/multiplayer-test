@@ -8,7 +8,7 @@
 script = ExtResource("1_vgkg4")
 stat_type = 12
 base_value = 0
-flat_bonus_value = 61
+flat_bonus_value = 78
 
 [sub_resource type="Resource" id="Resource_lkjd1"]
 script = ExtResource("1_vgkg4")

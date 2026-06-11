@@ -60,7 +60,19 @@ finisher analog). Each lever alone lands at roughly −25–29%.
 - DoT anchors (`dot_scaling_base`) scale with max_range, so dagger bleeds/poisons
   rise proportionally — intended, since those are also "behind" today.
 
-## Decision needed
+## Status: Scenario D implemented (2026-06-11)
+
+- All 14 `*_Dirk.tres` tiers rescaled to 80% of the matching Longsword's
+  weapon attack (Worn 5->7 ... Bronze 16->22 ... Eternal 99->126); the
+  generator's dirk slope updated to match (4.0+0.95/lv -> 5.6+1.2/lv).
+- `shadowmeld.gd ENTER_COOLDOWN_SEC` 6.0 -> 4.0: the restealth loop now
+  supports roughly one ambush opener per 4 hits - dagger's finisher cycle.
+- Post-change matrix: dagger rotation-core 38.3 base, ~54.6 with the
+  1-in-4 ambush cadence folded in (+3% vs the Bow/Staff cluster); it no
+  longer trips the rotation-core divergence check. Sword's own +99%
+  outlier remains the open follow-up.
+
+## Decision needed (resolved: D)
 
 Pick a scenario (or none). D is recommended; A alone is the cheapest if a partial
 close (−28%) is acceptable for now. Whichever lands, re-run

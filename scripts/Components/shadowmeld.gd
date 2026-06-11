@@ -45,7 +45,7 @@ const AMBUSH_DAMAGE_MULT: float = 2.0
 ## server clock (Time.get_ticks_msec) so the client can't fake an early re-entry.
 ## A manual un-stealth (toggle off) or an ambush break both leave this cooldown
 ## running — you commit to a window each time you cloak. 6s.
-const ENTER_COOLDOWN_SEC: float = 6.0
+const ENTER_COOLDOWN_SEC: float = 4.0
 
 ## Safety ceiling: if the player enters stealth and never attacks, it auto-exits
 ## after this long so an idle cloak doesn't persist forever. 8s. (A held stealth

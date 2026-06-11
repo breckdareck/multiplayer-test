@@ -103,7 +103,7 @@ func _generate_weapons() -> void:
 		 "stats": [[MAGICATK, 7.0, 1.5], [INT, 2.0, 0.4], [MANA, 6.0, 1.2]]},
 		{"noun": "Dirk", "wtype": 3, "speed": 8, "icon": "dagger",
 		 "desc": "A swift, wickedly sharp blade prized by Rogues.",
-		 "stats": [[WEAPONATK, 4.0, 0.95], [LUCK, 2.0, 0.35], [CRITCHANCE, 2.0, 0.12]]},
+		 "stats": [[WEAPONATK, 5.6, 1.2], [LUCK, 2.0, 0.35], [CRITCHANCE, 2.0, 0.12]]},
 	]
 	for d in defs:
 		for i in LEVELS.size():
