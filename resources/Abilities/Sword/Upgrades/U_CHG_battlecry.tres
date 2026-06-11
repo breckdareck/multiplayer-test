@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "chg_t3_battlecry"
 upgrade_name = "Battlecry"
-description = "Each enemy pierced builds +1 extra combo point."
+description = "Your charge demoralizes: struck enemies deal 15% less damage for 3 seconds."
 point_cost = 2
 tier = 3
 variant_group = "chg_t3_variant"
-effect_key = "bonus_combo_per_hit"
-magnitude = 1
+effect_key = "bonus_weaken_on_hit"
+magnitude = 0.15

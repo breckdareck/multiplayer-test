@@ -1,5 +1,7 @@
 extends Node
 
+const EnemyStatus := preload("res://scripts/Gameplay/enemy_status.gd")
+
 ## Shared upgrade hook — SLOW ON HIT. Attached as the logic_script of abilities
 ## whose T3 variant slows struck enemies (Skyfall's Grounding Fall, Fan of
 ## Knives' Hamstring Fan, ...). on_hit no-ops unless the ability owns an
@@ -48,6 +50,7 @@ static func apply_slow(target: Node, slow_pct: float, duration: float) -> void:
 	var original_speed: float = enemy.movement_speed
 	enemy.movement_speed = original_speed * (1.0 - clampf(slow_pct, 0.0, 0.9))
 	enemy.set_meta(SLOW_META, original_speed)
+	EnemyStatus.register(enemy, EnemyStatus.TAG_CHILL, SLOW_META, null)
 
 	if enemy.animated_sprite and is_instance_valid(enemy.animated_sprite):
 		enemy.animated_sprite.modulate = Color(0.75, 0.8, 1.0, 1.0)

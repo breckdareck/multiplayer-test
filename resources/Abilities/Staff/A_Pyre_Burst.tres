@@ -77,7 +77,7 @@ metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
 script = ExtResource("5_p2735")
 ability_id = "4516312154-211710-111228-8843-438125814071514"
 ability_name = "Pyre Burst"
-description = "Hurls a roaring fireball that erupts on impact, scorching up to $[target_count] enemies for $[damage_percent] magic damage each."
+description = "Hurls a roaring fireball that erupts on impact, scorching up to $[target_count] enemies for $[damage_percent] magic damage each. [color=#ffb36b]Reaction — chilling a BURNING enemy (or burning a CHILLED one) triggers a Thermal Shock burst.[/color]"
 ability_icon = ExtResource("99_svgicon")
 max_level = 10
 damage_stat = 13

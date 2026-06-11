@@ -5,10 +5,10 @@
 [resource]
 script = ExtResource("1_aud")
 upgrade_id = "cc_t3_tempest"
-upgrade_name = "Tempest"
-description = "Crescent Cleave deals +60% more damage."
+upgrade_name = "Reaper's Rhythm"
+description = "A Crescent Cleave KILL refunds 2 combo points — reap through the pack without rebuilding."
 point_cost = 2
 tier = 3
 variant_group = "cc_finisher_variant"
-effect_key = "bonus_damage_mult"
-magnitude = 0.6
+effect_key = "combo_refund_on_kill"
+magnitude = 2.0

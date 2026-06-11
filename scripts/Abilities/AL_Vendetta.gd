@@ -1,9 +1,12 @@
 extends Node
 
-## Vendetta (dagger active) — POISON SPENDER. Consumes ALL Envenom poison
-## stacks on the target and folds a burst into Vendetta's own hit, scaled by
-## the number of stacks consumed. Closes the Envenom→spend loop: today Envenom
-## builds Poison and only Toxicology passively reads it; Vendetta cashes it in.
+const EnemyStatus := preload("res://scripts/Gameplay/enemy_status.gd")
+
+## Vendetta (dagger active) — POISON SPENDER. Consumes ALL poison stacks on
+## the target — the whole poison STATUS TAG (ADR 0013): Envenom, Caltrops'
+## Poisoned Spikes, the weapon-pair imbue, anyone's — and folds a burst into
+## Vendetta's own hit, scaled by the number of stacks consumed. Closes the
+## build→spend loop across every poison source, not just Envenom's.
 ##
 ## SCALING (fixed 2026-06-02): the per-stack burst is folded into the main hit
 ## via `combat.pending_ability_damage_multiplier` (the sword-finisher mechanism)
@@ -12,10 +15,9 @@ extends Node
 ## dominates real hits). Now the spender scales with the full formula, shows as
 ## ONE damage number, and lands its burst even on a killing blow.
 ##
-## The stacks are CONSUMED (the envenom_poison meta is removed) so Toxicology /
+## The stacks are CONSUMED (every live poison meta is removed) so Toxicology /
 ## another Vendetta can't keep cashing the same stacks — you must re-build.
 
-const POISON_META: String = "envenom_poison"
 ## Each consumed Envenom stack adds this fraction to the whole Vendetta hit.
 ## 3 stacks (the Envenom cap) → +90% damage on top of Vendetta's base.
 const PER_STACK_PCT: float = 0.30
@@ -44,16 +46,14 @@ func execute(owner_node: Node, ability: AbilityData, _level_stats: AbilityLevelD
 		facing = 1
 
 	var target: Node = _nearest_strike_target(owner_node, facing)
-	if target == null or not target.has_meta(POISON_META):
+	if target == null:
 		return  # nothing to spend — Vendetta deals its normal base hit
 
-	var state: Dictionary = target.get_meta(POISON_META)
-	var stacks: int = int(state.get("stacks", 0))
+	# Consume the entire poison TAG (all sources, summed) so the stacks can't
+	# be cashed twice.
+	var stacks: int = EnemyStatus.consume_tag(target, EnemyStatus.TAG_POISON)
 	if stacks <= 0:
 		return
-
-	# Consume the entire pool so the stacks can't be cashed twice.
-	target.remove_meta(POISON_META)
 
 	var burst: float = float(stacks) * PER_STACK_PCT
 

@@ -88,6 +88,13 @@ func _process(delta: float) -> void:
 		if _flash_remaining <= 0.0:
 			modulate = Color.WHITE
 
+	# Hold-channel release watch (tap-or-hold): the moment the casting key is
+	# no longer held, send the release intent — the server ends the channel
+	# early (after its minimum hold).
+	if _channel_hold_action != "" and not Input.is_action_pressed(_channel_hold_action):
+		_channel_hold_action = ""
+		PlayerManager.player_input.rpc_id(1, "channel_release")
+
 
 func create_hotbar_slots():
 	for i in range(slot_count):
@@ -112,6 +119,14 @@ func get_slot_at_index(index: int) -> Node:
 		return hotbar_slots[index]
 	return null
 
+## Hold-channel tracking: when a CHANNEL_HOLD ability (Sky Volley / Stormcall)
+## is cast from a hotbar key, remember the action so letting go of the key
+## sends the release intent — tap-or-hold risk/reward. "" = nothing tracked.
+## A click-cast never holds a key, so it plays as a tap (the minimum hold).
+## Watched in _process above.
+var _channel_hold_action: String = ""
+
+
 ## Call this to activate a slot (e.g., when pressing its keybind)
 func activate_slot(slot_index: int):
 	var slot = get_slot_at_index(slot_index)
@@ -120,6 +135,11 @@ func activate_slot(slot_index: int):
 	if slot.assigned_ability:
 		if player and player.ability_component.has_method("use_ability"):
 			player.ability_component.use_ability(slot.assigned_ability.ability_id)
+			# Track channels (both kinds): releasing this slot's key ends a
+			# HOLD zone early or fires a WINDUP cast at its charged fraction.
+			var behavior = slot.assigned_ability.active_behavior
+			if behavior != null and behavior.channel_mode != 0:
+				_channel_hold_action = "hotbar_" + str(slot_index + 1)
 	elif slot.assigned_consumable:
 		_use_consumable(slot.assigned_consumable)
 

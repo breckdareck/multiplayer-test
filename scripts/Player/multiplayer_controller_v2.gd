@@ -82,6 +82,11 @@ var do_drop: bool = false
 var do_pickup: bool = false
 var do_portal_interact: bool = false
 var current_portal: Portal = null
+## Hold-channel release intent (Sky Volley / Stormcall tap-or-hold): set by
+## the "channel_release" player_input when the client lets go of the hotbar
+## key; consumed (and honored after the minimum hold) by the attack state.
+## Server-side volatile — never synced or saved.
+var channel_release_requested: bool = false
 
 ## The enemy this character most recently DAMAGED + when (ticks ms). Players have
 ## no explicit target lock (they swing in a direction), so this is the proxy for

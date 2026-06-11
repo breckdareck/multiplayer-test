@@ -6,7 +6,7 @@
 script = ExtResource("1_aud")
 upgrade_id = "pyr_t2_kindling"
 upgrade_name = "Kindling"
-description = "Pyre Burst deals +25% damage."
+description = "Deals +25% damage to POISONED enemies (any source's poison counts)."
 tier = 2
-effect_key = "bonus_damage_mult"
+effect_key = "bonus_damage_vs_poison"
 magnitude = 0.25

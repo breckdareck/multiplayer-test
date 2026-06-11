@@ -1,0 +1,42 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=14 format=3]
+
+[ext_resource type="Texture2D" uid="uid://7ce7ug8tn30f" path="res://assets/sprites/Abilities/generated_px/Sword/A_Aggression.png" id="1_icon"]
+[ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
+[ext_resource type="Script" uid="uid://csg6jvyvm5q1n" path="res://scripts/Resources/AbilitySystem/AbilityScalingData.gd" id="3_asd"]
+[ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_ad"]
+[ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="5_aud"]
+[ext_resource type="Script" path="res://scripts/Abilities/AL_Forgefire.gd" id="6_al"]
+[ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="7_asf"]
+[ext_resource type="Resource" path="res://resources/Abilities/Sword/Upgrades/U_FGF_kindled.tres" id="8_upg"]
+[ext_resource type="Resource" path="res://resources/Abilities/Sword/Upgrades/U_FGF_stoked.tres" id="9_upg"]
+[ext_resource type="Resource" path="res://resources/Abilities/Sword/Upgrades/U_FGF_infernos_edge.tres" id="10_upg"]
+
+[sub_resource type="Resource" id="Resource_behav"]
+resource_local_to_scene = true
+script = ExtResource("2_abd")
+logic_script = ExtResource("6_al")
+
+[sub_resource type="Resource" id="Resource_dmgpct"]
+script = ExtResource("7_asf")
+base_value = 6.0
+per_level = 6.0
+
+[sub_resource type="Resource" id="Resource_scaling"]
+script = ExtResource("3_asd")
+damage_percent_formula = SubResource("Resource_dmgpct")
+
+[resource]
+script = ExtResource("4_ad")
+ability_id = "forgefire_v1"
+ability_name = "Forgefire"
+description = "Deal +$[damage_percent] damage to BURNING enemies. Strike while the iron's hot."
+ability_icon = ExtResource("1_icon")
+max_level = 5
+ability_type = 1
+required_class = Array[int]([0])
+required_weapon_types = Array[int]([0])
+tree_path = 0
+tree_depth = 5
+upgrades = Array[ExtResource("5_aud")]([ExtResource("8_upg"), ExtResource("9_upg"), ExtResource("10_upg")])
+active_behavior = SubResource("Resource_behav")
+scaling_data = SubResource("Resource_scaling")

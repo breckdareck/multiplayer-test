@@ -1,5 +1,7 @@
 extends Node
 
+const EnemyStatus := preload("res://scripts/Gameplay/enemy_status.gd")
+
 ## Pyre Burst — FIRE-stance reaction. Pyre Burst is the staff's AoE fireball: it
 ## erupts on impact and hits up to several enemies. On a normal hit the generic
 ## element rider (when FIRE is active) handles whatever baseline burn the stance
@@ -97,6 +99,7 @@ func on_hit(_owner_node: Node, _target: Node, _ability: AbilityData) -> void:
 		existing["per_tick"] = per_tick  # refresh to latest applier's damage
 		existing["applier"] = _owner_node
 		_target.set_meta(BURN_META, existing)
+		EnemyStatus.register(_target, EnemyStatus.TAG_BURN, BURN_META, _owner_node)
 		return
 
 	# Fresh burn — set up state and start the tick timer.
@@ -108,6 +111,7 @@ func on_hit(_owner_node: Node, _target: Node, _ability: AbilityData) -> void:
 	}
 	_target.set_meta(BURN_META, fresh)
 	_schedule_burn_tick(_target)
+	EnemyStatus.register(_target, EnemyStatus.TAG_BURN, BURN_META, _owner_node)
 
 
 ## Fire-stance transformation: spawn a ground pool at the explosion epicenter

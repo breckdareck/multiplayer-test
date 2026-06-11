@@ -1,5 +1,7 @@
 extends Node
 
+const EnemyStatus := preload("res://scripts/Gameplay/enemy_status.gd")
+
 ## Frost Patch — the Staff discipline's Ice-flavored ground-zone. A persistent
 ## patch of frost at the caster's feet for 4 seconds. Enemies inside take a
 ## small magic-damage tick every second AND get briefly chilled (50% movement
@@ -24,7 +26,7 @@ const ZONE_TICK_INTERVAL: float = 1.0
 ## Tick damage = 8% of MAGICATTACK per second. Keeps the zone a sustain-
 ## chill, not a burst — players who burn Mana Surge or Spellweave for burst
 ## get more than they'd get from Frost Patch's ticks alone.
-const TICK_DAMAGE_PCT: float = 0.08
+const TICK_DAMAGE_PCT: float = 0.12
 
 const SLOW_PCT: float = 0.50
 const SLOW_DURATION: float = 1.25  # slightly longer than tick interval so it overlaps
@@ -122,6 +124,7 @@ func _apply_chill(enemy: Node) -> void:
 	var slow: float = clampf(SLOW_PCT + _slow_bonus, 0.0, 0.95)
 	e.movement_speed = original_speed * (1.0 - slow)
 	e.set_meta(SLOW_META, original_speed)
+	EnemyStatus.register(e, EnemyStatus.TAG_CHILL, SLOW_META, null)
 
 	e.get_tree().create_timer(SLOW_DURATION).timeout.connect(
 		func():

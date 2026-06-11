@@ -76,7 +76,7 @@ metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
 script = ExtResource("2_bs1")
 ability_id = "21851410120051-9143-1011311-4101-1413111411105170"
 ability_name = "Barbed Shot"
-description = "Looses a barbed arrow at one enemy for $[damage_percent] damage. [color=#e6c95c]Applies a stacking Bleed (max 3 stacks) — each stack deals 20% Weapon Attack/s for 6 seconds.[/color]"
+description = "Looses a barbed arrow at one enemy for $[damage_percent] damage. [color=#e6c95c]Applies a stacking Bleed (max 3 stacks) — each stack deals 20% Weapon Attack/s for 6 seconds.[/color] [color=#ffb36b]Reaction — 5+ Bleed stacks on a MARKED enemy shatter the mark: the next hit is a guaranteed crit (Brittle).[/color]"
 ability_icon = ExtResource("1_bs1")
 max_level = 10
 required_class = Array[int]([1])

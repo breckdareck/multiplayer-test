@@ -103,6 +103,14 @@ var _next_tick: float = 0.0
 var _cached_map_root: Node = null
 var _initial_alpha: float = 0.35
 
+## Optional self-managed ground VFX (hold-channel zones): instead of the
+## spawning ability broadcasting one full-duration strip, the zone re-broadcasts
+## SHORT CHUNKS while it lives — so an end_early() (released channel) stops the
+## visuals within a chunk instead of lying for the full original duration.
+var ground_vfx_key: String = ""
+const _VFX_CHUNK_SEC: float = 0.8
+var _vfx_chunk_until: float = 0.0
+
 ## Tick-pulse intensity in [0, 1]. Set to 1.0 each time _next_tick wraps; decays
 ## continuously so each tick produces a brief visible flash. Synchronized on
 ## every peer because the tick countdown is decremented in _physics_process
@@ -230,6 +238,16 @@ func _physics_process(delta: float) -> void:
 		queue_free()
 		return
 
+	# Chunked ground-VFX refresh (hold-channel zones). Server-only — the
+	# broadcast itself fans out to every peer. Slight chunk overlap (0.15s)
+	# avoids visible gaps between slices.
+	if ground_vfx_key != "" and multiplayer.is_server() and _elapsed >= _vfx_chunk_until - 0.15:
+		var chunk: float = minf(_VFX_CHUNK_SEC, duration - _elapsed + 0.1)
+		if chunk > 0.05 and is_instance_valid(applier) and "player_id" in applier:
+			var width: float = rect_size.x if shape_type == Shape.RECT else radius * 2.0
+			MapManager.broadcast_ground_vfx_everywhere(MapManager.get_player_map(applier.player_id), ground_vfx_key, global_position, width, chunk)
+		_vfx_chunk_until = _elapsed + _VFX_CHUNK_SEC
+
 	# Tick countdown runs on ALL peers (above the is_server gate) so the
 	# visual pulse fires simultaneously on server + remote-mirror clones.
 	# The cadence is deterministic — both peers initialise _next_tick =
@@ -245,6 +263,15 @@ func _physics_process(delta: float) -> void:
 	_do_tick()
 
 #endregion
+
+
+## Server-only. Ends the zone NOW (released hold-channel): the next physics
+## frame frees it, and chunked VFX stop refreshing (any in-flight chunk fades
+## within ~_VFX_CHUNK_SEC). Safe to call repeatedly.
+func end_early() -> void:
+	if not multiplayer.is_server():
+		return
+	duration = _elapsed
 
 
 #region #################### Server-side damage tick ####################

@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_aud")
 upgrade_id = "pg_t3_efficient_guard"
-upgrade_name = "Efficient Guard"
-description = "Reduces Iron Riposte's mana cost by 8."
+upgrade_name = "Effortless Bellow"
+description = "Reduces Challenging Shout's mana cost by 8."
 point_cost = 2
 tier = 3
 variant_group = "ir_guard_variant"

@@ -1,6 +1,8 @@
 class_name BleedDot
 extends RefCounted
 
+const EnemyStatus := preload("res://scripts/Gameplay/enemy_status.gd")
+
 ## Shared server-authoritative bleed/poison DOT helper. Extracted from the proven
 ## AL_BarbedShot / AL_Hemorrhage meta-tracking pattern so any ability (Caltrops'
 ## Poisoned Spikes, Mark of the Hunt's Bleeding Mark, Death Mark's bleed variant)
@@ -35,6 +37,9 @@ static func apply(target: Node, applier: Node, per_tick: int, max_stacks: int, d
 		existing["applier"] = applier
 		existing["dot_type"] = dot_type
 		target.set_meta(meta_key, existing)
+		# Status-tag layer (ADR 0013): every application event registers +
+		# runs escalation checks, refreshes included.
+		EnemyStatus.register(target, dot_type, meta_key, applier)
 		return
 
 	target.set_meta(meta_key, {
@@ -45,6 +50,7 @@ static func apply(target: Node, applier: Node, per_tick: int, max_stacks: int, d
 		"dot_type": dot_type,  # "bleed" / "poison" — drives the enemy DoT visual
 	})
 	_schedule_tick(target, meta_key)
+	EnemyStatus.register(target, dot_type, meta_key, applier)
 
 
 static func _schedule_tick(target: Node, meta_key: String) -> void:

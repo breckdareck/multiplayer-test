@@ -1,5 +1,7 @@
 extends Node
 
+const EnemyStatus := preload("res://scripts/Gameplay/enemy_status.gd")
+
 ## Caltrops — the Bow discipline's fire-and-forget ground-zone. Drops a patch
 ## of caltrops at the caster's feet for 5 seconds. Enemies inside take a small
 ## damage tick every second AND get briefly slowed each tick (so a fast-moving
@@ -106,8 +108,9 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 		Callable(self, "_apply_caltrops_slow")
 	)
 
-	# Ground "juice" — a tiled spike strip scattered across the caltrops patch.
-	MapManager.broadcast_ground_vfx_everywhere(MapManager.get_player_map(owner_node.player_id), "earth_ground", owner_node.global_position, rect_size.x, duration)
+	# Ground "juice" — the bespoke caltrops strip (scattered steel jacks with a
+	# wandering glint; generated sheet — tools/gen_caltrops_ground.py).
+	MapManager.broadcast_ground_vfx_everywhere(MapManager.get_player_map(owner_node.player_id), "caltrops_ground", owner_node.global_position, rect_size.x, duration)
 
 
 ## Per-tick callback fired by the zone for each enemy currently inside.
@@ -130,6 +133,7 @@ func _apply_caltrops_slow(enemy: Node) -> void:
 	var original_speed: float = e.movement_speed
 	e.movement_speed = original_speed * (1.0 - _slow_pct)
 	e.set_meta(SLOW_META, original_speed)
+	EnemyStatus.register(e, EnemyStatus.TAG_CHILL, SLOW_META, null)
 
 	e.get_tree().create_timer(SLOW_DURATION).timeout.connect(
 		func():

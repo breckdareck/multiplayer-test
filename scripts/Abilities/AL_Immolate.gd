@@ -1,5 +1,7 @@
 extends Node
 
+const EnemyStatus := preload("res://scripts/Gameplay/enemy_status.gd")
+
 ## Immolate — the Staff discipline's single-target burn-setter (projectile). The
 ## bolt's on_hit ignites the target with a stacking burn DOT. Each stack ticks a
 ## fraction of the applier's MAGICATTACK per second. This is the mage analogue of
@@ -90,6 +92,7 @@ func on_hit(_owner_node: Node, _target: Node, _ability: AbilityData) -> void:
 		existing["per_tick"] = per_tick  # refresh to latest applier's damage
 		existing["fire"] = fire          # latest application sets the splash flag
 		_target.set_meta(BURN_META, existing)
+		EnemyStatus.register(_target, EnemyStatus.TAG_BURN, BURN_META, _owner_node)
 		return
 
 	# Fresh burn — set up state and start the tick timer.
@@ -102,6 +105,7 @@ func on_hit(_owner_node: Node, _target: Node, _ability: AbilityData) -> void:
 	}
 	_target.set_meta(BURN_META, fresh)
 	_schedule_burn_tick(_target)
+	EnemyStatus.register(_target, EnemyStatus.TAG_BURN, BURN_META, _owner_node)
 
 
 ## When a burn tick downs an enemy, the regular combat-kill pathway

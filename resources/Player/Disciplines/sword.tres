@@ -7,7 +7,7 @@
 [ext_resource type="Resource" uid="uid://ccxoh5fmx317x" path="res://resources/Abilities/Sword/A_Crescent_Cleave.tres" id="4_qbbda"]
 [ext_resource type="Resource" uid="uid://dq088g6civvd8" path="res://resources/Abilities/Sword/A_Sundering_Blow.tres" id="5_03no5"]
 [ext_resource type="Resource" uid="uid://c6er05pqmi5sn" path="res://resources/Abilities/Sword/A_Hardened_Frame.tres" id="6_kdifu"]
-[ext_resource type="Resource" uid="uid://bj44mdaqov8t" path="res://resources/Abilities/Sword/A_Iron_Riposte.tres" id="7_ncog3"]
+[ext_resource type="Resource" uid="uid://bj44mdaqov8t" path="res://resources/Abilities/Sword/A_Challenging_Shout.tres" id="7_ncog3"]
 [ext_resource type="Resource" uid="uid://dyl558pcmpdgf" path="res://resources/Abilities/Sword/A_Aggression.tres" id="8_a26lb"]
 [ext_resource type="Resource" uid="uid://ctuuha6kutnms" path="res://resources/Abilities/Sword/A_Steel_Flurry.tres" id="9_6veq4"]
 [ext_resource type="Resource" uid="uid://bdk2jbx2m0hu1" path="res://resources/Abilities/Sword/A_Vow_Of_The_Vanguard.tres" id="11_0iftf"]

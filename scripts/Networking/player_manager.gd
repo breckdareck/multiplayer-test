@@ -595,3 +595,11 @@ func player_input(input_type: String, data: Variant = null):
 			# equipment component reference and the cleanup/death gate.
 			if player_node.has_method("request_weapon_swap_server"):
 				player_node.request_weapon_swap_server()
+		"channel_release":
+			# Hold-channel (Sky Volley / Stormcall): the client let go of the
+			# hotbar key — flag the release; the attack state consumes it
+			# server-side (after the minimum hold) and ends the channel early.
+			# Harmless when no channel is running (the flag is cleared on the
+			# next channel start).
+			if "channel_release_requested" in player_node:
+				player_node.channel_release_requested = true

@@ -6,7 +6,7 @@
 script = ExtResource("1_aud")
 upgrade_id = "sdr_t2_heavy_sundering"
 upgrade_name = "Heavy Sundering"
-description = "Sundering Arrow deals +30% damage."
+description = "Deals +25% damage to MARKED enemies (any source's mark counts)."
 tier = 2
-effect_key = "bonus_damage_mult"
-magnitude = 0.3
+effect_key = "bonus_damage_vs_mark"
+magnitude = 0.25

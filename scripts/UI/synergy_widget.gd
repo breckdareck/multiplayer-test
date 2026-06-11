@@ -52,6 +52,11 @@ func bind_player(body) -> void:
 	if is_instance_valid(equipment_component):
 		equipment_component.on_equipment_changed.connect(_refresh)
 		equipment_component.active_weapon_changed.connect(_on_active_weapon_changed)
+	# Spending / refunding ability points can cross the duo threshold — keep
+	# the label's ★ live without waiting for an equipment event.
+	var ac = player.get("ability_component")
+	if ac != null and is_instance_valid(ac) and ac.has_signal("ability_points_changed"):
+		ac.ability_points_changed.connect(_on_points_changed)
 
 	call_deferred("_refresh")
 
@@ -70,7 +75,12 @@ func _on_active_weapon_changed(_active_weapon, _active_item) -> void:
 	_refresh()
 
 
+func _on_points_changed(_disc_key: String, _points: int) -> void:
+	_refresh()
+
+
 ## Show + name the synergy only when a recognized two-weapon pair is equipped.
+## A ★ on the label means the pair's DUO NODE is unlocked (hover for detail).
 func _refresh() -> void:
 	if not is_instance_valid(player) or not player.has_method("get_equipped_disciplines"):
 		_set_pair("")
@@ -82,7 +92,7 @@ func _refresh() -> void:
 		return
 	_set_pair(key)
 	if is_instance_valid(pair_label):
-		pair_label.text = rec["name"]
+		pair_label.text = rec["name"] + (" ★" if _duo_unlocked() else "")
 		pair_label.add_theme_color_override("font_color", IDLE_COLOR)
 
 
@@ -101,9 +111,66 @@ func _set_pair(key: String) -> void:
 
 
 ## Render the synergy explanation as a skinned BBCode tooltip (matches the
-## ability / item tooltip look), rather than Godot's raw-text default.
+## ability / item tooltip look), rather than Godot's raw-text default. Duo
+## state is computed fresh on hover so the tooltip tracks live point spending.
 func _make_custom_tooltip(_for_text: String) -> Object:
-	return AbilityTooltip.build(SynergyInfo.tooltip_bbcode(_current_pair_key))
+	return AbilityTooltip.build(SynergyInfo.tooltip_bbcode(
+		_current_pair_key, _duo_unlocked(), _duo_progress_text()))
+
+
+# --- Duo node state (ADR 0013), mirrored client-side ---
+# The unlock rule is derived: 30+ ability points spent in BOTH equipped
+# disciplines (weapon_pair_synergy.DUO_THRESHOLD_POINTS — read off the bound
+# component so the two can't drift). Ability levels + owned upgrades are
+# synced to the owning client, so get_points_spent_in_discipline works here.
+
+const _DISC_KEY := {SWORD: "sword", BOW: "bow", STAFF: "staff", DAGGER: "dagger"}
+
+
+func _duo_threshold() -> int:
+	if is_instance_valid(synergy_component) and "DUO_THRESHOLD_POINTS" in synergy_component:
+		return int(synergy_component.DUO_THRESHOLD_POINTS)
+	return 30
+
+
+## The two equipped discipline keys, or [] when not a valid pair.
+func _pair_disc_keys() -> Array:
+	if not is_instance_valid(player) or not player.has_method("get_equipped_disciplines"):
+		return []
+	var keys: Array = []
+	for d in player.get_equipped_disciplines():
+		var k = _DISC_KEY.get(int(d), "")
+		if k != "" and not keys.has(k):
+			keys.append(k)
+	return keys if keys.size() == 2 else []
+
+
+func _duo_unlocked() -> bool:
+	var keys: Array = _pair_disc_keys()
+	if keys.is_empty():
+		return false
+	var ac = player.get("ability_component")
+	if ac == null or not is_instance_valid(ac) or not ac.has_method("get_points_spent_in_discipline"):
+		return false
+	for k in keys:
+		if int(ac.get_points_spent_in_discipline(k)) < _duo_threshold():
+			return false
+	return true
+
+
+## "Sword 12/30 · Staff 30/30" — shown in the tooltip while the duo is locked.
+func _duo_progress_text() -> String:
+	var keys: Array = _pair_disc_keys()
+	if keys.is_empty():
+		return ""
+	var ac = player.get("ability_component")
+	if ac == null or not is_instance_valid(ac) or not ac.has_method("get_points_spent_in_discipline"):
+		return ""
+	var parts: Array = []
+	for k in keys:
+		var spent: int = mini(int(ac.get_points_spent_in_discipline(k)), _duo_threshold())
+		parts.append("%s %d/%d" % [String(k).capitalize(), spent, _duo_threshold()])
+	return " · ".join(parts)
 
 
 ## Normalized "min_max" key for a 2-discipline weapon set; "" if not a valid pair

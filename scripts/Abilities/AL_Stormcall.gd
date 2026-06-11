@@ -27,7 +27,7 @@ const ZONE_SPAWN_OFFSET: float = 140.0  ## px ahead of caster in facing directio
 ## Tick damage = 11% of MAGICATTACK per tick. With 6 ticks across 3s that's
 ## ~66% sustained per enemy who stays the full duration — comparable to
 ## the Pyre Burst pool's ceiling but with a different cast profile.
-const TICK_DAMAGE_PCT: float = 0.11
+const TICK_DAMAGE_PCT: float = 0.14
 
 const ZONE_COLOR: Color = Color(0.55, 0.55, 1.0, 0.38)  ## lightning blue-purple
 ## Chaining Storm (T3): each strike arcs to nearby enemies within this radius.
@@ -90,7 +90,7 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 	# Chaining Storm (T3) adds a per-enemy callback that arcs to nearby enemies.
 	var chain_cb := Callable(self, "_chain_strike").bind(owner_node) if _chain_targets > 0 else Callable()
 
-	load("res://scripts/Gameplay/ground_zone.gd").spawn_server_rect(
+	var zone: Node2D = load("res://scripts/Gameplay/ground_zone.gd").spawn_server_rect(
 		owner_node,
 		spawn_pos,
 		rect_size,
@@ -100,9 +100,13 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 		ZONE_COLOR,
 		chain_cb,
 	)
-
-	# Ground "juice" — a tiled crackling-lightning strip across the storm area.
-	MapManager.broadcast_ground_vfx_everywhere(MapManager.get_player_map(owner_node.player_id), "lightning_ground", spawn_pos, rect_size.x, duration)
+	if zone != null:
+		# Hold-to-channel (risk/reward): the zone manages its own crackling
+		# strip in short chunks, and the attack state ends it early via this
+		# meta when the player RELEASES the hotbar key (tap = a crack of
+		# thunder, full hold = the whole storm).
+		zone.ground_vfx_key = "lightning_ground"
+		owner_node.set_meta("active_channel_zone", zone)
 
 
 ## Per-tick callback for each enemy struck inside the storm: arc to the nearest

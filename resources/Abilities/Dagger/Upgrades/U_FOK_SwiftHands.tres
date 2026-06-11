@@ -6,6 +6,6 @@
 script = ExtResource("1_aud")
 upgrade_id = "fok_t1_swift_hands"
 upgrade_name = "Swift Hands"
-description = "Reduces Fan of Knives' cooldown by 1 second."
-effect_key = "cooldown_flat_reduction"
-magnitude = 1.0
+description = "Deals +15% damage to BURNING enemies (any source's burn counts)."
+effect_key = "bonus_damage_vs_burn"
+magnitude = 0.15

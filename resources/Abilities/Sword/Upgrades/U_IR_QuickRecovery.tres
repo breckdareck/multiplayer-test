@@ -6,6 +6,6 @@
 script = ExtResource("1_aud")
 upgrade_id = "pg_t1_quick_recovery"
 upgrade_name = "Quick Recovery"
-description = "Reduces Iron Riposte's cooldown by 3 seconds."
+description = "Reduces Challenging Shout's cooldown by 3 seconds."
 effect_key = "cooldown_flat_reduction"
 magnitude = 3.0

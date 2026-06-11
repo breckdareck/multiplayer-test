@@ -1,5 +1,7 @@
 extends Node
 
+const EnemyStatus := preload("res://scripts/Gameplay/enemy_status.gd")
+
 ## Envenom — the Dagger discipline's single-target poison-setter. A coated-blade
 ## strike whose on_hit applies (or refreshes and stacks) a poison DOT on the
 ## target. Each stack ticks 20% of the applier's WEAPONATTACK per second for
@@ -82,6 +84,7 @@ func on_hit(_owner_node: Node, _target: Node, _ability: AbilityData) -> void:
 		existing["remaining"] = duration
 		existing["per_tick"] = per_tick  # refresh to latest applier's damage
 		_target.set_meta(POISON_META, existing)
+		EnemyStatus.register(_target, EnemyStatus.TAG_POISON, POISON_META, _owner_node)
 		return
 
 	# Fresh poison — set up state and start the tick timer.
@@ -93,6 +96,7 @@ func on_hit(_owner_node: Node, _target: Node, _ability: AbilityData) -> void:
 	}
 	_target.set_meta(POISON_META, fresh)
 	_schedule_poison_tick(_target)
+	EnemyStatus.register(_target, EnemyStatus.TAG_POISON, POISON_META, _owner_node)
 
 
 ## When a poison tick downs an enemy, the regular combat-kill pathway

@@ -5,10 +5,10 @@
 [resource]
 script = ExtResource("1_aud")
 upgrade_id = "pg_t3_spiked_bulwark"
-upgrade_name = "Spiked Bulwark"
-description = "Reflects an additional 15% of damage taken."
+upgrade_name = "Demoralizing Roar"
+description = "Struck enemies deal an additional 10% less damage."
 point_cost = 2
 tier = 3
 variant_group = "ir_guard_variant"
-effect_key = "reflect_bonus"
-magnitude = 15.0
+effect_key = "weaken_potency_bonus"
+magnitude = 0.1

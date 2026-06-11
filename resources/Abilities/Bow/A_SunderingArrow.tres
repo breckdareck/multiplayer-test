@@ -1,7 +1,8 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://dw4pnxjthx1x8"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=24 format=3 uid="uid://dw4pnxjthx1x8"]
 
 [ext_resource type="Texture2D" uid="uid://s6hatufpmvvv" path="res://assets/sprites/Abilities/generated_px/Bow/A_SunderingArrow.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
+[ext_resource type="PackedScene" uid="uid://d0ig4oiimrnei" path="res://scenes/Gameplay/projectile_base.tscn" id="30_proj"]
 [ext_resource type="Script" uid="uid://bi7ye1sswjc40" path="res://scripts/Abilities/AL_SunderingArrow.gd" id="3_al"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_ad"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_asf"]
@@ -22,7 +23,10 @@ script = ExtResource("2_abd")
 target_type = 1
 hit_box_shape_data = SubResource("RectangleShape2D_hit")
 hit_box_position_data = Vector2(110, -18)
-animation_name = "attack_1"
+animation_name = "attack_2"
+is_projectile = true
+projectile_scene = ExtResource("30_proj")
+projectile_speed = 260.0
 sfx_path = "res://assets/sounds/generated/bow_snipe.wav"
 logic_script = ExtResource("3_al")
 

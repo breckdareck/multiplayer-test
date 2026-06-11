@@ -4,8 +4,11 @@ extends Node
 ## channel, releases an AMPLIFIED version of the current stance's
 ## signature effect at the caster's facing direction. The exact effect
 ## depends on the active StaffElement stance:
-##   - FIRE      → spawns a larger / longer-duration version of the Pyre
-##                 Burst-style ground pool ahead of the caster
+##   - FIRE      → a cone of flame ahead of the caster: direct burst to
+##                 every enemy in reach + 2 Burn stacks each (2026-06-10
+##                 roster-audit rework — was a third fire ground-pool on
+##                 top of Pyre Burst's and Immolate's splash; the burst
+##                 wave gives FIRE a shape the stance didn't have)
 ##   - ICE       → applies a hard freeze (1.5s) to all enemies in a small
 ##                 area ahead, larger radius than Glacial Spike's single hit
 ##   - LIGHTNING → fires a chain blast that hops further with more bonus
@@ -16,13 +19,14 @@ extends Node
 ## tailored amplified payoff. Mismatch behavior: in NO stance (shouldn't
 ## happen — stance always defaults to FIRE), falls back to FIRE.
 
-## Amplified Fire-stance pool — ground rectangle matching Pyre Burst's pool
-## shape, but larger and longer-lived per the Spellweave amplification rule.
-const FIRE_POOL_RECT_SIZE: Vector2 = Vector2(220.0, 65.0)
-const FIRE_POOL_DURATION: float = 5.0
-const FIRE_POOL_TICK: float = 1.0
-const FIRE_POOL_DAMAGE_PCT: float = 0.15
-const FIRE_POOL_COLOR: Color = Color(0.95, 0.3, 0.1, 0.42)
+## Amplified Fire-stance wave — a cone of flame ahead of the caster. Direct
+## burst (no pool): every enemy in reach takes FIRE_WAVE_DAMAGE_PCT of the
+## scale base and gains 2 Burn stacks via the stance rider.
+const FIRE_WAVE_RADIUS: float = 150.0
+const FIRE_WAVE_OFFSET: float = 120.0
+const FIRE_WAVE_DAMAGE_PCT: float = 0.6
+const FIRE_WAVE_BURN_STACKS: int = 2
+const FIRE_WAVE_MAX_TARGETS: int = 4
 
 const ICE_FREEZE_RADIUS: float = 110.0
 const ICE_FREEZE_DURATION: float = 1.5
@@ -74,6 +78,13 @@ func execute(owner_node: Node, ability: AbilityData, level_stats: AbilityLevelDa
 		damage_bonus = ability_comp.get_ability_upgrade_magnitude(ability.ability_id, "bonus_damage_mult")
 	scale_base = int(scale_base * (1.0 + maxf(0.0, damage_bonus)))
 
+	# Tap-or-hold charge: an early-released wind-up publishes its charge
+	# fraction (attack state meta, 0.5..1.0); the release's own damage bases
+	# don't route through calculate_ability_damage, so scale them here. Full
+	# wind-ups never set the meta (fraction 1.0).
+	if owner_node.has_meta("channel_charge"):
+		scale_base = maxi(1, int(scale_base * float(owner_node.get_meta("channel_charge"))))
+
 	_release(owner_node, element, facing, scale_base, reach_bonus)
 
 	# Echoing Weave: refund a fraction of the spell's MP cost if any enemy was in
@@ -101,14 +112,14 @@ func execute(owner_node: Node, ability: AbilityData, level_stats: AbilityLevelDa
 ## `reach_bonus` (Wide Weave T3) widens whichever stance effect fires.
 func _release(owner_node: Node, element: int, facing: int, scale_base: int, reach_bonus: float = 0.0) -> void:
 	match element:
-		0:  # FIRE — spawn an amplified Pyre Burst-style pool
-			_fire_pool(owner_node, facing, scale_base, reach_bonus)
+		0:  # FIRE — cone of flame: burst + burn stacks
+			_fire_wave(owner_node, facing, scale_base, reach_bonus)
 		1:  # ICE — area freeze
 			_ice_freeze(owner_node, facing, reach_bonus)
 		2:  # LIGHTNING — extended chain blast
 			_lightning_chain(owner_node, scale_base, reach_bonus)
 		_:
-			_fire_pool(owner_node, facing, scale_base, reach_bonus)
+			_fire_wave(owner_node, facing, scale_base, reach_bonus)
 
 
 ## True if any living enemy is within a generous reach of the release area —
@@ -126,23 +137,42 @@ func _enemy_in_reach(owner_node: Node, facing: int) -> bool:
 	return false
 
 
-func _fire_pool(owner_node: Node, facing: int, scale_base: int, reach_bonus: float = 0.0) -> void:
-	var spawn_pos: Vector2 = owner_node.global_position + Vector2(140.0 * float(facing), 0)
-	var tick_damage: int = maxi(1, roundi(scale_base * FIRE_POOL_DAMAGE_PCT))
-	# Wide Weave widens the pool: full reach_bonus on width, a third on height.
-	var rect_size: Vector2 = FIRE_POOL_RECT_SIZE + Vector2(reach_bonus, reach_bonus * 0.3)
-	load("res://scripts/Gameplay/ground_zone.gd").spawn_server_rect(
-		owner_node,
-		spawn_pos,
-		rect_size,
-		FIRE_POOL_DURATION,
-		FIRE_POOL_TICK,
-		tick_damage,
-		FIRE_POOL_COLOR,
-	)
+func _fire_wave(owner_node: Node, facing: int, scale_base: int, reach_bonus: float = 0.0) -> void:
+	# Cone of flame ahead of the caster: a direct burst to every enemy in
+	# reach + FIRE_WAVE_BURN_STACKS burn stacks each via the stance rider
+	# (so the burn's per-tick scales off this release, same as any fire hit).
+	# Burst shape on purpose — the FIRE stance already owns two ground DoTs
+	# (Pyre Burst's pool, Immolate's splash); the wave is the missing verb.
+	var center: Vector2 = owner_node.global_position + Vector2(FIRE_WAVE_OFFSET * float(facing), 0)
+	var wave_radius: float = FIRE_WAVE_RADIUS + reach_bonus
+	var r2: float = wave_radius * wave_radius
+	var burst: int = maxi(1, roundi(scale_base * FIRE_WAVE_DAMAGE_PCT))
+	var staff = owner_node.get("staff_element_component")
+	var struck: int = 0
+	for enemy in owner_node.get_tree().get_nodes_in_group("Enemies"):
+		if struck >= FIRE_WAVE_MAX_TARGETS:
+			break
+		if not is_instance_valid(enemy) or not (enemy is EnemyBase):
+			continue
+		if (enemy.global_position - center).length_squared() > r2:
+			continue
+		var hc = enemy.get("health_component")
+		if hc == null or not is_instance_valid(hc) or hc.is_dead:
+			continue
+		struck += 1
+		var was_alive: bool = not hc.is_dead
+		hc.take_damage(burst, owner_node, true, false, true)
+		if was_alive and hc.is_dead:
+			var ability_comp = owner_node.get("ability_component")
+			if ability_comp and ability_comp.has_method("dispatch_passive_event_on_kill"):
+				ability_comp.dispatch_passive_event_on_kill(enemy)
+			continue
+		if staff != null and is_instance_valid(staff) and staff.has_method("apply_element_on_hit"):
+			for _i in range(FIRE_WAVE_BURN_STACKS):
+				staff.apply_element_on_hit(owner_node, enemy, burst)
 
-	# Ground "juice" — a tiled fire band across the amplified Fire-stance pool.
-	MapManager.broadcast_ground_vfx_everywhere(MapManager.get_player_map(owner_node.player_id), "fire_ground", spawn_pos, rect_size.x, FIRE_POOL_DURATION)
+	# Wave "juice" — a short fire band flash across the cone's reach.
+	MapManager.broadcast_ground_vfx_everywhere(MapManager.get_player_map(owner_node.player_id), "fire_ground", center, wave_radius * 1.6, 0.8)
 
 
 func _ice_freeze(owner_node: Node, facing: int, reach_bonus: float = 0.0) -> void:

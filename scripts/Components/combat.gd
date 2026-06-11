@@ -1,6 +1,8 @@
 class_name CombatComponent
 extends Node
 
+const EnemyStatus := preload("res://scripts/Gameplay/enemy_status.gd")
+
 signal dealt_damage(target: Node, damage_values: Array, crit_values: Array)
 
 @export var attack_hitbox: CollisionShape2D
@@ -38,6 +40,10 @@ var current_level_stats: AbilityLevelData = null
 var hit_list: Array = []
 var _unique_targets_for_attack: Dictionary = {}
 var _pending_bodies: Array = []
+## Targets already processed by the current cast — drives the
+## "bonus_ramp_per_target" pierce-crescendo upgrade key. Reset per attack
+## in turn_on_hitbox().
+var _ramp_targets_struck: int = 0
 
 ## Damage range shown in the stats window. Uses the active weapon's attack
 ## stat (`_get_weapon_attack_stat()`) — for a Staff or Wand that's
@@ -236,7 +242,10 @@ func process_ability_hit(ability: AbilityData, level_stats: AbilityLevelData, du
 	var attack_duration = duration_override if duration_override > 0.0 else level_stats.cast_time
 	# v1 channel_time_reduction upgrade (Onslaught's Swift Wind-up / Spellweave's
 	# Swift Weave): trim the channel/cast window by the owned magnitude (seconds).
-	if _ability_component and _ability_component.has_method("get_ability_upgrade_magnitude"):
+	# Only on the cast_time path — a duration_override comes from the attack
+	# state (anim-duration basics, or a wind-up release whose reduction was
+	# already applied to the wind-up itself) and must not shrink twice.
+	if duration_override <= 0.0 and _ability_component and _ability_component.has_method("get_ability_upgrade_magnitude"):
 		attack_duration -= _ability_component.get_ability_upgrade_magnitude(ability.ability_id, "channel_time_reduction")
 	if attack_duration <= 0.0:
 		attack_duration = 0.05
@@ -247,12 +256,13 @@ func process_ability_hit(ability: AbilityData, level_stats: AbilityLevelData, du
 func turn_on_hitbox() -> void:
 	if not multiplayer.is_server():
 		return
-		
+
 	attack_hitbox.position.x = abs(attack_hitbox.position.x) * owner_node.facing_direction
-	
+
 	hit_list.clear()
 	_unique_targets_for_attack.clear()
 	_pending_bodies.clear()
+	_ramp_targets_struck = 0
 		
 	hitbox_area.monitoring = true
 
@@ -544,6 +554,13 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 	#     of a Fan-of-Knives volley ambushes regardless of which frame it lands on.
 	# The _is_wielding_dagger() gate (live path) means it can never affect a
 	# sword/bow/staff hit. Fires from the Shadowmeld toggle OR the Vanish buff.
+	# Signature key — bonus_ramp_per_target: each ADDITIONAL enemy struck by
+	# the same cast takes +X% more damage (a pierce crescendo — the line gets
+	# stronger as it travels). Counter resets per attack in turn_on_hitbox.
+	var ramp_frac: float = 0.0
+	if ability != null:
+		ramp_frac = _upgrade_float(ability, "bonus_ramp_per_target")
+
 	var ambush_mult: float = 1.0
 	var ambush_from_vanish: bool = false
 	if projectile_ambush >= 0:
@@ -658,6 +675,14 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 				is_crit = true
 			owner_node.remove_meta("evasion_crit_until_ms")
 
+		# Brittle escalation (ADR 0013) — a marked enemy that reached 5+ bleed
+		# stacks had its mark consumed and was primed: the next hit against it
+		# is a guaranteed crit. One-shot, enemy-side meta — ANY participant's
+		# hit cashes it (enemy-global tag state).
+		if not is_crit and target_enemy.has_meta(EnemyStatus.BRITTLE_META):
+			is_crit = true
+			target_enemy.remove_meta(EnemyStatus.BRITTLE_META)
+
 		if is_crit:
 			var crit_damage_bonus = _stats_component.stats.get(Constants.StatType.CRITDAMAGE).total_value
 			var crit_multiplier = randf_range(1.2, 1.5) + (crit_damage_bonus / 100.0)
@@ -671,6 +696,31 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 		# the cast spell against per-stance ability_id allowlists.
 		if _ability_component and _ability_component.has_method("get_conditional_damage_modifier"):
 			modified_damage *= _ability_component.get_conditional_damage_modifier(target_enemy, ability)
+
+		# Tag-conditional ability upgrades (ADR 0013) — generic
+		# "bonus_damage_vs_<tag>" effect_keys, applied per TARGET (the status
+		# tag lives on the enemy). Consumed centrally here so re-authored T1/T2
+		# upgrade .tres need no per-AL code; summed when an ability owns more
+		# than one. Tags are enemy-global — anyone's bleed/burn/chill counts.
+		# Keys spelled out literally so the dead-upgrade test + the resource
+		# editor's effect_key_scanner can find them.
+		if ability != null and _ability_component:
+			var vs_bonus: float = 0.0
+			for entry in [
+				["bonus_damage_vs_bleed", "bleed"],
+				["bonus_damage_vs_poison", "poison"],
+				["bonus_damage_vs_burn", "burn"],
+				["bonus_damage_vs_chill", "chill"],
+				["bonus_damage_vs_mark", "mark"],
+			]:
+				var mag: float = _upgrade_float(ability, entry[0])
+				if mag != 0.0 and EnemyStatus.has_tag(target_enemy, entry[1]):
+					vs_bonus += mag
+			if vs_bonus != 0.0:
+				modified_damage *= (1.0 + vs_bonus)
+
+		if ramp_frac > 0.0 and _ramp_targets_struck > 0:
+			modified_damage *= (1.0 + ramp_frac * _ramp_targets_struck)
 
 		var damage_to_deal = roundi(modified_damage)
 
@@ -805,6 +855,15 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 				if momentum_refund > 0:
 					_bow_momentum_component.add_momentum(momentum_refund)
 
+			# Sword mirror — combo_refund_on_kill (Reaper's Rhythm / Headsman):
+			# a kill with the owning spender refunds combo points, letting
+			# finisher kills chain into the next finisher instead of restarting
+			# the build from zero. Generic: any sword ability owning the key.
+			if is_instance_valid(_sword_combo_component) and _active_weapon_discipline() == Constants.ClassType.SWORD:
+				var combo_refund: int = _upgrade_int(ability, "combo_refund_on_kill")
+				for _r in range(combo_refund):
+					_sword_combo_component.add_combo_point()
+
 		# PR 5 — Sword signature: build a combo point on every BASIC-ATTACK
 		# HIT while wielding a sword. Conditions:
 		#  - `ability == null` (the basic-melee pathway; not the ability or
@@ -862,6 +921,11 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 	# landed hit. Skipped if every hit missed (max_landed_damage == 0).
 	if ability != null and max_landed_damage > 0 and is_instance_valid(_staff_element_component) and _is_wielding_staff():
 		_staff_element_component.apply_element_on_hit(owner_node, target_enemy, max_landed_damage)
+
+	# One more target fully processed this cast — advances the pierce
+	# crescendo for abilities owning "bonus_ramp_per_target".
+	if max_landed_damage > 0:
+		_ramp_targets_struck += 1
 
 	# Record the most-recently-damaged enemy on the attacker so party bots can
 	# focus-fire a human teammate's target (humans have no explicit target lock).
@@ -1008,6 +1072,15 @@ func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelDa
 	var dmg_bonus: float = _upgrade_float(_ability, "bonus_damage_mult")
 	if dmg_bonus != 0.0:
 		damage = roundi(damage * (1.0 + dmg_bonus))
+
+	# Signature key — bonus_per_combo_held: +X% damage per combo point
+	# currently HELD (not spent). The anti-spender play: ride a full gauge
+	# for sustained damage instead of dumping it into a finisher.
+	var held_bonus: float = _upgrade_float(_ability, "bonus_per_combo_held")
+	if held_bonus > 0.0 and is_instance_valid(_sword_combo_component):
+		var held: int = _sword_combo_component.get_combo_count()
+		if held > 0:
+			damage = roundi(damage * (1.0 + held_bonus * held))
 
 	# Bow signature — MOMENTUM damage ramp. While a bow is wielded, scale damage
 	# by the gauge's current bonus (+DAMAGE_PER_STACK per stack). The

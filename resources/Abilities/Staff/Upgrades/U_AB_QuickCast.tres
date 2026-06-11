@@ -6,6 +6,6 @@
 script = ExtResource("1_aud")
 upgrade_id = "ab_t1_quick_cast"
 upgrade_name = "Quick Cast"
-description = "Reduces Arcane Bolt's cooldown by 0.4 seconds."
-effect_key = "cooldown_flat_reduction"
-magnitude = 0.4
+description = "Deals +15% damage to POISONED enemies (any source's poison counts)."
+effect_key = "bonus_damage_vs_poison"
+magnitude = 0.15
