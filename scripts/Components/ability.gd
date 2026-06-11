@@ -100,6 +100,14 @@ var _available_points_per_discipline: Dictionary = {
 }
 var _loading_mode: bool = false
 
+## Bulk-edit mode (dev tooling / mass grants): while true, the per-call
+## passive re-applies, UI signals, and client sync RPCs of learn / level-up /
+## purchase / point-grant are suppressed; end_bulk_edit() flushes ONCE.
+## Without this, a pairtest-style build (~400 incremental operations in one
+## frame) re-syncs and rebuilds the skill-tree UI per operation.
+var _bulk_edit: bool = false
+var _bulk_touched_abilities: Dictionary = {}
+
 ## PR 4: how many ability points each level-up grants. Awarded entirely to
 ## the active weapon's discipline pool (the discipline the player is
 ## wielding at the moment the level-up signal fires).
@@ -1035,6 +1043,10 @@ func _level_up_ability_local(ability_id: String) -> bool:
 		_available_points_per_discipline[disc_key] = max(0, int(_available_points_per_discipline[disc_key]) - 1)
 	_ability_levels[ability_id] = current_level + 1
 
+	if _bulk_edit:
+		_bulk_touched_abilities[ability_id] = true
+		return true
+
 	# Re-apply passive effects if a passive ability was leveled up
 	if ability.ability_type == Constants.AbilityType.PASSIVE:
 		_apply_passive_effects()
@@ -1067,7 +1079,11 @@ func _learn_ability_local(ability_id: String, initial_level: int = 0, send_rpc: 
 		return false
 	
 	_ability_levels[ability_id] = initial_level
-	
+
+	if _bulk_edit:
+		_bulk_touched_abilities[ability_id] = true
+		return true
+
 	if ability.ability_type == Constants.AbilityType.PASSIVE:
 		_apply_passive_effects()
 		
@@ -1099,6 +1115,8 @@ func _add_ability_points(amount: int, discipline_key: String = "") -> void:
 		return
 	_available_points_per_discipline[key] = int(_available_points_per_discipline.get(key, 0)) + amount
 	##print("Added %d ability points to %s. Total: %d" % [amount, key, _available_points_per_discipline[key]])
+	if _bulk_edit:
+		return
 	ability_points_changed.emit(key, int(_available_points_per_discipline[key]))
 
 	if multiplayer.is_server() and not BotManager.is_bot(owner.player_id):
@@ -1711,6 +1729,29 @@ func reconnect_level_signals() -> void:
 
 func set_loading_mode(enabled: bool) -> void:
 	_loading_mode = enabled
+
+
+## Suppress per-call passive re-applies, UI signals, and client syncs while a
+## mass grant/spend runs (dev tooling). Pair with end_bulk_edit().
+func begin_bulk_edit() -> void:
+	_bulk_edit = true
+	_bulk_touched_abilities.clear()
+
+
+## Flush everything the bulk suppressed, exactly once: one passive recalc,
+## one points signal per pool, one sync of pools/upgrades, and a per-touched-
+## ability level sync so remote clients converge.
+func end_bulk_edit() -> void:
+	_bulk_edit = false
+	_apply_passive_effects()
+	for key in _available_points_per_discipline:
+		ability_points_changed.emit(key, int(_available_points_per_discipline.get(key, 0)))
+	if multiplayer.has_multiplayer_peer() and multiplayer.is_server() and not BotManager.is_bot(owner.player_id):
+		sync_ability_points_per_discipline.rpc(_available_points_per_discipline.duplicate())
+		sync_learned_upgrades.rpc(_learned_upgrades.duplicate(true))
+		for ability_id in _bulk_touched_abilities:
+			sync_ability_learned.rpc(ability_id, int(_ability_levels.get(ability_id, 0)))
+	_bulk_touched_abilities.clear()
 #endregion
 
 
@@ -1904,6 +1945,10 @@ func _purchase_upgrade_local(ability_id: String, upgrade_id: String) -> bool:
 	if not _learned_upgrades.has(ability_id):
 		_learned_upgrades[ability_id] = []
 	_learned_upgrades[ability_id].append(upgrade_id)
+
+	if _bulk_edit:
+		_bulk_touched_abilities[ability_id] = true
+		return true
 
 	# A purchased upgrade may alter a passive's stat contribution — recalc.
 	if ability.ability_type == Constants.AbilityType.PASSIVE:

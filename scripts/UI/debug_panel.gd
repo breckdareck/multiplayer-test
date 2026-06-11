@@ -1622,14 +1622,14 @@ func _complete_zone_args(prior_args: PackedStringArray, _t: String) -> PackedStr
 ## Hemorrhage bleeds feeding the off-hand poison imbue into Septic.
 const PAIRTEST_LOADOUTS := {
 	"sword|staff": ["Steel Flurry", "Crescent Cleave", "Sentinel's Mark", "Earthsplitter", "Vault Strike"],
-	"sword|dagger": ["Steel Flurry", "Hemorrhage", "Sentinel's Mark", "Crescent Cleave", "Charge!"],
-	"sword|bow": ["Steel Flurry", "Crescent Cleave", "Hemorrhage", "Vanguard's Onslaught", "Charge!"],
+	"sword|dagger": ["Steel Flurry", "Hemorrhage", "Sentinel's Mark", "Crescent Cleave", "Earthsplitter"],
+	"sword|bow": ["Steel Flurry", "Crescent Cleave", "Hemorrhage", "Vanguard's Onslaught", "Earthsplitter"],
 	"bow|sword": ["Split Shot", "Barbed Shot", "Mark of the Hunt", "Hailstorm", "Snipe"],
-	"bow|staff": ["Split Shot", "Barbed Shot", "Mark of the Hunt", "Hailstorm", "Sundering Arrow"],
+	"bow|staff": ["Split Shot", "Barbed Shot", "Mark of the Hunt", "Hailstorm", "Snipe"],
 	"bow|dagger": ["Split Shot", "Barbed Shot", "Mark of the Hunt", "Hailstorm", "Snipe"],
-	"staff|sword": ["Arcane Bolt", "Immolate", "Frost Patch", "Glacial Spike", "Spellweave"],
+	"staff|sword": ["Arcane Bolt", "Immolate", "Frost Patch", "Spellweave", "Stormcall"],
 	"staff|bow": ["Arcane Bolt", "Immolate", "Frost Patch", "Arcane Lance", "Stormcall"],
-	"staff|dagger": ["Arcane Bolt", "Immolate", "Frost Patch", "Mana Surge", "Pyre Burst"],
+	"staff|dagger": ["Arcane Bolt", "Immolate", "Frost Patch", "Mana Surge", "Stormcall"],
 	"dagger|sword": ["Twin Fang", "Eviscerate", "Envenom", "Death Mark", "Fan of Knives"],
 	"dagger|staff": ["Twin Fang", "Eviscerate", "Envenom", "Shadowstep", "Death Mark"],
 	"dagger|bow": ["Twin Fang", "Eviscerate", "Fan of Knives", "Shadowstep", "Smoke Bomb"],
@@ -1655,6 +1655,10 @@ const PAIRTEST_PASSIVES := {
 ## effect_keys that are plain stat bumps — when picking ONE T3 variant per
 ## ability, prefer the behavioral option (the one whose key is NOT in this
 ## set); those are the variants authored to feed the pair/escalation play.
+## ADR 0014: every curated bar must carry its discipline's ULTIMATE - the
+## ~30s big hitter is the pacing spectrum's centerpiece and the thing the
+## pairtest fights exist to feel-test.
+const PAIRTEST_ULTIMATES := {"sword": "Earthsplitter", "bow": "Snipe", "staff": "Stormcall", "dagger": "Eviscerate"}
 const PAIRTEST_NUMERIC_KEYS := ["bonus_damage_mult", "bonus_targets", "bonus_hits",
 	"cooldown_flat_reduction", "mana_flat_reduction", "buff_duration_bonus",
 	"bonus_zone_radius", "bonus_zone_duration"]
@@ -1681,22 +1685,34 @@ func _cmd_pairtest(args: Array) -> String:
 	var prim_name: String = _discipline_label(prim)
 	var sec_name: String = _discipline_label(sec)
 
-	# 1. Character level -> 100 (same loop as _cmd_level).
+	# 1. Character level -> 100. _is_loading_data mutes the per-level fan-out
+	# (SFX / party share / announcements) - 99 level-ups in one frame
+	# otherwise stall the game; one save/sync happens naturally afterwards.
 	if is_instance_valid(p.level_component):
-		var start: int = p.level_component.level
-		while p.level_component.level < PAIRTEST_LEVEL:
-			p.level_component.add_exp.rpc(p.level_component.get_exp_to_next_level())
-			if p.level_component.level == start:
+		var lc = p.level_component
+		var was_loading: bool = lc._is_loading_data
+		lc._is_loading_data = true
+		var start: int = lc.level
+		while lc.level < PAIRTEST_LEVEL:
+			lc.add_exp(lc.get_exp_to_next_level())
+			if lc.level == start:
 				break
-			start = p.level_component.level
-		out.append("level -> %d" % p.level_component.level)
+			start = lc.level
+		lc._is_loading_data = was_loading
+		out.append("level -> %d" % lc.level)
 
-	# 2. Mastery cap on both disciplines (stat scaling + the natural point flow).
+	# 2. Mastery cap on both disciplines. ONE mega-grant per discipline: the
+	# grant loops levels internally and (since the per-level emit fix) fires
+	# mastery_level_changed once per level, so the point flow stays exact
+	# while the sync RPC happens once instead of 100 times.
+	var ac_bulk = p.ability_component
+	if is_instance_valid(ac_bulk) and ac_bulk.has_method("begin_bulk_edit"):
+		ac_bulk.begin_bulk_edit()
 	var wm = p.weapon_mastery_component
 	if is_instance_valid(wm):
 		for disc in [prim, sec]:
-			while wm.get_mastery_level(disc) < WeaponMasteryComponent.MASTERY_CAP:
-				wm.grant_mastery_xp_server(disc, wm.get_xp_to_next_level(disc))
+			if wm.get_mastery_level(disc) < WeaponMasteryComponent.MASTERY_CAP:
+				wm.grant_mastery_xp_server(disc, 1 << 31)
 		wm.set_primary_discipline(prim)
 		out.append("mastery capped (%s + %s), primary = %s" % [prim_name, sec_name, prim_name])
 
@@ -1750,6 +1766,10 @@ func _cmd_pairtest(args: Array) -> String:
 				upgrades_bought += r2.y
 			out.append("%s build: %d abilities maxed, %d upgrades, %d pts left" % [
 				key, maxed, upgrades_bought, ac.get_available_points_for_discipline(key)])
+		# Flush everything the bulk suppressed in one pass (passives, signals,
+		# syncs) - the UI rebuilds once instead of ~400 times.
+		if ac.has_method("end_bulk_edit"):
+			ac.end_bulk_edit()
 
 		# 5. Curated synergy hotbars — primary bar for (prim|sec), secondary
 		# bar for the reverse direction, so Tab-swapping keeps the synergy story.

@@ -44,7 +44,9 @@ func add_exp(amount: int) -> void:
 		return
 		
 	experience += amount
-	if not BotManager.is_bot(owner.player_id):
+	# _is_loading_data also mutes the exp-gain log: bulk grants (load paths,
+	# dev commands) would otherwise fire one log RPC per call.
+	if not _is_loading_data and not BotManager.is_bot(owner.player_id):
 		show_exp_gain_log_rpc.rpc_id(owner.player_id, amount)
 	
 	while experience >= get_exp_to_next_level() and level < max_level:

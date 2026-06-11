@@ -385,10 +385,12 @@ func grant_mastery_xp_server(discipline: int, amount: int) -> void:
 
 	xp += amount
 	var leveled_up: bool = false
+	var levels_gained: int = 0
 
 	while level < MASTERY_CAP and xp >= _xp_to_next_level(level):
 		xp -= _xp_to_next_level(level)
 		level += 1
+		levels_gained += 1
 		leveled_up = true
 
 	# At the cap, drop residual XP to keep the save tidy.
@@ -405,8 +407,12 @@ func grant_mastery_xp_server(discipline: int, amount: int) -> void:
 		sync_mastery_to_client.rpc_id(owner.player_id, discipline, level, xp)
 
 	# Local emit on the server side — stats / UI listeners react here too.
+	# One emit PER level gained: AbilityComponent grants ability points per
+	# emit, so a single big XP grant that crosses several thresholds must not
+	# collapse into one signal (it silently ate the extra points).
 	if leveled_up:
-		mastery_level_changed.emit(discipline, level)
+		for i in range(levels_gained):
+			mastery_level_changed.emit(discipline, level - levels_gained + 1 + i)
 	mastery_xp_changed.emit(discipline, xp, _xp_to_next_level(level))
 
 	# Persist. The player root listens for this through the same _data_changed
