@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "vs_t3_crashing_vault"
 upgrade_name = "Crashing Vault"
-description = "Your combo gauge gains a 4th point. Vault higher, hold more."
+description = "Landing a Vault OVERCHARGES your combo: hold a 4th point for 6 seconds. Spend the surge before it fades."
 point_cost = 2
 tier = 3
 variant_group = "vs_dash_variant"
-effect_key = "combo_cap_bonus"
+effect_key = "combo_overcharge"
 magnitude = 1.0

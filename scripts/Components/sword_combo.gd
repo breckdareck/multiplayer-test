@@ -69,6 +69,12 @@ var _combo_points: int = 0
 ## component is freed (it's a child Node, not a tree-rooted Timer).
 var _decay_timer: Timer
 
+## Overcharge window (Crashing Vault): temporary cap bonus + its expiry.
+## Volatile server-side state; clients see it indirectly through the synced
+## combo count (the widget grows a pip when the count exceeds the base cap).
+var _overcharge_extra: int = 0
+var _overcharge_until_ms: int = 0
+
 #endregion
 
 
@@ -81,6 +87,25 @@ func _ready() -> void:
 	_decay_timer.wait_time = COMBO_DECAY_SECONDS
 	_decay_timer.timeout.connect(_on_decay_timeout)
 	add_child(_decay_timer)
+	# _process only runs while an overcharge window is open (see
+	# grant_overcharge / the expiry below).
+	set_process(false)
+
+
+## Overcharge expiry watcher — clamp surplus points back to the base cap the
+## moment the window closes, then go back to sleep.
+func _process(_delta: float) -> void:
+	if _overcharge_extra <= 0:
+		set_process(false)
+		return
+	if Time.get_ticks_msec() < _overcharge_until_ms:
+		return
+	_overcharge_extra = 0
+	_overcharge_until_ms = 0
+	set_process(false)
+	if _combo_points > COMBO_CAP:
+		_combo_points = COMBO_CAP
+	_emit_and_sync()
 
 #endregion
 
@@ -104,17 +129,28 @@ func add_combo_point() -> void:
 	_emit_and_sync()
 
 
-## Effective cap: COMBO_CAP plus any owned "combo_cap_bonus" upgrade magnitudes
-## (player-wide sum via AbilityComponent — e.g. Vault Strike's Crashing Vault
-## T3 raises the gauge to 4). The base cap is the no-investment default.
+## Effective cap: COMBO_CAP, temporarily raised while an OVERCHARGE window is
+## open (Vault Strike's Crashing Vault T3: landing a vault lets you hold an
+## extra point for a few seconds). Deliberately TEMPORARY — a permanent cap
+## raise would be passive-territory, not an ability upgrade; the overcharge
+## is a play beat: vault in, spend the 4th point before it fades.
 func get_combo_cap() -> int:
 	var cap: int = COMBO_CAP
-	var root := get_owner()
-	if root != null:
-		var ac = root.get("ability_component")
-		if ac != null and is_instance_valid(ac) and ac.has_method("get_total_upgrade_magnitude"):
-			cap += int(ac.get_total_upgrade_magnitude("combo_cap_bonus"))
+	if _overcharge_extra > 0 and Time.get_ticks_msec() < _overcharge_until_ms:
+		cap += _overcharge_extra
 	return cap
+
+
+## Server-only. Opens (or refreshes) an overcharge window: the cap rises by
+## `extra` for `duration_sec`. When the window closes, any points above the
+## base cap are LOST (_process clamps them) — spend the surge or waste it.
+func grant_overcharge(extra: int, duration_sec: float) -> void:
+	if not multiplayer.is_server():
+		return
+	_overcharge_extra = maxi(1, extra)
+	_overcharge_until_ms = Time.get_ticks_msec() + int(duration_sec * 1000.0)
+	set_process(true)
+	_emit_and_sync()
 
 
 ## Server-only. Returns the current combo total and clears it to zero. The

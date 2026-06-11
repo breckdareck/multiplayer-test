@@ -512,9 +512,11 @@ Generic — consumed by Combat/Ability with NO per-AL code:
   (ADR 0013 — additive % applied per TARGET in _execute_hit when the enemy carries
   the status tag, ANY source's; the 2026-06-10 re-author pointed ~34 formerly-bare
   T1/T2 damage/CD/mana nodes on actives here),
-  `combo_cap_bonus` (player-wide sum via get_total_upgrade_magnitude — raises the
-  sword combo gauge's cap; SwordComboComponent.get_combo_cap; the combo widget
-  grows pips dynamically),
+  `combo_overcharge` (Crashing Vault — landing the owning ability opens a
+  TEMPORARY cap window: SwordComboComponent.grant_overcharge(extra, sec), surplus
+  points clamp away at expiry; the combo widget grows/sheds the extra pip.
+  Deliberately not permanent — an ability upgrade modifies the ability's own
+  MOMENT; permanent player-wide changes belong to passives),
   `bonus_per_combo_held` (+% damage per combo point HELD, not spent —
   calculate_ability_damage; the anti-spender play),
   `combo_refund_on_kill` (a kill with the owning sword ability refunds N combo —
@@ -526,6 +528,10 @@ Generic — consumed by Combat/Ability with NO per-AL code:
   3-point gauge (Steel Flurry 2×3, Vault 2×2, Charge 1×3, Onslaught 1×6), so
   such nodes are DEAD on arrival. Bow momentum (cap 10) has real headroom —
   bonus_momentum_* keys are fine there.
+  UPGRADE-vs-PASSIVE RULE (user, same audit): an ability upgrade must modify
+  the ABILITY'S OWN MOMENT (its cast, its hit, a window it opens). Permanent
+  player-wide effects — standing cap raises, always-on stats — belong to
+  PASSIVES, never to an ability's tree.
 Ability-specific — read in the named AL via `ability_has_upgrade_effect` /
 `get_ability_upgrade_magnitude`:
   `combo_coefficient_override` (AL_Slash, AL_PowerStrike),

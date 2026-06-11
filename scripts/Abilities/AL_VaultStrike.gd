@@ -59,17 +59,31 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 		)
 
 
+## Crashing Vault (T3): seconds the overcharged 4th point survives after the
+## vault lands. Short on purpose — it's a spend-it-or-lose-it beat.
+const OVERCHARGE_DURATION_SEC: float = 6.0
+
+
 func on_hit(_owner_node: Node, _target: Node, _ability: AbilityData) -> void:
 	if not _owner_node.multiplayer.is_server():
 		return
 	# Vault Strike grants 2 combo per hit (vs basic attack's 1) so it doubles
 	# as a strong ramp ability for builds that want fast combo build.
-	# (Crashing Vault T3 now raises the combo CAP via "combo_cap_bonus" —
-	# read by SwordComboComponent, not here. The old +combo-per-hit read was
-	# DEAD: 2 targets x 2 combo already filled the gauge in one cast.)
 	var combo_comp = _owner_node.get("sword_combo_component")
 	if combo_comp == null or not is_instance_valid(combo_comp):
 		return
+
+	# Crashing Vault (T3) — "combo_overcharge": LANDING a vault opens a brief
+	# overcharge window (cap +magnitude) so this hit's combo can stack a 4th
+	# point. Temporary by design: an ability upgrade modifies the ability's
+	# own moment — a permanent cap raise would be passive territory. Granted
+	# BEFORE the points below so the vault itself can fill the extra slot.
+	var ability_comp = _owner_node.get("ability_component")
+	if ability_comp and _ability != null and ability_comp.has_method("get_ability_upgrade_magnitude"):
+		var overcharge: int = int(ability_comp.get_ability_upgrade_magnitude(_ability.ability_id, "combo_overcharge"))
+		if overcharge > 0 and combo_comp.has_method("grant_overcharge"):
+			combo_comp.grant_overcharge(overcharge, OVERCHARGE_DURATION_SEC)
+
 	# Iterate add_combo_point — the component caps at its effective cap.
 	for i in range(COMBO_PER_HIT):
 		combo_comp.add_combo_point()
