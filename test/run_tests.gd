@@ -18,6 +18,7 @@ const SUITES: Array[String] = [
 	"res://test/ability/test_ability_data.gd",
 	"res://test/ability/test_ability_resources.gd",
 	"res://test/ability/test_ability_upgrades.gd",
+	"res://test/ability/test_status_tags.gd",
 	"res://test/ability/test_ability_component.gd",
 	"res://test/boss/test_boss_phases.gd",
 	"res://test/boss/test_boss_attack_data.gd",
