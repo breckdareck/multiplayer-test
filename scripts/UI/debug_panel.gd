@@ -493,6 +493,9 @@ func _register_commands() -> void:
 	_register("quest", "Quest subcommands (list, accept, progress, abandon, track). Host-only.", _cmd_quest, _complete_quest_args)
 	_register("zone", "zone [name] — list/spawn a ground-zone for visual inspection (no damage). Host-only.", _cmd_zone, _complete_zone_args)
 
+	# Pair-build testing
+	_register("pairtest", "pairtest <primary> <secondary> — L100 pair build: max mastery + abilities + upgrades, Astral (L93) gear, curated synergy hotbar, teleport to the Warlord. Host-only.", _cmd_pairtest, _complete_pairtest)
+
 
 func _register(cmd_name: String, desc: String, handler: Callable, completer: Callable = Callable()) -> void:
 	_commands[cmd_name] = { "desc": desc, "handler": handler, "completer": completer }
@@ -1605,3 +1608,179 @@ func _complete_zone_args(prior_args: PackedStringArray, _t: String) -> PackedStr
 		out.append(n)
 	out.sort()
 	return out
+
+
+# ===========================================================================
+# pairtest — one-command max-power weapon-pair build vs the boss
+# ===========================================================================
+
+## Curated per-(active|offhand) hotbar loadouts: 5 actives of the ACTIVE
+## discipline chosen to exercise the pair layer (imbues, combo/momentum/charge
+## spends) and the status-tag escalations (Thermal Shock / Septic / Brittle).
+## Staff bars carry the Immolate+Frost Patch thermal engine; bow bars the
+## Barbed Shot bleed + Mark of the Hunt Brittle core; sword|dagger leans on
+## Hemorrhage bleeds feeding the off-hand poison imbue into Septic.
+const PAIRTEST_LOADOUTS := {
+	"sword|staff": ["Steel Flurry", "Crescent Cleave", "Sentinel's Mark", "Earthsplitter", "Vault Strike"],
+	"sword|dagger": ["Steel Flurry", "Hemorrhage", "Sentinel's Mark", "Crescent Cleave", "Charge!"],
+	"sword|bow": ["Steel Flurry", "Crescent Cleave", "Hemorrhage", "Vanguard's Onslaught", "Charge!"],
+	"bow|sword": ["Split Shot", "Barbed Shot", "Mark of the Hunt", "Hailstorm", "Snipe"],
+	"bow|staff": ["Split Shot", "Barbed Shot", "Mark of the Hunt", "Hailstorm", "Sundering Arrow"],
+	"bow|dagger": ["Split Shot", "Barbed Shot", "Mark of the Hunt", "Hailstorm", "Snipe"],
+	"staff|sword": ["Arcane Bolt", "Immolate", "Frost Patch", "Glacial Spike", "Spellweave"],
+	"staff|bow": ["Arcane Bolt", "Immolate", "Frost Patch", "Arcane Lance", "Stormcall"],
+	"staff|dagger": ["Arcane Bolt", "Immolate", "Frost Patch", "Mana Surge", "Pyre Burst"],
+	"dagger|sword": ["Twin Fang", "Eviscerate", "Envenom", "Death Mark", "Fan of Knives"],
+	"dagger|staff": ["Twin Fang", "Eviscerate", "Envenom", "Shadowstep", "Death Mark"],
+	"dagger|bow": ["Twin Fang", "Eviscerate", "Fan of Knives", "Shadowstep", "Smoke Bomb"],
+}
+## Astral = item_level 93, the tier nearest "level 90 gear".
+const PAIRTEST_GEAR_TIER := "Astral"
+const PAIRTEST_ARMOR_FAMILY := {0: "Vanguard", 1: "Pathfinder", 2: "Arcanist", 3: "Nightshade"}
+const PAIRTEST_WEAPON_NOUN := {0: "Longsword", 1: "Warbow", 2: "Spellstaff", 3: "Dirk"}
+const PAIRTEST_LEVEL := 100
+const PAIRTEST_BOSS_MAP := "warlord"
+## Dev point grant per discipline — enough to max every ability + buy a full
+## upgrade spread (one T3 variant per mutex group wins automatically: the
+## purchase API blocks the second and third).
+const PAIRTEST_DEV_POINTS := 500
+
+const _DISC_KEYS := {0: "sword", 1: "bow", 2: "staff", 3: "dagger"}
+
+
+func _cmd_pairtest(args: Array) -> String:
+	if not multiplayer.is_server():
+		return "[color=#ff8888]pairtest is host-only (everything it touches is server-authoritative).[/color]"
+	if args.size() < 2:
+		return "Usage: pairtest <primary> <secondary>  (sword|bow|staff|dagger, distinct)"
+	var prim: int = _parse_discipline_arg(String(args[0]))
+	var sec: int = _parse_discipline_arg(String(args[1]))
+	if prim < 0 or sec < 0:
+		return "[color=#ff8888]Unknown discipline. Use sword/bow/staff/dagger.[/color]"
+	if prim == sec:
+		return "[color=#ff8888]Pick two DIFFERENT disciplines (pairs need a genuine pair).[/color]"
+
+	var p: Node = _local_player()
+	if not is_instance_valid(p):
+		return "(no local player)"
+	var out: PackedStringArray = []
+	var prim_name: String = _discipline_label(prim)
+	var sec_name: String = _discipline_label(sec)
+
+	# 1. Character level -> 100 (same loop as _cmd_level).
+	if is_instance_valid(p.level_component):
+		var start: int = p.level_component.level
+		while p.level_component.level < PAIRTEST_LEVEL:
+			p.level_component.add_exp.rpc(p.level_component.get_exp_to_next_level())
+			if p.level_component.level == start:
+				break
+			start = p.level_component.level
+		out.append("level -> %d" % p.level_component.level)
+
+	# 2. Mastery cap on both disciplines (stat scaling + the natural point flow).
+	var wm = p.weapon_mastery_component
+	if is_instance_valid(wm):
+		for disc in [prim, sec]:
+			while wm.get_mastery_level(disc) < WeaponMasteryComponent.MASTERY_CAP:
+				wm.grant_mastery_xp_server(disc, wm.get_xp_to_next_level(disc))
+		wm.set_primary_discipline(prim)
+		out.append("mastery capped (%s + %s), primary = %s" % [prim_name, sec_name, prim_name])
+
+	# 3. Astral (L93) gear: both weapons + the primary discipline's armor set.
+	var equipped: PackedStringArray = []
+	if is_instance_valid(p.equipment_component) and is_instance_valid(p.inventory_component):
+		var gear: Array = [
+			["WEAPON", "%s %s" % [PAIRTEST_GEAR_TIER, PAIRTEST_WEAPON_NOUN[prim]]],
+			["SECONDARY_WEAPON", "%s %s" % [PAIRTEST_GEAR_TIER, PAIRTEST_WEAPON_NOUN[sec]]],
+			[Constants.ArmorType.HEAD, "%s %s Helm" % [PAIRTEST_GEAR_TIER, PAIRTEST_ARMOR_FAMILY[prim]]],
+			[Constants.ArmorType.CHEST, "%s %s Mail" % [PAIRTEST_GEAR_TIER, PAIRTEST_ARMOR_FAMILY[prim]]],
+			[Constants.ArmorType.LEGS, "%s %s Legguards" % [PAIRTEST_GEAR_TIER, PAIRTEST_ARMOR_FAMILY[prim]]],
+			[Constants.ArmorType.FEET, "%s %s Boots" % [PAIRTEST_GEAR_TIER, PAIRTEST_ARMOR_FAMILY[prim]]],
+		]
+		for entry in gear:
+			var item: ItemData = ResourceManager.get_item_by_name(entry[1])
+			var sd: SlotData = p.equipment_component.get_slot_data(entry[0])
+			if item == null or sd == null:
+				out.append("[color=#ff8888]gear miss: %s[/color]" % String(entry[1]))
+				continue
+			sd.item = item
+			p.equipment_component.refresh_view(entry[0])
+			if p.inventory_component.has_method("_sync_equipment_slot_to_client") and not BotManager.is_bot(p.player_id):
+				p.inventory_component._sync_equipment_slot_to_client(sd, false)
+			equipped.append(String(entry[1]))
+		p.equipment_component._emit_equipment_changed_deferred()
+		out.append("equipped: " + ", ".join(equipped))
+
+	# 4. Max every ability of both disciplines + buy the full upgrade spread.
+	var ac = p.ability_component
+	if is_instance_valid(ac):
+		var learned := 0
+		var upgrades_bought := 0
+		for disc in [prim, sec]:
+			ac._add_ability_points(PAIRTEST_DEV_POINTS, _DISC_KEYS[disc])
+			for ability_id in ResourceManager.ability_data:
+				var ability: AbilityData = ResourceManager.ability_data[ability_id]
+				if ability == null or ability.required_class == null or not (disc in ability.required_class):
+					continue
+				if int(ac.get_ability_level(ability_id)) <= 0:
+					ac.learn_ability(ability_id, 0)
+				while int(ac.get_ability_level(ability_id)) < ability.max_level:
+					if not ac.level_up_ability(ability_id):
+						break
+				if int(ac.get_ability_level(ability_id)) >= ability.max_level:
+					learned += 1
+				if ability.upgrades == null:
+					continue
+				for up in ability.upgrades:
+					if up == null:
+						continue
+					# Mutex groups self-limit: the first variant of each T3
+					# trio purchases, the rest are refused.
+					if ac.can_purchase_upgrade(ability_id, up.upgrade_id).ok:
+						ac.purchase_upgrade(ability_id, up.upgrade_id)
+						upgrades_bought += 1
+		out.append("abilities maxed: %d, upgrades bought: %d (duo threshold comfortably met)" % [learned, upgrades_bought])
+
+		# 5. Curated synergy hotbars — primary bar for (prim|sec), secondary
+		# bar for the reverse direction, so Tab-swapping keeps the synergy story.
+		var slot_count: int = 10
+		if is_instance_valid(ac.hotbar) and not ac.hotbar.hotbar_slots.is_empty():
+			slot_count = ac.hotbar.hotbar_slots.size()
+		var prim_cfg := _pairtest_bar(_DISC_KEYS[prim] + "|" + _DISC_KEYS[sec], slot_count)
+		var sec_cfg := _pairtest_bar(_DISC_KEYS[sec] + "|" + _DISC_KEYS[prim], slot_count)
+		ac._primary_hotbar_bindings = prim_cfg
+		ac._secondary_hotbar_bindings = sec_cfg
+		ac.hotbar_bindings_changed.emit()
+		if is_instance_valid(ac.hotbar):
+			ac.hotbar.load_hotbar_config(ac._active_bindings_for_load())
+		out.append("hotbars set: [%s] / swap: [%s]" % [
+			", ".join(PackedStringArray(PAIRTEST_LOADOUTS[_DISC_KEYS[prim] + "|" + _DISC_KEYS[sec]])),
+			", ".join(PackedStringArray(PAIRTEST_LOADOUTS[_DISC_KEYS[sec] + "|" + _DISC_KEYS[prim]]))])
+
+	# 6. Top up and ship them to the boss.
+	if is_instance_valid(p.health_component):
+		p.health_component.heal_damage(9999999, p)
+	MapManager.request_map_change(p.player_id, PAIRTEST_BOSS_MAP)
+	out.append("teleported to '%s' — good hunting." % PAIRTEST_BOSS_MAP)
+
+	return "[b]pairtest %s + %s[/b]\n  " % [prim_name, sec_name] + "\n  ".join(out)
+
+
+## Builds a hotbar config ({str(slot): ability_id}) from a curated loadout key.
+func _pairtest_bar(loadout_key: String, slot_count: int) -> Dictionary:
+	var cfg := {}
+	var names: Array = PAIRTEST_LOADOUTS.get(loadout_key, [])
+	for i in range(slot_count):
+		var id := ""
+		if i < names.size():
+			var ability: AbilityData = ResourceManager.get_ability_data(String(names[i]))
+			if ability != null:
+				id = ability.ability_id
+		cfg[str(i)] = id
+	return cfg
+
+
+func _complete_pairtest(prior_args: PackedStringArray, _t: String) -> PackedStringArray:
+	if prior_args.size() <= 1:
+		return PackedStringArray(["sword", "bow", "staff", "dagger"])
+	return PackedStringArray()
