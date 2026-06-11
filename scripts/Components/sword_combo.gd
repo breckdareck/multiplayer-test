@@ -94,7 +94,7 @@ func _ready() -> void:
 func add_combo_point() -> void:
 	if not multiplayer.is_server():
 		return
-	if _combo_points >= COMBO_CAP:
+	if _combo_points >= get_combo_cap():
 		# Even at cap, restart the decay timer — the player is still actively
 		# fighting, so the cap shouldn't tick down out from under them.
 		_restart_decay_timer()
@@ -102,6 +102,19 @@ func add_combo_point() -> void:
 	_combo_points += 1
 	_restart_decay_timer()
 	_emit_and_sync()
+
+
+## Effective cap: COMBO_CAP plus any owned "combo_cap_bonus" upgrade magnitudes
+## (player-wide sum via AbilityComponent — e.g. Vault Strike's Crashing Vault
+## T3 raises the gauge to 4). The base cap is the no-investment default.
+func get_combo_cap() -> int:
+	var cap: int = COMBO_CAP
+	var root := get_owner()
+	if root != null:
+		var ac = root.get("ability_component")
+		if ac != null and is_instance_valid(ac) and ac.has_method("get_total_upgrade_magnitude"):
+			cap += int(ac.get_total_upgrade_magnitude("combo_cap_bonus"))
+	return cap
 
 
 ## Server-only. Returns the current combo total and clears it to zero. The

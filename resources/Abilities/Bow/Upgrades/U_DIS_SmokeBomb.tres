@@ -5,10 +5,10 @@
 [resource]
 script = ExtResource("1_aud")
 upgrade_id = "dis_t3_smoke_bomb"
-upgrade_name = "Smoke Bomb"
-description = "Disengage deals +70% damage as you vanish."
+upgrade_name = "Wind Surge"
+description = "The parting shot rides the wind: it builds +3 Momentum when it lands."
 point_cost = 2
 tier = 3
 variant_group = "dis_escape_variant"
-effect_key = "bonus_damage_mult"
-magnitude = 0.7
+effect_key = "bonus_momentum_per_hit"
+magnitude = 3.0

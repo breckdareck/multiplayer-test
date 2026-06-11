@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "osl_t3_unstoppable"
 upgrade_name = "Unstoppable"
-description = "Vanguard's Onslaught grants +1 combo per pierced enemy (in addition to the base)."
+description = "The pierce gathers force: each additional enemy in the line takes +15% more damage than the last."
 point_cost = 2
 tier = 3
 variant_group = "osl_t3_variant"
-effect_key = "bonus_combo_per_hit"
-magnitude = 1
+effect_key = "bonus_ramp_per_target"
+magnitude = 0.15

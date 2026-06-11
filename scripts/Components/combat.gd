@@ -40,6 +40,10 @@ var current_level_stats: AbilityLevelData = null
 var hit_list: Array = []
 var _unique_targets_for_attack: Dictionary = {}
 var _pending_bodies: Array = []
+## Targets already processed by the current cast — drives the
+## "bonus_ramp_per_target" pierce-crescendo upgrade key. Reset per attack
+## in turn_on_hitbox().
+var _ramp_targets_struck: int = 0
 
 ## Damage range shown in the stats window. Uses the active weapon's attack
 ## stat (`_get_weapon_attack_stat()`) — for a Staff or Wand that's
@@ -252,12 +256,13 @@ func process_ability_hit(ability: AbilityData, level_stats: AbilityLevelData, du
 func turn_on_hitbox() -> void:
 	if not multiplayer.is_server():
 		return
-		
+
 	attack_hitbox.position.x = abs(attack_hitbox.position.x) * owner_node.facing_direction
-	
+
 	hit_list.clear()
 	_unique_targets_for_attack.clear()
 	_pending_bodies.clear()
+	_ramp_targets_struck = 0
 		
 	hitbox_area.monitoring = true
 
@@ -549,6 +554,13 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 	#     of a Fan-of-Knives volley ambushes regardless of which frame it lands on.
 	# The _is_wielding_dagger() gate (live path) means it can never affect a
 	# sword/bow/staff hit. Fires from the Shadowmeld toggle OR the Vanish buff.
+	# Signature key — bonus_ramp_per_target: each ADDITIONAL enemy struck by
+	# the same cast takes +X% more damage (a pierce crescendo — the line gets
+	# stronger as it travels). Counter resets per attack in turn_on_hitbox.
+	var ramp_frac: float = 0.0
+	if ability != null:
+		ramp_frac = _upgrade_float(ability, "bonus_ramp_per_target")
+
 	var ambush_mult: float = 1.0
 	var ambush_from_vanish: bool = false
 	if projectile_ambush >= 0:
@@ -707,6 +719,9 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 			if vs_bonus != 0.0:
 				modified_damage *= (1.0 + vs_bonus)
 
+		if ramp_frac > 0.0 and _ramp_targets_struck > 0:
+			modified_damage *= (1.0 + ramp_frac * _ramp_targets_struck)
+
 		var damage_to_deal = roundi(modified_damage)
 
 		# PR 7 — Dagger Shadowmeld ambush: scale this hit if the attack landed
@@ -840,6 +855,15 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 				if momentum_refund > 0:
 					_bow_momentum_component.add_momentum(momentum_refund)
 
+			# Sword mirror — combo_refund_on_kill (Reaper's Rhythm / Headsman):
+			# a kill with the owning spender refunds combo points, letting
+			# finisher kills chain into the next finisher instead of restarting
+			# the build from zero. Generic: any sword ability owning the key.
+			if is_instance_valid(_sword_combo_component) and _active_weapon_discipline() == Constants.ClassType.SWORD:
+				var combo_refund: int = _upgrade_int(ability, "combo_refund_on_kill")
+				for _r in range(combo_refund):
+					_sword_combo_component.add_combo_point()
+
 		# PR 5 — Sword signature: build a combo point on every BASIC-ATTACK
 		# HIT while wielding a sword. Conditions:
 		#  - `ability == null` (the basic-melee pathway; not the ability or
@@ -897,6 +921,11 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 	# landed hit. Skipped if every hit missed (max_landed_damage == 0).
 	if ability != null and max_landed_damage > 0 and is_instance_valid(_staff_element_component) and _is_wielding_staff():
 		_staff_element_component.apply_element_on_hit(owner_node, target_enemy, max_landed_damage)
+
+	# One more target fully processed this cast — advances the pierce
+	# crescendo for abilities owning "bonus_ramp_per_target".
+	if max_landed_damage > 0:
+		_ramp_targets_struck += 1
 
 	# Record the most-recently-damaged enemy on the attacker so party bots can
 	# focus-fire a human teammate's target (humans have no explicit target lock).
@@ -1043,6 +1072,15 @@ func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelDa
 	var dmg_bonus: float = _upgrade_float(_ability, "bonus_damage_mult")
 	if dmg_bonus != 0.0:
 		damage = roundi(damage * (1.0 + dmg_bonus))
+
+	# Signature key — bonus_per_combo_held: +X% damage per combo point
+	# currently HELD (not spent). The anti-spender play: ride a full gauge
+	# for sustained damage instead of dumping it into a finisher.
+	var held_bonus: float = _upgrade_float(_ability, "bonus_per_combo_held")
+	if held_bonus > 0.0 and is_instance_valid(_sword_combo_component):
+		var held: int = _sword_combo_component.get_combo_count()
+		if held > 0:
+			damage = roundi(damage * (1.0 + held_bonus * held))
 
 	# Bow signature — MOMENTUM damage ramp. While a bow is wielded, scale damage
 	# by the gauge's current bonus (+DAMAGE_PER_STACK per stack). The

@@ -511,8 +511,21 @@ Generic — consumed by Combat/Ability with NO per-AL code:
   `bonus_damage_vs_bleed` / `_vs_poison` / `_vs_burn` / `_vs_chill` / `_vs_mark`
   (ADR 0013 — additive % applied per TARGET in _execute_hit when the enemy carries
   the status tag, ANY source's; the 2026-06-10 re-author pointed ~34 formerly-bare
-  T1/T2 damage/CD/mana nodes on actives here. NOTE: built by string concat in
-  combat.gd, so the effect_key_scanner dropdown may not list them — type by hand).
+  T1/T2 damage/CD/mana nodes on actives here),
+  `combo_cap_bonus` (player-wide sum via get_total_upgrade_magnitude — raises the
+  sword combo gauge's cap; SwordComboComponent.get_combo_cap; the combo widget
+  grows pips dynamically),
+  `bonus_per_combo_held` (+% damage per combo point HELD, not spent —
+  calculate_ability_damage; the anti-spender play),
+  `combo_refund_on_kill` (a kill with the owning sword ability refunds N combo —
+  _execute_hit kill block, mirrors bonus_momentum_on_kill),
+  `bonus_ramp_per_target` (pierce crescendo: each additional enemy struck by the
+  same cast takes +% more — _execute_hit, counter reset in turn_on_hitbox).
+  GAUGE-MATH RULE (2026-06-10 signature audit): never author +combo-per-hit or
+  +targets on a sword BUILDER — one cast of any builder already fills the
+  3-point gauge (Steel Flurry 2×3, Vault 2×2, Charge 1×3, Onslaught 1×6), so
+  such nodes are DEAD on arrival. Bow momentum (cap 10) has real headroom —
+  bonus_momentum_* keys are fine there.
 Ability-specific — read in the named AL via `ability_has_upgrade_effect` /
 `get_ability_upgrade_magnitude`:
   `combo_coefficient_override` (AL_Slash, AL_PowerStrike),

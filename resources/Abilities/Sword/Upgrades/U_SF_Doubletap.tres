@@ -5,10 +5,10 @@
 [resource]
 script = ExtResource("1_aud")
 upgrade_id = "sf_t3_doubletap"
-upgrade_name = "Doubletap"
-description = "Each Steel Flurry hit builds 2 combo points instead of 1 — fills the bar twice as fast."
+upgrade_name = "Battle Rhythm"
+description = "Steel Flurry deals +15% damage per combo point you are HOLDING. Riding a full gauge beats dumping it."
 point_cost = 2
 tier = 3
 variant_group = "sf_flurry_variant"
-effect_key = "combo_per_hit_bonus"
-magnitude = 1.0
+effect_key = "bonus_per_combo_held"
+magnitude = 0.15

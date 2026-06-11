@@ -17,6 +17,10 @@ extends Node
 const DASH_SPEED: float = 320.0
 const DASH_DURATION: float = 0.35
 const COMBO_PER_ENEMY_HIT: int = 1
+## Battlecry (T3): struck enemies are demoralized — they deal less damage.
+## Magnitude carried by the "bonus_weaken_on_hit" upgrade key; the shared
+## AL_WeakenOnHit hook applies it through the weakened-attacker channel.
+const _WEAKEN_HOOK := preload("res://scripts/Abilities/AL_WeakenOnHit.gd")
 
 
 func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevelData) -> void:
@@ -56,13 +60,14 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 func on_hit(owner_node: Node, _target: Node, ability: AbilityData) -> void:
 	if not owner_node.multiplayer.is_server():
 		return
+	# Battlecry (T3): demoralize — struck enemies deal less damage. The shared
+	# hook no-ops unless this ability owns a "bonus_weaken_on_hit" upgrade.
+	# (Replaced the old +combo-per-hit read, which was DEAD against the combo
+	# cap: Charge! already strikes up to 3 enemies = a full gauge per cast.)
+	_WEAKEN_HOOK.new().on_hit(owner_node, _target, ability)
+
 	var combo_comp = owner_node.get("sword_combo_component")
 	if combo_comp == null or not is_instance_valid(combo_comp) or not combo_comp.has_method("add_combo_point"):
 		return
-	# Battlecry (T3): each pierced enemy builds extra combo points.
-	var extra: int = 0
-	var ability_comp = owner_node.get("ability_component")
-	if ability_comp and ability != null and ability_comp.has_method("get_ability_upgrade_magnitude"):
-		extra = int(ability_comp.get_ability_upgrade_magnitude(ability.ability_id, "bonus_combo_per_hit"))
-	for _i in range(COMBO_PER_ENEMY_HIT + extra):
+	for _i in range(COMBO_PER_ENEMY_HIT):
 		combo_comp.add_combo_point()

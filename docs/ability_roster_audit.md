@@ -121,3 +121,40 @@ marks, all zones except numbers, both summons, all party buffs.
 After these land: regenerate `ability_balance_report.html` + re-run the test
 harness, THEN start the T2/T3 upgrade authoring (stealth clauses, scheduled
 procs, pairing T3s) against the corrected baseline.
+
+---
+
+## Signature audit (round 2, 2026-06-10) — upgrades vs the gauge math
+
+User-surfaced principle: every upgrade must be read against the weapon's
+SIGNATURE. The sword combo gauge caps at 3 with all-or-nothing spends, and
+every builder fills it in ONE cast (Steel Flurry 2 hits × 3 targets, Vault
+2 combo × 2 targets, Charge 1 × 3, Onslaught 1 × 6) — so any
+"+combo per hit" node was dead on arrival, and "+targets" on a builder
+added no gauge value.
+
+**Gauge rules for authoring** (now in scripts/Components/CLAUDE.md):
+- Sword combo: cap 3, one-cast fill, 5s decay → upgrades must change the
+  CAP, the HOLD, the SPEND, or the REFUND — never the build rate.
+- Bow Momentum: cap 10, +3.5%/stack, 2s-idle decay → build-rate keys are
+  genuinely good here (headroom exists). No changes needed.
+- Staff stance: a MODE, not a resource → reaction_any_stance + element
+  keys are the engagement; trees already sound.
+- Dagger Shadowmeld: ONE empowered hit per ≥6s cycle → stealth keys
+  (execute_without_stealth, stealth_seconds, backstab_window) are the
+  engagement; trees already sound.
+
+**Re-pointed nodes (7):**
+| Node | Was (dead/plain) | Now |
+|---|---|---|
+| Vault Strike — Crashing Vault | +2 combo/hit (DEAD) | `combo_cap_bonus` +1 — the gauge gains a 4th point (widget grows a 4th pip) |
+| Steel Flurry — Doubletap → **Battle Rhythm** | +1 combo/hit (near-dead) | `bonus_per_combo_held` +15%/pt — ride a full gauge instead of dumping it |
+| Charge! — Battlecry | +1 combo/hit (DEAD) | `bonus_weaken_on_hit` 15% — the charge demoralizes the pack |
+| Onslaught — Unstoppable | +1 combo/pierce (DEAD) | `bonus_ramp_per_target` +15% — the pierce gathers force per enemy |
+| Crescent Cleave — Tempest → **Reaper's Rhythm** | +60% dmg (plain) | `combo_refund_on_kill` 2 — AoE kills chain into the next finisher |
+| Sundering Blow — Brutal Force → **Headsman** | +70% dmg (plain) | `combo_refund_on_kill` 3 — an execution refunds the full gauge |
+| Disengage — Smoke Bomb → **Wind Surge** (bow) | +70% dmg (plain) | `bonus_momentum_per_hit` 3 — the parting shot feeds the ramp |
+
+The sword T3 layer now offers four distinct combo philosophies: raise the
+cap (Crashing Vault), hold it (Battle Rhythm), spend it harder (Razor
+Wind / Executioner), or refund it on kills (Reaper's Rhythm / Headsman).

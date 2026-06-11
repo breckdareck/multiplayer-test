@@ -104,7 +104,29 @@ func bind_player(body) -> void:
 	# Defer the first refresh — equipment slots may not be populated yet
 	# when bind fires (loaded asynchronously after spawn).
 	call_deferred("_refresh_visibility")
+	call_deferred("_ensure_pip_count")
 	call_deferred("_refresh_pips")
+
+
+## The scene authors COMBO_CAP pips; the effective cap can exceed it when a
+## "combo_cap_bonus" upgrade is owned (Crashing Vault). Grow the pip stack by
+## duplicating the last authored pip, and shed dynamic pips after a respec.
+func _ensure_pip_count() -> void:
+	if combo_pips.is_empty():
+		return
+	var cap: int = COMBO_CAP
+	if is_instance_valid(sword_combo_component) and sword_combo_component.has_method("get_combo_cap"):
+		cap = sword_combo_component.get_combo_cap()
+	while combo_pips.size() < cap:
+		var extra: Panel = combo_pips[combo_pips.size() - 1].duplicate() as Panel
+		extra.name = "Pip%d" % combo_pips.size()
+		pip_box.add_child(extra)
+		extra.add_theme_stylebox_override("panel", _pip_style_empty)
+		combo_pips.append(extra)
+	while combo_pips.size() > maxi(cap, COMBO_CAP):
+		var surplus: Panel = combo_pips.pop_back()
+		if is_instance_valid(surplus):
+			surplus.queue_free()
 
 
 ## Drops the binding (teardown). Old-body signal connections die with the freed
@@ -123,6 +145,7 @@ func unbind_player() -> void:
 func _on_combo_changed(new_count: int) -> void:
 	var was: int = _last_combo_count
 	_last_combo_count = new_count
+	_ensure_pip_count()
 	_refresh_pips()
 	if not visible:
 		return

@@ -5,10 +5,10 @@
 [resource]
 script = ExtResource("1_aud")
 upgrade_id = "ps_t3_brutal_force"
-upgrade_name = "Brutal Force"
-description = "Sundering Blow deals +70% damage."
+upgrade_name = "Headsman"
+description = "A Sundering Blow KILL refunds your full combo. One head after another."
 point_cost = 2
 tier = 3
 variant_group = "ps_finisher_variant"
-effect_key = "bonus_damage_mult"
-magnitude = 0.7
+effect_key = "combo_refund_on_kill"
+magnitude = 3.0
