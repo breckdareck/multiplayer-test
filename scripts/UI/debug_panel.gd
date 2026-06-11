@@ -1640,6 +1640,7 @@ const PAIRTEST_ARMOR_FAMILY := {0: "Vanguard", 1: "Pathfinder", 2: "Arcanist", 3
 const PAIRTEST_WEAPON_NOUN := {0: "Longsword", 1: "Warbow", 2: "Spellstaff", 3: "Dirk"}
 const PAIRTEST_LEVEL := 100
 const PAIRTEST_BOSS_MAP := "warlord"
+const PAIRTEST_BOSS_NODE := "EternalWarlord"
 ## Legit budget: NO dev point grant. The build spends only what capped
 ## mastery legitimately provides (MASTERY_CAP x ABILITY_POINTS_PER_MASTERY_LEVEL
 ## = 100 points per discipline), allocated like a real player would:
@@ -1766,9 +1767,19 @@ func _cmd_pairtest(args: Array) -> String:
 			", ".join(PackedStringArray(PAIRTEST_LOADOUTS[_DISC_KEYS[prim] + "|" + _DISC_KEYS[sec]])),
 			", ".join(PackedStringArray(PAIRTEST_LOADOUTS[_DISC_KEYS[sec] + "|" + _DISC_KEYS[prim]]))])
 
-	# 6. Top up and ship them to the boss.
+	# 6. Top up, revive the boss, and ship them in. The Warlord's natural
+	# respawn is 300s - far too slow for back-to-back combo runs - and
+	# pool_reset() is the engine's own full revive (health, visuals, boss
+	# phase/enrage state), so every pairtest starts against a clean fight.
 	if is_instance_valid(p.health_component):
 		p.health_component.heal_damage(9999999, p)
+	if MapManager.active_maps.has(PAIRTEST_BOSS_MAP):
+		var map_inst = MapManager.active_maps[PAIRTEST_BOSS_MAP].scene_instance
+		if is_instance_valid(map_inst):
+			var boss = map_inst.find_child(PAIRTEST_BOSS_NODE, true, false)
+			if is_instance_valid(boss) and boss.has_method("pool_reset"):
+				boss.pool_reset()
+				out.append("boss reset: %s at full strength" % PAIRTEST_BOSS_NODE)
 	MapManager.request_map_change(p.player_id, PAIRTEST_BOSS_MAP)
 	out.append("teleported to '%s' — good hunting." % PAIRTEST_BOSS_MAP)
 
