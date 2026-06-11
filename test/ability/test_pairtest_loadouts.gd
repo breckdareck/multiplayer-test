@@ -112,3 +112,22 @@ func test_core_build_fits_the_100_point_mastery_budget() -> void:
 						t3_cost = up.point_cost
 			cost += t3_cost if t3_cost > 0 else first_t3
 		assert_true(cost <= 90, "%s core build costs %d - must leave >=10 pts for passives" % [key, cost])
+
+
+func test_every_bar_carries_its_ultimate_and_filler() -> void:
+	# ADR 0014: the bar must span the spectrum - the discipline's ULTIMATE
+	# (the ~30s big hitter) and a 1-2s filler must both be present, or the
+	# pairtest fight cannot exercise the pacing contract.
+	var c := _consts()
+	var rm = (Engine.get_main_loop() as SceneTree).root.get_node("/root/ResourceManager")
+	for key in c["PAIRTEST_LOADOUTS"]:
+		var active: String = String(key).split("|")[0]
+		var names: Array = c["PAIRTEST_LOADOUTS"][key]
+		assert_true(c["PAIRTEST_ULTIMATES"][active] in names,
+			"%s bar must carry the %s ultimate (%s)" % [key, active, c["PAIRTEST_ULTIMATES"][active]])
+		var has_filler := false
+		for n in names:
+			var ability = rm.get_ability_data(String(n))
+			if ability != null and ability.get_level_stats(ability.max_level).cooldown_time <= 2.0:
+				has_filler = true
+		assert_true(has_filler, "%s bar needs a 1-2s filler to weave between cooldowns" % key)

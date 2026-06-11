@@ -1622,14 +1622,14 @@ func _complete_zone_args(prior_args: PackedStringArray, _t: String) -> PackedStr
 ## Hemorrhage bleeds feeding the off-hand poison imbue into Septic.
 const PAIRTEST_LOADOUTS := {
 	"sword|staff": ["Steel Flurry", "Crescent Cleave", "Sentinel's Mark", "Earthsplitter", "Vault Strike"],
-	"sword|dagger": ["Steel Flurry", "Hemorrhage", "Sentinel's Mark", "Crescent Cleave", "Charge!"],
-	"sword|bow": ["Steel Flurry", "Crescent Cleave", "Hemorrhage", "Vanguard's Onslaught", "Charge!"],
+	"sword|dagger": ["Steel Flurry", "Hemorrhage", "Sentinel's Mark", "Crescent Cleave", "Earthsplitter"],
+	"sword|bow": ["Steel Flurry", "Crescent Cleave", "Hemorrhage", "Vanguard's Onslaught", "Earthsplitter"],
 	"bow|sword": ["Split Shot", "Barbed Shot", "Mark of the Hunt", "Hailstorm", "Snipe"],
-	"bow|staff": ["Split Shot", "Barbed Shot", "Mark of the Hunt", "Hailstorm", "Sundering Arrow"],
+	"bow|staff": ["Split Shot", "Barbed Shot", "Mark of the Hunt", "Hailstorm", "Snipe"],
 	"bow|dagger": ["Split Shot", "Barbed Shot", "Mark of the Hunt", "Hailstorm", "Snipe"],
-	"staff|sword": ["Arcane Bolt", "Immolate", "Frost Patch", "Glacial Spike", "Spellweave"],
+	"staff|sword": ["Arcane Bolt", "Immolate", "Frost Patch", "Spellweave", "Stormcall"],
 	"staff|bow": ["Arcane Bolt", "Immolate", "Frost Patch", "Arcane Lance", "Stormcall"],
-	"staff|dagger": ["Arcane Bolt", "Immolate", "Frost Patch", "Mana Surge", "Pyre Burst"],
+	"staff|dagger": ["Arcane Bolt", "Immolate", "Frost Patch", "Mana Surge", "Stormcall"],
 	"dagger|sword": ["Twin Fang", "Eviscerate", "Envenom", "Death Mark", "Fan of Knives"],
 	"dagger|staff": ["Twin Fang", "Eviscerate", "Envenom", "Shadowstep", "Death Mark"],
 	"dagger|bow": ["Twin Fang", "Eviscerate", "Fan of Knives", "Shadowstep", "Smoke Bomb"],
@@ -1655,6 +1655,10 @@ const PAIRTEST_PASSIVES := {
 ## effect_keys that are plain stat bumps — when picking ONE T3 variant per
 ## ability, prefer the behavioral option (the one whose key is NOT in this
 ## set); those are the variants authored to feed the pair/escalation play.
+## ADR 0014: every curated bar must carry its discipline's ULTIMATE - the
+## ~30s big hitter is the pacing spectrum's centerpiece and the thing the
+## pairtest fights exist to feel-test.
+const PAIRTEST_ULTIMATES := {"sword": "Earthsplitter", "bow": "Snipe", "staff": "Stormcall", "dagger": "Eviscerate"}
 const PAIRTEST_NUMERIC_KEYS := ["bonus_damage_mult", "bonus_targets", "bonus_hits",
 	"cooldown_flat_reduction", "mana_flat_reduction", "buff_duration_bonus",
 	"bonus_zone_radius", "bonus_zone_duration"]

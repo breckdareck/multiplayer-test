@@ -57,6 +57,12 @@ kanban-plugin: board
 ## In Progress
 
 - [ ] Demo polish — the near-term path to a showable 15-minute slice lives in [DEMO_POLISH.md](DEMO_POLISH.md) (audio coverage audit, hitstop, death feedback, smoke tests)
+- [ ] Combat pacing spectrum follow-ups (ADR 0014) — playtest-gated
+	- [x] Four cooldown bands shipped: FILLER 1-2s / SHORT 4-6s / HEAVY 12-14s / ULTIMATE ~30s (one-shots an at-level normal), damage curve-calibrated vs enemy HP; primers 12s, marks 15s; duo ICD untouched
+	- [x] Tooling: `tools/damage_matrix.gd` + `tools/damage_matrix_report.py` regenerate `docs/damage_matrix_report.md` with band-calibration checks at every 5 levels — re-run after ANY ability retune
+	- [x] `pairtest <primary> <secondary>` console command: legit 100-point L100 pair build (every bar spans filler->ultimate), Astral gear, fresh Warlord per run
+	- [ ] Feel-test the six pairs: ult moments, heavy->short->filler weave, 12s primer cross-weapon escalations, 10-15s swap dwell; re-judge the report's DPS-divergence baselines from feel
+	- [ ] Held in reserve: Sword O2 AoE cap trims (docs/sword_outlier_review.md); endgame damage-vs-HP curve divergence (player ~L^1.6 vs HP L^2.3)
 - [ ] Equipment System
 	- [x] EquipmentComponent, slots, stats and bonuses
 	- [x] Random affix rolls on equipment drops (rarity-scaled affix count, defining-stat 1.8× roll, dual-discipline stat breadth)
