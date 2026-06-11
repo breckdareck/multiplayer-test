@@ -156,6 +156,11 @@ const _MARK_META_COLORS := {
 	"hunters_mark_remaining": Color(1.0, 0.84, 0.22),   # Mark of the Hunt — gold
 	"sentinels_mark_remaining": Color(0.42, 0.70, 1.0), # Sentinel's Mark — blue
 	"mana_resonance_remaining": Color(0.72, 0.42, 1.0), # Mana Surge — purple
+	# Weakened attacker (Challenging Shout / Choking Smoke / Suppressing
+	# Fire — the shared smoke-choke channel health.gd reads). Lowest
+	# priority: a real mark wins the slot; the grey diamond shows when only
+	# the weaken is active, making the debuff visible on the enemy at all.
+	"smoke_choke_expire_at_ms": Color(0.62, 0.66, 0.72),
 }
 ## How often (seconds) the server re-evaluates an enemy's mark state. Cheap
 ## (4 meta checks) so 0.2s is plenty responsive without per-frame cost.

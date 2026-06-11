@@ -72,7 +72,7 @@ metadata/_custom_type_script = "uid://csg6jvyvm5q1n"
 script = ExtResource("2_26017")
 ability_id = "32121111002-711613-1312210-11605-410115144314331013"
 ability_name = "Challenging Shout"
-description = "A thunderous war-shout: deals $[damage_percent] damage to up to $[target_count] nearby enemies. [color=#9ad7ff]Struck enemies deal 15% LESS damage for 6 seconds.[/color]"
+description = "A thunderous war-shout: deals $[damage_percent] damage to up to $[target_count] nearby enemies. [color=#9ad7ff]Struck enemies deal 20% LESS damage for 6 seconds.[/color]"
 ability_icon = ExtResource("1_26017")
 max_level = 10
 required_class = Array[int]([0])

@@ -18,7 +18,10 @@ extends Node
 ##   weaken_potency_bonus  — extra outgoing-damage fraction removed
 ##   weaken_duration_bonus — extra seconds of weaken
 
-const WEAKEN_PCT: float = 0.15
+## 0.15 felt imperceptible against boss damage variance in the 2026-06-10
+## playtest (a 15% cut sits inside the min..max roll spread) — 0.20 base,
+## pushable to 0.30 with Demoralizing Roar.
+const WEAKEN_PCT: float = 0.20
 const WEAKEN_DURATION_SEC: float = 6.0
 
 
