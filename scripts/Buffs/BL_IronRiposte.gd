@@ -45,3 +45,4 @@ func on_damaged(owner_node: Node, active_buff, damage_amount: int, source: Node)
 	if reflected_damage > 0 and attacker_health_comp:
 		#print("Iron Riposte reflects %d damage back to %s!" % [reflected_damage, source.name])
 		attacker_health_comp.take_damage(reflected_damage, owner_node, true)
+		EventJuice.proc(source, "RIPOSTE %d" % reflected_damage, EventJuice.COLOR_COUNTER)

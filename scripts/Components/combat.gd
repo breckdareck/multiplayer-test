@@ -749,7 +749,11 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 			if heal_frac > 0.0:
 				var hc_owner = owner_node.get("health_component")
 				if hc_owner and is_instance_valid(hc_owner) and not hc_owner.is_dead and hc_owner.has_method("heal_damage"):
-					hc_owner.heal_damage(maxi(1, roundi(damage_to_deal * heal_frac)), owner_node)
+					var heal_amt: int = maxi(1, roundi(damage_to_deal * heal_frac))
+					hc_owner.heal_damage(heal_amt, owner_node)
+					# Tell: heal_damage is silent (no number, only the HP bar) —
+					# without this the lifesteal upgrades are imperceptible.
+					EventJuice.proc(owner_node, "+%d" % heal_amt, EventJuice.COLOR_HEAL)
 
 		# v1 manasteal hook (staff) — Siphoning Bolt (Arcane Bolt T3) restores
 		# flat MP per landed hit. Generic: any ability owning "bonus_mp_on_hit".

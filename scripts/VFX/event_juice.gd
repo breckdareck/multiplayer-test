@@ -19,6 +19,9 @@ const COLOR_BRITTLE := Color("#9fe6ff")
 const COLOR_COMBO := Color("#ffce5c")
 const COLOR_MOMENTUM := Color("#9ff58a")
 const COLOR_AMBUSH := Color("#b89bff")
+const COLOR_HEAL := Color("#7ef0a0")
+const COLOR_EXECUTE := Color("#e8413f")
+const COLOR_COUNTER := Color("#ffce5c")
 
 const SFX_THERMAL := "res://assets/sounds/generated/escalation_thermal.wav"
 const SFX_SEPTIC := "res://assets/sounds/generated/escalation_septic.wav"

@@ -66,3 +66,4 @@ func on_hit(owner_node: Node, target: Node, _ability: AbilityData) -> void:
 	var bonus: int = maxi(1, roundi(max_range * EXECUTE_BONUS_PCT))
 	# crit visual on (it's a finisher), bypass i-frames so it lands alongside the hit.
 	hc.take_damage(bonus, owner_node, true, true, true)
+	EventJuice.proc(target, "EXECUTE", EventJuice.COLOR_EXECUTE)

@@ -92,6 +92,9 @@ func on_damaged(owner_node: Node, _active_buff, damage_amount: int, source: Node
 		reflected_damage = mini(reflected_damage, int(attacker_health_comp.max_health / 2.0))
 	if reflected_damage > 0 and attacker_health_comp:
 		attacker_health_comp.take_damage(reflected_damage, owner_node, true)
+		# Tell: damage dealt outside combat.gd's pipeline shows no number —
+		# the reflect IS the upgrade, so name it at the attacker.
+		EventJuice.proc(source, "COUNTER %d" % reflected_damage, EventJuice.COLOR_COUNTER)
 
 
 func on_remove(_owner_node: Node, _active_buff) -> void:
