@@ -202,6 +202,8 @@ static func _thermal_shock(target: Node, applier: Node) -> void:
 	health_comp.take_damage(burst, applier, true, false, true)
 	if target.has_method("play_dot"):
 		target.play_dot("burn")
+	EventJuice.proc(target, "THERMAL SHOCK", EventJuice.COLOR_THERMAL,
+		EventJuice.SFX_THERMAL, "fire_impact")
 	if was_alive and health_comp.is_dead:
 		_credit_kill(applier, target)
 
@@ -216,12 +218,16 @@ static func _septic(target: Node, poison_key: String) -> void:
 		state["per_tick"] = maxi(1, roundi(float(int(state.get("per_tick", 1))) * SEPTIC_MULT))
 		state["septic"] = true
 		target.set_meta(poison_key, state)
+		EventJuice.proc(target, "SEPTIC", EventJuice.COLOR_SEPTIC,
+			EventJuice.SFX_SEPTIC, "poison_impact")
 
 
 ## Consume the mark; the next hit against this enemy is a guaranteed crit.
 static func _brittle(target: Node) -> void:
 	if consume_tag(target, TAG_MARK) > 0:
 		target.set_meta(BRITTLE_META, true)
+		EventJuice.proc(target, "BRITTLE", EventJuice.COLOR_BRITTLE,
+			EventJuice.SFX_BRITTLE, "ice_impact")
 
 
 ## When the Thermal Shock burst downs an enemy, combat.gd._execute_hit never

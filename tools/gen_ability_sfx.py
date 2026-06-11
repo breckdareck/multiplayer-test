@@ -394,6 +394,44 @@ def snd_death_sting(rng):
     return normalize(mix(low, gain(swell, 0.25)), 0.6)
 
 
+
+# --- cross-discipline event stingers (EventJuice: escalations + synergy) ----
+
+def snd_escalation_thermal(rng):
+    """Burn+chill detonation: steam hiss + descending crack + low pop."""
+    hiss = env_ad(highpass(white(rng, 0.30), 2800), 0.005, 0.08)
+    crack = env_ad(sine_sweep(520, 90, 0.22, curve=1.6), 0.002, 0.07)
+    pop = gain(env_ad(lowpass(white(rng, 0.08), 1200), 0.001, 0.03), 0.8)
+    return normalize(mix(gain(hiss, 0.5), crack, pop))
+
+
+def snd_escalation_septic(rng):
+    """Poison-on-bleed: two sickly low wobbles + filtered fizz."""
+    blub1 = env_ad(sine_sweep(220, 140, 0.18, curve=0.7), 0.01, 0.06)
+    blub2 = delay(env_ad(sine_sweep(260, 120, 0.16, curve=0.7), 0.01, 0.05), 0.09)
+    fizz = gain(env_ad(lowpass(white(rng, 0.25), 900), 0.02, 0.08), 0.3)
+    return normalize(mix(blub1, blub2, fizz))
+
+
+def snd_escalation_brittle(rng):
+    """Mark shatter: short glass partials + a bright snap."""
+    bells = []
+    for k in range(4):
+        f = rng.uniform(3200, 7000)
+        bells.append(delay(gain(partial(f, 0.18, 0.04, detune=-0.05),
+                                0.5 - k * 0.1), 0.03 * k))
+    snap = env_ad(highpass(white(rng, 0.06), 5000), 0.001, 0.02)
+    return normalize(mix(gain(snap, 0.7), *bells))
+
+
+def snd_synergy_proc(rng):
+    """Pair-payoff shimmer: quick two-note rise + glint."""
+    a = env_ad(sine_sweep(880, 1320, 0.14, curve=0.5), 0.004, 0.05)
+    b = delay(env_ad(sine_sweep(1320, 1760, 0.14, curve=0.5), 0.004, 0.06), 0.07)
+    glint = delay(gain(partial(2640, 0.18, 0.05), 0.25), 0.10)
+    return normalize(mix(a, b, glint))
+
+
 SOUNDS = {
     "sword_slash": snd_sword_slash,
     "sword_heavy": snd_sword_heavy,
@@ -425,6 +463,10 @@ SOUNDS = {
     "ui_open": snd_ui_open,
     "ui_close": snd_ui_close,
     "death_sting": snd_death_sting,
+    "escalation_thermal": snd_escalation_thermal,
+    "escalation_septic": snd_escalation_septic,
+    "escalation_brittle": snd_escalation_brittle,
+    "synergy_proc": snd_synergy_proc,
 }
 
 

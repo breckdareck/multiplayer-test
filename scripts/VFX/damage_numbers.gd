@@ -92,6 +92,76 @@ func display_number_combo(values: Array, are_crits: Array, position: Vector2, is
 			_spawn_combo_hit_with_rpc.bind(value, spawn_pos, is_crit, is_player, z_index, dmg_number_name, players_on_map)
 		)
 
+## Event text — named, colored floating text for synergy/escalation procs
+## ("THERMAL SHOCK", "COMBO BURST", ...). Same map/peer resolution as
+## display_number_combo; purely cosmetic, animated by a local tween per peer.
+func display_event_text(text: String, position: Vector2, color: Color) -> void:
+	if not multiplayer.is_server():
+		return
+	var map_node = get_parent()
+	if not (map_node and map_node.is_in_group("map_base")):
+		return
+	var map_name = map_node.name.replace("Map_", "")
+	var players_on_map = MapManager.get_real_players_on_map(map_name)
+
+	var local_text = _create_event_text_node(text, position, color)
+	if is_instance_valid(local_text):
+		_setup_drift_animation.call_deferred(local_text)
+	var args = [text, position, color]
+	for peer_id in players_on_map:
+		if peer_id != 1:
+			spawn_event_text_rpc.rpc_id(peer_id, args)
+
+
+@rpc("authority", "call_remote", "reliable")
+func spawn_event_text_rpc(args: Array) -> void:
+	var node = _create_event_text_node(args[0], args[1], args[2])
+	if is_instance_valid(node):
+		_setup_drift_animation.call_deferred(node)
+
+
+## A colored text label in the damage-number style: same font/scale family,
+## flat color instead of the damage gradient so events read as a distinct
+## "system voice" next to white damage numbers.
+func _create_event_text_node(text: String, position: Vector2, color: Color) -> Node:
+	var label_outline = Label.new()
+	var label = Label.new()
+	label_outline.add_child(label)
+
+	label_outline.scale = Vector2(.04, .04)
+	var spawn_parent = get_parent()
+	if spawn_parent:
+		label_outline.position = position - spawn_parent.global_position
+		spawn_parent.add_child(label_outline)
+	else:
+		label_outline.global_position = position
+		add_child(label_outline)
+
+	label_outline.text = text
+	label_outline.z_index = 12
+	label_outline.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label_outline.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label_outline.label_settings = LabelSettings.new()
+	label_outline.label_settings.font = DAMAGE_NUMBERS_1
+	label_outline.label_settings.font_size = 240
+	label_outline.label_settings.outline_color = Color(0, 0, 0, 0.9)
+	label_outline.label_settings.outline_size = 80
+	label_outline.add_theme_constant_override("char_spacing", -15)
+
+	label.text = text
+	label.z_index = 12
+	label.z_as_relative = false
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.label_settings = LabelSettings.new()
+	label.label_settings.font = DAMAGE_NUMBERS_1
+	label.label_settings.font_size = 240
+	label.label_settings.font_color = color
+	label.set_anchors_preset(Control.PRESET_FULL_RECT)
+
+	return label_outline
+
+
 func _spawn_combo_hit_with_rpc(value: int, spawn_pos: Vector2, is_crit: bool, is_player: bool, z_index: int, dmg_number_name: String, players_on_map: Array):
 	# Spawn locally
 	var local_number = _create_damage_number_node(value, spawn_pos, is_crit, is_player, z_index, dmg_number_name)

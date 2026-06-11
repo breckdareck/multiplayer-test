@@ -382,7 +382,7 @@ func _spend_combo_for_bonus(owner_node: Node, target: Node, hit_damage: int, mul
 	if _ss_spell_spend_double and pair_key == "staff_sword":
 		_ss_spell_spend_double = false
 		mult *= 2.0
-	_deal_bonus(owner_node, target, maxi(1, roundi(hit_damage * n * mult)))
+	_deal_bonus(owner_node, target, maxi(1, roundi(hit_damage * n * mult)), "COMBO BURST", EventJuice.COLOR_COMBO)
 	_proc(owner_node, pair_key)
 
 
@@ -421,7 +421,7 @@ func _spell_ride_momentum(owner_node: Node, target: Node, hit_damage: int, ride_
 	var bonus_frac: float = bm.get_damage_bonus() * ride_mult
 	if bonus_frac <= 0.0:
 		return
-	_deal_bonus(owner_node, target, maxi(1, roundi(hit_damage * bonus_frac)))
+	_deal_bonus(owner_node, target, maxi(1, roundi(hit_damage * bonus_frac)), "MOMENTUM SURGE", EventJuice.COLOR_MOMENTUM)
 	_proc(owner_node, "staff_bow")
 
 
@@ -431,17 +431,21 @@ func _ambush_spend_bd_charge(owner_node: Node, target: Node, hit_damage: int) ->
 		return
 	var bonus: int = maxi(1, roundi(hit_damage * _bd_charge * BOW_DAGGER_CHARGE_MULT))
 	_bd_charge = 0
-	_deal_bonus(owner_node, target, bonus)
+	_deal_bonus(owner_node, target, bonus, "CHARGED AMBUSH", EventJuice.COLOR_AMBUSH)
 	_proc(owner_node, "bow_dagger")
 
 
 ## Deal a discrete synergy "spark" of bonus damage. Bypasses i-frames + shows the
 ## number; never crits (it's a flat synergy bonus, not a rolled hit).
-func _deal_bonus(owner_node: Node, target: Node, bonus: int) -> void:
+func _deal_bonus(owner_node: Node, target: Node, bonus: int, label: String = "", label_color: Color = Color.WHITE) -> void:
 	var hc = target.get("health_component")
 	if hc == null or not is_instance_valid(hc) or hc.is_dead:
 		return
 	hc.take_damage(bonus, owner_node, true, false, true)
+	# Juice: the synergy payoffs are the pair's identity moments — name them
+	# next to the number and give them a stinger so the spend is FELT.
+	if label != "":
+		EventJuice.proc(target, label, label_color, EventJuice.SFX_SYNERGY)
 
 
 ## Emit the proc signal on the server and the owning client (widget flash). Mirrors
