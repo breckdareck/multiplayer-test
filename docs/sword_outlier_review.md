@@ -36,6 +36,11 @@ The outlier decomposes into two specific things:
 O1+O2 together would land full-AoE near ~76 with the spike gone — likely overkill in
 one step. Recommendation: **O1 now, re-measure, hold O2 in reserve.**
 
-## Status
+## Status: O1 implemented (2026-06-11), O2 held in reserve
 
-Awaiting design call.
+`combat.gd` now latches the staged finisher amp onto the cast's first target
+(`_amp_target` / `_amp_allowed_for`); other targets roll base damage. The
+latch clears with the per-cast multiplier reset and re-latches if the primary
+dies mid-cast. Single-target finishers unchanged. Covered by
+`test/ability/test_finisher_amp.gd` (4 tests). Re-measure after playtests;
+apply the O2 cap trims only if full-AoE still reads too hot.

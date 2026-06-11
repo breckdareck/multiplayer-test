@@ -100,6 +100,23 @@ var _attack_ambush_from_vanish: bool = false
 ## (+25% per point). calculate_ability_damage reads + clears this so it
 ## never lingers past one hit. Defaults to 1.0 (no effect).
 var pending_ability_damage_multiplier: float = 1.0
+## Sword-outlier fix (docs/sword_outlier_review.md, O1): the staged finisher
+## amp applies at FULL value to the cast's PRIMARY target only - the first
+## enemy this cast rolls damage against. Other targets take base damage, so a
+## 3-combo AoE finisher stops multiplying the whole pack (466 -> 175
+## dps-equivalent on Crescent Cleave) while single-target finishers are
+## untouched. Tracked per cast; cleared beside the multiplier reset.
+var _amp_target: Node = null
+
+
+## True when the staged finisher amp may apply to a roll against `target`.
+## Latches the first target seen while an amp is pending.
+func _amp_allowed_for(target: Node) -> bool:
+	if pending_ability_damage_multiplier == 1.0:
+		return true
+	if _amp_target == null or not is_instance_valid(_amp_target):
+		_amp_target = target
+	return target == _amp_target
 
 @onready var owner_node: CharacterBody2D = get_owner()
 @onready var attack_hitbox_timer: Timer = $"../../AttackHitboxTimer"
@@ -297,6 +314,7 @@ func end_ability_attack() -> void:
 	# in the case where the player chains Slash → another sword ability
 	# while pending_ability_damage_multiplier is still non-1.0.
 	pending_ability_damage_multiplier = 1.0
+	_amp_target = null
 
 
 func _get_owner_map_node() -> Node:
@@ -585,7 +603,7 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 		if attack_name != "":
 			base_damage = calculate_attack_damage()
 		elif ability and level_stats:
-			base_damage = calculate_ability_damage(ability, level_stats)
+			base_damage = calculate_ability_damage(ability, level_stats, _amp_allowed_for(target_enemy))
 
 		var modified_damage = float(base_damage)
 
@@ -1051,7 +1069,7 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 				MapManager.broadcast_vfx_everywhere(MapManager.get_player_map(owner_node.player_id), hit_key, hit_pos, hit_scale, 0.0, atk_face_left)
 
 
-func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelData) -> int:
+func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelData, amp_allowed: bool = true) -> int:
 	var max_range = _calculate_max_range(_ability.damage_stat)
 	var damage = roundi(randf_range(max_range * mastery, max_range))
 
@@ -1068,7 +1086,7 @@ func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelDa
 	# (covers multi-hit + multi-target abilities — all hits of a finisher
 	# should share the bonus). Reset to 1.0 in end_ability_attack so the
 	# multiplier never bleeds into the next cast.
-	if pending_ability_damage_multiplier != 1.0:
+	if pending_ability_damage_multiplier != 1.0 and amp_allowed:
 		damage = roundi(damage * pending_ability_damage_multiplier)
 
 	# PR 6: generic "bonus_damage_mult" upgrade (additive %, e.g. +0.25).
