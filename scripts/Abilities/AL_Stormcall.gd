@@ -24,10 +24,14 @@ const ZONE_DURATION: float = 3.0
 const ZONE_TICK_INTERVAL: float = 0.5
 const ZONE_SPAWN_OFFSET: float = 140.0  ## px ahead of caster in facing direction
 
-## Tick damage = 11% of MAGICATTACK per tick. With 6 ticks across 3s that's
-## ~66% sustained per enemy who stays the full duration — comparable to
-## the Pyre Burst pool's ceiling but with a different cast profile.
-const TICK_DAMAGE_PCT: float = 0.14
+## Tick damage = dot_scaling_base directly: Stormcall never deals a direct
+## hit, so its authored damage_percent (14% +1/lvl in A_Stormcall.tres) IS the
+## per-tick fraction of a max hit. With 6 ticks across a full 3s channel
+## that's ~84% sustained at L1 — comparable to the Pyre Burst pool's ceiling
+## but with a different cast profile — and it matches the tooltip's
+## "$[damage_percent] magic damage" per strike.
+## (2026-06-11 fix: the old code multiplied damage_percent by a second 0.14
+## tick fraction — a double discount leaving strikes at ~8% of a max hit.)
 
 const ZONE_COLOR: Color = Color(0.55, 0.55, 1.0, 0.38)  ## lightning blue-purple
 ## Chaining Storm (T3): each strike arcs to nearby enemies within this radius.
@@ -69,7 +73,7 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 	# endgame). Same anchor the bleeds/Caltrops use. _chain_damage inherits this.
 	var combat = owner_node.get("combat_component")
 	var dot_base: int = combat.dot_scaling_base(_ability) if combat != null and is_instance_valid(combat) and combat.has_method("dot_scaling_base") else maxi(1, magic_attack)
-	var tick_damage: int = maxi(1, roundi(dot_base * TICK_DAMAGE_PCT * (1.0 + damage_bonus)))
+	var tick_damage: int = maxi(1, roundi(dot_base * (1.0 + damage_bonus)))
 	# Rapid Storm (T3): the storm strikes more often (shorter interval) with
 	# lighter per-strike hits — a snappier, modestly higher sustained DPS that
 	# catches transient enemies, distinct from Wide (area) / Chaining (spread).

@@ -23,10 +23,13 @@ const EnemyStatus := preload("res://scripts/Gameplay/enemy_status.gd")
 const ZONE_RECT_SIZE: Vector2 = Vector2(180.0, 50.0)
 const ZONE_DURATION: float = 4.0
 const ZONE_TICK_INTERVAL: float = 1.0
-## Tick damage = 8% of MAGICATTACK per second. Keeps the zone a sustain-
-## chill, not a burst — players who burn Mana Surge or Spellweave for burst
-## get more than they'd get from Frost Patch's ticks alone.
-const TICK_DAMAGE_PCT: float = 0.12
+## Tick damage = dot_scaling_base directly: Frost Patch never deals a direct
+## hit, so its authored damage_percent (12% +1/lvl in A_FrostPatch.tres) IS
+## the per-tick fraction of a max hit — matching the tooltip's
+## "$[damage_percent] magic damage per tick". Keeps the zone a sustain-chill,
+## not a burst — Mana Surge / Spellweave burst still out-damages the ticks.
+## (2026-06-11 fix: the old code multiplied damage_percent by a second 0.12
+## tick fraction — a double discount leaving ticks at ~5% of a max hit.)
 
 const SLOW_PCT: float = 0.50
 const SLOW_DURATION: float = 1.25  # slightly longer than tick interval so it overlaps
@@ -76,7 +79,7 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 	# endgame). Same anchor the bleeds/Caltrops use.
 	var combat = owner_node.get("combat_component")
 	var dot_base: int = combat.dot_scaling_base(_ability) if combat != null and is_instance_valid(combat) and combat.has_method("dot_scaling_base") else maxi(1, magic_attack)
-	var tick_damage: int = maxi(1, roundi(dot_base * TICK_DAMAGE_PCT * (1.0 + damage_bonus)))
+	var tick_damage: int = maxi(1, roundi(dot_base * (1.0 + damage_bonus)))
 	var duration: float = ZONE_DURATION + duration_bonus
 	var rect_size: Vector2 = ZONE_RECT_SIZE + Vector2(width_bonus, 0.0)
 

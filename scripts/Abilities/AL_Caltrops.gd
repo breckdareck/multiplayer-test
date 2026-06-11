@@ -25,19 +25,21 @@ const EnemyStatus := preload("res://scripts/Gameplay/enemy_status.gd")
 const ZONE_RECT_SIZE: Vector2 = Vector2(160.0, 50.0)
 const ZONE_DURATION: float = 5.0
 const ZONE_TICK_INTERVAL: float = 1.0
-## Zone tick = this fraction of the ability's MAX hit (max_range × dmg%), via
-## CombatComponent.dot_scaling_base — so the field scales with attributes +
-## mastery + ability level + gear like direct damage (project_dot_scaling_divergence).
-## Was 0.08 × raw WEAPONATTACK, which omitted the (primary×4+sec) multiplier.
-const TICK_DAMAGE_FRAC: float = 0.08
+## Zone tick = dot_scaling_base directly: Caltrops never deals a direct hit, so
+## its authored damage_percent (10% +1/lvl in A_Caltrops.tres) IS the per-tick
+## fraction of a max hit — exactly what the tooltip's "$[damage_percent] damage
+## per tick" claims. (2026-06-11 fix: the old code multiplied damage_percent by
+## a second 0.08 tick fraction — a double discount that left ticks at ~4% of a
+## max hit, rounding to 1 damage through the entire early game.)
 
 const SLOW_PCT: float = 0.30
 const SLOW_DURATION: float = 1.0
 const SLOW_META: String = "caltrops_slow"
 
-## Poisoned Spikes (T3) bleed — fraction of the ability's MAX hit per tick per
-## stack (via dot_scaling_base), stacking up to MAX while inside the field.
-const POISON_TICK_FRAC: float = 0.05
+## Poisoned Spikes (T3) bleed — fraction of the ZONE TICK per stack (the tick
+## itself already scales via dot_scaling_base), stacking up to MAX while inside
+## the field. 0.6 preserves the pre-2026-06-11 poison:tick ratio.
+const POISON_TICK_FRAC: float = 0.6
 const POISON_MAX_STACKS: int = 5
 const POISON_DURATION: float = 3.0
 const POISON_META: String = "caltrops_poison"
@@ -91,7 +93,7 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 		_poison_per_tick = 0
 		_poison_applier = null
 
-	var tick_damage: int = maxi(1, roundi(dot_base * TICK_DAMAGE_FRAC * (1.0 + damage_bonus)))
+	var tick_damage: int = maxi(1, roundi(dot_base * (1.0 + damage_bonus)))
 	var duration: float = ZONE_DURATION + duration_bonus
 	var rect_size: Vector2 = ZONE_RECT_SIZE + Vector2(width_bonus, 0.0)
 

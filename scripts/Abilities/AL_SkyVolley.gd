@@ -24,10 +24,14 @@ const ZONE_DURATION: float = 3.0
 const ZONE_TICK_INTERVAL: float = 0.5
 const ZONE_SPAWN_OFFSET: float = 130.0  ## px ahead of caster in facing direction
 
-## Tick damage = 9% of WEAPONATTACK per tick (× ~6 ticks over 3s = ~54%
-## sustained per enemy who stays in). Keeps Sky Volley competitive with
-## Hailstorm without overshadowing Snipe's burst.
-const TICK_DAMAGE_PCT: float = 0.09
+## Tick damage = dot_scaling_base directly: Sky Volley never deals a direct
+## hit, so its authored damage_percent (9% +1/lvl in A_SkyVolley.tres) IS the
+## per-tick fraction of a max hit — ~54% sustained over a full 3s channel at
+## L1, competitive with Hailstorm without overshadowing Snipe's burst, and
+## matching the tooltip's "$[damage_percent] damage every half-second".
+## (2026-06-11 fix: the old code multiplied damage_percent by a second 0.09
+## tick fraction — a double discount that left the whole channel at ~24% of
+## ONE max hit, ticking for 1 damage through the early game.)
 
 ## Momentum gain per tick — capped at +1 per second so a tick-rate of 0.5s
 ## doesn't accidentally double the build rate.
@@ -75,7 +79,7 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 	# endgame). Same anchor the bleeds/Caltrops use.
 	var combat = owner_node.get("combat_component")
 	var dot_base: int = combat.dot_scaling_base(_ability) if combat != null and is_instance_valid(combat) and combat.has_method("dot_scaling_base") else maxi(1, wpn_attack)
-	var tick_damage: int = maxi(1, roundi(dot_base * TICK_DAMAGE_PCT * (1.0 + damage_bonus)))
+	var tick_damage: int = maxi(1, roundi(dot_base * (1.0 + damage_bonus)))
 	var duration: float = ZONE_DURATION + duration_bonus
 	var rect_size: Vector2 = ZONE_RECT_SIZE + Vector2(width_bonus, 0.0)
 	var tick_interval: float = ZONE_TICK_INTERVAL * clampf(1.0 - tick_rate_bonus, 0.1, 1.0)

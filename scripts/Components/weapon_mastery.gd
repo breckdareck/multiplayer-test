@@ -46,30 +46,46 @@ const XP_PER_CAST: int = 1
 ## PR 4 fix (2026-05-28 revision 2): kill XP now uses `enemy_level` as the
 ## BASE (scaled by KILL_XP_PER_ENEMY_LEVEL), with the relative-level-diff
 ## modifier on top. This solves the high-level-pickup problem: a Lv 70
-## character starting fresh on Halberd kills Lv 70 enemies for ~70 XP per
+## character starting fresh on Halberd kills Lv 70 enemies for ~75 XP per
 ## kill, so the catch-up is fast. Meanwhile, that same Lv 70 character
-## one-shotting Lv 1 slimes still hits the floor (1 XP) — farming stays
+## one-shotting Lv 1 slimes still earns next to nothing — farming stays
 ## suppressed.
 ##
+## Early-game pass (2026-06-11): pure `enemy_level` starved levels 1-15 —
+## L1-10 mobs paid 1-10 XP against level costs of 60+, and the -15%/level
+## diff penalty floored normal early play (a char-11 in the L5 forest) to
+## 1 XP/kill. Three changes, all invisible at endgame:
+##   - KILL_XP_FLAT_BASE 0 → 5: every kill pays a real minimum (3-6× early
+##     income; +7% at L70).
+##   - KILL_XP_LEVEL_DIFF_SCALAR 0.15 → 0.10 and MIN_MODIFIER 0.10 → 0.30:
+##     a few levels' gap — "the next map over" early on — is a haircut, not
+##     a cliff. Endgame slime-farming stays dead because the BASE for an L1
+##     mob is tiny regardless of the modifier.
+##
 ## Formula:
-##   base = max(1, enemy_level * KILL_XP_PER_ENEMY_LEVEL)
+##   base = max(1, KILL_XP_FLAT_BASE + enemy_level * KILL_XP_PER_ENEMY_LEVEL)
 ##   modifier = clamp(1 + (enemy_level - player_level) * SCALAR, MIN, MAX)
 ##   final = max(FLOOR, round(base * modifier))
 ##
 ## Examples (player_level = 70):
-##   Lv 70 enemy → base 70 × 1.0 = 70 XP (baseline at-level kill)
-##   Lv 80 enemy → base 80 × 2.5 (clamped) = 200 XP (reach-up bonus)
-##   Lv 1 slime  → base 1 × 0.10 (floored) = 1 XP (farming useless)
+##   Lv 70 enemy → base 75 × 1.0 = 75 XP (baseline at-level kill)
+##   Lv 80 enemy → base 85 × 2.0 = 170 XP (reach-up bonus)
+##   Lv 1 slime  → base 6 × 0.30 (floored) = 2 XP (farming useless)
+## Examples (player_level = 11, the early band the pass targets):
+##   Lv 10 enemy → base 15 × 0.90 = 14 XP (was ~9)
+##   Lv 5 enemy  → base 10 × 0.40 = 4 XP  (was 1 — floored)
 ##
 ## Tune via:
+##   KILL_XP_FLAT_BASE:          flat paid on every kill — the early-game lever
 ##   KILL_XP_PER_ENEMY_LEVEL:    base scalar — raise to multiply all kills
 ##   KILL_XP_LEVEL_DIFF_SCALAR:  modifier shift per level of gap
 ##   KILL_XP_MIN_MODIFIER:       floor multiplier (caps farming penalty)
 ##   KILL_XP_MAX_MODIFIER:       ceiling multiplier (caps reach-up bonus)
 ##   KILL_XP_FLOOR:              absolute minimum XP per kill
+const KILL_XP_FLAT_BASE: float = 5.0
 const KILL_XP_PER_ENEMY_LEVEL: float = 1.0
-const KILL_XP_LEVEL_DIFF_SCALAR: float = 0.15
-const KILL_XP_MIN_MODIFIER: float = 0.10
+const KILL_XP_LEVEL_DIFF_SCALAR: float = 0.10
+const KILL_XP_MIN_MODIFIER: float = 0.30
 const KILL_XP_MAX_MODIFIER: float = 2.5
 const KILL_XP_FLOOR: int = 1
 
@@ -79,7 +95,7 @@ const KILL_XP_FLOOR: int = 1
 ## without needing a component instance (used for both primary + secondary
 ## weapon credits in the same hit).
 static func compute_kill_xp(enemy_level: int, player_level: int) -> int:
-	var base_xp: float = max(1.0, float(enemy_level) * KILL_XP_PER_ENEMY_LEVEL)
+	var base_xp: float = max(1.0, KILL_XP_FLAT_BASE + float(enemy_level) * KILL_XP_PER_ENEMY_LEVEL)
 	var level_diff: int = enemy_level - player_level
 	var modifier: float = clampf(
 		1.0 + level_diff * KILL_XP_LEVEL_DIFF_SCALAR,
@@ -92,21 +108,30 @@ static func compute_kill_xp(enemy_level: int, player_level: int) -> int:
 ## `_xp_to_next_level(N) = XP_BASE + XP_LINEAR*N + XP_QUADRATIC*N² + XP_CUBIC*N³`.
 ## Front-loaded (cheap early levels for instant gratification) with a cubic
 ## tail so late ranks are a real commitment. Target: cumulative XP to rank 100
-## ≈ 1.1M, which matches what a focused at-level grinder earns hitting char
-## level 70 (verified against leveling_curve.tres + monster_exp_curve.tres).
+## ≈ 1.05M, roughly what a focused at-level grinder earns hitting char level 70
+## (calibrated against leveling_curve.tres + monster_exp_curve.tres).
 ##
-##   level 0 -> 1:        30 XP    (~3-6 kills, ~30 seconds — first pick immediately)
-##   level 9 -> 10:      580 XP    (~115 at-lvl-10 kills, ~5 minutes)
-##   level 29 -> 30:   4,080 XP    (~135 at-lvl-30 kills)
-##   level 49 -> 50:  12,780 XP    (~80 at-lvl-50 kills — char XP per kill grows faster)
-##   level 69 -> 70:  29,080 XP    (~80 at-lvl-70 kills)
-##   level 99 -> 100: 71,000 XP    (~50 at-lvl-99 kills)
-##   total 0 -> 100: ~1.1M XP — reached around character level 70
+## Early-game pass (2026-06-11): XP_BASE 30 → 15 and XP_LINEAR 30 → 20. The
+## old early costs (62/98/139 for ranks 2-4) were priced for mid-game kill
+## payouts, but L1-10 kills only pay ~6-15 XP even after the kill-XP flat
+## base — chars hit level 11 at mastery 3. Levels 1-10 cost ~2K of the ~1.05M
+## total, so cheapening them moves early pacing without touching the late
+## grind. With the kill-XP changes, an at-level grinder now tracks roughly
+## mastery ≈ char level through the first ~15 levels, pulling ahead after.
+##
+##   level 0 -> 1:        15 XP    (~2-3 kills — first pick immediately)
+##   level 1 -> 2:        37 XP    (~4 at-lvl kills)
+##   level 9 -> 10:      393 XP    (~26 at-lvl-10 kills)
+##   level 29 -> 30:   3,496 XP    (~100 at-lvl-30 kills)
+##   level 49 -> 50:  11,679 XP    (~210 at-lvl-50 kills)
+##   level 69 -> 70:  27,342 XP    (~365 at-lvl-70 kills)
+##   level 99 -> 100: 70,111 XP    (~670 at-lvl-99 kills)
+##   total 0 -> 100: ~1.05M XP — reached around character level 70
 ##
 ## Tune these constants together. Raising XP_CUBIC most steeply punishes late
 ## levels; raising XP_BASE slows the first few levels.
-const XP_BASE: int = 30
-const XP_LINEAR: int = 30
+const XP_BASE: int = 15
+const XP_LINEAR: int = 20
 const XP_QUADRATIC: int = 2
 const XP_CUBIC: float = 0.05
 
@@ -510,6 +535,19 @@ func is_loading() -> bool:
 
 
 #region #################### RPCs ####################
+
+## [SERVER] Pushes the FULL mastery state (every discipline's level + xp) to one
+## client in a burst of sync_mastery_to_client RPCs. Called by the JoinHandshake
+## SYNC phase: the incremental sync only fires on XP grants, so a fresh client
+## mirror (first join AND every map-change rebuild) would otherwise read zeros
+## on the mastery bar / ability window until the next kill.
+func sync_all_mastery_to_client(peer_id: int) -> void:
+	if not multiplayer.is_server():
+		return
+	for discipline in mastery_data:
+		var entry: Dictionary = mastery_data[discipline]
+		sync_mastery_to_client.rpc_id(peer_id, discipline, int(entry.get("level", 0)), int(entry.get("xp", 0)))
+
 
 ## Server -> owning client. Mirrors the authoritative mastery state so the
 ## client's UI and downstream stat refresh can react. The body is idempotent
