@@ -26,9 +26,23 @@ def avg_roll(build, dmg_stat):
     return mr * (1.0 + m) / 2.0
 
 
+# Ground-zone abilities never land a direct hit: damage_percent is the
+# PER-TICK fraction (dot_scaling_base) and the zone ticks duration/interval
+# times (AL_Stormcall.gd "2026-06-11 fix" comment; same shape in the others).
+ZONE_KEYS = {"Stormcall": "stormcall", "Sky Volley": "sky_volley",
+             "Frost Patch": "frost_patch", "Caltrops": "caltrops"}
+
+
+def zone_ticks(name):
+    sc = META["script_constants"][ZONE_KEYS[name]]
+    return sc["ZONE_DURATION"] / sc["ZONE_TICK_INTERVAL"]
+
+
 def per_cast(build, ab, lvl):
     ls = ab["levels"][str(lvl)]
     hit = avg_roll(build, ab["damage_stat"]) * ls["damage_percent"] / 100.0
+    if ab["name"] in ZONE_KEYS:
+        return hit, hit * zone_ticks(ab["name"]) * max(1, ls["targets"])
     return hit, hit * max(1, ls["targets"]) * max(1, ls["hits"])
 
 
@@ -149,6 +163,69 @@ for name, mech, fn, duo in rows:
     lines.append("| %s | %s | %.0f | %.0f | %.0f | %s |" % (name, mech, fn(1), fn(5), fn(10), duo))
 lines.append("")
 
+# ── compensators: what the base model can't see, quantified ────────────────
+SC = META["script_constants"]
+CRIT_AVG_BASE = 1.35  # combat.gd: randf_range(1.2, 1.5) + CRITDAMAGE/100
+
+lines += ["## Compensators — identity mechanics the base tables exclude, quantified (L10)", "",
+          "| Discipline | Crit uplift | Identity mechanic | Quantified |",
+          "|---|---|---|---|"]
+crit_up = {}
+for w in WEAPONS:
+    b = D["builds"][f"{w}_L10"]
+    p_crit = b["totals"].get("10", b["totals"].get(10, 0)) / 100.0
+    cd_bon = b["totals"].get("11", b["totals"].get(11, 0)) / 100.0
+    mult = CRIT_AVG_BASE + cd_bon
+    crit_up[w] = 1 + p_crit * (mult - 1)
+ident = {
+    "Sword": ("combo finisher: x(1+%dx%.0f) = x%.0f on the spender; 3-build+1-spend cycle"
+              % (SC["sword_combo"]["COMBO_CAP"], SC["sword_combo"]["COMBO_DAMAGE_PER_POINT"],
+                 1 + SC["sword_combo"]["COMBO_CAP"] * SC["sword_combo"]["COMBO_DAMAGE_PER_POINT"]),
+     "finisher slot ~x%.2f sustained ((3 basics + x4 spend)/4)" % ((3 + 4) / 4.0)),
+    "Bow": ("Momentum ramp: +%.1f%%/stack, cap %d" % (
+        SC["bow_momentum"]["DAMAGE_PER_STACK"] * 100, SC["bow_momentum"]["MAX_STACKS"]),
+     "x%.2f on EVERY bow hit at full gauge (+ Snipe consume burst on top)" % (
+        1 + SC["bow_momentum"]["MAX_STACKS"] * SC["bow_momentum"]["DAMAGE_PER_STACK"])),
+    "Staff": ("element rider on every spell hit (fire shown)",
+     "+%.0f%% of each hit as burn over %ds (saturated x%d), already tabled above" % (
+        META["element"]["burn_hit_pct"] * 100 * META["element"]["burn_duration"],
+        META["element"]["burn_duration"], META["element"]["burn_max_stacks"])),
+    "Dagger": ("ambush opener: x%.1f AND guaranteed crit (shadowmeld)" % SC["shadowmeld"]["AMBUSH_DAMAGE_MULT"],
+     "opener multiplier x%.2f vs an un-ambushed hit; plus Eviscerate execute (+%.0f%% max-range under 35%% HP)" % (
+        SC["shadowmeld"]["AMBUSH_DAMAGE_MULT"] * (CRIT_AVG_BASE + D["builds"]["Dagger_L10"]["totals"].get("11", 0) / 100.0),
+        SC["eviscerate"]["EXECUTE_BONUS_PCT"] * 100)),
+}
+for w in WEAPONS:
+    lines.append("| %s | x%.3f (%.0f%% chance) | %s | %s |" % (
+        w, crit_up[w], D["builds"][f"{w}_L10"]["totals"].get("10", 0), ident[w][0], ident[w][1]))
+lines += ["",
+          "Illustrative L10 medians with compensators folded in (median ability DPS x crit "
+          "uplift x sustained identity factor; dagger identity factor uses one ambush opener "
+          "per 4-hit rotation, sword the finisher-cycle factor, bow full-gauge Momentum, "
+          "staff +fire rider on the median hit):", ""]
+sustained = {"Sword": (3 + 4) / 4.0, "Bow": 1 + SC["bow_momentum"]["MAX_STACKS"] * SC["bow_momentum"]["DAMAGE_PER_STACK"],
+             "Staff": 1 + META["element"]["burn_hit_pct"] * META["element"]["burn_duration"],
+             "Dagger": (3 + SC["shadowmeld"]["AMBUSH_DAMAGE_MULT"] * (CRIT_AVG_BASE + D["builds"]["Dagger_L10"]["totals"].get("11", 0) / 100.0)) / 4.0}
+lines += ["| Discipline | base median DPS | crit | identity | effective |", "|---|---|---|---|---|"]
+eff = {}
+for w in WEAPONS:
+    dps = []
+    for ab in D["abilities"][w]:
+        ls = ab["levels"]["10"]
+        if ls["damage_percent"] <= 0 or ls["cooldown"] <= 0:
+            continue
+        _, cast = per_cast(D["builds"][f"{w}_L10"], ab, 10)
+        dps.append(cast / ls["cooldown"])
+    base = statistics.median(dps)
+    eff[w] = base * crit_up[w] * sustained[w]
+    lines.append("| %s | %.1f | x%.3f | x%.2f | %.1f |" % (w, base, crit_up[w], sustained[w], eff[w]))
+med_eff = statistics.median(eff.values())
+for w, v in eff.items():
+    if abs(v - med_eff) / med_eff > 0.30:
+        issues.append("**effective divergence (L10, compensators folded):** %s %.1f vs median %.1f (%+.0f%%)."
+                      % (w, v, med_eff, 100 * (v - med_eff) / med_eff))
+lines.append("")
+
 # ── inconsistency sweep ──────────────────────────────────────────────────────
 # 1. damage_stat mismatches (staff damage abilities must scale MAGICATTACK and
 #    vice versa - the wrong stat is 0 on that build = zero damage).
@@ -197,7 +274,12 @@ for w, v in tot.items():
         issues.append("**discipline divergence (L10):** %s median ability DPS %.1f vs cross-weapon median %.1f (%+.0f%%)."
                       % (w, v, med, 100 * (v - med) / med))
 
-# 5. per-weapon DPS outliers at L10 (>2.5x or <0.3x own median)
+# 5. per-weapon DPS outliers at L10. Utility-identity abilities (mark
+#    appliers, summons whose damage accrues over a duration, CC/buff zones)
+#    are excluded from LOW flags - their value is the payoff, not the hit.
+UTILITY_IDENTITY = {"Mark of the Hunt", "Death Mark", "Sentinel's Mark", "Mana Surge",
+                    "Shadow Partner", "Arcane Familiar", "Smoke Bomb", "Banner of the Vanguard"}
+rotation = {}
 for w in WEAPONS:
     rows_d = []
     for ab in D["abilities"][w]:
@@ -207,11 +289,26 @@ for w in WEAPONS:
         _, cast = per_cast(D["builds"][f"{w}_L10"], ab, 10)
         rows_d.append((ab["name"], cast / ls["cooldown"]))
     m = statistics.median(v for _, v in rows_d)
+    rotation[w] = statistics.mean(sorted((v for _, v in rows_d), reverse=True)[:3])
     for n, v in rows_d:
         if v > 2.5 * m:
             issues.append("**DPS outlier (high):** %s `%s` %.1f dps vs weapon median %.1f (x%.1f)." % (w, n, v, m, v / m))
-        elif v < 0.3 * m:
+        elif v < 0.3 * m and n not in UTILITY_IDENTITY:
             issues.append("**DPS outlier (low):** %s `%s` %.1f dps vs weapon median %.1f (x%.2f)." % (w, n, v, m, v / m))
+
+# 5b. rotation-core comparison: mean of each weapon's top-3 ability DPS - a
+#     fairer cross-discipline lens than the median (half of Dagger's kit is
+#     utility by identity, which drags its median without weakening its
+#     actual damage rotation).
+med_rot = statistics.median(rotation.values())
+for w, v in rotation.items():
+    if abs(v - med_rot) / med_rot > 0.30:
+        issues.append("**rotation-core divergence (L10, top-3 mean):** %s %.1f vs median %.1f (%+.0f%%)."
+                      % (w, v, med_rot, 100 * (v - med_rot) / med_rot))
+issues.append("**doc note:** sword finishers spend combo at +100%%/point (x4; Power Strike x7) per "
+              "COMBO_DAMAGE_PER_POINT's deliberate tuning history - the sword_combo.gd header said "
+              "+25%%/point and has been corrected. This finisher ceiling is the main driver of the "
+              "sword-vs-dagger effective gap; rebalance is a design call.")
 
 # 6. element rider imbalance (fire saturated vs lightning, same hit)
 fire10, light10 = vals[10][2], vals[10][3] + vals[10][4]

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=22 format=3 uid="uid://c1ipq54swfey7"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://c1ipq54swfey7"]
 
 [ext_resource type="Texture2D" uid="uid://bdx04q2y7fn8o" path="res://assets/sprites/Abilities/generated_px/Bow/A_MarkOfTheHunt.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
@@ -46,8 +46,14 @@ base_value = 1.0
 script = ExtResource("5_asf")
 base_value = 1.0
 
+[sub_resource type="Resource" id="Resource_dmgpct"]
+script = ExtResource("5_asf")
+base_value = 56.0
+per_level = 6.0
+
 [sub_resource type="Resource" id="Resource_scaling"]
 script = ExtResource("7_asd")
+damage_percent_formula = SubResource("Resource_dmgpct")
 mana_cost_formula = SubResource("Resource_mana")
 cooldown_formula = SubResource("Resource_cd")
 max_targets_formula = SubResource("Resource_tgts")

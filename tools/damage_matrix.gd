@@ -196,8 +196,35 @@ func _ability_table(disc_name: String) -> Array:
 	return rows
 
 
+## Numeric/bool constants of a script, for the report's compensator math.
+func _consts_of(path: String) -> Dictionary:
+	var out := {}
+	var cmap: Dictionary = load(path).get_script_constant_map()
+	for k in cmap:
+		var v = cmap[k]
+		if v is int or v is float or v is bool:
+			out[k] = v
+	return out
+
+
 func _constants() -> Dictionary:
+	var stat_names := {}
+	for n in Constants.StatType.keys():
+		stat_names[str(int(Constants.StatType[n]))] = n
 	return {
+		"stat_names": stat_names,
+		"script_constants": {
+			"frost_patch": _consts_of("res://scripts/Abilities/AL_FrostPatch.gd"),
+			"caltrops": _consts_of("res://scripts/Abilities/AL_Caltrops.gd"),
+			"stormcall": _consts_of("res://scripts/Abilities/AL_Stormcall.gd"),
+			"sky_volley": _consts_of("res://scripts/Abilities/AL_SkyVolley.gd"),
+			"shadowmeld": _consts_of("res://scripts/Components/shadowmeld.gd"),
+			"sword_combo": _consts_of("res://scripts/Components/sword_combo.gd"),
+			"stats": _consts_of("res://scripts/Components/stats.gd"),
+			"eviscerate": _consts_of("res://scripts/Abilities/AL_Eviscerate.gd"),
+			"hemorrhage": _consts_of("res://scripts/Abilities/AL_Hemorrhage.gd"),
+			"bow_momentum": _consts_of("res://scripts/Components/bow_momentum.gd"),
+		},
 		"element": {
 			"burn_hit_pct": StaffElement.BURN_HIT_PCT,
 			"burn_min_per_tick": StaffElement.BURN_MIN_PER_TICK,

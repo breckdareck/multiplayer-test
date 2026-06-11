@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=21 format=3 uid="uid://dyt61v3y6pldn"]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=22 format=3 uid="uid://dyt61v3y6pldn"]
 
 [ext_resource type="Texture2D" uid="uid://dor0567gppf3y" path="res://assets/sprites/Abilities/generated_px/Dagger/A_Shadowstep.png" id="1_sst1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_sst1"]
@@ -53,8 +53,14 @@ script = ExtResource("6_sst1")
 base_value = 1.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
+[sub_resource type="Resource" id="Resource_dmgpct"]
+script = ExtResource("6_sst1")
+base_value = 55.0
+per_level = 5.0
+
 [sub_resource type="Resource" id="Resource_sst_scaling"]
 script = ExtResource("7_sst1")
+damage_percent_formula = SubResource("Resource_dmgpct")
 mana_cost_formula = SubResource("Resource_sst_mana")
 cooldown_formula = SubResource("Resource_sst_cd")
 max_targets_formula = SubResource("Resource_sst_targets")

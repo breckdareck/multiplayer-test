@@ -5,7 +5,8 @@ extends WeaponSignatureComponent
 ##
 ## Sword identity: every basic-attack HIT while wielding a sword builds 1 combo
 ## point (max 3). The Slash ability consumes ALL current combo points on cast
-## and amplifies its damage by +25% per point spent (+75% max at 3 points).
+## and amplifies its damage by +100% per point spent (4x at 3 points) - see
+## COMBO_DAMAGE_PER_POINT below for the tuning history.
 ##
 ## Combo points:
 ## - PERSIST across Tab-swaps. Build 3 combo, Tab-swap to bow, back to sword →
