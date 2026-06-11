@@ -163,6 +163,33 @@ for name, mech, fn, duo in rows:
     lines.append("| %s | %s | %.0f | %.0f | %.0f | %s |" % (name, mech, fn(1), fn(5), fn(10), duo))
 lines.append("")
 
+# ── dual-lens rotation cores: full-AoE vs single-target ─────────────────────
+def rotation_core(w, single_target):
+    rows = []
+    b = D["builds"][f"{w}_L10"]
+    for ab in D["abilities"][w]:
+        ls = ab["levels"]["10"]
+        if ls["damage_percent"] <= 0 or ls["cooldown"] <= 0:
+            continue
+        hit = avg_roll(b, ab["damage_stat"]) * ls["damage_percent"] / 100.0
+        tgt = 1 if single_target else max(1, ls["targets"])
+        if ab["name"] in ZONE_KEYS:
+            c = hit * zone_ticks(ab["name"]) * tgt
+        else:
+            c = hit * tgt * max(1, ls["hits"])
+        rows.append(c / ls["cooldown"])
+    return statistics.mean(sorted(rows, reverse=True)[:3])
+
+
+lines += ["## Rotation cores under both target lenses (L10, top-3 mean)", "",
+          "Full-AoE assumes every cast saturates its target cap; single-target is the",
+          "boss lens. Discipline balance verdicts need BOTH - an outlier on one lens",
+          "only is an AoE-cap question, not a base-damage question.", "",
+          "| Discipline | full-AoE | single-target |", "|---|---|---|"]
+for w in WEAPONS:
+    lines.append("| %s | %.1f | %.1f |" % (w, rotation_core(w, False), rotation_core(w, True)))
+lines.append("")
+
 # ── compensators: what the base model can't see, quantified ────────────────
 SC = META["script_constants"]
 CRIT_AVG_BASE = 1.35  # combat.gd: randf_range(1.2, 1.5) + CRITDAMAGE/100
