@@ -7,4 +7,4 @@
 script = ExtResource("1_4wjir")
 effect_key = "ice_impact"
 sheet = ExtResource("2_nr11l")
-offset = Vector2(4, -22)
+offset = Vector2(-1, -6)

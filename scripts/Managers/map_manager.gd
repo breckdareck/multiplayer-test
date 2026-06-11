@@ -600,12 +600,19 @@ func _reparent_peer_to_map(peer_id: int, old_map_id: String, new_map_id: String,
 	#    player_current_maps (sets every real player's view of the arriver).
 	update_visibility_for_player(peer_id)
 
-	# 8. Appearance + brain. A bot's sprite isn't streamed, so push it; the host's
-	#    propagates via the normal appearance sync. Re-point the bot brain (resets
-	#    its transient targets/nav for the new map, keeps travel/patrol progress).
+	# 8. Appearance + brain. Step 6 spawned the arriver on the destination clients
+	#    with the scene's DEFAULT sprite, and a reparent never re-runs _ready /
+	#    JoinHandshake (whose equipment-load emit re-broadcasts the sprite on the
+	#    recreate path) — so push it explicitly here. Bots route through
+	#    broadcast_player_appearance; the host broadcasts its wielded discipline
+	#    through the standard appearance pathway. Also re-point the bot brain
+	#    (resets its transient targets/nav for the new map, keeps travel/patrol
+	#    progress).
 	if BotManager.is_bot(peer_id):
 		broadcast_player_appearance(peer_id)
 		BotManager.handle_bot_reparented(peer_id)
+	elif is_instance_valid(char_node.appearance_component):
+		char_node.appearance_component.refresh_on_server()
 
 	# Party members see each other's current map in the party window — push
 	# fresh member data after a reparent hop too (bots travel constantly).

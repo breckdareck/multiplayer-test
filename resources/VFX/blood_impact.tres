@@ -10,5 +10,5 @@ sheet = ExtResource("2_8wn4a")
 frame_width = 48
 fps = 10.0
 scale = 1.2
-offset = Vector2(10, -17)
+offset = Vector2(9, -1)
 modulate = Color(1, 0.25, 0.2, 1)

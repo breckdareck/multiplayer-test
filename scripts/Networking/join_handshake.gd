@@ -197,6 +197,13 @@ func _phase_sync() -> void:
 		if _player.stats_component:
 			_player.stats_component.sync_attributes_to_client(_id)
 
+		# Mirror the full mastery state (per-discipline level + xp). The
+		# incremental sync_mastery_to_client only fires on XP grants, so without
+		# this push the client's mastery bar and ability window read zeros after
+		# every spawn (first join and each map-change rebuild).
+		if _player.weapon_mastery_component:
+			_player.weapon_mastery_component.sync_all_mastery_to_client(_id)
+
 	# Re-apply health/mana AFTER the deferred recalc has run (see INIT note).
 	if _player.health_component:
 		_player.health_component.current_health = _save.get("current_health", 100)

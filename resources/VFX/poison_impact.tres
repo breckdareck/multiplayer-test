@@ -9,5 +9,5 @@ effect_key = "poison_impact"
 sheet = ExtResource("2_s6gev")
 fps = 12.0
 scale = 1.4
-offset = Vector2(1, -21)
+offset = Vector2(0, -3)
 modulate = Color(0.5, 1, 0.35, 1)

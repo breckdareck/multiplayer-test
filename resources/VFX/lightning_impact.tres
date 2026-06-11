@@ -9,4 +9,4 @@ effect_key = "lightning_impact"
 sheet = ExtResource("2_dj6t2")
 fps = 10.0
 scale = 1.6
-offset = Vector2(1, -24)
+offset = Vector2(0, -7)

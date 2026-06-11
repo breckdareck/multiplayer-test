@@ -9,5 +9,5 @@ effect_key = "dark_impact"
 sheet = ExtResource("2_pj7uv")
 fps = 10.0
 scale = 1.6
-offset = Vector2(1, -23)
+offset = Vector2(0, -6)
 modulate = Color(0.8, 0.5, 1, 1)
