@@ -424,6 +424,16 @@ def snd_escalation_brittle(rng):
     return normalize(mix(gain(snap, 0.7), *bells))
 
 
+def snd_duo_swap(rng):
+    """Duo rotation beat: two-chord rise + bright sparkle tail — bigger
+    ceremony than the per-proc shimmer."""
+    low = env_ad(sine_sweep(440, 660, 0.18, curve=0.5), 0.006, 0.08)
+    high = delay(env_ad(sine_sweep(880, 1320, 0.20, curve=0.5), 0.006, 0.09), 0.09)
+    spark1 = delay(gain(partial(2640, 0.22, 0.06), 0.30), 0.16)
+    spark2 = delay(gain(partial(3520, 0.18, 0.05), 0.22), 0.22)
+    return normalize(mix(low, high, spark1, spark2))
+
+
 def snd_synergy_proc(rng):
     """Pair-payoff shimmer: quick two-note rise + glint."""
     a = env_ad(sine_sweep(880, 1320, 0.14, curve=0.5), 0.004, 0.05)
@@ -467,6 +477,7 @@ SOUNDS = {
     "escalation_septic": snd_escalation_septic,
     "escalation_brittle": snd_escalation_brittle,
     "synergy_proc": snd_synergy_proc,
+    "duo_swap": snd_duo_swap,
 }
 
 

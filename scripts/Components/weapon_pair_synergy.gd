@@ -47,6 +47,12 @@ const POISON_DURATION: float = 4.0
 ## "bow_dagger".
 signal synergy_proc(pair_key: String)
 
+## Emitted only when a DUO on-swap trigger actually fires (ICD-gated, both
+## disciplines past threshold) — the rare "rotation beat" moment. Drives the
+## widget's duo flash + stinger; deliberately separate from synergy_proc,
+## which fires on every ordinary pair effect and would drown a sound cue.
+signal duo_swap_proc(pair_key: String)
+
 # ---------------------------------------------------------------------------
 # Duo nodes (ADR 0013) — the named pair-identity layer on top of the always-on
 # synergies above. A duo is a stateless DERIVED unlock: active while BOTH
@@ -114,6 +120,7 @@ func on_weapon_state_changed(active_discipline: int, equipped_disciplines: Array
 		return
 	_duo_swap_ready_at_ms = now + DUO_SWAP_ICD_MS
 	_fire_duo_swap_trigger(owner_node, active_discipline)
+	_duo_proc(owner_node, _duo_pair_key)
 
 
 func on_owner_died() -> void:
@@ -462,3 +469,18 @@ func _proc(owner_node: Node, pair_key: String) -> void:
 @rpc("authority", "call_local", "reliable")
 func proc_to_client(pair_key: String) -> void:
 	synergy_proc.emit(pair_key)
+
+
+## Duo-swap mirror of _proc: local emit for bots, call_local RPC to the
+## owning client for real players.
+func _duo_proc(owner_node: Node, pair_key: String) -> void:
+	var pid: int = int(owner_node.player_id) if "player_id" in owner_node else 0
+	if pid <= 0:
+		duo_swap_proc.emit(pair_key)
+		return
+	duo_proc_to_client.rpc_id(pid, pair_key)
+
+
+@rpc("authority", "call_local", "reliable")
+func duo_proc_to_client(pair_key: String) -> void:
+	duo_swap_proc.emit(pair_key)

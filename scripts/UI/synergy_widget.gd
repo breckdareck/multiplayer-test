@@ -49,6 +49,8 @@ func bind_player(body) -> void:
 
 	if is_instance_valid(synergy_component) and synergy_component.has_signal("synergy_proc"):
 		synergy_component.synergy_proc.connect(_on_synergy_proc)
+	if is_instance_valid(synergy_component) and synergy_component.has_signal("duo_swap_proc"):
+		synergy_component.duo_swap_proc.connect(_on_duo_swap_proc)
 	if is_instance_valid(equipment_component):
 		equipment_component.on_equipment_changed.connect(_refresh)
 		equipment_component.active_weapon_changed.connect(_on_active_weapon_changed)
@@ -185,6 +187,20 @@ func _pair_key(discs: Array) -> String:
 		return ""
 	w.sort()
 	return "%d_%d" % [w[0], w[1]]
+
+
+## The duo rotation beat: rarer and bigger than an ordinary proc — louder
+## flash and a stinger. Local-only (the signal already arrives client-side).
+func _on_duo_swap_proc(_key: String) -> void:
+	if not visible:
+		return
+	AudioManager.play_ui_sfx("res://assets/sounds/generated/duo_swap.wav", -2.0)
+	if is_instance_valid(pair_label):
+		pair_label.add_theme_color_override("font_color", ACTIVE_COLOR)
+	pivot_offset = size * 0.5
+	var tween: Tween = create_tween()
+	tween.tween_property(self, "scale", Vector2(1.35, 1.35), 0.09).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(self, "scale", Vector2(1.0, 1.0), 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 
 
 func _on_synergy_proc(_key: String) -> void:

@@ -50,6 +50,7 @@ class _OwnerStub extends Node:
 
 
 var _procs: Array = []
+var _duo_procs: Array = []
 
 
 ## Owner + component, with `spent` points per discipline key and a pair equipped.
@@ -70,7 +71,9 @@ func _make(equipped: Array, spent: Dictionary) -> Dictionary:
 	owner.add_child(comp)   # child of owner so _resolve_owner() walks up to it
 	(Engine.get_main_loop() as SceneTree).root.add_child(owner)
 	_procs = []
+	_duo_procs = []
 	comp.synergy_proc.connect(func(k): _procs.append(k))
+	comp.duo_swap_proc.connect(func(k): _duo_procs.append(k))
 	return {"owner": owner, "comp": comp, "combo": combo, "momentum": momentum}
 
 
@@ -179,4 +182,25 @@ func test_owner_death_clears_one_shot_flags() -> void:
 	ctx.comp.on_owner_died()
 	assert_false(ctx.comp._ss_spell_spend_double, "death clears pending duo payoffs")
 	assert_eq(ctx.comp._bd_charge, 0)
+	_cleanup(ctx)
+
+
+# ── Duo-swap proc signal (drives the widget stinger/flash) ──────────────────
+
+func test_duo_swap_proc_fires_once_per_icd_window() -> void:
+	var ctx := _make([SWORD, BOW], {"sword": T, "bow": T})
+	_swap_to(ctx, BOW)
+	assert_eq(_duo_procs, ["sword_bow"], "one duo beat on the first swap")
+	_swap_to(ctx, SWORD)
+	assert_eq(_duo_procs.size(), 1, "no duo beat inside the ICD")
+	ctx.comp._duo_swap_ready_at_ms = 0
+	_swap_to(ctx, BOW)
+	assert_eq(_duo_procs.size(), 2, "beats again once the ICD elapses")
+	_cleanup(ctx)
+
+
+func test_duo_swap_proc_silent_while_locked() -> void:
+	var ctx := _make([SWORD, BOW], {"sword": T, "bow": T - 1})
+	_swap_to(ctx, BOW)
+	assert_true(_duo_procs.is_empty(), "no duo beat below threshold")
 	_cleanup(ctx)
