@@ -100,24 +100,29 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 		Callable(self, "_build_momentum").bind(owner_node),
 	)
 
-	# Ground "juice" — a tiled dust/impact strip kicked up where arrows rain down.
-	MapManager.broadcast_ground_vfx_everywhere(MapManager.get_player_map(owner_node.player_id), "dust_ground", spawn_pos, rect_size.x, duration)
+	# Ground "juice" — tiled arrows raining down across the volley strip.
+	MapManager.broadcast_ground_vfx_everywhere(MapManager.get_player_map(owner_node.player_id), "arrow_ground", spawn_pos, rect_size.x, duration)
 
 
 ## Per-tick callback — builds Momentum on the caster, rate-limited to once
-## per second even when the tick interval is faster. The `enemy` arg is
-## received but unused; we only care that SOMETHING was hit (so the cast
-## is connecting), then we build on the caster.
-func _build_momentum(owner_node: Node, _enemy: Node) -> void:
+## per second even when the tick interval is faster.
+##
+## PARAMETER ORDER MATTERS: GroundZone invokes `on_tick_callback.call(enemy)`
+## and Callable.bind() APPENDS its args, so with `.bind(owner_node)` this
+## receives (enemy, owner_node) — enemy FIRST. The original signature had
+## them swapped, which silently looked for bow_momentum_component on the
+## ENEMY (→ the channel never built Momentum) and tried to Hunter's-Mark
+## the CASTER (→ Marking Volley never marked anything).
+func _build_momentum(enemy: Node, owner_node: Node) -> void:
 	if not is_instance_valid(owner_node):
 		return
 
 	# Marking Volley (T3): tag each enemy hit with a short Hunter's Mark so the
 	# next momentum-spender (Snipe / Sundering Arrow) auto-crits it.
-	if _applies_mark and is_instance_valid(_enemy) and _enemy is EnemyBase:
+	if _applies_mark and is_instance_valid(enemy) and enemy is EnemyBase:
 		# Matches AL_MarkOfTheHunt.MARK_META / MARK_DURATION (12s).
 		var expire_at_ms: int = Time.get_ticks_msec() + 12000
-		_enemy.set_meta("hunters_mark_remaining", expire_at_ms)
+		enemy.set_meta("hunters_mark_remaining", expire_at_ms)
 
 	# Rate limit: at most 1 momentum build per second of held channel.
 	var now: int = Time.get_ticks_msec()
