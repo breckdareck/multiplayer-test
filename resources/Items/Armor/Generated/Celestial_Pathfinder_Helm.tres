@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://djfduamclucjj"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://djfduamclucjj"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_3smb2"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Celestial_Pathfinder_Helm.png" id="2_e4cdl"]
@@ -18,6 +18,7 @@ flat_bonus_value = 30
 
 [sub_resource type="Resource" id="Resource_m3jd8"]
 script = ExtResource("1_3smb2")
+stat_type = 15
 base_value = 0
 flat_bonus_value = 5
 
@@ -29,62 +30,41 @@ flat_bonus_value = 13
 
 [sub_resource type="Resource" id="Resource_15tk7"]
 script = ExtResource("1_3smb2")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_keqfc"]
-script = ExtResource("1_3smb2")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_uosgf"]
-script = ExtResource("1_3smb2")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_bffxr"]
-script = ExtResource("1_3smb2")
 stat_type = 10
 base_value = 0
 flat_bonus_value = 4
 
-[sub_resource type="Resource" id="Resource_dqjmn"]
+[sub_resource type="Resource" id="Resource_keqfc"]
 script = ExtResource("1_3smb2")
 stat_type = 11
 base_value = 0
 flat_bonus_value = 3
 
-[sub_resource type="Resource" id="Resource_6qjou"]
-script = ExtResource("1_3smb2")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_i63il"]
+[sub_resource type="Resource" id="Resource_uosgf"]
 script = ExtResource("1_3smb2")
 stat_type = 17
 base_value = 0
 flat_bonus_value = 2
 
+[sub_resource type="Resource" id="Resource_bffxr"]
+script = ExtResource("1_3smb2")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 5
+
 [resource]
 script = ExtResource("3_kbjf8")
 bonus_stats = Dictionary[int, ExtResource("1_3smb2")]({
-0: SubResource("Resource_m3jd8"),
-1: SubResource("Resource_15tk7"),
 2: SubResource("Resource_cj40r"),
-3: SubResource("Resource_keqfc"),
 8: SubResource("Resource_6jxd0"),
 9: SubResource("Resource_efugv"),
-10: SubResource("Resource_bffxr"),
-11: SubResource("Resource_dqjmn"),
-15: SubResource("Resource_uosgf"),
-16: SubResource("Resource_6qjou"),
-17: SubResource("Resource_i63il")
+10: SubResource("Resource_15tk7"),
+11: SubResource("Resource_keqfc"),
+15: SubResource("Resource_m3jd8"),
+16: SubResource("Resource_bffxr"),
+17: SubResource("Resource_uosgf")
 })
-item_id = "1214101471597-121257-05141-40312-038111310146154014"
+item_id = "431473231-1014126-56312-1211150-9145145315129927"
 name = "Celestial Pathfinder Helm"
 rarity = 0
 icon = ExtResource("2_e4cdl")

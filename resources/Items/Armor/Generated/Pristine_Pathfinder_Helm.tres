@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://c3amx1crvj6fr"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://c3amx1crvj6fr"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_lohus"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Pathfinder_Helm.png" id="2_x7cwt"]
@@ -18,8 +18,9 @@ flat_bonus_value = 21
 
 [sub_resource type="Resource" id="Resource_fgry8"]
 script = ExtResource("1_lohus")
+stat_type = 15
 base_value = 0
-flat_bonus_value = 3
+flat_bonus_value = 4
 
 [sub_resource type="Resource" id="Resource_wcxhg"]
 script = ExtResource("1_lohus")
@@ -29,62 +30,41 @@ flat_bonus_value = 10
 
 [sub_resource type="Resource" id="Resource_k1xub"]
 script = ExtResource("1_lohus")
-stat_type = 1
+stat_type = 10
 base_value = 0
 flat_bonus_value = 3
 
 [sub_resource type="Resource" id="Resource_3ycg8"]
 script = ExtResource("1_lohus")
-stat_type = 3
+stat_type = 11
 base_value = 0
 flat_bonus_value = 3
 
 [sub_resource type="Resource" id="Resource_1bajl"]
 script = ExtResource("1_lohus")
-stat_type = 15
+stat_type = 17
 base_value = 0
-flat_bonus_value = 4
+flat_bonus_value = 2
 
 [sub_resource type="Resource" id="Resource_kxf45"]
-script = ExtResource("1_lohus")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_dqcck"]
-script = ExtResource("1_lohus")
-stat_type = 11
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_l2fyh"]
 script = ExtResource("1_lohus")
 stat_type = 16
 base_value = 0
 flat_bonus_value = 4
 
-[sub_resource type="Resource" id="Resource_35quw"]
-script = ExtResource("1_lohus")
-stat_type = 17
-base_value = 0
-flat_bonus_value = 2
-
 [resource]
 script = ExtResource("3_2isy1")
 bonus_stats = Dictionary[int, ExtResource("1_lohus")]({
-0: SubResource("Resource_fgry8"),
-1: SubResource("Resource_k1xub"),
 2: SubResource("Resource_wcxhg"),
-3: SubResource("Resource_3ycg8"),
 8: SubResource("Resource_4okve"),
 9: SubResource("Resource_dqo26"),
-10: SubResource("Resource_kxf45"),
-11: SubResource("Resource_dqcck"),
-15: SubResource("Resource_1bajl"),
-16: SubResource("Resource_l2fyh"),
-17: SubResource("Resource_35quw")
+10: SubResource("Resource_k1xub"),
+11: SubResource("Resource_3ycg8"),
+15: SubResource("Resource_fgry8"),
+16: SubResource("Resource_kxf45"),
+17: SubResource("Resource_1bajl")
 })
-item_id = "51311881273-131195-141912-61086-0810111310077512"
+item_id = "14641111077-70312-116010-81536-7151615606511410"
 name = "Pristine Pathfinder Helm"
 rarity = 0
 icon = ExtResource("2_x7cwt")

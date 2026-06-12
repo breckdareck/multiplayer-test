@@ -636,12 +636,20 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/HpRow"]
 layout_mode = 2
 size_flags_horizontal = 3
+tooltip_text = "Health
+Max HP = shared level curve (identical for every
+weapon) + 8 per CON + gear & buffs."
+mouse_filter = 1
 theme_override_colors/font_color = Color(0.72, 0.66, 0.57, 1)
 theme_override_font_sizes/font_size = 16
 text = "HP"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/HpRow"]
 layout_mode = 2
+tooltip_text = "Health
+Max HP = shared level curve (identical for every
+weapon) + 8 per CON + gear & buffs."
+mouse_filter = 1
 theme_override_font_sizes/font_size = 16
 text = "-"
 horizontal_alignment = 2
@@ -652,12 +660,20 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/MpRow"]
 layout_mode = 2
 size_flags_horizontal = 3
+tooltip_text = "Mana
+Max MP = shared level curve (identical for every
+weapon) + 2.5 per INT + gear & buffs."
+mouse_filter = 1
 theme_override_colors/font_color = Color(0.72, 0.66, 0.57, 1)
 theme_override_font_sizes/font_size = 16
 text = "MP"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/MpRow"]
 layout_mode = 2
+tooltip_text = "Mana
+Max MP = shared level curve (identical for every
+weapon) + 2.5 per INT + gear & buffs."
+mouse_filter = 1
 theme_override_font_sizes/font_size = 16
 text = "-"
 horizontal_alignment = 2
@@ -668,12 +684,22 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/AtkRow"]
 layout_mode = 2
 size_flags_horizontal = 3
+tooltip_text = "Weapon Attack
+Physical power from your equipped weapon, gear and
+flat buffs. Multiplies your attribute-derived damage —
+the main physical damage lever."
+mouse_filter = 1
 theme_override_colors/font_color = Color(0.72, 0.66, 0.57, 1)
 theme_override_font_sizes/font_size = 16
 text = "Attack"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/AtkRow"]
 layout_mode = 2
+tooltip_text = "Weapon Attack
+Physical power from your equipped weapon, gear and
+flat buffs. Multiplies your attribute-derived damage —
+the main physical damage lever."
+mouse_filter = 1
 theme_override_font_sizes/font_size = 16
 text = "-"
 horizontal_alignment = 2
@@ -684,12 +710,20 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/MAtkRow"]
 layout_mode = 2
 size_flags_horizontal = 3
+tooltip_text = "Magic Attack
+Magical power from gear and flat buffs. Drives staff
+ability damage the way Weapon Attack drives physical."
+mouse_filter = 1
 theme_override_colors/font_color = Color(0.72, 0.66, 0.57, 1)
 theme_override_font_sizes/font_size = 16
 text = "Magic Atk"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/MAtkRow"]
 layout_mode = 2
+tooltip_text = "Magic Attack
+Magical power from gear and flat buffs. Drives staff
+ability damage the way Weapon Attack drives physical."
+mouse_filter = 1
 theme_override_font_sizes/font_size = 16
 text = "-"
 horizontal_alignment = 2
@@ -700,12 +734,24 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/DefRow"]
 layout_mode = 2
 size_flags_horizontal = 3
+tooltip_text = "Defense
+Reduces physical damage taken. Mitigation =
+DEF / (DEF + 0.75 × attacker's Attack), up to 85% —
+harder hitters need more DEF for the same percent.
++1 per STR, plus armor."
+mouse_filter = 1
 theme_override_colors/font_color = Color(0.72, 0.66, 0.57, 1)
 theme_override_font_sizes/font_size = 16
 text = "Defense"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/DefRow"]
 layout_mode = 2
+tooltip_text = "Defense
+Reduces physical damage taken. Mitigation =
+DEF / (DEF + 0.75 × attacker's Attack), up to 85% —
+harder hitters need more DEF for the same percent.
++1 per STR, plus armor."
+mouse_filter = 1
 theme_override_font_sizes/font_size = 16
 text = "-"
 horizontal_alignment = 2
@@ -716,12 +762,20 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/MDefRow"]
 layout_mode = 2
 size_flags_horizontal = 3
+tooltip_text = "Magic Defense
+Same mitigation curve as Defense, applied against
+magic attackers (their Magic Attack vs your Mag Def)."
+mouse_filter = 1
 theme_override_colors/font_color = Color(0.72, 0.66, 0.57, 1)
 theme_override_font_sizes/font_size = 16
 text = "Mag Def"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/MDefRow"]
 layout_mode = 2
+tooltip_text = "Magic Defense
+Same mitigation curve as Defense, applied against
+magic attackers (their Magic Attack vs your Mag Def)."
+mouse_filter = 1
 theme_override_font_sizes/font_size = 16
 text = "-"
 horizontal_alignment = 2
@@ -732,12 +786,20 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/CritRateRow"]
 layout_mode = 2
 size_flags_horizontal = 3
+tooltip_text = "Crit Rate
+% chance a hit crits (×1.2–1.5, plus Crit Dmg).
+Base 5% + LUCK (0.1%/pt, diminishing past 100) + gear."
+mouse_filter = 1
 theme_override_colors/font_color = Color(0.72, 0.66, 0.57, 1)
 theme_override_font_sizes/font_size = 16
 text = "Crit Rate"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/CritRateRow"]
 layout_mode = 2
+tooltip_text = "Crit Rate
+% chance a hit crits (×1.2–1.5, plus Crit Dmg).
+Base 5% + LUCK (0.1%/pt, diminishing past 100) + gear."
+mouse_filter = 1
 theme_override_font_sizes/font_size = 16
 text = "-"
 horizontal_alignment = 2
@@ -748,12 +810,20 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/CritDmgRow"]
 layout_mode = 2
 size_flags_horizontal = 3
+tooltip_text = "Crit Damage
+Added straight into the crit multiplier — +50% turns
+a ~1.2–1.5× crit into ~1.7–2.0×. Comes from gear."
+mouse_filter = 1
 theme_override_colors/font_color = Color(0.72, 0.66, 0.57, 1)
 theme_override_font_sizes/font_size = 16
 text = "Crit Dmg"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/CritDmgRow"]
 layout_mode = 2
+tooltip_text = "Crit Damage
+Added straight into the crit multiplier — +50% turns
+a ~1.2–1.5× crit into ~1.7–2.0×. Comes from gear."
+mouse_filter = 1
 theme_override_font_sizes/font_size = 16
 text = "-"
 horizontal_alignment = 2
@@ -816,12 +886,22 @@ layout_mode = 2
 [node name="K" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/DmgRangeRow"]
 layout_mode = 2
 size_flags_horizontal = 3
+tooltip_text = "Damage Range
+Your basic attack's damage roll with the active
+weapon, before the target's defense and level
+modifiers. Mastery raises the floor toward the max."
+mouse_filter = 1
 theme_override_colors/font_color = Color(0.72, 0.66, 0.57, 1)
 theme_override_font_sizes/font_size = 16
 text = "Dmg Range"
 
 [node name="V" type="Label" parent="Margin/VBox/Pages/CharacterPage/Col2/V/Stats/DmgRangeRow"]
 layout_mode = 2
+tooltip_text = "Damage Range
+Your basic attack's damage roll with the active
+weapon, before the target's defense and level
+modifiers. Mastery raises the floor toward the max."
+mouse_filter = 1
 theme_override_font_sizes/font_size = 16
 text = "-"
 horizontal_alignment = 2

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://dil6pdsxdrb0n"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://dil6pdsxdrb0n"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_2cb8n"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Worn_Nightshade_Boots.png" id="2_1ln5v"]
@@ -18,54 +18,37 @@ flat_bonus_value = 2
 
 [sub_resource type="Resource" id="Resource_lin6w"]
 script = ExtResource("1_2cb8n")
+stat_type = 15
 base_value = 0
 flat_bonus_value = 1
 
 [sub_resource type="Resource" id="Resource_yhbkr"]
 script = ExtResource("1_2cb8n")
-stat_type = 2
+stat_type = 3
 base_value = 0
 flat_bonus_value = 1
 
 [sub_resource type="Resource" id="Resource_a5w5b"]
 script = ExtResource("1_2cb8n")
-stat_type = 1
+stat_type = 11
 base_value = 0
 flat_bonus_value = 1
 
 [sub_resource type="Resource" id="Resource_8t523"]
 script = ExtResource("1_2cb8n")
-stat_type = 3
+stat_type = 10
 base_value = 0
 flat_bonus_value = 1
 
 [sub_resource type="Resource" id="Resource_wvat1"]
 script = ExtResource("1_2cb8n")
-stat_type = 15
+stat_type = 17
 base_value = 0
 flat_bonus_value = 1
 
 [sub_resource type="Resource" id="Resource_201ta"]
 script = ExtResource("1_2cb8n")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_cx02a"]
-script = ExtResource("1_2cb8n")
-stat_type = 11
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_rq0ds"]
-script = ExtResource("1_2cb8n")
 stat_type = 16
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_nsm1c"]
-script = ExtResource("1_2cb8n")
-stat_type = 17
 base_value = 0
 flat_bonus_value = 1
 
@@ -73,19 +56,16 @@ flat_bonus_value = 1
 script = ExtResource("3_8hn16")
 armor_type = 3
 bonus_stats = Dictionary[int, ExtResource("1_2cb8n")]({
-0: SubResource("Resource_lin6w"),
-1: SubResource("Resource_a5w5b"),
-2: SubResource("Resource_yhbkr"),
-3: SubResource("Resource_8t523"),
+3: SubResource("Resource_yhbkr"),
 8: SubResource("Resource_0nvbh"),
 9: SubResource("Resource_7t02x"),
-10: SubResource("Resource_201ta"),
-11: SubResource("Resource_cx02a"),
-15: SubResource("Resource_wvat1"),
-16: SubResource("Resource_rq0ds"),
-17: SubResource("Resource_nsm1c")
+10: SubResource("Resource_8t523"),
+11: SubResource("Resource_a5w5b"),
+15: SubResource("Resource_lin6w"),
+16: SubResource("Resource_201ta"),
+17: SubResource("Resource_wvat1")
 })
-item_id = "2121531217-10298-13587-9738-1210152911151440"
+item_id = "5395121310-31143-1413515-211150-6159124333108103"
 name = "Worn Nightshade Boots"
 rarity = 0
 icon = ExtResource("2_1ln5v")

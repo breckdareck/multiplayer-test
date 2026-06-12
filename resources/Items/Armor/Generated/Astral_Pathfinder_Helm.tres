@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://b0utybrunmosb"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://b0utybrunmosb"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_flfpj"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Astral_Pathfinder_Helm.png" id="2_htik5"]
@@ -18,8 +18,9 @@ flat_bonus_value = 32
 
 [sub_resource type="Resource" id="Resource_avx2o"]
 script = ExtResource("1_flfpj")
+stat_type = 15
 base_value = 0
-flat_bonus_value = 5
+flat_bonus_value = 6
 
 [sub_resource type="Resource" id="Resource_pny7d"]
 script = ExtResource("1_flfpj")
@@ -29,62 +30,41 @@ flat_bonus_value = 15
 
 [sub_resource type="Resource" id="Resource_7kbon"]
 script = ExtResource("1_flfpj")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_8ckx1"]
-script = ExtResource("1_flfpj")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_3rr5p"]
-script = ExtResource("1_flfpj")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 6
-
-[sub_resource type="Resource" id="Resource_kte0q"]
-script = ExtResource("1_flfpj")
 stat_type = 10
 base_value = 0
 flat_bonus_value = 4
 
-[sub_resource type="Resource" id="Resource_h5607"]
+[sub_resource type="Resource" id="Resource_8ckx1"]
 script = ExtResource("1_flfpj")
 stat_type = 11
 base_value = 0
 flat_bonus_value = 4
 
-[sub_resource type="Resource" id="Resource_y6nuf"]
-script = ExtResource("1_flfpj")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 6
-
-[sub_resource type="Resource" id="Resource_gdwb4"]
+[sub_resource type="Resource" id="Resource_3rr5p"]
 script = ExtResource("1_flfpj")
 stat_type = 17
 base_value = 0
 flat_bonus_value = 3
 
+[sub_resource type="Resource" id="Resource_kte0q"]
+script = ExtResource("1_flfpj")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 6
+
 [resource]
 script = ExtResource("3_o3i6w")
 bonus_stats = Dictionary[int, ExtResource("1_flfpj")]({
-0: SubResource("Resource_avx2o"),
-1: SubResource("Resource_7kbon"),
 2: SubResource("Resource_pny7d"),
-3: SubResource("Resource_8ckx1"),
 8: SubResource("Resource_cssyq"),
 9: SubResource("Resource_fnn8t"),
-10: SubResource("Resource_kte0q"),
-11: SubResource("Resource_h5607"),
-15: SubResource("Resource_3rr5p"),
-16: SubResource("Resource_y6nuf"),
-17: SubResource("Resource_gdwb4")
+10: SubResource("Resource_7kbon"),
+11: SubResource("Resource_8ckx1"),
+15: SubResource("Resource_avx2o"),
+16: SubResource("Resource_kte0q"),
+17: SubResource("Resource_3rr5p")
 })
-item_id = "1366113472-0121212-7576-108111-1551016147081189"
+item_id = "131311041112-15612-3355-133512-29131155136131198"
 name = "Astral Pathfinder Helm"
 rarity = 0
 icon = ExtResource("2_htik5")

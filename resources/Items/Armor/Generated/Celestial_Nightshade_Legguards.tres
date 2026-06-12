@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://cofkopd342w18"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://cofkopd342w18"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_agmpi"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Celestial_Nightshade_Legguards.png" id="2_mny7k"]
@@ -18,74 +18,54 @@ flat_bonus_value = 39
 
 [sub_resource type="Resource" id="Resource_tr4j8"]
 script = ExtResource("1_agmpi")
+stat_type = 15
 base_value = 0
-flat_bonus_value = 6
+flat_bonus_value = 7
 
 [sub_resource type="Resource" id="Resource_vd87t"]
-script = ExtResource("1_agmpi")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 6
-
-[sub_resource type="Resource" id="Resource_20sjq"]
-script = ExtResource("1_agmpi")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 6
-
-[sub_resource type="Resource" id="Resource_g3jws"]
 script = ExtResource("1_agmpi")
 stat_type = 3
 base_value = 0
 flat_bonus_value = 18
 
-[sub_resource type="Resource" id="Resource_1cfc3"]
-script = ExtResource("1_agmpi")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 7
-
-[sub_resource type="Resource" id="Resource_m4h26"]
-script = ExtResource("1_agmpi")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 4
-
-[sub_resource type="Resource" id="Resource_5k8wl"]
+[sub_resource type="Resource" id="Resource_20sjq"]
 script = ExtResource("1_agmpi")
 stat_type = 11
 base_value = 0
 flat_bonus_value = 8
 
-[sub_resource type="Resource" id="Resource_ur0w8"]
+[sub_resource type="Resource" id="Resource_g3jws"]
 script = ExtResource("1_agmpi")
-stat_type = 16
+stat_type = 10
 base_value = 0
-flat_bonus_value = 2
+flat_bonus_value = 4
 
-[sub_resource type="Resource" id="Resource_rwjf0"]
+[sub_resource type="Resource" id="Resource_1cfc3"]
 script = ExtResource("1_agmpi")
 stat_type = 17
 base_value = 0
 flat_bonus_value = 3
 
+[sub_resource type="Resource" id="Resource_m4h26"]
+script = ExtResource("1_agmpi")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 2
+
 [resource]
 script = ExtResource("3_t4b28")
 armor_type = 2
 bonus_stats = Dictionary[int, ExtResource("1_agmpi")]({
-0: SubResource("Resource_tr4j8"),
-1: SubResource("Resource_20sjq"),
-2: SubResource("Resource_vd87t"),
-3: SubResource("Resource_g3jws"),
+3: SubResource("Resource_vd87t"),
 8: SubResource("Resource_n7ir4"),
 9: SubResource("Resource_w16eb"),
-10: SubResource("Resource_m4h26"),
-11: SubResource("Resource_5k8wl"),
-15: SubResource("Resource_1cfc3"),
-16: SubResource("Resource_ur0w8"),
-17: SubResource("Resource_rwjf0")
+10: SubResource("Resource_g3jws"),
+11: SubResource("Resource_20sjq"),
+15: SubResource("Resource_tr4j8"),
+16: SubResource("Resource_m4h26"),
+17: SubResource("Resource_1cfc3")
 })
-item_id = "118959564-151141-4357-11101312-1012141410131381213312"
+item_id = "891501415142-134118-93116-0301-14141395525101253"
 name = "Celestial Nightshade Legguards"
 rarity = 0
 icon = ExtResource("2_mny7k")

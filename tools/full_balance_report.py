@@ -128,26 +128,28 @@ def enemy_hp(L):
 
 
 # ===========================================================================
-# GEAR STAT MODEL  (source: tools/generate_item_content.gd, 2026-06-08)
+# GEAR STAT MODEL  (source: tools/generate_item_content.gd, 2026-06-11
+#   archetype-purity pass — re-sync when the generator tables change)
 #   Folds the level-appropriate generated SET (4 armour pieces + weapon) into the
 #   player stats so the report reflects real geared power, not attributes+mastery
-#   alone. Each armour piece = COMMON splash of all attributes + crit/accuracy, plus
-#   the set's SIGNATURE; summed across slots (weights below).
+#   alone. COMMON on every piece is CON only; each family's SIGNATURE carries its
+#   whole identity (the primary attribute absorbed the old common share, so a
+#   matched set's primary total is unchanged); summed across slots (weights below).
 # ===========================================================================
 GEAR_LEVELS = [1, 8, 13, 20, 27, 35, 43, 50, 60, 68, 77, 85, 93, 100]
 SLOT_WEIGHTS = [0.6, 1.0, 0.8, 0.5]
 DISC_ARMOR = {"Sword": "Vanguard", "Bow": "Pathfinder", "Staff": "Arcanist", "Dagger": "Nightshade"}
-ARMOR_COMMON = [("STR", 0.4, 0.09), ("DEX", 0.4, 0.09), ("INT", 0.4, 0.09), ("LUCK", 0.4, 0.09),
-                ("CON", 0.5, 0.10), ("CRITCHANCE", 0.3, 0.025), ("CRITDAMAGE", 0.25, 0.025), ("ACCURACY", 0.3, 0.03)]
+ARMOR_COMMON = [("CON", 0.5, 0.10)]
 ARMOR_FAMILY = {
     "Vanguard":   {"def": (3.0, 0.7), "mdef": (2.0, 0.45),
-                   "sig": [("STR", 0.6, 0.16), ("HEALTH", 8.0, 1.8), ("CON", 0.5, 0.12)]},
+                   "sig": [("STR", 1.0, 0.25), ("HEALTH", 8.0, 1.8), ("CON", 0.5, 0.12),
+                           ("HPREGEN", 0.2, 0.04), ("KNOCKBACKRESIST", 0.5, 0.10)]},
     "Pathfinder": {"def": (2.5, 0.55), "mdef": (2.5, 0.55),
-                   "sig": [("DEX", 0.6, 0.16), ("CRITCHANCE", 0.6, 0.04), ("CRITDAMAGE", 0.4, 0.035), ("EVASION", 0.5, 0.04), ("ACCURACY", 0.5, 0.06)]},
+                   "sig": [("DEX", 1.0, 0.25), ("CRITCHANCE", 0.9, 0.065), ("CRITDAMAGE", 0.65, 0.06), ("EVASION", 0.5, 0.04), ("ACCURACY", 0.8, 0.09)]},
     "Arcanist":   {"def": (2.0, 0.45), "mdef": (3.0, 0.7),
-                   "sig": [("INT", 0.6, 0.16), ("MANA", 6.0, 1.5), ("MPREGEN", 0.3, 0.06)]},
+                   "sig": [("INT", 1.0, 0.25), ("MANA", 6.0, 1.5), ("MPREGEN", 0.3, 0.06), ("ACCURACY", 0.3, 0.03)]},
     "Nightshade": {"def": (2.5, 0.55), "mdef": (2.5, 0.55),
-                   "sig": [("LUCK", 0.6, 0.16), ("CRITDAMAGE", 1.0, 0.08), ("CRITCHANCE", 0.4, 0.03), ("EVASION", 0.5, 0.04)]},
+                   "sig": [("LUCK", 1.0, 0.25), ("CRITDAMAGE", 1.25, 0.105), ("CRITCHANCE", 0.7, 0.055), ("EVASION", 0.5, 0.04), ("ACCURACY", 0.3, 0.03)]},
 }
 # Generated common weapon's attribute + crit bonus (single item).
 WEAPON_BONUS = {

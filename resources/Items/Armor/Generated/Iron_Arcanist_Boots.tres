@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=16 format=3 uid="uid://ckwl26u7h5ymg"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=11 format=3 uid="uid://ckwl26u7h5ymg"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_xb3t6"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Arcanist_Boots.png" id="2_iixhp"]
@@ -18,60 +18,31 @@ flat_bonus_value = 11
 
 [sub_resource type="Resource" id="Resource_gp533"]
 script = ExtResource("1_xb3t6")
+stat_type = 15
 base_value = 0
-flat_bonus_value = 1
+flat_bonus_value = 2
 
 [sub_resource type="Resource" id="Resource_60t4o"]
-script = ExtResource("1_xb3t6")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_tb1y0"]
 script = ExtResource("1_xb3t6")
 stat_type = 1
 base_value = 0
 flat_bonus_value = 4
 
-[sub_resource type="Resource" id="Resource_l63n2"]
-script = ExtResource("1_xb3t6")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_sgw74"]
-script = ExtResource("1_xb3t6")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_5fnao"]
-script = ExtResource("1_xb3t6")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_tshdn"]
-script = ExtResource("1_xb3t6")
-stat_type = 11
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_gnplp"]
-script = ExtResource("1_xb3t6")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_jdwsp"]
+[sub_resource type="Resource" id="Resource_tb1y0"]
 script = ExtResource("1_xb3t6")
 stat_type = 5
 base_value = 0
 flat_bonus_value = 23
 
-[sub_resource type="Resource" id="Resource_de84b"]
+[sub_resource type="Resource" id="Resource_l63n2"]
 script = ExtResource("1_xb3t6")
 stat_type = 7
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_sgw74"]
+script = ExtResource("1_xb3t6")
+stat_type = 16
 base_value = 0
 flat_bonus_value = 1
 
@@ -79,20 +50,15 @@ flat_bonus_value = 1
 script = ExtResource("3_f2yc0")
 armor_type = 3
 bonus_stats = Dictionary[int, ExtResource("1_xb3t6")]({
-0: SubResource("Resource_gp533"),
-1: SubResource("Resource_tb1y0"),
-2: SubResource("Resource_60t4o"),
-3: SubResource("Resource_l63n2"),
-5: SubResource("Resource_jdwsp"),
-7: SubResource("Resource_de84b"),
+1: SubResource("Resource_60t4o"),
+5: SubResource("Resource_tb1y0"),
+7: SubResource("Resource_l63n2"),
 8: SubResource("Resource_g0fvk"),
 9: SubResource("Resource_3rd1p"),
-10: SubResource("Resource_5fnao"),
-11: SubResource("Resource_tshdn"),
-15: SubResource("Resource_sgw74"),
-16: SubResource("Resource_gnplp")
+15: SubResource("Resource_gp533"),
+16: SubResource("Resource_sgw74")
 })
-item_id = "81391321123-54126-613139-93014-45511571465446"
+item_id = "11346910110-69105-4556-39133-41399191551129"
 name = "Iron Arcanist Boots"
 rarity = 0
 icon = ExtResource("2_iixhp")

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://bthx8s4q4yx28"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=11 format=3 uid="uid://bthx8s4q4yx28"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_igi4y"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Vanguard_Helm.png" id="2_w0ry5"]
@@ -18,73 +18,45 @@ flat_bonus_value = 17
 
 [sub_resource type="Resource" id="Resource_1l7pu"]
 script = ExtResource("1_igi4y")
-base_value = 0
-flat_bonus_value = 10
-
-[sub_resource type="Resource" id="Resource_53u3h"]
-script = ExtResource("1_igi4y")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_yrdwp"]
-script = ExtResource("1_igi4y")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_3tnjw"]
-script = ExtResource("1_igi4y")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_aindu"]
-script = ExtResource("1_igi4y")
 stat_type = 15
 base_value = 0
 flat_bonus_value = 9
 
-[sub_resource type="Resource" id="Resource_tqr5a"]
+[sub_resource type="Resource" id="Resource_53u3h"]
 script = ExtResource("1_igi4y")
-stat_type = 10
 base_value = 0
-flat_bonus_value = 1
+flat_bonus_value = 10
 
-[sub_resource type="Resource" id="Resource_2bapb"]
-script = ExtResource("1_igi4y")
-stat_type = 11
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_genyq"]
-script = ExtResource("1_igi4y")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_rpt8j"]
+[sub_resource type="Resource" id="Resource_yrdwp"]
 script = ExtResource("1_igi4y")
 stat_type = 4
 base_value = 0
 flat_bonus_value = 70
 
+[sub_resource type="Resource" id="Resource_3tnjw"]
+script = ExtResource("1_igi4y")
+stat_type = 6
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_aindu"]
+script = ExtResource("1_igi4y")
+stat_type = 14
+base_value = 0
+flat_bonus_value = 4
+
 [resource]
 script = ExtResource("3_k737d")
 bonus_stats = Dictionary[int, ExtResource("1_igi4y")]({
-0: SubResource("Resource_1l7pu"),
-1: SubResource("Resource_yrdwp"),
-2: SubResource("Resource_53u3h"),
-3: SubResource("Resource_3tnjw"),
-4: SubResource("Resource_rpt8j"),
+0: SubResource("Resource_53u3h"),
+4: SubResource("Resource_yrdwp"),
+6: SubResource("Resource_3tnjw"),
 8: SubResource("Resource_u2qbp"),
 9: SubResource("Resource_tp3va"),
-10: SubResource("Resource_tqr5a"),
-11: SubResource("Resource_2bapb"),
-15: SubResource("Resource_aindu"),
-16: SubResource("Resource_genyq")
+14: SubResource("Resource_aindu"),
+15: SubResource("Resource_1l7pu")
 })
-item_id = "5531301194-141138-2141010-104710-71521210391312588"
+item_id = "75571515127-7263-1321410-713137-965091013878113"
 name = "Pristine Vanguard Helm"
 rarity = 0
 icon = ExtResource("2_w0ry5")

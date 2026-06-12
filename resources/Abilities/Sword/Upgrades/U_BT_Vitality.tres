@@ -6,6 +6,6 @@
 script = ExtResource("1_aud")
 upgrade_id = "bt_t1_vitality"
 upgrade_name = "Vitality"
-description = "Bloodthirst heals an additional +0.5% Max HP per kill."
+description = "Bloodthirst heals an additional +0.25% Max HP per kill."
 effect_key = "heal_pct_bonus"
-magnitude = 0.5
+magnitude = 0.25

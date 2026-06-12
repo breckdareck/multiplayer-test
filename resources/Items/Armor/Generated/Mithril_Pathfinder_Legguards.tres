@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://du7fyface5ly0"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://du7fyface5ly0"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_lboj5"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Pathfinder_Legguards.png" id="2_0aycp"]
@@ -18,8 +18,9 @@ flat_bonus_value = 21
 
 [sub_resource type="Resource" id="Resource_vbfuq"]
 script = ExtResource("1_lboj5")
+stat_type = 15
 base_value = 0
-flat_bonus_value = 3
+flat_bonus_value = 4
 
 [sub_resource type="Resource" id="Resource_8krcj"]
 script = ExtResource("1_lboj5")
@@ -29,63 +30,42 @@ flat_bonus_value = 9
 
 [sub_resource type="Resource" id="Resource_ptaby"]
 script = ExtResource("1_lboj5")
-stat_type = 1
+stat_type = 10
 base_value = 0
 flat_bonus_value = 3
 
 [sub_resource type="Resource" id="Resource_5pop6"]
 script = ExtResource("1_lboj5")
-stat_type = 3
+stat_type = 11
 base_value = 0
 flat_bonus_value = 3
 
 [sub_resource type="Resource" id="Resource_8kku8"]
 script = ExtResource("1_lboj5")
-stat_type = 15
+stat_type = 17
 base_value = 0
-flat_bonus_value = 4
+flat_bonus_value = 2
 
 [sub_resource type="Resource" id="Resource_ekehw"]
-script = ExtResource("1_lboj5")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_xces3"]
-script = ExtResource("1_lboj5")
-stat_type = 11
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_5wpb3"]
 script = ExtResource("1_lboj5")
 stat_type = 16
 base_value = 0
 flat_bonus_value = 4
 
-[sub_resource type="Resource" id="Resource_ln43v"]
-script = ExtResource("1_lboj5")
-stat_type = 17
-base_value = 0
-flat_bonus_value = 2
-
 [resource]
 script = ExtResource("3_225pu")
 armor_type = 2
 bonus_stats = Dictionary[int, ExtResource("1_lboj5")]({
-0: SubResource("Resource_vbfuq"),
-1: SubResource("Resource_ptaby"),
 2: SubResource("Resource_8krcj"),
-3: SubResource("Resource_5pop6"),
 8: SubResource("Resource_iws6k"),
 9: SubResource("Resource_y4fjt"),
-10: SubResource("Resource_ekehw"),
-11: SubResource("Resource_xces3"),
-15: SubResource("Resource_8kku8"),
-16: SubResource("Resource_5wpb3"),
-17: SubResource("Resource_ln43v")
+10: SubResource("Resource_ptaby"),
+11: SubResource("Resource_5pop6"),
+15: SubResource("Resource_vbfuq"),
+16: SubResource("Resource_ekehw"),
+17: SubResource("Resource_8kku8")
 })
-item_id = "151531311815-1151511-812315-138915-1421121325150136"
+item_id = "14910145222-80122-24713-154713-986141341110510"
 name = "Mithril Pathfinder Legguards"
 rarity = 0
 icon = ExtResource("2_0aycp")

@@ -38,6 +38,7 @@ const CRITCHANCE := 10
 const CRITDMG := 11
 const WEAPONATK := 12
 const MAGICATK := 13
+const KBRESIST := 14
 const CON := 15
 const ACCURACY := 16
 const EVASION := 17
@@ -134,28 +135,43 @@ func _generate_armor() -> void:
 	# bumped across the board (old MDEF was a flat 0.4 slope, now 0.45-0.7) and
 	# Arcanist robes now give magic defense on par with Vanguard plate's armour,
 	# so the magic-defense axis actually matters and scales.
-	# COMMON spread on EVERY piece (dual-discipline support, 2026-06-08): a splash of
-	# all attributes + CON + a little crit/accuracy, so a player running two weapons
-	# (e.g. Staff + Dagger) is never stuck with single-stat gear. Each set then layers
-	# its SIGNATURE on top (its primary attribute heavier + flavour stats incl. EVASION
-	# on light armour). Duplicate stats are summed. [stat, base, per_level].
+	# ARCHETYPE PURITY (2026-06-11, replaces the 2026-06-08 all-attribute splash):
+	# COMMON on every piece is CON ONLY — the universal survivability budget.
+	# Off-attributes are GONE: hybrid builds are funded by free-form attribute
+	# allocation, spellblade, and MIXED-SET gearing, not by free stats on every
+	# chestplate. Each family's SIGNATURE carries its whole identity — its primary
+	# attribute absorbed the old common share (0.4 + 0.09/lvl), so a matched set's
+	# primary total is unchanged; the old common crit/critdmg/accuracy folded into
+	# the families that want them (Pathfinder/Nightshade; Arcanist & Nightshade
+	# keep a small accuracy line). Every family keeps >= 5 NON-DEFINING stats
+	# on-piece: ItemDrop affix pools derive from bonus_stats.keys() minus the
+	# defining pair (strong defense + primary attribute), and a Legendary rolls 5
+	# distinct affixes — a smaller pool would silently shrink its budget.
+	# Duplicate stats are summed. [stat, base, per_level].
 	var common := [
-		[STR, 0.4, 0.09], [DEX, 0.4, 0.09], [INT, 0.4, 0.09], [LUCK, 0.4, 0.09],
-		[CON, 0.5, 0.10], [CRITCHANCE, 0.3, 0.025], [CRITDMG, 0.25, 0.025], [ACCURACY, 0.3, 0.03],
+		[CON, 0.5, 0.10],
 	]
 	var sets := [
 		{"name": "Vanguard", "desc": "Heavy plate forged for front-line Swordsmen.",
 		 "def": [3.0, 0.7], "mdef": [2.0, 0.45],
-		 "sig": [[STR, 0.6, 0.16], [HEALTH, 8.0, 1.8], [CON, 0.5, 0.12]]},      # plate: tanky STR
+		 # plate: tanky STR; regen + knockback resist = plate flavour (pool: MDEF/CON/HP/HPREGEN/KB)
+		 "sig": [[STR, 1.0, 0.25], [HEALTH, 8.0, 1.8], [CON, 0.5, 0.12],
+			[HPREGEN, 0.2, 0.04], [KBRESIST, 0.5, 0.10]]},
 		{"name": "Pathfinder", "desc": "Light, flexible armour suited to an Archer's mobility.",
 		 "def": [2.5, 0.55], "mdef": [2.5, 0.55],
-		 "sig": [[DEX, 0.6, 0.16], [CRITCHANCE, 0.6, 0.04], [CRITDMG, 0.4, 0.035], [EVASION, 0.5, 0.04], [ACCURACY, 0.5, 0.06]]},  # light: agile crit
+		 # light: agile crit (pool: MDEF/CON/CRIT/CRITDMG/EVA/ACC)
+		 "sig": [[DEX, 1.0, 0.25], [CRITCHANCE, 0.9, 0.065], [CRITDMG, 0.65, 0.06],
+			[EVASION, 0.5, 0.04], [ACCURACY, 0.8, 0.09]]},
 		{"name": "Arcanist", "desc": "Enchanted vestments that channel a Mage's power.",
 		 "def": [2.0, 0.45], "mdef": [3.0, 0.7],
-		 "sig": [[INT, 0.6, 0.16], [MANA, 6.0, 1.5], [MPREGEN, 0.3, 0.06]]},     # robes: caster
+		 # robes: caster (pool: DEF/CON/MANA/MPREGEN/ACC)
+		 "sig": [[INT, 1.0, 0.25], [MANA, 6.0, 1.5], [MPREGEN, 0.3, 0.06],
+			[ACCURACY, 0.3, 0.03]]},
 		{"name": "Nightshade", "desc": "Shadowy garb tailored for a Rogue's deadly craft.",
 		 "def": [2.5, 0.55], "mdef": [2.5, 0.55],
-		 "sig": [[LUCK, 0.6, 0.16], [CRITDMG, 1.0, 0.08], [CRITCHANCE, 0.4, 0.03], [EVASION, 0.5, 0.04]]},  # light: evasive crit
+		 # light: evasive crit (pool: MDEF/CON/CRITDMG/CRIT/EVA/ACC)
+		 "sig": [[LUCK, 1.0, 0.25], [CRITDMG, 1.25, 0.105], [CRITCHANCE, 0.7, 0.055],
+			[EVASION, 0.5, 0.04], [ACCURACY, 0.3, 0.03]]},
 	]
 	var slots := [
 		{"atype": 0, "noun": "Helm", "weight": 0.6, "icon": "armor0"},

@@ -19,50 +19,27 @@ const ATTR_RESPEC_COST_PER_POINT: int = 5
 # advanced classes at level 30). The BASE_MAX_* constants are the level-1
 # values; SCALING_MULTIPLIER is the per-level gain.
 
-# Beginner Health Scaling
-# Health: int(50 + (13 * (_level_component.level - 1)))
-# Mana: int(50 + (11 * (_level_component.level - 1)))
+# Unified Health Scaling — every weapon discipline shares ONE health curve.
+# The old per-class curves (Warrior 120+26, Rogue 95+22, Mage 70+23, ...) were
+# a class-system remnant; under weapon-driven identity HP differentiation comes
+# from CON allocation and gear, never from which weapon you started with.
+# Health: int(100 + (24 * (_level_component.level - 1)))  -> 2,476 at L100
 
-const BEGINNER_BASE_MAX_HEALTH: int = 50
-const BEGINNER_BASE_MAX_MANA: int = 50
-const BEGINNER_HEALTH_SCALING_MULTIPLIER: int = 13
-const BEGINNER_MANA_SCALING_MULTIPLIER: int = 11
+const PLAYER_BASE_MAX_HEALTH: int = 100
+const PLAYER_HEALTH_SCALING_MULTIPLIER: int = 24
 
-# Warrior Health Scaling
-# Health: int(120 + (26 * (_level_component.level - 1)))
-# Mana: int(30 + (5 * (_level_component.level - 1)))
+# Unified Mana Scaling — same rationale as health: the old per-class curves
+# (Mage 100+37, Warrior 30+5, ...) were a class-system remnant. INT is mana's
+# CON (INT_TO_MANA flat MP + MPREGEN per point), so pool differentiation comes
+# from INT allocation and gear, never from which weapon you started with.
+# Mana: int(50 + (6 * (_level_component.level - 1)))  -> 644 at L100
+# (2026-06-11 mana-pressure pass: growth 12 -> 6. Costs scale with ABILITY level
+# (caps at 10, shallow per_level) while the pool scales with CHAR level, so a
+# fat pool dissolves all potion pressure by endgame. ~65s of nonstop spam now
+# empties a melee bar at L100. INT_TO_MANA/INT_TO_MPREGEN halved same pass.)
 
-const WARRIOR_BASE_MAX_HEALTH: int = 120
-const WARRIOR_BASE_MAX_MANA: int = 30
-const WARRIOR_HEALTH_SCALING_MULTIPLIER: int = 26
-const WARRIOR_MANA_SCALING_MULTIPLIER: int = 5
-
-# Rogue Health Scaling
-# Health: int(95 + (22 * (_level_component.level - 1)))
-# Mana: int(45 + (15 * (_level_component.level - 1)))
-
-const ROGUE_BASE_MAX_HEALTH: int = 95
-const ROGUE_BASE_MAX_MANA: int = 45
-const ROGUE_HEALTH_SCALING_MULTIPLIER: int = 22
-const ROGUE_MANA_SCALING_MULTIPLIER: int = 15
-
-# Mage Health Scaling
-# Health: int(70 + (23 * (_level_component.level - 1)))
-# Mana: int(100 + (37 * (_level_component.level - 1)))
-
-const MAGE_BASE_MAX_HEALTH: int = 70
-const MAGE_BASE_MAX_MANA: int = 100
-const MAGE_HEALTH_SCALING_MULTIPLIER: int = 23
-const MAGE_MANA_SCALING_MULTIPLIER: int = 37
-
-# Archer Health Scaling
-# Health: int(90 + (22 * (_level_component.level - 1)))
-# Mana: int(50 + (16 * (_level_component.level - 1)))
-
-const ARCHER_BASE_MAX_HEALTH: int = 90
-const ARCHER_BASE_MAX_MANA: int = 50
-const ARCHER_HEALTH_SCALING_MULTIPLIER: int = 22
-const ARCHER_MANA_SCALING_MULTIPLIER: int = 16
+const PLAYER_BASE_MAX_MANA: int = 50
+const PLAYER_MANA_SCALING_MULTIPLIER: int = 6
 
 # (Advanced-class HP/MP constants removed in PR 7 — Job Advancement is gone;
 # only the four weapon disciplines exist. primary_discipline can never be an
@@ -110,8 +87,8 @@ const ALLOCATABLE_ATTRIBUTES: Array = [
 # discipline's base_stats doesn't define — see the recompute note below.
 const BASE_ATTRIBUTE_VALUE: int = 4
 const STR_TO_DEFENSE: float = 1.0
-const INT_TO_MANA: float = 5.0
-const INT_TO_MPREGEN: float = 0.1
+const INT_TO_MANA: float = 2.5
+const INT_TO_MPREGEN: float = 0.05
 const LUCK_TO_CRIT: float = 0.1   # % crit per LUCK (full rate below the knee)
 ## LUCK -> crit DIMINISHING RETURNS (2026-06-08): full LUCK_TO_CRIT up to the knee,
 ## then a reduced slope above it, so a high-LUCK build (dagger) no longer trivially
@@ -213,28 +190,12 @@ func _recalculate_stats() -> void:
 		if not base_stats.has(attr):
 			stats[attr].base_value = BASE_ATTRIBUTE_VALUE
 
-	# Apply discipline-specific health/mana scaling. Anchored to the PRIMARY
-	# discipline (not the wielded weapon) — HP/MP doesn't shift on weapon swap.
+	# Health + Mana: ONE unified curve each, for every discipline (weapon-driven
+	# identity — pool differentiation comes from CON/INT allocation + gear, not
+	# from which weapon you started with).
 	var level: int = _level_component.level
-	match _weapon_mastery_component.primary_discipline:
-		Constants.ClassType.BEGINNER:
-			stats[Constants.StatType.HEALTH].base_value = int(BEGINNER_BASE_MAX_HEALTH + (BEGINNER_HEALTH_SCALING_MULTIPLIER * (level - 1)))
-			stats[Constants.StatType.MANA].base_value = int(BEGINNER_BASE_MAX_MANA + (BEGINNER_MANA_SCALING_MULTIPLIER * (level - 1)))
-		Constants.ClassType.SWORD:
-			stats[Constants.StatType.HEALTH].base_value = int(WARRIOR_BASE_MAX_HEALTH + (WARRIOR_HEALTH_SCALING_MULTIPLIER * (level - 1)))
-			stats[Constants.StatType.MANA].base_value = int(WARRIOR_BASE_MAX_MANA + (WARRIOR_MANA_SCALING_MULTIPLIER * (level - 1)))
-		Constants.ClassType.STAFF:
-			stats[Constants.StatType.HEALTH].base_value = int(MAGE_BASE_MAX_HEALTH + (MAGE_HEALTH_SCALING_MULTIPLIER * (level - 1)))
-			stats[Constants.StatType.MANA].base_value = int(MAGE_BASE_MAX_MANA + (MAGE_MANA_SCALING_MULTIPLIER * (level - 1)))
-		Constants.ClassType.BOW:
-			stats[Constants.StatType.HEALTH].base_value = int(ARCHER_BASE_MAX_HEALTH + (ARCHER_HEALTH_SCALING_MULTIPLIER * (level - 1)))
-			stats[Constants.StatType.MANA].base_value = int(ARCHER_BASE_MAX_MANA + (ARCHER_MANA_SCALING_MULTIPLIER * (level - 1)))
-		Constants.ClassType.DAGGER:
-			stats[Constants.StatType.HEALTH].base_value = int(ROGUE_BASE_MAX_HEALTH + (ROGUE_HEALTH_SCALING_MULTIPLIER * (level - 1)))
-			stats[Constants.StatType.MANA].base_value = int(ROGUE_BASE_MAX_MANA + (ROGUE_MANA_SCALING_MULTIPLIER * (level - 1)))
-		_:
-			stats[Constants.StatType.HEALTH].base_value = int(BEGINNER_BASE_MAX_HEALTH + (BEGINNER_HEALTH_SCALING_MULTIPLIER * (level - 1)))
-			stats[Constants.StatType.MANA].base_value = int(BEGINNER_BASE_MAX_MANA + (BEGINNER_MANA_SCALING_MULTIPLIER * (level - 1)))
+	stats[Constants.StatType.HEALTH].base_value = int(PLAYER_BASE_MAX_HEALTH + (PLAYER_HEALTH_SCALING_MULTIPLIER * (level - 1)))
+	stats[Constants.StatType.MANA].base_value = int(PLAYER_BASE_MAX_MANA + (PLAYER_MANA_SCALING_MULTIPLIER * (level - 1)))
 
 	# Apply the character's CURRENT-CLASS per-level STR/DEX/INT/LUK scaling.
 	# This is the familiar Maple-shape baseline: a level-30 Swordsman gets

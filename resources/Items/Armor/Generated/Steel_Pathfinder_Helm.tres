@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://028tu0wfa18n"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://028tu0wfa18n"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_3hmht"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Pathfinder_Helm.png" id="2_jrfbd"]
@@ -18,6 +18,7 @@ flat_bonus_value = 13
 
 [sub_resource type="Resource" id="Resource_pc3j8"]
 script = ExtResource("1_3hmht")
+stat_type = 15
 base_value = 0
 flat_bonus_value = 2
 
@@ -29,62 +30,41 @@ flat_bonus_value = 6
 
 [sub_resource type="Resource" id="Resource_ows1x"]
 script = ExtResource("1_3hmht")
-stat_type = 1
+stat_type = 10
 base_value = 0
 flat_bonus_value = 2
 
 [sub_resource type="Resource" id="Resource_1mn67"]
 script = ExtResource("1_3hmht")
-stat_type = 3
+stat_type = 11
 base_value = 0
 flat_bonus_value = 2
 
 [sub_resource type="Resource" id="Resource_litk2"]
 script = ExtResource("1_3hmht")
-stat_type = 15
+stat_type = 17
 base_value = 0
-flat_bonus_value = 2
+flat_bonus_value = 1
 
 [sub_resource type="Resource" id="Resource_pyqil"]
-script = ExtResource("1_3hmht")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_5kbsp"]
-script = ExtResource("1_3hmht")
-stat_type = 11
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_g5btq"]
 script = ExtResource("1_3hmht")
 stat_type = 16
 base_value = 0
 flat_bonus_value = 2
 
-[sub_resource type="Resource" id="Resource_bhka2"]
-script = ExtResource("1_3hmht")
-stat_type = 17
-base_value = 0
-flat_bonus_value = 1
-
 [resource]
 script = ExtResource("3_wjfwv")
 bonus_stats = Dictionary[int, ExtResource("1_3hmht")]({
-0: SubResource("Resource_pc3j8"),
-1: SubResource("Resource_ows1x"),
 2: SubResource("Resource_j3rdk"),
-3: SubResource("Resource_1mn67"),
 8: SubResource("Resource_61vwe"),
 9: SubResource("Resource_bdw54"),
-10: SubResource("Resource_pyqil"),
-11: SubResource("Resource_5kbsp"),
-15: SubResource("Resource_litk2"),
-16: SubResource("Resource_g5btq"),
-17: SubResource("Resource_bhka2")
+10: SubResource("Resource_ows1x"),
+11: SubResource("Resource_1mn67"),
+15: SubResource("Resource_pc3j8"),
+16: SubResource("Resource_pyqil"),
+17: SubResource("Resource_litk2")
 })
-item_id = "38415127147-6871-00100-21114-155111155414107150"
+item_id = "5459147147-4152-913414-26714-5214414728812212"
 name = "Steel Pathfinder Helm"
 rarity = 0
 icon = ExtResource("2_jrfbd")

@@ -478,6 +478,12 @@ func _setup_signals() -> void:
 		# each was also wired to a no-arg _data_changed(), double-saving.)
 		level_component.experience_changed.connect(func(_c, _e): _data_changed("stats"))
 		level_component.leveled_up.connect(_on_leveled_up_effect)
+		# Overhead nameplate ("Lv.N name") was only written once, in set_username,
+		# so any post-spawn level-up left it stale on every peer — most visible on
+		# bot cold-start seeding, which jumps many levels right after the handshake.
+		# Leveling:level is replicated, so the setter (and this signal) fires on
+		# each peer and the refresh runs everywhere.
+		level_component.leveled_up.connect(_refresh_name_label.unbind(1))
 		level_component.leveled_up.connect(func(_l): _data_changed("all")) # Level up might affect everything (points, stats)
 		level_component.leveled_up.connect(func(new_level):
 			if multiplayer.is_server() and not _is_loading_data:
@@ -1139,7 +1145,13 @@ func apply_appearance(class_type: int, level: int) -> void:
 @rpc("any_peer", "call_local", "reliable")
 func set_username(uname: String) -> void:
 	username = uname
-	if is_instance_valid(player_name_label):
+	_refresh_name_label()
+
+
+## Rebuilds the world-space overhead label. Called from set_username and on
+## every leveled_up (the label embeds the level, so it goes stale otherwise).
+func _refresh_name_label() -> void:
+	if is_instance_valid(player_name_label) and username != "" and is_instance_valid(level_component):
 		player_name_label.text = ("Lv." + str(level_component.level)) + " " + username
 
 

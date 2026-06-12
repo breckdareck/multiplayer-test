@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=16 format=3 uid="uid://th6vsxrv8tur"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=11 format=3 uid="uid://th6vsxrv8tur"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_1d21u"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Arcanist_Boots.png" id="2_p1h0r"]
@@ -18,81 +18,47 @@ flat_bonus_value = 23
 
 [sub_resource type="Resource" id="Resource_xxtc1"]
 script = ExtResource("1_1d21u")
+stat_type = 15
 base_value = 0
 flat_bonus_value = 3
 
 [sub_resource type="Resource" id="Resource_u13nh"]
 script = ExtResource("1_1d21u")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_crh43"]
-script = ExtResource("1_1d21u")
 stat_type = 1
 base_value = 0
 flat_bonus_value = 8
 
-[sub_resource type="Resource" id="Resource_ncqst"]
-script = ExtResource("1_1d21u")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_gw7h4"]
-script = ExtResource("1_1d21u")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_ub3as"]
-script = ExtResource("1_1d21u")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_044xf"]
-script = ExtResource("1_1d21u")
-stat_type = 11
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_grt81"]
-script = ExtResource("1_1d21u")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_xya3m"]
+[sub_resource type="Resource" id="Resource_crh43"]
 script = ExtResource("1_1d21u")
 stat_type = 5
 base_value = 0
 flat_bonus_value = 48
 
-[sub_resource type="Resource" id="Resource_p1laq"]
+[sub_resource type="Resource" id="Resource_ncqst"]
 script = ExtResource("1_1d21u")
 stat_type = 7
 base_value = 0
 flat_bonus_value = 2
 
+[sub_resource type="Resource" id="Resource_gw7h4"]
+script = ExtResource("1_1d21u")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 1
+
 [resource]
 script = ExtResource("3_n8uhh")
 armor_type = 3
 bonus_stats = Dictionary[int, ExtResource("1_1d21u")]({
-0: SubResource("Resource_xxtc1"),
-1: SubResource("Resource_crh43"),
-2: SubResource("Resource_u13nh"),
-3: SubResource("Resource_ncqst"),
-5: SubResource("Resource_xya3m"),
-7: SubResource("Resource_p1laq"),
+1: SubResource("Resource_u13nh"),
+5: SubResource("Resource_crh43"),
+7: SubResource("Resource_ncqst"),
 8: SubResource("Resource_jsg03"),
 9: SubResource("Resource_odbvq"),
-10: SubResource("Resource_ub3as"),
-11: SubResource("Resource_044xf"),
-15: SubResource("Resource_gw7h4"),
-16: SubResource("Resource_grt81")
+15: SubResource("Resource_xxtc1"),
+16: SubResource("Resource_gw7h4")
 })
-item_id = "014117995-51455-0981-90128-119151001477311514"
+item_id = "796005614-1412911-10101413-11649-51215411681011779"
 name = "Pristine Arcanist Boots"
 rarity = 0
 icon = ExtResource("2_p1h0r")

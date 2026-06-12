@@ -37,7 +37,7 @@ bonus_stats = Dictionary[int, ExtResource("1_usxl4")]({
 10: SubResource("Resource_f32ag"),
 11: SubResource("Resource_n2l2n")
 })
-item_id = "1451015714-141313-8515-31466-66554145122474"
+item_id = "30144144146-1701-7029-1443-551212111515145965"
 name = "Cloak of the Nightshade"
 rarity = 4
 icon = ExtResource("2_tubgu")

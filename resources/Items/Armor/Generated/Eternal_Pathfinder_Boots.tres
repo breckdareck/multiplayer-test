@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://buiqmb6wi3v8r"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://buiqmb6wi3v8r"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_j5g5w"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Eternal_Pathfinder_Boots.png" id="2_mnmu5"]
@@ -18,6 +18,7 @@ flat_bonus_value = 29
 
 [sub_resource type="Resource" id="Resource_ovifc"]
 script = ExtResource("1_j5g5w")
+stat_type = 15
 base_value = 0
 flat_bonus_value = 5
 
@@ -29,63 +30,42 @@ flat_bonus_value = 13
 
 [sub_resource type="Resource" id="Resource_poivx"]
 script = ExtResource("1_j5g5w")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_fcvp2"]
-script = ExtResource("1_j5g5w")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_vwljs"]
-script = ExtResource("1_j5g5w")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_7sekf"]
-script = ExtResource("1_j5g5w")
 stat_type = 10
 base_value = 0
 flat_bonus_value = 4
 
-[sub_resource type="Resource" id="Resource_7sn7x"]
+[sub_resource type="Resource" id="Resource_fcvp2"]
 script = ExtResource("1_j5g5w")
 stat_type = 11
 base_value = 0
 flat_bonus_value = 3
 
-[sub_resource type="Resource" id="Resource_3v5vv"]
-script = ExtResource("1_j5g5w")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_bw846"]
+[sub_resource type="Resource" id="Resource_vwljs"]
 script = ExtResource("1_j5g5w")
 stat_type = 17
 base_value = 0
 flat_bonus_value = 2
 
+[sub_resource type="Resource" id="Resource_7sekf"]
+script = ExtResource("1_j5g5w")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 5
+
 [resource]
 script = ExtResource("3_prs0k")
 armor_type = 3
 bonus_stats = Dictionary[int, ExtResource("1_j5g5w")]({
-0: SubResource("Resource_ovifc"),
-1: SubResource("Resource_poivx"),
 2: SubResource("Resource_wcm4a"),
-3: SubResource("Resource_fcvp2"),
 8: SubResource("Resource_ldolv"),
 9: SubResource("Resource_1rw5o"),
-10: SubResource("Resource_7sekf"),
-11: SubResource("Resource_7sn7x"),
-15: SubResource("Resource_vwljs"),
-16: SubResource("Resource_3v5vv"),
-17: SubResource("Resource_bw846")
+10: SubResource("Resource_poivx"),
+11: SubResource("Resource_fcvp2"),
+15: SubResource("Resource_ovifc"),
+16: SubResource("Resource_7sekf"),
+17: SubResource("Resource_vwljs")
 })
-item_id = "25151215445-4131013-7428-513414-150087615602911"
+item_id = "85131329110-5667-144155-101155-121151558415141047"
 name = "Eternal Pathfinder Boots"
 rarity = 0
 icon = ExtResource("2_mnmu5")

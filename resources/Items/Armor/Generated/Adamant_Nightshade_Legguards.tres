@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://cvcetxnbeywo0"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://cvcetxnbeywo0"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_c1qu7"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Nightshade_Legguards.png" id="2_0a51e"]
@@ -18,74 +18,54 @@ flat_bonus_value = 24
 
 [sub_resource type="Resource" id="Resource_enw6c"]
 script = ExtResource("1_c1qu7")
+stat_type = 15
 base_value = 0
 flat_bonus_value = 4
 
 [sub_resource type="Resource" id="Resource_27crm"]
 script = ExtResource("1_c1qu7")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 4
-
-[sub_resource type="Resource" id="Resource_55772"]
-script = ExtResource("1_c1qu7")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 4
-
-[sub_resource type="Resource" id="Resource_0k3sk"]
-script = ExtResource("1_c1qu7")
 stat_type = 3
 base_value = 0
 flat_bonus_value = 11
 
-[sub_resource type="Resource" id="Resource_am5np"]
-script = ExtResource("1_c1qu7")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 4
-
-[sub_resource type="Resource" id="Resource_7yggd"]
-script = ExtResource("1_c1qu7")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_tiod4"]
+[sub_resource type="Resource" id="Resource_55772"]
 script = ExtResource("1_c1qu7")
 stat_type = 11
 base_value = 0
 flat_bonus_value = 5
 
-[sub_resource type="Resource" id="Resource_tb5so"]
+[sub_resource type="Resource" id="Resource_0k3sk"]
 script = ExtResource("1_c1qu7")
-stat_type = 16
+stat_type = 10
 base_value = 0
-flat_bonus_value = 1
+flat_bonus_value = 3
 
-[sub_resource type="Resource" id="Resource_12vqv"]
+[sub_resource type="Resource" id="Resource_am5np"]
 script = ExtResource("1_c1qu7")
 stat_type = 17
 base_value = 0
 flat_bonus_value = 2
 
+[sub_resource type="Resource" id="Resource_7yggd"]
+script = ExtResource("1_c1qu7")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 1
+
 [resource]
 script = ExtResource("3_32kp1")
 armor_type = 2
 bonus_stats = Dictionary[int, ExtResource("1_c1qu7")]({
-0: SubResource("Resource_enw6c"),
-1: SubResource("Resource_55772"),
-2: SubResource("Resource_27crm"),
-3: SubResource("Resource_0k3sk"),
+3: SubResource("Resource_27crm"),
 8: SubResource("Resource_pwo5k"),
 9: SubResource("Resource_8jfyc"),
-10: SubResource("Resource_7yggd"),
-11: SubResource("Resource_tiod4"),
-15: SubResource("Resource_am5np"),
-16: SubResource("Resource_tb5so"),
-17: SubResource("Resource_12vqv")
+10: SubResource("Resource_0k3sk"),
+11: SubResource("Resource_55772"),
+15: SubResource("Resource_enw6c"),
+16: SubResource("Resource_7yggd"),
+17: SubResource("Resource_am5np")
 })
-item_id = "150153210812-1511150-1211140-78128-9134732101515742"
+item_id = "10145148411-83611-15286-12432-793141211431210147"
 name = "Adamant Nightshade Legguards"
 rarity = 0
 icon = ExtResource("2_0a51e")

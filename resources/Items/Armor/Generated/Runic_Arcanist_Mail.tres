@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=16 format=3 uid="uid://cdo1p2m37oyen"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=11 format=3 uid="uid://cdo1p2m37oyen"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_qx353"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Arcanist_Mail.png" id="2_m5cjp"]
@@ -18,81 +18,47 @@ flat_bonus_value = 51
 
 [sub_resource type="Resource" id="Resource_okq53"]
 script = ExtResource("1_qx353")
+stat_type = 15
 base_value = 0
 flat_bonus_value = 7
 
 [sub_resource type="Resource" id="Resource_u7irq"]
 script = ExtResource("1_qx353")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 7
-
-[sub_resource type="Resource" id="Resource_fwq7p"]
-script = ExtResource("1_qx353")
 stat_type = 1
 base_value = 0
 flat_bonus_value = 18
 
-[sub_resource type="Resource" id="Resource_k1a31"]
-script = ExtResource("1_qx353")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 7
-
-[sub_resource type="Resource" id="Resource_y1hwv"]
-script = ExtResource("1_qx353")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 7
-
-[sub_resource type="Resource" id="Resource_hpgjl"]
-script = ExtResource("1_qx353")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_56ra3"]
-script = ExtResource("1_qx353")
-stat_type = 11
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_d2n2u"]
-script = ExtResource("1_qx353")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_3jshs"]
+[sub_resource type="Resource" id="Resource_fwq7p"]
 script = ExtResource("1_qx353")
 stat_type = 5
 base_value = 0
 flat_bonus_value = 108
 
-[sub_resource type="Resource" id="Resource_atwaa"]
+[sub_resource type="Resource" id="Resource_k1a31"]
 script = ExtResource("1_qx353")
 stat_type = 7
 base_value = 0
 flat_bonus_value = 4
 
+[sub_resource type="Resource" id="Resource_y1hwv"]
+script = ExtResource("1_qx353")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 2
+
 [resource]
 script = ExtResource("3_o5l22")
 armor_type = 1
 bonus_stats = Dictionary[int, ExtResource("1_qx353")]({
-0: SubResource("Resource_okq53"),
-1: SubResource("Resource_fwq7p"),
-2: SubResource("Resource_u7irq"),
-3: SubResource("Resource_k1a31"),
-5: SubResource("Resource_3jshs"),
-7: SubResource("Resource_atwaa"),
+1: SubResource("Resource_u7irq"),
+5: SubResource("Resource_fwq7p"),
+7: SubResource("Resource_k1a31"),
 8: SubResource("Resource_rx0kw"),
 9: SubResource("Resource_2pbso"),
-10: SubResource("Resource_hpgjl"),
-11: SubResource("Resource_56ra3"),
-15: SubResource("Resource_y1hwv"),
-16: SubResource("Resource_d2n2u")
+15: SubResource("Resource_okq53"),
+16: SubResource("Resource_y1hwv")
 })
-item_id = "1943111012-211412-115610-151522-258135129011512"
+item_id = "1381111521213-31571-481513-711611-427758121423151"
 name = "Runic Arcanist Mail"
 rarity = 0
 icon = ExtResource("2_m5cjp")

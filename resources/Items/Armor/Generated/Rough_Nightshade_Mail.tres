@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://bcq40prxdin4b"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://bcq40prxdin4b"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_6hy3n"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Rough_Nightshade_Mail.png" id="2_0bffr"]
@@ -18,54 +18,37 @@ flat_bonus_value = 7
 
 [sub_resource type="Resource" id="Resource_8fye7"]
 script = ExtResource("1_6hy3n")
+stat_type = 15
 base_value = 0
 flat_bonus_value = 1
 
 [sub_resource type="Resource" id="Resource_y4aos"]
 script = ExtResource("1_6hy3n")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_x8d62"]
-script = ExtResource("1_6hy3n")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_fljy1"]
-script = ExtResource("1_6hy3n")
 stat_type = 3
 base_value = 0
 flat_bonus_value = 3
 
-[sub_resource type="Resource" id="Resource_33bwj"]
-script = ExtResource("1_6hy3n")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_n55nl"]
-script = ExtResource("1_6hy3n")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_gspmx"]
+[sub_resource type="Resource" id="Resource_x8d62"]
 script = ExtResource("1_6hy3n")
 stat_type = 11
 base_value = 0
 flat_bonus_value = 2
 
-[sub_resource type="Resource" id="Resource_0f3su"]
+[sub_resource type="Resource" id="Resource_fljy1"]
 script = ExtResource("1_6hy3n")
-stat_type = 16
+stat_type = 10
 base_value = 0
 flat_bonus_value = 1
 
-[sub_resource type="Resource" id="Resource_7gs3s"]
+[sub_resource type="Resource" id="Resource_33bwj"]
 script = ExtResource("1_6hy3n")
 stat_type = 17
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_n55nl"]
+script = ExtResource("1_6hy3n")
+stat_type = 16
 base_value = 0
 flat_bonus_value = 1
 
@@ -73,19 +56,16 @@ flat_bonus_value = 1
 script = ExtResource("3_wwdn5")
 armor_type = 1
 bonus_stats = Dictionary[int, ExtResource("1_6hy3n")]({
-0: SubResource("Resource_8fye7"),
-1: SubResource("Resource_x8d62"),
-2: SubResource("Resource_y4aos"),
-3: SubResource("Resource_fljy1"),
+3: SubResource("Resource_y4aos"),
 8: SubResource("Resource_gdj7u"),
 9: SubResource("Resource_kg46m"),
-10: SubResource("Resource_n55nl"),
-11: SubResource("Resource_gspmx"),
-15: SubResource("Resource_33bwj"),
-16: SubResource("Resource_0f3su"),
-17: SubResource("Resource_7gs3s")
+10: SubResource("Resource_fljy1"),
+11: SubResource("Resource_x8d62"),
+15: SubResource("Resource_8fye7"),
+16: SubResource("Resource_n55nl"),
+17: SubResource("Resource_33bwj")
 })
-item_id = "61265128138-1211102-7815-615153-746151415128101112"
+item_id = "03278203-214129-142011-1071111-10139415112641054"
 name = "Rough Nightshade Mail"
 rarity = 0
 icon = ExtResource("2_0bffr")

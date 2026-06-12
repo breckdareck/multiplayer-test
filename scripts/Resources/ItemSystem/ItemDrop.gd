@@ -50,9 +50,21 @@ const AFFIX_SCALE := {
 }
 const DEFAULT_AFFIX_SCALE := [0.1, 0.25]
 
-## Defining stat(s) (armor DEF/MDEF, weapon attack) always roll at this multiple of
-## a normal affix so a drop reliably improves its core role.
+## Defining stat(s) (armor strong-defense, weapon attack) always roll at this
+## multiple of a normal affix so a drop reliably improves its core role.
 const DEFINING_AFFIX_MULT := 1.8
+
+## The ATTRIBUTE half of an armor's defining pair (family primary: STR on plate,
+## INT on robes, ...) rolls smaller than the defense half — at the full 1.8x a
+## Legendary set's rolled primary (~+300) would dwarf the legendary weapon roll.
+const DEFINING_ATTR_MULT := 1.2
+
+## The four allocatable damage attributes — used to pick an armor family's
+## primary for its defining pair and to choose the defining multiplier.
+const ATTRIBUTE_STAT_TYPES := [
+	Constants.StatType.STRENGTH, Constants.StatType.DEXTERITY,
+	Constants.StatType.INTELLIGENCE, Constants.StatType.LUCK,
+]
 
 ## Affix-selection weight = base stat value + this floor, so a set's SIGNATURE stats
 ## (high base) are favoured while every pooled stat keeps a real chance.
@@ -141,11 +153,14 @@ func _apply_random_stats(item: EquipmentData) -> void:
 	var ilv: int = maxi(1, item.item_level)
 	var rmult: float = float(RARITY_AFFIX_MULT.get(rarity, 1.0))
 
-	# 2. DEFINING stats (armor DEF/MDEF, weapon attack) — a guaranteed boost so a
-	#    drop reliably improves its core role.
+	# 2. DEFINING stats (armor: strong defense + family primary attribute,
+	#    weapon: attack) — a guaranteed boost so a drop reliably improves the
+	#    stats its wearer picked the piece for. Attribute halves roll at the
+	#    smaller DEFINING_ATTR_MULT (see const note).
 	var defining := _primary_roll_stats(item)
 	for stat_type in defining:
-		_add_rolled_stat(item, stat_type, _roll_affix_value(stat_type, ilv, rmult * DEFINING_AFFIX_MULT))
+		var dmult: float = DEFINING_ATTR_MULT if ATTRIBUTE_STAT_TYPES.has(stat_type) else DEFINING_AFFIX_MULT
+		_add_rolled_stat(item, stat_type, _roll_affix_value(stat_type, ilv, rmult * dmult))
 
 	# 3. N DISTINCT bonus affixes (by rarity) from the non-defining pool, weighted
 	#    toward the item's signature stats (their base magnitude).
@@ -207,11 +222,28 @@ func _add_rolled_stat(item: EquipmentData, stat_type, amount: int) -> void:
 
 
 ## The stats that define a piece's core role and so get a guaranteed budget
-## share: armor → DEFENSE + MAGICDEFENSE; weapon → whichever attack stat it
-## already scales on. Anything else returns empty (no reservation).
+## share: armor → its STRONG defense (larger base; tie → DEFENSE) + its family
+## primary attribute (largest base among STR/DEX/INT/LUCK), derived from the
+## piece itself so hand-authored gear needs no extra data; weapon → whichever
+## attack stat it already scales on. Anything else returns empty (no
+## reservation). The weak defense is deliberately NOT defining — it competes
+## in the bonus-affix pool like any flavour stat (2026-06-11 archetype pass).
 func _primary_roll_stats(item: EquipmentData) -> Array:
 	if item is ArmorData:
-		return [Constants.StatType.DEFENSE, Constants.StatType.MAGICDEFENSE]
+		var out: Array = []
+		var d := _base_stat_value(item, Constants.StatType.DEFENSE)
+		var md := _base_stat_value(item, Constants.StatType.MAGICDEFENSE)
+		out.append(Constants.StatType.MAGICDEFENSE if md > d else Constants.StatType.DEFENSE)
+		var best_attr: int = -1
+		var best_val: int = 0
+		for s in ATTRIBUTE_STAT_TYPES:
+			var v := _base_stat_value(item, s)
+			if v > best_val:
+				best_val = v
+				best_attr = s
+		if best_attr != -1:
+			out.append(best_attr)
+		return out
 	if item is WeaponData:
 		var out: Array = []
 		if item.bonus_stats.has(Constants.StatType.WEAPONATTACK):
@@ -220,6 +252,12 @@ func _primary_roll_stats(item: EquipmentData) -> Array:
 			out.append(Constants.StatType.MAGICATTACK)
 		return out
 	return []
+
+
+func _base_stat_value(item: EquipmentData, stat_type) -> int:
+	if item.bonus_stats.has(stat_type):
+		return int((item.bonus_stats[stat_type] as StatData).flat_bonus_value)
+	return 0
 
 func _choose_random_rarity() -> Constants.ItemRarity:
 	##print("--- Choosing Random Rarity ---")

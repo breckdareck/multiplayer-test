@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://ggejmkrxa5py"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://ggejmkrxa5py"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_2dpb4"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Pathfinder_Legguards.png" id="2_qpcow"]
@@ -18,8 +18,9 @@ flat_bonus_value = 32
 
 [sub_resource type="Resource" id="Resource_0ps33"]
 script = ExtResource("1_2dpb4")
+stat_type = 15
 base_value = 0
-flat_bonus_value = 5
+flat_bonus_value = 6
 
 [sub_resource type="Resource" id="Resource_jtpmw"]
 script = ExtResource("1_2dpb4")
@@ -29,63 +30,42 @@ flat_bonus_value = 14
 
 [sub_resource type="Resource" id="Resource_bpa55"]
 script = ExtResource("1_2dpb4")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_32kmj"]
-script = ExtResource("1_2dpb4")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_w4skm"]
-script = ExtResource("1_2dpb4")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 6
-
-[sub_resource type="Resource" id="Resource_uophv"]
-script = ExtResource("1_2dpb4")
 stat_type = 10
 base_value = 0
 flat_bonus_value = 4
 
-[sub_resource type="Resource" id="Resource_cdsf2"]
+[sub_resource type="Resource" id="Resource_32kmj"]
 script = ExtResource("1_2dpb4")
 stat_type = 11
 base_value = 0
 flat_bonus_value = 4
 
-[sub_resource type="Resource" id="Resource_e4mjy"]
-script = ExtResource("1_2dpb4")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 6
-
-[sub_resource type="Resource" id="Resource_apxxw"]
+[sub_resource type="Resource" id="Resource_w4skm"]
 script = ExtResource("1_2dpb4")
 stat_type = 17
 base_value = 0
 flat_bonus_value = 3
 
+[sub_resource type="Resource" id="Resource_uophv"]
+script = ExtResource("1_2dpb4")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 6
+
 [resource]
 script = ExtResource("3_2tomw")
 armor_type = 2
 bonus_stats = Dictionary[int, ExtResource("1_2dpb4")]({
-0: SubResource("Resource_0ps33"),
-1: SubResource("Resource_bpa55"),
 2: SubResource("Resource_jtpmw"),
-3: SubResource("Resource_32kmj"),
 8: SubResource("Resource_frfdu"),
 9: SubResource("Resource_ijt44"),
-10: SubResource("Resource_uophv"),
-11: SubResource("Resource_cdsf2"),
-15: SubResource("Resource_w4skm"),
-16: SubResource("Resource_e4mjy"),
-17: SubResource("Resource_apxxw")
+10: SubResource("Resource_bpa55"),
+11: SubResource("Resource_32kmj"),
+15: SubResource("Resource_0ps33"),
+16: SubResource("Resource_uophv"),
+17: SubResource("Resource_w4skm")
 })
-item_id = "1561311010133-111211-79315-111132-1377095133711118"
+item_id = "81152015118-8249-25514-431312-61015141032121441"
 name = "Runic Pathfinder Legguards"
 rarity = 0
 icon = ExtResource("2_qpcow")

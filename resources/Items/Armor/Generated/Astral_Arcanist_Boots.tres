@@ -1,43 +1,8 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=16 format=3 uid="uid://kt2ocurqcnvf"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=11 format=3 uid="uid://kt2ocurqcnvf"]
 
-[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_pe0qi"]
-[ext_resource type="Texture2D" uid="uid://mmsjikh1ct8y" path="res://assets/sprites/Items/generated_px/Armor/Generated/Astral_Arcanist_Boots.png" id="2_uchr1"]
-[ext_resource type="Script" uid="uid://c2fkjsnluarqk" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_dbsx8"]
-
-[sub_resource type="Resource" id="Resource_gta0n"]
-script = ExtResource("1_pe0qi")
-base_value = 0
-flat_bonus_value = 4
-
-[sub_resource type="Resource" id="Resource_03gnq"]
-script = ExtResource("1_pe0qi")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 12
-
-[sub_resource type="Resource" id="Resource_fxalr"]
-script = ExtResource("1_pe0qi")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 4
-
-[sub_resource type="Resource" id="Resource_aiao5"]
-script = ExtResource("1_pe0qi")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 4
-
-[sub_resource type="Resource" id="Resource_ekrfx"]
-script = ExtResource("1_pe0qi")
-stat_type = 5
-base_value = 0
-flat_bonus_value = 73
-
-[sub_resource type="Resource" id="Resource_d5vc1"]
-script = ExtResource("1_pe0qi")
-stat_type = 7
-base_value = 0
-flat_bonus_value = 3
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_pe0qi"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Astral_Arcanist_Boots.png" id="2_uchr1"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_dbsx8"]
 
 [sub_resource type="Resource" id="Resource_icw6p"]
 script = ExtResource("1_pe0qi")
@@ -51,25 +16,31 @@ stat_type = 9
 base_value = 0
 flat_bonus_value = 34
 
-[sub_resource type="Resource" id="Resource_j3m73"]
-script = ExtResource("1_pe0qi")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_xn8fw"]
-script = ExtResource("1_pe0qi")
-stat_type = 11
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_k4eej"]
+[sub_resource type="Resource" id="Resource_gta0n"]
 script = ExtResource("1_pe0qi")
 stat_type = 15
 base_value = 0
 flat_bonus_value = 5
 
-[sub_resource type="Resource" id="Resource_arl8t"]
+[sub_resource type="Resource" id="Resource_fxalr"]
+script = ExtResource("1_pe0qi")
+stat_type = 1
+base_value = 0
+flat_bonus_value = 12
+
+[sub_resource type="Resource" id="Resource_03gnq"]
+script = ExtResource("1_pe0qi")
+stat_type = 5
+base_value = 0
+flat_bonus_value = 73
+
+[sub_resource type="Resource" id="Resource_aiao5"]
+script = ExtResource("1_pe0qi")
+stat_type = 7
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_k4eej"]
 script = ExtResource("1_pe0qi")
 stat_type = 16
 base_value = 0
@@ -79,22 +50,19 @@ flat_bonus_value = 2
 script = ExtResource("3_dbsx8")
 armor_type = 3
 bonus_stats = Dictionary[int, ExtResource("1_pe0qi")]({
-0: SubResource("Resource_gta0n"),
-1: SubResource("Resource_03gnq"),
-2: SubResource("Resource_fxalr"),
-3: SubResource("Resource_aiao5"),
-5: SubResource("Resource_ekrfx"),
-7: SubResource("Resource_d5vc1"),
+1: SubResource("Resource_fxalr"),
+5: SubResource("Resource_03gnq"),
+7: SubResource("Resource_aiao5"),
 8: SubResource("Resource_icw6p"),
 9: SubResource("Resource_n5pku"),
-10: SubResource("Resource_j3m73"),
-11: SubResource("Resource_xn8fw"),
-15: SubResource("Resource_k4eej"),
-16: SubResource("Resource_arl8t")
+15: SubResource("Resource_gta0n"),
+16: SubResource("Resource_k4eej")
 })
-item_id = "10910988812-146129-14080-3530-0142151411411810147"
+item_id = "3213151211512-13347-1412310-91125-110928631414155"
 name = "Astral Arcanist Boots"
+rarity = 0
 icon = ExtResource("2_uchr1")
 description = "Enchanted vestments that channel a Mage's power."
 item_type = 1
 item_level = 93
+custom_item_value = 0

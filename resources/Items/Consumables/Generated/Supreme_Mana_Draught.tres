@@ -10,7 +10,7 @@ effect_script = ExtResource("1_4cd6c")
 effect_properties = {
 "regain_amount": 1200
 }
-item_id = "08651331212-80157-61412-21281-74314101131360120"
+item_id = "1120761235-6229-1181212-4972-91011212206114152"
 name = "Supreme Mana Draught"
 icon = ExtResource("2_ew1d7")
 description = "Restores 1200 MP when consumed."

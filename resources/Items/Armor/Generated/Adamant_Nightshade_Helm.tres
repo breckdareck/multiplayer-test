@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://cmxxb0iswuvwo"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://cmxxb0iswuvwo"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_uskr8"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Nightshade_Helm.png" id="2_xevr4"]
@@ -18,73 +18,53 @@ flat_bonus_value = 18
 
 [sub_resource type="Resource" id="Resource_r8eef"]
 script = ExtResource("1_uskr8")
+stat_type = 15
 base_value = 0
 flat_bonus_value = 3
 
 [sub_resource type="Resource" id="Resource_wwsuc"]
 script = ExtResource("1_uskr8")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_78nfb"]
-script = ExtResource("1_uskr8")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_eimhp"]
-script = ExtResource("1_uskr8")
 stat_type = 3
 base_value = 0
 flat_bonus_value = 8
 
-[sub_resource type="Resource" id="Resource_ixjrg"]
-script = ExtResource("1_uskr8")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_4sgu4"]
-script = ExtResource("1_uskr8")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_nvys5"]
+[sub_resource type="Resource" id="Resource_78nfb"]
 script = ExtResource("1_uskr8")
 stat_type = 11
 base_value = 0
 flat_bonus_value = 4
 
-[sub_resource type="Resource" id="Resource_db6im"]
+[sub_resource type="Resource" id="Resource_eimhp"]
 script = ExtResource("1_uskr8")
-stat_type = 16
+stat_type = 10
 base_value = 0
-flat_bonus_value = 1
+flat_bonus_value = 2
 
-[sub_resource type="Resource" id="Resource_0hkmo"]
+[sub_resource type="Resource" id="Resource_ixjrg"]
 script = ExtResource("1_uskr8")
 stat_type = 17
 base_value = 0
 flat_bonus_value = 2
 
+[sub_resource type="Resource" id="Resource_4sgu4"]
+script = ExtResource("1_uskr8")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 1
+
 [resource]
 script = ExtResource("3_s4pqg")
 bonus_stats = Dictionary[int, ExtResource("1_uskr8")]({
-0: SubResource("Resource_r8eef"),
-1: SubResource("Resource_78nfb"),
-2: SubResource("Resource_wwsuc"),
-3: SubResource("Resource_eimhp"),
+3: SubResource("Resource_wwsuc"),
 8: SubResource("Resource_ojvkp"),
 9: SubResource("Resource_0yd2j"),
-10: SubResource("Resource_4sgu4"),
-11: SubResource("Resource_nvys5"),
-15: SubResource("Resource_ixjrg"),
-16: SubResource("Resource_db6im"),
-17: SubResource("Resource_0hkmo")
+10: SubResource("Resource_eimhp"),
+11: SubResource("Resource_78nfb"),
+15: SubResource("Resource_r8eef"),
+16: SubResource("Resource_4sgu4"),
+17: SubResource("Resource_ixjrg")
 })
-item_id = "156111111844-111529-1301411-41011-1520132411466713"
+item_id = "58786141110-26114-4928-1001413-11910114141333151213"
 name = "Adamant Nightshade Helm"
 rarity = 0
 icon = ExtResource("2_xevr4")

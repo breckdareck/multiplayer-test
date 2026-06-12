@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://cdrcqu612mp"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://cdrcqu612mp"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_r3urf"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Dragonbone_Nightshade_Legguards.png" id="2_k6gt4"]
@@ -18,74 +18,54 @@ flat_bonus_value = 36
 
 [sub_resource type="Resource" id="Resource_vx6e1"]
 script = ExtResource("1_r3urf")
+stat_type = 15
 base_value = 0
-flat_bonus_value = 6
+flat_bonus_value = 7
 
 [sub_resource type="Resource" id="Resource_gt3fd"]
-script = ExtResource("1_r3urf")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 6
-
-[sub_resource type="Resource" id="Resource_sop78"]
-script = ExtResource("1_r3urf")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 6
-
-[sub_resource type="Resource" id="Resource_m0kwr"]
 script = ExtResource("1_r3urf")
 stat_type = 3
 base_value = 0
 flat_bonus_value = 16
 
-[sub_resource type="Resource" id="Resource_8tgrx"]
-script = ExtResource("1_r3urf")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 7
-
-[sub_resource type="Resource" id="Resource_mbiy1"]
-script = ExtResource("1_r3urf")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 4
-
-[sub_resource type="Resource" id="Resource_wfiqc"]
+[sub_resource type="Resource" id="Resource_sop78"]
 script = ExtResource("1_r3urf")
 stat_type = 11
 base_value = 0
 flat_bonus_value = 7
 
-[sub_resource type="Resource" id="Resource_iyr01"]
+[sub_resource type="Resource" id="Resource_m0kwr"]
 script = ExtResource("1_r3urf")
-stat_type = 16
+stat_type = 10
 base_value = 0
-flat_bonus_value = 2
+flat_bonus_value = 4
 
-[sub_resource type="Resource" id="Resource_8sybo"]
+[sub_resource type="Resource" id="Resource_8tgrx"]
 script = ExtResource("1_r3urf")
 stat_type = 17
 base_value = 0
 flat_bonus_value = 3
 
+[sub_resource type="Resource" id="Resource_mbiy1"]
+script = ExtResource("1_r3urf")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 2
+
 [resource]
 script = ExtResource("3_18ae1")
 armor_type = 2
 bonus_stats = Dictionary[int, ExtResource("1_r3urf")]({
-0: SubResource("Resource_vx6e1"),
-1: SubResource("Resource_sop78"),
-2: SubResource("Resource_gt3fd"),
-3: SubResource("Resource_m0kwr"),
+3: SubResource("Resource_gt3fd"),
 8: SubResource("Resource_i8eeh"),
 9: SubResource("Resource_llsye"),
-10: SubResource("Resource_mbiy1"),
-11: SubResource("Resource_wfiqc"),
-15: SubResource("Resource_8tgrx"),
-16: SubResource("Resource_iyr01"),
-17: SubResource("Resource_8sybo")
+10: SubResource("Resource_m0kwr"),
+11: SubResource("Resource_sop78"),
+15: SubResource("Resource_vx6e1"),
+16: SubResource("Resource_mbiy1"),
+17: SubResource("Resource_8tgrx")
 })
-item_id = "154326645-5121412-13677-111274-151212215092432"
+item_id = "1710601168-5048-04119-1512613-10131358115405100"
 name = "Dragonbone Nightshade Legguards"
 rarity = 0
 icon = ExtResource("2_k6gt4")

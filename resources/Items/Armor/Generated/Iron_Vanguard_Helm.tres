@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://dgc3mksobijvy"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=11 format=3 uid="uid://dgc3mksobijvy"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_upbvg"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Vanguard_Helm.png" id="2_5m0ep"]
@@ -18,73 +18,45 @@ flat_bonus_value = 8
 
 [sub_resource type="Resource" id="Resource_aav75"]
 script = ExtResource("1_upbvg")
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_b0yv7"]
-script = ExtResource("1_upbvg")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_xgsfo"]
-script = ExtResource("1_upbvg")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_4rpdp"]
-script = ExtResource("1_upbvg")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_ihim5"]
-script = ExtResource("1_upbvg")
 stat_type = 15
 base_value = 0
 flat_bonus_value = 4
 
-[sub_resource type="Resource" id="Resource_4oj5l"]
+[sub_resource type="Resource" id="Resource_b0yv7"]
 script = ExtResource("1_upbvg")
-stat_type = 10
 base_value = 0
-flat_bonus_value = 1
+flat_bonus_value = 5
 
-[sub_resource type="Resource" id="Resource_2slko"]
-script = ExtResource("1_upbvg")
-stat_type = 11
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_wm1l7"]
-script = ExtResource("1_upbvg")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_m56cv"]
+[sub_resource type="Resource" id="Resource_xgsfo"]
 script = ExtResource("1_upbvg")
 stat_type = 4
 base_value = 0
 flat_bonus_value = 34
 
+[sub_resource type="Resource" id="Resource_4rpdp"]
+script = ExtResource("1_upbvg")
+stat_type = 6
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_ihim5"]
+script = ExtResource("1_upbvg")
+stat_type = 14
+base_value = 0
+flat_bonus_value = 2
+
 [resource]
 script = ExtResource("3_q5led")
 bonus_stats = Dictionary[int, ExtResource("1_upbvg")]({
-0: SubResource("Resource_aav75"),
-1: SubResource("Resource_xgsfo"),
-2: SubResource("Resource_b0yv7"),
-3: SubResource("Resource_4rpdp"),
-4: SubResource("Resource_m56cv"),
+0: SubResource("Resource_b0yv7"),
+4: SubResource("Resource_xgsfo"),
+6: SubResource("Resource_4rpdp"),
 8: SubResource("Resource_fjgqj"),
 9: SubResource("Resource_s8gur"),
-10: SubResource("Resource_4oj5l"),
-11: SubResource("Resource_2slko"),
-15: SubResource("Resource_ihim5"),
-16: SubResource("Resource_wm1l7")
+14: SubResource("Resource_ihim5"),
+15: SubResource("Resource_aav75")
 })
-item_id = "71414831314-56118-51491-52155-19121091411061062"
+item_id = "147142431511-2101512-4238-41149-1513733141251414511"
 name = "Iron Vanguard Helm"
 rarity = 0
 icon = ExtResource("2_5m0ep")

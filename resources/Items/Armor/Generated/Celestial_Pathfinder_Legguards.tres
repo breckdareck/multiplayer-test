@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://byjvvupxbyt7j"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://byjvvupxbyt7j"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_1dgrs"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Celestial_Pathfinder_Legguards.png" id="2_i60pm"]
@@ -18,8 +18,9 @@ flat_bonus_value = 39
 
 [sub_resource type="Resource" id="Resource_djuuo"]
 script = ExtResource("1_1dgrs")
+stat_type = 15
 base_value = 0
-flat_bonus_value = 6
+flat_bonus_value = 7
 
 [sub_resource type="Resource" id="Resource_5b7sn"]
 script = ExtResource("1_1dgrs")
@@ -29,63 +30,42 @@ flat_bonus_value = 18
 
 [sub_resource type="Resource" id="Resource_r2l8x"]
 script = ExtResource("1_1dgrs")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 6
-
-[sub_resource type="Resource" id="Resource_yl2v8"]
-script = ExtResource("1_1dgrs")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 6
-
-[sub_resource type="Resource" id="Resource_cyuas"]
-script = ExtResource("1_1dgrs")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 7
-
-[sub_resource type="Resource" id="Resource_fu4hr"]
-script = ExtResource("1_1dgrs")
 stat_type = 10
 base_value = 0
 flat_bonus_value = 5
 
-[sub_resource type="Resource" id="Resource_4mput"]
+[sub_resource type="Resource" id="Resource_yl2v8"]
 script = ExtResource("1_1dgrs")
 stat_type = 11
 base_value = 0
 flat_bonus_value = 5
 
-[sub_resource type="Resource" id="Resource_ou7g5"]
-script = ExtResource("1_1dgrs")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 7
-
-[sub_resource type="Resource" id="Resource_nrwcq"]
+[sub_resource type="Resource" id="Resource_cyuas"]
 script = ExtResource("1_1dgrs")
 stat_type = 17
 base_value = 0
 flat_bonus_value = 3
 
+[sub_resource type="Resource" id="Resource_fu4hr"]
+script = ExtResource("1_1dgrs")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 7
+
 [resource]
 script = ExtResource("3_cgd6c")
 armor_type = 2
 bonus_stats = Dictionary[int, ExtResource("1_1dgrs")]({
-0: SubResource("Resource_djuuo"),
-1: SubResource("Resource_r2l8x"),
 2: SubResource("Resource_5b7sn"),
-3: SubResource("Resource_yl2v8"),
 8: SubResource("Resource_a703j"),
 9: SubResource("Resource_vvrlf"),
-10: SubResource("Resource_fu4hr"),
-11: SubResource("Resource_4mput"),
-15: SubResource("Resource_cyuas"),
-16: SubResource("Resource_ou7g5"),
-17: SubResource("Resource_nrwcq")
+10: SubResource("Resource_r2l8x"),
+11: SubResource("Resource_yl2v8"),
+15: SubResource("Resource_djuuo"),
+16: SubResource("Resource_fu4hr"),
+17: SubResource("Resource_cyuas")
 })
-item_id = "8154215339-10419-15111310-015113-18141585158911710"
+item_id = "71494211815-6393-91131-101482-146100125157011159"
 name = "Celestial Pathfinder Legguards"
 rarity = 0
 icon = ExtResource("2_i60pm")

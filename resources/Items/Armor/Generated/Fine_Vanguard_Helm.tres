@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://b3f4o3a1l3bhs"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=11 format=3 uid="uid://b3f4o3a1l3bhs"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_7twn8"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Fine_Vanguard_Helm.png" id="2_a4j0r"]
@@ -18,73 +18,45 @@ flat_bonus_value = 7
 
 [sub_resource type="Resource" id="Resource_k1wth"]
 script = ExtResource("1_7twn8")
-base_value = 0
-flat_bonus_value = 4
-
-[sub_resource type="Resource" id="Resource_rmwd2"]
-script = ExtResource("1_7twn8")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_p68e1"]
-script = ExtResource("1_7twn8")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_7kw4e"]
-script = ExtResource("1_7twn8")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_4rwih"]
-script = ExtResource("1_7twn8")
 stat_type = 15
 base_value = 0
 flat_bonus_value = 3
 
-[sub_resource type="Resource" id="Resource_7a8q3"]
+[sub_resource type="Resource" id="Resource_rmwd2"]
 script = ExtResource("1_7twn8")
-stat_type = 10
 base_value = 0
-flat_bonus_value = 1
+flat_bonus_value = 4
 
-[sub_resource type="Resource" id="Resource_qlvnl"]
-script = ExtResource("1_7twn8")
-stat_type = 11
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_kitt5"]
-script = ExtResource("1_7twn8")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_q6b2y"]
+[sub_resource type="Resource" id="Resource_p68e1"]
 script = ExtResource("1_7twn8")
 stat_type = 4
 base_value = 0
 flat_bonus_value = 26
 
+[sub_resource type="Resource" id="Resource_7kw4e"]
+script = ExtResource("1_7twn8")
+stat_type = 6
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_4rwih"]
+script = ExtResource("1_7twn8")
+stat_type = 14
+base_value = 0
+flat_bonus_value = 2
+
 [resource]
 script = ExtResource("3_bv3vq")
 bonus_stats = Dictionary[int, ExtResource("1_7twn8")]({
-0: SubResource("Resource_k1wth"),
-1: SubResource("Resource_p68e1"),
-2: SubResource("Resource_rmwd2"),
-3: SubResource("Resource_7kw4e"),
-4: SubResource("Resource_q6b2y"),
+0: SubResource("Resource_rmwd2"),
+4: SubResource("Resource_p68e1"),
+6: SubResource("Resource_7kw4e"),
 8: SubResource("Resource_m1ngo"),
 9: SubResource("Resource_xk0wx"),
-10: SubResource("Resource_7a8q3"),
-11: SubResource("Resource_qlvnl"),
-15: SubResource("Resource_4rwih"),
-16: SubResource("Resource_kitt5")
+14: SubResource("Resource_4rwih"),
+15: SubResource("Resource_k1wth")
 })
-item_id = "11611121481110-120112-11095-157142-7103741599310142"
+item_id = "570601026-13012-12330-05613-081413326810111"
 name = "Fine Vanguard Helm"
 rarity = 0
 icon = ExtResource("2_a4j0r")

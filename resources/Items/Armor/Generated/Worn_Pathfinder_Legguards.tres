@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://bl5oqshqb6f1j"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://bl5oqshqb6f1j"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_va0uj"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Worn_Pathfinder_Legguards.png" id="2_57kau"]
@@ -18,6 +18,7 @@ flat_bonus_value = 2
 
 [sub_resource type="Resource" id="Resource_iyyyc"]
 script = ExtResource("1_va0uj")
+stat_type = 15
 base_value = 0
 flat_bonus_value = 1
 
@@ -29,43 +30,25 @@ flat_bonus_value = 1
 
 [sub_resource type="Resource" id="Resource_qjnrw"]
 script = ExtResource("1_va0uj")
-stat_type = 1
+stat_type = 10
 base_value = 0
 flat_bonus_value = 1
 
 [sub_resource type="Resource" id="Resource_muy1o"]
 script = ExtResource("1_va0uj")
-stat_type = 3
+stat_type = 11
 base_value = 0
 flat_bonus_value = 1
 
 [sub_resource type="Resource" id="Resource_cejo0"]
 script = ExtResource("1_va0uj")
-stat_type = 15
+stat_type = 17
 base_value = 0
 flat_bonus_value = 1
 
 [sub_resource type="Resource" id="Resource_5hpf4"]
 script = ExtResource("1_va0uj")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_vbtaq"]
-script = ExtResource("1_va0uj")
-stat_type = 11
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_j4bdc"]
-script = ExtResource("1_va0uj")
 stat_type = 16
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_b5kve"]
-script = ExtResource("1_va0uj")
-stat_type = 17
 base_value = 0
 flat_bonus_value = 1
 
@@ -73,19 +56,16 @@ flat_bonus_value = 1
 script = ExtResource("3_yc5ov")
 armor_type = 2
 bonus_stats = Dictionary[int, ExtResource("1_va0uj")]({
-0: SubResource("Resource_iyyyc"),
-1: SubResource("Resource_qjnrw"),
 2: SubResource("Resource_v64g7"),
-3: SubResource("Resource_muy1o"),
 8: SubResource("Resource_31qrr"),
 9: SubResource("Resource_je1mq"),
-10: SubResource("Resource_5hpf4"),
-11: SubResource("Resource_vbtaq"),
-15: SubResource("Resource_cejo0"),
-16: SubResource("Resource_j4bdc"),
-17: SubResource("Resource_b5kve")
+10: SubResource("Resource_qjnrw"),
+11: SubResource("Resource_muy1o"),
+15: SubResource("Resource_iyyyc"),
+16: SubResource("Resource_5hpf4"),
+17: SubResource("Resource_cejo0")
 })
-item_id = "145573920-521310-6699-915012-1391561714014111213"
+item_id = "01201512432-613113-23158-14437-6141113912910516"
 name = "Worn Pathfinder Legguards"
 rarity = 0
 icon = ExtResource("2_57kau")

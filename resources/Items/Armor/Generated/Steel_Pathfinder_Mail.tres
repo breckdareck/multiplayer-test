@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://co8p1yqhj81dl"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://co8p1yqhj81dl"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_w3yyk"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Pathfinder_Mail.png" id="2_gb8a1"]
@@ -18,6 +18,7 @@ flat_bonus_value = 22
 
 [sub_resource type="Resource" id="Resource_xch6x"]
 script = ExtResource("1_w3yyk")
+stat_type = 15
 base_value = 0
 flat_bonus_value = 4
 
@@ -29,63 +30,42 @@ flat_bonus_value = 10
 
 [sub_resource type="Resource" id="Resource_ks2p8"]
 script = ExtResource("1_w3yyk")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 4
-
-[sub_resource type="Resource" id="Resource_hihr5"]
-script = ExtResource("1_w3yyk")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 4
-
-[sub_resource type="Resource" id="Resource_1xcx5"]
-script = ExtResource("1_w3yyk")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 4
-
-[sub_resource type="Resource" id="Resource_pi5mq"]
-script = ExtResource("1_w3yyk")
 stat_type = 10
 base_value = 0
 flat_bonus_value = 3
 
-[sub_resource type="Resource" id="Resource_5xvdk"]
+[sub_resource type="Resource" id="Resource_hihr5"]
 script = ExtResource("1_w3yyk")
 stat_type = 11
 base_value = 0
 flat_bonus_value = 3
 
-[sub_resource type="Resource" id="Resource_ajta3"]
-script = ExtResource("1_w3yyk")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 4
-
-[sub_resource type="Resource" id="Resource_l7l42"]
+[sub_resource type="Resource" id="Resource_1xcx5"]
 script = ExtResource("1_w3yyk")
 stat_type = 17
 base_value = 0
 flat_bonus_value = 2
 
+[sub_resource type="Resource" id="Resource_pi5mq"]
+script = ExtResource("1_w3yyk")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 4
+
 [resource]
 script = ExtResource("3_sgxb7")
 armor_type = 1
 bonus_stats = Dictionary[int, ExtResource("1_w3yyk")]({
-0: SubResource("Resource_xch6x"),
-1: SubResource("Resource_ks2p8"),
 2: SubResource("Resource_yf400"),
-3: SubResource("Resource_hihr5"),
 8: SubResource("Resource_x50y0"),
 9: SubResource("Resource_t4csx"),
-10: SubResource("Resource_pi5mq"),
-11: SubResource("Resource_5xvdk"),
-15: SubResource("Resource_1xcx5"),
-16: SubResource("Resource_ajta3"),
-17: SubResource("Resource_l7l42")
+10: SubResource("Resource_ks2p8"),
+11: SubResource("Resource_hihr5"),
+15: SubResource("Resource_xch6x"),
+16: SubResource("Resource_pi5mq"),
+17: SubResource("Resource_1xcx5")
 })
-item_id = "1172339150-131278-79414-16122-355541483600"
+item_id = "71174381214-78101-115413-131913-0932131313091453"
 name = "Steel Pathfinder Mail"
 rarity = 0
 icon = ExtResource("2_gb8a1")

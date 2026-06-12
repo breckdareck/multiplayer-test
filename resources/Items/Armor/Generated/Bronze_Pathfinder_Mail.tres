@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://37l825vct8in"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://37l825vct8in"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_2bd6r"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Pathfinder_Mail.png" id="2_od1in"]
@@ -18,6 +18,7 @@ flat_bonus_value = 10
 
 [sub_resource type="Resource" id="Resource_4oruc"]
 script = ExtResource("1_2bd6r")
+stat_type = 15
 base_value = 0
 flat_bonus_value = 2
 
@@ -29,63 +30,42 @@ flat_bonus_value = 4
 
 [sub_resource type="Resource" id="Resource_ctmmj"]
 script = ExtResource("1_2bd6r")
-stat_type = 1
+stat_type = 10
 base_value = 0
 flat_bonus_value = 2
 
 [sub_resource type="Resource" id="Resource_5n6y7"]
 script = ExtResource("1_2bd6r")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_nvsrt"]
-script = ExtResource("1_2bd6r")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_u8n1n"]
-script = ExtResource("1_2bd6r")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_c8j0w"]
-script = ExtResource("1_2bd6r")
 stat_type = 11
 base_value = 0
 flat_bonus_value = 1
 
-[sub_resource type="Resource" id="Resource_bpg4u"]
-script = ExtResource("1_2bd6r")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_pvrop"]
+[sub_resource type="Resource" id="Resource_nvsrt"]
 script = ExtResource("1_2bd6r")
 stat_type = 17
 base_value = 0
 flat_bonus_value = 1
 
+[sub_resource type="Resource" id="Resource_u8n1n"]
+script = ExtResource("1_2bd6r")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 2
+
 [resource]
 script = ExtResource("3_yoqs5")
 armor_type = 1
 bonus_stats = Dictionary[int, ExtResource("1_2bd6r")]({
-0: SubResource("Resource_4oruc"),
-1: SubResource("Resource_ctmmj"),
 2: SubResource("Resource_0j8gp"),
-3: SubResource("Resource_5n6y7"),
 8: SubResource("Resource_5x3sf"),
 9: SubResource("Resource_xsjn2"),
-10: SubResource("Resource_u8n1n"),
-11: SubResource("Resource_c8j0w"),
-15: SubResource("Resource_nvsrt"),
-16: SubResource("Resource_bpg4u"),
-17: SubResource("Resource_pvrop")
+10: SubResource("Resource_ctmmj"),
+11: SubResource("Resource_5n6y7"),
+15: SubResource("Resource_4oruc"),
+16: SubResource("Resource_u8n1n"),
+17: SubResource("Resource_nvsrt")
 })
-item_id = "134811231014-5629-118132-13746-505641514112179"
+item_id = "14449714215-1013714-15611-01098-977915114145252"
 name = "Bronze Pathfinder Mail"
 rarity = 0
 icon = ExtResource("2_od1in")

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://bojdrksqrjicv"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://bojdrksqrjicv"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_jsik2"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Nightshade_Legguards.png" id="2_wtwso"]
@@ -18,54 +18,37 @@ flat_bonus_value = 14
 
 [sub_resource type="Resource" id="Resource_tqhng"]
 script = ExtResource("1_jsik2")
+stat_type = 15
 base_value = 0
-flat_bonus_value = 2
+flat_bonus_value = 3
 
 [sub_resource type="Resource" id="Resource_kb20x"]
-script = ExtResource("1_jsik2")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_jvgri"]
-script = ExtResource("1_jsik2")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_rbpd5"]
 script = ExtResource("1_jsik2")
 stat_type = 3
 base_value = 0
 flat_bonus_value = 6
 
-[sub_resource type="Resource" id="Resource_q48bx"]
-script = ExtResource("1_jsik2")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_gqcye"]
-script = ExtResource("1_jsik2")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_8j85j"]
+[sub_resource type="Resource" id="Resource_jvgri"]
 script = ExtResource("1_jsik2")
 stat_type = 11
 base_value = 0
 flat_bonus_value = 3
 
-[sub_resource type="Resource" id="Resource_e54ge"]
+[sub_resource type="Resource" id="Resource_rbpd5"]
 script = ExtResource("1_jsik2")
-stat_type = 16
+stat_type = 10
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_q48bx"]
+script = ExtResource("1_jsik2")
+stat_type = 17
 base_value = 0
 flat_bonus_value = 1
 
-[sub_resource type="Resource" id="Resource_e434u"]
+[sub_resource type="Resource" id="Resource_gqcye"]
 script = ExtResource("1_jsik2")
-stat_type = 17
+stat_type = 16
 base_value = 0
 flat_bonus_value = 1
 
@@ -73,19 +56,16 @@ flat_bonus_value = 1
 script = ExtResource("3_rs3o3")
 armor_type = 2
 bonus_stats = Dictionary[int, ExtResource("1_jsik2")]({
-0: SubResource("Resource_tqhng"),
-1: SubResource("Resource_jvgri"),
-2: SubResource("Resource_kb20x"),
-3: SubResource("Resource_rbpd5"),
+3: SubResource("Resource_kb20x"),
 8: SubResource("Resource_im8ef"),
 9: SubResource("Resource_x75fc"),
-10: SubResource("Resource_gqcye"),
-11: SubResource("Resource_8j85j"),
-15: SubResource("Resource_q48bx"),
-16: SubResource("Resource_e54ge"),
-17: SubResource("Resource_e434u")
+10: SubResource("Resource_rbpd5"),
+11: SubResource("Resource_jvgri"),
+15: SubResource("Resource_tqhng"),
+16: SubResource("Resource_gqcye"),
+17: SubResource("Resource_q48bx")
 })
-item_id = "5149110350-13907-82102-151314-131121438141000210"
+item_id = "1012511412510-2957-54314-1011615-6651113214139121511"
 name = "Iron Nightshade Legguards"
 rarity = 0
 icon = ExtResource("2_wtwso")

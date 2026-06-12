@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://sqwxwfs4sm38"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://sqwxwfs4sm38"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_fpgf8"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Dragonbone_Pathfinder_Helm.png" id="2_hyf5w"]
@@ -18,8 +18,9 @@ flat_bonus_value = 27
 
 [sub_resource type="Resource" id="Resource_cx1uk"]
 script = ExtResource("1_fpgf8")
+stat_type = 15
 base_value = 0
-flat_bonus_value = 4
+flat_bonus_value = 5
 
 [sub_resource type="Resource" id="Resource_auw28"]
 script = ExtResource("1_fpgf8")
@@ -29,62 +30,41 @@ flat_bonus_value = 12
 
 [sub_resource type="Resource" id="Resource_wmcpi"]
 script = ExtResource("1_fpgf8")
-stat_type = 1
+stat_type = 10
 base_value = 0
 flat_bonus_value = 4
 
 [sub_resource type="Resource" id="Resource_2wpug"]
 script = ExtResource("1_fpgf8")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 4
-
-[sub_resource type="Resource" id="Resource_4m88c"]
-script = ExtResource("1_fpgf8")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_s2mrn"]
-script = ExtResource("1_fpgf8")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 4
-
-[sub_resource type="Resource" id="Resource_ex5xg"]
-script = ExtResource("1_fpgf8")
 stat_type = 11
 base_value = 0
 flat_bonus_value = 3
 
-[sub_resource type="Resource" id="Resource_uq2kg"]
-script = ExtResource("1_fpgf8")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_iardu"]
+[sub_resource type="Resource" id="Resource_4m88c"]
 script = ExtResource("1_fpgf8")
 stat_type = 17
 base_value = 0
 flat_bonus_value = 2
 
+[sub_resource type="Resource" id="Resource_s2mrn"]
+script = ExtResource("1_fpgf8")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 5
+
 [resource]
 script = ExtResource("3_13u6p")
 bonus_stats = Dictionary[int, ExtResource("1_fpgf8")]({
-0: SubResource("Resource_cx1uk"),
-1: SubResource("Resource_wmcpi"),
 2: SubResource("Resource_auw28"),
-3: SubResource("Resource_2wpug"),
 8: SubResource("Resource_rytx3"),
 9: SubResource("Resource_i2iuy"),
-10: SubResource("Resource_s2mrn"),
-11: SubResource("Resource_ex5xg"),
-15: SubResource("Resource_4m88c"),
-16: SubResource("Resource_uq2kg"),
-17: SubResource("Resource_iardu")
+10: SubResource("Resource_wmcpi"),
+11: SubResource("Resource_2wpug"),
+15: SubResource("Resource_cx1uk"),
+16: SubResource("Resource_s2mrn"),
+17: SubResource("Resource_4m88c")
 })
-item_id = "137151011594-841013-501214-125113-264120120132913"
+item_id = "083151010151-1115110-32314-4673-8148831015336135"
 name = "Dragonbone Pathfinder Helm"
 rarity = 0
 icon = ExtResource("2_hyf5w")

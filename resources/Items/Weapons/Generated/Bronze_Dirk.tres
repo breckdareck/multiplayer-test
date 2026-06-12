@@ -8,7 +8,7 @@
 script = ExtResource("1_dgwri")
 stat_type = 12
 base_value = 0
-flat_bonus_value = 22
+flat_bonus_value = 21
 
 [sub_resource type="Resource" id="Resource_gscfl"]
 script = ExtResource("1_dgwri")
@@ -32,7 +32,7 @@ bonus_stats = Dictionary[int, ExtResource("1_dgwri")]({
 10: SubResource("Resource_mxkb7"),
 12: SubResource("Resource_oba7l")
 })
-item_id = "17121072114-51045-7829-13312-10133121328710146"
+item_id = "18151010603-9908-581313-14086-143111531149103128"
 name = "Bronze Dirk"
 rarity = 0
 icon = ExtResource("2_5d6pp")

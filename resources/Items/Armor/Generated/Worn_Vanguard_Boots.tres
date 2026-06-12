@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://yldayyowilqf"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=11 format=3 uid="uid://yldayyowilqf"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_wqlw4"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Worn_Vanguard_Boots.png" id="2_6hgxg"]
@@ -18,74 +18,46 @@ flat_bonus_value = 1
 
 [sub_resource type="Resource" id="Resource_aprmr"]
 script = ExtResource("1_wqlw4")
+stat_type = 15
 base_value = 0
 flat_bonus_value = 1
 
 [sub_resource type="Resource" id="Resource_iaqca"]
 script = ExtResource("1_wqlw4")
-stat_type = 2
 base_value = 0
 flat_bonus_value = 1
 
 [sub_resource type="Resource" id="Resource_kvaaw"]
 script = ExtResource("1_wqlw4")
-stat_type = 1
+stat_type = 4
 base_value = 0
-flat_bonus_value = 1
+flat_bonus_value = 5
 
 [sub_resource type="Resource" id="Resource_imyum"]
 script = ExtResource("1_wqlw4")
-stat_type = 3
+stat_type = 6
 base_value = 0
 flat_bonus_value = 1
 
 [sub_resource type="Resource" id="Resource_pngqm"]
 script = ExtResource("1_wqlw4")
-stat_type = 15
+stat_type = 14
 base_value = 0
 flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_s6af1"]
-script = ExtResource("1_wqlw4")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_req6j"]
-script = ExtResource("1_wqlw4")
-stat_type = 11
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_eflkg"]
-script = ExtResource("1_wqlw4")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_co7rh"]
-script = ExtResource("1_wqlw4")
-stat_type = 4
-base_value = 0
-flat_bonus_value = 5
 
 [resource]
 script = ExtResource("3_s4tp7")
 armor_type = 3
 bonus_stats = Dictionary[int, ExtResource("1_wqlw4")]({
-0: SubResource("Resource_aprmr"),
-1: SubResource("Resource_kvaaw"),
-2: SubResource("Resource_iaqca"),
-3: SubResource("Resource_imyum"),
-4: SubResource("Resource_co7rh"),
+0: SubResource("Resource_iaqca"),
+4: SubResource("Resource_kvaaw"),
+6: SubResource("Resource_imyum"),
 8: SubResource("Resource_v24kl"),
 9: SubResource("Resource_2w7vj"),
-10: SubResource("Resource_s6af1"),
-11: SubResource("Resource_req6j"),
-15: SubResource("Resource_pngqm"),
-16: SubResource("Resource_eflkg")
+14: SubResource("Resource_pngqm"),
+15: SubResource("Resource_aprmr")
 })
-item_id = "713131012157-129131-152211-1010113-5965941415135"
+item_id = "39136141444-3339-314138-1451112-0612812116741714"
 name = "Worn Vanguard Boots"
 rarity = 0
 icon = ExtResource("2_6hgxg")

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://kxwrja7iu6fp"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://kxwrja7iu6fp"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_aqluj"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Astral_Pathfinder_Boots.png" id="2_eb5ts"]
@@ -18,8 +18,9 @@ flat_bonus_value = 27
 
 [sub_resource type="Resource" id="Resource_3ljxr"]
 script = ExtResource("1_aqluj")
+stat_type = 15
 base_value = 0
-flat_bonus_value = 4
+flat_bonus_value = 5
 
 [sub_resource type="Resource" id="Resource_ejxjk"]
 script = ExtResource("1_aqluj")
@@ -29,63 +30,42 @@ flat_bonus_value = 12
 
 [sub_resource type="Resource" id="Resource_s0los"]
 script = ExtResource("1_aqluj")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 4
-
-[sub_resource type="Resource" id="Resource_8775w"]
-script = ExtResource("1_aqluj")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 4
-
-[sub_resource type="Resource" id="Resource_5x77q"]
-script = ExtResource("1_aqluj")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_kej2n"]
-script = ExtResource("1_aqluj")
 stat_type = 10
 base_value = 0
 flat_bonus_value = 3
 
-[sub_resource type="Resource" id="Resource_3tb7t"]
+[sub_resource type="Resource" id="Resource_8775w"]
 script = ExtResource("1_aqluj")
 stat_type = 11
 base_value = 0
 flat_bonus_value = 3
 
-[sub_resource type="Resource" id="Resource_hp7xe"]
-script = ExtResource("1_aqluj")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_g4n2c"]
+[sub_resource type="Resource" id="Resource_5x77q"]
 script = ExtResource("1_aqluj")
 stat_type = 17
 base_value = 0
 flat_bonus_value = 2
 
+[sub_resource type="Resource" id="Resource_kej2n"]
+script = ExtResource("1_aqluj")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 5
+
 [resource]
 script = ExtResource("3_mhkht")
 armor_type = 3
 bonus_stats = Dictionary[int, ExtResource("1_aqluj")]({
-0: SubResource("Resource_3ljxr"),
-1: SubResource("Resource_s0los"),
 2: SubResource("Resource_ejxjk"),
-3: SubResource("Resource_8775w"),
 8: SubResource("Resource_aqjc3"),
 9: SubResource("Resource_rjm7s"),
-10: SubResource("Resource_kej2n"),
-11: SubResource("Resource_3tb7t"),
-15: SubResource("Resource_5x77q"),
-16: SubResource("Resource_hp7xe"),
-17: SubResource("Resource_g4n2c")
+10: SubResource("Resource_s0los"),
+11: SubResource("Resource_8775w"),
+15: SubResource("Resource_3ljxr"),
+16: SubResource("Resource_kej2n"),
+17: SubResource("Resource_5x77q")
 })
-item_id = "1213101311140-213412-4821-1151011-9931511411151214713"
+item_id = "86321419-107150-210712-131489-011141214111211415914"
 name = "Astral Pathfinder Boots"
 rarity = 0
 icon = ExtResource("2_eb5ts")

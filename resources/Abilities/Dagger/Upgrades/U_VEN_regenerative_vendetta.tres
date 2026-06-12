@@ -6,9 +6,9 @@
 script = ExtResource("1_aud")
 upgrade_id = "ven_t3_regenerative_vendetta"
 upgrade_name = "Regenerative Vendetta"
-description = "Vendetta heals you for 25% of damage dealt."
+description = "Vendetta heals you for 8% of damage dealt."
 point_cost = 2
 tier = 3
 variant_group = "ven_t3_variant"
 effect_key = "bonus_lifesteal"
-magnitude = 0.25
+magnitude = 0.08

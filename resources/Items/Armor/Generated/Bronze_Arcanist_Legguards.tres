@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=16 format=3 uid="uid://bolpcsb61r550"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=11 format=3 uid="uid://bolpcsb61r550"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_xc6as"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Arcanist_Legguards.png" id="2_n1d5q"]
@@ -18,60 +18,31 @@ flat_bonus_value = 10
 
 [sub_resource type="Resource" id="Resource_4d7rb"]
 script = ExtResource("1_xc6as")
+stat_type = 15
 base_value = 0
 flat_bonus_value = 1
 
 [sub_resource type="Resource" id="Resource_8h2sr"]
 script = ExtResource("1_xc6as")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_kd4eb"]
-script = ExtResource("1_xc6as")
 stat_type = 1
 base_value = 0
 flat_bonus_value = 3
 
-[sub_resource type="Resource" id="Resource_0ec06"]
-script = ExtResource("1_xc6as")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_j15gs"]
-script = ExtResource("1_xc6as")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_q8ydc"]
-script = ExtResource("1_xc6as")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_hnmmw"]
-script = ExtResource("1_xc6as")
-stat_type = 11
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_vld0b"]
-script = ExtResource("1_xc6as")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_5mtwa"]
+[sub_resource type="Resource" id="Resource_kd4eb"]
 script = ExtResource("1_xc6as")
 stat_type = 5
 base_value = 0
 flat_bonus_value = 20
 
-[sub_resource type="Resource" id="Resource_puvh3"]
+[sub_resource type="Resource" id="Resource_0ec06"]
 script = ExtResource("1_xc6as")
 stat_type = 7
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_j15gs"]
+script = ExtResource("1_xc6as")
+stat_type = 16
 base_value = 0
 flat_bonus_value = 1
 
@@ -79,20 +50,15 @@ flat_bonus_value = 1
 script = ExtResource("3_ltehg")
 armor_type = 2
 bonus_stats = Dictionary[int, ExtResource("1_xc6as")]({
-0: SubResource("Resource_4d7rb"),
-1: SubResource("Resource_kd4eb"),
-2: SubResource("Resource_8h2sr"),
-3: SubResource("Resource_0ec06"),
-5: SubResource("Resource_5mtwa"),
-7: SubResource("Resource_puvh3"),
+1: SubResource("Resource_8h2sr"),
+5: SubResource("Resource_kd4eb"),
+7: SubResource("Resource_0ec06"),
 8: SubResource("Resource_frurk"),
 9: SubResource("Resource_hljjs"),
-10: SubResource("Resource_q8ydc"),
-11: SubResource("Resource_hnmmw"),
-15: SubResource("Resource_j15gs"),
-16: SubResource("Resource_vld0b")
+15: SubResource("Resource_4d7rb"),
+16: SubResource("Resource_j15gs")
 })
-item_id = "15111584468-121020-48713-2580-1017330621413147"
+item_id = "627121415012-11101010-181311-14177-2614131151388355"
 name = "Bronze Arcanist Legguards"
 rarity = 0
 icon = ExtResource("2_n1d5q")

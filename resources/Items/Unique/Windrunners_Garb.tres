@@ -37,7 +37,7 @@ bonus_stats = Dictionary[int, ExtResource("1_d1s5j")]({
 8: SubResource("Resource_d5ub6"),
 10: SubResource("Resource_5kpvc")
 })
-item_id = "71305101049-1411211-129312-61469-11613129735159212"
+item_id = "8813411773-8698-11289-127810-13681562137141010"
 name = "Windrunner's Garb"
 rarity = 4
 icon = ExtResource("2_x7ovx")

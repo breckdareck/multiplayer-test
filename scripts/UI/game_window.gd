@@ -305,10 +305,33 @@ func _refresh_stats() -> void:
 		return
 	_update_attr_respec_button()
 	var S = Constants.StatType
+	# HP/MP rows get a LIVE breakdown tooltip: the shared level curve, the
+	# CON/INT attribute contribution, and whatever gear & buffs make up the
+	# rest — so the pool is explainable, not a magic number. Static scene
+	# tooltips on these rows are the fallback until the first refresh.
+	var lvl: int = 1
+	if "level_component" in player and player.level_component:
+		lvl = int(player.level_component.level)
 	if "health_component" in player and player.health_component:
-		_set_row("HpRow", "%d/%d" % [player.health_component.current_health, player.health_component.max_health])
+		var hc = player.health_component
+		_set_row("HpRow", "%d/%d" % [hc.current_health, hc.max_health])
+		var hp_curve: int = StatsComponent.PLAYER_BASE_MAX_HEALTH + StatsComponent.PLAYER_HEALTH_SCALING_MULTIPLIER * (lvl - 1)
+		var con_total: int = int(sc.stats.get(S.CONSTITUTION).total_value)
+		var hp_from_con: int = int(float(con_total) * StatsComponent.CON_TO_HP)
+		var hp_other: int = int(hc.max_health) - hp_curve - hp_from_con
+		_set_row_tooltip("HpRow", "Health\nLevel curve (Lv %d): %d\nConstitution (%d × %d): +%d\nGear & buffs: %+d\nRegen: +%d HP every 10s" % [
+			lvl, hp_curve, con_total, int(StatsComponent.CON_TO_HP), hp_from_con, hp_other,
+			int(sc.stats.get(S.HPREGEN).total_value)])
 	if "mana_component" in player and player.mana_component:
-		_set_row("MpRow", "%d/%d" % [player.mana_component.current_mana, player.mana_component.max_mana])
+		var mc = player.mana_component
+		_set_row("MpRow", "%d/%d" % [mc.current_mana, mc.max_mana])
+		var mp_curve: int = StatsComponent.PLAYER_BASE_MAX_MANA + StatsComponent.PLAYER_MANA_SCALING_MULTIPLIER * (lvl - 1)
+		var int_total: int = int(sc.stats.get(S.INTELLIGENCE).total_value)
+		var mp_from_int: int = int(float(int_total) * StatsComponent.INT_TO_MANA)
+		var mp_other: int = int(mc.max_mana) - mp_curve - mp_from_int
+		_set_row_tooltip("MpRow", "Mana\nLevel curve (Lv %d): %d\nIntelligence (%d × %.1f): +%d\nGear & buffs: %+d\nRegen: +%d MP every 10s" % [
+			lvl, mp_curve, int_total, StatsComponent.INT_TO_MANA, mp_from_int, mp_other,
+			int(sc.stats.get(S.MPREGEN).total_value)])
 	_set_row("AtkRow", str(int(sc.stats.get(S.WEAPONATTACK).total_value)))
 	_set_row("MAtkRow", str(int(sc.stats.get(S.MAGICATTACK).total_value)))
 	_set_row("DefRow", str(int(sc.stats.get(S.DEFENSE).total_value)))
@@ -346,6 +369,16 @@ func _set_row(row_name: String, txt: String) -> void:
 	var v := stats_root.get_node_or_null(row_name + "/V") as Label
 	if v:
 		v.text = txt
+
+
+## Apply a (live) tooltip to both labels of a stat row. mouse_filter must be
+## PASS — Labels default to IGNORE, which suppresses tooltips entirely.
+func _set_row_tooltip(row_name: String, tip: String) -> void:
+	for child_name in ["K", "V"]:
+		var l := stats_root.get_node_or_null(row_name + "/" + child_name) as Label
+		if l:
+			l.tooltip_text = tip
+			l.mouse_filter = Control.MOUSE_FILTER_PASS
 
 
 # ─── Window chrome ───────────────────────────────────────────────────────────

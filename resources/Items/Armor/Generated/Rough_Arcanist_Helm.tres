@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=16 format=3 uid="uid://bstqemk8a5coc"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=11 format=3 uid="uid://bstqemk8a5coc"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_6pw7u"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Rough_Arcanist_Helm.png" id="2_nqgel"]
@@ -18,80 +18,46 @@ flat_bonus_value = 5
 
 [sub_resource type="Resource" id="Resource_gomqm"]
 script = ExtResource("1_6pw7u")
+stat_type = 15
 base_value = 0
 flat_bonus_value = 1
 
 [sub_resource type="Resource" id="Resource_86st5"]
 script = ExtResource("1_6pw7u")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_65cm4"]
-script = ExtResource("1_6pw7u")
 stat_type = 1
 base_value = 0
 flat_bonus_value = 2
 
-[sub_resource type="Resource" id="Resource_bbbix"]
-script = ExtResource("1_6pw7u")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_xkihg"]
-script = ExtResource("1_6pw7u")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_xbolh"]
-script = ExtResource("1_6pw7u")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_5hyi7"]
-script = ExtResource("1_6pw7u")
-stat_type = 11
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_8wwyn"]
-script = ExtResource("1_6pw7u")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_sdcl3"]
+[sub_resource type="Resource" id="Resource_65cm4"]
 script = ExtResource("1_6pw7u")
 stat_type = 5
 base_value = 0
 flat_bonus_value = 11
 
-[sub_resource type="Resource" id="Resource_gp3kd"]
+[sub_resource type="Resource" id="Resource_bbbix"]
 script = ExtResource("1_6pw7u")
 stat_type = 7
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_xkihg"]
+script = ExtResource("1_6pw7u")
+stat_type = 16
 base_value = 0
 flat_bonus_value = 1
 
 [resource]
 script = ExtResource("3_dlj54")
 bonus_stats = Dictionary[int, ExtResource("1_6pw7u")]({
-0: SubResource("Resource_gomqm"),
-1: SubResource("Resource_65cm4"),
-2: SubResource("Resource_86st5"),
-3: SubResource("Resource_bbbix"),
-5: SubResource("Resource_sdcl3"),
-7: SubResource("Resource_gp3kd"),
+1: SubResource("Resource_86st5"),
+5: SubResource("Resource_65cm4"),
+7: SubResource("Resource_bbbix"),
 8: SubResource("Resource_wg5c8"),
 9: SubResource("Resource_tk1gr"),
-10: SubResource("Resource_xbolh"),
-11: SubResource("Resource_5hyi7"),
-15: SubResource("Resource_xkihg"),
-16: SubResource("Resource_8wwyn")
+15: SubResource("Resource_gomqm"),
+16: SubResource("Resource_xkihg")
 })
-item_id = "151310215890-11143-71099-21348-21021045128613144"
+item_id = "425258115-9562-10131111-814132-28151010261130914"
 name = "Rough Arcanist Helm"
 rarity = 0
 icon = ExtResource("2_nqgel")

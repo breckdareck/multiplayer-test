@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://dsu0itc80ivah"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://dsu0itc80ivah"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_y6gvu"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Pathfinder_Boots.png" id="2_y4ypl"]
@@ -18,6 +18,7 @@ flat_bonus_value = 18
 
 [sub_resource type="Resource" id="Resource_3j4kf"]
 script = ExtResource("1_y6gvu")
+stat_type = 15
 base_value = 0
 flat_bonus_value = 3
 
@@ -29,63 +30,42 @@ flat_bonus_value = 8
 
 [sub_resource type="Resource" id="Resource_0gv6p"]
 script = ExtResource("1_y6gvu")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_qg24w"]
-script = ExtResource("1_y6gvu")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_58377"]
-script = ExtResource("1_y6gvu")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_8m1mq"]
-script = ExtResource("1_y6gvu")
 stat_type = 10
 base_value = 0
 flat_bonus_value = 2
 
-[sub_resource type="Resource" id="Resource_onx0u"]
+[sub_resource type="Resource" id="Resource_qg24w"]
 script = ExtResource("1_y6gvu")
 stat_type = 11
 base_value = 0
 flat_bonus_value = 2
 
-[sub_resource type="Resource" id="Resource_yx4d2"]
-script = ExtResource("1_y6gvu")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_qvi2k"]
+[sub_resource type="Resource" id="Resource_58377"]
 script = ExtResource("1_y6gvu")
 stat_type = 17
 base_value = 0
 flat_bonus_value = 1
 
+[sub_resource type="Resource" id="Resource_8m1mq"]
+script = ExtResource("1_y6gvu")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 3
+
 [resource]
 script = ExtResource("3_rshsd")
 armor_type = 3
 bonus_stats = Dictionary[int, ExtResource("1_y6gvu")]({
-0: SubResource("Resource_3j4kf"),
-1: SubResource("Resource_0gv6p"),
 2: SubResource("Resource_ak83y"),
-3: SubResource("Resource_qg24w"),
 8: SubResource("Resource_kqf33"),
 9: SubResource("Resource_a2823"),
-10: SubResource("Resource_8m1mq"),
-11: SubResource("Resource_onx0u"),
-15: SubResource("Resource_58377"),
-16: SubResource("Resource_yx4d2"),
-17: SubResource("Resource_qvi2k")
+10: SubResource("Resource_0gv6p"),
+11: SubResource("Resource_qg24w"),
+15: SubResource("Resource_3j4kf"),
+16: SubResource("Resource_8m1mq"),
+17: SubResource("Resource_58377")
 })
-item_id = "121321578130-1750-41266-661514-1012279131098044"
+item_id = "130128140139-58310-121125-11415-81071511101415107115"
 name = "Pristine Pathfinder Boots"
 rarity = 0
 icon = ExtResource("2_y4ypl")

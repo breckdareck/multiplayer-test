@@ -10,7 +10,7 @@ effect_script = ExtResource("1_6kohk")
 effect_properties = {
 "regain_amount": 100
 }
-item_id = "141112915012-59415-5121414-781115-891201211471413155"
+item_id = "171010811115-9438-83512-9324-13415581215117182"
 name = "Mana Draught"
 icon = ExtResource("2_dp5rx")
 description = "Restores 100 MP when consumed."

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://pcqu2m8016q6"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://pcqu2m8016q6"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_yelr0"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Astral_Nightshade_Mail.png" id="2_ih5si"]
@@ -18,74 +18,54 @@ flat_bonus_value = 54
 
 [sub_resource type="Resource" id="Resource_gtgux"]
 script = ExtResource("1_yelr0")
+stat_type = 15
 base_value = 0
-flat_bonus_value = 9
+flat_bonus_value = 10
 
 [sub_resource type="Resource" id="Resource_hk5mc"]
-script = ExtResource("1_yelr0")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 9
-
-[sub_resource type="Resource" id="Resource_7uraw"]
-script = ExtResource("1_yelr0")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 9
-
-[sub_resource type="Resource" id="Resource_g2sd8"]
 script = ExtResource("1_yelr0")
 stat_type = 3
 base_value = 0
 flat_bonus_value = 24
 
-[sub_resource type="Resource" id="Resource_475lr"]
-script = ExtResource("1_yelr0")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 10
-
-[sub_resource type="Resource" id="Resource_2chbh"]
-script = ExtResource("1_yelr0")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 6
-
-[sub_resource type="Resource" id="Resource_ucm4k"]
+[sub_resource type="Resource" id="Resource_7uraw"]
 script = ExtResource("1_yelr0")
 stat_type = 11
 base_value = 0
 flat_bonus_value = 11
 
-[sub_resource type="Resource" id="Resource_nxf8t"]
+[sub_resource type="Resource" id="Resource_g2sd8"]
 script = ExtResource("1_yelr0")
-stat_type = 16
+stat_type = 10
 base_value = 0
-flat_bonus_value = 3
+flat_bonus_value = 6
 
-[sub_resource type="Resource" id="Resource_sauiw"]
+[sub_resource type="Resource" id="Resource_475lr"]
 script = ExtResource("1_yelr0")
 stat_type = 17
 base_value = 0
 flat_bonus_value = 4
 
+[sub_resource type="Resource" id="Resource_2chbh"]
+script = ExtResource("1_yelr0")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 3
+
 [resource]
 script = ExtResource("3_jij58")
 armor_type = 1
 bonus_stats = Dictionary[int, ExtResource("1_yelr0")]({
-0: SubResource("Resource_gtgux"),
-1: SubResource("Resource_7uraw"),
-2: SubResource("Resource_hk5mc"),
-3: SubResource("Resource_g2sd8"),
+3: SubResource("Resource_hk5mc"),
 8: SubResource("Resource_m56vj"),
 9: SubResource("Resource_3i4i2"),
-10: SubResource("Resource_2chbh"),
-11: SubResource("Resource_ucm4k"),
-15: SubResource("Resource_475lr"),
-16: SubResource("Resource_nxf8t"),
-17: SubResource("Resource_sauiw")
+10: SubResource("Resource_g2sd8"),
+11: SubResource("Resource_7uraw"),
+15: SubResource("Resource_gtgux"),
+16: SubResource("Resource_2chbh"),
+17: SubResource("Resource_475lr")
 })
-item_id = "62131010148-6226-108105-64514-901421472812388"
+item_id = "151501412118-1081414-113811-11817-302014441522110"
 name = "Astral Nightshade Mail"
 rarity = 0
 icon = ExtResource("2_ih5si")

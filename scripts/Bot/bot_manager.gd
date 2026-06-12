@@ -756,13 +756,21 @@ func _apply_offline_catchup(bot_id: int, last_seen_unix: int) -> void:
 		player_node.player_inventory.monies_amount += gained * 40
 
 
+## Mastery completes before the character cap: full MASTERY_CAP at char level
+## 70, pro-rated below it (the progression design's build-phase arc — build
+## done by 70, levels 70-100 are stat refinement). Used by pump_bot_to_level
+## so a seeded bot's mastery matches what organic play would have earned.
+const MASTERY_FULL_AT_CHAR_LEVEL: int = 70
+
+
 ## Levels a bot's character to `level` by pumping EXP, and raises its
-## primary-discipline mastery to match (one mastery level per character level,
-## capped) — character EXP only grants attribute points; ability points come
-## from WEAPON MASTERY (mastery_level_changed -> ability-point grant), so
-## without the mastery pump a leveled bot would have a full attribute build but
-## no skills. One level's XP per call: grant_mastery_xp_server emits once per
-## call, so a single lump would jump levels but grant only one ability point.
+## primary-discipline mastery to match (MASTERY_CAP × level / 70, capped — see
+## MASTERY_FULL_AT_CHAR_LEVEL) — character EXP only grants attribute points;
+## ability points come from WEAPON MASTERY (mastery_level_changed ->
+## ability-point grant), so without the mastery pump a leveled bot would have
+## a full attribute build but no skills. One level's XP per call:
+## grant_mastery_xp_server emits once per call, so a single lump would jump
+## levels but grant only one ability point.
 ## Shared by /bot set_level and cold-start seeding. Returns a mastery summary.
 func pump_bot_to_level(player_node: MultiplayerPlayerV2, level: int) -> String:
 	while player_node.level_component.level < level:
@@ -774,11 +782,19 @@ func pump_bot_to_level(player_node: MultiplayerPlayerV2, level: int) -> String:
 	var wm = player_node.weapon_mastery_component
 	if is_instance_valid(wm):
 		var disc: int = wm.primary_discipline
-		var target_mastery: int = mini(level, WeaponMasteryComponent.MASTERY_CAP)
+		var target_mastery: int = mini(
+			ceili(float(level) * float(WeaponMasteryComponent.MASTERY_CAP) / float(MASTERY_FULL_AT_CHAR_LEVEL)),
+			WeaponMasteryComponent.MASTERY_CAP)
 		var start_mastery: int = wm.get_mastery_level(disc)
 		while wm.get_mastery_level(disc) < target_mastery:
 			wm.grant_mastery_xp_server(disc, wm.get_xp_to_next_level(disc))
 		mastery_msg = " (mastery %d -> %d)" % [start_mastery, wm.get_mastery_level(disc)]
+	# Cold-start seeding runs in the bot's FIRST frame — before the controller's
+	# _ready resumes from its process_frame await and wires leveled_up → nameplate
+	# refresh — so pumped levels never reach the overhead label. Refresh it
+	# explicitly here; organic level-ups go through the signal.
+	if player_node.has_method("_refresh_name_label"):
+		player_node._refresh_name_label()
 	return mastery_msg
 
 

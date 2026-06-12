@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=16 format=3 uid="uid://b85sjesc74533"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=11 format=3 uid="uid://b85sjesc74533"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_rqglv"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Helm.png" id="2_2yoaj"]
@@ -18,80 +18,46 @@ flat_bonus_value = 20
 
 [sub_resource type="Resource" id="Resource_o6w1j"]
 script = ExtResource("1_rqglv")
+stat_type = 15
 base_value = 0
 flat_bonus_value = 3
 
 [sub_resource type="Resource" id="Resource_0g4v4"]
 script = ExtResource("1_rqglv")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_ul5ux"]
-script = ExtResource("1_rqglv")
 stat_type = 1
 base_value = 0
 flat_bonus_value = 7
 
-[sub_resource type="Resource" id="Resource_iwit6"]
-script = ExtResource("1_rqglv")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_ottox"]
-script = ExtResource("1_rqglv")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_dvdn3"]
-script = ExtResource("1_rqglv")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_uet43"]
-script = ExtResource("1_rqglv")
-stat_type = 11
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_im5m0"]
-script = ExtResource("1_rqglv")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_ds1cb"]
+[sub_resource type="Resource" id="Resource_ul5ux"]
 script = ExtResource("1_rqglv")
 stat_type = 5
 base_value = 0
 flat_bonus_value = 42
 
-[sub_resource type="Resource" id="Resource_phlaw"]
+[sub_resource type="Resource" id="Resource_iwit6"]
 script = ExtResource("1_rqglv")
 stat_type = 7
 base_value = 0
 flat_bonus_value = 2
 
+[sub_resource type="Resource" id="Resource_ottox"]
+script = ExtResource("1_rqglv")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 1
+
 [resource]
 script = ExtResource("3_yae01")
 bonus_stats = Dictionary[int, ExtResource("1_rqglv")]({
-0: SubResource("Resource_o6w1j"),
-1: SubResource("Resource_ul5ux"),
-2: SubResource("Resource_0g4v4"),
-3: SubResource("Resource_iwit6"),
-5: SubResource("Resource_ds1cb"),
-7: SubResource("Resource_phlaw"),
+1: SubResource("Resource_0g4v4"),
+5: SubResource("Resource_ul5ux"),
+7: SubResource("Resource_iwit6"),
 8: SubResource("Resource_p0cnu"),
 9: SubResource("Resource_m53kx"),
-10: SubResource("Resource_dvdn3"),
-11: SubResource("Resource_uet43"),
-15: SubResource("Resource_ottox"),
-16: SubResource("Resource_im5m0")
+15: SubResource("Resource_o6w1j"),
+16: SubResource("Resource_ottox")
 })
-item_id = "071381313139-1014615-0091-151312-15151514121111005129"
+item_id = "13613111395-1414150-15814-812914-8125051191491435"
 name = "Mithril Arcanist Helm"
 rarity = 0
 icon = ExtResource("2_2yoaj")

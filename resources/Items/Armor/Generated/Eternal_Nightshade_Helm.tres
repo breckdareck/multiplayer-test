@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://dcpc5diurh58u"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://dcpc5diurh58u"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_agvmg"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Eternal_Nightshade_Helm.png" id="2_gihnr"]
@@ -18,73 +18,53 @@ flat_bonus_value = 35
 
 [sub_resource type="Resource" id="Resource_uq5m5"]
 script = ExtResource("1_agvmg")
+stat_type = 15
 base_value = 0
 flat_bonus_value = 6
 
 [sub_resource type="Resource" id="Resource_gy2kt"]
 script = ExtResource("1_agvmg")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 6
-
-[sub_resource type="Resource" id="Resource_ldwf2"]
-script = ExtResource("1_agvmg")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 6
-
-[sub_resource type="Resource" id="Resource_qm4rt"]
-script = ExtResource("1_agvmg")
 stat_type = 3
 base_value = 0
 flat_bonus_value = 16
 
-[sub_resource type="Resource" id="Resource_gvfyp"]
-script = ExtResource("1_agvmg")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 6
-
-[sub_resource type="Resource" id="Resource_0ocyd"]
-script = ExtResource("1_agvmg")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 4
-
-[sub_resource type="Resource" id="Resource_pridm"]
+[sub_resource type="Resource" id="Resource_ldwf2"]
 script = ExtResource("1_agvmg")
 stat_type = 11
 base_value = 0
 flat_bonus_value = 7
 
-[sub_resource type="Resource" id="Resource_e5snx"]
+[sub_resource type="Resource" id="Resource_qm4rt"]
 script = ExtResource("1_agvmg")
-stat_type = 16
+stat_type = 10
 base_value = 0
-flat_bonus_value = 2
+flat_bonus_value = 4
 
-[sub_resource type="Resource" id="Resource_ponb8"]
+[sub_resource type="Resource" id="Resource_gvfyp"]
 script = ExtResource("1_agvmg")
 stat_type = 17
 base_value = 0
 flat_bonus_value = 3
 
+[sub_resource type="Resource" id="Resource_0ocyd"]
+script = ExtResource("1_agvmg")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 2
+
 [resource]
 script = ExtResource("3_e8eem")
 bonus_stats = Dictionary[int, ExtResource("1_agvmg")]({
-0: SubResource("Resource_uq5m5"),
-1: SubResource("Resource_ldwf2"),
-2: SubResource("Resource_gy2kt"),
-3: SubResource("Resource_qm4rt"),
+3: SubResource("Resource_gy2kt"),
 8: SubResource("Resource_8xxha"),
 9: SubResource("Resource_f14lx"),
-10: SubResource("Resource_0ocyd"),
-11: SubResource("Resource_pridm"),
-15: SubResource("Resource_gvfyp"),
-16: SubResource("Resource_e5snx"),
-17: SubResource("Resource_ponb8")
+10: SubResource("Resource_qm4rt"),
+11: SubResource("Resource_ldwf2"),
+15: SubResource("Resource_uq5m5"),
+16: SubResource("Resource_0ocyd"),
+17: SubResource("Resource_gvfyp")
 })
-item_id = "1521313467-01529-1410153-812415-615713711212127510"
+item_id = "7114213113-1011115-01520-815132-914111501021515145"
 name = "Eternal Nightshade Helm"
 rarity = 0
 icon = ExtResource("2_gihnr")

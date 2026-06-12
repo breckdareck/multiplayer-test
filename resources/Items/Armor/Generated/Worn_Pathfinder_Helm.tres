@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://dbfrbj8cwleni"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://dbfrbj8cwleni"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_4u1qq"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Worn_Pathfinder_Helm.png" id="2_madri"]
@@ -18,6 +18,7 @@ flat_bonus_value = 2
 
 [sub_resource type="Resource" id="Resource_hd34u"]
 script = ExtResource("1_4u1qq")
+stat_type = 15
 base_value = 0
 flat_bonus_value = 1
 
@@ -29,62 +30,41 @@ flat_bonus_value = 1
 
 [sub_resource type="Resource" id="Resource_pg230"]
 script = ExtResource("1_4u1qq")
-stat_type = 1
+stat_type = 10
 base_value = 0
 flat_bonus_value = 1
 
 [sub_resource type="Resource" id="Resource_ajlgp"]
 script = ExtResource("1_4u1qq")
-stat_type = 3
+stat_type = 11
 base_value = 0
 flat_bonus_value = 1
 
 [sub_resource type="Resource" id="Resource_fufrf"]
 script = ExtResource("1_4u1qq")
-stat_type = 15
+stat_type = 17
 base_value = 0
 flat_bonus_value = 1
 
 [sub_resource type="Resource" id="Resource_7t08c"]
 script = ExtResource("1_4u1qq")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_hx718"]
-script = ExtResource("1_4u1qq")
-stat_type = 11
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_61fox"]
-script = ExtResource("1_4u1qq")
 stat_type = 16
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_m5nt3"]
-script = ExtResource("1_4u1qq")
-stat_type = 17
 base_value = 0
 flat_bonus_value = 1
 
 [resource]
 script = ExtResource("3_w62tt")
 bonus_stats = Dictionary[int, ExtResource("1_4u1qq")]({
-0: SubResource("Resource_hd34u"),
-1: SubResource("Resource_pg230"),
 2: SubResource("Resource_kpb04"),
-3: SubResource("Resource_ajlgp"),
 8: SubResource("Resource_125ki"),
 9: SubResource("Resource_jsdso"),
-10: SubResource("Resource_7t08c"),
-11: SubResource("Resource_hx718"),
-15: SubResource("Resource_fufrf"),
-16: SubResource("Resource_61fox"),
-17: SubResource("Resource_m5nt3")
+10: SubResource("Resource_pg230"),
+11: SubResource("Resource_ajlgp"),
+15: SubResource("Resource_hd34u"),
+16: SubResource("Resource_7t08c"),
+17: SubResource("Resource_fufrf")
 })
-item_id = "9513813331-001115-4284-44147-4128943201336"
+item_id = "91121010015-53136-7457-711010-013236146122151311"
 name = "Worn Pathfinder Helm"
 rarity = 0
 icon = ExtResource("2_madri")

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://cao2cytte4bbq"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://cao2cytte4bbq"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_jrvgh"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Dragonbone_Nightshade_Boots.png" id="2_7m6ou"]
@@ -18,74 +18,54 @@ flat_bonus_value = 22
 
 [sub_resource type="Resource" id="Resource_uejma"]
 script = ExtResource("1_jrvgh")
+stat_type = 15
 base_value = 0
 flat_bonus_value = 4
 
 [sub_resource type="Resource" id="Resource_f37ue"]
 script = ExtResource("1_jrvgh")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 4
-
-[sub_resource type="Resource" id="Resource_tryff"]
-script = ExtResource("1_jrvgh")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 4
-
-[sub_resource type="Resource" id="Resource_id8cr"]
-script = ExtResource("1_jrvgh")
 stat_type = 3
 base_value = 0
 flat_bonus_value = 10
 
-[sub_resource type="Resource" id="Resource_46y2o"]
-script = ExtResource("1_jrvgh")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 4
-
-[sub_resource type="Resource" id="Resource_7xola"]
-script = ExtResource("1_jrvgh")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_a2u8c"]
+[sub_resource type="Resource" id="Resource_tryff"]
 script = ExtResource("1_jrvgh")
 stat_type = 11
 base_value = 0
 flat_bonus_value = 5
 
-[sub_resource type="Resource" id="Resource_rna2m"]
+[sub_resource type="Resource" id="Resource_id8cr"]
 script = ExtResource("1_jrvgh")
-stat_type = 16
+stat_type = 10
 base_value = 0
-flat_bonus_value = 1
+flat_bonus_value = 2
 
-[sub_resource type="Resource" id="Resource_27tbx"]
+[sub_resource type="Resource" id="Resource_46y2o"]
 script = ExtResource("1_jrvgh")
 stat_type = 17
 base_value = 0
 flat_bonus_value = 2
 
+[sub_resource type="Resource" id="Resource_7xola"]
+script = ExtResource("1_jrvgh")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 1
+
 [resource]
 script = ExtResource("3_vcetk")
 armor_type = 3
 bonus_stats = Dictionary[int, ExtResource("1_jrvgh")]({
-0: SubResource("Resource_uejma"),
-1: SubResource("Resource_tryff"),
-2: SubResource("Resource_f37ue"),
-3: SubResource("Resource_id8cr"),
+3: SubResource("Resource_f37ue"),
 8: SubResource("Resource_k2hi8"),
 9: SubResource("Resource_ked80"),
-10: SubResource("Resource_7xola"),
-11: SubResource("Resource_a2u8c"),
-15: SubResource("Resource_46y2o"),
-16: SubResource("Resource_rna2m"),
-17: SubResource("Resource_27tbx")
+10: SubResource("Resource_id8cr"),
+11: SubResource("Resource_tryff"),
+15: SubResource("Resource_uejma"),
+16: SubResource("Resource_7xola"),
+17: SubResource("Resource_46y2o")
 })
-item_id = "1415102101120-10711-5110-1031312-610911116121081188"
+item_id = "3153111013111-52312-68214-13101012-11214101111281311510"
 name = "Dragonbone Nightshade Boots"
 rarity = 0
 icon = ExtResource("2_7m6ou")

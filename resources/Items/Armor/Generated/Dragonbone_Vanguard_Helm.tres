@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://cow3aq41vkkri"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=11 format=3 uid="uid://cow3aq41vkkri"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_fy5dq"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Dragonbone_Vanguard_Helm.png" id="2_637c4"]
@@ -18,73 +18,45 @@ flat_bonus_value = 22
 
 [sub_resource type="Resource" id="Resource_gsycs"]
 script = ExtResource("1_fy5dq")
-base_value = 0
-flat_bonus_value = 12
-
-[sub_resource type="Resource" id="Resource_kjx2d"]
-script = ExtResource("1_fy5dq")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 4
-
-[sub_resource type="Resource" id="Resource_738dg"]
-script = ExtResource("1_fy5dq")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 4
-
-[sub_resource type="Resource" id="Resource_y30ew"]
-script = ExtResource("1_fy5dq")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 4
-
-[sub_resource type="Resource" id="Resource_aidlb"]
-script = ExtResource("1_fy5dq")
 stat_type = 15
 base_value = 0
 flat_bonus_value = 11
 
-[sub_resource type="Resource" id="Resource_itkpw"]
+[sub_resource type="Resource" id="Resource_kjx2d"]
 script = ExtResource("1_fy5dq")
-stat_type = 10
 base_value = 0
-flat_bonus_value = 1
+flat_bonus_value = 12
 
-[sub_resource type="Resource" id="Resource_n2hlc"]
-script = ExtResource("1_fy5dq")
-stat_type = 11
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_8l151"]
-script = ExtResource("1_fy5dq")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_qpyny"]
+[sub_resource type="Resource" id="Resource_738dg"]
 script = ExtResource("1_fy5dq")
 stat_type = 4
 base_value = 0
 flat_bonus_value = 88
 
+[sub_resource type="Resource" id="Resource_y30ew"]
+script = ExtResource("1_fy5dq")
+stat_type = 6
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_aidlb"]
+script = ExtResource("1_fy5dq")
+stat_type = 14
+base_value = 0
+flat_bonus_value = 5
+
 [resource]
 script = ExtResource("3_usg3h")
 bonus_stats = Dictionary[int, ExtResource("1_fy5dq")]({
-0: SubResource("Resource_gsycs"),
-1: SubResource("Resource_738dg"),
-2: SubResource("Resource_kjx2d"),
-3: SubResource("Resource_y30ew"),
-4: SubResource("Resource_qpyny"),
+0: SubResource("Resource_kjx2d"),
+4: SubResource("Resource_738dg"),
+6: SubResource("Resource_y30ew"),
 8: SubResource("Resource_bve88"),
 9: SubResource("Resource_u8wnw"),
-10: SubResource("Resource_itkpw"),
-11: SubResource("Resource_n2hlc"),
-15: SubResource("Resource_aidlb"),
-16: SubResource("Resource_8l151")
+14: SubResource("Resource_aidlb"),
+15: SubResource("Resource_gsycs")
 })
-item_id = "31310620714-131065-26015-101115-975125143149933"
+item_id = "21511862813-11661-8544-1511-71213315106667132"
 name = "Dragonbone Vanguard Helm"
 rarity = 0
 icon = ExtResource("2_637c4")

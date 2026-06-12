@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=16 format=3 uid="uid://bgkkoxrp1ier2"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=11 format=3 uid="uid://bgkkoxrp1ier2"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_c6bpd"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Dragonbone_Arcanist_Mail.png" id="2_jts5h"]
@@ -18,81 +18,47 @@ flat_bonus_value = 57
 
 [sub_resource type="Resource" id="Resource_s1586"]
 script = ExtResource("1_c6bpd")
+stat_type = 15
 base_value = 0
-flat_bonus_value = 7
+flat_bonus_value = 8
 
 [sub_resource type="Resource" id="Resource_eeica"]
-script = ExtResource("1_c6bpd")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 7
-
-[sub_resource type="Resource" id="Resource_trwwa"]
 script = ExtResource("1_c6bpd")
 stat_type = 1
 base_value = 0
 flat_bonus_value = 20
 
-[sub_resource type="Resource" id="Resource_d68fv"]
-script = ExtResource("1_c6bpd")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 7
-
-[sub_resource type="Resource" id="Resource_57ruh"]
-script = ExtResource("1_c6bpd")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 8
-
-[sub_resource type="Resource" id="Resource_3a8op"]
-script = ExtResource("1_c6bpd")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_v8dgj"]
-script = ExtResource("1_c6bpd")
-stat_type = 11
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_tu7ek"]
-script = ExtResource("1_c6bpd")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_sb8mt"]
+[sub_resource type="Resource" id="Resource_trwwa"]
 script = ExtResource("1_c6bpd")
 stat_type = 5
 base_value = 0
 flat_bonus_value = 122
 
-[sub_resource type="Resource" id="Resource_feci5"]
+[sub_resource type="Resource" id="Resource_d68fv"]
 script = ExtResource("1_c6bpd")
 stat_type = 7
 base_value = 0
 flat_bonus_value = 5
 
+[sub_resource type="Resource" id="Resource_57ruh"]
+script = ExtResource("1_c6bpd")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 3
+
 [resource]
 script = ExtResource("3_b3rbh")
 armor_type = 1
 bonus_stats = Dictionary[int, ExtResource("1_c6bpd")]({
-0: SubResource("Resource_s1586"),
-1: SubResource("Resource_trwwa"),
-2: SubResource("Resource_eeica"),
-3: SubResource("Resource_d68fv"),
-5: SubResource("Resource_sb8mt"),
-7: SubResource("Resource_feci5"),
+1: SubResource("Resource_eeica"),
+5: SubResource("Resource_trwwa"),
+7: SubResource("Resource_d68fv"),
 8: SubResource("Resource_4wx10"),
 9: SubResource("Resource_a5byt"),
-10: SubResource("Resource_3a8op"),
-11: SubResource("Resource_v8dgj"),
-15: SubResource("Resource_57ruh"),
-16: SubResource("Resource_tu7ek")
+15: SubResource("Resource_s1586"),
+16: SubResource("Resource_57ruh")
 })
-item_id = "6949156514-0166-10141113-25311-41212131060831441"
+item_id = "17149125112-56315-1484-912712-863151314131111149"
 name = "Dragonbone Arcanist Mail"
 rarity = 0
 icon = ExtResource("2_jts5h")

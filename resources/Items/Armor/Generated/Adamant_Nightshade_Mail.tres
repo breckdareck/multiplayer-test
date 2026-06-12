@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://lbr6a55ypm0r"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://lbr6a55ypm0r"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_rwvro"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Nightshade_Mail.png" id="2_5rc2y"]
@@ -18,74 +18,54 @@ flat_bonus_value = 30
 
 [sub_resource type="Resource" id="Resource_dfe0t"]
 script = ExtResource("1_rwvro")
+stat_type = 15
 base_value = 0
-flat_bonus_value = 5
+flat_bonus_value = 6
 
 [sub_resource type="Resource" id="Resource_dyh4s"]
-script = ExtResource("1_rwvro")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_j5lc3"]
-script = ExtResource("1_rwvro")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_vqf5r"]
 script = ExtResource("1_rwvro")
 stat_type = 3
 base_value = 0
 flat_bonus_value = 14
 
-[sub_resource type="Resource" id="Resource_xe3sm"]
-script = ExtResource("1_rwvro")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 6
-
-[sub_resource type="Resource" id="Resource_qt0v1"]
-script = ExtResource("1_rwvro")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_gxfyu"]
+[sub_resource type="Resource" id="Resource_j5lc3"]
 script = ExtResource("1_rwvro")
 stat_type = 11
 base_value = 0
 flat_bonus_value = 7
 
-[sub_resource type="Resource" id="Resource_jl3yn"]
+[sub_resource type="Resource" id="Resource_vqf5r"]
 script = ExtResource("1_rwvro")
-stat_type = 16
+stat_type = 10
 base_value = 0
-flat_bonus_value = 2
+flat_bonus_value = 3
 
-[sub_resource type="Resource" id="Resource_i4x0l"]
+[sub_resource type="Resource" id="Resource_xe3sm"]
 script = ExtResource("1_rwvro")
 stat_type = 17
 base_value = 0
 flat_bonus_value = 3
 
+[sub_resource type="Resource" id="Resource_qt0v1"]
+script = ExtResource("1_rwvro")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 2
+
 [resource]
 script = ExtResource("3_v3e08")
 armor_type = 1
 bonus_stats = Dictionary[int, ExtResource("1_rwvro")]({
-0: SubResource("Resource_dfe0t"),
-1: SubResource("Resource_j5lc3"),
-2: SubResource("Resource_dyh4s"),
-3: SubResource("Resource_vqf5r"),
+3: SubResource("Resource_dyh4s"),
 8: SubResource("Resource_vak1x"),
 9: SubResource("Resource_er65o"),
-10: SubResource("Resource_qt0v1"),
-11: SubResource("Resource_gxfyu"),
-15: SubResource("Resource_xe3sm"),
-16: SubResource("Resource_jl3yn"),
-17: SubResource("Resource_i4x0l")
+10: SubResource("Resource_vqf5r"),
+11: SubResource("Resource_j5lc3"),
+15: SubResource("Resource_dfe0t"),
+16: SubResource("Resource_qt0v1"),
+17: SubResource("Resource_xe3sm")
 })
-item_id = "12614415596-08118-11141211-421213-415114461391598"
+item_id = "122413158312-75143-15702-631510-5361022101513118"
 name = "Adamant Nightshade Mail"
 rarity = 0
 icon = ExtResource("2_5rc2y")

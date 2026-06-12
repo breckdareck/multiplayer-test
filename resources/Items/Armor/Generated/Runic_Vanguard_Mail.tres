@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://b1np2fm1pxyg8"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=11 format=3 uid="uid://b1np2fm1pxyg8"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_dhak0"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Vanguard_Mail.png" id="2_onf0x"]
@@ -18,74 +18,46 @@ flat_bonus_value = 33
 
 [sub_resource type="Resource" id="Resource_m8bvs"]
 script = ExtResource("1_dhak0")
-base_value = 0
-flat_bonus_value = 18
-
-[sub_resource type="Resource" id="Resource_gycwh"]
-script = ExtResource("1_dhak0")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 7
-
-[sub_resource type="Resource" id="Resource_halbl"]
-script = ExtResource("1_dhak0")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 7
-
-[sub_resource type="Resource" id="Resource_1drel"]
-script = ExtResource("1_dhak0")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 7
-
-[sub_resource type="Resource" id="Resource_uoyxb"]
-script = ExtResource("1_dhak0")
 stat_type = 15
 base_value = 0
 flat_bonus_value = 16
 
-[sub_resource type="Resource" id="Resource_tu15e"]
+[sub_resource type="Resource" id="Resource_gycwh"]
 script = ExtResource("1_dhak0")
-stat_type = 10
 base_value = 0
-flat_bonus_value = 2
+flat_bonus_value = 18
 
-[sub_resource type="Resource" id="Resource_btcfv"]
-script = ExtResource("1_dhak0")
-stat_type = 11
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_anv3u"]
-script = ExtResource("1_dhak0")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_7qdaq"]
+[sub_resource type="Resource" id="Resource_halbl"]
 script = ExtResource("1_dhak0")
 stat_type = 4
 base_value = 0
 flat_bonus_value = 130
 
+[sub_resource type="Resource" id="Resource_1drel"]
+script = ExtResource("1_dhak0")
+stat_type = 6
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_uoyxb"]
+script = ExtResource("1_dhak0")
+stat_type = 14
+base_value = 0
+flat_bonus_value = 7
+
 [resource]
 script = ExtResource("3_cqvll")
 armor_type = 1
 bonus_stats = Dictionary[int, ExtResource("1_dhak0")]({
-0: SubResource("Resource_m8bvs"),
-1: SubResource("Resource_halbl"),
-2: SubResource("Resource_gycwh"),
-3: SubResource("Resource_1drel"),
-4: SubResource("Resource_7qdaq"),
+0: SubResource("Resource_gycwh"),
+4: SubResource("Resource_halbl"),
+6: SubResource("Resource_1drel"),
 8: SubResource("Resource_44bjw"),
 9: SubResource("Resource_53krv"),
-10: SubResource("Resource_tu15e"),
-11: SubResource("Resource_btcfv"),
-15: SubResource("Resource_uoyxb"),
-16: SubResource("Resource_anv3u")
+14: SubResource("Resource_uoyxb"),
+15: SubResource("Resource_m8bvs")
 })
-item_id = "148701011117-10417-12629-7131010-10823411121351323"
+item_id = "11771242150-1512114-75147-74415-15401410101510131414"
 name = "Runic Vanguard Mail"
 rarity = 0
 icon = ExtResource("2_onf0x")

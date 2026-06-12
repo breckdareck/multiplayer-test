@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://b3nun7lbax210"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://b3nun7lbax210"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_6f7um"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Pathfinder_Legguards.png" id="2_b3n5n"]
@@ -18,6 +18,7 @@ flat_bonus_value = 17
 
 [sub_resource type="Resource" id="Resource_2x8qd"]
 script = ExtResource("1_6f7um")
+stat_type = 15
 base_value = 0
 flat_bonus_value = 3
 
@@ -29,63 +30,42 @@ flat_bonus_value = 8
 
 [sub_resource type="Resource" id="Resource_4ogy2"]
 script = ExtResource("1_6f7um")
-stat_type = 1
+stat_type = 10
 base_value = 0
 flat_bonus_value = 3
 
 [sub_resource type="Resource" id="Resource_a3org"]
 script = ExtResource("1_6f7um")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_ikdit"]
-script = ExtResource("1_6f7um")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_ksr7u"]
-script = ExtResource("1_6f7um")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_bq3v4"]
-script = ExtResource("1_6f7um")
 stat_type = 11
 base_value = 0
 flat_bonus_value = 2
 
-[sub_resource type="Resource" id="Resource_hiskp"]
-script = ExtResource("1_6f7um")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_lehl8"]
+[sub_resource type="Resource" id="Resource_ikdit"]
 script = ExtResource("1_6f7um")
 stat_type = 17
 base_value = 0
 flat_bonus_value = 2
 
+[sub_resource type="Resource" id="Resource_ksr7u"]
+script = ExtResource("1_6f7um")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 3
+
 [resource]
 script = ExtResource("3_xu3ed")
 armor_type = 2
 bonus_stats = Dictionary[int, ExtResource("1_6f7um")]({
-0: SubResource("Resource_2x8qd"),
-1: SubResource("Resource_4ogy2"),
 2: SubResource("Resource_ysa14"),
-3: SubResource("Resource_a3org"),
 8: SubResource("Resource_hbdgj"),
 9: SubResource("Resource_hinrv"),
-10: SubResource("Resource_ksr7u"),
-11: SubResource("Resource_bq3v4"),
-15: SubResource("Resource_ikdit"),
-16: SubResource("Resource_hiskp"),
-17: SubResource("Resource_lehl8")
+10: SubResource("Resource_4ogy2"),
+11: SubResource("Resource_a3org"),
+15: SubResource("Resource_2x8qd"),
+16: SubResource("Resource_ksr7u"),
+17: SubResource("Resource_ikdit")
 })
-item_id = "71513311859-7954-21331-06131-081564741331110"
+item_id = "1211106811310-1311014-121122-15111211-031321363110209"
 name = "Steel Pathfinder Legguards"
 rarity = 0
 icon = ExtResource("2_b3n5n")

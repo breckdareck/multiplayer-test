@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://c8m4wm2o2y53r"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://c8m4wm2o2y53r"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_73wba"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Rough_Pathfinder_Legguards.png" id="2_yywnc"]
@@ -18,6 +18,7 @@ flat_bonus_value = 6
 
 [sub_resource type="Resource" id="Resource_ypt33"]
 script = ExtResource("1_73wba")
+stat_type = 15
 base_value = 0
 flat_bonus_value = 1
 
@@ -29,43 +30,25 @@ flat_bonus_value = 2
 
 [sub_resource type="Resource" id="Resource_v62mi"]
 script = ExtResource("1_73wba")
-stat_type = 1
+stat_type = 10
 base_value = 0
 flat_bonus_value = 1
 
 [sub_resource type="Resource" id="Resource_2jlkd"]
 script = ExtResource("1_73wba")
-stat_type = 3
+stat_type = 11
 base_value = 0
 flat_bonus_value = 1
 
 [sub_resource type="Resource" id="Resource_fg7c8"]
 script = ExtResource("1_73wba")
-stat_type = 15
+stat_type = 17
 base_value = 0
 flat_bonus_value = 1
 
 [sub_resource type="Resource" id="Resource_lyo5t"]
 script = ExtResource("1_73wba")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_osae7"]
-script = ExtResource("1_73wba")
-stat_type = 11
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_v47ro"]
-script = ExtResource("1_73wba")
 stat_type = 16
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_j0tdp"]
-script = ExtResource("1_73wba")
-stat_type = 17
 base_value = 0
 flat_bonus_value = 1
 
@@ -73,19 +56,16 @@ flat_bonus_value = 1
 script = ExtResource("3_3dl1k")
 armor_type = 2
 bonus_stats = Dictionary[int, ExtResource("1_73wba")]({
-0: SubResource("Resource_ypt33"),
-1: SubResource("Resource_v62mi"),
 2: SubResource("Resource_4bqf1"),
-3: SubResource("Resource_2jlkd"),
 8: SubResource("Resource_xte75"),
 9: SubResource("Resource_s441i"),
-10: SubResource("Resource_lyo5t"),
-11: SubResource("Resource_osae7"),
-15: SubResource("Resource_fg7c8"),
-16: SubResource("Resource_v47ro"),
-17: SubResource("Resource_j0tdp")
+10: SubResource("Resource_v62mi"),
+11: SubResource("Resource_2jlkd"),
+15: SubResource("Resource_ypt33"),
+16: SubResource("Resource_lyo5t"),
+17: SubResource("Resource_fg7c8")
 })
-item_id = "961063131114-981015-1011513-121193-6101041215133111372"
+item_id = "12812101012151-17143-45157-13151412-0008355155368"
 name = "Rough Pathfinder Legguards"
 rarity = 0
 icon = ExtResource("2_yywnc")

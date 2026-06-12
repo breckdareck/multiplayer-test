@@ -1,10 +1,10 @@
 [gd_resource type="Resource" script_class="ItemDropResource" load_steps=2 format=3 uid="uid://37rnkljcl6ix"]
 
-[ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_6eh6h"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_6eh6h"]
 
 [resource]
 script = ExtResource("1_6eh6h")
 item_name = "Eternal Arcanist Mail"
 randomize_stats = true
-possible_stats = Array[int]([8, 9, 0, 2, 1, 3, 15, 10, 11, 16, 5, 7])
+possible_stats = Array[int]([8, 9, 15, 1, 5, 7, 16])
 drop_chance = 0.011

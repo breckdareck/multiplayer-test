@@ -32,7 +32,7 @@ bonus_stats = Dictionary[int, ExtResource("1_j8hvw")]({
 10: SubResource("Resource_i32ve"),
 12: SubResource("Resource_3nk2a")
 })
-item_id = "39111546610-5998-312913-58114-1011126115391211124"
+item_id = "711134141319-0985-31396-1312713-12132421014344913"
 name = "Runic Warbow"
 rarity = 0
 icon = ExtResource("2_f0iv5")

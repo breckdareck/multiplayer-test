@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://bgt5dnr81l5sd"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=11 format=3 uid="uid://bgt5dnr81l5sd"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_jbu3o"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Vanguard_Boots.png" id="2_us5db"]
@@ -18,74 +18,46 @@ flat_bonus_value = 4
 
 [sub_resource type="Resource" id="Resource_d5f5o"]
 script = ExtResource("1_jbu3o")
+stat_type = 15
 base_value = 0
 flat_bonus_value = 2
 
 [sub_resource type="Resource" id="Resource_byq3k"]
 script = ExtResource("1_jbu3o")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_06j75"]
-script = ExtResource("1_jbu3o")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_c1nf7"]
-script = ExtResource("1_jbu3o")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_wovpc"]
-script = ExtResource("1_jbu3o")
-stat_type = 15
 base_value = 0
 flat_bonus_value = 2
 
-[sub_resource type="Resource" id="Resource_vw01p"]
-script = ExtResource("1_jbu3o")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_k83jr"]
-script = ExtResource("1_jbu3o")
-stat_type = 11
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_2oj8y"]
-script = ExtResource("1_jbu3o")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_hnona"]
+[sub_resource type="Resource" id="Resource_06j75"]
 script = ExtResource("1_jbu3o")
 stat_type = 4
 base_value = 0
 flat_bonus_value = 16
 
+[sub_resource type="Resource" id="Resource_c1nf7"]
+script = ExtResource("1_jbu3o")
+stat_type = 6
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_wovpc"]
+script = ExtResource("1_jbu3o")
+stat_type = 14
+base_value = 0
+flat_bonus_value = 1
+
 [resource]
 script = ExtResource("3_rtv0h")
 armor_type = 3
 bonus_stats = Dictionary[int, ExtResource("1_jbu3o")]({
-0: SubResource("Resource_d5f5o"),
-1: SubResource("Resource_06j75"),
-2: SubResource("Resource_byq3k"),
-3: SubResource("Resource_c1nf7"),
-4: SubResource("Resource_hnona"),
+0: SubResource("Resource_byq3k"),
+4: SubResource("Resource_06j75"),
+6: SubResource("Resource_c1nf7"),
 8: SubResource("Resource_mu5o8"),
 9: SubResource("Resource_xdllm"),
-10: SubResource("Resource_vw01p"),
-11: SubResource("Resource_k83jr"),
-15: SubResource("Resource_wovpc"),
-16: SubResource("Resource_2oj8y")
+14: SubResource("Resource_wovpc"),
+15: SubResource("Resource_d5f5o")
 })
-item_id = "41229450-211116-6531-107143-1150111551134393"
+item_id = "12133571160-31053-10767-12984-51111081089481415"
 name = "Bronze Vanguard Boots"
 rarity = 0
 icon = ExtResource("2_us5db")

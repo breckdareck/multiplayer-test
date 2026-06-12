@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://h27f1vyhlurm"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=11 format=3 uid="uid://h27f1vyhlurm"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_3uion"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Celestial_Vanguard_Helm.png" id="2_bm2xj"]
@@ -18,73 +18,45 @@ flat_bonus_value = 24
 
 [sub_resource type="Resource" id="Resource_h5p41"]
 script = ExtResource("1_3uion")
-base_value = 0
-flat_bonus_value = 13
-
-[sub_resource type="Resource" id="Resource_kly63"]
-script = ExtResource("1_3uion")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_3mbfy"]
-script = ExtResource("1_3uion")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_ewntk"]
-script = ExtResource("1_3uion")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_f00ip"]
-script = ExtResource("1_3uion")
 stat_type = 15
 base_value = 0
 flat_bonus_value = 12
 
-[sub_resource type="Resource" id="Resource_k7sfn"]
+[sub_resource type="Resource" id="Resource_kly63"]
 script = ExtResource("1_3uion")
-stat_type = 10
 base_value = 0
-flat_bonus_value = 1
+flat_bonus_value = 13
 
-[sub_resource type="Resource" id="Resource_mq31e"]
-script = ExtResource("1_3uion")
-stat_type = 11
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_hpn8a"]
-script = ExtResource("1_3uion")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_d2bir"]
+[sub_resource type="Resource" id="Resource_3mbfy"]
 script = ExtResource("1_3uion")
 stat_type = 4
 base_value = 0
 flat_bonus_value = 97
 
+[sub_resource type="Resource" id="Resource_ewntk"]
+script = ExtResource("1_3uion")
+stat_type = 6
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_f00ip"]
+script = ExtResource("1_3uion")
+stat_type = 14
+base_value = 0
+flat_bonus_value = 5
+
 [resource]
 script = ExtResource("3_gxytb")
 bonus_stats = Dictionary[int, ExtResource("1_3uion")]({
-0: SubResource("Resource_h5p41"),
-1: SubResource("Resource_3mbfy"),
-2: SubResource("Resource_kly63"),
-3: SubResource("Resource_ewntk"),
-4: SubResource("Resource_d2bir"),
+0: SubResource("Resource_kly63"),
+4: SubResource("Resource_3mbfy"),
+6: SubResource("Resource_ewntk"),
 8: SubResource("Resource_x11wm"),
 9: SubResource("Resource_hghn6"),
-10: SubResource("Resource_k7sfn"),
-11: SubResource("Resource_mq31e"),
-15: SubResource("Resource_f00ip"),
-16: SubResource("Resource_hpn8a")
+14: SubResource("Resource_f00ip"),
+15: SubResource("Resource_h5p41")
 })
-item_id = "612504777-44112-3893-13713-9118401712121412"
+item_id = "1311151313669-155415-510011-52415-3811109311515913"
 name = "Celestial Vanguard Helm"
 rarity = 0
 icon = ExtResource("2_bm2xj")

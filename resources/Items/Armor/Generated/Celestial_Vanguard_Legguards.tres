@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://b4f1tsvvqe2sd"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=11 format=3 uid="uid://b4f1tsvvqe2sd"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_mx3oy"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Celestial_Vanguard_Legguards.png" id="2_daosj"]
@@ -18,74 +18,46 @@ flat_bonus_value = 32
 
 [sub_resource type="Resource" id="Resource_lcla8"]
 script = ExtResource("1_mx3oy")
-base_value = 0
-flat_bonus_value = 18
-
-[sub_resource type="Resource" id="Resource_41g6u"]
-script = ExtResource("1_mx3oy")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 6
-
-[sub_resource type="Resource" id="Resource_6jpxw"]
-script = ExtResource("1_mx3oy")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 6
-
-[sub_resource type="Resource" id="Resource_rage6"]
-script = ExtResource("1_mx3oy")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 6
-
-[sub_resource type="Resource" id="Resource_n7w2h"]
-script = ExtResource("1_mx3oy")
 stat_type = 15
 base_value = 0
 flat_bonus_value = 16
 
-[sub_resource type="Resource" id="Resource_kl1b8"]
+[sub_resource type="Resource" id="Resource_41g6u"]
 script = ExtResource("1_mx3oy")
-stat_type = 10
 base_value = 0
-flat_bonus_value = 2
+flat_bonus_value = 18
 
-[sub_resource type="Resource" id="Resource_1qhfj"]
-script = ExtResource("1_mx3oy")
-stat_type = 11
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_pxajo"]
-script = ExtResource("1_mx3oy")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_vjy4u"]
+[sub_resource type="Resource" id="Resource_6jpxw"]
 script = ExtResource("1_mx3oy")
 stat_type = 4
 base_value = 0
 flat_bonus_value = 129
 
+[sub_resource type="Resource" id="Resource_rage6"]
+script = ExtResource("1_mx3oy")
+stat_type = 6
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_n7w2h"]
+script = ExtResource("1_mx3oy")
+stat_type = 14
+base_value = 0
+flat_bonus_value = 7
+
 [resource]
 script = ExtResource("3_nua8t")
 armor_type = 2
 bonus_stats = Dictionary[int, ExtResource("1_mx3oy")]({
-0: SubResource("Resource_lcla8"),
-1: SubResource("Resource_6jpxw"),
-2: SubResource("Resource_41g6u"),
-3: SubResource("Resource_rage6"),
-4: SubResource("Resource_vjy4u"),
+0: SubResource("Resource_41g6u"),
+4: SubResource("Resource_6jpxw"),
+6: SubResource("Resource_rage6"),
 8: SubResource("Resource_yuqgg"),
 9: SubResource("Resource_iedb3"),
-10: SubResource("Resource_kl1b8"),
-11: SubResource("Resource_1qhfj"),
-15: SubResource("Resource_n7w2h"),
-16: SubResource("Resource_pxajo")
+14: SubResource("Resource_n7w2h"),
+15: SubResource("Resource_lcla8")
 })
-item_id = "1149181142-1211111-19810-81143-11812361178600"
+item_id = "571071313157-81509-13159-147139-1331297858141567"
 name = "Celestial Vanguard Legguards"
 rarity = 0
 icon = ExtResource("2_daosj")

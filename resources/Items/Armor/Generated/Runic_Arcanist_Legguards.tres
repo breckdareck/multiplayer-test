@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=16 format=3 uid="uid://w2ujv0djadiv"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=11 format=3 uid="uid://w2ujv0djadiv"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_xtwf3"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Arcanist_Legguards.png" id="2_u6bpo"]
@@ -18,81 +18,47 @@ flat_bonus_value = 40
 
 [sub_resource type="Resource" id="Resource_mot36"]
 script = ExtResource("1_xtwf3")
+stat_type = 15
 base_value = 0
-flat_bonus_value = 5
+flat_bonus_value = 6
 
 [sub_resource type="Resource" id="Resource_mvvv5"]
-script = ExtResource("1_xtwf3")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_mquc6"]
 script = ExtResource("1_xtwf3")
 stat_type = 1
 base_value = 0
 flat_bonus_value = 14
 
-[sub_resource type="Resource" id="Resource_enaxr"]
-script = ExtResource("1_xtwf3")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_owgow"]
-script = ExtResource("1_xtwf3")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 6
-
-[sub_resource type="Resource" id="Resource_fdfna"]
-script = ExtResource("1_xtwf3")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_vxl7q"]
-script = ExtResource("1_xtwf3")
-stat_type = 11
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_n3ica"]
-script = ExtResource("1_xtwf3")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_na72r"]
+[sub_resource type="Resource" id="Resource_mquc6"]
 script = ExtResource("1_xtwf3")
 stat_type = 5
 base_value = 0
 flat_bonus_value = 86
 
-[sub_resource type="Resource" id="Resource_by6mf"]
+[sub_resource type="Resource" id="Resource_enaxr"]
 script = ExtResource("1_xtwf3")
 stat_type = 7
 base_value = 0
 flat_bonus_value = 4
 
+[sub_resource type="Resource" id="Resource_owgow"]
+script = ExtResource("1_xtwf3")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 2
+
 [resource]
 script = ExtResource("3_081sj")
 armor_type = 2
 bonus_stats = Dictionary[int, ExtResource("1_xtwf3")]({
-0: SubResource("Resource_mot36"),
-1: SubResource("Resource_mquc6"),
-2: SubResource("Resource_mvvv5"),
-3: SubResource("Resource_enaxr"),
-5: SubResource("Resource_na72r"),
-7: SubResource("Resource_by6mf"),
+1: SubResource("Resource_mvvv5"),
+5: SubResource("Resource_mquc6"),
+7: SubResource("Resource_enaxr"),
 8: SubResource("Resource_u68w5"),
 9: SubResource("Resource_x2ou5"),
-10: SubResource("Resource_fdfna"),
-11: SubResource("Resource_vxl7q"),
-15: SubResource("Resource_owgow"),
-16: SubResource("Resource_n3ica")
+15: SubResource("Resource_mot36"),
+16: SubResource("Resource_owgow")
 })
-item_id = "615363141513-34156-14487-1210712-11110912611031113"
+item_id = "513591212410-814122-115131-119912-84125142813157146"
 name = "Runic Arcanist Legguards"
 rarity = 0
 icon = ExtResource("2_u6bpo")

@@ -10,7 +10,7 @@ effect_script = ExtResource("1_x0iup")
 effect_properties = {
 "heal_amount": 1050
 }
-item_id = "410812810105-91230-1315811-1314103-379215215241111"
+item_id = "01085105813-91041-310414-1261415-116626075123104"
 name = "Superior Healing Draught"
 icon = ExtResource("2_bycy2")
 description = "Restores 1050 HP when consumed."

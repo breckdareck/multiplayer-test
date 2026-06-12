@@ -36,7 +36,7 @@ bonus_stats = Dictionary[int, ExtResource("1_niaf6")]({
 8: SubResource("Resource_8n4wl"),
 9: SubResource("Resource_8t0y6")
 })
-item_id = "5101514101408-4446-80210-53146-8223793008015"
+item_id = "1463101211134-104153-9935-8831-071044414653015"
 name = "Aegis of the Vanguard"
 rarity = 4
 icon = ExtResource("2_jf0eu")

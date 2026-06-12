@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://d3pbsi2nwupui"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=11 format=3 uid="uid://d3pbsi2nwupui"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_on0u3"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Dragonbone_Vanguard_Legguards.png" id="2_p63o2"]
@@ -18,74 +18,46 @@ flat_bonus_value = 29
 
 [sub_resource type="Resource" id="Resource_oq6wu"]
 script = ExtResource("1_on0u3")
-base_value = 0
-flat_bonus_value = 16
-
-[sub_resource type="Resource" id="Resource_dnjuu"]
-script = ExtResource("1_on0u3")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 6
-
-[sub_resource type="Resource" id="Resource_lkfu2"]
-script = ExtResource("1_on0u3")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 6
-
-[sub_resource type="Resource" id="Resource_4rxc2"]
-script = ExtResource("1_on0u3")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 6
-
-[sub_resource type="Resource" id="Resource_vhn2r"]
-script = ExtResource("1_on0u3")
 stat_type = 15
 base_value = 0
 flat_bonus_value = 14
 
-[sub_resource type="Resource" id="Resource_f5cu2"]
+[sub_resource type="Resource" id="Resource_dnjuu"]
 script = ExtResource("1_on0u3")
-stat_type = 10
 base_value = 0
-flat_bonus_value = 2
+flat_bonus_value = 16
 
-[sub_resource type="Resource" id="Resource_14uen"]
-script = ExtResource("1_on0u3")
-stat_type = 11
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_lnse6"]
-script = ExtResource("1_on0u3")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_1snvn"]
+[sub_resource type="Resource" id="Resource_lkfu2"]
 script = ExtResource("1_on0u3")
 stat_type = 4
 base_value = 0
 flat_bonus_value = 117
 
+[sub_resource type="Resource" id="Resource_4rxc2"]
+script = ExtResource("1_on0u3")
+stat_type = 6
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_vhn2r"]
+script = ExtResource("1_on0u3")
+stat_type = 14
+base_value = 0
+flat_bonus_value = 7
+
 [resource]
 script = ExtResource("3_x2hss")
 armor_type = 2
 bonus_stats = Dictionary[int, ExtResource("1_on0u3")]({
-0: SubResource("Resource_oq6wu"),
-1: SubResource("Resource_lkfu2"),
-2: SubResource("Resource_dnjuu"),
-3: SubResource("Resource_4rxc2"),
-4: SubResource("Resource_1snvn"),
+0: SubResource("Resource_dnjuu"),
+4: SubResource("Resource_lkfu2"),
+6: SubResource("Resource_4rxc2"),
 8: SubResource("Resource_h6ek0"),
 9: SubResource("Resource_2bsr6"),
-10: SubResource("Resource_f5cu2"),
-11: SubResource("Resource_14uen"),
-15: SubResource("Resource_vhn2r"),
-16: SubResource("Resource_lnse6")
+14: SubResource("Resource_vhn2r"),
+15: SubResource("Resource_oq6wu")
 })
-item_id = "7121314137915-108014-1010311-0275-15751112109145150"
+item_id = "58744206-0782-13759-591315-1210121575420146"
 name = "Dragonbone Vanguard Legguards"
 rarity = 0
 icon = ExtResource("2_p63o2")

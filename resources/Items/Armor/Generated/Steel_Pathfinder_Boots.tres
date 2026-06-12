@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://bwromfjhu3xlc"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://bwromfjhu3xlc"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_e5162"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Pathfinder_Boots.png" id="2_1x4tv"]
@@ -18,6 +18,7 @@ flat_bonus_value = 11
 
 [sub_resource type="Resource" id="Resource_17cah"]
 script = ExtResource("1_e5162")
+stat_type = 15
 base_value = 0
 flat_bonus_value = 2
 
@@ -29,63 +30,42 @@ flat_bonus_value = 5
 
 [sub_resource type="Resource" id="Resource_be184"]
 script = ExtResource("1_e5162")
-stat_type = 1
+stat_type = 10
 base_value = 0
 flat_bonus_value = 2
 
 [sub_resource type="Resource" id="Resource_i1ygv"]
 script = ExtResource("1_e5162")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_swjhc"]
-script = ExtResource("1_e5162")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_qfpp8"]
-script = ExtResource("1_e5162")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_icd7g"]
-script = ExtResource("1_e5162")
 stat_type = 11
 base_value = 0
 flat_bonus_value = 1
 
-[sub_resource type="Resource" id="Resource_rijms"]
-script = ExtResource("1_e5162")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_haoxi"]
+[sub_resource type="Resource" id="Resource_swjhc"]
 script = ExtResource("1_e5162")
 stat_type = 17
 base_value = 0
 flat_bonus_value = 1
 
+[sub_resource type="Resource" id="Resource_qfpp8"]
+script = ExtResource("1_e5162")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 2
+
 [resource]
 script = ExtResource("3_d2ysi")
 armor_type = 3
 bonus_stats = Dictionary[int, ExtResource("1_e5162")]({
-0: SubResource("Resource_17cah"),
-1: SubResource("Resource_be184"),
 2: SubResource("Resource_htyfx"),
-3: SubResource("Resource_i1ygv"),
 8: SubResource("Resource_0r0t6"),
 9: SubResource("Resource_fvea7"),
-10: SubResource("Resource_qfpp8"),
-11: SubResource("Resource_icd7g"),
-15: SubResource("Resource_swjhc"),
-16: SubResource("Resource_rijms"),
-17: SubResource("Resource_haoxi")
+10: SubResource("Resource_be184"),
+11: SubResource("Resource_i1ygv"),
+15: SubResource("Resource_17cah"),
+16: SubResource("Resource_qfpp8"),
+17: SubResource("Resource_swjhc")
 })
-item_id = "31015089611-146138-16513-134134-131412215782912115"
+item_id = "13119107867-158131-2516-11042-3111141010510131209"
 name = "Steel Pathfinder Boots"
 rarity = 0
 icon = ExtResource("2_1x4tv")

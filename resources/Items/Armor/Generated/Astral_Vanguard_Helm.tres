@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://dpbmw434rclny"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=11 format=3 uid="uid://dpbmw434rclny"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_eu006"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Astral_Vanguard_Helm.png" id="2_pwkvs"]
@@ -18,73 +18,45 @@ flat_bonus_value = 26
 
 [sub_resource type="Resource" id="Resource_lngq8"]
 script = ExtResource("1_eu006")
-base_value = 0
-flat_bonus_value = 15
-
-[sub_resource type="Resource" id="Resource_kckma"]
-script = ExtResource("1_eu006")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_t72l4"]
-script = ExtResource("1_eu006")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_vt317"]
-script = ExtResource("1_eu006")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_jdk4o"]
-script = ExtResource("1_eu006")
 stat_type = 15
 base_value = 0
 flat_bonus_value = 13
 
-[sub_resource type="Resource" id="Resource_2602b"]
+[sub_resource type="Resource" id="Resource_kckma"]
 script = ExtResource("1_eu006")
-stat_type = 10
 base_value = 0
-flat_bonus_value = 2
+flat_bonus_value = 15
 
-[sub_resource type="Resource" id="Resource_1hvgr"]
-script = ExtResource("1_eu006")
-stat_type = 11
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_vl62u"]
-script = ExtResource("1_eu006")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_o743w"]
+[sub_resource type="Resource" id="Resource_t72l4"]
 script = ExtResource("1_eu006")
 stat_type = 4
 base_value = 0
 flat_bonus_value = 105
 
+[sub_resource type="Resource" id="Resource_vt317"]
+script = ExtResource("1_eu006")
+stat_type = 6
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_jdk4o"]
+script = ExtResource("1_eu006")
+stat_type = 14
+base_value = 0
+flat_bonus_value = 6
+
 [resource]
 script = ExtResource("3_kbh4l")
 bonus_stats = Dictionary[int, ExtResource("1_eu006")]({
-0: SubResource("Resource_lngq8"),
-1: SubResource("Resource_t72l4"),
-2: SubResource("Resource_kckma"),
-3: SubResource("Resource_vt317"),
-4: SubResource("Resource_o743w"),
+0: SubResource("Resource_kckma"),
+4: SubResource("Resource_t72l4"),
+6: SubResource("Resource_vt317"),
 8: SubResource("Resource_0kf1c"),
 9: SubResource("Resource_y06lp"),
-10: SubResource("Resource_2602b"),
-11: SubResource("Resource_1hvgr"),
-15: SubResource("Resource_jdk4o"),
-16: SubResource("Resource_vl62u")
+14: SubResource("Resource_jdk4o"),
+15: SubResource("Resource_lngq8")
 })
-item_id = "142131414309-138118-2893-1413913-611775313413093"
+item_id = "81053124121-21551-13403-251215-73232101541415410"
 name = "Astral Vanguard Helm"
 rarity = 0
 icon = ExtResource("2_pwkvs")

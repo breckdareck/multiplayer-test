@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://dgwf8hisx2ikj"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=11 format=3 uid="uid://dgwf8hisx2ikj"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_vq58s"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Vanguard_Boots.png" id="2_fuysr"]
@@ -18,74 +18,46 @@ flat_bonus_value = 16
 
 [sub_resource type="Resource" id="Resource_myf2j"]
 script = ExtResource("1_vq58s")
-base_value = 0
-flat_bonus_value = 9
-
-[sub_resource type="Resource" id="Resource_tsla2"]
-script = ExtResource("1_vq58s")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_3tatk"]
-script = ExtResource("1_vq58s")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_j88jo"]
-script = ExtResource("1_vq58s")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_e4v3f"]
-script = ExtResource("1_vq58s")
 stat_type = 15
 base_value = 0
 flat_bonus_value = 8
 
-[sub_resource type="Resource" id="Resource_c7jn2"]
+[sub_resource type="Resource" id="Resource_tsla2"]
 script = ExtResource("1_vq58s")
-stat_type = 10
 base_value = 0
-flat_bonus_value = 1
+flat_bonus_value = 9
 
-[sub_resource type="Resource" id="Resource_y8mp3"]
-script = ExtResource("1_vq58s")
-stat_type = 11
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_plfyr"]
-script = ExtResource("1_vq58s")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_4q4fp"]
+[sub_resource type="Resource" id="Resource_3tatk"]
 script = ExtResource("1_vq58s")
 stat_type = 4
 base_value = 0
 flat_bonus_value = 65
 
+[sub_resource type="Resource" id="Resource_j88jo"]
+script = ExtResource("1_vq58s")
+stat_type = 6
+base_value = 0
+flat_bonus_value = 1
+
+[sub_resource type="Resource" id="Resource_e4v3f"]
+script = ExtResource("1_vq58s")
+stat_type = 14
+base_value = 0
+flat_bonus_value = 4
+
 [resource]
 script = ExtResource("3_f52if")
 armor_type = 3
 bonus_stats = Dictionary[int, ExtResource("1_vq58s")]({
-0: SubResource("Resource_myf2j"),
-1: SubResource("Resource_3tatk"),
-2: SubResource("Resource_tsla2"),
-3: SubResource("Resource_j88jo"),
-4: SubResource("Resource_4q4fp"),
+0: SubResource("Resource_tsla2"),
+4: SubResource("Resource_3tatk"),
+6: SubResource("Resource_j88jo"),
 8: SubResource("Resource_c5hwc"),
 9: SubResource("Resource_etrm1"),
-10: SubResource("Resource_c7jn2"),
-11: SubResource("Resource_y8mp3"),
-15: SubResource("Resource_e4v3f"),
-16: SubResource("Resource_plfyr")
+14: SubResource("Resource_e4v3f"),
+15: SubResource("Resource_myf2j")
 })
-item_id = "3332136314-6041-1091313-83102-41011415712110819"
+item_id = "141099412127-55011-11561-913148-1212114415029121210"
 name = "Runic Vanguard Boots"
 rarity = 0
 icon = ExtResource("2_fuysr")

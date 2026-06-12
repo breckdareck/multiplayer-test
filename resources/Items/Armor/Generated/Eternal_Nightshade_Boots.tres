@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://bucif0vx7lve1"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://bucif0vx7lve1"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_oiq31"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Eternal_Nightshade_Boots.png" id="2_uta4q"]
@@ -18,54 +18,37 @@ flat_bonus_value = 29
 
 [sub_resource type="Resource" id="Resource_flxvg"]
 script = ExtResource("1_oiq31")
+stat_type = 15
 base_value = 0
 flat_bonus_value = 5
 
 [sub_resource type="Resource" id="Resource_tjy7b"]
 script = ExtResource("1_oiq31")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_3hcg0"]
-script = ExtResource("1_oiq31")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_gy4bw"]
-script = ExtResource("1_oiq31")
 stat_type = 3
 base_value = 0
 flat_bonus_value = 13
 
-[sub_resource type="Resource" id="Resource_xv88m"]
-script = ExtResource("1_oiq31")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 5
-
-[sub_resource type="Resource" id="Resource_57mlw"]
-script = ExtResource("1_oiq31")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 3
-
-[sub_resource type="Resource" id="Resource_3pk3d"]
+[sub_resource type="Resource" id="Resource_3hcg0"]
 script = ExtResource("1_oiq31")
 stat_type = 11
 base_value = 0
 flat_bonus_value = 6
 
-[sub_resource type="Resource" id="Resource_5kb22"]
+[sub_resource type="Resource" id="Resource_gy4bw"]
 script = ExtResource("1_oiq31")
-stat_type = 16
+stat_type = 10
+base_value = 0
+flat_bonus_value = 3
+
+[sub_resource type="Resource" id="Resource_xv88m"]
+script = ExtResource("1_oiq31")
+stat_type = 17
 base_value = 0
 flat_bonus_value = 2
 
-[sub_resource type="Resource" id="Resource_ff7ut"]
+[sub_resource type="Resource" id="Resource_57mlw"]
 script = ExtResource("1_oiq31")
-stat_type = 17
+stat_type = 16
 base_value = 0
 flat_bonus_value = 2
 
@@ -73,19 +56,16 @@ flat_bonus_value = 2
 script = ExtResource("3_p6rkp")
 armor_type = 3
 bonus_stats = Dictionary[int, ExtResource("1_oiq31")]({
-0: SubResource("Resource_flxvg"),
-1: SubResource("Resource_3hcg0"),
-2: SubResource("Resource_tjy7b"),
-3: SubResource("Resource_gy4bw"),
+3: SubResource("Resource_tjy7b"),
 8: SubResource("Resource_05c2q"),
 9: SubResource("Resource_6t2ur"),
-10: SubResource("Resource_57mlw"),
-11: SubResource("Resource_3pk3d"),
-15: SubResource("Resource_xv88m"),
-16: SubResource("Resource_5kb22"),
-17: SubResource("Resource_ff7ut")
+10: SubResource("Resource_gy4bw"),
+11: SubResource("Resource_3hcg0"),
+15: SubResource("Resource_flxvg"),
+16: SubResource("Resource_57mlw"),
+17: SubResource("Resource_xv88m")
 })
-item_id = "131949209-12306-811112-01409-510111410101058038"
+item_id = "4311121381315-411013-1011513-10121215-14001153150493"
 name = "Eternal Nightshade Boots"
 rarity = 0
 icon = ExtResource("2_uta4q")

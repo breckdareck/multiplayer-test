@@ -10,7 +10,7 @@ effect_script = ExtResource("1_qibw0")
 effect_properties = {
 "regain_amount": 40
 }
-item_id = "51511611137-79111-214613-17100-1411774112126589"
+item_id = "131510513293-013134-151214-4090-121311211313610135"
 name = "Lesser Mana Draught"
 icon = ExtResource("2_lqv41")
 description = "Restores 40 MP when consumed."

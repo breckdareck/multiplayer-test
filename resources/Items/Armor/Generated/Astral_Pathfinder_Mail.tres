@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://cdesp4fxjol1g"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://cdesp4fxjol1g"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_2rrs1"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Astral_Pathfinder_Mail.png" id="2_81602"]
@@ -18,8 +18,9 @@ flat_bonus_value = 54
 
 [sub_resource type="Resource" id="Resource_pfds6"]
 script = ExtResource("1_2rrs1")
+stat_type = 15
 base_value = 0
-flat_bonus_value = 9
+flat_bonus_value = 10
 
 [sub_resource type="Resource" id="Resource_kovt0"]
 script = ExtResource("1_2rrs1")
@@ -29,63 +30,42 @@ flat_bonus_value = 24
 
 [sub_resource type="Resource" id="Resource_ahnre"]
 script = ExtResource("1_2rrs1")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 9
-
-[sub_resource type="Resource" id="Resource_yaqdb"]
-script = ExtResource("1_2rrs1")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 9
-
-[sub_resource type="Resource" id="Resource_gu2jn"]
-script = ExtResource("1_2rrs1")
-stat_type = 15
-base_value = 0
-flat_bonus_value = 10
-
-[sub_resource type="Resource" id="Resource_7akjf"]
-script = ExtResource("1_2rrs1")
 stat_type = 10
 base_value = 0
 flat_bonus_value = 7
 
-[sub_resource type="Resource" id="Resource_jl3e0"]
+[sub_resource type="Resource" id="Resource_yaqdb"]
 script = ExtResource("1_2rrs1")
 stat_type = 11
 base_value = 0
 flat_bonus_value = 6
 
-[sub_resource type="Resource" id="Resource_jne3b"]
-script = ExtResource("1_2rrs1")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 9
-
-[sub_resource type="Resource" id="Resource_bvem2"]
+[sub_resource type="Resource" id="Resource_gu2jn"]
 script = ExtResource("1_2rrs1")
 stat_type = 17
 base_value = 0
 flat_bonus_value = 4
 
+[sub_resource type="Resource" id="Resource_7akjf"]
+script = ExtResource("1_2rrs1")
+stat_type = 16
+base_value = 0
+flat_bonus_value = 9
+
 [resource]
 script = ExtResource("3_04bk8")
 armor_type = 1
 bonus_stats = Dictionary[int, ExtResource("1_2rrs1")]({
-0: SubResource("Resource_pfds6"),
-1: SubResource("Resource_ahnre"),
 2: SubResource("Resource_kovt0"),
-3: SubResource("Resource_yaqdb"),
 8: SubResource("Resource_pqrlh"),
 9: SubResource("Resource_7b4le"),
-10: SubResource("Resource_7akjf"),
-11: SubResource("Resource_jl3e0"),
-15: SubResource("Resource_gu2jn"),
-16: SubResource("Resource_jne3b"),
-17: SubResource("Resource_bvem2")
+10: SubResource("Resource_ahnre"),
+11: SubResource("Resource_yaqdb"),
+15: SubResource("Resource_pfds6"),
+16: SubResource("Resource_7akjf"),
+17: SubResource("Resource_gu2jn")
 })
-item_id = "91191272109-153156-1314152-315511-761007769101491"
+item_id = "141081541490-21320-51421-71056-589109414131015813"
 name = "Astral Pathfinder Mail"
 rarity = 0
 icon = ExtResource("2_81602")

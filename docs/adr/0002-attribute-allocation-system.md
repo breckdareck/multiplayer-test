@@ -63,6 +63,8 @@ Each attribute adds a contribution to its utility stat during aggregation (along
 
 The class HP curve (`CLASS_BASE_MAX_HEALTH + CLASS_HEALTH_SCALING × (level-1)`) stays as the baseline; CON is purely additive on top, so it is the deliberate tank lever without removing the class's innate bulk.
 
+> **Superseded (2026-06-11):** the per-class HP/MP curves were a class-system remnant and are gone. Every discipline now shares ONE unified health curve (`PLAYER_BASE_MAX_HEALTH 100 + 24 × (level−1)` → 2,476 at L100) and ONE unified mana curve (`PLAYER_BASE_MAX_MANA 50 + 6 × (level−1)` → 644 at L100), both in `stats.gd`. Pool differentiation comes exclusively from allocation + gear: CON for HP (8 HP + 0.2 HPREGEN per CON), INT for MP (2.5 MP + 0.05 MPREGEN per INT — halved from the proposal's 5/0.1 in the same pass that cut mana growth 12→6, restoring potion pressure: ability costs scale with ability level, which caps at 10, so a char-level-scaled pool otherwise outgrows them ~5×).
+
 ### 5. Respec + a reconcile invariant (parallel to ability points)
 
 - A respec returns all allocated AP to the unused pool (free for v1; a gold cost is an open question). Server-authoritative via a `respec_attributes_request` RPC, mirroring the ability-respec pattern.

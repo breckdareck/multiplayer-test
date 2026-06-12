@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://dswrcgwqqgsev"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=11 format=3 uid="uid://dswrcgwqqgsev"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_umptg"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Vanguard_Legguards.png" id="2_c8pkp"]
@@ -18,74 +18,46 @@ flat_bonus_value = 20
 
 [sub_resource type="Resource" id="Resource_wdvgx"]
 script = ExtResource("1_umptg")
-base_value = 0
-flat_bonus_value = 11
-
-[sub_resource type="Resource" id="Resource_ica7g"]
-script = ExtResource("1_umptg")
-stat_type = 2
-base_value = 0
-flat_bonus_value = 4
-
-[sub_resource type="Resource" id="Resource_p03je"]
-script = ExtResource("1_umptg")
-stat_type = 1
-base_value = 0
-flat_bonus_value = 4
-
-[sub_resource type="Resource" id="Resource_nb8cs"]
-script = ExtResource("1_umptg")
-stat_type = 3
-base_value = 0
-flat_bonus_value = 4
-
-[sub_resource type="Resource" id="Resource_wypwj"]
-script = ExtResource("1_umptg")
 stat_type = 15
 base_value = 0
 flat_bonus_value = 10
 
-[sub_resource type="Resource" id="Resource_sktjs"]
+[sub_resource type="Resource" id="Resource_ica7g"]
 script = ExtResource("1_umptg")
-stat_type = 10
 base_value = 0
-flat_bonus_value = 1
+flat_bonus_value = 11
 
-[sub_resource type="Resource" id="Resource_stlta"]
-script = ExtResource("1_umptg")
-stat_type = 11
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_wgsgy"]
-script = ExtResource("1_umptg")
-stat_type = 16
-base_value = 0
-flat_bonus_value = 1
-
-[sub_resource type="Resource" id="Resource_vlvvu"]
+[sub_resource type="Resource" id="Resource_p03je"]
 script = ExtResource("1_umptg")
 stat_type = 4
 base_value = 0
 flat_bonus_value = 78
 
+[sub_resource type="Resource" id="Resource_nb8cs"]
+script = ExtResource("1_umptg")
+stat_type = 6
+base_value = 0
+flat_bonus_value = 2
+
+[sub_resource type="Resource" id="Resource_wypwj"]
+script = ExtResource("1_umptg")
+stat_type = 14
+base_value = 0
+flat_bonus_value = 4
+
 [resource]
 script = ExtResource("3_14t8c")
 armor_type = 2
 bonus_stats = Dictionary[int, ExtResource("1_umptg")]({
-0: SubResource("Resource_wdvgx"),
-1: SubResource("Resource_p03je"),
-2: SubResource("Resource_ica7g"),
-3: SubResource("Resource_nb8cs"),
-4: SubResource("Resource_vlvvu"),
+0: SubResource("Resource_ica7g"),
+4: SubResource("Resource_p03je"),
+6: SubResource("Resource_nb8cs"),
 8: SubResource("Resource_k1c6x"),
 9: SubResource("Resource_ax152"),
-10: SubResource("Resource_sktjs"),
-11: SubResource("Resource_stlta"),
-15: SubResource("Resource_wypwj"),
-16: SubResource("Resource_wgsgy")
+14: SubResource("Resource_wypwj"),
+15: SubResource("Resource_wdvgx")
 })
-item_id = "121399214141-15812-615145-215139-80104154515151587"
+item_id = "15154111051010-14090-1831-1510011-10439471312898"
 name = "Adamant Vanguard Legguards"
 rarity = 0
 icon = ExtResource("2_c8pkp")

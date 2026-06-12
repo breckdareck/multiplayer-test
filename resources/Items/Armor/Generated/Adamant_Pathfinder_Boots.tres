@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArmorData" load_steps=15 format=3 uid="uid://d47ctqe0mndt"]
+[gd_resource type="Resource" script_class="ArmorData" load_steps=12 format=3 uid="uid://d47ctqe0mndt"]
 
 [ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_p3ur7"]
 [ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Pathfinder_Boots.png" id="2_u477r"]
@@ -18,8 +18,9 @@ flat_bonus_value = 15
 
 [sub_resource type="Resource" id="Resource_kpheh"]
 script = ExtResource("1_p3ur7")
+stat_type = 15
 base_value = 0
-flat_bonus_value = 2
+flat_bonus_value = 3
 
 [sub_resource type="Resource" id="Resource_q0ld6"]
 script = ExtResource("1_p3ur7")
@@ -29,63 +30,42 @@ flat_bonus_value = 7
 
 [sub_resource type="Resource" id="Resource_jwiuy"]
 script = ExtResource("1_p3ur7")
-stat_type = 1
+stat_type = 10
 base_value = 0
 flat_bonus_value = 2
 
 [sub_resource type="Resource" id="Resource_p1lqy"]
 script = ExtResource("1_p3ur7")
-stat_type = 3
+stat_type = 11
 base_value = 0
 flat_bonus_value = 2
 
 [sub_resource type="Resource" id="Resource_mj5n8"]
 script = ExtResource("1_p3ur7")
-stat_type = 15
+stat_type = 17
 base_value = 0
-flat_bonus_value = 3
+flat_bonus_value = 1
 
 [sub_resource type="Resource" id="Resource_1aqwv"]
-script = ExtResource("1_p3ur7")
-stat_type = 10
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_6ef82"]
-script = ExtResource("1_p3ur7")
-stat_type = 11
-base_value = 0
-flat_bonus_value = 2
-
-[sub_resource type="Resource" id="Resource_wn8av"]
 script = ExtResource("1_p3ur7")
 stat_type = 16
 base_value = 0
 flat_bonus_value = 3
 
-[sub_resource type="Resource" id="Resource_x563l"]
-script = ExtResource("1_p3ur7")
-stat_type = 17
-base_value = 0
-flat_bonus_value = 1
-
 [resource]
 script = ExtResource("3_i6km1")
 armor_type = 3
 bonus_stats = Dictionary[int, ExtResource("1_p3ur7")]({
-0: SubResource("Resource_kpheh"),
-1: SubResource("Resource_jwiuy"),
 2: SubResource("Resource_q0ld6"),
-3: SubResource("Resource_p1lqy"),
 8: SubResource("Resource_fk8me"),
 9: SubResource("Resource_o6pf2"),
-10: SubResource("Resource_1aqwv"),
-11: SubResource("Resource_6ef82"),
-15: SubResource("Resource_mj5n8"),
-16: SubResource("Resource_wn8av"),
-17: SubResource("Resource_x563l")
+10: SubResource("Resource_jwiuy"),
+11: SubResource("Resource_p1lqy"),
+15: SubResource("Resource_kpheh"),
+16: SubResource("Resource_1aqwv"),
+17: SubResource("Resource_mj5n8")
 })
-item_id = "12644711112-2077-40311-1111415-2041053111381528"
+item_id = "071110213133-1974-121513-68611-113230117921180"
 name = "Adamant Pathfinder Boots"
 rarity = 0
 icon = ExtResource("2_u477r")
