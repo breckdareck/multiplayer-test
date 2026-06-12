@@ -1663,6 +1663,16 @@ func _active_bindings_for_load() -> Dictionary:
 	return _primary_hotbar_bindings
 
 
+## The INACTIVE weapon's binding dict (slot index → ability/item id). Read by
+## the hotbar every frame to render the ESO-style back-bar cooldown hints —
+## mini icons above each slot showing when that slot's ability on the OTHER
+## bar will be back up.
+func inactive_hotbar_bindings() -> Dictionary:
+	if _equipment_component and _equipment_component.active_weapon == EquipmentComponent.ACTIVE_SECONDARY:
+		return _primary_hotbar_bindings
+	return _secondary_hotbar_bindings
+
+
 ## PR 3 helper. Captures the live hotbar config back into whichever binding
 ## array is currently active. Called before saving (so any edits made since
 ## the last swap land in the save) and on a swap (snapshot the leaving

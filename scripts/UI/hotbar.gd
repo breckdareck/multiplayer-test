@@ -30,6 +30,18 @@ var _pending_swap_config = null  # Dictionary while a flip is mid-flight, else n
 
 const SWAP_FLIP_HALF_DURATION := 0.09
 
+# ESO-style back-bar cooldown hints: one mini popup per slot, shown above the
+# slot while the INACTIVE weapon's ability bound to that index cools down.
+# Live under a plain-Control layer (manual layout) so they can sit OUTSIDE the
+# Background panel, hovering over the bar's top edge. Referenced by preload
+# (not the class_name) so headless runs don't depend on the editor's global
+# class cache having scanned the new script.
+const BACKBAR_HINT_SCRIPT := preload("res://scripts/UI/hotbar_backbar_hint.gd")
+var _backbar_hints: Array = []
+var _hints_layer: Control = null
+
+const BACKBAR_HINT_GAP := 4.0
+
 func _ready():
 	# Resolve weapon-swap section widgets via the unique-name lookup. `%`
 	# resolution only handles direct unique-name children, so the loadout
@@ -40,6 +52,7 @@ func _ready():
 		secondary_weapon_slot = weapon_swap_section.get_node_or_null("SecondaryWeaponSlot") as HotbarWeaponSlot
 
 	create_hotbar_slots()
+	_create_backbar_hints()
 
 	# One-time: the weapon-slot click affordance. These slots are PERSISTENT
 	# (this UI layer outlives the body), so connect once here — not in
@@ -91,6 +104,8 @@ func unbind_player() -> void:
 
 
 func _process(_delta: float) -> void:
+	_update_backbar_hints()
+
 	# Hold-channel release watch (tap-or-hold): the moment the casting key is
 	# no longer held, send the release intent — the server ends the channel
 	# early (after its minimum hold).
@@ -106,6 +121,57 @@ func create_hotbar_slots():
 		slot.slot_index = i
 		slots_container.add_child(slot)
 		hotbar_slots.append(slot)
+
+
+func _create_backbar_hints() -> void:
+	_hints_layer = Control.new()
+	_hints_layer.name = "BackbarHintsLayer"
+	_hints_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_hints_layer)
+	for i in range(slot_count):
+		var hint = BACKBAR_HINT_SCRIPT.new()
+		hint.name = "BackbarHint" + str(i)
+		_hints_layer.add_child(hint)
+		_backbar_hints.append(hint)
+
+
+## ESO-style back-bar hints, refreshed every frame: for each slot index, if the
+## INACTIVE weapon's bar has an ability bound there that is still on cooldown,
+## pop a mini icon + countdown above the slot — a glanceable "ready when you
+## swap back". Cooldown state comes straight from the AbilityComponent (the
+## authoritative dict keeps ticking for both bars' abilities).
+func _update_backbar_hints() -> void:
+	if _backbar_hints.is_empty():
+		return
+
+	var bindings: Dictionary = {}
+	if is_instance_valid(ability_component) and ability_component.has_method("inactive_hotbar_bindings"):
+		bindings = ability_component.inactive_hotbar_bindings()
+
+	for i in range(hotbar_slots.size()):
+		if i >= _backbar_hints.size():
+			break
+		var hint = _backbar_hints[i]
+		var entry_id := str(bindings.get(str(i), ""))
+		var remaining := 0.0
+		if entry_id != "" and is_instance_valid(ability_component):
+			remaining = ability_component.get_cooldown_remaining(entry_id)
+
+		if remaining > 0.0:
+			var ad: AbilityData = ResourceManager.get_ability_data(entry_id)
+			hint.update_hint(entry_id, ad.ability_icon if ad else null, remaining)
+		else:
+			hint.clear_hint(entry_id)
+
+		# Keep the hint centered above its slot. Recomputed per frame so it
+		# follows the bar-swap flip (the slot's global rect already accounts
+		# for the Background scale).
+		if hint.visible:
+			var r := (hotbar_slots[i] as Control).get_global_rect()
+			hint.global_position = Vector2(
+				r.position.x + (r.size.x - hint.size.x) / 2.0,
+				r.position.y - hint.size.y - BACKBAR_HINT_GAP
+			)
 
 
 ## A hotbar slot's binding was edited by the player (drop / right-click clear).
