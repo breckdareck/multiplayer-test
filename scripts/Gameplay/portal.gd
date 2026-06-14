@@ -43,6 +43,10 @@ func interact(player_id: int):
 			break
 
 	if player_in_portal:
+		# Juice: a departure whoosh so a zone change isn't a silent teleport.
+		var from_map: String = MapManager.get_player_map(player_id)
+		if from_map != "":
+			AudioManager.play_sfx_for_map(from_map, "res://assets/sounds/generated/dash_whoosh.wav", global_position, -2.0)
 		#print("Player %d activated portal to map '%s' at spawn '%s'" % [player_id, target_map_id, target_spawn_point_name])
 		# Route through the player's change_to_map so save data is flushed
 		# before the transition (buff durations, health, mana, etc.).
