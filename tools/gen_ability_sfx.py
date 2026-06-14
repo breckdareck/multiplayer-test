@@ -442,6 +442,41 @@ def snd_synergy_proc(rng):
     return normalize(mix(a, b, glint))
 
 
+# --- combat feedback (the most frequent moments — kept SHORT + not too loud) -
+
+def snd_hit_impact(rng):
+    """Generic landed-hit thwack: a low thud + filtered body + a touch of snap.
+    Plays on every hit over the weapon swing, so deliberately quiet and brief."""
+    thud = env_ad(sine_sweep(220, 90, 0.09), 0.001, 0.025)
+    body = env_ad(lowpass(white(rng, 0.08), 1100), 0.001, 0.02)
+    snap = gain(env_ad(highpass(white(rng, 0.03), 2200), 0.001, 0.008), 0.4)
+    return normalize(soft_clip(mix(thud, gain(body, 0.7), snap), 1.3), 0.5)
+
+
+def snd_hit_crit(rng):
+    """Crit sting: a bright descending crack + metallic ting over the impact."""
+    crack = env_ad(sine_sweep(900, 220, 0.10, curve=1.5), 0.001, 0.03)
+    ting = mix(partial(3200, 0.16, 0.04), partial(4600, 0.16, 0.03, 0.5))
+    snap = env_ad(highpass(white(rng, 0.04), 3000), 0.001, 0.012)
+    return normalize(soft_clip(mix(crack, gain(ting, 0.6), gain(snap, 0.7)), 1.5), 0.7)
+
+
+def snd_enemy_death(rng):
+    """Mob defeat poof: an airy descending burst + a soft low pop (MapleStory poof)."""
+    poof = env_ad(bandpass_sweep(white(rng, 0.22), 1400, 3600, 300, 900), 0.004, 0.07)
+    pop = env_ad(sine_sweep(180, 70, 0.16), 0.002, 0.05)
+    return normalize(soft_clip(mix(gain(poof, 0.7), pop), 1.2), 0.5)
+
+
+def snd_mastery_ding(rng):
+    """Mastery-up ding: a bright ascending two-note chime, celebratory but small."""
+    notes, t0 = [], 0.0
+    for f in (659.25, 987.77):  # E5 B5
+        notes.append(delay(mix(partial(f, 0.30, 0.10), partial(2 * f, 0.30, 0.05, 0.3)), t0))
+        t0 += 0.07
+    return normalize(mix(*notes), 0.55)
+
+
 SOUNDS = {
     "sword_slash": snd_sword_slash,
     "sword_heavy": snd_sword_heavy,
@@ -478,6 +513,10 @@ SOUNDS = {
     "escalation_brittle": snd_escalation_brittle,
     "synergy_proc": snd_synergy_proc,
     "duo_swap": snd_duo_swap,
+    "hit_impact": snd_hit_impact,
+    "hit_crit": snd_hit_crit,
+    "enemy_death": snd_enemy_death,
+    "mastery_ding": snd_mastery_ding,
 }
 
 
@@ -586,6 +625,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true",
                     help="print the ability->sound mapping without writing")
+    ap.add_argument("--synth-only", action="store_true",
+                    help="only synth the WAV palette; do not touch ability .tres")
     args = ap.parse_args()
 
     if not args.dry_run:
@@ -595,6 +636,9 @@ def main():
             samples = fade_out(builder(rng))
             write_wav(os.path.join(OUT_DIR, name + ".wav"), samples)
             print("synth  %-16s %5.2fs" % (name, len(samples) / SR))
+
+    if args.synth_only:
+        return
 
     total = {"wired": 0, "replaced": 0, "skipped": 0}
     for weapon in ABILITY_DIRS:

@@ -417,7 +417,7 @@ func grant_mastery_xp_server(discipline: int, amount: int) -> void:
 		# grant crossing several thresholds shows a single cue). Players only; bots
 		# gain mastery constantly and would spam it map-wide.
 		if is_instance_valid(owner) and not BotManager.is_bot(owner.player_id):
-			EventJuice.proc(owner, "MASTERY UP!", EventJuice.COLOR_MOMENTUM, "res://assets/sounds/generated/buff_cast.wav", "")
+			EventJuice.proc(owner, "MASTERY UP!", EventJuice.COLOR_MOMENTUM, "res://assets/sounds/generated/mastery_ding.wav", "")
 	mastery_xp_changed.emit(discipline, xp, _xp_to_next_level(level))
 
 	# Persist. The player root listens for this through the same _data_changed

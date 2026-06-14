@@ -538,6 +538,7 @@ func _deferred_death_processing(_killer: Node) -> void:
 	var _death_map := _get_map_id()
 	if _death_map != "":
 		MapManager.broadcast_vfx_everywhere(_death_map, "explosion", global_position, 1.1, 0.0, false)
+		AudioManager.play_sfx_for_map(_death_map, "res://assets/sounds/generated/enemy_death.wav", global_position, -2.0)
 
 	#print("Enemy died. Killer: ", _killer, " Type: ", typeof(_killer))
 
