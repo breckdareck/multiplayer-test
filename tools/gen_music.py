@@ -166,6 +166,21 @@ def render_perc(L, R, start, kind, vel=1.0, pan=0.0):
             if 0 <= idx < len(L):
                 L[idx] += out * gl
                 R[idx] += out * gr
+    elif kind == 'tom':
+        n = int(0.32 * SR)
+        ph = 0.0
+        for i in range(n):
+            t = i / n
+            f = 100.0 * (1.0 - t * 0.45) + 52.0
+            ph += f * T / SR
+            if ph >= T:
+                ph -= T
+            env = (1.0 - t) ** 1.7
+            out = SINE[int(ph)] * env * 0.68 * vel
+            idx = base + i
+            if 0 <= idx < len(L):
+                L[idx] += out * gl
+                R[idx] += out * gr
     else:  # 'shaker' / 'hat' — softened, low-level noise so it reads as air, not hiss
         n = int((0.05 if kind == 'hat' else 0.08) * SR)
         seed = 0x2545F4 + base
@@ -370,6 +385,13 @@ def _gbass(s, b0, bpb, chord, root, nxt, pat, vel):
         seq = [root, shift_oct(chord[1], -1), shift_oct(chord[-1], -1), nxt]
         for k in range(bpb):
             s.n(b0 + k, 0.9, seq[k % len(seq)], 'bass', vel * (0.92 if k % 2 == 0 else 0.78))
+    elif pat == 'toll':
+        s.n(b0, bpb * 0.55, root, 'bass', vel)
+        s.n(b0 + bpb * 0.5, bpb * 0.5, shift_oct(root, -1), 'bass', vel * 0.85)
+    elif pat == 'creep':
+        s.n(b0, 1.5, root, 'bass', vel)
+        s.n(b0 + 2.5, 0.7, root, 'bass', vel * 0.7)
+        s.n(b0 + 3.5, 0.5, shift_oct(root, 1), 'bass', vel * 0.6)
 
 def _gcomp(s, b0, bpb, chord, pat, instr, vel, lift):
     cell = [shift_oct(c, lift) for c in chord]
@@ -419,6 +441,8 @@ def _gperc(s, b0, bpb, pat):
             s.p(b0 + k, 'shaker', 0.42)
         for k in (1, 3):
             s.p(b0 + k, 'shaker', 0.3)
+    elif pat == 'ritual':
+        s.p(b0, 'tom', 0.5)
     elif pat == 'drive':
         s.p(b0, 'kick', 0.7); s.p(b0 + 0.75, 'kick', 0.5); s.p(b0 + 2, 'kick', 0.6); s.p(b0 + 2.75, 'kick', 0.45)
         s.p(b0 + 2, 'snare', 0.55)
@@ -573,7 +597,10 @@ def track_ruins():
     ]
     # sparse: pad + bass + a slow bell arp, NO kick/hat (the 'none' perc)
     prog = prog + to_prog([{"chord": ["D4", "F4", "A4"], "bass": "D2"}, {"chord": ["A3", "C4", "E4"], "bass": "A2"}, {"chord": ["F3", "A3", "C4"], "bass": "F2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}, {"chord": ["D4", "F4", "A4"], "bass": "D2"}, {"chord": ["E3", "G#3", "B3"], "bass": "E2"}, {"chord": ["A3", "C4", "E4"], "bass": "A2"}, {"chord": ["E3", "G#3", "B3", "D4"], "bass": "E2"}])
-    groove(s, prog, bpb=4, bass='drone', comp='arp_slow', perc='none', pad_vel=0.85, comp_instr='bell', comp_vel=0.34)
+    groove(s, prog, bpb=4, bass='toll', comp='roll', perc='ritual', pad_vel=0.85, comp_instr='bell', comp_vel=0.30)
+    # distant high temple bell — a sparse toll every 2 bars for ancient air
+    for _b in range(0, len(prog), 2):
+        s.n(_b * 4, 2.5, shift_oct(prog[_b][0][-1], 2), 'bell', 0.20, pan=0.15)
     mel = [
         (0, 3, 'E5'), (3, 1, 'D5'), (4, 2, 'C5'), (6, 2, 'A4'),
         (8, 3, 'D5'), (11, 1, 'C5'), (12, 2, 'B4'), (14, 2, 'G#4'),
@@ -636,7 +663,10 @@ def track_cave():
     ]
     progA = prog
     prog = progA + to_prog([{"chord": ["A3", "C4", "E4"], "bass": "A2"}, {"chord": ["A3", "C4", "E4"], "bass": "A2"}, {"chord": ["F3", "A3", "C4"], "bass": "F2"}, {"chord": ["F3", "A3", "C4"], "bass": "F2"}, {"chord": ["D3", "F#3", "A3"], "bass": "D2"}, {"chord": ["D3", "F#3", "A3"], "bass": "D2"}, {"chord": ["B3", "D4", "F#4"], "bass": "B2"}, {"chord": ["E3", "G3", "B3"], "bass": "E2"}]) + progA
-    groove(s, prog, bpb=4, bass='drone', comp='drip', perc='heartbeat', pad_vel=0.9, comp_vel=0.30)
+    groove(s, prog, bpb=4, bass='creep', comp='drip', perc='heartbeat', pad_vel=0.9, comp_vel=0.30)
+    # deep sub-drone under the creep — the cave's underground rumble
+    for _b, (_ch, _rt) in enumerate(prog):
+        s.n(_b * 4, 4.0, shift_oct(_rt, -1), 'bass', 0.30)
     mel = [
         (0, 3, 'B4'), (3, 1, 'A4'), (4, 4, 'G4'),
         (8, 2, 'A4'), (10, 2, 'C5'), (12, 4, 'B4'),
