@@ -46,13 +46,22 @@ func hide_menu():
 	visible = false
 
 func _on_master_slider_value_changed(value: float):
-	UserConfig.set_master_volume(linear_to_db(value))
+	UserConfig.set_master_volume(_slider_to_db(value))
 
 func _on_music_slider_value_changed(value: float):
-	UserConfig.set_music_volume(linear_to_db(value))
+	UserConfig.set_music_volume(_slider_to_db(value))
 
 func _on_sfx_slider_value_changed(value: float):
-	UserConfig.set_sfx_volume(linear_to_db(value))
+	UserConfig.set_sfx_volume(_slider_to_db(value))
+
+
+## Convert a 0..1 slider position to dB WITHOUT ever producing linear_to_db(0) == -INF
+## (which silences the bus unrecoverably). Full-left lands on the silence floor — a
+## finite, audibly-silent value the slider can still climb back out of.
+func _slider_to_db(value: float) -> float:
+	if value <= 0.0:
+		return UserConfig.MIN_VOLUME_DB
+	return maxf(UserConfig.MIN_VOLUME_DB, linear_to_db(value))
 
 func _on_screen_shake_toggled(button_pressed: bool):
 	UserConfig.set_screen_shake_enabled(button_pressed)

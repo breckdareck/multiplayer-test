@@ -12,9 +12,18 @@ var default_hotbar_actions: Array[String] = []
 var _all_managed_actions: Array[String] = []
 
 # Sound settings
-var master_volume_db: float = 1
-var music_volume_db: float = -8
-var sfx_volume_db: float = -8
+## Silence floor. A volume slider dragged fully left lands HERE (effectively
+## inaudible but finite), never at linear_to_db(0) == -INF. -INF is unrecoverable
+## garbage: it silences the entire bus, can't be nudged back up, and serializes into
+## the config so it reloads every launch. AudioServer treats ~-80 dB as silence.
+const MIN_VOLUME_DB: float = -80.0
+const DEFAULT_MASTER_DB: float = 0.0
+const DEFAULT_MUSIC_DB: float = -8.0
+const DEFAULT_SFX_DB: float = -8.0
+
+var master_volume_db: float = DEFAULT_MASTER_DB
+var music_volume_db: float = DEFAULT_MUSIC_DB
+var sfx_volume_db: float = DEFAULT_SFX_DB
 
 # Server settings
 var backend_api_url: String = DEFAULT_API_URL
@@ -242,10 +251,32 @@ func _load_sound_settings_from_config(config: ConfigFile):
 		master_volume_db = config.get_value(SOUND_CONFIG_SECTION, "master_volume_db", master_volume_db)
 		music_volume_db = config.get_value(SOUND_CONFIG_SECTION, "music_volume_db", music_volume_db)
 		sfx_volume_db = config.get_value(SOUND_CONFIG_SECTION, "sfx_volume_db", sfx_volume_db)
-		
-		#print("Sound settings loaded.")
-		
+
+	# Heal broken volumes: the old options slider wrote linear_to_db(0) == -INF when a
+	# channel was dragged fully down, silencing that whole bus with no way to recover
+	# (it's not finite, so the slider can't nudge it back). Reset any -INF/NaN to an
+	# audible default; clamp finite values (incl. a deliberate MIN_VOLUME_DB mute) to
+	# the floor. This is what restores music for anyone whose config already has -INF.
+	var before := [master_volume_db, music_volume_db, sfx_volume_db]
+	master_volume_db = _sanitize_volume_db(master_volume_db, DEFAULT_MASTER_DB)
+	music_volume_db = _sanitize_volume_db(music_volume_db, DEFAULT_MUSIC_DB)
+	sfx_volume_db = _sanitize_volume_db(sfx_volume_db, DEFAULT_SFX_DB)
+
 	_apply_sound_settings()
+
+	# Scrub the bad value off disk so it doesn't reload every launch. Deferred so it
+	# runs after load_config() has fully populated every other section (keybinds,
+	# server, gameplay) — saving mid-load would clobber them with stale data.
+	if before != [master_volume_db, music_volume_db, sfx_volume_db]:
+		save_config.call_deferred()
+
+
+## Returns a safe dB: non-finite (legacy -INF / NaN) becomes `default_db`; everything
+## else is clamped to the audible floor so a bus can never be driven to -INF.
+func _sanitize_volume_db(value: float, default_db: float) -> float:
+	if is_inf(value) or is_nan(value):
+		return default_db
+	return maxf(MIN_VOLUME_DB, value)
 
 func _save_sound_settings_to_config(config: ConfigFile, _file_existed_before_save: bool):
 	config.set_value(SOUND_CONFIG_SECTION, "master_volume_db", master_volume_db)
@@ -259,9 +290,11 @@ func _apply_sound_settings():
 	var music_bus_idx = AudioServer.get_bus_index("Music")
 	var sfx_bus_idx = AudioServer.get_bus_index("SFX")
 	
-	if master_bus_idx != -1: AudioServer.set_bus_volume_db(master_bus_idx, master_volume_db)
-	if music_bus_idx != -1: AudioServer.set_bus_volume_db(music_bus_idx, music_volume_db)
-	if sfx_bus_idx != -1: AudioServer.set_bus_volume_db(sfx_bus_idx, sfx_volume_db)
+	# maxf floor is defensive — callers are already sanitized, but this guarantees the
+	# AudioServer never receives -INF regardless of how the value got here.
+	if master_bus_idx != -1: AudioServer.set_bus_volume_db(master_bus_idx, maxf(MIN_VOLUME_DB, master_volume_db))
+	if music_bus_idx != -1: AudioServer.set_bus_volume_db(music_bus_idx, maxf(MIN_VOLUME_DB, music_volume_db))
+	if sfx_bus_idx != -1: AudioServer.set_bus_volume_db(sfx_bus_idx, maxf(MIN_VOLUME_DB, sfx_volume_db))
 
 
 func set_master_volume(value_db: float):
