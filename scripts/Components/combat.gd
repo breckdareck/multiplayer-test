@@ -1084,12 +1084,13 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 				var _atk_pid: int = owner_node.player_id
 				if _atk_pid != 1 and not BotManager.is_bot(_atk_pid) and is_instance_valid(owner_node.health_component):
 					owner_node.health_component._trigger_screen_shake.rpc_id(_atk_pid, 3.0)
-				# Juice: a landed-hit thunk (crit gets the sharper sting), once per swing
-				# resolution so multi-hit / AoE doesn't machine-gun the sound.
-				var _hit_map: String = MapManager.get_player_map(owner_node.player_id)
-				if _hit_map != "":
-					var _hit_sfx: String = "res://assets/sounds/generated/hit_crit.wav" if (true in crit_values) else "res://assets/sounds/generated/hit_impact.wav"
-					AudioManager.play_sfx_for_map(_hit_map, _hit_sfx, target_enemy.global_position, -3.0)
+			# Juice: a landed-hit thunk (crit swaps to the sharper sting), once per swing
+			# resolution so multi-hit / AoE doesn't machine-gun it. Sibling of the crit
+			# block so EVERY landed hit thunks, not only crits.
+			var _hit_map: String = MapManager.get_player_map(owner_node.player_id)
+			if _hit_map != "":
+				var _hit_sfx: String = "res://assets/sounds/generated/hit_crit.wav" if (true in crit_values) else "res://assets/sounds/generated/hit_impact.wav"
+				AudioManager.play_sfx_for_map(_hit_map, _hit_sfx, target_enemy.global_position, -3.0)
 
 
 func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelData, amp_allowed: bool = true) -> int:

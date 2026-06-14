@@ -165,6 +165,12 @@ func break_stealth() -> void:
 		_max_stealth_timer.stop()
 
 	_restore_visibility()
+	# Juice: a reveal puff so breaking the cloak (ambush payoff / manual) reads.
+	var root := get_owner()
+	if is_instance_valid(root) and "player_id" in root:
+		var smap: String = MapManager.get_player_map(root.player_id)
+		if smap != "":
+			MapManager.broadcast_vfx_everywhere(smap, "dark_impact", root.global_position, 0.8, 0.0, false)
 	_emit_and_sync()
 
 
@@ -225,6 +231,13 @@ func _enter_stealth() -> void:
 
 	if is_instance_valid(_max_stealth_timer):
 		_max_stealth_timer.start(MAX_STEALTH_SEC)
+
+	# Juice: a vanish puff + the dagger_stealth cue so entering the cloak is felt.
+	if is_instance_valid(root) and "player_id" in root:
+		var smap: String = MapManager.get_player_map(root.player_id)
+		if smap != "":
+			MapManager.broadcast_vfx_everywhere(smap, "dark_impact", root.global_position, 0.9, 0.0, false)
+			AudioManager.play_sfx_for_map(smap, "res://assets/sounds/generated/dagger_stealth.wav", root.global_position, -3.0)
 
 	_emit_and_sync()
 

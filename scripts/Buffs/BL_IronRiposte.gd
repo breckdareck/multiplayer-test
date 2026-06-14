@@ -35,4 +35,4 @@ func on_damaged(owner_node: Node, active_buff, damage_amount: int, source: Node)
 	# Apply reflected damage back to the attacker
 	if reflected_damage > 0 and attacker_health_comp:
 		attacker_health_comp.take_damage(reflected_damage, owner_node, true)
-		EventJuice.proc(source, "RIPOSTE %d" % reflected_damage, EventJuice.COLOR_COUNTER)
+		EventJuice.proc(source, "RIPOSTE %d" % reflected_damage, EventJuice.COLOR_COUNTER, "res://assets/sounds/generated/sword_guard.wav", "phys_impact")

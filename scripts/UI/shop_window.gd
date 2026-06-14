@@ -144,8 +144,13 @@ func update_displays() -> void:
 @rpc("authority", "call_local", "reliable")
 func update_money_display(new_monies_amount: int) -> void:
 	if player_inventory:
+		var changed: bool = player_inventory.monies_amount != new_monies_amount
 		player_inventory.monies_amount = new_monies_amount # Update client's local monies amount
 		money_label.text = player_inv_component.format_number_with_commas(new_monies_amount) + " Monies"
+		# Juice: a coin cha-ching on a real buy/sell (a no-op refresh like opening
+		# the shop passes the same amount, so it stays silent).
+		if changed:
+			AudioManager.play_ui_sfx("res://assets/sounds/coin.wav")
 
 # ── Tab routing ───────────────────────────────────────────────────────────────
 

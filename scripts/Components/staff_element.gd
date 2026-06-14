@@ -116,11 +116,27 @@ var _current_element: int = Element.FIRE
 ## Server-only. Advances the active element one step (FIRE -> ICE -> LIGHTNING
 ## -> FIRE) and syncs to the owning client. Called from PlayerManager.player_input
 ## when the local player presses WeaponSignature while wielding a staff.
+## Per-element stance feedback, indexed by Element (FIRE, ICE, LIGHTNING).
+const _STANCE_SFX: Array = [
+	"res://assets/sounds/generated/staff_fire.wav",
+	"res://assets/sounds/generated/staff_ice.wav",
+	"res://assets/sounds/generated/staff_lightning.wav",
+]
+const _STANCE_VFX: Array = ["fire_cast", "ice_cast", "lightning_impact"]
+
 func cycle_element() -> void:
 	if not multiplayer.is_server():
 		return
 	_current_element = (_current_element + 1) % ELEMENT_COUNT
 	_emit_and_sync()
+	# Juice: snap the caster with the NEW element's color + sound so the stance
+	# swap is felt on the character (the screen-edge widget pulse is the only other tell).
+	var root := get_owner()
+	if is_instance_valid(root) and "player_id" in root:
+		var emap: String = MapManager.get_player_map(root.player_id)
+		if emap != "":
+			MapManager.broadcast_vfx_everywhere(emap, _STANCE_VFX[_current_element], root.global_position, 1.0, 0.0, false)
+			AudioManager.play_sfx_for_map(emap, _STANCE_SFX[_current_element], root.global_position, -3.0)
 
 
 ## Read-only accessor for the widget / combat hook. Safe on both peers — the

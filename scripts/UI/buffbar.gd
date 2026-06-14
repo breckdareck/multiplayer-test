@@ -441,6 +441,14 @@ func _on_buff_applied(buff_id: String, duration: float) -> void:
 	icon.modulate.a = 0.0
 	var tween := create_tween()
 	tween.tween_property(icon, "modulate:a", 1.0, 0.3)
+	# Juice: a scale-pop + a soft cue so gaining a buff is seen/heard, and a debuff
+	# landing reads as a warning. Local player's own bar only.
+	icon.scale = Vector2(1.3, 1.3)
+	tween.parallel().tween_property(icon, "scale", Vector2.ONE, 0.25)
+	if buff_data.is_debuff:
+		AudioManager.play_ui_sfx("res://assets/sounds/generated/denied.wav", -3.0)
+	else:
+		AudioManager.play_ui_sfx("res://assets/sounds/generated/buff_cast.wav", -8.0)
 
 
 func _on_buff_removed(buff_id: String) -> void:
