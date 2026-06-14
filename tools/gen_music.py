@@ -208,11 +208,20 @@ def lowpass(buf, fc):
         out[i] = y
     return out
 
-def finalize(L, R):
+def finalize(L, R, loop_len):
     L = reverb(L); R = reverb(R)
     # Mellow: 2-pole ~5.2 kHz lowpass tames osc/bell harshness + reverb fizz.
     L = lowpass(lowpass(L, 5200), 5200)
     R = lowpass(lowpass(R, 5200), 5200)
+    # Seamless loop: the music body is exactly loop_len samples, but note releases +
+    # reverb decay spill PAST it. Fold that overhang back onto the start (wrap-add) so
+    # the last bar's tail continues into the first bar — exactly what happens on the
+    # next iteration — then cut to loop_len. End now flows into start with no gap.
+    n = len(L)
+    for j in range(loop_len, n):
+        k = (j - loop_len) % loop_len
+        L[k] += L[j]; R[k] += R[j]
+    del L[loop_len:]; del R[loop_len:]
     peak = max(1e-6, max(max(abs(x) for x in L), max(abs(x) for x in R)))
     norm = 0.84 / peak
     out = bytearray()
@@ -235,6 +244,10 @@ class Seq:
         self.spb = 60.0 / bpm
         self.notes = []
         self.perc = []
+        # The musical loop length in beats (bar grid). Set by auto_backing / the
+        # track. Notes/ornaments that ring PAST this fold back to the start, so the
+        # loop point lands exactly on the downbeat — never on a trailing ornament.
+        self.loop_beats = None
     def n(self, beat, dur, note, instr, vel=1.0, pan=0.0):
         self.notes.append((beat * self.spb, dur * self.spb, nf(note), instr, vel, pan))
     def chord(self, beat, dur, notes, instr, vel=1.0, pan=0.0, spread=0.0):
@@ -249,18 +262,23 @@ class Seq:
     def total_beats(self):
         return max((s / self.spb + d / self.spb for s, d, *_ in self.notes), default=0.0)
     def render(self):
-        length = int((self.total_beats() * self.spb + 1.4) * SR)
+        # The loop is exactly loop_beats long (bar grid); render that PLUS tail room
+        # for the final notes' releases + reverb decay, which finalize() folds back.
+        loop_beats = self.loop_beats if self.loop_beats is not None else self.total_beats()
+        loop = int(round(loop_beats * self.spb * SR))
+        length = loop + int(3.0 * SR)
         L = [0.0] * length; R = [0.0] * length
         for s, d, f, instr, vel, pan in self.notes:
             render_note(L, R, s, d, f, instr, vel, pan)
         for s, kind, vel, pan in self.perc:
             render_perc(L, R, s, kind, vel, pan)
-        return finalize(L, R)
+        return finalize(L, R, loop)
 
 def auto_backing(s, prog, bpb=4, pad_vel=0.78, arp_instr='pluck', arp_step=0.5,
                  arp_vel=0.5, arp_lift=0, perc='light', pad_spread=0.16):
     """Fill pad (sustained chord) + bass (root) + arpeggio (+ optional perc) for a
     list of (chord_notes, bass_root) bars. The track adds its own lead on top."""
+    s.loop_beats = len(prog) * bpb   # loop point = end of the last bar, on the downbeat
     for bar, (chord, root) in enumerate(prog):
         b0 = bar * bpb
         s.chord(b0, bpb, chord, 'pad', vel=pad_vel, spread=pad_spread)
@@ -416,6 +434,7 @@ def track_ruins():
         (['D3', 'F3', 'A3'], 'D2'), (['E3', 'G3', 'B3'], 'E2'),
     ]
     # sparse: pad + bass + a slow bell arp, NO kick/hat (the 'none' perc)
+    s.loop_beats = len(prog) * 4
     for bar, (chord, root) in enumerate(prog):
         b0 = bar * 4
         s.chord(b0, 4, chord, 'pad', vel=0.85, spread=0.22)
@@ -488,6 +507,7 @@ def track_cave():
         (['F3', 'A3', 'C4'], 'F2'), (['C3', 'E3', 'G3'], 'C2'),
         (['B2', 'D3', 'F3'], 'B1'), (['E3', 'G3', 'B3'], 'E2'),
     ]
+    s.loop_beats = len(prog) * 4
     for bar, (chord, root) in enumerate(prog):
         b0 = bar * 4
         s.chord(b0, 4, chord, 'pad', vel=0.9, spread=0.24)
