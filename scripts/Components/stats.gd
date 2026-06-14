@@ -97,11 +97,6 @@ const LUCK_CRIT_KNEE: float = 100.0
 const LUCK_CRIT_SLOPE: float = 0.30
 const CON_TO_HP: float = 8.0
 const CON_TO_HPREGEN: float = 0.2
-## CON also grants DEFENSE so survivability isn't STR-locked — every build (caster,
-## rogue, archer) gets a class-neutral way to be less paper by investing CON, at the
-## cost of offense. Below STR's rate so STR stays the premier defensive stat for the
-## sword's tank identity. (Tuning lever — adjust after playtesting.)
-const CON_TO_DEFENSE: float = 0.6
 const DEX_TO_ACCURACY: float = 0.05  # % hit per DEX, consumed in combat.gd
 
 # PR 7 balance — attribute SOFT-CAP (diminishing returns on hard mono-stacking).
@@ -436,7 +431,6 @@ func _apply_attribute_utilities() -> void:
 	var luk: int = stats[Constants.StatType.LUCK].total_value
 	var con: int = stats[Constants.StatType.CONSTITUTION].total_value
 	stats[Constants.StatType.DEFENSE].flat_bonus_value += int(strv * STR_TO_DEFENSE)
-	stats[Constants.StatType.DEFENSE].flat_bonus_value += int(con * CON_TO_DEFENSE)
 	stats[Constants.StatType.MANA].flat_bonus_value += int(intv * INT_TO_MANA)
 	stats[Constants.StatType.MPREGEN].flat_bonus_value += int(intv * INT_TO_MPREGEN)
 	stats[Constants.StatType.CRITCHANCE].flat_bonus_value += int(_luck_to_crit(float(luk)))
