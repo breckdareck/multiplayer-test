@@ -14,8 +14,11 @@ its `sfx_path` set (replaced if present, inserted after `script = ...` if not)
 to a palette sound chosen by filename keywords. Passives have no
 ActiveBehaviorData block and are skipped automatically.
 
-NOTE: Godot imports the new .wav files the next time the editor scans the
-project — open the editor once before testing in-game.
+NOTE: a plain HEADLESS run imports the new .wav files and writes their .import
+sidecars — e.g. `godot --headless --path . --script res://test/run_tests.gd` or
+any headless project load — so no editor pass is needed (the editor would also
+re-serialize touched .tres). Commit the .wav AND its generated .import. Use
+`--synth-only` to regenerate the palette without re-touching the ability .tres.
 """
 
 import argparse
