@@ -34,7 +34,7 @@ metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
 [sub_resource type="Resource" id="Resource_o63la"]
 script = ExtResource("5_2471p")
-base_value = 58.2
+base_value = 47.2
 per_level = 4.76
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
