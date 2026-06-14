@@ -318,6 +318,10 @@ func get_allocated_attribute(stat_type: int) -> int:
 
 ## [Client→Server] Spend `amount` points into an attribute.
 func allocate_attribute(stat_type: int, amount: int = 1) -> void:
+	# Juice: a confirming tick, but only on the local player's own machine (so the
+	# host doesn't hear every bot's allocation).
+	if owner.player_id == multiplayer.get_unique_id():
+		AudioManager.play_ui_sfx("res://assets/sounds/generated/ui_spend.wav")
 	if _is_multiplayer_client():
 		allocate_attribute_request.rpc_id(1, stat_type, amount)
 		return

@@ -350,6 +350,9 @@ func use_ability(ability_id: String) -> bool:
 
 ## Attempts to level up an ability.
 func level_up_ability(ability_id: String) -> bool:
+	# Juice: a confirming tick on the local player's machine only (not bot spends).
+	if owner.player_id == multiplayer.get_unique_id():
+		AudioManager.play_ui_sfx("res://assets/sounds/generated/ui_spend.wav")
 	if _is_multiplayer_client():
 		level_up_ability_request.rpc_id(1, ability_id)
 		return true
@@ -1940,6 +1943,9 @@ func _owns_variant_in_group(ability: AbilityData, ability_id: String, group: Str
 
 ## Public entry — client routes to the server via RPC; server applies locally.
 func purchase_upgrade(ability_id: String, upgrade_id: String) -> bool:
+	# Juice: a confirming tick on the local player's machine only (not bot spends).
+	if owner.player_id == multiplayer.get_unique_id():
+		AudioManager.play_ui_sfx("res://assets/sounds/generated/ui_spend.wav")
 	if _is_multiplayer_client():
 		purchase_upgrade_request.rpc_id(1, ability_id, upgrade_id)
 		return true

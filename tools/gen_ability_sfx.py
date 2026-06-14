@@ -14,11 +14,10 @@ its `sfx_path` set (replaced if present, inserted after `script = ...` if not)
 to a palette sound chosen by filename keywords. Passives have no
 ActiveBehaviorData block and are skipped automatically.
 
-NOTE: a plain HEADLESS run imports the new .wav files and writes their .import
-sidecars — e.g. `godot --headless --path . --script res://test/run_tests.gd` or
-any headless project load — so no editor pass is needed (the editor would also
-re-serialize touched .tres). Commit the .wav AND its generated .import. Use
-`--synth-only` to regenerate the palette without re-touching the ability .tres.
+NOTE: import the new .wav files headlessly with `godot --headless --path . --import`
+(writes the .import sidecars + .godot/imported entries) — no editor pass is needed
+(the editor would also re-serialize touched .tres). Commit the .wav AND its generated
+.import. Use `--synth-only` to regenerate the palette without re-touching the .tres.
 """
 
 import argparse
@@ -480,6 +479,49 @@ def snd_mastery_ding(rng):
     return normalize(mix(*notes), 0.55)
 
 
+# --- world / progression feedback -------------------------------------------
+
+def snd_heal(rng):
+    """Restorative chime: warm low body + a rising sparkle (green, positive)."""
+    body = env_ad(mix(partial(523.25, 0.45, 0.16), partial(659.25, 0.45, 0.12, 0.6)), 0.02, 0.14)
+    sparkle = delay(gain(env_ad(sine_sweep(1320, 2640, 0.25, 0.6, 0.7), 0.01, 0.08), 0.4), 0.06)
+    shimmer = delay(gain(partial(3136, 0.30, 0.08), 0.2), 0.10)
+    return normalize(mix(body, sparkle, shimmer), 0.55)
+
+
+def snd_quest_fanfare(rng):
+    """Triumphant four-note rise (C E G ^C) with a bright tail."""
+    notes, t0 = [], 0.0
+    for f in (523.25, 659.25, 783.99, 1046.5):
+        tone = mix(partial(f, 0.5, 0.16), partial(2 * f, 0.5, 0.08, 0.35))
+        notes.append(delay(tone, t0))
+        t0 += 0.11
+    shine = delay(gain(partial(2093, 0.4, 0.12), 0.25), 0.42)
+    return normalize(mix(*notes, shine), 0.6)
+
+
+def snd_respawn(rng):
+    """Revive swell: a soft rising pad + a bright bloom."""
+    swell = env_ad(sine_sweep(220, 440, 0.5, 0.7, 0.6), 0.12, 0.18)
+    bloom = delay(gain(mix(partial(880, 0.4, 0.14), partial(1320, 0.4, 0.09, 0.5)), 0.5), 0.18)
+    air = env_ad(lowpass(white(rng, 0.5), 600), 0.15, 0.18)
+    return normalize(mix(swell, bloom, gain(air, 0.15)), 0.5)
+
+
+def snd_ui_spend(rng):
+    """Build-point spend: a crisp confirming two-tick rise (distinct from ui_click)."""
+    a = env_ad(sine_sweep(880, 1100, 0.04), 0.001, 0.02)
+    b = delay(env_ad(sine_sweep(1320, 1660, 0.05), 0.001, 0.025), 0.04)
+    return normalize(mix(a, b), 0.5)
+
+
+def snd_denied(rng):
+    """Action denied: a short low descending buzz."""
+    buzz = env_ad(sine_sweep(260, 160, 0.14, curve=1.2), 0.002, 0.05)
+    rasp = gain(env_ad(bandpass(white(rng, 0.10), 200, 700), 0.002, 0.03), 0.4)
+    return normalize(soft_clip(mix(buzz, rasp), 1.3), 0.45)
+
+
 SOUNDS = {
     "sword_slash": snd_sword_slash,
     "sword_heavy": snd_sword_heavy,
@@ -520,6 +562,11 @@ SOUNDS = {
     "hit_crit": snd_hit_crit,
     "enemy_death": snd_enemy_death,
     "mastery_ding": snd_mastery_ding,
+    "heal": snd_heal,
+    "quest_fanfare": snd_quest_fanfare,
+    "respawn": snd_respawn,
+    "ui_spend": snd_ui_spend,
+    "denied": snd_denied,
 }
 
 

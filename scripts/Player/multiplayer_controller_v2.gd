@@ -1009,6 +1009,12 @@ func respawn() -> void:
 	set_collision_mask_value(platform_layer, true)
 	if is_instance_valid(health_component):
 		health_component.respawn()
+	# Juice: a respawn flourish (aura burst + revive swell) so coming back to life
+	# has a beat instead of just popping into existence.
+	var rmap: String = MapManager.get_player_map(player_id)
+	if rmap != "":
+		MapManager.broadcast_vfx_everywhere(rmap, "buff_cast", position, 1.3, 0.0, false)
+		AudioManager.play_sfx_for_map(rmap, "res://assets/sounds/generated/respawn.wav", position, 0.0)
 
 
 # [CLIENT -> SERVER] Lightweight RPC so clients can notify the server that

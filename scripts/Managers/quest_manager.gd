@@ -481,6 +481,12 @@ func _complete_quest(username: String, quest_id: String) -> void:
 
 	var sender_id: int = player_node.player_id
 
+	# Juice: a completion fanfare + banner on the player.
+	var quest_map: String = MapManager.get_player_map(sender_id)
+	if quest_map != "":
+		AudioManager.play_sfx_for_map(quest_map, "res://assets/sounds/generated/quest_fanfare.wav", player_node.global_position, 0.0)
+	EventJuice.proc(player_node, "QUEST COMPLETE", EventJuice.COLOR_COMBO, "", "")
+
 	# Grant EXP
 	if quest.reward_exp > 0:
 		player_node.gain_experience(quest.reward_exp)
