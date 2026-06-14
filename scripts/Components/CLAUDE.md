@@ -573,11 +573,11 @@ Marks are applied by the casting ability's `on_hit` (each AL writes its own meta
 key, e.g. `death_mark_remaining`, with `Time.get_ticks_msec() + duration_ms`).
 
 A lighter-weight variant — **direct per-target meta reads without static helpers**
-— is used by Smoke Bomb's base effect + T3 upgrades. AL_SmokeBomb writes
-per-target metas in its ground-zone tick callbacks:
-- `smoke_evasion_expire_at_ms` + `smoke_evasion_chance` on allies inside
-  (base ability — health.gd rolls `randf() < chance` and early-returns on
-  a dodge; no health-deduction, no invuln, no screen-shake)
+— is used by Smoke Bomb's T3 upgrades. AL_SmokeBomb writes per-target metas in its
+ground-zone tick callbacks (its BASE evasion is now a real buff, not a meta — it
+re-applies the **Smoke Screen** buff `B_Smoke_Screen.tres` (+EVASIONCHANCE) via
+BuffComponent, the same shape as Banner's aura, so the dodge runs through
+enemy_base's unified hit-chance roll like innate evasion):
 - `smoke_choke_expire_at_ms` + `smoke_choke_pct` on enemies inside (Choking
   Smoke T3 — health.gd scales incoming damage by `1 - smoke_choke_pct`)
 - `smoke_inside_crit_until_ms` on allies inside (Shadow Smoke T3 — combat.gd

@@ -270,21 +270,6 @@ func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, 
 		if is_invulnerable and not ignore_invuln or is_dead:
 			return
 
-		# v1 Smoke Bomb evasion — players inside the cloud have a per-hit
-		# chance to dodge any incoming damage. Server-only randf() roll so
-		# only one peer decides the outcome. Early-return on a dodge skips
-		# health-deduction, invuln-start, and screen-shake; the show_number
-		# display above already ran with the pre-dodge amount (a small UX
-		# inconsistency: the number flashes on screen but no HP is lost).
-		if is_player and owner.has_meta("smoke_evasion_expire_at_ms"):
-			var ev_expire: int = int(owner.get_meta("smoke_evasion_expire_at_ms"))
-			if Time.get_ticks_msec() < ev_expire:
-				var ev_chance: float = float(owner.get_meta("smoke_evasion_chance", 0.0))
-				if ev_chance > 0.0 and randf() < ev_chance:
-					# Juice: surface the dodge so the player sees the smoke evasion work.
-					EventJuice.proc(owner, "DODGE", EventJuice.COLOR_AMBUSH, "res://assets/sounds/generated/dash_whoosh.wav", "")
-					return  # dodged — no damage applied
-
 		# final_amount (the post-reduction value) was computed up front so the
 		# displayed number matches; deduct it here.
 		self.current_health -= final_amount

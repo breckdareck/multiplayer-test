@@ -19,36 +19,36 @@ extends Node
 ## [[feedback_ground_zones_are_floor_rectangles]]).
 ##
 ## Implementation: spawns a damage-less GroundZone whose ALLY tick callback
-## refreshes `smoke_evasion_expire_at_ms` + `smoke_evasion_chance` on each
-## ally inside. health.gd reads these in its take_damage path and, while
-## active and unexpired, rolls `randf() < chance` to dodge — if dodged, no
-## damage is applied. The expire-timestamp pattern (refresh per tick + linger
-## past the last refresh) means evasion stays continuous while inside and
-## fades cleanly after exit (per [[feedback_refresh_effects_use_expire_timestamp]]).
+## re-applies the Smoke Screen buff (B_Smoke_Screen.tres, +EVASIONCHANCE) to each
+## ally inside — the same shape Banner of the Vanguard uses for its defensive aura.
+## A real buff (not a raw meta) means the player SEES it on the buff bar and in the
+## Evasion stat, and the dodge runs through the unified enemy hit-chance roll in
+## enemy_base. REFRESH stacking + a duration slightly longer than the tick interval
+## keeps it continuous while inside and lets it lapse shortly after exit (per
+## [[feedback_refresh_effects_use_expire_timestamp]]).
 
 const ZONE_RADIUS: float = 90.0
 const ZONE_DURATION: float = 4.0
 const ZONE_TICK_INTERVAL: float = 0.5  ## half-second tick — keeps the evasion meta fresh
 
-## Per-hit evasion chance allies inside the cloud get. 0.40 = 40% chance to
-## dodge any incoming damage. health.gd rolls randf() against this on the
-## server when a player target with the smoke_evasion_* meta takes damage.
-const SMOKE_EVASION_CHANCE: float = 0.40
+## The defensive aura allies inside the cloud get — a real BuffComponent buff
+## (B_Smoke_Screen.tres) granting +EVASIONCHANCE, exactly the shape Banner of the
+## Vanguard uses for its defensive aura. Unlike the old raw meta, the buff SHOWS on
+## the buff bar and raises the visible Evasion stat, and the dodge is rolled by the
+## unified enemy hit-chance path in enemy_base — so it also earns the dodge→
+## guaranteed-crit payoff and (by design) does NOT auto-dodge telegraphed boss
+## specials. The buff's +40 EVASIONCHANCE matches the ability's "+40% Evasion" tooltip.
+const SMOKE_BUFF_ID: String = "Smoke Screen"
 
-## How long after the LAST refresh tick the evasion meta stays set before
-## naturally expiring. Must be > ZONE_TICK_INTERVAL so consecutive ticks
-## always overlap (no flicker while continuously inside); the buffer past
-## tick_interval determines how long after the player walks OUT of the
-## cloud the cover persists. 1.0s = 0.5s linger after leaving.
-const EVASION_LINGER_SEC: float = 1.0
+## Buff duration per refresh. > ZONE_TICK_INTERVAL so consecutive 0.5s ticks always
+## overlap (no flicker while inside); the buffer past the tick interval is how long
+## the cover lingers after the ally walks OUT (1.0s ⇒ ~0.5s linger).
+const SMOKE_BUFF_DURATION: float = 1.0
 
-## Per-ally evasion metas. The reader (health.gd take_damage) checks
-## smoke_evasion_expire_at_ms first; if still in the future, rolls
-## randf() < smoke_evasion_chance and skips damage on a dodge. Both metas
-## are refreshed every ally tick so as long as the ally stays in the cloud
-## they always have evasion.
-const SMOKE_EVASION_EXPIRE_META: String = "smoke_evasion_expire_at_ms"
-const SMOKE_EVASION_CHANCE_META: String = "smoke_evasion_chance"
+## How long the Shadow Smoke (T3) inside-crit meta lingers past a tick — same
+## per-tick-refresh + linger pattern, so the crit window stays continuous while
+## inside and decays cleanly on exit.
+const SMOKE_INSIDE_LINGER_SEC: float = 1.0
 
 ## T3 upgrade metas:
 ##   - smoke_choke_*: on enemies inside the cloud. health.gd checks both and
@@ -137,12 +137,11 @@ func execute(owner_node: Node, _ability: AbilityData, _level_stats: AbilityLevel
 
 
 ## Per-tick callback fired by the zone for each ALLY currently inside.
-## Refreshes the evasion meta — the actual dodge roll happens in health.gd's
-## take_damage path on incoming damage. The expire-timestamp pattern (each
-## tick pushes the timestamp forward by EVASION_LINGER_SEC) means evasion
-## stays continuous while the ally is inside the cloud and naturally fades
-## ~1s after they leave — no per-ally clear timer needed because the meta
-## just stops being refreshed.
+## Re-applies the Smoke Screen buff (+EVASIONCHANCE) — the actual dodge roll
+## happens in enemy_base's hit-chance path, exactly like innate rogue evasion.
+## REFRESH stacking + a duration slightly longer than the tick interval keeps the
+## buff continuous while the ally is inside and lets it lapse shortly after they
+## leave — no per-ally clear timer needed because it just stops being refreshed.
 ##
 ## Also drives the two ally-side T3 effects when owned: per-tick heal
 ## (Restorative Smoke) and an inside-the-cloud guaranteed-crit meta
@@ -152,11 +151,14 @@ func _apply_hidden(ally: Node) -> void:
 	if not is_instance_valid(ally):
 		return
 
-	# Refresh evasion: bump the expire timestamp forward to "now + linger"
-	# and (re-)write the chance. The base ability's defensive effect.
-	var expire_at: int = Time.get_ticks_msec() + int(EVASION_LINGER_SEC * 1000.0)
-	ally.set_meta(SMOKE_EVASION_EXPIRE_META, expire_at)
-	ally.set_meta(SMOKE_EVASION_CHANCE_META, SMOKE_EVASION_CHANCE)
+	# Defensive aura: (re-)apply the Smoke Screen buff (+EVASIONCHANCE). Mirrors
+	# Banner's _apply_banner_aura — a real BuffComponent buff so it shows on the buff
+	# bar + Evasion stat, and the dodge is rolled by enemy_base's unified hit-chance
+	# path. REFRESH stacking keeps it continuous while inside; it lapses ~0.5s after
+	# the ally leaves (duration 1.0 > 0.5s tick).
+	var buff_comp = ally.get_node_or_null("Components/Buff")
+	if buff_comp != null and is_instance_valid(buff_comp) and buff_comp.has_method("apply_buff"):
+		buff_comp.apply_buff(SMOKE_BUFF_ID, null, SMOKE_BUFF_DURATION)
 
 	# Restorative Smoke (T3) — per-tick heal while inside. Direct HealthComponent
 	# heal; safe to call every tick because heal clamps at max_health.
@@ -173,7 +175,7 @@ func _apply_hidden(ally: Node) -> void:
 	# long as the ally is in the cloud and decays cleanly after exit (no
 	# "go-in-then-out" requirement; the user can strike directly from cover).
 	if _inside_crit_active:
-		ally.set_meta(SMOKE_INSIDE_CRIT_UNTIL_META, expire_at)
+		ally.set_meta(SMOKE_INSIDE_CRIT_UNTIL_META, Time.get_ticks_msec() + int(SMOKE_INSIDE_LINGER_SEC * 1000.0))
 
 
 ## Per-tick callback for enemies inside the cloud. Choking Smoke (T3):

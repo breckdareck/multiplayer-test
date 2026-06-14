@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="BuffData" load_steps=5 format=3 uid="uid://b7smkscrn0aq1"]
+
+[ext_resource type="Texture2D" uid="uid://4wqxwiq08113" path="res://assets/sprites/Abilities/generated_px/Dagger/A_SmokeBomb.png" id="1_icon"]
+[ext_resource type="Script" uid="uid://bcuvemv85jprb" path="res://scripts/Resources/BuffSystem/BuffData.gd" id="1_bd"]
+[ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="2_sd"]
+
+[sub_resource type="Resource" id="Resource_eva_mod"]
+script = ExtResource("2_sd")
+stat_type = 17
+base_value = 0
+flat_bonus_value = 40
+metadata/_custom_type_script = "uid://cptesvvlfbytw"
+
+[resource]
+resource_local_to_scene = true
+script = ExtResource("1_bd")
+buff_id = "Smoke Screen"
+buff_name = "Smoke Screen"
+description = "Hidden in the smoke — higher chance to evade incoming attacks."
+buff_icon = ExtResource("1_icon")
+duration = 1.0
+is_aura = true
+stat_modifiers = Dictionary[int, ExtResource("2_sd")]({
+17: SubResource("Resource_eva_mod")
+})
+metadata/_custom_type_script = "uid://bcuvemv85jprb"
