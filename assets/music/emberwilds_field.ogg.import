@@ -12,7 +12,7 @@ dest_files=["res://.godot/imported/emberwilds_field.ogg-60274da7b7ebc64bc1ae9ce7
 
 [params]
 
-loop=false
+loop=true
 loop_offset=0
 bpm=0
 beat_count=0

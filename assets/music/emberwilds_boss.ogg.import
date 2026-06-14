@@ -12,7 +12,7 @@ dest_files=["res://.godot/imported/emberwilds_boss.ogg-3fff2b8db11329c21696e0d6d
 
 [params]
 
-loop=false
+loop=true
 loop_offset=0
 bpm=0
 beat_count=0
