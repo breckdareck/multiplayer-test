@@ -412,6 +412,9 @@ func _equip_item() -> void:
 	if target == null:
 		return
 	item_container.transfer_item_clientside(self, target)
+	# Juice: a clunk on the actual equip action (not on_equipment_changed, which
+	# also fires on loads/swaps).
+	AudioManager.play_ui_sfx("res://assets/sounds/generated/sword_guard.wav", -4.0)
 
 
 ## Finds the item currently equipped in the slot this equipment would occupy.

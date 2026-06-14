@@ -97,6 +97,8 @@ func _on_roster_updated() -> void:
 func _on_pet_hatched(pet_uuid: String, _pet_name: String, _pet_data_id: String) -> void:
 	_selected_pet_uuid = pet_uuid
 	_refresh()
+	# Juice: a hatch is a rare milestone — a celebratory fanfare (was silent).
+	AudioManager.play_ui_sfx("res://assets/sounds/generated/quest_fanfare.wav")
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -213,6 +215,8 @@ func _on_pet_list_selected(idx: int) -> void:
 func _on_summon_pressed() -> void:
 	if _selected_pet_uuid.is_empty():
 		return
+	# Juice: a whoosh on summon/dismiss so the pop in/out has weight.
+	AudioManager.play_ui_sfx("res://assets/sounds/generated/dash_whoosh.wav", -4.0)
 	if PetManager.client_is_pet_summoned(_selected_pet_uuid):
 		PetManager.request_unsummon_pet_server.rpc_id(1, _selected_pet_uuid)
 	else:

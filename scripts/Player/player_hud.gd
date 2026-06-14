@@ -137,6 +137,8 @@ func _on_party_invite_received(inviter_id: int, inviter_username: String, party_
 	add_child(invite_popup)
 	invite_popup.set_invite_data(inviter_id, inviter_username, party_id)
 	invite_popup.show()
+	# Juice: an attention ping so an off-screen party invite is noticed.
+	AudioManager.play_ui_sfx("res://assets/sounds/generated/mark_ping.wav")
 
 
 ## An incoming trade request — show an accept/decline popup.

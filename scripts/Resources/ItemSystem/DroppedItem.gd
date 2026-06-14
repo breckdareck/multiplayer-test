@@ -395,6 +395,7 @@ func show_pickup_log_rpc(item_name: String, amount: int):
 @rpc("authority", "call_local", "reliable")
 func show_bag_full_log_rpc():
 	LogManager.add_scrolling_log("Inventory is full", Color.INDIAN_RED)
+	AudioManager.play_ui_sfx("res://assets/sounds/generated/denied.wav")
 
 
 func sync_state_to_peer(peer_id: int) -> void:

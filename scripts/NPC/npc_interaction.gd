@@ -67,6 +67,8 @@ func _open_shop(player_id: int) -> void:
 	if _shop_instance and _shop_instance.visible:
 		return  # Already open
 	
+	# Juice: NPC shops opened silently while every other window uses UiFx.
+	AudioManager.play_ui_sfx("res://assets/sounds/generated/ui_open.wav")
 	var player_inv: PlayerInventory = _get_local_player_inventory(player_id)
 	if not player_inv:
 		push_warning("NPCInteraction: Could not find local PlayerInventory for player %d" % player_id)

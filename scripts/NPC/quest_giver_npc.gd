@@ -65,3 +65,4 @@ func _open_dialog() -> void:
 		return
 	dialog_window.refresh_for_local_player()
 	dialog_window.visible = true
+	AudioManager.play_ui_sfx("res://assets/sounds/generated/ui_open.wav")

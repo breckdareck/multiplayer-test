@@ -1370,6 +1370,10 @@ func _apply_enemy_debuff(enemy: EnemyBase, debuff: BuffData, duration: float) ->
 			enemy_stat.percent_bonus_value += modifier.percent_bonus_value
 
 	enemy.set_meta(debuff_key, true)
+	# Juice: a synced "WEAKENED" tell. The tint below is written on the SERVER's
+	# sprite only, so remote clients never saw the debuff land; EventJuice
+	# broadcasts text + sound + a puff to every peer.
+	EventJuice.proc(enemy, "WEAKENED", Color(0.72, 0.55, 0.9), "res://assets/sounds/generated/dagger_poison.wav", "dark_impact")
 
 	if enemy.animated_sprite and is_instance_valid(enemy.animated_sprite):
 		enemy.animated_sprite.modulate = Color(0.6, 0.5, 0.8, 1.0)

@@ -361,6 +361,7 @@ func _on_swap_cooldown_started(duration: float) -> void:
 func _on_swap_denied(reason: String) -> void:
 	if reason == "empty_secondary" and is_instance_valid(secondary_weapon_slot):
 		secondary_weapon_slot.flash_denied()
+		AudioManager.play_ui_sfx("res://assets/sounds/generated/denied.wav")
 	# Other denial reasons (cooldown etc.) currently no-op visually — the
 	# existing radial overlay already communicates the cooldown.
 

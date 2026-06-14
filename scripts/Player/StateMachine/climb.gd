@@ -27,6 +27,8 @@ func enter() -> void:
 		return
 
 	parent.velocity = Vector2.ZERO
+	# Juice: a soft grab cue — climbing had zero tactile feedback.
+	AudioManager.play_sfx_for_map(MapManager.get_player_map(player.player_id), "res://assets/sounds/generated/land_soft.wav", player.global_position, -8.0)
 
 	# Snap the player horizontally to the active ladder so they don't drift
 	# off-column while climbing.

@@ -131,6 +131,8 @@ func _show_zone_banner(body: Node) -> void:
 		var banner := ZoneBanner.new()
 		player_hud.add_child(banner)
 		banner.show_zone((map_root as MapBase).display_name)
+		# Juice: an arrival cue to bookend the portal departure whoosh.
+		AudioManager.play_ui_sfx("res://assets/sounds/generated/dash_whoosh.wav", -6.0)
 
 
 func _wire_mobile_buttons(body: Node) -> void:

@@ -90,6 +90,10 @@ func enter() -> void:
 	# Authoritative telegraph + bespoke windup hook — server only.
 	if multiplayer.is_server():
 		enemy.broadcast_attack_telegraph(_attack, _center, _dir, _hit_time, Color(1.0, 0.2, 0.2, 0.5))
+		# Juice: a heavy windup cue to go with the red telegraph — the dangerous tell.
+		var wmap: String = enemy._get_map_id()
+		if wmap != "":
+			AudioManager.play_sfx_for_map(wmap, "res://assets/sounds/generated/sword_heavy.wav", enemy.global_position, 1.0)
 		_spawn_logic()
 		_call_logic("on_windup_start", [enemy, _attack])
 

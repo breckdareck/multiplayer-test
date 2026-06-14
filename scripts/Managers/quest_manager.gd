@@ -237,6 +237,12 @@ func _cmd_accept(sender_id: int, username: String, player_node: MultiplayerPlaye
 	_send_message(sender_id, "[Quest] Accepted: %s" % quest.quest_name, Color.GREEN)
 	_send_message(sender_id, "  %s" % quest.description, Color.GREEN)
 	quest_accepted.emit(username, quest_id)
+	# Juice: a commit cue when a player takes on a goal (COMPLETE is already juiced).
+	if is_instance_valid(player_node):
+		var amap: String = MapManager.get_player_map(sender_id)
+		if amap != "":
+			AudioManager.play_sfx_for_map(amap, "res://assets/sounds/generated/mark_ping.wav", player_node.global_position, -2.0)
+		EventJuice.proc(player_node, "QUEST ACCEPTED", EventJuice.COLOR_COMBO, "", "")
 	_save_quest_data(username)
 
 
