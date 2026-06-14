@@ -311,6 +311,18 @@ def lead(s, mel, instr='lead', vel=0.7, bell_long=True):
         if bell_long and dur >= 1.5:
             s.n(beat, 0.6, note, 'bell', vel=0.32)
 
+def offset_mel(mel, beats):
+    """Shift a melody's beats so an A/B section can be reused later in the loop."""
+    return [(b + beats, d, n) for (b, d, n) in mel]
+
+def to_prog(bars):
+    """Convert structured B-section bars [{'chord':[...],'bass':'X2'}] -> [(chord, root)]."""
+    return [(b['chord'], b['bass']) for b in bars]
+
+def to_mel(items):
+    """Convert structured melody [{'beat','dur','note'}] -> [(beat, dur, note)]."""
+    return [(m['beat'], m['dur'], m['note']) for m in items]
+
 # ==========================================================================
 # TRACK: Title — warm, welcoming, a touch wistful. F major / 100 BPM.
 # ==========================================================================
@@ -322,6 +334,7 @@ def track_title():
         (['D4', 'F4', 'A4', 'C5'],  'D3'), (['Bb3', 'D4', 'F4', 'A4'], 'Bb2'),
         (['G3', 'Bb3', 'D4', 'F4'], 'G2'), (['C4', 'E4', 'G4', 'Bb4'], 'C3'),
     ] * 2
+    prog = prog + to_prog([{"chord": ["Bb3", "D4", "F4"], "bass": "Bb2"}, {"chord": ["A3", "C4", "F4"], "bass": "A2"}, {"chord": ["G3", "Bb3", "D4"], "bass": "G2"}, {"chord": ["D4", "F4", "A4"], "bass": "D3"}, {"chord": ["Bb3", "D4", "F4"], "bass": "Bb2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}, {"chord": ["G3", "Bb3", "D4", "F4"], "bass": "G2"}, {"chord": ["C4", "E4", "G4", "Bb4"], "bass": "C3"}])
     auto_backing(s, prog, bpb=4, perc='light')
     mel = [
         (0, 1, 'C5'), (1, 1, 'F5'), (2, 1.5, 'A5'), (3.5, .5, 'G5'), (4, 1, 'E5'), (5, 1, 'C5'), (6, 2, 'E5'),
@@ -333,6 +346,7 @@ def track_title():
         (48, 1, 'F5'), (49, 1, 'A5'), (50, 1.5, 'C6'), (51.5, .5, 'A5'), (52, 1, 'G5'), (53, 1, 'E5'), (54, 2, 'F5'),
         (56, 1, 'G5'), (57, 1, 'A5'), (58, 1, 'Bb5'), (59, 1, 'A5'), (60, 1, 'G5'), (61, 1, 'E5'), (62, 2, 'F5'),
     ]
+    mel = mel + offset_mel(to_mel([{"beat": 0, "dur": 1, "note": "F4"}, {"beat": 1, "dur": 1, "note": "A4"}, {"beat": 2, "dur": 1.5, "note": "Bb4"}, {"beat": 3.5, "dur": 0.5, "note": "C5"}, {"beat": 4, "dur": 1.5, "note": "D5"}, {"beat": 5.5, "dur": 0.5, "note": "C5"}, {"beat": 6, "dur": 2, "note": "A4"}, {"beat": 8, "dur": 1, "note": "Bb4"}, {"beat": 9, "dur": 1, "note": "D5"}, {"beat": 10, "dur": 2, "note": "G4"}, {"beat": 12, "dur": 1, "note": "A4"}, {"beat": 13, "dur": 1, "note": "D5"}, {"beat": 14, "dur": 1.5, "note": "F5"}, {"beat": 15.5, "dur": 0.5, "note": "E5"}, {"beat": 16, "dur": 1.5, "note": "D5"}, {"beat": 17.5, "dur": 0.5, "note": "C5"}, {"beat": 18, "dur": 1, "note": "Bb4"}, {"beat": 19, "dur": 1, "note": "D5"}, {"beat": 20, "dur": 1.5, "note": "C5"}, {"beat": 21.5, "dur": 0.5, "note": "E5"}, {"beat": 22, "dur": 2, "note": "G5"}, {"beat": 24, "dur": 1, "note": "F5"}, {"beat": 25, "dur": 1, "note": "D5"}, {"beat": 26, "dur": 1, "note": "Bb4"}, {"beat": 27, "dur": 1, "note": "G4"}, {"beat": 28, "dur": 1, "note": "A4"}, {"beat": 29, "dur": 1, "note": "Bb4"}, {"beat": 30, "dur": 2, "note": "C5"}]), 64)
     lead(s, mel, vel=0.7)
     return s
 
@@ -350,6 +364,7 @@ def track_mainmenu():
         (['B3', 'D4', 'G4'], 'G2'), (['E3', 'G3', 'B3'], 'E2'),
         (['C4', 'E4', 'G4'], 'C3'), (['D4', 'F#4', 'A4'], 'D3'),
     ]
+    prog = prog + to_prog([{"chord": ["E3", "G3", "B3"], "bass": "E2"}, {"chord": ["B3", "D4", "F#4"], "bass": "B2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}, {"chord": ["B3", "D4", "G4"], "bass": "B2"}, {"chord": ["A3", "C4", "E4"], "bass": "A2"}, {"chord": ["E3", "G3", "B3"], "bass": "E2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}, {"chord": ["A3", "D4", "F#4"], "bass": "D3"}, {"chord": ["G3", "B3", "D4"], "bass": "G2"}, {"chord": ["A3", "D4", "F#4"], "bass": "D3"}])
     auto_backing(s, prog, bpb=4, pad_vel=0.85, arp_instr='bell', arp_step=1.0,
                  arp_vel=0.4, arp_lift=1, perc='soft', pad_spread=0.2)
     mel = [
@@ -360,6 +375,7 @@ def track_mainmenu():
         (32, 2, 'G5'), (34, 2, 'D5'), (36, 2, 'E5'), (38, 1, 'F#5'), (39, 1, 'G5'),
         (40, 2, 'C5'), (42, 2, 'E5'), (44, 3, 'D5'), (47, 1, 'B4'),
     ]
+    mel = mel + offset_mel(to_mel([{"beat": 0, "dur": 1.5, "note": "B4"}, {"beat": 1.5, "dur": 0.5, "note": "G4"}, {"beat": 2, "dur": 2, "note": "E4"}, {"beat": 4, "dur": 1, "note": "F#4"}, {"beat": 5, "dur": 1, "note": "A4"}, {"beat": 6, "dur": 2, "note": "B4"}, {"beat": 8, "dur": 1.5, "note": "G4"}, {"beat": 9.5, "dur": 0.5, "note": "E4"}, {"beat": 10, "dur": 2, "note": "C5"}, {"beat": 12, "dur": 1, "note": "B4"}, {"beat": 13, "dur": 1, "note": "A4"}, {"beat": 14, "dur": 2, "note": "G4"}, {"beat": 16, "dur": 1, "note": "A4"}, {"beat": 17, "dur": 1, "note": "C5"}, {"beat": 18, "dur": 2, "note": "E5"}, {"beat": 20, "dur": 1.5, "note": "B4"}, {"beat": 21.5, "dur": 0.5, "note": "G4"}, {"beat": 22, "dur": 2, "note": "E4"}, {"beat": 24, "dur": 1, "note": "G4"}, {"beat": 25, "dur": 1, "note": "C5"}, {"beat": 26, "dur": 1, "note": "E5"}, {"beat": 27, "dur": 1, "note": "D5"}, {"beat": 28, "dur": 1.5, "note": "C5"}, {"beat": 29.5, "dur": 0.5, "note": "A4"}, {"beat": 30, "dur": 2, "note": "F#4"}, {"beat": 32, "dur": 1, "note": "G4"}, {"beat": 33, "dur": 1, "note": "B4"}, {"beat": 34, "dur": 2, "note": "D5"}, {"beat": 36, "dur": 1.5, "note": "B4"}, {"beat": 37.5, "dur": 0.5, "note": "A4"}, {"beat": 38, "dur": 2, "note": "G4"}]), 48)
     lead(s, mel, instr='soft', vel=0.62)
     return s
 
@@ -374,6 +390,7 @@ def track_field():
         (['D4', 'F#4', 'A4'], 'D2'), (['A3', 'C#4', 'E4'], 'A2'),
         (['G3', 'B3', 'D4'], 'G2'), (['A3', 'C#4', 'E4'], 'A2'),
     ] * 2
+    prog = prog + to_prog([{"chord": ["B3", "D4", "F#4"], "bass": "B2"}, {"chord": ["G3", "B3", "D4"], "bass": "G2"}, {"chord": ["D4", "F#4", "A4"], "bass": "D3"}, {"chord": ["A3", "C#4", "E4"], "bass": "A2"}, {"chord": ["G3", "B3", "D4"], "bass": "G2"}, {"chord": ["D4", "F#4", "A4"], "bass": "D3"}, {"chord": ["E4", "G4", "B4"], "bass": "E3"}, {"chord": ["A3", "C#4", "E4"], "bass": "A2"}, {"chord": ["B3", "D4", "F#4"], "bass": "B2"}, {"chord": ["G3", "B3", "D4"], "bass": "G2"}, {"chord": ["A3", "C#4", "E4"], "bass": "A2"}, {"chord": ["A3", "C#4", "E4", "G4"], "bass": "A2"}])
     auto_backing(s, prog, bpb=4, pad_vel=0.7, arp_instr='pluck', arp_step=0.5,
                  arp_vel=0.5, arp_lift=1, perc='drive')
     mel = [
@@ -390,6 +407,7 @@ def track_field():
         (48, 1, 'D5'), (49, .5, 'E5'), (49.5, .5, 'F#5'), (50, 1, 'A5'), (51, 1, 'D6'), (52, 1, 'B5'), (53, 1, 'A5'), (54, 2, 'F#5'),
         (56, 1, 'G5'), (57, 1, 'E5'), (58, 1, 'A5'), (59, 1, 'G5'), (60, 1, 'F#5'), (61, 1, 'E5'), (62, 2, 'D5'),
     ]
+    mel = mel + offset_mel(to_mel([{"beat": 0, "dur": 1, "note": "F#4"}, {"beat": 1, "dur": 1, "note": "A4"}, {"beat": 2, "dur": 1.5, "note": "B4"}, {"beat": 3.5, "dur": 0.5, "note": "A4"}, {"beat": 4, "dur": 1, "note": "G4"}, {"beat": 5, "dur": 1, "note": "B4"}, {"beat": 6, "dur": 2, "note": "D5"}, {"beat": 8, "dur": 1, "note": "A4"}, {"beat": 9, "dur": 1, "note": "D5"}, {"beat": 10, "dur": 1.5, "note": "F#5"}, {"beat": 11.5, "dur": 0.5, "note": "E5"}, {"beat": 12, "dur": 1, "note": "E5"}, {"beat": 13, "dur": 1, "note": "C#5"}, {"beat": 14, "dur": 2, "note": "A4"}, {"beat": 16, "dur": 1, "note": "B4"}, {"beat": 17, "dur": 1, "note": "D5"}, {"beat": 18, "dur": 1.5, "note": "G5"}, {"beat": 19.5, "dur": 0.5, "note": "F#5"}, {"beat": 20, "dur": 1, "note": "E5"}, {"beat": 21, "dur": 1, "note": "F#5"}, {"beat": 22, "dur": 2, "note": "A5"}, {"beat": 24, "dur": 1, "note": "G5"}, {"beat": 25, "dur": 1, "note": "E5"}, {"beat": 26, "dur": 1.5, "note": "B4"}, {"beat": 27.5, "dur": 0.5, "note": "C#5"}, {"beat": 28, "dur": 1, "note": "E5"}, {"beat": 29, "dur": 1, "note": "C#5"}, {"beat": 30, "dur": 2, "note": "E5"}, {"beat": 32, "dur": 1, "note": "F#5"}, {"beat": 33, "dur": 1, "note": "D5"}, {"beat": 34, "dur": 1.5, "note": "B4"}, {"beat": 35.5, "dur": 0.5, "note": "D5"}, {"beat": 36, "dur": 1, "note": "G4"}, {"beat": 37, "dur": 1, "note": "B4"}, {"beat": 38, "dur": 2, "note": "D5"}, {"beat": 40, "dur": 1, "note": "C#5"}, {"beat": 41, "dur": 1, "note": "E5"}, {"beat": 42, "dur": 1, "note": "D5"}, {"beat": 43, "dur": 1, "note": "C#5"}, {"beat": 44, "dur": 1, "note": "B4"}, {"beat": 45, "dur": 1, "note": "C#5"}, {"beat": 46, "dur": 2, "note": "A4"}]), 64)
     lead(s, mel, vel=0.66)
     return s
 
@@ -404,6 +422,7 @@ def track_town():
         (['C4', 'E4', 'G4'], 'C3'), (['G3', 'B3', 'D4'], 'G2'),
         (['F3', 'A3', 'C4'], 'F2'), (['G3', 'B3', 'D4'], 'G2'),
     ] * 2
+    prog = prog + to_prog([{"chord": ["A3", "C4", "E4"], "bass": "A2"}, {"chord": ["F3", "A3", "C4"], "bass": "F2"}, {"chord": ["D3", "F#3", "C4"], "bass": "D2"}, {"chord": ["G3", "B3", "D4"], "bass": "G2"}, {"chord": ["A3", "C4", "E4"], "bass": "A2"}, {"chord": ["E3", "G#3", "B3"], "bass": "E2"}, {"chord": ["F3", "A3", "C4"], "bass": "F2"}, {"chord": ["D3", "F4", "A4"], "bass": "D3"}, {"chord": ["G3", "B3", "D4", "F4"], "bass": "G2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}])
     auto_backing(s, prog, bpb=4, pad_vel=0.66, arp_instr='bell', arp_step=0.5,
                  arp_vel=0.42, arp_lift=1, perc='soft')
     mel = [
@@ -416,6 +435,7 @@ def track_town():
         (48, 1, 'A4'), (49, 1, 'C5'), (50, 1, 'F5'), (51, 1, 'E5'), (52, 1, 'D5'), (53, 1, 'C5'), (54, 2, 'B4'),
         (56, 1, 'C5'), (57, 1, 'D5'), (58, 1, 'E5'), (59, 1, 'D5'), (60, 1, 'B4'), (61, 1, 'D5'), (62, 2, 'C5'),
     ]
+    mel = mel + offset_mel(to_mel([{"beat": 0, "dur": 1, "note": "E5"}, {"beat": 1, "dur": 1, "note": "C5"}, {"beat": 2, "dur": 1.5, "note": "A4"}, {"beat": 3.5, "dur": 0.5, "note": "B4"}, {"beat": 4, "dur": 1, "note": "C5"}, {"beat": 5, "dur": 1, "note": "A4"}, {"beat": 6, "dur": 2, "note": "F4"}, {"beat": 8, "dur": 1, "note": "A4"}, {"beat": 9, "dur": 1, "note": "C5"}, {"beat": 10, "dur": 1.5, "note": "D5"}, {"beat": 11.5, "dur": 0.5, "note": "C5"}, {"beat": 12, "dur": 1, "note": "B4"}, {"beat": 13, "dur": 1, "note": "D5"}, {"beat": 14, "dur": 2, "note": "G5"}, {"beat": 16, "dur": 1, "note": "E5"}, {"beat": 17, "dur": 1, "note": "C5"}, {"beat": 18, "dur": 1.5, "note": "A4"}, {"beat": 19.5, "dur": 0.5, "note": "B4"}, {"beat": 20, "dur": 1, "note": "C5"}, {"beat": 21, "dur": 1, "note": "B4"}, {"beat": 22, "dur": 2, "note": "G#4"}, {"beat": 24, "dur": 1, "note": "A4"}, {"beat": 25, "dur": 1, "note": "C5"}, {"beat": 26, "dur": 1.5, "note": "F5"}, {"beat": 27.5, "dur": 0.5, "note": "E5"}, {"beat": 28, "dur": 1, "note": "D5"}, {"beat": 29, "dur": 1, "note": "F5"}, {"beat": 30, "dur": 2, "note": "A5"}, {"beat": 32, "dur": 1, "note": "G5"}, {"beat": 33, "dur": 1, "note": "F5"}, {"beat": 34, "dur": 1, "note": "D5"}, {"beat": 35, "dur": 1, "note": "B4"}, {"beat": 36, "dur": 1.5, "note": "C5"}, {"beat": 37.5, "dur": 0.5, "note": "D5"}, {"beat": 38, "dur": 2, "note": "E5"}]), 64)
     lead(s, mel, instr='soft', vel=0.6)
     return s
 
@@ -434,6 +454,7 @@ def track_ruins():
         (['D3', 'F3', 'A3'], 'D2'), (['E3', 'G3', 'B3'], 'E2'),
     ]
     # sparse: pad + bass + a slow bell arp, NO kick/hat (the 'none' perc)
+    prog = prog + to_prog([{"chord": ["D4", "F4", "A4"], "bass": "D2"}, {"chord": ["A3", "C4", "E4"], "bass": "A2"}, {"chord": ["F3", "A3", "C4"], "bass": "F2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}, {"chord": ["D4", "F4", "A4"], "bass": "D2"}, {"chord": ["E3", "G#3", "B3"], "bass": "E2"}, {"chord": ["A3", "C4", "E4"], "bass": "A2"}, {"chord": ["E3", "G#3", "B3", "D4"], "bass": "E2"}])
     s.loop_beats = len(prog) * 4
     for bar, (chord, root) in enumerate(prog):
         b0 = bar * 4
@@ -452,6 +473,7 @@ def track_ruins():
         (32, 2, 'C5'), (34, 2, 'F5'), (36, 2, 'E5'), (38, 2, 'C5'),
         (40, 2, 'D5'), (42, 2, 'B4'), (44, 4, 'A4'),
     ]
+    mel = mel + offset_mel(to_mel([{"beat": 0, "dur": 2, "note": "A4"}, {"beat": 2, "dur": 1.5, "note": "D5"}, {"beat": 3.5, "dur": 0.5, "note": "C5"}, {"beat": 4, "dur": 3, "note": "E5"}, {"beat": 7, "dur": 1, "note": "C5"}, {"beat": 8, "dur": 2, "note": "A4"}, {"beat": 10, "dur": 2, "note": "F4"}, {"beat": 12, "dur": 2, "note": "G4"}, {"beat": 14, "dur": 1.5, "note": "E4"}, {"beat": 15.5, "dur": 0.5, "note": "G4"}, {"beat": 16, "dur": 2, "note": "A4"}, {"beat": 18, "dur": 1.5, "note": "D5"}, {"beat": 19.5, "dur": 0.5, "note": "F5"}, {"beat": 20, "dur": 2, "note": "E5"}, {"beat": 22, "dur": 2, "note": "G#4"}, {"beat": 24, "dur": 3, "note": "A4"}, {"beat": 27, "dur": 1, "note": "C5"}, {"beat": 28, "dur": 1.5, "note": "B4"}, {"beat": 29.5, "dur": 0.5, "note": "G#4"}, {"beat": 30, "dur": 2, "note": "A4"}]), 48)
     lead(s, mel, instr='soft', vel=0.6, bell_long=False)
     return s
 
@@ -467,6 +489,7 @@ def track_boss():
         (['D4', 'F4', 'A4'], 'D2'), (['Bb3', 'D4', 'F4'], 'Bb2'),
         (['G3', 'Bb3', 'D4'], 'G2'), (['A3', 'C#4', 'E4'], 'A2'),
     ] * 2
+    prog = prog + to_prog([{"chord": ["G3", "Bb3", "D4"], "bass": "G2"}, {"chord": ["A3", "C#4", "E4"], "bass": "A2"}, {"chord": ["Bb3", "D4", "F4"], "bass": "Bb2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}, {"chord": ["D4", "F4", "A4"], "bass": "D2"}, {"chord": ["Bb3", "D4", "F4"], "bass": "Bb2"}, {"chord": ["F3", "A3", "C4"], "bass": "F2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}, {"chord": ["Bb3", "D4", "F4"], "bass": "Bb2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}, {"chord": ["D4", "F4", "A4"], "bass": "D2"}, {"chord": ["A3", "C#4", "E4"], "bass": "A2"}, {"chord": ["G3", "Bb3", "D4"], "bass": "G2"}, {"chord": ["Bb3", "D4", "F4"], "bass": "Bb2"}, {"chord": ["D4", "F4", "A4"], "bass": "D2"}, {"chord": ["A3", "C#4", "E4", "G4"], "bass": "A2"}])
     auto_backing(s, prog, bpb=4, pad_vel=0.72, arp_instr='pluck', arp_step=0.25,
                  arp_vel=0.36, arp_lift=1, perc='drive')
     # pumping eighth-note bass for urgency (over the half-note bass auto_backing adds)
@@ -492,6 +515,7 @@ def track_boss():
         (56, .5, 'D6'), (56.5, .5, 'A5'), (57, .5, 'F5'), (57.5, .5, 'A5'), (58, 1, 'D6'), (59, 1, 'C#6'),
         (60, 1, 'D6'), (61, 1, 'A5'), (62, 2, 'D6'),
     ]
+    mel = mel + offset_mel(to_mel([{"beat": 0, "dur": 0.5, "note": "D5"}, {"beat": 0.5, "dur": 0.5, "note": "D5"}, {"beat": 1, "dur": 0.5, "note": "Bb4"}, {"beat": 1.5, "dur": 0.5, "note": "D5"}, {"beat": 2, "dur": 1, "note": "G5"}, {"beat": 3, "dur": 0.5, "note": "F5"}, {"beat": 3.5, "dur": 0.5, "note": "D5"}, {"beat": 4, "dur": 0.5, "note": "E5"}, {"beat": 4.5, "dur": 0.5, "note": "E5"}, {"beat": 5, "dur": 0.5, "note": "C#5"}, {"beat": 5.5, "dur": 0.5, "note": "E5"}, {"beat": 6, "dur": 1.5, "note": "A5"}, {"beat": 7.5, "dur": 0.5, "note": "G5"}, {"beat": 8, "dur": 0.5, "note": "F5"}, {"beat": 8.5, "dur": 0.5, "note": "Bb4"}, {"beat": 9, "dur": 0.5, "note": "D5"}, {"beat": 9.5, "dur": 0.5, "note": "F5"}, {"beat": 10, "dur": 1, "note": "Bb5"}, {"beat": 11, "dur": 0.5, "note": "A5"}, {"beat": 11.5, "dur": 0.5, "note": "F5"}, {"beat": 12, "dur": 0.5, "note": "E5"}, {"beat": 12.5, "dur": 0.5, "note": "G5"}, {"beat": 13, "dur": 0.5, "note": "C5"}, {"beat": 13.5, "dur": 0.5, "note": "E5"}, {"beat": 14, "dur": 1.5, "note": "C6"}, {"beat": 15.5, "dur": 0.5, "note": "G5"}, {"beat": 16, "dur": 2, "note": "A5"}, {"beat": 18, "dur": 1, "note": "F5"}, {"beat": 19, "dur": 1, "note": "D5"}, {"beat": 20, "dur": 1, "note": "F5"}, {"beat": 21, "dur": 1, "note": "A5"}, {"beat": 22, "dur": 2, "note": "D5"}, {"beat": 24, "dur": 1.5, "note": "C5"}, {"beat": 25.5, "dur": 0.5, "note": "F5"}, {"beat": 26, "dur": 1, "note": "A5"}, {"beat": 27, "dur": 1, "note": "C6"}, {"beat": 28, "dur": 2, "note": "G5"}, {"beat": 30, "dur": 1, "note": "E5"}, {"beat": 31, "dur": 1, "note": "C5"}, {"beat": 32, "dur": 0.5, "note": "D5"}, {"beat": 32.5, "dur": 0.5, "note": "F5"}, {"beat": 33, "dur": 0.5, "note": "Bb5"}, {"beat": 33.5, "dur": 0.5, "note": "A5"}, {"beat": 34, "dur": 1, "note": "F5"}, {"beat": 35, "dur": 0.5, "note": "D5"}, {"beat": 35.5, "dur": 0.5, "note": "F5"}, {"beat": 36, "dur": 0.5, "note": "E5"}, {"beat": 36.5, "dur": 0.5, "note": "G5"}, {"beat": 37, "dur": 0.5, "note": "C6"}, {"beat": 37.5, "dur": 0.5, "note": "Bb5"}, {"beat": 38, "dur": 1, "note": "G5"}, {"beat": 39, "dur": 0.5, "note": "E5"}, {"beat": 39.5, "dur": 0.5, "note": "G5"}, {"beat": 40, "dur": 1, "note": "A5"}, {"beat": 41, "dur": 0.5, "note": "F5"}, {"beat": 41.5, "dur": 0.5, "note": "D5"}, {"beat": 42, "dur": 1, "note": "F5"}, {"beat": 43, "dur": 0.5, "note": "E5"}, {"beat": 43.5, "dur": 0.5, "note": "C#5"}, {"beat": 44, "dur": 0.5, "note": "D5"}, {"beat": 44.5, "dur": 0.5, "note": "E5"}, {"beat": 45, "dur": 0.5, "note": "F5"}, {"beat": 45.5, "dur": 0.5, "note": "G5"}, {"beat": 46, "dur": 1.5, "note": "A5"}, {"beat": 47.5, "dur": 0.5, "note": "G5"}, {"beat": 48, "dur": 0.5, "note": "D5"}, {"beat": 48.5, "dur": 0.5, "note": "D5"}, {"beat": 49, "dur": 0.5, "note": "Bb4"}, {"beat": 49.5, "dur": 0.5, "note": "D5"}, {"beat": 50, "dur": 1, "note": "G5"}, {"beat": 51, "dur": 0.5, "note": "Bb5"}, {"beat": 51.5, "dur": 0.5, "note": "G5"}, {"beat": 52, "dur": 0.5, "note": "F5"}, {"beat": 52.5, "dur": 0.5, "note": "D5"}, {"beat": 53, "dur": 0.5, "note": "Bb4"}, {"beat": 53.5, "dur": 0.5, "note": "D5"}, {"beat": 54, "dur": 1, "note": "F5"}, {"beat": 55, "dur": 1, "note": "D5"}, {"beat": 56, "dur": 0.5, "note": "A5"}, {"beat": 56.5, "dur": 0.5, "note": "A5"}, {"beat": 57, "dur": 0.5, "note": "F5"}, {"beat": 57.5, "dur": 0.5, "note": "A5"}, {"beat": 58, "dur": 1, "note": "D6"}, {"beat": 59, "dur": 0.5, "note": "C6"}, {"beat": 59.5, "dur": 0.5, "note": "A5"}, {"beat": 60, "dur": 0.5, "note": "G5"}, {"beat": 60.5, "dur": 0.5, "note": "E5"}, {"beat": 61, "dur": 0.5, "note": "C#5"}, {"beat": 61.5, "dur": 0.5, "note": "E5"}, {"beat": 62, "dur": 1, "note": "G5"}, {"beat": 63, "dur": 1, "note": "A5"}]), 64)
     lead(s, mel, vel=0.66)
     return s
 
@@ -507,6 +531,8 @@ def track_cave():
         (['F3', 'A3', 'C4'], 'F2'), (['C3', 'E3', 'G3'], 'C2'),
         (['B2', 'D3', 'F3'], 'B1'), (['E3', 'G3', 'B3'], 'E2'),
     ]
+    progA = prog
+    prog = progA + to_prog([{"chord": ["A3", "C4", "E4"], "bass": "A2"}, {"chord": ["A3", "C4", "E4"], "bass": "A2"}, {"chord": ["F3", "A3", "C4"], "bass": "F2"}, {"chord": ["F3", "A3", "C4"], "bass": "F2"}, {"chord": ["D3", "F#3", "A3"], "bass": "D2"}, {"chord": ["D3", "F#3", "A3"], "bass": "D2"}, {"chord": ["B3", "D4", "F#4"], "bass": "B2"}, {"chord": ["E3", "G3", "B3"], "bass": "E2"}]) + progA
     s.loop_beats = len(prog) * 4
     for bar, (chord, root) in enumerate(prog):
         b0 = bar * 4
@@ -523,6 +549,8 @@ def track_cave():
         (16, 3, 'E5'), (19, 1, 'D5'), (20, 4, 'C5'),
         (24, 2, 'B4'), (26, 2, 'G4'), (28, 4, 'E4'),
     ]
+    melA = mel
+    mel = melA + offset_mel(to_mel([{"beat": 0, "dur": 3, "note": "E4"}, {"beat": 3, "dur": 1, "note": "A4"}, {"beat": 4, "dur": 4, "note": "C5"}, {"beat": 10, "dur": 2, "note": "A4"}, {"beat": 12, "dur": 4, "note": "F4"}, {"beat": 16, "dur": 3, "note": "A4"}, {"beat": 19, "dur": 1, "note": "D5"}, {"beat": 20, "dur": 4, "note": "F#4"}, {"beat": 26, "dur": 2, "note": "F#4"}, {"beat": 28, "dur": 2, "note": "F#4"}, {"beat": 30, "dur": 2, "note": "E4"}]), 32) + offset_mel(melA, 64)
     lead(s, mel, instr='soft', vel=0.5, bell_long=False)
     return s
 
@@ -538,6 +566,7 @@ def track_forest():
         (['G3', 'B3', 'D4'], 'G2'), (['C4', 'E4', 'G4'], 'C3'),
         (['A3', 'C4', 'E4'], 'A2'), (['D4', 'F#4', 'A4'], 'D3'),
     ] * 2
+    prog = prog + to_prog([{"chord": ["E3", "G3", "B3"], "bass": "E2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}, {"chord": ["A3", "C4", "E4"], "bass": "A2"}, {"chord": ["D4", "F#4", "A4"], "bass": "D3"}, {"chord": ["E3", "G3", "B3"], "bass": "E2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}, {"chord": ["G3", "B3", "D4"], "bass": "G2"}, {"chord": ["A3", "C4", "E4"], "bass": "A2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}, {"chord": ["D4", "F#4", "A4", "C5"], "bass": "D3"}, {"chord": ["G3", "B3", "D4"], "bass": "G2"}])
     auto_backing(s, prog, bpb=4, pad_vel=0.62, arp_instr='bell', arp_step=0.5,
                  arp_vel=0.36, arp_lift=1, perc='soft')
     # G major pentatonic-leaning melody (G A B D E) — open, folk wander
@@ -551,6 +580,7 @@ def track_forest():
         (48, 1, 'B4'), (49, 1, 'D5'), (50, 1, 'E5'), (51, 1, 'G5'), (52, 1, 'E5'), (53, 1, 'D5'), (54, 2, 'B4'),
         (56, 1, 'A4'), (57, 1, 'B4'), (58, 1, 'D5'), (59, 1, 'E5'), (60, 1, 'D5'), (61, 1, 'B4'), (62, 2, 'G4'),
     ]
+    mel = mel + offset_mel(to_mel([{"beat": 0, "dur": 1, "note": "B4"}, {"beat": 1, "dur": 1, "note": "D5"}, {"beat": 2, "dur": 1.5, "note": "E5"}, {"beat": 3.5, "dur": 0.5, "note": "D5"}, {"beat": 4, "dur": 1, "note": "E5"}, {"beat": 5, "dur": 1, "note": "G5"}, {"beat": 6, "dur": 2, "note": "E5"}, {"beat": 8, "dur": 1, "note": "A4"}, {"beat": 9, "dur": 1, "note": "C5"}, {"beat": 10, "dur": 1.5, "note": "E5"}, {"beat": 11.5, "dur": 0.5, "note": "D5"}, {"beat": 12, "dur": 1, "note": "D5"}, {"beat": 13, "dur": 1, "note": "B4"}, {"beat": 14, "dur": 2, "note": "A4"}, {"beat": 16, "dur": 1, "note": "B4"}, {"beat": 17, "dur": 1, "note": "E5"}, {"beat": 18, "dur": 1, "note": "G5"}, {"beat": 19, "dur": 1, "note": "E5"}, {"beat": 20, "dur": 1, "note": "D5"}, {"beat": 21, "dur": 1, "note": "E5"}, {"beat": 22, "dur": 2, "note": "G5"}, {"beat": 24, "dur": 1, "note": "D5"}, {"beat": 25, "dur": 1, "note": "B4"}, {"beat": 26, "dur": 1, "note": "G4"}, {"beat": 27, "dur": 1, "note": "B4"}, {"beat": 28, "dur": 1, "note": "C5"}, {"beat": 29, "dur": 1, "note": "E5"}, {"beat": 30, "dur": 1.5, "note": "A4"}, {"beat": 31.5, "dur": 0.5, "note": "C5"}, {"beat": 32, "dur": 1, "note": "E5"}, {"beat": 33, "dur": 1, "note": "D5"}, {"beat": 34, "dur": 1, "note": "C5"}, {"beat": 35, "dur": 1, "note": "B4"}, {"beat": 36, "dur": 1, "note": "C5"}, {"beat": 37, "dur": 1, "note": "A4"}, {"beat": 38, "dur": 1, "note": "D5"}, {"beat": 39, "dur": 1, "note": "C5"}, {"beat": 40, "dur": 1, "note": "B4"}, {"beat": 41, "dur": 1, "note": "A4"}, {"beat": 42, "dur": 1, "note": "B4"}, {"beat": 43, "dur": 1, "note": "G4"}]), 64)
     lead(s, mel, instr='soft', vel=0.56)
     return s
 
