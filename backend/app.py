@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import joinedload, selectinload
@@ -29,7 +29,7 @@ class Account(db.Model):
     __tablename__ = 'accounts'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(255), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255), nullable=False)  # TODO: Hash passwords!
+    password_hash = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     
     # Relationship
@@ -312,7 +312,7 @@ def _get_bot_account_id():
 
 @app.route('/api/account/register', methods=['POST'])
 def register_account():
-    content = request.json
+    content = request.get_json(silent=True) or {}
     username = content.get('username')
     password = content.get('password')
     
@@ -336,7 +336,7 @@ def register_account():
 
 @app.route('/api/account/login', methods=['POST'])
 def login_account():
-    content = request.json
+    content = request.get_json(silent=True) or {}
     username = content.get('username')
     password = content.get('password')
     
@@ -356,7 +356,7 @@ def login_account():
 
 @app.route('/api/account/characters', methods=['POST'])
 def get_characters():
-    content = request.json
+    content = request.get_json(silent=True) or {}
     account_id = content.get('account_id')
     
     if not account_id:
@@ -392,7 +392,7 @@ def get_characters():
 
 @app.route('/api/character/create', methods=['POST'])
 def create_character():
-    content = request.json
+    content = request.get_json(silent=True) or {}
     account_id = content.get('account_id')
     char_name = content.get('name')
     class_id = content.get('class_id', 0)
@@ -429,7 +429,7 @@ def create_character():
 
 @app.route('/api/character/delete', methods=['POST'])
 def delete_character():
-    content = request.json
+    content = request.get_json(silent=True) or {}
     account_id = content.get('account_id')
     char_name = content.get('name')
 
@@ -463,7 +463,7 @@ def delete_character():
 
 @app.route('/api/player/load', methods=['POST'])
 def load_player():
-    content = request.json
+    content = request.get_json(silent=True) or {}
     username = content.get('username')
     
     if not username:
@@ -597,7 +597,7 @@ def load_player():
 @app.route('/api/player/save', methods=['POST'])
 def save_player():
     # --- Fix 5: Basic Request Validation ---
-    content = request.json
+    content = request.get_json(silent=True) or {}
     if not content:
         return jsonify({"error": "No JSON body"}), 400
 
@@ -822,6 +822,71 @@ def save_player():
         return jsonify({"error": "Save failed", "details": str(e)}), 500
     finally:
         lock.release()
+
+# ==================== LEADERBOARD ENDPOINT ====================
+
+@app.route('/api/leaderboard', methods=['POST'])
+def leaderboard():
+    """Top characters, sortable. Public read used by the companion website.
+    sort: 'level' (default, experience breaks ties), 'monies', or 'mastery'
+    (highest single weapon-discipline mastery level; computed in Python since
+    it lives inside the weapon_mastery JSONB). Bots are included with
+    is_bot=true so the caller can show or hide the Hearthfolk population."""
+    content = request.get_json(silent=True) or {}
+    limit = content.get('limit', 25)
+    if not isinstance(limit, int) or limit < 1:
+        limit = 25
+    limit = min(limit, 100)
+    sort = content.get('sort', 'level')
+
+    if sort == 'monies':
+        players = Player.query.order_by(
+            Player.monies.desc(), Player.level.desc()
+        ).limit(limit).all()
+    elif sort == 'mastery':
+        def best_mastery(p):
+            m = p.weapon_mastery or {}
+            return max(
+                ((d.get('level', 0), d.get('xp', 0))
+                 for d in m.values() if isinstance(d, dict)),
+                default=(0, 0),
+            )
+        players = sorted(Player.query.all(), key=best_mastery, reverse=True)[:limit]
+    else:
+        players = Player.query.order_by(
+            Player.level.desc(), Player.experience.desc()
+        ).limit(limit).all()
+
+    entries = []
+    for p in players:
+        entries.append({
+            "name": p.username,
+            "level": p.level,
+            "experience": p.experience,
+            "character_class": p.character_class,
+            "monies": p.monies,
+            "last_map": p.last_map,
+            "weapon_mastery": p.weapon_mastery or {},
+            "is_bot": p.is_bot,
+        })
+    return jsonify({"leaderboard": entries}), 200
+
+
+# ==================== COMPANION WEBSITE ====================
+# Static site served from backend/website/ at the root URL. Same-origin with
+# the API, so the browser needs no CORS. Static rules (/api/..., /health)
+# always outrank the <path:...> catch-all in Flask's matcher.
+
+WEBSITE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'website')
+
+@app.route('/', methods=['GET'])
+def website_index():
+    return send_from_directory(WEBSITE_DIR, 'index.html')
+
+@app.route('/<path:filename>', methods=['GET'])
+def website_asset(filename):
+    return send_from_directory(WEBSITE_DIR, filename)
+
 
 @app.route('/health', methods=['GET'])
 def health_check():

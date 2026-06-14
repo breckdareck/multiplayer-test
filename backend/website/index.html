@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emberwilds — Rekindle the Wilds</title>
+<meta name="description" content="The Weave broke, and the world caught fire. Light your lantern, take up your steel — the frontier won't tame itself. A cozy-but-dangerous co-op RPG.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>🔥</text></svg>">
+</head>
+<body>
+
+<div class="vignette" aria-hidden="true"></div>
+
+<!-- ============ NAV ============ -->
+<nav id="nav">
+  <a class="nav-logo" href="#top">
+    <span class="logo-flame" aria-hidden="true"></span>
+    <span class="logo-text">EMBERWILDS</span>
+  </a>
+  <div class="nav-links">
+    <a href="#screens">The Game</a>
+    <a href="#disciplines">Disciplines</a>
+    <a href="#lore">Lore</a>
+    <a href="#leaderboard">Leaderboard</a>
+    <a href="#account" class="nav-account" id="nav-account-link">Sign In</a>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero" id="top">
+  <canvas id="ember-canvas" aria-hidden="true"></canvas>
+  <div class="hero-glow" aria-hidden="true"></div>
+  <div class="hero-content">
+    <p class="hero-kicker reveal-up">The Weave broke, and the world caught fire</p>
+    <h1 class="hero-title reveal-up" style="--d:.15s">EMBER<span class="title-wild">WILDS</span></h1>
+    <p class="hero-tagline reveal-up" style="--d:.3s">Rekindle the wilds.</p>
+    <p class="hero-blurb reveal-up" style="--d:.45s">
+      Light your lantern. Take up your steel.<br>The frontier won't tame itself.
+    </p>
+    <div class="hero-ctas reveal-up" style="--d:.6s">
+      <a class="btn btn-ember" href="#account">Begin Your Legend</a>
+      <a class="btn btn-ghost" href="#screens">See the Game</a>
+    </div>
+  </div>
+  <a class="scroll-cue" href="#screens" aria-label="Scroll down">
+    <span></span>
+  </a>
+</header>
+
+<main>
+
+<!-- ============ SCREENSHOTS ============ -->
+<section class="section screens" id="screens">
+  <div class="section-inner wide">
+    <p class="section-kicker reveal">Seen from the road</p>
+    <h2 class="section-title reveal">The Frontier, In Motion</h2>
+    <div class="ornament reveal" aria-hidden="true"><i></i><b>✦</b><i></i></div>
+    <p class="section-sub reveal">A cozy-but-dangerous co-op RPG. Warm towns at the center,
+    monsters at the edges — and a build that's entirely yours.</p>
+
+    <figure class="shot-stage reveal">
+      <img id="shot-main" src="img/gameplay.png" alt="Emberwilds gameplay screenshot">
+      <figcaption id="shot-caption">The Near-Wilds — past the lantern-line, the frontier pushes back.</figcaption>
+    </figure>
+    <div class="shot-thumbs reveal">
+      <button class="shot-thumb active" data-src="img/gameplay.png" data-caption="The Near-Wilds — past the lantern-line, the frontier pushes back.">
+        <img src="img/gameplay.png" alt=""><span>The Wilds</span>
+      </button>
+      <button class="shot-thumb" data-src="img/lanterns_rest.png" data-caption="Lantern's Rest — the home Hearth: warm, crowded, and yours to defend.">
+        <img src="img/lanterns_rest.png" alt=""><span>The Hearth</span>
+      </button>
+      <button class="shot-thumb" data-src="img/abilities.png" data-caption="Two paths per weapon, three tiers per ability — the build is yours.">
+        <img src="img/abilities.png" alt=""><span>The Trees</span>
+      </button>
+      <button class="shot-thumb" data-src="img/character.png" data-caption="Five attributes, two weapon kits — master both halves of your binding.">
+        <img src="img/character.png" alt=""><span>The Build</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DISCIPLINES ============ -->
+<section class="section disciplines" id="disciplines">
+  <div class="section-inner wide">
+    <p class="section-kicker reveal">You are what you wield</p>
+    <h2 class="section-title reveal">The Four Bindings</h2>
+    <div class="ornament reveal" aria-hidden="true"><i></i><b>✦</b><i></i></div>
+    <p class="section-sub reveal">Identity in the Emberwilds comes from the weapon in your hands, not the
+    blood in your veins. Bind two embers, carry two kits, and your build is the meeting of two arts.</p>
+
+    <div class="weapon-grid">
+      <article class="weapon-card reveal" data-weapon="sword">
+        <div class="weapon-icon" aria-hidden="true">
+          <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M44 8 L56 20 L28 48 L16 52 L20 40 Z"/><path d="M22 42 L30 50"/><path d="M14 54 L10 58"/>
+          </svg>
+        </div>
+        <h3>Sword</h3>
+        <p class="weapon-ember">Stone-Ember · Earth</p>
+        <p class="weapon-flavor">The grounded art — stand, hold, break the line. The first answer to the
+        Long Dark, and still the one taught to frightened new Wilders first.</p>
+        <div class="weapon-paths"><span>Vanguard</span><span>Berserker</span></div>
+        <div class="weapon-gauge">Combo — build to three, then spend it</div>
+      </article>
+
+      <article class="weapon-card reveal" data-weapon="bow" style="--d:.1s">
+        <div class="weapon-icon" aria-hidden="true">
+          <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 8 C40 20 40 44 16 56"/><path d="M16 8 L16 56"/><path d="M16 32 L54 32"/><path d="M46 26 L54 32 L46 38"/>
+          </svg>
+        </div>
+        <h3>Bow</h3>
+        <p class="weapon-ember">Wind-Ember · Air</p>
+        <p class="weapon-flavor">The wind art — reach out and end it before it reaches you. The art of
+        scouts and hunters who'd rather the monster never closed the distance.</p>
+        <div class="weapon-paths"><span>Marksman</span><span>Skirmisher</span></div>
+        <div class="weapon-gauge">Momentum — ramp to ten stacks</div>
+      </article>
+
+      <article class="weapon-card reveal" data-weapon="staff" style="--d:.2s">
+        <div class="weapon-icon" aria-hidden="true">
+          <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M32 18 L32 58"/><circle cx="32" cy="12" r="6"/><path d="M24 22 C24 14 40 14 40 22"/><path d="M26 6 L22 2 M38 6 L42 2"/>
+          </svg>
+        </div>
+        <h3>Staff</h3>
+        <p class="weapon-ember">Volatile Embers · Fire / Ice / Lightning</p>
+        <p class="weapon-flavor">The arcane art — the only binding that can hold a volatile ember and swap
+        it mid-fight. The closest thing the frontier has to the old Woven Age mages.</p>
+        <div class="weapon-paths"><span>Elementalist</span><span>Sage</span></div>
+        <div class="weapon-gauge">Stance — cycle three volatile embers</div>
+      </article>
+
+      <article class="weapon-card reveal" data-weapon="dagger" style="--d:.3s">
+        <div class="weapon-icon" aria-hidden="true">
+          <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M32 6 L40 26 L32 50 L24 26 Z"/><path d="M24 50 L40 50"/><path d="M32 50 L32 58"/>
+          </svg>
+        </div>
+        <h3>Dagger</h3>
+        <p class="weapon-ember">Shadow-Ember · Dusk</p>
+        <p class="weapon-flavor">The shadow art — be elsewhere; be behind. Distrusted in polite Hearth
+        company, and quietly indispensable in the deep ruins.</p>
+        <div class="weapon-paths"><span>Assassin</span><span>Venomancer</span></div>
+        <div class="weapon-gauge">Shadowmeld — strike from stealth windows</div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LORE (compressed) ============ -->
+<section class="section lore" id="lore">
+  <div class="section-inner">
+    <p class="section-kicker reveal">The world as it is</p>
+    <h2 class="section-title reveal">The Emberfall</h2>
+    <div class="ornament reveal" aria-hidden="true"><i></i><b>✦</b><i></i></div>
+
+    <div class="beats">
+      <article class="beat reveal">
+        <span class="beat-num">I</span>
+        <h3>The Weave broke.</h3>
+        <p>The lattice that held all magic shattered and rained down as <em>embers</em> — glowing
+        shards of broken power. Kingdoms fell, the beasts warped, and the wilds swallowed the roads.</p>
+      </article>
+      <article class="beat reveal" style="--d:.1s">
+        <span class="beat-num">II</span>
+        <h3>The Hearths held.</h3>
+        <p>Survivors raised lantern-ringed frontier towns and learned the trick that changed
+        everything: an ember bound into a weapon can be channelled. <em>You are what you wield.</em></p>
+      </article>
+      <article class="beat reveal" style="--d:.2s">
+        <span class="beat-num">III</span>
+        <h3>The wound is still open.</h3>
+        <p>At the <em>Sundered Heart</em> the Weave still bleeds — and the man who tried to mend it
+        bound a hundred embers and forgot how to die. Someone has to walk the road.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ THE ROAD (compact) ============ -->
+<section class="section road" id="road">
+  <div class="section-inner">
+    <p class="section-kicker reveal">Past the lantern-line</p>
+    <h2 class="section-title reveal">The Road Outward</h2>
+    <div class="ornament reveal" aria-hidden="true"><i></i><b>✦</b><i></i></div>
+    <p class="section-sub reveal">From the home Hearth to the wound in the world — twelve regions, one road.</p>
+
+    <div class="road-grid reveal">
+      <span class="zone safe">Lantern's Rest <b>Hearth</b></span>
+      <span class="zone">The Near-Wilds <b>1–6</b></span>
+      <span class="zone">Ember-Meadows <b>13–18</b></span>
+      <span class="zone">The Ruins <b>13–28</b></span>
+      <span class="zone">Thornroot Hollow <b>23–30</b></span>
+      <span class="zone">The Dust Warren <b>33–38</b></span>
+      <span class="zone">The Drowned Mines <b>40–48</b></span>
+      <span class="zone safe">Emberwatch <b>Hearth</b></span>
+      <span class="zone">The Deep Woods <b>52–73</b></span>
+      <span class="zone">The Ember-Scar <b>68–83</b></span>
+      <span class="zone">The Weave's Edge <b>88–93</b></span>
+      <span class="zone end">The Sundered Heart <b>100</b></span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WARLORD BANNER ============ -->
+<section class="warlord reveal">
+  <div class="warlord-inner">
+    <p class="warlord-kicker">At the end of the road</p>
+    <blockquote>“He bound a hundred embers<br>and forgot how to die.”</blockquote>
+    <p class="warlord-sub">The Eternal Warlord waits at the Sundered Heart — your whole build, taken to its monstrous limit.</p>
+  </div>
+</section>
+
+<!-- ============ LEADERBOARD ============ -->
+<section class="section leaderboard" id="leaderboard">
+  <div class="section-inner wide">
+    <p class="section-kicker reveal">The Embersworn ledger</p>
+    <h2 class="section-title reveal">Legends of the Frontier</h2>
+    <div class="ornament reveal" aria-hidden="true"><i></i><b>✦</b><i></i></div>
+    <p class="section-sub reveal">The Wilders who've walked furthest down the road. Carve your name among them.</p>
+
+    <div class="lb-tabs reveal" role="tablist">
+      <button class="lb-tab active" data-sort="level">Highest Level</button>
+      <button class="lb-tab" data-sort="mastery">Deepest Binding</button>
+      <button class="lb-tab" data-sort="monies">Richest Wilder</button>
+    </div>
+
+    <div class="lb-controls reveal">
+      <button class="btn btn-ghost btn-sm" id="lb-refresh">⟳ Refresh</button>
+    </div>
+    <p class="lb-hint reveal">Click any name to inspect their armory.</p>
+
+    <div id="lb-podium" class="lb-podium reveal"></div>
+    <div id="lb-table" class="lb-table reveal"></div>
+    <p id="lb-status" class="lb-status"></p>
+  </div>
+</section>
+
+<!-- ============ ACCOUNT ============ -->
+<section class="section account" id="account">
+  <div class="section-inner">
+    <p class="section-kicker reveal">The lantern-line</p>
+    <h2 class="section-title reveal" id="account-title">Take Up Your Steel</h2>
+    <div class="ornament reveal" aria-hidden="true"><i></i><b>✦</b><i></i></div>
+
+    <!-- Logged out -->
+    <div id="auth-panel" class="auth-panel reveal">
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-tab="login">Sign In</button>
+        <button class="auth-tab" data-tab="register">Create Account</button>
+      </div>
+      <form id="auth-form" autocomplete="on">
+        <label>Account Name
+          <input type="text" id="auth-username" name="username" autocomplete="username" required minlength="3" maxlength="32" placeholder="e.g. lanternkeeper">
+        </label>
+        <label>Password
+          <input type="password" id="auth-password" name="password" autocomplete="current-password" required minlength="3" placeholder="••••••••">
+        </label>
+        <button type="submit" class="btn btn-ember btn-wide" id="auth-submit">Sign In</button>
+        <p class="auth-error" id="auth-error"></p>
+      </form>
+      <p class="auth-note">Your account holds your characters. Your legend holds itself.</p>
+    </div>
+
+    <!-- Logged in -->
+    <div id="dashboard" class="dashboard" hidden>
+      <div class="dash-head">
+        <p class="dash-welcome">Welcome back, <strong id="dash-username"></strong></p>
+        <button class="btn btn-ghost btn-sm" id="logout-btn">Snuff the lantern (log out)</button>
+      </div>
+      <div id="char-grid" class="char-grid"></div>
+
+      <div class="char-create" id="char-create">
+        <h3>Kindle a New Wilder</h3>
+        <form id="create-form">
+          <label>Character Name
+            <input type="text" id="create-name" required minlength="2" maxlength="20" placeholder="Name your Wilder">
+          </label>
+          <p class="create-label">First Binding</p>
+          <div class="create-weapons" id="create-weapons">
+            <label class="cw"><input type="radio" name="cw" value="0" checked><span>⚔ Sword</span></label>
+            <label class="cw"><input type="radio" name="cw" value="1"><span>➶ Bow</span></label>
+            <label class="cw"><input type="radio" name="cw" value="2"><span>⚕ Staff</span></label>
+            <label class="cw"><input type="radio" name="cw" value="3"><span>🗡 Dagger</span></label>
+          </div>
+          <button type="submit" class="btn btn-ember btn-wide">Walk Past the Lanterns</button>
+          <p class="auth-error" id="create-error"></p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ============ ARMORY MODAL ============ -->
+<div class="armory-overlay" id="armory" hidden>
+  <div class="armory-panel" role="dialog" aria-modal="true" aria-label="Character armory">
+    <button class="armory-close" id="armory-close" aria-label="Close">✕</button>
+    <div id="armory-body" class="armory-body"></div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-flame" aria-hidden="true"></div>
+  <p class="footer-tag">Cozy at the center. Wild at the edges.</p>
+  <p class="footer-fine">Emberwilds — a cozy-but-dangerous co-op RPG. The frontier won't tame itself.</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
