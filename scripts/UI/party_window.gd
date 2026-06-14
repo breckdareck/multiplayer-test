@@ -160,11 +160,15 @@ func _on_member_added(_party_id: int, _player_id: int):
 	if not _is_my_party(_party_id):
 		return
 	_update_party_display()
+	# Juice: a soft blip so a roster change registers even with the window closed.
+	AudioManager.play_ui_sfx("res://assets/sounds/generated/ui_open.wav")
 
 func _on_member_removed(_party_id: int, _player_id: int):
 	if not _is_my_party(_party_id):
 		return
 	_update_party_display()
+	# Juice: the soft close cue mirrors the join blip for a departing member.
+	AudioManager.play_ui_sfx("res://assets/sounds/generated/ui_close.wav")
 
 func _on_leader_changed(_party_id: int, _new_leader_id: int):
 	if not _is_my_party(_party_id):

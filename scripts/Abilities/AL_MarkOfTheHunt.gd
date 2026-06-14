@@ -71,6 +71,9 @@ func _apply_mark(owner_node: Node, target: Node, duration: float, sundering: boo
 	# Lazy expiry on read avoids any per-mark Timer plumbing.
 	var expire_at_ms: int = Time.get_ticks_msec() + int(duration * 1000.0)
 	target.set_meta(MARK_META, expire_at_ms)
+	# Juice: the mark never ticks, so a marked enemy was invisible — name it.
+	# Green (momentum theme) distinguishes the bow mark from the sword/dagger marks.
+	EventJuice.proc(target, "MARKED", EventJuice.COLOR_MOMENTUM, "res://assets/sounds/generated/mark_ping.wav", "phys_impact")
 	if sundering:
 		target.set_meta(SUNDER_META, true)
 	# Bleeding Mark: a light bleed for the mark's lifetime, scaled off the ability's

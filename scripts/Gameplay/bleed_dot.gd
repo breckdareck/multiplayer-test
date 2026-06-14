@@ -51,6 +51,11 @@ static func apply(target: Node, applier: Node, per_tick: int, max_stacks: int, d
 	})
 	_schedule_tick(target, meta_key)
 	EnemyStatus.register(target, dot_type, meta_key, applier)
+	# Juice: name the FRESH status so "setting up the payoff" reads (a refresh is
+	# silent — it returns above). Show the DoT visual now, not at the first tick.
+	EventJuice.proc(target, dot_type.to_upper(), EventJuice.COLOR_SEPTIC if dot_type == "poison" else EventJuice.COLOR_EXECUTE, "", "")
+	if target.has_method("play_dot"):
+		target.play_dot(dot_type)
 
 
 static func _schedule_tick(target: Node, meta_key: String) -> void:

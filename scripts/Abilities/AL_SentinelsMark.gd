@@ -73,6 +73,9 @@ func on_hit(owner_node: Node, target: Node, _ability: AbilityData) -> void:
 	# Apply (or refresh) the mark with an absolute server-clock expiry.
 	var expire_at_ms: int = Time.get_ticks_msec() + int(duration * 1000.0)
 	target.set_meta(MARK_META, expire_at_ms)
+	# Juice: the mark never ticks, so a marked enemy was invisible — name it.
+	# Gold (combo theme) distinguishes the sword mark from the dagger/bow marks.
+	EventJuice.proc(target, "MARKED", EventJuice.COLOR_COMBO, "res://assets/sounds/generated/mark_ping.wav", "phys_impact")
 	target.set_meta(DMG_BONUS_META, dmg_bonus)
 	target.set_meta(REFUND_META, refund)
 	if spread > 0:

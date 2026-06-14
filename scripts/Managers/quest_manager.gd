@@ -415,6 +415,10 @@ func _advance_objectives(username: String, obj_type: int, target: String, amount
 		return
 
 	var changed: bool = false
+	# Did any objective advance WITHOUT its quest completing this call? That's an
+	# objective "tick" — it earns a subtle owner-only blip. A completing kill plays
+	# the quest_fanfare in _complete_quest instead, so we must not also tick for it.
+	var ticked: bool = false
 	# Snapshot the keys: _check_quest_completion can grant EXP that triggers
 	# a level-up, which calls record_level_up and may erase entries we haven't
 	# visited yet. The .has() guard inside the loop catches that.
@@ -425,6 +429,7 @@ func _advance_objectives(username: String, obj_type: int, target: String, amount
 			continue  # erased by a re-entrant completion
 		var quest: QuestData = _quests[quest_id]
 		var progress: Dictionary = active[quest_id]
+		var quest_changed: bool = false
 		for i in range(quest.objectives.size()):
 			var obj: Dictionary = quest.objectives[i]
 			if obj.get("type", -1) != obj_type:
@@ -437,12 +442,23 @@ func _advance_objectives(username: String, obj_type: int, target: String, amount
 				continue  # Already complete
 			progress[i] = min(old_val + amount, max_val)
 			changed = true
+			quest_changed = true
 		_active_quests[username][quest_id] = progress
 		_check_quest_completion(username, quest_id)
+		# Tick only if this quest advanced AND is still active (didn't just complete).
+		if quest_changed and _active_quests.get(username, {}).has(quest_id):
+			ticked = true
 
 	if changed:
 		_save_quest_data(username)
 		_push_quest_ui_update(username)
+	# Juice: a quiet progress tick on the owner's client (owner-only — bystanders
+	# don't need to hear someone else's quest counter). Distinct from the new-quest
+	# mark_ping and the completion fanfare.
+	if ticked:
+		var tick_pid: int = PlayerManager.get_player_id_from_name(username)
+		if tick_pid != -1:
+			AudioManager.play_ui_sfx_for_peer(tick_pid, "res://assets/sounds/generated/ui_click.wav", -6.0)
 
 
 func _check_quest_completion(username: String, quest_id: String) -> void:

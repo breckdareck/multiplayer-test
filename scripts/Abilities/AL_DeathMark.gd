@@ -79,6 +79,8 @@ func _apply_mark(owner_node: Node, target: Node, duration: float, crit_bonus: fl
 		return
 	var expire_at_ms: int = Time.get_ticks_msec() + int(duration * 1000.0)
 	target.set_meta(MARK_META, expire_at_ms)
+	# Juice: marks never tick, so a marked enemy was invisible — name it.
+	EventJuice.proc(target, "MARKED", EventJuice.COLOR_AMBUSH, "res://assets/sounds/generated/mark_ping.wav", "dark_impact")
 	target.set_meta(CRIT_BONUS_META, crit_bonus)
 	if spread > 0:
 		target.set_meta(SPREAD_META, spread)

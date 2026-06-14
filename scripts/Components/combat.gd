@@ -980,6 +980,14 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 			momentum_gain += _upgrade_int(ability, "bonus_momentum_per_hit")
 		_bow_momentum_component.add_momentum(momentum_gain)
 
+	# Juice: name the ambush payoff. The ×2 + forced-crit lands as a big number,
+	# but nothing told the player THAT moment was the stealth strike — call it out.
+	# Covers both the melee path (ambush_mult raised pre-loop) and the projectile
+	# path (Fan of Knives knives carry projectile_ambush). Gated on a landed hit so
+	# a whiffed ambush doesn't shout.
+	if ambush_mult > 1.0 and max_landed_damage > 0:
+		EventJuice.proc(target_enemy, "AMBUSH!", EventJuice.COLOR_AMBUSH, "res://assets/sounds/generated/hit_crit.wav", "dark_impact")
+
 	# PR 7 — Dagger ambush: this hit landed FROM stealth (ambush_mult raised before
 	# the loop), so the ×2 bonus + guaranteed crit already applied to every hit above.
 	# Do NOT break stealth here — that would end the cloak after the FIRST target and

@@ -1246,6 +1246,9 @@ func get_aggro_target() -> Node2D:
 	current_target = null
 	if enemy_data and enemy_data.is_aggressive:
 		current_target = acquire_target()
+		if current_target != null:
+			# Juice: a one-shot "!" the moment an aggressive enemy notices a player.
+			EventJuice.proc(self, "!", Color(1.0, 0.85, 0.2), "", "")
 	return current_target
 
 

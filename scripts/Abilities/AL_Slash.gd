@@ -71,3 +71,11 @@ func execute(_owner_node: Node, _ability: AbilityData, _level_stats: AbilityLeve
 	# Spend AFTER staging the multiplier so the count we used for scaling is
 	# the one we just consumed.
 	combo_comp.spend_combo()
+
+	# Juice: spending combo is the sword's payoff loop, but nothing announced it —
+	# the bonus just quietly landed on the later hit. Name the finisher over the
+	# attacker, scaled by the points spent (a heavier ring at a full 3-stack). A
+	# 0-combo Slash earns no bonus, so it stays silent.
+	if current_count > 0:
+		var combo_sfx: String = "res://assets/sounds/generated/sword_heavy.wav" if current_count >= 3 else "res://assets/sounds/generated/sword_slash.wav"
+		EventJuice.proc(_owner_node, "COMBO x%d!" % current_count, EventJuice.COLOR_COMBO, combo_sfx, "")

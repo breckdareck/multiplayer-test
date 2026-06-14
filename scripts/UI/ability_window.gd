@@ -1036,6 +1036,9 @@ func _on_monies_changed(_new_amount: int) -> void:
 ## Economy sink: a respec was denied server-side (host path). Brief flash on the
 ## skill-points label so the player notices the action didn't take.
 func _on_respec_denied(_scope: String, _reason: String) -> void:
+	# Audio complement to the red flash — the spend-success tick is ui_spend.wav,
+	# so a denial gets the matching buzzer (ability.gd plays ui_spend on success).
+	AudioManager.play_ui_sfx("res://assets/sounds/generated/denied.wav")
 	if not is_instance_valid(skill_points_label):
 		return
 	var prior: Color = skill_points_label.get_theme_color("font_color")
@@ -1088,9 +1091,10 @@ func _on_ability_points_changed(discipline_key: String, _new_total: int):
 ## empty pool (or on an unmapped ability). Lightweight UI ping only --
 ## the actual cost label is already painted red by `update_details`.
 func _on_ability_points_spend_denied(_ability_id: String, _reason: String) -> void:
-	# Trigger an unobtrusive UI feedback (color flash on cost label). The
-	# existing red-coloured "Not Enough SP" text covers the empty-pool case
-	# already; this is the hook for future audio/animation polish.
+	# Trigger an unobtrusive UI feedback (color flash on cost label) + a denial
+	# buzzer (the audio complement to the ui_spend.wav success tick in ability.gd).
+	# The existing red-coloured "Not Enough SP" text covers the empty-pool case.
+	AudioManager.play_ui_sfx("res://assets/sounds/generated/denied.wav")
 	if is_instance_valid(cost_label):
 		var prior: Color = cost_label.get_theme_color("font_color")
 		cost_label.add_theme_color_override("font_color", Color(1, 0.3, 0.3))

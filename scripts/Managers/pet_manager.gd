@@ -1358,6 +1358,11 @@ func _show_message_to_owner(peer: int, message: String) -> void:
 	# Delegates to the canonical server->peer seam; pet messages land on the
 	# scrolling LOG surface (a different UI surface than chat) in GOLD.
 	ChatManager.notify_peer(peer, message, Color.GOLD, ChatManager.NotifySurface.LOG)
+	# Juice: every caller of this helper is a denial/failure notice ("No pet
+	# summoned", "Out of X!", "doesn't fit this slot", …), so pair the gold log
+	# line with a denial buzzer on the owner's client. The frequent "Out of X!"
+	# auto-pot case is already throttled to once per cooldown window by its caller.
+	AudioManager.play_ui_sfx_for_peer(peer, "res://assets/sounds/generated/denied.wav")
 
 
 # ═══════════════════════════════════════════════════════════════════════════

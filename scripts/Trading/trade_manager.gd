@@ -854,6 +854,12 @@ func _client_trade_closed(message: String) -> void:
 	trade_session_closed.emit(message)
 	if not message.is_empty():
 		ChatManager.add_system_message(message, Color.CYAN)
+	# Juice: an audible resolution. A completed trade earns a satisfying stinger;
+	# a cancellation/abort gets the soft close cue so both outcomes read by ear.
+	if message == "Trade completed!":
+		AudioManager.play_ui_sfx("res://assets/sounds/generated/synergy_proc.wav")
+	else:
+		AudioManager.play_ui_sfx("res://assets/sounds/generated/ui_close.wav")
 
 
 ## [SERVER -> CLIENT] Opens the instant bot-trade window on the requester.

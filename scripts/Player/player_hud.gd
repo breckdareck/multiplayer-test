@@ -151,6 +151,9 @@ func _on_trade_request_received(_requester_id: int, requester_name: String) -> v
 	else:
 		add_child(_trade_request_popup)
 	_trade_request_popup.present()
+	# Juice: an attention ping so an off-screen trade request is noticed (mirrors
+	# the party-invite ping above).
+	AudioManager.play_ui_sfx("res://assets/sounds/generated/mark_ping.wav")
 
 
 ## A trade session has been established — open the dual-offer trade window.

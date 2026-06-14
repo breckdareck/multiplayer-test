@@ -70,3 +70,19 @@ func play_sfx_for_map(map_id: String, sfx_path: String, global_position: Vector2
 	if not multiplayer.is_server():
 		return
 	MapManager.broadcast_to_map(map_id, func(peer_id): play_sfx_rpc.rpc_id(peer_id, sfx_path, global_position, volume_db))
+
+# Server-only: plays a NON-positional UI sfx on a single peer's client (denial
+# buzzers, quest-objective ticks, …). Owner-only feedback — unlike play_sfx_for_map
+# it never reaches bystanders. Skips bot peers (no client) and the invalid/0 peer.
+func play_ui_sfx_for_peer(peer_id: int, sfx_path: String, volume_db: float = 0.0):
+	if not multiplayer.is_server():
+		return
+	if peer_id <= 0 or BotManager.is_bot(peer_id):
+		return
+	play_ui_sfx_rpc.rpc_id(peer_id, sfx_path, volume_db)
+
+# Server -> one client. Plays the UI sfx locally on the target. call_local so a
+# host-owner (peer 1) hears it too. Mirrors play_sfx_rpc's annotation.
+@rpc("any_peer", "call_local", "reliable")
+func play_ui_sfx_rpc(sfx_path: String, volume_db: float = 0.0):
+	play_ui_sfx(sfx_path, volume_db)

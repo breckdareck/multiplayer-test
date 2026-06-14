@@ -150,6 +150,14 @@ func add_momentum(amount: int = MOMENTUM_PER_HIT) -> void:
 	_stacks = mini(MAX_STACKS, _stacks + maxi(1, amount))
 	if _stacks != before:
 		_emit_and_sync()
+	# Juice: the ramp PEAKING is the bow's payoff moment, but only the gauge widget
+	# showed it. Call out crossing INTO max — fires once per climb (won't re-fire
+	# until the gauge decays and rebuilds). Player-only: a bot's ramp has no audience
+	# and would just add map noise (same gate _emit_and_sync uses for the RPC).
+	if before < MAX_STACKS and _stacks == MAX_STACKS:
+		var root := get_owner()
+		if root != null and "player_id" in root and not BotManager.is_bot(root.player_id):
+			EventJuice.proc(root, "MAX MOMENTUM!", EventJuice.COLOR_MOMENTUM, "res://assets/sounds/generated/bow_snipe.wav", "wind_cast")
 
 
 ## Server-only. Suspends Momentum decay for `duration` seconds (Steady Aim holds

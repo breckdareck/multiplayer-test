@@ -51,6 +51,9 @@ static func apply_slow(target: Node, slow_pct: float, duration: float) -> void:
 	enemy.movement_speed = original_speed * (1.0 - clampf(slow_pct, 0.0, 0.9))
 	enemy.set_meta(SLOW_META, original_speed)
 	EnemyStatus.register(enemy, EnemyStatus.TAG_CHILL, SLOW_META, null)
+	# Juice: a synced "CHILLED" tell — the tint below is server-sprite-only, so
+	# clients never saw it land; EventJuice broadcasts. Chill enables Thermal Shock.
+	EventJuice.proc(enemy, "CHILLED", EventJuice.COLOR_BRITTLE, "res://assets/sounds/generated/staff_ice.wav", "ice_impact")
 
 	if enemy.animated_sprite and is_instance_valid(enemy.animated_sprite):
 		enemy.animated_sprite.modulate = Color(0.75, 0.8, 1.0, 1.0)
