@@ -268,6 +268,11 @@ func pickup_item_client() -> void:
 
 	# Visual effects for pickup
 	pickup_sound.stream = pickup_sfx
+	# This player is baked into the scene (not routed through AudioManager.play_sfx),
+	# so apply the same anti-robotic pitch jitter here — loot dings are one of the
+	# most repetitive sounds while farming. random_pitch_for resolves pickup.mp3 to
+	# the ±5% default band (it's a confirming ding, not a percussive transient).
+	pickup_sound.pitch_scale = AudioManager.random_pitch_for(pickup_sfx.resource_path if pickup_sfx else "")
 	pickup_sound.play()
 	
 	# Animate pickup: popup -> magnetize to player -> fade out

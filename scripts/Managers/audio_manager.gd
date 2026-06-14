@@ -22,6 +22,62 @@ func stop_song():
 	_music_player.stop()
 	_current_song_path = ""
 
+#region #################### Pitch jitter (anti-robotic-repetition) ####################
+# A small randomized pitch_scale per play so constantly-repeated one-shots (swings,
+# hits, footsteps, dings) stop sounding machine-gun identical. Rolled LOCALLY on each
+# peer — pitch is cosmetic and is never networked (play_sfx_rpc broadcasts only the
+# path; each client varies independently, which is correct and cheaper than syncing).
+#
+# Godot note: pitch_scale resamples, so it also changes the clip's DURATION — but the
+# `finished` signal still fires at the resampled end, so the await/queue_free pattern
+# below is unaffected. Floors are kept > 0.
+
+## Default band (±5%) — freshens repeats without ever reading as a "wrong note".
+## Applied to everything not listed in the two sets below.
+const PITCH_DEFAULT := Vector2(0.95, 1.05)
+## Heavy band — wider and biased DOWNWARD (weightier, never tinny/chipmunk on
+## up-pitch) for the spammy percussive transients that fire constantly in a fight.
+const PITCH_HEAVY := Vector2(0.88, 1.06)
+
+## Sounds whose EXACT tuning carries meaning — a tuned achievement chime, a melodic
+## fanfare, a dramatic minor sting. Retuning these run-to-run makes a milestone/death
+## feel wrong, and they fire rarely so there's no repetition to fix. Never pitched.
+## Matched on the bare filename so EventJuice- and play_sfx_for_map-routed plays of
+## these (e.g. level_up.mp3 via level.gd, mastery_ding via event_juice.gd) are skipped.
+const NO_PITCH_SFX := {
+	"mastery_ding.wav": true,
+	"quest_fanfare.wav": true,
+	"death_sting.wav": true,
+	"level_up.mp3": true,
+}
+
+## Spammy percussive one-shots (basic swings, hit/crit impacts, mob death poofs,
+## footsteps/landings, fast dagger stabs, dashes) — pure noise/sweep transients with
+## no tonal identity, so a clearly audible shift is safe and de-robotizes the spam.
+const HEAVY_PITCH_SFX := {
+	"attack_sword.wav": true, "attack_bow.wav": true, "attack_staff.wav": true,
+	"attack_dagger.wav": true, "hit_impact.wav": true, "hit_crit.wav": true,
+	"enemy_death.wav": true, "land_soft.wav": true, "dagger_stab.wav": true,
+	"dash_whoosh.wav": true, "sword_slash.wav": true, "sword_heavy.wav": true,
+	"jump.wav": true, "player_hit.wav": true,
+}
+
+## The pitch_scale to use for a given sfx path. Identity cues return 1.0 (no shift);
+## heavy transients get the wide downward-biased band; everything else gets ±5%.
+func random_pitch_for(sfx_path: String) -> float:
+	var file := sfx_path.get_file()
+	if NO_PITCH_SFX.has(file):
+		return 1.0
+	if HEAVY_PITCH_SFX.has(file):
+		# hit_crit keeps a shallower floor so a low-rolled crit isn't mistaken for a
+		# normal hit (players read crit by brightness).
+		var lo: float = 0.94 if file == "hit_crit.wav" else PITCH_HEAVY.x
+		return randf_range(lo, PITCH_HEAVY.y)
+	return randf_range(PITCH_DEFAULT.x, PITCH_DEFAULT.y)
+
+#endregion
+
+
 # Plays an SFX locally.
 func play_sfx(sfx_path: String, global_position: Vector2 = Vector2.ZERO, volume_db: float = 0.0):
 	var sfx_stream: AudioStream = ResourceLoader.load(sfx_path)
@@ -34,6 +90,7 @@ func play_sfx(sfx_path: String, global_position: Vector2 = Vector2.ZERO, volume_
 	sfx_player.global_position = global_position
 	sfx_player.volume_db = volume_db
 	sfx_player.bus = "SFX"
+	sfx_player.pitch_scale = random_pitch_for(sfx_path)
 	add_child(sfx_player)
 	sfx_player.play()
 	await sfx_player.finished
@@ -52,6 +109,9 @@ func play_ui_sfx(sfx_path: String, volume_db: float = 0.0):
 	sfx_player.stream = sfx_stream
 	sfx_player.volume_db = volume_db
 	sfx_player.bus = "SFX"
+	# UI sounds are never in the HEAVY set, so this resolves to ±5% (or 1.0 for the
+	# excluded identity cues like death_sting that route through play_ui_sfx).
+	sfx_player.pitch_scale = random_pitch_for(sfx_path)
 	add_child(sfx_player)
 	sfx_player.play()
 	await sfx_player.finished
