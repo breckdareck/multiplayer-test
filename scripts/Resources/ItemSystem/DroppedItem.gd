@@ -347,7 +347,11 @@ func _start_pulse_tween() -> void:
 		pulse_tween.kill()
 		
 	var base_scale = sprite.scale
-	var pulse_scale = base_scale * 1.25 # Pulse 25% larger
+	# Better loot pops harder so a legendary doesn't land as quietly as a coin.
+	var rarity_pulse: float = 1.25
+	if item_data != null:
+		rarity_pulse += 0.1 * clampf(float(int(item_data.rarity)), 0.0, 5.0)
+	var pulse_scale = base_scale * rarity_pulse # higher rarity = more prominent pulse
 	var duration = 1 # Time to pulse up and back down
 
 	pulse_tween = create_tween()

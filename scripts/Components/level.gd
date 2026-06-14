@@ -18,6 +18,9 @@ var level:int = 1:
 		# Only play SFX if level increased, it's the server, and not during data loading
 		if level > old_level and multiplayer.is_server() and not _is_loading_data:
 			AudioManager.play_sfx_for_map(MapManager.get_player_map(get_owner().player_id), "res://assets/sounds/level_up.mp3", get_owner().global_position)
+			# Juice: a floating "LEVEL UP!" + aura burst on the character, so the
+			# ding is seen as well as heard (EventJuice resolves the map by ancestry).
+			EventJuice.proc(get_owner(), "LEVEL UP!", EventJuice.COLOR_COMBO, "", "buff_cast")
 			# NEW: Notify PartyManager of the level change
 			PartyManager.notify_player_data_changed(get_owner().player_id)
 			# A nearby bot may congratulate a PLAYER's ding (the flash/sound is

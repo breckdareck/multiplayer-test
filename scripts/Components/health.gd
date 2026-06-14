@@ -281,6 +281,8 @@ func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, 
 			if Time.get_ticks_msec() < ev_expire:
 				var ev_chance: float = float(owner.get_meta("smoke_evasion_chance", 0.0))
 				if ev_chance > 0.0 and randf() < ev_chance:
+					# Juice: surface the dodge so the player sees the smoke evasion work.
+					EventJuice.proc(owner, "DODGE", EventJuice.COLOR_AMBUSH, "res://assets/sounds/generated/dash_whoosh.wav", "")
 					return  # dodged — no damage applied
 
 		# final_amount (the post-reduction value) was computed up front so the

@@ -533,6 +533,12 @@ func _deferred_death_processing(_killer: Node) -> void:
 		_status_row_signature = ":0"
 		sync_mark_indicator.rpc(PackedStringArray(), PackedColorArray(), 0)
 
+	# Juice: a death-poof burst on every peer so a kill reads as a defeat, not a
+	# sprite that simply vanishes (the final hit's weapon spark already played).
+	var _death_map := _get_map_id()
+	if _death_map != "":
+		MapManager.broadcast_vfx_everywhere(_death_map, "explosion", global_position, 1.1, 0.0, false)
+
 	#print("Enemy died. Killer: ", _killer, " Type: ", typeof(_killer))
 
 	var total_damage = 0
@@ -1352,6 +1358,11 @@ func broadcast_telegraph_rect(pos: Vector2, rect_size: Vector2, duration: float,
 func _broadcast_boss_roar(color: Color) -> void:
 	var radius: float = enemy_data.special_attack_radius if enemy_data != null else 120.0
 	broadcast_telegraph_ring(global_position, radius, 0.5, color)
+	# Juice: the phase/enrage flash gets a roar SFX so the escalation is heard, not
+	# just seen — the moment most deserves audio in a boss fight.
+	var roar_map := _get_map_id()
+	if roar_map != "":
+		AudioManager.play_sfx_for_map(roar_map, "res://assets/sounds/generated/sword_warcry.wav", global_position, 2.0)
 
 
 ## [Server] Builds + caches the boss's attack list (authored or legacy-synthesised)

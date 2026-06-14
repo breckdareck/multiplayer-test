@@ -1071,8 +1071,19 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 				if aim_marker is Node2D:
 					hit_pos = aim_marker.global_position
 				var hit_scale: float = 1.0 if ability != null else 0.8
+				# Juice: a crit's spark reads noticeably bigger.
+				if true in crit_values:
+					hit_scale *= 1.5
 				var atk_face_left: bool = ("facing_direction" in owner_node) and int(owner_node.facing_direction) < 0
 				MapManager.broadcast_vfx_everywhere(MapManager.get_player_map(owner_node.player_id), hit_key, hit_pos, hit_scale, 0.0, atk_face_left)
+			# Juice: a crit gives the attacker's camera a small kick (host + owning
+			# client), mirroring the take-damage shake. Outside the hit_key guard so it
+			# fires even for a weapon with no spark.
+			if (true in crit_values) and owner_node.has_method("screen_shake"):
+				owner_node.screen_shake(3.0, 0.1)
+				var _atk_pid: int = owner_node.player_id
+				if _atk_pid != 1 and not BotManager.is_bot(_atk_pid) and is_instance_valid(owner_node.health_component):
+					owner_node.health_component._trigger_screen_shake.rpc_id(_atk_pid, 3.0)
 
 
 func calculate_ability_damage(_ability: AbilityData, level_stats: AbilityLevelData, amp_allowed: bool = true) -> int:

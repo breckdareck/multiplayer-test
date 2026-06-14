@@ -217,6 +217,7 @@ func _on_health_changed(new_health: int, _max_health: int) -> void:
 	health_bar.max_value = _max_health
 	health_bar.value = new_health
 	hp_value_label.text = str(player.health_component.current_health) + "/" + str(player.health_component.max_health)
+	_update_low_hp_warning(float(new_health) / float(max(1, _max_health)), new_health > 0)
 	# Hide death popup and unlock input when health is restored (respawned)
 	if new_health > 0 and is_instance_valid(death_popup_instance) and death_popup_instance.visible:
 		death_popup_instance.hide()
@@ -225,6 +226,11 @@ func _on_health_changed(new_health: int, _max_health: int) -> void:
 
 var _death_vignette: ColorRect = null
 var _vignette_tween: Tween = null
+
+const LOW_HP_FRACTION := 0.25
+var _low_hp_overlay: ColorRect = null
+var _low_hp_tween: Tween = null
+var _low_hp_active: bool = false
 
 
 ## Fades the full-screen death dim to `target_alpha` over `dur`. Built lazily,
@@ -241,6 +247,35 @@ func _fade_death_vignette(target_alpha: float, dur: float) -> void:
 		_vignette_tween.kill()
 	_vignette_tween = create_tween()
 	_vignette_tween.tween_property(_death_vignette, "color:a", target_alpha, dur)
+
+
+## Pulsing red screen tint while alive and below LOW_HP_FRACTION — a "you're in
+## danger" cue for the potion-loop survival model. Built lazily, mouse-transparent,
+## kept behind the HUD bars. Starts/stops only on threshold crossings.
+func _update_low_hp_warning(frac: float, alive: bool) -> void:
+	var want: bool = alive and frac > 0.0 and frac <= LOW_HP_FRACTION
+	if want == _low_hp_active:
+		return
+	_low_hp_active = want
+	if want:
+		if not is_instance_valid(_low_hp_overlay):
+			_low_hp_overlay = ColorRect.new()
+			_low_hp_overlay.color = Color(0.75, 0.05, 0.05, 0.0)
+			_low_hp_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			_low_hp_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+			add_child(_low_hp_overlay)
+			move_child(_low_hp_overlay, 0)
+		if _low_hp_tween and _low_hp_tween.is_valid():
+			_low_hp_tween.kill()
+		_low_hp_tween = create_tween().set_loops()
+		_low_hp_tween.tween_property(_low_hp_overlay, "color:a", 0.28, 0.5)
+		_low_hp_tween.tween_property(_low_hp_overlay, "color:a", 0.06, 0.5)
+	else:
+		if _low_hp_tween and _low_hp_tween.is_valid():
+			_low_hp_tween.kill()
+		if is_instance_valid(_low_hp_overlay):
+			var t: Tween = create_tween()
+			t.tween_property(_low_hp_overlay, "color:a", 0.0, 0.3)
 
 
 func _on_mana_changed(new_mana: int, _max_mana: int) -> void:
