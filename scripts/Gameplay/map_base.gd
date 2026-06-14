@@ -9,7 +9,7 @@ class_name MapBase
 # as a colored outline directly on the map. That preview is editor-only —
 # none of the editor code paths fire at runtime.
 
-## Path to the background music track for this map (e.g. "res://assets/music/gameplay.mp3").
+## Path to the background music track for this map (e.g. "res://assets/music/emberwilds_field.ogg").
 ## Leave empty to keep playing whatever is currently playing.
 @export_file("*.mp3", "*.ogg", "*.wav") var bgm_path: String = ""
 

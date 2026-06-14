@@ -566,7 +566,7 @@ region = Rect2(145, 52, 4, 12)
 
 [node name="Game4" type="Node2D"]
 script = ExtResource("1_p8yym")
-bgm_path = "uid://cprwhak3dq3oy"
+bgm_path = "res://assets/music/emberwilds_ruins.ogg"
 display_name = "The Ruins"
 camera_top_padding = 180
 camera_bottom_padding = -105

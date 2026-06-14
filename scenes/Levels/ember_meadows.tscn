@@ -524,7 +524,7 @@ region = Rect2(145, 52, 14, 12)
 
 [node name="Game2" type="Node2D"]
 script = ExtResource("1_hd3yw")
-bgm_path = "res://assets/music/time_for_adventure.mp3"
+bgm_path = "res://assets/music/emberwilds_town.ogg"
 display_name = "Ember-Meadows"
 
 [node name="DmgNumberSpawner" type="MultiplayerSpawner" parent="."]

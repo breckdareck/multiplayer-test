@@ -36,7 +36,7 @@ var api_presets = {
 }
 
 func _ready():
-	AudioManager.play_song("res://assets/music/Title.mp3")
+	AudioManager.play_song("res://assets/music/emberwilds_title.ogg")
 	
 	login_button.pressed.connect(_on_login_pressed)
 	register_button.pressed.connect(_on_register_pressed)

@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://ccddv4d6cfavx"]
 
-[ext_resource type="AudioStream" uid="uid://dsp02ajkgyt2j" path="res://assets/music/main_menu.mp3" id="1_j45w5"]
+[ext_resource type="AudioStream" uid="uid://b8836wo7mxrtg" path="res://assets/music/emberwilds_mainmenu.ogg" id="1_j45w5"]
 [ext_resource type="Script" uid="uid://bv1yig2irqv77" path="res://scripts/Managers/music_manager.gd" id="2_l7gdr"]
 
 [node name="Music" type="AudioStreamPlayer2D"]

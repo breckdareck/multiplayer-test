@@ -597,7 +597,7 @@ region = Rect2(145, 52, 14, 12)
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_vhnxn")
-bgm_path = "uid://1ib7gi5y7uov"
+bgm_path = "res://assets/music/emberwilds_cave.ogg"
 display_name = "The Ember-Scar"
 camera_top_padding = 180
 
