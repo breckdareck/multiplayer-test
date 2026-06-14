@@ -421,24 +421,83 @@ func _longest_common_prefix(arr: PackedStringArray) -> String:
 
 # --- Command dispatch -------------------------------------------------------
 
+## Commands that act purely on the local console/UI (scrollback, aliases, the
+## panel's own widgets/overlay) — never routed to the server, even from a client.
+## Everything else IS routed when run on a client, so authoritative/inspection dev
+## commands work for clients too (see _run_line / _run_on_server).
+const LOCAL_ONLY_CMDS: Array = ["help", "clear", "echo", "find", "alias", "snapshot", "pause", "botdock", "navdraw"]
+
+## When non-zero, the server is executing a command on behalf of this client peer,
+## so _acting_id()/_local_player() resolve to THAT player instead of the host.
+var _acting_peer_id: int = 0
+
+## The peer the current command acts as: the routed client when the server is
+## executing on its behalf, otherwise this machine's own peer.
+func _acting_id() -> int:
+	return _acting_peer_id if _acting_peer_id != 0 else multiplayer.get_unique_id()
+
+
 func _run_line(line: String) -> void:
+	# On a client, authoritative/inspection commands run on the SERVER as this
+	# player — the host-only guards inside each handler are then satisfied and the
+	# command mutates the correct character. Pure-console commands stay local.
+	if not multiplayer.is_server() and _needs_server(line):
+		_run_on_server.rpc_id(1, line)
+		return
+	var out: String = _eval_line(line)
+	if not out.is_empty():
+		_print(out)
+
+
+## Runs one command line (resolving one alias hop) and RETURNS its output instead
+## of printing, so the server can ship the result back to a remote client.
+func _eval_line(line: String) -> String:
 	var parts: PackedStringArray = line.split(" ", false)
-	if parts.is_empty(): return
+	if parts.is_empty(): return ""
 	var cmd_name: String = parts[0].to_lower()
 	# Alias expansion: replace the first token, keep the rest.
 	if _aliases.has(cmd_name):
 		var expansion: String = _aliases[cmd_name]
 		var rest: String = "" if parts.size() == 1 else " " + " ".join(parts.slice(1))
-		_run_line(expansion + rest)
-		return
+		return _eval_line(expansion + rest)
 	var args: Array = Array(parts.slice(1))
 	if not _commands.has(cmd_name):
-		_print("[color=#ff8888]Unknown command '%s'. Try: help[/color]" % cmd_name)
+		return "[color=#ff8888]Unknown command '%s'. Try: help[/color]" % cmd_name
+	var result: String = _commands[cmd_name].handler.call(args)
+	return result
+
+
+## Whether `line`'s command should run on the server (not in LOCAL_ONLY_CMDS).
+func _needs_server(line: String) -> bool:
+	var parts: PackedStringArray = line.split(" ", false)
+	if parts.is_empty(): return false
+	var cmd_name: String = parts[0].to_lower()
+	# Resolve one alias hop so the routing decision matches the real command.
+	if _aliases.has(cmd_name):
+		var exp: PackedStringArray = String(_aliases[cmd_name]).split(" ", false)
+		if not exp.is_empty(): cmd_name = exp[0].to_lower()
+	return not LOCAL_ONLY_CMDS.has(cmd_name)
+
+
+## [Client -> Server] Execute a debug command on the server in the CALLING
+## client's context, then return its output to that client. The server is where
+## all the host-only / server-authoritative dev commands actually take effect.
+@rpc("any_peer", "call_remote", "reliable")
+func _run_on_server(line: String) -> void:
+	if not multiplayer.is_server():
 		return
-	var handler: Callable = _commands[cmd_name].handler
-	var result: String = handler.call(args)
-	if not result.is_empty():
-		_print(result)
+	var sender: int = multiplayer.get_remote_sender_id()
+	_acting_peer_id = sender
+	var out: String = _eval_line(line)
+	_acting_peer_id = 0
+	_run_result_to_client.rpc_id(sender, out)
+
+
+## [Server -> requesting client] Print the routed command's output.
+@rpc("authority", "call_remote", "reliable")
+func _run_result_to_client(output: String) -> void:
+	if not output.is_empty():
+		_print(output)
 
 
 func _print(text: String) -> void:
@@ -1058,7 +1117,7 @@ func _cmd_goto(args: Array) -> String:
 	if not is_instance_valid(bot_node): return "Bot %d has no live body." % bot_id
 	var bot_map: String = MapManager.get_player_map(bot_id)
 	if bot_map.is_empty(): return "Bot %d has no current map." % bot_id
-	var host_id := multiplayer.get_unique_id()
+	var host_id := _acting_id()
 	if MapManager.get_player_map(host_id) != bot_map:
 		MapManager.request_map_change(host_id, bot_map)
 	var host := PlayerManager.get_player_node(host_id)
@@ -1184,7 +1243,7 @@ func _list_enemy_scene_names() -> PackedStringArray:
 
 func _cmd_watch_bot(args: Array) -> String:
 	if args.is_empty(): return "Usage: watch-bot <id|name|off>"
-	return BotManager.handle_command(["watch", args[0]] as Array, multiplayer.get_unique_id())
+	return BotManager.handle_command(["watch", args[0]] as Array, _acting_id())
 
 
 func _cmd_navdraw(args: Array) -> String:
@@ -1215,7 +1274,7 @@ func _cmd_navdraw(args: Array) -> String:
 
 
 func _cmd_bot(args: Array) -> String:
-	return BotManager.handle_command(args, multiplayer.get_unique_id())
+	return BotManager.handle_command(args, _acting_id())
 
 
 func _cmd_quest(args: Array) -> String:
@@ -1224,7 +1283,7 @@ func _cmd_quest(args: Array) -> String:
 	if not QuestManager.has_method("handle_quest_command"):
 		return "QuestManager has no handle_quest_command method."
 	var line := "/quest " + " ".join(PackedStringArray(args))
-	QuestManager.handle_quest_command(line, multiplayer.get_unique_id())
+	QuestManager.handle_quest_command(line, _acting_id())
 	return "[color=#aaaaaa](quest reply routed to chat)[/color]"
 
 
@@ -1463,7 +1522,7 @@ func _bot_name_candidates() -> PackedStringArray:
 
 func _local_player() -> Node:
 	if PlayerManager.has_method("get_player_node"):
-		return PlayerManager.get_player_node(multiplayer.get_unique_id())
+		return PlayerManager.get_player_node(_acting_id())
 	return null
 
 
