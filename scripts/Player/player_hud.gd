@@ -192,6 +192,7 @@ func _input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 
 func _on_player_died(_killer: Node) -> void:
+	_is_dead_ui = true
 	# Lock input so no other windows can be opened
 	InputManager.set_input_locked(true)
 	# Close all open UI windows
@@ -218,14 +219,21 @@ func _on_health_changed(new_health: int, _max_health: int) -> void:
 	health_bar.value = new_health
 	hp_value_label.text = str(player.health_component.current_health) + "/" + str(player.health_component.max_health)
 	_update_low_hp_warning(float(new_health) / float(max(1, _max_health)), new_health > 0)
-	# Hide death popup and unlock input when health is restored (respawned)
-	if new_health > 0 and is_instance_valid(death_popup_instance) and death_popup_instance.visible:
-		death_popup_instance.hide()
+	# Clear the death UI when health is restored (respawned). Gated on the death
+	# flag, NOT on the popup being visible — the respawn button hides the popup
+	# synchronously, so by the time this server-confirmed heal arrives the popup is
+	# already hidden; a `.visible` gate would skip the vignette fade + input unlock,
+	# leaving the dim stuck on screen and the next death un-revivable.
+	if new_health > 0 and _is_dead_ui:
+		_is_dead_ui = false
+		if is_instance_valid(death_popup_instance):
+			death_popup_instance.hide()
 		InputManager.set_input_locked(false)
 		_fade_death_vignette(0.0, 0.4)
 
 var _death_vignette: ColorRect = null
 var _vignette_tween: Tween = null
+var _is_dead_ui: bool = false
 
 const LOW_HP_FRACTION := 0.25
 var _low_hp_overlay: ColorRect = null

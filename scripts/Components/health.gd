@@ -350,7 +350,7 @@ func heal_damage(amount: int, _source: Node = null) -> void:
 	# Juice: surface a chunky heal (potion / heal ability) with a green float + chime,
 	# gated above per-tick regen so it doesn't spam. Real players only (bot auto-pots
 	# heal constantly).
-	if is_player and amount >= maxi(10, int(max_health * 0.04)) and not BotManager.is_bot(owner.player_id):
+	if (owner is MultiplayerPlayerV2) and amount >= maxi(10, int(max_health * 0.04)) and not BotManager.is_bot(owner.player_id):
 		EventJuice.proc(owner, "+%d" % amount, EventJuice.COLOR_HEAL, "res://assets/sounds/generated/heal.wav", "")
 
 
