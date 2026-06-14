@@ -678,6 +678,17 @@ func _update_sprite_facing_direction() -> void:
 				shadow_sprite.play(animated_sprite.animation)
 
 
+## [Server -> a specific client] Push this player's facing to a peer that just
+## joined the map, so the sprite flips correctly even though the player hasn't
+## moved since (facing_direction replicates only on-change). The appearance
+## join-sync (request_all_sprite_states) calls this; the per-frame
+## _update_sprite_facing_direction re-applies it once the synced state arrives.
+@rpc("authority", "call_remote", "reliable")
+func sync_facing_to_peer(facing: int) -> void:
+	facing_direction = facing
+	_update_sprite_facing_direction()
+
+
 ## The "I am my weapon" identity lookups now LIVE on WeaponMasteryComponent —
 ## the single owner of weapon identity (ADR-0004). These two methods are thin
 ## forwarders kept so the many duck-typed callers (UI widgets, combat, ability,
@@ -696,6 +707,13 @@ func get_equipped_disciplines() -> Array[int]:
 	return fallback
 
 
+## Guards re-entrant map changes while a transition's save-flush await is in
+## flight. Without it, double-tapping the portal during the (multi-frame) backend
+## save fires two overlapping change_to_map calls — a wasted despawn/respawn or a
+## deferred call on a freeing body.
+var _map_change_pending: bool = false
+
+
 func change_to_map(new_map_id: String, spawn_point_name: String = ""):
 	if not multiplayer.is_server():
 		# Client requests map change from server
@@ -703,6 +721,9 @@ func change_to_map(new_map_id: String, spawn_point_name: String = ""):
 		var data_string: String = JSON.stringify(get_save_data())
 		request_map_change_rpc.rpc_id(1, new_map_id, spawn_point_name, data_string)
 	else:
+		if _map_change_pending:
+			return
+		_map_change_pending = true
 		# Flush save before map change — the player node is freed during the transition,
 		# so a debounced save would fire on an already-freed node and be silently skipped.
 		# Bots skip this: PlayerManager.set_carried_state preserves their live state in
@@ -712,6 +733,7 @@ func change_to_map(new_map_id: String, spawn_point_name: String = ""):
 			SaveManager.queue_save(username, "all", self)
 			await SaveManager.flush_save(username)
 		MapManager.request_map_change(player_id, new_map_id, spawn_point_name)
+		_map_change_pending = false
 
 
 func set_current_party_id(id: int):

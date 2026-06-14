@@ -638,10 +638,16 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 			# enemy-side magic/physical split in enemy_base.damage_on_overlap.
 			var is_magic_hit: bool = ability != null and ability.damage_stat == Constants.StatType.MAGICATTACK
 			var def_stat: int = Constants.StatType.MAGICDEFENSE if is_magic_hit else Constants.StatType.DEFENSE
-			var target_defense = target_stats.stats.get(def_stat).total_value
+			# Null-safe + floored: a target whose Stats dict lacks DEFENSE/MAGICDEFENSE
+			# reads as 0 (instead of crashing the server hit path), and a negative
+			# defense (e.g. stacked Cripple debuffs) reads as 0 mitigation rather than
+			# amplifying damage / dividing by (def+500) near zero. Mirrors the maxf(0,…)
+			# floor the enemy->player path uses in enemy_base.gd.
+			var def_sd = target_stats.stats.get(def_stat)
+			var target_defense: float = maxf(0.0, float(def_sd.total_value)) if def_sd != null else 0.0
 
 			var level_modifier = clamp(1.0 + (level_diff * 0.05), 0.5, 1.5)
-			var defense_multiplier = 1.0 - (float(target_defense) / (target_defense + 500.0))
+			var defense_multiplier = 1.0 - (target_defense / (target_defense + 500.0))
 
 			modified_damage *= level_modifier * defense_multiplier
 

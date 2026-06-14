@@ -205,6 +205,9 @@ func _push_bindings_to_server() -> void:
 func request_sync_hotbar(primary: Dictionary, secondary: Dictionary) -> void:
 	if not multiplayer.is_server():
 		return
+	# Only the owning peer may rebind this character's hotbar.
+	if multiplayer.get_remote_sender_id() != owner.player_id:
+		return
 	_primary_hotbar_bindings = primary.duplicate()
 	_secondary_hotbar_bindings = secondary.duplicate()
 	hotbar_bindings_changed.emit()
@@ -1375,15 +1378,23 @@ func ability_used_client(ability_id: String, cooldown_time: float) -> void:
 @rpc("any_peer", "call_local", "reliable")
 ## [Client->Server] RPC for a client to request leveling up an ability.
 func level_up_ability_request(ability_id: String) -> void:
-	if multiplayer.is_server():
-		_level_up_ability_local(ability_id)
+	if not multiplayer.is_server():
+		return
+	# Only the owning peer may spend this character's points.
+	if multiplayer.get_remote_sender_id() != owner.player_id:
+		return
+	_level_up_ability_local(ability_id)
 
 
 @rpc("any_peer", "call_local", "reliable")
 ## [Client->Server] RPC for a client to request learning an ability.
 func learn_ability_request(ability_id: String, initial_level: int) -> void:
-	if multiplayer.is_server():
-		_learn_ability_local(ability_id, initial_level)
+	if not multiplayer.is_server():
+		return
+	# Only the owning peer may learn this character's abilities.
+	if multiplayer.get_remote_sender_id() != owner.player_id:
+		return
+	_learn_ability_local(ability_id, initial_level)
 
 
 @rpc("authority", "call_local", "reliable")

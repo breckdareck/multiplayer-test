@@ -210,10 +210,17 @@ func _handle_existing_buff(buff_id: String, buff_data: BuffData, _source: Node, 
 				if multiplayer.is_server() and not is_bot_owned():
 					sync_buff_stacks.rpc(buff_id, active_buff.stacks, new_duration)
 			else:
-				# At max stacks, just refresh
+				# At max stacks, just refresh — must still notify the client or
+				# its buff-bar timer keeps counting down the stale duration while
+				# the server silently extends the real one (visual desync).
 				active_buff.remaining_duration = new_duration
 				active_buff.total_duration = new_duration
-				
+
+				buff_refreshed.emit(buff_id, new_duration)
+
+				if multiplayer.is_server() and not is_bot_owned():
+					sync_buff_refreshed.rpc(buff_id, new_duration)
+
 		BuffData.StackBehavior.IGNORE:
 			# Do nothing, keep existing buff running
 			pass

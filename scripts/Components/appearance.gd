@@ -271,5 +271,12 @@ func request_all_sprite_states() -> void:
 		if other_player and other_player is MultiplayerPlayerV2 \
 				and is_instance_valid(other_player.appearance_component):
 			other_player.appearance_component.notify_peer_connected(requester_id)
+			# facing_direction and the state-machine state replicate only ON CHANGE,
+			# so a player standing still when this peer joined would otherwise show
+			# the default facing with no synced state (the flip gate needs a current
+			# state). Push both explicitly to the joiner.
+			if is_instance_valid(other_player.state_machine):
+				other_player.state_machine.sync_state_to_peer(requester_id)
+			other_player.sync_facing_to_peer.rpc_id(requester_id, other_player.facing_direction)
 
 #endregion

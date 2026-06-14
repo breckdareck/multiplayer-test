@@ -12,24 +12,24 @@ func _ready():
 		interaction_label.visible = false
 
 func _on_body_entered(body: Node2D):
-	if body.player_id:
-		var player_id = body.player_id
-		if player_id != 0:
-			interaction_label.visible = true
-			# Inform the player that they are in a portal
-			if body.has_method("set_current_portal"):
-				body.set_current_portal(self)
-			#print("Player %d entered portal to map '%s' at spawn '%s'" % [player_id, target_map_id, target_spawn_point_name])
+	if not (body is MultiplayerPlayerV2) or body.player_id == 0:
+		return
+	# The label is a local affordance — only show it for THIS peer's own player,
+	# so a remote player walking through a portal can't flip the prompt on the host.
+	if body.player_id == multiplayer.get_unique_id():
+		interaction_label.visible = true
+	# Inform the player that they are in a portal.
+	if body.has_method("set_current_portal"):
+		body.set_current_portal(self)
 
 func _on_body_exited(body: Node2D):
-	if body.player_id:
-		var player_id = body.player_id
-		if player_id != 0:
-			interaction_label.visible = false
-			# Inform the player that they have left the portal
-			if body.has_method("clear_current_portal"):
-				body.clear_current_portal()
-			#print("Player %d exited portal." % player_id)
+	if not (body is MultiplayerPlayerV2) or body.player_id == 0:
+		return
+	if body.player_id == multiplayer.get_unique_id():
+		interaction_label.visible = false
+	# Inform the player that they have left the portal.
+	if body.has_method("clear_current_portal"):
+		body.clear_current_portal()
 
 func interact(player_id: int):
 	if not multiplayer.is_server():

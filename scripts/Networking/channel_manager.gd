@@ -128,7 +128,13 @@ func _execute_channel_switch(new_port: int) -> bool:
 	#print("Disconnecting from old server...")
 	old_peer.close()
 	multiplayer.multiplayer_peer = null
-	
+
+	# Free the old server's world (networked entities + the root "Maps" container)
+	# BEFORE connecting to the new channel. Without this, the previous server's
+	# enemies/pets/players/map stay resident and the new world stacks on top
+	# (the disconnect / leave-to-menu paths already do this; the switch didn't).
+	MultiplayerManager.free_game_world()
+
 	# Step 4: Wait for proper cleanup
 	await get_tree().create_timer(0.1).timeout
 	

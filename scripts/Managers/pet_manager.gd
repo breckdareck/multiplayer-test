@@ -904,38 +904,30 @@ func request_autoloot_server(pet_uuid: String, drop_node_name: String) -> void:
 	if caller == 0:
 		caller = 1
 	if not _active_pets.has(pet_uuid):
-		print("[autoloot] REJECT: pet '%s' not in _active_pets" % pet_uuid)
 		return
 	var info: Dictionary = _active_pets[pet_uuid]
 	if info.get("owner_peer_id", 0) != caller:
-		print("[autoloot] REJECT: caller %d not owner of pet (owner=%s)" % [caller, info.get("owner_peer_id", 0)])
 		return
 
 	var pet_node: Node = info.get("pet_node")
 	if not is_instance_valid(pet_node):
-		print("[autoloot] REJECT: pet_node invalid")
 		return
 	var owner_username: String = info.get("owner_username", "")
 	var record := find_pet(owner_username, pet_uuid)
 	if record.is_empty():
-		print("[autoloot] REJECT: pet not in roster")
 		return
 	if record.get(KEY_HUNGER, 100.0) <= 0.0:
-		print("[autoloot] REJECT: pet is Hungry")
 		return
 
 	if not is_command_active(record, CMD_MAGNET):
-		print("[autoloot] REJECT: magnet command not active")
 		return
 
 	var owner_player := PlayerManager.get_player_node(caller)
 	if not is_instance_valid(owner_player):
-		print("[autoloot] REJECT: owner_player invalid")
 		return
 
 	var map_node := pet_node.get_parent()
 	if not map_node:
-		print("[autoloot] REJECT: pet has no parent map")
 		return
 	var drop: Node = map_node.get_node_or_null(drop_node_name)
 	if not drop:
@@ -943,11 +935,9 @@ func request_autoloot_server(pet_uuid: String, drop_node_name: String) -> void:
 		if drops_container:
 			drop = drops_container.get_node_or_null(drop_node_name)
 	if not (drop is DroppedItem):
-		print("[autoloot] REJECT: drop '%s' not found or not DroppedItem (parent=%s)" % [drop_node_name, map_node.name])
 		return
 
 	if not drop.item_data:
-		print("[autoloot] REJECT: drop has no item_data")
 		return
 
 	# Validate by OWNER position, not pet position. The pet is owner-client
@@ -966,24 +956,19 @@ func request_autoloot_server(pet_uuid: String, drop_node_name: String) -> void:
 	var pickup_range: float = autoloot + leash
 	var owner_drop_dist: float = owner_player.global_position.distance_to(drop.global_position)
 	if owner_drop_dist > pickup_range:
-		print("[autoloot] REJECT: owner-to-drop %.1f > pickup_range %.1f (autoloot %.1f + leash %.1f)" % [owner_drop_dist, pickup_range, autoloot, leash])
 		return
 
 	if drop.has_method("_can_player_pickup") and not drop._can_player_pickup(owner_player):
-		print("[autoloot] REJECT: _can_player_pickup false (eligible=%s, public=%s, drop='%s')" % [drop._eligible_player_ids if "_eligible_player_ids" in drop else "?", drop.is_public_pickup if "is_public_pickup" in drop else "?", drop.item_data.name])
 		return
 	if drop.has_method("_player_has_room_for_item") and not drop._player_has_room_for_item(owner_player):
-		print("[autoloot] REJECT: _player_has_room_for_item false (inventory full?)")
 		return
 
 	var now_ms := Time.get_ticks_msec()
 	if now_ms - int(info.get("last_autoloot_ms", 0)) < AUTOLOOT_RATE_LIMIT_MS:
-		print("[autoloot] REJECT: rate-limited (last=%d now=%d delta=%d)" % [info.get("last_autoloot_ms", 0), now_ms, now_ms - int(info.get("last_autoloot_ms", 0))])
 		return
 	info["last_autoloot_ms"] = now_ms
 
 	if drop.has_method("_pickup_item"):
-		print("[autoloot] PICKUP firing for '%s'" % drop.item_data.name)
 		drop._pickup_item(owner_player)
 		_pet_event_visual_rpc.rpc(pet_uuid, "autoloot")
 
@@ -1111,40 +1096,28 @@ func request_set_autopot_threshold_server(pet_uuid: String, slot_type: String, t
 
 @rpc("any_peer", "call_local", "reliable")
 func request_transfer_to_pet_slot_server(pet_uuid: String, slot_key: String, source_inventory_idx: int) -> void:
-	print("[PetMgr.transfer_to] RPC received. pet=%s slot=%s idx=%d is_server=%s" % [pet_uuid, slot_key, source_inventory_idx, multiplayer.is_server()])
 	if not multiplayer.is_server():
-		print("[PetMgr.transfer_to] not server — early return")
 		return
 	var resolved := PlayerManager.resolve_intent()
 	if resolved.is_empty():
-		print("[PetMgr.transfer_to] REJECT: player or inventory_component invalid")
 		return
 	var caller: int = resolved.peer_id
 	var player = resolved.node
-	print("[PetMgr.transfer_to] caller=%d" % caller)
 	if not is_instance_valid(player.inventory_component):
-		print("[PetMgr.transfer_to] REJECT: player or inventory_component invalid")
 		return
 	var owner_username: String = player.username
 	var record := find_pet(owner_username, pet_uuid)
 	if record.is_empty():
-		print("[PetMgr.transfer_to] REJECT: pet '%s' not in '%s' roster" % [pet_uuid, owner_username])
 		return
-	print("[PetMgr.transfer_to] pet found in roster")
 	var source_inv = player.inventory_component
-	print("[PetMgr.transfer_to] source_inv has %d slots_data" % source_inv.slots_data.size())
 	if source_inventory_idx < 0 or source_inventory_idx >= source_inv.slots_data.size():
-		print("[PetMgr.transfer_to] REJECT: idx %d out of range" % source_inventory_idx)
 		return
 	var source_sd = source_inv.slots_data[source_inventory_idx]
 	if not source_sd or not source_sd.item:
-		print("[PetMgr.transfer_to] REJECT: source slot %d empty (sd=%s, item=%s)" % [source_inventory_idx, source_sd, source_sd.item if source_sd else "n/a"])
 		return
 	var item: ItemData = source_sd.item
-	print("[PetMgr.transfer_to] source item: name='%s' item_id='%s' class='%s'" % [item.name, item.item_id, item.get_class()])
 
 	if not _slot_accepts_item(slot_key, item):
-		print("[PetMgr.transfer_to] REJECT: _slot_accepts_item false. item.name='%s' expected_name='%s'" % [item.name, book_name_for_slot(slot_key)])
 		_show_message_to_owner(caller, "That item doesn't fit this slot.")
 		return
 
@@ -1162,14 +1135,12 @@ func request_transfer_to_pet_slot_server(pet_uuid: String, slot_key: String, sou
 			"item_id": canonical_key,
 			"stack": 0,  # reference only — no items stored in the pet slot
 		})
-		print("[PetMgr.transfer_to] DONE: pot slot '%s' now references '%s' (inventory untouched)" % [slot_key, canonical_key])
 		_push_roster_to_owner(owner_username)
 		_queue_save(owner_username)
 		return
 
 	# Command slots EQUIP the book — book is moved from inventory to slot.
 	if not existing.is_empty():
-		print("[PetMgr.transfer_to] REJECT: command slot '%s' already equipped" % slot_key)
 		_show_message_to_owner(caller, "That command slot is already equipped. Right-click to unequip first.")
 		return
 
@@ -1181,7 +1152,6 @@ func request_transfer_to_pet_slot_server(pet_uuid: String, slot_key: String, sou
 		var source_slot_node: Slot = source_inv.slots[source_inventory_idx]
 		if is_instance_valid(source_slot_node):
 			source_inv.clear_slot(source_slot_node, "transferred_to_pet")
-	print("[PetMgr.transfer_to] DONE: book slot '%s' now holds '%s' (book removed from inventory)" % [slot_key, canonical_key])
 	_push_roster_to_owner(owner_username)
 	_queue_save(owner_username)
 

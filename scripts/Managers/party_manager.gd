@@ -235,7 +235,7 @@ func get_player_username(player_id: int) -> String:
 	return "Player " + str(player_id)
 
 # RPCs for client-side calls to server
-@rpc("any_peer", "call_local") # Execute on the remote peer (server)
+@rpc("any_peer", "call_local", "reliable") # Execute on the remote peer (server)
 func rpc_create_party():
 	var sender_id = multiplayer.get_remote_sender_id()
 	if sender_id == 0:
@@ -243,7 +243,7 @@ func rpc_create_party():
 	#print("RPC sender ID in PartyManager.rpc_create_party: ", sender_id)
 	create_party(sender_id)
 	
-@rpc("any_peer", "call_local") # Execute on the remote peer (server)
+@rpc("any_peer", "call_local", "reliable") # Execute on the remote peer (server)
 func rpc_send_invite(invitee_name: String):
 	var sender_id = multiplayer.get_remote_sender_id()
 	if sender_id == 0:
@@ -278,7 +278,7 @@ func rpc_send_invite_to_id(invitee_id: int):
 
 	send_invite(sender_id, invitee_id)
 
-@rpc("any_peer", "call_local") # Execute on the remote peer (server)
+@rpc("any_peer", "call_local", "reliable") # Execute on the remote peer (server)
 func rpc_accept_invite(party_id: int):
 	var sender_id = multiplayer.get_remote_sender_id()
 	if sender_id == 0:
@@ -286,7 +286,7 @@ func rpc_accept_invite(party_id: int):
 	#print("PartyManager: rpc_accept_invite called by sender ", sender_id, " for party ", party_id)
 	accept_invite(sender_id, party_id)
 
-@rpc("any_peer", "call_local") # Execute on the remote peer (server)
+@rpc("any_peer", "call_local", "reliable") # Execute on the remote peer (server)
 func rpc_leave_party():
 	var sender_id = multiplayer.get_remote_sender_id()
 	if sender_id == 0:
@@ -323,7 +323,7 @@ func rpc_kick_player(target_id: int):
 	# leave_party handles member removal, signals, client sync and disband.
 	leave_party(target_id)
 
-@rpc("any_peer", "call_local") # Execute on the remote peer (server)
+@rpc("any_peer", "call_local", "reliable") # Execute on the remote peer (server)
 func rpc_change_leader(new_leader_id: int):
 	var sender_id = multiplayer.get_remote_sender_id()
 	if sender_id == 0:
@@ -368,10 +368,13 @@ func _client_update_party_data(party_data_dict: Dictionary):
 	# Update player info cache
 	var members_info = party_data_dict.get("members", [])
 	for member_data in members_info:
-		_player_info_cache[member_data.id] = {
-			"username": member_data.username,
-			"level": member_data.level,
-			"class_name": member_data.class_name,
+		var m_id = member_data.get("id", -1)
+		if m_id == -1:
+			continue  # malformed/legacy packet — skip rather than crash the UI update
+		_player_info_cache[m_id] = {
+			"username": member_data.get("username", ""),
+			"level": member_data.get("level", 1),
+			"class_name": member_data.get("class_name", 0),
 			"is_online": member_data.get("is_online", true),
 			"map": member_data.get("map", ""),
 		}
@@ -379,7 +382,7 @@ func _client_update_party_data(party_data_dict: Dictionary):
 	var new_party_data = PartyData.new(party_id, party_data_dict.get("leader_id"))
 	
 	# Add members one-by-one instead of direct assignment
-	var member_ids = members_info.map(func(m): return m.id)
+	var member_ids = members_info.map(func(m): return m.get("id", -1)).filter(func(mid): return mid != -1)
 	for member_id in member_ids:
 		if not new_party_data.members.has(member_id):
 			new_party_data.add_member(member_id)

@@ -188,7 +188,10 @@ func _apply_enemy_data() -> void:
 	monster_name = enemy_data.monster_name
 	monster_level = enemy_data.monster_level
 	movement_speed = enemy_data.movement_speed
-	item_drops = enemy_data.item_drops
+	# Deep-copy so per-instance mutation (the Coin min/max below, the appended coin
+	# drop, potion drops) never touches the EnemyData resource shared across every
+	# pooled instance of this enemy type.
+	item_drops = enemy_data.item_drops.duplicate(true)
 
 	# Set Monies Coin Drop Min and Max Amounts based on Curve
 	var filtered_array: Array[ItemDropResource] = item_drops.filter(func(drop): return drop.item_name == "Coin")
@@ -197,6 +200,7 @@ func _apply_enemy_data() -> void:
 		filtered_array[0].max_amount = roundi(monies_curve.sample(enemy_data.monster_level) * 1.1)
 	else:
 		var monies_drop = ItemDropResource.new()
+		monies_drop.item_name = "Coin"
 		monies_drop.drop_chance = 0.9
 		monies_drop.min_amount = roundi(monies_curve.sample(monster_level) * 0.9)
 		monies_drop.max_amount = roundi(monies_curve.sample(monster_level) * 1.1)
@@ -716,11 +720,11 @@ func _spawn_drops(eligible_player_ids: Array[int]) -> void:
 		#print("Enemy '%s' dropped %dx %s for eligible players: %s" % [name, amount, item.name, str(eligible_player_ids)])
 
 
-@rpc("any_peer", "call_local", "reliable")
+@rpc("authority", "call_local", "reliable")
 func client_show_name_label():
 	name_label.show()
 	
-@rpc("any_peer", "call_local", "reliable")
+@rpc("authority", "call_local", "reliable")
 func client_hide_name_label():
 	name_label.hide()
 
@@ -728,7 +732,7 @@ func client_hide_name_label():
 ## [Server → the hitting client only] Reveal this enemy's overhead HP bar and
 ## (re)start the hide countdown. Sent per-attacker so each player only sees the
 ## bar of enemies THEY are fighting.
-@rpc("any_peer", "call_local", "reliable")
+@rpc("authority", "call_local", "reliable")
 func client_show_health_bar() -> void:
 	if not health_bar or not is_instance_valid(health_bar):
 		return
@@ -739,7 +743,7 @@ func client_show_health_bar() -> void:
 
 ## [Server → real players on map] Force the HP bar hidden immediately (death /
 ## pooling), independent of the hide countdown.
-@rpc("any_peer", "call_local", "reliable")
+@rpc("authority", "call_local", "reliable")
 func client_hide_health_bar() -> void:
 	if _health_bar_hide_timer:
 		_health_bar_hide_timer.stop()
@@ -1377,6 +1381,32 @@ func get_pending_special_attack() -> BossAttackData:
 	return _pending_special_attack
 
 
+## Client-side resolution of the in-windup special. On remote peers the
+## server-only _pending_special_attack is null, so the boss_special state reads
+## the attack the server synced via _sync_boss_windup_client (by index) instead.
+var _client_pending_idx: int = -1
+
+func get_client_special_attack() -> BossAttackData:
+	return get_special_attack_by_index(_client_pending_idx)
+
+func get_special_attack_by_index(idx: int) -> BossAttackData:
+	if idx < 0:
+		return null
+	var attacks: Array[BossAttackData] = _get_boss_attacks()
+	if idx < attacks.size():
+		return attacks[idx]
+	return null
+
+## [Server -> remote clients] Hands clients the index of the special attack about
+## to wind up, so their boss_special state can play the telegraphed strike + charge
+## tint (the chosen BossAttackData lives only on the server otherwise). call_remote:
+## the host already has _pending_special_attack; a broadcast .rpc() reaches real
+## client peers only (bot fake-peers have no ENet connection).
+@rpc("authority", "call_remote", "reliable")
+func _sync_boss_windup_client(idx: int) -> void:
+	_client_pending_idx = idx
+
+
 ## [Server] Readiness GATE for the telegraphed special — the only boss code left in
 ## _process. Picks the first off-cooldown, in-range attack and hands control to the
 ## "boss_special" state, which owns the telegraph + windup + AoE/dash (see
@@ -1412,6 +1442,9 @@ func _boss_special_tick() -> void:
 		_pending_special_attack = atk
 		_pending_special_idx = i
 		_boss_special_pending = true
+		# Sync the chosen attack to clients BEFORE the state change (both reliable
+		# and ordered) so their boss_special.enter() can play the windup visuals.
+		_sync_boss_windup_client.rpc(i)
 		state_machine.change_state(special_state)
 		return
 

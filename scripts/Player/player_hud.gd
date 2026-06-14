@@ -212,7 +212,8 @@ func _on_player_died(_killer: Node) -> void:
 	death_popup_instance.show()
 
 func _on_health_changed(new_health: int, _max_health: int) -> void:
-	"""Updates the ProgressBar value when health changes."""
+	if not is_instance_valid(player):
+		return
 	health_bar.max_value = _max_health
 	health_bar.value = new_health
 	hp_value_label.text = str(player.health_component.current_health) + "/" + str(player.health_component.max_health)
@@ -243,12 +244,15 @@ func _fade_death_vignette(target_alpha: float, dur: float) -> void:
 
 
 func _on_mana_changed(new_mana: int, _max_mana: int) -> void:
-	"""Updates the ProgressBar value when health changes."""
+	if not is_instance_valid(player):
+		return
 	mana_bar.max_value = _max_mana
 	mana_bar.value = new_mana
 	mp_value_label.text = str(player.mana_component.current_mana) + "/" + str(player.mana_component.max_mana)
 
 func _on_experience_changed(new_value: int, _exp_to_level: int) -> void:
+	if not is_instance_valid(player):
+		return
 	experience_bar.max_value = _exp_to_level
 	experience_bar.value = new_value
 	exp_percent_label.text = "%0.2f" % (float(player.level_component.experience)/player.level_component.get_exp_to_next_level()*100) + "%"

@@ -167,9 +167,14 @@ func test_poison_on_bleeding_enemy_ticks_harder_once() -> void:
 	assert_eq(int(state["per_tick"]), int(round(10 * EnemyStatus.SEPTIC_MULT)), "poison amplified")
 	assert_true(bool(state.get("septic", false)), "septic flag set")
 
-	# A second registration of the SAME application must not compound.
+	# A refresh mirrors the applier: it resets per_tick to BASE before re-registering.
+	# Septic must re-amplify from that base — the bonus survives the refresh instead
+	# of being stranded (the old flag-gated behaviour silently lost it here).
+	var refreshed: Dictionary = e.get_meta("envenom_poison")
+	refreshed["per_tick"] = 10
+	e.set_meta("envenom_poison", refreshed)
 	EnemyStatus.register(e, EnemyStatus.TAG_POISON, "envenom_poison")
-	assert_eq(int(e.get_meta("envenom_poison")["per_tick"]), int(round(10 * EnemyStatus.SEPTIC_MULT)), "no double-dip")
+	assert_eq(int(e.get_meta("envenom_poison")["per_tick"]), int(round(10 * EnemyStatus.SEPTIC_MULT)), "septic survives refresh")
 	_cleanup(e)
 
 

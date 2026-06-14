@@ -79,7 +79,9 @@ func add_player(id: int):
 		if current_count >= ServerManager.max_players:
 			#print("PlayerManager: Server full (%d/%d), rejecting player %d" % [current_count, ServerManager.max_players, id])
 			MultiplayerManager._notify_client_kicked.rpc_id(id, "Server is full (%d/%d)." % [current_count, ServerManager.max_players])
-			get_tree().create_timer(0.5).timeout.connect(func(): multiplayer.multiplayer_peer.disconnect_peer(id))
+			get_tree().create_timer(0.5).timeout.connect(func():
+				if multiplayer.multiplayer_peer:
+					multiplayer.multiplayer_peer.disconnect_peer(id))
 			return
 	#print("Player %d joined - preparing to spawn character" % id)
 	NetworkUtils.log_network_event("PLAYER_JOIN", "Peer %d connected (%d/%d players)" % [id, active_players.size() + 1, ServerManager.max_players])
@@ -238,7 +240,17 @@ func _receive_initial_info(id: int, character_type: int, username: String):
 	"""Called on server with all info needed to spawn a player."""
 	if not multiplayer.is_server():
 		return
-	
+
+	# Authority: the client echoes back its own peer id, but never trust it —
+	# verify against the transport sender (the host's local call reports 0) so a
+	# modded client can't spoof another peer's id to corrupt/relocate that
+	# player's character or crash this handler on an unknown id.
+	var sender_id := multiplayer.get_remote_sender_id()
+	if sender_id == 0:
+		sender_id = 1
+	if id != sender_id:
+		return
+
 	#print("PlayerManager: Server received character: %s & username: %s from PID: %d" % [Constants.ClassType.find_key(character_type), username, id])
 	NetworkUtils.log_network_event("PLAYER_IDENTIFIED", "Peer %d -> character '%s' (%s)" % [id, username, Constants.ClassType.find_key(character_type)])
 
@@ -255,8 +267,9 @@ func _receive_initial_info(id: int, character_type: int, username: String):
 	if spawn_map.is_empty():
 		spawn_map = MapManager.DEFAULT_MAP
 	
-	active_players[id]["last_map"] = spawn_map
-	
+	if id in active_players:
+		active_players[id]["last_map"] = spawn_map
+
 	# Request map spawn through MapManager
 	# For the host (player 1) we await so initialization continues immediately.
 	if id == 1 and multiplayer.is_server():

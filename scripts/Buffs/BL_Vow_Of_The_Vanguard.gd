@@ -4,12 +4,10 @@ var stats_percent: int = 1
 var source_ability_level: int = 1 
 
 func on_apply(_owner_node: Node, _active_buff) -> void:
-	print("Vowof THe Vanguard (Level %d) activated on %s! Stats increased by %.0f%%" % 
-		[source_ability_level, _owner_node.name, stats_percent])
-		
+	pass
 
 func on_remove(_owner_node: Node, _active_buff) -> void:
-	print("Vowof THe Vanguard expired on %s" % _owner_node.name)
+	pass
 
 
 func on_tick(_owner_node: Node, _active_buff, _delta: float) -> void:

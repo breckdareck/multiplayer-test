@@ -311,6 +311,10 @@ func physics_update(delta: float) -> State:
 			player.do_attack = false
 		if player.do_jump:
 			player.do_jump = false
+		# Consume do_drop too, so a drop set during an air-attack doesn't leak to
+		# the next landing and drop the player through the platform.
+		if player.do_drop:
+			player.do_drop = false
 
 		# Channel — honor an early release after the minimum hold.
 		# HOLD zones: cut the registered zone short + stop the state timer so

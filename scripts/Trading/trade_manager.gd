@@ -543,6 +543,13 @@ func _transfer_trade_item(player_id: int, target_id: int, slot_index: int, givin
 	if not is_instance_valid(player_node) or not is_instance_valid(target_node):
 		return
 
+	# Bound the transfer to the game world: the player and the bot must be on the
+	# same map. Without this, get_player_node resolves across ALL maps, letting a
+	# client strip or dump items on any bot server-wide. (Bots roam, so we gate on
+	# map rather than the strict player<->player TRADE_RANGE — see _start_bot_trade.)
+	if MapManager.get_player_map(player_id) != MapManager.get_player_map(target_id):
+		return
+
 	var player_inv: InventoryComponent = player_node.inventory_component
 	var target_inv: InventoryComponent = target_node.inventory_component
 	if not is_instance_valid(player_inv) or not is_instance_valid(target_inv):

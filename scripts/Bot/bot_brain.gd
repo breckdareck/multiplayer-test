@@ -1439,11 +1439,11 @@ func _try_use_consumable() -> void:
 	var need_health := false
 	var need_mana := false
 
-	if is_instance_valid(player.health_component):
+	if is_instance_valid(player.health_component) and player.health_component.max_health > 0:
 		var health_pct := float(player.health_component.current_health) / float(player.health_component.max_health)
 		need_health = health_pct < HEALTH_POTION_THRESHOLD
 
-	if is_instance_valid(player.mana_component):
+	if is_instance_valid(player.mana_component) and player.mana_component.max_mana > 0:
 		var mana_pct := float(player.mana_component.current_mana) / float(player.mana_component.max_mana)
 		need_mana = mana_pct < MANA_POTION_THRESHOLD
 

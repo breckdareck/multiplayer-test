@@ -660,6 +660,7 @@ region_rect = Rect2(160, 179, 23, 13)
 position = Vector2(0, -8)
 shape = SubResource("RectangleShape2D_fik1o")
 one_way_collision = true
+one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
 [node name="CratePlatform2" type="StaticBody2D" parent="Platforms"]
@@ -678,6 +679,7 @@ region_rect = Rect2(160, 179, 23, 13)
 position = Vector2(0, -8)
 shape = SubResource("RectangleShape2D_ylsnt")
 one_way_collision = true
+one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
 [node name="CratePlatform3" type="StaticBody2D" parent="Platforms"]
@@ -696,6 +698,7 @@ region_rect = Rect2(160, 179, 23, 13)
 position = Vector2(0, -8)
 shape = SubResource("RectangleShape2D_ylsnt")
 one_way_collision = true
+one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
 [node name="CratePlatform5" type="StaticBody2D" parent="Platforms"]
@@ -714,6 +717,7 @@ region_rect = Rect2(160, 179, 23, 13)
 position = Vector2(0, -8)
 shape = SubResource("RectangleShape2D_ylsnt")
 one_way_collision = true
+one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
 [node name="CratePlatform6" type="StaticBody2D" parent="Platforms"]
@@ -732,6 +736,7 @@ region_rect = Rect2(160, 179, 23, 13)
 position = Vector2(0, -8)
 shape = SubResource("RectangleShape2D_ylsnt")
 one_way_collision = true
+one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
 [node name="CratePlatform7" type="StaticBody2D" parent="Platforms"]
@@ -750,6 +755,7 @@ region_rect = Rect2(160, 179, 23, 13)
 position = Vector2(0, -8)
 shape = SubResource("RectangleShape2D_ylsnt")
 one_way_collision = true
+one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
 [node name="CratePlatform8" type="StaticBody2D" parent="Platforms"]
@@ -768,6 +774,7 @@ region_rect = Rect2(160, 179, 23, 13)
 position = Vector2(0, -8)
 shape = SubResource("RectangleShape2D_ylsnt")
 one_way_collision = true
+one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
 [node name="CratePlatform9" type="StaticBody2D" parent="Platforms"]
@@ -786,6 +793,7 @@ region_rect = Rect2(160, 179, 23, 13)
 position = Vector2(0, -8)
 shape = SubResource("RectangleShape2D_ylsnt")
 one_way_collision = true
+one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
 [node name="CratePlatform10" type="StaticBody2D" parent="Platforms"]
@@ -804,6 +812,7 @@ region_rect = Rect2(160, 179, 23, 13)
 position = Vector2(0, -8)
 shape = SubResource("RectangleShape2D_ylsnt")
 one_way_collision = true
+one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
 [node name="CratePlatform11" type="StaticBody2D" parent="Platforms"]
@@ -822,6 +831,7 @@ region_rect = Rect2(160, 179, 23, 13)
 position = Vector2(0, -8)
 shape = SubResource("RectangleShape2D_ylsnt")
 one_way_collision = true
+one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
 [node name="CratePlatform12" type="StaticBody2D" parent="Platforms"]
@@ -840,6 +850,7 @@ region_rect = Rect2(160, 179, 23, 13)
 position = Vector2(0, -8)
 shape = SubResource("RectangleShape2D_ylsnt")
 one_way_collision = true
+one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
 [node name="CratePlatform13" type="StaticBody2D" parent="Platforms"]
@@ -858,6 +869,7 @@ region_rect = Rect2(160, 179, 23, 13)
 position = Vector2(0, -8)
 shape = SubResource("RectangleShape2D_ylsnt")
 one_way_collision = true
+one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
 [node name="CratePlatform4" type="StaticBody2D" parent="Platforms"]
@@ -876,6 +888,7 @@ region_rect = Rect2(160, 179, 23, 13)
 position = Vector2(0, -8)
 shape = SubResource("RectangleShape2D_ylsnt")
 one_way_collision = true
+one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
 [node name="CratePlatform14" type="StaticBody2D" parent="Platforms"]
@@ -894,6 +907,7 @@ region_rect = Rect2(160, 179, 23, 13)
 position = Vector2(0, -8)
 shape = SubResource("RectangleShape2D_ylsnt")
 one_way_collision = true
+one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
 [node name="CratePlatform15" type="StaticBody2D" parent="Platforms"]
@@ -912,6 +926,7 @@ region_rect = Rect2(160, 179, 23, 13)
 position = Vector2(0, -8)
 shape = SubResource("RectangleShape2D_ylsnt")
 one_way_collision = true
+one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
 [node name="CratePlatform16" type="StaticBody2D" parent="Platforms"]
@@ -930,6 +945,7 @@ region_rect = Rect2(160, 179, 23, 13)
 position = Vector2(0, -7)
 shape = SubResource("RectangleShape2D_ylsnt")
 one_way_collision = true
+one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
 [node name="Platform" type="StaticBody2D" parent="Platforms"]
@@ -949,6 +965,7 @@ position = Vector2(-9.1552734e-05, -5.714284)
 scale = Vector2(0.99999976, 0.99999976)
 shape = SubResource("RectangleShape2D_nlgqw")
 one_way_collision = true
+one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
 [node name="Platform2" type="StaticBody2D" parent="Platforms"]
@@ -968,6 +985,7 @@ position = Vector2(-9.1552734e-05, -5.714284)
 scale = Vector2(0.99999976, 0.99999976)
 shape = SubResource("RectangleShape2D_nlgqw")
 one_way_collision = true
+one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
 [node name="Platform3" type="StaticBody2D" parent="Platforms"]
@@ -987,6 +1005,7 @@ position = Vector2(-9.1552734e-05, -5.714284)
 scale = Vector2(0.99999976, 0.99999976)
 shape = SubResource("RectangleShape2D_nlgqw")
 one_way_collision = true
+one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
 [node name="Platform4" type="StaticBody2D" parent="Platforms"]
@@ -1006,6 +1025,7 @@ position = Vector2(-9.1552734e-05, -5.714284)
 scale = Vector2(0.99999976, 0.99999976)
 shape = SubResource("RectangleShape2D_nlgqw")
 one_way_collision = true
+one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
 [node name="Platform5" type="StaticBody2D" parent="Platforms"]
@@ -1025,6 +1045,7 @@ position = Vector2(-9.1552734e-05, -5.714284)
 scale = Vector2(0.99999976, 0.99999976)
 shape = SubResource("RectangleShape2D_nlgqw")
 one_way_collision = true
+one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
 [node name="StallRoof" type="StaticBody2D" parent="Platforms"]
@@ -1043,6 +1064,7 @@ position = Vector2(-9.1552734e-05, -5.714284)
 scale = Vector2(0.99999976, 0.99999976)
 polygon = PackedVector2Array(-25.714203, -4.285721, 47.14296, -2.8571472, 70.00011, 4.285713, 70.00011, 7.142853, 47.14296, 0, -25.714203, -1.4285736)
 one_way_collision = true
+one_way_collision_margin = 32.0
 
 [node name="Ladders" type="Node2D" parent="."]
 

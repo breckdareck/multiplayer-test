@@ -3,9 +3,7 @@ extends State
 @export var idle_state: State
 @export var fall_state: State
 @export var jump_state: State
-@export var slide_state: State
 @export var attack_state: State
-@export var crouch_state: State
 @export var climb_state: State
 
 func enter() -> void:

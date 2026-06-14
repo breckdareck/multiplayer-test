@@ -27,7 +27,6 @@
 [ext_resource type="Script" uid="uid://c6oi0ebtiwt7l" path="res://scripts/Player/StateMachine/move.gd" id="20_4xm4e"]
 [ext_resource type="Script" uid="uid://vfu8l4cq1qt1" path="res://scripts/Player/StateMachine/jump.gd" id="21_v6vns"]
 [ext_resource type="Script" uid="uid://bfh8yeyv2wu0g" path="res://scripts/Player/StateMachine/death.gd" id="22_eiysd"]
-[ext_resource type="Script" uid="uid://bvunkdne8wduc" path="res://scripts/Player/StateMachine/hit.gd" id="23_03slv"]
 [ext_resource type="Script" uid="uid://tnuxo6lbsuxq" path="res://scripts/Player/StateMachine/climb.gd" id="23_climb_gd"]
 [ext_resource type="FontVariation" uid="uid://bpwl38ly8lvyj" path="res://assets/fonts/DamageNumbersFontVariation.tres" id="27_7iww4"]
 [ext_resource type="SpriteFrames" uid="uid://c05dyrlp5i5bj" path="res://resources/Player/SpriteFrames/Swordsman.tres" id="27_e8txv"]
@@ -666,11 +665,6 @@ move_speed = 100.0
 script = ExtResource("22_eiysd")
 respawn_state = NodePath("../idle")
 animation_name = "death"
-move_speed = 100.0
-
-[node name="hit" type="Node" parent="StateMachine"]
-script = ExtResource("23_03slv")
-animation_name = "hit"
 move_speed = 100.0
 
 [node name="climb" type="Node" parent="StateMachine" node_paths=PackedStringArray("idle_state", "fall_state")]

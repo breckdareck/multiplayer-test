@@ -6,12 +6,11 @@ extends Node
 var absorption_rate: float = 0.5
 var source_ability_level: int = 1
 
-func on_apply(owner_node: Node, _active_buff) -> void:
-	print("Aether Ward (Level %d) activated on %s! Absorbs %.0f%% of damage as mana" % [
-		source_ability_level, owner_node.name, absorption_rate * 100.0])
+func on_apply(_owner_node: Node, _active_buff) -> void:
+	pass
 
-func on_remove(owner_node: Node, _active_buff) -> void:
-	print("Aether Ward expired on %s" % owner_node.name)
+func on_remove(_owner_node: Node, _active_buff) -> void:
+	pass
 
 func on_tick(_owner_node: Node, _active_buff, _delta: float) -> void:
 	pass

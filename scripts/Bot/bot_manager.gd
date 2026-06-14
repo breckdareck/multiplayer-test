@@ -1702,8 +1702,8 @@ func set_debug_draw_layer(layer: String, value: bool) -> void:
 
 
 ## Debug: builds the platform-navigation graph for a bot's current map and
-## reports its size, plus a sample path from the bot to a portal. The graph is
-## not yet wired into bot movement — this is for inspecting stage-1 output.
+## reports its size, plus a sample path from the bot to a portal. The same graph
+## drives live bot movement (bot_navigator.gd); this command inspects it.
 func _handle_navgraph_command(args: Array) -> String:
 	if args.is_empty():
 		return "Usage: /bot navgraph <name|id>"

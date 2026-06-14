@@ -108,14 +108,26 @@ static func consume_tag(target: Node, tag: String) -> int:
 	if target == null or not is_instance_valid(target):
 		return 0
 	var removed: int = 0
+	var max_restore_speed: float = -1.0
 	for key in _keys_for(target, tag):
 		var stacks: int = _live_stacks(target, key)
 		if stacks <= 0:
 			continue
 		removed += stacks
 		if tag == TAG_CHILL:
-			_restore_chill(target, key)
+			# Each chill source stored the speed AT ITS apply time, so nested chills
+			# hold progressively-slower values. The HIGHEST saved speed is closest to
+			# the true pre-chill base; restore to that ONCE (a per-key restore would
+			# let the most-nested value win and leave the enemy stuck slowed).
+			var v = target.get_meta(key)
+			if (v is float or v is int) and float(v) > max_restore_speed:
+				max_restore_speed = float(v)
 		target.remove_meta(key)
+	if tag == TAG_CHILL and max_restore_speed >= 0.0 and "movement_speed" in target:
+		target.movement_speed = max_restore_speed
+		var sprite = target.get("animated_sprite")
+		if sprite != null and is_instance_valid(sprite):
+			sprite.modulate = Color.WHITE
 	return removed
 
 
@@ -146,16 +158,6 @@ static func _live_stacks(target: Node, key: String) -> int:
 		target.remove_meta(key)
 		return 0
 	return 1
-
-
-static func _restore_chill(target: Node, key: String) -> void:
-	var value = target.get_meta(key)
-	if value is float or value is int:
-		if "movement_speed" in target:
-			target.movement_speed = float(value)
-	var sprite = target.get("animated_sprite")
-	if sprite != null and is_instance_valid(sprite):
-		sprite.modulate = Color.WHITE
 
 
 static func _check_escalations(target: Node, tag: String, meta_key: String, applier: Node) -> void:
@@ -209,15 +211,22 @@ static func _thermal_shock(target: Node, applier: Node) -> void:
 
 
 ## The just-applied poison ticks SEPTIC_MULT harder while the enemy bleeds.
-## Applied to this application only (refreshes re-evaluate naturally).
+## Appliers reset per_tick to base immediately BEFORE calling register(), so the
+## amplification is recomputed from that fresh base on every application — gating
+## it on the `septic` flag (the old behaviour) stranded the bonus after the first
+## refresh, because the flag persisted while per_tick had been reset to base. The
+## flag now only suppresses the repeat popup, never the amplification.
 static func _septic(target: Node, poison_key: String) -> void:
 	if not target.has_meta(poison_key):
 		return
 	var state = target.get_meta(poison_key)
-	if state is Dictionary and not state.get("septic", false):
-		state["per_tick"] = maxi(1, roundi(float(int(state.get("per_tick", 1))) * SEPTIC_MULT))
-		state["septic"] = true
-		target.set_meta(poison_key, state)
+	if not (state is Dictionary):
+		return
+	state["per_tick"] = maxi(1, roundi(float(int(state.get("per_tick", 1))) * SEPTIC_MULT))
+	var already_septic: bool = state.get("septic", false)
+	state["septic"] = true
+	target.set_meta(poison_key, state)
+	if not already_septic:
 		EventJuice.proc(target, "SEPTIC", EventJuice.COLOR_SEPTIC,
 			EventJuice.SFX_SEPTIC, "poison_impact")
 

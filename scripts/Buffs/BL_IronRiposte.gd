@@ -8,12 +8,10 @@ var reflect_percentage: float = 12.0  # Can be set dynamically
 var source_ability_level: int = 1     # Track what level cast it
 
 func on_apply(_owner_node: Node, _active_buff) -> void:
-	print("Iron Riposte (Level %d) activated on %s! Reflects %.0f%% damage" % 
-		[source_ability_level, _owner_node.name, reflect_percentage])
-		
+	pass
 
 func on_remove(_owner_node: Node, _active_buff) -> void:
-	print("Iron Riposte expired on %s" % _owner_node.name)
+	pass
 
 
 func on_tick(_owner_node: Node, _active_buff, _delta: float) -> void:
@@ -24,17 +22,10 @@ func on_tick(_owner_node: Node, _active_buff, _delta: float) -> void:
 func on_damaged(owner_node: Node, active_buff, damage_amount: int, source: Node) -> void:
 	if not source:
 		return
-	
-	
-	#print("Recieved Dmg Amount: %d" % damage_amount)
-	#print("Iron Riposte: On Damaged %d%% " % round(reflect_percentage))
-	
-	
+
 	# Calculate reflected damage
 	var reflected_damage: int = roundi(damage_amount * (round(reflect_percentage) / 100.0) * active_buff.stacks)
-	
-	#print("Reflected Dmg: %d" % reflected_damage)
-	
+
 	# Cap reflected damage at half of attacker's max HP
 	var attacker_health_comp = source.get("health_component")
 	if attacker_health_comp and "max_health" in attacker_health_comp:
@@ -43,6 +34,5 @@ func on_damaged(owner_node: Node, active_buff, damage_amount: int, source: Node)
 	
 	# Apply reflected damage back to the attacker
 	if reflected_damage > 0 and attacker_health_comp:
-		#print("Iron Riposte reflects %d damage back to %s!" % [reflected_damage, source.name])
 		attacker_health_comp.take_damage(reflected_damage, owner_node, true)
 		EventJuice.proc(source, "RIPOSTE %d" % reflected_damage, EventJuice.COLOR_COUNTER)

@@ -57,6 +57,10 @@ func enter() -> void:
 		return
 	_attack = enemy.get_pending_special_attack()
 	if _attack == null:
+		# Remote clients: the server-only _pending_special_attack is null, so resolve
+		# the windup from the attack index the server synced just before this state.
+		_attack = enemy.get_client_special_attack()
+	if _attack == null:
 		return
 
 	_hit_time = maxf(0.05, _attack.hit_time)

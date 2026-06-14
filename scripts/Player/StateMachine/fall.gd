@@ -44,6 +44,11 @@ func physics_update(delta: float) -> State:
 	# This prevents actions from being unintentionally queued until the player lands.
 	if player.do_jump:
 		player.do_jump = false
+	# do_drop set mid-air (Jump while holding Down) must also be consumed, or it
+	# leaks to the first grounded frame and drops the player through the platform
+	# they just landed on.
+	if player.do_drop:
+		player.do_drop = false
 
 	# Transition to ground states upon landing
 	if parent.is_on_floor():

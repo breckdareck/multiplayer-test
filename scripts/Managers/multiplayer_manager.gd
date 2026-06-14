@@ -118,16 +118,27 @@ func leave_to_main_menu() -> void:
 	await reset_data()
 	# Free the live game world (maps + networked entities) — mirrors the cleanup
 	# in _handle_server_disconnect, which reset_data omits.
+	# Free the live game world (maps + networked entities) — mirrors the cleanup
+	# in _handle_server_disconnect, which reset_data omits.
+	free_game_world()
+	get_tree().change_scene_to_file("res://scenes/UI/LoginScreen.tscn")
+
+
+## Frees the live game world — every networked entity, the persistent local-player
+## UI layer (ADR 0009 Stage B), and the root "Maps" container — so the next
+## session/channel starts clean. Shared by disconnect, leave-to-menu, and
+## channel-switch (which previously open-coded this, and the channel switch
+## omitted it entirely, leaking the old server's world into the new connection).
+## Safe to call when no world is present.
+func free_game_world() -> void:
 	for node in get_tree().get_nodes_in_group("networked_entities"):
 		if is_instance_valid(node):
 			node.queue_free()
-	# Frees the persistent local-player UI layer too (ADR 0009 Stage B).
 	MapManager.reset_client_state()
 	var maps_container = get_tree().root.get_node_or_null("Maps")
 	if is_instance_valid(maps_container):
 		get_tree().root.remove_child(maps_container)
 		maps_container.free()
-	get_tree().change_scene_to_file("res://scenes/UI/LoginScreen.tscn")
 
 # === EVENT HANDLERS ===
 func _on_server_started():
@@ -186,14 +197,8 @@ func _handle_server_disconnect():
 	AudioManager.stop_song()
 
 	# Free all networked entities and maps
-	for node in get_tree().get_nodes_in_group("networked_entities"):
-		node.queue_free()
 	PlayerManager.cleanup()
-	MapManager.reset_client_state()
-	var maps_container = get_tree().root.get_node_or_null("Maps")
-	if maps_container:
-		get_tree().root.remove_child(maps_container)
-		maps_container.free()
+	free_game_world()
 
 	#print("MultiplayerManager: Connection lost — %s" % reason)
 	_show_connection_lost_popup(reason, ip, port)
